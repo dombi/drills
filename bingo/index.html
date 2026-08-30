@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Szorzótábla Bingó</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="fej">
+    <div class="fej-bal"><a class="vissza" href="../index.html" title="Vissza a kaszinóba">🎰</a><h1>🎱 Szorzótábla Bingó</h1></div>
+    <div class="fej-jobb">
+      <span class="cimke">Tábla:</span>
+      <div id="tabla-sor" class="tabla-sor"></div>
+    </div>
+  </header>
+
+  <main class="szinpad">
+    <div class="terem">
+      <!-- függönyök -->
+      <div class="fuggony fuggony-bal"></div>
+      <div class="fuggony fuggony-jobb"></div>
+      <div class="reflektor"></div>
+
+      <div class="porond">
+        <!-- A JÁTÉKVEZETŐ -->
+        <div class="hoszt" id="hoszt">
+          <div id="buborek" class="buborek">
+            <span class="buborek-cim">A játékvezető mondja:</span>
+            <b id="hivas">–</b>
+          </div>
+          <svg viewBox="0 0 220 230" aria-hidden="true">
+            <!-- törzs: vörös frakk -->
+            <path d="M62 230 Q62 148 110 140 Q158 148 158 230 Z" fill="#a01d2e"/>
+            <path d="M88 230 Q88 158 110 150 Q132 158 132 230 Z" fill="#faf6ec"/>
+            <circle cx="110" cy="172" r="2.6" fill="#e8c96a"/>
+            <circle cx="110" cy="186" r="2.6" fill="#e8c96a"/>
+            <circle cx="110" cy="200" r="2.6" fill="#e8c96a"/>
+            <!-- csokornyakkendő -->
+            <path d="M110 152 L95 144 L95 160 Z" fill="#1d2430"/>
+            <path d="M110 152 L125 144 L125 160 Z" fill="#1d2430"/>
+            <circle cx="110" cy="152" r="4" fill="#0e141d"/>
+            <!-- bal kar: mikrofon -->
+            <path d="M70 165 Q42 150 34 122" fill="none" stroke="#a01d2e" stroke-width="15" stroke-linecap="round"/>
+            <circle cx="32" cy="116" r="8" fill="#f2c9a0"/>
+            <rect x="24" y="86" width="14" height="26" rx="6" fill="#4a5568" transform="rotate(-14 31 99)"/>
+            <circle cx="34" cy="84" r="12" fill="#2b3442"/>
+            <circle cx="34" cy="84" r="12" fill="none" stroke="#5b6a80" stroke-width="2" stroke-dasharray="2 3"/>
+            <!-- jobb kar: a gömb felé mutat -->
+            <path d="M150 165 Q180 158 198 142" fill="none" stroke="#a01d2e" stroke-width="15" stroke-linecap="round"/>
+            <circle cx="202" cy="139" r="8" fill="#f2c9a0"/>
+            <!-- fej -->
+            <ellipse cx="110" cy="102" rx="37" ry="39" fill="#f2c9a0"/>
+            <!-- cilinder (a fejére ültetve) -->
+            <rect x="76" y="56" width="68" height="12" rx="6" fill="#1d2430"/>
+            <rect x="86" y="24" width="48" height="38" rx="6" fill="#1d2430"/>
+            <rect x="86" y="48" width="48" height="8" fill="#a01d2e"/>
+            <!-- arcok -->
+            <g class="arc-normal">
+              <ellipse cx="97" cy="100" rx="4.6" ry="6" fill="#2b1c12"/>
+              <ellipse cx="123" cy="100" rx="4.6" ry="6" fill="#2b1c12"/>
+              <circle cx="98.5" cy="98" r="1.7" fill="#fff"/>
+              <circle cx="124.5" cy="98" r="1.7" fill="#fff"/>
+              <path d="M99 122 Q110 130 121 122" fill="none" stroke="#2b1c12" stroke-width="2.6" stroke-linecap="round"/>
+            </g>
+            <g class="arc-orul">
+              <path d="M91 100 Q97 92 103 100" fill="none" stroke="#2b1c12" stroke-width="3" stroke-linecap="round"/>
+              <path d="M117 100 Q123 92 129 100" fill="none" stroke="#2b1c12" stroke-width="3" stroke-linecap="round"/>
+              <path d="M97 119 Q110 134 123 119 Z" fill="#5c1f1f"/>
+            </g>
+            <g class="arc-oo">
+              <ellipse cx="97" cy="100" rx="5.5" ry="7.5" fill="#2b1c12"/>
+              <ellipse cx="123" cy="100" rx="5.5" ry="7.5" fill="#2b1c12"/>
+              <circle cx="99" cy="97" r="2" fill="#fff"/>
+              <circle cx="125" cy="97" r="2" fill="#fff"/>
+              <path d="M88 88 Q97 84 104 89" fill="none" stroke="#2b1c12" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M132 88 Q123 84 116 89" fill="none" stroke="#2b1c12" stroke-width="2.6" stroke-linecap="round"/>
+              <ellipse cx="110" cy="124" rx="6" ry="8" fill="#5c1f1f"/>
+            </g>
+            <g class="arc-morcos">
+              <path d="M89 92 L105 98" stroke="#2b1c12" stroke-width="3.4" stroke-linecap="round"/>
+              <path d="M131 92 L115 98" stroke="#2b1c12" stroke-width="3.4" stroke-linecap="round"/>
+              <path d="M93 103 L103 103" stroke="#2b1c12" stroke-width="3.6" stroke-linecap="round"/>
+              <path d="M117 103 L127 103" stroke="#2b1c12" stroke-width="3.6" stroke-linecap="round"/>
+              <path d="M101 126 Q110 118 119 126" fill="none" stroke="#2b1c12" stroke-width="2.8" stroke-linecap="round"/>
+              <circle cx="88" cy="114" r="5" fill="#e08a8a" opacity=".7"/>
+              <circle cx="132" cy="114" r="5" fill="#e08a8a" opacity=".7"/>
+              <path d="M146 78 q8 -6 6 -14" fill="none" stroke="#c9c9c9" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+            </g>
+            <g class="arc-nevet">
+              <path d="M90 100 Q97 91 104 100" fill="none" stroke="#2b1c12" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M116 100 Q123 91 130 100" fill="none" stroke="#2b1c12" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M95 118 Q110 136 125 118 Z" fill="#5c1f1f"/>
+              <path d="M103 125 Q110 131 117 125 Z" fill="#e07a7a"/>
+            </g>
+            <!-- tapsoló kezek (dicséretnél jelennek meg) -->
+            <g class="taps">
+              <rect x="76" y="168" width="16" height="12" rx="4" fill="#a01d2e"/>
+              <rect x="128" y="168" width="16" height="12" rx="4" fill="#a01d2e"/>
+              <g class="taps-bal">
+                <ellipse cx="94" cy="176" rx="10" ry="13" fill="#f2c9a0" transform="rotate(18 94 176)"/>
+              </g>
+              <g class="taps-jobb">
+                <ellipse cx="126" cy="176" rx="10" ry="13" fill="#f2c9a0" transform="rotate(-18 126 176)"/>
+              </g>
+              <g class="taps-csik">
+                <path d="M104 156 L108 162" stroke="#ffd76b" stroke-width="3" stroke-linecap="round"/>
+                <path d="M110 154 L110 161" stroke="#ffd76b" stroke-width="3" stroke-linecap="round"/>
+                <path d="M116 156 L112 162" stroke="#ffd76b" stroke-width="3" stroke-linecap="round"/>
+              </g>
+            </g>
+            <!-- pödrött bajusz (mindig) -->
+            <path d="M92 113 Q101 108 110 113 Q119 108 128 113 Q133 108 136 102" fill="none" stroke="#2b2118" stroke-width="4" stroke-linecap="round"/>
+            <path d="M92 113 Q87 108 84 102" fill="none" stroke="#2b2118" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <!-- SORSOLÓGÖMB -->
+        <div class="gomb" id="gomb">
+          <svg viewBox="0 0 160 190" aria-hidden="true">
+            <!-- állvány -->
+            <rect x="70" y="150" width="20" height="24" fill="#7a5c28"/>
+            <rect x="42" y="172" width="76" height="10" rx="5" fill="#7a5c28"/>
+            <!-- gömb -->
+            <circle cx="80" cy="86" r="60" fill="rgba(190,220,255,.14)" stroke="#c9a227" stroke-width="4"/>
+            <ellipse cx="80" cy="86" rx="60" ry="24" fill="none" stroke="#c9a227" stroke-width="2" opacity=".6"/>
+            <ellipse cx="80" cy="86" rx="24" ry="60" fill="none" stroke="#c9a227" stroke-width="2" opacity=".6"/>
+            <!-- golyók -->
+            <g class="golyok">
+              <circle cx="60" cy="102" r="11" fill="#e05a5a"/>
+              <circle cx="86" cy="112" r="11" fill="#5aa2e0"/>
+              <circle cx="104" cy="96" r="11" fill="#67c283"/>
+              <circle cx="72" cy="80" r="11" fill="#e0b23a"/>
+              <circle cx="94" cy="70" r="11" fill="#b07ad0"/>
+            </g>
+            <!-- kurbli -->
+            <path d="M140 86 L154 86 L154 68" fill="none" stroke="#7a5c28" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="154" cy="64" r="6" fill="#c9a227"/>
+          </svg>
+          <!-- a kigurult golyó a bemondott szorzással -->
+          <div id="golyo" class="golyo rejtett"><span id="golyo-szoveg"></span></div>
+        </div>
+      </div>
+
+      <!-- státusz-sor -->
+      <div class="statusz">
+        <span class="zseton">⏱ <b id="ora">0:00</b></span>
+        <span class="zseton">Bemondás: <b id="halad">0/10</b></span>
+        <span class="zseton">Hibák: <b id="hibak">0</b></span>
+        <span class="zseton zseton-rekord" id="rekord"></span>
+      </div>
+
+      <!-- A BINGÓSZELVÉNY -->
+      <div class="szelveny-keret">
+        <div class="szelveny">
+          <div class="szelveny-fejlec">★ BINGÓ ★ <span id="szelveny-cim"></span></div>
+          <div id="racs" class="racs"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="uzenet" class="uzenet"></div>
+
+  <footer class="lab">
+    <button id="btn-uj" class="btn">✨ Új szelvény</button>
+  </footer>
+
+  <div id="vege" class="vege rejtett">
+    <div class="vege-lap">
+      <div class="vege-emoji">🎉</div>
+      <h2>BINGÓ!</h2>
+      <p id="vege-szoveg"></p>
+      <button id="btn-ujra" class="btn btn-nagy">Új szelvény</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

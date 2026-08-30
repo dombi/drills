@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bontás-Mahjong</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="fej">
+    <div class="fej-bal"><a class="vissza" href="../index.html" title="Vissza a kaszinóba">🎰</a><h1>🀄 Bontás-Mahjong</h1></div>
+    <div class="fej-jobb">
+      <span class="cimke">Főszám:</span>
+      <div id="foszam-sor" class="foszam-sor"></div>
+    </div>
+  </header>
+
+  <div class="cel-sor">
+    Vegyél le két követ, aminek az összege <b id="cel-szam"></b>!
+    <span class="ido-sor">⏱ <b id="ido"></b><span id="rekord" class="rekord"></span></span>
+  </div>
+
+  <main class="asztal-keret">
+    <div id="asztal" class="asztal"></div>
+  </main>
+
+  <div id="uzenet" class="uzenet"></div>
+
+  <footer class="lab">
+    <div class="bontasok">
+      <span class="cimke">Megtalált bontások:</span>
+      <span id="bontas-lista"></span>
+    </div>
+    <div class="gombok">
+      <button id="btn-segit" class="btn">💡 Segítség</button>
+      <button id="btn-kever" class="btn">🔀 Keverés</button>
+      <button id="btn-uj" class="btn">✨ Új játék</button>
+    </div>
+  </footer>
+
+  <div id="gyozelem" class="gyozelem rejtett">
+    <div class="gyozelem-lap">
+      <div class="gyozelem-emoji">🎉</div>
+      <h2>Megcsináltad!</h2>
+      <p id="gyozelem-szoveg"></p>
+      <button id="btn-ujra" class="btn btn-nagy">Új játék</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

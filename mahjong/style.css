@@ -1,0 +1,135 @@
+/* Bontás-Mahjong — POC. Meleg asztal, elefántcsont kövek, bambusz-pálcikák. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 30%, #2e5d3f 0%, #1d3f2a 70%, #14301f 100%);
+  color: #f3ead7;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.fej {
+  width: 100%; max-width: 900px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 10px; padding: 16px 20px 6px;
+}
+h1 { font-size: 1.5rem; }
+.cimke { color: #bcd4c2; font-size: .9rem; margin-right: 6px; }
+
+.foszam-sor { display: inline-flex; gap: 6px; }
+.foszam {
+  width: 40px; height: 40px; border-radius: 10px; border: 2px solid transparent;
+  background: #2a4d37; color: #f3ead7; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer;
+}
+.foszam-on { background: #f3ead7; color: #1d3f2a; border-color: #e8c96a; }
+
+.cel-sor { padding: 6px 20px 14px; font-size: 1.1rem; text-align: center; }
+.cel-sor b { color: #ffd76b; font-size: 1.3rem; }
+.ido-sor { margin-left: 18px; font-variant-numeric: tabular-nums; }
+.ido-sor b { font-size: 1.1rem; }
+.rekord { color: #bcd4c2; font-size: .95rem; }
+.uj-rekord { color: #c8873a; font-weight: 800; }
+
+.asztal-keret {
+  padding: 14px 18px 24px;
+  overflow-x: auto; max-width: 100%;
+}
+.asztal { position: relative; margin: 0 auto; }
+
+/* ---- a kő ---- */
+.ko {
+  position: absolute; width: 66px; height: 88px;
+  border-radius: 9px; border: 0; cursor: pointer; padding: 6px 4px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: linear-gradient(160deg, #fdf6e3 0%, #f0e2c4 70%, #dcc9a0 100%);
+  box-shadow:
+    -3px 3px 0 #b9a274,        /* a kő "vastagsága" */
+    -6px 6px 10px rgba(0, 0, 0, .45);
+  transition: transform .12s;
+}
+.ko-szabad:hover { transform: translateY(-3px); }
+.ko-fedett { filter: brightness(.72) saturate(.85); cursor: default; }
+.ko-kijelolt {
+  outline: 3px solid #ffd76b; outline-offset: 2px;
+  transform: translateY(-4px);
+}
+.ko-tipp { outline: 3px dashed #7de8b4; outline-offset: 2px; }
+.ko-razas { animation: razas .3s; }
+@keyframes razas {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }
+}
+
+.ko-szam {
+  font-size: 1.5rem; font-weight: 800; color: #1d3f2a; line-height: 1.1;
+}
+.ko-palcikak {
+  flex: 1; display: flex; flex-wrap: wrap; gap: 3px;
+  align-content: flex-start; justify-content: center;
+  width: 100%; padding: 2px 4px;
+}
+.palcika {
+  display: block; width: 7px; height: 17px; border-radius: 3px;
+  background: linear-gradient(#3f7d4e, #2a5d38);
+  border: 1px solid #1d4527;
+}
+.ures { color: #b9a274; font-size: .75rem; font-style: italic; align-self: center; }
+
+/* ---- üzenet ---- */
+.uzenet {
+  min-height: 1.6em; font-size: 1.1rem; font-weight: 600;
+  opacity: 0; transition: opacity .2s; text-align: center; padding: 0 16px;
+}
+.uzenet.lathato { opacity: 1; }
+.uzenet-ok { color: #7de8b4; }
+
+/* ---- lábléc ---- */
+.lab {
+  width: 100%; max-width: 900px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px; padding: 12px 20px 28px;
+}
+.bontas {
+  display: inline-block; background: #2a4d37; border-radius: 8px;
+  padding: 3px 9px; margin: 2px; font-weight: 700; color: #ffd76b;
+}
+.bontas-ures { color: #bcd4c2; font-style: italic; }
+.gombok { display: flex; gap: 8px; }
+.btn {
+  border: 0; border-radius: 12px; padding: 10px 16px; cursor: pointer;
+  background: #2a4d37; color: #f3ead7; font-size: 1rem;
+}
+.btn:active { transform: scale(.97); }
+.btn-nagy { background: #ffd76b; color: #1d3f2a; font-weight: 700; font-size: 1.15rem; padding: 14px 26px; }
+
+/* ---- győzelem ---- */
+.gyozelem {
+  position: fixed; inset: 0; background: rgba(10, 25, 16, .8);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.gyozelem.rejtett { display: none; }
+.gyozelem-lap {
+  background: #fdf6e3; color: #1d3f2a; border-radius: 20px;
+  padding: 32px 40px; text-align: center; max-width: 26em; margin: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+.gyozelem-emoji { font-size: 3.5rem; }
+.gyozelem-lap h2 { margin: 8px 0; }
+.gyozelem-lap p { line-height: 1.6; margin-bottom: 18px; }
+
+@media (max-width: 560px) {
+  h1 { font-size: 1.2rem; }
+  .lab { justify-content: center; }
+}
+
+/* vissza a kaszinóba */
+.fej-bal { display: flex; align-items: center; gap: 10px; }
+.vissza {
+  text-decoration: none; font-size: 1.3rem; line-height: 1;
+  padding: 7px 9px; border-radius: 10px;
+  background: rgba(0, 0, 0, .25); border: 1.5px dashed rgba(232, 201, 106, .55);
+  transition: transform .12s;
+}
+.vissza:hover { transform: scale(1.1); }

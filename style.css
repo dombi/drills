@@ -1,0 +1,156 @@
+/* ============================================================================
+ * Szám-Kaszinó — főképernyő (lobby): fénycsöves cégér, vörös szőnyeg,
+ * termek boltíves ajtókkal. Minden ajtó a saját terme színvilágát viseli.
+ * ========================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  min-height: 100vh;
+  background: #120a1c;
+  color: #f3ead7;
+  display: flex; flex-direction: column; align-items: center;
+  overflow-x: hidden;
+}
+
+/* ---- a megrajzolt kaszinó-terem háttér ---- */
+.hatter {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+}
+.csillar .lang { animation: gyertyafeny 2.8s ease-in-out infinite; }
+@keyframes gyertyafeny { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+.csillar .lang circle { filter: drop-shadow(0 0 10px rgba(255, 233, 168, .9)); }
+.villog { animation: villogas 1.1s steps(2) infinite; }
+.villog.v2 { animation-delay: .3s; }
+.villog.v3 { animation-delay: .55s; }
+.villog.v4 { animation-delay: .8s; }
+@keyframes villogas { 0% { opacity: 1; } 50% { opacity: .25; } 100% { opacity: 1; } }
+.kerek {
+  animation: kerekporog 22s linear infinite;
+  transform-box: fill-box; transform-origin: center;
+}
+@keyframes kerekporog { to { transform: rotate(360deg); } }
+.csillam { animation: hunyorog 2.4s ease-in-out infinite; }
+.csillam.c2 { animation-delay: .6s; }
+.csillam.c3 { animation-delay: 1.2s; }
+.csillam.c4 { animation-delay: 1.8s; }
+@keyframes hunyorog { 0%, 100% { opacity: .15; } 50% { opacity: .9; } }
+
+/* ---- cégér ---- */
+.ceger { padding: 26px 16px 8px; }
+.ceger-tabla {
+  position: relative;
+  background: linear-gradient(#3a1d2a, #2a1420);
+  border: 4px solid #c9a227;
+  border-radius: 18px;
+  padding: 18px 42px 14px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255, 215, 107, .25), 0 10px 30px rgba(0, 0, 0, .6);
+}
+.ceger h1 {
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  letter-spacing: 4px;
+  color: #ffd76b;
+  text-shadow: 0 0 14px rgba(255, 215, 107, .8), 0 0 34px rgba(255, 160, 60, .5);
+  animation: neonpulzus 2.6s ease-in-out infinite;
+}
+@keyframes neonpulzus {
+  0%, 100% { text-shadow: 0 0 14px rgba(255,215,107,.8), 0 0 34px rgba(255,160,60,.5); }
+  50% { text-shadow: 0 0 22px rgba(255,215,107,1), 0 0 50px rgba(255,160,60,.75); }
+}
+.ceger-al { color: #d8b9a0; font-style: italic; margin-top: 2px; }
+
+/* izzósorok a cégéren */
+.izzosor {
+  position: absolute; left: 14px; right: 14px; height: 8px;
+  background-image: radial-gradient(circle 3px, #ffe9a8 40%, transparent 45%);
+  background-size: 22px 8px; background-position: 0 50%;
+  animation: izzok 1s steps(2) infinite;
+}
+.izzosor-fent { top: 5px; }
+.izzosor-lent { bottom: 5px; }
+@keyframes izzok { to { background-position: 22px 50%; } }
+
+/* ---- szőnyeg ---- */
+.szonyeg {
+  width: min(560px, 82%);
+  height: 46px;
+  background: linear-gradient(#a01d2e, #7c1622);
+  clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 6px 14px rgba(0, 0, 0, .35);
+  margin: 6px 0 -6px;
+}
+
+/* ---- a termek ---- */
+.terem-sor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 255px));
+  justify-content: center;
+  gap: 22px;
+  padding: 26px 18px 30px;
+  width: 100%; max-width: 1180px;
+}
+
+.ajto {
+  --fal: #2a1420;         /* az ajtó belső színe — termenként felülírva */
+  --keret: #c9a227;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-decoration: none; color: #f3ead7;
+  padding: 58px 18px 18px;
+  border-radius: 130px 130px 16px 16px;   /* boltív */
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(255, 255, 255, .10), transparent 55%),
+    var(--fal);
+  border: 5px solid var(--keret);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .55), inset 0 0 40px rgba(0, 0, 0, .35);
+  transition: transform .15s, box-shadow .15s;
+}
+.ajto:hover {
+  transform: translateY(-7px) scale(1.02);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, .65), 0 0 30px rgba(255, 215, 107, .25),
+              inset 0 0 40px rgba(0, 0, 0, .3);
+}
+.ajto-iv {   /* boltív-dísz */
+  position: absolute; top: 10px; left: 14px; right: 14px; height: 90px;
+  border: 2px dashed rgba(255, 215, 107, .5);
+  border-bottom: 0;
+  border-radius: 110px 110px 0 0;
+  pointer-events: none;
+}
+.ajto-emoji { font-size: 3.2rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+.ajto-nev { font-size: 1.25rem; font-weight: 800; letter-spacing: .5px; }
+.ajto-lei { font-size: .88rem; color: #e8d9c2; text-align: center; line-height: 1.45; }
+.ajto-tabla {
+  margin-top: 6px;
+  background: rgba(0, 0, 0, .3);
+  border: 1.5px dashed var(--keret);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: .8rem; color: #ffd76b;
+}
+
+/* termenkénti színvilág — a saját termük hangulata */
+.ajto-mahjong { --fal: #1e5c38; }                    /* zöld posztó */
+.ajto-teritek { --fal: #4a1420; }                    /* bordó szalon */
+.ajto-bingo   { --fal: #2c1e4d; }                    /* lila színpad */
+.ajto-zart {
+  --fal: #241c28; --keret: #6a5a44;
+  cursor: default; opacity: .62;
+  filter: saturate(.6);
+}
+.ajto-zart:hover { transform: none; box-shadow: 0 12px 30px rgba(0,0,0,.55), inset 0 0 40px rgba(0,0,0,.35); }
+.ajto-zart .ajto-tabla { color: #c9b18a; }
+
+/* ---- lábléc ---- */
+.lab { padding: 4px 20px 30px; color: #b99f86; font-size: .92rem; text-align: center; }
+
+@media (max-width: 560px) {
+  .terem-sor { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  .ajto { padding: 44px 12px 14px; }
+  .ajto-emoji { font-size: 2.4rem; }
+  .ajto-nev { font-size: 1.05rem; }
+  .ajto-lei { font-size: .78rem; }
+}
