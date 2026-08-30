@@ -9,8 +9,11 @@ A főoldal a **Casino** — onnan nyílik minden terem:
 - 🀄 **Bontás-Mahjong** — számbontások (pl. a 7 összes bontása) mahjong-szabályokkal
 - 🃏 **Teríték** — az osztó mond egy számot, te megkeresed a lapokat hozzá (összeadás tízesátlépéssel)
 - 🎱 **Szorzótábla Bingó** — a porondmester bemondja a szorzást, te kiikszeled a szelvényen
+- 🦄 **Unikornis Centum** — végigvezeted az unikornist egy erdei ösvényen, és állomásonként
+  hangosan felmondod a számbontásokat / megoldod az összeadás-kivonást 100-ig. Csillámpor-jutalom,
+  bagoly-kabala, nyugodt tempó (nincs időnyomás). *(Chrome ajánlott a hangos válaszhoz.)*
 
-Minden játék méri az időt, és a gyerek a **saját rekordját** kergeti.
+A legtöbb játék méri az időt, és a gyerek a **saját rekordját** kergeti.
 
 ## Fejlesztőknek (nekünk)
 

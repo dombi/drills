@@ -136,6 +136,7 @@ body {
 .ajto-mahjong { --fal: #1e5c38; }                    /* zöld posztó */
 .ajto-teritek { --fal: #4a1420; }                    /* bordó szalon */
 .ajto-bingo   { --fal: #2c1e4d; }                    /* lila színpad */
+.ajto-unikornis { --fal: #3a2a6a; }                  /* pasztell mesevilág */
 .ajto-zart {
   --fal: #241c28; --keret: #6a5a44;
   cursor: default; opacity: .62;

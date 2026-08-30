@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>AmbitusNumerorum: Unicornis Centum</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <section id="kepernyo-profil" class="kepernyo aktiv">
+    <a href="../index.html" class="kaszino-vissza" title="Vissza a kaszinóba">🎰</a>
+    <h1 class="jatekcim">Unicornis Centum</h1>
+    <p class="alcim">Ki játszik most?</p>
+    <div id="profil-lista" class="profil-lista"></div>
+    <button id="profil-szuloi" class="szuloi-gomb sarok" data-hosszu>👪 Szülőknek</button>
+  </section>
+
+  <section id="kepernyo-fomenu" class="kepernyo">
+    <header class="fejlec">
+      <button class="fej-gomb" id="fomenu-vissza">🦄 Váltás</button>
+      <div class="fej-cim">Válassz ösvényt</div>
+      <div class="fej-jobb">
+        <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="fomenu-csillampor">0</b></span>
+        <button class="fej-gomb" id="fomenu-szuloi" data-hosszu>👪</button>
+      </div>
+    </header>
+    <div id="palya-racs" class="palya-racs"></div>
+    <p class="ma-statisztika" id="ma-statisztika"></p>
+  </section>
+
+  <section id="kepernyo-jatek" class="kepernyo">
+    <header class="fejlec">
+      <button class="fej-gomb" id="jatek-haza">🏠 Haza</button>
+      <div class="fej-cim" id="jatek-palyanev">Pálya</div>
+      <div class="fej-jobb">
+        <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="jatek-csillampor">0</b></span>
+      </div>
+    </header>
+
+    <div class="jatekter">
+      <div id="szinpad" class="szinpad"></div>
+
+      <div id="bagoly-mondat" class="bagoly-mondat" hidden></div>
+
+      <div id="bagoly-buborek" class="bagoly-buborek" hidden>
+        <div class="buborek-cim" id="buborek-cim" hidden></div>
+        <div class="buborek-feladat" id="buborek-feladat"></div>
+        <div id="felmond-lista" class="felmond-lista" hidden></div>
+        <div id="felmond-megvan" class="felmond-megvan" hidden></div>
+        <button class="halld-ujra" id="halld-ujra">🔊 Halld újra</button>
+      </div>
+
+      <div id="valaszter" class="valaszter">
+        <button id="kerulo-gomb" class="kerulo-gomb">🚶 Inkább a hosszú kerülő úton megyek</button>
+
+        <div id="valasz-egyenkent" class="valasz-panel">
+          <div class="haladas-pottyok" id="haladas-pottyok"></div>
+          <div id="visszajelzes" class="visszajelzes"></div>
+          <div id="hallgat-e" class="hallgat-jel" hidden>hallgatlak… <span class="hullamok"><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="valasz-gombsor">
+            <button id="mondom-gomb" class="nagy-gomb mikrofon">🎤 Mondom a megoldást</button>
+            <button id="beiras-valt" class="kis-gomb">⌨ Inkább beírom</button>
+          </div>
+          <button id="tovabb-megoldas-nelkul" class="tovabb-link">tovább megoldás nélkül →</button>
+        </div>
+
+        <div id="valasz-felmondas" class="valasz-panel" hidden>
+          <div id="visszajelzes-f" class="visszajelzes"></div>
+          <div id="hallgat-f" class="hallgat-jel" hidden>hallgatlak… <span class="hullamok"><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="valasz-gombsor">
+            <button id="halld-ujra-f" class="kis-gomb">🔊 Halld újra</button>
+            <button id="mondom-bontas-gomb" class="nagy-gomb mikrofon">🎤 Mondom a bontását</button>
+            <button id="bontas-beiras" class="kis-gomb">⌨ Beírom lépésenként</button>
+          </div>
+          <button id="bontas-kesz-gomb" class="tovabb-link" hidden>koppints, ha befejezted</button>
+          <div id="bontas-lepes" class="bontas-lepes" hidden></div>
+          <button id="tovabb-megoldas-nelkul-f" class="tovabb-link">tovább megoldás nélkül →</button>
+        </div>
+
+        <div id="beiro-kijelzo" class="beiro-kijelzo" hidden></div>
+        <div id="szambillentyuzet" class="szambillentyuzet" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kepernyo-vege" class="kepernyo">
+    <div id="konfetti" class="konfetti"></div>
+    <div class="vege-kartya">
+      <h2>Megérkeztél!</h2>
+      <div class="szilank-nagy">🌟</div>
+      <p id="vege-szoveg" class="vege-szoveg"></p>
+      <div class="vege-gombok">
+        <button id="vege-fomenu" class="nagy-gomb">🏠 Főmenü</button>
+        <button id="vege-kovetkezo" class="nagy-gomb kiemelt">➡ Következő pálya</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="kepernyo-szuloi" class="kepernyo szuloi-nezet">
+    <header class="fejlec">
+      <button class="fej-gomb" id="szuloi-vissza">← Vissza</button>
+      <div class="fej-cim">Szülőknek</div>
+      <div class="fej-jobb"></div>
+    </header>
+    <div class="szuloi-tartalom">
+      <div class="szuloi-fulek" id="szuloi-fulek"></div>
+      <div id="szuloi-osszegzes" class="szuloi-blokk"></div>
+      <div id="szuloi-hibak" class="szuloi-blokk"></div>
+      <div class="szuloi-blokk beallitasok">
+        <h3>Beállítások</h3>
+        <label><input type="checkbox" id="beall-hang" checked /> Hang bekapcsolva</label>
+        <label>Alap válaszmód:
+          <select id="beall-valaszmod">
+            <option value="beszed">beszéd (mikrofon)</option>
+            <option value="beiras">beírás (számbillentyűzet)</option>
+          </select>
+        </label>
+        <label>Becenév: <input type="text" id="beall-becenev" maxlength="16" placeholder="(a lény neve)" /></label>
+        <button id="beall-naplo-torles" class="kis-gomb piros">Napló törlése (csak ez a gyerek)</button>
+        <p class="beszed-tamogatas" id="beszed-tamogatas"></p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
