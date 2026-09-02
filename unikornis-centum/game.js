@@ -644,20 +644,46 @@ function ertekel(valasz) {
     ment();
   }
 }
+/* A bontás felmondás ellenőrzése — rugalmas.
+   Elfogadja: "0 meg 3", "0 meg 3 az 3", "0 plusz 3 egyenlő 3" stb. — a kötőszó és az
+   "egyenlő/az" mindegy, csak a SZÁMOK számítanak. Az összeget (N) ki lehet mondani vagy
+   el lehet hagyni, pároknál vegyesen is. Sorrend: lentről fölfelé (0-tól). */
+function felmondEllenoriz(nums, N) {
+  var idx = 0;
+  for (var i = 0; i <= N; i++) {
+    if (nums[idx] !== i) return { ok: false, parok: i };
+    idx++;
+    if (nums[idx] !== N - i) return { ok: false, parok: i };
+    idx++;
+    if (i < N) {
+      // kimondott összeg(ek) átugrása; ha a következő pár első tagja épp N,
+      // hagyunk egyet a következő párnak
+      var kovElsoTagN = (i + 1 === N);
+      while (idx < nums.length && nums[idx] === N) {
+        if (kovElsoTagN) {
+          var hatraN = 0, j = idx;
+          while (j < nums.length && nums[j] === N) { hatraN++; j++; }
+          if (hatraN <= 1) break;
+        }
+        idx++;
+      }
+    }
+  }
+  return { ok: true, parok: N + 1 };
+}
 function felmondErtekel(altList) {
-  var N = J.feladat.N, elvart = J.feladat.lapos, legjobb = 0;
+  var N = J.feladat.N, legjobbParok = 0, siker = false;
   altList.forEach(function (sz) {
-    var nums = szamokKinyer(sz), egyezes = 0;
-    for (var i = 0; i < elvart.length && i < nums.length; i++) { if (nums[i] === elvart[i]) egyezes++; else break; }
-    if (egyezes > legjobb) legjobb = egyezes;
+    var r = felmondEllenoriz(szamokKinyer(sz), N);
+    if (r.ok) siker = true;
+    if (r.parok > legjobbParok) legjobbParok = r.parok;
   });
   $("hallgat-f").hidden = true;
 
-  // Az EGÉSZ felmondást egyszerre értékeljük.
-  if (legjobb >= elvart.length) { felmondSiker(); return; }
+  if (siker) { felmondSiker(); return; }
 
   J.probak++;
-  var jutott = Math.floor(legjobb / 2);      // hány pár volt jó a felmondás elejéről
+  var jutott = Math.min(legjobbParok, N);    // hány pár volt jó a felmondás elejéről
   J.parokKesz = jutott;                       // csak visszajelzésnek, nem gyűlik
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = true;
   renderFelmondLista(jutott);
@@ -959,7 +985,7 @@ document.addEventListener("pointerdown", function egyszer() {
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
-  ertekel: ertekel, felmondErtekel: felmondErtekel, palyaInditas: palyaInditas,
+  ertekel: ertekel, felmondErtekel: felmondErtekel, felmondEllenoriz: felmondEllenoriz, palyaInditas: palyaInditas,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo
 };
 

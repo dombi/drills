@@ -74,3 +74,15 @@
   A kártya végig "Mondd el a ③ összes bontását!" marad; a gyerek egyben elmondja az egészet.
 - Egy sikertelen próba után a kártya alatt megjelenik a pár-lista zölddel (meddig jutott),
   és a "Mondd el újra az egészet, lentről kezdve" üzenet — a következő próba elölről indul.
+
+### bontás-felmondás: rugalmas felismerés
+
+Elfogadott formák (N példa: 3):
+- kötőszó mindegy: "nulla **meg** három" / "nulla **plusz** három" / "nulla **és** három" / "0 + 3"
+- "egyenlő" és "az" mindegy, átugorja
+- az **összeget ki lehet mondani vagy el lehet hagyni**, pároknál vegyesen is:
+  "nulla meg három **az három**, egy meg kettő, kettő meg egy az három, …"
+- számok szóval vagy számjeggyel ("három" vagy "3")
+- sorrend: **lentről fölfelé** (0-val kezdve) – ez kötelező
+
+Elutasítja: kihagyott pár, rossz szám, rossz sorrend.
