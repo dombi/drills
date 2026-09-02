@@ -546,17 +546,6 @@ function ujFeladat() {
   mondd(f.felolvas);
 }
 /* bontás: átváltás a VÁLASZ (hallgatás) állapotra */
-function bontasValaszAllapot() {
-  var N = J.feladat.N;
-  $("buborek-feladat").hidden = true;
-  $("buborek-cim").hidden = false;
-  $("buborek-cim").innerHTML = 'Mondd el a <b>' + N + '</b> egész bontását, lentről kezdve';
-  $("felmond-lista").hidden = false;
-  $("felmond-megvan").hidden = false;
-  $("bontas-kesz-gomb").hidden = true;
-  renderFelmondLista(J.parokKesz);
-  frissitMegvan();
-}
 function frissitMegvan() {
   var N = J.feladat.N, ossz = N + 1, kesz = J.parokKesz, p = "";
   for (var i = 0; i < ossz; i++) p += '<i class="' + (i < kesz ? "zold" : "") + '"></i>';
@@ -670,8 +659,8 @@ function felmondErtekel(altList) {
   J.probak++;
   var jutott = Math.floor(legjobb / 2);      // hány pár volt jó a felmondás elejéről
   J.parokKesz = jutott;                       // csak visszajelzésnek, nem gyűlik
+  $("felmond-lista").hidden = false; $("felmond-megvan").hidden = true;
   renderFelmondLista(jutott);
-  frissitMegvan();
   naplozz(J.feladat.naplo, false, "hiányos felmondás");
   $("visszajelzes-f").className = "visszajelzes rossz";
   if (J.probak >= 2) {
@@ -694,7 +683,8 @@ function felmondSiker() {
   P().csillampor += jar; J.futoCsilla += jar;
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   J.parokKesz = J.feladat.N + 1;
-  renderFelmondLista(J.parokKesz); frissitMegvan();
+  $("felmond-lista").hidden = false; $("felmond-megvan").hidden = true;
+  renderFelmondLista(J.parokKesz);
   bagolyMondat("Szuper! Kész! 🌟");
   $("visszajelzes-f").className = "visszajelzes jo";
   $("visszajelzes-f").textContent = "Kész a bontás!  (+" + jar + " ✨)";
@@ -885,7 +875,12 @@ function mikrofonInd() {
   var felm = J.feladat.csalad === "felmondas";
   var g = felm ? $("mondom-bontas-gomb") : $("mondom-gomb");
   var hj = felm ? $("hallgat-f") : $("hallgat-e");
-  if (felm) { J.parokKesz = 0; bontasValaszAllapot(); }
+  if (felm) {
+    J.parokKesz = 0;
+    $("felmond-lista").hidden = true; $("felmond-lista").innerHTML = "";
+    $("felmond-megvan").hidden = true;
+    $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+  }
   g.classList.add("figyel"); g.textContent = "🎤 Hallgatlak…";
   hj.hidden = false;
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -928,13 +923,6 @@ function esemenyek() {
   $("mondom-bontas-gomb").addEventListener("click", mikrofonInd);
   $("halld-ujra").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
   $("halld-ujra-f").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
-  $("bontas-kesz-gomb").addEventListener("click", function () {
-    if (!J || !J.feladat) return;
-    hangGomb();
-    var N = J.feladat.N;
-    if (J.parokKesz > N) { felmondSiker(); return; }
-    mondd("Még hiányzik: " + szo(J.parokKesz) + " meg " + szo(N - J.parokKesz) + ". Mondd tovább, vagy írd be lépésenként.");
-  });
   $("beiras-valt").addEventListener("click", function () {
     hangGomb();
     mentes.valaszmod = (mentes.valaszmod === "beiras") ? "beszed" : "beiras";
@@ -972,7 +960,6 @@ document.addEventListener("pointerdown", function egyszer() {
 window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, palyaInditas: palyaInditas,
-  bontasValaszAllapot: bontasValaszAllapot,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo
 };
 

@@ -67,3 +67,10 @@
 - A lista-kinézet marad: mutatja a cél-párokat, és egy sikertelen próba után zölddel, hogy
   meddig jutott — de a következő próbánál elölről kell kezdeni ("Mondd el az egészet újra,
   lentről kezdve"). 2 sikertelen próba után jön a lépésenkénti beírás.
+
+### javítás
+
+- A "Mondom a bontását" gomb **nem alakítja át a kérdéskártyát** külön "hallgatás" nézetté.
+  A kártya végig "Mondd el a ③ összes bontását!" marad; a gyerek egyben elmondja az egészet.
+- Egy sikertelen próba után a kártya alatt megjelenik a pár-lista zölddel (meddig jutott),
+  és a "Mondd el újra az egészet, lentről kezdve" üzenet — a következő próba elölről indul.
