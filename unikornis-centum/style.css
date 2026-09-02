@@ -267,3 +267,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .golyo-keplet{ font-weight:800; font-size:17px; color:#5a3a7a; font-variant-numeric:tabular-nums; }
 .golyo-pipa{ color:#7bbf6a; font-weight:800; font-size:18px; }
 .pipa-hatra{ display:flex; gap:8px; margin-top:2px; }
+
+/* a golyós lista a végén sorban pukkan be (animation-delay-jel) */
+.golyo-sor.uj{ animation:golyo-be .4s backwards; }

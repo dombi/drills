@@ -397,14 +397,24 @@ function bontasEloChunk(altList) {
   }
 }
 
-/* A kimondott sorok golyós ábrával KINT MARADNAK (golyóhuzogatós):
-   2+4=6 → 2 piros + 4 kék golyó egy rúdon, mellette a képlet és a pipa.
-   A még hátralévő sorok csak üres, szaggatott karikák (a tartalom a fejben van). */
+/* Felmondás KÖZBEN csak pipák látszanak (a tartalom a fejben van) —
+   a golyós lista a legvégén jelenik meg, jutalomként. */
 function renderPipaSor() {
   var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
+  var sor = el("div", "pipa-hatra");
+  for (var i = 0; i <= FB.N; i++)
+    sor.appendChild(el("span", "pipa-hely" + (i < FB.sor ? " kesz" : "")));
+  box.appendChild(sor);
+}
+
+/* A VÉGÉN: az összes bontás golyóhuzogatós ábrával (2+4=6 → 2 piros + 4 kék
+   golyó a rúdon), képlettel és pipával. */
+function renderGolyoLista() {
+  var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
   var N = FB.N;
-  for (var i = 0; i < FB.sor && i <= N; i++) {
-    var sorEl = el("div", "golyo-sor" + (i === FB.sor - 1 ? " uj" : ""));
+  for (var i = 0; i <= N; i++) {
+    var sorEl = el("div", "golyo-sor uj");
+    sorEl.style.animationDelay = (i * 90) + "ms";
     var g = "";
     for (var p = 0; p < i; p++) g += '<i class="golyo piros"></i>';
     for (var k = 0; k < N - i; k++) g += '<i class="golyo kek"></i>';
@@ -413,11 +423,6 @@ function renderPipaSor() {
       '<span class="golyo-keplet">' + i + ' + ' + (N - i) + ' = ' + N + '</span>' +
       '<span class="golyo-pipa">✓</span>';
     box.appendChild(sorEl);
-  }
-  if (FB.sor <= N) {
-    var hatra = el("div", "pipa-hatra");
-    for (var h = FB.sor; h <= N; h++) hatra.appendChild(el("span", "pipa-hely"));
-    box.appendChild(hatra);
   }
 }
 
@@ -466,8 +471,8 @@ function bontasEloElhallgat() {
 
 function bontasEloSiker() {
   bontasEloElhallgat();
-  renderPipaSor();                       /* az összes golyó-sor kint marad */
   felmondSiker();
+  renderGolyoLista();                    /* a végén: a teljes golyós lista, jutalomként */
   $("felmond-lista").hidden = true;      /* a golyós lista marad, nem a szöveges */
   $("pipa-sor").hidden = false;
 }

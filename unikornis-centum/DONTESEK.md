@@ -111,3 +111,7 @@ zsugorítva, hanem **kint maradnak golyóhuzogatós ábrával**: a 2+4=6 két pi
 A még hátralévő sorok továbbra is csak üres, szaggatott karikák — azok
 tartalmát fejben kell tartani (a memória-elem marad, csak a már teljesített
 sorok láthatók).
+
+**Pontosítás (ugyanaznap):** a golyós sorok NEM felmondás közben jelennek
+meg, hanem csak a legvégén, jutalomként, sorban egymás után bepukkanva.
+Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
