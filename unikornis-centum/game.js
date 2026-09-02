@@ -340,12 +340,35 @@ function bontasEloFogyaszt(sor, puffer, N) {
   return { sor: sor, puffer: puffer, uj: uj, hiba: hiba };
 }
 
+/* A felismerő az "öt meg egy"-et gyakran "ötvenegy"-nek (51) hallja, a
+   "hat meg nulla"-t "hatvan"-nak. Ebben a feladatban 10-nél nagyobb szám nem
+   hangozhat el legitim módon → minden 10 feletti számból szétbontott jelöltet
+   is képzünk (51 → 5,1; 60 → 6,0 vagy 6), és a pontozó választ. */
+function szetbont(szamok, nullaval) {
+  var out = [];
+  szamok.forEach(function (v) {
+    if (v > 10) {
+      out.push(Math.floor(v / 10));
+      var e = v % 10;
+      if (e > 0 || nullaval) out.push(e);
+    } else out.push(v);
+  });
+  return out;
+}
+
 function bontasEloChunk(altList) {
   if (!FB.aktiv) return;
-  var N = FB.N, legjobb = null;
+  var N = FB.N, legjobb = null, jeloltek = [];
   altList.forEach(function (sz) {
-    var szamok = szamokKinyer(sz);
-    if (!szamok.length && legjobb) return;
+    var n = szamokKinyer(sz);
+    if (!n.length) return;
+    jeloltek.push(n);
+    if (n.some(function (v) { return v > 10; })) {
+      jeloltek.push(szetbont(n, true));
+      jeloltek.push(szetbont(n, false));
+    }
+  });
+  jeloltek.forEach(function (szamok) {
     var proba = bontasEloFogyaszt(FB.sor, FB.puffer.concat(szamok), N);
     var pont = proba.uj * 10 + (proba.hiba ? 0 : 5);   /* több kész sor > hibátlanság */
     if (!legjobb || pont > legjobb.pont) { legjobb = proba; legjobb.pont = pont; }
