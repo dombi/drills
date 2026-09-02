@@ -397,10 +397,28 @@ function bontasEloChunk(altList) {
   }
 }
 
+/* A kimondott sorok golyós ábrával KINT MARADNAK (golyóhuzogatós):
+   2+4=6 → 2 piros + 4 kék golyó egy rúdon, mellette a képlet és a pipa.
+   A még hátralévő sorok csak üres, szaggatott karikák (a tartalom a fejben van). */
 function renderPipaSor() {
   var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
-  for (var i = 0; i <= FB.N; i++)
-    box.appendChild(el("span", "pipa-hely" + (i < FB.sor ? " kesz" : "")));
+  var N = FB.N;
+  for (var i = 0; i < FB.sor && i <= N; i++) {
+    var sorEl = el("div", "golyo-sor" + (i === FB.sor - 1 ? " uj" : ""));
+    var g = "";
+    for (var p = 0; p < i; p++) g += '<i class="golyo piros"></i>';
+    for (var k = 0; k < N - i; k++) g += '<i class="golyo kek"></i>';
+    sorEl.innerHTML =
+      '<span class="golyok">' + g + '</span>' +
+      '<span class="golyo-keplet">' + i + ' + ' + (N - i) + ' = ' + N + '</span>' +
+      '<span class="golyo-pipa">✓</span>';
+    box.appendChild(sorEl);
+  }
+  if (FB.sor <= N) {
+    var hatra = el("div", "pipa-hatra");
+    for (var h = FB.sor; h <= N; h++) hatra.appendChild(el("span", "pipa-hely"));
+    box.appendChild(hatra);
+  }
 }
 
 function inaktivUjra() {
@@ -448,8 +466,10 @@ function bontasEloElhallgat() {
 
 function bontasEloSiker() {
   bontasEloElhallgat();
-  $("pipa-sor").hidden = true;
+  renderPipaSor();                       /* az összes golyó-sor kint marad */
   felmondSiker();
+  $("felmond-lista").hidden = true;      /* a golyós lista marad, nem a szöveges */
+  $("pipa-sor").hidden = false;
 }
 
 /* a felmondás megszakadt (2 hiba, hosszú csend vagy „Kész vagyok" idő előtt) */

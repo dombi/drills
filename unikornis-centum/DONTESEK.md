@@ -102,3 +102,12 @@ Szabályok (változatlan): lentről fölfelé, összeg kimondható/elhagyható,
 kötőszavak nem számítanak. Új: a mikrofon-gomb hallgatás közben „⏹ Kész
 vagyok"-ra vált; rossz sor = rázás + bagoly-tipp (a jó pipák megmaradnak,
 onnan folytatható); 2 hiba vagy 2× hosszú csend után lépésenkénti mód.
+
+## 2026-09-02 — A kimondott sorok kint maradnak, golyós ábrával (Gergő kérése)
+
+Módosítás az előző döntésen: a jól kimondott sorok NEM tűnnek el pipává
+zsugorítva, hanem **kint maradnak golyóhuzogatós ábrával**: a 2+4=6 két piros
++ négy kék golyó egy rúdon, mellette a képlet (2 + 4 = 6) és a zöld pipa.
+A még hátralévő sorok továbbra is csak üres, szaggatott karikák — azok
+tartalmát fejben kell tartani (a memória-elem marad, csak a már teljesített
+sorok láthatók).
