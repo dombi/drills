@@ -59,3 +59,11 @@
   - **VÁLASZ (hallgatás):** a kártya **élő listává** alakul — a 3 bontásai külön sorokban: a kész párok **zöld pipával**, az aktív **sárgával kiemelve** ("…ezt mondd most"), a többi halványan; alatta **"X / N megvan"** + pöttyök; "hallgatlak…" jelzés hanghullámmal; "koppints, ha befejezted".
 - **A bagoly biztat** ("Szuper!") minden előrehaladásnál, és a helyes megoldáskor **"+✨" csillag repül a számláló felé**.
 - A háttér-színvilág és a felső sáv a képernyőtervhez igazítva.
+
+## 2026-08-31 (playtest 5 — bontás vissza egyben)
+
+- A számbontást megint **egyben, egy folyamatos felmondással** kell elmondani; a gép az EGÉSZ
+  felmondást egyszerre értékeli (nincs pár-onkénti gyűjtögetés, nincs "koppints, ha befejezted").
+- A lista-kinézet marad: mutatja a cél-párokat, és egy sikertelen próba után zölddel, hogy
+  meddig jutott — de a következő próbánál elölről kell kezdeni ("Mondd el az egészet újra,
+  lentről kezdve"). 2 sikertelen próba után jön a lépésenkénti beírás.

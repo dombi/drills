@@ -550,17 +550,18 @@ function bontasValaszAllapot() {
   var N = J.feladat.N;
   $("buborek-feladat").hidden = true;
   $("buborek-cim").hidden = false;
-  $("buborek-cim").innerHTML = 'Mondd a <b>' + N + '</b> bontásait';
+  $("buborek-cim").innerHTML = 'Mondd el a <b>' + N + '</b> egész bontását, lentről kezdve';
   $("felmond-lista").hidden = false;
   $("felmond-megvan").hidden = false;
-  $("bontas-kesz-gomb").hidden = false;
+  $("bontas-kesz-gomb").hidden = true;
   renderFelmondLista(J.parokKesz);
   frissitMegvan();
 }
 function frissitMegvan() {
   var N = J.feladat.N, ossz = N + 1, kesz = J.parokKesz, p = "";
-  for (var i = 0; i < ossz; i++) p += '<i class="' + (i < kesz ? "zold" : (i === kesz ? "arany" : "")) + '"></i>';
-  $("felmond-megvan").innerHTML = kesz + " / " + ossz + " megvan <span class=\"pontok\">" + p + "</span>";
+  for (var i = 0; i < ossz; i++) p += '<i class="' + (i < kesz ? "zold" : "") + '"></i>';
+  var szoveg = kesz > 0 ? ("eddig " + kesz + " / " + ossz + " pár jó volt") : (ossz + " pár – mondd el mind egyben");
+  $("felmond-megvan").innerHTML = szoveg + " <span class=\"pontok\">" + p + "</span>";
 }
 function bagolyMondat(txt) {
   var b = $("bagoly-mondat");
@@ -588,15 +589,16 @@ function renderPottyok() {
   for (var i = 0; i < J.feladatDb; i++)
     box.appendChild(el("span", "potty" + (i < J.feladatKesz ? " kesz" : (i === J.feladatKesz ? " most" : ""))));
 }
-function renderFelmondLista(sor) {
+function renderFelmondLista(sor, lepesMod) {
   var N = J.feladat.N, box = $("felmond-lista"); box.innerHTML = "";
   for (var i = 0; i <= N; i++) {
-    var st = i < sor ? "kesz" : (i === sor ? "most" : "jovo");
-    var jStil = (i === sor) ? ' style="opacity:.5"' : '';
+    var aktiv = lepesMod && i === sor;
+    var st = i < sor ? "kesz" : (aktiv ? "most" : "jovo");
+    var jStil = aktiv ? ' style="opacity:.5"' : '';
     var sorEl = el("div", "felmond-sor " + st);
     sorEl.innerHTML = '<span class="dob">' + i + '</span><span>+</span><span class="dob"' + jStil + '>' + (N - i) + '</span><span class="pipa"></span>';
     box.appendChild(sorEl);
-    if (i === sor && sor <= N) box.appendChild(el("div", "felmond-most-cim", "…ezt mondd most"));
+    if (aktiv && sor <= N) box.appendChild(el("div", "felmond-most-cim", "…ezt írd be"));
   }
 }
 function modBeallit() {
@@ -661,30 +663,26 @@ function felmondErtekel(altList) {
     if (egyezes > legjobb) legjobb = egyezes;
   });
   $("hallgat-f").hidden = true;
-  var ujKesz = Math.floor(legjobb / 2);
-  var haladt = ujKesz > J.parokKesz;
-  if (haladt) { J.parokKesz = ujKesz; hangCsilla(); }
-  renderFelmondLista(J.parokKesz);
-  frissitMegvan();
 
-  if (J.parokKesz > N) { felmondSiker(); return; }
+  // Az EGÉSZ felmondást egyszerre értékeljük.
+  if (legjobb >= elvart.length) { felmondSiker(); return; }
 
   J.probak++;
-  $("visszajelzes-f").className = "visszajelzes";
-  if (haladt) {
-    bagolyMondat("Szuper!");
-    $("visszajelzes-f").textContent = "";
-    mondd("Szuper! Most jön: " + szo(J.parokKesz) + " meg " + szo(N - J.parokKesz) + ".");
-  } else if (J.probak >= 3) {
-    naplozz(J.feladat.naplo, false, "hiányos felmondás");
-    $("visszajelzes-f").className = "visszajelzes rossz";
+  var jutott = Math.floor(legjobb / 2);      // hány pár volt jó a felmondás elejéről
+  J.parokKesz = jutott;                       // csak visszajelzésnek, nem gyűlik
+  renderFelmondLista(jutott);
+  frissitMegvan();
+  naplozz(J.feladat.naplo, false, "hiányos felmondás");
+  $("visszajelzes-f").className = "visszajelzes rossz";
+  if (J.probak >= 2) {
     $("visszajelzes-f").textContent = "Nézzük lépésenként!";
     mondd("Nézzük lépésenként. " + J.feladat.tipp, function () { bontasLepesNyit(); });
   } else {
     hangHiba();
-    $("visszajelzes-f").className = "visszajelzes rossz";
-    $("visszajelzes-f").textContent = "Mondd: " + J.parokKesz + " meg " + (N - J.parokKesz) + " …";
-    mondd("Mondd tovább: " + szo(J.parokKesz) + " meg " + szo(N - J.parokKesz) + ".");
+    $("visszajelzes-f").textContent = jutott > 0
+      ? ("Eddig jó volt " + jutott + " pár. Mondd el újra az egészet, lentről kezdve!")
+      : "Kezdd lentről: nulla meg " + N + ", egy meg " + (N - 1) + " …";
+    mondd("Majdnem! Mondd el az egész bontást még egyszer, lentről kezdve.");
   }
   ment();
 }
@@ -709,7 +707,7 @@ function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   $("mondom-bontas-gomb").style.display = "none";
   $("buborek-feladat").hidden = true;
-  $("buborek-cim").hidden = false; $("buborek-cim").innerHTML = 'Mondd a <b>' + J.feladat.N + '</b> bontásait';
+  $("buborek-cim").hidden = false; $("buborek-cim").innerHTML = 'A <b>' + J.feladat.N + '</b> bontásai – lépésenként';
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = false;
   $("bontas-lepes").hidden = false;
   J.lepesSor = Math.max(J.lepesSor || 0, J.parokKesz || 0);
@@ -719,7 +717,7 @@ function bontasLepesNyit() {
 function bontasLepesMutat() {
   var N = J.feladat.N, i = J.lepesSor;
   J.parokKesz = i;
-  renderFelmondLista(i);
+  renderFelmondLista(i, true);
   frissitMegvan();
   $("bontas-lepes").innerHTML = '<span class="dob">' + i + '</span><span>+</span><b>' + (J.beirt || "?") + '</b>';
   $("beiro-kijelzo").hidden = false;
@@ -887,12 +885,12 @@ function mikrofonInd() {
   var felm = J.feladat.csalad === "felmondas";
   var g = felm ? $("mondom-bontas-gomb") : $("mondom-gomb");
   var hj = felm ? $("hallgat-f") : $("hallgat-e");
-  if (felm) bontasValaszAllapot();
+  if (felm) { J.parokKesz = 0; bontasValaszAllapot(); }
   g.classList.add("figyel"); g.textContent = "🎤 Hallgatlak…";
   hj.hidden = false;
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelj(function (alt) {
-    g.classList.remove("figyel"); g.textContent = felm ? "🎤 Mondom tovább" : "🎤 Mondom a megoldást";
+    g.classList.remove("figyel"); g.textContent = felm ? "🎤 Mondom a bontását" : "🎤 Mondom a megoldást";
     hj.hidden = true;
     if (felm) felmondErtekel(alt);
     else {
@@ -901,7 +899,7 @@ function mikrofonInd() {
       else ertekel(n);
     }
   }, function (hiba) {
-    g.classList.remove("figyel"); g.textContent = felm ? "🎤 Mondom tovább" : "🎤 Mondom a megoldást";
+    g.classList.remove("figyel"); g.textContent = felm ? "🎤 Mondom a bontását" : "🎤 Mondom a megoldást";
     hj.hidden = true;
     var cel = felm ? "visszajelzes-f" : "visszajelzes";
     $(cel).className = "visszajelzes";
