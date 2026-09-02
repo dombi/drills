@@ -978,7 +978,10 @@ function felmondSiker() {
   csillagRepul($("bagoly-buborek"));
   setTimeout(function () { $("jatek-csillampor").textContent = P().csillampor; }, 500);
   J.feladatKesz++; ment();
-  setTimeout(function () { allomasKesz(); }, 1400);
+  /* NEM lépünk tovább magunktól: a golyós lista kint marad, most rögzül
+     vizuálisan — a gyerek akkor megy tovább, amikor kész. */
+  var tg = $("bontas-kesz-gomb");
+  tg.textContent = "Tovább →"; tg.hidden = false;
 }
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
@@ -1207,6 +1210,9 @@ function esemenyek() {
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });
   $("mondom-gomb").addEventListener("click", mikrofonInd);
   $("mondom-bontas-gomb").addEventListener("click", mikrofonInd);
+  $("bontas-kesz-gomb").addEventListener("click", function () {
+    hangGomb(); $("bontas-kesz-gomb").hidden = true; allomasKesz();
+  });
   $("halld-ujra").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
   $("halld-ujra-f").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
   $("beiras-valt").addEventListener("click", function () {
