@@ -282,7 +282,172 @@ function figyelj(siker, hiba) {
   felismero.onend = function () { clearTimeout(ido); if (!kaptunk) hiba && hiba("nincs-hang"); };
   try { felismero.start(); } catch (e) { hiba && hiba("start"); }
 }
-function figyelStop() { try { if (felismero) felismero.stop(); } catch (e) {} }
+function figyelStop() { FB.aktiv = false; clearTimeout(FB.timer); try { if (felismero) felismero.stop(); } catch (e) {} }
+
+/* ── ÉLŐ FELMONDÁS: folyamatos hallgatás, soronkénti pipa + csilingelés ──────
+   A gyerek egyben mondja a bontást, de a gép SORONKÉNT nyugtáz: minden jól
+   kimondott sor után zöld pipa pukkan + csilingelés. A sorok tartalma NEM
+   látszik (memóriajáték: fejben kell tartani, hol jár) — csak a pipák.     */
+var FB = { aktiv: false, sor: 0, puffer: [], N: 0, hibak: 0, nyugi: 0, timer: null };
+
+function figyeljElo(onChunk, onHiba) {
+  if (!SR) { onHiba && onHiba("nincs"); return; }
+  try { if (felismero) felismero.abort(); } catch (e) {}
+  felismero = new SR();
+  felismero.lang = "hu-HU"; felismero.interimResults = false;
+  felismero.maxAlternatives = 3; felismero.continuous = true;
+  felismero.onresult = function (ev) {
+    for (var r = ev.resultIndex; r < ev.results.length; r++) {
+      if (!ev.results[r].isFinal) continue;
+      var alt = []; for (var i = 0; i < ev.results[r].length; i++) alt.push(ev.results[r][i].transcript);
+      onChunk(alt);
+    }
+  };
+  felismero.onerror = function (ev) {
+    if (ev.error === "no-speech" || ev.error === "aborted") return; /* az onend újraindít */
+    onHiba && onHiba(ev.error);
+  };
+  /* a böngésző csendnél magától leáll — amíg a felmondás él, újraindítjuk */
+  felismero.onend = function () {
+    if (FB.aktiv) setTimeout(function () { if (FB.aktiv) { try { felismero.start(); } catch (e) {} } }, 180);
+  };
+  try { felismero.start(); } catch (e) { onHiba && onHiba("start"); }
+}
+
+/* Fogyasztó: a hallott számokat az elvárt sorrendhez illeszti.
+   Elvárt sorok: i + (N−i), i = 0…N, lentről; soronként opcionális kimondott
+   összeg (N). Visszaadja az új állapotot + hány ÚJ sor lett kész + hiba volt-e. */
+function bontasEloFogyaszt(sor, puffer, N) {
+  puffer = puffer.slice();
+  var uj = 0, hiba = false, megy = true;
+  while (megy) {
+    megy = false;
+    if (sor > N) { /* minden sor kész — már csak záró összeg jöhet */
+      while (puffer.length && puffer[0] === N) puffer.shift();
+      if (puffer.length) hiba = true;
+      break;
+    }
+    if (!puffer.length) break;
+    if (puffer[0] === sor) {
+      if (puffer.length < 2) break;                 /* várjuk a sor második tagját */
+      if (puffer[1] === N - sor) { puffer.shift(); puffer.shift(); sor++; uj++; megy = true; continue; }
+      if (sor === N && puffer[1] === N) { puffer.shift(); megy = true; continue; } /* ez az N még az előző sor összege volt */
+      hiba = true; break;
+    }
+    if (puffer[0] === N && sor > 0) { puffer.shift(); megy = true; continue; }     /* előző sor kimondott összege */
+    hiba = true; break;
+  }
+  return { sor: sor, puffer: puffer, uj: uj, hiba: hiba };
+}
+
+function bontasEloChunk(altList) {
+  if (!FB.aktiv) return;
+  var N = FB.N, legjobb = null;
+  altList.forEach(function (sz) {
+    var szamok = szamokKinyer(sz);
+    if (!szamok.length && legjobb) return;
+    var proba = bontasEloFogyaszt(FB.sor, FB.puffer.concat(szamok), N);
+    var pont = proba.uj * 10 + (proba.hiba ? 0 : 5);   /* több kész sor > hibátlanság */
+    if (!legjobb || pont > legjobb.pont) { legjobb = proba; legjobb.pont = pont; }
+  });
+  if (!legjobb) return;
+
+  if (legjobb.uj > 0) {
+    for (var k = 0; k < legjobb.uj; k++)
+      setTimeout(function () { hangCsilla(); }, k * 200);
+    FB.sor = legjobb.sor; FB.puffer = legjobb.puffer;
+    J.parokKesz = Math.min(FB.sor, N + 1);
+    renderPipaSor();
+    inaktivUjra();
+  }
+  if (FB.sor > N) { bontasEloSiker(); return; }
+  if (legjobb.hiba) {
+    FB.puffer = [];                                   /* a rossz próbálkozást eldobjuk */
+    FB.hibak++;
+    hangHiba();
+    var ps = $("pipa-sor");
+    ps.classList.remove("razas"); void ps.offsetWidth; ps.classList.add("razas");
+    if (FB.hibak >= 2) { bontasEloVege(); return; }
+    bagolyMondat("Hoppá! Lentről, sorban — onnan folytasd, ahol a pipák tartanak!");
+  } else if (legjobb.uj === 0) {
+    FB.puffer = legjobb.puffer;                       /* félbehagyott sor: várunk rá */
+  }
+}
+
+function renderPipaSor() {
+  var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
+  for (var i = 0; i <= FB.N; i++)
+    box.appendChild(el("span", "pipa-hely" + (i < FB.sor ? " kesz" : "")));
+}
+
+function inaktivUjra() {
+  clearTimeout(FB.timer);
+  FB.timer = setTimeout(function () {
+    if (!FB.aktiv) return;
+    FB.nyugi++;
+    if (FB.nyugi >= 2) { bontasEloVege(); return; }
+    bagolyMondat(FB.sor === 0
+      ? ("Kezdd lentről: nulla meg " + FB.N + "…")
+      : "Folytasd bátran — a pipák mutatják, hol tartasz!");
+    inaktivUjra();
+  }, 12000);
+}
+
+function bontasEloStart() {
+  FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, hibak: 0, nyugi: 0, timer: null };
+  J.parokKesz = 0;
+  var g = $("mondom-bontas-gomb");
+  g.classList.add("figyel"); g.textContent = "⏹ Kész vagyok";
+  $("hallgat-f").hidden = false;
+  $("felmond-lista").hidden = true; $("felmond-lista").innerHTML = "";
+  $("felmond-megvan").hidden = true;
+  $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+  renderPipaSor();
+  try { speechSynthesis.cancel(); } catch (e) {}     /* a felolvasást ne hallja a mikrofon */
+  inaktivUjra();
+  figyeljElo(bontasEloChunk, function (hiba) {
+    bontasEloElhallgat();
+    if (hiba === "nincs" || hiba === "not-allowed" || hiba === "service-not-allowed") {
+      beszedTamogatott = false; mentes.valaszmod = "beiras"; ment();
+      $("visszajelzes-f").textContent = "Most beírással játszunk.";
+      bontasLepesNyit();
+    } else { $("visszajelzes-f").textContent = "Nem hallottalak — próbáld újra a gombbal!"; }
+  });
+}
+
+function bontasEloElhallgat() {
+  FB.aktiv = false; clearTimeout(FB.timer);
+  try { if (felismero) felismero.abort(); } catch (e) {}
+  var g = $("mondom-bontas-gomb");
+  g.classList.remove("figyel"); g.textContent = "🎤 Mondom a bontását";
+  $("hallgat-f").hidden = true;
+}
+
+function bontasEloSiker() {
+  bontasEloElhallgat();
+  $("pipa-sor").hidden = true;
+  felmondSiker();
+}
+
+/* a felmondás megszakadt (2 hiba, hosszú csend vagy „Kész vagyok" idő előtt) */
+function bontasEloVege() {
+  bontasEloElhallgat();
+  if (FB.sor > FB.N) return;
+  J.probak++;
+  J.parokKesz = FB.sor;
+  $("visszajelzes-f").className = "visszajelzes rossz";
+  if (J.probak >= 2) {
+    $("pipa-sor").hidden = true;
+    $("visszajelzes-f").textContent = "Nézzük lépésenként!";
+    mondd("Nézzük lépésenként. " + J.feladat.tipp, function () { bontasLepesNyit(); });
+  } else {
+    $("visszajelzes-f").textContent = FB.sor > 0
+      ? ("Eddig " + FB.sor + " pipa megvan! Nyomd meg a gombot, és folytasd elölről!")
+      : ("Kezdd lentről: nulla meg " + FB.N + ", egy meg " + (FB.N - 1) + " …");
+    mondd("Majdnem! Próbáld újra, lentről kezdve.");
+  }
+  ment();
+}
 
 /* ============ 6) SVG ============ */
 var KOR = "#3a2f2a"; // körvonal
@@ -547,6 +712,8 @@ function ujFeladat() {
   $("buborek-feladat").innerHTML = f.kartyaHTML || kiiras(f.szoveg);
   $("felmond-lista").hidden = true; $("felmond-lista").innerHTML = "";
   $("felmond-megvan").hidden = true;
+  if (FB.aktiv) bontasEloElhallgat();
+  $("pipa-sor").hidden = true;
   $("hallgat-e").hidden = true; $("hallgat-f").hidden = true;
   $("bontas-kesz-gomb").hidden = true;
   $("valaszter").style.visibility = "visible";
@@ -945,14 +1112,13 @@ function hosszuNyomas(gomb, kesz) {
 }
 function mikrofonInd() {
   var felm = J.feladat.csalad === "felmondas";
-  var g = felm ? $("mondom-bontas-gomb") : $("mondom-gomb");
-  var hj = felm ? $("hallgat-f") : $("hallgat-e");
+  /* a bontás-felmondás ÉLŐ hallgatással megy: a gomb indít, majd „Kész vagyok"-ként zár */
   if (felm) {
-    J.parokKesz = 0;
-    $("felmond-lista").hidden = true; $("felmond-lista").innerHTML = "";
-    $("felmond-megvan").hidden = true;
-    $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+    if (FB.aktiv) bontasEloVege(); else bontasEloStart();
+    return;
   }
+  var g = $("mondom-gomb");
+  var hj = $("hallgat-e");
   g.classList.add("figyel"); g.textContent = "🎤 Hallgatlak…";
   hj.hidden = false;
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -1031,7 +1197,8 @@ document.addEventListener("pointerdown", function egyszer() {
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
-  ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk, palyaInditas: palyaInditas,
+  ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
+  bontasEloFogyaszt: bontasEloFogyaszt, palyaInditas: palyaInditas,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo
 };
 

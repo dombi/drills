@@ -86,3 +86,19 @@ Elfogadott formák (N példa: 3):
 - sorrend: **lentről fölfelé** (0-val kezdve) – ez kötelező
 
 Elutasítja: kihagyott pár, rossz szám, rossz sorrend.
+
+## 2026-09-02 — Élő, soronkénti felmondás (Gergő kérése)
+
+A bontás-felmondás mostantól ÉLŐ: a gép folyamatosan hallgat (nem egy 7 mp-es
+felvétel), és minden jól kimondott sor után azonnal **zöld pipa pukkan +
+csilingelés**. A sorok tartalma NEM jelenik meg közben — csak a pipák.
+
+**Miért:** memóriajáték is — a gyereknek fejben kell tartania, hol jár
+(az utolsó első számot), a pipa-sor csak azt mutatja, HÁNY sor van meg.
+A régi egy-felvételes mód ráadásul elvágta a hosszú felmondást (a böngésző
+az első szünetnél leállt) — ezért tűnt rossznak a felismerés.
+
+Szabályok (változatlan): lentről fölfelé, összeg kimondható/elhagyható,
+kötőszavak nem számítanak. Új: a mikrofon-gomb hallgatás közben „⏹ Kész
+vagyok"-ra vált; rossz sor = rázás + bagoly-tipp (a jó pipák megmaradnak,
+onnan folytatható); 2 hiba vagy 2× hosszú csend után lépésenkénti mód.
