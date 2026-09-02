@@ -227,16 +227,37 @@ function hangokBetolt() { try { var vs = speechSynthesis.getVoices(); huHang = v
 if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = hangokBetolt; }
 function mondd(szoveg, kesz) {
   bagolyAnimal(true);
-  if (!window.speechSynthesis || !mentes.hang) { setTimeout(function () { bagolyAnimal(false); if (kesz) kesz(); }, 350); return; }
+  var lefutott = false, orzo = null, fig = null;
+  function befejez() {
+    if (lefutott) return;
+    lefutott = true;
+    if (orzo) clearTimeout(orzo);
+    if (fig) clearInterval(fig);
+    bagolyAnimal(false);
+    if (kesz) kesz();
+  }
+  if (!window.speechSynthesis || !mentes.hang) { setTimeout(befejez, 350); return; }
   try {
     speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(szoveg);
     u.lang = "hu-HU"; u.rate = 0.95; u.pitch = 1.0;
     if (huHang) u.voice = huHang;
-    u.onend = function () { bagolyAnimal(false); if (kesz) kesz(); };
-    u.onerror = function () { bagolyAnimal(false); if (kesz) kesz(); };
+    u.onend = befejez;
+    u.onerror = befejez;
     speechSynthesis.speak(u);
-  } catch (e) { bagolyAnimal(false); if (kesz) kesz(); }
+    /* A Chrome sokszor nem süti el az onend-et (főleg cancel() után, vagy háttérfülnél),
+       ilyenkor a callback nélkül a játék végleg megállna. Ezért magát a speechSynthesis-t
+       figyeljük: ha elindult a beszéd, megvárjuk míg elhallgat; ha ~1,5 mp alatt el sem
+       indult (a bug egyik formája), továbblépünk; és van egy 12 mp-es végső határ is. */
+    var kezdet = Date.now(), beszeltMar = false;
+    fig = setInterval(function () {
+      var telt = Date.now() - kezdet;
+      if (speechSynthesis.speaking) beszeltMar = true;
+      var elhallgatott = beszeltMar && !speechSynthesis.speaking && !speechSynthesis.pending;
+      var elSemIndult = !beszeltMar && telt > 1500;
+      if (elhallgatott || elSemIndult || telt > 12000) befejez();
+    }, 200);
+  } catch (e) { befejez(); }
 }
 function bagolyAnimal(be) { var b = document.querySelector(".bagoly-figura"); if (b) b.classList.toggle("beszel", be); }
 
@@ -483,6 +504,7 @@ function unikornisOda(i, dur, kesz) {
   var ko = document.getElementById("mosti-ko");
   if (!u) { if (kesz) kesz(); return; }
   var x0 = curX, y0 = curY, x1 = allomasX(i), y1 = allomasY(i);
+  if (window.__UC_GYORS) { curX = x1; curY = y1; u.setAttribute("transform", "translate(" + x1 + "," + y1 + ")"); if (ko) { ko.setAttribute("cx", x1); ko.setAttribute("cy", y1 + 8); } if (kesz) setTimeout(kesz, 0); return; }
   var t0 = performance.now();
   function lep(now) {
     var t = Math.min(1, (now - t0) / dur);
