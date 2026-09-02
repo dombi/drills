@@ -270,3 +270,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 
 /* a golyós lista a végén sorban pukkan be (animation-delay-jel) */
 .golyo-sor.uj{ animation:golyo-be .4s backwards; }
+
+/* a felmondás végi "Tovább" — feltűnő, a gyerek dönt, mikor lép (rögzülés) */
+.tovabb-kesz{ margin-top:14px; background:#7bbf6a; }

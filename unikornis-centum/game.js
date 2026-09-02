@@ -981,7 +981,7 @@ function felmondSiker() {
   /* NEM lépünk tovább magunktól: a golyós lista kint marad, most rögzül
      vizuálisan — a gyerek akkor megy tovább, amikor kész. */
   var tg = $("bontas-kesz-gomb");
-  tg.textContent = "Tovább →"; tg.hidden = false;
+  tg.textContent = "Tovább →"; tg.className = "nagy-gomb tovabb-kesz"; tg.hidden = false;
 }
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
