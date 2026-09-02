@@ -109,8 +109,10 @@ function szamokKinyer(szoveg) {
     var w = tk[i];
     if (/^\d+$/.test(w)) { var v = parseInt(w, 10); if (v >= 0 && v <= 100) out.push(v); continue; }
     if (TIZES_SZO[w] != null) {
+      // "húsz egy" → 21 összevonás CSAK 20-tól: a "tíz egy" nem 11, hanem két külön
+      // szám (a bontás felmondásában gyakori: "…tíz, egy meg kilenc…").
       var nx = tk[i + 1];
-      if (nx && EGYES_SZO[nx] != null && EGYES_SZO[nx] > 0) { out.push(TIZES_SZO[w] + EGYES_SZO[nx]); i++; }
+      if (TIZES_SZO[w] >= 20 && nx && EGYES_SZO[nx] != null && EGYES_SZO[nx] > 0) { out.push(TIZES_SZO[w] + EGYES_SZO[nx]); i++; }
       else out.push(TIZES_SZO[w]);
       continue;
     }
@@ -666,46 +668,68 @@ function ertekel(valasz) {
     ment();
   }
 }
-/* A bontás felmondás ellenőrzése — rugalmas.
-   Elfogadja: "0 meg 3", "0 meg 3 az 3", "0 plusz 3 egyenlő 3" stb. — a kötőszó és az
-   "egyenlő/az" mindegy, csak a SZÁMOK számítanak. Az összeget (N) ki lehet mondani vagy
-   el lehet hagyni, pároknál vegyesen is. Sorrend: lentről fölfelé (0-tól). */
-function felmondEllenoriz(nums, N) {
-  var idx = 0;
+/* ═══════════════════════════════════════════════════════════════════════════════
+   A „MONDD EL A BONTÁST" FELADAT ELFOGADÁSI SZABÁLYA
+   ═══════════════════════════════════════════════════════════════════════════════
+   A gép ad egy N számot (1 ≤ N ≤ 10). A gyereknek EGYBEN, EGYFOLYTÁBAN,
+   LENTRŐL FÖLFELÉ fel kell mondania N minden bontását:
+
+        0 + N,  1 + (N−1),  2 + (N−2),  … ,  N + 0        →  összesen N+1 sor
+
+   Csak a KIMONDOTT SZÁMOK és a SORRENDJÜK számít. Minden más szó – „meg",
+   „plusz", „és", „hozzá", „egyenlő", „az", „lesz", „is", szünet, vessző –
+   figyelmen kívül marad (a szamokKinyer() eleve csak a számokat szedi ki).
+
+   EGY SOR elfogadható alakjai (a gyerek szabadon választ, soronként külön):
+        „nulla meg öt"              →  csak a két tag              →  [0, 5]
+        „nulla meg öt az öt"        →  két tag + kimondott összeg  →  [0, 5, 5]
+        „nulla plusz öt egyenlő öt" →  bármilyen kötőszóval        →  [0, 5, 5]
+   A kimondott összeg (mindig N) elhagyható, soronként vegyesen is.
+
+   A teljes felmondás AKKOR JÓ, ha a kimondott számlista pontosan ez:
+        i = 0 … N-re egymás után:   [ i , N−i ]   és utána OPCIONÁLISAN   [ N ]
+   Tehát: egyetlen sor sem hiányozhat, a sorrend kötött (lentről), a két tag
+   összege minden sorban N, és nem lóghat ki „idegen" szám.
+
+   Visszatérés: { ok, sorok } – a `sorok` az elejéről hibátlanul elmondott sorok
+   száma (ez megy a „Eddig 3 sor jó volt" visszajelzésbe).
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function bontasFelmondOk(nums, N) {
+  var p = 0;
   for (var i = 0; i <= N; i++) {
-    if (nums[idx] !== i) return { ok: false, parok: i };
-    idx++;
-    if (nums[idx] !== N - i) return { ok: false, parok: i };
-    idx++;
-    if (i < N) {
-      // kimondott összeg(ek) átugrása; ha a következő pár első tagja épp N,
-      // hagyunk egyet a következő párnak
-      var kovElsoTagN = (i + 1 === N);
-      while (idx < nums.length && nums[idx] === N) {
-        if (kovElsoTagN) {
-          var hatraN = 0, j = idx;
-          while (j < nums.length && nums[j] === N) { hatraN++; j++; }
-          if (hatraN <= 1) break;
-        }
-        idx++;
-      }
+    // a sor két kötelező tagja, ebben a sorrendben:  i , majd  N−i
+    if (nums[p] !== i)     return { ok: false, sorok: i };
+    p++;
+    if (nums[p] !== N - i) return { ok: false, sorok: i };
+    p++;
+    // a sor végén OPCIONÁLISAN elhangozhat a kimondott összeg (N):
+    if (i < N - 1) {
+      // a következő sor első tagja (i+1) biztosan nem N → minden itt álló N csak összeg
+      while (nums[p] === N) p++;
+    } else if (i === N - 1) {
+      // az utolsó előtti sor: a következő sor első tagja épp N, ezért abból
+      // az egymást követő N-ekből egyet meg kell hagyni a záró „N + 0" sornak
+      var db = 0; while (nums[p + db] === N) db++;
+      while (db-- > 1) p++;
     }
   }
-  return { ok: true, parok: N + 1 };
+  while (nums[p] === N) p++;              // a legutolsó sor kimondott összege
+  if (p !== nums.length) return { ok: false, sorok: N };   // idegen szám maradt a végén
+  return { ok: true, sorok: N + 1 };
 }
 function felmondErtekel(altList) {
-  var N = J.feladat.N, legjobbParok = 0, siker = false;
+  var N = J.feladat.N, legjobbSor = 0, siker = false;
   altList.forEach(function (sz) {
-    var r = felmondEllenoriz(szamokKinyer(sz), N);
+    var r = bontasFelmondOk(szamokKinyer(sz), N);
     if (r.ok) siker = true;
-    if (r.parok > legjobbParok) legjobbParok = r.parok;
+    if (r.sorok > legjobbSor) legjobbSor = r.sorok;
   });
   $("hallgat-f").hidden = true;
 
   if (siker) { felmondSiker(); return; }
 
   J.probak++;
-  var jutott = Math.min(legjobbParok, N);    // hány pár volt jó a felmondás elejéről
+  var jutott = Math.min(legjobbSor, N);      // hány sort mondott jól a felmondás elejéről
   J.parokKesz = jutott;                       // csak visszajelzésnek, nem gyűlik
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = true;
   renderFelmondLista(jutott);
@@ -717,7 +741,7 @@ function felmondErtekel(altList) {
   } else {
     hangHiba();
     $("visszajelzes-f").textContent = jutott > 0
-      ? ("Eddig jó volt " + jutott + " pár. Mondd el újra az egészet, lentről kezdve!")
+      ? ("Eddig jó volt " + jutott + " sor. Mondd el újra az egészet, lentről kezdve!")
       : "Kezdd lentről: nulla meg " + N + ", egy meg " + (N - 1) + " …";
     mondd("Majdnem! Mondd el az egész bontást még egyszer, lentről kezdve.");
   }
@@ -1007,7 +1031,7 @@ document.addEventListener("pointerdown", function egyszer() {
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
-  ertekel: ertekel, felmondErtekel: felmondErtekel, felmondEllenoriz: felmondEllenoriz, palyaInditas: palyaInditas,
+  ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk, palyaInditas: palyaInditas,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo
 };
 
