@@ -1333,84 +1333,112 @@ function oduIdoSVG(ido, W, H, db) {
   return s;
 }
 
-/* --- a teljes odú-szoba (680×540) --- */
+/* --- a teljes odú-szoba (680×540) — az odu-belso.svg mintájára --- */
 function oduSVG(lenyKulcs, o) {
   var c = LENYEK[lenyKulcs];
-  var AW = 156, AX = 262, AY = 66;                 /* az ablak bejáró négyzete */
-  var acx = AX + AW / 2, acy = AY + AW / 2;
-  var tint = { este: ["#2b2a5a", 0.16], reggel: ["#ffd0e0", 0.10], del: ["#fff3d0", 0.05], eclipse: ["#0a0a1e", 0.24] }[o.napszak] || ["#2b2a5a", 0.16];
+  var WX = 190, WY = 180, WR = 64;                  /* ablak: bal-felső, holddal */
+  var tint = { este: ["#2b2a5a", 0.14], reggel: ["#ffd0e0", 0.08], del: ["#fff3d0", 0.04], eclipse: ["#0a0a1e", 0.22] }[o.napszak] || ["#2b2a5a", 0.14];
 
   var s = '<svg viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">';
-  s += '<defs><clipPath id="odu-ablak"><circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2) + '"/></clipPath></defs>';
+  s += '<defs><clipPath id="odu-ablak"><circle cx="' + WX + '" cy="' + WY + '" r="' + (WR - 10) + '"/></clipPath></defs>';
+
+  /* fa kívül + fal + meleg alapfény */
   s += '<rect x="0" y="0" width="680" height="540" fill="#2e2350"/>';
-  s += '<path d="M28 540 L28 220 Q28 70 340 52 Q652 70 652 220 L652 540 Z" fill="#b79fd4"/>';
-  s += '<path d="M74 540 L74 236 Q74 104 340 86 Q606 104 606 236 L606 540 Z" fill="#cbb6e6"/>';
-  /* halvány gyökér-erezet a falon */
-  s += '<g fill="none" stroke="#ab90cf" stroke-width="3" stroke-linecap="round" opacity="0.4">';
-  s += '<path d="M150 250 Q160 360 150 500"/><path d="M250 240 Q262 360 252 500"/><path d="M430 240 Q420 360 430 500"/><path d="M520 250 Q510 360 520 500"/></g>';
-  s += '<rect x="74" y="432" width="532" height="108" fill="#e3c9de"/>';
-  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.55"><line x1="74" y1="462" x2="606" y2="462"/><line x1="74" y1="496" x2="606" y2="496"/><line x1="210" y1="432" x2="210" y2="540"/><line x1="350" y1="432" x2="350" y2="540"/><line x1="486" y1="432" x2="486" y2="540"/></g>';
+  s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>';
+  s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>';
+  s += '<ellipse cx="345" cy="330" rx="250" ry="210" fill="#ffd9ec" opacity="0.06"/><ellipse cx="140" cy="392" rx="120" ry="100" fill="#e9c9f0" opacity="0.1"/>';
+
+  /* gyökér-erezet a falon */
+  s += '<g fill="none" stroke="#ab90cf" stroke-width="3" stroke-linecap="round" opacity="0.5">';
+  s += '<path d="M150 250 Q160 360 150 500"/><path d="M245 240 Q255 360 248 500"/><path d="M440 240 Q432 360 440 500"/><path d="M525 250 Q516 360 525 500"/></g>';
+  s += '<ellipse cx="437" cy="300" rx="9" ry="5" fill="#ab90cf"/>';
+
+  /* padló */
+  s += '<rect x="75" y="436" width="530" height="104" fill="#e3c9de"/>';
+  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.6"><line x1="75" y1="464" x2="605" y2="464"/><line x1="75" y1="494" x2="605" y2="494"/><line x1="75" y1="520" x2="605" y2="520"/><line x1="200" y1="436" x2="200" y2="540"/><line x1="345" y1="436" x2="345" y2="540"/><line x1="470" y1="436" x2="470" y2="540"/></g>';
 
   /* zászlófüzér */
-  s += '<path d="M96 116 Q340 156 584 116" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
+  s += '<path d="M100 112 Q340 150 580 112" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
   var zsz = ["#f6a5c0", "#a7d99a", "#fce49a", "#c3a5e0", "#9ec9f0", "#f6a5c0", "#a7d99a"];
-  for (var z = 0; z < zsz.length; z++) { var zx = 240 + z * 46, zy = 124 + (3 - Math.abs(z - 3)) * 5; s += '<path d="M' + zx + ' ' + zy + ' l15 0 l-7.5 16 Z" fill="' + zsz[z] + '"/>'; }
+  var zY = [128, 130, 131, 130, 128, 124, 119];
+  for (var z = 0; z < zsz.length; z++) { var zx = 236 + z * 48; s += '<path d="M' + zx + ' ' + zY[z] + ' l16 0 l-8 14 Z" fill="' + zsz[z] + '"/>'; }
 
-  /* ABLAK */
-  s += '<circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2 + 8) + '" fill="#b79fd4"/>';
-  s += '<g clip-path="url(#odu-ablak)"><g transform="translate(' + AX + ',' + AY + ')">';
-  s += oduEgSVG(o.napszak, AW, AW);
-  s += oduIdoSVG(o.ido, AW, AW, 9);
+  /* keretezett szivárvány-kép a falon */
+  s += '<rect x="262" y="150" width="60" height="48" rx="3" fill="#a88fce"/><rect x="268" y="156" width="48" height="36" fill="#4a3b7a"/>';
+  s += '<path d="M268 188 A26 26 0 0 1 316 188" stroke="#f6a5c0" stroke-width="4" fill="none"/><path d="M274 188 A20 20 0 0 1 310 188" stroke="#fce49a" stroke-width="4" fill="none"/><path d="M280 188 A14 14 0 0 1 304 188" stroke="#a7d99a" stroke-width="4" fill="none"/><circle cx="292" cy="188" r="4" fill="#fdf0d0"/>';
+
+  /* mennyezeti csillag-lámpa */
+  s += '<line x1="345" y1="112" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
+  s += '<ellipse cx="345" cy="178" rx="40" ry="36" fill="#ffe9ad" opacity="0.16"/><ellipse cx="345" cy="178" rx="22" ry="20" fill="#ffe9ad" opacity="0.22"/>';
+  s += '<polygon points="345,154 350,169 366,169 354,179 358,194 345,185 332,194 336,179 324,169 340,169" fill="#ffd878" stroke="#a88fce" stroke-width="3" stroke-linejoin="round"/>';
+
+  /* ── ABLAK (napszak + időjárás) ── */
+  s += '<circle cx="' + WX + '" cy="' + WY + '" r="' + WR + '" fill="#a88fce"/>';
+  s += '<g clip-path="url(#odu-ablak)"><g transform="translate(' + (WX - 60) + ',' + (WY - 60) + ')">';
+  s += oduEgSVG(o.napszak, 120, 120);
+  s += oduIdoSVG(o.ido, 120, 120, 7);
   s += '</g></g>';
-  s += '<circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2) + '" fill="none" stroke="#a98fce" stroke-width="4"/>';
-  s += '<line x1="' + AX + '" y1="' + acy + '" x2="' + (AX + AW) + '" y2="' + acy + '" stroke="#a98fce" stroke-width="4"/>';
-  s += '<line x1="' + acx + '" y1="' + AY + '" x2="' + acx + '" y2="' + (AY + AW) + '" stroke="#a98fce" stroke-width="4"/>';
+  s += '<ellipse cx="168" cy="206" rx="16" ry="7" fill="#cbb6e6"/><circle cx="160" cy="204" r="6" fill="#cbb6e6"/><circle cx="176" cy="203" r="7" fill="#cbb6e6"/>';
+  s += '<line x1="190" y1="126" x2="190" y2="234" stroke="#a88fce" stroke-width="6"/><line x1="136" y1="180" x2="244" y2="180" stroke="#a88fce" stroke-width="6"/>';
 
-  /* felhő-ágy (bal) */
-  s += '<g transform="translate(150,392)">';
-  s += '<ellipse cx="0" cy="54" rx="98" ry="12" fill="#3b2f66" opacity="0.15"/>';
-  s += '<g stroke-linecap="round" fill="none" stroke-width="9">';
-  var iv = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
-  for (var b = 0; b < iv.length; b++) { var rb = 96 - b * 9; s += '<path d="M' + (-rb) + ' 30 A ' + rb + ' ' + rb + ' 0 0 1 ' + rb + ' 30" stroke="' + iv[b] + '"/>'; }
+  /* ── FELHŐ-ÁGY (bal) ── */
+  s += '<g stroke-linecap="round" fill="none" stroke-width="10">';
+  var bx = [13, 22, 31, 40, 49, 58], br = [97, 88, 79, 70, 61, 52], bc = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
+  for (var b = 0; b < 6; b++) { s += '<path d="M' + bx[b] + ' 432 A' + br[b] + ' ' + br[b] + ' 0 0 1 ' + (bx[b] + br[b] * 2) + ' 432" stroke="' + bc[b] + '"/>'; }
   s += '</g>';
-  s += '<ellipse cx="0" cy="34" rx="94" ry="22" fill="#fdfdfd"/><circle cx="-56" cy="24" r="24" fill="#fdfdfd"/><circle cx="-20" cy="16" r="28" fill="#fdfdfd"/><circle cx="22" cy="18" r="26" fill="#fdfdfd"/><circle cx="56" cy="26" r="22" fill="#fdfdfd"/>';
-  s += '<path d="M28 20 h56 v22 a12 12 0 0 1 -12 12 h-32 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>';
-  s += '<polygon points="46,10 48,17 55,17 49,21 51,28 46,24 41,28 43,21 37,17 44,17" fill="#fff"/>';
+  s += '<ellipse cx="160" cy="452" rx="98" ry="11" fill="#3b2f66" opacity="0.18"/>';
+  s += '<path d="M84 408 Q70 358 62 300 Q80 356 102 402 Z" fill="#fdf0d0"/>';
+  s += '<g stroke="#f0c98a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M78 396 Q90 392 98 399"/><path d="M74 374 Q85 370 93 376"/><path d="M71 352 Q81 349 88 354"/><path d="M68 332 Q76 330 82 334"/></g><circle cx="62" cy="300" r="3" fill="#fff6d8"/>';
+  s += '<rect x="80" y="422" width="166" height="22" rx="9" fill="#c9a8e6"/><rect x="88" y="444" width="14" height="11" rx="3" fill="#b48fd6"/><rect x="226" y="444" width="14" height="11" rx="3" fill="#b48fd6"/>';
+  s += '<rect x="84" y="404" width="156" height="26" rx="13" fill="#fdfdfd"/><circle cx="102" cy="404" r="20" fill="#fdfdfd"/><circle cx="134" cy="398" r="24" fill="#fdfdfd"/><circle cx="172" cy="398" r="24" fill="#fdfdfd"/><circle cx="206" cy="403" r="20" fill="#fdfdfd"/><circle cx="228" cy="409" r="15" fill="#fdfdfd"/>';
+  s += '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>';
+  s += '<path d="M150 404 h92 v20 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>';
+  s += '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>';
+  s += '<polygon points="122,372 128,388 145,389 131,399 136,415 122,406 108,415 113,399 99,389 116,388" fill="#f7b8d0" stroke="#e79ac0" stroke-width="2"/>';
+  s += '<path d="M114 394 q3 3 6 0 M124 394 q3 3 6 0" stroke="#b56b93" stroke-width="2" fill="none"/><circle cx="112" cy="399" r="2.5" fill="#f59ab8"/><circle cx="131" cy="399" r="2.5" fill="#f59ab8"/>';
+
+  /* ── GYÖKÉRPOLC (jobb-közép) ── */
+  s += '<rect x="398" y="296" width="150" height="12" rx="4" fill="#cbb6e6"/>';
+  s += '<path d="M410 308 q-8 18 6 30 l6 -4 q-10 -12 -4 -26 Z" fill="#ab90cf"/><path d="M536 308 q8 18 -6 30 l-6 -4 q10 -12 4 -26 Z" fill="#ab90cf"/>';
+  s += '<rect x="410" y="262" width="12" height="34" rx="2" fill="#f6a5c0"/><rect x="424" y="258" width="12" height="38" rx="2" fill="#9ec9f0"/><rect x="438" y="264" width="12" height="32" rx="2" fill="#a7d99a"/>';
+  s += '<ellipse cx="470" cy="286" rx="8" ry="10" fill="#fce4b8"/><path d="M462 283 a8 6 0 0 1 16 0 Z" fill="#c9a8e6"/><line x1="470" y1="275" x2="470" y2="270" stroke="#c9a8e6" stroke-width="2"/>';
+  s += '<rect x="494" y="262" width="30" height="8" rx="3" fill="#b79fd4"/><rect x="496" y="268" width="26" height="28" rx="6" fill="#e9ddf3"/><rect x="500" y="279" width="18" height="14" rx="3" fill="#a7d99a"/>';
+  s += '<rect x="526" y="262" width="30" height="8" rx="3" fill="#b79fd4"/><rect x="528" y="268" width="26" height="28" rx="6" fill="#e9ddf3"/><rect x="532" y="279" width="18" height="14" rx="3" fill="#f7b8d0"/>';
+
+  /* ── KÁLYHA (jobb) ── */
+  s += '<ellipse cx="542" cy="432" rx="72" ry="52" fill="#ffb3d6" opacity="0.12"/>';
+  s += '<rect x="505" y="360" width="95" height="78" rx="14" fill="#d9b8d6"/><rect x="498" y="350" width="110" height="12" rx="4" fill="#c9a8e6"/>';
+  s += '<rect x="560" y="300" width="16" height="60" rx="4" fill="#b79fd4"/><circle cx="568" cy="292" r="7" fill="#fdfdfd"/><circle cx="561" cy="278" r="6" fill="#fdfdfd"/><circle cx="571" cy="266" r="5" fill="#fdfdfd"/>';
+  s += '<path d="M520 438 v-30 a22 22 0 0 1 44 0 v30 Z" fill="#4a3b7a"/><ellipse cx="542" cy="437" rx="18" ry="5" fill="#ffd0a8"/>';
+  s += '<path d="M528 436 q6 -26 14 -32 q4 12 10 14 q6 -6 6 -18 q14 16 10 36 Z" fill="#f7a8c8"/><path d="M533 436 q5 -18 10 -22 q3 8 7 10 q3 -4 3 -12 q9 12 6 24 Z" fill="#ffc59f"/><path d="M538 436 q3 -12 6 -14 q2 6 5 7 q1 -3 1 -8 q6 9 3 15 Z" fill="#fce49a"/>';
+  s += '<rect x="512" y="434" width="18" height="10" rx="3" fill="#b79fd4"/><rect x="574" y="434" width="18" height="10" rx="3" fill="#b79fd4"/>';
+
+  /* ── KEREK ASZTAL csillag-befőttel (jobbra tolva, hogy az unikornis elférjen) ── */
+  s += '<g transform="translate(115,0)">';
+  s += '<ellipse cx="345" cy="458" rx="34" ry="9" fill="#3b2f66" opacity="0.2"/>';
+  s += '<ellipse cx="345" cy="380" rx="46" ry="42" fill="#ffe9ad" opacity="0.18"/><ellipse cx="345" cy="378" rx="26" ry="24" fill="#ffe9ad" opacity="0.24"/>';
+  s += '<ellipse cx="345" cy="404" rx="72" ry="20" fill="#d9b8d6"/><ellipse cx="345" cy="404" rx="72" ry="20" fill="none" stroke="#c197bf" stroke-width="3"/>';
+  s += '<rect x="290" y="404" width="110" height="10" fill="#c197bf"/><rect x="336" y="414" width="18" height="40" fill="#c197bf"/>';
+  s += '<rect x="328" y="394" width="34" height="8" rx="2" fill="#b79fd4"/><path d="M330 396 v-20 a15 15 0 0 1 30 0 v20 Z" fill="#e9ddf3" opacity="0.9"/><rect x="338" y="352" width="14" height="9" rx="2" fill="#b79fd4"/>';
+  s += '<circle cx="345" cy="376" r="8" fill="#ffe9ad" opacity="0.6"/><polygon points="345,366 347,373 355,373 349,377 351,384 345,380 339,384 341,377 335,373 343,373" fill="#fff6d8"/>';
   s += '</g>';
 
-  /* kályha (jobb) */
-  s += '<g transform="translate(540,392)">';
-  s += '<ellipse cx="0" cy="46" rx="60" ry="16" fill="#3b2f66" opacity="0.14"/>';
-  s += '<rect x="-40" y="-26" width="80" height="72" rx="12" fill="#d9b8d6"/><rect x="-46" y="-36" width="92" height="12" rx="4" fill="#c9a8e6"/>';
-  s += '<path d="M-18 44 v-24 a18 18 0 0 1 36 0 v24 Z" fill="#4a3b7a"/>';
-  s += '<path d="M-12 42 q5 -22 12 -27 q3 10 8 12 q5 -5 5 -15 q12 14 8 30 Z" fill="#f7a8c8"/>';
-  s += '<path d="M-6 42 q3 -14 8 -17 q2 6 5 8 q2 -3 2 -9 q7 9 4 18 Z" fill="#fce49a"/>';
-  s += '</g>';
+  /* ── GOMBA (bal-közép) ── */
+  s += '<ellipse cx="286" cy="452" rx="26" ry="7" fill="#3b2f66" opacity="0.2"/><rect x="278" y="428" width="16" height="24" rx="7" fill="#fdf0d0"/><path d="M262 430 a24 15 0 0 1 48 0 Z" fill="#f6a5c0"/>';
+  s += '<circle cx="278" cy="424" r="3.5" fill="#ffffff"/><circle cx="298" cy="426" r="3" fill="#ffffff"/><circle cx="288" cy="418" r="2.5" fill="#ffffff"/>';
 
-  /* gyökérpolc a bal-felső falon, kis tartókkal */
-  s += '<path d="M92 214 q6 10 16 12 M196 214 q-6 10 -16 12" stroke="#b79fd4" stroke-width="4" fill="none"/>';
-  s += '<rect x="84" y="210" width="120" height="10" rx="4" fill="#cbb6e6"/>';
-  s += '<rect x="98" y="182" width="11" height="28" rx="2" fill="#f6a5c0"/><rect x="114" y="176" width="11" height="34" rx="2" fill="#9ec9f0"/><rect x="130" y="188" width="11" height="22" rx="2" fill="#a7d99a"/>';
-  s += '<circle cx="164" cy="199" r="10" fill="#fce49a"/><path d="M158 205 h12" stroke="#e0b95a" stroke-width="2"/>';
+  /* ── SZIVÁRVÁNY-SZŐNYEG ── */
+  s += '<ellipse cx="340" cy="488" rx="168" ry="47" fill="#f6a5c0"/><ellipse cx="340" cy="488" rx="122" ry="34" fill="#f7c59f"/><ellipse cx="340" cy="488" rx="78" ry="21" fill="#a7d99a"/><ellipse cx="340" cy="488" rx="34" ry="9" fill="#9ec9f0"/>';
 
-  /* kerek asztal */
-  s += '<g transform="translate(332,398)">';
-  s += '<ellipse cx="0" cy="52" rx="34" ry="9" fill="#3b2f66" opacity="0.18"/>';
-  s += '<rect x="-8" y="0" width="16" height="46" fill="#c197bf"/>';
-  s += '<ellipse cx="0" cy="0" rx="66" ry="18" fill="#d9b8d6" stroke="#c197bf" stroke-width="3"/>';
-  s += '<rect x="-14" y="-30" width="28" height="30" rx="8" fill="#e9ddf3" opacity="0.9"/>';
-  s += '<polygon points="0,-26 3,-17 12,-17 5,-11 8,-2 0,-8 -8,-2 -5,-11 -12,-17 -3,-17" fill="#ffd878"/>';
-  s += '</g>';
+  /* ── AZ UNIKORNIS a szőnyegen ── */
+  s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
+  s += '<g transform="translate(346,492) scale(1.28)">' + unikornisSVG("odu-uni", c, 1) + '</g>';
 
-  /* szőnyeg */
-  s += '<ellipse cx="300" cy="486" rx="150" ry="40" fill="#f6a5c0"/><ellipse cx="300" cy="486" rx="108" ry="29" fill="#f7c59f"/><ellipse cx="300" cy="486" rx="68" ry="18" fill="#a7d99a"/><ellipse cx="300" cy="486" rx="30" ry="8" fill="#9ec9f0"/>';
+  /* mennyezeti csillámok */
+  s += '<g fill="#fff2c4" opacity="0.7"><path d="M330 250 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><path d="M410 232 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><circle cx="360" cy="205" r="2"/><circle cx="300" cy="240" r="1.6"/><circle cx="470" cy="210" r="1.8"/><path d="M505 232 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/></g>';
 
-  /* az unikornis a szőnyegen */
-  s += '<ellipse cx="300" cy="470" rx="66" ry="15" fill="#3b2f66" opacity="0.16"/>';
-  s += '<g transform="translate(276,470) scale(1.6)">' + unikornisSVG("odu-uni", c, 1) + '</g>';
-
-  /* eső / hó a szobában is (halványan) */
-  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.45">' + oduIdoSVG(o.ido, 680, 470, 26) + '</g>'; }
+  /* eső / hó a szobában is (halványabban) */
+  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.5">' + oduIdoSVG(o.ido, 680, 470, o.ido === "ho" ? 30 : 24) + '</g>'; }
 
   /* hangulatfény */
   s += '<rect x="0" y="0" width="680" height="540" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';

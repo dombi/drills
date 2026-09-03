@@ -98,6 +98,11 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   - Teljesen additív: a pálya-motor egyetlen függvénye sem változott; saját mentés-ág `P().odu`,
     saját `.odu-` CSS. **Tesztelve:** pálya 1 és 2 hiánytalanul végigjátszható az odú-kód mellett;
     v0 belépés + v1 teljes vásárlási kör hibamentes.
+  - **Az odú-szoba rajza az `odu-belso.svg` mintájára** készült (a Matekos mappa referencia-képe):
+    kerek hold-ablak bal fönt (ez változik a napszakkal), zászlófüzér, keretezett szivárvány-kép,
+    mennyezeti csillag-lámpa, szivárványos felhő-ágy csillag-párnával, pasztell kályha lánggal,
+    gyökérpolc üvegcsékkel, kerek asztal csillag-befőttel, gomba, szivárvány-szőnyeg — rajta az
+    unikornis. Nem fotórealisztikus, de a referencia hangulatát viszi.
 - **Következő:** ODÚ v2 (öltöztető – Holmik), majd v3 (berendező – Kellékek), majd v4
   (kinézet + gyűjtemény-könyv + jelvények + „ritkán tárgy esik" drop); majd pálya 4–7.
 
