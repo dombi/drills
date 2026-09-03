@@ -1295,7 +1295,6 @@ function esemenyek() {
   $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("odu-valto").addEventListener("click", function () { hangGomb(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
-  $("odu-szoba").addEventListener("click", function (e) { if (e.target.closest && e.target.closest("#odu-bolt-jel")) { hangGomb(); oduPanelNyit(); } });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
 }
 
@@ -1504,9 +1503,6 @@ function oduSVG(lenyKulcs, o) {
   /* ── SZIVÁRVÁNY-SZŐNYEG ── */
   s += '<ellipse cx="340" cy="488" rx="168" ry="47" fill="#f6a5c0"/><ellipse cx="340" cy="488" rx="122" ry="34" fill="#f7c59f"/><ellipse cx="340" cy="488" rx="78" ry="21" fill="#a7d99a"/><ellipse cx="340" cy="488" rx="34" ry="9" fill="#9ec9f0"/>';
 
-  /* ── MESEBOLT-STAND a szőnyegtől jobbra, egy vonalban (a Bolt megnyitója) ── */
-  s += '<g id="odu-bolt-jel" style="cursor:pointer">' + boltStandSVG(556, 506) + '</g>';
-
   /* ── AZ UNIKORNIS a szőnyegen ── */
   s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
   s += '<g transform="translate(346,492) scale(1.28)">' + unikornisSVG("odu-uni", c, 1) + '</g>';
@@ -1515,10 +1511,14 @@ function oduSVG(lenyKulcs, o) {
   s += '<g fill="#fff2c4" opacity="0.7"><path d="M330 250 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><path d="M410 232 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><circle cx="360" cy="205" r="2"/><circle cx="300" cy="240" r="1.6"/><circle cx="470" cy="210" r="1.8"/><path d="M505 232 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/></g>';
 
   /* eső / hó a szobában is (halványabban) */
-  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.5">' + oduIdoSVG(o.ido, 680, 470, o.ido === "ho" ? 30 : 24) + '</g>'; }
+  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.5" pointer-events="none">' + oduIdoSVG(o.ido, 680, 470, o.ido === "ho" ? 30 : 24) + '</g>'; }
 
   /* hangulatfény */
   s += '<rect x="0" y="0" width="680" height="540" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';
+
+  /* ── MESEBOLT-STAND a szőnyegtől jobbra — MINDIG legfelül, hogy biztosan kattintható legyen ── */
+  s += '<g id="odu-bolt-jel"><rect x="508" y="444" width="96" height="84" fill="transparent"/>' + boltStandSVG(556, 506) + '</g>';
+
   s += '</svg>';
   return s;
 }
@@ -1535,6 +1535,11 @@ function renderOdu() {
   var o = P().odu;
   $("odu-csillampor").textContent = P().csillampor;
   $("odu-szoba").innerHTML = oduSVG(mentes.leny, o);
+  var bolt = document.getElementById("odu-bolt-jel");     /* a szoba-SVG minden rajzoláskor újraépül */
+  if (bolt) {
+    bolt.style.cursor = "pointer";
+    bolt.addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
+  }
 }
 function oduPanelNyit() { ODU_FUL = "ido"; renderOduPanel(); $("odu-panel").hidden = false; }
 function oduPanelZar() { $("odu-panel").hidden = true; }

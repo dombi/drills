@@ -286,10 +286,10 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .odu-gombsor{ padding:10px 14px 14px; display:flex; gap:12px; justify-content:center; }
 
-/* mesebolt-stand a szobában — kattintható, finoman „lélegzik" */
-#odu-bolt-jel{ cursor:pointer; transform-box:fill-box; transform-origin:50% 100%; animation:odu-bolt-leleg 2.8s ease-in-out infinite; }
-#odu-bolt-jel:hover{ filter:brightness(1.06) drop-shadow(0 0 6px rgba(255,224,138,.7)); }
-@keyframes odu-bolt-leleg{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+/* mesebolt-stand a szobában — kattintható; finoman ragyog (a filter nem mozdítja a kattint-területet) */
+#odu-bolt-jel{ cursor:pointer; animation:odu-bolt-glow 2.6s ease-in-out infinite; }
+#odu-bolt-jel:hover{ filter:brightness(1.07) drop-shadow(0 0 7px rgba(255,224,138,.85)); }
+@keyframes odu-bolt-glow{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,224,138,0)); } 50%{ filter:drop-shadow(0 0 5px rgba(255,224,138,.6)); } }
 #odu-bolt-jel .odu-bolt-szikra{ animation:odu-bolt-szikra 1.8s ease-in-out infinite; }
 @keyframes odu-bolt-szikra{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
 
