@@ -178,7 +178,8 @@ var GEN = {
 /* ============ 4) MENTÉS ============ */
 var KULCS = "unikornis_centum_v1";
 var mentes;
-function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0 }; }
+function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } } }; }
+function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu() }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -192,6 +193,13 @@ function betolt() {
         if (typeof p.csillampor !== "number") p.csillampor = 0;
         if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
         if (typeof p.jatekMp !== "number") p.jatekMp = 0;
+        if (!p.odu) p.odu = alapOdu();
+        if (!p.odu.van) p.odu.van = { napszak: {}, ido: {} };
+        if (!p.odu.van.napszak) p.odu.van.napszak = {};
+        if (!p.odu.van.ido) p.odu.van.ido = {};
+        p.odu.van.napszak.este = 1; p.odu.van.ido.tiszta = 1;   /* az alap mindig birtokolt */
+        if (!p.odu.napszak) p.odu.napszak = "este";
+        if (!p.odu.ido) p.odu.ido = "tiszta";
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -1235,6 +1243,269 @@ function esemenyek() {
       mentes.profilok[szuloiFul].naplo = []; mentes.profilok[szuloiFul].jatekMp = 0; ment(); renderSzuloi();
     }
   });
+  $("fomenu-odu").addEventListener("click", function () { hangGomb(); oduNyit("fomenu"); });
+  $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
+  $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("odu-valto").addEventListener("click", function () { hangGomb(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
+  $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
+  $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
+}
+
+/* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
+/* Ez a blokk teljesen additív: a pálya-motor egyetlen függvényét sem hívja/írja át.
+   Saját mentés-ág: P().odu. Saját DOM: #kepernyo-odu + .odu-* osztályok. */
+
+var ODU_KAT = {
+  napszak: [
+    { id: "este",    nev: "Este",           ar: 0 },
+    { id: "reggel",  nev: "Reggel",         ar: 40 },
+    { id: "del",     nev: "Dél",            ar: 40 },
+    { id: "eclipse", nev: "Napfogyatkozás", ar: 120 }
+  ],
+  ido: [
+    { id: "tiszta",     nev: "Tiszta idő", ar: 0 },
+    { id: "eso",        nev: "Eső",        ar: 35 },
+    { id: "ho",         nev: "Hó",         ar: 45 },
+    { id: "szivarvany", nev: "Szivárvány", ar: 60 }
+  ]
+};
+var ODU_FUL = "ido";   /* v1-ben csak egy fül van; a sáv a bővítéshez kész */
+
+/* --- az ablakon át látszó ég egy W×H dobozban (bal-felső sarok = 0,0) --- */
+function oduEgSVG(napszak, W, H) {
+  var w = W, h = H, s = "";
+  function savok(y, c) { return '<rect x="0" y="' + y.toFixed(1) + '" width="' + w + '" height="' + (h - y).toFixed(1) + '" fill="' + c + '"/>'; }
+  if (napszak === "reggel") {
+    s += savok(0, "#ffd3e4") + savok(h * 0.55, "#ffe6cf");
+    s += '<circle cx="' + (w * 0.72) + '" cy="' + (h * 0.66) + '" r="' + (h * 0.3) + '" fill="#ffe6c2" opacity="0.5"/>';
+    s += '<circle cx="' + (w * 0.72) + '" cy="' + (h * 0.66) + '" r="' + (h * 0.16) + '" fill="#ffd39a"/>';
+    s += '<ellipse cx="' + (w * 0.3) + '" cy="' + (h * 0.28) + '" rx="' + (w * 0.2) + '" ry="' + (h * 0.09) + '" fill="#fff6ea" opacity="0.85"/>';
+  } else if (napszak === "del") {
+    s += savok(0, "#a9d4f2") + savok(h * 0.5, "#cbe8fa");
+    var cx = w * 0.74, cy = h * 0.3;
+    s += '<g stroke="#ffe08a" stroke-width="3" stroke-linecap="round" opacity="0.8">';
+    for (var i = 0; i < 8; i++) { var a = Math.PI / 4 * i; s += '<line x1="' + (cx + Math.cos(a) * h * 0.2).toFixed(1) + '" y1="' + (cy + Math.sin(a) * h * 0.2).toFixed(1) + '" x2="' + (cx + Math.cos(a) * h * 0.32).toFixed(1) + '" y2="' + (cy + Math.sin(a) * h * 0.32).toFixed(1) + '"/>'; }
+    s += '</g><circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (h * 0.16) + '" fill="#ffe08a"/>';
+    s += '<ellipse cx="' + (w * 0.32) + '" cy="' + (h * 0.62) + '" rx="' + (w * 0.22) + '" ry="' + (h * 0.1) + '" fill="#ffffff" opacity="0.9"/>';
+  } else if (napszak === "eclipse") {
+    s += savok(0, "#1b1a33");
+    var ex = w * 0.6, ey = h * 0.42, er = h * 0.2;
+    s += '<circle cx="' + ex + '" cy="' + ey + '" r="' + (er * 1.7) + '" fill="#ffe9ad" opacity="0.32"/>';
+    s += '<circle cx="' + ex + '" cy="' + ey + '" r="' + (er * 1.22) + '" fill="#ffd36b" opacity="0.5"/>';
+    s += '<circle cx="' + ex + '" cy="' + ey + '" r="' + er + '" fill="#141328"/>';
+    s += '<g fill="#fff2c4" opacity="0.8">';
+    [[0.2, 0.2], [0.85, 0.7], [0.3, 0.82], [0.72, 0.16], [0.5, 0.62]].forEach(function (p) { s += '<circle cx="' + (w * p[0]).toFixed(1) + '" cy="' + (h * p[1]).toFixed(1) + '" r="1.6"/>'; });
+    s += '</g>';
+  } else { /* este */
+    s += savok(0, "#2f3b74") + savok(h * 0.62, "#4a5596");
+    s += '<circle cx="' + (w * 0.68) + '" cy="' + (h * 0.26) + '" r="' + (h * 0.15) + '" fill="#fdf0d0"/>';
+    s += '<circle cx="' + (w * 0.62) + '" cy="' + (h * 0.22) + '" r="' + (h * 0.13) + '" fill="#2f3b74"/>';
+    s += '<g fill="#fff6d8" opacity="0.9">';
+    [[0.2, 0.28], [0.4, 0.16], [0.52, 0.5], [0.3, 0.66], [0.82, 0.56], [0.15, 0.52]].forEach(function (p) { s += '<circle cx="' + (w * p[0]).toFixed(1) + '" cy="' + (h * p[1]).toFixed(1) + '" r="1.7"/>'; });
+    s += '</g>';
+  }
+  return s;
+}
+
+/* --- időjárás-réteg egy W×H dobozban --- */
+function oduIdoSVG(ido, W, H, db) {
+  var w = W, s = "";
+  if (ido === "eso") {
+    var n = db || 16;
+    for (var i = 0; i < n; i++) {
+      var x = ((i + 0.5) / n * w + (i % 3) * 4);
+      s += '<line class="eso-csepp" x1="' + x.toFixed(1) + '" y1="' + (-(i % 4) * 10) + '" x2="' + (x - 5).toFixed(1) + '" y2="' + (10 - (i % 4) * 10) + '" stroke="#bfe0f5" stroke-width="2.4" stroke-linecap="round" opacity="0.85" style="animation-delay:-' + ((i % 7) * 0.11).toFixed(2) + 's"/>';
+    }
+  } else if (ido === "ho") {
+    var m = db || 16;
+    for (var j = 0; j < m; j++) {
+      var x2 = ((j + 0.5) / m * w + (j % 2) * 6);
+      s += '<circle class="ho-pihe" cx="' + x2.toFixed(1) + '" cy="' + (-(j % 5) * 12) + '" r="' + (2 + (j % 3)) + '" fill="#ffffff" opacity="0.9" style="animation-delay:-' + ((j % 9) * 0.4).toFixed(2) + 's"/>';
+    }
+  } else if (ido === "szivarvany") {
+    var rcx = w * 0.5, rcy = H * 1.02, rr = H * 0.92;
+    var szin = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
+    for (var k = 0; k < szin.length; k++) {
+      var r = rr - k * (H * 0.05);
+      s += '<path d="M ' + (rcx - r).toFixed(1) + ' ' + rcy.toFixed(1) + ' A ' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 0 1 ' + (rcx + r).toFixed(1) + ' ' + rcy.toFixed(1) + '" fill="none" stroke="' + szin[k] + '" stroke-width="' + (H * 0.045).toFixed(1) + '" opacity="0.7"/>';
+    }
+  }
+  return s;
+}
+
+/* --- a teljes odú-szoba (680×540) --- */
+function oduSVG(lenyKulcs, o) {
+  var c = LENYEK[lenyKulcs];
+  var AW = 156, AX = 262, AY = 66;                 /* az ablak bejáró négyzete */
+  var acx = AX + AW / 2, acy = AY + AW / 2;
+  var tint = { este: ["#2b2a5a", 0.16], reggel: ["#ffd0e0", 0.10], del: ["#fff3d0", 0.05], eclipse: ["#0a0a1e", 0.24] }[o.napszak] || ["#2b2a5a", 0.16];
+
+  var s = '<svg viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs><clipPath id="odu-ablak"><circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2) + '"/></clipPath></defs>';
+  s += '<rect x="0" y="0" width="680" height="540" fill="#2e2350"/>';
+  s += '<path d="M28 540 L28 220 Q28 70 340 52 Q652 70 652 220 L652 540 Z" fill="#b79fd4"/>';
+  s += '<path d="M74 540 L74 236 Q74 104 340 86 Q606 104 606 236 L606 540 Z" fill="#cbb6e6"/>';
+  /* halvány gyökér-erezet a falon */
+  s += '<g fill="none" stroke="#ab90cf" stroke-width="3" stroke-linecap="round" opacity="0.4">';
+  s += '<path d="M150 250 Q160 360 150 500"/><path d="M250 240 Q262 360 252 500"/><path d="M430 240 Q420 360 430 500"/><path d="M520 250 Q510 360 520 500"/></g>';
+  s += '<rect x="74" y="432" width="532" height="108" fill="#e3c9de"/>';
+  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.55"><line x1="74" y1="462" x2="606" y2="462"/><line x1="74" y1="496" x2="606" y2="496"/><line x1="210" y1="432" x2="210" y2="540"/><line x1="350" y1="432" x2="350" y2="540"/><line x1="486" y1="432" x2="486" y2="540"/></g>';
+
+  /* zászlófüzér */
+  s += '<path d="M96 116 Q340 156 584 116" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
+  var zsz = ["#f6a5c0", "#a7d99a", "#fce49a", "#c3a5e0", "#9ec9f0", "#f6a5c0", "#a7d99a"];
+  for (var z = 0; z < zsz.length; z++) { var zx = 240 + z * 46, zy = 124 + (3 - Math.abs(z - 3)) * 5; s += '<path d="M' + zx + ' ' + zy + ' l15 0 l-7.5 16 Z" fill="' + zsz[z] + '"/>'; }
+
+  /* ABLAK */
+  s += '<circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2 + 8) + '" fill="#b79fd4"/>';
+  s += '<g clip-path="url(#odu-ablak)"><g transform="translate(' + AX + ',' + AY + ')">';
+  s += oduEgSVG(o.napszak, AW, AW);
+  s += oduIdoSVG(o.ido, AW, AW, 9);
+  s += '</g></g>';
+  s += '<circle cx="' + acx + '" cy="' + acy + '" r="' + (AW / 2) + '" fill="none" stroke="#a98fce" stroke-width="4"/>';
+  s += '<line x1="' + AX + '" y1="' + acy + '" x2="' + (AX + AW) + '" y2="' + acy + '" stroke="#a98fce" stroke-width="4"/>';
+  s += '<line x1="' + acx + '" y1="' + AY + '" x2="' + acx + '" y2="' + (AY + AW) + '" stroke="#a98fce" stroke-width="4"/>';
+
+  /* felhő-ágy (bal) */
+  s += '<g transform="translate(150,392)">';
+  s += '<ellipse cx="0" cy="54" rx="98" ry="12" fill="#3b2f66" opacity="0.15"/>';
+  s += '<g stroke-linecap="round" fill="none" stroke-width="9">';
+  var iv = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
+  for (var b = 0; b < iv.length; b++) { var rb = 96 - b * 9; s += '<path d="M' + (-rb) + ' 30 A ' + rb + ' ' + rb + ' 0 0 1 ' + rb + ' 30" stroke="' + iv[b] + '"/>'; }
+  s += '</g>';
+  s += '<ellipse cx="0" cy="34" rx="94" ry="22" fill="#fdfdfd"/><circle cx="-56" cy="24" r="24" fill="#fdfdfd"/><circle cx="-20" cy="16" r="28" fill="#fdfdfd"/><circle cx="22" cy="18" r="26" fill="#fdfdfd"/><circle cx="56" cy="26" r="22" fill="#fdfdfd"/>';
+  s += '<path d="M28 20 h56 v22 a12 12 0 0 1 -12 12 h-32 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>';
+  s += '<polygon points="46,10 48,17 55,17 49,21 51,28 46,24 41,28 43,21 37,17 44,17" fill="#fff"/>';
+  s += '</g>';
+
+  /* kályha (jobb) */
+  s += '<g transform="translate(540,392)">';
+  s += '<ellipse cx="0" cy="46" rx="60" ry="16" fill="#3b2f66" opacity="0.14"/>';
+  s += '<rect x="-40" y="-26" width="80" height="72" rx="12" fill="#d9b8d6"/><rect x="-46" y="-36" width="92" height="12" rx="4" fill="#c9a8e6"/>';
+  s += '<path d="M-18 44 v-24 a18 18 0 0 1 36 0 v24 Z" fill="#4a3b7a"/>';
+  s += '<path d="M-12 42 q5 -22 12 -27 q3 10 8 12 q5 -5 5 -15 q12 14 8 30 Z" fill="#f7a8c8"/>';
+  s += '<path d="M-6 42 q3 -14 8 -17 q2 6 5 8 q2 -3 2 -9 q7 9 4 18 Z" fill="#fce49a"/>';
+  s += '</g>';
+
+  /* gyökérpolc a bal-felső falon, kis tartókkal */
+  s += '<path d="M92 214 q6 10 16 12 M196 214 q-6 10 -16 12" stroke="#b79fd4" stroke-width="4" fill="none"/>';
+  s += '<rect x="84" y="210" width="120" height="10" rx="4" fill="#cbb6e6"/>';
+  s += '<rect x="98" y="182" width="11" height="28" rx="2" fill="#f6a5c0"/><rect x="114" y="176" width="11" height="34" rx="2" fill="#9ec9f0"/><rect x="130" y="188" width="11" height="22" rx="2" fill="#a7d99a"/>';
+  s += '<circle cx="164" cy="199" r="10" fill="#fce49a"/><path d="M158 205 h12" stroke="#e0b95a" stroke-width="2"/>';
+
+  /* kerek asztal */
+  s += '<g transform="translate(332,398)">';
+  s += '<ellipse cx="0" cy="52" rx="34" ry="9" fill="#3b2f66" opacity="0.18"/>';
+  s += '<rect x="-8" y="0" width="16" height="46" fill="#c197bf"/>';
+  s += '<ellipse cx="0" cy="0" rx="66" ry="18" fill="#d9b8d6" stroke="#c197bf" stroke-width="3"/>';
+  s += '<rect x="-14" y="-30" width="28" height="30" rx="8" fill="#e9ddf3" opacity="0.9"/>';
+  s += '<polygon points="0,-26 3,-17 12,-17 5,-11 8,-2 0,-8 -8,-2 -5,-11 -12,-17 -3,-17" fill="#ffd878"/>';
+  s += '</g>';
+
+  /* szőnyeg */
+  s += '<ellipse cx="300" cy="486" rx="150" ry="40" fill="#f6a5c0"/><ellipse cx="300" cy="486" rx="108" ry="29" fill="#f7c59f"/><ellipse cx="300" cy="486" rx="68" ry="18" fill="#a7d99a"/><ellipse cx="300" cy="486" rx="30" ry="8" fill="#9ec9f0"/>';
+
+  /* az unikornis a szőnyegen */
+  s += '<ellipse cx="300" cy="470" rx="66" ry="15" fill="#3b2f66" opacity="0.16"/>';
+  s += '<g transform="translate(276,470) scale(1.6)">' + unikornisSVG("odu-uni", c, 1) + '</g>';
+
+  /* eső / hó a szobában is (halványan) */
+  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.45">' + oduIdoSVG(o.ido, 680, 470, 26) + '</g>'; }
+
+  /* hangulatfény */
+  s += '<rect x="0" y="0" width="680" height="540" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';
+  s += '</svg>';
+  return s;
+}
+
+/* --- vezérlés --- */
+function oduNyit(honnan) {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelStop();
+  oduPanelZar();
+  renderOdu();
+  mutat("kepernyo-odu");
+}
+function renderOdu() {
+  var o = P().odu;
+  $("odu-csillampor").textContent = P().csillampor;
+  $("odu-szoba").innerHTML = oduSVG(mentes.leny, o);
+}
+function oduPanelNyit() { ODU_FUL = "ido"; renderOduPanel(); $("odu-panel").hidden = false; }
+function oduPanelZar() { $("odu-panel").hidden = true; }
+function renderOduPanel() {
+  var fbox = $("odu-fulek"); fbox.innerHTML = "";
+  [{ id: "ido", nev: "🌦 Időjárás" }].forEach(function (f) {
+    var d = el("div", "odu-ful" + (f.id === ODU_FUL ? " aktiv" : ""), f.nev);
+    d.addEventListener("click", function () { ODU_FUL = f.id; renderOduPanel(); });
+    fbox.appendChild(d);
+  });
+  var box = $("odu-panel-tartalom"); box.innerHTML = "";
+  if (ODU_FUL === "ido") {
+    box.appendChild(oduCsoport("Napszak", "napszak"));
+    box.appendChild(oduCsoport("Időjárás", "ido"));
+  }
+}
+function oduCsoport(cim, kat) {
+  var g = el("div");
+  g.appendChild(el("div", "odu-csoport-cim", cim));
+  var racs = el("div", "odu-racs"), o = P().odu;
+  ODU_KAT[kat].forEach(function (t) { racs.appendChild(oduTetelKartya(kat, t, o)); });
+  g.appendChild(racs);
+  return g;
+}
+function oduTetelKartya(kat, t, o) {
+  var birt = !!o.van[kat][t.id], aktiv = (o[kat] === t.id), eleg = P().csillampor >= t.ar;
+  var kart = el("div", "odu-tetel" + (aktiv ? " aktiv" : "") + (!birt && !eleg ? " keves" : ""));
+  var mini = el("div", "mini");
+  mini.innerHTML = '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
+    (kat === "napszak" ? oduEgSVG(t.id, 120, 64)
+      : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
+  kart.appendChild(mini);
+  kart.appendChild(el("div", "tnev", t.nev));
+  if (birt) {
+    kart.appendChild(el("div", "tar", t.ar === 0 ? "alap" : ("✨ " + t.ar)));
+    if (aktiv) {
+      kart.appendChild(el("div", "tjelzo", "✓ ez van kint"));
+    } else {
+      var gb = el("button", "tgomb beallit", "Beállítom");
+      gb.addEventListener("click", function () { hangGomb(); oduBeallit(kat, t.id); });
+      kart.appendChild(gb);
+    }
+  } else if (eleg) {
+    kart.appendChild(el("div", "tar", "✨ " + t.ar));
+    var gv = el("button", "tgomb vesz", "Megveszem");
+    gv.addEventListener("click", function () { oduVeszKerdes(kart, kat, t); });
+    kart.appendChild(gv);
+  } else {
+    kart.appendChild(el("div", "tar", "✨ " + t.ar + " · még kevés"));
+  }
+  return kart;
+}
+function oduVeszKerdes(kart, kat, t) {
+  hangGomb();
+  var g = kart.querySelector(".tgomb"); if (g) g.remove();
+  if (kart.querySelector(".odu-megerosit")) return;
+  var box = el("div", "odu-megerosit");
+  var igen = el("button", "igen", "Megveszem ✨" + t.ar);
+  var megse = el("button", "megse", "Mégse");
+  igen.addEventListener("click", function () { oduVesz(kat, t); });
+  megse.addEventListener("click", function () { hangGomb(); renderOduPanel(); });
+  box.appendChild(igen); box.appendChild(megse);
+  kart.appendChild(box);
+}
+function oduVesz(kat, t) {
+  if (P().csillampor < t.ar) { renderOduPanel(); return; }
+  P().csillampor -= t.ar;
+  P().odu.van[kat][t.id] = 1;
+  P().odu[kat] = t.id;                 /* vétel után rögtön ki is tesszük */
+  hangCsilla(); hangJo(); ment();
+  renderOdu(); renderOduPanel();
+}
+function oduBeallit(kat, id) {
+  P().odu[kat] = id;
+  hangGomb(); ment();
+  renderOdu(); renderOduPanel();
 }
 
 /* ============ 11) INDÍTÁS ============ */
@@ -1253,7 +1524,10 @@ window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
   bontasEloFogyaszt: bontasEloFogyaszt, palyaInditas: palyaInditas,
-  GEN: GEN, szamokKinyer: szamokKinyer, szo: szo
+  GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
+  oduNyit: oduNyit, ODU_KAT: ODU_KAT,
+  oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },
+  oduBeallit: oduBeallit
 };
 
 })();

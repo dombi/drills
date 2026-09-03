@@ -273,3 +273,63 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 
 /* a felmondás végi "Tovább" — feltűnő, a gyerek dönt, mikor lép (rögzülés) */
 .tovabb-kesz{ margin-top:14px; background:#7bbf6a; }
+
+/* ================= ODÚ (v0 + v1) ================= */
+#kepernyo-odu{ background:linear-gradient(#e7ddf3,#efe3f4 55%,#e9e0f5); }
+.odu-szoba{
+  flex:1; width:100%; display:flex; align-items:center; justify-content:center;
+  padding:12px; overflow:hidden;
+}
+.odu-szoba svg{
+  max-width:100%; max-height:100%; width:auto; height:auto;
+  border-radius:22px; box-shadow:0 12px 30px rgba(74,59,122,.22);
+}
+.odu-gombsor{ padding:10px 14px 14px; display:flex; gap:12px; justify-content:center; }
+
+/* eső / hó a szobában */
+@keyframes odu-eso{ from{ transform:translateY(-40px); } to{ transform:translateY(80px); } }
+@keyframes odu-ho{ from{ transform:translateY(-30px) translateX(0); } to{ transform:translateY(96px) translateX(14px); } }
+.eso-csepp{ animation:odu-eso .8s linear infinite; }
+.ho-pihe{ animation:odu-ho 3.4s linear infinite; }
+
+/* katalógus-panel */
+.odu-panel{
+  position:absolute; left:0; right:0; bottom:0; max-height:74vh; overflow-y:auto;
+  background:#fdf7e1; border-top:3px solid #d9b8e0; border-radius:22px 22px 0 0;
+  padding:14px 16px 22px; z-index:8; box-shadow:0 -10px 28px rgba(74,59,122,.22);
+}
+.odu-panel-fej{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.odu-fulek{ display:flex; gap:8px; flex-wrap:wrap; }
+.odu-ful{ padding:8px 16px; border-radius:14px; background:var(--uveg); font-weight:800; font-size:15px; color:var(--halvany); }
+.odu-ful.aktiv{ background:var(--levendula); color:#fff; }
+.odu-csoport-cim{ font-weight:800; color:var(--halvany); font-size:15px; margin:14px 0 6px; }
+.odu-racs{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:10px;
+}
+.odu-tetel{
+  background:#fff; border-radius:16px; padding:9px 9px 11px; text-align:center;
+  box-shadow:0 4px 12px rgba(74,59,122,.12); border:2px solid transparent;
+}
+.odu-tetel.aktiv{ border-color:var(--menta); }
+.odu-tetel.keves{ opacity:.5; }
+.odu-tetel .mini{ width:100%; height:62px; border-radius:10px; overflow:hidden; display:block; background:#eee; }
+.odu-tetel .mini svg{ width:100%; height:100%; display:block; }
+.odu-tetel .tnev{ font-weight:800; font-size:13.5px; margin:6px 0 1px; line-height:1.2; }
+.odu-tetel .tar{ font-size:12.5px; color:var(--halvany); }
+.odu-tetel .tgomb{
+  margin-top:7px; width:100%; font-size:13px; font-weight:800; padding:8px 4px; border-radius:11px;
+  background:var(--krem); box-shadow:0 2px 0 #d8c69a; color:var(--lila-sotet);
+}
+.odu-tetel .tgomb:active{ transform:translateY(2px); box-shadow:0 1px 0 #d8c69a; }
+.odu-tetel .tgomb.vesz{ background:var(--menta); box-shadow:0 2px 0 #7bbd7a; }
+.odu-tetel .tgomb.beallit{ background:var(--kek); box-shadow:0 2px 0 #6fa8d8; }
+.odu-tetel .tgomb.megvan{ background:var(--uveg); box-shadow:none; color:var(--halvany); }
+.odu-tetel .tjelzo{ font-size:12px; font-weight:800; color:#4e9a4a; margin-top:6px; }
+.odu-megerosit{ display:flex; gap:6px; margin-top:7px; }
+.odu-megerosit button{ flex:1; font-size:12.5px; font-weight:800; padding:8px 2px; border-radius:10px; }
+.odu-megerosit .igen{ background:var(--menta); box-shadow:0 2px 0 #7bbd7a; }
+.odu-megerosit .megse{ background:var(--uveg); color:var(--halvany); }
+
+@media (max-width:560px){
+  .odu-racs{ grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); }
+}

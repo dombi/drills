@@ -24,6 +24,7 @@
       <div class="fej-cim">Válassz ösvényt</div>
       <div class="fej-jobb">
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="fomenu-csillampor">0</b></span>
+        <button class="fej-gomb" id="fomenu-odu">🏠 Odú</button>
         <button class="fej-gomb" id="fomenu-szuloi" data-hosszu>👪</button>
       </div>
     </header>
@@ -95,8 +96,34 @@
       <p id="vege-szoveg" class="vege-szoveg"></p>
       <div class="vege-gombok">
         <button id="vege-fomenu" class="nagy-gomb">🏠 Főmenü</button>
+        <button id="vege-odu" class="nagy-gomb">🏡 Odú</button>
         <button id="vege-kovetkezo" class="nagy-gomb kiemelt">➡ Következő pálya</button>
       </div>
+    </div>
+  </section>
+
+  <section id="kepernyo-odu" class="kepernyo">
+    <header class="fejlec">
+      <button class="fej-gomb" id="odu-vissza">← Főmenü</button>
+      <div class="fej-cim">Az odú</div>
+      <div class="fej-jobb">
+        <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="odu-csillampor">0</b></span>
+        <button class="fej-gomb" id="odu-valto">🦄 Váltás</button>
+      </div>
+    </header>
+
+    <div id="odu-szoba" class="odu-szoba"></div>
+
+    <div class="odu-gombsor">
+      <button class="nagy-gomb" id="odu-katalogus-nyit">🛍 Katalógus</button>
+    </div>
+
+    <div id="odu-panel" class="odu-panel" hidden>
+      <div class="odu-panel-fej">
+        <div class="odu-fulek" id="odu-fulek"></div>
+        <button class="fej-gomb" id="odu-panel-zar">✕ Bezár</button>
+      </div>
+      <div id="odu-panel-tartalom" class="odu-panel-tartalom"></div>
     </div>
   </section>
 

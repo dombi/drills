@@ -115,3 +115,37 @@ sorok láthatók).
 **Pontosítás (ugyanaznap):** a golyós sorok NEM felmondás közben jelennek
 meg, hanem csak a legvégén, jutalomként, sorban egymás után bepukkanva.
 Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
+
+## 2026-09-03
+
+- **A bontás-felmondás szabálya tiszta lapról újraírva** (a foltozgatás helyett, a producer kérésére).
+  A gyerek **egyben, lentről** mondja `0+N, 1+(N−1), …, N+0`. Csak a kimondott számok és a
+  sorrendjük számít; minden kötőszó ("meg", "plusz", "és", "egyenlő", "az", …) figyelmen kívül
+  marad; a kimondott összeg (= N) **soronként külön-külön elhagyható**, vegyesen is. Minden sor
+  kell, a sorrend kötött, a 2. tag = N − 1. tag, a végén nincs idegen szám. Hibánál "Eddig jó
+  volt X sor", az egészet újra lentről; 2 rossz próba után lépésenkénti beírás.
+  — *Kód: `bontasFelmondOk()`. Leírás: rendszerterv 4.3.1 + `spec-hang-es-beszed.html` 2.2.*
+- **Számparszer:** "tíz egy" ≠ 11 — a tízes+egyes összeolvasás csak 20-tól él. — *A felmondásban
+  gyakori a "…nulla meg tíz, egy meg kilenc…"; a "tizenegy" amúgy is egy szó a felismerőben.*
+- **A felolvasás nem állíthatja meg a játékot:** a `mondd()` a beszéd tényleges állapotát figyeli
+  (elindult → megvárja a végét; ~1,5 mp alatt el sem indult → tovább; 12 mp végső határ), nem
+  egyetlen eseményre vár. — *A Chrome gyakran elmulasztja az `onend`-et; enélkül a játék a
+  "Kész a bontás!" képen véglegesen megállt.*
+
+### ODÚ — építési sorrend (szeletek)
+
+- Az odú **szeletekben** épül, mindegyik önmagában kész és kipróbálható; a szűk keresztmetszet a
+  rajz, nem a kód. Sorrend: **v0** hazamehető odú-nézet → **v1** Időjárás-vásárlás →
+  **v2** öltöztető (Holmik) → **v3** berendező (Kellékek) → **v4** kinézet + gyűjtemény-könyv +
+  jelvények + "ritkán tárgy esik" (15%) drop. — *v0+v1 kevés rajzzal validálja a teljes
+  gazdaság-kört; a drop addig kikapcsolva.*
+- **A rajzokat a stúdió (Claude) készíti** SVG-ben, a meglévő pasztell stílusban. — *A producer
+  így döntött; külső illusztrátor kérdése legfeljebb v2-nél merül fel újra.*
+- **Az odú kód teljesen additív:** a pálya-motor egyetlen függvénye sem módosul; saját mentés-ág
+  `P().odu`, saját `.odu-` CSS-előtag, minden lépés után gépi pálya-visszajátszás. — *Hogy egy
+  odú-változtatás ne ronthassa el a pályát.*
+- **v1 tételek és árak (✨):** napszak — Este 0 (alap) · Reggel 40 · Dél 40 · Napfogyatkozás 120;
+  időjárás — Tiszta 0 (alap) · Eső 35 · Hó 45 · Szivárvány 60. Napszak és időjárás egymástól
+  függetlenül állítható, egyszerre egy-egy aktív. Vétel után a tétel rögtön ki is kerül.
+  — *A `spec-gazdasag-es-katalogus` 4.3 alapján, kiegészítve az időjárással; az árak az első
+  hangoláskor még változhatnak.*

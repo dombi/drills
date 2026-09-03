@@ -77,8 +77,29 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
 - **Tesztelve:** generátor-korlátok (900 kör hiba nélkül), magyar számfelismerő 0–100,
   teljes végigjátszás pálya 1 és 2, rossz válasz → teljes igazság, kerülő, profil-elkülönítés.
 - **Ismert hiányosság:** az unikornis-rajz még nyers (placeholder vektor) — a következő körben szépítjük.
-- **Következő:** rajzolás-csiszolás; majd MVP-B (katalógus 4 polccal + öltöztetés + kinézet + odú);
-  majd pálya 4–7 (100-as számkör).
+
+- **2026-09-03 — playtest-javítások:**
+  - A felolvasás után a játék nem akad meg többé: a `mondd()` mostantól magát a
+    beszéd-állapotot figyeli, nem egyetlen (a Chrome által gyakran elmulasztott) eseményre vár.
+  - A bontás-felmondás elfogadási szabálya tiszta lapról újraírva (`bontasFelmondOk`):
+    a gyerek egyben, lentről mondja `0+N … N+0`; csak a számok + sorrend számít; a kötőszó
+    mind mindegy; a kimondott összeg soronként külön elhagyható; „tíz egy" ≠ 11.
+    (Teljes leírás: rendszerterv 4.3.1 + `spec-hang-es-beszed.html` 2.2.)
+
+- **2026-09-03 — ODÚ v0 + v1 KÉSZ:**
+  - **v0:** új „🏠 Odú" gomb a főmenüben és a pálya-vége képen → hazamehető odú-nézet:
+    rajzfilmszerű fa-szoba (fal, padló, ablak, zászlófüzér, felhő-ágy, kályha, polc, asztal,
+    szivárvány-szőnyeg) + a profil unikornisa a szőnyegen + csillámpor-számláló + „🦄 Váltás".
+  - **v1:** „🛍 Katalógus" → Időjárás fül: **Napszak** (Este 0 · Reggel 40 · Dél 40 ·
+    Napfogyatkozás 120) és **Időjárás** (Tiszta 0 · Eső 35 · Hó 45 · Szivárvány 60),
+    egymástól függetlenül. Kártyánként mini ég-előnézet; állapot: megvehető / „✨ kevés" /
+    „✓ ez van kint" / „Beállítom". Vétel: „Megveszem" → megerősítés → levonás → azonnal kint is.
+    Az ablak mögötti ég és a szoba fénye követi a napszakot; eső/hó a szobában is hull.
+  - Teljesen additív: a pálya-motor egyetlen függvénye sem változott; saját mentés-ág `P().odu`,
+    saját `.odu-` CSS. **Tesztelve:** pálya 1 és 2 hiánytalanul végigjátszható az odú-kód mellett;
+    v0 belépés + v1 teljes vásárlási kör hibamentes.
+- **Következő:** ODÚ v2 (öltöztető – Holmik), majd v3 (berendező – Kellékek), majd v4
+  (kinézet + gyűjtemény-könyv + jelvények + „ritkán tárgy esik" drop); majd pálya 4–7.
 
 ## Megnyitás
 
