@@ -1275,6 +1275,7 @@ function esemenyek() {
   $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("odu-valto").addEventListener("click", function () { hangGomb(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
+  $("odu-szoba").addEventListener("click", function (e) { if (e.target.closest && e.target.closest("#odu-bolt-jel")) { hangGomb(); oduPanelNyit(); } });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
 }
 
@@ -1358,6 +1359,32 @@ function oduIdoSVG(ido, W, H, db) {
     }
   }
   return s;
+}
+
+/* --- kis mesebolt-stand a szobában (a katalógus/bolt megnyitója) --- */
+function boltStandSVG(cx, cy) {
+  var s = '<g transform="translate(' + cx + ',' + cy + ')">';
+  s += '<ellipse cx="0" cy="16" rx="42" ry="9" fill="#3b2f66" opacity="0.16"/>';
+  /* oszlopok */
+  s += '<rect x="-34" y="-42" width="6" height="52" rx="2" fill="#b79fd4"/><rect x="28" y="-42" width="6" height="52" rx="2" fill="#b79fd4"/>';
+  /* pult */
+  s += '<rect x="-38" y="-6" width="76" height="20" rx="4" fill="#d9b8d6"/><rect x="-42" y="-12" width="84" height="8" rx="3" fill="#c9a8e6"/>';
+  s += '<g stroke-width="2.4" stroke-linecap="round"><path d="M-32 2 h64" stroke="#f7b8d0"/><path d="M-32 7 h64" stroke="#fbe0a0"/></g>';
+  /* ponyva – csipkés cukorcsík */
+  s += '<path d="M-44 -42 Q0 -52 44 -42 L44 -36 L-44 -36 Z" fill="#e79ac0"/>';
+  var pc = ["#f6a5c0", "#fdf0d0"];
+  for (var i = 0; i < 7; i++) { var x = -42 + i * 12; s += '<path d="M' + x + ' -36 q6 8 12 0 Z" fill="' + pc[i % 2] + '"/>'; }
+  /* csillag-cégér */
+  s += '<line x1="0" y1="-42" x2="0" y2="-54" stroke="#8f7ab8" stroke-width="2"/>';
+  s += '<g stroke="#a88fce" stroke-width="1.4" stroke-linejoin="round">' + csillagSVG(0, -58, 7, "#ffd878") + '</g>';
+  /* portéka a pulton */
+  s += csillagSVG(-22, -12, 4.5, "#fff6d8");
+  s += '<circle cx="-6" cy="-10" r="5" fill="#9ec9f0"/>';
+  s += '<rect x="4" y="-16" width="12" height="12" rx="2" fill="#a7d99a"/><path d="M10 -16 v12 M4 -10 h12" stroke="#fff" stroke-width="1.6"/>';
+  s += '<rect x="22" y="-14" width="7" height="12" rx="2" fill="#f7b8d0"/>';
+  /* csillámok – „nyomj rám" */
+  s += '<g class="odu-bolt-szikra" fill="#fff2c4">' + csillagSVG(-40, -20, 2.6, "#fff2c4") + csillagSVG(42, -14, 2.2, "#fff2c4") + '</g>';
+  return s + '</g>';
 }
 
 /* --- a teljes odú-szoba (680×540) — az odu-belso.svg mintájára --- */
@@ -1456,6 +1483,9 @@ function oduSVG(lenyKulcs, o) {
 
   /* ── SZIVÁRVÁNY-SZŐNYEG ── */
   s += '<ellipse cx="340" cy="488" rx="168" ry="47" fill="#f6a5c0"/><ellipse cx="340" cy="488" rx="122" ry="34" fill="#f7c59f"/><ellipse cx="340" cy="488" rx="78" ry="21" fill="#a7d99a"/><ellipse cx="340" cy="488" rx="34" ry="9" fill="#9ec9f0"/>';
+
+  /* ── MESEBOLT-STAND a szőnyegtől jobbra, egy vonalban (a Bolt megnyitója) ── */
+  s += '<g id="odu-bolt-jel" style="cursor:pointer">' + boltStandSVG(556, 506) + '</g>';
 
   /* ── AZ UNIKORNIS a szőnyegen ── */
   s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';

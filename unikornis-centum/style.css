@@ -286,6 +286,13 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .odu-gombsor{ padding:10px 14px 14px; display:flex; gap:12px; justify-content:center; }
 
+/* mesebolt-stand a szobában — kattintható, finoman „lélegzik" */
+#odu-bolt-jel{ cursor:pointer; transform-box:fill-box; transform-origin:50% 100%; animation:odu-bolt-leleg 2.8s ease-in-out infinite; }
+#odu-bolt-jel:hover{ filter:brightness(1.06) drop-shadow(0 0 6px rgba(255,224,138,.7)); }
+@keyframes odu-bolt-leleg{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+#odu-bolt-jel .odu-bolt-szikra{ animation:odu-bolt-szikra 1.8s ease-in-out infinite; }
+@keyframes odu-bolt-szikra{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
+
 /* eső / hó a szobában */
 @keyframes odu-eso{ from{ transform:translateY(-40px); } to{ transform:translateY(80px); } }
 @keyframes odu-ho{ from{ transform:translateY(-30px) translateX(0); } to{ transform:translateY(96px) translateX(14px); } }
