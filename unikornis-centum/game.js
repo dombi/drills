@@ -72,7 +72,22 @@ var PALYAK = [
       { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 12, a_max: 20, b_min: 4, b_max: 9, atlepes: "lehet", cel: true }
     ]
   },
-  { id: "tizesek", nev: "Tízesek ösvénye", ikon: "🔟", palcim: "Teljes tízesek 100-ig", hamarosan: true },
+  {
+    id: "tizesek", nev: "Tízesek ösvénye", ikon: "🔟",
+    palcim: "Teljes tízesek 100-ig — kézmentes hang!",
+    alap: { tipus: "tizesek" },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Tízes-kövek", darab: 5, muvelet: "+", a_min: 2, a_max: 5, b_min: 1, b_max: 4 },
+      { nev: "Kerek tisztás", darab: 5, muvelet: "+", a_min: 3, a_max: 7, b_min: 2, b_max: 5 },
+      { nev: "Elveszünk tízet", darab: 5, muvelet: "-", a_min: 4, a_max: 9, b_min: 1, b_max: 4 },
+      { nev: "Százig nyújtózunk", darab: 6, muvelet: "+", a_min: 4, a_max: 8, b_min: 3, b_max: 6 },
+      { nev: "Vissza a tízeken", darab: 6, muvelet: "-", a_min: 5, a_max: 10, b_min: 2, b_max: 7 },
+      { nev: "Vegyes tízesek", darab: 6, a_min: 2, a_max: 9, b_min: 1, b_max: 8 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 3, a_max: 9, b_min: 2, b_max: 8, cel: true }
+    ]
+  },
   { id: "aprok", nev: "Aprók a tízeshez", ikon: "🐜", palcim: "Kétjegyű ± egyjegyű", hamarosan: true },
   { id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶", palcim: "Kétjegyű ± kerek tízes", hamarosan: true },
   { id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲", palcim: "Kétjegyű ± kétjegyű", hamarosan: true }
@@ -172,6 +187,30 @@ var GEN = {
       felolvas: "Mondd el " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
       lapos: lapos, tipp: "Kezdd lentről: nulla meg " + szo(N) + ". Aztán egy meg " + szo(N - 1) + ". Folytasd!",
       naplo: { tipus: "szambontas", kerdes: N + " bontása", helyes: N, atlepes: false } };
+  },
+  /* Teljes tízesek 100-ig: kerek tízes ± kerek tízes, nincs átlépés, nem megy 0 alá. */
+  tizesek: function (cfg, kerultMar) {
+    var a, b, op, kulcs, kor = 0;
+    do {
+      op = cfg.muvelet || (veletlen(0, 1) ? "+" : "-");
+      a = veletlen(cfg.a_min || 2, cfg.a_max || 9) * 10;
+      b = veletlen(cfg.b_min || 1, cfg.b_max || 8) * 10;
+      kulcs = op + Math.min(a, b) + "|" + Math.max(a, b); kor++;
+    } while (kor < 400 && ((op === "+" && a + b > 100) || (op === "-" && a - b < 0) || (op === "-" && a === b) || kerultMar[kulcs]));
+    kerultMar[kulcs] = true;
+    var keplet = op === "+" ? (a + " + " + b) : (a + " − " + b);
+    var helyes = op === "+" ? a + b : a - b;
+    var ta = a / 10, tb = b / 10, th = helyes / 10;
+    return {
+      csalad: "egyenkent", keplet: keplet, szoveg: keplet + " = ?",
+      kartyaHTML: '<span class="k-nagy">' + keplet + ' = <b>?</b></span>',
+      felolvas: op === "+" ? ("Mennyi " + szo(a) + " meg " + szo(b) + "?") : ("Mennyi " + szo(a) + " mínusz " + szo(b) + "?"),
+      helyes: helyes,
+      tipp: op === "+"
+        ? ("Számold a tízeseket: " + ta + " meg " + tb + " az " + th + " tízes, vagyis " + szo(helyes) + ".")
+        : ("Számold a tízeseket: " + ta + " mínusz " + tb + " az " + th + " tízes, vagyis " + szo(helyes) + "."),
+      naplo: { tipus: "tizesek", kerdes: keplet, helyes: helyes, atlepes: false }
+    };
   }
 };
 
@@ -725,7 +764,8 @@ function palyaInditas(id) {
     for (k in a) o[k] = a[k]; return o;
   });
   J = { palya: pa, allomasok: allomasok, allomasIdx: 0, feladat: null, feladatDb: 0, feladatKesz: 0,
-        probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "" };
+        probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "",
+        kezCsend: 0, kezBeiras: false };
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
@@ -816,7 +856,10 @@ function ujFeladat() {
   } else {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
-    renderPottyok(); beiroReset(); modBeallit();
+    renderPottyok(); beiroReset();
+    J.kezCsend = 0; J.kezBeiras = false;
+    if (kezNelkulE()) { kezNelkulModUI(); kezNelkulKor(); return; }
+    modBeallit();
   }
   mondd(f.felolvas);
 }
@@ -914,10 +957,16 @@ function ertekel(valasz) {
     naplozz(f.naplo, false, valasz);
     hangHiba();
     $("visszajelzes").className = "visszajelzes rossz";
-    if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!"); }
-    else { $("visszajelzes").textContent = "✘ " + f.keplet + " = " + f.helyes; mondd(f.tipp); }
+    if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
+    else { $("visszajelzes").textContent = "✘ " + f.keplet + " = " + f.helyes; mondd(f.tipp, kezNelkulUjra); }
     ment();
   }
+}
+/* hibás válasz után kézmentes pályán: pittyentés + újra figyelés (máshol no-op) */
+function kezNelkulUjra() {
+  if (!kezNelkulE()) return;
+  beep(1046, 0.1, "sine", 0, 0.16);
+  setTimeout(kezNelkulFigyel, 240);
 }
 /* ═══════════════════════════════════════════════════════════════════════════════
    A „MONDD EL A BONTÁST" FELADAT ELFOGADÁSI SZABÁLYA
@@ -1067,7 +1116,7 @@ function allomasKesz() {
   mondd("Ügyes! Mehetünk tovább.", function () { kovAllomas(); });
 }
 function keruloUt() {
-  hangGomb();
+  hangGomb(); figyelStop();
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
@@ -1197,6 +1246,80 @@ function hosszuNyomas(gomb, kesz) {
   gomb.addEventListener("pointerleave", vege);
   gomb.addEventListener("pointercancel", vege);
 }
+/* ── KÉZMENTES HANG (Tízesek ösvénye): felolvas → pittyentés → magától figyel ── */
+function kezNelkulE() {
+  return !!(J && J.palya && J.palya.kez_nelkul && beszedTamogatott
+    && mentes.valaszmod !== "beiras" && !J.kezBeiras
+    && J.feladat && J.feladat.csalad === "egyenkent");
+}
+function kezNelkulModUI() {
+  $("mondom-gomb").style.display = "none";
+  $("szambillentyuzet").hidden = true;
+  $("beiro-kijelzo").hidden = true;
+  $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
+  $("beiras-valt").textContent = "⌨ Inkább beírom";
+}
+function kezNelkulKor() {
+  if (!kezNelkulE()) return;
+  $("hallgat-e").hidden = true;
+  $("visszajelzes").className = "visszajelzes";
+  $("visszajelzes").textContent = "";
+  mondd(J.feladat.felolvas, function () {
+    if (!kezNelkulE()) return;
+    beep(1046, 0.12, "sine", 0, 0.18);                 /* „vége a kérdésnek" pittyentés */
+    setTimeout(kezNelkulFigyel, 280);
+  });
+}
+function kezNelkulFigyel() {
+  if (!kezNelkulE()) return;
+  $("hallgat-e").hidden = false;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelj(function (alt) {
+    $("hallgat-e").hidden = true;
+    var n = elsoSzam(alt.join(" "));
+    if (n == null) { kezNelkulCsend(); return; }
+    J.kezCsend = 0;
+    ertekel(n);
+  }, function (hiba) {
+    $("hallgat-e").hidden = true;
+    if (hiba === "not-allowed" || hiba === "service-not-allowed" || hiba === "nincs") {
+      beszedTamogatott = false; mentes.valaszmod = "beiras"; ment();
+      $("visszajelzes").className = "visszajelzes";
+      $("visszajelzes").textContent = "Most beírással játszunk.";
+      J.kezBeiras = true; modBeallit();
+      return;
+    }
+    kezNelkulCsend();
+  });
+}
+function kezNelkulCsend() {
+  if (!kezNelkulE()) return;
+  J.kezCsend = (J.kezCsend || 0) + 1;
+  var f = J.feladat;
+  if (J.kezCsend === 1) {
+    $("visszajelzes").className = "visszajelzes";
+    $("visszajelzes").textContent = "Halljam a választ! 🎤";
+    mondd("Mondd bátran a választ!", function () {
+      if (kezNelkulE()) { beep(1046, 0.1, "sine", 0, 0.16); setTimeout(kezNelkulFigyel, 240); }
+    });
+  } else if (J.kezCsend === 2) {
+    $("visszajelzes").className = "visszajelzes";
+    $("visszajelzes").textContent = "Figyelj a kérdésre!";
+    mondd(f.felolvas, function () {
+      if (kezNelkulE()) { beep(1046, 0.12, "sine", 0, 0.18); setTimeout(kezNelkulFigyel, 280); }
+    });
+  } else {
+    /* 3. csönd → előjön a számbillentyűzet (szégyenmentes kiút) */
+    J.kezBeiras = true; J.kezCsend = 0;
+    $("visszajelzes").className = "visszajelzes";
+    $("visszajelzes").textContent = "Írd be a választ, ha így könnyebb 🙂";
+    $("mondom-gomb").style.display = "none";
+    $("szambillentyuzet").hidden = false;
+    $("beiro-kijelzo").hidden = false; beiroReset();
+    $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
+    $("beiras-valt").textContent = "🎤 Inkább mondom";
+  }
+}
 function mikrofonInd() {
   var felm = J.feladat.csalad === "felmondas";
   /* a bontás-felmondás ÉLŐ hallgatással megy: a gomb indít, majd „Kész vagyok"-ként zár */
@@ -1233,7 +1356,7 @@ function mikrofonInd() {
 function belepSzuloi() { hangGomb(); szuloiFul = mentes.leny; renderSzuloi(); mutat("kepernyo-szuloi"); }
 function tovabbMegoldasNelkul() {
   if (!J) return;
-  hangGomb();
+  hangGomb(); figyelStop();
   if (J.feladat && J.feladat.csalad === "felmondas") { $("bontas-lepes").hidden = true; J.feladatKesz++; allomasKesz(); return; }
   J.feladatKesz++;
   if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat();
@@ -1249,10 +1372,20 @@ function esemenyek() {
   $("bontas-kesz-gomb").addEventListener("click", function () {
     hangGomb(); $("bontas-kesz-gomb").hidden = true; allomasKesz();
   });
-  $("halld-ujra").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
+  $("halld-ujra").addEventListener("click", function () {
+    if (!J || !J.feladat) return;
+    if (kezNelkulE()) { figyelStop(); kezNelkulKor(); return; }
+    mondd(J.feladat.felolvas);
+  });
   $("halld-ujra-f").addEventListener("click", function () { if (J && J.feladat) mondd(J.feladat.felolvas); });
   $("beiras-valt").addEventListener("click", function () {
-    hangGomb();
+    hangGomb(); figyelStop();
+    if (J && J.kezBeiras) {                 /* kézmentes pályán vissza a hangra */
+      J.kezBeiras = false; J.kezCsend = 0;
+      $("szambillentyuzet").hidden = true; $("beiro-kijelzo").hidden = true;
+      kezNelkulModUI(); kezNelkulKor();
+      return;
+    }
     mentes.valaszmod = (mentes.valaszmod === "beiras") ? "beszed" : "beiras";
     if (!beszedTamogatott) mentes.valaszmod = "beiras";
     ment(); modBeallit();
