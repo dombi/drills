@@ -507,16 +507,23 @@ function bontasEloVege() {
 
 /* ============ 6) SVG ============ */
 var KOR = "#3a2f2a"; // körvonal
-function ecset(x0, y0, x1, y1, szinek, w, db, ivx) {
+/* firka – gyerekrajz-szerű filctoll-vonások (cikkcakk), rétegzett színekkel */
+function firka(x0, y0, x1, y1, szinek, w, db, amp) {
   var s = "";
-  for (var i = 0; i < db; i++) {
-    var t = db > 1 ? i / (db - 1) : 0.5;
-    var j = ((i * 37) % 11) / 11 - 0.5;                 /* kis szabálytalanság, hogy ne fésült legyen */
-    var sx = x0 + (t - 0.5) * 12 + j * 3, sy = y0 + (t - 0.5) * 5 + j * 2;
-    var ex = x1 + (t - 0.5) * 16 + j * 5, ey = y1 + (t - 0.5) * 12 - j * 4;
-    var mx = (sx + ex) / 2 + (i % 2 ? ivx : -ivx * 0.7) + j * 4, my = (sy + ey) / 2 + 7 + j * 3;
-    s += '<path d="M' + sx.toFixed(1) + ',' + sy.toFixed(1) + ' Q' + mx.toFixed(1) + ',' + my.toFixed(1) + ' ' + ex.toFixed(1) + ',' + ey.toFixed(1) +
-         '" fill="none" stroke="' + szinek[i % szinek.length] + '" stroke-width="' + w + '" stroke-linecap="round" opacity="0.88"/>';
+  for (var k = 0; k < db; k++) {
+    var t = db > 1 ? k / (db - 1) : 0.5;
+    var jx = ((k * 41) % 13) / 13 - 0.5, jy = ((k * 29) % 11) / 11 - 0.5;
+    var ax = x0 + (t - 0.5) * 15 + jx * 5, ay = y0 + (t - 0.5) * 9 + jy * 4;
+    var bx = x1 + (t - 0.5) * 24 + jx * 10, by = y1 + (t - 0.5) * 18 + jy * 9;
+    var dx = bx - ax, dy = by - ay, len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var px = -dy / len, py = dx / len, seg = 5;
+    var d = "M" + ax.toFixed(1) + "," + ay.toFixed(1);
+    for (var i = 1; i <= seg; i++) {
+      var f = i / seg;
+      var off = (i % 2 ? 1 : -1) * amp * (0.55 + jx) * (1 - Math.abs(f - 0.5) * 1.3);
+      d += " L" + (ax + dx * f + px * off).toFixed(1) + "," + (ay + dy * f + py * off).toFixed(1);
+    }
+    s += '<path d="' + d + '" fill="none" stroke="' + szinek[k % szinek.length] + '" stroke-width="' + w + '" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>';
   }
   return s;
 }
@@ -534,15 +541,13 @@ function csillagSVG(x, y, r, fill) {
    Csillámharmat = 6-ágú kék hópehely-virág magenta közepű */
 function jelSVG(tipus, x, y, szin) {
   if (tipus === "lang") {
-    var p = "";
-    for (var i = 0; i < 5; i++) {
-      var a = Math.PI * 2 / 5 * i - Math.PI / 2;
-      var tx = x + Math.cos(a) * 10, ty = y + Math.sin(a) * 10;
-      var lx = x + Math.cos(a - 0.55) * 3.5, ly = y + Math.sin(a - 0.55) * 3.5;
-      var rx = x + Math.cos(a + 0.55) * 3.5, ry = y + Math.sin(a + 0.55) * 3.5;
-      p += '<path d="M' + lx.toFixed(1) + ',' + ly.toFixed(1) + ' Q' + tx.toFixed(1) + ',' + ty.toFixed(1) + ' ' + rx.toFixed(1) + ',' + ry.toFixed(1) + ' Z" fill="' + szin + '"/>';
-    }
-    return '<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + szin + '" opacity="0.2"/><g opacity="0.95">' + p + '<circle cx="' + x + '" cy="' + y + '" r="3" fill="#ffd23b"/></g>';
+    /* durva, firkált vörös szikra (mint a gyerekrajzon) */
+    return '<circle cx="' + x + '" cy="' + y + '" r="9" fill="' + szin + '" opacity="0.18"/>' +
+      '<g stroke="' + szin + '" stroke-width="2.6" stroke-linecap="round" opacity="0.95">' +
+      '<path d="M' + x + ',' + (y - 8.5) + ' L' + x + ',' + (y + 8.5) + '"/>' +
+      '<path d="M' + (x - 7.5) + ',' + (y - 4.5) + ' L' + (x + 7.5) + ',' + (y + 4.5) + '"/>' +
+      '<path d="M' + (x - 7.5) + ',' + (y + 4.5) + ' L' + (x + 7.5) + ',' + (y - 4.5) + '"/>' +
+      '</g><circle cx="' + x + '" cy="' + y + '" r="2.6" fill="#ffd23b"/>';
   }
   if (tipus === "hopehely") {
     var g = '<g stroke="' + szin + '" stroke-width="2.4" stroke-linecap="round" opacity="0.95">';
@@ -560,26 +565,41 @@ function jelSVG(tipus, x, y, szin) {
     '<path d="M' + x + ',' + (y - 10) + ' L' + (x + 2.6) + ',' + (y - 2.6) + ' L' + (x + 10) + ',' + y + ' L' + (x + 2.6) + ',' + (y + 2.6) +
     ' L' + x + ',' + (y + 10) + ' L' + (x - 2.6) + ',' + (y + 2.6) + ' L' + (x - 10) + ',' + y + ' L' + (x - 2.6) + ',' + (y - 2.6) + ' Z" fill="' + szin + '"/>';
 }
+/* A három lény a gyerekek rajza alapján (UnicorniCentum unikornis képek.png):
+   két egyszerű ovál (test + rátett fej), egyenes tömpe lábak, előredöntött
+   cukornád-szarv, firkált filctoll-sörény és -farok, oldalt a csillag-jegy. */
 function unikornisSVG(id, c, meret) {
   var s = meret || 1;
+  var L = "#2b241d";                          /* vékony, majdnem fekete kontúr */
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
-    /* farok – bozontos, hátra-le söpörve */ ecset(-40, -52, -60, 22, c.farok, 7, 7, 13) +
-    /* lábak */
-    [-28, -11, 12, 30].map(function (x, i) {
-      var d = (i === 0 ? -3 : i === 3 ? 3 : 0);
-      return '<rect x="' + (x - 6) + '" y="-18" width="12" height="27" rx="3" transform="rotate(' + d + ' ' + x + ' -6)" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.4"/>';
+    /* FAROK – nagy bozontos firka, hátra-le söpörve (a test mögött) */
+    firka(-36, -46, -66, 30, c.farok, 6, 13, 12) +
+    /* LÁBAK – 4 egyenes tömpe cső, nagyjából párhuzamos, apró szabálytalansággal */
+    [[-27, -2], [-9, 1], [10, -1.5], [27, 2.5]].map(function (p) {
+      return '<rect x="' + (p[0] - 5.5) + '" y="-16" width="11" height="27" rx="1.5" transform="rotate(' + p[1] + ' ' + p[0] + ' -14)" fill="' + c.test + '" stroke="' + L + '" stroke-width="2"/>';
     }).join("") +
-    /* test */ '<ellipse cx="0" cy="-46" rx="46" ry="29" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
-    /* csillag-jegy az oldalán */ jelSVG(c.jel, -17, -49, c.jelszin) +
-    /* sörény – dús, a nyak hátán, kicsit felfelé is */ ecset(25, -80, 11, -28, c.soreny, 6, 7, 8) +
-    '<path d="M30,-86 l-3,-8 M36,-88 l0,-9 M42,-88 l3,-8" stroke="' + c.soreny[0] + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
-    /* fej */ '<ellipse cx="43" cy="-73" rx="23" ry="18" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
-    /* fül */ '<path d="M28,-84 L36,-107 L46,-83 Z" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.2" stroke-linejoin="round"/>' +
-    /* szarv – cukornád-csíkos, előredöntve */ '<path d="M43,-84 L55,-125 L62,-83 Z" fill="' + c.szarv + '" stroke="' + KOR + '" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M45,-92 l13,3.5 M47,-101 l12,3.5 M49,-110 l9,3 M51,-118 l6,2" stroke="' + c.szarvcsik + '" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    /* homlokfürt */ ecset(42, -92, 33, -66, c.soreny, 5, 3, 5) +
-    /* szem */ '<circle cx="51" cy="-74" r="3.7" fill="#fff" stroke="' + c.szem + '" stroke-width="2"/><circle cx="51" cy="-73.4" r="1.8" fill="' + c.szem + '"/><circle cx="52.4" cy="-75.2" r="0.9" fill="#fff"/>' +
-    /* csillámok a szarv körül */ csillagSVG(62, -118, 4.5, c.szarvcsik) + csillagSVG(39, -117, 3.4, c.soreny[1]) + csillagSVG(70, -99, 3, "#fff2c4") +
+    /* TEST – tömött vízszintes ovál */
+    '<ellipse cx="0" cy="-45" rx="45" ry="29" fill="' + c.test + '" stroke="' + L + '" stroke-width="2.2"/>' +
+    /* csillag-jegy az oldalán (far felé) */ jelSVG(c.jel, -16, -48, c.jelszin) +
+    /* SÖRÉNY – firka a fej hátán és a "nyakon" le; pár tincs fel és előre */
+    firka(30, -76, 8, -22, c.soreny, 5, 11, 9) +
+    '<g stroke="' + c.soreny[0] + '" stroke-width="4" fill="none" stroke-linecap="round">' +
+      '<path d="M27,-82 l-4,-9"/><path d="M34,-86 l-1,-11"/><path d="M41,-86 l3,-9"/>' +
+      '<path d="M46,-80 q6,-3 9,3"/>' +
+    '</g>' +
+    /* FEJ – külön ovál, rátéve a test elejére-tetejére */
+    '<ellipse cx="44" cy="-70" rx="22" ry="18" fill="' + c.test + '" stroke="' + L + '" stroke-width="2.2"/>' +
+    /* FÜL – egy egyszerű háromszög */
+    '<path d="M29,-80 L37,-102 L47,-79 Z" fill="' + c.test + '" stroke="' + L + '" stroke-width="1.8" stroke-linejoin="round"/>' +
+    /* SZARV – háromszög, előredöntve, vastag rézsútos cukornád-csíkokkal */
+    '<path d="M40,-80 L58,-121 L61,-79 Z" fill="' + c.szarv + '" stroke="' + L + '" stroke-width="1.8" stroke-linejoin="round"/>' +
+    '<g stroke="' + c.szarvcsik + '" stroke-width="3.4" fill="none" stroke-linecap="round">' +
+      '<path d="M43,-88 l14,3.5"/><path d="M46,-97 l12,3"/><path d="M49,-106 l9,2.5"/><path d="M52,-114 l6,1.5"/>' +
+    '</g>' +
+    /* SZEM – egyszerű pötty vékony gyűrűvel */
+    '<circle cx="50" cy="-71" r="3.4" fill="#fff" stroke="' + c.szem + '" stroke-width="1.8"/><circle cx="50" cy="-70.6" r="1.7" fill="' + c.szem + '"/>' +
+    /* csillámok a szarv körül */
+    csillagSVG(64, -114, 4, c.szarvcsik) + csillagSVG(38, -112, 3.2, c.soreny[1]) + csillagSVG(70, -96, 2.6, "#fff2c4") +
   '</g>';
 }
 function sorenyGrad() { return ""; }
