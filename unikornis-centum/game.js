@@ -511,11 +511,12 @@ function ecset(x0, y0, x1, y1, szinek, w, db, ivx) {
   var s = "";
   for (var i = 0; i < db; i++) {
     var t = db > 1 ? i / (db - 1) : 0.5;
-    var sx = x0 + (t - 0.5) * 12, sy = y0 + (t - 0.5) * 5;
-    var ex = x1 + (t - 0.5) * 16, ey = y1 + (t - 0.5) * 12;
-    var mx = (sx + ex) / 2 + (i % 2 ? ivx : -ivx * 0.7), my = (sy + ey) / 2 + 7;
+    var j = ((i * 37) % 11) / 11 - 0.5;                 /* kis szabálytalanság, hogy ne fésült legyen */
+    var sx = x0 + (t - 0.5) * 12 + j * 3, sy = y0 + (t - 0.5) * 5 + j * 2;
+    var ex = x1 + (t - 0.5) * 16 + j * 5, ey = y1 + (t - 0.5) * 12 - j * 4;
+    var mx = (sx + ex) / 2 + (i % 2 ? ivx : -ivx * 0.7) + j * 4, my = (sy + ey) / 2 + 7 + j * 3;
     s += '<path d="M' + sx.toFixed(1) + ',' + sy.toFixed(1) + ' Q' + mx.toFixed(1) + ',' + my.toFixed(1) + ' ' + ex.toFixed(1) + ',' + ey.toFixed(1) +
-         '" fill="none" stroke="' + szinek[i % szinek.length] + '" stroke-width="' + w + '" stroke-linecap="round" opacity="0.92"/>';
+         '" fill="none" stroke="' + szinek[i % szinek.length] + '" stroke-width="' + w + '" stroke-linecap="round" opacity="0.88"/>';
   }
   return s;
 }
@@ -528,31 +529,57 @@ function csillagSVG(x, y, r, fill) {
   }
   return '<path d="M' + p.join(" L") + ' Z" fill="' + fill + '"/>';
 }
+/* csillag-jegy a lény oldalán (a mappa-beli rajz szerint):
+   Ragyogás = arany szikra-csillag glóriával, Tűz = vörös szikra-virág,
+   Csillámharmat = 6-ágú kék hópehely-virág magenta közepű */
 function jelSVG(tipus, x, y, szin) {
-  if (tipus === "lang")
-    return '<path d="M' + x + ',' + (y + 7) + ' q-7,-11 0,-18 q3,7 6,4 q3,-5 0,-9 q11,9 6,22 q-4,7 -12,1 Z" fill="' + szin + '" opacity="0.9"/>';
-  if (tipus === "hopehely")
-    return '<g stroke="' + szin + '" stroke-width="2.4" stroke-linecap="round" opacity="0.9"><path d="M' + x + ',' + (y - 9) + ' v18 M' + (x - 8) + ',' + (y - 5) + ' l16,10 M' + (x + 8) + ',' + (y - 5) + ' l-16,10"/></g>';
-  return csillagSVG(x, y, 8, szin);
+  if (tipus === "lang") {
+    var p = "";
+    for (var i = 0; i < 5; i++) {
+      var a = Math.PI * 2 / 5 * i - Math.PI / 2;
+      var tx = x + Math.cos(a) * 10, ty = y + Math.sin(a) * 10;
+      var lx = x + Math.cos(a - 0.55) * 3.5, ly = y + Math.sin(a - 0.55) * 3.5;
+      var rx = x + Math.cos(a + 0.55) * 3.5, ry = y + Math.sin(a + 0.55) * 3.5;
+      p += '<path d="M' + lx.toFixed(1) + ',' + ly.toFixed(1) + ' Q' + tx.toFixed(1) + ',' + ty.toFixed(1) + ' ' + rx.toFixed(1) + ',' + ry.toFixed(1) + ' Z" fill="' + szin + '"/>';
+    }
+    return '<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + szin + '" opacity="0.2"/><g opacity="0.95">' + p + '<circle cx="' + x + '" cy="' + y + '" r="3" fill="#ffd23b"/></g>';
+  }
+  if (tipus === "hopehely") {
+    var g = '<g stroke="' + szin + '" stroke-width="2.4" stroke-linecap="round" opacity="0.95">';
+    for (var k = 0; k < 6; k++) {
+      var an = Math.PI / 3 * k;
+      var ex = x + Math.cos(an) * 9, ey = y + Math.sin(an) * 9;
+      var bx = x + Math.cos(an) * 5.5, by = y + Math.sin(an) * 5.5;
+      g += '<path d="M' + x + ',' + y + ' L' + ex.toFixed(1) + ',' + ey.toFixed(1) + '"/>';
+      g += '<path d="M' + bx.toFixed(1) + ',' + by.toFixed(1) + ' l' + (Math.cos(an + 1.9) * 3.5).toFixed(1) + ',' + (Math.sin(an + 1.9) * 3.5).toFixed(1) + ' M' + bx.toFixed(1) + ',' + by.toFixed(1) + ' l' + (Math.cos(an - 1.9) * 3.5).toFixed(1) + ',' + (Math.sin(an - 1.9) * 3.5).toFixed(1) + '"/>';
+    }
+    return g + '</g><circle cx="' + x + '" cy="' + y + '" r="3" fill="#d84fd8"/>';
+  }
+  /* csillag – arany szikra glóriával */
+  return '<circle cx="' + x + '" cy="' + y + '" r="9" fill="' + szin + '" opacity="0.22"/>' +
+    '<path d="M' + x + ',' + (y - 10) + ' L' + (x + 2.6) + ',' + (y - 2.6) + ' L' + (x + 10) + ',' + y + ' L' + (x + 2.6) + ',' + (y + 2.6) +
+    ' L' + x + ',' + (y + 10) + ' L' + (x - 2.6) + ',' + (y + 2.6) + ' L' + (x - 10) + ',' + y + ' L' + (x - 2.6) + ',' + (y - 2.6) + ' Z" fill="' + szin + '"/>';
 }
 function unikornisSVG(id, c, meret) {
   var s = meret || 1;
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
-    /* farok – hátul, lent */ ecset(-40, -50, -60, 20, c.farok, 8, 5, 12) +
+    /* farok – bozontos, hátra-le söpörve */ ecset(-40, -52, -60, 22, c.farok, 7, 7, 13) +
     /* lábak */
-    [-28, -11, 12, 30].map(function (x) {
-      return '<rect x="' + (x - 6) + '" y="-18" width="12" height="24" rx="3" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.4"/>';
+    [-28, -11, 12, 30].map(function (x, i) {
+      var d = (i === 0 ? -3 : i === 3 ? 3 : 0);
+      return '<rect x="' + (x - 6) + '" y="-18" width="12" height="27" rx="3" transform="rotate(' + d + ' ' + x + ' -6)" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.4"/>';
     }).join("") +
-    /* test */ '<ellipse cx="0" cy="-46" rx="44" ry="30" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
-    /* jel */ jelSVG(c.jel, -4, -47, c.jelszin) +
-    /* sörény a nyak hátán */ ecset(20, -76, 8, -22, c.soreny, 6, 5, 7) +
-    /* fej */ '<ellipse cx="42" cy="-72" rx="22" ry="17" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
-    /* fül */ '<path d="M31,-83 L40,-104 L49,-81 Z" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.2" stroke-linejoin="round"/>' +
-    /* szarv */ '<path d="M44,-86 L52,-122 L60,-86 Z" fill="' + c.szarv + '" stroke="' + KOR + '" stroke-width="2"/>' +
-    '<path d="M46,-95 l11,3 M47,-103 l9,3 M48,-111 l7,2" stroke="' + c.szarvcsik + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
-    /* homlokfürt */ ecset(41, -90, 34, -66, c.soreny, 5, 3, 5) +
-    /* szem */ '<circle cx="50" cy="-73" r="3.4" fill="#fff" stroke="' + c.szem + '" stroke-width="2"/><circle cx="50" cy="-72.5" r="1.6" fill="' + c.szem + '"/>' +
-    /* csillámok */ csillagSVG(36, -110, 5, c.soreny[0]) + csillagSVG(63, -103, 4, c.szarvcsik) + csillagSVG(29, -92, 3, "#fff2c4") +
+    /* test */ '<ellipse cx="0" cy="-46" rx="46" ry="29" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
+    /* csillag-jegy az oldalán */ jelSVG(c.jel, -17, -49, c.jelszin) +
+    /* sörény – dús, a nyak hátán, kicsit felfelé is */ ecset(25, -80, 11, -28, c.soreny, 6, 7, 8) +
+    '<path d="M30,-86 l-3,-8 M36,-88 l0,-9 M42,-88 l3,-8" stroke="' + c.soreny[0] + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+    /* fej */ '<ellipse cx="43" cy="-73" rx="23" ry="18" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.6"/>' +
+    /* fül */ '<path d="M28,-84 L36,-107 L46,-83 Z" fill="' + c.test + '" stroke="' + KOR + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+    /* szarv – cukornád-csíkos, előredöntve */ '<path d="M43,-84 L55,-125 L62,-83 Z" fill="' + c.szarv + '" stroke="' + KOR + '" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M45,-92 l13,3.5 M47,-101 l12,3.5 M49,-110 l9,3 M51,-118 l6,2" stroke="' + c.szarvcsik + '" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    /* homlokfürt */ ecset(42, -92, 33, -66, c.soreny, 5, 3, 5) +
+    /* szem */ '<circle cx="51" cy="-74" r="3.7" fill="#fff" stroke="' + c.szem + '" stroke-width="2"/><circle cx="51" cy="-73.4" r="1.8" fill="' + c.szem + '"/><circle cx="52.4" cy="-75.2" r="0.9" fill="#fff"/>' +
+    /* csillámok a szarv körül */ csillagSVG(62, -118, 4.5, c.szarvcsik) + csillagSVG(39, -117, 3.4, c.soreny[1]) + csillagSVG(70, -99, 3, "#fff2c4") +
   '</g>';
 }
 function sorenyGrad() { return ""; }
@@ -1553,7 +1580,7 @@ window.UC = {
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
   bontasEloFogyaszt: bontasEloFogyaszt, palyaInditas: palyaInditas,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
-  oduNyit: oduNyit, ODU_KAT: ODU_KAT,
+  oduNyit: oduNyit, ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
   oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },
   oduBeallit: oduBeallit
 };
