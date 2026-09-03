@@ -29,9 +29,9 @@ var PALYAK = [
     alap: { tipus: "szambontas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Két kavics", szam: 3 },
-      { nev: "Öreg tölgy", szam: 4 },
-      { nev: "Mohapárna", szam: 5 },
+      { nev: "Két kavics", szam_min: 1, szam_max: 6 },
+      { nev: "Öreg tölgy", szam_min: 1, szam_max: 6 },
+      { nev: "Mohapárna", szam_min: 1, szam_max: 6 },
       { nev: "Csörgő patak", szam: 6 },
       { nev: "Kidőlt fenyő", szam_min: 5, szam_max: 7 },
       { nev: "Napos tisztás", szam_min: 6, szam_max: 8 },
