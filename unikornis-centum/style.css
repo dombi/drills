@@ -309,7 +309,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .odu-fulek{ display:flex; gap:8px; flex-wrap:wrap; }
 .odu-ful{ padding:8px 16px; border-radius:14px; background:var(--uveg); font-weight:800; font-size:15px; color:var(--halvany); }
 .odu-ful.aktiv{ background:var(--levendula); color:#fff; }
-.odu-csoport-cim{ font-weight:800; color:var(--halvany); font-size:15px; margin:14px 0 6px; }
+.odu-csoport-cim{ font-weight:800; color:var(--halvany); font-size:15px; margin:14px 0 6px; display:flex; align-items:center; gap:10px; }
+.odu-csoport-le{ font-size:12px; font-weight:800; padding:4px 12px; border-radius:999px; background:var(--uveg); color:var(--halvany); }
 .odu-racs{
   display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:10px;
 }
