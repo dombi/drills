@@ -123,8 +123,13 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
 - **„Aprók a tízeshez" (5. pálya) elkészült:** kétjegyű ± egyjegyű 100-ig, a meglévő
   `GEN.osszeadas/kivonas` generátorral, 9 hangya-témájú állomással, fokozatosan táguló
   tartománnyal és átlépés-fokozattal. Kézmentes hang a kezdetektől.
+- **2026-09-04 — MIND A 7 PÁLYA JÁTSZHATÓ, mind kézmentes hanggal.** „Tízes-lépegető" (kétjegyű ±
+  kerek tízes) és „Erdő mélye" (kétjegyű ± kétjegyű) elkészült, ugyanazzal a mintával mint az
+  Aprók a tízeshez. Tesztelés közben egy valódi hibát találtunk és javítottunk: a kézmentes
+  hangfelismerő ritkán duplán számolhatta egy válaszra a böngésző kétszeres eseményét, ami
+  átugorhatott egy állomást – ez most minden pályán javítva van.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
-  „ritkán tárgy esik" drop); majd pálya 6–7 (Tízes-lépegető, Erdő mélye).
+  „ritkán tárgy esik" drop).
 
 ## Megnyitás
 
