@@ -108,8 +108,39 @@ var PALYAK = [
       { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 90, b_min: 1, b_max: 9, atlepes: "lehet", cel: true }
     ]
   },
-  { id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶", palcim: "Kétjegyű ± kerek tízes", hamarosan: true },
-  { id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲", palcim: "Kétjegyű ± kétjegyű", hamarosan: true }
+  {
+    id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶",
+    palcim: "Kétjegyű ± kerek tízes — kézmentes hang!",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, b_lepes: 10 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Kis lépések", darab: 5, a_min: 11, a_max: 40, b_min: 10, b_max: 30 },
+      { nev: "Nagyobb lépés", darab: 5, a_min: 15, a_max: 55, b_min: 10, b_max: 40 },
+      { nev: "Vissza felé", tipus: "kivonas", darab: 5, a_min: 30, a_max: 70, b_min: 10, b_max: 30 },
+      { nev: "Messzebb lépünk", darab: 6, a_min: 20, a_max: 70, b_min: 10, b_max: 50 },
+      { nev: "Lépés visszafelé", tipus: "kivonas", darab: 6, a_min: 40, a_max: 90, b_min: 10, b_max: 50 },
+      { nev: "Vegyes lépések", darab: 5, a_min: 11, a_max: 60, b_min: 10, b_max: 60 },
+      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 30, a_max: 90, b_min: 10, b_max: 60, cel: true }
+    ]
+  },
+  {
+    id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲",
+    palcim: "Kétjegyű ± kétjegyű — kézmentes hang!",
+    alap: { tipus: "osszeadas", eredmeny_max: 100 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Első nagy lépés", darab: 5, a_min: 11, a_max: 40, b_min: 11, b_max: 30, atlepes: "nincs" },
+      { nev: "Mélyebbre", darab: 5, a_min: 20, a_max: 55, b_min: 12, b_max: 35, atlepes: "nincs" },
+      { nev: "Gyökerek között", darab: 5, a_min: 15, a_max: 60, b_min: 11, b_max: 40, atlepes: "lehet" },
+      { nev: "Visszafelé az ösvényen", tipus: "kivonas", darab: 5, a_min: 30, a_max: 70, b_min: 11, b_max: 40, atlepes: "nincs" },
+      { nev: "Kölcsönző fák", tipus: "kivonas", darab: 6, a_min: 40, a_max: 85, b_min: 15, b_max: 50, atlepes: "kell" },
+      { nev: "Sűrű avar", darab: 6, a_min: 15, a_max: 70, b_min: 11, b_max: 50, atlepes: "lehet" },
+      { nev: "Vegyes ösvény", tipus: "kivonas", darab: 5, a_min: 30, a_max: 90, b_min: 15, b_max: 55, atlepes: "lehet" },
+      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 80, b_min: 11, b_max: 60, atlepes: "lehet", cel: true }
+    ]
+  }
 ];
 
 /* ============ 2) SEGÉDEK ============ */
@@ -178,6 +209,7 @@ var GEN = {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
     do {
       a = veletlen(cfg.a_min, cfg.a_max); b = veletlen(cfg.b_min, cfg.b_max);
+      if (cfg.b_lepes) b = Math.max(cfg.b_lepes, Math.round(b / cfg.b_lepes) * cfg.b_lepes);
       kulcs = Math.min(a, b) + "|" + Math.max(a, b); kor++;
     } while (kor < 500 && (a + b > emax || !atlepesOK(a, b, "+", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
@@ -190,6 +222,7 @@ var GEN = {
     var a, b, kulcs, kor = 0;
     do {
       a = veletlen(cfg.a_min, cfg.a_max); b = veletlen(cfg.b_min, Math.min(cfg.b_max, a));
+      if (cfg.b_lepes) b = Math.max(cfg.b_lepes, Math.round(b / cfg.b_lepes) * cfg.b_lepes);
       kulcs = a + "|" + b; kor++;
     } while (kor < 500 && (b > a || !atlepesOK(a, b, "-", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
@@ -339,18 +372,25 @@ var felismero = null;
 function figyelj(siker, hiba) {
   if (!SR) { hiba && hiba("nincs"); return; }
   try { if (felismero) felismero.abort(); } catch (e) {}
-  felismero = new SR();
-  felismero.lang = "hu-HU"; felismero.interimResults = false; felismero.maxAlternatives = 3; felismero.continuous = false;
-  var kaptunk = false;
-  var ido = setTimeout(function () { try { felismero.stop(); } catch (e) {} }, 7000);
-  felismero.onresult = function (ev) {
-    kaptunk = true;
+  var sajat = new SR();
+  felismero = sajat;
+  sajat.lang = "hu-HU"; sajat.interimResults = false; sajat.maxAlternatives = 3; sajat.continuous = false;
+  var kaptunk = false, lezart = false;
+  var ido = setTimeout(function () { try { sajat.stop(); } catch (e) {} }, 7000);
+  /* védelem: ez a felismerő csak EGYSZER adhat eredményt/hibát, és a saját 7 mp-es
+     időzítője csak a SAJÁT (nem egy időközben elindult újabb) felismerőt állíthatja le
+     — előfordulhat, hogy a böngésző kétszer sül el egy elhangzott válaszra. */
+  sajat.onresult = function (ev) {
+    if (lezart) return; lezart = true; kaptunk = true; clearTimeout(ido);
     var alt = []; for (var i = 0; i < ev.results[0].length; i++) alt.push(ev.results[0][i].transcript);
     siker(alt);
   };
-  felismero.onerror = function (ev) { clearTimeout(ido); hiba && hiba(ev.error === "no-speech" ? "nincs-hang" : ev.error); };
-  felismero.onend = function () { clearTimeout(ido); if (!kaptunk) hiba && hiba("nincs-hang"); };
-  try { felismero.start(); } catch (e) { hiba && hiba("start"); }
+  sajat.onerror = function (ev) {
+    if (lezart) return; lezart = true; clearTimeout(ido);
+    hiba && hiba(ev.error === "no-speech" ? "nincs-hang" : ev.error);
+  };
+  sajat.onend = function () { clearTimeout(ido); if (!kaptunk && !lezart) { lezart = true; hiba && hiba("nincs-hang"); } };
+  try { sajat.start(); } catch (e) { hiba && hiba("start"); }
 }
 function figyelStop() { FB.aktiv = false; clearTimeout(FB.timer); try { if (felismero) felismero.stop(); } catch (e) {} }
 

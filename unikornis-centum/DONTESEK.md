@@ -152,6 +152,20 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Pálya 6–7 elkészült: mind a 7 pálya játszható.** „Tízes-lépegető" (kétjegyű ± kerek tízes,
+  100-ig) és „Erdő mélye" (kétjegyű ± kétjegyű, 100-ig), mindkettő `kez_nelkul:true`, a meglévő
+  `GEN.osszeadas/kivonas`-szal. Új `b_lepes` paraméter mindkét generátorban (ha be van állítva,
+  a `b`-t a legközelebbi lépésközre kerekíti) — a Tízes-lépegetőhöz kellett, a többi pályára
+  nincs hatással (`b_lepes` hiányában a régi viselkedés változatlan).
+  **Valódi hiba javítva a tesztelés közben:** a `figyelj()` (kézmentes egyválaszos felismerő)
+  nem védekezett az ellen, hogy egyetlen elhangzott válaszra a böngésző kétszer is lefuttassa az
+  `onresult`-ot (előfordulhat egyes böngészőkben) — ez duplán számolta a helyes választ, és emiatt
+  egy egész állomást átugorhatott a pálya. Javítva: a felismerő-példány saját (nem megosztott)
+  lezárás-jelzőt kap, ami után a `siker`/`hiba` callback csak egyszer futhat le, és a 7 mp-es
+  időzítő is csak a SAJÁT példányát állíthatja le (nem egy közben elindult újabbat). Ez minden
+  kézmentes pályát érint (2., 3., 4., 5., 6., 7.), visszamenőleg is javítja őket. Tesztelve: 3x
+  egymás után lefuttatott `onresult` csak egyszer számít; teljes, hibamentes végigjátszás
+  mindkét új pályán, gomb nélkül; a többi pálya + bolt regresszió zöld.
 - **„Aprók a tízeshez" pálya (5.) elkészült, `hamarosan` helyett élesben, kézmentes hanggal.**
   Kétjegyű ± egyjegyű, 100-ig, a meglévő `GEN.osszeadas/kivonas` generátorral (nem kellett új
   generátor — a `kulcs`/`atlepesOK`/`szo()` logika eleve általános, kétjegyű `a`-val is működik).
