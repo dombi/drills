@@ -91,7 +91,23 @@ var PALYAK = [
       { nev: "Odú-küszöb", darab: 6, a_min: 3, a_max: 9, b_min: 2, b_max: 8, cel: true }
     ]
   },
-  { id: "aprok", nev: "Aprók a tízeshez", ikon: "🐜", palcim: "Kétjegyű ± egyjegyű", hamarosan: true },
+  {
+    id: "aprok", nev: "Aprók a tízeshez", ikon: "🐜",
+    palcim: "Kétjegyű ± egyjegyű — kézmentes hang!",
+    alap: { tipus: "osszeadas", eredmeny_max: 100 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Hangyaboly", darab: 5, a_min: 11, a_max: 30, b_min: 1, b_max: 9, atlepes: "nincs" },
+      { nev: "Levélrakás", darab: 5, a_min: 15, a_max: 45, b_min: 1, b_max: 9, atlepes: "nincs" },
+      { nev: "Morzsagyűjtés", darab: 5, a_min: 12, a_max: 58, b_min: 2, b_max: 9, atlepes: "lehet" },
+      { nev: "Vissza a bolyba", tipus: "kivonas", darab: 5, a_min: 20, a_max: 60, b_min: 1, b_max: 9, atlepes: "nincs" },
+      { nev: "Kölcsönkért falat", tipus: "kivonas", darab: 6, a_min: 21, a_max: 70, b_min: 2, b_max: 9, atlepes: "kell" },
+      { nev: "Vegyes bolyongás", darab: 5, a_min: 11, a_max: 80, b_min: 1, b_max: 9, atlepes: "lehet" },
+      { nev: "Utolsó szemek", tipus: "kivonas", darab: 5, a_min: 20, a_max: 90, b_min: 2, b_max: 9, atlepes: "lehet" },
+      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 90, b_min: 1, b_max: 9, atlepes: "lehet", cel: true }
+    ]
+  },
   { id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶", palcim: "Kétjegyű ± kerek tízes", hamarosan: true },
   { id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲", palcim: "Kétjegyű ± kétjegyű", hamarosan: true }
 ];

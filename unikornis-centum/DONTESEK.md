@@ -152,6 +152,15 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **„Aprók a tízeshez" pálya (5.) elkészült, `hamarosan` helyett élesben, kézmentes hanggal.**
+  Kétjegyű ± egyjegyű, 100-ig, a meglévő `GEN.osszeadas/kivonas` generátorral (nem kellett új
+  generátor — a `kulcs`/`atlepesOK`/`szo()` logika eleve általános, kétjegyű `a`-val is működik).
+  9 állomás (hangya-témával: Hangyaboly, Levélrakás, Morzsagyűjtés, Vissza a bolyba, Kölcsönkért
+  falat, Vegyes bolyongás, Utolsó szemek, Odú-küszöb), fokozatosan táguló tartomány (11–30-tól
+  11–90-ig) és átlépés-fokozat (nincs → lehet → kell → lehet). `kez_nelkul:true` — a hands-free
+  gépezet pályafüggetlen, csak a zászlót kellett rátenni (mint a 2–3. pályánál). Tesztelve fake
+  felismerővel: teljes végigjátszás rajt-tól célig gomb nélkül, helyes és rossz válasz is helyesen
+  kezelve (a rossz válasz után a mikrofon magától újra figyel).
 - **Bolt Round 2 kész: mind a 18 ruha „polc-póza" beépítve.** A `POLC_POZ` táblázat (game.js) a
   rajzoló session anyagából (`polc-poz-mintak.svg` + `polc-poz-15.svg`) — minden tétel saját,
   210×210-es cella-lokális SVG-ként, a `boltThumb()` ezt használja a mini-unikornis helyett. Az

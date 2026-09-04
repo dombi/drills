@@ -114,9 +114,17 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
     60 ✨ felett „Biztos?" kérdés, alatta azonnal.
   - **Tesztelve:** Holmik + Időjárás vásárlás, felvesz/levesz, beállít, megerősítő és „még kevés"
     ág, odú-stand újranyitás, pálya 1 regresszió – mind hibamentes, konzol tiszta.
-- **Következő:** bolt Round 2 (a 18 ruha „polc-póza" – akasztón / összehajtva / állványon –
-  váltja a mini-unikornis bélyegképeket), majd ODÚ v3 (berendező – Kellékek), majd v4
-  (kinézet + gyűjtemény-könyv + jelvények + „ritkán tárgy esik" drop); majd pálya 4–7.
+- **2026-09-04 — bolt Round 2 kész, ruha-horgonypontok + szárnyak javítva, kézmentes hang mind
+  az 5 játszható pályán:** a 18 ruha polc-póza beépítve (a rajzoló session anyagából); a fej/nyak/
+  oldal ruha-zónák újrapozicionálva (a producer visszajelzése alapján); a 3 szárny-tétel nagyítva
+  és teljesen láthatóvá téve; Fredoka betűtípus; a kézmentes hangfelismerés minden pályán fut
+  (Erdei bontás, Összeadás-kivonás 10/20, Tízesek ösvénye, **Aprók a tízeshez**) – sehol nem kell
+  gombot nyomni a válaszadáshoz.
+- **„Aprók a tízeshez" (5. pálya) elkészült:** kétjegyű ± egyjegyű 100-ig, a meglévő
+  `GEN.osszeadas/kivonas` generátorral, 9 hangya-témájú állomással, fokozatosan táguló
+  tartománnyal és átlépés-fokozattal. Kézmentes hang a kezdetektől.
+- **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
+  „ritkán tárgy esik" drop); majd pálya 6–7 (Tízes-lépegető, Erdő mélye).
 
 ## Megnyitás
 
