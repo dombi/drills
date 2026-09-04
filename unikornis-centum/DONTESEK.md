@@ -152,6 +152,15 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Ruha-horgonypontok javítva — a fej/nyak/oldal kiegészítők eddig csálén, egymást takarva
+  ültek** (producer screenshot alapján: virágkoszorú a szem vonalán, szív-medál a pofán lógva,
+  levél-szárny a has közepén). Új zónák: **fej-korona** (a fej tetején, a szem vonala fölött,
+  y≤96) — fej-a/k/r; **nyak-öböl** (a fej alatti résben, y150–210, a medál/dísz lefelé lóg) —
+  nyak-a/k/r; **váll** (a nyak töve mögött, felfelé-hátra álló kis szárny, x166–216 y84–152) —
+  oldal-a/k/r. A hát/láb/farok zónák már jók voltak, nem változtak. Ellenőrizve mindhárom bőrön
+  (Ragyogás/Tűz/Csillámharmat), több ruha egyszerre felvéve, és kicsiben (profil-kártya méretben)
+  is – a sziluett tiszta marad. — *Egy kutató session (más beszélgetés) hozta a „paper-doll"
+  iparági módszert (zóna-boríték + súly-limit + kulcsvonal-védelem); ez alapján dolgoztunk.*
 - **A bolt NEM kártya-rács, hanem polcos böngésző + adatlap** (hibrid). Bal oldalt rajzolt
   fapolcokon a tételek (fülcsoportonként egy polc), tételenként ✨ ár-cédula, megvett tétel a
   polcon marad halványan + zöld pipával. Jobbra adatlap: ritkaság-szalag (alap/különleges/ritka),

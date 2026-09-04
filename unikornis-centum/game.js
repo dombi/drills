@@ -585,49 +585,49 @@ function unikornisSVG(id, c, meret, oltozet) {
 function ruhaSVG(itemId) {
   var s;
   switch (itemId) {
-    case "fej-a": /* Virágkoszorú – koszorú a fej tetején, ív mentén (feljebb + nagyobb) */
+    case "fej-a": /* Virágkoszorú – a fej TETEJÉN, a szem és a szarv-tő fölött ívelve (zóna: fej-korona, y≤96) */
       s = "";
-      [[238, 108], [255, 82], [284, 66], [315, 74], [340, 104]].forEach(function (p, i) {
+      [[248, 96], [265, 78], [288, 70], [311, 78], [328, 96]].forEach(function (p, i) {
         var szin = ["#f6a5c0", "#fce49a", "#a7d99a", "#9ec9f0", "#c9a8e6"][i];
         for (var k = 0; k < 5; k++) { var a = Math.PI * 2 / 5 * k - Math.PI / 2; s += '<ellipse cx="' + (p[0] + Math.cos(a) * 5.4).toFixed(1) + '" cy="' + (p[1] + Math.sin(a) * 5.4).toFixed(1) + '" rx="3.8" ry="5.2" fill="' + szin + '" stroke="#222" stroke-width="1.3"/>'; }
         s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#ffd24d"/>';
       });
       return '<g stroke-linejoin="round">' + s + '</g>';
-    case "fej-k": /* Csillag-szarvdísz – vékony pánt + csillag a szarv tövénél */
+    case "fej-k": /* Csillag-szarvdísz – vékony pánt a fej tetején + csillag fölötte (ua. zóna, mint fej-a) */
       return '<g stroke="#222" stroke-width="1.8" stroke-linejoin="round">' +
-        '<path d="M252 104 Q284 84 316 104" fill="none" stroke="#e6c34d" stroke-width="4"/>' +
-        '<path d="M276 60 l5 13 l14 1 l-11 9 l4 14 l-12 -8 l-12 8 l4 -14 l-11 -9 l14 -1 Z" fill="#ffd24d"/>' +
+        '<path d="M248 96 Q288 68 328 96" fill="none" stroke="#e6c34d" stroke-width="4"/>' +
+        '<path d="M281 40 l5 13 l14 1 l-11 9 l4 14 l-12 -8 l-12 8 l4 -14 l-11 -9 l14 -1 Z" fill="#ffd24d"/>' +
         '</g>';
-    case "fej-r": /* Hold-korona – korona a fej tetején, hold a közepén */
+    case "fej-r": /* Hold-korona – a fej tetején, a szem vonala fölött, hold a közepén */
       return '<g stroke="#222" stroke-width="1.8" stroke-linejoin="round">' +
-        '<path d="M238 116 Q240 84 254 82 L262 96 L276 76 L290 96 L304 76 L318 96 L326 82 Q340 84 342 114 Z" fill="#d9c7ec"/>' +
-        '<path d="M289 54 a11 11 0 1 0 8 19 a9 9 0 1 1 -8 -19 Z" fill="#fdf0d0" stroke="#c9a8e6"/>' +
-        '<circle cx="262" cy="96" r="2.4" fill="#ffd24d"/><circle cx="318" cy="96" r="2.4" fill="#9ec9f0"/>' +
+        '<path d="M238 96 Q240 64 254 62 L262 76 L276 56 L290 76 L304 56 L318 76 L326 62 Q340 64 342 94 Z" fill="#d9c7ec"/>' +
+        '<path d="M289 34 a11 11 0 1 0 8 19 a9 9 0 1 1 -8 -19 Z" fill="#fdf0d0" stroke="#c9a8e6"/>' +
+        '<circle cx="262" cy="76" r="2.4" fill="#ffd24d"/><circle cx="318" cy="76" r="2.4" fill="#9ec9f0"/>' +
         '</g>';
-    case "nyak-a": /* Makk-lánc – vastag lánc a nyak körül + nagy makk-medál */
+    case "nyak-a": /* Makk-lánc – a fej alatti nyak-öbölben (zóna: nyak-öböl, y150–210), makk-medál lóg le */
       return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M244 146 Q272 176 300 146" fill="none" stroke="#8a6a4a" stroke-width="4.5"/>' +
-        '<circle cx="252" cy="152" r="2.6" fill="#a9814e"/><circle cx="292" cy="152" r="2.6" fill="#a9814e"/>' +
-        '<ellipse cx="272" cy="180" rx="8.5" ry="10.5" fill="#c08a52"/>' +
-        '<path d="M262 174 q10 -8 20 0 l0 -4 q-10 -6 -20 0 Z" fill="#8a6a4a"/><path d="M272 168 v-5" stroke="#8a6a4a" stroke-width="2.4"/>' +
+        '<path d="M238 158 Q266 196 294 172" fill="none" stroke="#8a6a4a" stroke-width="4.5"/>' +
+        '<circle cx="246" cy="168" r="2.6" fill="#a9814e"/><circle cx="286" cy="178" r="2.6" fill="#a9814e"/>' +
+        '<ellipse cx="266" cy="200" rx="8.5" ry="10.5" fill="#c08a52"/>' +
+        '<path d="M256 194 q10 -8 20 0 l0 -4 q-10 -6 -20 0 Z" fill="#8a6a4a"/><path d="M266 188 v-5" stroke="#8a6a4a" stroke-width="2.4"/>' +
         '</g>';
-    case "nyak-k": /* Szív-medál – arany gyöngysor + nagy rózsa szív (a fej vonalát követve) */
+    case "nyak-k": /* Szív-medál – arany gyöngysor a nyak-öbölben + szív lóg le (ua. zóna, mint nyak-a) */
       return '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-        '<path d="M240 140 Q272 178 302 158" fill="none" stroke="#c9a06a" stroke-width="2" opacity="0.4"/>' +
-        '<circle cx="240" cy="140" r="3" fill="#ffd24d"/><circle cx="250.6" cy="151.1" r="3" fill="#ffd24d"/><circle cx="261.1" cy="158.9" r="3" fill="#ffd24d"/><circle cx="271.5" cy="163.5" r="3" fill="#ffd24d"/><circle cx="281.8" cy="164.9" r="3" fill="#ffd24d"/><circle cx="291.9" cy="163.1" r="3" fill="#ffd24d"/><circle cx="302" cy="158" r="3" fill="#ffd24d"/>' +
-        '<path d="M282 165 L282 175" stroke="#222" stroke-width="3.2" stroke-linecap="round"/>' +
-        '<path d="M282 166 L282 174" stroke="#ffd24d" stroke-width="1.7" stroke-linecap="round"/>' +
-        '<path d="M282 182 C279 177 271 178 271 184 C271 191 282 198 282 198 C282 198 293 191 293 184 C293 178 285 177 282 182 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.6"/>' +
-        '<ellipse cx="277" cy="184" rx="2.4" ry="3.6" fill="#fdf4d8" opacity="0.9" stroke="none"/>' +
-        '<path d="M295 178 l1.5 3.6 l3.6 1.5 l-3.6 1.5 l-1.5 3.6 l-1.5 -3.6 l-3.6 -1.5 l3.6 -1.5 Z" fill="#fff2c4" stroke="none"/>' +
-        '<path d="M253 148 l1.1 2.8 l2.8 1.1 l-2.8 1.1 l-1.1 2.8 l-1.1 -2.8 l-2.8 -1.1 l2.8 -1.1 Z" fill="#fff2c4" stroke="none"/>' +
+        '<path d="M236 150 Q266 192 296 168" fill="none" stroke="#c9a06a" stroke-width="2" opacity="0.4"/>' +
+        '<circle cx="236" cy="150" r="3" fill="#ffd24d"/><circle cx="246.1" cy="162.2" r="3" fill="#ffd24d"/><circle cx="256" cy="170.7" r="3" fill="#ffd24d"/><circle cx="266" cy="175.5" r="3" fill="#ffd24d"/><circle cx="276" cy="176.7" r="3" fill="#ffd24d"/><circle cx="286.1" cy="174.2" r="3" fill="#ffd24d"/><circle cx="296" cy="168" r="3" fill="#ffd24d"/>' +
+        '<path d="M266 177.5 L266 187.5" stroke="#222" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M266 178.5 L266 186.5" stroke="#ffd24d" stroke-width="1.7" stroke-linecap="round"/>' +
+        '<path d="M266 191.5 C263 186.5 255 187.5 255 193.5 C255 200.5 266 207.5 266 207.5 C266 207.5 277 200.5 277 193.5 C277 187.5 269 186.5 266 191.5 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.6"/>' +
+        '<ellipse cx="261" cy="195.5" rx="2.4" ry="3.6" fill="#fdf4d8" opacity="0.9" stroke="none"/>' +
+        '<path d="M279 189 l1.5 3.6 l3.6 1.5 l-3.6 1.5 l-1.5 3.6 l-1.5 -3.6 l-3.6 -1.5 l3.6 -1.5 Z" fill="#fff2c4" stroke="none"/>' +
+        '<path d="M243 160 l1.1 2.8 l2.8 1.1 l-2.8 1.1 l-1.1 2.8 l-1.1 -2.8 l-2.8 -1.1 l2.8 -1.1 Z" fill="#fff2c4" stroke="none"/>' +
         '</g>';
-    case "nyak-r": /* Szivárvány-sál – vastag sál a nyak körül, lelógó rojtos végekkel */
+    case "nyak-r": /* Szivárvány-sál – a nyak-öbölben, lelógó rojtos végekkel (ua. zóna) */
       return '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' +
-        '<path d="M236 130 Q272 172 308 130 L302 150 Q272 188 242 150 Z" fill="#f6a5c0"/>' +
-        '<path d="M244 140 Q272 174 300 140" fill="none" stroke="#fce49a" stroke-width="4"/>' +
-        '<path d="M250 138 Q272 168 294 138" fill="none" stroke="#a7d99a" stroke-width="3"/>' +
-        '<path d="M256 176 l3 20 l9 -16 Z" fill="#9ec9f0"/><path d="M272 182 l7 18 l6 -20 Z" fill="#c9a8e6"/>' +
+        '<path d="M236 150 Q272 192 308 150 L302 170 Q272 208 242 170 Z" fill="#f6a5c0"/>' +
+        '<path d="M244 160 Q272 194 300 160" fill="none" stroke="#fce49a" stroke-width="4"/>' +
+        '<path d="M250 158 Q272 188 294 158" fill="none" stroke="#a7d99a" stroke-width="3"/>' +
+        '<path d="M256 196 l3 20 l9 -16 Z" fill="#9ec9f0"/><path d="M272 202 l7 18 l6 -20 Z" fill="#c9a8e6"/>' +
         '</g>';
 
     /* ── HÁT ── takaró/nyereg a test tetején, oldalt lelógva */
@@ -666,27 +666,27 @@ function ruhaSVG(itemId) {
       });
       return s + '</g>';
 
-    /* ── OLDAL (szárny) ── a közeli oldalon, felfelé-hátra */
+    /* ── OLDAL (szárny) ── a vállon, a nyak-tő mögött, felfelé-hátra álló kis szárnyként (zóna: váll, x166–216 y84–152) */
     case "oldal-a": /* Levél-szárny */
       return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M182 136 Q138 88 108 108 Q126 140 158 150 Q136 176 128 206 Q168 172 186 146 Z" fill="#a7d99a"/>' +
-        '<path d="M170 146 Q150 128 120 116 M162 156 Q146 156 128 178" fill="none" stroke="#7fb872" stroke-width="2"/>' +
+        '<path d="M206 152 Q166 128 170 90 Q196 104 210 136 Q216 146 206 152 Z" fill="#a7d99a"/>' +
+        '<path d="M196 128 Q178 112 168 96 M200 140 Q186 138 174 152" fill="none" stroke="#7fb872" stroke-width="2"/>' +
         '</g>';
     case "oldal-k": /* Pillangó-szárny */
       return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M184 138 Q140 96 116 120 Q138 152 180 150 Z" fill="#c9a8e6"/>' +
-        '<path d="M182 150 Q150 172 136 208 Q176 184 188 152 Z" fill="#b58fd8"/>' +
-        '<circle cx="146" cy="128" r="4" fill="#f6a5c0"/><circle cx="156" cy="186" r="3.5" fill="#fce49a"/>' +
+        '<path d="M207 148 Q170 122 176 90 Q198 100 210 124 Z" fill="#c9a8e6"/>' +
+        '<path d="M205 130 Q176 148 168 176 Q194 168 208 142 Z" fill="#b58fd8"/>' +
+        '<circle cx="184" cy="104" r="4" fill="#f6a5c0"/><circle cx="180" cy="158" r="3.5" fill="#fce49a"/>' +
         '</g>';
     case "oldal-r": /* Fény-szárny */
       return '<g stroke-linejoin="round">' +
-        '<ellipse cx="150" cy="150" rx="52" ry="44" fill="#ffe9ad" opacity="0.22"/>' +
+        '<ellipse cx="188" cy="118" rx="46" ry="40" fill="#ffe9ad" opacity="0.22"/>' +
         '<g stroke="#222" stroke-width="1.5">' +
-        '<path d="M184 138 Q150 100 118 104 Q140 128 168 140 Z" fill="#ffffff"/>' +
-        '<path d="M182 146 Q142 128 108 138 Q140 158 176 152 Z" fill="#fff6e0"/>' +
-        '<path d="M180 152 Q150 176 132 210 Q172 184 186 156 Z" fill="#ffffff"/>' +
+        '<path d="M207 150 Q172 116 172 84 Q198 96 212 128 Z" fill="#ffffff"/>' +
+        '<path d="M205 134 Q176 128 166 108 Q192 122 210 140 Z" fill="#fff6e0"/>' +
+        '<path d="M203 144 Q176 156 166 178 Q196 170 208 148 Z" fill="#ffffff"/>' +
         '</g>' +
-        '<path d="M150 120 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#ffd24d"/>' +
+        '<path d="M188 96 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#ffd24d"/>' +
         '</g>';
 
     /* ── FAROK ── a farok tövénél (hátul-balra) */
