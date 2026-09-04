@@ -299,26 +299,42 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .eso-csepp{ animation:odu-eso .8s linear infinite; }
 .ho-pihe{ animation:odu-ho 3.4s linear infinite; }
 
-/* katalógus-panel — a Csillagbolt */
+/* katalógus-panel — a Csillagbolt (teljes rajzolt bolt-nézet) */
 .odu-panel{
-  position:absolute; left:0; right:0; bottom:0; max-height:82vh; overflow-y:auto;
-  background:linear-gradient(#fdf7e1,#f6ecdd); border-top:3px solid #c9a8e6; border-radius:22px 22px 0 0;
-  padding:0 16px 22px; z-index:8; box-shadow:0 -10px 28px rgba(74,59,122,.24);
+  position:absolute; left:0; right:0; top:3vh; bottom:0; overflow:hidden;
+  border-radius:24px 24px 0 0; z-index:8; box-shadow:0 -12px 34px rgba(74,59,122,.3);
 }
-.odu-bolt-fej{
-  margin:0 -16px 6px; padding:0; background:#efe0f6; border-radius:22px 22px 0 0; overflow:hidden;
+.odu-bolt-hatter{ position:absolute; inset:0; z-index:0; }
+.odu-bolt-hatter svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.odu-panel-elo{
+  position:absolute; inset:0; z-index:1; overflow-y:auto;
+  padding:72px 14px 26px;
+  display:flex; flex-direction:column;
 }
-.odu-bolt-fej svg{ display:block; width:100%; height:auto; max-height:132px; }
-.odu-panel-fej{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; position:sticky; top:0; background:linear-gradient(#f6ecdd,#f6ecdd 70%,rgba(246,236,221,0)); padding-top:8px; z-index:2; }
-.odu-fulek{ display:flex; gap:8px; flex-wrap:wrap; }
-.odu-ful{ padding:8px 16px; border-radius:14px; background:var(--uveg); font-weight:800; font-size:15px; color:var(--halvany); }
-.odu-ful.aktiv{ background:var(--levendula); color:#fff; }
-.odu-ful.zar{ opacity:.5; }
-.odu-csoport-cim{ font-weight:800; color:var(--halvany); font-size:15px; margin:14px 0 6px; display:flex; align-items:center; gap:10px; }
-.odu-csoport-le{ font-size:12px; font-weight:800; padding:4px 12px; border-radius:999px; background:var(--uveg); color:var(--halvany); }
+.odu-panel-fej{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:3; margin:0 -14px 8px; padding:8px 14px;
+  background:#efe0f6; box-shadow:0 4px 10px rgba(74,59,122,.12);
+}
+.odu-fulek{ display:flex; gap:7px; flex-wrap:wrap; }
+.odu-ful{ padding:8px 15px; border-radius:14px; background:#e9ddf3; font-weight:800; font-size:14.5px; color:var(--lila-sotet); box-shadow:0 2px 0 #cdbce6; }
+.odu-ful.aktiv{ background:var(--levendula); color:#fff; box-shadow:0 2px 0 #a17fc0; }
+.odu-ful.zar{ opacity:.5; box-shadow:none; }
+#odu-panel-zar{ background:#fdf0d0; }
+
+/* egy csoport = egy polc */
+.odu-csoport-cim{
+  font-weight:800; color:#6a4a8a; font-size:14px; margin:12px 0 6px; display:inline-flex; align-items:center; gap:10px;
+  background:#fdf4d8; border:1.5px solid #d9b8e0; border-radius:999px; padding:4px 14px; align-self:flex-start;
+}
+.odu-csoport-le{ font-size:11.5px; font-weight:800; padding:3px 10px; border-radius:999px; background:#e9ddf3; color:var(--halvany); }
 .odu-racs{
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:10px;
+  display:flex; gap:10px; overflow-x:auto; padding:8px 6px 14px;
+  background:linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,.12));
+  border-radius:12px; border-bottom:7px solid #b79fd4;
+  scrollbar-width:thin;
 }
+.odu-racs > .odu-tetel{ flex:0 0 130px; }
 .odu-tetel{
   background:#fff; border-radius:16px; padding:9px 9px 11px; text-align:center;
   box-shadow:0 4px 12px rgba(74,59,122,.12); border:2px solid transparent;

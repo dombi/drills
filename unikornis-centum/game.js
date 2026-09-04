@@ -1618,27 +1618,56 @@ function boltStandSVG(cx, cy) {
   return s + '</g>';
 }
 
-/* --- a bolt-panel teteje: rajzolt bolt-jelenet a bolt.svg mintájára (600×150) --- */
-function oduBoltFejSVG() {
-  var s = '<svg viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">';
-  /* ponyva – csipkés cukorcsík a tetején */
-  s += '<path d="M8 22 Q300 8 592 22 L592 30 L8 30 Z" fill="#e79ac0"/>';
-  var pc = ["#f6a5c0", "#fdf0d0"];
-  for (var i = 0; i < 13; i++) { var x = 6 + i * 46; s += '<path d="M' + x + ' 30 q11 12 22 0 Z" fill="' + pc[i % 2] + '"/>'; }
-  /* függő „Csillagbolt" cégér */
-  s += '<line x1="248" y1="18" x2="252" y2="44" stroke="#8f7ab8" stroke-width="2"/><line x1="352" y1="18" x2="348" y2="44" stroke="#8f7ab8" stroke-width="2"/>';
-  s += '<rect x="222" y="42" width="156" height="34" rx="8" fill="#a88fce" stroke="#8f7ab8" stroke-width="1.6"/>';
-  s += csillagSVG(240, 59, 6, "#fdf0d0") + csillagSVG(360, 59, 6, "#fdf0d0");
-  s += '<text x="300" y="65" font-family="\'Comic Sans MS\',sans-serif" font-size="19" font-weight="800" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
-  /* pult */
-  s += '<rect x="14" y="118" width="572" height="30" rx="6" fill="#c197bf"/><rect x="6" y="108" width="588" height="12" rx="4" fill="#d9b8d6"/><rect x="14" y="120" width="572" height="6" fill="#b48fd6"/>';
-  s += '<g fill="#d9b8d6"><path d="M120 126 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><path d="M300 126 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><path d="M470 126 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/></g>';
-  /* csengő a pulton (bal) */
-  s += '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round"><path d="M60 108 q0 -18 15 -18 q15 0 15 18 Z" fill="#e6c34d"/><rect x="56" y="106" width="38" height="5" rx="2" fill="#c9a24d"/><circle cx="75" cy="86" r="3.2" fill="#fff6d8"/></g>';
-  /* cserepes növény (jobb) */
-  s += '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round"><path d="M520 108 h26 l-3 -14 h-20 Z" fill="#f6a5c0"/><path d="M533 94 q-10 -16 -4 -30 q10 12 6 30 Z" fill="#a7d99a"/><path d="M533 94 q0 -18 0 -30 q8 14 4 30 Z" fill="#8cc47c"/><path d="M533 94 q10 -16 4 -30 q-10 12 -6 30 Z" fill="#a7d99a"/></g>';
-  /* csillag-pénztárgép (jobb-közép) */
-  s += '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round"><rect x="452" y="92" width="36" height="16" rx="3" fill="#b79fd4"/><g stroke="#cbb6e6" stroke-width="2.4"><path d="M459 98 l4 4"/><path d="M470 98 l4 4"/><path d="M481 98 l4 4"/></g></g>' + csillagSVG(470, 80, 7, "#ffd24d");
+/* --- a teljes Csillagbolt háttér (680×540) — a bolt.svg mintájára --- */
+function oduBoltSVG() {
+  var s = '<svg viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">';
+  s += '<rect x="0" y="0" width="680" height="540" fill="#2e2350"/>';
+  s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>';
+  s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>';
+  s += '<ellipse cx="340" cy="300" rx="300" ry="240" fill="#ffd9ec" opacity="0.05"/><ellipse cx="340" cy="360" rx="260" ry="150" fill="#e9c9f0" opacity="0.08"/>';
+  /* sarok-csillagok */
+  s += '<g fill="#d9c7ec">' + csillagSVG(150, 112, 4, "#d9c7ec") + csillagSVG(232, 124, 4, "#d9c7ec") + csillagSVG(452, 122, 4, "#d9c7ec") + csillagSVG(540, 112, 4, "#d9c7ec") + '</g>';
+  /* zászlófüzér */
+  s += '<path d="M100 108 Q340 140 580 108" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
+  var zc = ["#f6a5c0", "#a7d99a", "#fce49a", "#c3a5e0", "#9ec9f0", "#f6a5c0", "#a7d99a"];
+  var zy = [121, 123, 124, 123, 121, 118, 114];
+  for (var z = 0; z < 7; z++) { var zx = 236 + z * 48; s += '<path d="M' + zx + ' ' + zy[z] + ' l16 0 l-8 12 Z" fill="' + zc[z] + '"/>'; }
+  /* „csillagbolt" cégér */
+  s += '<line x1="300" y1="78" x2="305" y2="66" stroke="#8f7ab8" stroke-width="2"/><line x1="380" y1="78" x2="375" y2="66" stroke="#8f7ab8" stroke-width="2"/>';
+  s += '<circle cx="305" cy="65" r="2.5" fill="#8f7ab8"/><circle cx="375" cy="65" r="2.5" fill="#8f7ab8"/>';
+  s += '<rect x="272" y="74" width="136" height="38" rx="9" fill="#a88fce" stroke="#8f7ab8" stroke-width="1.6"/>';
+  s += csillagSVG(288, 93, 6, "#fdf0d0") + csillagSVG(392, 93, 6, "#fdf0d0");
+  s += '<text x="340" y="99" font-family="\'Comic Sans MS\',sans-serif" font-size="17" font-weight="800" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
+  /* 4-polcos szekrény: fejléc-táblák + oszlopok + polc-lécek (halványan, hogy a kártyák uralják) */
+  var lab = [["holmik", 150], ["kinézet", 280], ["kellékek", 410], ["időjárás", 540]];
+  s += '<g opacity="0.62">';
+  s += '<g stroke="#ab90cf" stroke-width="1">';
+  [[90, "#d3c0ea"], [220, "#cdbce6"], [350, "#d3c0ea"], [480, "#cdbce6"]].forEach(function (c) { s += '<rect x="' + c[0] + '" y="168" width="120" height="204" fill="' + c[1] + '"/>'; });
+  s += '</g>';
+  s += '<g fill="#b79fd4">';
+  [93, 223, 353, 483].forEach(function (x) { [236, 303, 356].forEach(function (y) { s += '<rect x="' + x + '" y="' + y + '" width="114" height="5"/>'; }); s += '<rect x="' + x + '" y="368" width="114" height="6"/>'; });
+  s += '</g>';
+  [98, 228, 358, 488].forEach(function (x) { s += '<rect x="' + x + '" y="150" width="104" height="18" rx="4" fill="#a88fce"/>'; });
+  lab.forEach(function (l) { s += '<text x="' + l[1] + '" y="163" font-family="sans-serif" font-size="12" fill="#fdf0d0" text-anchor="middle">' + l[0] + '</text>'; });
+  s += '</g>';
+  /* padló + szivárvány-szőnyeg */
+  s += '<rect x="0" y="430" width="680" height="110" fill="#e3c9de"/>';
+  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.55"><line x1="0" y1="470" x2="680" y2="470"/><line x1="0" y1="505" x2="680" y2="505"/><line x1="150" y1="430" x2="150" y2="540"/><line x1="340" y1="430" x2="340" y2="540"/><line x1="530" y1="430" x2="530" y2="540"/></g>';
+  s += '<ellipse cx="340" cy="502" rx="152" ry="28" fill="#f6a5c0"/><ellipse cx="340" cy="502" rx="110" ry="20" fill="#f7c59f"/><ellipse cx="340" cy="502" rx="64" ry="11" fill="#a7d99a"/>';
+  /* pult árcédulákkal */
+  s += '<ellipse cx="340" cy="474" rx="292" ry="15" fill="#3b2f66" opacity="0.16"/>';
+  s += '<rect x="60" y="414" width="560" height="58" fill="#c197bf"/><rect x="52" y="404" width="576" height="12" rx="3" fill="#d9b8d6"/><rect x="60" y="416" width="560" height="7" fill="#b48fd6"/>';
+  s += '<g fill="none" stroke="#d9b8d6" stroke-width="2"><rect x="120" y="430" width="96" height="28" rx="3"/><rect x="300" y="430" width="96" height="28" rx="3"/><rect x="470" y="430" width="96" height="28" rx="3"/></g>';
+  s += '<g fill="#d9b8d6">' + csillagSVG(168, 444, 4, "#d9b8d6") + csillagSVG(348, 444, 4, "#d9b8d6") + csillagSVG(518, 444, 4, "#d9b8d6") + '</g>';
+  /* csengő */
+  s += '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round"><path d="M84 404 q0 -20 17 -20 q17 0 17 20 Z" fill="#e6c34d"/><rect x="78" y="402" width="46" height="6" rx="3" fill="#c9a24d"/><circle cx="101" cy="380" r="3.6" fill="#fff6d8"/></g>';
+  /* csillag-pénztárgép */
+  s += '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round"><rect x="470" y="388" width="46" height="24" rx="4" fill="#b79fd4"/><g stroke="#cbb6e6" stroke-width="2.6"><path d="M478 398 l5 5"/><path d="M491 398 l5 5"/><path d="M504 398 l5 5"/></g></g>' + csillagSVG(493, 374, 8, "#ffd24d");
+  /* cserepes növény */
+  s += '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round"><rect x="590" y="392" width="26" height="20" rx="3" fill="#c197bf"/><rect x="586" y="386" width="34" height="8" rx="2" fill="#d9b8d6"/>';
+  s += '<path d="M603 386 q-11 -16 -5 -32 q11 12 7 32 Z" fill="#a7d99a"/><path d="M603 386 q0 -20 0 -32 q9 14 5 32 Z" fill="#8cc47c"/><path d="M603 386 q11 -16 5 -32 q-11 12 -7 32 Z" fill="#a7d99a"/></g>';
+  /* csillámok */
+  s += '<g fill="#fff2c4" opacity="0.7">' + csillagSVG(64, 220, 4, "#fff2c4") + csillagSVG(618, 250, 4, "#fff2c4") + csillagSVG(340, 200, 3, "#fff2c4") + csillagSVG(120, 130, 2.6, "#fff2c4") + '</g>';
   s += '</svg>';
   return s;
 }
@@ -1781,7 +1810,7 @@ function renderOdu() {
 function oduPanelNyit() { ODU_FUL = "ido"; renderOduPanel(); $("odu-panel").hidden = false; }
 function oduPanelZar() { $("odu-panel").hidden = true; }
 function renderOduPanel() {
-  var bf = $("odu-bolt-fej"); if (bf && !bf.innerHTML) bf.innerHTML = oduBoltFejSVG();
+  var bf = $("odu-bolt-hatter"); if (bf && !bf.innerHTML) bf.innerHTML = oduBoltSVG();
   var fbox = $("odu-fulek"); fbox.innerHTML = "";
   [
     { id: "holmik", nev: "👗 Holmik" }, { id: "kinezet", nev: "💫 Kinézet", zar: true },
