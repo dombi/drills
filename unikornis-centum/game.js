@@ -863,6 +863,9 @@ function palyaInditas(id) {
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
+  var tovabbMehet0 = (mentes.leny === "ragyogas");
+  $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
+  $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
   mutat("kepernyo-jatek");
   setTimeout(function () { mondd("Induljunk! Gyűjtsük össze a csillagszilánkokat.", function () { kovAllomas(); }); }, 400);
 }
@@ -932,6 +935,9 @@ function ujFeladat() {
   $("valaszter").style.visibility = "visible";
   $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
   $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+  var tovabbMehet = (mentes.leny === "ragyogas");
+  $("tovabb-megoldas-nelkul").hidden = !tovabbMehet;
+  $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet;
   if (f.csalad === "felmondas") {
     $("valasz-egyenkent").hidden = true;
     $("valasz-felmondas").hidden = false;
