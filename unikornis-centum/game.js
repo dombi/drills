@@ -1526,6 +1526,7 @@ var ODU_KAT = {
   ]
 };
 var ODU_FUL = "ido";
+var BOLT_VAL = { holmik: null, ido: null };   /* a bolt aktív fülén kiválasztott tétel { g, id } */
 
 /* v2a: unikornis-ruhák (Holmik). Hely → 3 tétel (alap / különleges / ritka). */
 var RUHAK = {
@@ -1835,63 +1836,149 @@ function renderOduPanel() {
     fbox.appendChild(d);
   });
   var box = $("odu-panel-tartalom"); box.innerHTML = "";
-  if (ODU_FUL === "ido") {
-    box.appendChild(oduCsoport("Napszak", "napszak"));
-    box.appendChild(oduCsoport("Időjárás", "ido"));
-  } else if (ODU_FUL === "holmik") {
-    RUHA_HELY.forEach(function (h) { box.appendChild(oduRuhaCsoport(h)); });
-  }
+  var polcok = el("div", "bolt-polcok"), lap = el("div", "bolt-adatlap");
+  box.appendChild(polcok); box.appendChild(lap);
+  boltPolcokRajzol(polcok);
+  boltAdatlapRajzol(lap);
 }
-function oduRuhaCsoport(hely) {
-  var g = el("div"), o = P().oltozet;
-  var fej = el("div", "odu-csoport-cim");
-  fej.textContent = hely.nev;
-  if (o[hely.kulcs]) {
-    var le = el("button", "odu-csoport-le", "leveszem");
-    le.addEventListener("click", function () { hangGomb(); oduRuhaVisel(hely.kulcs, null); });
-    fej.appendChild(le);
-  }
-  g.appendChild(fej);
-  var racs = el("div", "odu-racs");
-  (RUHAK[hely.kulcs] || []).forEach(function (t) { racs.appendChild(oduRuhaKartya(hely, t)); });
-  g.appendChild(racs);
-  return g;
+
+/* ── a bolt polcos böngészője (Holmik / Időjárás) ── */
+/* egy fül tétel-csoportjai: [{ kulcs, nev, fajta, tetelek:[...] }] */
+function boltCsoportok() {
+  if (ODU_FUL === "holmik")
+    return RUHA_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "ruha", tetelek: RUHAK[h.kulcs] || [] }; });
+  if (ODU_FUL === "ido")
+    return [
+      { kulcs: "napszak", nev: "Napszak", fajta: "ido", tetelek: ODU_KAT.napszak },
+      { kulcs: "ido", nev: "Időjárás", fajta: "ido", tetelek: ODU_KAT.ido }
+    ];
+  return [];
 }
-function oduRuhaKartya(hely, t) {
-  var o = P().oltozet, birt = !!o.van[t.id], viselt = (o[hely.kulcs] === t.id), eleg = P().csillampor >= t.ar;
-  var kart = el("div", "odu-tetel" + (viselt ? " aktiv" : "") + (!birt && !eleg ? " keves" : ""));
-  var mini = el("div", "mini");
-  var proba = {}; proba[hely.kulcs] = t.id;
-  mini.innerHTML = '<svg viewBox="-92 -150 184 172" xmlns="http://www.w3.org/2000/svg">' +
-    unikornisSVG("ruhaproba", LENYEK[mentes.leny], 1, proba) + '</svg>';
-  kart.appendChild(mini);
-  kart.appendChild(el("div", "tnev", t.nev));
-  if (birt) {
-    kart.appendChild(el("div", "tar", viselt ? "rajta van" : "megvan"));
-    var gb = el("button", "tgomb " + (viselt ? "megvan" : "beallit"), viselt ? "Leveszem" : "Felveszem");
-    gb.addEventListener("click", function () { hangGomb(); oduRuhaVisel(hely.kulcs, viselt ? null : t.id); });
-    kart.appendChild(gb);
-  } else if (eleg) {
-    kart.appendChild(el("div", "tar", "✨ " + t.ar));
-    var gv = el("button", "tgomb vesz", "Megveszem");
-    gv.addEventListener("click", function () { oduRuhaVeszKerdes(kart, hely, t); });
-    kart.appendChild(gv);
+function boltBirt(cs, t) {
+  return cs.fajta === "ruha" ? !!P().oltozet.van[t.id] : !!P().odu.van[cs.kulcs][t.id];
+}
+function boltAktiv(cs, t) {
+  return cs.fajta === "ruha" ? (P().oltozet[cs.kulcs] === t.id) : (P().odu[cs.kulcs] === t.id);
+}
+/* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
+function boltKivalasztott() {
+  var csk = boltCsoportok(), sel = BOLT_VAL[ODU_FUL], i, j;
+  if (sel) for (i = 0; i < csk.length; i++) if (csk[i].kulcs === sel.g)
+    for (j = 0; j < csk[i].tetelek.length; j++) if (csk[i].tetelek[j].id === sel.id)
+      return { cs: csk[i], t: csk[i].tetelek[j], rang: j };
+  if (csk[0] && csk[0].tetelek[0]) {
+    BOLT_VAL[ODU_FUL] = { g: csk[0].kulcs, id: csk[0].tetelek[0].id };
+    return { cs: csk[0], t: csk[0].tetelek[0], rang: 0 };
+  }
+  return null;
+}
+function boltValaszt(gk, id) { BOLT_VAL[ODU_FUL] = { g: gk, id: id }; hangGomb(); renderOduPanel(); }
+
+function boltPolcokRajzol(host) {
+  host.innerHTML = "";
+  var sel = BOLT_VAL[ODU_FUL];
+  boltCsoportok().forEach(function (cs) {
+    var polc = el("div", "bolt-polc");
+    polc.appendChild(el("div", "bolt-polc-cim", cs.nev));
+    var lec = el("div", "bolt-lec");
+    cs.tetelek.forEach(function (t) {
+      var birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), kival = sel && sel.g === cs.kulcs && sel.id === t.id;
+      var slot = el("button", "bolt-slot" + (birt ? " van" : "") + (aktiv ? " visel" : "") + (kival ? " valasztott" : ""));
+      var kep = el("div", "bolt-slot-kep"); kep.innerHTML = boltThumb(cs, t);
+      slot.appendChild(kep);
+      slot.appendChild(el("div", "bolt-arcimke", t.ar === 0 ? "alap" : ("✨" + t.ar)));
+      if (birt) slot.appendChild(el("div", "bolt-pipa", "✓"));
+      slot.addEventListener("click", function () { boltValaszt(cs.kulcs, t.id); });
+      lec.appendChild(slot);
+    });
+    polc.appendChild(lec);
+    host.appendChild(polc);
+  });
+}
+function boltThumb(cs, t) {
+  if (cs.fajta === "ruha") {
+    var p = {}; p[cs.kulcs] = t.id;
+    return '<svg viewBox="-92 -150 184 172" xmlns="http://www.w3.org/2000/svg">' +
+      unikornisSVG("bt-" + t.id, LENYEK[mentes.leny], 1, p) + '</svg>';
+  }
+  var o = P().odu;
+  return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
+    (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
+}
+
+var BOLT_TIPP = {
+  "fej-a": "Erdei virágokból font koszorú.", "fej-k": "Csillagszikra a szarv köré.", "fej-r": "Vékony holdsarló-korona.",
+  "nyak-a": "Makkokból fűzött lánc.", "nyak-k": "Rózsaszín szív-medál aranyláncon.", "nyak-r": "Puha, színes sál a hidegre.",
+  "hat-a": "Könnyű takaró a hátra.", "hat-k": "Hímzett nyeregtakaró.", "hat-r": "Csillagmintás köpeny.",
+  "lab-a": "Fűzöld pánt mind a négy bokára.", "lab-k": "Fényes ezüst patkó.", "lab-r": "Kristályból csiszolt patkó.",
+  "oldal-a": "Levél alakú kis szárnyak.", "oldal-k": "Pillangó-szárny a röptetéshez.", "oldal-r": "Ragyogó fény-szárny.",
+  "farok-a": "Szalagcsokor a farok tövére.", "farok-k": "Csengettyűk, halkan csilingelnek.", "farok-r": "Fénycsóvás üstökös-farok.",
+  "este": "Csendes esti égbolt, telihold.", "reggel": "Rózsás hajnal, puha felhők.", "del": "Ragyogó déli napsütés.", "eclipse": "Ritka napfogyatkozás, csillagokkal.",
+  "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen."
+};
+function boltAdatlapRajzol(host) {
+  host.innerHTML = "";
+  var k = boltKivalasztott();
+  if (!k) { host.appendChild(el("div", "bolt-lap-ures", "Válassz egy tételt a polcról!")); return; }
+  var cs = k.cs, t = k.t, birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), eleg = P().csillampor >= t.ar;
+  var rang = t.ar === 0 ? 0 : (k.rang >= cs.tetelek.length - 1 ? 2 : 1);
+  if (rang > 0) host.appendChild(el("div", "bolt-szalag r" + rang, rang === 2 ? "★ ritka" : "különleges"));
+  var elonez = el("div", "bolt-elonezet");
+  if (cs.fajta === "ruha") {
+    var pr = {}; pr[cs.kulcs] = t.id;
+    elonez.innerHTML = '<svg viewBox="-120 -196 240 226" xmlns="http://www.w3.org/2000/svg">' +
+      unikornisSVG("bap", LENYEK[mentes.leny], 1, pr) + '</svg>';
   } else {
-    kart.appendChild(el("div", "tar", "✨ " + t.ar + " · még kevés"));
+    var o2 = P().odu;
+    elonez.innerHTML = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><clipPath id="bolt-korong"><circle cx="100" cy="100" r="86"/></clipPath></defs>' +
+      '<circle cx="100" cy="100" r="92" fill="#a88fce"/>' +
+      '<g clip-path="url(#bolt-korong)"><g transform="translate(28,28)">' +
+      (cs.kulcs === "napszak" ? oduEgSVG(t.id, 144, 144) : oduEgSVG(o2.napszak, 144, 144) + oduIdoSVG(t.id, 144, 144, 10)) +
+      '</g></g><circle cx="100" cy="100" r="92" fill="none" stroke="#8f7ab8" stroke-width="4"/>' +
+      '<line x1="100" y1="12" x2="100" y2="188" stroke="#a88fce" stroke-width="5"/><line x1="12" y1="100" x2="188" y2="100" stroke="#a88fce" stroke-width="5"/></svg>';
   }
-  return kart;
+  host.appendChild(elonez);
+  host.appendChild(el("div", "bolt-lap-cim", t.nev));
+  host.appendChild(el("div", "bolt-lap-tipp", BOLT_TIPP[t.id] || ""));
+  host.appendChild(el("div", "bolt-lap-ar", t.ar === 0 ? "alap – ingyen" : ("✨ " + t.ar)));
+  var akt = el("div", "bolt-lap-akcio"); host.appendChild(akt);
+  boltGombRajzol(akt, cs, t, birt, aktiv, eleg);
 }
-function oduRuhaVeszKerdes(kart, hely, t) {
+function boltGombRajzol(host, cs, t, birt, aktiv, eleg) {
+  host.innerHTML = "";
+  function gomb(txt, cls, fn) {
+    var b = el("button", "bolt-nagy-gomb " + cls, txt);
+    if (fn) b.addEventListener("click", fn); else b.disabled = true;
+    host.appendChild(b); return b;
+  }
+  if (birt) {
+    if (cs.fajta === "ruha") {
+      if (aktiv) gomb("Leveszem", "le", function () { oduRuhaVisel(cs.kulcs, null); });
+      else gomb("Felveszem", "fel", function () { oduRuhaVisel(cs.kulcs, t.id); });
+    } else {
+      if (aktiv) gomb("✓ ez van kint", "kesz", null);
+      else gomb("Beállítom", "fel", function () { oduBeallit(cs.kulcs, t.id); });
+    }
+    return;
+  }
+  if (!eleg) { gomb("✨" + t.ar + " · még " + (t.ar - P().csillampor) + " ✨ kell", "keves", null); return; }
+  gomb("Megveszem ✨" + t.ar, "vesz", function () {
+    if (t.ar >= 60) boltVeszKerdes(host, cs, t); else boltVegrehajt(cs, t);
+  });
+}
+function boltVeszKerdes(host, cs, t) {
   hangGomb();
-  var g = kart.querySelector(".tgomb"); if (g) g.remove();
-  if (kart.querySelector(".odu-megerosit")) return;
-  var box = el("div", "odu-megerosit");
-  var igen = el("button", "igen", "Megveszem ✨" + t.ar);
-  var megse = el("button", "megse", "Mégse");
-  igen.addEventListener("click", function () { oduRuhaVesz(hely, t); });
+  host.innerHTML = "";
+  var igen = el("button", "bolt-nagy-gomb vesz", "Biztos? Megveszem ✨" + t.ar);
+  var megse = el("button", "bolt-nagy-gomb megse", "Mégse");
+  igen.addEventListener("click", function () { boltVegrehajt(cs, t); });
   megse.addEventListener("click", function () { hangGomb(); renderOduPanel(); });
-  box.appendChild(igen); box.appendChild(megse);
-  kart.appendChild(box);
+  host.appendChild(igen); host.appendChild(megse);
+}
+function boltVegrehajt(cs, t) {
+  if (cs.fajta === "ruha") oduRuhaVesz({ kulcs: cs.kulcs }, t);
+  else oduVesz(cs.kulcs, t);
 }
 function oduRuhaVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
@@ -1905,54 +1992,6 @@ function oduRuhaVisel(kulcs, itemId) {
   P().oltozet[kulcs] = itemId;
   hangGomb(); ment();
   renderOdu(); renderOduPanel();
-}
-function oduCsoport(cim, kat) {
-  var g = el("div");
-  g.appendChild(el("div", "odu-csoport-cim", cim));
-  var racs = el("div", "odu-racs"), o = P().odu;
-  ODU_KAT[kat].forEach(function (t) { racs.appendChild(oduTetelKartya(kat, t, o)); });
-  g.appendChild(racs);
-  return g;
-}
-function oduTetelKartya(kat, t, o) {
-  var birt = !!o.van[kat][t.id], aktiv = (o[kat] === t.id), eleg = P().csillampor >= t.ar;
-  var kart = el("div", "odu-tetel" + (aktiv ? " aktiv" : "") + (!birt && !eleg ? " keves" : ""));
-  var mini = el("div", "mini");
-  mini.innerHTML = '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
-    (kat === "napszak" ? oduEgSVG(t.id, 120, 64)
-      : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
-  kart.appendChild(mini);
-  kart.appendChild(el("div", "tnev", t.nev));
-  if (birt) {
-    kart.appendChild(el("div", "tar", t.ar === 0 ? "alap" : ("✨ " + t.ar)));
-    if (aktiv) {
-      kart.appendChild(el("div", "tjelzo", "✓ ez van kint"));
-    } else {
-      var gb = el("button", "tgomb beallit", "Beállítom");
-      gb.addEventListener("click", function () { hangGomb(); oduBeallit(kat, t.id); });
-      kart.appendChild(gb);
-    }
-  } else if (eleg) {
-    kart.appendChild(el("div", "tar", "✨ " + t.ar));
-    var gv = el("button", "tgomb vesz", "Megveszem");
-    gv.addEventListener("click", function () { oduVeszKerdes(kart, kat, t); });
-    kart.appendChild(gv);
-  } else {
-    kart.appendChild(el("div", "tar", "✨ " + t.ar + " · még kevés"));
-  }
-  return kart;
-}
-function oduVeszKerdes(kart, kat, t) {
-  hangGomb();
-  var g = kart.querySelector(".tgomb"); if (g) g.remove();
-  if (kart.querySelector(".odu-megerosit")) return;
-  var box = el("div", "odu-megerosit");
-  var igen = el("button", "igen", "Megveszem ✨" + t.ar);
-  var megse = el("button", "megse", "Mégse");
-  igen.addEventListener("click", function () { oduVesz(kat, t); });
-  megse.addEventListener("click", function () { hangGomb(); renderOduPanel(); });
-  box.appendChild(igen); box.appendChild(megse);
-  kart.appendChild(box);
 }
 function oduVesz(kat, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }

@@ -103,10 +103,23 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
     mennyezeti csillag-lámpa, szivárványos felhő-ágy csillag-párnával, pasztell kályha lánggal,
     gyökérpolc üvegcsékkel, kerek asztal csillag-befőttel, gomba, szivárvány-szőnyeg — rajta az
     unikornis. Nem fotórealisztikus, de a referencia hangulatát viszi.
-- **Következő:** ODÚ v2 (öltöztető – Holmik), majd v3 (berendező – Kellékek), majd v4
+- **2026-09-04 — ODÚ v2 (öltöztető – Holmik) + bolt-átépítés Round 1:**
+  - **v2 Holmik:** 6 hely (Fej / Nyak / Hát / Láb / Oldal-szárny / Farok), helyenként 3 tétel
+    (alap / különleges / ritka). A tárgyak a `ruhaSVG` testre-illesztett rajzaival kerülnek az
+    unikornisra; vétel után rögtön fel is kerül, külön „Felveszem ⇄ Leveszem".
+  - **Bolt = polcos böngésző + adatlap** (nem kártya-rács): bal oldalt fülcsoportonként egy
+    rajzolt fapolc a tételek bélyegképével + ✨ ár-cédulával; megvett tétel a polcon marad
+    halványan + zöld pipa. Jobbra adatlap: ritkaság-szalag, „így áll rajtad" előnézet
+    (Holmik → tárgy az unikornison · Időjárás → ablak-korong), cím + tipp + ár, egy nagy gomb.
+    60 ✨ felett „Biztos?" kérdés, alatta azonnal.
+  - **Tesztelve:** Holmik + Időjárás vásárlás, felvesz/levesz, beállít, megerősítő és „még kevés"
+    ág, odú-stand újranyitás, pálya 1 regresszió – mind hibamentes, konzol tiszta.
+- **Következő:** bolt Round 2 (a 18 ruha „polc-póza" – akasztón / összehajtva / állványon –
+  váltja a mini-unikornis bélyegképeket), majd ODÚ v3 (berendező – Kellékek), majd v4
   (kinézet + gyűjtemény-könyv + jelvények + „ritkán tárgy esik" drop); majd pálya 4–7.
 
 ## Megnyitás
 
-`jatekok/unikornis-centum/unikornis-centum.html` — dupla kattintásra megnyílik a böngészőben
-(Chrome ajánlott a hangos válasz miatt), internet nem kell. Egyetlen önálló fájl.
+Élő verzió: `https://dombi.github.io/drills/unikornis-centum/index.html` (a `drills` repóból).
+Helyben: `drills/unikornis-centum/index.html` böngészőben (Chrome ajánlott a hangos válasz miatt),
+internet nem kell. 3 fájl: `index.html` + `style.css` + `game.js`.

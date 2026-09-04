@@ -149,3 +149,15 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
   függetlenül állítható, egyszerre egy-egy aktív. Vétel után a tétel rögtön ki is kerül.
   — *A `spec-gazdasag-es-katalogus` 4.3 alapján, kiegészítve az időjárással; az árak az első
   hangoláskor még változhatnak.*
+
+## 2026-09-04
+
+- **A bolt NEM kártya-rács, hanem polcos böngésző + adatlap** (hibrid). Bal oldalt rajzolt
+  fapolcokon a tételek (fülcsoportonként egy polc), tételenként ✨ ár-cédula, megvett tétel a
+  polcon marad halványan + zöld pipával. Jobbra adatlap: ritkaság-szalag (alap/különleges/ritka),
+  „így áll rajtad" előnézet (Holmik → a tárgy az unikornison; Időjárás → ablak-korong), cím +
+  1 soros tipp + ✨ ár, és **egy nagy gomb** (Megveszem / Felveszem⇄Leveszem / Beállítom /
+  „✓ ez van kint"). 60 ✨ felett „Biztos?" megerősítő, alatta azonnal. — *Producer-döntés; a
+  spec-rajz-direktiva §8 és a `bolt-osszehasonlito-makett.svg` alapján. Round 1: szerkezet +
+  vásárlási kör kész és tesztelve; Round 2: a 18 ruha „polc-póza" (akasztón/összehajtva/állványon)
+  cseréli a mostani mini-unikornis bélyegképeket.*
