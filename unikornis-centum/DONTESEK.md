@@ -152,6 +152,17 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Kézmentes hangfelismerés az „Erdei bontás" (1.) pályán is** — a producer eldöntötte: hosszú
+  csend/2. hibás próbálkozás után a gép **magától újraindítja a hallgatást** (nem „nyomd meg a
+  gombot" szöveg jön). Új `felmondKezNelkulE()`/`felmondKezNelkulKor()`: a kérdés felolvasása után
+  pittyentés + automatikusan induló élő hallgatás (`bontasEloStart()`), gomb nélkül. A `bontasEloVege()`
+  1. próbálkozás ága és a `bontasEloStart()` általános hiba-ága kézmentes módban automatikusan
+  újraindít (beep + `bontasEloStart()`) ahelyett, hogy gombnyomásra várna. A 2. teljes sikertelen
+  próba után a lépésenkénti beírás-fallback VÁLTOZATLAN. A sikeres felmondás utáni „Tovább →" gomb
+  is VÁLTOZATLAN (szándékos ünneplő szünet, nem gomb-kényszer). Tesztelve fake folyamatos
+  felismerővel: teljes helyes felmondás végig gomb nélkül, 1 hiba (néma biztatás, folytatódik),
+  2 hiba (auto-újraindítás gomb nélkül), 2 teljes sikertelen próba (lépésenkénti fallback) — mind
+  a várt módon viselkedik.
 - **Kézmentes hangfelismerés kiterjesztve a 2. és 3. pályára** (Összeadás-kivonás 10-ig / 20-ig) —
   a producer kérte, hogy a Tízesek ösvényén bevált „nem kell gombot nyomni" mód a többi pályán is
   működjön. Mivel a kézmentes logika (`kezNelkulE/ModUI/Kor/Figyel/Csend`) eleve pálya-független,

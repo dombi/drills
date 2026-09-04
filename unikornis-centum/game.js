@@ -25,8 +25,9 @@ var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat"];
 var PALYAK = [
   {
     id: "bontas-felmondas", nev: "Mondd el a bontásokat", ikon: "🌰",
-    palcim: "Számbontás — hangosan, lentről fölfelé",
+    palcim: "Számbontás — hangosan, lentről fölfelé, kézmentes hang!",
     alap: { tipus: "szambontas" },
+    kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
       { nev: "Két kavics", szam_min: 1, szam_max: 6 },
@@ -510,6 +511,9 @@ function bontasEloStart() {
       beszedTamogatott = false; mentes.valaszmod = "beiras"; ment();
       $("visszajelzes-f").textContent = "Most beírással játszunk.";
       bontasLepesNyit();
+    } else if (felmondKezNelkulE()) {
+      $("visszajelzes-f").textContent = "Nem hallottalak — próbáljuk újra!";
+      setTimeout(function () { if (felmondKezNelkulE()) bontasEloStart(); }, 600);
     } else { $("visszajelzes-f").textContent = "Nem hallottalak — próbáld újra a gombbal!"; }
   });
 }
@@ -542,10 +546,13 @@ function bontasEloVege() {
     $("visszajelzes-f").textContent = "Nézzük lépésenként!";
     mondd("Nézzük lépésenként. " + J.feladat.tipp, function () { bontasLepesNyit(); });
   } else {
+    var felKn = felmondKezNelkulE();
     $("visszajelzes-f").textContent = FB.sor > 0
-      ? ("Eddig " + FB.sor + " pipa megvan! Nyomd meg a gombot, és folytasd elölről!")
+      ? ("Eddig " + FB.sor + " pipa megvan! " + (felKn ? "Folytasd bátran onnan!" : "Nyomd meg a gombot, és folytasd elölről!"))
       : ("Kezdd lentről: nulla meg " + FB.N + ", egy meg " + (FB.N - 1) + " …");
-    mondd("Majdnem! Próbáld újra, lentről kezdve.");
+    mondd("Majdnem! Próbáld újra, lentről kezdve.", function () {
+      if (felKn && felmondKezNelkulE()) { beep(1046, 0.1, "sine", 0, 0.16); setTimeout(function () { if (felmondKezNelkulE()) bontasEloStart(); }, 240); }
+    });
   }
   ment();
 }
@@ -946,10 +953,12 @@ function ujFeladat() {
     $("bontas-lepes").hidden = true;
     $("szambillentyuzet").hidden = true;
     $("beiro-kijelzo").hidden = true;
-    $("mondom-bontas-gomb").style.display = beszedTamogatott ? "" : "none";
+    var felKn = felmondKezNelkulE();
+    $("mondom-bontas-gomb").style.display = (beszedTamogatott && !felKn) ? "" : "none";
     $("mondom-bontas-gomb").textContent = "🎤 Mondom a bontását";
     $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
     if (!beszedTamogatott || mentes.valaszmod === "beiras") { mondd(f.felolvas, function () { bontasLepesNyit(); }); return; }
+    if (felKn) { felmondKezNelkulKor(); return; }
   } else {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
@@ -1416,6 +1425,22 @@ function kezNelkulCsend() {
     $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
     $("beiras-valt").textContent = "🎤 Inkább mondom";
   }
+}
+/* ── KÉZMENTES HANG a felmondás-pályán (Erdei bontás): felolvas → pittyentés →
+   magától indul az élő hallgatás (bontasEloStart). A csend-kezelés a
+   bontasEloVege()-ben / bontasEloStart() hibaágában folytatódik. ── */
+function felmondKezNelkulE() {
+  return !!(J && J.palya && J.palya.kez_nelkul && beszedTamogatott
+    && mentes.valaszmod !== "beiras"
+    && J.feladat && J.feladat.csalad === "felmondas");
+}
+function felmondKezNelkulKor() {
+  if (!felmondKezNelkulE()) return;
+  mondd(J.feladat.felolvas, function () {
+    if (!felmondKezNelkulE()) return;
+    beep(1046, 0.12, "sine", 0, 0.18);
+    setTimeout(function () { if (felmondKezNelkulE()) bontasEloStart(); }, 280);
+  });
 }
 function mikrofonInd() {
   var felm = J.feladat.csalad === "felmondas";
