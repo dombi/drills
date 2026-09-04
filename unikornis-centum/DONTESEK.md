@@ -152,6 +152,13 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Bolt Round 2 kész: mind a 18 ruha „polc-póza" beépítve.** A `POLC_POZ` táblázat (game.js) a
+  rajzoló session anyagából (`polc-poz-mintak.svg` + `polc-poz-15.svg`) — minden tétel saját,
+  210×210-es cella-lokális SVG-ként, a `boltThumb()` ezt használja a mini-unikornis helyett. Az
+  „oldal" (szárny) polc-léc egyedi, nagyobb slot-méretet kap (`.bolt-slot.nagy`, ~202×184 a
+  ~114×118-hoz képest), a spec-polc-poz-beepites.html szerint. Ellenőrizve: mind a 18 slot valódi
+  rajzot mutat (nem üres), a szárny-sor láthatóan nagyobb, pálya 1 + „tovább megoldás nélkül"
+  regresszió zöld, konzol tiszta.
 - **Szárnyak (oldal-a/k/r) nagyítva — a producer döntése, a rajzoló session terve alapján.** A
   korábbi, ma reggel javított kis „váll"-zóna helyett egy nagy (~2,3×), tollazott szárny-sziluett,
   tő a hát tetején ~(172,106), csúcs hátrafelé-fölfelé a farok irányába ~(85,40), TELJESEN LÁTHATÓAN

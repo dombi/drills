@@ -1915,7 +1915,7 @@ function boltPolcokRajzol(host) {
     var lec = el("div", "bolt-lec");
     cs.tetelek.forEach(function (t) {
       var birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), kival = sel && sel.g === cs.kulcs && sel.id === t.id;
-      var slot = el("button", "bolt-slot" + (birt ? " van" : "") + (aktiv ? " visel" : "") + (kival ? " valasztott" : ""));
+      var slot = el("button", "bolt-slot" + (cs.kulcs === "oldal" ? " nagy" : "") + (birt ? " van" : "") + (aktiv ? " visel" : "") + (kival ? " valasztott" : ""));
       var kep = el("div", "bolt-slot-kep"); kep.innerHTML = boltThumb(cs, t);
       slot.appendChild(kep);
       slot.appendChild(el("div", "bolt-arcimke", t.ar === 0 ? "alap" : ("✨" + t.ar)));
@@ -1927,8 +1927,122 @@ function boltPolcokRajzol(host) {
     host.appendChild(polc);
   });
 }
+/* A 18 ruha „polc-pózban" — a testre-illesztett ruhaSVG() MELLÉ egy, a bolti polcon fekvő/lógó
+   változat (a rajzoló session anyaga: polc-poz-mintak.svg + polc-poz-15.svg). Mindegyik saját,
+   210×210-es cella-lokális koordinátában. A tárgy-rajz maga (szín, motívum) nem változik. */
+var POLC_POZ = {
+  "fej-a":
+    '<path d="M84 172 Q74 172 74 148 Q74 106 105 96 Q136 106 136 148 Q136 172 126 172 Z" fill="#d7c4ee" stroke="#222" stroke-width="1.3"/>' +
+    '<path d="M80 110 Q105 88 130 110" fill="none" stroke="#a7d99a" stroke-width="1.6" opacity="0.6"/>' +
+    '<g stroke="#222" stroke-width="0.7"><circle cx="80" cy="110" r="4.5" fill="#f6a5c0"/><circle cx="92" cy="98" r="4.5" fill="#fce49a"/><circle cx="105" cy="93" r="4.5" fill="#a7d99a"/><circle cx="118" cy="98" r="4.5" fill="#9ec9f0"/><circle cx="130" cy="110" r="4.5" fill="#c9a8e6"/></g>' +
+    '<g fill="#ffd24d" stroke="none"><circle cx="80" cy="110" r="1.6"/><circle cx="92" cy="98" r="1.6"/><circle cx="105" cy="93" r="1.6"/><circle cx="118" cy="98" r="1.6"/><circle cx="130" cy="110" r="1.6"/></g>',
+  "fej-k":
+    '<path d="M84 172 Q74 172 74 148 Q74 106 105 96 Q136 106 136 148 Q136 172 126 172 Z" fill="#d7c4ee" stroke="#222" stroke-width="1.3"/>' +
+    '<path d="M80 108 Q105 90 130 108" fill="none" stroke="#e6c34d" stroke-width="3.5"/>' +
+    '<path d="M105 82 l3.5 9 l9.5 0.7 l-7.5 6 l2.8 9.2 l-8.3 -5.4 l-8.3 5.4 l2.8 -9.2 l-7.5 -6 l9.5 -0.7 Z" fill="#ffd24d" stroke="#222" stroke-width="1"/>',
+  "fej-r":
+    '<path d="M84 172 Q74 172 74 148 Q74 106 105 96 Q136 106 136 148 Q136 172 126 172 Z" fill="#d7c4ee" stroke="#222" stroke-width="1.3"/>' +
+    '<path d="M78 112 Q80 90 91 89 l4 8 l7 -11 l7 11 l4 -8 Q120 90 122 112 Z" fill="#d9c7ec" stroke="#222" stroke-width="1.2"/>' +
+    '<path d="M108 82 a10 10 0 1 0 7 17 a8 8 0 1 1 -7 -17 Z" fill="#fdf0d0" stroke="#c9a8e6" stroke-width="1"/>' +
+    '<circle cx="88" cy="103" r="2" fill="#ffd24d"/><circle cx="122" cy="103" r="2" fill="#9ec9f0"/>',
+  "nyak-a":
+    '<rect x="92" y="66" width="26" height="7" rx="3" fill="#b79fd4" stroke="#222" stroke-width="1"/><circle cx="120" cy="69.5" r="4" fill="#cbb6e6" stroke="#222" stroke-width="1"/>' +
+    '<path d="M96 74 C82 92 82 138 105 148 C128 138 128 92 114 74" fill="none" stroke="#8a6a4a" stroke-width="3.4"/>' +
+    '<circle cx="86" cy="98" r="2.6" fill="#a9814e"/><circle cx="124" cy="98" r="2.6" fill="#a9814e"/>' +
+    '<ellipse cx="105" cy="152" rx="8" ry="10" fill="#c08a52" stroke="#222" stroke-width="1.2"/>' +
+    '<path d="M96 148 q9 -7 18 0 l0 -4 q-9 -6 -18 0 Z" fill="#8a6a4a" stroke="#222" stroke-width="1"/><path d="M105 140 v-5" stroke="#8a6a4a" stroke-width="2.4"/>',
+  "nyak-k": /* polc-poz-mintak.svg mintája */
+    '<rect x="96" y="96" width="30" height="8" rx="4" fill="#b79fd4" stroke="#222" stroke-width="1.4"/><circle cx="128" cy="100" r="5" fill="#cbb6e6" stroke="#222" stroke-width="1.4"/>' +
+    '<path d="M104 104 C90 124 90 176 118 190 C146 176 146 124 132 104" fill="none" stroke="#c9a06a" stroke-width="1.4" opacity="0.5"/>' +
+    '<g fill="#ffd24d"><circle cx="103" cy="107" r="2.6"/><circle cx="97" cy="124" r="2.6"/><circle cx="96" cy="142" r="2.6"/><circle cx="100" cy="160" r="2.6"/><circle cx="108" cy="176" r="2.6"/><circle cx="118" cy="184" r="2.6"/><circle cx="128" cy="176" r="2.6"/><circle cx="136" cy="160" r="2.6"/><circle cx="140" cy="142" r="2.6"/><circle cx="139" cy="124" r="2.6"/><circle cx="133" cy="107" r="2.6"/></g>' +
+    '<path d="M118 186 v6" stroke="#ffd24d" stroke-width="2"/>' +
+    '<path d="M118 192 c-4 -3.4 -9 -1.4 -9 3 c0 5.6 9 11 9 11 c0 0 9 -5.4 9 -11 c0 -4.4 -5 -6.4 -9 -3 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.4"/>' +
+    '<path d="M133 182 l1 2.6 l2.6 1 l-2.6 1 l-1 2.6 l-1 -2.6 l-2.6 -1 l2.6 -1 Z" fill="#fff2c4" stroke="none"/>',
+  "nyak-r":
+    '<rect x="92" y="66" width="26" height="7" rx="3" fill="#b79fd4" stroke="#222" stroke-width="1"/><circle cx="120" cy="69.5" r="4" fill="#cbb6e6" stroke="#222" stroke-width="1"/>' +
+    '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +
+    '<path d="M97 74 Q104 68 111 74" fill="none" stroke="#f6a5c0" stroke-width="6"/>' +
+    '<path d="M86 76 Q80 120 76 168 L90 168 Q94 120 98 78 Z" fill="#f6a5c0"/><path d="M124 76 Q130 120 134 168 L120 168 Q116 120 112 78 Z" fill="#f6a5c0"/>' +
+    '<path d="M84 90 Q105 80 126 90" fill="none" stroke="#fce49a" stroke-width="3"/><path d="M85 98 Q105 90 125 98" fill="none" stroke="#a7d99a" stroke-width="2.4"/>' +
+    '</g><path d="M80 168 l2 10 l5 -8 Z" fill="#9ec9f0"/><path d="M128 168 l3 9 l4 -9 Z" fill="#c9a8e6"/>',
+  "hat-a":
+    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
+    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#cbbde6"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#dcd0ec"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#e9ddf3"/>' +
+    '<path d="M63 118 q-7 25 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.2"/><path d="M70 126 q40 -5 74 0" fill="none" stroke="#c9b8e0" stroke-width="1.6"/>' +
+    '</g>',
+  "hat-k": /* polc-poz-mintak.svg mintája */
+    '<rect x="66" y="188" width="110" height="18" rx="3" fill="#b58fd8" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<rect x="70" y="172" width="102" height="18" rx="3" fill="#c9a8e6" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<rect x="74" y="156" width="94" height="18" rx="3" fill="#d7c4ee" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="M74 156 q-8 24 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.4"/><path d="M84 164 q37 -6 66 0" fill="none" stroke="#ffd24d" stroke-width="2" stroke-dasharray="5 3"/>' +
+    '<path d="M117 158 l2.5 6 l6.5 0.6 l-5 4.4 l1.6 6.4 l-5.6 -3.6 l-5.6 3.6 l1.6 -6.4 l-5 -4.4 l6.5 -0.6 Z" fill="#fff6d8"/>',
+  "hat-r":
+    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
+    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#4f4590"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#5a4fa0"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#6a5fb0"/>' +
+    '<path d="M82 124 l1.6 4 l4 0.4 l-3 2.8 l1 4 l-3.6 -2.3 l-3.6 2.3 l1 -4 l-3 -2.8 l4 -0.4 Z" fill="#fff6d8" stroke="none"/><circle cx="122" cy="126" r="1.6" fill="#fff6d8" stroke="none"/><circle cx="103" cy="115" r="3" fill="#ffd24d"/>' +
+    '</g>',
+  "lab-a":
+    '<path d="M55 92 h100 M60 92 v-9 M150 92 v-9" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +
+    '<rect x="78" y="98" width="24" height="30" rx="4" fill="#a7d99a"/><path d="M90 98 l-4 -6 l4 -1 l4 1 Z" fill="#8cc47c"/>' +
+    '<rect x="112" y="98" width="24" height="30" rx="4" fill="#a7d99a"/><path d="M124 98 l-4 -6 l4 -1 l4 1 Z" fill="#8cc47c"/>' +
+    '</g>',
+  "lab-k": /* polc-poz-mintak.svg mintája */
+    '<ellipse cx="128" cy="177" rx="30" ry="7" fill="#c9b8e0" stroke="#222" stroke-width="1.4"/>' +
+    '<rect x="123" y="107" width="10" height="70" rx="3" fill="#b79fd4" stroke="#222" stroke-width="1.4"/>' +
+    '<path d="M128 107 q14 0 14 12" fill="none" stroke="#b79fd4" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M130 123 Q130 143 146 143 Q162 143 162 123" fill="none" stroke="#cfd6de" stroke-width="6" stroke-linecap="round"/>' +
+    '<g fill="#eef2f6" stroke="none"><circle cx="134" cy="137" r="1.4"/><circle cx="146" cy="143" r="1.4"/><circle cx="158" cy="137" r="1.4"/></g>' +
+    '<path d="M92 167 a10 9 0 0 1 20 0" fill="none" stroke="#f4b8d8" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M102 153 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#fff6d8" stroke="none"/>',
+  "lab-r":
+    '<path d="M55 92 h100 M60 92 v-9 M150 92 v-9" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g stroke-linecap="round">' +
+    '<path d="M78 122 a14 12 0 0 1 28 0" fill="none" stroke="#f4b8d8" stroke-width="5"/><path d="M92 98 l2 4 l4 1 l-4 2 l-2 4 l-2 -4 l-4 -2 l4 -1 Z" fill="#fff6d8"/>' +
+    '<path d="M114 122 a14 12 0 0 1 28 0" fill="none" stroke="#f4b8d8" stroke-width="5"/><path d="M128 98 l2 4 l4 1 l-4 2 l-2 4 l-2 -4 l-4 -2 l4 -1 Z" fill="#fff6d8"/>' +
+    '</g>',
+  "oldal-a": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
+    '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M150 148 Q36 130 52 28 Q112 66 148 92 Q206 122 168 184 Q98 176 150 148 Z" fill="#a7d99a"/>' +
+    '<path d="M118 86 Q78 58 42 36 M108 128 Q76 138 50 172 M132 108 Q100 112 70 128" fill="none" stroke="#7fb872" stroke-width="2"/>' +
+    '</g><circle cx="150" cy="146" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
+  "oldal-k": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
+    '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' +
+    '<path d="M150 118 Q56 26 22 78 Q54 140 146 132 Z" fill="#c9a8e6"/>' +
+    '<path d="M146 132 Q84 172 46 186 Q128 168 152 136 Z" fill="#b58fd8"/>' +
+    '<circle cx="58" cy="80" r="7" fill="#f6a5c0"/><circle cx="72" cy="98" r="5" fill="#fce49a"/><circle cx="80" cy="158" r="5.5" fill="#fce49a"/>' +
+    '</g><circle cx="149" cy="128" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
+  "oldal-r": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
+    '<ellipse cx="112" cy="106" rx="92" ry="78" fill="#ffe9ad" opacity="0.28"/>' +
+    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+    '<path d="M150 128 Q86 40 26 46 Q66 92 122 122 Z" fill="#ffffff"/><path d="M148 140 Q78 108 20 130 Q74 166 132 152 Z" fill="#fff6e0"/><path d="M144 150 Q94 176 58 186 Q112 172 150 156 Z" fill="#ffffff"/>' +
+    '</g><path d="M150 66 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/><circle cx="148" cy="146" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
+  "farok-a":
+    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+    '<path d="M105 48 Q78 34 70 48 Q78 64 105 48 Z" fill="#f6a5c0"/><path d="M105 48 Q132 34 140 48 Q132 64 105 48 Z" fill="#f6a5c0"/>' +
+    '<circle cx="105" cy="48" r="5" fill="#e88bb4"/><path d="M100 54 l-8 20 M110 54 l8 20" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
+    '</g>',
+  "farok-k":
+    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+    '<path d="M90 40 Q105 32 120 40" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
+    '<path d="M97 46 q-8 0 -8 10 l0 7 l18 0 l0 -7 q0 -10 -8 -10 Z" fill="#ffd24d"/><circle cx="97.5" cy="66" r="2.6" fill="#e0a52e"/><circle cx="97" cy="42" r="2.6" fill="#ffe6a0"/>' +
+    '</g>',
+  "farok-r":
+    '<path d="M105 20 v12 M105 20 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g stroke-linejoin="round">' +
+    '<path d="M105 34 Q84 62 68 96" fill="none" stroke="#fff2c4" stroke-width="12" stroke-linecap="round" opacity="0.5"/>' +
+    '<path d="M105 34 Q86 60 72 94" fill="none" stroke="#ffe08a" stroke-width="5" stroke-linecap="round" opacity="0.9"/>' +
+    '<path d="M68 96 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.3"/>' +
+    '</g>'
+};
 function boltThumb(cs, t) {
   if (cs.fajta === "ruha") {
+    var poz = POLC_POZ[t.id];
+    if (poz) return '<svg viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg">' + poz + '</svg>';
     var p = {}; p[cs.kulcs] = t.id;
     return '<svg viewBox="-92 -150 184 172" xmlns="http://www.w3.org/2000/svg">' +
       unikornisSVG("bt-" + t.id, LENYEK[mentes.leny], 1, p) + '</svg>';
