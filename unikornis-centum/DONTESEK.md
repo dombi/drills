@@ -152,6 +152,14 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Kézmentes hangfelismerés kiterjesztve a 2. és 3. pályára** (Összeadás-kivonás 10-ig / 20-ig) —
+  a producer kérte, hogy a Tízesek ösvényén bevált „nem kell gombot nyomni" mód a többi pályán is
+  működjön. Mivel a kézmentes logika (`kezNelkulE/ModUI/Kor/Figyel/Csend`) eleve pálya-független,
+  csak a `csalad==="egyenkent"` feladatcsaládot nézi, elég volt a két pályára is rátenni a
+  `kez_nelkul: true` zászlót — ugyanaz a bevált mechanizmus fut. Tesztelve fake felismerővel:
+  helyes és rossz válasz is, a kör mindkét esetben újraindul gomb nélkül. Az „Erdei bontás" (1.
+  pálya, felmondás-család) **szándékosan kimaradt** — az egy másik, Gergő-féle élő-hallgatós
+  folyamat, ahhoz külön kézmentes indítást kell építeni (ld. lent, következő lépés).
 - **Ruha-horgonypontok javítva — a fej/nyak/oldal kiegészítők eddig csálén, egymást takarva
   ültek** (producer screenshot alapján: virágkoszorú a szem vonalán, szív-medál a pofán lógva,
   levél-szárny a has közepén). Új zónák: **fej-korona** (a fej tetején, a szem vonala fölött,

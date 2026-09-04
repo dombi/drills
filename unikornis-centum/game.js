@@ -41,8 +41,9 @@ var PALYAK = [
   },
   {
     id: "oszkiv-10", nev: "Összeadás-kivonás 10-ig", ikon: "➕",
-    palcim: "Adj össze és vegyél el — átlépés nélkül",
+    palcim: "Adj össze és vegyél el — kézmentes hang!",
     alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs" },
+    kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
       { nev: "Első lépés", darab: 5, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
@@ -57,8 +58,9 @@ var PALYAK = [
   },
   {
     id: "oszkiv-20", nev: "Összeadás-kivonás 20-ig", ikon: "➖",
-    palcim: "Húszig — most jön a tízes átlépés",
+    palcim: "Húszig — most jön a tízes átlépés, kézmentes hang!",
     alap: { tipus: "osszeadas", eredmeny_max: 20 },
+    kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
       { nev: "Húszig nyújtózunk", darab: 5, a_min: 5, a_max: 12, b_min: 3, b_max: 8, atlepes: "nincs" },
