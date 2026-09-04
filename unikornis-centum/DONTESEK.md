@@ -152,6 +152,16 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Szárnyak (oldal-a/k/r) nagyítva — a producer döntése, a rajzoló session terve alapján.** A
+  korábbi, ma reggel javított kis „váll"-zóna helyett egy nagy (~2,3×), tollazott szárny-sziluett,
+  tő a hát tetején ~(172,106), csúcs hátrafelé-fölfelé a farok irányába ~(85,40), TELJESEN LÁTHATÓAN
+  a test/sörény előtt (ez felülírja a korábbi „test mögül induljon" tervet — mockup-visszajelzés
+  alapján rosszul nézett ki). Meleg (arany) szín a Fény-szárnynál a hideg kék/lila sörény mellett.
+  A `spec-grafikai-eszkozlista.html` §3.1 zóna-szabálya kivételt kapott erre a helyre (a súly-limit
+  a többi zónára érvényes marad — a szárny szándékosan az egyetlen nagy, feltűnő tétel). A bolt
+  Round 2-ben az „oldal" léc egyedi, 220×210-es art-boxot kap (a másik 5 marad 132×150) — ezt a
+  polc-poz-integráláskor kell figyelembe venni. Ellenőrizve mindhárom bőrön, koronával/nyaklánccal/
+  köpennyel együtt is — nincs csúnya ütközés.
 - **Betűtípus: Fredoka (Google Fonts, OFL).** Eddig rendszer-betűtípussal futott a játék
   (`Segoe UI` / `Comic Sans MS` fallback) — egy másik beszélgetés nyílt forrású eszközöket
   gyűjtött, ebből ez volt az egyetlen, ami tényleg beleillik: kerek, playful, gyerekbarát,

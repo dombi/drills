@@ -676,26 +676,31 @@ function ruhaSVG(itemId) {
       return s + '</g>';
 
     /* ── OLDAL (szárny) ── a vállon, a nyak-tő mögött, felfelé-hátra álló kis szárnyként (zóna: váll, x166–216 y84–152) */
-    case "oldal-a": /* Levél-szárny */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M206 152 Q166 128 170 90 Q196 104 210 136 Q216 146 206 152 Z" fill="#a7d99a"/>' +
-        '<path d="M196 128 Q178 112 168 96 M200 140 Q186 138 174 152" fill="none" stroke="#7fb872" stroke-width="2"/>' +
+    /* NAGYÍTOTT + JÓVÁHAGYOTT IRÁNY (2026-09-04, spec-szarny-nagyitas.html): tő a hát-tetőn
+       ~(172,106), a csúcs hátrafelé-fölfelé dől a farok irányába (~(85,40)), kb. 2,3× a korábbi
+       méretnek, teljesen LÁTHATÓAN a test/sörény előtt (nem bújik el mögötte). */
+    case "oldal-a": /* Levél-szárny — egy nagy, hegyes levél */
+      return '<g stroke="#222" stroke-width="1.8" stroke-linejoin="round">' +
+        '<path d="M172 106 Q116 90 82 42 Q146 66 180 96 Q198 108 188 118 Q178 122 172 106 Z" fill="#a7d99a"/>' +
+        '<path d="M172 104 Q142 90 96 52 M164 100 Q144 100 118 84" fill="none" stroke="#7fb872" stroke-width="2.2"/>' +
+        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
         '</g>';
-    case "oldal-k": /* Pillangó-szárny */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M207 148 Q170 122 176 90 Q198 100 210 124 Z" fill="#c9a8e6"/>' +
-        '<path d="M205 130 Q176 148 168 176 Q194 168 208 142 Z" fill="#b58fd8"/>' +
-        '<circle cx="184" cy="104" r="4" fill="#f6a5c0"/><circle cx="180" cy="158" r="3.5" fill="#fce49a"/>' +
+    case "oldal-k": /* Pillangó-szárny — két lebeny, pöttyökkel */
+      return '<g stroke="#222" stroke-width="1.7" stroke-linejoin="round">' +
+        '<path d="M172 106 Q112 76 76 36 Q108 44 140 60 Q168 78 178 98 Q182 104 172 106 Z" fill="#c9a8e6"/>' +
+        '<path d="M172 110 Q135 128 108 165 Q112 138 140 118 Q160 108 172 110 Z" fill="#b58fd8"/>' +
+        '<circle cx="118" cy="66" r="5.5" fill="#f6a5c0"/><circle cx="140" cy="86" r="4" fill="#fce49a"/><circle cx="128" cy="145" r="4.5" fill="#fce49a"/>' +
+        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
         '</g>';
-    case "oldal-r": /* Fény-szárny */
+    case "oldal-r": /* Fény-szárny — glóriás, csillanó */
       return '<g stroke-linejoin="round">' +
-        '<ellipse cx="188" cy="118" rx="46" ry="40" fill="#ffe9ad" opacity="0.22"/>' +
-        '<g stroke="#222" stroke-width="1.5">' +
-        '<path d="M207 150 Q172 116 172 84 Q198 96 212 128 Z" fill="#ffffff"/>' +
-        '<path d="M205 134 Q176 128 166 108 Q192 122 210 140 Z" fill="#fff6e0"/>' +
-        '<path d="M203 144 Q176 156 166 178 Q196 170 208 148 Z" fill="#ffffff"/>' +
+        '<ellipse cx="128" cy="86" rx="92" ry="78" fill="#ffe9ad" opacity="0.26"/>' +
+        '<g stroke="#222" stroke-width="1.6">' +
+        '<path d="M170 108 Q120 82 85 40 Q140 55 175 62 Q195 62 205 82 Q220 78 205 100 Q190 108 170 108 Z" fill="#ffffff"/>' +
+        '<path d="M172 104 Q130 84 100 50 M178 90 Q160 78 145 64" fill="none" stroke="#f0d9a0" stroke-width="1.6"/>' +
         '</g>' +
-        '<path d="M188 96 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#ffd24d"/>' +
+        '<path d="M96 46 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/>' +
+        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
         '</g>';
 
     /* ── FAROK ── a farok tövénél (hátul-balra) */
