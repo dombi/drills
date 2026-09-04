@@ -11,7 +11,7 @@
 [hidden]{ display:none !important; }
 html,body{ height:100%; }
 body{
-  font-family:"Segoe UI","Comic Sans MS",system-ui,sans-serif;
+  font-family:"Fredoka","Segoe UI","Comic Sans MS",system-ui,sans-serif;
   background:var(--hatter); color:var(--szoveg);
   overflow:hidden; user-select:none; -webkit-user-select:none;
 }

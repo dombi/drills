@@ -152,6 +152,14 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
 
 ## 2026-09-04
 
+- **Betűtípus: Fredoka (Google Fonts, OFL).** Eddig rendszer-betűtípussal futott a játék
+  (`Segoe UI` / `Comic Sans MS` fallback) — egy másik beszélgetés nyílt forrású eszközöket
+  gyűjtött, ebből ez volt az egyetlen, ami tényleg beleillik: kerek, playful, gyerekbarát,
+  ingyenes, nincs licenc-teendő. Betöltve `index.html`-ben Google Fonts linkkel (400/500/600/700),
+  a CSS és a bolt-cégér/pálya-állomás SVG-feliratok is erre váltva. A többi javaslat (Kenney UI/
+  hang/részecske-csomagok, stock unikornis-SVG-k) SZÁNDÉKOSAN kimaradt — saját, felismerhető
+  rajzstílusuk ütne a kézzel rajzolt pasztell egységünkkel; a Howler.js/canvas-confetti sem kell,
+  mert a hangjaink WebAudio-generáltak (`beep()`), a konfettink saját (`konfettiSzor()`).
 - **Kézmentes hangfelismerés az „Erdei bontás" (1.) pályán is** — a producer eldöntötte: hosszú
   csend/2. hibás próbálkozás után a gép **magától újraindítja a hallgatást** (nem „nyomd meg a
   gombot" szöveg jön). Új `felmondKezNelkulE()`/`felmondKezNelkulKor()`: a kérdés felolvasása után

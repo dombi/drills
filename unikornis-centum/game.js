@@ -772,7 +772,7 @@ function jelenetSVG(palya, lenyKulcs) {
       '<rect x="' + (ax - 4) + '" y="' + (ay - 36) + '" width="8" height="42" fill="#b79c86"/>' +
       '<g transform="translate(' + ax + ',' + (ay - 46) + ')">' +
         '<rect x="-58" y="-16" width="116" height="32" rx="12" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/>' +
-        '<text x="0" y="5" font-size="14" font-family="sans-serif" fill="#6a4a8a" text-anchor="middle">' + kiiras(palya.allomasok[s].nev) + '</text>' +
+        '<text x="0" y="5" font-size="14" font-family="Fredoka,sans-serif" fill="#6a4a8a" text-anchor="middle">' + kiiras(palya.allomasok[s].nev) + '</text>' +
       '</g>' +
       '<g class="allomas-pipa" id="pipa-' + s + '" transform="translate(' + ax + ',' + (ay - 2) + ')" opacity="0"><circle r="12" fill="#a7d99a"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
   }
@@ -1676,7 +1676,7 @@ function oduBoltSVG() {
   s += '<circle cx="305" cy="65" r="2.5" fill="#8f7ab8"/><circle cx="375" cy="65" r="2.5" fill="#8f7ab8"/>';
   s += '<rect x="272" y="74" width="136" height="38" rx="9" fill="#a88fce" stroke="#8f7ab8" stroke-width="1.6"/>';
   s += csillagSVG(288, 93, 6, "#fdf0d0") + csillagSVG(392, 93, 6, "#fdf0d0");
-  s += '<text x="340" y="99" font-family="\'Comic Sans MS\',sans-serif" font-size="17" font-weight="800" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
+  s += '<text x="340" y="99" font-family="Fredoka,\'Comic Sans MS\',sans-serif" font-size="17" font-weight="700" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
   /* 4-polcos szekrény: fejléc-táblák + oszlopok + polc-lécek (halványan, hogy a kártyák uralják) */
   var lab = [["holmik", 150], ["kinézet", 280], ["kellékek", 410], ["időjárás", 540]];
   s += '<g opacity="0.62">';
@@ -1687,7 +1687,7 @@ function oduBoltSVG() {
   [93, 223, 353, 483].forEach(function (x) { [236, 303, 356].forEach(function (y) { s += '<rect x="' + x + '" y="' + y + '" width="114" height="5"/>'; }); s += '<rect x="' + x + '" y="368" width="114" height="6"/>'; });
   s += '</g>';
   [98, 228, 358, 488].forEach(function (x) { s += '<rect x="' + x + '" y="150" width="104" height="18" rx="4" fill="#a88fce"/>'; });
-  lab.forEach(function (l) { s += '<text x="' + l[1] + '" y="163" font-family="sans-serif" font-size="12" fill="#fdf0d0" text-anchor="middle">' + l[0] + '</text>'; });
+  lab.forEach(function (l) { s += '<text x="' + l[1] + '" y="163" font-family="Fredoka,sans-serif" font-size="12" fill="#fdf0d0" text-anchor="middle">' + l[0] + '</text>'; });
   s += '</g>';
   /* padló + szivárvány-szőnyeg */
   s += '<rect x="0" y="430" width="680" height="110" fill="#e3c9de"/>';
