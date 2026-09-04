@@ -585,12 +585,12 @@ function unikornisSVG(id, c, meret, oltozet) {
 function ruhaSVG(itemId) {
   var s;
   switch (itemId) {
-    case "fej-a": /* Virágkoszorú – koszorú a fej tetején, ív mentén */
+    case "fej-a": /* Virágkoszorú – koszorú a fej tetején, ív mentén (feljebb + nagyobb) */
       s = "";
-      [[240, 118], [256, 92], [284, 78], [314, 86], [338, 114]].forEach(function (p, i) {
+      [[238, 108], [255, 82], [284, 66], [315, 74], [340, 104]].forEach(function (p, i) {
         var szin = ["#f6a5c0", "#fce49a", "#a7d99a", "#9ec9f0", "#c9a8e6"][i];
-        for (var k = 0; k < 5; k++) { var a = Math.PI * 2 / 5 * k - Math.PI / 2; s += '<ellipse cx="' + (p[0] + Math.cos(a) * 4.6).toFixed(1) + '" cy="' + (p[1] + Math.sin(a) * 4.6).toFixed(1) + '" rx="3.2" ry="4.4" fill="' + szin + '" stroke="#222" stroke-width="1.3"/>'; }
-        s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.6" fill="#ffd24d"/>';
+        for (var k = 0; k < 5; k++) { var a = Math.PI * 2 / 5 * k - Math.PI / 2; s += '<ellipse cx="' + (p[0] + Math.cos(a) * 5.4).toFixed(1) + '" cy="' + (p[1] + Math.sin(a) * 5.4).toFixed(1) + '" rx="3.8" ry="5.2" fill="' + szin + '" stroke="#222" stroke-width="1.3"/>'; }
+        s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#ffd24d"/>';
       });
       return '<g stroke-linejoin="round">' + s + '</g>';
     case "fej-k": /* Csillag-szarvdísz – vékony pánt + csillag a szarv tövénél */
@@ -611,11 +611,16 @@ function ruhaSVG(itemId) {
         '<ellipse cx="272" cy="180" rx="8.5" ry="10.5" fill="#c08a52"/>' +
         '<path d="M262 174 q10 -8 20 0 l0 -4 q-10 -6 -20 0 Z" fill="#8a6a4a"/><path d="M272 168 v-5" stroke="#8a6a4a" stroke-width="2.4"/>' +
         '</g>';
-    case "nyak-k": /* Harmatcsepp-medál – lánc + nagy csepp */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M244 146 Q272 174 300 146" fill="none" stroke="#9ec9f0" stroke-width="4"/>' +
-        '<path d="M272 168 q12 15 0 28 q-12 -13 0 -28 Z" fill="#bfe0f5" stroke="#7fb8e0" stroke-width="2"/>' +
-        '<path d="M269 176 q-3 5 0 10" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>' +
+    case "nyak-k": /* Szív-medál – arany gyöngysor + nagy rózsa szív */
+      return '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+        '<path d="M244 146 Q272 196 300 146" fill="none" stroke="#c9a06a" stroke-width="2" opacity="0.45"/>' +
+        '<circle cx="244" cy="146" r="3" fill="#ffd24d"/><circle cx="253.6" cy="160.1" r="3" fill="#ffd24d"/><circle cx="262.5" cy="168.1" r="3" fill="#ffd24d"/><circle cx="272" cy="171" r="3" fill="#ffd24d"/><circle cx="281.5" cy="168.1" r="3" fill="#ffd24d"/><circle cx="290.4" cy="160.1" r="3" fill="#ffd24d"/><circle cx="300" cy="146" r="3" fill="#ffd24d"/>' +
+        '<path d="M272 171 L272 182" stroke="#222" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<path d="M272 172 L272 181" stroke="#ffd24d" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M272 186 C268 180 259 181 259 189 C259 197 272 205 272 205 C272 205 285 197 285 189 C285 181 276 180 272 186 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.6"/>' +
+        '<ellipse cx="266" cy="188" rx="2.6" ry="4" fill="#fdf4d8" opacity="0.9" stroke="none"/>' +
+        '<path d="M287 181 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#fff2c4" stroke="none"/>' +
+        '<path d="M255 155 l1.2 3 l3 1.2 l-3 1.2 l-1.2 3 l-1.2 -3 l-3 -1.2 l3 -1.2 Z" fill="#fff2c4" stroke="none"/>' +
         '</g>';
     case "nyak-r": /* Szivárvány-sál – vastag sál a nyak körül, lelógó rojtos végekkel */
       return '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' +
@@ -1519,7 +1524,7 @@ var ODU_FUL = "ido";
 /* v2a: unikornis-ruhák (Holmik). Hely → 3 tétel (alap / különleges / ritka). */
 var RUHAK = {
   fej:   [{ id: "fej-a", nev: "Virágkoszorú", ar: 20 }, { id: "fej-k", nev: "Csillag-szarvdísz", ar: 60 }, { id: "fej-r", nev: "Hold-korona", ar: 140 }],
-  nyak:  [{ id: "nyak-a", nev: "Makk-lánc", ar: 15 }, { id: "nyak-k", nev: "Harmatcsepp-medál", ar: 50 }, { id: "nyak-r", nev: "Szivárvány-sál", ar: 120 }],
+  nyak:  [{ id: "nyak-a", nev: "Makk-lánc", ar: 15 }, { id: "nyak-k", nev: "Szív-medál", ar: 50 }, { id: "nyak-r", nev: "Szivárvány-sál", ar: 120 }],
   hat:   [{ id: "hat-a", nev: "Pillekönnyű takaró", ar: 30 }, { id: "hat-k", nev: "Hímzett nyeregtakaró", ar: 80 }, { id: "hat-r", nev: "Csillagköpeny", ar: 180 }],
   lab:   [{ id: "lab-a", nev: "Fűzöld bokapánt", ar: 20 }, { id: "lab-k", nev: "Ezüst patkó", ar: 70 }, { id: "lab-r", nev: "Kristály-patkó", ar: 160 }],
   oldal: [{ id: "oldal-a", nev: "Levél-szárny", ar: 40 }, { id: "oldal-k", nev: "Pillangó-szárny", ar: 110 }, { id: "oldal-r", nev: "Fény-szárny", ar: 220 }],
