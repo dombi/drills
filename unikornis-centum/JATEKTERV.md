@@ -128,6 +128,12 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   Aprók a tízeshez. Tesztelés közben egy valódi hibát találtunk és javítottunk: a kézmentes
   hangfelismerő ritkán duplán számolhatta egy válaszra a böngésző kétszeres eseményét, ami
   átugorhatott egy állomást – ez most minden pályán javítva van.
+- **2026-09-05 — 9 PÁLYÁS MŰVELET-LOGIKA.** A 7 helyett 9 pálya, benne 2 új (Tízes-átlépő,
+  Erdő szíve), és a többi átszabva (a 20-ig pálya végig tízesátlépéssel, a Tízesek ösvénye csak
+  kerek tízes, az Erdő mélye csak átlépés nélkül). Az 1. pálya (bontás-felmondás) érintetlen.
+  A generátor `csak_tizes` / `b_tizes` kapcsolót kapott. Minden pálya kézmentes, minden generált
+  feladat a pálya szabályának megfelel (tesztelve). A szám-tartományok javaslatok, élesben
+  hangolhatók.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
   „ritkán tárgy esik" drop).
 
