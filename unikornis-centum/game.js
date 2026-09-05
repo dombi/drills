@@ -42,103 +42,130 @@ var PALYAK = [
   },
   {
     id: "oszkiv-10", nev: "Összeadás-kivonás 10-ig", ikon: "➕",
-    palcim: "Adj össze és vegyél el — kézmentes hang!",
-    alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs" },
+    palcim: "Adj össze és vegyél el — tízig, átlépés nélkül",
+    alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs", a_min: 1, a_max: 9, b_min: 1, b_max: 9 },
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
       { nev: "Első lépés", darab: 5, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
-      { nev: "Gombamező", darab: 5, a_min: 2, a_max: 6, b_min: 1, b_max: 4 },
-      { nev: "Vissza egyet", tipus: "kivonas", darab: 5, a_min: 4, a_max: 10, b_min: 1, b_max: 4 },
-      { nev: "Tízig érünk", darab: 6, a_min: 3, a_max: 8, b_min: 1, b_max: 5 },
+      { nev: "Gombamező", tipus: "kivonas", darab: 5, a_min: 4, a_max: 8, b_min: 1, b_max: 4 },
+      { nev: "Tízig érünk", darab: 5, a_min: 2, a_max: 7, b_min: 1, b_max: 5 },
       { nev: "Levélszőnyeg", tipus: "kivonas", darab: 6, a_min: 5, a_max: 10, b_min: 2, b_max: 6 },
-      { nev: "Vegyes 1", darab: 4, a_min: 2, a_max: 7, b_min: 2, b_max: 6 },
-      { nev: "Vegyes 2", tipus: "kivonas", darab: 4, a_min: 6, a_max: 10, b_min: 2, b_max: 7 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 4, a_max: 9, b_min: 1, b_max: 6, cel: true }
+      { nev: "Vegyes tisztás", darab: 6, a_min: 2, a_max: 8, b_min: 1, b_max: 7 },
+      { nev: "Kerülő kanyar", tipus: "kivonas", darab: 5, a_min: 6, a_max: 10, b_min: 2, b_max: 7 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 3, a_max: 9, b_min: 1, b_max: 7, cel: true }
     ]
   },
   {
     id: "oszkiv-20", nev: "Összeadás-kivonás 20-ig", ikon: "➖",
-    palcim: "Húszig — most jön a tízes átlépés, kézmentes hang!",
-    alap: { tipus: "osszeadas", eredmeny_max: 20 },
+    palcim: "Húszig — most jön a tízes átlépés",
+    alap: { tipus: "osszeadas", eredmeny_max: 20, atlepes: "kell", a_min: 2, a_max: 9, b_min: 2, b_max: 9 },
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Húszig nyújtózunk", darab: 5, a_min: 5, a_max: 12, b_min: 3, b_max: 8, atlepes: "nincs" },
-      { nev: "Elvétel húszból", tipus: "kivonas", darab: 5, a_min: 10, a_max: 20, b_min: 2, b_max: 8, atlepes: "nincs" },
-      { nev: "Éppen tízig", darab: 5, a_min: 6, a_max: 9, b_min: 1, b_max: 4, atlepes: "lehet" },
-      { nev: "Átlépő híd", darab: 6, a_min: 6, a_max: 9, b_min: 5, b_max: 9, atlepes: "kell" },
-      { nev: "Vissza a tízen át", tipus: "kivonas", darab: 6, a_min: 11, a_max: 18, b_min: 3, b_max: 9, atlepes: "kell" },
-      { nev: "Vegyes 1", darab: 5, a_min: 4, a_max: 15, b_min: 3, b_max: 8, atlepes: "lehet" },
-      { nev: "Vegyes 2", tipus: "kivonas", darab: 5, a_min: 8, a_max: 20, b_min: 3, b_max: 9, atlepes: "lehet" },
-      { nev: "Utolsó próba", darab: 6, a_min: 7, a_max: 9, b_min: 6, b_max: 9, atlepes: "kell" },
-      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 12, a_max: 20, b_min: 4, b_max: 9, atlepes: "lehet", cel: true }
+      { nev: "Átlépő híd", darab: 5 },
+      { nev: "Vissza a tízen át", tipus: "kivonas", darab: 5, a_min: 11, a_max: 19 },
+      { nev: "Föl a húszig", darab: 5 },
+      { nev: "Kölcsönző elvétel", tipus: "kivonas", darab: 6, a_min: 11, a_max: 19 },
+      { nev: "Még egy átlépés", darab: 6 },
+      { nev: "Vegyes ráhangolás", darab: 5, atlepes: "lehet" },
+      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 11, a_max: 19, atlepes: "lehet", cel: true }
     ]
   },
   {
     id: "tizesek", nev: "Tízesek ösvénye", ikon: "🔟",
-    palcim: "Teljes tízesek 100-ig — kézmentes hang!",
-    alap: { tipus: "tizesek" },
+    palcim: "Csak kerek tízesek — százig",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, csak_tizes: true, atlepes: "lehet", a_min: 10, a_max: 90, b_min: 10, b_max: 60 },
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Tízes-kövek", darab: 5, muvelet: "+", a_min: 2, a_max: 5, b_min: 1, b_max: 4 },
-      { nev: "Kerek tisztás", darab: 5, muvelet: "+", a_min: 3, a_max: 7, b_min: 2, b_max: 5 },
-      { nev: "Elveszünk tízet", darab: 5, muvelet: "-", a_min: 4, a_max: 9, b_min: 1, b_max: 4 },
-      { nev: "Százig nyújtózunk", darab: 6, muvelet: "+", a_min: 4, a_max: 8, b_min: 3, b_max: 6 },
-      { nev: "Vissza a tízeken", darab: 6, muvelet: "-", a_min: 5, a_max: 10, b_min: 2, b_max: 7 },
-      { nev: "Vegyes tízesek", darab: 6, a_min: 2, a_max: 9, b_min: 1, b_max: 8 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 3, a_max: 9, b_min: 2, b_max: 8, cel: true }
-    ]
-  },
-  {
-    id: "aprok", nev: "Aprók a tízeshez", ikon: "🐜",
-    palcim: "Kétjegyű ± egyjegyű — kézmentes hang!",
-    alap: { tipus: "osszeadas", eredmeny_max: 100 },
-    kez_nelkul: true,
-    allomasok: [
-      { nev: "Rajt" },
-      { nev: "Hangyaboly", darab: 5, a_min: 11, a_max: 30, b_min: 1, b_max: 9, atlepes: "nincs" },
-      { nev: "Levélrakás", darab: 5, a_min: 15, a_max: 45, b_min: 1, b_max: 9, atlepes: "nincs" },
-      { nev: "Morzsagyűjtés", darab: 5, a_min: 12, a_max: 58, b_min: 2, b_max: 9, atlepes: "lehet" },
-      { nev: "Vissza a bolyba", tipus: "kivonas", darab: 5, a_min: 20, a_max: 60, b_min: 1, b_max: 9, atlepes: "nincs" },
-      { nev: "Kölcsönkért falat", tipus: "kivonas", darab: 6, a_min: 21, a_max: 70, b_min: 2, b_max: 9, atlepes: "kell" },
-      { nev: "Vegyes bolyongás", darab: 5, a_min: 11, a_max: 80, b_min: 1, b_max: 9, atlepes: "lehet" },
-      { nev: "Utolsó szemek", tipus: "kivonas", darab: 5, a_min: 20, a_max: 90, b_min: 2, b_max: 9, atlepes: "lehet" },
-      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 90, b_min: 1, b_max: 9, atlepes: "lehet", cel: true }
-    ]
-  },
-  {
-    id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶",
-    palcim: "Kétjegyű ± kerek tízes — kézmentes hang!",
-    alap: { tipus: "osszeadas", eredmeny_max: 100, b_lepes: 10 },
-    kez_nelkul: true,
-    allomasok: [
-      { nev: "Rajt" },
-      { nev: "Kis lépések", darab: 5, a_min: 11, a_max: 40, b_min: 10, b_max: 30 },
-      { nev: "Nagyobb lépés", darab: 5, a_min: 15, a_max: 55, b_min: 10, b_max: 40 },
-      { nev: "Vissza felé", tipus: "kivonas", darab: 5, a_min: 30, a_max: 70, b_min: 10, b_max: 30 },
-      { nev: "Messzebb lépünk", darab: 6, a_min: 20, a_max: 70, b_min: 10, b_max: 50 },
-      { nev: "Lépés visszafelé", tipus: "kivonas", darab: 6, a_min: 40, a_max: 90, b_min: 10, b_max: 50 },
-      { nev: "Vegyes lépések", darab: 5, a_min: 11, a_max: 60, b_min: 10, b_max: 60 },
+      { nev: "Tízes-kövek", darab: 5, a_min: 10, a_max: 40, b_min: 10, b_max: 30 },
+      { nev: "Kerek tisztás", tipus: "kivonas", darab: 5, a_min: 20, a_max: 60, b_min: 10, b_max: 30 },
+      { nev: "Följebb tízesével", darab: 5, a_min: 20, a_max: 60, b_min: 10, b_max: 40 },
+      { nev: "Vissza a tízeken", tipus: "kivonas", darab: 6, a_min: 30, a_max: 80, b_min: 10, b_max: 50 },
+      { nev: "Százig tízesével", darab: 6, a_min: 20, a_max: 80, b_min: 10, b_max: 50 },
+      { nev: "Vegyes tízesek", darab: 5, a_min: 10, a_max: 90, b_min: 10, b_max: 60 },
       { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 30, a_max: 90, b_min: 10, b_max: 60, cel: true }
     ]
   },
   {
-    id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲",
-    palcim: "Kétjegyű ± kétjegyű — kézmentes hang!",
-    alap: { tipus: "osszeadas", eredmeny_max: 100 },
+    id: "aprok", nev: "Aprók a tízeshez", ikon: "🐜",
+    palcim: "Kétjegyű ± egyjegyű — átlépés nélkül",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, atlepes: "nincs", a_min: 11, a_max: 89, b_min: 1, b_max: 8 },
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első nagy lépés", darab: 5, a_min: 11, a_max: 40, b_min: 11, b_max: 30, atlepes: "nincs" },
-      { nev: "Mélyebbre", darab: 5, a_min: 20, a_max: 55, b_min: 12, b_max: 35, atlepes: "nincs" },
-      { nev: "Gyökerek között", darab: 5, a_min: 15, a_max: 60, b_min: 11, b_max: 40, atlepes: "lehet" },
-      { nev: "Visszafelé az ösvényen", tipus: "kivonas", darab: 5, a_min: 30, a_max: 70, b_min: 11, b_max: 40, atlepes: "nincs" },
-      { nev: "Kölcsönző fák", tipus: "kivonas", darab: 6, a_min: 40, a_max: 85, b_min: 15, b_max: 50, atlepes: "kell" },
-      { nev: "Sűrű avar", darab: 6, a_min: 15, a_max: 70, b_min: 11, b_max: 50, atlepes: "lehet" },
-      { nev: "Vegyes ösvény", tipus: "kivonas", darab: 5, a_min: 30, a_max: 90, b_min: 15, b_max: 55, atlepes: "lehet" },
-      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 80, b_min: 11, b_max: 60, atlepes: "lehet", cel: true }
+      { nev: "Hangyaboly", darab: 5, a_min: 11, a_max: 29, b_min: 1, b_max: 6 },
+      { nev: "Levélrakás", tipus: "kivonas", darab: 5, a_min: 15, a_max: 39, b_min: 1, b_max: 6 },
+      { nev: "Morzsagyűjtés", darab: 5, a_min: 11, a_max: 55 },
+      { nev: "Vissza a bolyba", tipus: "kivonas", darab: 6, a_min: 20, a_max: 69 },
+      { nev: "Vegyes bolyongás", darab: 6, a_min: 11, a_max: 79 },
+      { nev: "Utolsó szemek", tipus: "kivonas", darab: 5, a_min: 20, a_max: 89 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 89, cel: true }
+    ]
+  },
+  {
+    id: "lepegeto", nev: "Tízes-lépegető", ikon: "🦶",
+    palcim: "Kétjegyű ± kerek tízes — átlépés nélkül",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, b_tizes: true, atlepes: "nincs", a_min: 11, a_max: 79, b_min: 10, b_max: 60 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Kis lépések", darab: 5, a_min: 11, a_max: 39, b_min: 10, b_max: 30 },
+      { nev: "Vissza felé", tipus: "kivonas", darab: 5, a_min: 31, a_max: 59, b_min: 10, b_max: 30 },
+      { nev: "Nagyobb lépés", darab: 5, a_min: 15, a_max: 59, b_min: 10, b_max: 40 },
+      { nev: "Lépés visszafelé", tipus: "kivonas", darab: 6, a_min: 41, a_max: 79, b_min: 10, b_max: 50 },
+      { nev: "Messzebb lépünk", darab: 6, a_min: 20, a_max: 69, b_min: 10, b_max: 50 },
+      { nev: "Vegyes lépések", darab: 5, a_min: 11, a_max: 69, b_min: 10, b_max: 60 },
+      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 41, a_max: 89, b_min: 10, b_max: 60, cel: true }
+    ]
+  },
+  {
+    id: "atlepo", nev: "Tízes-átlépő", ikon: "🌰",
+    palcim: "Kétjegyű ± egyjegyű — tízesátlépéssel",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, atlepes: "kell", a_min: 11, a_max: 89, b_min: 2, b_max: 9 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Bukkanó", darab: 5, a_min: 11, a_max: 39 },
+      { nev: "Gödör", tipus: "kivonas", darab: 5, a_min: 21, a_max: 49 },
+      { nev: "Kidőlt fa", darab: 5, a_min: 15, a_max: 59 },
+      { nev: "Árok", tipus: "kivonas", darab: 6, a_min: 31, a_max: 79 },
+      { nev: "Meredek", darab: 6, a_min: 20, a_max: 79 },
+      { nev: "Szakadék széle", tipus: "kivonas", darab: 5, a_min: 31, a_max: 89 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 89, cel: true }
+    ]
+  },
+  {
+    id: "erdo-melye", nev: "Erdő mélye", ikon: "🌲",
+    palcim: "Kétjegyű ± kétjegyű — átlépés nélkül",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, atlepes: "nincs", a_min: 11, a_max: 88, b_min: 11, b_max: 70 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Első nagy lépés", darab: 5, a_min: 11, a_max: 40, b_min: 11, b_max: 30 },
+      { nev: "Visszafelé az ösvényen", tipus: "kivonas", darab: 5, a_min: 31, a_max: 60, b_min: 11, b_max: 30 },
+      { nev: "Mélyebbre", darab: 5, a_min: 20, a_max: 60, b_min: 11, b_max: 40 },
+      { nev: "Kölcsön nélkül vissza", tipus: "kivonas", darab: 6, a_min: 41, a_max: 80, b_min: 11, b_max: 50 },
+      { nev: "Sűrű avar", darab: 6, a_min: 15, a_max: 70, b_min: 11, b_max: 50 },
+      { nev: "Vegyes ösvény", tipus: "kivonas", darab: 5, a_min: 31, a_max: 88, b_min: 11, b_max: 60 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 88, b_min: 11, b_max: 70, cel: true }
+    ]
+  },
+  {
+    id: "erdo-szive", nev: "Erdő szíve", ikon: "🌲",
+    palcim: "Kétjegyű ± kétjegyű — tízesátlépéssel",
+    alap: { tipus: "osszeadas", eredmeny_max: 100, atlepes: "kell", a_min: 13, a_max: 88, b_min: 13, b_max: 79 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Küszöb", darab: 5, a_min: 13, a_max: 45, b_min: 13, b_max: 35 },
+      { nev: "Homályösvény", tipus: "kivonas", darab: 5, a_min: 31, a_max: 60, b_min: 13, b_max: 29 },
+      { nev: "Mohos szurdok", darab: 5, a_min: 20, a_max: 65, b_min: 13, b_max: 45 },
+      { nev: "Vaksötét", tipus: "kivonas", darab: 6, a_min: 41, a_max: 85, b_min: 15, b_max: 55 },
+      { nev: "Suttogó mély", darab: 6, a_min: 20, a_max: 75, b_min: 13, b_max: 55 },
+      { nev: "Az erdő szíve", tipus: "kivonas", darab: 5, a_min: 35, a_max: 88, b_min: 15, b_max: 69 },
+      { nev: "Odú-küszöb", darab: 6, a_min: 13, a_max: 88, b_min: 13, b_max: 79, cel: true }
     ]
   }
 ];
@@ -204,12 +231,17 @@ function tippKivonas(a, b) {
   }
   return "Előbb vedd el a tízeseket, aztán az egyeseket.";
 }
+/* kerek tízes sorsolás a megadott [min,max] értéktartományban (a min/max maga értékben van megadva) */
+function veletlenTizes(min, max) { return veletlen(Math.ceil(min / 10), Math.floor(max / 10)) * 10; }
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
     do {
-      a = veletlen(cfg.a_min, cfg.a_max); b = veletlen(cfg.b_min, cfg.b_max);
-      if (cfg.b_lepes) b = Math.max(cfg.b_lepes, Math.round(b / cfg.b_lepes) * cfg.b_lepes);
+      if (cfg.csak_tizes) { a = veletlenTizes(cfg.a_min, cfg.a_max); b = veletlenTizes(cfg.b_min, cfg.b_max); }
+      else {
+        a = veletlen(cfg.a_min, cfg.a_max);
+        b = cfg.b_tizes ? veletlenTizes(cfg.b_min, cfg.b_max) : veletlen(cfg.b_min, cfg.b_max);
+      }
       kulcs = Math.min(a, b) + "|" + Math.max(a, b); kor++;
     } while (kor < 500 && (a + b > emax || !atlepesOK(a, b, "+", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
@@ -221,8 +253,11 @@ var GEN = {
   kivonas: function (cfg, kerultMar) {
     var a, b, kulcs, kor = 0;
     do {
-      a = veletlen(cfg.a_min, cfg.a_max); b = veletlen(cfg.b_min, Math.min(cfg.b_max, a));
-      if (cfg.b_lepes) b = Math.max(cfg.b_lepes, Math.round(b / cfg.b_lepes) * cfg.b_lepes);
+      if (cfg.csak_tizes) { a = veletlenTizes(cfg.a_min, cfg.a_max); b = veletlenTizes(cfg.b_min, cfg.b_max); }
+      else {
+        a = veletlen(cfg.a_min, cfg.a_max);
+        b = cfg.b_tizes ? veletlenTizes(cfg.b_min, cfg.b_max) : veletlen(cfg.b_min, Math.min(cfg.b_max, a));
+      }
       kulcs = a + "|" + b; kor++;
     } while (kor < 500 && (b > a || !atlepesOK(a, b, "-", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
@@ -874,12 +909,13 @@ function renderProfil() {
   LENY_SORREND.forEach(function (k) {
     var c = LENYEK[k], p = mentes.profilok[k];
     var keszDb = Object.keys(p.palyak).filter(function (x) { return p.palyak[x].kesz; }).length;
+    var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan; }).length;
     var kart = el("div", "profil-kartya");
     kart.innerHTML =
       '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' +
       unikornisSVG("p" + k, c, 0.9, p.oltozet) + '</svg>' +
       '<div class="nev">' + (p.becenev ? kiiras(p.becenev) + " · " : "") + c.nev + '</div>' +
-      '<div class="adat">✨ ' + p.csillampor + ' &nbsp;·&nbsp; 🌟 ' + keszDb + '/7</div>';
+      '<div class="adat">✨ ' + p.csillampor + ' &nbsp;·&nbsp; 🌟 ' + keszDb + '/' + palyaOssz + '</div>';
     kart.addEventListener("click", function () { hangGomb(); mentes.leny = k; ment(); renderFomenu(); mutat("kepernyo-fomenu"); });
     lista.appendChild(kart);
   });

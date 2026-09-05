@@ -245,3 +245,29 @@ felszólít: „Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve!
 a gyerek a gyöngyöket nézve újra felmondja (vizuális rögzülés).
 Ezt a MÁSODIK felmondást MÁR NEM ellenőrizzük: a „Tovább →" gomb csak vár,
 a gyerek akkor lép, amikor kész (folyamatosan beszélhet, semmi nem szakítja meg).
+
+## 2026-09-05 — 9 pályás művelet-logika (elfogadott terv szerint)
+
+A `PALYAK` 7 helyett **9 pálya**, benne 2 vadonatúj. Az 1. pálya (`bontas-felmondas`)
+**érintetlen**. Sorrend: `bontas-felmondas, oszkiv-10, oszkiv-20, tizesek, aprok,
+lepegeto, atlepo, erdo-melye, erdo-szive`.
+
+- **Generátor-bővítés** (`GEN.osszeadas` / `GEN.kivonas`, új `veletlenTizes()` segéd):
+  `csak_tizes:true` → `a` és `b` is kerek tízes; `b_tizes:true` → csak `b` kerek tízes.
+  Az `atlepesOK`/`atlepesE` NEM változott — az már eleve kétjegyűnél is a helyes
+  szabályt adja (`a%10+b%10≥10` / `a%10<b%10`). A régi `b_lepes` (2026-09-04) kivéve,
+  a `b_tizes` váltja. A `GEN.tizesek` dedikált generátor használaton kívül (bennhagyva).
+- **8 művelet-pálya** (mind: Rajt + 7 állomás, utolsón `cel:true`, `darab:5–6`,
+  váltakozó +/−): 2) ±10 átlépés nélkül · 3) ±20 **végig tízesátlépéssel** (egyjegyű
+  tagok) · 4) **csak kerek tízesek** 100-ig · 5) kétjegyű ± egyjegyű átlépés nélkül ·
+  6) kétjegyű ± kerek tízes átlépés nélkül · 7) **ÚJ „Tízes-átlépő"**: kétjegyű ±
+  egyjegyű átlépéssel · 8) kétjegyű ± kétjegyű **csak átlépés nélkül** (szűkítve) ·
+  9) **ÚJ „Erdő szíve"**: kétjegyű ± kétjegyű átlépéssel (záró pálya).
+- A `hamarosan` lekerült minden pályáról; a `renderProfil` kész-pálya számláló
+  dinamikus lett (`/9` a beégetett `/7` helyett). Grafika/hang/beszédfelismerés/kerülő/
+  „tovább megoldás nélkül"/mentés érintetlen.
+- **Tesztelve** mesterséges hangfelismerővel: mind a 8 pályán 15–50 minta állomásonként,
+  minden generált feladat a pálya szabályának megfelel (tartomány, kerek/nem kerek,
+  átlépés van/nincs); a 2 új pálya (atlepo, erdo-szive) végigjátszva rajttól célig;
+  pálya 1 + bolt + profil-kártya regresszió zöld, konzol tiszta. A szám-tartományok
+  javaslatok — élesben hangolhatók.
