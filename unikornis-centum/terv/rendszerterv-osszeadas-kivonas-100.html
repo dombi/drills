@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rendszerterv – Összeadás-kivonás kaland (számbontás, 10 · 20 · 100)</title>
+<style>
+  :root{
+    --zold-sotet:#2f6b3a;
+    --zold-vilagos:#eef6ee;
+    --szoveg:#233227;
+    --szurke:#8a938c;
+    --keret:#cdddd0;
+    --kartya:#ffffff;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; padding:0;
+    background:var(--zold-vilagos);
+    color:var(--szoveg);
+    font-family:"Segoe UI", system-ui, sans-serif;
+    line-height:1.55;
+  }
+  .wrap{ max-width:860px; margin:0 auto; padding:28px 20px 90px; }
+
+  h1{ font-size:25px; color:var(--zold-sotet); margin:0 0 4px; }
+  .mottoo{ font-size:14px; color:var(--szurke); margin:0 0 22px; }
+
+  h2{
+    font-size:20px; color:var(--zold-sotet);
+    margin:38px 0 6px; padding-top:14px;
+    border-top:2px solid var(--keret);
+  }
+  h3{ font-size:16px; color:#3c5a44; margin:20px 0 4px; }
+
+  p{ margin:8px 0; }
+
+  .doboz{
+    background:var(--kartya);
+    border:1px solid var(--keret);
+    border-radius:14px;
+    padding:14px 18px;
+    margin:16px 0;
+  }
+  .kesz{
+    background:#f6fbf6;
+    border:1px solid #bcdcc2;
+    border-radius:10px;
+    padding:10px 16px;
+    margin:8px 0;
+  }
+  .kesz ul,.kesz ol{ margin:6px 0; padding-left:22px; }
+  .kesz li{ margin:4px 0; }
+
+  .figyelem{
+    background:#fff7e8;
+    border:1px solid #f0d9a8;
+    border-radius:10px;
+    padding:10px 16px;
+    margin:10px 0;
+  }
+  .mini{ font-size:12px; color:var(--szurke); }
+  .jel{ font-size:13px; }
+
+  table{ border-collapse:collapse; width:100%; font-size:13px; margin:10px 0; }
+  th,td{ border:1px solid var(--keret); padding:6px 9px; text-align:left; vertical-align:top; }
+  th{ background:#f2f8f2; color:var(--zold-sotet); }
+  code{ background:#eef3ee; border:1px solid #dbe6db; border-radius:4px; padding:1px 5px; font-size:12.5px; }
+  pre{ font-size:12.5px; overflow:auto; background:#eef3ee; border:1px solid #dbe6db; border-radius:6px; padding:8px 10px; }
+
+  .tocsor{ font-size:13px; }
+  .tocsor a{ color:var(--zold-sotet); text-decoration:none; }
+  .tocsor a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🦄 Rendszerterv – AmbitusNumerorum: Unicornis Centum</h1>
+  <p class="mottoo">
+    Önálló tanulójáték a Matekos mappába (<b>fájl:</b> <code>unikornis-centum.html</code>).
+    Alap: a <b>Játéktervező/jatekterv-vazlat.html</b> koncepciója + a meglévő
+    <b>tanulojatek-gyujtemeny.html</b> motor bevált megoldásai. Amíg nincs jóváhagyva, kód nem készül.
+  </p>
+
+  <div class="kesz">
+    <b>Jóváhagyott döntések (2026-08-29):</b>
+    <ul style="margin:6px 0">
+      <li><b>Cím:</b> AmbitusNumerorum: Unicornis Centum &nbsp;·&nbsp; <b>fájl:</b> <code>unikornis-centum.html</code></li>
+      <li><b>Tananyag:</b> számbontás felmondása + összeadás-kivonás a 10-es, 20-as, 100-as számkörben
+        – <b>9 pálya</b> (2026-09-05: 7→9, lásd 2.2), mind egy közös erdő-grafikán.</li>
+      <li><b>Valuta:</b> <b>csillámpor</b>. Egy feladatért: ~85% csillámpor, ~15% tárgy.</li>
+      <li><b>Három gyerek egy gépen</b>, külön profillal: <b>Ragyogás</b> (fehér test, arany-rózsaszín
+        sörény, csillag-jel), <b>Tűz</b> (korall/barack test, vörös-narancs-sárga „tűz" sörény, láng-jel –
+        „a vörös unikornis") és <b>Csillámharmat</b> (világoskék test, kék-magenta sörény, hópehely-jel).
+        Keret: elveszett <b>csillagszilánkokat</b> gyűjtenek az erdő éjszakai egére – minden kész pálya egy szilánk.</li>
+      <li><b>Válasz:</b> elsősorban beszéd; kisegítő a <b>0–9 számbillentyűzet</b>.
+        A kivonást így olvassa: „47 mínusz 6. Mennyi?"</li>
+      <li><b>Bagoly-kabala</b> mondja a feladatot és a tippet (beszédbuborékban).</li>
+      <li><b>Pályák: mind szabadon</b> elérhető. A „tovább megoldás nélkül" végig ott van kicsiben.</li>
+      <li><b>Grafika:</b> Claude rajzolja beágyazott SVG-ként, a meglévő pasztell rajzok
+        (<code>odu-belso.svg</code>, <code>bolt.svg</code>, <code>palya-alap-*.svg</code>) stílusában.
+        A három unikornis a gyerekek rajza alapján (<code>unikornis-korall/kek/rozsa.svg</code>).</li>
+      <li><b>Katalógus 4 polca</b> (a <code>bolt.svg</code> szerint): <b>Holmik</b> (ruhák) ·
+        <b>Kinézet</b> (az unikornis saját külseje: szemszín, sörény) · <b>Kellékek</b> (odú
+        berendezés + tárgyak) · <b>Időjárás</b> (napszak + eső/hó/szivárvány).</li>
+      <li><b>Szülői nézet:</b> a gombot 2 mp-ig nyomva (nincs PIN).</li>
+    </ul>
+    <span class="mini">A részletek a lenti szakaszokban és a 6 al-specben (15.).</span>
+  </div>
+
+  <div class="doboz">
+    <b>Tartalom</b>
+    <div class="tocsor">
+      <p>
+        <a href="#s0">0. Alapadatok</a> ·
+        <a href="#s1">1. A játék egy lapon</a> ·
+        <a href="#s2">2. Célközönség és tanulási cél</a> ·
+        <a href="#s3">3. A játék világa</a> ·
+        <a href="#s4">4. A játékmenet szíve</a> ·
+        <a href="#s5">5. Feladatok és tananyag</a> ·
+        <a href="#s6">6. Nehézség és haladás</a> ·
+        <a href="#s7">7. Motiváció és jutalom</a> ·
+        <a href="#s8">8. Képernyők és folyamat</a> ·
+        <a href="#s9">9. Hang és visszajelzés</a> ·
+        <a href="#s10">10. Szülőknek / tanárnak</a> ·
+        <a href="#s11">11. Első változat (MVP) és bővítések</a> ·
+        <a href="#s12">12. Eldöntött kérdések</a> ·
+        <a href="#s13">13. Technikai háttér</a> ·
+        <a href="#s14">14. Témacsomag-adatlap</a> ·
+        <a href="#s15">15. Al-specifikációk</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s0">0. Alapadatok</h2>
+  <div class="kesz">
+    <b>Cím:</b> AmbitusNumerorum: Unicornis Centum &nbsp;·&nbsp;
+    <b>Fájl:</b> <code>unikornis-centum.html</code> &nbsp;·&nbsp;
+    <b>Dátum:</b> 2026. augusztus 29. &nbsp;·&nbsp;
+    <b>Készíti:</b> szülő/tanár (producer) + Claude &nbsp;·&nbsp;
+    <b>Állapot:</b> a fő döntések megvannak; a bolt rajza után indul az MVP-A építése
+    <br><br>
+    <b>Hatókör:</b>
+    <ul>
+      <li>Az <b>„Összeadás-kivonás" témacsomag</b> gyakorló része, egy játékban:
+        számbontás felmondása + összeadás-kivonás a <b>10-es</b>, <b>20-as</b> és <b>100-as</b>
+        számkörben.</li>
+      <li>Önálló, <b>egyetlen HTML-fájlos</b> játék a Matekos mappában. Nem egy nagyobb játék része.</li>
+      <li><b>9 pálya-kártya</b>, mind egy közös erdő-grafikán (3. és 6. szakasz).</li>
+      <li>Csak a <b>gyakorlás</b> ág (nem a „tanítás" / „hiányészlelés" – lásd 2.3 és 11.2).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s1">1. A játék egy lapon</h2>
+
+  <h3>1.1 Mi ez egy mondatban</h3>
+  <div class="kesz">
+    A gyerek egy <b>unikornist</b> (Ragyogás, Tűz vagy Csillámharmat) vezet végig egy erdei térképen;
+    állomásonként felmondja a számbontásokat, illetve összead és kivon a 10-es, 20-as és 100-as
+    számkörben – <b>elsősorban hangosan kimondva</b> a választ –, a jó megoldásért <b>csillámport</b>
+    (ritkábban tárgyat) kap, amiből a boltban öltöztetheti az unikornist és berendezi az odút.
+    Keret: elveszett <b>csillagszilánkokat</b> gyűjt vissza az erdő éjszakai egére; minden teljesített
+    pálya egy szilánk.
+  </div>
+
+  <h3>1.2 Kinek készül</h3>
+  <div class="kesz">
+    Annak a gyereknek, aki az összeadást-kivonást most építi fel a bontástól a 100-as számkörig,
+    vagy bármelyik szinten gyakorolna. <b>Egy gépen három gyerek</b> használja, egymástól függetlenül,
+    külön profillal – <b>Ragyogás</b> (fehér), <b>Tűz</b> (korall) és <b>Csillámharmat</b> (világoskék)
+    unikornis (külön csillámpor, ruhák, kinézet, odú, napló).
+  </div>
+
+  <h3>1.3 Mi a cél</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Tanulási cél:</b> a számbontások készségszintű rögzítése; az összeadás-kivonás
+        <b>biztos, gyors</b> gyakorlása 10-ig, 20-ig, majd 100-ig, kiemelten a <b>tízesátlépéssel</b>.</li>
+      <li><b>Élménycél:</b> nyugodt, biztonságos, gyűjtögetős kaland – <b>időnyomás és büntetés nélkül</b>.</li>
+    </ul>
+  </div>
+
+  <h3>1.4 Mit emelünk át a Játéktervező anyagából</h3>
+  <table>
+    <tr><th>Vázlat szakasz</th><th>Mit mond</th><th>Ebbe a tervbe így kerül</th></tr>
+    <tr><td>1.4 / 3.1 / 4.</td><td>térképes kaland, állomások, „megoldom vagy kerülő", büntetés nincs</td><td><b>átvéve változatlanul</b></td></tr>
+    <tr><td>1.5</td><td>modularitás; a számkör (10/20/100) csak beállítás, nem külön feladattípus</td><td>átvéve; 3 feladattípus (számbontás, összeadás, kivonás), a számkör állomás-beállítás</td></tr>
+    <tr><td>2.1</td><td>3 gyerektípus (tudja / bizonytalan / még nem tudja)</td><td>most csak a <b>gyakorló</b> ág készül el (2.3, 11.)</td></tr>
+    <tr><td>2.2 – 1.–4. modul</td><td>„Számok bontása → Összeadás 10-ig → ±20-ig → ±100-ig"</td><td>ez a játék teljes tananyaga, 7 pályára osztva (2.2, 6.2)</td></tr>
+    <tr><td>3.1 / 3.4</td><td>erdő világ; rajzolt-kedves, élénk színek; több „bőr"</td><td>erdő, <b>egy közös grafika mind a 9 pályán</b>; <b>három unikornis-„bőr"</b> (Ragyogás / Tűz / Csillámharmat), a gyerekek rajza alapján</td></tr>
+    <tr><td>3.2</td><td>mesebeli lény, külön gyerek-profil</td><td><b>egy gépen három gyerek</b> – Ragyogás (fehér), Tűz (korall), Csillámharmat (világoskék) unikornis; a motor „karakter = külön gyerek" modelljére</td></tr>
+    <tr><td>4.1 / 4.2 / 6.4</td><td>a kör: feladat → megoldás vagy kerülő → jutalom → tovább; hibánál nincs büntetés</td><td>átvéve (4. szakasz)</td></tr>
+    <tr><td>5.1 / 14.1</td><td>számbontás felmondása mikrofonba; a feladattípus ad kérdést, tudja a jó választ, felolvastatható, tud tippet adni</td><td>ez a <code>FELADATGENERATOR</code> „szerződése" (13.6); a felmondás-mintát a meglévő <code>teljes_bontas</code> adja</td></tr>
+    <tr><td>7. / jutalomrendszer-terv</td><td>csillámpor + bolt + talált tárgyak + öltöztetés + odú</td><td><b>teljes egészében átvéve</b> (7. szakasz)</td></tr>
+    <tr><td>8.1 / 8.3</td><td>profilválasztó; fejléc + térkép + feladat + válaszgombok elrendezés</td><td>átvéve, a meglévő motor képernyőit alapul véve</td></tr>
+    <tr><td>9. / 2.4</td><td>a gép mindent felolvas; olvasástudás nem kell; nagy gombok</td><td>átvéve; a <b>válasz elsődlegesen beszéd</b>, a beírás kisegítő</td></tr>
+    <tr><td>Meglévő motor</td><td>térkép-rajzolás, mozgás, hang, <code>speechSynthesis</code>/<code>SpeechRecognition</code>, kétszintű <code>localStorage</code> profil, bolt/odú mechanika, <code>teljes_bontas</code> felmondás-típus</td><td>ezeket a <b>bevált mintákat</b> újraírjuk a saját fájlba (13.)</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="s2">2. Célközönség és tanulási cél</h2>
+
+  <h3>2.1 Előismeret</h3>
+  <div class="kesz">
+    <b>Feltételezzük:</b> a gyerek ismeri a számokat 100-ig, tud számlálni, és találkozott már az
+    összeadás-kivonás jelével.
+    <br><b>Nem feltételezzük:</b> hogy a bontásokat fejből tudja, hogy folyékonyan olvas, vagy hogy
+    magától elboldogul – a bontás az 1. pálya (ismétlés/alapozás), és minden fontosat a gép elmond.
+  </div>
+
+  <h3>2.2 A teljes ív – mit gyakoroljon</h3>
+  <table>
+    <tr><th>#</th><th>Pálya (javasolt név)</th><th>Feladattípus</th><th>Számkör / tartalom</th><th>Mi az új benne</th></tr>
+    <tr><td>1</td><td>Mondd el a bontásokat</td><td>számbontás (felmondás)</td><td>számok ≤ 10 teljes bontása</td><td>a bontások hangos, ismételt felmondása; alapozás</td></tr>
+    <tr><td>2</td><td>Összeadás-kivonás 10-ig</td><td>összeadás + kivonás</td><td>eredmény ≤ 10, nincs átlépés</td><td>a bontásból művelet lesz</td></tr>
+    <tr><td>3</td><td>Összeadás-kivonás 20-ig</td><td>összeadás + kivonás</td><td>mindkét tag egyjegyű, eredmény 10–20, <b>tízesátlépéssel</b> (8+7, 15−8)</td><td>az átlépés technikájának magja – összeadásban és kivonásban is</td></tr>
+    <tr><td>4</td><td>Tízesek ösvénye</td><td>összeadás + kivonás</td><td>csak kerek tízesek 100-ig (10+30, 70−40)</td><td>a 100-as számkör, kerek tízesekkel</td></tr>
+    <tr><td>5</td><td>Aprók a tízeshez</td><td>összeadás + kivonás</td><td>kétjegyű (nem kerek) ± egyjegyű, <b>átlépés nélkül</b> (13+2, 59−6)</td><td>egyesek mozgatása átlépés nélkül</td></tr>
+    <tr><td>6</td><td>Tízes-lépegető</td><td>összeadás + kivonás</td><td>kétjegyű ± kerek tízes, <b>átlépés nélkül</b> (34+20, 58−30)</td><td>a tízeseket külön adjuk / vesszük</td></tr>
+    <tr><td>7</td><td>Tízes-átlépő <span class="mini">(új)</span></td><td>összeadás + kivonás</td><td>kétjegyű ± egyjegyű, <b>tízesátlépéssel</b> (56+9, 42−8)</td><td>átlépés az egyeseknél, nagyobb számokon (a 3. pálya folytatása)</td></tr>
+    <tr><td>8</td><td>Erdő mélye</td><td>összeadás + kivonás</td><td>kétjegyű ± kétjegyű, <b>átlépés nélkül</b> (34+25, 68−43)</td><td>két kétjegyű együtt, még átlépés nélkül</td></tr>
+    <tr><td>9</td><td>Erdő szíve <span class="mini">(új)</span></td><td>összeadás + kivonás</td><td>kétjegyű ± kétjegyű, <b>tízesátlépéssel</b> (37+46, 63−28)</td><td>minden együtt: a témacsomag csúcsa</td></tr>
+  </table>
+  <p class="jel"><b>Korlátok minden feladatnál:</b> az összeg nem lépi túl a számkör felső határát;
+     a különbség nem megy 0 alá; a bontásnál a szám ≤ 10.</p>
+  <p class="mini">A „hiányzó tag" (pl. 45 + ? = 72) a vázlat szerint is nyitott – <b>későbbre</b> (12.).</p>
+
+  <div class="figyelem">
+    <b>2026-09-05 – a pályasor 7-ről 9-re bővült.</b> A művelet-rész az elfogadott
+    <b>8 lépcsős</b> nehézségi sort követi (a 2–9. pálya). Két <b>új pálya</b>:
+    <b>7. „Tízes-átlépő"</b> (kétjegyű ± egyjegyű, tízesátlépéssel) és <b>9. „Erdő szíve"</b>
+    (kétjegyű ± kétjegyű, tízesátlépéssel). Két meglévő pálya <b>szűkül</b>: a régi „Aprók a
+    tízeshez" (5.) és „Erdő mélye" (8.) mostantól <b>csak átlépés nélküli</b>, az átlépős eseteik
+    a 7., illetve a 9. pályára kerülnek. A 3. pálya („20-ig") hangsúlya a <b>tízesátlépésre</b>
+    tolódik (mindkét tag egyjegyű). Az 1. pálya (bontás-felmondás, „memóriajáték", 4.3.2)
+    <b>változatlan</b>.
+  </div>
+
+  <h3>2.3 Rögzítés vagy megértés</h3>
+  <div class="kesz">
+    Ez a játék a <b>rögzítés / gyakorlás</b> ágra készül (a vázlat 2.3 „szabadon gyakorlom" üzemmódja).
+    A „tanítás", a „segítséggel gyakorlom", a hiányészlelés és az oktatóvideók <b>későbbi bővítés</b>
+    (vázlat 11.–12.), nem ennek a játéknak a feladata.
+  </div>
+
+  <h3>2.4 Hozzáférhetőség</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Olvasás nélkül is használható:</b> a gép minden feladatot és utasítást felolvas.</li>
+      <li><b>Válasz elsődlegesen beszéddel:</b>
+        a <i>számbontás</i> pályán a gyerek a mikrofonba <b>felmondja az egész bontást</b>
+        (mint a meglévő motorban); az <i>összeadás/kivonás</i> pályákon <b>kimondja az eredményt</b>.
+        A <b>beírás</b> mindkét esetben kisegítő – bármikor előhívható, és automatikusan ez jön elő,
+        ha a mikrofon nem elérhető.</li>
+      <li>Nagy gombok, erős kontraszt, nyugodt tempó, nincs időmérés, nincs pontlevonás.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s3">3. A játék világa</h2>
+
+  <h3>3.1 Téma, helyszín és a közös grafika</h3>
+  <div class="kesz">
+    <b>Erdő</b>, egy kanyargós ösvénnyel, rajta állomásokkal (a kézi formavilág-rajz szerint:
+    egyszerű, piktogram-szerű vonalak, a lény „belépéskor" kifejezőbb). Rajzolt-kedves stílus,
+    élénk, barátságos színek.
+    <br><br>
+    <b>Mind a 9 pálya ugyanazt az egy erdő-grafikát használja</b> (közös díszlet: ugyanaz az ég,
+    ösvény-rajz, háttér). Pályánként csak <b>a matek, az állomásnevek és a nehézség</b> változik.
+    A főképernyőn 7 pálya-kártya; a gyerek bármikor visszatérhet a főképernyőre.
+  </div>
+
+  <h3>3.2 Főszereplő</h3>
+  <div class="kesz">
+    A gyerek egy <b>teljes alakos, rajzolt unikornist</b> irányít. <b>Három karakter</b> = a három gyerek
+    (a gyerekek rajza alapján, <code>unikornis-korall/kek/rozsa.svg</code>):
+    <ul style="margin:6px 0">
+      <li><b>Ragyogás</b> – fehér test, arany-rózsaszín sörény és farok, <b>csillag</b>-jel az oldalán.</li>
+      <li><b>Tűz</b> – korall/barack test, vörös-narancs-sárga „tűz" sörény és farok, <b>láng</b>-jel. („A vörös unikornis.")</li>
+      <li><b>Csillámharmat</b> – világoskék test, kék-magenta sörény és farok, <b>hópehely</b>-jel.</li>
+    </ul>
+    Mindhárom naiv, gyerekrajz-stílusú (két egyszerű ovál, egyenes tömpe lábak, cukornád-csíkos szarv,
+    firkált filctoll-sörény). A gyerek a boltban tovább alakíthatja a saját kinézetét (szemszín, sörény – 7.2b).
+    <br><b>Egy gépen három gyerek játszik, egymástól függetlenül</b> – mindegyiknek saját profilja:
+    saját csillámpor, ruhák, kinézet, odú-berendezés, kész pályák, napló. Nincs közös vagy egyidejű
+    játék; a „ki játszik most?" váltás a főképernyőn és az odúban is megvan.
+    <br><b>Kabala:</b> egy <b>bagoly</b> ül az ösvény szélén, ő „mondja" a feladatot (beszédbuborék)
+    és ő ad tippet.
+    <br><b>Keret:</b> az unikornis elveszett <b>csillagszilánkokat</b> gyűjt, hogy visszakerüljenek
+    az erdő éjszakai egére – minden teljesített pálya egy szilánk.
+  </div>
+
+  <h3>3.3 Vizuális stílus és a „bőr"</h3>
+  <div class="kesz">
+    A világ (erdő, odú, bolt) a mappában lévő pasztell „mesevilág" SVG-k stílusában
+    (<code>odu-belso.svg</code>, <code>bolt.svg</code>, <code>palya-alap-hangos.svg</code>), Claude rajzolja
+    beágyazott SVG-ként. Az unikornis-„bőr" a <b>három gyerekrajz</b> (Ragyogás / Tűz / Csillámharmat) –
+    szerkezetileg azonos, más szín és oldaljel; külön rétegben, így további „bőr" a motor átírása nélkül
+    hozzáadható.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s4">4. A játékmenet szíve (a kör, amit a gyerek ismételget)</h2>
+
+  <h3>4.1 A visszatérő kör</h3>
+  <div class="kesz">
+    <ol>
+      <li>A lény az erdei ösvényen áll, előtte a következő <b>állomás</b>.</li>
+      <li>A <b>bagoly</b> beszédbuborékban megjeleníti és <b>felolvassa</b> a feladatot:
+        <br>– számbontás pályán: „Mondd el a 6 összes bontását!"
+        <br>– összeadás pályán: „Mennyi 47 meg 6?" &nbsp;·&nbsp; kivonás pályán: „47 mínusz 6. Mennyi?"</li>
+      <li>A gyerek <b>választ</b>: megoldja itt, vagy elindul a hosszú <b>kerülőn</b>
+        (feladat nélkül, lassabb; ott csak ritka talált tárgy jöhet).</li>
+      <li>Megoldásnál a gyerek <b>kimondja a választ</b> a mikrofonba (kisegítő: 0–9 billentyűzet):
+        <br>– <b>számbontás („memóriajáték", lásd 4.3.2):</b> egyben felmondja az egészet, lentről
+        (0 meg 6, 1 meg 5, …); közben a <b>sorok tartalma NEM látszik</b>, csak annyi karika telik be
+        pipával, ahány sort jól mondott. A végén jutalomként megjelenik a teljes bontás golyós ábrával,
+        és egy nagy <b>„Tovább"</b> gombbal a gyerek dönt, mikor lép;
+        <br>– <b>összeadás/kivonás:</b> kimondja az eredményt („ötvenhárom").
+        <ul>
+          <li><b>Jó:</b> emelkedő csengő, pipa, <b>~85% csillámpor / ~15% tárgy</b>.</li>
+          <li><b>Rossz:</b> halk, kedves jelzés, <b>újra próbálhatja</b> (korlátlanul);
+            a 2. hiba után a bagoly <b>rávezető tippet</b> mond (4.4). A „tovább megoldás nélkül"
+            végig ott van kicsiben a feladat alatt.</li>
+        </ul>
+      </li>
+      <li>Egy állomáson <b>több kis feladat</b> van sorban (bontásnál egy teljes bontás; műveletnél
+        pl. 4–6 feladat). A képernyő mutatja a haladást (● ● ○ ○).</li>
+      <li>Állomás kész → <b>csillámpor-jutalom</b>, néha <b>talált tárgy</b>; a lény <b>továbbsétál</b>.</li>
+      <li>Vissza az 1-hez a pálya végéig. Célba érés → <b>pálya kész</b>, összegző képernyő,
+        nagyobb jutalom.</li>
+    </ol>
+  </div>
+
+  <h3>4.2 A fő döntés</h3>
+  <div class="kesz">
+    Minden állomásnál: <b>megoldom</b> (feladat + csillámpor, rövid út) <b>vagy kerülő</b>
+    (nincs feladat, nincs csillámpor). A kerülő ára az <b>idő</b>: az unikornis egy hosszabb,
+    kacskaringós ösvényen megy, ami <b>kb. 15 másodperces séta-animáció</b> – ezt végig kell nézni,
+    mielőtt a következő állomáshoz ér. A kerülőn ritkán felbukkanhat egy talált tárgy.
+    A kerülő teljesen legális választás, büntetés nincs; a „tét" tisztán idő ↔ csillámpor/gyakorlás.
+  </div>
+
+  <h3>4.3 A beszéd-válasz menete</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>„Mondom" gomb</b> → a mikrofon figyelni kezd →
+        <i>műveletnél</i> a gép a hallott szövegből kiveszi az első számot;
+        <i>bontásnál</i> az egész hallott számsort ellenőrzi a lenti 4.3.1 szabály szerint
+        (a felmondás alatti visszajelzés a 4.3.2 „memóriajáték" szerint).</li>
+      <li><b>„Halld újra" gomb</b> → a gép megismétli a feladatot.</li>
+      <li><b>„Inkább beírom" gomb</b> → előjön a képernyős <b>0–9 számbillentyűzet</b>
+        (nem feleletválasztós); bontásnál lépésenként (N = 0 + ?, N = 1 + ? …). Kisegítő mód,
+        bármikor visszaváltható; a szülő alapból is beállíthatja.</li>
+      <li>Ha a böngésző nem tud beszédfelismerést (nem Chrome, vagy nincs mikrofon-engedély):
+        a játék <b>automatikusan a billentyűzetre vált</b>, és ezt kedvesen jelzi.</li>
+    </ul>
+  </div>
+
+  <h3 id="s431">4.3.1 A bontás-felmondás elfogadási szabálya <span style="font-weight:normal;font-size:13px;color:#8a938c;">(véglegesítve 2026-09-02; teljes leírás: <code>spec-hang-es-beszed.html</code> 2.2; kód: <code>bontasFelmondOk()</code>)</span></h3>
+  <div class="kesz">
+    <p style="margin-top:0;">A gép ad egy <b>N</b> számot (1 ≤ N ≤ 10). A gyereknek <b>egyben, egyfolytában,
+       lentről fölfelé</b> fel kell mondania N minden bontását:</p>
+    <p style="text-align:center;font-family:monospace;font-size:14px;">
+       0 + N ,&nbsp;&nbsp; 1 + (N−1) ,&nbsp;&nbsp; 2 + (N−2) ,&nbsp;&nbsp; … ,&nbsp;&nbsp; N + 0
+       &nbsp;&nbsp;→&nbsp; összesen N+1 sor</p>
+    <ul>
+      <li><b>Csak a kimondott számok és a sorrendjük számít.</b> Minden más szó figyelmen kívül
+        marad: „meg", „plusz", „és", „hozzá", „egyenlő", „az", „lesz", „is", szünet, vessző —
+        bármelyik, bármilyen keverve.</li>
+      <li>A sor végi <b>kimondott összeg</b> („= N") <b>elhagyható</b>, soronként külön-külön,
+        vegyesen is. Tehát „nulla meg öt", „nulla meg öt az öt" és „nulla plusz öt egyenlő öt"
+        mind ugyanaz a jó válasz.</li>
+      <li><b>Elfogadva</b>, ha a számlista pontosan ez: <code>i = 0 … N</code>-re egymás után
+        <code>[ i , N−i ]</code>, utána opcionálisan egy <code>[ N ]</code>. Egyetlen sor sem
+        hiányozhat (a <code>0 + N</code> és a záró <code>N + 0</code> is kell), a sorrend kötött
+        (lentről), minden sorban a második tag = <code>N − első tag</code>, és a végén nem
+        maradhat idegen szám.</li>
+      <li><b>Hibás/hiányos:</b> a gép kiírja, hány sort mondott jól az elejéről
+        („Eddig jó volt 3 sor…"), és kéri, mondja el <b>az egészet újra, lentről</b>
+        (nem onnan folytatja). Nincs pontlevonás.</li>
+      <li><b>2. sikertelen próba után</b> lépésenkénti beírós módra vált: N+1 kis kérdés,
+        „{N} = {i} + ?".</li>
+    </ul>
+    <p style="font-size:12px;color:#8a938c;margin-bottom:0;">Parszer-részlet: a „tíz egy" <b>nem</b> 11,
+       hanem két szám — a tízes+egyes összeolvasás csak 20-tól él, mert a felmondásban gyakori
+       a „…nulla meg tíz, egy meg kilenc…".</p>
+  </div>
+
+  <h3 id="s432">4.3.2 A bontás-felmondás felülete – „memóriajáték" <span style="font-weight:normal;font-size:13px;color:#8a938c;">(2026-09-02, Gergő módosítása; a 4.3.1 elfogadási szabály változatlan)</span></h3>
+  <div class="kesz">
+    A gyerek a mikrofon-gombbal indít, és <b>egyben</b> mondja fel az egész bontást lentről. A gép
+    <b>folyamatosan hallgat</b> (nem egy 7 mp-es felvétel, ami a hosszú felmondást elvágná), és
+    <b>soronként nyugtáz</b>:
+    <ul>
+      <li>Közben a <b>sorok tartalma NEM látszik</b> – csak N+1 üres, szaggatott karika. Minden
+        jól kimondott sor után egy karika <b>zöld pipával telik be</b> + rövid csilingelés. Ez a
+        memória-elem: fejben kell tartani, hol jár (az utolsó első tag), a karikák csak azt
+        mutatják, HÁNY sor van meg.</li>
+      <li>A mikrofon-gomb hallgatás közben <b>„⏹ Kész vagyok"-ra</b> vált; a gyerek maga zárja a
+        felmondást, vagy két hosszú csend után a gép zárja.</li>
+      <li><b>A végén jutalomként</b> a teljes bontás <b>golyóhuzogatós ábrával</b> jelenik meg,
+        sorban bepukkanva: minden sor egy rúdon <b>piros + kék golyók</b> (a két tag), mellette a
+        képlet és a zöld pipa. Ekkor a sorok tartalma először látszik.</li>
+      <li>Egy nagy, feltűnő <b>„Tovább"</b> gomb – a golyós lista addig kint marad, a <b>gyerek dönt</b>,
+        mikor lép a következő állomásra (vizuális rögzülés).</li>
+      <li><b>Hibás sor</b> = a karika-sor finoman rezdül + a bagoly tippet mond; a jó pipák
+        megmaradnak, de a felmondást <b>egyben</b> kell megismételni, lentről (nem onnan folytatja).
+        <b>2 hiba</b> vagy <b>2× hosszú csend</b> után lépésenkénti beírás.</li>
+      <li>Félrehallás-javítás: a <code>bontasEloFogyaszt</code> a 10 feletti hallott számokból
+        szétbontott jelölteket állít elő („öt meg egy" ~ „ötvenegy" → 5, 1; 60 → 6, 0; 100 → 10, 0),
+        és a pontozó a legjobbat választja.</li>
+    </ul>
+  </div>
+
+  <h3>4.4 Hibakezelés (a vázlat 6.4 kitöltése)</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Újrapróbálás:</b> korlátlan. Ugyanaz a feladat marad, míg el nem találja vagy tovább nem lép.</li>
+      <li><b>1. hiba:</b> „Nem talált. Próbáld újra!" + a feladat újra felolvasható.</li>
+      <li><b>2. hiba:</b> <b>rávezető tipp</b> a feladat fajtájához:
+        <br>– bontás: „Kezdd lentről: 0 meg 6, aztán 1 meg …?";
+        <br>– összeadás átlépéssel: „47 meg 3 az 50, és még 3 az …?";
+        <br>– kivonás átlépéssel: „63 mínusz 3 az 60, és még 5 az …?".</li>
+      <li><b>Továbblépés hibásan is:</b> a „tovább megoldás nélkül" link <b>végig ott van kicsiben</b>
+        a feladat alatt; ha rákoppint, az állomás „csillag nélkül" teljesül. Nem kötelező eltalálni.</li>
+      <li><b>Büntetés nincs:</b> se időmérés, se pontlevonás, se visszalökés.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s5">5. Feladatok és tananyag-tartalom</h2>
+
+  <h3>5.1 Feladattípusok</h3>
+  <table>
+    <tr><th>Típus</th><th>Kérdés</th><th>Jó válasz</th><th>Hogyan válaszol</th></tr>
+    <tr><td><b>számbontás</b> (felmondás)</td><td>„Mondd el a(z) N összes bontását!"</td><td>0+N, 1+(N−1), … N+0</td><td><b>felmondja az egészet</b> (mikrofon); lépésenkénti beírás kisegítő</td></tr>
+    <tr><td><b>összeadás</b></td><td>„a + b = ?" (felolvasva: „Mennyi {a} meg {b}?")</td><td>egy szám (az összeg), a számkörön belül</td><td><b>kimondja</b> (mikrofon); 0–9 billentyű kisegítő</td></tr>
+    <tr><td><b>kivonás</b></td><td>„a − b = ?" (felolvasva: „{a} mínusz {b}. Mennyi?")</td><td>egy szám (a különbség), ≥ 0</td><td><b>kimondja</b> (mikrofon); 0–9 billentyű kisegítő</td></tr>
+  </table>
+  <p><b>Döntések a vázlat nyitott kérdéseire:</b></p>
+  <ul>
+    <li>Az összeadás és a kivonás <b>két külön feladattípus</b> (külön generátor, külön tipp, külön napló).</li>
+    <li>A <b>számkör (10 / 20 / 100) nem külön típus</b>, csak állomás-beállítás (vázlat 1.5, 5.1).</li>
+    <li>A „hiányzó tag" egy jövőbeli, opcionális negyedik típus.</li>
+  </ul>
+
+  <h3>5.2 A tartalom terjedelme</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Számbontás:</b> 3-tól 10-ig terjedő számok teljes bontása.</li>
+      <li><b>Legkönnyebb művelet:</b> kis összeadás 10-ig (pl. 3 + 2), illetve két kerek tízes (20 + 30).</li>
+      <li><b>Legnehezebb művelet:</b> kétjegyű ± kétjegyű tízesátlépéssel (pl. 38 + 47, 74 − 28),
+        úgy, hogy az összeg ≤ 100, a különbség ≥ 0.</li>
+    </ul>
+  </div>
+
+  <h3>5.3 Honnan jönnek a feladatok</h3>
+  <div class="kesz">
+    A gép <b>generálja</b> őket szabály szerint, állomásonként megadott paraméterekkel.
+    Nincs kézzel megírt feladatlista. A generátor ügyel arra, hogy a korlátok teljesüljenek,
+    egy állomáson belül ne ismétlődjön ugyanaz, és a feladat tényleg a kért fajtába essen
+    (pl. „kell tízesátlépés" esetén valóban legyen átlépés).
+  </div>
+
+  <h3>5.4 Állomás-beállítások (a generátor paraméterei)</h3>
+  <p><b>Számbontás pálya (felmondás):</b></p>
+  <table>
+    <tr><th>Kulcs</th><th>Jelentés</th><th>Példa</th></tr>
+    <tr><td><code>szam</code> vagy <code>szam_min, szam_max</code></td><td>melyik számot / számtartományt bontsa</td><td><code>szam_min:5, szam_max:7</code></td></tr>
+    <tr><td><code>cel</code></td><td><code>true</code> az utolsó állomáson</td><td><code>true</code></td></tr>
+  </table>
+  <p><b>Összeadás / kivonás pálya (egyenkénti válasz):</b></p>
+  <table>
+    <tr><th>Kulcs</th><th>Jelentés</th><th>Példa</th></tr>
+    <tr><td><code>tipus</code></td><td><code>"osszeadas"</code> / <code>"kivonas"</code> (állomás felülírhatja a pálya alaptípusát)</td><td><code>"kivonas"</code></td></tr>
+    <tr><td><code>darab</code></td><td>hány kis feladat legyen az állomáson</td><td><code>5</code></td></tr>
+    <tr><td><code>a_min, a_max</code> / <code>b_min, b_max</code></td><td>a két szám tartománya</td><td><code>a:20–89, b:2–9</code></td></tr>
+    <tr><td><code>atlepes</code></td><td><code>"nincs"</code> | <code>"lehet"</code> | <code>"kell"</code> – tízesátlépés</td><td><code>"kell"</code></td></tr>
+    <tr><td><code>csak_tizes</code></td><td><code>true</code>: mindkét szám kerek tízes (4. pálya)</td><td><code>false</code></td></tr>
+    <tr><td><code>b_tizes</code></td><td><code>true</code>: a második szám kerek tízes (6. pálya)</td><td><code>true</code></td></tr>
+    <tr><td><code>eredmeny_max</code></td><td>a számkör felső határa (10 / 20 / 100)</td><td><code>100</code></td></tr>
+    <tr><td><code>cel</code></td><td><code>true</code> az utolsó állomáson</td><td><code>true</code></td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="s6">6. Nehézség és haladás</h2>
+
+  <h3>6.1 Pályák</h3>
+  <div class="kesz">
+    <b>7 pálya</b> (2.2), mind <b>egy közös erdő-grafikán</b>. Mindegyik <b>8–10 állomás</b>
+    (az első a „Rajt", az utolsón <code>cel:true</code>). Átfogó ív: a bontástól az erdő mélyéig,
+    a matek nehézsége pályáról pályára nő.
+  </div>
+
+  <h3>6.2 A 7 pálya – közös díszlet, más matek</h3>
+  <table>
+    <tr><th>#</th><th>Pálya</th><th>Feladattípus</th><th>Beállítás dióhéjban</th></tr>
+    <tr><td>1</td><td>Mondd el a bontásokat</td><td>számbontás (felmondás)</td><td>szám 3→10, pályavégéig nő</td></tr>
+    <tr><td>2</td><td>Összeadás-kivonás 10-ig</td><td>összeadás + kivonás</td><td><code>eredmeny_max:10, atlepes:"nincs"</code></td></tr>
+    <tr><td>3</td><td>Összeadás-kivonás 20-ig</td><td>összeadás + kivonás</td><td><code>eredmeny_max:20, atlepes:"lehet"→"kell"</code></td></tr>
+    <tr><td>4</td><td>Tízesek ösvénye</td><td>összeadás + kivonás</td><td><code>eredmeny_max:100, csak_tizes:true</code></td></tr>
+    <tr><td>5</td><td>Aprók a tízeshez</td><td>összeadás + kivonás</td><td>kétjegyű ± egyjegyű, <code>atlepes:"nincs"→"kell"</code></td></tr>
+    <tr><td>6</td><td>Tízes-lépegető</td><td>összeadás + kivonás</td><td>kétjegyű ± kerek tízes, <code>b_tizes:true</code></td></tr>
+    <tr><td>7</td><td>Erdő mélye</td><td>összeadás + kivonás</td><td>kétjegyű ± kétjegyű, <code>atlepes:"lehet"→"kell"</code></td></tr>
+  </table>
+  <p class="mini">Az állomásnevek és a pontos szám-tartományok pályánként külön adatlapon (15.).</p>
+
+  <h3>6.3 Hogyan nehezedik</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Pályán belül:</b> állomásról állomásra tágul a szám-tartomány; a korai állomásokon
+        több a „nincs átlépés", a végén több a „kell átlépés"; a rávezető tipp a pálya végén később jön.</li>
+      <li><b>Pályáról pályára:</b> a 6.2 sorrend (bontás → 10 → 20 → 100 négy típusa).</li>
+      <li>A 2.–7. pályán van összeadás <b>és</b> kivonás is.</li>
+    </ul>
+  </div>
+
+  <h3>6.4 Belépés / kilépés</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Minden pálya szabadon elérhető</b> a kezdéstől (nincs zárolás). A javasolt sorrend a
+        6.2 tábla, de a gyerek választhat.</li>
+      <li>Egy pálya <b>kész</b>, ha minden állomását teljesítette (a kerülővel kihagyott feladat is
+        „teljesítés", csak csillag nélkül – nem blokkol). A kész pálya = egy <b>csillagszilánk</b>.</li>
+      <li>A témacsomag <b>kész</b>, ha mind a 7 pálya kész (7 szilánk). Ekkor a záró jelvény jár (7.4).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s7">7. Motiváció és jutalom – teljes gyűjtögetős rendszer</h2>
+  <p>A teljes rendszer bekerül az első kész változatba. A <b>mechanika</b> alapja a meglévő
+     <code>tanulojatek-gyujtemeny.html</code> és a <b>jutalomrendszer-terv</b> memória, de a
+     <b>kinézet gazdagabb</b>: teljes alakos, rajzolt unikornis és berendezhető, rajzfilmszerű odú.</p>
+
+  <h3>7.1 Mi jár egy feladatért – csillámpor vagy tárgy</h3>
+  <div class="kesz">
+    <ul>
+      <li>Minden helyes kis feladat (és minden helyes bontás) jutalmat ad:
+        <b>~85%-ban csillámpor</b> (✨, néhány egység), <b>~15%-ban egy tárgy</b>
+        (ruha / berendezés / odú-tárgy / napszak / jelvény).</li>
+      <li>Állomás végén <b>bónusz ✨</b>, pálya végén <b>nagyobb adag ✨</b>.</li>
+      <li>A feladat <b>meghallgatása</b> és a <b>tipp végignézése</b> is adhat kis ✨ (vázlat 2.5 / 7.1).</li>
+      <li>A hibázás <b>nem</b> von le semmit.</li>
+    </ul>
+    <span class="mini">A valuta neve: <b>csillámpor</b> (a te szavad); a meglévő motorban „csillagpor" volt.
+    Pontos arányok és értékek: gyűjtemény-adatlap (15.).</span>
+  </div>
+
+  <h3>7.2 Az unikornis öltöztetése (Holmik)</h3>
+  <div class="kesz">
+    <ul>
+      <li>A figura <b>teljes alakos</b> unikornis (nem csak fej), oldalnézetben – hogy a ruha látszódjon.</li>
+      <li>A megvehető <b>ruhák és kiegészítők</b> a test <b>saját helyükre</b> kerülnek:
+        <b>fejdísz / korona</b> a fejre, <b>nyaklánc</b> a nyakra, <b>háttakaró / nyereg</b> a hátra,
+        <b>bokadísz / patkó</b> a lábakra, <b>szárny</b> az oldalra, <b>farokdísz / szalag</b> a farokra.</li>
+      <li>Egy hely = egy tárgy; több hely egyszerre viselhető. Fel/le vehető, a lényen látszik az
+        úton és az odúban is.</li>
+      <li>Helyenként több darab, csillámporért; ritkasági címkék (alap / különleges / ritka).</li>
+    </ul>
+  </div>
+
+  <h3>7.2b Az unikornis saját kinézete (Kinézet)</h3>
+  <div class="kesz">
+    A <code>bolt.svg</code> „kinézet" polca szerint: a ruhákon felül a gyerek <b>az unikornis
+    magát is alakíthatja</b> csillámporért – <b>szemszín</b>, <b>sörény hossza</b>, <b>sörény színe</b>
+    (a szín az alapszínen belül marad: Ragyogás arany-rózsaszín, Tűz vörös-narancs, Csillámharmat kék-magenta árnyalatok).
+    Ez tartós beállítás (nem le/fel vehető), profilonként külön.
+  </div>
+
+  <h3>7.3 Az odú berendezése és díszítése (Kellékek + Időjárás)</h3>
+  <div class="kesz">
+    <p>Az odú <b>rajzfilmszerű</b> szoba, amit a gyerek csillámporból <b>szebbé tehet és berendezhet</b>.
+       A megvehető elemek:</p>
+    <ul>
+      <li><b>Berendezés-szintek (a fix helyek szebb változata):</b> az <code>odu-belso.svg</code>
+        elemei – <b>ágy</b>, <b>kályha</b>, <b>polc</b>, <b>asztal</b>, <b>ablak</b>, <b>függöny</b>,
+        <b>zászlófüzér</b>, <b>szőnyeg</b>, <b>fal / tapéta</b>. Minden fix helynek 2–3 egyre
+        díszesebb változata van; a csillámpor „felfejleszti".</li>
+      <li><b>Tárgyak – a saját, rögzített helyükre kerülnek</b> (nem mind egy polcra):
+        <ul>
+          <li><b>falra / mennyezetre:</b> patkó, képek, koszorú, tükör, extra zászlófüzér</li>
+          <li><b>asztalra:</b> asztalterítő, váza virággal, gyertyatartó, befőttes-csillag</li>
+          <li><b>ágyra:</b> pokróc, párna, plüss</li>
+          <li><b>polcra:</b> színes üvegcsék, könyvek, apró figurák</li>
+          <li><b>padlóra:</b> kosár, ládikó, kispárna</li>
+          <li><b>ablakba:</b> cserepes növény, kristály, függődísz</li>
+        </ul>
+        Megvásárláskor / megtaláláskor a tárgy a helyére kerül, és ki-be kapcsolható (látszik / elrakva).</li>
+      <li><b>Kinti idő (az ablakon át látszik – a rajzon most hold van):</b> csillámporért
+        választható <b>napszak</b> (reggel, dél, este, napfogyatkozás) <b>és időjárás</b> (napsütés,
+        eső, hó, szivárvány) – a <code>bolt.svg</code> „időjárás" polca szerint. Átszínezi a szoba
+        fényét / hangulatát is. Külön „kinézet"-elem, nem tárgy.</li>
+    </ul>
+    <p>A <b>megvehető / megszerezhető tételek listája külön kattintással nyílik</b> (katalógus-fiók),
+       hogy a szoba nézete tiszta maradjon.</p>
+    <span class="mini">Vizuális minta a mappában: <code>odu-belso.svg</code> (a szoba, pasztell
+    mesevilág), <code>odu-kulso.svg</code> (az odú bejárata a fában), <code>Matekos formavilag1/2.png</code>
+    (kézi vázlatok). Ezekhez igazodik a rajzstílus. Lásd 13.5.</span>
+  </div>
+
+  <h3>7.4 Tárgyak – a vett és a talált egy helyen</h3>
+  <div class="kesz">
+    A feladatokért <b>~15%-ban tárgy</b> jár (7.1), illetve a kerülőn is felbukkanhat.
+    Fajták: <b>ruhadarab</b> (Holmik); <b>kinézet-elem</b>; <b>berendezés-szint</b> vagy <b>odú-tárgy</b>
+    a saját helyére; <b>napszak / időjárás</b>; ritkábban „következő állomás ✨ <b>dupla</b>" zseton.
+    Jelvény <b>nem</b> drop – csak feloldás.
+    <br><b>A talált tárgy ugyanoda kerül, mint a vásárolt:</b> beugrik a katalógusba „megvan"
+    jelöléssel, és onnantól ugyanúgy viselhető / kirakható / beállítható. Nincs külön „talált" fiók.
+    <br>Néhány tárgy csak a kerülőn, néhány életében egyszer szerezhető. A témacsomag teljesítésekor
+    <b>záró jelvény</b> (pl. „Az összeadás-kivonás erdő ura").
+  </div>
+
+  <h3>7.5 A katalógus (a bolt) – 4 polc</h3>
+  <div class="kesz">
+    Az odúból, <b>külön kattintással</b> nyílik. A <code>bolt.svg</code> szerint <b>4 polc / fül</b>:
+    <ul>
+      <li><b>Holmik</b> – az unikornis ruhái, kiegészítői (7.2).</li>
+      <li><b>Kinézet</b> – az unikornis saját külseje: szemszín, sörény (7.2b).</li>
+      <li><b>Kellékek</b> – odú berendezés-szintek + odú-tárgyak a saját helyükre (7.3).</li>
+      <li><b>Időjárás</b> – napszak + időjárás az ablakon át (7.3).</li>
+    </ul>
+    Minden tételnél: kép, ár csillámporban, „megveszem" gomb; ami már megvan, ott
+    „viselem / kirakom / beállítom" kapcsoló. A gyereknek soha nem kell számot beírnia – csak választ.
+  </div>
+
+  <h3>7.6 Odú – áttekintés</h3>
+  <div class="kesz">
+    A lény saját, rajzfilmszerű tere: <b>ki játszik most?</b> (a három unikornis közti váltás =
+    gyerekváltás), a <b>katalógus</b> (7.5), az <b>öltöztető</b> és a <b>berendező</b> nézet, valamint a
+    <b>📖 gyűjtemény-nézet</b> (megvett ruhák, tárgyak, jelvények).
+  </div>
+
+  <h3>7.7 Külön profil gyerekenként (egy gépen három gyerek)</h3>
+  <div class="kesz">
+    A gépet <b>három gyerek</b> használja, egymástól függetlenül: <b>Ragyogás</b> (fehér), <b>Tűz</b>
+    (korall) és <b>Csillámharmat</b> (világoskék). Csillámpor, ruhák, kinézet, odú-berendezés, odú-tárgyak,
+    napszak/időjárás, kész pályák (csillagszilánkok), napló – <b>mind a három profilban külön</b>.
+    Adatmodell: a motor kétszintű mentése (13.3).
+  </div>
+
+  <h3>7.8 Hogyan látja a haladását</h3>
+  <div class="kesz">
+    <ul>
+      <li>A <b>térképen</b> a kész állomások jelölve.</li>
+      <li>A <b>főképernyőn</b> a 7 pálya-kártyán „kész" pipa / <b>csillagszilánk</b>. Zárolás nincs.</li>
+      <li>A <b>csillámpor-számláló</b> a fejlécben mindig látszik.</li>
+      <li>Az állomáson belül: ● ● ○ ○.</li>
+    </ul>
+  </div>
+
+  <h3>7.9 A gyűjtemény tartalma</h3>
+  <div class="kesz">
+    A <code>spec-gazdasag-es-katalogus.html</code> szerint: <b>Holmik</b> (ruhák helyenként több
+    darab), <b>Kinézet</b> (szemszín, sörény), <b>Kellékek</b> (berendezés-szintek fix helyenként
+    2–3 + odú-tárgyak), <b>Időjárás</b> (napszak + időjárás), valamint <b>jelvények</b> (feloldás).
+    A pontos lista és az árak ott.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s8">8. Képernyők és folyamat</h2>
+
+  <h3>8.1 Milyen képernyők vannak</h3>
+  <table>
+    <tr><th>Képernyő</th><th>Mi a dolga</th></tr>
+    <tr><td><b>Profilválasztó</b> („Ki játszik most?")</td><td>induláskor: Ragyogás / Tűz / Csillámharmat; itt látszik, kinek mennyi ✨-a és hány csillagszilánkja van</td></tr>
+    <tr><td><b>Főképernyő</b> (pályaválasztó)</td><td>a <b>7 pálya-kártya</b> (nincs zárolás), ✨-számláló, Odú gomb, Szülőknek gomb</td></tr>
+    <tr><td><b>Játékképernyő</b></td><td>fejléc + a közös erdei térkép az unikornissal, a <b>bagoly</b> beszédbuborékkal, a választerület + „Hosszú kerülő út" gomb</td></tr>
+    <tr><td><b>Pálya vége</b></td><td>összegzés: hány feladat, elsőre jó %, hány ✨, mi újat találtál; Vissza / Következő pálya</td></tr>
+    <tr><td><b>Odú</b> (rajzfilmszerű szoba)</td><td>„ki játszik most?", katalógus (külön klikk, 4 polc), öltöztető, berendező, kinézet, 📖 gyűjtemény-nézet</td></tr>
+    <tr><td><b>Szülői / tanári nézet</b></td><td>a gombot 2 mp-ig nyomva; gyerekenként külön napló és beállítások (10.)</td></tr>
+  </table>
+
+  <h3>8.2 Mi visz egyik képernyőről a másikra</h3>
+  <div class="kesz">
+    Profilválasztó → Főképernyő → [pálya-kártya] → Játék → Pálya vége → Főképernyő <i>vagy</i> Odú.
+    Az Odú a Főképernyőről és a játék fejlécéből is elérhető. A Szülői nézet a „Szülőknek" gomb
+    2 mp-es nyomására. Részletes állapotgép: <code>spec-kepernyo-vazlatok.html</code>.
+  </div>
+
+  <h3>8.3 A fő játékképernyő elrendezése</h3>
+  <div class="kesz">
+    A <code>palya-alap-hangos.svg</code> szerint:
+    <ul>
+      <li><b>Fent:</b> ← vissza · „{n}. pálya" · csillag/✨-számláló.</li>
+      <li><b>Bal oldalt:</b> a <b>bagoly</b> ágon, mellette <b>beszédbuborékban a feladat</b>
+        (szám-dobozok, +/−, ? ) és a „🔊 Halld újra" gomb.</li>
+      <li><b>Középen:</b> a közös erdei ösvény lépőkövekkel, rajta az unikornis, a végén a cél-odú;
+        a bejárt szakasz más színű.</li>
+      <li><b>Lent középen:</b> a választerület:
+        <br>– <i>felmondás</i> (számbontás): nagy „🎤 Mondom a bontását" (hallgatás közben „⏹ Kész
+        vagyok") + N+1 üres pipa-karika (a memóriajáték, 4.3.2); a végén golyós lista + „Tovább" gomb;
+        <br>– <i>egyenkénti</i> (művelet): nagy „🎤 Mondom" + „🔊 Halld újra" + „⌨ Inkább beírom"
+        → 0–9 billentyűzet. Alatta kicsiben a „tovább megoldás nélkül" link.</li>
+      <li><b>Bal alul:</b> hang / beírás mód-váltó. <b>Jobb szél:</b> „➰ Hosszú kerülő út".</li>
+    </ul>
+  </div>
+
+  <h3>8.4 Az odú képernyő</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Középen:</b> a rajzfilmszerű szoba – a <b>teljes alakos unikornis</b> a rá felvett
+        ruhákkal, körülötte a berendezés (polc, ágy, asztal, ablak, függöny, szőnyeg), az
+        <b>ablakon át a választott napszak</b> (reggel / dél / este / napfogyatkozás), és a
+        kirakott tárgyak a saját helyükön.</li>
+      <li><b>Fent:</b> ✨-számláló, „ki játszik most?" (Ragyogás / Tűz / Csillámharmat), vissza a főképernyőre.</li>
+      <li><b>Gombok:</b> „Katalógus" (külön kattintás – itt lehet venni), „Öltöztető",
+        „Berendező", „📖 Gyűjtemény".</li>
+      <li><b>Öltöztető / Berendező módban:</b> a megvett tételekre (ruha, bútor-szint, tárgy, napszak)
+        koppintva fel/le kerülnek; a szoba azonnal frissül.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s9">9. Hang és visszajelzés</h2>
+
+  <h3>9.1 Felolvasás</h3>
+  <div class="kesz">
+    A <b>bagoly</b> „hangján" a gép felolvassa a feladatokat, utasításokat és tippeket (böngésző
+    beszéd-szintézise, <code>hu-HU</code>; internet nélkül is). „🔊 Halld újra" gomb bármikor.
+    Nyugodt tempó. A kivonás felolvasása: „47 mínusz 6. Mennyi?" A pontos szövegsablonok:
+    <code>spec-hang-es-beszed.html</code>.
+  </div>
+
+  <h3>9.2 Beszédfelismerés (a válasz elsődleges módja)</h3>
+  <div class="kesz">
+    <ul>
+      <li>A böngésző beszédfelismerése (magyar). <b>Chrome / Edge</b> és <b>mikrofon-engedély</b> kell.</li>
+      <li><i>Műveletnél:</i> a gép a hallott szövegből kiveszi az első számot („ötvenhárom" és „53" is jó).</li>
+      <li><i>Bontásnál:</i> a gép <b>folyamatosan hallgat</b>, és a teljes felmondást a 4.3.1 szabály
+        szerint értékeli (kód: <code>bontasFelmondOk()</code>); a felület a 4.3.2 „memóriajáték"
+        (rejtett sorok → soronkénti pipa → golyós végeredmény).</li>
+      <li>Ha nincs támogatás/engedély → a játék a <b>0–9 billentyűzetre</b> vált, és ezt kedvesen jelzi.
+        A billentyűzettel a játék teljes értékű, csak lassabb. A szülő alapból is beállíthatja.</li>
+      <li><span class="mini">Fejlesztéshez: teszt-gomb, ami mikrofon nélkül elfogadja a választ –
+        éles használatra kikapcsolva.</span></li>
+    </ul>
+  </div>
+
+  <h3>9.3 Hangeffektek és zene</h3>
+  <div class="kesz">
+    Jó válasz: emelkedő csengő. Állomás kész: rövid jutalom-dallam. Hiba: halk, nem ijesztő koppanás.
+    Pálya vége: hosszabb dallam. Háttérzene: nincs, vagy nagyon halk és kikapcsolható.
+  </div>
+
+  <h3>9.4 Vizuális visszajelzés</h3>
+  <div class="kesz">
+    Az unikornis lépked az állomások közt (kerülőnél ~15 mp séta); jó válasznál felugró
+    „+{n} ✨" buborék és pipa; célnál konfetti + csillagszilánk. Visszafogott, kedves stílus –
+    nincs villódzás, nincs rezgés-„büntetés".
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s10">10. Szülőknek / tanárnak</h2>
+
+  <h3>10.1 Mit lásson a felnőtt</h3>
+  <div class="kesz">
+    <b>Gyerekenként külön</b> napló: mikor és mennyit játszott; melyik pálya; hány feladat, ebből
+    hány jó elsőre; <b>hol hibázott</b> (a feladat + a gyerek válasza + a helyes válasz);
+    külön kiemelve a <b>tízesátlépéses</b> feladatok és a <b>bontások</b> hibaaránya.
+    <b>Belépés:</b> a „Szülőknek" gombot <b>2 másodpercig nyomva</b> (nincs PIN).
+  </div>
+
+  <h3>10.2 Mit lehessen beállítani</h3>
+  <div class="kesz">
+    <b>Állítható:</b> hang ki/be; alap válaszmód (beszéd / 0–9 billentyűzet); a gyerek beceneve;
+    <i>(haladóknak)</i> a pályák szám-tartományának szűkítése/tágítása.
+    <br><b>Szándékosan nem állítható:</b> a büntetés-mentesség; a kerülő megléte; a felmondás-elv a bontásnál.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s11">11. Az első játszható változat (MVP) és a bővítések</h2>
+
+  <h3>11.1 Két lépcsőben építjük</h3>
+  <div class="kesz">
+    <b>MVP-A – „a játék működik":</b>
+    <ul>
+      <li>Pálya <b>1–3</b> (Mondd el a bontásokat, Összeadás-kivonás 10-ig, 20-ig), a
+        <code>spec-palya-adatlap-1-3.html</code> szerinti kitöltött állomásokkal.</li>
+      <li>Feladattípusok: <b>számbontás (felmondás)</b>, <b>összeadás</b>, <b>kivonás</b>, generátorral és tippel.</li>
+      <li><b>Bagoly-kabala</b> mondja a feladatot/tippet. <b>Beszéd-válasz</b> + 0–9 billentyűzet kisegítő
+        + automatikus visszaváltás.</li>
+      <li>A közös erdő-grafika (Claude rajzolja), az unikornis mozgása (kerülő = ~15 mp), a
+        <b>csillámpor-számláló</b> – végigjátszható 3 pálya.</li>
+      <li><b>Ragyogás</b>, <b>Tűz</b> és <b>Csillámharmat</b> választható (három gyerekrajz-„bőr").</li>
+    </ul>
+    <b>MVP-B – „a gyűjtögetős rész ráépítve":</b>
+    <ul>
+      <li>Csillámpor-gazdálkodás (85/15 dobás) + <b>katalógus 4 polccal</b>
+        (Holmik / Kinézet / Kellékek / Időjárás) + <b>öltöztetés</b> + <b>kinézet-testreszabás</b> +
+        <b>talált tárgyak</b>.</li>
+      <li><b>Rajzfilmszerű odú</b> (<code>odu-belso.svg</code> alapján): fix helyek felfejlesztése
+        + tárgyak a saját helyükre + napszak/időjárás az ablakon át.</li>
+      <li>A <b>három gyerek</b> külön profilja + <b>📖 nézet</b> + <b>szülői napló</b> + alap beállítások.</li>
+    </ul>
+    <b>Ezután:</b> a <b>4.–7. pálya</b> (a 100-as számkör négy típusa).
+  </div>
+
+  <div class="figyelem">
+    <b>Munkaigény – előre jelzem:</b> a gyűjtögetős rész (MVP-B) – főleg a <b>rajzolt, teljes alakos
+    unikornis</b> ráadható ruhákkal + kinézet-testreszabással és a <b>berendezhető, rajzfilmszerű
+    odú</b> – önmagában több munka, mint a teljes matek-rész, és sok <b>rajzolást</b> igényel
+    (Claude készíti). Ezért a kétlépcsős építés.
+  </div>
+
+  <h3>11.2 Mi marad tudatosan későbbre</h3>
+  <div class="kesz">
+    <ul>
+      <li>A „hiányzó tag" feladattípus (2.2 alja).</li>
+      <li>További unikornis-„bőr" (a mostani három fölött, kisebbeknek / nagyobbaknak).</li>
+      <li>Hiányészlelés és alkalmazkodás; tanító üzemmód; oktatóvideók (vázlat 2.5 / 11. / 12.).</li>
+      <li>A „Szorzás-osztás" témacsomag (a vázlat is későbbre teszi).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s12">12. Eldöntött kérdések</h2>
+  <div class="kesz">
+    <ul>
+      <li><b>Cím / fájl:</b> AmbitusNumerorum: Unicornis Centum / <code>unikornis-centum.html</code>.</li>
+      <li><b>Unikornisok:</b> Ragyogás (fehér, csillag-jel), Tűz (korall, láng-jel), Csillámharmat
+        (világoskék, hópehely-jel) – a gyerekek rajza alapján. Keret: csillagszilánk-gyűjtés.</li>
+      <li><b>Három unikornis-„bőr"</b> (a gyerekek rajza). A világ-grafikát <b>Claude rajzolja</b> beágyazott SVG-ként.</li>
+      <li><b>Pályák: mind szabadon</b> elérhető (nincs zárolás).</li>
+      <li><b>MVP-A: pálya 1–3</b> (bontás → 10 → 20).</li>
+      <li><b>Odú-fix helyenként 2–3 szint</b> (javaslat: 3).</li>
+      <li><b>Kisegítő válaszmód: 0–9 billentyűzet</b> (nem feleletválasztós).</li>
+      <li><b>Kivonás felolvasása:</b> „47 mínusz 6. Mennyi?"</li>
+      <li><b>„Tovább megoldás nélkül"</b> végig ott, kicsiben.</li>
+      <li><b>Szülői belépés:</b> 2 mp nyomás (nincs PIN).</li>
+      <li><b>Katalógus 4 polc:</b> Holmik / Kinézet / Kellékek / Időjárás (a <code>bolt.svg</code> szerint).</li>
+      <li><b>Bagoly-kabala</b> mondja a feladatot és a tippet.</li>
+      <li><b>Kerülő út:</b> ~15 mp séta-animáció.</li>
+      <li><b>Katalógus árai + 85/15 dobás + pity(13) + kerülő(25%):</b> a
+        <code>spec-gazdasag-es-katalogus.html</code> szerint, első kiindulásként elfogadva.</li>
+    </ul>
+    <span class="mini">Még pontosítandó a build közben: a szám-tartományok finomhangolása játékteszt
+      után; a rajz-horgonypontok a valódi unikornis-rajzon; a kivonás-generátor sose adjon 0 alá.</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s13">13. Technikai háttér</h2>
+
+  <h3>13.1 Platform</h3>
+  <div class="kesz">
+    <b>Egyetlen önálló HTML-fájl</b> a Matekos mappában (javasolt név:
+    <code>unikornis-centum.html</code>). Nincs telepítés, nincs szerver, nincs „build".
+    <b>Dupla kattintásra</b> megnyílik a böngészőben, és <b>internet nélkül</b> is fut.
+    Ajánlott böngésző: <b>Chrome</b> (beszédfelismerés); más böngészőben a beírással működik.
+  </div>
+
+  <h3>13.2 A fájl belső szerkezete</h3>
+  <p>A meglévő <code>tanulojatek-gyujtemeny.html</code> bevált blokk-mintáját követi, saját kóddal.
+     A <code>&lt;script&gt;</code>-en belül, sorrendben:</p>
+  <table>
+    <tr><th>Blokk</th><th>Mit tartalmaz</th><th>Ki nyúl hozzá</th></tr>
+    <tr><td><code>PALYAK</code></td><td>a <b>7</b> pálya adatai: állomások, szám-tartományok, <code>atlepes</code>-kapcsoló</td><td>a fejlesztő – ez változik leggyakrabban</td></tr>
+    <tr><td><code>TEMA</code></td><td>a <b>közös</b> erdő kinézet: színek, betű, ég, háttér-emojik, feliratok</td><td>új „bőr"-nél</td></tr>
+    <tr><td><code>LENYEK</code></td><td>a 3 unikornis: <code>ragyogas</code> (fehér, csillag-jel), <code>tuz</code> (korall, láng-jel), <code>csillamharmat</code> (világoskék, hópehely-jel) = 3 külön gyerek-profil; <code>rajz</code>-kulcs (korall/kek/rozsa) + szín-paraméterek + kinézet-opciók (szemszín, sörény)</td><td>szín/név finomhangolásánál</td></tr>
+    <tr><td><code>BAGOLY</code></td><td>a kabala SVG-je + a beszédbuborék-sablon (a <code>palya-alap-hangos.svg</code> szerint)</td><td>ritkán</td></tr>
+    <tr><td><code>FELADATGENERATOR</code></td><td><code>szambontas</code> (felmondás) + <code>osszeadas</code> + <code>kivonas</code> generátor + rávezető tipp</td><td>új feladattípusnál</td></tr>
+    <tr><td><code>GYUJTEMENY</code></td><td>unikornis-ruhák (helyenként) + odú berendezés-szintek (fix helyenként) + odú-tárgyak (saját helyre) + talált tárgyak + jelvények</td><td>a tárgyak/árak finomhangolásánál</td></tr>
+    <tr><td><code>ODU_RAJZ</code></td><td>a rajzfilmszerű szoba SVG-rétegei az <code>odu-belso.svg</code> alapján: fal, ablak, függöny, zászlófüzér, polc, ágy, kályha, asztal, szőnyeg + a tárgyak rögzített helyei; a bejárathoz <code>odu-kulso.svg</code></td><td>a kinézet bővítésénél</td></tr>
+    <tr><td><code>MOTOR</code></td><td>főképernyő, térkép-rajzolás, mozgás, hang, beszéd, mentés, odú, szülői nézet</td><td><b>nem</b> kell hozzányúlni új pálya/tárgy miatt</td></tr>
+  </table>
+
+  <h3>13.3 Mentés</h3>
+  <div class="kesz">
+    <code>localStorage</code>, saját kulccsal (pl. <code>unikornis_centum_v1</code>),
+    a meglévő motor <b>kétszintű profil-modellje</b> szerint:
+    <pre>mentes = {
+  verzio: 1,
+  leny: "ragyogas" | "csillamharmat",   // melyik gyerek játszott utoljára
+  profilok: {
+    "ragyogas": {
+      csillámpor,
+      ruhak[], viselet{ fej, nyak, hat, lab, szarny, farok },
+      kinezet{ szemszin, sorenyHossz, sorenySzin },
+      oduSzintek{ agy, kalyha, polc, asztal, ablak, fuggony, zaszlofuzer, szonyeg, fal },
+      oduTargyak[],                   // amit kirakott, a helyével
+      idojaras: "este",              // aktív; alap = "este" (hold)
+      birtokIdojaras[],              // mely napszak/időjárás van megvéve
+      talalt[], jelvenyek[],
+      palyak{ &lt;palyaId&gt;: { kesz, csillagNelkul } },   // kesz = 1 csillagszilánk
+      naplo{ ... }, pitySzamlalo: 0
+    },
+    "csillamharmat": { ... ugyanez, külön ... }
+  }
+}</pre>
+    Böngészőnként tárol (nem felhő). A „Napló törlése" csak az aktuális gyerek naplóját törli,
+    a ruhákat / berendezést nem.
+  </div>
+
+  <h3>13.4 Hang és beszéd</h3>
+  <div class="kesz">
+    A böngésző beépített <b>Web Speech API</b>-ja: <code>speechSynthesis</code> a felolvasáshoz,
+    <code>SpeechRecognition</code> / <code>webkitSpeechRecognition</code> a válaszhoz. Nincs külső
+    szolgáltatás, nincs hálózati hívás. A hangeffektek a böngésző hang-generátorával készülnek.
+    Ha a felismerés nem elérhető → beírás.
+  </div>
+
+  <h3>13.5 Grafika</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Térkép / úti nézet:</b> egy közös erdő-jelenet CSS/SVG háttérrel; egyszerű,
+        piktogram-szerű ösvény és állomások (a formavilág-rajz szerint). Minden pálya ezt használja.</li>
+      <li><b>Unikornis:</b> <b>rajzolt (SVG), teljes alakos</b> figura oldalnézetben, a <b>gyerekek rajza
+        alapján</b> (<code>unikornis-korall/kek/rozsa.svg</code>) – a testre külön rétegben kerülnek a
+        ruhák (fejdísz, nyaklánc, háttakaró, lábdísz, szárny, farokdísz). A három „bőr" (Ragyogás /
+        Tűz / Csillámharmat) szerkezetileg azonos, más szín és oldaljel.</li>
+      <li><b>Odú:</b> <b>rajzfilmszerű</b> szoba SVG-ben – a minta a mappában lévő
+        <code>odu-belso.svg</code> (pasztell mesevilág) és <code>odu-kulso.svg</code> (a bejárat a
+        fában). Rétegekre bontva: fal/tapéta, ablak (mögötte a választható napszak), függöny,
+        zászlófüzér, polc, ágy, kályha, asztal, szőnyeg – fix helyenként 2–3 díszesebb változat –,
+        és külön „rögzített hely"-rétegek a tárgyaknak (fal, mennyezet, asztal, ágy, polc, padló, ablak).</li>
+      <li>Minden vektoros / emoji, a fájlba ágyazva – <b>nincs nagy képfájl</b>, régi gépen is fut.</li>
+    </ul>
+    <span class="mini">A meglévő <code>odu-belso.svg</code> / <code>odu-kulso.svg</code> a kiindulási
+    alap; a szintekhez és a tárgyakhoz ebből készülnek a változatok. Ez a rajzolt kinézet a
+    legnagyobb art-munkatétel – lásd 11.1 és 12.</span>
+  </div>
+
+  <h3>13.6 A feladatgenerátor „szerződése"</h3>
+  <div class="kesz">
+    <b>Egyenkénti (összeadás / kivonás):</b> <code>ujKerdes(cfg)</code> →
+    <pre>{
+  szoveg:       "47 + 6 = ?",
+  felolvasando: "Negyvenhét meg hat az mennyi?",
+  helyes:       53,
+  tipp1:        "Told fel kerek tízesig.",
+  tipp2:        "47 meg 3 az 50, és még 3 az ...?",
+  naplo: { tipus:"osszeadas", a:47, b:6, helyes:53, atlepes:true }
+}</pre>
+    <b>Felmondás (számbontás):</b> a meglévő motor <code>teljes_bontas</code> mintája –
+    <code>valasztSzam(cfg)</code>, <code>felmondCim(N)</code>, <code>felmondMondat(N)</code>
+    (amit a gép felolvas), <code>felmondHelyesE(hallottSzamok, N)</code>, és a lépésenkénti
+    beíró tartalék (<code>lepesDb</code>, <code>lepesKerdes</code>, haladás-lista).
+    <br>A MOTOR egyik esetben sem tudja, milyen matek van benne – csak feladatot kér, jó/rossz
+    jelzést ad, jutalmat oszt (a vázlat 1.7 illesztéke).
+  </div>
+
+  <h3>13.7 Bővítési illesztékek</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Új pálya</b> = új elem a <code>PALYAK</code>-ban (csak adat).</li>
+      <li><b>Más számkör / átlépés</b> = az állomás beállításai – nincs új kód.</li>
+      <li><b>Új feladattípus</b> (pl. „hiányzó tag") = új generátor a <code>FELADATGENERATOR</code>-ba,
+        a fenti szerződéssel.</li>
+      <li><b>Új „bőr"</b> = új kulcs a <code>TEMA</code> réteghez.</li>
+      <li>A <code>MOTOR</code> egyik esetben sem változik.</li>
+    </ul>
+  </div>
+
+  <h3>13.8 Átadás másnak</h3>
+  <div class="kesz">
+    A fájl e-mailben vagy pendrive-on átadható. A másik gépen a mentés nulláról indul.
+    Chrome-ban a beszéd megy; más böngészőben a játék beírással teljes értékű.
+  </div>
+
+  <h3>13.9 Korlátok</h3>
+  <div class="kesz">
+    <ul>
+      <li>A beszédfelismerés zajos szobában pontatlan – ezért van a beírás mindig kéznél.</li>
+      <li>A böngésző magyar felolvasó-hangja gépenként más minőségű.</li>
+      <li>A <code>localStorage</code> böngészőhöz kötött: más böngésző / gép = új haladás.</li>
+    </ul>
+  </div>
+
+  <h3>13.10 Mit nem építünk most</h3>
+  <div class="kesz">
+    Hálózati funkció, fiók, felhő-mentés, több gyerek egyidejű játéka, oktatóvideó-keresés,
+    hiányészlelő „okos" alkalmazkodás, szorzás-osztás.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s14">14. Témacsomag-adatlap: Összeadás-kivonás (számbontással, 10 · 20 · 100)</h2>
+  <p class="mini">A vázlat 14.0 sablonja szerint, egy játékra összevonva.</p>
+  <div class="kesz">
+    <ul>
+      <li><b>Azonosítás:</b> Matematika · „Összeadás-kivonás" témacsomag · gyakorló játék ·
+        a vázlat 1.–4. modulja egy fájlban.</li>
+      <li><b>Cél:</b> a bontások fejből tudása; biztos, gyors összeadás-kivonás 10-ig, 20-ig, 100-ig,
+        beleértve a tízesátlépést és a tízes+egyes szétbontását.</li>
+      <li><b>Feladattípus(ok) + beállítások:</b> <code>szambontas</code> (felmondás, szám ≤ 10);
+        <code>osszeadas</code> és <code>kivonas</code>; a számkör (<code>eredmeny_max</code> = 10/20/100)
+        és az <code>atlepes</code> állomás-beállítás (5.4).</li>
+      <li><b>Pályatípus:</b> térképes kaland (állomás vagy kerülő).</li>
+      <li><b>Világ / téma:</b> erdő; rajzolt-kedves, élénk színek; <b>egy közös grafika mind a 7 pályán</b>.</li>
+      <li><b>Pályák listája:</b> 7 pálya (6.2), egyenként 8–10 állomással, mind szabadon elérhető. MVP-A: 1–3.</li>
+      <li><b>Nehézségi görbe:</b> pályán belül tágul a tartomány, nő az átlépések aránya;
+        pályáról pályára a 6.2 sorrend (javasolt).</li>
+      <li><b>Segítség / tipp:</b> a bagoly hangos felolvasása; „Halld újra"; 2. hiba után rávezető tipp;
+        „kerülő" út feladat nélkül (~15 mp séta).</li>
+      <li><b>Modul-jutalom:</b> a gyűjtögetős rendszer (Holmik + Kinézet + Kellékek + Időjárás
+        + talált tárgyak); a végén záró jelvény („Az összeadás-kivonás erdő ura").</li>
+      <li><b>Belépés / kilépés:</b> minden pálya szabadon; a témacsomag kész, ha mind a 7 pálya
+        kész (7 csillagszilánk).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="s15">15. Al-specifikációk (az építéshez)</h2>
+  <p>A rendszerterv a <b>keret</b>. Az építéshez ezek a részletes al-adatlapok készültek el,
+     mind <b>kész javaslattal</b> – a bennük lévő rózsaszín „DÖNTÉSRE VÁR" dobozok a te döntéseidet
+     várják, a többi mehet.</p>
+  <table>
+    <tr><th>Fájl</th><th>Mit rögzít</th></tr>
+    <tr><td><code>spec-palya-adatlap-1-3.html</code></td><td>az 1–3. pálya összes állomása, szám-tartománya, <code>atlepes</code>-e; a generátor-elvárás</td></tr>
+    <tr><td><code>spec-gazdasag-es-katalogus.html</code></td><td>csillámpor-értékek, a 85/15 dobás pontos szabálya, drop-táblák, a teljes katalógus árakkal</td></tr>
+    <tr><td><code>spec-grafikai-eszkozlista.html</code></td><td>mit kell rajzolni, méretek, rétegek, rögzítési pontok, paletta; a pipeline-döntés</td></tr>
+    <tr><td><code>spec-hang-es-beszed.html</code></td><td>felolvasó-szövegsablonok, magyar számfelismerés 0–100, bontás-elfogadás, mikrofon-folyamat, hangeffektek</td></tr>
+    <tr><td><code>spec-kepernyo-vazlatok.html</code></td><td>a 6 képernyő elemenként, az odú almódjai, a navigációs állapotgép</td></tr>
+    <tr><td><code>spec-teszt-forgatokonyv.html</code></td><td>az MVP-A és MVP-B „kész" definíciója, kézi teszt-forgatókönyv, füst-teszt</td></tr>
+  </table>
+
+  <h3>15.1 A döntések állapota</h3>
+  <div class="kesz">
+    A korábbi „nyitott döntések" (grafikai pipeline, unikornis-nevek + keret, MVP-A pályái,
+    pálya-nyitás, „tovább megoldás nélkül", szülői belépés, kivonás felolvasása, árak/szabályok,
+    fájlnév) <b>mind eldőltek</b> – lásd a 12. szakaszt és a lap tetején a
+    „Jóváhagyott döntések" dobozt. <b>Az unikornisok időközben 3-ra bővültek</b> (Ragyogás / Tűz /
+    Csillámharmat), a gyerekek rajza alapján – a rajz-oldal (<code>spec-rajz-direktiva.html</code>)
+    ezt követi.
+    <br><span class="mini">Build közben pontosítandó: a szám-tartományok finomhangolása játékteszt
+      után; a ruha-horgonypontok a valódi gyerekrajz-figurán (380×300 keret); a kivonás-generátor sose adjon 0 alá.</span>
+  </div>
+
+  <h3>15.2 Építési sorrend</h3>
+  <div class="kesz">
+    <ol>
+      <li>Az al-specek összefésülése a mostani döntésekkel (folyamatban).</li>
+      <li><b>MVP-A</b>: a Claude által rajzolt közös erdő-térkép + unikornis (Ragyogás / Tűz / Csillámharmat)
+        + bagoly + matek (pálya 1–3) + beszéd/billentyű + felolvasás + csillámpor-számláló + mentés
+        – végigjátszható 3 pálya (<code>spec-teszt-forgatokonyv.html</code> 1. szakasz szerint).
+        <b>Boltot / odút itt még nem</b> tartalmaz.</li>
+      <li>Tesztelés (kézi végigjátszás).</li>
+      <li><b>MVP-B</b>: katalógus (4 polc) + öltöztetés + kinézet + berendezés + időjárás + talált
+        tárgyak + odú + 📖 + szülői napló + a két profil.</li>
+      <li>Tesztelés.</li>
+      <li>A <b>4.–7. pálya</b> + a hozzájuk tartozó pálya-adatlap.</li>
+    </ol>
+  </div>
+
+  <div class="doboz mini" style="margin-top:34px">
+    Ez a dokumentum + a 6 al-spec a teljes terv. A fő döntések megvannak; az MVP-A építése indulhat.
+  </div>
+
+</div>
+</body>
+</html>

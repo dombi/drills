@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Képernyő-vázlatok és navigáció</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;line-height:1.4;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🖥️ Spec – Képernyő-vázlatok és navigáció</h1>
+  <p class="mottoo">A 6 képernyő elemenkénti tartalma, az odú almódjai, és a képernyők közti
+     állapotgép. A rendszerterv 8. szakaszának kibontása.</p>
+
+  <!-- ============================================================ -->
+  <h2>1. Navigációs állapotgép</h2>
+  <pre>PROFIL ──(unikornist választ)──▶ FOMENU
+FOMENU ──(nyitott pálya-kártya)──▶ JATEK
+FOMENU ──(🏠 Odú)──▶ ODU
+FOMENU ──(👪 Szülőknek, 2 mp nyomás)──▶ SZULOI
+FOMENU ──(ki játszik? váltó)──▶ PROFIL
+
+JATEK  ──(célba ér)──▶ PALYA_VEGE ──▶ FOMENU  vagy  ▶ JATEK (következő pálya)  vagy  ▶ ODU
+JATEK  ──(🏠 Haza)──▶ FOMENU
+JATEK  ──(fejléc Odú)──▶ ODU ──(vissza)──▶ JATEK (folytatja a pályát)
+
+ODU ⇄ almódok:  ODU_NEZET ⇄ KATALOGUS ⇄ OLTOZTETO ⇄ BERENDEZO ⇄ GYUJTEMENY_KONYV
+ODU ──(⬅ Főmenü)──▶ FOMENU
+bárhonnan ──(ki játszik? váltó)──▶ PROFIL</pre>
+  <p class="mini">Csak <b>egy</b> aktív képernyő van egyszerre. A JATEK állapot megjegyzi, melyik
+     pályán és állomáson állt, ha közben az Odúba ugranak.</p>
+
+  <!-- ============================================================ -->
+  <h2>2. PROFIL – „Ki játszik most?"</h2>
+  <div class="kesz">
+    <ul>
+      <li>Cím: „Ki játszik most?" (felolvasva is).</li>
+      <li><b>2 nagy kártya</b>: Hófehér unikornis / Ezüstszürke unikornis. Mindegyiken: a figura
+        rajza, a beceneve (ha a szülő beállított), és „✨ {csillámpor} · {kész pályák}/7".</li>
+      <li>Koppintás a kártyára → belép a FŐMENÜbe azzal a profillal.</li>
+      <li><b>Nincs „új profil"</b> – a két unikornis fix. (Beceneve a szülői nézetben állítható.)</li>
+      <li>Kis „👪 Szülőknek" a sarokban (2 mp nyomás).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. FOMENU – pályaválasztó</h2>
+  <div class="kesz">
+    <b>Fejléc:</b> a játék címe · „✨ {csillámpor}" · „🏠 Odú" · „👪 Szülőknek" ·
+    „🦄 ki játszik: fehér/ezüst" váltó.
+    <br><b>Törzs:</b> <b>7 pálya-kártya</b> rácsban (2–3 oszlop). Kártyánként: ikon, név,
+    „✓ kész" vagy „🔒", 1 soros alcím („mi az új benne"). Zárolt kártya halvány, nem kattintható,
+    érintésre: „Előbb teljesítsd: {előző pálya neve}".
+    <br><b>Lábléc:</b> „Ma megoldva: {n} feladat" (kis motiváló statisztika).
+  </div>
+  <p class="mini">Pálya-sorrend: 1) Mondd el a bontásokat · 2) Összeadás-kivonás 10-ig ·
+     3) …20-ig · 4) Tízesek ösvénye · 5) Aprók a tízeshez · 6) Tízes-lépegető · 7) Erdő mélye.</p>
+  <div class="dontes">A pályák <b>sorban</b> nyílnak (előző kész kell) – vagy mind
+    <b>szabadon</b> elérhető? Javaslat: sorban, de a szülői nézetben legyen „mind feloldva" kapcsoló.</div>
+
+  <!-- ============================================================ -->
+  <h2>4. JATEK – a fő játékképernyő</h2>
+  <div class="kesz">
+    <b>Fejléc:</b> „✨ {csillámpor}" · „🏠 Haza" · „⛶ teljes képernyő" · „🎤/⌨ válaszmód" · „👪".
+    <br><b>Térkép-sáv</b> (kameráz X-ben): az unikornis, az állomások (jövő = halvány, kész =
+    színes + pipa), a bejárt szakasz más színnel, a kerülő-ösvény.
+    <br><b>Feladat-tábla</b> a térkép fölött: a feladat nagy betűvel + „🔊 Halld újra".
+    <br><b>Választerület</b> (alul), két változat:
+    <ul>
+      <li><i>egyenkénti</i> (össz./kiv.): „🎤 Mondom" (nagy) · „🔊 Halld újra" · „⌨ Inkább beírom"
+        → számbillentyűzet (0–9, ⌫, ✓) + kijelző. Haladáspöttyök: ● ● ○ ○.</li>
+      <li><i>felmondás</i> (bontás): „🎤 Mondom a bontását" (nagy) + haladás-lista
+        (0 meg 4 ✓ / 1 meg 3 … / halvány a hátralévő) · „⌨ Beírom lépésenként".</li>
+    </ul>
+    <b>Jobb szél:</b> „➰ Hosszú kerülő út".
+    <br><b>Visszajelzés:</b> jó → pipa + „+2 ✨" buborék + hang; rossz → a <b>tábla</b> finoman
+    rezdül (nem a képernyő), a 2. hibánál tipp. A „tovább megoldás nélkül" link a <b>3. hibás
+    próba</b> után jelenik meg a feladat alatt.
+  </div>
+  <div class="dontes">A „tovább megoldás nélkül" a 3. hibás próba után jelenjen meg (javaslat),
+    vagy mindig ott legyen kicsiben, vagy csak 5 után?</div>
+
+  <!-- ============================================================ -->
+  <h2>5. PALYA_VEGE</h2>
+  <div class="kesz">
+    Konfetti + „Megérkeztél!". <b>Statisztika:</b> feladatok száma · elsőre jó % · összegyűjtött ✨ ·
+    „új tárgyak: {ikonok}". <b>Gombok:</b> „🏠 Főmenü" · (ha most nyílt ki) „➡ Következő pálya" ·
+    „🏠 Odú".
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>6. ODU és almódjai</h2>
+
+  <h3>6.1 ODU_NEZET</h3>
+  <div class="kesz">
+    <b>Középen:</b> a szoba (<code>odu-belso.svg</code> alapján) az aktuális berendezéssel, a
+    kirakott tárgyakkal, a beállított napszak-éggel, és az unikornissal a felvett ruhákban.
+    <br><b>Fejléc:</b> „✨" · „🦄 ki játszik?" váltó · „⬅ Főmenü".
+    <br><b>4 gomb:</b> „🛍 Katalógus" · „👗 Öltöztető" · „🪑 Berendező" · „📖 Gyűjtemény".
+  </div>
+
+  <h3>6.2 KATALOGUS <span class="mini">(külön kattintásra nyíló panel az odú fölött)</span></h3>
+  <div class="kesz">
+    <b>Fülek:</b> Ruhák · Berendezés · Tárgyak · Napszak.
+    <br><b>Rács:</b> tétel-kártyák (kép, név, „✨ {ár}", ritkaság-címke). Állapot: <i>megvehető</i> /
+    <i>„✨ kevés"</i> (halvány, nem vehető) / <i>„✓ megvan"</i>.
+    <br>Kártyára koppintás → nagy előnézet + „Megveszem ✨{ár}" (megerősítő kérdés) VAGY
+    „Felveszem / Kirakom / Beállítom", ha már megvan.
+    <br>„✕ Bezár" → vissza ODU_NEZET.
+  </div>
+
+  <h3>6.3 OLTOZTETO</h3>
+  <div class="kesz">
+    A szoba marad; alul sáv a <b>birtokolt ruhákkal</b>, hely szerint csoportosítva
+    (fej / nyak / hát / láb / oldal / farok). Koppintás = fel/le, a figurán azonnal látszik.
+    „Mindet le" gomb.
+  </div>
+
+  <h3>6.4 BERENDEZO</h3>
+  <div class="kesz">
+    Alul sáv a <b>birtokolt berendezés-szintekkel, odú-tárgyakkal és napszakokkal</b>, hely szerint.
+    <ul>
+      <li><b>Fix hely</b> (ágy, kályha, polc…): a megvett szintek közül egyet választ (rádiógomb).</li>
+      <li><b>Tárgy</b>: be/ki kapcsoló, a saját helyére kerül.</li>
+      <li><b>Napszak</b>: a birtokoltak közül egy.</li>
+    </ul>
+    Élő előnézet a szobán.
+  </div>
+
+  <h3>6.5 GYUJTEMENY_KONYV (📖)</h3>
+  <div class="kesz">
+    Lapozható: „Ruhák" (megvan / hiányzik sziluettként) · „Odú" (berendezés + tárgyak) ·
+    „Jelvények" (megszerzett + a hiányzókhoz a feltétel szövege) · „Talált emlékek".
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>7. SZULOI – szülői / tanári nézet</h2>
+  <div class="kesz">
+    <b>Belépés:</b> a „👪 Szülőknek" gombot <b>2 másodpercig nyomva tartva</b> (a gyerek ne nyissa
+    véletlenül). PIN nélkül (otthoni, offline).
+    <br><b>Tartalom, fülekkel gyerekenként (Hófehér / Ezüstszürke):</b>
+    <ul>
+      <li>Összegzés: játékidő ma / héten · kész pályák · elsőre-jó arány pályánként.</li>
+      <li>Hibalista: az utolsó ~30 hibás feladat (feladat · gyerek válasza · helyes válasz · időpont).</li>
+      <li>Kiemelés: a <b>tízesátlépéses</b> feladatok és a <b>bontás</b> hibaaránya.</li>
+      <li>Beállítások: Hang be/ki · Alap válaszmód (beszéd/beírás) · „Minden pálya feloldva" ·
+        pálya-nehézség szűkítés (opció) · a gyerek beceneve.</li>
+      <li>„Napló törlése" (csak az aktuális gyerek naplója; a díszek maradnak).</li>
+      <li>Böngésző-támogatás: „A beszéd ebben a böngészőben {működik / nem működik}".</li>
+    </ul>
+  </div>
+  <div class="dontes">Kell PIN a szülői nézethez, vagy elég a 2 mp nyomás? Javaslat: elég a nyomás.</div>
+
+  <!-- ============================================================ -->
+  <h2>8. Reszponzivitás</h2>
+  <div class="kesz">
+    <ul>
+      <li>Cél: asztali / laptop és <b>tablet fekvő</b>. Min. szélesség ~1024 px kényelmes.</li>
+      <li>Egér és érintés is – minden gomb ≥ 44×44 px.</li>
+      <li>Tablet álló: a választerület a térkép <b>alá</b> kerül, a képernyő görgethető.</li>
+      <li>„⛶ teljes képernyő" gomb (a böngésző Fullscreen API-ja).</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

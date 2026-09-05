@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Teszt-forgatókönyv és „kész" definíció</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+  ol li{margin:5px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>✅ Spec – Teszt-forgatókönyv és „kész" definíció</h1>
+  <p class="mottoo">Mikor mondhatjuk, hogy az MVP-A és az MVP-B kész. Kézi teszt-forgatókönyv +
+     fejlesztői füst-teszt.</p>
+
+  <!-- ============================================================ -->
+  <h2>1. „Kész" – MVP-A (a játék működik)</h2>
+  <div class="kesz">
+    <ul>
+      <li>A 3 pálya (<code>bontas-felmondas</code>, <code>oszkiv-10</code>, <code>oszkiv-20</code>)
+        végigjátszható Rajttól célig, <b>beszéddel és beírással</b> is.</li>
+      <li>A generátor betartja: összeg ≤ számkör; különbség ≥ 0; <code>atlepes</code> teljesül;
+        egy állomáson belül nincs feladat-ismétlés.</li>
+      <li>Beszéd: 0–100 számfelismerés; „🔊 Halld újra"; „nem hallottam" nem számít hibának;
+        API/engedély híján automatikus beírás mód + egyszeri üzenet.</li>
+      <li>Felolvasás minden feladatnál és a 2. hibánál a tippnél.</li>
+      <li>Csillámpor-számláló nő; állomás-/pálya-bónusz jár; hibázás nem von le.</li>
+      <li>Mentés: gyerekenként külön; böngésző-újranyitás után megmarad; a „kész" pálya rögzül;
+        a 2. pálya csak az 1. után nyílik.</li>
+      <li>Egy teljes végigjátszás alatt <b>nincs fehér képernyő és nincs piros hiba</b> a konzolban.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>2. „Kész" – MVP-B (gyűjtögetős rész)</h2>
+  <div class="kesz">
+    A fentin túl:
+    <ul>
+      <li>Katalógus külön kattintásra nyílik, 4 fül (Ruhák / Berendezés / Tárgyak / Napszak),
+        vásárlás megerősítéssel, „✓ megvan" jelölés, „✨ kevés" letiltás.</li>
+      <li>85/15 dobás működik; a tárgy a nem-birtokolt készletből, ritkaság-súllyal;
+        duplikátum → +5 ✨; pity a 13. dobásnál.</li>
+      <li>Öltöztető: minden ruhahely fel/le; a figurán látszik <b>úton és odúban is</b>.</li>
+      <li>Berendező: fix helyek szintválasztása; tárgyak be/ki a saját helyükre; napszak-váltás;
+        élő előnézet.</li>
+      <li>Talált tárgy a katalógusba kerül „megvan"-ként (nincs külön talált-fiók).</li>
+      <li>📖 nézet: megszerzett/hiányzó tételek + jelvények a feltétel-szöveggel.</li>
+      <li>Szülői nézet: 2 mp nyomásra nyílik; gyerekenként külön napló + statisztika;
+        „Napló törlése" csak a naplót törli.</li>
+      <li>Minden per-gyerek adat külön a két profilban (csillámpor, ruhák, berendezés, tárgyak,
+        napszak, kész pályák, napló, pity-számláló).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. Kézi teszt-forgatókönyv</h2>
+  <div class="doboz">
+    <ol>
+      <li>Új böngésző (üres <code>localStorage</code>) → <b>PROFIL</b> képernyő, 2 unikornis, 0 ✨.</li>
+      <li>Hófehér kiválasztása → <b>FŐMENÜ</b>, csak az 1. pálya aktív, a többi 🔒.</li>
+      <li><b>1. pálya:</b> 2 állomáson felmondás mikrofonnal; 1 állomáson „⌨ Beírom lépésenként";
+        1× a „➰ Hosszú kerülő út". Célba érés → <b>PÁLYA VÉGE</b>, a statisztika stimmel.</li>
+      <li>FŐMENÜ: az 1. pálya „✓", a 2. pálya kinyílt.</li>
+      <li><b>2. pálya:</b> néhány feladat szándékosan rossz 2× → tipp felolvasva; 1 feladat 3× rossz
+        → megjelenik a „tovább megoldás nélkül"; addig játszol, míg jön egy tárgy-dobás.</li>
+      <li>A ✨ nőtt; a tárgy megjelent a katalógusban „✓ megvan"-ként.</li>
+      <li><b>ODÚ → Katalógus:</b> veszel 1 olcsó berendezés-szintet és 1 ruhát (megerősítés).
+        <b>Öltöztető:</b> felveszed a ruhát. <b>Berendező:</b> beállítod a szintet és – ha van rá ✨ –
+        a „reggel" napszakot → a szobán azonnal látszik.</li>
+      <li><b>„Ki játszik most?" → Ezüstszürke:</b> külön 0 ✨, üres szoba, csak az 1. pálya aktív
+        (a fehér haladása nem látszik).</li>
+      <li>Vissza a fehérre → minden megvan (✨, ruha, berendezés, kész pálya).</li>
+      <li><b>Böngésző bezár + újranyit</b> → PROFIL; a fehérnek megmaradt a ✨, a kész pálya, a vett
+        tárgyak, a viselet, a berendezés.</li>
+      <li><b>Szülőknek</b> (2 mp nyomás) → fehér fül: a hibalista tartalmazza az 5. lépés rossz
+        válaszait; a tízesátlépés-hibaarány látszik. „Napló törlése" → a napló üres, a díszek megvannak.</li>
+      <li>Válaszmód beírásra állítva → a JÁTÉK-ban nincs 🎤 gomb, a billentyűzet az alap.</li>
+      <li><b>Firefoxban</b> megnyitva → automatikus beírás mód, egyszeri kedves üzenet.</li>
+      <li>A teljes menet alatt a konzolban <b>nincs piros hiba</b>.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. Fejlesztői füst-teszt (böngésző-eszközzel)</h2>
+  <div class="kesz">
+    <pre>palyaBetolt('oszkiv-20');
+JATEK.allomasok.map(a =&gt; a.nev);        // 10 név, első "Rajt", utolsó cel:true
+belepFork(); aktivCsalad;                // "egyenkent"
+// egyenkénti végigoldás:
+var g = 0;
+while (sorozatAllapot &amp;&amp; sorozatAllapot.kesz &lt; sorozatAllapot.osszes &amp;&amp; g &lt; 60) {
+  g++; beirtSzam = String(helyesValasz); ellenoriz();
+}
+// generátor-korlát ellenőrzés: minden feladatra a+b &lt;= eredmeny_max, atlepes stimmel
+// felmondás pálya:
+palyaBetolt('bontas-felmondas'); belepFork(); aktivCsalad;   // "felmondas"
+felmondIrasBe(); /* majd ellenoriz() a kijelző eltűnéséig */
+// gazdaság:
+P.csillampor;                            // nőtt a végigoldás alatt
+nyitKatalogus(); document.querySelectorAll('.kat-tetel').length;   // a katalógus tételszáma
+vasarol('agy-2'); P.csillampor; P.oduSzintek.agy;                 // ✨ csökkent, szint beállt
+// profilváltás:
+valtProfilra('ezust'); P.csillampor;     // 0, külön üres profil
+</pre>
+    <span class="mini">A függvény- és mezőnevek a végleges kódban pontosítandók; a logika a
+    meglévő <code>tanulojatek-gyujtemeny.html</code> mintáját követi. Hibát a visszaadott objektum
+    <code>HIBA</code> mezőjében kapunk (a tesztet try/catch-be csomagoljuk).</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>5. Regressziós minimum minden változtatás után</h2>
+  <div class="kesz">
+    <ol>
+      <li>Mind a 3 pálya betöltődik, nincs fehér képernyő.</li>
+      <li>1 feladat megoldható beszéddel ÉS beírással.</li>
+      <li>1 vásárlás + 1 öltöztetés + 1 berendezés működik.</li>
+      <li>Gyerekváltás után külön adat; böngésző-újranyitás után megmarad.</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>

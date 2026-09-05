@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Hang és beszéd</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🔊 Spec – Hang és beszéd</h1>
+  <p class="mottoo">Felolvasó-szövegsablonok, magyar számfelismerés 0–100, a bontás elfogadási
+     szabálya, mikrofon-engedély folyamat, és a hangeffektek. Ez a projekt technikailag
+     legkockázatosabb része – ezért a részletes spec.</p>
+
+  <!-- ============================================================ -->
+  <h2>1. Felolvasás (Text-to-Speech)</h2>
+  <div class="kesz">
+    <ul>
+      <li>API: <code>window.speechSynthesis</code>, <code>utterance.lang = "hu-HU"</code>,
+        a legjobb elérhető magyar hang; ha nincs magyar hang, az alapértelmezett is felolvassa a
+        számokat érthetően.</li>
+      <li><code>rate = 0.95</code>, <code>pitch = 1.0</code>. Új mondat előtt
+        <code>speechSynthesis.cancel()</code>.</li>
+      <li>Minden felolvasás <b>offline</b> működik (a hang a gépben van).</li>
+      <li><b>„🔊 Halld újra" gomb</b> mindig látszik a játékképernyőn: a legutóbbi feladat-mondatot
+        ismétli.</li>
+    </ul>
+  </div>
+
+  <h3>1.1 Szövegsablonok (pontos mondatok)</h3>
+  <table>
+    <tr><th>Helyzet</th><th>Felolvasott mondat</th></tr>
+    <tr><td>Összeadás</td><td>„Mennyi {a} meg {b}?" &nbsp;<span class="mini">(pl. „Mennyi negyvenhét meg hat?")</span></td></tr>
+    <tr><td>Kivonás</td><td>„Vegyél el {b}-t {a}-ból. Mennyi marad?"</td></tr>
+    <tr><td>Számbontás</td><td>„Mondd el a {N} összes bontását! Kezdd lentről: nulla meg {N}, egy meg {N−1}, és így tovább."</td></tr>
+    <tr><td>Állomásra érkezés</td><td>„{állomásnév}. {a fenti feladat-mondat}"</td></tr>
+    <tr><td>Jó válasz <span class="mini">(csak minden 3.-nál mondja ki)</span></td><td>„Ez az! {eredmény}."</td></tr>
+    <tr><td>Rossz – 1.</td><td>„Nem talált. Próbáld újra!"</td></tr>
+    <tr><td>Rossz – 2. (tipp), + átlépéssel</td><td>„Told fel kerek tízesig. {a} meg {10 − a%10} az {a + (10 − a%10)}. Mennyi van még hátra a {b}-ből?"</td></tr>
+    <tr><td>Rossz – 2. (tipp), − átlépéssel</td><td>„Előbb vegyél el {a%10}-t: {a} mínusz {a%10} az {a − a%10}. Mennyi van még hátra?"</td></tr>
+    <tr><td>Rossz – 2. (tipp), bontás</td><td>„Kezdd lentről: nulla meg {N}. Aztán egy meg {N−1}. Folytasd!"</td></tr>
+    <tr><td>Állomás kész</td><td>„Ügyes! Mehetünk tovább."</td></tr>
+    <tr><td>Pálya vége</td><td>„Megérkeztünk! {jó válaszok száma} feladatot oldottál meg."</td></tr>
+    <tr><td>Kerülő választása</td><td>„Menjünk a hosszú úton."</td></tr>
+    <tr><td>Nincs mikrofon</td><td>„Most beírással játszunk. A mikrofont a szülő bekapcsolhatja a beállításban."</td></tr>
+  </table>
+  <p class="mini">A számokat a felolvasónak szóban adjuk át (pl. „negyvenhét"), nem számjegyként –
+     így minden hangon jól szól. A szám→szó függvény a meglévő motor <code>szamSzoval()</code>-ja
+     kibővítve 100-ig.</p>
+
+  <!-- ============================================================ -->
+  <h2>2. Beszédfelismerés (a válasz elsődleges módja)</h2>
+  <div class="kesz">
+    <ul>
+      <li>API: <code>window.SpeechRecognition || window.webkitSpeechRecognition</code>,
+        <code>lang = "hu-HU"</code>, <code>interimResults = false</code>,
+        <code>maxAlternatives = 3</code>, <code>continuous = false</code>.</li>
+      <li>Folyamat: <b>„🎤 Mondom"</b> → egy felismerési menet (max ~6 mp, aztán auto-stop) →
+        a 3 alternatívából számokat nyerünk ki → értékelés.</li>
+      <li>Támogatás: Chrome / Edge (asztali) → megy. Firefox / Safari → nincs
+        <code>SpeechRecognition</code> → automatikus <b>beírás</b> mód.</li>
+    </ul>
+  </div>
+
+  <h3>2.1 Magyar szám-parszer 0–100</h3>
+  <table>
+    <tr><th>Bemenet-fajta</th><th>Szabály</th><th>Példa</th></tr>
+    <tr><td>számjegy</td><td>közvetlen</td><td>„53" → 53</td></tr>
+    <tr><td>egyesek</td><td>nulla, egy, kettő/két, három, négy, öt, hat, hét, nyolc, kilenc</td><td>„hét" → 7</td></tr>
+    <tr><td>10–19</td><td>tíz; tizen+egyes</td><td>„tizenhat" → 16</td></tr>
+    <tr><td>20–29</td><td>húsz; huszon+egyes</td><td>„huszonöt" → 25</td></tr>
+    <tr><td>30–90</td><td>harminc, negyven, ötven, hatvan, hetven, nyolcvan, kilencven (+ egyes)</td><td>„ötvenhárom" / „ötven három" → 53</td></tr>
+    <tr><td>100</td><td>száz</td><td>„száz" → 100</td></tr>
+    <tr><td>egybe vagy szóközzel</td><td>a tízes + egyes összeolvasva vagy külön is elfogadva</td><td>„negyven hét" = „negyvenhét" = 47</td></tr>
+  </table>
+  <div class="kesz">
+    <b>Értékelés:</b>
+    <ul>
+      <li>Mind a 3 alternatívát parszoljuk; a válaszból az <b>első értelmes számot</b> vesszük.</li>
+      <li>Ha valamelyik alternatíva száma = a helyes válasz → <b>elfogadva</b>.</li>
+      <li>Ha van szám, de egyik sem jó → <b>hibás próba</b> (számít a hibaszámba).</li>
+      <li>Ha egyik alternatívában sincs szám → „Nem hallottam, mondd még egyszer" –
+        <b>NEM számít hibának</b>, a mikrofon újra figyel.</li>
+      <li>Félrehallásokat (pl. „hét"~„hat") nem javítunk; a 3 alternatíva általában megoldja.</li>
+    </ul>
+  </div>
+
+  <h3>2.2 Számbontás – a felmondás elfogadási szabálya <span class="mini">(véglegesítve 2026-09-02, kódban: <code>bontasFelmondOk()</code>)</span></h3>
+
+  <p>A gép ad egy <b>N</b> számot (1 ≤ N ≤ 10). A gyereknek <b>egyben, egyfolytában,
+     lentről fölfelé</b> fel kell mondania N minden bontását:</p>
+  <pre>0 + N ,  1 + (N−1) ,  2 + (N−2) ,  … ,  N + 0        →  összesen N+1 sor</pre>
+  <p class="mini">Példa N = 5:  „nulla meg öt, egy meg négy, kettő meg három, három meg kettő,
+     négy meg egy, öt meg nulla" — mind a 6 sor, ebben a sorrendben.</p>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Mit néz a gép, mit nem</h4>
+  <div class="kesz">
+    <ul>
+      <li>A felismert szövegből <b>csak a számokat</b> szedjük ki, sorban (a meglévő
+        <code>szamokKinyer()</code>). Minden más szó <b>figyelmen kívül marad</b>:
+        „meg", „plusz", „és", „hozzá", „egyenlő", „az", „lesz", „is", „annyi mint",
+        szünet, vessző — bármelyik, bármilyen kombináció.</li>
+      <li>A <b>kimondott összeg</b> (a sor végén az „= N" rész) <b>elhagyható</b>, és
+        soronként külön-külön: van, ahol kimondja, van, ahol nem — vegyesen is jó.</li>
+      <li>A szám lehet tőszám („öt") vagy ragozott („ötöt", „öttel") — a parszer tőszámként veszi.</li>
+    </ul>
+  </div>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Egy sor elfogadható alakjai</h4>
+  <table>
+    <tr><th>Amit a gyerek mond</th><th>Kinyert számok</th><th>Jó?</th></tr>
+    <tr><td>„nulla meg öt"</td><td>[0, 5]</td><td>✔ (csak a két tag)</td></tr>
+    <tr><td>„nulla meg öt az öt"</td><td>[0, 5, 5]</td><td>✔ (két tag + kimondott összeg)</td></tr>
+    <tr><td>„nulla plusz öt egyenlő öt"</td><td>[0, 5, 5]</td><td>✔ (a kötőszó mindegy)</td></tr>
+    <tr><td>„nulla öt"</td><td>[0, 5]</td><td>✔ (kötőszó nélkül is)</td></tr>
+    <tr><td>„öt meg nulla" a „nulla meg öt" helyén</td><td>[5, 0]</td><td>✘ (rossz sorrend a soron belül: előbb a növekvő tag)</td></tr>
+  </table>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Az egész felmondás akkor JÓ, ha…</h4>
+  <div class="kesz">
+    a kimondott számlista pontosan ez — <code>i = 0 … N</code>-re egymás után:
+    <pre>[ i , N−i ]   és utána OPCIONÁLISAN egy   [ N ]   (a kimondott összeg)</pre>
+    <ul>
+      <li>egyetlen sor sem hiányozhat (a <code>0 + N</code> és a záró <code>N + 0</code> is kell);</li>
+      <li>a sorok sorrendje kötött: <b>lentről</b> (az első tagok pontosan 0, 1, 2, …, N);</li>
+      <li>minden sorban a második tag pontosan <code>N − első tag</code>;</li>
+      <li>a végén nem maradhat „idegen" szám (a lezáró kimondott összeg még belefér).</li>
+    </ul>
+    <span class="mini">A gép a kimondott összeget „mohón" fogyasztja, de az utolsó előtti sornál
+    (<code>i = N−1</code>) meghagy egy <code>N</code>-et a záró <code>N + 0</code> sor első tagjának
+    — így az <code>N = 2</code> eset (ahol az összeg és az utolsó sor első tagja is 2) is jól megy.</span>
+  </div>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Hibás / hiányos felmondás</h4>
+  <div class="kesz">
+    <ul>
+      <li>A gép megmondja, <b>hány sort</b> mondott el hibátlanul az elejéről:
+        „Eddig jó volt 3 sor. Mondd el újra az egészet, lentről kezdve!" — a lista alsó
+        (kész) sorai zölden látszanak.</li>
+      <li>A felmondást <b>egyben</b> kell megismételni (nem onnan folytatja, ahol elakadt) —
+        a lentről-fölfelé gyakorlás a lényeg. Nincs pontlevonás.</li>
+      <li><b>2. sikertelen próba után</b> lépésenkénti (beírós) módra vált:
+        N+1 kis kérdés, „{N} = {i} + ?", a billentyűzeten.</li>
+      <li>Ha egyik felismerési alternatívában sincs szám → „Nem hallottam" — <b>nem</b> hibás
+        próba, a mikrofon újra figyel.</li>
+      <li>Mind a 3 felismerési alternatívát végignézzük; ha bármelyik JÓ → elfogadva. Ha nem,
+        a legtöbb elejéről-jó sort adó alternatíva számít a visszajelzésben.</li>
+    </ul>
+  </div>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Parszer-részlet a felmondáshoz</h4>
+  <div class="figyelem"><b>„tíz egy" ≠ 11.</b> A tízes+egyes összeolvasás (pl. „húsz egy" → 21)
+    <b>csak 20-tól</b> él. A „tíz" utáni külön egyes két önálló szám marad, mert a bontás
+    felmondásában gyakori: „…nulla meg tíz, egy meg kilenc…".</div>
+
+  <details style="margin:10px 0;">
+    <summary class="mini">A tényleges ellenőrző (rövidítve)</summary>
+<pre>function bontasFelmondOk(nums, N) {
+  var p = 0;
+  for (var i = 0; i &lt;= N; i++) {
+    if (nums[p] !== i)     return { ok:false, sorok:i };  p++;   // első tag
+    if (nums[p] !== N - i) return { ok:false, sorok:i };  p++;   // második tag = N-i
+    if (i &lt; N - 1)        while (nums[p] === N) p++;             // kimondott összeg(ek)
+    else if (i === N - 1) { var db=0; while (nums[p+db]===N) db++;   // hagyj egyet
+                            while (db-- &gt; 1) p++; }
+  }
+  while (nums[p] === N) p++;                     // záró kimondott összeg
+  if (p !== nums.length) return { ok:false, sorok:N };   // idegen szám maradt
+  return { ok:true, sorok:N + 1 };
+}</pre>
+  </details>
+
+  <h3>2.3 Mikrofon-engedély folyamat</h3>
+  <div class="kesz">
+    <ol>
+      <li>Az első „🎤 Mondom"-nál a böngésző felugró engedélykérése jelenik meg.</li>
+      <li><b>Engedélyezve</b> → onnantól működik, nincs újabb kérdés.</li>
+      <li><b>Elutasítva</b> vagy <b>nincs API</b> → átváltás beírásra + egyszeri kedves üzenet
+        (felolvasva is): „Most beírással játszunk. A mikrofont a szülő bekapcsolhatja a beállításban."</li>
+      <li>A <b>Szülői nézetben</b> „Alap válaszmód: beszéd / beírás" (alap: beszéd), és látszik,
+        hogy a böngésző támogatja-e a beszédet.</li>
+      <li>A beállítás <code>localStorage</code>-ban (<code>valaszmod</code> kulcs), gyerekfüggetlen
+        (a gépé).</li>
+    </ol>
+  </div>
+
+  <div class="dontes">A kivonás felolvasása: „Vegyél el {b}-t {a}-ból. Mennyi marad?" –
+    vagy inkább a rövidebb „{a} mínusz {b}. Mennyi?" A lenti tippek az előbbihez igazodnak.</div>
+
+  <!-- ============================================================ -->
+  <h2>3. Hangeffektek</h2>
+  <div class="kesz">A meglévő motor <b>WebAudio</b> hang-generátorával (nincs hangfájl):</div>
+  <table>
+    <tr><th>Esemény</th><th>Hang</th></tr>
+    <tr><td>jó válasz</td><td>3 emelkedő szinuszhang (660 → 880 → 1174 Hz), rövid</td></tr>
+    <tr><td>állomás kész</td><td>4 hangú kis dallam (C–E–G–C)</td></tr>
+    <tr><td>csillámpor-pukkanás</td><td>rövid magas „pling" (~1600 Hz, 0.08 mp)</td></tr>
+    <tr><td>hibás válasz</td><td>1 halk, mély koppanás (~180 Hz, 0.12 mp) – nem éles, nem ijesztő</td></tr>
+    <tr><td>pálya vége</td><td>6–8 hangú felfelé dallam + konfetti</td></tr>
+    <tr><td>gombnyomás</td><td>alig hallható „tap"</td></tr>
+  </table>
+  <div class="kesz">
+    <b>Beállítás:</b> „Hang: be / ki" a szülői nézetben (alap: be), <code>localStorage</code>.
+    <br><b>Háttérzene:</b> az MVP-ben <b>nincs</b>. Később opció: halk erdő-ambient, külön
+    kikapcsolóval.
+  </div>
+
+</div>
+</body>
+</html>

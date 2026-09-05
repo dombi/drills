@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Pálya-adatlapok 1–3 (MVP-A)</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>📋 Spec – Pálya-adatlapok 1–3 (MVP-A)</h1>
+  <p class="mottoo">A <b>rendszerterv-osszeadas-kivonas-100.html</b> 6.2 / 14. szakaszának kibontása
+     az első három pályára. Ezek a konkrét számok, amikből a <code>PALYAK</code> blokk épül.
+     A 4–7. pálya külön adatlapon, később.</p>
+
+  <div class="dontes">Melyik 3 pálya legyen az MVP-A: az <b>1–3</b> (bontás → 10 → 20, ezt javaslom),
+    vagy a <b>4–6</b> (a 100-as kör). Ez az adatlap az 1–3-ra készült.</div>
+
+  <!-- ============================================================ -->
+  <h2>0. Közös szabályok (mindhárom pálya)</h2>
+  <div class="kesz">
+    <ul>
+      <li>Minden pálya: <code>tema:"erdo"</code>, <code>gyujtemeny:"erdei"</code>. Az első állomás
+        mindig <code>{ nev:"Rajt" }</code> (nincs feladat), az utolsón <code>cel:true</code>.</li>
+      <li><b>Feladatszám egy állomáson</b> = <code>darab</code> (felmondásnál mindig 1 teljes bontás).</li>
+      <li><b>Ismétlés-kerülés:</b> egy állomáson belül nincs két azonos feladat. Összeadásnál a
+        <code>(a,b)</code> és a <code>(b,a)</code> ugyanaz.</li>
+      <li><b>Korlátok:</b> összeg ≤ <code>eredmeny_max</code>; különbség ≥ 0; minden szám 0–100.</li>
+      <li><b>Tízesátlépés definíció</b> — összeadás: <code>(a%10) + (b%10) ≥ 10</code>;
+        kivonás: <code>(a%10) − (b%10) &lt; 0</code> (kölcsönkérés).</li>
+      <li><b><code>atlepes</code> kulcs:</b> <code>"nincs"</code> → a generátor újragenerál, míg nincs
+        átlépés; <code>"kell"</code> → míg van; <code>"lehet"</code> → bármelyik.</li>
+      <li><b>Nehézség</b> csak az itt megadott állomás-tartományokból jön – nincs dinamikus
+        alkalmazkodás (rendszerterv 2.5, 11.2).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>1. pálya — „Mondd el a bontásokat"</h2>
+  <div class="kesz">
+    <b>id:</b> <code>bontas-felmondas</code> &nbsp;·&nbsp; <b>ikon:</b> 🌰 &nbsp;·&nbsp;
+    <b>feladat.tipus:</b> <code>szambontas</code> (felmondás család) &nbsp;·&nbsp;
+    <b>alcím a kártyán:</b> „Mondd fel a számok bontását – lentről fölfelé."
+  </div>
+  <table>
+    <tr><th>#</th><th>Állomás neve</th><th>Beállítás</th><th>Mi az új benne</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Két kavics</td><td><code>szam:3</code></td><td>a legkisebb bontás, biztonságos indítás</td></tr>
+    <tr><td>3</td><td>Öreg tölgy</td><td><code>szam:4</code></td><td>+1 pár</td></tr>
+    <tr><td>4</td><td>Mohapárna</td><td><code>szam:5</code></td><td>páratlan szám, középső pár</td></tr>
+    <tr><td>5</td><td>Csörgő patak</td><td><code>szam:6</code></td><td>hosszabb sor</td></tr>
+    <tr><td>6</td><td>Kidőlt fenyő</td><td><code>szam_min:5, szam_max:7</code></td><td>már nem tudja előre, melyik jön</td></tr>
+    <tr><td>7</td><td>Napos tisztás</td><td><code>szam_min:6, szam_max:8</code></td><td>nagyobb számok</td></tr>
+    <tr><td>8</td><td>Szürke szikla</td><td><code>szam_min:7, szam_max:9</code></td><td>a 9 bontása is előfordulhat</td></tr>
+    <tr><td>9</td><td>Odú-küszöb</td><td><code>szam_min:8, szam_max:10, cel:true</code></td><td>a 10 teljes bontása – a modul csúcsa</td></tr>
+  </table>
+  <p class="mini">Feladatok: 8 teljes bontás. Becsült idő: 6–10 perc. Válasz: mikrofonba felmondja
+     (elfogadás: lásd <code>spec-hang-es-beszed.html</code>), vagy „beírom lépésenként".</p>
+
+  <!-- ============================================================ -->
+  <h2>2. pálya — „Összeadás-kivonás 10-ig"</h2>
+  <div class="kesz">
+    <b>id:</b> <code>oszkiv-10</code> &nbsp;·&nbsp; <b>ikon:</b> ➕ &nbsp;·&nbsp;
+    <b>feladat.tipus (alap):</b> <code>osszeadas</code> &nbsp;·&nbsp;
+    <b>minden állomáson:</b> <code>eredmeny_max:10</code>, <code>atlepes:"nincs"</code> &nbsp;·&nbsp;
+    <b>alcím:</b> „Adj össze és vegyél el – tízes átlépés nélkül."
+  </div>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>tipus</th><th>darab</th><th>a_min–a_max</th><th>b_min–b_max</th><th>Mi az új</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Első lépés</td><td>osszeadas</td><td>5</td><td>1–4</td><td>1–4</td><td>kis összeadások</td></tr>
+    <tr><td>3</td><td>Gombamező</td><td>osszeadas</td><td>5</td><td>2–6</td><td>1–4</td><td>nagyobb első tag</td></tr>
+    <tr><td>4</td><td>Vissza egyet</td><td>kivonas</td><td>5</td><td>4–10</td><td>1–4</td><td>megjelenik a kivonás</td></tr>
+    <tr><td>5</td><td>Tízig érünk</td><td>osszeadas</td><td>6</td><td>3–8</td><td>1–5</td><td>összeg gyakran 9–10</td></tr>
+    <tr><td>6</td><td>Levélszőnyeg</td><td>kivonas</td><td>6</td><td>5–10</td><td>2–6</td><td>nagyobb kivonások</td></tr>
+    <tr><td>7</td><td>Vegyes 1</td><td>osszeadas</td><td>4</td><td>2–7</td><td>2–6</td><td>vegyes szakasz kezdete</td></tr>
+    <tr><td>8</td><td>Vegyes 2</td><td>kivonas</td><td>4</td><td>6–10</td><td>2–7</td><td>váltakozó művelet állomásonként</td></tr>
+    <tr><td>9</td><td>Odú-küszöb</td><td>osszeadas</td><td>6</td><td>4–9</td><td>1–6</td><td>cél; a legnehezebb összeadások 10-ig</td></tr>
+  </table>
+  <p class="mini">Feladatok: 41. Becsült idő: 8–12 perc.</p>
+
+  <!-- ============================================================ -->
+  <h2>3. pálya — „Összeadás-kivonás 20-ig"</h2>
+  <div class="kesz">
+    <b>id:</b> <code>oszkiv-20</code> &nbsp;·&nbsp; <b>ikon:</b> ➖ &nbsp;·&nbsp;
+    <b>feladat.tipus (alap):</b> <code>osszeadas</code> &nbsp;·&nbsp;
+    <b>minden állomáson:</b> <code>eredmeny_max:20</code> &nbsp;·&nbsp;
+    <b>alcím:</b> „Húszig – most jön a tízes átlépés."
+  </div>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>tipus</th><th>darab</th><th>a_min–a_max</th><th>b_min–b_max</th><th>atlepes</th><th>Mi az új</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Húszig nyújtózunk</td><td>osszeadas</td><td>5</td><td>5–12</td><td>3–8</td><td>nincs</td><td>számkör 20-ig, átlépés nélkül</td></tr>
+    <tr><td>3</td><td>Elvétel húszból</td><td>kivonas</td><td>5</td><td>10–20</td><td>2–8</td><td>nincs</td><td>kivonás 20-as körben</td></tr>
+    <tr><td>4</td><td>Éppen tízig</td><td>osszeadas</td><td>5</td><td>6–9</td><td>1–4</td><td>lehet</td><td>ráérzés a „tízig kiegészítésre"</td></tr>
+    <tr><td>5</td><td>Átlépő híd</td><td>osszeadas</td><td>6</td><td>6–9</td><td>5–9</td><td>kell</td><td>a tízesátlépés kötelező</td></tr>
+    <tr><td>6</td><td>Vissza a tízen át</td><td>kivonas</td><td>6</td><td>11–18</td><td>3–9</td><td>kell</td><td>átlépés lefelé (kölcsönkérés)</td></tr>
+    <tr><td>7</td><td>Vegyes 1</td><td>osszeadas</td><td>5</td><td>4–15</td><td>3–8</td><td>lehet</td><td>vegyes tartomány</td></tr>
+    <tr><td>8</td><td>Vegyes 2</td><td>kivonas</td><td>5</td><td>8–20</td><td>3–9</td><td>lehet</td><td>vegyes tartomány</td></tr>
+    <tr><td>9</td><td>Utolsó próba</td><td>osszeadas</td><td>6</td><td>7–9</td><td>6–9</td><td>kell</td><td>csupa átlépős összeadás</td></tr>
+    <tr><td>10</td><td>Odú-küszöb</td><td>kivonas</td><td>6</td><td>12–20</td><td>4–9</td><td>lehet</td><td>cél; vegyes kivonás 20-ig</td></tr>
+  </table>
+  <p class="mini">Feladatok: 49. Becsült idő: 10–15 perc.</p>
+
+  <!-- ============================================================ -->
+  <h2>4. Összesítés</h2>
+  <table>
+    <tr><th>Pálya</th><th>Feladatok</th><th>Állomások</th><th>Idő</th></tr>
+    <tr><td>1 – Bontás felmondása</td><td>8</td><td>8 (+Rajt)</td><td>6–10 p</td></tr>
+    <tr><td>2 – Összeadás-kivonás 10-ig</td><td>41</td><td>8 (+Rajt)</td><td>8–12 p</td></tr>
+    <tr><td>3 – Összeadás-kivonás 20-ig</td><td>49</td><td>9 (+Rajt)</td><td>10–15 p</td></tr>
+    <tr><td><b>MVP-A összesen</b></td><td><b>98</b></td><td><b>25</b></td><td><b>~30–40 p</b></td></tr>
+  </table>
+  <p class="mini">Ez a ~98 feladat a gazdasági terv alapja (<code>spec-gazdasag-es-katalogus.html</code>).</p>
+
+  <!-- ============================================================ -->
+  <h2>5. Generátor-elvárás (a FELADATGENERATOR-hoz)</h2>
+  <div class="kesz">
+    <pre>osszeadas.ujKerdes(cfg):
+  ismételd:
+    a = veletlen(cfg.a_min, cfg.a_max)
+    b = veletlen(cfg.b_min, cfg.b_max)
+  amíg NEM ( a+b &lt;= (cfg.eredmeny_max||100)
+            ÉS atlepesOK(a, b, "+", cfg.atlepes)
+            ÉS nem_volt_mar_ezen_az_allomason(a,b) )
+  vissza { szoveg:a+" + "+b+" = ?", felolvasando:"Mennyi "+szo(a)+" meg "+szo(b)+"?",
+           helyes:a+b, tipp1:..., tipp2:..., naplo:{tipus:"osszeadas",a,b,helyes:a+b,atlepes:atlepesE(a,b,"+")} }
+
+kivonas.ujKerdes(cfg): mint fent, de b &lt;= a garantált, és atlepesOK(a,b,"-",cfg.atlepes)
+
+szambontas: valasztSzam(cfg) = cfg.szam ?? veletlen(cfg.szam_min, cfg.szam_max)
+  a többi mező (felmondCim, felmondMondat, felmondHelyesE, lépésenkénti tartalék):
+  a meglévő motor teljes_bontas mintája.</pre>
+    A tipp-szövegek pontos sablonjai: <code>spec-hang-es-beszed.html</code> 2. szakasz.
+  </div>
+
+</div>
+</body>
+</html>

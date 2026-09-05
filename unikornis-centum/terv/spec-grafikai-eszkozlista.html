@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Grafikai eszközlista</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+  .sw{display:inline-block;width:14px;height:14px;border:1px solid #0002;border-radius:3px;vertical-align:middle;margin-right:5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🎨 Spec – Grafikai eszközlista</h1>
+  <p class="mottoo">Mit kell rajzolni, milyen méretben, milyen rétegekre bontva, és hol vannak a
+     <b>rögzítési pontok</b> (hogy a ruhák és a bútorok illeszkedjenek). Alap-referencia a mappában:
+     <code>odu-belso.svg</code>, <code>odu-kulso.svg</code>, <code>Matekos formavilag1/2.png</code>.</p>
+
+  <div class="dontes">Ki készíti a rajzokat? <b>(a)</b> Claude rajzolja beágyazott SVG-ként, az
+    <code>odu-belso.svg</code> tiszta pasztell-vektor stílusában (ezt tudom vállalni, gyorsan);
+    <b>(b)</b> külön grafikus „szép" illusztrációt – akkor PNG-sprite pipeline és hosszabb átfutás.
+    A lenti terv az <b>(a)</b>-ra készült.</div>
+
+  <!-- ============================================================ -->
+  <h2>1. Alapelvek</h2>
+  <div class="kesz">
+    <ul>
+      <li><b>Formátum:</b> SVG, a kész játékba <b>build-időben beágyazva</b> (nincs külön képfájl a
+        végtermékben – „egy fájl" marad, e-mailben átadható). A <code>.svg</code>-k a repóban
+        maradnak szerkeszthető forrásként.</li>
+      <li><b>Vászon:</b> a jelenet-SVG-k alap viewBox <b>680×540</b> (mint a meglévő odú-rajzok);
+        a térkép szélesebb (kameráz).</li>
+      <li><b>Stílus:</b> lekerekített, pasztell, vékony sötét körvonal opcionális; lágy árnyékok
+        ellipszissel; csillám-pöttyök dísznek. Nincs fotó, nincs erős gradiens-orgia.</li>
+      <li><b>Betű:</b> rendszerbetű (<code>"Segoe UI", system-ui, sans-serif</code>) az alap; ha
+        később lekerekített mesekönyv-betűt teszünk be, az is csak beágyazva. Min. méret: gyerek-
+        szöveg 18px, feladat-szöveg 24px+.</li>
+    </ul>
+  </div>
+
+  <h3>1.1 Paletta (kiemelve az odu-belso.svg-ből)</h3>
+  <table>
+    <tr><th>Szerep</th><th>Hex</th><th>Szerep</th><th>Hex</th></tr>
+    <tr><td><span class="sw" style="background:#b79fd4"></span>lila alap</td><td>#b79fd4</td><td><span class="sw" style="background:#cbb6e6"></span>lila világos</td><td>#cbb6e6</td></tr>
+    <tr><td><span class="sw" style="background:#f6a5c0"></span>rózsaszín</td><td>#f6a5c0</td><td><span class="sw" style="background:#a7d99a"></span>zöld</td><td>#a7d99a</td></tr>
+    <tr><td><span class="sw" style="background:#fce49a"></span>sárga</td><td>#fce49a</td><td><span class="sw" style="background:#9ec9f0"></span>kék</td><td>#9ec9f0</td></tr>
+    <tr><td><span class="sw" style="background:#c3a5e0"></span>levendula</td><td>#c3a5e0</td><td><span class="sw" style="background:#fdf0d0"></span>krém</td><td>#fdf0d0</td></tr>
+    <tr><td><span class="sw" style="background:#ffd878"></span>arany (szarv)</td><td>#ffd878</td><td><span class="sw" style="background:#2e2350"></span>éjkék (háttér)</td><td>#2e2350</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>2. Térkép / úti nézet</h2>
+  <table>
+    <tr><th>Elem</th><th>Méret</th><th>Rétegek</th><th>Megjegyzés</th></tr>
+    <tr><td>Erdő háttér</td><td>~1400×540 (kameráz X-ben)</td><td>ég · távoli fák · közeli fák · talaj</td><td>1 db; a formavilag1.png hangulata</td></tr>
+    <tr><td>Ösvény + kerülő</td><td>SVG path</td><td>—</td><td>a MOTOR rajzolja számokból, nem kép</td></tr>
+    <tr><td>Állomásjelölő</td><td>~48×48</td><td>jövő (halvány kör) · kész (színes + pipa)</td><td>2 állapot</td></tr>
+    <tr><td>Feladat-tábla</td><td>~420×140</td><td>fatábla + szöveghely + 🔊 gomb</td><td>a térkép fölött lebeg</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>3. Unikornis (teljes alakos, oldalnézet, jobbra néz)</h2>
+  <div class="kesz">
+    <b>Alaptest:</b> 1 SVG, ~220×200 a saját koordinátarendszerében.
+    <b>Rétegek (hátulról előre):</b> hátsó láb · farok · test · sörény-hátsó · fej · szarv · sörény-elülső · mellső láb.
+    <br><b>2 szín – nem külön rajz, csak paraméter:</b>
+  </div>
+  <table>
+    <tr><th>Rész</th><th>Hófehér</th><th>Ezüstszürke</th></tr>
+    <tr><td>test</td><td>#ffffff</td><td>#d9d9e2</td></tr>
+    <tr><td>test-árnyék</td><td>#efe9f5</td><td>#b9b9c7</td></tr>
+    <tr><td>sörény / farok</td><td>#f6a5c0 → #c3a5e0</td><td>#9ec9f0 → #c3a5e0</td></tr>
+    <tr><td>szarv</td><td>#ffd878</td><td>#cfe0ff</td></tr>
+    <tr><td>pata</td><td>#d9c4ee</td><td>#b7b7c9</td></tr>
+    <tr><td>szem</td><td>#4a3b7a</td><td>#3a3350</td></tr>
+  </table>
+
+  <h3>3.1 Rögzítési zónák a ruhákhoz <span class="mini">(a kész gyerekrajz-unikornis 380×300-as koordinátájában – ez a tényleges, élő rendszer, 2026-09-04-től)</span></h3>
+  <div class="figyelem">2026-09-04: a korábbi tábla (150,60 stb.) egy próba-vektorra épült, amit a
+     gyerekrajz-unikornis (<code>UNI_KORALL/KEK/ROZSA</code>) leváltott. Ez a tábla a valós
+     `ruhaSVG()`-ben használt zónákat írja le, miután a producer visszajelzése (fejdísz a szem
+     vonalán, medál a pofán, szárny a has közepén – csálénak látszott) alapján újrapozicionáltuk
+     a fej/nyak/oldal helyet. A hat/láb/farok zóna változatlan, jól állt eddig is.</div>
+  <table>
+    <tr><th>Ruhahely</th><th>Zóna (boríték)</th><th>Illesztés</th></tr>
+    <tr><td>Fej (korona/fejdísz)</td><td>x 248–328, y ≤ 96</td><td>a fej TETEJÉN ívelve, a szem (kb. y112) és a szarv-tő fölött – a dísz alja nem lóghat a szem vonala alá</td></tr>
+    <tr><td>Nyak (nyaklánc/sál)</td><td>x 236–308, y 150–210</td><td>a fej alatti nyak-öbölben; a medál/dísz szabadon lóg le a mellkas elé, nem tapad az állra</td></tr>
+    <tr><td>Hát (takaró/köpeny)</td><td>x 104–256, y 96–172</td><td>a test tetejére simul, oldalt lelógva</td></tr>
+    <tr><td>Láb (bokadísz/patkó, mind a 4)</td><td>cx 103 / 141 / 191 / 244, y 264–288</td><td>közvetlenül a láb-csík fölött/a patánál, a 4 láb tényleges x-helyén</td></tr>
+    <tr><td>Oldal (szárny)</td><td>tő ~(172,106), csúcs ~(85,40) felé, ~210×230-as sziluett — <b>2026-09-04-től NAGYÍTOTT</b>, ld. lent</td><td>a hát tetejéről hátrafelé-fölfelé dől a farok irányába, TELJESEN LÁTHATÓAN a test/sörény előtt (nem bújik el mögötte) – nem a vállon, nem a has közepén</td></tr>
+    <tr><td>Farok-dísz</td><td>x 60–124, y 140–170</td><td>közvetlenül a farok tövénél</td></tr>
+  </table>
+  <p class="mini">Minden ruha egy kis SVG-csoport ugyanabban a 380×300 koordinátában, a zónához
+     igazítva – a MOTOR (<code>unikornisSVG</code>) csak be/ki kapcsolja rétegenként (fej/nyak/hát/
+     láb/oldal/farok). Ugyanaz a rendszer fut a pálya-térképen, a profil-kártyán és az odúban is
+     (csak a méretarány más).</p>
+  <div class="kesz"><b>Zóna-szabályok (2026-09-04, egy kutató-session iparági javaslata alapján
+     bevezetve):</b>
+     <ol>
+       <li><b>Ne takard a kulcsvonalat:</b> a szem, a mosoly és a szarv csúcsa mindig szabadon marad,
+           minden zónában, bármennyi ruha fut is rajta egyszerre.</li>
+       <li><b>Zónánként max 1 nagy motívum + max 2 apró csillám-dísz.</b> Ha egy tétel maga is
+           zsúfolt (pl. a virágcsokor), ne kerüljön mellé még egy hangsúlyos elem ugyanabba a zónába.
+           <b>Kivétel (2026-09-04, producer-döntés — <code>spec-szarny-nagyitas.html</code>):</b>
+           az <b>oldal (szárny)</b> hely a legritkább/leglátványosabb kategória — ez SZÁNDÉKOSAN
+           nagy, egyetlen, messziről felismerhető motívum a saját zónájában, ~2,3× a többi zóna
+           méretének. A limit a TÖBBI zónára és a jövőbeli tételekre érvényes marad.</li>
+       <li><b>Stílus-lakat:</b> azonos kontúrvastagság (~1.4–1.8), azonos paletta (1.1 szakasz), mint
+           a többi kész ruha.</li>
+       <li><b>Kicsiben-teszt:</b> minden új ruhát nézzünk meg profil-kártya méretben is (~48–80px) –
+           ha ott is tiszta a sziluett, jó; ha elmosódik, túl aprólékos.</li>
+     </ol>
+  </div>
+
+  <h3>3.2 Séta</h3>
+  <div class="kesz">Alap: a MOTOR X-ben eltolja a figurát + finom 2px fel-le billegés (mint a
+     meglévő motor). Opcionális későbbi finomítás: 2 láb-fázis (nem MVP).</div>
+
+  <!-- ============================================================ -->
+  <h2>4. Odú – belső</h2>
+  <div class="kesz">
+    Alap: <code>odu-belso.svg</code> (kész). Ebből kell a fix helyek <b>2–3 szintje</b> külön
+    SVG-csoportként, a meglévő koordinátákra illesztve:
+  </div>
+  <table>
+    <tr><th>Fix hely</th><th>Kb. pozíció a 680×540 vásznon</th><th>Szintek</th></tr>
+    <tr><td>Ágy</td><td>bal, (160, 410)</td><td>3 (alap + 2)</td></tr>
+    <tr><td>Kályha</td><td>jobb, (542, 400)</td><td>3</td></tr>
+    <tr><td>Polc</td><td>jobb-közép, (470, 275)</td><td>3</td></tr>
+    <tr><td>Asztal</td><td>közép, (345, 400)</td><td>3</td></tr>
+    <tr><td>Ablak</td><td>közép-fent, (345, 300)</td><td>3</td></tr>
+    <tr><td>Függöny</td><td>az ablak körül</td><td>3 (alap = nincs)</td></tr>
+    <tr><td>Zászlófüzér</td><td>mennyezet, y ~120</td><td>3</td></tr>
+    <tr><td>Szőnyeg</td><td>padló, (340, 488)</td><td>3</td></tr>
+    <tr><td>Fal / tapéta</td><td>a teljes fal-réteg</td><td>3</td></tr>
+  </table>
+  <p class="mini">Összesen ~27 kis SVG-csoport (9 hely × 3 szint), plusz az alap már megvan.</p>
+
+  <h3>4.1 Ablak mögötti ég – napszakok</h3>
+  <table>
+    <tr><th>Napszak</th><th>Méret</th><th>Tartalom</th></tr>
+    <tr><td>Este/hold (alap)</td><td>~120×120 a kerek ablak mögé</td><td>éjkék + hold + felhő (kész)</td></tr>
+    <tr><td>Reggel</td><td>ua.</td><td>rózsaszín-narancs ég, alacsony nap</td></tr>
+    <tr><td>Dél</td><td>ua.</td><td>világoskék ég, magas nap, 1-2 felhő</td></tr>
+    <tr><td>Napfogyatkozás</td><td>ua.</td><td>sötétlila ég, fekete korong arany gyűrűvel, csillagok</td></tr>
+  </table>
+  <p class="mini">A napszak a szoba fő fény-rétegét is halványan átszínezi (1 áttetsző réteg).</p>
+
+  <h3>4.2 Odú-tárgyak (ikonok a saját helyükre)</h3>
+  <table>
+    <tr><th>Hely</th><th>Koordináta-sáv</th><th>Tárgyak (méret ~40–70px)</th></tr>
+    <tr><td>Falra</td><td>y ~130–200 sáv, a fal bal-jobb</td><td>patkó, erdőkép, tükör, koszorú</td></tr>
+    <tr><td>Mennyezetre</td><td>y ~110, füzér mellé</td><td>extra zászlófüzér, függő kristály</td></tr>
+    <tr><td>Asztalra</td><td>(345, 388)</td><td>terítő, váza, gyertyatartó, befőttes-csillag</td></tr>
+    <tr><td>Ágyra</td><td>(160, 405)</td><td>pokróc, párna, plüss</td></tr>
+    <tr><td>Polcra</td><td>(470, 268)</td><td>üvegcsék, könyvek, figurák</td></tr>
+    <tr><td>Padlóra</td><td>(250, 470) / (430, 475)</td><td>kosár, ládikó, kispárna</td></tr>
+    <tr><td>Ablakba</td><td>(345, 320)</td><td>cserepes növény, függődísz</td></tr>
+  </table>
+  <p class="mini">~30 kis ikon-SVG. Mind be/ki kapcsolható, fix pozícióval.</p>
+
+  <!-- ============================================================ -->
+  <h2>5. Odú – külső</h2>
+  <div class="kesz"><code>odu-kulso.svg</code> kész. Kell hozzá egy <b>„belépés" köztes állapot</b>
+     (közelítés a bejárathoz / fény felerősödik), hogy a FŐMENÜ → ODÚ átmenet ne legyen ugrás.
+     Ez 1 rövid animációs lépés, nem új rajz.</div>
+
+  <!-- ============================================================ -->
+  <h2>6. UI-ikonok és képernyő-elemek</h2>
+  <table>
+    <tr><th>Elem</th><th>Db</th><th>Méret</th></tr>
+    <tr><td>Ikonok: 🎤 mikrofon, 🔊 hang, ⌫ törlés, ✓ kész, 🏠 haza/odú, 👪 szülők, 🔒 zár, ➰ kerülő, ✨ csillámpor</td><td>~9</td><td>~28–40px</td></tr>
+    <tr><td>Számbillentyű 0–9</td><td>10</td><td>~64×64</td></tr>
+    <tr><td>Haladáspötty (●/○)</td><td>2 állapot</td><td>~16px</td></tr>
+    <tr><td>Pálya-kártya sablon</td><td>1 sablon + 7 ikon</td><td>~220×140</td></tr>
+    <tr><td>Pálya-vége keret + konfetti</td><td>1 + generált</td><td>—</td></tr>
+    <tr><td>Felugró „+2 ✨" buborék</td><td>1</td><td>~80×40</td></tr>
+    <tr><td>Katalógus tétel-kártya sablon</td><td>1</td><td>~160×190</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>7. Összesítés – a rajzolandó tételek</h2>
+  <table>
+    <tr><th>Csomag</th><th>Mennyiség</th><th>Nehézség</th></tr>
+    <tr><td>Erdő-térkép háttér</td><td>1 (4 réteg)</td><td>közepes</td></tr>
+    <tr><td>Unikornis-rendszer (2 szín paraméterrel)</td><td>1 test + ~18 ruha-csoport</td><td>nagy</td></tr>
+    <tr><td>Odú fix-hely szintek</td><td>~27 SVG-csoport</td><td>nagy</td></tr>
+    <tr><td>Napszak-egek</td><td>4</td><td>kicsi</td></tr>
+    <tr><td>Odú-tárgy ikonok</td><td>~30</td><td>közepes</td></tr>
+    <tr><td>UI-ikonok + billentyűk + sablonok</td><td>~35</td><td>kicsi</td></tr>
+  </table>
+  <div class="figyelem"><b>Senior-megjegyzés:</b> ez a lista a projekt legnagyobb egyszeri tétele.
+     Ha az <b>(a)</b> utat választjuk (Claude rajzol), akkor is érdemes az MVP-A-ban csak a
+     működéshez feltétlen szükségeset megrajzolni (térkép, unikornis 1–2 ruhával, alap odú), és a
+     ~27 bútor-szint + ~30 tárgy nagy részét az MVP-B-ben, iteratívan.</div>
+
+</div>
+</body>
+</html>
