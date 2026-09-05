@@ -521,7 +521,7 @@ function renderPipaSor() {
    golyó a rúdon), képlettel és pipával. */
 function renderGolyoLista() {
   var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
-  var N = FB.N;
+  var N = J.feladat.N;
   for (var i = 0; i <= N; i++) {
     var sorEl = el("div", "golyo-sor uj");
     sorEl.style.animationDelay = (i * 90) + "ms";
@@ -584,10 +584,7 @@ function bontasEloElhallgat() {
 
 function bontasEloSiker() {
   bontasEloElhallgat();
-  felmondSiker();
-  renderGolyoLista();                    /* a végén: a teljes golyós lista, jutalomként */
-  $("felmond-lista").hidden = true;      /* a golyós lista marad, nem a szöveges */
-  $("pipa-sor").hidden = false;
+  felmondSiker();                        /* a gyöngyös lista + „mondd el még egyszer” benne */
 }
 
 /* a felmondás megszakadt (2 hiba, hosszú csend vagy „Kész vagyok" idő előtt) */
@@ -1222,18 +1219,23 @@ function felmondSiker() {
   P().csillampor += jar; J.futoCsilla += jar;
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   J.parokKesz = J.feladat.N + 1;
-  $("felmond-lista").hidden = false; $("felmond-megvan").hidden = true;
-  renderFelmondLista(J.parokKesz);
-  bagolyMondat("Szuper! Kész! 🌟");
+  /* a piros-kék gyöngyös lista jelenik meg (nem a szöveges) — ezt nézve
+     mondja el a gyerek MÉG EGYSZER, hogy vizuálisan is rögzüljön */
+  $("felmond-lista").hidden = true;
+  $("felmond-megvan").hidden = true;
+  renderGolyoLista();
+  $("pipa-sor").hidden = false;
   $("visszajelzes-f").className = "visszajelzes jo";
   $("visszajelzes-f").textContent = "Kész a bontás!  (+" + jar + " ✨)";
   csillagRepul($("bagoly-buborek"));
   setTimeout(function () { $("jatek-csillampor").textContent = P().csillampor; }, 500);
   J.feladatKesz++; ment();
-  /* NEM lépünk tovább magunktól: a golyós lista kint marad, most rögzül
-     vizuálisan — a gyerek akkor megy tovább, amikor kész. */
+  /* NEM lépünk tovább magunktól, és a második felmondást MÁR NEM ellenőrizzük:
+     a narrátor felszólít az ismétlésre, a Tovább gomb csak vár. */
   var tg = $("bontas-kesz-gomb");
   tg.textContent = "Tovább →"; tg.className = "nagy-gomb tovabb-kesz"; tg.hidden = false;
+  bagolyMondat("Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve! 🌟");
+  mondd("Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve.");
 }
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;

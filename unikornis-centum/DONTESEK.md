@@ -237,3 +237,11 @@ Közben csak a pipa-karikák telnek — a memória-elem teljesen visszaállt.
   spec-rajz-direktiva §8 és a `bolt-osszehasonlito-makett.svg` alapján. Round 1: szerkezet +
   vásárlási kör kész és tesztelve; Round 2: a 18 ruha „polc-póza" (akasztón/összehajtva/állványon)
   cseréli a mostani mini-unikornis bélyegképeket.*
+
+## 2026-09-05 — A gyöngyök megjelenésekor: „mondd el még egyszer" (Gergő)
+
+Siker után, amikor kirakjuk a piros-kék gyöngyös bontás-listát, a narrátor
+felszólít: „Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve!" —
+a gyerek a gyöngyöket nézve újra felmondja (vizuális rögzülés).
+Ezt a MÁSODIK felmondást MÁR NEM ellenőrizzük: a „Tovább →" gomb csak vár,
+a gyerek akkor lép, amikor kész (folyamatosan beszélhet, semmi nem szakítja meg).
