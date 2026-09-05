@@ -246,6 +246,24 @@ a gyerek a gyöngyöket nézve újra felmondja (vizuális rögzülés).
 Ezt a MÁSODIK felmondást MÁR NEM ellenőrizzük: a „Tovább →" gomb csak vár,
 a gyerek akkor lép, amikor kész (folyamatosan beszélhet, semmi nem szakítja meg).
 
+## 2026-09-05 — Feladat- és bolt-képernyő elrendezés (grafikai átvizsgálás A+B)
+
+**A – feladat-képernyő:** a „Inkább a hosszú kerülő úton megyek" gomb eddig egy nagy levendula
+sáv volt a válaszsáv TETEJÉN, rátakart az unikornisra/ösvényre. Most halk, kicsi pill a válaszsáv
+ALJÁN (`order:99`, áttetsző háttér, kisebb betű). A `.valaszter` háttere kicsit átlátszóbb
+(.80→.72), max-magassága 46vh→44vh — több jelenet látszik. A gomb működése (kerülő-út indítás,
+görbe séta) változatlan.
+
+**B – bolt-képernyő:** a `.odu-panel-fej` (fülsor + Bezár) kikerült a görgethető `.odu-panel-elo`-
+ból, most abszolút pozícióban ül a rajzolt „Csillagbolt" cégér ALATT (top:78px); a görgethető
+polc-terület még lejjebb kezdődik (top:138px). Így a megrajzolt bolt (cégér + zászlófüzér +
+4-polcos szekrény) **tényleg látszik**, nem takarják a kártyák. A termék-kártyák keskenyebbek
+(132→106px, az „oldal" léc 220→176), így a szekrény kilátszik mögöttük. Az adatlap már nem
+teljes magasságú üres fehér kártya, hanem a tartalomhoz igazodik (`align-self:stretch→flex-start`).
+Kimaradt (B4): a rajzolt szekrényben az üres „★" polchelyek elrejtése — külön kör / a rajzoló
+session dolga. Tesztelve: fül-váltás, tétel-választás, Bezár, pálya-regresszió — mind zöld,
+konzol tiszta.
+
 ## 2026-09-05 — Hát-tárgyak testre simuló formára cserélve
 
 A grafikai session döntése + rajza alapján: **a rétegsorrend NEM változik** (a ruhák

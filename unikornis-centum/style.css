@@ -125,20 +125,21 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .halld-ujra{ margin-top:8px; font-size:13px; padding:7px 15px; border-radius:14px; background:#e3d3f0; color:#6a4a8a; font-weight:700; }
 
+/* a kerülő-út: halk másodlagos lehetőség a válaszsáv ALJÁN (nem takarja az unikornist/ösvényt) */
 .kerulo-gomb{
-  align-self:stretch; max-width:640px; width:100%;
-  background:#d3bde8; color:#4a3b7a; font-size:15px; font-weight:700;
-  padding:9px 16px; border-radius:16px; text-align:center;
-  box-shadow:0 3px 0 #bda3dc;
+  order:99; align-self:center; width:auto; max-width:none;
+  background:rgba(211,189,232,.5); color:#5a4a80; font-size:12px; font-weight:700;
+  padding:5px 15px; border-radius:999px; text-align:center; box-shadow:none;
+  margin-top:3px;
 }
-.kerulo-gomb:active{ transform:translateY(2px); box-shadow:0 1px 0 #bda3dc; }
+.kerulo-gomb:active{ transform:translateY(1px); box-shadow:none; }
 .nagy-gomb{ padding:13px 24px; min-height:52px; }
 
 .valaszter{
   position:absolute; left:0; right:0; bottom:0;
-  background:rgba(253,247,225,.80); border-top:2px solid #e6d3a8;
+  background:rgba(253,247,225,.72); border-top:2px solid #e6d3a8;
   padding:8px 14px 10px; display:flex; flex-direction:column; align-items:center; gap:6px;
-  max-height:46vh; overflow-y:auto;
+  max-height:44vh; overflow-y:auto;
 }
 .valasz-panel{ display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; max-width:640px; }
 .valasz-gombsor{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
@@ -306,15 +307,17 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .odu-bolt-hatter{ position:absolute; inset:0; z-index:0; }
 .odu-bolt-hatter svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
-.odu-panel-elo{
-  position:absolute; inset:0; z-index:1; overflow-y:auto;
-  padding:72px 14px 26px;
-  display:flex; flex-direction:column;
-}
+/* a rajzolt „Csillagbolt" cégér a felső ~80px-ben mindig látszik; a fülsor alatta ül,
+   a görgethető polc-terület még lejjebb kezdődik — így a rajzolt bolt nem tűnik el */
 .odu-panel-fej{
+  position:absolute; left:0; right:0; top:78px; z-index:4;
   display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-  position:sticky; top:0; z-index:3; margin:0 -14px 8px; padding:8px 14px;
-  background:#efe0f6; box-shadow:0 4px 10px rgba(74,59,122,.12);
+  padding:7px 14px; background:rgba(239,224,246,.94); box-shadow:0 5px 12px rgba(74,59,122,.16);
+}
+.odu-panel-elo{
+  position:absolute; left:0; right:0; top:138px; bottom:0; z-index:1; overflow-y:auto;
+  padding:12px 14px 26px;
+  display:flex; flex-direction:column;
 }
 .odu-fulek{ display:flex; gap:7px; flex-wrap:wrap; }
 .odu-ful{ padding:8px 15px; border-radius:14px; background:#e9ddf3; font-weight:800; font-size:14.5px; color:var(--lila-sotet); box-shadow:0 2px 0 #cdbce6; }
@@ -363,7 +366,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .odu-panel-tartalom{ flex:1; display:flex; gap:16px; align-items:flex-start; }
 .bolt-polcok{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:14px; }
 .bolt-adatlap{
-  flex:0 0 246px; align-self:stretch; position:sticky; top:64px;
+  flex:0 0 234px; align-self:flex-start; position:sticky; top:6px;
   background:#fff; border:2px solid #e6d0e6; border-radius:20px; padding:14px 14px 16px;
   box-shadow:0 8px 22px rgba(74,59,122,.18);
   display:flex; flex-direction:column; align-items:center; gap:8px;
@@ -378,15 +381,15 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   border-bottom:9px solid #d9b48a; border-radius:0 0 5px 5px; scrollbar-width:thin;
 }
 .bolt-slot{
-  position:relative; flex:0 0 132px; background:#fff; border:2px solid transparent; border-radius:14px;
-  padding:8px 7px 9px; box-shadow:0 4px 11px rgba(74,59,122,.14);
-  display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
+  position:relative; flex:0 0 106px; background:#fff; border:2px solid transparent; border-radius:14px;
+  padding:7px 6px 8px; box-shadow:0 4px 11px rgba(74,59,122,.14);
+  display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;
 }
 .bolt-slot:active{ transform:translateY(1px); }
-.bolt-slot-kep{ width:100%; height:118px; border-radius:9px; overflow:hidden; background:#f3ecfa; }
+.bolt-slot-kep{ width:100%; height:96px; border-radius:9px; overflow:hidden; background:#f3ecfa; }
 /* az „oldal" (szárny) polc-lécen egyedi, nagyobb art-box kell (spec-szarny-nagyitas.html) */
-.bolt-slot.nagy{ flex-basis:220px; }
-.bolt-slot.nagy .bolt-slot-kep{ height:184px; }
+.bolt-slot.nagy{ flex-basis:176px; }
+.bolt-slot.nagy .bolt-slot-kep{ height:150px; }
 .bolt-slot-kep svg{ width:100%; height:100%; display:block; }
 .bolt-arcimke{ font-size:11.5px; font-weight:800; color:#8a6a1e; background:#fdf0d0; border-radius:999px; padding:1px 9px; }
 .bolt-slot.valasztott{ border-color:#ffcf4d; box-shadow:0 0 0 3px rgba(255,224,138,.75),0 4px 11px rgba(74,59,122,.14); }
