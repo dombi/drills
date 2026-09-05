@@ -246,6 +246,17 @@ a gyerek a gyöngyöket nézve újra felmondja (vizuális rögzülés).
 Ezt a MÁSODIK felmondást MÁR NEM ellenőrizzük: a „Tovább →" gomb csak vár,
 a gyerek akkor lép, amikor kész (folyamatosan beszélhet, semmi nem szakítja meg).
 
+## 2026-09-05 — Fejlesztői anchor-vizualizáló (nem éles)
+
+Egy grafikai átvizsgálás (kutató session) fő megállapítása: a ruhák lebegnek / a sörény
+betemeti őket, mert nincs rétegsorrend és szög/méret a testkontúrhoz. Első lépésként egy
+fejlesztői segédet raktam be: `anchorVizSVG()` az `unikornisSVG`-ben — a 380×300 rajz-keretben
+kirajzolja az 5 ruha-zóna borítékát (fej/nyak/hát/oldal/farok) + a horgonypontokat + a 4 láb-
+pontot + a „testtető-ív" referencia-görbét (amit a hát-takarók alsó éle követhet) + a szárny
+csúcsirány-jelzőjét. **Bekapcsolás:** URL `?anchor=1` VAGY konzol `UC.anchorViz(true)`. Alapból
+KI, gyerek felé sosem látszik. A grafikai session ez alapján tud pontos szöget/méretet megadni
+a §3.1 zóna-táblázathoz. (`UC.ANCHOR_ZONAK` a nyers adat.)
+
 ## 2026-09-05 — 9 pályás művelet-logika (elfogadott terv szerint)
 
 A `PALYAK` 7 helyett **9 pálya**, benne 2 vadonatúj. Az 1. pálya (`bontas-felmondas`)

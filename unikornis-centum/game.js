@@ -674,9 +674,49 @@ function unikornisSVG(id, c, meret, oltozet) {
   var ruha = "";
   if (oltozet) ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) { if (oltozet[h]) ruha += ruhaSVG(oltozet[h]); });
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
-    '<g transform="scale(0.5) translate(-190,-272)">' + art + ruha + '</g>' +
+    '<g transform="scale(0.5) translate(-190,-272)">' + art + ruha + (window.__UC_ANCHOR ? anchorVizSVG() : "") + '</g>' +
   '</g>';
 }
+/* ── FEJLESZTŐI ANCHOR-VIZUALIZÁLÓ (nem éles): a 380×300 rajz-keretben kirajzolja a
+   ruha-zónák borítékát + a horgonypontokat, hogy élesben látszódjon, hova esik minden ruha.
+   Bekapcsolás: URL-ben ?anchor=1 VAGY konzolból UC.anchorViz(true). */
+var ANCHOR_ZONAK = [
+  { nev: "fej",   x: 244, y: 54,  w: 88,  h: 48, hx: 288, hy: 73,  szin: "#e0417a" },
+  { nev: "nyak",  x: 232, y: 145, w: 80,  h: 68, hx: 266, hy: 160, szin: "#1f9e6b" },
+  { nev: "hát",   x: 104, y: 96,  w: 152, h: 78, hx: 180, hy: 118, szin: "#8a4fd0" },
+  { nev: "oldal", x: 40,  y: 26,  w: 172, h: 136, hx: 172, hy: 106, szin: "#c98a1e" },
+  { nev: "farok", x: 54,  y: 128, w: 76,  h: 46, hx: 92,  hy: 150, szin: "#c0407a" }
+];
+function anchorVizSVG() {
+  var s = '<g class="anchor-viz" pointer-events="none" font-family="sans-serif">';
+  /* testtető-ív referencia (a hát-takarók alsó éle ezt követhesse) */
+  s += '<path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176" fill="none" stroke="#ff2fa0" stroke-width="1.6" stroke-dasharray="5 3" opacity="0.9"/>';
+  ANCHOR_ZONAK.forEach(function (z) {
+    s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h + '" fill="' + z.szin + '" fill-opacity="0.10" stroke="' + z.szin + '" stroke-width="1.4" stroke-dasharray="6 4"/>';
+    s += '<circle cx="' + z.hx + '" cy="' + z.hy + '" r="4" fill="' + z.szin + '" stroke="#fff" stroke-width="1.2"/>';
+    s += '<text x="' + (z.x + 3) + '" y="' + (z.y + 12) + '" font-size="10" font-weight="700" fill="' + z.szin + '">' + z.nev + '</text>';
+  });
+  /* a 4 láb-horgony */
+  [103, 141, 191, 244].forEach(function (cx) {
+    s += '<circle cx="' + cx + '" cy="270" r="3.4" fill="#2b6ad8" stroke="#fff" stroke-width="1"/>';
+  });
+  s += '<text x="90" y="286" font-size="10" font-weight="700" fill="#2b6ad8">láb ×4</text>';
+  /* oldal-szárny csúcsirány jelző */
+  s += '<line x1="172" y1="106" x2="85" y2="40" stroke="#c98a1e" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.8"/>';
+  return s + '</g>';
+}
+function anchorViz(on) {
+  window.__UC_ANCHOR = (on !== false);
+  var aktiv = (document.querySelector(".kepernyo.aktiv") || {}).id;
+  try {
+    if (aktiv === "kepernyo-profil") renderProfil();
+    else if (aktiv === "kepernyo-odu") renderOdu();
+    else if (aktiv === "kepernyo-fomenu") renderFomenu();
+    var op = $("odu-panel"); if (op && !op.hidden) renderOduPanel();
+  } catch (e) {}
+  return "anchor-viz: " + (window.__UC_ANCHOR ? "BE" : "KI") + " (a pálya-térképen a következő képernyőváltáskor frissül)";
+}
+if (/[?&]anchor=1\b/.test(location.search)) window.__UC_ANCHOR = true;
 /* Egy ruhadarab rajza a kész unikornis-rajz 380×300 koordinátájában.
    Horgonypontok: fej ~(288,121) / szarv-tő ~(272,90), nyak/mell ~(236,200). */
 function ruhaSVG(itemId) {
@@ -2268,7 +2308,8 @@ window.UC = {
   oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },
   oduBeallit: oduBeallit, RUHAK: RUHAK,
   oduRuhaVesz: function (kulcs, id) { var t = null; (RUHAK[kulcs] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduRuhaVesz({ kulcs: kulcs }, t); },
-  oduRuhaVisel: oduRuhaVisel
+  oduRuhaVisel: oduRuhaVisel,
+  anchorViz: anchorViz, ANCHOR_ZONAK: ANCHOR_ZONAK
 };
 
 })();
