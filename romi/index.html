@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Számrömi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="fej">
+    <div class="fej-bal"><a class="vissza" href="../index.html" title="Vissza a kaszinóba">🎰</a><h1>➕ Számrömi</h1></div>
+    <div class="fej-jobb">
+      <span class="cimke">Összeg:</span>
+      <div id="szint-sor" class="szint-sor"></div>
+    </div>
+  </header>
+
+  <div class="cel-sor">
+    Keress <b>hármasokat</b>: két lap összege a harmadik! (pl. 8 + 7 = 15)
+  </div>
+
+  <div class="statusz">
+    <span class="zseton">⏱ <b id="ora">0:00</b></span>
+    <span class="zseton">Hármasok: <b id="pont">0</b></span>
+    <span class="zseton">Ebben az osztásban: <b id="osztas">0/5</b></span>
+    <span class="zseton zseton-rekord" id="rekord"></span>
+  </div>
+
+  <main class="posztokeret">
+    <div id="poszto" class="poszto"></div>
+  </main>
+
+  <div id="uzenet" class="uzenet"></div>
+
+  <footer class="lab">
+    <button id="btn-kever" class="btn">🔀 Keverés</button>
+    <button id="btn-uj" class="btn">✨ Új kör</button>
+  </footer>
+
+  <div id="vege" class="vege rejtett">
+    <div class="vege-lap">
+      <div class="vege-emoji">🏆</div>
+      <h2>Kör vége!</h2>
+      <p id="vege-szoveg"></p>
+      <button id="btn-ujra" class="btn btn-nagy">Új kör</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
