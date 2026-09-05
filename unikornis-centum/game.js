@@ -767,27 +767,32 @@ function ruhaSVG(itemId) {
         '<path d="M256 196 l3 20 l9 -16 Z" fill="#9ec9f0"/><path d="M272 202 l7 18 l6 -20 Z" fill="#c9a8e6"/>' +
         '</g>';
 
-    /* ── HÁT ── takaró/nyereg a test tetején, oldalt lelógva */
+    /* ── HÁT ── a test tetejére simuló takaró/köpeny, közös sziluett-sablonon, a testtető-ívre
+       igazítva, -8°-kal döntve (a rajzoló session anyaga, 2026-09-05; spec-grafikai-eszkozlista §3.1). */
     case "hat-a": /* Pillekönnyű takaró */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M112 118 Q172 98 250 126 L246 150 Q172 128 116 146 Z" fill="#e9ddf3"/>' +
-        '<path d="M116 146 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0" fill="none" stroke="#c9b8e0" stroke-width="2.4"/>' +
+      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
+        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#e9ddf3"/>' +
+        '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#dcd0ec"/>' +
+        '<path d="M138 154 Q186 168 232 154 L228 168 Q186 180 142 168 Z" fill="#cbbde6"/>' +
         '</g>';
     case "hat-k": /* Hímzett nyeregtakaró */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 116 Q174 96 246 124 L256 156 L238 172 Q174 150 116 160 L108 138 Z" fill="#c9a8e6"/>' +
-        '<path d="M124 122 Q176 106 240 130" fill="none" stroke="#ffd24d" stroke-width="2.6" stroke-dasharray="5 4"/>' +
-        '<path d="M120 152 Q176 138 236 156" fill="none" stroke="#ffd24d" stroke-width="2.6" stroke-dasharray="5 4"/>' +
-        '<path d="M178 132 l3 8 l8 1 l-6 6 l2 8 l-7 -4 l-7 4 l2 -8 l-6 -6 l8 -1 Z" fill="#fff6d8"/>' +
+      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
+        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#d9b48a"/>' +
+        '<path d="M124 140 Q186 118 242 140" fill="none" stroke="#f6ecd8" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>' +
+        '<path d="M160 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#f6a5c0"/>' +
+        '<path d="M212 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#a7d99a"/>' +
+        '<circle cx="186" cy="150" r="6" fill="#fce49a" stroke="#222" stroke-width="1"/>' +
         '</g>';
     case "hat-r": /* Csillagköpeny */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M126 114 Q182 96 246 122 Q252 178 178 212 Q116 202 104 150 Z" fill="#6a5fb0" opacity="0.95"/>' +
-        '<g fill="#fff6d8">' +
-        '<path d="M150 150 l2.5 6 l6.5 1 l-5 5 l1.5 6.5 l-5.5 -3.5 l-5.5 3.5 l1.5 -6.5 l-5 -5 l6.5 -1 Z"/>' +
-        '<path d="M190 178 l2 5 l5 1 l-4 4 l1 5 l-4 -3 l-4 3 l1 -5 l-4 -4 l5 -1 Z"/>' +
-        '<circle cx="216" cy="140" r="2"/><circle cx="140" cy="190" r="2"/></g>' +
-        '<circle cx="242" cy="126" r="4.5" fill="#ffd24d" stroke="#222" stroke-width="1.4"/>' +
+      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
+        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#5a4fa0"/>' +
+        '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#6a5fb0"/>' +
+        '<path d="M150 128 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fff6d8"/>' +
+        '<path d="M222 130 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#fff6d8"/>' +
+        '<circle cx="186" cy="150" r="3.4" fill="#ffd24d"/>' +
         '</g>';
 
     /* ── LÁB ── mind a 4 lábra */

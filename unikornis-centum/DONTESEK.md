@@ -246,6 +246,18 @@ a gyerek a gyöngyöket nézve újra felmondja (vizuális rögzülés).
 Ezt a MÁSODIK felmondást MÁR NEM ellenőrizzük: a „Tovább →" gomb csak vár,
 a gyerek akkor lép, amikor kész (folyamatosan beszélhet, semmi nem szakítja meg).
 
+## 2026-09-05 — Hát-tárgyak testre simuló formára cserélve
+
+A grafikai session döntése + rajza alapján: **a rétegsorrend NEM változik** (a ruhák
+maradnak a bázis-art / sörény fölött — egy ráadott takaró/medál életszerűen is a szőrzet
+fölött ül; a korábbi „lebeg" panasz méret/pozíció volt, nem réteg). A 3 hát-tárgy
+(`hat-a` Pillekönnyű takaró, `hat-k` Hímzett nyeregtakaró, `hat-r` Csillagköpeny) lecserélve
+egy **közös, lekerekített sziluett-sablonra** (stílus-lakat: csak szín/díszítés különbözik),
+a testtető-ívre igazítva, `rotate(-8 186 145)`-tel megdöntve, alá halvány kontakt-árnyék
+ellipszissel. Ellenőrizve mindhárom külön + teljes szerkóban (Tűz bőr) — a takaró most a
+hát ívére simul, nem lapos táblaként lebeg. Forrás: a rajzoló session `<g>`-snippetjei
+(mockup-hat-targyak.html), a `spec-grafikai-eszkozlista.html` §3.1 + új 3.1.1/3.1.2.
+
 ## 2026-09-05 — Fejlesztői anchor-vizualizáló (nem éles)
 
 Egy grafikai átvizsgálás (kutató session) fő megállapítása: a ruhák lebegnek / a sörény
