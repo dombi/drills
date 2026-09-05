@@ -770,25 +770,25 @@ function ruhaSVG(itemId) {
     /* ── HÁT ── a test tetejére simuló takaró/köpeny, közös sziluett-sablonon, a testtető-ívre
        igazítva, -8°-kal döntve (a rajzoló session anyaga, 2026-09-05; spec-grafikai-eszkozlista §3.1). */
     case "hat-a": /* Pillekönnyű takaró */
-      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
-        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#e9ddf3"/>' +
+      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
+        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#e9ddf3"/>' +
         '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#dcd0ec"/>' +
         '<path d="M138 154 Q186 168 232 154 L228 168 Q186 180 142 168 Z" fill="#cbbde6"/>' +
         '</g>';
     case "hat-k": /* Hímzett nyeregtakaró */
-      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
-        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#d9b48a"/>' +
+      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
+        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#d9b48a"/>' +
         '<path d="M124 140 Q186 118 242 140" fill="none" stroke="#f6ecd8" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>' +
         '<path d="M160 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#f6a5c0"/>' +
         '<path d="M212 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#a7d99a"/>' +
         '<circle cx="186" cy="150" r="6" fill="#fce49a" stroke="#222" stroke-width="1"/>' +
         '</g>';
     case "hat-r": /* Csillagköpeny */
-      return '<ellipse cx="186" cy="172" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 145)"/>' +
-        '<g transform="rotate(-8 186 145)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 138 Q130 100 186 94 Q242 100 248 138 Q252 152 244 164 L236 180 Q186 190 136 180 L128 164 Q114 152 118 138 Z" fill="#5a4fa0"/>' +
+      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
+        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#5a4fa0"/>' +
         '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#6a5fb0"/>' +
         '<path d="M150 128 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fff6d8"/>' +
         '<path d="M222 130 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#fff6d8"/>' +
@@ -837,24 +837,25 @@ function ruhaSVG(itemId) {
         '</g>';
 
     /* ── FAROK ── a farok tövénél (hátul-balra) */
+    /* a farok-tő ~(92,150) köré, -15°-kal a farok irányába döntve (rajzoló session, 2026-09-05; §3.1.3) */
     case "farok-a": /* Szalagcsokor */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M92 150 Q66 138 60 150 Q66 162 92 150 Z" fill="#f6a5c0"/>' +
-        '<path d="M92 150 Q118 138 124 150 Q118 162 92 150 Z" fill="#f6a5c0"/>' +
-        '<circle cx="92" cy="150" r="4.5" fill="#e88bb4"/>' +
-        '<path d="M88 154 l-6 16 M96 154 l6 16" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
+      return '<g transform="rotate(-15 92 150)" stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+        '<path d="M92 150 Q78 138 66 148 Q76 158 92 150 Z" fill="#f6a5c0"/>' +
+        '<path d="M92 150 Q106 138 118 148 Q108 158 92 150 Z" fill="#f6a5c0"/>' +
+        '<circle cx="92" cy="150" r="5" fill="#e88bb4"/>' +
+        '<path d="M88 155 l-8 20 M96 155 l8 20" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
         '</g>';
     case "farok-k": /* Csengettyűs farokdísz */
-      return '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M78 146 Q92 140 106 146" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
-        '<path d="M84 152 q-7 0 -7 9 l0 6 l16 0 l0 -6 q0 -9 -7 -9 Z" fill="#ffd24d"/>' +
-        '<circle cx="84.5" cy="170" r="2.4" fill="#e0a52e"/><circle cx="84" cy="148" r="2.4" fill="#ffe6a0"/>' +
+      return '<g transform="rotate(-15 92 150)" stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
+        '<path d="M76 144 Q92 134 108 144" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
+        '<path d="M83 150 q-9 0 -9 10 l0 7 l18 0 l0 -7 q0 -10 -9 -10 Z" fill="#ffd24d"/>' +
+        '<circle cx="92" cy="170" r="2.6" fill="#e0a52e"/><circle cx="90" cy="146" r="2.6" fill="#ffe6a0"/>' +
         '</g>';
     case "farok-r": /* Üstökös-farok */
-      return '<g stroke-linejoin="round">' +
-        '<path d="M96 150 Q66 196 50 252" fill="none" stroke="#fff2c4" stroke-width="14" stroke-linecap="round" opacity="0.5"/>' +
-        '<path d="M96 150 Q68 194 54 248" fill="none" stroke="#ffe08a" stroke-width="6" stroke-linecap="round" opacity="0.85"/>' +
-        '<path d="M50 252 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.4"/>' +
+      return '<g transform="rotate(-15 92 150)" stroke-linejoin="round">' +
+        '<path d="M92 150 Q70 172 55 200" fill="none" stroke="#fff2c4" stroke-width="12" stroke-linecap="round" opacity="0.5"/>' +
+        '<path d="M92 150 Q72 170 58 198" fill="none" stroke="#ffe08a" stroke-width="5" stroke-linecap="round" opacity="0.9"/>' +
+        '<path d="M55 200 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.3"/>' +
         '</g>';
   }
   return "";
