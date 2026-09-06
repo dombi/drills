@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Javaslat – Jutalom-progresszió, sorozat-szorzó, jutalom-tábla</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+  .ki{background:#f2f8f2;font-weight:700;}
+  .idezet{background:#f4f0fa;border-left:4px solid #b79fd4;border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🎯 Javaslat – Jutalom-progresszió, sorozat-szorzó, jutalom-tábla</h1>
+  <p class="mottoo">Módosítási javaslat a <b>rendszerterv 7. szakaszához</b> (Motiváció és jutalom)
+     és a <code>spec-gazdasag-es-katalogus.html</code> 1. szakaszához.
+     A producer négy kérése alapján. <b>Jóváhagyás előtt kód nem készül.</b></p>
+
+  <div class="kesz">
+    <b>A producer kérése (2026-09-06):</b>
+    <ol style="margin:6px 0">
+      <li>Érje meg az egyre nehezebb feladatok felé menni → a pályák <b>egyre többet érjenek</b>.</li>
+      <li><b>Kivétel:</b> a bontásos (1.) pálya annyit érjen, mint az <b>utolsó</b> pálya.</li>
+      <li><b>Sorozat-szorzó</b>, ha több pályát csinál meg egymás után – és a program ezt
+        <b>hanggal mondja is el</b> („a következő pálya duplát ér majd").</li>
+      <li>A játékos <b>egy felületen áttekinthesse</b>, miért milyen jutalom vár rá.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>0. Miért kell változtatni – a jelenlegi állapot</h2>
+
+  <p>A kódban ma <b>fix, beégetett értékek</b> vannak (<code>game.js</code>: <code>jar = 2</code>,
+     <code>jar = 5</code>, <code>+= 3</code>, <code>+= 20</code>), pályától függetlenül:</p>
+
+  <table>
+    <tr><th>Pálya</th><th>Feladat</th><th>Állomás</th><th>Pálya vége</th><th>Összesen</th></tr>
+    <tr><td>1. Mondd el a bontásokat</td><td>8 × 5 ✨ = 40</td><td>8 × 3 = 24</td><td>20</td><td class="ki">84 ✨</td></tr>
+    <tr><td>2–9. (mind a nyolc művelet-pálya)</td><td>38 × 2 ✨ = 76</td><td>7 × 3 = 21</td><td>20</td><td class="ki">117 ✨</td></tr>
+  </table>
+
+  <div class="figyelem">
+    <b>Két baj:</b> (1) a legnehezebb pálya (<code>erdo-szive</code>, kétjegyű ± kétjegyű átlépéssel)
+    <b>pontosan ugyanannyit ér</b>, mint a legkönnyebb (<code>oszkiv-10</code>) – nincs semmi
+    gazdasági oka feljebb lépni. (2) A <b>bontás-pálya a legkevesebbet</b> adja (84 ✨), pedig
+    didaktikailag a legértékesebb és az egyik legnehezebb teljesítmény.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>1. Nehézségi szint → progresszív érték</h2>
+
+  <h3>1.1 Minden pálya kap egy <code>szint</code> mezőt (1–8)</h3>
+  <p>A 2026-09-05-én jóváhagyott 8 lépcsős nehézségi sor adja a szintet. Az 1. pálya a producer
+     kérése szerint a <b>legfelső szintet</b> kapja.</p>
+
+  <table>
+    <tr><th>#</th><th>Pálya (<code>id</code>)</th><th>Matek</th><th><code>szint</code></th></tr>
+    <tr><td>1</td><td><code>bontas-felmondas</code></td><td>számbontás felmondása</td><td class="ki">8 ← kivétel</td></tr>
+    <tr><td>2</td><td><code>oszkiv-10</code></td><td>± 10-ig</td><td>1</td></tr>
+    <tr><td>3</td><td><code>oszkiv-20</code></td><td>egyjegyű + egyjegyű, kivonás 20-ig átlépéssel</td><td>2</td></tr>
+    <tr><td>4</td><td><code>tizesek</code></td><td>kerek tízesek 100-ig</td><td>3</td></tr>
+    <tr><td>5</td><td><code>aprok</code></td><td>kétjegyű ± egyjegyű, átlépés nélkül</td><td>4</td></tr>
+    <tr><td>6</td><td><code>lepegeto</code></td><td>kétjegyű ± kerek tízes, átlépés nélkül</td><td>5</td></tr>
+    <tr><td>7</td><td><code>atlepo</code></td><td>kétjegyű ± egyjegyű, <b>átlépéssel</b></td><td>6</td></tr>
+    <tr><td>8</td><td><code>erdo-melye</code></td><td>kétjegyű ± kétjegyű, átlépés nélkül</td><td>7</td></tr>
+    <tr><td>9</td><td><code>erdo-szive</code></td><td>kétjegyű ± kétjegyű, <b>átlépéssel</b></td><td>8</td></tr>
+  </table>
+
+  <h3>1.2 A képlet</h3>
+  <div class="kesz">
+    <pre>egy helyes feladat  ✨ = 1 + szint          →  2, 3, 4, 5, 6, 7, 8, 9
+állomás kész        ✨ = 3   (nem skálázódik)
+pálya vége          ✨ = 10 × (szint + 1)     →  20, 30, 40, 50, 60, 70, 80, 90
+tipp után helyes    ✨ = 1   (nem skálázódik)
+hibázás             ✨ = 0   (soha nincs levonás)</pre>
+    <b>Miért nem skálázódik minden:</b> az állomás-bónusz és a tipp-jutalom végig ugyanannyi marad,
+    hogy legyen egy <b>állandó horgony</b> a gyereknek. Ha minden szám mozog, semmi nem lesz
+    megjegyezhető. Két mozgó szám (feladat + pálya vége) elég a progresszió érzéséhez.
+  </div>
+
+  <h3>1.3 Mit jelent ez pályánként</h3>
+  <p class="mini">38 feladat + 7 feladatos állomás pályánként (a mai <code>PALYAK</code> szerint).</p>
+  <table>
+    <tr><th>#</th><th>Pálya</th><th>szint</th><th>1 feladat</th><th>Pálya vége</th><th>Összesen</th><th>Ma</th></tr>
+    <tr><td>2</td><td>Összeadás-kivonás 10-ig</td><td>1</td><td>2 ✨</td><td>20 ✨</td><td class="ki">117 ✨</td><td>117</td></tr>
+    <tr><td>3</td><td>Összeadás-kivonás 20-ig</td><td>2</td><td>3 ✨</td><td>30 ✨</td><td class="ki">165 ✨</td><td>117</td></tr>
+    <tr><td>4</td><td>Tízesek ösvénye</td><td>3</td><td>4 ✨</td><td>40 ✨</td><td class="ki">213 ✨</td><td>117</td></tr>
+    <tr><td>5</td><td>Aprók a tízeshez</td><td>4</td><td>5 ✨</td><td>50 ✨</td><td class="ki">261 ✨</td><td>117</td></tr>
+    <tr><td>6</td><td>Tízes-lépegető</td><td>5</td><td>6 ✨</td><td>60 ✨</td><td class="ki">309 ✨</td><td>117</td></tr>
+    <tr><td>7</td><td>Tízes-átlépő</td><td>6</td><td>7 ✨</td><td>70 ✨</td><td class="ki">357 ✨</td><td>117</td></tr>
+    <tr><td>8</td><td>Erdő mélye</td><td>7</td><td>8 ✨</td><td>80 ✨</td><td class="ki">405 ✨</td><td>117</td></tr>
+    <tr><td>9</td><td>Erdő szíve</td><td>8</td><td>9 ✨</td><td>90 ✨</td><td class="ki">453 ✨</td><td>117</td></tr>
+  </table>
+
+  <div class="kesz">
+    <b>A legkönnyebb pálya értéke NEM csökken</b> (marad 117 ✨) – csak a nehezebbek nőnek.
+    Így a változás senkinek nem rontja el a meglévő élményét, a különbség viszont a
+    legkönnyebb és a legnehezebb között <b>közel négyszeres</b> lesz. Ez már valódi ok felfelé lépni.
+  </div>
+
+  <h3>1.4 A bontás-pálya kivétele</h3>
+  <div class="kesz">
+    <p>A cél: a bontás-pálya <b>ugyanannyit érjen, mint a 9. (legnehezebb) pálya</b> ≈ 453 ✨.
+       Mivel itt csak <b>8 feladat</b> van (nem 38), a feladat-egységárnak sokkal nagyobbnak kell lennie:</p>
+    <pre>bontás-pálya:  8 × 42 ✨ = 336
+               8 állomás × 3 =  24
+               pálya vége     =  90   (a szint 8 szerint)
+                              ─────
+                                450 ✨   ≈ a 9. pálya 453 ✨-je</pre>
+    <b>Egy teljes bontás felmondása = 42 ✨.</b>
+    <br><span class="mini">Ez nem véletlen nagy szám: egy bontás felmondása egyben, fejből,
+    lentről fölfelé – ez egy <i>produkció</i>, nem egy gombnyomás. Annyit ér, mint 21 összeadás
+    a legkönnyebb pályán. A gyerek felé ez jól kommunikálható: „a bontás a legértékesebb tudás."</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>2. Sorozat-szorzó (a producer 3. kérése)</h2>
+
+  <h3>2.1 A szabály</h3>
+  <div class="kesz">
+    <ul>
+      <li>Ha a gyerek <b>befejez egy pályát</b> (célba ér), és <b>rögtön nekiindul egy másiknak</b>,
+        a következő pálya <b>teljes bevétele</b> (feladat + állomás + pálya vége) szorzódik.</li>
+      <li><b>Sorozat 2. pályája → ×2 &nbsp;·&nbsp; 3. és minden további → ×3 (maximum).</b></li>
+      <li><b>Másik pálya kell:</b> ugyanazt a pályát újrajátszani <b>nem</b> viszi tovább a
+        sorozatot (különben a legkönnyebbet lehetne farmolni). A sorozatban minden pálya
+        különbözzön az előzőtől.</li>
+    </ul>
+  </div>
+
+  <h3>2.2 Mi töri meg és mi nem</h3>
+  <table>
+    <tr><th>Esemény</th><th>Sorozat</th><th>Miért</th></tr>
+    <tr><td>Odú / bolt megnyitása, vásárlás, öltöztetés</td><td>✅ megmarad</td><td>A költés a jutalom része – ne büntessük</td></tr>
+    <tr><td>Tipp kérése, feladat újrahallgatása</td><td>✅ megmarad</td><td>A segítségkérés sose legyen büntetve</td></tr>
+    <tr><td>Kerülő út választása egy állomáson</td><td>✅ megmarad</td><td>Legális választás (rendszerterv 4.2)</td></tr>
+    <tr><td>Ugyanaz a pálya még egyszer</td><td>⭕ újraindul 1-ről</td><td>Farmolás-védelem</td></tr>
+    <tr><td>Pálya félbehagyása (vissza a főképernyőre cél előtt)</td><td>❌ megszakad</td><td>A sorozat befejezett pályákról szól</td></tr>
+    <tr><td>Profilváltás („ki játszik most?")</td><td>❌ megszakad</td><td>A sorozat gyerekenként külön él</td></tr>
+    <tr><td>A játék bezárása</td><td>❌ megszakad</td><td>Egy leülés = egy sorozat</td></tr>
+  </table>
+
+  <div class="figyelem">
+    <b>A megszakadás legyen néma.</b> Amikor a gyerek másnap visszaül, ne legyen se hang, se felirat
+    arról, hogy „elvesztetted a sorozatod". Egyszerűen nincs ott a ×2 jelvény. A rendszerterv
+    alapelve (nincs büntetés, nincs veszteség) itt is érvényes.
+  </div>
+
+  <h3>2.3 A hangos bejelentés</h3>
+  <p>A bagoly mondja, a <b>pálya-vége képernyőn</b> – tehát <b>mielőtt</b> a gyerek választ, hogy
+     befolyásolhassa a döntését:</p>
+
+  <div class="idezet">1 pálya után:<br>
+    „Szuper! Ha most rögtön nekiindulsz egy <b>másik</b> pályának, <b>dupla</b> csillámport kapsz!"</div>
+  <div class="idezet">2 pálya után:<br>
+    „Hihetetlen vagy! A következő pálya <b>háromszorosát</b> éri!"</div>
+  <div class="idezet">3+ pálya után (a szorzó már maxon):<br>
+    „Még mindig <b>háromszoros</b>! Mehetünk tovább?"</div>
+  <div class="idezet">Pálya indításakor, ha van szorzó:<br>
+    „Ez a pálya most <b>duplát</b> ér!" / „Ez a pálya most <b>háromszorosát</b> éri!"</div>
+
+  <h3>2.4 Ahol látszik is</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Főképernyő:</b> a még nem játszott pálya-kártyákon <b>„×2"</b> / <b>„×3"</b> jelvény,
+        a csillámpor-számláló mellett a sorozat állapota (pl. „🔥 2 pálya egymás után").</li>
+      <li><b>Pálya közben:</b> a fejlécben kis „×2" jel, a „+N ✨" buborékok a szorzott értéket mutatják.</li>
+      <li><b>Pálya vége:</b> az összegzésben külön sor: „Sorozat-bónusz: <b>+128 ✨</b>".</li>
+    </ul>
+  </div>
+
+  <h3>2.5 Gazdasági hatás – és a fék</h3>
+  <div class="doboz">
+    Egy erős leülés (3 nehéz pálya egymás után, pl. 5. → 6. → 7.):
+    <pre>261  (×1)
+309  × 2 =  618
+357  × 3 = 1071
+              ─────
+              1950 ✨   egyetlen leülésben</pre>
+    A teljes katalógus ≈ 3 200 ✨. Tehát egy nagyon erős leülés a katalógus <b>~60%-át</b> hozza.
+    <br><br>
+    <b>A stúdió véleménye:</b> ez vállalható, sőt kívánatos – három nehéz pálya egymás után egy
+    6–7 évestől komoly teljesítmény (~45–60 perc koncentrált munka), és pont ezt akarjuk jutalmazni.
+    A katalógus úgyis 9 pályára és sok ismétlésre van méretezve. <b>De ez a javaslat legkockázatosabb
+    száma</b> – ha az első playteszten túl gyorsan „kész lesz minden", két olcsó fék van:
+    <ul>
+      <li><b>A. fék:</b> a szorzó maximuma ×2 (nem ×3).</li>
+      <li><b>B. fék:</b> a szorzó <b>csak a pálya-vége bónuszra</b> vonatkozik, a feladatokra nem.
+        Sokkal kisebb hatás, de a hangos bejelentés is kevésbé izgalmas.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. „Mi mennyit ér?" – a jutalom-tábla képernyő (a producer 4. kérése)</h2>
+
+  <h3>3.1 Hol érhető el</h3>
+  <div class="kesz">
+    Új gomb a <b>főképernyőn</b>, a csillámpor-számláló mellett: <b>„✨ Mi mennyit ér?"</b>.
+    Ez a döntés helye – itt választ pályát a gyerek, itt számít az információ.
+    Másodlagos belépő a boltból (hogy a „mennyit kell még gyűjtenem?" kérdésre is válaszoljon).
+  </div>
+
+  <h3>3.2 Mi van rajta – felülről lefelé</h3>
+  <table>
+    <tr><th>Blokk</th><th>Tartalom</th></tr>
+    <tr><td><b>Sorozat-állapot</b> (legfelül, nagy)</td>
+        <td>„🔥 Most <b>×2</b>-ben vagy! A következő pálya duplát ér." — vagy ha nincs sorozat:
+            „Fejezz be egy pályát, és a következő <b>duplát</b> ér!"</td></tr>
+    <tr><td><b>Pálya-lista</b></td>
+        <td>Pályánként egy kártya: ikon + név + <b>„1 feladat = N ✨"</b> + <b>„pálya vége = M ✨"</b>
+            + „összesen kb. <b>X ✨</b>". A nehézség szerint sorba rendezve, hogy a <b>lépcső látszódjon</b>.
+            A már kész pályákon csillagszilánk.</td></tr>
+    <tr><td><b>Extrák</b></td>
+        <td>„Állomás vége: +3 ✨" · „Tipp után jó válasz: +1 ✨" · <b>„Hibázás: soha nem veszítesz semmit"</b></td></tr>
+    <tr><td><b>Tárgy-esély</b></td>
+        <td>Gyereknyelven, nem százalékkal: „Nagyjából <b>minden 7. feladat</b> után találsz is valamit."
+            <span class="mini">(A 85/15 dobás ma még nincs implementálva – lásd 5.)</span></td></tr>
+    <tr><td><b>Jelvények</b></td>
+        <td>A megszerzettek színesen, a hátralévők halványan + egy sorban a feltétel.</td></tr>
+  </table>
+
+  <h3>3.3 Kötelező tervezési szabályok</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Minden sor felolvasható:</b> 🔊 gomb soronként, és egy „olvasd fel az egészet" gomb
+        felül. A célközönség egy része <b>még nem olvas folyékonyan</b> – enélkül a képernyő
+        használhatatlan (rendszerterv 2.4).</li>
+      <li><b>Kártyás, képes elrendezés</b>, nem sűrű táblázat. Nagy számok, ikonok.</li>
+      <li><b>Semmit nem kell beírni</b>, csak nézni és hallgatni (rendszerterv 7.5 alapelve).</li>
+      <li>A pasztell formavilág és a meglévő UI-készlet szerint (<code>spec-rajz-direktiva.html</code> §7).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. Mit kell módosítani – konkrét lista</h2>
+
+  <h3>4.1 Dokumentumok</h3>
+  <table>
+    <tr><th>Fájl</th><th>Mit</th></tr>
+    <tr><td><code>terv/rendszerterv-osszeadas-kivonas-100.html</code></td>
+        <td><b>7.1</b> átírása (fix értékek → szint-alapú tábla + bontás-kivétel);
+            <b>új 7.1b</b> Sorozat-szorzó; <b>új 7.10</b> „Mi mennyit ér?" képernyő;
+            <b>8.1</b> képernyő-táblába új sor</td></tr>
+    <tr><td><code>terv/spec-gazdasag-es-katalogus.html</code></td>
+        <td><b>1. szakasz</b> értéktáblájának cseréje; új szakasz a sorozat-szorzóról;
+            a „MVP-A végigjátszás ≈ 355 ✨" becslés újraszámolása 9 pályára</td></tr>
+    <tr><td><code>terv/spec-hang-es-beszed.html</code></td>
+        <td>A 2.3 bejelentés-szövegek felvétele a felolvasó-sablonok közé</td></tr>
+    <tr><td><code>DONTESEK.md</code></td>
+        <td>Egy bejegyzés a jóváhagyott döntésekről</td></tr>
+  </table>
+
+  <h3>4.2 Kód (csak jóváhagyás után)</h3>
+  <div class="doboz">
+    <ul>
+      <li><code>PALYAK</code>: minden pálya kap egy <code>szint:</code> mezőt (1–8; a bontás 8).</li>
+      <li>Új segédfüggvény: <code>jutalom(palya, mit)</code> – egy helyen számol,
+        a négy beégetett érték (<code>2 / 5 / 3 / 20</code>) helyett.
+        Érintett: <code>ertekel()</code>, <code>felmondSiker()</code>, <code>allomasKesz()</code>,
+        <code>palyaVege()</code>.</li>
+      <li>Új mentés-mező profilonként: <code>P().sorozat = { hossz: 0, utolsoPalya: null }</code>
+        (a <code>betolt()</code> pótolja a régi mentéseknél).</li>
+      <li>Új képernyő: <code>#kepernyo-jutalomtabla</code> + gomb a főképernyőn.</li>
+      <li>Bagoly-bejelentés a pálya-vége képernyőn és pálya-indításkor.</li>
+      <li>Teszt-fogantyúk: <code>UC.jutalom</code>, <code>UC.sorozat</code>.</li>
+      <li><b>Kompatibilitás:</b> a változás additív, a meglévő mentések megmaradnak
+        (a már összegyűjtött csillámpor érintetlen).</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>5. Kapcsolódó, még nyitott tétel</h2>
+  <div class="figyelem">
+    A rendszerterv 7.1 és a gazdaság-spec 2–3. szakasza szerint minden helyes feladatnál
+    <b>85% ✨ / 15% tárgy</b> dobás lenne, pity-szabállyal és drop-táblákkal.
+    <b>Ez a kódban ma nincs benne</b> – csak a fix csillámpor működik, a bolt tételeit
+    kizárólag vásárolni lehet. Ez a javaslat ettől független (a szorzó a ✨-re vonatkozik),
+    de érdemes tudni, hogy a jutalom-rendszer másik fele még hátra van.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>6. Amit el kell dönteni</h2>
+
+  <div class="dontes">
+    <b>1) A progresszió képlete.</b> Feladat = <code>1 + szint</code> (2→9), pálya vége =
+    <code>10 × (szint+1)</code> (20→90)? Ez ~4× különbséget ad a legkönnyebb és a legnehezebb
+    között, és a legkönnyebb pálya értéke nem csökken.
+  </div>
+
+  <div class="dontes">
+    <b>2) A bontás egységára: 42 ✨ / felmondás.</b> Így a bontás-pálya 450 ✨-t ad ≈ a 9. pálya
+    453 ✨-jét. Jó ez a szám, vagy legyen kerekebb (40 → 434 ✨, vagy 45 → 474 ✨)?
+  </div>
+
+  <div class="dontes">
+    <b>3) A sorozat-szorzó ereje.</b> ×2 / ×3 (max), a <b>teljes</b> pálya-bevételre?
+    Vagy a két fék valamelyike (max ×2, illetve csak a pálya-vége bónuszra)?
+    Ez a javaslat legnagyobb gazdasági kockázata (2.5).
+  </div>
+
+  <div class="dontes">
+    <b>4) A sorozat élettartama.</b> „Egy leülés = egy sorozat" (a játék bezárása megtöri)?
+    Vagy maradjon meg másnapra is, amíg más pályát nem játszik?
+  </div>
+
+  <div class="dontes">
+    <b>5) A jutalom-tábla helye.</b> Külön képernyő a főképernyőről – vagy inkább egy
+    ráúszó panel, mint a bolt? (A külön képernyő több helyet ad a felolvasható soroknak.)
+  </div>
+
+</div>
+</body>
+</html>
