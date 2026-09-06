@@ -37,6 +37,24 @@
      és a <code>spec-gazdasag-es-katalogus.html</code> 1. szakaszához.
      A producer négy kérése alapján. <b>Jóváhagyás előtt kód nem készül.</b></p>
 
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ JÓVÁHAGYOTT DÖNTÉSEK (2026-09-06):</b>
+    <ul style="margin:6px 0">
+      <li><b>Progresszió:</b> a javasolt ~4× lépcső — feladat = <code>1+szint</code> (2→9 ✨),
+        pálya vége = <code>10×(szint+1)</code> (20→90 ✨). A könnyű pálya értéke nem csökken.</li>
+      <li><b>Bontás-pálya:</b> a legfelső szintet kapja (a producer korábbi kérése: annyit érjen,
+        mint az utolsó pálya).</li>
+      <li><b>Sorozat-szorzó:</b> <b>csak a pálya-vége bónuszra</b> hat (a legóvatosabb fék) —
+        a feladatokra nem. Így a gazdaság kiszámítható marad.</li>
+      <li><b>Sorozat élettartama:</b> <b>egy leülés</b> — a játék bezárása megtöri.</li>
+      <li><b>Teljes ösvény:</b> arany csillagszilánk az odú egén (C); a bónusz megmarad.</li>
+      <li><b>„Teljes erdő" (mind 9 arany):</b> jár érte <b>jelvény, de nincs +500 ✨</b> —
+        tisztán presztízs-cél.</li>
+    </ul>
+    <span class="mini">Még nyitott (lentebb, 7.): a bontás pontos egységára · a jutalom-tábla
+    formája · a teljes-ösvény bónusz mértéke · elrontja-e a hibázás (3c). Kód csak ezek után.</span>
+  </div>
+
   <div class="kesz">
     <b>A producer kérése (2026-09-06):</b>
     <ol style="margin:6px 0">
@@ -191,25 +209,23 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
     </ul>
   </div>
 
-  <h3>2.5 Gazdasági hatás – és a fék</h3>
-  <div class="doboz">
-    Egy erős leülés (3 nehéz pálya egymás után, pl. 5. → 6. → 7.):
-    <pre>261  (×1)
-309  × 2 =  618
-357  × 3 = 1071
-              ─────
-              1950 ✨   egyetlen leülésben</pre>
-    A teljes katalógus ≈ 3 200 ✨. Tehát egy nagyon erős leülés a katalógus <b>~60%-át</b> hozza.
+  <h3>2.5 Gazdasági hatás – az eldöntött, óvatos változat</h3>
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ Döntés (2026-09-06): a szorzó CSAK a pálya-vége bónuszra hat</b> – a feladatok és az
+    állomás-bónuszok értéke nem szorzódik. Ez a legóvatosabb fék.
     <br><br>
-    <b>A stúdió véleménye:</b> ez vállalható, sőt kívánatos – három nehéz pálya egymás után egy
-    6–7 évestől komoly teljesítmény (~45–60 perc koncentrált munka), és pont ezt akarjuk jutalmazni.
-    A katalógus úgyis 9 pályára és sok ismétlésre van méretezve. <b>De ez a javaslat legkockázatosabb
-    száma</b> – ha az első playteszten túl gyorsan „kész lesz minden", két olcsó fék van:
-    <ul>
-      <li><b>A. fék:</b> a szorzó maximuma ×2 (nem ×3).</li>
-      <li><b>B. fék:</b> a szorzó <b>csak a pálya-vége bónuszra</b> vonatkozik, a feladatokra nem.
-        Sokkal kisebb hatás, de a hangos bejelentés is kevésbé izgalmas.</li>
-    </ul>
+    Ugyanaz az erős leülés (3 nehéz pálya, pl. 5. → 6. → 7.), most csak a pálya-vége rész szorzódik:
+    <pre>5. pálya:  211 feladat/állomás + 50 pályavége ×1 =  261
+6. pálya:  249 feladat/állomás + 60 pályavége ×2 =  369
+7. pálya:  287 feladat/állomás + 70 pályavége ×3 =  497
+                                                  ─────
+                                                  1127 ✨</pre>
+    <span class="mini">(A feladat-rész pályánként ≈ 38×(1+szint) + 7×3; a példa kerekített.)</span>
+    <br>
+    A ×3-as „teljes bevétel" változat 1950 ✨-t adott volna; ez a fék <b>~1127 ✨-re</b> húzza vissza,
+    így a katalógus (~3 200 ✨) egy erős leülésből is csak a harmada. A <b>hangos bejelentés
+    megmarad</b> – a bagoly ugyanúgy mondja, hogy „a következő pálya duplát ér", csak a szorzó a
+    záró jutalomra vonatkozik.
   </div>
 
   <!-- ============================================================ -->
@@ -231,7 +247,8 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
         nélkül"-t használta – az is teljes ösvényt járt. A bónusz a <b>munkáért</b> jár, nem a
         hibátlanságért. (A hibátlanságot külön méri az „elsőre jó" rekord és az „Átlépő bajnok" jelvény.)</li>
       <li><b>Jutalom: a pálya-vége bónusz kétszerese</b>, azaz további <code>10 × (szint + 1)</code> ✨.</li>
-      <li>A <b>sorozat-szorzó ezt is szorozza</b> (a pálya teljes bevételének része).</li>
+      <li>A <b>sorozat-szorzó ezt is szorozza</b> – mivel a döntés szerint a szorzó a pálya-vége
+        bónuszra hat, és a teljes ösvény extra is a pálya végén jár, a kettő együtt hat.</li>
     </ul>
   </div>
 
@@ -412,50 +429,41 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
   </div>
 
   <!-- ============================================================ -->
-  <h2>7. Amit el kell dönteni</h2>
+  <h2>7. Döntések – állapot</h2>
 
-  <div class="dontes">
-    <b>1) A progresszió képlete.</b> Feladat = <code>1 + szint</code> (2→9), pálya vége =
-    <code>10 × (szint+1)</code> (20→90)? Ez ~4× különbséget ad a legkönnyebb és a legnehezebb
-    között, és a legkönnyebb pálya értéke nem csökken.
+  <div class="kesz">
+    <b>✅ Eldöntve (2026-09-06):</b>
+    <ul style="margin:6px 0">
+      <li><b>Progresszió:</b> feladat = <code>1+szint</code> (2→9 ✨), pálya vége =
+        <code>10×(szint+1)</code> (20→90 ✨) — a ~4× lépcső.</li>
+      <li><b>Sorozat-szorzó:</b> csak a <b>pálya-vége bónuszra</b> hat (a legóvatosabb fék);
+        a feladatok értéke nem szorzódik. ×2 a 2., ×3 a 3.+ pályánál.</li>
+      <li><b>Sorozat élettartama:</b> egy leülés — a játék bezárása megtöri.</li>
+      <li><b>Teljes ösvény:</b> arany szilánk az odú egén (C); a bónusz megmarad.</li>
+      <li><b>„Teljes erdő":</b> jelvény jár, de <b>nincs</b> +500 ✨.</li>
+    </ul>
   </div>
 
   <div class="dontes">
-    <b>2) A bontás egységára: 42 ✨ / felmondás.</b> Így a bontás-pálya 450 ✨-t ad ≈ a 9. pálya
-    453 ✨-jét. Jó ez a szám, vagy legyen kerekebb (40 → 434 ✨, vagy 45 → 474 ✨)?
+    <b>A) A bontás egységára.</b> Ahhoz, hogy a bontás-pálya ≈ a 9. pályát érje (≈ 453 ✨),
+    <b>42 ✨ / felmondás</b> kell (→ 450 ✨). Jó ez, vagy kerekebb szám: <b>40</b> (→ 434 ✨)
+    vagy <b>45</b> (→ 474 ✨)? <span class="mini">Javaslat: 42, hogy pontosan a 9. pálya mellé essen.</span>
   </div>
 
   <div class="dontes">
-    <b>3) A sorozat-szorzó ereje.</b> ×2 / ×3 (max), a <b>teljes</b> pálya-bevételre?
-    Vagy a két fék valamelyike (max ×2, illetve csak a pálya-vége bónuszra)?
-    Ez a javaslat legnagyobb gazdasági kockázata (2.5).
+    <b>B) A teljes ösvény bónusz mértéke.</b> A pálya-vége bónusz <b>kétszerezése</b>
+    (+20 … +90 ✨ szint szerint). Elég ennyi, vagy legyen nagyobb?
+    <span class="mini">Javaslat: a kétszerezés elég — az igazi jutalom úgyis az arany szilánk.</span>
   </div>
 
   <div class="dontes">
-    <b>3b) A teljes ösvény bónusz mértéke.</b> A pálya-vége bónusz <b>kétszerezése</b>
-    (+20 … +90 ✨ szinttől függően)? Elég ez, vagy legyen nagyobb? Az <b>arany csillagszilánk</b>
-    (3.3) a producer választása szerint az <b>odú ablakán túli égen</b> jelenik meg (C) – ez
-    eldöntve.
+    <b>C) Elrontja-e a hibázás a teljes ösvényt?</b> Javaslat: <b>nem</b> — a bónusz a
+    végigjárásért jár, nem a hibátlanságért; csak a <b>kerülő</b> veszi el. Így maradjon?
   </div>
 
   <div class="dontes">
-    <b>3c) Elrontja-e a hibázás a teljes ösvényt?</b> A javaslat szerint <b>nem</b> – a bónusz a
-    végigjárásért jár, nem a hibátlanságért. Csak a <b>kerülő</b> veszi el. Egyetértesz?
-  </div>
-
-  <div class="dontes">
-    <b>3d) „A teljes erdő" (3.6).</b> Kelljen-e egyszeri nagy bónusz (+500 ✨) és külön jelvény,
-    ha mind a 9 csillagszilánk arany? Ez lenne a játék valódi végcélja.
-  </div>
-
-  <div class="dontes">
-    <b>4) A sorozat élettartama.</b> „Egy leülés = egy sorozat" (a játék bezárása megtöri)?
-    Vagy maradjon meg másnapra is, amíg más pályát nem játszik?
-  </div>
-
-  <div class="dontes">
-    <b>5) A jutalom-tábla helye.</b> Külön képernyő a főképernyőről – vagy inkább egy
-    ráúszó panel, mint a bolt? (A külön képernyő több helyet ad a felolvasható soroknak.)
+    <b>D) A jutalom-tábla formája.</b> Külön <b>képernyő</b> a főképernyőről, vagy <b>ráúszó panel</b>,
+    mint a bolt? <span class="mini">Javaslat: külön képernyő — több hely a felolvasható soroknak.</span>
   </div>
 
 </div>
