@@ -161,7 +161,12 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   a ✨ mellé; „pity"-védelem 12 üres dobás után). Mind a meglévő adatokból, a pálya-motor
   számítása változatlan. Tesztelve (drop-arányok, mind a 7 jelvény, gyűjtemény-render, teljes
   pálya + felmondás + kerülő). A `bontasFelmondOk` és a golyós jutalom érintetlen.
-- **Térkép-teszt:** marad a 2. pályán tesztként (producer-döntés), a többi pálya kamerás.
+- **2026-09-06 — Egyképernyős teljes-út térkép MINDEN pályán.** A 2. pályán tesztelt kamera nélküli
+  nézet (a teljes ösvény Rajttól a Cél-odúig egyszerre látszik, az unikornis végig sétál rajta) a
+  producer döntése alapján az összes pályára rákerült. A régi görgetős/kamerás nézet kikerült a
+  használatból (kód megmaradt tartalékként, `teljes_ut:false` kapcsolóval). Tesztelve: az 1. pálya
+  (9 állomásos felmondás) és az utolsó (Erdő szíve) is hibátlanul renderel, séta + pipa + kerülő
+  mindenhol jó, konzol tiszta.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet). A grafikai session a v3 első
   szeletét már leadta (`Matekos/mockup-odu-szintek.html`).
 

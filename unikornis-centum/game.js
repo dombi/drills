@@ -45,7 +45,6 @@ var PALYAK = [
     palcim: "Adj össze és vegyél el — tízig, átlépés nélkül",
     alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs", a_min: 1, a_max: 9, b_min: 1, b_max: 9 },
     kez_nelkul: true,
-    teljes_ut: true,   /* TESZT: kamera nélküli, egyképernyős térkép-nézet (2026-09-06) */
     allomasok: [
       { nev: "Rajt" },
       { nev: "Első lépés", darab: 5, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
@@ -998,7 +997,9 @@ function jelenetSVGteljes(palya, c) {
   return s;
 }
 function jelenetSVG(palya, lenyKulcs) {
-  SCENE_TELJES = !!palya.teljes_ut;
+  /* MINDEN pálya a kamera nélküli, egyképernyős teljes-út nézetet kapja (producer-döntés,
+     2026-09-06). A régi kamerás nézet csak akkor fut, ha egy pálya kifejezetten teljes_ut:false. */
+  SCENE_TELJES = (palya.teljes_ut !== false);
   SCENE_N = palya.allomasok.length;
   if (SCENE_TELJES) return jelenetSVGteljes(palya, LENYEK[lenyKulcs]);
   var n = palya.allomasok.length;

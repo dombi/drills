@@ -431,3 +431,20 @@ duplikátum nincs; vigasz-ág (minden megvan → +5 ✨); pity-számláló; mind
 feloldása egyenként + a panel render (zárt/nyílt); gyűjtemény 6/26 render (megvan/hiányzik);
 teljes pálya drop-toaszttal + streak 1→5 → Kitartó jelvény; felmondás-pálya + kerülő drop;
 bolt + pálya 2 (teljes-út térkép) regresszió zöld. Konzol tiszta.
+
+## 2026-09-06 — Egyképernyős teljes-út térkép MINDEN pályán (a teszt véglegesítve)
+
+A 2. pályán teszt-üzemben futó kamera nélküli, egyképernyős térkép-nézet a producer döntése
+alapján az ÖSSZES pályára rákerült („legyen az, amit a második pályára csináltál, az összes
+pályára"). A teljes ösvény (Rajt → Cél-odú) egyszerre látszik, nincs görgetés/pásztázás, az
+unikornis továbbra is állomásról állomásra sétál rajta. — *A gyerek végig látja, meddig tart az út.*
+
+- **Megvalósítás:** `jelenetSVG`-ben a kapcsoló megfordult: `SCENE_TELJES = (palya.teljes_ut !== false)`
+  — így minden pálya a `jelenetSVGteljes()` nézetet kapja, hacsak egy pálya kifejezetten nem
+  `teljes_ut:false`. Az `oszkiv-10` egyedi `teljes_ut:true` jelzője (a teszt) kikerült, felesleges lett.
+- **A régi kamerás nézet** (kamera-X görgetés) kódja megmaradt, de már egyik pálya sem használja —
+  tartalék, `teljes_ut:false`-szal előhívható.
+- **Tesztelve:** 1. pálya (9 állomásos felmondás — a legdenzebb út, most először teljes-út nézetben):
+  a teljes út egy képernyőn, olvasható táblák, felmondás → séta a következő állomásra → pipa → új
+  feladat mind jó. Utolsó pálya (Erdő szíve): render + séta + pipa jó. Kerülő (Aprók pálya):
+  ~15 mp séta után a következő állomásra ér friss feladattal. Konzol tiszta.
