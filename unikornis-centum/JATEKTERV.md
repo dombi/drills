@@ -154,8 +154,16 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   vált, ha a gyerek a „⏹ Kész vagyok" gombot nyomja, vagy ugyanazon a soron 4× elakad — és akkor is
   a meglévő pipáktól. Tesztelve fake felismerővel (teljes felmondás, elakadások, „Kész vagyok",
   mikrofon-tiltás) + regresszió. A `bontasFelmondOk` szabály és a golyós jutalom + „Tovább →" marad.
-- **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
-  „ritkán tárgy esik" drop). Producer-döntés: a térkép-teszt beváljon-e mind a 9 pályára.
+- **2026-09-06 — Jelvények + Gyűjtemény-könyv + Talált tárgy.** Három kis „játék-érzés" elem az
+  odúban: **🏅 Jelvények** (7 feloldható kitüntetés a haladásért — pályák, elsőre-jó sorozat,
+  gyűjtés), **📖 Gyűjtemény** (minden bolti holmi egy lapon: mi van meg, mi hiányzik), és
+  **talált tárgy** (helyes válaszért / felmondásért / kerülőn 15–30% eséllyel egy holmi is pottyan
+  a ✨ mellé; „pity"-védelem 12 üres dobás után). Mind a meglévő adatokból, a pálya-motor
+  számítása változatlan. Tesztelve (drop-arányok, mind a 7 jelvény, gyűjtemény-render, teljes
+  pálya + felmondás + kerülő). A `bontasFelmondOk` és a golyós jutalom érintetlen.
+- **Térkép-teszt:** marad a 2. pályán tesztként (producer-döntés), a többi pálya kamerás.
+- **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet). A grafikai session a v3 első
+  szeletét már leadta (`Matekos/mockup-odu-szintek.html`).
 
 ## Megnyitás
 

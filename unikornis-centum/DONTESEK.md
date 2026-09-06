@@ -398,3 +398,36 @@ A sikeres bontás-felmondás után a bagoly eddig felszólított a gyöngyök me
 („Most mondd el te is még egyszer, a gyöngyöket nézve"). A producer kérésére ez kikerült —
 helyette rövid „Szuper! Kész a bontás!". A golyós jutalomlista + „Tovább →" + „+5 ✨" marad,
 a Tovább gomb továbbra is a gyerekre vár. (`4cb1cba`)
+
+## 2026-09-06 — Jelvények + Gyűjtemény-könyv + Talált tárgy (producer-jóváhagyott hármas)
+
+Három kis „játék-érzés" elem, mind a meglévő adatokból, additívan (a pálya-motorba csak
+hívások kerültek: `ertekel` / `felmondSiker` / `keruloUt` / `palyaVege`).
+
+- **Jelvények** (`#odu-lap` → 🏅 Jelvények gomb az odúban): 7 feloldható kitüntetés
+  (`JELVENYEK`), rajzolt érem-SVG, feloldásig halvány. Feltételek: Első bontás mestere
+  (1. pálya) · Tízes barát (2–3.) · Százas felfedező (4–6.) · Átlépő bajnok (7. + 9.) ·
+  Az erdő ura (mind a 9) · Kitartó (5 elsőre-jó egymás után — `P().streakRekord`) ·
+  Gyűjtő (10 különböző holmi). `jelvenyEllenoriz()` fut minden helyes válasz, felmondás,
+  kerülő és pálya-vége után; új jelvénynél rövid bagoly-buborék + a pálya-vége képen
+  szöveg + a profil-kártyán „🏅 N".
+- **Gyűjtemény-könyv** (📖 Gyűjtemény gomb): minden bolti tétel (18 ruha + 4 napszak +
+  4 időjárás = 26) egy kártyán — megvan: színes `boltThumb` + zöld keret + „✓ megvan";
+  hiányzik: szürke sziluett + ár. Fejlécben „X / 26 megvan". Tisztán a meglévő
+  `oltozet.van` / `odu.van` adatokból, új mechanika nincs.
+- **Talált tárgy** (`dropProbal`): helyes egyenkénti feladatnál **15%**, felmondás-
+  állomás végén **30%**, kerülőn állomásonként **25%** eséllyel egy holmi is pottyan
+  (a ✨ mellé, nem helyette). Ritkaság-súlyozás (alap 3× / különleges 2× / ritka 1×).
+  Ha minden holmi megvan → +5 ✨ vigasz. „Pity": 12 üres dobás után garantált tárgy
+  (`P().dropUres`). A talált tárgy `oltozet.van`-ba kerül (nem öltözik fel magától),
+  „✨ Találtál egy holmit: …" buborék a játéktér tetején (`#talalt-buborek`).
+
+**Mentés:** `alapProfil` bővült `jelvenyek:{}` + `streakRekord:0` + `dropUres:0` mezőkkel,
+a `betolt()` pótolja a régi mentésekben. **Nem változott:** `bontasFelmondOk`, a golyós
+jutalom, a bolt/öltöztetés logika, a pálya-motor számítása, a többi képernyő.
+
+**Tesztelve** (`window.UC` + fake felismerő): 12 kényszerített drop → 12 különböző holmi,
+duplikátum nincs; vigasz-ág (minden megvan → +5 ✨); pity-számláló; mind a 7 jelvény
+feloldása egyenként + a panel render (zárt/nyílt); gyűjtemény 6/26 render (megvan/hiányzik);
+teljes pálya drop-toaszttal + streak 1→5 → Kitartó jelvény; felmondás-pálya + kerülő drop;
+bolt + pálya 2 (teljes-út térkép) regresszió zöld. Konzol tiszta.

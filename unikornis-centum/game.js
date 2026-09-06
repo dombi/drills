@@ -307,7 +307,7 @@ var KULCS = "unikornis_centum_v1";
 var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } } }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet() }; }
+function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0 }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -331,6 +331,9 @@ function betolt() {
         if (!p.oltozet) p.oltozet = alapOltozet();
         if (!p.oltozet.van) p.oltozet.van = {};
         ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
+        if (!p.jelvenyek) p.jelvenyek = {};
+        if (typeof p.streakRekord !== "number") p.streakRekord = 0;
+        if (typeof p.dropUres !== "number") p.dropUres = 0;
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -1068,12 +1071,14 @@ function renderProfil() {
     var c = LENYEK[k], p = mentes.profilok[k];
     var keszDb = Object.keys(p.palyak).filter(function (x) { return p.palyak[x].kesz; }).length;
     var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan; }).length;
+    var jelvDb = Object.keys(p.jelvenyek || {}).length;
     var kart = el("div", "profil-kartya");
     kart.innerHTML =
       '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' +
       unikornisSVG("p" + k, c, 0.9, p.oltozet) + '</svg>' +
       '<div class="nev">' + (p.becenev ? kiiras(p.becenev) + " · " : "") + c.nev + '</div>' +
-      '<div class="adat">✨ ' + p.csillampor + ' &nbsp;·&nbsp; 🌟 ' + keszDb + '/' + palyaOssz + '</div>';
+      '<div class="adat">✨ ' + p.csillampor + ' &nbsp;·&nbsp; 🌟 ' + keszDb + '/' + palyaOssz +
+      (jelvDb ? ' &nbsp;·&nbsp; 🏅 ' + jelvDb : '') + '</div>';
     kart.addEventListener("click", function () { hangGomb(); mentes.leny = k; ment(); renderFomenu(); mutat("kepernyo-fomenu"); });
     lista.appendChild(kart);
   });
@@ -1303,16 +1308,21 @@ function ertekel(valasz) {
   if (valasz === f.helyes) {
     naplozz(f.naplo, J.probak === 0, valasz);
     J.futoOssz++; if (J.probak === 0) J.futoElsore++;
+    streakLep(J.probak === 0);
     hangJo(); hangCsilla();
     var jar = 2;
     P().csillampor += jar; J.futoCsilla += jar;
     $("jatek-csillampor").textContent = P().csillampor;
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = "Ez az! " + f.helyes + "  (+" + jar + " ✨)";
-    csillagRepul($("bagoly-buborek")); J.feladatKesz++; ment();
+    csillagRepul($("bagoly-buborek")); J.feladatKesz++;
+    dropUnnepel(dropProbal(0.15));
+    jelvenyEllenoriz();
+    ment();
     setTimeout(function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); }, 900);
   } else {
     J.probak++;
+    streakLep(false);
     naplozz(f.naplo, false, valasz);
     hangHiba();
     $("visszajelzes").className = "visszajelzes rossz";
@@ -1409,7 +1419,10 @@ function felmondErtekel(altList) {
 function felmondSiker() {
   naplozz(J.feladat.naplo, J.probak === 0, "helyes felmondás");
   J.futoOssz++; if (J.probak === 0) J.futoElsore++;
+  streakLep(J.probak === 0);
   hangJo(); hangCsilla();
+  dropUnnepel(dropProbal(0.30));
+  jelvenyEllenoriz();
   var jar = 5;
   P().csillampor += jar; J.futoCsilla += jar;
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
@@ -1495,7 +1508,13 @@ function keruloUt() {
     var y = y0 + 70 * Math.sin(t * Math.PI) + Math.sin(t * 30) * 4;
     if (u) u.setAttribute("transform", "translate(" + x + "," + y + ")");
     if (t < 1) requestAnimationFrame(lep);
-    else { curX = x0 + 60; curY = y0; if (a.cel) { palyaVege(); return; } kovAllomas(); }
+    else {
+      curX = x0 + 60; curY = y0;
+      dropUnnepel(dropProbal(0.25));       /* kerülőn: állomásonként 25% talált tárgy */
+      jelvenyEllenoriz();
+      if (a.cel) { palyaVege(); return; }
+      kovAllomas();
+    }
   }
   requestAnimationFrame(lep);
 }
@@ -1509,11 +1528,13 @@ function palyaVege() {
   P().csillampor += 20; J.futoCsilla += 20;
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
+  var ujJelv = jelvenyEllenoriz();
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport.<br>" +
     (ujRekord ? '<span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span><br>' : "") +
-    "Megvan egy újabb <b>csillagszilánk</b> 🌟";
+    "Megvan egy újabb <b>csillagszilánk</b> 🌟" +
+    (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   var kov = kovetkezoJatszhato(id);
   $("vege-kovetkezo").style.display = kov ? "" : "none";
   $("vege-kovetkezo").onclick = function () { hangGomb(); if (kov) palyaInditas(kov); };
@@ -1791,6 +1812,9 @@ function esemenyek() {
   $("odu-valto").addEventListener("click", function () { hangGomb(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
+  $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); renderJelveny(); $("odu-lap").hidden = false; });
+  $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); renderGyujtemeny(); $("odu-lap").hidden = false; });
+  $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -2106,7 +2130,7 @@ function renderOdu() {
   }
 }
 function oduPanelNyit() { ODU_FUL = "ido"; renderOduPanel(); $("odu-panel").hidden = false; }
-function oduPanelZar() { $("odu-panel").hidden = true; }
+function oduPanelZar() { $("odu-panel").hidden = true; var l = $("odu-lap"); if (l) l.hidden = true; }
 function renderOduPanel() {
   var bf = $("odu-bolt-hatter"); if (bf && !bf.innerHTML) bf.innerHTML = oduBoltSVG();
   var fbox = $("odu-fulek"); fbox.innerHTML = "";
@@ -2300,6 +2324,145 @@ function oduBeallit(kat, id) {
   renderOdu(); renderOduPanel();
 }
 
+/* ============ 10c) JELVÉNYEK · GYŰJTEMÉNY-KÖNYV · TALÁLT TÁRGY ============ */
+/* Additív: saját mentés-ág (P().jelvenyek / streakRekord / dropUres), saját DOM
+   (#odu-lap + .jelveny-* / .gyujt-* / #talalt-buborek). A pálya-motorba csak
+   hívások kerültek (ertekel / felmondSiker / keruloUt / palyaVege). */
+
+/* — sorozat (elsőre jó válaszok egymás után) — a legjobbat a profil őrzi — */
+function streakLep(elsore) {
+  if (elsore) {
+    J.streak = (J.streak || 0) + 1;
+    if (J.streak > (P().streakRekord || 0)) P().streakRekord = J.streak;
+  } else J.streak = 0;
+}
+
+/* — jelvények (nem vásárolható, feloldás) — */
+function palyakKeszek(p, idk) { return idk.every(function (id) { return p.palyak[id] && p.palyak[id].kesz; }); }
+var JELVENYEK = [
+  { id: "elso-bontas", nev: "Első bontás mestere", felt: "Az 1. pálya kész", szin: "#f6a5c0",
+    teljesul: function (p) { return palyakKeszek(p, ["bontas-felmondas"]); } },
+  { id: "tizes-barat", nev: "Tízes barát", felt: "A 2. és 3. pálya kész", szin: "#a7d99a",
+    teljesul: function (p) { return palyakKeszek(p, ["oszkiv-10", "oszkiv-20"]); } },
+  { id: "szazas-felfedezo", nev: "Százas felfedező", felt: "A 4–6. pálya kész", szin: "#9ec9f0",
+    teljesul: function (p) { return palyakKeszek(p, ["tizesek", "aprok", "lepegeto"]); } },
+  { id: "atlepo-bajnok", nev: "Átlépő bajnok", felt: "A 7. és 9. pálya kész", szin: "#c9a8e6",
+    teljesul: function (p) { return palyakKeszek(p, ["atlepo", "erdo-szive"]); } },
+  { id: "erdo-ura", nev: "Az erdő ura", felt: "Mind a 9 pálya kész", szin: "#ffd24d",
+    teljesul: function (p) { return PALYAK.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
+  { id: "kitarto", nev: "Kitartó", felt: "5 elsőre jó válasz egymás után", szin: "#f7c59f",
+    teljesul: function (p) { return (p.streakRekord || 0) >= 5; } },
+  { id: "gyujto", nev: "Gyűjtő", felt: "10 különböző holmi megvan", szin: "#fce49a",
+    teljesul: function (p) { return Object.keys(p.oltozet.van || {}).length >= 10; } }
+];
+function jelvenyEllenoriz() {
+  var p = P(), ujak = [];
+  JELVENYEK.forEach(function (j) {
+    if (!p.jelvenyek[j.id] && j.teljesul(p)) { p.jelvenyek[j.id] = 1; ujak.push(j); }
+  });
+  if (ujak.length) {
+    ment();
+    ujak.forEach(function (j, i) { setTimeout(function () { jelvenyUnnepel(j); }, 400 + i * 1700); });
+  }
+  return ujak;
+}
+function jelvenyUnnepel(j) {
+  hangCsilla();
+  bagolyMondat("🏅 Új jelvény: " + j.nev + "!");
+}
+function jelvenyMedalSVG(j, van) {
+  var szin = van ? j.szin : "#c9bfe0";
+  return '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M22 40 L14 58 L24 52 L30 60 L36 52 L46 58 L38 40 Z" fill="' + (van ? "#f6a5c0" : "#d8cfe8") + '"/>' +
+    '<circle cx="30" cy="26" r="20" fill="' + szin + '" stroke="#6a4a8a" stroke-width="2.5"/>' +
+    '<circle cx="30" cy="26" r="14" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.7"/>' +
+    csillagSVG(30, 26, 9, van ? "#fff6d8" : "#efeaf6") +
+    '</svg>';
+}
+function renderJelveny() {
+  $("odu-lap-cim").textContent = "🏅 Jelvények";
+  var host = $("odu-lap-tartalom"); host.innerHTML = "";
+  var p = P();
+  var megvan = JELVENYEK.filter(function (j) { return p.jelvenyek[j.id]; }).length;
+  host.appendChild(el("div", "jelveny-osszeg", megvan + " / " + JELVENYEK.length + " jelvény megvan"));
+  var racs = el("div", "jelveny-racs");
+  JELVENYEK.forEach(function (j) {
+    var van = !!p.jelvenyek[j.id];
+    var k = el("div", "jelveny-kartya" + (van ? " van" : " zar"));
+    k.innerHTML = '<div class="med">' + jelvenyMedalSVG(j, van) + '</div>' +
+      '<div class="jnev">' + kiiras(j.nev) + '</div>' +
+      '<div class="jfelt">' + (van ? "✓ megvan" : kiiras(j.felt)) + '</div>';
+    racs.appendChild(k);
+  });
+  host.appendChild(racs);
+}
+
+/* — talált tárgy: helyes válaszért / felmondásért / kerülőn eshet egy holmi is — */
+function dropProbal(esely) {
+  var p = P();
+  var kell = (p.dropUres >= 12);                        /* pity: 12 „csak ✨" után garantált tárgy */
+  if (!kell && Math.random() >= esely) { p.dropUres++; ment(); return null; }
+  var lehet = [];
+  RUHA_HELY.forEach(function (h) {
+    (RUHAK[h.kulcs] || []).forEach(function (t, rang) {
+      if (!p.oltozet.van[t.id]) { var suly = [3, 2, 1][rang] || 1; for (var s = 0; s < suly; s++) lehet.push(t); }
+    });
+  });
+  if (!lehet.length) { p.csillampor += 5; p.dropUres = 0; ment(); return { vigasz: true }; }
+  var t = lehet[veletlen(0, lehet.length - 1)];
+  p.oltozet.van[t.id] = 1;
+  p.dropUres = 0; ment();
+  return { talalt: t };
+}
+function dropUnnepel(res) {
+  if (!res) return;
+  if (res.vigasz) { hangCsilla(); bagolyMondat("Minden holmid megvan! +5 ✨"); return; }
+  var e = $("talalt-buborek");
+  e.textContent = "✨ Találtál egy holmit: " + res.talalt.nev + "!";
+  e.hidden = false;
+  clearTimeout(dropUnnepel._t);
+  dropUnnepel._t = setTimeout(function () { e.hidden = true; }, 2800);
+  hangCsilla();
+}
+
+/* — gyűjtemény-könyv: minden bolti tétel, megvan / hiányzik — */
+function gyujtBirt(cs, t) {
+  if (cs.fajta === "ruha") return !!P().oltozet.van[t.id];
+  return !!(P().odu.van[cs.kulcs] && P().odu.van[cs.kulcs][t.id]);
+}
+function renderGyujtemeny() {
+  $("odu-lap-cim").textContent = "📖 Gyűjtemény";
+  var host = $("odu-lap-tartalom"); host.innerHTML = "";
+  var szakaszok = [
+    { cim: "👗 Holmik", csoportok: RUHA_HELY.map(function (h) {
+        return { fajta: "ruha", kulcs: h.kulcs, nev: h.nev, tetelek: RUHAK[h.kulcs] || [] }; }) },
+    { cim: "🌦 Időjárás", csoportok: [
+        { fajta: "ido", kulcs: "napszak", nev: "Napszak", tetelek: ODU_KAT.napszak },
+        { fajta: "ido", kulcs: "ido", nev: "Időjárás", tetelek: ODU_KAT.ido }
+      ] }
+  ];
+  var ossz = 0, van = 0;
+  szakaszok.forEach(function (sz) { sz.csoportok.forEach(function (cs) { cs.tetelek.forEach(function (t) { ossz++; if (gyujtBirt(cs, t)) van++; }); }); });
+  host.appendChild(el("div", "jelveny-osszeg", van + " / " + ossz + " tétel megvan"));
+  szakaszok.forEach(function (sz) {
+    var blk = el("div", "gyujt-szakasz");
+    blk.appendChild(el("div", "gyujt-szakasz-cim", sz.cim));
+    var racs = el("div", "gyujt-racs");
+    sz.csoportok.forEach(function (cs) {
+      cs.tetelek.forEach(function (t) {
+        var b = gyujtBirt(cs, t);
+        var k = el("div", "gyujt-kartya " + (b ? "van" : "nincs"));
+        k.innerHTML = '<div class="gkep">' + boltThumb(cs, t) + '</div>' +
+          '<div class="gnev">' + kiiras(t.nev) + '</div>' +
+          '<div class="gallap">' + (b ? "✓ megvan" : (t.ar ? ("✨" + t.ar) : "alap")) + '</div>';
+        racs.appendChild(k);
+      });
+    });
+    blk.appendChild(racs);
+    host.appendChild(blk);
+  });
+}
+
 /* ============ 11) INDÍTÁS ============ */
 betolt();
 document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolySVG());
@@ -2325,7 +2488,9 @@ window.UC = {
   anchorViz: anchorViz, ANCHOR_ZONAK: ANCHOR_ZONAK,
   get FB() { return FB; },
   bontasEloStart: bontasEloStart, bontasEloBotlas: bontasEloBotlas, bontasEloVege: bontasEloVege,
-  bontasEloChunk: bontasEloChunk
+  bontasEloChunk: bontasEloChunk,
+  JELVENYEK: JELVENYEK, jelvenyEllenoriz: jelvenyEllenoriz, dropProbal: dropProbal,
+  renderJelveny: renderJelveny, renderGyujtemeny: renderGyujtemeny
 };
 
 })();
