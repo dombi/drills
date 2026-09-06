@@ -448,3 +448,20 @@ unikornis továbbra is állomásról állomásra sétál rajta. — *A gyerek v�
   a teljes út egy képernyőn, olvasható táblák, felmondás → séta a következő állomásra → pipa → új
   feladat mind jó. Utolsó pálya (Erdő szíve): render + séta + pipa jó. Kerülő (Aprók pálya):
   ~15 mp séta után a következő állomásra ér friss feladattal. Konzol tiszta.
+
+## 2026-09-06 — Bolt bélyegképek vissza: tárgy a polcon (nem mini-unikornison)
+
+A producer visszavonta a mai reggeli „egységes bélyegkép" döntést (763bea2): nem tetszik, hogy
+a bolt polcain minden holmi egy mini-unikornison jelent meg. Kérése: **a tárgyak magukban, a
+polcon legyenek.**
+
+- Visszaállítva a `POLC_POZ` tábla (18 „polc-póz": a tárgy fekve/lógva/állványon, 210×210-es
+  cella-koordinátában) a 763bea2 előtti állapotból; a `boltThumb` ruha-ága megint ezt használja.
+  A `#f3ecfa` körös mini-unikornis változat kivéve.
+- A `boltThumb`-ot a gyűjtemény-könyv is használja → ott is a tárgy-rajzok jelennek meg (konzisztens).
+- **Megmaradt** a jobb oldali adatlap „így áll rajtad" előnézete (a holmi a gyerek SAJÁT
+  unikornisán) — ez a „felpróbálás" nézet, nem polc-bélyegkép; a producer erre nem panaszkodott.
+- A ma reggeli fej/nyak ruhaSVG-újrarajzolások (on-body) megmaradtak — azok az adatlap-előnézetet
+  és a valódi unikornist szépítik, nem a polcot.
+- **Tesztelve:** mind a 18 polc-bélyegkép megint tárgy-rajz (210×210, nincs mini-uni kör), a
+  gyűjtemény is; vétel + adatlap-előnézet (unikornison) + a többi fül változatlan; konzol tiszta.
