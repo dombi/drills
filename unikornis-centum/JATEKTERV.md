@@ -142,6 +142,11 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   ösvény a Cél-odúig egyszerre látszik, de az unikornis továbbra is állomásról állomásra sétál.
   A többi pálya változatlanul kamerás. Tesztelve: 2. pálya végigjátszva (út látszik, séta,
   pipák, kerülő), 1. + 3. pálya regresszió zöld, konzol tiszta.
+- **2026-09-06 — Egységes bolti bélyegképek:** a bolt-polcon minden holmi-kép mostantól ugyanaz a
+  mini-unikornis (a gyerek saját bőrén), ugyanabból a szögből, csak az adott holmi felöltve —
+  a kevert „polcon fekvő / akasztott / lebegő ikon" képek helyett. A fej-koszorú, csillag-szarvdísz,
+  holdkorona és a Szivárvány-sál (csíkos háromszög-kendő) újrarajzolva, élénkebb, elütő színekkel.
+  Tesztelve: mind a 18 bélyegkép, vásárlás + felvétel, adatlap-előnézet, odú-szoba, pálya-indítás — zöld.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
   „ritkán tárgy esik" drop). Producer-döntés: a térkép-teszt beváljon-e mind a 9 pályára.
 

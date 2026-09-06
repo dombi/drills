@@ -336,3 +336,28 @@ lepegeto, atlepo, erdo-melye, erdo-szive`.
   kerülő út is működik (szürke pipa + következő állomásra ér). 3. pálya (kamerás) regresszió
   zöld: viewBox visszaáll 900×460-ra, a kamera újra pásztáz. 1. pálya (bontás) zöld.
   A gomb-szabály mindhárom bőrön ellenőrizve. Konzol tiszta.
+
+## 2026-09-06 — Egységes bolti bélyegkép-nyelv (spec-bolti-belyegkep-egyseges.html)
+
+- A bolt-polc bélyegképei eddig kevert nyelven szóltak (polcon fekvő / akasztott / lebegő
+  ikon — a `POLC_POZ` 18 kézi póza), és a fej/nyak tételek olvashatatlanul aprók voltak.
+  **Új nyelv:** minden bélyegkép ugyanaz a mini-unikornis a saját bőrén, ugyanabból a
+  szögből, ugyanakkora kivágásban, **csak a kérdéses holmi felöltve** (a többi ruhahely
+  üres) — ugyanaz a logika, mint az adatlap „így áll rajtad" előnézete, most minden
+  polc-szloton. — *Egy kutató-session grafikai auditja, producer-jóváhagyással; a
+  `mockup-bolt-belyegkepek-egyseges.html` mintát a producer látta és elfogadta.*
+- **Kártya-sablon:** 120×120 nézet, halvány lila kör (`#f3ecfa`, r=57), a 380×300-as
+  rajz-keret `translate(-5,7) scale(0.34)`-gyel középre igazítva. A `boltThumb` ruha-ága
+  ezt építi (`UNI_RAJZ` bőr + `ruhaSVG(tétel)`); a `POLC_POZ` tábla és kommentje törölve.
+- **Újrarajzolt tárgyak** (a spec §2–3 szerint, az on-body `ruhaSVG`-ben): **fej-a**
+  (virágkoszorú — élénk, elütő színű szirmok), **fej-k** (csillag-szikra a szarv felé +
+  csillag a csúcsnál), **fej-r** (holdsarló-korona, feszesebb koordináták), **nyak-r**
+  (Szivárvány-sál — csíkos háromszög-kendő a nyak alatt, horgony-y 150→166, hogy ne a
+  szájnál lógjon; a régi „két lelógó lebeny = rózsaszín nadrág" kivéve). A hát/láb/oldal/
+  farok tárgyak rajza változatlan, csak az új kártya-keretbe kerülnek.
+- **Nem változott:** vásárlás/öltöztetés logika (`oduRuhaVesz`/`oduRuhaVisel`), az adatlap
+  előnézete, a pálya-motor, a mentés.
+- **Tesztelve:** mind a 18 bélyegkép az új sablonnal renderel (Ragyogás bőrén ellenőrizve,
+  nagyított rácson); vétel + felvétel 3 tételre (ár levonás jó), adatlap-előnézet és
+  odú-szoba rajz hibátlan; pálya 1 (felmondás) és pálya 2 (teljes-út térkép) indul,
+  konzol tiszta.
