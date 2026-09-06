@@ -391,3 +391,10 @@ helyes felmondás pár-onként; 2 mid-flow elakadás → folytatás pipától, r
 kemény rossz pár → nudge, nem reset; 4× elakadás → lépésenkénti beírás a pipáktól;
 „Kész vagyok" gomb → beírás; `not-allowed` → beírás. Sima műveletes pálya + pálya 2/4
 regresszió zöld, konzol tiszta.
+
+## 2026-09-06 — Felmondás vége: nincs „mondd el még egyszer"
+
+A sikeres bontás-felmondás után a bagoly eddig felszólított a gyöngyök melletti újramondásra
+(„Most mondd el te is még egyszer, a gyöngyöket nézve"). A producer kérésére ez kikerült —
+helyette rövid „Szuper! Kész a bontás!". A golyós jutalomlista + „Tovább →" + „+5 ✨" marad,
+a Tovább gomb továbbra is a gyerekre vár. (`4cb1cba`)
