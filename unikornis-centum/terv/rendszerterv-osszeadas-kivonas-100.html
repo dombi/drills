@@ -105,6 +105,10 @@
         <b>Kinézet</b> (az unikornis saját külseje: szemszín, sörény) · <b>Kellékek</b> (odú
         berendezés + tárgyak) · <b>Időjárás</b> (napszak + eső/hó/szivárvány).</li>
       <li><b>Szülői nézet:</b> a gombot 2 mp-ig nyomva (nincs PIN).</li>
+      <li><b>Jutalom-progresszió (2026-09-06):</b> a csillámpor pályánként nő (feladat <code>1+szint</code>,
+        pálya vége <code>10×(szint+1)</code>); a bontás-pálya a legfelső szintet kapja; sorozat-szorzó
+        a pálya-vége bónuszra; teljes ösvény → dupla záró-bónusz + arany szilánk az odú egén; a
+        jutalom-infó a pálya-kártyán. Részletek: <b>7.1a–7.1d</b> és <code>terv/javaslat-jutalom-progresszio.html</code>.</li>
     </ul>
     <span class="mini">A részletek a lenti szakaszokban és a 6 al-specben (15.).</span>
   </div>
@@ -550,6 +554,80 @@
     Pontos arányok és értékek: gyűjtemény-adatlap (15.).</span>
   </div>
 
+  <h3>7.1a A csillámpor-értékek pályánként nőnek (jóváhagyva 2026-09-06)</h3>
+  <div class="kesz">
+    <p>A korábbi fix értékek (minden feladat +2 ✨, pálya vége +20 ✨) helyett a jutalom a pálya
+       <b>nehézségi szintjével</b> nő – hogy megérje az egyre nehezebb pályák felé menni. Minden
+       pálya kap egy <code>szint</code> mezőt (1–8) a jóváhagyott 8 lépcsős nehézségi sor szerint.</p>
+    <table>
+      <tr><th>Esemény</th><th>Csillámpor</th></tr>
+      <tr><td>helyes egyenkénti feladat (össz./kiv.)</td><td><code>1 + szint</code> ✨ &nbsp;(2 → 9)</td></tr>
+      <tr><td>pálya vége (célba érés)</td><td><code>10 × (szint + 1)</code> ✨ &nbsp;(20 → 90)</td></tr>
+      <tr><td>állomás kész</td><td>+3 ✨ &nbsp;(NEM skálázódik – állandó horgony)</td></tr>
+      <tr><td>tipp után helyes válasz</td><td>+1 ✨ &nbsp;(NEM skálázódik)</td></tr>
+      <tr><td>hibázás</td><td>0 &nbsp;(soha nincs levonás)</td></tr>
+    </table>
+    <ul>
+      <li>A <b>legkönnyebb pálya értéke nem csökken</b> (marad ~117 ✨); csak a nehezebbek nőnek.
+        A legkönnyebb és a legnehezebb között ~4× a különbség.</li>
+      <li><b>Bontás-kivétel:</b> a bontás-pálya a <b>legfelső szintet (8)</b> kapja – a producer kérése,
+        hogy annyit érjen, mint az utolsó pálya. Mivel csak 8 feladat van rajta (nem 38), egy teljes
+        bontás felmondása <b>42 ✨</b> → a pálya ~450 ✨ ≈ a 9. pálya.</li>
+    </ul>
+    <span class="mini">Csak két szám mozog (feladat + pálya vége); az állomás- és tipp-jutalom
+    állandó, hogy a gyereknek legyen megjegyezhető horgonya. Részletes tábla és indoklás:
+    <code>terv/javaslat-jutalom-progresszio.html</code> 1. szakasz.</span>
+  </div>
+
+  <h3>7.1b Sorozat-szorzó (jóváhagyva 2026-09-06)</h3>
+  <div class="kesz">
+    <ul>
+      <li>Ha a gyerek befejez egy pályát, és <b>rögtön egy MÁSIK pályának indul</b>, a következő pálya
+        <b>pálya-vége bónusza</b> szorzódik: a sorozat 2. pályája <b>×2</b>, a 3. és minden további
+        <b>×3</b> (maximum).</li>
+      <li><b>Csak a pálya-vége bónuszra hat</b> (a feladatok és az állomás-bónusz nem szorzódik) –
+        ez a legóvatosabb fék, így a gazdaság kiszámítható marad.</li>
+      <li>Ugyanazt a pályát újrajátszani <b>nem</b> viszi tovább a sorozatot (farmolás-védelem);
+        minden pálya különbözzön az előzőtől.</li>
+      <li><b>Élettartam: egy leülés</b> – a játék bezárása megtöri. A megszakadás <b>néma</b>
+        (nincs „elvesztetted a sorozatod" hang/felirat); a rendszerterv 4.2 alapelve szerint
+        nincs veszteség.</li>
+      <li><b>Nem töri meg:</b> bolt/odú/vásárlás/öltöztetés, tipp, feladat-újrahallgatás, kerülő út.
+        <b>Megtöri:</b> pálya félbehagyása cél előtt, profilváltás, a játék bezárása.</li>
+      <li><b>A bagoly hanggal mondja</b> a pálya-vége képernyőn (mielőtt a gyerek választ):
+        „Ha most rögtön nekiindulsz egy másik pályának, dupla csillámport kapsz!"; és pálya
+        indításakor, ha van szorzó: „Ez a pálya most duplát ér!"</li>
+    </ul>
+  </div>
+
+  <h3>7.1c Teljes ösvény – arany csillagszilánk (jóváhagyva 2026-09-06)</h3>
+  <div class="kesz">
+    <p>Ma a pálya-vége bónusz akkor is jár, ha a gyerek minden állomáson a kerülőt választotta.
+       A <b>teljes ösvény</b> ezt ismeri el: a pályán <b>egyetlen kerülőt sem</b> választott.</p>
+    <ul>
+      <li><b>A hibázás NEM rontja el.</b> Aki végigküzdötte, de tévesztett, az is teljes ösvényt járt –
+        a bónusz a <b>munkáért</b> jár, nem a hibátlanságért. Csak a <b>kerülő</b> veszi el.</li>
+      <li><b>Jutalom:</b> a pálya-vége bónusz <b>kétszerezése</b> extra (+20…+90 ✨ szint szerint),
+        és egy <b>ragyogó, arany</b> csillagszilánk (a sima ezüst helyett).</li>
+      <li><b>Ami egyszer arany lett, az arany marad</b> – egy későbbi, kerülős végigjátszás nem rontja
+        vissza (mint a meglévő „elsőre jó" rekord).</li>
+      <li><b>„A teljes erdő":</b> ha mind a 9 csillagszilánk arany → külön <b>jelvény</b> (a záró
+        „…erdő ura" mellé), de <b>nincs</b> extra csillámpor – tisztán presztízs.</li>
+    </ul>
+    <span class="mini">Feszültség a 4.2-vel: a kerülő továbbra is büntetlen, legális választás –
+    csak „a kevésbé jutalmazott út". Tudatos, elfogadott döntés.</span>
+  </div>
+
+  <h3>7.1d „Mi mennyit ér?" – a pálya-kártyán (jóváhagyva 2026-09-06)</h3>
+  <div class="kesz">
+    A gyerek egy felületen átlássa, miért mi jár – de <b>nem külön képernyőn</b>, hanem <b>magán a
+    főképernyő pálya-kártyáján</b>, ott, ahol az ösvényt kattintja. A kártyán: <b>érték-sor</b>
+    („1 feladat = N ✨", „végig ≈ X ✨"), a sorozat-<b>szorzó buborék</b> (×2 / ×3), a <b>teljes-ösvény
+    jelölés</b> („🌟 kihagyás nélkül = arany szilánk + dupla záró-bónusz"), és egy soronkénti
+    <b>🔊 felolvasó</b> gomb (a célközönség egy része még nem olvas folyékonyan – 2.4). A nehézség
+    szerint növő számok sorából a <b>lépcső magától látszik</b>.
+  </div>
+
   <h3>7.2 Az unikornis öltöztetése (Holmik)</h3>
   <div class="kesz">
     <ul>
@@ -646,9 +724,17 @@
   <div class="kesz">
     <ul>
       <li>A <b>térképen</b> a kész állomások jelölve.</li>
-      <li>A <b>főképernyőn</b> a 7 pálya-kártyán „kész" pipa / <b>csillagszilánk</b>. Zárolás nincs.</li>
+      <li>A <b>főképernyőn</b> a pálya-kártyákon „kész" <b>csillagszilánk</b> – <b>arany</b>, ha teljes
+        ösvény volt, <b>ezüst</b>, ha kerülővel. Zárolás nincs.</li>
       <li>A <b>csillámpor-számláló</b> a fejlécben mindig látszik.</li>
       <li>Az állomáson belül: ● ● ○ ○.</li>
+      <li><b>A csillagszilánkok az odú ablakán túli égen (jóváhagyva 2026-09-06, „C"):</b> minden
+        kész pálya = 1 szilánk az égen, a maga helyén (9 fix pozíció), ezüst vagy arany. A gyerek
+        az odúból, felnézve látja gyűlni a saját égboltját – ez a „gyűjtemény", a mesevilágba
+        építve, nem külön menüként. Az <b>„este / hold"</b> napszak emeli ki a legszebben. Az
+        arany szilánkok jobban szikráznak. Technika: az <code>oduEgSVG</code> kap egy additív
+        szilánk-réteget, a napszak-rajzokhoz nem nyúl. <span class="mini">Megjegyzés: ez az égbolt-
+        nézet korábban NEM létezett – a kész pálya csak egy 🌟 emoji volt a kártyán.</span></li>
     </ul>
   </div>
 
