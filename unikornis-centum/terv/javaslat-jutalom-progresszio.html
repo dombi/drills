@@ -244,26 +244,55 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
   </table>
 
   <h3>3.3 A ragyogó csillagszilánk – a valódi hajtóerő</h3>
+  <div class="figyelem">
+    <b>Tisztázás:</b> a keret szerint 1 kész pálya = 1 csillagszilánk „az erdő éjszakai egén", de
+    <b>ez az égbolt-nézet ma nem létezik</b> a kódban. A kész pálya jelenleg csak egy <b>🌟 emoji</b>
+    a főképernyő pálya-kártyájának sarkában (<code>renderFomenu</code>). Ezért a szilánkoknak
+    kell egy <b>hely, ahol tényleg látszanak</b> – lásd 3.3b.
+  </div>
   <div class="kesz">
-    <p>A játék kerete szerint 1 kész pálya = 1 <b>csillagszilánk</b> az erdő éjszakai egén. Javaslat:</p>
+    A kétféle szilánk:
     <ul>
-      <li><b>Kerülővel teljesített pálya</b> → egyszerű csillagszilánk</li>
+      <li><b>Kerülővel teljesített pálya</b> → egyszerű, <b>ezüst</b> csillagszilánk</li>
       <li><b>Teljes ösvény</b> → <b>ragyogó, arany, szikrázó</b> csillagszilánk</li>
     </ul>
-    <p>Egy 6–7 évesnek ez <b>erősebb hajtóerő, mint bármelyik szám</b>. Nulla extra gazdasági
-       kockázat, és az égbolt egyetlen pillantással megmutatja, hol járt igazán végig.</p>
     <b>Megtartás:</b> ami egyszer arany lett, az <b>arany marad</b>. Egy későbbi, kerülős
     végigjátszás nem rontja vissza – ugyanúgy, ahogy a meglévő <code>rekordElsore</code> rekord sem romlik.
+  </div>
+
+  <h3>3.3b Hol látszik – az odú ablakán túli ég (a producer választása: „C")</h3>
+  <div class="kesz">
+    <p>A szilánkok az <b>odú ablakán túli égen</b> jelennek meg – ott, ahol most a napszak látszik
+       (<code>oduEgSVG</code>). Ez a nézet <b>már létezik és működik</b>, nem kell új képernyőt építeni.
+       Az <b>„este / hold"</b> napszak egy kész éjszakai égbolt (sötétkék, hold, 6 csillag) – a
+       9 összegyűjtött szilánk <b>ezek közé / fölé</b> kerül, a helyükön.</p>
+    <ul>
+      <li>Minden <b>kész pálya</b> = 1 szilánk az égen (ezüst vagy arany a teljesítés módja szerint).
+        A meg nem csinált pályák helye üres / halvány.</li>
+      <li>A gyerek az <b>odúból, felfelé nézve</b> látja gyűlni a saját égboltját – ez a „gyűjtemény",
+        csak beépítve a mesevilágba, nem külön menüként.</li>
+      <li>Az <b>arany szilánkok</b> jobban ragyognak / szikráznak (finom CSS-animáció), így a
+        teljes ösvények egy pillantással kiválnak.</li>
+      <li>A hatás <b>minden napszaknál</b> ott van, de az <b>„este / hold"</b> ég emeli ki a
+        legszebben – érdemes a csillagszilánk-élményt ehhez a napszakhoz kötni a hangban
+        („Nézd meg este az odúd egét!").</li>
+    </ul>
+    <span class="mini">Technika: az <code>oduEgSVG</code> kap egy szilánk-réteget, ami a
+    <code>P().palyak[*].kesz</code> és az új <code>.arany</code> jelző alapján rajzol. Additív,
+    a napszak-rajzokhoz nem nyúl. 9 fix pozíció az égen (a pályák sorrendjében).</span>
   </div>
 
   <h3>3.4 Hogyan tudja meg a gyerek</h3>
   <div class="kesz">
     <ul>
       <li><b>Pálya indításakor</b> a bagoly egyszer:
-        <span class="idezet" style="display:inline-block;margin:2px 0;padding:4px 10px">„Ha egy állomást sem hagysz ki, <b>ragyogó</b> csillagszilánkot kapsz!"</span></li>
+        <span class="idezet" style="display:inline-block;margin:2px 0;padding:4px 10px">„Ha egy állomást sem hagysz ki, <b>ragyogó</b> csillagszilánk kerül az odúd egére!"</span></li>
       <li><b>Pálya közben</b> a fejlécben a csillagszilánk-ikon <b>ragyog</b>; ha kerülőt választ,
         <b>csendben elhalványul</b>. Nincs felirat, nincs hang, nincs szemrehányás.</li>
-      <li><b>Pálya végén</b> az összegzésben egy sor: „🌟 <b>Teljes ösvény!</b> +90 ✨" – vagy semmi.</li>
+      <li><b>Pálya végén</b> az összegzésben egy sor: „🌟 <b>Teljes ösvény!</b> +90 ✨, és egy
+        <b>arany szilánk</b> az égedre" – vagy semmi.</li>
+      <li><b>Az odúban, este</b> a gyerek felnézhet, és látja az új szilánkot ragyogni. A bagoly
+        ilyenkor egyszer megjegyezheti, hány arany van már fent.</li>
     </ul>
   </div>
 
@@ -358,8 +387,11 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
         (a <code>betolt()</code> pótolja a régi mentéseknél).</li>
       <li><b>Teljes ösvény:</b> futásonkénti <code>J.keruloVolt</code> jelző (a kerülő-gomb
         állítja true-ra); a pálya rekordjában <code>P().palyak[id].arany = true</code>
-        (egyszer igaz, sose vált vissza). Az arany szilánk a főképernyő-kártyán és az
-        éjszakai égen is más rajz.</li>
+        (egyszer igaz, sose vált vissza).</li>
+      <li><b>Szilánkok az égen (C):</b> az <code>oduEgSVG</code> kap egy szilánk-réteget – 9 fix
+        pozíció, a <code>P().palyak[*].kesz</code> és <code>.arany</code> szerint ezüst / arany /
+        üres. Additív, a napszak-rajzokhoz nem nyúl; az arany finom CSS-szikra-animációt kap.
+        A főképernyő-kártya 🌟-ja is aranyra vált teljes ösvénynél.</li>
       <li>Új képernyő: <code>#kepernyo-jutalomtabla</code> + gomb a főképernyőn.</li>
       <li>Bagoly-bejelentés a pálya-vége képernyőn, pálya-indításkor (szorzó + teljes ösvény).</li>
       <li>Teszt-fogantyúk: <code>UC.jutalom</code>, <code>UC.sorozat</code>, <code>UC.teljesOsveny</code>.</li>
@@ -401,8 +433,9 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
 
   <div class="dontes">
     <b>3b) A teljes ösvény bónusz mértéke.</b> A pálya-vége bónusz <b>kétszerezése</b>
-    (+20 … +90 ✨ szinttől függően)? Elég ez, vagy legyen nagyobb – és jöjjön-e vele a
-    <b>ragyogó arany csillagszilánk</b> (3.3), ami szerintem a valódi hajtóerő?
+    (+20 … +90 ✨ szinttől függően)? Elég ez, vagy legyen nagyobb? Az <b>arany csillagszilánk</b>
+    (3.3) a producer választása szerint az <b>odú ablakán túli égen</b> jelenik meg (C) – ez
+    eldöntve.
   </div>
 
   <div class="dontes">
