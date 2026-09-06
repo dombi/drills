@@ -134,8 +134,16 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   A generátor `csak_tizes` / `b_tizes` kapcsolót kapott. Minden pálya kézmentes, minden generált
   feladat a pálya szabályának megfelel (tesztelve). A szám-tartományok javaslatok, élesben
   hangolhatók.
+- **2026-09-06 — „tovább megoldás nélkül" áthelyezve + Ragyogás nullázva + térkép-teszt:**
+  A „tovább megoldás nélkül" gomb mostantól **csak Csillámharmatnál** látszik (eddig csak
+  Ragyogásnál). A **Ragyogás** profil csillámpora és megvásárolt holmija egyszer, automatikusan
+  **visszaáll a kiindulópontra** (kész pályák / napló / becenév marad). **TESZT:** a 2. pálya
+  („Összeadás-kivonás 10-ig") kamera nélküli, **egyképernyős térkép-nézetet** kapott — a teljes
+  ösvény a Cél-odúig egyszerre látszik, de az unikornis továbbra is állomásról állomásra sétál.
+  A többi pálya változatlanul kamerás. Tesztelve: 2. pálya végigjátszva (út látszik, séta,
+  pipák, kerülő), 1. + 3. pálya regresszió zöld, konzol tiszta.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
-  „ritkán tárgy esik" drop).
+  „ritkán tárgy esik" drop). Producer-döntés: a térkép-teszt beváljon-e mind a 9 pályára.
 
 ## Megnyitás
 

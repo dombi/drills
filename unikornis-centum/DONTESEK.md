@@ -312,3 +312,27 @@ lepegeto, atlepo, erdo-melye, erdo-szive`.
   átlépés van/nincs); a 2 új pálya (atlepo, erdo-szive) végigjátszva rajttól célig;
   pálya 1 + bolt + profil-kártya regresszió zöld, konzol tiszta. A szám-tartományok
   javaslatok — élesben hangolhatók.
+
+## 2026-09-06 — „tovább megoldás nélkül" áthelyezve + Ragyogás nullázása + teljes-út térkép-teszt
+
+- **„Tovább megoldás nélkül" gomb:** eddig csak Ragyogásnál látszott, Tűznél/Csillámharmatnál
+  rejtve. A producer kérésére **megfordítva:** mostantól **csak Csillámharmatnál** látszik,
+  Ragyogásnál és Tűznél rejtve. — *A producer így kérte; a szabály maga (egy `mentes.leny`
+  összehasonlítás két helyen) változatlan, csak a név cserélődött `ragyogas` → `csillamharmat`.*
+- **Ragyogás profil visszaállítása a kiindulópontra:** egyszeri, automatikus nullázás a
+  betöltéskor (`mentes.ragyogasNulla20260906` jelző) — a Ragyogás **csillámpora 0-ra**, a
+  **megvásárolt eszközök** (öltözet + odú-berendezés) az alapállapotra. A kész pályák, a napló
+  és a becenév **megmarad**. Minden gépen egyszer fut le, utána a jelző tiltja. — *A producer
+  „tedd vissza a kiindulópontra" kérése; csak a pont + a vásárolt holmik, más nem.*
+- **TESZT — kamera nélküli, egyképernyős térkép (2. pálya, „Összeadás-kivonás 10-ig"):** a
+  2. pálya `teljes_ut` jelzőt kapott. Ezen a pályán a teljes ösvény (Rajt → Cél-odú)
+  **egyszerre látszik**, nincs kameramozgás/görgetés — de az unikornis **továbbra is
+  állomásról állomásra sétál** rajta. A többi pálya (1., 3.–9.) érintetlen: marad a
+  kamerás nézet. — *A producer visszajelzése: „látszódjon az út vége", de az unikornis
+  mozogjon. Egy pályán próbáljuk ki, mielőtt mindegyikre átvinnénk. Az S-görbe út a
+  `mockup-terkep-teljes-ut.html` szerint.*
+- **Tesztelve:** 2. pálya végigjátszva — a teljes út egy képernyőn látszik, az unikornis a
+  fitt koordinátákon sétál állomásról állomásra, a pipák helyesen kerülnek elő, a ~15 mp
+  kerülő út is működik (szürke pipa + következő állomásra ér). 3. pálya (kamerás) regresszió
+  zöld: viewBox visszaáll 900×460-ra, a kamera újra pásztáz. 1. pálya (bontás) zöld.
+  A gomb-szabály mindhárom bőrön ellenőrizve. Konzol tiszta.

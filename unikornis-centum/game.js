@@ -45,6 +45,7 @@ var PALYAK = [
     palcim: "Adj össze és vegyél el — tízig, átlépés nélkül",
     alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs", a_min: 1, a_max: 9, b_min: 1, b_max: 9 },
     kez_nelkul: true,
+    teljes_ut: true,   /* TESZT: kamera nélküli, egyképernyős térkép-nézet (2026-09-06) */
     allomasok: [
       { nev: "Rajt" },
       { nev: "Első lépés", darab: 5, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
@@ -333,6 +334,12 @@ function betolt() {
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
+      if (!mentes.ragyogasNulla20260906) {                 /* egyszeri visszaállítás: Ragyogás pont + megvásárolt eszközök nullázása */
+        var rg = mentes.profilok.ragyogas;
+        if (rg) { rg.csillampor = 0; rg.oltozet = alapOltozet(); rg.odu = alapOdu(); }
+        mentes.ragyogasNulla20260906 = 1;
+        ment();
+      }
       return;
     }
   } catch (e) {}
@@ -883,9 +890,96 @@ function bagolySVG() {
 }
 
 var NEZ_SZ = 900, NEZ_MA = 460;
-function allomasX(i) { return 150 + i * 260; }
-function allomasY(i) { return 262 + 20 * Math.sin(i * 0.9); }
+/* TESZT (pálya 2): kamera nélküli, teljes-út nézet. A jelenet-render állítja be. */
+var SCENE_TELJES = false, SCENE_N = 8;
+var TU_X0 = 78, TU_X1 = 1092;
+function allomasX(i) {
+  if (SCENE_TELJES) return TU_X0 + i * (TU_X1 - TU_X0) / Math.max(1, SCENE_N - 1);
+  return 150 + i * 260;
+}
+function allomasY(i) {
+  if (SCENE_TELJES) {
+    var t = SCENE_N > 1 ? i / (SCENE_N - 1) : 0;
+    return (418 - t * 176) + (i % 2 ? 40 : -40);   /* fölfelé sodródó cikk-cakk a 200–460 sávban */
+  }
+  return 262 + 20 * Math.sin(i * 0.9);
+}
+/* kamera nélküli, egyképernyős térkép — a teljes út (Rajt → Cél) egyszerre látszik,
+   az unikornis továbbra is állomásról állomásra sétál rajta (mockup-terkep-teljes-ut.html). */
+function jelenetSVGteljes(palya, c) {
+  var n = palya.allomasok.length;
+  var px = [], py = [];
+  for (var k = 0; k < n; k++) { px.push(allomasX(k)); py.push(allomasY(k)); }
+  var utD = "M " + px[0].toFixed(1) + " " + py[0].toFixed(1);
+  for (var i = 1; i < n; i++) {
+    var dx = px[i] - px[i - 1];
+    utD += " C " + (px[i - 1] + dx / 2).toFixed(1) + " " + py[i - 1].toFixed(1) +
+           " " + (px[i] - dx / 2).toFixed(1) + " " + py[i].toFixed(1) +
+           " " + px[i].toFixed(1) + " " + py[i].toFixed(1);
+  }
+  /* háttér: ég + nap + felhők + dombsávok */
+  var s = '<svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="tu-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdeaf7"/><stop offset="0.6" stop-color="#dff2e2"/><stop offset="1" stop-color="#eaf6df"/></linearGradient></defs>' +
+    '<rect x="0" y="0" width="1200" height="560" fill="url(#tu-eg)"/>' +
+    '<circle cx="1086" cy="72" r="66" fill="#fff6d0" opacity="0.5"/><circle cx="1086" cy="72" r="26" fill="#fff2b8" opacity="0.9"/>' +
+    '<g fill="#ffffff" opacity="0.55"><ellipse cx="220" cy="70" rx="46" ry="16"/><ellipse cx="255" cy="62" rx="30" ry="13"/><ellipse cx="640" cy="50" rx="38" ry="14"/><ellipse cx="670" cy="58" rx="24" ry="10"/></g>' +
+    '<path d="M0 335 Q150 305 300 330 Q460 355 620 325 Q800 295 960 330 Q1100 353 1200 330 L1200 560 L0 560 Z" fill="#cdeac0" opacity="0.7"/>' +
+    '<path d="M0 378 Q200 353 420 383 Q650 413 880 378 Q1050 353 1200 383 L1200 560 L0 560 Z" fill="#bfe3a0"/>' +
+    '<path d="M0 420 Q220 400 460 425 Q700 450 940 418 Q1080 400 1200 422 L1200 560 L0 560 Z" fill="#aedb8e" opacity="0.85"/>';
+  /* fák CSAK a kereten (fönt/oldalt), középen szabad az út */
+  function fa(x, y, m) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + m + ')">' +
+      '<rect x="-8" y="14" width="16" height="46" fill="#a9805e"/>' +
+      '<circle cx="0" cy="0" r="36" fill="#5a9a4a"/><circle cx="-24" cy="16" r="27" fill="#6bb156"/><circle cx="24" cy="16" r="27" fill="#4f8f42"/>' +
+      '<circle cx="-10" cy="-14" r="14" fill="#a8d998"/></g>';
+  }
+  s += fa(80, 150, 1.15) + fa(150, 300, 0.8) + fa(60, 470, 1) +
+       fa(1130, 130, 1.1) + fa(1150, 330, 0.85) + fa(1120, 500, 1) +
+       fa(430, 250, 0.62) + fa(720, 235, 0.6) + fa(980, 250, 0.66);
+  /* bagoly beljebb egy ágon */
+  s += '<g transform="translate(190,220)">' +
+    '<path d="M0 4 Q-40 10 -76 2" stroke="#8f6a3e" stroke-width="6" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="0" cy="-16" rx="17" ry="19" fill="#c9a06a"/><ellipse cx="0" cy="-10" rx="12" ry="12" fill="#e9d3ad"/>' +
+    '<path d="M-15 -28 l6 10 l6 -6 Z" fill="#c9a06a"/><path d="M15 -28 l-6 10 l-6 -6 Z" fill="#c9a06a"/>' +
+    '<circle cx="-6" cy="-20" r="5" fill="#fff"/><circle cx="6" cy="-20" r="5" fill="#fff"/>' +
+    '<circle cx="-6" cy="-20" r="2.3" fill="#4a3b2a"/><circle cx="6" cy="-20" r="2.3" fill="#4a3b2a"/>' +
+    '<path d="M0 -14 l-3 4 l6 0 Z" fill="#e8a23d"/></g>';
+  /* az út: árnyék + test + világos szegély */
+  s += '<g id="kamera">' +
+    '<path d="' + utD + '" transform="translate(4,10)" fill="none" stroke="#3b6a30" stroke-width="34" stroke-linecap="round" opacity="0.16"/>' +
+    '<path d="' + utD + '" fill="none" stroke="#d9b48a" stroke-width="30" stroke-linecap="round"/>' +
+    '<path d="' + utD + '" fill="none" stroke="#f0dcb0" stroke-width="20" stroke-linecap="round"/>';
+  /* állomások + Rajt-zászló + Cél-odú */
+  for (var s2 = 0; s2 < n; s2++) {
+    var ax = px[s2], ay = py[s2], utolso = (s2 === n - 1);
+    if (s2 === 0) {
+      s += '<g transform="translate(' + ax + ',' + ay + ')"><circle r="15" fill="#a7d99a" stroke="#222" stroke-width="2"/>' +
+        '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="#f6a5c0"/></g>';
+    } else if (!utolso) {
+      s += '<g transform="translate(' + ax + ',' + (ay - 44) + ')">' +
+        '<rect x="-58" y="-16" width="116" height="32" rx="12" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/>' +
+        '<text x="0" y="5" font-size="14" font-family="Fredoka,sans-serif" fill="#6a4a8a" text-anchor="middle">' + kiiras(palya.allomasok[s2].nev) + '</text></g>' +
+        '<rect x="' + (ax - 4) + '" y="' + (ay - 30) + '" width="8" height="30" fill="#b79c86"/>' +
+        '<circle cx="' + ax + '" cy="' + ay + '" r="14" fill="#f6c85a" stroke="#222" stroke-width="2"/>';
+    }
+    s += '<g class="allomas-pipa" id="pipa-' + s2 + '" transform="translate(' + ax + ',' + ay + ')" opacity="0"><circle r="12" fill="#a7d99a"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
+  }
+  /* Cél-odú az utolsó pont mögött-fölött */
+  var cx = px[n - 1] + 62, cy = py[n - 1] - 6;
+  s += '<g transform="translate(' + cx.toFixed(1) + ',' + cy.toFixed(1) + ')">' +
+    '<ellipse cx="0" cy="34" rx="60" ry="16" fill="#2f4a3a" opacity="0.3"/>' +
+    '<path d="M-44,40 C-44,-30 -28,-70 0,-78 C28,-70 44,-30 44,40 Z" fill="#8a6242" stroke="' + KOR + '" stroke-width="2.5"/>' +
+    '<ellipse cx="0" cy="-6" rx="23" ry="30" fill="#3a2a20"/><ellipse cx="0" cy="0" rx="16" ry="23" fill="#ffe9ad"/><ellipse cx="0" cy="8" rx="9" ry="13" fill="#fff6d8"/>' +
+    csillagSVG(0, -86, 9, "#ffe08a") + '</g>';
+  s += '<ellipse id="mosti-ko" cx="' + px[0].toFixed(1) + '" cy="' + (py[0] + 8).toFixed(1) + '" rx="40" ry="20" fill="none" stroke="#ffe08a" stroke-width="4" opacity="0.9"/>' +
+    '<g id="unikornis-hely" transform="translate(' + px[0].toFixed(1) + ',' + py[0].toFixed(1) + ')">' + unikornisSVG("uni", c, 0.62, P().oltozet) + '</g>' +
+    '</g></svg>';
+  return s;
+}
 function jelenetSVG(palya, lenyKulcs) {
+  SCENE_TELJES = !!palya.teljes_ut;
+  SCENE_N = palya.allomasok.length;
+  if (SCENE_TELJES) return jelenetSVGteljes(palya, LENYEK[lenyKulcs]);
   var n = palya.allomasok.length;
   var szelesseg = allomasX(n - 1) + 260;
   var c = LENYEK[lenyKulcs];
@@ -1012,7 +1106,7 @@ function palyaInditas(id) {
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
-  var tovabbMehet0 = (mentes.leny === "ragyogas");
+  var tovabbMehet0 = (mentes.leny === "csillamharmat");
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
   mutat("kepernyo-jatek");
@@ -1021,6 +1115,7 @@ function palyaInditas(id) {
 function kameraAllit(i, azonnal) {
   var kam = document.querySelector("#szinpad #kamera");
   if (!kam) return;
+  if (SCENE_TELJES) { kam.style.transition = "none"; kam.style.transform = "translateX(0)"; if (J) J.kameraX = 0; return; }
   var n = J.allomasok.length;
   var szelesseg = allomasX(n - 1) + 260;
   var cel = -(allomasX(i) - NEZ_SZ * 0.42);
@@ -1084,7 +1179,7 @@ function ujFeladat() {
   $("valaszter").style.visibility = "visible";
   $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
   $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
-  var tovabbMehet = (mentes.leny === "ragyogas");
+  var tovabbMehet = (mentes.leny === "csillamharmat");
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet;
   if (f.csalad === "felmondas") {
