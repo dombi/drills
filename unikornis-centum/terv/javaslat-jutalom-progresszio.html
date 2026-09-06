@@ -45,6 +45,7 @@
       <li><b>Sorozat-szorzó</b>, ha több pályát csinál meg egymás után – és a program ezt
         <b>hanggal mondja is el</b> („a következő pálya duplát ér majd").</li>
       <li>A játékos <b>egy felületen áttekinthesse</b>, miért milyen jutalom vár rá.</li>
+      <li><b>Extra jutalom, ha a teljes ösvényt végigcsinálja</b> – nem csak egyes pontokat rajta.</li>
     </ol>
   </div>
 
@@ -212,16 +213,86 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
   </div>
 
   <!-- ============================================================ -->
-  <h2>3. „Mi mennyit ér?" – a jutalom-tábla képernyő (a producer 4. kérése)</h2>
+  <h2>3. „Teljes ösvény" bónusz (a producer 5. kérése)</h2>
 
-  <h3>3.1 Hol érhető el</h3>
+  <h3>3.1 A lyuk, amit betöm</h3>
+  <div class="figyelem">
+    Ma a <b>pálya-vége +20 ✨ akkor is jár</b>, ha a gyerek <b>minden állomáson a kerülőt választotta</b>
+    és egyetlen feladatot sem oldott meg. Célba ért – kapja a jutalmat. Semmi nem ismeri el, ha valaki
+    tényleg <b>végigcsinálta az egész ösvényt</b>.
+  </div>
+
+  <h3>3.2 A szabály</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Teljes ösvény</b> = a pályán <b>egyetlen kerülőt sem</b> választott; minden állomás
+        feladatait megoldotta.</li>
+      <li><b>A hibázás NEM rontja el.</b> Aki küzdött, többször próbálta, esetleg a „tovább megoldás
+        nélkül"-t használta – az is teljes ösvényt járt. A bónusz a <b>munkáért</b> jár, nem a
+        hibátlanságért. (A hibátlanságot külön méri az „elsőre jó" rekord és az „Átlépő bajnok" jelvény.)</li>
+      <li><b>Jutalom: a pálya-vége bónusz kétszerese</b>, azaz további <code>10 × (szint + 1)</code> ✨.</li>
+      <li>A <b>sorozat-szorzó ezt is szorozza</b> (a pálya teljes bevételének része).</li>
+    </ul>
+  </div>
+
+  <table>
+    <tr><th>Pálya</th><th>szint</th><th>Pálya vége</th><th>Teljes ösvény extra</th><th>Pálya összesen</th><th>Ma</th></tr>
+    <tr><td>2. Összeadás-kivonás 10-ig</td><td>1</td><td>20 ✨</td><td>+20 ✨</td><td class="ki">137 ✨</td><td>117</td></tr>
+    <tr><td>5. Aprók a tízeshez</td><td>4</td><td>50 ✨</td><td>+50 ✨</td><td class="ki">311 ✨</td><td>117</td></tr>
+    <tr><td>9. Erdő szíve</td><td>8</td><td>90 ✨</td><td>+90 ✨</td><td class="ki">543 ✨</td><td>117</td></tr>
+    <tr><td>1. Mondd el a bontásokat</td><td>8</td><td>90 ✨</td><td>+90 ✨</td><td class="ki">540 ✨</td><td>84</td></tr>
+  </table>
+
+  <h3>3.3 A ragyogó csillagszilánk – a valódi hajtóerő</h3>
+  <div class="kesz">
+    <p>A játék kerete szerint 1 kész pálya = 1 <b>csillagszilánk</b> az erdő éjszakai egén. Javaslat:</p>
+    <ul>
+      <li><b>Kerülővel teljesített pálya</b> → egyszerű csillagszilánk</li>
+      <li><b>Teljes ösvény</b> → <b>ragyogó, arany, szikrázó</b> csillagszilánk</li>
+    </ul>
+    <p>Egy 6–7 évesnek ez <b>erősebb hajtóerő, mint bármelyik szám</b>. Nulla extra gazdasági
+       kockázat, és az égbolt egyetlen pillantással megmutatja, hol járt igazán végig.</p>
+    <b>Megtartás:</b> ami egyszer arany lett, az <b>arany marad</b>. Egy későbbi, kerülős
+    végigjátszás nem rontja vissza – ugyanúgy, ahogy a meglévő <code>rekordElsore</code> rekord sem romlik.
+  </div>
+
+  <h3>3.4 Hogyan tudja meg a gyerek</h3>
+  <div class="kesz">
+    <ul>
+      <li><b>Pálya indításakor</b> a bagoly egyszer:
+        <span class="idezet" style="display:inline-block;margin:2px 0;padding:4px 10px">„Ha egy állomást sem hagysz ki, <b>ragyogó</b> csillagszilánkot kapsz!"</span></li>
+      <li><b>Pálya közben</b> a fejlécben a csillagszilánk-ikon <b>ragyog</b>; ha kerülőt választ,
+        <b>csendben elhalványul</b>. Nincs felirat, nincs hang, nincs szemrehányás.</li>
+      <li><b>Pálya végén</b> az összegzésben egy sor: „🌟 <b>Teljes ösvény!</b> +90 ✨" – vagy semmi.</li>
+    </ul>
+  </div>
+
+  <h3>3.5 Tervezői feszültség – tudatos döntést igényel</h3>
+  <div class="figyelem">
+    A rendszerterv <b>4.2</b> kimondja: „A kerülő teljesen legális választás, <b>büntetés nincs</b>."
+    Ez a bónusz nem <i>vesz el</i> semmit, tehát formailag nem büntetés – de a kerülő ettől
+    „a kevésbé jutalmazott út" lesz. <b>Valószínűleg pont ez a szándék</b>, de érdemes tudatosan
+    dönteni róla. Aki fáradt, továbbra is mehet kerülővel: nem veszít semmit, csak nem kap plusz.
+  </div>
+
+  <h3>3.6 Opcionális kiterjesztés: „A teljes erdő"</h3>
+  <div class="doboz">
+    Ha mind a <b>9 csillagszilánk arany</b> → egyszeri nagy bónusz (javaslat: <b>+500 ✨</b>)
+    és egy külön jelvény a meglévő „Az összeadás-kivonás erdő ura" mellé. Ez lenne a játék
+    valódi végcélja – nem elég végigjátszani, <b>végig kell járni</b>.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. „Mi mennyit ér?" – a jutalom-tábla képernyő (a producer 4. kérése)</h2>
+
+  <h3>4.1 Hol érhető el</h3>
   <div class="kesz">
     Új gomb a <b>főképernyőn</b>, a csillámpor-számláló mellett: <b>„✨ Mi mennyit ér?"</b>.
     Ez a döntés helye – itt választ pályát a gyerek, itt számít az információ.
     Másodlagos belépő a boltból (hogy a „mennyit kell még gyűjtenem?" kérdésre is válaszoljon).
   </div>
 
-  <h3>3.2 Mi van rajta – felülről lefelé</h3>
+  <h3>4.2 Mi van rajta – felülről lefelé</h3>
   <table>
     <tr><th>Blokk</th><th>Tartalom</th></tr>
     <tr><td><b>Sorozat-állapot</b> (legfelül, nagy)</td>
@@ -229,18 +300,19 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
             „Fejezz be egy pályát, és a következő <b>duplát</b> ér!"</td></tr>
     <tr><td><b>Pálya-lista</b></td>
         <td>Pályánként egy kártya: ikon + név + <b>„1 feladat = N ✨"</b> + <b>„pálya vége = M ✨"</b>
-            + „összesen kb. <b>X ✨</b>". A nehézség szerint sorba rendezve, hogy a <b>lépcső látszódjon</b>.
-            A már kész pályákon csillagszilánk.</td></tr>
+            + <b>„teljes ösvény = +M ✨"</b> + „összesen kb. <b>X ✨</b>". A nehézség szerint sorba
+            rendezve, hogy a <b>lépcső látszódjon</b>. A már kész pályákon csillagszilánk –
+            <b>aranyban, ha teljes ösvény volt</b>.</td></tr>
     <tr><td><b>Extrák</b></td>
         <td>„Állomás vége: +3 ✨" · „Tipp után jó válasz: +1 ✨" · <b>„Hibázás: soha nem veszítesz semmit"</b></td></tr>
     <tr><td><b>Tárgy-esély</b></td>
         <td>Gyereknyelven, nem százalékkal: „Nagyjából <b>minden 7. feladat</b> után találsz is valamit."
-            <span class="mini">(A 85/15 dobás ma még nincs implementálva – lásd 5.)</span></td></tr>
+            <span class="mini">(A 85/15 dobás ma még nincs implementálva – lásd 6.)</span></td></tr>
     <tr><td><b>Jelvények</b></td>
         <td>A megszerzettek színesen, a hátralévők halványan + egy sorban a feltétel.</td></tr>
   </table>
 
-  <h3>3.3 Kötelező tervezési szabályok</h3>
+  <h3>4.3 Kötelező tervezési szabályok</h3>
   <div class="kesz">
     <ul>
       <li><b>Minden sor felolvasható:</b> 🔊 gomb soronként, és egy „olvasd fel az egészet" gomb
@@ -253,25 +325,28 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
   </div>
 
   <!-- ============================================================ -->
-  <h2>4. Mit kell módosítani – konkrét lista</h2>
+  <h2>5. Mit kell módosítani – konkrét lista</h2>
 
-  <h3>4.1 Dokumentumok</h3>
+  <h3>5.1 Dokumentumok</h3>
   <table>
     <tr><th>Fájl</th><th>Mit</th></tr>
     <tr><td><code>terv/rendszerterv-osszeadas-kivonas-100.html</code></td>
         <td><b>7.1</b> átírása (fix értékek → szint-alapú tábla + bontás-kivétel);
-            <b>új 7.1b</b> Sorozat-szorzó; <b>új 7.10</b> „Mi mennyit ér?" képernyő;
-            <b>8.1</b> képernyő-táblába új sor</td></tr>
+            <b>új 7.1b</b> Sorozat-szorzó; <b>új 7.1c</b> Teljes ösvény bónusz + arany csillagszilánk;
+            <b>7.8</b> („Hogyan látja a haladását") kiegészítése az arany szilánkkal;
+            <b>új 7.10</b> „Mi mennyit ér?" képernyő; <b>8.1</b> képernyő-táblába új sor.
+            A <b>4.2</b> (kerülő) mellé megjegyzés a 3.5 szerinti feszültségről.</td></tr>
     <tr><td><code>terv/spec-gazdasag-es-katalogus.html</code></td>
-        <td><b>1. szakasz</b> értéktáblájának cseréje; új szakasz a sorozat-szorzóról;
-            a „MVP-A végigjátszás ≈ 355 ✨" becslés újraszámolása 9 pályára</td></tr>
+        <td><b>1. szakasz</b> értéktáblájának cseréje; új szakasz a sorozat-szorzóról és a
+            teljes ösvény bónuszról; a „MVP-A végigjátszás ≈ 355 ✨" becslés újraszámolása 9 pályára;
+            <b>4.5</b> jelvény-tábla kiegészítése a „teljes erdő" jelvénnyel (ha a 3.6 elfogadva)</td></tr>
     <tr><td><code>terv/spec-hang-es-beszed.html</code></td>
         <td>A 2.3 bejelentés-szövegek felvétele a felolvasó-sablonok közé</td></tr>
     <tr><td><code>DONTESEK.md</code></td>
         <td>Egy bejegyzés a jóváhagyott döntésekről</td></tr>
   </table>
 
-  <h3>4.2 Kód (csak jóváhagyás után)</h3>
+  <h3>5.2 Kód (csak jóváhagyás után)</h3>
   <div class="doboz">
     <ul>
       <li><code>PALYAK</code>: minden pálya kap egy <code>szint:</code> mezőt (1–8; a bontás 8).</li>
@@ -281,16 +356,21 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
         <code>palyaVege()</code>.</li>
       <li>Új mentés-mező profilonként: <code>P().sorozat = { hossz: 0, utolsoPalya: null }</code>
         (a <code>betolt()</code> pótolja a régi mentéseknél).</li>
+      <li><b>Teljes ösvény:</b> futásonkénti <code>J.keruloVolt</code> jelző (a kerülő-gomb
+        állítja true-ra); a pálya rekordjában <code>P().palyak[id].arany = true</code>
+        (egyszer igaz, sose vált vissza). Az arany szilánk a főképernyő-kártyán és az
+        éjszakai égen is más rajz.</li>
       <li>Új képernyő: <code>#kepernyo-jutalomtabla</code> + gomb a főképernyőn.</li>
-      <li>Bagoly-bejelentés a pálya-vége képernyőn és pálya-indításkor.</li>
-      <li>Teszt-fogantyúk: <code>UC.jutalom</code>, <code>UC.sorozat</code>.</li>
+      <li>Bagoly-bejelentés a pálya-vége képernyőn, pálya-indításkor (szorzó + teljes ösvény).</li>
+      <li>Teszt-fogantyúk: <code>UC.jutalom</code>, <code>UC.sorozat</code>, <code>UC.teljesOsveny</code>.</li>
       <li><b>Kompatibilitás:</b> a változás additív, a meglévő mentések megmaradnak
-        (a már összegyűjtött csillámpor érintetlen).</li>
+        (a már összegyűjtött csillámpor érintetlen). A korábban teljesített pályák
+        <b>nem</b> kapnak visszamenőleg arany szilánkot – nem tudjuk, volt-e kerülő.</li>
     </ul>
   </div>
 
   <!-- ============================================================ -->
-  <h2>5. Kapcsolódó, még nyitott tétel</h2>
+  <h2>6. Kapcsolódó, még nyitott tétel</h2>
   <div class="figyelem">
     A rendszerterv 7.1 és a gazdaság-spec 2–3. szakasza szerint minden helyes feladatnál
     <b>85% ✨ / 15% tárgy</b> dobás lenne, pity-szabállyal és drop-táblákkal.
@@ -300,7 +380,7 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
   </div>
 
   <!-- ============================================================ -->
-  <h2>6. Amit el kell dönteni</h2>
+  <h2>7. Amit el kell dönteni</h2>
 
   <div class="dontes">
     <b>1) A progresszió képlete.</b> Feladat = <code>1 + szint</code> (2→9), pálya vége =
@@ -317,6 +397,22 @@ hibázás             ✨ = 0   (soha nincs levonás)</pre>
     <b>3) A sorozat-szorzó ereje.</b> ×2 / ×3 (max), a <b>teljes</b> pálya-bevételre?
     Vagy a két fék valamelyike (max ×2, illetve csak a pálya-vége bónuszra)?
     Ez a javaslat legnagyobb gazdasági kockázata (2.5).
+  </div>
+
+  <div class="dontes">
+    <b>3b) A teljes ösvény bónusz mértéke.</b> A pálya-vége bónusz <b>kétszerezése</b>
+    (+20 … +90 ✨ szinttől függően)? Elég ez, vagy legyen nagyobb – és jöjjön-e vele a
+    <b>ragyogó arany csillagszilánk</b> (3.3), ami szerintem a valódi hajtóerő?
+  </div>
+
+  <div class="dontes">
+    <b>3c) Elrontja-e a hibázás a teljes ösvényt?</b> A javaslat szerint <b>nem</b> – a bónusz a
+    végigjárásért jár, nem a hibátlanságért. Csak a <b>kerülő</b> veszi el. Egyetértesz?
+  </div>
+
+  <div class="dontes">
+    <b>3d) „A teljes erdő" (3.6).</b> Kelljen-e egyszeri nagy bónusz (+500 ✨) és külön jelvény,
+    ha mind a 9 csillagszilánk arany? Ez lenne a játék valódi végcélja.
   </div>
 
   <div class="dontes">
