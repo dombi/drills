@@ -1414,8 +1414,8 @@ function felmondSiker() {
   P().csillampor += jar; J.futoCsilla += jar;
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   J.parokKesz = J.feladat.N + 1;
-  /* a piros-kék gyöngyös lista jelenik meg (nem a szöveges) — ezt nézve
-     mondja el a gyerek MÉG EGYSZER, hogy vizuálisan is rögzüljön */
+  /* a piros-kék gyöngyös lista jutalomként jelenik meg (nem a szöveges);
+     a gyereknek NEM kell újra felmondania — a Tovább gomb visz tovább */
   $("felmond-lista").hidden = true;
   $("felmond-megvan").hidden = true;
   renderGolyoLista();
@@ -1425,12 +1425,11 @@ function felmondSiker() {
   csillagRepul($("bagoly-buborek"));
   setTimeout(function () { $("jatek-csillampor").textContent = P().csillampor; }, 500);
   J.feladatKesz++; ment();
-  /* NEM lépünk tovább magunktól, és a második felmondást MÁR NEM ellenőrizzük:
-     a narrátor felszólít az ismétlésre, a Tovább gomb csak vár. */
+  /* NEM lépünk tovább magunktól — a Tovább gomb vár a gyerekre. */
   var tg = $("bontas-kesz-gomb");
   tg.textContent = "Tovább →"; tg.className = "nagy-gomb tovabb-kesz"; tg.hidden = false;
-  bagolyMondat("Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve! 🌟");
-  mondd("Szuper! Most mondd el te is még egyszer, a gyöngyöket nézve.");
+  bagolyMondat("Szuper! Kész a bontás! 🌟");
+  mondd("Szuper! Kész a bontás!");
 }
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
