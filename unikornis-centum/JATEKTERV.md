@@ -167,6 +167,14 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   használatból (kód megmaradt tartalékként, `teljes_ut:false` kapcsolóval). Tesztelve: az 1. pálya
   (9 állomásos felmondás) és az utolsó (Erdő szíve) is hibátlanul renderel, séta + pipa + kerülő
   mindenhol jó, konzol tiszta.
+- **2026-09-06 — Jutalom-progresszió (a teljes jutalom-rendszer, rendszerterv 7.1a–d).** A csillámpor
+  mostantól a pálya nehézségével nő (a legkönnyebb ~117, a legnehezebb ~453 ✨ — közel négyszeres), a
+  bontás-pálya a legfelső szintet éri (~450). **Sorozat-szorzó:** aki egy pálya után rögtön egy másikba
+  kezd, a következő pálya záró bónusza ×2, majd ×3 (a bagoly meg is mondja). **Teljes ösvény:** aki
+  egyetlen kerülőt sem választ, dupla záró-bónuszt és ragyogó arany csillagszilánkot kap az odú egére
+  (a sima ezüst helyett); a 9 szilánk az ablakon át gyűlik. **A pontok az ösvény-kártyákon látszanak**
+  (1 feladat = N ✨, végig ≈ X ✨, ×2/×3, teljes-ösvény jelölés, 🔊 felolvasó) — nincs külön képernyő.
+  Tesztelve az egész. A hibázás sosem von le, a kerülő továbbra is büntetlen.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet). A grafikai session a v3 első
   szeletét már leadta (`Matekos/mockup-odu-szintek.html`).
 

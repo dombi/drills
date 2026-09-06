@@ -465,3 +465,36 @@ polcon legyenek.**
   és a valódi unikornist szépítik, nem a polcot.
 - **Tesztelve:** mind a 18 polc-bélyegkép megint tárgy-rajz (210×210, nincs mini-uni kör), a
   gyűjtemény is; vétel + adatlap-előnézet (unikornison) + a többi fül változatlan; konzol tiszta.
+
+## 2026-09-06 — Jutalom-progresszió + sorozat-szorzó + teljes ösvény + kártya-pontok (a jóváhagyott rendszerterv 7.1a–d)
+
+A producer az egész jutalom-javaslatot egyben kérte, a rendszerterv (drills `3e4e687`) alapján.
+
+- **7.1a Progresszív pontozás:** minden pálya `szint` mezőt kapott (bontás 8; oszkiv-10…erdo-szive
+  1–8). Új `jutalom(mit, palya)` motor a beégetett 2/5/3/20 helyett: feladat = 1+szint (2→9) ·
+  tipp után helyes = 1 · felmondás = 42 · állomás = 3 · pálya vége = 10×(szint+1) (20→90).
+  Ellenőrizve: a pályák végig-értéke pontosan a rendszerterv táblája (117/165/213/261/309/357/
+  405/453; a bontás ~450).
+- **7.1b Sorozat-szorzó:** `P().sorozat = {hossz, utolsoPalya}`. A szorzó CSAK a pálya-vége bónuszra
+  (és a teljes-ösvény extrára) hat: a sorozat 2. pályája ×2, a 3.+ ×3. Ugyanaz a pálya újra →
+  reset (farmolás-védelem). Megtöri: pálya félbehagyása (jatek-haza), profilváltás, a játék
+  bezárása (a `betolt()` minden töltéskor nullázza). NEM töri: bolt/odú/tipp/kerülő. A bagoly a
+  pálya-vége képen + pálya-indításkor mondja. Fejléc: „×2/×3" jelvény.
+- **7.1c Teljes ösvény:** `J.keruloVolt` — ha a pályán egyetlen kerülő sem volt → teljes ösvény:
+  a záró bónusz kétszereződik (× szorzó is), és `P().palyak[id].arany = true` (egyszer arany,
+  marad arany; a hibázás NEM rontja el, csak a kerülő). Az odú ablakán túli égen 9 fix pozíción
+  megjelennek a szilánkok (`oduSzilankReteg`): kész = ezüst, teljes = ragyogó arany (CSS-szikra),
+  még nem kész = halvány pont. A fejléc-szilánk kerülőnél elhalványul.
+- **7.1d Kártya-pontok:** a főképernyő ösvény-kártyáin „1 feladat = N ✨" + „végig ≈ X ✨", a
+  ×2/×3 sorozat-jelvény, a „🌟 kihagyás nélkül = arany szilánk + dupla záró" sor, és egy 🔊
+  felolvasó gomb (a producer választása: „összesen ≈ X ✨" a fő szám; a rendszerterv szerint mellé
+  a többi is). Külön „Mi mennyit ér?" képernyő NINCS — a kártya a hely. (A per-soros helyett
+  egy kártya-szintű felolvasó gomb — kicsi kártyán praktikusabb, az intent, felolvashatóság, teljesül.)
+- **Kompatibilitás:** additív, a meglévő csillámpor érintetlen; a korábban teljesített pályák nem
+  kapnak visszamenőleg arany szilánkot (nem tudjuk, volt-e kerülő). `alapProfil` += `sorozat`.
+
+**Tesztelve** (`window.UC` + fake felismerő): a 9 pálya értéke a rendszerterv táblája; teljes
+végigjátszás kerülő nélkül → arany + teljes extra; kerülővel → ezüst, nincs extra, sorozat marad;
+2. pálya sorozatban ×2 (255 ✨, +60 teljes); farmolás-védelem (ugyanaz → ×1); abbahagyás/profilváltás
+megtöri; tipp után +1 vs elsőre +szint; felmondás 42; kártya-render (érték-sor + ×2 a jó helyen +
+🔊); odú arany szilánkok; konzol tiszta.

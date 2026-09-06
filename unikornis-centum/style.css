@@ -91,6 +91,24 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-kartya .allapot{ position:absolute; top:10px; right:12px; font-size:20px; }
 .palya-kartya.hamarosan{ opacity:.55; }
 .palya-kartya.kesz{ border:3px solid var(--sarga-mely); }
+.palya-kartya.arany{ border:3px solid #ffc93c; box-shadow:0 6px 18px rgba(255,201,60,.4); }
+/* pont-infó a kártyán (7.1d) */
+.palya-ertek{
+  margin-top:2px; display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center;
+}
+.palya-ertek .cimke{ font-size:12.5px; font-weight:800; color:#8a6a1e; background:#fdf0d0; border-radius:999px; padding:2px 9px; }
+.palya-ertek .cimke.ossz{ color:#5a4a80; background:#eadff5; }
+.palya-teljes{ font-size:11.5px; color:var(--halvany); line-height:1.25; margin-top:1px; }
+.palya-teljes b{ color:#c98a1e; }
+.palya-szorzo{
+  position:absolute; top:10px; left:12px; font-size:14px; font-weight:800; color:#fff;
+  background:#e08bbf; padding:2px 9px; border-radius:999px; box-shadow:0 2px 0 #c86bb0;
+}
+.palya-felolvas{
+  position:absolute; bottom:8px; right:10px; font-size:15px; background:var(--uveg);
+  border-radius:50%; width:30px; height:30px; line-height:1; color:var(--halvany);
+  box-shadow:0 2px 5px rgba(74,59,122,.16);
+}
 .ma-statisztika{ font-size:14px; color:var(--halvany); padding:6px 0 12px; }
 
 #kepernyo-jatek{ background:linear-gradient(#dcecff,#ece0f3 55%,#e3f2dd); }
@@ -483,6 +501,16 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .gyujt-kartya .gallap{ font-size:11px; font-weight:800; margin-top:2px; }
 .gyujt-kartya.van .gallap{ color:#4e9a4a; }
 .gyujt-kartya.nincs .gallap{ color:#8a6a1e; }
+
+/* fejléc: teljes-ösvény szilánk-jelző + sorozat-szorzó */
+.jatek-szilank{ font-size:18px; filter:drop-shadow(0 0 5px #ffe08a); transition:opacity .6s, filter .6s; }
+.jatek-szilank.halvany{ opacity:.28; filter:grayscale(1); }
+.jatek-szorzo{ font-size:15px; font-weight:800; color:#fff; background:#e08bbf; padding:3px 10px; border-radius:999px; box-shadow:0 2px 0 #c86bb0; animation:szorzo-lukt 1.4s ease-in-out infinite; }
+@keyframes szorzo-lukt{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
+
+/* arany csillagszilánk szikrázása az odú egén (7.1c) */
+@keyframes szilank-szikra{ 0%,100%{ opacity:.85; transform:scale(1); } 50%{ opacity:1; transform:scale(1.18); } }
+.odu-szilank-arany{ animation:szilank-szikra 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
 
 /* „találtál egy holmit" buborék a játéktér tetején */
 .talalt-buborek{
