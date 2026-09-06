@@ -440,7 +440,7 @@ function figyelStop() { FB.aktiv = false; clearTimeout(FB.timer); try { if (feli
    A gyerek egyben mondja a bontást, de a gép SORONKÉNT nyugtáz: minden jól
    kimondott sor után zöld pipa pukkan + csilingelés. A sorok tartalma NEM
    látszik (memóriajáték: fejben kell tartani, hol jár) — csak a pipák.     */
-var FB = { aktiv: false, sor: 0, puffer: [], N: 0, hibak: 0, nyugi: 0, timer: null };
+var FB = { aktiv: false, sor: 0, puffer: [], N: 0, sorHibak: 0, timer: null };
 
 function figyeljElo(onChunk, onHiba) {
   if (!SR) { onHiba && onHiba("nincs"); return; }
@@ -530,23 +530,38 @@ function bontasEloChunk(altList) {
   if (legjobb.uj > 0) {
     for (var k = 0; k < legjobb.uj; k++)
       setTimeout(function () { hangCsilla(); }, k * 200);
-    FB.sor = legjobb.sor; FB.puffer = legjobb.puffer;
+    FB.sor = legjobb.sor;
+    FB.sorHibak = 0;                                  /* új sor: nulláról indul az elakadás-számláló */
     J.parokKesz = Math.min(FB.sor, N + 1);
     renderPipaSor();
-    inaktivUjra();
   }
-  if (FB.sor > N) { bontasEloSiker(); return; }
+  if (FB.sor > N) { FB.puffer = legjobb.puffer; bontasEloSiker(); return; }
   if (legjobb.hiba) {
-    FB.puffer = [];                                   /* a rossz próbálkozást eldobjuk */
-    FB.hibak++;
+    FB.puffer = [];                                   /* a rossz próbálkozást eldobjuk – de a pipák maradnak */
     hangHiba();
     var ps = $("pipa-sor");
     ps.classList.remove("razas"); void ps.offsetWidth; ps.classList.add("razas");
-    if (FB.hibak >= 2) { bontasEloVege(); return; }
-    bagolyMondat("Hoppá! Lentről, sorban — onnan folytasd, ahol a pipák tartanak!");
-  } else if (legjobb.uj === 0) {
-    FB.puffer = legjobb.puffer;                       /* félbehagyott sor: várunk rá */
+    bontasEloBotlas();                                /* ugyanabból az FB.sor-ból folytatjuk, NINCS reset */
+    return;
   }
+  FB.puffer = legjobb.puffer;                         /* jó (esetleg félbehagyott) sor: várunk a folytatásra */
+  if (legjobb.uj > 0) {
+    inaktivUjra();
+    /* a csilingelés után egy felszólító pittyegés: „jöhet a következő pár” */
+    setTimeout(function () { if (FB.aktiv) pittyKovetkezo(); }, legjobb.uj * 200 + 160);
+  }
+}
+function pittyKovetkezo() { beep(880, 0.08, "sine", 0, 0.12); }
+/* Elakadás UGYANAZON a soron (csend vagy félrehallott pár): a haladás megmarad,
+   a bagoly megmutatja a soron következő párt + pittyegés, és ugyanabból az FB.sor-ból
+   figyel tovább. Csak sok egymás utáni elakadás után adjuk fel (→ lépésenkénti beírás). */
+function bontasEloBotlas() {
+  if (!FB.aktiv) return;
+  FB.sorHibak++;
+  if (FB.sorHibak >= 4) { bontasEloVege(); return; }
+  bagolyMondat("Most ezt mondd: " + FB.sor + " meg " + (FB.N - FB.sor) + ".");
+  setTimeout(function () { if (FB.aktiv) pittyKovetkezo(); }, 900);
+  inaktivUjra();
 }
 
 /* Felmondás KÖZBEN csak pipák látszanak (a tartalom a fejben van) —
@@ -582,17 +597,13 @@ function inaktivUjra() {
   clearTimeout(FB.timer);
   FB.timer = setTimeout(function () {
     if (!FB.aktiv) return;
-    FB.nyugi++;
-    if (FB.nyugi >= 2) { bontasEloVege(); return; }
-    bagolyMondat(FB.sor === 0
-      ? ("Kezdd lentről: nulla meg " + FB.N + "…")
-      : "Folytasd bátran — a pipák mutatják, hol tartasz!");
-    inaktivUjra();
+    bontasEloBotlas();                                /* csend: ugyanaz a segítés, mint a félrehallásnál – NINCS reset */
   }, 12000);
 }
 
+/* CSAK a feladat legelső indításakor hívjuk – ez nullázza a haladást (FB.sor = 0). */
 function bontasEloStart() {
-  FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, hibak: 0, nyugi: 0, timer: null };
+  FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, sorHibak: 0, timer: null };
   J.parokKesz = 0;
   var g = $("mondom-bontas-gomb");
   g.classList.add("figyel"); g.textContent = "⏹ Kész vagyok";
@@ -603,17 +614,32 @@ function bontasEloStart() {
   renderPipaSor();
   try { speechSynthesis.cancel(); } catch (e) {}     /* a felolvasást ne hallja a mikrofon */
   inaktivUjra();
-  figyeljElo(bontasEloChunk, function (hiba) {
-    bontasEloElhallgat();
-    if (hiba === "nincs" || hiba === "not-allowed" || hiba === "service-not-allowed") {
-      beszedTamogatott = false; mentes.valaszmod = "beiras"; ment();
-      $("visszajelzes-f").textContent = "Most beírással játszunk.";
-      bontasLepesNyit();
-    } else if (felmondKezNelkulE()) {
-      $("visszajelzes-f").textContent = "Nem hallottalak — próbáljuk újra!";
-      setTimeout(function () { if (felmondKezNelkulE()) bontasEloStart(); }, 600);
-    } else { $("visszajelzes-f").textContent = "Nem hallottalak — próbáld újra a gombbal!"; }
-  });
+  figyeljElo(bontasEloChunk, bontasEloHibaAg);
+}
+/* Elakadás UTÁNI folytatás – a haladást (FB.sor, pipák, J.parokKesz) NEM nullázza,
+   csak újraindítja a hallgatást ugyanabból a pontból. Soha ne kezdje elölről. */
+function bontasEloFolytat() {
+  if (!J || !J.feladat || J.feladat.csalad !== "felmondas") return;
+  FB.aktiv = true;
+  FB.puffer = [];
+  var g = $("mondom-bontas-gomb");
+  g.classList.add("figyel"); g.textContent = "⏹ Kész vagyok";
+  $("hallgat-f").hidden = false;
+  inaktivUjra();
+  figyeljElo(bontasEloChunk, bontasEloHibaAg);
+}
+function bontasEloHibaAg(hiba) {
+  bontasEloElhallgat();
+  if (hiba === "nincs" || hiba === "not-allowed" || hiba === "service-not-allowed") {
+    beszedTamogatott = false; mentes.valaszmod = "beiras"; ment();
+    $("visszajelzes-f").textContent = "Most beírással játszunk.";
+    bontasLepesNyit();
+  } else if (felmondKezNelkulE()) {
+    $("visszajelzes-f").textContent = "Egy pillanat — figyelek tovább…";
+    setTimeout(function () { if (felmondKezNelkulE()) bontasEloFolytat(); }, 600);
+  } else {
+    $("visszajelzes-f").textContent = "Nyomd meg a gombot, és folytasd onnan!";
+  }
 }
 
 function bontasEloElhallgat() {
@@ -629,26 +655,17 @@ function bontasEloSiker() {
   felmondSiker();                        /* a gyöngyös lista + „mondd el még egyszer” benne */
 }
 
-/* a felmondás megszakadt (2 hiba, hosszú csend vagy „Kész vagyok" idő előtt) */
+/* Végszükség: „Kész vagyok" gomb, vagy ugyanazon a soron 4× elakadás.
+   NINCS újrakezdés – a meglévő pipáktól folytatjuk lépésenkénti beírással. */
 function bontasEloVege() {
   bontasEloElhallgat();
   if (FB.sor > FB.N) return;
-  J.probak++;
-  J.parokKesz = FB.sor;
-  $("visszajelzes-f").className = "visszajelzes rossz";
-  if (J.probak >= 2) {
-    $("pipa-sor").hidden = true;
-    $("visszajelzes-f").textContent = "Nézzük lépésenként!";
-    mondd("Nézzük lépésenként. " + J.feladat.tipp, function () { bontasLepesNyit(); });
-  } else {
-    var felKn = felmondKezNelkulE();
-    $("visszajelzes-f").textContent = FB.sor > 0
-      ? ("Eddig " + FB.sor + " pipa megvan! " + (felKn ? "Folytasd bátran onnan!" : "Nyomd meg a gombot, és folytasd elölről!"))
-      : ("Kezdd lentről: nulla meg " + FB.N + ", egy meg " + (FB.N - 1) + " …");
-    mondd("Majdnem! Próbáld újra, lentről kezdve.", function () {
-      if (felKn && felmondKezNelkulE()) { beep(1046, 0.1, "sine", 0, 0.16); setTimeout(function () { if (felmondKezNelkulE()) bontasEloStart(); }, 240); }
-    });
-  }
+  J.parokKesz = FB.sor;                               /* a beírás innen folytatódik (bontasLepesNyit) */
+  $("visszajelzes-f").className = "visszajelzes";
+  $("visszajelzes-f").textContent = FB.sor > 0
+    ? ("Eddig " + FB.sor + " pipa megvan — fejezzük be beírással!")
+    : "Nézzük lépésenként!";
+  mondd((FB.sor > 0 ? "Fejezzük be beírással. " : "Nézzük lépésenként. ") + J.feladat.tipp, function () { bontasLepesNyit(); });
   ment();
 }
 
@@ -1668,8 +1685,10 @@ function kezNelkulCsend() {
   }
 }
 /* ── KÉZMENTES HANG a felmondás-pályán (Erdei bontás): felolvas → pittyentés →
-   magától indul az élő hallgatás (bontasEloStart). A csend-kezelés a
-   bontasEloVege()-ben / bontasEloStart() hibaágában folytatódik. ── */
+   magától indul az élő hallgatás (bontasEloStart, CSAK a legelső indításnál nulláz).
+   Pár-onként: pipa + csilingelés + felszólító pittyegés. Elakadásnál (csend/félrehallás)
+   NINCS reset: bontasEloBotlas() megmutatja a soron következő párt és bontasEloFolytat()
+   figyel tovább ugyanabból az FB.sor-ból; csak 4× elakadás vagy „Kész vagyok" → beírás. ── */
 function felmondKezNelkulE() {
   return !!(J && J.palya && J.palya.kez_nelkul && beszedTamogatott
     && mentes.valaszmod !== "beiras"
@@ -2304,7 +2323,10 @@ window.UC = {
   oduBeallit: oduBeallit, RUHAK: RUHAK,
   oduRuhaVesz: function (kulcs, id) { var t = null; (RUHAK[kulcs] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduRuhaVesz({ kulcs: kulcs }, t); },
   oduRuhaVisel: oduRuhaVisel,
-  anchorViz: anchorViz, ANCHOR_ZONAK: ANCHOR_ZONAK
+  anchorViz: anchorViz, ANCHOR_ZONAK: ANCHOR_ZONAK,
+  get FB() { return FB; },
+  bontasEloStart: bontasEloStart, bontasEloBotlas: bontasEloBotlas, bontasEloVege: bontasEloVege,
+  bontasEloChunk: bontasEloChunk
 };
 
 })();

@@ -147,6 +147,13 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   a kevert „polcon fekvő / akasztott / lebegő ikon" képek helyett. A fej-koszorú, csillag-szarvdísz,
   holdkorona és a Szivárvány-sál (csíkos háromszög-kendő) újrarajzolva, élénkebb, elütő színekkel.
   Tesztelve: mind a 18 bélyegkép, vásárlás + felvétel, adatlap-előnézet, odú-szoba, pálya-indítás — zöld.
+- **2026-09-06 — Bontás-felmondás: türelmesebb, pár-onkénti mód.** A kézmentes felmondás minden jól
+  kimondott sor után pipát + csilingelést + egy halk „jöhet a következő" pittyegést ad. Elakadásnál
+  (csend vagy félrehallás) **a haladás soha nem vész el**: a bagoly kiírja a soron következő párt,
+  ad egy pittyegést, és onnan folytatódik — nincs elölről kezdés. Lépésenkénti beírásra csak akkor
+  vált, ha a gyerek a „⏹ Kész vagyok" gombot nyomja, vagy ugyanazon a soron 4× elakad — és akkor is
+  a meglévő pipáktól. Tesztelve fake felismerővel (teljes felmondás, elakadások, „Kész vagyok",
+  mikrofon-tiltás) + regresszió. A `bontasFelmondOk` szabály és a golyós jutalom + „Tovább →" marad.
 - **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet + gyűjtemény-könyv + jelvények +
   „ritkán tárgy esik" drop). Producer-döntés: a térkép-teszt beváljon-e mind a 9 pályára.
 

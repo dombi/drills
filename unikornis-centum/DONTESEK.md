@@ -361,3 +361,33 @@ lepegeto, atlepo, erdo-melye, erdo-szive`.
   nagyított rácson); vétel + felvétel 3 tételre (ár levonás jó), adatlap-előnézet és
   odú-szoba rajz hibátlan; pálya 1 (felmondás) és pálya 2 (teljes-út térkép) indul,
   konzol tiszta.
+
+## 2026-09-06 — Bontás-felmondás: pár-onkénti pittyegés + a haladás SOHA nem vész el
+
+A kézmentes felmondás (Gergő memóriajátéka — a párok tartalma rejtve, csak pipák) átállt
+teljesen „megbocsátó", pár-onként ütemezett módra:
+
+- **Pár-onként:** minden jól kimondott sor után pipa + csilingelés, majd egy halk
+  **felszólító pittyegés** (`pittyKovetkezo`, 880 Hz), ami jelzi: „jöhet a következő".
+- **Elakadás = NINCS újrakezdés.** Új közös kezelő `bontasEloBotlas()`: csend
+  (a 12 mp-es `inaktivUjra`) VAGY félrehallott pár esetén a haladás (pipák, `FB.sor`,
+  `J.parokKesz`) megmarad, a bagoly kiírja a soron következő párt („Most ezt mondd:
+  {sor} meg {N−sor}"), ad egy pittyegést, és **ugyanabból az `FB.sor`-ból** figyel
+  tovább. Ez korlátlanul ismételhető, és a félrehallás **nem számít elrontott
+  próbának** (a régi `J.probak++` / 2-strike vég kivéve).
+- **Kilépő ág csak végszükségre:** lépésenkénti beírásra (`bontasLepesNyit`) csak akkor
+  vált, ha a gyerek a „⏹ Kész vagyok" gombot nyomja, VAGY ugyanazon a soron **4×**
+  egymás után elakad/félrehall (`FB.sorHibak >= 4`). Onnan is a meglévő pipáktól
+  folytatódik (`J.parokKesz`).
+- **`bontasEloStart()` csak a feladat legelső indításakor nulláz** (`FB.sor = 0`). Az
+  elakadás utáni folytatás külön `bontasEloFolytat()` (a felismerő tényleges hibája
+  után) — soha nem hívja újra a `bontasEloStart()`-ot.
+- `FB`-ből kikerült a `hibak` és `nyugi`, helyette `sorHibak` (soronként nullázódik).
+
+**Érintetlen:** `bontasFelmondOk` elfogadási szabály, a végi golyós jutalomlista +
+„Tovább →", a `not-allowed` / mikrofon-hiány → beírás ág, a pipa-sor kinézete, a többi
+pálya. **Tesztelve** (fake folyamatos `SpeechRecognition`, `window.UC` fogantyú): teljes
+helyes felmondás pár-onként; 2 mid-flow elakadás → folytatás pipától, reset nélkül;
+kemény rossz pár → nudge, nem reset; 4× elakadás → lépésenkénti beírás a pipáktól;
+„Kész vagyok" gomb → beírás; `not-allowed` → beírás. Sima műveletes pálya + pálya 2/4
+regresszió zöld, konzol tiszta.
