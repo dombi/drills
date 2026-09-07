@@ -175,8 +175,14 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   (a sima ezüst helyett); a 9 szilánk az ablakon át gyűlik. **A pontok az ösvény-kártyákon látszanak**
   (1 feladat = N ✨, végig ≈ X ✨, ×2/×3, teljes-ösvény jelölés, 🔊 felolvasó) — nincs külön képernyő.
   Tesztelve az egész. A hibázás sosem von le, a kerülő továbbra is büntetlen.
-- **Következő:** ODÚ v3 (berendező – Kellékek), majd v4 (kinézet). A grafikai session a v3 első
-  szeletét már leadta (`Matekos/mockup-odu-szintek.html`).
+- **2026-09-07 — ODÚ v3: berendezés (Kellékek fül).** A boltban megnyílt a **Kellékek** fül: a gyerek
+  csillámporból fejlesztheti az odú 9 berendezését (fal, ablak, függöny, ágy, kályha, polc, asztal,
+  szőnyeg, zászlófüzér) 2–3 szebb szintre — tapéta, ólomüveg-ablak, függöny, baldachinos ágy,
+  tündérkályha, mandala-szőnyeg stb. A polc-kép és az előnézet a **saját szobádat** mutatja az adott
+  szinttel. A rajzokat a grafikai session készítette; tesztelve minden szint helyes z-sorrenddel,
+  vétel + váltás, régi fülek regresszió zöld.
+- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), majd a gyűjtemény kiterjesztése a
+  berendezésre és a ~30 odú-tárgy ikonra (a grafikai session most azokon dolgozik).
 
 ## Megnyitás
 

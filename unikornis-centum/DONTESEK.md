@@ -498,3 +498,27 @@ végigjátszás kerülő nélkül → arany + teljes extra; kerülővel → ezü
 2. pálya sorozatban ×2 (255 ✨, +60 teljes); farmolás-védelem (ugyanaz → ×1); abbahagyás/profilváltás
 megtöri; tipp után +1 vs elsőre +szint; felmondás 42; kártya-render (érték-sor + ×2 a jó helyen +
 🔊); odú arany szilánkok; konzol tiszta.
+
+## 2026-09-07 — ODÚ v3: berendezés-szintek (Kellékek fül) beépítve
+
+A grafikai session leadta a v3 berendezés rajz-oldalát (mind a 9 hely szebb szintjei,
+`mockup-odu-szintek.html`, producer-jóváhagyott demó). A producer kérése: nézzem meg, belefér-e
+a mai keretbe, és ha igen, építsem be. **Belefért** (azonos 680×540 viewBox az élő odú-szobával,
+vanilla SVG, additív, a bolt már tudja a füleket), ezért beépítettem.
+
+- **18 szint-csoport** (`BERENDEZES_SZINT`) a mockupból, a bázis-bútor UTÁN beszúrva az `oduSVG`
+  megfelelő z-pontjain (`butorElem`/`butorAgyHatso`/`butorAsztal`). A baldachin (`agy3a`) az ágy
+  MÖGÉ, a dúsabb paplan (`agy3b`) a takaró FÖLÉ; a terítő/futó (`asztal2/3`) a bázis-asztal
+  `translate(115,0)` keretén belül, a lámpás ALÁ (mert az élő asztal +115px-re tolva van, a mockup
+  nem — ezért a wrap). Fal/ablak/ágy/kályha/polc additív a 2. szinttel; szőnyeg/függöny a 3. önálló;
+  a zászlófüzér döntés szerint csak 2 szint.
+- **Bolt „Kellékek" fül** feloldva: `ODU_BUTOR` (9 hely, gazdaság-spec árak: Fal 45/105, Ablak
+  70/160, Függöny 30/90, Ágy 60/150, Kályha 50/130, Polc 40/110, Asztal 40/100, Szőnyeg 35/95,
+  Zászlófüzér 25) + `BUTOR_HELY`. `boltCsoportok/boltBirt/boltAktiv/boltVegrehajt` „butor" ág;
+  `oduButorVesz`/`oduButorBeallit`; polc-bélyegkép és adatlap-előnézet = mini-szoba az adott szinttel
+  (`oduSVG(..., elonezet=true)` — unikornis és bolt-stand nélkül). Az 1. szint mindig birtokolt (ingyen).
+- **Mentés:** `P().odu.szint` (9 hely, alap 1) + `P().odu.vanButor`; `alapButorSzint()`, a `betolt()` pótol.
+- **Tesztelve:** mind a 3 szint renderel helyes z-sorrenddel (baldachin az ágy mögött, terítő a
+  lámpás alatt, mandala-szőnyeg, ólomüveg/rózsaablak, függöny-visszakötéssel); Kellékek fül 26 tétel,
+  mini-szoba bélyegkép + előnézet; vétel (Ágy 3. = 150 ✨, „Biztos?" ág), „Berendezem" váltás birtokolt
+  szintre; Időjárás/Holmik fül + pálya regresszió zöld; konzol tiszta.
