@@ -522,3 +522,28 @@ vanilla SVG, additív, a bolt már tudja a füleket), ezért beépítettem.
   lámpás alatt, mandala-szőnyeg, ólomüveg/rózsaablak, függöny-visszakötéssel); Kellékek fül 26 tétel,
   mini-szoba bélyegkép + előnézet; vétel (Ágy 3. = 150 ✨, „Biztos?" ág), „Berendezem" váltás birtokolt
   szintre; Időjárás/Holmik fül + pálya regresszió zöld; konzol tiszta.
+
+## 2026-09-07 — Odú dísztárgyak (1. adag, 10 db) beépítve
+
+A grafikai session átadta az 1. adag odú-tárgy ikont (10 db, `mockup-odu-targyak.html` +
+`spec-odu-targy-beepites.html`, a producer jóváhagyta a stílust). Az élő fix-hely koordinátákat
+(amiket korábban átadtam) használják, így nem kellett wrappelni (kivéve az asztali tárgyakat,
+amiknek a tf-je eleve az élő 460-as asztalra igazít).
+
+- **`DISZ_TARGY`** (10 ikon, 80×80 `<g>`): patkó/tükör/koszorú (fal-bal), erdőkép (fal-jobb),
+  cserepes növény (ablak), váza/gyertyatartó (asztal), könyvek/csillag-figura (polc), felhő-plüss
+  (ágy). Mindegyik a saját `tf`-jével illeszkedik; a fali tárgyaknál a talaj-árnyék előre kivéve.
+- **`diszReteg(o)`** az `oduSVG`-ben a bútor UTÁN, az unikornis ELŐTT rajzol; **zónánként EGY**
+  tárgy (`DISZ_ZONA` 6 zóna). `diszPreviewOdu` az adatlap-előnézethez.
+- **Bolt „Kellékek" fül**: a 9 bútor-csoport MELLÉ 6 dísz-zóna került (Bal fal / Jobb fal /
+  Ablakpárkány / Asztalon / Polcon / Ágyon). Minden zónában „Üres" + a kompatibilis tárgyak.
+  `boltCsoportok/boltBirt/boltAktiv/boltVegrehajt/boltThumb/boltAdatlapRajzol/boltGombRajzol` disz-ág;
+  `oduDiszVesz`/`oduDiszBeallit` (vétel → kirakva; „Leszedem" → üres; másik tárgy → csere). Bélyegkép
+  = maga az ikon; előnézet = mini-szoba a dísszel. Árak a gazdaság-specből (patkó 20 … plüss 55).
+- **Mentés:** `P().odu.disz` (zóna→tárgy) + `P().odu.vanDisz` (birtokolt); `betolt()` pótol.
+
+**Tesztelve:** mind a 10 ikon helyes párosítással renderel (párosítás cellánként, nem közelség
+alapján — ez volt a buktató); mind a 6 zóna kirakva (200 ✨), z-sorrend jó (a bútor után, az
+unikornis előtt); Kellékek fül 15 csoport; vétel/csere/leszedés; bútor + Holmik/Időjárás + pálya
+regresszió zöld; konzol tiszta. A maradék ~20 ikon (2. adag) ugyanígy jön, csak a `DISZ_TARGY`
+táblát kell bővíteni.

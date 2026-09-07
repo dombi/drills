@@ -313,7 +313,7 @@ var GEN = {
 /* ============ 4) MENTÉS ============ */
 var KULCS = "unikornis_centum_v1";
 var mentes;
-function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {} }; }
+function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
 function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null } }; }
@@ -340,6 +340,8 @@ function betolt() {
         if (!p.odu.szint) p.odu.szint = alapButorSzint();
         else { var asz = alapButorSzint(), hk; for (hk in asz) if (typeof p.odu.szint[hk] !== "number") p.odu.szint[hk] = asz[hk]; }
         if (!p.odu.vanButor) p.odu.vanButor = {};
+        if (!p.odu.disz) p.odu.disz = {};
+        if (!p.odu.vanDisz) p.odu.vanDisz = {};
         if (!p.oltozet) p.oltozet = alapOltozet();
         if (!p.oltozet.van) p.oltozet.van = {};
         ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
@@ -1999,6 +2001,22 @@ var BERENDEZES_SZINT = {
   "asztal2": '<path d="M276 402 Q345 388 414 402 Q416 414 408 424 Q345 452 282 424 Q274 414 276 402 Z" fill="#e9ddf3"/> <ellipse cx="345" cy="402" rx="69" ry="16" fill="#f3ecfa"/> <g fill="#f6a5c0"><circle cx="288" cy="416" r="2.4"/><circle cx="402" cy="416" r="2.4"/></g>',
   "asztal3": '<path d="M300 400 Q345 392 390 400 Q392 408 388 414 Q345 430 302 414 Q298 408 300 400 Z" fill="#d7c4ee"/> <g stroke-width="2.4" stroke-linecap="round"> <path d="M312 406 q33 -6 66 0" stroke="#f7b8d0"/><path d="M316 412 q29 -5 58 0" stroke="#a7d99a"/> </g> <ellipse cx="368" cy="398" rx="8" ry="7" fill="#e9ddf3" stroke="#c197bf" stroke-width="1.2"/> <path d="M362 396 q-4 -12 2 -18 q3 8 0 16 Z" fill="#a7d99a"/> <path d="M368 394 q0 -14 4 -20 q3 10 0 20 Z" fill="#8fbf7a"/> <circle cx="362" cy="378" r="3.4" fill="#f6a5c0"/><circle cx="372" cy="374" r="3.4" fill="#ffe08a"/>',
 };
+/* ── ODÚ dísztárgyak (a grafikai session mockup-odu-targyak.html-jéből, 1. adag 10 db, 2026-09-07).
+   Minden ikon 80×80 dobozban; a szobába a saját tf-jével illeszkedik (élő 680×540 közép).
+   Egy „hova"-zóna egyszerre EGY tárgyat mutat (a kiválasztottat). Fali tárgyaknál a talaj-árnyék
+   már ki van véve. */
+var DISZ_TARGY = {
+  "patko": { nev: "Patkó", ar: 20, hova: "fal-bal", tf: "translate(145,270) scale(0.6) translate(-40,-40)", svg: '<path d="M25 22 Q25 13 40 13 Q55 13 55 22 Q56 42 49 60 Q45 63 42 58 Q48 42 47 25 Q47 18 40 18 Q33 18 33 25 Q32 42 38 58 Q35 63 31 60 Q24 42 25 22 Z" fill="#d3c4e6" stroke="#8f7ab8" stroke-width="1.5"/> <g fill="#8f7ab8"><circle cx="35" cy="26" r="1.4"/><circle cx="34" cy="38" r="1.4"/><circle cx="45" cy="26" r="1.4"/><circle cx="46" cy="38" r="1.4"/></g>' },
+  "tukor": { nev: "Tükör", ar: 45, hova: "fal-bal", tf: "translate(145,270) scale(0.6) translate(-40,-40)", svg: '<path d="M40 12 Q57 12 57 36 Q57 62 40 62 Q23 62 23 36 Q23 12 40 12 Z" fill="#c9a8e6" stroke="#8f7ab8" stroke-width="1.8"/> <path d="M40 18 Q50 18 50 36 Q50 56 40 56 Q30 56 30 36 Q30 18 40 18 Z" fill="#e9ddf3"/> <path d="M35 26 Q39 34 37 48" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.75" stroke-linecap="round"/> <path d="M44 30 Q46 36 45 44" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/> <circle cx="40" cy="12" r="3" fill="#f6a5c0"/>' },
+  "koszoru": { nev: "Koszorú", ar: 25, hova: "fal-bal", tf: "translate(145,270) scale(0.6) translate(-40,-40)", svg: '<ellipse cx="40" cy="66" rx="18" ry="3" fill="#3b2f66" opacity="0.12"/> <path d="M40 16 Q60 16 63 39 Q62 61 40 63 Q18 61 17 39 Q19 16 40 16 Z" fill="none" stroke="#6bb156" stroke-width="7" stroke-linecap="round"/> <path d="M40 16 Q60 16 63 39 Q62 61 40 63 Q18 61 17 39 Q19 16 40 16 Z" fill="none" stroke="#8fbf7a" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round"/> <g stroke="#222" stroke-width="0.5"> <circle cx="40" cy="16" r="4.5" fill="#f6a5c0"/><circle cx="62" cy="39" r="4.5" fill="#fce49a"/> <circle cx="40" cy="63" r="4.5" fill="#9ec9f0"/><circle cx="18" cy="39" r="4.5" fill="#c9a8e6"/> </g> <g fill="#ffd24d"><circle cx="40" cy="16" r="1.4"/><circle cx="62" cy="39" r="1.4"/><circle cx="40" cy="63" r="1.4"/><circle cx="18" cy="39" r="1.4"/></g>' },
+  "erdokep": { nev: "Erdőkép", ar: 30, hova: "fal-jobb", tf: "translate(500,205) scale(0.62) translate(-40,-40)", svg: '<path d="M18 16 Q40 14 62 16 Q64 40 62 64 Q40 66 18 64 Q16 40 18 16 Z" fill="#c9a06a" stroke="#8f6a3e" stroke-width="1.6"/> <path d="M25 23 Q40 21 55 23 Q56 40 55 57 Q40 59 25 57 Q24 40 25 23 Z" fill="#cdeaf7"/> <path d="M25 48 Q40 46 55 48 Q56 53 55 57 Q40 59 25 57 Q24 52 25 48 Z" fill="#bfe3a0"/> <path d="M39 46 l-2 8 l6 0 l-2 -8 Z" fill="#a9814e"/> <path d="M40 30 Q30 32 30 40 Q30 49 40 49 Q50 49 50 40 Q50 32 40 30 Z" fill="#5a9a4a"/> <path d="M35 36 Q30 34 26 30" stroke="#78bb62" stroke-width="1.4" fill="none"/> <circle cx="50" cy="28" r="4" fill="#fff2b8"/>' },
+  "noveny": { nev: "Cserepes növény", ar: 25, hova: "ablak", tf: "translate(210,250) scale(0.6) translate(-40,-64)", svg: '<ellipse cx="40" cy="64" rx="13" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M40 44 Q33 32 27 25 Q34 34 39 44 Z" fill="#6bb156"/> <path d="M40 44 Q40 27 43 18 Q47 29 44 44 Z" fill="#5a9a4a"/> <path d="M40 44 Q47 32 53 26 Q46 35 42 44 Z" fill="#78bb62"/> <circle cx="43" cy="18" r="3.4" fill="#f6a5c0"/><circle cx="27" cy="25" r="3" fill="#fce49a"/> <path d="M30 44 Q40 42 50 44 L50 48 Q40 50 30 48 Z" fill="#f6a5c0"/> <path d="M31 48 Q40 46 49 48 L46 60 Q40 62 34 60 Z" fill="#f7c59f" stroke="#e0a878" stroke-width="1.2"/>' },
+  "vaza": { nev: "Váza", ar: 35, hova: "asztal", tf: "translate(448,392) scale(0.6) translate(-40,-64)", svg: '<ellipse cx="40" cy="66" rx="13" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M34 20 Q34 14 40 12 M40 20 Q40 13 40 12 M46 20 Q46 14 40 12" fill="none" stroke="#7fb872" stroke-width="1.6"/> <circle cx="34" cy="18" r="5" fill="#f6a5c0"/><circle cx="40" cy="13" r="5" fill="#fce49a"/><circle cx="46" cy="18" r="5" fill="#c9a8e6"/> <g fill="#ffd24d"><circle cx="34" cy="18" r="1.6"/><circle cx="40" cy="13" r="1.6"/><circle cx="46" cy="18" r="1.6"/></g> <path d="M31 40 Q29 56 40 62 Q51 56 49 40 Q45 43 40 43 Q35 43 31 40 Z" fill="#9ec9f0" stroke="#7fb0d8" stroke-width="1.3"/> <path d="M33 36 Q40 39 47 36 Q47 41 40 43 Q33 41 33 36 Z" fill="#b7d4ec" stroke="#7fb0d8" stroke-width="1"/> <path d="M36 50 Q40 54 44 50" stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.6"/>' },
+  "gyertyatarto": { nev: "Gyertyatartó", ar: 30, hova: "asztal", tf: "translate(476,392) scale(0.58) translate(-40,-64)", svg: '<ellipse cx="40" cy="64" rx="12" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M29 58 Q40 54 51 58 Q51 62 40 62 Q29 62 29 58 Z" fill="#c9a8e6" stroke="#8f7ab8" stroke-width="1.2"/> <path d="M37 40 Q36 50 38 58 L42 58 Q44 50 43 40 Z" fill="#cbb6e6" stroke="#8f7ab8" stroke-width="1"/> <path d="M33 40 Q40 37 47 40 Q47 43 40 44 Q33 43 33 40 Z" fill="#b79fd4"/> <path d="M36 26 Q35 34 36 40 Q40 42 44 40 Q45 34 44 26 Q40 24 36 26 Z" fill="#fdf0d0" stroke="#e6d3a8" stroke-width="1"/> <path d="M40 15 Q35 22 40 27 Q45 22 40 15 Z" fill="#ffd24d"/> <path d="M40 19 Q37 23 40 26 Q43 23 40 19 Z" fill="#ff9d4d"/>' },
+  "konyvek": { nev: "Könyvek", ar: 35, hova: "polc", tf: "translate(445,296) scale(0.58) translate(-40,-64)", svg: '<ellipse cx="40" cy="64" rx="18" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M23 50 Q40 48 57 50 Q58 57 57 60 Q40 62 23 60 Q22 57 23 50 Z" fill="#f6a5c0" stroke="#e79ac0" stroke-width="1.2"/> <path d="M26 42 Q40 40 54 42 Q55 49 54 52 Q40 54 26 52 Q25 49 26 42 Z" fill="#a7d99a" stroke="#7fb872" stroke-width="1.2"/> <path d="M29 33 Q40 31 51 33 Q52 40 51 43 Q40 45 29 43 Q28 40 29 33 Z" fill="#9ec9f0" stroke="#7fb0d8" stroke-width="1.2"/> <g stroke-width="1.4" stroke-linecap="round"> <path d="M27 55 h26" stroke="#e79ac0"/><path d="M30 47 h20" stroke="#7fb872"/><path d="M32 38 h16" stroke="#7fb0d8"/> </g> <path d="M40 31 l1.6 3.8 l4 0.4 l-3 2.6 l1 4 l-3.6 -2.2 l-3.6 2.2 l1 -4 l-3 -2.6 l4 -0.4 Z" fill="#ffe08a"/>' },
+  "csillag": { nev: "Csillag-figura", ar: 40, hova: "polc", tf: "translate(505,296) scale(0.58) translate(-40,-64)", svg: '<ellipse cx="40" cy="64" rx="12" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M30 58 Q40 55 50 58 Q50 62 40 62 Q30 62 30 58 Z" fill="#c9a8e6" stroke="#8f7ab8" stroke-width="1"/> <rect x="38" y="48" width="4" height="10" fill="#cbb6e6"/> <path d="M40 16 l6 13 l14 1 l-11 9 l4 14 l-13 -8 l-13 8 l4 -14 l-11 -9 l14 -1 Z" fill="#ffe08a" stroke="#e0b84d" stroke-width="1.4" stroke-linejoin="round"/> <circle cx="40" cy="33" r="3.5" fill="#fff6d8"/>' },
+  "pluss": { nev: "Felhő-plüss", ar: 55, hova: "agy", tf: "translate(150,404) scale(0.6) translate(-40,-64)", svg: '<ellipse cx="40" cy="64" rx="16" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M24 46 Q19 35 30 32 Q32 21 46 25 Q58 22 58 36 Q65 41 57 50 Q40 58 26 50 Q22 48 24 46 Z" fill="#fdfdfd" stroke="#d9d9e2" stroke-width="1.5"/> <circle cx="35" cy="41" r="1.8" fill="#4a3b7a"/><circle cx="47" cy="41" r="1.8" fill="#4a3b7a"/> <path d="M36 46 q4 4 8 0" stroke="#f6a5c0" stroke-width="1.8" fill="none" stroke-linecap="round"/> <circle cx="30" cy="45" r="2.6" fill="#f7b8d0" opacity="0.7"/><circle cx="52" cy="45" r="2.6" fill="#f7b8d0" opacity="0.7"/>' },
+};
 /* a hely aktív szintjéhez tartozó rárajzolt csoport(ok) — a bázis-bútor UTÁN (kivéve az ágy-baldachin) */
 function butorElem(o, hely) {
   var lvl = (o.szint && o.szint[hely]) || 1, out = "";
@@ -2015,6 +2033,32 @@ function butorElem(o, hely) {
 }
 function butorAgyHatso(o) { return (((o.szint && o.szint.agy) || 1) >= 3) ? '<g>' + BERENDEZES_SZINT["agy3a"] + '</g>' : ""; }   /* baldachin: az ágy MÖGÉ */
 function butorAsztal(o) { var lvl = (o.szint && o.szint.asztal) || 1, out = ""; if (lvl >= 2) out += '<g>' + BERENDEZES_SZINT["asztal2"] + '</g>'; if (lvl >= 3) out += '<g>' + BERENDEZES_SZINT["asztal3"] + '</g>'; return out; }
+
+/* ── dísztárgyak: zónák (egy zóna = egy „hova"-kulcs, egyszerre EGY tárgy) ── */
+var DISZ_ZONA = [
+  { kulcs: "fal-bal", nev: "Bal fal" }, { kulcs: "fal-jobb", nev: "Jobb fal" }, { kulcs: "ablak", nev: "Ablakpárkány" },
+  { kulcs: "asztal", nev: "Asztalon" }, { kulcs: "polc", nev: "Polcon" }, { kulcs: "agy", nev: "Ágyon" }
+];
+function diszZonaTetelek(zona) {
+  var lista = [{ id: "nincs", nev: "Üres", ar: 0 }];
+  for (var id in DISZ_TARGY) if (DISZ_TARGY[id].hova === zona) lista.push({ id: id, nev: DISZ_TARGY[id].nev, ar: DISZ_TARGY[id].ar });
+  return lista;
+}
+/* a szobába kirakott dísztárgyak (a bútor UTÁN, az unikornis ELŐTT) */
+function diszReteg(o) {
+  var out = "", d = o.disz || {};
+  DISZ_ZONA.forEach(function (z) {
+    var id = d[z.kulcs];
+    if (id && DISZ_TARGY[id]) out += '<g transform="' + DISZ_TARGY[id].tf + '">' + DISZ_TARGY[id].svg + '</g>';
+  });
+  return out;
+}
+function diszPreviewOdu(zona, id) {
+  var o = P().odu, uj = {}, k; for (k in o) uj[k] = o[k];
+  uj.disz = {}; for (k in (o.disz || {})) uj.disz[k] = o.disz[k];
+  uj.disz[zona] = (id === "nincs") ? null : id;
+  return uj;
+}
 
 /* --- csillagszilánk-réteg az ablak egén (7.1c/3.3b): 9 fix pozíció a pályák sorrendjében.
    kész pálya = ezüst szilánk, teljes ösvény (arany) = ragyogó arany, még nem kész = halvány pont.
@@ -2281,6 +2325,8 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '<ellipse cx="340" cy="488" rx="168" ry="47" fill="#f6a5c0"/><ellipse cx="340" cy="488" rx="122" ry="34" fill="#f7c59f"/><ellipse cx="340" cy="488" rx="78" ry="21" fill="#a7d99a"/><ellipse cx="340" cy="488" rx="34" ry="9" fill="#9ec9f0"/>';
   s += butorElem(o, "szonyeg");              /* v3: fodros / mandala szőnyeg a szivárvány fölé */
 
+  s += diszReteg(o);                     /* v3+: kirakott dísztárgyak a bútor után, az unikornis előtt */
+
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon) ── */
   if (!elonezet) {
     s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
@@ -2355,17 +2401,20 @@ function boltCsoportok() {
       { kulcs: "ido", nev: "Időjárás", fajta: "ido", tetelek: ODU_KAT.ido }
     ];
   if (ODU_FUL === "kellekek")
-    return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; });
+    return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; })
+      .concat(DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; }));
   return [];
 }
 function boltBirt(cs, t) {
   if (cs.fajta === "ruha") return !!P().oltozet.van[t.id];
   if (cs.fajta === "butor") return t.id === 1 || !!(P().odu.vanButor[cs.kulcs] && P().odu.vanButor[cs.kulcs][t.id]);
+  if (cs.fajta === "disz") return t.id === "nincs" || !!P().odu.vanDisz[t.id];
   return !!P().odu.van[cs.kulcs][t.id];
 }
 function boltAktiv(cs, t) {
   if (cs.fajta === "ruha") return P().oltozet[cs.kulcs] === t.id;
   if (cs.fajta === "butor") return ((P().odu.szint && P().odu.szint[cs.kulcs]) || 1) === t.id;
+  if (cs.fajta === "disz") return (P().odu.disz[cs.kulcs] || "nincs") === t.id;
   return P().odu[cs.kulcs] === t.id;
 }
 /* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
@@ -2524,6 +2573,10 @@ function boltThumb(cs, t) {
       unikornisSVG("bt-" + t.id, LENYEK[mentes.leny], 1, p) + '</svg>';
   }
   if (cs.fajta === "butor") return oduSVG(mentes.leny, butorPreviewOdu(cs.kulcs, t.id), true);   /* mini-szoba a szinttel */
+  if (cs.fajta === "disz") {
+    if (t.id === "nincs") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="26" fill="none" stroke="#c9b8e0" stroke-width="3" stroke-dasharray="5 5"/><path d="M30 30 L50 50 M50 30 L30 50" stroke="#c9b8e0" stroke-width="3" stroke-linecap="round"/></svg>';
+    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + DISZ_TARGY[t.id].svg + '</svg>';   /* maga az ikon */
+  }
   var o = P().odu;
   return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
     (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
@@ -2559,6 +2612,8 @@ function boltAdatlapRajzol(host) {
       unikornisSVG("bap", LENYEK[mentes.leny], 1, pr) + '</svg>';
   } else if (cs.fajta === "butor") {
     elonez.innerHTML = oduSVG(mentes.leny, butorPreviewOdu(cs.kulcs, t.id), true);   /* a szobád ezzel a szinttel */
+  } else if (cs.fajta === "disz") {
+    elonez.innerHTML = oduSVG(mentes.leny, diszPreviewOdu(cs.kulcs, t.id), true);     /* a szobád ezzel a dísszel */
   } else {
     var o2 = P().odu;
     elonez.innerHTML = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
@@ -2590,6 +2645,10 @@ function boltGombRajzol(host, cs, t, birt, aktiv, eleg) {
     } else if (cs.fajta === "butor") {
       if (aktiv) gomb("✓ ez van kint", "kesz", null);
       else gomb("Berendezem", "fel", function () { oduButorBeallit(cs.kulcs, t.id); });
+    } else if (cs.fajta === "disz") {
+      if (aktiv) gomb("✓ ez van kint", "kesz", null);
+      else if (t.id === "nincs") gomb("Leszedem", "le", function () { oduDiszBeallit(cs.kulcs, "nincs"); });
+      else gomb("Kirakom", "fel", function () { oduDiszBeallit(cs.kulcs, t.id); });
     } else {
       if (aktiv) gomb("✓ ez van kint", "kesz", null);
       else gomb("Beállítom", "fel", function () { oduBeallit(cs.kulcs, t.id); });
@@ -2613,7 +2672,21 @@ function boltVeszKerdes(host, cs, t) {
 function boltVegrehajt(cs, t) {
   if (cs.fajta === "ruha") oduRuhaVesz({ kulcs: cs.kulcs }, t);
   else if (cs.fajta === "butor") oduButorVesz(cs.kulcs, t);
+  else if (cs.fajta === "disz") oduDiszVesz(cs.kulcs, t);
   else oduVesz(cs.kulcs, t);
+}
+function oduDiszVesz(zona, t) {
+  if (P().csillampor < t.ar) { renderOduPanel(); return; }
+  P().csillampor -= t.ar;
+  P().odu.vanDisz[t.id] = 1;
+  P().odu.disz[zona] = t.id;                /* vétel után rögtön ki is rakjuk */
+  hangCsilla(); hangJo(); ment();
+  renderOdu(); renderOduPanel();
+}
+function oduDiszBeallit(zona, id) {
+  P().odu.disz[zona] = (id === "nincs") ? null : id;
+  hangGomb(); ment();
+  renderOdu(); renderOduPanel();
 }
 function oduButorVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
@@ -2827,7 +2900,10 @@ window.UC = {
   PALYAK: PALYAK,
   ODU_BUTOR: ODU_BUTOR,
   oduButorVesz: function (hely, id) { var t = null; (ODU_BUTOR[hely] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduButorVesz(hely, t); },
-  oduButorBeallit: oduButorBeallit, oduSVG: function () { return oduSVG(mentes.leny, P().odu); }
+  oduButorBeallit: oduButorBeallit, oduSVG: function () { return oduSVG(mentes.leny, P().odu); },
+  DISZ_TARGY: DISZ_TARGY, DISZ_ZONA: DISZ_ZONA,
+  oduDiszVesz: function (id) { var d = DISZ_TARGY[id]; if (d) oduDiszVesz(d.hova, { id: id, ar: d.ar }); },
+  oduDiszBeallit: oduDiszBeallit
 };
 
 })();

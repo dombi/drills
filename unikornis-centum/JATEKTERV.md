@@ -181,8 +181,13 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   tündérkályha, mandala-szőnyeg stb. A polc-kép és az előnézet a **saját szobádat** mutatja az adott
   szinttel. A rajzokat a grafikai session készítette; tesztelve minden szint helyes z-sorrenddel,
   vétel + váltás, régi fülek regresszió zöld.
-- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), majd a gyűjtemény kiterjesztése a
-  berendezésre és a ~30 odú-tárgy ikonra (a grafikai session most azokon dolgozik).
+- **2026-09-07 — Odú dísztárgyak (1. adag).** A Kellékek fülben a bútor-szintek mellé bekerültek az
+  első **dísztárgyak** is: a gyerek fix helyekre tehet apró díszeket — patkó/tükör/koszorú a falra,
+  erdőkép a másik falra, cserepes növény az ablakpárkányra, váza/gyertyatartó az asztalra,
+  könyvek/csillag-figura a polcra, felhő-plüss az ágyra. Zónánként egy tárgy, cserélhető/leszedhető.
+  Tesztelve minden tárggyal, helyes rétegsorrenddel. A maradék ~20 dísz a grafikai munka 2. adagjából jön.
+- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), majd a maradék dísztárgyak beépítése
+  (2. adag), és a gyűjtemény kiterjesztése a berendezésre/díszekre.
 
 ## Megnyitás
 
