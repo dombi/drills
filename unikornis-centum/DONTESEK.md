@@ -547,3 +547,23 @@ alapján — ez volt a buktató); mind a 6 zóna kirakva (200 ✨), z-sorrend j�
 unikornis előtt); Kellékek fül 15 csoport; vétel/csere/leszedés; bútor + Holmik/Időjárás + pálya
 regresszió zöld; konzol tiszta. A maradék ~20 ikon (2. adag) ugyanígy jön, csak a `DISZ_TARGY`
 táblát kell bővíteni.
+
+## 2026-09-08 — Odú dísztárgyak 2. adag (12 ikon) beépítve — a készlet teljes (22 db)
+
+A grafikai session 2. adaga (`mockup-odu-targyak-2.html`), a producer jóváhagyta. Ezzel a
+§4.2 névlista teljes: 10 + 12 = 22 odú-tárgy ikon.
+
+- **`DISZ_TARGY` +11 tétel:** függő kristály (mennyezet 40) · terítő (asztal 20) · befőttes-csillag
+  (asztal 30) · pokróc (ágy 25) · hímzett párna (ágy 25) · üvegcsék (polc 30) · unikornis-figura
+  (polc 40) · fonott kosár (padló-bal 25) · kincsesládikó (padló-jobb 45) · kispárna (padló-bal 20)
+  · függődísz (ablak 30). Árak a gazdaság-specből; a fali/mennyezeti tárgyaknál a talaj-árnyék előre kivéve.
+- **3 új zóna** (`DISZ_ZONA`): Mennyezet, Padló (bal), Padló (jobb) — így 9 dísz-zóna. A padló-tárgyak
+  a szőnyeg közepét (unikornis) szabadon hagyják.
+- **„Extra zászlófüzér"** (mennyezet, 30 ✨): NEM 80×80 ikon, hanem a füzér-ívre feszülő széles rajz
+  (`extraFuzerSVG()`), a bázis-füzér stílusában, alatta jól elkülönülve. **Ezt én rajzoltam
+  proceduráliasan** (a grafikai session 80×80-as mintája alapján, ők felajánlották külön széles rajzot,
+  de nem volt rá szükség). `diszZonaTetelek`/`diszReteg`/`boltThumb` külön ágon kezeli (nincs `DISZ_TARGY`-ban).
+- **Mentés:** változatlan (`P().odu.disz` + `vanDisz` már bírja).
+- **Tesztelve:** mind a 12 ikon helyes párosítással renderel (cellánként, mint az 1. adagnál); 18
+  bolt-csoport / 57 slot; mind a 9 zóna kirakva (~245 ✨), z-sorrend jó; extra füzér vétele + megjelenés;
+  bútor + Holmik/Időjárás + pálya regresszió zöld; konzol tiszta.

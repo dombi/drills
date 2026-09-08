@@ -185,9 +185,13 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   első **dísztárgyak** is: a gyerek fix helyekre tehet apró díszeket — patkó/tükör/koszorú a falra,
   erdőkép a másik falra, cserepes növény az ablakpárkányra, váza/gyertyatartó az asztalra,
   könyvek/csillag-figura a polcra, felhő-plüss az ágyra. Zónánként egy tárgy, cserélhető/leszedhető.
-  Tesztelve minden tárggyal, helyes rétegsorrenddel. A maradék ~20 dísz a grafikai munka 2. adagjából jön.
-- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), majd a maradék dísztárgyak beépítése
-  (2. adag), és a gyűjtemény kiterjesztése a berendezésre/díszekre.
+  Tesztelve minden tárggyal, helyes rétegsorrenddel.
+- **2026-09-08 — Odú dísztárgyak 2. adag: a készlet teljes (22 db).** Bekerült még 12 dísz: extra
+  zászlófüzér a mennyezetre, függő kristály, terítő + befőttes-csillag az asztalra, pokróc + hímzett
+  párna az ágyra, üvegcsék + unikornis-figura a polcra, fonott kosár + kincsesládikó + kispárna a
+  padlóra, függődísz az ablakba. Így 9 dísz-zóna van, zónánként egy tárgy. Tesztelve, helyes rétegsorrenddel.
+- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), és a gyűjtemény kiterjesztése a
+  berendezésre/díszekre. Playtest javasolt (sok friss réteg).
 
 ## Megnyitás
 
