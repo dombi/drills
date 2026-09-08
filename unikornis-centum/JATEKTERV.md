@@ -196,6 +196,12 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   **sörény színét** (3 változat/bőr) és a **szemszínt** (6 szín) csillámporból. A sörény-hossz
   (rövid/alap/dús) egy KÉSŐBBI kör. (3) A pályaválasztó letisztult: kártyánként 3 szöveg-elem,
   9 rajzolt ikon, közös erdő-háttér.
+- **2026-09-08 — A BOLT ÚJRATERVEZVE („Kincseskamra + dumáló bagoly").** Eltűntek a kártyák:
+  a tárgyak most **fizikailag a fapolcon állnak**, lógó árcédulákkal; a kiválasztott megemelkedik
+  és felragyog; az adatlap **falra tűzött papírcédula**. Van **bagoly-boltos**, aki a bal alsó
+  sarokban ül, a kiválasztott tárgy felé fordul, és **megmondja, futja-e a csillámpor**
+  („Van rá elég! Marad 140 ✨" / „Még 25 ✨ kell hozzá") — a buborékra koppintva fel is olvassa.
+  Ez nem csak hangulat: egy 6-7 éves nem tud fejben kivonni, a boltos ezt veszi le a válláról.
 - **Következő:** ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
   (sok friss réteg).
 

@@ -646,3 +646,71 @@ külön kör (az a rajz-konstansok szerkezeti refaktorát igényli).
 test érintetlen); Kinézet fül 2 csoport / 10 tétel; vétel (Rózsaarany 60 → „Biztos?"; Mohazöld
 30 azonnal), „Beállítom" váltás; a kinézet minden helyen alkalmazódik (odú, profil-kártya,
 bolt-előnézet); Holmik/Időjárás/Kellékek + pálya regresszió zöld; konzol tiszta.
+
+## 2026-09-08 — A BOLT ÚJRATERVEZVE: „Kincseskamra + dumáló bagoly"
+
+A grafikai session végleges terve (`mockup-bolt-vegleges.html`, koncepciók:
+`mockup-bolt-koncepciok.html`, spec §6), producer-jóváhagyott. Ez volt a régi audit utolsó
+nyitott pontja („a bolt-háttér nem látszik"), de a producer szerint mélyebb volt a baj:
+**„nincs igazán bolt hatása"**.
+
+**Diagnózis:** a rajzolt Csillagbolt a UI MÖGÖTT ült, és átlátszatlan kártyák takarták — ezért
+nem segített volna a háttér halványítása, a **kártyákat kellett megszüntetni**.
+
+**Az egész bolt mostantól EGYETLEN 880×520 SVG** (`boltSzinterSVG`, `#odu-bolt-szinter`):
+- a tárgyak **fizikailag a fapolcon állnak**, saját talaj-árnyékkal;
+- **lógó árcédulák** a polc éléről (a kiválasztotté arany keretes) — szöveg nélkül is „bolt";
+- a kiválasztott **megemelkedik 14 px-szel és felragyog** (nem keret, nem pipa);
+- az **adatlap falra tűzött papírcédula** (gombostű, papír-forma), nem UI-panel;
+- **előtér-pult** alul → mélység; a csillámpor és az oldalszám a pult sarkán;
+- **fülek: lógó fatáblák** a cégér alatt (a régi pill-sor helyett).
+
+**A bagoly-boltos** (`boltBagolySVG`): **fixen** ül a bal alsó sarokban, egy polc-helyet
+elfoglalva — **NEM költözik** a kiválasztott tárgyhoz és nem lapozódik (producer-döntés: a boltos
+szereplő, nem kurzor). 3 póza van, amik közt csak a **szárny-path** és a **pupillák** térnek el
+(a fénypötty a pupillával mozog: 2 px-szel balra, 3 px-szel fölé). Póz-választás: nincs kiválasztás
+→ nyugalmi; felső polc → felfelé mutat; alsó polc → oldalra mutat.
+
+**A buborék nem dísz, hanem funkció** (`boltBagolySzoveg`): egy 6-7 éves nem tud fejben kivonni,
+ezért a boltos mondja meg, futja-e — „Van rá elég! Marad 140 ✨" / „Még 25 ✨ kell hozzá — gyűjts
+egy kicsit!" / „Ez már a tiéd!" / „Ez van most rajtad — jól áll!" / „Nézz csak körül nyugodtan!" /
+vásárlás után „Jó választás! Csomagolom is." A buborékra koppintva **felolvassa** (a játék hangos,
+így annak is szól, aki még nem olvas). A buborék szélessége a szöveghez igazodik
+(`getComputedTextLength`), a gombra rövid szöveg megy („még 10 ✨ kell"), a hosszú mondat a bagolyé.
+
+**Beépítési döntések, amiket menet közben hoztam:**
+- **Találati zónák:** a tárgyak szabálytalanok, ezért minden tétel köré láthatatlan 96×140
+  `<rect class="bolt-fogo">` kerül, a legfelső rétegen; a koppintás arra megy, nem a rajzra.
+  Ugyanígy a fülek, a lapozó nyilak, a buborék és a nagy gomb.
+- **Lapozás: fülön belül folytonos, 7 tétel/oldal** (nem csoportonként). Csoportonként a legtöbb
+  polc 3 tételes lett volna → félig üres polcok és 6 oldal a Holmiknál; így 3 oldal, tele polcok.
+  A csoportnév (Fej / Bal fal / …) az **adatlapra** került a tételnév alá — a polcra írva a
+  tárgyakra esett volna.
+- **Talp-illesztés `getBBox`-szal** (`boltIgazit`): nem baktam be tárgyanként transzformot, hanem
+  render után megmérem a tényleges befoglalót, és a tárgyat a talpára állítom a polcon
+  (82×84 doboz). Így minden jövőbeli tétel is magától a helyére kerül.
+- **Keretezett minta a jelenet-jellegű tételeknél** (bútor-szint, égbolt): ezek nem tárgyak, hanem
+  szobák/egek, ezért kis fakeretes bolti mintaként állnak a polcon. A ruha, a dísz és a kinézet
+  (mini unikornis) csupaszon áll — ez adja az igazi „kincseskamra" hatást.
+- **Képarány:** az SVG `preserveAspectRatio="meet"`, a körülötte maradó sáv **átlátszó**, a panel
+  háttere sötétített — így a bolt „ablakként" ül az odú fölött, és se szélesvásznon, se álló
+  tableten nem vágódik le. A sötét sávra koppintva bezárul.
+- Az „Üres" (nincs) dísz-jel halvány levendula volt → a levendula falon eltűnt; **fa-barnára**
+  sötétítve, hogy a gyerek lássa, hogy ott egy választható „semmi" van.
+
+**Törölve:** `oduBoltSVG`, `boltPolcokRajzol`, `boltAdatlapRajzol`, `boltGombRajzol`,
+`boltVeszKerdes` + a hozzájuk tartozó ~51 CSS-szabály (kártyák, polc-rácsok, régi gombok).
+**Változatlan az adat- és akció-réteg:** `boltCsoportok/Birt/Aktiv/Thumb/Kivalasztott/Valaszt/
+Vegrehajt`, `oduRuhaVesz/Visel`, `oduButorVesz/Beallit`, `oduDiszVesz/Beallit`, `oduKinezetVesz/
+Beallit`, `BOLT_TIPP`, árak, jutalom-motor.
+
+**Tesztelve:** mind a 4 fül, mind a 16 oldal, **mind a 93 tétel kiválasztva, megvéve és
+felvéve/kirakva — 0 hiba**; drága tételnél „Biztos? / Mégse"; kevés csillámpornál a bagoly a
+hiányzó összeget mondja; vétel után a szoba frissül; a buborék a következő gombnyomásra
+visszaáll az állapot-szövegre; bezárás gombbal és háttér-koppintással; mobil (375×812) és
+széles nézet; teljes pálya-visszajátszás (oszkiv-10: 42 feladat, 165 ✨, arany szilánk) — a
+pálya-motor érintetlen. Konzol tiszta.
+
+**Nyitott, a grafikai sessionnek jelezve:** a bútor-szintek keretezett szoba-mintái 76 px-en
+szinte megkülönböztethetetlenek (a különbség a szobában van, nem a tárgyon) — ha ez zavar,
+ahhoz szint-jelölő tárgy-ikonok kellenének.
