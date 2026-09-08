@@ -179,6 +179,31 @@ var PALYAK = [
   }
 ];
 
+/* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
+var PALYA_IKON = {
+  "bontas-felmondas": '<ellipse cx="30" cy="38" rx="13" ry="15" fill="#e0b47e" stroke="#222" stroke-width="1.6"/> <path d="M16 26 Q30 18 44 26 Q44 32 30 33 Q16 32 16 26 Z" fill="#a9814e" stroke="#222" stroke-width="1.6"/> <path d="M30 18 Q30 12 32 9" stroke="#8f6a3e" stroke-width="2.4" fill="none" stroke-linecap="round"/> <path d="M24 36 Q30 42 36 36" stroke="#c9a06a" stroke-width="1.6" fill="none"/>',
+  "oszkiv-10": '<path d="M25 12 h10 v13 h13 v10 h-13 v13 h-10 v-13 h-13 v-10 h13 Z" fill="#c9a8e6" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>',
+  "oszkiv-20": '<path d="M13 25 h34 v10 h-34 Z" fill="#9ec9f0" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>',
+  "tizesek": '<path d="M12 20 Q30 17 48 20 Q50 32 48 42 Q30 45 12 42 Q10 32 12 20 Z" fill="#d9b48a" stroke="#222" stroke-width="1.6"/> <path d="M15 26 Q30 24 45 26" stroke="#c9a06a" stroke-width="1.4" fill="none"/> <text x="30" y="38" text-anchor="middle" font-family="system-ui" font-size="16" font-weight="800" fill="#4a3b2a">10</text> <path d="M24 15 Q30 8 36 15" stroke="#8f6a3e" stroke-width="2.4" fill="none"/>',
+  "aprok": '<ellipse cx="20" cy="32" rx="7" ry="6" fill="#6a4a3a" stroke="#222" stroke-width="1.4"/> <ellipse cx="31" cy="33" rx="6" ry="5" fill="#6a4a3a" stroke="#222" stroke-width="1.4"/> <ellipse cx="42" cy="31" rx="8" ry="7" fill="#6a4a3a" stroke="#222" stroke-width="1.4"/> <g stroke="#4a3428" stroke-width="1.6" stroke-linecap="round"> <path d="M26 30 l-4 -8"/><path d="M31 29 l1 -9"/><path d="M36 30 l5 -8"/> <path d="M24 37 l-5 7"/><path d="M32 38 l0 8"/><path d="M39 37 l5 7"/> <path d="M47 27 l5 -5"/><path d="M47 33 l6 2"/> </g> <circle cx="45" cy="29" r="1.3" fill="#fff"/>',
+  "lepegeto": '<!-- halvány hátsó lépés: érzékelteti a lépegetést --> <g opacity="0.3"> <path d="M13 36 Q11 45 15 51 Q18 55 22 54 Q26 53 28 48 Q31 41 29 34 Q21 32 13 36 Z" fill="#f7c59f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <g fill="#f7c59f" stroke="#222" stroke-width="1.2"> <circle cx="13" cy="30" r="2.6"/><circle cx="19" cy="27" r="2.4"/><circle cx="25" cy="28" r="2.1"/> </g> </g> <!-- fő lábnyom --> <path d="M25 24 Q22 36 27 45 Q31 51 36 50 Q42 49 45 42 Q49 33 46 23 Q36 19 25 24 Z" fill="#f7c59f" stroke="#222" stroke-width="1.7" stroke-linejoin="round"/> <path d="M28 32 Q35 36 42 31" stroke="#e0a878" stroke-width="1.5" fill="none"/> <g fill="#f7c59f" stroke="#222" stroke-width="1.4"> <circle cx="25" cy="17" r="3.5"/><circle cx="33" cy="13" r="3.3"/> <circle cx="40" cy="13" r="2.9"/><circle cx="46" cy="16" r="2.5"/> </g>',
+  "atlepo": '<ellipse cx="15" cy="42" rx="10" ry="6" fill="#c9bda8" stroke="#222" stroke-width="1.5"/> <ellipse cx="45" cy="42" rx="10" ry="6" fill="#c9bda8" stroke="#222" stroke-width="1.5"/> <path d="M17 34 Q30 14 43 34" stroke="#8fbf7a" stroke-width="3" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/> <path d="M43 34 l-5 -2 l1 5 Z" fill="#8fbf7a"/>',
+  "erdo-melye": '<path d="M30 10 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 22 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="42" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
+  "erdo-szive": '<circle cx="30" cy="28" r="21" fill="#ffe9ad" opacity="0.55"/> <path d="M30 9 l11 16 l-22 0 Z" fill="#5f9c4e" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 21 l14 20 l-28 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="41" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/> <path d="M30 30 c-3 -4 -8 -1 -5 3 c1.6 2 3.4 3.4 5 4.6 c1.6 -1.2 3.4 -2.6 5 -4.6 c3 -4 -2 -7 -5 -3 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.1"/>',
+};
+var PALYA_MAT = {
+  "bontas-felmondas": "hangosan, lentről fölfelé",
+  "oszkiv-10": "10-ig, átlépés nélkül",
+  "oszkiv-20": "20-ig, tízes átlépéssel",
+  "tizesek": "csak kerek tízesek",
+  "aprok": "kétjegyű ± egyjegyű",
+  "lepegeto": "kétjegyű ± kerek tízes",
+  "atlepo": "kétjegyű ± egyjegyű, átlépéssel",
+  "erdo-melye": "kétjegyű ± kétjegyű",
+  "erdo-szive": "kétjegyű ± kétjegyű, átlépéssel",
+};
+var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="eg2" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#d8ecf8"/><stop offset="0.45" stop-color="#e6f2ea"/> <stop offset="1" stop-color="#eaf4e2"/> </linearGradient> <radialGradient id="nap2" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#fff6d0" stop-opacity="0.85"/> <stop offset="1" stop-color="#fff6d0" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#eg2)"/> <circle cx="985" cy="80" r="90" fill="url(#nap2)"/> <circle cx="985" cy="80" r="30" fill="#fff2b8" opacity="0.7"/> <g fill="#ffffff" opacity="0.5"> <ellipse cx="210" cy="70" rx="52" ry="17"/><ellipse cx="250" cy="61" rx="34" ry="14"/> <ellipse cx="640" cy="46" rx="42" ry="15"/><ellipse cx="672" cy="55" rx="26" ry="11"/> </g> <!-- távoli dombsor --> <path d="M0 300 Q160 268 320 296 Q480 322 640 292 Q800 262 960 296 Q1060 316 1120 298 L1120 760 L0 760 Z" fill="#cfe8c2" opacity="0.8"/> <!-- fa-sziluettek: csak a peremen, hogy a kártyák tiszták maradjanak --> <g opacity="0.72"> <g fill="#8fbf7a"> <path d="M60 300 l26 66 l-52 0 Z"/><path d="M60 336 l32 78 l-64 0 Z"/><rect x="54" y="410" width="12" height="26" fill="#a9814e"/> <path d="M150 340 l22 56 l-44 0 Z"/><path d="M150 372 l27 66 l-54 0 Z"/><rect x="145" y="434" width="10" height="22" fill="#a9814e"/> <path d="M1060 300 l26 66 l-52 0 Z"/><path d="M1060 336 l32 78 l-64 0 Z"/><rect x="1054" y="410" width="12" height="26" fill="#a9814e"/> <path d="M968 344 l22 56 l-44 0 Z"/><path d="M968 376 l27 66 l-54 0 Z"/><rect x="963" y="438" width="10" height="22" fill="#a9814e"/> </g> <g fill="#7fae5f"> <ellipse cx="330" cy="322" rx="30" ry="22"/><ellipse cx="470" cy="312" rx="24" ry="18"/> <ellipse cx="700" cy="316" rx="28" ry="20"/><ellipse cx="840" cy="326" rx="22" ry="16"/> </g> </g> <!-- talaj --> <path d="M0 700 Q280 676 560 700 Q840 724 1120 698 L1120 760 L0 760 Z" fill="#bfe3a0" opacity="0.9"/> <g fill="#fff6c4" opacity="0.7"> <circle cx="120" cy="180" r="3"/><circle cx="420" cy="150" r="2.4"/><circle cx="760" cy="170" r="2.6"/> <circle cx="900" cy="230" r="2.2"/><circle cx="270" cy="250" r="2.2"/> </g> </svg>';
+
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -1130,31 +1155,28 @@ function renderProfil() {
 }
 function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
+  var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
   var sor = P().sorozat || { hossz: 0, utolsoPalya: null };
   var kovSzorzo = (sor.hossz >= 2) ? 3 : (sor.hossz >= 1 ? 2 : 1);
-  PALYAK.forEach(function (pa) {
+  PALYAK.forEach(function (pa, idx) {
     var prc = P().palyak[pa.id];
     var kesz = prc && prc.kesz, arany = prc && prc.arany;
     var bontas = (pa.id === "bontas-felmondas");
     var feladatErtek = bontas ? jutalom("felmondas", pa) : jutalom("feladat", pa);
     var vegig = palyaBecsultErtek(pa);
+    var mat = PALYA_MAT[pa.id] || pa.palcim;
     var mutatSzorzo = (kovSzorzo > 1 && pa.id !== sor.utolsoPalya && !pa.hamarosan);
     var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (arany ? " arany" : (kesz ? " kesz" : "")));
-    var ertekSor = pa.hamarosan ? "" :
-      '<div class="palya-ertek">' +
-        '<span class="cimke">1 ' + (bontas ? "bontás" : "feladat") + ' = ' + feladatErtek + ' ✨</span>' +
-        '<span class="cimke ossz">végig ≈ ' + vegig + ' ✨</span>' +
-      '</div>' +
-      '<div class="palya-teljes">🌟 <b>kihagyás nélkül</b> = arany szilánk + dupla záró-bónusz</div>';
     kart.innerHTML =
       (mutatSzorzo ? '<div class="palya-szorzo">×' + kovSzorzo + '</div>' : '') +
-      '<div class="allapot">' + (pa.hamarosan ? "🔜" : (arany ? "🌟" : (kesz ? "⭐" : ""))) + '</div>' +
-      '<div class="ikon">' + pa.ikon + '</div>' +
+      '<div class="sorszam">' + (idx + 1) + '</div>' +
+      '<div class="allapot">' + (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : ""))) + '</div>' +
+      '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
-      '<div class="palcim">' + kiiras(pa.palcim) + '</div>' +
-      ertekSor +
-      (pa.hamarosan ? "" : '<button class="palya-felolvas" title="Olvasd fel">🔊</button>');
+      '<div class="palcim">' + kiiras(mat) + '</div>' +
+      (pa.hamarosan ? "" :
+        '<div class="also"><span class="jutalom">≈ ' + vegig + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
     kart.addEventListener("click", function () {
       hangGomb();
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
@@ -1163,7 +1185,7 @@ function renderFomenu() {
     var fbtn = kart.querySelector(".palya-felolvas");
     if (fbtn) fbtn.addEventListener("click", function (e) {
       e.stopPropagation(); hangGomb();
-      var mondat = kiiras(pa.nev) + ". Egy " + (bontas ? "bontás felmondása" : "feladat") + " " + feladatErtek + " csillámpor. Az egész pálya körülbelül " + vegig + " csillámpor." +
+      var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         (mutatSzorzo ? (" Most " + (kovSzorzo >= 3 ? "háromszorosát" : "duplát") + " éri!") : "") +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       mondd(mondat);

@@ -593,3 +593,28 @@ Tesztelve mind a 3 bőrön, 380/200/135 px méretben: a fej simán illeszkedik (
 lábak nem lógnak ki, a szem érintetlen. Profil-kártya + pálya-térkép + odú + bolt-előnézet
 regresszió zöld, konzol tiszta. Az eredeti `unikornis-*.svg` (nem a game-ben lévő) a grafikai
 session-nél megmaradt, van visszaút.
+
+## 2026-09-08 — Pályaválasztó letisztítva + közös erdő-háttér
+
+A grafikai session leadta (`mockup-palyavalaszto.html`, `spec-grafikai-eszkozlista.html §6`),
+a producer jóváhagyta. Indok: a kártyákon 5-féle szöveg volt, egy 6-7 éves ebből semmit sem olvas,
+és a legalsó sor mind a 9-en szó szerint azonos volt.
+
+- **Kártya: 5 → 3 szöveg-elem.** Kivéve: a hosszú `palcim` leírás (→ helyette max 4 szavas
+  **matek-sor**, `PALYA_MAT`), a 7.1d-s **„1 feladat = N ✨" chip** (a választáshoz a végösszeg
+  elég), és a 9× ismételt **„kihagyás nélkül = arany szilánk" sor** (→ egyszer a fejlécbe, a
+  `.fomenu-szabaly` pillbe). **Marad:** sorszám · rajzolt ikon · név · matek-sor · `≈ N ✨` chip
+  · 🔊 · ⭐/🌟 ha kész/arany · ×N sorozat-szorzó jelvény.
+- **9 rajzolt ikon** (`PALYA_IKON`, 60×60 viewBox) az emoji helyett — a `pa.ikon` emoji fallback
+  marad, ha valamiért nincs rajzolt. A 6-osnál (Tízes-lépegető) szándékosan lábnyomos ikon
+  (fő + halvány hátsó lépés), a producer kérésére. Az emoji rendszerenként más; ezek egységesek.
+- **Közös erdő-háttér** (`FOMENU_HATTER`, `#fomenu-hatter` abszolút réteg a `#kepernyo-fomenu`
+  mögött, `viewBox 0 0 1120 760 preserveAspectRatio="none"`): ég-gradiens + nap + felhők +
+  dombsor + fa-sziluettek + zöld talaj. A **fák csak a peremen**, a kártyák mögött nyugodt a
+  felület; a `.palya-racs` oldalpaddingja 54 px, hogy a fák kilátszódjanak (600 px alatt 20 px +
+  a fejléc-pill elrejtve).
+- **Tesztelve:** 9 kártya renderel a rajzolt ikonokkal, a régi `.palya-ertek`/`.palya-teljes`
+  eltűnt, a fejléc-pill megvan, a háttér renderel; kártya-kattintás indítja a pályát, a 🔊
+  nem indít (stopPropagation), a felolvasó szöveg a névvel + matek-sorral + végösszeggel megy;
+  konzol tiszta. A `renderFomenu` a `pa.szint` alapú `jutalom()`/`palyaBecsultErtek()` végösszeget
+  használja (a 7.1a jutalom-rendszer változatlan, csak a kártyán kevesebb szám látszik).
