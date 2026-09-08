@@ -190,8 +190,14 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   zászlófüzér a mennyezetre, függő kristály, terítő + befőttes-csillag az asztalra, pokróc + hímzett
   párna az ágyra, üvegcsék + unikornis-figura a polcra, fonott kosár + kincsesládikó + kispárna a
   padlóra, függődísz az ablakba. Így 9 dísz-zóna van, zónánként egy tárgy. Tesztelve, helyes rétegsorrenddel.
-- **Következő:** ODÚ v4 (kinézet: szemszín + sörény szín/hossz), és a gyűjtemény kiterjesztése a
-  berendezésre/díszekre. Playtest javasolt (sok friss réteg).
+- **2026-09-08 — Unikornis-alaprajz javítás + ODÚ v4 „Kinézet" (A rész) + pályaválasztó letisztítás.**
+  (1) Az unikornis feje simán illeszkedik a testhez (nincs „két buborék" varrat), a lábak nem lógnak
+  ki; a sörény/farok/szem változatlan. (2) A bolt **„Kinézet" füle megnyílt**: a gyerek állíthatja a
+  **sörény színét** (3 változat/bőr) és a **szemszínt** (6 szín) csillámporból. A sörény-hossz
+  (rövid/alap/dús) egy KÉSŐBBI kör. (3) A pályaválasztó letisztult: kártyánként 3 szöveg-elem,
+  9 rajzolt ikon, közös erdő-háttér.
+- **Következő:** ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
+  (sok friss réteg).
 
 ## Megnyitás
 

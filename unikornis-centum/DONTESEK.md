@@ -618,3 +618,31 @@ a producer jóváhagyta. Indok: a kártyákon 5-féle szöveg volt, egy 6-7 éve
   nem indít (stopPropagation), a felolvasó szöveg a névvel + matek-sorral + végösszeggel megy;
   konzol tiszta. A `renderFomenu` a `pa.szint` alapú `jutalom()`/`palyaBecsultErtek()` végösszeget
   használja (a 7.1a jutalom-rendszer változatlan, csak a kártyán kevesebb szám látszik).
+
+## 2026-09-08 — ODÚ v4 „Kinézet" — sörény-szín + szemszín (A rész)
+
+A grafikai session art-direkciója (`spec-odu-v4-kinezet.html`, producer-jóváhagyott). A producer
+döntése: **most a szín + szemszín** (Sonnet-méret), a **sörény-hossz** (rövid/alap/dús) KÉSŐBB
+külön kör (az a rajz-konstansok szerkezeti refaktorát igényli).
+
+- **`SORENY_SZIN`** (bőrönként 3 hármas: C1 fő / C2 mély / C3 csillanás) + **`SZEM_SZIN`** (Alap +
+  6 named hex) + **`SZEM_ALAP`** (bőr-alapértelmezett írisz). A Holdezüst C2-je `#a49cc0`-ra
+  sötétítve (spec-ajánlás a világos Ragyogás-testhez).
+- **Recolor scope:** a `UNI_KORALL/KEK/ROZSA` konstansokban a sörény-fő + 5 csík + homlok-tincs +
+  farok elemei `<g class="ucg">` markerbe kerültek (3 csoport × 3 bőr). `ucgSzinez()` CSAK ezeken
+  belül cseréli C1→C2→C3-at (placeholder-tokenes csere a dupla-alkalmazás ellen). A szemszín az
+  egyetlen `<circle ... r="5" fill="{bőr-alap}">` írisz-kört cseréli. A test / szarv / fül /
+  oldaljel / szem-fehér / pilla NEM változik.
+- **`unikornisSVG(id, c, meret, oltozet, kinezet)`** — új opcionális 5. paraméter. Ha `undefined`,
+  a `P().kinezet`-ből olvas; a profil-kártya (más profil!) `p.kinezet`-et ad át; `null` = alap.
+- **Bolt „Kinézet" fül feloldva:** 2 csoport (Sörény színe: 3 tétel, 60 ✨ a nem-alap; Szemszín:
+  7 tétel, 30 ✨). `boltCsoportok/Birt/Aktiv/Thumb/AdatlapRajzol/GombRajzol/Vegrehajt` „kinezet"
+  ág; `oduKinezetVesz`/`oduKinezetBeallit` (vétel → rögtön felvéve; „Beállítom" a birtokoltak
+  közt vált). Bélyegkép + előnézet = a te unikornisod az adott változattal (`kinezetPreview`).
+- **Mentés:** `P().kinezet = { sorenySzin, szemSzin, vanSoreny, vanSzem }` (`alapKinezet()`,
+  `betolt()` pótol; a 0-s alap mindig birtokolt).
+
+**Tesztelve** (`window.UC`): mind a 3 sörény-szín + 7 szemszín renderel (a recolor scope-olt, a
+test érintetlen); Kinézet fül 2 csoport / 10 tétel; vétel (Rózsaarany 60 → „Biztos?"; Mohazöld
+30 azonnal), „Beállítom" váltás; a kinézet minden helyen alkalmazódik (odú, profil-kártya,
+bolt-előnézet); Holmik/Időjárás/Kellékek + pálya regresszió zöld; konzol tiszta.
