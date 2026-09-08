@@ -567,3 +567,29 @@ A grafikai session 2. adaga (`mockup-odu-targyak-2.html`), a producer jóváhagy
 - **Tesztelve:** mind a 12 ikon helyes párosítással renderel (cellánként, mint az 1. adagnál); 18
   bolt-csoport / 57 slot; mind a 9 zóna kirakva (~245 ✨), z-sorrend jó; extra füzér vétele + megjelenés;
   bútor + Holmik/Időjárás + pálya regresszió zöld; konzol tiszta.
+
+## 2026-09-08 — Unikornis-alaprajz javítás (láb + fej-varrat)
+
+A grafikai session az audit 1. pontjából javítást adott le (`mockup-unikornis-javitas.html` +
+`unikornis-*-javitott.svg`), a producer jóváhagyta. **A sörény és a farok VÁLTOZATLAN maradt**
+(a gyerekek rajza) — a tervezett „kúpos tincs" átdolgozást a producer visszavonta. Csak 2 dolog
+változott, mindhárom bőrön (`UNI_KORALL/KEK/ROZSA`):
+
+- **Lábak:** a 4 láb felső éle 14–20 px-szel feljebb (a test-ovál mögé bújik), így a felső sarkok
+  nem lógnak ki. Új path-ok: `M102 208…`, `M135 216…`, `M177 216…`, `M212 208…`. A látható rész
+  és a sziluett változatlan.
+- **Fej:** az egy fej-path szétvált **kitöltésre** (`stroke="none"`, balra 3 px-szel túlnyúlva,
+  eltakarja a test kontúrját) + **kontúrra** (`fill="none"`, csak a LÁTHATÓ ív, `M232 117.5 …
+  267.5 167.5`). Ez szünteti meg a „két buborék" varratot a fej és a test találkozásánál.
+
+**A szemet NEM módosítottam:** a grafikai session javított SVG-je a szemet is elmozdítaná
+(300,112 → 305,117), de a game-ben a szem MÁR egy későbbi, kifejezőbb változat (`ee341ce`,
+`circle cx=301 cy=112.5`, r5 külső / r3 belső + szemhéj/pilla/fénypötty), amit a standalone
+`.svg` nem tartalmaz. A fej-geometria nem mozdult, így a szem a helyén marad. A grafikai
+session-nek jeleztem, hogy a v4 szemszín-írisz a game `r="5"` körére vonatkozzon, ne a spec
+`r="3.6"`-jára.
+
+Tesztelve mind a 3 bőrön, 380/200/135 px méretben: a fej simán illeszkedik (nincs varrat), a
+lábak nem lógnak ki, a szem érintetlen. Profil-kártya + pálya-térkép + odú + bolt-előnézet
+regresszió zöld, konzol tiszta. Az eredeti `unikornis-*.svg` (nem a game-ben lévő) a grafikai
+session-nél megmaradt, van visszaút.
