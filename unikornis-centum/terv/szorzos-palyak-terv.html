@@ -42,7 +42,9 @@
     <ul style="margin:6px 0">
       <li><b>4 pálya:</b> A szorzódallam (felmondós) · B egy szám bűvköre · C tiszta osztás · D vegyes.</li>
       <li><b>Teljes szorzótábla, 10×10-ig</b> (eredmény ≤ 100).</li>
-      <li><b>Külön „szorzós liget"</b> a főképernyőn (elválasztva a +/- pályáktól).</li>
+      <li><b>Két régió a főképernyőn:</b> <b>Összeadó liget</b> (a jelenlegi +/- pályák) és
+        <b>Szorzós liget</b> (az új 4 pálya). Mindegyik élén a maga felmondós kulcs-pályája:
+        a bontás az Összeadó ligetben, a szorzódallam a Szorzós ligetben.</li>
       <li><b>Teljes mondatos felmondás:</b> „egyszer öt az öt, kétszer öt az tíz…"</li>
       <li><b>B fókuszált marad</b> (állomásonként egy tábla, ×+÷ keverve); C és D teljesen kevert táblájú.</li>
       <li><b>Táblák sorrendje:</b> könnyebbtől nehézig, de keverve (nem szigorú 2→3→4).</li>
@@ -53,10 +55,16 @@
   </div>
 
   <!-- ============================================================ -->
-  <h2>1. A szorzós liget – áttekintés</h2>
-  <p>A jelenlegi 9 pálya az összeadás-kivonás témakör. A szorzás-osztás <b>külön régió</b>
-     („szorzós liget") a főképernyőn – saját kártya-csoport, vizuálisan elkülönítve. Négy pálya,
-     mind a <b>közös erdő-motoron</b> (ugyanaz az állomás-séta, bagoly, kerülő, felolvasás).</p>
+  <h2>1. A két liget – áttekintés</h2>
+  <p>A főképernyő mostantól <b>két régióra</b> tagolódik, párhuzamos szerkezettel:</p>
+  <table>
+    <tr><th>Régió</th><th>Tartalom</th><th>Kulcs-pálya (élén)</th></tr>
+    <tr><td><b>Összeadó liget</b></td><td>a jelenlegi 9 összeadás-kivonás pálya</td><td>Mondd el a bontásokat 🌰</td></tr>
+    <tr><td><b>Szorzós liget</b></td><td>a 4 új szorzás-osztás pálya</td><td>Szorzódallam 🎵</td></tr>
+  </table>
+  <p>Mindkét liget a <b>közös erdő-motoron</b> fut (ugyanaz az állomás-séta, bagoly, kerülő,
+     felolvasás), csak vizuálisan elkülönített kártya-csoport. A két <b>felmondós kulcs-pálya</b>
+     (bontás + szorzódallam) együtt nyitja a 12 órás kaput (6.).</p>
   <table>
     <tr><th>#</th><th>Pálya</th><th>id (javaslat)</th><th>Matek</th><th>Jelleg</th></tr>
     <tr><td>A</td><td>Szorzódallam 🎵</td><td><code>szorzo-dallam</code></td><td>szorzótábla felmondása egyben, hangosan</td><td><b>felmondós</b> (a bontás ikre) · <b>kulcs-pálya</b></td></tr>
