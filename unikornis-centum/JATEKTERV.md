@@ -202,7 +202,14 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   sarokban ül, a kiválasztott tárgy felé fordul, és **megmondja, futja-e a csillámpor**
   („Van rá elég! Marad 140 ✨" / „Még 25 ✨ kell hozzá") — a buborékra koppintva fel is olvassa.
   Ez nem csak hangulat: egy 6-7 éves nem tud fejben kivonni, a boltos ezt veszi le a válláról.
-- **Következő:** ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
+ - **2026-09-11 — SZORZÓS LIGET (1a).** A pályaválasztó két ligetre tagolódik: **Összeadó liget**
+  (a jelenlegi 9 pálya) és **Szorzós liget** (4 új szorzás-osztás pálya). Ebből most 3 él:
+  **Egy szám bűvköre** 🔮 (egy szám × és ÷ együtt), **Osztogató tisztás** ➗ (osztás 100-ig),
+  **Szám-rengeteg** 🌲 (× és ÷ keverve). A negyedik, a **Szorzódallam** 🎵 (a szorzótábla
+  felmondása, mint a bontás) hamarosan jön. A jutalom-pontok a jóváhagyott, kisebb (~1560-as)
+  rendszerre álltak át — minden pálya ✨-értéke ehhez igazodott.
+- **Következő:** a Szorzódallam (felmondás) + a rejtett 12 órás kapu + a közös 13-szilánkos ég;
+  majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
   (sok friss réteg).
 
 ## Megnyitás

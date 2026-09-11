@@ -714,3 +714,47 @@ pálya-motor érintetlen. Konzol tiszta.
 **Nyitott, a grafikai sessionnek jelezve:** a bútor-szintek keretezett szoba-mintái 76 px-en
 szinte megkülönböztethetetlenek (a különbség a szobában van, nem a tárgyon) — ha ez zavar,
 ahhoz szint-jelölő tárgy-ikonok kellenének.
+
+## 2026-09-11 — Szorzós liget 1a: gazdaság-átméretezés + 3 pálya + generátorok + kétligetes pályaválasztó
+
+A `szorzos-palyak-terv.html` + `spec-palya-adatlap-szorzos.html` (producer-jóváhagyott, végigdöntve
+2026-09-11) alapján. A #1 első, tesztelt fele. **Az A pálya (Szorzódallam, felmondós) még
+`hamarosan` — a felmondás-motor a következő lépés (1b).**
+
+**Gazdaság-átméretezés (rendszerterv H7.1a, „átméretezve 2026-09-11").** A kódban még a RÉGI, nagy
+pontrendszer volt; a jóváhagyott kánon már a ~1560-as. A `jutalom()` átállítva az élő táblára:
+feladat **1 ✨ (szint 1–4) / 2 ✨ (5–8)**, felmondás **9 ✨**, állomás **+1**, pálya vége **5×szint**,
+tipp után +1. **Következmény: minden meglévő pálya ✨-értéke csökken** (pl. a bontás ~450→~160) —
+ez teszi a bolt-katalógust (~4190 ✨) ~2,7 végigjátszásnyivá. A `palyaBecsultErtek` a
+szorzótábla-felmondást is felmondásként (9 ✨) számolja. Ellenőrzött összeg: mind a 13 pálya
+egyszeri, kerülő nélküli (teljes ösvény) végigjátszása ≈ 1606 ✨ ≈ a terv ~1560 célja.
+
+**3 új generátor a GEN-be** (a spec generátor-elvárása szerint):
+- `szorzas` — a×b ≤ 100; fókusz N a `cfg.szorzo`, vagy a `cfg.tablak`-ból sorsolt tábla.
+- `osztas` — mindig maradék nélkül: hányadosból építve (d×q, kérdés (d·q)÷d, válasz q).
+- `szorzasosztas` — állomáson belül ×/÷ ~fele-fele (B és D pálya).
+- Segédek: `szorSzo` (egyszer/kétszer/… -szor toldalék), `osztVal` (kettővel/…/tízzel),
+  `azSzo` (a/az a kimondott szám kezdőhangja szerint). A tipp-szövegek a
+  `spec-hang-es-beszed.html` kánonját követik (a promptoló session ma bővítette a spec-et a
+  szorzós felolvasás- és tipp-sablonokkal — a felolvasásaim egyeznek vele).
+
+**3 pálya (B/C/D)** a PALYAK-ban, `regio:"szorzo"` mezővel:
+- B „Egy szám bűvköre" 🔮 (szint 4) — állomásonként egy fókusz-szám, ×/÷ keverve; a „nehéz"
+  állomás `szorzo_keszlet:[7,8,9]`-ből egyet sorsol az egész állomásra (`J.allomasSzorzo`).
+- C „Osztogató tisztás" ➗ (szint 5) — tiszta osztás, az osztók halmaza állomásonként tágul, keverve.
+- D „Szám-rengeteg" 🌲 (szint 7) — minden kérdés véletlenül ×/÷, a táblák halmaza tágul.
+- A „Szorzódallam" 🎵 (szint 8, felmondós) egyelőre `hamarosan` (1b).
+
+**Kétligetes pályaválasztó.** A `renderFomenu` régió-fejlécet szúr be régióváltáskor
+(🌰 Összeadó liget / ✖️ Szorzós liget), teljes sort átfogó `.palya-regio-cim`. A 4 új kártya a
+grafikai session rajzolt ikonjaival (`PALYA_IKON`: hangjegy / kristálygömb / osztásjel / 3 fenyő) —
+vizuálisan ellenőrizve a helyes párosítás. **A grafika külön alkonyi Szorzós-liget hátteret
+(`SZORZOS_HATTER`) is leadott — az a producer vétójára vár, egyelőre a közös háttéren fut.**
+
+**„Az erdő ura" jelvény** az Összeadó liget 9 pályájára szűkítve (a szorzós bővítés ne
+változtassa meg csendben a „mind kész" követelményt; így teljesíthető marad).
+
+**Tesztelve:** 13 pálya / 2 régió renderel; szorzás-osztás-vegyes generátorok matek-helyesek,
+felolvasás + tipp korrekt (a/az is); B pálya teljes végigjátszása aranyig; a rescale-összeg ~1606;
+konzol tiszta. **A felmondás-motor (A pálya) + a 12 órás kapu + a 13-szilánkos ég a következő
+lépések.**

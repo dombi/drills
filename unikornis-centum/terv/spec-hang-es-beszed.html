@@ -31,9 +31,10 @@
 <div class="wrap">
 
   <h1>🔊 Spec – Hang és beszéd</h1>
-  <p class="mottoo">Felolvasó-szövegsablonok, magyar számfelismerés 0–100, a bontás elfogadási
-     szabálya, mikrofon-engedély folyamat, és a hangeffektek. Ez a projekt technikailag
-     legkockázatosabb része – ezért a részletes spec.</p>
+  <p class="mottoo">Felolvasó-szövegsablonok, magyar számfelismerés 0–100, a bontás és a
+     szorzótábla-felmondás elfogadási szabálya, a szorzás/osztás toldalékai, mikrofon-engedély
+     folyamat, és a hangeffektek. Ez a projekt technikailag legkockázatosabb része – ezért a
+     részletes spec. <span class="mini">(Szorzós liget kiegészítés: 2026-09-11.)</span></p>
 
   <!-- ============================================================ -->
   <h2>1. Felolvasás (Text-to-Speech)</h2>
@@ -56,12 +57,18 @@
     <tr><td>Összeadás</td><td>„Mennyi {a} meg {b}?" &nbsp;<span class="mini">(pl. „Mennyi negyvenhét meg hat?")</span></td></tr>
     <tr><td>Kivonás</td><td>„Vegyél el {b}-t {a}-ból. Mennyi marad?"</td></tr>
     <tr><td>Számbontás</td><td>„Mondd el a {N} összes bontását! Kezdd lentről: nulla meg {N}, egy meg {N−1}, és így tovább."</td></tr>
+    <tr><td>Szorzás <span class="mini">(Szorzós liget)</span></td><td>„{a}-szer/-szor {b}. Mennyi?" &nbsp;<span class="mini">(pl. „hétszer nyolc. Mennyi?")</span></td></tr>
+    <tr><td>Osztás <span class="mini">(Szorzós liget)</span></td><td>„{osztandó} osztva {d}-vel/-val. Mennyi?" &nbsp;<span class="mini">(pl. „ötvenhat osztva nyolccal. Mennyi?")</span></td></tr>
+    <tr><td>Szorzótábla-felmondás <span class="mini">(Szorzódallam)</span></td><td>„Mondd fel a {N}-es/-os szorzótáblát! Egyszer {N} az {N}, kétszer {N} az {2N}, és így tovább."</td></tr>
     <tr><td>Állomásra érkezés</td><td>„{állomásnév}. {a fenti feladat-mondat}"</td></tr>
     <tr><td>Jó válasz <span class="mini">(csak minden 3.-nál mondja ki)</span></td><td>„Ez az! {eredmény}."</td></tr>
     <tr><td>Rossz – 1.</td><td>„Nem talált. Próbáld újra!"</td></tr>
     <tr><td>Rossz – 2. (tipp), + átlépéssel</td><td>„Told fel kerek tízesig. {a} meg {10 − a%10} az {a + (10 − a%10)}. Mennyi van még hátra a {b}-ből?"</td></tr>
     <tr><td>Rossz – 2. (tipp), − átlépéssel</td><td>„Előbb vegyél el {a%10}-t: {a} mínusz {a%10} az {a − a%10}. Mennyi van még hátra?"</td></tr>
     <tr><td>Rossz – 2. (tipp), bontás</td><td>„Kezdd lentről: nulla meg {N}. Aztán egy meg {N−1}. Folytasd!"</td></tr>
+    <tr><td>Rossz – 2. (tipp), szorzás</td><td>„Gondolj a {a}-es/-os táblára: {a}-szer/-szor {b−1} az {a·(b−1)}, meg még egy {a}. Mennyi az?"</td></tr>
+    <tr><td>Rossz – 2. (tipp), osztás</td><td>„Fordítva: hányszor {d} az {osztandó}? {d}-szer/-szor mennyi az {osztandó}?"</td></tr>
+    <tr><td>Rossz – 2. (tipp), tábla-felmondás</td><td>„Kezdd az elején: egyszer {N} az {N}. Aztán kétszer {N} az {2N}. Folytasd!"</td></tr>
     <tr><td>Állomás kész</td><td>„Ügyes! Mehetünk tovább."</td></tr>
     <tr><td>Pálya vége</td><td>„Megérkeztünk! {jó válaszok száma} feladatot oldottál meg."</td></tr>
     <tr><td>Kerülő választása</td><td>„Menjünk a hosszú úton."</td></tr>
@@ -70,6 +77,35 @@
   <p class="mini">A számokat a felolvasónak szóban adjuk át (pl. „negyvenhét"), nem számjegyként –
      így minden hangon jól szól. A szám→szó függvény a meglévő motor <code>szamSzoval()</code>-ja
      kibővítve 100-ig.</p>
+
+  <h3>1.2 Toldalékok a szorzás/osztás felolvasásában <span class="mini">(kánon – ne térjünk el tőle)</span></h3>
+  <p>A magyar toldalék a szám <b>kiejtett</b> alakjához hasonul, nem a számjegyhez. Két helyen kell:
+     a szorzásnál a <b>-szer/-szor/-ször</b> („hétszer", „nyolcszor"), az osztásnál a
+     <b>-val/-vel</b> („nyolccal", „öttel"). Mivel az osztó és a szorzó is csak 1–10, elég egy
+     <b>fix kis tábla</b> – ne szabályból számoljuk, mert a hasonulás rendhagyó (négy→néggyel).</p>
+  <table>
+    <tr><th>Szám</th><th>Kiejtve</th><th>× „-szor" alak <span class="mini">(szorzás)</span></th><th>÷ „-val" alak <span class="mini">(osztás osztója)</span></th></tr>
+    <tr><td>1</td><td>egy</td><td>egyszer</td><td>eggyel</td></tr>
+    <tr><td>2</td><td>kettő</td><td>kétszer</td><td>kettővel</td></tr>
+    <tr><td>3</td><td>három</td><td>háromszor</td><td>hárommal</td></tr>
+    <tr><td>4</td><td>négy</td><td>négyszer</td><td>néggyel</td></tr>
+    <tr><td>5</td><td>öt</td><td>ötször</td><td>öttel</td></tr>
+    <tr><td>6</td><td>hat</td><td>hatszor</td><td>hattal</td></tr>
+    <tr><td>7</td><td>hét</td><td>hétszer</td><td>héttel</td></tr>
+    <tr><td>8</td><td>nyolc</td><td>nyolcszor</td><td>nyolccal</td></tr>
+    <tr><td>9</td><td>kilenc</td><td>kilencszer</td><td>kilenccel</td></tr>
+    <tr><td>10</td><td>tíz</td><td>tízszer</td><td>tízzel</td></tr>
+  </table>
+  <div class="kesz">
+    <b>Kódban:</b> két kis konstans-tábla (<code>SZORZO_SZO[1..10]</code> és <code>OSZTO_SZO[1..10]</code>),
+    a felolvasó ezekből épít. A szorzás <b>második</b> tényezője és az osztás <b>osztandója</b> sima
+    tőszám (a <code>szamSzoval()</code> adja): „hétszer <b>nyolc</b>", „<b>ötvenhat</b> osztva nyolccal".
+    Osztó a játékban csak 2–10 fordul elő; az 1-es alak a teljesség kedvéért van itt.
+    <br><span class="mini">A <b>szorzótábla-felmondás</b> bevezető mondatában az „{N}-es/-os szorzótáblát"
+    birtokos toldaléka is a kiejtéshez igazodik: kettes, hármas, négyes, ötös, hatos, hetes, nyolcas,
+    kilences, tízes → külön kis tábla (<code>TABLA_SZO[2..10]</code>), vagy a felolvasásban egyszerűen
+    „a {szám} szorzótáblát" semleges alak is elfogadható, ha egyszerűbb.</span>
+  </div>
 
   <!-- ============================================================ -->
   <h2>2. Beszédfelismerés (a válasz elsődleges módja)</h2>
@@ -192,6 +228,55 @@
   return { ok:true, sorok:N + 1 };
 }</pre>
   </details>
+
+  <h3>2.2b Szorzótábla-felmondás – az elfogadási szabály <span class="mini">(a Szorzódallam pályához; a 2.2 bontás mintájára)</span></h3>
+
+  <p>A gép ad egy <b>N</b> táblát (2 ≤ N ≤ 10). A gyerek <b>egyben, lentről fölfelé</b> felmondja:</p>
+  <pre>1×N , 2×N , 3×N , … , 10×N        →  összesen 10 sor</pre>
+  <p class="mini">Példa N = 5: „egyszer öt az öt, kétszer öt az tíz, háromszor öt az tizenöt …
+     tízszer öt az ötven" — mind a 10 sor, ebben a sorrendben.</p>
+
+  <div class="kesz">
+    <b>Mit néz a gép:</b> a felismert szövegből <code>szamokKinyer()</code> kiszedi a számokat sorban.
+    A cél a <b>10 szorzat</b> növekvő sorrendben: <code>[N, 2N, 3N, …, 10N]</code>. A sorszorzó
+    („egyszer/kétszer/…") és a tábla-szám („öt") <b>elhagyható</b>, és soronként vegyesen is —
+    a gyerek mondhatja teljes mondattal („kétszer öt az tíz") vagy csak az eredményeket
+    („öt, tíz, tizenöt, …"). Az „az/meg/egyenlő" kötőszó mindegy.
+  </div>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Egy sor elfogadható alakjai (N = 5, a 2. sor)</h4>
+  <table>
+    <tr><th>Amit a gyerek mond</th><th>Kinyert számok</th><th>Jó?</th></tr>
+    <tr><td>„tíz"</td><td>[10]</td><td>✔ (csak az eredmény)</td></tr>
+    <tr><td>„kétszer öt az tíz"</td><td>[2, 5, 10]</td><td>✔ (szorzó + tábla + eredmény)</td></tr>
+    <tr><td>„kétszer öt tíz"</td><td>[2, 5, 10]</td><td>✔ (kötőszó nélkül)</td></tr>
+    <tr><td>„két öt tíz" a sor helyén</td><td>[2, 5, 10]</td><td>✔ (a köztes tagokat átugorja, a 10 a lényeg)</td></tr>
+    <tr><td>„tizenöt" a „tíz" helyén</td><td>[15]</td><td>✘ (rossz eredmény ezen a soron)</td></tr>
+  </table>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Az egész felmondás akkor JÓ, ha…</h4>
+  <div class="kesz">
+    a kimondott számfolyamból egy mohó illesztő (a bontás <code>bontasEloFogyaszt()</code> mintájára)
+    <b>sorban megtalálja</b> a 10 szorzatot <code>k·N</code> (k = 1…10):
+    <ul>
+      <li>minden szorzatnak sorrendben elő kell kerülnie (<code>N</code>-től <code>10N</code>-ig);</li>
+      <li>egy szorzat előtt opcionálisan elhangozhat a <b>k</b> (sorszorzó) és az <b>N</b> (tábla) tag,
+        ezeket az illesztő átugorja;</li>
+      <li>a végén nem maradhat idegen szám.</li>
+    </ul>
+    <span class="mini"><b>Kód-oldal:</b> a bontás soronkénti fogyasztóját elég általánosítani úgy, hogy
+    az „elvárt sor" a bontásnál <code>[i, N−i]</code>, a szorzótáblánál <code>[k·N]</code> — a
+    kimondott összeg / köztes tagok kezelése ugyanaz a mohó minta. A pontos illesztő a
+    <code>game.js</code>-ben; ez a szakasz csak a szabályt rögzíti.</span>
+  </div>
+
+  <h4 style="margin:14px 0 2px;color:#3c5a44;">Hibás / hiányos felmondás</h4>
+  <div class="kesz">
+    Ugyanaz, mint a bontásnál (2.2): a gép megmondja, hány sort mondott jól az elejéről
+    („Eddig jó volt 3 sor…"), a felmondást <b>egyben</b> kell megismételni lentről, 2 sikertelen
+    próba után lépésenkénti beírás (<code>{k} × {N} = ?</code>). Ha nincs szám a felismerésben →
+    „Nem hallottam", nem hibás próba.
+  </div>
 
   <h3>2.3 Mikrofon-engedély folyamat</h3>
   <div class="kesz">

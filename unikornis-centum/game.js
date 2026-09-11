@@ -176,6 +176,77 @@ var PALYAK = [
       { nev: "Az erdő szíve", tipus: "kivonas", darab: 5, a_min: 35, a_max: 88, b_min: 15, b_max: 69 },
       { nev: "Odú-küszöb", darab: 6, a_min: 13, a_max: 88, b_min: 13, b_max: 79, cel: true }
     ]
+  },
+
+  /* ══ SZORZÓS LIGET (szorzás-osztás, 100-ig) — szorzos-palyak-terv.html + spec-palya-adatlap-szorzos.html ══ */
+  {
+    id: "szorzo-dallam", nev: "Szorzódallam", ikon: "🎵", regio: "szorzo", hamarosan: true,
+    szint: 8,
+    palcim: "Mondd fel az egész szorzótáblát – egyszer öt az öt…",
+    alap: { tipus: "szorzotabla-felmondas" },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Két kavics", tabla: 2 },
+      { nev: "Öreg tölgy", tabla: 10 },
+      { nev: "Mohapárna", tabla: 5 },
+      { nev: "Csörgő patak", tabla: 3 },
+      { nev: "Napos tisztás", tabla: 4 },
+      { nev: "Szürke szikla", tabla: 6 },
+      { nev: "Sűrű bozót", tabla_keszlet: [7, 8, 9] },
+      { nev: "Odú-küszöb", tabla_keszlet: [2, 3, 4, 5, 6, 7, 8, 9, 10], cel: true }
+    ]
+  },
+  {
+    id: "egy-szam", nev: "Egy szám bűvköre", ikon: "🔮", regio: "szorzo",
+    szint: 4,
+    palcim: "Egy szám minden titka – szorzás és osztás együtt",
+    alap: { tipus: "szorzasosztas" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "A kettes", szorzo: 2, darab: 6 },
+      { nev: "A tízes", szorzo: 10, darab: 6 },
+      { nev: "Az ötös", szorzo: 5, darab: 6 },
+      { nev: "A hármas", szorzo: 3, darab: 6 },
+      { nev: "A négyes", szorzo: 4, darab: 6 },
+      { nev: "A hatos", szorzo: 6, darab: 6 },
+      { nev: "A nehéz", szorzo_keszlet: [7, 8, 9], darab: 6 },
+      { nev: "A kilences", szorzo: 9, darab: 6, cel: true }
+    ]
+  },
+  {
+    id: "osztas-100", nev: "Osztogató tisztás", ikon: "➗", regio: "szorzo",
+    szint: 5,
+    palcim: "Osztás az egész erdőben, százig",
+    alap: { tipus: "osztas" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Első lépések", osztok: [2, 10], darab: 5 },
+      { nev: "Ötös forrás", osztok: [5, 2], darab: 5 },
+      { nev: "Gombamező", osztok: [3, 4], darab: 5 },
+      { nev: "Kevert ösvény", osztok: [2, 3, 4, 5, 10], darab: 6 },
+      { nev: "Sötét sűrű", osztok: [6, 7], darab: 6 },
+      { nev: "Szikla-hágó", osztok: [8, 9], darab: 6 },
+      { nev: "Nagy vegyes", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
+      { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6, cel: true }
+    ]
+  },
+  {
+    id: "vegyes-szorzo", nev: "Szám-rengeteg", ikon: "🌲", regio: "szorzo",
+    szint: 7,
+    palcim: "Szorzás és osztás, keresztül-kasul, százig",
+    alap: { tipus: "szorzasosztas" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Erdőszél", tablak: [2, 5, 10], darab: 5 },
+      { nev: "Ösvény", tablak: [2, 3, 4, 5, 10], darab: 5 },
+      { nev: "Tisztás", tablak: [2, 3, 4, 5, 10], darab: 6 },
+      { nev: "Sűrűsödik", tablak: [6, 7], darab: 6 },
+      { nev: "Mély vadon", tablak: [8, 9], darab: 6 },
+      { nev: "Minden fa", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
+      { nev: "Százig", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
+      { nev: "Odú-küszöb", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6, cel: true }
+    ]
   }
 ];
 
@@ -190,6 +261,10 @@ var PALYA_IKON = {
   "atlepo": '<ellipse cx="15" cy="42" rx="10" ry="6" fill="#c9bda8" stroke="#222" stroke-width="1.5"/> <ellipse cx="45" cy="42" rx="10" ry="6" fill="#c9bda8" stroke="#222" stroke-width="1.5"/> <path d="M17 34 Q30 14 43 34" stroke="#8fbf7a" stroke-width="3" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/> <path d="M43 34 l-5 -2 l1 5 Z" fill="#8fbf7a"/>',
   "erdo-melye": '<path d="M30 10 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 22 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="42" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
   "erdo-szive": '<circle cx="30" cy="28" r="21" fill="#ffe9ad" opacity="0.55"/> <path d="M30 9 l11 16 l-22 0 Z" fill="#5f9c4e" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 21 l14 20 l-28 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="41" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/> <path d="M30 30 c-3 -4 -8 -1 -5 3 c1.6 2 3.4 3.4 5 4.6 c1.6 -1.2 3.4 -2.6 5 -4.6 c3 -4 -2 -7 -5 -3 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.1"/>',
+  "szorzo-dallam": '<line x1="10" y1="40" x2="50" y2="37" stroke="#c9bda8" stroke-width="1.4"/> <line x1="10" y1="46" x2="50" y2="43" stroke="#c9bda8" stroke-width="1.4"/> <line x1="28" y1="38" x2="47" y2="15" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <line x1="47" y1="15" x2="47" y2="34" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M27 15 L47 12" stroke="#e8b84a" stroke-width="4.2" stroke-linecap="round"/> <g transform="rotate(-20 22 38)"><ellipse cx="22" cy="38" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <g transform="rotate(-20 42 34)"><ellipse cx="42" cy="34" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <line x1="27.5" y1="35" x2="27.5" y2="16" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M45 8 l1.4 4 l4 1.4 l-4 1.4 l-1.4 4 l-1.4 -4 l-4 -1.4 l4 -1.4 Z" fill="#ffd24d" stroke="none"/>',
+  "egy-szam": '<path d="M18 46 Q30 40 42 46 L45 51 Q30 55 15 51 Z" fill="#c9a86a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <circle cx="30" cy="27" r="16" fill="#bcd8f0" stroke="#222" stroke-width="1.8"/> <path d="M20 20 Q22 15 28 14" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/> <path d="M34 30 l1.6 4.6 l4.6 1.6 l-4.6 1.6 l-1.6 4.6 l-1.6 -4.6 l-4.6 -1.6 l4.6 -1.6 Z" fill="#fff2b8" stroke="none"/> <path d="M42 15 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 l3 -1 Z" fill="#c9a8e6" stroke="none"/>',
+  "osztas-100": '<rect x="13" y="27" width="34" height="6" rx="3" fill="#86c9a6" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="30" cy="17" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/> <circle cx="30" cy="43" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/>',
+  "vegyes-szorzo": '<path d="M16 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M16 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="13.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M44 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M44 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="41.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M30 12 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <path d="M30 24 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <rect x="26" y="44" width="8" height="8" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
 };
 var PALYA_MAT = {
   "bontas-felmondas": "hangosan, lentről fölfelé",
@@ -201,6 +276,10 @@ var PALYA_MAT = {
   "atlepo": "kétjegyű ± egyjegyű, átlépéssel",
   "erdo-melye": "kétjegyű ± kétjegyű",
   "erdo-szive": "kétjegyű ± kétjegyű, átlépéssel",
+  "szorzo-dallam": "szorzótábla, hangosan",
+  "egy-szam": "egy szám: × és ÷ együtt",
+  "osztas-100": "osztás, 100-ig",
+  "vegyes-szorzo": "× és ÷ keverve, 100-ig",
 };
 var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="eg2" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#d8ecf8"/><stop offset="0.45" stop-color="#e6f2ea"/> <stop offset="1" stop-color="#eaf4e2"/> </linearGradient> <radialGradient id="nap2" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#fff6d0" stop-opacity="0.85"/> <stop offset="1" stop-color="#fff6d0" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#eg2)"/> <circle cx="985" cy="80" r="90" fill="url(#nap2)"/> <circle cx="985" cy="80" r="30" fill="#fff2b8" opacity="0.7"/> <g fill="#ffffff" opacity="0.5"> <ellipse cx="210" cy="70" rx="52" ry="17"/><ellipse cx="250" cy="61" rx="34" ry="14"/> <ellipse cx="640" cy="46" rx="42" ry="15"/><ellipse cx="672" cy="55" rx="26" ry="11"/> </g> <!-- távoli dombsor --> <path d="M0 300 Q160 268 320 296 Q480 322 640 292 Q800 262 960 296 Q1060 316 1120 298 L1120 760 L0 760 Z" fill="#cfe8c2" opacity="0.8"/> <!-- fa-sziluettek: csak a peremen, hogy a kártyák tiszták maradjanak --> <g opacity="0.72"> <g fill="#8fbf7a"> <path d="M60 300 l26 66 l-52 0 Z"/><path d="M60 336 l32 78 l-64 0 Z"/><rect x="54" y="410" width="12" height="26" fill="#a9814e"/> <path d="M150 340 l22 56 l-44 0 Z"/><path d="M150 372 l27 66 l-54 0 Z"/><rect x="145" y="434" width="10" height="22" fill="#a9814e"/> <path d="M1060 300 l26 66 l-52 0 Z"/><path d="M1060 336 l32 78 l-64 0 Z"/><rect x="1054" y="410" width="12" height="26" fill="#a9814e"/> <path d="M968 344 l22 56 l-44 0 Z"/><path d="M968 376 l27 66 l-54 0 Z"/><rect x="963" y="438" width="10" height="22" fill="#a9814e"/> </g> <g fill="#7fae5f"> <ellipse cx="330" cy="322" rx="30" ry="22"/><ellipse cx="470" cy="312" rx="24" ry="18"/> <ellipse cx="700" cy="316" rx="28" ry="20"/><ellipse cx="840" cy="326" rx="22" ry="16"/> </g> </g> <!-- talaj --> <path d="M0 700 Q280 676 560 700 Q840 724 1120 698 L1120 760 L0 760 Z" fill="#bfe3a0" opacity="0.9"/> <g fill="#fff6c4" opacity="0.7"> <circle cx="120" cy="180" r="3"/><circle cx="420" cy="150" r="2.4"/><circle cx="760" cy="170" r="2.6"/> <circle cx="900" cy="230" r="2.2"/><circle cx="270" cy="250" r="2.2"/> </g> </svg>';
 
@@ -267,6 +346,25 @@ function tippKivonas(a, b) {
 }
 /* kerek tízes sorsolás a megadott [min,max] értéktartományban (a min/max maga értékben van megadva) */
 function veletlenTizes(min, max) { return veletlen(Math.ceil(min / 10), Math.floor(max / 10)) * 10; }
+/* ── Szorzós liget: magyar toldalékok + tippek (2026-09-11) ── */
+function veletlenElem(arr) { return arr[veletlen(0, arr.length - 1)]; }
+var SZOR_SZO = { 1: "egyszer", 2: "kétszer", 3: "háromszor", 4: "négyszer", 5: "ötször",
+                 6: "hatszor", 7: "hétszer", 8: "nyolcszor", 9: "kilencszer", 10: "tízszer" };
+var OSZT_VAL = { 2: "kettővel", 3: "hárommal", 4: "néggyel", 5: "öttel", 6: "hattal",
+                 7: "héttel", 8: "nyolccal", 9: "kilenccel", 10: "tízzel" };
+function szorSzo(n) { return SZOR_SZO[n] || (szo(n) + "-szer"); }
+function azSzo(n) { return "aáeéiíoóöőuúüű".indexOf(szo(n).charAt(0)) >= 0 ? "az" : "a"; }
+function osztVal(n) { return OSZT_VAL[n] || (szo(n) + "-vel"); }
+/* a tipp-szövegek a spec-hang-es-beszed.html kánonját követik (Szorzós liget tippek) */
+function tippSzorzas(nagy, kis) {
+  if (kis <= 1) return "Gondolj a szorzótáblára: " + szorSzo(1) + " " + szo(nagy) + " az " + szo(nagy) + ".";
+  return "Gondolj a szorzótáblára: " + szorSzo(kis - 1) + " " + szo(nagy) + " az " + szo(nagy * (kis - 1)) +
+         ", meg még egy " + szo(nagy) + ". Mennyi az?";
+}
+function tippOsztas(osztando, oszto, hanyados) {
+  return "Fordítva gondold: hányszor van meg " + szo(oszto) + " " + azSzo(osztando) + " " + szo(osztando) +
+         " számban? Segít a szorzótábla — " + szorSzo(hanyados) + " " + szo(oszto) + " " + azSzo(osztando * 1) + " " + szo(osztando) + ".";
+}
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
@@ -308,6 +406,36 @@ var GEN = {
       felolvas: "Mondd el " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
       lapos: lapos, tipp: "Kezdd lentről: nulla meg " + szo(N) + ". Aztán egy meg " + szo(N - 1) + ". Folytasd!",
       naplo: { tipus: "szambontas", kerdes: N + " bontása", helyes: N, atlepes: false } };
+  },
+  /* szorzás: a×b ≤ 100; a fókusz N a cfg.szorzo, vagy a cfg.tablak-ból sorsolt tábla */
+  szorzas: function (cfg, kerultMar) {
+    var N = (cfg.szorzo != null) ? cfg.szorzo : veletlenElem(cfg.tablak), a, kulcs, kor = 0;
+    do { a = veletlen(1, 10); kulcs = "sz" + Math.min(N, a) + "x" + Math.max(N, a); kor++; }
+    while (kor < 200 && (N * a > 100 || kerultMar[kulcs]));
+    kerultMar[kulcs] = true;
+    return { csalad: "egyenkent", keplet: N + " × " + a, szoveg: N + " × " + a + " = ?",
+      kartyaHTML: '<span class="k-nagy">' + N + ' × ' + a + ' = <b>?</b></span>',
+      felolvas: szorSzo(N) + " " + szo(a) + ". Mennyi?", helyes: N * a, tipp: tippSzorzas(N, a),
+      naplo: { tipus: "szorzas", kerdes: N + "×" + a, helyes: N * a, atlepes: false } };
+  },
+  /* osztás mindig maradék nélkül: hányadosból építve, d = osztó, q = hányados (1–10) */
+  osztas: function (cfg, kerultMar) {
+    var d = (cfg.oszto != null) ? cfg.oszto
+          : (cfg.osztok ? veletlenElem(cfg.osztok)
+          : (cfg.szorzo != null ? cfg.szorzo : veletlenElem(cfg.tablak)));
+    var q, kulcs, kor = 0;
+    do { q = veletlen(1, 10); kulcs = "o" + d + "/" + q; kor++; }
+    while (kor < 200 && (d * q > 100 || kerultMar[kulcs]));
+    kerultMar[kulcs] = true;
+    var osztando = d * q;
+    return { csalad: "egyenkent", keplet: osztando + " ÷ " + d, szoveg: osztando + " ÷ " + d + " = ?",
+      kartyaHTML: '<span class="k-nagy">' + osztando + ' ÷ ' + d + ' = <b>?</b></span>',
+      felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
+      naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
+  },
+  /* vegyes: állomáson belül szorzás és osztás ~fele-fele (B és D pálya) */
+  szorzasosztas: function (cfg, kerultMar) {
+    return (veletlen(0, 1) ? GEN.szorzas : GEN.osztas)(cfg, kerultMar);
   },
   /* Teljes tízesek 100-ig: kerek tízes ± kerek tízes, nincs átlépés, nem megy 0 alá. */
   tizesek: function (cfg, kerultMar) {
@@ -403,11 +531,11 @@ function palyaSzint(palya) { return (palya && palya.szint) || 1; }
 function jutalom(mit, palya) {
   var p = palya || (J && J.palya) || null, sz = palyaSzint(p);
   switch (mit) {
-    case "feladat":   return 1 + sz;
-    case "tipp":      return 1;
-    case "felmondas": return 42;
-    case "allomas":   return 3;
-    case "palyavege": return 10 * (sz + 1);
+    case "feladat":   return sz >= 5 ? 2 : 1;   /* H7.1a: 1 ✨ (1–4. szint) · 2 ✨ (5–8) */
+    case "tipp":      return 1;                 /* nem skálázódik – állandó horgony */
+    case "felmondas": return 9;                 /* bontás / szorzótábla felmondása */
+    case "allomas":   return 1;                 /* állomás kész – állandó horgony */
+    case "palyavege": return 5 * sz;            /* 5 × szint (5 → 40) */
   }
   return 0;
 }
@@ -418,7 +546,7 @@ function palyaBecsultErtek(palya) {
   for (var i = 1; i < n; i++) {
     var a = palya.allomasok[i], tip = a.tipus || alap.tipus;
     allo++;
-    if (tip === "szambontas") feladatErtek += jutalom("felmondas", palya);      /* egy bontás = 42 */
+    if (tip === "szambontas" || tip === "szorzotabla-felmondas") feladatErtek += jutalom("felmondas", palya);
     else feladatErtek += (a.darab || alap.darab || 5) * jutalom("feladat", palya);
   }
   return feladatErtek + allo * jutalom("allomas", palya) + jutalom("palyavege", palya);
@@ -1198,12 +1326,19 @@ function renderFomenu() {
   var racs = $("palya-racs"); racs.innerHTML = "";
   var sor = P().sorozat || { hossz: 0, utolsoPalya: null };
   var kovSzorzo = (sor.hossz >= 2) ? 3 : (sor.hossz >= 1 ? 2 : 1);
+  var utolsoRegio = null;
+  var REGIO_CIM = { osszeado: "🌰 Összeadó liget", szorzo: "✖️ Szorzós liget" };
   PALYAK.forEach(function (pa, idx) {
+    var regio = pa.regio || "osszeado";
+    if (regio !== utolsoRegio) {
+      utolsoRegio = regio;
+      racs.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
+    }
     var prc = P().palyak[pa.id];
     var kesz = prc && prc.kesz, arany = prc && prc.arany;
     var bontas = (pa.id === "bontas-felmondas");
     var feladatErtek = bontas ? jutalom("felmondas", pa) : jutalom("feladat", pa);
-    var vegig = palyaBecsultErtek(pa);
+    var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
     var mat = PALYA_MAT[pa.id] || pa.palcim;
     var mutatSzorzo = (kovSzorzo > 1 && pa.id !== sor.utolsoPalya && !pa.hamarosan);
     var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (arany ? " arany" : (kesz ? " kesz" : "")));
@@ -1318,7 +1453,10 @@ function kovAllomas() {
   kameraAllit(i);
   unikornisOda(i, 1200, function () {
     J.probak = 0; J.feladatKesz = 0; J.kerultKulcsok = {};
-    J.feladatDb = (a.tipus === "szambontas") ? 1 : (a.darab || 5);
+    var felmondosE = (a.tipus === "szambontas" || a.tipus === "szorzotabla-felmondas");
+    J.feladatDb = felmondosE ? 1 : (a.darab || 5);
+    /* állomás-szintű sorsolás: a „nehéz" állomás egy fókusz-számot kap az egész állomásra */
+    J.allomasSzorzo = a.szorzo_keszlet ? veletlenElem(a.szorzo_keszlet) : null;
     $("kerulo-gomb").style.display = "block";
     ujFeladat();
   });
@@ -1327,7 +1465,14 @@ function ujFeladat() {
   var a = J.allomasok[J.allomasIdx];
   J.probak = 0; J.lepesSor = 0;
   if (a.tipus === "szambontas") J.feladat = GEN.szambontas(a);
-  else J.feladat = GEN[a.tipus](a, J.kerultKulcsok);
+  else if (a.tipus === "szorzotabla-felmondas") J.feladat = GEN["szorzotabla-felmondas"](a);
+  else {
+    var eff = a;
+    if (a.szorzo_keszlet != null && J.allomasSzorzo != null) {
+      eff = {}; for (var kk in a) eff[kk] = a[kk]; eff.szorzo = J.allomasSzorzo;
+    }
+    J.feladat = GEN[a.tipus](eff, J.kerultKulcsok);
+  }
   var f = J.feladat;
   J.parokKesz = 0;
   $("bagoly-buborek").hidden = false;
@@ -3132,8 +3277,8 @@ var JELVENYEK = [
     teljesul: function (p) { return palyakKeszek(p, ["tizesek", "aprok", "lepegeto"]); } },
   { id: "atlepo-bajnok", nev: "Átlépő bajnok", felt: "A 7. és 9. pálya kész", szin: "#c9a8e6",
     teljesul: function (p) { return palyakKeszek(p, ["atlepo", "erdo-szive"]); } },
-  { id: "erdo-ura", nev: "Az erdő ura", felt: "Mind a 9 pálya kész", szin: "#ffd24d",
-    teljesul: function (p) { return PALYAK.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
+  { id: "erdo-ura", nev: "Az erdő ura", felt: "Az Összeadó liget mind a 9 pályája kész", szin: "#ffd24d",
+    teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
   { id: "kitarto", nev: "Kitartó", felt: "5 elsőre jó válasz egymás után", szin: "#f7c59f",
     teljesul: function (p) { return (p.streakRekord || 0) >= 5; } },
   { id: "gyujto", nev: "Gyűjtő", felt: "10 különböző holmi megvan", szin: "#fce49a",
