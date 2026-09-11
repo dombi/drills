@@ -561,22 +561,26 @@
        pálya kap egy <code>szint</code> mezőt (1–8) a jóváhagyott 8 lépcsős nehézségi sor szerint.</p>
     <table>
       <tr><th>Esemény</th><th>Csillámpor</th></tr>
-      <tr><td>helyes egyenkénti feladat (össz./kiv.)</td><td><code>1 + szint</code> ✨ &nbsp;(2 → 9)</td></tr>
-      <tr><td>pálya vége (célba érés)</td><td><code>10 × (szint + 1)</code> ✨ &nbsp;(20 → 90)</td></tr>
-      <tr><td>állomás kész</td><td>+3 ✨ &nbsp;(NEM skálázódik – állandó horgony)</td></tr>
+      <tr><td>helyes egyenkénti feladat (össz./kiv./szorzás/osztás)</td><td><b>1 ✨</b> (1–4. szint) · <b>2 ✨</b> (5–8. szint)</td></tr>
+      <tr><td>felmondás (bontás / szorzótábla)</td><td><b>9 ✨</b> / felmondás</td></tr>
+      <tr><td>állomás kész</td><td>+1 ✨ &nbsp;(NEM skálázódik – állandó horgony)</td></tr>
+      <tr><td>pálya vége (célba érés)</td><td><code>5 × szint</code> ✨ &nbsp;(5 → 40)</td></tr>
       <tr><td>tipp után helyes válasz</td><td>+1 ✨ &nbsp;(NEM skálázódik)</td></tr>
       <tr><td>hibázás</td><td>0 &nbsp;(soha nincs levonás)</td></tr>
     </table>
     <ul>
-      <li>A <b>legkönnyebb pálya értéke nem csökken</b> (marad ~117 ✨); csak a nehezebbek nőnek.
-        A legkönnyebb és a legnehezebb között ~4× a különbség.</li>
+      <li>A <b>legkönnyebb pálya értéke nem csökken</b>; csak a nehezebbek nőnek. A legkönnyebb (szint 1,
+        ~55 ✨) és a legnehezebb (szint 8, ~163 ✨) között <b>~3× a különbség</b>.</li>
       <li><b>Bontás-kivétel:</b> a bontás-pálya a <b>legfelső szintet (8)</b> kapja – a producer kérése,
-        hogy annyit érjen, mint az utolsó pálya. Mivel csak 8 feladat van rajta (nem 38), egy teljes
-        bontás felmondása <b>42 ✨</b> → a pálya ~450 ✨ ≈ a 9. pálya.</li>
+        hogy annyit érjen, mint az utolsó pálya. Felmondós, ezért felmondásonként 9 ✨ → a pálya ~160 ✨.</li>
+      <li><b>Átméretezve (2026-09-11):</b> mind a 13 pálya egyszeri, hibátlan (kerülő nélküli)
+        végigjátszása <b>≈ 1560 ✨</b>. A katalógus ≈ 4190 ✨ → kb. <b>2,7 teljes végigjátszás</b>
+        fedi. Minden újrajátszás <b>teljesen fizet</b> (nincs csökkenő hozam).</li>
     </ul>
-    <span class="mini">Csak két szám mozog (feladat + pálya vége); az állomás- és tipp-jutalom
-    állandó, hogy a gyereknek legyen megjegyezhető horgonya. Részletes tábla és indoklás:
-    <code>terv/javaslat-jutalom-progresszio.html</code> 1. szakasz.</span>
+    <span class="mini">A per-feladat és a pálya-vége mozog a szinttel; az állomás- és tipp-jutalom
+    állandó, hogy a gyereknek legyen megjegyezhető horgonya. Régebbi (nagyobb) számok:
+    <code>terv/javaslat-jutalom-progresszio.html</code> – 2026-09-11-én ~1500-ra átméretezve, az élő
+    értékek ez a tábla.</span>
   </div>
 
   <h3>7.1b Sorozat-szorzó (jóváhagyva 2026-09-06)</h3>

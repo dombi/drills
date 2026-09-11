@@ -249,25 +249,36 @@
   <p>A <code>javaslat-jutalom-progresszio.html</code> szerint minden pálya kap egy <code>szint</code>
      mezőt (feladat = <code>1+szint</code> ✨, pálya vége = <code>10×(szint+1)</code> ✨). A szorzós
      ligetre javasolt szintek (a liget összességében nehezebb, ezért a felső sávban):</p>
-  <table>
-    <tr><th>Pálya</th><th>Javasolt szint</th><th>1 feladat</th><th>Megjegyzés</th></tr>
-    <tr><td>A – Szorzódallam</td><td>felmondós (mint a bontás)</td><td>~42 ✨ / felmondás</td><td>kulcs-pálya, a bontás gazdaságával; ~450 ✨ / pálya</td></tr>
-    <tr><td>B – Egy szám bűvköre</td><td>4</td><td>5 ✨</td><td>a megértős, közepes</td></tr>
-    <tr><td>C – Osztogató tisztás</td><td>5</td><td>6 ✨</td><td>tiszta osztás</td></tr>
-    <tr><td>D – Szám-rengeteg</td><td>7</td><td>8 ✨</td><td>a liget csúcsa</td></tr>
-  </table>
-  <div class="dontes">
-    <b>A szorzós szintek pontos értéke.</b> A fenti szintek javaslatok. Jó, hogy a szorzós liget a
-    felső sávban van (nehezebb, mint a +/-), vagy legyen külön skálája? A „teljes ösvény" arany
-    szilánk és a sorozat-szorzó ugyanúgy vonatkozik ezekre.
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ Eldöntve (2026-09-11) – a ~1500-ra átméretezett pontrendszer szerint:</b>
   </div>
+  <table>
+    <tr><th>Pálya</th><th>Szint</th><th>1 feladat</th><th>Pálya kb.</th><th>Megjegyzés</th></tr>
+    <tr><td>A – Szorzódallam</td><td>felmondós (mint a bontás)</td><td>9 ✨ / felmondás</td><td>~160 ✨</td><td>kulcs-pálya</td></tr>
+    <tr><td>B – Egy szám bűvköre</td><td>4</td><td>1 ✨</td><td>~85 ✨</td><td>a megértős, közepes</td></tr>
+    <tr><td>C – Osztogató tisztás</td><td>5</td><td>2 ✨</td><td>~123 ✨</td><td>tiszta osztás</td></tr>
+    <tr><td>D – Szám-rengeteg</td><td>7</td><td>2 ✨</td><td>~153 ✨</td><td>a liget csúcsa</td></tr>
+  </table>
+  <p class="mini">Élő pontrendszer: feladat 1 ✨ (1–4. szint) / 2 ✨ (5–8), felmondás 9 ✨, állomás +1,
+     pálya vége 5×szint, teljes ösvény = pálya vége újra. A Szorzós liget összesen ~530 ✨/végigjátszás.
+     <b>Minden újrajátszás teljesen fizet</b> (nincs csökkenő hozam). Az arany szilánk és a
+     sorozat-szorzó ugyanúgy vonatkozik ezekre.</p>
 
   <!-- ============================================================ -->
   <h2>9. Amit még el kell dönteni</h2>
-  <div class="dontes"><b>1)</b> A szorzós szintek pontos ✨-értéke (8.).</div>
-  <div class="dontes"><b>2)</b> A pályák és a liget nevei (most javaslatok): Szorzódallam / Egy szám bűvköre / Osztogató tisztás / Szám-rengeteg.</div>
-  <p class="mini">(Eldöntve: a kapu-küszöb = kerülő nélküli végigvitel (6.2); a csillagszilánk
-     KÖZÖS mindkét ligethez – egy éjszakai ég, most 13 szilánk (9+4), ugyanaz a rajz, ezüst/arany.)</p>
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ Minden döntés megvan (2026-09-11):</b>
+    <ul style="margin:6px 0">
+      <li>Szorzós szintek: A felmondós · B=4 · C=5 · D=7 (8.).</li>
+      <li>Nevek jóváhagyva: Szorzódallam / Egy szám bűvköre / Osztogató tisztás / Szám-rengeteg;
+        régió: Összeadó liget + Szorzós liget.</li>
+      <li>Kapu-küszöb: kerülő nélküli végigvitel (= teljes ösvény, 6.2).</li>
+      <li>Csillagszilánk: KÖZÖS mindkét ligethez – egy éjszakai ég, 13 szilánk (9+4), ezüst/arany.</li>
+      <li>Pontrendszer ~1500-ra átméretezve; minden újrajátszás teljesen fizet.</li>
+    </ul>
+    <b>A terv teljes. Következő: átvezetés a rendszertervbe (pálya-lista, kapu) + spec-palya-adatlap
+    a szám-tartományokkal, majd kód a kijelölt beszélgetésben.</b>
+  </div>
 
   <p class="mini">Következő lépés a jóváhagyás után: átvezetés a rendszertervbe (2.x pálya-lista,
      6.x nehézség, 7.x kapu) + a <code>spec-palya-adatlap</code> kibővítése a 4 pálya pontos
