@@ -758,3 +758,22 @@ változtassa meg csendben a „mind kész" követelményt; így teljesíthető m
 felolvasás + tipp korrekt (a/az is); B pálya teljes végigjátszása aranyig; a rescale-összeg ~1606;
 konzol tiszta. **A felmondás-motor (A pálya) + a 12 órás kapu + a 13-szilánkos ég a következő
 lépések.**
+
+## 2026-09-11 — Szorzós liget: külön alkonyi háttér (producer-jóváhagyott)
+
+A grafikai session leadta a `SZORZOS_HATTER`-t (aranyóra/alkonyi: lejjebb ülő nagy arany-nap,
+melegebb dombsor, fák a peremen — `mockup-szorzos-liget.html` B-blokk 2. `.hatter`). A producer
+**jóváhagyta** (a grafika átküldte, a producer itt is megerősítette).
+
+A pályaválasztó **régiónkénti szekciókra** állt át (`renderFomenu`): régiónként egy
+`.palya-regio` panel (position:relative, lekerekített, `overflow:hidden`), benne saját
+háttér-réteg + fejléc-tábla + kártya-rács. Az Összeadó liget a nappali `FOMENU_HATTER`-t, a
+Szorzós liget az alkonyi `SZORZOS_HATTER`-t kapja (mindkettő 1120×760, `preserveAspectRatio="none"`,
+külön gradient-id-k: eg2/nap2 vs szg/szn — nincs ütközés). Fejlécek: 🌳 Összeadó liget /
+🌙 Szorzós liget.
+
+**Elrendezési buktató (javítva):** a `.palya-racs` oszlop-flex, és a `.palya-regio` alapból
+zsugorodott a szűk konténerben (`flex-shrink:1`), az `overflow:hidden` meg levágta a rácsot →
+a panelek 53px-re estek össze. Fix: `.palya-regio{ flex:0 0 auto }` — a régiók a tartalom szerinti
+magasságot tartják, a `.palya-racs` görget. Tesztelve: mindkét panel teljes magasságú (össz ~844,
+szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol tiszta.

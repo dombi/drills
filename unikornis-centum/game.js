@@ -282,6 +282,8 @@ var PALYA_MAT = {
   "vegyes-szorzo": "× és ÷ keverve, 100-ig",
 };
 var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="eg2" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#d8ecf8"/><stop offset="0.45" stop-color="#e6f2ea"/> <stop offset="1" stop-color="#eaf4e2"/> </linearGradient> <radialGradient id="nap2" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#fff6d0" stop-opacity="0.85"/> <stop offset="1" stop-color="#fff6d0" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#eg2)"/> <circle cx="985" cy="80" r="90" fill="url(#nap2)"/> <circle cx="985" cy="80" r="30" fill="#fff2b8" opacity="0.7"/> <g fill="#ffffff" opacity="0.5"> <ellipse cx="210" cy="70" rx="52" ry="17"/><ellipse cx="250" cy="61" rx="34" ry="14"/> <ellipse cx="640" cy="46" rx="42" ry="15"/><ellipse cx="672" cy="55" rx="26" ry="11"/> </g> <!-- távoli dombsor --> <path d="M0 300 Q160 268 320 296 Q480 322 640 292 Q800 262 960 296 Q1060 316 1120 298 L1120 760 L0 760 Z" fill="#cfe8c2" opacity="0.8"/> <!-- fa-sziluettek: csak a peremen, hogy a kártyák tiszták maradjanak --> <g opacity="0.72"> <g fill="#8fbf7a"> <path d="M60 300 l26 66 l-52 0 Z"/><path d="M60 336 l32 78 l-64 0 Z"/><rect x="54" y="410" width="12" height="26" fill="#a9814e"/> <path d="M150 340 l22 56 l-44 0 Z"/><path d="M150 372 l27 66 l-54 0 Z"/><rect x="145" y="434" width="10" height="22" fill="#a9814e"/> <path d="M1060 300 l26 66 l-52 0 Z"/><path d="M1060 336 l32 78 l-64 0 Z"/><rect x="1054" y="410" width="12" height="26" fill="#a9814e"/> <path d="M968 344 l22 56 l-44 0 Z"/><path d="M968 376 l27 66 l-54 0 Z"/><rect x="963" y="438" width="10" height="22" fill="#a9814e"/> </g> <g fill="#7fae5f"> <ellipse cx="330" cy="322" rx="30" ry="22"/><ellipse cx="470" cy="312" rx="24" ry="18"/> <ellipse cx="700" cy="316" rx="28" ry="20"/><ellipse cx="840" cy="326" rx="22" ry="16"/> </g> </g> <!-- talaj --> <path d="M0 700 Q280 676 560 700 Q840 724 1120 698 L1120 760 L0 760 Z" fill="#bfe3a0" opacity="0.9"/> <g fill="#fff6c4" opacity="0.7"> <circle cx="120" cy="180" r="3"/><circle cx="420" cy="150" r="2.4"/><circle cx="760" cy="170" r="2.6"/> <circle cx="900" cy="230" r="2.2"/><circle cx="270" cy="250" r="2.2"/> </g> </svg>';
+/* Szorzós liget alkonyi/aranyóra háttér (grafikai session, producer-jóváhagyott 2026-09-11) */
+var SZORZOS_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="szg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#f7e2c6"/><stop offset="0.45" stop-color="#f0e4d6"/> <stop offset="1" stop-color="#e6ecd2"/> </linearGradient> <radialGradient id="szn" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#ffdf9e" stop-opacity="0.95"/><stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#szg)"/> <!-- nagyobb, mélyebben ülő aranyóra-nap --> <circle cx="560" cy="150" r="150" fill="url(#szn)"/> <circle cx="560" cy="150" r="46" fill="#ffcf6e" opacity="0.75"/> <!-- lila-arany távoli dombsor (mélyebb, varázslatosabb) --> <path d="M0 320 Q170 286 340 314 Q510 340 680 308 Q850 278 1010 314 Q1070 328 1120 316 L1120 760 L0 760 Z" fill="#d9c6e0" opacity="0.7"/> <path d="M0 380 Q200 352 400 378 Q600 402 800 374 Q1000 348 1120 378 L1120 760 L0 760 Z" fill="#c9d8b0" opacity="0.75"/> <!-- fa-sziluettek a peremen, melegebb árnyalatban --> <g opacity="0.72"><g fill="#9a8f6a"> <path d="M60 320 l26 66 l-52 0 Z"/><path d="M60 356 l32 78 l-64 0 Z"/><rect x="54" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M150 360 l22 56 l-44 0 Z"/><path d="M150 392 l27 66 l-54 0 Z"/><rect x="145" y="454" width="10" height="22" fill="#8a6a3e"/> <path d="M1060 320 l26 66 l-52 0 Z"/><path d="M1060 356 l32 78 l-64 0 Z"/><rect x="1054" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M968 364 l22 56 l-44 0 Z"/><path d="M968 396 l27 66 l-54 0 Z"/><rect x="963" y="458" width="10" height="22" fill="#8a6a3e"/> </g></g> <!-- talaj --> <path d="M0 710 Q280 686 560 710 Q840 734 1120 708 L1120 760 L0 760 Z" fill="#cdd9a0" opacity="0.9"/> <!-- szentjánosbogarak / varázs-szikrák (a dallam + bűvkör téma) --> <g fill="#fff2b8"> <circle cx="230" cy="210" r="3.4" opacity="0.9"/><circle cx="360" cy="150" r="2.4" opacity="0.8"/> <circle cx="470" cy="250" r="2.8" opacity="0.85"/><circle cx="720" cy="180" r="2.6" opacity="0.8"/> <circle cx="840" cy="240" r="3.2" opacity="0.9"/><circle cx="930" cy="180" r="2.2" opacity="0.75"/> <circle cx="300" cy="300" r="2.2" opacity="0.7"/><circle cx="640" cy="300" r="2.4" opacity="0.7"/> </g> <!-- pár lebegő hangjegy-pötty a Szorzódallam témára --> <g fill="#c9a8e6" opacity="0.55"> <circle cx="410" cy="120" r="5"/><rect x="414" y="104" width="2" height="18"/> <circle cx="690" cy="130" r="5"/><rect x="694" y="114" width="2" height="18"/> </g> </svg>';
 
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
@@ -1326,14 +1328,25 @@ function renderFomenu() {
   var racs = $("palya-racs"); racs.innerHTML = "";
   var sor = P().sorozat || { hossz: 0, utolsoPalya: null };
   var kovSzorzo = (sor.hossz >= 2) ? 3 : (sor.hossz >= 1 ? 2 : 1);
-  var utolsoRegio = null;
-  var REGIO_CIM = { osszeado: "🌰 Összeadó liget", szorzo: "✖️ Szorzós liget" };
+  var REGIO_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
+  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER };   /* mindkét liget saját jelenetet kap */
+  /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva */
+  var regiok = {}, regioSorrend = [];
   PALYAK.forEach(function (pa, idx) {
-    var regio = pa.regio || "osszeado";
-    if (regio !== utolsoRegio) {
-      utolsoRegio = regio;
-      racs.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
-    }
+    var r = pa.regio || "osszeado";
+    if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
+    regiok[r].push({ pa: pa, idx: idx });
+  });
+  regioSorrend.forEach(function (regio) {
+    var szek = el("div", "palya-regio r-" + regio);
+    if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
+    szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
+    var grid = el("div", "palya-regio-grid");
+    regiok[regio].forEach(function (rec) { grid.appendChild(keszitKartya(rec.pa, rec.idx)); });
+    szek.appendChild(grid);
+    racs.appendChild(szek);
+  });
+  function keszitKartya(pa, idx) {
     var prc = P().palyak[pa.id];
     var kesz = prc && prc.kesz, arany = prc && prc.arany;
     var bontas = (pa.id === "bontas-felmondas");
@@ -1364,8 +1377,8 @@ function renderFomenu() {
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       mondd(mondat);
     });
-    racs.appendChild(kart);
-  });
+    return kart;
+  }
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
