@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terv – Szorzós liget (4 pálya) + 12 órás kapu</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 ELDÖNTENDŐ — ";font-weight:bold;color:#b0405a;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  .ki{background:#f2f8f2;font-weight:700;}
+  .idezet{background:#f4f0fa;border-left:4px solid #b79fd4;border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>✖️ Terv – Szorzós liget (4 pálya) + 12 órás kapu</h1>
+  <p class="mottoo">A szorzás-osztás témakör: 4 új pálya külön régióban, és egy rejtett,
+     12 órás kapu-mechanika. A producer kérésére, végigdöntve 2026-09-11-én.
+     <b>Ez tervezés – kód még nem készül.</b> Élő hely: a rendszerterv 2.x + 6.x + 7.x
+     szakaszaiba vezetendő át; a generátorok a <code>game.js</code> <code>GEN</code> tömbjébe.</p>
+
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ Jóváhagyott döntések (2026-09-11):</b>
+    <ul style="margin:6px 0">
+      <li><b>4 pálya:</b> A szorzódallam (felmondós) · B egy szám bűvköre · C tiszta osztás · D vegyes.</li>
+      <li><b>Teljes szorzótábla, 10×10-ig</b> (eredmény ≤ 100).</li>
+      <li><b>Külön „szorzós liget"</b> a főképernyőn (elválasztva a +/- pályáktól).</li>
+      <li><b>Teljes mondatos felmondás:</b> „egyszer öt az öt, kétszer öt az tíz…"</li>
+      <li><b>B fókuszált marad</b> (állomásonként egy tábla, ×+÷ keverve); C és D teljesen kevert táblájú.</li>
+      <li><b>Táblák sorrendje:</b> könnyebbtől nehézig, de keverve (nem szigorú 2→3→4).</li>
+      <li><b>Kapu:</b> a <i>Mondd el a bontásokat</i> + a <i>Szorzódallam</i> végigvitele nyit meg
+        mindent 12 órára; utána újra kell mindkettő. Rejtett számláló.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>1. A szorzós liget – áttekintés</h2>
+  <p>A jelenlegi 9 pálya az összeadás-kivonás témakör. A szorzás-osztás <b>külön régió</b>
+     („szorzós liget") a főképernyőn – saját kártya-csoport, vizuálisan elkülönítve. Négy pálya,
+     mind a <b>közös erdő-motoron</b> (ugyanaz az állomás-séta, bagoly, kerülő, felolvasás).</p>
+  <table>
+    <tr><th>#</th><th>Pálya</th><th>id (javaslat)</th><th>Matek</th><th>Jelleg</th></tr>
+    <tr><td>A</td><td>Szorzódallam 🎵</td><td><code>szorzo-dallam</code></td><td>szorzótábla felmondása egyben, hangosan</td><td><b>felmondós</b> (a bontás ikre) · <b>kulcs-pálya</b></td></tr>
+    <tr><td>B</td><td>Egy szám bűvköre 🔮</td><td><code>egy-szam</code></td><td>állomásonként EGY tábla, szorzás + osztás keverve</td><td>fókuszált, megértős</td></tr>
+    <tr><td>C</td><td>Osztogató tisztás ➗</td><td><code>osztas-100</code></td><td>tiszta osztás 100-ig, táblák keverve</td><td>kérdés-válasz</td></tr>
+    <tr><td>D</td><td>Szám-rengeteg 🌲</td><td><code>vegyes-szorzo</code></td><td>szorzás/osztás véletlenül, minden tábla, 100-ig</td><td>záró, vegyes</td></tr>
+  </table>
+  <p class="mini">A nevek javaslatok – bármelyik cserélhető. Az osztás mindig <b>maradék nélkül</b>
+     megy (a szorzótáblából visszafelé építve), sose lesz „7 osztva 2".</p>
+
+  <!-- ============================================================ -->
+  <h2>2. A – Szorzódallam 🎵 (felmondós, kulcs-pálya)</h2>
+  <div class="kesz">
+    <b>Feladattípus:</b> <code>szorzotabla-felmondas</code> (a <code>szambontas</code> mintájára) &nbsp;·&nbsp;
+    <b>alcím:</b> „Mondd fel az egész sort – egyszer öt az öt, kétszer öt az tíz…"
+  </div>
+  <p>A gyerek <b>egy egész táblát mond fel hangosan, lentről fölfelé, teljes mondatokkal</b>:
+     „egyszer öt az öt, kétszer öt az tíz, háromszor öt az tizenöt … tízszer öt az ötven."
+     A gép az <b>egészet</b> értékeli (mint a bontásnál): a kimondott <b>eredmények</b> és a
+     <b>sorrend</b> számít; az „egyszer/kétszer" kötőszó és az „az" mindegy. Hibánál „eddig jó volt
+     X sor", és az egészet újra, lentről; 2 rossz próba után lépésenkénti beírás.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Tábla</th><th>Miért itt</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Két kavics</td><td>2-es</td><td>a legkönnyebb, párosával</td></tr>
+    <tr><td>3</td><td>Öreg tölgy</td><td>10-es</td><td>kerek, látványos minta</td></tr>
+    <tr><td>4</td><td>Mohapárna</td><td>5-ös</td><td>ötösével, ismerős</td></tr>
+    <tr><td>5</td><td>Csörgő patak</td><td>3-as</td><td>első „igazi" tábla</td></tr>
+    <tr><td>6</td><td>Napos tisztás</td><td>4-es</td><td></td></tr>
+    <tr><td>7</td><td>Szürke szikla</td><td>6-os</td><td>a nehezek kezdete</td></tr>
+    <tr><td>8</td><td>Sűrű bozót</td><td>7 / 8 / 9-es (rotál)</td><td>a legnehezebbek, váltakozva</td></tr>
+    <tr><td>9</td><td>Odú-küszöb (cél)</td><td>véletlen tábla 2–10</td><td>a csúcs – nem tudja előre</td></tr>
+  </table>
+  <p class="mini">A 7/8/9-es a 8. állomáson játékonként cserélődik. Felmondásonként 1 feladat
+     (mint a bontásnál) → 8 felmondás.</p>
+
+  <!-- ============================================================ -->
+  <h2>3. B – Egy szám bűvköre 🔮 (fókuszált, ×+÷ keverve)</h2>
+  <div class="kesz">
+    <b>Feladattípus:</b> <code>szorzas</code> + <code>osztas</code> vegyesen, egy táblán belül &nbsp;·&nbsp;
+    <b>alcím:</b> „Egy szám minden titka – szorzás és osztás együtt."
+  </div>
+  <p>Ez az egyetlen szándékosan <b>egy táblára</b> koncentráló pálya: minden állomás egy szorzó, és
+     ott <b>keverve</b> jön a szorzás és az osztás. Így érzi meg a gyerek, hogy a <code>45 ÷ 5</code>
+     ugyanannak a <code>9 × 5</code>-nek a párja.</p>
+  <div class="doboz mini">
+    Példa – „Az ötös" állomás: <code>5 × 7 = ?</code> · <code>45 ÷ 5 = ?</code> · <code>5 × 3 = ?</code>
+    · <code>30 ÷ 5 = ?</code> · <code>5 × 9 = ?</code> (állomásonként ~6 feladat, ×/÷ vegyesen).
+  </div>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>A szám</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td></tr>
+    <tr><td>2</td><td>A kettes</td><td>2</td></tr>
+    <tr><td>3</td><td>A tízes</td><td>10</td></tr>
+    <tr><td>4</td><td>Az ötös</td><td>5</td></tr>
+    <tr><td>5</td><td>A hármas</td><td>3</td></tr>
+    <tr><td>6</td><td>A négyes</td><td>4</td></tr>
+    <tr><td>7</td><td>A hatos</td><td>6</td></tr>
+    <tr><td>8</td><td>A nehéz (rotál)</td><td>7 / 8 / 9</td></tr>
+    <tr><td>9</td><td>A kilences (cél)</td><td>9</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>4. C – Osztogató tisztás ➗ (tiszta osztás, keverve)</h2>
+  <div class="kesz">
+    <b>Feladattípus:</b> <code>osztas</code> &nbsp;·&nbsp; <b>felolvasás:</b>
+    „negyvenöt osztva öttel. Mennyi?" &nbsp;·&nbsp; <b>alcím:</b> „Osztás az egész erdőben, százig."
+  </div>
+  <p>Tiszta osztás, 100-as körben, mindig maradék nélkül. <b>Állomáson belül a táblák keverve</b>
+     (nem egy blokk 5-tel, aztán egy blokk 6-tal). A nehézség a bevont osztókkal nő.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Osztók (keverve)</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td></tr>
+    <tr><td>2</td><td>Első lépések</td><td>2, 10</td></tr>
+    <tr><td>3</td><td>Ötös forrás</td><td>5, 2</td></tr>
+    <tr><td>4</td><td>Gombamező</td><td>3, 4</td></tr>
+    <tr><td>5</td><td>Kevert ösvény</td><td>2, 3, 4, 5, 10</td></tr>
+    <tr><td>6</td><td>Sötét sűrű</td><td>6, 7</td></tr>
+    <tr><td>7</td><td>Szikla-hágó</td><td>8, 9</td></tr>
+    <tr><td>8</td><td>Nagy vegyes</td><td>minden osztó</td></tr>
+    <tr><td>9</td><td>Odú-küszöb (cél)</td><td>minden, 100-ig</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>5. D – Szám-rengeteg 🌲 (vegyes ×/÷, minden tábla)</h2>
+  <div class="kesz">
+    <b>Feladattípus:</b> <code>szorzas</code> + <code>osztas</code> véletlenül &nbsp;·&nbsp;
+    <b>alcím:</b> „Minden összeáll – szorzás és osztás, keresztül-kasul."
+  </div>
+  <p>A záró pálya: minden kérdés véletlenül szorzás vagy osztás, az összes tábla keverve, 100-as körben.
+     Ez méri, hogy tényleg összeállt-e a kép. A nehézség a bevont táblákkal nő, de a művelet mindig vegyes.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Táblák</th><th>Művelet</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Erdőszél</td><td>2, 5, 10</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>3</td><td>Ösvény</td><td>+ 3, 4</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>4</td><td>Tisztás</td><td>kis táblák, mind</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>5</td><td>Sűrűsödik</td><td>6, 7</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>6</td><td>Mély vadon</td><td>8, 9</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>7</td><td>Minden fa</td><td>minden tábla</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>8</td><td>Százig</td><td>minden, 100-ig</td><td>× és ÷ vegyes</td></tr>
+    <tr><td>9</td><td>Odú-küszöb (cél)</td><td>minden</td><td>× és ÷ vegyes</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>6. A 12 órás kapu (rejtett)</h2>
+  <div class="kesz">
+    <ul>
+      <li><b>A kulcs:</b> a <i>Mondd el a bontásokat</i> (1. pálya) <b>és</b> a <i>Szorzódallam</i>
+        (A pálya) végigvitele. Mindkettő kell.</li>
+      <li><b>A hatás:</b> ez a kettő együtt <b>megnyitja az összes többi pályát 12 órára</b>
+        (a +/- pályák és a B/C/D szorzós pályák).</li>
+      <li><b>Lejárat:</b> 12 óra után minden visszazárul; a gyereknek <b>újra végig kell vinnie</b>
+        mindkét kulcs-pályát, hogy megint 12 órára nyíljon.</li>
+      <li><b>Rejtett:</b> nincs látható számláló, nincs visszaszámláló óra. Csak a rendszer tudja,
+        mikor jár le. A gyerek annyit lát, hogy a pályák nyitva vannak-e.</li>
+      <li><b>Mindig nyitva:</b> a két kulcs-pálya (bontás + szorzódallam) – különben nem lenne mivel
+        kinyitni a többit.</li>
+    </ul>
+  </div>
+
+  <h3>6.1 Miért jó ez – és mit ír felül</h3>
+  <div class="figyelem">
+    <b>Felülírja</b> a rendszerterv korábbi jóváhagyott elvét: „Pályák: mind szabadon elérhető,
+    nincs zárolás." Ez tudatos irányváltás (a producer 2026-09-11-én megerősítette). A csere logikája:
+    a két legfontosabb, felmondós alapkészség (bontás + szorzótábla) lesz a napi „belépő", ami után
+    minden más kinyílik – és a 12 órás ablak <b>rendszeres, rövid visszatérésre</b> ösztönöz.
+    <br><b>Nincs büntetés, nincs csökkenő hozam:</b> a lejárat nem vesz el semmit (se csillámport, se
+    tárgyat, se szilánkot), csak a nehezebb tartalom „pihen", amíg a gyerek nem tér vissza egy rövid
+    gyakorlásra. Ez összhangban van a „hosszú használatot díjazni" céllal.
+  </div>
+
+  <h3>6.2 Adatmodell (kód, később)</h3>
+  <div class="doboz mini">
+    Profilonként: <code>P().kapu = { nyitvaEddig: &lt;timestamp&gt; }</code>. A két kulcs-pálya
+    <code>palyaVege</code>-jekor a rendszer megnézi, mindkettő teljesült-e „frissen"; ha igen,
+    <code>nyitvaEddig = most + 12 óra</code>. A főképernyő a <code>nyitvaEddig &gt; most</code> alapján
+    rajzolja nyitottnak/zártnak a nem-kulcs kártyákat. A <code>betolt()</code> pótolja a régi
+    mentéseknél. Teszt-fogantyú: <code>UC.kapuAllapot</code>.
+  </div>
+
+  <div class="dontes">
+    <b>Számít-e a kihagyás?</b> Ha a gyerek a kulcs-pályát <b>végig kerülővel / „megoldás nélkül"</b>
+    viszi végig (célba ér, de nem old meg semmit), az kinyissa-e a kaput?
+    <br><b>Javaslat:</b> IGEN, a célba érés számít (a játék szégyenmentes, nincs kizárás) – de a
+    kihagyós út úgyis önmagát bünteti: nincs csillámpor, nincs arany szilánk. Aki tényleg ki akarja
+    nyitni a többit, magától megoldja. Így nincs gyerek, aki „beragad", és a kapunak mégis van súlya.
+    <br><span class="mini">Alternatíva, ha ez túl lazának tűnik: a kapuhoz a kulcs-pályát legalább
+    <b>félig megoldva</b> kell teljesíteni (a feladatok fele nem kerülő). Bonyolultabb, de „komolyabb" kapu.</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>7. Motor-bővítések (kód, csak jóváhagyás után)</h2>
+  <div class="doboz">
+    <ul>
+      <li><b>Új feladattípusok a <code>GEN</code>-be:</b>
+        <ul>
+          <li><code>szorzotabla-felmondas</code> – a <code>szambontas</code> mintája: N tábla →
+            eredmény-sor 1×N…10×N; egészben értékel; félrehallás-tűrő parszer.</li>
+          <li><code>szorzas</code> – <code>a × b</code>, ahol <code>b</code> a bevont tábla(k)ból,
+            <code>a</code> 1–10; eredmény ≤ 100.</li>
+          <li><code>osztas</code> – hányadosból építve: <code>q</code> (1–10) × <code>d</code> (osztó)
+            = osztandó ≤ 100; kérdés <code>(q·d) ÷ d = ?</code>, válasz <code>q</code>. Sose maradékos.</li>
+        </ul></li>
+      <li><b>Hangfelismerő:</b> a szorzótábla-mondóka elfogadása (számok sorrendje számít, „egyszer/kétszer/az"
+        kötőszavak mindegy). A szorzás/osztás felolvasása: „hétszer nyolc. Mennyi?" / „ötvenhat osztva
+        nyolccal. Mennyi?"</li>
+      <li><b>Főképernyő:</b> a „szorzós liget" mint külön kártya-csoport; a kapu-állapot szerinti
+        nyitott/zárt megjelenés a nem-kulcs kártyákon.</li>
+      <li><b>PALYAK bővítés:</b> 4 új pálya-objektum a fenti állomásokkal + <code>szint</code> mező
+        (lásd 8.).</li>
+      <li><b>Additív:</b> a meglévő pályák és mentések nem sérülnek.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>8. Illeszkedés a jutalom-progresszióhoz</h2>
+  <p>A <code>javaslat-jutalom-progresszio.html</code> szerint minden pálya kap egy <code>szint</code>
+     mezőt (feladat = <code>1+szint</code> ✨, pálya vége = <code>10×(szint+1)</code> ✨). A szorzós
+     ligetre javasolt szintek (a liget összességében nehezebb, ezért a felső sávban):</p>
+  <table>
+    <tr><th>Pálya</th><th>Javasolt szint</th><th>1 feladat</th><th>Megjegyzés</th></tr>
+    <tr><td>A – Szorzódallam</td><td>felmondós (mint a bontás)</td><td>~42 ✨ / felmondás</td><td>kulcs-pálya, a bontás gazdaságával; ~450 ✨ / pálya</td></tr>
+    <tr><td>B – Egy szám bűvköre</td><td>4</td><td>5 ✨</td><td>a megértős, közepes</td></tr>
+    <tr><td>C – Osztogató tisztás</td><td>5</td><td>6 ✨</td><td>tiszta osztás</td></tr>
+    <tr><td>D – Szám-rengeteg</td><td>7</td><td>8 ✨</td><td>a liget csúcsa</td></tr>
+  </table>
+  <div class="dontes">
+    <b>A szorzós szintek pontos értéke.</b> A fenti szintek javaslatok. Jó, hogy a szorzós liget a
+    felső sávban van (nehezebb, mint a +/-), vagy legyen külön skálája? A „teljes ösvény" arany
+    szilánk és a sorozat-szorzó ugyanúgy vonatkozik ezekre.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>9. Amit még el kell dönteni</h2>
+  <div class="dontes"><b>1)</b> A kapu és a kihagyás viszonya (6.2): a célba érés elég, vagy legalább félig megoldva?</div>
+  <div class="dontes"><b>2)</b> A szorzós szintek pontos ✨-értéke (8.).</div>
+  <div class="dontes"><b>3)</b> A pályák és a liget nevei (most javaslatok): Szorzódallam / Egy szám bűvköre / Osztogató tisztás / Szám-rengeteg.</div>
+  <div class="dontes"><b>4)</b> Kell-e a szorzós ligethez saját <b>csillagszilánk-sor</b> az odú egén (a +/- 9 mellé), vagy közös?</div>
+
+  <p class="mini">Következő lépés a jóváhagyás után: átvezetés a rendszertervbe (2.x pálya-lista,
+     6.x nehézség, 7.x kapu) + a <code>spec-palya-adatlap</code> kibővítése a 4 pálya pontos
+     szám-tartományaival, majd kód a kijelölt Unikornis Centum beszélgetésben, playteszttel.</p>
+
+</div>
+</body>
+</html>
