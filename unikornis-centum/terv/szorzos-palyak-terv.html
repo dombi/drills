@@ -46,8 +46,9 @@
       <li><b>Teljes mondatos felmondás:</b> „egyszer öt az öt, kétszer öt az tíz…"</li>
       <li><b>B fókuszált marad</b> (állomásonként egy tábla, ×+÷ keverve); C és D teljesen kevert táblájú.</li>
       <li><b>Táblák sorrendje:</b> könnyebbtől nehézig, de keverve (nem szigorú 2→3→4).</li>
-      <li><b>Kapu:</b> a <i>Mondd el a bontásokat</i> + a <i>Szorzódallam</i> végigvitele nyit meg
-        mindent 12 órára; utána újra kell mindkettő. Rejtett számláló.</li>
+      <li><b>Kapu:</b> a <i>Mondd el a bontásokat</i> + a <i>Szorzódallam</i> <b>kerülő nélküli</b>
+        végigvitele (= teljes ösvény) nyit meg mindent 12 órára; utána újra kell mindkettő.
+        Rejtett számláló. Egybeesik az arany szilánkkal.</li>
     </ul>
   </div>
 
@@ -197,14 +198,18 @@
     mentéseknél. Teszt-fogantyú: <code>UC.kapuAllapot</code>.
   </div>
 
-  <div class="dontes">
-    <b>Számít-e a kihagyás?</b> Ha a gyerek a kulcs-pályát <b>végig kerülővel / „megoldás nélkül"</b>
-    viszi végig (célba ér, de nem old meg semmit), az kinyissa-e a kaput?
-    <br><b>Javaslat:</b> IGEN, a célba érés számít (a játék szégyenmentes, nincs kizárás) – de a
-    kihagyós út úgyis önmagát bünteti: nincs csillámpor, nincs arany szilánk. Aki tényleg ki akarja
-    nyitni a többit, magától megoldja. Így nincs gyerek, aki „beragad", és a kapunak mégis van súlya.
-    <br><span class="mini">Alternatíva, ha ez túl lazának tűnik: a kapuhoz a kulcs-pályát legalább
-    <b>félig megoldva</b> kell teljesíteni (a feladatok fele nem kerülő). Bonyolultabb, de „komolyabb" kapu.</span>
+  <div class="kesz" style="border-color:#8fc79a;background:#eefaef">
+    <b>✅ Döntés (2026-09-11): a kapuhoz a kulcs-pályát KERÜLŐ NÉLKÜL kell végigvinni</b> – ez
+    pontosan a <b>teljes ösvény</b> feltétele. A kihagyással (akár egyetlen kerülővel) célba ért
+    kulcs-pálya <b>nem</b> nyitja ki a kaput.
+    <br><br>
+    <b>Ez elegánsan egybeesik az arany csillagszilánkkal:</b> ha a gyerek a bontás- és a
+    szorzódallam-pályát is kerülő nélkül viszi végig, azzal (a) mindkettőre <b>arany szilánk</b>
+    kerül az odú egére, ÉS (b) kinyílik a 12 órás kapu. Egy teljesítmény, két jutalom. A gép
+    ugyanazt a <code>keruloVolt</code> jelzőt figyeli, ami az arany szilánkhoz kell.
+    <br><span class="mini">Következmény: a kaput 12 óránként meg kell újítani mindkét kulcs-pálya
+    hibátlan-út (kerülőmentes) teljesítésével. A hibázás nem számít – csak a kerülő. Így a napi
+    „belépő" tényleg a két alapkészség rövid, valódi gyakorlása.</span>
   </div>
 
   <!-- ============================================================ -->
@@ -251,10 +256,10 @@
 
   <!-- ============================================================ -->
   <h2>9. Amit még el kell dönteni</h2>
-  <div class="dontes"><b>1)</b> A kapu és a kihagyás viszonya (6.2): a célba érés elég, vagy legalább félig megoldva?</div>
-  <div class="dontes"><b>2)</b> A szorzós szintek pontos ✨-értéke (8.).</div>
-  <div class="dontes"><b>3)</b> A pályák és a liget nevei (most javaslatok): Szorzódallam / Egy szám bűvköre / Osztogató tisztás / Szám-rengeteg.</div>
-  <div class="dontes"><b>4)</b> Kell-e a szorzós ligethez saját <b>csillagszilánk-sor</b> az odú egén (a +/- 9 mellé), vagy közös?</div>
+  <div class="dontes"><b>1)</b> A szorzós szintek pontos ✨-értéke (8.).</div>
+  <div class="dontes"><b>2)</b> A pályák és a liget nevei (most javaslatok): Szorzódallam / Egy szám bűvköre / Osztogató tisztás / Szám-rengeteg.</div>
+  <div class="dontes"><b>3)</b> Kell-e a szorzós ligethez saját <b>csillagszilánk-sor</b> az odú egén (a +/- 9 mellé), vagy közös?</div>
+  <p class="mini">(A kapu-küszöb eldöntve: kerülő nélküli végigvitel = teljes ösvény – lásd 6.2.)</p>
 
   <p class="mini">Következő lépés a jóváhagyás után: átvezetés a rendszertervbe (2.x pálya-lista,
      6.x nehézség, 7.x kapu) + a <code>spec-palya-adatlap</code> kibővítése a 4 pálya pontos
