@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spec – Pálya-adatlapok: Szorzós liget (A–D)</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  pre{font-size:12px;overflow:auto;background:#eef3ee;border:1px solid #dbe6db;border-radius:6px;padding:8px 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>📋 Spec – Pálya-adatlapok: Szorzós liget (A–D)</h1>
+  <p class="mottoo">A <b>rendszerterv 2.2b / 6.2</b> kibontása a 4 szorzós-osztós pályára – ezekből
+     épül a <code>PALYAK</code> szorzós blokkja és a <code>GEN</code> új típusai. Az 1–3. pálya
+     adatlapjának (<code>spec-palya-adatlap-1-3.html</code>) mintájára. Minden szám
+     <b>kiindulási javaslat</b>, az első playteszten hangoljuk.</p>
+
+  <!-- ============================================================ -->
+  <h2>0. Közös szabályok (mind a négy pálya)</h2>
+  <div class="kesz">
+    <ul>
+      <li>Az első állomás mindig <code>{ nev:"Rajt" }</code> (nincs feladat); az utolsón <code>cel:true</code>.</li>
+      <li><b>Feladatszám</b> = <code>darab</code> (a felmondásnál mindig 1 teljes tábla).</li>
+      <li><b>Teljes szorzótábla:</b> a szorzó/tábla 1–10, a másik tényező 1–10; <b>az eredmény ≤ 100</b>.</li>
+      <li><b>Osztás mindig maradék nélkül:</b> hányadosból építve – <code>q</code> (1–10) × <code>d</code>
+        (osztó) = osztandó ≤ 100; a kérdés <code>(q·d) ÷ d = ?</code>, a válasz <code>q</code>.</li>
+      <li><b>Ismétlés-kerülés:</b> egy állomáson belül nincs két azonos feladat (a szorzásnál
+        <code>N×a</code> és <code>a×N</code> ugyanaz).</li>
+      <li><b>Táblák keverve:</b> ahol egy állomás több táblát/osztót von be, azok <b>vegyesen</b> jönnek
+        (nem blokkban). Kivétel a <b>B pálya</b>: ott állomásonként EGY tábla (fókuszált).</li>
+      <li><b>Felolvasás:</b> szorzás „hétszer nyolc. Mennyi?"; osztás „ötvenhat osztva nyolccal. Mennyi?";
+        felmondás „Mondd fel a hetes szorzótáblát!" (részletes hang-sablonok: <code>spec-hang-es-beszed.html</code>).</li>
+      <li><b>Válasz</b> elsősorban beszéddel, kisegítő a beírás – mint a többi pályán.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>A. pálya — „Szorzódallam" 🎵 (kulcs-pálya)</h2>
+  <div class="kesz">
+    <b>id:</b> <code>szorzo-dallam</code> &nbsp;·&nbsp; <b>feladat.tipus:</b> <code>szorzotabla-felmondas</code>
+    &nbsp;·&nbsp; <b>szint:</b> felmondós (9 ✨/felmondás) &nbsp;·&nbsp;
+    <b>alcím:</b> „Mondd fel az egész sort – egyszer öt az öt, kétszer öt az tíz…"
+  </div>
+  <p>A gyerek egy egész táblát mond fel, lentről fölfelé, teljes mondattal. A gép az egészet értékeli
+     (a bontás mintájára): a kimondott <b>eredmények</b> és a <b>sorrend</b> számít.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Beállítás</th><th>Mi az új</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Két kavics</td><td><code>tabla:2</code></td><td>a legkönnyebb, párosával</td></tr>
+    <tr><td>3</td><td>Öreg tölgy</td><td><code>tabla:10</code></td><td>kerek, látványos minta</td></tr>
+    <tr><td>4</td><td>Mohapárna</td><td><code>tabla:5</code></td><td>ötösével, ismerős</td></tr>
+    <tr><td>5</td><td>Csörgő patak</td><td><code>tabla:3</code></td><td>első „igazi" tábla</td></tr>
+    <tr><td>6</td><td>Napos tisztás</td><td><code>tabla:4</code></td><td></td></tr>
+    <tr><td>7</td><td>Szürke szikla</td><td><code>tabla:6</code></td><td>a nehezek kezdete</td></tr>
+    <tr><td>8</td><td>Sűrű bozót</td><td><code>tabla_keszlet:[7,8,9]</code></td><td>a legnehezebbek, játékonként más</td></tr>
+    <tr><td>9</td><td>Odú-küszöb</td><td><code>tabla_keszlet:[2..10], cel:true</code></td><td>véletlen tábla – a csúcs</td></tr>
+  </table>
+  <p class="mini">8 felmondás. A <code>tabla_keszlet</code> esetén a generátor egyet sorsol belőle.</p>
+
+  <!-- ============================================================ -->
+  <h2>B. pálya — „Egy szám bűvköre" 🔮</h2>
+  <div class="kesz">
+    <b>id:</b> <code>egy-szam</code> &nbsp;·&nbsp; <b>feladat.tipus:</b> <code>szorzas</code> + <code>osztas</code> vegyesen
+    &nbsp;·&nbsp; <b>szint:</b> 4 &nbsp;·&nbsp; <b>alcím:</b> „Egy szám minden titka – szorzás és osztás együtt."
+  </div>
+  <p>Állomásonként EGY tábla; azon belül a szorzás és az osztás <b>keverve</b> (kb. fele-fele).
+     A <code>szorzo:N</code> a fókusz; a másik tényező / a hányados 1–10.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Beállítás</th><th>darab</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>A kettes</td><td><code>szorzo:2</code></td><td>6</td></tr>
+    <tr><td>3</td><td>A tízes</td><td><code>szorzo:10</code></td><td>6</td></tr>
+    <tr><td>4</td><td>Az ötös</td><td><code>szorzo:5</code></td><td>6</td></tr>
+    <tr><td>5</td><td>A hármas</td><td><code>szorzo:3</code></td><td>6</td></tr>
+    <tr><td>6</td><td>A négyes</td><td><code>szorzo:4</code></td><td>6</td></tr>
+    <tr><td>7</td><td>A hatos</td><td><code>szorzo:6</code></td><td>6</td></tr>
+    <tr><td>8</td><td>A nehéz</td><td><code>szorzo_keszlet:[7,8,9]</code> (állomás elején sorsol egyet)</td><td>6</td></tr>
+    <tr><td>9</td><td>A kilences</td><td><code>szorzo:9, cel:true</code></td><td>6</td></tr>
+  </table>
+  <p class="mini">Feladatok: ~48. Példa (ötös): <code>5×7=?</code> · <code>45÷5=?</code> · <code>5×3=?</code> · <code>30÷5=?</code></p>
+
+  <!-- ============================================================ -->
+  <h2>C. pálya — „Osztogató tisztás" ➗</h2>
+  <div class="kesz">
+    <b>id:</b> <code>osztas-100</code> &nbsp;·&nbsp; <b>feladat.tipus:</b> <code>osztas</code>
+    &nbsp;·&nbsp; <b>szint:</b> 5 &nbsp;·&nbsp; <b>alcím:</b> „Osztás az egész erdőben, százig."
+  </div>
+  <p>Tiszta osztás, mindig maradék nélkül, ≤ 100. Az <code>osztok</code> halmaz állomásonként tágul,
+     de <b>állomáson belül keverve</b>.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Beállítás</th><th>darab</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Első lépések</td><td><code>osztok:[2,10]</code></td><td>5</td></tr>
+    <tr><td>3</td><td>Ötös forrás</td><td><code>osztok:[5,2]</code></td><td>5</td></tr>
+    <tr><td>4</td><td>Gombamező</td><td><code>osztok:[3,4]</code></td><td>5</td></tr>
+    <tr><td>5</td><td>Kevert ösvény</td><td><code>osztok:[2,3,4,5,10]</code></td><td>6</td></tr>
+    <tr><td>6</td><td>Sötét sűrű</td><td><code>osztok:[6,7]</code></td><td>6</td></tr>
+    <tr><td>7</td><td>Szikla-hágó</td><td><code>osztok:[8,9]</code></td><td>6</td></tr>
+    <tr><td>8</td><td>Nagy vegyes</td><td><code>osztok:[2,3,4,5,6,7,8,9,10]</code></td><td>6</td></tr>
+    <tr><td>9</td><td>Odú-küszöb</td><td><code>osztok:[2..10], cel:true</code></td><td>6</td></tr>
+  </table>
+  <p class="mini">Feladatok: ~45.</p>
+
+  <!-- ============================================================ -->
+  <h2>D. pálya — „Szám-rengeteg" 🌲</h2>
+  <div class="kesz">
+    <b>id:</b> <code>vegyes-szorzo</code> &nbsp;·&nbsp; <b>feladat.tipus:</b> <code>szorzas</code> + <code>osztas</code> véletlenül
+    &nbsp;·&nbsp; <b>szint:</b> 7 &nbsp;·&nbsp; <b>alcím:</b> „Minden összeáll – szorzás és osztás, keresztül-kasul."
+  </div>
+  <p>Minden kérdés véletlenül szorzás vagy osztás, a <code>tablak</code> halmazból, ≤ 100. A halmaz
+     állomásonként tágul; a művelet végig vegyes.</p>
+  <table>
+    <tr><th>#</th><th>Állomás</th><th>Beállítás</th><th>darab</th></tr>
+    <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
+    <tr><td>2</td><td>Erdőszél</td><td><code>tablak:[2,5,10]</code></td><td>5</td></tr>
+    <tr><td>3</td><td>Ösvény</td><td><code>tablak:[2,3,4,5,10]</code></td><td>5</td></tr>
+    <tr><td>4</td><td>Tisztás</td><td><code>tablak:[2,3,4,5,10]</code></td><td>6</td></tr>
+    <tr><td>5</td><td>Sűrűsödik</td><td><code>tablak:[6,7]</code></td><td>6</td></tr>
+    <tr><td>6</td><td>Mély vadon</td><td><code>tablak:[8,9]</code></td><td>6</td></tr>
+    <tr><td>7</td><td>Minden fa</td><td><code>tablak:[2..10]</code></td><td>6</td></tr>
+    <tr><td>8</td><td>Százig</td><td><code>tablak:[2..10]</code></td><td>6</td></tr>
+    <tr><td>9</td><td>Odú-küszöb</td><td><code>tablak:[2..10], cel:true</code></td><td>6</td></tr>
+  </table>
+  <p class="mini">Feladatok: ~46.</p>
+
+  <!-- ============================================================ -->
+  <h2>Összesítés</h2>
+  <table>
+    <tr><th>Pálya</th><th>Feladatok</th><th>Állomások</th><th>Szint</th></tr>
+    <tr><td>A – Szorzódallam</td><td>8 felmondás</td><td>8 (+Rajt)</td><td>felmondós (9 ✨)</td></tr>
+    <tr><td>B – Egy szám bűvköre</td><td>~48</td><td>8 (+Rajt)</td><td>4</td></tr>
+    <tr><td>C – Osztogató tisztás</td><td>~45</td><td>8 (+Rajt)</td><td>5</td></tr>
+    <tr><td>D – Szám-rengeteg</td><td>~46</td><td>8 (+Rajt)</td><td>7</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Generátor-elvárás (a FELADATGENERATOR-hoz)</h2>
+  <div class="kesz">
+    <pre>szorzotabla_felmondas.ujKerdes(cfg):
+  N = cfg.tabla ?? veletlen_elem(cfg.tabla_keszlet)
+  cel_sor = [1*N, 2*N, ... 10*N]           // amit fel kell mondani, sorrendben
+  vissza { csalad:"felmondas", N:N, sorok:cel_sor,
+           felolvas:"Mondd fel a "+szo(N)+"-es szorzótáblát! Egyszer "+szo(N)+" az "+szo(N)+"...",
+           felmondHelyesE: (kimondott) => a kimondott EREDMÉNYEK sorrendben = cel_sor
+                                          (az "egyszer/kétszer/az" kötőszó mindegy) }
+
+szorzas.ujKerdes(cfg):
+  N = cfg.szorzo ?? veletlen_elem(cfg.tablak)
+  ismételd: a = veletlen(1,10)  amíg (N*a &lt;= 100 ÉS nem_volt_mar(N,a))
+  vissza { szoveg:N+" × "+a+" = ?", felolvas:szo(N)+"-szer "+szo(a)+". Mennyi?",
+           helyes:N*a, naplo:{tipus:"szorzas", a:N, b:a, helyes:N*a} }
+
+osztas.ujKerdes(cfg):
+  d = cfg.oszto ?? veletlen_elem(cfg.osztok)
+  ismételd: q = veletlen(1,10)  amíg (d*q &lt;= 100 ÉS nem_volt_mar(d,q))
+  osztando = d*q
+  vissza { szoveg:osztando+" ÷ "+d+" = ?", felolvas:szo(osztando)+" osztva "+szo(d)+"-vel/-val. Mennyi?",
+           helyes:q, naplo:{tipus:"osztas", a:osztando, b:d, helyes:q} }
+
+// B és D: a "szorzas" és "osztas" közül állomásonként/feladatonként keverve (kb. fele-fele);
+// B-nél a fókusz-szám N (szorzo), D-nél a tablak halmazból sorsolt N.</pre>
+    A tipp- és felolvasó-sablonok pontos szövege: <code>spec-hang-es-beszed.html</code>.
+  </div>
+
+</div>
+</body>
+</html>
