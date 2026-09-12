@@ -71,6 +71,13 @@
     <button class="fo" onclick="gyorsjavit()">Adj vissza mindent</button>
   </div>
 
+  <div class="kartya" style="border-color:#c9a8e6">
+    <h2>3/C. Lili pontos állapota</h2>
+    <p class="fig">Pontosan Lili elmondása szerint: <b>555 csillagpor</b>, minden ruha+bútor,
+       és kész minden pálya <b>kivéve</b> az Erdő mélye, Erdő szíve és a 4 szorzós pálya (azok nyitva, de még nem teljesítve).</p>
+    <button class="fo" onclick="lili()">Lili állapotának visszaállítása</button>
+  </div>
+
   <div id="allapot" class="allapot"></div>
   <a class="jatek" href="./index.html">▶ Vissza a játékhoz</a>
 </div>
@@ -163,6 +170,40 @@ function gyorsjavit() {
   try {
     localStorage.setItem(KULCS, JSON.stringify(m));
     statusz("Kész! Minden pálya nyitva, 9999 csillagpor, összes ruha és bútor a tiéd. Nyisd meg a játékot.", true);
+    mutat();
+  } catch (e) { statusz("Nem sikerült írni: " + e.message, false); }
+}
+function lili() {
+  var m = olvas();
+  if (!m || !m.profilok) {
+    m = { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed",
+          profilok: { ragyogas: {}, tuz: {}, csillamharmat: {} } };
+  }
+  var RUHA = { fej:["fej-a","fej-k","fej-r"], nyak:["nyak-a","nyak-k","nyak-r"], hat:["hat-a","hat-k","hat-r"],
+    lab:["lab-a","lab-k","lab-r"], oldal:["oldal-a","oldal-k","oldal-r"], farok:["farok-a","farok-k","farok-r"] };
+  var BUTOR = { fal:[1,2,3],ablak:[1,2,3],fuggony:[1,2,3],agy:[1,2,3],kalyha:[1,2,3],
+    polc:[1,2,3],asztal:[1,2,3],szonyeg:[1,2,3],fuzer:[1,2] };
+  var KESZ = ["bontas-felmondas","oszkiv-10","oszkiv-20","tizesek","aprok","lepegeto","atlepo"];
+  var NEM  = ["erdo-melye","erdo-szive","szorzo-dallam","egy-szam","osztas-100","vegyes-szorzo"];
+  var EV = 100 * 24 * 60 * 60 * 1000;
+  Object.keys(m.profilok).forEach(function (k) {
+    var p = m.profilok[k];
+    p.csillampor = 555;
+    if (!p.kapu) p.kapu = { nyitvaEddig: 0, kulcsKesz: {} };
+    p.kapu.nyitvaEddig = Date.now() + EV;   // nyitva, hogy a maradék 6 pálya játszható legyen
+    if (!p.palyak) p.palyak = {};
+    KESZ.forEach(function (id) { if (!p.palyak[id]) p.palyak[id] = { kesz: true, rekordElsore: 0 }; else p.palyak[id].kesz = true; });
+    NEM.forEach(function (id)  { if (!p.palyak[id]) p.palyak[id] = { kesz: false, rekordElsore: 0 }; else p.palyak[id].kesz = false; });
+    if (!p.oltozet) p.oltozet = { fej:null,nyak:null,hat:null,lab:null,oldal:null,farok:null,van:{} };
+    if (!p.oltozet.van) p.oltozet.van = {};
+    Object.keys(RUHA).forEach(function (h){ RUHA[h].forEach(function(id){ p.oltozet.van[id]=1; }); });
+    if (!p.odu) p.odu = {}; if (!p.odu.vanButor) p.odu.vanButor = {};
+    Object.keys(BUTOR).forEach(function (h){ if (!p.odu.vanButor[h]) p.odu.vanButor[h]={}; BUTOR[h].forEach(function(id){ p.odu.vanButor[h][id]=1; }); });
+  });
+  m.ragyogasNulla20260906 = 1;
+  try {
+    localStorage.setItem(KULCS, JSON.stringify(m));
+    statusz("Kész! 555 csillagpor, minden cucc, a 7 kész pálya bejelölve, a 6 másik nyitva. Nyisd meg a játékot.", true);
     mutat();
   } catch (e) { statusz("Nem sikerült írni: " + e.message, false); }
 }
