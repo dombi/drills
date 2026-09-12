@@ -78,7 +78,7 @@
 
   <h1>🦄 Rendszerterv – AmbitusNumerorum: Unicornis Centum</h1>
   <p class="mottoo">
-    Önálló tanulójáték a Matekos mappába (<b>fájl:</b> <code>unikornis-centum.html</code>).
+    Önálló tanulójáték a <code>drills/unikornis-centum/</code> mappában (<b>3 fájl:</b> <code>index.html</code> + <code>style.css</code> + <code>game.js</code>).
     Alap: a <b>Játéktervező/jatekterv-vazlat.html</b> koncepciója + a meglévő
     <b>tanulojatek-gyujtemeny.html</b> motor bevált megoldásai. Amíg nincs jóváhagyva, kód nem készül.
   </p>
@@ -152,7 +152,7 @@
       <li>Az <b>„Összeadás-kivonás" témacsomag</b> gyakorló része, egy játékban:
         számbontás felmondása + összeadás-kivonás a <b>10-es</b>, <b>20-as</b> és <b>100-as</b>
         számkörben.</li>
-      <li>Önálló, <b>egyetlen HTML-fájlos</b> játék a Matekos mappában. Nem egy nagyobb játék része.</li>
+      <li>Önálló, <b>háromfájlos</b> játék a <code>drills/unikornis-centum/</code> mappában (<code>index.html</code> + <code>style.css</code> + <code>game.js</code>). Nem egy nagyobb játék része.</li>
       <li><b>13 pálya-kártya két ligetben</b> (Összeadó + Szorzós), mind egy közös erdő-grafikán (3. és 6. szakasz).</li>
       <li>Csak a <b>gyakorlás</b> ág (nem a „tanítás" / „hiányészlelés" – lásd 2.3 és 11.2).</li>
     </ul>
@@ -982,18 +982,19 @@
 
   <h3>13.1 Platform</h3>
   <div class="kesz">
-    <b>Egyetlen önálló HTML-fájl</b> a Matekos mappában (javasolt név:
-    <code>unikornis-centum.html</code>). Nincs telepítés, nincs szerver, nincs „build".
+    <b>Három statikus fájl</b> a <code>drills/unikornis-centum/</code> mappában
+    (<code>index.html</code> + <code>style.css</code> + <code>game.js</code>). Nincs telepítés, nincs szerver, nincs „build".
     <b>Dupla kattintásra</b> megnyílik a böngészőben, és <b>internet nélkül</b> is fut.
     Ajánlott böngésző: <b>Chrome</b> (beszédfelismerés); más böngészőben a beírással működik.
   </div>
 
   <h3>13.2 A fájl belső szerkezete</h3>
-  <p>A meglévő <code>tanulojatek-gyujtemeny.html</code> bevált blokk-mintáját követi, saját kóddal.
-     A <code>&lt;script&gt;</code>-en belül, sorrendben:</p>
+  <p>A kód a <code>game.js</code>-ben van (a <code>tanulojatek-gyujtemeny.html</code> bevált blokk-mintája szerint),
+     a <code>style.css</code> a kinézet, az <code>index.html</code> csak betölti a kettőt.
+     A <code>game.js</code>-en belül, sorrendben:</p>
   <table>
     <tr><th>Blokk</th><th>Mit tartalmaz</th><th>Ki nyúl hozzá</th></tr>
-    <tr><td><code>PALYAK</code></td><td>a <b>7</b> pálya adatai: állomások, szám-tartományok, <code>atlepes</code>-kapcsoló</td><td>a fejlesztő – ez változik leggyakrabban</td></tr>
+    <tr><td><code>PALYAK</code></td><td>a <b>13</b> pálya adatai (9 összeadó + 4 szorzós liget): állomások, szám-tartományok, <code>atlepes</code>-kapcsoló</td><td>a fejlesztő – ez változik leggyakrabban</td></tr>
     <tr><td><code>TEMA</code></td><td>a <b>közös</b> erdő kinézet: színek, betű, ég, háttér-emojik, feliratok</td><td>új „bőr"-nél</td></tr>
     <tr><td><code>LENYEK</code></td><td>a 3 unikornis: <code>ragyogas</code> (fehér, csillag-jel), <code>tuz</code> (korall, láng-jel), <code>csillamharmat</code> (világoskék, hópehely-jel) = 3 külön gyerek-profil; <code>rajz</code>-kulcs (korall/kek/rozsa) + szín-paraméterek + kinézet-opciók (szemszín, sörény)</td><td>szín/név finomhangolásánál</td></tr>
     <tr><td><code>BAGOLY</code></td><td>a kabala SVG-je + a beszédbuborék-sablon (a <code>palya-alap-hangos.svg</code> szerint)</td><td>ritkán</td></tr>

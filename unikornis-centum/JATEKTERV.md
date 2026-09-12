@@ -1,7 +1,9 @@
 # AmbitusNumerorum: Unicornis Centum — játékterv
 
-*Élő dokumentum. Minden ülés végén frissül. A részletes tervek: a `Matekos` mappában a
-`rendszerterv-osszeadas-kivonas-100.html` és a hat `spec-*.html`.*
+*Élő dokumentum. Minden ülés végén frissül. A kanonikus hely a `drills/unikornis-centum/` repó:
+a kód a `game.js` (+ `index.html` + `style.css`), a döntések a `DONTESEK.md`, a részletes tervek
+ugyanitt a `terv/` mappában (`rendszerterv-osszeadas-kivonas-100.html` + a `spec-*.html` fájlok).
+A Matekos mappa csak grafikai referencia (SVG/PNG) — ott NE szerkessz kódot.*
 
 ## Mi ez
 
