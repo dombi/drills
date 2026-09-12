@@ -2304,20 +2304,24 @@ function diszPreviewOdu(zona, id) {
   return uj;
 }
 
-/* --- csillagszilánk-réteg az ablak egén (7.1c/3.3b): 9 fix pozíció a pályák sorrendjében.
-   kész pálya = ezüst szilánk, teljes ösvény (arany) = ragyogó arany, még nem kész = halvány pont.
+/* --- csillagszilánk-réteg az ablak egén (7.1c/3.3b): pályánként egy szilánk, a PALYAK sorrendjében.
+   teljes ösvény (arany) = ragyogó arany szilánk, kész (volt kerülő) = halványabb ezüst,
+   még nem kész = SEMMI nem látszik (producer-döntés, 2026-09-11 – nincs üres körvonal/pötty).
+   A szilánkszám a PALYAK hosszához igazodik (most 13 = 9 + 4); ha több pálya lenne, mint pozíció,
+   a maradék egy belső körre kerül. Odú-koordináta (680×540), a hívó klippeli az ablakra.
    Csak a szoba-ablakban jelenik meg (a napszak-bélyegképek NEM hívják). --- */
-function oduSzilankReteg(W, H) {
-  var poz = [[0.33, 0.35], [0.5, 0.29], [0.67, 0.35], [0.27, 0.5], [0.5, 0.52], [0.73, 0.5], [0.34, 0.7], [0.5, 0.75], [0.66, 0.7]];
-  var s = '<g pointer-events="none">';
-  for (var i = 0; i < PALYAK.length && i < 9; i++) {
-    var x = poz[i][0] * W, y = poz[i][1] * H;
+function oduSzilankReteg() {
+  var POZ = [[166, 154], [188, 145], [210, 142], [228, 172], [230, 192], [216, 210], [198, 220], [182, 222], [152, 196], [146, 186], [150, 162], [184, 188], [196, 196]];
+  var s = "";
+  for (var i = 0; i < PALYAK.length; i++) {
     var pr = P().palyak[PALYAK[i].id];
-    if (pr && pr.kesz && pr.arany) s += '<g class="odu-szilank-arany">' + csillagSVG(x, y, 6.5, "#ffe08a") + '<circle cx="' + x + '" cy="' + y + '" r="2" fill="#fff6d8"/></g>';
-    else if (pr && pr.kesz) s += csillagSVG(x, y, 4.6, "#e2e8f0");
-    else s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="1.6" fill="#ffffff" opacity="0.2"/>';
+    if (!pr || !pr.kesz) continue;                 /* üres hely NEM látszik */
+    var p = POZ[i];
+    if (!p) { var a = Math.PI * 2 * (i - POZ.length) / Math.max(1, PALYAK.length - POZ.length); p = [190 + Math.cos(a) * 30, 180 + Math.sin(a) * 30]; }
+    if (pr.arany) s += '<g class="odu-szilank-arany"><use href="#sz-arany" x="' + p[0] + '" y="' + p[1] + '"/></g>';
+    else s += '<use href="#sz-ezust" x="' + p[0] + '" y="' + p[1] + '"/>';
   }
-  return s + '</g>';
+  return s;
 }
 /* --- az ablakon át látszó ég egy W×H dobozban (bal-felső sarok = 0,0) --- */
 function oduEgSVG(napszak, W, H) {
@@ -2416,7 +2420,12 @@ function oduSVG(lenyKulcs, o, elonezet) {
   var tint = { este: ["#2b2a5a", 0.14], reggel: ["#ffd0e0", 0.08], del: ["#fff3d0", 0.04], eclipse: ["#0a0a1e", 0.22] }[o.napszak] || ["#2b2a5a", 0.14];
 
   var s = '<svg viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">';
-  s += '<defs><clipPath id="odu-ablak"><circle cx="' + WX + '" cy="' + WY + '" r="' + (WR - 10) + '"/></clipPath></defs>';
+  s += '<defs><clipPath id="odu-ablak"><circle cx="' + WX + '" cy="' + WY + '" r="' + (WR - 10) + '"/></clipPath>';
+  /* csillagszilánk-szimbólumok (grafika: mockup-csillagszilank-ego.html) – 0,0 középre rajzolva */
+  s += '<filter id="odu-ragyog" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="2.3"/></filter>';
+  s += '<g id="sz-arany"><circle r="9" fill="#ffd24d" opacity="0.55" filter="url(#odu-ragyog)"/><path d="M0 -8 L2.2 -2.2 L8 0 L2.2 2.2 L0 8 L-2.2 2.2 L-8 0 L-2.2 -2.2 Z" fill="#ffe07a" stroke="#f2b026" stroke-width="0.7" stroke-linejoin="round"/><path d="M0 -4 L1 -1 L4 0 L1 1 L0 4 L-1 1 L-4 0 L-1 -1 Z" fill="#fff6d8"/><circle r="1.4" fill="#ffffff"/></g>';
+  s += '<g id="sz-ezust"><circle r="6" fill="#cfe0f2" opacity="0.28" filter="url(#odu-ragyog)"/><path d="M0 -6.5 L1.7 -1.7 L6.5 0 L1.7 1.7 L0 6.5 L-1.7 1.7 L-6.5 0 L-1.7 -1.7 Z" fill="#d9e6f4" stroke="#a9bdd6" stroke-width="0.6" stroke-linejoin="round"/><circle r="1.1" fill="#ffffff"/></g>';
+  s += '</defs>';
 
   /* fa kívül + fal + meleg alapfény */
   s += '<rect x="0" y="0" width="680" height="540" fill="#2e2350"/>';
@@ -2455,8 +2464,9 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '<g clip-path="url(#odu-ablak)"><g transform="translate(' + (WX - 60) + ',' + (WY - 60) + ')">';
   s += oduEgSVG(o.napszak, 120, 120);
   s += oduIdoSVG(o.ido, 120, 120, 7);
-  s += oduSzilankReteg(120, 120);          /* a gyűjtött csillagszilánkok az égen (7.1c) */
-  s += '</g></g>';
+  s += '</g>';
+  s += '<g pointer-events="none">' + oduSzilankReteg() + '</g>';   /* a gyűjtött csillagszilánkok az égen (7.1c/3.3b), odú-koordinátában, a hold/felhő ALATT */
+  s += '</g>';
   s += '<ellipse cx="168" cy="206" rx="16" ry="7" fill="#cbb6e6"/><circle cx="160" cy="204" r="6" fill="#cbb6e6"/><circle cx="176" cy="203" r="7" fill="#cbb6e6"/>';
   s += '<line x1="190" y1="126" x2="190" y2="234" stroke="#a88fce" stroke-width="6"/><line x1="136" y1="180" x2="244" y2="180" stroke="#a88fce" stroke-width="6"/>';
   s += butorElem(o, "ablak");               /* v3: faragott keret / ólomüveg */
