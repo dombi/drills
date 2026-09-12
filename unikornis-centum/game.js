@@ -180,7 +180,7 @@ var PALYAK = [
 
   /* ══ SZORZÓS LIGET (szorzás-osztás, 100-ig) — szorzos-palyak-terv.html + spec-palya-adatlap-szorzos.html ══ */
   {
-    id: "szorzo-dallam", nev: "Szorzódallam", ikon: "🎵", regio: "szorzo", hamarosan: true,
+    id: "szorzo-dallam", nev: "Szorzódallam", ikon: "🎵", regio: "szorzo",
     szint: 8,
     palcim: "Mondd fel az egész szorzótáblát – egyszer öt az öt…",
     alap: { tipus: "szorzotabla-felmondas" },
@@ -357,6 +357,10 @@ var OSZT_VAL = { 2: "kettővel", 3: "hárommal", 4: "néggyel", 5: "öttel", 6: 
 function szorSzo(n) { return SZOR_SZO[n] || (szo(n) + "-szer"); }
 function azSzo(n) { return "aáeéiíoóöőuúüű".indexOf(szo(n).charAt(0)) >= 0 ? "az" : "a"; }
 function osztVal(n) { return OSZT_VAL[n] || (szo(n) + "-vel"); }
+/* a szorzótábla-felmondás bevezetőjéhez: „a hetes szorzótáblát" (spec-hang 2.2b) */
+var TABLA_SZO = { 2: "kettes", 3: "hármas", 4: "négyes", 5: "ötös", 6: "hatos",
+                  7: "hetes", 8: "nyolcas", 9: "kilences", 10: "tízes" };
+function tablaSzo(n) { return TABLA_SZO[n] || szo(n); }
 /* a tipp-szövegek a spec-hang-es-beszed.html kánonját követik (Szorzós liget tippek) */
 function tippSzorzas(nagy, kis) {
   if (kis <= 1) return "Gondolj a szorzótáblára: " + szorSzo(1) + " " + szo(nagy) + " az " + szo(nagy) + ".";
@@ -408,6 +412,24 @@ var GEN = {
       felolvas: "Mondd el " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
       lapos: lapos, tipp: "Kezdd lentről: nulla meg " + szo(N) + ". Aztán egy meg " + szo(N - 1) + ". Folytasd!",
       naplo: { tipus: "szambontas", kerdes: N + " bontása", helyes: N, atlepes: false } };
+  },
+  /* szorzótábla-felmondás: egy egész N-es tábla hangos felmondása (a szambontas mintája,
+     spec-hang 2.2b). Elvárt sorok: 1×N … 10×N; a sorszorzó és a tábla-szám elhagyható. */
+  "szorzotabla-felmondas": function (cfg) {
+    cfg = cfg || {};
+    var N = (cfg.tabla != null) ? cfg.tabla
+          : (cfg.tabla_keszlet ? veletlenElem(cfg.tabla_keszlet)
+          : (cfg.szorzo != null ? cfg.szorzo : veletlenElem(cfg.tablak || [2, 3, 4, 5, 6, 7, 8, 9, 10])));
+    var szorzatok = []; for (var k = 1; k <= 10; k++) szorzatok.push(k * N);
+    return {
+      csalad: "felmondas", felmod: "szorzotabla", N: N, szorzatok: szorzatok,
+      szoveg: "Mondd fel a(z) " + N + "-es szorzótáblát!",
+      kartyaHTML: 'Mondd fel a <span class="szam-jelveny">' + N + '</span>-es szorzótáblát!',
+      felolvas: "Mondd fel a " + tablaSzo(N) + " szorzótáblát. " + szorSzo(1) + " " + szo(N) + " az " + szo(N) +
+                ", " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ", és így tovább.",
+      tipp: "Kezdd az elején: " + szorSzo(1) + " " + szo(N) + " az " + szo(N) + ". Aztán " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ". Folytasd!",
+      naplo: { tipus: "szorzotabla-felmondas", kerdes: N + "-es szorzótábla", helyes: N, atlepes: false }
+    };
   },
   /* szorzás: a×b ≤ 100; a fókusz N a cfg.szorzo, vagy a cfg.tablak-ból sorsolt tábla */
   szorzas: function (cfg, kerultMar) {
@@ -472,7 +494,8 @@ function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { 
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
 function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 } }; }
-function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet() }; }
+function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* 12 órás rejtett kapu (6.4) */
+function alapProfil() { return { csillampor: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu() }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -510,6 +533,9 @@ function betolt() {
         if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
         if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
         p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
+        if (!p.kapu) p.kapu = alapKapu();
+        if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
+        if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -699,6 +725,23 @@ function bontasEloFogyaszt(sor, puffer, N) {
   return { sor: sor, puffer: puffer, uj: uj, hiba: hiba };
 }
 
+/* Szorzótábla-fogyasztó (a bontás mintájára, spec-hang 2.2b): a hallott számokat a
+   k·N szorzatokhoz illeszti sorban. Elvárt sorok: k·N (k = 1…10), lentről. Egy szorzat
+   előtt opcionálisan elhangozhat a k (sorszorzó) és az N (tábla) tag — ezeket átugorja;
+   maga a szorzat kötelező. `sor` a következő szorzat 0-alapú indexe (kész, ha sor === 10). */
+function szorzoEloFogyaszt(sor, puffer, szorzatok, N) {
+  puffer = puffer.slice();
+  var uj = 0, hiba = false;
+  while (puffer.length) {
+    if (sor >= szorzatok.length) { hiba = true; break; }   /* minden sor kész, mégis jött szám */
+    var cel = szorzatok[sor], k = sor + 1;
+    if (puffer[0] === cel) { puffer.shift(); sor++; uj++; continue; }   /* megvan a szorzat */
+    if (puffer[0] === k || puffer[0] === N) { puffer.shift(); continue; }  /* opcionális sorszorzó / tábla */
+    hiba = true; break;
+  }
+  return { sor: sor, puffer: puffer, uj: uj, hiba: hiba };
+}
+
 /* A felismerő az "öt meg egy"-et gyakran "ötvenegy"-nek (51) hallja, a
    "hat meg nulla"-t "hatvan"-nak. Ebben a feladatban 10-nél nagyobb szám nem
    hangozhat el legitim módon → minden 10 feletti számból szétbontott jelöltet
@@ -717,18 +760,22 @@ function szetbont(szamok, nullaval) {
 
 function bontasEloChunk(altList) {
   if (!FB.aktiv) return;
-  var N = FB.N, legjobb = null, jeloltek = [];
+  var N = FB.N, szorzo = (FB.felmod === "szorzotabla"), legjobb = null, jeloltek = [];
   altList.forEach(function (sz) {
     var n = szamokKinyer(sz);
     if (!n.length) return;
     jeloltek.push(n);
-    if (n.some(function (v) { return v > 10; })) {
+    /* a "51 → 5,1" szétbontó heurisztika CSAK a bontásnál kell (ott nincs 10-nél nagyobb
+       legitim szám); a szorzótáblánál a szorzatok maguk 10 fölöttiek, nem szabad szétvágni */
+    if (!szorzo && n.some(function (v) { return v > 10; })) {
       jeloltek.push(szetbont(n, true));
       jeloltek.push(szetbont(n, false));
     }
   });
   jeloltek.forEach(function (szamok) {
-    var proba = bontasEloFogyaszt(FB.sor, FB.puffer.concat(szamok), N);
+    var proba = szorzo
+      ? szorzoEloFogyaszt(FB.sor, FB.puffer.concat(szamok), FB.szorzatok, N)
+      : bontasEloFogyaszt(FB.sor, FB.puffer.concat(szamok), N);
     var pont = proba.uj * 10 + (proba.hiba ? 0 : 5);   /* több kész sor > hibátlanság */
     if (!legjobb || pont > legjobb.pont) { legjobb = proba; legjobb.pont = pont; }
   });
@@ -739,10 +786,10 @@ function bontasEloChunk(altList) {
       setTimeout(function () { hangCsilla(); }, k * 200);
     FB.sor = legjobb.sor;
     FB.sorHibak = 0;                                  /* új sor: nulláról indul az elakadás-számláló */
-    J.parokKesz = Math.min(FB.sor, N + 1);
+    J.parokKesz = Math.min(FB.sor, FB.sorDb);
     renderPipaSor();
   }
-  if (FB.sor > N) { FB.puffer = legjobb.puffer; bontasEloSiker(); return; }
+  if (FB.sor >= FB.sorDb) { FB.puffer = legjobb.puffer; bontasEloSiker(); return; }
   if (legjobb.hiba) {
     FB.puffer = [];                                   /* a rossz próbálkozást eldobjuk – de a pipák maradnak */
     hangHiba();
@@ -766,7 +813,8 @@ function bontasEloBotlas() {
   if (!FB.aktiv) return;
   FB.sorHibak++;
   if (FB.sorHibak >= 4) { bontasEloVege(); return; }
-  bagolyMondat("Most ezt mondd: " + FB.sor + " meg " + (FB.N - FB.sor) + ".");
+  if (FB.felmod === "szorzotabla") bagolyMondat("Most ezt mondd: " + szorSzo(FB.sor + 1) + " " + FB.N + ".");
+  else bagolyMondat("Most ezt mondd: " + FB.sor + " meg " + (FB.N - FB.sor) + ".");
   setTimeout(function () { if (FB.aktiv) pittyKovetkezo(); }, 900);
   inaktivUjra();
 }
@@ -776,7 +824,8 @@ function bontasEloBotlas() {
 function renderPipaSor() {
   var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
   var sor = el("div", "pipa-hatra");
-  for (var i = 0; i <= FB.N; i++)
+  var db = FB.sorDb || (FB.N + 1);
+  for (var i = 0; i < db; i++)
     sor.appendChild(el("span", "pipa-hely" + (i < FB.sor ? " kesz" : "")));
   box.appendChild(sor);
 }
@@ -784,6 +833,7 @@ function renderPipaSor() {
 /* A VÉGÉN: az összes bontás golyóhuzogatós ábrával (2+4=6 → 2 piros + 4 kék
    golyó a rúdon), képlettel és pipával. */
 function renderGolyoLista() {
+  if (J.feladat.felmod === "szorzotabla") { renderSzorzoLista(); return; }
   var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
   var N = J.feladat.N;
   for (var i = 0; i <= N; i++) {
@@ -800,6 +850,20 @@ function renderGolyoLista() {
   }
 }
 
+/* Szorzótábla jutalom-lista a végén: 1×N … 10×N a szorzatokkal + pipa (nincs golyó). */
+function renderSzorzoLista() {
+  var box = $("pipa-sor"); box.hidden = false; box.innerHTML = "";
+  var N = J.feladat.N;
+  for (var k = 1; k <= 10; k++) {
+    var sorEl = el("div", "golyo-sor szorzo-sor uj");
+    sorEl.style.animationDelay = ((k - 1) * 80) + "ms";
+    sorEl.innerHTML =
+      '<span class="golyo-keplet">' + k + ' × ' + N + ' = ' + (k * N) + '</span>' +
+      '<span class="golyo-pipa">✓</span>';
+    box.appendChild(sorEl);
+  }
+}
+
 function inaktivUjra() {
   clearTimeout(FB.timer);
   FB.timer = setTimeout(function () {
@@ -809,8 +873,14 @@ function inaktivUjra() {
 }
 
 /* CSAK a feladat legelső indításakor hívjuk – ez nullázza a haladást (FB.sor = 0). */
+/* a felmondás típusától függő gombfelirat (bontás vs. szorzótábla) */
+function felmondMondomSzo() {
+  return (J && J.feladat && J.feladat.felmod === "szorzotabla") ? "🎤 Mondom a szorzótáblát" : "🎤 Mondom a bontását";
+}
 function bontasEloStart() {
-  FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, sorHibak: 0, timer: null };
+  var szt = (J.feladat.felmod === "szorzotabla");
+  FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, sorDb: szt ? 10 : (J.feladat.N + 1),
+         felmod: J.feladat.felmod || "bontas", szorzatok: J.feladat.szorzatok || null, sorHibak: 0, timer: null };
   J.parokKesz = 0;
   var g = $("mondom-bontas-gomb");
   g.classList.add("figyel"); g.textContent = "⏹ Kész vagyok";
@@ -853,7 +923,7 @@ function bontasEloElhallgat() {
   FB.aktiv = false; clearTimeout(FB.timer);
   try { if (felismero) felismero.abort(); } catch (e) {}
   var g = $("mondom-bontas-gomb");
-  g.classList.remove("figyel"); g.textContent = "🎤 Mondom a bontását";
+  g.classList.remove("figyel"); g.textContent = felmondMondomSzo();
   $("hallgat-f").hidden = true;
 }
 
@@ -866,7 +936,7 @@ function bontasEloSiker() {
    NINCS újrakezdés – a meglévő pipáktól folytatjuk lépésenkénti beírással. */
 function bontasEloVege() {
   bontasEloElhallgat();
-  if (FB.sor > FB.N) return;
+  if (FB.sor >= FB.sorDb) return;                     /* minden sor kész — nincs mit beírni */
   J.parokKesz = FB.sor;                               /* a beírás innen folytatódik (bontasLepesNyit) */
   $("visszajelzes-f").className = "visszajelzes";
   $("visszajelzes-f").textContent = FB.sor > 0
@@ -1353,12 +1423,13 @@ function renderFomenu() {
     var feladatErtek = bontas ? jutalom("felmondas", pa) : jutalom("feladat", pa);
     var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
     var mat = PALYA_MAT[pa.id] || pa.palcim;
-    var mutatSzorzo = (kovSzorzo > 1 && pa.id !== sor.utolsoPalya && !pa.hamarosan);
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (arany ? " arany" : (kesz ? " kesz" : "")));
+    var zarva = palyaZarva(pa);
+    var mutatSzorzo = (kovSzorzo > 1 && pa.id !== sor.utolsoPalya && !pa.hamarosan && !zarva);
+    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (arany ? " arany" : (kesz ? " kesz" : "")));
     kart.innerHTML =
       (mutatSzorzo ? '<div class="palya-szorzo">×' + kovSzorzo + '</div>' : '') +
       '<div class="sorszam">' + (idx + 1) + '</div>' +
-      '<div class="allapot">' + (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : ""))) + '</div>' +
+      '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
@@ -1367,6 +1438,7 @@ function renderFomenu() {
     kart.addEventListener("click", function () {
       hangGomb();
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
+      if (zarva) { mondd("Ez az ösvény most alszik. Mondd fel a bontásokat és a szorzódallamot kerülő nélkül, és kinyílik az egész erdő!"); return; }
       palyaInditas(pa.id);
     });
     var fbtn = kart.querySelector(".palya-felolvas");
@@ -1388,10 +1460,36 @@ function renderFomenu() {
 var J = null;
 var curX = allomasX(0), curY = allomasY(0);
 
+/* ── 12 ÓRÁS REJTETT KAPU (rendszerterv 6.4) ─────────────────────────────────
+   A két kulcs-pálya (Mondd el a bontásokat + Szorzódallam) KERÜLŐ NÉLKÜLI végig-
+   vitele → 12 órára megnyílik minden más pálya. A két kulcs mindig játszható;
+   nincs látható óra/számláló. Utána visszazárul, újra kell mindkettő. */
+var KAPU_KULCSOK = ["bontas-felmondas", "szorzo-dallam"];
+var KAPU_MS = 12 * 60 * 60 * 1000;
+function kapuKulcsPalya(id) { return KAPU_KULCSOK.indexOf(id) >= 0; }
+function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
+function palyaZarva(pa) { return !pa.hamarosan && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }
+function kapuAllapot() { var k = P().kapu || {}; return { nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {} }; }
+/* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mindkettő éles → nyílik a kapu.
+   Visszaadja, hogy MOST nyílt-e ki (az ünneplő üzenethez). */
+function kapuKulcsTeljesult(id) {
+  var k = P().kapu || (P().kapu = alapKapu());
+  if (!k.kulcsKesz) k.kulcsKesz = {};
+  k.kulcsKesz[id] = true;
+  var mind = KAPU_KULCSOK.every(function (x) { return k.kulcsKesz[x]; });
+  if (mind) {
+    k.nyitvaEddig = Date.now() + KAPU_MS;
+    KAPU_KULCSOK.forEach(function (x) { k.kulcsKesz[x] = false; });   /* legközelebb újra kell mindkettő */
+    return true;
+  }
+  return false;
+}
+
 function palyaInditas(id) {
   var pa = null;
   PALYAK.forEach(function (x) { if (x.id === id) pa = x; });
   if (!pa || pa.hamarosan) return;
+  if (palyaZarva(pa)) return;                       /* zárt kapu: csak a két kulcs-pálya játszható */
   var allomasok = pa.allomasok.map(function (a) {
     var o = {}, k; for (k in (pa.alap || {})) o[k] = pa.alap[k];
     for (k in a) o[k] = a[k]; return o;
@@ -1512,7 +1610,7 @@ function ujFeladat() {
     $("beiro-kijelzo").hidden = true;
     var felKn = felmondKezNelkulE();
     $("mondom-bontas-gomb").style.display = (beszedTamogatott && !felKn) ? "" : "none";
-    $("mondom-bontas-gomb").textContent = "🎤 Mondom a bontását";
+    $("mondom-bontas-gomb").textContent = felmondMondomSzo();
     $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
     if (!beszedTamogatott || mentes.valaszmod === "beiras") { mondd(f.felolvas, function () { bontasLepesNyit(); }); return; }
     if (felKn) { felmondKezNelkulKor(); return; }
@@ -1528,9 +1626,10 @@ function ujFeladat() {
 }
 /* bontás: átváltás a VÁLASZ (hallgatás) állapotra */
 function frissitMegvan() {
-  var N = J.feladat.N, ossz = N + 1, kesz = J.parokKesz, p = "";
+  var szt = (J.feladat.felmod === "szorzotabla");
+  var ossz = szt ? 10 : (J.feladat.N + 1), kesz = J.parokKesz, p = "", egys = szt ? "sor" : "pár";
   for (var i = 0; i < ossz; i++) p += '<i class="' + (i < kesz ? "zold" : "") + '"></i>';
-  var szoveg = kesz > 0 ? ("eddig " + kesz + " / " + ossz + " pár jó volt") : (ossz + " pár – mondd el mind egyben");
+  var szoveg = kesz > 0 ? ("eddig " + kesz + " / " + ossz + " " + egys + " jó volt") : (ossz + " " + egys + " – mondd el mind egyben");
   $("felmond-megvan").innerHTML = szoveg + " <span class=\"pontok\">" + p + "</span>";
 }
 function bagolyMondat(txt) {
@@ -1560,6 +1659,7 @@ function renderPottyok() {
     box.appendChild(el("span", "potty" + (i < J.feladatKesz ? " kesz" : (i === J.feladatKesz ? " most" : ""))));
 }
 function renderFelmondLista(sor, lepesMod) {
+  if (J.feladat.felmod === "szorzotabla") { renderSzorzoFelmondLista(sor, lepesMod); return; }
   var N = J.feladat.N, box = $("felmond-lista"); box.innerHTML = "";
   for (var i = 0; i <= N; i++) {
     var aktiv = lepesMod && i === sor;
@@ -1569,6 +1669,19 @@ function renderFelmondLista(sor, lepesMod) {
     sorEl.innerHTML = '<span class="dob">' + i + '</span><span>+</span><span class="dob"' + jStil + '>' + (N - i) + '</span><span class="pipa"></span>';
     box.appendChild(sorEl);
     if (aktiv && sor <= N) box.appendChild(el("div", "felmond-most-cim", "…ezt írd be"));
+  }
+}
+function renderSzorzoFelmondLista(sor, lepesMod) {
+  var N = J.feladat.N, box = $("felmond-lista"); box.innerHTML = "";
+  for (var i = 0; i < 10; i++) {
+    var k = i + 1, aktiv = lepesMod && i === sor;
+    var st = i < sor ? "kesz" : (aktiv ? "most" : "jovo");
+    var jStil = aktiv ? ' style="opacity:.5"' : '';
+    var sorEl = el("div", "felmond-sor " + st);
+    sorEl.innerHTML = '<span class="dob">' + k + '</span><span>×</span><span class="dob">' + N +
+      '</span><span>=</span><span class="dob"' + jStil + '>' + (k * N) + '</span><span class="pipa"></span>';
+    box.appendChild(sorEl);
+    if (aktiv) box.appendChild(el("div", "felmond-most-cim", "…ezt írd be"));
   }
 }
 function modBeallit() {
@@ -1722,10 +1835,12 @@ function felmondSiker() {
   hangJo(); hangCsilla();
   dropUnnepel(dropProbal(0.30));
   jelvenyEllenoriz();
-  var jar = jutalom("felmondas");        /* egy teljes bontás felmondása = 42 ✨ (7.1a) */
+  var szt = (J.feladat.felmod === "szorzotabla");
+  var keszSzo = szt ? "Kész a szorzótábla!" : "Kész a bontás!";
+  var jar = jutalom("felmondas");        /* egy teljes felmondás = 9 ✨ (7.1a) */
   P().csillampor += jar; J.futoCsilla += jar;
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
-  J.parokKesz = J.feladat.N + 1;
+  J.parokKesz = szt ? 10 : (J.feladat.N + 1);
   /* a piros-kék gyöngyös lista jutalomként jelenik meg (nem a szöveges);
      a gyereknek NEM kell újra felmondania — a Tovább gomb visz tovább */
   $("felmond-lista").hidden = true;
@@ -1733,21 +1848,24 @@ function felmondSiker() {
   renderGolyoLista();
   $("pipa-sor").hidden = false;
   $("visszajelzes-f").className = "visszajelzes jo";
-  $("visszajelzes-f").textContent = "Kész a bontás!  (+" + jar + " ✨)";
+  $("visszajelzes-f").textContent = keszSzo + "  (+" + jar + " ✨)";
   csillagRepul($("bagoly-buborek"));
   setTimeout(function () { $("jatek-csillampor").textContent = P().csillampor; }, 500);
   J.feladatKesz++; ment();
   /* NEM lépünk tovább magunktól — a Tovább gomb vár a gyerekre. */
   var tg = $("bontas-kesz-gomb");
   tg.textContent = "Tovább →"; tg.className = "nagy-gomb tovabb-kesz"; tg.hidden = false;
-  bagolyMondat("Szuper! Kész a bontás! 🌟");
-  mondd("Szuper! Kész a bontás!");
+  bagolyMondat("Szuper! " + keszSzo + " 🌟");
+  mondd("Szuper! " + keszSzo);
 }
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   $("mondom-bontas-gomb").style.display = "none";
   $("buborek-feladat").hidden = true;
-  $("buborek-cim").hidden = false; $("buborek-cim").innerHTML = 'A <b>' + J.feladat.N + '</b> bontásai – lépésenként';
+  $("buborek-cim").hidden = false;
+  $("buborek-cim").innerHTML = (J.feladat.felmod === "szorzotabla")
+    ? ('A <b>' + J.feladat.N + '</b>-es szorzótábla – lépésenként')
+    : ('A <b>' + J.feladat.N + '</b> bontásai – lépésenként');
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = false;
   $("bontas-lepes").hidden = false;
   J.lepesSor = Math.max(J.lepesSor || 0, J.parokKesz || 0);
@@ -1755,26 +1873,32 @@ function bontasLepesNyit() {
   bontasLepesMutat();
 }
 function bontasLepesMutat() {
-  var N = J.feladat.N, i = J.lepesSor;
+  var N = J.feladat.N, i = J.lepesSor, szt = (J.feladat.felmod === "szorzotabla");
   J.parokKesz = i;
   renderFelmondLista(i, true);
   frissitMegvan();
-  $("bontas-lepes").innerHTML = '<span class="dob">' + i + '</span><span>+</span><b>' + (J.beirt || "?") + '</b>';
+  $("bontas-lepes").innerHTML = szt
+    ? ('<span class="dob">' + (i + 1) + '</span><span>×</span><span class="dob">' + N + '</span><span>=</span><b>' + (J.beirt || "?") + '</b>')
+    : ('<span class="dob">' + i + '</span><span>+</span><b>' + (J.beirt || "?") + '</b>');
   $("beiro-kijelzo").hidden = false;
   $("szambillentyuzet").hidden = false;
   $("beiro-kijelzo").textContent = J.beirt || "";
 }
 function bontasLepesBekuld() {
-  var N = J.feladat.N, i = J.lepesSor;
+  var N = J.feladat.N, i = J.lepesSor, szt = (J.feladat.felmod === "szorzotabla");
   if (J.beirt === "") return;
-  if (parseInt(J.beirt, 10) === N - i) {
+  var kell = szt ? (i + 1) * N : N - i;
+  var vege = szt ? 10 : N + 1;                 /* az utolsó sor utáni index */
+  if (parseInt(J.beirt, 10) === kell) {
     J.beirt = ""; $("beiro-kijelzo").textContent = "";
     J.lepesSor++; hangCsilla();
-    if (J.lepesSor > N) { $("bontas-lepes").hidden = true; felmondSiker(); } else bontasLepesMutat();
+    if (J.lepesSor >= vege) { $("bontas-lepes").hidden = true; felmondSiker(); } else bontasLepesMutat();
   } else {
     hangHiba();
     $("visszajelzes-f").className = "visszajelzes rossz";
-    $("visszajelzes-f").textContent = "✘ " + N + " = " + i + " + " + (N - i);
+    $("visszajelzes-f").textContent = szt
+      ? ("✘ " + (i + 1) + " × " + N + " = " + kell)
+      : ("✘ " + N + " = " + i + " + " + (N - i));
     J.beirt = ""; $("beiro-kijelzo").textContent = "";
   }
 }
@@ -1836,6 +1960,10 @@ function palyaVege() {
   P().csillampor += zaroOssz; J.futoCsilla += zaroOssz;
   if (teljes) pr.arany = true;                      /* ami egyszer arany, az arany marad */
 
+  /* ── 12 órás kapu (6.4): kulcs-pálya kerülő nélkül → élesítés; mindkettő éles → nyílik ── */
+  var kapuMostNyilt = false;
+  if (teljes && kapuKulcsPalya(id)) kapuMostNyilt = kapuKulcsTeljesult(id);
+
   /* ── sorozat frissítése a KÖVETKEZŐ pályához ── */
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
@@ -1849,10 +1977,13 @@ function palyaVege() {
   var teljesSor = teljes
     ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + (teljesExtra * szorzo) + ' ✨, arany szilánk az égedre</span>'
     : "";
+  var kapuSor = kapuMostNyilt
+    ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
+    : "";
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    szorzoSor + teljesSor +
+    szorzoSor + teljesSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟' +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -1863,6 +1994,7 @@ function palyaVege() {
   mutat("kepernyo-vege");
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
   var buzd = kov ? (" Ha most rögtön nekiindulsz egy másik pályának, " + (kovSzorzo >= 3 ? "háromszoros" : "dupla") + " csillámport kapsz!") : "";
+  if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
@@ -1871,7 +2003,8 @@ function sorozatMegtor() { if (P().sorozat) { P().sorozat.hossz = 0; P().sorozat
 function kovetkezoJatszhato(id) {
   var idx = -1;
   PALYAK.forEach(function (p, i) { if (p.id === id) idx = i; });
-  for (var i = idx + 1; i < PALYAK.length; i++) if (!PALYAK[i].hamarosan) return PALYAK[i].id;
+  for (var i = idx + 1; i < PALYAK.length; i++)
+    if (!PALYAK[i].hamarosan && !palyaZarva(PALYAK[i])) return PALYAK[i].id;
   return null;
 }
 function naplozz(alap, elsore, valasz) {
@@ -1927,12 +2060,15 @@ function renderSzuloi() {
   var atlJo = atl.filter(function (r) { return r.elsore; }).length;
   var bont = p.naplo.filter(function (r) { return r.tipus === "szambontas"; });
   var bontJo = bont.filter(function (r) { return r.elsore; }).length;
+  var szt = p.naplo.filter(function (r) { return r.tipus === "szorzotabla-felmondas"; });
+  var sztJo = szt.filter(function (r) { return r.elsore; }).length;
   $("szuloi-osszegzes").innerHTML =
     "<h3>Összegzés — " + LENYEK[szuloiFul].nev + (p.becenev ? " (" + kiiras(p.becenev) + ")" : "") + "</h3><table>" +
     "<tr><td>Játékidő összesen</td><td>" + (perc >= 1 ? perc + " perc" : (p.jatekMp + " mp")) + "</td></tr>" +
     "<tr><td>Kész pályák</td><td>" + keszDb + " / " + jatszhato + " elérhető</td></tr>" +
     "<tr><td>Tízesátlépéses feladatok</td><td>" + (atl.length ? Math.round(atlJo / atl.length * 100) + "% elsőre (" + atlJo + "/" + atl.length + ")" : "még nincs adat") + "</td></tr>" +
     "<tr><td>Számbontás felmondás</td><td>" + (bont.length ? Math.round(bontJo / bont.length * 100) + "% elsőre (" + bontJo + "/" + bont.length + ")" : "még nincs adat") + "</td></tr>" +
+    "<tr><td>Szorzótábla felmondás</td><td>" + (szt.length ? Math.round(sztJo / szt.length * 100) + "% elsőre (" + sztJo + "/" + szt.length + ")" : "még nincs adat") + "</td></tr>" +
     "</table><h3 style='margin-top:14px'>Pályánként (elsőre jó)</h3><table>" + (perPalya || "<tr><td>—</td></tr>") + "</table>";
   var hibak = p.naplo.filter(function (r) { return !r.elsore; }).slice(-20).reverse();
   var hs = hibak.map(function (r) { return "<tr><td>" + kiiras(r.kerdes) + "</td><td>" + kiiras(r.valasz) + "</td><td>" + r.helyes + "</td></tr>"; }).join("");
@@ -3430,7 +3566,8 @@ document.addEventListener("pointerdown", function egyszer() {
 window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
-  bontasEloFogyaszt: bontasEloFogyaszt, palyaInditas: palyaInditas,
+  bontasEloFogyaszt: bontasEloFogyaszt, szorzoEloFogyaszt: szorzoEloFogyaszt, palyaInditas: palyaInditas,
+  kapuAllapot: kapuAllapot, kapuNyitva: kapuNyitva, kapuKulcsTeljesult: kapuKulcsTeljesult,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
   oduNyit: oduNyit, ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
   oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },

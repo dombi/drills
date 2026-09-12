@@ -111,6 +111,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-kartya .sorszam{ position:absolute; left:10px; top:8px; font-size:11px; font-weight:800; color:#b8a8d0; }
 .palya-kartya .allapot{ position:absolute; right:9px; top:7px; font-size:16px; }
 .palya-kartya.hamarosan{ opacity:.55; }
+.palya-kartya.zarva{ opacity:.62; filter:saturate(.55); }
+.palya-kartya.zarva .allapot{ font-size:15px; }
 .palya-kartya.kesz{ outline:3px solid var(--sarga-mely); }
 .palya-kartya.arany{ outline:3px solid #ffc93c; box-shadow:0 4px 14px rgba(255,201,60,.4); }
 .palya-szorzo{
