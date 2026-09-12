@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unikornis – Mentés helyreállítás</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: #f5f0fb; color: #2a2140; padding: 16px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #6a5f85; margin: 0 0 16px; }
+  .kartya { background: #fff; border: 1px solid #e2d8f2; border-radius: 14px;
+            padding: 16px; margin: 0 0 14px; box-shadow: 0 2px 8px rgba(80,50,140,.06); }
+  .kartya h2 { font-size: 16px; margin: 0 0 8px; }
+  .origin { font-family: ui-monospace, Menlo, monospace; background: #efe8fb;
+            padding: 6px 10px; border-radius: 8px; display: inline-block; word-break: break-all; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 11px 16px;
+           cursor: pointer; margin: 4px 6px 4px 0; }
+  .fo { background: #7c4ddb; color: #fff; }
+  .fo:hover { background: #6a3fc4; }
+  .mas { background: #e7ddf7; color: #4a3b70; }
+  .mas:hover { background: #d9ccf2; }
+  .vesz { background: #ffe1e1; color: #9a2a2a; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 130px; font-family: ui-monospace, Menlo, monospace;
+             font-size: 12px; border: 1px solid #d8ccee; border-radius: 10px; padding: 10px; }
+  pre { background: #1f1830; color: #e8e0ff; border-radius: 10px; padding: 12px; overflow: auto;
+        font-size: 12px; max-height: 320px; margin: 8px 0 0; }
+  .allapot { margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 600; display: none; }
+  .ok { background: #dff5e1; color: #1f6b2e; display: block; }
+  .hiba { background: #ffe1e1; color: #9a2a2a; display: block; }
+  .fig { font-size: 13px; color: #6a5f85; }
+  a.jatek { display: inline-block; margin-top: 8px; font-weight: 600; color: #7c4ddb; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🦄 Mentés helyreállítás</h1>
+  <p class="sub">Csak akkor működik, ha ez az oldal <b>ugyanazon a címen (origin)</b> van, mint a játék.</p>
+
+  <div class="kartya">
+    <h2>1. Ellenőrzés</h2>
+    <p class="fig">Ez az oldal ezt az origint látja:</p>
+    <span class="origin" id="origin">…</span>
+    <p class="fig" style="margin-top:10px">A játék mentés-kulcsa: <span class="origin">unikornis_centum_v1</span>.
+       Ha a játék ugyanezen az origin-en fut, ez az oldal ugyanazt a mentést éri el.</p>
+  </div>
+
+  <div class="kartya">
+    <h2>2. Mostani mentés</h2>
+    <button class="mas" onclick="mutat()">Mutasd a mostani mentést</button>
+    <button class="mas" onclick="letolt()">💾 Mentés fájlba (biztonsági másolat)</button>
+    <div id="osszegzo" class="fig"></div>
+    <pre id="kiiras" hidden></pre>
+  </div>
+
+  <div class="kartya">
+    <h2>3/A. Visszaírás kész mentésből</h2>
+    <p class="fig">Illeszd be ide a Gabi gépéről kimentett JSON-t (vagy egy korábbi biztonsági másolatot), és írd vissza.</p>
+    <textarea id="beilleszt" placeholder='{"verzio":1,"leny":"...","profilok":{...}}'></textarea>
+    <div>
+      <button class="fo" onclick="visszair()">Ezt írd vissza mentésnek</button>
+    </div>
+  </div>
+
+  <div class="kartya">
+    <h2>3/B. Gyorsjavítás – adj vissza mindent</h2>
+    <p class="fig">Ha nincs kész mentésed: ez <b>minden profilnak</b> kinyitja az összes pályát (~100 napra),
+       feltölti 9999 csillagporra, és birtokba adja az összes ruhát és bútort. Semmit nem vesz el.</p>
+    <button class="fo" onclick="gyorsjavit()">Adj vissza mindent</button>
+  </div>
+
+  <div id="allapot" class="allapot"></div>
+  <a class="jatek" href="./index.html">▶ Vissza a játékhoz</a>
+</div>
+
+<script>
+var KULCS = "unikornis_centum_v1";
+document.getElementById("origin").textContent = location.origin + location.pathname;
+
+function olvas() {
+  try { return JSON.parse(localStorage.getItem(KULCS) || "null"); } catch (e) { return null; }
+}
+function statusz(szoveg, jo) {
+  var el = document.getElementById("allapot");
+  el.textContent = szoveg;
+  el.className = "allapot " + (jo ? "ok" : "hiba");
+}
+function osszegez(m) {
+  if (!m || !m.profilok) return "Nincs érvényes mentés ezen az origin-en.";
+  var sorok = ["Aktív unikornis: " + m.leny];
+  Object.keys(m.profilok).forEach(function (k) {
+    var p = m.profilok[k] || {};
+    var ruha = Object.keys((p.oltozet && p.oltozet.van) || {}).length;
+    var butor = Object.keys((p.odu && p.odu.vanButor) || {}).length;
+    var kesz = Object.keys(p.palyak || {}).filter(function (x) { return p.palyak[x].kesz; }).length;
+    sorok.push(k + " → csillagpor: " + (p.csillampor|0) + " | ruhák: " + ruha + " | bútor-helyek: " + butor + " | kész pályák: " + kesz);
+  });
+  return sorok.join("\n");
+}
+function mutat() {
+  var m = olvas();
+  document.getElementById("osszegzo").textContent = osszegez(m);
+  var pre = document.getElementById("kiiras");
+  pre.hidden = false;
+  pre.textContent = m ? JSON.stringify(m, null, 2) : "(nincs mentés)";
+}
+function letolt() {
+  var raw = localStorage.getItem(KULCS);
+  if (!raw) { statusz("Nincs mentés, amit le lehetne tölteni.", false); return; }
+  var blob = new Blob([raw], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "unikornis-mentes-" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  statusz("Mentés letöltve.", true);
+}
+function visszair() {
+  var szoveg = document.getElementById("beilleszt").value.trim();
+  if (!szoveg) { statusz("Előbb illeszd be a JSON mentést.", false); return; }
+  var m;
+  try { m = JSON.parse(szoveg); } catch (e) { statusz("Ez nem érvényes JSON: " + e.message, false); return; }
+  if (!m || !m.profilok) { statusz("Ebben nincs 'profilok' — nem úgy néz ki, mint egy unikornis-mentés.", false); return; }
+  m.ragyogasNulla20260906 = 1;   // ne nullázza ki a betöltő a fehér unikornist
+  try {
+    localStorage.setItem(KULCS, JSON.stringify(m));
+    statusz("Kész! A mentést visszaírtam. Nyisd meg a játékot.", true);
+    mutat();
+  } catch (e) { statusz("Nem sikerült írni: " + e.message, false); }
+}
+function gyorsjavit() {
+  var m = olvas();
+  if (!m || !m.profilok) {
+    // Nincs (vagy sérült) mentés → nulláról építünk egy vázat; a játék betöltője kitölti a többit.
+    m = { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed",
+          profilok: { ragyogas: {}, tuz: {}, csillamharmat: {} } };
+  }
+  var RUHA = { fej:["fej-a","fej-k","fej-r"], nyak:["nyak-a","nyak-k","nyak-r"], hat:["hat-a","hat-k","hat-r"],
+    lab:["lab-a","lab-k","lab-r"], oldal:["oldal-a","oldal-k","oldal-r"], farok:["farok-a","farok-k","farok-r"] };
+  var BUTOR = { fal:[1,2,3],ablak:[1,2,3],fuggony:[1,2,3],agy:[1,2,3],kalyha:[1,2,3],
+    polc:[1,2,3],asztal:[1,2,3],szonyeg:[1,2,3],fuzer:[1,2] };
+  var PALYA_IDK = ["bontas-felmondas","oszkiv-10","oszkiv-20","tizesek","szorzo-dallam"];
+  var EV = 100 * 24 * 60 * 60 * 1000;
+  Object.keys(m.profilok).forEach(function (k) {
+    var p = m.profilok[k];
+    if (typeof p.csillampor !== "number" || p.csillampor < 9999) p.csillampor = 9999;
+    if (!p.kapu) p.kapu = { nyitvaEddig: 0, kulcsKesz: {} };
+    p.kapu.nyitvaEddig = Date.now() + EV;
+    if (!p.palyak) p.palyak = {};
+    PALYA_IDK.forEach(function (id) {
+      if (!p.palyak[id]) p.palyak[id] = { kesz: true, rekordElsore: 0 }; else p.palyak[id].kesz = true;
+    });
+    if (!p.oltozet) p.oltozet = { fej:null,nyak:null,hat:null,lab:null,oldal:null,farok:null,van:{} };
+    if (!p.oltozet.van) p.oltozet.van = {};
+    Object.keys(RUHA).forEach(function (h){ RUHA[h].forEach(function(id){ p.oltozet.van[id]=1; }); });
+    if (!p.odu) p.odu = {};
+    if (!p.odu.vanButor) p.odu.vanButor = {};
+    Object.keys(BUTOR).forEach(function (h){ if (!p.odu.vanButor[h]) p.odu.vanButor[h]={}; BUTOR[h].forEach(function(id){ p.odu.vanButor[h][id]=1; }); });
+  });
+  // FONTOS: a játék betöltője egyszer kinullázná a Ragyogás (fehér) profilt; ezzel a flaggel nem teszi meg.
+  m.ragyogasNulla20260906 = 1;
+  try {
+    localStorage.setItem(KULCS, JSON.stringify(m));
+    statusz("Kész! Minden pálya nyitva, 9999 csillagpor, összes ruha és bútor a tiéd. Nyisd meg a játékot.", true);
+    mutat();
+  } catch (e) { statusz("Nem sikerült írni: " + e.message, false); }
+}
+mutat();
+</script>
+</body>
+</html>
