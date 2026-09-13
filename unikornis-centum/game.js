@@ -513,7 +513,7 @@ var GEN = {
 /* ============ 4) MENTÉS ============ */
 var KULCS = "unikornis_centum_v1";
 var mentes;
-function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {} }; }
+function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
 function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 } }; }
@@ -544,6 +544,7 @@ function betolt() {
         if (!p.odu.vanButor) p.odu.vanButor = {};
         if (!p.odu.disz) p.odu.disz = {};
         if (!p.odu.vanDisz) p.odu.vanDisz = {};
+        if (!p.odu.vitrin) p.odu.vitrin = {};
         if (!p.oltozet) p.oltozet = alapOltozet();
         if (!p.oltozet.van) p.oltozet.van = {};
         ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
@@ -1028,11 +1029,31 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
   var art = UNI_RAJZ[rajz] || UNI_KORALL;
   if (kinezet === undefined) kinezet = (typeof P === "function" && P() && P().kinezet) || null;
   art = kinezetAlkalmaz(art, rajz, kinezet);
+  art = eloAnimHorgony(art);
   var ruha = "";
   if (oltozet) ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) { if (oltozet[h]) ruha += ruhaSVG(oltozet[h]); });
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
-    '<g transform="scale(0.5) translate(-190,-272)">' + art + ruha + (window.__UC_ANCHOR ? anchorVizSVG() : "") + '</g>' +
+    '<g transform="scale(0.5) translate(-190,-272)">' +
+      '<g class="uni-elo">' + art + ruha + '</g>' +
+      (window.__UC_ANCHOR ? anchorVizSVG() : "") +
+    '</g>' +
   '</g>';
+}
+/* ── ÉLETRE KELTÉS (idle animáció) ──────────────────────────────────────────
+   Csak CLASS-eket tesz a meglévő rajzra — a geometriát/színt NEM érinti. A tényleges
+   mozgást a style.css végzi, és CSAK a "hős" konténerekben (#szinpad, #odu-szoba,
+   #profil-lista); a pici bélyegképek (menü-kártyák, bolt-előnézet, jelvények) mozdulatlanok.
+   FONTOS: ez kinezetAlkalmaz UTÁN fut, mert az a szó szerinti <g class="ucg">-re épül és
+   visszaírja azt. A három "ucg" csoport sorrendben: 1) farok, 2) sörény, 3) homloktincs;
+   a szem az egyetlen 3-jegyű #222-es csoport. */
+function eloAnimHorgony(art) {
+  art = art.replace('<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">',
+                    '<g class="uni-szem" stroke="#222" stroke-linejoin="round" stroke-linecap="round">');
+  var n = 0;
+  return art.replace(/<g class="ucg">/g, function () {
+    n++;
+    return '<g class="ucg ' + (n === 1 ? "uni-farok" : n === 2 ? "uni-soreny" : "uni-tincs") + '">';
+  });
 }
 /* ── FEJLESZTŐI ANCHOR-VIZUALIZÁLÓ (nem éles): a 380×300 rajz-keretben kirajzolja a
    ruha-zónák borítékát + a horgonypontokat, hogy élesben látszódjon, hova esik minden ruha.
@@ -2463,6 +2484,100 @@ function diszPreviewOdu(zona, id) {
   return uj;
 }
 
+/* ── KINCSVITRIN + csillagkristály-díszek (producer-döntés 2026-09-13) ──
+   Prémium dísz-kategória: a bolt „Kristály" fülén ✨-ből megvehető, mint bármi más
+   (NINCS külön valuta, NINCS váltás). A megvett darab a fő fal Kincsvitrinjébe kerül,
+   ami egyszerre több díszt is mutat (mint az oltozet.van), és láthatóan telik.
+   Mentés-ág: P().odu.vitrin = { id:1 }. A tétel-ikon 0..80-as dobozban (mint a dísztárgyak). */
+var KRISTALY = [
+  { id: "k-gomb", nev: "Kristálygömb", ar: 70,
+    svg: '<ellipse cx="40" cy="60" rx="17" ry="4.5" fill="#c9a8e6"/>' +
+      '<circle cx="40" cy="38" r="20" fill="#8fd6ee"/><circle cx="40" cy="38" r="20" fill="none" stroke="#5aa9d8" stroke-width="1.6"/>' +
+      '<circle cx="34" cy="31" r="7.5" fill="#e8f9ff" opacity="0.85"/>' +
+      '<path d="M30 28 Q37 24 44 29" stroke="#fff" stroke-width="2.4" fill="none" opacity="0.85" stroke-linecap="round"/>' +
+      '<circle cx="47" cy="46" r="2.4" fill="#fff" opacity="0.6"/>' },
+  { id: "k-roka", nev: "Kristályróka", ar: 80,
+    svg: '<ellipse cx="40" cy="62" rx="15" ry="4" fill="#c9a8e6"/>' +
+      '<path d="M30 30 L25 19 L37 27 Z" fill="#f7b58a" stroke="#e0895a" stroke-width="1.1"/><path d="M50 30 L55 19 L43 27 Z" fill="#f7b58a" stroke="#e0895a" stroke-width="1.1"/>' +
+      '<path d="M40 22 L58 44 L40 60 L22 44 Z" fill="#f7b58a" stroke="#e0895a" stroke-width="1.4"/>' +
+      '<path d="M40 22 L58 44 L40 44 Z" fill="#ffd0a8"/><path d="M22 44 L40 44 L40 60 Z" fill="#e0895a" opacity="0.55"/>' +
+      '<circle cx="35" cy="41" r="1.9" fill="#4a3020"/><circle cx="45" cy="41" r="1.9" fill="#4a3020"/><circle cx="40" cy="48" r="2.1" fill="#7a4a2a"/>' },
+  { id: "k-bagoly", nev: "Kristálybagoly", ar: 80,
+    svg: '<ellipse cx="40" cy="62" rx="15" ry="4" fill="#c9a8e6"/>' +
+      '<path d="M40 22 Q56 26 54 46 Q52 60 40 60 Q28 60 26 46 Q24 26 40 22 Z" fill="#a7d99a" stroke="#7fb872" stroke-width="1.4"/>' +
+      '<path d="M40 22 L40 60" stroke="#cbead9" stroke-width="1"/>' +
+      '<path d="M30 26 L26 18 L36 24 Z" fill="#a7d99a" stroke="#7fb872" stroke-width="1"/><path d="M50 26 L54 18 L44 24 Z" fill="#a7d99a" stroke="#7fb872" stroke-width="1"/>' +
+      '<circle cx="34" cy="39" r="5" fill="#fff"/><circle cx="46" cy="39" r="5" fill="#fff"/><circle cx="34" cy="39" r="2.2" fill="#3a3050"/><circle cx="46" cy="39" r="2.2" fill="#3a3050"/>' +
+      '<path d="M40 43 l-3 4 l6 0 Z" fill="#ffd24d"/>' },
+  { id: "k-terkep", nev: "Csillagtérkép-gömb", ar: 110,
+    svg: '<ellipse cx="40" cy="61" rx="16" ry="4" fill="#c9a8e6"/>' +
+      '<path d="M22 40 a18 18 0 0 0 36 0" fill="none" stroke="#c9a06a" stroke-width="2.2"/>' +
+      '<circle cx="40" cy="38" r="18" fill="#3a4a86"/><circle cx="34" cy="31" r="4.5" fill="#6a7ac0" opacity="0.7"/>' +
+      '<g fill="#fff6d8"><circle cx="34" cy="32" r="1.4"/><circle cx="47" cy="36" r="1.2"/><circle cx="40" cy="45" r="1.3"/><circle cx="32" cy="43" r="1"/><circle cx="45" cy="44" r="1"/></g>' +
+      '<path d="M40 20 l1.2 3 l3 .3 l-2.3 1.9 l.8 3 l-2.7 -1.7 l-2.7 1.7 l.8 -3 l-2.3 -1.9 l3 -.3 Z" fill="#ffe08a"/>' },
+  { id: "k-zene", nev: "Zenélő doboz", ar: 130,
+    svg: '<ellipse cx="40" cy="62" rx="18" ry="4.5" fill="#c9a8e6"/>' +
+      '<rect x="24" y="40" width="32" height="20" rx="4" fill="#c9a8e6" stroke="#a98fd0" stroke-width="1.4"/><rect x="24" y="40" width="32" height="7" rx="3" fill="#b79fd4"/>' +
+      '<path d="M30 34 l3 4 l3 -4" fill="none" stroke="#8f7ab8" stroke-width="1.4"/>' +
+      '<circle cx="40" cy="30" r="6.5" fill="#fdfdfd" stroke="#e0d0e8" stroke-width="1"/><polygon points="40,20 41.6,26 38.4,26" fill="#ffd24d"/><circle cx="42" cy="30" r="1.2" fill="#4a3b5a"/>' +
+      '<path d="M35 33 q5 3 10 0" stroke="#f6a5c0" stroke-width="1.4" fill="none"/>' },
+  { id: "k-lampas", nev: "Tündérlámpás", ar: 100,
+    svg: '<ellipse cx="40" cy="62" rx="14" ry="4" fill="#c9a8e6"/>' +
+      '<ellipse cx="40" cy="42" rx="17" ry="19" fill="#ffe9ad" opacity="0.35"/>' +
+      '<path d="M34 22 q6 -5 12 0" stroke="#c9a06a" stroke-width="2" fill="none"/>' +
+      '<rect x="28" y="24" width="24" height="6" rx="2" fill="#c9a06a"/><rect x="28" y="54" width="24" height="6" rx="2" fill="#c9a06a"/>' +
+      '<rect x="31" y="28" width="18" height="28" rx="8" fill="#ffd98f" stroke="#e0a85a" stroke-width="1.6"/>' +
+      '<path d="M40 36 q-4 6 0 11 q4 -5 0 -11 Z" fill="#ffb43a"/><circle cx="40" cy="44" r="2" fill="#fff2c4"/>' }
+];
+function vitrinPreviewOdu(id) {
+  var o = P().odu, uj = {}, k; for (k in o) uj[k] = o[k];
+  uj.vitrin = {}; for (k in (o.vitrin || {})) uj.vitrin[k] = o.vitrin[k];
+  uj.vitrin[id] = 1;
+  return uj;
+}
+function oduVitrinVesz(t) {
+  if (P().csillampor < t.ar) { renderOduPanel(); return; }
+  P().csillampor -= t.ar;
+  P().odu.vitrin[t.id] = 1;                 /* a vitrinbe kerül, ott is marad */
+  hangCsilla(); hangJo(); ment();
+  renderOdu(); renderOduPanel();
+}
+/* a Kincsvitrin a fő falon: fa szekrény, 2×3 állvány; a megvett kristály-dísz a helyére kerül,
+   a hiányzó helyeken halvány „?" — a gyűjtemény láthatóan telik. Odú-koordináta (680×540). */
+function vitrinReteg(o) {
+  var v = (o && o.vitrin) || {};
+  var X = 278, Y = 214, W = 116, H = 170, IX = X + 10, IY = Y + 10, IW = W - 20;
+  var s = '<g class="odu-vitrin">';
+  /* névtábla */
+  s += '<rect x="' + (X + 30) + '" y="' + (Y - 11) + '" width="56" height="15" rx="7" fill="#8f6a3e"/>';
+  s += '<path d="M' + (X + 34) + ' ' + (Y - 3.5) + ' l1.2 3 l3 .3 l-2.3 1.9 l.8 3 l-2.7 -1.7 l-2.7 1.7 l.8 -3 l-2.3 -1.9 l3 -.3 Z" fill="#ffe08a"/>';
+  s += '<text x="' + (X + 62) + '" y="' + (Y - 0.5) + '" font-size="8.5" font-weight="700" fill="#ffe9c4" text-anchor="middle">Kincsvitrin</text>';
+  /* szekrény keret + belső */
+  s += '<rect x="' + X + '" y="' + Y + '" width="' + W + '" height="' + H + '" rx="10" fill="#c39a63" stroke="#8f6a3e" stroke-width="3"/>';
+  s += '<rect x="' + IX + '" y="' + IY + '" width="' + IW + '" height="' + (H - 20) + '" rx="6" fill="#efe7f7"/>';
+  /* 3 polc + függőleges osztó */
+  var rowY = [IY + 52, IY + 100, IY + 148];       /* állvány-alap y-ok (3 sor) */
+  s += '<rect x="' + IX + '" y="' + (rowY[0] + 4) + '" width="' + IW + '" height="5" fill="#c39a63"/>';
+  s += '<rect x="' + IX + '" y="' + (rowY[1] + 4) + '" width="' + IW + '" height="5" fill="#c39a63"/>';
+  s += '<rect x="' + (X + W / 2 - 2) + '" y="' + IY + '" width="4" height="' + (H - 20) + '" fill="#d7b98c" opacity="0.5"/>';
+  var colX = [X + W * 0.29, X + W * 0.71];
+  for (var i = 0; i < 6; i++) {
+    var cx = colX[i % 2], cy = rowY[Math.floor(i / 2)], it = KRISTALY[i];
+    if (it && v[it.id]) {
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="14" ry="4" fill="#c9a8e6"/>';
+      s += '<g transform="translate(' + (cx - 21) + ',' + (cy - 42) + ') scale(0.52)">' + it.svg + '</g>';
+    } else {
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="13" ry="4" fill="none" stroke="#b79fd4" stroke-width="1.5" stroke-dasharray="3 3"/>';
+      s += '<text x="' + cx + '" y="' + (cy - 12) + '" font-size="13" fill="#b79fd4" opacity="0.55" text-anchor="middle">?</text>';
+    }
+  }
+  /* üveg-csillanás + keret-fény */
+  s += '<g opacity="0.12" fill="#ffffff"><polygon points="' + (IX + 14) + ',' + IY + ' ' + (IX + 32) + ',' + IY + ' ' + (IX + 6) + ',' + (IY + H - 20) + ' ' + (IX - 6) + ',' + (IY + H - 20) + '"/>' +
+    '<polygon points="' + (IX + 60) + ',' + IY + ' ' + (IX + 74) + ',' + IY + ' ' + (IX + 48) + ',' + (IY + H - 20) + ' ' + (IX + 36) + ',' + (IY + H - 20) + '"/></g>';
+  s += '<rect x="' + IX + '" y="' + IY + '" width="' + IW + '" height="' + (H - 20) + '" rx="6" fill="none" stroke="#dff0fa" stroke-width="1.6" opacity="0.6"/>';
+  return s + '</g>';
+}
+
 /* --- csillagszilánk-réteg az ablak egén (7.1c/3.3b): pályánként egy szilánk, a PALYAK sorrendjében.
    teljes ösvény (arany) = ragyogó arany szilánk, kész (volt kerülő) = halványabb ezüst,
    még nem kész = SEMMI nem látszik (producer-döntés, 2026-09-11 – nincs üres körvonal/pötty).
@@ -2617,6 +2732,8 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '<line x1="345" y1="112" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
   s += '<ellipse cx="345" cy="178" rx="40" ry="36" fill="#ffe9ad" opacity="0.16"/><ellipse cx="345" cy="178" rx="22" ry="20" fill="#ffe9ad" opacity="0.22"/>';
   s += '<polygon points="345,154 350,169 366,169 354,179 358,194 345,185 332,194 336,179 324,169 340,169" fill="#ffd878" stroke="#a88fce" stroke-width="3" stroke-linejoin="round"/>';
+
+  s += vitrinReteg(o);                       /* Kincsvitrin a fő falon (megvett kristály-díszek) */
 
   /* ── ABLAK (napszak + időjárás) ── */
   s += '<circle cx="' + WX + '" cy="' + WY + '" r="' + WR + '" fill="#a88fce"/>';
@@ -2842,6 +2959,7 @@ function boltGombAllapot(cs, t, birt, aktiv, eleg) {
     if (cs.fajta === "ruha") return aktiv
       ? { szoveg: "Leveszem", szin: "le", mit: function () { oduRuhaVisel(cs.kulcs, null); } }
       : { szoveg: "Felveszem", szin: "fel", mit: function () { oduRuhaVisel(cs.kulcs, t.id); } };
+    if (cs.fajta === "vitrin") return { szoveg: "✓ a vitrinben", szin: "kesz", mit: null };
     if (aktiv) return { szoveg: (cs.fajta === "kinezet") ? "✓ ez van rajta" : "✓ ez van kint", szin: "kesz", mit: null };
     if (cs.fajta === "butor") return { szoveg: "Berendezem", szin: "fel", mit: function () { oduButorBeallit(cs.kulcs, t.id); } };
     if (cs.fajta === "disz") return (t.id === "nincs")
@@ -3054,6 +3172,7 @@ function boltElonezetBelso(cs, t) {
   if (cs.fajta === "ruha") { var pr = {}; pr[cs.kulcs] = t.id; h = unikornisSVG("bap", LENYEK[mentes.leny], 1, pr); }
   else if (cs.fajta === "butor") h = oduSVG(mentes.leny, butorPreviewOdu(cs.kulcs, t.id), true);
   else if (cs.fajta === "disz") h = oduSVG(mentes.leny, diszPreviewOdu(cs.kulcs, t.id), true);
+  else if (cs.fajta === "vitrin") h = oduSVG(mentes.leny, vitrinPreviewOdu(t.id), true);
   else if (cs.fajta === "kinezet") h = unikornisSVG("bkp", LENYEK[mentes.leny], 1, P().oltozet, kinezetPreview(cs.kulcs, t.id));
   else {
     var o2 = P().odu;
@@ -3095,7 +3214,8 @@ function boltIgazit(gyoker) {
 /* ── a bolt kirajzolása + a koppintások bekötése ── */
 var BOLT_FULEK = [
   { id: "holmik", nev: "Holmik" }, { id: "kinezet", nev: "Kinézet" },
-  { id: "kellekek", nev: "Kellékek" }, { id: "ido", nev: "Időjárás" }
+  { id: "kellekek", nev: "Kellékek" }, { id: "ido", nev: "Időjárás" },
+  { id: "kristaly", nev: "Kristály" }
 ];
 function renderOduPanel() {
   var host = $("odu-bolt-szinter");
@@ -3162,6 +3282,8 @@ function boltCsoportok() {
   if (ODU_FUL === "kellekek")
     return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; })
       .concat(DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; }));
+  if (ODU_FUL === "kristaly")
+    return [{ kulcs: "vitrin", nev: "Kincsvitrin", fajta: "vitrin", tetelek: KRISTALY }];
   if (ODU_FUL === "kinezet") {
     var rajz = LENYEK[mentes.leny].rajz;
     return [
@@ -3176,6 +3298,7 @@ function boltBirt(cs, t) {
   if (cs.fajta === "butor") return t.id === 1 || !!(P().odu.vanButor[cs.kulcs] && P().odu.vanButor[cs.kulcs][t.id]);
   if (cs.fajta === "disz") return t.id === "nincs" || !!P().odu.vanDisz[t.id];
   if (cs.fajta === "kinezet") { var v = cs.kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem; return t.id === 0 || !!(v && v[t.id]); }
+  if (cs.fajta === "vitrin") return !!P().odu.vitrin[t.id];
   return !!P().odu.van[cs.kulcs][t.id];
 }
 function boltAktiv(cs, t) {
@@ -3186,6 +3309,7 @@ function boltAktiv(cs, t) {
     if (cs.kulcs === "soreny") return (P().kinezet.sorenySzin || 0) === t.id;
     return (P().kinezet.szemSzin || null) === (SZEM_SZIN[t.id] ? SZEM_SZIN[t.id].hex || null : null);
   }
+  if (cs.fajta === "vitrin") return false;         /* nincs „kint/rajta" állapot: ha megvan, a vitrinben áll */
   return P().odu[cs.kulcs] === t.id;
 }
 /* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
@@ -3333,6 +3457,7 @@ function boltThumb(cs, t) {
     if (t.id === "extrafuzer") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><path d="M10 30 Q40 46 70 30" stroke="#c9a8e6" stroke-width="1.6" fill="none"/><path d="M15 32 l11 1 l-6 13 Z" fill="#f6a5c0"/><path d="M28 36 l11 1 l-6 13 Z" fill="#fce49a"/><path d="M41 37 l11 0 l-6 13 Z" fill="#a7d99a"/><path d="M54 34 l11 -1 l-6 13 Z" fill="#9ec9f0"/></svg>';
     return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + DISZ_TARGY[t.id].svg + '</svg>';   /* maga az ikon */
   }
+  if (cs.fajta === "vitrin") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kristály-dísz ikonja */
   var o = P().odu;
   return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
     (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
@@ -3359,13 +3484,16 @@ var BOLT_TIPP = {
   "oldal-a": "Levél alakú kis szárnyak.", "oldal-k": "Pillangó-szárny a röptetéshez.", "oldal-r": "Ragyogó fény-szárny.",
   "farok-a": "Szalagcsokor a farok tövére.", "farok-k": "Csengettyűk, halkan csilingelnek.", "farok-r": "Fénycsóvás üstökös-farok.",
   "este": "Csendes esti égbolt, telihold.", "reggel": "Rózsás hajnal, puha felhők.", "del": "Ragyogó déli napsütés.", "eclipse": "Ritka napfogyatkozás, csillagokkal.",
-  "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen."
+  "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen.",
+  "k-gomb": "Fénytörő kristálygömb — a vitrin dísze.", "k-roka": "Csiszolt kristályróka figura.", "k-bagoly": "Csiszolt kristálybagoly figura.",
+  "k-terkep": "Pici csillagtérkép-gömb, benne az égbolt.", "k-zene": "Zenélő doboz forgó unikornissal.", "k-lampas": "Meleg fényű tündérlámpás."
 };
 function boltVegrehajt(cs, t) {
   if (cs.fajta === "ruha") oduRuhaVesz({ kulcs: cs.kulcs }, t);
   else if (cs.fajta === "butor") oduButorVesz(cs.kulcs, t);
   else if (cs.fajta === "disz") oduDiszVesz(cs.kulcs, t);
   else if (cs.fajta === "kinezet") oduKinezetVesz(cs.kulcs, t);
+  else if (cs.fajta === "vitrin") oduVitrinVesz(t);
   else oduVesz(cs.kulcs, t);
 }
 function oduKinezetVesz(kulcs, t) {

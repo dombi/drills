@@ -511,3 +511,50 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .talalat-pukk .tp-kep svg{ width:100%; height:100%; display:block; }
 @keyframes tp-pop{ 0%{ transform:scale(.3); opacity:0; } 60%{ transform:scale(1.12); } 100%{ transform:scale(1); } }
 .talalat-pukk.repul{ transform:translateY(-40%) scale(.42); opacity:0; }
+
+/* ============================================================================
+   UNIKORNIS ÉLETRE KELTÉSE (idle) — a meglévő rajz megmozdul: lágy lebegés,
+   lengő sörény/farok/homloktincs, pislogás. A horgony-class-eket a game.js
+   eloAnimHorgony() teszi a rajzra. CSAK a "hős" konténerekben fut, hogy a pici
+   bélyegképek (menü, bolt, jelvények) mozdulatlanok maradjanak.
+   ============================================================================ */
+#szinpad .uni-elo,   #odu-szoba .uni-elo,   #profil-lista .uni-elo,
+#szinpad .uni-soreny,#odu-szoba .uni-soreny,#profil-lista .uni-soreny,
+#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok,
+#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
+#szinpad .uni-szem,  #odu-szoba .uni-szem,  #profil-lista .uni-szem{
+  transform-box:fill-box;
+}
+/* lágy lebegés (az egész figura, ruhástul) */
+#szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo{
+  animation:uni-lebeg 3.8s ease-in-out infinite;
+}
+/* sörény — a nyaknál fogva leng */
+#szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny{
+  transform-origin:100% 0%; animation:uni-soreny 3.2s ease-in-out infinite;
+}
+/* farok — a tövénél fogva leng, kicsit erősebben */
+#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok{
+  transform-origin:100% 0%; animation:uni-farok 2.8s ease-in-out infinite;
+}
+/* homloktincs — finoman a széllel */
+#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs{
+  transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite;
+}
+/* pislogás */
+#szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{
+  transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite;
+}
+@keyframes uni-lebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
+@keyframes uni-soreny{ 0%,100%{ transform:rotate(-2.5deg); } 50%{ transform:rotate(2.5deg); } }
+@keyframes uni-farok{ 0%,100%{ transform:rotate(3.5deg); } 50%{ transform:rotate(-3.5deg); } }
+@keyframes uni-tincs{ 0%,100%{ transform:rotate(-3deg); } 50%{ transform:rotate(3deg); } }
+@keyframes uni-pislog{ 0%,95%,100%{ transform:scaleY(1); } 97.5%{ transform:scaleY(.08); } }
+
+@media (prefers-reduced-motion:reduce){
+  #szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo,
+  #szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny,
+  #szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok,
+  #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
+  #szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{ animation:none; }
+}
