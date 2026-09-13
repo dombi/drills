@@ -210,9 +210,18 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   **Szám-rengeteg** 🌲 (× és ÷ keverve). A negyedik, a **Szorzódallam** 🎵 (a szorzótábla
   felmondása, mint a bontás) hamarosan jön. A jutalom-pontok a jóváhagyott, kisebb (~1560-as)
   rendszerre álltak át — minden pálya ✨-értéke ehhez igazodott.
-- **Következő:** a Szorzódallam (felmondás) + a rejtett 12 órás kapu + a közös 13-szilánkos ég;
-  majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
-  (sok friss réteg).
+- **2026-09-13 — KINCSVITRIN + „Kristály" bolt-fül (csillagkristály-díszek).** Új prémium
+  dísz-kategória: a boltban megnyílt az **5. fül, a „Kristály"**, rajta 6 csiszolt kristály-dísz
+  (kristálygömb, -róka, -bagoly, csillagtérkép-gömb, zenélő doboz, tündérlámpás), **✨ csillámporból
+  megvehető, mint bármi más** (a producer döntése: NINCS külön valuta és NINCS váltás). A megvett
+  darab a fő falon lévő új **Kincsvitrinbe** kerül (üveges fa-szekrény, 2×3 állvány; a hiányzó
+  helyeken halvány „?" — a gyűjtemény láthatóan telik). Teljesen additív: új mentés-ág
+  `P().odu.vitrin`, új `fajta:"vitrin"` a boltban, a pálya-motor érintetlen. Tesztelve (böngésző):
+  vitrin-render üresen és 3 tétellel, mind az 5 fül regresszió zöld, teljes UI-vétel a megerősítéssel
+  (✨ levonás → vitrinbe), konzol tiszta.
+- **Következő:** a jelvények bővítése 7→17 (4 család, az 1. kérés) az új feloldás-figyelőkkel;
+  a Szorzódallam (felmondás) + a rejtett 12 órás kapu + a közös 13-szilánkos ég;
+  majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest.
 
 ## Kód-térkép — hova kell nyúlni
 

@@ -2948,6 +2948,7 @@ function boltBagolySzoveg(k) {
   var cs = k.cs, t = k.t, p = P().csillampor;
   var kint = (cs.fajta === "ruha" || cs.fajta === "kinezet");
   if (boltAktiv(cs, t)) return kint ? "Ez van most rajtad — jól áll!" : "Ez van most kint — jól néz ki!";
+  if (cs.fajta === "vitrin" && boltBirt(cs, t)) return "Ez már a vitrinedben ragyog!";
   if (boltBirt(cs, t)) return "Ez már a tiéd! " + (kint ? "Fel is veheted." : "Ki is teheted.");
   if (p >= t.ar) return "Van rá elég! Marad " + (p - t.ar) + " ✨";
   return "Még " + (t.ar - p) + " ✨ kell hozzá — gyűjts egy kicsit!";
@@ -3860,7 +3861,9 @@ window.UC = {
   },
   oduDiszBeallit: oduDiszBeallit,
   SORENY_SZIN: SORENY_SZIN, SZEM_SZIN: SZEM_SZIN,
-  oduKinezetVesz: oduKinezetVesz, oduKinezetBeallit: oduKinezetBeallit
+  oduKinezetVesz: oduKinezetVesz, oduKinezetBeallit: oduKinezetBeallit,
+  KRISTALY: KRISTALY, oduPanelNyit: oduPanelNyit,
+  oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); }
 };
 
 })();

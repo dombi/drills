@@ -777,3 +777,22 @@ zsugorodott a szűk konténerben (`flex-shrink:1`), az `overflow:hidden` meg lev
 a panelek 53px-re estek össze. Fix: `.palya-regio{ flex:0 0 auto }` — a régiók a tartalom szerinti
 magasságot tartják, a `.palya-racs` görget. Tesztelve: mindkét panel teljes magasságú (össz ~844,
 szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol tiszta.
+
+## 2026-09-13 — Csillagkristály-díszek + Kincsvitrin
+
+- **A jutalom-rendszer bővül két irányban** (producer-kérés): (1) **több jelvény**, (2) **kristály**,
+  amit meg lehet venni, és a vett darab az odú egy **látható helyére** kerül. Terv + rajzterv a
+  Matekos mappában: `spec-jelvenyek-es-kristaly.html`, `mockup-vitrin-jelvenyfal-bolt.html`.
+- **NINCS külön valuta és NINCS váltás.** *(Producer-döntés, felülírja a korábbi „csillagkristály 💎
+  valuta + ✨→💎 váltás" ötletet.)* A kristály-díszek **ugyanúgy ✨ csillámporból megvehetők**, mint
+  bármi más a boltban. A „csillagkristály" a **prémium dísz-kategória neve**, nem fizetőeszköz.
+- **Új „Kristály" bolt-fül** (5., a Holmik/Kinézet/Kellékek/Időjárás mellett), 6 tétellel:
+  kristálygömb (70), -róka (80), -bagoly (80), csillagtérkép-gömb (110), zenélő doboz (130),
+  tündérlámpás (100) — mind ✨. *(Az árak kiindulási javaslatok, élesben hangolhatók.)*
+- **Kincsvitrin a fő falon:** üveges fa-szekrény, 2×3 állvány; a megvett kristály-dísz a helyére
+  kerül, a hiányzó helyeken halvány „?" — több fér el egyszerre (mint az `oltozet.van`), és láthatóan
+  telik. Mentés-ág: `P().odu.vitrin`. Additív, a pálya-motor érintetlen. **Böngészőben tesztelve.**
+- **Munkamodell:** megszűnt a külön „fejlesztő" app/session — bármelyik session kódolhat, ha az a
+  feladata; nincs külön „fejlesztői átadás". A drills-repo git-jét Claude intézi (fetch kód előtt).
+- **Következő (jóváhagyva, még kódolatlan):** jelvények 7→17, 4 családban (Ösvény / Mesteri tudás /
+  Kitartás / Gyűjtő-berendező), új feloldás-figyelőkkel; a titkos „Éjféli kapu" zárva is rejtve marad.
