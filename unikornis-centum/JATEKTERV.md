@@ -214,6 +214,31 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest
   (sok friss réteg).
 
+## Kód-térkép — hova kell nyúlni
+
+A `game.js` egyetlen fájl, de számozott szekciókra osztva. **Ha módosítani kell,
+nem az egészet nézzük át:** a szerkesztő keresőjével (Ctrl+F) a szekció fejlécére
+keresünk rá (pl. `3) FELADAT`). Ugyanez a térkép a `game.js` legtetején is megvan.
+
+| Szekció | Ha ehhez akarsz nyúlni… |
+|---|---|
+| 1) ADATOK | pályák, unikornisok, árak, katalógus-listák |
+| 2) SEGÉDEK | apró közös eszközök |
+| 3) FELADATGENERÁTOR | milyen matekfeladat jön (számkör, tízesátlépés) |
+| 4) MENTÉS | mit jegyez meg a játék (csillámpor, kész pályák, ruhák) |
+| 5) HANG | beszéd, hangos kérdés, szóbeli válasz figyelése |
+| 6) SVG | minden rajz/grafika |
+| 7) KÉPERNYŐK | mi hol jelenik meg |
+| 8) JÁTÉK-LOGIKA | pontozás, előrehaladás, a kör lefolyása |
+| 9) SZÜLŐI NÉZET | a szülői oldal |
+| 10) ESEMÉNYEK | kattintások, gombok |
+| 10b) ODÚ | szoba, időjárás, csillagszilánk-ég, bolt-megnyitó |
+| 10c) JELVÉNYEK | gyűjtemény-könyv, talált tárgyak |
+| 11) INDÍTÁS | a játék elindulása |
+
+A **rendszerterv** eleve témánként külön fájl a `terv/` mappában
+(`rendszerterv-*.html` + `spec-*.html`) — ott a téma nevű fájlt nyisd meg.
+
 ## Megnyitás
 
 Élő verzió: `https://dombi.github.io/drills/unikornis-centum/index.html` (a `drills` repóból).
