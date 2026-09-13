@@ -466,3 +466,48 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   animation:talalt-be .3s ease-out;
 }
 @keyframes talalt-be{ from{ opacity:0; transform:translate(-50%,-10px); } to{ opacity:1; transform:translate(-50%,0); } }
+/* toast tartalma: kis tárgy-kép + név */
+.talalt-buborek .tb-kep{ display:inline-block; width:28px; height:28px; vertical-align:middle; margin-right:7px; }
+.talalt-buborek .tb-kep svg{ width:100%; height:100%; display:block; }
+.talalt-buborek .tb-txt{ vertical-align:middle; }
+.talalt-buborek b{ color:#7a4a10; }
+
+/* ── TALÁLT-TÁRGY ÜNNEPI PILLANAT (spec-targy-talalas-atadas.html) ── */
+.talalat-reteg{ position:absolute; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; padding:14px; }
+.talalat-fatyol{ position:absolute; inset:0; background:#2e2350; opacity:0; transition:opacity .22s ease; }
+.talalat-reteg.mutat .talalat-fatyol{ opacity:.34; }
+.talalat-reteg.zaro .talalat-fatyol{ opacity:0; }
+.talalat-szikrak{ position:absolute; left:50%; top:50%; width:min(90%,330px); height:min(90%,330px);
+  transform:translate(-50%,-50%); pointer-events:none; overflow:visible; }
+.tk-szikra{ opacity:0; animation:tk-pislog 1.7s ease-out forwards; }
+@keyframes tk-pislog{ 0%{ opacity:0; } 22%{ opacity:1; } 70%{ opacity:.85; } 100%{ opacity:.7; } }
+
+.talalat-kartya{ position:relative; z-index:2; width:min(76%,240px);
+  background:#fdf4e2; border:3px solid #e6d3a8; border-radius:22px; padding:13px 16px 15px;
+  text-align:center; box-shadow:0 14px 34px rgba(46,35,80,.42);
+  transform:translateY(26px) scale(.7); opacity:0; }
+.talalat-reteg.mutat .talalat-kartya{ animation:tk-be .34s cubic-bezier(.34,1.56,.5,1) forwards; }
+.talalat-reteg.zaro .talalat-kartya{ transition:all .24s ease; transform:translateY(-8px) scale(.55); opacity:0; }
+@keyframes tk-be{ to{ transform:translateY(0) scale(1); opacity:1; } }
+.talalat-kartya.ritka{ border-color:#f0b83e; border-width:5px;
+  box-shadow:0 0 0 3px #ffe49a inset, 0 14px 42px rgba(240,184,62,.5); }
+.tk-fejlec{ font-size:14px; font-weight:800; color:#c58a2a; }
+.tk-kep{ position:relative; width:128px; height:128px; margin:4px auto 2px; }
+.tk-kep svg{ position:relative; z-index:1; width:100%; height:100%; display:block; }
+.tk-glow{ position:absolute; inset:-20%; z-index:0; border-radius:50%;
+  background:radial-gradient(circle, #fff6d8 0%, rgba(255,234,176,.6) 52%, rgba(255,234,176,0) 72%); }
+.tk-nev{ font-size:19px; font-weight:800; color:#6a4a9a; }
+.tk-sor{ font-size:12.5px; color:#8a6a44; margin-top:2px; }
+.tk-szalag{ position:absolute; top:13px; left:-9px; z-index:3; background:#f0b83e; color:#fff;
+  font-size:12px; font-weight:800; padding:3px 12px; border-radius:5px; transform:rotate(-9deg);
+  box-shadow:0 3px 8px rgba(120,90,20,.35); }
+
+/* gyakori: felszikrázó + felröppenő tárgy a játéktér közepén (nem modális) */
+.talalat-pukk{ position:absolute; left:50%; top:44%; width:160px; height:160px; margin:-80px 0 0 -80px;
+  z-index:30; pointer-events:none; transition:transform .58s cubic-bezier(.4,0,.4,1), opacity .58s ease; }
+.talalat-pukk .talalat-szikrak{ width:100%; height:100%; }
+.talalat-pukk .tp-kep{ position:absolute; left:50%; top:50%; width:74px; height:74px; margin:-37px 0 0 -37px;
+  animation:tp-pop .32s ease-out; }
+.talalat-pukk .tp-kep svg{ width:100%; height:100%; display:block; }
+@keyframes tp-pop{ 0%{ transform:scale(.3); opacity:0; } 60%{ transform:scale(1.12); } 100%{ transform:scale(1); } }
+.talalat-pukk.repul{ transform:translateY(-40%) scale(.42); opacity:0; }

@@ -3516,24 +3516,141 @@ function dropProbal(esely) {
   var lehet = [];
   RUHA_HELY.forEach(function (h) {
     (RUHAK[h.kulcs] || []).forEach(function (t, rang) {
-      if (!p.oltozet.van[t.id]) { var suly = [3, 2, 1][rang] || 1; for (var s = 0; s < suly; s++) lehet.push(t); }
+      if (!p.oltozet.van[t.id]) { var suly = [3, 2, 1][rang] || 1; for (var s = 0; s < suly; s++) lehet.push({ t: t, rang: rang, kulcs: h.kulcs }); }
     });
   });
   if (!lehet.length) { p.csillampor += 5; p.dropUres = 0; ment(); return { vigasz: true }; }
-  var t = lehet[veletlen(0, lehet.length - 1)];
-  p.oltozet.van[t.id] = 1;
+  var vald = lehet[veletlen(0, lehet.length - 1)];
+  p.oltozet.van[vald.t.id] = 1;
   p.dropUres = 0; ment();
-  return { talalt: t };
+  return { talalt: vald.t, rang: vald.rang, kulcs: vald.kulcs };   /* rang: 0 alap · 1 különleges · 2 ritka */
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TALÁLT-TÁRGY ÜNNEPI PILLANAT  (rajz-spec: Matekos/spec-targy-talalas-atadas.html)
+   Producer-döntés (2026-09-13): gyakori (alap/különleges) → halk, nem modális
+   toast + felszikrázó tárgy; RITKA (rang 2) → nagy, elugorható kártya arany
+   kerettel + „RITKA" szalaggal + erősebb hanggal. Torlódás-védelem: sor (queue),
+   egyszerre csak EGY pillanat. Additív: saját DOM (#talalat-defs, #talalat-reteg)
+   + saját CSS (.talalat-* / .tk-* / .tp-*), a meglévő #talalt-buborek a toast.
+   ══════════════════════════════════════════════════════════════════════════ */
+var TALALAT_DEFS =
+  '<svg id="talalat-defs" width="0" height="0" aria-hidden="true" style="position:absolute">' +
+  '<defs>' +
+    '<filter id="tk-ragyog" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="2.3"/></filter>' +
+  '</defs></svg>';
+
+function talalatDefsBiztos() {
+  if (!$("talalat-defs")) document.body.insertAdjacentHTML("beforeend", TALALAT_DEFS);
+  if (!$("talalat-reteg")) {
+    var jt = document.querySelector(".jatekter"); if (!jt) return;
+    var r = el("div", "talalat-reteg"); r.id = "talalat-reteg"; r.hidden = true;
+    r.addEventListener("pointerdown", function () { if (talalatKartya._zar) talalatKartya._zar(); });
+    jt.appendChild(r);
+  }
+}
+
+/* egy szikra SVG-je 0,0 körül (a csillagszilánk-nyelvből) */
+function talalatSzikra(arany) {
+  if (arany) return '<circle r="9" fill="#ffd24d" opacity="0.55" filter="url(#tk-ragyog)"/>' +
+    '<path d="M0 -8 L2.2 -2.2 L8 0 L2.2 2.2 L0 8 L-2.2 2.2 L-8 0 L-2.2 -2.2 Z" fill="#ffe07a" stroke="#f2b026" stroke-width="0.7" stroke-linejoin="round"/>' +
+    '<path d="M0 -4 L1 -1 L4 0 L1 1 L0 4 L-1 1 L-4 0 L-1 -1 Z" fill="#fff6d8"/><circle r="1.4" fill="#fff"/>';
+  return '<circle r="6" fill="#cfe0f2" opacity="0.28" filter="url(#tk-ragyog)"/>' +
+    '<path d="M0 -6.5 L1.7 -1.7 L6.5 0 L1.7 1.7 L0 6.5 L-1.7 1.7 L-6.5 0 L-1.7 -1.7 Z" fill="#d9e6f4" stroke="#a9bdd6" stroke-width="0.6" stroke-linejoin="round"/><circle r="1.1" fill="#fff"/>';
+}
+
+/* szikra-kitörés: db szikra a közép körüli ellipszisen, késleltetve pislognak */
+function talalatSzikraReteg(w, h, db, arany) {
+  var cx = w / 2, cy = h / 2, s = '<svg class="talalat-szikrak" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet">';
+  for (var i = 0; i < db; i++) {
+    var ang = (i / db) * Math.PI * 2 + (i % 2 ? 0.5 : 0);
+    var x = cx + Math.cos(ang) * (w * 0.40) * (0.75 + Math.random() * 0.25);
+    var y = cy + Math.sin(ang) * (h * 0.40) * (0.75 + Math.random() * 0.25);
+    var sk = (0.6 + Math.random() * 0.7).toFixed(2);
+    s += '<g class="tk-szikra" style="animation-delay:' + (i * 60) + 'ms" transform="translate(' + x.toFixed(0) + ',' + y.toFixed(0) + ')">' +
+      '<g transform="scale(' + sk + ')">' + talalatSzikra(arany) + '</g></g>';
+  }
+  return s + '</svg>';
+}
+
+/* erősebb csengés a ritka találáshoz */
+function hangCsillaNagy() {
+  beep(1319, 0.10, "triangle", 0, 0.16);
+  beep(1760, 0.10, "triangle", 0.09, 0.15);
+  beep(2093, 0.12, "triangle", 0.18, 0.14);
+  beep(2637, 0.16, "triangle", 0.28, 0.12);
+}
+
+/* RITKA: nagy, elugorható kártya (modális fátyollal) */
+function talalatKartya(m, kesz) {
+  talalatDefsBiztos();
+  var reteg = $("talalat-reteg"); if (!reteg) { if (kesz) kesz(); return; }
+  var kep = boltThumb({ fajta: "ruha", kulcs: m.kulcs }, m.t);
+  reteg.innerHTML =
+    '<div class="talalat-fatyol"></div>' +
+    talalatSzikraReteg(300, 300, 9, true) +
+    '<div class="talalat-kartya ritka">' +
+      '<div class="tk-szalag">✦ RITKA</div>' +
+      '<div class="tk-fejlec">✨ Találtál egy díszt!</div>' +
+      '<div class="tk-kep"><span class="tk-glow"></span>' + kep + '</div>' +
+      '<div class="tk-nev">' + kiiras(m.nev) + '</div>' +
+      '<div class="tk-sor">Új dísz az odúba! 🔊</div>' +
+    '</div>';
+  reteg.hidden = false;
+  reteg.classList.remove("zaro"); void reteg.offsetWidth; reteg.classList.add("mutat");
+  hangCsillaNagy(); mondd(m.nev);
+  var zarva = false, t1;
+  function zar() {
+    if (zarva) return; zarva = true; talalatKartya._zar = null; clearTimeout(t1);
+    reteg.classList.remove("mutat"); reteg.classList.add("zaro");
+    setTimeout(function () { reteg.hidden = true; reteg.classList.remove("zaro"); reteg.innerHTML = ""; if (kesz) kesz(); }, 260);
+  }
+  talalatKartya._zar = zar;
+  t1 = setTimeout(zar, 1900);
+}
+
+/* GYAKORI: halk toast (fenti csík) + felszikrázó, felröppenő tárgy — nem modális */
+function talalatToast(m, kesz) {
+  talalatDefsBiztos();
+  var jt = document.querySelector(".jatekter");
+  var kep = boltThumb({ fajta: "ruha", kulcs: m.kulcs }, m.t);
+  if (jt) {
+    var pukk = el("div", "talalat-pukk");
+    pukk.innerHTML = talalatSzikraReteg(160, 160, m.kozepes ? 6 : 4, true) + '<div class="tp-kep">' + kep + '</div>';
+    jt.appendChild(pukk);
+    requestAnimationFrame(function () { pukk.classList.add("repul"); });
+    setTimeout(function () { pukk.remove(); }, 780);
+  }
+  var e = $("talalt-buborek");
+  if (e) {
+    e.innerHTML = '<span class="tb-kep">' + kep + '</span><span class="tb-txt">✨ Új holmi: <b>' + kiiras(m.nev) + '</b></span>';
+    e.hidden = false;
+    clearTimeout(talalatToast._t);
+    talalatToast._t = setTimeout(function () { e.hidden = true; e.innerHTML = ""; }, 2400);
+  }
+  hangCsilla(); mondd(m.nev);
+  setTimeout(function () { if (kesz) kesz(); }, 700);
+}
+
+/* sor: egyszerre csak egy pillanat (torlódás-védelem, ~15% drop miatt fontos) */
+var talalatSor = [], talalatFut = false;
+function talalatKovetkezo() {
+  if (!talalatSor.length) { talalatFut = false; return; }
+  talalatFut = true;
+  var m = talalatSor.shift();
+  (m.ritka ? talalatKartya : talalatToast)(m, function () { setTimeout(talalatKovetkezo, 180); });
 }
 function dropUnnepel(res) {
   if (!res) return;
   if (res.vigasz) { hangCsilla(); bagolyMondat("Minden holmid megvan! +5 ✨"); return; }
-  var e = $("talalt-buborek");
-  e.textContent = "✨ Találtál egy holmit: " + res.talalt.nev + "!";
-  e.hidden = false;
-  clearTimeout(dropUnnepel._t);
-  dropUnnepel._t = setTimeout(function () { e.hidden = true; }, 2800);
-  hangCsilla();
+  if (!res.talalt) return;
+  var rang = (typeof res.rang === "number") ? res.rang : 0;
+  talalatSor.push({
+    t: res.talalt, nev: res.talalt.nev,
+    kulcs: res.kulcs || (res.talalt.id || "").split("-")[0],
+    ritka: rang >= 2, kozepes: rang === 1
+  });
+  if (!talalatFut) talalatKovetkezo();
 }
 
 /* — gyűjtemény-könyv: minden bolti tétel, megvan / hiányzik — */
@@ -3601,7 +3718,7 @@ window.UC = {
   get FB() { return FB; },
   bontasEloStart: bontasEloStart, bontasEloBotlas: bontasEloBotlas, bontasEloVege: bontasEloVege,
   bontasEloChunk: bontasEloChunk,
-  JELVENYEK: JELVENYEK, jelvenyEllenoriz: jelvenyEllenoriz, dropProbal: dropProbal,
+  JELVENYEK: JELVENYEK, jelvenyEllenoriz: jelvenyEllenoriz, dropProbal: dropProbal, dropUnnepel: dropUnnepel,
   renderJelveny: renderJelveny, renderGyujtemeny: renderGyujtemeny,
   jutalom: jutalom, palyaBecsultErtek: palyaBecsultErtek, renderFomenu: renderFomenu,
   PALYAK: PALYAK,
