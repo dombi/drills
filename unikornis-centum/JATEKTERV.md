@@ -250,9 +250,22 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   kapu→kert→séta balra/jobbra (fordulással)→vissza; Holmik/ritkaság-szalag regresszió zöld; konzol tiszta.
   A séta-**trükkök** (ülés/ugrás/pörgés/csillám) a **2. fázis** — a `KERT_BOLT` és a `P().kert.trukkok`
   már erre bővíthetőre készült. Rajz/rendszerterv: `Matekos\kert-udvar-terv.html` + `Matekos\kert-rajzterv.html`.
-- **Következő:** a Kert 2. fázisa (ülés/ugrás trükkök + gombok), majd 3. fázis (pörgés/csillám + festett
-  részletek); a Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég;
-  ODÚ v4 sörény-hossz; playtest. **Figyelendő:** a `game.js` ~4130 sor — ~4500 felett érdemes külön fájlokra bontani.
+- **2026-09-14 — KERT 2. fázis (séta-trükkök).** A kertben megvehető séta-trükkök: 🛋️ **Ülés** és
+  🦘 **Ugrás**. Producer-döntés menet közben: a trükkök NEM ✨-be, hanem **💧 tündérharmatba** kerülnek
+  (Ülés 3 💧, Ugrás 12 💧) — így a kitartás-valutának végre van funkciója (ez az első 💧-sink), és a
+  vásárlás a **meglévő odú-boltot** használja: a trükkök a bolt „Kert" fülére kerülnek a kulcs mellé,
+  nem külön kert-boltba (csak nyitott kert esetén jelennek meg). A kertben minden megvett trükkhöz gomb;
+  koppintásra az unikornis eljátssza — a meglévő figurát animáljuk, újrarajzolás nincs: a test süllyed/
+  emelkedik, a **lábak a csípőnél rövidülnek = behajló térd** (ülésnél leül, ugrásnál előbb guggol, majd
+  ellök). Teljesen additív: új `KERT_BOLT` trükk-sorok (adatvezérelt: `id`=anim-osztály, `emoji`+`perc`+
+  `svg`), kétvalutás bolt-segédek (`kertTrukkTetel`/`boltValuta`/`boltPenz` — a Kert-trükkök 💧-t vonnak,
+  minden más ✨), `kertTrukksorRender`/`kertTrukkJatszik` (`KERT_TRUKK_FUT` guard, trükk közben nincs séta).
+  A matek- és pálya-motor érintetlen. Tesztelve (inline build): 💧-vétel + „nincs elég" ág, ✨-fülek
+  regresszió, kert lejátszás + térd-behajlás + séta-blokk, konzol tiszta. **3. fázis (pörgés/csillám) =
+  egy `KERT_BOLT` sor + egy pár CSS-keyframe.**
+- **Következő:** a Kert 3. fázisa (🌀 pörgés / ✨ csillámszórás, 12 💧, ugyanezzel a mintával); a
+  Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég; ODÚ v4 sörény-hossz;
+  playtest. **Figyelendő:** a `game.js` ~4180 sor — ~4500 felett érdemes külön fájlokra bontani.
 
 ## Kód-térkép — hova kell nyúlni
 

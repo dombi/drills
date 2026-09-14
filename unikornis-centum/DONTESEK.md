@@ -834,3 +834,20 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   - A kertben **séta közben mozog a 4 láb** (a csípőnél leng, ellenfázisban), nemcsak a test bólogat.
   - A **kertkapu a JOBB oldalra** került, **kisebb** lett, és a **kályha lángját nem takarja** (a láng fölé, a felső jobb falra); **nincs rajta nyíl** — helyette **egérrel fölé érve megemelkedik** (`#odu-kert-kapu:hover` → felfelé tolás + árnyék), ez jelzi a kattinthatóságot.
   - A **Kincsvitrin nyitott polc** lett: nincs barna szekrény/üveg, **nincs felirat**, és az üres helyeken **nincs „?" és nincs szaggatott vonal** — csak tiszta kis állványok. — *Producer-kérések.*
+
+## 2026-09-14 — Kert 2. fázis: séta-trükkök 💧 tündérharmatért (menet közbeni döntések)
+
+- **A séta-trükkök NEM ✨-be, hanem 💧 TÜNDÉRHARMATBA kerülnek.** — *Producer: a 💧 (kitartás-valuta)
+  addig csak gyűlt, nem lehetett rá költeni; a trükkök az első 💧-sink, így a valutának végre van értelme,
+  és a trükk a kitartás jutalma lesz, nem a gyors ✨-gyűjtésé. Tematikus is: harmat → kert.*
+- **Árak: 🛋️ Ülés 3 💧, 🦘 Ugrás 12 💧** („az ülés legyen 3, a többi trükk 12"). — *Az első trükk pár pálya
+  kitartásból meglegyen; a 3. fázis pörgés/csillám is 12 💧.*
+- **A vásárlás a MEGLÉVŐ odú-boltot használja** — a trükkök a bolt „Kert" fülére kerülnek a kulcs mellé,
+  NINCS külön kert-bolt. — *Producer: „a trükk-bolt ugyanolyan lehet, mint az odúban." A bolt kétvalutássá
+  vált (a Kert-trükkök 💧-t vonnak, minden más ✨); a trükkök csak nyitott kert esetén jelennek meg a fülön.*
+- **A kertben lejátszó gomb minden megvett trükkhöz; a trükk a meglévő figurát animálja, újrarajzolás nincs.**
+  A test süllyed/emelkedik, a **lábak a csípőnél rövidülnek = behajló térd**: ülésnél leül, **ugrásnál előbb
+  guggol (térd behajlik), majd ellök**. — *Producer külön kérte a térd-behajlást mindkét trükknél.*
+- **Adatvezérelt / additív:** egy trükk = egy `KERT_BOLT` sor (`id`=anim-osztály neve, `emoji`+`perc`+`svg`);
+  a 3. fázis bővítés = egy sor + egy pár CSS-keyframe. A matek/pálya-motor érintetlen. Böngészőben tesztelve
+  (💧-vétel + „nincs elég" ág, ✨-fülek regresszió, lejátszás + séta-blokk), konzol tiszta. (`232de47`)
