@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Javaslat – Tündérharmat (kitartás-valuta) + a sorozat-szorzó lecserélése</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .kesz::before{content:"✅ ELDÖNTVE — ";font-weight:bold;color:#2f6b3a;}
+  .kesz.nincs::before{content:"";}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 DÖNTÉSRE VÁR — ";font-weight:bold;color:#b0405a;}
+  .ajanlott{background:#eef7ff;border:1px solid #b9d7f0;border-radius:10px;padding:8px 14px;margin:8px 0;}
+  .ajanlott::before{content:"⭐ AJÁNLOTT — ";font-weight:bold;color:#2b6cb0;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  .ki{background:#f2f8f2;font-weight:700;}
+  .idezet{background:#f4f0fa;border-left:4px solid #b79fd4;border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0;font-style:italic;}
+  ul,ol{margin:6px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>💧 Javaslat – Tündérharmat (kitartás-valuta) + a sorozat-szorzó lecserélése</h1>
+  <p class="mottoo">Módosítási javaslat a <b>rendszerterv 7. szakaszához</b> (Motiváció és jutalom).
+     A producer kérése alapján (2026-09-14). <b>Ez rendszerterv — jóváhagyás előtt kód nem készül.</b></p>
+
+  <div class="kesz nincs">
+    <b>A producer kérése (2026-09-14):</b>
+    <ol>
+      <li>A <b>✨ sorozat-szorzó túl magas</b> — csökkenjen / kerüljön ki.</li>
+      <li><b>Helyette egy újfajta jutalom</b>, ami <b>lassan gyűlik kitartásért</b>, és amiért
+        majd <b>különleges tárgyakat</b> lehet venni — olyanokat, amiket <b>csak ezért</b> lehet.</li>
+      <li>A neve legyen <b>„tündérharmat"</b> (💧).</li>
+      <li>Legyen kiírva: <span class="idezet" style="display:inline;padding:2px 8px">Gyűlik a tündérharmat!
+        Hamarosan különleges tárgyakra költheted.</span></li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>0. Röviden — mi a lényeg</h2>
+  <div class="doboz">
+    <p>Bevezetünk egy <b>második, ritka valutát</b> a ✨ csillámpor mellé: a <b>tündérharmatot 💧</b>.
+      Ez lassan gyűlik, és kizárólag <b>kitartásért</b> jár (végigcsinált pályák, sorozat, kihagyás nélküli
+      ösvény). Cserébe a mostani <b>✨ sorozat-szorzó</b> (a záró bónusz ×2/×3-a) lekerül vagy lecsökken,
+      így a ✨-gazdaság kiszámíthatóbb lesz, nem lő ki 240-re.</p>
+    <p><b>Fontos:</b> ez az ülés <u>csak a gyűjtést és a „hamarosan" feliratot</u> építené meg.
+      A különleges tárgyak boltja <b>egy későbbi kör</b>, amikor lesznek konkrét tárgyak. Így ez a lépés
+      kicsi, additív és biztonságos.</p>
+  </div>
+
+  <div class="figyelem">
+    <b>Kapcsolódó korábbi döntés:</b> a kristály-díszeknél kimondtuk, hogy „<i>nincs külön valuta és nincs
+    váltás</i>". Ez most <b>tudatos eltérés</b>: a tündérharmat egy másik funkció (kitartás-jutalom),
+    és a producer kifejezetten kéri. A kettő nem mond ellent — a kristályok maradnak ✨-ből vehetők,
+    a tündérharmat csak az új, „csak-kitartásért" tárgyakra vonatkozik. <b>Nincs átváltás</b> a kettő közt.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>1. Miért kell változtatni – a mostani sorozat-szorzó</h2>
+  <p>Ma a záró (pálya-vége) bónusz = <code>5 × szint</code>, és erre hat a <b>sorozat-szorzó</b>:
+    a 2. pályától ×2, a 3.-tól ×3. Ehhez jön a <b>teljes ösvény</b> (kihagyás nélkül) dupla záró bónusza.
+    A csúcson ez összeszorzódik:</p>
+  <table>
+    <tr><th>Eset (legnehezebb pálya, szint 8, záró alap = 40 ✨)</th><th>Záró bónusz</th></tr>
+    <tr><td>Egyedül, kihagyással</td><td>40 ✨</td></tr>
+    <tr><td>Teljes ösvény (kihagyás nélkül)</td><td>80 ✨</td></tr>
+    <tr><td>Sorozat ×3 + teljes ösvény</td><td class="ki">240 ✨</td></tr>
+  </table>
+  <p>A 240 ✨ egyetlen pálya végén tényleg túl sok — ennyiért szinte a fél bolt megvehető.
+    Ez az, amit a producer soknak érez.</p>
+
+  <!-- ============================================================ -->
+  <h2>2. Az új valuta: „Tündérharmat” 💧</h2>
+  <div class="doboz">
+    <p><b>Szerep:</b> ritka, lassan gyűlő valuta. Nem a mindennapi vásárlásra való (az a ✨ csillámpor
+      dolga), hanem a <b>különleges, „csak-kitartásért” tárgyakra</b>.</p>
+    <p><b>Kijelzése:</b> saját 💧 ikon + szám, jól elkülönítve a ✨-tól (lásd 5.).</p>
+  </div>
+
+  <div class="kesz">
+    <b>Név + ikon (2026-09-14).</b> A valuta neve <b>Tündérharmat</b>, ikonja <b>💧</b>. A „Tündér” előtag
+    egyértelműen elválasztja a <b>csillámpor</b> valutától és a <b>Csillámharmat</b> unikornis-profiltól is,
+    közben megőrzi a szép cseppszerű „harmat” hangulatot.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. Miből gyűlik – mit számítunk „kitartásnak”</h2>
+  <p>A kitartás lényege: <b>ne add fel, és haladj tovább</b>. Ezt jutalmazzuk, nem a puszta feladat-számot
+    (arra ott a ✨).</p>
+
+  <div class="ajanlott">
+    <b>Alap: minden befejezett pálya = 1 💧.</b> <b>+1 💧</b>, ha a pályát <b>sorozatban</b>
+    (2. vagy további pálya egymás után, leállás nélkül) <b>vagy teljes ösvényen</b> (kihagyás nélkül)
+    csináltad. Így egy „kitartó” futás <b>2 💧</b>, egy lazább <b>1 💧</b>.
+    <br><span class="mini">Egyszerű a gyereknek: „minden pálya után egy harmatcsepp, és ha nem állsz le, kettő.”</span>
+  </div>
+
+  <div class="kesz">
+    <b>A gyűjtés szabálya (2026-09-14).</b> <b>Minden befejezett pálya = 1 💧</b>, és <b>+1 💧</b>, ha a pályát
+    sorozatban (2. vagy további pálya egymás után) VAGY teljes ösvényen (kihagyás nélkül) csináltad.
+    Kihagyással teljesített egyedülálló pálya = 1 💧; kitartó futás = 2 💧.
+  </div>
+
+  <p class="mini">Nagyságrend: egy leülés ~3–4 pálya, tehát az ajánlott szabállyal ~4–8 💧/leülés.
+    Néhány leülés alatt összegyűlik egy különleges tárgyra való. A pontos árak <b>a tárgyak megtervezésekor</b>
+    dőlnek el (későbbi kör), amikor tudjuk, mik lesznek.</p>
+
+  <!-- ============================================================ -->
+  <h2>4. Mi legyen a mostani ✨ sorozat-szorzóval</h2>
+
+  <div class="ajanlott">
+    <b>Teljesen kivesszük.</b> A sorozat mostantól <b>💧-ot ad, nem ✨-t szoroz</b>. A záró bónusz marad
+    a tiszta <code>5 × szint</code> (max 40 ✨), a teljes ösvény továbbra is <b>dupláz</b> (ez külön dolog,
+    marad). Így a ✨ nem lő ki 240-re, a „kitartás” jutalma pedig átkerül az új valutába — pontosan a
+    „legyen helyette” kérés szerint.
+  </div>
+
+  <div class="kesz">
+    <b>A ✨ sorozat-szorzó sorsa (2026-09-14): teljes kivétel.</b> A sorozat mostantól 💧-ot ad, nem ✨-t szoroz.
+    A záró bónusz a tiszta <code>5 × szint</code> (max 40 ✨), a teljes ösvény továbbra is dupláz (az külön dolog,
+    marad). Nincs többé 240 ✨-es kilövés.
+  </div>
+
+  <table>
+    <tr><th>Legnehezebb pálya (szint 8) — záró bónusz az AJÁNLOTT szerint</th><th>✨</th><th>💧</th></tr>
+    <tr><td>Egyedül, kihagyással</td><td>40</td><td>1</td></tr>
+    <tr><td>Sorozatban VAGY teljes ösvényen</td><td>40 (teljes ösvénynél 80)</td><td>2</td></tr>
+    <tr><td class="ki">Nincs többé 240 ✨-es kilövés</td><td class="ki">max 80</td><td>—</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>5. A „hamarosan” kijelző (teaser)</h2>
+  <div class="kesz nincs">
+    <b>Rögzített szöveg (producer):</b>
+    <div class="idezet">💧 Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</div>
+  </div>
+  <p>Amíg a különleges bolt nincs kész, a számláló <b>látszik és nő</b>, de nincs mire költeni — a felirat
+    ezt a várakozást építi (a gyerek látja, hogy valami készül).</p>
+
+  <div class="kesz">
+    <b>Hol jelenik meg (2026-09-14): pálya-vége + odú.</b> <b>(a)</b> A <b>pálya-vége képen</b>, amikor épp
+    kapott belőle („+1 💧 … Gyűlik a tündérharmat!…”), és <b>(b)</b> az <b>odúban</b> egy kis állandó számláló
+    a ✨ mellett, ugyanezzel a felirattal.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>6. Technikai keret (magas szintről, kód nélkül)</h2>
+  <ul>
+    <li><b>Új mentés-mező</b> a profilban (pl. <code>tunderharmat</code>), a ✨ mellett. A régi mentésekhez
+      <b>guardolt migráció</b>: ha nincs, 0-ról indul — a meglévő gyerekek adata nem sérül.</li>
+    <li><b>Gyűjtés</b> a pálya-vége logikában dől el (ott, ahol most a záró bónuszt számoljuk). A sorozat
+      hosszát a játék már ma nyilvántartja (<code>P().sorozat</code>), tehát a kitartás felismeréséhez
+      van mire építeni.</li>
+    <li><b>Teljesen additív:</b> a matek-generátor és a pálya-motor <b>nem változik</b>. Csak a jutalom-elszámolás
+      és egy kijelző módosul.</li>
+    <li>A különleges tárgyak boltja + az árak <b>NEM</b> ebben a körben — külön terv, amikor lesznek tárgyak.</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>7. Ami NEM változik</h2>
+  <ul>
+    <li>A <b>🌟 teljes ösvény</b> (kihagyás nélkül → dupla záró bónusz + <b>arany</b> csillagszilánk) marad.</li>
+    <li>A <b>csillagszilánk-ég</b> (pályánként egy szilánk, jelenleg 13 a cél) marad, a valutáktól függetlenül.</li>
+    <li><b>Nincs pontlevonás</b>, a hibázás és a kerülő továbbra sem büntet.</li>
+    <li>A ✨ csillámpor alap-értékei (feladat 1–2, felmondás 9, állomás 1, záró 5×szint) maradnak.</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2>8. Hatókör és ütemezés</h2>
+  <table>
+    <tr><th>Kör</th><th>Mi épül</th><th>Állapot</th></tr>
+    <tr><td><b>Most (ez a terv)</b></td><td>💧 gyűjtés + számláló-kijelző + „hamarosan” felirat; a ✨ sorozat-szorzó kivétele</td><td class="ki">rendszerterv KÉSZ — kódra vár</td></tr>
+    <tr><td>Később</td><td>Különleges tárgyak katalógusa + árak + a 💧-bolt</td><td>külön terv, ha lesznek tárgyak</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>9. Nyitott döntések – összefoglaló</h2>
+  <table>
+    <tr><th>#</th><th>Döntés</th><th>Állapot</th></tr>
+    <tr><td>1</td><td>Név + ikon</td><td class="ki">✅ Tündérharmat 💧</td></tr>
+    <tr><td>2</td><td>Miből gyűlik</td><td class="ki">✅ 1/pálya, +1 sorozat vagy teljes ösvény</td></tr>
+    <tr><td>3</td><td>✨ sorozat-szorzó sorsa</td><td class="ki">✅ Teljes kivétel</td></tr>
+    <tr><td>4</td><td>Kijelző helye</td><td class="ki">✅ Pálya-vége + odú</td></tr>
+    <tr><td>5</td><td>Különleges tárgyak + árak</td><td>Későbbi kör (nem most)</td></tr>
+  </table>
+
+  <p class="mini" style="margin-top:26px">Élő dokumentum. A döntések véglegesítése után a rendszerterv 7.
+    szakaszába átvezetjük, és csak utána készül kód. A kanonikus hely a <code>drills/unikornis-centum/terv/</code>.</p>
+
+</div>
+</body>
+</html>

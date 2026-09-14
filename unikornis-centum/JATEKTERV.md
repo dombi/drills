@@ -227,6 +227,17 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   („Titkos jelvény"). Additív feloldás-figyelők a pálya-motorban (guardolt `P().jelvSzam` számlálók +
   `P().napok`), a matek-generátor és a pontozás érintetlen. Tesztelve (böngésző): render 4 családban,
   élő feloldás (Nem adom fel 3+ próbára, állomás-hibátlan, beszéd-számláló), konzol tiszta.
+- **2026-09-14 — TÜNDÉRHARMAT (kitartás-valuta) + a ✨ sorozat-szorzó kivéve.** A ✨ sorozat-szorzó (×2/×3
+  záró bónusz, csúcson 240 ✨) túl magas volt, ezért kikerült: a záró bónusz mostantól tiszta 5×szint,
+  a teljes ösvény továbbra is dupláz. Helyette új, ritka **második valuta, a 💧 tündérharmat**, ami
+  kizárólag **kitartásért** jár: **1 minden befejezett pályáért, +1 ha sorozatban VAGY teljes ösvényen**
+  (kihagyás nélkül). A pálya-vége kép kiírja („+N 💧 … Gyűlik a tündérharmat! Hamarosan különleges tárgyakra
+  költheted."), az odú fejlécében új 💧 számláló + teaser-csík. Teljesen additív: új mentés-mező
+  `tunderharmat` guardolt migrációval, a matek-generátor és a pálya-motor érintetlen; a pályaválasztó
+  ×N „duplát éri" jelzése (a régi ✨-szorzóé) eltávolítva. A 💧-ért vehető különleges tárgyak boltja
+  KÉSŐBBI kör. Rendszerterv: `terv/javaslat-kitartas-valuta.html`. Tesztelve (böngésző): friss profil 0,
+  teljes-ösvény pálya → +2 (nincs sorozat-bónusz sor, +5 ✨ szorzó nélkül), sorozat-ág (`sorozatBan`) → +2,
+  odú-számláló + teaser, `jatek-szorzo` rejtve, konzol tiszta.
 - **Következő:** a Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég;
   majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest.
 
