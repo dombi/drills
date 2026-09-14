@@ -2898,11 +2898,8 @@ function kertKapuSVG(nyitva, KX, KW, KT, KB) {
   s += '<path d="' + nyilas + '" fill="none" stroke="#b79fd4" stroke-width="12"/>';
   s += '<path d="' + nyilas + '" fill="none" stroke="#cbb6e6" stroke-width="5"/>';
   if (nyitva) {
-    /* nincs nyíl (producer 2026-09-14) — a hover-emelkedés jelzi a kattinthatóságot; csak egy kis csillám marad */
+    /* nincs nyíl és nincs felirat (producer 2026-09-14) — a hover-emelkedés jelzi a kattinthatóságot; csak egy kis csillám marad */
     s += '<path d="M' + (CX) + ' ' + (PEAK + 12) + ' l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#fff2a8"/>';
-    /* névtábla: Kert */
-    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 3) + '" width="48" height="16" rx="8" fill="#8f6a3e"/>';
-    s += '<text x="' + CX + '" y="' + (KT + 9) + '" font-size="10" font-weight="800" fill="#ffe9c4" text-anchor="middle">Kert</text>';
   } else {
     /* zárt fakapu: lécek + lakat, sötétebb (arányos a kapu méretével) */
     var doorH = KB - PEAK, lockY = PEAK + doorH * 0.52;
@@ -2920,9 +2917,7 @@ function kertKapuSVG(nyitva, KX, KW, KT, KB) {
     s += '<rect x="-12" y="0" width="24" height="19" rx="4" fill="#ffd24d" stroke="#c9a06a" stroke-width="2"/>';
     s += '<circle cx="0" cy="8" r="2.6" fill="#7a5a2a"/><rect x="-1.4" y="8" width="2.8" height="7" rx="1.2" fill="#7a5a2a"/>';
     s += '</g>';
-    /* névtábla: Kert 🔒 */
-    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 3) + '" width="48" height="16" rx="8" fill="#6f5230"/>';
-    s += '<text x="' + CX + '" y="' + (KT + 9) + '" font-size="9.5" font-weight="800" fill="#e6d3a8" text-anchor="middle">Kert 🔒</text>';
+    /* nincs felirat — a lakat maga jelzi, hogy zárva (producer 2026-09-14) */
   }
   return s;
 }
