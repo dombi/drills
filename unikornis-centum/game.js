@@ -1574,9 +1574,8 @@ function palyaInditas(id) {
   var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = false; }
   var szB = $("jatek-szorzo"); if (szB) szB.hidden = true;   /* a ✨ sorozat-szorzó megszűnt (7.2) */
   mutat("kepernyo-jatek");
-  var inditoSzoveg = "Induljunk! Gyűjtsük össze a csillagszilánkokat.";
-  inditoSzoveg += " Ha egy állomást sem hagysz ki, ragyogó, arany csillagszilánk kerül az odúd egére.";
-  setTimeout(function () { mondd(inditoSzoveg, function () { kovAllomas(); }); }, 400);
+  /* ösvény-indító szöveg: a gyerekek únták a hosszú bevezetőt → csak ennyi (2026-09-14) */
+  setTimeout(function () { mondd("Induljunk!", function () { kovAllomas(); }); }, 400);
 }
 function kameraAllit(i, azonnal) {
   var kam = document.querySelector("#szinpad #kamera");
