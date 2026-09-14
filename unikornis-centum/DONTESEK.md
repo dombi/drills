@@ -848,6 +848,9 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
 - **A kertben lejátszó gomb minden megvett trükkhöz; a trükk a meglévő figurát animálja, újrarajzolás nincs.**
   A test süllyed/emelkedik, a **lábak a csípőnél rövidülnek = behajló térd**: ülésnél leül, **ugrásnál előbb
   guggol (térd behajlik), majd ellök**. — *Producer külön kérte a térd-behajlást mindkét trükknél.*
+- **Az ülés TARTÓS állapot: leül és úgy marad, amíg a gyerek fel nem állítja.** Az Ülés gomb toggle (leül →
+  „Feláll"); felállítás a gombbal, a fűre koppintva (ekkor csak feláll, nem sétál), vagy egy másik trükkel
+  (előbb feláll). — *Producer: „ülés gombnál maradjon ülve, amíg fel nem állítja a gyerek." (`a291bfb`)*
 - **Adatvezérelt / additív:** egy trükk = egy `KERT_BOLT` sor (`id`=anim-osztály neve, `emoji`+`perc`+`svg`);
   a 3. fázis bővítés = egy sor + egy pár CSS-keyframe. A matek/pálya-motor érintetlen. Böngészőben tesztelve
   (💧-vétel + „nincs elég" ág, ✨-fülek regresszió, lejátszás + séta-blokk), konzol tiszta. (`232de47`)
