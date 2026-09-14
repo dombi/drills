@@ -815,3 +815,18 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   palyaInditas / boltVegrehajt). **Böngészőben tesztelve, konzol tiszta.**
 - **Árnyalatok (élesben hangolható):** a Fejszámoló csak beszéd-módban számol (mikrofon nélkül a játék
   billentyűzetre vált, akkor nem gyűlik — ez szándékos). A darabszámok (10/20/3/5/10) javaslatok.
+
+## 2026-09-14 — Kert / Udvar (új helyszín, sétáltatható unikornis)
+
+- **Új helyszín: kert/udvar**, ahol az unikornist **sétáltatni** lehet; a séta-képességeket (trükkök) a
+  boltban kell megvenni. — *Producer-vízió; a kert a „jutalom-terep", ahová a matekkal keresett ✨ örömre megy.*
+- **Belépés: nagy kertkapu az odú hátterében** (nem kis ikon-gomb). — *Mesésebb, felfedezhetőbb.*
+- **A kertbe jutás maga is egyszeri boltvásárlás: „Kertkapu kulcsa" (150 ✨).** Zárva lakat a kapun;
+  megvéve kinyílik. — *Producer-döntés; ez a kert első nagy célja. 150 ✨ ≈ pár teljesített pálya.*
+- **Irányítás: koppints a fűre → az unikornis odasétál** (nyíl-gombok/húzás helyett). — *Tablet-barát, kisebbeknek is.*
+- **Trükk-készlet (jóváhagyva):** séta INGYEN, majd a boltban növekvő áron 🛋️ ülés → 🦘 ugrás → 🌀 pörgés
+  → ✨ csillámszórás. **Bővíthetőre építve** (új trükk = egy bejegyzés). — *Producer: „a trükköket úgy csináld, hogy könnyű legyen bővíteni."*
+- **Kert kinézete: az új „festett" rajztechnika** (rétegelt SVG, lágy átmenetek, ambient mozgás, parallax),
+  napfényes rét hangulat; a régi pályák érintetlenek; CC0-tiszta. — *A „kinevetik a lapos rajzot" visszajelzésre; új helyszín = új technika.*
+- **Fázisokban építve:** 1) kulcs + kapu + kert-háttér + séta *(KÉSZ, 2026-09-14)*; 2) ülés/ugrás + boltpolc; 3) pörgés/csillám + festett részletek.
+- **Additív megvalósítás:** `P().kert` mentés-ág, `fajta:"kert"` a boltban, `#kepernyo-kert` + `.kert-*` CSS, 10d) szekció; a pálya-motor/matek érintetlen. Böngészőben tesztelve, konzol tiszta.

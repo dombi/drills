@@ -518,8 +518,9 @@ function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, a
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
 function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 } }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* 12 órás rejtett kapu (6.4) */
+function alapKert() { return { nyitva: 0, trukkok: {} }; }   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=megvett séta-trükkök (2. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), jelvSzam: alapJelvSzam(), napok: {} }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), jelvSzam: alapJelvSzam(), napok: {} }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -565,6 +566,9 @@ function betolt() {
         if (!p.kapu) p.kapu = alapKapu();
         if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
         if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
+        if (!p.kert) p.kert = alapKert();
+        if (typeof p.kert.nyitva !== "number") p.kert.nyitva = 0;
+        if (!p.kert.trukkok) p.kert.trukkok = {};
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -2341,6 +2345,7 @@ function esemenyek() {
   $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Jelvények"); renderJelveny(); $("odu-lap").hidden = false; });
   $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); mondd("Gyűjtemény"); renderGyujtemeny(); $("odu-lap").hidden = false; });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
+  $("kert-vissza").addEventListener("click", function () { hangGomb(); oduNyit("kert"); });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -2549,6 +2554,17 @@ var KRISTALY = [
       '<rect x="31" y="28" width="18" height="28" rx="8" fill="#ffd98f" stroke="#e0a85a" stroke-width="1.6"/>' +
       '<path d="M40 36 q-4 6 0 11 q4 -5 0 -11 Z" fill="#ffb43a"/><circle cx="40" cy="44" r="2" fill="#fff2c4"/>' }
 ];
+/* ── KERT bolt-fül (1. fázis): a kertkapu-kulcs. A séta-trükkök a 2. fázisban ide bővülnek. ── */
+var KERT_BOLT = [
+  { id: "kulcs", nev: "Kertkapu kulcsa", ar: 150,
+    svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +   /* napfényes rét-korong a kulcs mögött */
+      '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/><circle cx="55" cy="27" r="8" fill="#ffe987"/>' +
+      '<g transform="translate(40 42) rotate(38)">' +   /* aranykulcs */
+      '<circle cx="0" cy="-14" r="9" fill="none" stroke="#e0a92e" stroke-width="5"/>' +
+      '<rect x="-2.6" y="-6" width="5.2" height="30" rx="2.2" fill="#e0a92e"/>' +
+      '<rect x="-2.6" y="18" width="12" height="4.6" rx="1.6" fill="#e0a92e"/><rect x="-2.6" y="11" width="9" height="4.6" rx="1.6" fill="#e0a92e"/>' +
+      '</g>' }
+];
 function vitrinPreviewOdu(id) {
   var o = P().odu, uj = {}, k; for (k in o) uj[k] = o[k];
   uj.vitrin = {}; for (k in (o.vitrin || {})) uj.vitrin[k] = o.vitrin[k];
@@ -2559,6 +2575,15 @@ function oduVitrinVesz(t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
   P().csillampor -= t.ar;
   P().odu.vitrin[t.id] = 1;                 /* a vitrinbe kerül, ott is marad */
+  hangCsilla(); hangJo(); ment();
+  renderOdu(); renderOduPanel();
+}
+/* Kert-tétel vétele: a „kulcs" kinyitja a kertkaput; a többi tétel (2. fázis) séta-trükk. */
+function oduKertVesz(t) {
+  if (P().csillampor < t.ar) { renderOduPanel(); return; }
+  P().csillampor -= t.ar;
+  if (t.id === "kulcs") P().kert.nyitva = 1;
+  else P().kert.trukkok[t.id] = 1;
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
 }
@@ -2825,6 +2850,9 @@ function oduSVG(lenyKulcs, o, elonezet) {
 
   s += diszReteg(o);                     /* v3+: kirakott dísztárgyak a bútor után, az unikornis előtt */
 
+  /* ── KERTKAPU a hátsó falon (Kert 1. fázis): az unikornis ELÉ kerül, hogy előtte állhasson ── */
+  if (!elonezet) s += '<g id="odu-kert-kapu">' + kertKapuSVG(!!P().kert.nyitva) + '</g>';
+
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon) ── */
   if (!elonezet) {
     s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
@@ -2846,6 +2874,60 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '</svg>';
   return s;
 }
+/* A kertkapu az odú hátsó falán (odú-koordináta 680×540). nyitva=true → nyílt boltív, látszik a
+   napfényes rét, hívogató nyíl; nyitva=false → zárt fakapu + lakat. Mindig kattintható (renderOdu köti be). */
+function kertKapuSVG(nyitva) {
+  var KX = 250, KW = 108, KB = 432, KT = 236, RX = KW / 2, PEAK = KT - RX;   /* arch peak y=182 */
+  var CX = KX + RX;
+  var nyilas = "M" + KX + " " + KB + " V" + KT + " A" + RX + " " + RX + " 0 0 1 " + (KX + KW) + " " + KT + " V" + KB + " Z";
+  var s = '<defs><clipPath id="odu-kert-nyilas"><path d="' + nyilas + '"/></clipPath>' +
+    '<linearGradient id="odu-kert-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3fb"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient></defs>';
+  /* átlátszó kattintó-réteg az egész kapun (a rés-területek is fogják a koppintást) */
+  s += '<rect x="' + (KX - 12) + '" y="' + (PEAK - 8) + '" width="' + (KW + 24) + '" height="' + (KB - PEAK + 20) + '" fill="transparent"/>';
+  /* fal-mélyedés árnyék a kapu köré */
+  s += '<path d="M' + (KX - 10) + ' ' + KB + ' V' + KT + ' A' + (RX + 10) + ' ' + (RX + 10) + ' 0 0 1 ' + (KX + KW + 10) + ' ' + KT + ' V' + KB + ' Z" fill="#3b2f66" opacity="0.16"/>';
+  /* a nyíláson át: napfényes rét */
+  s += '<g clip-path="url(#odu-kert-nyilas)">';
+  s += '<rect x="' + KX + '" y="' + (PEAK - 4) + '" width="' + KW + '" height="' + (KB - PEAK + 8) + '" fill="url(#odu-kert-eg)"/>';
+  s += '<circle cx="' + (CX + 28) + '" cy="' + (PEAK + 34) + '" r="16" fill="#ffe987"/>';
+  s += '<path d="M' + KX + ' ' + (KB - 46) + ' Q' + CX + ' ' + (KB - 62) + ' ' + (KX + KW) + ' ' + (KB - 46) + ' V' + KB + ' H' + KX + ' Z" fill="#8ecf6e"/>';
+  s += '<path d="M' + KX + ' ' + (KB - 22) + ' Q' + CX + ' ' + (KB - 34) + ' ' + (KX + KW) + ' ' + (KB - 22) + ' V' + KB + ' H' + KX + ' Z" fill="#6fbf55"/>';
+  /* pár virág + lengő fűszál a réten */
+  s += '<g><circle cx="' + (KX + 24) + '" cy="' + (KB - 30) + '" r="4" fill="#ffd24d"/><circle cx="' + (KX + 24) + '" cy="' + (KB - 30) + '" r="2" fill="#fff"/>';
+  s += '<circle cx="' + (KX + KW - 26) + '" cy="' + (KB - 20) + '" r="4" fill="#ff9ec4"/><circle cx="' + (KX + KW - 26) + '" cy="' + (KB - 20) + '" r="2" fill="#fff"/></g>';
+  s += '</g>';
+  /* kőív-keret */
+  s += '<path d="' + nyilas + '" fill="none" stroke="#b79fd4" stroke-width="12"/>';
+  s += '<path d="' + nyilas + '" fill="none" stroke="#cbb6e6" stroke-width="5"/>';
+  if (nyitva) {
+    /* hívogató nyíl + csillám */
+    s += '<g opacity="0.92"><circle cx="' + CX + '" cy="' + (KB - 78) + '" r="19" fill="#a7d99a"/><path d="M' + (CX - 8) + ' ' + (KB - 86) + ' l14 8 l-14 8 Z" fill="#2f5f2b"/></g>';
+    s += '<path d="M' + (CX) + ' ' + (PEAK + 14) + ' l2.4 6 l6 2.4 l-6 2.4 l-2.4 6 l-2.4 -6 l-6 -2.4 l6 -2.4 Z" fill="#fff2a8"/>';
+    /* névtábla: Kert */
+    s += '<rect x="' + (CX - 26) + '" y="' + (KT - 2) + '" width="52" height="17" rx="8" fill="#8f6a3e"/>';
+    s += '<text x="' + CX + '" y="' + (KT + 10.5) + '" font-size="10.5" font-weight="800" fill="#ffe9c4" text-anchor="middle">Kert</text>';
+  } else {
+    /* zárt fakapu: két szárny + keresztlécek, sötétebb */
+    s += '<g clip-path="url(#odu-kert-nyilas)">';
+    s += '<rect x="' + KX + '" y="' + (PEAK) + '" width="' + KW + '" height="' + (KB - PEAK) + '" fill="#8a6a3e" opacity="0.9"/>';
+    s += '<g stroke="#6f5230" stroke-width="3">';
+    s += '<line x1="' + CX + '" y1="' + (PEAK + 8) + '" x2="' + CX + '" y2="' + KB + '"/>';
+    for (var i = 0; i < 4; i++) { var lx = KX + 14 + i * (KW - 28) / 3; s += '<line x1="' + lx + '" y1="' + (KT - 6) + '" x2="' + lx + '" y2="' + KB + '"/>'; }
+    s += '<line x1="' + KX + '" y1="' + (KT + 40) + '" x2="' + (KX + KW) + '" y2="' + (KT + 40) + '"/><line x1="' + KX + '" y1="' + (KT + 110) + '" x2="' + (KX + KW) + '" y2="' + (KT + 110) + '"/>';
+    s += '</g></g>';
+    s += '<rect x="' + KX + '" y="' + PEAK + '" width="' + KW + '" height="' + (KB - PEAK) + '" fill="#2e2350" opacity="0.22" clip-path="url(#odu-kert-nyilas)"/>';
+    /* lakat középen */
+    s += '<g transform="translate(' + CX + ' ' + (KT + 78) + ')">';
+    s += '<path d="M-9 0 v-8 a9 9 0 0 1 18 0 v8" fill="none" stroke="#e6d3a8" stroke-width="4"/>';
+    s += '<rect x="-14" y="0" width="28" height="22" rx="4" fill="#ffd24d" stroke="#c9a06a" stroke-width="2"/>';
+    s += '<circle cx="0" cy="9" r="3" fill="#7a5a2a"/><rect x="-1.6" y="9" width="3.2" height="8" rx="1.4" fill="#7a5a2a"/>';
+    s += '</g>';
+    /* kis „?" tábla */
+    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 2) + '" width="48" height="17" rx="8" fill="#6f5230"/>';
+    s += '<text x="' + CX + '" y="' + (KT + 10.5) + '" font-size="10" font-weight="800" fill="#e6d3a8" text-anchor="middle">Kert 🔒</text>';
+  }
+  return s;
+}
 
 /* --- vezérlés --- */
 function oduNyit(honnan) {
@@ -2865,8 +2947,101 @@ function renderOdu() {
     bolt.style.cursor = "pointer";
     bolt.addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
   }
+  var kapu = document.getElementById("odu-kert-kapu");    /* kertkapu: nyitva → kert, zárva → boltba irányít */
+  if (kapu) {
+    kapu.style.cursor = "pointer";
+    kapu.addEventListener("click", function () {
+      hangGomb();
+      if (P().kert.nyitva) kertNyit();
+      else { BOLT_VAL.kert = { g: "kert", id: "kulcs" }; mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduPanelNyit("kert"); }
+    });
+  }
 }
-function oduPanelNyit() { ODU_FUL = "ido"; BOLT_MEGEROSIT = false; BOLT_BAGOLY_EXTRA = null; $("odu-panel").hidden = false; renderOduPanel(); }
+/* ============ 10d) KERT / UDVAR (1. fázis: séta) ============
+   Teljesen additív: saját mentés-ág P().kert, saját DOM #kepernyo-kert + .kert-* CSS.
+   Belépés az odú kertkapuján (csak P().kert.nyitva esetén). Séta: koppints a fűre → odasétál. */
+var KERT_UNI_X = 50;   /* az unikornis vízszintes helye, % */
+function kertNyit() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelStop();
+  KERT_UNI_X = 50;
+  renderKert();
+  mutat("kepernyo-kert");
+}
+function renderKert() {
+  var cel = $("kert-csillampor"); if (cel) cel.textContent = P().csillampor;
+  var host = $("kert-szinter"); if (!host) return;
+  var c = LENYEK[mentes.leny];
+  host.innerHTML =
+    kertHatterSVG() +
+    '<div id="kert-uni-doboz" class="kert-uni-doboz"><div class="kert-uni-flip">' +
+      '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' +
+        unikornisSVG("kert-uni", c, 1, P().oltozet) +
+      '</svg></div></div>';
+  var doboz = $("kert-uni-doboz");
+  doboz.style.left = KERT_UNI_X + "%";
+  doboz.style.setProperty("--dir", 1);
+  host.onclick = function (e) {
+    if (e.target.closest && e.target.closest("#kert-uni-doboz")) return;   /* magára az unikornisra koppintva nem lép */
+    var r = host.getBoundingClientRect();
+    kertSetal(((e.clientX - r.left) / r.width) * 100);
+  };
+}
+function kertSetal(celX) {
+  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  celX = Math.max(13, Math.min(87, celX));
+  var tav = Math.abs(celX - KERT_UNI_X);
+  if (tav < 1.2) return;
+  doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+  var mp = Math.max(0.5, Math.min(3.2, tav * 0.045));   /* közel állandó sétatempó */
+  doboz.style.transition = "left " + mp.toFixed(2) + "s linear";
+  doboz.classList.add("jar");
+  KERT_UNI_X = celX;
+  doboz.style.left = celX + "%";
+  clearTimeout(doboz._jarTimer);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); }, mp * 1000 + 80);
+}
+/* napfényes rét — festett, rétegelt SVG + ambient (a fű/porszem/lepke a CSS-ben mozog).
+   Könnyen bővíthető: új elemet a megfelelő réteghez adva. viewBox 1000×620, slice-olva tölti a teret. */
+function kertHatterSVG() {
+  var s = '<svg class="kert-hatter" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs>' +
+    '<linearGradient id="k-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3fb"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient>' +
+    '<radialGradient id="k-nap" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff7d2"/><stop offset="55%" stop-color="#ffe987"/><stop offset="100%" stop-color="#ffe987" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="k-tavdomb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6f0c2"/><stop offset="1" stop-color="#bfe6a8"/></linearGradient>' +
+    '<linearGradient id="k-koztes" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9dd8c"/><stop offset="1" stop-color="#8ecf6e"/></linearGradient>' +
+    '<linearGradient id="k-fu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#87cc66"/><stop offset="1" stop-color="#5fae49"/></linearGradient>' +
+    '</defs>';
+  /* 1) ég + nap + felhők */
+  s += '<rect x="0" y="0" width="1000" height="620" fill="url(#k-eg)"/>';
+  s += '<circle cx="820" cy="92" r="74" fill="url(#k-nap)"/><circle cx="820" cy="92" r="24" fill="#fff3b0"/>';
+  s += '<g fill="#ffffff" opacity="0.85"><ellipse cx="215" cy="92" rx="60" ry="24"/><ellipse cx="262" cy="80" rx="46" ry="21"/>' +
+    '<ellipse cx="560" cy="66" rx="50" ry="20"/><ellipse cx="600" cy="74" rx="38" ry="17"/></g>';
+  /* 2) távoli dombok (parallax hátsó) */
+  s += '<path d="M0 300 Q230 250 480 292 T1000 276 V620 H0 Z" fill="url(#k-tavdomb)"/>';
+  /* 3) középső rét (ide jön később fa/kerítés/tavacska) */
+  s += '<path d="M0 356 Q300 300 620 350 T1000 344 V620 H0 Z" fill="url(#k-koztes)"/>';
+  /* 4) előtér-fű */
+  s += '<path d="M0 400 Q500 360 1000 404 V620 H0 Z" fill="url(#k-fu)"/>';
+  /* 5) virágok az előtérben */
+  s += kertVirag(150, 470, "#ff9ec4") + kertVirag(760, 500, "#b6a7f2") + kertVirag(430, 540, "#ffd24d") + kertVirag(880, 452, "#ff9ec4");
+  /* 6) ambient: lengő fűszálak + szálló porszemek + lepke (a CSS mozgatja) */
+  s += '<g stroke-linecap="round" fill="none">';
+  var blades = [[70,600,-30],[130,604,26],[540,606,-24],[700,600,-34],[900,604,-22],[300,604,24],[420,600,-28]];
+  for (var i = 0; i < blades.length; i++) { var bl = blades[i];
+    s += '<path class="kb-blade" style="animation-delay:' + (i * 0.4).toFixed(1) + 's" d="M' + bl[0] + ' ' + bl[1] + ' q' + (bl[2]/6).toFixed(0) + ' -34 ' + (bl[2]/9).toFixed(0) + ' -52" stroke="' + (i % 2 ? "#5aa843" : "#4f9c3a") + '" stroke-width="6"/>';
+  }
+  s += '</g>';
+  s += '<g fill="#fff6c8"><circle class="kb-mote" cx="760" cy="230" r="4"/><circle class="kb-mote" style="animation-delay:2.4s" cx="700" cy="280" r="3"/><circle class="kb-mote" style="animation-delay:4s" cx="820" cy="190" r="3.4"/></g>';
+  s += '<g class="kb-fly" transform="translate(540 190)"><path d="M0 0 q-14 -12 -22 0 q8 12 22 5 Z" fill="#ff9ec4"/><path d="M0 0 q14 -12 22 0 q-8 12 -22 5 Z" fill="#b6a7f2"/><circle r="2.6" fill="#4a3f6b"/></g>';
+  s += '</svg>';
+  return s;
+}
+function kertVirag(x, y, szin) {
+  return '<g transform="translate(' + x + ' ' + y + ')"><circle r="7" fill="#ffd24d"/>' +
+    '<circle cx="-11" r="5" fill="' + szin + '"/><circle cx="11" r="5" fill="' + szin + '"/><circle cy="-11" r="5" fill="' + szin + '"/><circle cy="11" r="5" fill="' + szin + '"/></g>';
+}
+function oduPanelNyit(fulKezd) { ODU_FUL = fulKezd || "ido"; BOLT_MEGEROSIT = false; BOLT_BAGOLY_EXTRA = null; $("odu-panel").hidden = false; renderOduPanel(); }
 function oduPanelZar() { $("odu-panel").hidden = true; var l = $("odu-lap"); if (l) l.hidden = true; }
 /* a bolt körüli sötét sávra koppintva is bezárul (a boltra koppintva nem) */
 (function () {
@@ -2970,6 +3145,7 @@ function boltBagolySzoveg(k) {
   var kint = (cs.fajta === "ruha" || cs.fajta === "kinezet");
   if (boltAktiv(cs, t)) return kint ? "Ez van most rajtad — jól áll!" : "Ez van most kint — jól néz ki!";
   if (cs.fajta === "vitrin" && boltBirt(cs, t)) return "Ez már a vitrinedben ragyog!";
+  if (cs.fajta === "kert" && boltBirt(cs, t)) return "A kert kapuja nyitva áll — menj, sétáltasd meg!";
   if (boltBirt(cs, t)) return "Ez már a tiéd! " + (kint ? "Fel is veheted." : "Ki is teheted.");
   if (p >= t.ar) return "Van rá elég! Marad " + (p - t.ar) + " ✨";
   return "Még " + (t.ar - p) + " ✨ kell hozzá — gyűjts egy kicsit!";
@@ -2982,6 +3158,7 @@ function boltGombAllapot(cs, t, birt, aktiv, eleg) {
       ? { szoveg: "Leveszem", szin: "le", mit: function () { oduRuhaVisel(cs.kulcs, null); } }
       : { szoveg: "Felveszem", szin: "fel", mit: function () { oduRuhaVisel(cs.kulcs, t.id); } };
     if (cs.fajta === "vitrin") return { szoveg: "✓ a vitrinben", szin: "kesz", mit: null };
+    if (cs.fajta === "kert") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
     if (aktiv) return { szoveg: (cs.fajta === "kinezet") ? "✓ ez van rajta" : "✓ ez van kint", szin: "kesz", mit: null };
     if (cs.fajta === "butor") return { szoveg: "Berendezem", szin: "fel", mit: function () { oduButorBeallit(cs.kulcs, t.id); } };
     if (cs.fajta === "disz") return (t.id === "nincs")
@@ -3144,7 +3321,7 @@ function boltCedulaSVG(k) {
     return s;
   }
   var cs = k.cs, t = k.t, birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), eleg = P().csillampor >= t.ar;
-  var rang = (t.ar === 0) ? 0 : (k.rang >= cs.tetelek.length - 1 ? 2 : 1);
+  var rang = (t.ar === 0 || cs.fajta === "kert") ? 0 : (k.rang >= cs.tetelek.length - 1 ? 2 : 1);
   if (rang > 0) s += '<g><rect x="646" y="180" width="120" height="20" rx="10" fill="' + (rang === 2 ? "#ffd24d" : "#f0c869") + '"/>' +
     '<text x="706" y="194" font-size="11" font-weight="800" fill="#7a5a1e" text-anchor="middle">' + (rang === 2 ? "★ RITKA" : "✦ KÜLÖNLEGES") + '</text></g>';
   s += '<text x="706" y="' + (rang > 0 ? 222 : 210) + '" font-size="15.5" font-weight="800" fill="#7a5a2a" text-anchor="middle">' + kiiras(t.nev) + '</text>';
@@ -3156,7 +3333,7 @@ function boltCedulaSVG(k) {
   s += '<g clip-path="url(#bolt-lap-vago)"><g transform="translate(706,318)"><g data-fit="176,124" data-fit-mod="kozep">' +
     boltElonezetBelso(cs, t) + '</g></g></g>';
   var cimke = (cs.fajta === "ruha" || cs.fajta === "kinezet") ? "így áll rajtad"
-            : (cs.fajta === "ido" ? "ilyen lesz az ég" : "így néz ki a szobád");
+            : (cs.fajta === "ido" ? "ilyen lesz az ég" : (cs.fajta === "kert" ? "a kert kulcsa" : "így néz ki a szobád"));
   s += '<text x="706" y="398" font-size="11" fill="#a08a6a" text-anchor="middle">' + cimke + '</text>';
   /* ár */
   if (t.ar > 0) {
@@ -3196,6 +3373,7 @@ function boltElonezetBelso(cs, t) {
   else if (cs.fajta === "disz") h = oduSVG(mentes.leny, diszPreviewOdu(cs.kulcs, t.id), true);
   else if (cs.fajta === "vitrin") h = oduSVG(mentes.leny, vitrinPreviewOdu(t.id), true);
   else if (cs.fajta === "kinezet") h = unikornisSVG("bkp", LENYEK[mentes.leny], 1, P().oltozet, kinezetPreview(cs.kulcs, t.id));
+  else if (cs.fajta === "kert") return t.svg;   /* a kert-tétel (kulcs) ikonja, mint előnézet */
   else {
     var o2 = P().odu;
     h = (cs.kulcs === "napszak" ? oduEgSVG(t.id, 144, 96) : oduEgSVG(o2.napszak, 144, 96) + oduIdoSVG(t.id, 144, 96, 10));
@@ -3237,7 +3415,7 @@ function boltIgazit(gyoker) {
 var BOLT_FULEK = [
   { id: "holmik", nev: "Holmik" }, { id: "kinezet", nev: "Kinézet" },
   { id: "kellekek", nev: "Kellékek" }, { id: "ido", nev: "Időjárás" },
-  { id: "kristaly", nev: "Kristály" }
+  { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }
 ];
 function renderOduPanel() {
   var host = $("odu-bolt-szinter");
@@ -3306,6 +3484,8 @@ function boltCsoportok() {
       .concat(DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; }));
   if (ODU_FUL === "kristaly")
     return [{ kulcs: "vitrin", nev: "Kincsvitrin", fajta: "vitrin", tetelek: KRISTALY }];
+  if (ODU_FUL === "kert")
+    return [{ kulcs: "kert", nev: "Kert", fajta: "kert", tetelek: KERT_BOLT }];
   if (ODU_FUL === "kinezet") {
     var rajz = LENYEK[mentes.leny].rajz;
     return [
@@ -3321,6 +3501,7 @@ function boltBirt(cs, t) {
   if (cs.fajta === "disz") return t.id === "nincs" || !!P().odu.vanDisz[t.id];
   if (cs.fajta === "kinezet") { var v = cs.kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem; return t.id === 0 || !!(v && v[t.id]); }
   if (cs.fajta === "vitrin") return !!P().odu.vitrin[t.id];
+  if (cs.fajta === "kert") return t.id === "kulcs" ? !!P().kert.nyitva : !!P().kert.trukkok[t.id];
   return !!P().odu.van[cs.kulcs][t.id];
 }
 function boltAktiv(cs, t) {
@@ -3332,6 +3513,7 @@ function boltAktiv(cs, t) {
     return (P().kinezet.szemSzin || null) === (SZEM_SZIN[t.id] ? SZEM_SZIN[t.id].hex || null : null);
   }
   if (cs.fajta === "vitrin") return false;         /* nincs „kint/rajta" állapot: ha megvan, a vitrinben áll */
+  if (cs.fajta === "kert") return false;           /* nincs „kint/rajta" állapot */
   return P().odu[cs.kulcs] === t.id;
 }
 /* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
@@ -3480,6 +3662,7 @@ function boltThumb(cs, t) {
     return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + DISZ_TARGY[t.id].svg + '</svg>';   /* maga az ikon */
   }
   if (cs.fajta === "vitrin") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kristály-dísz ikonja */
+  if (cs.fajta === "kert") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kert-tétel ikonja (kulcs) */
   var o = P().odu;
   return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
     (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
@@ -3508,7 +3691,8 @@ var BOLT_TIPP = {
   "este": "Csendes esti égbolt, telihold.", "reggel": "Rózsás hajnal, puha felhők.", "del": "Ragyogó déli napsütés.", "eclipse": "Ritka napfogyatkozás, csillagokkal.",
   "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen.",
   "k-gomb": "Fénytörő kristálygömb — a vitrin dísze.", "k-roka": "Csiszolt kristályróka figura.", "k-bagoly": "Csiszolt kristálybagoly figura.",
-  "k-terkep": "Pici csillagtérkép-gömb, benne az égbolt.", "k-zene": "Zenélő doboz forgó unikornissal.", "k-lampas": "Meleg fényű tündérlámpás."
+  "k-terkep": "Pici csillagtérkép-gömb, benne az égbolt.", "k-zene": "Zenélő doboz forgó unikornissal.", "k-lampas": "Meleg fényű tündérlámpás.",
+  "kulcs": "Kinyitja a kertkaput az odúdban — ott sétáltathatod az unikornist."
 };
 function boltVegrehajt(cs, t) {
   if (P().jelvSzam && P().csillampor >= t.ar) P().jelvSzam.vettMar = 1;   /* jelvény: Első vásárlás (csak ha tényleg futja) */
@@ -3517,6 +3701,7 @@ function boltVegrehajt(cs, t) {
   else if (cs.fajta === "disz") oduDiszVesz(cs.kulcs, t);
   else if (cs.fajta === "kinezet") oduKinezetVesz(cs.kulcs, t);
   else if (cs.fajta === "vitrin") oduVitrinVesz(t);
+  else if (cs.fajta === "kert") oduKertVesz(t);
   else oduVesz(cs.kulcs, t);
   jelvenyEllenoriz();                          /* bolti jelvények azonnal (Első vásárlás, Otthonteremtő, Gyűjtő) */
 }
@@ -3933,7 +4118,9 @@ window.UC = {
   SORENY_SZIN: SORENY_SZIN, SZEM_SZIN: SZEM_SZIN,
   oduKinezetVesz: oduKinezetVesz, oduKinezetBeallit: oduKinezetBeallit,
   KRISTALY: KRISTALY, oduPanelNyit: oduPanelNyit,
-  oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); }
+  oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); },
+  KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
+  oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); }
 };
 
 })();

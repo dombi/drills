@@ -573,3 +573,48 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
   #szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{ animation:none; }
 }
+
+/* ============================================================================
+   KERT / UDVAR (1. fázis) — napfényes rét + sétáló unikornis
+   ============================================================================ */
+.kert-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; }
+.kert-hatter{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.kert-sugo{
+  margin:0; padding:7px 10px; width:100%; text-align:center;
+  font-size:15px; font-weight:600; color:var(--lila-sotet,#5a4a86);
+  background:rgba(255,255,255,.72);
+}
+/* az unikornis a fűben áll; vízszintesen a „left" viszi, a bólogatást a séta-animáció adja */
+.kert-uni-doboz{
+  position:absolute; bottom:13%; left:50%;
+  width:190px; margin-left:-95px;
+  transition:left .8s linear;
+}
+.kert-uni-flip{ transform:scaleX(var(--dir,1)); transform-origin:50% 50%; }
+.kert-uni-svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 6px 5px rgba(60,60,40,.18)); }
+.kert-uni-doboz.jar{ animation:kert-bob .42s ease-in-out infinite; }
+@keyframes kert-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+
+/* az unikornis „életre keltése" a kertben is (lélegzés, pislogás, lengő sörény/farok) */
+#kert-szinter .uni-elo, #kert-szinter .uni-soreny, #kert-szinter .uni-farok,
+#kert-szinter .uni-tincs, #kert-szinter .uni-szem{ transform-box:fill-box; }
+#kert-szinter .uni-elo{ animation:uni-lebeg 3.8s ease-in-out infinite; }
+#kert-szinter .uni-soreny{ transform-origin:100% 0%; animation:uni-soreny 3.2s ease-in-out infinite; }
+#kert-szinter .uni-farok{ transform-origin:100% 0%; animation:uni-farok 2.8s ease-in-out infinite; }
+#kert-szinter .uni-tincs{ transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite; }
+#kert-szinter .uni-szem{ transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite; }
+
+/* ambient: lengő fű, szálló porszemek, lepke */
+.kb-blade{ transform-box:fill-box; transform-origin:bottom center; animation:kb-sway 3.4s ease-in-out infinite; }
+.kb-mote{ animation:kb-drift 6s linear infinite; }
+.kb-fly{ transform-box:fill-box; animation:kb-flutter 7s ease-in-out infinite; }
+@keyframes kb-sway{ 0%,100%{ transform:rotate(-4deg); } 50%{ transform:rotate(4deg); } }
+@keyframes kb-drift{ 0%{ transform:translate(0,0); opacity:0; } 12%{ opacity:.9; } 88%{ opacity:.9; } 100%{ transform:translate(34px,-46px); opacity:0; } }
+@keyframes kb-flutter{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(26px,-18px); } 50%{ transform:translate(52px,4px); } 75%{ transform:translate(26px,20px); } }
+
+@media (prefers-reduced-motion:reduce){
+  .kert-uni-doboz.jar{ animation:none; }
+  #kert-szinter .uni-elo, #kert-szinter .uni-soreny, #kert-szinter .uni-farok,
+  #kert-szinter .uni-tincs, #kert-szinter .uni-szem,
+  .kb-blade, .kb-mote, .kb-fly{ animation:none; }
+}

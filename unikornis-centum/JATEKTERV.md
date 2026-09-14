@@ -238,8 +238,21 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   KÉSŐBBI kör. Rendszerterv: `terv/javaslat-kitartas-valuta.html`. Tesztelve (böngésző): friss profil 0,
   teljes-ösvény pálya → +2 (nincs sorozat-bónusz sor, +5 ✨ szorzó nélkül), sorozat-ág (`sorozatBan`) → +2,
   odú-számláló + teaser, `jatek-szorzo` rejtve, konzol tiszta.
-- **Következő:** a Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég;
-  majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest.
+- **2026-09-14 — KERT / UDVAR 1. fázis (séta).** Új helyszín: az odú hátsó falán egy **kertkapu**;
+  a belépés a boltban megvehető **„Kertkapu kulcsa" (150 ✨)**. Zárva: fakapu + lakat + „Kert 🔒" tábla,
+  rákoppintva a bolt egyből a **Kert** fülön nyílik a kulcson. Nyitva: nyílt boltív, átlátszik a napfényes
+  rét + zöld „belépés" nyíl; rákoppintva megnyílik a **kert-képernyő** (`#kepernyo-kert`). A kert
+  festett, rétegelt SVG (ég/nap/felhő · távoli domb · középső rét · előtér-fű · virágok · ambient:
+  lengő fű, szálló porszem, lepke). **Séta:** koppints a fűre → az unikornis odasétál (a meglévő figura,
+  `left`-átmenet + irányfordítás + bólogató séta-animáció; nincs újrarajzolás). Teljesen additív: új
+  mentés-ág `P().kert` (`nyitva`, `trukkok`), új `fajta:"kert"` a boltban, új `KERT_BOLT`; a pálya-motor
+  és a matek érintetlen. Tesztelve (böngésző): zárt→bolt→kulcs (megerősítéssel, 150 levonás)→nyitott
+  kapu→kert→séta balra/jobbra (fordulással)→vissza; Holmik/ritkaság-szalag regresszió zöld; konzol tiszta.
+  A séta-**trükkök** (ülés/ugrás/pörgés/csillám) a **2. fázis** — a `KERT_BOLT` és a `P().kert.trukkok`
+  már erre bővíthetőre készült. Rajz/rendszerterv: `Matekos\kert-udvar-terv.html` + `Matekos\kert-rajzterv.html`.
+- **Következő:** a Kert 2. fázisa (ülés/ugrás trükkök + gombok), majd 3. fázis (pörgés/csillám + festett
+  részletek); a Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég;
+  ODÚ v4 sörény-hossz; playtest. **Figyelendő:** a `game.js` ~4130 sor — ~4500 felett érdemes külön fájlokra bontani.
 
 ## Kód-térkép — hova kell nyúlni
 
@@ -259,8 +272,9 @@ keresünk rá (pl. `3) FELADAT`). Ugyanez a térkép a `game.js` legtetején is 
 | 8) JÁTÉK-LOGIKA | pontozás, előrehaladás, a kör lefolyása |
 | 9) SZÜLŐI NÉZET | a szülői oldal |
 | 10) ESEMÉNYEK | kattintások, gombok |
-| 10b) ODÚ | szoba, időjárás, csillagszilánk-ég, bolt-megnyitó |
+| 10b) ODÚ | szoba, időjárás, csillagszilánk-ég, bolt-megnyitó, kertkapu |
 | 10c) JELVÉNYEK | gyűjtemény-könyv, talált tárgyak |
+| 10d) KERT | a kert-képernyő, napfényes rét háttér, séta |
 | 11) INDÍTÁS | a játék elindulása |
 
 A **rendszerterv** eleve témánként külön fájl a `terv/` mappában
