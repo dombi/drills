@@ -1059,10 +1059,17 @@ function eloAnimHorgony(art) {
   art = art.replace('<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">',
                     '<g class="uni-szem" stroke="#222" stroke-linejoin="round" stroke-linecap="round">');
   var n = 0;
-  return art.replace(/<g class="ucg">/g, function () {
+  art = art.replace(/<g class="ucg">/g, function () {
     n++;
     return '<g class="ucg ' + (n === 1 ? "uni-farok" : n === 2 ? "uni-soreny" : "uni-tincs") + '">';
   });
+  /* a 4 láb (mindhárom színnél azonos d-koordináták) — osztály a séta-animációhoz;
+     A/B csoport ellenfázisban leng a csípőnél (kertben, .jar alatt). Máshol nem mozdul. */
+  art = art.replace('<path d="M102 208', '<path class="uni-lab uni-lab-a" d="M102 208');
+  art = art.replace('<path d="M135 216', '<path class="uni-lab uni-lab-b" d="M135 216');
+  art = art.replace('<path d="M177 216', '<path class="uni-lab uni-lab-a" d="M177 216');
+  art = art.replace('<path d="M212 208', '<path class="uni-lab uni-lab-b" d="M212 208');
+  return art;
 }
 /* ── FEJLESZTŐI ANCHOR-VIZUALIZÁLÓ (nem éles): a 380×300 rajz-keretben kirajzolja a
    ruha-zónák borítékát + a horgonypontokat, hogy élesben látszódjon, hova esik minden ruha.
@@ -2612,8 +2619,7 @@ function vitrinReteg(o) {
       s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="14" ry="4" fill="#c9a8e6"/>';
       s += '<g transform="translate(' + (cx - 21) + ',' + (cy - 42) + ') scale(0.52)">' + it.svg + '</g>';
     } else {
-      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="13" ry="4" fill="none" stroke="#b79fd4" stroke-width="1.5" stroke-dasharray="3 3"/>';
-      s += '<text x="' + cx + '" y="' + (cy - 12) + '" font-size="13" fill="#b79fd4" opacity="0.55" text-anchor="middle">?</text>';
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="12" ry="3.4" fill="#e6dcf2"/>';   /* üres, tiszta állvány — nincs „?" és nincs szaggatott jelölés (producer, 2026-09-14) */
     }
   }
   /* üveg-csillanás + keret-fény */

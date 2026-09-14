@@ -592,8 +592,14 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .kert-uni-flip{ transform:scaleX(var(--dir,1)); transform-origin:50% 50%; }
 .kert-uni-svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 6px 5px rgba(60,60,40,.18)); }
-.kert-uni-doboz.jar{ animation:kert-bob .42s ease-in-out infinite; }
-@keyframes kert-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+.kert-uni-doboz.jar{ animation:kert-bob .44s ease-in-out infinite; }
+@keyframes kert-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
+/* séta közben mozog a 4 láb: a csípőnél (a láb teteje) leng, A/B ellenfázisban */
+#kert-szinter .uni-lab{ transform-box:fill-box; transform-origin:50% 0%; }
+.kert-uni-doboz.jar .uni-lab-a{ animation:kert-lab-a .44s ease-in-out infinite; }
+.kert-uni-doboz.jar .uni-lab-b{ animation:kert-lab-b .44s ease-in-out infinite; }
+@keyframes kert-lab-a{ 0%,100%{ transform:rotate(12deg); } 50%{ transform:rotate(-12deg); } }
+@keyframes kert-lab-b{ 0%,100%{ transform:rotate(-12deg); } 50%{ transform:rotate(12deg); } }
 
 /* az unikornis „életre keltése" a kertben is (lélegzés, pislogás, lengő sörény/farok) */
 #kert-szinter .uni-elo, #kert-szinter .uni-soreny, #kert-szinter .uni-farok,
@@ -613,7 +619,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes kb-flutter{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(26px,-18px); } 50%{ transform:translate(52px,4px); } 75%{ transform:translate(26px,20px); } }
 
 @media (prefers-reduced-motion:reduce){
-  .kert-uni-doboz.jar{ animation:none; }
+  .kert-uni-doboz.jar, .kert-uni-doboz.jar .uni-lab-a, .kert-uni-doboz.jar .uni-lab-b{ animation:none; }
   #kert-szinter .uni-elo, #kert-szinter .uni-soreny, #kert-szinter .uni-farok,
   #kert-szinter .uni-tincs, #kert-szinter .uni-szem,
   .kb-blade, .kb-mote, .kb-fly{ animation:none; }
