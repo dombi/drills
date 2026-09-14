@@ -629,3 +629,60 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #odu-kert-kapu{ cursor:pointer; transition:transform .16s ease-out, filter .16s ease-out; }
 #odu-kert-kapu:hover{ transform:translateY(-8px); filter:drop-shadow(0 7px 5px rgba(60,50,90,.28)); }
 @media (prefers-reduced-motion:reduce){ #odu-kert-kapu{ transition:none; } }
+
+/* ── Kert 2. fázis: séta-trükkök ──────────────────────────────────────────── */
+/* a megvett trükkökhöz gomb a kert alján */
+.kert-trukksor{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:8px 10px 2px; }
+.kert-trukk-chip{ display:flex; flex-direction:column; align-items:center; gap:1px; min-width:74px;
+  padding:7px 14px; border:none; border-radius:16px; cursor:pointer; font-family:inherit; font-weight:700;
+  background:#eafbe4; box-shadow:0 2px 0 #bfe3ab; transition:transform .08s ease; }
+.kert-trukk-chip:active{ transform:translateY(2px); box-shadow:0 0 0 #bfe3ab; }
+.kert-trukk-chip .ktr-emoji{ font-size:26px; line-height:1; }
+.kert-trukk-chip .ktr-nev{ font-size:13px; color:#3f7a2e; }
+
+/* trükk-animációk: a TEST a dobozon süllyed/emelkedik, a LÁBAK a csípőnél rövidülnek
+   (transform-origin:50% 0% = csípő) — a talp a földön marad, a térd láthatóan behajlik.
+   A kettő szinkronban fut (azonos idő/görbe). Új trükk (3. fázis) = ide még egy pár @keyframes. */
+#kert-uni-doboz.trukk-ules{ animation:trukk-ules 1.6s ease-in-out 1; }
+#kert-uni-doboz.trukk-ugras{ animation:trukk-ugras 1.1s ease-out 1; }
+#kert-uni-doboz.trukk-ules .uni-lab{ animation:trukk-lab-ules 1.6s ease-in-out 1; }
+#kert-uni-doboz.trukk-ugras .uni-lab{ animation:trukk-lab-ugras 1.1s ease-out 1; }
+
+/* 🛋️ Ülés: a térd behajlik (láb rövidül), a test leereszkedik rá, tartja, majd feláll */
+@keyframes trukk-ules{
+  0%{ transform:translateY(0); }
+  24%{ transform:translateY(24px); }
+  80%{ transform:translateY(24px); }
+  100%{ transform:translateY(0); }
+}
+@keyframes trukk-lab-ules{
+  0%{ transform:scaleY(1); }
+  24%{ transform:scaleY(.5); }
+  80%{ transform:scaleY(.5); }
+  100%{ transform:scaleY(1); }
+}
+/* 🦘 Ugrás: előbb GUGGOL (térd behajlik, test süllyed, talp a földön), majd ellök és felpattan,
+   földetéréskor tompít (térd újra behajlik), egy kis rebound, végül feláll */
+@keyframes trukk-ugras{
+  0%{ transform:translateY(0); }
+  14%{ transform:translateY(26px); }   /* leguggol */
+  30%{ transform:translateY(-48px); }  /* elugrik */
+  46%{ transform:translateY(0); }      /* földet ér */
+  60%{ transform:translateY(-18px); }  /* kis rebound */
+  74%{ transform:translateY(0); }
+  100%{ transform:translateY(0); }
+}
+@keyframes trukk-lab-ugras{
+  0%{ transform:scaleY(1); }
+  14%{ transform:scaleY(.48); }   /* térd behajlik az elugrás előtt */
+  26%{ transform:scaleY(1.08); }  /* ellök (láb kinyúlik) */
+  30%{ transform:scaleY(1); }     /* levegőben */
+  46%{ transform:scaleY(.6); }    /* földetérés tompítja */
+  60%{ transform:scaleY(1); }
+  74%{ transform:scaleY(.85); }
+  100%{ transform:scaleY(1); }
+}
+@media (prefers-reduced-motion:reduce){
+  #kert-uni-doboz.trukk-ules, #kert-uni-doboz.trukk-ugras,
+  #kert-uni-doboz.trukk-ules .uni-lab, #kert-uni-doboz.trukk-ugras .uni-lab{ animation:none; }
+}
