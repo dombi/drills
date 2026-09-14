@@ -247,8 +247,13 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .felmond-sor .ub{ display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px;
   border-radius:5px; background:#fff; border:2px dashed #d9c6ea; color:#cdbfe0; font-weight:800; }
 .felmond-sor.most .ub{ min-width:30px; height:28px; border-color:#e0b060; color:#e0b060; }
-.felmond-sor.most .ub.fok{ border-style:solid; border-color:#e0a020; color:#b98a3a; background:#fff;
-  box-shadow:0 0 0 3px #ffe08a; }
+/* aktív sor: igazi kattintható beíró-mezők (fizikai billentyűzet, Enter ellenőriz) */
+.felmond-sor .dob-be{ width:38px; height:34px; text-align:center; font-family:inherit; font-weight:800;
+  font-size:19px; border-radius:8px; border:2px solid #e0b060; background:#fff; color:#b98a3a; padding:0; }
+.felmond-sor .dob-be:focus{ outline:none; border-color:#e0a020; box-shadow:0 0 0 3px #ffe08a; }
+.felmond-sor .dob-be.hibas{ border-color:#e07a6a; color:#c0453a; background:#fdeceb; box-shadow:0 0 0 3px #f6b0a6; }
+@keyframes felmond-razas{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-5px); } 75%{ transform:translateX(5px); } }
+.felmond-sor.razas{ animation:felmond-razas .3s; }
 
 .hallgat-jel{ font-size:14px; color:#e0679a; font-weight:700; display:flex; align-items:center; gap:8px; }
 .hullamok{ display:inline-flex; gap:3px; align-items:flex-end; height:16px; }

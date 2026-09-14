@@ -1730,31 +1730,77 @@ function lepesMintaDb() { return Math.min(2, lepesSorok() - 1); }   /* mindig ma
 function lepesErtekek(i) {
   var N = J.feladat.N;
   if (J.feladat.felmod === "szorzotabla") { var k = i + 1; return [k, N, k * N]; }
-  return [i, N - i];
+  return [i, N - i, N];               /* bontás: bal + jobb = N (az eredmény is beírandó) */
 }
-function lepesJelek() { return (J.feladat.felmod === "szorzotabla") ? ["×", "="] : ["+"]; }
-function lepesSorEl(allapot, ertekek, jelek, mezo) {
-  var sorEl = el("div", "felmond-sor " + allapot), html = "";
+function lepesJelek() { return (J.feladat.felmod === "szorzotabla") ? ["×", "="] : ["+", "="]; }
+function lepesSorSzoveg(i) {
+  var e = lepesErtekek(i), j = lepesJelek();
+  return e[0] + " " + j[0] + " " + e[1] + " " + j[1] + " " + e[2];
+}
+/* egy sor DOM-ban: minta/kész → kiírt számok; aktív → igazi beíró-mezők (fizikai
+   billentyűzet, Enter ellenőrzi az egész sort); jövő → üres helyőrzők */
+function lepesSorEl(allapot, ertekek, jelek) {
+  var sorEl = el("div", "felmond-sor " + allapot);
   for (var b = 0; b < ertekek.length; b++) {
-    if (b > 0) html += '<span class="jel">' + jelek[b - 1] + '</span>';
-    if (allapot === "pelda" || allapot === "kesz") html += '<span class="dob">' + ertekek[b] + '</span>';
-    else if (allapot === "most") {
-      if (b < mezo) html += '<span class="dob">' + ertekek[b] + '</span>';
-      else if (b === mezo) html += '<span class="ub fok">' + (J.beirt || "") + '</span>';
-      else html += '<span class="ub"></span>';
-    } else html += '<span class="ub"></span>';   /* jovo: minden szám üres */
+    if (b > 0) sorEl.appendChild(el("span", "jel", jelek[b - 1]));
+    if (allapot === "pelda" || allapot === "kesz") {
+      sorEl.appendChild(el("span", "dob", "" + ertekek[b]));
+    } else if (allapot === "most") {
+      var inp = document.createElement("input");
+      inp.className = "dob-be"; inp.type = "text"; inp.inputMode = "numeric";
+      inp.setAttribute("maxlength", "3"); inp.setAttribute("aria-label", "beírómező");
+      inp.addEventListener("keydown", lepesInputKey);
+      inp.addEventListener("input", function () { this.value = this.value.replace(/[^0-9]/g, "").slice(0, 3); this.classList.remove("hibas"); });
+      sorEl.appendChild(inp);
+    } else {
+      sorEl.appendChild(el("span", "ub", ""));   /* jövő: üres helyőrző */
+    }
   }
-  if (allapot === "pelda") html += '<span class="tag">minta</span>';
-  else if (allapot === "kesz") html += '<span class="pipa"></span>';
-  sorEl.innerHTML = html;
+  if (allapot === "pelda") sorEl.appendChild(el("span", "tag", "minta"));
+  else if (allapot === "kesz") sorEl.appendChild(el("span", "pipa", ""));
   return sorEl;
 }
-function renderFelmondLista(sor, mezo) {
+function renderFelmondLista(sor) {
   var box = $("felmond-lista"); box.innerHTML = "";
   var rows = lepesSorok(), minta = lepesMintaDb(), jelek = lepesJelek();
   for (var i = 0; i < rows; i++) {
     var allapot = i < minta ? "pelda" : (i < sor ? "kesz" : (i === sor ? "most" : "jovo"));
-    box.appendChild(lepesSorEl(allapot, lepesErtekek(i), jelek, allapot === "most" ? (mezo || 0) : -1));
+    box.appendChild(lepesSorEl(allapot, lepesErtekek(i), jelek));
+  }
+}
+function lepesInputKey(e) {
+  if (e.key === "Enter") { e.preventDefault(); bontasSorEllenoriz(); }
+}
+/* az aktív sor mindhárom mezőjének ellenőrzése (Enter) – a beírós mód motorja */
+function bontasSorEllenoriz() {
+  var mezok = $("felmond-lista").querySelectorAll(".felmond-sor.most .dob-be");
+  if (!mezok.length) return;
+  var ertekek = lepesErtekek(J.lepesSor), rows = lepesSorok(), i, ures = -1;
+  for (i = 0; i < mezok.length; i++) { mezok[i].classList.remove("hibas"); if (mezok[i].value === "" && ures < 0) ures = i; }
+  if (ures >= 0) {
+    mezok[ures].focus();
+    $("visszajelzes-f").className = "visszajelzes";
+    $("visszajelzes-f").textContent = "Töltsd ki mind a hármat, aztán Enter!";
+    return;
+  }
+  var jo = true, elsoHibas = -1;
+  for (i = 0; i < mezok.length; i++) {
+    if (parseInt(mezok[i].value, 10) !== ertekek[i]) { jo = false; mezok[i].classList.add("hibas"); if (elsoHibas < 0) elsoHibas = i; }
+  }
+  if (jo) {
+    J.mezoHiba = 0; hangCsilla();
+    $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+    J.lepesSor++;
+    if (J.lepesSor >= rows) { felmondSiker(); return; }
+    bontasLepesMutat();
+  } else {
+    J.mezoHiba = (J.mezoHiba || 0) + 1;
+    hangHiba();
+    var mostRow = $("felmond-lista").querySelector(".felmond-sor.most");
+    if (mostRow) { mostRow.classList.remove("razas"); void mostRow.offsetWidth; mostRow.classList.add("razas"); }
+    $("visszajelzes-f").className = "visszajelzes rossz";
+    $("visszajelzes-f").textContent = (J.mezoHiba >= 2) ? ("A jó sor: " + lepesSorSzoveg(J.lepesSor)) : "Nézd meg még egyszer!";
+    if (elsoHibas >= 0) { mezok[elsoHibas].value = ""; mezok[elsoHibas].focus(); }
   }
 }
 function modBeallit() {
@@ -1777,13 +1823,12 @@ function billentyuzetEpit() {
       else if (k === "✓") { billentyuBekuld(); return; }
       else if (J.beirt.length < 3) J.beirt += k;
       $("beiro-kijelzo").textContent = J.beirt;
-      if (J.lepesAktiv) renderFelmondLista(J.lepesSor, J.lepesMezo);   /* a lista fókusz-doboza is élőben kövesse */
     });
     box.appendChild(b);
   });
 }
 function billentyuBekuld() {
-  if (J.feladat.csalad === "felmondas") { bontasLepesBekuld(); return; }
+  if (J.feladat.csalad === "felmondas") { bontasSorEllenoriz(); return; }
   if (J.beirt === "") return;
   var v = parseInt(J.beirt, 10);
   J.beirt = ""; $("beiro-kijelzo").textContent = "";
@@ -1953,10 +1998,11 @@ function bontasLepesNyit() {
     : ('A <b>' + J.feladat.N + '</b> bontásai – lépésenként');
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = false;
   $("bontas-lepes").hidden = true;               /* a régi külön beíró-sor megszűnt */
-  J.lepesAktiv = true;
+  $("szambillentyuzet").hidden = true;           /* nincs képernyős számológép */
+  $("beiro-kijelzo").hidden = true;
+  J.lepesAktiv = true; J.mezoHiba = 0;
   var rows = lepesSorok(), minta = lepesMintaDb();
   J.lepesSor = Math.max(minta, J.parokKesz || 0);
-  J.lepesMezo = 0; J.beirt = ""; J.mezoHiba = 0;
   var bb = $("bontas-beiras");                    /* a kapcsoló: most vissza a hangra */
   if (beszedTamogatott) { bb.style.display = ""; bb.textContent = "🎤 Inkább mondom"; }
   else bb.style.display = "none";
@@ -1964,39 +2010,14 @@ function bontasLepesNyit() {
   bontasLepesMutat();
 }
 function bontasLepesMutat() {
-  renderFelmondLista(J.lepesSor, J.lepesMezo);
+  renderFelmondLista(J.lepesSor);
   J.parokKesz = J.lepesSor;
   frissitMegvan();
   $("bontas-lepes").hidden = true;
-  $("beiro-kijelzo").hidden = false;
-  $("szambillentyuzet").hidden = false;
-  $("beiro-kijelzo").textContent = J.beirt || "";
-}
-function bontasLepesBekuld() {
-  if (J.beirt === "") return;
-  var i = J.lepesSor, ertekek = lepesErtekek(i), kell = ertekek[J.lepesMezo], rows = lepesSorok();
-  if (parseInt(J.beirt, 10) === kell) {
-    J.beirt = ""; J.mezoHiba = 0;
-    $("beiro-kijelzo").textContent = "";
-    $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
-    hangCsilla();
-    J.lepesMezo++;
-    if (J.lepesMezo >= ertekek.length) {          /* a sor összes doboza megvan → kész */
-      J.lepesMezo = 0; J.lepesSor++;
-      if (J.lepesSor >= rows) {
-        $("szambillentyuzet").hidden = true; $("beiro-kijelzo").hidden = true;
-        felmondSiker(); return;
-      }
-    }
-    bontasLepesMutat();
-  } else {
-    J.mezoHiba = (J.mezoHiba || 0) + 1;
-    hangHiba();
-    $("visszajelzes-f").className = "visszajelzes rossz";
-    $("visszajelzes-f").textContent = (J.mezoHiba >= 2) ? ("A jó szám: " + kell) : "Nem jó — próbáld újra!";
-    J.beirt = ""; $("beiro-kijelzo").textContent = "";
-    renderFelmondLista(J.lepesSor, J.lepesMezo);
-  }
+  $("szambillentyuzet").hidden = true;           /* nincs képernyős számológép */
+  $("beiro-kijelzo").hidden = true;
+  var elso = $("felmond-lista").querySelector(".felmond-sor.most .dob-be");
+  if (elso) elso.focus();                          /* rögtön a sor első mezőjébe */
 }
 /* beírásból vissza a hangos módba (⌨ ⇄ 🎤 kapcsoló, 2026-09-14) */
 function felmondHangVissza() {
