@@ -2997,9 +2997,11 @@ function renderKert() {
   var doboz = $("kert-uni-doboz");
   doboz.style.left = KERT_UNI_X + "%";
   doboz.style.setProperty("--dir", 1);
+  KERT_UL = false;   /* friss belépéskor áll (a doboz DOM újraépült, az „ules-all" osztály eltűnt) */
   host.onclick = function (e) {
-    if (KERT_TRUKK_FUT) return;                                            /* trükk közben nem sétál */
+    if (KERT_TRUKK_FUT) return;                                            /* egyszeri trükk közben nem sétál */
     if (e.target.closest && e.target.closest("#kert-uni-doboz")) return;   /* magára az unikornisra koppintva nem lép */
+    if (KERT_UL) { kertAll(); return; }                                    /* ha ül, a fűre koppintás előbb felállítja */
     var r = host.getBoundingClientRect();
     kertSetal(((e.clientX - r.left) / r.width) * 100);
   };
@@ -3012,17 +3014,45 @@ function kertTrukksorRender() {
   var tr = P().kert.trukkok || {}, chips = "";
   KERT_BOLT.forEach(function (t) {
     if (t.id === "kulcs" || !t.perc || !tr[t.id]) return;
-    chips += '<button class="kert-trukk-chip" data-id="' + t.id + '" aria-label="' + t.nev + '">' +
-      '<span class="ktr-emoji">' + t.emoji + '</span><span class="ktr-nev">' + t.nev + '</span></button>';
+    var ulAkt = (t.id === "ules" && KERT_UL);   /* ül épp → a gomb „Feláll"-ra vált */
+    chips += '<button class="kert-trukk-chip' + (ulAkt ? ' aktiv' : '') + '" data-id="' + t.id + '" aria-label="' + t.nev + '">' +
+      '<span class="ktr-emoji">' + t.emoji + '</span><span class="ktr-nev">' + (ulAkt ? "Feláll" : t.nev) + '</span></button>';
   });
   sor.innerHTML = chips;
   sor.hidden = !chips;
   sor.onclick = function (e) {
     var b = e.target.closest && e.target.closest(".kert-trukk-chip"); if (!b) return;
-    hangGomb(); kertTrukkJatszik(b.getAttribute("data-id"));
+    hangGomb(); kertTrukkGomb(b.getAttribute("data-id"));
   };
 }
-/* egy trükk lejátszása: a meglévő figurára tesz egy .trukk-<id> osztályt (a mozgást a CSS
+/* egy trükk-gomb megnyomása: az ülés TARTÓS állapot (leül/feláll toggle), a többi EGYSZERI
+   trükk (lejátszik, majd feláll). Ha ül, minden más trükk előbb felállítja. */
+function kertTrukkGomb(id) {
+  if (id === "ules") { if (KERT_UL) kertAll(); else kertUl(); return; }
+  if (KERT_UL) kertAll();
+  kertTrukkJatszik(id);
+}
+/* 🛋️ Ülés = tartós állapot: az „ules-all" osztály tartja a pózt, amíg a gyerek fel nem állítja. */
+var KERT_UL = false;
+function kertUl() {
+  if (KERT_TRUKK_FUT) return;
+  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  doboz.classList.remove("jar"); clearTimeout(doboz._jarTimer);
+  doboz.classList.add("ules-all");
+  KERT_UL = true;
+  hangCsilla();
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🛋️ Ül — koppints a gombra vagy a fűre, hogy felálljon.";
+  kertTrukksorRender();
+}
+function kertAll() {
+  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  doboz.classList.remove("ules-all");
+  KERT_UL = false;
+  hangGomb();
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
+  kertTrukksorRender();
+}
+/* egy EGYSZERI trükk lejátszása: a meglévő figurára tesz egy .trukk-<id> osztályt (a mozgást a CSS
    végzi, újrarajzolás nincs), majd a trükk hossza után leveszi. Egyszerre egy trükk fut. */
 var KERT_TRUKK_FUT = false;
 function kertTrukkAdat(id) { var r = null; KERT_BOLT.forEach(function (t) { if (t.id === id) r = t; }); return r; }
@@ -3049,7 +3079,7 @@ function kertSetal(celX) {
   if (tav < 1.2) return;
   doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
   var mp = Math.max(0.5, Math.min(3.2, tav * 0.045));   /* közel állandó sétatempó */
-  doboz.style.transition = "left " + mp.toFixed(2) + "s linear";
+  doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
   doboz.classList.add("jar");
   KERT_UNI_X = celX;
   doboz.style.left = celX + "%";
@@ -4183,7 +4213,7 @@ window.UC = {
   KRISTALY: KRISTALY, oduPanelNyit: oduPanelNyit,
   oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); },
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
-  kertTrukkJatszik: kertTrukkJatszik,
+  kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
   oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); }
 };
 
