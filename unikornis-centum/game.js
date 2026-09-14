@@ -2596,36 +2596,27 @@ function oduKertVesz(t) {
 }
 /* a Kincsvitrin a fő falon: fa szekrény, 2×3 állvány; a megvett kristály-dísz a helyére kerül,
    a hiányzó helyeken halvány „?" — a gyűjtemény láthatóan telik. Odú-koordináta (680×540). */
+/* Kincsek — NYITOTT POLC a fő falon (producer 2026-09-14): nincs szekrény/üveg, nincs felirat,
+   nincs „?" és nincs szaggatás; az üres helyek tiszta kis állványok. Két pasztell fapolc, 3-3 hely. */
 function vitrinReteg(o) {
   var v = (o && o.vitrin) || {};
-  var X = 278, Y = 214, W = 116, H = 170, IX = X + 10, IY = Y + 10, IW = W - 20;
+  var X = 256, W = 140, rowY = [242, 300], colX = [X + 24, X + 70, X + 116];
   var s = '<g class="odu-vitrin">';
-  /* névtábla */
-  s += '<rect x="' + (X + 30) + '" y="' + (Y - 11) + '" width="56" height="15" rx="7" fill="#8f6a3e"/>';
-  s += '<path d="M' + (X + 34) + ' ' + (Y - 3.5) + ' l1.2 3 l3 .3 l-2.3 1.9 l.8 3 l-2.7 -1.7 l-2.7 1.7 l.8 -3 l-2.3 -1.9 l3 -.3 Z" fill="#ffe08a"/>';
-  s += '<text x="' + (X + 62) + '" y="' + (Y - 0.5) + '" font-size="8.5" font-weight="700" fill="#ffe9c4" text-anchor="middle">Kincsvitrin</text>';
-  /* szekrény keret + belső */
-  s += '<rect x="' + X + '" y="' + Y + '" width="' + W + '" height="' + H + '" rx="10" fill="#c39a63" stroke="#8f6a3e" stroke-width="3"/>';
-  s += '<rect x="' + IX + '" y="' + IY + '" width="' + IW + '" height="' + (H - 20) + '" rx="6" fill="#efe7f7"/>';
-  /* 3 polc + függőleges osztó */
-  var rowY = [IY + 52, IY + 100, IY + 148];       /* állvány-alap y-ok (3 sor) */
-  s += '<rect x="' + IX + '" y="' + (rowY[0] + 4) + '" width="' + IW + '" height="5" fill="#c39a63"/>';
-  s += '<rect x="' + IX + '" y="' + (rowY[1] + 4) + '" width="' + IW + '" height="5" fill="#c39a63"/>';
-  s += '<rect x="' + (X + W / 2 - 2) + '" y="' + IY + '" width="4" height="' + (H - 20) + '" fill="#d7b98c" opacity="0.5"/>';
-  var colX = [X + W * 0.29, X + W * 0.71];
+  rowY.forEach(function (ry) {
+    s += '<rect x="' + X + '" y="' + (ry + 4) + '" width="' + W + '" height="7" rx="3" fill="#cbb6e6"/>';
+    s += '<rect x="' + X + '" y="' + (ry + 4) + '" width="' + W + '" height="3" rx="1.5" fill="#dcc7f0"/>';
+    s += '<path d="M' + (X + 12) + ' ' + (ry + 11) + ' q-6 8 2 16" stroke="#ab90cf" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    s += '<path d="M' + (X + W - 12) + ' ' + (ry + 11) + ' q6 8 -2 16" stroke="#ab90cf" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  });
   for (var i = 0; i < 6; i++) {
-    var cx = colX[i % 2], cy = rowY[Math.floor(i / 2)], it = KRISTALY[i];
+    var cx = colX[i % 3], cy = rowY[Math.floor(i / 3)], it = KRISTALY[i];
     if (it && v[it.id]) {
       s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="14" ry="4" fill="#c9a8e6"/>';
       s += '<g transform="translate(' + (cx - 21) + ',' + (cy - 42) + ') scale(0.52)">' + it.svg + '</g>';
     } else {
-      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="12" ry="3.4" fill="#e6dcf2"/>';   /* üres, tiszta állvány — nincs „?" és nincs szaggatott jelölés (producer, 2026-09-14) */
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="11" ry="3.2" fill="#e6dcf2"/>';   /* üres, tiszta állvány */
     }
   }
-  /* üveg-csillanás + keret-fény */
-  s += '<g opacity="0.12" fill="#ffffff"><polygon points="' + (IX + 14) + ',' + IY + ' ' + (IX + 32) + ',' + IY + ' ' + (IX + 6) + ',' + (IY + H - 20) + ' ' + (IX - 6) + ',' + (IY + H - 20) + '"/>' +
-    '<polygon points="' + (IX + 60) + ',' + IY + ' ' + (IX + 74) + ',' + IY + ' ' + (IX + 48) + ',' + (IY + H - 20) + ' ' + (IX + 36) + ',' + (IY + H - 20) + '"/></g>';
-  s += '<rect x="' + IX + '" y="' + IY + '" width="' + IW + '" height="' + (H - 20) + '" rx="6" fill="none" stroke="#dff0fa" stroke-width="1.6" opacity="0.6"/>';
   return s + '</g>';
 }
 
@@ -2882,8 +2873,9 @@ function oduSVG(lenyKulcs, o, elonezet) {
 }
 /* A kertkapu az odú hátsó falán (odú-koordináta 680×540). nyitva=true → nyílt boltív, látszik a
    napfényes rét, hívogató nyíl; nyitva=false → zárt fakapu + lakat. Mindig kattintható (renderOdu köti be). */
-function kertKapuSVG(nyitva) {
-  var KX = 250, KW = 108, KB = 432, KT = 236, RX = KW / 2, PEAK = KT - RX;   /* arch peak y=182 */
+function kertKapuSVG(nyitva, KX, KW, KT, KB) {
+  KX = KX || 452; KW = KW || 94; KT = KT || 214; KB = KB || 290;   /* jobb oldali, kisebb kapu (a láng fölött) */
+  var RX = KW / 2, PEAK = KT - RX;
   var CX = KX + RX;
   var nyilas = "M" + KX + " " + KB + " V" + KT + " A" + RX + " " + RX + " 0 0 1 " + (KX + KW) + " " + KT + " V" + KB + " Z";
   var s = '<defs><clipPath id="odu-kert-nyilas"><path d="' + nyilas + '"/></clipPath>' +
@@ -2906,31 +2898,31 @@ function kertKapuSVG(nyitva) {
   s += '<path d="' + nyilas + '" fill="none" stroke="#b79fd4" stroke-width="12"/>';
   s += '<path d="' + nyilas + '" fill="none" stroke="#cbb6e6" stroke-width="5"/>';
   if (nyitva) {
-    /* hívogató nyíl + csillám */
-    s += '<g opacity="0.92"><circle cx="' + CX + '" cy="' + (KB - 78) + '" r="19" fill="#a7d99a"/><path d="M' + (CX - 8) + ' ' + (KB - 86) + ' l14 8 l-14 8 Z" fill="#2f5f2b"/></g>';
-    s += '<path d="M' + (CX) + ' ' + (PEAK + 14) + ' l2.4 6 l6 2.4 l-6 2.4 l-2.4 6 l-2.4 -6 l-6 -2.4 l6 -2.4 Z" fill="#fff2a8"/>';
+    /* nincs nyíl (producer 2026-09-14) — a hover-emelkedés jelzi a kattinthatóságot; csak egy kis csillám marad */
+    s += '<path d="M' + (CX) + ' ' + (PEAK + 12) + ' l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#fff2a8"/>';
     /* névtábla: Kert */
-    s += '<rect x="' + (CX - 26) + '" y="' + (KT - 2) + '" width="52" height="17" rx="8" fill="#8f6a3e"/>';
-    s += '<text x="' + CX + '" y="' + (KT + 10.5) + '" font-size="10.5" font-weight="800" fill="#ffe9c4" text-anchor="middle">Kert</text>';
+    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 3) + '" width="48" height="16" rx="8" fill="#8f6a3e"/>';
+    s += '<text x="' + CX + '" y="' + (KT + 9) + '" font-size="10" font-weight="800" fill="#ffe9c4" text-anchor="middle">Kert</text>';
   } else {
-    /* zárt fakapu: két szárny + keresztlécek, sötétebb */
+    /* zárt fakapu: lécek + lakat, sötétebb (arányos a kapu méretével) */
+    var doorH = KB - PEAK, lockY = PEAK + doorH * 0.52;
     s += '<g clip-path="url(#odu-kert-nyilas)">';
-    s += '<rect x="' + KX + '" y="' + (PEAK) + '" width="' + KW + '" height="' + (KB - PEAK) + '" fill="#8a6a3e" opacity="0.9"/>';
+    s += '<rect x="' + KX + '" y="' + PEAK + '" width="' + KW + '" height="' + doorH + '" fill="#8a6a3e" opacity="0.92"/>';
     s += '<g stroke="#6f5230" stroke-width="3">';
-    s += '<line x1="' + CX + '" y1="' + (PEAK + 8) + '" x2="' + CX + '" y2="' + KB + '"/>';
-    for (var i = 0; i < 4; i++) { var lx = KX + 14 + i * (KW - 28) / 3; s += '<line x1="' + lx + '" y1="' + (KT - 6) + '" x2="' + lx + '" y2="' + KB + '"/>'; }
-    s += '<line x1="' + KX + '" y1="' + (KT + 40) + '" x2="' + (KX + KW) + '" y2="' + (KT + 40) + '"/><line x1="' + KX + '" y1="' + (KT + 110) + '" x2="' + (KX + KW) + '" y2="' + (KT + 110) + '"/>';
+    for (var i = 0; i < 4; i++) { var lx = KX + 12 + i * (KW - 24) / 3; s += '<line x1="' + lx + '" y1="' + (PEAK) + '" x2="' + lx + '" y2="' + KB + '"/>'; }
+    s += '<line x1="' + KX + '" y1="' + (PEAK + doorH * 0.32) + '" x2="' + (KX + KW) + '" y2="' + (PEAK + doorH * 0.32) + '"/>';
+    s += '<line x1="' + KX + '" y1="' + (PEAK + doorH * 0.72) + '" x2="' + (KX + KW) + '" y2="' + (PEAK + doorH * 0.72) + '"/>';
     s += '</g></g>';
-    s += '<rect x="' + KX + '" y="' + PEAK + '" width="' + KW + '" height="' + (KB - PEAK) + '" fill="#2e2350" opacity="0.22" clip-path="url(#odu-kert-nyilas)"/>';
+    s += '<rect x="' + KX + '" y="' + PEAK + '" width="' + KW + '" height="' + doorH + '" fill="#2e2350" opacity="0.2" clip-path="url(#odu-kert-nyilas)"/>';
     /* lakat középen */
-    s += '<g transform="translate(' + CX + ' ' + (KT + 78) + ')">';
-    s += '<path d="M-9 0 v-8 a9 9 0 0 1 18 0 v8" fill="none" stroke="#e6d3a8" stroke-width="4"/>';
-    s += '<rect x="-14" y="0" width="28" height="22" rx="4" fill="#ffd24d" stroke="#c9a06a" stroke-width="2"/>';
-    s += '<circle cx="0" cy="9" r="3" fill="#7a5a2a"/><rect x="-1.6" y="9" width="3.2" height="8" rx="1.4" fill="#7a5a2a"/>';
+    s += '<g transform="translate(' + CX + ' ' + lockY + ')">';
+    s += '<path d="M-8 0 v-7 a8 8 0 0 1 16 0 v7" fill="none" stroke="#e6d3a8" stroke-width="3.5"/>';
+    s += '<rect x="-12" y="0" width="24" height="19" rx="4" fill="#ffd24d" stroke="#c9a06a" stroke-width="2"/>';
+    s += '<circle cx="0" cy="8" r="2.6" fill="#7a5a2a"/><rect x="-1.4" y="8" width="2.8" height="7" rx="1.2" fill="#7a5a2a"/>';
     s += '</g>';
-    /* kis „?" tábla */
-    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 2) + '" width="48" height="17" rx="8" fill="#6f5230"/>';
-    s += '<text x="' + CX + '" y="' + (KT + 10.5) + '" font-size="10" font-weight="800" fill="#e6d3a8" text-anchor="middle">Kert 🔒</text>';
+    /* névtábla: Kert 🔒 */
+    s += '<rect x="' + (CX - 24) + '" y="' + (KT - 3) + '" width="48" height="16" rx="8" fill="#6f5230"/>';
+    s += '<text x="' + CX + '" y="' + (KT + 9) + '" font-size="9.5" font-weight="800" fill="#e6d3a8" text-anchor="middle">Kert 🔒</text>';
   }
   return s;
 }

@@ -830,3 +830,7 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   napfényes rét hangulat; a régi pályák érintetlenek; CC0-tiszta. — *A „kinevetik a lapos rajzot" visszajelzésre; új helyszín = új technika.*
 - **Fázisokban építve:** 1) kulcs + kapu + kert-háttér + séta *(KÉSZ, 2026-09-14)*; 2) ülés/ugrás + boltpolc; 3) pörgés/csillám + festett részletek.
 - **Additív megvalósítás:** `P().kert` mentés-ág, `fajta:"kert"` a boltban, `#kepernyo-kert` + `.kert-*` CSS, 10d) szekció; a pálya-motor/matek érintetlen. Böngészőben tesztelve, konzol tiszta.
+- **Finomítások (2026-09-14, playtest után):**
+  - A kertben **séta közben mozog a 4 láb** (a csípőnél leng, ellenfázisban), nemcsak a test bólogat.
+  - A **kertkapu a JOBB oldalra** került, **kisebb** lett, és a **kályha lángját nem takarja** (a láng fölé, a felső jobb falra); **nincs rajta nyíl** — helyette **egérrel fölé érve megemelkedik** (`#odu-kert-kapu:hover` → felfelé tolás + árnyék), ez jelzi a kattinthatóságot.
+  - A **Kincsvitrin nyitott polc** lett: nincs barna szekrény/üveg, **nincs felirat**, és az üres helyeken **nincs „?" és nincs szaggatott vonal** — csak tiszta kis állványok. — *Producer-kérések.*

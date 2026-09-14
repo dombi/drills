@@ -624,3 +624,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #kert-szinter .uni-tincs, #kert-szinter .uni-szem,
   .kb-blade, .kb-mote, .kb-fly{ animation:none; }
 }
+
+/* Kertkapu az odúban: az egér alá emelkedik (kattinthatóság-jelzés), nyíl helyett */
+#odu-kert-kapu{ cursor:pointer; transition:transform .16s ease-out, filter .16s ease-out; }
+#odu-kert-kapu:hover{ transform:translateY(-8px); filter:drop-shadow(0 7px 5px rgba(60,50,90,.28)); }
+@media (prefers-reduced-motion:reduce){ #odu-kert-kapu{ transition:none; } }
