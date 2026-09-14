@@ -2338,10 +2338,11 @@ function esemenyek() {
   $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
   $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
-  $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); oduPanelNyit(); });
+  $("odu-osveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Ösvények"); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); mondd("Bolt"); oduPanelNyit(); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
-  $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); renderJelveny(); $("odu-lap").hidden = false; });
-  $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); renderGyujtemeny(); $("odu-lap").hidden = false; });
+  $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Jelvények"); renderJelveny(); $("odu-lap").hidden = false; });
+  $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); mondd("Gyűjtemény"); renderGyujtemeny(); $("odu-lap").hidden = false; });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
 }
 

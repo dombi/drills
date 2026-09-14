@@ -330,7 +330,12 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   max-width:100%; max-height:100%; width:auto; height:auto;
   border-radius:22px; box-shadow:0 12px 30px rgba(74,59,122,.22);
 }
-.odu-gombsor{ padding:10px 14px 14px; display:flex; gap:12px; justify-content:center; }
+.odu-gombsor{ padding:10px 14px 14px; display:flex; gap:14px; justify-content:center; }
+.ikon-gomb{ width:52px; height:52px; padding:0; border-radius:16px; font-size:25px; line-height:1;
+  background:var(--krem); box-shadow:0 4px 0 #d8c69a; display:flex; align-items:center; justify-content:center; }
+.ikon-gomb:active{ transform:translateY(3px); box-shadow:0 1px 0 #d8c69a; }
+.ikon-gomb.kiemelt{ background:var(--menta); box-shadow:0 4px 0 #7bbd7a; }
+.ikon-gomb.kiemelt:active{ box-shadow:0 1px 0 #7bbd7a; }
 
 /* mesebolt-stand a szobában — kattintható; finoman ragyog (a filter nem mozdítja a kattint-területet) */
 #odu-bolt-jel{ cursor:pointer; animation:odu-bolt-glow 2.6s ease-in-out infinite; }
