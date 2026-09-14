@@ -234,7 +234,21 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .felmond-megvan .pontok i{ width:9px; height:9px; border-radius:50%; background:#d9cde8; display:inline-block; }
 .felmond-megvan .pontok i.zold{ background:#7bbf6a; }
 .felmond-megvan .pontok i.arany{ background:#f0c98a; }
+.felmond-megvan .pontok i.minta{ background:#c9a8e6; }
+.felmond-megvan .pontok i.most{ background:#ffe08a; }
 .bontas-lepes{ display:flex; gap:10px; align-items:center; font-size:22px; font-weight:800; }
+
+/* beírós lépésenként (2026-09-14): 2 minta-sor, utána csak a jel + üres dobozok */
+.felmond-sor .jel{ font-weight:800; opacity:.7; }
+.felmond-sor.pelda{ background:#f3ecfa; border-color:#d9c6ea; color:#7a5aa0; }
+.felmond-sor.pelda .tag{ margin-left:auto; font-size:11px; font-weight:800; letter-spacing:.4px;
+  padding:2px 8px; border-radius:999px; background:#e5d6f2; color:#7a5aa0; }
+.felmond-sor.jovo{ background:#fbf7fd; border-color:#efe6f5; color:#c3b6d6; }
+.felmond-sor .ub{ display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px;
+  border-radius:5px; background:#fff; border:2px dashed #d9c6ea; color:#cdbfe0; font-weight:800; }
+.felmond-sor.most .ub{ min-width:30px; height:28px; border-color:#e0b060; color:#e0b060; }
+.felmond-sor.most .ub.fok{ border-style:solid; border-color:#e0a020; color:#b98a3a; background:#fff;
+  box-shadow:0 0 0 3px #ffe08a; }
 
 .hallgat-jel{ font-size:14px; color:#e0679a; font-weight:700; display:flex; align-items:center; gap:8px; }
 .hullamok{ display:inline-flex; gap:3px; align-items:flex-end; height:16px; }

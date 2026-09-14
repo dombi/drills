@@ -1631,7 +1631,7 @@ function kovAllomas() {
 }
 function ujFeladat() {
   var a = J.allomasok[J.allomasIdx];
-  J.probak = 0; J.lepesSor = 0;
+  J.probak = 0; J.lepesSor = 0; J.lepesMezo = 0; J.lepesAktiv = false;
   if (a.tipus === "szambontas") J.feladat = GEN.szambontas(a);
   else if (a.tipus === "szorzotabla-felmondas") J.feladat = GEN["szorzotabla-felmondas"](a);
   else {
@@ -1669,6 +1669,9 @@ function ujFeladat() {
     $("mondom-bontas-gomb").style.display = (beszedTamogatott && !felKn) ? "" : "none";
     $("mondom-bontas-gomb").textContent = felmondMondomSzo();
     $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
+    var bbUj = $("bontas-beiras");
+    bbUj.textContent = "⌨ Beírom lépésenként";
+    bbUj.style.display = beszedTamogatott ? "" : "none";
     if (!beszedTamogatott || mentes.valaszmod === "beiras") { mondd(f.felolvas, function () { bontasLepesNyit(); }); return; }
     if (felKn) { felmondKezNelkulKor(); return; }
   } else {
@@ -1683,11 +1686,14 @@ function ujFeladat() {
 }
 /* bontás: átváltás a VÁLASZ (hallgatás) állapotra */
 function frissitMegvan() {
-  var szt = (J.feladat.felmod === "szorzotabla");
-  var ossz = szt ? 10 : (J.feladat.N + 1), kesz = J.parokKesz, p = "", egys = szt ? "sor" : "pár";
-  for (var i = 0; i < ossz; i++) p += '<i class="' + (i < kesz ? "zold" : "") + '"></i>';
-  var szoveg = kesz > 0 ? ("eddig " + kesz + " / " + ossz + " " + egys + " jó volt") : (ossz + " " + egys + " – mondd el mind egyben");
-  $("felmond-megvan").innerHTML = szoveg + " <span class=\"pontok\">" + p + "</span>";
+  var rows = lepesSorok(), minta = lepesMintaDb(), kesz = J.lepesSor || 0, p = "";
+  for (var i = 0; i < rows; i++) {
+    var cls = i < minta ? "minta" : (i < kesz ? "zold" : (i === kesz ? "most" : ""));
+    p += '<i class="' + cls + '"></i>';
+  }
+  var teMar = Math.max(0, kesz - minta), teOssz = rows - minta;
+  $("felmond-megvan").innerHTML = minta + " minta · " + teMar + " / " + teOssz +
+    " sort te töltesz ki <span class=\"pontok\">" + p + "</span>";
 }
 function bagolyMondat(txt) {
   var b = $("bagoly-mondat");
@@ -1715,30 +1721,40 @@ function renderPottyok() {
   for (var i = 0; i < J.feladatDb; i++)
     box.appendChild(el("span", "potty" + (i < J.feladatKesz ? " kesz" : (i === J.feladatKesz ? " most" : ""))));
 }
-function renderFelmondLista(sor, lepesMod) {
-  if (J.feladat.felmod === "szorzotabla") { renderSzorzoFelmondLista(sor, lepesMod); return; }
-  var N = J.feladat.N, box = $("felmond-lista"); box.innerHTML = "";
-  for (var i = 0; i <= N; i++) {
-    var aktiv = lepesMod && i === sor;
-    var st = i < sor ? "kesz" : (aktiv ? "most" : "jovo");
-    var jStil = aktiv ? ' style="opacity:.5"' : '';
-    var sorEl = el("div", "felmond-sor " + st);
-    sorEl.innerHTML = '<span class="dob">' + i + '</span><span>+</span><span class="dob"' + jStil + '>' + (N - i) + '</span><span class="pipa"></span>';
-    box.appendChild(sorEl);
-    if (aktiv && sor <= N) box.appendChild(el("div", "felmond-most-cim", "…ezt írd be"));
-  }
+/* ── lépésenkénti beírás segédei (2026-09-14) ──────────────────────────────
+   Az 1. és 2. sor MINTA (készen adva, az irány megmutatása); onnantól a sorban
+   csak a művelet jele marad, minden számot a gyerek ír be, balról jobbra.
+   A megoldó-ellenőrzés ugyanaz; csak a megjelenés változott. */
+function lepesSorok() { return (J.feladat.felmod === "szorzotabla") ? 10 : (J.feladat.N + 1); }
+function lepesMintaDb() { return Math.min(2, lepesSorok() - 1); }   /* mindig marad legalább 1 megoldandó sor */
+function lepesErtekek(i) {
+  var N = J.feladat.N;
+  if (J.feladat.felmod === "szorzotabla") { var k = i + 1; return [k, N, k * N]; }
+  return [i, N - i];
 }
-function renderSzorzoFelmondLista(sor, lepesMod) {
-  var N = J.feladat.N, box = $("felmond-lista"); box.innerHTML = "";
-  for (var i = 0; i < 10; i++) {
-    var k = i + 1, aktiv = lepesMod && i === sor;
-    var st = i < sor ? "kesz" : (aktiv ? "most" : "jovo");
-    var jStil = aktiv ? ' style="opacity:.5"' : '';
-    var sorEl = el("div", "felmond-sor " + st);
-    sorEl.innerHTML = '<span class="dob">' + k + '</span><span>×</span><span class="dob">' + N +
-      '</span><span>=</span><span class="dob"' + jStil + '>' + (k * N) + '</span><span class="pipa"></span>';
-    box.appendChild(sorEl);
-    if (aktiv) box.appendChild(el("div", "felmond-most-cim", "…ezt írd be"));
+function lepesJelek() { return (J.feladat.felmod === "szorzotabla") ? ["×", "="] : ["+"]; }
+function lepesSorEl(allapot, ertekek, jelek, mezo) {
+  var sorEl = el("div", "felmond-sor " + allapot), html = "";
+  for (var b = 0; b < ertekek.length; b++) {
+    if (b > 0) html += '<span class="jel">' + jelek[b - 1] + '</span>';
+    if (allapot === "pelda" || allapot === "kesz") html += '<span class="dob">' + ertekek[b] + '</span>';
+    else if (allapot === "most") {
+      if (b < mezo) html += '<span class="dob">' + ertekek[b] + '</span>';
+      else if (b === mezo) html += '<span class="ub fok">' + (J.beirt || "") + '</span>';
+      else html += '<span class="ub"></span>';
+    } else html += '<span class="ub"></span>';   /* jovo: minden szám üres */
+  }
+  if (allapot === "pelda") html += '<span class="tag">minta</span>';
+  else if (allapot === "kesz") html += '<span class="pipa"></span>';
+  sorEl.innerHTML = html;
+  return sorEl;
+}
+function renderFelmondLista(sor, mezo) {
+  var box = $("felmond-lista"); box.innerHTML = "";
+  var rows = lepesSorok(), minta = lepesMintaDb(), jelek = lepesJelek();
+  for (var i = 0; i < rows; i++) {
+    var allapot = i < minta ? "pelda" : (i < sor ? "kesz" : (i === sor ? "most" : "jovo"));
+    box.appendChild(lepesSorEl(allapot, lepesErtekek(i), jelek, allapot === "most" ? (mezo || 0) : -1));
   }
 }
 function modBeallit() {
@@ -1761,6 +1777,7 @@ function billentyuzetEpit() {
       else if (k === "✓") { billentyuBekuld(); return; }
       else if (J.beirt.length < 3) J.beirt += k;
       $("beiro-kijelzo").textContent = J.beirt;
+      if (J.lepesAktiv) renderFelmondLista(J.lepesSor, J.lepesMezo);   /* a lista fókusz-doboza is élőben kövesse */
     });
     box.appendChild(b);
   });
@@ -1928,46 +1945,80 @@ function felmondSiker() {
 function bontasLepesNyit() {
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   $("mondom-bontas-gomb").style.display = "none";
+  $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
   $("buborek-feladat").hidden = true;
   $("buborek-cim").hidden = false;
   $("buborek-cim").innerHTML = (J.feladat.felmod === "szorzotabla")
     ? ('A <b>' + J.feladat.N + '</b>-es szorzótábla – lépésenként')
     : ('A <b>' + J.feladat.N + '</b> bontásai – lépésenként');
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = false;
-  $("bontas-lepes").hidden = false;
-  J.lepesSor = Math.max(J.lepesSor || 0, J.parokKesz || 0);
-  J.beirt = "";
+  $("bontas-lepes").hidden = true;               /* a régi külön beíró-sor megszűnt */
+  J.lepesAktiv = true;
+  var rows = lepesSorok(), minta = lepesMintaDb();
+  J.lepesSor = Math.max(minta, J.parokKesz || 0);
+  J.lepesMezo = 0; J.beirt = ""; J.mezoHiba = 0;
+  var bb = $("bontas-beiras");                    /* a kapcsoló: most vissza a hangra */
+  if (beszedTamogatott) { bb.style.display = ""; bb.textContent = "🎤 Inkább mondom"; }
+  else bb.style.display = "none";
+  if (J.lepesSor >= rows) { felmondSiker(); return; }   /* minden sor kész volt már */
   bontasLepesMutat();
 }
 function bontasLepesMutat() {
-  var N = J.feladat.N, i = J.lepesSor, szt = (J.feladat.felmod === "szorzotabla");
-  J.parokKesz = i;
-  renderFelmondLista(i, true);
+  renderFelmondLista(J.lepesSor, J.lepesMezo);
+  J.parokKesz = J.lepesSor;
   frissitMegvan();
-  $("bontas-lepes").innerHTML = szt
-    ? ('<span class="dob">' + (i + 1) + '</span><span>×</span><span class="dob">' + N + '</span><span>=</span><b>' + (J.beirt || "?") + '</b>')
-    : ('<span class="dob">' + i + '</span><span>+</span><b>' + (J.beirt || "?") + '</b>');
+  $("bontas-lepes").hidden = true;
   $("beiro-kijelzo").hidden = false;
   $("szambillentyuzet").hidden = false;
   $("beiro-kijelzo").textContent = J.beirt || "";
 }
 function bontasLepesBekuld() {
-  var N = J.feladat.N, i = J.lepesSor, szt = (J.feladat.felmod === "szorzotabla");
   if (J.beirt === "") return;
-  var kell = szt ? (i + 1) * N : N - i;
-  var vege = szt ? 10 : N + 1;                 /* az utolsó sor utáni index */
+  var i = J.lepesSor, ertekek = lepesErtekek(i), kell = ertekek[J.lepesMezo], rows = lepesSorok();
   if (parseInt(J.beirt, 10) === kell) {
-    J.beirt = ""; $("beiro-kijelzo").textContent = "";
-    J.lepesSor++; hangCsilla();
-    if (J.lepesSor >= vege) { $("bontas-lepes").hidden = true; felmondSiker(); } else bontasLepesMutat();
+    J.beirt = ""; J.mezoHiba = 0;
+    $("beiro-kijelzo").textContent = "";
+    $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+    hangCsilla();
+    J.lepesMezo++;
+    if (J.lepesMezo >= ertekek.length) {          /* a sor összes doboza megvan → kész */
+      J.lepesMezo = 0; J.lepesSor++;
+      if (J.lepesSor >= rows) {
+        $("szambillentyuzet").hidden = true; $("beiro-kijelzo").hidden = true;
+        felmondSiker(); return;
+      }
+    }
+    bontasLepesMutat();
   } else {
+    J.mezoHiba = (J.mezoHiba || 0) + 1;
     hangHiba();
     $("visszajelzes-f").className = "visszajelzes rossz";
-    $("visszajelzes-f").textContent = szt
-      ? ("✘ " + (i + 1) + " × " + N + " = " + kell)
-      : ("✘ " + N + " = " + i + " + " + (N - i));
+    $("visszajelzes-f").textContent = (J.mezoHiba >= 2) ? ("A jó szám: " + kell) : "Nem jó — próbáld újra!";
     J.beirt = ""; $("beiro-kijelzo").textContent = "";
+    renderFelmondLista(J.lepesSor, J.lepesMezo);
   }
+}
+/* beírásból vissza a hangos módba (⌨ ⇄ 🎤 kapcsoló, 2026-09-14) */
+function felmondHangVissza() {
+  J.lepesAktiv = false;
+  figyelStop();
+  $("szambillentyuzet").hidden = true;
+  $("beiro-kijelzo").hidden = true;
+  $("bontas-lepes").hidden = true;
+  $("felmond-lista").hidden = true;
+  $("felmond-megvan").hidden = true;
+  $("buborek-cim").hidden = true;
+  $("buborek-feladat").hidden = false;
+  $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
+  var bb = $("bontas-beiras");
+  bb.textContent = "⌨ Beírom lépésenként"; bb.style.display = "";
+  var felKn = felmondKezNelkulE();
+  $("mondom-bontas-gomb").style.display = (beszedTamogatott && !felKn) ? "" : "none";
+  $("mondom-bontas-gomb").textContent = felmondMondomSzo();
+  $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
+  J.parokKesz = 0;
+  if (felKn) felmondKezNelkulKor();
+  else mondd(J.feladat.felolvas);
 }
 function allomasKesz() {
   var a = J.allomasok[J.allomasIdx];
@@ -2328,7 +2379,7 @@ function esemenyek() {
     if (!beszedTamogatott) mentes.valaszmod = "beiras";
     ment(); modBeallit();
   });
-  $("bontas-beiras").addEventListener("click", function () { hangGomb(); bontasLepesNyit(); });
+  $("bontas-beiras").addEventListener("click", function () { hangGomb(); if (J && J.lepesAktiv) felmondHangVissza(); else bontasLepesNyit(); });
   $("tovabb-megoldas-nelkul").addEventListener("click", tovabbMegoldasNelkul);
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
@@ -4184,6 +4235,7 @@ window.UC = {
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
   bontasEloFogyaszt: bontasEloFogyaszt, szorzoEloFogyaszt: szorzoEloFogyaszt, palyaInditas: palyaInditas,
+  kovAllomas: kovAllomas, ujFeladat: ujFeladat, bontasLepesNyit: bontasLepesNyit, felmondHangVissza: felmondHangVissza,
   kapuAllapot: kapuAllapot, kapuNyitva: kapuNyitva, kapuKulcsTeljesult: kapuKulcsTeljesult,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
   oduNyit: oduNyit, ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
