@@ -796,3 +796,22 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   feladata; nincs külön „fejlesztői átadás". A drills-repo git-jét Claude intézi (fetch kód előtt).
 - **Következő (jóváhagyva, még kódolatlan):** jelvények 7→17, 4 családban (Ösvény / Mesteri tudás /
   Kitartás / Gyűjtő-berendező), új feloldás-figyelőkkel; a titkos „Éjféli kapu" zárva is rejtve marad.
+
+## 2026-09-13 — Jelvények bővítése 7→17 (4 család)
+
+- **A jelvények 7-ről 17-re bővültek**, 4 családba rendezve (spec: Matekos/`spec-jelvenyek-es-kristaly.html`),
+  hogy a haladáson túl a **pontosságot, kitartást és gyűjtést** is díjazzák:
+  - **Ösvény (haladás):** a 4 meglévő pálya-jelvény + Szorzó-vándor (Szorzós liget kész) + **Éjféli kapu**
+    (titkos, a 12 órás kaput felfedezve) + Az erdő ura.
+  - **Mesteri tudás:** Hibátlan állomás · Bontás-mester (10 hibátlan felmondás) · Fejszámoló
+    (20 beszéddel megoldott feladat) · Kitartó (meglévő, 5 elsőre-jó sorozat).
+  - **Kitartás:** Nem adom fel (3+ próbára megoldott) · Visszatérő (3 külön nap) · Kerülő-felfedező (5 találat).
+  - **Gyűjtő/berendező:** Első vásárlás · Gyűjtő (meglévő) · Otthonteremtő (10 dísz).
+- **A 7 meglévő jelvény id-je NEM változik** — a már feloldottak nem vesznek el.
+- **Titkos jelvény:** az Éjféli kapu zárva „Titkos jelvény / rejtett feltétel" néven jelenik meg (nem lelövi).
+- **Additív, a matek-motor érintetlen:** új guardolt számlálók `P().jelvSzam` (felmondasOk, beszedFeladat,
+  kuzdottGyozelem, keruloTargy, hibatlanAllomas, vettMar) + `P().napok`; a feloldás-figyelők a meglévő
+  `jelvenyEllenoriz()` hívási pontokra kapcsolódnak (ertekel / felmondSiker / allomasKesz / keruloUt /
+  palyaInditas / boltVegrehajt). **Böngészőben tesztelve, konzol tiszta.**
+- **Árnyalatok (élesben hangolható):** a Fejszámoló csak beszéd-módban számol (mikrofon nélkül a játék
+  billentyűzetre vált, akkor nem gyűlik — ez szándékos). A darabszámok (10/20/3/5/10) javaslatok.

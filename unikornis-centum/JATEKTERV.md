@@ -219,8 +219,15 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
   `P().odu.vitrin`, új `fajta:"vitrin"` a boltban, a pálya-motor érintetlen. Tesztelve (böngésző):
   vitrin-render üresen és 3 tétellel, mind az 5 fül regresszió zöld, teljes UI-vétel a megerősítéssel
   (✨ levonás → vitrinbe), konzol tiszta.
-- **Következő:** a jelvények bővítése 7→17 (4 család, az 1. kérés) az új feloldás-figyelőkkel;
-  a Szorzódallam (felmondás) + a rejtett 12 órás kapu + a közös 13-szilánkos ég;
+- **2026-09-13 — JELVÉNYEK 7→17, 4 CSALÁDBAN.** A jelvény-lap a haladás mellett most a **pontosságot,
+  a kitartást és a gyűjtést** is díjazza. A 7 régi jelvény változatlan id-vel megmarad; 10 új kerül be,
+  4 családba csoportosítva: **Ösvény** (+ Szorzó-vándor, titkos **Éjféli kapu**), **Mesteri tudás**
+  (Hibátlan állomás, Bontás-mester, Fejszámoló), **Kitartás** (Nem adom fel, Visszatérő, Kerülő-felfedező),
+  **Gyűjtő/berendező** (Első vásárlás, Otthonteremtő). A titkos kapu-jelvény zárva rejtve marad
+  („Titkos jelvény"). Additív feloldás-figyelők a pálya-motorban (guardolt `P().jelvSzam` számlálók +
+  `P().napok`), a matek-generátor és a pontozás érintetlen. Tesztelve (böngésző): render 4 családban,
+  élő feloldás (Nem adom fel 3+ próbára, állomás-hibátlan, beszéd-számláló), konzol tiszta.
+- **Következő:** a Szorzódallam (felmondás) + a rejtett 12 órás kapu élesítése + a közös 13-szilánkos ég;
   majd ODÚ v4 sörény-hossz; a gyűjtemény kiterjesztése berendezésre/díszekre; playtest.
 
 ## Kód-térkép — hova kell nyúlni
