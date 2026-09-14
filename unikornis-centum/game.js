@@ -3867,11 +3867,23 @@ function renderGyujtemeny() {
     var racs = el("div", "gyujt-racs");
     sz.csoportok.forEach(function (cs) {
       cs.tetelek.forEach(function (t) {
-        var b = gyujtBirt(cs, t);
-        var k = el("div", "gyujt-kartya " + (b ? "van" : "nincs"));
+        var aktiv = boltAktiv(cs, t);
+        var birt = gyujtBirt(cs, t) || aktiv;        /* az aktív alap-tétel is birtokolt */
+        var allap = aktiv ? (cs.fajta === "ruha" ? "✓ rajta" : "✓ kint")
+          : birt ? (cs.fajta === "ruha" ? "koppints: felveszed" : "koppints: kirakod")
+          : (t.ar ? ("✨" + t.ar) : "alap");
+        var k = el("div", "gyujt-kartya " + (birt ? "van" : "nincs") + (aktiv ? " rajta" : "") + (birt ? " kattint" : ""));
         k.innerHTML = '<div class="gkep">' + boltThumb(cs, t) + '</div>' +
           '<div class="gnev">' + kiiras(t.nev) + '</div>' +
-          '<div class="gallap">' + (b ? "✓ megvan" : (t.ar ? ("✨" + t.ar) : "alap")) + '</div>';
+          '<div class="gallap">' + allap + '</div>';
+        if (birt) k.addEventListener("click", function () {
+          if (cs.fajta === "ruha") {
+            if (aktiv) { oduRuhaVisel(cs.kulcs, null); mondd("Levéve"); }
+            else { oduRuhaVisel(cs.kulcs, t.id); mondd("Felvéve"); }
+          } else if (!aktiv) { oduBeallit(cs.kulcs, t.id); mondd("Kirakva"); }
+          else { hangGomb(); }
+          renderGyujtemeny();
+        });
         racs.appendChild(k);
       });
     });

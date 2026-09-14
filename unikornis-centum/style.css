@@ -447,6 +447,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   box-shadow:0 4px 11px rgba(74,59,122,.13); border:2px solid transparent;
 }
 .gyujt-kartya.van{ border-color:var(--menta); }
+.gyujt-kartya.kattint{ cursor:pointer; }
+.gyujt-kartya.kattint:active{ transform:translateY(2px); box-shadow:0 2px 7px rgba(74,59,122,.13); }
+.gyujt-kartya.rajta{ border-color:#5bb35a; border-width:3px; background:#eef8ec; }
 .gyujt-kartya .gkep{ width:100%; height:88px; border-radius:9px; overflow:hidden; background:#f3ecfa; }
 .gyujt-kartya .gkep svg{ width:100%; height:100%; display:block; }
 .gyujt-kartya.nincs .gkep{ filter:grayscale(1) opacity(.45); }
