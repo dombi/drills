@@ -11,6 +11,12 @@
 </head>
 <body>
 
+<!-- Kert-tárgyak közös színátmenetei (bolt + kert egyaránt hivatkozza) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="ko-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd36f"/><stop offset="1" stop-color="#4f9e46"/></linearGradient>
+  <linearGradient id="ko-leaf2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc75d"/><stop offset="1" stop-color="#3f8a3c"/></linearGradient>
+</defs></svg>
+
 <div id="app">
 
   <section id="kepernyo-profil" class="kepernyo aktiv">
@@ -158,6 +164,8 @@
       </div>
     </header>
     <div id="kert-szinter" class="kert-szinter"></div>
+    <div id="kert-eszkozsor" class="kert-eszkozsor" hidden></div>
+    <div id="kert-feszer" class="kert-feszer" hidden></div>
     <div id="kert-trukksor" class="kert-trukksor" hidden></div>
     <p class="kert-sugo" id="kert-sugo">Koppints a fűre — az unikornis odasétál. 🚶</p>
   </section>

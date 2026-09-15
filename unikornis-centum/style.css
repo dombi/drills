@@ -596,7 +596,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* ============================================================================
    KERT / UDVAR (1. fázis) — napfényes rét + sétáló unikornis
    ============================================================================ */
-.kert-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; }
+.kert-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; isolation:isolate; }
+.kert-szinter.rak{ cursor:copy; }
 .kert-hatter{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .kert-sugo{
   margin:0; padding:7px 10px; width:100%; text-align:center;
@@ -697,3 +698,36 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #kert-uni-doboz.trukk-ugras, #kert-uni-doboz.trukk-ugras .uni-lab{ animation:none; }
   #kert-uni-doboz.ules-all, #kert-uni-doboz.ules-all .uni-lab{ transition:none; }   /* leül/feláll azonnal, de tartja a pózt */
 }
+
+/* ── Kert 3. fázis: berendezés (lerakható tárgyak) ─────────────────────────── */
+/* a lerakott tárgyak rétege: nem izolál, így a tárgyak z-indexe az unikorniséval versenyez (mélység) */
+.kert-elemek{ position:absolute; inset:0; z-index:auto; pointer-events:none; }
+.kt-elem{ position:absolute; transform:translate(-50%,-100%); pointer-events:none; will-change:transform; }
+.kt-el-svg{ width:120px; height:auto; display:block; overflow:visible;
+  filter:drop-shadow(0 5px 4px rgba(50,60,30,.20)); }
+/* elpakolás-módban a tárgyak koppinthatók és finoman ringnak (2. lépésben aktív) */
+.kert-szinter.pakol .kt-elem{ pointer-events:auto; cursor:pointer; animation:kt-ring 1.5s ease-in-out infinite; }
+@keyframes kt-ring{ 0%,100%{ transform:translate(-50%,-100%) rotate(-2.2deg); } 50%{ transform:translate(-50%,-100%) rotate(2.2deg); } }
+
+/* alsó eszközsor: Berendezés / Elpakolás gombok */
+.kert-eszkozsor{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:8px 10px 0; }
+.kert-eszkoz-gomb{ display:inline-flex; align-items:center; gap:6px; border:none; border-radius:16px;
+  padding:8px 16px; cursor:pointer; font-family:inherit; font-weight:700; font-size:14px; color:#3f7a2e;
+  background:#eafbe4; box-shadow:0 2px 0 #bfe3ab; transition:transform .08s ease; }
+.kert-eszkoz-gomb .kesz-emoji{ font-size:20px; line-height:1; }
+.kert-eszkoz-gomb:active{ transform:translateY(2px); box-shadow:0 0 0 #bfe3ab; }
+.kert-eszkoz-gomb.aktiv{ background:#ffe9ad; box-shadow:0 2px 0 #e6c86a; color:#8a6a1e; }
+
+/* fészer: a megvett, még le nem tett tárgyak */
+.kert-feszer{ display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap;
+  padding:8px 10px; background:rgba(255,255,255,.6); }
+.kert-feszer-chip{ position:relative; border:2px solid transparent; border-radius:14px; padding:3px;
+  background:#fff; box-shadow:0 2px 0 #d9e6cf; cursor:pointer; line-height:0; }
+.kert-feszer-chip .kfc-ikon{ display:block; }
+.kert-feszer-chip .kfc-ikon svg{ width:48px; height:48px; display:block; }
+.kert-feszer-chip .kfc-db{ position:absolute; right:-4px; top:-6px; min-width:18px; height:18px; padding:0 4px;
+  border-radius:9px; background:#3aa0c9; color:#fff; font-size:12px; font-weight:800; line-height:18px; text-align:center; }
+.kert-feszer-chip.valasztott{ border-color:#3aa0c9; box-shadow:0 0 0 3px #cdeaf5; }
+.kert-feszer-ures{ font-size:14px; font-weight:600; color:#6a8296; }
+
+@media (prefers-reduced-motion:reduce){ .kert-szinter.pakol .kt-elem{ animation:none; } }
