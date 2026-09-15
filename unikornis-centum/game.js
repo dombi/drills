@@ -911,6 +911,7 @@ function felmondMondomSzo() {
   return (J && J.feladat && J.feladat.felmod === "szorzotabla") ? "🎤 Mondom a szorzótáblát" : "🎤 Mondom a bontását";
 }
 function bontasEloStart() {
+  if (J.lepesAktiv) return;                          /* beírós módban ne kapcsoljon vissza hangra */
   var szt = (J.feladat.felmod === "szorzotabla");
   FB = { aktiv: true, sor: 0, puffer: [], N: J.feladat.N, sorDb: szt ? 10 : (J.feladat.N + 1),
          felmod: J.feladat.felmod || "bontas", szorzatok: J.feladat.szorzatok || null, sorHibak: 0, timer: null };
@@ -1987,6 +1988,9 @@ function felmondSiker() {
   mondd("Szuper! " + keszSzo);
 }
 function bontasLepesNyit() {
+  J.lepesAktiv = true;                             /* AZONNAL: innentől tilos a hang-visszakapcsolás */
+  bontasEloElhallgat();                            /* állítsuk le a folyamatban lévő hangfigyelést */
+  try { speechSynthesis.cancel(); } catch (e) {}   /* és a folyamatban lévő felolvasást is */
   $("hallgat-f").hidden = true; $("bontas-kesz-gomb").hidden = true;
   $("mondom-bontas-gomb").style.display = "none";
   $("halld-ujra-f").style.display = beszedTamogatott ? "" : "none";
@@ -2318,7 +2322,7 @@ function kezNelkulCsend() {
    figyel tovább ugyanabból az FB.sor-ból; csak 4× elakadás vagy „Kész vagyok" → beírás. ── */
 function felmondKezNelkulE() {
   return !!(J && J.palya && J.palya.kez_nelkul && beszedTamogatott
-    && mentes.valaszmod !== "beiras"
+    && mentes.valaszmod !== "beiras" && !J.lepesAktiv   /* beírós módban NINCS auto-hangfigyelés */
     && J.feladat && J.feladat.csalad === "felmondas");
 }
 function felmondKezNelkulKor() {
