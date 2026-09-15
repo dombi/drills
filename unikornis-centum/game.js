@@ -1779,8 +1779,16 @@ function lepesInputAdvance(e) {
   if (inp.value.length < kell) return;
   var mezok = $("felmond-lista").querySelectorAll(".felmond-sor.most .dob-be");
   var idx = parseInt(inp.getAttribute("data-idx"), 10);
-  if (idx < mezok.length - 1) { var kov = mezok[idx + 1]; kov.focus(); try { kov.select(); } catch (e2) {} }
+  if (idx < mezok.length - 1) { var kov = mezok[idx + 1]; mezoFokusz(kov); }
   else bontasSorEllenoriz();
+}
+/* Fókuszáljunk AZONNAL (a legtöbb böngésző elfogadja → nincs elcsúszás gyors
+   gépelésnél) ÉS késleltetve is (tartalék: egyes böngészők az `input` eseményen
+   belüli focus()-t figyelmen kívül hagyják, ettől „nem ugrott" a mező). */
+function mezoFokusz(el) {
+  if (!el) return;
+  try { el.focus(); el.select && el.select(); } catch (e) {}
+  setTimeout(function () { try { el.focus(); el.select && el.select(); } catch (e) {} }, 0);
 }
 /* az aktív sor összes mezőjének ellenőrzése (auto az utolsó mezőnél, vagy Enter) */
 function bontasSorEllenoriz() {
@@ -1789,7 +1797,7 @@ function bontasSorEllenoriz() {
   var ertekek = lepesErtekek(J.lepesSor), rows = lepesSorok(), i, ures = -1;
   for (i = 0; i < mezok.length; i++) { mezok[i].classList.remove("hibas"); if (mezok[i].value === "" && ures < 0) ures = i; }
   if (ures >= 0) {
-    mezok[ures].focus();
+    mezoFokusz(mezok[ures]);
     $("visszajelzes-f").className = "visszajelzes";
     $("visszajelzes-f").textContent = "Írd be a hiányzó számot!";
     return;
@@ -1812,7 +1820,7 @@ function bontasSorEllenoriz() {
     $("visszajelzes-f").className = "visszajelzes rossz";
     $("visszajelzes-f").textContent = (J.mezoHiba >= 2) ? ("A jó sor: " + lepesSorSzoveg(J.lepesSor)) : "Nézd meg még egyszer!";
     for (i = 0; i < mezok.length; i++) { mezok[i].value = ""; mezok[i].classList.remove("hibas"); }
-    mezok[0].focus();                                 /* tiszta lappal, az első mezőtől */
+    mezoFokusz(mezok[0]);                             /* tiszta lappal, az első mezőtől */
   }
 }
 function modBeallit() {
@@ -2032,7 +2040,7 @@ function bontasLepesMutat() {
   $("szambillentyuzet").hidden = true;           /* nincs képernyős számológép */
   $("beiro-kijelzo").hidden = true;
   var elso = $("felmond-lista").querySelector(".felmond-sor.most .dob-be");
-  if (elso) elso.focus();                          /* rögtön a sor első mezőjébe */
+  if (elso) mezoFokusz(elso);                       /* rögtön a sor első mezőjébe (késleltetve) */
 }
 /* beírásból vissza a hangos módba (⌨ ⇄ 🎤 kapcsoló, 2026-09-14) */
 function felmondHangVissza() {
