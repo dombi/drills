@@ -1666,7 +1666,7 @@ function ujFeladat() {
     $("valasz-felmondas").hidden = false;
     $("bontas-lepes").hidden = true;
     $("szambillentyuzet").hidden = true;
-    $("beiro-kijelzo").hidden = true;
+    $("beiro-doboz").hidden = true;
     var felKn = felmondKezNelkulE();
     $("mondom-bontas-gomb").style.display = (beszedTamogatott && !felKn) ? "" : "none";
     $("mondom-bontas-gomb").textContent = felmondMondomSzo();
@@ -1830,11 +1830,11 @@ function modBeallit() {
   $("mondom-gomb").style.display = (beszedTamogatott && !beiras) ? "" : "none";
   $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
   $("beiras-valt").textContent = beiras ? "🎤 Inkább mondom" : "⌨ Inkább beírom";
-  $("szambillentyuzet").hidden = !beiras;
-  $("beiro-kijelzo").hidden = !beiras;
+  $("szambillentyuzet").hidden = true;             /* a képernyős számgrid megszűnt – üres négyzet van helyette */
+  $("beiro-doboz").hidden = !beiras;
   if (beiras) beiroReset();
 }
-function beiroReset() { J.beirt = ""; if ($("beiro-kijelzo")) $("beiro-kijelzo").textContent = ""; }
+function beiroReset() { J.beirt = ""; if ($("beiro-kijelzo")) $("beiro-kijelzo").textContent = ""; if ($("beiro-mezo")) $("beiro-mezo").value = ""; }
 function billentyuzetEpit() {
   var box = $("szambillentyuzet"); box.innerHTML = "";
   ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"].forEach(function (k) {
@@ -1854,7 +1854,30 @@ function billentyuBekuld() {
   if (J.beirt === "") return;
   var v = parseInt(J.beirt, 10);
   J.beirt = ""; $("beiro-kijelzo").textContent = "";
+  if ($("beiro-mezo")) $("beiro-mezo").value = "";
   ertekel(v);
+}
+/* üres négyzet (2026-09-18): a fizikai billentyűzetet a fenti document-keydown kezeli
+   (magyar-kiosztás-biztos). Ez a mező CSAK a tabletet szolgálja: a négyzetre koppintva
+   feljön a rendszer-számbillentyűzete, és ide gépel; onnan tükrözzük a kijelzőre. */
+function bekotUresNegyzet() {
+  var mezo = $("beiro-mezo"), box = $("beiro-box");
+  if (mezo) {
+    mezo.addEventListener("input", function () {
+      J.beirt = mezo.value.replace(/[^0-9]/g, "").slice(0, 3);
+      mezo.value = J.beirt;
+      $("beiro-kijelzo").textContent = J.beirt;
+    });
+    mezo.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); billentyuBekuld(); }
+    });
+  }
+  if (box) {
+    box.addEventListener("click", function () {
+      /* csak érintőn kérjük a rendszer-billentyűzetet; egéren a fizikai billentyűzet megy */
+      try { if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) $("beiro-mezo").focus(); } catch (e) {}
+    });
+  }
 }
 function ertekel(valasz) {
   var f = J.feladat;
@@ -2024,7 +2047,7 @@ function bontasLepesNyit() {
   $("felmond-lista").hidden = false; $("felmond-megvan").hidden = false;
   $("bontas-lepes").hidden = true;               /* a régi külön beíró-sor megszűnt */
   $("szambillentyuzet").hidden = true;           /* nincs képernyős számológép */
-  $("beiro-kijelzo").hidden = true;
+  $("beiro-doboz").hidden = true;
   J.lepesAktiv = true; J.mezoHiba = 0;
   var rows = lepesSorok(), minta = lepesMintaDb();
   J.lepesSor = Math.max(minta, J.parokKesz || 0);
@@ -2040,7 +2063,7 @@ function bontasLepesMutat() {
   frissitMegvan();
   $("bontas-lepes").hidden = true;
   $("szambillentyuzet").hidden = true;           /* nincs képernyős számológép */
-  $("beiro-kijelzo").hidden = true;
+  $("beiro-doboz").hidden = true;
   var elso = $("felmond-lista").querySelector(".felmond-sor.most .dob-be");
   if (elso) mezoFokusz(elso);                       /* rögtön a sor első mezőjébe (késleltetve) */
 }
@@ -2049,7 +2072,7 @@ function felmondHangVissza() {
   J.lepesAktiv = false;
   figyelStop();
   $("szambillentyuzet").hidden = true;
-  $("beiro-kijelzo").hidden = true;
+  $("beiro-doboz").hidden = true;
   $("bontas-lepes").hidden = true;
   $("felmond-lista").hidden = true;
   $("felmond-megvan").hidden = true;
@@ -2272,7 +2295,7 @@ function kezNelkulE() {
 function kezNelkulModUI() {
   $("mondom-gomb").style.display = "none";
   $("szambillentyuzet").hidden = true;
-  $("beiro-kijelzo").hidden = true;
+  $("beiro-doboz").hidden = true;
   $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
   $("beiras-valt").textContent = "⌨ Inkább beírom";
 }
@@ -2331,8 +2354,8 @@ function kezNelkulCsend() {
     $("visszajelzes").className = "visszajelzes";
     $("visszajelzes").textContent = "Írd be a választ, ha így könnyebb 🙂";
     $("mondom-gomb").style.display = "none";
-    $("szambillentyuzet").hidden = false;
-    $("beiro-kijelzo").hidden = false; beiroReset();
+    $("szambillentyuzet").hidden = true;
+    $("beiro-doboz").hidden = false; beiroReset();
     $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
     $("beiras-valt").textContent = "🎤 Inkább mondom";
   }
@@ -2398,6 +2421,7 @@ function tovabbMegoldasNelkul() {
 }
 function esemenyek() {
   billentyuzetEpit();
+  bekotUresNegyzet();
   hosszuNyomas($("profil-szuloi"), belepSzuloi);
   hosszuNyomas($("fomenu-szuloi"), belepSzuloi);
   $("fomenu-vissza").addEventListener("click", function () { hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
@@ -2417,7 +2441,7 @@ function esemenyek() {
     hangGomb(); figyelStop();
     if (J && J.kezBeiras) {                 /* kézmentes pályán vissza a hangra */
       J.kezBeiras = false; J.kezCsend = 0;
-      $("szambillentyuzet").hidden = true; $("beiro-kijelzo").hidden = true;
+      $("szambillentyuzet").hidden = true; $("beiro-doboz").hidden = true;
       kezNelkulModUI(); kezNelkulKor();
       return;
     }
@@ -2436,10 +2460,11 @@ function esemenyek() {
       if (e.key === "Enter") { e.preventDefault(); bontasSorEllenoriz(); }
       return;
     }
-    /* egyenkénti beírós mód: a gép FIZIKAI billentyűzete a képernyős 0–9 GOMBOK
-       MELLETT (mindkettő ugyanoda ír). Számjegy = beír, Backspace = töröl, Enter =
-       ellenőriz. A szambillentyuzet csak beírós módban látszik, felmondásnál rejtve. */
-    var sb = $("szambillentyuzet");
+    /* egyenkénti beírós mód: a gép FIZIKAI billentyűzete írja az ÜRES NÉGYZETET.
+       Számjegy = beír, Backspace = töröl, Enter = ellenőriz. A négyzet (#beiro-doboz)
+       csak beírós módban látszik, felmondásnál rejtve. Tableten a négyzetre koppintva
+       a rendszer-számbillentyűzete írja a #beiro-mezo-t (ilyenkor ez a kezelő kimarad). */
+    var sb = $("beiro-doboz");
     if (!sb || sb.hidden) return;
     var ae = document.activeElement;
     if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA")) return;

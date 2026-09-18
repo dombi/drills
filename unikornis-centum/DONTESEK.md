@@ -865,3 +865,17 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   érintetlen. — *Egy közös `keydown`-kezelő: felmondásnál Enter=sor-ellenőrzés (változatlan), egyenkéntinél
   számjegy/Backspace/Enter a `beirt` pufferre + `billentyuBekuld`. Böngészőben tesztelve (jó/rossz válasz,
   Backspace, felmondós pálya regresszió), konzol tiszta. Rendszerterv 4.3 + 9.2 frissítve.*
+
+## 2026-09-18 — Üres négyzet a megoldásnak (a képernyős számgrid helyett)
+- **A képernyős 0–9 számbillentyűzet (grid) lekerül a beírós pályákról; helyette egy ÜRES NÉGYZET áll,
+  ahová a beírt szám kerül** (villogó kurzor + „ide kerül a beírt szám" felirat). A feladat-kártya, a pálya
+  (térkép) és a „🎤 Inkább mondom" váltó változatlan. — *Producer: „a számgombokat vedd le, egy üres négyzet
+  legyen a megoldás helyének"; mockup jóváhagyva (`mockup-ures-negyzet-valasz.html`).*
+- **Bevitel:** gépen a FIZIKAI billentyűzet írja a négyzetet (a bevált, magyar-kiosztás-biztos `e.code`-os
+  document-keydown kezelővel); tableten a négyzetre koppintva feljön a rendszer saját számbillentyűzete
+  (láthatatlan `#beiro-mezo`, csak coarse pointeren fókuszál). Enter = ellenőriz. — *Így egyik eszközön sem
+  törik el a bevitel; a felmondós pályák valódi `<input>`-jeihez NEM nyúltunk (producer kérése).*
+- **Megvalósítás:** `#beiro-doboz` wrapper (négyzet + felirat), a régi `#szambillentyuzet` mindenhol rejtve,
+  a document-keydown feltétele a négyzet láthatósága. A „kézmentes" mód 3. csönd utáni kisegítője is a
+  négyzetet mutatja (nem a gridet). Böngészőben tesztelve (gépelés+Enter, rossz válasz, tablet-koppintás,
+  felmondós pálya regresszió), konzol tiszta. `index.html` `?v=` bump → -3.
