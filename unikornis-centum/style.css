@@ -708,8 +708,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* elpakolás-módban a tárgyak koppinthatók és finoman ringnak (2. lépésben aktív) */
 .kert-szinter.pakol .kt-elem{ pointer-events:auto; cursor:pointer; animation:kt-ring 1.5s ease-in-out infinite; }
 @keyframes kt-ring{ 0%,100%{ transform:translate(-50%,-100%) rotate(-2.2deg); } 50%{ transform:translate(-50%,-100%) rotate(2.2deg); } }
-/* az ÉTELEK séta-módban is koppinthatók (Evés): berendezés/elpakolás közben marad a mód-logika */
-.kert-szinter:not(.rak):not(.pakol) .kt-etel-elem{ pointer-events:auto; cursor:pointer; }
+/* az ÉTELEK és az ÁGY séta-módban is koppinthatók (Evés / Befekvés): berendezés/elpakolás közben marad a mód-logika */
+.kert-szinter:not(.rak):not(.pakol) .kt-etel-elem,
+.kert-szinter:not(.rak):not(.pakol) .kt-agy-elem{ pointer-events:auto; cursor:pointer; }
 
 /* 😋 Evés: az unikornis a falathoz hajol és csámcsog (a doboz süllyed/ring, a fej a földhöz közelít) */
 #kert-uni-doboz.eszik{ animation:kert-eszik 1.65s ease-in-out 1; }
@@ -739,6 +740,24 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @media (prefers-reduced-motion:reduce){
   #kert-uni-doboz.eszik, #kert-uni-doboz.eszik .uni-lab-a{ animation:none; }
   .kert-eszikszikra span{ animation:none; opacity:1; }
+}
+
+/* 😴 Befekvés = TARTÓS pihenő-póz az ágyon: a test rásüllyed és lágyan lélegzik (kert-alszik),
+   a lábak erősen behajlanak (a talp a földön marad, a csípőnél rövidülnek). Koppintásra feláll. */
+#kert-uni-doboz.fekszik-all{ animation:kert-alszik 4.2s ease-in-out infinite; }
+@keyframes kert-alszik{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+#kert-uni-doboz.fekszik-all .uni-lab{ transform:scaleY(.3); }
+/* lágy „z z z" az alvó unikornis fölött */
+.kert-zzz{ position:absolute; top:2%; left:60%; display:flex; align-items:flex-end; gap:3px;
+  pointer-events:none; z-index:6; font-family:inherit; font-weight:800; color:#7a3bc0; }
+.kert-zzz span{ opacity:0; animation:kert-zzz 3s ease-in-out infinite; }
+.kert-zzz span:nth-child(1){ font-size:13px; }
+.kert-zzz span:nth-child(2){ font-size:17px; animation-delay:.55s; }
+.kert-zzz span:nth-child(3){ font-size:22px; animation-delay:1.1s; }
+@keyframes kert-zzz{ 0%{ transform:translateY(6px) scale(.6); opacity:0; } 30%{ opacity:.9; } 100%{ transform:translateY(-24px) scale(1); opacity:0; } }
+@media (prefers-reduced-motion:reduce){
+  #kert-uni-doboz.fekszik-all{ animation:none; transform:translateY(-2px); }   /* póz marad, mozgás nélkül */
+  .kert-zzz span{ animation:none; opacity:.85; }
 }
 
 /* alsó eszközsor: Berendezés / Elpakolás gombok */
