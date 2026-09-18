@@ -2697,30 +2697,90 @@ var KERT_BOLT = [
    A rajzot a `kertTargyBelso(id)` adja: origó a TALAJPONT (0,0), a tárgy fölfelé (negatív y) épül —
    így a bolti bélyegkép és a kertbeli példány UGYANAZT a rajzot használja. Új tárgy = 1 sor + 1 rajz-ág. */
 var KERT_TARGYAK = [
-  { id: "bokor", nev: "Virágzó bokor", ar: 3, csoport: "noveny" }
+  /* Díszek */
+  { id: "kerites",   nev: "Kerítés-elem",   ar: 2, csoport: "disz" },
+  { id: "lampas",    nev: "Kerti lámpás",   ar: 3, csoport: "disz" },
+  { id: "szokokut",  nev: "Kis szökőkút",   ar: 4, csoport: "disz" },
+  /* Növényzet */
+  { id: "viragagyas", nev: "Virágágyás",    ar: 2, csoport: "noveny" },
+  { id: "tulipan",    nev: "Tulipán-csokor", ar: 2, csoport: "noveny" },
+  { id: "gombak",     nev: "Gombák",        ar: 2, csoport: "noveny" },
+  { id: "bokor",      nev: "Virágzó bokor", ar: 3, csoport: "noveny" },
+  { id: "facska",     nev: "Fácska",        ar: 4, csoport: "noveny" }
 ];
 /* csoportok a bolt „Kert" fülén (a tárgyak ide sorolódnak) */
 var KERT_TARGY_CSOPORTOK = [
+  { kulcs: "kt-disz",   nev: "Díszek",    csoport: "disz" },
   { kulcs: "kt-noveny", nev: "Növényzet", csoport: "noveny" }
 ];
 function kertTargyDef(id) { for (var i = 0; i < KERT_TARGYAK.length; i++) if (KERT_TARGYAK[i].id === id) return KERT_TARGYAK[i]; return null; }
-/* egy tárgy rajza — origó = talajpont, fölfelé épül. A színátmenetek (#ko-*) az index.html közös defs-ében. */
+/* egy tárgy rajza — origó = TALAJPONT (0,0), fölfelé (negatív y) épül. Színátmenetek: index.html #ko-*. */
 function kertTargyBelso(id) {
-  if (id === "bokor") return ''
-    + '<ellipse cx="0" cy="0" rx="34" ry="8" fill="#2c5a1e" opacity="0.18"/>'                /* talaj-árnyék */
+  var arny = '<ellipse cx="0" cy="0" rx="RX" ry="RY" fill="#2c5a1e" opacity="0.16"/>';   /* talaj-árnyék minta */
+  if (id === "bokor") return arny.replace("RX", 34).replace("RY", 8)
     + '<circle cx="-17" cy="-20" r="19" fill="url(#ko-leaf2)"/>'
     + '<circle cx="17" cy="-20" r="19" fill="url(#ko-leaf2)"/>'
     + '<circle cx="0" cy="-34" r="23" fill="url(#ko-leaf)"/>'
     + '<circle cx="0" cy="-15" r="19" fill="url(#ko-leaf)"/>'
     + '<g fill="#ff9ec4"><circle cx="-11" cy="-34" r="3.6"/><circle cx="12" cy="-40" r="3.6"/><circle cx="0" cy="-23" r="3.6"/><circle cx="18" cy="-27" r="3.2"/></g>'
     + '<g fill="#fff"><circle cx="-11" cy="-34" r="1.3"/><circle cx="12" cy="-40" r="1.3"/><circle cx="0" cy="-23" r="1.3"/></g>';
+  if (id === "facska") return arny.replace("RX", 26).replace("RY", 7)
+    + '<rect x="-6" y="-40" width="12" height="40" rx="4" fill="url(#ko-trunk)"/>'
+    + '<circle cx="-16" cy="-52" r="18" fill="url(#ko-leaf2)"/>'
+    + '<circle cx="16" cy="-52" r="18" fill="url(#ko-leaf2)"/>'
+    + '<circle cx="0" cy="-66" r="22" fill="url(#ko-leaf)"/>'
+    + '<circle cx="0" cy="-46" r="18" fill="url(#ko-leaf)"/>'
+    + '<circle cx="-10" cy="-58" r="3.4" fill="#ff6b6b"/><circle cx="10" cy="-52" r="3.4" fill="#ff6b6b"/><circle cx="2" cy="-68" r="3.4" fill="#ff8f6b"/>';
+  if (id === "kerites") return arny.replace("RX", 36).replace("RY", 7)
+    + '<g stroke="#c9a86a" stroke-width="1">'
+    + '<rect x="-34" y="-24" width="68" height="7" rx="3" fill="url(#ko-wood)"/>'
+    + '<rect x="-34" y="-12" width="68" height="7" rx="3" fill="url(#ko-wood)"/>'
+    + '<path d="M-30 -2 V-30 l6 -8 6 8 V-2 Z" fill="url(#ko-wood)"/>'
+    + '<path d="M18 -2 V-30 l6 -8 6 8 V-2 Z" fill="url(#ko-wood)"/>'
+    + '</g>';
+  if (id === "lampas") return arny.replace("RX", 15).replace("RY", 5)
+    + '<circle cx="0" cy="-52" r="19" fill="#fff3b0" opacity="0.5"/>'
+    + '<rect x="-3" y="-48" width="6" height="48" rx="2.5" fill="url(#ko-trunk)"/>'
+    + '<rect x="-10" y="-66" width="20" height="20" rx="3" fill="#ffe9a3" stroke="#7a6a3a" stroke-width="1.3"/>'
+    + '<line x1="0" y1="-66" x2="0" y2="-46" stroke="#c9a24a" stroke-width="1"/>'
+    + '<path d="M-11 -66 h22 l-3 -7 h-16 Z" fill="#4a3d66"/>'
+    + '<circle cx="0" cy="-56" r="3.6" fill="#fff4c2"/>';
+  if (id === "szokokut") return arny.replace("RX", 40).replace("RY", 11)
+    + '<ellipse cx="0" cy="-4" rx="40" ry="13" fill="url(#ko-stone)"/>'
+    + '<ellipse cx="0" cy="-8" rx="34" ry="10" fill="url(#ko-water2)"/>'
+    + '<rect x="-5" y="-40" width="10" height="34" rx="3" fill="url(#ko-stone)"/>'
+    + '<ellipse cx="0" cy="-40" rx="14" ry="5" fill="url(#ko-stone)"/>'
+    + '<ellipse cx="0" cy="-42" rx="9" ry="3.4" fill="url(#ko-water)"/>'
+    + '<path d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
+    + '<path d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
+    + '<path d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
+  if (id === "viragagyas") return arny.replace("RX", 36).replace("RY", 9)
+    + '<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/>'
+    + '<ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/>'
+    + '<g stroke="#4f9e46" stroke-width="2"><line x1="-22" y1="-6" x2="-22" y2="-20"/><line x1="-8" y1="-6" x2="-8" y2="-24"/><line x1="6" y1="-6" x2="6" y2="-22"/><line x1="20" y1="-6" x2="20" y2="-18"/></g>'
+    + '<circle cx="-22" cy="-22" r="5.5" fill="#ff9ec2"/><circle cx="-8" cy="-26" r="6" fill="#ffd24d"/><circle cx="6" cy="-24" r="5.5" fill="#c79cff"/><circle cx="20" cy="-20" r="5" fill="#8fd0ff"/>'
+    + '<g fill="#fff"><circle cx="-22" cy="-22" r="1.6"/><circle cx="-8" cy="-26" r="1.6"/><circle cx="6" cy="-24" r="1.6"/></g>';
+  if (id === "tulipan") return arny.replace("RX", 20).replace("RY", 6)
+    + '<g stroke="#4f9e46" stroke-width="3" fill="none" stroke-linecap="round"><path d="M-14 -2 V-32"/><path d="M0 -2 V-40"/><path d="M14 -2 V-34"/></g>'
+    + '<path d="M-12 -18 c8 -1 12 -6 14 -12" stroke="#5aa84e" stroke-width="3.2" fill="none" stroke-linecap="round"/>'
+    + '<path d="M-20 -32 q-3 -10 6 -12 q9 2 6 12 q-3 3 -6 1 q-3 2 -6 -1 Z" fill="#ff7ea8"/>'
+    + '<path d="M-6 -40 q-3 -10 6 -12 q9 2 6 12 q-3 3 -6 1 q-3 2 -6 -1 Z" fill="#ffca3a"/>'
+    + '<path d="M8 -34 q-3 -10 6 -12 q9 2 6 12 q-3 3 -6 1 q-3 2 -6 -1 Z" fill="#ff6b6b"/>';
+  if (id === "gombak") return arny.replace("RX", 24).replace("RY", 6)
+    + '<rect x="-12" y="-16" width="9" height="16" rx="4" fill="#f6ecd6"/>'
+    + '<path d="M-22 -16 a14 12 0 0 1 28 0 Z" fill="#e0503f"/>'
+    + '<ellipse cx="-8" cy="-16" rx="14" ry="3" fill="#c53f30"/>'
+    + '<g fill="#fff"><circle cx="-14" cy="-22" r="2"/><circle cx="-4" cy="-24" r="1.8"/><circle cx="-9" cy="-19" r="1.4"/></g>'
+    + '<rect x="11" y="-11" width="7" height="11" rx="3.5" fill="#f6ecd6"/>'
+    + '<path d="M4 -11 a11 9 0 0 1 22 0 Z" fill="#ef6a54"/>'
+    + '<ellipse cx="15" cy="-11" rx="11" ry="2.4" fill="#d24f3c"/>'
+    + '<g fill="#fff"><circle cx="10" cy="-15" r="1.6"/><circle cx="20" cy="-14" r="1.4"/></g>';
   return '';
 }
-/* a bolti bélyegkép: a tárgy egy 80×80 korongon (origó középre-alulra igazítva) */
+/* a bolti/fészer bélyegkép: a tárgy egységes négyzetes korongon, rét-sávval (a rajz talajpont-origós) */
 function kertTargyIkon(id) {
-  return '<svg viewBox="-40 -66 80 78" xmlns="http://www.w3.org/2000/svg">' +
-    '<rect x="-40" y="-66" width="80" height="78" rx="8" fill="#eaf6ff"/>' +
-    '<path d="M-40 -6 Q0 -14 40 -6 L40 12 L-40 12 Z" fill="#8ecf6e"/>' +   /* rét-korong (mint a trükköknél) */
+  return '<svg viewBox="-49 -84 98 98" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M-42 -4 Q0 -13 42 -4 L42 14 L-42 14 Z" fill="#8ecf6e"/>' +   /* rét-sáv a talajnál */
     kertTargyBelso(id) + '</svg>';
 }
 /* a bolt „Kert" fülének tárgy-csoportjai (csak nyitott kert esetén) */
@@ -3167,6 +3227,11 @@ function renderKert() {
 function kertSzinterKlikk(e) {
   var host = $("kert-szinter"); if (!host) return;
   if (KERT_TRUKK_FUT) return;                                            /* egyszeri trükk közben nem történik semmi */
+  if (KERT_MOD === "pakol") {
+    var pe = e.target.closest && e.target.closest(".kt-elem");
+    if (pe) kertElemPakol(parseInt(pe.getAttribute("data-i"), 10));
+    return;
+  }
   var r = host.getBoundingClientRect();
   if (KERT_MOD === "rak") {
     if (!KERT_RAK_TIP) { var s0 = $("kert-sugo"); if (s0) s0.textContent = "Válassz lentről egy tárgyat, majd koppints a fűre! 🧺"; return; }
@@ -3183,18 +3248,22 @@ function kertSzinterKlikk(e) {
 var KERT_MOD = null;       /* null = séta · "rak" = berendezés */
 var KERT_RAK_TIP = null;   /* a fészerből kiválasztott tárgy id-je, amit épp lerakunk */
 
-/* alsó eszközsor: a Berendezés gomb (be/ki kapcsol) */
+/* alsó eszközsor: Berendezés (be/ki) + Elpakolás (csak ha van már lerakott tárgy) */
 function kertEszkozsorRender() {
   var sor = $("kert-eszkozsor"); if (!sor) return;
   var host = $("kert-szinter");
-  sor.innerHTML = '<button class="kert-eszkoz-gomb' + (KERT_MOD === "rak" ? ' aktiv' : '') + '" data-mod="rak">' +
+  var pakolVan = (P().kert.elemek || []).length > 0;
+  var html = '<button class="kert-eszkoz-gomb' + (KERT_MOD === "rak" ? ' aktiv' : '') + '" data-mod="rak">' +
     '<span class="kesz-emoji">🧺</span> Berendezés</button>';
+  if (pakolVan) html += '<button class="kert-eszkoz-gomb' + (KERT_MOD === "pakol" ? ' aktiv' : '') + '" data-mod="pakol">' +
+    '<span class="kesz-emoji">🧹</span> Elpakolás</button>';
+  sor.innerHTML = html;
   sor.hidden = false;
   sor.onclick = function (e) {
     var b = e.target.closest && e.target.closest(".kert-eszkoz-gomb"); if (!b) return;
     hangGomb(); kertModValt(b.getAttribute("data-mod"));
   };
-  if (host) host.classList.toggle("rak", KERT_MOD === "rak");
+  if (host) { host.classList.toggle("rak", KERT_MOD === "rak"); host.classList.toggle("pakol", KERT_MOD === "pakol"); }
 }
 function kertModValt(mod) {
   KERT_MOD = (KERT_MOD === mod) ? null : mod;   /* ugyanarra koppintva kikapcsol */
@@ -3203,8 +3272,23 @@ function kertModValt(mod) {
   var sugo = $("kert-sugo");
   if (sugo) sugo.textContent = (KERT_MOD === "rak")
     ? "Válassz egy tárgyat, majd koppints a fűre, hová tegyem! 🧺"
+    : (KERT_MOD === "pakol")
+    ? "Koppints egy tárgyra — visszakerül a fészerbe. 🧹"
     : "Koppints a fűre — az unikornis odasétál. 🚶";
   kertEszkozsorRender(); kertFeszerRender(); kertElemekRender();
+}
+/* elpakolás: egy lerakott tárgyra koppintva visszakerül a fészerbe (semmi nem vész el) */
+function kertElemPakol(i) {
+  var o = P().kert.elemek[i]; if (!o) return;
+  P().kert.elemek.splice(i, 1);
+  P().kert.keszlet[o.tip] = (P().kert.keszlet[o.tip] || 0) + 1;
+  hangGomb(); ment();
+  if ((P().kert.elemek || []).length === 0) KERT_MOD = null;   /* elfogytak a tárgyak → vissza séta-módba */
+  kertElemekRender(); kertEszkozsorRender(); kertFeszerRender();
+  var sugo = $("kert-sugo");
+  if (sugo) sugo.textContent = (KERT_MOD === "pakol")
+    ? "Visszatettem a fészerbe! Koppints másikra, vagy lépj ki. 🧹"
+    : "Koppints a fűre — az unikornis odasétál. 🚶";
 }
 /* a fészer: a megvett, még le nem tett tárgyak (id→db). Berendezés-módban látszik. */
 function kertFeszerRender() {
