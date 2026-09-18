@@ -854,3 +854,14 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
 - **Adatvezérelt / additív:** egy trükk = egy `KERT_BOLT` sor (`id`=anim-osztály neve, `emoji`+`perc`+`svg`);
   a 3. fázis bővítés = egy sor + egy pár CSS-keyframe. A matek/pálya-motor érintetlen. Böngészőben tesztelve
   (💧-vétel + „nincs elég" ág, ✨-fülek regresszió, lejátszás + séta-blokk), konzol tiszta. (`232de47`)
+
+## 2026-09-18 — Fizikai billentyűzet minden pályán (beírós mód)
+- **Beírós módban a gyerek MINDEN pályán begépelheti a számokat a gép fizikai billentyűzetén** — nem csak a
+  felmondós pályákon (bontás, szorzódallam), hanem az egyenkénti műveleteknél is. Számjegy = beír, Backspace =
+  töröl, Enter = ellenőriz. — *Producer: „valamennyi pályán így lehessen beírni a számokat, ha a beírást
+  választja a gyerek."*
+- **A képernyős 0–9 számbillentyűzet megmarad** a fizikai mellett (tableten, ahol nincs fizikai billentyűzet,
+  az kell); a kettő párhuzamosan, ugyanabba a beíró-kijelzőbe ír. Tiszta bővítés, a matek/pálya-motor
+  érintetlen. — *Egy közös `keydown`-kezelő: felmondásnál Enter=sor-ellenőrzés (változatlan), egyenkéntinél
+  számjegy/Backspace/Enter a `beirt` pufferre + `billentyuBekuld`. Böngészőben tesztelve (jó/rossz válasz,
+  Backspace, felmondós pálya regresszió), konzol tiszta. Rendszerterv 4.3 + 9.2 frissítve.*

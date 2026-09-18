@@ -2428,10 +2428,30 @@ function esemenyek() {
   $("bontas-beiras").addEventListener("click", function () { hangGomb(); if (J && J.lepesAktiv) felmondHangVissza(); else bontasLepesNyit(); });
   /* Enter globális tartalék a beírós módban: akkor is ellenőriz, ha a fókusz épp nincs mezőn */
   document.addEventListener("keydown", function (e) {
-    if (e.key !== "Enter" || !(J && J.lepesAktiv)) return;
     var kj = $("kepernyo-jatek");
-    if (!kj || !kj.classList.contains("aktiv")) return;
-    e.preventDefault(); bontasSorEllenoriz();
+    if (!kj || !kj.classList.contains("aktiv") || !J || !J.feladat) return;
+    /* felmondós lépésenkénti beírás: Enter ellenőrzi az aktív sort (a számjegyeket
+       maguk a valódi <input>-mezők kezelik) */
+    if (J.lepesAktiv) {
+      if (e.key === "Enter") { e.preventDefault(); bontasSorEllenoriz(); }
+      return;
+    }
+    /* egyenkénti beírós mód: a gép FIZIKAI billentyűzete a képernyős 0–9 GOMBOK
+       MELLETT (mindkettő ugyanoda ír). Számjegy = beír, Backspace = töröl, Enter =
+       ellenőriz. A szambillentyuzet csak beírós módban látszik, felmondásnál rejtve. */
+    var sb = $("szambillentyuzet");
+    if (!sb || sb.hidden) return;
+    var ae = document.activeElement;
+    if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA")) return;
+    if (e.key >= "0" && e.key <= "9") {
+      if (J.beirt.length < 3) { J.beirt += e.key; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
+      e.preventDefault();
+    } else if (e.key === "Backspace") {
+      if (J.beirt) { J.beirt = J.beirt.slice(0, -1); $("beiro-kijelzo").textContent = J.beirt; }
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      billentyuBekuld(); e.preventDefault();
+    }
   });
   $("tovabb-megoldas-nelkul").addEventListener("click", tovabbMegoldasNelkul);
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
