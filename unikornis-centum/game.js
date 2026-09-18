@@ -2782,14 +2782,16 @@ function kertTargyBelso(id) {
     + '<path d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
     + '<path d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
     + '<path d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
-  if (id === "agy") return arny.replace("RX", 44).replace("RY", 9)
-    + '<rect x="-40" y="-20" width="80" height="14" rx="6" fill="url(#ko-trunk)"/>'                             /* ágykeret */
-    + '<path d="M-36 -10 v8 M36 -10 v8" stroke="#7c5731" stroke-width="5" stroke-linecap="round"/>'            /* lábak */
-    + '<rect x="-38" y="-34" width="76" height="18" rx="9" fill="#fbeede"/>'                                    /* matrac */
-    + '<rect x="-38" y="-34" width="76" height="9" rx="6" fill="#fff6ea"/>'
-    + '<rect x="-34" y="-44" width="30" height="18" rx="8" fill="#ffd9e4"/>'                                    /* párna */
-    + '<rect x="-34" y="-44" width="30" height="9" rx="6" fill="#ffe8ef"/>'
-    + '<path d="M0 -28 q18 -4 34 0" stroke="#e6b7c8" stroke-width="1.5" fill="none" opacity="0.6"/>';           /* takaró-redő */
+  if (id === "agy") return arny.replace("RX", 48).replace("RY", 10)
+    + '<rect x="-48" y="-24" width="96" height="18" rx="7" fill="url(#ko-trunk)"/>'                            /* tágas ágykeret */
+    + '<path d="M-43 -8 v10 M43 -8 v10" stroke="#7c5731" stroke-width="6" stroke-linecap="round"/>'           /* lábak */
+    + '<rect x="-46" y="-42" width="92" height="20" rx="10" fill="#fbeede"/>'                                  /* vastag matrac */
+    + '<rect x="-46" y="-42" width="92" height="10" rx="7" fill="#fff6ea"/>'
+    + '<rect x="0" y="-45" width="46" height="23" rx="8" fill="#d8c8f2"/>'                                      /* puha takaró (lila) */
+    + '<rect x="0" y="-45" width="46" height="9" rx="6" fill="#eadffb"/>'                                       /* takaró behajtás */
+    + '<path d="M12 -33 q11 -3 22 0" stroke="#b7a4de" stroke-width="1.6" fill="none" opacity="0.7"/>'          /* takaró-redő */
+    + '<rect x="-44" y="-54" width="38" height="19" rx="9" fill="#ffd9e4"/>'                                    /* nagy párna */
+    + '<rect x="-44" y="-54" width="38" height="9" rx="6" fill="#ffe8ef"/>';
   if (id === "viragagyas") return arny.replace("RX", 36).replace("RY", 9)
     + '<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/>'
     + '<ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/>'
@@ -3390,9 +3392,10 @@ function kertElemekRender() {
     var o = el[i], def = kertTargyDef(o.tip); if (!def) continue;
     var z = Math.round(o.y * 10);
     var etel = (def.csoport === "etel");   /* étel = séta-módban is koppintható (Evés) */
-    var agy = (o.tip === "agy");           /* ágy = séta-módban koppintható (Befekvés) */
+    var agy = (o.tip === "agy");           /* ágy = séta-módban koppintható (Befekvés); nagyobb, hogy beleférjen az unikornis */
+    var vb = agy ? "-54 -62 108 70" : "-50 -90 100 96";   /* az ágyhoz tömör, nagyobb nézőmező (a CSS kt-agy-elem szélesíti) */
     html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
-      '<svg class="kt-el-svg" viewBox="-50 -90 100 96" xmlns="http://www.w3.org/2000/svg">' + kertTargyBelso(o.tip) + '</svg></div>';
+      '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + kertTargyBelso(o.tip) + '</svg></div>';
   }
   reteg.innerHTML = html;
 }

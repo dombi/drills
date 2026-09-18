@@ -705,6 +705,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .kt-elem{ position:absolute; transform:translate(-50%,-100%); pointer-events:none; will-change:transform; }
 .kt-el-svg{ width:120px; height:auto; display:block; overflow:visible;
   filter:drop-shadow(0 5px 4px rgba(50,60,30,.20)); }
+/* a kerti ágy jóval nagyobb a többi dísznél — hogy az unikornis kényelmesen belefeküdjön */
+.kt-agy-elem .kt-el-svg{ width:225px; }
 /* elpakolás-módban a tárgyak koppinthatók és finoman ringnak (2. lépésben aktív) */
 .kert-szinter.pakol .kt-elem{ pointer-events:auto; cursor:pointer; animation:kt-ring 1.5s ease-in-out infinite; }
 @keyframes kt-ring{ 0%,100%{ transform:translate(-50%,-100%) rotate(-2.2deg); } 50%{ transform:translate(-50%,-100%) rotate(2.2deg); } }
