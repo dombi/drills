@@ -708,6 +708,38 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* elpakolás-módban a tárgyak koppinthatók és finoman ringnak (2. lépésben aktív) */
 .kert-szinter.pakol .kt-elem{ pointer-events:auto; cursor:pointer; animation:kt-ring 1.5s ease-in-out infinite; }
 @keyframes kt-ring{ 0%,100%{ transform:translate(-50%,-100%) rotate(-2.2deg); } 50%{ transform:translate(-50%,-100%) rotate(2.2deg); } }
+/* az ÉTELEK séta-módban is koppinthatók (Evés): berendezés/elpakolás közben marad a mód-logika */
+.kert-szinter:not(.rak):not(.pakol) .kt-etel-elem{ pointer-events:auto; cursor:pointer; }
+
+/* 😋 Evés: az unikornis a falathoz hajol és csámcsog (a doboz süllyed/ring, a fej a földhöz közelít) */
+#kert-uni-doboz.eszik{ animation:kert-eszik 1.65s ease-in-out 1; }
+@keyframes kert-eszik{
+  0%{ transform:translateY(0); }
+  16%{ transform:translateY(16px); }   /* lehajol a falathoz */
+  32%{ transform:translateY(12px); }   /* csám */
+  48%{ transform:translateY(16px); }   /* csám */
+  64%{ transform:translateY(12px); }   /* csám */
+  80%{ transform:translateY(15px); }
+  100%{ transform:translateY(0); }      /* felemelkedik */
+}
+/* csámcsogás közben az első lábpár kicsit behajlik (a talp a földön marad) */
+#kert-uni-doboz.eszik .uni-lab-a{ animation:kert-eszik-lab 1.65s ease-in-out 1; }
+@keyframes kert-eszik-lab{ 0%,100%{ transform:scaleY(1); } 16%,80%{ transform:scaleY(.82); } }
+/* öröm-szikra az étel fölött */
+.kert-eszikszikra{ position:absolute; transform:translate(-50%,-50%); pointer-events:none; z-index:960;
+  display:flex; gap:5px; font-size:20px; line-height:1; }
+.kert-eszikszikra span{ animation:kert-eszik-szikra 1.4s ease-out 1; opacity:0; }
+.kert-eszikszikra span:nth-child(2){ animation-delay:.16s; font-size:24px; }
+.kert-eszikszikra span:nth-child(3){ animation-delay:.32s; }
+@keyframes kert-eszik-szikra{
+  0%{ transform:translateY(8px) scale(.4); opacity:0; }
+  30%{ opacity:1; }
+  100%{ transform:translateY(-30px) scale(1.05); opacity:0; }
+}
+@media (prefers-reduced-motion:reduce){
+  #kert-uni-doboz.eszik, #kert-uni-doboz.eszik .uni-lab-a{ animation:none; }
+  .kert-eszikszikra span{ animation:none; opacity:1; }
+}
 
 /* alsó eszközsor: Berendezés / Elpakolás gombok */
 .kert-eszkozsor{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:8px 10px 0; }

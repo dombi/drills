@@ -2689,7 +2689,18 @@ var KERT_BOLT = [
     svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +   /* rét-korong */
       '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
       '<path d="M22 58 Q40 16 58 58" fill="none" stroke="#7a3bc0" stroke-width="4" stroke-linecap="round" stroke-dasharray="1.5 6"/>' +  /* ugró-ív */
-      '<path d="M40 22 l2.4 5.6 l5.6 2.4 l-5.6 2.4 l-2.4 5.6 l-2.4 -5.6 l-5.6 -2.4 l5.6 -2.4 Z" fill="#ffd24d"/>' }  /* csillag a csúcson */
+      '<path d="M40 22 l2.4 5.6 l5.6 2.4 l-5.6 2.4 l-2.4 5.6 l-2.4 -5.6 l-5.6 -2.4 l5.6 -2.4 Z" fill="#ffd24d"/>' },  /* csillag a csúcson */
+  /* 😋 Evés = KÉPESSÉG (nem egyszeri trükk, ezért NINCS `perc`): megvéve a kertben egy letett ÉTELRE
+     koppintva az unikornis odasétál és megeszi. A trükk-sorban ezért nem jelenik meg gomb (kertTrukksorRender
+     `!t.perc` → kihagyja); a bekötés a kertEtelKoppint/kertEszik ágon fut. */
+  { id: "eves", nev: "Evés", ar: 6, emoji: "😋",
+    svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +   /* rét-korong (mint a többi trükknél) */
+      '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
+      '<path d="M34 46 c-7 0 -10 14 -1 18 c3 1.4 5 0 6 0 c1 0 3 1.4 6 0 c9 -4 6 -18 -1 -18 c-2 0 -4 1.4 -5 1.4 c-1 0 -3 -1.4 -5 -1.4 Z" fill="#e0503f"/>' +   /* piros alma */
+      '<path d="M39 45 c0 -4 3 -6 6 -6" stroke="#5aa84e" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="35" cy="52" rx="2.6" ry="4.6" fill="#fff" opacity="0.3"/>' +
+      '<path d="M52 30 l1.4 3.4 l3.4 1.4 l-3.4 1.4 l-1.4 3.4 l-1.4 -3.4 l-3.4 -1.4 l3.4 -1.4 Z" fill="#ffd24d"/>' +   /* nyami-csillám */
+      '<circle cx="26" cy="30" r="2" fill="#ffe987"/>' }
 ];
 
 /* ── KERT BERENDEZÉSI TÁRGYAK (kert-berendezes-terv.html, 2026-09-14): 💧-ért, DARABRA vehető,
@@ -2706,12 +2717,17 @@ var KERT_TARGYAK = [
   { id: "tulipan",    nev: "Tulipán-csokor", ar: 2, csoport: "noveny" },
   { id: "gombak",     nev: "Gombák",        ar: 2, csoport: "noveny" },
   { id: "bokor",      nev: "Virágzó bokor", ar: 3, csoport: "noveny" },
-  { id: "facska",     nev: "Fácska",        ar: 4, csoport: "noveny" }
+  { id: "facska",     nev: "Fácska",        ar: 4, csoport: "noveny" },
+  /* Ételek — letéve az Evés képességgel megehető (nem fogy el, a helyén marad) */
+  { id: "ropi",  nev: "Ropogtatnivaló", ar: 2, csoport: "etel" },
+  { id: "eper",  nev: "Eperkosár",      ar: 3, csoport: "etel" },
+  { id: "torta", nev: "Ünnepi torta",   ar: 4, csoport: "etel" }
 ];
 /* csoportok a bolt „Kert" fülén (a tárgyak ide sorolódnak) */
 var KERT_TARGY_CSOPORTOK = [
   { kulcs: "kt-disz",   nev: "Díszek",    csoport: "disz" },
-  { kulcs: "kt-noveny", nev: "Növényzet", csoport: "noveny" }
+  { kulcs: "kt-noveny", nev: "Növényzet", csoport: "noveny" },
+  { kulcs: "kt-etel",   nev: "Ételek",    csoport: "etel" }
 ];
 function kertTargyDef(id) { for (var i = 0; i < KERT_TARGYAK.length; i++) if (KERT_TARGYAK[i].id === id) return KERT_TARGYAK[i]; return null; }
 /* egy tárgy rajza — origó = TALAJPONT (0,0), fölfelé (negatív y) épül. Színátmenetek: index.html #ko-*. */
@@ -2775,6 +2791,34 @@ function kertTargyBelso(id) {
     + '<path d="M4 -11 a11 9 0 0 1 22 0 Z" fill="#ef6a54"/>'
     + '<ellipse cx="15" cy="-11" rx="11" ry="2.4" fill="#d24f3c"/>'
     + '<g fill="#fff"><circle cx="10" cy="-15" r="1.6"/><circle cx="20" cy="-14" r="1.4"/></g>';
+  /* ── Ételek (kert-berendezes-rajzterv.html, talajpont-origóra tolva: x−60, y−106) ── */
+  if (id === "ropi") return arny.replace("RX", 26).replace("RY", 7)
+    + '<path d="M-18 -30 c-10 0 -14 20 -2 26 c4 2 8 0 8 0 c0 0 4 2 8 0 c12 -6 8 -26 -2 -26 c-3 0 -6 2 -6 2 c0 0 -3 -2 -6 -2 Z" fill="#e0503f"/>'   /* alma */
+    + '<path d="M-12 -32 c0 -6 4 -8 8 -8" stroke="#5aa84e" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+    + '<ellipse cx="-14" cy="-24" rx="4" ry="7" fill="#fff" opacity="0.25"/>'
+    + '<path d="M14 -6 c-4 -16 -2 -30 4 -34 c6 4 8 18 4 34 c-2 4 -6 4 -8 0 Z" fill="#ff9f3a"/>'   /* répa */
+    + '<path d="M16 -40 l-6 -8 M20 -40 l4 -8 M18 -41 l0 -10" stroke="#5aa84e" stroke-width="2.4" stroke-linecap="round"/>'
+    + '<g stroke="#d9832a" stroke-width="1"><line x1="14" y1="-26" x2="22" y2="-26"/><line x1="15" y1="-18" x2="21" y2="-18"/></g>';
+  if (id === "eper") return arny.replace("RX", 28).replace("RY", 7)
+    + '<g fill="#ff5d6c">'   /* három eperszem */
+    + '<path d="M-16 -40 c-5 0 -7 8 -1 12 c2 1 4 0 5 0 c1 0 3 1 5 0 c6 -4 4 -12 -1 -12 c-2 0 -3 1 -4 1 c-1 0 -2 -1 -4 -1 Z"/>'
+    + '<path d="M0 -44 c-5 0 -7 8 -1 12 c2 1 4 0 5 0 c1 0 3 1 5 0 c6 -4 4 -12 -1 -12 c-2 0 -3 1 -4 1 c-1 0 -2 -1 -4 -1 Z"/>'
+    + '<path d="M16 -40 c-5 0 -7 8 -1 12 c2 1 4 0 5 0 c1 0 3 1 5 0 c6 -4 4 -12 -1 -12 c-2 0 -3 1 -4 1 c-1 0 -2 -1 -4 -1 Z"/>'
+    + '</g>'
+    + '<g fill="#ffe14d"><circle cx="-14" cy="-36" r="1"/><circle cx="-10" cy="-34" r="1"/><circle cx="1" cy="-40" r="1"/><circle cx="5" cy="-37" r="1"/><circle cx="18" cy="-36" r="1"/></g>'   /* magvak */
+    + '<g fill="#4f9e46"><path d="M-14 -44 l3 4 l3 -4Z"/><path d="M2 -48 l3 4 l3 -4Z"/><path d="M18 -44 l3 4 l3 -4Z"/></g>'   /* levélkék */
+    + '<path d="M-26 -28 h52 l-6 22 h-40 Z" fill="#c8934f"/>'   /* kosár */
+    + '<path d="M-26 -28 h52 l-1 6 h-50 Z" fill="#a9762f"/>'
+    + '<g stroke="#8a5f2a" stroke-width="1.4"><line x1="-16" y1="-22" x2="-18" y2="-6"/><line x1="0" y1="-22" x2="0" y2="-6"/><line x1="16" y1="-22" x2="18" y2="-6"/></g>';
+  if (id === "torta") return arny.replace("RX", 28).replace("RY", 7)
+    + '<rect x="-26" y="-26" width="52" height="20" rx="5" fill="#ffd9a6"/>'   /* alsó szint */
+    + '<path d="M-26 -22 q13 8 26 0 q13 -8 26 0 v-4 h-52 Z" fill="#fff3f6"/>'
+    + '<rect x="-20" y="-44" width="40" height="20" rx="5" fill="#ffe1ec"/>'   /* felső szint */
+    + '<path d="M-20 -40 q10 7 20 0 q10 -7 20 0 v-4 h-40 Z" fill="#fff6fa"/>'
+    + '<rect x="-2" y="-58" width="4" height="14" rx="2" fill="#8fd0ff"/>'   /* gyertya */
+    + '<path d="M0 -62 c-3 3 -3 6 0 6 c3 0 3 -3 0 -6 Z" fill="#ffb03a"/>'   /* láng */
+    + '<g fill="#ff7ea8"><circle cx="-12" cy="-34" r="1.6"/><circle cx="0" cy="-36" r="1.6"/><circle cx="12" cy="-34" r="1.6"/></g>'
+    + '<g fill="#a7e0ff"><circle cx="-16" cy="-16" r="1.6"/><circle cx="0" cy="-14" r="1.6"/><circle cx="16" cy="-16" r="1.6"/></g>';
   return '';
 }
 /* a bolti/fészer bélyegkép: a tárgy egységes négyzetes korongon, rét-sávval (a rajz talajpont-origós) */
@@ -3240,6 +3284,8 @@ function kertSzinterKlikk(e) {
   }
   /* séta mód (alap) */
   if (e.target.closest && e.target.closest("#kert-uni-doboz")) return;   /* magára az unikornisra koppintva nem lép */
+  var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
+  if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }
   if (KERT_UL) { kertAll(); return; }                                    /* ha ül, a fűre koppintás előbb felállítja */
   kertSetal(((e.clientX - r.left) / r.width) * 100);
 }
@@ -3321,7 +3367,8 @@ function kertElemekRender() {
   for (var i = 0; i < el.length; i++) {
     var o = el[i], def = kertTargyDef(o.tip); if (!def) continue;
     var z = Math.round(o.y * 10);
-    html += '<div class="kt-elem" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
+    var etel = (def.csoport === "etel");   /* étel = séta-módban is koppintható (Evés) */
+    html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
       '<svg class="kt-el-svg" viewBox="-50 -90 100 96" xmlns="http://www.w3.org/2000/svg">' + kertTargyBelso(o.tip) + '</svg></div>';
   }
   reteg.innerHTML = html;
@@ -3420,6 +3467,64 @@ function kertSetal(celX) {
   clearTimeout(doboz._jarTimer);
   doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); }, mp * 1000 + 80);
 }
+
+/* ── Evés (3. lépés): a letett ételre koppintva az unikornis odasétál és megeszi.
+   Ha még nincs meg az Evés képesség, kedves súgó irányít a boltba. Az étel NEM fogy el. */
+function kertEtelKoppint(i) {
+  if (KERT_TRUKK_FUT) return;                       /* épp eszik/trükközik → nem indítunk újat */
+  var o = P().kert.elemek[i]; if (!o) return;
+  var def = kertTargyDef(o.tip); if (!def || def.csoport !== "etel") return;
+  var sugo = $("kert-sugo");
+  if (!(P().kert.trukkok && P().kert.trukkok.eves)) {   /* nincs meg az Evés → súgó */
+    hangGomb();
+    if (sugo) sugo.textContent = "😋 Vedd meg a boltban az Evés képességet, és az unikornis idesétál falatozni!";
+    return;
+  }
+  if (KERT_UL) kertAll();
+  kertSetalEszik(Math.max(13, Math.min(87, o.x)), o);
+}
+/* odasétál a falathoz (a séta-motor tempójával), majd megeszi */
+function kertSetalEszik(celX, o) {
+  var doboz = $("kert-uni-doboz"); if (!doboz) { return; }
+  KERT_TRUKK_FUT = true;                             /* az evés végéig más interakció nem indul */
+  var tav = Math.abs(celX - KERT_UNI_X);
+  var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
+  if (mp > 0) {
+    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
+    doboz.classList.add("jar");
+    KERT_UNI_X = celX;
+    doboz.style.left = celX + "%";
+  }
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek a finom falatért…";
+  clearTimeout(doboz._jarTimer);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertEszik(o); }, mp * 1000 + 90);
+}
+/* az evés-animáció: fejlehajtás + csámcsogás (CSS .eszik) + kis szikra az étel fölött. Az étel marad. */
+function kertEszik(o) {
+  var doboz = $("kert-uni-doboz");
+  if (!doboz) { KERT_TRUKK_FUT = false; return; }
+  doboz.classList.add("eszik");
+  hangCsilla();
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "😋 Nyami-nyami… csámcsog!";
+  var host = $("kert-szinter");
+  if (host && o) {
+    var sz = document.createElement("div");
+    sz.className = "kert-eszikszikra";
+    sz.style.left = o.x + "%";
+    sz.style.top = (o.y - 7) + "%";
+    sz.innerHTML = '<span>✨</span><span>💛</span><span>✨</span>';
+    host.appendChild(sz);
+    setTimeout(function () { if (sz.parentNode) sz.parentNode.removeChild(sz); }, 1450);
+  }
+  clearTimeout(doboz._eszikTimer);
+  doboz._eszikTimer = setTimeout(function () {
+    doboz.classList.remove("eszik");
+    KERT_TRUKK_FUT = false;
+    var s2 = $("kert-sugo"); if (s2) s2.textContent = "Finom volt! 🌿 Koppints a fűre, vagy másik falatra.";
+  }, 1650);
+}
+
 /* napfényes rét — festett, rétegelt SVG + ambient (a fű/porszem/lepke a CSS-ben mozog).
    Könnyen bővíthető: új elemet a megfelelő réteghez adva. viewBox 1000×620, slice-olva tölti a teret. */
 function kertHatterSVG() {
@@ -3569,6 +3674,7 @@ function boltBagolySzoveg(k) {
   }
   if (boltAktiv(cs, t)) return kint ? "Ez van most rajtad — jól áll!" : "Ez van most kint — jól néz ki!";
   if (cs.fajta === "vitrin" && boltBirt(cs, t)) return "Ez már a vitrinedben ragyog!";
+  if (cs.fajta === "kert" && t.id === "eves" && boltBirt(cs, t)) return "Ez megvan! A kertben koppints egy letett ételre — odasétál és eszik. 😋";
   if (cs.fajta === "kert" && boltBirt(cs, t)) return "A kert kapuja nyitva áll — menj, sétáltasd meg!";
   if (boltBirt(cs, t)) return "Ez már a tiéd! " + (kint ? "Fel is veheted." : "Ki is teheted.");
   var val = boltValuta(cs, t), penz = boltPenz(cs, t);
@@ -3759,7 +3865,7 @@ function boltCedulaSVG(k) {
     boltElonezetBelso(cs, t) + '</g></g></g>';
   var cimke = (cs.fajta === "ruha" || cs.fajta === "kinezet") ? "így áll rajtad"
             : (cs.fajta === "ido" ? "ilyen lesz az ég"
-            : (cs.fajta === "kert" ? (t.id === "kulcs" ? "a kert kulcsa" : "trükk a kertben")
+            : (cs.fajta === "kert" ? (t.id === "kulcs" ? "a kert kulcsa" : t.id === "eves" ? "új képesség" : "trükk a kertben")
             : (cs.fajta === "kertdisz" ? "így néz ki a kertben"
             : "így néz ki a szobád")));
   s += '<text x="706" y="398" font-size="11" fill="#a08a6a" text-anchor="middle">' + cimke + '</text>';
@@ -4130,7 +4236,11 @@ var BOLT_TIPP = {
   "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen.",
   "k-gomb": "Fénytörő kristálygömb — a vitrin dísze.", "k-roka": "Csiszolt kristályróka figura.", "k-bagoly": "Csiszolt kristálybagoly figura.",
   "k-terkep": "Pici csillagtérkép-gömb, benne az égbolt.", "k-zene": "Zenélő doboz forgó unikornissal.", "k-lampas": "Meleg fényű tündérlámpás.",
-  "kulcs": "Kinyitja a kertkaput az odúdban — ott sétáltathatod az unikornist."
+  "kulcs": "Kinyitja a kertkaput az odúdban — ott sétáltathatod az unikornist.",
+  "eves": "Ezután a letett ételre koppintva az unikornis odasétál és eszik.",
+  "ropi": "Ropogós alma és répa — tedd a fűre, aztán etesd meg!",
+  "eper": "Kosárnyi friss eper — édes falat a kertben.",
+  "torta": "Ünnepi torta gyertyával — ritka csemege!"
 };
 function boltVegrehajt(cs, t) {
   if (P().jelvSzam && boltPenz(cs, t) >= t.ar) P().jelvSzam.vettMar = 1;   /* jelvény: Első vásárlás (csak ha tényleg futja, bármelyik valutából) */
