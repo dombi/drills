@@ -2443,8 +2443,15 @@ function esemenyek() {
     if (!sb || sb.hidden) return;
     var ae = document.activeElement;
     if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA")) return;
-    if (e.key >= "0" && e.key <= "9") {
-      if (J.beirt.length < 3) { J.beirt += e.key; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
+    /* a számjegyet a billentyű FIZIKAI helyéből olvassuk ki (e.code), nem a leütött
+       karakterből (e.key) — így a magyar kiosztáson is megy, ahol a felső számsor
+       Shift nélkül nem sima számot ad; a numerikus billentyűzet is jó. Tartalék: e.key. */
+    var d = null;
+    if (/^Digit[0-9]$/.test(e.code)) d = e.code.charAt(5);
+    else if (/^Numpad[0-9]$/.test(e.code)) d = e.code.charAt(6);
+    else if (e.key && e.key.length === 1 && e.key >= "0" && e.key <= "9") d = e.key;
+    if (d !== null) {
+      if (J.beirt.length < 3) { J.beirt += d; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (J.beirt) { J.beirt = J.beirt.slice(0, -1); $("beiro-kijelzo").textContent = J.beirt; }
