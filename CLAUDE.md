@@ -11,9 +11,15 @@ Mindketten Claude Code-dal dolgozunk (Gergő: Mac, Gabi: Windows).
 - **Implementálás** (kódolás a kész terv alapján, bugfix, apró módosítás):
   a **legtokenhatékonyabb erős modellel** (pl. Opus 4.8; nem a legdrágább
   csúcsmodell). Itt a terv már megvan, a végrehajtás legyen olcsó és gyors.
-- Ha Claude tervezési feladatot kap egy „implementáló” modellen (vagy
-  fordítva), egy mondatban jelezze, és javasolja a modellváltást (`/model`),
-  aztán csinálja tovább, amit kértek.
+- **KÖTELEZŐ MEGÁLLÓ a terv jóváhagyása után:** ha a jóváhagyás egy tervező
+  (csúcs-) modellen érkezik, Claude NEM kezd kódolni. Megáll, és MINDIG kifejezetten
+  kéri a modellváltást: „Terv jóváhagyva. Kódolás előtt válts: `/model` → Opus 4.8
+  (vagy a nálad elérhető tokenhatékony erős modell), aztán írd: mehet.” Csak
+  ezután implementál. Ha a producer a váltás nélkül újra azt mondja, hogy mehet,
+  az az ő döntése — akkor kódolhat, de ezt egy mondatban rögzítse.
+- Fordítva is: ha Claude tervezési feladatot kap egy „implementáló” modellen,
+  egy mondatban jelezze, és javasolja a csúcsmodellre váltást, aztán csinálja
+  tovább, amit kértek.
 
 ## Munkamenet
 
