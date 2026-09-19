@@ -9,14 +9,14 @@ Mindketten Claude Code-dal dolgozunk (Gergő: Mac, Gabi: Windows).
   az adott előfizetésen **elérhető legjobb modellel**. Tervezésnél a
   gondolkodás minősége számít, nem a tokenár.
 - **Implementálás** (kódolás a kész terv alapján, bugfix, apró módosítás):
-  a **legtokenhatékonyabb erős modellel** (pl. Opus 4.8; nem a legdrágább
+  a **legtokenhatékonyabb erős modellel** (az elérhető legfrissebb Opus, pl. Opus 5 — `/model` listából; nem a legdrágább
   csúcsmodell). Itt a terv már megvan, a végrehajtás legyen olcsó és gyors.
 - **Designer-munka ugyanígy:** a *rajzterv* (mi legyen a képen, stílus, színek,
   koncepciórajzok elbírálása) tervezés → csúcsmodell. A jóváhagyott rajzterv
   *kirajzolása* SVG-be/CSS-be már implementálás → tokenhatékony modell.
 - **KÖTELEZŐ MEGÁLLÓ a terv jóváhagyása után:** ha a jóváhagyás egy tervező
   (csúcs-) modellen érkezik, Claude NEM kezd kódolni. Megáll, és MINDIG kifejezetten
-  kéri a modellváltást: „Terv jóváhagyva. Kódolás előtt válts: `/model` → Opus 4.8
+  kéri a modellváltást: „Terv jóváhagyva. Kódolás előtt válts: `/model` → Opus (a listából, pl. Opus 5)
   (vagy a nálad elérhető tokenhatékony erős modell), aztán írd: mehet.” Csak
   ezután implementál. Ha a producer a váltás nélkül újra azt mondja, hogy mehet,
   az az ő döntése — akkor kódolhat, de ezt egy mondatban rögzítse.
