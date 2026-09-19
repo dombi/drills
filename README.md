@@ -24,5 +24,5 @@ A legtöbb játék méri az időt, és a gyerek a **saját rekordját** kergeti.
   producer-módú játékfejlesztés (a skill leírja a teljes munkafolyamatot).
 - A rekordok a böngésző localStorage-ában élnek — gépenként/böngészőnként külön.
 - **Modellválasztás:** *tervezni* az előfizetésen elérhető legjobb modellel,
-  *implementálni* a legtokenhatékonyabb erős modellel (pl. Opus 5). Részletek
+  *implementálni* a legtokenhatékonyabb erős modellel (pl. Opus 4.6/4.8). Részletek
   a gyökér `CLAUDE.md`-ben — azt a Claude Code automatikusan beolvassa.
