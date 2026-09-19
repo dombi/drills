@@ -2819,21 +2819,21 @@ function kertTargyBelso(id) {
     + '<path d="M18 -2 V-30 l6 -8 6 8 V-2 Z" fill="url(#ko-wood)"/>'
     + '</g>';
   if (id === "lampas") return arny.replace("RX", 15).replace("RY", 5)
-    + '<circle cx="0" cy="-52" r="19" fill="#fff3b0" opacity="0.5"/>'
+    + '<circle class="kt-lampas-glow" cx="0" cy="-52" r="19" fill="#fff3b0" opacity="0.5"/>'
     + '<rect x="-3" y="-48" width="6" height="48" rx="2.5" fill="url(#ko-trunk)"/>'
-    + '<rect x="-10" y="-66" width="20" height="20" rx="3" fill="#ffe9a3" stroke="#7a6a3a" stroke-width="1.3"/>'
+    + '<rect class="kt-lampas-uveg" x="-10" y="-66" width="20" height="20" rx="3" fill="#ffe9a3" stroke="#7a6a3a" stroke-width="1.3"/>'
     + '<line x1="0" y1="-66" x2="0" y2="-46" stroke="#c9a24a" stroke-width="1"/>'
     + '<path d="M-11 -66 h22 l-3 -7 h-16 Z" fill="#4a3d66"/>'
-    + '<circle cx="0" cy="-56" r="3.6" fill="#fff4c2"/>';
+    + '<circle class="kt-lampas-lang" cx="0" cy="-56" r="3.6" fill="#fff4c2"/>';
   if (id === "szokokut") return arny.replace("RX", 40).replace("RY", 11)
     + '<ellipse cx="0" cy="-4" rx="40" ry="13" fill="url(#ko-stone)"/>'
-    + '<ellipse cx="0" cy="-8" rx="34" ry="10" fill="url(#ko-water2)"/>'
+    + '<ellipse class="kt-szokokut-tukr" cx="0" cy="-8" rx="34" ry="10" fill="url(#ko-water2)"/>'
     + '<rect x="-5" y="-40" width="10" height="34" rx="3" fill="url(#ko-stone)"/>'
     + '<ellipse cx="0" cy="-40" rx="14" ry="5" fill="url(#ko-stone)"/>'
-    + '<ellipse cx="0" cy="-42" rx="9" ry="3.4" fill="url(#ko-water)"/>'
-    + '<path d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
-    + '<path d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
-    + '<path d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
+    + '<ellipse class="kt-szokokut-teto" cx="0" cy="-42" rx="9" ry="3.4" fill="url(#ko-water)"/>'
+    + '<path class="kt-szokokut-sugar" d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
+    + '<path class="kt-szokokut-ag" d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
+    + '<path class="kt-szokokut-ag" style="animation-delay:1.2s" d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
   if (id === "agy") return arny.replace("RX", 48).replace("RY", 10)
     + '<rect x="-48" y="-24" width="96" height="18" rx="7" fill="url(#ko-trunk)"/>'                            /* tágas ágykeret */
     + '<path d="M-43 -8 v10 M43 -8 v10" stroke="#7c5731" stroke-width="6" stroke-linecap="round"/>'           /* lábak */
@@ -3362,6 +3362,8 @@ function kertSzinterKlikk(e) {
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }
   var agyDiv = e.target.closest && e.target.closest(".kt-agy-elem");     /* letett ÁGY-ra koppintva: Befekvés (vagy súgó) */
   if (agyDiv) { kertAgyKoppint(parseInt(agyDiv.getAttribute("data-i"), 10)); return; }
+  var novenyDiv = e.target.closest && e.target.closest(".kt-noveny-elem");   /* letett NÖVÉNY-re: megszagolom */
+  if (novenyDiv) { kertNovenyKoppint(parseInt(novenyDiv.getAttribute("data-i"), 10)); return; }
   if (KERT_UL || KERT_FEKSZIK) { kertAll(); return; }                    /* ha ül vagy fekszik, a fűre koppintás előbb felállítja */
   kertSetal(((e.clientX - r.left) / r.width) * 100);
 }
@@ -3439,15 +3441,25 @@ function kertFeszerRender() {
 /* a lerakott tárgyak kirajzolása — mélység szerint (lentebb = előrébb, nagyobb z-index) */
 function kertElemekRender() {
   var reteg = $("kert-elemek"); if (!reteg) return;
-  var el = P().kert.elemek || [], html = "";
+  var el = P().kert.elemek || [], html = "", lepkeDb = 0;
   for (var i = 0; i < el.length; i++) {
     var o = el[i], def = kertTargyDef(o.tip); if (!def) continue;
     var z = Math.round(o.y * 10);
-    var etel = (def.csoport === "etel");   /* étel = séta-módban is koppintható (Evés) */
-    var agy = (o.tip === "agy");           /* ágy = séta-módban koppintható (Befekvés); nagyobb, hogy beleférjen az unikornis */
-    var vb = agy ? "-54 -62 108 70" : "-50 -90 100 96";   /* az ágyhoz tömör, nagyobb nézőmező (a CSS kt-agy-elem szélesíti) */
-    html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
-      '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + kertTargyBelso(o.tip) + '</svg></div>';
+    var etel = (def.csoport === "etel");
+    var agy = (o.tip === "agy");
+    var noveny = (def.csoport === "noveny");
+    var vb = agy ? "-54 -62 108 70" : "-50 -90 100 96";
+    var hitRect = noveny ? '<rect x="-50" y="-90" width="100" height="96" fill="none" pointer-events="all"/>' : '';
+    html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' : '') + (noveny ? ' kt-noveny-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
+      '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + hitRect + kertTargyBelso(o.tip) + '</svg>';
+    if (noveny && o.tip !== "gombak" && lepkeDb < 3) {
+      html += '<svg class="kt-lepke" style="animation-delay:' + (lepkeDb * 2.6).toFixed(1) + 's" viewBox="0 0 28 18" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M14 9 Q6 2 2 6 Q6 14 14 10 Z" fill="#ff9ec4"/>' +
+        '<path d="M14 9 Q22 2 26 6 Q22 14 14 10 Z" fill="#b6a7f2"/>' +
+        '<circle cx="14" cy="9" r="1.8" fill="#4a3f6b"/></svg>';
+      lepkeDb++;
+    }
+    html += '</div>';
   }
   reteg.innerHTML = html;
 }
@@ -3607,6 +3619,55 @@ function kertEszik(o) {
     KERT_TRUKK_FUT = false;
     var s2 = $("kert-sugo"); if (s2) s2.textContent = "Finom volt! 🌿 Koppints a fűre, vagy másik falatra.";
   }, 1650);
+}
+
+/* ── Megszagolom (5. lépés): séta-módban a letett növényre koppintva az unikornis odasétál
+   és megszagolja (fejét lehajtja, kis szikra száll fel). Nem kell képesség, díszítő interakció. */
+function kertNovenyKoppint(i) {
+  if (KERT_TRUKK_FUT) return;
+  var o = P().kert.elemek[i]; if (!o) return;
+  var def = kertTargyDef(o.tip); if (!def || def.csoport !== "noveny") return;
+  if (KERT_UL || KERT_FEKSZIK) kertAll();
+  kertSetalSzagol(Math.max(13, Math.min(87, o.x)), o);
+}
+function kertSetalSzagol(celX, o) {
+  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  KERT_TRUKK_FUT = true;
+  var tav = Math.abs(celX - KERT_UNI_X);
+  var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
+  if (mp > 0) {
+    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
+    doboz.classList.add("jar");
+    KERT_UNI_X = celX;
+    doboz.style.left = celX + "%";
+  }
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek megszagolni…";
+  clearTimeout(doboz._jarTimer);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertSzagol(o); }, mp * 1000 + 90);
+}
+function kertSzagol(o) {
+  var doboz = $("kert-uni-doboz");
+  if (!doboz) { KERT_TRUKK_FUT = false; return; }
+  doboz.classList.add("szagol");
+  hangCsilla();
+  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🌸 Milyen finom illat!";
+  var host = $("kert-szinter");
+  if (host && o) {
+    var sz = document.createElement("div");
+    sz.className = "kert-szagolszikra";
+    sz.style.left = o.x + "%";
+    sz.style.top = (o.y - 7) + "%";
+    sz.innerHTML = '<span>🌸</span><span>✨</span>';
+    host.appendChild(sz);
+    setTimeout(function () { if (sz.parentNode) sz.parentNode.removeChild(sz); }, 1300);
+  }
+  clearTimeout(doboz._szagolTimer);
+  doboz._szagolTimer = setTimeout(function () {
+    doboz.classList.remove("szagol");
+    KERT_TRUKK_FUT = false;
+    var s2 = $("kert-sugo"); if (s2) s2.textContent = "Micsoda illat! 🌿 Koppints a fűre, vagy szagolgass tovább.";
+  }, 1300);
 }
 
 /* ── Befekvés (4. lépés): a letett ÁGY-ra koppintva az unikornis odasétál és belefekszik.

@@ -618,7 +618,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
    ============================================================================ */
 .kert-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; isolation:isolate; }
 .kert-szinter.rak{ cursor:copy; }
-.kert-hatter{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.kert-hatter{ position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
 .kert-sugo{
   margin:0; padding:7px 10px; width:100%; text-align:center;
   font-size:15px; font-weight:600; color:var(--lila-sotet,#5a4a86);
@@ -804,3 +804,66 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .kert-feszer-ures{ font-size:14px; font-weight:600; color:#6a8296; }
 
 @media (prefers-reduced-motion:reduce){ .kert-szinter.pakol .kt-elem{ animation:none; } }
+
+/* ── Kert 5. lépés: élet-részletek (díszítő réteg) ────────────────────────── */
+
+/* 🏮 Lámpás: puha pislákoló fény */
+.kt-elem .kt-lampas-glow{ transform-box:fill-box; transform-origin:center; animation:kt-lmp-glow 3.8s ease-in-out infinite; }
+.kt-elem .kt-lampas-uveg{ animation:kt-lmp-uveg 3.8s ease-in-out infinite; }
+.kt-elem .kt-lampas-lang{ transform-box:fill-box; transform-origin:center; animation:kt-lmp-lang 2.2s ease-in-out infinite; }
+@keyframes kt-lmp-glow{ 0%,100%{ opacity:.45; transform:scale(1); } 50%{ opacity:.82; transform:scale(1.08); } }
+@keyframes kt-lmp-uveg{ 0%,100%{ opacity:1; } 50%{ opacity:.82; } }
+@keyframes kt-lmp-lang{ 0%,100%{ transform:scale(1); opacity:1; } 30%{ transform:scale(1.3); opacity:.75; } 70%{ transform:scale(.9); opacity:.9; } }
+
+/* ⛲ Szökőkút: csobogó víz */
+.kt-elem .kt-szokokut-sugar{ transform-box:fill-box; transform-origin:50% 100%; animation:kt-szk-sugar 2.6s ease-in-out infinite; }
+.kt-elem .kt-szokokut-ag{ transform-box:fill-box; transform-origin:50% 0%; animation:kt-szk-ag 3.2s ease-in-out infinite; }
+.kt-elem .kt-szokokut-tukr{ animation:kt-szk-tukr 4s ease-in-out infinite; }
+.kt-elem .kt-szokokut-teto{ transform-box:fill-box; transform-origin:center; animation:kt-szk-teto 2.6s ease-in-out infinite; }
+@keyframes kt-szk-sugar{ 0%,100%{ transform:scaleY(1); opacity:.9; } 50%{ transform:scaleY(1.07); opacity:.7; } }
+@keyframes kt-szk-ag{ 0%,100%{ opacity:.75; transform:scaleX(1); } 50%{ opacity:.55; transform:scaleX(1.06); } }
+@keyframes kt-szk-tukr{ 0%,100%{ opacity:1; } 50%{ opacity:.88; } }
+@keyframes kt-szk-teto{ 0%,100%{ transform:scaleX(1); } 50%{ transform:scaleX(1.1); } }
+
+/* 🦋 Lepke a virágokon */
+.kt-lepke{ position:absolute; width:18px; height:auto; top:15px; right:-5px; pointer-events:none;
+  overflow:visible; animation:kt-lepke-szall 10s ease-in-out infinite; }
+@keyframes kt-lepke-szall{
+  0%,100%{ transform:translate(0,0) rotate(-5deg); }
+  15%{ transform:translate(10px,-8px) rotate(5deg); }
+  30%{ transform:translate(-6px,-14px) rotate(-3deg); }
+  45%,65%{ transform:translate(4px,-4px) rotate(0deg); }
+  80%{ transform:translate(-8px,-10px) rotate(-6deg); }
+}
+
+/* 🌸 Növények séta-módban koppinthatók (megszagolom) */
+.kert-szinter:not(.rak):not(.pakol) .kt-noveny-elem{ pointer-events:auto; cursor:pointer; }
+
+/* 🌸 Megszagolom: az unikornis lehajol és szagolgat */
+#kert-uni-doboz.szagol{ animation:kert-szagol 1.3s ease-in-out 1; }
+@keyframes kert-szagol{
+  0%{ transform:translateY(0); }
+  20%{ transform:translateY(12px); }
+  45%{ transform:translateY(10px); }
+  65%{ transform:translateY(12px); }
+  100%{ transform:translateY(0); }
+}
+#kert-uni-doboz.szagol .uni-lab-a{ animation:kert-szagol-lab 1.3s ease-in-out 1; }
+@keyframes kert-szagol-lab{ 0%,100%{ transform:scaleY(1); } 20%,65%{ transform:scaleY(.86); } }
+.kert-szagolszikra{ position:absolute; transform:translate(-50%,-50%); pointer-events:none; z-index:960;
+  display:flex; gap:5px; font-size:18px; line-height:1; }
+.kert-szagolszikra span{ animation:kert-szagol-szikra 1.2s ease-out 1; opacity:0; }
+.kert-szagolszikra span:nth-child(2){ animation-delay:.18s; font-size:22px; }
+@keyframes kert-szagol-szikra{
+  0%{ transform:translateY(6px) scale(.4); opacity:0; }
+  30%{ opacity:1; }
+  100%{ transform:translateY(-28px) scale(1.05); opacity:0; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .kt-elem .kt-lampas-glow, .kt-elem .kt-lampas-uveg, .kt-elem .kt-lampas-lang{ animation:none; }
+  .kt-elem .kt-szokokut-sugar, .kt-elem .kt-szokokut-ag, .kt-elem .kt-szokokut-tukr, .kt-elem .kt-szokokut-teto{ animation:none; }
+  .kt-lepke{ animation:none; }
+  #kert-uni-doboz.szagol, #kert-uni-doboz.szagol .uni-lab-a{ animation:none; }
+  .kert-szagolszikra span{ animation:none; opacity:1; }
+}
