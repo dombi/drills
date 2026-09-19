@@ -895,3 +895,6 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   a HANG szekcióban. Tiszteli a Hang be/ki kapcsolót. Fejless Chrome-mal tesztelve (dekódolás, séta
   loop indul/leáll, nyihogás, konzol tiszta); FÜLLEL még nem — hangerőket próba után hangolni.
   `index.html` `?v=` → 20260919-1.
+- **Nyihogás puhítva (füles próba után):** hangerő 0,9 → 0,4; +18% sebesség (magasabb, kisebb állat), 260 Hz
+  highpass + 2,6 kHz lowpass (tompított, rajzfilmes), 60 ms lágy indítás. — *Producer: „túl hangos, legyen
+  kedvesebb, mute-oltabb, rajzfilmesebb, halkabb."* Konstansok: `KERT_NYIH_VOL/RATE/HP/LP`.

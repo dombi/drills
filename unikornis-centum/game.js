@@ -645,7 +645,9 @@ var KERT_BUF = {};                 /* dekódolt AudioBuffer-ek: lepes, nyih0, ny
 var KERT_BUF_INDULT = false;
 var KERT_LEPES_RATE = 1.35;        /* a felvétel ~1 lépés/mp; kicsit gyorsítva könnyedebb, jobban tapad a .44s-os lábmozgáshoz */
 var KERT_LEPES_VOL = 0.45;         /* halk háttér-ropogás (a beep-ek ~0.22-es szinusza alá) */
-var KERT_NYIH_VOL = 0.9;           /* előtérben, de nem harsány (a klipek −16 LUFS-ra normáltak) */
+var KERT_NYIH_VOL = 0.4;           /* halk, kedves — producer 2026-09-19: a 0.9 túl hangos volt */
+var KERT_NYIH_RATE = 1.18;         /* kicsit magasabbra hangolva → kisebb, rajzfilmesebb állat */
+var KERT_NYIH_HP = 260, KERT_NYIH_LP = 2600;   /* Hz: a mély mellkasi moraj ki, a fényes él le → tompított, puha hang */
 var KERT_NYIH_LEHUL = 2500;        /* ms — bökdösésre se torlódjon */
 function kertHangokBetolt() {
   if (KERT_BUF_INDULT || typeof KERT_HANGOK === "undefined") return;
@@ -702,8 +704,14 @@ function kertNyihog() {
   var i = db > 1 ? (KERT_NYIH_IDX + 1 + Math.floor(Math.random() * (db - 1))) % db : 0;
   KERT_NYIH_IDX = i; KERT_NYIH_UTOLSO = most;
   var src = c.createBufferSource(), g = c.createGain();
-  src.buffer = KERT_BUF["nyih" + i]; g.gain.value = KERT_NYIH_VOL;
-  src.connect(g); g.connect(c.destination); src.start();
+  var hp = c.createBiquadFilter(), lp = c.createBiquadFilter();
+  hp.type = "highpass"; hp.frequency.value = KERT_NYIH_HP;
+  lp.type = "lowpass"; lp.frequency.value = KERT_NYIH_LP; lp.Q.value = 0.5;
+  src.buffer = KERT_BUF["nyih" + i]; src.playbackRate.value = KERT_NYIH_RATE;
+  var t0 = c.currentTime;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(KERT_NYIH_VOL, t0 + 0.06);   /* lágy indítás, ne „csattanjon" */
+  src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(c.destination); src.start(t0);
 }
 
 var huHang = null;
