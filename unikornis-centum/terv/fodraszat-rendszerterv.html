@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fodrászat rendszerterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a;
+    --drop:#39b7d6; --star:#f5b301; --line:#efe4f4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:"Segoe UI",system-ui,sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,#fdf4fb 0%,#f2ecfb 100%); line-height:1.55;
+    padding:28px 16px 70px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{
+    background:linear-gradient(120deg,var(--violet) 0%,var(--pink) 100%);
+    color:#fff;border-radius:22px;padding:30px 30px 26px;box-shadow:0 12px 30px rgba(138,79,208,.28);
+    position:relative;overflow:hidden;
+  }
+  header.top::after{content:"✂";position:absolute;right:20px;top:8px;font-size:120px;opacity:.14;transform:rotate(12deg)}
+  header.top h1{margin:0 0 6px;font-size:30px;letter-spacing:.5px}
+  header.top .sub{font-size:15px;opacity:.95}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  .chip.done{background:#3fae6a;border-color:#8fe0af}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--pink)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:0 6px 18px rgba(120,90,160,.07)}
+  p{margin:.5em 0}
+  .lead{font-size:15.5px;color:var(--muted)}
+  ul{margin:.4em 0 .4em 0;padding-left:22px}
+  li{margin:.28em 0}
+  .cards{display:grid;grid-template-columns:1fr;gap:14px;margin-top:4px}
+  .dec{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 5px 14px rgba(120,90,160,.06);position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;font-weight:800;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(138,79,208,.35);font-size:15px}
+  .dec h3{margin:2px 0 6px 26px;font-size:17px}
+  .dec .body{margin-left:4px}
+  .verdict{display:inline-block;background:var(--violet-soft);color:var(--violet);font-weight:700;
+    border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .pill{display:inline-block;border-radius:8px;padding:1px 9px;font-weight:700;font-size:13px}
+  .pill.drop{background:var(--blue-soft);color:#1587b3}
+  .pill.star{background:#fff2cc;color:#b98400}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--pink-soft);color:var(--pink);border-radius:10px;padding:6px 12px;font-weight:600;font-size:13.5px}
+  .flow .arr{color:var(--violet);font-weight:800}
+  .phase{border-radius:14px;padding:14px 18px;margin-top:10px}
+  .phase.now{background:linear-gradient(120deg,#fff0f7,#f7ecff);border:1.5px solid var(--pink)}
+  .phase.next{background:#f6f4fa;border:1.5px dashed #c9bcdf}
+  .phase h4{margin:0 0 6px;font-size:16px}
+  .tag{font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:6px;padding:2px 8px}
+  .tag.now{background:var(--pink);color:#fff}
+  .tag.next{background:#c9bcdf;color:#463a5e}
+  .tech{background:#f4fbf7;border:1px solid #cdeede;border-radius:14px;padding:16px 18px}
+  .tech code{background:#e7f6ef;color:#1f7a56;border-radius:5px;padding:1px 6px;font-size:13px}
+  .note{background:#fff8e6;border:1px solid #f2dda0;border-radius:14px;padding:14px 18px;font-size:14px}
+  .next-steps{display:grid;grid-template-columns:1fr;gap:10px}
+  .ns{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 15px}
+  .ns .b{width:26px;height:26px;flex:0 0 26px;border-radius:50%;background:var(--violet-soft);color:var(--violet);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
+  .legend{font-size:13px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>🦄 Fodrászat / Szépségszalon — Rendszerterv</h1>
+    <div class="sub">Unikornis Centum · új helyszín + utca-hub + égi matek-portál</div>
+    <div class="meta">
+      <span class="chip">Dátum: 2026-09-18</span>
+      <span class="chip done">Mind a 7 döntés jóváhagyva</span>
+      <span class="chip">Következő: képernyőkép-terv (rajz)</span>
+    </div>
+  </header>
+
+  <h2>Miről szól</h2>
+  <div class="panel">
+    <p class="lead">Új helyszín az Unikornis Centumhoz: egy <b>szépségszalon</b>, ahol a gyerek megváltoztathatja az unikornis frizuráját (<b>göndör ↔ egyenes</b>). Ezzel együtt két „keret-újdonság" is érkezik:
+    egy <b>utca-hub</b> (honnan lehet a helyszínek közt választani), és egy <b>égi matek-portál</b> (innen indul a matek).</p>
+    <p><b>Alapanyag – 3 rajz:</b></p>
+    <ul>
+      <li><b>boltok2.png</b> — külső utcakép (fodrász, csillagbolt, zöldséges, odú) → ez lesz az utca-hub.</li>
+      <li><b>fodrászat belső.png</b> — a szalon belső elrendezése (kefék, festékek, körömlakk, „ide áll az unikornis").</li>
+      <li><b>göndörítés.png</b> — a göndör↔egyenes átalakítás demója.</li>
+    </ul>
+  </div>
+
+  <h2>A 7 döntés</h2>
+  <div class="cards">
+
+    <div class="dec">
+      <span class="num">1</span>
+      <h3>Navigáció — utca-hub</h3>
+      <div class="body">
+        <p>Az utca-nézet <b>kiegészíti</b> a mostani menüt, nem váltja ki (a működő navigáció marad, nincs kockázat). Világos szereposztás:</p>
+        <ul>
+          <li><b>Utca (kint) = „HOVA megyek"</b> → fodrász, csillagbolt, kert/zöldséges, odú, égi matek-portál.</li>
+          <li><b>Odú (bent) = „mit csinálok itthon"</b> → gyűjtemény, öltöztetés, kincsvitrin.</li>
+        </ul>
+        <p>Belépés: az odúból egy <b>„Ki az utcára"</b> gomb → megnyílik az utca. Úgy építjük, hogy később <b>főképernyővé léptethető</b> legyen.</p>
+        <span class="verdict">Kiegészíti · kint/bent szereposztás · promótálható</span>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">2</span>
+      <h3>Égi matek-portál</h3>
+      <div class="body">
+        <p><b>Hova visz:</b> a <b>meglévő pályaválasztóba</b> (kétligetes választó a csillagszilánkos éggel). A matek maga változatlan — ez csak egy szép új bejárat.</p>
+        <p><b>Hogy néz ki:</b> <b>szivárvány-fényút</b>, ami az utcáról felível a csillagos égbe, a tetején a <b>csillagszilánkokkal</b>. Finom mozgás/csillogás rajta. Koppintásra rövid, vidám szöveg (pl. „Induljunk matekozni!").</p>
+        <span class="verdict">Meglévő pályaválasztó · szivárványhíd + szilánkok · rövid hang</span>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">3</span>
+      <h3>Belépés a fodrászatba</h3>
+      <div class="body">
+        <p>Az utca-hub <b>ingyen</b> elérhető. A fodrász-ajtó viszont <b>egyszeri kulccsal</b> nyílik meg, a Kertkapu mintájára — cél és kis ünnep a megnyitás.</p>
+        <p><span class="pill star">Szalon belépő — 150 ✨</span> (egyszeri, ✨ csillagporért; komoly, de elérhető mérföldkő).</p>
+        <span class="verdict">Egyszeri kulcs · 150 ✨</span>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">4</span>
+      <h3>Scope — mit lehet csinálni (fázisokban)</h3>
+      <div class="body">
+        <div class="phase now">
+          <span class="tag now">1. fázis · most</span>
+          <h4>A FORMA: göndör ↔ egyenes (sörény + farok + homloktincs)</h4>
+          <p>A szalon sztárja és újdonsága; jól körülhatárolt, önmagában kerek élmény.</p>
+        </div>
+        <div class="phase next">
+          <span class="tag next">2. fázis · később</span>
+          <h4>A SZÍNEK: sörény/farok szín · szőrszín · körömlakk</h4>
+          <p>Egymáshoz hasonló („válassz színt → rákerül") — érdemes egy külön körben, együtt megcsinálni.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">5</span>
+      <h3>Gazdaság — mibe kerül a frizuraváltás</h3>
+      <div class="body">
+        <p>A két kefe = két <b>egyszeri „képesség"</b>, <b>tündérharmatért</b> (a 💧 kert mintájára). Ha megvan a kefe, onnantól a szalonban <b>szabadon, ingyen</b> váltasz vele.</p>
+        <ul>
+          <li>🌀 Göndörítő kefe — <span class="pill drop">12 💧</span> (egyszeri)</li>
+          <li>〰️ Egyenesítő kefe — <span class="pill drop">12 💧</span> (egyszeri)</li>
+        </ul>
+        <span class="verdict">2 egyszeri képesség · 12 + 12 💧 · utána ingyen váltás</span>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">6</span>
+      <h3>Megmaradás — hol látszik a frizura</h3>
+      <div class="body">
+        <p>A frizura az unikornis <b>elmentett tulajdonsága</b> (mint a ruha/szín), és <b>mindenhol</b> úgy látszik, ahogy beállítottad: pálya, odú, kert, gyűjtemény, kirakat. A kód-ellenőrzés megerősítette: <b>egyetlen közös unikornis-rajz van</b>, tehát ez tiszta és alacsony kockázatú (lásd lent).</p>
+        <span class="verdict">Egy rajz · mindenhol egységes · elmentett tulajdonság</span>
+      </div>
+    </div>
+
+    <div class="dec">
+      <span class="num">7</span>
+      <h3>Működés / UX</h3>
+      <div class="body">
+        <p>Hangos, koppintós, kevés szöveg — a játék meglévő nyelvén:</p>
+        <div class="flow">
+          <span class="step">Fodrász-ajtóra koppint</span><span class="arr">→</span>
+          <span class="step">Unikornis odaáll a csillagra</span><span class="arr">→</span>
+          <span class="step">Koppint a kefére</span><span class="arr">→</span>
+          <span class="step">Átalakul + rövid hang</span><span class="arr">→</span>
+          <span class="step">„Kész" → vissza az utcára</span>
+        </div>
+        <p class="legend">Ha a kefe még nincs meg: koppintásra felajánlja a vételt 12 💧-ért (mint a boltban), és rögtön alkalmazza.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Technikai háttér (a kódellenőrzés eredménye)</h2>
+  <div class="tech">
+    <p>✅ <b>Egyetlen közös rajz.</b> A <code>unikornisSVG(...)</code> függvény (game.js:1038) rajzol minden képernyőn: pálya, odú, kert, pályaválasztó, bolt-előnézet. Egy helyen állítjuk a frizurát → mindenhol látszik.</p>
+    <p>✅ <b>A sörény/farok/tincs már külön csoport</b> a rajzon: <code>uni-farok</code>, <code>uni-soreny</code>, <code>uni-tincs</code>. A frizura-részek el vannak különítve.</p>
+    <p>✅ <b>Kész, kipróbált minta van rá.</b> Létezik egy „kinézet" rendszer, ami a gyerekhez menti a sörény/farok beállítást és mindenhol alkalmazza. A fejlesztők külön odaírták: „a hossz-változatok KÉSŐBB jönnek" — a göndör↔egyenes pontosan ez a betervezett bővítés.</p>
+    <p><b>A tényleges meló:</b> a <b>göndör</b> változat megrajzolása (a „göndörítés" rajz stílusában) + a kapcsoló bekötése. A beépítés architektúrája adott.</p>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    ⚠️ <b>Senior-jelzés (nem blokkoló):</b> a <code>game.js</code> jelenleg ~4672 soros — a küszöbön, ahol a külön fájlokra bontás szóba jön. A fodrászt nem érinti; egy jövőbeli körben érdemes átbeszélni.
+  </div>
+
+  <h2>Következő lépések</h2>
+  <div class="next-steps">
+    <div class="ns"><span class="b">1</span><div><b>Képernyőkép-terv (rajz)</b> — a 3 rajzod alapján elkészítem az utca-hub, a fodrász-belső és a göndör↔egyenes átmenet tervlapját, hogy lásd, mielőtt egy sor kód születne.</div></div>
+    <div class="ns"><span class="b">2</span><div><b>Kódolás</b> — csak a jóváhagyott rajz után, a kánon <code>drills\unikornis-centum\</code>-ban (git fetch előbb). Az 1. fázis: a forma (göndör↔egyenes).</div></div>
+  </div>
+
+  <footer>Unikornis Centum · Fodrászat rendszerterv · 2026-09-18</footer>
+
+</div>
+</body>
+</html>

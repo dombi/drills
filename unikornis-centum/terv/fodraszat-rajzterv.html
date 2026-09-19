@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fodrászat rajzterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#fff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --violet:#8a4fd0; --blue:#29a3dd; --drop:#39b7d6; --gold:#f0a800;
+    --line:#efe4f4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#fdf4fb,#f2ecfb);line-height:1.5;padding:26px 14px 70px}
+  .wrap{max-width:1000px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--violet),var(--pink));color:#fff;
+    border-radius:22px;padding:26px 28px;box-shadow:0 12px 30px rgba(138,79,208,.28);position:relative;overflow:hidden}
+  header.top::after{content:"✂";position:absolute;right:22px;top:2px;font-size:110px;opacity:.14;transform:rotate(12deg)}
+  header.top h1{margin:0 0 5px;font-size:27px}
+  header.top .sub{font-size:14.5px;opacity:.95}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 6px;padding-left:12px;border-left:6px solid var(--pink);display:flex;align-items:center;gap:10px}
+  h2 .n{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;width:30px;height:30px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex:0 0 30px}
+  .cap{color:var(--muted);font-size:14px;margin:2px 0 12px 12px}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(120,90,160,.09)}
+  .stage svg{display:block;width:100%;height:auto;border-radius:12px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .lg{display:flex;align-items:center;gap:7px;background:#faf6fd;border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:13px;font-weight:600}
+  .dot{width:13px;height:13px;border-radius:4px;flex:0 0 13px}
+  .note{background:#fff8e6;border:1px solid #f2dda0;border-radius:12px;padding:12px 15px;font-size:13.5px;margin-top:12px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.twocol{grid-template-columns:1fr}}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:34px}
+  .q{background:#ece0fb;border:1px solid #d3bff0;border-radius:12px;padding:12px 15px;font-size:14px;margin-top:12px}
+  .q b{color:var(--violet)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>🦄 Fodrászat — Képernyőkép-terv (rajz)</h1>
+    <div class="sub">A 3 rajzod alapján, a játék valódi unikornisával · 1. fázis: göndör ↔ egyenes</div>
+    <div class="meta">
+      <span class="chip">2026-09-18</span>
+      <span class="chip">Utca-hub · Fodrász-belső · Göndör↔Egyenes</span>
+      <span class="chip">Rendszerterv jóváhagyva</span>
+    </div>
+  </header>
+
+  <!-- ===================== 1. UTCA-HUB ===================== -->
+  <h2><span class="n">1</span> Utca-hub — „hova megyek?"</h2>
+  <div class="cap">Éjszakai utca a boltokkal + az égi matek-portál. Az odúból a „Ki az utcára" gombbal jutsz ide. Minden épület koppintható.</div>
+  <div class="stage">
+    <svg viewBox="0 0 1000 470" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ejszaka" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0b1a5e"/><stop offset="1" stop-color="#122a86"/>
+        </linearGradient>
+        <radialGradient id="portalGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#fff7b0" stop-opacity="0.9"/><stop offset="1" stop-color="#fff7b0" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect x="0" y="0" width="1000" height="470" fill="url(#ejszaka)"/>
+      <!-- csillagok -->
+      <g fill="#fff">
+        <circle cx="60" cy="50" r="2"/><circle cx="150" cy="90" r="1.5"/><circle cx="240" cy="40" r="2"/>
+        <circle cx="330" cy="70" r="1.5"/><circle cx="120" cy="150" r="1.5"/><circle cx="900" cy="60" r="2"/>
+        <circle cx="820" cy="40" r="1.5"/><circle cx="960" cy="120" r="1.5"/><circle cx="700" cy="50" r="2"/>
+        <circle cx="560" cy="40" r="1.5"/><circle cx="420" cy="120" r="1.5"/><circle cx="40" cy="230" r="1.5"/>
+      </g>
+
+      <!-- ÉGI MATEK-PORTÁL: szivárványhíd + csillagszilánkok -->
+      <g>
+        <path d="M300 470 Q470 150 800 120" fill="none" stroke="#ff5d7a" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <path d="M300 470 Q472 164 800 134" fill="none" stroke="#ff9e3d" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <path d="M300 470 Q474 178 800 148" fill="none" stroke="#ffd23b" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <path d="M300 470 Q476 192 800 162" fill="none" stroke="#4ecb71" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <path d="M300 470 Q478 206 800 176" fill="none" stroke="#3fb0e0" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <path d="M300 470 Q480 220 800 190" fill="none" stroke="#a06fe0" stroke-width="11" stroke-linecap="round" opacity="0.95"/>
+        <!-- szilánk-csoport a híd tetején -->
+        <circle cx="812" cy="120" r="70" fill="url(#portalGlow)"/>
+        <g fill="#fff2a8" stroke="#ffd23b" stroke-width="2">
+          <path d="M812 78 l7 20 l20 7 l-20 7 l-7 20 l-7 -20 l-20 -7 l20 -7 Z"/>
+          <path d="M860 118 l5 13 l13 5 l-13 5 l-5 13 l-5 -13 l-13 -5 l13 -5 Z"/>
+          <path d="M772 138 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4 l11 -4 Z"/>
+        </g>
+        <g transform="translate(700,60)">
+          <rect x="-6" y="-20" width="220" height="34" rx="17" fill="#fff" opacity="0.95"/>
+          <text x="104" y="2" text-anchor="middle" font-size="15" font-weight="800" fill="#8a4fd0">✦ Induljunk matekozni!</text>
+        </g>
+      </g>
+
+      <!-- talaj -->
+      <rect x="0" y="418" width="1000" height="52" fill="#0a1550"/>
+
+      <!-- FODRÁSZ épület (kék) -->
+      <g>
+        <rect x="60" y="200" width="190" height="218" fill="#3f4fd0"/>
+        <text x="155" y="250" text-anchor="middle" font-size="26" font-weight="800" fill="#ff3ba0" font-style="italic">fodrász</text>
+        <!-- kirakat, benne pici unikornis -->
+        <rect x="95" y="280" width="120" height="100" rx="6" fill="#bfe6f2" stroke="#2a2fa0" stroke-width="3"/>
+        <g transform="translate(118,300) scale(0.28)"><g id="hub-uni"></g></g>
+        <!-- zár-jelvény -->
+        <g transform="translate(210,214)">
+          <rect x="-52" y="-8" width="104" height="30" rx="15" fill="#fff" stroke="#e0417a" stroke-width="2"/>
+          <text x="0" y="12" text-anchor="middle" font-size="14" font-weight="800" fill="#e0417a">🔒 150 ✨</text>
+        </g>
+      </g>
+
+      <!-- CSILLAGBOLT (pink) -->
+      <g>
+        <rect x="300" y="230" width="180" height="188" fill="#e63bc0"/>
+        <path d="M300 300 Q390 280 480 300 L480 230 L300 230 Z" fill="#c72fae"/>
+        <text x="390" y="270" text-anchor="middle" font-size="20" font-weight="800" fill="#ffe6f6" font-style="italic">csillag bolt</text>
+        <g fill="#ffd23b"><path d="M340 320 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z"/><path d="M440 350 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z"/></g>
+        <rect x="345" y="330" width="46" height="52" rx="4" fill="#ffc0e6" stroke="#a02f88" stroke-width="2"/>
+      </g>
+
+      <!-- ZÖLDSÉGES / KERT stand -->
+      <g>
+        <rect x="520" y="330" width="180" height="88" fill="#b98a4e"/>
+        <rect x="520" y="316" width="180" height="20" fill="#7fbf3f"/>
+        <text x="610" y="331" text-anchor="middle" font-size="13" font-weight="800" fill="#1f5e1f">zöldségek / kert</text>
+        <!-- zászlófüzér -->
+        <g><path d="M520 316 l16 22 l16 -22 Z" fill="#e63b3b"/><path d="M552 316 l16 22 l16 -22 Z" fill="#7fbf3f"/><path d="M584 316 l16 22 l16 -22 Z" fill="#e63b3b"/><path d="M616 316 l16 22 l16 -22 Z" fill="#7fbf3f"/><path d="M648 316 l16 22 l16 -22 Z" fill="#e63b3b"/></g>
+        <ellipse cx="560" cy="392" rx="20" ry="12" fill="#ffd23b"/><circle cx="553" cy="386" r="6" fill="#e63b3b"/><circle cx="566" cy="388" r="6" fill="#7fbf3f"/>
+        <path d="M615 384 l6 20 M612 386 l4 8" stroke="#e6822f" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="660" cy="392" rx="12" ry="16" fill="#ffe06a" stroke="#d0a83a" stroke-width="2"/>
+      </g>
+
+      <!-- ODÚ (faodú) -->
+      <g>
+        <rect x="770" y="300" width="150" height="118" fill="#9c6b3f"/>
+        <ellipse cx="845" cy="255" rx="95" ry="70" fill="#3fa15e"/>
+        <circle cx="790" cy="230" r="34" fill="#57b877"/><circle cx="905" cy="240" r="30" fill="#57b877"/>
+        <circle cx="885" cy="215" r="26" fill="#bfe6f2" stroke="#2a2fa0" stroke-width="3"/>
+        <path d="M885 215 v-13 v26 M872 215 h26" stroke="#2a2fa0" stroke-width="2"/>
+        <ellipse cx="845" cy="380" rx="30" ry="38" fill="#5c2f1a"/>
+        <circle cx="805" cy="330" r="20" fill="#bfe6f2" stroke="#7a2020" stroke-width="3"/>
+      </g>
+
+      <!-- koppintás-címkék -->
+      <g font-size="12.5" font-weight="700" fill="#fff">
+        <text x="155" y="440" text-anchor="middle">👆 Fodrász</text>
+        <text x="390" y="440" text-anchor="middle">👆 Csillagbolt</text>
+        <text x="610" y="440" text-anchor="middle">👆 Kert</text>
+        <text x="845" y="440" text-anchor="middle">👆 Odú</text>
+        <text x="500" y="462" text-anchor="middle" fill="#ffe6a0">👆 Szivárvány = matek</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span class="lg"><span class="dot" style="background:#3f4fd0"></span>Fodrász (zárva, amíg meg nem veszed a 150✨ belépőt)</span>
+      <span class="lg"><span class="dot" style="background:#a06fe0"></span>Égi matek-portál → meglévő pályaválasztó</span>
+      <span class="lg"><span class="dot" style="background:#3fa15e"></span>Odú, csillagbolt, kert = meglévő helyszínek</span>
+    </div>
+    <div class="note">A rajzod (boltok2.png) elrendezését követi, letisztultabb formában. Az égi portál a boltok fölé, az égbe kerül — így a matek látványban is elkülönül a boltoktól.</div>
+  </div>
+
+  <!-- ===================== 2. FODRÁSZ-BELSŐ ===================== -->
+  <h2><span class="n">2</span> Fodrász-belső — a szalon</h2>
+  <div class="cap">A feltöltött rajzod („fodrászat belső.png") elrendezését követi: körömlakkok, festék-szekrény, kirakat, kefék, szőrfestékek, és a lila csillag-folt. 1. fázisban csak a <b>kefék</b> aktívak (kiemelve).</div>
+  <div class="stage">
+    <svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="csillagFolt" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#b98fd8"/><stop offset="1" stop-color="#9c6fc4"/></radialGradient>
+        <radialGradient id="kefeGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff6a8" stop-opacity="0.95"/><stop offset="1" stop-color="#fff6a8" stop-opacity="0"/></radialGradient>
+      </defs>
+      <!-- világoskék fal, mint a rajzon -->
+      <rect x="0" y="0" width="1000" height="440" fill="#c4e5f1"/>
+
+      <!-- ===== BAL: sötétvörös festék-szekrény (sörény és farok festékek) ===== -->
+      <g>
+        <rect x="8" y="92" width="150" height="348" fill="#7a1818"/>
+        <rect x="8" y="92" width="150" height="348" fill="none" stroke="#5c1010" stroke-width="3"/>
+        <!-- tetején 3 tégely -->
+        <g>
+          <rect x="18" y="66" width="30" height="30" rx="5" fill="#25286b"/><circle cx="33" cy="72" r="9" fill="#3a3f9e"/>
+          <rect x="60" y="60" width="30" height="36" rx="5" fill="#e9e34a"/><path d="M75 70 l3 7 l7 0 l-5.5 4.5 l2 7 l-6.5 -4 l-6.5 4 l2 -7 l-5.5 -4.5 l7 0 Z" fill="#e0417a"/>
+          <rect x="104" y="64" width="28" height="32" rx="5" fill="#f2f2f2"/><rect x="104" y="64" width="28" height="10" rx="5" fill="#c9c9c9"/>
+        </g>
+        <!-- sminkpaletták rácsa -->
+        <g>
+          <!-- sor 1 -->
+          <g transform="translate(0,120)"><rect x="16" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="31" cy="14" r="9" fill="#e0503a"/>
+            <rect x="52" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="67" cy="14" r="9" fill="#f2c23b"/>
+            <rect x="88" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="103" cy="14" r="9" fill="#67c06a"/>
+            <rect x="124" y="0" width="28" height="40" rx="4" fill="#8f8f8f"/><circle cx="138" cy="14" r="9" fill="#8a6fd0"/></g>
+          <!-- sor 2 -->
+          <g transform="translate(0,172)"><rect x="16" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="31" cy="14" r="9" fill="#8fd8e0"/>
+            <rect x="52" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="67" cy="14" r="9" fill="#5ac0d0"/>
+            <rect x="88" y="0" width="30" height="40" rx="4" fill="#8f8f8f"/><circle cx="103" cy="14" r="9" fill="#b06fc0"/>
+            <rect x="124" y="0" width="28" height="40" rx="4" fill="#8f8f8f"/><circle cx="138" cy="14" r="9" fill="#e64fb0"/></g>
+          <!-- sor 3 (üres polcok) -->
+          <rect x="16" y="230" width="136" height="8" rx="3" fill="#5c1010"/>
+          <rect x="16" y="290" width="136" height="8" rx="3" fill="#5c1010"/>
+        </g>
+      </g>
+      <!-- sárga nyíl + felirat: sörény és farok festékek -->
+      <path d="M210 300 q-30 6 -52 -8" fill="none" stroke="#ffdb1f" stroke-width="10" stroke-linecap="round"/>
+      <path d="M162 286 l-12 8 l14 8 Z" fill="#ffdb1f"/>
+      <text x="230" y="425" font-size="19" font-weight="800" fill="#f2a000" font-style="italic">sörény és farok festékek</text>
+
+      <!-- ===== körömlakkok (bal-fent, a szekrénytől jobbra) ===== -->
+      <text x="192" y="34" font-size="19" font-weight="800" fill="#e63bc0" font-style="italic">körömlakkok</text>
+      <rect x="178" y="80" width="182" height="12" rx="3" fill="#b0733f"/>
+      <g>
+        <g transform="translate(190,44)"><rect x="0" y="0" width="18" height="34" rx="4" fill="#e0503a"/><rect x="4" y="-8" width="10" height="10" fill="#333"/></g>
+        <g transform="translate(224,44)"><rect x="0" y="0" width="18" height="34" rx="4" fill="#f2c23b"/><rect x="4" y="-8" width="10" height="10" fill="#333"/></g>
+        <g transform="translate(258,44)"><rect x="0" y="0" width="18" height="34" rx="4" fill="#8fd23b"/><rect x="4" y="-8" width="10" height="10" fill="#333"/></g>
+        <g transform="translate(292,44)"><rect x="0" y="0" width="18" height="34" rx="4" fill="#3ba3dd"/><rect x="4" y="-8" width="10" height="10" fill="#333"/></g>
+        <g transform="translate(326,44)"><rect x="0" y="0" width="18" height="34" rx="4" fill="#e63bc0"/><rect x="4" y="-8" width="10" height="10" fill="#333"/></g>
+      </g>
+
+      <!-- ===== KIRAKAT (középen fent) ===== -->
+      <g>
+        <rect x="432" y="16" width="292" height="176" rx="6" fill="#b0733f"/>
+        <rect x="444" y="28" width="268" height="140" fill="#a6dcec"/>
+        <circle cx="486" cy="60" r="26" fill="#ffe25a"/>
+        <text x="640" y="52" text-anchor="middle" font-size="20" font-weight="800" fill="#ffd23b" font-style="italic">kirakat</text>
+        <g transform="translate(500,48) scale(0.42)"><g id="kirakat-uni"></g></g>
+        <rect x="432" y="168" width="292" height="12" fill="#8a5a30"/>
+      </g>
+
+      <!-- ===== göndörítő és egyenesítő kefék (jobb-fent) — 1. FÁZIS, kiemelve ===== -->
+      <ellipse cx="866" cy="120" rx="120" ry="86" fill="url(#kefeGlow)"/>
+      <text x="866" y="30" text-anchor="middle" font-size="15.5" font-weight="800" fill="#1f7ea6" font-style="italic">göndörítő és egyenesítő kefék</text>
+      <rect x="770" y="150" width="196" height="12" rx="3" fill="#b0733f"/>
+      <!-- kerek (göndörítő) kefe -->
+      <g transform="translate(792,58)">
+        <rect x="26" y="52" width="12" height="46" rx="6" fill="#f28ab8"/>
+        <ellipse cx="32" cy="40" rx="28" ry="34" fill="#d6eef6" stroke="#7fb8cc" stroke-width="2"/>
+        <g fill="#3a6f86"><circle cx="22" cy="28" r="2"/><circle cx="34" cy="24" r="2"/><circle cx="42" cy="34" r="2"/><circle cx="26" cy="42" r="2"/><circle cx="38" cy="48" r="2"/><circle cx="30" cy="36" r="2"/></g>
+        <text x="32" y="-6" text-anchor="middle" font-size="20">🌀</text>
+        <g transform="translate(32,112)"><rect x="-30" y="-12" width="60" height="24" rx="12" fill="#fff" stroke="#39b7d6" stroke-width="2"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#1587b3">12 💧</text></g>
+      </g>
+      <!-- lapos (egyenesítő) kefe -->
+      <g transform="translate(884,58)">
+        <rect x="20" y="52" width="12" height="46" rx="6" fill="#e0503a"/>
+        <rect x="4" y="6" width="44" height="52" rx="14" fill="#f4a6c6" stroke="#d07aa0" stroke-width="2"/>
+        <g fill="#a04a72"><circle cx="14" cy="18" r="2"/><circle cx="26" cy="16" r="2"/><circle cx="38" cy="20" r="2"/><circle cx="14" cy="34" r="2"/><circle cx="26" cy="32" r="2"/><circle cx="38" cy="36" r="2"/><circle cx="20" cy="46" r="2"/><circle cx="32" cy="46" r="2"/></g>
+        <text x="26" y="-6" text-anchor="middle" font-size="20">〰️</text>
+        <g transform="translate(26,112)"><rect x="-30" y="-12" width="60" height="24" rx="12" fill="#fff" stroke="#39b7d6" stroke-width="2"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#1587b3">12 💧</text></g>
+      </g>
+      <g transform="translate(866,196)"><rect x="-58" y="-13" width="116" height="26" rx="13" fill="#3fae6a"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">● 1. FÁZIS — most</text></g>
+
+      <!-- ===== szőr festékek (jobb-lent) ===== -->
+      <rect x="694" y="300" width="292" height="12" rx="3" fill="#b0733f"/>
+      <rect x="700" y="312" width="280" height="54" fill="#c98a52"/>
+      <g>
+        <g transform="translate(720,250)"><circle cx="16" cy="30" r="22" fill="#e0503a"/><rect x="10" y="-2" width="12" height="14" fill="#e0503a"/><rect x="4" y="-8" width="20" height="8" rx="3" fill="#c23a2a"/></g>
+        <g transform="translate(770,250)"><circle cx="16" cy="30" r="22" fill="#f2c23b"/><rect x="10" y="-2" width="12" height="14" fill="#f2c23b"/><rect x="4" y="-8" width="20" height="8" rx="3" fill="#d0a02a"/></g>
+        <g transform="translate(820,250)"><circle cx="16" cy="30" r="22" fill="#8fd23b"/><rect x="10" y="-2" width="12" height="14" fill="#8fd23b"/><rect x="4" y="-8" width="20" height="8" rx="3" fill="#6faa2a"/></g>
+        <g transform="translate(870,250)"><circle cx="16" cy="30" r="22" fill="#3ba3dd"/><rect x="10" y="-2" width="12" height="14" fill="#3ba3dd"/><rect x="4" y="-8" width="20" height="8" rx="3" fill="#2a80b5"/></g>
+        <g transform="translate(920,250)"><circle cx="16" cy="30" r="22" fill="#e63bc0"/><rect x="10" y="-2" width="12" height="14" fill="#e63bc0"/><rect x="4" y="-8" width="20" height="8" rx="3" fill="#b52f98"/></g>
+      </g>
+      <text x="840" y="392" text-anchor="middle" font-size="19" font-weight="800" fill="#f2c000" font-style="italic">szőr festékek</text>
+
+      <!-- ===== lila csillag-folt + az unikornis ===== -->
+      <ellipse cx="420" cy="330" rx="170" ry="64" fill="url(#csillagFolt)" stroke="#7a4fa0" stroke-width="3"/>
+      <path d="M420 276 l16 44 l47 3 l-36 30 l12 46 l-39 -27 l-39 27 l12 -46 l-36 -30 l47 -3 Z" fill="#ffe05a" opacity="0.55"/>
+      <g transform="translate(340,208) scale(0.5)"><g id="szalon-uni"></g></g>
+      <text x="420" y="418" text-anchor="middle" font-size="16" font-weight="700" fill="#8a4fd0" font-style="italic">ide áll az unikornis</text>
+
+      <!-- beszéd-buborék -->
+      <g transform="translate(628,238)">
+        <rect x="0" y="0" width="230" height="46" rx="23" fill="#fff" stroke="#e0417a" stroke-width="2.5"/>
+        <path d="M18 44 l-10 22 l30 -18 Z" fill="#fff" stroke="#e0417a" stroke-width="2.5"/>
+        <text x="115" y="29" text-anchor="middle" font-size="16" font-weight="800" fill="#e0417a">Milyen frizurát kérsz?</text>
+      </g>
+
+      <!-- 💧 kijelző + Kész -->
+      <g transform="translate(14,8)"><rect x="0" y="0" width="120" height="38" rx="19" fill="#fff" stroke="#39b7d6" stroke-width="2.5"/><text x="22" y="27" font-size="20">💧</text><text x="50" y="26" font-size="18" font-weight="800" fill="#1587b3">× 40</text></g>
+      <g transform="translate(864,8)"><rect x="0" y="0" width="122" height="38" rx="19" fill="#3fae6a"/><text x="61" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">Kész ✓</text></g>
+    </svg>
+    <div class="note">A rajzod minden állomása itt van. <b>1. fázisban csak a két kefe aktív</b> (sárga fény + „1. FÁZIS" jelvény): koppintasz → az unikornis frizurája vált. A körömlakk / festék-szekrény / szőrfesték csak díszlet most, ezek a <b>2. fázisban</b> lesznek élők.</div>
+  </div>
+
+  <!-- ===================== 3. GÖNDÖR ↔ EGYENES ===================== -->
+  <h2><span class="n">3</span> Göndör ↔ Egyenes — a valódi unikornison</h2>
+  <div class="cap">A játék tényleges unikornis-rajzával. Ugyanaz a figura, ugyanaz a szín — csak a sörény, a farok és a homloktincs formája vált.</div>
+  <div class="twocol">
+    <div class="stage">
+      <svg viewBox="34 8 322 300" xmlns="http://www.w3.org/2000/svg"><g id="demo-egyenes"></g></svg>
+      <div style="text-align:center;font-weight:800;color:var(--violet);margin-top:6px;font-size:16px">〰️ EGYENES <span style="color:var(--muted);font-weight:600;font-size:13px">(a mostani)</span></div>
+    </div>
+    <div class="stage">
+      <svg viewBox="34 8 322 300" xmlns="http://www.w3.org/2000/svg"><g id="demo-gondor"></g></svg>
+      <div style="text-align:center;font-weight:800;color:var(--pink);margin-top:6px;font-size:16px">🌀 GÖNDÖR <span style="color:var(--muted);font-weight:600;font-size:13px">(új)</span></div>
+    </div>
+  </div>
+  <div class="q">
+    <b>Ez a rajzoló-döntés, ami a te jóváhagyásodra vár:</b> jó-e így a <b>göndör</b> változat karaktere (fürtös, buborékos, a „göndörítés" rajzod szellemében)? A színt most csak a láthatóság miatt hagytam a kék bőr alap színén — élesben az marad, amit a gyerek beállított. Finomíthatjuk: sűrűbb/lazább fürtök, kisebb/nagyobb buborékok, több csillám.
+  </div>
+
+  <footer>Unikornis Centum · Fodrászat rajzterv · 2026-09-18 · a valódi <code>unikornisSVG</code> rajzzal</footer>
+</div>
+
+<script>
+/* A játék VALÓDI unikornis-rajza (UNI_KEK, game.js:1001) — változatlanul másolva. */
+var UNI_KEK = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> <g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#29a3dd" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#7a3bc0" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="#c98fe6" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="#c98fe6" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="#29a3dd" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="#7a3bc0" stroke-width="5"/> </g><path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#d7ebfb" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#ecf6fe" stroke="none"/> <g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#29a3dd" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#29a3dd" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#29a3dd" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="#7a3bc0" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="#7a3bc0" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="#29a3dd" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="#7a3bc0" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="#c98fe6" stroke-width="4"/> </g><path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#d7ebfb" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.45" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="#2ea8e0" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#29a3dd" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="#7a3bc0" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="#c98fe6" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="#d7ebfb" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="#6a6fd6" stroke-width="4"/> <path d="M270 84 L285 79" stroke="#454bb0" stroke-width="3"/> <path d="M275 68 L291 62" stroke="#454bb0" stroke-width="3"/> <path d="M281 50 L296 44" stroke="#454bb0" stroke-width="3"/> <path d="M287 36 L300 31" stroke="#454bb0" stroke-width="3"/> <g stroke="#2b7fd0" stroke-width="3" stroke-linecap="round"> <path d="M120 162 V190"/> <path d="M108 169 L132 183"/> <path d="M132 169 L108 183"/> <path d="M120 167 l-5 5 M120 167 l5 5"/> <path d="M120 185 l-5 -5 M120 185 l5 -5"/> </g> <circle cx="120" cy="176" r="3" fill="#7a3bc0" stroke="none"/> <g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#29a3dd"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#7a3bc0"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#b06be0"/> </g> </g>';
+
+/* GÖNDÖR változat: a 3 „ucg" csoport (farok, sörény, homloktincs) helyére fürtös buborékok,
+   ugyanabban a színvilágban (C1 #29a3dd, C2 #7a3bc0, highlight #dff2fb). */
+var CURLY_TAIL =
+  '<g class="ucg uni-farok">' +
+  '<circle cx="86" cy="164" r="18" fill="#7a3bc0"/><circle cx="72" cy="180" r="17" fill="#29a3dd"/>' +
+  '<circle cx="82" cy="198" r="18" fill="#29a3dd"/><circle cx="66" cy="212" r="16" fill="#7a3bc0"/>' +
+  '<circle cx="74" cy="230" r="18" fill="#29a3dd"/><circle cx="58" cy="246" r="16" fill="#29a3dd"/>' +
+  '<circle cx="66" cy="264" r="16" fill="#7a3bc0"/><circle cx="54" cy="282" r="15" fill="#29a3dd"/>' +
+  '<circle cx="80" cy="176" r="5" fill="#dff2fb"/><circle cx="72" cy="206" r="5" fill="#dff2fb"/>' +
+  '<circle cx="64" cy="238" r="5" fill="#dff2fb"/><circle cx="58" cy="272" r="4.5" fill="#dff2fb"/></g>';
+var CURLY_MANE =
+  '<g class="ucg uni-soreny">' +
+  '<circle cx="244" cy="94" r="17" fill="#7a3bc0"/><circle cx="232" cy="114" r="18" fill="#29a3dd"/>' +
+  '<circle cx="239" cy="136" r="17" fill="#29a3dd"/><circle cx="224" cy="154" r="18" fill="#7a3bc0"/>' +
+  '<circle cx="229" cy="176" r="18" fill="#29a3dd"/><circle cx="212" cy="192" r="17" fill="#29a3dd"/>' +
+  '<circle cx="216" cy="214" r="17" fill="#7a3bc0"/><circle cx="199" cy="227" r="16" fill="#29a3dd"/>' +
+  '<circle cx="187" cy="235" r="15" fill="#29a3dd"/>' +
+  '<circle cx="237" cy="106" r="5" fill="#dff2fb"/><circle cx="231" cy="146" r="5" fill="#dff2fb"/>' +
+  '<circle cx="221" cy="184" r="5" fill="#dff2fb"/><circle cx="206" cy="220" r="4.5" fill="#dff2fb"/></g>';
+var CURLY_FORELOCK =
+  '<g class="ucg uni-tincs">' +
+  '<circle cx="276" cy="92" r="11" fill="#29a3dd"/><circle cx="287" cy="102" r="10" fill="#7a3bc0"/>' +
+  '<circle cx="272" cy="110" r="10" fill="#29a3dd"/><circle cx="284" cy="120" r="9" fill="#29a3dd"/>' +
+  '<circle cx="280" cy="98" r="3.5" fill="#dff2fb"/><circle cx="277" cy="116" r="3.2" fill="#dff2fb"/></g>';
+
+function buildGondor(){
+  var parts = [CURLY_TAIL, CURLY_MANE, CURLY_FORELOCK], i = 0;
+  return UNI_KEK.replace(/<g class="ucg">[\s\S]*?<\/g>/g, function(){ return parts[i++]; });
+}
+
+var egyenes = UNI_KEK, gondor = buildGondor();
+document.getElementById('demo-egyenes').innerHTML = egyenes;
+document.getElementById('demo-gondor').innerHTML = gondor;
+document.getElementById('hub-uni').innerHTML = gondor;      /* utcai kirakatban a göndör, hogy látszódjon a hatás */
+document.getElementById('kirakat-uni').innerHTML = gondor;  /* szalon kirakatában is a göndör */
+document.getElementById('szalon-uni').innerHTML = egyenes;  /* a széken épp egyenes áll */
+</script>
+</body>
+</html>
