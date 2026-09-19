@@ -144,6 +144,7 @@
 
     <div class="odu-gombsor">
       <button class="ikon-gomb kiemelt" id="odu-osveny-nyit" aria-label="Ösvényekre" title="Ösvényekre">🌳</button>
+      <button class="ikon-gomb" id="odu-utca-nyit" aria-label="Ki az utcára" title="Ki az utcára">🚪</button>
       <button class="ikon-gomb" id="odu-katalogus-nyit" aria-label="Bolt" title="Bolt">🛍</button>
       <button class="ikon-gomb" id="odu-jelveny-nyit" aria-label="Jelvények" title="Jelvények">🏅</button>
       <button class="ikon-gomb" id="odu-gyujtemeny-nyit" aria-label="Gyűjtemény" title="Gyűjtemény">📖</button>
@@ -181,6 +182,32 @@
     <p class="kert-sugo" id="kert-sugo">Koppints a fűre — az unikornis odasétál. 🚶</p>
   </section>
 
+  <section id="kepernyo-utca" class="kepernyo">
+    <header class="fejlec">
+      <button class="fej-gomb" id="utca-vissza">← Odú</button>
+      <div class="fej-cim">Az utca</div>
+      <div class="fej-jobb">
+        <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="utca-csillampor">0</b></span>
+        <span class="csilla-szamlalo harmat" title="Tündérharmat – kitartásért jár"><span class="csilla-ikon">💧</span> <b id="utca-harmat">0</b></span>
+      </div>
+    </header>
+    <div id="utca-szinter" class="utca-szinter"></div>
+    <p class="kert-sugo" id="utca-sugo">Koppints egy házra — oda mész! 👆</p>
+  </section>
+
+  <section id="kepernyo-szalon" class="kepernyo">
+    <header class="fejlec">
+      <button class="fej-gomb" id="szalon-vissza">← Utca</button>
+      <div class="fej-cim">Szépségszalon</div>
+      <div class="fej-jobb">
+        <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="szalon-csillampor">0</b></span>
+        <span class="csilla-szamlalo harmat" title="Tündérharmat – kitartásért jár"><span class="csilla-ikon">💧</span> <b id="szalon-harmat">0</b></span>
+      </div>
+    </header>
+    <div id="szalon-szinter" class="szalon-szinter"></div>
+    <p class="kert-sugo" id="szalon-sugo">Koppints egy kefére — átalakul a sörény! 🪮</p>
+  </section>
+
   <section id="kepernyo-szuloi" class="kepernyo szuloi-nezet">
     <header class="fejlec">
       <button class="fej-gomb" id="szuloi-vissza">← Vissza</button>
@@ -210,6 +237,6 @@
 </div>
 
 <script src="kert-hangok.js?v=20260919-1"></script>
-<script src="game.js?v=20260919-2"></script>
+<script src="game.js?v=20260919-3"></script>
 </body>
 </html>

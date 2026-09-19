@@ -898,3 +898,21 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
 - **Nyihogás puhítva (füles próba után):** hangerő 0,9 → 0,4; +18% sebesség (magasabb, kisebb állat), 260 Hz
   highpass + 2,6 kHz lowpass (tompított, rajzfilmes), 60 ms lágy indítás. — *Producer: „túl hangos, legyen
   kedvesebb, mute-oltabb, rajzfilmesebb, halkabb."* Konstansok: `KERT_NYIH_VOL/RATE/HP/LP`.
+
+## 2026-09-19 — Fodrászat / szépségszalon 1. fázis (göndör ↔ egyenes)
+- **Frizura mint elmentett tulajdonság:** `P().kinezet.frizura` ("egyenes" alap | "gondor"). A közös
+  `unikornisSVG` rajzolja mindenhol egységesen (pálya/odú/kert/kirakat/gyűjtemény). A göndör a 3 „ucg"
+  csoportot (farok/sörény/tincs) fürtös buborékokra cseréli a rajz saját színhármasában — így a
+  kinezet-recolor és az élő-animáció ugyanúgy fut rá. A fürtök EGY helyen hangolhatók: `CURLY` tábla
+  a game.js SVG-szekciójában. Buborék-pozíciók a jóváhagyott `fodraszat-rajzterv.html`-ből.
+- **Utca-hub** (új `#kepernyo-utca`): éjszakai utca, koppintható házak (fodrász, csillagbolt, kert, odú)
+  + égi matek-portál (szivárványhíd → meglévő pályaválasztó). Az odúból a 🚪 „Ki az utcára" gomb nyitja.
+  Kiegészíti a menüt, nem váltja ki.
+- **Belépő:** Szalon belépő 150 ✨ egyszeri (Kertkapu mintára), koppintásra megerősítéssel. `P().szalon.nyitva`.
+- **Szalon** (új `#kepernyo-szalon`): az unikornis a lila csillag-folton; két kefe a pulton
+  (🌀 göndörítő, 〰️ egyenesítő) = két egyszeri KÉPESSÉG 12-12 💧 (`P().szalon.kefek`). Ha megvan a kefe,
+  ingyen váltasz vele; ha nincs, koppintásra levonja a 12 💧-et és rögtön alkalmazza. Körömlakk/festék = 2. fázis.
+- **Teszt:** fejless Chrome (DevTools protokoll): navigáció, belépő-levonás (500→350), kefe-vétel (60→48→36,
+  ismételt váltás nem von le), frizura perzisztál és mindenhol göndör (odú unikornis is), recolor+göndör
+  együtt helyes (Rózsaarany trió a buborékokon), portál→pályaválasztó. Kivétel nincs. Vizuális ellenőrzés
+  Quick Look-render PNG-kkel (utca, szalon egyenes/göndör) — a rajzterv szerinti karakter. `index.html` `?v=` → -3.

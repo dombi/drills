@@ -1,5 +1,8 @@
 # Unikornis Centum — FODRÁSZAT, 1. FÁZIS kódolása (göndör↔egyenes)
 
+> **ÁLLAPOT: KÉSZ (2026-09-19).** Implementálva Opus 4.8-cal a jóváhagyott terv szerint;
+> game.js (frizura + utca-hub + szalon) + index.html + style.css. Részletek: DONTESEK.md.
+
 **Cél:** az új „fodrászat/szépségszalon" helyszín 1. fázisa, a jóváhagyott terv szerint.
 A teljes terv és a jóváhagyott rajz készen van, kódolni kell. Használj **Opus** modellt
 (a közös unikornis-rajzot és a navigációt érinti — nem könnyű meló).

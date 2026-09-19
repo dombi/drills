@@ -516,11 +516,12 @@ var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 } }; }
+function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes" }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* 12 órás rejtett kapu (6.4) */
-function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
+function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
+function alapSzalon() { return { nyitva: 0, kefek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), jelvSzam: alapJelvSzam(), napok: {} }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {} }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -562,6 +563,7 @@ function betolt() {
         if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
         if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
         if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
+        if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
         p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
         if (!p.kapu) p.kapu = alapKapu();
         if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
@@ -571,6 +573,9 @@ function betolt() {
         if (!p.kert.trukkok) p.kert.trukkok = {};
         if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
         if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
+        if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
+        if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
+        if (!p.szalon.kefek) p.szalon.kefek = {};
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -1112,11 +1117,36 @@ function kinezetAlkalmaz(art, rajz, kinezet) {
   }
   return art;
 }
+/* ── FODRÁSZAT (1. fázis): frizura göndör ↔ egyenes ─────────────────────────
+   A göndör a 3 „ucg" csoportot (farok/sörény/homloktincs) fürtös buborékokra cseréli,
+   a rajz saját színhármasában (SORENY_SZIN[rajz][0].c = [C1,C2,C3]) — így a kinezet-recolor
+   és az élő-animáció ugyanúgy fut, mint az egyenesen. Buborék-pozíciók: fodraszat-rajzterv.html.
+   ► A FÜRTÖK EGY HELYEN hangolhatók: az alábbi CURLY tábla [cx, cy, r, szín-slot]. */
+var CURLY = {                          /* slot: 0=C1, 1=C2, 2=C3 (csillám) */
+  farok:  [[86,164,18,1],[72,180,17,0],[82,198,18,0],[66,212,16,1],[74,230,18,0],[58,246,16,0],[66,264,16,1],[54,282,15,0],
+           [80,176,5,2],[72,206,5,2],[64,238,5,2],[58,272,4.5,2]],
+  soreny: [[244,94,17,1],[232,114,18,0],[239,136,17,0],[224,154,18,1],[229,176,18,0],[212,192,17,0],[216,214,17,1],[199,227,16,0],[187,235,15,0],
+           [237,106,5,2],[231,146,5,2],[221,184,5,2],[206,220,4.5,2]],
+  tincs:  [[276,92,11,0],[287,102,10,1],[272,110,10,0],[284,120,9,0],
+           [280,98,3.5,2],[277,116,3.2,2]]
+};
+function furtCsoport(lista, szinek) {
+  var s = '<g class="ucg">';
+  for (var i = 0; i < lista.length; i++) { var b = lista[i]; s += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" fill="' + szinek[b[3]] + '" stroke="none"/>'; }
+  return s + '</g>';
+}
+function frizuraGondorArt(rajz) {
+  var alap = UNI_RAJZ[rajz] || UNI_KORALL;
+  var lista = SORENY_SZIN[rajz] || SORENY_SZIN.korall, szinek = lista[0].c;
+  var parts = [furtCsoport(CURLY.farok, szinek), furtCsoport(CURLY.soreny, szinek), furtCsoport(CURLY.tincs, szinek)], i = 0;
+  return alap.replace(/<g class="ucg">[\s\S]*?<\/g>/g, function () { return parts[i++]; });
+}
 function unikornisSVG(id, c, meret, oltozet, kinezet) {
   var s = meret || 1;
   var rajz = (c && c.rajz) || "korall";
   var art = UNI_RAJZ[rajz] || UNI_KORALL;
   if (kinezet === undefined) kinezet = (typeof P === "function" && P() && P().kinezet) || null;
+  if (kinezet && kinezet.frizura === "gondor") art = frizuraGondorArt(rajz);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
   art = kinezetAlkalmaz(art, rajz, kinezet);
   art = eloAnimHorgony(art);
   var ruha = "";
@@ -2580,12 +2610,15 @@ function esemenyek() {
   $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-osveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Ösvények"); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("odu-utca-nyit").addEventListener("click", function () { hangGomb(); mondd("Kimegyünk az utcára!"); utcaNyit(); });
   $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); mondd("Bolt"); oduPanelNyit(); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
   $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Jelvények"); renderJelveny(); $("odu-lap").hidden = false; });
   $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); mondd("Gyűjtemény"); renderGyujtemeny(); $("odu-lap").hidden = false; });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
   $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); oduNyit("kert"); });
+  $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit(); });
+  $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -4604,6 +4637,191 @@ function oduBeallit(kat, id) {
   renderOdu(); renderOduPanel();
 }
 
+/* ============ 10e) FODRÁSZAT / SZÉPSÉGSZALON (1. fázis: forma göndör↔egyenes) ============
+   Additív helyszín + utca-hub + égi matek-portál (terv: terv/fodraszat-rendszerterv.html,
+   terv/fodraszat-rajzterv.html, jóváhagyva 2026-09-18).
+   - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor").
+     A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
+   - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Két kefe egyszeri képesség 12-12 💧
+     (P().szalon.kefek.gondor / .egyenes); ha megvan, ingyen váltasz vele. */
+var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
+var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
+
+/* ── UTCA-HUB ─────────────────────────────────────────────────────────────
+   Álló elrendezés (400×460, meet): fönt az égi matek-portál, lent 2×2 házrács. */
+function utcaEpuletSVG(id, x, y, fal, teto, jel, felirat, extra) {
+  var w = 140, h = 86, cx = x + w / 2, aljy = y + h;
+  var g = '<g id="' + id + '" class="utca-epulet">';
+  g += '<rect x="' + (x - 4) + '" y="' + (y - 30) + '" width="' + (w + 8) + '" height="' + (h + 56) + '" fill="transparent"/>';   /* koppintó-felület */
+  g += '<path d="M' + (x - 8) + ' ' + y + ' L' + cx + ' ' + (y - 26) + ' L' + (x + w + 8) + ' ' + y + ' Z" fill="' + teto + '"/>';   /* tető */
+  g += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="10" fill="' + fal + '"/>';                        /* homlokzat */
+  g += '<circle cx="' + cx + '" cy="' + (y + 30) + '" r="20" fill="#ffffff" opacity="0.9"/>';
+  g += '<text x="' + cx + '" y="' + (y + 38) + '" text-anchor="middle" font-size="26">' + jel + '</text>';                          /* cégér */
+  g += '<rect x="' + (cx - 13) + '" y="' + (aljy - 30) + '" width="26" height="30" rx="5" fill="' + teto + '" opacity="0.7"/>';     /* ajtó */
+  g += '<rect x="' + (x + 6) + '" y="' + (aljy + 6) + '" width="' + (w - 12) + '" height="24" rx="8" fill="#ffffff" opacity="0.94"/>';
+  g += '<text x="' + cx + '" y="' + (aljy + 23) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#2a2140">' + felirat + '</text>';
+  g += extra;
+  g += '</g>';
+  return g;
+}
+function utcaPortalSVG() {
+  var cx = 200, cy = 158, g = '<g id="utca-portal" class="utca-portal">';
+  g += '<rect x="96" y="40" width="208" height="140" fill="transparent"/>';   /* koppintó-felület */
+  var cols = ["#e0417a", "#f0a800", "#3f9e6a", "#29a3dd", "#8a4fd0"];
+  for (var i = 0; i < cols.length; i++) {
+    var r = 86 - i * 7;
+    g += '<path d="M' + (cx - r) + ' ' + cy + ' A' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy + '" fill="none" stroke="' + cols[i] + '" stroke-width="6" stroke-linecap="round" opacity="0.92"/>';
+  }
+  g += csillagSVG(cx, cy - 98, 11, "#ffd24d");
+  g += csillagSVG(cx - 30, cy - 80, 7, "#ffffff");
+  g += csillagSVG(cx + 32, cy - 78, 7, "#ffd24d");
+  g += '<rect x="' + (cx - 78) + '" y="' + (cy + 6) + '" width="156" height="26" rx="13" fill="#ffffff" opacity="0.94"/>';
+  g += '<text x="' + cx + '" y="' + (cy + 24) + '" text-anchor="middle" font-size="14" font-weight="800" fill="#8a4fd0">✦ Matek ✦</text>';
+  g += '</g>';
+  return g;
+}
+function utcaSVG() {
+  var zarva = !P().szalon.nyitva;
+  var s = '<svg class="utca-svg" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs>' +
+    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2350"/><stop offset="0.6" stop-color="#4a3a80"/><stop offset="1" stop-color="#8a6ab0"/></linearGradient>' +
+    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a568e"/><stop offset="1" stop-color="#40336a"/></linearGradient>' +
+    '</defs>';
+  s += '<rect x="0" y="0" width="400" height="460" fill="url(#utca-eg)"/>';
+  s += '<circle cx="46" cy="50" r="20" fill="#fdf3c4"/><circle cx="38" cy="44" r="20" fill="#3a2f66" opacity="0.55"/>';   /* hold */
+  [[130, 34], [270, 30], [330, 66], [96, 92], [356, 120], [210, 250]].forEach(function (p) {
+    s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.7" fill="#fff" opacity="0.85"/>';
+  });
+  s += utcaPortalSVG();
+  s += '<rect x="0" y="236" width="400" height="224" fill="url(#utca-fold)"/>';
+  s += '<path d="M0 236 H400" stroke="#b79ade" stroke-width="2" opacity="0.5"/>';
+  var lock = zarva ? '<g><rect x="80" y="286" width="80" height="22" rx="11" fill="#2a2140" opacity="0.85"/><text x="120" y="301" text-anchor="middle" font-size="13" font-weight="700" fill="#ffd24d">🔒 150 ✨</text></g>' : "";
+  s += utcaEpuletSVG("utca-fodrasz", 50, 262, "#f4c6de", "#e0417a", "💇", "fodrász", lock);
+  s += utcaEpuletSVG("utca-bolt", 224, 262, "#cfe6fb", "#29a3dd", "✨", "csillagbolt", "");
+  s += utcaEpuletSVG("utca-kert", 50, 368, "#cdeecb", "#3f9e6a", "🌿", "kert", "");
+  s += utcaEpuletSVG("utca-odu", 224, 368, "#f0e0c0", "#c99a3a", "🏠", "odú", "");
+  s += '</svg>';
+  return s;
+}
+var UTCA_MOD = "nez";   /* "nez" | "megerosit-belepo" */
+function utcaNyit() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelStop();
+  UTCA_MOD = "nez";
+  renderUtca();
+  mutat("kepernyo-utca");
+}
+function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
+function renderUtca() {
+  var cp = $("utca-csillampor"); if (cp) cp.textContent = P().csillampor;
+  var hp = $("utca-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
+  var host = $("utca-szinter"); if (!host) return;
+  host.innerHTML = utcaSVG();
+  utcaKot("utca-fodrasz", utcaFodraszKoppint);
+  utcaKot("utca-bolt", function () { hangGomb(); oduNyit(); oduPanelNyit(); });
+  utcaKot("utca-kert", function () {
+    hangGomb();
+    if (P().kert.nyitva) kertNyit();
+    else { mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduNyit(); oduPanelNyit("kert"); }
+  });
+  utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
+  utcaKot("utca-portal", function () { hangGomb(); mondd("Induljunk matekozni!"); renderFomenu(); mutat("kepernyo-fomenu"); });
+  var sugo = $("utca-sugo");
+  if (sugo) {
+    if (UTCA_MOD === "megerosit-belepo") {
+      sugo.innerHTML = 'Megnyitod a szalont 150 ✨-ért? <button class="kis-gomb" id="utca-belepo-igen">Igen ✓</button> <button class="kis-gomb" id="utca-belepo-nem">Mégse</button>';
+      $("utca-belepo-igen").addEventListener("click", utcaBelepoVesz);
+      $("utca-belepo-nem").addEventListener("click", function () { hangGomb(); UTCA_MOD = "nez"; renderUtca(); });
+    } else {
+      sugo.textContent = "Koppints egy házra — oda mész! 👆";
+    }
+  }
+}
+function utcaFodraszKoppint() {
+  hangGomb();
+  if (P().szalon.nyitva) { szalonNyit(); return; }
+  if (P().csillampor < SZALON_BELEPO_AR) { mondd("A szalon belépő 150 csillagpor. Gyűjts még matekozással!"); return; }
+  UTCA_MOD = "megerosit-belepo"; renderUtca();
+}
+function utcaBelepoVesz() {
+  hangGomb();
+  if (P().csillampor < SZALON_BELEPO_AR) { UTCA_MOD = "nez"; renderUtca(); return; }
+  P().csillampor -= SZALON_BELEPO_AR;
+  P().szalon.nyitva = 1;
+  UTCA_MOD = "nez";
+  hangCsilla(); hangJo(); ment();
+  mondd("Kinyílt a szépségszalon! Milyen frizurát kérsz?");
+  szalonNyit();
+}
+
+/* ── SZALON-BELSŐ ─────────────────────────────────────────────────────────
+   Az unikornis a lila csillag-folton áll; a pulton a két kefe (1. fázisban aktív). */
+function szalonKefeSVG(id, cx, jel, megvan, aktiv) {
+  var g = '<g id="' + id + '" class="szalon-kefe' + (aktiv ? " aktiv" : "") + '">';
+  g += '<circle cx="' + cx + '" cy="150" r="32" fill="transparent"/>';   /* koppintó-felület */
+  if (aktiv) g += '<circle cx="' + cx + '" cy="150" r="27" fill="none" stroke="#3f9e6a" stroke-width="3"/>';
+  g += '<circle cx="' + cx + '" cy="150" r="22" fill="#fff8e6" stroke="#f0a800" stroke-width="' + (aktiv ? 0 : 2) + '"/>';
+  g += '<text x="' + cx + '" y="159" text-anchor="middle" font-size="24">' + jel + '</text>';
+  if (!megvan) {
+    g += '<rect x="' + (cx - 23) + '" y="177" width="46" height="18" rx="9" fill="#2a2140" opacity="0.85"/>';
+    g += '<text x="' + cx + '" y="190" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7fd6ec">12 💧</text>';
+  } else if (aktiv) {
+    g += '<text x="' + cx + '" y="190" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3f9e6a">✓ most</text>';
+  }
+  g += '</g>';
+  return g;
+}
+function szalonSVG() {
+  var c = LENYEK[mentes.leny];
+  var kefeG = !!P().szalon.kefek.gondor, kefeE = !!P().szalon.kefek.egyenes;
+  var most = P().kinezet.frizura || "egyenes";
+  var s = '<svg class="szalon-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs><linearGradient id="szalon-fal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe4f2"/><stop offset="1" stop-color="#efd9fb"/></linearGradient></defs>';
+  s += '<rect x="0" y="0" width="400" height="300" fill="url(#szalon-fal)"/>';
+  s += '<rect x="0" y="230" width="400" height="70" fill="#e6c8e0"/>';
+  s += '<path d="M0 230 H400" stroke="#c99ac0" stroke-width="2"/>';
+  s += '<rect x="26" y="34" width="92" height="118" rx="14" fill="#ffffff" opacity="0.6" stroke="#d9a7ef" stroke-width="4"/>';   /* tükör/kirakat */
+  s += '<text x="72" y="104" text-anchor="middle" font-size="30" opacity="0.5">✨</text>';
+  s += csillagSVG(292, 226, 36, "#d9b6f0") + csillagSVG(292, 226, 23, "#ecdafb");                                                  /* lila csillag-folt */
+  s += '<g transform="translate(292,216) scale(1.05)">' + unikornisSVG("szalon-uni", c, 1, P().oltozet) + '</g>';                   /* az unikornis (aktuális frizura) */
+  s += '<rect x="24" y="176" width="156" height="18" rx="9" fill="#b06fd0"/>';                                                     /* pult */
+  s += '<rect x="34" y="194" width="136" height="30" fill="#8a4fd0" opacity="0.45"/>';
+  s += szalonKefeSVG("szalon-kefe-gondor", 62, "🌀", kefeG, most === "gondor");
+  s += szalonKefeSVG("szalon-kefe-egyenes", 140, "〰️", kefeE, most === "egyenes");
+  s += '<rect x="24" y="238" width="92" height="20" rx="10" fill="#ffffff" opacity="0.8"/>';
+  s += '<text x="70" y="252" text-anchor="middle" font-size="11.5" font-weight="700" fill="#e0417a">● 1. FÁZIS</text>';
+  s += '</svg>';
+  return s;
+}
+function szalonNyit() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelStop();
+  renderSzalon();
+  mutat("kepernyo-szalon");
+}
+function renderSzalon() {
+  var cp = $("szalon-csillampor"); if (cp) cp.textContent = P().csillampor;
+  var hp = $("szalon-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
+  var host = $("szalon-szinter"); if (!host) return;
+  host.innerHTML = szalonSVG();
+  var kg = document.getElementById("szalon-kefe-gondor"); if (kg) { kg.style.cursor = "pointer"; kg.addEventListener("click", function () { szalonKefe("gondor"); }); }
+  var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) { ke.style.cursor = "pointer"; ke.addEventListener("click", function () { szalonKefe("egyenes"); }); }
+  var sugo = $("szalon-sugo"); if (sugo) sugo.textContent = "Koppints egy kefére — átalakul a sörény! 🪮";
+}
+function szalonKefe(cel) {
+  var most = P().kinezet.frizura || "egyenes";
+  if (most === cel) { hangGomb(); mondd(cel === "gondor" ? "Már göndör a sörény!" : "Már egyenes a sörény!"); return; }
+  if (!P().szalon.kefek[cel]) {
+    if ((P().tunderharmat || 0) < KEFE_AR) { hangGomb(); mondd("Ehhez a keféhez 12 tündérharmat kell. Gyűjts még kitartással!"); return; }
+    P().tunderharmat -= KEFE_AR;
+    P().szalon.kefek[cel] = 1;
+  }
+  P().kinezet.frizura = cel;
+  hangCsilla(); hangJo(); ment();
+  mondd(cel === "gondor" ? "Hopp, göndör lett! Csigavonalak!" : "Sima, egyenes sörény! Szép!");
+  renderSzalon();
+}
+
 /* ============ 10c) JELVÉNYEK · GYŰJTEMÉNY-KÖNYV · TALÁLT TÁRGY ============ */
 /* Additív: saját mentés-ág (P().jelvenyek / streakRekord / dropUres), saját DOM
    (#odu-lap + .jelveny-* / .gyujt-* / #talalt-buborek). A pálya-motorba csak
@@ -4955,6 +5173,8 @@ window.UC = {
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
   kertAgyKoppint: kertAgyKoppint,
+  utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe,           /* FODRÁSZAT */
+  frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },
   oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); }
