@@ -879,3 +879,19 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   a document-keydown feltétele a négyzet láthatósága. A „kézmentes" mód 3. csönd utáni kisegítője is a
   négyzetet mutatja (nem a gridet). Böngészőben tesztelve (gépelés+Enter, rossz válasz, tablet-koppintás,
   felmondós pálya regresszió), konzol tiszta. `index.html` `?v=` bump → -3.
+
+## 2026-09-19 — Kert hang-kör: fűropogás + nyihogás (CC0, Web Audio)
+- **Két kerti hangeffekt:** séta közben halk FŰROPOGÁS-loop a paták alatt (a `.jar` lábmozgással együtt
+  indul/áll, 80/150 ms fade), és NYIHOGÁS az unikornisra koppintva (2,5 s lehűlés) + evés kezdetén. Séta
+  indulásakor NEM nyihog. — *Producer döntése a `terv/kert-hang-kor-terv.md` opcióira: fűropogás „A"
+  (BigSoundBank „Steps in the Grass, Slow"), nyihogás „1+2" váltogatva (BigSoundBank „Little neighing call
+  #4 / #1"), evésnél is igen.*
+- **Kizárólag CC0:** BigSoundBank (Joseph Sardin) teljes gyűjteménye CC0 1.0 — ellenőrizve. Pixabay
+  KIZÁRVA (saját licenc, nem közkincs). Freesound aznap nem volt elérhető. — *Attribúciós kötelezettség nincs.*
+- **Megvalósítás:** a klipek base64-ben egy külön `kert-hangok.js`-ben (44 KB), mert file://-ról a `fetch()`
+  tiltott; mono MP3 32 kHz/48 kbps (Safari az OGG-ot nem dekódolja), −16 LUFS-ra normálva. Dekódolás első
+  kertbe lépésnél (`kertHangokBetolt`), Web Audio `AudioBufferSourceNode` loop + gain; a lépés-loop 1,35×
+  gyorsítva (`KERT_LEPES_RATE`), hangerők `KERT_LEPES_VOL` 0,45 / `KERT_NYIH_VOL` 0,9 — állítható konstansok
+  a HANG szekcióban. Tiszteli a Hang be/ki kapcsolót. Fejless Chrome-mal tesztelve (dekódolás, séta
+  loop indul/leáll, nyihogás, konzol tiszta); FÜLLEL még nem — hangerőket próba után hangolni.
+  `index.html` `?v=` → 20260919-1.

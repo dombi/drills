@@ -1,6 +1,8 @@
-# Kert hang-kör — hangválasztás + időzítés-terv (jóváhagyásra vár)
+# Kert hang-kör — hangválasztás + időzítés-terv (JÓVÁHAGYVA, megvalósítva 2026-09-19)
 
-Készült: 2026-09-19, a `prompt-kert-hang-kor.md` 1–2. fázisa. Kód még NINCS.
+Készült: 2026-09-19, a `prompt-kert-hang-kor.md` 1–2. fázisa. **Döntés:** fűropogás A, nyihogás 1+2 váltogatva,
+evésnél is nyihog. **Kód:** `kert-hangok.js` (base64 klipek) + game.js HANG-szekció (`kertHangokBetolt`,
+`kertLepesHang`, `kertNyihog`). Vágási paraméterek a `kert-hangok.js` fejlécében.
 
 ## 1. Hangválasztás (csak CC0)
 

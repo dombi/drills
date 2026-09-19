@@ -637,6 +637,75 @@ function hangAllomas() { beep(523, 0.12, "triangle", 0); beep(659, 0.12, "triang
 function hangVege() { [523, 587, 659, 784, 880, 1046, 1318].forEach(function (f, i) { beep(f, 0.16, "triangle", i * 0.11, 0.18); }); }
 function hangGomb() { beep(420, 0.05, "sine", 0, 0.06); }
 
+/* ── KERTI HANGKLIPEK (terv/kert-hang-kor-terv.md, 2026-09-19). CC0 minták base64-ben a
+   kert-hangok.js-ben (KERT_HANGOK). Első kertbe lépésnél dekódoljuk (kertNyit → kertHangokBetolt,
+   ekkor az AudioContext már fel van oldva a koppintással). Ha a fájl hiányzik vagy a dekódolás
+   elbukik, csend marad — a játék nem áll meg. */
+var KERT_BUF = {};                 /* dekódolt AudioBuffer-ek: lepes, nyih0, nyih1, … */
+var KERT_BUF_INDULT = false;
+var KERT_LEPES_RATE = 1.35;        /* a felvétel ~1 lépés/mp; kicsit gyorsítva könnyedebb, jobban tapad a .44s-os lábmozgáshoz */
+var KERT_LEPES_VOL = 0.45;         /* halk háttér-ropogás (a beep-ek ~0.22-es szinusza alá) */
+var KERT_NYIH_VOL = 0.9;           /* előtérben, de nem harsány (a klipek −16 LUFS-ra normáltak) */
+var KERT_NYIH_LEHUL = 2500;        /* ms — bökdösésre se torlódjon */
+function kertHangokBetolt() {
+  if (KERT_BUF_INDULT || typeof KERT_HANGOK === "undefined") return;
+  var c = ac(); if (!c) return;
+  KERT_BUF_INDULT = true;
+  function dek(kulcs, b64) {
+    try {
+      var bin = atob(b64), n = bin.length, u8 = new Uint8Array(n);
+      for (var i = 0; i < n; i++) u8[i] = bin.charCodeAt(i);
+      var pr = c.decodeAudioData(u8.buffer, function (buf) { KERT_BUF[kulcs] = buf; }, function () {});
+      if (pr && pr.catch) pr.catch(function () {});
+    } catch (e) {}
+  }
+  dek("lepes", KERT_HANGOK.lepes);
+  (KERT_HANGOK.nyih || []).forEach(function (b, i) { dek("nyih" + i, b); });
+}
+function kertAudioKesz() { var c = AC; if (!c) return null; if (c.state === "suspended") { try { c.resume(); } catch (e) {} } return c; }
+/* Fűropogás-loop: be=true indít (ha még nem szól), be=false leállít (fade-out). A .jar osztállyal együtt
+   kapcsolják a séta-függvények. Véletlen pozícióból indul, hogy két séta ne szóljon egyformán. */
+var KERT_LEPES = null;             /* {src, g} amíg szól */
+function kertLepesHang(be) {
+  if (be) {
+    if (KERT_LEPES || !mentes.hang) return;
+    var c = kertAudioKesz(); if (!c || !KERT_BUF.lepes) { kertHangokBetolt(); return; }
+    var src = c.createBufferSource(), g = c.createGain();
+    src.buffer = KERT_BUF.lepes; src.loop = true; src.playbackRate.value = KERT_LEPES_RATE;
+    var t0 = c.currentTime;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(KERT_LEPES_VOL, t0 + 0.08);
+    src.connect(g); g.connect(c.destination);
+    src.start(t0, Math.random() * src.buffer.duration);
+    KERT_LEPES = { src: src, g: g };
+  } else {
+    var L = KERT_LEPES; KERT_LEPES = null;
+    if (!L || !AC) return;
+    var t1 = AC.currentTime;
+    try {
+      L.g.gain.cancelScheduledValues(t1);
+      L.g.gain.setValueAtTime(Math.max(0.0001, L.g.gain.value), t1);
+      L.g.gain.exponentialRampToValueAtTime(0.0001, t1 + 0.15);
+      L.src.stop(t1 + 0.18);
+    } catch (e) {}
+  }
+}
+/* Nyihogás: a klipek közül váltogat (soha nem ugyanaz kétszer egymás után), lehűlési idővel. */
+var KERT_NYIH_UTOLSO = 0, KERT_NYIH_IDX = -1;
+function kertNyihog() {
+  if (!mentes.hang) return;
+  var most = performance.now();
+  if (most - KERT_NYIH_UTOLSO < KERT_NYIH_LEHUL) return;
+  var c = kertAudioKesz(); if (!c) { kertHangokBetolt(); return; }
+  var db = 0; while (KERT_BUF["nyih" + db]) db++;
+  if (!db) { kertHangokBetolt(); return; }
+  var i = db > 1 ? (KERT_NYIH_IDX + 1 + Math.floor(Math.random() * (db - 1))) % db : 0;
+  KERT_NYIH_IDX = i; KERT_NYIH_UTOLSO = most;
+  var src = c.createBufferSource(), g = c.createGain();
+  src.buffer = KERT_BUF["nyih" + i]; g.gain.value = KERT_NYIH_VOL;
+  src.connect(g); g.connect(c.destination); src.start();
+}
+
 var huHang = null;
 function hangokBetolt() { try { var vs = speechSynthesis.getVoices(); huHang = vs.filter(function (v) { return /hu(-|_)?/i.test(v.lang); })[0] || null; } catch (e) {} }
 if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = hangokBetolt; }
@@ -2508,7 +2577,7 @@ function esemenyek() {
   $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Jelvények"); renderJelveny(); $("odu-lap").hidden = false; });
   $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); mondd("Gyűjtemény"); renderGyujtemeny(); $("odu-lap").hidden = false; });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
-  $("kert-vissza").addEventListener("click", function () { hangGomb(); oduNyit("kert"); });
+  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); oduNyit("kert"); });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -3313,6 +3382,7 @@ var KERT_UNI_X = 50;   /* az unikornis vízszintes helye, % */
 function kertNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
+  kertHangokBetolt();                    /* kerti hangklipek dekódolása (egyszer) */
   KERT_UNI_X = 50;
   KERT_MOD = null; KERT_RAK_TIP = null;   /* friss belépéskor séta-mód */
   renderKert();
@@ -3357,7 +3427,7 @@ function kertSzinterKlikk(e) {
     return;
   }
   /* séta mód (alap) */
-  if (e.target.closest && e.target.closest("#kert-uni-doboz")) return;   /* magára az unikornisra koppintva nem lép */
+  if (e.target.closest && e.target.closest("#kert-uni-doboz")) { kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog */
   var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }
   var agyDiv = e.target.closest && e.target.closest(".kt-agy-elem");     /* letett ÁGY-ra koppintva: Befekvés (vagy súgó) */
@@ -3511,7 +3581,7 @@ var KERT_FEKSZIK = false;
 function kertUl() {
   if (KERT_TRUKK_FUT) return;
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
-  doboz.classList.remove("jar"); clearTimeout(doboz._jarTimer);
+  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
   doboz.classList.add("ules-all");
   KERT_UL = true;
   hangCsilla();
@@ -3537,7 +3607,7 @@ function kertTrukkJatszik(id) {
   var t = kertTrukkAdat(id); if (!t || !t.perc) return;
   var doboz = $("kert-uni-doboz"); if (!doboz || KERT_TRUKK_FUT) return;
   KERT_TRUKK_FUT = true;
-  doboz.classList.remove("jar"); clearTimeout(doboz._jarTimer);   /* a séta-bólogatás ne ütközzön */
+  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);   /* a séta-bólogatás ne ütközzön */
   var cls = "trukk-" + id;
   doboz.classList.add(cls);
   hangCsilla();
@@ -3557,11 +3627,11 @@ function kertSetal(celX) {
   doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
   var mp = Math.max(0.5, Math.min(3.2, tav * 0.045));   /* közel állandó sétatempó */
   doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
-  doboz.classList.add("jar");
+  doboz.classList.add("jar"); kertLepesHang(true);
   KERT_UNI_X = celX;
   doboz.style.left = celX + "%";
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); }, mp * 1000 + 80);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); }, mp * 1000 + 80);
 }
 
 /* ── Evés (3. lépés): a letett ételre koppintva az unikornis odasétál és megeszi.
@@ -3588,20 +3658,20 @@ function kertSetalEszik(celX, o) {
   if (mp > 0) {
     doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
     doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar");
+    doboz.classList.add("jar"); kertLepesHang(true);
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek a finom falatért…";
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertEszik(o); }, mp * 1000 + 90);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertEszik(o); }, mp * 1000 + 90);
 }
 /* az evés-animáció: fejlehajtás + csámcsogás (CSS .eszik) + kis szikra az étel fölött. Az étel marad. */
 function kertEszik(o) {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   doboz.classList.add("eszik");
-  hangCsilla();
+  hangCsilla(); kertNyihog();                    /* halk nyihogás a falatnak (terv: 3. döntés) */
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "😋 Nyami-nyami… csámcsog!";
   var host = $("kert-szinter");
   if (host && o) {
@@ -3638,13 +3708,13 @@ function kertSetalSzagol(celX, o) {
   if (mp > 0) {
     doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
     doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar");
+    doboz.classList.add("jar"); kertLepesHang(true);
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek megszagolni…";
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertSzagol(o); }, mp * 1000 + 90);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertSzagol(o); }, mp * 1000 + 90);
 }
 function kertSzagol(o) {
   var doboz = $("kert-uni-doboz");
@@ -3695,13 +3765,13 @@ function kertSetalFekszik(celX) {
   if (mp > 0) {
     doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
     doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar");
+    doboz.classList.add("jar"); kertLepesHang(true);
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek lepihenni…";
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertFekszik(); }, mp * 1000 + 90);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertFekszik(); }, mp * 1000 + 90);
 }
 /* a befekvés: a test rásüllyed, a lábak behajlanak (CSS .fekszik-all), lágy Zzz száll fel;
    az elégedett pislogás/lélegzés a meglévő élő-animációkból jön. Tartós póz — koppintásra feláll. */
@@ -3709,7 +3779,7 @@ function kertFekszik() {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   KERT_TRUKK_FUT = false;                              /* a fekvés tartós állapot, nem „fut" (lehet rá koppintani) */
-  doboz.classList.remove("jar"); clearTimeout(doboz._jarTimer);
+  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
   doboz.style.zIndex = 940;                            /* az ágy fölé, mintha rajta feküdne */
   doboz.classList.add("fekszik-all");
   KERT_FEKSZIK = true;
@@ -4877,6 +4947,8 @@ window.UC = {
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
   kertAgyKoppint: kertAgyKoppint,
+  kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
+  kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },
   oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); }
 };
 
