@@ -4649,20 +4649,10 @@ var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség
 
 /* ── UTCA-HUB ─────────────────────────────────────────────────────────────
    Álló elrendezés (400×460, meet): fönt az égi matek-portál, lent 2×2 házrács. */
-function utcaEpuletSVG(id, x, y, fal, teto, jel, felirat, extra) {
-  var w = 140, h = 86, cx = x + w / 2, aljy = y + h;
-  var g = '<g id="' + id + '" class="utca-epulet">';
-  g += '<rect x="' + (x - 4) + '" y="' + (y - 30) + '" width="' + (w + 8) + '" height="' + (h + 56) + '" fill="transparent"/>';   /* koppintó-felület */
-  g += '<path d="M' + (x - 8) + ' ' + y + ' L' + cx + ' ' + (y - 26) + ' L' + (x + w + 8) + ' ' + y + ' Z" fill="' + teto + '"/>';   /* tető */
-  g += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="10" fill="' + fal + '"/>';                        /* homlokzat */
-  g += '<circle cx="' + cx + '" cy="' + (y + 30) + '" r="20" fill="#ffffff" opacity="0.9"/>';
-  g += '<text x="' + cx + '" y="' + (y + 38) + '" text-anchor="middle" font-size="26">' + jel + '</text>';                          /* cégér */
-  g += '<rect x="' + (cx - 13) + '" y="' + (aljy - 30) + '" width="26" height="30" rx="5" fill="' + teto + '" opacity="0.7"/>';     /* ajtó */
-  g += '<rect x="' + (x + 6) + '" y="' + (aljy + 6) + '" width="' + (w - 12) + '" height="24" rx="8" fill="#ffffff" opacity="0.94"/>';
-  g += '<text x="' + cx + '" y="' + (aljy + 23) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#2a2140">' + felirat + '</text>';
-  g += extra;
-  g += '</g>';
-  return g;
+/* Név-tábla egy épület alá (egységes, jól koppintható a gyereknek). */
+function utcaCimke(cx, felirat) {
+  return '<rect x="' + (cx - 44) + '" y="436" width="88" height="21" rx="10" fill="#ffffff" opacity="0.95"/>' +
+         '<text x="' + cx + '" y="451" text-anchor="middle" font-size="13" font-weight="700" fill="#2a2140">' + felirat + '</text>';
 }
 function utcaPortalSVG() {
   var cx = 200, cy = 158, g = '<g id="utca-portal" class="utca-portal">';
@@ -4682,24 +4672,68 @@ function utcaPortalSVG() {
 }
 function utcaSVG() {
   var zarva = !P().szalon.nyitva;
+  var c = LENYEK[mentes.leny];
   var s = '<svg class="utca-svg" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
   s += '<defs>' +
-    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2350"/><stop offset="0.6" stop-color="#4a3a80"/><stop offset="1" stop-color="#8a6ab0"/></linearGradient>' +
-    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a568e"/><stop offset="1" stop-color="#40336a"/></linearGradient>' +
+    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset="0.55" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
+    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1650"/><stop offset="1" stop-color="#0a1240"/></linearGradient>' +
     '</defs>';
   s += '<rect x="0" y="0" width="400" height="460" fill="url(#utca-eg)"/>';
-  s += '<circle cx="46" cy="50" r="20" fill="#fdf3c4"/><circle cx="38" cy="44" r="20" fill="#3a2f66" opacity="0.55"/>';   /* hold */
-  [[130, 34], [270, 30], [330, 66], [96, 92], [356, 120], [210, 250]].forEach(function (p) {
+  s += '<circle cx="46" cy="50" r="20" fill="#fdf3c4"/><circle cx="38" cy="44" r="20" fill="#1c2560" opacity="0.55"/>';   /* hold */
+  [[130, 34], [270, 30], [330, 66], [96, 92], [356, 120], [190, 60], [300, 150], [70, 150]].forEach(function (p) {
     s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.7" fill="#fff" opacity="0.85"/>';
   });
   s += utcaPortalSVG();
-  s += '<rect x="0" y="236" width="400" height="224" fill="url(#utca-fold)"/>';
-  s += '<path d="M0 236 H400" stroke="#b79ade" stroke-width="2" opacity="0.5"/>';
-  var lock = zarva ? '<g><rect x="80" y="286" width="80" height="22" rx="11" fill="#2a2140" opacity="0.85"/><text x="120" y="301" text-anchor="middle" font-size="13" font-weight="700" fill="#ffd24d">🔒 150 ✨</text></g>' : "";
-  s += utcaEpuletSVG("utca-fodrasz", 50, 262, "#f4c6de", "#e0417a", "💇", "fodrász", lock);
-  s += utcaEpuletSVG("utca-bolt", 224, 262, "#cfe6fb", "#29a3dd", "✨", "csillagbolt", "");
-  s += utcaEpuletSVG("utca-kert", 50, 368, "#cdeecb", "#3f9e6a", "🌿", "kert", "");
-  s += utcaEpuletSVG("utca-odu", 224, 368, "#f0e0c0", "#c99a3a", "🏠", "odú", "");
+  s += '<rect x="0" y="250" width="400" height="210" fill="url(#utca-fold)"/>';
+
+  /* ── FODRÁSZ (kék épület, kirakatban az unikornis) ── */
+  var lock = zarva ? '<g><rect x="16" y="300" width="76" height="20" rx="10" fill="#1a1338" opacity="0.9"/><text x="54" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#ffd24d">🔒 150 ✨</text></g>' : "";
+  s += '<g id="utca-fodrasz" class="utca-epulet">' +
+    '<rect x="6" y="276" width="96" height="182" fill="transparent"/>' +
+    '<path d="M10 302 L54 278 L98 302 Z" fill="#2b3aa0"/>' +
+    '<rect x="14" y="302" width="80" height="130" rx="6" fill="#3f5fd0"/>' +
+    '<text x="54" y="298" text-anchor="middle" font-size="14" font-weight="800" fill="#ff69b4" font-style="italic">fodrász</text>' +
+    '<rect x="28" y="330" width="52" height="58" rx="5" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/>' +
+    '<g transform="translate(54,368) scale(0.125)">' + unikornisSVG("utca-kirakat-uni", c, 1, P().oltozet) + '</g>' +
+    lock +
+    utcaCimke(54, "fodrász") +
+    '</g>';
+
+  /* ── CSILLAGBOLT (pink épület, kéménnyel) ── */
+  s += '<g id="utca-bolt" class="utca-epulet">' +
+    '<rect x="102" y="276" width="96" height="182" fill="transparent"/>' +
+    '<rect x="166" y="284" width="12" height="22" fill="#b86a2f"/>' +
+    csillagSVG(172, 276, 6, "#ffd24d") + csillagSVG(184, 268, 4, "#fff") +
+    '<path d="M106 302 L150 278 L194 302 Z" fill="#b52f98"/>' +
+    '<rect x="110" y="302" width="80" height="130" rx="6" fill="#e63bc0"/>' +
+    '<text x="150" y="330" text-anchor="middle" font-size="13" font-weight="800" fill="#ffe0f4" font-style="italic">csillagbolt</text>' +
+    '<rect x="126" y="344" width="48" height="42" rx="5" fill="#ffc0e6" stroke="#a02f88" stroke-width="2"/>' +
+    csillagSVG(150, 365, 9, "#ffd24d") +
+    utcaCimke(150, "csillagbolt") +
+    '</g>';
+
+  /* ── KERT / ZÖLDSÉGES (stand zászlófüzérrel) ── */
+  s += '<g id="utca-kert" class="utca-epulet">' +
+    '<rect x="200" y="284" width="96" height="174" fill="transparent"/>' +
+    '<rect x="206" y="330" width="84" height="102" rx="5" fill="#cdeecb"/>' +
+    '<rect x="206" y="316" width="84" height="18" fill="#3f9e6a"/>' +
+    '<path d="M206 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M226 334 l10 14 l10 -14 Z" fill="#f2c23b"/><path d="M246 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M266 334 l10 14 l10 -14 Z" fill="#f2c23b"/>' +
+    '<rect x="222" y="392" width="52" height="30" rx="4" fill="#b98a4e"/>' +
+    '<circle cx="238" cy="392" r="9" fill="#e14b4b"/><circle cx="256" cy="394" r="8" fill="#7fbf3f"/>' +
+    '<path d="M266 386 l5 14 M263 388 l4 7" stroke="#e6822f" stroke-width="4" stroke-linecap="round"/>' +
+    utcaCimke(248, "kert") +
+    '</g>';
+
+  /* ── ODÚ (faodú: törzs + lombkorona + kerek ablak) ── */
+  s += '<g id="utca-odu" class="utca-epulet">' +
+    '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
+    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
+    '<circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
+    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/>' +
+    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>' +
+    utcaCimke(344, "odú") +
+    '</g>';
+
   s += '</svg>';
   return s;
 }
@@ -4756,40 +4790,70 @@ function utcaBelepoVesz() {
 
 /* ── SZALON-BELSŐ ─────────────────────────────────────────────────────────
    Az unikornis a lila csillag-folton áll; a pulton a két kefe (1. fázisban aktív). */
-function szalonKefeSVG(id, cx, jel, megvan, aktiv) {
+function szalonKefeSVG(id, cx, cy, jel, megvan, aktiv) {
   var g = '<g id="' + id + '" class="szalon-kefe' + (aktiv ? " aktiv" : "") + '">';
-  g += '<circle cx="' + cx + '" cy="150" r="32" fill="transparent"/>';   /* koppintó-felület */
-  if (aktiv) g += '<circle cx="' + cx + '" cy="150" r="27" fill="none" stroke="#3f9e6a" stroke-width="3"/>';
-  g += '<circle cx="' + cx + '" cy="150" r="22" fill="#fff8e6" stroke="#f0a800" stroke-width="' + (aktiv ? 0 : 2) + '"/>';
-  g += '<text x="' + cx + '" y="159" text-anchor="middle" font-size="24">' + jel + '</text>';
+  g += '<circle cx="' + cx + '" cy="' + cy + '" r="32" fill="transparent"/>';   /* koppintó-felület */
+  if (aktiv) g += '<circle cx="' + cx + '" cy="' + cy + '" r="27" fill="none" stroke="#2f8f57" stroke-width="3"/>';
+  g += '<circle cx="' + cx + '" cy="' + cy + '" r="22" fill="#fff8e6" stroke="#f0a800" stroke-width="' + (aktiv ? 0 : 2) + '"/>';
+  g += '<text x="' + cx + '" y="' + (cy + 9) + '" text-anchor="middle" font-size="24">' + jel + '</text>';
   if (!megvan) {
-    g += '<rect x="' + (cx - 23) + '" y="177" width="46" height="18" rx="9" fill="#2a2140" opacity="0.85"/>';
-    g += '<text x="' + cx + '" y="190" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7fd6ec">12 💧</text>';
+    g += '<rect x="' + (cx - 23) + '" y="' + (cy + 27) + '" width="46" height="18" rx="9" fill="#1a2340" opacity="0.85"/>';
+    g += '<text x="' + cx + '" y="' + (cy + 40) + '" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7fd6ec">12 💧</text>';
   } else if (aktiv) {
-    g += '<text x="' + cx + '" y="190" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3f9e6a">✓ most</text>';
+    g += '<text x="' + cx + '" y="' + (cy + 40) + '" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2f8f57">✓ most</text>';
   }
   g += '</g>';
   return g;
 }
+/* A szalon-belső a jóváhagyott „fodrászat belső" rajz szerint (terv/fodraszat-rajzterv.html):
+   világoskék fal, körömlakkok, festék-szekrény, kirakat+nap, kiemelt kefék a pulton,
+   szőrfestékek, lila csillag-folt az élő unikornissal. 1. fázisban CSAK a kefék aktívak. */
 function szalonSVG() {
   var c = LENYEK[mentes.leny];
   var kefeG = !!P().szalon.kefek.gondor, kefeE = !!P().szalon.kefek.egyenes;
   var most = P().kinezet.frizura || "egyenes";
+  var lakk = ["#e14b4b", "#f2c23b", "#8fd23b", "#3ba3dd", "#e63bc0"];
+  var i, x;
   var s = '<svg class="szalon-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
-  s += '<defs><linearGradient id="szalon-fal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe4f2"/><stop offset="1" stop-color="#efd9fb"/></linearGradient></defs>';
-  s += '<rect x="0" y="0" width="400" height="300" fill="url(#szalon-fal)"/>';
-  s += '<rect x="0" y="230" width="400" height="70" fill="#e6c8e0"/>';
-  s += '<path d="M0 230 H400" stroke="#c99ac0" stroke-width="2"/>';
-  s += '<rect x="26" y="34" width="92" height="118" rx="14" fill="#ffffff" opacity="0.6" stroke="#d9a7ef" stroke-width="4"/>';   /* tükör/kirakat */
-  s += '<text x="72" y="104" text-anchor="middle" font-size="30" opacity="0.5">✨</text>';
-  s += csillagSVG(292, 226, 36, "#d9b6f0") + csillagSVG(292, 226, 23, "#ecdafb");                                                  /* lila csillag-folt */
-  s += '<g transform="translate(292,216) scale(1.05)">' + unikornisSVG("szalon-uni", c, 1, P().oltozet) + '</g>';                   /* az unikornis (aktuális frizura) */
-  s += '<rect x="24" y="176" width="156" height="18" rx="9" fill="#b06fd0"/>';                                                     /* pult */
-  s += '<rect x="34" y="194" width="136" height="30" fill="#8a4fd0" opacity="0.45"/>';
-  s += szalonKefeSVG("szalon-kefe-gondor", 62, "🌀", kefeG, most === "gondor");
-  s += szalonKefeSVG("szalon-kefe-egyenes", 140, "〰️", kefeE, most === "egyenes");
-  s += '<rect x="24" y="238" width="92" height="20" rx="10" fill="#ffffff" opacity="0.8"/>';
-  s += '<text x="70" y="252" text-anchor="middle" font-size="11.5" font-weight="700" fill="#e0417a">● 1. FÁZIS</text>';
+  s += '<defs><radialGradient id="szalon-kefe-glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff6a8" stop-opacity="0.95"/><stop offset="1" stop-color="#fff6a8" stop-opacity="0"/></radialGradient></defs>';
+  s += '<rect x="0" y="0" width="400" height="300" fill="#c6e6f2"/>';                          /* világoskék fal */
+  s += '<rect x="0" y="256" width="400" height="44" fill="#b9d9ec"/>';                          /* padló */
+
+  /* körömlakkok (bal-fent) */
+  s += '<text x="56" y="15" text-anchor="middle" font-size="10" font-weight="800" fill="#e63bc0" font-style="italic">körömlakkok</text>';
+  s += '<rect x="14" y="40" width="86" height="7" rx="2" fill="#b0733f"/>';
+  for (i = 0; i < 5; i++) { x = 20 + i * 16; s += '<rect x="' + x + '" y="23" width="9" height="17" rx="2" fill="' + lakk[i] + '"/><rect x="' + (x + 1.5) + '" y="18" width="6" height="6" fill="#333"/>'; }
+
+  /* kirakat (közép-fent) + nap */
+  s += '<rect x="150" y="10" width="96" height="74" rx="3" fill="#b0733f"/><rect x="157" y="17" width="82" height="60" fill="#a6dcec"/>';
+  s += '<circle cx="172" cy="34" r="13" fill="#ffe25a"/>';
+  s += '<text x="212" y="30" text-anchor="middle" font-size="12" font-weight="800" fill="#ffd23b" font-style="italic">kirakat</text>' + csillagSVG(224, 56, 5, "#ffffff");
+
+  /* szőr festékek (jobb-fent) */
+  s += '<text x="338" y="15" text-anchor="middle" font-size="10" font-weight="800" fill="#e6a000" font-style="italic">szőr festékek</text>';
+  s += '<rect x="288" y="44" width="102" height="7" rx="2" fill="#b0733f"/>';
+  [["#e14b4b", 302], ["#f2c23b", 328], ["#8fd23b", 354], ["#e63bc0", 380]].forEach(function (b) {
+    s += '<circle cx="' + b[1] + '" cy="32" r="11" fill="' + b[0] + '"/><rect x="' + (b[1] - 4) + '" y="18" width="8" height="10" rx="2" fill="' + b[0] + '"/>';
+  });
+
+  /* festék-szekrény (bal, sötétvörös) + sárga nyíl + felirat */
+  s += '<rect x="10" y="98" width="66" height="150" fill="#7a1818"/>';
+  var pal = ["#e14b4b", "#f2c23b", "#8fd23b", "#8a6fd0", "#5ac0d0", "#e64fb0"], k = 0;
+  [128, 166, 204].forEach(function (py) { [28, 58].forEach(function (px) { s += '<circle cx="' + px + '" cy="' + py + '" r="6" fill="' + pal[k++] + '"/>'; }); });
+  s += '<path d="M96 176 q-8 4 -18 0" fill="none" stroke="#ffdb1f" stroke-width="6" stroke-linecap="round"/><path d="M80 170 l-8 6 l9 4 Z" fill="#ffdb1f"/>';
+  s += '<text x="43" y="262" text-anchor="middle" font-size="8.5" font-weight="800" fill="#f2a000" font-style="italic">sörény- és</text><text x="43" y="272" text-anchor="middle" font-size="8.5" font-weight="800" fill="#f2a000" font-style="italic">farokfesték</text>';
+
+  /* lila csillag-folt + az unikornis (aktuális frizura, mindenhol egységes) */
+  s += '<ellipse cx="326" cy="236" rx="70" ry="26" fill="#b98fd8"/>' + csillagSVG(326, 228, 30, "#ecdafb");
+  s += '<g transform="translate(326,216) scale(0.52)">' + unikornisSVG("szalon-uni", c, 1, P().oltozet) + '</g>';
+
+  /* kefe-pult (kiemelve — 1. fázisban ez az aktív) */
+  s += '<ellipse cx="193" cy="182" rx="98" ry="62" fill="url(#szalon-kefe-glow)"/>';
+  s += '<rect x="120" y="196" width="150" height="14" rx="4" fill="#b06fd0"/><rect x="130" y="210" width="130" height="30" fill="#8a4fd0" opacity="0.4"/>';
+  s += szalonKefeSVG("szalon-kefe-gondor", 158, 176, "🌀", kefeG, most === "gondor");
+  s += szalonKefeSVG("szalon-kefe-egyenes", 232, 176, "〰️", kefeE, most === "egyenes");
+  s += '<rect x="149" y="246" width="92" height="20" rx="10" fill="#ffffff" opacity="0.92"/><text x="195" y="260" text-anchor="middle" font-size="11.5" font-weight="800" fill="#e0417a">● 1. FÁZIS</text>';
+
   s += '</svg>';
   return s;
 }
