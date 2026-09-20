@@ -521,7 +521,7 @@ function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* 12 órás
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapSzalon() { return { nyitva: 0, kefek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {} }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
 function betolt() {
@@ -576,6 +576,7 @@ function betolt() {
         if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
         if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
         if (!p.szalon.kefek) p.szalon.kefek = {};
+        if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -591,6 +592,25 @@ function betolt() {
   mentes = alapMentes();
 }
 function P() { return mentes.profilok[mentes.leny]; }
+
+/* ── NAPI KIEMELT PÁLYA ──────────────────────────────────────────────────────
+   Naponta 1 pálya kiemelve: +3 💧 extra tündérharmat a teljesítésért (naponta 1×).
+   Determinisztikus random: dátum-alapú seed → mindenkinél ugyanaz, frissítéskor stabil. */
+function napiKiemeltId() {
+  var d = new Date(), ev = d.getFullYear(), ho = d.getMonth(), nap = d.getDate();
+  var napSorsz = Math.floor((d - new Date(ev, 0, 0)) / 86400000);
+  var jatszhatoIds = [];
+  PALYAK.forEach(function (p) { if (!p.hamarosan) jatszhatoIds.push(p.id); });
+  if (!jatszhatoIds.length) return null;
+  var idx = ((ev * 367 + napSorsz * 13 + ho * 7) & 0x7FFFFFFF) % jatszhatoIds.length;
+  return jatszhatoIds[idx];
+}
+function napiKiemeltMa() { return new Date().toISOString().slice(0, 10); }
+function napiKiemeltTeljesitve() {
+  var nk = P().napiKiemelt;
+  return nk && nk.datum === napiKiemeltMa() && nk.teljesitve;
+}
+var NAPI_KIEMELT_HARMAT = 3;
 
 /* ── JUTALOM-MOTOR (rendszerterv 7.1a) — egy helyen számol a régi beégetett 2/5/3/20 helyett.
    feladat = 1+szint (2→9) · tipp után helyes = 1 · felmondás = 42 (egy „produkció") ·
@@ -1575,15 +1595,7 @@ function renderFomenu() {
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
-  regioSorrend.forEach(function (regio) {
-    var szek = el("div", "palya-regio r-" + regio);
-    if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
-    szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
-    var grid = el("div", "palya-regio-grid");
-    regiok[regio].forEach(function (rec) { grid.appendChild(keszitKartya(rec.pa, rec.idx)); });
-    szek.appendChild(grid);
-    racs.appendChild(szek);
-  });
+  var _napiId = napiKiemeltId(), _napiKesz = napiKiemeltTeljesitve();
   function keszitKartya(pa, idx) {
     var prc = P().palyak[pa.id];
     var kesz = prc && prc.kesz, arany = prc && prc.arany;
@@ -1592,10 +1604,16 @@ function renderFomenu() {
     var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
     var mat = PALYA_MAT[pa.id] || pa.palcim;
     var zarva = palyaZarva(pa);
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (arany ? " arany" : (kesz ? " kesz" : "")));
+    var napiEz = (pa.id === _napiId);
+    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
+      + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : ""));
+    var napiBadge = napiEz
+      ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
+      : "";
     kart.innerHTML =
       '<div class="sorszam">' + (idx + 1) + '</div>' +
       '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
+      napiBadge +
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
@@ -1612,10 +1630,20 @@ function renderFomenu() {
       e.stopPropagation(); hangGomb();
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
+      if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });
     return kart;
   }
+  regioSorrend.forEach(function (regio) {
+    var szek = el("div", "palya-regio r-" + regio);
+    if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
+    szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
+    var grid = el("div", "palya-regio-grid");
+    regiok[regio].forEach(function (rec) { grid.appendChild(keszitKartya(rec.pa, rec.idx)); });
+    szek.appendChild(grid);
+    racs.appendChild(szek);
+  });
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
@@ -2259,6 +2287,18 @@ function palyaVege() {
 
   /* ── tündérharmat (kitartás-valuta, 7.2): 1 minden befejezett pályáért, +1 ha sorozatban VAGY teljes ösvényen ── */
   var harmat = 1 + ((J.sorozatBan || teljes) ? 1 : 0);
+
+  /* ── napi kiemelt pálya: +3 💧 extra, naponta 1× ── */
+  var napiId = napiKiemeltId(), napiMa = napiKiemeltMa();
+  var napiExtra = 0;
+  if (id === napiId) {
+    var nk = P().napiKiemelt || (P().napiKiemelt = { datum: "", teljesitve: false });
+    if (nk.datum !== napiMa || !nk.teljesitve) {
+      napiExtra = NAPI_KIEMELT_HARMAT;
+      nk.datum = napiMa; nk.teljesitve = true;
+    }
+  }
+  harmat += napiExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
 
   /* ── 12 órás kapu (6.4): kulcs-pálya kerülő nélkül → élesítés; mindkettő éles → nyílik ── */
@@ -2276,15 +2316,18 @@ function palyaVege() {
   var teljesSor = teljes
     ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨, arany szilánk az égedre</span>'
     : "";
+  var napiSor = napiExtra
+    ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
+    : "";
   var harmatSor = '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
-    + '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>';
+    + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>');
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
     : "";
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + harmatSor + kapuSor +
+    teljesSor + napiSor + harmatSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟' +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -2296,7 +2339,8 @@ function palyaVege() {
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
   var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
-  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + buzd);
+  var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
+  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + napiSzov + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */
@@ -5279,7 +5323,8 @@ window.UC = {
   frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },
-  oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); }
+  oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); },
+  napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve
 };
 
 })();
