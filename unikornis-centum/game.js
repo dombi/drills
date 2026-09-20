@@ -2852,6 +2852,22 @@ var KERT_BOLT = [
       '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
       '<path d="M22 58 Q40 16 58 58" fill="none" stroke="#7a3bc0" stroke-width="4" stroke-linecap="round" stroke-dasharray="1.5 6"/>' +  /* ugró-ív */
       '<path d="M40 22 l2.4 5.6 l5.6 2.4 l-5.6 2.4 l-2.4 5.6 l-2.4 -5.6 l-5.6 -2.4 l5.6 -2.4 Z" fill="#ffd24d"/>' },  /* csillag a csúcson */
+  { id: "porges", nev: "Pörgés", ar: 12, emoji: "🌀", perc: 1400,
+    svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +
+      '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
+      '<path d="M22 38 a22 22 0 0 1 36 -4" fill="none" stroke="#7a3bc0" stroke-width="3.8" stroke-linecap="round"/>' +
+      '<path d="M58 34 l-2 10 l-9 -5 Z" fill="#7a3bc0"/>' +
+      '<path d="M40 28 l1.8 4.2 l4.2 1.8 l-4.2 1.8 l-1.8 4.2 l-1.8 -4.2 l-4.2 -1.8 l4.2 -1.8 Z" fill="#b39af0"/>' },
+  { id: "csillam", nev: "Csillámszórás", ar: 12, emoji: "✨", perc: 1800,
+    svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +
+      '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
+      '<path d="M38 44 l4 -26 l6 23 Z" fill="#ffd66b" stroke="#f2b93d" stroke-width="1.4"/>' +
+      '<circle cx="44" cy="16" r="10" fill="#ffd24d" opacity=".3"/>' +
+      '<path d="M30 16 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5 Z" fill="#ffd24d"/>' +
+      '<path d="M56 20 l1.2 3 l3 1.2 l-3 1.2 l-1.2 3 l-1.2 -3 l-3 -1.2 l3 -1.2 Z" fill="#ffd24d"/>' +
+      '<path d="M44 6 l1 2.6 l2.6 1 l-2.6 1 l-1 2.6 l-1 -2.6 l-2.6 -1 l2.6 -1 Z" fill="#ff9ec4"/>' +
+      '<circle cx="24" cy="26" r="2.4" fill="#ff9ec4"/><circle cx="60" cy="12" r="2" fill="#b39af0"/>' +
+      '<circle cx="52" cy="30" r="2.2" fill="#87cc66"/><circle cx="34" cy="8" r="1.8" fill="#a7d8f2"/>' },
   /* 😋 Evés = KÉPESSÉG (nem egyszeri trükk, ezért NINCS `perc`): megvéve a kertben egy letett ÉTELRE
      koppintva az unikornis odasétál és megeszi. A trükk-sorban ezért nem jelenik meg gomb (kertTrukksorRender
      `!t.perc` → kihagyja); a bekötés a kertEtelKoppint/kertEszik ágon fut. */
@@ -3652,10 +3668,32 @@ function kertTrukkJatszik(id) {
   var cls = "trukk-" + id;
   doboz.classList.add(cls);
   hangCsilla();
+  /* ✨ Csillámszórás effekt: szikrák + konfetti a szarv fölött */
+  var csillamElemek = [];
+  if (id === "csillam") {
+    var kont = doboz.parentNode;
+    var szinek = ["#ffd24d","#ff9ec4","#b39af0","#fff","#ffd24d"];
+    var konfSzin = ["#ffd24d","#ff9ec4","#b39af0","#87cc66","#a7d8f2","#fff"];
+    for (var si = 0; si < 5; si++) {
+      var sz = document.createElement("span");
+      sz.className = "csillam-szikra csillam-sz-" + si;
+      sz.style.color = szinek[si];
+      kont.appendChild(sz);
+      csillamElemek.push(sz);
+    }
+    for (var ki = 0; ki < 6; ki++) {
+      var ko = document.createElement("span");
+      ko.className = "csillam-konf csillam-ko-" + ki;
+      ko.style.background = konfSzin[ki];
+      kont.appendChild(ko);
+      csillamElemek.push(ko);
+    }
+  }
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = t.emoji + " " + t.nev + "!";
   clearTimeout(doboz._trukkTimer);
   doboz._trukkTimer = setTimeout(function () {
     doboz.classList.remove(cls);
+    csillamElemek.forEach(function (e) { e.parentNode && e.parentNode.removeChild(e); });
     KERT_TRUKK_FUT = false;
     var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
   }, t.perc + 80);
