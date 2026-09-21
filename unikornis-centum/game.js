@@ -255,6 +255,22 @@ var PALYAK = [
     ]
   },
   {
+    id: "mi-maradt", nev: "Mi maradt?", ikon: "🧺", regio: "szorzo",
+    szint: 6,
+    palcim: "Osztás maradékkal — mennyi jut, és mennyi marad?",
+    alap: { tipus: "maradekos_osztas" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Páros-páratlan", osztok: [2], max: 19, darab: 5 },
+      { nev: "Ötösök",         osztok: [5], max: 49, darab: 5 },
+      { nev: "Hármas kalács",  osztok: [3], max: 30, darab: 5 },
+      { nev: "Négyes szekér",  osztok: [3, 4], max: 40, darab: 6 },
+      { nev: "Kevert kosár",   osztok: [2, 3, 4, 5], min: 10, max: 60, darab: 6 },
+      { nev: "Nehéz szikla",   osztok: [6, 7, 8, 9], min: 10, max: 90, darab: 6 },
+      { nev: "Odú-küszöb",     osztok: [2, 3, 4, 5, 6, 7, 8, 9], max: 99, darab: 6, cel: true }
+    ]
+  },
+  {
     id: "vegyes-szorzo", nev: "Szám-rengeteg", ikon: "🌲", regio: "szorzo",
     szint: 7,
     palcim: "Szorzás és osztás, keresztül-kasul, százig",
@@ -287,6 +303,7 @@ var PALYA_IKON = {
   "szorzo-dallam": '<line x1="10" y1="40" x2="50" y2="37" stroke="#c9bda8" stroke-width="1.4"/> <line x1="10" y1="46" x2="50" y2="43" stroke="#c9bda8" stroke-width="1.4"/> <line x1="28" y1="38" x2="47" y2="15" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <line x1="47" y1="15" x2="47" y2="34" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M27 15 L47 12" stroke="#e8b84a" stroke-width="4.2" stroke-linecap="round"/> <g transform="rotate(-20 22 38)"><ellipse cx="22" cy="38" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <g transform="rotate(-20 42 34)"><ellipse cx="42" cy="34" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <line x1="27.5" y1="35" x2="27.5" y2="16" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M45 8 l1.4 4 l4 1.4 l-4 1.4 l-1.4 4 l-1.4 -4 l-4 -1.4 l4 -1.4 Z" fill="#ffd24d" stroke="none"/>',
   "egy-szam": '<path d="M18 46 Q30 40 42 46 L45 51 Q30 55 15 51 Z" fill="#c9a86a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <circle cx="30" cy="27" r="16" fill="#bcd8f0" stroke="#222" stroke-width="1.8"/> <path d="M20 20 Q22 15 28 14" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/> <path d="M34 30 l1.6 4.6 l4.6 1.6 l-4.6 1.6 l-1.6 4.6 l-1.6 -4.6 l-4.6 -1.6 l4.6 -1.6 Z" fill="#fff2b8" stroke="none"/> <path d="M42 15 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 l3 -1 Z" fill="#c9a8e6" stroke="none"/>',
   "osztas-100": '<rect x="13" y="27" width="34" height="6" rx="3" fill="#86c9a6" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="30" cy="17" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/> <circle cx="30" cy="43" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/>',
+  "mi-maradt": '<path d="M14 28 Q13 46 18 50 Q30 54 42 50 Q47 46 46 28 Z" fill="#d9a64a" stroke="#222" stroke-width="1.6"/> <path d="M16 34 Q30 32 44 34" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M17 40 Q30 38 43 40" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M18 46 Q30 44 42 46" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M22 28 Q30 14 38 28" stroke="#b8883a" stroke-width="2.4" fill="none" stroke-linecap="round"/> <circle cx="50" cy="44" r="2.2" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="48" cy="50" r="1.6" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="10" cy="48" r="1.8" fill="#f0d090" stroke="#222" stroke-width="1"/>',
   "vegyes-szorzo": '<path d="M16 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M16 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="13.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M44 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M44 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="41.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M30 12 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <path d="M30 24 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <rect x="26" y="44" width="8" height="8" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
 };
 var PALYA_MAT = {
@@ -302,6 +319,7 @@ var PALYA_MAT = {
   "szorzo-dallam": "szorzótábla, hangosan",
   "egy-szam": "egy szám: × és ÷ együtt",
   "osztas-100": "osztás, 100-ig",
+  "mi-maradt": "osztás maradékkal",
   "vegyes-szorzo": "× és ÷ keverve, 100-ig",
 };
 var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="eg2" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#d8ecf8"/><stop offset="0.45" stop-color="#e6f2ea"/> <stop offset="1" stop-color="#eaf4e2"/> </linearGradient> <radialGradient id="nap2" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#fff6d0" stop-opacity="0.85"/> <stop offset="1" stop-color="#fff6d0" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#eg2)"/> <circle cx="985" cy="80" r="90" fill="url(#nap2)"/> <circle cx="985" cy="80" r="30" fill="#fff2b8" opacity="0.7"/> <g fill="#ffffff" opacity="0.5"> <ellipse cx="210" cy="70" rx="52" ry="17"/><ellipse cx="250" cy="61" rx="34" ry="14"/> <ellipse cx="640" cy="46" rx="42" ry="15"/><ellipse cx="672" cy="55" rx="26" ry="11"/> </g> <!-- távoli dombsor --> <path d="M0 300 Q160 268 320 296 Q480 322 640 292 Q800 262 960 296 Q1060 316 1120 298 L1120 760 L0 760 Z" fill="#cfe8c2" opacity="0.8"/> <!-- fa-sziluettek: csak a peremen, hogy a kártyák tiszták maradjanak --> <g opacity="0.72"> <g fill="#8fbf7a"> <path d="M60 300 l26 66 l-52 0 Z"/><path d="M60 336 l32 78 l-64 0 Z"/><rect x="54" y="410" width="12" height="26" fill="#a9814e"/> <path d="M150 340 l22 56 l-44 0 Z"/><path d="M150 372 l27 66 l-54 0 Z"/><rect x="145" y="434" width="10" height="22" fill="#a9814e"/> <path d="M1060 300 l26 66 l-52 0 Z"/><path d="M1060 336 l32 78 l-64 0 Z"/><rect x="1054" y="410" width="12" height="26" fill="#a9814e"/> <path d="M968 344 l22 56 l-44 0 Z"/><path d="M968 376 l27 66 l-54 0 Z"/><rect x="963" y="438" width="10" height="22" fill="#a9814e"/> </g> <g fill="#7fae5f"> <ellipse cx="330" cy="322" rx="30" ry="22"/><ellipse cx="470" cy="312" rx="24" ry="18"/> <ellipse cx="700" cy="316" rx="28" ry="20"/><ellipse cx="840" cy="326" rx="22" ry="16"/> </g> </g> <!-- talaj --> <path d="M0 700 Q280 676 560 700 Q840 724 1120 698 L1120 760 L0 760 Z" fill="#bfe3a0" opacity="0.9"/> <g fill="#fff6c4" opacity="0.7"> <circle cx="120" cy="180" r="3"/><circle cx="420" cy="150" r="2.4"/><circle cx="760" cy="170" r="2.6"/> <circle cx="900" cy="230" r="2.2"/><circle cx="270" cy="250" r="2.2"/> </g> </svg>';
@@ -394,6 +412,10 @@ function tippOsztas(osztando, oszto, hanyados) {
   return "Fordítva gondold: hányszor van meg " + szo(oszto) + " " + azSzo(osztando) + " " + szo(osztando) +
          " számban? Segít a szorzótábla — " + szorSzo(hanyados) + " " + szo(oszto) + " " + azSzo(osztando * 1) + " " + szo(osztando) + ".";
 }
+function tippMaradekos(osztando, d, q, r) {
+  if (r === 0) return szorSzo(q) + " " + szo(d) + " az " + szo(osztando) + ", pont kijön, maradék nulla.";
+  return szorSzo(q) + " " + szo(d) + " az " + szo(q * d) + ". " + szo(osztando) + " mínusz " + szo(q * d) + " az " + szo(r) + ".";
+}
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
@@ -479,6 +501,36 @@ var GEN = {
       kartyaHTML: '<span class="k-nagy">' + osztando + ' ÷ ' + d + ' = <b>?</b></span>',
       felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
       naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
+  },
+  /* maradékos osztás: a hányadosból + maradékból építve (mi-maradt pálya, maradekos-osztas-terv.html) */
+  maradekos_osztas: function (cfg, kerultMar) {
+    var d = veletlenElem(cfg.osztok);
+    var q, r, osztando, kulcs, kor = 0;
+    var maxO = cfg.max || 99, minO = cfg.min || (d + 1);
+    do {
+      q = veletlen(1, 10);
+      r = (veletlen(1, 5) === 1) ? 0 : veletlen(1, d - 1);
+      osztando = d * q + r;
+      kulcs = "m" + d + "/" + osztando;
+      kor++;
+    } while (kor < 500 && (osztando > maxO || osztando < minO || kerultMar[kulcs]));
+    kerultMar[kulcs] = true;
+    return {
+      csalad: "maradekos",
+      keplet: osztando + " ÷ " + d,
+      szoveg: osztando + " ÷ " + d,
+      kartyaHTML: '<span class="k-nagy">' + osztando + ' ÷ ' + d + '</span>' +
+        '<div class="mar-valasz">' +
+        '<span class="mar-eq">=</span>' +
+        '<input class="mar-mezo" id="mar-h" type="text" inputmode="numeric" maxlength="2" placeholder="?" aria-label="hányados" />' +
+        '<span class="mar-szo">maradék</span>' +
+        '<input class="mar-mezo mar-m-off" id="mar-m" type="text" inputmode="numeric" maxlength="2" placeholder="?" aria-label="maradék" />' +
+        '</div>',
+      felolvas: szo(osztando) + " osztva " + osztVal(d) + ".",
+      helyes: { h: q, m: r },
+      tipp: tippMaradekos(osztando, d, q, r),
+      naplo: { tipus: "maradekos_osztas", kerdes: osztando + "÷" + d, helyes: q + " m " + r, atlepes: false }
+    };
   },
   /* vegyes: állomáson belül szorzás és osztás ~fele-fele (B és D pálya) */
   szorzasosztas: function (cfg, kerultMar) {
@@ -1816,6 +1868,7 @@ function ujFeladat() {
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
     J.kezCsend = 0; J.kezBeiras = false;
+    if (f.csalad === "maradekos") maradekosBekosd();
     if (kezNelkulE()) { kezNelkulModUI(); kezNelkulKor(); return; }
     modBeallit();
   }
@@ -1966,8 +2019,13 @@ function modBeallit() {
   $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
   $("beiras-valt").textContent = beiras ? "🎤 Inkább mondom" : "⌨ Inkább beírom";
   $("szambillentyuzet").hidden = true;             /* a képernyős számgrid megszűnt – üres négyzet van helyette */
-  $("beiro-doboz").hidden = !beiras;
-  if (beiras) beiroReset();
+  if (J && J.feladat && J.feladat.csalad === "maradekos") {
+    $("beiro-doboz").hidden = true;
+    maradekosBeirosMod(beiras);
+  } else {
+    $("beiro-doboz").hidden = !beiras;
+    if (beiras) beiroReset();
+  }
 }
 function beiroReset() { J.beirt = ""; if ($("beiro-kijelzo")) $("beiro-kijelzo").textContent = ""; if ($("beiro-mezo")) $("beiro-mezo").value = ""; }
 function billentyuzetEpit() {
@@ -1986,6 +2044,7 @@ function billentyuzetEpit() {
 }
 function billentyuBekuld() {
   if (J.feladat.csalad === "felmondas") { bontasSorEllenoriz(); return; }
+  if (J.feladat.csalad === "maradekos") { maradekosBekuld(); return; }
   if (J.beirt === "") return;
   var v = parseInt(J.beirt, 10);
   J.beirt = ""; $("beiro-kijelzo").textContent = "";
@@ -2016,8 +2075,10 @@ function bekotUresNegyzet() {
 }
 function ertekel(valasz) {
   var f = J.feladat;
-  if (valasz === f.helyes) {
-    naplozz(f.naplo, J.probak === 0, valasz);
+  var mar = (f.csalad === "maradekos");
+  var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
+  if (helyesE) {
+    naplozz(f.naplo, J.probak === 0, mar ? (valasz.h + "m" + valasz.m) : valasz);
     J.futoOssz++; if (J.probak === 0) J.futoElsore++;
     streakLep(J.probak === 0);
     hangJo(); hangCsilla();
@@ -2025,7 +2086,10 @@ function ertekel(valasz) {
     P().csillampor += jar; J.futoCsilla += jar;
     $("jatek-csillampor").textContent = P().csillampor;
     $("visszajelzes").className = "visszajelzes jo";
-    $("visszajelzes").textContent = "Ez az! " + f.helyes + "  (+" + jar + " ✨)";
+    $("visszajelzes").textContent = mar
+      ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
+      : ("Ez az! " + f.helyes + "  (+" + jar + " ✨)");
+    if (mar) maradekosKitolt(true);
     csillagRepul($("bagoly-buborek")); J.feladatKesz++;
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
@@ -2039,13 +2103,71 @@ function ertekel(valasz) {
     J.probak++;
     J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
     streakLep(false);
-    naplozz(f.naplo, false, valasz);
+    naplozz(f.naplo, false, mar ? (valasz.h + "m" + valasz.m) : valasz);
     hangHiba();
     $("visszajelzes").className = "visszajelzes rossz";
-    if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
-    else { $("visszajelzes").textContent = "✘ " + f.keplet + " = " + f.helyes; mondd(f.tipp, kezNelkulUjra); }
+    if (mar) {
+      maradekosKitolt(false);
+      if (J.probak === 1) { $("visszajelzes").textContent = "Nem talált. Próbáld újra!"; mondd("Nem talált. Próbáld újra!", maradekosUjra); }
+      else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
+    } else {
+      if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
+      else { $("visszajelzes").textContent = "✘ " + f.keplet + " = " + f.helyes; mondd(f.tipp, kezNelkulUjra); }
+    }
     ment();
   }
+}
+/* ── maradékos osztás segédfüggvények (mi-maradt pálya) ── */
+function maradekosBekosd() {
+  var mh = document.getElementById("mar-h"), mm = document.getElementById("mar-m");
+  if (!mh || !mm) return;
+  function szur(e) { e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 2); }
+  mh.addEventListener("input", szur);
+  mm.addEventListener("input", szur);
+  mh.addEventListener("input", function () { if (mh.value.length >= 2) mezoFokusz(mm); });
+  mh.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); maradekosBekuld(); }
+    else if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); mezoFokusz(mm); }
+  });
+  mm.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); maradekosBekuld(); }
+    else if (e.key === "Tab" && e.shiftKey) { e.preventDefault(); mezoFokusz(mh); }
+  });
+}
+function maradekosBeirosMod(aktival) {
+  var mh = document.getElementById("mar-h"), mm = document.getElementById("mar-m");
+  if (!mh || !mm) return;
+  mh.readOnly = !aktival; mm.readOnly = !aktival;
+  if (aktival) { mh.value = ""; mm.value = ""; mezoFokusz(mh); }
+}
+function maradekosKitolt(jo) {
+  var mh = document.getElementById("mar-h"), mm = document.getElementById("mar-m");
+  if (!mh || !mm) return;
+  if (jo) {
+    mh.value = J.feladat.helyes.h; mm.value = J.feladat.helyes.m;
+    mh.className = "mar-mezo jo"; mm.className = "mar-mezo mar-m-off jo";
+    mh.readOnly = true; mm.readOnly = true;
+  } else {
+    mh.classList.add("rossz"); mm.classList.add("rossz");
+    setTimeout(function () {
+      mh.classList.remove("rossz"); mm.classList.remove("rossz");
+      mh.value = ""; mm.value = "";
+    }, 500);
+  }
+}
+function maradekosUjra() {
+  var mh = document.getElementById("mar-h");
+  if (mh && !mh.readOnly) mezoFokusz(mh);
+}
+function maradekosBekuld() {
+  var mh = document.getElementById("mar-h"), mm = document.getElementById("mar-m");
+  if (!mh || !mm) return;
+  var vh = mh.value.trim(), vm = mm.value.trim();
+  if (vh === "" || vm === "") {
+    if (vh === "") mezoFokusz(mh); else mezoFokusz(mm);
+    return;
+  }
+  ertekel({ h: parseInt(vh, 10), m: parseInt(vm, 10) });
 }
 /* hibás válasz után kézmentes pályán: pittyentés + újra figyelés (máshol no-op) */
 function kezNelkulUjra() {
@@ -2545,7 +2667,11 @@ function mikrofonInd() {
     g.classList.remove("figyel"); g.textContent = felm ? "🎤 Mondom a bontását" : "🎤 Mondom a megoldást";
     hj.hidden = true;
     if (felm) felmondErtekel(alt);
-    else {
+    else if (J.feladat.csalad === "maradekos") {
+      var szamok = szamokKinyer(alt.join(" "));
+      if (szamok.length >= 2) ertekel({ h: szamok[0], m: szamok[1] });
+      else { $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = szamok.length === 1 ? "Mondd a maradékot is!" : "Nem hallottam — mondd még egyszer!"; }
+    } else {
       var n = elsoSzam(alt.join(" "));
       if (n == null) { $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "Nem hallottam — mondd még egyszer!"; }
       else ertekel(n);

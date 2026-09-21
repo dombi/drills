@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maradékos osztás — rajzterv</title>
+<style>
+  :root{
+    --bg:#f0f4ee; --card:#ffffff; --ink:#233227; --muted:#6b7a6f;
+    --accent:#3a7a4a; --accent-soft:#e6f2e8; --accent2:#8a6fd0; --accent2-soft:#f0eaff;
+    --orange:#d88a30; --orange-soft:#fdf4e6;
+    --line:#d4ddd6; --shadow:0 6px 22px rgba(40,60,40,.09);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(170deg,#f0f4ee,#e8ede6);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;padding:26px 14px 70px}
+  .wrap{max-width:960px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--accent),#5a9a5a);color:#fff;
+    border-radius:22px;padding:26px 28px;box-shadow:0 12px 30px rgba(50,100,60,.22);position:relative;overflow:hidden}
+  header.top::after{content:"🧺";position:absolute;right:22px;top:4px;font-size:100px;opacity:.14}
+  header.top h1{margin:0 0 5px;font-size:27px}
+  header.top .sub{font-size:14.5px;opacity:.95}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 6px;padding-left:12px;border-left:6px solid var(--accent);display:flex;align-items:center;gap:10px}
+  h2 .n{background:linear-gradient(135deg,var(--accent),#6aba6a);color:#fff;width:30px;height:30px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex:0 0 30px}
+  .cap{color:var(--muted);font-size:14px;margin:2px 0 12px 12px}
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+  .stage svg{display:block;width:100%;height:auto;border-radius:12px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .lg{display:flex;align-items:center;gap:7px;background:#f6fbf6;border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:13px;font-weight:600}
+  .dot{width:13px;height:13px;border-radius:4px;flex:0 0 13px}
+  .note{background:var(--orange-soft);border:1px solid #f0d9a8;border-radius:12px;padding:12px 15px;font-size:13.5px;margin-top:12px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.twocol{grid-template-columns:1fr}}
+  .q{background:var(--accent2-soft);border:1px solid #d3bff0;border-radius:12px;padding:12px 15px;font-size:14px;margin-top:12px}
+  .q b{color:var(--accent2)}
+  .kesz{background:#eefaef;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:13.5px}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:34px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>🧺 Maradékos osztás — rajzterv</h1>
+    <div class="sub">A „Mi maradt?" pálya vizuális tervezése: kérdéskártya, pályaválasztó ikon, visszajelzés és tipp megjelenése.</div>
+    <div class="meta">
+      <span class="chip">2026-09-20</span>
+      <span class="chip">Szorzós liget · szint 6</span>
+      <span class="chip">Rendszerterv jóváhagyva</span>
+    </div>
+  </header>
+
+  <!-- ===================== 1. KÉRDÉSKÁRTYA ===================== -->
+  <h2><span class="n">1</span> Kérdéskártya — a feladat megjelenése</h2>
+  <div class="cap">A gyerek ezt látja, amikor egy maradékos osztás feladatot kap. A lényeg: két beviteli mező, egymás mellett, a maradék kicsit lejjebb — vizuálisan jelzi, hogy a maradék „kisebb", másodlagos szám.</div>
+  <div class="stage">
+    <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="erdoBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3a6b4a"/><stop offset=".4" stop-color="#5a9a6a"/>
+          <stop offset=".7" stop-color="#7ab87a"/><stop offset="1" stop-color="#a8d8a0"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="0" y="0" width="800" height="520" rx="16" fill="url(#erdoBg)"/>
+
+      <text x="400" y="36" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.7)" font-weight="600">Mi maradt? 🧺 — Nehéz szikla (6/7)</text>
+
+      <g transform="translate(660,10)">
+        <rect x="0" y="0" width="76" height="26" rx="13" fill="rgba(0,0,0,0.3)"/>
+        <text x="38" y="18" text-anchor="middle" font-size="12" fill="#ffd94a" font-weight="600">✨ 2 347</text>
+      </g>
+      <g transform="translate(568,10)">
+        <rect x="0" y="0" width="56" height="26" rx="13" fill="rgba(0,0,0,0.3)"/>
+        <text x="28" y="18" text-anchor="middle" font-size="12" fill="#7fd0ff" font-weight="600">💧 14</text>
+      </g>
+
+      <!-- unikornis (egyszerűsített) -->
+      <g transform="translate(310,54) scale(0.55)">
+        <ellipse cx="60" cy="132" rx="34" ry="9" fill="rgba(0,0,0,0.12)"/>
+        <ellipse cx="60" cy="86" rx="30" ry="24" fill="#ffffff" stroke="#e8d8f0" stroke-width="2"/>
+        <ellipse cx="60" cy="80" rx="27" ry="20" fill="#ffffff"/>
+        <path d="M60 20 Q48 36 42 50 Q36 62 42 68" fill="none" stroke="#ffd94a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M60 20 Q58 38 58 50 Q58 62 60 68" fill="none" stroke="#ffb0d8" stroke-width="4" stroke-linecap="round"/>
+        <path d="M60 20 Q72 36 78 50 Q84 62 78 68" fill="none" stroke="#ffe58a" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="60" cy="30" r="4" fill="#ffd94a" stroke="#e8c020" stroke-width="1"/>
+        <path d="M60 14 L60 4" stroke="#ffd94a" stroke-width="3" stroke-linecap="round"/>
+        <path d="M57 6 Q60 0 63 6" fill="#ffd94a"/>
+        <circle cx="50" cy="68" r="4.5" fill="#7a5a90"/>
+        <circle cx="70" cy="68" r="4.5" fill="#7a5a90"/>
+        <circle cx="51.5" cy="66.5" r="1.8" fill="#fff"/>
+        <circle cx="71.5" cy="66.5" r="1.8" fill="#fff"/>
+        <path d="M54 78 Q60 82 66 78" fill="none" stroke="#d8a8c8" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M30 96 Q24 108 18 114" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M90 96 Q96 108 102 114" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round"/>
+        <ellipse cx="18" cy="116" rx="6" ry="4.5" fill="#fff" stroke="#e8d8f0" stroke-width="1.2"/>
+        <ellipse cx="102" cy="116" rx="6" ry="4.5" fill="#fff" stroke="#e8d8f0" stroke-width="1.2"/>
+      </g>
+
+      <!-- bagoly -->
+      <g transform="translate(218,190)">
+        <ellipse cx="22" cy="20" rx="18" ry="13" fill="#8B6914" stroke="#5a4510" stroke-width="1.2"/>
+        <circle cx="15" cy="18" r="4" fill="#ffd94a" stroke="#5a4510" stroke-width="1"/>
+        <circle cx="29" cy="18" r="4" fill="#ffd94a" stroke="#5a4510" stroke-width="1"/>
+        <circle cx="16" cy="17" r="1.5" fill="#222"/>
+        <circle cx="30" cy="17" r="1.5" fill="#222"/>
+        <path d="M20 24 Q22 26 24 24" fill="none" stroke="#5a4510" stroke-width="1"/>
+        <path d="M6 12 Q4 4 12 8" fill="none" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M38 12 Q40 4 32 8" fill="none" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+
+      <!-- KÁRTYA -->
+      <rect x="145" y="218" width="510" height="210" rx="18" fill="rgba(255,255,255,0.96)" stroke="none"/>
+      <rect x="145" y="218" width="510" height="210" rx="18" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+
+      <!-- 89 ÷ 7 = -->
+      <text x="400" y="282" text-anchor="middle" font-size="48" font-weight="500" fill="#233227" letter-spacing="3">89 ÷ 7 =</text>
+
+      <!-- hányados mező (aktív, zöld keret) -->
+      <rect x="270" y="306" width="90" height="62" rx="12" fill="#f6fbf6" stroke="#8fc79a" stroke-width="2.5"/>
+      <!-- kurzor villog -->
+      <line x1="315" y1="318" x2="315" y2="356" stroke="#8fc79a" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+        <animate attributeName="opacity" values="0.7;0;0.7" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+      <text x="315" y="392" text-anchor="middle" font-size="12" fill="#8a938c">hányados</text>
+
+      <!-- maradék mező (inaktív, szürke keret) — MELLETTE, kicsit lejjebb (kb. hányados felénél) -->
+      <rect x="430" y="332" width="74" height="50" rx="10" fill="#fafafa" stroke="#cdddd0" stroke-width="2"/>
+      <text x="467" y="404" text-anchor="middle" font-size="12" fill="#8a938c">maradék</text>
+
+      <!-- „maradék" összekötő vonalka -->
+      <path d="M362 338 Q396 338 428 348" fill="none" stroke="#cdddd0" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+      <!-- billentyűzet-jelzés -->
+      <text x="400" y="468" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.5)" font-weight="500">⌨ Írd be a billentyűzetről · Tab = maradék · Enter = kész</text>
+
+      <!-- visszajelzés-sáv helye (üres állapotban nem látszik) -->
+      <rect x="195" y="480" width="410" height="30" rx="15" fill="rgba(255,255,255,0)" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+      <text x="400" y="500" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.25)">← visszajelzés itt jelenik meg →</text>
+    </svg>
+    <div class="legend">
+      <span class="lg"><span class="dot" style="background:#8fc79a"></span> Aktív mező (zöld keret, villogó kurzor)</span>
+      <span class="lg"><span class="dot" style="background:#cdddd0"></span> Inaktív mező (szürke, Tab-bal elérhető)</span>
+      <span class="lg"><span class="dot" style="background:rgba(0,0,0,0.08)"></span> Szaggatott vonal: összetartozás jelzése</span>
+    </div>
+    <div class="note"><b>Fontos:</b> a maradék mező <b>kisebb</b> és <b>lejjebb van</b> — vizuálisan jelzi, hogy a maradék egy másodlagos, „kisebb" szám. A szaggatott vonal összeköti a két mezőt. Nincs keypad: a gyerek a billentyűzetről gépel.</div>
+  </div>
+
+  <!-- ===================== 2. KITÖLTÖTT ÁLLAPOTOK ===================== -->
+  <h2><span class="n">2</span> Kitöltött állapotok</h2>
+  <div class="cap">Így néz ki a kártya, miután a gyerek beírta a válaszát — helyes és hibás esetben.</div>
+  <div class="twocol">
+    <!-- HELYES -->
+    <div class="stage">
+      <svg viewBox="0 0 380 230" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="380" height="230" rx="16" fill="#5a9a6a"/>
+        <rect x="20" y="16" width="340" height="160" rx="14" fill="rgba(255,255,255,0.96)"/>
+        <text x="190" y="58" text-anchor="middle" font-size="32" font-weight="500" fill="#233227">89 ÷ 7 =</text>
+
+        <!-- hányados kitöltve -->
+        <rect x="110" y="78" width="72" height="50" rx="10" fill="#eafaf0" stroke="#8fc79a" stroke-width="2"/>
+        <text x="146" y="114" text-anchor="middle" font-size="28" font-weight="500" fill="#2f6b3a">12</text>
+        <text x="146" y="146" text-anchor="middle" font-size="11" fill="#8a938c">hányados</text>
+
+        <!-- maradék kitöltve -->
+        <rect x="220" y="96" width="60" height="42" rx="9" fill="#eafaf0" stroke="#8fc79a" stroke-width="2"/>
+        <text x="250" y="126" text-anchor="middle" font-size="24" font-weight="500" fill="#2f6b3a">5</text>
+        <text x="250" y="154" text-anchor="middle" font-size="11" fill="#8a938c">maradék</text>
+
+        <!-- visszajelzés: helyes -->
+        <rect x="50" y="188" width="280" height="30" rx="15" fill="rgba(143,199,154,0.35)"/>
+        <text x="190" y="208" text-anchor="middle" font-size="15" font-weight="600" fill="#fff">Ez az! 12 maradék 5 ✨ (+2 ✨)</text>
+      </svg>
+      <div style="text-align:center;font-weight:700;color:#2f6b3a;margin-top:8px;font-size:15px">Helyes válasz</div>
+    </div>
+
+    <!-- HIBÁS -->
+    <div class="stage">
+      <svg viewBox="0 0 380 230" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="380" height="230" rx="16" fill="#5a9a6a"/>
+        <rect x="20" y="16" width="340" height="160" rx="14" fill="rgba(255,255,255,0.96)"/>
+        <text x="190" y="58" text-anchor="middle" font-size="32" font-weight="500" fill="#233227">89 ÷ 7 =</text>
+
+        <!-- hányados hibás -->
+        <rect x="110" y="78" width="72" height="50" rx="10" fill="#fef0f0" stroke="#e8a0a0" stroke-width="2"/>
+        <text x="146" y="114" text-anchor="middle" font-size="28" font-weight="500" fill="#993030">11</text>
+        <text x="146" y="146" text-anchor="middle" font-size="11" fill="#8a938c">hányados</text>
+
+        <!-- maradék hibás -->
+        <rect x="220" y="96" width="60" height="42" rx="9" fill="#fef0f0" stroke="#e8a0a0" stroke-width="2"/>
+        <text x="250" y="126" text-anchor="middle" font-size="24" font-weight="500" fill="#993030">12</text>
+        <text x="250" y="154" text-anchor="middle" font-size="11" fill="#8a938c">maradék</text>
+
+        <!-- visszajelzés: hibás (1. próba) -->
+        <rect x="50" y="188" width="280" height="30" rx="15" fill="rgba(200,80,80,0.3)"/>
+        <text x="190" y="208" text-anchor="middle" font-size="15" font-weight="600" fill="#fff">Nem talált. Próbáld újra!</text>
+      </svg>
+      <div style="text-align:center;font-weight:700;color:#993030;margin-top:8px;font-size:15px">Hibás válasz (1. próba)</div>
+    </div>
+  </div>
+
+  <div class="kesz">
+    <b>2. hibás válasz után:</b> a visszajelzés-sávban megjelenik a <b>tipp</b> (szóban is elhangzik):<br>
+    <i>„Tizenkétszer hét az nyolcvannégy, és nyolcvankilencből nyolcvannégyet elvéve öt marad."</i><br>
+    A <b>helyes válasz NEM jelenik meg</b> — a gyerek a tipp alapján újra próbálkozik.
+  </div>
+
+  <!-- ===================== 3. TIPP-MEGJELENÉS ===================== -->
+  <h2><span class="n">3</span> Tipp-megjelenés (2. hiba után)</h2>
+  <div class="cap">A tipp szövege a visszajelzés-sávban jelenik meg, nagyobb betűkkel, pár másodpercig látható. A mezők kiürülnek, a gyerek újra próbálkozhat.</div>
+  <div class="stage">
+    <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="800" height="260" rx="16" fill="#5a9a6a"/>
+      <rect x="70" y="14" width="660" height="150" rx="14" fill="rgba(255,255,255,0.96)"/>
+      <text x="400" y="56" text-anchor="middle" font-size="36" font-weight="500" fill="#233227">89 ÷ 7 =</text>
+
+      <!-- üres hányados mező -->
+      <rect x="280" y="78" width="72" height="50" rx="10" fill="#f6fbf6" stroke="#8fc79a" stroke-width="2.5"/>
+      <line x1="316" y1="88" x2="316" y2="118" stroke="#8fc79a" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+        <animate attributeName="opacity" values="0.7;0;0.7" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- üres maradék mező -->
+      <rect x="410" y="96" width="60" height="42" rx="9" fill="#fafafa" stroke="#cdddd0" stroke-width="2"/>
+
+      <!-- TIPP buborék -->
+      <rect x="90" y="184" width="620" height="58" rx="16" fill="rgba(255,240,200,0.95)" stroke="#f0d080" stroke-width="1.5"/>
+      <text x="110" y="212" font-size="13" fill="#8a6a20" font-weight="700">💡</text>
+      <text x="134" y="218" font-size="15.5" fill="#5a4a20" font-style="italic">Tizenkétszer hét az nyolcvannégy, és nyolcvankilencből nyolcvannégyet</text>
+      <text x="134" y="236" font-size="15.5" fill="#5a4a20" font-style="italic">elvéve öt marad.</text>
+    </svg>
+    <div class="note">A tipp-buborék sárga háttérrel, 💡 ikonnal. A gép hangosan is felolvassa. A mezők kiürülnek — a gyerek a tipp segítségével újra megpróbálja.</div>
+  </div>
+
+  <!-- ===================== 4. PÁLYAVÁLASZTÓ IKON ===================== -->
+  <h2><span class="n">4</span> Pályaválasztó ikon</h2>
+  <div class="cap">A Szorzós liget pályaválasztóján ez az ikon jelenik meg a „Mi maradt?" kártyánál. Kosár-motívum, amiből „morzsák" hullanak — a maradék vizuális metaforája.</div>
+  <div class="twocol">
+    <div class="stage" style="text-align:center;padding:24px">
+      <svg viewBox="0 0 60 60" width="160" height="160" style="display:inline-block">
+        <!-- kosár -->
+        <path d="M12 24 L20 50 Q30 54 40 50 L48 24 Z" fill="#d4a65a" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M14 30 Q30 33 46 30" stroke="#b8883a" stroke-width="1.2" fill="none"/>
+        <path d="M16 36 Q30 39 44 36" stroke="#b8883a" stroke-width="1.2" fill="none"/>
+        <path d="M18 42 Q30 45 42 42" stroke="#b8883a" stroke-width="1.2" fill="none"/>
+        <!-- fogantyú -->
+        <path d="M20 24 Q30 10 40 24" fill="none" stroke="#b8883a" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- morzsák (kihullanak) -->
+        <circle cx="34" cy="52" r="2.5" fill="#e8c88a" stroke="#222" stroke-width="1"/>
+        <circle cx="42" cy="54" r="2" fill="#e8c88a" stroke="#222" stroke-width="0.8"/>
+        <circle cx="26" cy="55" r="1.8" fill="#e8c88a" stroke="#222" stroke-width="0.8"/>
+        <circle cx="46" cy="48" r="1.5" fill="#e8c88a" stroke="#222" stroke-width="0.8"/>
+      </svg>
+      <div style="font-weight:700;color:var(--accent);margin-top:8px">Mi maradt? 🧺</div>
+      <div style="font-size:13px;color:var(--muted)">osztás maradékkal</div>
+    </div>
+    <div class="stage" style="padding:20px">
+      <div style="font-weight:700;margin-bottom:8px">SVG kód a <code>PALYA_IKON</code>-hoz</div>
+      <div style="background:#f6fbf6;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:monospace;font-size:11px;line-height:1.6;word-break:break-all">
+        &lt;path d="M12 24 L20 50 Q30 54 40 50 L48 24 Z" fill="#d4a65a" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/&gt;
+        &lt;path d="M14 30 Q30 33 46 30" stroke="#b8883a" stroke-width="1.2" fill="none"/&gt;
+        &lt;path d="M16 36 Q30 39 44 36" stroke="#b8883a" stroke-width="1.2" fill="none"/&gt;
+        &lt;path d="M18 42 Q30 45 42 42" stroke="#b8883a" stroke-width="1.2" fill="none"/&gt;
+        &lt;path d="M20 24 Q30 10 40 24" fill="none" stroke="#b8883a" stroke-width="2.4" stroke-linecap="round"/&gt;
+        &lt;circle cx="34" cy="52" r="2.5" fill="#e8c88a" stroke="#222" stroke-width="1"/&gt;
+        &lt;circle cx="42" cy="54" r="2" fill="#e8c88a" stroke="#222" stroke-width="0.8"/&gt;
+        &lt;circle cx="26" cy="55" r="1.8" fill="#e8c88a" stroke="#222" stroke-width="0.8"/&gt;
+        &lt;circle cx="46" cy="48" r="1.5" fill="#e8c88a" stroke="#222" stroke-width="0.8"/&gt;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 5. A KÉT MEZŐ POZÍCIÓJA ===================== -->
+  <h2><span class="n">5</span> A két mező pozíciója — részletek</h2>
+  <div class="cap">A maradék mező a hányados <b>mellett</b> áll, de kicsit <b>lejjebb</b> (a hányados felénél). Ez nem díszítő döntés: pedagógiai funkciója van.</div>
+  <div class="stage">
+    <svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="600" height="240" rx="14" fill="#f6fbf6"/>
+
+      <!-- hányados -->
+      <rect x="160" y="30" width="100" height="72" rx="14" fill="#fff" stroke="#8fc79a" stroke-width="3"/>
+      <text x="210" y="78" text-anchor="middle" font-size="38" fill="#cdddd0" font-weight="500">__</text>
+      <text x="210" y="122" text-anchor="middle" font-size="13" fill="#6b7a6f" font-weight="600">hányados</text>
+
+      <!-- maradék — mellette, lejjebb -->
+      <rect x="330" y="60" width="80" height="56" rx="12" fill="#fff" stroke="#cdddd0" stroke-width="2.5"/>
+      <text x="370" y="100" text-anchor="middle" font-size="30" fill="#cdddd0" font-weight="500">__</text>
+      <text x="370" y="134" text-anchor="middle" font-size="13" fill="#6b7a6f" font-weight="600">maradék</text>
+
+      <!-- méretjelzők -->
+      <line x1="160" y1="150" x2="160" y2="180" stroke="#b0b8b2" stroke-width="1"/>
+      <line x1="260" y1="150" x2="260" y2="180" stroke="#b0b8b2" stroke-width="1"/>
+      <line x1="160" y1="168" x2="260" y2="168" stroke="#b0b8b2" stroke-width="1" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <text x="210" y="192" text-anchor="middle" font-size="12" fill="#6b7a6f">100px</text>
+
+      <line x1="330" y1="150" x2="330" y2="180" stroke="#b0b8b2" stroke-width="1"/>
+      <line x1="410" y1="150" x2="410" y2="180" stroke="#b0b8b2" stroke-width="1"/>
+      <line x1="330" y1="168" x2="410" y2="168" stroke="#b0b8b2" stroke-width="1"/>
+      <text x="370" y="192" text-anchor="middle" font-size="12" fill="#6b7a6f">80px</text>
+
+      <!-- eltolás jelzés -->
+      <line x1="130" y1="30" x2="130" y2="60" stroke="#8a6fd0" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <line x1="120" y1="30" x2="140" y2="30" stroke="#8a6fd0" stroke-width="1.5"/>
+      <line x1="120" y1="60" x2="140" y2="60" stroke="#8a6fd0" stroke-width="1.5"/>
+      <text x="100" y="50" text-anchor="middle" font-size="11" fill="#8a6fd0" font-weight="600">30px</text>
+      <text x="100" y="62" text-anchor="middle" font-size="10" fill="#8a6fd0">eltolás</text>
+
+      <!-- magyarázat -->
+      <text x="460" y="52" font-size="13" fill="#6b7a6f" font-weight="600">Miért lejjebb?</text>
+      <text x="460" y="72" font-size="12" fill="#8a938c">1. vizuális hierarchia: a hányados</text>
+      <text x="460" y="88" font-size="12" fill="#8a938c">   a „fő" szám, a maradék másodlagos</text>
+      <text x="460" y="108" font-size="12" fill="#8a938c">2. a gyerek először a hányadost</text>
+      <text x="460" y="124" font-size="12" fill="#8a938c">   számolja ki (ez a nehezebb rész)</text>
+      <text x="460" y="144" font-size="12" fill="#8a938c">3. a maradék a kivonás eredménye</text>
+      <text x="460" y="160" font-size="12" fill="#8a938c">   → szó szerint „ami lent marad"</text>
+    </svg>
+  </div>
+
+  <!-- ===================== 6. ÖSSZESÍTÉS ===================== -->
+  <h2><span class="n">6</span> Rajzolandó elemek összesítése</h2>
+  <div class="cap">Ami a kódoláshoz készül — nincs külön háttérrajz, a meglévő erdő-motor fut.</div>
+  <div class="stage">
+    <table style="width:100%;font-size:13.5px;border-collapse:collapse">
+      <tr style="background:#f2f8f2"><th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)">Elem</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)">Leírás</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)">Típus</th></tr>
+      <tr><td style="padding:6px 10px;border-bottom:1px solid var(--line)"><b>Kérdéskártya</b></td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">Két mezős elrendezés (hányados + maradék), billentyűzetes beírás</td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">HTML/CSS</td></tr>
+      <tr><td style="padding:6px 10px;border-bottom:1px solid var(--line)"><b>Pályaválasztó ikon</b></td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">Kosár + morzsák (SVG, 60×60 viewBox)</td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">SVG</td></tr>
+      <tr><td style="padding:6px 10px;border-bottom:1px solid var(--line)"><b>Tipp-buborék</b></td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">Sárga háttér, 💡 ikon, a visszajelzés-sávban</td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">HTML/CSS</td></tr>
+      <tr><td style="padding:6px 10px;border-bottom:1px solid var(--line)"><b>Helyes visszajelzés</b></td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">Zöld háttér, „12 maradék 5" formátumú szöveg</td><td style="padding:6px 10px;border-bottom:1px solid var(--line)">HTML/CSS</td></tr>
+      <tr><td style="padding:6px 10px"><b>Hibás visszajelzés</b></td><td style="padding:6px 10px">Piros keret a mezőkön, piros háttérű sáv</td><td style="padding:6px 10px">HTML/CSS</td></tr>
+    </table>
+    <div class="kesz" style="margin-top:14px">
+      <b>Ami NEM kell:</b> külön háttérrajz, új helyszín, új unikornis-elem, új hang.
+      A pálya a meglévő erdei ösvény-motoron fut, a meglévő unikornissal és bagolyyal.
+      Csak a kérdéskártya UI és az ikon új.
+    </div>
+  </div>
+
+  <div class="q">
+    <b>Eldöntendő:</b> a kosár-ikon szín-világa jó (meleg barna, aranyos morzsák)?
+    Alternatíva: zöldes kosár a Szorzós liget hangulatához, vagy lila a matek-lila (÷ jel színe) miatt.
+  </div>
+
+  <footer>Unikornis Centum · Maradékos osztás rajzterv · 2026-09-20</footer>
+</div>
+</body>
+</html>

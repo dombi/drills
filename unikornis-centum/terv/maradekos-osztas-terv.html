@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terv – Maradékos osztás pálya ("Mi maradt?")</title>
+<style>
+  :root{--zold-sotet:#2f6b3a;--zold-vilagos:#eef6ee;--szoveg:#233227;--szurke:#8a938c;--keret:#cdddd0;--kartya:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--zold-vilagos);color:var(--szoveg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px;}
+  h1{font-size:24px;color:var(--zold-sotet);margin:0 0 4px;}
+  .mottoo{font-size:14px;color:var(--szurke);margin:0 0 22px;}
+  h2{font-size:19px;color:var(--zold-sotet);margin:34px 0 6px;padding-top:12px;border-top:2px solid var(--keret);}
+  h3{font-size:15.5px;color:#3c5a44;margin:18px 0 4px;}
+  p{margin:8px 0;}
+  .doboz{background:var(--kartya);border:1px solid var(--keret);border-radius:12px;padding:12px 16px;margin:14px 0;}
+  .kesz{background:#f6fbf6;border:1px solid #bcdcc2;border-radius:10px;padding:10px 14px;margin:8px 0;}
+  .figyelem{background:#fff7e8;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes{background:#fdeef0;border:1px solid #f0c0c8;border-radius:10px;padding:10px 14px;margin:10px 0;}
+  .dontes::before{content:"🔸 ELDÖNTENDŐ — ";font-weight:bold;color:#b0405a;}
+  .pelda{background:#f4f0fa;border-left:4px solid #b79fd4;border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0;}
+  .mini{font-size:12px;color:var(--szurke);}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0;}
+  th,td{border:1px solid var(--keret);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:#f2f8f2;color:var(--zold-sotet);}
+  code{background:#eef3ee;border:1px solid #dbe6db;border-radius:4px;padding:1px 5px;font-size:12px;}
+  .ki{background:#f2f8f2;font-weight:700;}
+  ul{margin:6px 0;} li{margin:3px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🧺 Terv – Maradékos osztás pálya („Mi maradt?")</h1>
+  <p class="mottoo">Új pálya a Szorzós ligetbe: osztás maradékkal, 100-as számkörben.
+     A gyerek megtanulja, hogy az osztás nem mindig „jön ki" — és hogy ez rendben van.
+     <b>Ez tervezés – kód még nem készül.</b></p>
+
+  <!-- ============================================================ -->
+  <h2>1. Miért pont ez a következő lépés?</h2>
+
+  <p>A gyerek ezen a ponton már tudja:</p>
+  <ul>
+    <li>A <b>szorzótáblát</b> (Szorzódallam felmondása)</li>
+    <li>A <b>maradék nélküli osztást</b> (Osztogató tisztás, minden osztóval 2–10)</li>
+  </ul>
+  <p>A maradékos osztás <b>nem új művelet</b>, hanem <b>szemléletváltás</b>: a gyerek eddig azt
+     tapasztalta, hogy az osztás mindig kerek eredményt ad. Most megtanulja, hogy <b>minden</b>
+     osztásnak van egy hányadosa és egy maradéka — és néha a maradék éppen nulla.</p>
+
+  <p>A gondolkodási lépés két részből áll:</p>
+  <div class="doboz">
+    <ol style="margin:4px 0">
+      <li><b>„Melyik a legnagyobb szorzat, ami még belefér?"</b> — szorzótábla-keresés fejben</li>
+      <li><b>„Mennyi marad?"</b> — egyszerű kivonás</li>
+    </ol>
+    <p class="mini">Tehát ez a szorzótábla-ismeret és a kivonás <b>összekapcsolása</b> egy új
+       kontextusban. Nem kell új anyagot tanulni, csak meglévő tudást összekötni.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>2. A nagy döntés: a válasz formátuma</h2>
+
+  <p>A maradékos osztás válasza <b>két szám</b>: a hányados és a maradék. Ez a jelenlegi
+     rendszerben új — eddig minden feladattípusnál egyetlen szám volt a helyes válasz
+     (<code>csalad: "egyenkent"</code>).</p>
+
+  <h3>2.1 Miért nem szabad szétszedni?</h3>
+  <p>Pedagógiailag <b>hibás</b> volna külön kérdezni a hányadost és a maradékot, mintha
+     két különálló feladat lenne. A maradékos osztás lényege pont az, hogy a kettő
+     <b>összetartozik</b>: a hányados meghatározza a maradékot, és fordítva. Ha szétszednénk,
+     a gyerek mechanikusan két külön számot „produkálna", de nem értené az összefüggést.</p>
+
+  <h3>2.2 Az új válaszcsalád: <code>maradekos</code></h3>
+  <div class="kesz">
+    <b>A kérdés mindig a teljes választ kéri:</b>
+    <ul>
+      <li><b>Kártya:</b> <code>23 ÷ 5 = <b>[__]</b> maradék <b>[__]</b></code></li>
+      <li><b>Hangos kérdés:</b> „Huszonhárom osztva öttel. Hány az egész, és mennyi a maradék?"</li>
+      <li><b>Hangos válasz:</b> a gyerek azt mondja: <i>„négy maradék három"</i> vagy <i>„négy, maradék három"</i></li>
+      <li><b>Beírós mód:</b> két beviteli mező egymás mellett, köztük a „maradék" szó</li>
+    </ul>
+  </div>
+
+  <h3>2.3 Technikai részletek</h3>
+  <div class="doboz">
+    <p><b>Új <code>csalad: "maradekos"</code></b> a feladatgenerátorban. A feladat-objektum:</p>
+    <ul>
+      <li><code>helyes</code> → <code>{ h: 4, m: 3 }</code> (hányados + maradék)</li>
+      <li>Az <code>ertekel()</code> függvénynek <b>két számot</b> kell összehasonlítania</li>
+    </ul>
+    <p><b>Hangfelismerés:</b> a válaszban két számot keresünk. Az első szám a hányados,
+       a „maradék" szó utáni szám a maradék. Ha a gyerek csak egy számot mond, kérdezzünk
+       vissza: <i>„És mennyi a maradék?"</i></p>
+    <p><b>Beírós mód (keypad/input):</b> két mező: <code>[hányados]</code> maradék <code>[maradék]</code>.
+       A gyerek kitölti mindkettőt, az OK gomb értékel. Ha az <code>[__] maradék [0]</code> típusú
+       válasz jön, az is helyes (a nulla maradék explicit kimondása fontos).</p>
+    <p><b>Visszajelzés:</b></p>
+    <ul>
+      <li>Helyes: <code>„Ez az! 4 maradék 3 ✨"</code></li>
+      <li>Hibás (1. próba): <code>„Nem talált. Próbáld újra!"</code></li>
+      <li>Hibás (2. próba): megjelenik a tipp + a helyes válasz: <code>„✘ 23 ÷ 5 = 4 maradék 3"</code></li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. A pálya: „Mi maradt?" 🧺</h2>
+
+  <div class="kesz">
+    <b>Alapadatok:</b>
+    <ul>
+      <li><b>id:</b> <code>mi-maradt</code></li>
+      <li><b>Név:</b> Mi maradt?</li>
+      <li><b>Ikon:</b> 🧺</li>
+      <li><b>Régió:</b> <code>szorzo</code> (Szorzós liget)</li>
+      <li><b>Szint:</b> 6</li>
+      <li><b>Alcím:</b> „Osztás maradékkal — mennyi jut, és mennyi marad?"</li>
+      <li><b>Feladattípus:</b> <code>maradekos_osztas</code> (új)</li>
+      <li><b>Kézmentes:</b> igen (<code>kez_nelkul: true</code>)</li>
+    </ul>
+  </div>
+
+  <h3>3.1 Állomások</h3>
+  <table>
+    <tr>
+      <th>#</th><th>Állomás neve</th><th>Osztó(k)</th>
+      <th>Osztandó</th><th>Darab</th><th>Pedagógiai indoklás</th>
+    </tr>
+    <tr><td>0</td><td>Rajt</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr>
+      <td>1</td><td><b>Páros-páratlan</b></td><td>2</td>
+      <td>3–19</td><td>5</td>
+      <td>A legkönnyebb belépő. A maradék mindig 0 vagy 1 — a gyerek a páros/páratlan
+          érzésből rájön. Azonnali siker-élmény, hogy „ezt tudom!"</td>
+    </tr>
+    <tr>
+      <td>2</td><td><b>Ötösök</b></td><td>5</td>
+      <td>6–49</td><td>5</td>
+      <td>Az 5-ös szorzótábla a legstabilabb (ujjak, pénz). A maradék 0–4 lehet —
+          itt tanul meg a gyerek nagyobb maradékot mondani. A számkör is nő (49-ig).</td>
+    </tr>
+    <tr>
+      <td>3</td><td><b>Hármas kalács</b></td><td>3</td>
+      <td>4–30</td><td>5</td>
+      <td>Az első „igazi" osztó: a 3-as tábla már gondolkodást igényel. De kis számokkal
+          (max 30), hogy a fókusz a gondolkodási lépésen legyen, ne a fejszámoláson.</td>
+    </tr>
+    <tr>
+      <td>4</td><td><b>Négyes szekér</b></td><td>3, 4</td>
+      <td>5–40</td><td>6</td>
+      <td>A 4-es osztó bevonása. A 3-as és 4-es váltakozik: a gyerek megtanulja, hogy
+          az osztó váltakozhat, és a maradék-határt mindig az osztó adja.</td>
+    </tr>
+    <tr>
+      <td>5</td><td><b>Kevert kosár</b></td><td>2, 3, 4, 5</td>
+      <td>10–60</td><td>6</td>
+      <td>Az összes könnyű osztó vegyítése, nagyobb számkörrel. A megszilárdulás fázisa:
+          a gyerek itt fejleszti ki a „melyik tábla, melyik szorzat fér bele" rutinját.</td>
+    </tr>
+    <tr>
+      <td>6</td><td><b>Nehéz szikla</b></td><td>6, 7, 8, 9</td>
+      <td>10–90</td><td>6</td>
+      <td>A nehéz szorzótáblás osztók. Itt dől el, mennyire stabilan tudja a gyerek a
+          7-es, 8-as, 9-es táblát. A legnagyobb számkör (90-ig).</td>
+    </tr>
+    <tr>
+      <td>7</td><td><b>Odú-küszöb</b> (cél)</td><td>2–9</td>
+      <td>2–99</td><td>6</td>
+      <td>Teljes vegyítés: bármilyen osztó, bármilyen szám 99-ig. A „vizsgafeladat" —
+          ha ezt hibátlanul megcsinálja, az osztás fogalma teljesen összeállt.</td>
+    </tr>
+  </table>
+  <p class="mini">Összesen: 39 feladat (5+5+5+6+6+6+6). Becsült játékidő: 8–12 perc.</p>
+
+  <h3>3.2 Példafeladatok állomásonként</h3>
+  <div class="pelda">
+    <b>1. Páros-páratlan (÷2):</b> 7 ÷ 2 = <b>3</b> maradék <b>1</b> &nbsp;·&nbsp;
+    12 ÷ 2 = <b>6</b> maradék <b>0</b> &nbsp;·&nbsp; 15 ÷ 2 = <b>7</b> maradék <b>1</b><br>
+    <b>2. Ötösök (÷5):</b> 23 ÷ 5 = <b>4</b> maradék <b>3</b> &nbsp;·&nbsp;
+    40 ÷ 5 = <b>8</b> maradék <b>0</b> &nbsp;·&nbsp; 17 ÷ 5 = <b>3</b> maradék <b>2</b><br>
+    <b>3. Hármas kalács (÷3):</b> 10 ÷ 3 = <b>3</b> maradék <b>1</b> &nbsp;·&nbsp;
+    22 ÷ 3 = <b>7</b> maradék <b>1</b> &nbsp;·&nbsp; 15 ÷ 3 = <b>5</b> maradék <b>0</b><br>
+    <b>4. Négyes szekér (÷3,÷4):</b> 19 ÷ 4 = <b>4</b> maradék <b>3</b> &nbsp;·&nbsp;
+    11 ÷ 3 = <b>3</b> maradék <b>2</b><br>
+    <b>5. Kevert kosár (÷2–5):</b> 37 ÷ 4 = <b>9</b> maradék <b>1</b> &nbsp;·&nbsp;
+    58 ÷ 5 = <b>11</b>… — <span style="color:red">Stop! 11 &gt; 10, nem fér a szorzótáblába →
+    a generátor max hányados = 10, tehát osztandó ≤ 5×10+4 = 54</span><br>
+    <b>6. Nehéz szikla (÷6–9):</b> 50 ÷ 7 = <b>7</b> maradék <b>1</b> &nbsp;·&nbsp;
+    67 ÷ 8 = <b>8</b> maradék <b>3</b> &nbsp;·&nbsp; 83 ÷ 9 = <b>9</b> maradék <b>2</b><br>
+    <b>7. Odú-küszöb (÷2–9):</b> bármilyen kombináció a fentiekből
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. A feladatgenerátor: <code>maradekos_osztas</code></h2>
+
+  <h3>4.1 Algoritmus</h3>
+  <div class="doboz">
+    <ol>
+      <li><b>Osztó (d):</b> az állomás <code>osztok</code> listájából véletlenül</li>
+      <li><b>Hányados (q):</b> véletlenszám <code>1</code> és <code>10</code> között</li>
+      <li><b>Maradék (r):</b>
+        <ul>
+          <li>~80% eséllyel: véletlenszám <code>1</code>-től <code>(d−1)</code>-ig → valódi maradék</li>
+          <li>~20% eséllyel: <code>r = 0</code> → maradék nélküli eset (fontos! lásd 4.2)</li>
+        </ul>
+      </li>
+      <li><b>Osztandó:</b> <code>d × q + r</code></li>
+      <li><b>Ellenőrzés:</b>
+        <ul>
+          <li><code>osztandó ≤ állomás max</code> (ha túllépi, újragenerál)</li>
+          <li><code>osztandó ≥ állomás min</code></li>
+          <li>Duplikátum-szűrés: <code>kulcs = "m" + d + "/" + osztandó</code>, mint a többi generátornál</li>
+        </ul>
+      </li>
+      <li><b>Helyes válasz:</b> <code>{ h: q, m: r }</code></li>
+    </ol>
+  </div>
+
+  <h3>4.2 Miért kell a 0 maradék?</h3>
+  <div class="figyelem">
+    <b>A feladatok ~20%-a legyen maradék nélküli</b> (maradék = 0). Ez pedagógiailag fontos:
+    <ul>
+      <li>A gyerek megtanulja, hogy a „sima" osztás <b>ugyanaz</b>: csak épp 0 a maradék</li>
+      <li>Nem alakul ki a tévhit, hogy „maradékos osztásnál mindig marad valami"</li>
+      <li>Iskolai dolgozatban is kell tudni felismerni, mikor nulla a maradék</li>
+      <li>A maradékos és „sima" osztás <b>egy fogalom két esete</b>, nem két külön művelet</li>
+    </ul>
+  </div>
+
+  <h3>4.3 Számkör-korlátok osztónként</h3>
+  <p>A hányados maximum 10 (a szorzótábla határa). Ebből következik az osztandó felső határa:</p>
+  <table>
+    <tr><th>Osztó (d)</th><th>Max hányados</th><th>Max maradék</th><th>Max osztandó (d×10 + d−1)</th></tr>
+    <tr><td>2</td><td>10</td><td>1</td><td>21</td></tr>
+    <tr><td>3</td><td>10</td><td>2</td><td>32</td></tr>
+    <tr><td>4</td><td>10</td><td>3</td><td>43</td></tr>
+    <tr><td>5</td><td>10</td><td>4</td><td>54</td></tr>
+    <tr><td>6</td><td>10</td><td>5</td><td>65</td></tr>
+    <tr><td>7</td><td>10</td><td>6</td><td>76</td></tr>
+    <tr><td>8</td><td>10</td><td>7</td><td>87</td></tr>
+    <tr><td>9</td><td>10</td><td>8</td><td>98</td></tr>
+  </table>
+  <p class="mini">Mind belefér a 99-es korlátba. A generátor sosem ad 100 feletti osztandót.</p>
+
+  <!-- ============================================================ -->
+  <h2>5. Hibakezelés és tipp</h2>
+
+  <p><b>Eltérés a többi feladattípustól:</b> a helyes válasz <b>sosem jelenik meg</b>
+     a képernyőn. A gyereknek mindig magának kell megmondania — a tipp csak segít,
+     de nem árulja el.</p>
+  <div class="doboz">
+    <ul>
+      <li><b>1. hibás válasz:</b> „Nem talált. Próbáld újra!" — újra figyelés/beírás</li>
+      <li><b>2. hibás válasz:</b> a gép kimondja a tippet (lásd 5.1), de a helyes válasz
+          <b>NEM</b> jelenik meg — a gyerek a tipp alapján újra próbálkozik</li>
+      <li><b>3., 4., … hibás válasz:</b> a tipp újra elhangzik, a gyerek addig próbálkozik,
+          amíg meg nem találja</li>
+    </ul>
+    <p class="mini">A <code>ertekel()</code>-ben a <code>maradekos</code> családnál a
+       <code>f.helyes</code> kiírása kihagyandó. A tipp a képernyőn szövegesen is megjelenik
+       (a visszajelzés-sávban), de a helyes hányados+maradék szám NEM.</p>
+  </div>
+  <div class="figyelem">
+    <b>Miért más, mint a többi pálya?</b> A maradékos osztásnál a cél nem a gyorsaság,
+    hanem a <b>gondolkodási folyamat</b> megtanulása: „melyik szorzat fér bele, mennyi
+    marad". Ha a gép megmutatja a választ, a gyerek megjegyzi a számot, de nem tanulja
+    meg a gondolkodást. A tipp a <b>módszert</b> mutatja, a gyereknek kell alkalmaznia.
+  </div>
+
+  <h3>5.1 A tipp szövege</h3>
+  <p>Egy rövid mondat, ami összeköti a szorzótábla-tényt a maradékkal:</p>
+  <div class="pelda">
+    <b>23 ÷ 5 = 4 maradék 3:</b> <i>„Négyszer öt az húsz, és huszonháromból húszat elvéve három marad."</i><br>
+    <b>50 ÷ 7 = 7 maradék 1:</b> <i>„Hétszer hét az negyvenkilenc, és ötvenből negyvenkilencet elvéve egy marad."</i><br>
+    <b>12 ÷ 2 = 6 maradék 0:</b> <i>„Hatszor kettő az tizenkettő, pont kijön, maradék nulla."</i>
+  </div>
+  <div class="doboz">
+    <b>Sablon:</b><br>
+    <code>szorSzo(q) + " " + szo(d) + " az " + szo(q*d) + ", és " + szo(osztandó) + "-ből " + szo(q*d) + "-t elvéve " + szo(r) + " marad."</code><br>
+    <p class="mini">Ha r = 0: <code>szorSzo(q) + " " + szo(d) + " az " + szo(osztandó) + ", pont kijön, maradék nulla."</code></p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>6. Hang: kérdés és válasz</h2>
+
+  <h3>6.1 Felolvasás (a gép kérdez)</h3>
+  <div class="kesz">
+    <b>Minta:</b> <i>„Huszonhárom osztva öttel."</i><br>
+    <b>Sablon:</b> <code>szo(osztandó) + " osztva " + osztVal(d) + "."</code>
+    <p class="mini">Ugyanaz a forma, mint a sima osztásnál, csak a „Mennyi?" elhagyva —
+       a kártyán a két mező (<code>[__] maradék [__]</code>) egyértelműen mutatja,
+       mit várunk. Nem kell külön elmagyarázni.</p>
+  </div>
+
+  <h3>6.2 Hangfelismerés (a gyerek válaszol)</h3>
+  <div class="doboz">
+    <p>A gyerek válasza: <i>„négy maradék három"</i> vagy <i>„négy, maradék három"</i>.</p>
+    <p><b>Felismerési szabály:</b></p>
+    <ol>
+      <li>A <code>szamokKinyer()</code> két számot keres a válaszban</li>
+      <li>Ha a „maradék" szó megvan: az előtte álló szám a hányados, az utána álló a maradék</li>
+      <li>Ha nincs „maradék" szó, de két szám van: az első a hányados, a második a maradék</li>
+      <li>Ha csak egy szám van: visszakérdezés: <i>„És mennyi a maradék?"</i></li>
+    </ol>
+    <p><b>Elfogadható formák:</b></p>
+    <ul>
+      <li><i>„négy maradék három"</i> ✓</li>
+      <li><i>„négy, maradék három"</i> ✓</li>
+      <li><i>„négy és három"</i> ✓ (két szám, „és" kötőszóval)</li>
+      <li><i>„négy három"</i> ✓ (két szám egymás után)</li>
+      <li><i>„a hányados négy, a maradék három"</i> ✓ (bőbeszédű, de elfogadható)</li>
+    </ul>
+    <p class="mini">A „nulla" / „semmi" / „nincs maradék" → maradék = 0 értelmezés.</p>
+  </div>
+
+  <h3>6.3 Beírós mód</h3>
+  <div class="doboz">
+    <p><b>Nincs keypad</b> — a gyerek a billentyűzetről írja be a számokat. Két mező
+       <b>egymás alatt</b>, mindkettő „hányados" / „maradék" címkével:</p>
+    <p>Vizuálisan:</p>
+    <div style="background:#f6fbf6;border:1px solid #bcdcc2;border-radius:8px;padding:10px 16px;margin:6px 0;text-align:center">
+      <code style="font-size:15px">[&nbsp;&nbsp;__&nbsp;&nbsp;]</code> <span style="font-size:12px;color:#8a938c">hányados</span><br>
+      <div style="height:8px"></div>
+      <code style="font-size:15px">[&nbsp;&nbsp;__&nbsp;&nbsp;]</code> <span style="font-size:12px;color:#8a938c">maradék</span>
+    </div>
+    <ul>
+      <li>Mindkét mező numerikus (<code>inputmode="numeric"</code>)</li>
+      <li>A hányados mező fókuszban indul (kurzor villog)</li>
+      <li><b>Tab</b> → a maradék mezőre ugrik</li>
+      <li><b>Enter</b> → értékelés (mindkét mezőt összehasonlítja a helyes válasszal)</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>7. Illeszkedés a meglévő rendszerbe</h2>
+
+  <h3>7.1 Hol helyezkedik el?</h3>
+  <div class="kesz">
+    <p>A <code>PALYAK</code> tömbben az <b>Osztogató tisztás</b> (id: <code>osztas-100</code>, szint 5)
+       után. A Szorzós liget sorrendje:</p>
+    <table>
+      <tr><th>Pálya</th><th>Szint</th><th>Típus</th></tr>
+      <tr><td>A – Szorzódallam 🎵</td><td>8</td><td>felmondós, kulcs</td></tr>
+      <tr><td>B – Egy szám bűvköre 🔮</td><td>4</td><td>fókuszált ×÷</td></tr>
+      <tr><td>C – Osztogató tisztás ➗</td><td>5</td><td>tiszta ÷, maradék nélkül</td></tr>
+      <tr class="ki"><td>E – Mi maradt? 🧺</td><td>6</td><td><b>÷ maradékkal (ÚJ)</b></td></tr>
+      <tr><td>D – Szám-rengeteg 🌲</td><td>7</td><td>vegyes ×÷</td></tr>
+    </table>
+    <p class="mini">Az „E" jelzés a szorzós liget 5. pályája. A régi A–D nem változik.</p>
+  </div>
+
+  <h3>7.2 Jutalom-progresszió</h3>
+  <div class="doboz">
+    <table>
+      <tr><th>Szint</th><th>1 feladat</th><th>Tipp után</th><th>Pálya vége</th><th>Becsült összérték</th></tr>
+      <tr><td>6</td><td>2 ✨</td><td>1 ✨</td><td>5×6 = 30 ✨</td><td>~108 ✨</td></tr>
+    </table>
+    <p class="mini">A meglévő <code>jutalom()</code> függvény szint alapján számol, nem kell módosítani.
+       Teljes ösvénynél (kerülő nélkül végig): pálya vége duplán = +30 ✨ extra.</p>
+  </div>
+
+  <h3>7.3 Jelvények</h3>
+  <div class="doboz">
+    <p>A meglévő jelvény-családok automatikusan reagálnak:</p>
+    <ul>
+      <li><b>„Szorzós mester"</b> (B család): feltétele az összes <code>regio: "szorzo"</code> pálya teljesítése
+          → az új pálya automatikusan bekerül, mert <code>regio: "szorzo"</code></li>
+      <li>Opcionálisan: új jelvény a maradékos pályához (pl. <i>„Morzsaszedő"</i> — de nem kötelező az 1. verzióhoz)</li>
+    </ul>
+  </div>
+
+  <h3>7.4 Csillagszilánk az égen</h3>
+  <p>A szilánkszám a <code>PALYAK.length</code>-hez igazodik (most 13). Az új pályával
+     <b>14</b>-re nő. A <code>csillagSzilankRajzol()</code> automatikusan kezeli.</p>
+
+  <h3>7.5 💧 tündérharmat</h3>
+  <p>A pálya 1 💧-ot ad elvégzésenként (mint minden pálya), plusz sorozat/teljes ösvény
+     bónusz. Nem kell módosítani — a meglévő rendszer kezeli.</p>
+
+  <!-- ============================================================ -->
+  <h2>8. A PALYAK objektum (javaslat)</h2>
+
+  <div class="doboz">
+<pre style="font-size:11.5px;line-height:1.45;overflow-x:auto;margin:0">{
+  id: "mi-maradt", nev: "Mi maradt?", ikon: "🧺", regio: "szorzo",
+  szint: 6,
+  palcim: "Osztás maradékkal — mennyi jut, és mennyi marad?",
+  alap: { tipus: "maradekos_osztas" },
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Páros-páratlan", osztok: [2], max: 19, darab: 5 },
+    { nev: "Ötösök",         osztok: [5], max: 49, darab: 5 },
+    { nev: "Hármas kalács",  osztok: [3], max: 30, darab: 5 },
+    { nev: "Négyes szekér",  osztok: [3, 4], max: 40, darab: 6 },
+    { nev: "Kevert kosár",   osztok: [2, 3, 4, 5], min: 10, max: 60, darab: 6 },
+    { nev: "Nehéz szikla",   osztok: [6, 7, 8, 9], min: 10, max: 90, darab: 6 },
+    { nev: "Odú-küszöb",     osztok: [2, 3, 4, 5, 6, 7, 8, 9], max: 99, darab: 6, cel: true }
+  ]
+}</pre>
+    <p class="mini">A <code>min</code>/<code>max</code> az osztandó tartományát adja. Ha nincs
+       <code>min</code>, az osztó+1 a minimum (hogy legyen maradék-lehetőség).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>9. Kódbeli módosítások összefoglalása</h2>
+
+  <div class="doboz">
+    <table>
+      <tr><th>Hol</th><th>Mit</th><th>Méret</th></tr>
+      <tr>
+        <td><code>GEN</code> objektum</td>
+        <td>Új <code>maradekos_osztas</code> generátor-függvény</td>
+        <td>~25 sor</td>
+      </tr>
+      <tr>
+        <td>Új <code>tippMaradekos()</code></td>
+        <td>Egymondatos tipp: „Négyszer öt az húsz, és huszonháromból húszat elvéve három marad."</td>
+        <td>~8 sor</td>
+      </tr>
+      <tr>
+        <td><code>ertekel()</code></td>
+        <td>Új ág: <code>csalad === "maradekos"</code> → két szám összehasonlítás</td>
+        <td>~15 sor</td>
+      </tr>
+      <tr>
+        <td><code>ujFeladat()</code> / kártya-rajz</td>
+        <td>Két mezős kártya-HTML (<code>kartyaHTML</code> sablon a két <code>[__]</code>-el)</td>
+        <td>~10 sor</td>
+      </tr>
+      <tr>
+        <td>Beírós mód</td>
+        <td>Két <code>&lt;input&gt;</code> mező + Tab-kezelés + keypad-váltás</td>
+        <td>~30 sor</td>
+      </tr>
+      <tr>
+        <td>Hangfelismerés</td>
+        <td>Két-számos válasz-értelmezés, „maradék" szó keresés</td>
+        <td>~20 sor</td>
+      </tr>
+      <tr>
+        <td><code>PALYAK</code> tömb</td>
+        <td>Az új pálya-objektum (fent)</td>
+        <td>~12 sor</td>
+      </tr>
+      <tr>
+        <td><code>PALYA_IKON</code></td>
+        <td>Rajzolt SVG ikon a pályaválasztóhoz (kosár-motívum)</td>
+        <td>~5 sor</td>
+      </tr>
+      <tr>
+        <td><code>PALYA_MAT</code></td>
+        <td><code>"mi-maradt": "osztás maradékkal"</code></td>
+        <td>1 sor</td>
+      </tr>
+    </table>
+    <p><b>Becsült teljes bővítés: ~125 sor.</b> Additív — a meglévő kód nem sérül.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>10. Amit szándékosan kihagytam</h2>
+
+  <div class="doboz">
+    <ul>
+      <li><b>10-es osztó:</b> a 10-nel osztás a 100-as számkörben triviális (egyjegyű szám +
+          maradék). Nem tanít új gondolkodást, és a többi pályán amúgy is megvan.</li>
+      <li><b>Szorzás keverése:</b> ez tisztán osztás-pálya. A szorzás nem jelenik meg
+          feladatként — csak fejben, a gondolkodás részeként. A keverésre ott van a
+          Szám-rengeteg.</li>
+      <li><b>Második „haladó" pálya:</b> egy jól felépített pálya 7 állomással elég a fogalom
+          bevezetéséhez és gyakorlásához. A játék alapból ismétlős (újrajátszás = mindig más
+          feladatok a generátor miatt), szóval nem kell két külön pálya a változatossághoz.</li>
+      <li><b>„Hányszor fér bele?" típusú előkészítő:</b> az Osztogató tisztás már tanítja,
+          hogy „hányszor van meg" — ez a maradékos pályán csak kiegészül a maradékkal.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>11. Eldöntendő kérdések</h2>
+
+  <div class="dontes">
+    <b>A pálya neve:</b> „Mi maradt?" az elsődleges javaslat. Alternatívák:
+    <ul>
+      <li>„Morzsás ösvény" 🍞 (a morzsa = ami kimarad az egyenlő elosztásból)</li>
+      <li>„Maradék-rét" 🌾</li>
+      <li>Más ötlet?</li>
+    </ul>
+  </div>
+
+  <div class="kesz">
+    <b>✅ Eldöntve:</b> nincs keypad — billentyűzetes beírás, két mező egymás alatt
+    (hányados / maradék), Tab-bal váltás, Enterrel értékelés.
+  </div>
+
+  <div class="dontes">
+    <b>Ikon a pályaválasztón:</b> a 🧺 kosár-emoji helyett rajzolt SVG ikon kell
+    (mint az összes többi pályánál). Javaslat: stilizált kosár, amiből egy-két „morzsa"
+    esik ki — de ez a grafikai session feladata.
+  </div>
+
+  <p class="mini" style="margin-top:36px;text-align:center">
+    Készült: 2026-09-20 · Unikornis Centum: maradékos osztás tervlap · kód még nem készül
+  </p>
+
+</div>
+</body>
+</html>

@@ -240,6 +240,28 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   font:inherit; text-align:center; color:transparent; caret-color:transparent; outline:none;
 }
 .beiro-cimke{ font-size:14px; color:var(--halvany); font-weight:600; }
+/* ── maradékos osztás: kétmezős válasz a kártyán (mi-maradt pálya) ── */
+.mar-valasz{
+  display:flex; align-items:baseline; gap:6px;
+  margin-top:8px; justify-content:center; flex-wrap:wrap;
+}
+.mar-eq{ font-size:clamp(24px,5vw,36px); font-weight:800; color:var(--lila-sotet); }
+.mar-mezo{
+  width:clamp(56px,14vw,80px); height:clamp(44px,10vw,58px);
+  font-size:clamp(22px,5vw,34px); font-weight:800; text-align:center;
+  background:var(--felho); border:3px solid var(--lila-vil); border-radius:14px;
+  color:var(--lila-sotet); outline:none; caret-color:var(--lila);
+}
+.mar-mezo:focus{ border-color:var(--levendula); box-shadow:0 0 0 3px rgba(183,159,212,.3); }
+.mar-mezo::placeholder{ color:var(--halvany); font-weight:600; }
+.mar-mezo.jo{ border-color:var(--menta); background:#eaf6e8; color:#3a8a3a; }
+.mar-mezo.rossz{ border-color:#e08080; background:#fde8e8; }
+.mar-m-off{ position:relative; top:12px; }
+.mar-szo{
+  font-size:clamp(14px,3.2vw,19px); font-weight:700; color:var(--halvany);
+  white-space:nowrap;
+}
+.mar-mezo[readonly]{ cursor:default; opacity:0.85; }
 .szambillentyuzet{ display:grid; grid-template-columns:repeat(3,46px); gap:5px; }
 .szambillentyuzet button{
   width:46px; font-size:18px; font-weight:800; padding:7px 0; border-radius:10px;
