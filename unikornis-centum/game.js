@@ -1,26 +1,5 @@
 /* AmbitusNumerorum: Unicornis Centum — MVP-A. Vanilla JS, függőség nélkül, file:// alól fut. */
-
-/* ==========================================================================
- * KÓD-TÉRKÉP — hova nyúlj, ha valamit módosítani kell
- * A fájl egyben van, de számozott szekciókra osztva. Ne sorszámra keress:
- * a szerkesztő keresőjével (Ctrl+F) írd be a szekció FEJLÉCÉT, pl. "3) FELADAT".
- *
- *   1) ADATOK ............. pályák, unikornisok, árak, katalógus-listák
- *   2) SEGÉDEK ............ apró közös eszközök (rövid függvények)
- *   3) FELADATGENERÁTOR ... milyen matekfeladat jön (számkör, tízesátlépés)
- *   4) MENTÉS ............. mit jegyez meg a játék (csillámpor, kész pályák, ruhák)
- *   5) HANG ............... beszéd, hangos kérdés, szóbeli válasz figyelése
- *   6) SVG ................ minden rajz/grafika (unikornis, háttér, tárgyak)
- *   7) KÉPERNYŐK .......... mi hol jelenik meg, képernyők felépítése
- *   8) JÁTÉK-LOGIKA ....... pontozás, előrehaladás, kör lefolyása
- *   9) SZÜLŐI NÉZET ....... a szülői oldal
- *  10) ESEMÉNYEK ......... kattintások, gombok kezelése
- *  10b) ODÚ .............. a szoba, időjárás, csillagszilánk-ég, bolt-megnyitó
- *  10c) JELVÉNYEK ........ gyűjtemény-könyv, talált tárgyak
- *  11) INDÍTÁS ........... a játék elindulása
- *
- * A részletes tervek külön fájlokban: terv/rendszerterv-*.html + terv/spec-*.html.
- * ========================================================================== */
+/* ⚠️ GENERÁLT FÁJL — NE SZERKESZD! Forrás: src/ · Build: python build.py */
 
 (function () {
 "use strict";
@@ -5624,5 +5603,6 @@ window.UC = {
   oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); },
   napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve
 };
+
 
 })();
