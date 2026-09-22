@@ -754,38 +754,17 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   74%{ transform:scaleY(.85); }
   100%{ transform:scaleY(1); }
 }
-/* 🌀 Pörgés: scaleX lapítás → tükrözés → vissza; sörény/farok lengéssel követi */
-#kert-uni-doboz.trukk-porges{ animation:trukk-porges 1.4s ease-in-out 1; }
-#kert-uni-doboz.trukk-porges .uni-soreny{ animation:trukk-soreny-porges 1.4s ease-in-out 1; }
-#kert-uni-doboz.trukk-porges .uni-farok{ animation:trukk-farok-porges 1.4s ease-in-out 1; }
-
-@keyframes trukk-porges{
-  0%  { transform:scaleX(1);   }
-  18% { transform:scaleX(.12); }
-  22% { transform:scaleX(0);   }
-  26% { transform:scaleX(-.12);}
-  35% { transform:scaleX(-1);  }
-  52% { transform:scaleX(-.12);}
-  56% { transform:scaleX(0);   }
-  60% { transform:scaleX(.12); }
-  72% { transform:scaleX(1);   }
-  100%{ transform:scaleX(1);   }
+/* 🌀 Pörgés: forgató-szikrák (a sprite-swap motor JS-ből szórja) */
+.forgato-szikra{
+  position:absolute; font-size:16px; pointer-events:none; z-index:960;
+  animation:forgato-szikra-anim .6s ease-out forwards;
 }
-@keyframes trukk-soreny-porges{
-  0%  { transform:rotate(0deg)  }
-  18% { transform:rotate(14deg) }
-  35% { transform:rotate(-6deg) }
-  52% { transform:rotate(10deg) }
-  72% { transform:rotate(-3deg) }
-  100%{ transform:rotate(0deg)  }
+@keyframes forgato-szikra-anim{
+  0%{ opacity:1; transform:translate(0,0) scale(.6); }
+  100%{ opacity:0; transform:translate(0,-30px) scale(.2) rotate(120deg); }
 }
-@keyframes trukk-farok-porges{
-  0%  { transform:rotate(0deg)   }
-  18% { transform:rotate(-18deg) }
-  35% { transform:rotate(8deg)   }
-  52% { transform:rotate(-14deg) }
-  72% { transform:rotate(4deg)   }
-  100%{ transform:rotate(0deg)   }
+@media (prefers-reduced-motion:reduce){
+  .forgato-szikra{ animation:none; display:none; }
 }
 
 /* ✨ Csillámszórás: kis megsüllyedés → büszke kihúzás, szarv ragyog, szikrák repülnek */

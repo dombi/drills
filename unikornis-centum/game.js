@@ -1230,6 +1230,105 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
     '</g>' +
   '</g>';
 }
+/* ── 4 NÉZETES FORGATÓ MOTOR (sprite-swap rotation) ────────────────────────
+   Bármilyen figurát/tárgyat körbeforgathatunk 4 nézettel (jobb/elöl/bal/hátul).
+   A kert 🌀 Pörgés trükk ezt használja — így sosem lesz papírvékony csík. */
+var FORGATO_PALETTA = {
+  korall: { test:"#f2a877",has:"#f8c6a1",lab:"#f8c6a1",s1:"#f2662b",s2:"#d83b22",s3:"#ffb43a",szarv:"#f28a2e",szarvCs:"#c9531a",szem:"#3a2a20" },
+  kek:    { test:"#d7ebfb",has:"#ecf6fe",lab:"#ecf6fe",s1:"#29a3dd",s2:"#7a3bc0",s3:"#c98fe6",szarv:"#6a6fd6",szarvCs:"#454bb0",szem:"#2ea8e0" },
+  rozsa:  { test:"#fdf3f7",has:"#ffffff",lab:"#ffffff",s1:"#ffcf4d",s2:"#e6a92e",s3:"#ffe6a0",szarv:"#ffcf4d",szarvCs:"#e0a52e",szem:"#e67ba6" }
+};
+function forgatoSzinek(rajz, kinezet) {
+  var a = FORGATO_PALETTA[rajz] || FORGATO_PALETTA.korall, sz = {};
+  for (var k in a) if (a.hasOwnProperty(k)) sz[k] = a[k];
+  if (kinezet && kinezet.sorenySzin) {
+    var lista = SORENY_SZIN[rajz];
+    if (lista && lista[kinezet.sorenySzin]) { var c = lista[kinezet.sorenySzin].c; sz.s1 = c[0]; sz.s2 = c[1]; sz.s3 = c[2]; }
+  }
+  if (kinezet && kinezet.szemSzin) sz.szem = kinezet.szemSzin;
+  return sz;
+}
+function unikornisFrontArt(sz, gondor) {
+  var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
+  s += '<path d="M172 228 Q158 256 156 278" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/>';
+  s += '<path d="M208 228 Q222 256 224 278" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+  s += '<path d="M148 220 L140 286 L162 286 L156 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M232 220 L240 286 L218 286 L224 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="190" cy="200" rx="52" ry="26" fill="' + sz.has + '" stroke="none"/>';
+  s += '<path d="M158 224 L150 286 L174 286 L166 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<path d="M222 224 L230 286 L206 286 L214 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<ellipse cx="162" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<ellipse cx="218" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="138" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="128" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="122" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="120" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="126" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="132" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="124" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+    s += '<g class="ucg"><circle cx="242" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="252" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="258" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="260" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="254" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="248" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="256" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M154 56 Q124 82 118 124 Q114 160 122 200 Q128 224 134 240" fill="none" stroke="' + sz.s1 + '" stroke-width="9"/><path d="M156 62 Q130 92 124 134 Q120 168 128 210" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M158 54 Q136 78 132 116 Q128 148 134 180" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+    s += '<g class="ucg"><path d="M226 56 Q256 82 262 124 Q266 160 258 200 Q252 224 246 240" fill="none" stroke="' + sz.s1 + '" stroke-width="9"/><path d="M224 62 Q250 92 256 134 Q260 168 252 210" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M222 54 Q244 78 248 116 Q252 148 246 180" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+  }
+  s += '<circle cx="190" cy="88" r="42" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="153" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(-15,153,56)"/>';
+  s += '<ellipse cx="227" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(15,227,56)"/>';
+  s += '<polygon points="190,12 176,62 204,62" fill="' + sz.szarv + '" stroke-width="4"/>';
+  s += '<path d="M180 52 L200 52" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M183 40 L197 40" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M186 28 L194 28" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="178" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="202" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="74" r="7" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M180 64 Q174 80 178 96" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M186 62 Q180 78 184 94" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/><path d="M194 62 Q200 78 196 94" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M200 64 Q206 80 202 96" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/></g>';
+  }
+  s += '<path d="M165 86 Q172 76 180 76 Q188 76 191 86 Q186 92 178 92 Q170 92 165 86 Z" fill="#fff" stroke-width="1.7"/>';
+  s += '<circle cx="178" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="178" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="176" cy="83" r="1.6" fill="#fff" stroke="none"/>';
+  s += '<path d="M189 86 Q196 76 204 76 Q212 76 215 86 Q210 92 202 92 Q194 92 189 86 Z" fill="#fff" stroke-width="1.7"/>';
+  s += '<circle cx="202" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="202" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="200" cy="83" r="1.6" fill="#fff" stroke="none"/>';
+  s += '<path d="M165 84 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/><path d="M169 80 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>';
+  s += '<path d="M215 84 q3 -3 5 -8" fill="none" stroke-width="2.2"/><path d="M211 80 q2 -4 3 -9" fill="none" stroke-width="2.2"/>';
+  s += '<path d="M183 104 Q190 110 197 104" fill="none" stroke="#e088b0" stroke-width="2"/>';
+  s += '<ellipse cx="162" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
+  s += '<ellipse cx="218" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
+  s += '<path d="M148 24 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="' + sz.s1 + '" stroke="none"/>';
+  s += '<path d="M234 18 l1.4 3.2 l3.2 1.4 l-3.2 1.4 l-1.4 3.2 l-1.4 -3.2 l-3.2 -1.4 l3.2 -1.4 Z" fill="' + sz.s2 + '" stroke="none"/>';
+  return s + '</g>';
+}
+function unikornisBackArt(sz, gondor) {
+  var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="176" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="248" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="204" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="170" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="272" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="210" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="180" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="200" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M190 222 Q164 252 156 274 Q150 288 156 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 220 Q190 258 188 280 Q186 292 190 296" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 222 Q216 252 224 274 Q230 288 224 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 218 Q176 248 170 270 Q166 284 170 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/><path d="M190 218 Q204 248 210 270 Q214 284 210 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+  }
+  s += '<path d="M148 220 L140 286 L162 286 L156 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M232 220 L240 286 L218 286 L224 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="190" cy="200" rx="52" ry="26" fill="' + sz.has + '" stroke="none"/>';
+  s += '<path d="M158 224 L150 286 L174 286 L166 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<path d="M222 224 L230 286 L206 286 L214 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<ellipse cx="162" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<ellipse cx="218" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<circle cx="190" cy="88" r="42" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="153" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(-15,153,56)"/>';
+  s += '<ellipse cx="227" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(15,227,56)"/>';
+  s += '<ellipse cx="153" cy="58" rx="5.5" ry="12" fill="#f0b8d8" stroke="none" transform="rotate(-15,153,58)"/>';
+  s += '<ellipse cx="227" cy="58" rx="5.5" ry="12" fill="#f0b8d8" stroke="none" transform="rotate(15,227,58)"/>';
+  s += '<polygon points="190,18 180,58 200,58" fill="' + sz.szarv + '" stroke-width="4"/>';
+  s += '<path d="M183 48 L197 48" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M185 36 L195 36" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="172" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="82" r="16" fill="' + sz.s1 + '" stroke="none"/><circle cx="208" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="166" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="116" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="214" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="172" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="146" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="208" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="180" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="200" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="178" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="202" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M172 60 Q156 100 154 148 Q152 188 160 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M180 56 Q168 100 166 150 Q164 196 172 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 52 Q190 100 190 150 Q190 196 190 240" fill="none" stroke="' + sz.s3 + '" stroke-width="6"/><path d="M200 56 Q212 100 214 150 Q216 196 208 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M208 60 Q224 100 226 148 Q228 188 220 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/></g>';
+  }
+  s += '<g class="ucg">';
+  if (gondor) {
+    s += '<circle cx="182" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="198" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="48" r="6" fill="' + sz.s2 + '" stroke="none"/>';
+  } else {
+    s += '<path d="M182 52 Q178 36 180 24" fill="none" stroke="' + sz.s1 + '" stroke-width="4"/><path d="M198 52 Q202 36 200 24" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+  }
+  s += '</g>';
+  return s + '</g>';
+}
 /* ── ÉLETRE KELTÉS (idle animáció) ──────────────────────────────────────────
    Csak CLASS-eket tesz a meglévő rajzra — a geometriát/színt NEM érinti. A tényleges
    mozgást a style.css végzi, és CSAK a "hős" konténerekben (#szinpad, #odu-szoba,
@@ -3834,7 +3933,17 @@ function kertTrukkJatszik(id) {
   var t = kertTrukkAdat(id); if (!t || !t.perc) return;
   var doboz = $("kert-uni-doboz"); if (!doboz || KERT_TRUKK_FUT) return;
   KERT_TRUKK_FUT = true;
-  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);   /* a séta-bólogatás ne ütközzön */
+  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
+  /* 🌀 Pörgés: 4 nézetes sprite-swap forgás (nem CSS-animáció) */
+  if (id === "porges") {
+    hangCsilla();
+    var sugo0 = $("kert-sugo"); if (sugo0) sugo0.textContent = t.emoji + " " + t.nev + "!";
+    kertPorgesForgas(doboz, t.perc, function () {
+      KERT_TRUKK_FUT = false;
+      var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
+    });
+    return;
+  }
   var cls = "trukk-" + id;
   doboz.classList.add(cls);
   hangCsilla();
@@ -3867,6 +3976,68 @@ function kertTrukkJatszik(id) {
     KERT_TRUKK_FUT = false;
     var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
   }, t.perc + 80);
+}
+/* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
+function kertPorgesForgas(doboz, idoMs, cb) {
+  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reducedMotion) {
+    var flip = doboz.querySelector(".kert-uni-flip");
+    if (flip) flip.style.setProperty("--dir", "-1");
+    setTimeout(function () { if (flip) flip.style.setProperty("--dir", "1"); if (cb) cb(); }, idoMs);
+    return;
+  }
+  var c = P().karakter, rajz = (c && c.rajz) || "korall";
+  var kinezet = P().kinezet || null;
+  var gondor = !!(kinezet && kinezet.frizura === "gondor");
+  var sz = forgatoSzinek(rajz, kinezet);
+  var svg = doboz.querySelector(".kert-uni-svg");
+  var flip = doboz.querySelector(".kert-uni-flip");
+  if (!svg || !flip) { if (cb) cb(); return; }
+  var eredeti = svg.innerHTML;
+  var eredetiDir = flip.style.getPropertyValue("--dir") || "1";
+  var wrapArt = function (art) {
+    return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
+  };
+  var frontHtml = wrapArt(unikornisFrontArt(sz, gondor));
+  var backHtml = wrapArt(unikornisBackArt(sz, gondor));
+  var keretek = [
+    { html: eredeti, dir: "1" },
+    { html: frontHtml, dir: "1" },
+    { html: eredeti, dir: "-1" },
+    { html: backHtml, dir: "1" }
+  ];
+  var total = 8, keretMs = Math.floor(idoMs / total), i = 0;
+  var bounce = [0, -4, 0, -6, 0, -4, 0, -6];
+  var kont = doboz.parentNode, szikrak = [];
+  var szikraEmoji = ["✨","⭐","💫","🌟"];
+  function szikra() {
+    var sp = document.createElement("span");
+    sp.className = "forgato-szikra";
+    sp.textContent = szikraEmoji[Math.floor(Math.random() * 4)];
+    sp.style.left = (30 + Math.random() * 40) + "%";
+    sp.style.top = (20 + Math.random() * 50) + "%";
+    kont.appendChild(sp);
+    szikrak.push(sp);
+    setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 600);
+  }
+  function koviKeret() {
+    if (i >= total) {
+      svg.innerHTML = eredeti;
+      flip.style.setProperty("--dir", eredetiDir);
+      doboz.style.transform = "";
+      szikrak.forEach(function (sp) { if (sp.parentNode) sp.parentNode.removeChild(sp); });
+      if (cb) cb();
+      return;
+    }
+    var k = keretek[i % 4];
+    svg.innerHTML = k.html;
+    flip.style.setProperty("--dir", k.dir);
+    doboz.style.transform = "translateY(" + bounce[i] + "px)";
+    szikra();
+    i++;
+    setTimeout(koviKeret, keretMs);
+  }
+  koviKeret();
 }
 function kertSetal(celX) {
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
@@ -5444,6 +5615,7 @@ window.UC = {
   oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); },
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
+  kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe,           /* FODRÁSZAT */
   frizuraGondorArt: frizuraGondorArt,
