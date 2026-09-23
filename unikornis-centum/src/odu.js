@@ -417,7 +417,7 @@ function kertElemDb(id) { var n = 0, e = P().kert.elemek || []; for (var i = 0; 
 /* egy tárgy megvétele → a fészerbe kerül (darabra, 💧-ért) */
 function kertTargyVesz(t) {
   if ((P().tunderharmat || 0) < t.ar) { renderOduPanel(); return; }
-  P().tunderharmat -= t.ar;
+  P().tunderharmat -= t.ar; vasarlasNaplo(t.id, t.ar, "tunderharmat");
   P().kert.keszlet[t.id] = (P().kert.keszlet[t.id] || 0) + 1;
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
@@ -430,7 +430,7 @@ function vitrinPreviewOdu(id) {
 }
 function oduVitrinVesz(t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.vitrin[t.id] = 1;                 /* a vitrinbe kerül, ott is marad */
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
@@ -448,6 +448,7 @@ function oduKertVesz(t) {
   var penz = harmat ? (P().tunderharmat || 0) : P().csillampor;
   if (penz < t.ar) { renderOduPanel(); return; }
   if (harmat) P().tunderharmat -= t.ar; else P().csillampor -= t.ar;
+  vasarlasNaplo(t.id, t.ar, harmat ? "tunderharmat" : "csillampor");
   if (t.id === "kulcs") P().kert.nyitva = 1;
   else P().kert.trukkok[t.id] = 1;
   hangCsilla(); hangJo(); ment();

@@ -11,7 +11,56 @@ function alapSzalon() { return { nyitva: 0, kefek: {} }; }   /* Fodrászat: nyit
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
 function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
-function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
+function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
+/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
+function profilNormal(p) {
+  if (typeof p.csillampor !== "number") p.csillampor = 0;
+  if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
+  if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
+  if (typeof p.jatekMp !== "number") p.jatekMp = 0;
+  if (!p.odu) p.odu = alapOdu();
+  if (!p.odu.van) p.odu.van = { napszak: {}, ido: {} };
+  if (!p.odu.van.napszak) p.odu.van.napszak = {};
+  if (!p.odu.van.ido) p.odu.van.ido = {};
+  p.odu.van.napszak.este = 1; p.odu.van.ido.tiszta = 1;   /* az alap mindig birtokolt */
+  if (!p.odu.napszak) p.odu.napszak = "este";
+  if (!p.odu.ido) p.odu.ido = "tiszta";
+  if (!p.odu.szint) p.odu.szint = alapButorSzint();
+  else { var asz = alapButorSzint(), hk; for (hk in asz) if (typeof p.odu.szint[hk] !== "number") p.odu.szint[hk] = asz[hk]; }
+  if (!p.odu.vanButor) p.odu.vanButor = {};
+  if (!p.odu.disz) p.odu.disz = {};
+  if (!p.odu.vanDisz) p.odu.vanDisz = {};
+  if (!p.odu.vitrin) p.odu.vitrin = {};
+  if (!p.oltozet) p.oltozet = alapOltozet();
+  if (!p.oltozet.van) p.oltozet.van = {};
+  ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
+  if (!p.jelvenyek) p.jelvenyek = {};
+  if (!p.jelvSzam) p.jelvSzam = alapJelvSzam();
+  else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
+  if (!p.napok) p.napok = {};
+  if (typeof p.streakRekord !== "number") p.streakRekord = 0;
+  if (typeof p.dropUres !== "number") p.dropUres = 0;
+  p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
+  if (!p.kinezet) p.kinezet = alapKinezet();
+  if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
+  if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
+  if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
+  if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
+  p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
+  if (!p.kapu) p.kapu = alapKapu();
+  if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
+  if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
+  if (!p.kert) p.kert = alapKert();
+  if (typeof p.kert.nyitva !== "number") p.kert.nyitva = 0;
+  if (!p.kert.trukkok) p.kert.trukkok = {};
+  if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
+  if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
+  if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
+  if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
+  if (!p.szalon.kefek) p.szalon.kefek = {};
+  if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+  return p;
+}
 function betolt() {
   try {
     var m = JSON.parse(localStorage.getItem(KULCS));
@@ -20,51 +69,7 @@ function betolt() {
       LENY_SORREND.forEach(function (k) {
         if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil();
         var p = mentes.profilok[k];
-        if (typeof p.csillampor !== "number") p.csillampor = 0;
-        if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
-        if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
-        if (typeof p.jatekMp !== "number") p.jatekMp = 0;
-        if (!p.odu) p.odu = alapOdu();
-        if (!p.odu.van) p.odu.van = { napszak: {}, ido: {} };
-        if (!p.odu.van.napszak) p.odu.van.napszak = {};
-        if (!p.odu.van.ido) p.odu.van.ido = {};
-        p.odu.van.napszak.este = 1; p.odu.van.ido.tiszta = 1;   /* az alap mindig birtokolt */
-        if (!p.odu.napszak) p.odu.napszak = "este";
-        if (!p.odu.ido) p.odu.ido = "tiszta";
-        if (!p.odu.szint) p.odu.szint = alapButorSzint();
-        else { var asz = alapButorSzint(), hk; for (hk in asz) if (typeof p.odu.szint[hk] !== "number") p.odu.szint[hk] = asz[hk]; }
-        if (!p.odu.vanButor) p.odu.vanButor = {};
-        if (!p.odu.disz) p.odu.disz = {};
-        if (!p.odu.vanDisz) p.odu.vanDisz = {};
-        if (!p.odu.vitrin) p.odu.vitrin = {};
-        if (!p.oltozet) p.oltozet = alapOltozet();
-        if (!p.oltozet.van) p.oltozet.van = {};
-        ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
-        if (!p.jelvenyek) p.jelvenyek = {};
-        if (!p.jelvSzam) p.jelvSzam = alapJelvSzam();
-        else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
-        if (!p.napok) p.napok = {};
-        if (typeof p.streakRekord !== "number") p.streakRekord = 0;
-        if (typeof p.dropUres !== "number") p.dropUres = 0;
-        p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
-        if (!p.kinezet) p.kinezet = alapKinezet();
-        if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
-        if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
-        if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
-        if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
-        p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
-        if (!p.kapu) p.kapu = alapKapu();
-        if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
-        if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
-        if (!p.kert) p.kert = alapKert();
-        if (typeof p.kert.nyitva !== "number") p.kert.nyitva = 0;
-        if (!p.kert.trukkok) p.kert.trukkok = {};
-        if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
-        if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
-        if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
-        if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
-        if (!p.szalon.kefek) p.szalon.kefek = {};
-        if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+        profilNormal(p);
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";

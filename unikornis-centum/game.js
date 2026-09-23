@@ -554,7 +554,56 @@ function alapSzalon() { return { nyitva: 0, kefek: {} }; }   /* Fodrászat: nyit
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
 function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
-function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} }
+function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
+/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
+function profilNormal(p) {
+  if (typeof p.csillampor !== "number") p.csillampor = 0;
+  if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
+  if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
+  if (typeof p.jatekMp !== "number") p.jatekMp = 0;
+  if (!p.odu) p.odu = alapOdu();
+  if (!p.odu.van) p.odu.van = { napszak: {}, ido: {} };
+  if (!p.odu.van.napszak) p.odu.van.napszak = {};
+  if (!p.odu.van.ido) p.odu.van.ido = {};
+  p.odu.van.napszak.este = 1; p.odu.van.ido.tiszta = 1;   /* az alap mindig birtokolt */
+  if (!p.odu.napszak) p.odu.napszak = "este";
+  if (!p.odu.ido) p.odu.ido = "tiszta";
+  if (!p.odu.szint) p.odu.szint = alapButorSzint();
+  else { var asz = alapButorSzint(), hk; for (hk in asz) if (typeof p.odu.szint[hk] !== "number") p.odu.szint[hk] = asz[hk]; }
+  if (!p.odu.vanButor) p.odu.vanButor = {};
+  if (!p.odu.disz) p.odu.disz = {};
+  if (!p.odu.vanDisz) p.odu.vanDisz = {};
+  if (!p.odu.vitrin) p.odu.vitrin = {};
+  if (!p.oltozet) p.oltozet = alapOltozet();
+  if (!p.oltozet.van) p.oltozet.van = {};
+  ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
+  if (!p.jelvenyek) p.jelvenyek = {};
+  if (!p.jelvSzam) p.jelvSzam = alapJelvSzam();
+  else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
+  if (!p.napok) p.napok = {};
+  if (typeof p.streakRekord !== "number") p.streakRekord = 0;
+  if (typeof p.dropUres !== "number") p.dropUres = 0;
+  p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
+  if (!p.kinezet) p.kinezet = alapKinezet();
+  if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
+  if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
+  if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
+  if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
+  p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
+  if (!p.kapu) p.kapu = alapKapu();
+  if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
+  if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
+  if (!p.kert) p.kert = alapKert();
+  if (typeof p.kert.nyitva !== "number") p.kert.nyitva = 0;
+  if (!p.kert.trukkok) p.kert.trukkok = {};
+  if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
+  if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
+  if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
+  if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
+  if (!p.szalon.kefek) p.szalon.kefek = {};
+  if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+  return p;
+}
 function betolt() {
   try {
     var m = JSON.parse(localStorage.getItem(KULCS));
@@ -563,51 +612,7 @@ function betolt() {
       LENY_SORREND.forEach(function (k) {
         if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil();
         var p = mentes.profilok[k];
-        if (typeof p.csillampor !== "number") p.csillampor = 0;
-        if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
-        if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
-        if (typeof p.jatekMp !== "number") p.jatekMp = 0;
-        if (!p.odu) p.odu = alapOdu();
-        if (!p.odu.van) p.odu.van = { napszak: {}, ido: {} };
-        if (!p.odu.van.napszak) p.odu.van.napszak = {};
-        if (!p.odu.van.ido) p.odu.van.ido = {};
-        p.odu.van.napszak.este = 1; p.odu.van.ido.tiszta = 1;   /* az alap mindig birtokolt */
-        if (!p.odu.napszak) p.odu.napszak = "este";
-        if (!p.odu.ido) p.odu.ido = "tiszta";
-        if (!p.odu.szint) p.odu.szint = alapButorSzint();
-        else { var asz = alapButorSzint(), hk; for (hk in asz) if (typeof p.odu.szint[hk] !== "number") p.odu.szint[hk] = asz[hk]; }
-        if (!p.odu.vanButor) p.odu.vanButor = {};
-        if (!p.odu.disz) p.odu.disz = {};
-        if (!p.odu.vanDisz) p.odu.vanDisz = {};
-        if (!p.odu.vitrin) p.odu.vitrin = {};
-        if (!p.oltozet) p.oltozet = alapOltozet();
-        if (!p.oltozet.van) p.oltozet.van = {};
-        ["fej", "nyak", "hat", "lab", "oldal", "farok"].forEach(function (h) { if (p.oltozet[h] === undefined) p.oltozet[h] = null; });
-        if (!p.jelvenyek) p.jelvenyek = {};
-        if (!p.jelvSzam) p.jelvSzam = alapJelvSzam();
-        else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
-        if (!p.napok) p.napok = {};
-        if (typeof p.streakRekord !== "number") p.streakRekord = 0;
-        if (typeof p.dropUres !== "number") p.dropUres = 0;
-        p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
-        if (!p.kinezet) p.kinezet = alapKinezet();
-        if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
-        if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
-        if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
-        if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
-        p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
-        if (!p.kapu) p.kapu = alapKapu();
-        if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
-        if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
-        if (!p.kert) p.kert = alapKert();
-        if (typeof p.kert.nyitva !== "number") p.kert.nyitva = 0;
-        if (!p.kert.trukkok) p.kert.trukkok = {};
-        if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
-        if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
-        if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
-        if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
-        if (!p.szalon.kefek) p.szalon.kefek = {};
-        if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+        profilNormal(p);
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -1827,7 +1832,8 @@ function palyaInditas(id) {
 
   J = { palya: pa, allomasok: allomasok, allomasIdx: 0, feladat: null, feladatDb: 0, feladatKesz: 0,
         probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "",
-        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan };
+        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan, indultMs: Date.now() };
+  esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
@@ -2511,6 +2517,8 @@ function palyaVege() {
 
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
+  esemeny("palya_end", { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
+    teljes: teljes, csillampor: J.futoCsilla, harmat: harmat });
   var ujJelv = jelvenyEllenoriz();
 
   var teljesSor = teljes
@@ -2780,7 +2788,9 @@ function esemenyek() {
   hosszuNyomas($("profil-szuloi"), belepSzuloi);
   hosszuNyomas($("fomenu-szuloi"), belepSzuloi);
   $("fomenu-vissza").addEventListener("click", function () { hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
-  $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop(); sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();
+    if (J && J.palya) esemeny("palya_kilep", { palyaId: J.palya.id, allomas: J.allomasIdx, feladat: J.futoOssz, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000) });
+    sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });
   $("mondom-gomb").addEventListener("click", mikrofonInd);
   $("mondom-bontas-gomb").addEventListener("click", mikrofonInd);
   $("bontas-kesz-gomb").addEventListener("click", function () {
@@ -3288,7 +3298,7 @@ function kertElemDb(id) { var n = 0, e = P().kert.elemek || []; for (var i = 0; 
 /* egy tárgy megvétele → a fészerbe kerül (darabra, 💧-ért) */
 function kertTargyVesz(t) {
   if ((P().tunderharmat || 0) < t.ar) { renderOduPanel(); return; }
-  P().tunderharmat -= t.ar;
+  P().tunderharmat -= t.ar; vasarlasNaplo(t.id, t.ar, "tunderharmat");
   P().kert.keszlet[t.id] = (P().kert.keszlet[t.id] || 0) + 1;
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
@@ -3301,7 +3311,7 @@ function vitrinPreviewOdu(id) {
 }
 function oduVitrinVesz(t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.vitrin[t.id] = 1;                 /* a vitrinbe kerül, ott is marad */
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
@@ -3319,6 +3329,7 @@ function oduKertVesz(t) {
   var penz = harmat ? (P().tunderharmat || 0) : P().csillampor;
   if (penz < t.ar) { renderOduPanel(); return; }
   if (harmat) P().tunderharmat -= t.ar; else P().csillampor -= t.ar;
+  vasarlasNaplo(t.id, t.ar, harmat ? "tunderharmat" : "csillampor");
   if (t.id === "kulcs") P().kert.nyitva = 1;
   else P().kert.trukkok[t.id] = 1;
   hangCsilla(); hangJo(); ment();
@@ -4930,7 +4941,7 @@ function boltVegrehajt(cs, t) {
 }
 function oduKinezetVesz(kulcs, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   var van = kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem;
   van[t.id] = 1;
   oduKinezetBeallit(kulcs, t.id, true);     /* vétel után rögtön fel is vesszük */
@@ -4943,7 +4954,7 @@ function oduKinezetBeallit(kulcs, id, vetel) {
 }
 function oduDiszVesz(zona, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.vanDisz[t.id] = 1;
   P().odu.disz[zona] = t.id;                /* vétel után rögtön ki is rakjuk */
   hangCsilla(); hangJo(); ment();
@@ -4956,7 +4967,7 @@ function oduDiszBeallit(zona, id) {
 }
 function oduButorVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   if (!P().odu.vanButor[hely]) P().odu.vanButor[hely] = {};
   P().odu.vanButor[hely][t.id] = 1;
   P().odu.szint[hely] = t.id;              /* vétel után rögtön ki is tesszük */
@@ -4970,7 +4981,7 @@ function oduButorBeallit(hely, id) {
 }
 function oduRuhaVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().oltozet.van[t.id] = 1;
   P().oltozet[hely.kulcs] = t.id;          /* vétel után rögtön fel is vesszük */
   hangCsilla(); hangJo(); ment();
@@ -4983,7 +4994,7 @@ function oduRuhaVisel(kulcs, itemId) {
 }
 function oduVesz(kat, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.van[kat][t.id] = 1;
   P().odu[kat] = t.id;                 /* vétel után rögtön ki is tesszük */
   hangCsilla(); hangJo(); ment();
@@ -5138,7 +5149,7 @@ function utcaFodraszKoppint() {
 function utcaBelepoVesz() {
   hangGomb();
   if (P().csillampor < SZALON_BELEPO_AR) { UTCA_MOD = "nez"; renderUtca(); return; }
-  P().csillampor -= SZALON_BELEPO_AR;
+  P().csillampor -= SZALON_BELEPO_AR; vasarlasNaplo("szalon-belepo", SZALON_BELEPO_AR, "csillampor");
   P().szalon.nyitva = 1;
   UTCA_MOD = "nez";
   hangCsilla(); hangJo(); ment();
@@ -5235,7 +5246,7 @@ function szalonKefe(cel) {
   if (most === cel) { hangGomb(); mondd(cel === "gondor" ? "Már göndör a sörény!" : "Már egyenes a sörény!"); return; }
   if (!P().szalon.kefek[cel]) {
     if ((P().tunderharmat || 0) < KEFE_AR) { hangGomb(); mondd("Ehhez a keféhez 12 tündérharmat kell. Gyűjts még kitartással!"); return; }
-    P().tunderharmat -= KEFE_AR;
+    P().tunderharmat -= KEFE_AR; vasarlasNaplo("kefe-" + cel, KEFE_AR, "tunderharmat");
     P().szalon.kefek[cel] = 1;
   }
   P().kinezet.frizura = cel;
@@ -5547,8 +5558,354 @@ function renderGyujtemeny() {
   });
 }
 
+/* ============ 12) FELHŐ — Firebase beállítás + kapcsoló ============
+   Backend-átállás 1. fázis. A felhő CSAK kapcsolóval él: ?felho → be (megjegyzi), ?felho=ki → ki.
+   Kapcsoló nélkül a játék pontosan úgy fut, mint eddig (az SDK be sem töltődik).
+   A config NEM titok — a védelmet a firestore.rules adja. */
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD7O40iCaeSryo17HEOVcWKJ0263LY5-fw",
+  authDomain: "unicornis-centum.firebaseapp.com",
+  projectId: "unicornis-centum",
+  storageBucket: "unicornis-centum.firebasestorage.app",
+  messagingSenderId: "198411098733",
+  appId: "1:198411098733:web:e55f82c3b71fe347123d64"
+};
+var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
+var FELHO_EMAIL_DOMAIN = "unikornis.app";   /* belépőkód CSILLAG-42 → csillag-42@unikornis.app, jelszó: CSILLAG-42 */
+var FELHO_KAPCS = "uc_felho";               /* localStorage: "1" = felhő-mód bekapcsolva ezen a gépen */
+var FELHO_GAZDA = "uc_felho_gazda";         /* localStorage: melyik fiók (uid) adatai vannak a helyi mentésben */
+var FELHO_MENTES_ELOTTE = "unikornis_centum_v1_felho_elott";   /* biztonsági másolat az első felhő-felülírás előtt */
+var FELHO_SZAMLALOK = { csillampor: 1, tunderharmat: 1, jatekMp: 1 };   /* ezek delta-alapon (increment) szinkronizálnak */
+
+var FELHO = {
+  aktiv: false,       /* be van lépve + fut a szinkron */
+  kesz: false,        /* megjött az első felhő-állapot (előtte nem küldünk) */
+  uid: null, kod: null,
+  auth: null, db: null,
+  alap: {},           /* profilonként az utolsó ismert felhő-állapot (a 3-utas összefésülés alapja) */
+  alapUser: null,
+  idozito: null, leiratkozas: null
+};
+
+function felhoBekapcsolva() {
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.has("felho")) {
+      if (q.get("felho") === "ki") localStorage.removeItem(FELHO_KAPCS);
+      else localStorage.setItem(FELHO_KAPCS, "1");
+    }
+    return localStorage.getItem(FELHO_KAPCS) === "1";
+  } catch (e) { return false; }
+}
+/* ============ 12b) FELHŐ — belépés kóddal ============
+   A belépőkód egyben a jelszó: CSILLAG-42 → csillag-42@unikornis.app / CSILLAG-42.
+   A fiókot a producer hozza létre a Firebase-konzolon (Authentication → Add user).
+   A böngésző megjegyzi a belépést — a gyerek csak egyszer írja be a kódot. */
+function felhoIndit() {
+  if (!felhoBekapcsolva()) return;
+  sdkBetolt(["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"], function (ok) {
+    if (!ok || !window.firebase) { console.warn("[felhő] az SDK nem töltődött be (nincs net?) — helyi mentéssel megyünk tovább"); return; }
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      FELHO.auth = firebase.auth();
+      FELHO.db = firebase.firestore();
+      FELHO.db.enablePersistence({ synchronizeTabs: true }).catch(function (e) { console.warn("[felhő] offline tár nem elérhető:", e.code); });
+    } catch (e) { console.warn("[felhő] indítási hiba:", e); return; }
+    FELHO.auth.onAuthStateChanged(function (u) {
+      if (u) { belepoRejt(); felhoBelepve(u); }
+      else belepoMutat();
+    });
+  });
+}
+function sdkBetolt(fajlok, kesz) {
+  var i = 0;
+  (function kov() {
+    if (i >= fajlok.length) { kesz(true); return; }
+    var s = document.createElement("script");
+    s.src = FIREBASE_SDK + fajlok[i++];
+    s.onload = kov;
+    s.onerror = function () { kesz(false); };
+    document.head.appendChild(s);
+  })();
+}
+function kodNormal(kod) { return String(kod || "").trim().toUpperCase().replace(/\s+/g, "-"); }
+function kodBelep(kod) {
+  var k = kodNormal(kod);
+  if (k.length < 6) return Promise.reject({ code: "rovid" });
+  return FELHO.auth.signInWithEmailAndPassword(k.toLowerCase() + "@" + FELHO_EMAIL_DOMAIN, k);
+}
+function felhoKilep() {
+  felhoKuld();
+  FELHO.aktiv = false; FELHO.kesz = false;
+  if (FELHO.leiratkozas) FELHO.leiratkozas();
+  FELHO.auth.signOut().then(function () { location.reload(); });
+}
+
+/* ── belépő képernyő (rátét a profilválasztó fölé) ── */
+function belepoMutat() {
+  var d = $("felho-belepo");
+  if (!d) {
+    d = el("div", "felho-belepo"); d.id = "felho-belepo";
+    d.innerHTML =
+      '<div class="felho-kartya">' +
+        '<div class="felho-ikon">☁️🦄</div>' +
+        '<h2>Belépés</h2>' +
+        '<p>Írd be a belépőkódodat!</p>' +
+        '<input id="felho-kod" class="felho-mezo" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="pl. CSILLAG-42" />' +
+        '<div id="felho-hiba" class="felho-hiba"></div>' +
+        '<button id="felho-belep" class="nagy-gomb kiemelt">Belépek</button>' +
+        '<button id="felho-kesobb" class="tovabb-link">most felhő nélkül játszom</button>' +
+      '</div>';
+    document.body.appendChild(d);
+    var mezo = $("felho-kod"), gomb = $("felho-belep"), hiba = $("felho-hiba");
+    function probal() {
+      hiba.textContent = ""; gomb.disabled = true; gomb.textContent = "Egy pillanat…";
+      kodBelep(mezo.value).catch(function (e) {
+        var c = (e && e.code) || "";
+        hiba.textContent = c === "auth/network-request-failed" ? "Nincs internet. Próbáld újra később!"
+          : c === "auth/too-many-requests" ? "Túl sok próbálkozás. Várj egy kicsit!"
+          : "Ez a kód nem jó. Nézd meg még egyszer!";
+        gomb.disabled = false; gomb.textContent = "Belépek";
+      });
+    }
+    gomb.addEventListener("click", probal);
+    mezo.addEventListener("keydown", function (e) { if (e.key === "Enter") probal(); });
+    $("felho-kesobb").addEventListener("click", belepoRejt);
+  }
+  d.hidden = false;
+}
+function belepoRejt() { var d = $("felho-belepo"); if (d) d.hidden = true; }
+/* ============ 12c) FELHŐ — Firestore: betöltés, első feltöltés, élő figyelés ============
+   users/{uid}                 — beállítások (hang, válaszmód, aktív lény)
+   users/{uid}/unicorns/{leny} — egy-egy unikornis teljes profilja (a helyi mentes.profilok[leny] tükre)
+   A helyi mentés (localStorage) továbbra is íródik — offline tartalék, és gyors indulás. */
+function felhoUserRef() { return FELHO.db.collection("users").doc(FELHO.uid); }
+function felhoLenyRef(k) { return felhoUserRef().collection("unicorns").doc(k); }
+function felhoGazda() { try { return localStorage.getItem(FELHO_GAZDA); } catch (e) { return null; } }
+
+function felhoBelepve(u) {
+  FELHO.uid = u.uid;
+  FELHO.kod = (u.email || "").split("@")[0].toUpperCase();
+  FELHO.aktiv = true;
+  FELHO.leiratkozas = felhoUserRef().collection("unicorns").onSnapshot({ includeMetadataChanges: false }, function (snap) {
+    if (!FELHO.kesz) felhoElsoAllapot(snap);
+    else felhoTavoliValtozas(snap);
+  }, function (e) { console.warn("[felhő] figyelés hiba:", e.code || e); });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") felhoKuld(); });
+  window.addEventListener("pagehide", felhoKuld);
+  renderFelhoAllapot();
+}
+
+/* az első felhő-állapot: vagy a felhő adatai jönnek le, vagy (üres fióknál) a helyi mentés megy fel */
+function felhoElsoAllapot(snap) {
+  if (snap.empty && snap.metadata.fromCache) return;       /* még nem tudjuk, üres-e a szerveren — várjuk a szervert */
+  var gazda = felhoGazda(), sajat = (gazda === FELHO.uid);
+  if (!sajat) felhoBiztonsagiMasolat();
+  var migralt = false;
+  if (snap.empty) {
+    /* üres fiók: ha a helyi mentés még senkié → felköltözik (migráció); ha másé → új, üres kezdés */
+    if (gazda && !sajat) mentes = alapMentes();
+    else migralt = true;
+    var batch = FELHO.db.batch();
+    batch.set(felhoUserRef(), {
+      settings: { hang: !!mentes.hang, valaszmod: mentes.valaszmod },
+      activeUnicorn: mentes.leny,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      migratedFrom: migralt ? "localStorage" : null
+    }, { merge: true });
+    LENY_SORREND.forEach(function (k) {
+      var t = felhoTiszta(mentes.profilok[k]);
+      batch.set(felhoLenyRef(k), t);
+      FELHO.alap[k] = t;
+    });
+    batch.commit().catch(function (e) { console.warn("[felhő] első feltöltés hiba:", e.code || e); });
+  } else {
+    /* van felhő-adat: az az igazság (a Firestore gyorsítótára a még el nem küldött írásokat is tartalmazza) */
+    var megvan = {};
+    snap.forEach(function (d) {
+      var t = felhoTiszta(d.data());
+      FELHO.alap[d.id] = t;
+      mentes.profilok[d.id] = profilNormal(felhoMasol(t));
+      megvan[d.id] = 1;
+    });
+    LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
+      if (!megvan[k]) { mentes.profilok[k] = alapProfil(); FELHO.alap[k] = {}; }
+    });
+    felhoUserRef().set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
+  }
+  FELHO.alapUser = felhoUserAllapot();
+  try { localStorage.setItem(FELHO_GAZDA, FELHO.uid); } catch (e) {}
+  FELHO.kesz = true;
+  try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {}
+  esemeny("login", { device: felhoEszkoz(), migrated: migralt });
+  felhoKuld();                               /* a normalizálás miatti apró eltérések felmennek */
+  felhoKepernyoFrissit();
+}
+
+/* később érkező változás (másik gép, vagy a saját írásunk visszaigazolása) → 3-utas összefésülés */
+function felhoTavoliValtozas(snap) {
+  var volt = false;
+  snap.docChanges().forEach(function (ch) {
+    if (ch.type === "removed") return;       /* törlést a kliens sosem követ — adatvesztés ellen */
+    var k = ch.doc.id, t = felhoTiszta(ch.doc.data());
+    if (!mentes.profilok[k]) { mentes.profilok[k] = profilNormal(felhoMasol(t)); FELHO.alap[k] = t; volt = true; return; }
+    if (felhoOsszefesul(mentes.profilok[k], FELHO.alap[k] || {}, t, true)) volt = true;
+    FELHO.alap[k] = t;
+  });
+  if (volt) {
+    try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {}
+    felhoKepernyoFrissit();
+  }
+}
+
+function felhoBiztonsagiMasolat() {
+  try {
+    if (localStorage.getItem(FELHO_MENTES_ELOTTE)) return;   /* csak az első, eredeti állapotot őrizzük */
+    var r = localStorage.getItem(KULCS);
+    if (r) localStorage.setItem(FELHO_MENTES_ELOTTE, r);
+  } catch (e) {}
+}
+function felhoEszkoz() {
+  var ua = navigator.userAgent || "";
+  return (/Android/.test(ua) ? "Android" : /iPad|iPhone/.test(ua) ? "iOS" : /Windows/.test(ua) ? "Windows" : /Mac/.test(ua) ? "Mac" : "egyéb") +
+    (/Edg\//.test(ua) ? " · Edge" : /Chrome\//.test(ua) ? " · Chrome" : /Firefox\//.test(ua) ? " · Firefox" : /Safari\//.test(ua) ? " · Safari" : "");
+}
+
+/* távoli változás után a látható számlálók/listák frissítése — játék közben a jelenetet nem bántjuk */
+function felhoKepernyoFrissit() {
+  var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
+  if (id === "kepernyo-profil") renderProfil();
+  else if (id === "kepernyo-fomenu") renderFomenu();
+  var p = P(); if (!p) return;
+  ["fomenu", "jatek", "odu", "kert", "utca", "szalon"].forEach(function (h) {
+    var c = $(h + "-csillampor"); if (c) c.textContent = p.csillampor;
+    var t = $(h + "-harmat"); if (t) t.textContent = p.tunderharmat || 0;
+  });
+  renderFelhoAllapot();
+}
+
+/* Szülőknek → Beállítások: felhő-állapot sor + kilépés */
+function renderFelhoAllapot() {
+  var blokk = document.querySelector(".szuloi-blokk.beallitasok"); if (!blokk) return;
+  var s = $("felho-allapot");
+  if (!s) { s = el("p", "felho-allapot"); s.id = "felho-allapot"; blokk.appendChild(s); }
+  if (!FELHO.aktiv) { s.innerHTML = "☁️ Felhő: nincs belépve"; return; }
+  s.innerHTML = "☁️ Felhő: belépve — <b>" + kiiras(FELHO.kod) + "</b>" + (FELHO.kesz ? "" : " (szinkron indul…)") +
+    ' <button id="felho-kilep" class="kis-gomb">Kilépés</button>';
+  $("felho-kilep").onclick = felhoKilep;
+}
+/* ============ 12d) FELHŐ — szinkron: delta-küldés + 3-utas összefésülés ============
+   A játék továbbra is a `mentes` objektumot módosítja és ment()-et hív. A ment() jelez ide;
+   ~1 mp múlva összevetjük a profilt az utolsó ismert felhő-állapottal (FELHO.alap), és CSAK a
+   megváltozott leveleket küldjük fel (set + merge):
+     • számlálók (✨ 💧 játékidő): increment(különbség) — két gép pénze összeadódik, nem felülíródik
+     • térképek (ruhák, jelvények, pályák…): levélszintű írás — a másik gép új kulcsai megmaradnak
+     • minden más (kinézet, aktív ruha, tömbök): utolsó írás nyer
+   Beérkező változásnál ugyanez visszafelé: a (felhő − alap) különbséget rávezetjük a helyi állapotra,
+   így a még el nem küldött helyi módosítások sem vesznek el. */
+function felhoMentJelez() {
+  if (!FELHO.kesz) return;
+  clearTimeout(FELHO.idozito);
+  FELHO.idozito = setTimeout(felhoKuld, 1200);
+}
+function felhoKuld() {
+  if (!FELHO.kesz || !FELHO.db) return;
+  clearTimeout(FELHO.idozito); FELHO.idozito = null;
+  var FV = firebase.firestore.FieldValue;
+  Object.keys(mentes.profilok).forEach(function (k) {
+    var uj = felhoTiszta(mentes.profilok[k]), valtozas = {};
+    if (!felhoKulonbseg(FELHO.alap[k] || {}, uj, valtozas, true)) return;
+    valtozas._updatedAt = FV.serverTimestamp();
+    felhoLenyRef(k).set(valtozas, { merge: true }).catch(function (e) { console.warn("[felhő] mentés hiba:", k, e.code || e); });
+    FELHO.alap[k] = uj;
+  });
+  var u = felhoUserAllapot();
+  if (JSON.stringify(u) !== JSON.stringify(FELHO.alapUser)) {
+    felhoUserRef().set({ settings: u.settings, activeUnicorn: u.activeUnicorn, lastSeen: FV.serverTimestamp() }, { merge: true }).catch(function () {});
+    FELHO.alapUser = u;
+  }
+}
+function felhoUserAllapot() { return { settings: { hang: !!mentes.hang, valaszmod: mentes.valaszmod || "beszed" }, activeUnicorn: mentes.leny }; }
+
+/* a profil felhőbe menő alakja: JSON-tiszta (nincs undefined/NaN), a munkamenet-mezők (sorozat) és a _meta mezők nélkül */
+function felhoTiszta(p) {
+  var t = JSON.parse(JSON.stringify(p || {}));
+  delete t.sorozat;
+  Object.keys(t).forEach(function (k) { if (k.charAt(0) === "_") delete t[k]; });
+  return t;
+}
+function felhoMasol(x) { return JSON.parse(JSON.stringify(x)); }
+function felhoTerkep(x) { return x !== null && typeof x === "object" && !Array.isArray(x); }
+/* kulcssorrend-független összevetés (a Firestore rendezve adja vissza a térkép-kulcsokat) */
+function felhoKanon(x) {
+  if (Array.isArray(x)) return "[" + x.map(felhoKanon).join(",") + "]";
+  if (felhoTerkep(x)) return "{" + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ":" + felhoKanon(x[k]); }).join(",") + "}";
+  return x === undefined ? "u" : JSON.stringify(x);
+}
+function felhoEgyenlo(a, b) { return felhoKanon(a) === felhoKanon(b); }
+
+/* alap → uj különbség beírása a `ki` objektumba (set+merge alakban). Visszaad: volt-e változás. */
+function felhoKulonbseg(alap, uj, ki, felso) {
+  var FV = firebase.firestore.FieldValue, volt = false, kulcsok = {}, k;
+  for (k in alap) kulcsok[k] = 1;
+  for (k in uj) kulcsok[k] = 1;
+  for (k in kulcsok) {
+    var a = alap[k], u = uj[k];
+    if (felhoEgyenlo(a, u)) continue;
+    volt = true;
+    if (felhoTerkep(a) && felhoTerkep(u)) { ki[k] = {}; felhoKulonbseg(a, u, ki[k], false); }   /* kanonikusan eltér → a mélyben is lesz levél */
+    else if (u === undefined) ki[k] = FV.delete();
+    else if (felso && FELHO_SZAMLALOK[k] && typeof a === "number" && typeof u === "number") ki[k] = FV.increment(u - a);
+    else ki[k] = u;
+  }
+  return volt;
+}
+
+/* 3-utas összefésülés: a (tavoli − alap) változást rávezeti a helyi objektumra. Visszaad: változott-e a helyi. */
+function felhoOsszefesul(helyi, alap, tavoli, felso) {
+  var volt = false, kulcsok = {}, k;
+  for (k in alap) kulcsok[k] = 1;
+  for (k in tavoli) kulcsok[k] = 1;
+  for (k in kulcsok) {
+    var a = alap[k], t = tavoli[k];
+    if (felhoEgyenlo(a, t)) continue;            /* a felhőben ez nem változott → a helyi marad */
+    if (felhoTerkep(a) && felhoTerkep(t) && felhoTerkep(helyi[k])) {
+      if (felhoOsszefesul(helyi[k], a, t, false)) volt = true;
+    } else if (felso && FELHO_SZAMLALOK[k] && typeof a === "number" && typeof t === "number" && typeof helyi[k] === "number") {
+      helyi[k] += (t - a); volt = true;
+    } else if (t === undefined) {
+      if (k in helyi) { delete helyi[k]; volt = true; }
+    } else if (!felhoEgyenlo(helyi[k], t)) {
+      helyi[k] = felhoMasol(t); volt = true;
+    }
+  }
+  return volt;
+}
+/* ============ 12e) FELHŐ — eseménynapló (events gyűjtemény) ============
+   A producer a 3. fázis admin-felületén ebből látja a használatot. Belépés nélkül no-op.
+   Offline is gyűlik: a Firestore sorba állítja, és visszatéréskor felküldi. */
+var ESEMENY_HIBA_DB = 0;
+function esemeny(tipus, adat) {
+  if (!FELHO.aktiv || !FELHO.db) return;
+  try {
+    FELHO.db.collection("events").add({
+      uid: FELHO.uid,
+      unicornId: mentes.leny,
+      type: tipus,
+      ts: firebase.firestore.FieldValue.serverTimestamp(),
+      data: JSON.parse(JSON.stringify(adat || {}))
+    }).catch(function () {});
+  } catch (e) {}
+}
+function vasarlasNaplo(targyId, ar, valuta) { esemeny("vasarlas", { targyId: String(targyId), ar: ar, valuta: valuta }); }
+window.addEventListener("error", function (e) {
+  if (++ESEMENY_HIBA_DB > 20) return;       /* egy munkamenetben legfeljebb 20 hiba-esemény */
+  esemeny("error", { msg: String(e.message || "").slice(0, 300), fajl: String(e.filename || "").split("/").pop(), sor: e.lineno || 0 });
+});
 /* ============ 11) INDÍTÁS ============ */
 betolt();
+felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
 document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolySVG());
 esemenyek();
 renderProfil();

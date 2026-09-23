@@ -141,7 +141,7 @@ function utcaFodraszKoppint() {
 function utcaBelepoVesz() {
   hangGomb();
   if (P().csillampor < SZALON_BELEPO_AR) { UTCA_MOD = "nez"; renderUtca(); return; }
-  P().csillampor -= SZALON_BELEPO_AR;
+  P().csillampor -= SZALON_BELEPO_AR; vasarlasNaplo("szalon-belepo", SZALON_BELEPO_AR, "csillampor");
   P().szalon.nyitva = 1;
   UTCA_MOD = "nez";
   hangCsilla(); hangJo(); ment();
@@ -238,7 +238,7 @@ function szalonKefe(cel) {
   if (most === cel) { hangGomb(); mondd(cel === "gondor" ? "Már göndör a sörény!" : "Már egyenes a sörény!"); return; }
   if (!P().szalon.kefek[cel]) {
     if ((P().tunderharmat || 0) < KEFE_AR) { hangGomb(); mondd("Ehhez a keféhez 12 tündérharmat kell. Gyűjts még kitartással!"); return; }
-    P().tunderharmat -= KEFE_AR;
+    P().tunderharmat -= KEFE_AR; vasarlasNaplo("kefe-" + cel, KEFE_AR, "tunderharmat");
     P().szalon.kefek[cel] = 1;
   }
   P().kinezet.frizura = cel;

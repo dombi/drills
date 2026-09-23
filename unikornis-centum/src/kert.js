@@ -1248,7 +1248,7 @@ function boltVegrehajt(cs, t) {
 }
 function oduKinezetVesz(kulcs, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   var van = kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem;
   van[t.id] = 1;
   oduKinezetBeallit(kulcs, t.id, true);     /* vétel után rögtön fel is vesszük */
@@ -1261,7 +1261,7 @@ function oduKinezetBeallit(kulcs, id, vetel) {
 }
 function oduDiszVesz(zona, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.vanDisz[t.id] = 1;
   P().odu.disz[zona] = t.id;                /* vétel után rögtön ki is rakjuk */
   hangCsilla(); hangJo(); ment();
@@ -1274,7 +1274,7 @@ function oduDiszBeallit(zona, id) {
 }
 function oduButorVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   if (!P().odu.vanButor[hely]) P().odu.vanButor[hely] = {};
   P().odu.vanButor[hely][t.id] = 1;
   P().odu.szint[hely] = t.id;              /* vétel után rögtön ki is tesszük */
@@ -1288,7 +1288,7 @@ function oduButorBeallit(hely, id) {
 }
 function oduRuhaVesz(hely, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().oltozet.van[t.id] = 1;
   P().oltozet[hely.kulcs] = t.id;          /* vétel után rögtön fel is vesszük */
   hangCsilla(); hangJo(); ment();
@@ -1301,7 +1301,7 @@ function oduRuhaVisel(kulcs, itemId) {
 }
 function oduVesz(kat, t) {
   if (P().csillampor < t.ar) { renderOduPanel(); return; }
-  P().csillampor -= t.ar;
+  P().csillampor -= t.ar; vasarlasNaplo(t.id, t.ar, "csillampor");
   P().odu.van[kat][t.id] = 1;
   P().odu[kat] = t.id;                 /* vétel után rögtön ki is tesszük */
   hangCsilla(); hangJo(); ment();

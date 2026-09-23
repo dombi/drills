@@ -54,6 +54,13 @@ MODULES = [
     # ── Gyűjtemény ──
     "badges.js",          # 10c) jelvények, gyűjtemény-könyv, talált tárgyak
 
+    # ── Felhő (backend 1. fázis — csak ?felho kapcsolóval él) ──
+    "firebase-config.js", # 12) Firebase config, FELHO állapot, kapcsoló
+    "auth.js",            # 12b) belépés kóddal, belépő képernyő
+    "db.js",              # 12c) Firestore betöltés, első feltöltés, élő figyelés
+    "sync.js",            # 12d) delta-küldés + 3-utas összefésülés
+    "analytics.js",       # 12e) eseménynapló (events)
+
     # ── Indítás ──
     "main.js",            # 11) betolt(), esemenyek(), renderProfil(), window.UC
 ]

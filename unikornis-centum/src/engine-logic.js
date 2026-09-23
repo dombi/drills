@@ -46,7 +46,8 @@ function palyaInditas(id) {
 
   J = { palya: pa, allomasok: allomasok, allomasIdx: 0, feladat: null, feladatDb: 0, feladatKesz: 0,
         probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "",
-        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan };
+        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan, indultMs: Date.now() };
+  esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
@@ -730,6 +731,8 @@ function palyaVege() {
 
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
+  esemeny("palya_end", { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
+    teljes: teljes, csillampor: J.futoCsilla, harmat: harmat });
   var ujJelv = jelvenyEllenoriz();
 
   var teljesSor = teljes

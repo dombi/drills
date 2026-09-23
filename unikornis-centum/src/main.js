@@ -1,5 +1,6 @@
 /* ============ 11) INDÍTÁS ============ */
 betolt();
+felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
 document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolySVG());
 esemenyek();
 renderProfil();
