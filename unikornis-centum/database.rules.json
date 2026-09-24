@@ -19,9 +19,38 @@
         "$uid": {
           ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba)",
           ".validate": "newData.hasChildren(['x', 'y', 't'])",
-          "x": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
-          "y": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
-          "nev": { ".validate": "newData.isString() && newData.val().length <= 30" }
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "y": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "nev": {
+            ".validate": "newData.isString() && newData.val().length <= 30"
+          }
+        }
+      }
+    },
+    "gesztus": {
+      ".read": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      "$szoba": {
+        ".read": "auth != null && root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba)",
+          ".validate": "newData.hasChildren(['g', 't']) && root.child('kertBeall').child('gesztusok').child(newData.child('g').val()).val() !== false",
+          "g": {
+            ".validate": "newData.isString() && newData.val().matches(/^(integet|pacsi|ugras|porges|csillam)$/)"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "cel": {
+            ".validate": "newData.isString() && newData.val().length <= 128"
+          },
+          "$mas": {
+            ".validate": false
+          }
         }
       }
     }

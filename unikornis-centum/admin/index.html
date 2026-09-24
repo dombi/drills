@@ -1110,6 +1110,7 @@ function rajzExport(t) {
    kertBeall = általános (nyitva, nyitvatartás, napi ösvény, időkeret) · kertJog/{uid} = { szoba, becenev }
    jelenlet/{szoba}/{uid} = aki épp bent van (a játék írja, kilépéskor törlődik) */
 var KERT_NAPOK = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
+var KERT_GESZTUSOK = [["integet", "👋 Integetés"], ["pacsi", "🙌 Pacsi (patacsapás egy másik unikornissal)"], ["ugras", "🦘 Ugrás — ha a Kertben megvette"], ["porges", "🌀 Pörgés — ha a Kertben megvette"], ["csillam", "✨ Csillámszórás — ha a Kertben megvette"]];
 function kertFigyel() {
   if (A.kertLeir) A.kertLeir();
   var r1 = rtdb.ref("kertBeall"), r2 = rtdb.ref("kertJog"), r3 = rtdb.ref("jelenlet");
@@ -1175,7 +1176,12 @@ function rajzKert(t) {
     '<div class="ksor">Felhőidő naponta: <select id="k-ido">' +
       [0, 10, 15, 20, 30, 45, 60].map(function (n) { return opt(n, n ? n + " perc" : "nincs korlát", +b.idokorlat || 0); }).join("") + "</select></div>" +
     '<div class="kallapot ' + all[0] + '">' + esc(all[1]) + "</div></div>";
-  h += '<div class="kartya"><h3>☁️ Most bent</h3><div id="k-bent">' + kertBentHTML() + "</div></div></div>";
+  h += '<div class="kartya"><h3>☁️ Most bent</h3><div id="k-bent">' + kertBentHTML() + "</div></div>";
+  var gb = b.gesztusok || {};
+  h += '<div class="kartya"><h3>👋 Gesztusok</h3><p class="kicsi halvany" style="margin:0 0 6px">Amelyik nincs bepipálva, az a gyerekeknél azonnal eltűnik.</p>' +
+    KERT_GESZTUSOK.map(function (g) {
+      return '<div class="ksor"><label><input type="checkbox" class="k-gesztus" value="' + g[0] + '"' + (gb[g[0]] === false ? "" : " checked") + "> " + g[1] + "</label></div>";
+    }).join("") + "</div></div>";
 
   h += '<h3 style="margin:22px 0 8px">Ki mehet fel, és kivel van egy kertben?</h3>' +
     '<p class="kicsi halvany" style="margin:0 0 8px">Akik ugyanabban a kertben vannak, látják egymást; más kertben lévőt nem. A becenév látszik az unikornis fölött (ha üres: az unikornis neve).</p>' +
@@ -1195,7 +1201,7 @@ function rajzKert(t) {
   function altalanosMent() {
     var nk = "";
     Array.prototype.forEach.call(t.querySelectorAll(".k-nap"), function (c) { if (c.checked) nk += c.value; });
-    ment(rtdb.ref("kertBeall").set({
+    ment(rtdb.ref("kertBeall").update({
       nyitva: $("k-nyitva").checked, orak: $("k-orak").checked, napok: nk,
       tol: $("k-tol").value || "16:00", ig: $("k-ig").value || "19:00",
       napiPalya: +$("k-napi").value, idokorlat: +$("k-ido").value
@@ -1203,6 +1209,9 @@ function rajzKert(t) {
   }
   ["k-nyitva", "k-orak", "k-tol", "k-ig", "k-napi", "k-ido"].forEach(function (id) { $(id).onchange = altalanosMent; });
   Array.prototype.forEach.call(t.querySelectorAll(".k-nap"), function (c) { c.onchange = altalanosMent; });
+  Array.prototype.forEach.call(t.querySelectorAll(".k-gesztus"), function (c) {
+    c.onchange = function () { ment(rtdb.ref("kertBeall/gesztusok/" + c.value).set(c.checked)); };
+  });
   Array.prototype.forEach.call(t.querySelectorAll("tr[data-kuid]"), function (sor) {
     var uid = sor.dataset.kuid, ref = rtdb.ref("kertJog/" + uid);
     var jog = sor.querySelector(".k-jog"), bn = sor.querySelector(".k-becenev"), szb = sor.querySelector(".k-szoba");

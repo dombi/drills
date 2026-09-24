@@ -6201,11 +6201,12 @@ function palyaKeres(id) {
   for (var j = 0; j < e.length; j++) if (e[j].id === id) return e[j];
   return null;
 }
-/* ============ 12g) ÉGI TÜNEMÉNYKERT (5. fázis: 5a jelenlét + 5b közös tér, mozgás) ============
+/* ============ 12g) ÉGI TÜNEMÉNYKERT (5. fázis: 5a jelenlét + 5b közös tér, mozgás + 5c gesztusok) ============
    Terv: Matekos/tunemenykert-terv.html. Minden kert-adat a Realtime Database-ben él:
      kertBeall               — a producer (pult): nyitva, orak/napok/tol/ig, napiPalya, idokorlat (perc/nap)
      kertJog/{uid}           — a producer (pult): { szoba, becenev } — aki nincs itt, annak nincs felhőlépcső
      jelenlet/{szoba}/{uid}  — a játék: { nev, leny, kin, olt, x, y, t } — onDisconnect → törlődik
+     gesztus/{szoba}/{uid}   — a játék: { g, cel, t } — az utolsó gesztus (5c); a többiek lejátsszák
    Csak felhő-módban látszik (utca-hub felhőlépcső). A kapukat (nyitvatartás, napi N pálya, időkorlát)
    a játék ellenőrzi; a szoba-elkülönítést a database.rules.json. */
 var TK = {
@@ -6213,7 +6214,8 @@ var TK = {
   beall: null, jog: null,
   bent: false, szoba: null, ref: null, szobaRef: null, connRef: null,
   masok: {},          /* uid → { a: utolsó adat, d: DOM } */
-  x: 50, y: 80, betoltve: false, oraTimer: null, hazaTimer: null, belepMp: 0
+  x: 50, y: 80, betoltve: false, oraTimer: null, hazaTimer: null, belepMp: 0,
+  gRef: null, gSzobaRef: null, gBetoltve: false, gFut: false
 };
 var TK_Y_MIN = 60, TK_Y_MAX = 93;   /* a felhőmező sétálható sávja (a színtér magasságának %-a) */
 
@@ -6245,6 +6247,7 @@ function tkValtozott() {
   var akt = document.querySelector(".kepernyo.aktiv");
   if (akt && akt.id === "kepernyo-utca") renderUtca();
   if (!TK.bent) return;
+  tkGesztussor();
   if (!TK.jog || TK.jog.szoba !== TK.szoba) { tkHazakuld("A felhőkert most bezár. Szia!"); return; }
   var nev = tkNev(), sajat = $("tk-uni-sajat");
   if (sajat) { var t = sajat.querySelector(".tk-nev"); if (t && t.textContent !== nev) { t.textContent = nev; if (TK.ref) TK.ref.update({ nev: nev }).catch(tkHiba); } }
@@ -6345,6 +6348,13 @@ function tkBelep() {
   TK.szobaRef.on("child_changed", tkMasikValt, tkHiba);
   TK.szobaRef.on("child_removed", tkMasikMent, tkHiba);
   TK.szobaRef.once("value", function () { TK.betoltve = true; tkSugo(); }, tkHiba);
+  TK.gBetoltve = false; TK.gFut = false;
+  TK.gSzobaRef = TK.db.ref("gesztus/" + TK.szoba);
+  TK.gRef = TK.gSzobaRef.child(FELHO.uid);
+  TK.gRef.onDisconnect().remove().catch(tkHiba);
+  TK.gSzobaRef.on("child_added", tkGesztusJott, tkHiba);   /* a régi (belépés előtti) gesztusokat nem játsszuk le */
+  TK.gSzobaRef.on("child_changed", tkGesztusJott, tkHiba);
+  TK.gSzobaRef.once("value", function () { TK.gBetoltve = true; }, tkHiba);
   TK.oraTimer = setInterval(tkOra, 5000);
   esemeny("kert_belep", { szoba: TK.szoba });
 }
@@ -6355,6 +6365,8 @@ function tkKilep(gombbal) {
     clearInterval(TK.oraTimer);
     if (TK.szobaRef) TK.szobaRef.off();
     if (TK.connRef) TK.connRef.off();
+    if (TK.gSzobaRef) TK.gSzobaRef.off();
+    if (TK.gRef) { TK.gRef.onDisconnect().cancel().catch(function () {}); TK.gRef.remove().catch(tkHiba); }
     if (TK.ref) { TK.ref.onDisconnect().cancel().catch(function () {}); TK.ref.remove().catch(tkHiba); }
     esemeny("kert_kilep", { szoba: TK.szoba, mp: TK.belepMp });
     ment();
@@ -6438,6 +6450,7 @@ function renderTk() {
   $("tk-unik").appendChild(d);
   tkPoz(d, TK.x, TK.y);
   host.onclick = tkSzinterKlikk;
+  tkGesztussor();
   tkSugo();
 }
 function tkMeret(y) { return 0.62 + 0.38 * (y - TK_Y_MIN) / (TK_Y_MAX - TK_Y_MIN); }   /* hátrébb kisebb */
@@ -6472,9 +6485,11 @@ function tkSetal(d, x0, y0, x1, y1) {
   d._jarTimer = setTimeout(function () { d.classList.remove("jar"); }, mp * 1000 + 80);
 }
 function tkSzinterKlikk(e) {
-  if (!TK.bent || TK.hazaTimer) return;
+  if (!TK.bent || TK.hazaTimer || TK.gFut) return;
   var host = $("tk-szinter"), d = $("tk-uni-sajat"); if (!host || !d) return;
   if (e.target.closest && e.target.closest("#tk-uni-sajat")) { kertNyihog(); return; }
+  var masik = e.target.closest && e.target.closest(".tk-uni:not(.sajat)");
+  if (masik && tkGesztusSzabad("pacsi")) { tkPacsiIndit(masik.id.replace(/^tk-uni-/, "")); return; }
   var r = host.getBoundingClientRect();
   var x = Math.max(8, Math.min(92, ((e.clientX - r.left) / r.width) * 100));
   var y = Math.max(TK_Y_MIN, Math.min(TK_Y_MAX, ((e.clientY - r.top) / r.height) * 100));
@@ -6525,7 +6540,142 @@ function tkSugo() {
     ? "Most csak te vagy itt. Koppints a felhőre, és sétálj! ☁️"
     : "Itt van: " + nevek.join(", ") + " 💖 Koppints a felhőre — odasétálsz!";
 }
-window.addEventListener("pagehide", function () { if (TK.bent && TK.ref) TK.ref.remove(); });
+window.addEventListener("pagehide", function () { if (TK.bent && TK.ref) { TK.ref.remove(); if (TK.gRef) TK.gRef.remove(); } });
+
+/* ── 5c) GESZTUSOK ──
+   👋 integetés + 🙌 pacsi (patacsapás: koppints egy másik unikornisra) mindenkinek jár;
+   🦘 ugrás, 🌀 pörgés, ✨ csillámszórás annak, aki a Kertben megvette 💧-ért.
+   A producer a pulton egyenként kikapcsolhatja (kertBeall.gesztusok.{id} === false → tiltva).
+   A saját gesztust azonnal lejátsszuk, a többieknél a gesztus/{szoba}/{uid} ágból jön. */
+var TK_GESZTUSOK = [
+  { id: "integet", emoji: "👋", nev: "Integetés", ms: 1500 },
+  { id: "pacsi",   emoji: "🙌", nev: "Pacsi",     ms: 1300, gomb: false },
+  { id: "ugras",   emoji: "🦘", nev: "Ugrás",     ms: 1100, kert: true },
+  { id: "porges",  emoji: "🌀", nev: "Pörgés",    ms: 1400, kert: true },
+  { id: "csillam", emoji: "✨", nev: "Csillámszórás", ms: 1800, kert: true }
+];
+var TK_G_SZUNET = 600;   /* két gesztus között ennyi ms szünet (ne lehessen folyamatosan nyomkodni) */
+function tkGesztusAdat(id) { for (var i = 0; i < TK_GESZTUSOK.length; i++) if (TK_GESZTUSOK[i].id === id) return TK_GESZTUSOK[i]; return null; }
+/* engedélyezte-e a producer (a pulton) — alapból minden engedélyezett */
+function tkGesztusPult(id) { var g = TK.beall && TK.beall.gesztusok; return !g || g[id] !== false; }
+/* a saját gyerek használhatja-e (pult + ha kerti trükk, megvette-e) */
+function tkGesztusSzabad(id) {
+  var a = tkGesztusAdat(id); if (!a || !tkGesztusPult(id)) return false;
+  return !a.kert || !!(P().kert && P().kert.trukkok && P().kert.trukkok[id]);
+}
+function tkGesztussor() {
+  var sor = $("tk-gesztussor"); if (!sor) return;
+  var h = "";
+  TK_GESZTUSOK.forEach(function (a) {
+    if (a.gomb === false || !tkGesztusSzabad(a.id)) return;
+    h += '<button class="kert-trukk-chip tk-g-chip" data-g="' + a.id + '" aria-label="' + a.nev + '" title="' + a.nev + '">' +
+      '<span class="ktr-emoji">' + a.emoji + '</span></button>';
+  });
+  sor.innerHTML = h;
+  sor.hidden = !h;
+  sor.onclick = function (e) {
+    var b = e.target.closest && e.target.closest(".tk-g-chip"); if (!b) return;
+    hangGomb(); tkGesztusIndit(b.getAttribute("data-g"));
+  };
+}
+/* a saját gesztus beírása az RTDB-be — a többiek ebből játsszák le */
+function tkGesztusKuld(id, cel) {
+  var adat = { g: id, t: firebase.database.ServerValue.TIMESTAMP };
+  if (cel) adat.cel = cel;
+  if (TK.gRef) TK.gRef.set(adat).catch(tkHiba);
+  esemeny("kert_gesztus", { g: id });
+}
+function tkGesztusIndit(id) {
+  if (!TK.bent || TK.hazaTimer || TK.gFut || !tkGesztusSzabad(id)) return;
+  var d = $("tk-uni-sajat"), a = tkGesztusAdat(id); if (!d || !a) return;
+  TK.gFut = true;
+  tkGesztusJatszik(d, id);
+  tkGesztusKuld(id);
+  setTimeout(function () { TK.gFut = false; }, a.ms + TK_G_SZUNET);
+}
+/* 🙌 pacsi: az én unikornisom odasétál a másik mellé, szembefordulnak, összecsapják a patájukat */
+function tkPacsiIndit(uid) {
+  var m = TK.masok[uid], d = $("tk-uni-sajat"); if (!m || !d) return;
+  TK.gFut = true;
+  var mx = +m.a.x || 50, my = +m.a.y || 80;
+  var x = Math.max(8, Math.min(92, mx + (TK.x <= mx ? -9 : 9)));
+  var dx = x - TK.x, dy = (my - TK.y) * 1.6, tav = Math.sqrt(dx * dx + dy * dy);
+  var mp = tav < 1 ? 0 : Math.max(0.5, Math.min(3.4, tav * 0.05));   /* ugyanaz a tempó, mint a tkSetal-ban */
+  tkSetal(d, TK.x, TK.y, x, my);
+  TK.x = x; TK.y = my;
+  if (TK.ref) TK.ref.update({ x: Math.round(x * 10) / 10, y: Math.round(my * 10) / 10, t: firebase.database.ServerValue.TIMESTAMP }).catch(tkHiba);
+  setTimeout(function () {
+    var mm = TK.masok[uid];
+    if (!TK.bent || !mm) { TK.gFut = false; return; }   /* közben elment */
+    tkPacsiJatszik(d, mm.d, TK.x, TK.y, +mm.a.x, +mm.a.y);
+    tkGesztusKuld("pacsi", uid);
+    setTimeout(function () { TK.gFut = false; }, tkGesztusAdat("pacsi").ms + TK_G_SZUNET);
+  }, mp * 1000 + 120);
+}
+/* egy másik gyerek gesztusa érkezett */
+function tkGesztusJott(snap) {
+  var uid = snap.key, a = snap.val();
+  if (!TK.gBetoltve || !TK.bent || uid === FELHO.uid || !a || !tkGesztusAdat(a.g) || !tkGesztusPult(a.g)) return;
+  var m = TK.masok[uid]; if (!m) return;
+  if (a.g !== "pacsi") { tkGesztusJatszik(m.d, a.g); return; }
+  var en = a.cel === FELHO.uid, c = en ? null : TK.masok[a.cel];
+  if (!en && !c) return;
+  tkPacsiJatszik(m.d, en ? $("tk-uni-sajat") : c.d, +m.a.x, +m.a.y, en ? TK.x : +c.a.x, en ? TK.y : +c.a.y);
+  if (en) {   /* engem pacsizott meg */
+    mondd(m.a.nev + " pacsit adott!");
+    var s = $("tk-sugo"); if (s && !TK.hazaTimer) s.textContent = "🙌 " + m.a.nev + " pacsit adott! Koppints rá te is!";
+  }
+}
+/* egy gesztus lejátszása egy unikornis-elemen (a saját és a többieké is ezzel megy) */
+function tkGesztusJatszik(d, id) {
+  var a = tkGesztusAdat(id); if (!d || !a) return;
+  var cls = "g-" + id, extra = [];
+  d.classList.remove("jar"); d.classList.remove(cls); void d.offsetWidth;   /* újraindítható animáció */
+  d.classList.add(cls);
+  if (id === "integet") {
+    var b = el("div", "tk-g-buborek"); b.textContent = "👋"; d.appendChild(b); extra.push(b);
+    beep(988, 0.08, "sine", 0, 0.05); beep(1319, 0.1, "sine", 0.09, 0.05);
+  } else if (id === "csillam") {   /* ugyanazok a szikrák + konfetti, mint a Kertben */
+    var szinek = ["#ffd24d", "#ff9ec4", "#b39af0", "#fff", "#ffd24d"], konf = ["#ffd24d", "#ff9ec4", "#b39af0", "#87cc66", "#a7d8f2", "#fff"];
+    for (var i = 0; i < 5; i++) { var sz = el("span", "csillam-szikra csillam-sz-" + i); sz.style.color = szinek[i]; d.appendChild(sz); extra.push(sz); }
+    for (var k = 0; k < 6; k++) { var ko = el("span", "csillam-konf csillam-ko-" + k); ko.style.background = konf[k]; d.appendChild(ko); extra.push(ko); }
+    hangCsilla();
+  } else if (id === "porges") {   /* a pörgés itt tükrözéses forgás (a 4 nézetes sprite csak a saját kertben van) */
+    for (var j = 0; j < 6; j++) setTimeout(function () {
+      var sp = el("span", "forgato-szikra"); sp.textContent = ["✨", "⭐", "💫", "🌟"][Math.floor(Math.random() * 4)];
+      sp.style.left = (30 + Math.random() * 40) + "%"; sp.style.top = (20 + Math.random() * 50) + "%";
+      d.appendChild(sp); setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 650);
+    }, j * 220);
+    hangCsilla();
+  } else hangCsilla();
+  clearTimeout(d._gTimer);
+  d._gTimer = setTimeout(function () {
+    d.classList.remove(cls);
+    extra.forEach(function (e) { if (e.parentNode) e.parentNode.removeChild(e); });
+  }, a.ms + 80);
+}
+/* két unikornis szembefordul, egymás felé dől és összecsapja a patáját; köztük csillag-pukkanás */
+function tkPacsiJatszik(d1, d2, x1, y1, x2, y2) {
+  if (!d1 || !d2) return;
+  var ms = tkGesztusAdat("pacsi").ms;
+  d1.style.setProperty("--dir", x2 < x1 ? -1 : 1);
+  d2.style.setProperty("--dir", x1 < x2 ? -1 : 1);
+  [d1, d2].forEach(function (d) {
+    d.classList.remove("jar"); d.classList.remove("g-pacsi"); void d.offsetWidth; d.classList.add("g-pacsi");
+    clearTimeout(d._gTimer);
+    d._gTimer = setTimeout(function () { d.classList.remove("g-pacsi"); }, ms + 80);
+  });
+  var kont = $("tk-unik");
+  if (kont) {
+    var p = el("div", "tk-pacsi-pukk"), y = (y1 + y2) / 2;
+    p.innerHTML = '<span class="tk-pp-fo">🙌</span><span class="tk-pp tk-pp-0">✨</span><span class="tk-pp tk-pp-1">💖</span><span class="tk-pp tk-pp-2">⭐</span><span class="tk-pp tk-pp-3">✨</span>';
+    p.style.left = ((x1 + x2) / 2) + "%";
+    p.style.bottom = (100 - y + 26 * tkMeret(y)) + "%";   /* a két összeérő fej fölött */
+    kont.appendChild(p);
+    setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, ms + 200);
+  }
+  setTimeout(function () { beep(1175, 0.06, "square", 0, 0.05); beep(1568, 0.12, "triangle", 0.06, 0.09); beep(2093, 0.12, "triangle", 0.14, 0.06); }, ms * 0.38);
+}
 /* ============ 11) INDÍTÁS ============ */
 betolt();
 felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
@@ -6541,6 +6691,7 @@ document.addEventListener("pointerdown", function egyszer() {
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
   get TK() { return TK; }, tkKapu: tkKapu, tkBelep: tkBelep, tkKilep: tkKilep, tkNap: tkNap,   /* ÉGI TÜNEMÉNYKERT */
+  get FELHO() { return FELHO; }, tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,
   bontasEloFogyaszt: bontasEloFogyaszt, szorzoEloFogyaszt: szorzoEloFogyaszt, palyaInditas: palyaInditas,
