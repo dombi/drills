@@ -12,6 +12,7 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  tovabbMehetE: tovabbMehetE,
   get TK() { return TK; }, tkKapu: tkKapu, tkBelep: tkBelep, tkKilep: tkKilep, tkNap: tkNap,   /* ÉGI TÜNEMÉNYKERT */
   get FELHO() { return FELHO; }, tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
   tkDiszLerak: tkDiszLerak, tkTalcaValt: tkTalcaValt, tkDiszKintSajat: tkDiszKintSajat, tkDiszZsak: tkDiszZsak, tkValtozott: tkValtozott, tkVisszaJott: tkVisszaJott,

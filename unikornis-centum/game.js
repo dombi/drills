@@ -1845,7 +1845,7 @@ function palyaInditas(id) {
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
-  var tovabbMehet0 = (mentes.leny === "csillamharmat");
+  var tovabbMehet0 = tovabbMehetE();
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
   var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = !!pa.egyeni; }   /* egyéni pályán nincs égi szilánk */
@@ -1932,7 +1932,7 @@ function ujFeladat() {
   $("valaszter").style.visibility = "visible";
   $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
   $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
-  var tovabbMehet = (mentes.leny === "csillamharmat");
+  var tovabbMehet = tovabbMehetE();
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet;
   if (f.csalad === "felmondas") {
@@ -2780,8 +2780,13 @@ function mikrofonInd() {
   });
 }
 function belepSzuloi() { hangGomb(); szuloiFul = mentes.leny; renderSzuloi(); mutat("kepernyo-szuloi"); }
+/* „tovább megoldás nélkül": csak Csillámharmattal ÉS csak a producer MRZS tesztkódjával (2026-09-24).
+   Minden más játékosnál — és belépés nélkül is — rejtve marad. */
+function tovabbMehetE() {
+  return mentes.leny === "csillamharmat" && FELHO.aktiv && /^MRZS/.test(FELHO.kod || "");
+}
 function tovabbMegoldasNelkul() {
-  if (!J) return;
+  if (!J || !tovabbMehetE()) return;
   hangGomb(); figyelStop();
   if (J.feladat && J.feladat.csalad === "felmondas") { $("bontas-lepes").hidden = true; J.feladatKesz++; allomasKesz(); return; }
   J.feladatKesz++;
@@ -6889,6 +6894,7 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  tovabbMehetE: tovabbMehetE,
   get TK() { return TK; }, tkKapu: tkKapu, tkBelep: tkBelep, tkKilep: tkKilep, tkNap: tkNap,   /* ÉGI TÜNEMÉNYKERT */
   get FELHO() { return FELHO; }, tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
   tkDiszLerak: tkDiszLerak, tkTalcaValt: tkTalcaValt, tkDiszKintSajat: tkDiszKintSajat, tkDiszZsak: tkDiszZsak, tkValtozott: tkValtozott, tkVisszaJott: tkVisszaJott,

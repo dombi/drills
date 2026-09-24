@@ -138,8 +138,13 @@ function mikrofonInd() {
   });
 }
 function belepSzuloi() { hangGomb(); szuloiFul = mentes.leny; renderSzuloi(); mutat("kepernyo-szuloi"); }
+/* „tovább megoldás nélkül": csak Csillámharmattal ÉS csak a producer MRZS tesztkódjával (2026-09-24).
+   Minden más játékosnál — és belépés nélkül is — rejtve marad. */
+function tovabbMehetE() {
+  return mentes.leny === "csillamharmat" && FELHO.aktiv && /^MRZS/.test(FELHO.kod || "");
+}
 function tovabbMegoldasNelkul() {
-  if (!J) return;
+  if (!J || !tovabbMehetE()) return;
   hangGomb(); figyelStop();
   if (J.feladat && J.feladat.csalad === "felmondas") { $("bontas-lepes").hidden = true; J.feladatKesz++; allomasKesz(); return; }
   J.feladatKesz++;

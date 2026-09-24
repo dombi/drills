@@ -56,7 +56,7 @@ function palyaInditas(id) {
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
-  var tovabbMehet0 = (mentes.leny === "csillamharmat");
+  var tovabbMehet0 = tovabbMehetE();
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
   var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = !!pa.egyeni; }   /* egyéni pályán nincs égi szilánk */
@@ -143,7 +143,7 @@ function ujFeladat() {
   $("valaszter").style.visibility = "visible";
   $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
   $("visszajelzes-f").textContent = ""; $("visszajelzes-f").className = "visszajelzes";
-  var tovabbMehet = (mentes.leny === "csillamharmat");
+  var tovabbMehet = tovabbMehetE();
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet;
   if (f.csalad === "felmondas") {
