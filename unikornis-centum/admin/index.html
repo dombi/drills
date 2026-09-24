@@ -103,6 +103,12 @@ tr.kulcs td:first-child::after{ content:" 🔑"; }
 .ksor input[type=time]{ padding:4px 6px; }
 .kallapot{ margin-top:10px; padding:8px 12px; border-radius:12px; background:#eef8ec; border:1px solid #c6e6bf; font-size:14px; white-space:normal; }
 .kallapot.zarva{ background:#fdecef; border-color:#f3bcc7; }
+.dsz-szoba{ margin:10px 0 4px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.dsz-sor{ display:flex; align-items:center; gap:8px; padding:3px 0; border-bottom:1px solid #f0e8f8; }
+.dsz-sor svg{ width:28px; height:30px; flex:none; }
+.dsz-sor .dsz-ki{ flex:1; }
+.dsz-gomb{ border:1px solid #e3cfe0; background:#fff; border-radius:8px; padding:2px 8px; cursor:pointer; }
+.dsz-urit{ border:1px solid #f3bcc7; background:#fdecef; color:#a33a55; border-radius:8px; padding:3px 10px; cursor:pointer; font-weight:700; }
 .bent-szoba{ margin:6px 0; } .bent-szoba b{ display:block; font-size:13px; color:var(--halvany); }
 .bent-nev{ display:inline-block; margin:3px 4px 0 0; padding:3px 10px; border-radius:99px; background:#f3ecff; font-weight:600; }
 td input.becenev{ width:150px; padding:4px 8px; }
@@ -159,6 +165,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="../tk-diszek.js?v=20260924-1"></script>
 <script>
 (function () {
 "use strict";
@@ -201,7 +208,7 @@ var A = {
   bCel: null,         /* Beállítások fül célpontja: "u:<uid>" vagy "g:<gid>" */
   urlap: null,        /* ✏️ Egyéni pályák: a nyitott űrlap állapota (null = zárva) */
   beallLeir: [],
-  kert: { beall: {}, jog: {}, jelen: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
+  kert: { beall: {}, jog: {}, jelen: {}, diszek: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
   kertLeir: null
 };
 /* a kapu-kulcs pályák (a játék src/engine-logic.js KAPU_KULCSOK-ja): ezek nyitják a 12 órás kaput,
@@ -1108,17 +1115,20 @@ function rajzExport(t) {
 
 /* ── 🌈 Égi Tüneménykert (5. fázis) — minden adata a Realtime Database-ben ──
    kertBeall = általános (nyitva, nyitvatartás, napi ösvény, időkeret) · kertJog/{uid} = { szoba, becenev }
-   jelenlet/{szoba}/{uid} = aki épp bent van (a játék írja, kilépéskor törlődik) */
+   jelenlet/{szoba}/{uid} = aki épp bent van (a játék írja, kilépéskor törlődik)
+   diszek/{szoba}/{uid}/{hely} = a kint lévő díszek (5d) · kertVissza/{uid} = a törölt díszek ára (a játék jóváírja)
+   A díszek listája: ../tk-diszek.js (TK_DISZEK) — ugyanaz, amit a játék használ. */
 var KERT_NAPOK = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
 var KERT_GESZTUSOK = [["integet", "👋 Integetés"], ["pacsi", "🙌 Pacsi (patacsapás egy másik unikornissal)"], ["ugras", "🦘 Ugrás — ha a Kertben megvette"], ["porges", "🌀 Pörgés — ha a Kertben megvette"], ["csillam", "✨ Csillámszórás — ha a Kertben megvette"]];
 function kertFigyel() {
   if (A.kertLeir) A.kertLeir();
-  var r1 = rtdb.ref("kertBeall"), r2 = rtdb.ref("kertJog"), r3 = rtdb.ref("jelenlet");
+  var r1 = rtdb.ref("kertBeall"), r2 = rtdb.ref("kertJog"), r3 = rtdb.ref("jelenlet"), r4 = rtdb.ref("diszek");
   function hiba(mit) { return function (e) { console.warn("[pult] " + mit + ":", e && e.code); }; }
   r1.on("value", function (s) { A.kert.beall = s.val() || {}; kertRajzolHa(); }, hiba("kertBeall"));
   r2.on("value", function (s) { A.kert.jog = s.val() || {}; kertRajzolHa(); }, hiba("kertJog"));
   r3.on("value", function (s) { A.kert.jelen = s.val() || {}; kertBentFrissit(); }, hiba("jelenlet"));
-  A.kertLeir = function () { r1.off(); r2.off(); r3.off(); };
+  r4.on("value", function (s) { A.kert.diszek = s.val() || {}; kertDiszFrissit(); }, hiba("diszek"));
+  A.kertLeir = function () { r1.off(); r2.off(); r3.off(); r4.off(); };
 }
 /* gépelés közben nem rajzolunk újra (elveszne a kurzor) */
 function kertRajzolHa() {
@@ -1158,6 +1168,49 @@ function kertBentHTML() {
   }).join("");
 }
 function kertBentFrissit() { var d = $("k-bent"); if (d) d.innerHTML = kertBentHTML(); }
+
+/* ── 🌸 díszek (5d): limit, ár, lista, törlés, kiürítés — törléskor a gyerek visszakapja a 💧-t ── */
+var KERT_DISZ_AR = 12, KERT_DISZ_LIMIT = 5;
+function kertDiszAr() { var a = +(A.kert.beall || {}).diszAr; return a > 0 ? a : KERT_DISZ_AR; }
+function kertDiszAdat(id) { var l = window.TK_DISZEK || []; for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+function kertDiszHTML() {
+  var d = A.kert.diszek || {}, szobak = Object.keys(d), ossz = 0;
+  var h = szobak.map(function (sz) {
+    var sorok = [];
+    Object.keys(d[sz] || {}).forEach(function (uid) {
+      Object.keys(d[sz][uid] || {}).forEach(function (hely) {
+        var x = d[sz][uid][hely] || {}, a = kertDiszAdat(x.tip);
+        sorok.push('<div class="dsz-sor">' + (window.tkDiszSVG ? tkDiszSVG(x.tip) : "") +
+          '<span class="dsz-ki"><b>' + esc(x.nev || jNev(uid)) + "</b> · " + esc(a ? a.nev : x.tip) + "</span>" +
+          '<button class="dsz-gomb" data-torol="' + esc(sz + "|" + uid + "|" + hely) + '" title="Törlés — a gyerek visszakapja a 💧-t">🗑️</button></div>');
+      });
+    });
+    ossz += sorok.length;
+    return '<div class="dsz-szoba"><b>' + esc(kertSzobaNev(sz)) + '</b> <span class="halvany">(' + sorok.length + ' db)</span>' +
+      '<button class="dsz-urit" data-urit="' + esc(sz) + '">Kert kiürítése</button></div>' + sorok.join("");
+  }).join("");
+  return ossz ? h : '<div class="halvany">Még senki nem tett ki díszt.</div>';
+}
+function kertDiszFrissit() { var d = $("k-diszek"); if (d) d.innerHTML = kertDiszHTML(); }
+/* törlés = egyetlen atomi írás: a dísz eltűnik + a kertVissza-ba kerül az ára (a játék jóváírja a 💧-t) */
+function kertDiszTorolFrissites(frissit, sz, uid, hely) {
+  var x = (((A.kert.diszek || {})[sz] || {})[uid] || {})[hely]; if (!x) return;
+  frissit["diszek/" + sz + "/" + uid + "/" + hely] = null;
+  frissit["kertVissza/" + uid + "/" + rtdb.ref("kertVissza").push().key] = { tip: String(x.tip || ""), ar: kertDiszAr() };
+}
+function kertDiszKattint(e) {
+  var t = e.target.closest && e.target.closest("[data-torol],[data-urit]"); if (!t) return;
+  var f = {};
+  if (t.dataset.torol) {
+    var p = t.dataset.torol.split("|");
+    kertDiszTorolFrissites(f, p[0], p[1], p[2]);
+  } else {
+    var sz = t.dataset.urit, d = (A.kert.diszek || {})[sz] || {};
+    if (!confirm(kertSzobaNev(sz) + ": minden díszt törölsz? A gyerekek visszakapják a 💧-t.")) return;
+    Object.keys(d).forEach(function (uid) { Object.keys(d[uid] || {}).forEach(function (hely) { kertDiszTorolFrissites(f, sz, uid, hely); }); });
+  }
+  if (Object.keys(f).length) ment(rtdb.ref().update(f));
+}
 function rajzKert(t) {
   var b = A.kert.beall || {}, napok = String(b.napok == null ? "1234567" : b.napok);
   function opt(v, felirat, akt) { return '<option value="' + esc(v) + '"' + (String(akt) === String(v) ? " selected" : "") + ">" + felirat + "</option>"; }
@@ -1178,6 +1231,12 @@ function rajzKert(t) {
     '<div class="kallapot ' + all[0] + '">' + esc(all[1]) + "</div></div>";
   h += '<div class="kartya"><h3>☁️ Most bent</h3><div id="k-bent">' + kertBentHTML() + "</div></div>";
   var gb = b.gesztusok || {};
+  h += '<div class="kartya"><h3>🌸 Díszek</h3>' +
+    '<div class="ksor">Egyszerre kint gyerekenként: <select id="k-dlimit">' +
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return opt(n, n + " db", typeof b.diszLimit === "number" ? b.diszLimit : KERT_DISZ_LIMIT); }).join("") + "</select></div>" +
+    '<div class="ksor">Ár: <input type="number" id="k-dar" min="1" max="99" style="width:64px" value="' + kertDiszAr() + '"> 💧 / dísz</div>' +
+    '<p class="kicsi halvany" style="margin:4px 0 6px">Egy gyereknél a lenti táblázatban ez felülírható. Törléskor a gyerek visszakapja az árat.</p>' +
+    '<div id="k-diszek">' + kertDiszHTML() + "</div></div>";
   h += '<div class="kartya"><h3>👋 Gesztusok</h3><p class="kicsi halvany" style="margin:0 0 6px">Amelyik nincs bepipálva, az a gyerekeknél azonnal eltűnik.</p>' +
     KERT_GESZTUSOK.map(function (g) {
       return '<div class="ksor"><label><input type="checkbox" class="k-gesztus" value="' + g[0] + '"' + (gb[g[0]] === false ? "" : " checked") + "> " + g[1] + "</label></div>";
@@ -1185,7 +1244,7 @@ function rajzKert(t) {
 
   h += '<h3 style="margin:22px 0 8px">Ki mehet fel, és kivel van egy kertben?</h3>' +
     '<p class="kicsi halvany" style="margin:0 0 8px">Akik ugyanabban a kertben vannak, látják egymást; más kertben lévőt nem. A becenév látszik az unikornis fölött (ha üres: az unikornis neve).</p>' +
-    '<div class="tabla-keret"><table><tr><th>Játékos</th><th>Felmehet</th><th>Becenév</th><th>Melyik kert</th></tr>';
+    '<div class="tabla-keret"><table><tr><th>Játékos</th><th>Felmehet</th><th>Becenév</th><th>Melyik kert</th><th>Dísz-limit</th></tr>';
   A.users.forEach(function (u) {
     var j = A.kert.jog[u.uid], sz = j ? j.szoba : "kozos";
     h += '<tr data-kuid="' + esc(u.uid) + '"><td>' + esc(jNev(u.uid)) + "</td>" +
@@ -1193,7 +1252,9 @@ function rajzKert(t) {
       '<td><input class="becenev k-becenev" maxlength="20" value="' + esc(j ? (j.becenev || "") : "") + '" placeholder="' + esc(kertBecenevJavaslat(u) || "becenév") + '"></td>' +
       '<td><select class="k-szoba">' + opt("kozos", "🌈 Közös kert", sz) +
         A.groups.map(function (g) { return opt("cs-" + g.id, "👥 " + esc(g.name) + " kertje", sz); }).join("") +
-        (sz !== "kozos" && !csoportById(String(sz).replace(/^cs-/, "")) ? opt(sz, "❓ törölt csoport", sz) : "") + "</select></td></tr>";
+        (sz !== "kozos" && !csoportById(String(sz).replace(/^cs-/, "")) ? opt(sz, "❓ törölt csoport", sz) : "") + "</select></td>" +
+      '<td><select class="k-dlim">' + opt("", "alap", j && typeof j.diszLimit === "number" ? j.diszLimit : "") +
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return opt(n, n + " db", j && typeof j.diszLimit === "number" ? j.diszLimit : ""); }).join("") + "</select></td></tr>";
   });
   h += "</table></div>";
   t.innerHTML = h;
@@ -1208,18 +1269,28 @@ function rajzKert(t) {
     }));
   }
   ["k-nyitva", "k-orak", "k-tol", "k-ig", "k-napi", "k-ido"].forEach(function (id) { $(id).onchange = altalanosMent; });
+  $("k-dlimit").onchange = function () { ment(rtdb.ref("kertBeall/diszLimit").set(+$("k-dlimit").value)); };
+  $("k-dar").onchange = function () {
+    var v = Math.round(+$("k-dar").value);
+    if (!(v >= 1 && v <= 99)) { $("k-dar").value = kertDiszAr(); return; }
+    ment(rtdb.ref("kertBeall/diszAr").set(v));
+  };
+  $("k-diszek").onclick = kertDiszKattint;
   Array.prototype.forEach.call(t.querySelectorAll(".k-nap"), function (c) { c.onchange = altalanosMent; });
   Array.prototype.forEach.call(t.querySelectorAll(".k-gesztus"), function (c) {
     c.onchange = function () { ment(rtdb.ref("kertBeall/gesztusok/" + c.value).set(c.checked)); };
   });
   Array.prototype.forEach.call(t.querySelectorAll("tr[data-kuid]"), function (sor) {
     var uid = sor.dataset.kuid, ref = rtdb.ref("kertJog/" + uid);
-    var jog = sor.querySelector(".k-jog"), bn = sor.querySelector(".k-becenev"), szb = sor.querySelector(".k-szoba");
+    var jog = sor.querySelector(".k-jog"), bn = sor.querySelector(".k-becenev"), szb = sor.querySelector(".k-szoba"), dl = sor.querySelector(".k-dlim");
     jog.onchange = function () {
       if (!jog.checked) { ment(ref.remove()); return; }
       if (!bn.value.trim() && bn.placeholder !== "becenév") bn.value = bn.placeholder;
-      ment(ref.set({ szoba: szb.value, becenev: bn.value.trim().slice(0, 20) }));
+      var uj = { szoba: szb.value, becenev: bn.value.trim().slice(0, 20) };
+      if (dl.value !== "") uj.diszLimit = +dl.value;
+      ment(ref.set(uj));
     };
+    dl.onchange = function () { if (jog.checked) ment(ref.child("diszLimit").set(dl.value === "" ? null : +dl.value)); };
     bn.onchange = function () { if (jog.checked) ment(ref.update({ becenev: bn.value.trim().slice(0, 20) })); };
     szb.onchange = function () { if (jog.checked) ment(ref.update({ szoba: szb.value })); };
   });

@@ -53,6 +53,47 @@
           }
         }
       }
+    },
+    "diszek": {
+      ".read": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      "$szoba": {
+        ".read": "auth != null && root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba",
+        "$uid": {
+          "$hely": {
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba && (($hely === '0' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 0) || ($hely === '1' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 1) || ($hely === '2' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 2) || ($hely === '3' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 3) || ($hely === '4' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 4) || ($hely === '5' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 5) || ($hely === '6' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 6) || ($hely === '7' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 7) || ($hely === '8' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 8) || ($hely === '9' && (root.child('kertJog').child(auth.uid).child('diszLimit').isNumber() ? root.child('kertJog').child(auth.uid).child('diszLimit').val() : (root.child('kertBeall').child('diszLimit').isNumber() ? root.child('kertBeall').child('diszLimit').val() : 5)) > 9))))",
+            ".validate": "newData.hasChildren(['tip', 'x', 'y', 't'])",
+            "tip": {
+              ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9]{1,16}$/)"
+            },
+            "x": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "y": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "nev": {
+              ".validate": "newData.isString() && newData.val().length <= 30"
+            },
+            "t": {
+              ".validate": "newData.isNumber()"
+            },
+            "$mas": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "kertVissza": {
+      ".read": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$id": {
+          ".write": "auth != null && auth.uid === $uid && !newData.exists()"
+        }
+      }
     }
   }
 }

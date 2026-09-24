@@ -1141,3 +1141,28 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #tk-szinter .uni-elo, #tk-szinter .uni-soreny, #tk-szinter .uni-farok, #tk-szinter .uni-tincs, #tk-szinter .uni-szem,
   .tk-barany, .tk-lebeg, .tk-csillog, .tk-lepcso .tk-fok{ animation:none; }
 }
+
+/* 5d) közös díszek: a felhőn állnak (talppont = bottom), hátrébb kisebbek; tálca a gesztussor alatt */
+.tk-disz{ position:absolute; width:98px; height:103px; margin-left:-49px; transform:scale(var(--s,1)); transform-origin:50% 100%; pointer-events:auto; cursor:pointer; }
+.tk-disz-kep{ width:100%; height:100%; display:block; overflow:visible; filter:drop-shadow(0 4px 3px rgba(120,90,180,.2)); }
+.tk-disz.terem{ animation:tk-disz-terem .6s cubic-bezier(.34,1.56,.5,1) 1; }
+.tk-disz.eltunik{ animation:tk-disz-el .45s ease-in 1 forwards; pointer-events:none; }
+.tk-disz.rezeg .tk-disz-kep{ animation:tk-disz-rezeg .6s ease-in-out 1; transform-origin:50% 100%; }
+@keyframes tk-disz-terem{ 0%{ transform:scale(0); opacity:0; } 100%{ transform:scale(var(--s,1)); opacity:1; } }
+@keyframes tk-disz-el{ to{ transform:scale(0) translateY(-20px); opacity:0; } }
+@keyframes tk-disz-rezeg{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-8deg) translateY(-4px); } 60%{ transform:rotate(6deg); } }
+.tk-disz-x{ display:none; position:absolute; top:-6px; right:-2px; width:28px; height:28px; border:none; border-radius:50%;
+  background:#ff7a9c; color:#fff; font-weight:800; font-size:15px; line-height:28px; padding:0; cursor:pointer; box-shadow:0 2px 0 #d9567a; }
+.tk-rak .tk-disz.sajat .tk-disz-x{ display:block; }
+.tk-rak{ cursor:copy; }
+.tk-disz-talca{ display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap; padding:6px 10px 0; }
+.tk-d-kint{ font-weight:800; color:#8a4fd0; background:#fff; border-radius:999px; padding:4px 10px; font-size:15px; box-shadow:0 2px 0 #d9c8ff; }
+.tk-d-elem{ display:flex; flex-direction:column; align-items:center; gap:0; width:74px; padding:4px 4px 5px; border:3px solid transparent; border-radius:16px;
+  background:#f6f0ff; box-shadow:0 2px 0 #d9c8ff; cursor:pointer; font-family:inherit; }
+.tk-d-elem .tk-d-kep{ width:52px; height:54px; display:block; }
+.tk-d-elem.kivalasztva{ border-color:#b58af0; background:#fff; }
+.tk-d-elem.draga{ opacity:.55; }
+.tk-d-cimke{ font-size:13px; font-weight:800; color:#3b7fb8; }
+.tk-d-cimke.zsak{ color:#8a4fd0; }
+.tk-d-chip.aktiv{ background:#f6e6ff; box-shadow:0 2px 0 #d9c8ff; }
+@media (prefers-reduced-motion:reduce){ .tk-disz.terem, .tk-disz.rezeg .tk-disz-kep{ animation:none; } }

@@ -1,9 +1,11 @@
-/* ============ 12g) ÉGI TÜNEMÉNYKERT (5. fázis: 5a jelenlét + 5b közös tér, mozgás + 5c gesztusok) ============
+/* ============ 12g) ÉGI TÜNEMÉNYKERT (5. fázis: 5a jelenlét + 5b közös tér, mozgás + 5c gesztusok + 5d díszek) ============
    Terv: Matekos/tunemenykert-terv.html. Minden kert-adat a Realtime Database-ben él:
      kertBeall               — a producer (pult): nyitva, orak/napok/tol/ig, napiPalya, idokorlat (perc/nap)
      kertJog/{uid}           — a producer (pult): { szoba, becenev } — aki nincs itt, annak nincs felhőlépcső
      jelenlet/{szoba}/{uid}  — a játék: { nev, leny, kin, olt, x, y, t } — onDisconnect → törlődik
      gesztus/{szoba}/{uid}   — a játék: { g, cel, t } — az utolsó gesztus (5c); a többiek lejátsszák
+     diszek/{szoba}/{uid}/{hely} — a játék: { tip, x, y, nev, t } — a kint lévő díszek (5d); hely = "0".."limit-1"
+     kertVissza/{uid}/{id}   — a pult: { tip, ar } — a producer törölt egy díszt → a játék visszaadja a 💧-t
    Csak felhő-módban látszik (utca-hub felhőlépcső). A kapukat (nyitvatartás, napi N pálya, időkorlát)
    a játék ellenőrzi; a szoba-elkülönítést a database.rules.json. */
 var TK = {
@@ -12,7 +14,8 @@ var TK = {
   bent: false, szoba: null, ref: null, szobaRef: null, connRef: null,
   masok: {},          /* uid → { a: utolsó adat, d: DOM } */
   x: 50, y: 80, betoltve: false, oraTimer: null, hazaTimer: null, belepMp: 0,
-  gRef: null, gSzobaRef: null, gBetoltve: false, gFut: false
+  gRef: null, gSzobaRef: null, gBetoltve: false, gFut: false,
+  dRef: null, diszek: {}, dBetoltve: false, dMod: null, talca: false   /* 5d: diszek = "uid/hely" → { a, d } */
 };
 var TK_Y_MIN = 60, TK_Y_MAX = 93;   /* a felhőmező sétálható sávja (a színtér magasságának %-a) */
 
@@ -38,6 +41,8 @@ function tkElokeszit() {
       function (e) { console.warn("[kert] kertBeall:", e && e.code); });
     TK.db.ref("kertJog/" + FELHO.uid).on("value", function (s) { TK.jog = s.val(); tkValtozott(); },
       function (e) { console.warn("[kert] kertJog:", e && e.code); });
+    TK.db.ref("kertVissza/" + FELHO.uid).on("child_added", tkVisszaJott,
+      function (e) { console.warn("[kert] kertVissza:", e && e.code); });
   });
 }
 function tkValtozott() {
@@ -45,6 +50,7 @@ function tkValtozott() {
   if (akt && akt.id === "kepernyo-utca") renderUtca();
   if (!TK.bent) return;
   tkGesztussor();
+  tkTalcaRajzol();
   if (!TK.jog || TK.jog.szoba !== TK.szoba) { tkHazakuld("A felhőkert most bezár. Szia!"); return; }
   var nev = tkNev(), sajat = $("tk-uni-sajat");
   if (sajat) { var t = sajat.querySelector(".tk-nev"); if (t && t.textContent !== nev) { t.textContent = nev; if (TK.ref) TK.ref.update({ nev: nev }).catch(tkHiba); } }
@@ -130,6 +136,7 @@ function tkBelep() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   TK.bent = true; TK.szoba = TK.jog.szoba; TK.masok = {}; TK.betoltve = false; TK.belepMp = 0;
+  TK.diszek = {}; TK.dBetoltve = false; TK.dMod = null; TK.talca = false;
   TK.x = 25 + Math.random() * 50; TK.y = 76 + Math.random() * 12;
   renderTk();
   mutat("kepernyo-tunemenykert");
@@ -152,6 +159,8 @@ function tkBelep() {
   TK.gSzobaRef.on("child_added", tkGesztusJott, tkHiba);   /* a régi (belépés előtti) gesztusokat nem játsszuk le */
   TK.gSzobaRef.on("child_changed", tkGesztusJott, tkHiba);
   TK.gSzobaRef.once("value", function () { TK.gBetoltve = true; }, tkHiba);
+  TK.dRef = TK.db.ref("diszek/" + TK.szoba);
+  TK.dRef.on("value", tkDiszekJott, tkHiba);
   TK.oraTimer = setInterval(tkOra, 5000);
   esemeny("kert_belep", { szoba: TK.szoba });
 }
@@ -163,6 +172,8 @@ function tkKilep(gombbal) {
     if (TK.szobaRef) TK.szobaRef.off();
     if (TK.connRef) TK.connRef.off();
     if (TK.gSzobaRef) TK.gSzobaRef.off();
+    if (TK.dRef) TK.dRef.off();
+    TK.dMod = null; TK.talca = false; tkTalcaRajzol();
     if (TK.gRef) { TK.gRef.onDisconnect().cancel().catch(function () {}); TK.gRef.remove().catch(tkHiba); }
     if (TK.ref) { TK.ref.onDisconnect().cancel().catch(function () {}); TK.ref.remove().catch(tkHiba); }
     esemeny("kert_kilep", { szoba: TK.szoba, mp: TK.belepMp });
@@ -284,12 +295,17 @@ function tkSetal(d, x0, y0, x1, y1) {
 function tkSzinterKlikk(e) {
   if (!TK.bent || TK.hazaTimer || TK.gFut) return;
   var host = $("tk-szinter"), d = $("tk-uni-sajat"); if (!host || !d) return;
+  var dx = e.target.closest && e.target.closest(".tk-disz-x");
+  if (dx) { tkDiszElpakol(dx.parentNode.getAttribute("data-k")); return; }
+  var dsz = e.target.closest && e.target.closest(".tk-disz");
+  if (dsz && !TK.dMod) { tkDiszKoppint(dsz.getAttribute("data-k")); return; }
   if (e.target.closest && e.target.closest("#tk-uni-sajat")) { kertNyihog(); return; }
   var masik = e.target.closest && e.target.closest(".tk-uni:not(.sajat)");
   if (masik && tkGesztusSzabad("pacsi")) { tkPacsiIndit(masik.id.replace(/^tk-uni-/, "")); return; }
   var r = host.getBoundingClientRect();
   var x = Math.max(8, Math.min(92, ((e.clientX - r.left) / r.width) * 100));
   var y = Math.max(TK_Y_MIN, Math.min(TK_Y_MAX, ((e.clientY - r.top) / r.height) * 100));
+  if (TK.dMod) { tkDiszLerak(TK.dMod, x, y); return; }   /* díszítés-mód: séta helyett lerakás */
   tkSetal(d, TK.x, TK.y, x, y);
   TK.x = x; TK.y = y;
   if (TK.ref) TK.ref.update({ x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, t: firebase.database.ServerValue.TIMESTAMP }).catch(tkHiba);
@@ -333,8 +349,10 @@ function tkMasikMent(snap) {
 function tkSugo() {
   var s = $("tk-sugo"); if (!s || TK.hazaTimer) return;
   var nevek = Object.keys(TK.masok).map(function (u) { return TK.masok[u].a.nev; });
+  if (TK.dMod) { s.textContent = "Koppints a felhőre — oda tesszük! 🌸"; return; }
+  var nezd = !nevek.length ? tkDiszNezd() : "";
   s.textContent = !nevek.length
-    ? "Most csak te vagy itt. Koppints a felhőre, és sétálj! ☁️"
+    ? "Most csak te vagy itt. " + (nezd ? nezd + " 🌸" : "Koppints a felhőre, és sétálj! ☁️")
     : "Itt van: " + nevek.join(", ") + " 💖 Koppints a felhőre — odasétálsz!";
 }
 window.addEventListener("pagehide", function () { if (TK.bent && TK.ref) { TK.ref.remove(); if (TK.gRef) TK.gRef.remove(); } });
@@ -368,11 +386,14 @@ function tkGesztussor() {
     h += '<button class="kert-trukk-chip tk-g-chip" data-g="' + a.id + '" aria-label="' + a.nev + '" title="' + a.nev + '">' +
       '<span class="ktr-emoji">' + a.emoji + '</span></button>';
   });
+  if (window.TK_DISZEK && TK_DISZEK.length) h += '<button class="kert-trukk-chip tk-g-chip tk-d-chip' + (TK.talca ? " aktiv" : "") + '" data-g="disz" aria-label="Díszítés" title="Díszítés">' +
+    '<span class="ktr-emoji">🌸</span></button>';
   sor.innerHTML = h;
   sor.hidden = !h;
   sor.onclick = function (e) {
     var b = e.target.closest && e.target.closest(".tk-g-chip"); if (!b) return;
-    hangGomb(); tkGesztusIndit(b.getAttribute("data-g"));
+    hangGomb();
+    if (b.getAttribute("data-g") === "disz") tkTalcaValt(); else tkGesztusIndit(b.getAttribute("data-g"));
   };
 }
 /* a saját gesztus beírása az RTDB-be — a többiek ebből játsszák le */
@@ -472,4 +493,165 @@ function tkPacsiJatszik(d1, d2, x1, y1, x2, y2) {
     setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, ms + 200);
   }
   setTimeout(function () { beep(1175, 0.06, "square", 0, 0.05); beep(1568, 0.12, "triangle", 0.06, 0.09); beep(2093, 0.12, "triangle", 0.14, 0.06); }, ms * 0.38);
+}
+
+/* ── 5d) KÖZÖS DÍSZÍTÉS ──
+   A díszek listája a tk-diszek.js-ben (TK_DISZEK) — a pult is azt használja.
+   A gyerek 💧-ért megveszi (P().tkDisz = { tip: darab } — az övé marad), és kiteheti a felhőre, vagy
+   elpakolhatja (a zsákjába kerül, a vételár nem jár vissza). Egyszerre legfeljebb „limit” dísze lehet kint:
+   a hely-kulcs "0".."limit-1", ezt a database.rules.json is ellenőrzi. Ha a producer töröl egy díszt,
+   a pult kertVissza/{uid}-ba írja az árát → itt jóváírjuk (a darab is lekerül a zsákból). */
+var TK_DISZ_AR = 12, TK_DISZ_LIMIT = 5, TK_DISZ_MAX = 10;
+function tkDiszAdat(id) { var l = window.TK_DISZEK || []; for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+function tkDiszAr() { var a = TK.beall && +TK.beall.diszAr; return a > 0 ? a : TK_DISZ_AR; }
+function tkDiszLimit() {
+  var j = TK.jog && TK.jog.diszLimit, b = TK.beall && TK.beall.diszLimit;
+  var l = typeof j === "number" ? j : (typeof b === "number" ? b : TK_DISZ_LIMIT);
+  return Math.max(0, Math.min(TK_DISZ_MAX, l));
+}
+function tkDiszVett() { var p = P(); if (!p.tkDisz || typeof p.tkDisz !== "object") p.tkDisz = {}; return p.tkDisz; }
+function tkDiszKintSajat() {   /* a saját, most kint lévő díszek: [{ k, hely, tip }] */
+  var r = [], elo = FELHO.uid + "/";
+  Object.keys(TK.diszek).forEach(function (k) { if (k.indexOf(elo) === 0) r.push({ k: k, hely: k.slice(elo.length), tip: TK.diszek[k].a.tip }); });
+  return r;
+}
+function tkDiszZsak(tip) {   /* hány ilyen dísze van a zsákjában (megvett, de nincs kint) */
+  var kint = tkDiszKintSajat().filter(function (x) { return x.tip === tip; }).length;
+  return Math.max(0, (+tkDiszVett()[tip] || 0) - kint);
+}
+
+/* ── tálca ── */
+function tkTalcaValt() {
+  if (!TK.bent || TK.hazaTimer) return;
+  TK.talca = !TK.talca;
+  if (!TK.talca) TK.dMod = null;
+  else if (!TK.dMod) mondd("Válassz egy díszt, aztán koppints a felhőre!");
+  tkTalcaRajzol(); tkGesztussor(); tkSugo();
+}
+function tkTalcaRajzol() {
+  var t = $("tk-disz-talca"), sz = $("tk-szinter");
+  if (sz) sz.classList.toggle("tk-rak", !!TK.talca);
+  if (!t) return;
+  if (!TK.talca || !TK.bent) { t.hidden = true; t.innerHTML = ""; return; }
+  var ar = tkDiszAr(), lim = tkDiszLimit(), kint = tkDiszKintSajat().length, harmat = P().tunderharmat || 0;
+  var h = '<div class="tk-d-kint" title="Ennyi díszed van kint">' + kint + "/" + lim + "</div>";
+  (window.TK_DISZEK || []).forEach(function (d) {
+    var zs = tkDiszZsak(d.id), cimke = zs ? "×" + zs : ar + " 💧";
+    h += '<button class="tk-d-elem' + (TK.dMod === d.id ? " kivalasztva" : "") + (!zs && harmat < ar ? " draga" : "") +
+      '" data-d="' + d.id + '" aria-label="' + tkEsc(d.nev) + '" title="' + tkEsc(d.nev) + '">' +
+      tkDiszSVG(d.id, "tk-d-kep") + '<span class="tk-d-cimke' + (zs ? " zsak" : "") + '">' + cimke + "</span></button>";
+  });
+  t.innerHTML = h;
+  t.hidden = false;
+  t.onclick = function (e) {
+    var b = e.target.closest && e.target.closest(".tk-d-elem"); if (!b) return;
+    hangGomb();
+    var id = b.getAttribute("data-d");
+    TK.dMod = TK.dMod === id ? null : id;
+    if (TK.dMod) {
+      var d = tkDiszAdat(id), zs = tkDiszZsak(id);
+      if (!zs && (P().tunderharmat || 0) < tkDiszAr()) mondd("Ehhez még " + (tkDiszAr() - (P().tunderharmat || 0)) + " tündérharmat kell. Gyűjts kitartással!");
+      else mondd(d.nev + ". Koppints a felhőre!");
+    }
+    tkTalcaRajzol(); tkSugo();
+  };
+}
+
+/* ── lerakás / elpakolás ── */
+function tkDiszLerak(tip, x, y) {
+  var d = tkDiszAdat(tip); if (!d || !TK.dRef) return;
+  var lim = tkDiszLimit(), kint = tkDiszKintSajat();
+  if (kint.length >= lim) {
+    mondd(lim ? "Már " + lim + " díszed van kint. Pakolj el egyet, és tehetsz újat!" : "Most nem lehet díszt kitenni.");
+    return;
+  }
+  var ar = tkDiszAr(), vett = false;
+  if (!tkDiszZsak(tip)) {
+    var h = P().tunderharmat || 0;
+    if (h < ar) { mondd("Ehhez még " + (ar - h) + " tündérharmat kell. Gyűjts kitartással!"); return; }
+    P().tunderharmat = h - ar;
+    tkDiszVett()[tip] = (+tkDiszVett()[tip] || 0) + 1;
+    vasarlasNaplo("tkdisz-" + tip, ar, "tunderharmat");
+    vett = true;
+  }
+  var foglalt = {}; kint.forEach(function (k) { foglalt[k.hely] = 1; });
+  var hely = 0; while (foglalt[String(hely)]) hely++;
+  x = Math.round(Math.max(5, Math.min(95, x)) * 10) / 10; y = Math.round(y * 10) / 10;
+  TK.dRef.child(FELHO.uid + "/" + hely).set({ tip: tip, x: x, y: y, nev: tkNev(), t: firebase.database.ServerValue.TIMESTAMP }).catch(function (e) {
+    tkHiba(e); mondd("Most nem sikerült kitenni. A díszed a zsákodban vár.");
+  });
+  hangCsilla();
+  if (vett) { ment(); var hm = $("tk-harmat"); if (hm) hm.textContent = P().tunderharmat || 0; }
+  esemeny("kert_disz", { tip: tip, vett: vett });
+}
+function tkDiszElpakol(k) {
+  var m = TK.diszek[k]; if (!m || k.indexOf(FELHO.uid + "/") !== 0) return;
+  hangGomb();
+  TK.dRef.child(k).remove().catch(tkHiba);
+  mondd("Elpakoltad. A zsákodban vár!");
+}
+function tkDiszKoppint(k) {
+  var m = TK.diszek[k]; if (!m) return;
+  var d = tkDiszAdat(m.a.tip);
+  m.d.classList.remove("rezeg"); void m.d.offsetWidth; m.d.classList.add("rezeg");
+  hangCsilla();
+  if (k.indexOf(FELHO.uid + "/") === 0) mondd("Ez a te díszed!");
+  else if (d) mondd(m.a.nev + " " + d.nevRag + ".");
+}
+function tkDiszNezd() {   /* „Nézd, Lili virága!” — ha egyedül van, de mások díszei kint vannak */
+  var dbk = {}, elso = {};
+  Object.keys(TK.diszek).forEach(function (k) {
+    var uid = k.split("/")[0], a = TK.diszek[k].a; if (uid === FELHO.uid) return;
+    dbk[a.nev] = (dbk[a.nev] || 0) + 1; if (!elso[a.nev]) elso[a.nev] = a.tip;
+  });
+  var nev = Object.keys(dbk)[0]; if (!nev) return "";
+  var d = tkDiszAdat(elso[nev]);
+  return "Nézd, " + nev + " " + (dbk[nev] > 1 || !d ? "díszei" : d.nevRag) + "!";
+}
+
+/* ── a szoba díszei (élő) ── */
+function tkDiszekJott(snap) {
+  if (!TK.bent) return;
+  var v = snap.val() || {}, uj = {}, kont = $("tk-unik");
+  Object.keys(v).forEach(function (uid) {
+    var sor = v[uid] || {};
+    Object.keys(sor).forEach(function (hely) { var a = sor[hely]; if (a && tkDiszAdat(a.tip)) uj[uid + "/" + hely] = a; });
+  });
+  Object.keys(TK.diszek).forEach(function (k) {   /* eltűnt: elpakolták / a producer törölte */
+    if (uj[k] && uj[k].tip === TK.diszek[k].a.tip) return;
+    var d = TK.diszek[k].d; delete TK.diszek[k];
+    d.classList.add("eltunik");
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 450);
+  });
+  Object.keys(uj).forEach(function (k) {
+    var a = uj[k], m = TK.diszek[k], sajat = k.indexOf(FELHO.uid + "/") === 0;
+    if (m) { if (m.a.x !== a.x || m.a.y !== a.y) tkDiszPoz(m.d, +a.x, +a.y); m.a = a; return; }
+    var d = el("div", "tk-disz" + (sajat ? " sajat" : ""));
+    d.setAttribute("data-k", k);
+    d.innerHTML = tkDiszSVG(a.tip, "tk-disz-kep") + (sajat ? '<button class="tk-disz-x" aria-label="Elpakolás">✕</button>' : "");
+    tkDiszPoz(d, +a.x || 50, +a.y || 80);
+    if (TK.dBetoltve) d.classList.add("terem");
+    if (kont) kont.appendChild(d);
+    TK.diszek[k] = { a: a, d: d };
+  });
+  TK.dBetoltve = true;
+  tkTalcaRajzol(); tkSugo();
+}
+function tkDiszPoz(d, x, y) {
+  d.style.left = x + "%";
+  d.style.bottom = (100 - y) + "%";
+  d.style.setProperty("--s", tkMeret(y).toFixed(3));
+  d.style.zIndex = Math.round(y * 10) - 1;   /* ugyanazon a mélységen az unikornis elé kerül */
+}
+
+/* ── a producer törölt egy díszt → visszajár a 💧 ── */
+function tkVisszaJott(snap) {
+  var v = snap.val() || {}, ar = Math.max(0, Math.min(99, +v.ar || 0)), tip = String(v.tip || "");
+  snap.ref.remove().then(function () {   /* előbb törlünk, csak utána írunk jóvá — így nem jár kétszer */
+    P().tunderharmat = (P().tunderharmat || 0) + ar;
+    var vett = tkDiszVett(); if (vett[tip]) vett[tip] = Math.max(0, vett[tip] - 1);
+    ment();
+    var hm = $("tk-harmat"); if (hm) hm.textContent = P().tunderharmat || 0;
+    if (TK.bent && ar) { mondd("Visszakaptál " + ar + " tündérharmatot."); tkTalcaRajzol(); }
+  }).catch(tkHiba);
 }
