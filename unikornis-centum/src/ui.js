@@ -9,8 +9,8 @@ function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
   LENY_SORREND.forEach(function (k) {
     var c = LENYEK[k], p = mentes.profilok[k];
-    var keszDb = Object.keys(p.palyak).filter(function (x) { return p.palyak[x].kesz; }).length;
-    var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan; }).length;
+    var keszDb = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x) && p.palyak[x.id] && p.palyak[x.id].kesz; }).length;
+    var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x); }).length;
     var jelvDb = Object.keys(p.jelvenyek || {}).length;
     var kart = el("div", "profil-kartya");
     kart.innerHTML =
@@ -29,10 +29,12 @@ function renderFomenu() {
   var racs = $("palya-racs"); racs.innerHTML = "";
   var REGIO_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
   var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER };   /* mindkét liget saját jelenetet kap */
-  /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva */
-  var regiok = {}, regioSorrend = [];
-  PALYAK.forEach(function (pa, idx) {
-    var r = pa.regio || "osszeado";
+  /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
+     a sorszámozás folyamatos marad (a gyerek ne lásson hézagot) */
+  var regiok = {}, regioSorrend = [], lathato = 0;
+  PALYAK.forEach(function (pa) {
+    if (palyaRejtve(pa)) return;
+    var idx = lathato++, r = pa.regio || "osszeado";
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -51,10 +53,13 @@ function renderFomenu() {
     var napiBadge = napiEz
       ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
       : "";
+    var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — jutalom nem jár érte */
+    if (ajanlott) kart.classList.add("ajanlott");
     kart.innerHTML =
       '<div class="sorszam">' + (idx + 1) + '</div>' +
       '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
+      (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
@@ -71,6 +76,7 @@ function renderFomenu() {
       e.stopPropagation(); hangGomb();
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
+      if (ajanlott) mondat += " Ezt most neked ajánlom!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });

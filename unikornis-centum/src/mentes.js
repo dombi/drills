@@ -93,7 +93,7 @@ function napiKiemeltId() {
   var d = new Date(), ev = d.getFullYear(), ho = d.getMonth(), nap = d.getDate();
   var napSorsz = Math.floor((d - new Date(ev, 0, 0)) / 86400000);
   var jatszhatoIds = [];
-  PALYAK.forEach(function (p) { if (!p.hamarosan) jatszhatoIds.push(p.id); });
+  PALYAK.forEach(function (p) { if (!p.hamarosan && !palyaRejtve(p)) jatszhatoIds.push(p.id); });
   if (!jatszhatoIds.length) return null;
   var idx = ((ev * 367 + napSorsz * 13 + ho * 7) & 0x7FFFFFFF) % jatszhatoIds.length;
   return jatszhatoIds[idx];
@@ -110,15 +110,15 @@ var NAPI_KIEMELT_HARMAT = 3;
    állomás = 3 (állandó) · pálya vége = 10×(szint+1) (20→90). Hibázás sosem von le. */
 function palyaSzint(palya) { return (palya && palya.szint) || 1; }
 function jutalom(mit, palya) {
-  var p = palya || (J && J.palya) || null, sz = palyaSzint(p);
+  var p = palya || (J && J.palya) || null, sz = palyaSzint(p), alap = 0;
   switch (mit) {
-    case "feladat":   return sz >= 5 ? 2 : 1;   /* H7.1a: 1 ✨ (1–4. szint) · 2 ✨ (5–8) */
-    case "tipp":      return 1;                 /* nem skálázódik – állandó horgony */
-    case "felmondas": return 9;                 /* bontás / szorzótábla felmondása */
-    case "allomas":   return 1;                 /* állomás kész – állandó horgony */
-    case "palyavege": return 5 * sz;            /* 5 × szint (5 → 40) */
+    case "feladat":   alap = sz >= 5 ? 2 : 1; break;   /* H7.1a: 1 ✨ (1–4. szint) · 2 ✨ (5–8) */
+    case "tipp":      alap = 1; break;                 /* nem skálázódik – állandó horgony */
+    case "felmondas": alap = 9; break;                 /* bontás / szorzótábla felmondása */
+    case "allomas":   alap = 1; break;                 /* állomás kész – állandó horgony */
+    case "palyavege": alap = 5 * sz; break;            /* 5 × szint (5 → 40) */
   }
-  return 0;
+  return Math.round(alap * palyaSzorzo(p));            /* producer extra-jutalma (×1,5 / ×2), alapból ×1 */
 }
 /* a pálya teljes becsült értéke (a „végig ≈ X ✨" kártya-sorhoz, 7.1d) — szorzó/teljes-ösvény nélkül.
    Az effektív tipus/darab az alap-ból öröklődik, ha az állomás nem írja felül. */

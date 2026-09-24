@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Producer-pult · Unikornis Centum</title>
 <!--
-  Unikornis Centum — Producer-pult (backend 3. fázis)
-  Csak olvas: users + unicorns + events. Belépés: admin@unikornis.app (a producer saját jelszavával).
+  Unikornis Centum — Producer-pult (backend 3–4. fázis)
+  Olvas: users + unicorns + events. Ír (4. fázis): producerConfig (egyéni felülírások, megjegyzés) + groups (csoportok). Belépés: admin@unikornis.app (a producer saját jelszavával).
   Az admin-jogot a firestore.rules isAdmin() adja (e-mail alapján) — Cloud Function nélkül.
   FONTOS: külön Firebase-app ("pult") → a belépés NEM keveredik a játék belépésével ugyanabban a böngészőben.
 -->
@@ -85,6 +85,19 @@ td.tores{ white-space:normal; max-width:420px; }
 .naptar div.ma{ outline:2px solid var(--lila-sotet); }
 .naptar .fej{ background:none; font-weight:600; }
 .ures{ padding:20px; text-align:center; color:var(--halvany); }
+
+/* beállítások (4. fázis) */
+.celsor{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
+.celsor .cimke{ font-size:13px; color:var(--halvany); margin-right:4px; min-width:80px; }
+td select{ padding:4px 6px; font-size:14px; }
+td select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
+tr.kulcs td:first-child::after{ content:" 🔑"; }
+.hatas{ font-size:13px; }
+.tagok{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:6px; }
+textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--keret); border-radius:10px; padding:8px 10px; resize:vertical; }
+#mentve{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--lila-sotet); color:#fff; padding:8px 18px; border-radius:999px; font-size:14px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:9; }
+#mentve.lathato{ opacity:1; }
+#mentve.hiba{ background:var(--piros); }
 </style>
 </head>
 <body>
@@ -119,6 +132,7 @@ td.tores{ white-space:normal; max-width:420px; }
   <nav id="fulek"></nav>
   <main id="tartalom"><div class="ures">Adatok betöltése…</div></main>
 </section>
+<div id="mentve"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -158,8 +172,15 @@ var A = {
   jatekos: null,
   csakHibak: false,
   palyaSzuro: "",
-  esemenyLeir: null
+  esemenyLeir: null,
+  cfg: {},            /* producerConfig: uid → { overrides, notes } */
+  groups: [],         /* [{ id, name, members: [uid], overrides }] */
+  bCel: null,         /* Beállítások fül célpontja: "u:<uid>" vagy "g:<gid>" */
+  beallLeir: []
 };
+/* a kapu-kulcs pályák (a játék src/engine-logic.js KAPU_KULCSOK-ja): ezek nyitják a 12 órás kaput,
+   nélkülük a többi pálya alszik → nem rejthetők el (a játék is figyelmen kívül hagyná) */
+var KULCS_PALYAK = ["bontas-felmondas", "szorzo-dallam"];
 
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -225,7 +246,11 @@ function belepes() {
 }
 $("b-gomb").onclick = belepes;
 $("b-jelszo").addEventListener("keydown", function (e) { if (e.key === "Enter") belepes(); });
-$("kilep").onclick = function () { if (A.esemenyLeir) A.esemenyLeir(); auth.signOut(); };
+$("kilep").onclick = function () {
+  if (A.esemenyLeir) A.esemenyLeir();
+  A.beallLeir.forEach(function (f) { f(); }); A.beallLeir = [];
+  auth.signOut();
+};
 $("frissit").onclick = function () { jatekosokBetolt().then(rajzol); };
 $("idoszak").onchange = rajzol;
 
@@ -235,6 +260,7 @@ auth.onAuthStateChanged(function (u) {
   $("ki-belepve").textContent = u.email;
   palyakBetolt().then(function () { return jatekosokBetolt(); }).then(function () {
     esemenyekFigyel();
+    beallitasokFigyel();
     rajzol();
   }).catch(jogHiba);
 });
@@ -325,7 +351,7 @@ function profilOssz(u, mezo) { var s = 0; for (var k in u.unicorns) s += +u.unic
 
 /* ══════════ fülek ══════════ */
 var FULEK = [
-  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
+  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
 ];
 function rajzol() {
   $("fulek").innerHTML = FULEK.map(function (f) {
@@ -334,7 +360,7 @@ function rajzol() {
   Array.prototype.forEach.call($("fulek").children, function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
+  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
 }
 
 /* ── 📋 Áttekintés ── */
@@ -547,6 +573,175 @@ function rajzPalyak(t) {
   h += '<p class="kicsi halvany" style="margin-top:8px">„Elsőre jó” = a végigjátszott pályákon hány feladatot oldott meg elsőre. Piros sáv: 60% alatt, sárga: 80% alatt.</p>';
   t.innerHTML = h;
   $("p-szuro").onchange = function () { A.palyaSzuro = this.value; rajzol(); };
+}
+
+/* ══════════ 🎛️ Beállítások (4. fázis): producer-felülírások + csoportok ══════════
+   Egy felülírás pályánként: { enabled?: false|true, recommended?: true|false, extraReward?: 1|1.5|2 }.
+   Sorrend: alap < csoport(ok) < egyéni. A játék src/config.js felulirOsszevon-ja UGYANEZ — együtt változtasd! */
+function felulirOsszevon(egyeni, csoportLista) {
+  var ki = {};
+  function mezo(id) { return ki[id] || (ki[id] = {}); }
+  csoportLista.forEach(function (ov) {
+    Object.keys(ov || {}).forEach(function (id) {
+      var o = ov[id] || {}, k = mezo(id);
+      if (o.enabled === false) k.enabled = false;
+      if (o.recommended === true) k.recommended = true;
+      if (typeof o.extraReward === "number") k.extraReward = Math.max(k.extraReward || 1, o.extraReward);
+    });
+  });
+  Object.keys(egyeni || {}).forEach(function (id) {
+    var o = egyeni[id] || {}, k = mezo(id);
+    ["enabled", "recommended", "extraReward"].forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
+  });
+  return ki;
+}
+function beallitasokFigyel() {
+  A.beallLeir.forEach(function (f) { f(); });
+  A.beallLeir = [
+    db.collection("producerConfig").onSnapshot(function (snap) {
+      var c = {}; snap.forEach(function (d) { c[d.id] = d.data(); }); A.cfg = c;
+      if (A.fulek === "beallitasok") rajzol();
+    }, function (e) { console.warn("[pult] producerConfig:", e); }),
+    db.collection("groups").onSnapshot(function (snap) {
+      var l = [];
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {} }); });
+      l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
+      A.groups = l;
+      if (A.fulek === "beallitasok") rajzol();
+    }, function (e) { console.warn("[pult] groups:", e); })
+  ];
+}
+var mentveIdo;
+function mentveJelez(hiba) {
+  var m = $("mentve");
+  m.textContent = hiba ? "⚠️ Nem sikerült menteni: " + hiba : "✓ Mentve — a gyerek gépén azonnal él";
+  m.className = "lathato" + (hiba ? " hiba" : "");
+  clearTimeout(mentveIdo); mentveIdo = setTimeout(function () { m.className = ""; }, hiba ? 5000 : 1800);
+}
+function ment(p) { p.then(function () { mentveJelez(); }, function (e) { console.warn("[pult] mentés:", e); mentveJelez((e && e.code) || e); }); }
+function csoportById(gid) { for (var i = 0; i < A.groups.length; i++) if (A.groups[i].id === gid) return A.groups[i]; return null; }
+function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g.members.indexOf(uid) >= 0; }); }
+
+/* a gyerek szemével: mit kap egy pályánál, és honnan jön (egyéni / melyik csoport) */
+function hatasLeiras(uid, pid) {
+  var cs = jatekosCsoportjai(uid), egy = (A.cfg[uid] || {}).overrides || {};
+  var v = felulirOsszevon(egy, cs.map(function (g) { return g.overrides; }))[pid] || {};
+  var e = egy[pid] || {};
+  function honnan(mezo) {
+    if (e[mezo] != null) return "";
+    var n = cs.filter(function (g) { return (g.overrides[pid] || {})[mezo] != null; }).map(function (g) { return g.name; });
+    return n.length ? ' <span class="halvany">(' + esc(n.join(", ")) + ")</span>" : "";
+  }
+  if (v.enabled === false && KULCS_PALYAK.indexOf(pid) < 0) return '<span class="rossz-sz">🚫 nem látja</span>' + honnan("enabled");
+  var r = ['<span class="jo">✅ látja</span>'];
+  if (v.recommended) r.push("💖 ajánlott" + honnan("recommended"));
+  if (v.extraReward && v.extraReward !== 1) r.push("×" + String(v.extraReward).replace(".", ",") + " ✨" + honnan("extraReward"));
+  return r.join(" · ");
+}
+function valaszto(mezo, pid, ertek, opciok) {
+  var s = '<select data-pid="' + esc(pid) + '" data-mezo="' + mezo + '"' + (ertek != null ? ' class="beallitva"' : "") + ">";
+  opciok.forEach(function (o) { s += '<option value="' + o[0] + '"' + (String(ertek == null ? "" : ertek) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; });
+  return s + "</select>";
+}
+function ertekBol(mezo, v) {
+  if (v === "") return null;
+  if (mezo === "extraReward") return +v;
+  return v === "true";
+}
+
+function rajzBeallitasok(t) {
+  var cel = A.bCel || ("u:" + A.users[0].uid);
+  /* a választást (A.bCel) nem írjuk felül: egy frissen létrehozott csoport egy pillanattal később érkezik meg */
+  if ((cel.charAt(0) === "u" && !userById(cel.slice(2))) || (cel.charAt(0) === "g" && !csoportById(cel.slice(2)))) cel = "u:" + A.users[0].uid;
+  var tipus = cel.charAt(0), id = cel.slice(2), egyeni = (tipus === "u");
+
+  var h = '<div class="celsor"><span class="cimke">Gyerek:</span>' + A.users.map(function (u) {
+    return '<button data-cel="u:' + esc(u.uid) + '" class="' + (cel === "u:" + u.uid ? "aktiv" : "") + '">' + esc(jNev(u.uid)) + "</button>";
+  }).join("") + "</div>";
+  h += '<div class="celsor"><span class="cimke">Csoport:</span>' + A.groups.map(function (g) {
+    return '<button data-cel="g:' + esc(g.id) + '" class="' + (cel === "g:" + g.id ? "aktiv" : "") + '">👥 ' + esc(g.name) + " <small>(" + g.members.length + ")</small></button>";
+  }).join("") + '<button id="uj-csoport">＋ Új csoport</button></div>';
+
+  var ov, cim, ures;
+  if (egyeni) {
+    var cfg = A.cfg[id] || {}, vanCsop = jatekosCsoportjai(id).length > 0;
+    ov = cfg.overrides || {};
+    ures = vanCsop ? "— csoport szerint" : "— alap";
+    h += '<div class="kartya" style="margin-top:10px"><h3>🦄 ' + esc(jNev(id)) + "</h3>" +
+      '<div class="kicsi halvany">Csoportjai (pipáld be, melyikbe tartozzon):</div><div class="tagok">' +
+      (A.groups.length ? A.groups.map(function (g) {
+        return '<label><input type="checkbox" data-tag="' + esc(g.id) + '"' + (g.members.indexOf(id) >= 0 ? " checked" : "") + "> 👥 " + esc(g.name) + "</label>";
+      }).join("") : '<span class="halvany kicsi">még nincs csoport — a „＋ Új csoport” gombbal hozhatsz létre</span>') + "</div>" +
+      '<h3 style="margin-top:14px">📝 Megjegyzés <span class="halvany kicsi">(csak te látod)</span></h3>' +
+      '<textarea id="jegyzet" placeholder="pl. A kivonás frusztrálja — finoman adagolni">' + esc(cfg.notes || "") + "</textarea></div>";
+    cim = "Pályák — egyéni beállítás" + (vanCsop ? ' <span class="halvany kicsi">(ahol „—”, ott a csoport dönt)</span>' : "");
+  } else {
+    var g = csoportById(id);
+    ov = g.overrides || {};
+    ures = "— nincs";
+    h += '<div class="kartya" style="margin-top:10px"><h3>👥 <input id="csoport-nev" value="' + esc(g.name) + '" style="font-weight:700;min-width:220px"> ' +
+      '<button id="csoport-torol" style="margin-left:auto;background:#fdecef;color:var(--piros)">Csoport törlése</button></h3>' +
+      '<div class="kicsi halvany">Tagok:</div><div class="tagok">' + A.users.map(function (u) {
+        return '<label><input type="checkbox" data-tag-u="' + esc(u.uid) + '"' + (g.members.indexOf(u.uid) >= 0 ? " checked" : "") + "> " + esc(jNev(u.uid)) + "</label>";
+      }).join("") + "</div></div>";
+    cim = "Pályák — a csoport minden tagjára";
+  }
+
+  h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th>' +
+    (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
+  PALYA_SORREND.forEach(function (pid) {
+    var o = ov[pid] || {}, kulcs = KULCS_PALYAK.indexOf(pid) >= 0;
+    var lath = kulcs ? [["", "✅ mindig látható"]] : egyeni ? [["", ures], ["false", "🚫 rejtve"], ["true", "✅ látható"]] : [["", ures], ["false", "🚫 rejtve"]];
+    var ajan = egyeni ? [["", ures], ["true", "💖 igen"], ["false", "nem"]] : [["", ures], ["true", "💖 igen"]];
+    var extra = egyeni ? [["", ures], ["1", "×1 (normál)"], ["1.5", "×1,5"], ["2", "×2"]] : [["", ures], ["1.5", "×1,5"], ["2", "×2"]];
+    h += '<tr class="' + (kulcs ? "kulcs" : "") + '"><td>' + esc(palyaNev(pid)) + "</td>" +
+      "<td>" + valaszto("enabled", pid, kulcs ? null : o.enabled, lath) + "</td>" +
+      "<td>" + valaszto("recommended", pid, o.recommended, ajan) + "</td>" +
+      "<td>" + valaszto("extraReward", pid, o.extraReward, extra) + "</td>" +
+      (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
+  });
+  h += "</table></div>" +
+    '<p class="kicsi halvany" style="margin-top:8px">🔑 = kapu-kulcs pálya: ez nyitja a 12 órás kaput, ezért nem rejthető el. ' +
+    "Sárga mező = itt beállítottál valamit. Sorrend: alap → csoport → egyéni (az egyéni a legerősebb). " +
+    "Több csoportnál: ha bármelyik elrejti, rejtve; a szorzó a legnagyobb. A gyerek nem látja, hogy testreszabott — " +
+    "az ajánlott pályán 💖 dobog, és felolvasáskor: „Ezt most neked ajánlom!”</p>";
+  t.innerHTML = h;
+
+  /* kezelők — minden változás azonnal ment */
+  var FV = firebase.firestore.FieldValue;
+  var docRef = egyeni ? db.collection("producerConfig").doc(id) : db.collection("groups").doc(id);
+  Array.prototype.forEach.call(t.querySelectorAll("[data-cel]"), function (b) { b.onclick = function () { A.bCel = b.dataset.cel; rajzol(); }; });
+  $("uj-csoport").onclick = function () {
+    var nev = (prompt("Az új csoport neve (pl. 2.b osztály):") || "").trim();
+    if (!nev) return;
+    var ref = db.collection("groups").doc();
+    A.bCel = "g:" + ref.id;
+    ment(ref.set({ name: nev, members: [], overrides: {}, createdAt: FV.serverTimestamp() }));
+  };
+  Array.prototype.forEach.call(t.querySelectorAll("select[data-mezo]"), function (s) {
+    s.onchange = function () {
+      var v = ertekBol(s.dataset.mezo, s.value), m = {}, o = {};
+      m[s.dataset.mezo] = v == null ? FV.delete() : v;
+      o[s.dataset.pid] = m;
+      ment(docRef.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
+    };
+  });
+  if (egyeni) {
+    Array.prototype.forEach.call(t.querySelectorAll("[data-tag]"), function (c) {
+      c.onchange = function () { ment(db.collection("groups").doc(c.dataset.tag).update({ members: c.checked ? FV.arrayUnion(id) : FV.arrayRemove(id) })); };
+    });
+    $("jegyzet").onchange = function () { ment(docRef.set({ notes: this.value, updatedAt: FV.serverTimestamp() }, { merge: true })); };
+  } else {
+    Array.prototype.forEach.call(t.querySelectorAll("[data-tag-u]"), function (c) {
+      c.onchange = function () { ment(docRef.update({ members: c.checked ? FV.arrayUnion(c.dataset.tagU) : FV.arrayRemove(c.dataset.tagU) })); };
+    });
+    $("csoport-nev").onchange = function () { var n = this.value.trim(); if (n) ment(docRef.update({ name: n })); };
+    $("csoport-torol").onclick = function () {
+      if (!confirm("Biztosan törlöd a(z) „" + csoportById(id).name + "” csoportot? A tagok megmaradnak, csak a csoport beállításai szűnnek meg.")) return;
+      A.bCel = null;
+      ment(docRef.delete());
+    };
+  }
 }
 
 /* ── 🐞 Hibák ── */

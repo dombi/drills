@@ -53,6 +53,10 @@ window.UC = {
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },
   oduKertVesz: function (id) { var t = null; KERT_BOLT.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduKertVesz(t); },
-  napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve
+  napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve,
+  /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
+  get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
+  felulirBeallit: function (egyeni, csoportok) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; felulirSzamol(); },
+  palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo
 };
 

@@ -4,6 +4,7 @@
    A böngésző megjegyzi a belépést — a gyerek csak egyszer írja be a kódot. */
 function felhoIndit() {
   if (!felhoBekapcsolva()) return;
+  felulirCacheBetolt();   /* a producer-felülírások offline is élnek (az utolsó ismert állapot) */
   sdkBetolt(["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"], function (ok) {
     if (!ok || !window.firebase) { console.warn("[felhő] az SDK nem töltődött be (nincs net?) — helyi mentéssel megyünk tovább"); return; }
     try {
@@ -39,6 +40,7 @@ function felhoKilep() {
   felhoKuld();
   FELHO.aktiv = false; FELHO.kesz = false;
   if (FELHO.leiratkozas) FELHO.leiratkozas();
+  felulirLeiratkozik(); felulirCacheTorol();
   FELHO.auth.signOut().then(function () { location.reload(); });
 }
 

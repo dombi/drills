@@ -771,7 +771,7 @@ function kovetkezoJatszhato(id) {
   var idx = -1;
   PALYAK.forEach(function (p, i) { if (p.id === id) idx = i; });
   for (var i = idx + 1; i < PALYAK.length; i++)
-    if (!PALYAK[i].hamarosan && !palyaZarva(PALYAK[i])) return PALYAK[i].id;
+    if (!PALYAK[i].hamarosan && !palyaZarva(PALYAK[i]) && !palyaRejtve(PALYAK[i])) return PALYAK[i].id;
   return null;
 }
 function naplozz(alap, elsore, valasz) {

@@ -9,7 +9,7 @@ function renderSzuloi() {
   });
   var p = mentes.profilok[szuloiFul];
   var keszDb = 0, jatszhato = 0;
-  PALYAK.forEach(function (pa) { if (!pa.hamarosan) { jatszhato++; if (p.palyak[pa.id] && p.palyak[pa.id].kesz) keszDb++; } });
+  PALYAK.forEach(function (pa) { if (!pa.hamarosan && !palyaRejtve(pa)) { jatszhato++; if (p.palyak[pa.id] && p.palyak[pa.id].kesz) keszDb++; } });
   var perc = Math.round(p.jatekMp / 60);
   var perPalya = "";
   PALYAK.forEach(function (pa) {

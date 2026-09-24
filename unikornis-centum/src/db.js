@@ -14,6 +14,7 @@ function felhoBelepve(u) {
     if (!FELHO.kesz) felhoElsoAllapot(snap);
     else felhoTavoliValtozas(snap);
   }, function (e) { console.warn("[felhő] figyelés hiba:", e.code || e); });
+  felulirFigyel();   /* producer-felülírások + csoportok (4. fázis) */
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") felhoKuld(); });
   window.addEventListener("pagehide", felhoKuld);
   renderFelhoAllapot();

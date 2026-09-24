@@ -26,9 +26,9 @@ var JELVENYEK = [
   { id: "atlepo-bajnok", csalad: "A", nev: "Átlépő bajnok", felt: "A 7. és 9. pálya kész", szin: "#c9a8e6",
     teljesul: function (p) { return palyakKeszek(p, ["atlepo", "erdo-szive"]); } },
   { id: "szorzo-vandor", csalad: "A", nev: "Szorzó-vándor", felt: "A Szorzós liget összes pályája kész", szin: "#7fd0c4",
-    teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.regio === "szorzo"; }); return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
+    teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.regio === "szorzo" && !palyaRejtve(x); }); return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
   { id: "erdo-ura", csalad: "A", nev: "Az erdő ura", felt: "Az Összeadó liget mind a 9 pályája kész", szin: "#ffd24d",
-    teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
+    teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || palyaRejtve(x) || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
   { id: "ejfeli-kapu", csalad: "A", titkos: true, nev: "Éjféli kapu", felt: "Fedezd fel a rejtett kaput", szin: "#b39ddb",
     teljesul: function (p) { return !!(p.kapu && p.kapu.nyitvaEddig > 0); } },
   /* B · Mesteri tudás */

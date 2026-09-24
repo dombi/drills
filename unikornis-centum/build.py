@@ -60,6 +60,7 @@ MODULES = [
     "db.js",              # 12c) Firestore betöltés, első feltöltés, élő figyelés
     "sync.js",            # 12d) delta-küldés + 3-utas összefésülés
     "analytics.js",       # 12e) eseménynapló (events)
+    "config.js",          # 12f) producer-felülírások + csoportok (4. fázis)
 
     # ── Indítás ──
     "main.js",            # 11) betolt(), esemenyek(), renderProfil(), window.UC
