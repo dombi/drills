@@ -668,11 +668,12 @@ function jutalom(mit, palya) {
    Az effektív tipus/darab az alap-ból öröklődik, ha az állomás nem írja felül. */
 function palyaBecsultErtek(palya) {
   var alap = palya.alap || {}, n = palya.allomasok.length, feladatErtek = 0, allo = 0;
+  var fDarab = +palyaFelulir(palya.id).darab;       /* producer feladatszáma (4. fázis) — ugyanúgy, mint a nehezsegAlkalmaz */
   for (var i = 1; i < n; i++) {
     var a = palya.allomasok[i], tip = a.tipus || alap.tipus;
     allo++;
     if (tip === "szambontas" || tip === "szorzotabla-felmondas") feladatErtek += jutalom("felmondas", palya);
-    else feladatErtek += (a.darab || alap.darab || 5) * jutalom("feladat", palya);
+    else feladatErtek += (fDarab >= 1 && fDarab <= 12 ? fDarab : (a.darab || alap.darab || 5)) * jutalom("feladat", palya);
   }
   return feladatErtek + allo * jutalom("allomas", palya) + jutalom("palyavege", palya);
 }
