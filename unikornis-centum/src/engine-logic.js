@@ -39,6 +39,7 @@ function palyaInditas(id) {
     var o = {}, k; for (k in (pa.alap || {})) o[k] = pa.alap[k];
     for (k in a) o[k] = a[k]; return o;
   });
+  allomasok = nehezsegAlkalmaz(pa, allomasok);     /* producer nehézség-állítása (config.js) */
   /* ── sorozat erre a futásra (7.2): a ✨-szorzó megszűnt; a sorozat már csak a tündérharmat +1-hez számít ── */
   var s = P().sorozat || (P().sorozat = { hossz: 0, utolsoPalya: null });
   if (id === s.utolsoPalya) { s.hossz = 0; s.utolsoPalya = null; }   /* farmolás-védelem: ugyanaz a pálya nem viszi tovább */

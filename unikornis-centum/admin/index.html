@@ -91,6 +91,10 @@ td.tores{ white-space:normal; max-width:420px; }
 .celsor .cimke{ font-size:13px; color:var(--halvany); margin-right:4px; min-width:80px; }
 td select{ padding:4px 6px; font-size:14px; }
 td select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
+.pipak{ display:inline-flex; flex-wrap:wrap; gap:1px 5px; padding:3px 6px; border:1px solid var(--keret); border-radius:10px; font-size:13px; min-width:205px; max-width:240px; }
+.pipak input{ margin:0 1px 0 0; }
+.pipak.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
+.pipak label{ display:inline-flex; align-items:center; gap:1px; white-space:nowrap; cursor:pointer; }
 tr.kulcs td:first-child::after{ content:" 🔑"; }
 .hatas{ font-size:13px; }
 .tagok{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:6px; }
@@ -227,6 +231,8 @@ function palyakBetolt() {
   return fetch("../src/constants.js", { cache: "no-cache" }).then(function (r) { return r.text(); }).then(function (t) {
     var re = /id:\s*"([^"]+)",\s*nev:\s*"([^"]+)",\s*ikon:\s*"([^"]+)"/g, m, i = 0;
     while ((m = re.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++ }; PALYA_SORREND.push(m[1]); }
+    var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
+    while ((m = rt.exec(t))) if (PALYA[m[1]]) PALYA[m[1]].tipus = m[2];
     var rl = /(\w+):\s*\{\s*nev:\s*"([^"]+)"/g;
     while ((m = rl.exec(t))) if (!PALYA[m[1]] && m[1].length < 20) LENY_NEV[m[1]] = m[2];
   }).catch(function () { /* nélküle is megy: az azonosítók látszanak */ });
@@ -577,7 +583,22 @@ function rajzPalyak(t) {
 
 /* ══════════ 🎛️ Beállítások (4. fázis): producer-felülírások + csoportok ══════════
    Egy felülírás pályánként: { enabled?: false|true, recommended?: true|false, extraReward?: 1|1.5|2 }.
+   Nehézség (2026-09-24): { muvelet?: "osszeadas"|"kivonas"|"szorzas"|"osztas", tablak?: [2..10], darab?: 3|8 }.
    Sorrend: alap < csoport(ok) < egyéni. A játék src/config.js felulirOsszevon-ja UGYANEZ — együtt változtasd! */
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab"];
+var KONNYU_MUVELET = ["osszeadas", "szorzas"];
+var MUVELET_NEV = { osszeadas: "➕ csak összeadás", kivonas: "➖ csak kivonás", szorzas: "✖️ csak szorzás", osztas: "➗ csak osztás" };
+/* pálya-típusonként mi állítható (a játék config.js nehezsegAlkalmaz-ával összhangban) */
+function nehezLehet(pid) {
+  var t = (PALYA[pid] || {}).tipus;
+  return {
+    muvelet: t === "osszeadas" ? ["osszeadas", "kivonas"] : t === "szorzasosztas" ? ["szorzas", "osztas"] : null,
+    tablak: t === "szorzotabla-felmondas" || t === "szorzasosztas" || t === "osztas" ? [2, 3, 4, 5, 6, 7, 8, 9, 10]
+          : t === "maradekos_osztas" ? [2, 3, 4, 5, 6, 7, 8, 9] : null,
+    tablaSzo: t === "osztas" || t === "maradekos_osztas" ? "osztó" : "tábla",
+    darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas"
+  };
+}
 function felulirOsszevon(egyeni, csoportLista) {
   var ki = {};
   function mezo(id) { return ki[id] || (ki[id] = {}); }
@@ -587,11 +608,20 @@ function felulirOsszevon(egyeni, csoportLista) {
       if (o.enabled === false) k.enabled = false;
       if (o.recommended === true) k.recommended = true;
       if (typeof o.extraReward === "number") k.extraReward = Math.max(k.extraReward || 1, o.extraReward);
+      if (o.muvelet) k.muvelet = (k.muvelet && KONNYU_MUVELET.indexOf(k.muvelet) >= 0) ? k.muvelet : o.muvelet;
+      if (o.tablak && o.tablak.length) {
+        if (!k.tablak) k.tablak = o.tablak.slice();
+        else {
+          var met = k.tablak.filter(function (x) { return o.tablak.indexOf(x) >= 0; });
+          k.tablak = met.length ? met : (o.tablak.length < k.tablak.length ? o.tablak.slice() : k.tablak);
+        }
+      }
+      if (typeof o.darab === "number") k.darab = Math.min(k.darab || 99, o.darab);
     });
   });
   Object.keys(egyeni || {}).forEach(function (id) {
     var o = egyeni[id] || {}, k = mezo(id);
-    ["enabled", "recommended", "extraReward"].forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
+    NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
   });
   return ki;
 }
@@ -636,6 +666,10 @@ function hatasLeiras(uid, pid) {
   var r = ['<span class="jo">✅ látja</span>'];
   if (v.recommended) r.push("💖 ajánlott" + honnan("recommended"));
   if (v.extraReward && v.extraReward !== 1) r.push("×" + String(v.extraReward).replace(".", ",") + " ✨" + honnan("extraReward"));
+  var le = nehezLehet(pid);
+  if (v.muvelet && le.muvelet && le.muvelet.indexOf(v.muvelet) >= 0) r.push(MUVELET_NEV[v.muvelet] + honnan("muvelet"));
+  if (v.tablak && v.tablak.length && le.tablak) r.push("🔢 " + v.tablak.join(", ") + honnan("tablak"));
+  if (v.darab && le.darab) r.push("📋 " + v.darab + " feladat/állomás" + honnan("darab"));
   return r.join(" · ");
 }
 function valaszto(mezo, pid, ertek, opciok) {
@@ -645,10 +679,19 @@ function valaszto(mezo, pid, ertek, opciok) {
 }
 function ertekBol(mezo, v) {
   if (v === "") return null;
-  if (mezo === "extraReward") return +v;
+  if (mezo === "extraReward" || mezo === "darab") return +v;
+  if (mezo === "muvelet") return v;
   return v === "true";
 }
 
+/* táblák / osztók: kis pipasor; üres = nincs beállítva (öröklés / alap) */
+function tablaPipak(pid, ertek, le) {
+  var v = ertek || [];
+  return '<span class="pipak' + (v.length ? " beallitva" : "") + '" title="Melyik ' + le.tablaSzo + 'k jöhetnek (üres = alap)">' +
+    le.tablak.map(function (n) {
+      return '<label><input type="checkbox" data-tabla-pid="' + esc(pid) + '" value="' + n + '"' + (v.indexOf(n) >= 0 ? " checked" : "") + ">" + n + "</label>";
+    }).join("") + "</span>";
+}
 function rajzBeallitasok(t) {
   var cel = A.bCel || ("u:" + A.users[0].uid);
   /* a választást (A.bCel) nem írjuk felül: egy frissen létrehozott csoport egy pillanattal később érkezik meg */
@@ -687,10 +730,10 @@ function rajzBeallitasok(t) {
     cim = "Pályák — a csoport minden tagjára";
   }
 
-  h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th>' +
+  h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
   PALYA_SORREND.forEach(function (pid) {
-    var o = ov[pid] || {}, kulcs = KULCS_PALYAK.indexOf(pid) >= 0;
+    var o = ov[pid] || {}, kulcs = KULCS_PALYAK.indexOf(pid) >= 0, le = nehezLehet(pid);
     var lath = kulcs ? [["", "✅ mindig látható"]] : egyeni ? [["", ures], ["false", "🚫 rejtve"], ["true", "✅ látható"]] : [["", ures], ["false", "🚫 rejtve"]];
     var ajan = egyeni ? [["", ures], ["true", "💖 igen"], ["false", "nem"]] : [["", ures], ["true", "💖 igen"]];
     var extra = egyeni ? [["", ures], ["1", "×1 (normál)"], ["1.5", "×1,5"], ["2", "×2"]] : [["", ures], ["1.5", "×1,5"], ["2", "×2"]];
@@ -698,12 +741,18 @@ function rajzBeallitasok(t) {
       "<td>" + valaszto("enabled", pid, kulcs ? null : o.enabled, lath) + "</td>" +
       "<td>" + valaszto("recommended", pid, o.recommended, ajan) + "</td>" +
       "<td>" + valaszto("extraReward", pid, o.extraReward, extra) + "</td>" +
+      "<td>" + (le.muvelet ? valaszto("muvelet", pid, o.muvelet, [["", ures]].concat(egyeni ? [["vegyes", "🔀 vegyes"]] : [],
+          le.muvelet.map(function (m) { return [m, MUVELET_NEV[m]]; }))) : '<span class="halvany">—</span>') + "</td>" +
+      "<td>" + (le.tablak ? tablaPipak(pid, o.tablak, le) : '<span class="halvany">—</span>') + "</td>" +
+      "<td>" + (le.darab ? valaszto("darab", pid, o.darab, [["", ures]].concat(egyeni ? [["0", "alap (5–6)"]] : [], [["3", "3 (kevesebb)"], ["8", "8 (több)"]])) : '<span class="halvany">—</span>') + "</td>" +
       (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
   });
   h += "</table></div>" +
     '<p class="kicsi halvany" style="margin-top:8px">🔑 = kapu-kulcs pálya: ez nyitja a 12 órás kaput, ezért nem rejthető el. ' +
     "Sárga mező = itt beállítottál valamit. Sorrend: alap → csoport → egyéni (az egyéni a legerősebb). " +
-    "Több csoportnál: ha bármelyik elrejti, rejtve; a szorzó a legnagyobb. A gyerek nem látja, hogy testreszabott — " +
+    "Több csoportnál: ha bármelyik elrejti, rejtve; a szorzó a legnagyobb; a nehézségnél a könnyebb nyer (összeadás/szorzás, a közös táblák, a kevesebb feladat). " +
+    "Nehézség: az állomások sorrendje megmarad, csak a művelet / a táblák / a feladatszám változik; a kulcs-pályákon is él, és könnyítve is nyitják a kaput. " +
+    "Táblák: üres = alap; ha az egyéni beállításnál a csoportét akarod visszabővíteni, pipáld be mindet. A gyerek nem látja, hogy testreszabott — " +
     "az ajánlott pályán 💖 dobog, és felolvasáskor: „Ezt most neked ajánlom!”</p>";
   t.innerHTML = h;
 
@@ -723,6 +772,15 @@ function rajzBeallitasok(t) {
       var v = ertekBol(s.dataset.mezo, s.value), m = {}, o = {};
       m[s.dataset.mezo] = v == null ? FV.delete() : v;
       o[s.dataset.pid] = m;
+      ment(docRef.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-tabla-pid]"), function (c) {
+    c.onchange = function () {
+      var pid = c.dataset.tablaPid, lista = [], m = {}, o = {};
+      Array.prototype.forEach.call(t.querySelectorAll("[data-tabla-pid]"), function (x) { if (x.dataset.tablaPid === pid && x.checked) lista.push(+x.value); });
+      m.tablak = lista.length ? lista : FV.delete();
+      o[pid] = m;
       ment(docRef.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
     };
   });

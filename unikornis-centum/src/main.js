@@ -57,6 +57,8 @@ window.UC = {
   /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
   get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
   felulirBeallit: function (egyeni, csoportok) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; felulirSzamol(); },
-  palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo
+  palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
+  nehezsegAlkalmaz: nehezsegAlkalmaz,
+  palyaAllomasok: function (id) { var pa = null; PALYAK.forEach(function (x) { if (x.id === id) pa = x; }); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
 };
 
