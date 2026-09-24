@@ -99,7 +99,7 @@ function utcaSVG() {
   s += '</svg>';
   return s;
 }
-var UTCA_MOD = "nez";   /* "nez" | "megerosit-belepo" */
+var UTCA_MOD = "nez";   /* "nez" | "megerosit-belepo" | "megerosit-tk" */
 function utcaNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
@@ -130,6 +130,10 @@ function renderUtca() {
       sugo.innerHTML = 'Megnyitod a szalont 150 ✨-ért? <button class="kis-gomb" id="utca-belepo-igen">Igen ✓</button> <button class="kis-gomb" id="utca-belepo-nem">Mégse</button>';
       $("utca-belepo-igen").addEventListener("click", utcaBelepoVesz);
       $("utca-belepo-nem").addEventListener("click", function () { hangGomb(); UTCA_MOD = "nez"; renderUtca(); });
+    } else if (UTCA_MOD === "megerosit-tk") {
+      sugo.innerHTML = 'Megnyitod a felhőkertet ' + TK_FELOLDAS_AR + ' 💧-ért? <button class="kis-gomb" id="utca-tk-igen">Igen ✓</button> <button class="kis-gomb" id="utca-tk-nem">Mégse</button>';
+      $("utca-tk-igen").addEventListener("click", tkFeloldasVesz);
+      $("utca-tk-nem").addEventListener("click", function () { hangGomb(); UTCA_MOD = "nez"; renderUtca(); });
     } else {
       sugo.textContent = "Koppints egy házra — oda mész! 👆";
     }

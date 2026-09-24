@@ -58,6 +58,7 @@ function profilNormal(p) {
   if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};
+  if (typeof p.tkNyitva !== "number") p.tkNyitva = 0;   /* ÉGI TÜNEMÉNYKERT: egyszeri feloldás 💧-ért */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   return p;
 }

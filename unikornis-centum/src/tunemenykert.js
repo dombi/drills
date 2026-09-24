@@ -17,6 +17,7 @@ var TK = {
   gRef: null, gSzobaRef: null, gBetoltve: false, gFut: false,
   dRef: null, diszek: {}, dBetoltve: false, dMod: null, talca: false   /* 5d: diszek = "uid/hely" → { a, d } */
 };
+var TK_FELOLDAS_AR = 10;   /* 💧 tündérharmat, egyszeri feloldás (P().tkNyitva) */
 var TK_Y_MIN = 60, TK_Y_MAX = 93;   /* a felhőmező sétálható sávja (a színtér magasságának %-a) */
 
 function tkEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -70,6 +71,7 @@ function tkNyitvatartas(b) {
 }
 function tkKapu() {
   if (!FELHO.aktiv || !TK.kesz || !TK.jog || !TK.jog.szoba) return null;
+  if (!P().tkNyitva) return { nyitva: false, zar: true, szoveg: "A felhőkert " + TK_FELOLDAS_AR + " tündérharmatért nyílik meg.", rovid: TK_FELOLDAS_AR + " 💧" };
   var b = TK.beall || {};
   if (!b.nyitva) return { nyitva: false, szoveg: "A felhőkert most pihen.", rovid: "pihen" };
   var ny = tkNyitvatartas(b); if (!ny.nyitva) return ny;
@@ -108,7 +110,7 @@ function tkLepcsoSVG() {
     '<text x="' + cx + '" y="' + (cy + 35) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#8a4fd0">felhőkert</text>';
   if (!k.nyitva) {
     g += '<rect x="' + (cx - 44) + '" y="' + (cy + 44) + '" width="88" height="19" rx="9" fill="#1a1338" opacity="0.9"/>' +
-      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">💤 ' + tkEsc(k.rovid) + '</text>';
+      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">' + (k.zar ? "🔒 " : "💤 ") + tkEsc(k.rovid) + '</text>';
   }
   g += '</g>';
   return g;
@@ -116,8 +118,25 @@ function tkLepcsoSVG() {
 function tkLepcsoKoppint() {
   hangGomb();
   var k = tkKapu(); if (!k) return;
+  if (k.zar) {
+    if ((P().tunderharmat || 0) < TK_FELOLDAS_AR) { mondd("A felhőkerthez " + TK_FELOLDAS_AR + " tündérharmat kell. Gyűjts még kitartással!"); return; }
+    UTCA_MOD = "megerosit-tk"; renderUtca(); return;
+  }
   if (!k.nyitva) { mondd(k.szoveg); var s = $("utca-sugo"); if (s) s.textContent = k.szoveg + " ☁️"; return; }
   tkBelep();
+}
+
+function tkFeloldasVesz() {
+  hangGomb();
+  if (P().tkNyitva || (P().tunderharmat || 0) < TK_FELOLDAS_AR) { UTCA_MOD = "nez"; renderUtca(); return; }
+  P().tunderharmat -= TK_FELOLDAS_AR; vasarlasNaplo("tk-feloldas", TK_FELOLDAS_AR, "tunderharmat");
+  P().tkNyitva = 1;
+  UTCA_MOD = "nez";
+  hangCsilla(); hangJo(); ment();
+  renderUtca();
+  var k = tkKapu();
+  if (k && k.nyitva) { mondd("Megnyílt a felhőkert!"); tkBelep(); }
+  else if (k) mondd("Megnyílt a felhőkert! " + k.szoveg);
 }
 
 /* ── belépés / kilépés ── */
