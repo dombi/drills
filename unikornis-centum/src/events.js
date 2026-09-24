@@ -239,6 +239,7 @@ function esemenyek() {
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
   $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); oduNyit("kert"); });
   $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit(); });
+  $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
   $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
 }
 

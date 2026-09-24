@@ -8,7 +8,8 @@ var FIREBASE_CONFIG = {
   projectId: "unicornis-centum",
   storageBucket: "unicornis-centum.firebasestorage.app",
   messagingSenderId: "198411098733",
-  appId: "1:198411098733:web:e55f82c3b71fe347123d64"
+  appId: "1:198411098733:web:e55f82c3b71fe347123d64",
+  databaseURL: "https://unicornis-centum-default-rtdb.europe-west1.firebasedatabase.app"   /* Égi Tüneménykert (RTDB, 5. fázis) */
 };
 var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
 var FELHO_EMAIL_DOMAIN = "unikornis.app";   /* belépőkód CSILLAG-42 → csillag-42@unikornis.app, jelszó: CSILLAG-42 */

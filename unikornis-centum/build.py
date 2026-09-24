@@ -61,6 +61,7 @@ MODULES = [
     "sync.js",            # 12d) delta-küldés + 3-utas összefésülés
     "analytics.js",       # 12e) eseménynapló (events)
     "config.js",          # 12f) producer-felülírások + csoportok (4. fázis)
+    "tunemenykert.js",    # 12g) Égi Tüneménykert: RTDB jelenlét + közös tér (5. fázis)
 
     # ── Indítás ──
     "main.js",            # 11) betolt(), esemenyek(), renderProfil(), window.UC

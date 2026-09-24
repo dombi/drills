@@ -720,6 +720,7 @@ function palyaVege() {
   }
   harmat += napiExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
+  tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
 
   /* ── 12 órás kapu (6.4): kulcs-pálya kerülő nélkül → élesítés; mindkettő éles → nyílik ── */
   var kapuMostNyilt = false;

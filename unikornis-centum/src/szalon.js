@@ -45,6 +45,7 @@ function utcaSVG() {
     s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.7" fill="#fff" opacity="0.85"/>';
   });
   s += utcaPortalSVG();
+  s += tkLepcsoSVG();   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
   s += '<rect x="0" y="250" width="400" height="210" fill="url(#utca-fold)"/>';
 
   /* ── FODRÁSZ (kék épület, kirakatban az unikornis) ── */
@@ -105,6 +106,7 @@ function utcaNyit() {
   UTCA_MOD = "nez";
   renderUtca();
   mutat("kepernyo-utca");
+  tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
 }
 function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
 function renderUtca() {
@@ -120,6 +122,7 @@ function renderUtca() {
     else { mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduNyit(); oduPanelNyit("kert"); }
   });
   utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
+  utcaKot("utca-felhokert", tkLepcsoKoppint);
   utcaKot("utca-portal", function () { hangGomb(); mondd("Induljunk matekozni!"); renderFomenu(); mutat("kepernyo-fomenu"); });
   var sugo = $("utca-sugo");
   if (sugo) {

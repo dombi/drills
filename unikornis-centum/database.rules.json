@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "kertBeall": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'"
+    },
+    "kertJog": {
+      ".read": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "jelenlet": {
+      ".read": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      ".write": "auth != null && auth.token.email === 'admin@unikornis.app'",
+      "$szoba": {
+        ".read": "auth != null && root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('kertJog').child(auth.uid).child('szoba').val() === $szoba)",
+          ".validate": "newData.hasChildren(['x', 'y', 't'])",
+          "x": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "y": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "nev": { ".validate": "newData.isString() && newData.val().length <= 30" }
+        }
+      }
+    }
+  }
+}

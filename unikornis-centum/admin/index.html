@@ -97,6 +97,15 @@ td select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; 
 .pipak label{ display:inline-flex; align-items:center; gap:1px; white-space:nowrap; cursor:pointer; }
 tr.kulcs td:first-child::after{ content:" 🔑"; }
 .hatas{ font-size:13px; }
+/* 🌈 Tüneménykert (5. fázis) */
+.ksor{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:8px 0; }
+.ksor label{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
+.ksor input[type=time]{ padding:4px 6px; }
+.kallapot{ margin-top:10px; padding:8px 12px; border-radius:12px; background:#eef8ec; border:1px solid #c6e6bf; font-size:14px; white-space:normal; }
+.kallapot.zarva{ background:#fdecef; border-color:#f3bcc7; }
+.bent-szoba{ margin:6px 0; } .bent-szoba b{ display:block; font-size:13px; color:var(--halvany); }
+.bent-nev{ display:inline-block; margin:3px 4px 0 0; padding:3px 10px; border-radius:99px; background:#f3ecff; font-weight:600; }
+td input.becenev{ width:150px; padding:4px 8px; }
 .tagok{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:6px; }
 textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--keret); border-radius:10px; padding:8px 10px; resize:vertical; }
 #mentve{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--lila-sotet); color:#fff; padding:8px 18px; border-radius:999px; font-size:14px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:9; }
@@ -149,6 +158,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script>
 (function () {
 "use strict";
@@ -160,7 +170,8 @@ var FIREBASE_CONFIG = {
   projectId: "unicornis-centum",
   storageBucket: "unicornis-centum.firebasestorage.app",
   messagingSenderId: "198411098733",
-  appId: "1:198411098733:web:e55f82c3b71fe347123d64"
+  appId: "1:198411098733:web:e55f82c3b71fe347123d64",
+  databaseURL: "https://unicornis-centum-default-rtdb.europe-west1.firebasedatabase.app"
 };
 var NAP = 86400000;
 var ESEMENY_NAPOK = 90;           /* ennyi napnyi eseményt töltünk be (a szűrés utána helyben megy) */
@@ -175,7 +186,7 @@ var PALYA_SORREND = [];
 
 /* külön app-név: a belépés nem ütközik a játék [DEFAULT] belépésével ugyanabban a böngészőben */
 var app = firebase.initializeApp(FIREBASE_CONFIG, "pult");
-var auth = app.auth(), db = app.firestore();
+var auth = app.auth(), db = app.firestore(), rtdb = app.database();
 
 var A = {
   users: [],          /* [{ uid, doc, unicorns: {leny: profil} }] */
@@ -189,7 +200,9 @@ var A = {
   groups: [],         /* [{ id, name, members: [uid], overrides }] */
   bCel: null,         /* Beállítások fül célpontja: "u:<uid>" vagy "g:<gid>" */
   urlap: null,        /* ✏️ Egyéni pályák: a nyitott űrlap állapota (null = zárva) */
-  beallLeir: []
+  beallLeir: [],
+  kert: { beall: {}, jog: {}, jelen: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
+  kertLeir: null
 };
 /* a kapu-kulcs pályák (a játék src/engine-logic.js KAPU_KULCSOK-ja): ezek nyitják a 12 órás kaput,
    nélkülük a többi pálya alszik → nem rejthetők el (a játék is figyelmen kívül hagyná) */
@@ -231,6 +244,8 @@ function jNev(uid) {
   if (!u) return "? " + String(uid).slice(0, 6);
   if (u.doc.kod) return u.doc.kod;
   for (var k in u.unicorns) if (u.unicorns[k].becenev) return u.unicorns[k].becenev;
+  var l = Object.keys(u.unicorns);   /* még nincs kódja a doc-ban (régi mentés): az unikornisai alapján ismerhető fel */
+  if (l.length) return l.map(function (k) { return lenyNev(k) + " " + (+u.unicorns[k].csillampor || 0) + "✨"; }).join(" + ");
   return "játékos " + uid.slice(0, 6);
 }
 function userById(uid) { for (var i = 0; i < A.users.length; i++) if (A.users[i].uid === uid) return A.users[i]; return null; }
@@ -264,6 +279,7 @@ $("b-jelszo").addEventListener("keydown", function (e) { if (e.key === "Enter") 
 $("kilep").onclick = function () {
   if (A.esemenyLeir) A.esemenyLeir();
   A.beallLeir.forEach(function (f) { f(); }); A.beallLeir = [];
+  if (A.kertLeir) { A.kertLeir(); A.kertLeir = null; }
   auth.signOut();
 };
 $("frissit").onclick = function () { jatekosokBetolt().then(rajzol); };
@@ -276,6 +292,7 @@ auth.onAuthStateChanged(function (u) {
   palyakBetolt().then(function () { return jatekosokBetolt(); }).then(function () {
     esemenyekFigyel();
     beallitasokFigyel();
+    kertFigyel();
     rajzol();
   }).catch(jogHiba);
 });
@@ -366,7 +383,7 @@ function profilOssz(u, mezo) { var s = 0; for (var k in u.unicorns) s += +u.unic
 
 /* ══════════ fülek ══════════ */
 var FULEK = [
-  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
+  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
 ];
 function rajzol() {
   $("fulek").innerHTML = FULEK.map(function (f) {
@@ -375,7 +392,7 @@ function rajzol() {
   Array.prototype.forEach.call($("fulek").children, function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
+  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
 }
 
 /* ── 📋 Áttekintés ── */
@@ -1087,6 +1104,116 @@ function rajzExport(t) {
       return v && typeof v === "object" && typeof v.toDate === "function" ? v.toDate().toISOString() : v;
     }, 2), "application/json");
   };
+}
+
+/* ── 🌈 Égi Tüneménykert (5. fázis) — minden adata a Realtime Database-ben ──
+   kertBeall = általános (nyitva, nyitvatartás, napi ösvény, időkeret) · kertJog/{uid} = { szoba, becenev }
+   jelenlet/{szoba}/{uid} = aki épp bent van (a játék írja, kilépéskor törlődik) */
+var KERT_NAPOK = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
+function kertFigyel() {
+  if (A.kertLeir) A.kertLeir();
+  var r1 = rtdb.ref("kertBeall"), r2 = rtdb.ref("kertJog"), r3 = rtdb.ref("jelenlet");
+  function hiba(mit) { return function (e) { console.warn("[pult] " + mit + ":", e && e.code); }; }
+  r1.on("value", function (s) { A.kert.beall = s.val() || {}; kertRajzolHa(); }, hiba("kertBeall"));
+  r2.on("value", function (s) { A.kert.jog = s.val() || {}; kertRajzolHa(); }, hiba("kertJog"));
+  r3.on("value", function (s) { A.kert.jelen = s.val() || {}; kertBentFrissit(); }, hiba("jelenlet"));
+  A.kertLeir = function () { r1.off(); r2.off(); r3.off(); };
+}
+/* gépelés közben nem rajzolunk újra (elveszne a kurzor) */
+function kertRajzolHa() {
+  if (A.fulek !== "kert") return;
+  var f = document.activeElement;
+  if (f && f.closest && f.closest("#tartalom") && /INPUT|SELECT/.test(f.tagName) && f.type !== "checkbox") return;
+  rajzol();
+}
+function kertSzobaNev(id) {
+  if (id === "kozos") return "🌈 Közös kert";
+  var g = csoportById(String(id).replace(/^cs-/, ""));
+  return g ? "👥 " + g.name + " kertje" : "❓ " + id;
+}
+function kertBecenevJavaslat(u) {
+  var k = String(u.doc.kod || "").split("-")[0];
+  return k ? k.charAt(0).toUpperCase() + k.slice(1).toLowerCase() : "";
+}
+function kertAllapot(b) {
+  if (!b.nyitva) return ["zarva", "🔒 A kert most ZÁRVA — senkinek nem nyílik a felhőlépcső."];
+  var t = [];
+  if (b.orak) {
+    var n = String(b.napok == null ? "1234567" : b.napok);
+    t.push("nyitva " + KERT_NAPOK.filter(function (x, i) { return n.indexOf(String(i + 1)) >= 0; }).join(", ") + " " + (b.tol || "00:00") + "–" + (b.ig || "24:00"));
+  } else t.push("nyitva egész nap");
+  if (+b.napiPalya) t.push("előtte aznap " + b.napiPalya + " végigjárt ösvény kell");
+  if (+b.idokorlat) t.push("naponta legfeljebb " + b.idokorlat + " perc");
+  return ["", "✅ " + t.join(" · ")];
+}
+function kertBentHTML() {
+  var j = A.kert.jelen || {}, szobak = Object.keys(j);
+  if (!szobak.length) return '<div class="halvany">Most senki sincs a felhőkertben.</div>';
+  return szobak.map(function (sz) {
+    return '<div class="bent-szoba"><b>' + esc(kertSzobaNev(sz)) + "</b>" + Object.keys(j[sz]).map(function (uid) {
+      var x = j[sz][uid] || {};
+      return '<span class="bent-nev" title="' + esc(jNev(uid)) + '">🦄 ' + esc(x.nev || jNev(uid)) + "</span>";
+    }).join("") + "</div>";
+  }).join("");
+}
+function kertBentFrissit() { var d = $("k-bent"); if (d) d.innerHTML = kertBentHTML(); }
+function rajzKert(t) {
+  var b = A.kert.beall || {}, napok = String(b.napok == null ? "1234567" : b.napok);
+  function opt(v, felirat, akt) { return '<option value="' + esc(v) + '"' + (String(akt) === String(v) ? " selected" : "") + ">" + felirat + "</option>"; }
+  var all = kertAllapot(b);
+  var h = '<div class="racs">';
+  h += '<div class="kartya"><h3>🌈 Égi Tüneménykert</h3>' +
+    '<div class="ksor"><label><input type="checkbox" id="k-nyitva"' + (b.nyitva ? " checked" : "") + '> <b>Nyitva</b></label></div>' +
+    '<div class="ksor"><label><input type="checkbox" id="k-orak"' + (b.orak ? " checked" : "") + '> Nyitvatartás beállítása</label></div>' +
+    '<div class="ksor"' + (b.orak ? "" : " hidden") + '>' + KERT_NAPOK.map(function (n, i) {
+      return '<label><input type="checkbox" class="k-nap" value="' + (i + 1) + '"' + (napok.indexOf(String(i + 1)) >= 0 ? " checked" : "") + ">" + n + "</label>";
+    }).join("") + '</div>' +
+    '<div class="ksor"' + (b.orak ? "" : " hidden") + '>' +
+      '<input type="time" id="k-tol" value="' + esc(b.tol || "16:00") + '"> – <input type="time" id="k-ig" value="' + esc(b.ig || "19:00") + '"></div>' +
+    '<div class="ksor">Belépés előtt aznap végigjárt ösvény: <select id="k-napi">' +
+      [0, 1, 2, 3, 4, 5].map(function (n) { return opt(n, n ? n + " db" : "nem kell", +b.napiPalya || 0); }).join("") + "</select></div>" +
+    '<div class="ksor">Felhőidő naponta: <select id="k-ido">' +
+      [0, 10, 15, 20, 30, 45, 60].map(function (n) { return opt(n, n ? n + " perc" : "nincs korlát", +b.idokorlat || 0); }).join("") + "</select></div>" +
+    '<div class="kallapot ' + all[0] + '">' + esc(all[1]) + "</div></div>";
+  h += '<div class="kartya"><h3>☁️ Most bent</h3><div id="k-bent">' + kertBentHTML() + "</div></div></div>";
+
+  h += '<h3 style="margin:22px 0 8px">Ki mehet fel, és kivel van egy kertben?</h3>' +
+    '<p class="kicsi halvany" style="margin:0 0 8px">Akik ugyanabban a kertben vannak, látják egymást; más kertben lévőt nem. A becenév látszik az unikornis fölött (ha üres: az unikornis neve).</p>' +
+    '<div class="tabla-keret"><table><tr><th>Játékos</th><th>Felmehet</th><th>Becenév</th><th>Melyik kert</th></tr>';
+  A.users.forEach(function (u) {
+    var j = A.kert.jog[u.uid], sz = j ? j.szoba : "kozos";
+    h += '<tr data-kuid="' + esc(u.uid) + '"><td>' + esc(jNev(u.uid)) + "</td>" +
+      '<td><input type="checkbox" class="k-jog"' + (j ? " checked" : "") + "></td>" +
+      '<td><input class="becenev k-becenev" maxlength="20" value="' + esc(j ? (j.becenev || "") : "") + '" placeholder="' + esc(kertBecenevJavaslat(u) || "becenév") + '"></td>' +
+      '<td><select class="k-szoba">' + opt("kozos", "🌈 Közös kert", sz) +
+        A.groups.map(function (g) { return opt("cs-" + g.id, "👥 " + esc(g.name) + " kertje", sz); }).join("") +
+        (sz !== "kozos" && !csoportById(String(sz).replace(/^cs-/, "")) ? opt(sz, "❓ törölt csoport", sz) : "") + "</select></td></tr>";
+  });
+  h += "</table></div>";
+  t.innerHTML = h;
+
+  function altalanosMent() {
+    var nk = "";
+    Array.prototype.forEach.call(t.querySelectorAll(".k-nap"), function (c) { if (c.checked) nk += c.value; });
+    ment(rtdb.ref("kertBeall").set({
+      nyitva: $("k-nyitva").checked, orak: $("k-orak").checked, napok: nk,
+      tol: $("k-tol").value || "16:00", ig: $("k-ig").value || "19:00",
+      napiPalya: +$("k-napi").value, idokorlat: +$("k-ido").value
+    }));
+  }
+  ["k-nyitva", "k-orak", "k-tol", "k-ig", "k-napi", "k-ido"].forEach(function (id) { $(id).onchange = altalanosMent; });
+  Array.prototype.forEach.call(t.querySelectorAll(".k-nap"), function (c) { c.onchange = altalanosMent; });
+  Array.prototype.forEach.call(t.querySelectorAll("tr[data-kuid]"), function (sor) {
+    var uid = sor.dataset.kuid, ref = rtdb.ref("kertJog/" + uid);
+    var jog = sor.querySelector(".k-jog"), bn = sor.querySelector(".k-becenev"), szb = sor.querySelector(".k-szoba");
+    jog.onchange = function () {
+      if (!jog.checked) { ment(ref.remove()); return; }
+      if (!bn.value.trim() && bn.placeholder !== "becenév") bn.value = bn.placeholder;
+      ment(ref.set({ szoba: szb.value, becenev: bn.value.trim().slice(0, 20) }));
+    };
+    bn.onchange = function () { if (jog.checked) ment(ref.update({ becenev: bn.value.trim().slice(0, 20) })); };
+    szb.onchange = function () { if (jog.checked) ment(ref.update({ szoba: szb.value })); };
+  });
 }
 
 })();

@@ -103,7 +103,7 @@ function felhoKepernyoFrissit() {
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
   var p = P(); if (!p) return;
-  ["fomenu", "jatek", "odu", "kert", "utca", "szalon"].forEach(function (h) {
+  ["fomenu", "jatek", "odu", "kert", "utca", "szalon", "tk"].forEach(function (h) {
     var c = $(h + "-csillampor"); if (c) c.textContent = p.csillampor;
     var t = $(h + "-harmat"); if (t) t.textContent = p.tunderharmat || 0;
   });
