@@ -27,14 +27,10 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Két kavics", szam_min: 1, szam_max: 6 },
-      { nev: "Öreg tölgy", szam_min: 1, szam_max: 6 },
-      { nev: "Mohapárna", szam_min: 1, szam_max: 6 },
-      { nev: "Csörgő patak", szam: 6 },
-      { nev: "Kidőlt fenyő", szam_min: 5, szam_max: 7 },
-      { nev: "Napos tisztás", szam_min: 6, szam_max: 8 },
-      { nev: "Szürke szikla", szam_min: 7, szam_max: 9 },
-      { nev: "Odú-küszöb", szam_min: 8, szam_max: 10, cel: true }
+      { nev: "Két kavics", szam_min: 4, szam_max: 5 },
+      { nev: "Öreg tölgy", szam_min: 6, szam_max: 7 },
+      { nev: "Csörgő patak", szam: 8 },
+      { nev: "Odú-küszöb", szam_min: 9, szam_max: 10, cel: true }   /* 8 → 4 állomás (2026-09-24, producer) */
     ]
   },
   {
@@ -183,14 +179,10 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Két kavics", tabla: 2 },
-      { nev: "Öreg tölgy", tabla: 10 },
-      { nev: "Mohapárna", tabla: 5 },
-      { nev: "Csörgő patak", tabla: 3 },
-      { nev: "Napos tisztás", tabla: 4 },
-      { nev: "Szürke szikla", tabla: 6 },
-      { nev: "Sűrű bozót", tabla_keszlet: [7, 8, 9] },
-      { nev: "Odú-küszöb", tabla_keszlet: [2, 3, 4, 5, 6, 7, 8, 9, 10], cel: true }
+      { nev: "Két kavics", tabla_keszlet: [2, 5, 10] },
+      { nev: "Öreg tölgy", tabla_keszlet: [3, 4] },
+      { nev: "Mohapárna", tabla_keszlet: [6, 7] },
+      { nev: "Odú-küszöb", tabla_keszlet: [8, 9], cel: true }   /* 8 → 4 állomás, szintenként sorsolva (2026-09-24, producer) */
     ]
   },
   {

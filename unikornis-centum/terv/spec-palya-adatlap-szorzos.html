@@ -65,16 +65,13 @@
   <table>
     <tr><th>#</th><th>Állomás</th><th>Beállítás</th><th>Mi az új</th></tr>
     <tr><td>1</td><td>Rajt</td><td>—</td><td>—</td></tr>
-    <tr><td>2</td><td>Két kavics</td><td><code>tabla:2</code></td><td>a legkönnyebb, párosával</td></tr>
-    <tr><td>3</td><td>Öreg tölgy</td><td><code>tabla:10</code></td><td>kerek, látványos minta</td></tr>
-    <tr><td>4</td><td>Mohapárna</td><td><code>tabla:5</code></td><td>ötösével, ismerős</td></tr>
-    <tr><td>5</td><td>Csörgő patak</td><td><code>tabla:3</code></td><td>első „igazi" tábla</td></tr>
-    <tr><td>6</td><td>Napos tisztás</td><td><code>tabla:4</code></td><td></td></tr>
-    <tr><td>7</td><td>Szürke szikla</td><td><code>tabla:6</code></td><td>a nehezek kezdete</td></tr>
-    <tr><td>8</td><td>Sűrű bozót</td><td><code>tabla_keszlet:[7,8,9]</code></td><td>a legnehezebbek, játékonként más</td></tr>
-    <tr><td>9</td><td>Odú-küszöb</td><td><code>tabla_keszlet:[2..10], cel:true</code></td><td>véletlen tábla – a csúcs</td></tr>
+    <tr><td>2</td><td>Két kavics</td><td><code>tabla_keszlet:[2,5,10]</code></td><td>a könnyű, mintás táblák</td></tr>
+    <tr><td>3</td><td>Öreg tölgy</td><td><code>tabla_keszlet:[3,4]</code></td><td>első „igazi" táblák</td></tr>
+    <tr><td>4</td><td>Mohapárna</td><td><code>tabla_keszlet:[6,7]</code></td><td>a nehezek kezdete</td></tr>
+    <tr><td>5</td><td>Odú-küszöb</td><td><code>tabla_keszlet:[8,9], cel:true</code></td><td>a legnehezebbek – a csúcs</td></tr>
   </table>
-  <p class="mini">8 felmondás. A <code>tabla_keszlet</code> esetén a generátor egyet sorsol belőle.</p>
+  <p class="mini">4 felmondás (2026-09-24: 8 → 4, a producer kérésére). Minden állomás a saját szintjéről
+     sorsol egy táblát, így pár játék alatt minden tábla sorra kerül.</p>
 
   <!-- ============================================================ -->
   <h2>B. pálya — „Egy szám bűvköre" 🔮</h2>
