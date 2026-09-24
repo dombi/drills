@@ -1,18 +1,20 @@
 rules_version = '2';
-// Unikornis Centum — Firestore biztonsági szabályok (backend 1. fázis)
+// Unikornis Centum — Firestore biztonsági szabályok (backend 3. fázis: producer-pult)
 // Telepítés: Firebase konzol → Firestore Database → Rules fül → ide bemásolni → Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Játékos: csak a saját adatait látja és írja
+    // Játékos: csak a saját adatait látja és írja; az admin (producer-pult) mindent olvas, de nem ír
     match /users/{uid} {
-      allow read, write: if signedIn() && request.auth.uid == uid;
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if signedIn() && request.auth.uid == uid;
       match /unicorns/{uniId} {
-        allow read, write: if signedIn() && request.auth.uid == uid;
+        allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow write: if signedIn() && request.auth.uid == uid;
       }
     }
 
-    // Eseménynapló: mindenki csak a saját nevében írhat bele, olvasni csak az admin (3. fázis)
+    // Eseménynapló: mindenki csak a saját nevében írhat bele, olvasni csak az admin
     match /events/{eid} {
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
       allow read: if isAdmin();
@@ -29,6 +31,10 @@ service cloud.firestore {
     }
 
     function signedIn() { return request.auth != null; }
-    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    // Admin = a producer saját fiókja (a konzolon felvett admin@unikornis.app). Cloud Function / Admin SDK
+    // nélkül így ismerjük fel; ha később lesz custom claim, az is elfogadott.
+    function isAdmin() {
+      return signedIn() && (request.auth.token.email == "admin@unikornis.app" || request.auth.token.get("admin", false) == true);
+    }
   }
 }

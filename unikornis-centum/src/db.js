@@ -33,6 +33,7 @@ function felhoElsoAllapot(snap) {
     batch.set(felhoUserRef(), {
       settings: { hang: !!mentes.hang, valaszmod: mentes.valaszmod },
       activeUnicorn: mentes.leny,
+      kod: FELHO.kod,                  /* a producer-pult ezen a néven mutatja a játékost */
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
       migratedFrom: migralt ? "localStorage" : null
@@ -55,7 +56,7 @@ function felhoElsoAllapot(snap) {
     LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
       if (!megvan[k]) { mentes.profilok[k] = alapProfil(); FELHO.alap[k] = {}; }
     });
-    felhoUserRef().set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
+    felhoUserRef().set({ kod: FELHO.kod, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
   }
   FELHO.alapUser = felhoUserAllapot();
   try { localStorage.setItem(FELHO_GAZDA, FELHO.uid); } catch (e) {}
