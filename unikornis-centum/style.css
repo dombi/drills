@@ -92,6 +92,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .palya-regio{ position:relative; flex:0 0 auto; border-radius:20px; overflow:hidden; padding:14px 16px 18px; box-shadow:0 4px 16px rgba(74,59,122,.12); }
 .palya-regio-hatter{ position:absolute; inset:0; z-index:0; pointer-events:none; }
+.palya-regio.r-egyeni{ background:linear-gradient(160deg,#fde6f0 0%,#f3e6fb 55%,#e8f0fd 100%); }   /* 💖 Neked készült (4b) */
+.palya-regio.r-egyeni .palya-kartya{ border-color:#f6c6da; }
 .palya-regio-hatter svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .palya-regio-grid{
   position:relative; z-index:1;

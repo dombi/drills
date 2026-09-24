@@ -75,7 +75,8 @@ var GEN = {
       naplo: { tipus: "kivonas", kerdes: a + " − " + b, helyes: a - b, atlepes: atlepesE(a, b, "-") } };
   },
   szambontas: function (cfg) {
-    var N = (cfg.szam != null) ? cfg.szam : veletlen(cfg.szam_min || 4, cfg.szam_max || 8);
+    var N = (cfg.szam != null) ? cfg.szam
+          : (cfg.szam_keszlet ? veletlenElem(cfg.szam_keszlet) : veletlen(cfg.szam_min || 4, cfg.szam_max || 8));   /* szam_keszlet: egyéni pálya (4b) */
     var lapos = []; for (var i = 0; i <= N; i++) { lapos.push(i); lapos.push(N - i); }
     return { csalad: "felmondas", N: N, szoveg: "Mondd el a(z) " + N + " összes bontását!",
       kartyaHTML: 'Mondd el a <span class="szam-jelveny">' + N + '</span> összes bontását!',

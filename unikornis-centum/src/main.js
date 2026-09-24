@@ -56,9 +56,10 @@ window.UC = {
   napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve,
   /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
   get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
-  felulirBeallit: function (egyeni, csoportok) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; felulirSzamol(); },
+  felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; felulirSzamol(); },
+  egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
   nehezsegAlkalmaz: nehezsegAlkalmaz,
-  palyaAllomasok: function (id) { var pa = null; PALYAK.forEach(function (x) { if (x.id === id) pa = x; }); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
+  palyaAllomasok: function (id) { var pa = palyaKeres(id); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
 };
 

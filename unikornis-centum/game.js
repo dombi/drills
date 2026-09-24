@@ -429,7 +429,8 @@ var GEN = {
       naplo: { tipus: "kivonas", kerdes: a + " − " + b, helyes: a - b, atlepes: atlepesE(a, b, "-") } };
   },
   szambontas: function (cfg) {
-    var N = (cfg.szam != null) ? cfg.szam : veletlen(cfg.szam_min || 4, cfg.szam_max || 8);
+    var N = (cfg.szam != null) ? cfg.szam
+          : (cfg.szam_keszlet ? veletlenElem(cfg.szam_keszlet) : veletlen(cfg.szam_min || 4, cfg.szam_max || 8));   /* szam_keszlet: egyéni pálya (4b) */
     var lapos = []; for (var i = 0; i <= N; i++) { lapos.push(i); lapos.push(N - i); }
     return { csalad: "felmondas", N: N, szoveg: "Mondd el a(z) " + N + " összes bontását!",
       kartyaHTML: 'Mondd el a <span class="szam-jelveny">' + N + '</span> összes bontását!',
@@ -1721,14 +1722,15 @@ function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
-  var REGIO_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
+  var REGIO_CIM = { egyeni: "💖 Neked készült", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
   var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER };   /* mindkét liget saját jelenetet kap */
   /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
-     a sorszámozás folyamatos marad (a gyerek ne lásson hézagot) */
+     a sorszámozás folyamatos marad (a gyerek ne lásson hézagot). Az egyéni pályák (4b) a saját ligetükben
+     legfölül vannak, sorszám nélkül — így a közös pályák számai nem tolódnak el. */
   var regiok = {}, regioSorrend = [], lathato = 0;
-  PALYAK.forEach(function (pa) {
+  egyeniPalyak().concat(PALYAK).forEach(function (pa) {
     if (palyaRejtve(pa)) return;
-    var idx = lathato++, r = pa.regio || "osszeado";
+    var idx = pa.egyeni ? null : lathato++, r = pa.regio || "osszeado";
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -1750,7 +1752,7 @@ function renderFomenu() {
     var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — jutalom nem jár érte */
     if (ajanlott) kart.classList.add("ajanlott");
     kart.innerHTML =
-      '<div class="sorszam">' + (idx + 1) + '</div>' +
+      (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
       '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
       (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
@@ -1771,6 +1773,7 @@ function renderFomenu() {
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       if (ajanlott) mondat += " Ezt most neked ajánlom!";
+      if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });
@@ -1802,7 +1805,7 @@ var KAPU_KULCSOK = ["bontas-felmondas", "szorzo-dallam"];
 var KAPU_MS = 12 * 60 * 60 * 1000;
 function kapuKulcsPalya(id) { return KAPU_KULCSOK.indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { return !pa.hamarosan && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }
+function palyaZarva(pa) { return !pa.hamarosan && !pa.egyeni && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* egyéni pálya (4b): mindig nyitva */
 function kapuAllapot() { var k = P().kapu || {}; return { nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {} }; }
 /* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mindkettő éles → nyílik a kapu.
    Visszaadja, hogy MOST nyílt-e ki (az ünneplő üzenethez). */
@@ -1820,8 +1823,7 @@ function kapuKulcsTeljesult(id) {
 }
 
 function palyaInditas(id) {
-  var pa = null;
-  PALYAK.forEach(function (x) { if (x.id === id) pa = x; });
+  var pa = palyaKeres(id);                          /* beépített vagy egyéni (4b) */
   if (!pa || pa.hamarosan) return;
   if (palyaZarva(pa)) return;                       /* zárt kapu: csak a két kulcs-pálya játszható */
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
@@ -1852,7 +1854,7 @@ function palyaInditas(id) {
   var tovabbMehet0 = (mentes.leny === "csillamharmat");
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
-  var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = false; }
+  var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = !!pa.egyeni; }   /* egyéni pályán nincs égi szilánk */
   var szB = $("jatek-szorzo"); if (szB) szB.hidden = true;   /* a ✨ sorozat-szorzó megszűnt (7.2) */
   mutat("kepernyo-jatek");
   /* ösvény-indító szöveg: a gyerekek únták a hosszú bevezetőt → csak ennyi (2026-09-14) */
@@ -2528,8 +2530,9 @@ function palyaVege() {
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat });
   var ujJelv = jelvenyEllenoriz();
 
+  var egyeniP = !!J.palya.egyeni;                   /* egyéni pálya (4b): ✨ + 💧 jár, égi szilánk nem */
   var teljesSor = teljes
-    ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨, arany szilánk az égedre</span>'
+    ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨' + (egyeniP ? '' : ', arany szilánk az égedre') + '</span>'
     : "";
   var napiSor = napiExtra
     ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
@@ -2544,7 +2547,7 @@ function palyaVege() {
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
     teljesSor + napiSor + harmatSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
-    '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟' +
+    (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   var kov = kovetkezoJatszhato(id);
   $("vege-kovetkezo").style.display = kov ? "" : "none";
@@ -2561,10 +2564,10 @@ function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classLi
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */
 function sorozatMegtor() { if (P().sorozat) { P().sorozat.hossz = 0; P().sorozat.utolsoPalya = null; ment(); } }
 function kovetkezoJatszhato(id) {
-  var idx = -1;
-  PALYAK.forEach(function (p, i) { if (p.id === id) idx = i; });
-  for (var i = idx + 1; i < PALYAK.length; i++)
-    if (!PALYAK[i].hamarosan && !palyaZarva(PALYAK[i]) && !palyaRejtve(PALYAK[i])) return PALYAK[i].id;
+  var L = egyeniPalyak().concat(PALYAK), idx = -1;   /* a menü sorrendje: egyéniek (4b) elöl */
+  L.forEach(function (p, i) { if (p.id === id) idx = i; });
+  for (var i = idx + 1; i < L.length; i++)
+    if (!L[i].hamarosan && !palyaZarva(L[i]) && !palyaRejtve(L[i])) return L[i].id;
   return null;
 }
 function naplozz(alap, elsore, valasz) {
@@ -5931,17 +5934,20 @@ var FELULIR = {
   egyeni: null,       /* producerConfig/{uid}.overrides — null, amíg nem jött meg */
   csoportok: null,    /* { gid: overrides } — null, amíg nem jött meg */
   kesz: {},           /* összevont eredmény: palyaId → { enabled, recommended, extraReward } */
+  egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
+  csoportP: null,     /* a csoportok customLevels-e egybe */
+  palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
   leir: []
 };
 
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {};
+  FELULIR.kesz = {}; FELULIR.palyak = {};
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -5953,12 +5959,16 @@ function felulirFigyel() {
   var db = FELHO.db;
   FELULIR.leir.push(db.collection("producerConfig").doc(FELHO.uid).onSnapshot(function (d) {
     FELULIR.egyeni = (d.exists && d.data().overrides) || {};
+    FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {};
-    snap.forEach(function (d) { cs[d.id] = d.data().overrides || {}; });
-    FELULIR.csoportok = cs;
+    var cs = {}, cp = {};
+    snap.forEach(function (d) {
+      cs[d.id] = d.data().overrides || {};
+      var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
+    });
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -6001,10 +6011,13 @@ function felulirOsszevon(egyeni, csoportLista) {
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
   var cs = FELULIR.csoportok, lista = Object.keys(cs).sort().map(function (g) { return cs[g]; });
-  var uj = felulirOsszevon(FELULIR.egyeni, lista);
-  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz)) return;
-  FELULIR.kesz = uj;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj })); } catch (e) {}
+  var uj = felulirOsszevon(FELULIR.egyeni, lista), ujP = {}, k;
+  [FELULIR.csoportP || {}, FELULIR.egyeniP || {}].forEach(function (l) {
+    for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
+  });
+  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
@@ -6060,6 +6073,127 @@ function nehezsegAlkalmaz(pa, allomasok) {
     if (!felmondos && darab >= 1 && darab <= 12) o.darab = darab;
     return o;
   });
+}
+
+/* ============ EGYÉNI PÁLYÁK (4b, 2026-09-24) ============
+   A producer a pulton (✏️ Egyéni pályák) rak össze pályát egy gyereknek vagy egy csoportnak:
+     producerConfig/{uid}.customLevels[id]  vagy  groups/{gid}.customLevels[id] =
+       { nev, ikon, sablon, aktiv, allomasDb (3–7), darab (3–8), letrehozva,
+         tablak | osztok | szamok | fajtak, muvelet }
+   Sablonok (mind meglévő motorra épül): szorzas (× / ÷ / vegyes a bejelölt táblákkal) · felmondas (szorzótábla
+   hangosan) · osszeadas (a beépített összeadó pályák fajtáiból) · maradekos (osztók) · bontas (számbontás hangosan).
+   A gyereknél a menü tetején, a „💖 Neked készült” ligetben jelennek meg; mindig nyitva (a 12 órás kapu nem zárja),
+   ✨ + 💧 jár értük, de égi szilánk, 🌟-számláló, jelvény és napi kiemelés NEM (azok a közös PALYAK-hoz tartoznak).
+   Fokozatosság: előbb a bejelöltek egyenként (vagy kis csoportokban), a végén mind keverve.
+   A pult (admin/index.html) ugyanezeket a sablon-mezőket írja — együtt változtasd! */
+var EGYENI_ALLOMAS_NEVEK = ["Mohos kő", "Pitypangmező", "Kis fahíd", "Gombaház", "Csillámpatak", "Lepkerét",
+  "Szivárványtó", "Holdfény-tisztás", "Harmatos rét", "Mókusodú"];
+var EGYENI_OSSZEADO_FAJTAK = ["oszkiv-10", "oszkiv-20", "tizesek", "aprok", "lepegeto", "atlepo", "erdo-melye", "erdo-szive"];
+var EGYENI_MEMO = { kulcs: null, lista: [] };
+
+function egyeniSzamok(lista, min, max) {
+  var ki = [];
+  (lista || []).forEach(function (x) { x = +x; if (x % 1 === 0 && x >= min && x <= max && ki.indexOf(x) < 0) ki.push(x); });
+  return ki.sort(function (a, b) { return a - b; });
+}
+/* n állomás készlete: előbb egymás utáni kis csoportokban (egyesével, ha elfér), a maradék állomáson mind együtt */
+function egyeniFokozatos(L, n) {
+  var k = L.length === 1 ? 1 : Math.min(L.length, n - 1), ki = [];
+  for (var i = 0; i < k; i++) ki.push(L.slice(Math.floor(i * L.length / k), Math.floor((i + 1) * L.length / k)));
+  while (ki.length < n) ki.push(L.slice());
+  return ki;
+}
+/* összeadó fajta → állomás-beállítás a beépített pálya adataiból (összeadásnál a teljes alap-tartomány,
+   kivonásnál a pálya utolsó kivonásos állomásának tartománya — azt már kipróbáltuk) */
+function egyeniOsszeadoCfg(pid, muv) {
+  var pa = palyaKeres(pid), o = {}, k;
+  for (k in pa.alap) o[k] = pa.alap[k];
+  if (muv === "kivonas") {
+    var ks = null;
+    pa.allomasok.forEach(function (a) { if (a.tipus === "kivonas") ks = a; });
+    ["a_min", "a_max", "b_min", "b_max"].forEach(function (m) { if (ks && ks[m] != null) o[m] = ks[m]; });
+  }
+  o.tipus = muv;
+  return o;
+}
+function egyeniPalyaEpit(id, r) {
+  if (!r) return null;
+  var n = Math.max(3, Math.min(7, +r.allomasDb || 5)), darab = Math.max(3, Math.min(8, +r.darab || 5));
+  var st = [], alap = {}, szint = 4, kez = false, mat = "", L;
+  switch (r.sablon) {
+    case "szorzas":
+      L = egyeniSzamok(r.tablak, 2, 10); if (!L.length) return null;
+      alap.tipus = r.muvelet === "szorzas" ? "szorzas" : (r.muvelet === "osztas" ? "osztas" : "szorzasosztas");
+      szint = r.muvelet === "szorzas" ? 4 : 5;
+      egyeniFokozatos(L, n).forEach(function (c) { st.push({ tablak: c, darab: darab }); });
+      mat = L.join(", ") + " · " + (r.muvelet === "szorzas" ? "szorzás" : (r.muvelet === "osztas" ? "osztás" : "× és ÷"));
+      break;
+    case "felmondas":
+      L = egyeniSzamok(r.tablak, 2, 10); if (!L.length) return null;
+      alap.tipus = "szorzotabla-felmondas"; szint = 8; kez = true;
+      egyeniFokozatos(L, n).forEach(function (c) { st.push(c.length === 1 ? { tabla: c[0] } : { tabla_keszlet: c }); });
+      mat = "szorzótábla hangosan: " + L.join(", ");
+      break;
+    case "maradekos":
+      L = egyeniSzamok(r.osztok, 2, 9); if (!L.length) return null;
+      alap.tipus = "maradekos_osztas"; szint = 6;
+      egyeniFokozatos(L, n).forEach(function (c) { st.push({ osztok: c, max: Math.min(99, 11 * c[c.length - 1] - 1), darab: darab }); });
+      mat = "maradékos osztás: " + L.join(", ");
+      break;
+    case "bontas":
+      L = egyeniSzamok(r.szamok, 2, 10); if (!L.length) return null;
+      alap.tipus = "szambontas"; szint = 8; kez = true;
+      egyeniFokozatos(L, n).forEach(function (c) { st.push({ szam_keszlet: c }); });
+      mat = "bontások hangosan: " + L.join(", ");
+      break;
+    case "osszeadas":
+      L = EGYENI_OSSZEADO_FAJTAK.filter(function (f) { return (r.fajtak || []).indexOf(f) >= 0; });
+      if (!L.length) return null;
+      alap.tipus = "osszeadas"; kez = true;
+      n = Math.max(n, L.length);   /* minden bejelölt fajta kapjon legalább egy állomást */
+      szint = 1; L.forEach(function (f) { szint = Math.max(szint, palyaKeres(f).szint || 1); });
+      for (var i = 0; i < n; i++) {
+        /* vegyesnél váltakozik a + és a −, úgy, hogy minden fajta kapjon mindkettőből (ha van rá hely) */
+        var par = (L.length % 2) ? i : i + Math.floor(i / L.length);
+        var muv = (r.muvelet === "osszeadas" || r.muvelet === "kivonas") ? r.muvelet : (par % 2 ? "kivonas" : "osszeadas");
+        var o = egyeniOsszeadoCfg(L[i % L.length], muv); o.darab = darab;
+        st.push(o);
+      }
+      mat = r.muvelet === "osszeadas" ? "összeadás" : (r.muvelet === "kivonas" ? "kivonás" : "összeadás és kivonás");
+      break;
+    default: return null;
+  }
+  var h = 0; for (var j = 0; j < id.length; j++) h = (h * 31 + id.charCodeAt(j)) % 997;
+  var allomasok = [{ nev: "Rajt" }];
+  st.forEach(function (o, i) {
+    var utolso = (i === st.length - 1);
+    o.nev = utolso ? "Odú-küszöb" : EGYENI_ALLOMAS_NEVEK[(h + i) % EGYENI_ALLOMAS_NEVEK.length];
+    if (utolso) o.cel = true;
+    allomasok.push(o);
+  });
+  return { id: id, nev: String(r.nev || "Neked készült ösvény").slice(0, 40), ikon: r.ikon || "💖", regio: "egyeni", egyeni: true,
+           szint: szint, palcim: mat, alap: alap, kez_nelkul: kez, allomasok: allomasok, letrehozva: +r.letrehozva || 0 };
+}
+/* az aktív egyéni pályák, létrehozás szerint (a legrégebbi elöl) — csak akkor épít újra, ha változott a forrás */
+function egyeniPalyak() {
+  var kulcs = JSON.stringify(FELULIR.palyak || {});
+  if (kulcs !== EGYENI_MEMO.kulcs) {
+    var l = [];
+    Object.keys(FELULIR.palyak || {}).forEach(function (id) {
+      try { var pa = egyeniPalyaEpit(id, FELULIR.palyak[id]); if (pa) l.push(pa); }
+      catch (e) { console.warn("[egyéni pálya] hibás leírás:", id, e); }
+    });
+    l.sort(function (a, b) { return a.letrehozva - b.letrehozva || (a.id < b.id ? -1 : 1); });
+    EGYENI_MEMO = { kulcs: kulcs, lista: l };
+  }
+  return EGYENI_MEMO.lista;
+}
+/* pálya keresése azonosító szerint: előbb a beépítettek, aztán az egyéniek */
+function palyaKeres(id) {
+  for (var i = 0; i < PALYAK.length; i++) if (PALYAK[i].id === id) return PALYAK[i];
+  var e = egyeniPalyak();
+  for (var j = 0; j < e.length; j++) if (e[j].id === id) return e[j];
+  return null;
 }
 /* ============ 11) INDÍTÁS ============ */
 betolt();
@@ -6119,10 +6253,11 @@ window.UC = {
   napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve,
   /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
   get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
-  felulirBeallit: function (egyeni, csoportok) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; felulirSzamol(); },
+  felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; felulirSzamol(); },
+  egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
   nehezsegAlkalmaz: nehezsegAlkalmaz,
-  palyaAllomasok: function (id) { var pa = null; PALYAK.forEach(function (x) { if (x.id === id) pa = x; }); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
+  palyaAllomasok: function (id) { var pa = palyaKeres(id); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
 };
 
 

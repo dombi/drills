@@ -10,7 +10,7 @@ var KAPU_KULCSOK = ["bontas-felmondas", "szorzo-dallam"];
 var KAPU_MS = 12 * 60 * 60 * 1000;
 function kapuKulcsPalya(id) { return KAPU_KULCSOK.indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { return !pa.hamarosan && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }
+function palyaZarva(pa) { return !pa.hamarosan && !pa.egyeni && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* egyéni pálya (4b): mindig nyitva */
 function kapuAllapot() { var k = P().kapu || {}; return { nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {} }; }
 /* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mindkettő éles → nyílik a kapu.
    Visszaadja, hogy MOST nyílt-e ki (az ünneplő üzenethez). */
@@ -28,8 +28,7 @@ function kapuKulcsTeljesult(id) {
 }
 
 function palyaInditas(id) {
-  var pa = null;
-  PALYAK.forEach(function (x) { if (x.id === id) pa = x; });
+  var pa = palyaKeres(id);                          /* beépített vagy egyéni (4b) */
   if (!pa || pa.hamarosan) return;
   if (palyaZarva(pa)) return;                       /* zárt kapu: csak a két kulcs-pálya játszható */
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
@@ -60,7 +59,7 @@ function palyaInditas(id) {
   var tovabbMehet0 = (mentes.leny === "csillamharmat");
   $("tovabb-megoldas-nelkul").hidden = !tovabbMehet0;
   $("tovabb-megoldas-nelkul-f").hidden = !tovabbMehet0;
-  var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = false; }
+  var szil = $("jatek-szilank"); if (szil) { szil.classList.remove("halvany"); szil.hidden = !!pa.egyeni; }   /* egyéni pályán nincs égi szilánk */
   var szB = $("jatek-szorzo"); if (szB) szB.hidden = true;   /* a ✨ sorozat-szorzó megszűnt (7.2) */
   mutat("kepernyo-jatek");
   /* ösvény-indító szöveg: a gyerekek únták a hosszú bevezetőt → csak ennyi (2026-09-14) */
@@ -736,8 +735,9 @@ function palyaVege() {
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat });
   var ujJelv = jelvenyEllenoriz();
 
+  var egyeniP = !!J.palya.egyeni;                   /* egyéni pálya (4b): ✨ + 💧 jár, égi szilánk nem */
   var teljesSor = teljes
-    ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨, arany szilánk az égedre</span>'
+    ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨' + (egyeniP ? '' : ', arany szilánk az égedre') + '</span>'
     : "";
   var napiSor = napiExtra
     ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
@@ -752,7 +752,7 @@ function palyaVege() {
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
     teljesSor + napiSor + harmatSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
-    '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟' +
+    (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   var kov = kovetkezoJatszhato(id);
   $("vege-kovetkezo").style.display = kov ? "" : "none";
@@ -769,10 +769,10 @@ function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classLi
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */
 function sorozatMegtor() { if (P().sorozat) { P().sorozat.hossz = 0; P().sorozat.utolsoPalya = null; ment(); } }
 function kovetkezoJatszhato(id) {
-  var idx = -1;
-  PALYAK.forEach(function (p, i) { if (p.id === id) idx = i; });
-  for (var i = idx + 1; i < PALYAK.length; i++)
-    if (!PALYAK[i].hamarosan && !palyaZarva(PALYAK[i]) && !palyaRejtve(PALYAK[i])) return PALYAK[i].id;
+  var L = egyeniPalyak().concat(PALYAK), idx = -1;   /* a menü sorrendje: egyéniek (4b) elöl */
+  L.forEach(function (p, i) { if (p.id === id) idx = i; });
+  for (var i = idx + 1; i < L.length; i++)
+    if (!L[i].hamarosan && !palyaZarva(L[i]) && !palyaRejtve(L[i])) return L[i].id;
   return null;
 }
 function naplozz(alap, elsore, valasz) {

@@ -27,14 +27,15 @@ function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
-  var REGIO_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
+  var REGIO_CIM = { egyeni: "💖 Neked készült", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
   var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER };   /* mindkét liget saját jelenetet kap */
   /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
-     a sorszámozás folyamatos marad (a gyerek ne lásson hézagot) */
+     a sorszámozás folyamatos marad (a gyerek ne lásson hézagot). Az egyéni pályák (4b) a saját ligetükben
+     legfölül vannak, sorszám nélkül — így a közös pályák számai nem tolódnak el. */
   var regiok = {}, regioSorrend = [], lathato = 0;
-  PALYAK.forEach(function (pa) {
+  egyeniPalyak().concat(PALYAK).forEach(function (pa) {
     if (palyaRejtve(pa)) return;
-    var idx = lathato++, r = pa.regio || "osszeado";
+    var idx = pa.egyeni ? null : lathato++, r = pa.regio || "osszeado";
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -56,7 +57,7 @@ function renderFomenu() {
     var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — jutalom nem jár érte */
     if (ajanlott) kart.classList.add("ajanlott");
     kart.innerHTML =
-      '<div class="sorszam">' + (idx + 1) + '</div>' +
+      (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
       '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
       (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
@@ -77,6 +78,7 @@ function renderFomenu() {
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       if (ajanlott) mondat += " Ezt most neked ajánlom!";
+      if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });
