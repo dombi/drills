@@ -6901,7 +6901,7 @@ function tkVisszaJott(snap) {
    Olvasni csak belépett játékos tud, írni csak a pult (firestore.rules). Belépés nélkül a liget nem látszik.
    Menet: ✏️ papír-ceruza → (🔁 visszatérők) → állomások fix sorrendben → pálya vége (✨ + 💧).
    Válasz: koppintás = azonnal érvényes (nincs „Biztos?”, nincs 2. próba). 🙋 fokozatos segítség válasz ELŐTT:
-   1. „Mit kérdeznek?”, aztán a megoldás lépései egyenként — az utolsó lépést nem adja ki.
+   1. „Mit kérdeznek?”, aztán a megoldás lépései egyenként — MIND, a füzetlap minden sora (a betűt a gyerek koppintja).
    Rossz válasz → csapda-mondat (a helyes betű nélkül) → „Mit kérdeznek?” → minden lépés → füzet-összefoglaló + trükk.
    Rossz vagy segítséggel jó → a feladat egy KÉSŐBBI napon „🔁 Emlékszel erre?” állomásként visszajön.
    Nincs időmérő a gyereknek; a gondolkodási időt csak a pult látja (events: fejtoro_valasz). */
@@ -6982,7 +6982,7 @@ function fejtoroKartya(pa) {
   kart.addEventListener("click", function () { hangGomb(); fejtoroInditas(pa.id); });
   kart.querySelector(".palya-felolvas").addEventListener("click", function (e) {
     e.stopPropagation(); hangGomb();
-    mondd(kiiras(pa.nev || "Fejtörő-ösvény") + ". " + n + " versenyfeladat. Papírral és ceruzával kell megoldani, és nem kell sietni." +
+    ftMondd(kiiras(pa.nev || "Fejtörő-ösvény") + ". " + n + " versenyfeladat. Papírral és ceruzával kell megoldani, és nem kell sietni." +
       (poz ? " Ott folytatod, ahol abbahagytad." : "") + (vDb ? " Vár rád egy régi ismerős feladat is!" : ""));
   });
   return kart;
@@ -7019,7 +7019,7 @@ function ftPapir() {
   var b = el("button", "nagy-gomb kiemelt", "✅ Megvan!");
   b.addEventListener("click", function () { hangGomb(); ftKovetkezo(); });
   k.appendChild(b); t.appendChild(k);
-  mondd("Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
+  ftMondd("Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
 }
 /* haladás-kövek a pálya tetején (a visszatérő állomásnál 🔁) */
 function ftKovek(akt) {
@@ -7040,6 +7040,9 @@ function ftFelolvasSzoveg(f) {
   (f.felolvasCsere || []).forEach(function (c) { if (c && c.mit) s = s.split(c.mit).join(c.mire); });
   return s + " A válaszok: " + FT_BETUK.map(function (b) { return b + ": " + f.valaszok[b]; }).join(", ") + ".";
 }
+/* felolvasás: a szám utáni pontot a gép sorszámnak olvassa („50.” → „ötvenedik”) — ezért kivesszük */
+function ftKiejt(s) { return String(s).replace(/(\d)\.(?=\s|$|[”"'])/g, "$1"); }
+function ftMondd(s, kesz) { mondd(ftKiejt(s), kesz); }
 function ftEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function ftKiemel(szoveg, szavak) {
   var h = ftEsc(szoveg);
@@ -7069,14 +7072,14 @@ function ftAllomas(tetel) {
   var seg = el("div", "ft-segitseg"); seg.id = "ft-segit"; t.appendChild(seg);
   var also = el("div", "ft-also"); also.id = "ft-also";
   var fel = el("button", "kis-gomb", "🔊 Olvasd fel újra");
-  fel.addEventListener("click", function () { hangGomb(); mondd(ftFelolvasSzoveg(f)); });
+  fel.addEventListener("click", function () { hangGomb(); ftMondd(ftFelolvasSzoveg(f)); });
   var sg = el("button", "kis-gomb ft-segit-gomb", "🙋 Segítséget kérek"); sg.id = "ft-segit-gomb";
   sg.addEventListener("click", function () { hangGomb(); ftSegit(); });
   also.appendChild(fel); also.appendChild(sg); t.appendChild(also);
-  mondd((tetel.vissza ? "Emlékszel erre? Próbáld meg újra! " : "") + ftFelolvasSzoveg(f));
+  ftMondd((tetel.vissza ? "Emlékszel erre? Próbáld meg újra! " : "") + ftFelolvasSzoveg(f));
 }
-/* 🙋 fokozatos segítség: 1 = Mit kérdeznek?, 2.. = a lépések egyenként; az utolsó lépést nem adja ki */
-function ftSegitMaxSzint(f) { return 1 + Math.max(0, f.lepesek.length - 1); }
+/* 🙋 fokozatos segítség: 1 = Mit kérdeznek?, 2.. = a lépések egyenként — mind (producer, 2026-09-25: ne maradjon ki semmi) */
+function ftSegitMaxSzint(f) { return 1 + f.lepesek.length; }
 function ftSegitGombAllit() {
   var A = FTJ.a, g = $("ft-segit-gomb");
   if (!g) return;
@@ -7085,7 +7088,7 @@ function ftSegitGombAllit() {
   if (!van && !A.valaszolt && !A.fuggo && !$("ft-te-jossz")) {
     var m = el("div", "ft-te-jossz", "Most már te jössz! Melyik betű a jó?"); m.id = "ft-te-jossz";
     $("ft-segit").appendChild(m);
-    mondd("Most már te jössz! Melyik betű a jó?");
+    ftMondd("Most már te jössz! Melyik betű a jó?");
   }
 }
 function ftSegit() {
@@ -7115,7 +7118,7 @@ function ftKerdesKartya(f, hova, tovabb) {
   }
   hova.appendChild(k);
   ftGorget(k);
-  mondd("Mit kérdeznek? " + (f.kerdes && f.kerdes.mondat || ""));
+  ftMondd("Mit kérdeznek? " + (f.kerdes && f.kerdes.mondat || ""));
 }
 function ftGorget(elem) { setTimeout(function () { try { elem.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {} }, 60); }
 /* művelet felolvasása: 6 − 1 = ? → „6 mínusz 1 egyenlő mennyi?” */
@@ -7143,11 +7146,11 @@ function ftLepesKartya(l, li, hova, kesz) {
     figyelStop();
     ures.textContent = l.eredmeny; ures.classList.add(jo ? "jo" : "mutat");
     vz.innerHTML = "";
-    if (jo) { hangJo(); jel.textContent = "✅ Így van!"; mondd("Így van! " + l.eredmeny + ".", function () { kesz(true); }); }
+    if (jo) { hangJo(); jel.textContent = "✅ Így van!"; ftMondd("Így van! " + l.eredmeny + ".", function () { kesz(true); }); }
     else {
       FTJ.a.lepesHiba++;
       jel.textContent = (mit != null ? "Majdnem! " : "") + "Nézd: " + l.eredmeny + ".";
-      mondd((mit != null ? "Majdnem! " : "") + "Az eredmény: " + l.eredmeny + ".", function () { kesz(false); });
+      ftMondd((mit != null ? "Majdnem! " : "") + "Az eredmény: " + l.eredmeny + ".", function () { kesz(false); });
     }
   }
   if (cel == null) {   /* nem szám az eredmény: csak megmutatjuk */
@@ -7182,7 +7185,7 @@ function ftLepesKartya(l, li, hova, kesz) {
   }
   hova.appendChild(k);
   ftGorget(k);
-  mondd(l.szoveg + " " + ftMuveletFelolvas(l.muvelet));
+  ftMondd(l.szoveg + " " + ftMuveletFelolvas(l.muvelet));
 }
 
 /* ── válasz: koppintás = azonnal érvényes ── */
@@ -7220,20 +7223,20 @@ function ftValasz(b) {
     var k = el("div", "ft-kartya ft-dicser");
     k.innerHTML = '<div class="ft-nagy">🎉 Nagyszerű!</div><p>Elsőre, segítség nélkül!</p>';
     hova.appendChild(k); ftGorget(k);
-    mondd("Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
+    ftMondd("Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
   } else if (jo) {
     hangJo();
     var k2 = el("div", "ft-kartya ft-dicser");
     k2.innerHTML = '<div class="ft-nagy">👏 Ügyes!</div><p>Segítséggel sikerült. Nézzük meg az egészet a füzetben!</p>';
     hova.appendChild(k2); ftGorget(k2);
-    mondd("Ügyes! Segítséggel sikerült. Nézzük meg az egészet a füzetben!", function () { ftOsszefoglalo(); });
+    ftMondd("Ügyes! Segítséggel sikerült. Nézzük meg az egészet a füzetben!", function () { ftOsszefoglalo(); });
   } else {
     hangHiba();
     var mondat = c ? c.mondat : "Nézzük meg együtt, lépésről lépésre!";
     var k3 = el("div", "ft-kartya ft-csapda");
     k3.innerHTML = '<div class="ft-nagy">🤔 Ez most nem jó.</div><p>' + ftEsc(mondat) + '</p>';
     hova.appendChild(k3); ftGorget(k3);
-    mondd("Ez most nem jó. " + mondat, function () { ftMagyarazat(); });
+    ftMondd("Ez most nem jó. " + mondat, function () { ftMagyarazat(); });
   }
 }
 /* végigvezetett magyarázat: Mit kérdeznek? → a még hátralévő lépések → összefoglaló */
@@ -7256,7 +7259,7 @@ function ftOsszefoglalo() {
     }).join("<br>") + '</div>' +
     (f.trukk ? '<div class="ft-trukk">💡 ' + ftEsc(f.trukk) + '</div>' : '');
   hova.appendChild(k); ftGorget(k);
-  mondd("A helyes válasz: " + f.helyes + ", " + f.valaszok[f.helyes] + ". " + (f.trukk ? "Jegyezd meg: " + f.trukk : ""), function () { ftTovabbGomb(k); });
+  ftMondd("A helyes válasz: " + f.helyes + ", " + f.valaszok[f.helyes] + ". " + (f.trukk ? "Jegyezd meg: " + f.trukk : ""), function () { ftTovabbGomb(k); });
 }
 function ftTovabbGomb(k) {
   if (k.querySelector(".ft-tovabb")) return;
@@ -7293,7 +7296,7 @@ function ftVege() {
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
-  mondd("Megmásztad a hegyet! " + FTJ.osszes + " fejtörőt oldottál meg. Szép munka volt!");
+  ftMondd("Megmásztad a hegyet! " + FTJ.osszes + " fejtörőt oldottál meg. Szép munka volt!");
   FTJ = null;
 }
 function fejtoroKilep() {
