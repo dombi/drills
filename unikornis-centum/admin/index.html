@@ -1398,7 +1398,7 @@ function ftFeltolt() {
     batch.commit().then(function () {
       A.ft.uzenet = "✅ Feltöltve: " + adat.feladatok.length + " feladat, " + (adat.palyak || []).length + " pálya. A gyerekeknél belépés után azonnal megjelenik.";
       return ftBetolt();
-    }).then(rajzol, function (e) { A.ft.uzenet = "⚠️ Nem sikerült (" + esc(e.code || e) + "). Publikálva vannak az új Firestore-szabályok?"; rajzol(); });
+    }).then(rajzol, function (e) { A.ft.uzenet = "⚠️ Nem sikerült: " + esc(e.code || "") + " — " + esc(e.message || e); rajzol(); });
   };
   r.readAsText(f, "utf-8");
 }

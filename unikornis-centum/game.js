@@ -7037,7 +7037,7 @@ function ftKovetkezo() {
 /* ── egy állomás ── */
 function ftFelolvasSzoveg(f) {
   var s = f.szoveg;
-  (f.felolvasCsere || []).forEach(function (c) { s = s.split(c[0]).join(c[1]); });
+  (f.felolvasCsere || []).forEach(function (c) { if (c && c.mit) s = s.split(c.mit).join(c.mire); });
   return s + " A válaszok: " + FT_BETUK.map(function (b) { return b + ": " + f.valaszok[b]; }).join(", ") + ".";
 }
 function ftEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
