@@ -40,7 +40,7 @@ function felhoKilep() {
   felhoKuld();
   FELHO.aktiv = false; FELHO.kesz = false;
   if (FELHO.leiratkozas) FELHO.leiratkozas();
-  felulirLeiratkozik(); felulirCacheTorol();
+  felulirLeiratkozik(); felulirCacheTorol(); fejtoroLeiratkozik();
   FELHO.auth.signOut().then(function () { location.reload(); });
 }
 

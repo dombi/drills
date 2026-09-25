@@ -221,6 +221,7 @@ function esemenyek() {
   $("tovabb-megoldas-nelkul").addEventListener("click", tovabbMegoldasNelkul);
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
+  $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
   $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("szuloi-vissza").addEventListener("click", function () { hangGomb(); renderProfil(); mutat("kepernyo-profil"); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });

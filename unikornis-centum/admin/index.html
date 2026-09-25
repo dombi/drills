@@ -208,6 +208,7 @@ var A = {
   bCel: null,         /* Beállítások fül célpontja: "u:<uid>" vagy "g:<gid>" */
   urlap: null,        /* ✏️ Egyéni pályák: a nyitott űrlap állapota (null = zárva) */
   beallLeir: [],
+  ft: { feladatok: {}, palyak: {}, betoltve: false, uzenet: "" },   /* 🏔️ Fejtörő: versenyFeladatok + versenyPalyak */
   kert: { beall: {}, jog: {}, jelen: {}, diszek: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
   kertLeir: null
 };
@@ -242,7 +243,7 @@ function sav(a, b) {
 }
 function tsDate(t) { return t && t.toDate ? t.toDate() : (t instanceof Date ? t : null); }
 function palyaSorrend(id) { return PALYA[id] ? PALYA[id].sorrend : 999; }
-function palyaNev(id) { var p = PALYA[id]; return p ? p.ikon + " " + p.nev : (id || "–"); }
+function palyaNev(id) { var p = PALYA[id]; if (!p && A.ft.palyak[id]) return "🏔️ " + A.ft.palyak[id].nev; return p ? p.ikon + " " + p.nev : (id || "–"); }
 function lenyNev(k) { return (LENY_IKON[k] || "🦄") + " " + (LENY_NEV[k] || k || "–"); }
 
 /* ── játékos megnevezése: a játék által felírt kód (LILI-15), különben becenév / uid-eleje ── */
@@ -390,7 +391,7 @@ function profilOssz(u, mezo) { var s = 0; for (var k in u.unicorns) s += +u.unic
 
 /* ══════════ fülek ══════════ */
 var FULEK = [
-  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
+  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["fejtoro", "🏔️ Fejtörő"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
 ];
 function rajzol() {
   $("fulek").innerHTML = FULEK.map(function (f) {
@@ -399,7 +400,7 @@ function rajzol() {
   Array.prototype.forEach.call($("fulek").children, function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
+  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, fejtoro: rajzFejtoro, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
 }
 
 /* ── 📋 Áttekintés ── */
@@ -474,6 +475,7 @@ function esemenyLeiras(e) {
       (d.teljes ? " · 🌟 teljes ösvény" : "") + " · +" + (d.csillampor || 0) + "✨ +" + (d.harmat || 0) + "💧";
     case "palya_kilep": return "🚪 kilépett: " + esc(palyaNev(d.palyaId)) + " (" + ((d.allomas || 0) + 1) + ". állomásnál, " + percKi(d.idoMp) + ")";
     case "palya_start": return "▶️ elindította: " + esc(palyaNev(d.palyaId));
+    case "fejtoro_valasz": return "🏔️ " + esc(ftFeladatNev(d.feladatId)) + ": " + ftEredmeny(d) + " · " + percKi(d.idoMp) + (d.vissza ? " · 🔁 visszatérő" : "");
     case "vasarlas": return "🛍️ vásárolt: " + esc(d.targyId) + " (" + (d.ar || 0) + (d.valuta === "tunderharmat" ? "💧" : "✨") + ")";
     case "login": return "🔑 belépett — " + esc(d.device || "") + (d.migrated ? " · helyi mentés felköltöztetve" : "");
     case "error": return '<span class="rossz-sz">🐞 hiba:</span> ' + esc(d.msg) + ' <span class="halvany">(' + esc(d.fajl) + ":" + (d.sor || 0) + ")</span>";
@@ -1294,6 +1296,111 @@ function rajzKert(t) {
     bn.onchange = function () { if (jog.checked) ment(ref.update({ becenev: bn.value.trim().slice(0, 20) })); };
     szb.onchange = function () { if (jog.checked) ment(ref.update({ szoba: szb.value })); };
   });
+}
+
+/* ══════════ 🏔️ Fejtörő (Zrínyi-állomás): feladatok feltöltése + válasz-napló ══════════
+   A feladatszövegek a felhőben vannak (versenyFeladatok/{id}, versenyPalyak/{id}); a nyilvános repóban NINCSENEK.
+   Feltöltés: a Matekos\versenyfeladatok\ mappában készült JSON ({ formatum:"uc-fejtoro-1", feladatok:[…], palyak:[…] }).
+   Napló: a játék minden válasznál „fejtoro_valasz” eseményt ír (betű, jó/rossz, segítség-lépés, csapda, idő, visszatérő). */
+function ftBetolt() {
+  return Promise.all([db.collection("versenyFeladatok").get(), db.collection("versenyPalyak").get()]).then(function (r) {
+    var f = {}, p = {};
+    r[0].forEach(function (d) { f[d.id] = d.data(); });
+    r[1].forEach(function (d) { var x = d.data(); x.id = d.id; p[d.id] = x; });
+    A.ft.feladatok = f; A.ft.palyak = p; A.ft.betoltve = true;
+  });
+}
+function ftFeladatNev(id) {
+  var f = A.ft.feladatok[id];
+  var m = /^([a-z]+)-(\d{4})-(\d+)-([A-Z]+)-(\d+)$/.exec(id || "");
+  var rov = m ? m[2] + " " + m[4] + m[5] : (id || "–");
+  return f && f.cim ? rov + " " + f.cim : rov;
+}
+function ftEredmeny(d) {
+  var seg = d.segitseg ? (d.segitseg === 1 ? " (🔎 „Mit kérdeznek?”)" : " (" + (d.segitseg - 1) + ". lépésig)") : "";
+  if (d.jo && !d.segitseg) return "✅ elsőre jó";
+  if (d.jo) return "🙋 segítséggel jó" + seg;
+  return '<span class="rossz-sz">❌ rossz: ' + esc(d.betu) + "</span>" + (d.csapda ? " — csapda: " + esc(d.csapda) : "") + (d.segitseg ? " · segítség volt" + seg : "");
+}
+function rajzFejtoro(t) {
+  if (!A.ft.betoltve) {
+    t.innerHTML = '<div class="ures">Betöltés…</div>';
+    ftBetolt().then(function () { if (A.fulek === "fejtoro") rajzol(); }, function (e) {
+      A.ft.betoltve = true; A.ft.uzenet = "⚠️ Nem sikerült betölteni (" + esc(e.code || e) + "). Publikálva vannak az új Firestore-szabályok?";
+      if (A.fulek === "fejtoro") rajzol();
+    });
+    return;
+  }
+  var h = "<h2>🏔️ Fejtörő-hegy</h2>";
+  /* feltöltés */
+  var pl = Object.keys(A.ft.palyak).map(function (k) { return A.ft.palyak[k]; }).sort(function (a, b) { return (a.sorrend || 0) - (b.sorrend || 0); });
+  h += '<div class="kartya"><h3>Feladatok a felhőben</h3>' +
+    '<div class="kicsi">' + Object.keys(A.ft.feladatok).length + " feladat · " + pl.length + " pálya" +
+    (pl.length ? ": " + pl.map(function (p) { return esc((p.ikon || "🏔️") + " " + p.nev) + " (" + (p.feladatok || []).length + " állomás)"; }).join(", ") : "") + "</div>" +
+    '<p class="kicsi halvany" style="margin:8px 0">Új vagy javított tartalom: válaszd ki a <b>Matekos\\versenyfeladatok\\</b> mappából a JSON-fájlt (pl. <code>fejtoro-tesztpalya.json</code>). Az azonos azonosítójú feladat felülíródik, a többi marad.</p>' +
+    '<input type="file" id="ft-fajl" accept=".json,application/json"> <button id="ft-feltolt">⬆️ Feltöltés</button>' +
+    (A.ft.uzenet ? '<div class="kicsi" style="margin-top:8px">' + A.ft.uzenet + "</div>" : "") + "</div>";
+  /* válasz-napló */
+  var evs = esemenyek({ type: "fejtoro_valasz" });
+  h += "<h3>Válaszok az időszakban</h3>";
+  if (!evs.length) h += '<div class="tabla-keret"><div class="ures">Még nincs Fejtörő-válasz az időszakban.</div></div>';
+  else {
+    var perJ = {};
+    evs.forEach(function (e) {
+      var s = perJ[e.uid] || (perJ[e.uid] = { db: 0, elsore: 0, seg: 0, rossz: 0 });
+      s.db++; if (e.data.jo && !e.data.segitseg) s.elsore++; else if (e.data.jo) s.seg++; else s.rossz++;
+    });
+    h += '<div class="tabla-keret"><table><tr><th>Játékos</th><th class="szam">Válasz</th><th class="szam">✅ elsőre</th><th class="szam">🙋 segítséggel</th><th class="szam">❌ rossz</th></tr>' +
+      Object.keys(perJ).map(function (uid) {
+        var s = perJ[uid];
+        return "<tr><td>" + esc(jNev(uid)) + '</td><td class="szam">' + s.db + '</td><td class="szam">' + s.elsore + '</td><td class="szam">' + s.seg + '</td><td class="szam">' + s.rossz + "</td></tr>";
+      }).join("") + "</table></div>";
+    h += '<div class="tabla-keret" style="margin-top:10px;max-height:520px;overflow:auto"><table><tr><th>Mikor</th><th>Játékos</th><th>Unikornis</th><th>Feladat</th><th>Eredmény</th><th>Betű</th><th class="szam">Gondolkodás</th><th></th></tr>' +
+      evs.map(function (e) {
+        var d = e.data;
+        return "<tr><td>" + idoKi(e.ts) + "</td><td>" + esc(jNev(e.uid)) + "</td><td>" + esc(lenyNev(e.unicornId)) + "</td><td>" + esc(ftFeladatNev(d.feladatId)) +
+          "</td><td>" + ftEredmeny(d) + "</td><td>" + esc(d.betu) + (d.jo ? "" : ' <span class="halvany">(jó: ' + esc(d.helyes) + ")</span>") +
+          '</td><td class="szam">' + percKi(d.idoMp) + "</td><td>" + (d.vissza ? "🔁" : "") + "</td></tr>";
+      }).join("") + "</table></div>";
+  }
+  /* visszatérő lista (a gyerek-mentésből) */
+  var vl = [];
+  A.users.forEach(function (u) {
+    for (var k in u.unicorns) {
+      var v = (u.unicorns[k].fejtoro || {}).vissza || {};
+      for (var id in v) vl.push("<tr><td>" + esc(jNev(u.uid)) + "</td><td>" + esc(lenyNev(k)) + "</td><td>" + esc(ftFeladatNev(id)) + "</td><td>" + esc(v[id].nap) + '</td><td class="szam">' + (v[id].db || 1) + "</td></tr>");
+    }
+  });
+  h += "<h3>🔁 Visszatérésre vár</h3>" + (vl.length
+    ? '<div class="tabla-keret"><table><tr><th>Játékos</th><th>Unikornis</th><th>Feladat</th><th>Utoljára</th><th class="szam">Hányszor</th></tr>' + vl.join("") + "</table></div>" +
+      '<p class="kicsi halvany" style="margin-top:6px">A feladat az „Utoljára” utáni első napon jön vissza, a pálya előtt („🔁 Emlékszel erre?”).</p>'
+    : '<div class="tabla-keret"><div class="ures">Nincs visszatérő feladat.</div></div>');
+  t.innerHTML = h;
+  $("ft-feltolt").onclick = ftFeltolt;
+}
+function ftFeltolt() {
+  var f = $("ft-fajl").files[0];
+  if (!f) { A.ft.uzenet = "Előbb válassz ki egy JSON-fájlt."; rajzol(); return; }
+  var r = new FileReader();
+  r.onload = function () {
+    var adat;
+    try { adat = JSON.parse(r.result); } catch (e) { A.ft.uzenet = "⚠️ Ez nem érvényes JSON-fájl."; rajzol(); return; }
+    if (!adat || adat.formatum !== "uc-fejtoro-1" || !Array.isArray(adat.feladatok)) { A.ft.uzenet = "⚠️ Ez nem Fejtörő-fájl (hiányzik: formatum „uc-fejtoro-1”)."; rajzol(); return; }
+    var hibak = [];
+    adat.feladatok.forEach(function (x) {
+      if (!x.id || !x.szoveg || !x.valaszok || !x.helyes || !Array.isArray(x.lepesek)) hibak.push(x.id || "?");
+    });
+    if (hibak.length) { A.ft.uzenet = "⚠️ Hiányos feladat(ok): " + esc(hibak.join(", ")); rajzol(); return; }
+    var batch = db.batch(), most = firebase.firestore.FieldValue.serverTimestamp();
+    adat.feladatok.forEach(function (x) { var d = JSON.parse(JSON.stringify(x)); d.feltoltve = most; batch.set(db.collection("versenyFeladatok").doc(x.id), d); });
+    (adat.palyak || []).forEach(function (x) { var d = JSON.parse(JSON.stringify(x)); d.feltoltve = most; batch.set(db.collection("versenyPalyak").doc(x.id), d); });
+    A.ft.uzenet = "Feltöltés…"; rajzol();
+    batch.commit().then(function () {
+      A.ft.uzenet = "✅ Feltöltve: " + adat.feladatok.length + " feladat, " + (adat.palyak || []).length + " pálya. A gyerekeknél belépés után azonnal megjelenik.";
+      return ftBetolt();
+    }).then(rajzol, function (e) { A.ft.uzenet = "⚠️ Nem sikerült (" + esc(e.code || e) + "). Publikálva vannak az új Firestore-szabályok?"; rajzol(); });
+  };
+  r.readAsText(f, "utf-8");
 }
 
 })();

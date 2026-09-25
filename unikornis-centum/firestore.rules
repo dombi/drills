@@ -30,6 +30,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // 🏔️ Fejtörő-hegy (versenyfeladatok): a szövegek NEM a nyilvános repóban vannak, hanem itt.
+    // Olvasni csak belépett játékos tud, írni csak a pult (feltöltés JSON-ból).
+    match /versenyFeladatok/{fid} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    match /versenyPalyak/{pid} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
     function signedIn() { return request.auth != null; }
     // Admin = a producer saját fiókja (a konzolon felvett admin@unikornis.app). Cloud Function / Admin SDK
     // nélkül így ismerjük fel; ha később lesz custom claim, az is elfogadott.

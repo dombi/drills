@@ -62,6 +62,7 @@ MODULES = [
     "analytics.js",       # 12e) eseménynapló (events)
     "config.js",          # 12f) producer-felülírások + csoportok (4. fázis)
     "tunemenykert.js",    # 12g) Égi Tüneménykert: RTDB jelenlét + közös tér (5. fázis)
+    "fejtoro.js",         # 12h) Fejtörő-hegy: versenyfeladat-állomások (Zrínyi, felhőből)
 
     # ── Indítás ──
     "main.js",            # 11) betolt(), esemenyek(), renderProfil(), window.UC

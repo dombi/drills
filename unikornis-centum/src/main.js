@@ -64,6 +64,9 @@ window.UC = {
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
   nehezsegAlkalmaz: nehezsegAlkalmaz,
+  /* Fejtörő-hegy — teszthez felhő nélkül is: UC.fejtoroBetoltHelyi(json) */
+  get FT() { return FT; }, get FTJ() { return FTJ; }, fejtoroBetoltHelyi: fejtoroBetoltHelyi, fejtoroInditas: fejtoroInditas,
+  fejtoroPalyak: fejtoroPalyak, ftValasz: ftValasz, ftSegit: ftSegit, ftMa: ftMa,
   palyaAllomasok: function (id) { var pa = palyaKeres(id); return nehezsegAlkalmaz(pa, pa.allomasok.map(function (a) { var o = {}, k; for (k in pa.alap) o[k] = pa.alap[k]; for (k in a) o[k] = a[k]; return o; })); }
 };
 

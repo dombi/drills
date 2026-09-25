@@ -15,6 +15,7 @@ function felhoBelepve(u) {
     else felhoTavoliValtozas(snap);
   }, function (e) { console.warn("[felhő] figyelés hiba:", e.code || e); });
   felulirFigyel();   /* producer-felülírások + csoportok (4. fázis) */
+  fejtoroFigyel();   /* Fejtörő-hegy: versenyfeladatok (csak belépve olvashatók) */
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") felhoKuld(); });
   window.addEventListener("pagehide", felhoKuld);
   renderFelhoAllapot();

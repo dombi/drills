@@ -3,7 +3,7 @@ function mutat(id) {
   var volt = document.querySelector(".kepernyo.aktiv");
   if (volt) volt.classList.remove("aktiv");
   $(id).classList.add("aktiv");
-  if (id === "kepernyo-jatek") idomeroInd(); else idomeroAll();
+  if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
@@ -27,8 +27,8 @@ function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
-  var REGIO_CIM = { egyeni: "💖 Neked készült", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
-  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER };   /* mindkét liget saját jelenetet kap */
+  var REGIO_CIM = { egyeni: "💖 Neked készült", fejtoro: "🏔️ Fejtörő-hegy", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
+  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER };   /* mindkét liget saját jelenetet kap */
   /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
      a sorszámozás folyamatos marad (a gyerek ne lásson hézagot). Az egyéni pályák (4b) a saját ligetükben
      legfölül vannak, sorszám nélkül — így a közös pályák számai nem tolódnak el. */
@@ -39,6 +39,12 @@ function renderFomenu() {
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
+  /* 🏔️ Fejtörő-hegy (versenyfeladatok, csak belépve): a „Neked készült” után, mindig nyitva, sorszám nélkül */
+  var ftL = fejtoroPalyak();
+  if (ftL.length) {
+    regiok.fejtoro = ftL.map(function (pa) { return { pa: pa, idx: null }; });
+    regioSorrend.splice(regioSorrend[0] === "egyeni" ? 1 : 0, 0, "fejtoro");
+  }
   var _napiId = napiKiemeltId(), _napiKesz = napiKiemeltTeljesitve();
   function keszitKartya(pa, idx) {
     var prc = P().palyak[pa.id];
@@ -89,7 +95,7 @@ function renderFomenu() {
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
     var grid = el("div", "palya-regio-grid");
-    regiok[regio].forEach(function (rec) { grid.appendChild(keszitKartya(rec.pa, rec.idx)); });
+    regiok[regio].forEach(function (rec) { grid.appendChild(regio === "fejtoro" ? fejtoroKartya(rec.pa) : keszitKartya(rec.pa, rec.idx)); });
     szek.appendChild(grid);
     racs.appendChild(szek);
   });

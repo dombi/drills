@@ -48,6 +48,8 @@ function profilNormal(p) {
   if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
   p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
   if (!p.kapu) p.kapu = alapKapu();
+  if (!p.fejtoro) p.fejtoro = { palyak: {}, vissza: {} };   /* Fejtörő-hegy: pályánként poz/kesz, visszatérő feladatok (id → {nap, db}) */
+  if (!p.fejtoro.palyak) p.fejtoro.palyak = {}; if (!p.fejtoro.vissza) p.fejtoro.vissza = {};
   if (typeof p.kapu.nyitvaEddig !== "number") p.kapu.nyitvaEddig = 0;
   if (!p.kapu.kulcsKesz) p.kapu.kulcsKesz = {};
   if (!p.kert) p.kert = alapKert();
