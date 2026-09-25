@@ -30,7 +30,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 🏔️ Fejtörő-hegy (versenyfeladatok): a szövegek NEM a nyilvános repóban vannak, hanem itt.
+    // Fejtörő-hegy (versenyfeladatok): a szövegek NEM a nyilvános repóban vannak, hanem itt.
     // Olvasni csak belépett játékos tud, írni csak a pult (feltöltés JSON-ból).
     match /versenyFeladatok/{fid} {
       allow read: if signedIn();
