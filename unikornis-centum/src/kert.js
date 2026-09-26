@@ -1168,22 +1168,10 @@ var POLC_POZ = {
     '<path d="M78 122 a14 12 0 0 1 28 0" fill="none" stroke="#f4b8d8" stroke-width="5"/><path d="M92 98 l2 4 l4 1 l-4 2 l-2 4 l-2 -4 l-4 -2 l4 -1 Z" fill="#fff6d8"/>' +
     '<path d="M114 122 a14 12 0 0 1 28 0" fill="none" stroke="#f4b8d8" stroke-width="5"/><path d="M128 98 l2 4 l4 1 l-4 2 l-2 4 l-2 -4 l-4 -2 l4 -1 Z" fill="#fff6d8"/>' +
     '</g>',
-  "oldal-a": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
-    '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-    '<path d="M150 148 Q36 130 52 28 Q112 66 148 92 Q206 122 168 184 Q98 176 150 148 Z" fill="#a7d99a"/>' +
-    '<path d="M118 86 Q78 58 42 36 M108 128 Q76 138 50 172 M132 108 Q100 112 70 128" fill="none" stroke="#7fb872" stroke-width="2"/>' +
-    '</g><circle cx="150" cy="146" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
-  "oldal-k": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
-    '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' +
-    '<path d="M150 118 Q56 26 22 78 Q54 140 146 132 Z" fill="#c9a8e6"/>' +
-    '<path d="M146 132 Q84 172 46 186 Q128 168 152 136 Z" fill="#b58fd8"/>' +
-    '<circle cx="58" cy="80" r="7" fill="#f6a5c0"/><circle cx="72" cy="98" r="5" fill="#fce49a"/><circle cx="80" cy="158" r="5.5" fill="#fce49a"/>' +
-    '</g><circle cx="149" cy="128" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
-  "oldal-r": /* NAGYÍTOTT, spec-szarny-nagyitas.html */
-    '<ellipse cx="112" cy="106" rx="92" ry="78" fill="#ffe9ad" opacity="0.28"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<path d="M150 128 Q86 40 26 46 Q66 92 122 122 Z" fill="#ffffff"/><path d="M148 140 Q78 108 20 130 Q74 166 132 152 Z" fill="#fff6e0"/><path d="M144 150 Q94 176 58 186 Q112 172 150 156 Z" fill="#ffffff"/>' +
-    '</g><path d="M150 66 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/><circle cx="148" cy="146" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
+  /* szárnyak: ugyanaz a rajz, mint az unikornison (renderer.js SZARNY_DISZ), kis fa tartón állva */
+  "oldal-a": '<path d="M150 172 h58 v8 h-58 Z" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><path d="M179 172 v-9" stroke="#c9a07a" stroke-width="5" stroke-linecap="round"/>' + '<g transform="translate(102 100) scale(1.2) translate(-100 -56)">' + SZARNY_DISZ["oldal-a"] + '</g>',
+  "oldal-k": '<path d="M150 172 h58 v8 h-58 Z" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><path d="M179 172 v-9" stroke="#c9a07a" stroke-width="5" stroke-linecap="round"/>' + '<g transform="translate(102 100) scale(1.2) translate(-100 -56)">' + SZARNY_DISZ["oldal-k"] + '</g>',
+  "oldal-r": '<path d="M150 172 h58 v8 h-58 Z" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><path d="M179 172 v-9" stroke="#c9a07a" stroke-width="5" stroke-linecap="round"/>' + '<g transform="translate(102 100) scale(1.2) translate(-100 -56)">' + SZARNY_DISZ["oldal-r"] + '</g>',
   /* farokdíszek: ugyanaz a rajz, mint az unikornison (renderer.js FAROK_DISZ), kampóra akasztva, nagyítva */
   "farok-a": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2) translate(-63 -180)">' + FAROK_DISZ["farok-a"] + '</g>',
   "farok-k": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2.2) translate(-62 -186)">' + FAROK_DISZ["farok-k"] + '</g>',
@@ -1235,7 +1223,7 @@ var BOLT_TIPP = {
   "nyak-a": "Makkokból fűzött lánc.", "nyak-k": "Rózsaszín szív-medál aranyláncon.", "nyak-r": "Puha, színes sál a hidegre.",
   "hat-a": "Könnyű takaró a hátra.", "hat-k": "Hímzett nyeregtakaró.", "hat-r": "Csillagmintás köpeny.",
   "lab-a": "Fűzöld pánt mind a négy bokára.", "lab-k": "Fényes ezüst patkó.", "lab-r": "Kristályból csiszolt patkó.",
-  "oldal-a": "Levél alakú kis szárnyak.", "oldal-k": "Pillangó-szárny a röptetéshez.", "oldal-r": "Ragyogó fény-szárny.",
+  "oldal-a": "Hófehér, pihe-puha tollszárny.", "oldal-k": "Minden tolla más szivárványszín.", "oldal-r": "Aranyvégű, ragyogó tollszárny.",
   "farok-a": "Szalagcsokor a farok tövére.", "farok-k": "Csengettyűk, halkan csilingelnek.", "farok-r": "Fénycsóvás üstökös-farok.",
   "este": "Csendes esti égbolt, telihold.", "reggel": "Rózsás hajnal, puha felhők.", "del": "Ragyogó déli napsütés.", "eclipse": "Ritka napfogyatkozás, csillagokkal.",
   "tiszta": "Derült, felhőtlen idő.", "eso": "Szelíd eső kopog az ablakon.", "ho": "Nagy pihékben hull a hó.", "szivarvany": "Eső után szivárvány ível az égen.",

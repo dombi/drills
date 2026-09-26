@@ -476,6 +476,56 @@ var HAT_DISZ = (function () {
       '<g stroke="#222" stroke-width="1.2"><path d="' + csillag5(104, 121, 7, 3.2) + '" fill="#ffd24d"/></g>'
   };
 })();
+/* ── SZÁRNYAK (újrarajzolva, 2026-09-26, szarnyak-rajzterv.html) ──
+   Tollas unikornis-szárny: kar-él, alatta legyezőben 7 evezőtoll, a tövüknél két csipkés fedőtoll-sor.
+   A töve SZÉLES vállként a hát tetején fekszik (x132–180, y≈106), minden a hát-vonal fölött marad,
+   így a hát-takaróval (HAT_DISZ) együtt is felvehető, nem takarja el.
+   Egy tábla: a ruhaSVG ÉS a bolti polckép (POLC_POZ) is innen rajzol. */
+var SZARNY_DISZ = (function () {
+  function f(n) { return +n.toFixed(1); }
+  /* kar-él: a csuklótól (138,34) a váll-tőig (180,106), előre domborodva */
+  function kar(t) { var u = 1 - t; return [u*u*138 + 2*u*t*184 + t*t*180, u*u*34 + 2*u*t*50 + t*t*106]; }
+  var VEG = [[46,12],[34,34],[36,56],[48,74],[68,88],[94,97],[122,102]];   /* evezőtollak vége, fentről lefelé */
+  var BT = [0, 0.1, 0.22, 0.36, 0.5, 0.64, 0.78];                          /* a tövük helye a kar-élen */
+  function toll(b, t, w, fill) {
+    var dx = t[0] - b[0], dy = t[1] - b[1], L = Math.sqrt(dx*dx + dy*dy), ux = dx / L, uy = dy / L, nx = -uy * w / 2, ny = ux * w / 2;
+    var k = [t[0] - ux * w * .7, t[1] - uy * w * .7];
+    return '<path d="M' + f(b[0] + nx) + ' ' + f(b[1] + ny) + ' L' + f(k[0] + nx) + ' ' + f(k[1] + ny) + ' Q' + f(t[0] + ux * w * .35 + nx * .2) + ' ' + f(t[1] + uy * w * .35 + ny * .2) + ' ' + f(k[0] - nx) + ' ' + f(k[1] - ny) + ' L' + f(b[0] - nx) + ' ' + f(b[1] - ny) + ' Z" fill="' + fill + '"/>' +
+      '<path d="M' + f(b[0] + ux * L * .35) + ' ' + f(b[1] + uy * L * .35) + ' L' + f(k[0] - ux * 2) + ' ' + f(k[1] - uy * 2) + '" fill="none" stroke-width="1.1" class="szar"/>';
+  }
+  function szikra(cx, cy, r, fill) { return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + cx + ' ' + cy + ' ' + (cx + r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy + r) + ' Q' + cx + ' ' + cy + ' ' + (cx - r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + fill + '"/>'; }
+  function fedo(a, d, fill) {   /* fedőtoll-sor: a kar-éltől a tollak felé a-nyira, d mélységű csipkével */
+    var s = "M180 106", i, t;
+    for (t = 1; t >= -0.0001; t -= 0.1) { var p = kar(Math.max(t, 0)); s += " L" + f(p[0]) + " " + f(p[1]); }
+    var pts = BT.map(function (bt, i) { var b = kar(bt); return [b[0] + (VEG[i][0] - b[0]) * a, b[1] + (VEG[i][1] - b[1]) * a]; });
+    pts.push([132, 106]);
+    s += " L" + f(pts[0][0]) + " " + f(pts[0][1]);
+    for (i = 1; i < pts.length; i++) {
+      var m = [(pts[i-1][0] + pts[i][0]) / 2, (pts[i-1][1] + pts[i][1]) / 2], dx = m[0] - 150, dy = m[1] - 60, L = Math.sqrt(dx*dx + dy*dy);
+      s += " Q" + f(m[0] + dx / L * d) + " " + f(m[1] + dy / L * d) + " " + f(pts[i][0]) + " " + f(pts[i][1]);
+    }
+    return '<path d="' + s + ' Q156 102 180 106 Z" fill="' + fill + '"/>';
+  }
+  function szarny(o) {
+    var s = (o.glo || "") + '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">';
+    for (var i = 0; i < VEG.length; i++) s += toll(kar(BT[i]), VEG[i], 17 - i * .6, o.evezo[i % o.evezo.length]);
+    s += fedo(0.5, 7, o.kozep) + fedo(0.27, 6, o.fedo) + '</g>';
+    s = s.replace(/class="szar"/g, 'stroke="' + o.er + '"');
+    var e = "M180 106"; for (var t = 1; t >= -0.0001; t -= 0.1) { var p = kar(Math.max(t, 0)); e += " L" + f(p[0]) + " " + f(p[1]); }
+    if (o.elvast) s += '<path d="' + e + '" fill="none" stroke="' + o.elszin + '" stroke-width="' + o.elvast + '" stroke-linecap="round"/>';
+    return s + (o.utana || "");
+  }
+  return {
+    "oldal-a": szarny({ /* Pihe-szárny — hófehér tollak, halvány lila árnyalat */
+      evezo: ["#efe6fb", "#f6f0ff"], kozep: "#faf6ff", fedo: "#ffffff", er: "#cbbbe6" }),
+    "oldal-k": szarny({ /* Szivárvány-szárny — minden evezőtoll más pasztellszín */
+      evezo: ["#c9a8e6", "#9ec9f0", "#a7d99a", "#fce49a", "#ffc9a0", "#f6a5c0", "#d9b8f0"], kozep: "#fdf6ff", fedo: "#ffffff", er: "#ffffff" }),
+    "oldal-r": szarny({ /* Fény-szárny — aranyvégű tollak, arany él, ragyogás csak a szárny mögött */
+      glo: '<path d="M172 108 C176 40 150 4 40 2 C18 30 20 70 50 92 C84 110 130 114 172 108 Z" fill="#ffe9ad" opacity=".5"/>',
+      evezo: ["#ffe08a", "#fff2c4"], kozep: "#fff6de", fedo: "#ffffff", er: "#e8b93e", elszin: "#ffc93a", elvast: 2.6,
+      utana: '<g stroke="none">' + szikra(40, 8, 6, "#ffd24d") + szikra(24, 50, 4, "#ffd24d") + szikra(60, 100, 3.5, "#ffd24d") + szikra(150, 20, 3.5, "#ffd24d") + '</g>' })
+  };
+})();
 /* ── FAROKDÍSZEK (újrarajzolva, 2026-09-26, farokdiszek-uj-rajzterv.html) ──
    A farok nagy része a test MÖGÉ bújik; a látható csík a far bal oldalán ~(44–82, 160–290).
    A díszek ide, a látható farokrészre ülnek (a régi a far tetején, a testen volt).
@@ -594,33 +644,9 @@ function ruhaSVG(itemId) {
       });
       return s + '</g>';
 
-    /* ── OLDAL (szárny) ── a vállon, a nyak-tő mögött, felfelé-hátra álló kis szárnyként (zóna: váll, x166–216 y84–152) */
-    /* NAGYÍTOTT + JÓVÁHAGYOTT IRÁNY (2026-09-04, spec-szarny-nagyitas.html): tő a hát-tetőn
-       ~(172,106), a csúcs hátrafelé-fölfelé dől a farok irányába (~(85,40)), kb. 2,3× a korábbi
-       méretnek, teljesen LÁTHATÓAN a test/sörény előtt (nem bújik el mögötte). */
-    case "oldal-a": /* Levél-szárny — egy nagy, hegyes levél */
-      return '<g stroke="#222" stroke-width="1.8" stroke-linejoin="round">' +
-        '<path d="M172 106 Q116 90 82 42 Q146 66 180 96 Q198 108 188 118 Q178 122 172 106 Z" fill="#a7d99a"/>' +
-        '<path d="M172 104 Q142 90 96 52 M164 100 Q144 100 118 84" fill="none" stroke="#7fb872" stroke-width="2.2"/>' +
-        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
-        '</g>';
-    case "oldal-k": /* Pillangó-szárny — két lebeny, pöttyökkel */
-      return '<g stroke="#222" stroke-width="1.7" stroke-linejoin="round">' +
-        '<path d="M172 106 Q112 76 76 36 Q108 44 140 60 Q168 78 178 98 Q182 104 172 106 Z" fill="#c9a8e6"/>' +
-        '<path d="M172 110 Q135 128 108 165 Q112 138 140 118 Q160 108 172 110 Z" fill="#b58fd8"/>' +
-        '<circle cx="118" cy="66" r="5.5" fill="#f6a5c0"/><circle cx="140" cy="86" r="4" fill="#fce49a"/><circle cx="128" cy="145" r="4.5" fill="#fce49a"/>' +
-        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
-        '</g>';
-    case "oldal-r": /* Fény-szárny — glóriás, csillanó */
-      return '<g stroke-linejoin="round">' +
-        '<ellipse cx="128" cy="86" rx="92" ry="78" fill="#ffe9ad" opacity="0.26"/>' +
-        '<g stroke="#222" stroke-width="1.6">' +
-        '<path d="M170 108 Q120 82 85 40 Q140 55 175 62 Q195 62 205 82 Q220 78 205 100 Q190 108 170 108 Z" fill="#ffffff"/>' +
-        '<path d="M172 104 Q130 84 100 50 M178 90 Q160 78 145 64" fill="none" stroke="#f0d9a0" stroke-width="1.6"/>' +
-        '</g>' +
-        '<path d="M96 46 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/>' +
-        '<circle cx="176" cy="112" r="4" fill="#8f7ab8" stroke="#222" stroke-width="1.2"/>' +
-        '</g>';
+    /* ── OLDAL (szárny) ── a SZARNY_DISZ táblából: széles váll-tő a hát tetején, fölfelé-hátra nyílik */
+    case "oldal-a": case "oldal-k": case "oldal-r":   /* Pihe-szárny · Szivárvány-szárny · Fény-szárny */
+      return SZARNY_DISZ[itemId];
 
     /* ── FAROK ── a farok tövénél (hátul-balra) */
     /* a farok-tő ~(92,150) köré, -15°-kal a farok irányába döntve (rajzoló session, 2026-09-05; §3.1.3) */
