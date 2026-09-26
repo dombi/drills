@@ -208,7 +208,7 @@ var A = {
   bCel: null,         /* Beállítások fül célpontja: "u:<uid>" vagy "g:<gid>" */
   urlap: null,        /* ✏️ Egyéni pályák: a nyitott űrlap állapota (null = zárva) */
   beallLeir: [],
-  ft: { feladatok: {}, palyak: {}, betoltve: false, uzenet: "" },   /* 🏔️ Fejtörő: versenyFeladatok + versenyPalyak */
+  ft: { feladatok: {}, valt: {}, palyak: {}, betoltve: false, uzenet: "" },   /* 🏔️ Fejtörő: versenyFeladatok + versenyPalyak */
   kert: { beall: {}, jog: {}, jelen: {}, diszek: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
   kertLeir: null
 };
@@ -1301,15 +1301,18 @@ function rajzKert(t) {
 /* ══════════ 🏔️ Fejtörő (Zrínyi-állomás): feladatok feltöltése + válasz-napló ══════════
    A feladatszövegek a felhőben vannak (versenyFeladatok/{id}, versenyPalyak/{id}); a nyilvános repóban NINCSENEK.
    Feltöltés: a Matekos\versenyfeladatok\ mappában készült JSON ({ formatum:"uc-fejtoro-1", feladatok:[…], palyak:[…] }).
-   Napló: a játék minden válasznál „fejtoro_valasz” eseményt ír (betű, jó/rossz, segítség-lépés, csapda, idő, visszatérő). */
+   Számváltozatok: fejtoro-valtozatok.json ({ formatum:"uc-fejtoro-valtozat-1", valtozatok:{alapId:[…]} }) — ugyanabba
+   a gyűjteménybe megy ({alapId}-vNN, alapId mezővel); egy feladat újrafeltöltésekor a fájlból kimaradt régi változatai törlődnek.
+   Napló: a játék minden válasznál „fejtoro_valasz” eseményt ír (betű, jó/rossz, segítség-lépés, csapda, idő, visszatérő, változat). */
 function ftBetolt() {
   return Promise.all([db.collection("versenyFeladatok").get(), db.collection("versenyPalyak").get()]).then(function (r) {
-    var f = {}, p = {};
-    r[0].forEach(function (d) { f[d.id] = d.data(); });
+    var f = {}, v = {}, p = {};
+    r[0].forEach(function (d) { var x = d.data(); if (x.alapId) (v[x.alapId] = v[x.alapId] || []).push(d.id); else f[d.id] = x; });
     r[1].forEach(function (d) { var x = d.data(); x.id = d.id; p[d.id] = x; });
-    A.ft.feladatok = f; A.ft.palyak = p; A.ft.betoltve = true;
+    A.ft.feladatok = f; A.ft.valt = v; A.ft.palyak = p; A.ft.betoltve = true;
   });
 }
+function ftValtDb() { var n = 0; for (var k in A.ft.valt) n += A.ft.valt[k].length; return n; }
 function ftFeladatNev(id) {
   var f = A.ft.feladatok[id];
   var m = /^([a-z]+)-(\d{4})-(\d+)-([A-Z]+)-(\d+)$/.exec(id || "");
@@ -1335,9 +1338,9 @@ function rajzFejtoro(t) {
   /* feltöltés */
   var pl = Object.keys(A.ft.palyak).map(function (k) { return A.ft.palyak[k]; }).sort(function (a, b) { return (a.sorrend || 0) - (b.sorrend || 0); });
   h += '<div class="kartya"><h3>Feladatok a felhőben</h3>' +
-    '<div class="kicsi">' + Object.keys(A.ft.feladatok).length + " feladat · " + pl.length + " pálya" +
+    '<div class="kicsi">' + Object.keys(A.ft.feladatok).length + " feladat · " + ftValtDb() + " számváltozat · " + pl.length + " pálya" +
     (pl.length ? ": " + pl.map(function (p) { return esc((p.ikon || "🏔️") + " " + p.nev) + " (" + (p.feladatok || []).length + " állomás)"; }).join(", ") : "") + "</div>" +
-    '<p class="kicsi halvany" style="margin:8px 0">Új vagy javított tartalom: válaszd ki a <b>Matekos\\versenyfeladatok\\</b> mappából a JSON-fájlt (pl. <code>fejtoro-tesztpalya.json</code>). Az azonos azonosítójú feladat felülíródik, a többi marad.</p>' +
+    '<p class="kicsi halvany" style="margin:8px 0">Új vagy javított tartalom: válaszd ki a <b>Matekos\\versenyfeladatok\\</b> mappából a JSON-fájlt (pl. <code>fejtoro-tesztpalya.json</code>, a számváltozatokhoz <code>fejtoro-valtozatok.json</code>). Az azonos azonosítójú feladat felülíródik, a többi marad. A változatok az eredeti feladat után tölthetők fel.</p>' +
     '<input type="file" id="ft-fajl" accept=".json,application/json"> <button id="ft-feltolt">⬆️ Feltöltés</button>' +
     (A.ft.uzenet ? '<div class="kicsi" style="margin-top:8px">' + A.ft.uzenet + "</div>" : "") + "</div>";
   /* válasz-napló */
@@ -1359,6 +1362,7 @@ function rajzFejtoro(t) {
       evs.map(function (e) {
         var d = e.data;
         return "<tr><td>" + idoKi(e.ts) + "</td><td>" + esc(jNev(e.uid)) + "</td><td>" + esc(lenyNev(e.unicornId)) + "</td><td>" + esc(ftFeladatNev(d.feladatId)) +
+          (d.valtozat ? '<br><span class="kicsi halvany">🔢 változat: ' + esc(d.szamok || d.valtozat) + "</span>" : "") +
           "</td><td>" + ftEredmeny(d) + "</td><td>" + esc(d.betu) + (d.jo ? "" : ' <span class="halvany">(jó: ' + esc(d.helyes) + ")</span>") +
           '</td><td class="szam">' + percKi(d.idoMp) + "</td><td>" + (d.vissza ? "🔁" : "") + "</td></tr>";
       }).join("") + "</table></div>";
@@ -1385,6 +1389,7 @@ function ftFeltolt() {
   r.onload = function () {
     var adat;
     try { adat = JSON.parse(r.result); } catch (e) { A.ft.uzenet = "⚠️ Ez nem érvényes JSON-fájl."; rajzol(); return; }
+    if (adat && adat.formatum === "uc-fejtoro-valtozat-1" && adat.valtozatok) { ftValtFeltolt(adat.valtozatok); return; }
     if (!adat || adat.formatum !== "uc-fejtoro-1" || !Array.isArray(adat.feladatok)) { A.ft.uzenet = "⚠️ Ez nem Fejtörő-fájl (hiányzik: formatum „uc-fejtoro-1”)."; rajzol(); return; }
     var hibak = [];
     adat.feladatok.forEach(function (x) {
@@ -1401,6 +1406,40 @@ function ftFeltolt() {
     }).then(rajzol, function (e) { A.ft.uzenet = "⚠️ Nem sikerült: " + esc(e.code || "") + " — " + esc(e.message || e); rajzol(); });
   };
   r.readAsText(f, "utf-8");
+}
+/* számváltozatok: { alapId:[{id, alapId, szamok, szoveg, valaszok, helyes, lepesek…}] } → versenyFeladatok/{id} */
+function ftValtFeltolt(vo) {
+  var irni = [], torolni = [], hibak = [], hianyzo = [];
+  Object.keys(vo).forEach(function (alap) {
+    if (!A.ft.feladatok[alap]) { hianyzo.push(alap); return; }
+    var ujIdk = {};
+    (vo[alap] || []).forEach(function (x) {
+      if (!x.id || x.alapId !== alap || !x.szoveg || !x.valaszok || !x.helyes || !Array.isArray(x.lepesek)) hibak.push(x.id || "?");
+      else { ujIdk[x.id] = 1; irni.push(x); }
+    });
+    (A.ft.valt[alap] || []).forEach(function (id) { if (!ujIdk[id]) torolni.push(id); });
+  });
+  if (hianyzo.length) { A.ft.uzenet = "⚠️ Előbb az eredeti feladatot töltsd fel: " + esc(hianyzo.join(", ")); rajzol(); return; }
+  if (hibak.length) { A.ft.uzenet = "⚠️ Hiányos változat(ok): " + esc(hibak.join(", ")); rajzol(); return; }
+  /* egy Firestore-köteg legfeljebb 500 művelet → darabolva */
+  var muv = irni.map(function (x) { return { set: x }; }).concat(torolni.map(function (id) { return { del: id }; }));
+  var most = firebase.firestore.FieldValue.serverTimestamp(), kotegek = [];
+  for (var i = 0; i < muv.length; i += 400) kotegek.push(muv.slice(i, i + 400));
+  A.ft.uzenet = "Feltöltés…"; rajzol();
+  kotegek.reduce(function (pr, k) {
+    return pr.then(function () {
+      var batch = db.batch();
+      k.forEach(function (m) {
+        if (m.del) batch.delete(db.collection("versenyFeladatok").doc(m.del));
+        else { var d = JSON.parse(JSON.stringify(m.set)); d.feltoltve = most; batch.set(db.collection("versenyFeladatok").doc(d.id), d); }
+      });
+      return batch.commit();
+    });
+  }, Promise.resolve()).then(function () {
+    A.ft.uzenet = "✅ Feltöltve: " + irni.length + " számváltozat (" + Object.keys(vo).length + " feladathoz)" +
+      (torolni.length ? ", " + torolni.length + " régi változat törölve" : "") + ". A gyerekeknél visszatérőnél és újrajátszásnál jelennek meg.";
+    return ftBetolt();
+  }).then(rajzol, function (e) { A.ft.uzenet = "⚠️ Nem sikerült: " + esc(e.code || "") + " — " + esc(e.message || e); rajzol(); });
 }
 
 })();

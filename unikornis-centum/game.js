@@ -6904,7 +6904,11 @@ function tkVisszaJott(snap) {
    1. „Mit kérdeznek?”, aztán a megoldás lépései egyenként — MIND, a füzetlap minden sora (a betűt a gyerek koppintja).
    Rossz válasz → csapda-mondat (a helyes betű nélkül) → „Mit kérdeznek?” → minden lépés → füzet-összefoglaló + trükk.
    Rossz vagy segítséggel jó → a feladat egy KÉSŐBBI napon „🔁 Emlékszel erre?” állomásként visszajön.
-   Nincs időmérő a gyereknek; a gondolkodási időt csak a pult látja (events: fejtoro_valasz). */
+   Nincs időmérő a gyereknek; a gondolkodási időt csak a pult látja (events: fejtoro_valasz).
+   SZÁMVÁLTOZATOK (producer, 2026-09-26): ugyanaz a mondat, csak a számok mások (Matekos\zrinyi-valtozatok-tartalom.html,
+   előre gyártva: fejtoro-valtozatok.json). A felhőben ugyanúgy versenyFeladatok/{alapId}-vNN, plusz alapId + szamok.
+   Első találkozás = EREDETI; 🔁 visszatérő és újrajátszás (a pályát már egyszer végigjárta) = a következő változat
+   (sorban, elfogyva elölről: P().fejtoro.valt[alapId]). A visszatérő-lista és a haladás az alapId-hez kötött. */
 var FT_ALLOMAS_CSILLA = 5;     /* minden befejezett állomás (segítséggel / magyarázattal is) */
 var FT_ELSORE_PLUSZ = 3;       /* + elsőre jó, segítség nélkül */
 var FT_ZARO_CSILLA = 10;       /* pálya vége */
@@ -6912,7 +6916,7 @@ var FT_ZARO_HARMAT = 2;        /* 1 + teljes ösvény (itt nincs kerülő, így 
 var FT_VISSZA_MAX = 2;         /* ennyi visszatérő feladat jön egy pálya elé */
 var FT_BETUK = ["A", "B", "C", "D", "E"];
 
-var FT = { feladatok: {}, palyak: [], helyi: false, leir: [] };
+var FT = { feladatok: {}, valt: {}, palyak: [], helyi: false, leir: [] };   /* valt: alapId → [változatok] */
 var FTJ = null;                /* a futó pálya: { pa, sor:[{fid, vissza}], i, csilla, osszes, elsore, indult } */
 
 /* ── adat: élő figyelés belépés után (felhoBelepve hívja) ── */
@@ -6928,17 +6932,36 @@ function fejtoroFigyel() {
   }, hiba));
   /* most minden feladat letöltődik (a tesztpálya 7 feladat); sok száz feladatnál pályánként kell majd kérni */
   FT.leir.push(db.collection("versenyFeladatok").onSnapshot(function (snap) {
-    var m = {}; snap.forEach(function (d) { m[d.id] = d.data(); });
-    FT.feladatok = m; fejtoroFrissul();
+    var m = {}, v = {};
+    snap.forEach(function (d) { var x = d.data(); x.id = d.id; if (x.alapId) (v[x.alapId] = v[x.alapId] || []).push(x); else m[d.id] = x; });
+    FT.feladatok = m; FT.valt = ftValtRendez(v); fejtoroFrissul();
   }, hiba));
 }
 function fejtoroLeiratkozik() { FT.leir.forEach(function (f) { try { f(); } catch (e) {} }); FT.leir = []; }
-/* teszthez / felhő nélkül: a pult JSON-fájljának tartalma közvetlenül */
+/* teszthez / felhő nélkül: a pult JSON-fájljának tartalma közvetlenül
+   (a változat-fájl { valtozatok:{alapId:[…]} } külön hívással jön, és nem törli a feladatokat) */
 function fejtoroBetoltHelyi(adat) {
-  FT.helyi = true; FT.feladatok = {}; FT.palyak = [];
-  (adat.feladatok || []).forEach(function (f) { FT.feladatok[f.id] = f; });
-  (adat.palyak || []).forEach(function (p) { FT.palyak.push(p); });
+  FT.helyi = true;
+  if (adat.valtozatok) { for (var k in adat.valtozatok) FT.valt[k] = adat.valtozatok[k].slice(); FT.valt = ftValtRendez(FT.valt); }
+  if (adat.feladatok) {
+    FT.feladatok = {}; FT.palyak = [];
+    adat.feladatok.forEach(function (f) { FT.feladatok[f.id] = f; });
+    (adat.palyak || []).forEach(function (p) { FT.palyak.push(p); });
+  }
   fejtoroFrissul();
+}
+function ftValtRendez(v) {
+  for (var k in v) v[k].sort(function (a, b) { return (a.valtozat || 0) - (b.valtozat || 0); });
+  return v;
+}
+/* a következő számváltozat (sorban, a végén elölről); ha nincs változat, marad az eredeti */
+function ftValtozatValaszt(fid) {
+  var l = FT.valt[fid], all = ftAllapot();
+  if (!l || !l.length) return FT.feladatok[fid];
+  if (!all.valt) all.valt = {};
+  var i = (all.valt[fid] || 0) % l.length;
+  all.valt[fid] = (i + 1) % l.length;
+  return l[i];
 }
 function fejtoroFrissul() {
   var fm = $("kepernyo-fomenu");
@@ -6998,8 +7021,9 @@ function fejtoroInditas(pid) {
   if ((st.poz || 0) >= ids.length) st.poz = 0;
   /* visszatérők a pálya ELŐTT; ha ezen a pályán is sorra kerülne, a futásban nem jön még egyszer */
   var visz = ftEsedekesVissza().slice(0, FT_VISSZA_MAX);
-  var sor = visz.map(function (id) { return { fid: id, vissza: true }; });
-  ids.forEach(function (id, i) { if (i >= (st.poz || 0) && visz.indexOf(id) < 0) sor.push({ fid: id, vissza: false, idx: i }); });
+  var sor = visz.map(function (id) { return { fid: id, vissza: true, valt: true }; });
+  /* újrajátszás (a pályát már egyszer végigjárta) → számváltozatok; első bejárás → eredeti */
+  ids.forEach(function (id, i) { if (i >= (st.poz || 0) && visz.indexOf(id) < 0) sor.push({ fid: id, vissza: false, idx: i, valt: !!st.kesz }); });
   FTJ = { pa: pa, ids: ids, sor: sor, i: 0, csilla: 0, osszes: 0, elsore: 0, indult: Date.now() };
   sorozatMegtor();
   $("ft-cim").textContent = kiiras(pa.nev || "Fejtörő-hegy");
@@ -7052,7 +7076,7 @@ function ftKiemel(szoveg, szavak) {
   return h.replace(/\u0001/g, "<mark>").replace(/\u0002/g, "</mark>");
 }
 function ftAllomas(tetel) {
-  var f = FT.feladatok[tetel.fid];
+  var f = tetel.valt ? ftValtozatValaszt(tetel.fid) : FT.feladatok[tetel.fid];
   var A = FTJ.a = { f: f, tetel: tetel, segit: 0, lepesDb: 0, lepesHiba: 0, kezd: Date.now(), valaszolt: false, fuggo: false };
   ftKovek(tetel);
   var t = ftTartalom();
@@ -7214,7 +7238,8 @@ function ftValasz(b) {
   FTJ.osszes++; if (A.elsore) FTJ.elsore++;
   esemeny("fejtoro_valasz", {
     feladatId: A.tetel.fid, palyaId: FTJ.pa.id, betu: b, helyes: f.helyes, jo: jo, segitseg: A.segit,
-    lepesDb: A.lepesDb, csapda: c ? (c.csalad || "?") : null, idoMp: ido, vissza: !!A.tetel.vissza
+    lepesDb: A.lepesDb, csapda: c ? (c.csalad || "?") : null, idoMp: ido, vissza: !!A.tetel.vissza,
+    valtozat: f.alapId ? f.id : null, szamok: f.alapId ? ftSzamokKi(f.szamok) : null
   });
   ment();
   var hova = $("ft-segit");
@@ -7239,6 +7264,8 @@ function ftValasz(b) {
     ftMondd("Ez most nem jó. " + mondat, function () { ftMagyarazat(); });
   }
 }
+/* a változat számai a pultnak: „tyúk/csere 3, maradt hattyú 4” */
+function ftSzamokKi(sz) { return Object.keys(sz || {}).map(function (k) { return k + " " + sz[k]; }).join(", "); }
 /* végigvezetett magyarázat: Mit kérdeznek? → a még hátralévő lépések → összefoglaló */
 function ftMagyarazat() {
   var A = FTJ.a, f = A.f, hova = $("ft-segit");
