@@ -1156,25 +1156,10 @@ var POLC_POZ = {
     '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
     '<path d="M150 128 Q86 40 26 46 Q66 92 122 122 Z" fill="#ffffff"/><path d="M148 140 Q78 108 20 130 Q74 166 132 152 Z" fill="#fff6e0"/><path d="M144 150 Q94 176 58 186 Q112 172 150 156 Z" fill="#ffffff"/>' +
     '</g><path d="M150 66 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/><circle cx="148" cy="146" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
-  "farok-a":
-    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<path d="M105 48 Q78 34 70 48 Q78 64 105 48 Z" fill="#f6a5c0"/><path d="M105 48 Q132 34 140 48 Q132 64 105 48 Z" fill="#f6a5c0"/>' +
-    '<circle cx="105" cy="48" r="5" fill="#e88bb4"/><path d="M100 54 l-8 20 M110 54 l8 20" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
-    '</g>',
-  "farok-k":
-    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<path d="M90 40 Q105 32 120 40" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
-    '<path d="M97 46 q-8 0 -8 10 l0 7 l18 0 l0 -7 q0 -10 -8 -10 Z" fill="#ffd24d"/><circle cx="97.5" cy="66" r="2.6" fill="#e0a52e"/><circle cx="97" cy="42" r="2.6" fill="#ffe6a0"/>' +
-    '</g>',
-  "farok-r":
-    '<path d="M105 20 v12 M105 20 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke-linejoin="round">' +
-    '<path d="M105 34 Q84 62 68 96" fill="none" stroke="#fff2c4" stroke-width="12" stroke-linecap="round" opacity="0.5"/>' +
-    '<path d="M105 34 Q86 60 72 94" fill="none" stroke="#ffe08a" stroke-width="5" stroke-linecap="round" opacity="0.9"/>' +
-    '<path d="M68 96 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.3"/>' +
-    '</g>'
+  /* farokdíszek: ugyanaz a rajz, mint az unikornison (renderer.js FAROK_DISZ), kampóra akasztva, nagyítva */
+  "farok-a": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2) translate(-63 -180)">' + FAROK_DISZ["farok-a"] + '</g>',
+  "farok-k": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2.2) translate(-62 -186)">' + FAROK_DISZ["farok-k"] + '</g>',
+  "farok-r": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(108 30) scale(1.32) translate(-56 -181)">' + FAROK_DISZ["farok-r"] + '</g>'
 };
 function boltThumb(cs, t) {
   if (cs.fajta === "ruha") {

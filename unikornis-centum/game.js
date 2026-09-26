@@ -1513,6 +1513,58 @@ function anchorViz(on) {
 if (/[?&]anchor=1\b/.test(location.search)) window.__UC_ANCHOR = true;
 /* Egy ruhadarab rajza a kész unikornis-rajz 380×300 koordinátájában.
    Horgonypontok: fej ~(288,121) / szarv-tő ~(272,90), nyak/mell ~(236,200). */
+/* ── FAROKDÍSZEK (újrarajzolva, 2026-09-26, farokdiszek-uj-rajzterv.html) ──
+   A farok nagy része a test MÖGÉ bújik; a látható csík a far bal oldalán ~(44–82, 160–290).
+   A díszek ide, a látható farokrészre ülnek (a régi a far tetején, a testen volt).
+   Egy tábla: a ruhaSVG ÉS a bolti polckép (POLC_POZ) is innen rajzol. */
+var FAROK_DISZ = (function () {
+  function csillag5(cx, cy, R, r) { var p = []; for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; p.push((cx + q * Math.cos(a)).toFixed(1) + " " + (cy + q * Math.sin(a)).toFixed(1)); } return "M" + p.join(" L") + " Z"; }
+  function szikra(cx, cy, r, fill) { return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + cx + ' ' + cy + ' ' + (cx + r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy + r) + ' Q' + cx + ' ' + cy + ' ' + (cx - r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + fill + '"/>'; }
+  function csengo(x, y, sc) {
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + sc + ')">' +
+      '<circle cx="0" cy="-1" r="2.2" fill="none" stroke="#c9912a" stroke-width="1.6"/>' +
+      '<path d="M0 1 C-5.5 1 -7 5 -7 10 L-7.5 13.5 Q-9 15 -9.5 16.5 L9.5 16.5 Q9 15 7.5 13.5 L7 10 C7 5 5.5 1 0 1 Z" fill="#ffd24d" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/>' +
+      '<path d="M-8.6 15.2 L8.6 15.2" stroke="#e8a92e" stroke-width="1.6"/>' +
+      '<path d="M-3.5 5 Q-5 9 -4.6 13" fill="none" stroke="#fff6c8" stroke-width="2" stroke-linecap="round"/>' +
+      '<circle cx="0" cy="19" r="2.4" fill="#e0a52e" stroke="#222" stroke-width="1.1"/></g>';
+  }
+  function pant(d) { return '<path d="' + d + '" fill="none" stroke="#222" stroke-width="7.2" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="#c9a8e6" stroke-width="4.6" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="#e6d5f5" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="0.1 5"/>'; }
+  return {
+    "farok-a":
+      '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' +
+      '<path d="M44 185 Q62 193 82 187 L82 195 Q62 201 45 193 Z" fill="#ee8fb5"/>' +
+      '<path d="M60 196 C57 206 52 214 46 223 L52.5 222.5 L54.5 229 C60 219 63.5 208 64 197 Z" fill="#ee8fb5"/>' +
+      '<path d="M66 196 C68 206 72 215 75 225 L68.8 223 L65.5 228.5 C64.5 217 64 207 62.5 197 Z" fill="#f6a5c0"/>' +
+      '<path d="M63 192 C52 176 36 177 38.5 190 C40 201 54 201 63 192 Z" fill="#f6a5c0"/>' +
+      '<path d="M63 192 C74 176 90 177 87.5 190 C86 201 72 201 63 192 Z" fill="#f6a5c0"/>' +
+      '<path d="M60 191 C53 185 46 186 45.5 190.5 C46 194.5 53 195 60 191 Z" fill="#e57aa6" stroke="none"/>' +
+      '<path d="M66 191 C73 185 80 186 80.5 190.5 C80 194.5 73 195 66 191 Z" fill="#e57aa6" stroke="none"/>' +
+      '<rect x="58.5" y="186.5" width="9" height="11" rx="3.6" fill="#e88bb4"/>' +
+      '<path d="M61 189 q2 3 0 6 M65 189 q-2 3 0 6" fill="none" stroke="#c9679a" stroke-width="1"/>' +
+      '<path d="M42 186 q3 -5 9 -4.5 M78 182 q5 0 7.5 3.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".85"/>' +
+      '</g>',
+    "farok-k":
+      '<g>' +
+      pant("M43 190 Q62 199 82 192") +
+      csengo(62, 196, 1.45) +
+      '<g fill="#b58fd8" stroke="none"><path d="M33 208 l0 -9 l6 -2 l0 9" stroke="#b58fd8" stroke-width="1.4" fill="none"/><ellipse cx="31.5" cy="208.5" rx="2.4" ry="1.8"/><ellipse cx="37.5" cy="206.5" rx="2.4" ry="1.8"/>' +
+      '<path d="M86 214 l0 -8" stroke="#b58fd8" stroke-width="1.4"/><path d="M86 206 q4 1 4 5" stroke="#b58fd8" stroke-width="1.4" fill="none"/><ellipse cx="84.3" cy="214.4" rx="2.4" ry="1.8"/></g>' +
+      '</g>',
+    "farok-r":
+      '<g stroke-linejoin="round">' +
+      '<circle cx="60" cy="192" r="13" fill="#fff2c4" opacity=".6"/>' +
+      '<path d="' + csillag5(60, 192, 10.5, 4.6) + '" fill="#ffd24d" stroke="#222" stroke-width="1.5"/>' +
+      '<path d="M56.6 189 l2 -3.5" stroke="#fff6c8" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="' + csillag5(52, 232, 6.5, 2.8) + '" fill="#ffe08a" stroke="#222" stroke-width="1.2"/>' +
+      '<path d="' + csillag5(44, 272, 5, 2.2) + '" fill="#ffd24d" stroke="#222" stroke-width="1.1"/>' +
+      szikra(70, 212, 4.5, "#ffffff") + szikra(45, 212, 3.5, "#ffe08a") + szikra(64, 250, 4, "#ffffff") +
+      szikra(38, 250, 3, "#ffe08a") + szikra(56, 286, 3.5, "#ffffff") + szikra(30, 292, 5, "#ffd24d") +
+      szikra(20, 308, 3.5, "#ffe08a") +
+      '<circle cx="66" cy="228" r="1.8" fill="#ff9ec4"/><circle cx="40" cy="232" r="1.6" fill="#b39af0"/><circle cx="58" cy="266" r="1.7" fill="#a7d8f2"/>' +
+      '<circle cx="36" cy="282" r="1.8" fill="#ff9ec4"/><circle cx="26" cy="302" r="1.5" fill="#b39af0"/><circle cx="12" cy="316" r="1.3" fill="#ffd24d"/>' +
+      '</g>'
+  };
+})();
 function ruhaSVG(itemId) {
   var s;
   switch (itemId) {
@@ -1633,25 +1685,8 @@ function ruhaSVG(itemId) {
 
     /* ── FAROK ── a farok tövénél (hátul-balra) */
     /* a farok-tő ~(92,150) köré, -15°-kal a farok irányába döntve (rajzoló session, 2026-09-05; §3.1.3) */
-    case "farok-a": /* Szalagcsokor */
-      return '<g transform="rotate(-15 92 150)" stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-        '<path d="M92 150 Q78 138 66 148 Q76 158 92 150 Z" fill="#f6a5c0"/>' +
-        '<path d="M92 150 Q106 138 118 148 Q108 158 92 150 Z" fill="#f6a5c0"/>' +
-        '<circle cx="92" cy="150" r="5" fill="#e88bb4"/>' +
-        '<path d="M88 155 l-8 20 M96 155 l8 20" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
-        '</g>';
-    case "farok-k": /* Csengettyűs farokdísz */
-      return '<g transform="rotate(-15 92 150)" stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-        '<path d="M76 144 Q92 134 108 144" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
-        '<path d="M83 150 q-9 0 -9 10 l0 7 l18 0 l0 -7 q0 -10 -9 -10 Z" fill="#ffd24d"/>' +
-        '<circle cx="92" cy="170" r="2.6" fill="#e0a52e"/><circle cx="90" cy="146" r="2.6" fill="#ffe6a0"/>' +
-        '</g>';
-    case "farok-r": /* Üstökös-farok */
-      return '<g transform="rotate(-15 92 150)" stroke-linejoin="round">' +
-        '<path d="M92 150 Q70 172 55 200" fill="none" stroke="#fff2c4" stroke-width="12" stroke-linecap="round" opacity="0.5"/>' +
-        '<path d="M92 150 Q72 170 58 198" fill="none" stroke="#ffe08a" stroke-width="5" stroke-linecap="round" opacity="0.9"/>' +
-        '<path d="M55 200 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.3"/>' +
-        '</g>';
+    case "farok-a": case "farok-k": case "farok-r":   /* Szalagcsokor · Csengettyű · Üstökös — FAROK_DISZ tábla */
+      return FAROK_DISZ[itemId];
   }
   return "";
 }
@@ -5013,25 +5048,10 @@ var POLC_POZ = {
     '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
     '<path d="M150 128 Q86 40 26 46 Q66 92 122 122 Z" fill="#ffffff"/><path d="M148 140 Q78 108 20 130 Q74 166 132 152 Z" fill="#fff6e0"/><path d="M144 150 Q94 176 58 186 Q112 172 150 156 Z" fill="#ffffff"/>' +
     '</g><path d="M150 66 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffd24d"/><circle cx="148" cy="146" r="3.6" fill="#8f7ab8" stroke="#222" stroke-width="1"/>',
-  "farok-a":
-    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<path d="M105 48 Q78 34 70 48 Q78 64 105 48 Z" fill="#f6a5c0"/><path d="M105 48 Q132 34 140 48 Q132 64 105 48 Z" fill="#f6a5c0"/>' +
-    '<circle cx="105" cy="48" r="5" fill="#e88bb4"/><path d="M100 54 l-8 20 M110 54 l8 20" fill="none" stroke="#f6a5c0" stroke-width="3"/>' +
-    '</g>',
-  "farok-k":
-    '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<path d="M90 40 Q105 32 120 40" fill="none" stroke="#c9a8e6" stroke-width="4"/>' +
-    '<path d="M97 46 q-8 0 -8 10 l0 7 l18 0 l0 -7 q0 -10 -8 -10 Z" fill="#ffd24d"/><circle cx="97.5" cy="66" r="2.6" fill="#e0a52e"/><circle cx="97" cy="42" r="2.6" fill="#ffe6a0"/>' +
-    '</g>',
-  "farok-r":
-    '<path d="M105 20 v12 M105 20 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-    '<g stroke-linejoin="round">' +
-    '<path d="M105 34 Q84 62 68 96" fill="none" stroke="#fff2c4" stroke-width="12" stroke-linecap="round" opacity="0.5"/>' +
-    '<path d="M105 34 Q86 60 72 94" fill="none" stroke="#ffe08a" stroke-width="5" stroke-linecap="round" opacity="0.9"/>' +
-    '<path d="M68 96 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#ffe08a" stroke="#222" stroke-width="1.3"/>' +
-    '</g>'
+  /* farokdíszek: ugyanaz a rajz, mint az unikornison (renderer.js FAROK_DISZ), kampóra akasztva, nagyítva */
+  "farok-a": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2) translate(-63 -180)">' + FAROK_DISZ["farok-a"] + '</g>',
+  "farok-k": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(105 40) scale(2.2) translate(-62 -186)">' + FAROK_DISZ["farok-k"] + '</g>',
+  "farok-r": '<path d="M105 22 v14 M105 22 q-8 0 -8 -8" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' + '<g transform="translate(108 30) scale(1.32) translate(-56 -181)">' + FAROK_DISZ["farok-r"] + '</g>'
 };
 function boltThumb(cs, t) {
   if (cs.fajta === "ruha") {
