@@ -4489,7 +4489,7 @@ function kertSetalFekszik(i) {
    a lábak behajlanak (CSS .fekszik-all), a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
    Tartós póz — koppintásra leugrik és feláll. A KERT_AGY_* értékek a kert-ágy rajzához (kertTargyBelso "agy") igazítva. */
 var KERT_AGY_FEL = 12;    /* px: a doboz alja ennyivel az ágy talajpontja fölé kerül → a has a besüppedt felhőn */
-var KERT_AGY_JOBBRA = 26; /* px: a matrac közepe az ágy közepétől jobbra van (a bal végén a fejtámla-ív) */
+var KERT_AGY_JOBBRA = 36; /* px: a matrac közepe az ágy közepétől jobbra van (a bal végén a fejtámla-ív) */
 function kertFekszik(i) {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }

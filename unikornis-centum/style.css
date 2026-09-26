@@ -932,6 +932,10 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #kert-uni-doboz.fekszik-all{ animation:kert-alszik 4.2s ease-in-out infinite; }
 @keyframes kert-alszik{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
 #kert-uni-doboz.fekszik-all .uni-lab{ transform:scaleY(.3); }
+/* fekve, a landolás után lassan lehajtja a fejét a csillag-párnára: az egész figura a hátsó csípő körül
+   előrebillen (újrarajzolás nélkül — a fej nem külön csoport), az eleje mélyebben süpped a felhőbe */
+#kert-szinter .kert-uni-svg{ transition:transform .35s ease; }
+#kert-uni-doboz.fekszik-all .kert-uni-svg{ transform-origin:24% 69%; transform:rotate(13deg); transition:transform .9s ease-in-out .5s; }
 /* a kerti ágy matraca (felhő + takaró + párna) besüpped az unikornis súlyától: landoláskor huppan
    (mélyebbre nyomódik, majd visszarugózik), utána az alvó lélegzéssel együtt emelkedik-süllyed */
 .kt-agy-elol .kt-el-svg{ filter:none; }   /* a perem a matrac része: saját árnyék nélkül */
