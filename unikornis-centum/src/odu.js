@@ -337,16 +337,32 @@ function kertTargyBelso(id) {
     + '<path class="kt-szokokut-sugar" d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
     + '<path class="kt-szokokut-ag" d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
     + '<path class="kt-szokokut-ag" style="animation-delay:1.2s" d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
-  if (id === "agy") return arny.replace("RX", 48).replace("RY", 10)
-    + '<rect x="-48" y="-24" width="96" height="18" rx="7" fill="url(#ko-trunk)"/>'                            /* tágas ágykeret */
-    + '<path d="M-43 -8 v10 M43 -8 v10" stroke="#7c5731" stroke-width="6" stroke-linecap="round"/>'           /* lábak */
-    + '<rect x="-46" y="-42" width="92" height="20" rx="10" fill="#fbeede"/>'                                  /* vastag matrac */
-    + '<rect x="-46" y="-42" width="92" height="10" rx="7" fill="#fff6ea"/>'
-    + '<rect x="0" y="-45" width="46" height="23" rx="8" fill="#d8c8f2"/>'                                      /* puha takaró (lila) */
-    + '<rect x="0" y="-45" width="46" height="9" rx="6" fill="#eadffb"/>'                                       /* takaró behajtás */
-    + '<path d="M12 -33 q11 -3 22 0" stroke="#b7a4de" stroke-width="1.6" fill="none" opacity="0.7"/>'          /* takaró-redő */
-    + '<rect x="-44" y="-54" width="38" height="19" rx="9" fill="#ffd9e4"/>'                                    /* nagy párna */
-    + '<rect x="-44" y="-54" width="38" height="9" rx="6" fill="#ffe8ef"/>';
+  if (id === "agy") {   /* az odú felhő-ágya (odu.js „FELHŐ-ÁGY"), kicsinyítve; a .kt-agy-matrac csoport süpped be az unikornis súlyától */
+    var ivek = "", bx = [13, 22, 31, 40, 49, 58], br = [97, 88, 79, 70, 61, 52], bc = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
+    for (var b = 0; b < 6; b++) ivek += '<path d="M' + bx[b] + ' 432 A' + br[b] + ' ' + br[b] + ' 0 0 1 ' + (bx[b] + br[b] * 2) + ' 432" stroke="' + bc[b] + '"/>';
+    return arny.replace("RX", 50).replace("RY", 7)
+      + '<g transform="scale(0.45) translate(-130,-455)">'
+      + '<g stroke-linecap="round" fill="none" stroke-width="10">' + ivek + '</g>'                                   /* szivárvány-fejtámla */
+      + '<path d="M84 408 Q70 358 62 300 Q80 356 102 402 Z" fill="#fdf0d0"/>'
+      + '<g stroke="#f0c98a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M78 396 Q90 392 98 399"/><path d="M74 374 Q85 370 93 376"/><path d="M71 352 Q81 349 88 354"/><path d="M68 332 Q76 330 82 334"/></g><circle cx="62" cy="300" r="3" fill="#fff6d8"/>'
+      + '<rect x="80" y="422" width="166" height="22" rx="9" fill="#c9a8e6"/><rect x="88" y="444" width="14" height="11" rx="3" fill="#b48fd6"/><rect x="226" y="444" width="14" height="11" rx="3" fill="#b48fd6"/>'   /* keret + lábak */
+      + '<g class="kt-agy-matrac">'
+      + '<rect x="84" y="404" width="156" height="26" rx="13" fill="#fdfdfd"/><circle cx="102" cy="404" r="20" fill="#fdfdfd"/><circle cx="134" cy="398" r="24" fill="#fdfdfd"/><circle cx="172" cy="398" r="24" fill="#fdfdfd"/><circle cx="206" cy="403" r="20" fill="#fdfdfd"/><circle cx="228" cy="409" r="15" fill="#fdfdfd"/>'   /* felhő-matrac */
+      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
+      + '<path d="M150 404 h92 v20 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'                                      /* takaró */
+      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
+      + '<polygon points="122,372 128,388 145,389 131,399 136,415 122,406 108,415 113,399 99,389 116,388" fill="#f7b8d0" stroke="#e79ac0" stroke-width="2"/>'   /* csillag-párna */
+      + '<path d="M114 394 q3 3 6 0 M124 394 q3 3 6 0" stroke="#b56b93" stroke-width="2" fill="none"/><circle cx="112" cy="399" r="2.5" fill="#f59ab8"/><circle cx="131" cy="399" r="2.5" fill="#f59ab8"/>'
+      + '</g></g>';
+  }
+  if (id === "agy-elol")   /* a kerti ágy matracának ELÜLSŐ pereme — külön rétegben az unikornis ELÉ, így fekve „belesüpped" a felhőbe */
+    return '<g transform="scale(0.45) translate(-130,-455)"><g class="kt-agy-matrac">'
+      + '<rect x="84" y="404" width="1" height="1" fill="none"/>'                                                         /* a matrac-csoporttal azonos befoglaló (azonos süppedés) */
+      + '<path d="M86 416 Q104 408 122 414 Q140 406 160 413 Q182 406 204 413 Q224 407 240 415 L240 418 a12 12 0 0 1 -12 12 h-132 a12 12 0 0 1 -12 -12 Z" fill="#fdfdfd"/>'
+      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
+      + '<path d="M150 416 h92 v8 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'
+      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
+      + '</g></g>';
   if (id === "viragagyas") return arny.replace("RX", 36).replace("RY", 9)
     + '<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/>'
     + '<ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/>'

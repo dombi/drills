@@ -3478,16 +3478,32 @@ function kertTargyBelso(id) {
     + '<path class="kt-szokokut-sugar" d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
     + '<path class="kt-szokokut-ag" d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
     + '<path class="kt-szokokut-ag" style="animation-delay:1.2s" d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
-  if (id === "agy") return arny.replace("RX", 48).replace("RY", 10)
-    + '<rect x="-48" y="-24" width="96" height="18" rx="7" fill="url(#ko-trunk)"/>'                            /* tágas ágykeret */
-    + '<path d="M-43 -8 v10 M43 -8 v10" stroke="#7c5731" stroke-width="6" stroke-linecap="round"/>'           /* lábak */
-    + '<rect x="-46" y="-42" width="92" height="20" rx="10" fill="#fbeede"/>'                                  /* vastag matrac */
-    + '<rect x="-46" y="-42" width="92" height="10" rx="7" fill="#fff6ea"/>'
-    + '<rect x="0" y="-45" width="46" height="23" rx="8" fill="#d8c8f2"/>'                                      /* puha takaró (lila) */
-    + '<rect x="0" y="-45" width="46" height="9" rx="6" fill="#eadffb"/>'                                       /* takaró behajtás */
-    + '<path d="M12 -33 q11 -3 22 0" stroke="#b7a4de" stroke-width="1.6" fill="none" opacity="0.7"/>'          /* takaró-redő */
-    + '<rect x="-44" y="-54" width="38" height="19" rx="9" fill="#ffd9e4"/>'                                    /* nagy párna */
-    + '<rect x="-44" y="-54" width="38" height="9" rx="6" fill="#ffe8ef"/>';
+  if (id === "agy") {   /* az odú felhő-ágya (odu.js „FELHŐ-ÁGY"), kicsinyítve; a .kt-agy-matrac csoport süpped be az unikornis súlyától */
+    var ivek = "", bx = [13, 22, 31, 40, 49, 58], br = [97, 88, 79, 70, 61, 52], bc = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
+    for (var b = 0; b < 6; b++) ivek += '<path d="M' + bx[b] + ' 432 A' + br[b] + ' ' + br[b] + ' 0 0 1 ' + (bx[b] + br[b] * 2) + ' 432" stroke="' + bc[b] + '"/>';
+    return arny.replace("RX", 50).replace("RY", 7)
+      + '<g transform="scale(0.45) translate(-130,-455)">'
+      + '<g stroke-linecap="round" fill="none" stroke-width="10">' + ivek + '</g>'                                   /* szivárvány-fejtámla */
+      + '<path d="M84 408 Q70 358 62 300 Q80 356 102 402 Z" fill="#fdf0d0"/>'
+      + '<g stroke="#f0c98a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M78 396 Q90 392 98 399"/><path d="M74 374 Q85 370 93 376"/><path d="M71 352 Q81 349 88 354"/><path d="M68 332 Q76 330 82 334"/></g><circle cx="62" cy="300" r="3" fill="#fff6d8"/>'
+      + '<rect x="80" y="422" width="166" height="22" rx="9" fill="#c9a8e6"/><rect x="88" y="444" width="14" height="11" rx="3" fill="#b48fd6"/><rect x="226" y="444" width="14" height="11" rx="3" fill="#b48fd6"/>'   /* keret + lábak */
+      + '<g class="kt-agy-matrac">'
+      + '<rect x="84" y="404" width="156" height="26" rx="13" fill="#fdfdfd"/><circle cx="102" cy="404" r="20" fill="#fdfdfd"/><circle cx="134" cy="398" r="24" fill="#fdfdfd"/><circle cx="172" cy="398" r="24" fill="#fdfdfd"/><circle cx="206" cy="403" r="20" fill="#fdfdfd"/><circle cx="228" cy="409" r="15" fill="#fdfdfd"/>'   /* felhő-matrac */
+      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
+      + '<path d="M150 404 h92 v20 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'                                      /* takaró */
+      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
+      + '<polygon points="122,372 128,388 145,389 131,399 136,415 122,406 108,415 113,399 99,389 116,388" fill="#f7b8d0" stroke="#e79ac0" stroke-width="2"/>'   /* csillag-párna */
+      + '<path d="M114 394 q3 3 6 0 M124 394 q3 3 6 0" stroke="#b56b93" stroke-width="2" fill="none"/><circle cx="112" cy="399" r="2.5" fill="#f59ab8"/><circle cx="131" cy="399" r="2.5" fill="#f59ab8"/>'
+      + '</g></g>';
+  }
+  if (id === "agy-elol")   /* a kerti ágy matracának ELÜLSŐ pereme — külön rétegben az unikornis ELÉ, így fekve „belesüpped" a felhőbe */
+    return '<g transform="scale(0.45) translate(-130,-455)"><g class="kt-agy-matrac">'
+      + '<rect x="84" y="404" width="1" height="1" fill="none"/>'                                                         /* a matrac-csoporttal azonos befoglaló (azonos süppedés) */
+      + '<path d="M86 416 Q104 408 122 414 Q140 406 160 413 Q182 406 204 413 Q224 407 240 415 L240 418 a12 12 0 0 1 -12 12 h-132 a12 12 0 0 1 -12 -12 Z" fill="#fdfdfd"/>'
+      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
+      + '<path d="M150 416 h92 v8 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'
+      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
+      + '</g></g>';
   if (id === "viragagyas") return arny.replace("RX", 36).replace("RY", 9)
     + '<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/>'
     + '<ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/>'
@@ -4003,7 +4019,7 @@ function kertSzinterKlikk(e) {
     return;
   }
   /* séta mód (alap) */
-  if (e.target.closest && e.target.closest("#kert-uni-doboz")) { kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog */
+  if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
   var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }
   var agyDiv = e.target.closest && e.target.closest(".kt-agy-elem");     /* letett ÁGY-ra koppintva: Befekvés (vagy súgó) */
@@ -4096,7 +4112,7 @@ function kertElemekRender() {
     var noveny = (def.csoport === "noveny");
     var vb = agy ? "-54 -62 108 70" : "-50 -90 100 96";
     var hitRect = noveny ? '<rect x="-50" y="-90" width="100" height="96" fill="none" pointer-events="all"/>' : '';
-    html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' : '') + (noveny ? ' kt-noveny-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
+    html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' + ((KERT_FEKSZIK && KERT_AGY_I === i) ? ' terhelt' : '') : '') + (noveny ? ' kt-noveny-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
       '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + hitRect + kertTargyBelso(o.tip) + '</svg>';
     if (noveny && o.tip !== "gombak" && lepkeDb < 3) {
       html += '<svg class="kt-lepke" style="animation-delay:' + (lepkeDb * 2.6).toFixed(1) + 's" viewBox="0 0 28 18" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">' +
@@ -4106,6 +4122,8 @@ function kertElemekRender() {
       lepkeDb++;
     }
     html += '</div>';
+    if (agy) html += '<div class="kt-elem kt-agy-elol' + ((KERT_FEKSZIK && KERT_AGY_I === i) ? ' terhelt' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + (z + 8) + '">' +
+      '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + kertTargyBelso("agy-elol") + '</svg></div>';   /* matrac-perem az unikornis elé */
   }
   reteg.innerHTML = html;
 }
@@ -4154,6 +4172,7 @@ function kertTrukkGomb(id) {
 var KERT_UL = false;
 /* 😴 Befekvés = tartós pihenő-póz az ágyon („fekszik-all"); egyszerre csak egy pihenő-póz lehet. */
 var KERT_FEKSZIK = false;
+var KERT_AGY_I = -1;   /* melyik ágyon fekszik (a kert.elemek indexe) — az a matrac süpped be */
 function kertUl() {
   if (KERT_TRUKK_FUT) return;
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
@@ -4168,6 +4187,14 @@ function kertAll() {
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
   doboz.classList.remove("ules-all");
   doboz.classList.remove("fekszik-all");
+  if (KERT_FEKSZIK) {              /* leugrik az ágyról vissza a fűre, a matrac kipuffad */
+    doboz.style.transition = "left .5s ease, bottom .5s ease, transform .45s ease";
+    doboz.style.bottom = "";
+    doboz.style.left = KERT_UNI_X + "%";
+    var agyak = document.querySelectorAll(".kt-agy-elem.terhelt, .kt-agy-elol.terhelt");
+    for (var ai = 0; ai < agyak.length; ai++) agyak[ai].classList.remove("terhelt");
+  }
+  KERT_AGY_I = -1;
   doboz.style.zIndex = 870;        /* vissza az alap mélységre (fekvéskor az ágy fölé emeltük) */
   kertZzzTorol();                  /* alvó-Zzz eltakarítása */
   KERT_UL = false; KERT_FEKSZIK = false;
@@ -4438,11 +4465,12 @@ function kertAgyKoppint(i) {
     return;
   }
   if (KERT_UL) kertAll();
-  kertSetalFekszik(Math.max(13, Math.min(87, o.x)));
+  kertSetalFekszik(i);
 }
 /* odasétál az ágyhoz (a séta-motor tempójával), majd belefekszik */
-function kertSetalFekszik(celX) {
+function kertSetalFekszik(i) {
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  var celX = Math.max(13, Math.min(87, P().kert.elemek[i].x));
   KERT_TRUKK_FUT = true;                               /* az odaérésig más interakció nem indul */
   var tav = Math.abs(celX - KERT_UNI_X);
   var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
@@ -4455,16 +4483,32 @@ function kertSetalFekszik(celX) {
   }
   var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek lepihenni…";
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertFekszik(); }, mp * 1000 + 90);
+  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertFekszik(i); }, mp * 1000 + 90);
 }
-/* a befekvés: a test rásüllyed, a lábak behajlanak (CSS .fekszik-all), lágy Zzz száll fel;
-   az elégedett pislogás/lélegzés a meglévő élő-animációkból jön. Tartós póz — koppintásra feláll. */
-function kertFekszik() {
+/* a befekvés: az unikornis felhuppan az ágyra (a doboz a matrac tetejére ugrik, fejjel a csillag-párna felé),
+   a lábak behajlanak (CSS .fekszik-all), a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
+   Tartós póz — koppintásra leugrik és feláll. A KERT_AGY_* értékek a kert-ágy rajzához (kertTargyBelso "agy") igazítva. */
+var KERT_AGY_FEL = 12;    /* px: a doboz alja ennyivel az ágy talajpontja fölé kerül → a has a besüppedt felhőn */
+var KERT_AGY_JOBBRA = 26; /* px: a matrac közepe az ágy közepétől jobbra van (a bal végén a fejtámla-ív) */
+function kertFekszik(i) {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   KERT_TRUKK_FUT = false;                              /* a fekvés tartós állapot, nem „fut" (lehet rá koppintani) */
   doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
-  doboz.style.zIndex = 940;                            /* az ágy fölé, mintha rajta feküdne */
+  var o = P().kert.elemek[i];
+  if (o) {
+    KERT_AGY_I = i;
+    doboz.style.zIndex = Math.round(o.y * 10) + 5;     /* közvetlenül az ágy fölé (mélységben is azon fekszik) */
+    doboz.style.setProperty("--dir", -1);             /* fejjel a párna (bal) felé */
+    doboz.style.transition = "left .55s ease-out, bottom .55s cubic-bezier(.3,1.7,.55,1), transform .45s ease";   /* kis ív: felhuppan */
+    doboz.style.left = "calc(" + o.x + "% + " + KERT_AGY_JOBBRA + "px)";
+    doboz.style.bottom = "calc(" + (100 - o.y) + "% + " + KERT_AGY_FEL + "px)";
+    var agyEl = document.querySelectorAll('.kt-agy-elem[data-i="' + i + '"], .kt-agy-elol[data-i="' + i + '"]');   /* matrac + elülső pereme együtt */
+    setTimeout(function () {
+      if (!KERT_FEKSZIK || KERT_AGY_I !== i) return;
+      for (var ai = 0; ai < agyEl.length; ai++) agyEl[ai].classList.add("terhelt");
+    }, 380);   /* a landoláskor süpped be */
+  }
   doboz.classList.add("fekszik-all");
   KERT_FEKSZIK = true;
   kertZzzTesz(doboz);

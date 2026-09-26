@@ -889,7 +889,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .kt-el-svg{ width:120px; height:auto; display:block; overflow:visible;
   filter:drop-shadow(0 5px 4px rgba(50,60,30,.20)); }
 /* a kerti ágy jóval nagyobb a többi dísznél — hogy az unikornis kényelmesen belefeküdjön */
-.kt-agy-elem .kt-el-svg{ width:225px; }
+.kt-agy-elem .kt-el-svg, .kt-agy-elol .kt-el-svg{ width:250px; }
 /* elpakolás-módban a tárgyak koppinthatók és finoman ringnak (2. lépésben aktív) */
 .kert-szinter.pakol .kt-elem{ pointer-events:auto; cursor:pointer; animation:kt-ring 1.5s ease-in-out infinite; }
 @keyframes kt-ring{ 0%,100%{ transform:translate(-50%,-100%) rotate(-2.2deg); } 50%{ transform:translate(-50%,-100%) rotate(2.2deg); } }
@@ -932,6 +932,14 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #kert-uni-doboz.fekszik-all{ animation:kert-alszik 4.2s ease-in-out infinite; }
 @keyframes kert-alszik{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
 #kert-uni-doboz.fekszik-all .uni-lab{ transform:scaleY(.3); }
+/* a kerti ágy matraca (felhő + takaró + párna) besüpped az unikornis súlyától: landoláskor huppan
+   (mélyebbre nyomódik, majd visszarugózik), utána az alvó lélegzéssel együtt emelkedik-süllyed */
+.kt-agy-elol .kt-el-svg{ filter:none; }   /* a perem a matrac része: saját árnyék nélkül */
+.kt-agy-matrac{ transform-box:fill-box; transform-origin:50% 100%; transition:transform .35s ease; }
+.kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac{ transform:scale(1.03,.8);
+  animation:kt-agy-huppan .6s ease-out 1, kt-agy-leleg 4.2s ease-in-out .6s infinite; }
+@keyframes kt-agy-huppan{ 0%{ transform:scale(1,1); } 40%{ transform:scale(1.06,.7); } 75%{ transform:scale(1.02,.84); } 100%{ transform:scale(1.03,.8); } }
+@keyframes kt-agy-leleg{ 0%,100%{ transform:scale(1.03,.8); } 50%{ transform:scale(1.025,.83); } }
 /* lágy „z z z" az alvó unikornis fölött */
 .kert-zzz{ position:absolute; top:2%; left:60%; display:flex; align-items:flex-end; gap:3px;
   pointer-events:none; z-index:6; font-family:inherit; font-weight:800; color:#7a3bc0; }
@@ -942,6 +950,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes kert-zzz{ 0%{ transform:translateY(6px) scale(.6); opacity:0; } 30%{ opacity:.9; } 100%{ transform:translateY(-24px) scale(1); opacity:0; } }
 @media (prefers-reduced-motion:reduce){
   #kert-uni-doboz.fekszik-all{ animation:none; transform:translateY(-2px); }   /* póz marad, mozgás nélkül */
+  .kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac{ animation:none; }   /* a besüppedés marad, rugózás nélkül */
   .kert-zzz span{ animation:none; opacity:.85; }
 }
 
