@@ -4134,6 +4134,7 @@ function kertTrukkJatszik(id) {
     return;
   }
   var cls = "trukk-" + id;
+  if (id === "ugras") kertUgrasElore(doboz);
   doboz.classList.add(cls);
   hangCsilla();
   /* ✨ Csillámszórás effekt: szikrák + konfetti a szarv fölött */
@@ -4165,6 +4166,19 @@ function kertTrukkJatszik(id) {
     KERT_TRUKK_FUT = false;
     var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
   }, t.perc + 80);
+}
+/* 🦘 az ugrás ELŐRE visz (amerre néz) — a vízszintes elmozdulás csak a levegőben töltött szakaszra
+   esik (a CSS-ben 26%→50% = ~0,28 s-tól ~0,27 s-ig). Ha a kert széle útban van, megfordul és
+   arra ugrik. Mozgáskímélő módban helyben marad. */
+var KERT_UGRAS_TAV = 12;   /* ennyi %-ot ugrik előre */
+function kertUgrasElore(doboz) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var dir = (+doboz.style.getPropertyValue("--dir") < 0) ? -1 : 1;
+  var cel = KERT_UNI_X + KERT_UGRAS_TAV * dir;
+  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; doboz.style.setProperty("--dir", dir); }
+  doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+  KERT_UNI_X = cel;
+  doboz.style.left = cel + "%";
 }
 /* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
 function kertPorgesForgas(doboz, idoMs, cb) {
@@ -6896,9 +6910,10 @@ function tkGesztussor() {
   };
 }
 /* a saját gesztus beírása az RTDB-be — a többiek ebből játsszák le */
-function tkGesztusKuld(id, cel) {
+function tkGesztusKuld(id, cel, x) {
   var adat = { g: id, t: firebase.database.ServerValue.TIMESTAMP };
   if (cel) adat.cel = cel;
+  if (typeof x === "number") adat.x = x;   /* 🦘 ugrás: hova érkezik (a többiek is oda ugratják) */
   if (TK.gRef) TK.gRef.set(adat).catch(tkHiba);
   esemeny("kert_gesztus", { g: id });
 }
@@ -6906,8 +6921,12 @@ function tkGesztusIndit(id) {
   if (!TK.bent || TK.hazaTimer || TK.gFut || !tkGesztusSzabad(id)) return;
   var d = $("tk-uni-sajat"), a = tkGesztusAdat(id); if (!d || !a) return;
   TK.gFut = true;
+  if (id === "ugras") {   /* előre ugrik: az új helyet a gesztussal együtt küldjük, és a pozíciót is mentjük */
+    TK.x = tkUgrasElore(d, TK.x, TK.y);
+    if (TK.ref) TK.ref.update({ x: TK.x, y: Math.round(TK.y * 10) / 10, t: firebase.database.ServerValue.TIMESTAMP }).catch(tkHiba);
+  }
   tkGesztusJatszik(d, id);
-  tkGesztusKuld(id);
+  tkGesztusKuld(id, null, id === "ugras" ? TK.x : undefined);
   setTimeout(function () { TK.gFut = false; }, a.ms + TK_G_SZUNET);
 }
 /* 🙌 pacsi: az én unikornisom odasétál a másik mellé, szembefordulnak, összecsapják a patájukat */
@@ -6934,6 +6953,12 @@ function tkGesztusJott(snap) {
   var uid = snap.key, a = snap.val();
   if (!TK.gBetoltve || !TK.bent || uid === FELHO.uid || !a || !tkGesztusAdat(a.g) || !tkGesztusPult(a.g)) return;
   var m = TK.masok[uid]; if (!m) return;
+  if (a.g === "ugras" && typeof a.x === "number" && Math.abs(a.x - (+m.a.x)) > 0.5) {
+    /* a gesztus ért ide előbb: odaugratjuk; a később jövő pozíció-frissítés így már nem indít sétát.
+       (Ha a pozíció jött előbb, már odasétált — akkor helyben ugrik.) */
+    tkUgrasElore(m.d, +m.a.x, +m.a.y, a.x);
+    m.a.x = a.x;
+  }
   if (a.g !== "pacsi") { tkGesztusJatszik(m.d, a.g); return; }
   var en = a.cel === FELHO.uid, c = en ? null : TK.masok[a.cel];
   if (!en && !c) return;
@@ -6942,6 +6967,25 @@ function tkGesztusJott(snap) {
     mondd(m.a.nev + " pacsit adott!");
     var s = $("tk-sugo"); if (s && !TK.hazaTimer) s.textContent = "🙌 " + m.a.nev + " pacsit adott! Koppints rá te is!";
   }
+}
+/* 🦘 előre ugrás a felhőmezőn: amerre néz, TK_UGRAS_TAV %-ot; a szélen megfordul. A vízszintes
+   mozgás csak a levegőben töltött szakaszra esik (mint a Kertben). celX: kész célpont (a többiek
+   ugrásánál a küldő számolta). Visszaadja az új x-et (1 tizedesre kerekítve, ahogy a mentés is). */
+var TK_UGRAS_TAV = 10;
+function tkUgrasElore(d, x, y, celX) {
+  var dir = (+d.style.getPropertyValue("--dir") < 0) ? -1 : 1, nx = celX;
+  if (typeof nx !== "number") {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return x;
+    nx = x + TK_UGRAS_TAV * dir;
+    if (nx < 8 || nx > 92) { dir = -dir; nx = x + TK_UGRAS_TAV * dir; }
+    nx = Math.round(nx * 10) / 10;
+  } else dir = nx < x ? -1 : 1;
+  d.style.setProperty("--dir", dir);
+  d.style.transition = "left .27s ease-in-out .28s";
+  tkPoz(d, nx, y);
+  clearTimeout(d._ugrTimer);
+  d._ugrTimer = setTimeout(function () { d.style.transition = ""; }, 650);
+  return nx;
 }
 /* egy gesztus lejátszása egy unikornis-elemen (a saját és a többieké is ezzel megy) */
 function tkGesztusJatszik(d, id) {

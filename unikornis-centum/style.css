@@ -733,34 +733,52 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* trükk-mozgás: a TEST a dobozon süllyed/emelkedik, a LÁBAK a csípőnél rövidülnek
    (transform-origin:50% 0% = csípő) — a talp a földön marad, a térd láthatóan behajlik.
    Új EGYSZERI trükk (pl. pörgés) = egy pár @keyframes + a két szabály alább. */
-#kert-uni-doboz.trukk-ugras{ animation:trukk-ugras 1.1s ease-out 1; }
-#kert-uni-doboz.trukk-ugras .uni-lab{ animation:trukk-lab-ugras 1.1s ease-out 1; }
+#kert-uni-doboz.trukk-ugras .kert-uni-svg{ animation:trukk-ugras 1.1s ease-in-out 1; transform-origin:50% 100%; }
+#kert-uni-doboz.trukk-ugras .uni-lab{ animation:trukk-lab-ugras 1.1s ease-in-out 1; }
+#kert-uni-doboz.trukk-ugras .kert-uni-flip::after{ animation:trukk-ugras-arnyek 1.1s ease-in-out 1; }
 
 /* 🛋️ Ülés = TARTÓS állapot: leül (térd behajlik, test rásüllyed) és úgy marad, amíg a gyerek
    fel nem állítja. A be/kiállás sima (a fenti transform-átmenet viszi), nem egyszeri animáció. */
 #kert-uni-doboz.ules-all{ transform:translateY(24px); }
 #kert-uni-doboz.ules-all .uni-lab{ transform:scaleY(.5); }
 
-/* 🦘 Ugrás: előbb GUGGOL (térd behajlik, test süllyed, talp a földön), majd ellök és felpattan,
-   földetéréskor tompít (térd újra behajlik), egy kis rebound, végül feláll */
+/* 🦘 Ugrás: előbb GUGGOL (térd behajlik, test süllyed + kicsit ellapul, talp a földön), majd ellök
+   (megnyúlik) és MAGASRA felpattan; földetéréskor tompít (ellapul, térd behajlik), kis rebound, feláll.
+   A mozgást a RAJZ (svg) kapja, nem a doboz — így a talaj-árnyék (flip::after) a fűben marad, és a
+   levegőben összemegy/halványul: ettől látszik, hogy tényleg elrugaszkodott. */
 @keyframes trukk-ugras{
-  0%{ transform:translateY(0); }
-  14%{ transform:translateY(26px); }   /* leguggol */
-  30%{ transform:translateY(-48px); }  /* elugrik */
-  46%{ transform:translateY(0); }      /* földet ér */
-  60%{ transform:translateY(-18px); }  /* kis rebound */
-  74%{ transform:translateY(0); }
-  100%{ transform:translateY(0); }
+  0%{ transform:translateY(0) scale(1,1); }
+  14%{ transform:translateY(26px) scale(1.07,.93); }   /* leguggol, ellapul */
+  26%{ transform:translateY(-24px) scale(.93,1.1); }   /* ellök, megnyúlik */
+  38%{ transform:translateY(-82px) scale(.97,1.04); }  /* a levegőben, csúcs */
+  50%{ transform:translateY(0) scale(1.1,.88); }       /* földet ér, ellapul */
+  62%{ transform:translateY(-20px) scale(.97,1.03); }  /* kis rebound */
+  74%{ transform:translateY(0) scale(1.03,.97); }
+  100%{ transform:translateY(0) scale(1,1); }
 }
 @keyframes trukk-lab-ugras{
   0%{ transform:scaleY(1); }
   14%{ transform:scaleY(.48); }   /* térd behajlik az elugrás előtt */
   26%{ transform:scaleY(1.08); }  /* ellök (láb kinyúlik) */
-  30%{ transform:scaleY(1); }     /* levegőben */
-  46%{ transform:scaleY(.6); }    /* földetérés tompítja */
-  60%{ transform:scaleY(1); }
+  34%{ transform:scaleY(1); }     /* levegőben */
+  50%{ transform:scaleY(.6); }    /* földetérés tompítja */
+  62%{ transform:scaleY(1); }
   74%{ transform:scaleY(.85); }
   100%{ transform:scaleY(1); }
+}
+/* talaj-árnyék CSAK ugrás közben (nyugalomban a rajz saját drop-shadow-ja elég) */
+.kert-uni-flip{ position:relative; }
+.kert-uni-flip::after{
+  content:""; position:absolute; left:28%; right:22%; bottom:-4px; height:12px; border-radius:50%;
+  background:rgba(60,60,40,.22); opacity:0; pointer-events:none;
+}
+@keyframes trukk-ugras-arnyek{
+  0%{ opacity:1; transform:scale(1); }
+  14%{ opacity:1; transform:scale(1.08); }
+  38%{ opacity:.45; transform:scale(.55); }
+  50%{ opacity:1; transform:scale(1.15); }
+  62%{ opacity:.8; transform:scale(.85); }
+  74%,100%{ opacity:1; transform:scale(1); }
 }
 /* 🌀 Pörgés: forgató-szikrák (a sprite-swap motor JS-ből szórja) */
 .forgato-szikra{
@@ -857,7 +875,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes csillam-konf-5{ 0%,26%{ opacity:0; transform:translate(0,0) } 40%{ opacity:1; transform:translate(8px,-66px) } 100%{ opacity:0; transform:translate(10px,18px) } }
 
 @media (prefers-reduced-motion:reduce){
-  #kert-uni-doboz.trukk-ugras, #kert-uni-doboz.trukk-ugras .uni-lab{ animation:none; }
+  #kert-uni-doboz.trukk-ugras .kert-uni-svg, #kert-uni-doboz.trukk-ugras .uni-lab, .kert-uni-flip::after{ animation:none; }
   #kert-uni-doboz.trukk-porges, #kert-uni-doboz.trukk-porges .uni-soreny, #kert-uni-doboz.trukk-porges .uni-farok{ animation:none; }
   #kert-uni-doboz.trukk-csillam, #kert-uni-doboz.trukk-csillam .uni-lab{ animation:none; }
   .csillam-szikra, .csillam-konf{ animation:none!important; display:none; }
@@ -1093,8 +1111,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* 5c) gesztusok: ikon-gombsor (szöveg nélkül) + a mozdulatok a .tk-uni elemen */
 .tk-gesztussor .tk-g-chip{ min-width:58px; padding:6px 10px; }
 .tk-gesztussor .tk-g-chip .ktr-emoji{ font-size:30px; }
-.tk-uni.g-ugras .tk-bob{ animation:trukk-ugras 1.1s ease-out 1; }
-.tk-uni.g-ugras .uni-lab{ animation:trukk-lab-ugras 1.1s ease-out 1; }
+.tk-uni.g-ugras .kert-uni-svg{ animation:trukk-ugras 1.1s ease-in-out 1; transform-origin:50% 100%; }
+.tk-uni.g-ugras .uni-lab{ animation:trukk-lab-ugras 1.1s ease-in-out 1; }
+.tk-uni.g-ugras .kert-uni-flip::after{ background:rgba(120,90,180,.24); animation:trukk-ugras-arnyek 1.1s ease-in-out 1; }
 .tk-uni.g-csillam .tk-bob{ animation:trukk-csillam 1.8s ease-in-out 1; }
 .tk-uni.g-csillam .uni-lab{ animation:trukk-lab-csillam 1.8s ease-in-out 1; }
 .tk-uni.g-porges .kert-uni-flip{ animation:tk-porges 1.4s ease-in-out 1; }
@@ -1139,7 +1158,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes tk-pp-2{ 0%,38%{ opacity:0; transform:translate(-50%,-50%); } 50%{ opacity:1; } 100%{ opacity:0; transform:translate(40px,-66px) rotate(40deg); } }
 @keyframes tk-pp-3{ 0%,38%{ opacity:0; transform:translate(-50%,-50%); } 50%{ opacity:1; } 100%{ opacity:0; transform:translate(10px,-40px) scale(.6); } }
 @media (prefers-reduced-motion:reduce){
-  .tk-uni.g-ugras .tk-bob, .tk-uni.g-ugras .uni-lab, .tk-uni.g-csillam .tk-bob, .tk-uni.g-csillam .uni-lab,
+  .tk-uni.g-ugras .kert-uni-svg, .tk-uni.g-ugras .uni-lab, .tk-uni.g-csillam .tk-bob, .tk-uni.g-csillam .uni-lab,
   .tk-uni.g-porges .kert-uni-flip, .tk-uni.g-porges .tk-bob, .tk-uni.g-integet .tk-bob, .tk-uni.g-pacsi .tk-bob{ animation:none; }
 }
 /* felhőlépcső az utcán */

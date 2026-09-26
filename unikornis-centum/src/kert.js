@@ -242,6 +242,7 @@ function kertTrukkJatszik(id) {
     return;
   }
   var cls = "trukk-" + id;
+  if (id === "ugras") kertUgrasElore(doboz);
   doboz.classList.add(cls);
   hangCsilla();
   /* ✨ Csillámszórás effekt: szikrák + konfetti a szarv fölött */
@@ -273,6 +274,19 @@ function kertTrukkJatszik(id) {
     KERT_TRUKK_FUT = false;
     var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
   }, t.perc + 80);
+}
+/* 🦘 az ugrás ELŐRE visz (amerre néz) — a vízszintes elmozdulás csak a levegőben töltött szakaszra
+   esik (a CSS-ben 26%→50% = ~0,28 s-tól ~0,27 s-ig). Ha a kert széle útban van, megfordul és
+   arra ugrik. Mozgáskímélő módban helyben marad. */
+var KERT_UGRAS_TAV = 12;   /* ennyi %-ot ugrik előre */
+function kertUgrasElore(doboz) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var dir = (+doboz.style.getPropertyValue("--dir") < 0) ? -1 : 1;
+  var cel = KERT_UNI_X + KERT_UGRAS_TAV * dir;
+  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; doboz.style.setProperty("--dir", dir); }
+  doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+  KERT_UNI_X = cel;
+  doboz.style.left = cel + "%";
 }
 /* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
 function kertPorgesForgas(doboz, idoMs, cb) {
