@@ -1607,12 +1607,13 @@ var SZARNY_DISZ = (function () {
   function f(n) { return +n.toFixed(1); }
   /* kar-él: a csuklótól (138,34) a váll-tőig (180,106), előre domborodva */
   function kar(t) { var u = 1 - t; return [u*u*138 + 2*u*t*184 + t*t*180, u*u*34 + 2*u*t*50 + t*t*106]; }
-  var VEG = [[46,12],[34,34],[36,56],[48,74],[68,88],[94,97],[122,102]];   /* evezőtollak vége, fentről lefelé */
-  var BT = [0, 0.1, 0.22, 0.36, 0.5, 0.64, 0.78];                          /* a tövük helye a kar-élen */
+  var VEG = [[46,12],[34,34],[36,56],[50,73],[72,86],[100,94]];   /* evezőtollak vége, fentről lefelé; a legalsó is a fedőtollak alá fut (nem lóg ki) */
+  var BT = [0, 0.12, 0.26, 0.42, 0.58, 0.74];                    /* a tövük helye a kar-élen */
   function toll(b, t, w, fill) {
     var dx = t[0] - b[0], dy = t[1] - b[1], L = Math.sqrt(dx*dx + dy*dy), ux = dx / L, uy = dy / L, nx = -uy * w / 2, ny = ux * w / 2;
     var k = [t[0] - ux * w * .7, t[1] - uy * w * .7];
-    return '<path d="M' + f(b[0] + nx) + ' ' + f(b[1] + ny) + ' L' + f(k[0] + nx) + ' ' + f(k[1] + ny) + ' Q' + f(t[0] + ux * w * .35 + nx * .2) + ' ' + f(t[1] + uy * w * .35 + ny * .2) + ' ' + f(k[0] - nx) + ' ' + f(k[1] - ny) + ' L' + f(b[0] - nx) + ' ' + f(b[1] - ny) + ' Z" fill="' + fill + '"/>' +
+    b = [b[0] + ux * 6, b[1] + uy * 6];   /* a tő a kar-él mögé húzva, keskenyen: nem áll ki a fedőtollak alól */
+    return '<path d="M' + f(b[0] + nx * .3) + ' ' + f(b[1] + ny * .3) + ' L' + f(k[0] + nx) + ' ' + f(k[1] + ny) + ' Q' + f(t[0] + ux * w * .35 + nx * .2) + ' ' + f(t[1] + uy * w * .35 + ny * .2) + ' ' + f(k[0] - nx) + ' ' + f(k[1] - ny) + ' L' + f(b[0] - nx * .3) + ' ' + f(b[1] - ny * .3) + ' Z" fill="' + fill + '"/>' +
       '<path d="M' + f(b[0] + ux * L * .35) + ' ' + f(b[1] + uy * L * .35) + ' L' + f(k[0] - ux * 2) + ' ' + f(k[1] - uy * 2) + '" fill="none" stroke-width="1.1" class="szar"/>';
   }
   function szikra(cx, cy, r, fill) { return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + cx + ' ' + cy + ' ' + (cx + r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy + r) + ' Q' + cx + ' ' + cy + ' ' + (cx - r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + fill + '"/>'; }
@@ -1620,13 +1621,13 @@ var SZARNY_DISZ = (function () {
     var s = "M180 106", i, t;
     for (t = 1; t >= -0.0001; t -= 0.1) { var p = kar(Math.max(t, 0)); s += " L" + f(p[0]) + " " + f(p[1]); }
     var pts = BT.map(function (bt, i) { var b = kar(bt); return [b[0] + (VEG[i][0] - b[0]) * a, b[1] + (VEG[i][1] - b[1]) * a]; });
-    pts.push([132, 106]);
     s += " L" + f(pts[0][0]) + " " + f(pts[0][1]);
     for (i = 1; i < pts.length; i++) {
       var m = [(pts[i-1][0] + pts[i][0]) / 2, (pts[i-1][1] + pts[i][1]) / 2], dx = m[0] - 150, dy = m[1] - 60, L = Math.sqrt(dx*dx + dy*dy);
       s += " Q" + f(m[0] + dx / L * d) + " " + f(m[1] + dy / L * d) + " " + f(pts[i][0]) + " " + f(pts[i][1]);
     }
-    return '<path d="' + s + ' Q156 102 180 106 Z" fill="' + fill + '"/>';
+    var u = pts[pts.length - 1];   /* az utolsó csipkétől lekerekítve le a hátra (nincs lefelé álló csücsök) */
+    return '<path d="' + s + ' Q' + f(u[0] - 6) + ' 106 ' + f(u[0] + 14) + ' 106 L180 106 Z" fill="' + fill + '"/>';
   }
   function szarny(o) {
     var s = (o.glo || "") + '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">';
