@@ -1338,7 +1338,12 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
   art = festekAlkalmaz(art, kinezet && kinezet.festek, id);   /* FODRÁSZAT 2.: festék a bolti szín fölé */
   art = eloAnimHorgony(art);
   var ruha = "";
-  if (oltozet) ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) { if (oltozet[h]) ruha += ruhaSVG(oltozet[h]); });
+  if (oltozet) ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) {
+    if (!oltozet[h]) return;
+    ruha += ruhaSVG(oltozet[h]);
+    /* a hát-takaróra a sörény omlik: a sörény-csoportot a takaró után még egyszer kirajzoljuk */
+    if (h === "hat") { var sor = art.match(/<g class="ucg uni-soreny">[\s\S]*?<\/g>/); if (sor) ruha += sor[0]; }
+  });
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
     '<g transform="scale(0.5) translate(-190,-272)">' +
       '<g class="uni-elo">' + art + ruha + '</g>' +
@@ -1513,6 +1518,86 @@ function anchorViz(on) {
 if (/[?&]anchor=1\b/.test(location.search)) window.__UC_ANCHOR = true;
 /* Egy ruhadarab rajza a kész unikornis-rajz 380×300 koordinátájában.
    Horgonypontok: fej ~(288,121) / szarv-tő ~(272,90), nyak/mell ~(236,200). */
+﻿/* ── HÁT-TAKARÓK (újrarajzolva, 2026-09-26, terv/hattakarok-rajzterv.html) ──
+   A régi takaró egy lapos folt volt a test közepén, a sörényre és a far jelére lógott.
+   Az új a hát-ívre simul, a jobb széle a sörény alá fut: az unikornisSVG a takaró után
+   a sörényt ÚJRA kirajzolja, így a sörény a takaróra omlik. A far jelét takarja.
+   Egy tábla: a ruhaSVG ÉS a bolti polckép (POLC_POZ) is innen rajzol. */
+var HAT_DISZ = (function () {
+  function f1(n) { return +n.toFixed(1); }
+  function szikra(cx, cy, r, fill) { return '<path d="M' + cx + ' ' + (cy - r) + ' Q' + cx + ' ' + cy + ' ' + (cx + r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy + r) + ' Q' + cx + ' ' + cy + ' ' + (cx - r) + ' ' + cy + ' Q' + cx + ' ' + cy + ' ' + cx + ' ' + (cy - r) + ' Z" fill="' + fill + '"/>'; }
+  function csillag5(cx, cy, R, r) { var p = []; for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; p.push(f1(cx + q * Math.cos(a)) + " " + f1(cy + q * Math.sin(a))); } return "M" + p.join(" L") + " Z"; }
+  /* az alsó szegély: másodfokú ív (202,196) → (104,200), kontroll (152,212) */
+  function also(t) { var u = 1 - t; return [u * u * 202 + 2 * u * t * 152 + t * t * 104, u * u * 196 + 2 * u * t * 212 + t * t * 200]; }
+  /* hullám/csipke vagy csúcsos szegély az alsó él mentén: n darab, kifelé (lefelé) d-vel */
+  function szegely(n, d, csucsos) {
+    var s = "M202 196", i;
+    for (i = 0; i < n; i++) {
+      var a = also(i / n), b = also((i + 1) / n), m = also((i + 0.5) / n);
+      if (csucsos) s += " L" + f1(m[0]) + " " + f1(m[1] + d) + " L" + f1(b[0]) + " " + f1(b[1]);
+      else s += " Q" + f1(m[0]) + " " + f1(m[1] + d * 2) + " " + f1(b[0]) + " " + f1(b[1]);
+    }
+    return s + " Q152 212 202 196 Z";
+  }
+  /* közös takaró-sziluett: a hát-ívre simul (≈2 px-lel fölötte), a far jelét is takarja,
+     a jobb széle a sörény alá fut (a sörényt a renderer a takaró FÖLÉ rajzolja újra) */
+  var TEST = "M100 121 C112 110 140 103.5 172 103.5 C196 103.5 214 106.5 231 114 L218 160 L202 196 Q152 212 104 200 Z";
+  var SAV = "M104 188 Q152 200 206 185 L202 196 Q152 212 104 200 Z";   /* alsó szegélysáv */
+  return {
+    "hat-a": /* Pillekönnyű takaró — rózsaszín, fehér pöttyös, steppelt, lila csipkés szegéllyel */
+      '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+      '<path d="' + szegely(9, 5) + '" fill="#d9c4f0"/>' +
+      '<path d="' + TEST + '" fill="#f9c9dc"/>' +
+      '<path d="' + SAV + '" fill="#d9c4f0"/>' +
+      '</g>' +
+      '<g fill="none" stroke="#e79bbb" stroke-width="1.4" stroke-dasharray="3 3" stroke-linecap="round">' +
+      '<path d="M108 128 Q150 110 212 118"/><path d="M106 156 Q150 144 206 150"/><path d="M142 110 L142 196 M180 106 L180 192"/>' +
+      '</g>' +
+      '<g fill="#fff">' +
+      '<circle cx="123" cy="138" r="3.4"/><circle cx="161" cy="128" r="3.4"/><circle cx="198" cy="130" r="3.4"/>' +
+      '<circle cx="123" cy="174" r="3.4"/><circle cx="161" cy="170" r="3.4"/><circle cx="194" cy="170" r="3.4"/>' +
+      '</g>' +
+      '<g fill="#fff" stroke="none" opacity=".9"><circle cx="118" cy="199" r="1.8"/><circle cx="140" cy="203" r="1.8"/><circle cx="162" cy="202.5" r="1.8"/><circle cx="184" cy="198" r="1.8"/></g>' +
+      '<path d="M110 117 Q140 106 176 106" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".7"/>',
+
+    "hat-k": /* Hímzett nyeregtakaró — málnapiros, arany hímzett keret, virághímzés, arany bojtok */
+      '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+      '<path d="' + TEST + '" fill="#d9577e"/>' +
+      '</g>' +
+      '<path d="M108 125 C120 115 144 110 172 110 C194 110 210 112 226 118 M108 125 L111 192 Q152 203 204 188" fill="none" stroke="#ffd24d" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<path d="M108 125 C120 115 144 110 172 110 C194 110 210 112 226 118 M108 125 L111 192 Q152 203 204 188" fill="none" stroke="#b8323f" stroke-width="1.2" stroke-dasharray="1.5 3.5"/>' +
+      '<g fill="none" stroke="#a7d99a" stroke-width="2" stroke-linecap="round"><path d="M126 150 Q116 138 124 128 M170 150 Q180 138 172 128"/></g>' +
+      '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +
+      '<path d="M120 132 q-7 -2 -9 -9 q8 0 9 9 Z M176 132 q7 -2 9 -9 q-8 0 -9 9 Z M140 172 q-8 2 -12 10 q9 0 12 -10 Z M156 172 q8 2 12 10 q-9 0 -12 -10 Z" fill="#a7d99a"/>' +
+      '<circle cx="148" cy="138" r="7" fill="#f6a5c0"/><circle cx="162" cy="149" r="7" fill="#f6a5c0"/><circle cx="157" cy="165" r="7" fill="#f6a5c0"/>' +
+      '<circle cx="139" cy="165" r="7" fill="#f6a5c0"/><circle cx="134" cy="149" r="7" fill="#f6a5c0"/>' +
+      '<circle cx="148" cy="153" r="6" fill="#ffd24d"/>' +
+      '<circle cx="124" cy="128" r="3.6" fill="#9ec9f0"/><circle cx="172" cy="128" r="3.6" fill="#9ec9f0"/>' +
+      '</g>' +
+      [[106, 200], [152, 206], [196, 199]].map(function (p) {
+        var x = p[0], y = p[1];
+        return '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +
+          '<path d="M' + x + ' ' + (y - 2) + ' L' + x + ' ' + (y + 4) + '" stroke="#c9912a" stroke-width="1.6"/>' +
+          '<path d="M' + x + ' ' + (y + 3) + ' C' + (x - 5) + ' ' + (y + 3) + ' ' + (x - 6) + ' ' + (y + 10) + ' ' + (x - 5) + ' ' + (y + 16) + ' L' + (x + 5) + ' ' + (y + 16) + ' C' + (x + 6) + ' ' + (y + 10) + ' ' + (x + 5) + ' ' + (y + 3) + ' ' + x + ' ' + (y + 3) + ' Z" fill="#ffd24d"/>' +
+          '<path d="M' + (x - 2.5) + ' ' + (y + 9) + ' L' + (x - 2.5) + ' ' + (y + 15) + ' M' + x + ' ' + (y + 9) + ' L' + x + ' ' + (y + 15) + ' M' + (x + 2.5) + ' ' + (y + 9) + ' L' + (x + 2.5) + ' ' + (y + 15) + '" stroke="#e0a52e" stroke-width="1"/>' +
+          '<circle cx="' + x + '" cy="' + (y + 3) + '" r="2.4" fill="#e0a52e"/></g>';
+      }).join(""),
+
+    "hat-r": /* Csillagköpeny — éjkék, hosszan a farra omló köpeny, arany szegéllyel, csillagokkal, hullámos aljjal */
+      '<g stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
+      '<path d="M100 121 C112 110 140 103.5 172 103.5 C196 103.5 214 106.5 231 114 L218 160 L204 202 Q194 214 182 208 Q170 220 156 212 Q142 224 128 214 Q114 224 102 214 Q90 222 80 212 C78 180 82 142 100 121 Z" fill="#4b3f9a"/>' +
+      '<path d="M100 121 C84 142 80 180 80 212 Q86 216 91 216 C88 184 92 146 106 124 Z" fill="#8f7ad6"/>' +
+      '</g>' +
+      '<g fill="none" stroke="#3a3080" stroke-width="2" stroke-linecap="round"><path d="M122 150 Q118 180 116 210 M190 150 Q188 176 184 204"/></g>' +
+      '<path d="M104 121 C116 112 142 107 172 107 C196 107 212 110 228 116.5" fill="none" stroke="#ffd24d" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M84 206 Q92 214 102 208 Q114 218 128 208 Q142 218 156 206 Q170 214 182 202 Q194 208 204 198" fill="none" stroke="#ffd24d" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<g fill="#ffd24d" stroke="#222" stroke-width="1">' +
+      '<path d="' + csillag5(146, 140, 9, 3.8) + '"/><path d="' + csillag5(178, 128, 6, 2.6) + '"/><path d="' + csillag5(160, 180, 7, 3) + '"/><path d="' + csillag5(106, 176, 5.5, 2.4) + '"/>' +
+      '</g>' +
+      '<g stroke="none">' + szikra(126, 128, 3.2, "#fff6d8") + szikra(194, 152, 3.2, "#fff6d8") + szikra(134, 194, 3, "#fff6d8") + szikra(114, 154, 2.6, "#fff6d8") + szikra(186, 188, 2.6, "#ffd24d") + '</g>' +
+      '<g stroke="#222" stroke-width="1.2"><path d="' + csillag5(104, 121, 7, 3.2) + '" fill="#ffd24d"/></g>'
+  };
+})();
 /* ── FAROKDÍSZEK (újrarajzolva, 2026-09-26, farokdiszek-uj-rajzterv.html) ──
    A farok nagy része a test MÖGÉ bújik; a látható csík a far bal oldalán ~(44–82, 160–290).
    A díszek ide, a látható farokrészre ülnek (a régi a far tetején, a testen volt).
@@ -1614,33 +1699,9 @@ function ruhaSVG(itemId) {
         '<path d="M265 200 L279 200" stroke="#9ec9f0" stroke-width="3"/>' +
         '</g>';
 
-    /* ── HÁT ── a test tetejére simuló takaró/köpeny, közös sziluett-sablonon, a testtető-ívre
-       igazítva, -8°-kal döntve (a rajzoló session anyaga, 2026-09-05; spec-grafikai-eszkozlista §3.1). */
-    case "hat-a": /* Pillekönnyű takaró */
-      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
-        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#e9ddf3"/>' +
-        '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#dcd0ec"/>' +
-        '<path d="M138 154 Q186 168 232 154 L228 168 Q186 180 142 168 Z" fill="#cbbde6"/>' +
-        '</g>';
-    case "hat-k": /* Hímzett nyeregtakaró */
-      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
-        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#d9b48a"/>' +
-        '<path d="M124 140 Q186 118 242 140" fill="none" stroke="#f6ecd8" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>' +
-        '<path d="M160 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#f6a5c0"/>' +
-        '<path d="M212 116 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#a7d99a"/>' +
-        '<circle cx="186" cy="150" r="6" fill="#fce49a" stroke="#222" stroke-width="1"/>' +
-        '</g>';
-    case "hat-r": /* Csillagköpeny */
-      return '<ellipse cx="186" cy="177" rx="62" ry="7" fill="#4a3b7a" opacity="0.14" transform="rotate(-8 186 150)"/>' +
-        '<g transform="rotate(-8 186 150)" stroke="#222" stroke-width="1.6" stroke-linejoin="round">' +
-        '<path d="M118 143 Q130 105 186 99 Q242 105 248 143 Q252 157 244 169 L236 185 Q186 195 136 185 L128 169 Q114 157 118 143 Z" fill="#5a4fa0"/>' +
-        '<path d="M128 132 Q186 108 238 132 Q234 120 186 116 Q138 120 128 132 Z" fill="#6a5fb0"/>' +
-        '<path d="M150 128 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fff6d8"/>' +
-        '<path d="M222 130 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#fff6d8"/>' +
-        '<circle cx="186" cy="150" r="3.4" fill="#ffd24d"/>' +
-        '</g>';
+    /* ── HÁT ── a HAT_DISZ táblából (a sörényt az unikornisSVG rajzolja fölé) */
+    case "hat-a": case "hat-k": case "hat-r":
+      return HAT_DISZ[itemId];
 
     /* ── LÁB ── mind a 4 lábra */
     case "lab-a": case "lab-k": case "lab-r":
@@ -5008,24 +5069,10 @@ var POLC_POZ = {
     '<path d="M86 76 Q80 120 76 168 L90 168 Q94 120 98 78 Z" fill="#f6a5c0"/><path d="M124 76 Q130 120 134 168 L120 168 Q116 120 112 78 Z" fill="#f6a5c0"/>' +
     '<path d="M84 90 Q105 80 126 90" fill="none" stroke="#fce49a" stroke-width="3"/><path d="M85 98 Q105 90 125 98" fill="none" stroke="#a7d99a" stroke-width="2.4"/>' +
     '</g><path d="M80 168 l2 10 l5 -8 Z" fill="#9ec9f0"/><path d="M128 168 l3 9 l4 -9 Z" fill="#c9a8e6"/>',
-  "hat-a":
-    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#cbbde6"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#dcd0ec"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#e9ddf3"/>' +
-    '<path d="M63 118 q-7 25 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.2"/><path d="M70 126 q40 -5 74 0" fill="none" stroke="#c9b8e0" stroke-width="1.6"/>' +
-    '</g>',
-  "hat-k": /* polc-poz-mintak.svg mintája */
-    '<rect x="66" y="188" width="110" height="18" rx="3" fill="#b58fd8" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<rect x="70" y="172" width="102" height="18" rx="3" fill="#c9a8e6" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<rect x="74" y="156" width="94" height="18" rx="3" fill="#d7c4ee" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<path d="M74 156 q-8 24 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.4"/><path d="M84 164 q37 -6 66 0" fill="none" stroke="#ffd24d" stroke-width="2" stroke-dasharray="5 3"/>' +
-    '<path d="M117 158 l2.5 6 l6.5 0.6 l-5 4.4 l1.6 6.4 l-5.6 -3.6 l-5.6 3.6 l1.6 -6.4 l-5 -4.4 l6.5 -0.6 Z" fill="#fff6d8"/>',
-  "hat-r":
-    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#4f4590"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#5a4fa0"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#6a5fb0"/>' +
-    '<path d="M82 124 l1.6 4 l4 0.4 l-3 2.8 l1 4 l-3.6 -2.3 l-3.6 2.3 l1 -4 l-3 -2.8 l4 -0.4 Z" fill="#fff6d8" stroke="none"/><circle cx="122" cy="126" r="1.6" fill="#fff6d8" stroke="none"/><circle cx="103" cy="115" r="3" fill="#ffd24d"/>' +
-    '</g>',
+  /* hát-takarók: ugyanaz a rajz, mint az unikornison (renderer.js HAT_DISZ), rúdra akasztva */
+  "hat-a": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-a"] + '</g>',
+  "hat-k": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-k"] + '</g>',
+  "hat-r": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-r"] + '</g>',
   "lab-a":
     '<path d="M55 92 h100 M60 92 v-9 M150 92 v-9" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
     '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +

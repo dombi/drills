@@ -916,3 +916,18 @@ szorzó ~372px), a lista görgethető, mobilon (375px) 2 oszlop/régió, konzol 
   ismételt váltás nem von le), frizura perzisztál és mindenhol göndör (odú unikornis is), recolor+göndör
   együtt helyes (Rózsaarany trió a buborékokon), portál→pályaválasztó. Kivétel nincs. Vizuális ellenőrzés
   Quick Look-render PNG-kkel (utca, szalon egyenes/göndör) — a rajzterv szerinti karakter. `index.html` `?v=` → -3.
+
+## 2026-09-26 — Hát-takarók újrarajzolva, a sörény a takaróra omlik
+
+A producer csúnyának találta a 3 hát-tárgyat: egy közös, lapos „kavics" volt a test közepén,
+ami a sörényre és a far jelére lógott. Régi↔új rajzterv (`terv/hattakarok-rajzterv.html`),
+jóváhagyva. **Új:** a takaró a hát-ívre simul, a far jelét is takarja, a jobb széle a sörény
+alá fut, és **a sörény a takaróra omlik** — ez felülírja a 2026-09-05-i „rétegsorrend nem
+változik" döntést: az `unikornisSVG` a hát-ruha után a sörény-csoportot (`uni-soreny`)
+még egyszer kirajzolja (a másolat is leng, és a szalonban is festhető).
+- `hat-a` Pillekönnyű takaró: rózsaszín, fehér pöttyös, steppelt, lila csipkés szegély.
+- `hat-k` Hímzett nyeregtakaró: málnapiros, arany hímzett keret, virághímzés, 3 arany bojt.
+- `hat-r` Csillagköpeny: éjkék, hosszan a farra omlik, arany szegély + csillagok, hullámos alj.
+- Egy tábla: `src/renderer.js` `HAT_DISZ`; a bolti polckép (`kert.js POLC_POZ`) is ebből
+  rajzol, rúdra akasztva. Ellenőrizve mindhárom bőrön, farokdísszel, szárnnyal, göndör +
+  festett sörénnyel; a játék konzolja tiszta. `index.html` `game.js?v=` → 20260926-6.

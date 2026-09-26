@@ -1116,24 +1116,10 @@ var POLC_POZ = {
     '<path d="M86 76 Q80 120 76 168 L90 168 Q94 120 98 78 Z" fill="#f6a5c0"/><path d="M124 76 Q130 120 134 168 L120 168 Q116 120 112 78 Z" fill="#f6a5c0"/>' +
     '<path d="M84 90 Q105 80 126 90" fill="none" stroke="#fce49a" stroke-width="3"/><path d="M85 98 Q105 90 125 98" fill="none" stroke="#a7d99a" stroke-width="2.4"/>' +
     '</g><path d="M80 168 l2 10 l5 -8 Z" fill="#9ec9f0"/><path d="M128 168 l3 9 l4 -9 Z" fill="#c9a8e6"/>',
-  "hat-a":
-    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#cbbde6"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#dcd0ec"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#e9ddf3"/>' +
-    '<path d="M63 118 q-7 25 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.2"/><path d="M70 126 q40 -5 74 0" fill="none" stroke="#c9b8e0" stroke-width="1.6"/>' +
-    '</g>',
-  "hat-k": /* polc-poz-mintak.svg mintája */
-    '<rect x="66" y="188" width="110" height="18" rx="3" fill="#b58fd8" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<rect x="70" y="172" width="102" height="18" rx="3" fill="#c9a8e6" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<rect x="74" y="156" width="94" height="18" rx="3" fill="#d7c4ee" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<path d="M74 156 q-8 24 0 50" fill="none" stroke="#8f7ab8" stroke-width="1.4"/><path d="M84 164 q37 -6 66 0" fill="none" stroke="#ffd24d" stroke-width="2" stroke-dasharray="5 3"/>' +
-    '<path d="M117 158 l2.5 6 l6.5 0.6 l-5 4.4 l1.6 6.4 l-5.6 -3.6 l-5.6 3.6 l1.6 -6.4 l-5 -4.4 l6.5 -0.6 Z" fill="#fff6d8"/>',
-  "hat-r":
-    '<rect x="20" y="172" width="170" height="11" rx="3" fill="#d9b48a"/>' +
-    '<g stroke="#222" stroke-width="1.4" stroke-linejoin="round">' +
-    '<rect x="55" y="150" width="100" height="18" rx="3" fill="#4f4590"/><rect x="59" y="134" width="92" height="18" rx="3" fill="#5a4fa0"/><rect x="63" y="118" width="84" height="18" rx="3" fill="#6a5fb0"/>' +
-    '<path d="M82 124 l1.6 4 l4 0.4 l-3 2.8 l1 4 l-3.6 -2.3 l-3.6 2.3 l1 -4 l-3 -2.8 l4 -0.4 Z" fill="#fff6d8" stroke="none"/><circle cx="122" cy="126" r="1.6" fill="#fff6d8" stroke="none"/><circle cx="103" cy="115" r="3" fill="#ffd24d"/>' +
-    '</g>',
+  /* hát-takarók: ugyanaz a rajz, mint az unikornison (renderer.js HAT_DISZ), rúdra akasztva */
+  "hat-a": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-a"] + '</g>',
+  "hat-k": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-k"] + '</g>',
+  "hat-r": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-r"] + '</g>',
   "lab-a":
     '<path d="M55 92 h100 M60 92 v-9 M150 92 v-9" stroke="#b79fd4" stroke-width="3" fill="none" stroke-linecap="round"/>' +
     '<g stroke="#222" stroke-width="1.2" stroke-linejoin="round">' +
