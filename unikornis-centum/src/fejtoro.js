@@ -418,16 +418,19 @@ function ftVege() {
   var pid = FTJ.pa.id, st = ftAllapot().palyak[pid];
   st.poz = 0; st.kesz = (st.kesz || 0) + 1;
   P().csillampor += FT_ZARO_CSILLA; FTJ.csilla += FT_ZARO_CSILLA;
-  P().tunderharmat = (P().tunderharmat || 0) + FT_ZARO_HARMAT;
+  var ajanlottExtra = palyaAjanlott(FTJ.pa) ? AJANLOTT_HARMAT : 0;   /* 💖 producer ajánlása: minden alkalommal */
+  var harmat = FT_ZARO_HARMAT + ajanlottExtra;
+  P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
-    idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: FT_ZARO_HARMAT });
+    idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });
   $("vege-szoveg").innerHTML =
     "Célba értél: <b>" + kiiras(FTJ.pa.nev || "Fejtörő-ösvény") + "</b>!<br>" +
     "<b>" + FTJ.osszes + "</b> fejtörőből <b>" + FTJ.elsore + "</b> sikerült elsőre, segítség nélkül.<br>" +
     "Gyűjtöttél: <b>" + FTJ.csilla + " ✨</b> csillámport." +
-    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + FT_ZARO_HARMAT + ' tündérharmat</span>';
+    (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>' : '') +
+    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>';
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");

@@ -108,6 +108,7 @@ function felulirSzamol() {
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
 function palyaRejtve(pa) { return !!pa && !kapuKulcsPalya(pa.id) && palyaFelulir(pa.id).enabled === false; }
 function palyaAjanlott(pa) { return !!pa && palyaFelulir(pa.id).recommended === true; }
+var AJANLOTT_HARMAT = 2;   /* 💖 ajánlott pálya: +2 💧 minden befejezéskor (nincs napi korlát) */
 function palyaSzorzo(pa) {
   var x = pa ? +palyaFelulir(pa.id).extraReward : 1;
   return x >= 1 && x <= 3 ? x : 1;

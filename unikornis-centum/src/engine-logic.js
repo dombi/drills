@@ -719,6 +719,8 @@ function palyaVege() {
     }
   }
   harmat += napiExtra;
+  var ajanlottExtra = palyaAjanlott(J.palya) ? AJANLOTT_HARMAT : 0;   /* 💖 producer ajánlása: minden alkalommal */
+  harmat += ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
 
@@ -743,7 +745,10 @@ function palyaVege() {
   var napiSor = napiExtra
     ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
     : "";
-  var harmatSor = '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
+  var ajanlottSor = ajanlottExtra
+    ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>'
+    : "";
+  var harmatSor ='<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
     + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>');
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
@@ -751,7 +756,7 @@ function palyaVege() {
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + napiSor + harmatSor + kapuSor +
+    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -764,7 +769,8 @@ function palyaVege() {
   var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
-  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + napiSzov + buzd);
+  var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
+  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + napiSzov + ajanlottSzov + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */

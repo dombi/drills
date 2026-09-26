@@ -1889,7 +1889,7 @@ function renderFomenu() {
     var napiBadge = napiEz
       ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
       : "";
-    var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — jutalom nem jár érte */
+    var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
     if (ajanlott) kart.classList.add("ajanlott");
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
@@ -1912,7 +1912,7 @@ function renderFomenu() {
       e.stopPropagation(); hangGomb();
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
-      if (ajanlott) mondat += " Ezt most neked ajánlom!";
+      if (ajanlott) mondat += " Ezt most neked ajánlom! Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.";
       if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
@@ -2654,6 +2654,8 @@ function palyaVege() {
     }
   }
   harmat += napiExtra;
+  var ajanlottExtra = palyaAjanlott(J.palya) ? AJANLOTT_HARMAT : 0;   /* 💖 producer ajánlása: minden alkalommal */
+  harmat += ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
 
@@ -2678,7 +2680,10 @@ function palyaVege() {
   var napiSor = napiExtra
     ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
     : "";
-  var harmatSor = '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
+  var ajanlottSor = ajanlottExtra
+    ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>'
+    : "";
+  var harmatSor ='<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
     + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>');
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
@@ -2686,7 +2691,7 @@ function palyaVege() {
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + napiSor + harmatSor + kapuSor +
+    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -2699,7 +2704,8 @@ function palyaVege() {
   var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
-  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + napiSzov + buzd);
+  var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
+  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + napiSzov + ajanlottSzov + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */
@@ -6277,6 +6283,7 @@ function felulirSzamol() {
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
 function palyaRejtve(pa) { return !!pa && !kapuKulcsPalya(pa.id) && palyaFelulir(pa.id).enabled === false; }
 function palyaAjanlott(pa) { return !!pa && palyaFelulir(pa.id).recommended === true; }
+var AJANLOTT_HARMAT = 2;   /* 💖 ajánlott pálya: +2 💧 minden befejezéskor (nincs napi korlát) */
 function palyaSzorzo(pa) {
   var x = pa ? +palyaFelulir(pa.id).extraReward : 1;
   return x >= 1 && x <= 3 ? x : 1;
@@ -7547,16 +7554,19 @@ function ftVege() {
   var pid = FTJ.pa.id, st = ftAllapot().palyak[pid];
   st.poz = 0; st.kesz = (st.kesz || 0) + 1;
   P().csillampor += FT_ZARO_CSILLA; FTJ.csilla += FT_ZARO_CSILLA;
-  P().tunderharmat = (P().tunderharmat || 0) + FT_ZARO_HARMAT;
+  var ajanlottExtra = palyaAjanlott(FTJ.pa) ? AJANLOTT_HARMAT : 0;   /* 💖 producer ajánlása: minden alkalommal */
+  var harmat = FT_ZARO_HARMAT + ajanlottExtra;
+  P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
-    idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: FT_ZARO_HARMAT });
+    idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });
   $("vege-szoveg").innerHTML =
     "Célba értél: <b>" + kiiras(FTJ.pa.nev || "Fejtörő-ösvény") + "</b>!<br>" +
     "<b>" + FTJ.osszes + "</b> fejtörőből <b>" + FTJ.elsore + "</b> sikerült elsőre, segítség nélkül.<br>" +
     "Gyűjtöttél: <b>" + FTJ.csilla + " ✨</b> csillámport." +
-    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + FT_ZARO_HARMAT + ' tündérharmat</span>';
+    (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>' : '') +
+    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>';
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
