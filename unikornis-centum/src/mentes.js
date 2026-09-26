@@ -4,10 +4,10 @@ var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes" }; }
+function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* 12 órás rejtett kapu (6.4) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
-function alapSzalon() { return { nyitva: 0, kefek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
+function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
 function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
@@ -46,6 +46,8 @@ function profilNormal(p) {
   if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
   if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
   if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
+  if (!p.kinezet.festek || typeof p.kinezet.festek !== "object") p.kinezet.festek = {};   /* FODRÁSZAT 2.: részenkénti festék-id */
+  ["soreny", "farok", "tincs"].forEach(function (r) { if (typeof p.kinezet.festek[r] !== "string") p.kinezet.festek[r] = null; });
   p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
   if (!p.kapu) p.kapu = alapKapu();
   if (!p.fejtoro) p.fejtoro = { palyak: {}, vissza: {} };   /* Fejtörő-hegy: pályánként poz/kesz, visszatérő feladatok (id → {nap, db}) */
@@ -60,6 +62,7 @@ function profilNormal(p) {
   if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};
+  if (!p.szalon.festekek) p.szalon.festekek = {};   /* FODRÁSZAT 2.: megvett festékek { id: 1 } */
   if (typeof p.tkNyitva !== "number") p.tkNyitva = 0;   /* ÉGI TÜNEMÉNYKERT: egyszeri feloldás 💧-ért */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   return p;

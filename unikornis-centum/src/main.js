@@ -52,7 +52,7 @@ window.UC = {
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
   kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
   kertAgyKoppint: kertAgyKoppint,
-  utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe,           /* FODRÁSZAT */
+  utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },

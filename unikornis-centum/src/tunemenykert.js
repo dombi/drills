@@ -141,7 +141,13 @@ function tkFeloldasVesz() {
 
 /* ── belépés / kilépés ── */
 function tkNev() { var b = TK.jog && TK.jog.becenev; return String(b || (LENYEK[mentes.leny] || {}).nev || "Unikornis").slice(0, 30); }
-function tkKinezet(k) { k = k || {}; return { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, frizura: k.frizura || "egyenes" }; }
+function tkKinezet(k) {
+  k = k || {};
+  var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, frizura: k.frizura || "egyenes" };
+  /* FODRÁSZAT 2.: festés — csak ismert festék-id megy át (a hiányzó rész = festetlen) */
+  if (k.festek) { var f = {}, van = false; ["soreny", "farok", "tincs"].forEach(function (x) { if (FESTEK_BY[k.festek[x]]) { f[x] = k.festek[x]; van = true; } }); if (van) r.festek = f; }
+  return r;
+}
 function tkOltozet(o) { var r = {}; ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) { if (o && typeof o[h] === "string") r[h] = o[h]; }); return r; }
 function tkSajatAdat() {
   var p = P(), kin = tkKinezet(p.kinezet);
