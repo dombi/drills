@@ -365,7 +365,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .beszed-tamogatas{ font-size:13px; color:var(--halvany); margin-top:10px; }
 
 @media (max-width:560px){
-  .bagoly-buborek{ max-width:88vw; left:8px; }
+  .bagoly-buborek{ max-width:88vw; left:6vw; transform:none; }   /* a középre toló eltolás nélkül (különben balra kilógott) */
   .kerulo-gomb{ font-size:13px; padding:10px 8px; }
   .profil-kartya{ width:180px; }
 }
@@ -1273,3 +1273,20 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .ft-betu span{ font-size:20px; }
   .ft-muvelet{ font-size:23px; }
 }
+
+/* ── MÉRÉS-LIGETEK (Szabóműhely · Bájitalkonyha · Mézes pékség), rajzterv 1–2. kör ── */
+.palya-regio.r-szabo,.palya-regio.r-bajital,.palya-regio.r-pekseg{ padding-top:66px; }
+.palya-regio.r-szabo .palya-kartya{ border-color:#f3cfe0; }
+.palya-regio.r-bajital .palya-kartya{ border-color:#d8cdf0; }
+.palya-regio.r-pekseg .palya-kartya{ border-color:#f3dcae; }
+.palya-regio.r-szabo .ikon,.palya-regio.r-bajital .ikon,.palya-regio.r-pekseg .ikon{ font-size:34px; line-height:46px; text-align:center; }
+/* a kép a kérdés fölött, a buborékban (360×158) */
+.meres-kep svg{ display:block; width:100%; height:auto; max-height:158px; margin:0 auto 4px; }
+.meres-kerdes{ font-size:clamp(20px,4.6vw,26px); font-weight:700; line-height:1.35; color:var(--lila-sotet); }
+.meres-kerdes.hosszu{ font-size:clamp(17px,3.9vw,21px); }
+.meres-kerdes b{ color:#5a3d8a; white-space:nowrap; }
+.meres-kerdes .ures{ display:inline-block; min-width:1.6em; padding:0 .2em; border-bottom:3px dashed #e2589b; color:#e2589b; text-align:center; }
+.meres-kerdes .ures.jo{ border-bottom-color:#7fbf6a; color:#4e9a4a; }
+/* hosszú (6 jegyű) válasz a beíró négyzetben */
+.beiro-doboz.hosszu .beiro-box{ width:210px; }
+.beiro-doboz.hosszu .beiro-kijelzo{ font-size:44px; letter-spacing:1px; }

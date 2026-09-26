@@ -51,6 +51,8 @@ function palyaInditas(id) {
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
+  var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
+  $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)" : "";
   curX = allomasX(0); curY = allomasY(0);
   kameraAllit(0, true);
   $("bagoly-buborek").hidden = true;
@@ -112,6 +114,7 @@ function kovAllomas() {
     J.feladatDb = felmondosE ? 1 : (a.darab || 5);
     /* állomás-szintű sorsolás: a „nehéz" állomás egy fókusz-számot kap az egész állomásra */
     J.allomasSzorzo = a.szorzo_keszlet ? veletlenElem(a.szorzo_keszlet) : null;
+    J.lancKov = null;                         /* mérés: a félbemaradt kérdés-lánc nem folytatódik a következő állomáson */
     $("kerulo-gomb").style.display = "block";
     ujFeladat();
   });
@@ -119,7 +122,8 @@ function kovAllomas() {
 function ujFeladat() {
   var a = J.allomasok[J.allomasIdx];
   J.probak = 0; J.lepesSor = 0; J.lepesMezo = 0; J.lepesAktiv = false;
-  if (a.tipus === "szambontas") J.feladat = GEN.szambontas(a);
+  if (J.lancKov) { J.feladat = J.lancKov; J.lancKov = null; }   /* mérés: ugyanannak a feladatnak a következő kérdése */
+  else if (a.tipus === "szambontas") J.feladat = GEN.szambontas(a);
   else if (a.tipus === "szorzotabla-felmondas") J.feladat = GEN["szorzotabla-felmondas"](a);
   else {
     var eff = a;
@@ -165,6 +169,8 @@ function ujFeladat() {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
+    var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
+    $("beiro-doboz").classList.toggle("hosszu", beirMax() > 3);   /* mérés: 6 jegyű válasz is beírható */
     J.kezCsend = 0; J.kezBeiras = false;
     if (f.csalad === "maradekos") maradekosBekosd();
     if (kezNelkulE()) { kezNelkulModUI(); kezNelkulKor(); return; }
@@ -334,7 +340,7 @@ function billentyuzetEpit() {
       hangGomb();
       if (k === "⌫") J.beirt = J.beirt.slice(0, -1);
       else if (k === "✓") { billentyuBekuld(); return; }
-      else if (J.beirt.length < 3) J.beirt += k;
+      else if (J.beirt.length < beirMax()) J.beirt += k;
       $("beiro-kijelzo").textContent = J.beirt;
     });
     box.appendChild(b);
@@ -356,7 +362,7 @@ function bekotUresNegyzet() {
   var mezo = $("beiro-mezo"), box = $("beiro-box");
   if (mezo) {
     mezo.addEventListener("input", function () {
-      J.beirt = mezo.value.replace(/[^0-9]/g, "").slice(0, 3);
+      J.beirt = mezo.value.replace(/[^0-9]/g, "").slice(0, beirMax());
       mezo.value = J.beirt;
       $("beiro-kijelzo").textContent = J.beirt;
     });
@@ -388,7 +394,11 @@ function ertekel(valasz) {
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
       : ("Ez az! " + f.helyes + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
-    csillagRepul($("bagoly-buborek")); J.feladatKesz++;
+    csillagRepul($("bagoly-buborek"));
+    if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
+      J.lancKov = f.lanc[0];
+      if (f.lanc.length > 1) J.lancKov.lanc = f.lanc.slice(1);
+    } else J.feladatKesz++;
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
       if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
@@ -410,7 +420,7 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
     } else {
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
-      else { $("visszajelzes").textContent = "✘ " + f.keplet + " = " + f.helyes; mondd(f.tipp, kezNelkulUjra); }
+      else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
     }
     ment();
   }

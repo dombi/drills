@@ -38,7 +38,7 @@ function kezNelkulFigyel() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelj(function (alt) {
     $("hallgat-e").hidden = true;
-    var n = elsoSzam(alt.join(" "));
+    var n = valaszSzamKi(alt);
     if (n == null) { kezNelkulCsend(); return; }
     J.kezCsend = 0;
     ertekel(n);
@@ -121,7 +121,7 @@ function mikrofonInd() {
       if (szamok.length >= 2) ertekel({ h: szamok[0], m: szamok[1] });
       else { $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = szamok.length === 1 ? "Mondd a maradékot is!" : "Nem hallottam — mondd még egyszer!"; }
     } else {
-      var n = elsoSzam(alt.join(" "));
+      var n = valaszSzamKi(alt);
       if (n == null) { $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "Nem hallottam — mondd még egyszer!"; }
       else ertekel(n);
     }
@@ -147,7 +147,7 @@ function tovabbMegoldasNelkul() {
   if (!J || !tovabbMehetE()) return;
   hangGomb(); figyelStop();
   if (J.feladat && J.feladat.csalad === "felmondas") { $("bontas-lepes").hidden = true; J.feladatKesz++; allomasKesz(); return; }
-  J.feladatKesz++;
+  J.feladatKesz++; J.lancKov = null;         /* mérés: a kérdés-lánc maradéka is kimarad */
   if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat();
 }
 function esemenyek() {
@@ -209,7 +209,7 @@ function esemenyek() {
     else if (/^Numpad[0-9]$/.test(e.code)) d = e.code.charAt(6);
     else if (e.key && e.key.length === 1 && e.key >= "0" && e.key <= "9") d = e.key;
     if (d !== null) {
-      if (J.beirt.length < 3) { J.beirt += d; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
+      if (J.beirt.length < beirMax()) { J.beirt += d; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (J.beirt) { J.beirt = J.beirt.slice(0, -1); $("beiro-kijelzo").textContent = J.beirt; }

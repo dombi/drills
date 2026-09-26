@@ -27,8 +27,10 @@ function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
-  var REGIO_CIM = { egyeni: "💖 Neked készült", fejtoro: "🏔️ Fejtörő-hegy", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget" };
-  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER };   /* mindkét liget saját jelenetet kap */
+  var REGIO_CIM = { egyeni: "💖 Neked készült", fejtoro: "🏔️ Fejtörő-hegy", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget",
+                   szabo: "🧵 Szabóműhely", bajital: "🧪 Bájitalkonyha", pekseg: "🧁 Mézes pékség" };
+  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER,
+                      szabo: MERES_HATTER.szabo, bajital: MERES_HATTER.bajital, pekseg: MERES_HATTER.pekseg };   /* mérés-ligetek: réteges műhely-háttér (meres.js) */   /* mindkét liget saját jelenetet kap */
   /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
      a sorszámozás folyamatos marad (a gyerek ne lásson hézagot). Az egyéni pályák (4b) a saját ligetükben
      legfölül vannak, sorszám nélkül — így a közös pályák számai nem tolódnak el. */

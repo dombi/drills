@@ -106,7 +106,10 @@ function felulirSzamol() {
 
 /* ── a játék ezeket kérdezi ── */
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
-function palyaRejtve(pa) { return !!pa && !kapuKulcsPalya(pa.id) && palyaFelulir(pa.id).enabled === false; }
+function palyaRejtve(pa) {
+  if (pa && pa.meres && !meresLathato()) return true;   /* mérés-ligetek: a fejlesztés alatt csak a producer látja (meres.js) */
+  return !!pa && !kapuKulcsPalya(pa.id) && palyaFelulir(pa.id).enabled === false;
+}
 function palyaAjanlott(pa) { return !!pa && palyaFelulir(pa.id).recommended === true; }
 var AJANLOTT_HARMAT = 2;   /* 💖 ajánlott pálya: +2 💧 minden befejezéskor (nincs napi korlát) */
 function palyaSzorzo(pa) {

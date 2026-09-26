@@ -770,6 +770,7 @@ function jelenetSVG(palya, lenyKulcs) {
      2026-09-06). A régi kamerás nézet csak akkor fut, ha egy pálya kifejezetten teljes_ut:false. */
   SCENE_TELJES = (palya.teljes_ut !== false);
   SCENE_N = palya.allomasok.length;
+  if (palya.muhely) { SCENE_TELJES = true; return muhelyJelenetSVG(palya, LENYEK[lenyKulcs]); }   /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (SCENE_TELJES) return jelenetSVGteljes(palya, LENYEK[lenyKulcs]);
   var n = palya.allomasok.length;
   var szelesseg = allomasX(n - 1) + 260;
