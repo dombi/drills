@@ -102,7 +102,8 @@ function hangokBetolt() { try { var vs = speechSynthesis.getVoices(); huHang = v
 if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = hangokBetolt; }
 /* kiejtés-javítás CSAK a gépi beszédben (a képernyőn marad az eredeti szó). A Windows-hang (Szabolcs)
    a „deciliter”-t elcsúsztatja; a producer a próbalapon (Matekos\deci-kiejtes-proba.html) az „E”-t választotta. */
-var KIEJTES = [[/([Dd])eciliter/g, "$1eci-líter"]];   /* 2026-09-27; a ragos alakokra is: deciliterrel, decilitert… */
+var KIEJTES = [[/([Dd])eciliter/g, "$1eci-líter"],   /* 2026-09-27; a ragos alakokra is: deciliterrel, decilitert… */
+  [/([Dd])eci(?![-lm])/g, "$1e-ci"]];                    /* a magában álló „deci” is („Hány centi egy deci?”) → de-ci; a deciméter és a deci-líter marad */
 function kiejtesJavit(s) { s = String(s == null ? "" : s); KIEJTES.forEach(function (k) { s = s.replace(k[0], k[1]); }); return s; }
 function mondd(szoveg, kesz) {
   szoveg = kiejtesJavit(szoveg);

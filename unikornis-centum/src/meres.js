@@ -258,7 +258,7 @@ function mFeladat(cfg, o) {
     csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: cfg.mennyiseg,
     kartyaHTML: '<div class="meres-kep">' + (o.kep || "") + '</div><div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
     szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: o.felolvas,
-    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null, mkk: o.mkk || null,
+    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null, mkk: o.mkk || null, mkd: o.mkd || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.helyes, atlepes: false }
   };
   return f;
@@ -707,7 +707,8 @@ function genMennyivel(cfg, kerultMar) {
   return mFeladat(cfg, { fajta: "mennyivel", kep: kep,
     kerdes: mB(egyik[0], egyik[1]) + " és " + mB(masik[0], masik[1]) + ". Mennyivel " + tobb + " az egyik? Hány <b>" + p.b + "</b>?",
     felolvas: mNagy(mMondd(egyik[0], egyik[1])) + " és " + mMondd(masik[0], masik[1]) + ". Mennyivel " + tobb + " az egyik? Hány " + M_NEV[p.b] + "?",
-    helyes: kul, hosszu: true, keplet: mJel(r.nagyB, p.b) + " − " + mJel(r.kis, p.b),
+    helyes: kul, hosszu: true, keplet: mJel(Math.max(r.nagyB, r.kis), p.b) + " − " + mJel(Math.min(r.nagyB, r.kis), p.b),
+    mkd: mkKulAdat(menny, { n: r.n, u: p.a }, { n: r.kis, u: p.b }, p.b),   /* rossz válasz → „Mennyivel több?” mozgókép (meres-mozgo.js) */
     megoldas: mJel(Math.max(r.nagyB, r.kis), p.b) + " − " + mJel(Math.min(r.nagyB, r.kis), p.b) + " = " + mJel(kul, p.b),
     tipp: "Előbb váltsd át: " + mMondd(r.n, p.a) + " az " + mMondd(r.nagyB, p.b) + ". Aztán vond ki a kisebbet a nagyobból." });
 }
@@ -1085,6 +1086,7 @@ function genOsszeh(cfg, kerultMar) {
     lanc = [mFeladat(cfg, { fajta: "mennyivel", kep: MR.svg360(cimk(K[0], 90) + MR.jel(180, 94, jo === 0 ? "&gt;" : "&lt;", 34) + cimk(K[1], 270)),
       kerdes: "Ügyes! És mennyivel " + tobb + " " + mAz(nagy.n) + " " + mB(nagy.n, nagy.u) + "? Hány <b>" + e + "</b>" + mValJel(e) + "?",
       felolvas: "Ügyes! És mennyivel " + tobb + "? Hány " + mVal(e) + "?", helyes: kul, hosszu: true,
+      mkd: mkKulAdat(menny, nagy, kicsi, e),
       keplet: mJel(mErtek(nagy) / M_SZ[e], e) + " − " + mJel(mErtek(kicsi) / M_SZ[e], e),
       megoldas: mJel(mErtek(nagy) / M_SZ[e], e) + " − " + mJel(mErtek(kicsi) / M_SZ[e], e) + " = " + mJel(kul, e),
       tipp: (nagy.u !== e ? mNagy(mMondd(nagy.n, nagy.u)) + " az " + mMondd(mErtek(nagy) / M_SZ[e], e) + ". " :
