@@ -263,7 +263,9 @@ var PALYAK = [
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).
-   Az 1. pálya eleje 1. osztályos (20-ig), a vége 2. osztályos; az 5. osztályos pályán az 1. pad az összetett alak. */
+   Az 1. pálya eleje 1. osztályos (20-ig), a vége 2. osztályos; az 5. osztályos pályán az 1. pad az összetett alak.
+   Koppintós kártyák (2. szakasz): 5. pad = összehasonlítás (+ szóban „mennyivel?”) + becslés; Odú-küszöb = szöveges +
+   sorba rendezés + melyik mértékegység (+ 4. osztálytól kakukktojás). */
 var MERES_ALLOMAS = {
   szabo:   ["Vonalzó", "Szabás", "Mennyi hiányzik?", "Varrás", "Melyik hosszabb?", "Hosszú vég"],
   bajital: ["Mérőpohár", "Átöntés", "Mennyi hiányzik?", "Keverés", "Melyik több?", "Hordócímke"],
@@ -280,8 +282,8 @@ function meresPalya(id, nev, ikon, liga, menny, osztaly, szint, palcim) {
       { nev: N[1], feladatok: ["atvaltas"], g: g0, darab: 6 },
       { nev: N[2], feladatok: ["kieg"], g: g2, darab: 5 },
       { nev: N[3], feladatok: osztaly >= 4 ? ["muvelet", "muvelet", "osszetett"] : ["muvelet"], g: g2, darab: 6 },
-      { nev: N[4], feladatok: ["mennyivel"], g: g2, darab: 5 },
-      { nev: "Odú-küszöb", feladatok: ["szoveges", "szoveges", "atvaltas"], g: g2, darab: 5, cel: true }
+      { nev: N[4], feladatok: ["osszeh", "osszeh", "becsles"], g: g2, darab: 5 },
+      { nev: "Odú-küszöb", feladatok: ["szoveges", "szoveges", "sorba", "egyseg"].concat(osztaly >= 4 ? ["kakukk"] : []), g: g2, darab: 6, cel: true }
     ]
   };
 }
@@ -2002,7 +2004,7 @@ function kiiras(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;
    A kép a kérdés-buborékban ül (a Fejtörő-hegy mintájára), a motor a meglévő „egyenkent” út.
    Kódolás szakaszokban (2026-09-26): 1. szakasz = motor + 3 liget + 12 pálya + a szóbeli típusok
    (1 mérés, 2 átváltás, 3 kiegészítés, 4 műveletek, 8 összetett alak) + „mennyivel?” + 1 lépéses szöveges.
-   2. szakasz: a koppintós kártyák (5, 6, 7, 9, 10). 3. szakasz: szöveges végigvezetés + 4 mozgókép.
+   2. szakasz ✅ (2026-09-27): a koppintós kártyák (5, 6, 7, 9, 10) + a „mennyivel?” láncban. 3. szakasz: szöveges végigvezetés + 4 mozgókép.
    Amíg nincs kész, a ligeteket csak a producer látja (MRZS-kód, vagy ?meres ezen a gépen). */
 
 /* ── láthatóság a fejlesztés alatt ── */
@@ -2719,8 +2721,406 @@ function genSzoveges(cfg, kerultMar) {
   return f;
 }
 
+/* ═════════════════ 2. SZAKASZ: KOPPINTÓS KÁRTYÁK (rajzterv-2, jóváhagyva 2026-09-26) ═════════════════
+   5 összehasonlítás (+ utána szóban a „mennyivel?”), 6 becslés, 7 sorba rendezés, 9 melyik mértékegység, 10 kakukktojás.
+   f.csalad = "koppint": a mikrofon és a beíró négyzet helyett a #valasz-kartyak panel látszik, a gyerek koppint.
+   A gép CSAK a kérdést olvassa fel, a lehetőségeket NEM (producer döntése). Rossz koppintás: piros + billeg, aztán
+   halvány, és újra választhat; ahol több egység szerepel, a kártyák alján megjelenik a közös egység. */
+var M_KERD_TOBB = { hossz: "Melyik szalag hosszabb?", ur: "Melyik üvegben van több bájital?", tomeg: "Melyik zsák nehezebb?" };
+/* -val/-vel alak: „centiméterrel”, „kilogrammal”, „tonnával” (képernyőn: „cm-rel”, „kg-mal”) */
+function mVal(u) { var n = M_NEV[u]; return /a$/.test(n) ? n.slice(0, -1) + "ával" : n + (/gramm$/.test(n) ? "al" : "rel"); }   /* „kilogrammal” (három m helyett kettő) */
+function mValJel(u) { return /gramm$/.test(M_NEV[u]) ? "-mal" : (/a$/.test(M_NEV[u]) ? "-val" : "-rel"); }
+function mNelJel(u) { return /gramm$|a$/.test(M_NEV[u]) ? "-nál" : "-nél"; }
+/* a képernyő-mondat felolvasható alakja: „kb. 15 cm” → „körülbelül tizenöt centiméter” */
+function mKiejt(s) {
+  return String(s).replace(/<[^>]+>/g, "").replace(/\bkb\./g, "körülbelül").replace(/ = /g, " az ").replace(/ : /g, " osztva ")
+    .replace(/(\d[\d ]*?)\s?(mm|cm|dm|km|ml|cl|dl|hl|dkg|kg|m|l|g|q|t)(?![a-zá-ű])/g, function (x, n, u) { return mMondd(parseInt(n.replace(/ /g, ""), 10), u); });
+}
+function mKever(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = veletlen(0, i), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function mErtek(k) { return k.n * M_SZ[k.u]; }
+function mLegfinomabb(lista) { return lista.map(function (k) { return k.u; }).sort(function (a, b) { return M_SZ[a] - M_SZ[b]; })[0]; }
+function mKoppFeladat(cfg, o) {
+  return {
+    csalad: "koppint", meres: cfg.mennyiseg, liga: MENNY[cfg.mennyiseg].liga, kopp: o.kopp,
+    kartyaHTML: (o.kep ? '<div class="meres-kep">' + o.kep + '</div>' : "") + '<div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
+    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), felolvas: o.felolvas, helyes: 1, joKiir: o.joKiir, keplet: o.keplet || "", megoldas: o.megoldas || "",
+    tipp: "", lanc: o.lanc || null,
+    naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.joKiir, atlepes: false }
+  };
+}
+function mEmoji(e) { return '<div class="meres-emoji">' + e + '</div>'; }
+
+/* ── valós tárgyak a becsléshez és a „melyik egység?” feladatokhoz (rendszerterv 4.6 és 4.9) ──
+   e: kép · n, u: a valódi nagyság · k: becslő kérdés · a: alany a „1 m-nél hosszabb?” kérdéshez (null = ott nem jó) ·
+   t: tárgyeset a „mivel mérnéd …?” kérdéshez · c: mondat a számmal (4.9c) · m: magyarázat rossz válasz után */
+var M_TARGYAK = {
+  hossz: [
+    { e: "✏️", n: 15, u: "cm", k: "Milyen hosszú egy ceruza?", a: "A ceruza", t: "a ceruzát", c: "A ceruzám {} hosszú.", m: "A ceruza kb. 15 cm hosszú." },
+    { e: "🚪", n: 2, u: "m", k: "Milyen magas egy ajtó?", a: "Az ajtó", t: "az ajtó magasságát", c: "A szobám ajtaja {} magas.", m: "Az ajtó magasabb, mint te: kb. 2 m." },
+    { e: "🚌", n: 12, u: "m", k: "Milyen hosszú egy busz?", a: "A busz", t: "a busz hosszát", c: "A busz {} hosszú.", m: "Egy busz kb. 12 m hosszú." },
+    { e: "🐜", n: 3, u: "mm", k: "Milyen hosszú egy hangya?", a: "A hangya", t: "a hangya hosszát", c: "A hangya {} hosszú.", m: "Egy hangya csak kb. 3 mm hosszú." },
+    { e: "🛏️", n: 2, u: "m", k: "Milyen hosszú egy ágy?", a: "Az ágy", t: "az ágy hosszát", c: "Az ágyam {} hosszú.", m: "Egy ágy kb. 2 m hosszú." },
+    { e: "📓", n: 5, u: "mm", k: "Milyen vastag egy füzet?", a: null, t: "a füzeted vastagságát", c: "A füzetem {} vastag.", m: "A füzet csak kb. 5 mm vastag." },
+    { e: "🦒", n: 5, u: "m", k: "Milyen magas egy zsiráf?", a: null, t: "a zsiráf magasságát", c: "A zsiráf {} magas.", m: "Egy zsiráf kb. 5 m magas." },
+    { e: "🍌", n: 20, u: "cm", k: "Milyen hosszú egy banán?", a: "A banán", t: "a banánt", c: "A banán {} hosszú.", m: "Egy banán kb. 20 cm hosszú." },
+    { e: "🚗", n: 4, u: "m", k: "Milyen hosszú egy autó?", a: "Az autó", t: "az autó hosszát", c: "Az autónk {} hosszú.", m: "Egy autó kb. 4 m hosszú." },
+    { e: "🛣️", n: 60, u: "km", k: "Milyen messze van a szomszéd város?", a: "A szomszéd városig az út", t: "a két város közti utat", c: "A két város között {} az út.", m: "A szomszéd városig kb. 60 km az út." },
+    { e: "🐛", n: 4, u: "cm", k: "Milyen hosszú egy hernyó?", a: "A hernyó", t: "a hernyót", c: "A hernyó {} hosszú.", m: "Egy hernyó kb. 4 cm hosszú." },
+    { e: "🌳", n: 10, u: "m", k: "Milyen magas egy nagy fa?", a: null, t: "a fa magasságát", c: "A kertünkben a nagy fa {} magas.", m: "Egy nagy fa kb. 10 m magas." },
+    { e: "📎", n: 3, u: "cm", k: "Milyen hosszú egy gemkapocs?", a: "A gemkapocs", t: "a gemkapcsot", c: "A gemkapocs {} hosszú.", m: "Egy gemkapocs kb. 3 cm hosszú." },
+    { e: "🏃", n: 400, u: "m", k: "Milyen hosszú egy kör a futópályán?", a: "Egy kör a futópályán", t: "a futópálya egy körét", c: "Egy kör a futópályán {}.", m: "Egy kör a futópályán 400 m." }
+  ],
+  ur: [
+    { e: "🥛", n: 2, u: "dl", k: "Mennyi víz fér egy pohárba?", a: "Egy pohárba", t: "egy pohár vizet", c: "Egy pohárba {} víz fér.", m: "Egy pohárba kb. 2 dl víz fér." },
+    { e: "🪣", n: 10, u: "l", k: "Mennyi víz fér egy vödörbe?", a: "Egy vödörbe", t: "a vödör vizét", c: "A vödörbe {} víz fér.", m: "Egy vödörbe kb. 10 l víz fér." },
+    { e: "🛁", n: 150, u: "l", k: "Mennyi víz fér a fürdőkádba?", a: "A fürdőkádba", t: "a kád vizét", c: "A fürdőkádba {} víz fér.", m: "A kádba kb. 150 l víz fér." },
+    { e: "🥄", n: 5, u: "ml", k: "Mennyi orvosság fér egy kanálba?", a: "Egy kanálba", t: "egy kanál orvosságot", c: "A kanálba {} orvosság fér.", m: "Egy kanálba csak kb. 5 ml fér." },
+    { e: "☕", n: 3, u: "dl", k: "Mennyi tea fér egy bögrébe?", a: "Egy bögrébe", t: "egy bögre teát", c: "Egy bögrébe {} tea fér.", m: "Egy bögrébe kb. 3 dl tea fér." },
+    { e: "🐠", n: 50, u: "l", k: "Mennyi víz fér egy akváriumba?", a: "Az akváriumba", t: "az akvárium vizét", c: "Az akváriumba {} víz fér.", m: "Egy akváriumba kb. 50 l víz fér." },
+    { e: "🧪", n: 20, u: "ml", k: "Mennyi bájital fér egy kémcsőbe?", a: "Egy kémcsőbe", t: "egy kémcső bájitalt", c: "A kémcsőbe {} bájital fér.", m: "Egy kémcsőbe kb. 20 ml fér." },
+    { e: "🍲", n: 3, u: "dl", k: "Mennyi leves fér egy tányérba?", a: "Egy tányérba", t: "egy tányér levest", c: "Egy tányérba {} leves fér.", m: "Egy tányérba kb. 3 dl leves fér." },
+    { e: "⛽", n: 50, u: "l", k: "Mennyi benzin fér egy autó tankjába?", a: "Az autó tankjába", t: "az autó benzinjét", c: "Az autó tankjába {} benzin fér.", m: "Egy autó tankjába kb. 50 l benzin fér." },
+    { e: "🛢️", n: 2, u: "hl", k: "Mennyi bor fér egy nagy hordóba?", a: "Egy nagy hordóba", t: "a hordó borát", c: "A nagy hordóba {} bor fér.", m: "Egy nagy hordóba kb. 2 hl fér." },
+    { e: "🧃", n: 2, u: "dl", k: "Mennyi üdítő van egy kis dobozban?", a: "Egy kis üdítős dobozba", t: "egy doboz üdítőt", c: "A kis dobozban {} üdítő van.", m: "Egy kis dobozos üdítő kb. 2 dl." },
+    { e: "🫖", n: 1, u: "l", k: "Mennyi tea fér egy teáskannába?", a: null, t: "a teáskanna teáját", c: "A teáskannába {} tea fér.", m: "Egy teáskannába kb. 1 l tea fér." },
+    { e: "💧", n: 1, u: "ml", k: "Mennyi víz van egy nagy vízcseppben?", a: "Egy vízcseppben", t: "egy vízcseppet", c: "Egy nagy vízcsepp {}.", m: "Egy nagy vízcsepp kb. 1 ml." }
+  ],
+  tomeg: [
+    { e: "🥚", n: 6, u: "dkg", k: "Milyen nehéz egy tojás?", a: "Egy tojás", t: "egy tojást", c: "Egy tojás tömege {}.", m: "Egy tojás kb. 6 dkg." },
+    { e: "🍎", n: 20, u: "dkg", k: "Milyen nehéz egy alma?", a: "Egy alma", t: "egy almát", c: "Egy alma tömege {}.", m: "Egy alma kb. 20 dkg." },
+    { e: "🍉", n: 5, u: "kg", k: "Milyen nehéz egy nagy dinnye?", a: "Egy nagy dinnye", t: "egy dinnyét", c: "A nagy dinnye tömege {}.", m: "Egy nagy dinnye kb. 5 kg." },
+    { e: "🐘", n: 5, u: "t", k: "Milyen nehéz egy elefánt?", a: "Egy elefánt", t: "egy elefántot", c: "Az elefánt tömege {}.", m: "Egy elefánt kb. 5 t." },
+    { e: "🍬", n: 5, u: "g", k: "Milyen nehéz egy cukorka?", a: "Egy cukorka", t: "egy cukorkát", c: "A cukorka tömege {}.", m: "Egy cukorka csak kb. 5 g." },
+    { e: "🧈", n: 25, u: "dkg", k: "Milyen nehéz egy csomag vaj?", a: "Egy csomag vaj", t: "egy csomag vajat", c: "Egy csomag vaj tömege {}.", m: "Egy csomag vaj kb. 25 dkg." },
+    { e: "🐈", n: 4, u: "kg", k: "Milyen nehéz egy macska?", a: "Egy macska", t: "a macskát", c: "A macskánk tömege {}.", m: "Egy macska kb. 4 kg." },
+    { e: "🎒", n: 3, u: "kg", k: "Milyen nehéz egy iskolatáska?", a: "Az iskolatáska", t: "az iskolatáskát", c: "Az iskolatáskám tömege {}.", m: "Egy iskolatáska kb. 3 kg." },
+    { e: "🪶", n: 1, u: "g", k: "Milyen nehéz egy madártoll?", a: "Egy madártoll", t: "egy madártollat", c: "A madártoll tömege {}.", m: "Egy madártoll kb. 1 g, nagyon könnyű." },
+    { e: "🥔", n: 20, u: "kg", k: "Milyen nehéz egy zsák krumpli?", a: "Egy zsák krumpli", t: "a zsák krumplit", c: "A zsák krumpli tömege {}.", m: "Egy zsák krumpli kb. 20 kg." },
+    { e: "🐕", n: 10, u: "kg", k: "Milyen nehéz egy kutya?", a: "Egy kutya", t: "a kutyát", c: "A kutyánk tömege {}.", m: "Egy közepes kutya kb. 10 kg." },
+    { e: "🧂", n: 1, u: "g", k: "Milyen nehéz egy csipet só?", a: "Egy csipet só", t: "egy csipet sót", c: "Egy csipet só tömege {}.", m: "Egy csipet só kb. 1 g." },
+    { e: "🚗", n: 1, u: "t", k: "Milyen nehéz egy autó?", a: "Egy autó", t: "egy autót", c: "Az autónk tömege {}.", m: "Egy autó kb. 1 t." },
+    { e: "🍫", n: 10, u: "dkg", k: "Milyen nehéz egy tábla csoki?", a: "Egy tábla csoki", t: "egy tábla csokit", c: "Egy tábla csoki tömege {}.", m: "Egy tábla csoki kb. 10 dkg." }
+  ]
+};
+var M_ALAP = { hossz: "m", ur: "l", tomeg: "kg" };                      /* a „1 m-nél hosszabb?” mércéje */
+var M_TOBB_KEV = { hossz: ["hosszabb", "rövidebb"], ur: ["több", "kevesebb"], tomeg: ["több", "kevesebb"] };
+var M_K3 = { hossz: ["mm", "cm", "m", "km"], ur: ["ml", "dl", "l", "hl"], tomeg: ["g", "dkg", "kg", "t"] };   /* 3 kártyás becslés sora */
+function mK3Egys(menny, g) { return M_K3[menny].filter(function (u) { return g >= 5 || (u !== "hl" && u !== "t"); }); }
+/* 1–2. osztály: csak az ott tanult egységekkel mondott, egyértelműen 1 egységnél nagyobb/kisebb tárgyak */
+function mTisztaTargyak(menny, g) {
+  var E = mEgysegek(menny, Math.min(g, 2)), A = M_SZ[M_ALAP[menny]];
+  return M_TARGYAK[menny].filter(function (t) { var v = t.n * M_SZ[t.u]; return t.a && E.indexOf(t.u) >= 0 && (v >= 2 * A || v * 2 <= A); });
+}
+/* 3 szomszédos egység, benne a helyes (véletlen ablak, hogy a jó ne mindig középen legyen) */
+function mAblak(lista, u, db) {
+  var i = lista.indexOf(u), jo = [];
+  for (var s = Math.max(0, i - db + 1); s <= Math.min(i, lista.length - db); s++) jo.push(s);
+  if (!jo.length) return lista.slice();
+  var s0 = mVel(jo);
+  return lista.slice(s0, s0 + db);
+}
+
+/* ── 6) BECSLÉS (4.6): 1–2. o. két gomb („1 m-nél hosszabb / rövidebb”), 3. o.-tól három kártya ── */
+function genBecsles(cfg, kerultMar) {
+  var g = cfg.g, menny = cfg.mennyiseg, A = M_ALAP[menny], TK = M_TOBB_KEV[menny];
+  if (g <= 2) {
+    var t2 = mEgyedi(kerultMar, function () { var t = mVel(mTisztaTargyak(menny, g)); return { kulcs: "bc2" + t.e, t: t }; }).t;
+    var nagyobb = t2.n * M_SZ[t2.u] > M_SZ[A];
+    var utotag = menny === "ur" ? " fér?" : "?";
+    return mKoppFeladat(cfg, { fajta: "becsles", kep: mEmoji(t2.e),
+      kerdes: t2.a + " <b>1 " + A + "</b>" + mNelJel(A) + " " + TK[0] + " vagy " + TK[1] + utotag,
+      felolvas: t2.a + " egy " + M_NEV[A] + (/gramm$/.test(M_NEV[A]) ? "nál " : "nél ") + TK[0] + " vagy " + TK[1] + utotag,
+      joKiir: (nagyobb ? TK[0] : TK[1]), keplet: t2.e + " ? 1 " + A,
+      kopp: { tipus: "gomb", opciok: ["⬆ 1 " + A + mNelJel(A) + " " + TK[0], "⬇ 1 " + A + mNelJel(A) + " " + TK[1]], jo: nagyobb ? 0 : 1, mert: t2.m } });
+  }
+  var E = mK3Egys(menny, g);
+  var t3 = mEgyedi(kerultMar, function () {
+    var t = mVel(M_TARGYAK[menny].filter(function (x) { return E.indexOf(x.u) >= 0; }));
+    return { kulcs: "bc3" + t.e, t: t };
+  }).t;
+  var egys = mAblak(E, t3.u, 3);
+  return mKoppFeladat(cfg, { fajta: "becsles", kep: mEmoji(t3.e), kerdes: t3.k, felolvas: t3.k, joKiir: mJel(t3.n, t3.u), keplet: t3.e + " ≈ ?",
+    kopp: { tipus: "jelveny", opciok: egys.map(function (u) { return mJel(t3.n, u); }), jo: egys.indexOf(t3.u), mert: t3.m } });
+}
+
+/* ── 9) MELYIK MÉRTÉKEGYSÉG? (4.9): a · nagy vagy kis egységgel (1–2.) · b · melyikkel mérnéd (3–5.) ·
+      c · melyik illik a számhoz (4–5.) · d · milyen egységben lett ennyi (5.) ── */
+var M_NAGYKIS = { hossz: ["m", "cm"], ur: ["l", "dl"], tomeg: ["kg", "dkg"] };
+function genEgyseg(cfg, kerultMar) {
+  var g = cfg.g, menny = cfg.mennyiseg, valt = g <= 2 ? "a" : mVel(g === 3 ? ["b"] : (g === 4 ? ["b", "c"] : ["b", "c", "d"]));
+  if (valt === "a") {
+    var NK = M_NAGYKIS[menny];
+    var ta = mEgyedi(kerultMar, function () { var t = mVel(mTisztaTargyak(menny, g)); return { kulcs: "eg-a" + t.e, t: t }; }).t;
+    var nagy = ta.n * M_SZ[ta.u] >= M_SZ[NK[0]];
+    return mKoppFeladat(cfg, { fajta: "egyseg-a", kep: mEmoji(ta.e),
+      kerdes: "<b>" + NK[0] + "</b>" + mValJel(NK[0]) + " vagy <b>" + NK[1] + "</b>" + mValJel(NK[1]) + " mérnéd " + ta.t + "?",
+      felolvas: mNagy(mVal(NK[0])) + " vagy " + mVal(NK[1]) + " mérnéd " + ta.t + "?", joKiir: nagy ? NK[0] : NK[1], keplet: ta.e + ": " + NK[0] + " / " + NK[1],
+      kopp: { tipus: "jelveny", opciok: NK.slice(), jo: nagy ? 0 : 1, mert: ta.m + " Ezért " + mVal(nagy ? NK[0] : NK[1]) + " mérjük." } });
+  }
+  if (valt === "d") {
+    var L5 = MENNY[menny].egys[5];
+    var rd = mEgyedi(kerultMar, function () {
+      var parok = [];
+      for (var i = 0; i < L5.length; i++) for (var j = i + 1; j < L5.length; j++) { var f = M_SZ[L5[j]] / M_SZ[L5[i]]; if (f >= 10 && f <= 1000 && j - i <= 3) parok.push([i, j, f]); }
+      var p = mVel(parok), n1 = veletlen(2, Math.min(99, Math.floor(100000 / p[2])));
+      return { kulcs: "eg-d" + p[0] + p[1] + n1, i: p[0], j: p[1], f: p[2], n1: n1 };
+    });
+    var u0 = L5[rd.i], u1 = L5[rd.j], n0 = rd.n1 * rd.f, s0 = Math.max(0, Math.min(rd.i, L5.length - 4));
+    var opd = L5.slice(s0, s0 + 4);
+    return mKoppFeladat(cfg, { fajta: "egyseg-d", kep: "", kerdes: mB(n0, u0) + " ugyanaz, mint <b>" + mSzamIr(rd.n1) + "</b> <span class=\"ures\">?</span>",
+      felolvas: mNagy(mMondd(n0, u0)) + " ugyanaz, mint " + mSzo(rd.n1) + " … Melyik egység illik ide?", joKiir: u1,
+      keplet: mJel(n0, u0) + " = " + rd.n1 + " ?", megoldas: mJel(n0, u0) + " = " + mJel(rd.n1, u1),
+      kopp: { tipus: "jelveny", opciok: opd, jo: opd.indexOf(u1), mert: "1 " + u1 + " = " + mSzamIr(rd.f) + " " + u0 + ", és " + mSzamIr(n0) + " : " + mSzamIr(rd.f) + " = " + rd.n1 + "." } });
+  }
+  var E = mEgysegek(menny, g);
+  /* b: a rossz egységben 1-nél kisebb vagy 1000-nél nagyobb szám jönne ki; c: ugyanaz a szám, szomszédos egységek */
+  function rossz(t) { var v = t.n * M_SZ[t.u]; return E.filter(function (u) { var q = v / M_SZ[u]; return u !== t.u && (q < 1 || q >= 1000); }); }
+  var jelolt = M_TARGYAK[menny].filter(function (t) { return E.indexOf(t.u) >= 0 && (valt === "c" || rossz(t).length >= 2); });
+  var tb = mEgyedi(kerultMar, function () { var t = mVel(jelolt); return { kulcs: "eg-" + valt + t.e, t: t }; }).t;
+  var op;
+  if (valt === "b") op = [tb.u].concat(mKever(rossz(tb)).slice(0, 2)).sort(function (a, b) { return M_SZ[a] - M_SZ[b]; });
+  else op = mAblak(mK3Egys(menny, g), tb.u, 3);
+  if (valt === "b")
+    return mKoppFeladat(cfg, { fajta: "egyseg-b", kep: mEmoji(tb.e), kerdes: "Melyik egységgel mérnéd " + tb.t + "?", felolvas: "Melyik egységgel mérnéd " + tb.t + "?",
+      joKiir: tb.u, keplet: tb.e + ": ?", kopp: { tipus: "jelveny", opciok: op, jo: op.indexOf(tb.u), mert: tb.m } });
+  return mKoppFeladat(cfg, { fajta: "egyseg-c", kep: mEmoji(tb.e), kerdes: tb.c.replace("{}", "<b>" + mSzamIr(tb.n) + "</b> <span class=\"ures\">?</span>"),
+    felolvas: tb.c.replace("{}", mSzo(tb.n) + " …").replace("….", "…") + " Melyik egység illik ide?", joKiir: tb.u, keplet: tb.c.replace("{}", tb.n + " ?"),
+    kopp: { tipus: "jelveny", opciok: op, jo: op.indexOf(tb.u), mert: tb.m } });
+}
+
+/* ── 5) ÖSSZEHASONLÍTÁS (4.5): két kártya + „egyforma” gomb; jó koppintás után szóban a „mennyivel?” ── */
+function genOsszeh(cfg, kerultMar) {
+  var g = Math.max(2, cfg.g), menny = cfg.mennyiseg, liga = MENNY[menny].liga, L = M_HATAR[g];
+  var P0 = mParok(menny, g, g >= 3 ? 1000 : 100).filter(function (p) { return p.f * 2 <= L; });
+  if (!P0.length) P0 = mParok(menny, g, 100);                                /* 2. o. tömeg: csak kg–dkg (1 kg = 100 dkg) */
+  var r = mEgyedi(kerultMar, function () {
+    var egyforma = veletlen(1, 9) <= 2;
+    if (g === 2 && !egyforma && veletlen(1, 4) === 1) {                      /* 2. o.: néha azonos egység */
+      var u = mVel(mEgysegek(menny, 2)), a = veletlen(2, 99), b;
+      do { b = veletlen(2, 99); } while (b === a);
+      return { kulcs: "oh" + u + a + "|" + b, A: { n: a, u: u }, B: { n: b, u: u } };
+    }
+    var p = mVel(P0), n = veletlen(1, Math.max(1, Math.min(9, Math.floor(L / p.f / 2)))), nagyB = n * p.f, kis = nagyB;
+    if (!egyforma) {
+      var cs = [Math.max(2, Math.round(nagyB / 5)), nagyB - 1], fo = [nagyB + 1, Math.min(L, nagyB * 3)];   /* csapda: a nagyobb mérőszám a kisebb mennyiség */
+      var rr = (veletlen(0, 1) === 1 || fo[0] > fo[1]) && cs[0] <= cs[1] ? cs : fo, lo = rr[0], hi = rr[1];
+      var kor = 0;
+      do { kis = mKerekSzam(lo, hi, Math.min(g, 3)); } while (kis === nagyB && ++kor < 20);
+      if (kis === nagyB) kis = nagyB + 1;
+    }
+    return { kulcs: "oh" + p.a + n + "|" + kis + p.b, A: { n: n, u: p.a }, B: { n: kis, u: p.b } };
+  });
+  var K = veletlen(0, 1) ? [r.A, r.B] : [r.B, r.A], v0 = mErtek(K[0]), v1 = mErtek(K[1]);
+  var jo = v0 === v1 ? "=" : (v0 > v1 ? 0 : 1), e = mLegfinomabb(K), tobb = MENNY[menny].tobb;
+  var lanc = null;
+  if (jo !== "=") {
+    var kul = Math.abs(v0 - v1) / M_SZ[e], nagy = K[jo], kicsi = K[1 - jo];
+    var cimk = function (k, x) { return MR.targy(liga, x, 112, .95, x > 180 ? 2 : 0) + MR.tag(x, 134, mJel(k.n, k.u), { fs: 16 }) +
+      (k.u !== e ? MR.tag(x, 14, "= " + mJel(mErtek(k) / M_SZ[e], e), { fs: 14, bg: "#fff4e6", st: "#f7c59f", fill: "#c86b2a" }) : ""); };
+    lanc = [mFeladat(cfg, { fajta: "mennyivel", kep: MR.svg360(cimk(K[0], 90) + MR.jel(180, 94, jo === 0 ? "&gt;" : "&lt;", 34) + cimk(K[1], 270)),
+      kerdes: "Ügyes! És mennyivel " + tobb + " " + mAz(nagy.n) + " " + mB(nagy.n, nagy.u) + "? Hány <b>" + e + "</b>" + mValJel(e) + "?",
+      felolvas: "Ügyes! És mennyivel " + tobb + "? Hány " + mVal(e) + "?", helyes: kul, hosszu: true,
+      keplet: mJel(mErtek(nagy) / M_SZ[e], e) + " − " + mJel(mErtek(kicsi) / M_SZ[e], e),
+      megoldas: mJel(mErtek(nagy) / M_SZ[e], e) + " − " + mJel(mErtek(kicsi) / M_SZ[e], e) + " = " + mJel(kul, e),
+      tipp: (nagy.u !== e ? mNagy(mMondd(nagy.n, nagy.u)) + " az " + mMondd(mErtek(nagy) / M_SZ[e], e) + ". " :
+             (kicsi.u !== e ? mNagy(mMondd(kicsi.n, kicsi.u)) + " az " + mMondd(mErtek(kicsi) / M_SZ[e], e) + ". " : "")) +
+            "Vond ki a kisebbet a nagyobból!" })];
+  }
+  return mKoppFeladat(cfg, { fajta: "osszehasonlitas", kerdes: "<b class=\"tor\">" + M_KERD_TOBB[menny] + "</b>", felolvas: M_KERD_TOBB[menny],
+    joKiir: jo === "=" ? "egyformák" : mJel(K[jo].n, K[jo].u), keplet: mJel(K[0].n, K[0].u) + " ? " + mJel(K[1].n, K[1].u),
+    kopp: { tipus: "osszeh", kartyak: K, jo: jo }, lanc: lanc });
+}
+
+/* ── 7) SORBA RENDEZÉS (4.7): 2. o. 3 kártya egy egységgel · 3. o. 4 kártya, két szomszédos egység · 4–5. o. 5 kártya, három egység ── */
+function genSorba(cfg, kerultMar) {
+  var g = Math.max(2, cfg.g), menny = cfg.mennyiseg, L = M_HATAR[g], db = g <= 2 ? 3 : (g === 3 ? 4 : 5);
+  var r = mEgyedi(kerultMar, function () {
+    var K = [], vs = {}, kor = 0;
+    if (g <= 2) {
+      var u = mVel(mEgysegek(menny, 2));
+      while (K.length < db && kor++ < 200) { var n = veletlen(2, 99); if (!vs[n]) { vs[n] = 1; K.push({ n: n, u: u }); } }
+    } else {
+      var E = mEgysegek(menny, g), k = g === 3 ? 2 : 3, mx = g === 3 ? 5 : 9, ablakok = [];
+      for (var s = 0; s + k <= E.length; s++) { var W = E.slice(s, s + k); if (M_SZ[W[k - 1]] / M_SZ[W[0]] * mx <= L) ablakok.push(W); }
+      var W0 = mVel(ablakok), T = W0[k - 1], egysegek = mKever(W0.concat(W0, W0)).slice(0, db);
+      W0.forEach(function (w, i) { egysegek[i] = w; });                     /* minden egység legalább egyszer */
+      egysegek = mKever(egysegek);
+      egysegek.forEach(function (x) {
+        var tries = 0, n2, v;
+        do {
+          v = veletlen(Math.round(M_SZ[T] / 2), M_SZ[T] * mx);
+          n2 = Math.max(1, Math.round(v / M_SZ[x]));
+          if (x !== T) { var kl = n2 >= 10000 ? 500 : n2 >= 1000 ? 50 : (n2 >= 100 ? 10 : (n2 >= 20 ? 5 : 1)); n2 = Math.max(1, Math.round(n2 / kl) * kl); }   /* kerekebb számok */
+          v = n2 * M_SZ[x];
+        } while ((vs[v] || n2 > L) && ++tries < 60);
+        vs[v] = 1; K.push({ n: n2, u: x });
+      });
+    }
+    return { kulcs: "sb" + K.map(function (q) { return q.n + q.u; }).join(","), K: K };
+  });
+  var no = veletlen(0, 1) === 1, rend = r.K.map(function (q, i) { return i; }).sort(function (a, b) { return no ? mErtek(r.K[a]) - mErtek(r.K[b]) : mErtek(r.K[b]) - mErtek(r.K[a]); });
+  var SZ = { hossz: ["a legrövidebbtől a leghosszabbig", "a leghosszabbtól a legrövidebbig"], ur: ["a legkevesebbtől a legtöbbig", "a legtöbbtől a legkevesebbig"],
+             tomeg: ["a legkönnyebbtől a legnehezebbig", "a legnehezebbtől a legkönnyebbig"] }[menny][no ? 0 : 1];
+  return mKoppFeladat(cfg, { fajta: "sorba", kerdes: "Rakd sorba <b class=\"tor\">" + SZ + "</b>!", felolvas: "Rakd sorba " + SZ + "!",
+    joKiir: rend.map(function (i) { return mJel(r.K[i].n, r.K[i].u); }).join(no ? " < " : " > "), keplet: r.K.map(function (q) { return mJel(q.n, q.u); }).join(", "),
+    kopp: { tipus: "sorba", kartyak: r.K, rend: rend, no: no } });
+}
+
+/* ── 10) KAKUKKTOJÁS (4.10): 4. o. 3 tojás, szomszédos egységek · 5. o. 4 tojás, nagy ugrások; az „álruhás” mindig 10× vagy tized ── */
+function genKakukk(cfg, kerultMar) {
+  var g = Math.max(4, cfg.g), menny = cfg.mennyiseg, L = M_HATAR[g];
+  var r = mEgyedi(kerultMar, function () {
+    var K, odd;
+    if (g <= 4) {
+      var p = mVel(mParok(menny, 4, 100)), n = veletlen(1, 9);
+      K = [{ n: n, u: p.a }, { n: n * p.f, u: p.b }];
+      var jel = [{ n: n, u: p.b }, { n: n * 10, u: p.a }];
+      if (n * p.f * 10 <= L) jel.push({ n: n * p.f * 10, u: p.b });
+      odd = mVel(jel);
+    } else {
+      var E = MENNY[menny].egys[5], abl = [];
+      for (var s = 0; s + 3 <= E.length; s++) if (M_SZ[E[s + 2]] / M_SZ[E[s]] * 20 <= L) abl.push(E.slice(s, s + 3));
+      var W = mVel(abl), f = M_SZ[W[2]] / M_SZ[W[0]], maxN = Math.min(99, Math.floor(L / (f * 10))), n5;
+      do { n5 = veletlen(2, maxN); } while (n5 % 10 === 0);
+      K = [{ n: n5, u: W[2] }, { n: n5 * M_SZ[W[2]] / M_SZ[W[1]], u: W[1] }, { n: n5 * f, u: W[0] }];
+      var j = veletlen(0, 2), alap = K[j];
+      odd = (veletlen(0, 1) && alap.n % 10 === 0) ? { n: alap.n / 10, u: alap.u } : { n: alap.n * 10, u: alap.u };
+      if (odd.n > L) odd = { n: alap.n / 10, u: alap.u };
+    }
+    var T = mKever(K.concat([odd]));
+    return { kulcs: "kk" + T.map(function (q) { return q.n + q.u; }).join(","), T: T, odd: T.indexOf(odd) };
+  });
+  return mKoppFeladat(cfg, { fajta: "kakukk", kerdes: "Melyik a <b>kakukktojás</b>?<br><span class=\"meres-kis\">(Melyik nem egyenlő a többivel?)</span>",
+    felolvas: "Melyik a kakukktojás? Melyik nem egyenlő a többivel?", joKiir: mJel(r.T[r.odd].n, r.T[r.odd].u),
+    keplet: r.T.map(function (q) { return mJel(q.n, q.u); }).join(" · "), kopp: { tipus: "kakukk", kartyak: r.T, jo: r.odd } });
+}
+
+/* ═════════════════ A KÁRTYA-PANEL (a #valasz-egyenkent-en belül, a visszajelzés alatt) ═════════════════ */
+function mKoppPanel() {
+  var p = $("valasz-kartyak");
+  if (!p) {
+    p = el("div", "valasz-kartyak"); p.id = "valasz-kartyak";
+    var v = $("visszajelzes"); v.parentNode.insertBefore(p, v.nextSibling);
+    p.addEventListener("click", mKoppKatt);
+  }
+  return p;
+}
+function mKoppRejt() {
+  var p = $("valasz-kartyak"); if (p) { p.hidden = true; p.innerHTML = ""; }
+  var ve = $("valasz-egyenkent"); if (ve) ve.classList.remove("koppint");
+}
+function mTkTargy(liga, ci) {
+  var c = MR.LIGA[liga].szinek[ci % 6];
+  return liga === "szabo" ? MR.tekercs(0, -44, c, .95) : (liga === "bajital" ? MR.lombik(0, -2, c, .98) : MR.zsak(0, -2, c, 1.05));
+}
+function mTk(liga, k, i, extra) {
+  var t = mJel(k.n, k.u);
+  return '<button class="tk tk-' + liga + (t.length > 7 ? ' hosszu' : '') + '" data-i="' + i + '"' + (extra || "") + '><svg viewBox="-46 -86 92 88" aria-hidden="true">' +
+    mTkTargy(liga, i) + '</svg><span class="cimke">' + t + '</span><span class="valt"></span></button>';
+}
+/* a kártyák alján a közös (legfinomabb) egység: „= 30 dl” */
+function mValtIr(p, K) {
+  var e = mLegfinomabb(K);
+  Array.prototype.forEach.call(p.querySelectorAll(".tk[data-i]"), function (b) {
+    var k = K[+b.getAttribute("data-i")], v = b.querySelector(".valt");
+    if (k && v && k.u !== e) v.textContent = "= " + mJel(mErtek(k) / M_SZ[e], e);
+  });
+}
+function mKoppMutat(f) {
+  var p = mKoppPanel(), o = f.kopp, liga = f.liga, h = "";
+  J.kopp = { f: f, kesz: false, lepes: 0 };
+  $("valasz-egyenkent").classList.add("koppint");
+  $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
+  if (o.tipus === "osszeh")
+    h = '<div class="kartyak">' + mTk(liga, o.kartyak[0], 0) + '<button class="egyforma" data-i="=">=<span>egyforma</span></button>' + mTk(liga, o.kartyak[1], 1) + '</div>';
+  else if (o.tipus === "gomb")
+    h = '<div class="kartyak">' + o.opciok.map(function (t, i) { return '<button class="ketgomb tk-' + liga + '" data-i="' + i + '">' + t + '</button>'; }).join("") + '</div>';
+  else if (o.tipus === "jelveny")
+    h = '<div class="kartyak">' + o.opciok.map(function (t, i) { return '<button class="ej ej-' + liga + (t.length > 3 ? ' hosszu' : '') + (t.length > 6 ? ' nagyon' : '') + '" data-i="' + i + '"><span>' + t + '</span></button>'; }).join("") + '</div>';
+  else if (o.tipus === "sorba") {
+    var rot = [-5, 4, -2, 6, -4];
+    h = '<div class="szort">' + o.kartyak.map(function (k, i) { return mTk(liga, k, i, ' style="transform:rotate(' + rot[i] + 'deg)"'); }).join("") + '</div>' +
+      '<div class="polc"><div class="polc-irany">' + (o.no ? "kicsi ⟶ nagy" : "nagy ⟶ kicsi") + '</div><div class="polc-sor">' +
+      o.kartyak.map(function () { return '<div class="hely"></div>'; }).join("") + '</div><div class="polc-deszka"></div></div>';
+  } else if (o.tipus === "kakukk") {
+    var K = o.kartyak, lep = 360 / (K.length + 1), sz = ["#fde6f0", "#e6f4fd", "#fdf6d8", "#eaf6e3"], F = MR.F;
+    var toj = K.map(function (k, i) {
+      var x = lep * (i + 1), num = mSzamIr(k.n);
+      return '<g class="tojas" data-i="' + i + '"><ellipse cx="' + x + '" cy="84" rx="' + (K.length > 3 ? 36 : 40) + '" ry="48" fill="' + sz[i] + '" stroke="#c9b3a0" stroke-width="2.5"/>' +
+        '<circle cx="' + (x - 14) + '" cy="62" r="3" fill="#fff"/><text x="' + x + '" y="84" text-anchor="middle" font-size="' + (num.length > 4 ? 16 : 20) + '" font-weight="800" fill="#4a3b7a" ' + F + '>' + num + '</text>' +
+        '<text x="' + x + '" y="106" text-anchor="middle" font-size="17" font-weight="700" fill="#6a5a9a" ' + F + '>' + k.u + '</text></g>';
+    }).join("");
+    var fonat = [30, 70, 110, 150, 190, 230, 270, 310].map(function (x, i) { return '<path d="M' + x + ' ' + (138 + (i % 2) * 6) + ' q24 ' + (i % 2 ? -8 : 8) + ' 50 0" stroke="#8a5e34" stroke-width="3" fill="none" stroke-linecap="round"/>'; }).join("");
+    h = '<div class="feszek"><svg viewBox="0 0 360 190" xmlns="http://www.w3.org/2000/svg"><path d="M14 120 Q180 210 346 120 Q330 176 180 184 Q30 176 14 120Z" fill="#c99b6d"/>' + toj +
+      '<path d="M6 118 Q180 196 354 118 Q340 150 180 160 Q20 150 6 118Z" fill="#b98652"/>' + fonat + '<g class="valtsor"></g></svg></div>';
+  }
+  p.innerHTML = h; p.hidden = false;
+}
+/* rossz koppintás: a motor könyvelése (mint az ertekel rossz ága), de hallgatás nélkül */
+function mKoppRossz(f, cimke, html, kimond) {
+  J.probak++; J.allomasHibatlan = false; streakLep(false);
+  naplozz(f.naplo, false, cimke); hangHiba();
+  var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.innerHTML = html;
+  if (kimond) mondd(kimond);
+  ment();
+}
+function mKoppJo(f, kes) {
+  J.kopp.kesz = true;
+  setTimeout(function () { if (J && J.feladat === f) ertekel(f.helyes); }, kes || 0);
+}
+function mBillegHalvany(b) { b.classList.add("rossz"); setTimeout(function () { b.classList.remove("rossz"); b.classList.add("kiszurkul"); }, 650); }
+function mKoppKatt(ev) {
+  var b = ev.target.closest ? ev.target.closest("[data-i]") : null;
+  if (!b || !J || !J.kopp || J.kopp.kesz || !J.feladat || J.feladat.csalad !== "koppint") return;
+  if (b.classList.contains("kiszurkul") || b.classList.contains("jo") || b.classList.contains("rossz")) return;
+  var f = J.feladat, o = f.kopp, p = $("valasz-kartyak"), d = b.getAttribute("data-i");
+  hangGomb();
+  if (o.tipus === "osszeh") {
+    var valasz = d === "=" ? "=" : +d;
+    if (valasz === o.jo) {
+      b.classList.add("jo"); mValtIr(p, o.kartyak);
+      Array.prototype.forEach.call(p.querySelectorAll(".kartyak > :not(.jo)"), function (x) { x.classList.add("kiszurkul"); });
+      mKoppJo(f, 500);
+    } else {
+      mValtIr(p, o.kartyak); mBillegHalvany(b);
+      mKoppRossz(f, d === "=" ? "egyforma" : mJel(o.kartyak[+d].n, o.kartyak[+d].u), "Nézzük meg közös egységben!", "Nézzük meg közös egységben!");
+    }
+  } else if (o.tipus === "gomb" || o.tipus === "jelveny") {
+    if (+d === o.jo) { b.classList.add("jo"); mKoppJo(f, 400); }
+    else {
+      mBillegHalvany(b);
+      mKoppRossz(f, o.opciok[+d], "Nem egészen!<small>" + o.mert + "</small>", "Nem egészen! " + mKiejt(o.mert));
+    }
+  } else if (o.tipus === "sorba") {
+    var i = +d;
+    if (i === o.rend[J.kopp.lepes]) {
+      b.style.transform = ""; b.classList.add("helyen");
+      p.querySelectorAll(".hely")[J.kopp.lepes].appendChild(b);
+      J.kopp.lepes++;
+      $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
+      if (J.kopp.lepes >= o.rend.length) mKoppJo(f, 350);
+    } else {
+      b.classList.add("rossz"); setTimeout(function () { b.classList.remove("rossz"); }, 650);
+      mValtIr(p, o.kartyak);
+      mKoppRossz(f, mJel(o.kartyak[i].n, o.kartyak[i].u), "Nézzük meg közös egységben!", "Nézzük meg közös egységben!");
+    }
+  } else if (o.tipus === "kakukk") {
+    var K = o.kartyak, e = mLegfinomabb(K), lep = 360 / (K.length + 1), F = MR.F;
+    p.querySelector(".valtsor").innerHTML = K.map(function (k, j) {
+      return '<rect x="' + (lep * (j + 1) - 35) + '" y="160" width="70" height="22" rx="11" fill="#fff" stroke="#f7c59f" stroke-width="2"/><text x="' + (lep * (j + 1)) +
+        '" y="175.5" text-anchor="middle" font-size="11.5" font-weight="800" fill="#c86b2a" ' + F + '>= ' + mJel(mErtek(k) / M_SZ[e], e) + '</text>';
+    }).join("");
+    if (+d === o.jo) { b.classList.add("kiesik"); mKoppJo(f, 900); }
+    else {
+      b.classList.add("rossz"); setTimeout(function () { b.classList.remove("rossz"); }, 650);
+      mKoppRossz(f, mJel(K[+d].n, K[+d].u), "Nézzük meg közös egységben!", "Nézzük meg közös egységben!");
+    }
+  }
+}
+
 var M_GEN = { meres: genMeres, atvaltas: genAtvaltas, kieg: genKieg, muvelet: genMuvelet, osszetett: genOsszetett,
-  mennyivel: genMennyivel, szoveges: genSzoveges };
+  mennyivel: genMennyivel, szoveges: genSzoveges,
+  osszeh: genOsszeh, becsles: genBecsles, sorba: genSorba, egyseg: genEgyseg, kakukk: genKakukk };   /* 2. szakasz: koppintós kártyák */
 GEN.meres = function (cfg, kerultMar) {
   var fajta = mVel(cfg.feladatok || ["atvaltas"]);
   return (M_GEN[fajta] || genAtvaltas)(cfg, kerultMar);
@@ -3165,6 +3565,7 @@ function ujFeladat() {
   }
   var f = J.feladat;
   J.parokKesz = 0;
+  mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
   $("buborek-feladat").hidden = false;
@@ -3200,6 +3601,7 @@ function ujFeladat() {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
+    if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
     $("beiro-doboz").classList.toggle("hosszu", beirMax() > 3);   /* mérés: 6 jegyű válasz is beírható */
     J.kezCsend = 0; J.kezBeiras = false;
@@ -3380,6 +3782,7 @@ function billentyuzetEpit() {
 function billentyuBekuld() {
   if (J.feladat.csalad === "felmondas") { bontasSorEllenoriz(); return; }
   if (J.feladat.csalad === "maradekos") { maradekosBekuld(); return; }
+  if (J.feladat.csalad === "koppint") return;
   if (J.beirt === "") return;
   var v = parseInt(J.beirt, 10);
   J.beirt = ""; $("beiro-kijelzo").textContent = "";
@@ -3423,7 +3826,7 @@ function ertekel(valasz) {
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = mar
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
-      : ("Ez az! " + f.helyes + "  (+" + jar + " ✨)");
+      : ("Ez az! " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     csillagRepul($("bagoly-buborek"));
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */

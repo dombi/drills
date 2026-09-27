@@ -134,6 +134,7 @@ function ujFeladat() {
   }
   var f = J.feladat;
   J.parokKesz = 0;
+  mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
   $("buborek-feladat").hidden = false;
@@ -169,6 +170,7 @@ function ujFeladat() {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
+    if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
     $("beiro-doboz").classList.toggle("hosszu", beirMax() > 3);   /* mérés: 6 jegyű válasz is beírható */
     J.kezCsend = 0; J.kezBeiras = false;
@@ -349,6 +351,7 @@ function billentyuzetEpit() {
 function billentyuBekuld() {
   if (J.feladat.csalad === "felmondas") { bontasSorEllenoriz(); return; }
   if (J.feladat.csalad === "maradekos") { maradekosBekuld(); return; }
+  if (J.feladat.csalad === "koppint") return;
   if (J.beirt === "") return;
   var v = parseInt(J.beirt, 10);
   J.beirt = ""; $("beiro-kijelzo").textContent = "";
@@ -392,7 +395,7 @@ function ertekel(valasz) {
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = mar
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
-      : ("Ez az! " + f.helyes + "  (+" + jar + " ✨)");
+      : ("Ez az! " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     csillagRepul($("bagoly-buborek"));
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */

@@ -257,7 +257,9 @@ var PALYAK = [
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).
-   Az 1. pálya eleje 1. osztályos (20-ig), a vége 2. osztályos; az 5. osztályos pályán az 1. pad az összetett alak. */
+   Az 1. pálya eleje 1. osztályos (20-ig), a vége 2. osztályos; az 5. osztályos pályán az 1. pad az összetett alak.
+   Koppintós kártyák (2. szakasz): 5. pad = összehasonlítás (+ szóban „mennyivel?”) + becslés; Odú-küszöb = szöveges +
+   sorba rendezés + melyik mértékegység (+ 4. osztálytól kakukktojás). */
 var MERES_ALLOMAS = {
   szabo:   ["Vonalzó", "Szabás", "Mennyi hiányzik?", "Varrás", "Melyik hosszabb?", "Hosszú vég"],
   bajital: ["Mérőpohár", "Átöntés", "Mennyi hiányzik?", "Keverés", "Melyik több?", "Hordócímke"],
@@ -274,8 +276,8 @@ function meresPalya(id, nev, ikon, liga, menny, osztaly, szint, palcim) {
       { nev: N[1], feladatok: ["atvaltas"], g: g0, darab: 6 },
       { nev: N[2], feladatok: ["kieg"], g: g2, darab: 5 },
       { nev: N[3], feladatok: osztaly >= 4 ? ["muvelet", "muvelet", "osszetett"] : ["muvelet"], g: g2, darab: 6 },
-      { nev: N[4], feladatok: ["mennyivel"], g: g2, darab: 5 },
-      { nev: "Odú-küszöb", feladatok: ["szoveges", "szoveges", "atvaltas"], g: g2, darab: 5, cel: true }
+      { nev: N[4], feladatok: ["osszeh", "osszeh", "becsles"], g: g2, darab: 5 },
+      { nev: "Odú-küszöb", feladatok: ["szoveges", "szoveges", "sorba", "egyseg"].concat(osztaly >= 4 ? ["kakukk"] : []), g: g2, darab: 6, cel: true }
     ]
   };
 }

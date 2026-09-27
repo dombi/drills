@@ -1285,8 +1285,85 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .meres-kerdes{ font-size:clamp(20px,4.6vw,26px); font-weight:700; line-height:1.35; color:var(--lila-sotet); }
 .meres-kerdes.hosszu{ font-size:clamp(17px,3.9vw,21px); }
 .meres-kerdes b{ color:#5a3d8a; white-space:nowrap; }
+.meres-kerdes b.tor{ white-space:normal; }   /* hosszú félkövér mondat (sorba rendezés, összehasonlítás) törhet */
 .meres-kerdes .ures{ display:inline-block; min-width:1.6em; padding:0 .2em; border-bottom:3px dashed #e2589b; color:#e2589b; text-align:center; }
 .meres-kerdes .ures.jo{ border-bottom-color:#7fbf6a; color:#4e9a4a; }
 /* hosszú (6 jegyű) válasz a beíró négyzetben */
 .beiro-doboz.hosszu .beiro-box{ width:210px; }
 .beiro-doboz.hosszu .beiro-kijelzo{ font-size:44px; letter-spacing:1px; }
+
+/* ── MÉRÉS 2. szakasz: koppintós kártyák (rajzterv-2: mennyiség-kártya, egység-jelvény, polc, fészek) ── */
+.valasz-panel.koppint .valasz-gombsor,.valasz-panel.koppint #hallgat-e{ display:none!important; }
+.meres-emoji{ font-size:64px; line-height:1.15; text-align:center; margin-bottom:2px; }
+.meres-kis{ font-size:17px; font-weight:600; }
+.visszajelzes small{ display:block; font-size:15px; font-weight:600; color:#8a6a5a; margin-top:2px; }
+.valasz-kartyak{ width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; }
+#valasz-kartyak .kartyak{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; width:100%; }
+#valasz-kartyak button{ -webkit-tap-highlight-color:transparent; }
+#valasz-kartyak .tk{ --k:#ddd0ee; --k2:#cdbfe4; background:#fff; border:3px solid var(--k); border-radius:18px; box-shadow:0 4px 0 var(--k2); width:116px;
+  padding:4px 4px 7px; display:flex; flex-direction:column; align-items:center; font-family:Fredoka,sans-serif; cursor:pointer; color:#4a3b7a; transition:opacity .25s; }
+#valasz-kartyak .tk svg{ width:86px; height:80px; display:block; }
+#valasz-kartyak .tk .cimke{ font-size:23px; font-weight:800; line-height:1.1; white-space:nowrap; }
+#valasz-kartyak .tk.hosszu .cimke{ font-size:17px; }
+#valasz-kartyak .tk .valt{ font-size:13px; font-weight:700; color:#c86b2a; min-height:1.2em; white-space:nowrap; }
+#valasz-kartyak .tk-szabo{ --k:#f3cfe0; --k2:#e7aec6; } #valasz-kartyak .tk-bajital{ --k:#d8cdf0; --k2:#bfaee6; } #valasz-kartyak .tk-pekseg{ --k:#f3dcae; --k2:#dcbc84; }
+#valasz-kartyak .tk:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--k2); }
+#valasz-kartyak .tk.jo{ --k:#7bbd7a; --k2:#7bbd7a; background:#e3f6e0; }
+#valasz-kartyak .tk.rossz{ --k:#e79aab; --k2:#e79aab; background:#fde3e8; animation:mBilleg .5s; }
+#valasz-kartyak .kiszurkul{ opacity:.4; pointer-events:none; }
+@keyframes mBilleg{ 0%,100%{transform:rotate(0)} 20%{transform:rotate(-7deg)} 40%{transform:rotate(6deg)} 60%{transform:rotate(-4deg)} 80%{transform:rotate(2deg)} }
+#valasz-kartyak .egyforma{ font:800 19px Fredoka,sans-serif; color:#4a3b7a; background:#fff; border:3px solid #ddd0ee; border-radius:999px; box-shadow:0 4px 0 #cdbfe4;
+  padding:10px 14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; line-height:1; }
+#valasz-kartyak .egyforma span{ font-size:12.5px; font-weight:700; color:#8f7ab8; margin-top:3px; }
+#valasz-kartyak .egyforma.jo{ background:#e3f6e0; border-color:#7bbd7a; box-shadow:0 4px 0 #7bbd7a; }
+#valasz-kartyak .egyforma.rossz{ background:#fde3e8; border-color:#e79aab; animation:mBilleg .5s; }
+#valasz-kartyak .ketgomb{ font:700 19px Fredoka,sans-serif; color:#4a3b7a; background:#fff; border:3px solid var(--k,#ddd0ee); border-radius:20px; box-shadow:0 4px 0 var(--k2,#cdbfe4);
+  padding:12px 18px; cursor:pointer; min-width:150px; transition:opacity .25s; }
+#valasz-kartyak .ketgomb.tk-szabo{ --k:#f3cfe0; --k2:#e7aec6; } #valasz-kartyak .ketgomb.tk-bajital{ --k:#d8cdf0; --k2:#bfaee6; } #valasz-kartyak .ketgomb.tk-pekseg{ --k:#f3dcae; --k2:#dcbc84; }
+#valasz-kartyak .ketgomb.jo{ background:#e3f6e0; border-color:#7bbd7a; } #valasz-kartyak .ketgomb.rossz{ background:#fde3e8; border-color:#e79aab; animation:mBilleg .5s; }
+/* egység-jelvények: szabó = varrógomb, bájital = csepp, pékség = mézeskalács */
+#valasz-kartyak .ej{ position:relative; width:92px; height:92px; border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font:800 27px Fredoka,sans-serif; color:#4a3b7a; padding:0; transition:opacity .25s; }
+#valasz-kartyak .ej span{ position:relative; z-index:1; white-space:nowrap; }
+#valasz-kartyak .ej.hosszu{ font-size:22px; } #valasz-kartyak .ej.nagyon{ font-size:18px; width:104px; height:104px; }
+#valasz-kartyak .ej::before{ content:""; position:absolute; z-index:0; }
+#valasz-kartyak .ej-szabo::before{ inset:4px; border-radius:50%; background:radial-gradient(circle at 42% 22%,#fff 0 3.5px,transparent 4.5px),radial-gradient(circle at 58% 22%,#fff 0 3.5px,transparent 4.5px),radial-gradient(circle at 42% 81%,#fff 0 3.5px,transparent 4.5px),radial-gradient(circle at 58% 81%,#fff 0 3.5px,transparent 4.5px),#f9c6d9;
+  border:4px solid #e07aa0; box-shadow:inset 0 0 0 5px #fbd9e6,0 4px 0 #d0708f; }
+#valasz-kartyak .ej-bajital::before{ inset:12px; border-radius:50% 0 50% 50%; transform:rotate(-45deg) translate(-3px,3px); background:linear-gradient(135deg,#f3e6ff,#dcc3fb); border:4px solid #a88bd8; box-shadow:-3px 3px 0 #9c7fce; }
+#valasz-kartyak .ej-bajital span{ margin-top:12px; }
+#valasz-kartyak .ej-pekseg::before{ inset:4px; border-radius:50%; background:radial-gradient(circle,#f8dcb0 55%,#e9b77e 57%); border:4px dotted #fff8ee; box-shadow:0 0 0 4px #c98f55,0 5px 0 3px #b07a45; }
+#valasz-kartyak .ej-pekseg{ color:#5a3a18; }
+#valasz-kartyak .ej.jo::after,#valasz-kartyak .ej.rossz::after,#valasz-kartyak .ej.kiszurkul::after{ position:absolute; right:0; top:0; z-index:2; width:28px; height:28px; border-radius:50%; color:#fff; font-size:18px; line-height:28px; text-align:center; box-shadow:0 0 0 3px #fff; }
+#valasz-kartyak .ej.jo::after{ content:"✓"; background:#7bbd7a; }
+#valasz-kartyak .ej.rossz::after,#valasz-kartyak .ej.kiszurkul::after{ content:"✗"; background:#e79aab; }
+#valasz-kartyak .ej.rossz{ animation:mBilleg .5s; }
+/* sorba rendezés: szétszórt kártyák + polc */
+#valasz-kartyak .szort{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:128px; width:100%; align-items:center; }
+#valasz-kartyak .szort .tk{ width:104px; } #valasz-kartyak .szort .tk svg{ width:74px; height:66px; } #valasz-kartyak .szort .tk .cimke{ font-size:21px; }
+#valasz-kartyak .szort .tk.hosszu .cimke,#valasz-kartyak .hely .tk.hosszu .cimke{ font-size:15px; }
+#valasz-kartyak .polc{ width:100%; max-width:600px; padding:6px 6px 0; }
+#valasz-kartyak .polc-irany{ font-size:13px; font-weight:700; color:#8a6a4a; text-align:center; margin-bottom:2px; }
+#valasz-kartyak .polc-sor{ display:flex; gap:6px; justify-content:center; align-items:flex-end; min-height:118px; padding:0 4px; }
+#valasz-kartyak .polc-deszka{ height:14px; border-radius:5px; background:linear-gradient(#d9a877,#b98652); box-shadow:0 4px 0 #9a6a3a; }
+#valasz-kartyak .hely{ width:104px; min-height:112px; border:2.5px dashed #d9c3a0; border-radius:16px; display:flex; align-items:flex-end; justify-content:center; }
+#valasz-kartyak .hely .tk{ width:100px; box-shadow:none; cursor:default; pointer-events:none; animation:mBeall .35s ease-out; }
+#valasz-kartyak .hely .tk svg{ width:66px; height:58px; } #valasz-kartyak .hely .tk .cimke{ font-size:19px; }
+@keyframes mBeall{ 0%{transform:translateY(-30px) scale(.8);opacity:.3} 70%{transform:translateY(4px) scale(1.04)} 100%{transform:none;opacity:1} }
+/* kakukktojás: fészek */
+#valasz-kartyak .feszek{ width:100%; } #valasz-kartyak .feszek svg{ display:block; width:100%; max-width:420px; height:auto; margin:0 auto; }
+#valasz-kartyak .tojas{ cursor:pointer; }
+#valasz-kartyak .tojas.kiesik{ animation:mKiesik 1.2s ease-in forwards; transform-box:fill-box; transform-origin:50% 100%; }
+@keyframes mKiesik{ 0%{transform:none} 25%{transform:translate(0,-34px) rotate(-12deg)} 100%{transform:translate(90px,190px) rotate(190deg);opacity:0} }
+#valasz-kartyak .tojas.rossz{ animation:mTbilleg .5s; transform-box:fill-box; transform-origin:50% 100%; }
+@keyframes mTbilleg{ 0%,100%{transform:rotate(0)} 25%{transform:rotate(-10deg)} 50%{transform:rotate(8deg)} 75%{transform:rotate(-4deg)} }
+#valasz-kartyak .tojas.rossz ellipse{ fill:#fde3e8; }
+@media (max-width:520px){
+  #valasz-kartyak .tk{ width:100px; } #valasz-kartyak .tk svg{ width:70px; height:64px; }
+  #valasz-kartyak .szort .tk,#valasz-kartyak .hely{ width:62px; } #valasz-kartyak .hely .tk{ width:58px; }
+  #valasz-kartyak .szort .tk svg,#valasz-kartyak .hely .tk svg{ width:44px; height:40px; }
+  #valasz-kartyak .szort .tk .cimke,#valasz-kartyak .hely .tk .cimke{ font-size:14px; }
+  #valasz-kartyak .szort .tk.hosszu .cimke,#valasz-kartyak .hely .tk.hosszu .cimke{ font-size:11px; }
+  #valasz-kartyak .hely{ min-height:84px; } #valasz-kartyak .polc-sor{ min-height:90px; gap:4px; }
+  #valasz-kartyak .tk .valt{ font-size:10.5px; }
+  #valasz-kartyak .ketgomb{ min-width:130px; font-size:17px; padding:10px 12px; }
+}
