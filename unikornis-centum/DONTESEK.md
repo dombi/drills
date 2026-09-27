@@ -931,3 +931,19 @@ még egyszer kirajzolja (a másolat is leng, és a szalonban is festhető).
 - Egy tábla: `src/renderer.js` `HAT_DISZ`; a bolti polckép (`kert.js POLC_POZ`) is ebből
   rajzol, rúdra akasztva. Ellenőrizve mindhárom bőrön, farokdísszel, szárnnyal, göndör +
   festett sörénnyel; a játék konzolja tiszta. `index.html` `game.js?v=` → 20260926-6.
+
+## 2026-09-27 — Odú: a gombsor tárgyként a szobában + az unikornis odasétál (D2, 2. lépés)
+
+Rajzterv: `Matekos/odu-terulet-rajzterv.html`. Az alsó 5 ikon-gomb megszűnt; helyettük
+koppintható tárgyak: bal falon 🌳 ösvény-kijárat (erdei ösvény, zöld fény, fa-jeles tábla),
+jobb falon 🚪 utcaajtó (kerek ablakban házak, lábtörlő), a szivárványos falikép helyén
+🏅 jelvénytábla (ugyanakkora keretben, a lista szerinti legutóbbi 3 jelvény), a gyökérpolcon
+📖 nagy mesekönyv; a 🛍️ gomb helyett a meglévő bolt-stand. A **függő kristály-dísz** a
+lámpa jobb oldalára költözött (`translate(410,138)`), hogy ne takarja a táblát.
+- Egy közös **koppintó réteg** legfelül (`ODU_CELOK`: mező + névfelirat + hová sétál);
+  egér fölötte a tárgy `.fel` osztályt kap (emelkedés + ragyogás) — a kertkapu és a bolt
+  kiemelése is ide került (`:hover` → `.fel`).
+- **Az unikornis odasétál** (producer kérése): koppintásra odaüget a tárgyhoz (0,35–1,1 mp),
+  és csak odaérve nyílik meg; második koppintás azonnal nyit. Lap/bolt bezárása után
+  hazaballag; kertből/utcáról visszajőve a kapunál/ajtónál áll (`oduNyit("kert"|"utca")`).
+- A bolti előnézet (fix 680×540) változatlan: 3 kis könyv, kijárat/ajtó nélkül.

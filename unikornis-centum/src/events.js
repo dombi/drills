@@ -236,15 +236,10 @@ function esemenyek() {
   $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
   $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
   $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
-  $("odu-osveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Ösvények"); renderFomenu(); mutat("kepernyo-fomenu"); });
-  $("odu-utca-nyit").addEventListener("click", function () { hangGomb(); mondd("Kimegyünk az utcára!"); utcaNyit(); });
-  $("odu-katalogus-nyit").addEventListener("click", function () { hangGomb(); mondd("Bolt"); oduPanelNyit(); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
-  $("odu-jelveny-nyit").addEventListener("click", function () { hangGomb(); mondd("Jelvények"); renderJelveny(); $("odu-lap").hidden = false; });
-  $("odu-gyujtemeny-nyit").addEventListener("click", function () { hangGomb(); mondd("Gyűjtemény"); renderGyujtemeny(); $("odu-lap").hidden = false; });
-  $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; });
+  $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; oduUniHaza(); });
   $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); oduNyit("kert"); });
-  $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit(); });
+  $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
   $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
 }

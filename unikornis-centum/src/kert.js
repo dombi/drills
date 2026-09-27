@@ -600,7 +600,7 @@ function kertVirag(x, y, szin) {
     '<circle cx="-11" r="5" fill="' + szin + '"/><circle cx="11" r="5" fill="' + szin + '"/><circle cy="-11" r="5" fill="' + szin + '"/><circle cy="11" r="5" fill="' + szin + '"/></g>';
 }
 function oduPanelNyit(fulKezd) { ODU_FUL = fulKezd || "ido"; BOLT_MEGEROSIT = false; BOLT_BAGOLY_EXTRA = null; $("odu-panel").hidden = false; renderOduPanel(); }
-function oduPanelZar() { $("odu-panel").hidden = true; var l = $("odu-lap"); if (l) l.hidden = true; }
+function oduPanelZar() { $("odu-panel").hidden = true; var l = $("odu-lap"); if (l) l.hidden = true; oduUniHaza(); }
 /* a bolt körüli sötét sávra koppintva is bezárul (a boltra koppintva nem) */
 (function () {
   document.addEventListener("DOMContentLoaded", function () {

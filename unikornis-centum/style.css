@@ -420,7 +420,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   max-width:100%; max-height:100%; width:auto; height:auto;
   border-radius:22px; box-shadow:0 12px 30px rgba(74,59,122,.22);
 }
-.odu-gombsor{ padding:10px 14px 14px; display:flex; gap:14px; justify-content:center; }
 .ikon-gomb{ width:52px; height:52px; padding:0; border-radius:16px; font-size:25px; line-height:1;
   background:var(--krem); box-shadow:0 4px 0 #d8c69a; display:flex; align-items:center; justify-content:center; }
 .ikon-gomb:active{ transform:translateY(3px); box-shadow:0 1px 0 #d8c69a; }
@@ -429,10 +428,31 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 
 /* mesebolt-stand a szobában — kattintható; finoman ragyog (a filter nem mozdítja a kattint-területet) */
 #odu-bolt-jel{ cursor:pointer; animation:odu-bolt-glow 2.6s ease-in-out infinite; }
-#odu-bolt-jel:hover{ filter:brightness(1.07) drop-shadow(0 0 7px rgba(255,224,138,.85)); }
+#odu-bolt-jel.fel{ filter:brightness(1.07) drop-shadow(0 0 7px rgba(255,224,138,.85)); }
 @keyframes odu-bolt-glow{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,224,138,0)); } 50%{ filter:drop-shadow(0 0 5px rgba(255,224,138,.6)); } }
 #odu-bolt-jel .odu-bolt-szikra{ animation:odu-bolt-szikra 1.8s ease-in-out infinite; }
 @keyframes odu-bolt-szikra{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
+
+/* odú D2, 2. lépés: a gombsor helyett koppintható tárgyak a szobában (odu.js ODU_CELOK).
+   A koppintást a legfelső átlátszó réteg (.odu-cel) fogja; egér fölötte → a tárgy (.fel) megemelkedik,
+   ragyog, és kiírja a nevét. */
+.odu-targy{ transition:transform .16s ease-out, filter .16s ease-out; }
+.odu-targy.fel{ transform:translateY(-6px); filter:brightness(1.06) drop-shadow(0 0 6px rgba(255,224,138,.9)); }
+.odu-cel{ cursor:pointer; }
+.odu-felirat{ opacity:0; transition:opacity .16s; }
+.odu-cel:hover .odu-felirat{ opacity:1; }
+.odu-targy-szikra{ animation:odu-bolt-szikra 3.6s ease-in-out infinite; opacity:.25; }
+.odu-kijarat-feny{ animation:odu-kijarat-feny 3.2s ease-in-out infinite; }
+@keyframes odu-kijarat-feny{ 0%,100%{ opacity:.25; } 50%{ opacity:.6; } }
+/* az unikornis sétája az odúban (oduUniSetal): a külső csoportot a transform viszi, séta közben bólint + lépked */
+#odu-uni-mozgo.jar .odu-uni-bob{ animation:kert-bob .44s ease-in-out infinite; }
+#odu-szoba .uni-lab{ transform-box:fill-box; transform-origin:50% 0%; }
+#odu-uni-mozgo.jar .uni-lab-a{ animation:kert-lab-a .44s ease-in-out infinite; }
+#odu-uni-mozgo.jar .uni-lab-b{ animation:kert-lab-b .44s ease-in-out infinite; }
+@media (prefers-reduced-motion:reduce){
+  .odu-targy, .odu-felirat{ transition:none; }
+  .odu-targy-szikra, .odu-kijarat-feny, #odu-uni-mozgo.jar .odu-uni-bob, #odu-uni-mozgo.jar .uni-lab-a, #odu-uni-mozgo.jar .uni-lab-b{ animation:none; }
+}
 
 /* eső / hó a szobában */
 @keyframes odu-eso{ from{ transform:translateY(-40px); } to{ transform:translateY(80px); } }
@@ -717,7 +737,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 
 /* Kertkapu az odúban: az egér alá emelkedik (kattinthatóság-jelzés), nyíl helyett */
 #odu-kert-kapu{ cursor:pointer; transition:transform .16s ease-out, filter .16s ease-out; }
-#odu-kert-kapu:hover{ transform:translateY(-8px); filter:drop-shadow(0 7px 5px rgba(60,50,90,.28)); }
+#odu-kert-kapu.fel{ transform:translateY(-8px); filter:drop-shadow(0 7px 5px rgba(60,50,90,.28)); }
 @media (prefers-reduced-motion:reduce){ #odu-kert-kapu{ transition:none; } }
 
 /* ── Kert 2. fázis: séta-trükkök ──────────────────────────────────────────── */
