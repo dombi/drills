@@ -6314,12 +6314,28 @@ function boltStandSVG(cx, cy) {
 /* --- a teljes Csillagbolt háttér (680×540) — a bolt.svg mintájára --- */
 
 /* --- a teljes odú-szoba (680×540) — az odu-belso.svg mintájára --- */
-function oduSVG(lenyKulcs, o, elonezet) {
+/* RUGALMAS SZOBA (odú D2, rajzterv: Matekos/odu-terulet-rajzterv.html): a fix közép mindig látszik
+   (a két leendő oldalajtóval együtt), a falak annyira nyúlnak ki oldalra, amennyi hely van; felül a
+   plafon üres része lemarad („közelebb"). Álló telefonon nem nyújtjuk: A ≥ 1,3, a szoba középen marad. */
+var ODU_KOZEP = { L: -96, R: 776, T: 88, B: 540 };
+function oduKeret(arany) {
+  var K = ODU_KOZEP, kw = K.R - K.L, kh = K.B - K.T, cx = (K.L + K.R) / 2;
+  var A = Math.max(arany, 1.3), w, h, x0, y0;
+  if (A >= kw / kh) { h = kh; w = h * A; x0 = cx - w / 2; y0 = K.T; }
+  else { w = kw; h = w / A; x0 = K.L; y0 = K.T - (h - kh) * 0.55; }
+  return { L: x0, T: y0, W: w, H: h, R: x0 + w, B: y0 + h, cx: cx };
+}
+
+function oduSVG(lenyKulcs, o, elonezet, arany) {
   var c = LENYEK[lenyKulcs];
   var WX = 190, WY = 180, WR = 64;                  /* ablak: bal-felső, holddal */
   var tint = { este: ["#2b2a5a", 0.14], reggel: ["#ffd0e0", 0.08], del: ["#fff3d0", 0.04], eclipse: ["#0a0a1e", 0.22] }[o.napszak] || ["#2b2a5a", 0.14];
+  /* arany nélkül (bolti előnézet) a régi, fix 680×540-es szoba */
+  var tag = !!arany;
+  var F = tag ? oduKeret(arany) : { L: 0, T: 0, W: 680, H: 540, R: 680, B: 540, cx: 340 };
+  var bL = tag ? F.L + 14 : 75, bR = tag ? F.R - 14 : 605, bB = F.B;   /* belső fal széle + padló alja */
 
-  var s = '<svg viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">';
+  var s = '<svg viewBox="' + F.L.toFixed(1) + ' ' + F.T.toFixed(1) + ' ' + F.W.toFixed(1) + ' ' + F.H.toFixed(1) + '" xmlns="http://www.w3.org/2000/svg">';
   s += '<defs><clipPath id="odu-ablak"><circle cx="' + WX + '" cy="' + WY + '" r="' + (WR - 10) + '"/></clipPath>';
   /* csillagszilánk-szimbólumok (grafika: mockup-csillagszilank-ego.html) – 0,0 középre rajzolva */
   s += '<filter id="odu-ragyog" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="2.3"/></filter>';
@@ -6328,9 +6344,15 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '</defs>';
 
   /* fa kívül + fal + meleg alapfény */
-  s += '<rect x="0" y="0" width="680" height="540" fill="#2e2350"/>';
-  s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>';
-  s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>';
+  s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="#2e2350"/>';
+  if (tag) {                                /* a falak a látható szélig érnek, a plafon íve a tetőhöz igazodik */
+    var pT = Math.min(F.T, 88), fcx = F.cx;
+    s += '<path d="M' + F.L + ' ' + bB + ' L' + F.L + ' ' + (pT + 142) + ' Q' + F.L + ' ' + (pT - 8) + ' ' + fcx + ' ' + (pT - 28) + ' Q' + F.R + ' ' + (pT - 8) + ' ' + F.R + ' ' + (pT + 142) + ' L' + F.R + ' ' + bB + ' Z" fill="#b79fd4"/>';
+    s += '<path d="M' + bL + ' ' + bB + ' L' + bL + ' ' + (pT + 157) + ' Q' + bL + ' ' + (pT + 12) + ' ' + fcx + ' ' + (pT - 4) + ' Q' + bR + ' ' + (pT + 12) + ' ' + bR + ' ' + (pT + 157) + ' L' + bR + ' ' + bB + ' Z" fill="#cbb6e6"/>';
+  } else {
+    s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>';
+    s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>';
+  }
   s += '<ellipse cx="345" cy="330" rx="250" ry="210" fill="#ffd9ec" opacity="0.06"/><ellipse cx="140" cy="392" rx="120" ry="100" fill="#e9c9f0" opacity="0.1"/>';
 
   /* gyökér-erezet a falon */
@@ -6338,10 +6360,16 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '<path d="M150 250 Q160 360 150 500"/><path d="M245 240 Q255 360 248 500"/><path d="M440 240 Q432 360 440 500"/><path d="M525 250 Q516 360 525 500"/></g>';
   s += '<ellipse cx="437" cy="300" rx="9" ry="5" fill="#ab90cf"/>';
   s += butorElem(o, "fal");                 /* v3: tapéta / lambéria a falon */
+  if (tag && ((o.szint && o.szint.fal) || 1) >= 3) {    /* a lambéria a kinyúló falakon is folytatódik */
+    s += '<g fill="#c0a8dd"><rect x="' + bL + '" y="357" width="' + (75 - bL) + '" height="79"/><rect x="605" y="356" width="' + (bR - 605) + '" height="80"/></g>';
+    s += '<g stroke="#a88fce" stroke-width="4"><line x1="' + bL + '" y1="357" x2="75" y2="357"/><line x1="605" y1="356" x2="' + bR + '" y2="356"/></g>';
+  }
 
   /* padló */
-  s += '<rect x="75" y="436" width="530" height="104" fill="#e3c9de"/>';
-  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.6"><line x1="75" y1="464" x2="605" y2="464"/><line x1="75" y1="494" x2="605" y2="494"/><line x1="75" y1="520" x2="605" y2="520"/><line x1="200" y1="436" x2="200" y2="540"/><line x1="345" y1="436" x2="345" y2="540"/><line x1="470" y1="436" x2="470" y2="540"/></g>';
+  s += '<rect x="' + bL + '" y="436" width="' + (bR - bL) + '" height="' + (bB - 436) + '" fill="#e3c9de"/>';
+  s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.6"><line x1="' + bL + '" y1="464" x2="' + bR + '" y2="464"/><line x1="' + bL + '" y1="494" x2="' + bR + '" y2="494"/><line x1="' + bL + '" y1="520" x2="' + bR + '" y2="520"/><line x1="200" y1="436" x2="200" y2="' + bB + '"/><line x1="345" y1="436" x2="345" y2="' + bB + '"/><line x1="470" y1="436" x2="470" y2="' + bB + '"/>';
+  if (tag) { for (var px = 75; px > bL; px -= 125) s += '<line x1="' + px + '" y1="436" x2="' + px + '" y2="' + bB + '"/>'; for (var qx = 595; qx < bR; qx += 125) s += '<line x1="' + qx + '" y1="436" x2="' + qx + '" y2="' + bB + '"/>'; }
+  s += '</g>';
 
   /* zászlófüzér */
   s += '<path d="M100 112 Q340 150 580 112" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
@@ -6444,10 +6472,13 @@ function oduSVG(lenyKulcs, o, elonezet) {
   s += '<g fill="#fff2c4" opacity="0.7"><path d="M330 250 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><path d="M410 232 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/><circle cx="360" cy="205" r="2"/><circle cx="300" cy="240" r="1.6"/><circle cx="470" cy="210" r="1.8"/><path d="M505 232 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/></g>';
 
   /* eső / hó a szobában is (halványabban) */
-  if (o.ido === "eso" || o.ido === "ho") { s += '<g opacity="0.5" pointer-events="none">' + oduIdoSVG(o.ido, 680, 470, o.ido === "ho" ? 30 : 24) + '</g>'; }
+  if (o.ido === "eso" || o.ido === "ho") {
+    var idoDb = Math.round((o.ido === "ho" ? 30 : 24) * F.W / 680);
+    s += '<g opacity="0.5" pointer-events="none" transform="translate(' + F.L.toFixed(1) + ',' + Math.max(0, F.T).toFixed(1) + ')">' + oduIdoSVG(o.ido, F.W, 470, idoDb) + '</g>';
+  }
 
   /* hangulatfény */
-  s += '<rect x="0" y="0" width="680" height="540" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';
+  s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';
 
   /* ── MESEBOLT-STAND a szőnyegtől jobbra — MINDIG legfelül, hogy biztosan kattintható legyen (előnézetben nincs) ── */
   if (!elonezet) s += '<g id="odu-bolt-jel"><rect x="508" y="444" width="96" height="84" fill="transparent"/>' + boltStandSVG(556, 506) + '</g>';
@@ -6511,14 +6542,23 @@ function oduNyit(honnan) {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   oduPanelZar();
+  mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   renderOdu();
-  mutat("kepernyo-odu");
+}
+/* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */
+function oduTeruletArany() {
+  var sz = $("odu-szoba"), cs = getComputedStyle(sz);
+  var w = sz.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  var h = sz.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  if (w > 50 && h > 50) return w / h;
+  return window.innerWidth / Math.max(200, window.innerHeight - 230);
 }
 function renderOdu() {
   var o = P().odu;
   $("odu-csillampor").textContent = P().csillampor;
   var harmatEl = $("odu-harmat"); if (harmatEl) harmatEl.textContent = (P().tunderharmat || 0);   /* kitartás-valuta (7.2) */
-  $("odu-szoba").innerHTML = oduSVG(mentes.leny, o);
+  $("odu-szoba").innerHTML = "";            /* a régi rajz ne feszítse a mérést */
+  $("odu-szoba").innerHTML = oduSVG(mentes.leny, o, false, oduTeruletArany());
   var bolt = document.getElementById("odu-bolt-jel");     /* a szoba-SVG minden rajzoláskor újraépül */
   if (bolt) {
     bolt.style.cursor = "pointer";
@@ -6534,6 +6574,15 @@ function renderOdu() {
     });
   }
 }
+/* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
+var _oduMeretIdo = null;
+window.addEventListener("resize", function () {
+  clearTimeout(_oduMeretIdo);
+  _oduMeretIdo = setTimeout(function () {
+    var k = $("kepernyo-odu");
+    if (k && k.classList.contains("aktiv")) renderOdu();
+  }, 150);
+});
 /* ============ 10d) KERT / UDVAR (1. fázis: séta) ============
    Teljesen additív: saját mentés-ág P().kert, saját DOM #kepernyo-kert + .kert-* CSS.
    Belépés az odú kertkapuján (csak P().kert.nyitva esetén). Séta: koppints a fűre → odasétál. */
