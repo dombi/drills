@@ -133,6 +133,11 @@ function ujFeladat() {
     J.feladat = GEN[a.tipus](eff, J.kerultKulcsok);
   }
   var f = J.feladat;
+  /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat */
+  if (mkElottKell(f, function () { if (J && J.feladat === f) feladatMutat(f); })) { $("bagoly-buborek").hidden = true; return; }
+  feladatMutat(f);
+}
+function feladatMutat(f) {
   J.parokKesz = 0;
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   $("bagoly-buborek").hidden = false;
@@ -385,11 +390,12 @@ function ertekel(valasz) {
   var mar = (f.csalad === "maradekos");
   var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
   if (helyesE) {
-    naplozz(f.naplo, J.probak === 0, mar ? (valasz.h + "m" + valasz.m) : valasz);
-    J.futoOssz++; if (J.probak === 0) J.futoElsore++;
-    streakLep(J.probak === 0);
+    var elsore = (J.probak === 0 && !f.vezet);   /* mérés: a végigvezetett lépés nem „elsőre jó” */
+    naplozz(f.naplo, elsore, mar ? (valasz.h + "m" + valasz.m) : valasz);
+    J.futoOssz++; if (elsore) J.futoElsore++;
+    streakLep(elsore);
     hangJo(); hangCsilla();
-    var jar = (J.probak >= 2) ? jutalom("tipp") : jutalom("feladat");   /* tipp után 1, egyébként 1+szint (7.1a) */
+    var jar = (J.probak >= 2 || f.vezet) ? jutalom("tipp") : jutalom("feladat");   /* tipp / végigvezetés után 1, egyébként 1+szint (7.1a) */
     P().csillampor += jar; J.futoCsilla += jar;
     $("jatek-csillampor").textContent = P().csillampor;
     $("visszajelzes").className = "visszajelzes jo";
@@ -421,6 +427,10 @@ function ertekel(valasz) {
       maradekosKitolt(false);
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem talált. Próbáld újra!"; mondd("Nem talált. Próbáld újra!", maradekosUjra); }
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
+    } else if (f.vegig && !f.vezet) {
+      meresVegigvezet(f, valasz);             /* mérés, szöveges: lépésenkénti végigvezetés (meres.js) */
+    } else if (f.mk && J.probak === 1) {
+      mkHiba(f, valasz);                      /* mérés, átváltás: mozgókép a feladat számaival, aztán újra (meres-mozgo.js) */
     } else {
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
       else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }

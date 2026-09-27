@@ -1367,3 +1367,31 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #valasz-kartyak .tk .valt{ font-size:10.5px; }
   #valasz-kartyak .ketgomb{ min-width:130px; font-size:17px; padding:10px 12px; }
 }
+
+/* ── MÉRÉS 3. szakasz: szöveges végigvezetés (a történet marad, alatta a lépés) ── */
+.meres-tortenet{ opacity:.8; font-size:clamp(15px,3.4vw,18px)!important; }
+.meres-lepes{ margin-top:8px; padding:7px 12px; border-radius:14px; background:#fff4e6; border:2px dashed #f7c59f;
+  font-size:clamp(18px,4.2vw,23px); font-weight:700; line-height:1.3; color:var(--lila-sotet); }
+.meres-lepes b{ color:#5a3d8a; white-space:nowrap; }
+.meres-lepes.vegso{ background:#eef8e8; border-color:#a7d99a; }
+.meres-lepes-cim{ display:inline-block; margin-right:4px; padding:1px 9px; border-radius:10px; background:#f7c59f; color:#fff; font-size:.72em; font-weight:800; vertical-align:2px; }
+.meres-lepes.vegso .meres-lepes-cim{ background:#7fbf6a; }
+
+/* ── MÉRÉS 3. szakasz: szemléltető mozgókép-réteg (meres-mozgo.js, 800×420 színpad) ── */
+.mk-reteg{ position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; padding:12px;
+  background:rgba(58,40,96,.42); backdrop-filter:blur(2px); animation:mk-be .25s ease-out 1; }
+.mk-reteg[hidden]{ display:none; }
+@keyframes mk-be{ from{ opacity:0; } to{ opacity:1; } }
+.mk-doboz{ width:min(900px,100%); max-height:100%; overflow:auto; background:#fffdf8; border-radius:22px; border:3px solid #cbb6e6;
+  box-shadow:0 14px 40px rgba(60,30,110,.35); padding:10px 12px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.mk-cim{ font-size:clamp(17px,3.8vw,22px); font-weight:800; color:#6a4a9a; text-align:center; }
+.mk-szinpad{ position:relative; width:100%; border-radius:16px; overflow:hidden; cursor:pointer; background:#f3ecfb; }
+.mk-szinpad svg{ display:block; width:100%; height:auto; }
+.mk-atugor{ position:absolute; right:10px; bottom:8px; font-size:12px; font-weight:700; color:#8a7ab0; background:rgba(255,255,255,.8);
+  padding:2px 9px; border-radius:10px; opacity:0; transition:opacity .3s; pointer-events:none; }
+.mk-reteg.fut .mk-atugor{ opacity:1; }
+.mk-felirat{ min-height:1.4em; font-size:clamp(16px,3.6vw,20px); font-weight:700; color:#4a3b7a; text-align:center; }
+.mk-tovabb{ font:inherit; font-size:17px; font-weight:800; color:#6a4a9a; background:#f3ecfb; border:2px solid #cbb6e6; border-radius:16px;
+  padding:8px 20px; cursor:pointer; }
+.mk-tovabb.vege{ color:#fff; background:#8fcf7a; border-color:#6fb35a; animation:mk-pulz 1.2s ease-in-out infinite; }
+@keyframes mk-pulz{ 50%{ transform:scale(1.05); } }

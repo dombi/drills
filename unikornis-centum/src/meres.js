@@ -6,18 +6,13 @@
    A kép a kérdés-buborékban ül (a Fejtörő-hegy mintájára), a motor a meglévő „egyenkent” út.
    Kódolás szakaszokban (2026-09-26): 1. szakasz = motor + 3 liget + 12 pálya + a szóbeli típusok
    (1 mérés, 2 átváltás, 3 kiegészítés, 4 műveletek, 8 összetett alak) + „mennyivel?” + 1 lépéses szöveges.
-   2. szakasz ✅ (2026-09-27): a koppintós kártyák (5, 6, 7, 9, 10) + a „mennyivel?” láncban. 3. szakasz: szöveges végigvezetés + 4 mozgókép.
-   Amíg nincs kész, a ligeteket csak a producer látja (MRZS-kód, vagy ?meres ezen a gépen). */
+   2. szakasz ✅ (2026-09-27): a koppintós kártyák (5, 6, 7, 9, 10) + a „mennyivel?” láncban.
+   3. szakasz ✅ (2026-09-27): többlépéses szöveges feladat + lépésenkénti végigvezetés, a 4 mozgókép (meres-mozgo.js),
+   az égen 26 szilánk-hely (odu.js), élesítés — a ligeteket már a gyerekek is látják. */
 
-/* ── láthatóság a fejlesztés alatt ── */
-function meresLathato() {
-  try {
-    var q = new URLSearchParams(location.search);
-    if (q.has("meres")) { if (q.get("meres") === "ki") localStorage.removeItem("uc_meres"); else localStorage.setItem("uc_meres", "1"); }
-    if (localStorage.getItem("uc_meres") === "1") return true;
-  } catch (e) {}
-  return !!(typeof FELHO !== "undefined" && FELHO.aktiv && /^MRZS/.test(FELHO.kod || ""));
-}
+/* ── láthatóság: ✅ élesítve (2026-09-27) — a gyerekek is látják; egy-egy pályát a pulton lehet elrejteni.
+   (A fejlesztés alatt: MRZS-kód vagy ?meres; a hívók maradnak, ha egy új liget megint rejtve készülne.) ── */
+function meresLathato() { return true; }
 
 /* ── mennyiségek és mértékegységek ── */
 var M_SZ = { mm: 1, cm: 10, dm: 100, m: 1000, km: 1e6, ml: 1, cl: 10, dl: 100, l: 1000, hl: 1e5, g: 1, dkg: 10, kg: 1000, q: 1e5, t: 1e6 };
@@ -263,7 +258,7 @@ function mFeladat(cfg, o) {
     csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: cfg.mennyiseg,
     kartyaHTML: '<div class="meres-kep">' + (o.kep || "") + '</div><div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
     szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: o.felolvas,
-    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga,
+    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.helyes, atlepes: false }
   };
   return f;
@@ -310,12 +305,13 @@ function genAtvaltas(cfg, kerultMar) {
       var kep2 = MR.svg360(MR.targy(liga, 80, 112, 1.15, n) + MR.tag(80, 134, mJel(v1, l[1])) + MR.nyil(140, 212, 70) + MR.kerdoTag(272, 72, "? " + l[2]));
       var masodik = mFeladat(cfg, { fajta: "atvaltas-lanc", kep: kep2, kerdes: "És " + mB(v1, l[1]) + " hány <b>" + l[2] + "</b>?",
         felolvas: "És az hány " + M_NEV[l[2]] + "?", helyes: v2, keplet: mJel(v1, l[1]) + " = ? " + l[2], megoldas: mJel(v1, l[1]) + " = " + mJel(v2, l[2]),
-        tipp: "Egy " + M_NEV[l[1]] + " az " + mSzo(M_SZ[l[1]] / M_SZ[l[2]]) + " " + M_NEV[l[2]] + ", ezért szorozd meg " + M_VAL[M_SZ[l[1]] / M_SZ[l[2]]] + "!" });
+        tipp: "Egy " + M_NEV[l[1]] + " az " + mSzo(M_SZ[l[1]] / M_SZ[l[2]]) + " " + M_NEV[l[2]] + ", ezért szorozd meg " + M_VAL[M_SZ[l[1]] / M_SZ[l[2]]] + "!",
+        mk: { menny: menny, a: l[1], b: l[2], n: v1, u: l[1], cel: l[2] } });
       return mFeladat(cfg, { fajta: "atvaltas-lanc", kep: kep1, kerdes: mB(n, l[0]) + " hány <b>" + l[1] + "</b>?",
         felolvas: mNagy(mMondd(n, l[0])) + " hány " + M_NEV[l[1]] + "?", helyes: v1, keplet: mJel(n, l[0]) + " = ? " + l[1],
         megoldas: mJel(n, l[0]) + " = " + mJel(v1, l[1]),
         tipp: "Egy " + M_NEV[l[0]] + " az " + mSzo(M_SZ[l[0]] / M_SZ[l[1]]) + " " + M_NEV[l[1]] + ", ezért szorozd meg " + M_VAL[M_SZ[l[0]] / M_SZ[l[1]]] + "!",
-        lanc: [masodik] });
+        lanc: [masodik], mk: { menny: menny, a: l[0], b: l[1], n: n, u: l[0], cel: l[1] } });
     }
   }
   var r2 = mEgyedi(kerultMar, function () {
@@ -335,7 +331,8 @@ function genAtvaltas(cfg, kerultMar) {
     felolvas: mNagy(mMondd(adott.n, adott.u)) + " hány " + M_NEV[kerdezett.u] + "?",
     helyes: kerdezett.n, keplet: mJel(adott.n, adott.u) + " = ? " + kerdezett.u,
     megoldas: mJel(adott.n, adott.u) + " = " + mJel(kerdezett.n, kerdezett.u),
-    tipp: "Egy " + M_NEV[p.a] + " az " + mSzo(f) + " " + M_NEV[p.b] + ", ezért " + (r2.nagybol ? "szorozd meg " : "oszd el ") + M_VAL[f] + "!" });
+    tipp: "Egy " + M_NEV[p.a] + " az " + mSzo(f) + " " + M_NEV[p.b] + ", ezért " + (r2.nagybol ? "szorozd meg " : "oszd el ") + M_VAL[f] + "!",
+    mk: { menny: menny, a: p.a, b: p.b, n: adott.n, u: adott.u, cel: kerdezett.u } });   /* mozgókép: 1. előfordulás + rossz válasz (meres-mozgo.js) */
 }
 
 /* ── 3) KIEGÉSZÍTÉS KEREK EGYSÉGRE (4.3) ── */
@@ -714,13 +711,178 @@ function genMennyivel(cfg, kerultMar) {
     tipp: "Előbb váltsd át: " + mMondd(r.n, p.a) + " az " + mMondd(r.nagyB, p.b) + ". Aztán vond ki a kisebbet a nagyobból." });
 }
 
-/* ── 11a) SZÖVEGES (az 1. szakaszban egylépéses; a lépésenkénti végigvezetés a 3. szakaszban jön) ── */
+/* ── 11) SZÖVEGES FELADAT (4.11, 3. szakasz): a lépésszám osztályonként nő — 1. o. 1 lépés · 2–3. o. 2 lépés ·
+      4–5. o. 2–3 lépés, átváltással. A „vegig” mező a részkérdések sora: rossz válasz után a gép lépésenként
+      végigvezet (meresVegigvezet), mint a Zrínyi-állomáson, végül újra a főkérdés. ── */
+var M_SZ_PAR = { hossz: [["m", "dm"], ["dm", "cm"], ["m", "cm"], ["cm", "mm"], ["km", "m"]],
+                 ur: [["l", "dl"], ["dl", "cl"], ["l", "cl"], ["dl", "ml"], ["l", "ml"], ["hl", "l"]],
+                 tomeg: [["kg", "dkg"], ["dkg", "g"], ["kg", "g"], ["q", "kg"], ["t", "kg"]] };
+/* az átváltós történetek egységpárjai (a nagy egység n-szerese belefér a számkörbe és életszerű) */
+function mSzParok(menny, g, L) {
+  var E = mEgysegek(menny, g);
+  return M_SZ_PAR[menny].map(function (p) { return { a: p[0], b: p[1], f: M_SZ[p[0]] / M_SZ[p[1]] }; }).filter(function (p) {
+    return E.indexOf(p.a) >= 0 && E.indexOf(p.b) >= 0 && p.f * 2 <= L && (!M_MESE_MAX[p.b] || p.f <= M_MESE_MAX[p.b]);
+  });
+}
+function mLep(k, f, h, m) { return { k: k, f: f, h: h, m: m }; }
 function genSzoveges(cfg, kerultMar) {
-  var c = {}; for (var k in cfg) c[k] = cfg[k];
-  c.mese = true;
-  var f = genMuvelet(c, kerultMar);
-  f.naplo.tipus = f.naplo.tipus.replace("muvelet", "szoveges");
+  var g = cfg.g, menny = cfg.mennyiseg;
+  if (g <= 1) {                                                   /* 1. o.: egylépéses (a mesés művelet) */
+    var c = {}; for (var k in cfg) c[k] = cfg[k];
+    c.mese = true;
+    var f1 = genMuvelet(c, kerultMar);
+    f1.naplo.tipus = f1.naplo.tipus.replace("muvelet", "szoveges");
+    return f1;
+  }
+  var L = Math.min(M_HATAR[g], 10000);
+  var UE = mEgysegek(menny, g).filter(function (u) { return M_MESE_MAX[u]; });
+  var fajtak = g <= 2 ? ["ket", "atv"] : (g === 3 ? ["ket", "atv", "szorkiv", "osszoszt"] : ["ket", "atv", "atv", "szorkiv", "szorkiv", "osszoszt", "osszoszt"]);
+  if (!mSzParok(menny, g, L).length) fajtak = fajtak.filter(function (x) { return x !== "atv"; });
+  var r = mEgyedi(kerultMar, function () {
+    var fj = mVel(fajtak), u = mVel(UE), Lu = Math.min(L, M_MESE_MAX[u]), mn = M_MESE_MIN[u] || 1, gg = Math.min(g, 3);
+    if (fj === "ket") {                                           /* van → még hozzá → elvesz */
+      var tot = mKerekSzam(Math.max(10, 3 * mn), Lu, gg), a = mKerekSzam(mn, tot - mn, gg), c0 = mKerekSzam(mn, tot - mn, gg);
+      return { kulcs: "sz-ket" + u + a + "|" + tot + "|" + c0, fj: fj, u: u, a: a, b: tot - a, c: c0, tot: tot };
+    }
+    if (fj === "atv") {                                           /* n nagy egységből elvesz valamennyit a kicsiben */
+      var p = mVel(mSzParok(menny, g, L)), n = veletlen(1, Math.max(1, Math.min(g >= 4 ? 9 : 5, Math.floor(L / p.f)))), ossz = n * p.f;
+      var b = mKerekSzam(1, ossz - 1, gg);
+      return { kulcs: "sz-atv" + p.a + p.b + n + "|" + b, fj: fj, p: p, n: n, ossz: ossz, b: b };
+    }
+    if (fj === "szorkiv") {                                       /* n darabhoz egyenként a kell; ennyiből marad? (4–5. o.: a készlet a nagy egységben) */
+      var UD = UE.filter(function (x) { return M_MESE_DB[x] && x !== "mm"; }), B = mVel(UD.length ? UD : UE), DB = M_MESE_DB[B] || 10;   /* masnit nem mérünk milliméterben */
+      var a2 = mKerekSzam(Math.max(1, Math.round(DB / 8)), DB, DB >= 100 ? 3 : 1), db = veletlen(2, 6), kell = a2 * db;
+      var par = null, m = 0;
+      if (g >= 4) {
+        var jel = mSzParok(menny, g, L).filter(function (q) { return q.b === B && Math.ceil((kell + 1) / q.f) <= 9 && Math.ceil((kell + 1) / q.f) * q.f <= L; });
+        if (jel.length) { par = mVel(jel); m = veletlen(Math.ceil((kell + 1) / par.f), Math.min(9, Math.floor(L / par.f))); }
+      }
+      var keszlet = par ? m * par.f : 0;
+      if (!par) {                                                 /* kerek készlet: 18 → 20/30, 144 → 200/300, 2010 → 3000 */
+        var lp = Math.pow(10, Math.max(0, Math.floor(Math.log10(kell)))), fel = Math.ceil((kell + 1) / lp);
+        keszlet = (fel + veletlen(0, 2)) * lp;
+        if (keszlet > Math.min(L, M_MESE_MAX[B] || L)) keszlet = fel * lp;
+      }
+      return { kulcs: "sz-szk" + B + a2 + "x" + db + "|" + keszlet, fj: fj, u: B, a: a2, db: db, kell: kell, keszlet: keszlet, par: par, m: m };
+    }
+    /* osszoszt: két mennyiség össze, aztán n egyforma részre (4–5. o.: az egyik a nagy egységben) */
+    var n2 = veletlen(2, g >= 4 ? 9 : 5), par2 = null;
+    if (g >= 4) { var j2 = mSzParok(menny, g, L).filter(function (q) { return q.b === u && q.f * 2 <= Lu; }); if (j2.length && veletlen(0, 2)) par2 = mVel(j2); }
+    var q0 = mKerekSzam(1, Math.max(1, Math.floor(Lu / n2)), Math.min(g, 3)), ossz2 = q0 * n2, aN, bN;
+    if (par2) {
+      if (ossz2 <= par2.f) { q0 = Math.ceil((par2.f + 1) / n2); ossz2 = q0 * n2; }
+      aN = veletlen(1, Math.max(1, Math.floor((ossz2 - 1) / par2.f))); bN = ossz2 - aN * par2.f;
+    } else { if (ossz2 < 2) { q0 = 1; n2 = 2; ossz2 = 2; } aN = mKerekSzam(1, ossz2 - 1, Math.min(g, 3)); bN = ossz2 - aN; }
+    return { kulcs: "sz-oo" + u + aN + "|" + bN + ":" + n2, fj: "osszoszt", u: u, a: aN, b: bN, n: n2, q: q0, ossz: ossz2, par: par2 };
+  });
+  /* a történet: s (képernyő), sf (felolvasás), a lépések (utolsó = a főkérdés) */
+  var s, sf, lep = [], U, Uf;
+  function mm(n, u) { return mMondd(n, u); }
+  if (r.fj === "ket") {
+    U = "<b>" + r.u + "</b>"; Uf = M_NEV[r.u];
+    var A = mB(r.a, r.u), B2 = mB(r.b, r.u), C = mB(r.c, r.u), Af = mm(r.a, r.u), Bf = mm(r.b, r.u), Cf = mm(r.c, r.u);
+    if (menny === "hossz") {
+      s = "A szabónak " + A + " szalagja volt. Vett még " + B2 + " szalagot. Aztán levágott belőle egy " + C + " hosszú darabot.";
+      sf = "A szabónak " + Af + " szalagja volt. Vett még " + Bf + " szalagot. Aztán levágott belőle egy " + Cf + " hosszú darabot.";
+      lep.push(mLep("Először: hány " + U + " szalagja lett, amikor vett még?", "Először: hány " + Uf + " szalagja lett, amikor vett még?", r.tot, mJel(r.a, r.u) + " + " + mJel(r.b, r.u) + " = " + mJel(r.tot, r.u)));
+      lep.push(mLep("Hány " + U + " szalagja maradt?", "Hány " + Uf + " szalagja maradt?", r.tot - r.c, mJel(r.tot, r.u) + " − " + mJel(r.c, r.u) + " = " + mJel(r.tot - r.c, r.u)));
+    } else if (menny === "ur") {
+      s = "Az üstben " + A + " bájital volt. Beleöntöttünk még " + B2 + " holdharmatot. Aztán " + C + " bájitalt kimertünk belőle.";
+      sf = "Az üstben " + Af + " bájital volt. Beleöntöttünk még " + Bf + " holdharmatot. Aztán " + Cf + " bájitalt kimertünk belőle.";
+      lep.push(mLep("Először: hány " + U + " lett az üstben, amikor beleöntöttük a holdharmatot?", "Először: hány " + Uf + " lett az üstben, amikor beleöntöttük a holdharmatot?", r.tot, mJel(r.a, r.u) + " + " + mJel(r.b, r.u) + " = " + mJel(r.tot, r.u)));
+      lep.push(mLep("Hány " + U + " bájital maradt az üstben?", "Hány " + Uf + " bájital maradt az üstben?", r.tot - r.c, mJel(r.tot, r.u) + " − " + mJel(r.c, r.u) + " = " + mJel(r.tot - r.c, r.u)));
+    } else {
+      s = "A péknek " + A + " lisztje volt. Vett még " + B2 + " lisztet. Aztán " + C + " lisztet beledagasztott a kenyérbe.";
+      sf = "A péknek " + Af + " lisztje volt. Vett még " + Bf + " lisztet. Aztán " + Cf + " lisztet beledagasztott a kenyérbe.";
+      lep.push(mLep("Először: hány " + U + " lisztje lett, amikor vett még?", "Először: hány " + Uf + " lisztje lett, amikor vett még?", r.tot, mJel(r.a, r.u) + " + " + mJel(r.b, r.u) + " = " + mJel(r.tot, r.u)));
+      lep.push(mLep("Hány " + U + " lisztje maradt?", "Hány " + Uf + " lisztje maradt?", r.tot - r.c, mJel(r.tot, r.u) + " − " + mJel(r.c, r.u) + " = " + mJel(r.tot - r.c, r.u)));
+    }
+  } else if (r.fj === "atv") {
+    var p = r.p, N = mB(r.n, p.a), Nf = mm(r.n, p.a), Bb = mB(r.b, p.b), Bbf = mm(r.b, p.b);
+    U = "<b>" + p.b + "</b>"; Uf = M_NEV[p.b];
+    var marad = "Hány " + U + " maradt?", maradF = "Hány " + Uf + " maradt?";
+    if (p.a === "km") {
+      s = "Az unikornis " + N + " utat vágtat a vásárig. Már " + Bb + " utat megtett."; sf = "Az unikornis " + Nf + " utat vágtat a vásárig. Már " + Bbf + " utat megtett.";
+      marad = "Hány " + U + " van még hátra?"; maradF = "Hány " + Uf + " van még hátra?";
+    } else if (menny === "hossz") {
+      s = "Egy " + N + " hosszú szalagból levágtunk egy " + Bb + " hosszú darabot."; sf = "Egy " + Nf + " hosszú szalagból levágtunk egy " + Bbf + " hosszú darabot.";
+    } else if (menny === "ur") {
+      var hol = p.a === "hl" ? "hordóban" : (M_SZ[p.a] <= 10 ? "üvegcsében" : "kancsóban");
+      s = "Egy " + hol + " " + N + " bájital volt. " + Bb + " bájitalt kiöntöttünk belőle."; sf = "Egy " + hol + " " + Nf + " bájital volt. " + mNagy(Bbf) + " bájitalt kiöntöttünk belőle.";
+    } else {
+      var hol2 = (p.a === "q" || p.a === "t") ? "A raktárban" : (M_SZ[p.a] <= 10 ? "Egy tálkában" : "Egy zsákban");
+      s = hol2 + " " + N + " liszt volt. " + Bb + " lisztet felhasználtunk belőle."; sf = hol2 + " " + Nf + " liszt volt. " + mNagy(Bbf) + " lisztet felhasználtunk belőle.";
+    }
+    lep.push(mLep("Először: hány " + U + " " + mAz(r.n) + " " + N + "?", "Először: hány " + Uf + " " + mAz(r.n) + " " + Nf + "?", r.ossz, mJel(r.n, p.a) + " = " + mJel(r.ossz, p.b)));
+    lep.push(mLep(marad, maradF, r.ossz - r.b, mJel(r.ossz, p.b) + " − " + mJel(r.b, p.b) + " = " + mJel(r.ossz - r.b, p.b)));
+  } else if (r.fj === "szorkiv") {
+    U = "<b>" + r.u + "</b>"; Uf = M_NEV[r.u];
+    var K = r.par ? mB(r.m, r.par.a) : mB(r.keszlet, r.u), Kf = r.par ? mm(r.m, r.par.a) : mm(r.keszlet, r.u);
+    var Ae = mB(r.a, r.u), Aef = mm(r.a, r.u), dbT = mAz(r.db) + " <b>" + r.db + "</b>", dbF = mAz(r.db) + " " + mSzo(r.db);
+    var mit, kerd, kerdF;
+    if (menny === "hossz") {
+      s = "A szabónál egy " + K + " hosszú szalag van. <b>" + r.db + "</b> masnit köt belőle, mindegyikhez " + Ae + " szalag kell.";
+      sf = "A szabónál egy " + Kf + " hosszú szalag van. " + mNagy(mSzo(r.db)) + " masnit köt belőle, mindegyikhez " + Aef + " szalag kell.";
+      mit = [" szalag kell " + dbT + " masnihoz?", " szalag kell " + dbF + " masnihoz?"]; kerd = "Hány " + U + " szalag marad?"; kerdF = "Hány " + Uf + " szalag marad?";
+    } else if (menny === "ur") {
+      s = "Egy " + (r.par && r.par.a === "hl" ? "hordóban " : "kancsóban ") + K + " bájital van. <b>" + r.db + "</b> üvegcsét töltünk meg belőle, mindegyikbe " + Ae + " bájitalt.";
+      sf = "Egy " + (r.par && r.par.a === "hl" ? "hordóban " : "kancsóban ") + Kf + " bájital van. " + mNagy(mSzo(r.db)) + " üvegcsét töltünk meg belőle, mindegyikbe " + Aef + " bájitalt.";
+      mit = [" bájital kell " + dbT + " üvegcsébe?", " bájital kell " + dbF + " üvegcsébe?"]; kerd = "Hány " + U + " bájital marad?"; kerdF = "Hány " + Uf + " bájital marad?";
+    } else {
+      s = "Egy zsákban " + K + " liszt van. <b>" + r.db + "</b> kalácsot sütünk belőle, mindegyikbe " + Ae + " liszt kell.";
+      sf = "Egy zsákban " + Kf + " liszt van. " + mNagy(mSzo(r.db)) + " kalácsot sütünk belőle, mindegyikbe " + Aef + " liszt kell.";
+      mit = [" liszt kell " + dbT + " kalácsba?", " liszt kell " + dbF + " kalácsba?"]; kerd = "Hány " + U + " liszt marad?"; kerdF = "Hány " + Uf + " liszt marad?";
+    }
+    lep.push(mLep("Először: hány " + U + mit[0], "Először: hány " + Uf + mit[1], r.kell, mJel(r.a, r.u) + " × " + r.db + " = " + mJel(r.kell, r.u)));
+    if (r.par) lep.push(mLep("Most: hány " + U + " " + mAz(r.m) + " " + K + "?", "Most: hány " + Uf + " " + mAz(r.m) + " " + Kf + "?", r.keszlet, mJel(r.m, r.par.a) + " = " + mJel(r.keszlet, r.u)));
+    lep.push(mLep(kerd, kerdF, r.keszlet - r.kell, mJel(r.keszlet, r.u) + " − " + mJel(r.kell, r.u) + " = " + mJel(r.keszlet - r.kell, r.u)));
+  } else {
+    U = "<b>" + r.u + "</b>"; Uf = M_NEV[r.u];
+    var aU = r.par ? r.par.a : r.u, Aa = mB(r.a, aU), Aaf = mm(r.a, aU), Bo = mB(r.b, r.u), Bof = mm(r.b, r.u), nT = "<b>" + r.n + "</b>", nF = mSzo(r.n);
+    var egy, egyF, ossz, osszF;
+    if (menny === "hossz") {
+      s = "Egy " + Aa + " és egy " + Bo + " hosszú szalagot összevarrunk. Aztán " + nT + " egyforma darabra vágjuk.";
+      sf = "Egy " + Aaf + " és egy " + Bof + " hosszú szalagot összevarrunk. Aztán " + nF + " egyforma darabra vágjuk.";
+      ossz = "hány " + U + " hosszú lett az összevarrt szalag?"; osszF = "hány " + Uf + " hosszú lett az összevarrt szalag?"; egy = "Hány " + U + " lesz egy darab?"; egyF = "Hány " + Uf + " lesz egy darab?";
+    } else if (menny === "ur") {
+      s = "Az üstbe " + Aa + " holdharmatot és " + Bo + " csillagvizet öntünk. Aztán " + nT + " üvegcsébe egyformán szétosztjuk.";
+      sf = "Az üstbe " + Aaf + " holdharmatot és " + Bof + " csillagvizet öntünk. Aztán " + nF + " üvegcsébe egyformán szétosztjuk.";
+      ossz = "hány " + U + " bájital lett az üstben?"; osszF = "hány " + Uf + " bájital lett az üstben?"; egy = "Hány " + U + " jut egy üvegcsébe?"; egyF = "Hány " + Uf + " jut egy üvegcsébe?";
+    } else {
+      s = "A pék " + Aa + " lisztet és " + Bo + " cukrot összekever. Aztán " + nT + " egyforma részre osztja.";
+      sf = "A pék " + Aaf + " lisztet és " + Bof + " cukrot összekever. Aztán " + nF + " egyforma részre osztja.";
+      ossz = "hány " + U + " lett együtt?"; osszF = "hány " + Uf + " lett együtt?"; egy = "Hány " + U + " jut egy részre?"; egyF = "Hány " + Uf + " jut egy részre?";
+    }
+    var aB = r.par ? r.a * r.par.f : r.a;
+    if (r.par) lep.push(mLep("Először: hány " + U + " " + mAz(r.a) + " " + Aa + "?", "Először: hány " + Uf + " " + mAz(r.a) + " " + Aaf + "?", aB, mJel(r.a, aU) + " = " + mJel(aB, r.u)));
+    lep.push(mLep((r.par ? "Most: " : "Először: ") + ossz, (r.par ? "Most: " : "Először: ") + osszF, r.ossz, mJel(aB, r.u) + " + " + mJel(r.b, r.u) + " = " + mJel(r.ossz, r.u)));
+    lep.push(mLep(egy, egyF, r.q, mJel(r.ossz, r.u) + " : " + r.n + " = " + mJel(r.q, r.u)));
+  }
+  var fo = lep[lep.length - 1];
+  var f = mFeladat(cfg, { fajta: "szoveges-" + r.fj, kep: "", kerdes: s + "<br>" + fo.k, felolvas: sf + " " + fo.f, helyes: fo.h, hosszu: true,
+    keplet: fo.m.replace(/ = [^=]*$/, ""), megoldas: lep.map(function (l) { return l.m; }).join(" · "),
+    tipp: lep.slice(0, -1).map(function (l) { return l.f.replace(/\?$/, ": ") + mKiejt(l.m.replace(/^.* = /, "")) + "."; }).join(" ") });
+  f.tortenet = s; f.vegig = lep;
   return f;
+}
+/* rossz válasz után: a részkérdések egymás után (a történet a képernyőn marad), végül újra a főkérdés.
+   A lépések a meglévő „lánc” úton mennek (nem új pötty); a vezetett kérdés csak 1 ✨-ot ad (mint a tipp utáni). */
+function meresVegigvezet(f, valasz) {
+  var n = f.vegig.length, sor = f.vegig.map(function (l, i) {
+    var vegso = (i === n - 1), cim = vegso ? "Most újra a kérdés:" : (i + 1) + ". lépés";
+    var x = { csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: f.meres, liga: f.liga, vezet: true,
+      kartyaHTML: '<div class="meres-kerdes hosszu meres-tortenet">' + f.tortenet + '</div><div class="meres-lepes' + (vegso ? ' vegso' : '') + '"><span class="meres-lepes-cim">' + cim + '</span> ' + l.k + '</div>',
+      szoveg: l.k.replace(/<[^>]+>/g, ""), felolvas: (vegso ? "Most újra a kérdés: " : "") + l.f, helyes: l.h, keplet: l.m.replace(/ = [^=]*$/, ""), megoldas: l.m,
+      tipp: "Számold ki: " + mKiejt(l.m.replace(/ = [^=]*$/, "")) + ".", lanc: null,
+      naplo: { tipus: f.naplo.tipus + (vegso ? "-ujra" : "-lepes"), kerdes: l.m.replace(/ = [^=]*$/, "").slice(0, 60), helyes: l.h, atlepes: false } };
+    return x;
+  });
+  sor[0].lanc = sor.slice(1);
+  J.lancKov = sor[0];
+  figyelStop();
+  $("visszajelzes").className = "visszajelzes rossz";
+  $("visszajelzes").textContent = "Nem " + valasz + ". Nézzük lépésenként!";
+  mondd("Nem talált. Nézzük meg lépésenként!", function () { if (J && J.lancKov === sor[0]) ujFeladat(); });
 }
 
 /* ═════════════════ 2. SZAKASZ: KOPPINTÓS KÁRTYÁK (rajzterv-2, jóváhagyva 2026-09-26) ═════════════════
@@ -735,7 +897,7 @@ function mValJel(u) { return /gramm$/.test(M_NEV[u]) ? "-mal" : (/a$/.test(M_NEV
 function mNelJel(u) { return /gramm$|a$/.test(M_NEV[u]) ? "-nál" : "-nél"; }
 /* a képernyő-mondat felolvasható alakja: „kb. 15 cm” → „körülbelül tizenöt centiméter” */
 function mKiejt(s) {
-  return String(s).replace(/<[^>]+>/g, "").replace(/\bkb\./g, "körülbelül").replace(/ = /g, " az ").replace(/ : /g, " osztva ")
+  return String(s).replace(/<[^>]+>/g, "").replace(/\bkb\./g, "körülbelül").replace(/ = /g, " az ").replace(/ : /g, " osztva ").replace(/ × /g, " szorozva ").replace(/ − /g, " mínusz ").replace(/ \+ /g, " meg ")
     .replace(/(\d[\d ]*?)\s?(mm|cm|dm|km|ml|cl|dl|hl|dkg|kg|m|l|g|q|t)(?![a-zá-ű])/g, function (x, n, u) { return mMondd(parseInt(n.replace(/ /g, ""), 10), u); });
 }
 function mKever(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = veletlen(0, i), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
