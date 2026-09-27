@@ -281,23 +281,24 @@ var MK_MX = 530, MK_MY = 150, MK_KAR = 170, MK_LOG = 100;
 function mkSulyDkg() {
   return `<ellipse cx="0" cy="-1" rx="12" ry="3.5" fill="#b8892c"/><rect x="-12" y="-24" width="24" height="23" fill="#e9b949"/>
     <ellipse cx="0" cy="-24" rx="12" ry="3.5" fill="#f6d47a" stroke="#b8892c" stroke-width="1.2"/><rect x="-3" y="-31" width="6" height="7" rx="2" fill="#d9a53c"/>
-    <text x="0" y="-11" text-anchor="middle" font-size="9.5" font-weight="800" fill="#6a4a10" font-family="Segoe UI,sans-serif">10</text>
-    <text x="0" y="-3.5" text-anchor="middle" font-size="6" font-weight="700" fill="#6a4a10" font-family="Segoe UI,sans-serif">dkg</text>`;
+    <text x="0" y="-10" text-anchor="middle" font-size="13" font-weight="800" fill="#4a2e04" font-family="Fredoka,Segoe UI,sans-serif">10</text>
+    <text x="0" y="-2.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#4a2e04" font-family="Fredoka,Segoe UI,sans-serif">dkg</text>`;
 }
 function mkSerpenyo(osztaly, belso) {
   var L = MK_LOG;
   return `<g class="${osztaly}"><line x1="0" y1="0" x2="-62" y2="${L - 4}" stroke="#9a7a4a" stroke-width="2"/><line x1="0" y1="0" x2="62" y2="${L - 4}" stroke="#9a7a4a" stroke-width="2"/>
     <line x1="0" y1="0" x2="0" y2="${L - 8}" stroke="#9a7a4a" stroke-width="1.5" opacity=".6"/>
-    <path d="M-74 ${L - 4} Q0 ${L + 22} 74 ${L - 4}Z" fill="#e8c47a" stroke="#b88a3a" stroke-width="2.5"/>
-    <ellipse cx="0" cy="${L - 4}" rx="74" ry="6" fill="#f3d99a" stroke="#b88a3a" stroke-width="2"/>
+    <path d="M-80 ${L - 4} Q0 ${L + 22} 80 ${L - 4}Z" fill="#e8c47a" stroke="#b88a3a" stroke-width="2.5"/>
+    <ellipse cx="0" cy="${L - 4}" rx="80" ry="6" fill="#f3d99a" stroke="#b88a3a" stroke-width="2"/>
     <circle cx="0" cy="0" r="4" fill="#b88a3a"/><g class="rakomany">${belso || ""}</g></g>`;
 }
-var MK_HELY = [-50, -25, 0, 25, 50].map(function (x) { return [x, MK_LOG - 6]; }).concat([-37.5, -12.5, 12.5, 37.5, 0].map(function (x, i) { return [x, i < 4 ? MK_LOG - 32 : MK_LOG - 58]; }));
+var MK_SULY_M = 1.3;   /* a 10 dkg-os súlyok nagyítása (olvasható felirat, producer 2026-09-27) */
+var MK_HELY = [-56, -28, 0, 28, 56].map(function (x) { return [x, MK_LOG - 6]; }).concat([-42, -14, 14, 42, 0].map(function (x, i) { return [x, i < 4 ? MK_LOG - 39 : MK_LOG - 72]; }));
 function mkPeksegHatter() {
   return mkBelso("pekseg") + `
     <path d="M10 30 Q200 62 400 30 Q600 62 790 30" stroke="#b07a45" stroke-width="2.5" fill="none"/>
     ${[90, 200, 310, 490, 600, 710].map(function (x, i) { return `<g transform="translate(${x},${44 + Math.sin(i) * 4})">${i % 2 ? `<path d="M0 0 l4 9 l10 1 l-8 6 l3 10 l-9 -5 l-9 5 l3 -10 l-8 -6 l10 -1Z" fill="#d9965c" stroke="#fff" stroke-width="1.5"/>` : `<path d="M0 6 C-10 -4 -18 8 0 22 C18 8 10 -4 0 6Z" fill="#d9965c" stroke="#fff" stroke-width="1.5"/>`}</g>`; }).join("")}
-    <rect x="222" y="106" width="238" height="9" rx="3" fill="#c99b6d"/><path d="M238 115 l0 14 l14 -14 M444 115 l0 14 l-14 -14" stroke="#b07a45" stroke-width="3" fill="none"/>
+    <rect x="218" y="106" width="332" height="9" rx="3" fill="#c99b6d"/><path d="M234 115 l0 14 l14 -14 M534 115 l0 14 l-14 -14" stroke="#b07a45" stroke-width="3" fill="none"/>
     ${mkPult(222, 792, 302)}`;
 }
 function mkMerleg() {
@@ -322,7 +323,7 @@ function mkMerlegAll(svg, fok) {
 var MK_PEKSEG = {
   render: function () {
     var s = mkPeksegHatter() + mkUni(118, 402, 1.2) + mkBuborek(16, 22, 230) + mkMerleg();
-    for (var i = 0; i < 10; i++) s += `<g class="dkg" data-i="${i}" transform="translate(${242 + i * 22},106)"><ellipse class="halo" cx="0" cy="-14" rx="18" ry="20" fill="#fff6b0" opacity="0"/>${mkSulyDkg()}</g>`;
+    for (var i = 0; i < 10; i++) s += `<g class="dkg" data-i="${i}" transform="translate(${240 + i * 30},106) scale(${MK_SULY_M})"><ellipse class="halo" cx="0" cy="-14" rx="18" ry="20" fill="#fff6b0" opacity="0"/>${mkSulyDkg()}</g>`;
     return s + `<g class="fx"></g>`;
   },
   init: function (svg) { mkMerlegAll(svg, 12); },
@@ -334,13 +335,13 @@ var MK_PEKSEG = {
     await mkVar(ctx, 700);
     var fok = 12;
     for (var i = 0; i < 10; i++) {
-      let g = sulyok[i], x0 = 242 + i * 22, y0 = 106, halo = mkQ(g, ".halo");
+      let g = sulyok[i], x0 = 240 + i * 30, y0 = 106, halo = mkQ(g, ".halo");
       let r = fok * Math.PI / 180, px = MK_MX + MK_KAR * Math.cos(r), py = MK_MY - MK_KAR * Math.sin(r);
       let hx = MK_HELY[i][0], hy = MK_HELY[i][1], x1 = px + hx, y1 = py + hy;
       mkSzarvVarazs(ctx, svg, u); mkAttr(halo, { opacity: .7 });
-      await mkTw(ctx, 260, function (p) { mkAttr(g, { transform: "translate(" + mkLerp(x0, x1, p) + "," + (mkLerp(y0, y1, p) - 60 * Math.sin(Math.PI * p)) + ")" }); });
+      await mkTw(ctx, 260, function (p) { mkAttr(g, { transform: "translate(" + mkLerp(x0, x1, p) + "," + (mkLerp(y0, y1, p) - 60 * Math.sin(Math.PI * p)) + ") scale(" + MK_SULY_M + ")" }); });
       mkAttr(halo, { opacity: 0 });
-      rak.appendChild(g); mkAttr(g, { transform: "translate(" + hx + "," + hy + ")" });
+      rak.appendChild(g); mkAttr(g, { transform: "translate(" + hx + "," + hy + ") scale(" + MK_SULY_M + ")" });
       let uj = 12 * (1 - (i + 1) / 10), regi = fok;
       mkBub(svg, ((i + 1) * 10) + " deka"); fel(((i + 1) * 10) + " dkg"); mkMond(ctx, mSzamSzo((i + 1) * 10));
       await mkTw(ctx, 240, function (p) { fok = mkLerp(regi, uj, p); mkMerlegAll(svg, fok); }, mkEaseBack);

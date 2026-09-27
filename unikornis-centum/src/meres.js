@@ -172,24 +172,24 @@ var MR = (function () {
     var r = 13 * m, h = 22 * m;
     return `<g transform="translate(${x},${y})"><ellipse cx="0" cy="-1" rx="${r}" ry="${r * .3}" fill="#b8892c"/><rect x="${-r}" y="${-h}" width="${2 * r}" height="${h - 1}" fill="#e9b949"/>
       <ellipse cx="0" cy="${-h}" rx="${r}" ry="${r * .3}" fill="#f6d47a" stroke="#b8892c" stroke-width="1.2"/><rect x="-3" y="${-h - 7}" width="6" height="7" rx="2" fill="#d9a53c"/>
-      <text x="0" y="${-h * .5 + 1}" text-anchor="middle" font-size="${10 * Math.min(m, 1.3)}" font-weight="800" fill="#6a4a10" ${F}>${szam}</text>
-      <text x="0" y="-3" text-anchor="middle" font-size="${6.5 * Math.min(m, 1.3)}" font-weight="700" fill="#6a4a10" ${F}>${egys}</text></g>`;
+      <text x="0" y="${-h * .5 + 2}" text-anchor="middle" font-size="${String(szam).length > 2 ? 15 : 18}" font-weight="800" fill="#4a2e04" ${F}>${szam}</text>
+      <text x="0" y="-3" text-anchor="middle" font-size="10" font-weight="800" fill="#4a2e04" ${F}>${egys}</text></g>`;   /* nagy, sötét felirat (producer, 2026-09-27: kicsi súlyon is olvasható legyen) */
   }
-  function vasSuly(x, y, felirat) {
+  function vasSuly(x, y, felirat, fs) {
     return `<g transform="translate(${x},${y})"><path d="M-24 0 L24 0 L17 -34 L-17 -34Z" fill="#7d88a6" stroke="#5a6480" stroke-width="2"/>
       <rect x="-7" y="-44" width="14" height="11" rx="5" fill="none" stroke="#5a6480" stroke-width="4"/>
-      <text x="0" y="-11" text-anchor="middle" font-size="${felirat.length > 5 ? 11 : 14}" font-weight="800" fill="#fff" ${F}>${felirat}</text></g>`;
+      <text x="0" y="-11" text-anchor="middle" font-size="${fs || (felirat.length > 5 ? 11 : 14)}" font-weight="800" fill="#fff" ${F}>${felirat}</text></g>`;
   }
   function kalacs(x, y, s) {
     return `<g transform="translate(${x},${y}) scale(${s || 1})"><path d="M-34 0 Q-38 -22 -14 -24 Q0 -34 14 -24 Q38 -22 34 0Z" fill="#e0a45c" stroke="#a8702e" stroke-width="2.5"/>
       <path d="M-22 -8 q6 -12 12 -2 q6 -12 12 -2 q6 -12 12 -2" stroke="#f6d49a" stroke-width="3" fill="none"/><circle cx="-8" cy="-17" r="1.6" fill="#fff"/><circle cx="6" cy="-19" r="1.6" fill="#fff"/></g>`;
   }
   /* kétkarú mérleg (360×150). fok>0: a bal oldal lent */
-  function kisMerleg(bal, jobb, fok) {
-    var MX = 180, MY = 34, K = 108, H = 60, r = fok * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+  function kisMerleg(bal, jobb, fok, tw) {
+    var MX = 180, MY = 34, K = 108, H = 60, r = fok * Math.PI / 180, c = Math.cos(r), s = Math.sin(r), T = tw || 50;   /* tw: a tányér fél-szélessége */
     function tany(x, y, t) {
-      return `<g transform="translate(${x},${y})"><path d="M0 0 L-40 ${H} M0 0 L40 ${H}" stroke="#9a7a4a" stroke-width="2"/>
-        <path d="M-50 ${H} Q0 ${H + 16} 50 ${H}Z" fill="#e8c47a" stroke="#b88a3a" stroke-width="2.5"/><ellipse cx="0" cy="${H}" rx="50" ry="5" fill="#f3d99a" stroke="#b88a3a" stroke-width="2"/>
+      return `<g transform="translate(${x},${y})"><path d="M0 0 L${-T + 10} ${H} M0 0 L${T - 10} ${H}" stroke="#9a7a4a" stroke-width="2"/>
+        <path d="M${-T} ${H} Q0 ${H + 16} ${T} ${H}Z" fill="#e8c47a" stroke="#b88a3a" stroke-width="2.5"/><ellipse cx="0" cy="${H}" rx="${T}" ry="5" fill="#f3d99a" stroke="#b88a3a" stroke-width="2"/>
         <circle r="3.5" fill="#b88a3a"/><g transform="translate(0,${H - 2})">${t}</g></g>`;
     }
     return `<path d="M${MX - 44} 148 L${MX + 44} 148 L${MX + 30} 132 L${MX - 30} 132Z" fill="#c99b6d" stroke="#a87a48" stroke-width="2"/>
@@ -662,12 +662,12 @@ function genMeres(cfg, kerultMar) {
   /* pékség: kétkarú mérleg egyensúlyban, a súlyok összege = a kalács */
   if (g <= 1) {
     var r4 = mEgyedi(kerultMar, function () { var n = veletlen(2, 5); return { kulcs: "mk" + n, n: n }; });
-    var vs = "", also = Math.min(3, r4.n);
+    var vs = "", also = Math.min(r4.n >= 4 ? 4 : 3, r4.n), msz = r4.n >= 4 ? .68 : .8;   /* 4–5 súly: 4 alul, kisebbek — ne érjen a mérleg karjához */
     for (var q = 0; q < r4.n; q++) {
       var sor = q < also ? 0 : 1, db = sor ? r4.n - also : also, hely = sor ? q - also : q;
-      vs += MR.vasSuly((hely - (db - 1) / 2) * 52, -2 - sor * 44, "1 kg");
+      vs += MR.vasSuly((hely - (db - 1) / 2) * 48, -2 - sor * 46, "1 kg", 19);
     }
-    return mFeladat(cfg, { fajta: "meres-kg", kep: MR.svg360(MR.kisMerleg(MR.zsak(0, -2, "#f3e3c3", .7), '<g transform="scale(.6)">' + vs + '</g>', 0)),
+    return mFeladat(cfg, { fajta: "meres-kg", kep: MR.svg360(MR.kisMerleg(MR.zsak(0, -2, "#f3e3c3", .8), '<g transform="scale(' + msz + ')">' + vs + '</g>', 0, 64)),
       kerdes: "A mérleg egyensúlyban van. Minden súly <b>1 kg</b>. Hány <b>kg</b> a zsák?", felolvas: "A mérleg egyensúlyban van. Minden súly egy kilogramm. Hány kilogramm a zsák?",
       helyes: r4.n, keplet: "a zsák = ? kg", megoldas: "a zsák = " + r4.n + " kg", tipp: "Számold meg a súlyokat! Mindegyik egy kilogramm." });
   }
@@ -680,9 +680,9 @@ function genMeres(cfg, kerultMar) {
     lista.sort(function (a, b) { return b - a; });
     return { kulcs: "mm" + egys + lista.join("+"), lista: lista, sum: sum };
   });
-  var sulyok = "", xx = -((r5.lista.length - 1) * 16);
-  r5.lista.forEach(function (s, ii) { sulyok += MR.suly(xx + ii * 32, -2, s, egys, s >= 100 || s === 50 ? 1.25 : (s >= 10 ? 1 : .8)); });
-  return mFeladat(cfg, { fajta: "meres-merleg", kep: MR.svg360(MR.kisMerleg(MR.kalacs(0, -2, .9), sulyok, 0)),
+  var sulyok = "", xx = -((r5.lista.length - 1) * 21);
+  r5.lista.forEach(function (s, ii) { sulyok += MR.suly(xx + ii * 42, -2, s, egys, s >= 100 ? 1.55 : (s >= 10 ? 1.42 : 1.3)); });
+  return mFeladat(cfg, { fajta: "meres-merleg", kep: MR.svg360(MR.kisMerleg(MR.kalacs(0, -2, 1.05), sulyok, 0, 64)),
     kerdes: "A mérleg egyensúlyban van. Hány <b>" + egys + "</b> a kalács?", felolvas: "A mérleg egyensúlyban van. Hány " + M_NEV[egys] + " a kalács?",
     helyes: r5.sum, keplet: r5.lista.join(" + ") + " = ?", megoldas: r5.lista.join(" + ") + " = " + r5.sum + " " + egys,
     tipp: "Add össze a súlyokat: " + r5.lista.map(mSzamSzo).join(" meg ") + "." });
