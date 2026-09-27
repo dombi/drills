@@ -524,6 +524,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   margin:16px 0 8px; padding-bottom:4px; border-bottom:2px solid #ecdcf2;
 }
 .jelveny-csalad-fej:first-of-type{ margin-top:6px; }
+.jelveny-alcim{ font-weight:800; color:#9a7ab8; font-size:12px; margin:12px 0 6px 2px; }   /* családon belüli „📏 Mérés” alcím */
 
 /* gyűjtemény-könyv */
 .gyujt-szakasz{ margin-bottom:18px; }

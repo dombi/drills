@@ -274,7 +274,7 @@ var MERES_ALLOMAS = {
 function meresPalya(id, nev, ikon, liga, menny, osztaly, szint, palcim) {
   var N = MERES_ALLOMAS[liga], g0 = osztaly, g2 = (osztaly === 1 ? 2 : osztaly);
   return {
-    id: id, nev: nev, ikon: ikon, regio: liga, muhely: liga, meres: true, szint: szint, palcim: palcim, kez_nelkul: true,
+    id: id, nev: nev, ikon: ikon, regio: liga, muhely: liga, meres: true, osztaly: osztaly, szint: szint, palcim: palcim, kez_nelkul: true,
     alap: { tipus: "meres", mennyiseg: menny },
     allomasok: [
       { nev: "Rajt" },
@@ -589,8 +589,9 @@ function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0:
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
-function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
+function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
+  meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
 /* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
@@ -619,6 +620,7 @@ function profilNormal(p) {
   if (!p.jelvSzam) p.jelvSzam = alapJelvSzam();
   else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
   if (!p.napok) p.napok = {};
+  if (!p.meresNapok) p.meresNapok = {};             /* mérés-jelvény: Hűséges inas */
   if (typeof p.streakRekord !== "number") p.streakRekord = 0;
   if (typeof p.dropUres !== "number") p.dropUres = 0;
   p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
@@ -3226,6 +3228,7 @@ function mKoppMutat(f) {
 }
 /* rossz koppintás: a motor könyvelése (mint az ertekel rossz ága), de hallgatás nélkül */
 function mKoppRossz(f, cimke, html, kimond) {
+  meresTanulNez(f, false);
   J.probak++; J.allomasHibatlan = false; streakLep(false);
   naplozz(f.naplo, false, cimke); hangHiba();
   var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.innerHTML = html;
@@ -3284,6 +3287,36 @@ function mKoppKatt(ev) {
       mKoppRossz(f, mJel(K[+d].n, K[+d].u), "Nézzük meg közös egységben!", "Nézzük meg közös egységben!");
     }
   }
+}
+
+/* ── mérés-jelvények számlálói (terv: Matekos/meres-jelvenyek-terv.html) — ertekel helyes ágából ── */
+/* a naplo-fajta (pl. "atvaltas-lanc", "kiegeszites", "szoveges-atv", "meres-mm") → jelvény-csoport;
+   a végigvezetés lépései ("…-lepes" / "…-ujra") nem számítanak */
+function meresCsoport(f) {
+  var fa = (f && f.naplo && f.naplo.tipus || "").replace(/^meres-/, "");
+  if (/-(lepes|ujra)$/.test(fa)) return "";
+  if (/^(atvaltas|osszetett)/.test(fa)) return "atvaltas";
+  if (/^kiegeszites/.test(fa)) return "kieg";
+  if (/^szoveges/.test(fa)) return "szoveges";
+  return fa;                                   /* becsles, sorba, kakukk, … */
+}
+/* „Tanultam belőle”: mozgókép után a KÖVETKEZŐ ugyanilyen csoportú feladat elsőre jó? (a megismételt kérdés nem számít) */
+function meresTanulNez(f, elsore) {
+  var t = J && J.mkTanul;
+  if (!t || t.f === f || meresCsoport(f) !== t.cs) return;
+  J.mkTanul = null;
+  if (elsore && P().jelvSzam) P().jelvSzam.mkTanult = (P().jelvSzam.mkTanult || 0) + 1;
+}
+function meresJelvSzamol(f, elsore) {
+  var js = P().jelvSzam, cs = meresCsoport(f);
+  function inc(k) { js[k] = (js[k] || 0) + 1; }
+  if (cs === "atvaltas") { if (!(f.lanc && f.lanc.length)) inc("meresAtvalt"); }   /* lánc: csak az utolsó szem */
+  else if (cs === "becsles") inc("meresBecsles");
+  else if (cs === "kieg") inc("meresKieg");
+  else if (cs === "kakukk") inc("meresKakukk");
+  else if (cs === "sorba") { if (elsore) inc("meresSorba"); }       /* egyetlen rossz koppintás nélkül */
+  else if (cs === "szoveges") { if (elsore) inc("meresSzoveg"); }   /* végigvezetés nélkül */
+  meresTanulNez(f, elsore);
 }
 
 var M_GEN = { meres: genMeres, atvaltas: genAtvaltas, kieg: genKieg, muvelet: genMuvelet, osszetett: genOsszetett,
@@ -4210,6 +4243,7 @@ function mkElottKell(f, tovabb) {
    (f.mk = átváltás → csoportos/lépcső; f.mkk = „Mennyi hiányzik?” → MK_KIEG) */
 function mkHiba(f, valasz) {
   figyelStop();
+  J.mkTanul = { f: f, cs: meresCsoport(f) };   /* jelvény: „Tanultam belőle” — a következő ugyanilyen feladatot figyeljük */
   $("visszajelzes").className = "visszajelzes rossz";
   $("visszajelzes").textContent = "Nem " + valasz + ". Nézzük meg együtt!";
   var cim = f.mkk ? f.keplet : mJel(f.mk.n, f.mk.u) + " = ? " + f.mk.cel;
@@ -4396,6 +4430,7 @@ function palyaInditas(id) {
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
   if (!P().napok) P().napok = {};
   if (!P().napok[maJelv]) { P().napok[maJelv] = 1; ment(); }
+  if (pa.meres) { if (!P().meresNapok) P().meresNapok = {}; P().meresNapok[maJelv] = 1; }   /* jelvény: Hűséges inas */
   var allomasok = pa.allomasok.map(function (a) {
     var o = {}, k; for (k in (pa.alap || {})) o[k] = pa.alap[k];
     for (k in a) o[k] = a[k]; return o;
@@ -4773,12 +4808,14 @@ function ertekel(valasz) {
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
       if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
+      if (f.naplo && /^meres-/.test(f.naplo.tipus || "")) meresJelvSzamol(f, elsore);   /* mérés-jelvények (meres.js) */
     }
     dropUnnepel(dropProbal(0.15));
     jelvenyEllenoriz();
     ment();
     setTimeout(function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); }, 900);
   } else {
+    meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
     J.probak++;
     J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
     streakLep(false);
@@ -8007,6 +8044,16 @@ function streakLep(elsore) {
 /* — jelvények (nem vásárolható, feloldás) — 4 család (spec-jelvenyek-es-kristaly.html) — */
 function palyakKeszek(p, idk) { return idk.every(function (id) { return p.palyak[id] && p.palyak[id].kesz; }); }
 function jsz(p, k) { return (p.jelvSzam && p.jelvSzam[k]) || 0; }
+/* mérés-pályák (nem rejtett) a szűrő szerint: van-e köztük, és mind kész-e (Matekos/meres-jelvenyek-terv.html) */
+function meresKeszek(p, szuro) {
+  var l = PALYAK.filter(function (x) { return x.meres && !palyaRejtve(x) && (!szuro || szuro(x)); });
+  return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; });
+}
+function meresKesz(p, liga, osztaly) {
+  return PALYAK.some(function (x) { return x.meres && x.muhely === liga && (osztaly == null || x.osztaly === osztaly) && p.palyak[x.id] && p.palyak[x.id].kesz; });
+}
+var MERES_LIGAK = ["szabo", "bajital", "pekseg"];
+var MERES_SZIN = { szabo: "#f4a6c8", bajital: "#8fd3e0", pekseg: "#f5c97f" };
 var JELV_CSALAD = { A: "🌲 Ösvény (haladás)", B: "✨ Mesteri tudás", C: "💪 Kitartás", D: "🏡 Gyűjtő / berendező" };
 var JELVENYEK = [
   /* A · Ösvény (haladás) */
@@ -8024,6 +8071,25 @@ var JELVENYEK = [
     teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || palyaRejtve(x) || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
   { id: "ejfeli-kapu", csalad: "A", titkos: true, nev: "Éjféli kapu", felt: "Fedezd fel a rejtett kaput", szin: "#b39ddb",
     teljesul: function (p) { return !!(p.kapu && p.kapu.nyitvaEddig > 0); } },
+  /* A · 📏 Mérés (meres:true → alcím; ikon a csillag helyett; arany = mester-gyűrű) */
+  { id: "m-szaboinas", csalad: "A", meres: true, ikon: "szabo", nev: "Szabóinas", felt: "Az Első öltések pálya kész", szin: MERES_SZIN.szabo,
+    teljesul: function (p) { return palyakKeszek(p, ["meres-szabo-1"]); } },
+  { id: "m-bajitalinas", csalad: "A", meres: true, ikon: "bajital", nev: "Bájitalinas", felt: "A Liter és deci pálya kész", szin: MERES_SZIN.bajital,
+    teljesul: function (p) { return palyakKeszek(p, ["meres-bajital-1"]); } },
+  { id: "m-pekinas", csalad: "A", meres: true, ikon: "pekseg", nev: "Pékinas", felt: "A Kiló és deka pálya kész", szin: MERES_SZIN.pekseg,
+    teljesul: function (p) { return palyakKeszek(p, ["meres-pekseg-1"]); } },
+  { id: "m-mesterszabo", csalad: "A", meres: true, ikon: "szabo", arany: true, nev: "Mesterszabó", felt: "A Szabóműhely mind a 4 pályája kész", szin: MERES_SZIN.szabo,
+    teljesul: function (p) { return meresKeszek(p, function (x) { return x.muhely === "szabo"; }); } },
+  { id: "m-bajitalmester", csalad: "A", meres: true, ikon: "bajital", arany: true, nev: "Bájitalmester", felt: "A Bájitalkonyha mind a 4 pályája kész", szin: MERES_SZIN.bajital,
+    teljesul: function (p) { return meresKeszek(p, function (x) { return x.muhely === "bajital"; }); } },
+  { id: "m-pekmester", csalad: "A", meres: true, ikon: "pekseg", arany: true, nev: "Pékmester", felt: "A Mézes pékség mind a 4 pályája kész", szin: MERES_SZIN.pekseg,
+    teljesul: function (p) { return meresKeszek(p, function (x) { return x.muhely === "pekseg"; }); } },
+  { id: "m-vandor", csalad: "A", meres: true, ikon: "harom", nev: "Három műhely vándora", felt: "Mindhárom mérés-ligetben kész 1 pálya", szin: "#c9a8e6",
+    teljesul: function (p) { return MERES_LIGAK.every(function (l) { return meresKesz(p, l); }); } },
+  { id: "m-szintmester", csalad: "A", meres: true, ikon: "harom", nev: "Szintmester", felt: "Egy osztály pályája mindhárom mérés-ligetben kész", szin: "#9ec9f0",
+    teljesul: function (p) { return [1, 3, 4, 5].some(function (o) { return MERES_LIGAK.every(function (l) { return meresKesz(p, l, o); }); }); } },
+  { id: "m-nagymester", csalad: "A", meres: true, ikon: "harom", arany: true, nev: "Mérőmester nagymester", felt: "Mind a 12 mérés-pálya kész", szin: "#ffd24d",
+    teljesul: function (p) { return meresKeszek(p); } },
   /* B · Mesteri tudás */
   { id: "hibatlan-allomas", csalad: "B", nev: "Hibátlan állomás", felt: "Egy állomás minden feladata elsőre jó", szin: "#ffe08a",
     teljesul: function (p) { return jsz(p, "hibatlanAllomas") >= 1; } },
@@ -8033,6 +8099,18 @@ var JELVENYEK = [
     teljesul: function (p) { return jsz(p, "beszedFeladat") >= 20; } },
   { id: "kitarto", csalad: "B", nev: "Kitartó", felt: "5 elsőre jó válasz egymás után", szin: "#f7c59f",
     teljesul: function (p) { return (p.streakRekord || 0) >= 5; } },
+  { id: "m-atvalto", csalad: "B", meres: true, ikon: "lepcso", nev: "Átváltó", felt: "20 jó átváltás", szin: "#b9a6f2",
+    teljesul: function (p) { return jsz(p, "meresAtvalt") >= 20; } },
+  { id: "m-szemmertekes", csalad: "B", meres: true, ikon: "szem", nev: "Szemmértékes", felt: "10 jó becslés", szin: "#a7d99a",
+    teljesul: function (p) { return jsz(p, "meresBecsles") >= 10; } },
+  { id: "m-potlo", csalad: "B", meres: true, ikon: "kirako", nev: "Pótló", felt: "10 jó „Mennyi hiányzik?”", szin: "#f7c59f",
+    teljesul: function (p) { return jsz(p, "meresKieg") >= 10; } },
+  { id: "m-rendrako", csalad: "B", meres: true, ikon: "oszlop", nev: "Rendrakó", felt: "5 sorba rendezés hiba nélkül", szin: "#9ec9f0",
+    teljesul: function (p) { return jsz(p, "meresSorba") >= 5; } },
+  { id: "m-kakukk", csalad: "B", meres: true, ikon: "tojas", nev: "Kakukktojás-vadász", felt: "5 megtalált kakukktojás", szin: "#fce49a",
+    teljesul: function (p) { return jsz(p, "meresKakukk") >= 5; } },
+  { id: "m-fejtoro", csalad: "B", meres: true, ikon: "tekercs", nev: "Fejtörő-szabó", felt: "5 szöveges feladat elsőre jól", szin: "#f6a5c0",
+    teljesul: function (p) { return jsz(p, "meresSzoveg") >= 5; } },
   /* C · Kitartás */
   { id: "nem-adom-fel", csalad: "C", nev: "Nem adom fel", felt: "Oldj meg egy feladatot 3+ próbálkozás után", szin: "#ffb3a7",
     teljesul: function (p) { return jsz(p, "kuzdottGyozelem") >= 1; } },
@@ -8040,6 +8118,10 @@ var JELVENYEK = [
     teljesul: function (p) { return Object.keys(p.napok || {}).length >= 3; } },
   { id: "kerulo-felfedezo", csalad: "C", nev: "Kerülő-felfedező", felt: "5 talált tárgy a kerülőn", szin: "#a7d99a",
     teljesul: function (p) { return jsz(p, "keruloTargy") >= 5; } },
+  { id: "m-tanultam", csalad: "C", meres: true, ikon: "korte", nev: "Tanultam belőle", felt: "Magyarázó mozgókép után a következő elsőre jó", szin: "#ffe08a",
+    teljesul: function (p) { return jsz(p, "mkTanult") >= 1; } },
+  { id: "m-huseges", csalad: "C", meres: true, ikon: "naptar", nev: "Hűséges inas", felt: "3 különböző napon mérés-pálya", szin: "#c3b0e0",
+    teljesul: function (p) { return Object.keys(p.meresNapok || {}).length >= 3; } },
   /* D · Gyűjtő / berendező */
   { id: "elso-vasarlas", csalad: "D", nev: "Első vásárlás", felt: "Vegyél valamit a boltban", szin: "#ffd24d",
     teljesul: function (p) { return jsz(p, "vettMar") >= 1; } },
@@ -8055,7 +8137,8 @@ function jelvenyEllenoriz() {
   });
   if (ujak.length) {
     ment();
-    ujak.forEach(function (j, i) { setTimeout(function () { jelvenyUnnepel(j); }, 400 + i * 1700); });
+    if (ujak.length > 3) setTimeout(function () { hangCsilla(); bagolyMondat("🏅 " + ujak.length + " új jelvényt kaptál! Nézd meg a Jelvényfalon."); }, 400);   /* pl. visszamenőleges mérés-jelvények: egy mondat */
+    else ujak.forEach(function (j, i) { setTimeout(function () { jelvenyUnnepel(j); }, 400 + i * 1700); });
   }
   return ujak;
 }
@@ -8067,13 +8150,34 @@ function jelvenyMedalSVG(j, van, rejt) {
   var szin = van ? j.szin : "#c9bfe0";
   var kozep = rejt
     ? '<text x="30" y="33" font-size="21" font-weight="800" fill="#9a86c0" text-anchor="middle">?</text>'
+    : j.ikon ? jelvIkon(j.ikon, 30, 26, 1.05, van)
     : csillagSVG(30, 26, 9, van ? "#fff6d8" : "#efeaf6");
   return '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' +
     '<path d="M22 40 L14 58 L24 52 L30 60 L36 52 L46 58 L38 40 Z" fill="' + (van ? "#f6a5c0" : "#d8cfe8") + '"/>' +
     '<circle cx="30" cy="26" r="20" fill="' + (rejt ? "#d8cfe8" : szin) + '" stroke="#6a4a8a" stroke-width="2.5"/>' +
+    (j.arany && !rejt ? '<circle cx="30" cy="26" r="21" fill="none" stroke="' + (van ? "#e0a800" : "#bdb2d4") + '" stroke-width="4"/>' : '') +
     '<circle cx="30" cy="26" r="14" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.7"/>' +
     kozep +
     '</svg>';
+}
+/* mérés-jelvények közép-ikonja (a zárt jelvényen halvány) */
+function jelvIkon(n, x, y, s, van) {
+  var g = '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"' + (van ? '' : ' opacity="0.45"') + '>', e = '</g>';
+  switch (n) {
+    case "szabo": return g + '<rect x="-7" y="-9" width="14" height="3" rx="1" fill="#8a5f3a"/><rect x="-7" y="6" width="14" height="3" rx="1" fill="#8a5f3a"/><rect x="-5" y="-6" width="10" height="12" fill="#e2589b"/><path d="M-5 -3 H5 M-5 0 H5 M-5 3 H5" stroke="#fff" stroke-width="1" opacity=".7"/>' + e;
+    case "bajital": return g + '<path d="M-3 -9 H3 V-3 L7 7 Q7 9 5 9 H-5 Q-7 9 -7 7 L-3 -3 Z" fill="#fff" stroke="#3a7a8a" stroke-width="1.5"/><path d="M-5.2 3 H5.2 L6.5 7 Q6.5 8.3 5 8.3 H-5 Q-6.5 8.3 -6.5 7 Z" fill="#7a5cd6"/>' + e;
+    case "pekseg": return g + '<path d="M-4 -8 Q0 -5 4 -8 L3 -5 Q8 -2 8 4 Q8 9 0 9 Q-8 9 -8 4 Q-8 -2 -3 -5 Z" fill="#e8c890" stroke="#8a5f3a" stroke-width="1.5"/><path d="M-4 -5.5 H4" stroke="#8a5f3a" stroke-width="1.5"/>' + e;
+    case "harom": return g + jelvIkon("szabo", -9, 4, 0.6, true) + jelvIkon("bajital", 0, -5, 0.6, true) + jelvIkon("pekseg", 9, 4, 0.6, true) + e;
+    case "lepcso": return g + '<path d="M-9 8 H-3 V2 H3 V-4 H9 V8 Z" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/>' + e;
+    case "szem": return g + '<path d="M-10 0 Q0 -9 10 0 Q0 9 -10 0 Z" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><circle r="3.6" fill="#3aa6d8"/><circle r="1.5" fill="#23203d"/>' + e;
+    case "kirako": return g + '<path d="M-8 -8 H-2 Q-2 -11 1 -11 Q4 -11 4 -8 H8 V-2 Q11 -2 11 1 Q11 4 8 4 V8 H-8 Z" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/>' + e;
+    case "oszlop": return g + '<rect x="-9" y="3" width="5" height="6" fill="#fff" stroke="#6a4a8a"/><rect x="-2.5" y="-2" width="5" height="11" fill="#fff" stroke="#6a4a8a"/><rect x="4" y="-8" width="5" height="17" fill="#fff" stroke="#6a4a8a"/>' + e;
+    case "tojas": return g + '<ellipse cy="1" rx="7" ry="9" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><circle cx="-2" cy="-2" r="1.3" fill="#c9a8e6"/><circle cx="3" cy="3" r="1.6" fill="#c9a8e6"/>' + e;
+    case "tekercs": return g + '<rect x="-8" y="-7" width="16" height="14" rx="2" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><path d="M-5 -3 H5 M-5 0 H5 M-5 3 H2" stroke="#6a4a8a" stroke-width="1.2"/>' + e;
+    case "korte": return g + '<path d="M0 -10 Q8 -10 8 -2 Q8 3 3 6 V8 H-3 V6 Q-8 3 -8 -2 Q-8 -10 0 -10 Z" fill="#fff6c0" stroke="#c77d12" stroke-width="1.5"/><rect x="-3" y="8" width="6" height="2.5" fill="#8a7a6a"/>' + e;
+    case "naptar": return g + '<rect x="-8" y="-7" width="16" height="15" rx="2" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><rect x="-8" y="-7" width="16" height="4" fill="#e2589b"/><path d="M-4 1 l2 2 l4 -4" stroke="#2e9e6a" stroke-width="2" fill="none"/>' + e;
+  }
+  return "";
 }
 function renderJelveny() {
   $("odu-lap-cim").textContent = "🏅 Jelvények";
@@ -8085,8 +8189,14 @@ function renderJelveny() {
     var lista = JELVENYEK.filter(function (j) { return j.csalad === cs; });
     if (!lista.length) return;
     host.appendChild(el("div", "jelveny-csalad-fej", JELV_CSALAD[cs] || ""));
-    var racs = el("div", "jelveny-racs");
+    var racs = el("div", "jelveny-racs"), alcimVolt = false;
     lista.forEach(function (j) {
+      if (j.meres && !alcimVolt) {               /* a mérés-jelvények a régiek után, saját alcím alatt */
+        alcimVolt = true;
+        if (racs.children.length) host.appendChild(racs);
+        host.appendChild(el("div", "jelveny-alcim", "📏 Mérés"));
+        racs = el("div", "jelveny-racs");
+      }
       var van = !!p.jelvenyek[j.id];
       var rejt = j.titkos && !van;                 /* titkos jelvény zárva: rejtve marad */
       var k = el("div", "jelveny-kartya" + (van ? " van" : " zar"));

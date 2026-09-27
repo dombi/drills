@@ -268,7 +268,7 @@ var MERES_ALLOMAS = {
 function meresPalya(id, nev, ikon, liga, menny, osztaly, szint, palcim) {
   var N = MERES_ALLOMAS[liga], g0 = osztaly, g2 = (osztaly === 1 ? 2 : osztaly);
   return {
-    id: id, nev: nev, ikon: ikon, regio: liga, muhely: liga, meres: true, szint: szint, palcim: palcim, kez_nelkul: true,
+    id: id, nev: nev, ikon: ikon, regio: liga, muhely: liga, meres: true, osztaly: osztaly, szint: szint, palcim: palcim, kez_nelkul: true,
     alap: { tipus: "meres", mennyiseg: menny },
     allomasok: [
       { nev: "Rajt" },

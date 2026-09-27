@@ -62,6 +62,7 @@ function palyaInditas(id) {
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
   if (!P().napok) P().napok = {};
   if (!P().napok[maJelv]) { P().napok[maJelv] = 1; ment(); }
+  if (pa.meres) { if (!P().meresNapok) P().meresNapok = {}; P().meresNapok[maJelv] = 1; }   /* jelvény: Hűséges inas */
   var allomasok = pa.allomasok.map(function (a) {
     var o = {}, k; for (k in (pa.alap || {})) o[k] = pa.alap[k];
     for (k in a) o[k] = a[k]; return o;
@@ -439,12 +440,14 @@ function ertekel(valasz) {
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
       if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
+      if (f.naplo && /^meres-/.test(f.naplo.tipus || "")) meresJelvSzamol(f, elsore);   /* mérés-jelvények (meres.js) */
     }
     dropUnnepel(dropProbal(0.15));
     jelvenyEllenoriz();
     ment();
     setTimeout(function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); }, 900);
   } else {
+    meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
     J.probak++;
     J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
     streakLep(false);

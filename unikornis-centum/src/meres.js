@@ -1223,6 +1223,7 @@ function mKoppMutat(f) {
 }
 /* rossz koppintás: a motor könyvelése (mint az ertekel rossz ága), de hallgatás nélkül */
 function mKoppRossz(f, cimke, html, kimond) {
+  meresTanulNez(f, false);
   J.probak++; J.allomasHibatlan = false; streakLep(false);
   naplozz(f.naplo, false, cimke); hangHiba();
   var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.innerHTML = html;
@@ -1281,6 +1282,36 @@ function mKoppKatt(ev) {
       mKoppRossz(f, mJel(K[+d].n, K[+d].u), "Nézzük meg közös egységben!", "Nézzük meg közös egységben!");
     }
   }
+}
+
+/* ── mérés-jelvények számlálói (terv: Matekos/meres-jelvenyek-terv.html) — ertekel helyes ágából ── */
+/* a naplo-fajta (pl. "atvaltas-lanc", "kiegeszites", "szoveges-atv", "meres-mm") → jelvény-csoport;
+   a végigvezetés lépései ("…-lepes" / "…-ujra") nem számítanak */
+function meresCsoport(f) {
+  var fa = (f && f.naplo && f.naplo.tipus || "").replace(/^meres-/, "");
+  if (/-(lepes|ujra)$/.test(fa)) return "";
+  if (/^(atvaltas|osszetett)/.test(fa)) return "atvaltas";
+  if (/^kiegeszites/.test(fa)) return "kieg";
+  if (/^szoveges/.test(fa)) return "szoveges";
+  return fa;                                   /* becsles, sorba, kakukk, … */
+}
+/* „Tanultam belőle”: mozgókép után a KÖVETKEZŐ ugyanilyen csoportú feladat elsőre jó? (a megismételt kérdés nem számít) */
+function meresTanulNez(f, elsore) {
+  var t = J && J.mkTanul;
+  if (!t || t.f === f || meresCsoport(f) !== t.cs) return;
+  J.mkTanul = null;
+  if (elsore && P().jelvSzam) P().jelvSzam.mkTanult = (P().jelvSzam.mkTanult || 0) + 1;
+}
+function meresJelvSzamol(f, elsore) {
+  var js = P().jelvSzam, cs = meresCsoport(f);
+  function inc(k) { js[k] = (js[k] || 0) + 1; }
+  if (cs === "atvaltas") { if (!(f.lanc && f.lanc.length)) inc("meresAtvalt"); }   /* lánc: csak az utolsó szem */
+  else if (cs === "becsles") inc("meresBecsles");
+  else if (cs === "kieg") inc("meresKieg");
+  else if (cs === "kakukk") inc("meresKakukk");
+  else if (cs === "sorba") { if (elsore) inc("meresSorba"); }       /* egyetlen rossz koppintás nélkül */
+  else if (cs === "szoveges") { if (elsore) inc("meresSzoveg"); }   /* végigvezetés nélkül */
+  meresTanulNez(f, elsore);
 }
 
 var M_GEN = { meres: genMeres, atvaltas: genAtvaltas, kieg: genKieg, muvelet: genMuvelet, osszetett: genOsszetett,

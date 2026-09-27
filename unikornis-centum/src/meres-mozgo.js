@@ -719,6 +719,7 @@ function mkElottKell(f, tovabb) {
    (f.mk = átváltás → csoportos/lépcső; f.mkk = „Mennyi hiányzik?” → MK_KIEG) */
 function mkHiba(f, valasz) {
   figyelStop();
+  J.mkTanul = { f: f, cs: meresCsoport(f) };   /* jelvény: „Tanultam belőle” — a következő ugyanilyen feladatot figyeljük */
   $("visszajelzes").className = "visszajelzes rossz";
   $("visszajelzes").textContent = "Nem " + valasz + ". Nézzük meg együtt!";
   var cim = f.mkk ? f.keplet : mJel(f.mk.n, f.mk.u) + " = ? " + f.mk.cel;
