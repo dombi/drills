@@ -56,8 +56,9 @@ function renderFomenu() {
     var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
     var mat = PALYA_MAT[pa.id] || pa.palcim;
     var zarva = palyaZarva(pa);
+    var elfogyott = !zarva && palyaElfogyott(pa);   /* darabkorlát (pult): erre a szakaszra elég volt */
     var napiEz = (pa.id === _napiId);
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
+    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (elfogyott ? " elfogyott" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
       + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : ""));
     var napiBadge = napiEz
       ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
@@ -66,7 +67,7 @@ function renderFomenu() {
     if (ajanlott) kart.classList.add("ajanlott");
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
-      '<div class="allapot">' + (zarva ? "🔒" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
+      '<div class="allapot">' + (zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
       (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
@@ -77,7 +78,8 @@ function renderFomenu() {
     kart.addEventListener("click", function () {
       hangGomb();
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
-      if (zarva) { mondd("Ez az ösvény most alszik. Mondd fel a bontásokat és a szorzódallamot kerülő nélkül, és kinyílik az egész erdő!"); return; }
+      if (zarva) { mondd(zarvaMondat()); return; }
+      if (elfogyott) { mondd(elfogyottMondat()); return; }
       palyaInditas(pa.id);
     });
     var fbtn = kart.querySelector(".palya-felolvas");

@@ -97,6 +97,10 @@ td select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; 
 .pipak label{ display:inline-flex; align-items:center; gap:1px; white-space:nowrap; cursor:pointer; }
 tr.kulcs td:first-child::after{ content:" 🔑"; }
 .hatas{ font-size:13px; }
+.kapu-sor{ display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; margin:6px 0; }
+.kapu-sor select{ padding:4px 6px; font-size:14px; }
+.kapu-sor select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
+tr.egyeni-sor td:first-child{ font-style:italic; }
 /* 🌈 Tüneménykert (5. fázis) */
 .ksor{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:8px 0; }
 .ksor label{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
@@ -212,9 +216,9 @@ var A = {
   kert: { beall: {}, jog: {}, jelen: {}, diszek: {} },   /* 🌈 Égi Tüneménykert (RTDB) */
   kertLeir: null
 };
-/* a kapu-kulcs pályák (a játék src/engine-logic.js KAPU_KULCSOK-ja): ezek nyitják a 12 órás kaput,
-   nélkülük a többi pálya alszik → nem rejthetők el (a játék is figyelmen kívül hagyná) */
-var KULCS_PALYAK = ["bontas-felmondas", "szorzo-dallam"];
+/* a kapu (2026-09-27): a kulcs-pályákat és a kapu óraszámát itt, a 🎛️ Beállításokban választod
+   (overrides[id].kulcs + kapuOrak); a játék src/engine-logic.js kapuKulcsok()-ja olvassa. 0 kulcs = nincs kapu. */
+var KAPU_ALAP_ORAK = 12;
 
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -621,8 +625,9 @@ function rajzPalyak(t) {
 /* ══════════ 🎛️ Beállítások (4. fázis): producer-felülírások + csoportok ══════════
    Egy felülírás pályánként: { enabled?: false|true, recommended?: true|false, extraReward?: 1|1.5|2 }.
    Nehézség (2026-09-24): { muvelet?: "osszeadas"|"kivonas"|"szorzas"|"osztas", tablak?: [2..10], darab?: 3|8 }.
+   Kapu + darabkorlát (2026-09-27): { kulcs?: true|false, korlat?: N (0 = korlátlan) } + a dokumentumon kapuOrak?: N.
    Sorrend: alap < csoport(ok) < egyéni. A játék src/config.js felulirOsszevon-ja UGYANEZ — együtt változtasd! */
-var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab"];
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat"];
 var KONNYU_MUVELET = ["osszeadas", "szorzas"];
 var MUVELET_NEV = { osszeadas: "➕ csak összeadás", kivonas: "➖ csak kivonás", szorzas: "✖️ csak szorzás", osztas: "➗ csak osztás" };
 /* pálya-típusonként mi állítható (a játék config.js nehezsegAlkalmaz-ával összhangban) */
@@ -654,6 +659,8 @@ function felulirOsszevon(egyeni, csoportLista) {
         }
       }
       if (typeof o.darab === "number") k.darab = Math.min(k.darab || 99, o.darab);
+      if (o.kulcs === true) k.kulcs = true;
+      if (typeof o.korlat === "number") k.korlat = Math.max(k.korlat || 0, o.korlat);
     });
   });
   Object.keys(egyeni || {}).forEach(function (id) {
@@ -661,6 +668,33 @@ function felulirOsszevon(egyeni, csoportLista) {
     NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
   });
   return ki;
+}
+/* a kapu óraszáma: az egyéni nyer; különben a csoportok közül a hosszabb; semmi → null (alap 12). A játék config.js-e UGYANEZ. */
+function kapuOrakOsszevon(egyeni, csoportOrak) {
+  if (typeof egyeni === "number") return egyeni;
+  var m = null; csoportOrak.forEach(function (o) { if (typeof o === "number") m = Math.max(m || 0, o); });
+  return m;
+}
+/* egy gyerekre vagy egy csoportra érvényes egyéni pályák (a csoport-tag gyereknél a csoportéi is) */
+function celEgyeniPalyak(tipus, id) {
+  return egyeniLista().filter(function (x) {
+    if (x.r.aktiv === false) return false;
+    if (tipus === "g") return x.cel === "g:" + id;
+    return x.cel === "u:" + id || jatekosCsoportjai(id).some(function (g) { return x.cel === "g:" + g.id; });
+  });
+}
+/* a gyerek szemével: melyik kulcs-pálya él, hány órára nyílik a kapu (a játék kapuKulcsok()-jával összhangban) */
+function kapuHatas(uid) {
+  var cs = jatekosCsoportjai(uid), cfg = A.cfg[uid] || {};
+  var v = felulirOsszevon(cfg.overrides || {}, cs.map(function (g) { return g.overrides; }));
+  var ids = PALYA_SORREND.concat(celEgyeniPalyak("u", uid).map(function (x) { return x.id; }));
+  var kulcs = [], rejtett = [];
+  ids.forEach(function (pid) {
+    if ((v[pid] || {}).kulcs !== true) return;
+    if ((v[pid] || {}).enabled === false) rejtett.push(pid); else kulcs.push(pid);
+  });
+  var orak = kapuOrakOsszevon(cfg.kapuOrak, cs.map(function (g) { return g.kapuOrak; }));
+  return { kulcs: kulcs, rejtett: rejtett, orak: orak || KAPU_ALAP_ORAK };
 }
 function beallitasokFigyel() {
   A.beallLeir.forEach(function (f) { f(); });
@@ -672,7 +706,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {} }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -701,8 +735,10 @@ function hatasLeiras(uid, pid) {
     var n = cs.filter(function (g) { return (g.overrides[pid] || {})[mezo] != null; }).map(function (g) { return g.name; });
     return n.length ? ' <span class="halvany">(' + esc(n.join(", ")) + ")</span>" : "";
   }
-  if (v.enabled === false && KULCS_PALYAK.indexOf(pid) < 0) return '<span class="rossz-sz">🚫 nem látja</span>' + honnan("enabled");
+  if (v.enabled === false) return '<span class="rossz-sz">🚫 nem látja</span>' + honnan("enabled") + (v.kulcs === true ? ' <span class="halvany">(rejtve, ezért nem kulcs)</span>' : "");
   var r = ['<span class="jo">✅ látja</span>'];
+  if (v.kulcs === true) r.push("🔑 kulcs" + honnan("kulcs"));
+  if (v.korlat) r.push("🔁 " + v.korlat + "× / " + (kapuHatas(uid).kulcs.length ? "kapu-szakasz" : "nap") + honnan("korlat"));
   if (v.recommended) r.push("💖 ajánlott" + honnan("recommended"));
   if (v.extraReward && v.extraReward !== 1) r.push("×" + String(v.extraReward).replace(".", ",") + " ✨" + honnan("extraReward"));
   var le = nehezLehet(pid);
@@ -718,7 +754,7 @@ function valaszto(mezo, pid, ertek, opciok) {
 }
 function ertekBol(mezo, v) {
   if (v === "") return null;
-  if (mezo === "extraReward" || mezo === "darab") return +v;
+  if (mezo === "extraReward" || mezo === "darab" || mezo === "korlat") return +v;
   if (mezo === "muvelet") return v;
   return v === "true";
 }
@@ -769,27 +805,71 @@ function rajzBeallitasok(t) {
     cim = "Pályák — a csoport minden tagjára";
   }
 
+  /* ── 🗝️ Kapu (2026-09-27): kulcs-pályák + óraszám; 0 kulcs = nincs kapu, minden nyitva ── */
+  var sajatOrak = egyeni ? (A.cfg[id] || {}).kapuOrak : csoportById(id).kapuOrak;
+  var orakOpc = [["", egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap (12 óra)") : "— alap (12 óra)"]]
+    .concat([2, 4, 6, 8, 12, 18, 24, 36, 48, 72].map(function (n) { return [String(n), n + " óra"]; }));
+  h += '<div class="kartya" style="margin-top:10px"><h3>🗝️ Kapu</h3><div class="kapu-sor"><span>A kapu ennyi időre nyílik ki:</span>' +
+    '<select id="kapu-orak"' + (typeof sajatOrak === "number" ? ' class="beallitva"' : "") + ">" +
+    orakOpc.map(function (o) { return '<option value="' + o[0] + '"' + (String(typeof sajatOrak === "number" ? sajatOrak : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") +
+    "</select></div>";
+  if (egyeni) {
+    var kh = kapuHatas(id);
+    h += '<div class="kicsi">' + (kh.kulcs.length
+      ? "🔒 <b>Van kapu.</b> Kulcs-pályák: " + kh.kulcs.map(function (x) { return esc(palyaNev(x)); }).join(", ") +
+        ". A többi (nem egyéni) pálya alszik, amíg mindet végig nem viszi kerülő nélkül; utána <b>" + kh.orak + " órára</b> minden nyitva. A darabkorlát kapunyitáskor indul újra."
+      : "🔓 <b>Nincs kapu</b> — minden pálya nyitva. A darabkorlát naponta (éjfélkor) indul újra.") +
+      (kh.rejtett.length ? '<br><span class="rossz-sz">⚠️ Kulcsnak jelölted, de rejtve van, ezért nem számít kulcsnak: ' + kh.rejtett.map(function (x) { return esc(palyaNev(x)); }).join(", ") + "</span>" : "") +
+      "</div>";
+  } else {
+    var gk = Object.keys(ov).filter(function (pid) { return (ov[pid] || {}).kulcs === true; });
+    h += '<div class="kicsi">' + (gk.length ? "🔑 A csoport kulcs-pályái: " + gk.map(function (x) { return esc(palyaNev(x)); }).join(", ")
+      : "A csoport nem jelöl ki kulcs-pályát.") + "</div>";
+  }
+  h += "</div>";
+
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
-    (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
+    "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
+  var effKulcs = egyeni ? kapuHatas(id).kulcs : [];
+  var kulcsOpc = egyeni ? [["", ures], ["true", "🔑 kulcs"], ["false", "nem kulcs"]] : [["", ures], ["true", "🔑 kulcs"]];
+  var korlatOpc = [["", ures]].concat(egyeni ? [["0", "korlátlan"]] : [], [1, 2, 3, 4, 5, 6, 8, 10].map(function (n) { return [String(n), n + "×"]; }));
+  var semmi = '<span class="halvany">—</span>';
   PALYA_SORREND.forEach(function (pid) {
-    var o = ov[pid] || {}, kulcs = KULCS_PALYAK.indexOf(pid) >= 0, le = nehezLehet(pid);
-    var lath = kulcs ? [["", "✅ mindig látható"]] : egyeni ? [["", ures], ["false", "🚫 rejtve"], ["true", "✅ látható"]] : [["", ures], ["false", "🚫 rejtve"]];
+    var o = ov[pid] || {}, le = nehezLehet(pid);
+    var kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
+    var lath = egyeni ? [["", ures], ["false", "🚫 rejtve"], ["true", "✅ látható"]] : [["", ures], ["false", "🚫 rejtve"]];
     var ajan = egyeni ? [["", ures], ["true", "💖 igen"], ["false", "nem"]] : [["", ures], ["true", "💖 igen"]];
     var extra = egyeni ? [["", ures], ["1", "×1 (normál)"], ["1.5", "×1,5"], ["2", "×2"]] : [["", ures], ["1.5", "×1,5"], ["2", "×2"]];
     h += '<tr class="' + (kulcs ? "kulcs" : "") + '"><td>' + esc(palyaNev(pid)) + "</td>" +
-      "<td>" + valaszto("enabled", pid, kulcs ? null : o.enabled, lath) + "</td>" +
+      "<td>" + valaszto("enabled", pid, o.enabled, lath) + "</td>" +
       "<td>" + valaszto("recommended", pid, o.recommended, ajan) + "</td>" +
       "<td>" + valaszto("extraReward", pid, o.extraReward, extra) + "</td>" +
       "<td>" + (le.muvelet ? valaszto("muvelet", pid, o.muvelet, [["", ures]].concat(egyeni ? [["vegyes", "🔀 vegyes"]] : [],
-          le.muvelet.map(function (m) { return [m, MUVELET_NEV[m]]; }))) : '<span class="halvany">—</span>') + "</td>" +
-      "<td>" + (le.tablak ? tablaPipak(pid, o.tablak, le) : '<span class="halvany">—</span>') + "</td>" +
-      "<td>" + (le.darab ? valaszto("darab", pid, o.darab, [["", ures]].concat(egyeni ? [["0", "alap (5–6)"]] : [], [["3", "3 (kevesebb)"], ["8", "8 (több)"]])) : '<span class="halvany">—</span>') + "</td>" +
+          le.muvelet.map(function (m) { return [m, MUVELET_NEV[m]]; }))) : semmi) + "</td>" +
+      "<td>" + (le.tablak ? tablaPipak(pid, o.tablak, le) : semmi) + "</td>" +
+      "<td>" + (le.darab ? valaszto("darab", pid, o.darab, [["", ures]].concat(egyeni ? [["0", "alap (5–6)"]] : [], [["3", "3 (kevesebb)"], ["8", "8 (több)"]])) : semmi) + "</td>" +
+      "<td>" + valaszto("kulcs", pid, o.kulcs, kulcsOpc) + "</td>" +
+      "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
+      (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
+  });
+  /* az egyéni („💖 Neked készült”) pályák: csak kulcs + darabkorlát állítható itt (a többit a ✏️ fülön) */
+  celEgyeniPalyak(tipus, id).forEach(function (x) {
+    var pid = x.id, o = ov[pid] || {}, kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
+    h += '<tr class="egyeni-sor' + (kulcs ? " kulcs" : "") + '"><td>' + esc((x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")) +
+      ' <span class="halvany kicsi">(egyéni' + (x.cel.charAt(0) === "g" && egyeni ? ", " + esc(celNev(x.cel)) : "") + ")</span></td>" +
+      '<td colspan="6" class="halvany kicsi">egyéni pálya — a ✏️ Egyéni pályák fülön szerkeszthető</td>' +
+      "<td>" + valaszto("kulcs", pid, o.kulcs, kulcsOpc) + "</td>" +
+      "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
       (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
   });
   h += "</table></div>" +
-    '<p class="kicsi halvany" style="margin-top:8px">🔑 = kapu-kulcs pálya: ez nyitja a 12 órás kaput, ezért nem rejthető el. ' +
+    '<p class="kicsi halvany" style="margin-top:8px">🔑 Kulcs = kapu-kulcs pálya. Ha legalább egy van, a többi (nem egyéni) pálya alszik, amíg a gyerek az összes kulcsot ' +
+    "kerülő nélkül végig nem viszi; utána a fenti óraszámra minden nyitva, aztán újra kell mind. Nincs kulcs = nincs kapu, minden nyitva. " +
+    "Rejtett pálya nem lehet kulcs. Ha a kulcs-készlet változik, a gyerek félkész élesítése elölről indul. Egyéni pálya is lehet kulcs. " +
+    "🔁 Hányszor = ennyiszer viheti végig egy szakaszban (csak a végigvitt számít); kapu nélkül naponta, kapuval minden kapunyitáskor indul újra. " +
+    "Az elfogyott pálya szürke, koppintásra: „Ügyes voltál, ezt ma már eleget gyakoroltad! Nézd meg a többi ösvényt!” (kapus gyereknél „most”). " +
     "Sárga mező = itt beállítottál valamit. Sorrend: alap → csoport → egyéni (az egyéni a legerősebb). " +
-    "Több csoportnál: ha bármelyik elrejti, rejtve; a szorzó a legnagyobb; a nehézségnél a könnyebb nyer (összeadás/szorzás, a közös táblák, a kevesebb feladat). " +
+    "Több csoportnál: ha bármelyik elrejti, rejtve; ha bármelyik kulcsnak jelöli, kulcs; a szorzó, a kapu óraszáma és a darabkorlát a nagyobb; a nehézségnél a könnyebb nyer (összeadás/szorzás, a közös táblák, a kevesebb feladat). " +
     "Nehézség: az állomások sorrendje megmarad, csak a művelet / a táblák / a feladatszám változik; a kulcs-pályákon is él, és könnyítve is nyitják a kaput. " +
     "Táblák: üres = alap; ha az egyéni beállításnál a csoportét akarod visszabővíteni, pipáld be mindet. A gyerek nem látja, hogy testreszabott — " +
     "az ajánlott pályán 💖 dobog, és felolvasáskor: „Ezt most neked ajánlom!”</p>";
@@ -799,6 +879,9 @@ function rajzBeallitasok(t) {
   var FV = firebase.firestore.FieldValue;
   var docRef = egyeni ? db.collection("producerConfig").doc(id) : db.collection("groups").doc(id);
   Array.prototype.forEach.call(t.querySelectorAll("[data-cel]"), function (b) { b.onclick = function () { A.bCel = b.dataset.cel; rajzol(); }; });
+  $("kapu-orak").onchange = function () {
+    ment(docRef.set({ kapuOrak: this.value === "" ? FV.delete() : +this.value, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
   $("uj-csoport").onclick = function () {
     var nev = (prompt("Az új csoport neve (pl. 2.b osztály):") || "").trim();
     if (!nev) return;

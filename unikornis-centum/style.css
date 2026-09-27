@@ -117,6 +117,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-kartya.hamarosan{ opacity:.55; }
 .palya-kartya.zarva{ opacity:.62; filter:saturate(.55); }
 .palya-kartya.zarva .allapot{ font-size:15px; }
+.palya-kartya.elfogyott{ opacity:.6; filter:grayscale(.85); }   /* darabkorlát: erre a szakaszra elég volt */
 .palya-kartya.kesz{ outline:3px solid var(--sarga-mely); }
 .palya-kartya.arany{ outline:3px solid #ffc93c; box-shadow:0 4px 14px rgba(255,201,60,.4); }
 .palya-kartya.napi-kiemelt{

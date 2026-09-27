@@ -2,35 +2,63 @@
 var J = null;
 var curX = allomasX(0), curY = allomasY(0);
 
-/* ── 12 ÓRÁS REJTETT KAPU (rendszerterv 6.4) ─────────────────────────────────
-   A két kulcs-pálya (Mondd el a bontásokat + Szorzódallam) KERÜLŐ NÉLKÜLI végig-
-   vitele → 12 órára megnyílik minden más pálya. A két kulcs mindig játszható;
-   nincs látható óra/számláló. Utána visszazárul, újra kell mindkettő. */
-var KAPU_KULCSOK = ["bontas-felmondas", "szorzo-dallam"];
-var KAPU_MS = 12 * 60 * 60 * 1000;
-function kapuKulcsPalya(id) { return KAPU_KULCSOK.indexOf(id) >= 0; }
+/* ── KAPU + DARABKORLÁT A PULTRÓL (2026-09-27; eredete: rendszerterv 6.4, a régi fix 12 órás kapu) ──
+   A producer gyerekenként / csoportonként választja ki a kulcs-pályákat (overrides[id].kulcs = true)
+   és a kapu óraszámát (kapuOrak, alap 12). Ha van kulcs-pálya: a többi (nem egyéni) pálya alszik, amíg
+   a gyerek MINDEN kulcsot KERÜLŐ NÉLKÜL végig nem visz → ekkor kapuOrak órára minden nyílik, utána újra
+   kell mind. 0 kulcs-pálya = nincs kapu, minden nyitva (ez az alap). Rejtett pálya nem lehet kulcs.
+   Darabkorlát (overrides[id].korlat = N): egy szakaszban ennyiszer vihető végig a pálya (csak a VÉGIGVITT
+   számít). Szakasz: kapus gyereknél a kapunyitástól a következő nyitásig; kapu nélkül a naptári nap. */
+var KAPU_ALAP_ORAK = 12;
+function kapuKulcsok() {
+  var ki = [];
+  egyeniPalyak().concat(PALYAK).forEach(function (pa) {
+    if (!pa.hamarosan && palyaFelulir(pa.id).kulcs === true && !palyaRejtve(pa)) ki.push(pa.id);
+  });
+  return ki;
+}
+function kapuVan() { return kapuKulcsok().length > 0; }
+function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : KAPU_ALAP_ORAK) * 3600 * 1000; }
+function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { return !pa.hamarosan && !pa.egyeni && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* egyéni pálya (4b): mindig nyitva */
-function kapuAllapot() { var k = P().kapu || {}; return { nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {} }; }
-/* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mindkettő éles → nyílik a kapu.
+function palyaZarva(pa) { return !pa.hamarosan && !pa.egyeni && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva */
+function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }
+/* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mind éles → nyílik a kapu.
+   Ha a producer közben másik kulcs-készletet állított, a félkész élesítés elvész (újrakezdés).
    Visszaadja, hogy MOST nyílt-e ki (az ünneplő üzenethez). */
 function kapuKulcsTeljesult(id) {
-  var k = P().kapu || (P().kapu = alapKapu());
-  if (!k.kulcsKesz) k.kulcsKesz = {};
+  var k = P().kapu || (P().kapu = alapKapu()), L = kapuKulcsok(), sig = L.slice().sort().join(",");
+  if (!k.kulcsKesz || k.kulcsSig !== sig) { k.kulcsKesz = {}; k.kulcsSig = sig; }
   k.kulcsKesz[id] = true;
-  var mind = KAPU_KULCSOK.every(function (x) { return k.kulcsKesz[x]; });
-  if (mind) {
-    k.nyitvaEddig = Date.now() + KAPU_MS;
-    KAPU_KULCSOK.forEach(function (x) { k.kulcsKesz[x] = false; });   /* legközelebb újra kell mindkettő */
+  if (L.every(function (x) { return k.kulcsKesz[x]; })) {
+    k.nyitvaEddig = Date.now() + kapuMs();
+    k.kulcsKesz = {};   /* legközelebb újra kell mind */
     return true;
   }
   return false;
+}
+/* ── darabkorlát ── */
+function palyaKorlat(pa) { var n = +palyaFelulir(pa.id).korlat; return n >= 1 && n <= 99 ? Math.floor(n) : 0; }
+function helyiNap() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+function korlatSzakasz() { return kapuVan() ? "k" + ((P().kapu || {}).nyitvaEddig || 0) : "d" + helyiNap(); }
+function korlatSzamlalo() {
+  var k = P().kapu || (P().kapu = alapKapu()), sz = korlatSzakasz();
+  if (!k.darab || k.darab.szakasz !== sz) k.darab = { szakasz: sz, n: {} };   /* új szakasz → nulláról */
+  return k.darab.n;
+}
+function palyaElfogyott(pa) { var n = palyaKorlat(pa); return !!n && !pa.hamarosan && (korlatSzamlalo()[pa.id] || 0) >= n; }
+function korlatSzamol(id) { var c = korlatSzamlalo(); c[id] = (c[id] || 0) + 1; }
+function elfogyottMondat() { return "Ügyes voltál, ezt " + (kapuVan() ? "most" : "ma") + " már eleget gyakoroltad! Nézd meg a többi ösvényt!"; }
+function zarvaMondat() {
+  var nevek = kapuKulcsok().map(function (id) { var p = palyaKeres(id); return p ? p.nev : id; });
+  var lista = nevek.length > 1 ? nevek.slice(0, -1).join(", ") + " és " + nevek[nevek.length - 1] : nevek[0];
+  return "Ez az ösvény most alszik. Járd végig kerülő nélkül: " + lista + ", és kinyílik az egész erdő!";
 }
 
 function palyaInditas(id) {
   var pa = palyaKeres(id);                          /* beépített vagy egyéni (4b) */
   if (!pa || pa.hamarosan) return;
-  if (palyaZarva(pa)) return;                       /* zárt kapu: csak a két kulcs-pálya játszható */
+  if (palyaZarva(pa) || palyaElfogyott(pa)) return;   /* zárt kapu (csak a kulcsok játszhatók) / elfogyott darabkorlát */
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
   if (!P().napok) P().napok = {};
   if (!P().napok[maJelv]) { P().napok[maJelv] = 1; ment(); }
@@ -747,7 +775,9 @@ function palyaVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
 
-  /* ── 12 órás kapu (6.4): kulcs-pálya kerülő nélkül → élesítés; mindkettő éles → nyílik ── */
+  /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
+  korlatSzamol(id);
+  /* ── kapu: kulcs-pálya kerülő nélkül → élesítés; ha mind éles → nyílik ── */
   var kapuMostNyilt = false;
   if (teljes && kapuKulcsPalya(id)) kapuMostNyilt = kapuKulcsTeljesult(id);
 
@@ -802,7 +832,7 @@ function kovetkezoJatszhato(id) {
   var L = egyeniPalyak().concat(PALYAK), idx = -1;   /* a menü sorrendje: egyéniek (4b) elöl */
   L.forEach(function (p, i) { if (p.id === id) idx = i; });
   for (var i = idx + 1; i < L.length; i++)
-    if (!L[i].hamarosan && !palyaZarva(L[i]) && !palyaRejtve(L[i])) return L[i].id;
+    if (!L[i].hamarosan && !palyaZarva(L[i]) && !palyaRejtve(L[i]) && !palyaElfogyott(L[i])) return L[i].id;
   return null;
 }
 function naplozz(alap, elsore, valasz) {

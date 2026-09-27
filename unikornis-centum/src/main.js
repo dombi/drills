@@ -22,6 +22,7 @@ window.UC = {
   bontasEloFogyaszt: bontasEloFogyaszt, szorzoEloFogyaszt: szorzoEloFogyaszt, palyaInditas: palyaInditas,
   kovAllomas: kovAllomas, ujFeladat: ujFeladat, bontasLepesNyit: bontasLepesNyit, felmondHangVissza: felmondHangVissza,
   kapuAllapot: kapuAllapot, kapuNyitva: kapuNyitva, kapuKulcsTeljesult: kapuKulcsTeljesult,
+  kapuKulcsok: kapuKulcsok, palyaZarva: palyaZarva, palyaElfogyott: palyaElfogyott, palyaVege: palyaVege,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
   oduNyit: oduNyit, ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
   oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },
@@ -61,7 +62,7 @@ window.UC = {
   napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve,
   /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
   get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
-  felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; felulirSzamol(); },
+  felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
   nehezsegAlkalmaz: nehezsegAlkalmaz,

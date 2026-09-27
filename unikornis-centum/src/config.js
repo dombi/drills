@@ -1,20 +1,25 @@
 /* ============ 12f) FELHŐ — producer-felülírások + csoportok (backend 4. fázis) ============
    A producer a pulton (admin/) állítja, a játék csak olvassa:
      producerConfig/{uid}.overrides[palyaId] = { enabled?, recommended?, extraReward?,
-                                                 muvelet?, tablak?, darab? }                 — egyéni
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy} }                       — csoportos
+                                                 muvelet?, tablak?, darab?, kulcs?, korlat? } — egyéni
+     producerConfig/{uid}.kapuOrak = N (a kapu óraszáma, alap 12)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak? }            — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
-   (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám).
+   (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
+   kulcsnak jelöli; a kapu óraszáma és a darabkorlát a nagyobb (engedékenyebb).
    A gyerek nem látja, hogy testreszabott: a rejtett pálya egyszerűen nincs ott, az ajánlott 💖-t kap,
-   az extra szorzó csak a ✨-ban látszik. A kapu-kulcs pályák nem rejthetők (nélkülük zárva maradna az erdő).
+   az extra szorzó csak a ✨-ban látszik. Rejtett pálya nem lehet kapu-kulcs (engine-logic.js kapuKulcsok).
    Offline: az utolsó ismert eredményt localStorage őrzi; felhő nélkül (kapcsoló ki) nincs felülírás. */
 var FELULIR_KULCS = "uc_felulirasok";
 var FELULIR = {
   uid: null,
   egyeni: null,       /* producerConfig/{uid}.overrides — null, amíg nem jött meg */
   csoportok: null,    /* { gid: overrides } — null, amíg nem jött meg */
-  kesz: {},           /* összevont eredmény: palyaId → { enabled, recommended, extraReward } */
+  kesz: {},           /* összevont eredmény: palyaId → { enabled, recommended, extraReward, …, kulcs, korlat } */
+  egyeniOrak: null,   /* producerConfig/{uid}.kapuOrak */
+  csoportOrak: {},    /* gid → kapuOrak */
+  kapuOrak: null,     /* összevont kapu-óraszám (null = alap 12) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -24,11 +29,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {};
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null;
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -41,15 +46,17 @@ function felulirFigyel() {
   FELULIR.leir.push(db.collection("producerConfig").doc(FELHO.uid).onSnapshot(function (d) {
     FELULIR.egyeni = (d.exists && d.data().overrides) || {};
     FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
+    FELULIR.egyeniOrak = d.exists && typeof d.data().kapuOrak === "number" ? d.data().kapuOrak : null;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {};
+    var cs = {}, cp = {}, co = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
+      if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -58,7 +65,7 @@ function felulirLeiratkozik() {
   FELULIR.leir = [];
 }
 
-var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab"];
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat"];
 var KONNYU_MUVELET = ["osszeadas", "szorzas"];   /* két csoport ütközésénél ez a könnyebb */
 
 /* a pult ugyanezt a szabályt használja (admin/index.html felulirOsszevon) — együtt változtasd! */
@@ -80,6 +87,8 @@ function felulirOsszevon(egyeni, csoportLista) {
         }
       }
       if (typeof o.darab === "number") k.darab = Math.min(k.darab || 99, o.darab);
+      if (o.kulcs === true) k.kulcs = true;
+      if (typeof o.korlat === "number") k.korlat = Math.max(k.korlat || 0, o.korlat);
     });
   });
   Object.keys(egyeni || {}).forEach(function (id) {
@@ -88,17 +97,24 @@ function felulirOsszevon(egyeni, csoportLista) {
   });
   return ki;
 }
+/* a kapu óraszáma: az egyéni nyer; különben a csoportok közül a hosszabb; semmi → null (alap 12) */
+function kapuOrakOsszevon(egyeni, csoportOrak) {
+  if (typeof egyeni === "number") return egyeni;
+  var m = null; csoportOrak.forEach(function (o) { if (typeof o === "number") m = Math.max(m || 0, o); });
+  return m;
+}
 
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
   var cs = FELULIR.csoportok, lista = Object.keys(cs).sort().map(function (g) { return cs[g]; });
   var uj = felulirOsszevon(FELULIR.egyeni, lista), ujP = {}, k;
+  var ujO = kapuOrakOsszevon(FELULIR.egyeniOrak, Object.keys(FELULIR.csoportOrak || {}).map(function (g) { return FELULIR.csoportOrak[g]; }));
   [FELULIR.csoportP || {}, FELULIR.egyeniP || {}].forEach(function (l) {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
   });
-  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak)) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP })); } catch (e) {}
+  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
@@ -108,7 +124,7 @@ function felulirSzamol() {
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
 function palyaRejtve(pa) {
   if (pa && pa.meres && !meresLathato()) return true;   /* mérés-ligetek: élesítve 2026-09-27 (meres.js meresLathato) */
-  return !!pa && !kapuKulcsPalya(pa.id) && palyaFelulir(pa.id).enabled === false;
+  return !!pa && palyaFelulir(pa.id).enabled === false;
 }
 function palyaAjanlott(pa) { return !!pa && palyaFelulir(pa.id).recommended === true; }
 var AJANLOTT_HARMAT = 2;   /* 💖 ajánlott pálya: +2 💧 minden befejezéskor (nincs napi korlát) */
@@ -167,7 +183,7 @@ function nehezsegAlkalmaz(pa, allomasok) {
          tablak | osztok | szamok | fajtak, muvelet }
    Sablonok (mind meglévő motorra épül): szorzas (× / ÷ / vegyes a bejelölt táblákkal) · felmondas (szorzótábla
    hangosan) · osszeadas (a beépített összeadó pályák fajtáiból) · maradekos (osztók) · bontas (számbontás hangosan).
-   A gyereknél a menü tetején, a „💖 Neked készült” ligetben jelennek meg; mindig nyitva (a 12 órás kapu nem zárja),
+   A gyereknél a menü tetején, a „💖 Neked készült” ligetben jelennek meg; a kapu nem zárja őket (de kulcs lehet belőlük),
    ✨ + 💧 jár értük, de égi szilánk, 🌟-számláló, jelvény és napi kiemelés NEM (azok a közös PALYAK-hoz tartoznak).
    Fokozatosság: előbb a bejelöltek egyenként (vagy kis csoportokban), a végén mind keverve.
    A pult (admin/index.html) ugyanezeket a sablon-mezőket írja — együtt változtasd! */
