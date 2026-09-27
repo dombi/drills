@@ -823,7 +823,12 @@ function kertNyihog() {
 var huHang = null;
 function hangokBetolt() { try { var vs = speechSynthesis.getVoices(); huHang = vs.filter(function (v) { return /hu(-|_)?/i.test(v.lang); })[0] || null; } catch (e) {} }
 if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = hangokBetolt; }
+/* kiejtés-javítás CSAK a gépi beszédben (a képernyőn marad az eredeti szó). A Windows-hang (Szabolcs)
+   a „deciliter”-t elcsúsztatja; a producer a próbalapon (Matekos\deci-kiejtes-proba.html) az „E”-t választotta. */
+var KIEJTES = [[/([Dd])eciliter/g, "$1eci-líter"]];   /* 2026-09-27; a ragos alakokra is: deciliterrel, decilitert… */
+function kiejtesJavit(s) { s = String(s == null ? "" : s); KIEJTES.forEach(function (k) { s = s.replace(k[0], k[1]); }); return s; }
 function mondd(szoveg, kesz) {
+  szoveg = kiejtesJavit(szoveg);
   bagolyAnimal(true);
   var lefutott = false, orzo = null, fig = null;
   function befejez() {
