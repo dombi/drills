@@ -3495,7 +3495,7 @@ var MERES_HATTER = (function () {
      🧁 pékség    kétkarú mérleg: 1 kg ↔ 10 × 10 dkg, a tizediknél kiegyenesedik
      🪜 lépcső    mértékegység-lépcső: minden lépés × 10 (a nagy váltószámokhoz), a köztes fokok halványak
    + a „csoportos” változat rossz válasz után (pl. 3 l = 30 dl: három üveg, tízesével számolva).
-   Mikor jön (rendszerterv 6.): az átváltás-feladatnál egy egységpár ELSŐ előfordulásakor a pályakörben (bemutató),
+   Mikor jön (rendszerterv 6.): az átváltás-feladatnál egy egységpár ELSŐ előfordulásakor gyerekenként egyszer (bemutató),
    és RÁ válasz után az adott feladat számaival; utána a gyerek ugyanarra a kérdésre újra felel.
    Koppintásra a végére ugrik; a végén magától továbbmegy (kézmentes módban is). Alap tempó: lassú (×1,7). */
 var MK_NS = "http://www.w3.org/2000/svg", MK_TEMPO = 1.7;
@@ -4023,13 +4023,15 @@ function mkLejatszik(valasztas, cim, kesz) {
     MKJ.idozito = setTimeout(function () { if (ctx.el()) mkBezar(); }, ctx.skip ? 2600 : 2200);   /* magától is továbbmegy (kézmentes mód) */
   });
 }
-/* az átváltás-feladat ELŐTT: az egységpár első előfordulása ebben a pályakörben → bemutató (true = most fut) */
+/* az átváltás-feladat ELŐTT: az egységpár ELSŐ előfordulása ennél a gyereknél → bemutató (true = most fut).
+   Producer döntése (2026-09-27): gyerekenként és páronként csak egyszer, soha többé (P().mkLatott, mentve);
+   rossz válasz után viszont mindig jön a mozgókép a feladat számaival (mkHiba). */
 function mkElottKell(f, tovabb) {
   if (!f || !f.mk || !J) return false;
-  J.mkLatott = J.mkLatott || {};
+  var p = P(); p.mkLatott = p.mkLatott || {};
   var kulcs = f.mk.a + "-" + f.mk.b;
-  if (J.mkLatott[kulcs]) return false;
-  J.mkLatott[kulcs] = true;
+  if (p.mkLatott[kulcs]) return false;
+  p.mkLatott[kulcs] = 1; ment();
   mkLejatszik(mkBemutatoValaszt(f.mk), "Nézd meg: 1 " + f.mk.a + " = " + mSzamIr(M_SZ[f.mk.a] / M_SZ[f.mk.b]) + " " + f.mk.b, tovabb);
   return true;
 }
