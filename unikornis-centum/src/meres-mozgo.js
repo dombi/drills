@@ -301,7 +301,8 @@ function mkPeksegHatter() {
     <rect x="218" y="106" width="332" height="9" rx="3" fill="#c99b6d"/><path d="M234 115 l0 14 l14 -14 M534 115 l0 14 l-14 -14" stroke="#b07a45" stroke-width="3" fill="none"/>
     ${mkPult(222, 792, 302)}`;
 }
-function mkMerleg() {
+function mkMerleg(balFelirat) {
+  balFelirat = balFelirat || "1 kg";
   var MX = MK_MX, MY = MK_MY, KAR = MK_KAR, L = MK_LOG;
   return `<g class="merleg">
     <path d="M${MX - 52} 296 L${MX + 52} 296 L${MX + 34} 272 L${MX - 34} 272Z" fill="#c99b6d" stroke="#a87a48" stroke-width="2"/>
@@ -311,7 +312,7 @@ function mkMerleg() {
     <g class="gerenda"><rect x="${MX - KAR}" y="${MY - 5}" width="${KAR * 2}" height="10" rx="5" fill="#e0b476" stroke="#a87a48" stroke-width="2"/>
       <path d="M${MX - 4} ${MY} L${MX} ${MY - 92} L${MX + 4} ${MY}Z" fill="#6f5a8a"/></g>
     <circle cx="${MX}" cy="${MY}" r="8" fill="#a87a48"/>
-    ${mkSerpenyo("bal-s", `<path d="M-26 ${L - 6} L26 ${L - 6} L18 ${L - 44} L-18 ${L - 44}Z" fill="#7d88a6" stroke="#5a6480" stroke-width="2"/><rect x="-7" y="${L - 54}" width="14" height="11" rx="5" fill="none" stroke="#5a6480" stroke-width="4"/><text x="0" y="${L - 18}" text-anchor="middle" font-size="15" font-weight="800" fill="#fff" font-family="Fredoka,Segoe UI,sans-serif">1 kg</text>`)}
+    ${mkSerpenyo("bal-s", `<path d="M-26 ${L - 6} L26 ${L - 6} L18 ${L - 44} L-18 ${L - 44}Z" fill="#7d88a6" stroke="#5a6480" stroke-width="2"/><rect x="-7" y="${L - 54}" width="14" height="11" rx="5" fill="none" stroke="#5a6480" stroke-width="4"/><text x="0" y="${L - 18}" text-anchor="middle" font-size="${balFelirat.length > 5 ? 12 : 15}" font-weight="800" fill="#fff" font-family="Fredoka,Segoe UI,sans-serif">${balFelirat}</text>`)}
     ${mkSerpenyo("jobb-s", "")}</g>`;
 }
 function mkMerlegAll(svg, fok) {
@@ -465,6 +466,175 @@ var MK_CSOPORT = {
   }
 };
 
+/* ═════════════════ „MENNYI HIÁNYZIK?” (kiegészítés, rossz válasz után) ═════════════════
+   Producer döntése (2026-09-27): 🧪 rátölti · 🧵 hozzávarrja · 🧁 ráteszi a hiányzó részt, közben fölfelé számol
+   a meglévőtől a célig (37, 38, 39, 40, 50, 60 … 100), a végén kimondja, mennyit tett hozzá, és a gyerek újra felel.
+   o = f.mkk: { menny, liga, k, U (cél: k U), A (a meglévő egysége), B (a kérdezett egység), a, osszA (a cél A-ban), hiany (B-ben) } */
+/* a hiányzó rész darabokra: először kerekre pótol, aztán tízesével/százasával — legfeljebb 12 darab
+   (ha több lenne, az apró eleje egy darabba olvad). cur, tot: B-egységben. */
+function mkKiegDarabok(cur, tot) {
+  var csop = [], p = 1, db = 0, i;
+  while (cur < tot && p <= tot) {
+    var m = p * 10, r = Math.min((m - cur % m) % m, tot - cur);
+    if (r > 0) {
+      var g = [];
+      if (r % p === 0 && r / p <= 9) for (i = 0; i < r / p; i++) g.push(p); else g.push(r);
+      csop.push(g); db += g.length; cur += r;
+    }
+    p *= 10;
+  }
+  if (cur < tot) { csop.push([tot - cur]); db++; }
+  for (i = 0; db > 12 && i < csop.length; i++)
+    if (csop[i].length > 1) { db -= csop[i].length - 1; csop[i] = [csop[i].reduce(function (x, y) { return x + y; }, 0)]; }
+  return [].concat.apply([], csop);
+}
+function mkKiegAlap(o) {
+  var lep = M_SZ[o.B] / M_SZ[o.A], cur = o.a / lep, tot = o.osszA / lep;
+  return { cur: cur, tot: tot, darabok: mkKiegDarabok(cur, tot), cel: mJel(o.k, o.U) };
+}
+var MK_KIEG_SZALAG = { x: 255, w: 500, y: 250, h: 28 };
+/* súly tetszőleges felirattal (a pékség 10 dkg-os súlyának mintájára) */
+function mkSulyC(n, u) {
+  var t = mSzamIr(n);
+  return `<ellipse cx="0" cy="-1" rx="12" ry="3.5" fill="#b8892c"/><rect x="-12" y="-24" width="24" height="23" fill="#e9b949"/>
+    <ellipse cx="0" cy="-24" rx="12" ry="3.5" fill="#f6d47a" stroke="#b8892c" stroke-width="1.2"/><rect x="-3" y="-31" width="6" height="7" rx="2" fill="#d9a53c"/>
+    <text x="0" y="-10" text-anchor="middle" font-size="${t.length > 3 ? 9 : (t.length > 2 ? 11 : 13)}" font-weight="800" fill="#4a2e04" font-family="Fredoka,Segoe UI,sans-serif">${t}</text>
+    <text x="0" y="-2.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#4a2e04" font-family="Fredoka,Segoe UI,sans-serif">${u}</text>`;
+}
+var MK_KIEG_SULY_M = 1.05;
+function mkKiegLep(n, hely, max) { return Math.min(max, hely / Math.max(1, n)); }   /* a polcon ennyi helyet kap egy pohár / súly */
+function mkKiegHely(i) { return [[-12, 14, 40, 66][i % 4], MK_LOG - 6 - Math.floor(i / 4) * 32.5]; }
+var MK_KIEG = {
+  render: function (o) {
+    var A = mkKiegAlap(o), D = A.darabok, s, i;
+    if (o.liga === "bajital") {
+      s = mkBajitalHatter() + mkUni(118, 402, 1.2) + mkBuborek(16, 22, 250) + mkPalack(0, "mk-kg0", false, A.cel, MK_BAJ, MK_BAJ2);
+      for (i = 0; i < D.length; i++) s += `<g class="pohar" transform="translate(${262 + i * mkKiegLep(D.length, 360, 36)},296)"><g transform="scale(1.25)">
+        <ellipse class="halo" cx="0" cy="-17" rx="24" ry="26" fill="#fff6b0" opacity="0"/>
+        <g class="pl"><path d="M-11 -25 L11 -25 L9 0 L-9 0Z" fill="${MK_BAJ}"/></g>
+        <path d="M-12 -34 L12 -34 L9 0 L-9 0Z" fill="rgba(255,255,255,.35)" stroke="#7a6aa6" stroke-width="2.4" stroke-linejoin="round"/></g>
+        <text x="0" y="-12" text-anchor="middle" font-size="${mJel(D[i], o.B).length > 5 ? 9 : 11}" font-weight="800" fill="#4a3b7a" font-family="Segoe UI,sans-serif">${mJel(D[i], o.B)}</text></g>`;
+      s += `<line class="folyam" x1="688" y1="62" x2="688" y2="62" stroke="${MK_BAJ}" stroke-width="6" stroke-linecap="round" opacity="0"/>`;
+    } else if (o.liga === "szabo") {
+      var Z = MK_KIEG_SZALAG, w0 = Z.w * A.cur / A.tot, jel = "", k;
+      for (k = 0; k <= 10; k++) jel += `<line x1="${Z.x + k * Z.w / 10}" x2="${Z.x + k * Z.w / 10}" y1="206" y2="${206 + (k % 5 ? 8 : 13)}" stroke="#8a6a1e" stroke-width="${k % 5 ? 1.2 : 2}"/>`;
+      s = mkSzaboHatter() + mkUni(112, 402, 1.2) + mkBuborek(16, 22, 250) +
+        `<rect x="${Z.x}" y="204" width="${Z.w}" height="26" rx="3" fill="#ffd96b" stroke="#c79a2a" stroke-width="2"/>${jel}
+        <rect x="${Z.x + Z.w - 56}" y="170" width="60" height="26" rx="9" fill="#fff" stroke="#c79a2a" stroke-width="2"/>
+        <text x="${Z.x + Z.w - 26}" y="188" text-anchor="middle" font-size="${A.cel.length > 5 ? 12 : 15}" font-weight="800" fill="#4a3b7a" font-family="Fredoka,Segoe UI,sans-serif">${A.cel}</text>
+        <rect class="hiany" x="${Z.x + w0}" y="${Z.y}" width="${Z.w - w0}" height="${Z.h}" rx="3" fill="#fff8d6" stroke="#e2589b" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text class="hiany-t" x="${Z.x + (Z.w + w0) / 2}" y="${Z.y + 21}" text-anchor="middle" font-size="20" font-weight="800" fill="#e2589b" font-family="Fredoka,Segoe UI,sans-serif">?</text>
+        <rect x="${Z.x}" y="${Z.y}" width="${Math.max(3, w0)}" height="${Z.h}" rx="3" fill="#a7d99a" stroke="#6fae63" stroke-width="2"/>
+        <path d="M${Z.x + 4} ${Z.y + 7} H${Z.x + Math.max(6, w0 - 4)} M${Z.x + 4} ${Z.y + 21} H${Z.x + Math.max(6, w0 - 4)}" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 3"/>
+        <g transform="translate(${Math.max(Z.x + 34, Z.x + w0 / 2)},${Z.y + Z.h + 24})"><rect x="-34" y="-15" width="68" height="24" rx="9" fill="#fff" stroke="#6fae63" stroke-width="2"/>
+        <text x="0" y="3" text-anchor="middle" font-size="13" font-weight="800" fill="#4a3b7a" font-family="Fredoka,Segoe UI,sans-serif">${mJel(o.a, o.A)}</text></g>
+        <g transform="translate(620,168)"><circle r="20" fill="#f6a5c0" stroke="#d97aa0" stroke-width="2"/><circle r="10" fill="#f59fb0" stroke="#d97aa0" stroke-width="1.5"/><circle r="4" fill="#b89070"/></g>`;
+      for (i = 0; i < D.length; i++) {
+        var w = Math.max(4, Z.w * D[i] / A.tot);
+        s += `<g class="darab" opacity="0"><rect x="0" y="0" width="${w}" height="${Z.h}" rx="${Math.min(3, w / 3)}" fill="${MK_SZALAG_SZIN[(i + 1) % 10]}" stroke="#fff" stroke-width="1.5"/>
+          ${w >= 46 ? `<text x="${w / 2}" y="19" text-anchor="middle" font-size="12" font-weight="800" fill="#4a3b7a" font-family="Segoe UI,sans-serif">${mJel(D[i], o.B)}</text>` : ""}</g>`;
+      }
+      s += `<g class="oltesek"></g>`;
+    } else {
+      s = mkPeksegHatter() + mkUni(118, 402, 1.2) + mkBuborek(16, 22, 250) + mkMerleg(A.cel);
+      for (i = 0; i < D.length; i++) s += `<g class="kg-suly" transform="translate(${240 + i * mkKiegLep(D.length, 296, 30)},106) scale(${MK_KIEG_SULY_M})"><ellipse class="halo" cx="0" cy="-14" rx="18" ry="20" fill="#fff6b0" opacity="0"/>${mkSulyC(D[i], o.B)}</g>`;
+    }
+    return s + `<g class="fx"></g>`;
+  },
+  init: function (svg, o) {
+    var A = mkKiegAlap(o);
+    if (o.liga === "bajital") {
+      var L = 160 * A.cur / A.tot;
+      mkAttr(mkQ(svg, ".szint"), { y: 294 - L, height: L }); mkAttr(mkQ(svg, ".felszin"), { y: 292 - L, opacity: 1 });
+    } else if (o.liga === "pekseg") {
+      mkQ(svg, ".jobb-s .rakomany").innerHTML = `<g transform="translate(-50,${MK_LOG - 6})"><path d="M-20 0 Q-24 -30 -12 -38 L12 -38 Q24 -30 20 0Z" fill="#f3e3c3" stroke="#c9a86a" stroke-width="2"/>
+        <path d="M-10 -38 Q0 -46 10 -38" stroke="#c9a86a" stroke-width="3" fill="none"/>
+        <text x="0" y="-14" text-anchor="middle" font-size="${mJel(o.a, o.A).length > 5 ? 8.5 : 10.5}" font-weight="800" fill="#6a4a1a" font-family="Fredoka,Segoe UI,sans-serif">${mJel(o.a, o.A)}</text></g>`;
+      mkMerlegAll(svg, 12 * (1 - A.cur / A.tot));
+    }
+  },
+  play: async function (ctx, svg, fel, o) {
+    var A = mkKiegAlap(o), D = A.darabok, cur = A.cur, i;
+    var u = o.liga === "szabo" ? { x: 112, y: 402, s: 1.2 } : { x: 118, y: 402, s: 1.2 };
+    var ige = { bajital: "Töltsük hozzá", szabo: "Varrjuk hozzá", pekseg: "Tegyük hozzá" }[o.liga];
+    var van = { bajital: "Az üvegben " + mMondd(o.a, o.A) + " van.", szabo: "A szalag " + mMondd(o.a, o.A) + " hosszú.", pekseg: "A zsákban " + mMondd(o.a, o.A) + " van." }[o.liga];
+    var atv = o.B !== o.A ? " " + mNagy(mMondd(o.a, o.A)) + " az " + mMondd(cur, o.B) + "." : "";
+    mkBub(svg, mJel(o.a, o.A) + " + ? = " + A.cel);
+    fel(mJel(o.a, o.A) + " + ? " + o.B + " = " + A.cel);
+    mkMond(ctx, van + atv + " " + mNagy(mMondd(o.k, o.U)) + " kell. " + ige + ", ami hiányzik, és számoljunk!");
+    await mkVar(ctx, 2600);
+    if (o.B !== o.A) { mkBub(svg, mJel(cur, o.B)); await mkVar(ctx, 700); }
+    if (o.liga === "bajital") {
+      var szint = mkQ(svg, ".szint"), felszin = mkQ(svg, ".felszin"), folyam = mkQ(svg, ".folyam"), poharak = mkQQ(svg, ".pohar");
+      for (i = 0; i < D.length; i++) {
+        let g = poharak[i], x0 = 262 + i * mkKiegLep(D.length, 360, 36), y0 = 296, halo = mkQ(g, ".halo"), pl = mkQ(g, ".pl"), elotte = cur, d = D[i];
+        mkSzarvVarazs(ctx, svg, u); mkAttr(halo, { opacity: .7 });
+        await mkTw(ctx, 260, function (p) {
+          var x = mkLerp(x0, 678, p), y = mkLerp(y0, 60, p) - 70 * Math.sin(Math.PI * p), r = 115 * Math.max(0, (p - .55) / .45);
+          mkAttr(g, { transform: "translate(" + x + "," + y + ") rotate(" + r + ",0,-21)" });
+        });
+        mkAttr(folyam, { opacity: 1 });
+        await mkTw(ctx, 220, function (p) {
+          mkAttr(pl, { transform: "scale(1," + (1 - p) + ")" });
+          var L = 160 * (elotte + d * p) / A.tot;
+          mkAttr(szint, { y: 294 - L, height: L }); mkAttr(felszin, { y: 292 - L });
+          mkAttr(folyam, { y2: 294 - L });
+        }, mkLin);
+        mkAttr(folyam, { opacity: 0, y2: 62 });
+        cur += d;
+        mkBub(svg, mJel(cur, o.B)); fel("+ " + mJel(d, o.B) + " → " + mJel(cur, o.B)); mkMond(ctx, mSzamSzo(cur));
+        mkTw(ctx, 260, function (p) {
+          var x = mkLerp(678, x0, p), y = mkLerp(60, y0, p) - 40 * Math.sin(Math.PI * p);
+          mkAttr(g, { transform: "translate(" + x + "," + y + ") rotate(" + (115 * (1 - p)) + ",0,-21)", opacity: 1 - .55 * p });
+          mkAttr(halo, { opacity: .7 * (1 - p) });
+        }).catch(function () {});
+        await mkVar(ctx, 420);
+      }
+    } else if (o.liga === "szabo") {
+      var Z = MK_KIEG_SZALAG, darabok = mkQQ(svg, ".darab"), hiany = mkQ(svg, ".hiany"), ht = mkQ(svg, ".hiany-t"), olt = mkQ(svg, ".oltesek");
+      for (i = 0; i < D.length; i++) {
+        let g = darabok[i], x1 = Z.x + Z.w * cur / A.tot, d = D[i];
+        mkSzarvVarazs(ctx, svg, u);
+        await mkTw(ctx, 300, function (p) {
+          mkAttr(g, { opacity: Math.min(1, p * 3), transform: "translate(" + mkLerp(620, x1, p) + "," + (mkLerp(160, Z.y, p) - 50 * Math.sin(Math.PI * p)) + ") scale(" + mkLerp(.3, 1, p) + ",1)" });
+        });
+        cur += d;
+        var x2 = Z.x + Z.w * cur / A.tot;
+        mkAttr(hiany, { x: x2, width: Math.max(0, Z.x + Z.w - x2) }); mkAttr(ht, { x: (x2 + Z.x + Z.w) / 2, opacity: cur < A.tot ? 1 : 0 });
+        var ol = document.createElementNS(MK_NS, "path");                  /* öltés a varratnál */
+        mkAttr(ol, { d: "M" + x1 + " " + (Z.y - 3) + " l3 6 l-6 6 l6 6 l-6 6 l3 6", stroke: "#e0569a", "stroke-width": 2, fill: "none" });
+        olt.appendChild(ol);
+        mkBub(svg, mJel(cur, o.B)); fel("+ " + mJel(d, o.B) + " → " + mJel(cur, o.B)); mkMond(ctx, mSzamSzo(cur));
+        await mkVar(ctx, 480);
+      }
+    } else {
+      var sulyok = mkQQ(svg, ".kg-suly"), rak = mkQ(svg, ".jobb-s .rakomany"), fok = 12 * (1 - cur / A.tot);
+      for (i = 0; i < D.length; i++) {
+        let g = sulyok[i], x0 = 240 + i * mkKiegLep(D.length, 296, 30), y0 = 106, halo = mkQ(g, ".halo"), d = D[i];
+        let r = fok * Math.PI / 180, px = MK_MX + MK_KAR * Math.cos(r), py = MK_MY - MK_KAR * Math.sin(r), h = mkKiegHely(i);
+        mkSzarvVarazs(ctx, svg, u); mkAttr(halo, { opacity: .7 });
+        await mkTw(ctx, 280, function (p) { mkAttr(g, { transform: "translate(" + mkLerp(x0, px + h[0], p) + "," + (mkLerp(y0, py + h[1], p) - 60 * Math.sin(Math.PI * p)) + ") scale(" + MK_KIEG_SULY_M + ")" }); });
+        mkAttr(halo, { opacity: 0 });
+        rak.appendChild(g); mkAttr(g, { transform: "translate(" + h[0] + "," + h[1] + ") scale(" + MK_KIEG_SULY_M + ")" });
+        cur += d;
+        let uj = 12 * (1 - cur / A.tot), regi = fok;
+        mkBub(svg, mJel(cur, o.B)); fel("+ " + mJel(d, o.B) + " → " + mJel(cur, o.B)); mkMond(ctx, mSzamSzo(cur));
+        await mkTw(ctx, 260, function (p) { fok = mkLerp(regi, uj, p); mkMerlegAll(svg, fok); }, mkEaseBack);
+        fok = uj;
+        await mkVar(ctx, 260);
+      }
+      mkMerlegAll(svg, 0);
+    }
+    await mkVar(ctx, 350);
+    var vegs = mJel(o.a, o.A) + " + " + mJel(o.hiany, o.B) + " = " + A.cel;
+    mkBub(svg, "Hiányzott: " + mJel(o.hiany, o.B)); fel(vegs + " · Most te mondd!");
+    mkMond(ctx, "Megvan " + mAz(o.k) + " " + mMondd(o.k, o.U) + "! Ennyit tettünk hozzá: " + mMondd(o.hiany, o.B) + ". Most te mondd!", true);
+    mkSzikra(ctx, svg, o.liga === "szabo" ? 505 : (o.liga === "pekseg" ? MK_MX : 690), o.liga === "szabo" ? 250 : (o.liga === "pekseg" ? MK_MY - 96 : 150), 12, ["#ffe27a", "#f6a5c0", "#c79bea", "#fff"]);
+    mkUgrik(ctx, svg, 16).then(function () { return mkUgrik(ctx, svg, 10); }).catch(function () {});
+    await mkVar(ctx, 1200);
+  }
+};
+
 /* ═════════════════ melyik mozgókép? ═════════════════ */
 /* bemutató egy egységpárhoz (a: nagy, b: kicsi) */
 function mkBemutatoValaszt(mk) {
@@ -520,7 +690,7 @@ function mkLejatszik(valasztas, cim, kesz) {
   MKJ.kesz = kesz;
   mkQ(r, ".mk-cim").textContent = cim;
   svg.innerHTML = klip.render(o);
-  if (klip.init) klip.init(svg);
+  if (klip.init) klip.init(svg, o);
   felirat.textContent = ""; gomb.textContent = "⏭ Átugrom"; gomb.classList.remove("vege");
   r.hidden = false; r.classList.add("fut");
   var ctx = { skip: false, lassu: window.__UC_GYORS ? .03 : MK_TEMPO, fut: true, el: function () { return MKJ.token === tok; } };
@@ -545,16 +715,18 @@ function mkElottKell(f, tovabb) {
   mkLejatszik(mkBemutatoValaszt(f.mk), "Nézd meg: 1 " + f.mk.a + " = " + mSzamIr(M_SZ[f.mk.a] / M_SZ[f.mk.b]) + " " + f.mk.b, tovabb);
   return true;
 }
-/* rossz válasz után az adott feladat számaival, aztán ugyanaz a kérdés újra */
+/* rossz válasz után az adott feladat számaival, aztán ugyanaz a kérdés újra
+   (f.mk = átváltás → csoportos/lépcső; f.mkk = „Mennyi hiányzik?” → MK_KIEG) */
 function mkHiba(f, valasz) {
   figyelStop();
   $("visszajelzes").className = "visszajelzes rossz";
   $("visszajelzes").textContent = "Nem " + valasz + ". Nézzük meg együtt!";
+  var cim = f.mkk ? f.keplet : mJel(f.mk.n, f.mk.u) + " = ? " + f.mk.cel;
   mondd("Nem talált. Nézzük meg együtt!", function () {
     if (!J || J.feladat !== f) return;
-    mkLejatszik(mkHibaValaszt(f.mk), mJel(f.mk.n, f.mk.u) + " = ? " + f.mk.cel, function () {
+    mkLejatszik(f.mkk ? { klip: MK_KIEG, o: f.mkk } : mkHibaValaszt(f.mk), cim, function () {
       if (!J || J.feladat !== f) return;
-      $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "Most te: " + mJel(f.mk.n, f.mk.u) + " = ? " + f.mk.cel;
+      $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "Most te: " + cim;
       mondd(f.felolvas, kezNelkulUjra);
     });
   });

@@ -457,8 +457,8 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
     } else if (f.vegig && !f.vezet) {
       meresVegigvezet(f, valasz);             /* mérés, szöveges: lépésenkénti végigvezetés (meres.js) */
-    } else if (f.mk && J.probak === 1) {
-      mkHiba(f, valasz);                      /* mérés, átváltás: mozgókép a feladat számaival, aztán újra (meres-mozgo.js) */
+    } else if ((f.mk || f.mkk) && J.probak === 1) {
+      mkHiba(f, valasz);                      /* mérés, átváltás / „Mennyi hiányzik?”: mozgókép a feladat számaival, aztán újra (meres-mozgo.js) */
     } else {
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
       else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }

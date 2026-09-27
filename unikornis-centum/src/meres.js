@@ -258,7 +258,7 @@ function mFeladat(cfg, o) {
     csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: cfg.mennyiseg,
     kartyaHTML: '<div class="meres-kep">' + (o.kep || "") + '</div><div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
     szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: o.felolvas,
-    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null,
+    helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null, mkk: o.mkk || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.helyes, atlepes: false }
   };
   return f;
@@ -393,7 +393,8 @@ function genKieg(cfg, kerultMar) {
     (r.B === r.A ? mNagy(mSzamSzo(r.a)) + " meg mennyi lesz " + mSzamSzo(r.osszA) + "?"
                  : mNagy(mSzamSzo(r.osszA)) + " mínusz " + mSzamSzo(r.a) + " az " + mMondd(r.osszA - r.a, r.A) + ". Az hány " + M_NEV[r.B] + "?");
   return mFeladat(cfg, { fajta: "kiegeszites", kep: kep, kerdes: kerdes, felolvas: felolv, helyes: r.hiany, hosszu: true,
-    keplet: mJel(r.a, r.A) + " + ? " + r.B + " = " + cel, megoldas: mJel(r.a, r.A) + " + " + mJel(r.hiany, r.B) + " = " + cel, tipp: tipp });
+    keplet: mJel(r.a, r.A) + " + ? " + r.B + " = " + cel, megoldas: mJel(r.a, r.A) + " + " + mJel(r.hiany, r.B) + " = " + cel, tipp: tipp,
+    mkk: { menny: menny, liga: liga, k: r.k, U: r.U, A: r.A, B: r.B, a: r.a, osszA: r.osszA, hiany: r.hiany } });   /* rossz válasz → „Mennyi hiányzik?” mozgókép (meres-mozgo.js) */
 }
 
 /* ── 4) MŰVELETEK MENNYISÉGEKKEL (4.4) — mindig egylépéses; hol mesés mondat, hol csupasz művelet ── */
