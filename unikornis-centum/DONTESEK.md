@@ -947,3 +947,9 @@ lámpa jobb oldalára költözött (`translate(410,138)`), hogy ne takarja a tá
   és csak odaérve nyílik meg; második koppintás azonnal nyit. Lap/bolt bezárása után
   hazaballag; kertből/utcáról visszajőve a kapunál/ajtónál áll (`oduNyit("kert"|"utca")`).
 - A bolti előnézet (fix 680×540) változatlan: 3 kis könyv, kijárat/ajtó nélkül.
+
+## 2026-09-28 — Odú: nincs bemutató, a felső tippsor megszűnt
+
+A producer döntése: az első belépéses bemutató **nem kell** (elég a csillám + névfelirat), és a
+felső tippsor (`.odu-harmat-info`, „💧 A tündérharmatot a bolt Kert fülén…”) **megszűnt** —
+a szoba a helyét kapja. Az odú D2 átrendezése ezzel lezárva.
