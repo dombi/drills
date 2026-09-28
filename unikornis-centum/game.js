@@ -6650,6 +6650,7 @@ function meseKonyvSVG() {
 /* a koppintható helyek: hit = [x,y,szél,mag] odú-koordinátában, fx/fy = a névfelirat helye, cx = ahova az
    unikornis odasétál. A sorrend a rétegsorrend (a későbbi van felül: a könyv a kapu széle fölött). */
 var ODU_CELOK = [
+  { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "osveny", felirat: "Ösvény", csakTag: true, hit: [-88, 262, 96, 184], fx: -40, fy: 256, cx: 70 },
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
@@ -6657,7 +6658,7 @@ var ODU_CELOK = [
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
 ];
-var ODU_CEL_RAJZ = { osveny: "odu-t-osveny", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
+var ODU_CEL_RAJZ = { lampa: "", osveny: "odu-t-osveny", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
   osveny: { szo: function () { return "Ösvények"; }, nyit: function () { renderFomenu(); mutat("kepernyo-fomenu"); } },
@@ -6666,7 +6667,8 @@ var ODU_CEL_TETT = {
     nyit: function () { if (P().kert.nyitva) kertNyit(); else { BOLT_VAL.kert = { g: "kert", id: "kulcs" }; oduPanelNyit("kert"); } } },
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
-  bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } }
+  bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } },
+  lampa: { nyit: function () { oduVillanyKapcsol(); } }
 };
 
 /* ── az unikornis sétája az odúban: koppintásra odaüget a tárgyhoz, és csak odaérve nyílik meg (~½–1 mp);
@@ -6699,6 +6701,7 @@ function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
   ODU_CELOK.forEach(function (d) { if (d.id === cel) def = d; });
   if (!t || !def) return;
+  if (def.helyben) { t.nyit(); return; }         /* a lámpa: azonnal kapcsol, séta és beszéd nélkül */
   if (_oduSetaCel === cel) {                    /* türelmetlen második koppintás → azonnal nyílik */
     clearTimeout(_oduSetaIdo); _oduSetaCel = null;
     var m = document.getElementById("odu-uni-mozgo"); if (m) m.classList.remove("jar");
@@ -6727,6 +6730,7 @@ function oduNyit(honnan) {
   figyelStop();
   oduPanelZar();
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
+  ODU_SOTET = false;                        /* a villanyoltás nem mentődik: az odú mindig világosan nyílik */
   /* a menüből belépve a szőnyegen áll; a kertből / utcáról visszajőve a kapunál / ajtónál, a szoba felé nézve */
   ODU_UNI.x = honnan === "kert" ? 326 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
   ODU_UNI.dir = (honnan === "kert" || honnan === "utca") ? -1 : 1;
@@ -6940,7 +6944,149 @@ function oduElet(svg, o) {
     el("path", { d: "M410 318 Q416 309 420 314 Q417 320 410 318 Z", fill: "#7fc26a" }, h);
   }
 
+  bogarak = bogarak.concat(oduVillany(svg, este, bogarak));
   oduEletUt(lepke, lb, bogarak, katB);
+}
+
+/* ═══════════════ VILLANYOLTÁS (2026-09-28, rajzterv: Matekos/odu-villanyoltas-rajzterv.html) ═══════════════
+   A csillaglámpára (vagy a húzózsinórra) koppintva lekapcsol a villany: a lámpa pislan és kialszik, mély-lila
+   félhomály ereszkedik (SOHA nem teljes sötét, a fényforrások körül „lyukas”), a kályha melegen lobog, holdfény
+   esik az ablakból, a falon világító matrica-csillagok derengenek, a jobb falon egy unikornisfej-csillagkép
+   rajzolódik ki, az unikornis szarva éjjeli lámpaként világít, szentjánosbogarak jönnek elő, a befőtt / üvegcsék /
+   mesekönyv / kijárat derengenek. Még egy koppintás: vissza a fény.
+   Producer döntései (2026-09-28): mind a 9 elem, közepes sötétség, van húzózsinór, a csillagkép mindig unikornis,
+   az unikornisnak most csak a szarva világít, jelvény nincs, NEM mentődik — az odú mindig világosan nyílik
+   (az oduNyit nullázza), csak az ablakméret-váltás / vásárlás miatti újrarajzolás őrzi meg. Nappal ×0,6 sötétség.
+   Kímélő módban (kevesebb mozgás) nincs pislogás és rajzolódás, csak átvált. Semmibe nem kerül, semmit nem ad. */
+var ODU_SOTET = false;                       /* be van-e oltva a villany (csak az odú e látogatására) */
+var ODU_SOTET_FOK = 0.52;                    /* „közepes” sötétség */
+var _oduVillany = null;                      /* az aktuális szoba villany-rétege: { svg, zs, szarvHely } */
+function oduVillany(svg, este, regiBogarak) {
+  var NS = "http://www.w3.org/2000/svg";
+  function q(s) { return svg.querySelector(s); }
+  function el(tag, at, par) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (par) par.appendChild(e); return e; }
+  function cls(n, c) { if (n) n.setAttribute("class", ((n.getAttribute("class") || "") + " " + c).trim()); return n; }
+  function csillagD(cx, cy, r) {
+    var d = "";
+    for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; d += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + " " + (cy + rr * Math.sin(a)).toFixed(1) + " "; }
+    return d + "Z";
+  }
+  function rad(defs, id, stops) { var g = el("radialGradient", { id: id }, defs); stops.forEach(function (s) { el("stop", { offset: s[0], "stop-color": s[1], "stop-opacity": s[2] }, g); }); }
+
+  _oduVillany = null;
+  var defs = q("defs"), celok = q(".odu-celok"), lampa = q(".e-lampa"), lcs = q('polygon[points^="345,154"]');
+  if (!defs || !celok || !lampa || !lcs) return [];
+  var vb = svg.viewBox.baseVal, VB = { x: vb.x - 40, y: vb.y - 40, w: vb.width + 80, h: vb.height + 80 };
+
+  rad(defs, "vo-lyuk", [[0, "#000", 1], [0.55, "#000", 0.7], [1, "#000", 0]]);
+  rad(defs, "vo-szarv-g", [[0, "#fff3b0", 0.9], [0.5, "#ffe07a", 0.35], [1, "#ffe07a", 0]]);
+  rad(defs, "vo-glo", [[0, "#f3ffb8", 0.9], [0.5, "#dfff9a", 0.3], [1, "#dfff9a", 0]]);
+  rad(defs, "vo-arany", [[0, "#fff0bf", 0.9], [0.55, "#fff0bf", 0.35], [1, "#fff0bf", 0]]);
+  rad(defs, "vo-zold", [[0, "#d8f5b8", 0.8], [0.55, "#d8f5b8", 0.3], [1, "#d8f5b8", 0]]);
+  var savSzin = este ? "#cfdcff" : "#fff3c0";            /* este holdfény, nappal meleg napfény-sáv */
+  var hs = el("linearGradient", { id: "vo-sav", x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  el("stop", { offset: 0, "stop-color": savSzin, "stop-opacity": 0.42 }, hs);
+  el("stop", { offset: 1, "stop-color": savSzin, "stop-opacity": 0 }, hs);
+  /* 2 a fátyol maszkja: a fényforrások körül lyuk (kályha, ablak, befőtt, kijárat, szarv) */
+  var maszk = el("mask", { id: "vo-maszk", maskUnits: "userSpaceOnUse", x: VB.x, y: VB.y, width: VB.w, height: VB.h }, defs);
+  el("rect", { x: VB.x, y: VB.y, width: VB.w, height: VB.h, fill: "#fff" }, maszk);
+  var lyukak = {};
+  [["tuz", 548, 425, 165, 130], ["ablak", 190, 180, 95, 95], ["befott", 460, 378, 60, 55], ["kijarat", -40, 392, 75, 85], ["szarv", -999, -999, 75, 75]].forEach(function (l) {
+    lyukak[l[0]] = el("ellipse", { cx: l[1], cy: l[2], rx: l[3], ry: l[4], fill: "url(#vo-lyuk)" }, maszk);
+  });
+
+  /* 1 lámpa + gyöngyös húzózsinór (a lámpa csoportjában, hogy együtt himbálózzon) */
+  cls(lcs, "vo-lampacs");
+  var zs = el("g", { "class": "vo-zsinor" });
+  lampa.insertBefore(zs, lcs);
+  el("line", { x1: 356, y1: 184, x2: 356, y2: 222, stroke: "#8f7ab8", "stroke-width": 1.6 }, zs);
+  [192, 200, 208, 216].forEach(function (y) { el("circle", { cx: 356, cy: y, r: 1.8, fill: "#f7b8d0" }, zs); });
+  el("path", { d: csillagD(356, 228, 6.5), fill: "#ffe07a", stroke: "#c9a06a", "stroke-width": 1 }, zs);
+
+  /* a villanyoltás rétege: a bolt-stand fölé, a koppintó mezők és feliratok alá */
+  var reteg = el("g", { "class": "vo-reteg", "pointer-events": "none" });
+  celok.parentNode.insertBefore(reteg, celok);
+  el("rect", { "class": "vo-fatyol", x: VB.x, y: VB.y, width: VB.w, height: VB.h, fill: "#1a1642", mask: "url(#vo-maszk)" }, reteg);
+  el("ellipse", { "class": "vo-meleg", cx: 548, cy: 430, rx: 150, ry: 115, fill: "url(#e-f-tuz)" }, reteg);   /* 3 kályhatűz */
+  el("polygon", { "class": "vo-hold", points: "150,200 232,200 330,520 60,520", fill: "url(#vo-sav)" }, reteg);   /* 4 holdfény */
+  /* 9 derengő tárgyak: befőtt, két üvegcse, mesekönyv, kijárat */
+  var der = el("g", { "class": "vo-dereng" }, reteg);
+  [[460, 376, 26, "vo-arany", 0], [509, 286, 16, "vo-zold", -0.8], [541, 286, 16, "vo-arany", -1.6], [428.5, 266, 14, "vo-arany", -2.2], [-40, 392, 58, "vo-zold", -1]].forEach(function (p) {
+    el("circle", { "class": "pis", cx: p[0], cy: p[1], r: p[2], fill: "url(#" + p[3] + ")" }, der).style.animationDelay = p[4] + "s";
+  });
+  /* 7 szarv-fény — a helyét a szarv valódi helyéből számoljuk (követi a sétát) */
+  var szarv = cls(q('#odu-uni-mozgo path[d="M268 92 L285 84 L306 24 Z"]'), "vo-szarvpath");
+  var szarvFeny = el("circle", { "class": "vo-szarvfeny", cx: -999, cy: -999, r: 46, fill: "url(#vo-szarv-g)" }, reteg);
+  /* 5 matrica-csillagok + 6 unikornisfej-csillagkép a jobb falon */
+  function matrica(x, y, r, osztaly, kesl) {
+    var g = el("g", { "class": "vo-matrica " + osztaly }, reteg);
+    var p = el("g", { "class": "pis" }, g); p.style.animationDelay = kesl + "s";
+    el("circle", { "class": "glo", cx: x, cy: y, r: r * 2.6, fill: "url(#vo-glo)" }, p);
+    el("path", { "class": "mag", d: csillagD(x, y, r) }, p);
+  }
+  [[-60, 200, 6], [-10, 165, 5], [40, 215, 4.5], [80, 150, 5.5], [-70, 265, 4], [420, 101, 4], [600, 150, 5], [592, 222, 4], [752, 252, 4.5], [95, 280, 3.5]].forEach(function (s, i) { matrica(s[0], s[1], s[2], "szort", -i * 0.6); });
+  var K = { A: [640, 190], B: [672, 228], C: [700, 214], D: [712, 240], E: [730, 300], F: [690, 312], G: [668, 272], H: [628, 262], I: [652, 240] };
+  var kep = el("g", { "class": "vo-kep", stroke: "#f3ffb8", "stroke-width": 1.4, "stroke-linecap": "round" }, reteg);
+  [["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"], ["E", "F"], ["F", "G"], ["G", "H"], ["H", "I"], ["I", "B"]].forEach(function (v, i) {
+    el("line", { x1: K[v[0]][0], y1: K[v[0]][1], x2: K[v[1]][0], y2: K[v[1]][1], pathLength: 1 }, kep).style.transitionDelay = (1.4 + i * 0.2) + "s";
+  });
+  Object.keys(K).forEach(function (k, i) { matrica(K[k][0], K[k][1], k === "A" ? 6.5 : 4.8, "kepi", -i * 0.45); });
+  el("path", { "class": "vo-kep-szem", d: csillagD(666, 250, 4.2), fill: "#fff6d8" }, reteg);
+  /* 8 szentjánosbogarak: este a meglévő három a fátyol fölé költözik és fényesebb lesz, plusz három új
+     (nappal csak ez a három, és csak sötétben látszik); az útjukat az oduEletUt rAF-je számolja */
+  (regiBogarak || []).forEach(function (g) { cls(g, "vo-bogar"); reteg.appendChild(g); });
+  var ujak = [];
+  for (var b = 0; b < 3; b++) {
+    var bg = el("g", { "class": "vo-bogar vo-extra", "pointer-events": "none" }, reteg);
+    var gl = el("g", { "class": "e-bogar-feny" }, bg); gl.style.animationDelay = (-b * 0.7 - 0.3) + "s";
+    el("circle", { r: 9, fill: "#fff3a0", opacity: 0.35 }, gl); el("circle", { r: 2.6, fill: "#fffbd0" }, gl);
+    ujak.push(bg);
+  }
+
+  function szarvHely() {
+    if (!szarv || !svg.getScreenCTM() || !szarv.getScreenCTM()) return;
+    var m = svg.getScreenCTM().inverse().multiply(szarv.getScreenCTM());
+    var p = svg.createSVGPoint(); p.x = 290; p.y = 56; p = p.matrixTransform(m);
+    szarvFeny.setAttribute("cx", p.x.toFixed(1)); szarvFeny.setAttribute("cy", p.y.toFixed(1));
+    lyukak.szarv.setAttribute("cx", p.x.toFixed(1)); lyukak.szarv.setAttribute("cy", p.y.toFixed(1));
+  }
+  if (!este) svg.classList.add("vo-nappal");
+  svg.style.setProperty("--sot", (ODU_SOTET_FOK * (este ? 1 : 0.6)).toFixed(2));
+  _oduVillany = { svg: svg, zs: zs, szarvHely: szarvHely };
+  szarvHely();
+  if (ODU_SOTET) {                              /* újrarajzolás (ablakméret, vásárlás) sötétben: azonnal sötét, animáció nélkül */
+    svg.classList.add("vo-azonnal", "lampa-ki", "soteg", "kep-be");
+    void svg.getBoundingClientRect();
+    setTimeout(function () { svg.classList.remove("vo-azonnal"); }, 50);
+  }
+  return ujak;
+}
+/* koppintás a lámpára: le- vagy felkapcsol */
+var _oduVillanyIdo = [];
+function oduVillanyKapcsol() {
+  var v = _oduVillany; if (!v || !document.body.contains(v.svg)) return;
+  var svg = v.svg, nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  _oduVillanyIdo.forEach(clearTimeout); _oduVillanyIdo = []; svg.classList.remove("felvillan");
+  function kesobb(fn, ms) { _oduVillanyIdo.push(setTimeout(fn, ms)); }
+  v.zs.classList.remove("huz"); void v.zs.getBoundingClientRect(); v.zs.classList.add("huz");
+  beep(1900, 0.035, "square", 0, 0.035);        /* kattanás */
+  v.szarvHely();
+  ODU_SOTET = !ODU_SOTET;
+  if (ODU_SOTET) {
+    [784, 587, 440].forEach(function (f, i) { beep(f, 0.7, "sine", 0.12 + i * 0.17, 0.12); });   /* lefelé csilingel */
+    if (nyugi) { svg.classList.add("lampa-ki", "soteg", "kep-be"); return; }
+    svg.classList.add("lampa-ki");                /* a lámpa pislan, aztán kialszik */
+    kesobb(function () { svg.classList.remove("lampa-ki"); }, 90);
+    kesobb(function () { svg.classList.add("lampa-ki"); }, 190);
+    kesobb(function () { svg.classList.add("soteg"); }, 280);
+    kesobb(function () { svg.classList.add("kep-be"); }, 300);
+  } else {
+    [523, 784].forEach(function (f, i) { beep(f, 0.7, "sine", 0.12 + i * 0.17, 0.12); });         /* felfelé csilingel */
+    svg.classList.remove("lampa-ki", "soteg", "kep-be");
+    if (nyugi) return;
+    svg.classList.add("felvillan");
+    kesobb(function () { svg.classList.remove("felvillan"); }, 450);
+  }
 }
 
 /* a lepke útja pontról pontra hajlított ívben, leszállásokkal (szivárvány, mesekönyv, zászló, felhő-ágy, kályha,
@@ -6960,11 +7106,12 @@ function oduEletUt(lepke, lb, bogarak, katB) {
   }
   if (nyugi) {                                /* kevesebb mozgás: a lepke a kapun ül, a többiek is egy helyben */
     if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,338)"); }
-    bogarak.forEach(function (g, i) { g.setAttribute("transform", "translate(" + (200 + i * 150) + "," + (250 + (i % 2) * 40) + ")"); });
+    bogarak.forEach(function (g, i) { g.setAttribute("transform", "translate(" + (80 + i * 120) + "," + (250 + (i % 2) * 40) + ")"); });
     if (katB) katB.setAttribute("transform", "translate(110,329) rotate(0)");
     return;
   }
   ujCel(performance.now());
+  var szarvIdo = 0;
   function lep(most) {
     var k0 = $("kepernyo-odu");
     if (!k0 || !k0.classList.contains("aktiv") || !document.body.contains(lepke || bogarak[0] || katB)) { _oduEletRaf = null; return; }
@@ -6991,6 +7138,7 @@ function oduEletUt(lepke, lb, bogarak, katB) {
       var kx = 110 + 103 * Math.cos(a), ky = 432 - 103 * Math.sin(a);
       katB.setAttribute("transform", "translate(" + kx.toFixed(1) + "," + ky.toFixed(1) + ") rotate(" + (90 - a * 57.3).toFixed(1) + ") scale(" + ir + ",1)");
     }
+    if (_oduVillany && most - szarvIdo > 120) { _oduVillany.szarvHely(); szarvIdo = most; }   /* a szarv-fény követi az unikornist */
     _oduEletRaf = requestAnimationFrame(lep);
   }
   _oduEletRaf = requestAnimationFrame(lep);

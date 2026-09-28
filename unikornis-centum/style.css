@@ -520,6 +520,48 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #odu-szoba .e-lap{ transform:scaleX(0); }
 }
 
+/* ── villanyoltás az odúban (odu-elet.js oduVillany, rajzterv: Matekos/odu-villanyoltas-rajzterv.html) ──
+   osztályok az odú-SVG-n: lampa-ki (a lámpa nem ég), soteg (félhomály), kep-be (csillagkép), felvillan,
+   vo-nappal (nappal csak a bogarak jönnek elő), vo-azonnal (újrarajzolás sötétben: átmenet nélkül) */
+#odu-szoba .vo-lampacs{ transition:fill .12s; }
+#odu-szoba .lampa-ki .vo-lampacs{ fill:#d9cbef; }
+#odu-szoba .lampa-ki .e-lampa-feny, #odu-szoba .lampa-ki .e-por{ animation:none; opacity:0; }
+#odu-szoba .felvillan .vo-lampacs{ filter:drop-shadow(0 0 9px #fff3b0) brightness(1.15); }
+#odu-szoba .vo-zsinor.huz{ animation:vo-huz .45s ease-out; }
+@keyframes vo-huz{ 0%{ transform:translateY(0); } 30%{ transform:translateY(9px); } 65%{ transform:translateY(-2px); } 100%{ transform:translateY(0); } }
+#odu-szoba .vo-fatyol{ opacity:0; transition:opacity 1s ease; }
+#odu-szoba .soteg .vo-fatyol{ opacity:var(--sot,.52); }
+#odu-szoba .vo-meleg, #odu-szoba .vo-hold{ opacity:0; transition:opacity 1.2s ease; }
+#odu-szoba .soteg .vo-meleg{ opacity:.55; animation:e-lobog 1.7s ease-in-out infinite; }
+#odu-szoba .soteg .vo-hold{ opacity:1; }
+#odu-szoba .vo-matrica .mag{ fill:#f4efd8; opacity:.3; transition:opacity 1.3s ease, fill 1.3s ease; }
+#odu-szoba .vo-matrica .glo{ opacity:0; transition:opacity 1.3s ease; }
+#odu-szoba .soteg .vo-matrica .mag{ fill:#f3ffb8; opacity:1; }
+#odu-szoba .soteg .vo-matrica .glo{ opacity:.85; }
+#odu-szoba .soteg .vo-matrica .pis{ animation:vo-dereng 3.4s ease-in-out infinite; }
+@keyframes vo-dereng{ 0%,100%{ opacity:.75; } 50%{ opacity:1; } }
+#odu-szoba .vo-kep line{ stroke-dasharray:1; stroke-dashoffset:1; opacity:0; transition:stroke-dashoffset .5s ease, opacity .4s ease; }
+#odu-szoba .soteg.kep-be .vo-kep line{ stroke-dashoffset:0; opacity:.75; }
+#odu-szoba .vo-kep-szem{ opacity:0; transition:opacity .5s; transform-box:fill-box; transform-origin:50% 50%; }
+#odu-szoba .soteg.kep-be .vo-kep-szem{ opacity:1; transition-delay:3.1s; animation:vo-szikra 1.6s ease-in-out 3.1s infinite; }
+@keyframes vo-szikra{ 0%,100%{ transform:scale(.7); opacity:.6; } 50%{ transform:scale(1.25); opacity:1; } }
+#odu-szoba .vo-szarvfeny{ opacity:0; transition:opacity 1.4s ease; }
+#odu-szoba .soteg .vo-szarvfeny{ opacity:.95; animation:vo-szarv 3.6s ease-in-out infinite; }
+@keyframes vo-szarv{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
+#odu-szoba .soteg .vo-szarvpath{ filter:drop-shadow(0 0 5px #fff0a0) brightness(1.12); }
+#odu-szoba .vo-bogar{ transition:opacity 1s ease; }
+#odu-szoba .vo-extra{ opacity:0; }
+#odu-szoba .soteg .vo-extra{ opacity:1; }
+#odu-szoba .soteg .vo-bogar .e-bogar-feny{ transform:scale(1.45); }
+#odu-szoba .vo-dereng{ opacity:0; transition:opacity 1.3s ease; }
+#odu-szoba .soteg .vo-dereng{ opacity:1; }
+#odu-szoba .soteg .vo-dereng .pis{ animation:e-lelegzo 3.2s ease-in-out infinite; }
+#odu-szoba .vo-azonnal *, #odu-szoba .vo-azonnal .vo-kep line{ transition:none !important; transition-delay:0s !important; }
+@media (prefers-reduced-motion:reduce){   /* kímélő mód: nincs pislogás, rajzolódás és lüktetés — csak átvált */
+  #odu-szoba .vo-reteg *, #odu-szoba .vo-lampacs, #odu-szoba .vo-kep line{ transition:none !important; transition-delay:0s !important; }
+  #odu-szoba .vo-reteg *, #odu-szoba .vo-zsinor.huz{ animation:none !important; }
+}
+
 /* eső / hó a szobában */
 @keyframes odu-eso{ from{ transform:translateY(-40px); } to{ transform:translateY(80px); } }
 @keyframes odu-ho{ from{ transform:translateY(-30px) translateX(0); } to{ transform:translateY(96px) translateX(14px); } }

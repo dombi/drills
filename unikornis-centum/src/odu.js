@@ -950,6 +950,7 @@ function meseKonyvSVG() {
 /* a koppintható helyek: hit = [x,y,szél,mag] odú-koordinátában, fx/fy = a névfelirat helye, cx = ahova az
    unikornis odasétál. A sorrend a rétegsorrend (a későbbi van felül: a könyv a kapu széle fölött). */
 var ODU_CELOK = [
+  { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "osveny", felirat: "Ösvény", csakTag: true, hit: [-88, 262, 96, 184], fx: -40, fy: 256, cx: 70 },
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
@@ -957,7 +958,7 @@ var ODU_CELOK = [
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
 ];
-var ODU_CEL_RAJZ = { osveny: "odu-t-osveny", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
+var ODU_CEL_RAJZ = { lampa: "", osveny: "odu-t-osveny", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
   osveny: { szo: function () { return "Ösvények"; }, nyit: function () { renderFomenu(); mutat("kepernyo-fomenu"); } },
@@ -966,7 +967,8 @@ var ODU_CEL_TETT = {
     nyit: function () { if (P().kert.nyitva) kertNyit(); else { BOLT_VAL.kert = { g: "kert", id: "kulcs" }; oduPanelNyit("kert"); } } },
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
-  bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } }
+  bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } },
+  lampa: { nyit: function () { oduVillanyKapcsol(); } }
 };
 
 /* ── az unikornis sétája az odúban: koppintásra odaüget a tárgyhoz, és csak odaérve nyílik meg (~½–1 mp);
@@ -999,6 +1001,7 @@ function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
   ODU_CELOK.forEach(function (d) { if (d.id === cel) def = d; });
   if (!t || !def) return;
+  if (def.helyben) { t.nyit(); return; }         /* a lámpa: azonnal kapcsol, séta és beszéd nélkül */
   if (_oduSetaCel === cel) {                    /* türelmetlen második koppintás → azonnal nyílik */
     clearTimeout(_oduSetaIdo); _oduSetaCel = null;
     var m = document.getElementById("odu-uni-mozgo"); if (m) m.classList.remove("jar");
@@ -1027,6 +1030,7 @@ function oduNyit(honnan) {
   figyelStop();
   oduPanelZar();
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
+  ODU_SOTET = false;                        /* a villanyoltás nem mentődik: az odú mindig világosan nyílik */
   /* a menüből belépve a szőnyegen áll; a kertből / utcáról visszajőve a kapunál / ajtónál, a szoba felé nézve */
   ODU_UNI.x = honnan === "kert" ? 326 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
   ODU_UNI.dir = (honnan === "kert" || honnan === "utca") ? -1 : 1;
