@@ -6460,9 +6460,9 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
      lábtörlővel; az unikornis alaphelyzetben előtte áll. A kapu-rajz a régi koordinátákban készül, a külső
      csoport viszi a helyére (a belső .odu-targy CSS-transformja így nem írja felül). ── */
   if (!elonezet) {
-    s += '<ellipse cx="326" cy="439" rx="66" ry="7" fill="#3b2f66" opacity="0.16"/>';
-    s += '<g transform="translate(326,436) scale(1.15) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(!!P().kert.nyitva) + '</g></g>';
-    s += '<rect x="272" y="434" width="108" height="9" rx="4.5" fill="#a7d99a"/><path d="M280 438.5 h92" stroke="#d8f5b8" stroke-width="2"/>';
+    s += '<ellipse cx="326" cy="439" rx="48" ry="6" fill="#3b2f66" opacity="0.16"/>';
+    s += '<g transform="translate(326,436) scale(0.78) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(!!P().kert.nyitva) + '</g></g>';
+    s += '<rect x="286" y="434" width="80" height="9" rx="4.5" fill="#a7d99a"/><path d="M292 438.5 h68" stroke="#d8f5b8" stroke-width="2"/>';
   }
 
   /* ── KOPPINTHATÓ TÁRGYAK a gombsor helyett (odú D2, 2. lépés): nagy mesekönyv a gyökérpolcon,
@@ -6476,7 +6476,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon).
      A külső csoportot a séta tolja (CSS transform), a belsőt a fordulás tükrözi (oduUniSetal). ── */
   if (!elonezet) {
-    var ux = tag ? ODU_UNI.x - ODU_UNI_HAZA : 0, udir = tag ? ODU_UNI.dir : 1;
+    var ux = tag ? ODU_UNI.x - ODU_UNI_RAJZ : 0, udir = tag ? ODU_UNI.dir : 1;
     s += '<g id="odu-uni-mozgo" style="transform:translate(' + ux + 'px,0px)">';
     s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
     s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" transform="scale(' + udir + ',1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
@@ -6652,7 +6652,7 @@ function meseKonyvSVG() {
 var ODU_CELOK = [
   { id: "osveny", felirat: "Ösvény", csakTag: true, hit: [-88, 262, 96, 184], fx: -40, fy: 256, cx: 70 },
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
-  { id: "kapu", felirat: "Kert", hit: [258, 285, 136, 156], fx: 326, fy: 278, cx: 326 },   /* a padlón álló kapu (2026-09-28) */
+  { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
@@ -6671,7 +6671,8 @@ var ODU_CEL_TETT = {
 
 /* ── az unikornis sétája az odúban: koppintásra odaüget a tárgyhoz, és csak odaérve nyílik meg (~½–1 mp);
    séta közben egy második koppintás azonnal nyit. Lap/bolt bezárása után hazasétál a szőnyegre. ── */
-var ODU_UNI_HAZA = 346;
+var ODU_UNI_RAJZ = 346;   /* ahová a rajz készül (a séta ehhez képest tol) */
+var ODU_UNI_HAZA = 430;   /* alaphelyzet: a kertajtó mellett jobbra, hogy az ajtó kilátsszon (2026-09-28) */
 var ODU_UNI = { x: ODU_UNI_HAZA, dir: 1 };
 var _oduSetaIdo = null, _oduSetaCel = null;
 function oduUniSetal(celX, kesz) {
@@ -6681,7 +6682,7 @@ function oduUniSetal(celX, kesz) {
   var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!mozgo || tav < 6 || nyugi) {
     ODU_UNI.x = celX;
-    if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_HAZA) + "px,0px)"; }
+    if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)"; }
     _oduSetaIdo = setTimeout(function () { if (kesz) kesz(); }, 120);
     return;
   }
@@ -6691,7 +6692,7 @@ function oduUniSetal(celX, kesz) {
   mozgo.style.transition = "transform " + mp.toFixed(2) + "s ease-in-out";
   mozgo.classList.add("jar");
   ODU_UNI.x = celX;
-  mozgo.style.transform = "translate(" + (celX - ODU_UNI_HAZA) + "px,0px)";
+  mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
   _oduSetaIdo = setTimeout(function () { mozgo.classList.remove("jar"); if (kesz) kesz(); }, mp * 1000 + 60);
 }
 function oduTargyKoppint(cel) {
@@ -6947,7 +6948,7 @@ function oduElet(svg, o) {
    Csak amíg az odú látszik — utána a rAF leáll (a következő renderOdu újraindítja). */
 function oduEletUt(lepke, lb, bogarak, katB) {
   var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 290]];
+  var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
   var poz = [240, 300], cel = 0, ul = true, ulIg = 0, repIg = 0, honnan = poz.slice(), kontroll = [0, 0], ido = 3200;
   function ujCel(most) {
     honnan = poz.slice();
@@ -6958,7 +6959,7 @@ function oduEletUt(lepke, lb, bogarak, katB) {
     if (lepke) lepke.classList.remove("ul");
   }
   if (nyugi) {                                /* kevesebb mozgás: a lepke a kapun ül, a többiek is egy helyben */
-    if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,290)"); }
+    if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,338)"); }
     bogarak.forEach(function (g, i) { g.setAttribute("transform", "translate(" + (200 + i * 150) + "," + (250 + (i % 2) * 40) + ")"); });
     if (katB) katB.setAttribute("transform", "translate(110,329) rotate(0)");
     return;

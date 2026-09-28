@@ -180,7 +180,7 @@ function oduElet(svg, o) {
    Csak amíg az odú látszik — utána a rAF leáll (a következő renderOdu újraindítja). */
 function oduEletUt(lepke, lb, bogarak, katB) {
   var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 290]];
+  var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
   var poz = [240, 300], cel = 0, ul = true, ulIg = 0, repIg = 0, honnan = poz.slice(), kontroll = [0, 0], ido = 3200;
   function ujCel(most) {
     honnan = poz.slice();
@@ -191,7 +191,7 @@ function oduEletUt(lepke, lb, bogarak, katB) {
     if (lepke) lepke.classList.remove("ul");
   }
   if (nyugi) {                                /* kevesebb mozgás: a lepke a kapun ül, a többiek is egy helyben */
-    if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,290)"); }
+    if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,338)"); }
     bogarak.forEach(function (g, i) { g.setAttribute("transform", "translate(" + (200 + i * 150) + "," + (250 + (i % 2) * 40) + ")"); });
     if (katB) katB.setAttribute("transform", "translate(110,329) rotate(0)");
     return;
