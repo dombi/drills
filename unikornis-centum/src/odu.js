@@ -488,7 +488,7 @@ function vitrinReteg(o) {
     var cx = colX[i % 3], cy = rowY[Math.floor(i / 3)], it = KRISTALY[i];
     if (it && v[it.id]) {
       s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="14" ry="4" fill="#c9a8e6"/>';
-      s += '<g transform="translate(' + (cx - 21) + ',' + (cy - 42) + ') scale(0.52)">' + it.svg + '</g>';
+      s += '<g class="odu-kristaly"><g transform="translate(' + (cx - 21) + ',' + (cy - 42) + ') scale(0.52)">' + it.svg + '</g></g>';
     } else {
       s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="11" ry="3.2" fill="#e6dcf2"/>';   /* üres, tiszta állvány */
     }
@@ -642,16 +642,16 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="#2e2350"/>';
   if (tag) {                                /* a falak a látható szélig érnek, a plafon íve a tetőhöz igazodik */
     var pT = Math.min(F.T, 88), fcx = F.cx;
-    s += '<path d="M' + F.L + ' ' + bB + ' L' + F.L + ' ' + (pT + 142) + ' Q' + F.L + ' ' + (pT - 8) + ' ' + fcx + ' ' + (pT - 28) + ' Q' + F.R + ' ' + (pT - 8) + ' ' + F.R + ' ' + (pT + 142) + ' L' + F.R + ' ' + bB + ' Z" fill="#b79fd4"/>';
-    s += '<path d="M' + bL + ' ' + bB + ' L' + bL + ' ' + (pT + 157) + ' Q' + bL + ' ' + (pT + 12) + ' ' + fcx + ' ' + (pT - 4) + ' Q' + bR + ' ' + (pT + 12) + ' ' + bR + ' ' + (pT + 157) + ' L' + bR + ' ' + bB + ' Z" fill="#cbb6e6"/>';
+    s += '<path d="M' + F.L + ' ' + bB + ' L' + F.L + ' ' + (pT + 142) + ' Q' + F.L + ' ' + (pT - 8) + ' ' + fcx + ' ' + (pT - 28) + ' Q' + F.R + ' ' + (pT - 8) + ' ' + F.R + ' ' + (pT + 142) + ' L' + F.R + ' ' + bB + ' Z" fill="#b79fd4" class="odu-kul"/>';
+    s += '<path d="M' + bL + ' ' + bB + ' L' + bL + ' ' + (pT + 157) + ' Q' + bL + ' ' + (pT + 12) + ' ' + fcx + ' ' + (pT - 4) + ' Q' + bR + ' ' + (pT + 12) + ' ' + bR + ' ' + (pT + 157) + ' L' + bR + ' ' + bB + ' Z" fill="#cbb6e6" class="odu-fal"/>';
   } else {
-    s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>';
-    s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>';
+    s += '<path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4" class="odu-kul"/>';
+    s += '<path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6" class="odu-fal"/>';
   }
   s += '<ellipse cx="345" cy="330" rx="250" ry="210" fill="#ffd9ec" opacity="0.06"/><ellipse cx="140" cy="392" rx="120" ry="100" fill="#e9c9f0" opacity="0.1"/>';
 
   /* gyökér-erezet a falon */
-  s += '<g fill="none" stroke="#ab90cf" stroke-width="3" stroke-linecap="round" opacity="0.5">';
+  s += '<g class="odu-erezet" fill="none" stroke="#ab90cf" stroke-width="3" stroke-linecap="round" opacity="0.5">';
   s += '<path d="M150 250 Q160 360 150 500"/><path d="M245 240 Q255 360 248 500"/><path d="M440 240 Q432 360 440 500"/><path d="M525 250 Q516 360 525 500"/></g>';
   s += '<ellipse cx="437" cy="300" rx="9" ry="5" fill="#ab90cf"/>';
   s += butorElem(o, "fal");                 /* v3: tapéta / lambéria a falon */
@@ -661,10 +661,11 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   }
 
   /* padló */
-  s += '<rect x="' + bL + '" y="436" width="' + (bR - bL) + '" height="' + (bB - 436) + '" fill="#e3c9de"/>';
+  s += '<rect x="' + bL + '" y="436" width="' + (bR - bL) + '" height="' + (bB - 436) + '" fill="#e3c9de" class="odu-padlo"/>';
   s += '<g stroke="#cdaecb" stroke-width="2" opacity="0.6"><line x1="' + bL + '" y1="464" x2="' + bR + '" y2="464"/><line x1="' + bL + '" y1="494" x2="' + bR + '" y2="494"/><line x1="' + bL + '" y1="520" x2="' + bR + '" y2="520"/><line x1="200" y1="436" x2="200" y2="' + bB + '"/><line x1="345" y1="436" x2="345" y2="' + bB + '"/><line x1="470" y1="436" x2="470" y2="' + bB + '"/>';
   if (tag) { for (var px = 75; px > bL; px -= 125) s += '<line x1="' + px + '" y1="436" x2="' + px + '" y2="' + bB + '"/>'; for (var qx = 595; qx < bR; qx += 125) s += '<line x1="' + qx + '" y1="436" x2="' + qx + '" y2="' + bB + '"/>'; }
   s += '</g>';
+  s += '<g class="odu-feny-hely"></g>';          /* ide kerülnek az élő szoba fénytócsái (odu-elet.js) — fal és padló fölé, bútor alá */
 
   /* zászlófüzér */
   s += '<path d="M100 112 Q340 150 580 112" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
@@ -682,7 +683,8 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += '<ellipse cx="345" cy="178" rx="40" ry="36" fill="#ffe9ad" opacity="0.16"/><ellipse cx="345" cy="178" rx="22" ry="20" fill="#ffe9ad" opacity="0.22"/>';
   s += '<polygon points="345,154 350,169 366,169 354,179 358,194 345,185 332,194 336,179 324,169 340,169" fill="#ffd878" stroke="#a88fce" stroke-width="3" stroke-linejoin="round"/>';
 
-  s += vitrinReteg(o);                       /* Kincsvitrin a fő falon (megvett kristály-díszek) */
+  /* Kincsvitrin a fő falon (megvett kristály-díszek) — 2026-09-28 óta a kertkapu régi helyén, a gyökérpolc fölött */
+  s += '<g transform="translate(180,-80)">' + vitrinReteg(o) + '</g>';
 
   /* ── ABLAK (napszak + időjárás) ── */
   s += '<circle cx="' + WX + '" cy="' + WY + '" r="' + WR + '" fill="#a88fce"/>';
@@ -754,8 +756,14 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   s += diszReteg(o);                     /* v3+: kirakott dísztárgyak a bútor után, az unikornis előtt */
 
-  /* ── KERTKAPU a hátsó falon (Kert 1. fázis): az unikornis ELÉ kerül, hogy előtte állhasson ── */
-  if (!elonezet) s += '<g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(!!P().kert.nyitva) + '</g>';
+  /* ── KERTKAPU a hátsó fal közepén, a padlón (2026-09-28, odu-elet-rajzterv): igazi, padlóig érő kapu zöld
+     lábtörlővel; az unikornis alaphelyzetben előtte áll. A kapu-rajz a régi koordinátákban készül, a külső
+     csoport viszi a helyére (a belső .odu-targy CSS-transformja így nem írja felül). ── */
+  if (!elonezet) {
+    s += '<ellipse cx="326" cy="439" rx="66" ry="7" fill="#3b2f66" opacity="0.16"/>';
+    s += '<g transform="translate(326,436) scale(1.15) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(!!P().kert.nyitva) + '</g></g>';
+    s += '<rect x="272" y="434" width="108" height="9" rx="4.5" fill="#a7d99a"/><path d="M280 438.5 h92" stroke="#d8f5b8" stroke-width="2"/>';
+  }
 
   /* ── KOPPINTHATÓ TÁRGYAK a gombsor helyett (odú D2, 2. lépés): nagy mesekönyv a gyökérpolcon,
      bal falon az ösvény-kijárat, jobb falon az utcaajtó (ez a kettő csak a rugalmas szobában fér el) ── */
@@ -785,7 +793,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   }
 
   /* hangulatfény */
-  s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none"/>';
+  s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none" class="odu-tint"/>';
 
   /* ── MESEBOLT-STAND a szőnyegtől jobbra — MINDIG legfelül, hogy biztosan kattintható legyen (előnézetben nincs) ── */
   if (!elonezet) s += '<g id="odu-bolt-jel" class="odu-targy"><rect x="508" y="444" width="96" height="84" fill="transparent"/>' + boltStandSVG(556, 506) + '</g>';
@@ -944,7 +952,7 @@ function meseKonyvSVG() {
 var ODU_CELOK = [
   { id: "osveny", felirat: "Ösvény", csakTag: true, hit: [-88, 262, 96, 184], fx: -40, fy: 256, cx: 70 },
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
-  { id: "kapu", felirat: "Kert", hit: [440, 159, 118, 143], fx: 499, fy: 152, cx: 490 },
+  { id: "kapu", felirat: "Kert", hit: [258, 285, 136, 156], fx: 326, fy: 278, cx: 326 },   /* a padlón álló kapu (2026-09-28) */
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
@@ -1019,7 +1027,7 @@ function oduNyit(honnan) {
   oduPanelZar();
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   /* a menüből belépve a szőnyegen áll; a kertből / utcáról visszajőve a kapunál / ajtónál, a szoba felé nézve */
-  ODU_UNI.x = honnan === "kert" ? 490 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
+  ODU_UNI.x = honnan === "kert" ? 326 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
   ODU_UNI.dir = (honnan === "kert" || honnan === "utca") ? -1 : 1;
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   renderOdu();
@@ -1039,6 +1047,7 @@ function renderOdu() {
   var harmatEl = $("odu-harmat"); if (harmatEl) harmatEl.textContent = (P().tunderharmat || 0);   /* kitartás-valuta (7.2) */
   $("odu-szoba").innerHTML = "";            /* a régi rajz ne feszítse a mérést */
   $("odu-szoba").innerHTML = oduSVG(mentes.leny, o, false, oduTeruletArany());
+  oduElet($("odu-szoba").querySelector("svg"), o);   /* élő szoba: fények, láng, füst, lepke… (odu-elet.js) */
   /* a szoba-SVG minden rajzoláskor újraépül → a koppintó réteget is újra bekötjük */
   Array.prototype.forEach.call(document.querySelectorAll("#odu-szoba .odu-cel"), function (h) {
     var cel = h.getAttribute("data-cel"), rajz = document.getElementById(ODU_CEL_RAJZ[cel]);

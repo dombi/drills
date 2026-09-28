@@ -453,6 +453,73 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .odu-targy-szikra, .odu-kijarat-feny, #odu-uni-mozgo.jar .odu-uni-bob, #odu-uni-mozgo.jar .uni-lab-a, #odu-uni-mozgo.jar .uni-lab-b{ animation:none; }
 }
 
+/* ── élet az odúban (odu-elet.js, rajzterv: Matekos/odu-elet-rajzterv.html) — csak a játék-szobában ── */
+#odu-szoba .e-lang{ transform-box:fill-box; transform-origin:50% 100%; }
+#odu-szoba .e-lang1{ animation:e-lang-a 1.3s ease-in-out infinite; }
+#odu-szoba .e-lang2{ animation:e-lang-b .95s ease-in-out infinite; }
+#odu-szoba .e-lang3{ animation:e-lang-a .7s ease-in-out infinite reverse; }
+@keyframes e-lang-a{ 0%,100%{ transform:scale(1,1) skewX(0); } 30%{ transform:scale(.94,1.12) skewX(-4deg); } 65%{ transform:scale(1.05,.9) skewX(3deg); } }
+@keyframes e-lang-b{ 0%,100%{ transform:scale(1,1) skewX(0); } 40%{ transform:scale(1.06,.88) skewX(5deg); } 75%{ transform:scale(.93,1.14) skewX(-3deg); } }
+#odu-szoba .e-lang-feny{ animation:e-lobog 1.7s ease-in-out infinite; }
+#odu-szoba .e-parazs{ animation:e-lobog 1.1s ease-in-out infinite; }
+@keyframes e-lobog{ 0%,100%{ opacity:.75; } 35%{ opacity:1; } 60%{ opacity:.6; } }
+#odu-szoba .e-fust{ transform-box:fill-box; transform-origin:50% 50%; animation:e-fust 4.5s ease-out infinite; opacity:0; }
+@keyframes e-fust{ 0%{ transform:translate(0,14px) scale(.5); opacity:0; } 15%{ opacity:.95; } 100%{ transform:translate(6px,-34px) scale(1.5); opacity:0; } }
+#odu-szoba .e-lampa{ transform-origin:345px 112px; animation:e-himba 6s ease-in-out infinite; }
+@keyframes e-himba{ 0%,100%{ transform:rotate(-2.2deg); } 50%{ transform:rotate(2.2deg); } }
+#odu-szoba .e-lampa-feny{ animation:e-lelegzo 4s ease-in-out infinite; }
+@keyframes e-lelegzo{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
+#odu-szoba .e-zaszlo{ transform-box:fill-box; transform-origin:50% 0%; animation:e-zaszlo 3.4s ease-in-out infinite; }
+@keyframes e-zaszlo{ 0%,100%{ transform:rotate(-7deg); } 50%{ transform:rotate(7deg); } }
+#odu-szoba .e-por{ animation:e-por 7s linear infinite; opacity:0; }
+@keyframes e-por{ 0%{ transform:translate(0,0); opacity:0; } 20%{ opacity:.9; } 80%{ opacity:.7; } 100%{ transform:translate(10px,-46px); opacity:0; } }
+#odu-szoba .e-csillag{ animation:odu-bolt-szikra 2.6s ease-in-out infinite; }
+#odu-szoba .e-felho{ animation:e-felho 14s ease-in-out infinite; }
+@keyframes e-felho{ 0%,100%{ transform:translateX(-5px); } 50%{ transform:translateX(7px); } }
+#odu-szoba .e-befott{ transform-box:fill-box; transform-origin:50% 50%; animation:e-befott 3s ease-in-out infinite; }
+@keyframes e-befott{ 0%,100%{ transform:scale(1); opacity:.85; } 50%{ transform:scale(1.18); opacity:1; } }
+#odu-szoba .e-parna{ transform-box:fill-box; transform-origin:50% 100%; animation:e-parna 4.4s ease-in-out infinite; }
+@keyframes e-parna{ 0%,100%{ transform:scale(1,1); } 50%{ transform:scale(1.03,.96); } }
+#odu-szoba .e-lomb{ animation:e-lomb 4.8s ease-in-out infinite; }
+#odu-szoba .e-lomb2{ animation:e-lomb 3.9s ease-in-out infinite reverse; }
+@keyframes e-lomb{ 0%,100%{ transform:translateX(-1.6px); } 50%{ transform:translateX(1.6px); } }
+#odu-szoba .e-szarny{ transform-box:fill-box; transform-origin:100% 50%; animation:e-csap .16s ease-in-out infinite alternate; }
+#odu-szoba .e-szarny.j{ transform-origin:0% 50%; }
+#odu-szoba .ul .e-szarny{ animation-duration:1.4s; }
+@keyframes e-csap{ from{ transform:scaleX(1); } to{ transform:scaleX(.18); } }
+#odu-szoba .e-bogar-feny{ animation:e-bogar 2.2s ease-in-out infinite; }
+@keyframes e-bogar{ 0%,100%{ opacity:.15; } 45%,60%{ opacity:1; } }
+#odu-szoba .e-inda{ transform-box:fill-box; transform-origin:50% 0%; animation:e-inda 5s ease-in-out infinite; }
+@keyframes e-inda{ 0%,100%{ transform:rotate(-6deg); } 50%{ transform:rotate(6deg); } }
+#odu-szoba .e-makk{ transform-box:fill-box; transform-origin:50% 100%; animation:e-makk 7s ease-in-out infinite; }
+@keyframes e-makk{ 0%,84%,100%{ transform:rotate(0); } 87%{ transform:rotate(-9deg); } 91%{ transform:rotate(7deg); } 95%{ transform:rotate(-3deg); } }
+#odu-szoba .e-csiga{ transform-box:fill-box; transform-origin:50% 50%; animation:e-csiga 48s linear infinite; }
+@keyframes e-csiga{ 0%{ transform:translateX(0) scaleX(1); } 47%{ transform:translateX(112px) scaleX(1); } 50%{ transform:translateX(112px) scaleX(-1); } 97%{ transform:translateX(0) scaleX(-1); } 100%{ transform:translateX(0) scaleX(1); } }
+#odu-szoba .e-csiga-szarv{ transform-box:fill-box; transform-origin:0% 100%; animation:e-hajtas 2.4s ease-in-out infinite; }
+#odu-szoba .e-hely{ animation:e-lelegzo 4.2s ease-in-out infinite; }
+#odu-szoba .e-kristaly{ animation:e-kristaly 8s ease-in-out infinite; }
+@keyframes e-kristaly{ 0%,82%,100%{ filter:none; } 88%{ filter:brightness(1.3) drop-shadow(0 0 4px rgba(255,240,190,.95)); } }
+#odu-szoba .e-uveg{ animation:e-lelegzo 3.2s ease-in-out infinite; }
+#odu-szoba .e-bub{ animation:e-bub 2.6s ease-in infinite; opacity:0; }
+@keyframes e-bub{ 0%{ transform:translateY(0); opacity:0; } 15%{ opacity:.95; } 100%{ transform:translateY(-12px); opacity:0; } }
+#odu-szoba .e-lap{ transform-box:fill-box; transform-origin:0% 50%; animation:e-lap 6s ease-in-out infinite; }
+@keyframes e-lap{ 0%,78%,100%{ transform:scaleX(0); } 84%{ transform:scaleX(1); } 92%{ transform:scaleX(.3); } }
+#odu-szoba .e-konyv-sz{ animation:e-konyvsz 6s ease-out infinite; opacity:0; }
+@keyframes e-konyvsz{ 0%,80%{ transform:translate(0,0); opacity:0; } 86%{ opacity:1; } 100%{ transform:translate(var(--dx),-26px); opacity:0; } }
+#odu-szoba .e-hajtas{ transform-box:fill-box; transform-origin:0% 100%; animation:e-hajtas 3.6s ease-in-out infinite; }
+@keyframes e-hajtas{ 0%,100%{ transform:rotate(-8deg); } 50%{ transform:rotate(8deg); } }
+#odu-szoba .e-suhan{ animation:e-suhan 8s ease-in-out infinite; opacity:0; }
+@keyframes e-suhan{ 0%,70%{ transform:translateX(0); opacity:0; } 74%{ opacity:.8; } 90%{ transform:translateX(130px); opacity:0; } 100%{ opacity:0; } }
+@media (prefers-reduced-motion:reduce){   /* kímélő mód: minden áll; a csak mozgásban látszó szemcsék rejtve maradnak */
+  #odu-szoba .e-lang, #odu-szoba .e-lang-feny, #odu-szoba .e-parazs, #odu-szoba .e-fust, #odu-szoba .e-lampa, #odu-szoba .e-lampa-feny,
+  #odu-szoba .e-zaszlo, #odu-szoba .e-por, #odu-szoba .e-csillag, #odu-szoba .e-felho, #odu-szoba .e-befott, #odu-szoba .e-parna,
+  #odu-szoba .e-lomb, #odu-szoba .e-lomb2, #odu-szoba .e-szarny, #odu-szoba .e-bogar-feny, #odu-szoba .e-inda, #odu-szoba .e-makk,
+  #odu-szoba .e-csiga, #odu-szoba .e-csiga-szarv, #odu-szoba .e-hely, #odu-szoba .e-kristaly, #odu-szoba .e-uveg, #odu-szoba .e-bub,
+  #odu-szoba .e-lap, #odu-szoba .e-konyv-sz, #odu-szoba .e-hajtas, #odu-szoba .e-suhan{ animation:none; }
+  #odu-szoba .e-fust{ opacity:.9; }                 /* a füstpamacsok (a régi rajz része) álló helyzetben is látszanak */
+  #odu-szoba .e-lap{ transform:scaleX(0); }
+}
+
 /* eső / hó a szobában */
 @keyframes odu-eso{ from{ transform:translateY(-40px); } to{ transform:translateY(80px); } }
 @keyframes odu-ho{ from{ transform:translateY(-30px) translateX(0); } to{ transform:translateY(96px) translateX(14px); } }
