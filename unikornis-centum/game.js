@@ -304,7 +304,7 @@ PALYAK.push(
 
 /* ══ 📚 BAGOLYKÖNYVTÁR — Zrínyi építőkocka-pályák (src/konyvtar.js) — Matekos\epitokocka-palyak-terv.html ══
    Egy kocka (K1…) = egy pálya-fajta: Rajt → 5 olvasóasztal → Odú-küszöb (vegyesen a 2–5. asztalból, a végén 1 A–E).
-   SZARNYAK: a könyvtár osztályonként „szárnyat” kap. ÚJ SZÁRNY = új sor a SZARNYAK-ban + az ekPalya-sorai lent
+   SZARNYAK: a könyvtár osztályonként „szárnyat” kap (mesés névvel — az osztály szót a gyerek nem látja). ÚJ SZÁRNY = új sor a SZARNYAK-ban + az ekPalya-sorai lent
    (+ ha új kocka kell: új sor az EK_KOCKA_DEF-ben és a sablonjai a konyvtar.js EK_GEN-jében).
    A szárnyon belül a pályák sorban nyílnak (ekLakat), a 12 órás kapu nem zárja őket.
    PÁLYAHOSSZ: asztalonként egy szám az EK_DARAB-ban (a pult „feladatszám” kapcsolója gyerekenként ezt is felülírja). */
@@ -322,8 +322,8 @@ var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pál
   K3: [5, 5, 5, 4, 4, 5]
 };
 var SZARNYAK = [
-  { id: "3o", nev: "3. osztály", osztaly: 3, szint: 4 },
-  { id: "5o", nev: "5. osztály", osztaly: 5, szint: 6 }
+  { id: "3o", nev: "Holdfény-szárny", ikon: "🌙", osztaly: 3, szint: 4 },   /* a gyerek mesés nevet lát (producer, 2026-09-29); */
+  { id: "5o", nev: "Csillagtorony", ikon: "✨", osztaly: 5, szint: 6 }      /* az osztály csak a pultban látszik */
 ];
 function ekPalya(id, nev, ikon, osztaly, kocka) {
   var D = EK_KOCKA_DEF[kocka], N = EK_DARAB[kocka], sz = null;
@@ -337,10 +337,10 @@ function ekPalya(id, nev, ikon, osztaly, kocka) {
 PALYAK.push(
   ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1"),
   ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2"),
-  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3"),
-  ekPalya("ek-k1-5", "Kit kérdeznek?", "🔎", 5, "K1"),
-  ekPalya("ek-k2-5", "Kis szavak", "🔤", 5, "K2"),
-  ekPalya("ek-k3-5", "Ez már a válasz?", "✋", 5, "K3")
+  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3")
+  /* ✨ Csillagtorony (5. o.) — a producer döntése (2026-09-29): addig NINCS a menüben, amíg meg nem jönnek az IGAZI
+     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. sablonjai (g ≥ 5) megmaradnak;
+     visszakapcsolás: ide 3 sor, mint fent, 5-ös osztállyal és „-5” végű azonosítóval (ek-k1-5, ek-k2-5, ek-k3-5). */
 );
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
@@ -5599,7 +5599,7 @@ function ekKartyaDisz(pa, kart, zarva) {
   var e = zarva && ekLakat(pa);
   if (e) { var pc = kart.querySelector(".palcim"); if (pc) pc.textContent = "🔒 Előbb: " + e.nev; }
 }
-function ekSzarnyNev(sz) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return SZARNYAK[i].nev; return sz; }
+function ekSzarnyNev(sz, ikonnal) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return (ikonnal && SZARNYAK[i].ikon ? SZARNYAK[i].ikon + " " : "") + SZARNYAK[i].nev; return sz; }
 var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], ["📋", "#fce49a"], ["🎲", "#c9a8e6"], ["🌳", "#b6e0a8"], ["📊", "#f7c59f"],
   ["🏆", "#ffd35c"], ["🤔", "#d8cdf0"], ["🚶", "#f3cfe0"], ["📅", "#9fd8e0"], ["📏", "#e8d6b0"], ["🔁", "#c3d7f7"], ["🧩", "#f6b8a6"]];   /* a 14 építőkocka-pálya (jóváhagyott sorrend) */
 var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });
@@ -5832,11 +5832,11 @@ function renderFomenu() {
     var szek = el("div", "palya-regio r-" + regio);
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
-    if (regio === "konyvtar") {                    /* szárnyanként (osztályonként) egy sor, fejléccel */
+    if (regio === "konyvtar") {                    /* szárnyanként (🌙 Holdfény-szárny, ✨ Csillagtorony) egy sor, fejléccel */
       var szSor = [];
       regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
       szSor.forEach(function (sz) {
-        szek.appendChild(el("div", "ek-szarny-cim", "🪽 " + ekSzarnyNev(sz)));
+        szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
         var g = el("div", "palya-regio-grid");
         regiok[regio].forEach(function (rec) { if (rec.pa.szarny === sz) g.appendChild(keszitKartya(rec.pa, rec.idx)); });
         szek.appendChild(g);

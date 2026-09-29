@@ -1126,7 +1126,7 @@ function ekKartyaDisz(pa, kart, zarva) {
   var e = zarva && ekLakat(pa);
   if (e) { var pc = kart.querySelector(".palcim"); if (pc) pc.textContent = "🔒 Előbb: " + e.nev; }
 }
-function ekSzarnyNev(sz) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return SZARNYAK[i].nev; return sz; }
+function ekSzarnyNev(sz, ikonnal) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return (ikonnal && SZARNYAK[i].ikon ? SZARNYAK[i].ikon + " " : "") + SZARNYAK[i].nev; return sz; }
 var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], ["📋", "#fce49a"], ["🎲", "#c9a8e6"], ["🌳", "#b6e0a8"], ["📊", "#f7c59f"],
   ["🏆", "#ffd35c"], ["🤔", "#d8cdf0"], ["🚶", "#f3cfe0"], ["📅", "#9fd8e0"], ["📏", "#e8d6b0"], ["🔁", "#c3d7f7"], ["🧩", "#f6b8a6"]];   /* a 14 építőkocka-pálya (jóváhagyott sorrend) */
 var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });

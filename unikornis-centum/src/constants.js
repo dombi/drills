@@ -298,7 +298,7 @@ PALYAK.push(
 
 /* ══ 📚 BAGOLYKÖNYVTÁR — Zrínyi építőkocka-pályák (src/konyvtar.js) — Matekos\epitokocka-palyak-terv.html ══
    Egy kocka (K1…) = egy pálya-fajta: Rajt → 5 olvasóasztal → Odú-küszöb (vegyesen a 2–5. asztalból, a végén 1 A–E).
-   SZARNYAK: a könyvtár osztályonként „szárnyat” kap. ÚJ SZÁRNY = új sor a SZARNYAK-ban + az ekPalya-sorai lent
+   SZARNYAK: a könyvtár osztályonként „szárnyat” kap (mesés névvel — az osztály szót a gyerek nem látja). ÚJ SZÁRNY = új sor a SZARNYAK-ban + az ekPalya-sorai lent
    (+ ha új kocka kell: új sor az EK_KOCKA_DEF-ben és a sablonjai a konyvtar.js EK_GEN-jében).
    A szárnyon belül a pályák sorban nyílnak (ekLakat), a 12 órás kapu nem zárja őket.
    PÁLYAHOSSZ: asztalonként egy szám az EK_DARAB-ban (a pult „feladatszám” kapcsolója gyerekenként ezt is felülírja). */
@@ -316,8 +316,8 @@ var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pál
   K3: [5, 5, 5, 4, 4, 5]
 };
 var SZARNYAK = [
-  { id: "3o", nev: "3. osztály", osztaly: 3, szint: 4 },
-  { id: "5o", nev: "5. osztály", osztaly: 5, szint: 6 }
+  { id: "3o", nev: "Holdfény-szárny", ikon: "🌙", osztaly: 3, szint: 4 },   /* a gyerek mesés nevet lát (producer, 2026-09-29); */
+  { id: "5o", nev: "Csillagtorony", ikon: "✨", osztaly: 5, szint: 6 }      /* az osztály csak a pultban látszik */
 ];
 function ekPalya(id, nev, ikon, osztaly, kocka) {
   var D = EK_KOCKA_DEF[kocka], N = EK_DARAB[kocka], sz = null;
@@ -331,10 +331,10 @@ function ekPalya(id, nev, ikon, osztaly, kocka) {
 PALYAK.push(
   ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1"),
   ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2"),
-  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3"),
-  ekPalya("ek-k1-5", "Kit kérdeznek?", "🔎", 5, "K1"),
-  ekPalya("ek-k2-5", "Kis szavak", "🔤", 5, "K2"),
-  ekPalya("ek-k3-5", "Ez már a válasz?", "✋", 5, "K3")
+  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3")
+  /* ✨ Csillagtorony (5. o.) — a producer döntése (2026-09-29): addig NINCS a menüben, amíg meg nem jönnek az IGAZI
+     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. sablonjai (g ≥ 5) megmaradnak;
+     visszakapcsolás: ide 3 sor, mint fent, 5-ös osztállyal és „-5” végű azonosítóval (ek-k1-5, ek-k2-5, ek-k3-5). */
 );
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */

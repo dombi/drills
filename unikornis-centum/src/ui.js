@@ -106,11 +106,11 @@ function renderFomenu() {
     var szek = el("div", "palya-regio r-" + regio);
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
-    if (regio === "konyvtar") {                    /* szárnyanként (osztályonként) egy sor, fejléccel */
+    if (regio === "konyvtar") {                    /* szárnyanként (🌙 Holdfény-szárny, ✨ Csillagtorony) egy sor, fejléccel */
       var szSor = [];
       regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
       szSor.forEach(function (sz) {
-        szek.appendChild(el("div", "ek-szarny-cim", "🪽 " + ekSzarnyNev(sz)));
+        szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
         var g = el("div", "palya-regio-grid");
         regiok[regio].forEach(function (rec) { if (rec.pa.szarny === sz) g.appendChild(keszitKartya(rec.pa, rec.idx)); });
         szek.appendChild(g);
