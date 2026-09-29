@@ -302,13 +302,19 @@ PALYAK.push(
    (+ ha új kocka kell: új sor az EK_KOCKA_DEF-ben és a sablonjai a konyvtar.js EK_GEN-jében).
    A szárnyon belül a pályák sorban nyílnak (ekLakat), a 12 órás kapu nem zárja őket.
    PÁLYAHOSSZ: asztalonként egy szám az EK_DARAB-ban (a pult „feladatszám” kapcsolója gyerekenként ezt is felülírja). */
+/* var = a kocka helye a 14-es Kockavár-sorban (konyvtar.js EK_KOCKAK, jóváhagyott sorrend);
+   mester = a 🏅 Mesterpróba Fejtörő-feladatai (versenyFeladatok azonosítók — a SZÖVEG a felhőben van, a repó nyilvános);
+   sorban váltakoznak, egy kör után a számváltozataik jönnek. A pult 🧱 füle felülírhatja (versenyPalyak/mester-K1 …). */
 var EK_KOCKA_DEF = {
   K1: { sablonok: ["nagyito", "kirol", "mit", "lanc", "nyomoz"],
-        asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"] },
+        asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"],
+        var: 0, mester: ["zrinyi-2020-3-M-13", "zrinyi-2021-3-M-11"] },          /* Röfi házai · csokigolyó és perec */
   K2: { sablonok: ["iker", "nem", "legalabb", "par", "mindketto"],
-        asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"] },
+        asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"],
+        var: 1, mester: ["zrinyi-2024-3-M-8", "zrinyi-2023-3-M-8"] },           /* telefonszám · a 23 számszomszédai (ÚJ, fejtoro-mesterproba.json) */
   K3: { sablonok: ["lepcso", "kinek", "felut", "hanylepes", "kakas"],
-        asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"] }
+        asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"],
+        var: 2, mester: ["zrinyi-2022-3-M-13", "zrinyi-2022-3-M-18"] }          /* Varjú Varga Pál cipői · a kiskakas szemétdombja */
 };
 var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pályahossz”: 29 / 29 / 28 pötty) */
   K1: [5, 5, 5, 4, 5, 5],
@@ -320,7 +326,7 @@ var SZARNYAK = [
   { id: "5o", nev: "Csillagtorony", ikon: "✨", osztaly: 5, szint: 6 }      /* az osztály csak a pultban látszik */
 ];
 /* FOKOK (producer, 2026-09-29): minden kocka egy 3 fokú létra — 📖 Mesekönyv (alap, 1 lépés) → 📜 Varázstekercs (összetett KÉRDÉS,
-   de a szárny számkörében; a kocka-napok ▢▢▢ CSAK itt gyűlnek) → 🏅 Mesterpróba (5b). A Mesekönyv egyszeri végigjárása nyitja a Varázstekercset.
+   de a szárny számkörében; a kocka-napok ▢▢▢ CSAK itt gyűlnek) → 🏅 Mesterpróba (konyvtar-mester.js). A Mesekönyv egyszeri végigjárása nyitja a Varázstekercset.
    A menüben egy SOR = egy kocka. Az állomás-cfg „ossz” mezője = összetettség (a sablon a bonyolultabb szerkezetet választja), a „g” marad a számkör. */
 var EK_FOK = {
   mese:    { nev: "Mesekönyv", ikon: "📖", al: "Egyszerű mondatok" },

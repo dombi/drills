@@ -165,8 +165,10 @@ function ujFeladat() {
     J.feladat = GEN[a.tipus](eff, J.kerultKulcsok);
   }
   var f = J.feladat;
-  /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat */
-  if (mkElottKell(f, function () { if (J && J.feladat === f) feladatMutat(f); })) { $("bagoly-buborek").hidden = true; return; }
+  /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat;
+     📚 könyvtár: a kocka első feladata előtt gyerekenként egyszer a bemutató (konyvtar-mozgo.js) */
+  var tovabbF = function () { if (J && J.feladat === f) feladatMutat(f); };
+  if (mkElottKell(f, tovabbF) || ekElottKell(f, tovabbF)) { $("bagoly-buborek").hidden = true; return; }
   feladatMutat(f);
 }
 function feladatMutat(f) {

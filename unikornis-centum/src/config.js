@@ -3,11 +3,13 @@
      producerConfig/{uid}.overrides[palyaId] = { enabled?, recommended?, extraReward?,
                                                  muvelet?, tablak?, darab?, kulcs?, korlat? } — egyéni
      producerConfig/{uid}.kapuOrak = N (a kapu óraszáma, alap 12)
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak? }            — csoportos
+     producerConfig/{uid}.ekStabil = { nap, arany } (📚 Bagolykönyvtár stabil-küszöb, alap 3 nap × 0,8 — pult 🧱 fül)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil? }  — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
-   kulcsnak jelöli; a kapu óraszáma és a darabkorlát a nagyobb (engedékenyebb).
+   kulcsnak jelöli; a kapu óraszáma és a darabkorlát a nagyobb (engedékenyebb); a stabil-küszöbnél a kevesebb nap
+   és a kisebb arány (szintén az engedékenyebb).
    A gyerek nem látja, hogy testreszabott: a rejtett pálya egyszerűen nincs ott, az ajánlott 💖-t kap,
    az extra szorzó csak a ✨-ban látszik. Rejtett pálya nem lehet kapu-kulcs (engine-logic.js kapuKulcsok).
    Offline: az utolsó ismert eredményt localStorage őrzi; felhő nélkül (kapcsoló ki) nincs felülírás. */
@@ -20,6 +22,9 @@ var FELULIR = {
   egyeniOrak: null,   /* producerConfig/{uid}.kapuOrak */
   csoportOrak: {},    /* gid → kapuOrak */
   kapuOrak: null,     /* összevont kapu-óraszám (null = alap 12) */
+  egyeniStabil: null, /* producerConfig/{uid}.ekStabil */
+  csoportStabil: {},  /* gid → ekStabil */
+  ekStabil: null,     /* összevont stabil-küszöb { nap, arany } (null = alap, konyvtar-mester.js EK_STABIL_ALAP) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -29,11 +34,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null;
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null;
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -47,16 +52,18 @@ function felulirFigyel() {
     FELULIR.egyeni = (d.exists && d.data().overrides) || {};
     FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
     FELULIR.egyeniOrak = d.exists && typeof d.data().kapuOrak === "number" ? d.data().kapuOrak : null;
+    FELULIR.egyeniStabil = (d.exists && d.data().ekStabil) || null;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {};
+    var cs = {}, cp = {}, co = {}, cst = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
+      if (d.data().ekStabil) cst[d.id] = d.data().ekStabil;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -103,6 +110,20 @@ function kapuOrakOsszevon(egyeni, csoportOrak) {
   var m = null; csoportOrak.forEach(function (o) { if (typeof o === "number") m = Math.max(m || 0, o); });
   return m;
 }
+/* a stabil-küszöb: az egyéni nyer (mezőnként); különben a csoportok közül a kevesebb nap / kisebb arány; semmi → null (alap) */
+function ekStabilOsszevon(egyeni, csoportok) {
+  function jo(x) { return x && (x.nap >= 1 || x.arany > 0); }
+  var ki = null;
+  csoportok.forEach(function (c) {
+    if (!jo(c)) return;
+    ki = ki || {};
+    if (c.nap >= 1) ki.nap = ki.nap ? Math.min(ki.nap, c.nap) : c.nap;
+    if (c.arany > 0) ki.arany = ki.arany ? Math.min(ki.arany, c.arany) : c.arany;
+  });
+  if (jo(egyeni)) { ki = ki || {}; if (egyeni.nap >= 1) ki.nap = egyeni.nap; if (egyeni.arany > 0) ki.arany = egyeni.arany; }
+  if (!ki) return null;
+  return { nap: Math.round(ki.nap || 3), arany: ki.arany || 0.8 };
+}
 
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
@@ -112,9 +133,11 @@ function felulirSzamol() {
   [FELULIR.csoportP || {}, FELULIR.egyeniP || {}].forEach(function (l) {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
   });
-  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO })); } catch (e) {}
+  var ujS = ekStabilOsszevon(FELULIR.egyeniStabil, Object.keys(FELULIR.csoportStabil || {}).sort().map(function (g) { return FELULIR.csoportStabil[g]; }));
+  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
+      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();

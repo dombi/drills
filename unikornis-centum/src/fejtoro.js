@@ -16,7 +16,10 @@
    SZÁMVÁLTOZATOK (producer, 2026-09-26): ugyanaz a mondat, csak a számok mások (Matekos\zrinyi-valtozatok-tartalom.html,
    előre gyártva: fejtoro-valtozatok.json). A felhőben ugyanúgy versenyFeladatok/{alapId}-vNN, plusz alapId + szamok.
    Első találkozás = EREDETI; 🔁 visszatérő és újrajátszás (a pályát már egyszer végigjárta) = a következő változat
-   (sorban, elfogyva elölről: P().fejtoro.valt[alapId]). A visszatérő-lista és a haladás az alapId-hez kötött. */
+   (sorban, elfogyva elölről: P().fejtoro.valt[alapId]). A visszatérő-lista és a haladás az alapId-hez kötött.
+   🏅 MESTERPRÓBA (Bagolykönyvtár, konyvtar-mester.js): ugyanez a képernyő EGY feladattal (FTJ.mester = a Varázstekercs-pálya);
+   saját bevezető, 🙋 segítség-gomb nincs, nem kerül a 🔁 visszatérők közé, a végén ekMesterVege (✨ + 💧 + Kockavár).
+   A kockák feladat-listáját a pult felülírhatja: versenyPalyak/{id} = { liget:"mesterproba", kocka:"K1", feladatok:[…] } → FT.mesterL. */
 var FT_ALLOMAS_CSILLA = 5;     /* minden befejezett állomás (segítséggel / magyarázattal is) */
 var FT_ELSORE_PLUSZ = 3;       /* + elsőre jó, segítség nélkül */
 var FT_ZARO_CSILLA = 10;       /* pálya vége */
@@ -24,7 +27,7 @@ var FT_ZARO_HARMAT = 2;        /* 1 + teljes ösvény (itt nincs kerülő, így 
 var FT_VISSZA_MAX = 2;         /* ennyi visszatérő feladat jön egy pálya elé */
 var FT_BETUK = ["A", "B", "C", "D", "E"];
 
-var FT = { feladatok: {}, valt: {}, palyak: [], helyi: false, leir: [] };   /* valt: alapId → [változatok] */
+var FT = { feladatok: {}, valt: {}, palyak: [], mesterL: {}, helyi: false, leir: [] };   /* valt: alapId → [változatok] · mesterL: kocka → [feladat-id] */
 var FTJ = null;                /* a futó pálya: { pa, sor:[{fid, vissza}], i, csilla, osszes, elsore, indult } */
 
 /* ── adat: élő figyelés belépés után (felhoBelepve hívja) ── */
@@ -33,10 +36,14 @@ function fejtoroFigyel() {
   var db = FELHO.db;
   function hiba(e) { console.warn("[fejtörő] betöltés hiba:", e.code || e); }
   FT.leir.push(db.collection("versenyPalyak").onSnapshot(function (snap) {
-    var l = [];
-    snap.forEach(function (d) { var x = d.data(); x.id = d.id; if (x.aktiv !== false && x.liget === "fejtoro") l.push(x); });
+    var l = [], ml = {};
+    snap.forEach(function (d) {
+      var x = d.data(); x.id = d.id;
+      if (x.aktiv !== false && x.liget === "fejtoro") l.push(x);
+      if (x.liget === "mesterproba" && x.kocka && (x.feladatok || []).length) ml[x.kocka] = x.feladatok;
+    });
     l.sort(function (a, b) { return (a.sorrend || 0) - (b.sorrend || 0); });
-    FT.palyak = l; fejtoroFrissul();
+    FT.palyak = l; FT.mesterL = ml; fejtoroFrissul();
   }, hiba));
   /* most minden feladat letöltődik (a tesztpálya 7 feladat); sok száz feladatnál pályánként kell majd kérni */
   FT.leir.push(db.collection("versenyFeladatok").onSnapshot(function (snap) {
@@ -54,7 +61,10 @@ function fejtoroBetoltHelyi(adat) {
   if (adat.feladatok) {
     FT.feladatok = {}; FT.palyak = [];
     adat.feladatok.forEach(function (f) { FT.feladatok[f.id] = f; });
-    (adat.palyak || []).forEach(function (p) { FT.palyak.push(p); });
+    (adat.palyak || []).forEach(function (p) {
+      if (p.liget === "mesterproba") { if (p.kocka) FT.mesterL[p.kocka] = p.feladatok || []; }
+      else FT.palyak.push(p);
+    });
   }
   fejtoroFrissul();
 }
@@ -141,17 +151,34 @@ function fejtoroInditas(pid) {
   mutat("kepernyo-fejtoro");
   ftPapir();
 }
+/* 🏅 Mesterpróba: egyetlen feladat (fid), valt = számváltozat (a második körtől) */
+function fejtoroMesterInditas(tek, fid, valt) {
+  var pa = { id: "mester-" + tek.id, nev: "🏅 Mesterpróba", ikon: "🏅" };
+  FTJ = { pa: pa, mester: tek, ids: [fid], sor: [{ fid: fid, vissza: false, idx: 0, valt: valt }], i: 0, csilla: 0, osszes: 0, elsore: 0, indult: Date.now() };
+  sorozatMegtor();
+  $("ft-cim").textContent = "🏅 Mesterpróba · " + tek.kockaIkon + " " + kiiras(tek.kockaNev);
+  $("ft-csillampor").textContent = P().csillampor;
+  esemeny("palya_start", { palyaId: pa.id, fejtoro: true, mester: true, kocka: tek.kocka, feladatId: fid, valtozat: !!valt });
+  mutat("kepernyo-fejtoro");
+  ftPapir();
+}
 function ftTartalom() { var t = $("ft-tartalom"); t.innerHTML = ""; t.scrollTop = 0; return t; }
 function ftPapir() {
   var t = ftTartalom();
   ftKovek(null);
-  var k = el("div", "ft-kartya ft-papir");
-  k.innerHTML = '<div class="ft-papir-ikon">✏️📄</div><h2>Vegyél elő papírt és ceruzát!</h2>' +
-    '<p>A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni — gondolkodj nyugodtan!</p>';
-  var b = el("button", "nagy-gomb kiemelt", "✅ Megvan!");
+  var k = el("div", "ft-kartya ft-papir" + (FTJ.mester ? " ft-mester" : ""));
+  k.innerHTML = FTJ.mester
+    ? '<div class="ft-papir-ikon">🏅</div><h2>Mesterpróba</h2>' +
+      '<p>Itt egy igazi versenyfeladat — ugyanaz a trükk van benne, amit a Bagolykönyvtárban gyakoroltál. Mit kérdeznek?</p>' +
+      '<p class="ft-papir-al">✏️📄 Vegyél elő papírt és ceruzát, és gondolkodj nyugodtan!</p>'
+    : '<div class="ft-papir-ikon">✏️📄</div><h2>Vegyél elő papírt és ceruzát!</h2>' +
+      '<p>A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni — gondolkodj nyugodtan!</p>';
+  var b = el("button", "nagy-gomb kiemelt", FTJ.mester ? "✅ Kezdhetjük!" : "✅ Megvan!");
   b.addEventListener("click", function () { hangGomb(); ftKovetkezo(); });
   k.appendChild(b); t.appendChild(k);
-  ftMondd("Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
+  ftMondd(FTJ.mester
+    ? "Mesterpróba! Itt egy igazi versenyfeladat. Ugyanaz a trükk van benne, amit a Bagolykönyvtárban gyakoroltál. Vegyél elő papírt és ceruzát! Ha kész vagy, koppints a Kezdhetjük gombra!"
+    : "Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
 }
 /* haladás-kövek a pálya tetején (a visszatérő állomásnál 🔁) */
 function ftKovek(akt) {
@@ -207,7 +234,7 @@ function ftAllomas(tetel) {
   fel.addEventListener("click", function () { hangGomb(); ftMondd(ftFelolvasSzoveg(f)); });
   var sg = el("button", "kis-gomb ft-segit-gomb", "🙋 Segítséget kérek"); sg.id = "ft-segit-gomb";
   sg.addEventListener("click", function () { hangGomb(); ftSegit(); });
-  also.appendChild(fel); also.appendChild(sg); t.appendChild(also);
+  also.appendChild(fel); if (!FTJ.mester) also.appendChild(sg); t.appendChild(also);   /* Mesterpróba: segítség nélkül */
   ftMondd((tetel.vissza ? "Emlékszel erre? Próbáld meg újra! " : "") + ftFelolvasSzoveg(f));
 }
 /* 🙋 fokozatos segítség: 1 = Mit kérdeznek?, 2.. = a lépések egyenként — mind (producer, 2026-09-25: ne maradjon ki semmi) */
@@ -341,11 +368,12 @@ function ftValasz(b) {
   A.elsore = jo && A.segit === 0;
   /* visszatérő lista: elsőre jó → lekerül; rossz vagy segítséggel jó → egy későbbi napon újra */
   var v = ftAllapot().vissza;
-  if (A.elsore) delete v[A.tetel.fid];
+  if (FTJ.mester) {}                                   /* Mesterpróba: a saját „egy másik napon” szabálya él (konyvtar-mester.js) */
+  else if (A.elsore) delete v[A.tetel.fid];
   else { var fid = A.tetel.fid, reg = v[fid] || {}; v[fid] = { nap: ftMa(), db: (reg.db || 0) + 1 }; }
   FTJ.osszes++; if (A.elsore) FTJ.elsore++;
   esemeny("fejtoro_valasz", {
-    feladatId: A.tetel.fid, palyaId: FTJ.pa.id, betu: b, helyes: f.helyes, jo: jo, segitseg: A.segit,
+    feladatId: A.tetel.fid, palyaId: FTJ.pa.id, mester: !!FTJ.mester, betu: b, helyes: f.helyes, jo: jo, segitseg: A.segit,
     lepesDb: A.lepesDb, csapda: c ? (c.csalad || "?") : null, idoMp: ido, vissza: !!A.tetel.vissza,
     valtozat: f.alapId ? f.id : null, szamok: f.alapId ? ftSzamokKi(f.szamok) : null
   });
@@ -354,9 +382,10 @@ function ftValasz(b) {
   if (A.elsore) {
     hangJo();
     var k = el("div", "ft-kartya ft-dicser");
-    k.innerHTML = '<div class="ft-nagy">🎉 Nagyszerű!</div><p>Elsőre, segítség nélkül!</p>';
+    k.innerHTML = FTJ.mester ? '<div class="ft-nagy">🏅 Mesterpróba kész!</div><p>Elsőre, segítség nélkül — ez a kocka a tiéd!</p>'
+      : '<div class="ft-nagy">🎉 Nagyszerű!</div><p>Elsőre, segítség nélkül!</p>';
     hova.appendChild(k); ftGorget(k);
-    ftMondd("Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
+    ftMondd(FTJ.mester ? "Nagyszerű! Elsőre sikerült! Ez a kocka a tiéd!" : "Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
   } else if (jo) {
     hangJo();
     var k2 = el("div", "ft-kartya ft-dicser");
@@ -366,10 +395,11 @@ function ftValasz(b) {
   } else {
     hangHiba();
     var mondat = c ? c.mondat : "Nézzük meg együtt, lépésről lépésre!";
+    if (FTJ.mester && c) mondat += " Most együtt végigmegyünk rajta.";
     var k3 = el("div", "ft-kartya ft-csapda");
-    k3.innerHTML = '<div class="ft-nagy">🤔 Ez most nem jó.</div><p>' + ftEsc(mondat) + '</p>';
+    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + ftEsc(mondat) + '</p>';
     hova.appendChild(k3); ftGorget(k3);
-    ftMondd("Ez most nem jó. " + mondat, function () { ftMagyarazat(); });
+    ftMondd((FTJ.mester ? "Majdnem! " : "Ez most nem jó. ") + mondat, function () { ftMagyarazat(); });
   }
 }
 /* a változat számai a pultnak: „tyúk/csere 3, maradt hattyú 4” */
@@ -398,13 +428,19 @@ function ftOsszefoglalo() {
 }
 function ftTovabbGomb(k) {
   if (k.querySelector(".ft-tovabb")) return;
-  var b = el("button", "nagy-gomb kiemelt ft-tovabb", FTJ.i + 1 >= FTJ.sor.length ? "🏁 Célba érek" : "Tovább ➜");
+  var b = el("button", "nagy-gomb kiemelt ft-tovabb", FTJ.mester ? (FTJ.a.elsore ? "🏰 A Kockavárba!" : "Értem ➜") : FTJ.i + 1 >= FTJ.sor.length ? "🏁 Célba érek" : "Tovább ➜");
   b.addEventListener("click", function () { hangGomb(); b.disabled = true; ftAllomasKesz(); });
   k.appendChild(b); ftGorget(b);
 }
 /* állomás kész: ✨ jár (a munkáért), a haladás mentődik — kilépés után innen folytatja */
 function ftAllomasKesz() {
   var A = FTJ.a, tetel = A.tetel;
+  if (FTJ.mester) {                                    /* 🏅 Mesterpróba: a jutalom és a Kockavár a konyvtar-mester.js-ben */
+    var tek = FTJ.mester, ido = Math.round((Date.now() - FTJ.indult) / 1000);
+    FTJ = null;
+    ekMesterVege(tek, A.elsore, tetel.fid, ido);
+    return;
+  }
   var cs = FT_ALLOMAS_CSILLA + (A.elsore ? FT_ELSORE_PLUSZ : 0);
   P().csillampor += cs; FTJ.csilla += cs;
   $("ft-csillampor").textContent = P().csillampor;

@@ -308,13 +308,19 @@ PALYAK.push(
    (+ ha új kocka kell: új sor az EK_KOCKA_DEF-ben és a sablonjai a konyvtar.js EK_GEN-jében).
    A szárnyon belül a pályák sorban nyílnak (ekLakat), a 12 órás kapu nem zárja őket.
    PÁLYAHOSSZ: asztalonként egy szám az EK_DARAB-ban (a pult „feladatszám” kapcsolója gyerekenként ezt is felülírja). */
+/* var = a kocka helye a 14-es Kockavár-sorban (konyvtar.js EK_KOCKAK, jóváhagyott sorrend);
+   mester = a 🏅 Mesterpróba Fejtörő-feladatai (versenyFeladatok azonosítók — a SZÖVEG a felhőben van, a repó nyilvános);
+   sorban váltakoznak, egy kör után a számváltozataik jönnek. A pult 🧱 füle felülírhatja (versenyPalyak/mester-K1 …). */
 var EK_KOCKA_DEF = {
   K1: { sablonok: ["nagyito", "kirol", "mit", "lanc", "nyomoz"],
-        asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"] },
+        asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"],
+        var: 0, mester: ["zrinyi-2020-3-M-13", "zrinyi-2021-3-M-11"] },          /* Röfi házai · csokigolyó és perec */
   K2: { sablonok: ["iker", "nem", "legalabb", "par", "mindketto"],
-        asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"] },
+        asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"],
+        var: 1, mester: ["zrinyi-2024-3-M-8", "zrinyi-2023-3-M-8"] },           /* telefonszám · a 23 számszomszédai (ÚJ, fejtoro-mesterproba.json) */
   K3: { sablonok: ["lepcso", "kinek", "felut", "hanylepes", "kakas"],
-        asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"] }
+        asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"],
+        var: 2, mester: ["zrinyi-2022-3-M-13", "zrinyi-2022-3-M-18"] }          /* Varjú Varga Pál cipői · a kiskakas szemétdombja */
 };
 var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pályahossz”: 29 / 29 / 28 pötty) */
   K1: [5, 5, 5, 4, 5, 5],
@@ -326,7 +332,7 @@ var SZARNYAK = [
   { id: "5o", nev: "Csillagtorony", ikon: "✨", osztaly: 5, szint: 6 }      /* az osztály csak a pultban látszik */
 ];
 /* FOKOK (producer, 2026-09-29): minden kocka egy 3 fokú létra — 📖 Mesekönyv (alap, 1 lépés) → 📜 Varázstekercs (összetett KÉRDÉS,
-   de a szárny számkörében; a kocka-napok ▢▢▢ CSAK itt gyűlnek) → 🏅 Mesterpróba (5b). A Mesekönyv egyszeri végigjárása nyitja a Varázstekercset.
+   de a szárny számkörében; a kocka-napok ▢▢▢ CSAK itt gyűlnek) → 🏅 Mesterpróba (konyvtar-mester.js). A Mesekönyv egyszeri végigjárása nyitja a Varázstekercset.
    A menüben egy SOR = egy kocka. Az állomás-cfg „ossz” mezője = összetettség (a sablon a bonyolultabb szerkezetet választja), a „g” marad a számkör. */
 var EK_FOK = {
   mese:    { nev: "Mesekönyv", ikon: "📖", al: "Egyszerű mondatok" },
@@ -4491,7 +4497,7 @@ function mkHiba(f, valasz) {
    Segítés: szóban 1. rossz → célzott csapda-mondat (vagy „Olvassuk el újra a kérdést!”) · 2. rossz → végigvezetés,
    mindig „Mit kérdeznek?”-kel kezdve. Koppintásnál: piros + billeg → halvány; a 2. rossz után a kérdés-keret felvillan,
    a döntő szó aranyba kerül. A lánc / ikerkérdés / lépcsőfok a meglévő „lanc” úton megy (egy pötty).
-   Kocka-nap: az aznapi ELSŐ végigjárásban a pöttyök ≥ 80%-a elsőre jó → ◼ (3 nap → stabil; a Mesterpróba az 5b lépés). */
+   Kocka-nap: az aznapi ELSŐ végigjárásban a pöttyök ≥ 80%-a elsőre jó → ◼ (3 nap → stabil → 🏅 Mesterpróba: konyvtar-mester.js). */
 
 /* ── szereplők (csak a 10 állat — producer, 2026-09-28) és tárgyak ── */
 var EK_SZ = [
@@ -5592,10 +5598,13 @@ function ekVezet(f, valasz) {
 }
 
 /* ═════════════════ KOCKA-NAPOK („stabil”) — pálya végén ═════════════════ */
-var EK_STABIL = { nap: 3, arany: 0.8 };             /* 5b: a pult 🧱 füle állíthatja */
-function ekAllapot() { var p = P(); if (!p.ek) p.ek = { napok: {}, maElso: {}, mester: {} }; if (!p.ek.napok) p.ek.napok = {}; if (!p.ek.maElso) p.ek.maElso = {}; if (!p.ek.mester) p.ek.mester = {}; return p.ek; }
+function ekAllapot() {                              /* a stabil-küszöb: ekStabil() (konyvtar-mester.js) */
+  var p = P(); if (!p.ek) p.ek = {};
+  ["napok", "maElso", "mester", "mesterTilt", "mesterDb"].forEach(function (k) { if (!p.ek[k]) p.ek[k] = {}; });
+  return p.ek;
+}
 function ekNapDb(pid) { var n = (P().ek && P().ek.napok && P().ek.napok[pid]) || []; return n.length; }
-function ekKockaSor(db) { var s = ""; for (var i = 0; i < EK_STABIL.nap; i++) s += i < db ? "◼" : "▢"; return s; }
+function ekKockaSor(db) { var s = ""; for (var i = 0; i < ekStabil().nap; i++) s += i < db ? "◼" : "▢"; return s; }
 function ekPalyaVege() {
   var st = ekAllapot(), pid = J.palya.id, ma = helyiNap(), E = J.ekPotty || { ossz: 0, jo: 0 };
   if (J.palya.fok !== "tekercs") {                     /* 📖 Mesekönyv: nincs kocka-nap — az első végigjárás a 📜 Varázstekercset nyitja */
@@ -5608,14 +5617,19 @@ function ekPalyaVege() {
   var elsoMa = st.maElso[pid] !== ma, nap = false, arany = E.ossz ? E.jo / E.ossz : 0;
   if (elsoMa) {
     st.maElso[pid] = ma;
-    if (E.ossz && arany >= EK_STABIL.arany) { var L = st.napok[pid] || (st.napok[pid] = []); if (L.indexOf(ma) < 0) { L.push(ma); nap = true; } }
+    if (E.ossz && arany >= ekStabil().arany) { var L = st.napok[pid] || (st.napok[pid] = []); if (L.indexOf(ma) < 0) { L.push(ma); nap = true; } }
   }
-  var db = Math.min(EK_STABIL.nap, ekNapDb(pid)), mondat;
-  if (nap) mondat = db >= EK_STABIL.nap ? ekKockaSor(db) + " — Ez a kocka stabil! Hamarosan jön a 🏅 Mesterpróba." : "Ma is ügyes voltál: " + ekKockaSor(db) + " — még " + (EK_STABIL.nap - db) + " nap, és jöhet a Mesterpróba!";
-  else if (elsoMa || db < EK_STABIL.nap) mondat = "Szép munka! " + (elsoMa ? "Holnap újra gyűjthetsz kocka-napot." : "Kocka-napot naponta az első végigjárás ad.") + " " + ekKockaSor(db);
-  else mondat = "Ez a kocka már stabil: " + ekKockaSor(db);
+  var db = Math.min(ekStabil().nap, ekNapDb(pid)), mondat, ma2 = ekMesterAllapot(J.palya), gomb = "";
+  if (db >= ekStabil().nap) {                        /* stabil: a 🏅 Mesterpróba-kapu állapota szerint */
+    if (ma2 === "nyitva") { mondat = ekKockaSor(db) + " — Kinyílt a 🏅 Mesterpróba-kapu! Egy igazi versenyfeladat vár."; gomb = '<br><button class="nagy-gomb kiemelt ek-mester-gomb" data-pid="' + pid + '">🏅 Mesterpróba-kapu</button>'; }
+    else if (ma2 === "kesz") mondat = ekKockaSor(db) + " — Ez a kocka már a tiéd: 🏅 🏰";
+    else if (ma2 === "holnap") mondat = ekKockaSor(db) + " — A 🏅 Mesterpróba egy másik napon újra vár!";
+    else mondat = ekKockaSor(db) + " — Ez a kocka stabil! Hamarosan jön a 🏅 Mesterpróba.";
+  }
+  else if (nap) mondat = "Ma is ügyes voltál: " + ekKockaSor(db) + " — még " + (ekStabil().nap - db) + " nap, és jöhet a Mesterpróba!";
+  else mondat = "Szép munka! " + (elsoMa ? "Holnap újra gyűjthetsz kocka-napot." : "Kocka-napot naponta az első végigjárás ad.") + " " + ekKockaSor(db);
   ment();
-  return { html: '<br><span class="ek-vege">🧱 ' + mondat + '</span>', mondat: " " + mondat.replace(/[◼▢]+/g, "").replace(/🏅/g, ""),
+  return { html: '<br><span class="ek-vege">🧱 ' + mondat + '</span>' + gomb, mondat: " " + mondat.replace(/[◼▢]+/g, "").replace(/🏅|🏰/g, "").replace(/^ — /, ""),
     adat: { kocka: J.palya.kocka, szarny: J.palya.szarny, fok: "tekercs", potty: E.ossz, elsore: E.jo, nap: nap, napDb: db, csapdak: J.ekCsapda || {} } };
 }
 
@@ -5639,30 +5653,27 @@ function ekKartyaDisz(pa, kart, zarva) {
   var pn = kart.querySelector(".pnev"); if (pn && EK_FOK[pa.fok]) pn.textContent = EK_FOK[pa.fok].nev;
   kart.classList.add("ek-fok-" + (pa.fok || "mese"));
   if (pa.fok === "tekercs") {                          /* a kocka-napok ▢▢▢ csak a Varázstekercsen gyűlnek */
-    var db = Math.min(EK_STABIL.nap, ekNapDb(pa.id)), mester = !!ekAllapot().mester[pa.id], s = "";
-    for (var i = 0; i < EK_STABIL.nap; i++) s += '<i class="' + (i < db ? "teli" : "") + '"></i>';
+    var db = Math.min(ekStabil().nap, ekNapDb(pa.id)), mester = !!ekAllapot().mester[pa.id], s = "";
+    for (var i = 0; i < ekStabil().nap; i++) s += '<i class="' + (i < db ? "teli" : "") + '"></i>';
     var sor = el("div", "ek-kockak"); sor.innerHTML = s + (mester ? '<span class="erem">🏅</span>' : '');
-    sor.title = "Kocka-napok: " + db + " / " + EK_STABIL.nap;
+    sor.title = "Kocka-napok: " + db + " / " + ekStabil().nap;
     kart.insertBefore(sor, kart.querySelector(".also"));
+    if (mester) kart.classList.add("ek-mester-szalag");       /* arany „mester” szalag a jobb felső sarokban (rajzterv 1.) */
   }
   var e = zarva && ekLakat(pa);
   if (e) { var pc = kart.querySelector(".palcim"); if (pc) pc.textContent = pa.fok === "tekercs" ? "🔒 Előbb: Mesekönyv" : "🔒 Előbb: " + e.kockaNev; }
 }
-/* a menü egy sora = egy kocka: [📖 Mesekönyv] → [📜 Varázstekercs ▢▢▢] → 🏅 (a Mesterpróba az 5b lépés) */
+/* a menü egy sora = egy kocka: [📖 Mesekönyv] → [📜 Varázstekercs ▢▢▢] → 🏅 Mesterpróba-kapu (konyvtar-mester.js) */
 function ekMenuSor(palyak, kartya) {
   var p0 = palyak[0], sor = el("div", "ek-kocka-sor");
   sor.appendChild(el("div", "ek-kocka-cim", p0.kockaIkon + " " + p0.kockaNev));
   var lepcso = el("div", "ek-lepcso");
   palyak.forEach(function (pa, i) { if (i) lepcso.appendChild(el("span", "ek-nyil", "→")); lepcso.appendChild(kartya(pa)); });
-  var tek = palyak.filter(function (x) { return x.fok === "tekercs"; })[0], mester = tek && !!ekAllapot().mester[tek.id];
-  var db = tek ? Math.min(EK_STABIL.nap, ekNapDb(tek.id)) : 0;
+  var tek = palyak.filter(function (x) { return x.fok === "tekercs"; })[0], ma = ekMesterAllapot(tek);
   lepcso.appendChild(el("span", "ek-nyil", "→"));
-  var erem = el("button", "ek-mester-hely" + (mester ? " kesz" : db >= EK_STABIL.nap ? " kozel" : ""), "🏅");
+  var erem = el("button", "ek-mester-hely" + ({ kesz: " kesz", nyitva: " nyitva", holnap: " kozel", nincs: " kozel" }[ma] || ""), "🏅");
   erem.title = "Mesterpróba";
-  erem.addEventListener("click", function () {
-    hangGomb();
-    mondd(mester ? "Ezt a Mesterpróbát már kiálltad! Ügyes vagy!" : db >= EK_STABIL.nap ? "Ez a kocka stabil! Hamarosan jön a Mesterpróba." : "Mesterpróba: ha a Varázstekercsen három külön napon ügyes vagy, itt vár rád egy igazi versenyfeladat!");
-  });
+  erem.addEventListener("click", function () { hangGomb(); ekMesterKatt(tek); });
   lepcso.appendChild(erem);
   sor.appendChild(lepcso);
   return sor;
@@ -5671,11 +5682,11 @@ function ekSzarnyNev(sz, ikonnal) { for (var i = 0; i < SZARNYAK.length; i++) if
 var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], ["📋", "#fce49a"], ["🎲", "#c9a8e6"], ["🌳", "#b6e0a8"], ["📊", "#f7c59f"],
   ["🏆", "#ffd35c"], ["🤔", "#d8cdf0"], ["🚶", "#f3cfe0"], ["📅", "#9fd8e0"], ["📏", "#e8d6b0"], ["🔁", "#c3d7f7"], ["🧩", "#f6b8a6"]];   /* a 14 építőkocka-pálya (jóváhagyott sorrend) */
 var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });
-function ekKockaDb() { var m = ekAllapot().mester, n = 0; for (var k in m) if (m[k]) n++; return Math.min(14, n); }
-function ekKockavarKicsi(n, x, y, s) {
+function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (konyvtar-mester.js) */
+  var n = lista.length;
   var g = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-70 40 Q0 10 70 40 V60 H-70Z" fill="#b6e0a8"/>';
   EK_VAR_HELY.forEach(function (h, i) {
-    g += i < n ? '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="' + EK_KOCKAK[i][1] + '" stroke="#fff" stroke-width="1.2"/>'
+    g += i < n ? '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="#fff" stroke-width="1.2"/>'
       : '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 2" opacity=".7"/>';
   });
   if (n >= 14) g += '<path d="M0 -58 V-80" stroke="#6b5442" stroke-width="2"/><path d="M0 -80 L16 -75 L0 -70Z" fill="#e2589b"/>';
@@ -5713,7 +5724,7 @@ function ekPolc(x0, x1, yTop, yAlj, sorok, r) {
 /* a könyvtárterem (menü-háttér és pálya-jelenet közös rajza): W széles, fal magas fal, H teljes magasság */
 function ekKonyvtarSVG(W, H, fal, id) {
   var rnd = 7, r = function () { rnd = (rnd * 16807) % 2147483647; return (rnd - 1) / 2147483646; };
-  var n = ekKockaDb(), cx = W / 2, sorok = fal > 300 ? 7 : 3, wb = Math.min(154, fal - 16);
+  var kl = ekKockaLista(), cx = W / 2, sorok = fal > 300 ? 7 : 3, wb = Math.min(154, fal - 16);
   var s = '<defs><linearGradient id="kf' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8ecd9"/><stop offset="1" stop-color="#efdcc0"/></linearGradient>' +
     '<linearGradient id="eg' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f7"/><stop offset="1" stop-color="#fbe4ef"/></linearGradient>' +
     '<radialGradient id="fg' + id + '"><stop offset="0" stop-color="#fff2b0" stop-opacity=".75"/><stop offset="1" stop-color="#fff2b0" stop-opacity="0"/></radialGradient></defs>' +
@@ -5723,7 +5734,7 @@ function ekKonyvtarSVG(W, H, fal, id) {
   s += ekPolc(14, 14 + pw, 10, fal - 6, sorok, r) + ekPolc(W - 14 - pw, W - 14, 10, fal - 6, sorok, r);
   s += '<g><path d="M' + (cx - 78) + ' ' + wb + ' V64 Q' + cx + ' -6 ' + (cx + 78) + ' 64 V' + wb + 'Z" fill="#a8744a"/><path d="M' + (cx - 68) + ' ' + (wb - 6) + ' V68 Q' + cx + ' 8 ' + (cx + 68) + ' 68 V' + (wb - 6) + 'Z" fill="url(#eg' + id + ')"/>' +
     '<ellipse cx="' + (cx - 30) + '" cy="60" rx="22" ry="7" fill="#fff" opacity=".8"><animate attributeName="cx" values="' + (cx - 40) + ';' + (cx - 10) + ';' + (cx - 40) + '" dur="22s" repeatCount="indefinite"/></ellipse>' +
-    ekKockavarKicsi(n, cx, wb - 4, .55) +
+    ekKockavarKicsi(kl, cx, wb - 4, .55) +
     '<path d="M' + cx + ' 18 V' + (wb - 6) + ' M' + (cx - 68) + ' 100 H' + (cx + 68) + '" stroke="#a8744a" stroke-width="5"/><rect x="' + (cx - 84) + '" y="' + (wb - 6) + '" width="168" height="10" rx="3" fill="#c99b6d"/></g>';
   [cx - 150, cx + 146].forEach(function (lx, i) {
     s += '<path d="M' + lx + ' 0 V40" stroke="#6b5442" stroke-width="2"/><ellipse cx="' + lx + '" cy="70" rx="46" ry="40" fill="url(#fg' + id + ')"><animate attributeName="opacity" values=".8;1;.85;1;.8" dur="' + (5 + i) + 's" repeatCount="indefinite"/></ellipse>' +
@@ -5778,6 +5789,7 @@ function konyvtarJelenetSVG(palya, c) {
     '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="' + SZ[1] + '"/></g>';
   var ox = px[n - 1] + 62, oy = py[n - 1] - 6;
   s += '<g transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ')"><ellipse cx="0" cy="34" rx="60" ry="16" fill="#6b4a2a" opacity=".22"/>' +
+    ekMesterKapuSVG(palya) +                           /* 🏅 arany kapu a küszöb mögött, ha a Mesterpróba nyitva / kész */
     '<path d="M-44,40 C-44,-30 -28,-70 0,-78 C28,-70 44,-30 44,40 Z" fill="#8a6242" stroke="' + KOR + '" stroke-width="2.5"/>' +
     '<ellipse cx="0" cy="-6" rx="23" ry="30" fill="#3a2a20"/><ellipse cx="0" cy="0" rx="16" ry="23" fill="#ffe9ad"/><ellipse cx="0" cy="8" rx="9" ry="13" fill="#fff6d8"/>' +
     '<g transform="translate(0,-100)"><rect x="-56" y="-15" width="112" height="30" rx="12" fill="#fffaf0" stroke="' + SZ[1] + '" stroke-width="2.5"/><text x="0" y="5" font-size="14" ' + MR.F + ' fill="#6a4a3a" text-anchor="middle">Odú-küszöb</text></g>' +
@@ -5791,6 +5803,334 @@ function konyvtarJelenetSVG(palya, c) {
     s += '<g class="allomas-pipa" id="pipa-' + b + '" transform="translate(' + pxx.toFixed(1) + ',' + pyy.toFixed(1) + ')" opacity="0"><circle r="13" fill="#a7d99a" stroke="#fff" stroke-width="2"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
   }
   return s + '</g></svg>';
+}
+/* ============ 6e) 🏅 MESTERPRÓBA + 🏰 KOCKAVÁR — a Bagolykönyvtár létrájának teteje (útiterv 5b) ============
+   Terv: Matekos\epitokocka-palyak-terv.html · rajz: …-rajzterv.html (6–8. rész) · tartalom: …-tartalom.html („🏅 Mesterpróba”).
+   Létra: 📖 Mesekönyv → 📜 Varázstekercs (kocka-napok ▢▢▢) → 🏅 Mesterpróba. A kapu akkor nyílik, ha a Varázstekercsen
+   megvan a stabil-küszöb (ekStabil: alap 3 külön nap × 80% elsőre jó; a pult 🧱 füle gyerekenként / csoportra állíthatja).
+   A Mesterpróba EGY valódi versenyfeladat a Fejtörő-hegy képernyőjén (fejtoro.js, FTJ.mester): A–E, segítség-gomb NINCS,
+   rossz válasz → csapda-mondat + végigvezetés + füzet. A feladatok kockánként: EK_KOCKA_DEF[k].mester (constants.js),
+   vagy a pult felülírása (versenyPalyak/mester-K1 … { liget:"mesterproba", kocka, feladatok }); sorban váltakoznak,
+   egy teljes kör után a számváltozataik jönnek. A szövegek a FELHŐBEN vannak → belépés nélkül a kapu „hamarosan” marad.
+   Elsőre jó → EK_MESTER_CSILLA ✨ + EK_MESTER_HARMAT 💧, és a kocka berepül a 🏰 Kockavárba.
+   Rossz → a munkáért FT_ALLOMAS_CSILLA ✨, és aznap már nem próbálhatja újra („egy másik napon jön egy hasonló”).
+   Állapot (P().ek): mester{tekercsId: nap} · mesterTilt{tekercsId: nap} · mesterDb{tekercsId: próbák} · varSor[kocka-helyek sorrendben] */
+var EK_MESTER_CSILLA = 10;
+var EK_MESTER_HARMAT = 2;
+
+/* ── a stabil-küszöb: alap < csoport < egyéni (config.js FELULIR.ekStabil) ── */
+var EK_STABIL_ALAP = { nap: 3, arany: 0.8 };
+function ekStabil() { return (typeof FELULIR !== "undefined" && FELULIR.ekStabil) || EK_STABIL_ALAP; }
+
+/* ── melyik feladat, milyen állapot ── */
+function ekTekercsPalya(kocka, szarny) {
+  return PALYAK.filter(function (p) { return p.konyvtar && p.fok === "tekercs" && p.kocka === kocka && (!szarny || p.szarny === szarny); })[0] || null;
+}
+function ekMesterLista(kocka) {
+  var L = (FT.mesterL && FT.mesterL[kocka]) || (EK_KOCKA_DEF[kocka] && EK_KOCKA_DEF[kocka].mester) || [];
+  return L.filter(function (id) { return !!FT.feladatok[id]; });
+}
+/* "kesz" · "zarva" (még nem stabil) · "holnap" (ma már próbálta) · "nincs" (nincs betöltött feladat) · "nyitva" */
+function ekMesterAllapot(tek) {
+  if (!tek) return "zarva";
+  var st = ekAllapot();
+  if (st.mester[tek.id]) return "kesz";
+  if (ekNapDb(tek.id) < ekStabil().nap) return "zarva";
+  if (st.mesterTilt[tek.id] === helyiNap()) return "holnap";
+  if (!ekMesterLista(tek.kocka).length) return "nincs";
+  return "nyitva";
+}
+var EK_MESTER_MONDAT = {
+  kesz: "Ezt a Mesterpróbát már kiálltad! Ez a kocka a tiéd, ott van a Kockavárban.",
+  zarva: "Mesterpróba: ha a Varázstekercsen három külön napon ügyes vagy, itt vár rád egy igazi versenyfeladat!",
+  holnap: "Ma már próbáltad. Egy másik napon jön egy hasonló — addig gyakorolj a Varázstekercsen!",
+  nincs: "Ez a kocka stabil! A Mesterpróba-kapu hamarosan kinyílik."
+};
+function ekMesterKatt(tek) {
+  var a = ekMesterAllapot(tek);
+  if (a === "nyitva") { ekMesterIndit(tek); return; }
+  var m = EK_MESTER_MONDAT[a];
+  if (a === "zarva" && ekStabil().nap !== 3) m = m.replace("három", String(ekStabil().nap));
+  mondd(m);
+}
+function ekMesterIndit(tek) {
+  var st = ekAllapot(), L = ekMesterLista(tek.kocka);
+  if (!L.length) return;
+  var db = st.mesterDb[tek.id] || 0;
+  st.mesterDb[tek.id] = db + 1;                      /* a próba az indulással számít: kilépés után a következő feladat jön */
+  ment();
+  fejtoroMesterInditas(tek, L[db % L.length], db >= L.length);
+}
+/* a pálya végén (fejtoro.js ftAllomasKesz hívja): jó = elsőre, segítség nélkül */
+function ekMesterVege(tek, jo, fid, idoMp) {
+  var st = ekAllapot(), ma = helyiNap(), cs = jo ? EK_MESTER_CSILLA : FT_ALLOMAS_CSILLA, h = jo ? EK_MESTER_HARMAT : 0;
+  var elotte = ekKockaLista();
+  if (jo) {
+    st.mester[tek.id] = ma;
+    var hely = EK_KOCKA_DEF[tek.kocka] ? EK_KOCKA_DEF[tek.kocka].var : null;
+    if (hely != null && elotte.indexOf(hely) < 0) st.varSor = elotte.concat([hely]);
+  } else st.mesterTilt[tek.id] = ma;
+  P().csillampor += cs;
+  P().tunderharmat = (P().tunderharmat || 0) + h;
+  ment();
+  esemeny("palya_end", { palyaId: "mester-" + tek.id, fejtoro: true, mester: true, feladat: 1, elsore: jo ? 1 : 0, idoMp: idoMp,
+    teljes: true, csillampor: cs, harmat: h, ek: { kocka: tek.kocka, szarny: tek.szarny, fok: "mester", feladatId: fid, jo: jo } });
+  $("vege-kovetkezo").style.display = "none";
+  if (jo) {
+    var lista = ekKockaLista(), uj = lista.length > elotte.length;
+    $("vege-szoveg").innerHTML = '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, uj ? lista.length - 1 : -1) + '</div>' +
+      '<b>🏅 Mesterpróba kész!</b> Ez a kocka a tiéd: <b>' + tek.kockaIkon + " " + kiiras(tek.kockaNev) + '</b><br>' +
+      '<b>+' + cs + ' ✨</b> csillámpor · <span style="color:#2f7fb0;font-weight:800">💧 +' + h + ' tündérharmat</span><br>' +
+      '<span class="ek-vege">🏰 ' + (lista.length >= EK_KOCKAK.length ? "Kész a Kockavár!" : lista.length + " kocka a várban") + '</span>';
+    konfettiSzor(); hangVege();
+    mutat("kepernyo-vege");
+    ekKockaBerepul();
+    mondd("Mesterpróba kész! Ez a kocka a tiéd — nézd, repül a Kockavárba!");
+  } else {
+    $("vege-szoveg").innerHTML = '<div class="ek-mester-ikon">🏅</div><b>Majdnem!</b> Most együtt végigmentünk rajta.<br>' +
+      'Egy másik napon jön egy hasonló — addig gyakorolj a 📜 Varázstekercsen!<br>' +
+      'A munkádért: <b>+' + cs + ' ✨</b> csillámpor.';
+    mutat("kepernyo-vege");
+    mondd("Majdnem! Egy másik napon jön egy hasonló. Addig gyakorolj a Varázstekercsen!");
+  }
+}
+/* a pálya-vége képernyő „🏅 Mesterpróba-kapu” gombja (ekPalyaVege teszi ki) */
+document.addEventListener("click", function (e) {
+  var b = e.target && e.target.closest ? e.target.closest(".ek-mester-gomb") : null;
+  if (!b) return;
+  hangGomb();
+  ekMesterKatt(palyaKeres(b.getAttribute("data-pid")));
+});
+
+/* ═════════════════ 🏰 KOCKAVÁR ═════════════════ */
+/* a megszerzett kockák helye (EK_KOCKAK index) a szerzés sorrendjében — a vár alulról fölfelé ebben a sorban telik */
+function ekKockaLista() {
+  var st = ekAllapot(), L = (st.varSor || []).slice();
+  for (var pid in st.mester) {                       /* régebbi mentés / pult-javítás: ami a mester-listában van, az is a vár része */
+    if (!st.mester[pid]) continue;
+    var pa = palyaKeres(pid), d = pa && EK_KOCKA_DEF[pa.kocka];
+    if (d && d.var != null && L.indexOf(d.var) < 0) L.push(d.var);
+  }
+  return L.slice(0, EK_KOCKAK.length);
+}
+function ekKockaDb() { return ekKockaLista().length; }
+/* nagy vár (600×360) — az ünneplésnél; uj = a berepülő kocka sorszáma a listában (-1 = nincs) */
+function ekKockavarNagySVG(lista, uj) {
+  var n = lista.length, S = 3.4, ox = 300 - 60 * S, oy = 290 - 108 * S;
+  var s = '<svg viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ekvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f7"/><stop offset="1" stop-color="#fbe4ef"/></linearGradient></defs>' +
+    '<rect width="600" height="360" rx="18" fill="url(#ekvg)"/><ellipse cx="120" cy="60" rx="46" ry="14" fill="#fff" opacity=".8"/><ellipse cx="470" cy="90" rx="60" ry="16" fill="#fff" opacity=".7"/>' +
+    '<path d="M0 300 Q300 230 600 300 V342 Q600 360 582 360 H18 Q0 360 0 342Z" fill="#b6e0a8"/><path d="M0 330 Q300 280 600 330 V342 Q600 360 582 360 H18 Q0 360 0 342Z" fill="#a7d99a"/>';
+  function blokk(i) { var h = EK_VAR_HELY[i]; return [ox + (h[0] - 9.5) * S, oy + (h[1] - 7.5) * S, 19 * S, 15 * S]; }
+  EK_VAR_HELY.forEach(function (h, i) {
+    var b = blokk(i), x = b[0], y = b[1], w = b[2], hh = b[3];
+    if (i < n) {
+      var K = EK_KOCKAK[lista[i]];
+      s += '<g' + (i === uj ? ' class="ek-uj-kocka" style="transform:translate(0,-260px);opacity:0"' : '') + '><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="6" fill="' + K[1] + '" stroke="#fff" stroke-width="3"/>' +
+        '<rect x="' + (x + 5) + '" y="' + (y + 5) + '" width="' + (w - 10) + '" height="8" rx="3" fill="#fff" opacity=".35"/>' +
+        '<text x="' + (x + w / 2) + '" y="' + (y + hh / 2 + 11) + '" font-size="28" text-anchor="middle">' + K[0] + '</text></g>';
+    } else s += '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="' + (w - 4) + '" height="' + (hh - 4) + '" rx="6" fill="rgba(255,255,255,.35)" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/>';
+  });
+  [[10, "#c9a8e6"], [12, "#f6a5c0"]].forEach(function (t) {           /* toronytetők */
+    var b = blokk(t[0]), d = 'M' + (b[0] - 4) + ' ' + b[1] + ' L' + (b[0] + b[2] / 2) + ' ' + (b[1] - 52) + ' L' + (b[0] + b[2] + 4) + ' ' + b[1] + 'Z';
+    s += n > t[0] ? '<path d="' + d + '" fill="' + t[1] + '" stroke="#fff" stroke-width="3"/>' : '<path d="' + d + '" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/>';
+  });
+  [6, 8].forEach(function (i) {                                          /* pártázat a falon */
+    if (n <= i) return;
+    var b = blokk(i);
+    for (var k = 0; k < 3; k++) s += '<rect x="' + (b[0] + 4 + k * (b[2] - 8) / 2.5) + '" y="' + (b[1] - 12) + '" width="' + ((b[2] - 8) / 5) + '" height="12" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="#fff" stroke-width="2"/>';
+  });
+  if (n >= EK_KOCKAK.length) {
+    var ty = oy + (EK_VAR_HELY[13][1] - 7.5) * S;
+    s += '<path d="M300 ' + ty + ' V' + (ty - 70) + '" stroke="#6b5442" stroke-width="5"/><path d="M300 ' + (ty - 70) + ' L350 ' + (ty - 56) + ' L300 ' + (ty - 42) + 'Z" fill="#e2589b"/>';
+  }
+  return s + '</svg>';
+}
+function ekKockaBerepul() {
+  var k = document.querySelector(".ek-var-nagy .ek-uj-kocka");
+  if (!k) return;
+  k.style.transition = "transform 1.4s cubic-bezier(.3,1.5,.5,1), opacity .5s";
+  setTimeout(function () { requestAnimationFrame(function () { k.style.transform = "translate(0,0)"; k.style.opacity = "1"; }); }, window.__UC_GYORS ? 0 : 700);
+}
+
+/* ═════════════════ a pálya-jelenet: arany Mesterpróba-kapu az Odú-küszöb mögött ═════════════════ */
+function ekMesterKapuSVG(palya) {
+  if (palya.fok !== "tekercs") return "";
+  var a = ekMesterAllapot(palya);
+  if (a === "zarva") return "";
+  var kesz = a === "kesz";
+  return '<g class="ek-kapu" transform="translate(-8,0)"><path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#e8b43a" stroke-width="12" stroke-linecap="round"/>' +
+    '<path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#fff3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 10"/>' +
+    '<circle cx="0" cy="-160" r="18" fill="#fff6d8" stroke="#e8b43a" stroke-width="3"/><text x="0" y="-153" font-size="20" text-anchor="middle">' + (kesz ? "✅" : "🏅") + '</text></g>';
+}
+/* ============ 6f) 📚 BAGOLYKÖNYVTÁR — a 3 bemutató-mozgókép (rajzterv 5. rész, jóváhagyva 2026-09-28) ============
+   Kockánként egy, gyerekenként EGYSZER (P().ekLatott[kocka]) — a kocka első feladata előtt (Mesekönyv vagy Varázstekercs,
+   amelyiket előbb kezdi). A lejátszó a mérés-mozgóképeké (meres-mozgo.js mkLejatszik: koppintás = ugrás a végére,
+   „⏭ Átugrom”, a végén magától továbbmegy). Színpad: 800×420, a gyerek saját unikornisa.
+     🔎 K1 nagyító   — elolvassa a történetet, megkeresi a kérdőjelet, bekeretezi, KIRŐL kérdeznek
+                       (a rajzterv Röfi-háza helyett kacsák: Röfi a Mesterpróba-feladat, azt nem gyakoroltatjuk előre)
+     🔤 K2 „NEM”     — 4 piros lufi; berepül a NEM szó, és a többi 5 lesz a válasz
+     ✋ K3 lépcső     — galambok lába → ✋ „Ez még nem a csúcs!” → kutyák lába → összesen a csúcson */
+function ekmHatter() {
+  var s = '<rect width="800" height="420" fill="#f8ecd9"/>';
+  for (var x = 22; x < 800; x += 48) s += '<rect x="' + x + '" y="0" width="4" height="360" fill="rgba(190,140,90,.08)"/>';
+  return s + '<rect y="360" width="800" height="60" fill="#e3c29a"/><rect y="356" width="800" height="6" fill="#b98652"/>' + ekBagoly(752, 58, .5);
+}
+var EKM_F = 'font-family="Fredoka,Segoe UI,sans-serif"';
+function ekmUni(id, x, y, s) { return '<g class="' + id + '" transform="translate(' + x + ',' + y + ')">' + mkUni(0, 0, s) + '</g>'; }
+function ekmHova(g, x, y, s) { mkAttr(g, { transform: "translate(" + x + "," + y + ")" + (s != null ? " scale(" + s + ")" : "") }); }
+/* g mozgatása (x0,y0) → (x1,y1) */
+function ekmMegy(ctx, g, x0, y0, x1, y1, ms, s) {
+  return mkTw(ctx, ms, function (p) { ekmHova(g, mkLerp(x0, x1, p), mkLerp(y0, y1, p), s); });
+}
+function ekmErem(cls, x, y, emo, szam, cimke, szin) {
+  return '<g class="' + cls + '" transform="translate(' + x + ',' + y + ')"><g class="bel"><circle r="46" fill="#fffaf0" stroke="' + szin + '" stroke-width="5"/>' +
+    '<text y="16" font-size="44" text-anchor="middle">' + emo + '</text>' +
+    '<circle cx="36" cy="-36" r="19" fill="' + szin + '" stroke="#fff" stroke-width="3"/><text x="36" y="-28" font-size="22" font-weight="800" fill="#fff" text-anchor="middle" ' + EKM_F + '>' + szam + '</text></g>' +
+    '<text y="76" font-size="19" font-weight="700" fill="#6a4a3a" text-anchor="middle" ' + EKM_F + '>' + cimke + '</text></g>';
+}
+
+/* ═════════════════ 🔎 K1 — a nagyító ═════════════════ */
+var EKM_K1 = {
+  cim: "🔎 Kit kérdeznek? — a nagyító",
+  render: function () {
+    return ekmHatter() + ekmUni("ekm-u", 112, 400, .95) +
+      ekmErem("ekm-to", 360, 96, "🦆", "8", "a tónál", "#9ec9f0") + ekmErem("ekm-hid", 580, 96, "🦆", "?", "a hídnál", "#6aa9dc") +
+      '<rect x="236" y="196" width="540" height="146" rx="16" fill="#fffaf0" stroke="#e2c9a0" stroke-width="3"/>' +
+      '<rect class="ekm-sor" x="250" y="288" width="512" height="42" rx="10" fill="#ffe58a" opacity="0"/>' +
+      '<text x="256" y="234" font-size="22" fill="#5a4a6a" ' + EKM_F + '>A tónál 8 kacsa úszik.</text>' +
+      '<text x="256" y="268" font-size="22" fill="#5a4a6a" ' + EKM_F + '>A hídnál 5-tel több kacsa úszik.</text>' +
+      '<text x="256" y="318" font-size="24" font-weight="700" fill="#2f4f7a" ' + EKM_F + '>Hány kacsa úszik <tspan class="ekm-kulcs">a hídnál</tspan>?</text>' +
+      '<rect class="ekm-keret" x="0" y="0" width="0" height="0" rx="8" fill="none" stroke="#e2589b" stroke-width="4" opacity="0"/>' +
+      '<g class="ekm-nagyito" transform="translate(200,250)"><circle r="28" fill="rgba(200,230,255,.45)" stroke="#8a5a36" stroke-width="6"/><path d="M20 20 L42 42" stroke="#8a5a36" stroke-width="9" stroke-linecap="round"/></g>' +
+      '<g class="fx"></g>';
+  },
+  play: async function (ctx, svg, fel) {
+    var n = mkQ(svg, ".ekm-nagyito");
+    fel("Olvassuk el a történetet!"); mkMond(ctx, "Olvassuk el a történetet!");
+    await ekmMegy(ctx, n, 200, 250, 430, 228, 1100);
+    await ekmMegy(ctx, n, 430, 228, 640, 262, 1100);
+    await mkVar(ctx, 300);
+    fel("Hol a kérdés? Itt a kérdőjel!"); mkMond(ctx, "Hol a kérdés? Itt a kérdőjel!");
+    await ekmMegy(ctx, n, 640, 262, 700, 312, 900);
+    mkAttr(mkQ(svg, ".ekm-sor"), { opacity: .8 });
+    await mkVar(ctx, 1200);
+    var t = mkQ(svg, ".ekm-kulcs"), b = t.getBBox(), k = mkQ(svg, ".ekm-keret");
+    mkAttr(k, { x: b.x - 6, y: b.y - 3, width: b.width + 12, height: b.height + 8, opacity: 1 }); mkAttr(t, { fill: "#c0306a" });
+    await ekmMegy(ctx, n, 700, 312, b.x + b.width / 2 + 34, 350, 700);
+    fel("Kiről kérdeznek? A hídnál úszó kacsákról!"); mkMond(ctx, "Kiről kérdeznek? A hídnál úszó kacsákról!");
+    await mkVar(ctx, 1400);
+    mkAttr(mkQ(svg, ".ekm-to"), { opacity: .35 });
+    mkQ(svg, ".ekm-hid .bel").classList.add("ekm-rezeg");
+    mkSzikra(ctx, svg, 580, 96, 10, ["#ffe27a", "#9ec9f0", "#f6a5c0", "#fff"]);
+    await mkVar(ctx, 900);
+    fel("A tónál úszók most nem kellenek. Mindig nézd meg: kiről kérdeznek?");
+    mkMond(ctx, "A tónál úszók most nem kellenek. Mindig nézd meg: kiről kérdeznek?", true);
+    mkUgrik(ctx, svg, 16).then(function () { return mkUgrik(ctx, svg, 10); }).catch(function () {});
+    await mkVar(ctx, 2600);
+  }
+};
+
+/* ═════════════════ 🔤 K2 — a „NEM” beröppen ═════════════════ */
+var EKM_LUFI = [["#f26d7d", "p"], ["#f26d7d", "p"], ["#f26d7d", "p"], ["#f26d7d", "p"], ["#6aa9dc", "m"], ["#6aa9dc", "m"], ["#6aa9dc", "m"], ["#f5c84c", "m"], ["#f5c84c", "m"]];
+var EKM_K2 = {
+  cim: "🔤 Kis szavak — a „NEM” beröppen",
+  render: function () {
+    var s = ekmHatter() + ekmUni("ekm-u", 112, 400, .95);
+    EKM_LUFI.forEach(function (l, i) {
+      s += '<g class="ekm-lf ekm-lf-' + l[1] + '" transform="translate(' + (262 + i * 54) + ',' + (104 + (i % 2) * 16) + ')"><g class="lfb">' +
+        '<path d="M0 34 Q6 60 -4 86" stroke="#8a7ba8" stroke-width="1.5" fill="none"/><ellipse cx="0" cy="0" rx="23" ry="29" fill="' + l[0] + '"/>' +
+        '<ellipse cx="-8" cy="-10" rx="6" ry="9" fill="#fff" opacity=".5"/><path d="M-4 29 L4 29 L0 35Z" fill="' + l[0] + '"/></g></g>';
+    });
+    return s + '<rect x="236" y="244" width="540" height="70" rx="16" fill="#eef6ff" stroke="#9ec9f0" stroke-width="3"/>' +
+      '<text class="ekm-m1" x="506" y="288" font-size="28" font-weight="700" fill="#2f4f7a" text-anchor="middle" ' + EKM_F + '>Hány piros lufi van?</text>' +
+      '<text class="ekm-m2" x="506" y="288" font-size="28" font-weight="700" fill="#2f4f7a" text-anchor="middle" opacity="0" ' + EKM_F + '>Hány <tspan class="ekm-nem" fill="#c0306a">NEM</tspan> piros lufi van?</text>' +
+      '<g class="ekm-szamlalo" opacity="0"><circle cx="186" cy="84" r="32" fill="#fff3cf" stroke="#e8b43a" stroke-width="3"/><text class="ekm-szamt" x="186" y="96" font-size="32" font-weight="800" fill="#4a3b7a" text-anchor="middle" ' + EKM_F + '>4</text></g>' +
+      '<g class="ekm-repul" transform="translate(506,-60)"><rect x="-40" y="-24" width="80" height="42" rx="12" fill="#fde3e8" stroke="#e2589b" stroke-width="3"/><text x="0" y="8" font-size="25" font-weight="800" fill="#c0306a" text-anchor="middle" ' + EKM_F + '>NEM</text></g>' +
+      '<g class="fx"></g>';
+  },
+  play: async function (ctx, svg, fel) {
+    var P_ = mkQQ(svg, ".ekm-lf-p"), M_ = mkQQ(svg, ".ekm-lf-m"), sz = mkQ(svg, ".ekm-szamlalo");
+    function pulz(l, be) { l.forEach(function (g) { mkQ(g, ".lfb").classList.toggle("ekm-pulzal", be); }); }
+    fel("Hány piros lufi van?"); mkMond(ctx, "Hány piros lufi van?");
+    await mkVar(ctx, 1500);
+    pulz(P_, true); M_.forEach(function (g) { mkAttr(g, { opacity: .3 }); }); mkAttr(sz, { opacity: 1 });
+    fel("Négy piros lufi."); mkMond(ctx, "Négy piros lufi.");
+    await mkVar(ctx, 2200);
+    M_.forEach(function (g) { mkAttr(g, { opacity: 1 }); }); mkAttr(sz, { opacity: 0 }); pulz(P_, false);
+    fel("De most berepül egy kis szó…"); mkMond(ctx, "De most berepül egy kis szó!");
+    var nb = mkQ(svg, ".ekm-nem").getBBox(), r = mkQ(svg, ".ekm-repul");
+    await ekmMegy(ctx, r, 506, -60, nb.x + nb.width / 2, 286, 1300);
+    await mkVar(ctx, 300);
+    mkAttr(r, { opacity: 0 }); mkAttr(mkQ(svg, ".ekm-m1"), { opacity: 0 }); mkAttr(mkQ(svg, ".ekm-m2"), { opacity: 1 });
+    fel("Hány NEM piros lufi van?"); mkMond(ctx, "Hány nem piros lufi van?");
+    mkSzikra(ctx, svg, nb.x + nb.width / 2, 276, 10, ["#f6a5c0", "#ffe27a", "#fff"]);
+    await mkVar(ctx, 1600);
+    P_.forEach(function (g) { mkAttr(g, { opacity: .25 }); }); pulz(M_, true);
+    mkQ(svg, ".ekm-szamt").textContent = "5"; mkAttr(sz, { opacity: 1 });
+    fel("Most a többi számít: öt lufi. Egy kis szó — és más a válasz!");
+    mkMond(ctx, "Most a többi számít: öt lufi. Egy kis szó, és más a válasz!", true);
+    mkUgrik(ctx, svg, 16).then(function () { return mkUgrik(ctx, svg, 10); }).catch(function () {});
+    await mkVar(ctx, 2800);
+  }
+};
+
+/* ═════════════════ ✋ K3 — a lépcső a csúcsig ═════════════════ */
+var EKM_FOK = [[290, 318, "galambok lába", "16"], [460, 258, "kutyák lába", "12"], [630, 198, "összesen", "28"]];
+var EKM_K3 = {
+  cim: "✋ Ez már a válasz? — a lépcső a csúcsig",
+  render: function () {
+    var s = ekmHatter();
+    EKM_FOK.forEach(function (f, i) {
+      s += '<rect x="' + f[0] + '" y="' + f[1] + '" width="' + (760 - f[0]) + '" height="' + (360 - f[1]) + '" fill="' + ["#c8e8c0", "#a7d99a", "#8cc585"][i] + '" stroke="#6fb36a" stroke-width="2.5"/>' +
+        '<g class="ekm-fc' + i + '" opacity="0"><rect x="' + (f[0] + 10) + '" y="' + (f[1] + 8) + '" width="150" height="46" rx="10" fill="#fffaf0" stroke="#e2c9a0" stroke-width="2"/>' +
+        '<text x="' + (f[0] + 85) + '" y="' + (f[1] + 27) + '" font-size="14" fill="#6a4a3a" text-anchor="middle" ' + EKM_F + '>' + f[2] + '</text>' +
+        '<text x="' + (f[0] + 85) + '" y="' + (f[1] + 48) + '" font-size="20" font-weight="800" fill="#4a3b7a" text-anchor="middle" ' + EKM_F + '>' + f[3] + '</text></g>';
+    });
+    return s + '<path d="M740 198 V120" stroke="#6b5442" stroke-width="4"/><path d="M740 122 L784 134 L740 146Z" fill="#e2589b"/>' +
+      '<text x="250" y="48" font-size="21" fill="#5a4a6a" ' + EKM_F + '>Az udvaron 8 galamb és 3 kutya van.</text>' +
+      '<text x="250" y="84" font-size="24" font-weight="700" fill="#2f4f7a" ' + EKM_F + '>Hány láb van <tspan fill="#c0306a">összesen</tspan>?</text>' +
+      ekmUni("ekm-u", 130, 360, .62) +
+      '<g class="ekm-kez" transform="translate(420,190) scale(0)"><circle r="44" fill="#fde3e8" stroke="#e07aa0" stroke-width="5"/><text y="14" font-size="42" text-anchor="middle">✋</text><rect x="-8" y="44" width="16" height="50" fill="#b07a4c"/></g>' +
+      '<g class="ekm-kezsz" opacity="0"><rect x="480" y="112" width="220" height="42" rx="12" fill="#fff" stroke="#e07aa0" stroke-width="2.5"/><text x="590" y="140" font-size="19" font-weight="700" fill="#c0306a" text-anchor="middle" ' + EKM_F + '>Ez még nem a csúcs!</text></g>' +
+      '<g class="fx"></g>';
+  },
+  play: async function (ctx, svg, fel) {
+    var u = mkQ(svg, ".ekm-u"), kez = mkQ(svg, ".ekm-kez"), kezsz = mkQ(svg, ".ekm-kezsz");
+    fel("Első lépcsőfok: a galambok lába."); mkMond(ctx, "Első lépcsőfok: a galambok lába.");
+    await ekmMegy(ctx, u, 130, 360, 360, 318, 1100);
+    mkAttr(mkQ(svg, ".ekm-fc0"), { opacity: 1 });
+    await mkVar(ctx, 1200);
+    await mkTw(ctx, 350, function (p) { ekmHova(kez, 420, 190, p); }, mkEaseBack);
+    mkAttr(kezsz, { opacity: 1 });
+    fel("Ez már a válasz? Nem! Ez még nem a csúcs!"); mkMond(ctx, "Ez már a válasz? Nem! Ez még nem a csúcs!");
+    await mkVar(ctx, 2300);
+    ekmHova(kez, 420, 190, 0); mkAttr(kezsz, { opacity: 0 });
+    fel("Második lépcsőfok: a kutyák lába."); mkMond(ctx, "Második lépcsőfok: a kutyák lába.");
+    await ekmMegy(ctx, u, 360, 318, 530, 258, 1100);
+    mkAttr(mkQ(svg, ".ekm-fc1"), { opacity: 1 });
+    await mkVar(ctx, 1300);
+    fel("És a csúcs: összesen huszonnyolc!"); mkMond(ctx, "És a csúcs: összesen huszonnyolc!");
+    await ekmMegy(ctx, u, 530, 258, 700, 198, 1100);
+    var fc2 = mkQ(svg, ".ekm-fc2"); mkAttr(fc2, { opacity: 1 }); fc2.classList.add("ekm-pulzal");
+    mkSzikra(ctx, svg, 715, 170, 12, ["#ffe27a", "#a7d99a", "#f6a5c0", "#fff"]);
+    mkUgrik(ctx, svg, 16).then(function () { return mkUgrik(ctx, svg, 10); }).catch(function () {});
+    await mkVar(ctx, 1400);
+    fel("Csak a csúcson állunk meg — ott van a válasz."); mkMond(ctx, "Csak a csúcson állunk meg: ott van a válasz.", true);
+    await mkVar(ctx, 2400);
+  }
+};
+
+var EK_MOZGO = { K1: EKM_K1, K2: EKM_K2, K3: EKM_K3 };
+/* a kocka első feladata ELŐTT (engine-logic ujFeladat): true = most fut a bemutató, a tovabb() a végén mutatja a feladatot */
+function ekElottKell(f, tovabb) {
+  if (!f || !f.ek || f.vezet || !J || !J.palya || !J.palya.konyvtar) return false;
+  var k = J.palya.kocka, p = P();
+  if (!EK_MOZGO[k]) return false;
+  p.ekLatott = p.ekLatott || {};
+  if (p.ekLatott[k]) return false;
+  p.ekLatott[k] = 1; ment();
+  mkLejatszik({ klip: EK_MOZGO[k] }, EK_MOZGO[k].cim, tovabb);
+  return true;
 }
 /* ============ 7) KÉPERNYŐK ============ */
 function mutat(id) {
@@ -6092,8 +6432,10 @@ function ujFeladat() {
     J.feladat = GEN[a.tipus](eff, J.kerultKulcsok);
   }
   var f = J.feladat;
-  /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat */
-  if (mkElottKell(f, function () { if (J && J.feladat === f) feladatMutat(f); })) { $("bagoly-buborek").hidden = true; return; }
+  /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat;
+     📚 könyvtár: a kocka első feladata előtt gyerekenként egyszer a bemutató (konyvtar-mozgo.js) */
+  var tovabbF = function () { if (J && J.feladat === f) feladatMutat(f); };
+  if (mkElottKell(f, tovabbF) || ekElottKell(f, tovabbF)) { $("bagoly-buborek").hidden = true; return; }
   feladatMutat(f);
 }
 function feladatMutat(f) {
@@ -10940,11 +11282,13 @@ window.addEventListener("error", function (e) {
      producerConfig/{uid}.overrides[palyaId] = { enabled?, recommended?, extraReward?,
                                                  muvelet?, tablak?, darab?, kulcs?, korlat? } — egyéni
      producerConfig/{uid}.kapuOrak = N (a kapu óraszáma, alap 12)
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak? }            — csoportos
+     producerConfig/{uid}.ekStabil = { nap, arany } (📚 Bagolykönyvtár stabil-küszöb, alap 3 nap × 0,8 — pult 🧱 fül)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil? }  — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
-   kulcsnak jelöli; a kapu óraszáma és a darabkorlát a nagyobb (engedékenyebb).
+   kulcsnak jelöli; a kapu óraszáma és a darabkorlát a nagyobb (engedékenyebb); a stabil-küszöbnél a kevesebb nap
+   és a kisebb arány (szintén az engedékenyebb).
    A gyerek nem látja, hogy testreszabott: a rejtett pálya egyszerűen nincs ott, az ajánlott 💖-t kap,
    az extra szorzó csak a ✨-ban látszik. Rejtett pálya nem lehet kapu-kulcs (engine-logic.js kapuKulcsok).
    Offline: az utolsó ismert eredményt localStorage őrzi; felhő nélkül (kapcsoló ki) nincs felülírás. */
@@ -10957,6 +11301,9 @@ var FELULIR = {
   egyeniOrak: null,   /* producerConfig/{uid}.kapuOrak */
   csoportOrak: {},    /* gid → kapuOrak */
   kapuOrak: null,     /* összevont kapu-óraszám (null = alap 12) */
+  egyeniStabil: null, /* producerConfig/{uid}.ekStabil */
+  csoportStabil: {},  /* gid → ekStabil */
+  ekStabil: null,     /* összevont stabil-küszöb { nap, arany } (null = alap, konyvtar-mester.js EK_STABIL_ALAP) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -10966,11 +11313,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null;
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null;
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -10984,16 +11331,18 @@ function felulirFigyel() {
     FELULIR.egyeni = (d.exists && d.data().overrides) || {};
     FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
     FELULIR.egyeniOrak = d.exists && typeof d.data().kapuOrak === "number" ? d.data().kapuOrak : null;
+    FELULIR.egyeniStabil = (d.exists && d.data().ekStabil) || null;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {};
+    var cs = {}, cp = {}, co = {}, cst = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
+      if (d.data().ekStabil) cst[d.id] = d.data().ekStabil;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -11040,6 +11389,20 @@ function kapuOrakOsszevon(egyeni, csoportOrak) {
   var m = null; csoportOrak.forEach(function (o) { if (typeof o === "number") m = Math.max(m || 0, o); });
   return m;
 }
+/* a stabil-küszöb: az egyéni nyer (mezőnként); különben a csoportok közül a kevesebb nap / kisebb arány; semmi → null (alap) */
+function ekStabilOsszevon(egyeni, csoportok) {
+  function jo(x) { return x && (x.nap >= 1 || x.arany > 0); }
+  var ki = null;
+  csoportok.forEach(function (c) {
+    if (!jo(c)) return;
+    ki = ki || {};
+    if (c.nap >= 1) ki.nap = ki.nap ? Math.min(ki.nap, c.nap) : c.nap;
+    if (c.arany > 0) ki.arany = ki.arany ? Math.min(ki.arany, c.arany) : c.arany;
+  });
+  if (jo(egyeni)) { ki = ki || {}; if (egyeni.nap >= 1) ki.nap = egyeni.nap; if (egyeni.arany > 0) ki.arany = egyeni.arany; }
+  if (!ki) return null;
+  return { nap: Math.round(ki.nap || 3), arany: ki.arany || 0.8 };
+}
 
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
@@ -11049,9 +11412,11 @@ function felulirSzamol() {
   [FELULIR.csoportP || {}, FELULIR.egyeniP || {}].forEach(function (l) {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
   });
-  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO })); } catch (e) {}
+  var ujS = ekStabilOsszevon(FELULIR.egyeniStabil, Object.keys(FELULIR.csoportStabil || {}).sort().map(function (g) { return FELULIR.csoportStabil[g]; }));
+  if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
+      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
@@ -11963,7 +12328,10 @@ function tkVisszaJott(snap) {
    SZÁMVÁLTOZATOK (producer, 2026-09-26): ugyanaz a mondat, csak a számok mások (Matekos\zrinyi-valtozatok-tartalom.html,
    előre gyártva: fejtoro-valtozatok.json). A felhőben ugyanúgy versenyFeladatok/{alapId}-vNN, plusz alapId + szamok.
    Első találkozás = EREDETI; 🔁 visszatérő és újrajátszás (a pályát már egyszer végigjárta) = a következő változat
-   (sorban, elfogyva elölről: P().fejtoro.valt[alapId]). A visszatérő-lista és a haladás az alapId-hez kötött. */
+   (sorban, elfogyva elölről: P().fejtoro.valt[alapId]). A visszatérő-lista és a haladás az alapId-hez kötött.
+   🏅 MESTERPRÓBA (Bagolykönyvtár, konyvtar-mester.js): ugyanez a képernyő EGY feladattal (FTJ.mester = a Varázstekercs-pálya);
+   saját bevezető, 🙋 segítség-gomb nincs, nem kerül a 🔁 visszatérők közé, a végén ekMesterVege (✨ + 💧 + Kockavár).
+   A kockák feladat-listáját a pult felülírhatja: versenyPalyak/{id} = { liget:"mesterproba", kocka:"K1", feladatok:[…] } → FT.mesterL. */
 var FT_ALLOMAS_CSILLA = 5;     /* minden befejezett állomás (segítséggel / magyarázattal is) */
 var FT_ELSORE_PLUSZ = 3;       /* + elsőre jó, segítség nélkül */
 var FT_ZARO_CSILLA = 10;       /* pálya vége */
@@ -11971,7 +12339,7 @@ var FT_ZARO_HARMAT = 2;        /* 1 + teljes ösvény (itt nincs kerülő, így 
 var FT_VISSZA_MAX = 2;         /* ennyi visszatérő feladat jön egy pálya elé */
 var FT_BETUK = ["A", "B", "C", "D", "E"];
 
-var FT = { feladatok: {}, valt: {}, palyak: [], helyi: false, leir: [] };   /* valt: alapId → [változatok] */
+var FT = { feladatok: {}, valt: {}, palyak: [], mesterL: {}, helyi: false, leir: [] };   /* valt: alapId → [változatok] · mesterL: kocka → [feladat-id] */
 var FTJ = null;                /* a futó pálya: { pa, sor:[{fid, vissza}], i, csilla, osszes, elsore, indult } */
 
 /* ── adat: élő figyelés belépés után (felhoBelepve hívja) ── */
@@ -11980,10 +12348,14 @@ function fejtoroFigyel() {
   var db = FELHO.db;
   function hiba(e) { console.warn("[fejtörő] betöltés hiba:", e.code || e); }
   FT.leir.push(db.collection("versenyPalyak").onSnapshot(function (snap) {
-    var l = [];
-    snap.forEach(function (d) { var x = d.data(); x.id = d.id; if (x.aktiv !== false && x.liget === "fejtoro") l.push(x); });
+    var l = [], ml = {};
+    snap.forEach(function (d) {
+      var x = d.data(); x.id = d.id;
+      if (x.aktiv !== false && x.liget === "fejtoro") l.push(x);
+      if (x.liget === "mesterproba" && x.kocka && (x.feladatok || []).length) ml[x.kocka] = x.feladatok;
+    });
     l.sort(function (a, b) { return (a.sorrend || 0) - (b.sorrend || 0); });
-    FT.palyak = l; fejtoroFrissul();
+    FT.palyak = l; FT.mesterL = ml; fejtoroFrissul();
   }, hiba));
   /* most minden feladat letöltődik (a tesztpálya 7 feladat); sok száz feladatnál pályánként kell majd kérni */
   FT.leir.push(db.collection("versenyFeladatok").onSnapshot(function (snap) {
@@ -12001,7 +12373,10 @@ function fejtoroBetoltHelyi(adat) {
   if (adat.feladatok) {
     FT.feladatok = {}; FT.palyak = [];
     adat.feladatok.forEach(function (f) { FT.feladatok[f.id] = f; });
-    (adat.palyak || []).forEach(function (p) { FT.palyak.push(p); });
+    (adat.palyak || []).forEach(function (p) {
+      if (p.liget === "mesterproba") { if (p.kocka) FT.mesterL[p.kocka] = p.feladatok || []; }
+      else FT.palyak.push(p);
+    });
   }
   fejtoroFrissul();
 }
@@ -12088,17 +12463,34 @@ function fejtoroInditas(pid) {
   mutat("kepernyo-fejtoro");
   ftPapir();
 }
+/* 🏅 Mesterpróba: egyetlen feladat (fid), valt = számváltozat (a második körtől) */
+function fejtoroMesterInditas(tek, fid, valt) {
+  var pa = { id: "mester-" + tek.id, nev: "🏅 Mesterpróba", ikon: "🏅" };
+  FTJ = { pa: pa, mester: tek, ids: [fid], sor: [{ fid: fid, vissza: false, idx: 0, valt: valt }], i: 0, csilla: 0, osszes: 0, elsore: 0, indult: Date.now() };
+  sorozatMegtor();
+  $("ft-cim").textContent = "🏅 Mesterpróba · " + tek.kockaIkon + " " + kiiras(tek.kockaNev);
+  $("ft-csillampor").textContent = P().csillampor;
+  esemeny("palya_start", { palyaId: pa.id, fejtoro: true, mester: true, kocka: tek.kocka, feladatId: fid, valtozat: !!valt });
+  mutat("kepernyo-fejtoro");
+  ftPapir();
+}
 function ftTartalom() { var t = $("ft-tartalom"); t.innerHTML = ""; t.scrollTop = 0; return t; }
 function ftPapir() {
   var t = ftTartalom();
   ftKovek(null);
-  var k = el("div", "ft-kartya ft-papir");
-  k.innerHTML = '<div class="ft-papir-ikon">✏️📄</div><h2>Vegyél elő papírt és ceruzát!</h2>' +
-    '<p>A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni — gondolkodj nyugodtan!</p>';
-  var b = el("button", "nagy-gomb kiemelt", "✅ Megvan!");
+  var k = el("div", "ft-kartya ft-papir" + (FTJ.mester ? " ft-mester" : ""));
+  k.innerHTML = FTJ.mester
+    ? '<div class="ft-papir-ikon">🏅</div><h2>Mesterpróba</h2>' +
+      '<p>Itt egy igazi versenyfeladat — ugyanaz a trükk van benne, amit a Bagolykönyvtárban gyakoroltál. Mit kérdeznek?</p>' +
+      '<p class="ft-papir-al">✏️📄 Vegyél elő papírt és ceruzát, és gondolkodj nyugodtan!</p>'
+    : '<div class="ft-papir-ikon">✏️📄</div><h2>Vegyél elő papírt és ceruzát!</h2>' +
+      '<p>A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni — gondolkodj nyugodtan!</p>';
+  var b = el("button", "nagy-gomb kiemelt", FTJ.mester ? "✅ Kezdhetjük!" : "✅ Megvan!");
   b.addEventListener("click", function () { hangGomb(); ftKovetkezo(); });
   k.appendChild(b); t.appendChild(k);
-  ftMondd("Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
+  ftMondd(FTJ.mester
+    ? "Mesterpróba! Itt egy igazi versenyfeladat. Ugyanaz a trükk van benne, amit a Bagolykönyvtárban gyakoroltál. Vegyél elő papírt és ceruzát! Ha kész vagy, koppints a Kezdhetjük gombra!"
+    : "Vegyél elő papírt és ceruzát! A fejtörőket papíron számold ki, ahogy a versenyen. Nem kell sietni. Ha megvan, koppints a Megvan gombra!");
 }
 /* haladás-kövek a pálya tetején (a visszatérő állomásnál 🔁) */
 function ftKovek(akt) {
@@ -12154,7 +12546,7 @@ function ftAllomas(tetel) {
   fel.addEventListener("click", function () { hangGomb(); ftMondd(ftFelolvasSzoveg(f)); });
   var sg = el("button", "kis-gomb ft-segit-gomb", "🙋 Segítséget kérek"); sg.id = "ft-segit-gomb";
   sg.addEventListener("click", function () { hangGomb(); ftSegit(); });
-  also.appendChild(fel); also.appendChild(sg); t.appendChild(also);
+  also.appendChild(fel); if (!FTJ.mester) also.appendChild(sg); t.appendChild(also);   /* Mesterpróba: segítség nélkül */
   ftMondd((tetel.vissza ? "Emlékszel erre? Próbáld meg újra! " : "") + ftFelolvasSzoveg(f));
 }
 /* 🙋 fokozatos segítség: 1 = Mit kérdeznek?, 2.. = a lépések egyenként — mind (producer, 2026-09-25: ne maradjon ki semmi) */
@@ -12288,11 +12680,12 @@ function ftValasz(b) {
   A.elsore = jo && A.segit === 0;
   /* visszatérő lista: elsőre jó → lekerül; rossz vagy segítséggel jó → egy későbbi napon újra */
   var v = ftAllapot().vissza;
-  if (A.elsore) delete v[A.tetel.fid];
+  if (FTJ.mester) {}                                   /* Mesterpróba: a saját „egy másik napon” szabálya él (konyvtar-mester.js) */
+  else if (A.elsore) delete v[A.tetel.fid];
   else { var fid = A.tetel.fid, reg = v[fid] || {}; v[fid] = { nap: ftMa(), db: (reg.db || 0) + 1 }; }
   FTJ.osszes++; if (A.elsore) FTJ.elsore++;
   esemeny("fejtoro_valasz", {
-    feladatId: A.tetel.fid, palyaId: FTJ.pa.id, betu: b, helyes: f.helyes, jo: jo, segitseg: A.segit,
+    feladatId: A.tetel.fid, palyaId: FTJ.pa.id, mester: !!FTJ.mester, betu: b, helyes: f.helyes, jo: jo, segitseg: A.segit,
     lepesDb: A.lepesDb, csapda: c ? (c.csalad || "?") : null, idoMp: ido, vissza: !!A.tetel.vissza,
     valtozat: f.alapId ? f.id : null, szamok: f.alapId ? ftSzamokKi(f.szamok) : null
   });
@@ -12301,9 +12694,10 @@ function ftValasz(b) {
   if (A.elsore) {
     hangJo();
     var k = el("div", "ft-kartya ft-dicser");
-    k.innerHTML = '<div class="ft-nagy">🎉 Nagyszerű!</div><p>Elsőre, segítség nélkül!</p>';
+    k.innerHTML = FTJ.mester ? '<div class="ft-nagy">🏅 Mesterpróba kész!</div><p>Elsőre, segítség nélkül — ez a kocka a tiéd!</p>'
+      : '<div class="ft-nagy">🎉 Nagyszerű!</div><p>Elsőre, segítség nélkül!</p>';
     hova.appendChild(k); ftGorget(k);
-    ftMondd("Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
+    ftMondd(FTJ.mester ? "Nagyszerű! Elsőre sikerült! Ez a kocka a tiéd!" : "Nagyszerű! Elsőre, segítség nélkül sikerült!", function () { ftTovabbGomb(k); });
   } else if (jo) {
     hangJo();
     var k2 = el("div", "ft-kartya ft-dicser");
@@ -12313,10 +12707,11 @@ function ftValasz(b) {
   } else {
     hangHiba();
     var mondat = c ? c.mondat : "Nézzük meg együtt, lépésről lépésre!";
+    if (FTJ.mester && c) mondat += " Most együtt végigmegyünk rajta.";
     var k3 = el("div", "ft-kartya ft-csapda");
-    k3.innerHTML = '<div class="ft-nagy">🤔 Ez most nem jó.</div><p>' + ftEsc(mondat) + '</p>';
+    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + ftEsc(mondat) + '</p>';
     hova.appendChild(k3); ftGorget(k3);
-    ftMondd("Ez most nem jó. " + mondat, function () { ftMagyarazat(); });
+    ftMondd((FTJ.mester ? "Majdnem! " : "Ez most nem jó. ") + mondat, function () { ftMagyarazat(); });
   }
 }
 /* a változat számai a pultnak: „tyúk/csere 3, maradt hattyú 4” */
@@ -12345,13 +12740,19 @@ function ftOsszefoglalo() {
 }
 function ftTovabbGomb(k) {
   if (k.querySelector(".ft-tovabb")) return;
-  var b = el("button", "nagy-gomb kiemelt ft-tovabb", FTJ.i + 1 >= FTJ.sor.length ? "🏁 Célba érek" : "Tovább ➜");
+  var b = el("button", "nagy-gomb kiemelt ft-tovabb", FTJ.mester ? (FTJ.a.elsore ? "🏰 A Kockavárba!" : "Értem ➜") : FTJ.i + 1 >= FTJ.sor.length ? "🏁 Célba érek" : "Tovább ➜");
   b.addEventListener("click", function () { hangGomb(); b.disabled = true; ftAllomasKesz(); });
   k.appendChild(b); ftGorget(b);
 }
 /* állomás kész: ✨ jár (a munkáért), a haladás mentődik — kilépés után innen folytatja */
 function ftAllomasKesz() {
   var A = FTJ.a, tetel = A.tetel;
+  if (FTJ.mester) {                                    /* 🏅 Mesterpróba: a jutalom és a Kockavár a konyvtar-mester.js-ben */
+    var tek = FTJ.mester, ido = Math.round((Date.now() - FTJ.indult) / 1000);
+    FTJ = null;
+    ekMesterVege(tek, A.elsore, tetel.fid, ido);
+    return;
+  }
   var cs = FT_ALLOMAS_CSILLA + (A.elsore ? FT_ELSORE_PLUSZ : 0);
   P().csillampor += cs; FTJ.csilla += cs;
   $("ft-csillampor").textContent = P().csillampor;
@@ -12408,6 +12809,8 @@ window.UC = {
   tovabbMehetE: tovabbMehetE,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
+  ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
+  ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */
   get TK() { return TK; }, tkKapu: tkKapu, tkBelep: tkBelep, tkKilep: tkKilep, tkNap: tkNap,   /* ÉGI TÜNEMÉNYKERT */
   get FELHO() { return FELHO; }, tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
   tkDiszLerak: tkDiszLerak, tkTalcaValt: tkTalcaValt, tkDiszKintSajat: tkDiszKintSajat, tkDiszZsak: tkDiszZsak, tkValtozott: tkValtozott, tkVisszaJott: tkVisszaJott,
