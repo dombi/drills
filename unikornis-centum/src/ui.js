@@ -111,8 +111,10 @@ function renderFomenu() {
       regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
       szSor.forEach(function (sz) {
         szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
-        var g = el("div", "palya-regio-grid");
-        regiok[regio].forEach(function (rec) { if (rec.pa.szarny === sz) g.appendChild(keszitKartya(rec.pa, rec.idx)); });
+        var kSor = [], kP = {};                    /* kockánként egy sor: 📖 Mesekönyv → 📜 Varázstekercs → 🏅 */
+        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
+        var g = el("div", "ek-kocka-sorok");
+        kSor.forEach(function (k) { g.appendChild(ekMenuSor(kP[k], function (pa) { return keszitKartya(pa, null); })); });
         szek.appendChild(g);
       });
       racs.appendChild(szek);

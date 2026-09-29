@@ -1533,7 +1533,28 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-regio.r-konyvtar .palya-regio-cim{ position:relative; z-index:1; }
 .ek-szarny-cim{ position:relative; z-index:1; display:inline-block; margin:6px 0 8px; font-size:14px; font-weight:800; color:#6a4a3a;
   background:rgba(255,250,240,.92); border:2px solid #e2c9a0; border-radius:999px; padding:2px 14px; }
-.ek-szarny-cim + .palya-regio-grid{ margin-bottom:10px; }
+/* egy SOR = egy kocka: [📖 Mesekönyv] → [📜 Varázstekercs ▢▢▢] → 🏅 (producer, 2026-09-29) */
+.ek-kocka-sorok{ position:relative; z-index:1; display:flex; flex-direction:column; gap:12px; margin-bottom:10px; }
+.ek-kocka-sor{ background:rgba(255,250,240,.84); border:2px solid #e2c9a0; border-radius:16px; padding:7px 10px 10px; }
+.ek-kocka-cim{ font-size:14px; font-weight:800; color:#6a4a3a; margin:0 0 6px 4px; text-align:left; }
+.ek-lepcso{ display:flex; align-items:center; gap:8px; }
+.ek-lepcso .palya-kartya{ flex:1 1 0; min-width:0; min-height:118px; }
+.ek-lepcso .palya-kartya.ek-fok-tekercs{ border-color:#c9a8e6; background:rgba(250,245,255,.97); }
+.ek-lepcso .palya-kartya .also{ flex-wrap:wrap; }
+.ek-nyil{ flex:0 0 auto; font-size:20px; font-weight:800; color:#b48a5a; }
+.ek-mester-hely{ flex:0 0 auto; width:52px; height:52px; border-radius:50%; border:3px dashed #e2c9a0; background:#fffaf0; font-size:26px; line-height:1;
+  padding:0; cursor:pointer; filter:grayscale(1); opacity:.55; }
+.ek-mester-hely.kozel{ filter:none; opacity:.95; border-color:#ffd35c; animation:mk-pulz 1.4s ease-in-out infinite; }
+.ek-mester-hely.kesz{ filter:none; opacity:1; border-style:solid; border-color:#ffc93c; background:#fff3cf; }
+@media (max-width:600px){
+  .ek-kocka-sor{ padding:6px 6px 8px; }
+  .ek-lepcso{ gap:4px; }
+  .ek-nyil{ font-size:15px; }
+  .ek-mester-hely{ width:40px; height:40px; font-size:20px; }
+  .ek-lepcso .palya-kartya{ padding:10px 5px 8px; }
+  .ek-lepcso .palya-kartya .pnev{ font-size:13.5px; }
+  .ek-lepcso .palya-kartya .jutalom{ font-size:11px; padding:2px 7px; }
+}
 .ek-kockak{ display:flex; gap:4px; align-items:center; justify-content:center; margin:0 0 5px; }
 .ek-kockak i{ width:13px; height:13px; border-radius:3px; border:2px solid #c9a8e6; background:#fff; display:inline-block; }
 .ek-kockak i.teli{ background:#a58bd0; border-color:#a58bd0; }

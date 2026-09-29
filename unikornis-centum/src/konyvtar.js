@@ -37,6 +37,14 @@ var EK_NEGY_LAB = [{ e: "🐐", n: "kecske", k: "kecskék", nak: "kecskéknek" }
   { e: "🐕", n: "kutya", k: "kutyák", nak: "kutyáknak" }, { e: "🐈", n: "macska", k: "macskák", nak: "macskáknak" }];
 var EK_NAPOK = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"];
 
+/* ── két külön tengely (producer, 2026-09-29): SZERKEZET és SZÁMKÖR ──
+   ekO(cfg): összetett szerkezet? → a 📜 Varázstekercs (cfg.ossz) és az 5. o. (g ≥ 5): zavaró „hány”-mondat, 3 szereplő, több réteg,
+             vegyes egység, 2–3 lépéses lánc. A 📖 Mesekönyv (3. o.) az egyszerű ágat kapja.
+   ekKis(cfg): 3. osztályos számkör (cfg.g < 5) → minden szám ≤ 100 (ekMax); a GEN.konyvtar a végén ellenőrzi is (ekTulNagy). */
+function ekO(cfg) { return cfg.g >= 5 || !!cfg.ossz; }
+function ekKis(cfg) { return cfg.g < 5; }
+function ekMax(cfg) { return cfg.g < 5 ? 100 : 1000; }
+
 /* ── véletlen + ragozás ── */
 function ekR(a, b) { return veletlen(a, b); }
 function ekE(t) { return t[veletlen(0, t.length - 1)]; }
@@ -173,7 +181,7 @@ function ekBeszur(tenyek, kerdes, hova) { var t = tenyek.slice(); t.splice(hova,
 
 /* ═════════════════ 🔎 1. PÁLYA: KIT KÉRDEZNEK? ═════════════════ */
 function ekNagyito(cfg) {
-  var g = cfg.g, S = ekSzereplok(2), A = S[0], B = S[1], m, jo, al = -1, alM = null, kep, T = ekR(0, 2);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), A = S[0], B = S[1], m, jo, al = -1, alM = null, kep, T = ekR(0, 2);
   if (g < 5) {
     var t = ekE(EK_TARGY), a = ekR(6, 20), b = ekR(2, 9), q;
     if (T === 0) { q = "Hány " + t.t + " " + t.ige + " " + B.n + "?"; m = [A.tel + " " + a + " " + t.t + " " + t.ige + ".", B.tel + " " + ekRag(b, "val") + " többet " + t.ige + "."]; kep = ekErem(A.e, a, A.n) + ekErem(B.e, "?", B.n); }
@@ -203,7 +211,7 @@ var EK_KET_DOLOG = [
   { intro: "{A} két kertet ültetett be.", adat: "A virágoskertbe {a} tövet, a zöldségeskertbe {b} tövet ültetett.", k: ["Hány tövet ültetett a <b>virágoskertbe</b>?", "Hány tövet ültetett a <b>zöldségeskertbe</b>?"], ar: ["virágoskertbe", "zöldségeskertbe"], kartya: [["🌷", "virágoskert"], ["🥕", "zöldségeskert"]], ki: ["🌷", "🥕"], nev: ["virág", "zöldség"] }
 ];
 function ekKirol(cfg) {
-  var g = cfg.g, T = g < 5 ? ekR(0, 1) : ekR(0, 2), a = ekR(3, 20), b = ekR(3, 20), c = ekR(3, 20);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), T = g < 5 ? ekR(0, 1) : ekR(0, 2), a = ekR(3, 20), b = ekR(3, 20), c = ekR(3, 20);
   if (a === b || b === c || a === c) return null;
   var S = ekSzereplok(3), K, kerdes, arany, kep, tort, jo = ekR(0, 1), kulcs = "kirol" + g + T + a + b;
   if (g < 5 && T === 0) {
@@ -240,7 +248,7 @@ function ekKirol(cfg) {
     kopp: { tipus: "valaszt", kartyak: mKever(K) }, kulcs: kulcs });
 }
 function ekMit(cfg) {
-  var g = cfg.g, A = ekE(EK_SZ), P;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), A = ekE(EK_SZ), P;
   if (g < 5) {
     var n = ekR(3, 9), d = ekR(2, 6), c = d * ekR(2, 6), s = ekR(3, 8);
     P = ekE([
@@ -251,7 +259,7 @@ function ekMit(cfg) {
       { tort: c + " ceruzát " + ekOsaval(d) + " dobozokba rakunk.", k: "Hány <b>doboz</b> kell?", ar: "doboz", K: [["✏️", "ceruzák", c], ["📦", "dobozok"]], jo: 1 },
       { tort: "A teremben " + s + " sor szék áll, soronként " + n + ".", k: "Hány <b>szék</b> van a teremben?", ar: "szék", K: [["🪑", "székek"], ["↔️", "sorok", s]], jo: 0 }
     ]);
-    var kulcs = "mit" + P.ar + n;
+    var kulcs = "mit" + P.ar;      /* kulcs számok nélkül: egy asztalon ne jöjjön kétszer ugyanaz a kérdés */
   } else {
     var k = ekR(4, 9), so = ekR(6, 12), u = ekR(2, 4), h = ekR(1, 3), pe = ekE([10, 15, 20, 30, 45]), km = ekR(2, 5), e = ekR(3, 9), l = ekR(2, 6), ab = ekR(2, 5), fe = ekR(4, 9), ol = ekR(12, 30);
     P = ekE([
@@ -261,7 +269,7 @@ function ekMit(cfg) {
       { tort: "Egy könyv " + fe + " fejezetből áll, fejezetenként " + ol + " oldal. " + A.n + " naponta egy fejezetet olvas el.", k: "Hány <b>napig</b> olvassa a könyvet?", ar: "napig", K: [["📑", "fejezetek", fe], ["📄", "oldalak"], ["☀️", "napok"]], jo: 2 },
       { tort: "Egy dobozban " + e + " sor bonbon van, soronként " + l + ".", k: "Hány <b>sor</b> van a dobozban?", ar: "sor", K: [["📦", "dobozok"], ["↔️", "sorok"], ["🍬", "bonbonok"]], jo: 1 }
     ]);
-    kulcs = "mit5" + P.ar + k + e;
+    kulcs = "mit5" + P.ar;
   }
   var K = P.K.map(function (x, i) {
     return { h: ekTk(x[0], x[1]), jo: i === P.jo, m: x[2] != null ? ekNagy(x[1]) + " számát már tudjuk: " + x[2] + ". De mit kérdeztek?" : null, t: "egyseg" };
@@ -270,7 +278,7 @@ function ekMit(cfg) {
     felolvasK: ekSima(P.k), arany: P.ar, joKiir: P.K[P.jo][1], sug: "Nézd meg a kérdésben a kiemelt szót!", kopp: { tipus: "valaszt", kartyak: mKever(K) }, kulcs: kulcs });
 }
 function ekLanc(cfg) {
-  var g = cfg.g, S = ekSzereplok(2), A = S[0], B = S[1], T = g < 5 ? ekR(0, 3) : ekR(0, 2), o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), A = S[0], B = S[1], T = g < 5 ? ekR(0, 3) : ekR(0, 2), o;
   if (g < 5 && T === 0) {
     var n = ekR(2, 5), p = ekR(2, 9), d = ekR(1, 5), np = n * p;
     o = { kep: ekErem("✏️", np + " Ft", n + " ceruza", { sok: 0 }) + ekErem("🧽", "?", "1 radír"), tort: [n + " egyforma ceruza " + np + " Ft.", "Egy radír " + d + " Ft-tal drágább, mint egy ceruza."],
@@ -306,8 +314,8 @@ function ekLanc(cfg) {
         csap: [[a + kk, ekA(a + kk, true) + " " + B.n + " " + t2.i + ". Most kettejükről kérdeztünk!", "elozo"], [a, ekA(a, true) + " " + A.n + " " + t2.i + ".", "masik"]],
         vezet: { mit: ["kettejük együtt", "csak " + B.n, "csak " + A.n], lepesek: [["Hányat " + t2.ige + " " + A.n + "?", a, a + ""], ["Hányat " + t2.ige + " " + B.n + "?", a + kk, a + " + " + kk + " = " + (a + kk)]] } }], kulcs: "ld" + a + kk };
   } else if (T === 0) {
-    var nf = ekR(3, 6), pf = ekR(6, 25), m = ekR(2, 4), c = ekR(2, 4), np2 = nf * pf;
-    if (c * m * pf > 1000) return null;
+    var nf = ekR(3, 6), pf = k3 ? ekR(3, 12) : ekR(6, 25), m = ekR(2, k3 ? 3 : 4), c = ekR(2, k3 ? 3 : 4), np2 = nf * pf;
+    if (c * m * pf > ekMax(cfg) || np2 > ekMax(cfg)) return null;
     o = { kep: ekErem("📓", np2 + " Ft", nf + " füzet") + ekErem("📕", "?", c + " könyv"), tort: [nf + " füzet " + np2 + " Ft.", "Egy könyv " + ekRag(m, "szor") + " annyiba kerül, mint egy füzet."],
       kerdes: "Mennyibe kerül <b>1 füzet</b>?", helyes: pf, arany: "1 füzet", megoldas: np2 + " : " + nf + " = " + pf,
       csap: [[np2, ekA(np2, true) + " a " + nf + " füzet együtt. De mennyibe kerül EGY?", "egyseg"]],
@@ -315,8 +323,8 @@ function ekLanc(cfg) {
         csap: [[m * pf, ekA(m * pf, true) + " EGY könyv ára. Hány könyvről kérdeztünk?", "egyseg"], [np2 * m, ekA(np2 * m, true) + " a " + nf + " füzet ára " + ekRag(m, "szor") + ". De a könyvet EGY füzethez mérjük!", "masik"], [pf, ekA(pf, true) + " a füzet ára. Most a könyvekről kérdeztünk!", "elozo"]],
         vezet: { mit: [c + " könyv árát", "egy könyv árát", "egy füzet árát"], lepesek: [["Mennyibe kerül 1 füzet?", pf, np2 + " : " + nf + " = " + pf], ["Mennyibe kerül 1 könyv?", m * pf, pf + " · " + m + " = " + m * pf]] } }], kulcs: "l5f" + nf + pf + m + c };
   } else if (T === 1) {
-    var e = ekR(3, 9), l = ekR(2, 6), ab = ekR(2, 5);
-    if (l * ab === e * ab || l * ab === e * l) return null;
+    var e = k3 ? ekR(2, 5) : ekR(3, 9), l = k3 ? ekR(2, 4) : ekR(2, 6), ab = k3 ? ekR(2, 4) : ekR(2, 5);
+    if (e * l * ab > ekMax(cfg) || l * ab === e * ab || l * ab === e * l) return null;
     o = { kep: ekErem("🏢", e, "emelet") + ekErem("🚪", l, "lakás / emelet") + ekErem("🪟", ab, "ablak / lakás"), tort: ["Egy " + e + " emeletes házban emeletenként " + l + " lakás, lakásonként " + ab + " ablak van."],
       kerdes: "Hány <b>lakás</b> van a házban?", helyes: e * l, arany: "lakás", megoldas: e + " · " + l + " = " + e * l,
       csap: [[l, ekA(l, true) + " csak egy emelet lakásai.", "egyseg"], [e, ekA(e, true) + " az emeletek száma. De a lakásokról kérdeztünk!", "egyseg"]],
@@ -337,7 +345,7 @@ function ekLanc(cfg) {
   return ekSzob(cfg, o);
 }
 function ekNyomoz(cfg) {
-  var g = cfg.g, S = ekSzereplok(3), A = S[0], B = S[1], C = S[2], T = ekR(0, 3), o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(3), A = S[0], B = S[1], C = S[2], T = ekR(0, 3), o;
   if (g < 5 && T === 0) {
     var H = ekE([{ h1: "a tónál", h2: "a hídnál", al: "kacsa", ige: "úszik", e: "🦆" }, { h1: "a fán", h2: "a bokron", al: "veréb", ige: "ül", e: "🐦" }, { h1: "az erdőben", h2: "a réten", al: "nyuszi", ige: "ugrál", e: "🐇" }]);
     var a = ekR(5, 40), k = ekR(2, 9);
@@ -370,7 +378,7 @@ function ekNyomoz(cfg) {
       csap: [[aa, ekA(aa, true) + " az epres üvegek száma. De melyik lekvárról kérdeztünk?", "masik"], [aa + aa * m, ekA(aa + aa * m, true) + " az összes üveg.", "mind"], [aa + m, "A „" + ekRag(m, "szor") + " annyi” nem " + ekRag(m, "val") + " több!", "egyeb"]],
       vezet: { mit: ["a málnás üvegeket", "az epres üvegeket", "az összes üveget"], lepesek: [["Hány epres üveg van?", aa, aa + ""], ["A málnás " + ekRag(m, "szor") + " annyi. Mennyi " + aa + " · " + m + "?", aa * m, aa + " · " + m + " = " + aa * m]] }, kulcs: "nym" + aa + m };
   } else if (T <= 1) {
-    var a5 = 2 * ekR(10, 100), k5 = ekR(3, 30), fel = a5 / 2;
+    var a5 = 2 * (k3 ? ekR(5, 30) : ekR(10, 100)), k5 = k3 ? ekR(2, 15) : ekR(3, 30), fel = a5 / 2;
     o = { kep: ekErem(A.e, a5, A.n) + ekErem(B.e, "?", B.n) + ekErem(C.e, "?", C.n), tort: [A.tel + " " + a5 + " diót gyűjtött.", B.tel + " feleannyit, " + C.tel + " " + ekRag(k5, "val") + " többet, mint " + B.n + "."],
       kerdes: "Hány diót gyűjtött <b>" + C.n + "</b>?", helyes: fel + k5, arany: C.n, megoldas: a5 + " : 2 = " + fel + ", " + fel + " + " + k5 + " = " + (fel + k5),
       csap: [[fel, ekA(fel, true) + " " + B.n + " diói. De kiről kérdeztünk?", "masik"], [a5 + k5, C.n + " nem " + A.nal + ", hanem " + B.nal.toUpperCase() + " gyűjtött " + ekRag(k5, "val") + " többet.", "masik"], [a5 + fel + fel + k5, ekA(a5 + fel + fel + k5, true) + " mindhárman együtt.", "mind"]],
@@ -382,8 +390,8 @@ function ekNyomoz(cfg) {
       csap: [[kp, ekA(kp, true) + " egy teli polc. De melyik polcról kérdeztünk?", "masik"], [pp * kp + kp - dp, ekA(pp * kp + kp - dp, true) + " az összes könyv.", "mind"], [pp * kp - dp, "Egy teli polchoz mérjük, nem mind a " + pp + "-höz!", "egyseg"]],
       vezet: { mit: ["a " + ord + " polc könyveit", "egy teli polc könyveit", "az összes könyvet"], lepesek: [["Hány könyv van egy teli polcon?", kp, kp + ""], ["A " + ord + " polcon " + ekRag(dp, "val") + " kevesebb. Mennyi " + kp + " − " + dp + "?", kp - dp, kp + " − " + dp + " = " + (kp - dp)]] }, kulcs: "ny5p" + pp + kp + dp };
   } else {
-    var K2b = ekE(EK_KET_LAB), L = mKever(EK_NEGY_LAB).slice(0, 2), t = ekR(5, 30), k1 = ekR(3, 20), k2 = ekR(3, 20);
-    if (k1 === k2) return null;
+    var K2b = ekE(EK_KET_LAB), L = mKever(EK_NEGY_LAB).slice(0, 2), t = k3 ? ekR(3, 12) : ekR(5, 30), k1 = k3 ? ekR(2, 12) : ekR(3, 20), k2 = k3 ? ekR(2, 12) : ekR(3, 20);
+    if (k1 === k2 || 4 * (k1 + k2) > ekMax(cfg)) return null;
     o = { kep: ekErem(K2b.e, t, K2b.n) + ekErem(L[0].e, k1, L[0].n) + ekErem(L[1].e, k2, L[1].n), tort: ["Az udvaron " + t + " " + K2b.n + ", " + k1 + " " + L[0].n + " és " + k2 + " " + L[1].n + " van."],
       kerdes: "Hány lába van a <b>" + L[0].nak + " és a " + L[1].nak + "</b> együtt?", helyes: 4 * (k1 + k2), arany: L[0].nak + " és a " + L[1].nak, megoldas: "(" + k1 + " + " + k2 + ") · 4 = " + 4 * (k1 + k2),
       csap: [[4 * k1, ekA(4 * k1, true) + " csak a " + L[0].k + " lába. A " + L[1].k + " is kellenek!", "masik"], [4 * k2, ekA(4 * k2, true) + " csak a " + L[1].k + " lába. A " + L[0].k + " is kellenek!", "masik"],
@@ -394,7 +402,7 @@ function ekNyomoz(cfg) {
   return ekSzob(cfg, o);
 }
 function ekAeK1(cfg) {
-  if (cfg.g < 5) {
+  if (!ekO(cfg)) {
     var K2 = ekE(EK_KET_LAB), K4 = ekE(EK_NEGY_LAB), t = ekR(4, 9), m = ekR(2, 6);
     return ekAE(cfg, { sablon: "K1", kep: ekErem(K2.e, t, K2.n) + ekErem(K4.e, m, K4.n), tort: ["A kertben " + t + " " + K2.n + " és " + m + " " + K4.n + " van."], kerdes: "Hány lába van a <b>" + K4.nak + "</b> összesen?", arany: K4.nak, helyes: 4 * m,
       v: [[m, ekA(m, true) + " a " + K4.k + " száma. De a lábukról kérdeztünk!", "egyseg"], [t + m, ekA(t + m, true) + " az összes állat.", "mind"], [2 * t, ekA(2 * t, true) + " a " + K2.k + " lába. De kiről kérdeztünk?", "masik"], [2 * t + 4 * m, ekA(2 * t + 4 * m, true) + " mindenki lába együtt.", "mind"]], kulcs: "ae1" + t + m });
@@ -408,7 +416,7 @@ function ekAeK1(cfg) {
 
 /* ═════════════════ 🔤 2. PÁLYA: KIS SZAVAK ═════════════════ */
 function ekIker(cfg) {
-  var g = cfg.g, T = g < 5 ? ekR(0, 3) : ekR(0, 1), o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), T = g < 5 ? ekR(0, 3) : ekR(0, 1), o;
   if (g < 5 && T === 0) {
     var SZ = [["piros", "🎈"], ["kék", "🔵"], ["sárga", "🟡"]], n = [ekR(1, 6), ekR(1, 6), ekR(1, 6)], i = ekR(0, 2), ossz = n[0] + n[1] + n[2], j = (i + 1) % 3, k = (i + 2) % 3;
     o = { kep: SZ.map(function (s, x) { return ekErem(ekSok(s[1], n[x]), n[x], s[0], { sok: 1 }); }).join(""), tort: ["Panka lufikat vett a vásárban."],
@@ -445,7 +453,7 @@ function ekIker(cfg) {
   } else if (T === 0) {
     var L = [], dup = ekR(10, 99);
     L.push(dup, dup);
-    var ketj = ekR(1, 3), egyj = ekR(1, 2), harj = ekR(1, 2), r2;
+    var ketj = ekR(1, 3), egyj = k3 ? ekR(2, 3) : ekR(1, 2), harj = k3 ? 0 : ekR(1, 2), r2;
     for (r2 = 0; r2 < ketj; r2++) L.push(ekR(10, 99)); for (r2 = 0; r2 < egyj; r2++) L.push(ekR(1, 9)); for (r2 = 0; r2 < harj; r2++) L.push(ekR(100, 999));
     L = mKever(L);
     var kj = L.filter(function (x) { return x >= 10 && x <= 99; }), kjk = kj.filter(function (x, ix) { return kj.indexOf(x) === ix; }).length;
@@ -470,7 +478,7 @@ function ekIker(cfg) {
   return ekSzob(cfg, o);
 }
 function ekNemKopp(cfg) {
-  var g = cfg.g, L = [], jo;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), L = [], jo;
   if (g < 5) {
     var paratlanKell = ekR(0, 1) === 1;            /* „Melyik szám NEM páros?” → a páratlan a jó */
     while (L.length < 3) { var x = 2 * ekR(1, 10) - (paratlanKell ? 0 : 1); if (L.indexOf(x) < 0) L.push(x); }
@@ -487,7 +495,7 @@ function ekNemKopp(cfg) {
   return ekKopp(cfg, { sablon: "nem", kep: "", tort: [], kerdes: "Melyik szám " + ekKi("NEM") + " osztható 3-mal?", arany: "NEM", joKiir: jo + "", kopp: { tipus: "valaszt", kartyak: mKever(K5) }, kulcs: "nk5" + L.join("") + jo });
 }
 function ekNem(cfg) {
-  var g = cfg.g, T = ekR(0, 3), o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), T = ekR(0, 3), o;
   if (T === 1) return ekNemKopp(cfg);
   if (g < 5 && T === 0) {
     var SZ = mKever(["piros", "kék", "zöld", "sárga", "lila"]).slice(0, ekR(2, 4)), zok = [];
@@ -534,7 +542,7 @@ var EK_REL = [
   { szo: "PONTOSAN", f: function (v, h) { return v === h; }, hm: null }
 ];
 function ekLegalabb(cfg) {
-  var g = cfg.g, S = ekSzereplok(g < 5 ? 5 : 6), T = ekE([["⭐", "matricája", "matrica"], ["🍎", "almája", "alma"], ["✏️", "ceruzája", "ceruza"]]);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(g < 5 ? 5 : 6), T = ekE([["⭐", "matricája", "matrica"], ["🍎", "almája", "alma"], ["✏️", "ceruzája", "ceruza"]]);
   if (g >= 5 && (J.feladatKesz % 5 === 1 || J.feladatKesz % 5 === 3)) {       /* 5. o.: szóbeli „legalább hány kell, hogy TÖBB legyen” */
     var a = ekR(5, 60), b = a + ekR(3, 40), A = S[0], B = S[1];
     return ekSzob(cfg, { sablon: "legalabb", kep: ekErem(A.e, a, A.n) + ekErem(B.e, b, B.n), tort: [A.nak + " " + a + ", " + B.nak + " " + b + " diója van."],
@@ -570,7 +578,7 @@ function ekLegalabb(cfg) {
     kopp: { tipus: "tobb", kartyak: K, hatarM: hatarM }, lanc: [szob], kulcs: "lg" + V.join("") + h });
 }
 function ekNapKopp(cfg) {
-  var g = cfg.g, ma = ekR(0, 6), kerd, jo, tort, kep, tipus, K = [];
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), ma = ekR(0, 6), kerd, jo, tort, kep, tipus, K = [];
   if (g < 5) {
     var V = ekE([["holnap", 1, "lesz"], ["holnapután", 2, "lesz"], ["tegnap", -1, "volt"], ["tegnapelőtt", -2, "volt"]]), fordit = ekR(0, 2) === 0 && Math.abs(V[1]) === 2;
     if (fordit) { var ismert = (ma + V[1] + 7) % 7; tort = [ekNagy(V[0]) + " " + EK_NAPOK[ismert] + " " + V[2] + "."]; kerd = "Milyen nap van " + ekKi("MA") + "?"; jo = ma; tipus = [V[0], ismert, -V[1]]; }
@@ -598,7 +606,7 @@ function ekNapKopp(cfg) {
   return ekKopp(cfg, { sablon: "par", kep: kep, tort: tort, kerdes: kerd, arany: g < 5 ? (tipus && tipus[0] ? (fordit ? "MA" : tipus[0].toUpperCase()) : "") : k + " nap múlva", joKiir: EK_NAPOK[jo], kopp: { tipus: "valaszt", kartyak: mKever(K) }, kulcs: "pn" + ma + kerd });
 }
 function ekPar(cfg) {
-  var g = cfg.g, sor = g < 5 ? ["par", "nap", "szomsz", "het", "tucat"] : ["nap", "szomsz", "tabor", "het", "par"];
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), sor = g < 5 ? ["par", "nap", "szomsz", "het", "tucat"] : ["nap", "szomsz", "tabor", "het", "par"];
   var fajta = sor[ekRot("par", sor.length)], o;
   if (fajta === "nap") return ekNapKopp(cfg);
   if (fajta === "par") {
@@ -606,7 +614,7 @@ function ekPar(cfg) {
     o = { kep: ekErem(P[1], n + " pár", P[0]), tort: [], kerdes: n + " " + ekKi("pár") + " " + P[0] + " hány darab " + P[0] + "?", helyes: 2 * n, arany: "pár", megoldas: n + " · 2 = " + 2 * n,
       csap: [[n, ekA(n, true) + " a párok száma. Egy párban hány " + P[0] + " van?", "kisszo"]], kulcs: "pp" + n + P[0] };
   } else if (fajta === "szomsz") {
-    var sz = g < 5 ? ekR(11, 24) : ekR(102, 245);
+    var sz = k3 ? ekR(11, 24) : ekR(102, 245);
     if (sz % 10 === 0 || sz === 17 || sz === 23 || sz === 34) return null;
     var t = Math.floor(sz / 10) * 10, egy = 2 * sz, tiz = 2 * t + 10;
     o = { kep: ekErem("🔢", sz, "a szám"), tort: [], kerdes: "Mennyi a " + sz + " " + ekKi("EGYES") + " és " + ekKi("TÍZES") + " számszomszédainak az összege?", helyes: egy + tiz, arany: "TÍZES",
@@ -629,7 +637,7 @@ function ekPar(cfg) {
   return ekSzob(cfg, o);
 }
 function ekMindketto(cfg) {
-  var g = cfg.g, o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), o;
   if (g < 5) {
     var S = ekSzereplok(6), L = S.map(function () { return ekR(0, 3); });   /* 0 egyik sem · 1 alma · 2 körte · 3 mindkettő */
     var db = [0, 0, 0, 0]; L.forEach(function (x) { db[x]++; });
@@ -668,9 +676,10 @@ function ekMindketto(cfg) {
       var V = ekE([
         ["Mi a " + ekKi("LEHETŐ LEGNAGYOBB") + " kétjegyű szám, amelynek a számjegyei " + ekKi("KÜLÖNBÖZŐK") + "?", 98, [[99, "A 99 két jegye egyforma!", "egyforma"]]],
         ["Mi a " + ekKi("LEHETŐ LEGNAGYOBB") + " kétjegyű " + ekKi("PÁRATLAN") + " szám, amelynek a számjegyei " + ekKi("KÜLÖNBÖZŐK") + "?", 97, [[99, "A 99 két jegye egyforma!", "egyforma"], [98, "A 98 páros!", "kisszo"]]],
+      ].concat(k3 ? [] : [
         ["Mi a " + ekKi("LEHETŐ LEGKISEBB") + " háromjegyű szám, amelynek a számjegyei " + ekKi("KÜLÖNBÖZŐK") + "?", 102, [[100, "A 100-ban két 0 van — azok egyformák!", "egyforma"], [101, "A 101-ben két 1-es van!", "egyforma"], [123, "Van ennél kisebb is — a 0 is lehet számjegy, csak elöl nem!", "egyeb"]]],
         ["Mi a " + ekKi("LEHETŐ LEGNAGYOBB") + " háromjegyű szám, amelynek a számjegyei " + ekKi("KÜLÖNBÖZŐK") + "?", 987, [[999, "A 999 jegyei egyformák!", "egyforma"], [998, "A 998-ban két 9-es van!", "egyforma"]]]
-      ]);
+      ]));
       o = { kep: "", tort: [], kerdes: V[0], helyes: V[1], arany: "KÜLÖNBÖZŐK", megoldas: V[1] + "", csap: V[2], kulcs: "m5sz" + V[1] };
     }
   }
@@ -678,7 +687,7 @@ function ekMindketto(cfg) {
   return ekSzob(cfg, o);
 }
 function ekAeK2(cfg) {
-  if (cfg.g < 5) {
+  if (!ekO(cfg)) {
     var L = [], dup = 2 * ekR(0, 4) + 1;
     L.push(dup, dup); while (L.length < 6) L.push(ekR(1, 9));
     L = mKever(L);
@@ -707,7 +716,7 @@ function ekTabla(cfg, spec, i, B) {       /* a ✋ tábla egy lépés után (kop
     kopp: { tipus: "valaszt", kartyak: K, elo: '<div class="ek-tabla"><span class="ek-kez">✋</span>' + ekA(l.v, true) + ' — ez már a válasz?</div>' } });
 }
 function ekLepcsoSpec(cfg) {
-  var g = cfg.g, S = ekSzereplok(2), A = S[0], B = S[1], T = ekR(0, g < 5 ? 3 : 2);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), A = S[0], B = S[1], T = ekR(0, g < 5 ? 3 : 2);
   if (g < 5 && T === 0) { var K2 = ekE(EK_KET_LAB), K4 = ekE(EK_NEGY_LAB), t = ekR(2, 9), k = ekR(2, 8);
     return { kep: ekErem(K2.e, t, K2.n) + ekErem(K4.e, k, K4.n), tort: ["Az udvaron " + t + " " + K2.n + " és " + k + " " + K4.n + " van."], fo: "Hány láb van " + ekKi("összesen") + "?", arany: "összesen",
       lep: [{ k: "Hány lába van a " + K2.nak + "?", v: 2 * t, nev: "a " + K2.k + " lába", m: t + " · 2 = " + 2 * t }, { k: "És a " + K4.nak + "?", v: 4 * k, nev: "a " + K4.k + " lába", m: k + " · 4 = " + 4 * k }, { k: "Mennyi összesen?", v: 2 * t + 4 * k, m: 2 * t + " + " + 4 * k + " = " + (2 * t + 4 * k) }], kulcs: "sl" + t + k }; }
@@ -722,16 +731,16 @@ function ekLepcsoSpec(cfg) {
     if (p > 50) return null;
     return { kep: ekErem(A.e, p + " Ft", A.n) + ekErem("🥐", ar + " Ft", "1 kifli"), tort: [A.tel + " " + p + " Ft-tal ment a boltba, és " + n + " kiflit vett, darabját " + ar + " Ft-ért."], fo: "Mennyi pénze " + ekKi("maradt") + "?", arany: "maradt",
       lep: [{ k: "Mennyibe került a " + n + " kifli?", v: n * ar, nev: "a kiflik ára", m: n + " · " + ar + " = " + n * ar }, { k: "Mennyi maradt?", v: p - n * ar, m: p + " − " + n * ar + " = " + (p - n * ar) }], kulcs: "sk" + n + ar + p }; }
-  if (T === 0) { var f = ekR(3, 5), nap = ekR(5, 10), o = nap * ekR(2, Math.floor(40 / nap)), olv = ekR(1, 4) * nap, x = f * o - olv;
-    if (x <= 0 || x % nap) return null;
+  if (T === 0) { var f = k3 ? ekR(2, 3) : ekR(3, 5), nap = ekR(5, 10), o = nap * ekR(2, Math.floor((k3 ? 30 : 40) / nap)), olv = ekR(1, 4) * nap, x = f * o - olv;
+    if (x <= 0 || x % nap || f * o > ekMax(cfg)) return null;
     return { kep: ekErem("📖", f, "fejezet") + ekErem(A.e, olv, "már elolvasott"), tort: ["Egy könyv " + f + " fejezetből áll, mindegyik " + o + " oldalas.", A.tel + " már " + olv + " oldalt elolvasott, és naponta " + nap + " oldalt olvas."],
       fo: "Hány nap alatt végez a " + ekKi("többivel") + "?", arany: "többivel",
       lep: [{ k: "Hány oldalas a könyv?", v: f * o, nev: "az egész könyv oldalszáma", m: f + " · " + o + " = " + f * o }, { k: "Hány oldal van még hátra?", v: x, nev: "a hátralévő oldalak száma", m: f * o + " − " + olv + " = " + x }, { k: "Hány nap alatt olvassa el?", v: x / nap, m: x + " : " + nap + " = " + x / nap }], kulcs: "s5k" + f + o + olv + nap }; }
-  if (T === 1) { var cs = ekR(3, 8), gy = ekE([20, 25, 30, 40, 50]), l = ekR(2, 5), m = ekE([20, 30, 40, 50, 60]), mar = cs * gy - l * m;
-    if (mar <= 0 || cs * gy > 1000) return null;
+  if (T === 1) { var cs = k3 ? ekR(2, 5) : ekR(3, 8), gy = ekE(k3 ? [10, 12, 15, 20] : [20, 25, 30, 40, 50]), l = ekR(2, k3 ? 4 : 5), m = ekE(k3 ? [5, 8, 10, 12, 15] : [20, 30, 40, 50, 60]), mar = cs * gy - l * m;
+    if (mar <= 0 || cs * gy > ekMax(cfg)) return null;
     return { kep: ekErem("📿", cs, "csomag") + ekErem("💎", l, "nyaklánc"), tort: [A.tel + " " + cs + " csomag gyöngyöt vett, csomagonként " + ekRag(gy, "t") + ".", l + " nyakláncot fűz, mindegyikre " + m + " gyöngyöt."], fo: "Hány gyöngy " + ekKi("marad") + "?", arany: "marad",
       lep: [{ k: "Hány gyöngyöt vett?", v: cs * gy, nev: "az összes gyöngy", m: cs + " · " + gy + " = " + cs * gy }, { k: "Hányat fűz fel?", v: l * m, nev: "a felfűzött gyöngyök száma", m: l + " · " + m + " = " + l * m }, { k: "Hány marad?", v: mar, m: cs * gy + " − " + l * m + " = " + mar }], kulcs: "s5g" + cs + gy + l + m }; }
-  var ko = 2 * ekR(20, 150), e5 = ekR(5, ko / 2 - 5);
+  var ko = 2 * (k3 ? ekR(10, 50) : ekR(20, 150)), e5 = ekR(k3 ? 2 : 5, ko / 2 - (k3 ? 2 : 5));
   return { kep: ekErem("🧺", ko, "alma"), tort: ["Egy kosárban " + ko + " alma van.", A.tel + " a felét elvitte, " + B.tel + " a maradékból " + ekRag(e5, "t") + "."], fo: "Hány alma " + ekKi("maradt") + " a kosárban?", arany: "maradt",
     lep: [{ k: "Hány alma maradt " + A.n + " után?", v: ko / 2, nev: "ami " + A.n + " után maradt", m: ko + " : 2 = " + ko / 2 }, { k: "És " + B.n + " után?", v: ko / 2 - e5, m: ko / 2 + " − " + e5 + " = " + (ko / 2 - e5) }], kulcs: "s5a" + ko + e5 };
 }
@@ -754,7 +763,7 @@ function ekLepcso(cfg) {
   return root;
 }
 function ekKinekSpec(cfg) {
-  var g = cfg.g, S = ekSzereplok(2), A = S[0], T = ekR(0, g < 5 ? 3 : 2);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), A = S[0], T = ekR(0, g < 5 ? 3 : 2);
   if (g < 5 && T === 0) { var o = ekR(20, 60), m = ekR(5, 15); if (o - 2 * m <= 0) return null;
     return { kep: ekErem("📚", o, "könyv") + ekErem("📘", m, "mesekönyv"), tort: ["A polcon " + o + " könyv van: " + m + " mesekönyv, a többi verseskötet."], fo: "Mennyivel " + ekKi("több") + " a verseskötet, mint a mesekönyv?", arany: "több",
       jo: o - 2 * m, megoldas: o + " − " + m + " = " + (o - m) + ", " + (o - m) + " − " + m + " = " + (o - 2 * m), cs: [{ v: o - m, nev: "a verseskötetek száma" }, { v: o + m, nev: "az összeadás eredménye — de itt el kell venni" }], kulcs: "kv" + o + m }; }
@@ -767,13 +776,13 @@ function ekKinekSpec(cfg) {
   if (g < 5) { var h = ekR(1, 3), d = ekR(1, 6);
     return { kep: ekErem(A.e, h + " hét " + d + " nap", A.n), tort: [A.tel + " " + h + " hét és " + d + " nap alatt olvasott ki egy könyvet."], fo: "Hány " + ekKi("napig") + " olvasta?", arany: "napig",
       jo: 7 * h + d, megoldas: h + " · 7 + " + d + " = " + (7 * h + d), cs: [{ v: h + d, nev: "a heteket napnak számolta" }, { v: 7 * h, nev: "a " + d + " napot kihagyta" }], kulcs: "kh" + h + d }; }
-  if (T === 0) { var ol = 6 * ekR(10, 60), r = ekR(0, 1) ? 3 : 2, fel = ol / 2, m2 = fel / r;
+  if (T === 0) { var ol = 6 * (k3 ? ekR(3, 16) : ekR(10, 60)), r = ekR(0, 1) ? 3 : 2, fel = ol / 2, m2 = fel / r;
     return { kep: ekErem("📖", ol, "oldal"), tort: ["Egy " + ol + " oldalas könyvnek " + A.tel + " először a felét olvasta el, másnap a maradék " + (r === 3 ? "harmadát" : "felét") + "."], fo: "Hány oldal van még " + ekKi("hátra") + "?", arany: "hátra",
       jo: fel - m2, megoldas: ol + " : 2 = " + fel + ", " + fel + " : " + r + " = " + m2 + ", " + fel + " − " + m2 + " = " + (fel - m2), cs: [{ v: fel, nev: "az első nap után maradt oldalak" }, { v: m2, nev: "a második nap elolvasott oldalak" }], kulcs: "k5o" + ol + r }; }
-  if (T === 1) { var n = ekR(3, 6), ar = ekE([75, 100, 125, 150]), k = ekE([50, 100, 150, 200]); if (n * ar - k <= 0 || n * ar > 1000) return null;
+  if (T === 1) { var n = ekR(k3 ? 2 : 3, k3 ? 4 : 6), ar = ekE(k3 ? [10, 15, 20, 25] : [75, 100, 125, 150]), k = ekE(k3 ? [5, 10, 15, 20] : [50, 100, 150, 200]); if (n * ar - k <= 0 || n * ar > ekMax(cfg)) return null;
     return { kep: ekErem("🍯", n, "üveg méz") + ekErem("🪙", ar + " Ft", "üvegenként"), tort: [A.tel + " " + n + " üveg mézet adott el, üvegenként " + ar + " Ft-ért, aztán " + k + " Ft-ot elköltött."], fo: "Mennyi pénze " + ekKi("maradt") + "?", arany: "maradt",
       jo: n * ar - k, megoldas: n + " · " + ar + " = " + n * ar + ", " + n * ar + " − " + k + " = " + (n * ar - k), cs: [{ v: n * ar, nev: "a költés előtti pénz" }, { v: n * ar + k, nev: "a költést hozzáadta" }], kulcs: "k5m" + n + ar + k }; }
-  var so = ekR(4, 9), db = ekR(5, 12), e1 = ekR(3, 12), e2 = ekR(3, 12), B = S[1]; if (so * db - e1 - e2 <= 0) return null;
+  var so = k3 ? ekR(3, 8) : ekR(4, 9), db = k3 ? ekR(4, 10) : ekR(5, 12), e1 = ekR(3, 12), e2 = ekR(3, 12), B = S[1]; if (so * db - e1 - e2 <= 0 || so * db > ekMax(cfg) || e1 === e2) return null;
   return { kep: ekErem("🍫", so, "sor") + ekErem("🍬", db, "egy sorban"), tort: ["Egy dobozban " + so + " sor, soronként " + db + " bonbon van.", A.tel + " megevett " + ekRag(e1, "t") + ", " + B.tel + " " + ekRag(e2, "t") + "."], fo: "Hány bonbon " + ekKi("maradt") + "?", arany: "maradt",
     jo: so * db - e1 - e2, megoldas: so + " · " + db + " = " + so * db + ", " + so * db + " − " + e1 + " − " + e2 + " = " + (so * db - e1 - e2), cs: [{ v: so * db, nev: "az összes bonbon evés előtt" }, { v: so * db - e1, nev: "ami " + A.n + " után maradt" }], kulcs: "k5b" + so + db + e1 + e2 };
 }
@@ -800,7 +809,7 @@ function ekKinek(cfg) {
     joKiir: mod === 2 ? "Senkinek" : NEV[mod], kopp: { tipus: "valaszt", kartyak: K }, lanc: lanc, kulcs: sp.kulcs + mod });
 }
 function ekFelut(cfg) {
-  var g = cfg.g, S = ekSzereplok(1), A = S[0], T = ekR(0, g < 5 ? 3 : 2), o;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(1), A = S[0], T = ekR(0, g < 5 ? 3 : 2), o;
   var fm = function (nev) { return "Ez csak félút — ez " + nev + ". De mit kérdeztek?"; };
   if (g < 5 && T === 0) { var h = ekR(20, 60), n = ekR(2, 3), d = ekR(3, 9); if (h - n * d <= 0) return null;
     o = { kep: ekErem("🎀", h + " cm", "szalag") + ekErem("✂️", n + " × " + d + " cm", "levágva"), tort: ["Egy szalag " + h + " cm hosszú. Levágtak belőle " + n + " darab " + d + " cm-es darabot."], kerdes: "Hány cm " + ekKi("maradt") + "?", helyes: h - n * d, arany: "maradt",
@@ -818,18 +827,18 @@ function ekFelut(cfg) {
     o = { kep: ekErem(A.e, ev, A.n) + ekErem("👧", "?", "nővére"), tort: [A.tel + " " + ev + " éves, a nővére " + k2 + " évvel idősebb."], kerdes: "Hány évesek " + ekKi("együtt") + "?", helyes: 2 * ev + k2, arany: "együtt",
       megoldas: ev + " + " + k2 + " = " + (ev + k2) + ", " + ev + " + " + (ev + k2) + " = " + (2 * ev + k2), csap: [[ev + k2, fm("ennyi idős a nővére"), "resz"]],
       vezet: { mit: ["kettejük életkorát együtt", "a nővére életkorát", A.n + " életkorát"], lepesek: [["Hány éves a nővére?", ev + k2, ev + " + " + k2 + " = " + (ev + k2)]] }, kulcs: "fe" + ev + k2 };
-  } else if (T === 0) { var ol = 3 * ekR(8, 40), e5 = ekR(3, 15), har = ol / 3; if (ol - har - e5 <= 0) return null;
+  } else if (T === 0) { var ol = 3 * (k3 ? ekR(8, 30) : ekR(8, 40)), e5 = ekR(3, 15), har = ol / 3; if (ol - har - e5 <= 0) return null;
     o = { kep: ekErem("📓", ol, "oldal"), tort: ["Egy " + ol + " oldalas füzetnek " + A.tel + " a harmadát teleírta, aztán még " + e5 + " oldalt."], kerdes: "Hány oldal maradt " + ekKi("üresen") + "?", helyes: ol - har - e5, arany: "üresen",
       megoldas: ol + " : 3 = " + har + ", " + har + " + " + e5 + " = " + (har + e5) + ", " + ol + " − " + (har + e5) + " = " + (ol - har - e5),
       csap: [[har, "Ez csak az első rész.", "resz"], [har + e5, fm("ennyit írt tele"), "resz"], [ol - har, "Az " + e5 + " oldalt is teleírta!", "egyeb"]],
       vezet: { mit: ["az üres oldalakat", "a teleírt oldalakat", "az összes oldalt"], lepesek: [["Mennyi a " + ol + " harmada?", har, ol + " : 3 = " + har], ["Hány oldalt írt tele összesen?", har + e5, har + " + " + e5 + " = " + (har + e5)]] }, kulcs: "f5f" + ol + e5 };
-  } else if (T === 1) { var q = ekE([2, 3, 4]), r = q * ekR(10, 80), d2 = ekR(10, 90), res = r - r / q - d2; if (res <= 0 || r > 1000) return null;
+  } else if (T === 1) { var q = ekE([2, 3, 4]), r = q * (k3 ? ekR(5, 25) : ekR(10, 80)), d2 = k3 ? ekR(3, 20) : ekR(10, 90), res = r - r / q - d2; if (res <= 0 || r > ekMax(cfg)) return null;
     var tn = { 2: "felük", 3: "harmaduk", 4: "negyedük" }[q];
     o = { kep: ekErem("🥐", r, "kifli reggel"), tort: ["A pékségben reggel " + r + " kiflit sütöttek.", "Délelőtt a " + tn + " elfogyott, délután még " + d2 + "."], kerdes: "Hány kifli maradt " + ekKi("estére") + "?", helyes: res, arany: "estére",
       megoldas: r + " : " + q + " = " + r / q + ", " + r + " − " + r / q + " = " + (r - r / q) + ", " + (r - r / q) + " − " + d2 + " = " + res,
       csap: [[r / q, "Ez a délelőtt eladott kiflik száma.", "resz"], [r - r / q, fm("ennyi maradt délre"), "resz"], [r / q + d2, "Ez az összes eladott kifli.", "resz"]],
       vezet: { mit: ["ami estére maradt", "ami délre maradt", "amit eladtak"], lepesek: [["Hány kifli fogyott el délelőtt?", r / q, r + " : " + q + " = " + r / q], ["Hány maradt délre?", r - r / q, r + " − " + r / q + " = " + (r - r / q)]] }, kulcs: "f5k" + r + q + d2 };
-  } else { var a5 = ekR(3, 5), b5 = ekR(4, 8), c5 = ekR(5, 20), n5 = ekR(2, 4); if (n5 * a5 * b5 * c5 > 1000) return null;
+  } else { var a5 = k3 ? ekR(2, 3) : ekR(3, 5), b5 = k3 ? ekR(2, 4) : ekR(4, 8), c5 = k3 ? ekR(2, 5) : ekR(5, 20), n5 = ekR(2, k3 ? 3 : 4); if (n5 * a5 * b5 * c5 > ekMax(cfg)) return null;
     o = { kep: ekErem("🛢️", 1, "hordó") + ekErem("🪣", a5, "vödör / hordó"), tort: ["1 hordó = " + a5 + " vödör, 1 vödör = " + b5 + " kanna, 1 kanna = " + c5 + " pohár."], kerdes: "Hány pohár fér " + ekKi(n5 + " hordóba") + "?", helyes: n5 * a5 * b5 * c5, arany: n5 + " hordóba",
       megoldas: a5 + " · " + b5 + " = " + a5 * b5 + " kanna, " + a5 * b5 + " · " + c5 + " = " + a5 * b5 * c5 + " pohár, · " + n5 + " = " + n5 * a5 * b5 * c5,
       csap: [[a5 * b5 * c5, fm("ennyi fér EGY hordóba"), "resz"], [a5 * b5, fm("egy hordó kannáinak száma"), "resz"], [n5 * a5 * b5, fm("a kannák száma"), "resz"]],
@@ -844,17 +853,18 @@ function ekLepcsoSvg(n) {
   return s + '<path d="M' + (10 + n * 20) + ' ' + (36 - n * 12) + ' v-10 l8 3 l-8 3" stroke="#6b5442" stroke-width="1.5" fill="#e2589b"/></svg>';
 }
 function ekHanyPar(cfg) {       /* egy pár: 1 lépéses + hasonló, de több lépéses feladat */
-  var g = cfg.g, S = ekSzereplok(2), A = S[0], B = S[1], T = ekR(0, 1);
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), A = S[0], B = S[1], T = ekR(0, 1);
   if (g < 5 && T === 0) { var a = ekR(5, 30), b = ekR(3, 30), k = ekR(2, 9); if (2 * a + k > 100) return null;
     return [{ kep: ekErem(A.e, a, A.n) + ekErem(B.e, b, B.n), tort: [A.tel + " " + a + " diót gyűjtött, " + B.tel + " " + ekRag(b, "t") + "."], fo: "Hány diót gyűjtöttek együtt?", lepes: 1, v: a + b, megoldas: a + " + " + b + " = " + (a + b), lep: ["Add össze kettejük dióit!"], csap: [] },
             { kep: ekErem(A.e, a, A.n) + ekErem(B.e, "?", B.n), tort: [A.tel + " " + a + " diót gyűjtött, " + B.tel + " " + ekRag(k, "val") + " többet, mint " + A.n + "."], fo: "Hány diót gyűjtöttek együtt?", lepes: 2, v: 2 * a + k, megoldas: a + " + " + k + " = " + (a + k) + ", " + a + " + " + (a + k) + " = " + (2 * a + k), lep: ["Hány diót gyűjtött " + B.n + "?", "Mennyi kettejüké együtt?"], csap: [[a + k, "Ez csak félút — ennyi " + B.n + " diója. De mit kérdeztek?", "resz"]] }]; }
   if (g < 5) { var gy = ekR(2, 6), p = ekR(2, 8), al = ekR(2, 9); if (gy * p + al > 100) return null;
     return [{ kep: ekErem("🪑", p, "pad") + ekErem("🐾", gy, "egy padon"), tort: ["Egy padon " + gy + " kis állat ül."], fo: "Hányan ülnek " + p + " ilyen padon?", lepes: 1, v: gy * p, megoldas: gy + " · " + p + " = " + gy * p, lep: ["Szorozd meg: padonként " + gy + ", " + p + " pad."], csap: [] },
             { kep: ekErem("🪑", p, "pad") + ekErem("🧍", al, "áll"), tort: [p + " padon " + gy + "-" + gy + " kis állat ül, és " + al + " még áll."], fo: "Hányan vannak ott összesen?", lepes: 2, v: gy * p + al, megoldas: gy + " · " + p + " = " + gy * p + ", " + gy * p + " + " + al + " = " + (gy * p + al), lep: ["Hányan ülnek a padokon?", "Mennyi az állókkal együtt?"], csap: [[gy * p, "Ez csak félút — ennyien ülnek. De az állók is ott vannak!", "resz"]] }]; }
-  if (T === 0) { var ar = ekE([150, 200, 250, 300, 400]), kd = ekE([20, 30, 40, 50]), n = ekR(2, 3);
+  if (T === 0) { var ar = ekE(k3 ? [20, 25, 30, 40, 50] : [150, 200, 250, 300, 400]), kd = ekE(k3 ? [5, 10, 15] : [20, 30, 40, 50]), n = ekR(2, 3);
+    if ((ar - kd) * n > ekMax(cfg)) return null;
     return [{ kep: ekErem("📕", ar + " Ft", "könyv") + ekErem("🏷️", kd + " Ft", "kedvezmény"), tort: ["Egy " + ar + " Ft-os könyvre " + kd + " Ft kedvezményt kaptunk."], fo: "Mennyit fizettünk?", lepes: 1, v: ar - kd, megoldas: ar + " − " + kd + " = " + (ar - kd), lep: ["Vedd el a kedvezményt!"], csap: [] },
             { kep: ekErem("📕", ar + " Ft", "könyv") + ekErem("🏷️", kd + " Ft", "kedvezmény / könyv"), tort: ["Egy " + ar + " Ft-os könyvre " + kd + " Ft kedvezményt kaptunk."], fo: "Mennyit fizettünk " + n + " ilyen könyvért?", lepes: 2, v: (ar - kd) * n, megoldas: ar + " − " + kd + " = " + (ar - kd) + ", " + (ar - kd) + " · " + n + " = " + (ar - kd) * n, lep: ["Mennyibe került EGY könyv?", "Mennyi " + n + " könyvért?"], csap: [[ar - kd, "Ez csak félút — ennyi EGY könyv ára.", "resz"]] }]; }
-  var gn = ekE([15, 20, 25, 30]), nn = ekR(2, 4), sz = ekR(2, 3);
+  var gn = ekE(k3 ? [5, 6, 8, 10, 12] : [15, 20, 25, 30]), nn = ekR(2, k3 ? 3 : 4), sz = ekR(2, 3);
   return [{ kep: ekErem("📿", gn, "naponta"), tort: [A.tel + " " + nn + " napon át naponta " + gn + " gyöngyöt fűzött."], fo: "Hányat fűzött összesen?", lepes: 1, v: nn * gn, megoldas: nn + " · " + gn + " = " + nn * gn, lep: ["Szorozd meg!"], csap: [] },
           { kep: ekErem("📿", gn, "naponta"), tort: [A.tel + " " + nn + " napon át naponta " + gn + " gyöngyöt fűzött, a következő napon " + (sz === 2 ? "kétszer" : "háromszor") + " annyit, mint egy napon addig."], fo: "Hányat fűzött összesen?", lepes: 3, v: nn * gn + sz * gn,
             megoldas: nn + " · " + gn + " = " + nn * gn + ", " + gn + " · " + sz + " = " + sz * gn + ", " + nn * gn + " + " + sz * gn + " = " + (nn * gn + sz * gn), lep: ["Hányat fűzött az első " + nn + " napon?", "Hányat az utolsó napon?", "Mennyi összesen?"], csap: [[nn * gn, "Ez csak az első " + nn + " nap.", "resz"], [sz * gn, "Ez csak az utolsó nap.", "resz"]] }];
@@ -887,17 +897,17 @@ function ekSzakaszKep(alap, m, n, cimk, egys) {      /* szakaszos kép: alap, m-
   return s + '</svg>';
 }
 function ekKakas(cfg) {
-  var g = cfg.g, S = ekSzereplok(2), T = ekR(0, g < 5 ? 2 : 1), m = ekR(2, 4), n = m + ekR(1, 3), o, a, P;
+  var g = ekO(cfg) ? 5 : 3, k3 = ekKis(cfg), S = ekSzereplok(2), T = ekR(0, g < 5 ? 2 : 1), m = ekR(2, 4), n = m + ekR(1, 3), o, a, P;
   if (g < 5) {
     if (T === 0) { a = ekE([10, 20, 30]); P = { cimk: ["bokor", "kerítés", "fa"], egys: "cm", tort: ["A bokor " + a + " cm magas.", "A kerítés " + ekRag(m, "szor") + " olyan magas, mint a bokor, a fa " + ekRag(n, "szor") + " olyan magas."], kerd: "Mennyivel " + ekKi("magasabb") + " a fa a kerítésnél?", ar: "magasabb", mnev: "a kerítés magassága", nnev: "a fa magassága" }; }
     else if (T === 1) { a = ekR(2, 6); P = { cimk: ["zsiráf", "fa", "torony"], egys: "m", tort: ["A zsiráf " + a + " m magas.", "A fa " + ekRag(m, "szor") + ", a torony " + ekRag(n, "szor") + " olyan magas, mint a zsiráf."], kerd: "Mennyivel " + ekKi("magasabb") + " a torony a fánál?", ar: "magasabb", mnev: "a fa magassága", nnev: "a torony magassága" }; }
     else { a = ekR(4, 9); var A = S[0], B = S[1]; P = { cimk: [A.n, B.n, "nagypapa"], egys: "", tort: [A.tel + " " + a + " éves.", B.tel + " " + ekRag(m, "szor") + " annyi idős, a nagypapa " + ekRag(n, "szor") + " annyi."], kerd: "Hány évvel " + ekKi("idősebb") + " a nagypapa " + B.nal + "?", ar: "idősebb", mnev: B.n + " életkora", nnev: "a nagypapa életkora" }; }
     if (n * a > 100) return null;
   } else {
-    if (T === 0) { a = ekR(8, 40); P = { cimk: ["csiga", "hangya", "bogár"], egys: "cm", tort: ["Egy csiga " + a + " cm-t mászott.", "A hangya " + ekRag(m, "szor") + ", a bogár " + ekRag(n, "szor") + " ennyit."], kerd: "Mennyivel " + ekKi("többet") + " mászott a bogár, mint a hangya?", ar: "többet", mnev: "ennyit mászott a hangya", nnev: "ennyit mászott a bogár" }; }
-    else { var dm = ekR(1, 2), cm = ekR(1, 9); a = dm * 10 + cm; m = ekR(3, 5); n = m + ekR(2, 4);
+    if (T === 0) { a = k3 ? ekR(4, 15) : ekR(8, 40); P = { cimk: ["csiga", "hangya", "bogár"], egys: "cm", tort: ["Egy csiga " + a + " cm-t mászott.", "A hangya " + ekRag(m, "szor") + ", a bogár " + ekRag(n, "szor") + " ennyit."], kerd: "Mennyivel " + ekKi("többet") + " mászott a bogár, mint a hangya?", ar: "többet", mnev: "ennyit mászott a hangya", nnev: "ennyit mászott a bogár" }; }
+    else { var dm = k3 ? 1 : ekR(1, 2), cm = k3 ? ekR(1, 5) : ekR(1, 9); a = dm * 10 + cm; m = k3 ? ekR(2, 3) : ekR(3, 5); n = m + ekR(k3 ? 1 : 2, k3 ? 3 : 4);
       P = { cimk: ["1 fok", "létra", "padlás"], egys: "cm", tort: ["Egy lépcsőfok " + dm + " dm " + cm + " cm magas.", "A létra teteje " + m + " lépcsőfoknyi, a padlás " + n + " lépcsőfoknyi magasan van."], kerd: "Hány cm van a létra teteje és a padlás " + ekKi("között") + "?", ar: "között", mnev: "ilyen magas a létra teteje", nnev: "ilyen magasan van a padlás", dmcm: [dm, cm] }; }
-    if (n * a > 1000) return null;
+    if (n * a > ekMax(cfg)) return null;
   }
   var cs = [[m * a, "Ez csak félút — " + P.mnev + ".", "resz"], [n * a, "Ez " + P.nnev + ". A kettő közti részt kérdeztük!", "resz"]];
   if (P.dmcm) cs.push([(n - m) * (P.dmcm[0] + P.dmcm[1]), "A " + P.dmcm[0] + " dm " + P.dmcm[1] + " cm az " + a + " cm, nem " + (P.dmcm[0] + P.dmcm[1]) + "!", "egyseg"]);
@@ -907,19 +917,32 @@ function ekKakas(cfg) {
   return ekSzob(cfg, o);
 }
 function ekAeK3(cfg) {
-  if (cfg.g < 5) {
+  if (!ekO(cfg)) {
     var s = ekR(3, 6), d = ekR(4, 8), e = ekR(3, 12), S = ekE(EK_SZ);
     if (e >= s * d || s + d === e || s * d + e > 100) return null;
     return ekAE(cfg, { sablon: "K3", kep: ekErem("🍫", s, "sor") + ekErem("🟫", d, "egy sorban"), tort: ["Egy dobozban " + s + " sor csoki van, soronként " + d + ".", S.tel + " megevett " + ekRag(e, "t") + "."], kerdes: "Hány csoki " + ekKi("maradt") + "?", arany: "maradt", helyes: s * d - e,
       v: [[s * d, "Ez csak félút — ez az összes csoki.", "resz"], [s + d, "A sort és a darabot nem összeadni kell, hanem szorozni!", "egyeb"], [e, ekA(e, true) + " a megevett csokik száma.", "masik"], [s * d + e, "Megette — el kell venni, nem hozzáadni!", "egyeb"]], kulcs: "ae3" + s + d + e });
   }
-  var p = ekR(3, 6), k = ekR(20, 60), x = 10 * ekR(2, 8);
-  if (x >= p * k || p * k + x > 1000) return null;
+  var k3 = ekKis(cfg), p = k3 ? ekR(2, 4) : ekR(3, 6), k = k3 ? ekR(10, 25) : ekR(20, 60), x = k3 ? 5 * ekR(1, 6) : 10 * ekR(2, 8);
+  if (x >= p * k || p * k > ekMax(cfg) || (!k3 && p * k + x > 1000)) return null;
   return ekAE(cfg, { sablon: "K3", kep: ekErem("📚", p, "polc") + ekErem("📕", k, "polconként"), tort: [p + " polcon " + k + "-" + k + " könyv áll. " + ekNagy(ekRag(x, "t")) + " kikölcsönöztek."], kerdes: "Hány könyv " + ekKi("maradt") + " a polcokon?", arany: "maradt", helyes: p * k - x,
     v: [[p * k, "Ez csak félút — ez az összes könyv.", "resz"], [x, ekA(x, true) + " a kikölcsönzött könyvek száma.", "masik"], [p * k + x, "Kikölcsönözték — el kell venni, nem hozzáadni!", "egyeb"]], kulcs: "ae35" + p + k + x });
 }
 
 /* ═════════════════ GENERÁTOR-DISZPÉCSER ═════════════════ */
+/* számkör-őr: 3. o.-ban (a Varázstekercsen is) semmi ne legyen 100 fölött — szöveg, kártyák, jó válasz, lánc, végigvezetés */
+function ekTulNagy(cfg, f) {
+  var M = ekMax(cfg), tul = false;
+  function nez(t) { (ekSima(t).match(/\d+/g) || []).forEach(function (d) { if (+d > M) tul = true; }); }
+  (function jar(x) {
+    if (!x || tul) return;
+    nez(x.kartyaHTML); if (typeof x.helyes === "number" && x.helyes > M) tul = true;
+    if (x.ek && x.ek.kopp) x.ek.kopp.kartyak.forEach(function (k) { nez(k.h); });
+    if (x.ek && x.ek.vezet) x.ek.vezet.lepesek.forEach(function (l) { nez(l[0]); if (l[1] > M) tul = true; });
+    (x.lanc || []).forEach(jar);
+  })(f);
+  return tul;
+}
 var EK_GEN = { nagyito: ekNagyito, kirol: ekKirol, mit: ekMit, lanc: ekLanc, nyomoz: ekNyomoz,
   iker: ekIker, nem: ekNem, legalabb: ekLegalabb, par: ekPar, mindketto: ekMindketto,
   lepcso: ekLepcso, kinek: ekKinek, felut: ekFelut, hanylepes: ekHanylepes, kakas: ekKakas,
@@ -939,7 +962,7 @@ GEN.konyvtar = function (cfg, kerultMar) {
   var gen = EK_GEN[sab], f = null;
   for (var k = 0; k < 200; k++) {
     var x = gen(cfg);
-    if (!x) continue;
+    if (!x || ekTulNagy(cfg, x)) continue;
     f = x;
     if (!x.kulcs || !kerultMar[x.kulcs]) break;
   }
@@ -1091,6 +1114,13 @@ function ekNapDb(pid) { var n = (P().ek && P().ek.napok && P().ek.napok[pid]) ||
 function ekKockaSor(db) { var s = ""; for (var i = 0; i < EK_STABIL.nap; i++) s += i < db ? "◼" : "▢"; return s; }
 function ekPalyaVege() {
   var st = ekAllapot(), pid = J.palya.id, ma = helyiNap(), E = J.ekPotty || { ossz: 0, jo: 0 };
+  if (J.palya.fok !== "tekercs") {                     /* 📖 Mesekönyv: nincs kocka-nap — az első végigjárás a 📜 Varázstekercset nyitja */
+    if (!st.meseKesz) st.meseKesz = {};
+    var uj = !st.meseKesz[pid]; st.meseKesz[pid] = true; ment();
+    var m0 = uj ? "Kinyílt a 📜 Varázstekercs! Ott már csavarosabbak a kérdések — és ott gyűlnek a kocka-napok." : "Szép munka! A kocka-napok a 📜 Varázstekercsen gyűlnek.";
+    return { html: '<br><span class="ek-vege">' + m0 + '</span>', mondat: " " + m0.replace(/📜 /g, ""),
+      adat: { kocka: J.palya.kocka, szarny: J.palya.szarny, fok: "mese", potty: E.ossz, elsore: E.jo, nap: false, napDb: 0, csapdak: J.ekCsapda || {} } };
+  }
   var elsoMa = st.maElso[pid] !== ma, nap = false, arany = E.ossz ? E.jo / E.ossz : 0;
   if (elsoMa) {
     st.maElso[pid] = ma;
@@ -1102,29 +1132,56 @@ function ekPalyaVege() {
   else mondat = "Ez a kocka már stabil: " + ekKockaSor(db);
   ment();
   return { html: '<br><span class="ek-vege">🧱 ' + mondat + '</span>', mondat: " " + mondat.replace(/[◼▢]+/g, "").replace(/🏅/g, ""),
-    adat: { kocka: J.palya.kocka, szarny: J.palya.szarny, potty: E.ossz, elsore: E.jo, nap: nap, napDb: db, csapdak: J.ekCsapda || {} } };
+    adat: { kocka: J.palya.kocka, szarny: J.palya.szarny, fok: "tekercs", potty: E.ossz, elsore: E.jo, nap: nap, napDb: db, csapdak: J.ekCsapda || {} } };
 }
 
 /* ═════════════════ A LIGET a pályaválasztóban ═════════════════ */
 function ekSzarnyPalyak(sz) { return PALYAK.filter(function (p) { return p.konyvtar && p.szarny === sz; }); }
-function ekLakat(pa) {                                 /* szárnyon belül sorban nyílnak: az előző egyszeri végigjárása kell */
+/* lakat: a 📜 Varázstekercset a saját 📖 Mesekönyve nyitja; a kockák Mesekönyvei a szárnyon belül sorban nyílnak (az előző Mesekönyv egyszeri végigjárása kell) */
+function ekLakat(pa) {
   if (!pa.konyvtar) return null;
-  var L = ekSzarnyPalyak(pa.szarny).filter(function (x) { return !palyaRejtve(x); }), i = L.indexOf(pa);
-  if (i <= 0) return null;
-  var elozo = L[i - 1], pr = P().palyak[elozo.id];
+  var L = ekSzarnyPalyak(pa.szarny).filter(function (x) { return !palyaRejtve(x); }), elozo = null;
+  if (pa.fok === "tekercs") elozo = L.filter(function (x) { return x.kocka === pa.kocka && x.fok !== "tekercs"; })[0] || null;
+  else { var M = L.filter(function (x) { return x.fok !== "tekercs"; }), i = M.indexOf(pa); elozo = i > 0 ? M[i - 1] : null; }
+  if (!elozo) return null;
+  var pr = P().palyak[elozo.id];
   return pr && pr.kesz ? null : elozo;
 }
-function ekLakatMondat(pa) { var e = ekLakat(pa); return e ? "Ez a pálya még zárva. Előbb járd végig ezt: " + e.nev + "!" : ""; }
+function ekLakatMondat(pa) {
+  var e = ekLakat(pa); if (!e) return "";
+  return pa.fok === "tekercs" ? "A Varázstekercs még zárva. Előbb olvasd végig a Mesekönyvet!" : "Ez a kocka még zárva. Előbb járd végig ezt: " + e.kockaNev + ", Mesekönyv!";
+}
 function ekKartyaDisz(pa, kart, zarva) {
-  var L = ekSzarnyPalyak(pa.szarny), db = Math.min(EK_STABIL.nap, ekNapDb(pa.id)), mester = !!ekAllapot().mester[pa.id], s = "";
-  for (var i = 0; i < EK_STABIL.nap; i++) s += '<i class="' + (i < db ? "teli" : "") + '"></i>';
-  var sor = el("div", "ek-kockak"); sor.innerHTML = s + (mester ? '<span class="erem">🏅</span>' : '');
-  sor.title = "Kocka-napok: " + db + " / " + EK_STABIL.nap;
-  var also = kart.querySelector(".also"); kart.insertBefore(sor, also);
-  var sz = el("div", "sorszam", (L.indexOf(pa) + 1) + "."); kart.appendChild(sz);
-  if (mester) kart.appendChild(el("span", "ek-mester-szalag", "🏅 mester"));
+  var pn = kart.querySelector(".pnev"); if (pn && EK_FOK[pa.fok]) pn.textContent = EK_FOK[pa.fok].nev;
+  kart.classList.add("ek-fok-" + (pa.fok || "mese"));
+  if (pa.fok === "tekercs") {                          /* a kocka-napok ▢▢▢ csak a Varázstekercsen gyűlnek */
+    var db = Math.min(EK_STABIL.nap, ekNapDb(pa.id)), mester = !!ekAllapot().mester[pa.id], s = "";
+    for (var i = 0; i < EK_STABIL.nap; i++) s += '<i class="' + (i < db ? "teli" : "") + '"></i>';
+    var sor = el("div", "ek-kockak"); sor.innerHTML = s + (mester ? '<span class="erem">🏅</span>' : '');
+    sor.title = "Kocka-napok: " + db + " / " + EK_STABIL.nap;
+    kart.insertBefore(sor, kart.querySelector(".also"));
+  }
   var e = zarva && ekLakat(pa);
-  if (e) { var pc = kart.querySelector(".palcim"); if (pc) pc.textContent = "🔒 Előbb: " + e.nev; }
+  if (e) { var pc = kart.querySelector(".palcim"); if (pc) pc.textContent = pa.fok === "tekercs" ? "🔒 Előbb: Mesekönyv" : "🔒 Előbb: " + e.kockaNev; }
+}
+/* a menü egy sora = egy kocka: [📖 Mesekönyv] → [📜 Varázstekercs ▢▢▢] → 🏅 (a Mesterpróba az 5b lépés) */
+function ekMenuSor(palyak, kartya) {
+  var p0 = palyak[0], sor = el("div", "ek-kocka-sor");
+  sor.appendChild(el("div", "ek-kocka-cim", p0.kockaIkon + " " + p0.kockaNev));
+  var lepcso = el("div", "ek-lepcso");
+  palyak.forEach(function (pa, i) { if (i) lepcso.appendChild(el("span", "ek-nyil", "→")); lepcso.appendChild(kartya(pa)); });
+  var tek = palyak.filter(function (x) { return x.fok === "tekercs"; })[0], mester = tek && !!ekAllapot().mester[tek.id];
+  var db = tek ? Math.min(EK_STABIL.nap, ekNapDb(tek.id)) : 0;
+  lepcso.appendChild(el("span", "ek-nyil", "→"));
+  var erem = el("button", "ek-mester-hely" + (mester ? " kesz" : db >= EK_STABIL.nap ? " kozel" : ""), "🏅");
+  erem.title = "Mesterpróba";
+  erem.addEventListener("click", function () {
+    hangGomb();
+    mondd(mester ? "Ezt a Mesterpróbát már kiálltad! Ügyes vagy!" : db >= EK_STABIL.nap ? "Ez a kocka stabil! Hamarosan jön a Mesterpróba." : "Mesterpróba: ha a Varázstekercsen három külön napon ügyes vagy, itt vár rád egy igazi versenyfeladat!");
+  });
+  lepcso.appendChild(erem);
+  sor.appendChild(lepcso);
+  return sor;
 }
 function ekSzarnyNev(sz, ikonnal) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return (ikonnal && SZARNYAK[i].ikon ? SZARNYAK[i].ikon + " " : "") + SZARNYAK[i].nev; return sz; }
 var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], ["📋", "#fce49a"], ["🎲", "#c9a8e6"], ["🌳", "#b6e0a8"], ["📊", "#f7c59f"],

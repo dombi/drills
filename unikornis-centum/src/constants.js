@@ -319,22 +319,33 @@ var SZARNYAK = [
   { id: "3o", nev: "Holdfény-szárny", ikon: "🌙", osztaly: 3, szint: 4 },   /* a gyerek mesés nevet lát (producer, 2026-09-29); */
   { id: "5o", nev: "Csillagtorony", ikon: "✨", osztaly: 5, szint: 6 }      /* az osztály csak a pultban látszik */
 ];
-function ekPalya(id, nev, ikon, osztaly, kocka) {
-  var D = EK_KOCKA_DEF[kocka], N = EK_DARAB[kocka], sz = null;
+/* FOKOK (producer, 2026-09-29): minden kocka egy 3 fokú létra — 📖 Mesekönyv (alap, 1 lépés) → 📜 Varázstekercs (összetett KÉRDÉS,
+   de a szárny számkörében; a kocka-napok ▢▢▢ CSAK itt gyűlnek) → 🏅 Mesterpróba (5b). A Mesekönyv egyszeri végigjárása nyitja a Varázstekercset.
+   A menüben egy SOR = egy kocka. Az állomás-cfg „ossz” mezője = összetettség (a sablon a bonyolultabb szerkezetet választja), a „g” marad a számkör. */
+var EK_FOK = {
+  mese:    { nev: "Mesekönyv", ikon: "📖", al: "Egyszerű mondatok" },
+  tekercs: { nev: "Varázstekercs", ikon: "📜", al: "Csavaros kérdések" }
+};
+function ekPalya(id, nev, ikon, osztaly, kocka, fok) {
+  var D = EK_KOCKA_DEF[kocka], N = EK_DARAB[kocka], sz = null, ossz = fok === "tekercs";
   SZARNYAK.forEach(function (s) { if (s.osztaly === osztaly) sz = s; });
   var all = [{ nev: "Rajt" }];
-  D.sablonok.forEach(function (sab, i) { all.push({ nev: D.asztalok[i], sablon: sab, g: osztaly, kocka: kocka, darab: N[i] }); });
-  all.push({ nev: "Odú-küszöb", sablon: "odu", odu: true, vegyes: D.sablonok.slice(1), g: osztaly, kocka: kocka, darab: N[5], cel: true });
-  return { id: id, nev: nev, ikon: ikon, regio: "konyvtar", konyvtar: true, szarny: sz.id, kocka: kocka, osztaly: osztaly, szint: sz.szint,
-    palcim: sz.nev, kez_nelkul: true, alap: { tipus: "konyvtar" }, allomasok: all };
+  D.sablonok.forEach(function (sab, i) { all.push({ nev: D.asztalok[i], sablon: sab, g: osztaly, ossz: ossz, kocka: kocka, darab: N[i] }); });
+  all.push({ nev: "Odú-küszöb", sablon: "odu", odu: true, vegyes: D.sablonok.slice(1), g: osztaly, ossz: ossz, kocka: kocka, darab: N[5], cel: true });
+  return { id: id, nev: ossz ? nev + " – " + EK_FOK.tekercs.nev : nev, kockaNev: nev, kockaIkon: ikon, ikon: EK_FOK[fok].ikon, fok: fok,
+    regio: "konyvtar", konyvtar: true, szarny: sz.id, kocka: kocka, osztaly: osztaly, szint: sz.szint,
+    palcim: EK_FOK[fok].al, kez_nelkul: true, alap: { tipus: "konyvtar" }, allomasok: all };
 }
 PALYAK.push(
-  ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1"),
-  ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2"),
-  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3")
+  ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1", "mese"),
+  ekPalya("ek-k1-3v", "Kit kérdeznek?", "🔎", 3, "K1", "tekercs"),
+  ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2", "mese"),
+  ekPalya("ek-k2-3v", "Kis szavak", "🔤", 3, "K2", "tekercs"),
+  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3", "mese"),
+  ekPalya("ek-k3-3v", "Ez már a válasz?", "✋", 3, "K3", "tekercs")
   /* ✨ Csillagtorony (5. o.) — a producer döntése (2026-09-29): addig NINCS a menüben, amíg meg nem jönnek az IGAZI
-     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. sablonjai (g ≥ 5) megmaradnak;
-     visszakapcsolás: ide 3 sor, mint fent, 5-ös osztállyal és „-5” végű azonosítóval (ek-k1-5, ek-k2-5, ek-k3-5). */
+     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. számkörei (g ≥ 5) megmaradnak;
+     visszakapcsolás: ide sorok, mint fent, 5-ös osztállyal és „-5” / „-5v” végű azonosítóval. */
 );
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
