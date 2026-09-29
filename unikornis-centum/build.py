@@ -38,6 +38,7 @@ MODULES = [
     "konyvtar.js",        # 6d) 📚 Bagolykönyvtár: Zrínyi építőkocka-pályák (sablonok, csapdák, végigvezetés, liget, jelenet)
     "konyvtar-mester.js", # 6e) 🏅 Mesterpróba-kapu + 🏰 Kockavár (a Fejtörő-motorral), stabil-küszöb
     "konyvtar-mozgo.js",  # 6f) 📚 a 3 bemutató-mozgókép (🔎 nagyító · 🔤 NEM · ✋ lépcső), gyerekenként egyszer
+    "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)
 
     # ── Képernyők ──
     "ui.js",              # 7) mutat(), renderProfil, renderFomenu

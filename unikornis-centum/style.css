@@ -1653,3 +1653,33 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-kartya.ek-mester-szalag{ position:relative; overflow:hidden; }
 .palya-kartya.ek-mester-szalag::after{ content:"mester"; position:absolute; top:10px; right:-26px; transform:rotate(38deg); background:linear-gradient(#ffd35c,#e8b43a);
   color:#6a4a10; font-size:11px; font-weight:800; letter-spacing:.5px; padding:2px 28px; box-shadow:0 1px 3px rgba(0,0,0,.18); pointer-events:none; }
+
+/* ═══ 📓 végigvezetés-füzet (Bagolykönyvtár, src/konyvtar-fuzet.js) — rajzterv: Matekos/vegigvezetes-fuzet-rajzterv.html ═══ */
+.ek-fuzet{ --ekf-racs:#d8e6f5; --ekf-margo:#f3a7b5; --ekf-ceruza:#3c4a8c;
+  position:absolute; left:14px; top:96px; width:min(290px, calc(50vw - 232px)); max-height:calc(56vh - 90px); z-index:5;
+  display:flex; flex-direction:column; text-align:left;
+  background-color:#fffef6; border-radius:6px 14px 14px 6px; padding:10px 10px 30px 38px;
+  background-image:linear-gradient(var(--ekf-racs) 1px, transparent 1px), linear-gradient(90deg, var(--ekf-racs) 1px, transparent 1px);
+  background-size:18px 18px; background-position:0 34px, 0 0;
+  box-shadow:3px 4px 0 #d9cfee, 0 2px 10px rgba(0,0,0,.08);
+  font-family:"Segoe Print","Bradley Hand","Comic Sans MS","Chalkboard SE",cursive; color:var(--ekf-ceruza); }
+.ek-fuzet[hidden]{ display:none; }
+.ek-fuzet::before{ content:""; position:absolute; left:26px; top:0; bottom:0; width:2px; background:var(--ekf-margo); }
+.ekf-spiral{ position:absolute; left:-9px; top:18px; bottom:18px; width:18px;
+  background:radial-gradient(circle at 9px 9px, #fff 4px, #9d8fc0 5px, transparent 6px) 0 0 / 18px 26px repeat-y; }
+.ekf-fej{ font-family:Fredoka, system-ui, sans-serif; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#8f7ab8; margin:0 0 6px; }
+.ekf-sorok{ overflow-y:auto; min-height:0; padding-bottom:2px; }
+.ekf-sor{ font-size:19px; line-height:32px; min-height:32px; padding:0 6px; border-radius:6px; white-space:nowrap; }
+.ekf-sor.cimkes{ white-space:normal; line-height:26px; padding-top:3px; padding-bottom:3px; }
+.ekf-cimk{ font-size:14px; color:#8a82b0; margin-right:4px; }
+.ekf-sor.kerd{ font-size:17px; white-space:normal; line-height:28px; }
+.ekf-alahuz{ text-decoration:underline wavy #f39ab0; text-underline-offset:5px; }
+.ekf-sor.valasz{ border-bottom:2px solid var(--ekf-ceruza); border-radius:0; font-size:17px; white-space:normal; line-height:28px; margin-top:6px; }
+.ekf-sor.uj{ background:#fff4b8; animation:ekfIr 1s ease-out both; }
+@keyframes ekfIr{ from{ clip-path:inset(0 100% 0 0); } to{ clip-path:inset(0 0 0 0); } }
+.ekf-ceruza{ position:absolute; right:10px; bottom:6px; font-size:20px; font-family:system-ui, sans-serif; }
+/* keskeny képernyő: a buborékban, a feladat alatt */
+.ek-fuzet.benn{ position:relative; left:auto; top:auto; width:auto; max-height:none; margin:10px 0 2px 8px; padding-bottom:26px; box-shadow:2px 3px 0 #d9cfee; }
+.ek-fuzet.benn .ekf-sorok{ overflow:visible; }
+.ek-fuzet.benn .ekf-sor{ font-size:17px; line-height:28px; min-height:28px; }
+@media (prefers-reduced-motion:reduce){ .ekf-sor.uj{ animation:none; } }

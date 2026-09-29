@@ -438,6 +438,7 @@ function ertekel(valasz) {
       : ((f.ek ? ekDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     csillagRepul($("bagoly-buborek"));
+    if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
       J.lancKov = f.lanc[0];
       if (f.lanc.length > 1) J.lancKov.lanc = f.lanc.slice(1);
@@ -451,8 +452,9 @@ function ertekel(valasz) {
     jelvenyEllenoriz();
     ment();
     var tovabb = function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };
-    if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), tovabb); }, 500); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
-    else setTimeout(tovabb, 900);
+    var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
+    if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
+    else setTimeout(tovabb, Math.max(900, fv));
   } else {
     meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
     J.probak++;
