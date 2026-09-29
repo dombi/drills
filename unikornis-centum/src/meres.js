@@ -1194,6 +1194,7 @@ function mValtIr(p, K) {
   });
 }
 function mKoppMutat(f) {
+  if (f.ek) { ekKoppMutat(f); return; }        /* 📚 Bagolykönyvtár: saját kártyák (konyvtar.js) */
   var p = mKoppPanel(), o = f.kopp, liga = f.liga, h = "";
   J.kopp = { f: f, kesz: false, lepes: 0 };
   $("valasz-egyenkent").classList.add("koppint");
@@ -1238,6 +1239,7 @@ function mKoppJo(f, kes) {
 }
 function mBillegHalvany(b) { b.classList.add("rossz"); setTimeout(function () { b.classList.remove("rossz"); b.classList.add("kiszurkul"); }, 650); }
 function mKoppKatt(ev) {
+  if (J && J.feladat && J.feladat.ek) { ekKoppKatt(ev); return; }
   var b = ev.target.closest ? ev.target.closest("[data-i]") : null;
   if (!b || !J || !J.kopp || J.kopp.kesz || !J.feladat || J.feladat.csalad !== "koppint") return;
   if (b.classList.contains("kiszurkul") || b.classList.contains("jo") || b.classList.contains("rossz")) return;

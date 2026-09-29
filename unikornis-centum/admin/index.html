@@ -269,6 +269,8 @@ function palyakBetolt() {
     while ((m = re.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++ }; PALYA_SORREND.push(m[1]); }
     var rm = /meresPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)"/g;   /* mérés-ligetek: a 12 pálya egy sorban (src/constants.js meresPalya) */
     while ((m = rm.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, tipus: "meres" }; PALYA_SORREND.push(m[1]); }
+    var rk = /ekPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*(\d+)/g;   /* 📚 Bagolykönyvtár: a 6 építőkocka-pálya (src/constants.js ekPalya) */
+    while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar" }; PALYA_SORREND.push(m[1]); }
     var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
     while ((m = rt.exec(t))) if (PALYA[m[1]]) PALYA[m[1]].tipus = m[2];
     var rl = /(\w+):\s*\{\s*nev:\s*"([^"]+)"/g;

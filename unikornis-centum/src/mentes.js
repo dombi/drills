@@ -101,7 +101,7 @@ function napiKiemeltId() {
   var d = new Date(), ev = d.getFullYear(), ho = d.getMonth(), nap = d.getDate();
   var napSorsz = Math.floor((d - new Date(ev, 0, 0)) / 86400000);
   var jatszhatoIds = [];
-  PALYAK.forEach(function (p) { if (!p.hamarosan && !palyaRejtve(p)) jatszhatoIds.push(p.id); });
+  PALYAK.forEach(function (p) { if (!p.hamarosan && !p.konyvtar && !palyaRejtve(p)) jatszhatoIds.push(p.id); });   /* könyvtár: saját kocka-nap rendszere + lakat → nem napi kiemelt */
   if (!jatszhatoIds.length) return null;
   var idx = ((ev * 367 + napSorsz * 13 + ho * 7) & 0x7FFFFFFF) % jatszhatoIds.length;
   return jatszhatoIds[idx];

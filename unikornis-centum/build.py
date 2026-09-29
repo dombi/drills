@@ -35,6 +35,7 @@ MODULES = [
     "renderer.js",        # 6) SVG: unikornis, jelenet, tárgyak, díszek
     "meres.js",           # 6b) mérés-ligetek: mértékegység-motor, generátorok, műhely-jelenet, liget-hátterek
     "meres-mozgo.js",     # 6c) mérés-mozgóképek: bájital / szabó / pékség / lépcső + csoportos (rossz válasz után)
+    "konyvtar.js",        # 6d) 📚 Bagolykönyvtár: Zrínyi építőkocka-pályák (sablonok, csapdák, végigvezetés, liget, jelenet)
 
     # ── Képernyők ──
     "ui.js",              # 7) mutat(), renderProfil, renderFomenu

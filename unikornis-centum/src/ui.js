@@ -28,7 +28,7 @@ function renderFomenu() {
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
   var REGIO_CIM = { egyeni: "💖 Neked készült", fejtoro: "🏔️ Fejtörő-hegy", osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget",
-                   szabo: "🧵 Szabóműhely", bajital: "🧪 Bájitalkonyha", pekseg: "🧁 Mézes pékség" };
+                   szabo: "🧵 Szabóműhely", bajital: "🧪 Bájitalkonyha", pekseg: "🧁 Mézes pékség", konyvtar: "📚 Bagolykönyvtár" };
   var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER,
                       szabo: MERES_HATTER.szabo, bajital: MERES_HATTER.bajital, pekseg: MERES_HATTER.pekseg };   /* mérés-ligetek: réteges műhely-háttér (meres.js) */   /* mindkét liget saját jelenetet kap */
   /* régiónként csoportosítunk, a PALYAK sorrendjét megtartva; a producer által elrejtett pálya nincs ott,
@@ -37,7 +37,7 @@ function renderFomenu() {
   var regiok = {}, regioSorrend = [], lathato = 0;
   egyeniPalyak().concat(PALYAK).forEach(function (pa) {
     if (palyaRejtve(pa)) return;
-    var idx = pa.egyeni ? null : lathato++, r = pa.regio || "osszeado";
+    var idx = (pa.egyeni || pa.konyvtar) ? null : lathato++, r = pa.regio || "osszeado";   /* könyvtár: szárnyonként saját sorszám (ekKartyaDisz) */
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -46,6 +46,13 @@ function renderFomenu() {
   if (ftL.length) {
     regiok.fejtoro = ftL.map(function (pa) { return { pa: pa, idx: null }; });
     regioSorrend.splice(regioSorrend[0] === "egyeni" ? 1 : 0, 0, "fejtoro");
+  }
+  /* 📚 Bagolykönyvtár közvetlenül a Fejtörő-hegy előtt („itt tanulunk, ott versenyzünk”) */
+  var kvI = regioSorrend.indexOf("konyvtar");
+  if (kvI >= 0) {
+    regioSorrend.splice(kvI, 1);
+    var ftI = regioSorrend.indexOf("fejtoro");
+    regioSorrend.splice(ftI >= 0 ? ftI : (regioSorrend[0] === "egyeni" ? 1 : 0), 0, "konyvtar");
   }
   var _napiId = napiKiemeltId(), _napiKesz = napiKiemeltTeljesitve();
   function keszitKartya(pa, idx) {
@@ -78,7 +85,7 @@ function renderFomenu() {
     kart.addEventListener("click", function () {
       hangGomb();
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
-      if (zarva) { mondd(zarvaMondat()); return; }
+      if (zarva) { mondd(pa.konyvtar ? ekLakatMondat(pa) : zarvaMondat()); return; }
       if (elfogyott) { mondd(elfogyottMondat()); return; }
       palyaInditas(pa.id);
     });
@@ -92,12 +99,26 @@ function renderFomenu() {
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });
+    if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
   }
   regioSorrend.forEach(function (regio) {
     var szek = el("div", "palya-regio r-" + regio);
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", REGIO_CIM[regio] || ""));
+    if (regio === "konyvtar") {                    /* szárnyanként (osztályonként) egy sor, fejléccel */
+      var szSor = [];
+      regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
+      szSor.forEach(function (sz) {
+        szek.appendChild(el("div", "ek-szarny-cim", "🪽 " + ekSzarnyNev(sz)));
+        var g = el("div", "palya-regio-grid");
+        regiok[regio].forEach(function (rec) { if (rec.pa.szarny === sz) g.appendChild(keszitKartya(rec.pa, rec.idx)); });
+        szek.appendChild(g);
+      });
+      racs.appendChild(szek);
+      ekLigetHatter(szek);
+      return;
+    }
     var grid = el("div", "palya-regio-grid");
     regiok[regio].forEach(function (rec) { grid.appendChild(regio === "fejtoro" ? fejtoroKartya(rec.pa) : keszitKartya(rec.pa, rec.idx)); });
     szek.appendChild(grid);

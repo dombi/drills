@@ -771,6 +771,7 @@ function jelenetSVG(palya, lenyKulcs) {
   SCENE_TELJES = (palya.teljes_ut !== false);
   SCENE_N = palya.allomasok.length;
   if (palya.muhely) { SCENE_TELJES = true; return muhelyJelenetSVG(palya, LENYEK[lenyKulcs]); }   /* mérés-ligetek: műhely-ösvény (meres.js) */
+  if (palya.konyvtar) { SCENE_TELJES = true; return konyvtarJelenetSVG(palya, LENYEK[lenyKulcs]); }   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
   if (SCENE_TELJES) return jelenetSVGteljes(palya, LENYEK[lenyKulcs]);
   var n = palya.allomasok.length;
   var szelesseg = allomasX(n - 1) + 260;

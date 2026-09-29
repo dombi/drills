@@ -296,6 +296,47 @@ PALYAK.push(
   meresPalya("meres-pekseg-4", "Mázsa és tonna", "🌾", "pekseg", "tomeg", 5, 6, "Jön a mázsa és a tonna — 5. osztály")
 );
 
+/* ══ 📚 BAGOLYKÖNYVTÁR — Zrínyi építőkocka-pályák (src/konyvtar.js) — Matekos\epitokocka-palyak-terv.html ══
+   Egy kocka (K1…) = egy pálya-fajta: Rajt → 5 olvasóasztal → Odú-küszöb (vegyesen a 2–5. asztalból, a végén 1 A–E).
+   SZARNYAK: a könyvtár osztályonként „szárnyat” kap. ÚJ SZÁRNY = új sor a SZARNYAK-ban + az ekPalya-sorai lent
+   (+ ha új kocka kell: új sor az EK_KOCKA_DEF-ben és a sablonjai a konyvtar.js EK_GEN-jében).
+   A szárnyon belül a pályák sorban nyílnak (ekLakat), a 12 órás kapu nem zárja őket.
+   PÁLYAHOSSZ: asztalonként egy szám az EK_DARAB-ban (a pult „feladatszám” kapcsolója gyerekenként ezt is felülírja). */
+var EK_KOCKA_DEF = {
+  K1: { sablonok: ["nagyito", "kirol", "mit", "lanc", "nyomoz"],
+        asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"] },
+  K2: { sablonok: ["iker", "nem", "legalabb", "par", "mindketto"],
+        asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"] },
+  K3: { sablonok: ["lepcso", "kinek", "felut", "hanylepes", "kakas"],
+        asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"] }
+};
+var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pályahossz”: 29 / 29 / 28 pötty) */
+  K1: [5, 5, 5, 4, 5, 5],
+  K2: [5, 5, 5, 5, 4, 5],
+  K3: [5, 5, 5, 4, 4, 5]
+};
+var SZARNYAK = [
+  { id: "3o", nev: "3. osztály", osztaly: 3, szint: 4 },
+  { id: "5o", nev: "5. osztály", osztaly: 5, szint: 6 }
+];
+function ekPalya(id, nev, ikon, osztaly, kocka) {
+  var D = EK_KOCKA_DEF[kocka], N = EK_DARAB[kocka], sz = null;
+  SZARNYAK.forEach(function (s) { if (s.osztaly === osztaly) sz = s; });
+  var all = [{ nev: "Rajt" }];
+  D.sablonok.forEach(function (sab, i) { all.push({ nev: D.asztalok[i], sablon: sab, g: osztaly, kocka: kocka, darab: N[i] }); });
+  all.push({ nev: "Odú-küszöb", sablon: "odu", odu: true, vegyes: D.sablonok.slice(1), g: osztaly, kocka: kocka, darab: N[5], cel: true });
+  return { id: id, nev: nev, ikon: ikon, regio: "konyvtar", konyvtar: true, szarny: sz.id, kocka: kocka, osztaly: osztaly, szint: sz.szint,
+    palcim: sz.nev, kez_nelkul: true, alap: { tipus: "konyvtar" }, allomasok: all };
+}
+PALYAK.push(
+  ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1"),
+  ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2"),
+  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3"),
+  ekPalya("ek-k1-5", "Kit kérdeznek?", "🔎", 5, "K1"),
+  ekPalya("ek-k2-5", "Kis szavak", "🔤", 5, "K2"),
+  ekPalya("ek-k3-5", "Ez már a válasz?", "✋", 5, "K3")
+);
+
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
 var PALYA_IKON = {
   "bontas-felmondas": '<ellipse cx="30" cy="38" rx="13" ry="15" fill="#e0b47e" stroke="#222" stroke-width="1.6"/> <path d="M16 26 Q30 18 44 26 Q44 32 30 33 Q16 32 16 26 Z" fill="#a9814e" stroke="#222" stroke-width="1.6"/> <path d="M30 18 Q30 12 32 9" stroke="#8f6a3e" stroke-width="2.4" fill="none" stroke-linecap="round"/> <path d="M24 36 Q30 42 36 36" stroke="#c9a06a" stroke-width="1.6" fill="none"/>',

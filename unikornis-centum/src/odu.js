@@ -499,14 +499,16 @@ function vitrinReteg(o) {
 /* --- csillagszilánk-réteg az ablak egén (7.1c/3.3b): pályánként egy szilánk, a PALYAK sorrendjében.
    teljes ösvény (arany) = ragyogó arany szilánk, kész (volt kerülő) = halványabb ezüst,
    még nem kész = SEMMI nem látszik (producer-döntés, 2026-09-11 – nincs üres körvonal/pötty).
-   A szilánkszám a PALYAK hosszához igazodik (most 26 = 9 összeadó + 5 szorzós + 12 mérés); ha több pálya lenne, mint pozíció,
+   A szilánkszám a PALYAK hosszához igazodik (most 32 = 9 összeadó + 5 szorzós + 12 mérés + 6 könyvtár); ha több pálya lenne, mint pozíció,
    a maradék egy belső körre kerül. Odú-koordináta (680×540), a hívó klippeli az ablakra.
    Csak a szoba-ablakban jelenik meg (a napszak-bélyegképek NEM hívják). --- */
 function oduSzilankReteg() {
   var POZ = [[166, 154], [188, 145], [210, 142], [228, 172], [230, 192], [216, 210], [198, 220], [182, 222], [152, 196], [146, 186], [150, 162], [184, 188], [196, 196],
     /* 13 új hely (2026-09-27): a Szám-rengeteg (eddig tartalék-körön) + a 12 mérés-pálya — a meglévők közé,
        az ablakkereszttől, az esti holdtól és a felhőtől távol */
-    [198, 172], [172, 172], [164, 218], [212, 188], [172, 138], [168, 192], [182, 160], [158, 172], [154, 150], [202, 208], [228, 206], [210, 222], [144, 172]];
+    [198, 172], [172, 172], [164, 218], [212, 188], [172, 138], [168, 192], [182, 160], [158, 172], [154, 150], [202, 208], [228, 206], [210, 222], [144, 172],
+    /* 6 új hely (2026-09-29): a 📚 Bagolykönyvtár 6 pályája (32 szilánk) */
+    [220, 156], [156, 208], [190, 208], [238, 182], [176, 150], [206, 160]];
   var s = "";
   for (var i = 0; i < PALYAK.length; i++) {
     var pr = P().palyak[PALYAK[i].id];
