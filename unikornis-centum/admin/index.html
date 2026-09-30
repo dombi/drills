@@ -101,6 +101,9 @@ tr.kulcs td:first-child::after{ content:" 🔑"; }
 .kapu-sor select{ padding:4px 6px; font-size:14px; }
 .kapu-sor select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
 tr.egyeni-sor td:first-child{ font-style:italic; }
+tr.liget-sor td{ background:#efe7fb; padding-top:10px; }
+tr.liget-sor .liget-gombok{ display:inline-flex; gap:6px; margin-left:14px; vertical-align:middle; }
+tr.liget-sor button{ font-size:12px; padding:3px 8px; }
 /* 🌈 Tüneménykert (5. fázis) */
 .ksor{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:8px 0; }
 .ksor label{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
@@ -267,11 +270,17 @@ function userById(uid) { for (var i = 0; i < A.users.length; i++) if (A.users[i]
 function palyakBetolt() {
   return fetch("../src/constants.js", { cache: "no-cache" }).then(function (r) { return r.text(); }).then(function (t) {
     var re = /id:\s*"([^"]+)",\s*nev:\s*"([^"]+)",\s*ikon:\s*"([^"]+)"/g, m, i = 0;
-    while ((m = re.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++ }; PALYA_SORREND.push(m[1]); }
-    var rm = /meresPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)"/g;   /* mérés-ligetek: a 12 pálya egy sorban (src/constants.js meresPalya) */
-    while ((m = rm.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, tipus: "meres" }; PALYA_SORREND.push(m[1]); }
+    var szA = t.indexOf("var SZARNYAK"), szB = szA >= 0 ? t.indexOf("];", szA) : -1;   /* a könyvtár-szárnyak nem pályák */
+    while ((m = re.exec(t))) {
+      if (m.index > szA && m.index < szB) continue;
+      var sorE = t.lastIndexOf("\n", m.index), sorV = t.indexOf("\n", m.index), sor = t.slice(sorE, sorV);
+      var rg = /regio:\s*"(\w+)"/.exec(sor), regio = rg ? rg[1] : /vsPalya\(/.test(sor) ? "vasar" : "osszeado";   /* liget: a pálya sorából (constants.js) */
+      PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, regio: regio }; PALYA_SORREND.push(m[1]);
+    }
+    var rm = /meresPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)"/g;   /* mérés-ligetek: a 12 pálya egy sorban (src/constants.js meresPalya) */
+    while ((m = rm.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, tipus: "meres", regio: m[4] }; PALYA_SORREND.push(m[1]); }
     var rk = /ekPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*(\d+),\s*"[^"]+"(?:,\s*"([^"]+)")?/g;   /* 📚 Bagolykönyvtár: kockánként 📖 Mesekönyv + 📜 Varázstekercs (src/constants.js ekPalya) */
-    while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + (m[5] === "tekercs" ? " · 📜 Varázstekercs" : " · 📖 Mesekönyv") + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar" }; PALYA_SORREND.push(m[1]); }
+    while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + (m[5] === "tekercs" ? " · 📜 Varázstekercs" : " · 📖 Mesekönyv") + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar", regio: "konyvtar" }; PALYA_SORREND.push(m[1]); }
     var rkm = /(K\d+):\s*\{[^}]*?mester:\s*\[([^\]]*)\]/g;   /* 🏅 a kockák alap Mesterpróba-feladatai (EK_KOCKA_DEF[k].mester) */
     while ((m = rkm.exec(t))) EK_MESTER_ALAP[m[1]] = (m[2].match(/"[^"]+"/g) || []).map(function (x) { return x.slice(1, -1); });
     var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
@@ -730,6 +739,14 @@ function ment(p) { p.then(function () { mentveJelez(); }, function (e) { console
 function csoportById(gid) { for (var i = 0; i < A.groups.length; i++) if (A.groups[i].id === gid) return A.groups[i]; return null; }
 function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g.members.indexOf(uid) >= 0; }); }
 
+/* a ligetek neve a pálya-táblában (a játék src/ui.js REGIO_CIM-jével egyezik) */
+var LIGET_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget", vasar: "🧺 Tündérvásár", szabo: "🧵 Szabóműhely",
+  bajital: "🧪 Bájitalkonyha", pekseg: "🧁 Mézes pékség", konyvtar: "📚 Bagolykönyvtár" };
+function hatasRejtve(uid, pid) {
+  var egy = (A.cfg[uid] || {}).overrides || {};
+  return (felulirOsszevon(egy, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }))[pid] || {}).enabled === false;
+}
+
 /* a gyerek szemével: mit kap egy pályánál, és honnan jön (egyéni / melyik csoport) */
 function hatasLeiras(uid, pid) {
   var cs = jatekosCsoportjai(uid), egy = (A.cfg[uid] || {}).overrides || {};
@@ -839,7 +856,26 @@ function rajzBeallitasok(t) {
   var kulcsOpc = egyeni ? [["", ures], ["true", "🔑 kulcs"], ["false", "nem kulcs"]] : [["", ures], ["true", "🔑 kulcs"]];
   var korlatOpc = [["", ures]].concat(egyeni ? [["0", "korlátlan"]] : [], [1, 2, 3, 4, 5, 6, 8, 10].map(function (n) { return [String(n), n + "×"]; }));
   var semmi = '<span class="halvany">—</span>';
+  /* ligetenként: fejléc-sor „egy kattintással” — az egész liget elrejtése / visszaállítása (a pálya-sorok enabled mezőjét írja) */
+  var ligetSor = [], ligetPalyak = {};
   PALYA_SORREND.forEach(function (pid) {
+    var r = (PALYA[pid] && PALYA[pid].regio) || "osszeado";
+    if (!ligetPalyak[r]) { ligetPalyak[r] = []; ligetSor.push(r); }
+    ligetPalyak[r].push(pid);
+  });
+  var vanCsopL = egyeni && jatekosCsoportjai(id).length > 0;
+  ligetSor.forEach(function (r) {
+    var L = ligetPalyak[r];
+    var rejtDb = L.filter(function (pid) { return egyeni ? hatasRejtve(id, pid) : (ov[pid] || {}).enabled === false; }).length;
+    var allapot = rejtDb === L.length ? '<span class="rossz-sz">🚫 az egész liget rejtve</span>'
+      : rejtDb ? '<span class="halvany">' + rejtDb + " / " + L.length + " pálya rejtve</span>" : '<span class="halvany">minden pálya látszik</span>';
+    h += '<tr class="liget-sor"><td colspan="' + (egyeni ? 10 : 9) + '"><b>' + esc(LIGET_CIM[r] || r) + "</b> " + allapot +
+      '<span class="liget-gombok"><button data-liget="' + r + '" data-lig-ert="false"' + (rejtDb === L.length ? " disabled" : "") + '>🚫 Egész liget elrejtése</button>' +
+      '<button data-liget="' + r + '" data-lig-ert="">↺ ' + (vanCsopL ? "Csoport szerint" : "Visszaállítás (látható)") + "</button>" +
+      (vanCsopL ? '<button data-liget="' + r + '" data-lig-ert="true">✅ Neki mind látható</button>' : "") + "</span></td></tr>";
+    L.forEach(palyaSor);
+  });
+  function palyaSor(pid) {
     var o = ov[pid] || {}, le = nehezLehet(pid);
     var kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
     var lath = egyeni ? [["", ures], ["false", "🚫 rejtve"], ["true", "✅ látható"]] : [["", ures], ["false", "🚫 rejtve"]];
@@ -856,7 +892,7 @@ function rajzBeallitasok(t) {
       "<td>" + valaszto("kulcs", pid, o.kulcs, kulcsOpc) + "</td>" +
       "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
       (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
-  });
+  }
   /* az egyéni („💖 Neked készült”) pályák: csak kulcs + darabkorlát állítható itt (a többit a ✏️ fülön) */
   celEgyeniPalyak(tipus, id).forEach(function (x) {
     var pid = x.id, o = ov[pid] || {}, kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
@@ -899,6 +935,13 @@ function rajzBeallitasok(t) {
       var v = ertekBol(s.dataset.mezo, s.value), m = {}, o = {};
       m[s.dataset.mezo] = v == null ? FV.delete() : v;
       o[s.dataset.pid] = m;
+      ment(docRef.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-liget]"), function (b) {
+    b.onclick = function () {
+      var ert = b.dataset.ligErt, o = {};
+      ligetPalyak[b.dataset.liget].forEach(function (pid) { o[pid] = { enabled: ert === "" ? FV.delete() : ert === "true" }; });
       ment(docRef.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
     };
   });
