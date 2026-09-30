@@ -232,9 +232,9 @@ function frissitMegvan() {
   $("felmond-megvan").innerHTML = minta + " minta · " + teMar + " / " + teOssz +
     " sort te töltesz ki <span class=\"pontok\">" + p + "</span>";
 }
-function bagolyMondat(txt) {
+function bagolyMondat(txt, kep) {   /* kep: egy szereplő rajza (pl. Tüske néni) a mondat elé */
   var b = $("bagoly-mondat");
-  b.textContent = txt; b.hidden = false;
+  b.textContent = txt; if (kep) b.insertAdjacentHTML("afterbegin", kep + " "); b.hidden = false;
   clearTimeout(bagolyMondat._t);
   bagolyMondat._t = setTimeout(function () { b.hidden = true; }, 2200);
 }
@@ -440,6 +440,7 @@ function ertekel(valasz) {
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
       : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
+    figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
     csillagRepul($("bagoly-buborek"));
     if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
@@ -484,6 +485,7 @@ function ertekel(valasz) {
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
       else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
     }
+    figArc("gondol");                          /* 🎨 rossz válasznál a szereplők gondolkodnak, nem szomorúak (figurak.js) */
     ment();
   }
 }

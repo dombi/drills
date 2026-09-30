@@ -83,7 +83,7 @@ function ekKiejt(s) {
 /* ── HTML-darabok (a rajzterv jóváhagyott elemei) ── */
 function ekSok(e, n) { if (n > 8) return e; var s = ""; for (var i = 0; i < n; i++) s += e; return s; }
 function ekErem(e, sz, c, o) {
-  o = o || {};
+  o = o || {}; if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
   return '<div class="ek-erem"><div class="e' + (o.sok ? ' sok' : '') + '">' + e + '</div>' +
     (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
 }
@@ -777,7 +777,7 @@ function ekKinekSpec(cfg) {
 }
 function ekKinek(cfg) {
   var sp = ekKinekSpec(cfg); if (!sp || sp.cs[0].v === sp.cs[1].v || sp.cs[0].v === sp.jo || sp.cs[1].v === sp.jo) return null;
-  var mod = ekR(0, 3) === 0 ? 2 : ekR(0, 1), NEV = ["Pali", "Juli"], EM = ["🐰", "🦊"], mond = [], csap = [];
+  var mod = ekR(0, 3) === 0 ? 2 : ekR(0, 1), NEV = ["Pali", "Juli"], EM = [FIGURA.pali.e, FIGURA.juli.e], mond = [], csap = [];
   if (mod === 2) { mond = mKever([sp.cs[0], sp.cs[1]]); }
   else { mond[mod] = { v: sp.jo }; mond[1 - mod] = ekE(sp.cs); }
   var K = [0, 1].map(function (i) {

@@ -173,6 +173,7 @@ function vsSzalag(sorok, egyseg) {
 }
 /* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson */
 function vsErem(e, sz, c, ki) {
+  if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
   return '<div class="ek-erem vs-erem"' + (ki ? ' data-ki="' + ki + '"' : '') + '><div class="e">' + e + '</div>' +
     (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
 }
@@ -236,7 +237,7 @@ function vsFel(g, o) {
 }
 function vsBub(o) {
   return '<div class="vs-bub">' + (o.kep ? '<div class="vs-kep">' + o.kep + '</div>' : '') +
-    '<div class="vs-tort"><span class="vs-arus" title="Tüske néni">' + FIGURA.tuske.e + '</span><div>' + o.tort.map(function (p) { return '<p>' + p + '</p>'; }).join("") + '</div></div>' +
+    '<div class="vs-tort"><span class="vs-arus" title="Tüske néni">' + figuraSVG("tuske", "gondol", "alak") + '</span><div>' + o.tort.map(function (p) { return '<p>' + p + '</p>'; }).join("") + '</div></div>' +
     '<div class="vs-kk">' + o.kerdes + '</div>' + (o.lepes || '') + '</div>';
 }
 
@@ -671,7 +672,7 @@ GEN.vasar = function (cfg, kerultMar) {
   f.vs.stand = cfg.stand;
   if (i === 0) {                                  /* a stand első feladata: Tüske néni egy rövid mondata */
     var intro = cfg.intro || VS_INTRO[cfg.stand];
-    f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat("🦔 " + intro); }, 50);
+    f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat(intro, FIGURA.tuske.e); }, 50);
   }
   return f;
 };
@@ -778,7 +779,7 @@ function vsHiba(f, valasz) {
   if (c) vsCsapdaSzamol(c.t);
   if (J.probak === 1) {
     if (c) {
-      v.className = "visszajelzes ek-csapda"; v.innerHTML = "🦔 " + c.m;
+      v.className = "visszajelzes ek-csapda"; v.innerHTML = FIGURA.tuske.e + " " + c.m;
       if (c.kep) vsKepCsere(c.kep);
       vsMutat(c.mutat);
       if (c.mozgo && V.mozgo && !V.mozgoVolt) mondd(vsKiejt(c.m), function () { vsMozgoJatszik(f, function () { mondd(vsKiejt(V.bub.kerdes), kezNelkulUjra); }); });
@@ -817,7 +818,7 @@ function vsVezet(f) {
 /* pálya vége: csendes mérés (standonként és hibatípusonként) + Tüske néni búcsúja */
 function vsPalyaVege() {
   var m = "Ügyes vásárló voltál! Irány az odú!";
-  return { html: '<br><span class="vs-vege">🦔 ' + m + '</span>', mondat: " " + m, adat: { osztaly: J.palya.osztaly, csapdak: J.vsCsapda || {}, jolepes: J.vsResz || 0 } };
+  return { html: '<br><span class="vs-vege">' + FIGURA.tuske.e + ' ' + m + '</span>', mondat: " " + m, adat: { osztaly: J.palya.osztaly, csapdak: J.vsCsapda || {}, jolepes: J.vsResz || 0 } };
 }
 
 /* ═════════════════ RAJZ: sátor, füzér, lampion (a rajzterv jóváhagyott elemei) ═════════════════ */

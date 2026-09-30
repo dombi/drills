@@ -255,8 +255,8 @@ var PALYAK = [
 ];
 
 /* ══ FIGURA — az állandó szereplők KÖZÖS táblája (producer, 2026-09-30) ══
-   A 📚 Bagolykönyvtár (konyvtar.js EK_SZ) és a 🧺 Tündérvásár (vasar.js) is innen olvas. Most emoji; ha elkészül a
-   „Figurák rajzterve”, csak ezt a táblát kell cserélni (e → rajz). Mezők: e = kép, n = név, tel = teljes név,
+   A 📚 Bagolykönyvtár (konyvtar.js EK_SZ) és a 🧺 Tündérvásár (vasar.js) is innen olvas. A rajzot a figurak.js adja
+   (betöltéskor e → SVG fej-érem, az emoji `emo`-ban marad; 2026-09-30). Mezők: e = kép, n = név, tel = teljes név,
    t = tárgyeset („Brumit”), nak = részeshatározó („Bruminak”), nal = „Bruminál”, a = „a medve”. */
 var FIGURA = {
   mia:    { e: "🐿️", n: "Mia", tel: "Mókus Mia", t: "Miát", a: "a mókus", nak: "Miának", nal: "Miánál" },
@@ -269,6 +269,8 @@ var FIGURA = {
   potyi:  { e: "🐷", n: "Pötyi", tel: "Malac Pötyi", t: "Pötyit", a: "a malac", nak: "Pötyinek", nal: "Pötyinél" },
   bence:  { e: "🦡", n: "Bence", tel: "Borz Bence", t: "Bencét", a: "a borz", nak: "Bencének", nal: "Bencénél" },
   kitti:  { e: "🐞", n: "Kitti", tel: "Katica Kitti", t: "Kittit", a: "a katica", nak: "Kittinek", nal: "Kittinél" },
+  pali:   { e: "🐰", n: "Pali", tel: "Nyúl Pali", t: "Palit", a: "a nyúl", nak: "Palinak", nal: "Palinál" },
+  juli:   { e: "🦊", n: "Juli", tel: "Róka Juli", t: "Julit", a: "a róka", nak: "Julinak", nal: "Julinál" },
   tuske:  { e: "🦔", n: "Tüske néni", tel: "Tüske néni", t: "Tüske nénit", a: "a sün-árus", nak: "Tüske néninek", nal: "Tüske néninél" }
 };
 

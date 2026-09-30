@@ -1710,7 +1710,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .vs-tobb{ font-weight:700; color:#6a4fa8; }
 .vs-tort{ display:flex; gap:10px; align-items:flex-start; text-align:left; font-size:clamp(15px,2.4vh,19px); font-weight:500; line-height:1.42; color:#5a4a6a; }
 .vs-tort p{ margin:0 0 2px; }
-.vs-arus{ flex:0 0 auto; width:42px; height:42px; display:grid; place-items:center; font-size:27px; line-height:1; background:#fffaf0; border:3px solid #f6a5c0; border-radius:50%; }
+.vs-arus{ flex:0 0 auto; width:50px; height:62px; display:grid; place-items:center; margin-top:-6px; }
+.vs-arus svg.fg{ width:50px; height:62px; }
 .vs-kk{ position:relative; margin:12px 0 2px; background:#eef6ff; border:3px solid #9ec9f0; border-radius:16px; padding:12px 12px 8px;
   font-size:clamp(18px,4.2vw,22px); font-weight:700; color:#2f4f7a; line-height:1.3; text-align:center; }
 .vs-kk::before{ content:"❓ A KÉRDÉS"; position:absolute; left:12px; top:-12px; font-size:11.5px; font-weight:800; letter-spacing:.05em; color:#fff; background:#6aa9dc; border-radius:999px; padding:1px 10px; }
@@ -1740,8 +1741,21 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .vs-kep .vs-svg.szeles{ zoom:.85; }
   .vs-nyil{ font-size:20px; }
   .vs-kep-al{ font-size:12px; }
-  .vs-arus{ width:34px; height:34px; font-size:21px; border-width:2px; }
+  .vs-arus, .vs-arus svg.fg{ width:40px; height:50px; }
   .vs-tort{ gap:7px; font-size:15px; line-height:1.35; }
   .vs-kk{ font-size:17px; padding:10px 8px 6px; margin-top:10px; }
   .vs-mini{ font-size:18px; }
 }
+
+/* ══ 🎨 FIGURÁK — az állandó szereplők rajza (src/figurak.js) ══
+   Az SVG az emoji helyére lép, és a környezet betűméretéhez igazodik (1.3em ≈ egy emoji látható mérete). */
+svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; overflow:visible; }
+.vs-mini svg.fg{ width:1.15em; height:1.15em; }
+.visszajelzes svg.fg, .vs-vege svg.fg, #bagoly-mondat svg.fg{ width:1.5em; height:1.5em; vertical-align:-.45em; }
+.fg-szem{ animation:fgPislog 5s infinite; transform-box:fill-box; transform-origin:center; }
+.fg-test{ animation:fgPiheg 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
+.fg-test.fg-ujj, svg.fg-ugr{ animation:fgUgral .8s ease-in-out 2; }
+@keyframes fgPislog{ 0%,93%,100%{ transform:scaleY(1); } 96%{ transform:scaleY(.12); } }
+@keyframes fgPiheg{ 0%,100%{ transform:scale(1,1); } 50%{ transform:scale(1.015,.985); } }
+@keyframes fgUgral{ 0%,100%{ transform:translateY(0); } 40%{ transform:translateY(-12%); } }
+@media (prefers-reduced-motion: reduce){ .fg-szem, .fg-test, svg.fg-ugr{ animation:none; } }
