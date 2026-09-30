@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tündérbank rendszerterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--blue) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.28);position:relative;overflow:hidden}
+  header.top::after{content:"🏦";position:absolute;right:18px;top:6px;font-size:100px;opacity:.18;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--blue-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--violet);font-weight:800}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🏦 Tündérbank</h1>
+  <div class="sub">Új helyszín az utcán: itt lehet ✨ csillámport 💧 tündérharmatra váltani. A gyerekek ötlete, ők rajzolják meg. A váltás ára a pultról állítható.</div>
+  <div class="meta">
+    <span class="chip">Rendszerterv · jóváhagyva</span>
+    <span class="chip">2026-09-30</span>
+    <span class="chip">Nagyság: közepes</span>
+    <span class="chip">Rajz: a gyerekeké (később)</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <ul>
+    <li>Az utcán egy <b>5. épület</b> lesz: a bank. <b>Ingyen</b> be lehet menni.</li>
+    <li>Bent egy <b>bagoly bankár</b> áll a pult mögött. Egy koppintás és egy „Igen” = egy váltás (pl. 100 ✨ → 1 💧).</li>
+    <li>Az <b>árfolyamot és a napi korlátot a pulton</b> állítod: az egész csoportra, és gyerekenként is. <b>Amíg nem állítasz árat, a bank zárva van.</b></li>
+    <li>A váltások egy <b>táblázatban</b> lesznek. Új váltás vagy új pénznem = egy új sor, a bank magától megjeleníti.</li>
+    <li>Az első körben csak <b>✨ → 💧</b> váltás van.</li>
+  </ul>
+</div>
+
+<h2>Döntések</h2>
+<div class="cards">
+
+  <div class="dec"><div class="num">1</div>
+    <h3>Mit vált a bank?</h3>
+    ✨ csillámport 💧 tündérharmatra, egy irányba. A csillagszilánkhoz nem nyúl, az a haladás jele az égen marad.
+    <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><div class="num">2</div>
+    <h3>Árfolyam és napi korlát: a pultról</h3>
+    Minden váltásnak két beállítása lesz a pulton:
+    <ul>
+      <li><b>ár</b>: hány ✨ kell 1 💧-hoz</li>
+      <li><b>napi korlát</b>: naponta legfeljebb hány 💧-t lehet váltani (0 = aznap zárva, üres = nincs korlát)</li>
+      <li>és egy <b>ki/be kapcsoló</b>, ha egy gyereknél vagy csoportnál szünetelne a bank</li>
+    </ul>
+    Ugyanúgy működik, mint a többi pult-beállítás: <b>alap &lt; csoport &lt; egyéni</b>. A gyerek egyéni beállítása mindig nyer.
+    <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><div class="num">3</div>
+    <h3>Mi van, ha a pulton még semmit nem állítottál?</h3>
+    <b>Nincs alapérték: a bank zárva van.</b> Csak akkor lehet váltani, ha a pulton beállítottál egy árat. Elég a gyerek csoportjára vagy magára a gyerekre.
+    <ul>
+      <li><b>Zárva:</b> az épület látszik az utcán, az ajtón „Hamarosan nyitunk” tábla lóg. Ha a gyerek rákoppint, a bagoly bankár kiszól: „A bank még nem nyitott ki, nemsokára gyere vissza!”</li>
+      <li><b>Nyitva:</b> van beállított ár, és a váltás nincs kikapcsolva.</li>
+      <li>A <b>napi korlát</b> nem kötelező. Ha sehol nincs beállítva, nincs napi korlát. Tipp: a 💧 ritkaságának megőrzésére érdemes kb. 3-at beírni.</li>
+      <li>Hozzávetőleg: egy pálya kb. 30–80 ✨-t és 1–2 💧-t ad. Kiindulásnak 100 ✨ = 1 💧 jó (kb. két pálya csillámpora).</li>
+    </ul>
+    <span class="ok">✔ Jóváhagyva: csak beállítás után lehet váltani</span>
+  </div>
+
+  <div class="dec"><div class="num">4</div>
+    <h3>Ha két csoport mást mond</h3>
+    Ha egy gyerek két csoportban is benne van, és a két csoport beállítása eltér, <b>a szigorúbb érvényes</b>: a magasabb ár és a kisebb napi korlát. Ha valamelyik csoport kikapcsolta, akkor ki van kapcsolva. Egyéni beállítással ezt mindig felül tudod írni.
+    <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><div class="num">5</div>
+    <h3>Helye az utcán</h3>
+    Az utcán most 4 épület áll egy sorban (fodrász, csillagbolt, kert, odú). A bank ötödiknek kerül be, ezért mind az 5 épület kicsit keskenyebb lesz. Amíg a gyerekek rajza el nem készül, egy egyszerű <b>ideiglenes épület</b> áll ott (oszlopos homlokzat, 💧 cégér). A bank már így is teljesen működik.
+    <br><span class="ok">✔ Jóváhagyva (a bank legyen az utcán)</span>
+  </div>
+
+  <div class="dec"><div class="num">6</div>
+    <h3>Belépés</h3>
+    Ingyenes, nincs kulcs és nincs belépő.
+    <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><div class="num">7</div>
+    <h3>Bankár-figura</h3>
+    Egy bölcs <b>bagoly szemüveggel</b>. A Bagolykönyvtárból már ismerik a baglyokat. Amíg a gyerekek nem rajzolják meg, ez az ideiglenes figura áll a pult mögött. Hangosan beszél, mint a többi szereplő, és kevés a szöveg.
+    <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+</div>
+
+<h2>Hogyan működik a gyereknek</h2>
+<div class="panel">
+  <div class="flow">
+    <span class="step">odú → „Ki az utcára”</span><span class="arr">→</span>
+    <span class="step">koppint a bankra</span><span class="arr">→</span>
+    <span class="step">bankár köszön</span><span class="arr">→</span>
+    <span class="step">koppint a váltó-gombra</span><span class="arr">→</span>
+    <span class="step">„Biztos?” → Igen</span><span class="arr">→</span>
+    <span class="step">✨ átrepül, 💧 csepp érkezik</span><span class="arr">→</span>
+    <span class="step">„Vissza az utcára”</span>
+  </div>
+  <ul style="margin-top:12px">
+    <li>A váltó-gomb nagy és koppintós: <b>„100 ✨ → 1 💧”</b>. Ha a táblázatban több váltás lesz, mindegyik egy-egy gomb.</li>
+    <li>Felül látszik, mennyi ✨ és 💧 van most, és hogy <b>„Ma még 2-t válthatsz”</b>.</li>
+    <li><b>Nincs elég ✨:</b> a gomb halvány, a bankár megmondja, mennyi hiányzik („Még 40 csillámpor kell”).</li>
+    <li><b>Elfogyott a napi korlát:</b> a bankár kedvesen jelzi: „Mára ennyi, holnap újra jöhetsz!”</li>
+    <li><b>Rákérdez váltás előtt</b>, a fodrászat mintájára. Egy ablak nyílik, és a bagoly felolvassa: „Odaadsz 100 csillámport 1 tündérharmatért?” Két nagy gomb van: <b>Igen</b> / <b>Nem</b>. <span class="ok">✔ Jóváhagyva</span></li>
+    <li>Minden váltás bekerül a vásárlási naplóba, ugyanúgy, mint a boltban vett tárgyak.</li>
+  </ul>
+</div>
+
+<h2>Bővíthetőség: két táblázat</h2>
+<div class="panel">
+  <p class="lead">A bank nem tudja előre, mit vált. Mindent ebből a két listából olvas ki, ahogy a szalon is a festéklistából.</p>
+  <b>1. Pénznemek</b>
+  <div class="tblwrap"><table>
+    <tr><th>azonosító</th><th>név</th><th>ikon</th></tr>
+    <tr><td><code>csillampor</code></td><td>csillámpor</td><td>✨</td></tr>
+    <tr><td><code>tunderharmat</code></td><td>tündérharmat</td><td>💧</td></tr>
+    <tr><td style="color:var(--muted)"><i>(később pl. egy új pénz)</i></td><td style="color:var(--muted)"><i>…</i></td><td></td></tr>
+  </table></div>
+  <br><b>2. Váltások</b>
+  <div class="tblwrap"><table>
+    <tr><th>azonosító</th><th>mit ad a gyerek</th><th>mit kap</th><th>ár</th><th>napi korlát</th></tr>
+    <tr><td><code>csilla-harmat</code></td><td>✨</td><td>1 💧</td><td>nincs (zárva, amíg a pulton nem állítod)</td><td>nincs</td></tr>
+    <tr><td style="color:var(--muted)"><i>később pl.</i></td><td style="color:var(--muted)"><i>💧</i></td><td style="color:var(--muted)"><i>50 ✨</i></td><td></td><td></td></tr>
+    <tr><td style="color:var(--muted)"><i>később pl.</i></td><td style="color:var(--muted)"><i>egy kert-termés</i></td><td style="color:var(--muted)"><i>✨</i></td><td></td><td></td></tr>
+  </table></div>
+  <ul style="margin-top:10px">
+    <li>Egy új sor magától megjelenik a bankban <b>és</b> a pulton (ár, korlát, ki/be).</li>
+    <li>A <b>tárgy → pénz</b> váltás (az utolsó példa) már most bele van tervezve a táblázat formájába. A kódja akkor készül el, amikor lesz ilyen konkrét kérés.</li>
+  </ul>
+</div>
+
+<h2>A pulton</h2>
+<div class="panel">
+  Új rész a pulton: <b>🏦 Bank</b>. Ugyanott és ugyanúgy jelenik meg, mint a kapu-óraszám, a csoport lapján és a gyerek lapján is. Minden váltásnak egy sora van:
+  <div class="tblwrap"><table style="margin-top:8px">
+    <tr><th>Váltás</th><th>Be</th><th>Ár (✨ / 1 💧)</th><th>Napi korlát</th></tr>
+    <tr><td>✨ → 💧</td><td>☑</td><td>[ &nbsp;&nbsp; ] ← amíg üres, zárva</td><td>[ &nbsp;&nbsp; ] ← üres = nincs korlát</td></tr>
+  </table></div>
+  <p class="lead" style="margin-top:8px">Az üres mező azt jelenti, hogy a felsőbb szint érvényes (gyerek → csoport). Ha az árat sehol nem állítottad, a bank annál a gyereknél zárva van. A pult szövegében leírjuk a „szigorúbb nyer” szabályt is.</p>
+</div>
+
+<h2>Kinek mi a dolga</h2>
+<div class="panel">
+  <ul>
+    <li><b>Gyerekek:</b> a bank épületének és belsejének rajza, a bankár figurája. Nem sürgős, addig ideiglenes rajz van.</li>
+    <li><b>Producer:</b> jóváhagyja ezt a lapot és a lenti kérdéseket, később a pulton beállítja az árakat.</li>
+    <li><b>Claude:</b> kód (két táblázat + bank-kép + utca 5. épület + pult-rész + mentés), teszt, feltöltés.</li>
+  </ul>
+  <p class="lead">Technikai megjegyzés: a napi korlát számlálója a gyerek mentésébe kerül (<code>P().bank</code>), a pult-beállítás a kapu-óraszámhoz hasonló külön mezőbe kerül a gyerek- és a csoport-adatlapon. A pálya-motorhoz és a matekhoz nem nyúlunk.</p>
+</div>
+
+<h2>Állapot</h2>
+<div class="panel">✔ Minden kérdés eldöntve (2026-09-30). Következő lépés: <b>kód</b>. A rajz a gyerekektől jön, addig az ideiglenes épület és bagoly marad.</div>
+
+</div>
+</body>
+</html>
