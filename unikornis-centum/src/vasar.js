@@ -657,7 +657,8 @@ var VS_DICSER = ["Pontosan!", "Ügyes vásárló vagy!", "Így van!", "Ez az!", 
 GEN.vasar = function (cfg, kerultMar) {
   ekFuzetTorol(); vsTovabbRejt();                 /* új feladat: tiszta füzetlap */
   var g = cfg.g, i = J.feladatKesz;
-  var S = J.vsStand && J.vsStand.idx === J.allomasIdx ? J.vsStand : (J.vsStand = { idx: J.allomasIdx, sor: vsStandSor(cfg.stand, g), tort: null, par: null });
+  var S = J.vsStand && J.vsStand.idx === J.allomasIdx ? J.vsStand : (J.vsStand = { idx: J.allomasIdx, sor: cfg.sor ? (cfg.keverd ? mKever(cfg.sor) : cfg.sor.slice()) : vsStandSor(cfg.stand, g), tort: null, par: null });
+  if (cfg.ujTort) S.tort = null;                   /* 📦 Dobozoló-nap: minden feladat új történet */
   var sab = S.sor[i % S.sor.length], f = null;
   for (var k = 0; k < 400; k++) {
     var x = VS_GEN[sab](g, S);
@@ -669,7 +670,7 @@ GEN.vasar = function (cfg, kerultMar) {
   if (f.kulcs) kerultMar[f.kulcs] = true;
   f.vs.stand = cfg.stand;
   if (i === 0) {                                  /* a stand első feladata: Tüske néni egy rövid mondata */
-    var intro = VS_INTRO[cfg.stand];
+    var intro = cfg.intro || VS_INTRO[cfg.stand];
     f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat("🦔 " + intro); }, 50);
   }
   return f;
@@ -877,7 +878,8 @@ function vasarJelenetSVG(palya, c) {
   s += '<g id="kamera"><path d="' + d + '" fill="none" stroke="#c9ad84" stroke-width="52" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="url(#vs-macska)" stroke-width="44" stroke-linecap="round"/>';
   s += '<g transform="translate(' + px[0] + ',' + (py[0] + 34) + ')"><rect x="-34" y="-15" width="68" height="30" rx="12" fill="#fff" stroke="#c9a8e6" stroke-width="2.5"/><text y="5" font-size="14" ' + VS_F + ' fill="#6a4a8a" text-anchor="middle">Rajt</text></g>';
   for (var a = 1; a < n - 1; a++) {
-    var st = palya.allomasok[a].stand, sz = VS_SZIN[st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
+    var st = palya.allomasok[a].stand, sz = VS_SZIN[palya.allomasok[a].szin || st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
+    if (palya.allomasok[a].szin && st === "doboz") sz = { teto: sz.teto, csik: sz.csik, sotet: sz.sotet, cimer: "📦" };
     s += vsSator(sx, sy, sz, nagy ? .82 : .76, nagy) +
       '<g transform="translate(' + sx.toFixed(1) + ',' + (sy + 22).toFixed(1) + ')"><rect x="' + (-w / 2) + '" y="-13" width="' + w + '" height="26" rx="11" fill="#fff" stroke="' + sz.sotet + '" stroke-width="2" stroke-opacity=".5"/><text y="5" font-size="13.5" ' + VS_F + ' fill="#4a3b7a" text-anchor="middle" font-weight="600">' + kiiras(nev) + '</text></g>';
   }

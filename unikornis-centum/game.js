@@ -285,14 +285,24 @@ var FIGURA = {
    a pult „feladatszám” kapcsolója: 3 → standonként 2 · 8 → nem hosszabbít (config.js nehezsegAlkalmaz). */
 var VS_STANDOK = [["kosar", "Kosárrakó"], ["doboz", "Dobozoló"], ["arcedula", "Árcédula"], ["hasonlito", "Hasonlító pult"], ["nagy", "Nagy vásár"], ["odu", "Odú-küszöb"]];
 var VS_DARAB = [3, 3, 3, 3, 2, 3];
+/* o.nelkul: kihagyott standok · o.allomasok: saját állomás-lista ({ nev, stand, sor: [sablonok], ujTort, szin, intro, darab }) */
 function vsPalya(o) {
   var all = [{ nev: "Rajt" }];
-  VS_STANDOK.forEach(function (s, i) { all.push({ nev: s[1], stand: s[0], g: o.g, darab: VS_DARAB[i], cel: s[0] === "odu" }); });
+  if (o.allomasok) o.allomasok.forEach(function (a) { var x = { g: o.g, cel: a.stand === "odu" }; for (var k in a) x[k] = a[k]; all.push(x); });
+  else VS_STANDOK.forEach(function (s, i) { if ((o.nelkul || []).indexOf(s[0]) < 0) all.push({ nev: s[1], stand: s[0], g: o.g, darab: VS_DARAB[i], cel: s[0] === "odu" }); });
   o.regio = "vasar"; o.vasar = true; o.osztaly = o.g; o.kez_nelkul = true; o.allomasok = all;
   return o;
 }
+/* 3. o.: a maradékos osztás még nehéz → a Reggeli vásárban NINCS Dobozoló (14 feladat); a maradék a saját
+   📦 Dobozoló-nap ösvényen jön, lépcsőzetesen: TELI → MARAD → KELL → egy történet, három kérdés (producer, 2026-09-30) */
 PALYAK.push(
-  vsPalya({ id: "vasar-3", nev: "Reggeli vásár", ikon: "🌅", g: 3, szint: 4, palcim: "100-ig · ×, :, maradék — 3. o.", alap: { tipus: "vasar" } }),
+  vsPalya({ id: "vasar-3", nev: "Reggeli vásár", ikon: "🌅", g: 3, szint: 4, palcim: "100-ig · ×, : — 3. o.", alap: { tipus: "vasar" }, nelkul: ["doboz"] }),
+  vsPalya({ id: "vasar-3d", nev: "Dobozoló-nap", ikon: "📦", g: 3, szint: 4, palcim: "maradékos osztás — 3. o.", alap: { tipus: "vasar" }, allomasok: [
+    { nev: "Teli dobozok", stand: "doboz", sor: ["D1"], ujTort: true, szin: "kosar", intro: "Hány doboz lesz tele? Ezt keressük.", darab: 3 },
+    { nev: "Mi marad ki?", stand: "doboz", sor: ["D2"], ujTort: true, szin: "doboz", intro: "Most azt figyeld, mi marad ki!", darab: 3 },
+    { nev: "Kell még egy?", stand: "doboz", sor: ["D3"], ujTort: true, szin: "arcedula", intro: "Hová kerül a maradék? Kell még egy doboz!", darab: 3 },
+    { nev: "Három kérdés", stand: "doboz", sor: ["D1", "D2", "D3"], keverd: true, szin: "hasonlito", intro: "Ugyanaz a történet, de figyeld, mit kérdezek!", darab: 3 },
+    { nev: "Odú-küszöb", stand: "odu", sor: ["D1", "D2", "D3"], keverd: true, ujTort: true, szin: "nagy", intro: "Utolsó próba az odú előtt!", darab: 3 }] }),
   vsPalya({ id: "vasar-4", nev: "Déli vásár", ikon: "☀️", g: 4, szint: 5, palcim: "10 000-ig · írásbeli — 4. o.", alap: { tipus: "vasar" } })
   /* 🌇 Alkonyi vásár (5. o.) · 🏮 Lámpás vásár (6. o.) — a producer döntéséig NINCS itt (a tervük: tunderevasar-tartalom.html 5–6. o.) */
 );
@@ -6968,7 +6978,8 @@ var VS_DICSER = ["Pontosan!", "Ügyes vásárló vagy!", "Így van!", "Ez az!", 
 GEN.vasar = function (cfg, kerultMar) {
   ekFuzetTorol(); vsTovabbRejt();                 /* új feladat: tiszta füzetlap */
   var g = cfg.g, i = J.feladatKesz;
-  var S = J.vsStand && J.vsStand.idx === J.allomasIdx ? J.vsStand : (J.vsStand = { idx: J.allomasIdx, sor: vsStandSor(cfg.stand, g), tort: null, par: null });
+  var S = J.vsStand && J.vsStand.idx === J.allomasIdx ? J.vsStand : (J.vsStand = { idx: J.allomasIdx, sor: cfg.sor ? (cfg.keverd ? mKever(cfg.sor) : cfg.sor.slice()) : vsStandSor(cfg.stand, g), tort: null, par: null });
+  if (cfg.ujTort) S.tort = null;                   /* 📦 Dobozoló-nap: minden feladat új történet */
   var sab = S.sor[i % S.sor.length], f = null;
   for (var k = 0; k < 400; k++) {
     var x = VS_GEN[sab](g, S);
@@ -6980,7 +6991,7 @@ GEN.vasar = function (cfg, kerultMar) {
   if (f.kulcs) kerultMar[f.kulcs] = true;
   f.vs.stand = cfg.stand;
   if (i === 0) {                                  /* a stand első feladata: Tüske néni egy rövid mondata */
-    var intro = VS_INTRO[cfg.stand];
+    var intro = cfg.intro || VS_INTRO[cfg.stand];
     f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat("🦔 " + intro); }, 50);
   }
   return f;
@@ -7188,7 +7199,8 @@ function vasarJelenetSVG(palya, c) {
   s += '<g id="kamera"><path d="' + d + '" fill="none" stroke="#c9ad84" stroke-width="52" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="url(#vs-macska)" stroke-width="44" stroke-linecap="round"/>';
   s += '<g transform="translate(' + px[0] + ',' + (py[0] + 34) + ')"><rect x="-34" y="-15" width="68" height="30" rx="12" fill="#fff" stroke="#c9a8e6" stroke-width="2.5"/><text y="5" font-size="14" ' + VS_F + ' fill="#6a4a8a" text-anchor="middle">Rajt</text></g>';
   for (var a = 1; a < n - 1; a++) {
-    var st = palya.allomasok[a].stand, sz = VS_SZIN[st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
+    var st = palya.allomasok[a].stand, sz = VS_SZIN[palya.allomasok[a].szin || st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
+    if (palya.allomasok[a].szin && st === "doboz") sz = { teto: sz.teto, csik: sz.csik, sotet: sz.sotet, cimer: "📦" };
     s += vsSator(sx, sy, sz, nagy ? .82 : .76, nagy) +
       '<g transform="translate(' + sx.toFixed(1) + ',' + (sy + 22).toFixed(1) + ')"><rect x="' + (-w / 2) + '" y="-13" width="' + w + '" height="26" rx="11" fill="#fff" stroke="' + sz.sotet + '" stroke-width="2" stroke-opacity=".5"/><text y="5" font-size="13.5" ' + VS_F + ' fill="#4a3b7a" text-anchor="middle" font-weight="600">' + kiiras(nev) + '</text></g>';
   }
