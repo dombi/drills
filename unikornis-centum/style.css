@@ -1721,7 +1721,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .vs-kw-val{ color:#2e7d4f; background:#dff3d6; border-radius:6px; padding:0 4px; font-weight:700; }
 .visszajelzes.vs-lepes{ color:#7a5a08; background:#fff4b8; border-radius:12px; padding:4px 10px; }
 .vs-erem.vs-mutat{ border-color:#e2589b; animation:vsMutat 1.2s ease-in-out 2; position:relative; }
-.vs-erem.vs-mutat::after{ content:"👈"; position:absolute; right:-24px; top:6px; font-size:22px; }
+.vs-kep.vs-kep-mutat{ border-radius:14px; animation:vsKepMutat 1.3s ease-in-out 2; }
+@keyframes vsKepMutat{ 0%,100%{ box-shadow:0 0 0 0 rgba(226,88,155,0); } 45%{ box-shadow:0 0 0 7px rgba(226,88,155,.22); background:rgba(255,236,246,.7); } }
 @keyframes vsMutat{ 0%,100%{ transform:scale(1); } 40%{ transform:scale(1.12); box-shadow:0 0 0 6px rgba(226,88,155,.25); } }
 .vs-vege{ display:inline-block; margin-top:4px; color:#b0602a; font-weight:800; }
 /* 📓 a vásár füzete: a sorok törhetnek (hosszabb 4. o.-s műveletek), alul a zöld „Tovább ▶” */
@@ -1732,7 +1733,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .vs-tovabb[hidden]{ display:none; }
 .vs-tovabb:active{ transform:translateY(2px); box-shadow:0 2px 0 #5e9a52; }
 @keyframes vsTovabb{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
-@media (prefers-reduced-motion:reduce){ .vs-tovabb,.vs-erem.vs-mutat{ animation:none; } }
+@media (prefers-reduced-motion:reduce){ .vs-tovabb,.vs-erem.vs-mutat,.vs-kep.vs-kep-mutat{ animation:none; } }
 /* telefonon (keskeny) is férjen be a kérdés görgetés nélkül */
 @media (max-width:600px){
   .vs-kep{ gap:4px 6px; margin-bottom:4px; }
@@ -1755,7 +1756,9 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .fg-szem{ animation:fgPislog 5s infinite; transform-box:fill-box; transform-origin:center; }
 .fg-test{ animation:fgPiheg 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
 .fg-test.fg-ujj, svg.fg-ugr{ animation:fgUgral .8s ease-in-out 2; }
+.fg-bok{ animation:fgBok .55s ease-in-out 4; transform-box:fill-box; transform-origin:0% 100%; }
+@keyframes fgBok{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(2.5px,-3px); } }
 @keyframes fgPislog{ 0%,93%,100%{ transform:scaleY(1); } 96%{ transform:scaleY(.12); } }
 @keyframes fgPiheg{ 0%,100%{ transform:scale(1,1); } 50%{ transform:scale(1.015,.985); } }
 @keyframes fgUgral{ 0%,100%{ transform:translateY(0); } 40%{ transform:translateY(-12%); } }
-@media (prefers-reduced-motion: reduce){ .fg-szem, .fg-test, svg.fg-ugr{ animation:none; } }
+@media (prefers-reduced-motion: reduce){ .fg-szem, .fg-test, svg.fg-ugr, .fg-bok{ animation:none; } }

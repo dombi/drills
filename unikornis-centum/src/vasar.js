@@ -578,14 +578,14 @@ function vsU1(g) {
   var sorok = [{ cimk: V[0].n + ":", h: b + " · " + z + " = " + x }, { cimk: V[1].n + ":", h: x + " · " + k + " = " + y }];
   if (negy) sorok.push({ cimk: "együtt:", h: x + " + " + y + " = " + h });
   var resz = [[x, "A " + x + " " + V[0].n + " " + A.ja + " — jó lépés! De " + (negy ? "kettejüket együtt" : V[1].t) + " kérdeztük.", 0, negy ? null : V[1].n]];
-  if (negy) resz.push([y, "A " + y + " " + V[1].n + " " + A.ja + " — jó lépés! De kettejüket együtt kérdeztük.", 1]);
+  if (negy) { resz[0][3] = V[0].n; resz.push([y, "A " + y + " " + V[1].n + " " + A.ja + " — jó lépés! De kettejüket együtt kérdeztük.", 1, V[1].n]); }
   var vez = [["Mennyit vett " + V[0].n + "? Mennyi " + b + " · " + z + "?", x, 0], [V[1].n + " " + ekRag(k, "szor") + " annyit vett. Mennyi " + x + " · " + k + "?", y, 1]];
   if (negy) vez.push(["Együtt: mennyi " + x + " + " + y + "?", h, 2]);
   return vsFel(g, { sablon: "U1", kulcs: "U1" + z + "/" + b + "/" + k,
     kep: [vsErem(V[0].e, z + " " + T.n, V[0].n, V[0].n), vsErem(V[1].e, "?", V[1].n, V[1].n), vsTartokKep(Math.min(z, 5), P[1], A, negy ? 0 : b, negy ? String(b) : null)],
     tort: tort, kerdes: kerd, helyes: h, mit: negy ? "amennyit ketten együtt vettek" : "amennyit " + V[1].n + " vett", sorok: sorok,
     valasz: negy ? "Válasz: együtt " + vsDb(h, A, "t") + " vettek." : "Válasz: " + V[1].n + " " + vsDb(h, A, "t") + " vett.", resz: resz,
-    csap: [[b * k, "A " + (b * k) + " egy " + T.n + " " + VS_SZOROS[k] + ". De " + V[0].n + " " + z + " " + T.t + " vett!", "egy"],
+    csap: [[b * k, "A " + (b * k) + " egy " + T.n + " " + VS_SZOROS[k] + ". De " + V[0].n + " " + z + " " + T.t + " vett!", "egy", { mutat: V[0].n }],
            [x + k, "A " + (x + k) + " akkor lenne jó, ha " + V[1].n + " " + ekRag(k, "val") + " többet vett volna. De itt " + ekRag(k, "szor") + " annyit vett!", "szorval", { mozgo: true }]],
     vezet: vez, mozgo: { klip: "tobbszor", o: { a: x, k: k, d: k, szor: true, x: V[0].n, y: V[1].n, egys: "" } } });
 }
@@ -611,7 +611,7 @@ function vsU2(g) {
     tort: ["Egy tálban " + vsDb(b2, A2) + " van.", V[0].tel + " " + p + " tálat vett, " + V[1].tel + " " + q2 + " tálat."], kerdes: "Hány " + vsSzem(A2) + A2.t + " vettek <b>együtt</b>?", helyes: h,
     mit: "az összes " + A2.n + " együtt", sorok: [{ cimk: "tálak:", h: p + " + " + q2 + " = " + (p + q2) }, { cimk: A2.n + ":", h: b2 + " · " + (p + q2) + " = " + h }],
     valasz: "Válasz: együtt " + vsDb(h, A2, "t") + " vettek.",
-    resz: [[b2 * p, "Ez " + V[0].n + " " + A2.ja + " — jó lépés! De kettejüket együtt kérdeztük.", -1], [b2 * q2, "Ez " + V[1].n + " " + A2.ja + " — jó lépés! De kettejüket együtt kérdeztük.", -1]],
+    resz: [[b2 * p, "Ez " + V[0].n + " " + A2.ja + " — jó lépés! De kettejüket együtt kérdeztük.", -1, V[0].n], [b2 * q2, "Ez " + V[1].n + " " + A2.ja + " — jó lépés! De kettejüket együtt kérdeztük.", -1, V[1].n]],
     csap: [[p + q2, ekA(p + q2, true) + " a tálak száma. Mi " + vsAz(A2.t) + " kérdeztük!", "masik"], [b2 + p + q2, "Mindent összeadtál. De egy tálban " + vsDb(b2, A2) + " van — hány tál van összesen?", "osszead"]],
     vezet: [["Hány tálat vettek együtt? Mennyi " + p + " + " + q2 + "?", p + q2, 0], ["Egy tálban " + vsDb(b2, A2) + " van. Mennyi " + b2 + " · " + (p + q2) + "?", h, 1]] });
 }
@@ -627,7 +627,7 @@ function vsU3(g) {
     tort: [telNak + " " + Pz + " forintja van.", negy ? "Vesz " + c + " kg sajtot, 1 kg sajt " + e + " forint." : "Vesz " + c + " " + A.t + ", egy " + A.n + " " + e + " forint."],
     kerdes: "Hány forintja <b>MARAD</b>?", helyes: h, mit: "amennyi pénze MARAD",
     sorok: [{ cimk: "fizet:", h: e + " Ft · " + c + " = " + fizet + " Ft" }, { cimk: "marad:", h: Pz + " Ft − " + fizet + " Ft = " + h + " Ft" }], valasz: "Válasz: " + h + " forintja marad.",
-    resz: [[fizet, fizet + " forintot fizetett — jó lépés! De azt kérdeztük, mennyi marad.", 0]],
+    resz: [[fizet, fizet + " forintot fizetett — jó lépés! De azt kérdeztük, mennyi marad.", 0, V.n]],
     csap: [[Pz - c, "Csak egy számot vettél el. Előbb: mennyit fizet?", "kivon"], [Pz - e, "Csak egy számot vettél el. Előbb: mennyit fizet?", "kivon"],
            [c + e, "Összeadtad a darabszámot és az árat. Mennyit fizet " + V.n + "?", "osszead"]],
     vezet: [["Mennyit fizet? Mennyi " + e + " · " + c + "?", fizet, 0], ["Mennyi marad? Mennyi " + Pz + " − " + fizet + "?", h, 1]] });
@@ -685,11 +685,22 @@ function vsVillant() {
   var kk = document.querySelector("#buborek-feladat .vs-kk"); if (!kk) return;
   kk.classList.remove("villan"); void kk.offsetWidth; kk.classList.add("villan");
 }
-/* Tüske néni rámutat: a képen a kérdezett szereplő érme kiemelődik */
+/* 👉 Tüske néni rámutat (figurák 2. kör): felemeli a kezét a kép felé; ha van `ki`, a kérdezett szereplő érme lüktet,
+   különben az egész kép (az áru) kap egy halvány fényt. Egy ütemmel később fut, hogy az ertekel figArc("gondol")-ja
+   ne írja felül; ~2,6 s múlva visszaáll gondolkodó arcra. */
 function vsMutat(ki) {
-  if (!ki) return;
-  var e = document.querySelector('#buborek-feladat .vs-erem[data-ki="' + ki + '"]');
-  if (e) { e.classList.remove("vs-mutat"); void e.offsetWidth; e.classList.add("vs-mutat"); }
+  clearTimeout(vsMutat._t); clearTimeout(vsMutat._v);
+  vsMutat._t = setTimeout(function () {
+    var bub = document.getElementById("buborek-feladat"); if (!bub) return;
+    var t = ki && bub.querySelector('.vs-erem[data-ki="' + ki + '"]'), kep = bub.querySelector(".vs-kep"), cel = t || kep;
+    if (cel) { cel.classList.remove(t ? "vs-mutat" : "vs-kep-mutat"); void cel.offsetWidth; cel.classList.add(t ? "vs-mutat" : "vs-kep-mutat"); }
+    var a = bub.querySelector('.vs-arus svg[data-fig]');
+    if (a) a.outerHTML = figuraSVG(a.getAttribute("data-fig"), "mutat", "alak", a.getAttribute("data-alap") || "gondol");
+    vsMutat._v = setTimeout(function () {
+      var b = document.querySelector('#buborek-feladat .vs-arus svg[data-arc="mutat"]');
+      if (b) b.outerHTML = figuraSVG(b.getAttribute("data-fig"), b.getAttribute("data-alap") || "gondol", "alak");
+    }, 2600);
+  }, 60);
 }
 function vsKepCsere(html) { var k = document.querySelector("#buborek-feladat .vs-kep"); if (k && html) k.innerHTML = html; }
 
@@ -786,7 +797,7 @@ function vsHiba(f, valasz) {
       else mondd(vsKiejt(c.m), kezNelkulUjra);
     } else {
       v.className = "visszajelzes rossz"; v.textContent = "Hmm, nem ennyi. Nézd meg újra a képet, és olvasd el a kérdést!";
-      vsVillant(); mondd("Hmm, nem ennyi. Nézd meg újra a képet, és olvasd el a kérdést!", kezNelkulUjra);
+      vsVillant(); vsMutat(); mondd("Hmm, nem ennyi. Nézd meg újra a képet, és olvasd el a kérdést!", kezNelkulUjra);
     }
     return;
   }

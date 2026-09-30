@@ -3,6 +3,7 @@
    A FIGURA-tábla (constants.js) `e` mezője betöltéskor a VIDÁM fej-érem SVG-re cserélődik; az emoji `emo`-ban marad.
    Így a 📚 Bagolykönyvtár és a 🧺 Tündérvásár minden képe egy lépésben rajzolt lett.
    Három arc: vidam (alap) · gondol (ő kérdez / „?”-es érem / rossz válasz után) · ujjong (jó válasznál, aztán vissza).
+   + mutat (2. kör, 2026-09-30): felnéz, és a jobb kezével felfelé RÁMUTAT a képre — Tüske néni így mutat az árura / a kérdezett szereplőre (vasar.js vsMutat).
    Új szereplő = egy sor a FIG_RAJZ-ba + egy sor a FIGURA-ba. */
 var FIG_RAJZ = {
   mia:    { b: "#eda06a", d: "#a8603a", l: "#fde6cc", ful: "mokus", pofa: "kicsi", farok: "mokus", tart: "makk" },
@@ -61,7 +62,7 @@ function fgFej(F, arc) {
   var ey = beka ? 38 : 56, xs = beka ? [36, 64] : [39, 61], sz = "";
   if (arc === "ujjong") xs.forEach(function (x) { sz += '<path d="M' + (x - 4.5) + ',' + (ey + 1.5) + ' Q' + x + ',' + (ey - 4.5) + ' ' + (x + 4.5) + ',' + (ey + 1.5) + '" fill="none" stroke="' + FG_INK + '" stroke-width="2.6" stroke-linecap="round"/>'; });
   else {
-    var dx = arc === "gondol" ? 1.4 : 0, dy = arc === "gondol" ? -1.8 : 0;
+    var fel = arc === "gondol" || arc === "mutat", dx = fel ? 1.4 : 0, dy = fel ? -1.8 : 0;   /* gondol + mutat: felfelé néz */
     xs.forEach(function (x) { sz += '<ellipse cx="' + (x + dx) + '" cy="' + (ey + dy) + '" rx="4.3" ry="5.3" fill="' + FG_INK + '"/><circle cx="' + (x + dx + 1.6) + '" cy="' + (ey + dy - 2) + '" r="1.7" fill="#fff"/>'; });
   }
   s += '<g class="fg-szem" style="animation-delay:' + (F.kes || 0) + 's">' + sz + '</g>';
@@ -138,6 +139,9 @@ function fgAlak(F, arc) {
   } else if (arc === "gondol") {
     s += fgKar("M40,100 Q30,112 32,122", F, [32, 122]);
     if (F.tart) s += fgTartott(F.tart, 29, 126);
+  } else if (arc === "mutat") {
+    s += fgKar("M40,100 Q31,112 33,124", F, [33, 124]);
+    if (F.tart) s += fgTartott(F.tart, 30, 128);
   } else {
     s += fgKar("M40,100 Q31,112 33,124", F, [33, 124]) + fgKar("M80,100 Q90,110 88,121", F, [88, 121]);
     if (F.tart) s += fgTartott(F.tart, 91, 125);
@@ -146,6 +150,9 @@ function fgAlak(F, arc) {
   s += '<g transform="translate(10,0)">' + fgFej(F, arc) + '</g>';
   /* gondolkodó kéz az állon — a fej ELŐTT */
   if (arc === "gondol") s += fgKar("M80,100 Q90,92 72,85", F, [72, 85]);
+  /* rámutató kar: felfelé-jobbra, a kinyújtott mutatóujj a kép felé; a kéz kicsit „bök” (CSS fg-bok) */
+  if (arc === "mutat") s += '<g class="fg-bok">' + fgKar("M80,100 Q97,95 101,79", F, [101, 79]) +
+    '<path d="M102,76 L108,66" stroke="' + F.d + '" stroke-width="5.4" stroke-linecap="round"/><path d="M102,76 L108,66" stroke="' + F.b + '" stroke-width="2.8" stroke-linecap="round"/></g>';
   /* nyakon hordott kellék */
   if (F.test === "csokor") s += '<path d="M60,89 L49,83 L49,95 Z M60,89 L71,83 L71,95 Z" fill="#e8505b"' + fgKv("#a82f3a", 1.5) + '/><circle cx="60" cy="89" r="3.2" fill="#e8505b"' + fgKv("#a82f3a", 1.5) + '/>';
   if (F.test === "kendo") s += '<path d="M45,85 Q60,91 75,85 L60,103 Z" fill="#7fb2e8"' + fgKv("#3f74b0", 1.6) + '/>';
