@@ -6445,7 +6445,7 @@ function vsTartokKep(n, fajta, A, db, felirat, o) {
 }
 /* kupac: 3. o.-ban megszámolható (≤ 60), különben néhány darab + felirat */
 function vsKupac(A, n, g, cimke) {
-  var s = "", szamolhato = g < 4 && n <= 60, per = n > 30 ? 10 : 8, db = szamolhato ? n : 9, sor = Math.ceil(db / per), W = per * 22 + 10;
+  var s = "", szamolhato = g < 4 && n <= 60, per = n > 36 ? 12 : (n > 16 ? 10 : 8), db = szamolhato ? n : 9, sor = Math.ceil(db / per), W = per * 22 + 10;
   for (var i = 0; i < db; i++) s += vsTargy(A, 16 + (i % per) * 22, 26 + Math.floor(i / per) * 24, 20);
   var y = sor * 24 + 26;
   s += vsCimke(W / 2, y, cimke || vsDb(n, A));
@@ -6480,7 +6480,7 @@ function vsSzalag(sorok, egyseg) {
     });
     if (r.vege) s += '<text x="' + (x + 8) + '" y="' + (y + 21) + '" font-size="15" ' + VS_F + ' fill="#6a4fa8" font-weight="700">' + r.vege + '</text>';
   });
-  return vsSvg(W, sorok.length * 44 + 10, s, "szeles");
+  return vsSvg(W, sorok.length * 44 + 10, s, "szeles").replace('<svg ', '<svg style="height:calc(' + sorok.length + ' * min(32px, 4.8vh) + 6px)" ');
 }
 /* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson */
 function vsErem(e, sz, c, ki) {
@@ -6585,8 +6585,8 @@ function vsK2(g) {
     tort = [negy ? vsDb(n, A, "t") + " egyenlően szétosztanak " + b + " árus között." : "Tüske néni " + vsDb(n, A, "t") + " egyenlően szétoszt " + b + " kis vásárló között."];
     var ki = negy ? "árus" : "vásárló";
     kerd = "Hány " + vsSzem(A) + A.t + " kap egy " + ki + "?"; mit = "amennyit egy " + ki + " kap"; val = "Válasz: egy " + ki + " " + vsDb(a, A, "t") + " kap.";
-    var vk = vsVevok(Math.min(b, 6)).map(function (v) { return vsErem(v.e, "?", null); }).join("");
-    kep = [vsKupac(A, n, g), VS_NYIL, '<div class="vs-sor">' + vk + (b > 6 ? '<div class="vs-tobb">… ' + b + ' ' + ki + '</div>' : '') + '</div>'];
+    var vk = vsVevok(Math.min(b, 8)).map(function (v) { return '<span class="vs-mini">' + v.e + '<i>?</i></span>'; }).join("");
+    kep = [vsKupac(A, n, g), VS_NYIL, '<div class="vs-sor vs-minisor">' + vk + (b > 8 ? '<span class="vs-tobb">… ' + b + ' ' + ki + '</span>' : '') + '</div>'];
   }
   return vsFel(g, { sablon: "K2", kulcs: "K2" + n + "/" + b, kep: kep, tort: tort, kerdes: kerd, helyes: a, mit: mit,
     sorok: [n + " : " + b + " = " + a], valasz: val,
