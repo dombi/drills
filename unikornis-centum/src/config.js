@@ -170,6 +170,8 @@ function nehezsegAlkalmaz(pa, allomasok) {
     return m.length ? m : T.slice();
   }
   return allomasok.map(function (o) {
+    /* ── 🧺 Tündérvásár: a „3” → standonként legfeljebb 2 feladat; nagyobbra nem hosszabbít (tartalom-lap „Pályahossz”) ── */
+    if (tip === "vasar") { if (darab >= 1 && darab <= 3 && o.darab) o.darab = Math.min(o.darab, 2); return o; }
     /* ── összeadás ↔ kivonás: a fordított művelettel, ugyanabban a számkörben (a+b=c ↔ c−b=a) ── */
     if (tip === "osszeadas" && (f.muvelet === "osszeadas" || f.muvelet === "kivonas") && o.tipus !== f.muvelet) {
       var emax = al.eredmeny_max || 100, lo, hi;

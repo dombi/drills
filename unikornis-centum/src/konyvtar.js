@@ -10,18 +10,7 @@
    Kocka-nap: az aznapi ELSŐ végigjárásban a pöttyök ≥ 80%-a elsőre jó → ◼ (3 nap → stabil → 🏅 Mesterpróba: konyvtar-mester.js). */
 
 /* ── szereplők (csak a 10 állat — producer, 2026-09-28) és tárgyak ── */
-var EK_SZ = [
-  { e: "🐿️", n: "Mia", tel: "Mókus Mia", a: "a mókus", nak: "Miának", nal: "Miánál" },
-  { e: "🦔", n: "Samu", tel: "Sün Samu", a: "a sün", nak: "Samunak", nal: "Samunál" },
-  { e: "🐻", n: "Brumi", tel: "Medve Brumi", a: "a medve", nak: "Bruminak", nal: "Bruminál" },
-  { e: "🐭", n: "Cincin", tel: "Egér Cincin", a: "az egér", nak: "Cincinnek", nal: "Cincinnél" },
-  { e: "🐸", n: "Brekus", tel: "Béka Brekus", a: "a béka", nak: "Brekusnak", nal: "Brekusnál" },
-  { e: "🦆", n: "Kata", tel: "Kacsa Kata", a: "a kacsa", nak: "Katának", nal: "Katánál" },
-  { e: "🐢", n: "Tas", tel: "Teknős Tas", a: "a teknős", nak: "Tasnak", nal: "Tasnál" },
-  { e: "🐷", n: "Pötyi", tel: "Malac Pötyi", a: "a malac", nak: "Pötyinek", nal: "Pötyinél" },
-  { e: "🦡", n: "Bence", tel: "Borz Bence", a: "a borz", nak: "Bencének", nal: "Bencénél" },
-  { e: "🐞", n: "Kitti", tel: "Katica Kitti", a: "a katica", nak: "Kittinek", nal: "Kittinél" }
-];
+var EK_SZ = ["mia", "samu", "brumi", "cincin", "brekus", "kata", "tas", "potyi", "bence", "kitti"].map(function (k) { return FIGURA[k]; });   /* a közös FIGURA-táblából (constants.js) */
 var EK_TARGY = [
   { e: "🌰", n: "dió", t: "diót", ige: "gyűjtött", i: "diói" },
   { e: "🍄", n: "gomba", t: "gombát", ige: "talált", i: "gombái" },

@@ -1683,3 +1683,43 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .ek-fuzet.benn .ekf-sorok{ overflow:visible; }
 .ek-fuzet.benn .ekf-sor{ font-size:17px; line-height:28px; min-height:28px; }
 @media (prefers-reduced-motion:reduce){ .ekf-sor.uj{ animation:none; } }
+
+/* ═══ 🧺 TÜNDÉRVÁSÁR (src/vasar.js) — rajzterv: Matekos/tunderevasar-rajzterv.html ═══ */
+.palya-regio.r-vasar{ padding-top:44px; }
+.palya-regio.r-vasar .palya-regio-cim{ position:relative; z-index:1; }
+.palya-regio.r-vasar .palya-kartya{ border-color:#f6c9a8; }
+.palya-regio.r-vasar .ikon{ font-size:34px; line-height:46px; text-align:center; }
+.vs-bub{ text-align:center; }
+.vs-kep{ display:flex; justify-content:center; align-items:center; gap:6px 8px; flex-wrap:wrap; margin-bottom:6px; }
+.vs-kep .vs-svg{ height:clamp(72px,13vw,112px); width:auto; max-width:100%; }
+.vs-kep .vs-svg.szeles{ height:auto; width:min(100%,430px); }
+.vs-kep .vs-svg.halvany{ opacity:.45; }
+.vs-kep .ek-erem{ min-width:64px; }
+.vs-kep-al{ flex-basis:100%; font-size:13.5px; font-weight:700; color:#b85a80; margin-top:-2px; }
+.vs-nyil{ font-size:26px; color:#b8a8d0; font-weight:700; }
+.vs-sor{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:center; }
+.vs-tobb{ font-weight:700; color:#6a4fa8; }
+.vs-tort{ display:flex; gap:10px; align-items:flex-start; text-align:left; font-size:clamp(16px,3.6vw,19px); font-weight:500; line-height:1.42; color:#5a4a6a; }
+.vs-tort p{ margin:0 0 2px; }
+.vs-arus{ flex:0 0 auto; width:42px; height:42px; display:grid; place-items:center; font-size:27px; line-height:1; background:#fffaf0; border:3px solid #f6a5c0; border-radius:50%; }
+.vs-kk{ position:relative; margin:14px 0 4px; background:#eef6ff; border:3px solid #9ec9f0; border-radius:16px; padding:12px 12px 8px;
+  font-size:clamp(18px,4.2vw,22px); font-weight:700; color:#2f4f7a; line-height:1.3; text-align:center; }
+.vs-kk::before{ content:"❓ A KÉRDÉS"; position:absolute; left:12px; top:-12px; font-size:11.5px; font-weight:800; letter-spacing:.05em; color:#fff; background:#6aa9dc; border-radius:999px; padding:1px 10px; }
+.vs-kk b{ color:#c0306a; letter-spacing:.02em; }
+.vs-kk.villan{ animation:ekVillan 1.1s; }
+.vs-kw-szor{ color:#5b3fa0; background:#ece2fb; border-radius:6px; padding:0 4px; font-weight:700; }
+.vs-kw-val{ color:#2e7d4f; background:#dff3d6; border-radius:6px; padding:0 4px; font-weight:700; }
+.visszajelzes.vs-lepes{ color:#7a5a08; background:#fff4b8; border-radius:12px; padding:4px 10px; }
+.vs-erem.vs-mutat{ border-color:#e2589b; animation:vsMutat 1.2s ease-in-out 2; position:relative; }
+.vs-erem.vs-mutat::after{ content:"👈"; position:absolute; right:-24px; top:6px; font-size:22px; }
+@keyframes vsMutat{ 0%,100%{ transform:scale(1); } 40%{ transform:scale(1.12); box-shadow:0 0 0 6px rgba(226,88,155,.25); } }
+.vs-vege{ display:inline-block; margin-top:4px; color:#b0602a; font-weight:800; }
+/* 📓 a vásár füzete: a sorok törhetnek (hosszabb 4. o.-s műveletek), alul a zöld „Tovább ▶” */
+#kepernyo-jatek.vs-mod .ek-fuzet:not(.benn){ width:min(320px, calc(50vw - 222px)); }
+#kepernyo-jatek.vs-mod .ekf-sor{ white-space:normal; line-height:28px; font-size:18px; }
+.vs-tovabb{ display:block; margin:10px auto 0; font:inherit; font-family:Fredoka, system-ui, sans-serif; font-size:19px; font-weight:800; color:#fff;
+  background:#7bbf6a; border:0; border-radius:16px; padding:9px 22px; box-shadow:0 4px 0 #5e9a52; cursor:pointer; animation:vsTovabb 1.4s ease-in-out infinite; }
+.vs-tovabb[hidden]{ display:none; }
+.vs-tovabb:active{ transform:translateY(2px); box-shadow:0 2px 0 #5e9a52; }
+@keyframes vsTovabb{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+@media (prefers-reduced-motion:reduce){ .vs-tovabb,.vs-erem.vs-mutat{ animation:none; } }

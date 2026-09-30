@@ -78,13 +78,15 @@ function palyaInditas(id) {
         probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "",
         kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan, indultMs: Date.now() };
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
+  if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
+  $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : "";
+    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : pa.vasar ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
   curX = allomasX(0); curY = allomasY(0);
   kameraAllit(0, true);
   $("bagoly-buborek").hidden = true;
@@ -421,6 +423,7 @@ function bekotUresNegyzet() {
 }
 function ertekel(valasz) {
   var f = J.feladat;
+  if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
   var mar = (f.csalad === "maradekos");
   var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
   if (helyesE) {
@@ -435,7 +438,7 @@ function ertekel(valasz) {
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = mar
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
-      : ((f.ek ? ekDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
+      : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     csillagRepul($("bagoly-buborek"));
     if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
@@ -452,10 +455,12 @@ function ertekel(valasz) {
     jelvenyEllenoriz();
     ment();
     var tovabb = function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };
+    if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
     else setTimeout(tovabb, Math.max(900, fv));
   } else {
+    if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
     meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
     J.probak++;
     J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
@@ -467,6 +472,8 @@ function ertekel(valasz) {
       maradekosKitolt(false);
       if (J.probak === 1) { $("visszajelzes").textContent = "Nem talált. Próbáld újra!"; mondd("Nem talált. Próbáld újra!", maradekosUjra); }
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
+    } else if (f.vs) {
+      vsHiba(f, valasz);                      /* 🧺 vásár: 1. → csapda-mondat, 2. → (mozgókép) + lépésenként (vasar.js) */
     } else if (f.ek) {
       ekHiba(f, valasz);                      /* 📚 könyvtár: 1. → csapda-mondat, 2. → végigvezetés „Mit kérdeznek?”-kel (konyvtar.js) */
     } else if (f.vegig && !f.vezet) {
@@ -799,12 +806,12 @@ function palyaVege() {
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
 
-  var ekV = J.palya.konyvtar ? ekPalyaVege() : null;   /* 📚 könyvtár: kocka-nap (stabil) + csapda-statisztika */
+  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
   var vegeAdat = { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat };
-  if (ekV) vegeAdat.ek = ekV.adat;
+  if (ekV) vegeAdat[J.palya.vasar ? "vs" : "ek"] = ekV.adat;
   esemeny("palya_end", vegeAdat);
   var ujJelv = jelvenyEllenoriz();
 

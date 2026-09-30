@@ -39,6 +39,8 @@ MODULES = [
     "konyvtar-mester.js", # 6e) 🏅 Mesterpróba-kapu + 🏰 Kockavár (a Fejtörő-motorral), stabil-küszöb
     "konyvtar-mozgo.js",  # 6f) 📚 a 3 bemutató-mozgókép (🔎 nagyító · 🔤 NEM · ✋ lépcső), gyerekenként egyszer
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)
+    "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
+    "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
 
     # ── Képernyők ──
     "ui.js",              # 7) mutat(), renderProfil, renderFomenu

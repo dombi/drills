@@ -137,6 +137,7 @@ function palyaBecsultErtek(palya) {
     var a = palya.allomasok[i], tip = a.tipus || alap.tipus;
     allo++;
     if (tip === "szambontas" || tip === "szorzotabla-felmondas") feladatErtek += jutalom("felmondas", palya);
+    else if (alap.tipus === "vasar") feladatErtek += (fDarab >= 1 && fDarab <= 3 ? Math.min(a.darab, 2) : a.darab) * jutalom("feladat", palya);   /* 🧺 vásár (config.js) */
     else feladatErtek += (fDarab >= 1 && fDarab <= 12 ? fDarab : (a.darab || alap.darab || 5)) * jutalom("feladat", palya);
   }
   return feladatErtek + allo * jutalom("allomas", palya) + jutalom("palyavege", palya);

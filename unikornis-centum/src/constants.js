@@ -254,6 +254,43 @@ var PALYAK = [
   }
 ];
 
+/* ══ FIGURA — az állandó szereplők KÖZÖS táblája (producer, 2026-09-30) ══
+   A 📚 Bagolykönyvtár (konyvtar.js EK_SZ) és a 🧺 Tündérvásár (vasar.js) is innen olvas. Most emoji; ha elkészül a
+   „Figurák rajzterve”, csak ezt a táblát kell cserélni (e → rajz). Mezők: e = kép, n = név, tel = teljes név,
+   t = tárgyeset („Brumit”), nak = részeshatározó („Bruminak”), nal = „Bruminál”, a = „a medve”. */
+var FIGURA = {
+  mia:    { e: "🐿️", n: "Mia", tel: "Mókus Mia", t: "Miát", a: "a mókus", nak: "Miának", nal: "Miánál" },
+  samu:   { e: "🦔", n: "Samu", tel: "Sün Samu", t: "Samut", a: "a sün", nak: "Samunak", nal: "Samunál" },
+  brumi:  { e: "🐻", n: "Brumi", tel: "Medve Brumi", t: "Brumit", a: "a medve", nak: "Bruminak", nal: "Bruminál" },
+  cincin: { e: "🐭", n: "Cincin", tel: "Egér Cincin", t: "Cincint", a: "az egér", nak: "Cincinnek", nal: "Cincinnél" },
+  brekus: { e: "🐸", n: "Brekus", tel: "Béka Brekus", t: "Brekust", a: "a béka", nak: "Brekusnak", nal: "Brekusnál" },
+  kata:   { e: "🦆", n: "Kata", tel: "Kacsa Kata", t: "Katát", a: "a kacsa", nak: "Katának", nal: "Katánál" },
+  tas:    { e: "🐢", n: "Tas", tel: "Teknős Tas", t: "Tast", a: "a teknős", nak: "Tasnak", nal: "Tasnál" },
+  potyi:  { e: "🐷", n: "Pötyi", tel: "Malac Pötyi", t: "Pötyit", a: "a malac", nak: "Pötyinek", nal: "Pötyinél" },
+  bence:  { e: "🦡", n: "Bence", tel: "Borz Bence", t: "Bencét", a: "a borz", nak: "Bencének", nal: "Bencénél" },
+  kitti:  { e: "🐞", n: "Kitti", tel: "Katica Kitti", t: "Kittit", a: "a katica", nak: "Kittinek", nal: "Kittinél" },
+  tuske:  { e: "🦔", n: "Tüske néni", tel: "Tüske néni", t: "Tüske nénit", a: "a sün-árus", nak: "Tüske néninek", nal: "Tüske néninél" }
+};
+
+/* ══ 🧺 TÜNDÉRVÁSÁR — szöveges szorzás-osztás (src/vasar.js) — Matekos\szoveges-szorzas-osztas-rendszerterv.html ══
+   A 🌙 Szorzós liget alatt, saját helyszínnel. Osztályonként EGY pálya (nem keverednek); most CSAK a 3. és 4. o.
+   (producer, 2026-09-30) — az 5–6. o. (🌇 Alkonyi, 🏮 Lámpás vásár) terve kész, de NINCS a játékban, amíg nem kéri.
+   Egy pálya: Rajt → 5 stand → Odú-küszöb. PÁLYAHOSSZ: standonként egy szám a VS_DARAB-ban (tartalom-lap „Pályahossz”: 17);
+   a pult „feladatszám” kapcsolója: 3 → standonként 2 · 8 → nem hosszabbít (config.js nehezsegAlkalmaz). */
+var VS_STANDOK = [["kosar", "Kosárrakó"], ["doboz", "Dobozoló"], ["arcedula", "Árcédula"], ["hasonlito", "Hasonlító pult"], ["nagy", "Nagy vásár"], ["odu", "Odú-küszöb"]];
+var VS_DARAB = [3, 3, 3, 3, 2, 3];
+function vsPalya(o) {
+  var all = [{ nev: "Rajt" }];
+  VS_STANDOK.forEach(function (s, i) { all.push({ nev: s[1], stand: s[0], g: o.g, darab: VS_DARAB[i], cel: s[0] === "odu" }); });
+  o.regio = "vasar"; o.vasar = true; o.osztaly = o.g; o.kez_nelkul = true; o.allomasok = all;
+  return o;
+}
+PALYAK.push(
+  vsPalya({ id: "vasar-3", nev: "Reggeli vásár", ikon: "🌅", g: 3, szint: 4, palcim: "100-ig · ×, :, maradék — 3. o.", alap: { tipus: "vasar" } }),
+  vsPalya({ id: "vasar-4", nev: "Déli vásár", ikon: "☀️", g: 4, szint: 5, palcim: "10 000-ig · írásbeli — 4. o.", alap: { tipus: "vasar" } })
+  /* 🌇 Alkonyi vásár (5. o.) · 🏮 Lámpás vásár (6. o.) — a producer döntéséig NINCS itt (a tervük: tunderevasar-tartalom.html 5–6. o.) */
+);
+
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).
