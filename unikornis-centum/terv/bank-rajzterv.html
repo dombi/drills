@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tündérbank rajzterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --violet:#8a4fd0; --violet-soft:#ece0fb; --blue:#29a3dd; --blue-soft:#d8f0fb;
+    --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:900px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--blue) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:26px 28px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🎨";position:absolute;right:18px;top:4px;font-size:96px;opacity:.18;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600;margin:10px 6px 0 0}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .lead{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  .orig img{width:100%;border-radius:12px;border:1px solid var(--line);background:#fff}
+  .scenes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media (max-width:720px){.scenes{grid-template-columns:1fr}}
+  .scene{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+  .scene h3{margin:2px 4px 8px;font-size:16px}
+  .stage{position:relative;border-radius:12px;overflow:hidden;background:#12194f}
+  .stage svg{display:block;width:100%;height:auto}
+  .ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .ctrl button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--violet-soft);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+  .ctrl button.on{background:var(--violet);color:#fff}
+  .q{border-left:5px solid #f0a800;background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:2px}
+  ul{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+
+  /* — játékon belüli UI a belső jelenetben (a játék gombstílusa szerint) — */
+  .hud{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
+  .hud span{background:rgba(255,255,255,.88);color:#4a3b7a;border-radius:999px;padding:3px 10px;font-weight:800;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  .valto{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);font:inherit;font-weight:800;font-size:18px;color:#fff;border:0;border-radius:18px;padding:12px 20px;
+    background:linear-gradient(180deg,#f58cc0,#d84f96);box-shadow:0 5px 0 #a8326f,0 8px 16px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap}
+  .valto:active{transform:translateX(-50%) translateY(3px);box-shadow:0 2px 0 #a8326f}
+  .valto.halvany{filter:grayscale(.7) opacity(.6);cursor:default}
+  .hatra{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);color:#fff;font-weight:800;font-size:13px;background:rgba(74,59,122,.75);border-radius:999px;padding:4px 12px}
+  .buborek{position:absolute;left:50%;top:6%;transform:translateX(-50%);max-width:78%;background:#fff;color:#4a3b7a;font-weight:700;font-size:14px;border-radius:14px;padding:7px 12px;
+    box-shadow:0 3px 10px rgba(0,0,0,.2);opacity:0;transition:opacity .25s;text-align:center;pointer-events:none}
+  .buborek.lat{opacity:1}
+  .ablak{position:absolute;inset:0;background:rgba(30,20,60,.55);display:none;align-items:center;justify-content:center}
+  .ablak.lat{display:flex}
+  .ablak .doboz{background:#fff;color:#4a3b7a;border-radius:18px;padding:16px 16px 14px;width:80%;text-align:center;font-weight:800;font-size:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .ablak .doboz .nagy{font-size:26px;margin:6px 0 12px}
+  .ablak .gombok{display:flex;gap:10px;justify-content:center}
+  .ablak button{font:inherit;font-weight:800;font-size:17px;border:0;border-radius:14px;padding:9px 18px;cursor:pointer;color:#fff}
+  .ablak .igen{background:#3fb37a;box-shadow:0 4px 0 #2a7f55}
+  .ablak .nem{background:#b8aecb;box-shadow:0 4px 0 #8a7fa0}
+
+  /* ambient mozgás */
+  @keyframes lebeg{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes lebeg2{0%,100%{transform:translateY(-3px)}50%{transform:translateY(2px)}}
+  @keyframes pislog{0%,100%{opacity:.25}50%{opacity:1}}
+  @keyframes fenyl{0%,100%{opacity:.55}50%{opacity:.85}}
+  @keyframes tarcsa{0%,70%{transform:rotate(0)}80%{transform:rotate(40deg)}90%{transform:rotate(-15deg)}100%{transform:rotate(0)}}
+  @keyframes lenges{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .lebeg{animation:lebeg 4s ease-in-out infinite;transform-box:fill-box}
+  .lebeg2{animation:lebeg2 5s ease-in-out infinite;transform-box:fill-box}
+  .pisl{animation:pislog 2.4s ease-in-out infinite}
+  .feny{animation:fenyl 3.5s ease-in-out infinite}
+  .tarcsa{animation:tarcsa 7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .lenges{animation:lenges 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 0}
+  @media (prefers-reduced-motion:reduce){.lebeg,.lebeg2,.pisl,.feny,.tarcsa,.lenges{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🏦 Tündérbank — rajzterv</h1>
+  <div>A gyerekek két rajza a játék lágy, festett stílusában: az utcai épület és a bank belseje. A belső kipróbálható.</div>
+  <span class="chip">Rajzterv · jóváhagyva</span><span class="chip">2026-09-30</span><span class="chip">Terv: bank-rendszerterv.html</span>
+</header>
+
+<h2>A gyerekek rajza</h2>
+<div class="panel orig">
+  <img src="bank-rajzok/gyerekrajz-bank.png" alt="A gyerekek rajza: balra a bank épülete, jobbra a bank belseje">
+  <table style="margin-top:12px">
+    <tr><th>Amit a rajzon látok</th><th>Amit belőle csináltam</th></tr>
+    <tr><td>Kékesszürke ház, két sárga ablak</td><td>Ugyanez a ház. Az ablakok az esti utcán melegen világítanak, és időnként a bagoly kikukucskál a bal ablakon.</td></tr>
+    <tr><td>Lila „bank” tábla rózsaszín kerettel</td><td>Megtartottam a feliratot és a színeit. Csillámok villannak rajta.</td></tr>
+    <tr><td>Lila ajtó, kék kilincs</td><td>Ugyanaz az ajtó, mellé két kis lámpa került. Zárva „Hamarosan nyitunk” tábla lóg rajta.</td></tr>
+    <tr><td>Levendula fal, kék padló, barna pult</td><td>Ugyanez, lágy árnyékokkal és mélységgel.</td></tr>
+    <tr><td>Fekete doboz a pult mögött</td><td><b>Széfnek</b> vettem: sötét páncélajtó, forgó tárcsával. A bagoly bankár előtte áll.</td></tr>
+    <tr><td>Sárga felhő balra, világoskék felhő jobbra</td><td>Szerintem ez a <b>✨ csillámpor</b> és a <b>💧 tündérharmat</b>! Csillogó aranyfelhő és harmatfelhő lett belőlük. Váltáskor a csillámpor átrepül a harmatfelhőbe.</td></tr>
+  </table>
+</div>
+
+<h2>A két jelenet</h2>
+<div class="scenes">
+
+  <div class="scene">
+    <h3>1. Kívülről (az utcán)</h3>
+    <div class="stage" id="kulso"></div>
+    <div class="ctrl">
+      <button id="k-nyitva" class="on">Nyitva</button>
+      <button id="k-zarva">Zárva (nincs ár a pulton)</button>
+    </div>
+    <p class="lead" style="font-size:13px;margin:8px 4px 0">Az utcán az 5 épület egyike lesz, kisebbre méretezve. Erre koppintva lép be a gyerek.</p>
+  </div>
+
+  <div class="scene">
+    <h3>2. Belül — próbáld ki!</h3>
+    <div class="stage" id="belso-wrap">
+      <div id="belso"></div>
+      <div class="hud"><span id="hud-cs">✨ 250</span><span id="hud-limit">ma még 3</span><span id="hud-h">💧 4</span></div>
+      <div class="buborek" id="buborek"></div>
+      <button class="valto" id="valto">100 ✨ → 1 💧</button>
+      <div class="hatra">⬅ Vissza az utcára</div>
+      <div class="ablak" id="ablak"><div class="doboz">Odaadsz 100 csillámport<br>1 tündérharmatért?<div class="nagy">✨ 100 → 💧 1</div>
+        <div class="gombok"><button class="igen" id="igen">Igen</button><button class="nem" id="nem">Nem</button></div></div></div>
+    </div>
+    <div class="ctrl">
+      <button id="b-nyitva" class="on">Nyitva</button>
+      <button id="b-zarva">Zárva</button>
+      <button id="b-uj">Új nap (újra 250 ✨)</button>
+    </div>
+    <p class="lead" style="font-size:13px;margin:8px 4px 0">A napi korlát itt 3, az ár 100 ✨. Ezt a játékban a pulton állítod.</p>
+  </div>
+
+</div>
+
+<h2>Mozgás (hogy ne legyen „lapos és álló”)</h2>
+<div class="panel">
+  <ul>
+    <li><b>Kint:</b> pislákoló csillagok, lágyan izzó ablakok és lámpák, csillám a „bank” táblán, a bagoly néha kikukucskál a bal ablakon.</li>
+    <li><b>Bent:</b> a két felhő lassan lebeg, a csillámpor csillog, a harmatfelhőből néha lecsöppen egy csepp. A széf tárcsája időnként elfordul, a bagoly pislog.</li>
+    <li><b>Váltáskor:</b> csillámszemcsék repülnek a sárga felhőből a kékbe, a kék felhő kiereszt egy 💧-cseppet, a bagoly megszólal.</li>
+  </ul>
+</div>
+
+<h2>Kérdések a gyerekeknek</h2>
+<div class="q"><b>1. A fekete doboz tényleg széf?</b>Vagy valami más, például egy kép, egy ajtó vagy a bankár helye?</div>
+<div class="q"><b>2. A sárga és a kék felhő a csillámpor és a tündérharmat?</b>Ha igen, maradhat így. Ha nem, mit jelentenek?</div>
+<div class="q"><b>3. Tetszik a bankár bagoly?</b>Karamellszínű, szemüveges, csokornyakkendős. Szándékosan más színű, mint a könyvtár lila baglya, hogy két különböző szereplő legyen. Kaphat nevet is.</div>
+
+</div>
+
+<script>
+/* ── közös: a világ-elemek enyhe kézi remegése (firka-mérték: numOctaves=1, scale 3) ── */
+var FIRKA = '<filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>';
+
+/* ── a bankár bagoly (karamell, szemüveg, csokornyakkendő, pislog) — 0,0 a test közepe ── */
+function bankarBagoly(x, y, s) {
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' +
+    '<ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity=".18"/>' +
+    '<path d="M-26,-40 l8,-16 l8,15 Z" fill="#c98d55"/><path d="M26,-40 l-8,-16 l-8,15 Z" fill="#c98d55"/>' +
+    '<ellipse cx="0" cy="0" rx="34" ry="44" fill="#e2b07a"/>' +
+    '<ellipse cx="0" cy="12" rx="22" ry="29" fill="#fbe6c8"/>' +
+    '<path d="M-10,14 q3,4 6,0 M2,22 q3,4 6,0 M-6,30 q3,4 6,0" stroke="#e2b07a" stroke-width="2" fill="none"/>' +
+    '<path d="M-34,-4 Q-48,14 -33,34 Q-28,14 -29,-4 Z" fill="#c98d55"/><path d="M34,-4 Q48,14 33,34 Q28,14 29,-4 Z" fill="#c98d55"/>' +
+    '<circle cx="-13" cy="-15" r="13" fill="#fffaf0"/><circle cx="13" cy="-15" r="13" fill="#fffaf0"/>' +
+    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.93;.965;1" dur="4.2s" repeatCount="indefinite" additive="sum"/>' +
+    '<circle cx="-11" cy="-13" r="6" fill="#4a3b7a"/><circle cx="11" cy="-13" r="6" fill="#4a3b7a"/></g>' +
+    '<circle cx="-13" cy="-16" r="2" fill="#fff"/><circle cx="9" cy="-16" r="2" fill="#fff"/>' +
+    '<circle cx="-13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><circle cx="13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><path d="M-2,-17 h4" stroke="#7a5230" stroke-width="2.5"/>' +
+    '<path d="M-5,-3 L5,-3 L0,8 Z" fill="#ffb347"/>' +
+    '<g transform="translate(0,17)"><path d="M0,0 L-13,-7 L-13,7 Z" fill="#f06aa8"/><path d="M0,0 L13,-7 L13,7 Z" fill="#f06aa8"/><circle r="3.5" fill="#d84f96"/></g>' +
+    '<path d="M-14,44 l-4,8 M-8,45 l-1,8 M8,45 l1,8 M14,44 l4,8" stroke="#ffb347" stroke-width="4" stroke-linecap="round"/>' +
+    '</g>';
+}
+/* négyágú csillám 0,0 körül */
+function csillam(x, y, r, c, cls, kes) {
+  return '<path class="' + (cls || '') + '" style="animation-delay:' + (kes || 0) + 's" transform="translate(' + x + ',' + y + ')" d="M0,-' + r + ' Q' + r * .18 + ',-' + r * .18 + ' ' + r + ',0 Q' + r * .18 + ',' + r * .18 + ' 0,' + r + ' Q-' + r * .18 + ',' + r * .18 + ' -' + r + ',0 Q-' + r * .18 + ',-' + r * .18 + ' 0,-' + r + ' Z" fill="' + c + '"/>';
+}
+
+/* ── 1. KÜLSŐ: esti utca, a gyerekek háza ── */
+function kulsoSVG(zarva) {
+  var s = '<svg viewBox="0 0 400 460" xmlns="http://www.w3.org/2000/svg"><defs>' + FIRKA +
+    '<linearGradient id="k-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset=".6" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
+    '<linearGradient id="k-fal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a98c6"/><stop offset=".55" stop-color="#7090be"/><stop offset="1" stop-color="#5d7cae"/></linearGradient>' +
+    '<linearGradient id="k-ablak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffe45a"/></linearGradient>' +
+    '<radialGradient id="k-izz"><stop offset="0" stop-color="#fff2a0" stop-opacity=".7"/><stop offset="1" stop-color="#fff2a0" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="k-tabla" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b25ab4"/><stop offset="1" stop-color="#9a449c"/></linearGradient>' +
+    '<clipPath id="k-bal"><rect x="114" y="104" width="68" height="70" rx="3"/></clipPath>' +
+    '</defs>';
+  s += '<rect width="400" height="460" fill="url(#k-eg)"/>';
+  [[30,40],[70,110],[352,60],[380,150],[20,190],[330,20],[60,20],[372,230],[26,280]].forEach(function (p, i) {
+    s += '<circle class="pisl" style="animation-delay:' + (i * .37) + 's" cx="' + p[0] + '" cy="' + p[1] + '" r="1.8" fill="#fff"/>';
+  });
+  s += '<path d="M352 82 A18 18 0 1 0 356 116 A15 15 0 1 1 352 82 Z" fill="#fdf0d0" opacity=".92"/>';
+  /* járda */
+  s += '<path d="M0 410 Q200 404 400 410 V460 H0Z" fill="#0e1650"/><path d="M0 410 Q200 404 400 410" stroke="#3b4290" stroke-width="3" fill="none"/>';
+  /* ablak-fény a járdán */
+  s += '<ellipse class="feny" cx="200" cy="420" rx="120" ry="10" fill="#fff2a0" opacity=".25"/>';
+
+  s += '<g filter="url(#firka)">';
+  /* ház */
+  s += '<rect x="86" y="52" width="228" height="20" rx="4" fill="#56709e"/>';
+  s += '<path d="M92 70 H308 V412 H92 Z" fill="url(#k-fal)"/>';
+  s += '<path d="M92 70 H308 V78 H92Z" fill="#000" opacity=".12"/>';
+  for (var y = 96; y < 400; y += 26) s += '<path d="M92 ' + y + ' H308" stroke="#fff" stroke-opacity=".06" stroke-width="2"/>';
+  /* ablakok: halvány lila keret, meleg fény */
+  [[114, 104], [218, 104]].forEach(function (a, i) {
+    s += '<circle class="feny" style="animation-delay:' + i + 's" cx="' + (a[0] + 34) + '" cy="' + (a[1] + 35) + '" r="62" fill="url(#k-izz)"/>';
+    s += '<rect x="' + (a[0] - 5) + '" y="' + (a[1] - 5) + '" width="78" height="80" rx="5" fill="#c9bde6"/>';
+    s += '<rect x="' + a[0] + '" y="' + a[1] + '" width="68" height="70" rx="3" fill="url(#k-ablak)"/>';
+    s += '<path d="M' + a[0] + ' ' + a[1] + ' q18 22 10 70 H' + a[0] + 'Z" fill="#f6a5c0" opacity=".75"/>';
+    s += '<path d="M' + (a[0] + 68) + ' ' + a[1] + ' q-18 22 -10 70 H' + (a[0] + 68) + 'Z" fill="#f6a5c0" opacity=".75"/>';
+    s += '<rect x="' + (a[0] - 8) + '" y="' + (a[1] + 72) + '" width="84" height="7" rx="2" fill="#b3a4d6"/>';
+  });
+  s += '</g>';
+  /* a bagoly kikukucskál a bal ablakon (fel-le csúszik) */
+  s += '<g clip-path="url(#k-bal)"><g><animateTransform attributeName="transform" type="translate" values="0 60;0 60;0 0;0 0;0 60" keyTimes="0;.55;.62;.85;1" dur="9s" repeatCount="indefinite"/>' +
+    bankarBagoly(148, 160, .62) + '</g></g>';
+  s += '<g filter="url(#firka)">';
+  /* „bank” tábla */
+  s += '<rect x="126" y="196" width="148" height="62" rx="6" fill="#f7b8d0"/><rect x="131" y="201" width="138" height="52" rx="4" fill="url(#k-tabla)"/>';
+  s += '</g>';
+  s += '<text x="200" y="240" text-anchor="middle" font-family="Comic Sans MS, Fredoka, Segoe UI, sans-serif" font-size="36" font-style="italic" font-weight="700" fill="#4a5ad8">bank</text>';
+  s += csillam(140, 206, 6, '#fff', 'pisl', 0) + csillam(262, 248, 5, '#ffe08a', 'pisl', 1.1) + csillam(250, 204, 4, '#fff', 'pisl', .6);
+  /* cégér-ikonok a tábla két oldalán */
+  s += '<text x="108" y="236" font-size="18" text-anchor="middle">✨</text><text x="292" y="236" font-size="18" text-anchor="middle">💧</text>';
+  s += '<g filter="url(#firka)">';
+  /* lámpák az ajtó mellett */
+  [150, 250].forEach(function (lx, i) {
+    s += '<circle class="feny" style="animation-delay:' + (i * .8) + 's" cx="' + lx + '" cy="316" r="22" fill="url(#k-izz)"/>';
+    s += '<path d="M' + lx + ' 300 v6" stroke="#4a3b7a" stroke-width="3"/><rect x="' + (lx - 7) + '" y="306" width="14" height="18" rx="4" fill="#fff2a0" stroke="#4a3b7a" stroke-width="2.5"/>';
+  });
+  /* lila ajtó, halvány keret, kék kilincs, lépcső */
+  s += '<rect x="167" y="290" width="66" height="122" rx="4" fill="#c9bde6"/>';
+  s += '<rect x="172" y="295" width="56" height="117" rx="3" fill="#a24aa3"/>';
+  s += '<rect x="178" y="304" width="44" height="40" rx="3" fill="#8e3a90"/><rect x="178" y="352" width="44" height="50" rx="3" fill="#8e3a90"/>';
+  s += '<path d="M180 360 h14 v8" stroke="#3f4fd0" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  s += '<rect x="156" y="410" width="88" height="9" rx="3" fill="#56709e"/>';
+  s += '</g>';
+  if (zarva) {
+    s += '<g class="lenges" style="transform-origin:200px 300px"><path d="M186 300 L200 290 L214 300" stroke="#fdf0d0" stroke-width="2" fill="none"/><circle cx="200" cy="290" r="3" fill="#ffd24d"/>' +
+      '<rect x="164" y="300" width="72" height="40" rx="8" fill="#fdf0d0" stroke="#b98652" stroke-width="3"/>' +
+      '<text x="200" y="316" text-anchor="middle" font-size="11" font-weight="800" fill="#8a4fd0">Hamarosan</text><text x="200" y="331" text-anchor="middle" font-size="11" font-weight="800" fill="#8a4fd0">nyitunk 🌙</text></g>';
+  }
+  return s + '</svg>';
+}
+
+/* ── 2. BELSŐ: levendula fal, kék padló, pult, széf, két felhő, bagoly ── */
+function belsoSVG() {
+  var s = '<svg viewBox="0 0 400 460" xmlns="http://www.w3.org/2000/svg" id="belso-svg"><defs>' + FIRKA +
+    '<linearGradient id="b-fal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4c9ee"/><stop offset="1" stop-color="#c3b6e4"/></linearGradient>' +
+    '<linearGradient id="b-padlo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6886b8"/><stop offset="1" stop-color="#7c9bcc"/></linearGradient>' +
+    '<linearGradient id="b-pult" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2835b"/><stop offset="1" stop-color="#a86c47"/></linearGradient>' +
+    '<linearGradient id="b-szef" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3354"/><stop offset="1" stop-color="#1f1a30"/></linearGradient>' +
+    '<radialGradient id="b-arany"><stop offset="0" stop-color="#fff0a0"/><stop offset=".6" stop-color="#ffd23f"/><stop offset="1" stop-color="#f4b400"/></radialGradient>' +
+    '<radialGradient id="b-harmat"><stop offset="0" stop-color="#e6f8ff"/><stop offset=".6" stop-color="#a8e0f0"/><stop offset="1" stop-color="#7cc8e2"/></radialGradient>' +
+    '<radialGradient id="b-izz"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+    '</defs>';
+  s += '<g filter="url(#firka)">';
+  s += '<rect width="400" height="262" fill="url(#b-fal)"/>';
+  for (var x = 18; x < 400; x += 38) s += '<path d="M' + x + ' 0 V262" stroke="#fff" stroke-opacity=".18" stroke-width="3"/>';
+  s += '<rect y="244" width="400" height="18" fill="#b3a4d6"/>';
+  s += '<rect y="258" width="400" height="202" fill="url(#b-padlo)"/>';
+  for (var i = -6; i <= 6; i++) s += '<path d="M' + (200 + i * 22) + ' 262 L' + (200 + i * 70) + ' 460" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>';
+  [300, 350, 410].forEach(function (y) { s += '<path d="M0 ' + y + ' H400" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>'; });
+  /* széf a pult mögött (a gyerekek fekete doboza) */
+  s += '<rect x="150" y="34" width="100" height="128" rx="8" fill="url(#b-szef)"/>';
+  s += '<rect x="158" y="42" width="84" height="112" rx="5" fill="none" stroke="#5a5078" stroke-width="3"/>';
+  s += '<path d="M156 60 h-8 M156 136 h-8" stroke="#8a80a8" stroke-width="5" stroke-linecap="round"/>';
+  s += '</g>';
+  s += '<g class="tarcsa"><circle cx="200" cy="64" r="15" fill="#c9c3dc" stroke="#8a80a8" stroke-width="3"/><path d="M200 51 V58 M213 64 H206 M200 77 V70 M187 64 H194" stroke="#5a5078" stroke-width="2.5"/><circle cx="200" cy="64" r="4" fill="#ffd24d"/></g>';
+  s += csillam(236, 48, 5, '#ffe08a', 'pisl', .4);
+  /* sárga csillámpor-felhő (bal) */
+  s += '<g class="lebeg" id="felho-arany"><g transform="translate(-30,-10)"><circle cx="100" cy="112" r="44" fill="url(#b-izz)" class="feny"/>' +
+    '<g filter="url(#firka)"><path d="M62 124 q-16 -2 -12 -18 q2 -16 20 -14 q4 -20 26 -18 q18 -12 34 4 q20 -2 20 18 q14 10 2 24 q-4 12 -22 8 q-14 10 -32 2 q-20 6 -36 -6 Z" fill="url(#b-arany)"/></g>' +
+    csillam(80, 100, 6, '#fff', 'pisl', 0) + csillam(116, 94, 5, '#fff', 'pisl', .7) + csillam(128, 122, 4, '#fff8d0', 'pisl', 1.3) + csillam(92, 130, 4, '#fff', 'pisl', .3) +
+    '<text x="100" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#8a6a1e">✨ csillámpor</text></g></g>';
+  /* világoskék harmat-felhő (jobb) */
+  s += '<g class="lebeg2" id="felho-harmat"><g transform="translate(30,-10)"><circle cx="300" cy="108" r="44" fill="url(#b-izz)" class="feny"/>' +
+    '<g filter="url(#firka)"><path d="M262 118 q-14 -4 -8 -18 q6 -14 22 -10 q6 -20 28 -16 q20 -6 28 12 q18 4 12 22 q6 14 -10 18 q-10 10 -26 4 q-16 8 -30 0 q-18 2 -16 -12 Z" fill="url(#b-harmat)"/></g>' +
+    '<path d="M288 96 q-4 6 0 9 q4 -3 0 -9Z M312 108 q-4 6 0 9 q4 -3 0 -9Z M298 120 q-4 6 0 9 q4 -3 0 -9Z" fill="#fff" opacity=".85"/>' +
+    '<path d="M300 140 q-5 8 0 12 q5 -4 0 -12Z" fill="#7cc8e2"><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 40;0 40" keyTimes="0;.6;.95;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.6;.9;1" dur="3.6s" repeatCount="indefinite"/></path>' +
+    '<text x="300" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7ea0">💧 tündérharmat</text></g></g>';
+  /* bagoly a pult mögött, a széf előtt */
+  s += bankarBagoly(200, 124, .78);
+  /* pult (a gyerekek barna doboza) */
+  s += '<g filter="url(#firka)">';
+  s += '<ellipse cx="200" cy="266" rx="112" ry="9" fill="#000" opacity=".15"/>';
+  s += '<ellipse cx="200" cy="330" rx="120" ry="30" fill="#f6a5c0"/><ellipse cx="200" cy="330" rx="104" ry="23" fill="none" stroke="#fdf0d0" stroke-width="3" stroke-dasharray="6 5"/>';
+  s += '<rect x="96" y="160" width="208" height="16" rx="5" fill="#d99f75"/>';
+  s += '<rect x="104" y="174" width="192" height="90" rx="4" fill="url(#b-pult)"/>';
+  s += '<rect x="118" y="186" width="74" height="64" rx="4" fill="#9a6240" opacity=".55"/><rect x="208" y="186" width="74" height="64" rx="4" fill="#9a6240" opacity=".55"/>';
+  s += '</g>';
+  s += '<g transform="translate(200,218)"><rect x="-34" y="-15" width="68" height="30" rx="10" fill="#fdf0d0" stroke="#b98652" stroke-width="2.5"/><text y="6" text-anchor="middle" font-size="15">✨ → 💧</text></g>';
+  /* csengő a pulton */
+  s += '<g transform="translate(248,160)"><path d="M-9 0 q0 -14 9 -14 q9 0 9 14 Z" fill="#ffd24d" stroke="#b98652" stroke-width="1.5"/><rect x="-12" y="-1" width="24" height="4" rx="2" fill="#b98652"/><circle cy="-16" r="2.5" fill="#b98652"/></g>';
+  s += '<g id="reszecskek"></g>';
+  return s + '</svg>';
+}
+
+/* ── kipróbálható logika (csak a rajzterv kedvéért) ── */
+var AR = 100, KORLAT = 3, allapot = { cs: 250, h: 4, ma: 0, nyitva: true };
+var $ = function (id) { return document.getElementById(id); };
+function mond(t) { var b = $("buborek"); b.textContent = "🦉 " + t; b.classList.add("lat"); clearTimeout(mond.t); mond.t = setTimeout(function () { b.classList.remove("lat"); }, 2600); }
+function frissit() {
+  $("hud-cs").textContent = "✨ " + allapot.cs; $("hud-h").textContent = "💧 " + allapot.h;
+  $("hud-limit").textContent = allapot.nyitva ? "ma még " + (KORLAT - allapot.ma) : "zárva";
+  var v = $("valto"); v.classList.toggle("halvany", !allapot.nyitva || allapot.cs < AR || allapot.ma >= KORLAT);
+  v.textContent = allapot.nyitva ? "100 ✨ → 1 💧" : "🌙 Hamarosan nyitunk";
+}
+function repul() {
+  var g = $("reszecskek"), NS = "http://www.w3.org/2000/svg", t0 = performance.now();
+  for (var i = 0; i < 7; i++) (function (i) {
+    var p = document.createElementNS(NS, "text"); p.textContent = "✨"; p.setAttribute("font-size", "16"); p.setAttribute("text-anchor", "middle"); g.appendChild(p);
+    var x0 = 60 + Math.random() * 24, y0 = 94 + Math.random() * 20, x1 = 330, y1 = 100, k = i * 70;
+    (function lep(now) {
+      var u = Math.min(1, Math.max(0, (now - t0 - k) / 700)), e = u * u * (3 - 2 * u);
+      var x = x0 + (x1 - x0) * e, y = y0 + (y1 - y0) * e - Math.sin(e * Math.PI) * 70;
+      p.setAttribute("x", x); p.setAttribute("y", y); p.setAttribute("opacity", u >= 1 ? 0 : 1);
+      if (u < 1) requestAnimationFrame(lep); else p.remove();
+    })(t0);
+  })(i);
+  setTimeout(function () {   /* a harmatfelhőből kiesik egy nagy csepp a 💧 számláló felé */
+    var d = document.createElementNS(NS, "text"); d.textContent = "💧"; d.setAttribute("font-size", "26"); d.setAttribute("text-anchor", "middle"); g.appendChild(d);
+    var t1 = performance.now();
+    (function lep(now) {
+      var u = Math.min(1, (now - t1) / 650), e = u * u;
+      d.setAttribute("x", 330 + 40 * e); d.setAttribute("y", 120 - 100 * e + Math.sin(u * Math.PI) * -20); d.setAttribute("opacity", 1 - Math.max(0, u - .8) * 5);
+      if (u < 1) requestAnimationFrame(lep); else { d.remove(); allapot.h++; frissit(); }
+    })(t1);
+  }, 1100);
+}
+function init() {
+  var zarvaK = false;
+  function kRajz() { $("kulso").innerHTML = kulsoSVG(zarvaK); $("k-nyitva").classList.toggle("on", !zarvaK); $("k-zarva").classList.toggle("on", zarvaK); }
+  $("k-nyitva").onclick = function () { zarvaK = false; kRajz(); };
+  $("k-zarva").onclick = function () { zarvaK = true; kRajz(); };
+  kRajz();
+  $("belso").innerHTML = belsoSVG();
+  $("valto").onclick = function () {
+    if (!this.classList.contains("halvany")) { $("ablak").classList.add("lat"); return; }
+    if (!allapot.nyitva) mond("A bank még nem nyitott ki, nemsokára gyere vissza!");   /* halvány gomb: a bagoly megmondja, miért */
+    else if (allapot.ma >= KORLAT) mond("Mára ennyi, holnap újra jöhetsz!");
+    else mond("Még " + (AR - allapot.cs) + " csillámpor kell.");
+  };
+  $("nem").onclick = function () { $("ablak").classList.remove("lat"); mond("Rendben, majd legközelebb!"); };
+  $("igen").onclick = function () {
+    $("ablak").classList.remove("lat");
+    allapot.cs -= AR; allapot.ma++; frissit(); repul();
+    setTimeout(function () {
+      mond(allapot.ma >= KORLAT ? "Tessék a harmat! Mára ennyi, holnap újra jöhetsz!" : "Tessék, itt a tündérharmatod!");
+    }, 400);
+  };
+  $("b-nyitva").onclick = function () { allapot.nyitva = true; this.classList.add("on"); $("b-zarva").classList.remove("on"); frissit(); mond("Üdv a Tündérbankban!"); };
+  $("b-zarva").onclick = function () { allapot.nyitva = false; this.classList.add("on"); $("b-nyitva").classList.remove("on"); frissit(); mond("A bank még nem nyitott ki, nemsokára gyere vissza!"); };
+  $("b-uj").onclick = function () { allapot.cs = 250; allapot.ma = 0; frissit(); mond("Jó reggelt! Ma újra válthatsz."); };
+  frissit(); setTimeout(function () { mond("Üdv a Tündérbankban!"); }, 500);
+}
+init();
+</script>
+</body>
+</html>
