@@ -59,7 +59,7 @@
   <div class="sub">Új helyszín az utcán: itt lehet ✨ csillámport 💧 tündérharmatra váltani. A gyerekek ötlete, ők rajzolják meg. A váltás ára a pultról állítható.</div>
   <div class="meta">
     <span class="chip">Rendszerterv · jóváhagyva</span>
-    <span class="chip">2026-09-30</span>
+    <span class="chip">2026-09-30 · bővítve 2026-10-01</span>
     <span class="chip">Nagyság: közepes</span>
     <span class="chip">Rajz: a gyerekeké (később)</span>
   </div>
@@ -71,6 +71,7 @@
     <li>Az utcán egy <b>5. épület</b> lesz: a bank. <b>Ingyen</b> be lehet menni.</li>
     <li>Bent egy <b>bagoly bankár</b> áll a pult mögött. Egy koppintás és egy „Igen” = egy váltás (pl. 100 ✨ → 1 💧).</li>
     <li>Az <b>árfolyamot és a napi korlátot a pulton</b> állítod: az egész csoportra, és gyerekenként is. <b>Amíg nem állítasz árat, a bank zárva van.</b></li>
+    <li><b>Új (2026-10-01):</b> a bank nyithat <b>kijelölt pályák után</b> is: minden végigvitt kijelölt pálya 1 váltást ér, ami másnapra is megmarad.</li>
     <li>A váltások egy <b>táblázatban</b> lesznek. Új váltás vagy új pénznem = egy új sor, a bank magától megjeleníti.</li>
     <li>Az első körben csak <b>✨ → 💧</b> váltás van.</li>
   </ul>
@@ -117,8 +118,8 @@
 
   <div class="dec"><div class="num">5</div>
     <h3>Helye az utcán</h3>
-    Az utcán most 4 épület áll egy sorban (fodrász, csillagbolt, kert, odú). A bank ötödiknek kerül be, ezért mind az 5 épület kicsit keskenyebb lesz. Amíg a gyerekek rajza el nem készül, egy egyszerű <b>ideiglenes épület</b> áll ott (oszlopos homlokzat, 💧 cégér). A bank már így is teljesen működik.
-    <br><span class="ok">✔ Jóváhagyva (a bank legyen az utcán)</span>
+    A bank az utca <b>jobb szélére</b> kerül: fodrász · csillagbolt · kert · odú · <b>bank</b>. Közben az utca is megújul (<code>utca-kepernyoterv.html</code>): fekvő képernyőn (laptop) széles utca, mind az 5 ház egy sorban és nagyobban; álló képernyőn (telefon) két házsor, a bank a hátsó sor jobb szélén. Az utca mozgást kap (csillagok, lámpák, kéménycsillagok, zászló, lomb, szentjánosbogarak). A bank háza a gyerekek rajza (<code>bank-rajzterv.html</code>).
+    <br><span class="ok">✔ Jóváhagyva (2026-10-01)</span>
   </div>
 
   <div class="dec"><div class="num">6</div>
@@ -131,6 +132,25 @@
     <h3>Bankár-figura</h3>
     Egy bölcs <b>bagoly szemüveggel</b>. A Bagolykönyvtárból már ismerik a baglyokat. Amíg a gyerekek nem rajzolják meg, ez az ideiglenes figura áll a pult mögött. Hangosan beszél, mint a többi szereplő, és kevés a szöveg.
     <br><span class="ok">✔ Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><div class="num">8</div>
+    <h3>Nyitás kijelölt pályák után (2026-10-01)</h3>
+    A pulton minden váltásnál kiválasztható a <b>nyitás módja</b>:
+    <ul>
+      <li><b>Naponta</b> (eddigi): nyitva van, a napi korlát szerint lehet váltani.</li>
+      <li><b>Kijelölt pályák után</b>: a pulton kijelölöd a pályákat (egyéni pálya is lehet). <b>Minden végigvitt kijelölt pálya 1 váltást ér.</b> Ha kétszer viszi végig, 2 váltás jár.</li>
+    </ul>
+    <ul>
+      <li>A megszerzett váltás <b>megmarad másnapra is</b>, nem vész el éjfélkor.</li>
+      <li>A <b>napi korlát is érvényes</b> mellette, ha beállítod: naponta legfeljebb ennyit lehet beváltani, a többi megmarad.</li>
+      <li>Csak a végigvitt pálya számít (az elindítás nem), és csak amíg a pálya ki van jelölve.</li>
+      <li>Az ár ugyanúgy kell: ár nélkül a bank zárva.</li>
+      <li>Ha nincs megszerzett váltás, a gomb halvány, és a bagoly megmondja, mit csináljon: „Vidd végig a Szorzódallamot, és válthatsz!” (legfeljebb két pályát nevez meg).</li>
+      <li>Felül a „Ma még 2-t válthatsz” helyén ez áll: <b>„Váltható: 2”</b>.</li>
+      <li><b>Két csoport ütközése:</b> a pályás mód erősebb a napinál, a kijelölt pályák listája összeadódik. A gyerek egyéni beállítása mindig nyer.</li>
+    </ul>
+    <span class="ok">✔ Jóváhagyva</span>
   </div>
 
 </div>
@@ -183,8 +203,8 @@
 <div class="panel">
   Új rész a pulton: <b>🏦 Bank</b>. Ugyanott és ugyanúgy jelenik meg, mint a kapu-óraszám, a csoport lapján és a gyerek lapján is. Minden váltásnak egy sora van:
   <div class="tblwrap"><table style="margin-top:8px">
-    <tr><th>Váltás</th><th>Be</th><th>Ár (✨ / 1 💧)</th><th>Napi korlát</th></tr>
-    <tr><td>✨ → 💧</td><td>☑</td><td>[ &nbsp;&nbsp; ] ← amíg üres, zárva</td><td>[ &nbsp;&nbsp; ] ← üres = nincs korlát</td></tr>
+    <tr><th>Váltás</th><th>Be</th><th>Ár (✨ / 1 💧)</th><th>Napi korlát</th><th>Nyitás</th><th>Pályák</th></tr>
+    <tr><td>✨ → 💧</td><td>☑</td><td>[ &nbsp;&nbsp; ] ← amíg üres, zárva</td><td>[ &nbsp;&nbsp; ] ← üres = nincs korlát</td><td>naponta / pályák után</td><td>pályák kijelölése (csak „pályák után” módban)</td></tr>
   </table></div>
   <p class="lead" style="margin-top:8px">Az üres mező azt jelenti, hogy a felsőbb szint érvényes (gyerek → csoport). Ha az árat sehol nem állítottad, a bank annál a gyereknél zárva van. A pult szövegében leírjuk a „szigorúbb nyer” szabályt is.</p>
 </div>
@@ -194,13 +214,13 @@
   <ul>
     <li><b>Gyerekek:</b> a bank épületének és belsejének rajza, a bankár figurája. Nem sürgős, addig ideiglenes rajz van.</li>
     <li><b>Producer:</b> jóváhagyja ezt a lapot és a lenti kérdéseket, később a pulton beállítja az árakat.</li>
-    <li><b>Claude:</b> kód (két táblázat + bank-kép + utca 5. épület + pult-rész + mentés), teszt, feltöltés.</li>
+    <li><b>Claude:</b> kód (két táblázat + bank-kép + megújult utca + pult-rész + pályás nyitás + mentés), teszt, feltöltés.</li>
   </ul>
-  <p class="lead">Technikai megjegyzés: a napi korlát számlálója a gyerek mentésébe kerül (<code>P().bank</code>), a pult-beállítás a kapu-óraszámhoz hasonló külön mezőbe kerül a gyerek- és a csoport-adatlapon. A pálya-motorhoz és a matekhoz nem nyúlunk.</p>
+  <p class="lead">Technikai megjegyzés: a napi korlát számlálója és a pályákkal szerzett váltások a gyerek mentésébe kerülnek (<code>P().bank</code>: <code>nap</code>, <code>valtva</code>, <code>jegy</code>), a pult-beállítás a kapu-óraszámhoz hasonló külön mezőbe kerül a gyerek- és a csoport-adatlapon. A pálya-motorhoz és a matekhoz nem nyúlunk.</p>
 </div>
 
 <h2>Állapot</h2>
-<div class="panel">✔ Minden kérdés eldöntve (2026-09-30). Következő lépés: <b>kód</b>. A rajz a gyerekektől jön, addig az ideiglenes épület és bagoly marad.</div>
+<div class="panel">✔ Minden kérdés eldöntve (2026-09-30, bővítve 2026-10-01: pályás nyitás + utca-képernyőterv). A rajz kész (<code>bank-rajzterv.html</code>, jóváhagyva). Következő lépés: <b>kód</b> (<code>bank-kodolas-prompt.md</code>).</div>
 
 </div>
 </body>
