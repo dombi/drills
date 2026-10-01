@@ -1740,20 +1740,25 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .palya-regio.r-vasar .ikon{ font-size:34px; line-height:46px; text-align:center; }
 .vs-bub{ text-align:center; }
 .vs-kep{ display:flex; justify-content:center; align-items:center; gap:6px 8px; flex-wrap:wrap; margin-bottom:6px; }
-.vs-kep .vs-svg{ height:clamp(56px,13vh,112px); width:auto; max-width:100%; }
+/* nagyobb kérdés-képek (producer, 2026-10-01: „nehezen láthatóak”): a darabok egy sorban,
+   nem törnek új sorba (az görgetést okozna) — ha nem fér ki, a rajzok arányosan kisebbek */
+.vs-kep{ flex-direction:column; flex-wrap:nowrap; }
+.vs-kep-sor{ display:flex; justify-content:center; align-items:center; gap:6px; width:100%; }
+.vs-kep-sor > *{ flex:0 0 auto; }
+.vs-kep .vs-svg{ height:clamp(84px,23vh,190px); width:auto; max-width:100%; flex:0 1 auto; min-width:0; }
 .vs-kep .vs-svg.szeles{ width:auto; max-width:100%; }
 /* a kérdés görgetés nélkül férjen be (producer, 2026-09-30): szélesebb buborék, kisebb érmek */
-#kepernyo-jatek.vs-mod .bagoly-buborek{ width:min(90vw,560px); }
+#kepernyo-jatek.vs-mod .bagoly-buborek{ width:min(90vw,760px,max(560px,calc(100vw - 700px))); }   /* a füzet (bal oldalt) mellett, amennyire fér */
 .vs-kep .ek-erem{ min-width:0; padding:2px 6px 1px; border-radius:11px; }
 .vs-kep .ek-erem .e{ font-size:22px; letter-spacing:0; }
 .vs-kep .ek-erem .sz{ font-size:14px; padding:0 7px; }
 .vs-kep .ek-erem .c{ font-size:10.5px; }
 .vs-minisor{ flex-wrap:nowrap; gap:3px; }
-.vs-mini{ display:inline-flex; flex-direction:column; align-items:center; font-size:22px; line-height:1.1; background:#fff; border:2px solid #efdcbc; border-radius:10px; padding:2px 3px 1px; }
-.vs-mini i{ font-style:normal; font-size:12px; font-weight:800; color:#8f7ab8; }
+.vs-mini{ display:inline-flex; flex-direction:column; align-items:center; font-size:clamp(22px,4.6vh,34px); line-height:1.1; background:#fff; border:2px solid #efdcbc; border-radius:10px; padding:2px 3px 1px; }
+.vs-mini i{ font-style:normal; font-size:14px; font-weight:800; color:#8f7ab8; }
 .vs-kep .vs-svg.halvany{ opacity:.45; }
 .vs-kep .ek-erem{ min-width:64px; }
-.vs-kep-al{ flex-basis:100%; font-size:13.5px; font-weight:700; color:#b85a80; margin-top:-2px; }
+.vs-kep-al{ flex:0 0 auto; font-size:14.5px; font-weight:700; color:#b85a80; margin-top:-2px; }
 .vs-nyil{ font-size:26px; color:#b8a8d0; font-weight:700; }
 .vs-sor{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:center; }
 .vs-tobb{ font-weight:700; color:#6a4fa8; }
@@ -1786,7 +1791,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 /* telefonon (keskeny) is férjen be a kérdés görgetés nélkül */
 @media (max-width:600px){
   .vs-kep{ gap:4px 6px; margin-bottom:4px; }
-  .vs-kep .vs-svg{ height:clamp(44px,8.5vh,76px); }
+  .vs-kep .vs-svg{ height:clamp(56px,13vh,120px); }
   .vs-kep .vs-svg.halvany{ display:none; }
   .vs-kep .vs-svg.szeles{ zoom:.85; }
   .vs-nyil{ font-size:20px; }

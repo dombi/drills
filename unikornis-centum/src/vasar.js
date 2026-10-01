@@ -169,7 +169,7 @@ function vsSzalag(sorok, egyseg) {
     });
     if (r.vege) s += '<text x="' + (x + 8) + '" y="' + (y + 21) + '" font-size="15" ' + VS_F + ' fill="#6a4fa8" font-weight="700">' + r.vege + '</text>';
   });
-  return vsSvg(W, sorok.length * 44 + 10, s, "szeles").replace('<svg ', '<svg style="height:calc(' + sorok.length + ' * min(32px, 4.8vh) + 6px)" ');
+  return vsSvg(W, sorok.length * 44 + 10, s, "szeles").replace('<svg ', '<svg style="height:calc(' + sorok.length + ' * min(46px, 7.4vh) + 6px)" ');
 }
 /* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson */
 function vsErem(e, sz, c, ki) {
@@ -235,8 +235,13 @@ function vsFel(g, o) {
     helyes: H, keplet: "", megoldas: V.sorok.map(function (s) { return ekSima(s.h); }).join(", "), tipp: "", lanc: null, kulcs: o.kulcs,
     naplo: { tipus: "vs-" + o.sablon, kerdes: ekSima(o.kerdes).slice(0, 60), helyes: H, atlepes: false } };
 }
+/* a kép-darabok EGY sorban (nem törnek több sorba), arányosan kicsinyedve; a felirat alatta */
+function vsKepBelso(html) {
+  var i = html.indexOf('<div class="vs-kep-al">');
+  return '<div class="vs-kep-sor">' + (i < 0 ? html : html.slice(0, i)) + '</div>' + (i < 0 ? '' : html.slice(i));
+}
 function vsBub(o) {
-  return '<div class="vs-bub">' + (o.kep ? '<div class="vs-kep">' + o.kep + '</div>' : '') +
+  return '<div class="vs-bub">' + (o.kep ? '<div class="vs-kep">' + vsKepBelso(o.kep) + '</div>' : '') +
     '<div class="vs-tort"><span class="vs-arus" title="Tüske néni">' + figuraSVG("tuske", "gondol", "alak") + '</span><div>' + o.tort.map(function (p) { return '<p>' + p + '</p>'; }).join("") + '</div></div>' +
     '<div class="vs-kk">' + o.kerdes + '</div>' + (o.lepes || '') + '</div>';
 }
@@ -702,7 +707,7 @@ function vsMutat(ki) {
     }, 2600);
   }, 60);
 }
-function vsKepCsere(html) { var k = document.querySelector("#buborek-feladat .vs-kep"); if (k && html) k.innerHTML = html; }
+function vsKepCsere(html) { var k = document.querySelector("#buborek-feladat .vs-kep"); if (k && html) k.innerHTML = vsKepBelso(html); }
 
 /* ── 📓 füzet: a ❓ sor + a műveleti sorok idx-ig (a már beírtat nem írja újra) ── */
 function vsFuzetIgIr(V, idx, valasz) {
