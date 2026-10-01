@@ -72,6 +72,7 @@ function renderFomenu() {
       : "";
     var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
     if (ajanlott) kart.classList.add("ajanlott");
+    var bankos = !pa.hamarosan && bankPalyaNyit(pa.id);   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
       '<div class="allapot">' + (zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
@@ -80,6 +81,7 @@ function renderFomenu() {
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
+      (bankos ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +
       (pa.hamarosan ? "" :
         '<div class="also"><span class="jutalom">≈ ' + vegig + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
     kart.addEventListener("click", function () {
@@ -96,6 +98,7 @@ function renderFomenu() {
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       if (ajanlott) mondat += " Ezt most neked ajánlom! Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.";
       if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
+      if (bankos) mondat += " Ha végigviszed, a Tündérbankban válthatsz!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);
     });

@@ -141,6 +141,8 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   filter:drop-shadow(0 1px 0 #fff); animation:ajanlott-dobban 1.8s ease-in-out infinite;
 }
 @keyframes ajanlott-dobban{ 0%,70%,100%{ transform:translateX(-50%) scale(1); } 80%{ transform:translateX(-50%) scale(1.22); } 90%{ transform:translateX(-50%) scale(1.05); } }
+.bank-badge{ display:inline-block; align-self:center; margin:4px auto 0; background:#f3e4f7; color:#8e3a90; border:1.5px solid #c98fd0;
+  border-radius:999px; padding:1px 9px; font-size:12px; font-weight:800; white-space:nowrap; }
 .palya-kartya.ajanlott{ box-shadow:0 0 0 3px #f6a5c0, 0 4px 0 rgba(0,0,0,.08); }
 .napi-kiemelt-kesz .napi-badge{ background:#b8a8d0; box-shadow:0 2px 0 #9a8ab8; }
 .palya-szorzo{

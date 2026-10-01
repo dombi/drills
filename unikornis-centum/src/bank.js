@@ -50,6 +50,13 @@ function bankPalyaKesz(pid) {
   });
   return db;
 }
+/* a pályaválasztó kártyáján 🏦 jel: ez a pálya most bankot nyit (ui.js) */
+function bankPalyaNyit(pid) {
+  return bankValtasok().some(function (v) {
+    var b = bankBeall(v.id);
+    return b.mod === "palya" && b.ki !== true && +b.ar >= 1 && (b.palyak || []).indexOf(pid) >= 0;
+  });
+}
 /* a kijelölt pályák neve (csak amit a gyerek lát), a bagoly mondatához */
 function bankPalyaNevek(ids) {
   var l = [];
