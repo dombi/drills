@@ -963,3 +963,13 @@ hogy a cédula előtt elférjenek. Tárgy, ár, pénznem nem változott (`boltCs
 Hátra a rajzterv szerint: egy polc = egy csoport, „hova kerül" tábla, közeli bútorkép,
 „Üres" helyett „Leszedem", ✨/💧 külön polc. `index.html` `game.js?v=` → 20261001-5.
 
+## 2026-10-01 — Bolt-polc rendezés, 2. + 5. lépés: egy polc = egy csoport; „Üres" helyett „Leszedem"
+
+- **Egy polcon csak egy csoport áll** (`boltOldalak`): felül max 4, alul max 3 tárgy (a bagoly
+  miatt). A nagyobb csoport 4-es darabokra bomlik; alulra csak egy csoport soron következő darabja
+  mehet, így a sorrend nem keveredik. Minden fülre érvényes. Bútorok 5 oldal, Díszek 5 oldal —
+  pontosan a rajzterv párosítása.
+- **Az „Üres" lekerült a polcról** (rajzterv A pont): a kint lévő dísz cédulán **„Leszedem"**
+  gombot kap (a „✓ ez van kint" helyett); a megvett, de nem kint lévő dísznél „Kirakom".
+- `index.html` `game.js?v=` → 20261001-6. Hátra: „hova kerül" tábla, közeli bútorkép, ✨/💧 külön polc.
+

@@ -11010,20 +11010,30 @@ var BOLT_POLC_FELSO = 250, BOLT_POLC_ALSO = 430;
 var BOLT_LAP = {};             /* fülönként: hányadik oldalon (csoporton) állunk */
 var BOLT_BAGOLY_EXTRA = null;  /* átmeneti bagoly-mondat (pl. vásárlás után) */
 
-/* ── oldalak: egy csoport = egy oldal; a 7-nél nagyobb csoport több oldalra bomlik ── */
+/* ── oldalak: egy polc = egy csoport (bolt-polc rajzterv, 2026-10-01) ──
+   Felül max 4, alul max 3 tárgy (a bal alsó sarok a bagolyé). Egy oldal = felső + alsó polc.
+   A polcnál nagyobb csoport 4-es darabokra bomlik; a 4 tárgyas darab mindig felülre kerül. */
 function boltOldalak() {
-  var lapok = [], most = [];
+  var darabok = [], lapok = [];
   boltCsoportok().forEach(function (cs) {
-    cs.tetelek.forEach(function (t) {
-      most.push({ cs: cs, t: t });
-      if (most.length === 7) { lapok.push(most); most = []; }
-    });
+    for (var i = 0; i < cs.tetelek.length; i += 4) darabok.push({ cs: cs, tetelek: cs.tetelek.slice(i, i + 4) });
   });
-  if (most.length) lapok.push(most);
-  return lapok.map(function (tetelek) {
-    var nevek = [];
-    tetelek.forEach(function (e) { if (nevek.indexOf(e.cs.nev) < 0) nevek.push(e.cs.nev); });
-    return { nev: nevek.join(" · "), tetelek: tetelek };
+  while (darabok.length) {
+    var f = darabok.shift(), a = null, i;
+    /* alulra csak egy csoport ELSŐ még ki nem rakott darabja mehet — így a csoport sorrendje nem bomlik meg */
+    for (i = 0; i < darabok.length; i++)
+      if (darabok[i].tetelek.length <= 3 && !darabok.slice(0, i).some(function (d) { return d.cs === darabok[i].cs; })) { a = darabok.splice(i, 1)[0]; break; }
+    lapok.push({ felso: f, also: a });
+  }
+  return lapok.map(function (l) {
+    var tetelek = [], helyek = [], nevek = [];
+    [l.felso, l.also].forEach(function (d, polc) {
+      if (!d) return;
+      nevek.push(d.cs.nev);
+      var h = boltHelyek(d.tetelek.length, polc === 0);
+      d.tetelek.forEach(function (t, i) { tetelek.push({ cs: d.cs, t: t }); helyek.push(h[i]); });
+    });
+    return { nev: nevek.join(" · "), tetelek: tetelek, helyek: helyek };
   });
 }
 /* az aktuális oldal indexe — mindig a kiválasztott tételt tartalmazó oldal */
@@ -11037,11 +11047,12 @@ function boltAktOldal() {
   var l = BOLT_LAP[ODU_FUL] || 0;
   return Math.max(0, Math.min(l, old.length - 1));
 }
-/* 7 polchely: felül max 4, alul max 3 (a bal alsó sarok a bagolyé) */
-function boltHelyek(n) {
-  var f = (n <= 4) ? n : (n <= 6 ? Math.ceil(n / 2) : 4), a = n - f, ki = [], i;
-  for (i = 0; i < f; i++) ki.push({ x: 305 - (f - 1) * 50 + i * 100, y: BOLT_POLC_FELSO, felso: true });
-  for (i = 0; i < a; i++) ki.push({ x: 385 - (a - 1) * 52.5 + i * 105, y: BOLT_POLC_ALSO, felso: false });
+/* egy polc helyei: felül max 4, alul max 3 (a bal alsó sarok a bagolyé) */
+function boltHelyek(n, felso) {
+  var ki = [], i;
+  for (i = 0; i < n; i++) ki.push(felso
+    ? { x: 305 - (n - 1) * 50 + i * 100, y: BOLT_POLC_FELSO, felso: true }
+    : { x: 385 - (n - 1) * 52.5 + i * 105, y: BOLT_POLC_ALSO, felso: false });
   return ki;
 }
 
@@ -11104,11 +11115,10 @@ function boltGombAllapot(cs, t, birt, aktiv, eleg) {
       : { szoveg: "Felveszem", szin: "fel", mit: function () { oduRuhaVisel(cs.kulcs, t.id); } };
     if (cs.fajta === "vitrin") return { szoveg: "✓ a vitrinben", szin: "kesz", mit: null };
     if (cs.fajta === "kert") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
+    if (aktiv && cs.fajta === "disz") return { szoveg: "Leszedem", szin: "le", mit: function () { oduDiszBeallit(cs.kulcs, "nincs"); } };
     if (aktiv) return { szoveg: (cs.fajta === "kinezet") ? "✓ ez van rajta" : "✓ ez van kint", szin: "kesz", mit: null };
     if (cs.fajta === "butor") return { szoveg: "Berendezem", szin: "fel", mit: function () { oduButorBeallit(cs.kulcs, t.id); } };
-    if (cs.fajta === "disz") return (t.id === "nincs")
-      ? { szoveg: "Leszedem", szin: "le", mit: function () { oduDiszBeallit(cs.kulcs, "nincs"); } }
-      : { szoveg: "Kirakom", szin: "fel", mit: function () { oduDiszBeallit(cs.kulcs, t.id); } };
+    if (cs.fajta === "disz") return { szoveg: "Kirakom", szin: "fel", mit: function () { oduDiszBeallit(cs.kulcs, t.id); } };
     if (cs.fajta === "kinezet") return { szoveg: "Beállítom", szin: "fel", mit: function () { oduKinezetBeallit(cs.kulcs, t.id); } };
     return { szoveg: "Beállítom", szin: "fel", mit: function () { oduBeallit(cs.kulcs, t.id); } };
   }
@@ -11195,7 +11205,7 @@ function boltSzinterSVG() {
   s += '<rect x="70" y="263" width="470" height="6" rx="2" fill="#c19a72"/>';
   s += '<path d="M100 269 l0 12 M508 269 l0 12" stroke="#c19a72" stroke-width="5"/>';
   /* a tárgyak — a felső polcra tartozók */
-  var helyek = o ? boltHelyek(o.tetelek.length) : [], also = "";
+  var helyek = o ? o.helyek : [], also = "";
   if (o) o.tetelek.forEach(function (e, i) {
     var kival = !!(k && k.cs.kulcs === e.cs.kulcs && String(k.t.id) === String(e.t.id));
     var darab = boltPolcTargy(e.cs, e.t, helyek[i], kival, i);
@@ -11433,8 +11443,9 @@ function boltCsoportok() {
   /* a régi Kellékek fül kettévágva (bolt-polc rajzterv, 2026-10-01): amit lecserélsz | amit hozzáteszel */
   if (ODU_FUL === "butorok")
     return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; });
+  /* az „Üres" nem tárgy, nem áll a polcon — a kint lévő dísz céduláján „Leszedem" gomb van helyette */
   if (ODU_FUL === "diszek")
-    return DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; });
+    return DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs).filter(function (t) { return t.id !== "nincs"; }) }; });
   if (ODU_FUL === "kristaly")
     return [{ kulcs: "vitrin", nev: "Kincsvitrin", fajta: "vitrin", tetelek: KRISTALY }];
   if (ODU_FUL === "kert") {
