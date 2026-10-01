@@ -112,6 +112,8 @@ tr.egyeni-sor td:first-child{ font-style:italic; }
 .bank-palyak .liget{ margin:6px 0 2px; font-size:13px; font-weight:700; color:var(--halvany); }
 .bank-palyak .pl{ display:flex; flex-wrap:wrap; gap:2px 12px; font-size:13px; }
 .bank-palyak .pl label{ display:inline-flex; align-items:center; gap:3px; cursor:pointer; }
+.bank-palyak .pl label.halvany{ opacity:.55; cursor:default; }
+.bank-palyak .liget label{ cursor:pointer; }
 tr.liget-sor td{ background:#efe7fb; padding-top:10px; }
 tr.liget-sor .liget-gombok{ display:inline-flex; gap:6px; margin-left:14px; vertical-align:middle; }
 tr.liget-sor button{ font-size:12px; padding:3px 8px; }
@@ -742,7 +744,10 @@ function bankHatasSzoveg(uid, bv) {
   if (b.ki === true) return "⏸️ <b>zárva</b> — kikapcsolva";
   var t = "🔓 <b>nyitva</b>: " + b.ar + " " + bv.adIkon + " = 1 " + bv.kapIkon;
   if (b.mod === "palya") {
-    var nevek = (b.palyak || []).map(function (x) { return esc(palyaNevBank(x)); });
+    var nevek = (b.palyak || []).map(function (x) {
+      if (x.charAt(0) === "@") return esc((x === "@egyeni" ? "💖 Egyéni pályák" : (LIGET_CIM[x.slice(1)] || x.slice(1))) + " (egész liget)");
+      return esc(palyaNevBank(x));
+    });
     t += " · 🏁 csak kijelölt pálya után (pályánként 1 váltás, megmarad)" + (nevek.length ? ": " + nevek.join(", ") : ' — <span class="rossz-sz">⚠️ nincs kijelölt pálya, így nem tud váltani</span>');
   } else t += " · 📅 naponta";
   t += typeof b.korlat === "number" ? " · naponta legfeljebb " + b.korlat + " váltás" : " · nincs napi korlát";
@@ -937,16 +942,21 @@ function rajzBeallitasok(t) {
       var pl = PALYA_SORREND.slice(), ligPl = {}, ligSor = [];
       pl.forEach(function (pid) { var rg = (PALYA[pid] && PALYA[pid].regio) || "osszeado"; if (!ligPl[rg]) { ligPl[rg] = []; ligSor.push(rg); } ligPl[rg].push(pid); });
       var egyP = celEgyeniPalyak(tipus, id);
-      h += '<details class="bank-palyak' + (lista ? " beallitva" : "") + '"' + (lista && lista.length ? "" : " open") + "><summary>🏁 Kijelölt pályák " +
-        (lista ? "(" + lista.length + " kijelölve itt)" : egyeni ? "(a csoporté érvényes — pipálj be, ha neki külön kell)" : "(még nincs)") + "</summary>";
-      if (egyP.length) h += '<div class="liget">💖 Egyéni pályák</div><div class="pl">' + egyP.map(function (x) {
-        return '<label><input type="checkbox" data-bank-palya="' + bv.id + '" value="' + esc(x.id) + '"' + (lista && lista.indexOf(x.id) >= 0 ? " checked" : "") + "> " + esc((x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")) + "</label>";
-      }).join("") + "</div>";
-      ligSor.forEach(function (rg) {
-        h += '<div class="liget">' + esc(LIGET_CIM[rg] || rg) + '</div><div class="pl">' + ligPl[rg].map(function (pid) {
-          return '<label><input type="checkbox" data-bank-palya="' + bv.id + '" value="' + esc(pid) + '"' + (lista && lista.indexOf(pid) >= 0 ? " checked" : "") + "> " + esc(palyaNev(pid)) + "</label>";
-        }).join("") + "</div>";
-      });
+      var nyKulcs = cel + "|" + bv.id, nyitva = (A.bankNyitva || {}).hasOwnProperty(nyKulcs) ? A.bankNyitva[nyKulcs] : !(lista && lista.length);
+      var ligDb = (lista || []).filter(function (x) { return x.charAt(0) === "@"; }).length, plDb = (lista || []).length - ligDb;
+      h += '<details class="bank-palyak' + (lista ? " beallitva" : "") + '" data-bank-nyit="' + esc(nyKulcs) + '"' + (nyitva ? " open" : "") + "><summary>🏁 Kijelölt pályák " +
+        (lista ? "(itt kijelölve: " + (ligDb ? ligDb + " egész liget" + (plDb ? ", " : "") : "") + (plDb || !ligDb ? plDb + " pálya" : "") + ")" : egyeni ? "(a csoporté érvényes — pipálj be, ha neki külön kell)" : "(még nincs)") + "</summary>";
+      /* egy liget: fejléc-pipa „egész liget” (a később jövő pályáira is) + a pályái; egész liget esetén a pályák pipája szürke */
+      function ligetBlokk(rg, cim, elemek) {
+        var egesz = !!lista && lista.indexOf("@" + rg) >= 0;
+        return '<div class="liget"><label><input type="checkbox" data-bank-liget="' + bv.id + '" value="' + esc(rg) + '"' + (egesz ? " checked" : "") + "> " + esc(cim) +
+          ' — <span style="font-weight:400">egész liget</span></label></div><div class="pl">' + elemek.map(function (e) {
+            return '<label' + (egesz ? ' class="halvany"' : "") + '><input type="checkbox" data-bank-palya="' + bv.id + '" data-liget="' + esc(rg) + '" value="' + esc(e[0]) + '"' +
+              (egesz || (lista && lista.indexOf(e[0]) >= 0) ? " checked" : "") + (egesz ? " disabled" : "") + "> " + esc(e[1]) + "</label>";
+          }).join("") + "</div>";
+      }
+      if (egyP.length) h += ligetBlokk("egyeni", "💖 Egyéni pályák", egyP.map(function (x) { return [x.id, (x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")]; }));
+      ligSor.forEach(function (rg) { h += ligetBlokk(rg, LIGET_CIM[rg] || rg, ligPl[rg].map(function (pid) { return [pid, palyaNev(pid)]; })); });
       if (lista) h += '<div style="margin-top:6px"><button data-bank-palya-torol="' + bv.id + '">↺ ' + (egyeni ? "Kijelölés törlése (csoport szerint)" : "Kijelölés törlése") + "</button></div>";
       h += "</details>";
     }
@@ -1039,12 +1049,19 @@ function rajzBeallitasok(t) {
       bankIr(sel.dataset.bank, o);
     };
   });
-  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (c) {
-    c.onchange = function () {
-      var vid = c.dataset.bankPalya, l = [];
-      Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (x) { if (x.dataset.bankPalya === vid && x.checked) l.push(x.value); });
-      bankIr(vid, { palyak: l });
-    };
+  function bankListaIr(vid) {
+    var l = [], egesz = {};
+    Array.prototype.forEach.call(t.querySelectorAll("[data-bank-liget]"), function (x) { if (x.dataset.bankLiget === vid && x.checked) { egesz[x.value] = 1; l.push("@" + x.value); } });
+    Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (x) {
+      if (x.dataset.bankPalya === vid && x.checked && !x.disabled && !egesz[x.dataset.liget]) l.push(x.value);
+    });
+    bankIr(vid, { palyak: l });
+  }
+  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (c) { c.onchange = function () { bankListaIr(c.dataset.bankPalya); }; });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-liget]"), function (c) { c.onchange = function () { bankListaIr(c.dataset.bankLiget); }; });
+  /* a kijelölő lista addig marad nyitva, amíg a producer be nem zárja (mentés utáni újrarajzoláskor is) */
+  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-nyit]"), function (d) {
+    d.addEventListener("toggle", function () { (A.bankNyitva || (A.bankNyitva = {}))[d.dataset.bankNyit] = d.open; });
   });
   Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya-torol]"), function (b) {
     b.onclick = function () { bankIr(b.dataset.bankPalyaTorol, { palyak: FV.delete() }); };

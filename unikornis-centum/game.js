@@ -12164,12 +12164,23 @@ function bankAllapot(v) {
     elegPenz: (P()[VALUTA_BY[v.ad].mezo] || 0) >= ar, palyak: palyas ? (b.palyak || []) : [] };
 }
 function bankZarva() { return !bankValtasok().some(function (v) { return !bankAllapot(v).zarva; }); }
+/* kijelölt-e a pálya: a lista pálya-id-ket ÉS egész ligeteket tartalmazhat („@szorzo”, „@egyeni” = minden egyéni pálya).
+   Az egész liget a később hozzá kerülő pályákra is érvényes. */
+function bankLiget(pa) { return pa.egyeni ? "egyeni" : (pa.regio || "osszeado"); }
+function bankKijelolt(lista, pid) {
+  if (!lista || !lista.length) return false;
+  if (lista.indexOf(pid) >= 0) return true;
+  var pa = palyaKeres(pid);
+  return !!pa && lista.indexOf("@" + bankLiget(pa)) >= 0;
+}
+var BANK_LIGET_BEN = { osszeado: "az Összeadó ligetben", szorzo: "a Szorzós ligetben", vasar: "a Tündérvásárban", szabo: "a Szabóműhelyben",
+  bajital: "a Bájitalkonyhában", pekseg: "a Mézes pékségben", konyvtar: "a Bagolykönyvtárban", egyeni: "a neked készült pályák között" };
 /* pálya vége (engine-logic.js palyaVege): kijelölt pálya → +1 váltás. Visszaad: hány jegy jött. */
 function bankPalyaKesz(pid) {
   var db = 0;
   bankValtasok().forEach(function (v) {
     var b = bankBeall(v.id);
-    if (b.mod !== "palya" || b.ki === true || !(+b.ar >= 1) || (b.palyak || []).indexOf(pid) < 0) return;
+    if (b.mod !== "palya" || b.ki === true || !(+b.ar >= 1) || !bankKijelolt(b.palyak, pid)) return;
     var m = bankMent(); m.jegy[v.id] = (m.jegy[v.id] || 0) + 1; db++;
   });
   return db;
@@ -12178,14 +12189,21 @@ function bankPalyaKesz(pid) {
 function bankPalyaNyit(pid) {
   return bankValtasok().some(function (v) {
     var b = bankBeall(v.id);
-    return b.mod === "palya" && b.ki !== true && +b.ar >= 1 && (b.palyak || []).indexOf(pid) >= 0;
+    return b.mod === "palya" && b.ki !== true && +b.ar >= 1 && bankKijelolt(b.palyak, pid);
   });
 }
 /* a kijelölt pályák neve (csak amit a gyerek lát), a bagoly mondatához */
 function bankPalyaNevek(ids) {
   var l = [];
-  (ids || []).forEach(function (id) { var pa = palyaKeres(id); if (pa && !palyaRejtve(pa)) l.push(pa.nev); });
+  (ids || []).forEach(function (id) { if (id.charAt(0) === "@") return; var pa = palyaKeres(id); if (pa && !palyaRejtve(pa)) l.push(pa.nev); });
   return l;
+}
+/* a kijelölt egész ligetek közül az első, amelyben a gyerek lát pályát → „a Szorzós ligetben” */
+function bankLigetMondat(ids) {
+  var lath = {};
+  egyeniPalyak().concat(PALYAK).forEach(function (pa) { if (!pa.hamarosan && !palyaRejtve(pa)) lath[bankLiget(pa)] = 1; });
+  var l = (ids || []).filter(function (id) { return id.charAt(0) === "@" && lath[id.slice(1)] && BANK_LIGET_BEN[id.slice(1)]; });
+  return l.length ? BANK_LIGET_BEN[l[0].slice(1)] : "";
 }
 
 /* ── a bankár bagoly (rajzterv: karamell, szemüveg, pink csokornyakkendő, pislog) — 0,0 a test közepe ── */
@@ -12366,8 +12384,9 @@ function bankValtoKoppint(vid) {
   var a = bankAllapot(v), ad = VALUTA_BY[v.ad], kap = VALUTA_BY[v.kap];
   if (a.zarva) { bankMond("A bank még nem nyitott ki, nemsokára gyere vissza!"); return; }
   if (a.palyas && a.jegy <= 0) {
-    var nevek = bankPalyaNevek(a.palyak);
-    if (!nevek.length) bankMond("A bank még nem nyitott ki, nemsokára gyere vissza!");
+    var nevek = bankPalyaNevek(a.palyak), liget = bankLigetMondat(a.palyak);
+    if (liget) bankMond("Járd végig egy pályát " + liget + "! Utána válthatsz.");
+    else if (!nevek.length) bankMond("A bank még nem nyitott ki, nemsokára gyere vissza!");
     else if (nevek.length === 1) bankMond("Járd végig ezt a pályát: " + nevek[0] + "! Utána válthatsz.");
     else bankMond("Járd végig az egyik pályát: " + nevek[0] + " vagy " + nevek[1] + "! Utána válthatsz.");
     return;
@@ -14767,7 +14786,7 @@ window.UC = {
   kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
-  bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz,
+  bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,
   bankOsszevon: bankOsszevon, VALTASOK: VALTASOK, VALUTAK: VALUTAK, FELULIR: FELULIR, utcaMod: utcaMod,   /* 🏦 TÜNDÉRBANK */
   frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
