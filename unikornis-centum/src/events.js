@@ -242,5 +242,6 @@ function esemenyek() {
   $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
   $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
+  $("bank-vissza").addEventListener("click", function () { hangGomb(); utcaNyit(); });
 }
 

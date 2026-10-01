@@ -101,6 +101,17 @@ tr.kulcs td:first-child::after{ content:" 🔑"; }
 .kapu-sor select{ padding:4px 6px; font-size:14px; }
 .kapu-sor select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
 tr.egyeni-sor td:first-child{ font-style:italic; }
+/* 🏦 Tündérbank kártya */
+.bank-sor{ display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; margin:8px 0 4px; }
+.bank-sor label{ display:inline-flex; align-items:center; gap:5px; font-size:14px; }
+.bank-sor select{ padding:4px 6px; font-size:14px; }
+.bank-sor select.beallitva{ background:#fff3d6; border-color:#f1d08a; font-weight:600; }
+.bank-palyak{ margin:6px 0 4px; }
+.bank-palyak summary{ cursor:pointer; font-size:14px; }
+.bank-palyak.beallitva summary{ background:#fff3d6; border-radius:8px; padding:2px 6px; display:inline-block; font-weight:600; }
+.bank-palyak .liget{ margin:6px 0 2px; font-size:13px; font-weight:700; color:var(--halvany); }
+.bank-palyak .pl{ display:flex; flex-wrap:wrap; gap:2px 12px; font-size:13px; }
+.bank-palyak .pl label{ display:inline-flex; align-items:center; gap:3px; cursor:pointer; }
 tr.liget-sor td{ background:#efe7fb; padding-top:10px; }
 tr.liget-sor .liget-gombok{ display:inline-flex; gap:6px; margin-left:14px; vertical-align:middle; }
 tr.liget-sor button{ font-size:12px; padding:3px 8px; }
@@ -689,6 +700,60 @@ function kapuOrakOsszevon(egyeni, csoportOrak) {
   var m = null; csoportOrak.forEach(function (o) { if (typeof o === "number") m = Math.max(m || 0, o); });
   return m;
 }
+/* 🏦 Tündérbank (2026-10-01): producerConfig/{uid}.bank / groups/{gid}.bank = { valtasId: { ar?, korlat?, ki?, mod?, palyak? } }.
+   A váltások listája a játék src/bank.js VALTASOK táblája — új sor ott = új sor itt is (együtt!).
+   A bankOsszevon UGYANAZ, mint a játék src/config.js bankOsszevon-ja — együtt változtasd! */
+var BANK_VALTASOK = [
+  { id: "csilla-harmat", nev: "✨ csillámpor → 💧 tündérharmat", adIkon: "✨", kapIkon: "💧" }
+];
+function bankOsszevon(egyeni, csoportok) {
+  var ki = {};
+  function v(id) { return ki[id] || (ki[id] = {}); }
+  function unio(a, b) { var l = (a || []).slice(); (b || []).forEach(function (x) { if (l.indexOf(x) < 0) l.push(x); }); return l; }
+  csoportok.forEach(function (c) {
+    Object.keys(c || {}).forEach(function (id) {
+      var o = c[id] || {}, k = v(id);
+      if (typeof o.ar === "number" && o.ar >= 1) k.ar = Math.max(k.ar || 0, o.ar);
+      if (typeof o.korlat === "number" && o.korlat >= 0) k.korlat = typeof k.korlat === "number" ? Math.min(k.korlat, o.korlat) : o.korlat;
+      if (o.ki === true) k.ki = true;
+      if (o.mod === "palya") { k.mod = "palya"; k.palyak = unio(k.palyak, o.palyak); }
+      else if (o.mod === "nap" && !k.mod) k.mod = "nap";
+    });
+  });
+  Object.keys(egyeni || {}).forEach(function (id) {
+    var o = egyeni[id] || {}, k = v(id);
+    if (typeof o.ar === "number" && o.ar >= 1) k.ar = o.ar;
+    if (typeof o.korlat === "number") { if (o.korlat >= 0) k.korlat = o.korlat; else delete k.korlat; }
+    if (typeof o.ki === "boolean") k.ki = o.ki;
+    if (o.mod === "nap" || o.mod === "palya") k.mod = o.mod;
+    if (Array.isArray(o.palyak)) k.palyak = o.palyak.slice();
+  });
+  Object.keys(ki).forEach(function (id) {
+    var k = ki[id];
+    if (k.mod !== "palya") delete k.palyak; else if (!k.palyak) k.palyak = [];
+    if (k.ki !== true) delete k.ki;
+  });
+  return ki;
+}
+/* a gyerek szemével: mit lát a bankban (egy váltásnál) */
+function bankHatasSzoveg(uid, bv) {
+  var b = bankOsszevon((A.cfg[uid] || {}).bank || {}, jatekosCsoportjai(uid).map(function (g) { return g.bank || {}; }))[bv.id] || {};
+  if (!(b.ar >= 1)) return "🌙 <b>zárva</b> — még nincs ár (a gyerek a „Hamarosan nyitunk” táblát látja)";
+  if (b.ki === true) return "⏸️ <b>zárva</b> — kikapcsolva";
+  var t = "🔓 <b>nyitva</b>: " + b.ar + " " + bv.adIkon + " = 1 " + bv.kapIkon;
+  if (b.mod === "palya") {
+    var nevek = (b.palyak || []).map(function (x) { return esc(palyaNevBank(x)); });
+    t += " · 🏁 csak kijelölt pálya után (pályánként 1 váltás, megmarad)" + (nevek.length ? ": " + nevek.join(", ") : ' — <span class="rossz-sz">⚠️ nincs kijelölt pálya, így nem tud váltani</span>');
+  } else t += " · 📅 naponta";
+  t += typeof b.korlat === "number" ? " · naponta legfeljebb " + b.korlat + " váltás" : " · nincs napi korlát";
+  return t;
+}
+function palyaNevBank(pid) {
+  if (PALYA[pid]) return palyaNev(pid);
+  var e = egyeniLista().filter(function (x) { return x.id === pid; })[0];
+  return e ? (e.r.ikon || "💖") + " " + (e.r.nev || "Egyéni pálya") : pid;
+}
+
 /* egy gyerekre vagy egy csoportra érvényes egyéni pályák (a csoport-tag gyereknél a csoportéi is) */
 function celEgyeniPalyak(tipus, id) {
   return egyeniLista().filter(function (x) {
@@ -720,7 +785,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -850,6 +915,48 @@ function rajzBeallitasok(t) {
   }
   h += "</div>";
 
+  /* ── 🏦 Tündérbank (2026-10-01): ár, napi korlát, ki/be, nyitás módja, kijelölt pályák — váltásonként ── */
+  var sajatBank = (egyeni ? (A.cfg[id] || {}).bank : csoportById(id).bank) || {};
+  var bUres = egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— nincs") : "— nincs";
+  function bankValaszto(vid, mezo, ertek, opc) {
+    return '<select data-bank="' + vid + '" data-bank-mezo="' + mezo + '"' + (ertek != null ? ' class="beallitva"' : "") + ">" +
+      opc.map(function (o) { return '<option value="' + o[0] + '"' + (String(ertek == null ? "" : ertek) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>";
+  }
+  h += '<div class="kartya" style="margin-top:10px"><h3>🏦 Tündérbank</h3>';
+  BANK_VALTASOK.forEach(function (bv) {
+    var o = sajatBank[bv.id] || {};
+    h += '<div class="kicsi" style="font-weight:700;margin-top:4px">' + esc(bv.nev) + "</div><div class=\"bank-sor\">" +
+      "<label>Bank: " + bankValaszto(bv.id, "ki", o.ki, [["", bUres]].concat(egyeni ? [["false", "✅ be"]] : [], [["true", "⏸️ ki (szünetel)"]])) + "</label>" +
+      "<label>Ár: " + bankValaszto(bv.id, "ar", o.ar, [["", bUres + (egyeni ? "" : " (zárva)")]].concat([10, 20, 30, 50, 75, 100, 150, 200, 300, 500].map(function (n) { return [String(n), n + " " + bv.adIkon + " = 1 " + bv.kapIkon]; }))) + "</label>" +
+      "<label>Napi korlát: " + bankValaszto(bv.id, "korlat", o.korlat, [["", bUres]].concat(egyeni ? [["-1", "nincs korlát"]] : [], [[ "0", "0 (ma zárva)"]], [1, 2, 3, 4, 5, 6, 8, 10].map(function (n) { return [String(n), n + " / nap"]; }))) + "</label>" +
+      "<label>Nyitás: " + bankValaszto(bv.id, "mod", o.mod, [["", bUres], ["nap", "📅 naponta"], ["palya", "🏁 kijelölt pályák után"]]) + "</label></div>";
+    /* kijelölt pályák: csak „pályák után” módban számít */
+    var lista = Array.isArray(o.palyak) ? o.palyak : null;
+    var hatasMod = egyeni ? (bankOsszevon((A.cfg[id] || {}).bank || {}, jatekosCsoportjai(id).map(function (g) { return g.bank || {}; }))[bv.id] || {}).mod : o.mod;
+    if (o.mod === "palya" || hatasMod === "palya" || lista) {
+      var pl = PALYA_SORREND.slice(), ligPl = {}, ligSor = [];
+      pl.forEach(function (pid) { var rg = (PALYA[pid] && PALYA[pid].regio) || "osszeado"; if (!ligPl[rg]) { ligPl[rg] = []; ligSor.push(rg); } ligPl[rg].push(pid); });
+      var egyP = celEgyeniPalyak(tipus, id);
+      h += '<details class="bank-palyak' + (lista ? " beallitva" : "") + '"' + (lista && lista.length ? "" : " open") + "><summary>🏁 Kijelölt pályák " +
+        (lista ? "(" + lista.length + " kijelölve itt)" : egyeni ? "(a csoporté érvényes — pipálj be, ha neki külön kell)" : "(még nincs)") + "</summary>";
+      if (egyP.length) h += '<div class="liget">💖 Egyéni pályák</div><div class="pl">' + egyP.map(function (x) {
+        return '<label><input type="checkbox" data-bank-palya="' + bv.id + '" value="' + esc(x.id) + '"' + (lista && lista.indexOf(x.id) >= 0 ? " checked" : "") + "> " + esc((x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")) + "</label>";
+      }).join("") + "</div>";
+      ligSor.forEach(function (rg) {
+        h += '<div class="liget">' + esc(LIGET_CIM[rg] || rg) + '</div><div class="pl">' + ligPl[rg].map(function (pid) {
+          return '<label><input type="checkbox" data-bank-palya="' + bv.id + '" value="' + esc(pid) + '"' + (lista && lista.indexOf(pid) >= 0 ? " checked" : "") + "> " + esc(palyaNev(pid)) + "</label>";
+        }).join("") + "</div>";
+      });
+      if (lista) h += '<div style="margin-top:6px"><button data-bank-palya-torol="' + bv.id + '">↺ ' + (egyeni ? "Kijelölés törlése (csoport szerint)" : "Kijelölés törlése") + "</button></div>";
+      h += "</details>";
+    }
+    if (egyeni) h += '<div class="kicsi">Most ennél a gyereknél: ' + bankHatasSzoveg(id, bv) + "</div>";
+  });
+  h += '<p class="kicsi halvany" style="margin-top:8px">Ár nélkül a bank <b>zárva</b> („Hamarosan nyitunk”). Napi korlát: naponta legfeljebb ennyi váltás (üres = nincs korlát, 0 = aznap zárva). ' +
+    "🏁 Kijelölt pályák után: minden végigvitt kijelölt pálya 1 váltást ér; ez megmarad másnapra is, és a napi korlát mellette is él. Egyéni pálya is kijelölhető. " +
+    "Sorrend: csoport → egyéni (az egyéni a legerősebb). Ha a gyerek több csoportban van, és azok mást mondanak, <b>a szigorúbb nyer</b>: a magasabb ár, a kisebb napi korlát, " +
+    "a kikapcsolt; a „pályák után” erősebb a „naponta”-nál, és a kijelölt pályák listái összeadódnak.</p></div>";
+
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
   var effKulcs = egyeni ? kapuHatas(id).kulcs : [];
@@ -923,6 +1030,25 @@ function rajzBeallitasok(t) {
   $("kapu-orak").onchange = function () {
     ment(docRef.set({ kapuOrak: this.value === "" ? FV.delete() : +this.value, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
+  /* 🏦 bank-mezők: { bank: { valtasId: { mezo: érték | törlés } } } */
+  function bankIr(vid, mezok) { var b = {}; b[vid] = mezok; ment(docRef.set({ bank: b, updatedAt: FV.serverTimestamp() }, { merge: true })); }
+  Array.prototype.forEach.call(t.querySelectorAll("select[data-bank-mezo]"), function (sel) {
+    sel.onchange = function () {
+      var m = sel.dataset.bankMezo, v = sel.value, o = {};
+      o[m] = v === "" ? FV.delete() : m === "ki" ? v === "true" : m === "mod" ? v : +v;
+      bankIr(sel.dataset.bank, o);
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (c) {
+    c.onchange = function () {
+      var vid = c.dataset.bankPalya, l = [];
+      Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya]"), function (x) { if (x.dataset.bankPalya === vid && x.checked) l.push(x.value); });
+      bankIr(vid, { palyak: l });
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya-torol]"), function (b) {
+    b.onclick = function () { bankIr(b.dataset.bankPalyaTorol, { palyak: FV.delete() }); };
+  });
   $("uj-csoport").onclick = function () {
     var nev = (prompt("Az új csoport neve (pl. 2.b osztály):") || "").trim();
     if (!nev) return;

@@ -7,10 +7,11 @@ function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, o
 function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
+function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
 /* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
@@ -65,6 +66,10 @@ function profilNormal(p) {
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};
   if (!p.szalon.festekek) p.szalon.festekek = {};   /* FODRÁSZAT 2.: megvett festékek { id: 1 } */
+  if (!p.bank || typeof p.bank !== "object") p.bank = alapBank();   /* 🏦 TÜNDÉRBANK */
+  if (typeof p.bank.nap !== "string") p.bank.nap = "";
+  if (!p.bank.valtva) p.bank.valtva = {};
+  if (!p.bank.jegy) p.bank.jegy = {};
   if (typeof p.tkNyitva !== "number") p.tkNyitva = 0;   /* ÉGI TÜNEMÉNYKERT: egyszeri feloldás 💧-ért */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   return p;

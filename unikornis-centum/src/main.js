@@ -59,6 +59,8 @@ window.UC = {
   kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
+  bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz,
+  bankOsszevon: bankOsszevon, VALTASOK: VALTASOK, VALUTAK: VALUTAK, FELULIR: FELULIR, utcaMod: utcaMod,   /* 🏦 TÜNDÉRBANK */
   frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },

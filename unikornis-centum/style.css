@@ -1175,7 +1175,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 
 /* ── FODRÁSZAT: utca-hub + szalon-belső ──────────────────────────────── */
-.utca-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; background:#4a3a80; isolation:isolate; }
+.utca-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; background:#12194f; isolation:isolate; }
 .szalon-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; background:#efd9fb; isolation:isolate; }
 .utca-svg, .szalon-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .utca-epulet, .utca-portal, .szalon-kefe{ cursor:pointer; }
@@ -1183,6 +1183,53 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .utca-portal{ animation:portal-lukt 2.6s ease-in-out infinite; transform-origin:200px 158px; }
 @keyframes portal-lukt{ 0%,100%{ opacity:.92; } 50%{ opacity:1; filter:drop-shadow(0 0 5px rgba(255,210,77,.7)); } }
 @media (prefers-reduced-motion:reduce){ .utca-portal{ animation:none; } }
+.utca-svg{ overflow:visible; }   /* az ég és a föld a viewBox-on túl, a képernyő széléig ér (terv/utca-kepernyoterv.html) */
+/* utca: ambient mozgás — csillagok, fények, kéménycsillagok, zászló, lomb, hullócsillag, szentjánosbogarak */
+.u-pisl{ animation:u-pislog 2.6s ease-in-out infinite; }
+.u-feny{ animation:u-fenyl 3.6s ease-in-out infinite; }
+.u-szall{ animation:u-szall 3.2s ease-out infinite; }
+.u-leng{ animation:u-leng 3s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 0; }
+.u-lomb{ animation:u-lomb 4.5s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
+.u-hullo{ animation:u-hullo 11s linear infinite; opacity:0; }
+.u-szentj{ animation:u-szentj 5s ease-in-out infinite; }
+@keyframes u-pislog{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
+@keyframes u-fenyl{ 0%,100%{ opacity:.5; } 50%{ opacity:.95; } }
+@keyframes u-szall{ 0%{ transform:translate(0,0); opacity:0; } 15%{ opacity:1; } 100%{ transform:translate(5px,-30px); opacity:0; } }
+@keyframes u-leng{ 0%,100%{ transform:rotate(-2.5deg); } 50%{ transform:rotate(2.5deg); } }
+@keyframes u-lomb{ 0%,100%{ transform:rotate(-1.3deg); } 50%{ transform:rotate(1.3deg); } }
+@keyframes u-hullo{ 0%,84%{ transform:translate(0,0); opacity:0; } 86%{ opacity:1; } 95%{ transform:translate(-170px,60px); opacity:0; } 100%{ transform:translate(-170px,60px); opacity:0; } }
+@keyframes u-szentj{ 0%,100%{ transform:translate(0,0); opacity:.15; } 50%{ transform:translate(9px,-12px); opacity:1; } }
+@media (prefers-reduced-motion:reduce){ .u-pisl,.u-feny,.u-szall,.u-leng,.u-lomb,.u-hullo,.u-szentj{ animation:none; } .u-hullo{ display:none; } }
+
+/* ── 🏦 TÜNDÉRBANK (terv/bank-rajzterv.html) ── */
+.bank-szinter{ position:relative; flex:1 1 auto; width:100%; overflow:hidden; background:#d4c9ee; isolation:isolate; font-family:inherit; }
+.bank-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; overflow:visible; }
+.bk-lebeg{ animation:bk-lebeg 4s ease-in-out infinite; }
+.bk-lebeg2{ animation:bk-lebeg2 5s ease-in-out infinite; }
+.bk-tarcsa{ animation:bk-tarcsa 7s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+@keyframes bk-lebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+@keyframes bk-lebeg2{ 0%,100%{ transform:translateY(-3px); } 50%{ transform:translateY(2px); } }
+@keyframes bk-tarcsa{ 0%,70%{ transform:rotate(0); } 80%{ transform:rotate(40deg); } 90%{ transform:rotate(-15deg); } 100%{ transform:rotate(0); } }
+@media (prefers-reduced-motion:reduce){ .bk-lebeg,.bk-lebeg2,.bk-tarcsa{ animation:none; } }
+.bank-hud{ position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:2; background:rgba(255,255,255,.9); color:#4a3b7a;
+  border-radius:999px; padding:4px 14px; font-weight:800; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,.15); white-space:nowrap; pointer-events:none; }
+.bank-buborek{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:3; max-width:min(88%,460px); background:#fff; color:#4a3b7a;
+  font-weight:700; font-size:16px; border-radius:16px; padding:8px 14px; box-shadow:0 3px 10px rgba(0,0,0,.2); opacity:0; transition:opacity .25s;
+  text-align:center; pointer-events:none; }
+.bank-buborek.lat{ opacity:1; }
+.bank-gombok{ position:absolute; left:50%; bottom:14%; transform:translateX(-50%); z-index:2; display:flex; flex-direction:column; gap:10px; align-items:center; }
+.bank-valto{ font:inherit; font-weight:800; font-size:20px; color:#fff; border:0; border-radius:18px; padding:13px 24px; white-space:nowrap; cursor:pointer;
+  background:linear-gradient(180deg,#f58cc0,#d84f96); box-shadow:0 5px 0 #a8326f,0 8px 16px rgba(0,0,0,.25); }
+.bank-valto:active{ transform:translateY(3px); box-shadow:0 2px 0 #a8326f; }
+.bank-valto.halvany{ filter:grayscale(.7) opacity(.6); }
+.bank-ablak{ position:absolute; inset:0; z-index:5; background:rgba(30,20,60,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+.bank-doboz{ background:#fffaf3; color:#4a3b7a; border-radius:22px; padding:18px 20px 16px; width:100%; max-width:340px; text-align:center;
+  font-weight:800; font-size:18px; line-height:1.35; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+.bank-nagy{ font-size:28px; margin:8px 0 14px; }
+.bank-dlg-gombok{ display:flex; gap:12px; justify-content:center; }
+.bank-dlg-gombok button{ font:inherit; font-weight:800; font-size:19px; border:0; border-radius:14px; padding:10px 22px; cursor:pointer; color:#fff; }
+.bank-igen{ background:#3fb37a; box-shadow:0 4px 0 #2a7f55; }
+.bank-nem{ background:#b8aecb; box-shadow:0 4px 0 #8a7fa0; }
 .szalon-tegely, .szalon-lapoz, .szalon-rgomb{ cursor:pointer; }
 .szalon-tegely:active, .szalon-lapoz:active, .szalon-rgomb:active, .szalon-kefe:active{ opacity:.8; }
 /* ecsettel a kezében: a festhető részek csillognak */

@@ -9,11 +9,44 @@ var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
 var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
 
 /* ── UTCA-HUB ─────────────────────────────────────────────────────────────
-   Álló elrendezés (400×460, meet): fönt az égi matek-portál, lent 2×2 házrács. */
+   Terv: terv/utca-kepernyoterv.html (jóváhagyva 2026-10-01). Két elrendezés a képernyő alakja szerint:
+   fekvő → „szeles” (800×460, 5 ház egy sorban), álló → „allo” (400×760, hátul 3, elöl 2 ház).
+   A házak a régi rajzok a régi 400×460-as koordinátáikban (talpvonal y=432); utcaHely() teszi őket a helyükre.
+   Sorrend: fodrász · csillagbolt · kert · odú · bank (a bank a jobb szélen). Ambient mozgás: style.css .u-* */
+var UTCA_ELR = {
+  szeles: { w: 800, h: 460, fold: 290, hold: [86, 62], portal: [400, 138], tk: [400, -34],
+    hazak: { fodrasz: [88, 430, 1.32], bolt: [244, 430, 1.32], kert: [400, 430, 1.32], odu: [556, 430, 1.32], bank: [712, 430, 1.32] },
+    jardak: [430], lampak: [[166, 430], [322, 430], [478, 430], [634, 430]],
+    csillagok: [[150, 30], [250, 80], [300, 24], [520, 40], [560, 96], [640, 30], [40, 140], [180, 170], [620, 170], [700, 110], [500, 200], [270, 210]] },
+  allo: { w: 400, h: 760, fold: 268, hold: [46, 50], portal: [200, 150], tk: [0, -6],
+    hazak: { fodrasz: [70, 470, 1], bolt: [200, 470, 1], bank: [330, 470, 1], kert: [104, 728, 1.3], odu: [294, 728, 1.3] },
+    jardak: [470, 728], lampak: [[135, 470], [265, 470], [200, 728]],
+    csillagok: [[130, 34], [270, 30], [330, 66], [96, 92], [190, 60], [70, 160], [300, 200], [30, 230], [120, 240]] }
+};
+function utcaMod(w, h) {
+  if (!(w > 0 && h > 0)) { w = window.innerWidth; h = window.innerHeight; }   /* még rejtett képernyő: az ablak alakja dönt */
+  return w >= h ? "szeles" : "allo";
+}
 /* Név-tábla egy épület alá (egységes, jól koppintható a gyereknek). */
-function utcaCimke(cx, felirat) {
-  return '<rect x="' + (cx - 44) + '" y="436" width="88" height="21" rx="10" fill="#ffffff" opacity="0.95"/>' +
-         '<text x="' + cx + '" y="451" text-anchor="middle" font-size="13" font-weight="700" fill="#2a2140">' + felirat + '</text>';
+function utcaCimke(cx, y, felirat) {
+  return '<rect x="' + (cx - 48) + '" y="' + (y + 5) + '" width="96" height="24" rx="12" fill="#ffffff" opacity="0.95"/>' +
+         '<text x="' + cx + '" y="' + (y + 22) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#2a2140">' + felirat + '</text>';
+}
+/* a régi koordinátákban rajzolt ház (középvonal: origCx, talp: 432) → helyére és méretére */
+function utcaHely(id, hely, origCx, rajz, felirat) {
+  var cx = hely[0], talp = hely[1], s = hely[2];
+  return '<g id="' + id + '" class="utca-epulet">' +
+    '<g transform="translate(' + (cx - s * origCx).toFixed(1) + ',' + (talp - s * 432).toFixed(1) + ') scale(' + s + ')">' + rajz + '</g>' +
+    utcaCimke(cx, talp, felirat) + '</g>';
+}
+function utcaZarCimke(cx, szoveg) {   /* sötét címke a ház elején (régi koordináták) */
+  return '<rect x="' + (cx - 38) + '" y="300" width="76" height="20" rx="10" fill="#1a1338" opacity="0.9"/>' +
+    '<text x="' + cx + '" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#ffd24d">' + szoveg + '</text>';
+}
+/* négyágú csillám (bank-tábla, széf, fodrász-cégér) */
+function uCsillam(x, y, r, c, kes) {
+  var q = r * 0.18;
+  return '<path class="u-pisl" style="animation-delay:' + (kes || 0) + 's" d="M' + x + ',' + (y - r) + ' Q' + (x + q) + ',' + (y - q) + ' ' + (x + r) + ',' + y + ' Q' + (x + q) + ',' + (y + q) + ' ' + x + ',' + (y + r) + ' Q' + (x - q) + ',' + (y + q) + ' ' + (x - r) + ',' + y + ' Q' + (x - q) + ',' + (y - q) + ' ' + x + ',' + (y - r) + ' Z" fill="' + c + '"/>';
 }
 function utcaPortalSVG() {
   var cx = 200, cy = 158, g = '<g id="utca-portal" class="utca-portal">';
@@ -31,81 +64,130 @@ function utcaPortalSVG() {
   g += '</g>';
   return g;
 }
-function utcaSVG() {
-  var zarva = !P().szalon.nyitva;
-  var c = LENYEK[mentes.leny];
-  var s = '<svg class="utca-svg" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
-  s += '<defs>' +
-    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset="0.55" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
-    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1650"/><stop offset="1" stop-color="#0a1240"/></linearGradient>' +
-    '</defs>';
-  s += '<rect x="0" y="0" width="400" height="460" fill="url(#utca-eg)"/>';
-  s += '<circle cx="46" cy="50" r="20" fill="#fdf3c4"/><circle cx="38" cy="44" r="20" fill="#1c2560" opacity="0.55"/>';   /* hold */
-  [[130, 34], [270, 30], [330, 66], [96, 92], [356, 120], [190, 60], [300, 150], [70, 150]].forEach(function (p) {
-    s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.7" fill="#fff" opacity="0.85"/>';
-  });
-  s += utcaPortalSVG();
-  s += tkLepcsoSVG();   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
-  s += '<rect x="0" y="250" width="400" height="210" fill="url(#utca-fold)"/>';
 
-  /* ── FODRÁSZ (kék épület, kirakatban az unikornis) ── */
-  var lock = zarva ? '<g><rect x="16" y="300" width="76" height="20" rx="10" fill="#1a1338" opacity="0.9"/><text x="54" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#ffd24d">🔒 150 ✨</text></g>' : "";
-  s += '<g id="utca-fodrasz" class="utca-epulet">' +
-    '<rect x="6" y="276" width="96" height="182" fill="transparent"/>' +
+/* ── a házak (a régi rajzok + fény és mozgás) ── */
+function utcaFodraszRajz(zarva, uniSVG) {
+  return '<rect x="6" y="276" width="96" height="182" fill="transparent"/>' +
     '<path d="M10 302 L54 278 L98 302 Z" fill="#2b3aa0"/>' +
     '<rect x="14" y="302" width="80" height="130" rx="6" fill="#3f5fd0"/>' +
     '<text x="54" y="298" text-anchor="middle" font-size="14" font-weight="800" fill="#ff69b4" font-style="italic">fodrász</text>' +
+    uCsillam(88, 286, 4, "#ffd6ec", 0.4) +
+    '<circle class="u-feny" cx="54" cy="359" r="38" fill="url(#u-izz)"/>' +
     '<rect x="28" y="330" width="52" height="58" rx="5" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/>' +
-    '<g transform="translate(54,368) scale(0.125)">' + unikornisSVG("utca-kirakat-uni", c, 1, P().oltozet) + '</g>' +
-    lock +
-    utcaCimke(54, "fodrász") +
-    '</g>';
-
-  /* ── CSILLAGBOLT (pink épület, kéménnyel) ── */
-  s += '<g id="utca-bolt" class="utca-epulet">' +
-    '<rect x="102" y="276" width="96" height="182" fill="transparent"/>' +
-    '<rect x="166" y="284" width="12" height="22" fill="#b86a2f"/>' +
-    csillagSVG(172, 276, 6, "#ffd24d") + csillagSVG(184, 268, 4, "#fff") +
-    '<path d="M106 302 L150 278 L194 302 Z" fill="#b52f98"/>' +
+    uniSVG +
+    (zarva ? utcaZarCimke(54, "🔒 " + SZALON_BELEPO_AR + " ✨") : "");
+}
+function utcaBoltRajz() {
+  var s = '<rect x="102" y="276" width="96" height="182" fill="transparent"/>' +
+    '<rect x="166" y="284" width="12" height="22" fill="#b86a2f"/>';
+  /* a kéményből csillagok szállnak fel */
+  [[172, 278, 5, "#ffd24d", 0], [178, 276, 3.5, "#fff", 1.1], [169, 279, 4, "#ffe08a", 2.1]].forEach(function (c) {
+    s += '<g class="u-szall" style="animation-delay:' + c[4] + 's">' + csillagSVG(c[0], c[1], c[2], c[3]) + '</g>';
+  });
+  s += '<path d="M106 302 L150 278 L194 302 Z" fill="#b52f98"/>' +
     '<rect x="110" y="302" width="80" height="130" rx="6" fill="#e63bc0"/>' +
     '<text x="150" y="330" text-anchor="middle" font-size="13" font-weight="800" fill="#ffe0f4" font-style="italic">csillagbolt</text>' +
+    '<circle class="u-feny" style="animation-delay:1.2s" cx="150" cy="365" r="34" fill="url(#u-izz)"/>' +
     '<rect x="126" y="344" width="48" height="42" rx="5" fill="#ffc0e6" stroke="#a02f88" stroke-width="2"/>' +
-    csillagSVG(150, 365, 9, "#ffd24d") +
-    utcaCimke(150, "csillagbolt") +
-    '</g>';
-
-  /* ── KERT / ZÖLDSÉGES (stand zászlófüzérrel) ── */
-  s += '<g id="utca-kert" class="utca-epulet">' +
-    '<rect x="200" y="284" width="96" height="174" fill="transparent"/>' +
-    '<rect x="206" y="330" width="84" height="102" rx="5" fill="#cdeecb"/>' +
-    '<rect x="206" y="316" width="84" height="18" fill="#3f9e6a"/>' +
-    '<path d="M206 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M226 334 l10 14 l10 -14 Z" fill="#f2c23b"/><path d="M246 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M266 334 l10 14 l10 -14 Z" fill="#f2c23b"/>' +
-    '<rect x="222" y="392" width="52" height="30" rx="4" fill="#b98a4e"/>' +
-    '<circle cx="238" cy="392" r="9" fill="#e14b4b"/><circle cx="256" cy="394" r="8" fill="#7fbf3f"/>' +
-    '<path d="M266 386 l5 14 M263 388 l4 7" stroke="#e6822f" stroke-width="4" stroke-linecap="round"/>' +
-    utcaCimke(248, "kert") +
-    '</g>';
-
-  /* ── ODÚ (faodú: törzs + lombkorona + kerek ablak) ── */
-  s += '<g id="utca-odu" class="utca-epulet">' +
-    '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
-    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
-    '<circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
-    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/>' +
-    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>' +
-    utcaCimke(344, "odú") +
-    '</g>';
-
-  s += '</svg>';
+    '<g class="u-pisl" style="animation-duration:3.4s">' + csillagSVG(150, 365, 9, "#ffd24d") + '</g>';
   return s;
 }
+function utcaKertRajz() {
+  return '<rect x="200" y="284" width="96" height="174" fill="transparent"/>' +
+    '<rect x="206" y="330" width="84" height="102" rx="5" fill="#cdeecb"/>' +
+    '<rect x="206" y="316" width="84" height="18" fill="#3f9e6a"/>' +
+    '<g class="u-leng"><path d="M206 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M226 334 l10 14 l10 -14 Z" fill="#f2c23b"/><path d="M246 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M266 334 l10 14 l10 -14 Z" fill="#f2c23b"/></g>' +
+    '<rect x="222" y="392" width="52" height="30" rx="4" fill="#b98a4e"/>' +
+    '<circle cx="238" cy="392" r="9" fill="#e14b4b"/><circle cx="256" cy="394" r="8" fill="#7fbf3f"/>' +
+    '<path d="M266 386 l5 14 M263 388 l4 7" stroke="#e6822f" stroke-width="4" stroke-linecap="round"/>';
+}
+function utcaOduRajz() {
+  return '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
+    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
+    '<g class="u-lomb"><circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
+    '<circle class="u-feny" cx="336" cy="300" r="22" fill="url(#u-izz)"/>' +
+    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/></g>' +
+    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>';
+}
+/* (a bank háza: bank.js utcaBankRajz) */
+
+/* ── ég, föld, járda, lámpák ── */
+function utcaDefs() {
+  return '<defs>' +
+    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset="0.55" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
+    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1650"/><stop offset="1" stop-color="#0a1240"/></linearGradient>' +
+    '<radialGradient id="u-izz"><stop offset="0" stop-color="#fff2a0" stop-opacity=".75"/><stop offset="1" stop-color="#fff2a0" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="u-hold"><stop offset=".45" stop-color="#fdf3c4" stop-opacity=".35"/><stop offset="1" stop-color="#fdf3c4" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="u-hullo-gr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="u-b-fal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a98c6"/><stop offset=".55" stop-color="#7090be"/><stop offset="1" stop-color="#5d7cae"/></linearGradient>' +
+    '<linearGradient id="u-b-ablak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffe45a"/></linearGradient>' +
+    '<linearGradient id="u-b-tabla" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b25ab4"/><stop offset="1" stop-color="#9a449c"/></linearGradient>' +
+    '<clipPath id="u-b-bal"><rect x="114" y="104" width="68" height="70" rx="3"/></clipPath>' +
+    '<filter id="u-firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>' +
+    '</defs>';
+}
+function utcaJarda(w, y) {
+  var s = '<rect x="-400" y="' + y + '" width="' + (w + 800) + '" height="30" fill="#1b2468"/>' +
+    '<path d="M-400 ' + y + ' H' + (w + 400) + '" stroke="#3b4290" stroke-width="3"/>';
+  for (var x = 20; x < w; x += 46) s += '<path d="M' + x + ' ' + (y + 3) + ' v26" stroke="#2a3380" stroke-width="2"/>';
+  return s;
+}
+function utcaLampa(x, talp) {
+  var t = talp - 4;
+  return '<circle class="u-feny" cx="' + x + '" cy="' + (t - 74) + '" r="30" fill="url(#u-izz)"/>' +
+    '<rect x="' + (x - 2.5) + '" y="' + (t - 66) + '" width="5" height="66" rx="2" fill="#2a2a5e"/>' +
+    '<rect x="' + (x - 8) + '" y="' + (t - 84) + '" width="16" height="18" rx="5" fill="#fff2a0" stroke="#2a2a5e" stroke-width="3"/>' +
+    '<path d="M' + (x - 10) + ' ' + (t - 84) + ' L' + x + ' ' + (t - 92) + ' L' + (x + 10) + ' ' + (t - 84) + ' Z" fill="#2a2a5e"/>';
+}
+function utcaSVG(mod) {
+  var L = UTCA_ELR[mod] || UTCA_ELR.szeles, w = L.w, h = L.h;
+  var c = LENYEK[mentes.leny];
+  var uni = '<g transform="translate(54,368) scale(0.125)">' + unikornisSVG("utca-kirakat-uni", c, 1, P().oltozet) + '</g>';
+  var s = '<svg class="utca-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">' + utcaDefs();
+  /* ég és föld a képernyő széléig (a viewBox-on túl is: nincs üres sáv) */
+  s += '<rect x="-400" y="-600" width="' + (w + 800) + '" height="' + (600 + L.fold) + '" fill="#12194f"/>';
+  s += '<rect x="-400" y="0" width="' + (w + 800) + '" height="' + L.fold + '" fill="url(#utca-eg)"/>';
+  L.csillagok.forEach(function (p, i) {
+    s += '<circle class="u-pisl" style="animation-delay:' + (i * 0.43).toFixed(2) + 's" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (i % 3 ? 1.6 : 2.2) + '" fill="#fff"/>';
+  });
+  var hx = L.hold[0], hy = L.hold[1];
+  s += '<circle class="u-feny" cx="' + hx + '" cy="' + hy + '" r="44" fill="url(#u-hold)"/>' +
+    '<circle cx="' + hx + '" cy="' + hy + '" r="20" fill="#fdf3c4"/><circle cx="' + (hx - 8) + '" cy="' + (hy - 6) + '" r="20" fill="#1c2560" opacity="0.55"/>';
+  s += '<g transform="translate(' + (w * 0.82) + ',30)"><g class="u-hullo"><path d="M0 0 L46 -16" stroke="url(#u-hullo-gr)" stroke-width="2.5" stroke-linecap="round"/><circle r="2.4" fill="#fff"/></g></g>';
+  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() + '</g>';
+  s += '<g transform="translate(' + L.tk[0] + ',' + L.tk[1] + ')">' + tkLepcsoSVG() + '</g>';   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
+  s += '<rect x="-400" y="' + L.fold + '" width="' + (w + 800) + '" height="' + (h - L.fold + 600) + '" fill="url(#utca-fold)"/>';
+  L.jardak.forEach(function (y) { s += utcaJarda(w, y); });
+  L.lampak.forEach(function (p) { s += utcaLampa(p[0], p[1]); });
+  /* a házak hátulról előre (az álló elrendezésben az első sor takarja a hátsót) */
+  var H = L.hazak, sor = [
+    ["utca-fodrasz", "fodrasz", 54, utcaFodraszRajz(!P().szalon.nyitva, uni), "fodrász"],
+    ["utca-bolt", "bolt", 150, utcaBoltRajz(), "csillagbolt"],
+    ["utca-kert", "kert", 248, utcaKertRajz(), "kert"],
+    ["utca-odu", "odu", 345, utcaOduRajz(), "odú"],
+    ["utca-bank", "bank", 200, utcaBankRajz(bankZarva()), "tündérbank"]
+  ].sort(function (x, y) { return H[x[1]][1] - H[y[1]][1]; });
+  sor.forEach(function (e) { s += utcaHely(e[0], H[e[1]], e[2], e[3], e[4]); });
+  /* szentjánosbogár-fények a föld fölött */
+  for (var i = 0; i < 7; i++) {
+    var fx = (w / 7) * i + 26, fy = L.fold + 18 + ((i * 37) % 60);
+    s += '<circle class="u-szentj" style="animation-delay:' + (i * 0.7).toFixed(1) + 's" cx="' + fx.toFixed(0) + '" cy="' + fy + '" r="2.2" fill="#fff6a8"/>';
+  }
+  return s + '</svg>';
+}
 var UTCA_MOD = "nez";   /* "nez" | "megerosit-belepo" | "megerosit-tk" */
+var UTCA_ELR_MOST = null;   /* az utoljára rajzolt elrendezés („szeles” | „allo”) — forgatáskor átrajzolunk */
+window.addEventListener("resize", function () {
+  var host = document.getElementById("utca-szinter"), akt = document.querySelector(".kepernyo.aktiv");
+  if (!host || !akt || akt.id !== "kepernyo-utca") return;
+  if (utcaMod(host.clientWidth, host.clientHeight) !== UTCA_ELR_MOST) renderUtca();
+});
 function utcaNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   UTCA_MOD = "nez";
-  renderUtca();
   mutat("kepernyo-utca");
+  renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
 }
 function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
@@ -113,7 +195,8 @@ function renderUtca() {
   var cp = $("utca-csillampor"); if (cp) cp.textContent = P().csillampor;
   var hp = $("utca-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("utca-szinter"); if (!host) return;
-  host.innerHTML = utcaSVG();
+  UTCA_ELR_MOST = utcaMod(host.clientWidth, host.clientHeight);
+  host.innerHTML = utcaSVG(UTCA_ELR_MOST);
   utcaKot("utca-fodrasz", utcaFodraszKoppint);
   utcaKot("utca-bolt", function () { hangGomb(); oduNyit(); oduPanelNyit(); });
   utcaKot("utca-kert", function () {
@@ -122,6 +205,7 @@ function renderUtca() {
     else { mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduNyit(); oduPanelNyit("kert"); }
   });
   utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
+  utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
   utcaKot("utca-felhokert", tkLepcsoKoppint);
   utcaKot("utca-portal", function () { hangGomb(); mondd("Induljunk matekozni!"); renderFomenu(); mutat("kepernyo-fomenu"); });
   var sugo = $("utca-sugo");

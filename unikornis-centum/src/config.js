@@ -4,7 +4,8 @@
                                                  muvelet?, tablak?, darab?, kulcs?, korlat? } — egyéni
      producerConfig/{uid}.kapuOrak = N (a kapu óraszáma, alap 12)
      producerConfig/{uid}.ekStabil = { nap, arany } (📚 Bagolykönyvtár stabil-küszöb, alap 3 nap × 0,8 — pult 🧱 fül)
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil? }  — csoportos
+     producerConfig/{uid}.bank = { valtasId: { ar, korlat, ki, mod, palyak } } (🏦 Tündérbank, bank.js — bankOsszevon)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil?, bank? }  — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
@@ -25,6 +26,9 @@ var FELULIR = {
   egyeniStabil: null, /* producerConfig/{uid}.ekStabil */
   csoportStabil: {},  /* gid → ekStabil */
   ekStabil: null,     /* összevont stabil-küszöb { nap, arany } (null = alap, konyvtar-mester.js EK_STABIL_ALAP) */
+  egyeniBank: null,   /* producerConfig/{uid}.bank */
+  csoportBank: {},    /* gid → bank */
+  bank: {},           /* összevont bank-beállítás: valtasId → { ar, korlat, ki, mod, palyak } (üres = a bank zárva) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -34,11 +38,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null;
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {};
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -53,17 +57,19 @@ function felulirFigyel() {
     FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
     FELULIR.egyeniOrak = d.exists && typeof d.data().kapuOrak === "number" ? d.data().kapuOrak : null;
     FELULIR.egyeniStabil = (d.exists && d.data().ekStabil) || null;
+    FELULIR.egyeniBank = (d.exists && d.data().bank) || {};
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {}, cst = {};
+    var cs = {}, cp = {}, co = {}, cst = {}, cb = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
       if (d.data().ekStabil) cst[d.id] = d.data().ekStabil;
+      if (d.data().bank) cb[d.id] = d.data().bank;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -125,6 +131,41 @@ function ekStabilOsszevon(egyeni, csoportok) {
   return { nap: Math.round(ki.nap || 3), arany: ki.arany || 0.8 };
 }
 
+/* 🏦 Tündérbank (2026-10-01): váltásonként { ar?, korlat?, ki?, mod?: "nap"|"palya", palyak?: [id] }.
+   Több csoportnál a SZIGORÚBB nyer: a magasabb ár, a kisebb napi korlát, a kikapcsolt; a pályás mód erősebb a napinál,
+   a kijelölt pályák listája összeadódik. Az egyéni mezőnként mindent felülír (korlat: -1 = nála nincs korlát,
+   ki: false = nála be van kapcsolva). Ár nélkül a bank zárva (nincs alapérték).
+   A pult (admin/index.html bankOsszevon) UGYANEZ — együtt változtasd! */
+function bankOsszevon(egyeni, csoportok) {
+  var ki = {};
+  function v(id) { return ki[id] || (ki[id] = {}); }
+  function unio(a, b) { var l = (a || []).slice(); (b || []).forEach(function (x) { if (l.indexOf(x) < 0) l.push(x); }); return l; }
+  csoportok.forEach(function (c) {
+    Object.keys(c || {}).forEach(function (id) {
+      var o = c[id] || {}, k = v(id);
+      if (typeof o.ar === "number" && o.ar >= 1) k.ar = Math.max(k.ar || 0, o.ar);
+      if (typeof o.korlat === "number" && o.korlat >= 0) k.korlat = typeof k.korlat === "number" ? Math.min(k.korlat, o.korlat) : o.korlat;
+      if (o.ki === true) k.ki = true;
+      if (o.mod === "palya") { k.mod = "palya"; k.palyak = unio(k.palyak, o.palyak); }
+      else if (o.mod === "nap" && !k.mod) k.mod = "nap";
+    });
+  });
+  Object.keys(egyeni || {}).forEach(function (id) {
+    var o = egyeni[id] || {}, k = v(id);
+    if (typeof o.ar === "number" && o.ar >= 1) k.ar = o.ar;
+    if (typeof o.korlat === "number") { if (o.korlat >= 0) k.korlat = o.korlat; else delete k.korlat; }
+    if (typeof o.ki === "boolean") k.ki = o.ki;
+    if (o.mod === "nap" || o.mod === "palya") k.mod = o.mod;
+    if (Array.isArray(o.palyak)) k.palyak = o.palyak.slice();
+  });
+  Object.keys(ki).forEach(function (id) {
+    var k = ki[id];
+    if (k.mod !== "palya") delete k.palyak; else if (!k.palyak) k.palyak = [];
+    if (k.ki !== true) delete k.ki;
+  });
+  return ki;
+}
+
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
   var cs = FELULIR.csoportok, lista = Object.keys(cs).sort().map(function (g) { return cs[g]; });
@@ -134,13 +175,16 @@ function felulirSzamol() {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
   });
   var ujS = ekStabilOsszevon(FELULIR.egyeniStabil, Object.keys(FELULIR.csoportStabil || {}).sort().map(function (g) { return FELULIR.csoportStabil[g]; }));
+  var ujB = bankOsszevon(FELULIR.egyeniBank, Object.keys(FELULIR.csoportBank || {}).sort().map(function (g) { return FELULIR.csoportBank[g]; }));
   if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
-      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil)) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS })); } catch (e) {}
+      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil) && JSON.stringify(ujB) === JSON.stringify(FELULIR.bank)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
+  else if (id === "kepernyo-utca") renderUtca();     /* 🏦 a bank zárva/nyitva címkéje */
+  else if (id === "kepernyo-bank") bankFrissit();
 }
 
 /* ── a játék ezeket kérdezi ── */

@@ -59,7 +59,8 @@ MODULES = [
     "odu.js",             # 10b) odú + bolt (napszak, időjárás, bútorok, díszek, ruhák, kristályok)
     "odu-elet.js",        # 10b2) élet az odúban: élénk szoba (A), élő polc (B), kis élet (F)
     "kert.js",            # 10d) kert/udvar (séta, trükkök, berendezés, ételek)
-    "szalon.js",          # 10e) fodrászat/szépségszalon
+    "szalon.js",          # 10e) fodrászat/szépségszalon + utca-hub
+    "bank.js",            # 10f) 🏦 Tündérbank: ✨→💧 váltás (VALUTAK/VALTASOK tábla, pályás nyitás)
 
     # ── Gyűjtemény ──
     "badges.js",          # 10c) jelvények, gyűjtemény-könyv, talált tárgyak

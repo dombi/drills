@@ -695,10 +695,11 @@ function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, o
 function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
+function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
 /* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
@@ -753,6 +754,10 @@ function profilNormal(p) {
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};
   if (!p.szalon.festekek) p.szalon.festekek = {};   /* FODRÁSZAT 2.: megvett festékek { id: 1 } */
+  if (!p.bank || typeof p.bank !== "object") p.bank = alapBank();   /* 🏦 TÜNDÉRBANK */
+  if (typeof p.bank.nap !== "string") p.bank.nap = "";
+  if (!p.bank.valtva) p.bank.valtva = {};
+  if (!p.bank.jegy) p.bank.jegy = {};
   if (typeof p.tkNyitva !== "number") p.tkNyitva = 0;   /* ÉGI TÜNEMÉNYKERT: egyszeri feloldás 💧-ért */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   return p;
@@ -8527,6 +8532,7 @@ function palyaVege() {
   harmat += ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
+  var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
   korlatSzamol(id);
@@ -8562,10 +8568,13 @@ function palyaVege() {
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
     : "";
+  var bankSor = bankJegy
+    ? '<br><span style="color:#a24aa3;font-weight:800">🏦 A Tündérbankban most válthatsz ' + bankJegy + ' tündérharmatot!</span>'
+    : "";
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + (ekV ? ekV.html : "") +
+    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + bankSor + (ekV ? ekV.html : "") +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -8579,6 +8588,7 @@ function palyaVege() {
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
   var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
+  if (bankJegy) ajanlottSzov += " A Tündérbankban most válthatsz!";
   mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + (ekV ? ekV.mondat : "") + napiSzov + ajanlottSzov + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
@@ -8910,6 +8920,7 @@ function esemenyek() {
   $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
   $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
+  $("bank-vissza").addEventListener("click", function () { hangGomb(); utcaNyit(); });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -11686,11 +11697,44 @@ var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
 var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
 
 /* ── UTCA-HUB ─────────────────────────────────────────────────────────────
-   Álló elrendezés (400×460, meet): fönt az égi matek-portál, lent 2×2 házrács. */
+   Terv: terv/utca-kepernyoterv.html (jóváhagyva 2026-10-01). Két elrendezés a képernyő alakja szerint:
+   fekvő → „szeles” (800×460, 5 ház egy sorban), álló → „allo” (400×760, hátul 3, elöl 2 ház).
+   A házak a régi rajzok a régi 400×460-as koordinátáikban (talpvonal y=432); utcaHely() teszi őket a helyükre.
+   Sorrend: fodrász · csillagbolt · kert · odú · bank (a bank a jobb szélen). Ambient mozgás: style.css .u-* */
+var UTCA_ELR = {
+  szeles: { w: 800, h: 460, fold: 290, hold: [86, 62], portal: [400, 138], tk: [400, -34],
+    hazak: { fodrasz: [88, 430, 1.32], bolt: [244, 430, 1.32], kert: [400, 430, 1.32], odu: [556, 430, 1.32], bank: [712, 430, 1.32] },
+    jardak: [430], lampak: [[166, 430], [322, 430], [478, 430], [634, 430]],
+    csillagok: [[150, 30], [250, 80], [300, 24], [520, 40], [560, 96], [640, 30], [40, 140], [180, 170], [620, 170], [700, 110], [500, 200], [270, 210]] },
+  allo: { w: 400, h: 760, fold: 268, hold: [46, 50], portal: [200, 150], tk: [0, -6],
+    hazak: { fodrasz: [70, 470, 1], bolt: [200, 470, 1], bank: [330, 470, 1], kert: [104, 728, 1.3], odu: [294, 728, 1.3] },
+    jardak: [470, 728], lampak: [[135, 470], [265, 470], [200, 728]],
+    csillagok: [[130, 34], [270, 30], [330, 66], [96, 92], [190, 60], [70, 160], [300, 200], [30, 230], [120, 240]] }
+};
+function utcaMod(w, h) {
+  if (!(w > 0 && h > 0)) { w = window.innerWidth; h = window.innerHeight; }   /* még rejtett képernyő: az ablak alakja dönt */
+  return w >= h ? "szeles" : "allo";
+}
 /* Név-tábla egy épület alá (egységes, jól koppintható a gyereknek). */
-function utcaCimke(cx, felirat) {
-  return '<rect x="' + (cx - 44) + '" y="436" width="88" height="21" rx="10" fill="#ffffff" opacity="0.95"/>' +
-         '<text x="' + cx + '" y="451" text-anchor="middle" font-size="13" font-weight="700" fill="#2a2140">' + felirat + '</text>';
+function utcaCimke(cx, y, felirat) {
+  return '<rect x="' + (cx - 48) + '" y="' + (y + 5) + '" width="96" height="24" rx="12" fill="#ffffff" opacity="0.95"/>' +
+         '<text x="' + cx + '" y="' + (y + 22) + '" text-anchor="middle" font-size="14" font-weight="700" fill="#2a2140">' + felirat + '</text>';
+}
+/* a régi koordinátákban rajzolt ház (középvonal: origCx, talp: 432) → helyére és méretére */
+function utcaHely(id, hely, origCx, rajz, felirat) {
+  var cx = hely[0], talp = hely[1], s = hely[2];
+  return '<g id="' + id + '" class="utca-epulet">' +
+    '<g transform="translate(' + (cx - s * origCx).toFixed(1) + ',' + (talp - s * 432).toFixed(1) + ') scale(' + s + ')">' + rajz + '</g>' +
+    utcaCimke(cx, talp, felirat) + '</g>';
+}
+function utcaZarCimke(cx, szoveg) {   /* sötét címke a ház elején (régi koordináták) */
+  return '<rect x="' + (cx - 38) + '" y="300" width="76" height="20" rx="10" fill="#1a1338" opacity="0.9"/>' +
+    '<text x="' + cx + '" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#ffd24d">' + szoveg + '</text>';
+}
+/* négyágú csillám (bank-tábla, széf, fodrász-cégér) */
+function uCsillam(x, y, r, c, kes) {
+  var q = r * 0.18;
+  return '<path class="u-pisl" style="animation-delay:' + (kes || 0) + 's" d="M' + x + ',' + (y - r) + ' Q' + (x + q) + ',' + (y - q) + ' ' + (x + r) + ',' + y + ' Q' + (x + q) + ',' + (y + q) + ' ' + x + ',' + (y + r) + ' Q' + (x - q) + ',' + (y + q) + ' ' + (x - r) + ',' + y + ' Q' + (x - q) + ',' + (y - q) + ' ' + x + ',' + (y - r) + ' Z" fill="' + c + '"/>';
 }
 function utcaPortalSVG() {
   var cx = 200, cy = 158, g = '<g id="utca-portal" class="utca-portal">';
@@ -11708,81 +11752,130 @@ function utcaPortalSVG() {
   g += '</g>';
   return g;
 }
-function utcaSVG() {
-  var zarva = !P().szalon.nyitva;
-  var c = LENYEK[mentes.leny];
-  var s = '<svg class="utca-svg" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
-  s += '<defs>' +
-    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset="0.55" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
-    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1650"/><stop offset="1" stop-color="#0a1240"/></linearGradient>' +
-    '</defs>';
-  s += '<rect x="0" y="0" width="400" height="460" fill="url(#utca-eg)"/>';
-  s += '<circle cx="46" cy="50" r="20" fill="#fdf3c4"/><circle cx="38" cy="44" r="20" fill="#1c2560" opacity="0.55"/>';   /* hold */
-  [[130, 34], [270, 30], [330, 66], [96, 92], [356, 120], [190, 60], [300, 150], [70, 150]].forEach(function (p) {
-    s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.7" fill="#fff" opacity="0.85"/>';
-  });
-  s += utcaPortalSVG();
-  s += tkLepcsoSVG();   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
-  s += '<rect x="0" y="250" width="400" height="210" fill="url(#utca-fold)"/>';
 
-  /* ── FODRÁSZ (kék épület, kirakatban az unikornis) ── */
-  var lock = zarva ? '<g><rect x="16" y="300" width="76" height="20" rx="10" fill="#1a1338" opacity="0.9"/><text x="54" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#ffd24d">🔒 150 ✨</text></g>' : "";
-  s += '<g id="utca-fodrasz" class="utca-epulet">' +
-    '<rect x="6" y="276" width="96" height="182" fill="transparent"/>' +
+/* ── a házak (a régi rajzok + fény és mozgás) ── */
+function utcaFodraszRajz(zarva, uniSVG) {
+  return '<rect x="6" y="276" width="96" height="182" fill="transparent"/>' +
     '<path d="M10 302 L54 278 L98 302 Z" fill="#2b3aa0"/>' +
     '<rect x="14" y="302" width="80" height="130" rx="6" fill="#3f5fd0"/>' +
     '<text x="54" y="298" text-anchor="middle" font-size="14" font-weight="800" fill="#ff69b4" font-style="italic">fodrász</text>' +
+    uCsillam(88, 286, 4, "#ffd6ec", 0.4) +
+    '<circle class="u-feny" cx="54" cy="359" r="38" fill="url(#u-izz)"/>' +
     '<rect x="28" y="330" width="52" height="58" rx="5" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/>' +
-    '<g transform="translate(54,368) scale(0.125)">' + unikornisSVG("utca-kirakat-uni", c, 1, P().oltozet) + '</g>' +
-    lock +
-    utcaCimke(54, "fodrász") +
-    '</g>';
-
-  /* ── CSILLAGBOLT (pink épület, kéménnyel) ── */
-  s += '<g id="utca-bolt" class="utca-epulet">' +
-    '<rect x="102" y="276" width="96" height="182" fill="transparent"/>' +
-    '<rect x="166" y="284" width="12" height="22" fill="#b86a2f"/>' +
-    csillagSVG(172, 276, 6, "#ffd24d") + csillagSVG(184, 268, 4, "#fff") +
-    '<path d="M106 302 L150 278 L194 302 Z" fill="#b52f98"/>' +
+    uniSVG +
+    (zarva ? utcaZarCimke(54, "🔒 " + SZALON_BELEPO_AR + " ✨") : "");
+}
+function utcaBoltRajz() {
+  var s = '<rect x="102" y="276" width="96" height="182" fill="transparent"/>' +
+    '<rect x="166" y="284" width="12" height="22" fill="#b86a2f"/>';
+  /* a kéményből csillagok szállnak fel */
+  [[172, 278, 5, "#ffd24d", 0], [178, 276, 3.5, "#fff", 1.1], [169, 279, 4, "#ffe08a", 2.1]].forEach(function (c) {
+    s += '<g class="u-szall" style="animation-delay:' + c[4] + 's">' + csillagSVG(c[0], c[1], c[2], c[3]) + '</g>';
+  });
+  s += '<path d="M106 302 L150 278 L194 302 Z" fill="#b52f98"/>' +
     '<rect x="110" y="302" width="80" height="130" rx="6" fill="#e63bc0"/>' +
     '<text x="150" y="330" text-anchor="middle" font-size="13" font-weight="800" fill="#ffe0f4" font-style="italic">csillagbolt</text>' +
+    '<circle class="u-feny" style="animation-delay:1.2s" cx="150" cy="365" r="34" fill="url(#u-izz)"/>' +
     '<rect x="126" y="344" width="48" height="42" rx="5" fill="#ffc0e6" stroke="#a02f88" stroke-width="2"/>' +
-    csillagSVG(150, 365, 9, "#ffd24d") +
-    utcaCimke(150, "csillagbolt") +
-    '</g>';
-
-  /* ── KERT / ZÖLDSÉGES (stand zászlófüzérrel) ── */
-  s += '<g id="utca-kert" class="utca-epulet">' +
-    '<rect x="200" y="284" width="96" height="174" fill="transparent"/>' +
-    '<rect x="206" y="330" width="84" height="102" rx="5" fill="#cdeecb"/>' +
-    '<rect x="206" y="316" width="84" height="18" fill="#3f9e6a"/>' +
-    '<path d="M206 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M226 334 l10 14 l10 -14 Z" fill="#f2c23b"/><path d="M246 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M266 334 l10 14 l10 -14 Z" fill="#f2c23b"/>' +
-    '<rect x="222" y="392" width="52" height="30" rx="4" fill="#b98a4e"/>' +
-    '<circle cx="238" cy="392" r="9" fill="#e14b4b"/><circle cx="256" cy="394" r="8" fill="#7fbf3f"/>' +
-    '<path d="M266 386 l5 14 M263 388 l4 7" stroke="#e6822f" stroke-width="4" stroke-linecap="round"/>' +
-    utcaCimke(248, "kert") +
-    '</g>';
-
-  /* ── ODÚ (faodú: törzs + lombkorona + kerek ablak) ── */
-  s += '<g id="utca-odu" class="utca-epulet">' +
-    '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
-    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
-    '<circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
-    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/>' +
-    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>' +
-    utcaCimke(344, "odú") +
-    '</g>';
-
-  s += '</svg>';
+    '<g class="u-pisl" style="animation-duration:3.4s">' + csillagSVG(150, 365, 9, "#ffd24d") + '</g>';
   return s;
 }
+function utcaKertRajz() {
+  return '<rect x="200" y="284" width="96" height="174" fill="transparent"/>' +
+    '<rect x="206" y="330" width="84" height="102" rx="5" fill="#cdeecb"/>' +
+    '<rect x="206" y="316" width="84" height="18" fill="#3f9e6a"/>' +
+    '<g class="u-leng"><path d="M206 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M226 334 l10 14 l10 -14 Z" fill="#f2c23b"/><path d="M246 334 l10 14 l10 -14 Z" fill="#e14b4b"/><path d="M266 334 l10 14 l10 -14 Z" fill="#f2c23b"/></g>' +
+    '<rect x="222" y="392" width="52" height="30" rx="4" fill="#b98a4e"/>' +
+    '<circle cx="238" cy="392" r="9" fill="#e14b4b"/><circle cx="256" cy="394" r="8" fill="#7fbf3f"/>' +
+    '<path d="M266 386 l5 14 M263 388 l4 7" stroke="#e6822f" stroke-width="4" stroke-linecap="round"/>';
+}
+function utcaOduRajz() {
+  return '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
+    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
+    '<g class="u-lomb"><circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
+    '<circle class="u-feny" cx="336" cy="300" r="22" fill="url(#u-izz)"/>' +
+    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/></g>' +
+    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>';
+}
+/* (a bank háza: bank.js utcaBankRajz) */
+
+/* ── ég, föld, járda, lámpák ── */
+function utcaDefs() {
+  return '<defs>' +
+    '<linearGradient id="utca-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset="0.55" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
+    '<linearGradient id="utca-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1650"/><stop offset="1" stop-color="#0a1240"/></linearGradient>' +
+    '<radialGradient id="u-izz"><stop offset="0" stop-color="#fff2a0" stop-opacity=".75"/><stop offset="1" stop-color="#fff2a0" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="u-hold"><stop offset=".45" stop-color="#fdf3c4" stop-opacity=".35"/><stop offset="1" stop-color="#fdf3c4" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="u-hullo-gr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="u-b-fal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a98c6"/><stop offset=".55" stop-color="#7090be"/><stop offset="1" stop-color="#5d7cae"/></linearGradient>' +
+    '<linearGradient id="u-b-ablak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffe45a"/></linearGradient>' +
+    '<linearGradient id="u-b-tabla" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b25ab4"/><stop offset="1" stop-color="#9a449c"/></linearGradient>' +
+    '<clipPath id="u-b-bal"><rect x="114" y="104" width="68" height="70" rx="3"/></clipPath>' +
+    '<filter id="u-firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>' +
+    '</defs>';
+}
+function utcaJarda(w, y) {
+  var s = '<rect x="-400" y="' + y + '" width="' + (w + 800) + '" height="30" fill="#1b2468"/>' +
+    '<path d="M-400 ' + y + ' H' + (w + 400) + '" stroke="#3b4290" stroke-width="3"/>';
+  for (var x = 20; x < w; x += 46) s += '<path d="M' + x + ' ' + (y + 3) + ' v26" stroke="#2a3380" stroke-width="2"/>';
+  return s;
+}
+function utcaLampa(x, talp) {
+  var t = talp - 4;
+  return '<circle class="u-feny" cx="' + x + '" cy="' + (t - 74) + '" r="30" fill="url(#u-izz)"/>' +
+    '<rect x="' + (x - 2.5) + '" y="' + (t - 66) + '" width="5" height="66" rx="2" fill="#2a2a5e"/>' +
+    '<rect x="' + (x - 8) + '" y="' + (t - 84) + '" width="16" height="18" rx="5" fill="#fff2a0" stroke="#2a2a5e" stroke-width="3"/>' +
+    '<path d="M' + (x - 10) + ' ' + (t - 84) + ' L' + x + ' ' + (t - 92) + ' L' + (x + 10) + ' ' + (t - 84) + ' Z" fill="#2a2a5e"/>';
+}
+function utcaSVG(mod) {
+  var L = UTCA_ELR[mod] || UTCA_ELR.szeles, w = L.w, h = L.h;
+  var c = LENYEK[mentes.leny];
+  var uni = '<g transform="translate(54,368) scale(0.125)">' + unikornisSVG("utca-kirakat-uni", c, 1, P().oltozet) + '</g>';
+  var s = '<svg class="utca-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">' + utcaDefs();
+  /* ég és föld a képernyő széléig (a viewBox-on túl is: nincs üres sáv) */
+  s += '<rect x="-400" y="-600" width="' + (w + 800) + '" height="' + (600 + L.fold) + '" fill="#12194f"/>';
+  s += '<rect x="-400" y="0" width="' + (w + 800) + '" height="' + L.fold + '" fill="url(#utca-eg)"/>';
+  L.csillagok.forEach(function (p, i) {
+    s += '<circle class="u-pisl" style="animation-delay:' + (i * 0.43).toFixed(2) + 's" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (i % 3 ? 1.6 : 2.2) + '" fill="#fff"/>';
+  });
+  var hx = L.hold[0], hy = L.hold[1];
+  s += '<circle class="u-feny" cx="' + hx + '" cy="' + hy + '" r="44" fill="url(#u-hold)"/>' +
+    '<circle cx="' + hx + '" cy="' + hy + '" r="20" fill="#fdf3c4"/><circle cx="' + (hx - 8) + '" cy="' + (hy - 6) + '" r="20" fill="#1c2560" opacity="0.55"/>';
+  s += '<g transform="translate(' + (w * 0.82) + ',30)"><g class="u-hullo"><path d="M0 0 L46 -16" stroke="url(#u-hullo-gr)" stroke-width="2.5" stroke-linecap="round"/><circle r="2.4" fill="#fff"/></g></g>';
+  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() + '</g>';
+  s += '<g transform="translate(' + L.tk[0] + ',' + L.tk[1] + ')">' + tkLepcsoSVG() + '</g>';   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
+  s += '<rect x="-400" y="' + L.fold + '" width="' + (w + 800) + '" height="' + (h - L.fold + 600) + '" fill="url(#utca-fold)"/>';
+  L.jardak.forEach(function (y) { s += utcaJarda(w, y); });
+  L.lampak.forEach(function (p) { s += utcaLampa(p[0], p[1]); });
+  /* a házak hátulról előre (az álló elrendezésben az első sor takarja a hátsót) */
+  var H = L.hazak, sor = [
+    ["utca-fodrasz", "fodrasz", 54, utcaFodraszRajz(!P().szalon.nyitva, uni), "fodrász"],
+    ["utca-bolt", "bolt", 150, utcaBoltRajz(), "csillagbolt"],
+    ["utca-kert", "kert", 248, utcaKertRajz(), "kert"],
+    ["utca-odu", "odu", 345, utcaOduRajz(), "odú"],
+    ["utca-bank", "bank", 200, utcaBankRajz(bankZarva()), "tündérbank"]
+  ].sort(function (x, y) { return H[x[1]][1] - H[y[1]][1]; });
+  sor.forEach(function (e) { s += utcaHely(e[0], H[e[1]], e[2], e[3], e[4]); });
+  /* szentjánosbogár-fények a föld fölött */
+  for (var i = 0; i < 7; i++) {
+    var fx = (w / 7) * i + 26, fy = L.fold + 18 + ((i * 37) % 60);
+    s += '<circle class="u-szentj" style="animation-delay:' + (i * 0.7).toFixed(1) + 's" cx="' + fx.toFixed(0) + '" cy="' + fy + '" r="2.2" fill="#fff6a8"/>';
+  }
+  return s + '</svg>';
+}
 var UTCA_MOD = "nez";   /* "nez" | "megerosit-belepo" | "megerosit-tk" */
+var UTCA_ELR_MOST = null;   /* az utoljára rajzolt elrendezés („szeles” | „allo”) — forgatáskor átrajzolunk */
+window.addEventListener("resize", function () {
+  var host = document.getElementById("utca-szinter"), akt = document.querySelector(".kepernyo.aktiv");
+  if (!host || !akt || akt.id !== "kepernyo-utca") return;
+  if (utcaMod(host.clientWidth, host.clientHeight) !== UTCA_ELR_MOST) renderUtca();
+});
 function utcaNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   UTCA_MOD = "nez";
-  renderUtca();
   mutat("kepernyo-utca");
+  renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
 }
 function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
@@ -11790,7 +11883,8 @@ function renderUtca() {
   var cp = $("utca-csillampor"); if (cp) cp.textContent = P().csillampor;
   var hp = $("utca-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("utca-szinter"); if (!host) return;
-  host.innerHTML = utcaSVG();
+  UTCA_ELR_MOST = utcaMod(host.clientWidth, host.clientHeight);
+  host.innerHTML = utcaSVG(UTCA_ELR_MOST);
   utcaKot("utca-fodrasz", utcaFodraszKoppint);
   utcaKot("utca-bolt", function () { hangGomb(); oduNyit(); oduPanelNyit(); });
   utcaKot("utca-kert", function () {
@@ -11799,6 +11893,7 @@ function renderUtca() {
     else { mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduNyit(); oduPanelNyit("kert"); }
   });
   utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
+  utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
   utcaKot("utca-felhokert", tkLepcsoKoppint);
   utcaKot("utca-portal", function () { hangGomb(); mondd("Induljunk matekozni!"); renderFomenu(); mutat("kepernyo-fomenu"); });
   var sugo = $("utca-sugo");
@@ -12023,6 +12118,295 @@ function szalonKefe(cel) {
   hangCsilla(); hangJo(); ment();
   mondd(cel === "gondor" ? "Hopp, göndör lett! Csigavonalak!" : "Sima, egyenes sörény! Szép!");
   renderSzalon();
+}
+/* ============ 10f) 🏦 TÜNDÉRBANK — ✨ → 💧 váltás az utcán ============
+   Terv: terv/bank-rendszerterv.html (jóváhagyva 2026-09-30, bővítve 2026-10-01), terv/bank-rajzterv.html
+   (a gyerekek rajza), terv/utca-kepernyoterv.html (a bank a jobb szélen).
+   - A bank nem tudja előre, mit vált: mindent a VALUTAK és a VALTASOK táblából olvas (a FESTEKEK mintájára).
+     Új váltás = új sor → magától új gomb a bankban ÉS új sor a pulton (admin/index.html BANK_VALTASOK — együtt!).
+   - Ár / napi korlát / ki-be / nyitás módja / kijelölt pályák: a pultról (config.js bankOsszevon → FELULIR.bank).
+     NINCS alapérték: amíg sehol nincs ár, a bank ZÁRVA („🌙 hamarosan”).
+   - Mentés: P().bank = { nap, valtva: { valtasId: N } (aznapi beváltások), jegy: { valtasId: N } (pályával
+     szerzett, még be nem váltott váltások — megmarad másnapra) }. */
+var VALUTAK = [
+  { id: "csillampor",   nev: "csillámpor",   ikon: "✨", mezo: "csillampor",   targyeset: "csillámport",   ert: "csillámporért" },
+  { id: "tunderharmat", nev: "tündérharmat", ikon: "💧", mezo: "tunderharmat", targyeset: "tündérharmatot", ert: "tündérharmatért" }
+];
+var VALUTA_BY = {}; VALUTAK.forEach(function (v) { VALUTA_BY[v.id] = v; });
+/* ad: a gyerek ezt adja (valuta-id, az ár a pultról jön) · kap: ezt kapja, kapDb darabot.
+   Előkészítve (még nincs kódja): tárgy → pénz váltásnál ad = { targy: "<tárgy-id>" } — a bank az ilyen sort átugorja. */
+var VALTASOK = [
+  { id: "csilla-harmat", ad: "csillampor", kap: "tunderharmat", kapDb: 1 }
+];
+function bankValtasok() { return VALTASOK.filter(function (v) { return typeof v.ad === "string" && VALUTA_BY[v.ad] && VALUTA_BY[v.kap]; }); }
+
+/* ── állapot ── */
+function bankMent() { var b = P().bank || (P().bank = alapBank()); if (!b.valtva) b.valtva = {}; if (!b.jegy) b.jegy = {}; return b; }
+function bankNapi() {   /* éjfélkor új nap: az aznapi beváltás-számláló nullázódik (a jegyek megmaradnak) */
+  var b = bankMent(), ma = helyiNap();
+  if (b.nap !== ma) { b.nap = ma; b.valtva = {}; }
+  return b;
+}
+function bankBeall(vid) { return (FELULIR.bank || {})[vid] || {}; }
+/* egy váltás állapota a gyerek szemével */
+function bankAllapot(v) {
+  var b = bankBeall(v.id), ar = +b.ar;
+  if (!(ar >= 1) || b.ki === true) return { zarva: true };
+  var m = bankNapi(), ma = m.valtva[v.id] || 0;
+  var korlat = typeof b.korlat === "number" && b.korlat >= 0 ? b.korlat : null;
+  var korlatMaradt = korlat === null ? Infinity : Math.max(0, korlat - ma);
+  var palyas = b.mod === "palya", jegy = m.jegy[v.id] || 0;
+  return { zarva: false, ar: ar, korlat: korlat, korlatMaradt: korlatMaradt, palyas: palyas, jegy: jegy,
+    maradt: palyas ? Math.min(jegy, korlatMaradt) : korlatMaradt,
+    elegPenz: (P()[VALUTA_BY[v.ad].mezo] || 0) >= ar, palyak: palyas ? (b.palyak || []) : [] };
+}
+function bankZarva() { return !bankValtasok().some(function (v) { return !bankAllapot(v).zarva; }); }
+/* pálya vége (engine-logic.js palyaVege): kijelölt pálya → +1 váltás. Visszaad: hány jegy jött. */
+function bankPalyaKesz(pid) {
+  var db = 0;
+  bankValtasok().forEach(function (v) {
+    var b = bankBeall(v.id);
+    if (b.mod !== "palya" || b.ki === true || !(+b.ar >= 1) || (b.palyak || []).indexOf(pid) < 0) return;
+    var m = bankMent(); m.jegy[v.id] = (m.jegy[v.id] || 0) + 1; db++;
+  });
+  return db;
+}
+/* a kijelölt pályák neve (csak amit a gyerek lát), a bagoly mondatához */
+function bankPalyaNevek(ids) {
+  var l = [];
+  (ids || []).forEach(function (id) { var pa = palyaKeres(id); if (pa && !palyaRejtve(pa)) l.push(pa.nev); });
+  return l;
+}
+
+/* ── a bankár bagoly (rajzterv: karamell, szemüveg, pink csokornyakkendő, pislog) — 0,0 a test közepe ── */
+function bankarBagoly(x, y, s) {
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' +
+    '<ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity=".18"/>' +
+    '<path d="M-26,-40 l8,-16 l8,15 Z" fill="#c98d55"/><path d="M26,-40 l-8,-16 l-8,15 Z" fill="#c98d55"/>' +
+    '<ellipse cx="0" cy="0" rx="34" ry="44" fill="#e2b07a"/>' +
+    '<ellipse cx="0" cy="12" rx="22" ry="29" fill="#fbe6c8"/>' +
+    '<path d="M-10,14 q3,4 6,0 M2,22 q3,4 6,0 M-6,30 q3,4 6,0" stroke="#e2b07a" stroke-width="2" fill="none"/>' +
+    '<path d="M-34,-4 Q-48,14 -33,34 Q-28,14 -29,-4 Z" fill="#c98d55"/><path d="M34,-4 Q48,14 33,34 Q28,14 29,-4 Z" fill="#c98d55"/>' +
+    '<circle cx="-13" cy="-15" r="13" fill="#fffaf0"/><circle cx="13" cy="-15" r="13" fill="#fffaf0"/>' +
+    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.93;.965;1" dur="4.2s" repeatCount="indefinite" additive="sum"/>' +
+    '<circle cx="-11" cy="-13" r="6" fill="#4a3b7a"/><circle cx="11" cy="-13" r="6" fill="#4a3b7a"/></g>' +
+    '<circle cx="-13" cy="-16" r="2" fill="#fff"/><circle cx="9" cy="-16" r="2" fill="#fff"/>' +
+    '<circle cx="-13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><circle cx="13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><path d="M-2,-17 h4" stroke="#7a5230" stroke-width="2.5"/>' +
+    '<path d="M-5,-3 L5,-3 L0,8 Z" fill="#ffb347"/>' +
+    '<g transform="translate(0,17)"><path d="M0,0 L-13,-7 L-13,7 Z" fill="#f06aa8"/><path d="M0,0 L13,-7 L13,7 Z" fill="#f06aa8"/><circle r="3.5" fill="#d84f96"/></g>' +
+    '<path d="M-14,44 l-4,8 M-8,45 l-1,8 M8,45 l1,8 M14,44 l4,8" stroke="#ffb347" stroke-width="4" stroke-linecap="round"/>' +
+    '</g>';
+}
+
+/* ── a bank háza az utcán (rajzterv külső jelenete, ég nélkül): 0,4-re kicsinyítve, középen x=200, talp 432
+   (az utca régi koordinátáiban — szalon.js utcaHely teszi a helyére) ── */
+function utcaBankRajz(zarva) {
+  var h = '<g filter="url(#u-firka)">' +
+    '<rect x="86" y="52" width="228" height="20" rx="4" fill="#56709e"/>' +
+    '<path d="M92 70 H308 V412 H92 Z" fill="url(#u-b-fal)"/>' +
+    '<path d="M92 70 H308 V78 H92Z" fill="#000" opacity=".12"/>';
+  for (var y = 96; y < 400; y += 26) h += '<path d="M92 ' + y + ' H308" stroke="#fff" stroke-opacity=".06" stroke-width="2"/>';
+  [[114, 104], [218, 104]].forEach(function (a, i) {
+    h += '<circle class="u-feny" style="animation-delay:' + i + 's" cx="' + (a[0] + 34) + '" cy="' + (a[1] + 35) + '" r="62" fill="url(#u-izz)"/>' +
+      '<rect x="' + (a[0] - 5) + '" y="' + (a[1] - 5) + '" width="78" height="80" rx="5" fill="#c9bde6"/>' +
+      '<rect x="' + a[0] + '" y="' + a[1] + '" width="68" height="70" rx="3" fill="url(#u-b-ablak)"/>' +
+      '<path d="M' + a[0] + ' ' + a[1] + ' q18 22 10 70 H' + a[0] + 'Z" fill="#f6a5c0" opacity=".75"/>' +
+      '<path d="M' + (a[0] + 68) + ' ' + a[1] + ' q-18 22 -10 70 H' + (a[0] + 68) + 'Z" fill="#f6a5c0" opacity=".75"/>' +
+      '<rect x="' + (a[0] - 8) + '" y="' + (a[1] + 72) + '" width="84" height="7" rx="2" fill="#b3a4d6"/>';
+  });
+  h += '</g>';
+  /* a bagoly néha kikukucskál a bal ablakon */
+  h += '<g clip-path="url(#u-b-bal)"><g><animateTransform attributeName="transform" type="translate" values="0 60;0 60;0 0;0 0;0 60" keyTimes="0;.55;.62;.85;1" dur="9s" repeatCount="indefinite"/>' +
+    bankarBagoly(148, 160, .62) + '</g></g>';
+  h += '<g filter="url(#u-firka)"><rect x="126" y="196" width="148" height="62" rx="6" fill="#f7b8d0"/><rect x="131" y="201" width="138" height="52" rx="4" fill="url(#u-b-tabla)"/></g>' +
+    '<text x="200" y="240" text-anchor="middle" font-family="Comic Sans MS, Fredoka, Segoe UI, sans-serif" font-size="38" font-style="italic" font-weight="700" fill="#eef0ff" stroke="#4a5ad8" stroke-width="5" paint-order="stroke">bank</text>' +
+    uCsillam(140, 206, 6, "#fff", 0) + uCsillam(262, 248, 5, "#ffe08a", 1.1);
+  h += '<g filter="url(#u-firka)">';
+  [150, 250].forEach(function (lx, i) {
+    h += '<circle class="u-feny" style="animation-delay:' + (i * .8) + 's" cx="' + lx + '" cy="316" r="22" fill="url(#u-izz)"/>' +
+      '<path d="M' + lx + ' 300 v6" stroke="#4a3b7a" stroke-width="3"/><rect x="' + (lx - 7) + '" y="306" width="14" height="18" rx="4" fill="#fff2a0" stroke="#4a3b7a" stroke-width="2.5"/>';
+  });
+  h += '<rect x="167" y="290" width="66" height="122" rx="4" fill="#c9bde6"/><rect x="172" y="295" width="56" height="117" rx="3" fill="#a24aa3"/>' +
+    '<rect x="178" y="304" width="44" height="40" rx="3" fill="#8e3a90"/><rect x="178" y="352" width="44" height="50" rx="3" fill="#8e3a90"/>' +
+    '<path d="M180 360 h14 v8" stroke="#3f4fd0" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+    '<rect x="156" y="410" width="88" height="9" rx="3" fill="#56709e"/></g>';
+  return '<rect x="152" y="276" width="96" height="182" fill="transparent"/>' +
+    '<g transform="translate(120,264.4) scale(0.4)">' + h + '</g>' +
+    (zarva ? utcaZarCimke(200, "🌙 hamarosan") : "");
+}
+
+/* ── a bank belseje (rajzterv): levendula fal, kék padló, pult, széf, két felhő, bagoly ── */
+function bankBelsoSVG() {
+  var s = '<svg class="bank-svg" viewBox="0 0 400 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<filter id="bk-firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>' +
+    '<linearGradient id="bk-fal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4c9ee"/><stop offset="1" stop-color="#c3b6e4"/></linearGradient>' +
+    '<linearGradient id="bk-padlo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6886b8"/><stop offset="1" stop-color="#7c9bcc"/></linearGradient>' +
+    '<linearGradient id="bk-pult" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2835b"/><stop offset="1" stop-color="#a86c47"/></linearGradient>' +
+    '<linearGradient id="bk-szef" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3354"/><stop offset="1" stop-color="#1f1a30"/></linearGradient>' +
+    '<radialGradient id="bk-arany"><stop offset="0" stop-color="#fff0a0"/><stop offset=".6" stop-color="#ffd23f"/><stop offset="1" stop-color="#f4b400"/></radialGradient>' +
+    '<radialGradient id="bk-harmat"><stop offset="0" stop-color="#e6f8ff"/><stop offset=".6" stop-color="#a8e0f0"/><stop offset="1" stop-color="#7cc8e2"/></radialGradient>' +
+    '<radialGradient id="bk-izz"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+    '</defs>';
+  /* fal és padló a képernyő széléig (a viewBox-on túl is) */
+  s += '<rect x="-600" y="-600" width="1600" height="862" fill="#d4c9ee"/><rect x="-600" y="258" width="1600" height="800" fill="#7c9bcc"/>';
+  s += '<g filter="url(#bk-firka)">';
+  s += '<rect x="-600" width="1600" height="262" fill="url(#bk-fal)"/>';
+  for (var x = -590; x < 1000; x += 38) s += '<path d="M' + x + ' 0 V262" stroke="#fff" stroke-opacity=".18" stroke-width="3"/>';
+  s += '<rect x="-600" y="244" width="1600" height="18" fill="#b3a4d6"/>';
+  s += '<rect x="-600" y="258" width="1600" height="202" fill="url(#bk-padlo)"/>';
+  for (var i = -6; i <= 6; i++) s += '<path d="M' + (200 + i * 22) + ' 262 L' + (200 + i * 70) + ' 460" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>';
+  [300, 350, 410].forEach(function (y) { s += '<path d="M-600 ' + y + ' H1000" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>'; });
+  /* széf a pult mögött (a gyerekek fekete doboza) */
+  s += '<rect x="150" y="34" width="100" height="128" rx="8" fill="url(#bk-szef)"/>';
+  s += '<rect x="158" y="42" width="84" height="112" rx="5" fill="none" stroke="#5a5078" stroke-width="3"/>';
+  s += '<path d="M156 60 h-8 M156 136 h-8" stroke="#8a80a8" stroke-width="5" stroke-linecap="round"/>';
+  s += '</g>';
+  s += '<g class="bk-tarcsa"><circle cx="200" cy="64" r="15" fill="#c9c3dc" stroke="#8a80a8" stroke-width="3"/><path d="M200 51 V58 M213 64 H206 M200 77 V70 M187 64 H194" stroke="#5a5078" stroke-width="2.5"/><circle cx="200" cy="64" r="4" fill="#ffd24d"/></g>';
+  s += uCsillam(236, 48, 5, "#ffe08a", .4);
+  /* sárga csillámpor-felhő (bal) */
+  s += '<g class="bk-lebeg"><g transform="translate(-30,-10)"><circle cx="100" cy="112" r="44" fill="url(#bk-izz)" class="u-feny"/>' +
+    '<g filter="url(#bk-firka)"><path d="M62 124 q-16 -2 -12 -18 q2 -16 20 -14 q4 -20 26 -18 q18 -12 34 4 q20 -2 20 18 q14 10 2 24 q-4 12 -22 8 q-14 10 -32 2 q-20 6 -36 -6 Z" fill="url(#bk-arany)"/></g>' +
+    uCsillam(80, 100, 6, "#fff", 0) + uCsillam(116, 94, 5, "#fff", .7) + uCsillam(128, 122, 4, "#fff8d0", 1.3) + uCsillam(92, 130, 4, "#fff", .3) +
+    '<text x="100" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#8a6a1e">✨ csillámpor</text></g></g>';
+  /* világoskék harmat-felhő (jobb) */
+  s += '<g class="bk-lebeg2"><g transform="translate(30,-10)"><circle cx="300" cy="108" r="44" fill="url(#bk-izz)" class="u-feny"/>' +
+    '<g filter="url(#bk-firka)"><path d="M262 118 q-14 -4 -8 -18 q6 -14 22 -10 q6 -20 28 -16 q20 -6 28 12 q18 4 12 22 q6 14 -10 18 q-10 10 -26 4 q-16 8 -30 0 q-18 2 -16 -12 Z" fill="url(#bk-harmat)"/></g>' +
+    '<path d="M288 96 q-4 6 0 9 q4 -3 0 -9Z M312 108 q-4 6 0 9 q4 -3 0 -9Z M298 120 q-4 6 0 9 q4 -3 0 -9Z" fill="#fff" opacity=".85"/>' +
+    '<path d="M300 140 q-5 8 0 12 q5 -4 0 -12Z" fill="#7cc8e2"><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 40;0 40" keyTimes="0;.6;.95;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.6;.9;1" dur="3.6s" repeatCount="indefinite"/></path>' +
+    '<text x="300" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7ea0">💧 tündérharmat</text></g></g>';
+  /* bagoly a pult mögött, a széf előtt */
+  s += bankarBagoly(200, 124, .78);
+  /* pult (a gyerekek barna doboza) */
+  s += '<g filter="url(#bk-firka)">';
+  s += '<ellipse cx="200" cy="266" rx="112" ry="9" fill="#000" opacity=".15"/>';
+  s += '<ellipse cx="200" cy="330" rx="120" ry="30" fill="#f6a5c0"/><ellipse cx="200" cy="330" rx="104" ry="23" fill="none" stroke="#fdf0d0" stroke-width="3" stroke-dasharray="6 5"/>';
+  s += '<rect x="96" y="160" width="208" height="16" rx="5" fill="#d99f75"/>';
+  s += '<rect x="104" y="174" width="192" height="90" rx="4" fill="url(#bk-pult)"/>';
+  s += '<rect x="118" y="186" width="74" height="64" rx="4" fill="#9a6240" opacity=".55"/><rect x="208" y="186" width="74" height="64" rx="4" fill="#9a6240" opacity=".55"/>';
+  s += '</g>';
+  s += '<g transform="translate(200,218)"><rect x="-34" y="-15" width="68" height="30" rx="10" fill="#fdf0d0" stroke="#b98652" stroke-width="2.5"/><text y="6" text-anchor="middle" font-size="15">✨ → 💧</text></g>';
+  /* csengő a pulton */
+  s += '<g transform="translate(248,160)"><path d="M-9 0 q0 -14 9 -14 q9 0 9 14 Z" fill="#ffd24d" stroke="#b98652" stroke-width="1.5"/><rect x="-12" y="-1" width="24" height="4" rx="2" fill="#b98652"/><circle cy="-16" r="2.5" fill="#b98652"/></g>';
+  s += '<g id="bank-reszecskek"></g>';
+  return s + '</svg>';
+}
+
+/* ── képernyő ── */
+var BANK_DLG = null;    /* a megerősítésre váró váltás id-je */
+function bankNyit() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  figyelStop();
+  BANK_DLG = null;
+  var host = $("bank-szinter");
+  if (host) host.innerHTML = bankBelsoSVG() +
+    '<div class="bank-hud" id="bank-hud"></div><div class="bank-buborek" id="bank-buborek"></div>' +
+    '<div class="bank-gombok" id="bank-gombok"></div><div id="bank-ablak-hely"></div>';
+  bankFrissit();
+  mutat("kepernyo-bank");
+  setTimeout(function () { bankMond(bankZarva() ? "A bank még nem nyitott ki, nemsokára gyere vissza!" : "Üdv a Tündérbankban!"); }, 350);
+}
+function bankMond(t) {
+  mondd(t);
+  var b = $("bank-buborek"); if (!b) return;
+  b.textContent = "🦉 " + t; b.classList.add("lat");
+  clearTimeout(bankMond.t); bankMond.t = setTimeout(function () { b.classList.remove("lat"); }, 3400);
+}
+/* a felső sor szövege: mennyi váltás van még (az első nyitott váltásé) */
+function bankHudSzoveg() {
+  var l = bankValtasok().map(bankAllapot).filter(function (a) { return !a.zarva; });
+  if (!l.length) return "🌙 zárva";
+  var a = l[0];
+  if (a.palyas) return "Váltható: " + a.maradt;
+  return a.korlat === null ? "" : "Ma még váltható: " + a.maradt;
+}
+function bankFrissit() {
+  var cp = $("bank-csillampor"); if (cp) cp.textContent = P().csillampor;
+  var hp = $("bank-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
+  var hud = $("bank-hud");
+  if (hud) { var t = bankHudSzoveg(); hud.textContent = t; hud.style.display = t ? "" : "none"; }
+  var g = $("bank-gombok");
+  if (g) {
+    g.innerHTML = bankValtasok().map(function (v) {
+      var a = bankAllapot(v), ad = VALUTA_BY[v.ad], kap = VALUTA_BY[v.kap];
+      var halv = a.zarva || a.maradt <= 0 || !a.elegPenz;
+      var felirat = a.zarva ? "🌙 Hamarosan nyitunk" : a.ar + " " + ad.ikon + " → " + v.kapDb + " " + kap.ikon;
+      return '<button class="bank-valto' + (halv ? " halvany" : "") + '" data-v="' + v.id + '">' + felirat + "</button>";
+    }).join("");
+    g.querySelectorAll(".bank-valto").forEach(function (b) { b.addEventListener("click", function () { bankValtoKoppint(b.getAttribute("data-v")); }); });
+  }
+  var hely = $("bank-ablak-hely");
+  if (hely) {
+    var v = BANK_DLG && bankValtasok().filter(function (x) { return x.id === BANK_DLG; })[0];
+    if (!v) hely.innerHTML = "";
+    else {
+      var a = bankAllapot(v), ad = VALUTA_BY[v.ad], kap = VALUTA_BY[v.kap];
+      hely.innerHTML = '<div class="bank-ablak"><div class="bank-doboz">Odaadsz ' + a.ar + " " + ad.targyeset + "<br>" + v.kapDb + " " + kap.ert + "?" +
+        '<div class="bank-nagy">' + ad.ikon + " " + a.ar + " → " + kap.ikon + " " + v.kapDb + "</div>" +
+        '<div class="bank-dlg-gombok"><button class="bank-igen" id="bank-igen">Igen</button><button class="bank-nem" id="bank-nem">Nem</button></div></div></div>';
+      $("bank-igen").addEventListener("click", bankValt);
+      $("bank-nem").addEventListener("click", function () { hangGomb(); BANK_DLG = null; bankFrissit(); bankMond("Rendben, majd legközelebb!"); });
+    }
+  }
+  var sugo = $("bank-sugo");
+  if (sugo) sugo.textContent = bankZarva() ? "A bank hamarosan kinyit. 🌙" : "Koppints a rózsaszín gombra, és válts! 🏦";
+}
+function bankValtoKoppint(vid) {
+  hangGomb();
+  var v = bankValtasok().filter(function (x) { return x.id === vid; })[0]; if (!v) return;
+  var a = bankAllapot(v), ad = VALUTA_BY[v.ad], kap = VALUTA_BY[v.kap];
+  if (a.zarva) { bankMond("A bank még nem nyitott ki, nemsokára gyere vissza!"); return; }
+  if (a.palyas && a.jegy <= 0) {
+    var nevek = bankPalyaNevek(a.palyak);
+    if (!nevek.length) bankMond("A bank még nem nyitott ki, nemsokára gyere vissza!");
+    else if (nevek.length === 1) bankMond("Járd végig ezt a pályát: " + nevek[0] + "! Utána válthatsz.");
+    else bankMond("Járd végig az egyik pályát: " + nevek[0] + " vagy " + nevek[1] + "! Utána válthatsz.");
+    return;
+  }
+  if (a.maradt <= 0) { bankMond("Mára ennyi, holnap újra jöhetsz!"); return; }
+  if (!a.elegPenz) { bankMond("Még " + (a.ar - (P()[ad.mezo] || 0)) + " " + ad.nev + " kell."); return; }
+  BANK_DLG = v.id; bankFrissit();
+  mondd("Odaadsz " + a.ar + " " + ad.targyeset + " " + v.kapDb + " " + kap.ert + "?");
+}
+function bankValt() {
+  var v = bankValtasok().filter(function (x) { return x.id === BANK_DLG; })[0]; BANK_DLG = null;
+  if (!v) { bankFrissit(); return; }
+  var a = bankAllapot(v), ad = VALUTA_BY[v.ad], kap = VALUTA_BY[v.kap];
+  if (a.zarva || a.maradt <= 0 || !a.elegPenz) { hangGomb(); bankFrissit(); return; }
+  var m = bankNapi();
+  P()[ad.mezo] -= a.ar; P()[kap.mezo] = (P()[kap.mezo] || 0) + v.kapDb;
+  m.valtva[v.id] = (m.valtva[v.id] || 0) + 1;
+  if (a.palyas) m.jegy[v.id] = Math.max(0, (m.jegy[v.id] || 0) - 1);
+  vasarlasNaplo("bank-" + v.id, a.ar, ad.id);
+  hangCsilla(); ment();
+  bankFrissit(); bankRepul();
+  var utana = bankAllapot(v);
+  setTimeout(function () {
+    hangJo();
+    bankMond(utana.maradt <= 0 && !utana.palyas ? "Tessék a " + kap.nev + "! Mára ennyi, holnap újra jöhetsz!" : "Tessék, itt a " + kap.nev + "od!");
+  }, 400);
+}
+/* váltáskor: ✨ szemcsék repülnek a sárga felhőből a kékbe, a kék felhőből kiesik egy 💧 */
+function bankRepul() {
+  var g = document.getElementById("bank-reszecskek"); if (!g) return;
+  var NS = "http://www.w3.org/2000/svg", t0 = performance.now();
+  function emoji(t, meret) { var p = document.createElementNS(NS, "text"); p.textContent = t; p.setAttribute("font-size", meret); p.setAttribute("text-anchor", "middle"); g.appendChild(p); return p; }
+  for (var i = 0; i < 7; i++) (function (i) {
+    var p = emoji("✨", 16), x0 = 60 + Math.random() * 24, y0 = 94 + Math.random() * 20, x1 = 330, y1 = 100, k = i * 70;
+    (function lep(now) {
+      var u = Math.min(1, Math.max(0, (now - t0 - k) / 700)), e = u * u * (3 - 2 * u);
+      p.setAttribute("x", x0 + (x1 - x0) * e); p.setAttribute("y", y0 + (y1 - y0) * e - Math.sin(e * Math.PI) * 70);
+      p.setAttribute("opacity", u >= 1 ? 0 : 1);
+      if (u < 1) requestAnimationFrame(lep); else p.remove();
+    })(t0);
+  })(i);
+  setTimeout(function () {
+    var d = emoji("💧", 26), t1 = performance.now();
+    (function lep(now) {
+      var u = Math.min(1, (now - t1) / 650), e = u * u;
+      d.setAttribute("x", 330 + 40 * e); d.setAttribute("y", 120 - 100 * e - Math.sin(u * Math.PI) * 20); d.setAttribute("opacity", 1 - Math.max(0, u - .8) * 5);
+      if (u < 1) requestAnimationFrame(lep); else d.remove();
+    })(t1);
+  }, 1100);
 }
 /* ============ 10c) JELVÉNYEK · GYŰJTEMÉNY-KÖNYV · TALÁLT TÁRGY ============ */
 /* Additív: saját mentés-ág (P().jelvenyek / streakRekord / dropUres), saját DOM
@@ -12757,7 +13141,8 @@ window.addEventListener("error", function (e) {
                                                  muvelet?, tablak?, darab?, kulcs?, korlat? } — egyéni
      producerConfig/{uid}.kapuOrak = N (a kapu óraszáma, alap 12)
      producerConfig/{uid}.ekStabil = { nap, arany } (📚 Bagolykönyvtár stabil-küszöb, alap 3 nap × 0,8 — pult 🧱 fül)
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil? }  — csoportos
+     producerConfig/{uid}.bank = { valtasId: { ar, korlat, ki, mod, palyak } } (🏦 Tündérbank, bank.js — bankOsszevon)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil?, bank? }  — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
@@ -12778,6 +13163,9 @@ var FELULIR = {
   egyeniStabil: null, /* producerConfig/{uid}.ekStabil */
   csoportStabil: {},  /* gid → ekStabil */
   ekStabil: null,     /* összevont stabil-küszöb { nap, arany } (null = alap, konyvtar-mester.js EK_STABIL_ALAP) */
+  egyeniBank: null,   /* producerConfig/{uid}.bank */
+  csoportBank: {},    /* gid → bank */
+  bank: {},           /* összevont bank-beállítás: valtasId → { ar, korlat, ki, mod, palyak } (üres = a bank zárva) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -12787,11 +13175,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null;
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {};
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -12806,17 +13194,19 @@ function felulirFigyel() {
     FELULIR.egyeniP = (d.exists && d.data().customLevels) || {};
     FELULIR.egyeniOrak = d.exists && typeof d.data().kapuOrak === "number" ? d.data().kapuOrak : null;
     FELULIR.egyeniStabil = (d.exists && d.data().ekStabil) || null;
+    FELULIR.egyeniBank = (d.exists && d.data().bank) || {};
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {}, cst = {};
+    var cs = {}, cp = {}, co = {}, cst = {}, cb = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
       if (d.data().ekStabil) cst[d.id] = d.data().ekStabil;
+      if (d.data().bank) cb[d.id] = d.data().bank;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -12878,6 +13268,41 @@ function ekStabilOsszevon(egyeni, csoportok) {
   return { nap: Math.round(ki.nap || 3), arany: ki.arany || 0.8 };
 }
 
+/* 🏦 Tündérbank (2026-10-01): váltásonként { ar?, korlat?, ki?, mod?: "nap"|"palya", palyak?: [id] }.
+   Több csoportnál a SZIGORÚBB nyer: a magasabb ár, a kisebb napi korlát, a kikapcsolt; a pályás mód erősebb a napinál,
+   a kijelölt pályák listája összeadódik. Az egyéni mezőnként mindent felülír (korlat: -1 = nála nincs korlát,
+   ki: false = nála be van kapcsolva). Ár nélkül a bank zárva (nincs alapérték).
+   A pult (admin/index.html bankOsszevon) UGYANEZ — együtt változtasd! */
+function bankOsszevon(egyeni, csoportok) {
+  var ki = {};
+  function v(id) { return ki[id] || (ki[id] = {}); }
+  function unio(a, b) { var l = (a || []).slice(); (b || []).forEach(function (x) { if (l.indexOf(x) < 0) l.push(x); }); return l; }
+  csoportok.forEach(function (c) {
+    Object.keys(c || {}).forEach(function (id) {
+      var o = c[id] || {}, k = v(id);
+      if (typeof o.ar === "number" && o.ar >= 1) k.ar = Math.max(k.ar || 0, o.ar);
+      if (typeof o.korlat === "number" && o.korlat >= 0) k.korlat = typeof k.korlat === "number" ? Math.min(k.korlat, o.korlat) : o.korlat;
+      if (o.ki === true) k.ki = true;
+      if (o.mod === "palya") { k.mod = "palya"; k.palyak = unio(k.palyak, o.palyak); }
+      else if (o.mod === "nap" && !k.mod) k.mod = "nap";
+    });
+  });
+  Object.keys(egyeni || {}).forEach(function (id) {
+    var o = egyeni[id] || {}, k = v(id);
+    if (typeof o.ar === "number" && o.ar >= 1) k.ar = o.ar;
+    if (typeof o.korlat === "number") { if (o.korlat >= 0) k.korlat = o.korlat; else delete k.korlat; }
+    if (typeof o.ki === "boolean") k.ki = o.ki;
+    if (o.mod === "nap" || o.mod === "palya") k.mod = o.mod;
+    if (Array.isArray(o.palyak)) k.palyak = o.palyak.slice();
+  });
+  Object.keys(ki).forEach(function (id) {
+    var k = ki[id];
+    if (k.mod !== "palya") delete k.palyak; else if (!k.palyak) k.palyak = [];
+    if (k.ki !== true) delete k.ki;
+  });
+  return ki;
+}
+
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
   var cs = FELULIR.csoportok, lista = Object.keys(cs).sort().map(function (g) { return cs[g]; });
@@ -12887,13 +13312,16 @@ function felulirSzamol() {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];
   });
   var ujS = ekStabilOsszevon(FELULIR.egyeniStabil, Object.keys(FELULIR.csoportStabil || {}).sort().map(function (g) { return FELULIR.csoportStabil[g]; }));
+  var ujB = bankOsszevon(FELULIR.egyeniBank, Object.keys(FELULIR.csoportBank || {}).sort().map(function (g) { return FELULIR.csoportBank[g]; }));
   if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
-      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil)) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS })); } catch (e) {}
+      JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil) && JSON.stringify(ujB) === JSON.stringify(FELULIR.bank)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
+  else if (id === "kepernyo-utca") renderUtca();     /* 🏦 a bank zárva/nyitva címkéje */
+  else if (id === "kepernyo-bank") bankFrissit();
 }
 
 /* ── a játék ezeket kérdezi ── */
@@ -14329,6 +14757,8 @@ window.UC = {
   kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
+  bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz,
+  bankOsszevon: bankOsszevon, VALTASOK: VALTASOK, VALUTAK: VALUTAK, FELULIR: FELULIR, utcaMod: utcaMod,   /* 🏦 TÜNDÉRBANK */
   frizuraGondorArt: frizuraGondorArt,
   kertNyihog: kertNyihog, kertLepesHang: kertLepesHang,           /* kerti hangok (teszt/diagnosztika) */
   kertHangBufferek: function () { return KERT_BUF; }, kertLepesSzol: function () { return !!KERT_LEPES; },

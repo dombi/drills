@@ -797,6 +797,7 @@ function palyaVege() {
   harmat += ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
+  var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
   korlatSzamol(id);
@@ -832,10 +833,13 @@ function palyaVege() {
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
     : "";
+  var bankSor = bankJegy
+    ? '<br><span style="color:#a24aa3;font-weight:800">🏦 A Tündérbankban most válthatsz ' + bankJegy + ' tündérharmatot!</span>'
+    : "";
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + (ekV ? ekV.html : "") +
+    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + bankSor + (ekV ? ekV.html : "") +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -849,6 +853,7 @@ function palyaVege() {
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
   var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
+  if (bankJegy) ajanlottSzov += " A Tündérbankban most válthatsz!";
   mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + (ekV ? ekV.mondat : "") + napiSzov + ajanlottSzov + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
