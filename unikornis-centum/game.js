@@ -11181,13 +11181,13 @@ function boltSzinterSVG() {
   s += '<path d="M396 66 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fdf0d0"/>';
   s += '<path d="M484 66 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fdf0d0"/>';
   s += '<text x="440" y="71" font-size="17" font-weight="700" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
-  /* fülek: lógó fatáblák */
+  /* fülek: lógó fatáblák (7 fül → kicsit keskenyebbek, hogy a cédula előtt elférjenek) */
   BOLT_FULEK.forEach(function (f, i) {
-    var akt = (f.id === ODU_FUL), fx = 62 + i * 80;
+    var akt = (f.id === ODU_FUL), fx = 58 + i * 74;
     s += '<g class="bolt-ful-jel"' + (akt ? "" : ' opacity="0.62"') + '>' +
-      '<path d="M' + (fx + 35) + ' 118 v10" stroke="#8f6a3e" stroke-width="2"/>' +
-      '<rect x="' + fx + '" y="128" width="70" height="26" rx="7" fill="' + (akt ? "#e0b47e" : "#d3c0ea") + '" stroke="' + (akt ? "#8f6a3e" : "#a88fce") + '" stroke-width="' + (akt ? 1.8 : 1.5) + '"/>' +
-      '<text x="' + (fx + 35) + '" y="146" font-size="11.5" font-weight="700" fill="' + (akt ? "#4a3b2a" : "#6a5f88") + '" text-anchor="middle">' + f.nev + '</text></g>';
+      '<path d="M' + (fx + 33) + ' 118 v10" stroke="#8f6a3e" stroke-width="2"/>' +
+      '<rect x="' + fx + '" y="128" width="66" height="26" rx="7" fill="' + (akt ? "#e0b47e" : "#d3c0ea") + '" stroke="' + (akt ? "#8f6a3e" : "#a88fce") + '" stroke-width="' + (akt ? 1.8 : 1.5) + '"/>' +
+      '<text x="' + (fx + 33) + '" y="146" font-size="11.5" font-weight="700" fill="' + (akt ? "#4a3b2a" : "#6a5f88") + '" text-anchor="middle">' + f.nev + '</text></g>';
   });
   /* a polc neve (melyik csoportban vagyunk) */
   /* felső polc */
@@ -11236,7 +11236,7 @@ function boltSzinterSVG() {
       ' data-mit="valaszt" data-g="' + e.cs.kulcs + '" data-id="' + e.t.id + '"/>';
   });
   BOLT_FULEK.forEach(function (f, i) {
-    s += '<rect class="bolt-fogo" x="' + (62 + i * 80) + '" y="118" width="70" height="40" fill="transparent" data-mit="ful" data-ful="' + f.id + '"/>';
+    s += '<rect class="bolt-fogo" x="' + (58 + i * 74) + '" y="118" width="66" height="40" fill="transparent" data-mit="ful" data-ful="' + f.id + '"/>';
   });
   if (oldalak.length > 1) {
     s += '<rect class="bolt-fogo" x="26" y="322" width="44" height="54" fill="transparent" data-mit="lap" data-ir="-1"/>';
@@ -11365,7 +11365,7 @@ function boltIgazit(gyoker) {
 /* ── a bolt kirajzolása + a koppintások bekötése ── */
 var BOLT_FULEK = [
   { id: "holmik", nev: "Holmik" }, { id: "kinezet", nev: "Kinézet" },
-  { id: "kellekek", nev: "Kellékek" }, { id: "ido", nev: "Időjárás" },
+  { id: "butorok", nev: "Bútorok" }, { id: "diszek", nev: "Díszek" }, { id: "ido", nev: "Időjárás" },
   { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }
 ];
 function renderOduPanel() {
@@ -11430,9 +11430,11 @@ function boltCsoportok() {
       { kulcs: "napszak", nev: "Napszak", fajta: "ido", tetelek: ODU_KAT.napszak },
       { kulcs: "ido", nev: "Időjárás", fajta: "ido", tetelek: ODU_KAT.ido }
     ];
-  if (ODU_FUL === "kellekek")
-    return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; })
-      .concat(DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; }));
+  /* a régi Kellékek fül kettévágva (bolt-polc rajzterv, 2026-10-01): amit lecserélsz | amit hozzáteszel */
+  if (ODU_FUL === "butorok")
+    return BUTOR_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "butor", tetelek: ODU_BUTOR[h.kulcs] || [] }; });
+  if (ODU_FUL === "diszek")
+    return DISZ_ZONA.map(function (z) { return { kulcs: z.kulcs, nev: z.nev, fajta: "disz", tetelek: diszZonaTetelek(z.kulcs) }; });
   if (ODU_FUL === "kristaly")
     return [{ kulcs: "vitrin", nev: "Kincsvitrin", fajta: "vitrin", tetelek: KRISTALY }];
   if (ODU_FUL === "kert") {

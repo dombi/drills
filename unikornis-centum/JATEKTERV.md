@@ -64,7 +64,7 @@ szélén, ő „mondja" a feladatot beszédbuborékban és ő ad tippet. A grafi
 ## Katalógus (bolt) — később, az MVP-B-ben
 
 4 polc a `bolt.svg` szerint: **Holmik** (ruhák) · **Kinézet** (az unikornis szemszíne, sörénye) ·
-**Kellékek** (odú-berendezés + tárgyak a saját helyükre) · **Időjárás** (napszak + eső/hó/szivárvány).
+**Bútorok** (odú-berendezés szintjei) · **Díszek** (tárgyak a saját helyükre; 2026-10-01-ig a kettő együtt: „Kellékek") · **Időjárás** (napszak + eső/hó/szivárvány).
 
 ## Állapot
 

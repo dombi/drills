@@ -953,3 +953,13 @@ lámpa jobb oldalára költözött (`translate(410,138)`), hogy ne takarja a tá
 A producer döntése: az első belépéses bemutató **nem kell** (elég a csillám + névfelirat), és a
 felső tippsor (`.odu-harmat-info`, „💧 A tündérharmatot a bolt Kert fülén…”) **megszűnt** —
 a szoba a helyét kapja. Az odú D2 átrendezése ezzel lezárva.
+
+## 2026-10-01 — Bolt-polc rendezés, 1. lépés: a Kellékek fül kettévált (Bútorok + Díszek)
+
+Rajzterv: `terv/bolt-polc-rajzterv.html` (jóváhagyva). A „Kellékek" fül helyén két fül:
+**Bútorok** (amit lecserélsz: a 9 bútor-hely szintjei) és **Díszek** (amit hozzáteszel: a 9
+dísz-zóna tárgyai). A bolt így 7 fület kap; a fatáblák keskenyebbek (66 px, 74 px-es lépés),
+hogy a cédula előtt elférjenek. Tárgy, ár, pénznem nem változott (`boltCsoportok`, `BOLT_FULEK`).
+Hátra a rajzterv szerint: egy polc = egy csoport, „hova kerül" tábla, közeli bútorkép,
+„Üres" helyett „Leszedem", ✨/💧 külön polc. `index.html` `game.js?v=` → 20261001-5.
+
