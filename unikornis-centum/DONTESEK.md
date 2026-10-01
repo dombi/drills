@@ -991,3 +991,15 @@ nappali fényben, saját vágómaszkkal). Az egész szoba továbbra is a cédul�
 asztalt `translate(115,0)`-val rajzolja), ezért a „hova kerül" tábla is a szőnyeget világította.
 `index.html` `game.js?v=` → 20261001-8. Hátra: ✨/💧 külön polc (Kert fül).
 
+## 2026-10-01 — Bolt-polc rendezés, 6. lépés: ✨ és 💧 külön polcon — a rajzterv kész
+
+- **Kert fül:** a kertkulcs (✨) és a séta-trükkök (💧) két külön csoport → külön polc. A kerti
+  polcok bal végén a „hova kerül" helyett **pénz-tábla** (nagy ✨ vagy 💧). A 💧-es tárgyak
+  árcédulája **halványkék** (kiválasztva sötétebb kék keret). A Kert fülön lent a pénztárcában
+  a 💧 is látszik.
+- **Lapolás finomítva** (`boltOldalak`): az alsó polcra mindig a soron következő csoport jön —
+  ha elfér (≤3), egészben; ha több polcra nyúlik (>4), az első 3 tárgya; csak a pont 4-es
+  csoportot ugorjuk át. Így a Kert 1. oldala: kulcs | 3 trükk (mint a rajzterven), a Kinézeten
+  a szemszínek kitöltik az alsó polcot. Bútorok/Díszek/Holmik oldalai nem változtak.
+- A bolt-polc rajzterv mind a 6 pontja kész. `index.html` `game.js?v=` → 20261001-9.
+
