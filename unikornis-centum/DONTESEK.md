@@ -982,3 +982,12 @@ hely világít arany gyűrűvel, ahová a polc tárgyai kerülnek (`boltHovaTabl
 (felül 228+88·i, alul 320+86·i). A tábla nem fog el koppintást. Időjárás/Kinézet/Kristály
 polcán nincs tábla (a rajzterv sem kért). `index.html` `game.js?v=` → 20261001-7.
 
+## 2026-10-01 — Bolt-polc rendezés, 4. lépés: a bútor közelről látszik a polcon
+
+A Bútorok fülön a polcon már nem az egész szoba áll 7-szer, hanem a szobának csak az a része,
+ahol az adott bútor van (rajzterv B pont; `boltPolcTargy`, a kivágás a `BOLT_ODU_FOLT` köré,
+nappali fényben, saját vágómaszkkal). Az egész szoba továbbra is a cédulán látszik.
+**Javítás:** a makettben az asztal foltja rossz helyen volt (345 → 460, mert az odú a bútor-
+asztalt `translate(115,0)`-val rajzolja), ezért a „hova kerül" tábla is a szőnyeget világította.
+`index.html` `game.js?v=` → 20261001-8. Hátra: ✨/💧 külön polc (Kert fül).
+

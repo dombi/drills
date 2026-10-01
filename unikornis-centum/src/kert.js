@@ -762,8 +762,20 @@ function boltPolcTargy(cs, t, hely, kival, idx) {
   var x = hely.x, y = hely.y, emel = kival ? 14 : 0, ty = y - emel, s = "";
   if (kival) s += '<ellipse cx="' + x + '" cy="' + (ty - 46) + '" rx="54" ry="50" fill="#ffe9ad" opacity="0.5"/>';
   s += '<ellipse cx="' + x + '" cy="' + (y + 2) + '" rx="' + (kival ? 22 : 20) + '" ry="4" fill="#3b2f66" opacity="' + (kival ? 0.13 : 0.16) + '"/>';
-  var belso = boltThumbBelso(cs, t);
-  if (cs.fajta === "butor" || cs.fajta === "ido") {
+  if (cs.fajta === "butor") {
+    /* a bútor KÖZELRŐL: a szobának csak az a része, ahol a bútor áll (bolt-polc rajzterv B pont);
+       az egész szoba a cédulán látszik. A kivágás a „hova kerül" tábla foltja köré készül. */
+    var f = BOLT_ODU_FOLT["b:" + cs.kulcs] || [340, 300, 300, 240];
+    var hw = Math.max(f[2] * 1.25, 50), hh = hw * 72 / 76;
+    if (hh < f[3] * 1.25) { hh = f[3] * 1.25; hw = hh * 76 / 72; }
+    var o = butorPreviewOdu(cs.kulcs, t.id); o.napszak = "del";   /* nappali fényben, mint a táblán */
+    var kid = "boltkozel-" + ODU_FUL + "-" + idx;   /* a játék CSS-e a belső svg-ket nem vágja → saját vágómaszk */
+    s += '<rect x="' + (x - 42) + '" y="' + (ty - 84) + '" width="84" height="84" rx="7" fill="#f7ecd8" stroke="#c9a06a" stroke-width="2.6"/>' +
+      '<defs><clipPath id="' + kid + '"><rect x="' + (x - 38) + '" y="' + (ty - 78) + '" width="76" height="72" rx="5"/></clipPath></defs>' +
+      '<g clip-path="url(#' + kid + ')"><svg x="' + (x - 38) + '" y="' + (ty - 78) + '" width="76" height="72" viewBox="' + (f[0] - hw) + ' ' + (f[1] - hh) + ' ' + (2 * hw) + ' ' + (2 * hh) + '" preserveAspectRatio="xMidYMid slice">' +
+      oduSVG(mentes.leny, o, true).replace(/^\s*<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "") + '</svg></g>';
+  } else if (cs.fajta === "ido") {
+    var belso = boltThumbBelso(cs, t);
     /* a szoba- és ég-minta nem tárgy: keretezett bolti minta, ami a polcon áll */
     var cid = "boltkeret-" + ODU_FUL + "-" + idx;
     s += '<g transform="translate(' + x + ',' + ty + ')">' +
@@ -772,7 +784,7 @@ function boltPolcTargy(cs, t, hely, kival, idx) {
       '<g clip-path="url(#' + cid + ')"><g transform="translate(0,-42)"><g data-fit="76,72" data-fit-mod="kozep">' + belso + '</g></g></g>' +
       '</g>';
   } else {
-    s += '<g transform="translate(' + x + ',' + ty + ')"><g data-fit="78,80">' + belso + '</g></g>';
+    s += '<g transform="translate(' + x + ',' + ty + ')"><g data-fit="78,80">' + boltThumbBelso(cs, t) + '</g></g>';
   }
   if (kival) {
     s += '<path d="M' + (x - 34) + ' ' + (ty - 74) + ' l2.6 6.4 l6.4 2.6 l-6.4 2.6 l-2.6 6.4 l-2.6 -6.4 l-6.4 -2.6 l6.4 -2.6 Z" fill="#ffe08a"/>';
@@ -888,11 +900,12 @@ function boltSzinterSVG() {
 /* ── „hova kerül" tábla a polc bal végén (bolt-polc rajzterv, 2026-10-01) ──
    A gyerek SAJÁT szobája (vagy unikornisa) elhalványítva; csak az a hely világít, ahová a
    tárgy kerül. Rózsaszín, ferde, karón áll — hogy ne lehessen árunak nézni. */
-/* a hely az odúban (680×540-es odú-koordináta): [cx, cy, rx, ry] */
+/* a hely az odúban (680×540-es odú-koordináta): [cx, cy, rx, ry]
+   (az asztal a makettben 345-ön állt, de az odú a bútor-asztalt translate(115,0)-val rajzolja → 460) */
 var BOLT_ODU_FOLT = {
   "b:fal": [340, 215, 250, 120], "b:ablak": [190, 180, 82, 82], "b:fuggony": [190, 176, 96, 88],
   "b:agy": [140, 418, 72, 42], "b:kalyha": [546, 398, 52, 64], "b:polc": [470, 288, 62, 34],
-  "b:asztal": [345, 410, 82, 36], "b:szonyeg": [340, 488, 176, 50], "b:fuzer": [340, 128, 250, 34],
+  "b:asztal": [460, 404, 82, 36], "b:szonyeg": [340, 488, 176, 50], "b:fuzer": [340, 128, 250, 34],
   "d:fal-bal": [145, 268, 46, 46], "d:fal-jobb": [500, 205, 46, 46], "d:mennyezet": [410, 128, 52, 42],
   "d:ablak": [205, 200, 64, 78], "d:asztal": [458, 380, 46, 36], "d:polc": [470, 284, 60, 34],
   "d:agy": [145, 398, 64, 36], "d:padlo-bal": [180, 488, 48, 36], "d:padlo-jobb": [510, 488, 48, 36]
