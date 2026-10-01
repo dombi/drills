@@ -11026,14 +11026,16 @@ function boltOldalak() {
     lapok.push({ felso: f, also: a });
   }
   return lapok.map(function (l) {
-    var tetelek = [], helyek = [], nevek = [];
+    var tetelek = [], helyek = [], nevek = [], tablak = [];
     [l.felso, l.also].forEach(function (d, polc) {
       if (!d) return;
       nevek.push(d.cs.nev);
-      var h = boltHelyek(d.tetelek.length, polc === 0);
+      var tabla = boltTablaKulcs(d.cs);
+      if (tabla) tablak.push({ kulcs: tabla, felso: polc === 0 });
+      var h = boltHelyek(d.tetelek.length, polc === 0, !!tabla);
       d.tetelek.forEach(function (t, i) { tetelek.push({ cs: d.cs, t: t }); helyek.push(h[i]); });
     });
-    return { nev: nevek.join(" · "), tetelek: tetelek, helyek: helyek };
+    return { nev: nevek.join(" · "), tetelek: tetelek, helyek: helyek, tablak: tablak };
   });
 }
 /* az aktuális oldal indexe — mindig a kiválasztott tételt tartalmazó oldal */
@@ -11047,9 +11049,14 @@ function boltAktOldal() {
   var l = BOLT_LAP[ODU_FUL] || 0;
   return Math.max(0, Math.min(l, old.length - 1));
 }
-/* egy polc helyei: felül max 4, alul max 3 (a bal alsó sarok a bagolyé) */
-function boltHelyek(n, felso) {
+/* egy polc helyei: felül max 4, alul max 3 (a bal alsó sarok a bagolyé);
+   ha a polc bal végén „hova kerül" tábla áll, a tárgyak jobbra húzódnak */
+function boltHelyek(n, felso, tablas) {
   var ki = [], i;
+  if (tablas) {
+    for (i = 0; i < n; i++) ki.push(felso ? { x: 228 + i * 88, y: BOLT_POLC_FELSO, felso: true } : { x: 320 + i * 86, y: BOLT_POLC_ALSO, felso: false });
+    return ki;
+  }
   for (i = 0; i < n; i++) ki.push(felso
     ? { x: 305 - (n - 1) * 50 + i * 100, y: BOLT_POLC_FELSO, felso: true }
     : { x: 385 - (n - 1) * 52.5 + i * 105, y: BOLT_POLC_ALSO, felso: false });
@@ -11206,6 +11213,7 @@ function boltSzinterSVG() {
   s += '<path d="M100 269 l0 12 M508 269 l0 12" stroke="#c19a72" stroke-width="5"/>';
   /* a tárgyak — a felső polcra tartozók */
   var helyek = o ? o.helyek : [], also = "";
+  if (o) o.tablak.forEach(function (tb) { if (tb.felso) s += boltHovaTabla(tb.kulcs, true); else also += boltHovaTabla(tb.kulcs, false); });
   if (o) o.tetelek.forEach(function (e, i) {
     var kival = !!(k && k.cs.kulcs === e.cs.kulcs && String(k.t.id) === String(e.t.id));
     var darab = boltPolcTargy(e.cs, e.t, helyek[i], kival, i);
@@ -11256,6 +11264,67 @@ function boltSzinterSVG() {
   if (k) s += boltCedulaFogok(k);
   s += '</svg>';
   return s;
+}
+/* ── „hova kerül" tábla a polc bal végén (bolt-polc rajzterv, 2026-10-01) ──
+   A gyerek SAJÁT szobája (vagy unikornisa) elhalványítva; csak az a hely világít, ahová a
+   tárgy kerül. Rózsaszín, ferde, karón áll — hogy ne lehessen árunak nézni. */
+/* a hely az odúban (680×540-es odú-koordináta): [cx, cy, rx, ry] */
+var BOLT_ODU_FOLT = {
+  "b:fal": [340, 215, 250, 120], "b:ablak": [190, 180, 82, 82], "b:fuggony": [190, 176, 96, 88],
+  "b:agy": [140, 418, 72, 42], "b:kalyha": [546, 398, 52, 64], "b:polc": [470, 288, 62, 34],
+  "b:asztal": [345, 410, 82, 36], "b:szonyeg": [340, 488, 176, 50], "b:fuzer": [340, 128, 250, 34],
+  "d:fal-bal": [145, 268, 46, 46], "d:fal-jobb": [500, 205, 46, 46], "d:mennyezet": [410, 128, 52, 42],
+  "d:ablak": [205, 200, 64, 78], "d:asztal": [458, 380, 46, 36], "d:polc": [470, 284, 60, 34],
+  "d:agy": [145, 398, 64, 36], "d:padlo-bal": [180, 488, 48, 36], "d:padlo-jobb": [510, 488, 48, 36]
+};
+/* a testrész az unikornison (380×300-as figura-koordináta) */
+var BOLT_UNI_FOLT = {
+  fej: [292, 92, 56, 50], nyak: [252, 146, 34, 40], hat: [196, 122, 74, 26],
+  lab: [190, 252, 110, 42], oldal: [176, 182, 64, 40], farok: [76, 196, 46, 66]
+};
+var BOLT_TABLA_N = 0;   /* egyedi mask/clip azonosítókhoz */
+/* melyik csoport kap táblát: bútor, dísz (a szobában), ruha (az unikornison) */
+function boltTablaKulcs(cs) {
+  if (cs.fajta === "butor" && BOLT_ODU_FOLT["b:" + cs.kulcs]) return "b:" + cs.kulcs;
+  if (cs.fajta === "disz" && BOLT_ODU_FOLT["d:" + cs.kulcs]) return "d:" + cs.kulcs;
+  if (cs.fajta === "ruha" && BOLT_UNI_FOLT[cs.kulcs]) return "u:" + cs.kulcs;
+  return null;
+}
+/* a rajz elhalványítva, csak a folt világít + arany gyűrű */
+function boltReflektor(belso, vb, folt, x, y, w, h) {
+  var id = "bolt-rf" + (++BOLT_TABLA_N);
+  return '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" viewBox="' + vb + '" preserveAspectRatio="xMidYMid slice" overflow="hidden">' +
+    belso +
+    '<defs><mask id="' + id + '"><rect x="-50" y="-50" width="2000" height="2000" fill="#fff"/>' +
+    '<ellipse cx="' + folt[0] + '" cy="' + folt[1] + '" rx="' + folt[2] + '" ry="' + folt[3] + '" fill="#000"/></mask></defs>' +
+    '<rect x="-50" y="-50" width="2000" height="2000" fill="#4a3b7a" opacity="0.5" mask="url(#' + id + ')"/>' +
+    '<ellipse cx="' + folt[0] + '" cy="' + folt[1] + '" rx="' + folt[2] + '" ry="' + folt[3] + '" fill="none" stroke="#ffd24d" stroke-width="' + (vb.indexOf("600") > 0 ? 9 : 6) + '"/>' +
+    '</svg>';
+}
+function boltHovaTabla(kulcs, felso) {
+  /* felül nagyobb tábla; alul kisebb, a bagoly és a tárgyak között */
+  var x = felso ? 84 : 194, y = felso ? 168 : 370, w = felso ? 84 : 70, h = felso ? 64 : 50;
+  var talp = felso ? BOLT_POLC_FELSO : BOLT_POLC_ALSO, kep;
+  if (kulcs.charAt(0) === "u") {
+    kep = boltReflektor('<rect width="380" height="300" fill="#fdf4e2"/><g transform="translate(190,272) scale(2)">' +
+      unikornisSVG("bolt-tb" + (BOLT_TABLA_N + 1), LENYEK[mentes.leny], 1, {}) + '</g>', "0 0 380 300", BOLT_UNI_FOLT[kulcs.slice(2)], x, y, w, h);
+  } else {
+    var o = JSON.parse(JSON.stringify(P().odu));   /* a gyerek saját szobája, nappali fényben */
+    o.napszak = "del";
+    kep = boltReflektor(oduSVG(mentes.leny, o, true).replace(/^\s*<svg[^>]*>/, "").replace(/<\/svg>\s*$/, ""),
+      "40 70 600 470", BOLT_ODU_FOLT[kulcs], x, y, w, h);
+  }
+  var cid = "bolt-tk" + (++BOLT_TABLA_N), cx = x + w / 2;
+  return '<g class="bolt-hova-tabla" pointer-events="none">' +
+    '<ellipse cx="' + cx + '" cy="' + talp + '" rx="10" ry="3" fill="#3b2f66" opacity="0.18"/>' +
+    '<rect x="' + (cx - 4) + '" y="' + (y + h) + '" width="8" height="' + (talp - y - h) + '" rx="2" fill="#c19a72" stroke="#8f6a3e" stroke-width="1.2"/>' +
+    '<g transform="rotate(-4 ' + cx + ' ' + (y + h / 2) + ')">' +
+    '<rect x="' + (x - 6) + '" y="' + (y - 6) + '" width="' + (w + 12) + '" height="' + (h + 12) + '" rx="12" fill="#f6a5c0" stroke="#d9789f" stroke-width="2.2"/>' +
+    '<circle cx="' + (x - 1) + '" cy="' + (y - 1) + '" r="2.2" fill="#fff2c4"/><circle cx="' + (x + w + 1) + '" cy="' + (y - 1) + '" r="2.2" fill="#fff2c4"/>' +
+    '<defs><clipPath id="' + cid + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="7"/></clipPath></defs>' +
+    '<g clip-path="url(#' + cid + ')"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="#fdf4e2"/>' + kep + '</g>' +
+    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="7" fill="none" stroke="#fff2c4" stroke-width="1.6"/>' +
+    '</g></g>';
 }
 /* a kiválasztott a FELSŐ polcon van-e (ettől függ a bagoly póza) */
 function boltKivalHelye(o, k, helyek) {

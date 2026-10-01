@@ -973,3 +973,12 @@ Hátra a rajzterv szerint: egy polc = egy csoport, „hova kerül" tábla, köze
   gombot kap (a „✓ ez van kint" helyett); a megvett, de nem kint lévő dísznél „Kirakom".
 - `index.html` `game.js?v=` → 20261001-6. Hátra: „hova kerül" tábla, közeli bútorkép, ✨/💧 külön polc.
 
+## 2026-10-01 — Bolt-polc rendezés, 3. lépés: „hova kerül" tábla a polc bal végén
+
+A Bútorok, Díszek és Holmik fülön minden polc bal végén rózsaszín, ferde, karón álló tábla:
+a gyerek **saját szobája** (nappali fényben) vagy **unikornisa** elhalványítva, és csak az a
+hely világít arany gyűrűvel, ahová a polc tárgyai kerülnek (`boltHovaTabla`, `BOLT_ODU_FOLT`,
+`BOLT_UNI_FOLT` — a jóváhagyott makett-gen.js-ből). Táblás polcon a tárgyak jobbra húzódnak
+(felül 228+88·i, alul 320+86·i). A tábla nem fog el koppintást. Időjárás/Kinézet/Kristály
+polcán nincs tábla (a rajzterv sem kért). `index.html` `game.js?v=` → 20261001-7.
+
