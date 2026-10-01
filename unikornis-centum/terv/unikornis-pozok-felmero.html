@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unikornis pózok felmérése</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+body { margin:0; background:#f7f2fb; }
+main { --lap:#fffdf8; --tinta:#3b2f66; --halk:#7a6f96; --vonal:#e4d9f0; --rossz:#d9567a; --jo:#3f8f4f; --kiem:#fff3cf; --sarga:#a26a00;
+  max-width:1100px; margin:0 auto; padding:28px 16px 80px; color:var(--tinta); font-family:Fredoka, system-ui, sans-serif; line-height:1.5; }
+main * { box-sizing:border-box; }
+h1 { font-size:30px; margin:0 0 4px; } h2 { font-size:22px; margin:40px 0 8px; } h3 { font-size:17px; margin:20px 0 6px; }
+.al { color:var(--halk); margin:0 0 18px; }
+.kartya { background:var(--lap); border:1px solid var(--vonal); border-radius:14px; padding:14px 18px; margin:10px 0; }
+.fo { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin:12px 0; }
+.fo div { background:var(--lap); border:1px solid var(--vonal); border-radius:12px; padding:12px 14px; }
+.fo > div > b:first-child { display:block; font-size:16px; }
+.tabla-keret { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; background:var(--lap); border:1px solid var(--vonal); border-radius:12px; font-size:14.5px; }
+th, td { text-align:left; vertical-align:top; padding:8px 10px; border-bottom:1px solid var(--vonal); }
+th { background:#f1e9fa; font-weight:600; }
+.cimke { display:inline-block; font-weight:700; font-size:12px; padding:1px 9px; border-radius:99px; white-space:nowrap; }
+.igaz { background:#fde3ea; color:var(--rossz); } .gyanu { background:#fff1cc; color:var(--sarga); } .kerd { background:#e6efff; color:#3a5fa8; } .ok { background:#e1f3e3; color:var(--jo); }
+.apro { background:#e1f3e3; color:var(--jo); } .kozep { background:#fff1cc; color:var(--sarga); } .nagy { background:#fde3ea; color:var(--rossz); }
+.kod { font-size:12.5px; color:var(--halk); }
+.kerdes { background:var(--kiem); border:1px solid #f0d78a; border-radius:12px; padding:12px 16px; margin:12px 0; }
+.kerdes > b:first-child { display:block; font-size:16px; }
+.javas { color:var(--jo); font-weight:600; }
+ul { margin:6px 0; padding-left:22px; }
+</style></head><body>
+<main>
+<h1>Unikornis pózok — 0. lépés: felmérő lap</h1>
+<p class="al">2026-10-01 · a „pózok és mozgás” terv első lépése · csak felmérés, a játék kódja NEM változott.
+A képes, élő változat (minden póz egymás mellett, valódi játékkódból): <b>uc-felmero-pozok.html</b> a Matekos mappában
+<span class="kod">(újragyártás: <code>python terv/pozok-felmero-build.py</code>)</span>.</p>
+
+<h2>Röviden — a 4 legfontosabb lelet</h2>
+<div class="fo">
+  <div><b>1. Pörgéskor más színű — megvan az oka</b>A kerti pörgés egy nem létező adatból olvassa, melyik unikornisról van szó, ezért
+    szemből és hátulról <b>mindig a Tűz narancs színeit</b> rajzolja. Ragyogás és Csillámharmat ezért lesz narancssárga. A díszek (mind a 6 hely) is eltűnnek.</div>
+  <div><b>2. A hátrafelé menés — bizonyítva</b>Az első pörgés után az unikornis <b>minden</b> balra sétánál hátrafelé megy, amíg újra be nem lépünk a kertbe.
+    A pörgés „jobbra nézz” jelet hagy egy belső rétegen, a séta pedig egy külső rétegre írja az irányt — a belső győz.</div>
+  <div><b>3. A lábdísz nem a láb része</b>A bokapánt és a patkó a képre van „ragasztva”, nem a lábra. Ezért nemcsak üléskor esik le:
+    <b>séta közben is</b> a levegőben marad, miközben a láb kileng alóla, fekvéskor pedig a test alatt lebeg.</div>
+  <div><b>4. Ötféle mozgás-kód egy unikornisra</b>Kert, felhőkert, odú, pálya és a mozgóképek mind saját, külön megírt mozgást használnak,
+    négyféle tükrözési móddal. Ebből jön a „hol így, hol úgy” érzés. A rajz viszont egy forrásból jön — ez jó alap.</div>
+</div>
+
+<h2>1. Hibatérkép — a 12 panasz és az okuk</h2>
+<div class="tabla-keret"><table>
+<tr><th>#</th><th>Panasz</th><th>Mit találtam</th><th>Állapot</th><th>Melyik lépés javítja</th></tr>
+<tr><td>1</td><td>A kertben néha hátrafelé megy balra</td><td>Nem „néha”: az első pörgés után mindig, a kert újranyitásáig. A pörgés a belső rétegre „jobbra”-t ír vissza, a séta a külsőre írja az irányt.
+  <span class="kod">kert.js kertPorgesForgas → flip --dir="1"; kertSetal → doboz --dir</span></td><td><span class="cimke igaz">bizonyítva</span></td><td>Gyors javítás most (D1), végleg a 4.</td></tr>
+<tr><td>2</td><td>Pörgéskor szemből más a színe</td><td>(a) Mindig a Tűz színlistáját használja <span class="kod">(P().karakter nem létezik)</span>; (b) a szemből/hátulról kép külön, kézzel rajzolt kép, saját színlistával <span class="kod">(FORGATO_PALETTA)</span>;
+  (c) a díszek nincsenek rajta; (d) festett sörénynél csak 3 színre egyszerűsít.</td><td><span class="cimke igaz">bizonyítva</span></td><td>(a) gyors javítás (D1); (b–d) 1. lépés</td></tr>
+<tr><td>3</td><td>A felhőkertben máshogy forog</td><td>A felhőkert nem fordul, hanem vízszintesen összenyomja, majd tükrözi a képet (papírvékony csík). Teljesen külön kód.</td><td><span class="cimke igaz">bizonyítva</span></td><td>4. lépés</td></tr>
+<tr><td>4</td><td>Leüléskor leesnek a lábdíszek</td><td>Üléskor a láb felére nyomódik, a dísz a régi helyén marad. Ugyanez <b>séta közben</b> (a láb kileng, a dísz nem) és <b>fekve</b> (a dísz a test alatt lebeg).</td><td><span class="cimke igaz">bizonyítva, szélesebb</span></td><td>2. lépés</td></tr>
+<tr><td>5</td><td>Az ágy nem tetszik</td><td>Két külön ágy van: a kerti (lerakható tárgy) és az odúbeli (bútor). Mi zavar, melyik?</td><td><span class="cimke kerd">kérdés</span></td><td>7. lépés</td></tr>
+<tr><td>6</td><td>A kerti fekvés nem szép</td><td>A fekvés = a láb 30%-ra összenyomva (zömök csonkok) + az egész kép 13°-ot dől előre. A fej nem külön mozdul, a szem nyitva marad.</td><td><span class="cimke igaz">látszik</span></td><td>2. + 8. lépés</td></tr>
+<tr><td>7</td><td>Az odúban az ágy funkció nélküli</td><td>Az odúban 7 koppintható hely van (lámpa, ösvény, utca, kert, jelvények, gyűjtemény, bolt) — az ágy nincs köztük.</td><td><span class="cimke igaz">igaz</span></td><td>9. lépés</td></tr>
+<tr><td>8</td><td>Élethűbb lábmozgás</td><td>A láb egyetlen darab, ingaként leng ±12°-ot; nincs térd/csánk, a test nem billen, a fej nem bólint. A pályákon a láb egyáltalán nem mozog.</td><td><span class="cimke igaz">igaz</span></td><td>2. + 3. lépés</td></tr>
+<tr><td>9</td><td>Külön pata, saját színnel</td><td>Nincs külön pata: a láb alja a lábbal egy darab. A patkó-díszek a láb aljára rajzolt ívek.</td><td><span class="cimke igaz">nincs még</span></td><td>1. + 2. lépés</td></tr>
+<tr><td>10</td><td>Később repülés</td><td>Nincs. A szárny álló dísz, nincs „vállízülete”, nem tud csapkodni.</td><td><span class="cimke kerd">később</span></td><td>2. lépésben előkészítjük</td></tr>
+<tr><td>11</td><td>Az odúból szivárványba távozzon, mint az utcáról</td><td>Fontos: az utcán sincs még ilyen mozdulat — ott a „✦ Matek ✦” szivárvány egy koppintható kép, az unikornis nem száll bele. Az odúban a bal falon egy erdei nyílás van, oda sétál, majd vált a kép. A közös „szivárványos távozást” tehát mindkét helyre most kell megrajzolni.</td><td><span class="cimke gyanu">más, mint gondoltuk</span></td><td>6. lépés</td></tr>
+<tr><td>12</td><td>Sétáljon a pályákon is</td><td>A pályán az unikornis merev képként „csúszik” állomásról állomásra, kis pattogással. Jó hír: mind a 4 pályacsalád (erdő, műhely, könyvtár, vásár) ugyanazt a mozgatót használja → egy helyen javítható.</td><td><span class="cimke igaz">igaz</span></td><td>5. lépés</td></tr>
+</table></div>
+
+<h2>2. Mozgás-leltár — hol, mi, melyik kóddal</h2>
+<div class="tabla-keret"><table>
+<tr><th>Helyszín</th><th>Mozdulatok</th><th>Saját mozgás-kód?</th><th>Megfordul?</th><th>Láb mozog?</th><th>Díszek követik?</th></tr>
+<tr><td>Kert</td><td>séta; séta + evés / szagolás / fekvés; ugrás; pörgés; ül; fekszik; csillámszórás; eszik; szagol</td><td>igen (a séta 4 majdnem azonos másolatban)</td><td>igen — pörgés után nem (1. panasz)</td><td>igen, egy darabban</td><td>a lábdísz nem; pörgéskor egyik sem</td></tr>
+<tr><td>Felhőkert</td><td>séta; ugrás; csillám; pörgés; integet; pacsi; érkezés/távozás lebegve</td><td>igen</td><td>igen</td><td>igen (a kert másolata)</td><td>a lábdísz nem</td></tr>
+<tr><td>Odú</td><td>séta a tárgyakhoz és vissza</td><td>igen (más tükrözési móddal)</td><td>igen</td><td>igen (a kert másolata)</td><td>a lábdísz nem</td></tr>
+<tr><td>Pályák (mind a 4 család)</td><td>állomásról állomásra</td><td>igen, közös a 4 családban</td><td>nem kell (mindig jobbra)</td><td>nem</td><td>— (nem mozognak)</td></tr>
+<tr><td>Mozgóképek (mérés, könyvtár, vásár)</td><td>beúszik, ugrik, szarv-varázs</td><td>igen</td><td>tükrözve áll</td><td>nem</td><td>—</td></tr>
+<tr><td>Szalon, utca kirakat, bolt, profilkártya</td><td>álló kép</td><td>—</td><td>—</td><td>—</td><td>igen</td></tr>
+</table></div>
+<p class="kod">Tükrözési módok: kertben a figura dobozán, felhőkertben a figura elemén, odúban a rajz saját forgatásával, mozgóképben tükör-szorzóval — négyféle.</p>
+
+<h2>3. Ismétlések az egész játékban (duplikált kód)</h2>
+<p>Végignéztem mind a 35 forrásfájlt (rajz, díszek, hangok, séta, mentés, feladatok, pálya-képek). Nagyságrend: <span class="cimke apro">apró</span> = egy óra alatti, kis kockázat ·
+<span class="cimke kozep">közepes</span> = egy munkamenet + tesztkör · <span class="cimke nagy">nagy</span> = több munkamenet, minden helyszínt érint.</p>
+<div class="tabla-keret"><table>
+<tr><th></th><th>Mi ismétlődik</th><th>Mi a baj belőle</th><th>Javaslat</th><th>Nagyság</th><th>Mikor</th></tr>
+<tr><td>A</td><td><b>Az unikornis mozgása</b> 5 helyen külön megírva (kert, felhőkert, odú, pálya, mozgóképek), 4-féle tükrözéssel</td><td>Ami az egyik helyen jó, a másikon nem; minden javítást 5× kell elvégezni</td><td>Egy közös „unikornis-mozgás” egység (séta, ügetés, fordulás, pörgés, pózok); a helyszínek csak megmondják, hová menjen</td><td><span class="cimke nagy">nagy</span></td><td>3–5. lépés (ez a terv gerince)</td></tr>
+<tr><td>B</td><td><b>A kerti séta</b> 4 másolatban (sima séta, evéshez, szagoláshoz, fekvéshez) — 85–90%-ban azonos</td><td>Az egyiket javítva a másik három marad hibás</td><td>Egy „sétálj oda, aztán csináld ezt” függvény</td><td><span class="cimke apro">apró</span></td><td>4. lépés (A része)</td></tr>
+<tr><td>C</td><td><b>Pörgés két változatban</b> (kert: 4 kép; felhőkert: összenyomás) + <b>külön színlista</b> a szemből-nézethez</td><td>2. és 3. panasz</td><td>Egy pörgés, egy színforrás: a szemből/hátulról kép is a lény saját színeiből és díszeiből</td><td><span class="cimke kozep">közepes</span></td><td>1. + 4. lépés</td></tr>
+<tr><td>D</td><td><b>Díszek fix helyen</b> a képen, nem a testrészen (lábdísz; a hát-, farok-, szárnydísz is)</td><td>4. panasz; minden új póznál újra elcsúsznának</td><td>„Kapaszkodópontok”: a dísz a lábhoz/farokhoz/vállhoz tartozik, vele mozog</td><td><span class="cimke nagy">nagy</span></td><td>2. lépés</td></tr>
+<tr><td>E</td><td><b>Stílus-szabályok</b> (lábmozgás, lélegzés, lengő sörény) 3 helyszínre bemásolva</td><td>Apró eltérések helyszínenként</td><td>Egy közös „élő unikornis” stílus, minden helyszín azt kapja</td><td><span class="cimke apro">apró</span></td><td>3. lépés</td></tr>
+<tr><td>F</td><td><b>A pálya-képek váza</b> 4 rajzolóban (erdő, műhely, könyvtár, vásár): kanyargó út, Rajt, Cél-odú (szó szerint ugyanaz a rajz 4×), „itt állsz” kő, pipák</td><td>Új pályacsaládnál újra kell másolni; a pálya-séta 4 helyre kerülne</td><td>Egy közös ösvény-váz; a ligetek csak a díszletet adják (sátor, munkapad, olvasóasztal)</td><td><span class="cimke kozep">közepes</span></td><td>5. lépés elején</td></tr>
+<tr><td>G</td><td><b>Rossz válasz könyvelése</b> koppintós feladatnál (próbák, hibátlan állomás, sorozat, napló, hang, mentés) külön a mérés- és a könyvtár-pályán</td><td>Ha a jutalom-szabály változik, két helyen kell átírni</td><td>Egy közös „rossz válasz” lépés</td><td><span class="cimke apro">apró</span>–<span class="cimke kozep">közepes</span></td><td>külön takarító kör</td></tr>
+<tr><td>H</td><td><b>A bagoly 4 rajzban</b> (kabala, boltos, bankár, könyvtáros); a könyvtárosé a kabala szó szerinti másolata, a bankár ugyanaz a váz más színnel</td><td>A bagoly helyenként picit más; a többi szereplő már egy közös táblában él</td><td>A bagoly(ok) is a közös szereplő-táblába, pózokkal</td><td><span class="cimke kozep">közepes</span></td><td>külön takarító kör</td></tr>
+<tr><td>I</td><td>Apróságok: érem-rajz 2× (könyvtár ≈ vásár), szöveg-védő függvény 2×, „mozgáskímélő mód” ellenőrzése 6×, ugyanaz a kerti súgó-mondat 8×</td><td>Kis kockázat, csak rendetlenség</td><td>Közös segédekbe</td><td><span class="cimke apro">apró</span></td><td>takarító kör, vagy amikor arra járunk</td></tr>
+</table></div>
+<h3>Ami rendben van (nincs ismétlés)</h3>
+<ul>
+  <li><b>Az unikornis rajza</b>: 17 helyen használjuk, mindenhol ugyanabból a forrásból (kinézet, festék, göndör sörény mind egy helyen).</li>
+  <li><b>Mentés</b>: egyetlen mentő függvény; <b>jutalom-motor</b>: egy helyen; <b>hangeffektek</b>: egy közös hangkeltő.</li>
+  <li><b>Pálya vége</b>: közös; a ligetek csak a saját mondatukat teszik hozzá. <b>Mozgókép-lejátszó</b>: a mérés, a könyvtár és a vásár közösen használja.</li>
+  <li><b>Szereplők</b> (Tüske néni és társai): egy közös táblában.</li>
+</ul>
+
+<h2>4. Döntések — a producer választ</h2>
+<div class="kerdes"><b>D1. A hátrafelé menés és a narancs pörgés: gyors javítás most?</b>
+  Két apró javítás (néhány sor), amit akár ma élesíthetünk: (1) pörgés után ne maradjon „jobbra” jel → nem megy többé hátrafelé; (2) a pörgés a saját unikornis színeit használja → Ragyogás és Csillámharmat nem lesz narancs.
+  A díszek a pörgésben ettől még hiányoznak (az az 1. lépés).<br>
+  <span class="javas">Javaslatom: igen, most.</span> Apró, biztonságos, a gyerekek azonnal látják; a 4. lépés amúgy is lecseréli, de addig se lássák a hibát.</div>
+<div class="kerdes"><b>D2. A nem póz-témájú ismétlések (G, H, I) mikor?</b>
+  <span class="javas">Javaslatom:</span> az F (pálya-váz) az 5. lépés elejére kerül, mert a pálya-séta úgyis oda épül. A G–H–I egy külön, rövid „takarító kör”, a pózok-terv 0–2. lépése után — nem sürgős, a gyerekek nem látják.</div>
+<div class="kerdes"><b>D3. Az élő próbapad marad fejlesztői eszköz</b>
+  Minden további lépésnél ezen mutatom meg az „előtte / utána” képet (minden póz, mindhárom unikornis, minden díszben). Ez nem kerül a játékba, csak a mi munkaasztalunk.</div>
+
+<h2>5. Következő lépés</h2>
+<div class="kartya">
+  <b>1. lépés — egy színforrás minden nézethez + pata saját színhellyel</b> (közepes). A szemből és hátulról kép is a lény saját színeiből, sörényszínéből, festékéből és díszeiből készül; a pata külön, színezhető rész lesz (körömlakkhoz előkészítve).
+  Nyitómondat új beszélgetéshez: <i>„UC: unikornis pózok, 1. lépés: egy színforrás + pata”</i>.
+</div>
+</main>
+</body></html>
