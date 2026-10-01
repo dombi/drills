@@ -41,13 +41,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első lépés", darab: 5, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
-      { nev: "Gombamező", tipus: "kivonas", darab: 5, a_min: 4, a_max: 8, b_min: 1, b_max: 4 },
-      { nev: "Tízig érünk", darab: 5, a_min: 2, a_max: 7, b_min: 1, b_max: 5 },
-      { nev: "Levélszőnyeg", tipus: "kivonas", darab: 6, a_min: 5, a_max: 10, b_min: 2, b_max: 6 },
-      { nev: "Vegyes tisztás", darab: 6, a_min: 2, a_max: 8, b_min: 1, b_max: 7 },
-      { nev: "Kerülő kanyar", tipus: "kivonas", darab: 5, a_min: 6, a_max: 10, b_min: 2, b_max: 7 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 3, a_max: 9, b_min: 1, b_max: 7, cel: true }
+      { nev: "Első lépés", darab: 4, a_min: 1, a_max: 4, b_min: 1, b_max: 4 },
+      { nev: "Gombamező", tipus: "kivonas", darab: 4, a_min: 4, a_max: 8, b_min: 1, b_max: 4 },
+      { nev: "Tízig érünk", darab: 4, a_min: 2, a_max: 7, b_min: 1, b_max: 5 },
+      { nev: "Levélszőnyeg", tipus: "kivonas", darab: 4, a_min: 5, a_max: 10, b_min: 2, b_max: 6 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 3, a_max: 9, b_min: 1, b_max: 7, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -58,13 +56,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Átlépő híd", darab: 5 },
-      { nev: "Vissza a tízen át", tipus: "kivonas", darab: 5, a_min: 11, a_max: 19 },
-      { nev: "Föl a húszig", darab: 5 },
-      { nev: "Kölcsönző elvétel", tipus: "kivonas", darab: 6, a_min: 11, a_max: 19 },
-      { nev: "Még egy átlépés", darab: 6 },
-      { nev: "Vegyes ráhangolás", darab: 5, atlepes: "lehet" },
-      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 11, a_max: 19, atlepes: "lehet", cel: true }
+      { nev: "Átlépő híd", darab: 4 },
+      { nev: "Vissza a tízen át", tipus: "kivonas", darab: 4, a_min: 11, a_max: 19 },
+      { nev: "Föl a húszig", darab: 4 },
+      { nev: "Kölcsönző elvétel", tipus: "kivonas", darab: 4, a_min: 11, a_max: 19 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 5, a_max: 15, b_min: 3, b_max: 9, atlepes: "lehet", cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -75,13 +71,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Tízes-kövek", darab: 5, a_min: 10, a_max: 40, b_min: 10, b_max: 30 },
-      { nev: "Kerek tisztás", tipus: "kivonas", darab: 5, a_min: 20, a_max: 60, b_min: 10, b_max: 30 },
-      { nev: "Följebb tízesével", darab: 5, a_min: 20, a_max: 60, b_min: 10, b_max: 40 },
-      { nev: "Vissza a tízeken", tipus: "kivonas", darab: 6, a_min: 30, a_max: 80, b_min: 10, b_max: 50 },
-      { nev: "Százig tízesével", darab: 6, a_min: 20, a_max: 80, b_min: 10, b_max: 50 },
-      { nev: "Vegyes tízesek", darab: 5, a_min: 10, a_max: 90, b_min: 10, b_max: 60 },
-      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 30, a_max: 90, b_min: 10, b_max: 60, cel: true }
+      { nev: "Tízes-kövek", darab: 4, a_min: 10, a_max: 40, b_min: 10, b_max: 30 },
+      { nev: "Kerek tisztás", tipus: "kivonas", darab: 4, a_min: 20, a_max: 60, b_min: 10, b_max: 30 },
+      { nev: "Följebb tízesével", darab: 4, a_min: 20, a_max: 60, b_min: 10, b_max: 40 },
+      { nev: "Vissza a tízeken", tipus: "kivonas", darab: 4, a_min: 30, a_max: 80, b_min: 10, b_max: 50 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 10, a_max: 90, b_min: 10, b_max: 60, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -92,13 +86,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Hangyaboly", darab: 5, a_min: 11, a_max: 29, b_min: 1, b_max: 6 },
-      { nev: "Levélrakás", tipus: "kivonas", darab: 5, a_min: 15, a_max: 39, b_min: 1, b_max: 6 },
-      { nev: "Morzsagyűjtés", darab: 5, a_min: 11, a_max: 55 },
-      { nev: "Vissza a bolyba", tipus: "kivonas", darab: 6, a_min: 20, a_max: 69 },
-      { nev: "Vegyes bolyongás", darab: 6, a_min: 11, a_max: 79 },
-      { nev: "Utolsó szemek", tipus: "kivonas", darab: 5, a_min: 20, a_max: 89 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 89, cel: true }
+      { nev: "Hangyaboly", darab: 4, a_min: 11, a_max: 29, b_min: 1, b_max: 6 },
+      { nev: "Levélrakás", tipus: "kivonas", darab: 4, a_min: 15, a_max: 39, b_min: 1, b_max: 6 },
+      { nev: "Morzsagyűjtés", darab: 4, a_min: 11, a_max: 55 },
+      { nev: "Vissza a bolyba", tipus: "kivonas", darab: 4, a_min: 20, a_max: 69 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 11, a_max: 89, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -109,13 +101,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Kis lépések", darab: 5, a_min: 11, a_max: 39, b_min: 10, b_max: 30 },
-      { nev: "Vissza felé", tipus: "kivonas", darab: 5, a_min: 31, a_max: 59, b_min: 10, b_max: 30 },
-      { nev: "Nagyobb lépés", darab: 5, a_min: 15, a_max: 59, b_min: 10, b_max: 40 },
-      { nev: "Lépés visszafelé", tipus: "kivonas", darab: 6, a_min: 41, a_max: 79, b_min: 10, b_max: 50 },
-      { nev: "Messzebb lépünk", darab: 6, a_min: 20, a_max: 69, b_min: 10, b_max: 50 },
-      { nev: "Vegyes lépések", darab: 5, a_min: 11, a_max: 69, b_min: 10, b_max: 60 },
-      { nev: "Odú-küszöb", tipus: "kivonas", darab: 6, a_min: 41, a_max: 89, b_min: 10, b_max: 60, cel: true }
+      { nev: "Kis lépések", darab: 4, a_min: 11, a_max: 39, b_min: 10, b_max: 30 },
+      { nev: "Vissza felé", tipus: "kivonas", darab: 4, a_min: 31, a_max: 59, b_min: 10, b_max: 30 },
+      { nev: "Nagyobb lépés", darab: 4, a_min: 15, a_max: 59, b_min: 10, b_max: 40 },
+      { nev: "Lépés visszafelé", tipus: "kivonas", darab: 4, a_min: 41, a_max: 79, b_min: 10, b_max: 50 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 11, a_max: 69, b_min: 10, b_max: 60, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -126,13 +116,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Bukkanó", darab: 5, a_min: 11, a_max: 39 },
-      { nev: "Gödör", tipus: "kivonas", darab: 5, a_min: 21, a_max: 49 },
-      { nev: "Kidőlt fa", darab: 5, a_min: 15, a_max: 59 },
-      { nev: "Árok", tipus: "kivonas", darab: 6, a_min: 31, a_max: 79 },
-      { nev: "Meredek", darab: 6, a_min: 20, a_max: 79 },
-      { nev: "Szakadék széle", tipus: "kivonas", darab: 5, a_min: 31, a_max: 89 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 89, cel: true }
+      { nev: "Bukkanó", darab: 4, a_min: 11, a_max: 39 },
+      { nev: "Gödör", tipus: "kivonas", darab: 4, a_min: 21, a_max: 49 },
+      { nev: "Kidőlt fa", darab: 4, a_min: 15, a_max: 59 },
+      { nev: "Árok", tipus: "kivonas", darab: 4, a_min: 31, a_max: 79 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 11, a_max: 89, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -143,13 +131,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első nagy lépés", darab: 5, a_min: 11, a_max: 40, b_min: 11, b_max: 30 },
-      { nev: "Visszafelé az ösvényen", tipus: "kivonas", darab: 5, a_min: 31, a_max: 60, b_min: 11, b_max: 30 },
-      { nev: "Mélyebbre", darab: 5, a_min: 20, a_max: 60, b_min: 11, b_max: 40 },
-      { nev: "Kölcsön nélkül vissza", tipus: "kivonas", darab: 6, a_min: 41, a_max: 80, b_min: 11, b_max: 50 },
-      { nev: "Sűrű avar", darab: 6, a_min: 15, a_max: 70, b_min: 11, b_max: 50 },
-      { nev: "Vegyes ösvény", tipus: "kivonas", darab: 5, a_min: 31, a_max: 88, b_min: 11, b_max: 60 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 11, a_max: 88, b_min: 11, b_max: 70, cel: true }
+      { nev: "Első nagy lépés", darab: 4, a_min: 11, a_max: 40, b_min: 11, b_max: 30 },
+      { nev: "Visszafelé az ösvényen", tipus: "kivonas", darab: 4, a_min: 31, a_max: 60, b_min: 11, b_max: 30 },
+      { nev: "Mélyebbre", darab: 4, a_min: 20, a_max: 60, b_min: 11, b_max: 40 },
+      { nev: "Kölcsön nélkül vissza", tipus: "kivonas", darab: 4, a_min: 41, a_max: 80, b_min: 11, b_max: 50 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 11, a_max: 88, b_min: 11, b_max: 70, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
   {
@@ -160,13 +146,11 @@ var PALYAK = [
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Küszöb", darab: 5, a_min: 13, a_max: 45, b_min: 13, b_max: 35 },
-      { nev: "Homályösvény", tipus: "kivonas", darab: 5, a_min: 31, a_max: 60, b_min: 13, b_max: 29 },
-      { nev: "Mohos szurdok", darab: 5, a_min: 20, a_max: 65, b_min: 13, b_max: 45 },
-      { nev: "Vaksötét", tipus: "kivonas", darab: 6, a_min: 41, a_max: 85, b_min: 15, b_max: 55 },
-      { nev: "Suttogó mély", darab: 6, a_min: 20, a_max: 75, b_min: 13, b_max: 55 },
-      { nev: "Az erdő szíve", tipus: "kivonas", darab: 5, a_min: 35, a_max: 88, b_min: 15, b_max: 69 },
-      { nev: "Odú-küszöb", darab: 6, a_min: 13, a_max: 88, b_min: 13, b_max: 79, cel: true }
+      { nev: "Küszöb", darab: 4, a_min: 13, a_max: 45, b_min: 13, b_max: 35 },
+      { nev: "Homályösvény", tipus: "kivonas", darab: 4, a_min: 31, a_max: 60, b_min: 13, b_max: 29 },
+      { nev: "Mohos szurdok", darab: 4, a_min: 20, a_max: 65, b_min: 13, b_max: 45 },
+      { nev: "Vaksötét", tipus: "kivonas", darab: 4, a_min: 41, a_max: 85, b_min: 15, b_max: 55 },
+      { nev: "Odú-küszöb", darab: 4, a_min: 13, a_max: 88, b_min: 13, b_max: 79, cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
 
@@ -192,14 +176,11 @@ var PALYAK = [
     alap: { tipus: "szorzasosztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "A kettes", szorzo: 2, darab: 6 },
-      { nev: "A tízes", szorzo: 10, darab: 6 },
-      { nev: "Az ötös", szorzo: 5, darab: 6 },
-      { nev: "A hármas", szorzo: 3, darab: 6 },
-      { nev: "A négyes", szorzo: 4, darab: 6 },
-      { nev: "A hatos", szorzo: 6, darab: 6 },
-      { nev: "A nehéz", szorzo_keszlet: [7, 8, 9], darab: 6 },
-      { nev: "A kilences", szorzo: 9, darab: 6, cel: true }
+      { nev: "A kettes vagy a tízes", szorzo_keszlet: [2, 10], darab: 4 },
+      { nev: "Az ötös vagy a hármas", szorzo_keszlet: [5, 3], darab: 4 },
+      { nev: "A négyes vagy a hatos", szorzo_keszlet: [4, 6], darab: 4 },
+      { nev: "A hetes vagy a nyolcas", szorzo_keszlet: [7, 8], darab: 4 },
+      { nev: "Odú-küszöb", szorzo: 9, darab: 4, cel: true }   /* 8 → 4+küszöb, szakaszonként 1 sorsolt tábla (2026-10-01, producer) */
     ]
   },
   {
@@ -209,14 +190,11 @@ var PALYAK = [
     alap: { tipus: "osztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első lépések", osztok: [2, 10], darab: 5 },
-      { nev: "Ötös forrás", osztok: [5, 2], darab: 5 },
-      { nev: "Gombamező", osztok: [3, 4], darab: 5 },
-      { nev: "Kevert ösvény", osztok: [2, 3, 4, 5, 10], darab: 6 },
-      { nev: "Sötét sűrű", osztok: [6, 7], darab: 6 },
-      { nev: "Szikla-hágó", osztok: [8, 9], darab: 6 },
-      { nev: "Nagy vegyes", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
-      { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6, cel: true }
+      { nev: "Első lépések", osztok: [2, 5, 10], darab: 4 },
+      { nev: "Gombamező", osztok: [3, 4], darab: 4 },
+      { nev: "Sötét sűrű", osztok: [6, 7], darab: 4 },
+      { nev: "Szikla-hágó", osztok: [8, 9], darab: 4 },
+      { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   },
   {
@@ -226,13 +204,11 @@ var PALYAK = [
     alap: { tipus: "maradekos_osztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Páros-páratlan", osztok: [2], max: 19, darab: 5 },
-      { nev: "Ötösök",         osztok: [5], max: 49, darab: 5 },
-      { nev: "Hármas kalács",  osztok: [3], max: 30, darab: 5 },
-      { nev: "Négyes szekér",  osztok: [3, 4], max: 40, darab: 6 },
-      { nev: "Kevert kosár",   osztok: [2, 3, 4, 5], min: 10, max: 60, darab: 6 },
-      { nev: "Nehéz szikla",   osztok: [6, 7, 8, 9], min: 10, max: 90, darab: 6 },
-      { nev: "Odú-küszöb",     osztok: [2, 3, 4, 5, 6, 7, 8, 9], max: 99, darab: 6, cel: true }
+      { nev: "Páros-páratlan", osztok: [2], max: 19, darab: 4 },
+      { nev: "Ötösök",         osztok: [5], max: 49, darab: 4 },
+      { nev: "Négyes szekér",  osztok: [3, 4], max: 40, darab: 4 },
+      { nev: "Nehéz szikla",   osztok: [6, 7, 8, 9], min: 10, max: 90, darab: 4 },
+      { nev: "Odú-küszöb",     osztok: [2, 3, 4, 5, 6, 7, 8, 9], max: 99, darab: 4, cel: true }   /* 7 → 4+küszöb (2026-10-01, producer) */
     ]
   },
   {
@@ -242,14 +218,11 @@ var PALYAK = [
     alap: { tipus: "szorzasosztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Erdőszél", tablak: [2, 5, 10], darab: 5 },
-      { nev: "Ösvény", tablak: [2, 3, 4, 5, 10], darab: 5 },
-      { nev: "Tisztás", tablak: [2, 3, 4, 5, 10], darab: 6 },
-      { nev: "Sűrűsödik", tablak: [6, 7], darab: 6 },
-      { nev: "Mély vadon", tablak: [8, 9], darab: 6 },
-      { nev: "Minden fa", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
-      { nev: "Százig", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6 },
-      { nev: "Odú-küszöb", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 6, cel: true }
+      { nev: "Erdőszél", tablak: [2, 5, 10], darab: 4 },
+      { nev: "Ösvény", tablak: [2, 3, 4, 5, 10], darab: 4 },
+      { nev: "Sűrűsödik", tablak: [6, 7], darab: 4 },
+      { nev: "Mély vadon", tablak: [8, 9], darab: 4 },
+      { nev: "Odú-küszöb", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   }
 ];

@@ -1005,7 +1005,7 @@ function rajzBeallitasok(t) {
       "<td>" + (le.muvelet ? valaszto("muvelet", pid, o.muvelet, [["", ures]].concat(egyeni ? [["vegyes", "🔀 vegyes"]] : [],
           le.muvelet.map(function (m) { return [m, MUVELET_NEV[m]]; }))) : semmi) + "</td>" +
       "<td>" + (le.tablak ? tablaPipak(pid, o.tablak, le) : semmi) + "</td>" +
-      "<td>" + (le.darab ? valaszto("darab", pid, o.darab, [["", ures]].concat(egyeni ? [["0", "alap (5–6)"]] : [], [["3", "3 (kevesebb)"], ["8", "8 (több)"]])) : semmi) + "</td>" +
+      "<td>" + (le.darab ? valaszto("darab", pid, o.darab, [["", ures]].concat(egyeni ? [["0", "alap"]] : [], [["3", "3 (kevesebb)"], ["8", "8 (több)"]])) : semmi) + "</td>" +
       "<td>" + valaszto("kulcs", pid, o.kulcs, kulcsOpc) + "</td>" +
       "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
       (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
