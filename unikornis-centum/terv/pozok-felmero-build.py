@@ -56,7 +56,7 @@ PAD = r"""<style>
 <script>
 (function () {
   var OLTOZET = { fej: "fej-k", nyak: "nyak-k", hat: "hat-k", lab: "lab-a", oldal: "oldal-k", farok: "farok-a", van: {} };
-  var POZ_ANIM = /^(kert-lab|kert-bob|trukk-|kert-eszik|kert-szagol|kert-alszik|tk-porges|eszik|szagol)/;
+  var POZ_ANIM = /^(uni-m-|kert-lab|kert-bob|trukk-|kert-eszik|kert-szagol|kert-alszik|tk-porges|eszik|szagol)/;
   function lenyC() { return UC.LENYEK[UC.mentes.leny]; }
   function felold() {
     var pr = UC.mentes.profilok[UC.mentes.leny];
@@ -89,13 +89,13 @@ PAD = r"""<style>
   var KERT_POZOK = [
     ["", 0, 1, "Áll", "Alap oldalnézet, minden díszben. Külön pata, a bokapánt a csüdön (1a).", "ok"],
     ["jar", 0, 1, "Séta – 1. fázis", "A 4 láb egy darabban leng (±12°).", "gyanu"],
-    ["jar", 0.5, 1, "Séta – 2. fázis", "Figyeld a lábdíszt: helyben marad, a láb kileng alóla.", "hiba"],
+    ["jar", 0.5, 1, "Séta – 2. fázis", "A lábdísz a lábbal leng (2a). A térdes járás a 3. lépés.", "gyanu"],
     ["jar", 0.25, -1, "Séta balra (helyesen)", "Pörgés ELŐTT így megy balra.", "ok"],
-    ["ules-all", 0, 1, "Ül", "A láb fele olyan hosszú lesz (összenyomás) — a lábdísz lent marad a fűben.", "hiba"],
-    ["fekszik-all", 0, 1, "Fekszik (ágy nélkül)", "Láb 30%-ra nyomva + az egész figura 13°-ot billen.", "hiba"],
-    ["eszik", 0.4, 1, "Eszik", "Fejlehajtás csak a teljes rajz billentésével.", "gyanu"],
+    ["ules-all", 0, 1, "Ül", "Kutyás ülés (2a): a hátsó láb összecsukódik, a lábdísz a lábon marad. A farok vége a fűbe lóg → 2b.", "ok"],
+    ["fekszik-all", 0, 1, "Fekszik (ágy nélkül)", "A lábak a test alá hajlanak (2a); a test az ágy magasságán marad. Szép alvó póz: 8. lépés.", "gyanu"],
+    ["eszik", 0.4, 1, "Eszik", "Az elülső térd rogy (2a). Fejlehajtás csak a teljes rajz billentésével → 2b/3.", "gyanu"],
     ["szagol", 0.4, 1, "Szagol", "", "gyanu"],
-    ["trukk-ugras", 0.2, 1, "Ugrás – guggol", "", ""],
+    ["trukk-ugras", 0.2, 1, "Ugrás – guggol", "Térd előre, csánk hátra (2a).", "ok"],
     ["trukk-ugras", 0.42, 1, "Ugrás – levegőben", "", ""],
     ["trukk-csillam", 0.5, 1, "Csillámszórás", "", ""]
   ];

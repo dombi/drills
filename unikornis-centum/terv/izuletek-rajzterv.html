@@ -12,6 +12,15 @@ h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2p
 table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px solid var(--keret); padding:5px 8px; text-align:left; vertical-align:top; } th{ background:#f6efff; }
 </style></head><body><main>
 <h1>2. lépés — ízületek (kapaszkodópontok)</h1>
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ 2a KÉSZ (2026-10-03).</b> Döntések: <b>D1 = A</b> (kutyás ülés), <b>D2 = igen</b> (2a lábak most, 2b fej/farok/szárny külön körben).</p>
+<ul>
+<li>Kód (<b>renderer.js</b>): <b>IZ_Y</b>, <b>uniLabSVG(i, sz, lábdísz)</b> = külső <i>.uni-lab</i> (séta) › <i>.uni-comb</i> (csípő/váll) › ízület-gömb + <i>.uni-terd</i> (csánk/térd: lábszár + pata + lábdísz) + felső rész; <b>izForgo</b> = egy ízület a saját pontja körül; <b>uniAlapArt(rajz, lábdísz)</b> (a lábdísz a rajz része, rajz+dísz szerint egyszer készül); a test a <i>.uni-test</i> csoportban (póz-testtartás, <b>UNI_POZ_PONT</b> körül).</li>
+<li>Pózok: <b>UNI_POZ</b> (ul, fekszik, guggol, hajol) és <b>UNI_MOZDULAT</b> (ugras, csillam, eszik, szagol) → <b>uniPozCSS()</b> CSS-t gyárt betöltéskor; a „talaj” póz a test ereszkedését gépileg számolja (<b>uniTalajDy</b>), hogy a pata a földön maradjon. Kiváltó osztályok: <i>.uni-poz-név</i>, <i>.uni-mozd-név</i> és a helyszínek meglévő osztályai.</li>
+<li>A képektől eltérés: a guggolás és az evés anatómiailag helyes lett (elöl a térd előre, hátul a csánk hátra hajlik), és mélyebb a guggolás, mert az ugrás eddigi lesüllyedését most a láb adja.</li>
+<li>style.css: megszűntek a láb-összenyomó szabályok (ülés, fekvés, ugrás, csillám, evés, szagolás), a leülés doboz-süllyesztése és az ugrás 26 px-es lesüllyedése (4 px maradt).</li>
+<li>A lenti „új” képek a próba-csontvázból készültek; az élő állapot a póz-próbapadon látszik (<b>python terv/pozok-felmero-build.py</b>).</li>
+</ul></div>
 <p>Unikornis pózok terve, 2. lépés. Nagyság: <b>nagy</b>, ezért két körre bontanám, ahogy az 1. lépést is: <b>2a</b> a lábak, <b>2b</b> a fej, a farok és a szárny. A képek lent a játék valódi rajzkódjából készülnek; az „új” még csak próba, a játékban nincs benne.</p>
 
 <div class="doboz terv">

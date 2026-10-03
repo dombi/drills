@@ -33,37 +33,136 @@ var UNI_JEL = {
   kek:    ' <g stroke="#2b7fd0" stroke-width="3" stroke-linecap="round"> <path d="M120 162 V190"/> <path d="M108 169 L132 183"/> <path d="M132 169 L108 183"/> <path d="M120 167 l-5 5 M120 167 l5 5"/> <path d="M120 185 l-5 -5 M120 185 l5 -5"/> </g> <circle cx="120" cy="176" r="3" fill="#7a3bc0" stroke="none"/> ',
   rozsa:  ' <path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/> <path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/> '
 };
-/* ── A 4 LÁB + PATA ── láb = [bal-felső, jobb-felső, jobb-alsó, bal-alsó] a 380×300-as keretben.
-   Ebből készül a láb, a pata ÉS a lábdíszek helye (ruhaSVG) — egy forrás. A láb és a pata egy
-   <g class="uni-lab"> csoport, így a pata együtt leng/hajlik a lábbal (séta, ülés, ugrás). */
+/* ── A 4 LÁB + PATA + ÍZÜLETEK (unikornis pózok 1a + 2a, terv/izuletek-rajzterv.html) ──
+   láb = [bal-felső, jobb-felső, jobb-alsó, bal-alsó] a 380×300-as keretben; 0,1 = hátsó, 2,3 = elülső.
+   Ebből készül a láb, a pata ÉS a lábdísz helye (labDiszSVG) — egy forrás.
+   Egy láb két részből áll: a felső rész (comb / alkar) a csípőn/vállon fordul (.uni-comb), az alsó rész
+   (lábszár + csüd + pata + LÁBDÍSZ) a csánkon/térden (.uni-terd). Az ízület-pont a láb közepe az IZ_Y
+   magasságban; hajlításkor egy láb-színű ízület-gömb tölti ki a rést (álló pózban nem látszik).
+   A dísz az alsó részben van → ülve, fekve, ugrás közben is a lábon marad.
+   Minden ízület a saját pontja körül fordul: translate(pont) › forgó <g> › translate(-pont); a forgást
+   a CSS adja a közös póz-táblából (UNI_POZ, lent). A külső <g class="uni-lab"> a séta lendítése. */
 var UNI_LABAK = [[[102, 208], [121, 208], [114, 286], [92, 286]], [[135, 216], [154, 216], [152, 288], [130, 288]],
                  [[177, 216], [197, 216], [202, 288], [180, 288]], [[212, 208], [232, 208], [256, 286], [232, 286]]];
 var PATA_MAG = 15;   /* a pata magassága; fölötte a csüd (ide kerül a bokapánt) */
+var IZ_Y = [248, 252, 252, 248];   /* a csánk (hátsó) és a térd (elülső) magassága */
 function uniK(n) { return +n.toFixed(1); }
 function labSzel(L, y) {   /* a láb bal és jobb széle y magasságban */
   var t = (y - L[0][1]) / (L[3][1] - L[0][1]);
   return [L[0][0] + (L[3][0] - L[0][0]) * t, L[1][0] + (L[2][0] - L[1][0]) * t];
 }
+function labCsipo(i) { var L = UNI_LABAK[i]; return [(L[0][0] + L[1][0]) / 2, L[0][1]]; }
+function labIzulet(i) { var k = labSzel(UNI_LABAK[i], IZ_Y[i]); return [(k[0] + k[1]) / 2, IZ_Y[i], (k[1] - k[0]) / 2, k]; }
 function pataD(x1, x2, yt, yb) {   /* pata: kissé domború pártaszél fent, kiszélesedő talp lent */
   return "M" + uniK(x1) + " " + uniK(yt) + " Q" + uniK((x1 + x2) / 2) + " " + uniK(yt - 3) + " " + uniK(x2) + " " + uniK(yt) +
     " L" + uniK(x2 + 2.5) + " " + uniK(yb) + " Q" + uniK((x1 + x2) / 2) + " " + uniK(yb + 1.5) + " " + uniK(x1 - 2.5) + " " + uniK(yb) + " Z";
 }
-function uniLabSVG(i, sz) {
+function izForgo(cls, p, belso) {   /* egy ízület: a p pont körül forgó csoport */
+  return '<g transform="translate(' + uniK(p[0]) + ' ' + uniK(p[1]) + ')"><g class="' + cls + '"><g transform="translate(' + uniK(-p[0]) + ' ' + uniK(-p[1]) + ')">' + belso + '</g></g></g>';
+}
+function uniLabSVG(i, sz, labDisz) {
   var L = UNI_LABAK[i], yb = L[2][1], yt = yb - PATA_MAG, sz0 = labSzel(L, yt), fy = labSzel(L, yt + 3);
-  return '<g class="uni-lab uni-lab-' + (i % 2 ? "b" : "a") + '">' +
-    '<path d="M' + L[0].join(" ") + " L" + L[1].join(" ") + " L" + L[2].join(" ") + " L" + L[3].join(" ") + ' Z" fill="' + sz.lab + '" stroke-width="4"/>' +
-    '<path class="uni-pata" d="' + pataD(sz0[0], sz0[1], yt, yb + 1) + '" fill="' + sz.pata + '" stroke-width="3.2"/>' +
-    '<path d="M' + uniK(fy[1] - 4) + " " + uniK(yt + 4) + " L" + uniK(L[2][0] - 3) + " " + uniK(yb - 2) + '" fill="none" stroke="#fff" stroke-width="2.4" opacity=".55"/>' +
+  var iz = labIzulet(i), k = iz[3], ky = iz[1];
+  function P(x, y) { return uniK(x) + " " + uniK(y); }
+  var felso = '<path d="M' + P(L[0][0], L[0][1]) + " L" + P(L[1][0], L[1][1]) + " L" + P(k[1], ky + 1) + " L" + P(k[0], ky + 1) + ' Z" fill="' + sz.lab + '" stroke="none"/>' +
+              '<path d="M' + P(L[0][0], L[0][1]) + " L" + P(k[0], ky) + " M" + P(L[1][0], L[1][1]) + " L" + P(k[1], ky) + '" fill="none" stroke-width="4"/>';
+  var also = '<path d="M' + P(k[0], ky) + " L" + P(k[1], ky) + " L" + P(L[2][0], L[2][1]) + " L" + P(L[3][0], L[3][1]) + ' Z" fill="' + sz.lab + '" stroke="none"/>' +
+             '<path d="M' + P(k[0], ky) + " L" + P(L[3][0], L[3][1]) + " L" + P(L[2][0], L[2][1]) + " L" + P(k[1], ky) + '" fill="none" stroke-width="4"/>' +
+             '<path class="uni-pata" d="' + pataD(sz0[0], sz0[1], yt, yb + 1) + '" fill="' + sz.pata + '" stroke-width="3.2"/>' +
+             '<path d="M' + uniK(fy[1] - 4) + " " + uniK(yt + 4) + " L" + uniK(L[2][0] - 3) + " " + uniK(yb - 2) + '" fill="none" stroke="#fff" stroke-width="2.4" opacity=".55"/>' +
+             (labDisz ? '<g stroke="#222" stroke-width="1.5" stroke-linejoin="round">' + labDiszSVG(labDisz, L) + '</g>' : "");
+  return '<g class="uni-lab uni-lab-' + (i % 2 ? "b" : "a") + ' uni-lab-' + (i < 2 ? "h" : "e") + '">' +
+    izForgo("uni-comb", labCsipo(i),
+      '<circle cx="' + uniK(iz[0]) + '" cy="' + ky + '" r="' + uniK(iz[2] - 1) + '" fill="' + sz.lab + '" stroke-width="4"/>' +
+      izForgo("uni-terd", iz, also) + felso) +
     '</g>';
 }
 var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> <g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> <g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{jel}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g> </g>';
-function uniOldalArt(rajz) {
+function uniOldalArt(rajz, labDisz) {
   var sz = UNI_SZIN[rajz] || UNI_SZIN.korall;
-  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2],
-    jel: UNI_JEL[rajz] || UNI_JEL.korall, lab0: uniLabSVG(0, sz), lab1: uniLabSVG(1, sz), lab2: uniLabSVG(2, sz), lab3: uniLabSVG(3, sz) };
+  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: UNI_JEL[rajz] || UNI_JEL.korall };
+  for (var i = 0; i < 4; i++) ertek["lab" + i] = uniLabSVG(i, sz, labDisz);
   return UNI_SABLON.replace(/\{(\w+)\}/g, function (m, k) { return k in ertek ? ertek[k] : sz[k]; });
 }
 var UNI_RAJZ = { korall: uniOldalArt("korall"), kek: uniOldalArt("kek"), rozsa: uniOldalArt("rozsa") };
+/* az oldalrajz a lábdísszel együtt (a dísz a láb alsó részében van); rajz+dísz szerint egyszer készül el */
+var UNI_RAJZ_LAB = {};
+function uniAlapArt(rajz, labDisz) {
+  if (!UNI_SZIN[rajz]) rajz = "korall";
+  if (!labDisz) return UNI_RAJZ[rajz];
+  var k = rajz + "|" + labDisz;
+  return UNI_RAJZ_LAB[k] || (UNI_RAJZ_LAB[k] = uniOldalArt(rajz, labDisz));
+}
+/* ── PÓZOK: EGY KÖZÖS TÁBLA (unikornis pózok 2a, terv/izuletek-rajzterv.html) ────────────────
+   Minden helyszín (kert, felhőkert, odú, …) ugyanazt a pózt kapja: a táblából készül a CSS (uniPozCSS),
+   a rajz ízületei (.uni-comb, .uni-terd, .uni-test) ezt követik. ► Új póz / mozdulat = egy új SOR itt.
+   UNI_POZ: tartós póz. h / e = hátsó / elülső láb: [csípő°, csánk/térd°] (+ = óramutató iránya; a rajz
+     jobbra néz, tehát + = a pata hátrafelé lendül). test = [dőlés°, dx, dy] az UNI_POZ_PONT körül, vagy
+     "talaj": a test annyit ereszkedik, hogy a legalsó pata a földön maradjon (gépi számolás).
+     Kiváltja: .uni-poz-<név> VAGY a sor `osztaly` listája (a helyszínek meglévő osztályai).
+   UNI_MOZDULAT: egyszeri mozdulat egy póz felé és vissza. kulcs = [[idő%, mérték 0..1], …], ido = mp.
+     Kiváltja: .uni-mozd-<név> VAGY az `osztaly` lista. */
+var UNI_POZ_PONT = [215, 288];   /* a test dőlés-pontja: az elülső paták a talajon */
+var UNI_POZ = {
+  ul:      { h: [-50, 120], e: [26, 0],    test: [-26, 0, 6], osztaly: [".ules-all"] },   /* A: „kutyás ülés” */
+  fekszik: { h: [-70, 150], e: [70, -150], test: [0, 0, 0],   osztaly: [".fekszik-all"] }, /* lábak a test alá (a kerti ágyon) */
+  guggol:  { h: [50, -100], e: [-50, 100], test: "talaj" },   /* elöl a térd előre, hátul a csánk hátra */
+  hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj" }    /* evés, szagolás: az elülső térd rogy */
+};
+var UNI_MOZDULAT = {
+  ugras:   { poz: "guggol", ido: 1.1,  kulcs: [[0, 0], [14, 1], [26, 0], [50, .8], [62, 0], [74, .4], [100, 0]], osztaly: [".trukk-ugras", ".g-ugras"] },
+  csillam: { poz: "guggol", ido: 1.8,  kulcs: [[0, 0], [15, .6], [30, 0], [100, 0]], osztaly: [".trukk-csillam", ".g-csillam"] },
+  eszik:   { poz: "hajol",  ido: 1.65, kulcs: [[0, 0], [16, 1], [80, 1], [100, 0]], osztaly: [".kert-uni-doboz.eszik"] },
+  szagol:  { poz: "hajol",  ido: 1.3,  kulcs: [[0, 0], [20, .8], [65, .8], [100, 0]], osztaly: [".kert-uni-doboz.szagol"] }
+};
+function uniForgat(q, a, c) {
+  var r = a * Math.PI / 180, x = q[0] - c[0], y = q[1] - c[1];
+  return [c[0] + x * Math.cos(r) - y * Math.sin(r), c[1] + x * Math.sin(r) + y * Math.cos(r)];
+}
+/* ennyit kell a testnek ereszkednie, hogy a hajlított lábak legalsó patája a földön maradjon */
+function uniTalajDy(h, e) {
+  var alap = 0, most = 0;
+  for (var i = 0; i < 4; i++) {
+    var L = UNI_LABAK[i], a = i < 2 ? h : e, c = labCsipo(i), iz = labIzulet(i);
+    [L[2], L[3]].forEach(function (q) {
+      alap = Math.max(alap, q[1]);
+      most = Math.max(most, uniForgat(uniForgat(q, a[1], iz), a[0], c)[1]);
+    });
+  }
+  return alap - most;
+}
+function uniPozAllas(nev, m) {   /* a póz m-szeres mértékben (0 = áll, 1 = teljes póz) */
+  var pz = UNI_POZ[nev], h = [pz.h[0] * m, pz.h[1] * m], e = [pz.e[0] * m, pz.e[1] * m];
+  var t = pz.test === "talaj" ? [0, 0, uniTalajDy(h, e)] : [pz.test[0] * m, pz.test[1] * m, pz.test[2] * m];
+  return { hc: h[0], ht: h[1], ec: e[0], et: e[1], t: t };
+}
+var UNI_IZ_RESZ = { hc: " .uni-lab-h .uni-comb", ht: " .uni-lab-h .uni-terd", ec: " .uni-lab-e .uni-comb", et: " .uni-lab-e .uni-terd", t: " .uni-test" };
+function uniIzTr(all, r) {
+  if (r === "t") return "rotate(" + uniK(all.t[0]) + "deg) translate(" + uniK(all.t[1]) + "px," + uniK(all.t[2]) + "px)";
+  return "rotate(" + uniK(all[r]) + "deg)";
+}
+function uniPozCSS() {
+  var css = ".uni-comb,.uni-terd,.uni-test{transform-box:view-box;transform-origin:0 0;transition:transform .45s ease}\n";
+  function sel(alap, lista, r) { return [alap].concat(lista || []).map(function (x) { return x + UNI_IZ_RESZ[r]; }).join(","); }
+  Object.keys(UNI_POZ).forEach(function (nev) {
+    var all = uniPozAllas(nev, 1);
+    Object.keys(UNI_IZ_RESZ).forEach(function (r) { css += sel(".uni-poz-" + nev, UNI_POZ[nev].osztaly, r) + "{transform:" + uniIzTr(all, r) + "}\n"; });
+  });
+  Object.keys(UNI_MOZDULAT).forEach(function (nev) {
+    var md = UNI_MOZDULAT[nev];
+    Object.keys(UNI_IZ_RESZ).forEach(function (r) {
+      var an = "uni-m-" + nev + "-" + r;
+      css += "@keyframes " + an + "{" + md.kulcs.map(function (k) { return k[0] + "%{transform:" + uniIzTr(uniPozAllas(md.poz, k[1]), r) + "}"; }).join("") + "}\n";
+      css += sel(".uni-mozd-" + nev, md.osztaly, r) + "{animation:" + an + " " + md.ido + "s ease-in-out 1}\n";
+    });
+  });
+  return css + "@media (prefers-reduced-motion:reduce){.uni-comb,.uni-terd,.uni-test{transition:none!important;animation:none!important}}\n";
+}
+(function uniPozStilus() {   /* egyszer, betöltéskor: a táblából készült CSS a lap végére */
+  if (typeof document === "undefined" || document.getElementById("uni-poz-css")) return;
+  var st = document.createElement("style"); st.id = "uni-poz-css"; st.textContent = uniPozCSS();
+  (document.head || document.documentElement).appendChild(st);
+})();
 
 /* A közös felület: a hívók unikornisSVG(id, c, meret, oltozet)-et kérnek.
    Az `oltozet` (opcionális) a felvett ruhák: { fej, nyak, hat, lab, oldal, farok }.
@@ -115,8 +214,8 @@ function furtCsoport(lista, szinek) {
   for (var i = 0; i < lista.length; i++) { var b = lista[i]; s += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" fill="' + szinek[b[3]] + '" stroke="none"/>'; }
   return s + '</g>';
 }
-function frizuraGondorArt(rajz) {
-  var alap = UNI_RAJZ[rajz] || UNI_RAJZ.korall;
+function frizuraGondorArt(rajz, alap) {
+  alap = alap || UNI_RAJZ[rajz] || UNI_RAJZ.korall;
   var lista = SORENY_SZIN[rajz] || SORENY_SZIN.korall, szinek = lista[0].c;
   var parts = [furtCsoport(CURLY.farok, szinek), furtCsoport(CURLY.soreny, szinek), furtCsoport(CURLY.tincs, szinek)], i = 0;
   return alap.replace(/<g class="ucg">[\s\S]*?<\/g>/g, function () { return parts[i++]; });
@@ -266,14 +365,14 @@ function festekAlkalmaz(art, festek, pfx, nezet, csillam) {
 function unikornisSVG(id, c, meret, oltozet, kinezet) {
   var s = meret || 1;
   var rajz = (c && c.rajz) || "korall";
-  var art = UNI_RAJZ[rajz] || UNI_RAJZ.korall;
+  var art = uniAlapArt(rajz, oltozet && oltozet.lab);   /* a lábdísz a láb része (2a) */
   if (kinezet === undefined) kinezet = (typeof P === "function" && P() && P().kinezet) || null;
-  if (kinezet && kinezet.frizura === "gondor") art = frizuraGondorArt(rajz);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
+  if (kinezet && kinezet.frizura === "gondor") art = frizuraGondorArt(rajz, art);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
   art = kinezetAlkalmaz(art, rajz, kinezet);
   art = festekAlkalmaz(art, kinezet && kinezet.festek, id);   /* FODRÁSZAT 2.: festék a bolti szín fölé */
   art = eloAnimHorgony(art);
   var ruha = "";
-  if (oltozet) ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) {
+  if (oltozet) ["hat", "farok", "oldal", "nyak", "fej"].forEach(function (h) {
     if (!oltozet[h]) return;
     ruha += ruhaSVG(oltozet[h]);
     /* a hát-takaróra a sörény omlik: a sörény-csoportot a takaró után még egyszer kirajzoljuk */
@@ -281,7 +380,7 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
   });
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
     '<g transform="scale(0.5) translate(-190,-272)">' +
-      '<g class="uni-elo">' + art + ruha + '</g>' +
+      '<g class="uni-elo">' + izForgo("uni-test", UNI_POZ_PONT, art + ruha) + '</g>' +   /* uni-test: a póz testtartása */
       (window.__UC_ANCHOR ? anchorVizSVG() : "") +
     '</g>' +
   '</g>';
