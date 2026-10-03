@@ -1,20 +1,8 @@
 /* ============ 1) ADATOK ============ */
-var LENYEK = {
-  ragyogas: {
-    nev: "Ragyogás", rajz: "rozsa", test: "#ffffff",
-    soreny: ["#ffd94a", "#ffb0d8", "#ffe58a"], farok: ["#ffd94a", "#ffb0d8", "#ffe58a"],
-    szarv: "#ffd94a", szarvcsik: "#ffb0d8", szem: "#7a5a90", jel: "csillag", jelszin: "#ffd94a"
-  },
-  tuz: {
-    nev: "Tűz", rajz: "korall", test: "#f6b48e",
-    soreny: ["#ff3b1f", "#ff8a1f", "#ffd23b"], farok: ["#ff3b1f", "#ff8a1f", "#ffd23b"],
-    szarv: "#ff6a2b", szarvcsik: "#ffd23b", szem: "#7a3a2a", jel: "lang", jelszin: "#ff5a2b"
-  },
-  csillamharmat: {
-    nev: "Csillámharmat", rajz: "kek", test: "#cfe8fb",
-    soreny: ["#1fa8e6", "#d84fd8", "#7fd0ff"], farok: ["#1fa8e6", "#d84fd8", "#7fd0ff"],
-    szarv: "#2b6ad8", szarvcsik: "#7fd0ff", szem: "#2a5a8a", jel: "hopehely", jelszin: "#6a8fe0"
-  }
+var LENYEK = {   /* a színek NEM itt vannak: rajz → UNI_SZIN (renderer.js), az egyetlen színforrás */
+  ragyogas: { nev: "Ragyogás", rajz: "rozsa" },
+  tuz: { nev: "Tűz", rajz: "korall" },
+  csillamharmat: { nev: "Csillámharmat", rajz: "kek" }
 };
 var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat"];
 

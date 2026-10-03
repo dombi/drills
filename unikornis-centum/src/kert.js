@@ -310,8 +310,6 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   }
   var c = LENYEK[mentes.leny], rajz = (c && c.rajz) || "korall";   /* a kiválasztott lény palettája (P().karakter nem létezik → mindig korall volt) */
   var kinezet = P().kinezet || null;
-  var gondor = !!(kinezet && kinezet.frizura === "gondor");
-  var sz = forgatoSzinek(rajz, kinezet);
   var svg = doboz.querySelector(".kert-uni-svg");
   var flip = doboz.querySelector(".kert-uni-flip");
   if (!svg || !flip) { if (cb) cb(); return; }
@@ -320,8 +318,8 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   var wrapArt = function (art) {
     return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
   };
-  var frontHtml = wrapArt(unikornisFrontArt(sz, gondor));
-  var backHtml = wrapArt(unikornisBackArt(sz, gondor));
+  var frontHtml = wrapArt(unikornisNezetArt("elol", rajz, kinezet, "kert"));   /* színek + festék ugyanonnan, mint az oldalrajz */
+  var backHtml = wrapArt(unikornisNezetArt("hatul", rajz, kinezet, "kert"));
   var keretek = [
     { html: eredeti, dir: "1" },
     { html: frontHtml, dir: "1" },

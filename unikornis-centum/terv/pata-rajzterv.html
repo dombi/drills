@@ -1,0 +1,239 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pata rajzterv</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; --kartya:#fff; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1100px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+h3{ margin:22px 0 2px; } .mag{ margin:0 0 8px; color:#6b5f80; }
+.sor{ display:flex; flex-wrap:wrap; gap:10px; }
+figure{ margin:0; background:var(--kartya); border:2px solid var(--keret); border-radius:14px; overflow:hidden; width:200px; }
+figure.keskeny{ width:130px; } figure.szeles{ width:250px; }
+figure{ width:230px; } figure.keskeny{ width:150px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.kep{ background:linear-gradient(#eaf6ff,#e3f3d6 75%,#cfe8b8); } .kep svg{ display:block; width:100%; height:auto; }
+figcaption{ padding:6px 9px 8px; font-size:13.5px; line-height:1.3; } figcaption b{ font-size:14.5px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+</style></head><body><main>
+<h1>1a lépés — egy színforrás + pata</h1>
+<div class="doboz terv">
+<p><b>Unikornis pózok, 1a lépés.</b> Nagyság: <b>közepes</b>. A díszek szemből és hátulról nézete (36 rajz) külön kör lesz (<b>1b</b>), ahogy megbeszéltük.</p>
+<p><b>Mit fogsz látni a játékban</b></p>
+<ul>
+<li><b>Mind a négy lábon külön megrajzolt pata lesz</b>, saját színnel, oldalról, szemből és hátulról is. Ugyanaz a rajz van mindenhol (odú, kert, felhőkert, pályák, bolti képek), mert mind ugyanabból a kódból készül.</li>
+<li><b>A patkók vékony csíkként a pata talpára kerülnek</b> (Ezüst patkó, Kristály-patkó). A Fűzöld bokapánt a csüdön, a pata fölött marad.</li>
+<li><b>Pörgéskor a festett sörény szemből és hátulról is a valódi mintájával látszik</b> (csillagos, pöttyös, galaxis…). Ma ilyenkor 3 sima színre egyszerűsödik.</li>
+</ul>
+<p><b>Ami a háttérben rendbe jön</b> (nem látszik, de ettől nem csúsznak el többé a színek)</p>
+<ul>
+<li>Minden unikornis-szín <b>egyetlen táblában</b> lesz (test, has, láb, <b>pata</b>, sörény, szarv, szem). Az oldalnézet, a szemből és a hátulról nézet is innen veszi a színeit. A mostani második, kézzel másolt színtábla megszűnik.</li>
+<li>Kitörlöm a régi, már semmire nem használt színeket is a lények adatai közül (az első, egyszerű figura maradékai).</li>
+<li>A pata színe külön „színhely”: a fodrászat 3. fázisában a körömlakk erre kerül, és nem kell újra hozzányúlni a rajzhoz.</li>
+</ul>
+<p><b>Ami NEM változik most</b></p>
+<ul>
+<li>Leüléskor és séta közben a lábdíszek még nem követik a lábat, ez a 2. lépés (ízületek). A pata viszont már most együtt mozog a lábbal.</li>
+<li>Szemből és hátulról még nem látszanak a díszek, ez az 1b lépés.</li>
+</ul>
+<p><b>Biztonsági háló:</b> a rajzot egy közös táblából újra összerakó kódot gépi ellenőrzéssel nézem át: pata nélkül pontosan ugyanazt a képet kell adnia, mint a mostani rajz. Előtte/utána képek a póz-próbapadon, csendes teszt, aztán élő próba.</p>
+<p><b>Neked egy dolgot kell eldöntened:</b> a pata színét (lent: A, B vagy C).</p>
+</div>
+<h2>Pata — rajzterv</h2>
+<p>A rajzokat a játék valódi kódja rajzolja; a pata még csak próba, a játékban nincs benne. <b>Egy színt kell választanod</b> (A, B vagy C). A pata mindhárom unikornisnál a saját színeiből jön, és később a fodrászatban körömlakkal átfesthető lesz.</p>
+
+<h2>Közelről: ma és az új pata, a lábdíszekkel</h2>
+<p class="mag">A Tűzön, az „A” színnel. A bokapánt a csüdön marad, a patkók vékony csíkként a pata talpára kerülnek (ahogy kérted), így a pata színe mindig látszik.</p>
+<div class="sor" id="kozeli"></div>
+
+<h2>A három színváltozat <span class="javasolt">javasolt: A</span></h2>
+<p class="mag">Mindegyik változat mindhárom unikornison, oldalról és szemből is.</p>
+<div id="valtozatok"></div>
+</main>
+<script>
+var UNI_KORALL = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> <g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#f2662b" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#d83b22" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="#ffb43a" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="#ffb43a" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="#f2662b" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="#d83b22" stroke-width="5"/> </g><path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#f8c6a1" stroke-width="4"/> <path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#f8c6a1" stroke-width="4"/> <path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#f8c6a1" stroke-width="4"/> <path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#f8c6a1" stroke-width="4"/> <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#f2a877" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#f8c6a1" stroke="none"/> <g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#f2662b" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#f2662b" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#f2662b" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="#d83b22" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="#d83b22" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="#f2662b" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="#d83b22" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="#ffb43a" stroke-width="4"/> </g><path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#f2a877" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.45" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="#3a2a20" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#f2662b" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="#d83b22" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="#ffb43a" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="#f2a877" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="#f28a2e" stroke-width="4"/> <path d="M270 84 L285 79" stroke="#c9531a" stroke-width="3"/> <path d="M275 68 L291 62" stroke="#c9531a" stroke-width="3"/> <path d="M281 50 L296 44" stroke="#c9531a" stroke-width="3"/> <path d="M287 36 L300 31" stroke="#c9531a" stroke-width="3"/> <g stroke="none"> <ellipse cx="120" cy="166" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="133" cy="174" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="128" cy="189" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="112" cy="189" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="107" cy="174" rx="6" ry="8" fill="#d63a3a"/> <circle cx="120" cy="178" r="4.5" fill="#ffd24d"/> </g> <g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#f2662b"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#d94fb0"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#ffb43a"/> </g> </g>';
+var UNI_KEK = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> <g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#29a3dd" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#7a3bc0" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="#c98fe6" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="#c98fe6" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="#29a3dd" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="#7a3bc0" stroke-width="5"/> </g><path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#ecf6fe" stroke-width="4"/> <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#d7ebfb" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#ecf6fe" stroke="none"/> <g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#29a3dd" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#29a3dd" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#29a3dd" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="#7a3bc0" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="#7a3bc0" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="#29a3dd" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="#7a3bc0" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="#c98fe6" stroke-width="4"/> </g><path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#d7ebfb" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.45" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="#2ea8e0" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#29a3dd" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="#7a3bc0" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="#c98fe6" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="#d7ebfb" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="#6a6fd6" stroke-width="4"/> <path d="M270 84 L285 79" stroke="#454bb0" stroke-width="3"/> <path d="M275 68 L291 62" stroke="#454bb0" stroke-width="3"/> <path d="M281 50 L296 44" stroke="#454bb0" stroke-width="3"/> <path d="M287 36 L300 31" stroke="#454bb0" stroke-width="3"/> <g stroke="#2b7fd0" stroke-width="3" stroke-linecap="round"> <path d="M120 162 V190"/> <path d="M108 169 L132 183"/> <path d="M132 169 L108 183"/> <path d="M120 167 l-5 5 M120 167 l5 5"/> <path d="M120 185 l-5 -5 M120 185 l5 -5"/> </g> <circle cx="120" cy="176" r="3" fill="#7a3bc0" stroke="none"/> <g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#29a3dd"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#7a3bc0"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#b06be0"/> </g> </g>';
+var UNI_ROZSA = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> <g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#ffcf4d" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#e6a92e" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="#ffe6a0" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="#ffe6a0" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="#ffcf4d" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="#e6a92e" stroke-width="5"/> </g><path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#ffffff" stroke-width="4"/> <path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#ffffff" stroke-width="4"/> <path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#ffffff" stroke-width="4"/> <path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#ffffff" stroke-width="4"/> <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#fdf3f7" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#ffffff" stroke="none"/> <g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#ffcf4d" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#ffcf4d" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#ffcf4d" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="#e6a92e" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="#e6a92e" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="#ffcf4d" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="#e6a92e" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="#ffe6a0" stroke-width="4"/> </g><path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#fdf3f7" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.4" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="#e67ba6" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#ffcf4d" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="#e6a92e" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="#ffe6a0" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="#fdf3f7" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="#ffcf4d" stroke-width="4"/> <path d="M270 84 L285 79" stroke="#e0a52e" stroke-width="3"/> <path d="M275 68 L291 62" stroke="#e0a52e" stroke-width="3"/> <path d="M281 50 L296 44" stroke="#e0a52e" stroke-width="3"/> <path d="M287 36 L300 31" stroke="#e0a52e" stroke-width="3"/> <path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/> <path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/> <g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#f4a6c6"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#f28ab8"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#ffd24d"/> </g> </g>';
+var UNI_RAJZ = { korall: UNI_KORALL, kek: UNI_KEK, rozsa: UNI_ROZSA };
+var FORGATO_PALETTA = {
+  korall: { test:"#f2a877",has:"#f8c6a1",lab:"#f8c6a1",s1:"#f2662b",s2:"#d83b22",s3:"#ffb43a",szarv:"#f28a2e",szarvCs:"#c9531a",szem:"#3a2a20" },
+  kek:    { test:"#d7ebfb",has:"#ecf6fe",lab:"#ecf6fe",s1:"#29a3dd",s2:"#7a3bc0",s3:"#c98fe6",szarv:"#6a6fd6",szarvCs:"#454bb0",szem:"#2ea8e0" },
+  rozsa:  { test:"#fdf3f7",has:"#ffffff",lab:"#ffffff",s1:"#ffcf4d",s2:"#e6a92e",s3:"#ffe6a0",szarv:"#ffcf4d",szarvCs:"#e0a52e",szem:"#e67ba6" }
+};
+function unikornisFrontArt(sz, gondor) {
+  var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
+  s += '<path d="M172 228 Q158 256 156 278" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/>';
+  s += '<path d="M208 228 Q222 256 224 278" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+  s += '<path d="M148 220 L140 286 L162 286 L156 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M232 220 L240 286 L218 286 L224 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="190" cy="200" rx="52" ry="26" fill="' + sz.has + '" stroke="none"/>';
+  s += '<path d="M158 224 L150 286 L174 286 L166 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<path d="M222 224 L230 286 L206 286 L214 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<ellipse cx="162" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<ellipse cx="218" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="138" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="128" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="122" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="120" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="126" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="132" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="124" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+    s += '<g class="ucg"><circle cx="242" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="252" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="258" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="260" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="254" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="248" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="256" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M154 56 Q124 82 118 124 Q114 160 122 200 Q128 224 134 240" fill="none" stroke="' + sz.s1 + '" stroke-width="9"/><path d="M156 62 Q130 92 124 134 Q120 168 128 210" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M158 54 Q136 78 132 116 Q128 148 134 180" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+    s += '<g class="ucg"><path d="M226 56 Q256 82 262 124 Q266 160 258 200 Q252 224 246 240" fill="none" stroke="' + sz.s1 + '" stroke-width="9"/><path d="M224 62 Q250 92 256 134 Q260 168 252 210" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M222 54 Q244 78 248 116 Q252 148 246 180" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+  }
+  s += '<circle cx="190" cy="88" r="42" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="153" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(-15,153,56)"/>';
+  s += '<ellipse cx="227" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(15,227,56)"/>';
+  s += '<polygon points="190,12 176,62 204,62" fill="' + sz.szarv + '" stroke-width="4"/>';
+  s += '<path d="M180 52 L200 52" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M183 40 L197 40" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M186 28 L194 28" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="178" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="202" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="74" r="7" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M180 64 Q174 80 178 96" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M186 62 Q180 78 184 94" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/><path d="M194 62 Q200 78 196 94" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M200 64 Q206 80 202 96" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/></g>';
+  }
+  s += '<path d="M165 86 Q172 76 180 76 Q188 76 191 86 Q186 92 178 92 Q170 92 165 86 Z" fill="#fff" stroke-width="1.7"/>';
+  s += '<circle cx="178" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="178" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="176" cy="83" r="1.6" fill="#fff" stroke="none"/>';
+  s += '<path d="M189 86 Q196 76 204 76 Q212 76 215 86 Q210 92 202 92 Q194 92 189 86 Z" fill="#fff" stroke-width="1.7"/>';
+  s += '<circle cx="202" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="202" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="200" cy="83" r="1.6" fill="#fff" stroke="none"/>';
+  s += '<path d="M165 84 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/><path d="M169 80 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>';
+  s += '<path d="M215 84 q3 -3 5 -8" fill="none" stroke-width="2.2"/><path d="M211 80 q2 -4 3 -9" fill="none" stroke-width="2.2"/>';
+  s += '<path d="M183 104 Q190 110 197 104" fill="none" stroke="#e088b0" stroke-width="2"/>';
+  s += '<ellipse cx="162" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
+  s += '<ellipse cx="218" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
+  s += '<path d="M148 24 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="' + sz.s1 + '" stroke="none"/>';
+  s += '<path d="M234 18 l1.4 3.2 l3.2 1.4 l-3.2 1.4 l-1.4 3.2 l-1.4 -3.2 l-3.2 -1.4 l3.2 -1.4 Z" fill="' + sz.s2 + '" stroke="none"/>';
+  return s + '</g>';
+}
+function unikornisBackArt(sz, gondor) {
+  var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="176" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="248" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="204" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="170" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="272" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="210" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="180" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="200" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M190 222 Q164 252 156 274 Q150 288 156 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 220 Q190 258 188 280 Q186 292 190 296" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 222 Q216 252 224 274 Q230 288 224 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 218 Q176 248 170 270 Q166 284 170 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/><path d="M190 218 Q204 248 210 270 Q214 284 210 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
+  }
+  s += '<path d="M148 220 L140 286 L162 286 L156 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M232 220 L240 286 L218 286 L224 222" fill="' + sz.lab + '" stroke-width="4" opacity=".7"/>';
+  s += '<path d="M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="190" cy="200" rx="52" ry="26" fill="' + sz.has + '" stroke="none"/>';
+  s += '<path d="M158 224 L150 286 L174 286 L166 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<path d="M222 224 L230 286 L206 286 L214 226" fill="' + sz.lab + '" stroke-width="4"/>';
+  s += '<ellipse cx="162" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<ellipse cx="218" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
+  s += '<circle cx="190" cy="88" r="42" fill="' + sz.test + '" stroke-width="5"/>';
+  s += '<ellipse cx="153" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(-15,153,56)"/>';
+  s += '<ellipse cx="227" cy="56" rx="10" ry="18" fill="' + sz.test + '" stroke-width="3" transform="rotate(15,227,56)"/>';
+  s += '<ellipse cx="153" cy="58" rx="5.5" ry="12" fill="#f0b8d8" stroke="none" transform="rotate(-15,153,58)"/>';
+  s += '<ellipse cx="227" cy="58" rx="5.5" ry="12" fill="#f0b8d8" stroke="none" transform="rotate(15,227,58)"/>';
+  s += '<polygon points="190,18 180,58 200,58" fill="' + sz.szarv + '" stroke-width="4"/>';
+  s += '<path d="M183 48 L197 48" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  s += '<path d="M185 36 L195 36" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
+  if (gondor) {
+    s += '<g class="ucg"><circle cx="172" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="82" r="16" fill="' + sz.s1 + '" stroke="none"/><circle cx="208" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="166" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="116" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="214" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="172" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="146" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="208" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="180" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="200" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="178" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="202" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
+  } else {
+    s += '<g class="ucg"><path d="M172 60 Q156 100 154 148 Q152 188 160 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M180 56 Q168 100 166 150 Q164 196 172 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 52 Q190 100 190 150 Q190 196 190 240" fill="none" stroke="' + sz.s3 + '" stroke-width="6"/><path d="M200 56 Q212 100 214 150 Q216 196 208 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M208 60 Q224 100 226 148 Q228 188 220 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/></g>';
+  }
+  s += '<g class="ucg">';
+  if (gondor) {
+    s += '<circle cx="182" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="198" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="48" r="6" fill="' + sz.s2 + '" stroke="none"/>';
+  } else {
+    s += '<path d="M182 52 Q178 36 180 24" fill="none" stroke="' + sz.s1 + '" stroke-width="4"/><path d="M198 52 Q202 36 200 24" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+  }
+  s += '</g>';
+  return s + '</g>';
+}
+
+/* ── PROTOTÍPUS: pata a 4 lábra (oldalnézet) ── */
+var LABAK = [ [[102,208],[121,208],[114,286],[92,286]], [[135,216],[154,216],[152,288],[130,288]],
+              [[177,216],[197,216],[202,288],[180,288]], [[212,208],[232,208],[256,286],[232,286]] ];
+function f1(n){ return +n.toFixed(1); }
+function lerp(a,b,t){ return a+(b-a)*t; }
+var PATA_MAG = 15;
+function pataPath(L){   /* L = [bf, jf, ja, ba] (bal-felső, jobb-felső, jobb-alsó, bal-alsó) */
+  var yb = L[2][1], yt = yb - PATA_MAG, t = (yt - L[0][1]) / (L[3][1] - L[0][1]);
+  var xl = lerp(L[0][0], L[3][0], t), xr = lerp(L[1][0], L[2][0], t);
+  var bl = L[3][0] - 1.5, br = L[2][0] + 1.5, ya = yb + 1;
+  return 'M'+f1(xl)+' '+f1(yt)+' Q'+f1((xl+xr)/2)+' '+f1(yt-3)+' '+f1(xr)+' '+f1(yt)+' L'+f1(br)+' '+f1(ya)+' Q'+f1((bl+br)/2)+' '+f1(ya+1.5)+' '+f1(bl)+' '+f1(ya)+' Z';
+}
+function pataReszlet(L){ /* fény-csík a pata elején */
+  var yb = L[2][1], yt = yb - PATA_MAG + 3, t = (yt - L[0][1]) / (L[3][1] - L[0][1]);
+  var xr = lerp(L[1][0], L[2][0], t) - 4, xr2 = L[2][0] - 3;
+  return '<path d="M'+f1(xr)+' '+f1(yt+1)+' L'+f1(xr2)+' '+f1(yb-2)+'" stroke="#fff" stroke-width="2.4" opacity=".55" fill="none"/>';
+}
+function patkoCsik(L, fajta){
+  var yb = L[2][1] + 1, bl = L[3][0] - 2.5, br = L[2][0] + 2.5;
+  var szin = fajta === "k" ? "#cfd6de" : "#f4b8d8", s = '<path d="M'+f1(bl)+' '+f1(yb-1.5)+' L'+f1(br)+' '+f1(yb-1.5)+' L'+f1(br-1)+' '+f1(yb+3)+' L'+f1(bl+1)+' '+f1(yb+3)+' Z" fill="'+szin+'" stroke="#222" stroke-width="1.3"/>';
+  var cx = (bl+br)/2;
+  if (fajta === "k") s += '<circle cx="'+f1(cx-6)+'" cy="'+f1(yb+0.8)+'" r="1.1" fill="#fff"/><circle cx="'+f1(cx)+'" cy="'+f1(yb+0.8)+'" r="1.1" fill="#fff"/><circle cx="'+f1(cx+6)+'" cy="'+f1(yb+0.8)+'" r="1.1" fill="#fff"/>';
+  else s += '<path d="M'+f1(br+5)+' '+f1(yb-12)+' l1.6 3.4 l3.4 1.2 l-3.4 1.4 l-1.6 3.4 l-1.6 -3.4 l-3.4 -1.4 l3.4 -1.2 Z" fill="#fff6d8" stroke="#e8a0c8" stroke-width=".8"/>';
+  return s;
+}
+function bokapant(L){
+  var yb = L[2][1], y = yb - PATA_MAG - 9, t = (y - L[0][1]) / (L[3][1] - L[0][1]);
+  var xl = lerp(L[0][0], L[3][0], t) - 1.5, xr = lerp(L[1][0], L[2][0], t) + 1.5, cx = (xl+xr)/2;
+  return '<rect x="'+f1(xl)+'" y="'+f1(y)+'" width="'+f1(xr-xl)+'" height="8" rx="2.5" fill="#a7d99a" stroke="#222" stroke-width="1.5"/><path d="M'+f1(cx)+' '+f1(y)+' l-4 -6 l4 -1 l4 1 Z" fill="#8cc47c" stroke="#222" stroke-width="1.5"/>';
+}
+/* a pata a láb UTÁN rajzolódik, a test ELŐTT → a test takarja a láb tetejét, a pata a láb alját */
+function oldalPataval(art, pata, dísz){
+  var i = 0;
+  return art.replace(/(<path d="M(?:102 208|135 216|177 216|212 208)[^>]*\/>)/g, function(m){
+    var L = LABAK[i++];
+    var s = m + '<path d="'+pataPath(L)+'" fill="'+pata+'" stroke="#222" stroke-width="3.2"/>' + pataReszlet(L);
+    if (dísz === "a") s += bokapant(L);
+    if (dísz === "k" || dísz === "r") s += patkoCsik(L, dísz);
+    return s;
+  });
+}
+/* szemből / hátulról: a 4 láb alja (az elülső kettő teljes, a hátsó kettő halványabb) */
+var ELOL_LABAK = [ {b:[140,162], y:286, op:.7}, {b:[218,240], y:286, op:.7}, {b:[150,174], y:286, op:1}, {b:[206,230], y:286, op:1} ];
+function elolPataval(art, pata){
+  var add = '';
+  ELOL_LABAK.forEach(function(l){
+    var x1 = l.b[0], x2 = l.b[1], yt = l.y - 13;
+    add += '<path d="M'+(x1+1)+' '+yt+' Q'+((x1+x2)/2)+' '+(yt-3)+' '+(x2-1)+' '+yt+' L'+(x2+1.5)+' '+(l.y+1)+' Q'+((x1+x2)/2)+' '+(l.y+2.5)+' '+(x1-1.5)+' '+(l.y+1)+' Z" fill="'+pata+'" stroke="#222" stroke-width="3.2" opacity="'+l.op+'"/>';
+  });
+  /* a pata az elülső lábak után, de a fej/sörény előtt kerül be: a test-ellipszis után álló lábak a "M158 224" és "M222 224" */
+  var hatso = add.split('</path>');
+  return art.replace(/(<path d="M222 224[^>]*\/>)/, function(m){ return m + add; });
+}
+
+var LENY = [ {k:"rozsa", nev:"Ragyogás"}, {k:"korall", nev:"Tűz"}, {k:"kek", nev:"Csillámharmat"} ];
+var VALTOZAT = {
+  A: { nev:"A — a szarv színe", leiras:"A pata és a szarv „ugyanabból az anyagból” van — mesebeli, összetartozó.",
+       szin:{ rozsa:"#ffcf4d", korall:"#f28a2e", kek:"#6a6fd6" } },
+  B: { nev:"B — a sörény mély árnyalata", leiras:"A sörény sötétebb színe ismétlődik lent — keretbe fogja a figurát.",
+       szin:{ rozsa:"#e6a92e", korall:"#d83b22", kek:"#7a3bc0" } },
+  C: { nev:"C — szelíd, testhez illő", leiras:"A test színének sötétebb, finom árnyalata — a legkevésbé feltűnő, a körömlakk itt ütne a legjobban.",
+       szin:{ rozsa:"#d9c7b8", korall:"#b9785a", kek:"#9fb3cf" } }
+};
+function svgKeret(belso, vb){ return '<svg viewBox="'+(vb||"20 0 350 300")+'" xmlns="http://www.w3.org/2000/svg">'+belso+'</svg>'; }
+function kartya(cim, svg, cls){ return '<figure class="'+(cls||"")+'"><div class="kep">'+svg+'</div><figcaption>'+cim+'</figcaption></figure>'; }
+
+function rajzol(){
+  var h = '';
+  /* 1) a 3 változat, mindhárom lényen, oldalról + szemből */
+  Object.keys(VALTOZAT).forEach(function(v){
+    var V = VALTOZAT[v];
+    h += '<h3>'+V.nev+'</h3><p class="mag">'+V.leiras+'</p><div class="sor">';
+    LENY.forEach(function(L){
+      var p = V.szin[L.k];
+      h += kartya('<b>'+L.nev+'</b> oldalról', svgKeret(oldalPataval(UNI_RAJZ[L.k], p)));
+      var sz = {}; var a = FORGATO_PALETTA[L.k]; for (var q in a) sz[q] = a[q];
+      h += kartya('<b>'+L.nev+'</b> szemből', svgKeret(elolPataval(unikornisFrontArt(sz,false), p), "80 0 220 300"), "keskeny");
+    });
+    h += '</div>';
+  });
+  document.getElementById("valtozatok").innerHTML = h;
+  /* 2) közeli: ma vs. új (A), lábdíszekkel */
+  var k = '', L = LENY[1];
+  var VB = "80 180 200 120";
+  k += kartya('<b>Ma</b> — nincs külön pata', svgKeret(UNI_RAJZ[L.k], VB), "szeles");
+  k += kartya('<b>Új</b> — külön pata', svgKeret(oldalPataval(UNI_RAJZ[L.k], VALTOZAT.A.szin[L.k]), VB), "szeles");
+  k += kartya('<b>Fűzöld bokapánt</b> — a csüdön, a pata fölött', svgKeret(oldalPataval(UNI_RAJZ[L.k], VALTOZAT.A.szin[L.k], "a"), VB), "szeles");
+  k += kartya('<b>Ezüst patkó</b> — vékony csík a pata alatt', svgKeret(oldalPataval(UNI_RAJZ[L.k], VALTOZAT.A.szin[L.k], "k"), VB), "szeles");
+  k += kartya('<b>Kristály-patkó</b> — rózsaszín csík + kis csillag', svgKeret(oldalPataval(UNI_RAJZ[L.k], VALTOZAT.A.szin[L.k], "r"), VB), "szeles");
+  document.getElementById("kozeli").innerHTML = k;
+}
+
+rajzol();
+</script></body></html>

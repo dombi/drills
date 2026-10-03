@@ -87,7 +87,7 @@ PAD = r"""<style>
   var N = 0;
   function uid() { return "fm" + (++N); }
   var KERT_POZOK = [
-    ["", 0, 1, "Áll", "Alap oldalnézet, minden díszben.", "ok"],
+    ["", 0, 1, "Áll", "Alap oldalnézet, minden díszben. Külön pata, a bokapánt a csüdön (1a).", "ok"],
     ["jar", 0, 1, "Séta – 1. fázis", "A 4 láb egy darabban leng (±12°).", "gyanu"],
     ["jar", 0.5, 1, "Séta – 2. fázis", "Figyeld a lábdíszt: helyben marad, a láb kileng alóla.", "hiba"],
     ["jar", 0.25, -1, "Séta balra (helyesen)", "Pörgés ELŐTT így megy balra.", "ok"],
@@ -149,17 +149,19 @@ PAD = r"""<style>
     UC.kertPorgesForgas(doboz, 800, function () {
       mo.disconnect();
       var nev = ["Pörgés — oldalról", "Pörgés — szemből", "Pörgés — balról", "Pörgés — hátulról"];
-      var megj = ["", "Külön rajz, külön színlista: a díszek eltűnnek.", "", "Külön rajz: a díszek eltűnnek."];
-      var all = ["ok", "hiba", "ok", "hiba"];
+      var megj = ["", "Színek, pata és festék a közös színtáblából (1a). A díszek még hiányoznak → 1b.", "", "Színek, pata és festék a közös színtáblából (1a). A díszek még hiányoznak → 1b."];
+      var all = ["ok", "gyanu", "ok", "gyanu"];
       var out = "";
       for (var i = 0; i < 4 && i < keretek.length; i++) {
         out += kartya('<div id="kert-szinter" class="fm-szin"><div class="kert-uni-doboz" style="--dir:1"><div class="kert-uni-flip" style="--dir:' + (keretek[i].dir || 1) + '">' +
           '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' + keretek[i].html + '</svg></div></div></div>', nev[i], megj[i], all[i]);
       }
-      /* a hiba bizonyítéka: ugyanez a figura a pörgés UTÁN, balra indítva */
+      /* ugyanez a figura a pörgés UTÁN, balra indítva — a cimkét MÉRJÜK: marad-e irány a belső rétegen (D1 javította) */
       doboz.style.setProperty("--dir", -1); doboz.classList.add("jar");
-      var bizonyit = '<figure class="hiba"><div class="fm-szin" id="kert-szinter">' + gy.innerHTML + '</div><figcaption><b>Séta balra — pörgés UTÁN</b>' +
-        'Ugyanaz a parancs, mint fent a „Séta balra” — de jobbra néz, tehát hátrafelé megy. A pörgés „jobbra” irányt hagy a belső rétegen.<br><span class="cimke hiba">HIBA</span></figcaption></figure>';
+      var ragad = !!flip.style.getPropertyValue("--dir");
+      var bizonyit = '<figure class="' + (ragad ? "hiba" : "") + '"><div class="fm-szin" id="kert-szinter">' + gy.innerHTML + '</div><figcaption><b>Séta balra — pörgés UTÁN</b>' +
+        (ragad ? 'Ugyanaz a parancs, mint fent a „Séta balra” — de jobbra néz, tehát hátrafelé megy. A pörgés „jobbra” irányt hagy a belső rétegen.<br><span class="cimke hiba">HIBA</span>'
+               : 'A pörgés nem hagy irányt a belső rétegen: balra néz, előre megy (D1).<br><span class="cimke ok">rendben</span>') + '</figcaption></figure>';
       var hely = document.getElementById("fm-porges");
       hely.innerHTML = out + bizonyit;
       fagyaszt(hely, 0.25);

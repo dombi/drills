@@ -56,7 +56,7 @@ window.UC = {
   oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); },
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
-  kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek,
+  kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,
