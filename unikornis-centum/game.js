@@ -10658,10 +10658,10 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   if (reducedMotion) {
     var flip = doboz.querySelector(".kert-uni-flip");
     if (flip) flip.style.setProperty("--dir", "-1");
-    setTimeout(function () { if (flip) flip.style.setProperty("--dir", "1"); if (cb) cb(); }, idoMs);
+    setTimeout(function () { if (flip) flip.style.removeProperty("--dir"); if (cb) cb(); }, idoMs);   /* ne hagyjon irányt a belső rétegen: a séta a dobozon fordít */
     return;
   }
-  var c = P().karakter, rajz = (c && c.rajz) || "korall";
+  var c = LENYEK[mentes.leny], rajz = (c && c.rajz) || "korall";   /* a kiválasztott lény palettája (P().karakter nem létezik → mindig korall volt) */
   var kinezet = P().kinezet || null;
   var gondor = !!(kinezet && kinezet.frizura === "gondor");
   var sz = forgatoSzinek(rajz, kinezet);
@@ -10669,7 +10669,7 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   var flip = doboz.querySelector(".kert-uni-flip");
   if (!svg || !flip) { if (cb) cb(); return; }
   var eredeti = svg.innerHTML;
-  var eredetiDir = flip.style.getPropertyValue("--dir") || "1";
+  var eredetiDir = flip.style.getPropertyValue("--dir");   /* rendesen üres: az irányt a doboz --dir-je adja */
   var wrapArt = function (art) {
     return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
   };
@@ -10698,7 +10698,7 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   function koviKeret() {
     if (i >= total) {
       svg.innerHTML = eredeti;
-      flip.style.setProperty("--dir", eredetiDir);
+      if (eredetiDir) flip.style.setProperty("--dir", eredetiDir); else flip.style.removeProperty("--dir");
       doboz.style.transform = "";
       szikrak.forEach(function (sp) { if (sp.parentNode) sp.parentNode.removeChild(sp); });
       if (cb) cb();

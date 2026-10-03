@@ -102,7 +102,8 @@ A képes, élő változat (minden póz egymás mellett, valódi játékkódból)
 <div class="kerdes"><b>D1. A hátrafelé menés és a narancs pörgés: gyors javítás most?</b>
   Két apró javítás (néhány sor), amit akár ma élesíthetünk: (1) pörgés után ne maradjon „jobbra” jel → nem megy többé hátrafelé; (2) a pörgés a saját unikornis színeit használja → Ragyogás és Csillámharmat nem lesz narancs.
   A díszek a pörgésben ettől még hiányoznak (az az 1. lépés).<br>
-  <span class="javas">Javaslatom: igen, most.</span> Apró, biztonságos, a gyerekek azonnal látják; a 4. lépés amúgy is lecseréli, de addig se lássák a hibát.</div>
+  <span class="javas">Javaslatom: igen, most.</span> Apró, biztonságos, a gyerekek azonnal látják; a 4. lépés amúgy is lecseréli, de addig se lássák a hibát.<br>
+  <span class="cimke igaz">✅ KÉSZ (2026-10-03)</span> <span class="kod">kertPorgesForgas</span>: a szín a <span class="kod">LENYEK[mentes.leny]</span>-ből jön; a pörgés végén a belső rétegről törlődik az irány (<span class="kod">removeProperty("--dir")</span>), így a séta a dobozon újra fordít. Próbapadon ellenőrizve (Ragyogás, Csillámharmat).</div>
 <div class="kerdes"><b>D2. A nem póz-témájú ismétlések (G, H, I) mikor?</b>
   <span class="javas">Javaslatom:</span> az F (pálya-váz) az 5. lépés elejére kerül, mert a pálya-séta úgyis oda épül. A G–H–I egy külön, rövid „takarító kör”, a pózok-terv 0–2. lépése után — nem sürgős, a gyerekek nem látják.</div>
 <div class="kerdes"><b>D3. Az élő próbapad marad fejlesztői eszköz</b>
