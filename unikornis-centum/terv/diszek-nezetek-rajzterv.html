@@ -1,0 +1,39 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Díszek három nézetből</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:980px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; }
+li{ margin:4px 0; } b{ color:#4b2f8a; }
+table{ border-collapse:collapse; width:100%; font-size:14.5px; } td,th{ border:1px solid var(--keret); padding:6px 8px; text-align:left; vertical-align:top; } th{ background:#f6efff; }
+</style></head><body><main>
+<h1>1b lépés — a díszek szemből és hátulról</h1>
+<p><b>✅ Jóváhagyva és élesítve (2026-10-03).</b> Unikornis pózok, 1b lépés. Nagyság: <b>közepes</b>. A képek a próbalapon vannak (a valódi kódból rajzolva): <code>python terv/diszek-nezetek-build.py</code> → <code>Matekos\uc-diszek-nezetek.html</code>.</p>
+<div class="doboz">
+<p><b>Mit fogsz látni a játékban</b></p>
+<ul>
+<li><b>Pörgéskor a díszek nem tűnnek el.</b> Ma, amikor a kertben pörög, szemből és hátulról csupasz: a koszorú, a takaró, a szárny és a többi dísz egy pillanatra eltűnik. Mind a 18 dísznek lesz szemből és hátulról nézett rajza (36 új rajz), ugyanazokkal a színekkel és formákkal, mint oldalról.</li>
+<li><b>Ugyanaz a dísz minden nézetben ugyanonnan jön.</b> A lábdíszt (bokapánt, patkók) oldalról és szemből is ugyanaz a kód rajzolja. A szárny a valódi szárnyrajz, két oldalra tükrözve. Ha egy díszt később átrajzolunk, minden nézetben egyszerre változik.</li>
+</ul>
+</div>
+<h2>Melyik dísz hogyan látszik</h2>
+<table>
+<tr><th>Hely</th><th>Szemből</th><th>Hátulról</th></tr>
+<tr><td><b>Fej</b></td><td>Koszorú a szarv töve körül, a csillag a szarv csúcsán, a korona a homlokon a holddal.</td><td>Ugyanaz; a korona hátulja hold nélkül, egy kis drágakővel.</td></tr>
+<tr><td><b>Nyak</b></td><td>A lánc a mellkason, rajta a medál (makk, szív) vagy a sál csíkos csücske.</td><td>Csak a lánc vagy a sál hátsó része a tarkón; a sörény ráomlik.</td></tr>
+<tr><td><b>Hát</b></td><td>A takaró két széle lelóg a test két oldalán, a sörény ráomlik.</td><td>A takaró a hát tetején, szegéllyel, díszekkel; a csillagköpeny hosszan a farra omlik.</td></tr>
+<tr><td><b>Láb</b></td><td colspan="2">Mind a négy lábon, mint oldalról: a bokapánt a csüdön, a patkó vékony csík a pata talpán. A hátsó pár halványabb, mert távolabb van.</td></tr>
+<tr><td><b>Szárny</b></td><td>Két szárny, a test mögül nyílik ki két oldalra.</td><td>Két szárny a háton, a test előtt; a sörény a tövükre omlik.</td></tr>
+<tr><td><b>Farok</b></td><td>A farok a test mögött van: a <b>szalagcsokor nem látszik</b>. A csengettyűnek csak a hangjegyei, az üstökösnek csak a szikrái látszanak.</td><td>A dísz a farok tetején, a takaró alól kibúvó farkon.</td></tr>
+</table>
+<h2>Milyen közös alapra épül, mit ad hozzá</h2>
+<ul>
+<li>Alap: a szemből/hátulról nézet rajza (<code>unikornisNezetArt</code>, 1a lépés) és az oldalnézeti díszek táblái (<code>HAT_DISZ</code>, <code>SZARNY_DISZ</code>, <code>FAROK_DISZ</code>, <code>ruhaSVG</code>).</li>
+<li>Új: <code>NEZET_DISZ</code> (a 36 rajz egy táblában), <code>NEZET_LABAK</code> (a szemből nézet 4 lába egy táblában — a láb, a pata és a lábdísz is innen), <code>labDiszSVG</code> (egy láb dísze; oldalról és szemből is ez rajzol).</li>
+<li>A nézet-rajzban „rétegek” vannak (a test mögött · farok · lábak · takaró · nyak · legfelül), így a dísz a megfelelő testrész elé vagy mögé kerül. Később a többi póz (ülés, fekvés, repülés) ugyanígy kapja a díszeket.</li>
+<li>A kerti pörgés most már átadja a felvett díszeket. A felhőkerti pörgés még a régi (oldalkép összenyomva) — az a 4. lépésben áll át a közös forgásra.</li>
+</ul>
+</main></body></html>

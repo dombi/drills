@@ -149,8 +149,8 @@ PAD = r"""<style>
     UC.kertPorgesForgas(doboz, 800, function () {
       mo.disconnect();
       var nev = ["Pörgés — oldalról", "Pörgés — szemből", "Pörgés — balról", "Pörgés — hátulról"];
-      var megj = ["", "Színek, pata és festék a közös színtáblából (1a). A díszek még hiányoznak → 1b.", "", "Színek, pata és festék a közös színtáblából (1a). A díszek még hiányoznak → 1b."];
-      var all = ["ok", "gyanu", "ok", "gyanu"];
+      var megj = ["", "Színek, pata és festék a közös színtáblából (1a), a díszek a NEZET_DISZ-ből (1b).", "", "Színek, pata és festék a közös színtáblából (1a), a díszek a NEZET_DISZ-ből (1b)."];
+      var all = ["ok", "ok", "ok", "ok"];
       var out = "";
       for (var i = 0; i < 4 && i < keretek.length; i++) {
         out += kartya('<div id="kert-szinter" class="fm-szin"><div class="kert-uni-doboz" style="--dir:1"><div class="kert-uni-flip" style="--dir:' + (keretek[i].dir || 1) + '">' +

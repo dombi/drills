@@ -50,7 +50,7 @@ A képes, élő változat (minden póz egymás mellett, valódi játékkódból)
 <tr><td>1</td><td>A kertben néha hátrafelé megy balra</td><td>Nem „néha”: az első pörgés után mindig, a kert újranyitásáig. A pörgés a belső rétegre „jobbra”-t ír vissza, a séta a külsőre írja az irányt.
   <span class="kod">kert.js kertPorgesForgas → flip --dir="1"; kertSetal → doboz --dir</span></td><td><span class="cimke igaz">bizonyítva</span></td><td>Gyors javítás most (D1), végleg a 4.</td></tr>
 <tr><td>2</td><td>Pörgéskor szemből más a színe</td><td>(a) Mindig a Tűz színlistáját használja <span class="kod">(P().karakter nem létezik)</span>; (b) a szemből/hátulról kép külön, kézzel rajzolt kép, saját színlistával <span class="kod">(FORGATO_PALETTA)</span>;
-  (c) a díszek nincsenek rajta; (d) festett sörénynél csak 3 színre egyszerűsít.</td><td><span class="cimke igaz">bizonyítva</span></td><td>(a) ✅ D1; (b) ✅ 1a; (d) ✅ 1a; (c) 1b</td></tr>
+  (c) a díszek nincsenek rajta; (d) festett sörénynél csak 3 színre egyszerűsít.</td><td><span class="cimke igaz">bizonyítva</span></td><td>(a) ✅ D1; (b) ✅ 1a; (d) ✅ 1a; (c) ✅ 1b</td></tr>
 <tr><td>3</td><td>A felhőkertben máshogy forog</td><td>A felhőkert nem fordul, hanem vízszintesen összenyomja, majd tükrözi a képet (papírvékony csík). Teljesen külön kód.</td><td><span class="cimke igaz">bizonyítva</span></td><td>4. lépés</td></tr>
 <tr><td>4</td><td>Leüléskor leesnek a lábdíszek</td><td>Üléskor a láb felére nyomódik, a dísz a régi helyén marad. Ugyanez <b>séta közben</b> (a láb kileng, a dísz nem) és <b>fekve</b> (a dísz a test alatt lebeg).</td><td><span class="cimke igaz">bizonyítva, szélesebb</span></td><td>2. lépés</td></tr>
 <tr><td>5</td><td>Az ágy nem tetszik</td><td>Két külön ágy van: a kerti (lerakható tárgy) és az odúbeli (bútor). Mi zavar, melyik?</td><td><span class="cimke kerd">kérdés</span></td><td>7. lépés</td></tr>
@@ -114,8 +114,10 @@ A képes, élő változat (minden póz egymás mellett, valódi játékkódból)
   <span class="cimke igaz">✅ 1a KÉSZ (2026-10-03)</span> <b>Egy színforrás + pata</b> — terv és rajz: <span class="kod">terv/pata-rajzterv.html</span> (producer: A = a pata a szarv színe; a patkó vékony csík a pata talpán).
   Minden szín a <span class="kod">UNI_SZIN</span> táblában (renderer.js): az oldalrajz egy sablonból készül (gépi ellenőrzés: pata nélkül betűre azonos a régivel), a szemből/hátulról kép (<span class="kod">unikornisNezetArt</span>) ugyanonnan; megszűnt a <span class="kod">FORGATO_PALETTA</span>, a <span class="kod">SZEM_ALAP</span>, a festékek <span class="kod">harom</span>-ja és a LENYEK holt színmezői.
   Pata: a láb és a pata egy <span class="kod">&lt;g class="uni-lab"&gt;</span>, a láb-geometria (<span class="kod">UNI_LABAK</span>) adja a lábdíszek helyét is. Pörgéskor a festék valódi mintával (<span class="kod">FESTEK_NEZET</span>).<br><br>
-  <b>Következő: 1b — a 18 dísz szemből és hátulról</b> (közepes–nagy, 36 rajz, összehasonlító lappal).
-  Nyitómondat új beszélgetéshez: <i>„UC: unikornis pózok, 1b lépés: díszek szemből és hátulról”</i>.
+  <span class="cimke igaz">✅ 1b KÉSZ (2026-10-03)</span> <b>A 18 dísz szemből és hátulról</b> — terv: <span class="kod">terv/diszek-nezetek-rajzterv.html</span>, próbalap: <span class="kod">python terv/diszek-nezetek-build.py</span> → <span class="kod">Matekos\uc-diszek-nezetek.html</span> (producer jóváhagyta; szemből a farokdísz a test mögé bújik, csak a hangjegy/szikra látszik).
+  A 36 rajz egy táblában (<span class="kod">NEZET_DISZ</span>); a nézet-rajzban rétegek vannak (test mögött · farok · lábak · takaró · nyak · legfelül). A szemből nézet 4 lába egy táblában (<span class="kod">NEZET_LABAK</span>), a lábdíszt oldalról és szemből is ugyanaz a <span class="kod">labDiszSVG</span> rajzolja, a szárny a <span class="kod">SZARNY_DISZ</span> tükrözve. Gépi ellenőrzés: dísz nélkül a szemből/hátulról rajz betűre azonos a régivel. A kerti pörgés átadja a felvett díszeket (<span class="kod">P().oltozet</span>).<br><br>
+  <b>Következő: 2. lépés — ízületek/kapaszkodópontok</b> (nagy, a legkockázatosabb: láb 2 rész + pata, szárny vállízület, minden dísz követi; minden díszről kép minden pózban).
+  Nyitómondat új beszélgetéshez: <i>„UC: unikornis pózok, 2. lépés: ízületek”</i>.
 </div>
 </main>
 </body></html>

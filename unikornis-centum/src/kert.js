@@ -318,8 +318,8 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   var wrapArt = function (art) {
     return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
   };
-  var frontHtml = wrapArt(unikornisNezetArt("elol", rajz, kinezet, "kert"));   /* színek + festék ugyanonnan, mint az oldalrajz */
-  var backHtml = wrapArt(unikornisNezetArt("hatul", rajz, kinezet, "kert"));
+  var frontHtml = wrapArt(unikornisNezetArt("elol", rajz, kinezet, "kert", P().oltozet));   /* színek + festék ugyanonnan, mint az oldalrajz */
+  var backHtml = wrapArt(unikornisNezetArt("hatul", rajz, kinezet, "kert", P().oltozet));
   var keretek = [
     { html: eredeti, dir: "1" },
     { html: frontHtml, dir: "1" },
