@@ -1,0 +1,87 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Járás mozgásterv</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+h3{ color:var(--lila); margin:18px 0 4px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; margin-bottom:12px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px solid var(--keret); padding:5px 8px; text-align:left; vertical-align:top; } th{ background:#f6efff; }
+.tabla-wrap{ overflow-x:auto; }
+</style></head><body><main>
+<h1>3. lépés — élethű járás (séta és ügetés)</h1>
+<p>Unikornis pózok terve, 3. lépés. Nagyság: <b>közepes–nagy</b>. Producer-döntések (2026-10-03): a járás <b>mindenhol egyformán</b> furcsa (nem helyszín-hiba); <b>hosszú úton ügessen</b>; a magasságból (repüléshez) most <b>csak előkészítés</b>.</p>
+
+<div class="doboz terv">
+<p><b>Mi a baj ma</b> (mindhárom helyszínen ugyanaz a kód fut, három másolatban)</p>
+<ul>
+<li><b>A láb egy darabban leng</b>, mint egy olló: a térd és a csánk nem hajlik, pedig a 2. lépés óta tudna.</li>
+<li><b>Két-két láb egyszerre</b>, pontos ellenütemben. Ez nem a ló négyütemű sétája.</li>
+<li><b>Az egész doboz ugrál fel-le</b>: a test nem billen, a fej nem bólint. A kertben közben a lebegés is fut, ezért a paták a fű fölött járnak.</li>
+<li><b>A paták csúsznak.</b> A kertben ma kb. 2,4 testhossz/mp-vel halad, ami lónál már vágta, a lábak viszont sétálnak. Az odúban ugyanez a lábmozgás kétszer olyan gyors haladással fut.</li>
+</ul>
+</div>
+
+<div class="doboz terv">
+<p><b>Mit fogsz látni a játékban</b></p>
+<ul>
+<li><b>Séta, négy ütemben:</b> hátsó – elülső – másik hátsó – másik elülső láb. A levegőben a térd (elöl) és a csánk (hátul) behajlik, a láb előrelendül, kinyúlik és leér.</li>
+<li><b>Ügetés, két ütemben:</b> az átlós lábpárok együtt lépnek, nagyobb lendülettel és magasabbra emelt lábbal; a farok kicsit felemelkedik.</li>
+<li><b>A test él:</b> enyhén billen előre-hátra (legfeljebb 3°), és annyit emelkedik-süllyed, amennyit a lábak adnak. A <b>fej minden elülső lépésre bólint</b>, a nyak (sörény, nyakdísz) félig követi. A farok a lépés ütemére leng.</li>
+<li><b>A pata nem csúszik és nem süllyed:</b> a földön lévő pata áll, a test halad el fölötte. A tempót és a test magasságát gép számolja a lábakból, ezért a kép mindig „leér”.</li>
+<li><b>Rövid úton sétál, hosszú úton üget.</b> Nagyon hosszú úton (a kert egyik szélétől a másikig) szaporábban szedi a lábát, így nem tart tovább, mint ma.</li>
+<li>Mindez <b>ugyanígy a kertben, a felhőkertben és az odúban</b>, mindhárom unikornison, minden díszben (a lábdísz, a farokdísz, a szárny a testrészével mozog).</li>
+<li><b>Mellékesen javul:</b> evésnél és szagolásnál ma az egész unikornis 12–16 képpontot süllyed (a pata a fűbe megy). Ezt a lehajló fej (2b) már kiváltja, a süllyesztés megszűnik.</li>
+</ul>
+</div>
+
+<h2>Mozgó előnézet — a valódi rajzkódból</h2>
+<p>Futószalag: az unikornis helyben jár, a talaj alatta a <b>valódi haladási tempóval</b> fut. Ha a pata a talajjal együtt mozog, nem csúszik. A „Ma” sorban jól látszik a csúszás. Lassítással jobban követhető a láb.</p>
+<!--ELONEZET-->
+
+<h2>Tempó: mennyi ideig tart egy út</h2>
+<div class="doboz terv">
+<p><b>Szabály</b> (egy közös függvény, minden helyszín ezt kérdezi): <b>1,5 testhosszig sétál</b>, efölött <b>üget</b>. Ha az ügetés 3,4 mp-nél tovább tartana, a lábát legfeljebb 1,4-szer szaporábban szedi (rajzfilmes gyorsítás, a pata így sem csúszik).</p>
+<div class="tabla-wrap"><table>
+<tr><th>A kertben (1366 px széles laptopon)</th><th>Ma</th><th>Új</th></tr>
+<tr><td>rövid út (a szélesség 10%-a, pl. a közeli falatig)</td><td>0,5 mp „sétálva”</td><td><b>1,6 mp, séta</b></td></tr>
+<tr><td>közepes út (20%)</td><td>0,9 mp</td><td>1,3 mp, ügetés</td></tr>
+<tr><td>hosszú út (40%)</td><td>1,8 mp</td><td>2,5 mp, ügetés</td></tr>
+<tr><td>az egész kerten át (74%)</td><td>3,2 mp</td><td>3,4 mp, szaporább ügetés</td></tr>
+</table></div>
+<p>Az odúban és a felhőkertben ugyanez a szabály, a saját méretükhöz mérve: a függvény a képernyőn mért unikornis-méretből számol, ezért kicsi és nagy unikornisnál is stimmel.</p>
+</div>
+
+<h2>Magasság — csak előkészítés (a későbbi repüléshez)</h2>
+<div class="doboz terv">
+<ul>
+<li>Az unikornis rajza kap egy <b>magasság-réteget</b> (egy szám: 0 = a földön) és egy <b>saját árnyék-foltot</b>, ami a földön marad, amikor a test emelkedik.</li>
+<li>Most a magasság mindig 0, és az árnyék-folt rejtve van: <b>látható változás nincs</b>. A repülés (külön tervvel) ezt kapcsolja majd be.</li>
+</ul>
+</div>
+
+<h2>Mi változik a kódban</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Milyen közös alapra épül:</b> a 2. lépés ízületeire (<i>.uni-comb</i>, <i>.uni-terd</i>, <i>.uni-test</i>, <i>.uni-fej</i>, <i>.uni-nyak</i>, <i>.uni-farok-iz</i>) és a póz-táblára. <b>Mit ad hozzá:</b> a <b>UNI_JARAS</b> járás-táblát (mozgásmódonként egy sor) és egy közös tempó-függvényt. Erre épül majd a 4. lépés (közös fordulás) és az 5. (séta a pályákon).</li>
+<li><b>renderer.js:</b> <b>UNI_JARAS</b> (séta, ügetés: ciklusidő, földön töltött rész, lendület, térd/csánk-hajlítás, lábsorrend, fej, farok) → <b>uniJarasCSS()</b> betöltéskor CSS-t gyárt, mint a <b>uniPozCSS()</b>; a test emelkedését és billenését gép számolja a patákból. <b>uniUt(unikornis, távolság)</b> → mozgásmód + tempó + időtartam. <b>uniJar(elem, út)</b> / <b>uniAll(elem)</b>: indítja és leállítja a járást (osztály + tempó + lépéshang).</li>
+<li><b>kert.js</b> (4 séta-út: <i>kertSetal</i> = koppintásra, étel, dísz, ágy), <b>odu.js</b> (<i>oduUniSetal</i>), <b>tunemenykert.js</b> (<i>tkSetal</i>): a saját időképlet és a <i>.jar</i> osztály helyett ezt a kettőt hívják.</li>
+<li><b>style.css:</b> megszűnik a három másolat (<i>kert-lab-a/b</i>, <i>kert-bob</i> a kertben, az odúban és a felhőkertben), séta közben szünetel a lebegés, és megszűnik az evés/szagolás doboz-süllyesztése.</li>
+<li><b>Lépéshang:</b> a fűropogás ügetésnél kicsit szaporább.</li>
+</ul>
+<p><b>Nem része ennek a lépésnek:</b> a fordulás (4. lépés: ma pillanatszerű tükrözés), a séta a pályákon (5.), a repülés. <b>Ismert apróság:</b> induláskor és megálláskor a láb azonnal vált járó és álló helyzet között. Ez a 4. lépéssel (fordulás, indulás) kerül sorra.</p>
+<p><b>Biztonsági háló:</b> állva semmi sem változik (gépi képösszevetés). Gépi ellenőrzés: a pata egyetlen kockában sem süllyed a talajba (a próbán legfeljebb ¾ képpont). Utána csendes teszt a kertben (mind a 4 út), a felhőkertben és az odúban, majd élő próba nálad.</p>
+</div>
+
+<h2>Döntések</h2>
+<div class="doboz terv">
+<ol>
+<li><b>Tetszik így a séta és az ügetés?</b> Ha valami furcsa (pl. túl magasra emeli a lábát, túl sokat bólint), egy-egy számmal hangolható a táblában.</li>
+<li><b>Tempó:</b> rövid úton (a falatig) ma fél másodperc alatt odaszalad; az új séta kb. 1,6 mp. <span class="javasolt">Javasolt: így</span>, mert a lassabb, lépkedő séta élőbb. A másik lehetőség, hogy csak 1 testhosszig sétáljon.</li>
+</ol>
+</div>
+</main></body></html>
