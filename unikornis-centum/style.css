@@ -769,7 +769,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 /* farok — a tövénél fogva leng, kicsit erősebben */
 #szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok{
-  transform-origin:100% 0%; animation:uni-farok 2.8s ease-in-out infinite;
+  transform-box:view-box; transform-origin:0 0; animation:uni-farok 2.8s ease-in-out infinite;
 }
 /* homloktincs — finoman a széllel */
 #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs{
@@ -826,7 +826,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #kert-szinter .uni-tincs, #kert-szinter .uni-szem{ transform-box:fill-box; }
 #kert-szinter .uni-elo{ animation:uni-lebeg 3.8s ease-in-out infinite; }
 #kert-szinter .uni-soreny{ transform-origin:100% 0%; animation:uni-soreny 3.2s ease-in-out infinite; }
-#kert-szinter .uni-farok{ transform-origin:100% 0%; animation:uni-farok 2.8s ease-in-out infinite; }
+#kert-szinter .uni-farok{ transform-box:view-box; transform-origin:0 0; animation:uni-farok 2.8s ease-in-out infinite; }
 #kert-szinter .uni-tincs{ transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite; }
 #kert-szinter .uni-szem{ transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite; }
 
@@ -1263,7 +1263,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #tk-szinter .uni-tincs, #tk-szinter .uni-szem{ transform-box:fill-box; }
 #tk-szinter .uni-elo{ animation:uni-lebeg 3.8s ease-in-out infinite; }
 #tk-szinter .uni-soreny{ transform-origin:100% 0%; animation:uni-soreny 3.2s ease-in-out infinite; }
-#tk-szinter .uni-farok{ transform-origin:100% 0%; animation:uni-farok 2.8s ease-in-out infinite; }
+#tk-szinter .uni-farok{ transform-box:view-box; transform-origin:0 0; animation:uni-farok 2.8s ease-in-out infinite; }
 #tk-szinter .uni-tincs{ transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite; }
 #tk-szinter .uni-szem{ transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite; }
 /* háttér-élet: úszó felhőbárányok, lebegő szigetek, csillogás */

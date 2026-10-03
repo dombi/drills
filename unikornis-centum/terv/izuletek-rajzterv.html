@@ -13,6 +13,18 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 </style></head><body><main>
 <h1>2. lépés — ízületek (kapaszkodópontok)</h1>
 <div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ 2b KÉSZ (2026-10-03) — fej, farok, szárny.</b> A producer jóváhagyta. Összehasonlító lap („ma” = előző commit, „új” = munkapéldány): <b>python terv/izuletek-2b-build.py</b>. Álló pózban gépileg 0 eltérő képpont.</p>
+<ul>
+<li><b>Ülve a fej kiegyenesedik.</b> Ma ülésnél az egész test hátradől, ezért a fej az ég felé néz. Most a fej visszabiccen, előre néz.</li>
+<li><b>Ülve a farok a földre simul</b>, nem lóg bele a fűbe.</li>
+<li><b>Evésnél és szagolásnál a fej lehajol</b> az étel felé (ma csak a térd rogy, a fej fent marad).</li>
+<li><b>Ugrás előtt</b> a fej kicsit lebiccen, a farok és a szárny fölemelkedik. <b>Fekve</b> a fej kicsit lejjebb, a farok a test mellé simul.</li>
+<li><b>A díszek a testrészükkel mozognak:</b> a korona és a szarvdísz a fejjel, a nyakdísz a nyakkal, a farokdísz a farokkal (a lengéssel is), a szárny a vállal. Ma a farok leng, a csokor viszont áll.</li>
+<li>Álló pózban semmi sem változik. A szemből és hátulról látott nézet (pörgés) sem változik.</li>
+</ul>
+<p><b>A háttérben:</b> a póz-tábla minden sorába bekerült a fej, a farok és a szárny szöge (egy-egy szám). A nyak (sörény, nyakdísz) a fej szögének a felét kapja, így nem szakad el a fejtől. A szárny vállízülete a későbbi szárnycsapás és repülés alapja.</p>
+</div>
+<div class="doboz terv" style="border-color:#9fd89a">
 <p><b>✅ 2a KÉSZ (2026-10-03).</b> Döntések: <b>D1 = A</b> (kutyás ülés), <b>D2 = igen</b> (2a lábak most, 2b fej/farok/szárny külön körben).</p>
 <ul>
 <li>Kód (<b>renderer.js</b>): <b>IZ_Y</b>, <b>uniLabSVG(i, sz, lábdísz)</b> = külső <i>.uni-lab</i> (séta) › <i>.uni-comb</i> (csípő/váll) › ízület-gömb + <i>.uni-terd</i> (csánk/térd: lábszár + pata + lábdísz) + felső rész; <b>izForgo</b> = egy ízület a saját pontja körül; <b>uniAlapArt(rajz, lábdísz)</b> (a lábdísz a rajz része, rajz+dísz szerint egyszer készül); a test a <i>.uni-test</i> csoportban (póz-testtartás, <b>UNI_POZ_PONT</b> körül).</li>
