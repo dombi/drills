@@ -14,6 +14,14 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 .tabla-wrap{ overflow-x:auto; }
 </style></head><body><main>
 <h1>3. lépés — élethű járás (séta és ügetés)</h1>
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ (2026-10-03).</b> A producer jóváhagyta a mozgást, a tempónál az a) változatot (rövid úton sétál). Mozgó előnézet: <b>python terv/jaras-build.py</b>; póz-próbapad: <b>python terv/pozok-felmero-build.py</b>.</p>
+<ul>
+<li><b>renderer.js:</b> <b>UNI_JARAS</b> (séta: .7 mp, 26°; ügetés: .42 mp, 28°), <b>uniJarasCSS()</b> (a uniPozCSS mellé kerül a lapra), <b>uniJarasTest</b> (billenés csak a földön lévő lábakból, legfeljebb 3°, utána a legmélyebb pata a talajra: <b>uniPataTalp</b>), <b>uniJarasSebesseg</b>, <b>uniUt(elem, táv px)</b> (a kirajzolt méretből: <b>uniPxEgyseg</b>), <b>uniJar</b> / <b>uniAll</b>. Magasság: <b>.uni-magas</b> réteg (<i>--uni-magas</i>, ma 0) + rejtett <b>UNI_ARNYEK</b>. Evés/szagolás: a fej bólogat (UNI_MOZDULAT kulcsai), a doboz nem süllyed.</li>
+<li><b>kert.js:</b> a 4 bemásolt séta-út helyett egy: <b>kertSetalIde(celX, kész)</b> + <b>kertJarKi</b>. <b>odu.js</b> <i>oduUniSetal</i> és <b>tunemenykert.js</b> <i>tkSetal</i> a uniUt-tól kéri a tempót (egyenletes, „linear” mozgás). <b>audio.js:</b> <i>kertLepesHang(be, út)</i>, ügetésnél szaporább.</li>
+<li><b>style.css:</b> megszűnt a <i>.jar</i>, a <i>kert-lab-a/b</i>, a <i>kert-bob</i> (3 helyen) és az evés/szagolás doboz-süllyesztése. A <i>terv/jaras-proto.js</i> próbatábla megszűnt (a kód a renderer.js-ben él).</li>
+<li>Ellenőrzés: kert (koppintás, étel, növény, ágy, pörgés utáni séta balra), odú (séta a tárgyakhoz), felhőkert (ál-adatbázissal) — konzol tiszta. Kert 1280 px: 30% → ügetés 1,76 mp, 8% → séta 1,23 mp.</li>
+</ul></div>
 <p>Unikornis pózok terve, 3. lépés. Nagyság: <b>közepes–nagy</b>. Producer-döntések (2026-10-03): a járás <b>mindenhol egyformán</b> furcsa (nem helyszín-hiba); <b>hosszú úton ügessen</b>; a magasságból (repüléshez) most <b>csak előkészítés</b>.</p>
 
 <div class="doboz terv">

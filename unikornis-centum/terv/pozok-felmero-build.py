@@ -56,7 +56,7 @@ PAD = r"""<style>
 <script>
 (function () {
   var OLTOZET = { fej: "fej-k", nyak: "nyak-k", hat: "hat-k", lab: "lab-a", oldal: "oldal-k", farok: "farok-a", van: {} };
-  var POZ_ANIM = /^(uni-m-|kert-lab|kert-bob|trukk-|kert-eszik|kert-szagol|kert-alszik|tk-porges|eszik|szagol)/;
+  var POZ_ANIM = /^(uni-m-|uni-j-|trukk-|kert-eszik|kert-szagol|kert-alszik|tk-porges|eszik|szagol)/;
   function lenyC() { return UC.LENYEK[UC.mentes.leny]; }
   function felold() {
     var pr = UC.mentes.profilok[UC.mentes.leny];
@@ -88,9 +88,10 @@ PAD = r"""<style>
   function uid() { return "fm" + (++N); }
   var KERT_POZOK = [
     ["", 0, 1, "Áll", "Alap oldalnézet, minden díszben. Külön pata, a bokapánt a csüdön (1a).", "ok"],
-    ["jar", 0, 1, "Séta – 1. fázis", "A 4 láb egy darabban leng (±12°).", "gyanu"],
-    ["jar", 0.5, 1, "Séta – 2. fázis", "A lábdísz a lábbal leng (2a). A térdes járás a 3. lépés.", "gyanu"],
-    ["jar", 0.25, -1, "Séta balra (helyesen)", "Pörgés ELŐTT így megy balra.", "ok"],
+    ["uni-jar-seta", 0, 1, "Séta – 1. fázis", "Négy ütem (3. lépés): a hátsó láb most ér le, az elülső a levegőben, a térd behajlik.", "ok"],
+    ["uni-jar-seta", 0.5, 1, "Séta – 2. fázis", "A test enyhén billen, a fej bólint; a földön lévő pata a talajon (gépi). A lábdísz a lábon.", "ok"],
+    ["uni-jar-uget", 0.3, 1, "Ügetés", "Két ütem: az átlós lábpárok együtt, magasabbra emelt láb, felemelt farok (3. lépés).", "ok"],
+    ["uni-jar-seta", 0.25, -1, "Séta balra (helyesen)", "Pörgés ELŐTT így megy balra.", "ok"],
     ["ules-all", 0, 1, "Ül", "Kutyás ülés (2a): a hátsó láb összecsukódik, a lábdísz a lábon marad. A fej előre néz, a farok a földre simul (2b).", "ok"],
     ["fekszik-all", 0, 1, "Fekszik (ágy nélkül)", "A lábak a test alá hajlanak (2a); a test az ágy magasságán marad. Szép alvó póz: 8. lépés.", "gyanu"],
     ["eszik", 0.4, 1, "Eszik", "Az elülső térd rogy (2a), a fej és a nyak lehajol (2b).", "ok"],
@@ -113,13 +114,13 @@ PAD = r"""<style>
     h += '<h2>2. Kert — pörgés (4 nézet) és a hátrafelé menés</h2><div class="fm-sor" id="fm-porges"><figure><div class="fm-szin" id="fm-porges-gyujto">' + '</div><figcaption>pörgés készül…</figcaption></figure></div>';
     h += '<h2>3. Felhőkert — ugyanaz a pörgés, másik kóddal</h2><div class="fm-sor" id="fm-tk">' +
       kartya(tkUni(uid(), ""), "Áll", "Ugyanaz a rajz, mint a kertben.", "ok") +
-      kartya(tkUni(uid(), "jar"), "Séta", "Ugyanaz a lábmozgás — de külön kód másolata.", "gyanu") +
+      kartya(tkUni(uid(), "uni-jar-seta"), "Séta", "Ugyanaz a közös járás, mint a kertben (3. lépés).", "ok") +
       kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/8", "Nem fordul, hanem vízszintesen összenyomódik.", "hiba") +
       kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/16", "", "hiba") +
       kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/4", "Tükörkép: ez a „hátulnézet” helyett.", "hiba") +
       '</div>';
     h += '<h2>4. Odú és a többi helyszín</h2><div class="fm-sor" id="fm-tobbi">' +
-      '<figure class="fm-odu gyanu"><div class="fm-szin" id="odu-szoba">' + UC.oduSVG() + '</div><figcaption><b>Odú — séta közben</b>Harmadik külön séta-kód (oduUniSetal). Az ágyba nem lehet belefeküdni.<br><span class="cimke gyanu">FURCSA</span></figcaption></figure>' +
+      '<figure class="fm-odu gyanu"><div class="fm-szin" id="odu-szoba">' + UC.oduSVG() + '</div><figcaption><b>Odú — séta közben</b>A közös járás (3. lépés); a tempót az oduUniSetal a közös út-tervezőtől kéri. Az ágyba még nem lehet belefeküdni (9. lépés).<br><span class="cimke gyanu">FURCSA</span></figcaption></figure>' +
       kartya('<div class="fm-szin"><svg viewBox="-80 -110 160 130" width="230" height="200">' + UC.unikornisSVG(uid(), lenyC(), 0.62, UC.mentes.profilok[UC.mentes.leny].oltozet) + '</svg></div>',
         "Pályán (ösvényen)", "Nincs séta: a figura merev, kis pattogással „csúszik” állomásról állomásra. Nem fordul, a lába nem mozog.", "hiba") +
       '</div>';
@@ -134,7 +135,7 @@ PAD = r"""<style>
     var tk = fm.querySelectorAll("#fm-tk figure");
     [0, 0, 0.0625, 0.03, 0.25].forEach(function (f, i) { fagyaszt(tk[i], i === 1 ? 0.5 : f); });
     var odu = fm.querySelector("#odu-szoba #odu-uni-mozgo");
-    if (odu) odu.classList.add("jar");
+    if (odu) odu.classList.add("uni-jar-seta");
     fagyaszt(fm.querySelector("#fm-tobbi"), 0.5);
     porgesFelvesz();
   }
@@ -157,7 +158,7 @@ PAD = r"""<style>
           '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' + keretek[i].html + '</svg></div></div></div>', nev[i], megj[i], all[i]);
       }
       /* ugyanez a figura a pörgés UTÁN, balra indítva — a cimkét MÉRJÜK: marad-e irány a belső rétegen (D1 javította) */
-      doboz.style.setProperty("--dir", -1); doboz.classList.add("jar");
+      doboz.style.setProperty("--dir", -1); doboz.classList.add("uni-jar-seta");
       var ragad = !!flip.style.getPropertyValue("--dir");
       var bizonyit = '<figure class="' + (ragad ? "hiba" : "") + '"><div class="fm-szin" id="kert-szinter">' + gy.innerHTML + '</div><figcaption><b>Séta balra — pörgés UTÁN</b>' +
         (ragad ? 'Ugyanaz a parancs, mint fent a „Séta balra” — de jobbra néz, tehát hátrafelé megy. A pörgés „jobbra” irányt hagy a belső rétegen.<br><span class="cimke hiba">HIBA</span>'

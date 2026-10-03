@@ -26,7 +26,7 @@ function hangGomb() { beep(420, 0.05, "sine", 0, 0.06); }
    elbukik, csend marad — a játék nem áll meg. */
 var KERT_BUF = {};                 /* dekódolt AudioBuffer-ek: lepes, nyih0, nyih1, … */
 var KERT_BUF_INDULT = false;
-var KERT_LEPES_RATE = 1.35;        /* a felvétel ~1 lépés/mp; kicsit gyorsítva könnyedebb, jobban tapad a .44s-os lábmozgáshoz */
+var KERT_LEPES_RATE = { seta: 1.05, uget: 1.35 };   /* a felvétel ~1 lépés/mp; ügetésnél szaporább (× a járás tempója) */
 var KERT_LEPES_VOL = 0.45;         /* halk háttér-ropogás (a beep-ek ~0.22-es szinusza alá) */
 var KERT_NYIH_VOL = 0.4;           /* halk, kedves — producer 2026-09-19: a 0.9 túl hangos volt */
 var KERT_NYIH_RATE = 1.18;         /* kicsit magasabbra hangolva → kisebb, rajzfilmesebb állat */
@@ -48,15 +48,15 @@ function kertHangokBetolt() {
   (KERT_HANGOK.nyih || []).forEach(function (b, i) { dek("nyih" + i, b); });
 }
 function kertAudioKesz() { var c = AC; if (!c) return null; if (c.state === "suspended") { try { c.resume(); } catch (e) {} } return c; }
-/* Fűropogás-loop: be=true indít (ha még nem szól), be=false leállít (fade-out). A .jar osztállyal együtt
-   kapcsolják a séta-függvények. Véletlen pozícióból indul, hogy két séta ne szóljon egyformán. */
+/* Fűropogás-loop: be=true indít (ha még nem szól), be=false leállít (fade-out). A járással (uniJar/uniAll)
+   együtt kapcsolják a séta-függvények; ut = a közös út-terv (séta/ügetés + tempó). Véletlen pozícióból indul, hogy két séta ne szóljon egyformán. */
 var KERT_LEPES = null;             /* {src, g} amíg szól */
-function kertLepesHang(be) {
+function kertLepesHang(be, ut) {
   if (be) {
     if (KERT_LEPES || !mentes.hang) return;
     var c = kertAudioKesz(); if (!c || !KERT_BUF.lepes) { kertHangokBetolt(); return; }
     var src = c.createBufferSource(), g = c.createGain();
-    src.buffer = KERT_BUF.lepes; src.loop = true; src.playbackRate.value = KERT_LEPES_RATE;
+    src.buffer = KERT_BUF.lepes; src.loop = true; src.playbackRate.value = (ut && ut.mod === "uget" ? KERT_LEPES_RATE.uget * ut.tempo : KERT_LEPES_RATE.seta);
     var t0 = c.currentTime;
     g.gain.setValueAtTime(0.0001, t0);
     g.gain.exponentialRampToValueAtTime(KERT_LEPES_VOL, t0 + 0.08);

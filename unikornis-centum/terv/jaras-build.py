@@ -2,8 +2,8 @@
 """jaras-build.py — MOZGÓ ELŐNÉZET a járáshoz (unikornis pózok, 3. lépés: élethű mozgás).
 
 Mit csinál: a VALÓDI unikornis-rajz (a munkapéldány src/renderer.js-e) járni kezd egy futószalagon.
-Soronként: „ma” (a mostani kerti lábmozgás és tempó), „új séta”, „új ügetés” (terv/jaras-proto.js,
-a közös járás-tábla próbaváltozata). A talaj a valódi haladási tempóval fut alattuk, így látszik,
+Soronként: „ma” (a 3. lépés előtti kerti lábmozgás és tempó), „séta”, „ügetés” (a közös járás-tábla,
+UNI_JARAS a renderer.js-ben). A talaj a valódi haladási tempóval fut alattuk, így látszik,
 csúszik-e a pata. Lassítás gomb, lábsorrend-ábra. Fölötte a mozgásterv szövege
 (terv/jaras-rajzterv.html <main> része, ha már megvan).
 
@@ -20,7 +20,6 @@ SRC = os.path.dirname(HERE)
 DST = r"C:\Users\Dombi-NyárádiGabriel\Matekos\uc-jaras.html"
 rd = lambda p: open(p, encoding="utf-8").read()
 renderer = rd(os.path.join(SRC, "src", "renderer.js"))
-proto = rd(os.path.join(HERE, "jaras-proto.js")) if "UNI_JARAS" not in renderer else ""   # a kód elkészülte után a renderer.js-ből
 
 LENYEK = [["korall", None, "Tűz, dísz nélkül"],
           ["kek", {"lab": "lab-a", "farok": "farok-a", "hat": "hat-k", "oldal": "oldal-k", "nyak": "nyak-k", "fej": "fej-k"}, "Ragyogás, teljes díszben"],
@@ -141,6 +140,6 @@ else:
 h = ('<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
      '<title>Járás előnézet</title><style>' + alapstil + '</style>' + CSS +
      '<script>window.P=function(){return{}};</script><script>' + renderer.replace("</script>", "<\\/script>") + '</script>'
-     '<script>' + proto + '</script></head><body><main>' + lap + '</main></body></html>')
+     '</head><body><main>' + lap + '</main></body></html>')
 open(DST, "w", encoding="utf-8", newline="\n").write(h)
 print("kesz:", DST, len(h), "bajt")

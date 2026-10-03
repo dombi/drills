@@ -992,12 +992,13 @@ function oduUniSetal(celX, kesz) {
   }
   ODU_UNI.dir = celX < ODU_UNI.x ? -1 : 1;
   if (flip) flip.setAttribute("transform", "scale(" + ODU_UNI.dir + ",1)");
-  var mp = Math.max(0.35, Math.min(1.1, tav / 420));   /* közel állandó ügetés-tempó */
-  mozgo.style.transition = "transform " + mp.toFixed(2) + "s ease-in-out";
-  mozgo.classList.add("jar");
+  var svg = mozgo.ownerSVGElement, m = svg && svg.getScreenCTM && svg.getScreenCTM();
+  var ut = uniUt(mozgo, tav * (m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1)), mp = ut.mp;   /* a közös járás: séta vagy ügetés */
+  mozgo.style.transition = "transform " + mp.toFixed(2) + "s linear";   /* egyenletes: a földön lévő pata nem csúszik */
+  uniJar(mozgo, ut);
   ODU_UNI.x = celX;
   mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
-  _oduSetaIdo = setTimeout(function () { mozgo.classList.remove("jar"); if (kesz) kesz(); }, mp * 1000 + 60);
+  _oduSetaIdo = setTimeout(function () { uniAll(mozgo); if (kesz) kesz(); }, mp * 1000 + 60);
 }
 function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
@@ -1006,7 +1007,7 @@ function oduTargyKoppint(cel) {
   if (def.helyben) { t.nyit(); return; }         /* a lámpa: azonnal kapcsol, séta és beszéd nélkül */
   if (_oduSetaCel === cel) {                    /* türelmetlen második koppintás → azonnal nyílik */
     clearTimeout(_oduSetaIdo); _oduSetaCel = null;
-    var m = document.getElementById("odu-uni-mozgo"); if (m) m.classList.remove("jar");
+    var m = document.getElementById("odu-uni-mozgo"); uniAll(m);
     t.nyit(); return;
   }
   hangGomb(); mondd(t.szo());

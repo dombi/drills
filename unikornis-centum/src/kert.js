@@ -205,7 +205,7 @@ var KERT_AGY_I = -1;   /* melyik ágyon fekszik (a kert.elemek indexe) — az a 
 function kertUl() {
   if (KERT_TRUKK_FUT) return;
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
-  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
+  kertJarKi(doboz);
   doboz.classList.add("ules-all");
   KERT_UL = true;
   hangCsilla();
@@ -239,7 +239,7 @@ function kertTrukkJatszik(id) {
   var t = kertTrukkAdat(id); if (!t || !t.perc) return;
   var doboz = $("kert-uni-doboz"); if (!doboz || KERT_TRUKK_FUT) return;
   KERT_TRUKK_FUT = true;
-  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
+  kertJarKi(doboz);
   /* 🌀 Pörgés: 4 nézetes sprite-swap forgás (nem CSS-animáció) */
   if (id === "porges") {
     hangCsilla();
@@ -357,20 +357,27 @@ function kertPorgesForgas(doboz, idoMs, cb) {
   }
   koviKeret();
 }
-function kertSetal(celX) {
-  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+function kertSetal(celX) { kertSetalIde(celX); }
+/* a kert EGYETLEN séta-útja (koppintás, étel, növény, ágy): odamegy celX-re (%), utána kesz().
+   A mozgásmód (séta/ügetés), a tempó és az időtartam a közös járásból jön (uniUt, renderer.js). */
+function kertSetalIde(celX, kesz) {
+  var doboz = $("kert-uni-doboz"), host = $("kert-szinter"); if (!doboz) return;
   celX = Math.max(13, Math.min(87, celX));
-  var tav = Math.abs(celX - KERT_UNI_X);
-  if (tav < 1.2) return;
-  doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
-  var mp = Math.max(0.5, Math.min(3.2, tav * 0.045));   /* közel állandó sétatempó */
-  doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
-  doboz.classList.add("jar"); kertLepesHang(true);
-  KERT_UNI_X = celX;
-  doboz.style.left = celX + "%";
+  var tav = Math.abs(celX - KERT_UNI_X), mp = 0;
+  if (tav < 1.2 && !kesz) return;
+  if (tav >= 1.2) {
+    var ut = uniUt(doboz, tav / 100 * (host ? host.clientWidth : 1000));
+    mp = ut.mp;
+    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
+    uniJar(doboz, ut); kertLepesHang(true, ut);
+    KERT_UNI_X = celX;
+    doboz.style.left = celX + "%";
+  }
   clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); }, mp * 1000 + 80);
+  doboz._jarTimer = setTimeout(function () { kertJarKi(doboz); if (kesz) kesz(); }, mp * 1000 + 90);
 }
+function kertJarKi(doboz) { uniAll(doboz); kertLepesHang(false); clearTimeout(doboz._jarTimer); }
 
 /* ── Evés (3. lépés): a letett ételre koppintva az unikornis odasétál és megeszi.
    Ha még nincs meg az Evés képesség, kedves súgó irányít a boltba. Az étel NEM fogy el. */
@@ -388,20 +395,10 @@ function kertEtelKoppint(i) {
 }
 /* odasétál a falathoz (a séta-motor tempójával), majd megeszi */
 function kertSetalEszik(celX, o) {
-  var doboz = $("kert-uni-doboz"); if (!doboz) { return; }
-  KERT_TRUKK_FUT = true;                             /* az evés végéig más interakció nem indul */
-  var tav = Math.abs(celX - KERT_UNI_X);
-  var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
-  if (mp > 0) {
-    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
-    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar"); kertLepesHang(true);
-    KERT_UNI_X = celX;
-    doboz.style.left = celX + "%";
-  }
+  if (!$("kert-uni-doboz")) return;
+  KERT_TRUKK_FUT = true;                             /* az odaérésig (és utána a mozdulat végéig) más interakció nem indul */
   kertSugo("🚶 Megyek a finom falatért…");
-  clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertEszik(o); }, mp * 1000 + 90);
+  kertSetalIde(celX, function () { kertEszik(o); });
 }
 /* az evés-animáció: fejlehajtás + csámcsogás (CSS .eszik) + kis szikra az étel fölött. Az étel marad. */
 function kertEszik(o) {
@@ -438,20 +435,10 @@ function kertNovenyKoppint(i) {
   kertSetalSzagol(Math.max(13, Math.min(87, o.x)), o);
 }
 function kertSetalSzagol(celX, o) {
-  var doboz = $("kert-uni-doboz"); if (!doboz) return;
-  KERT_TRUKK_FUT = true;
-  var tav = Math.abs(celX - KERT_UNI_X);
-  var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
-  if (mp > 0) {
-    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
-    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar"); kertLepesHang(true);
-    KERT_UNI_X = celX;
-    doboz.style.left = celX + "%";
-  }
+  if (!$("kert-uni-doboz")) return;
+  KERT_TRUKK_FUT = true;                             /* az odaérésig (és utána a mozdulat végéig) más interakció nem indul */
   kertSugo("🚶 Megyek megszagolni…");
-  clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertSzagol(o); }, mp * 1000 + 90);
+  kertSetalIde(celX, function () { kertSzagol(o); });
 }
 function kertSzagol(o) {
   var doboz = $("kert-uni-doboz");
@@ -494,21 +481,10 @@ function kertAgyKoppint(i) {
 }
 /* odasétál az ágyhoz (a séta-motor tempójával), majd belefekszik */
 function kertSetalFekszik(i) {
-  var doboz = $("kert-uni-doboz"); if (!doboz) return;
-  var celX = Math.max(13, Math.min(87, P().kert.elemek[i].x));
+  if (!$("kert-uni-doboz")) return;
   KERT_TRUKK_FUT = true;                               /* az odaérésig más interakció nem indul */
-  var tav = Math.abs(celX - KERT_UNI_X);
-  var mp = (tav < 1.2) ? 0 : Math.max(0.5, Math.min(3.2, tav * 0.045));
-  if (mp > 0) {
-    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
-    doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";
-    doboz.classList.add("jar"); kertLepesHang(true);
-    KERT_UNI_X = celX;
-    doboz.style.left = celX + "%";
-  }
   kertSugo("🚶 Megyek lepihenni…");
-  clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertFekszik(i); }, mp * 1000 + 90);
+  kertSetalIde(P().kert.elemek[i].x, function () { kertFekszik(i); });
 }
 /* a befekvés: az unikornis felhuppan az ágyra (a doboz a matrac tetejére ugrik, fejjel a csillag-párna felé),
    a lábak behajlanak (CSS .fekszik-all), a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
@@ -519,7 +495,7 @@ function kertFekszik(i) {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   KERT_TRUKK_FUT = false;                              /* a fekvés tartós állapot, nem „fut" (lehet rá koppintani) */
-  doboz.classList.remove("jar"); kertLepesHang(false); clearTimeout(doboz._jarTimer);
+  kertJarKi(doboz);
   var o = P().kert.elemek[i];
   if (o) {
     KERT_AGY_I = i;

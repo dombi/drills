@@ -306,15 +306,17 @@ function tkPoz(d, x, y) {
 }
 /* séta egyik pontból a másikba (a saját és a többiek unikornisa is ezzel megy) */
 function tkSetal(d, x0, y0, x1, y1) {
-  var dx = x1 - x0, dy = (y1 - y0) * 1.6, tav = Math.sqrt(dx * dx + dy * dy);
-  if (tav < 1) return;
-  var mp = Math.max(0.5, Math.min(3.4, tav * 0.05));
+  var dx = x1 - x0, dy = y1 - y0;
+  if (Math.sqrt(dx * dx + dy * dy * 2.56) < 1) return;
+  var h = d.parentNode && d.parentNode.getBoundingClientRect ? d.parentNode.getBoundingClientRect() : {};
+  var tavPx = Math.sqrt(Math.pow(dx * (h.width || 1000) / 100, 2) + Math.pow(dy * (h.height || 560) / 100, 2));   /* rejtett színtérnél becsült méret */
+  var ut = uniUt(d, tavPx), mp = ut.mp;   /* a közös járás: séta vagy ügetés, csúszás nélkül */
   if (Math.abs(dx) > 0.5) d.style.setProperty("--dir", dx < 0 ? -1 : 1);
   d.style.setProperty("--t", mp.toFixed(2) + "s");
-  d.classList.add("jar");
+  uniJar(d, ut);
   tkPoz(d, x1, y1);
   clearTimeout(d._jarTimer);
-  d._jarTimer = setTimeout(function () { d.classList.remove("jar"); }, mp * 1000 + 80);
+  d._jarTimer = setTimeout(function () { uniAll(d); }, mp * 1000 + 80);
 }
 function tkSzinterKlikk(e) {
   if (!TK.bent || TK.hazaTimer || TK.gFut) return;
@@ -502,7 +504,7 @@ function tkUgrasElore(d, x, y, celX) {
 function tkGesztusJatszik(d, id) {
   var a = tkGesztusAdat(id); if (!d || !a) return;
   var cls = "g-" + id, extra = [];
-  d.classList.remove("jar"); d.classList.remove(cls); void d.offsetWidth;   /* újraindítható animáció */
+  uniAll(d); d.classList.remove(cls); void d.offsetWidth;   /* újraindítható animáció */
   d.classList.add(cls);
   if (id === "integet") {
     var b = el("div", "tk-g-buborek"); b.textContent = "👋"; d.appendChild(b); extra.push(b);
@@ -533,7 +535,7 @@ function tkPacsiJatszik(d1, d2, x1, y1, x2, y2) {
   d1.style.setProperty("--dir", x2 < x1 ? -1 : 1);
   d2.style.setProperty("--dir", x1 < x2 ? -1 : 1);
   [d1, d2].forEach(function (d) {
-    d.classList.remove("jar"); d.classList.remove("g-pacsi"); void d.offsetWidth; d.classList.add("g-pacsi");
+    uniAll(d); d.classList.remove("g-pacsi"); void d.offsetWidth; d.classList.add("g-pacsi");
     clearTimeout(d._gTimer);
     d._gTimer = setTimeout(function () { d.classList.remove("g-pacsi"); }, ms + 80);
   });
