@@ -983,7 +983,7 @@ function oduUniSetal(celX, kesz) {
   var mozgo = document.getElementById("odu-uni-mozgo"), flip = document.getElementById("odu-uni-flip");
   clearTimeout(_oduSetaIdo);
   var tav = Math.abs(celX - ODU_UNI.x);
-  var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nyugi = nyugiMod();
   if (!mozgo || tav < 6 || nyugi) {
     ODU_UNI.x = celX;
     if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)"; }

@@ -20,7 +20,6 @@ var TK = {
 var TK_FELOLDAS_AR = 10;   /* 💧 tündérharmat, egyszeri feloldás (P().tkNyitva) */
 var TK_Y_MIN = 60, TK_Y_MAX = 93;   /* a felhőmező sétálható sávja (a színtér magasságának %-a) */
 
-function tkEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function tkMa() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate(); }
 /* napi számláló profilonként (helyi dátum): hány ösvényt járt végig ma + hány mp-et volt a felhőkertben */
 function tkNap() {
@@ -110,7 +109,7 @@ function tkLepcsoSVG() {
     '<text x="' + cx + '" y="' + (cy + 35) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#8a4fd0">felhőkert</text>';
   if (!k.nyitva) {
     g += '<rect x="' + (cx - 44) + '" y="' + (cy + 44) + '" width="88" height="19" rx="9" fill="#1a1338" opacity="0.9"/>' +
-      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">' + (k.zar ? "🔒 " : "💤 ") + tkEsc(k.rovid) + '</text>';
+      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">' + (k.zar ? "🔒 " : "💤 ") + htmlVed(k.rovid) + '</text>';
   }
   g += '</g>';
   return g;
@@ -290,7 +289,7 @@ function tkMeret(y) { return 0.62 + 0.38 * (y - TK_Y_MIN) / (TK_Y_MAX - TK_Y_MIN
 function tkUniEl(kulcs, a, sajat) {
   var d = el("div", "tk-uni" + (sajat ? " sajat" : ""));
   d.id = "tk-uni-" + kulcs;
-  d.innerHTML = '<div class="tk-nev">' + tkEsc(a.nev) + '</div>' + tkUniSVG(kulcs, a) + (sajat ? '<div class="tk-te">✦ te ✦</div>' : '');
+  d.innerHTML = '<div class="tk-nev">' + htmlVed(a.nev) + '</div>' + tkUniSVG(kulcs, a) + (sajat ? '<div class="tk-te">✦ te ✦</div>' : '');
   return d;
 }
 function tkUniSVG(kulcs, a) {
@@ -487,7 +486,7 @@ var TK_UGRAS_TAV = 10;
 function tkUgrasElore(d, x, y, celX) {
   var dir = (+d.style.getPropertyValue("--dir") < 0) ? -1 : 1, nx = celX;
   if (typeof nx !== "number") {
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return x;
+    if (nyugiMod()) return x;
     nx = x + TK_UGRAS_TAV * dir;
     if (nx < 8 || nx > 92) { dir = -dir; nx = x + TK_UGRAS_TAV * dir; }
     nx = Math.round(nx * 10) / 10;
@@ -593,7 +592,7 @@ function tkTalcaRajzol() {
   (window.TK_DISZEK || []).forEach(function (d) {
     var zs = tkDiszZsak(d.id), cimke = zs ? "×" + zs : ar + " 💧";
     h += '<button class="tk-d-elem' + (TK.dMod === d.id ? " kivalasztva" : "") + (!zs && harmat < ar ? " draga" : "") +
-      '" data-d="' + d.id + '" aria-label="' + tkEsc(d.nev) + '" title="' + tkEsc(d.nev) + '">' +
+      '" data-d="' + d.id + '" aria-label="' + htmlVed(d.nev) + '" title="' + htmlVed(d.nev) + '">' +
       tkDiszSVG(d.id, "tk-d-kep") + '<span class="tk-d-cimke' + (zs ? " zsak" : "") + '">' + cimke + "</span></button>";
   });
   t.innerHTML = h;

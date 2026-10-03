@@ -293,7 +293,7 @@ function oduVillany(svg, este, regiBogarak) {
 var _oduVillanyIdo = [];
 function oduVillanyKapcsol() {
   var v = _oduVillany; if (!v || !document.body.contains(v.svg)) return;
-  var svg = v.svg, nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var svg = v.svg, nyugi = nyugiMod();
   _oduVillanyIdo.forEach(clearTimeout); _oduVillanyIdo = []; svg.classList.remove("felvillan");
   function kesobb(fn, ms) { _oduVillanyIdo.push(setTimeout(fn, ms)); }
   v.zs.classList.remove("huz"); void v.zs.getBoundingClientRect(); v.zs.classList.add("huz");
@@ -321,7 +321,7 @@ function oduVillanyKapcsol() {
    kertkapu); a szentjánosbogarak lassan kóborolnak; a katica végigmászik az ágy ívén és visszafordul.
    Csak amíg az odú látszik — utána a rAF leáll (a következő renderOdu újraindítja). */
 function oduEletUt(lepke, lb, bogarak, katB) {
-  var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nyugi = nyugiMod();
   var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
   var poz = [240, 300], cel = 0, ul = true, ulIg = 0, repIg = 0, honnan = poz.slice(), kontroll = [0, 0], ido = 3200;
   function ujCel(most) {

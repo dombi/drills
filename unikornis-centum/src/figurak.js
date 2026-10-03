@@ -185,6 +185,13 @@ function figArc(arc) {
 }
 
 /* a közös tábla képe: emoji → rajz (az emoji tartaléknak megmarad) */
+/* szereplő-érem (HTML) a könyvtár és a vásár képeihez: e = rajz/emoji, sz = szám alatta („?” → gondolkodó arc), c = név;
+   o.sok = sok-emojis érem, o.cls = plusz osztály, o.ki = név, hogy Tüske néni rámutathasson (vasar.js) */
+function szereploErem(e, sz, c, o) {
+  o = o || {}; if (sz === "?") e = figArcCsere(e, "gondol");
+  return '<div class="ek-erem' + (o.cls ? ' ' + o.cls : '') + '"' + (o.ki ? ' data-ki="' + o.ki + '"' : '') + '><div class="e' + (o.sok ? ' sok' : '') + '">' + e + '</div>' +
+    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
+}
 Object.keys(FIGURA).forEach(function (k) {
   if (!FIG_RAJZ[k]) return;
   FIGURA[k].emo = FIGURA[k].e;

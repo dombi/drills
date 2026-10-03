@@ -82,25 +82,6 @@ function bankLigetMondat(ids) {
   return l.length ? BANK_LIGET_BEN[l[0].slice(1)] : "";
 }
 
-/* ── a bankár bagoly (rajzterv: karamell, szemüveg, pink csokornyakkendő, pislog) — 0,0 a test közepe ── */
-function bankarBagoly(x, y, s) {
-  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' +
-    '<ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity=".18"/>' +
-    '<path d="M-26,-40 l8,-16 l8,15 Z" fill="#c98d55"/><path d="M26,-40 l-8,-16 l-8,15 Z" fill="#c98d55"/>' +
-    '<ellipse cx="0" cy="0" rx="34" ry="44" fill="#e2b07a"/>' +
-    '<ellipse cx="0" cy="12" rx="22" ry="29" fill="#fbe6c8"/>' +
-    '<path d="M-10,14 q3,4 6,0 M2,22 q3,4 6,0 M-6,30 q3,4 6,0" stroke="#e2b07a" stroke-width="2" fill="none"/>' +
-    '<path d="M-34,-4 Q-48,14 -33,34 Q-28,14 -29,-4 Z" fill="#c98d55"/><path d="M34,-4 Q48,14 33,34 Q28,14 29,-4 Z" fill="#c98d55"/>' +
-    '<circle cx="-13" cy="-15" r="13" fill="#fffaf0"/><circle cx="13" cy="-15" r="13" fill="#fffaf0"/>' +
-    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.93;.965;1" dur="4.2s" repeatCount="indefinite" additive="sum"/>' +
-    '<circle cx="-11" cy="-13" r="6" fill="#4a3b7a"/><circle cx="11" cy="-13" r="6" fill="#4a3b7a"/></g>' +
-    '<circle cx="-13" cy="-16" r="2" fill="#fff"/><circle cx="9" cy="-16" r="2" fill="#fff"/>' +
-    '<circle cx="-13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><circle cx="13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><path d="M-2,-17 h4" stroke="#7a5230" stroke-width="2.5"/>' +
-    '<path d="M-5,-3 L5,-3 L0,8 Z" fill="#ffb347"/>' +
-    '<g transform="translate(0,17)"><path d="M0,0 L-13,-7 L-13,7 Z" fill="#f06aa8"/><path d="M0,0 L13,-7 L13,7 Z" fill="#f06aa8"/><circle r="3.5" fill="#d84f96"/></g>' +
-    '<path d="M-14,44 l-4,8 M-8,45 l-1,8 M8,45 l1,8 M14,44 l4,8" stroke="#ffb347" stroke-width="4" stroke-linecap="round"/>' +
-    '</g>';
-}
 
 /* ── a bank háza az utcán (rajzterv külső jelenete, ég nélkül): 0,4-re kicsinyítve, középen x=200, talp 432
    (az utca régi koordinátáiban — szalon.js utcaHely teszi a helyére) ── */
@@ -121,7 +102,7 @@ function utcaBankRajz(zarva) {
   h += '</g>';
   /* a bagoly néha kikukucskál a bal ablakon */
   h += '<g clip-path="url(#u-b-bal)"><g><animateTransform attributeName="transform" type="translate" values="0 60;0 60;0 0;0 0;0 60" keyTimes="0;.55;.62;.85;1" dur="9s" repeatCount="indefinite"/>' +
-    bankarBagoly(148, 160, .62) + '</g></g>';
+    bagolyRajz("bankar", 148, 160, .62) + '</g></g>';
   h += '<g filter="url(#u-firka)"><rect x="126" y="196" width="148" height="62" rx="6" fill="#f7b8d0"/><rect x="131" y="201" width="138" height="52" rx="4" fill="url(#u-b-tabla)"/></g>' +
     '<text x="200" y="240" text-anchor="middle" font-family="Comic Sans MS, Fredoka, Segoe UI, sans-serif" font-size="38" font-style="italic" font-weight="700" fill="#eef0ff" stroke="#4a5ad8" stroke-width="5" paint-order="stroke">bank</text>' +
     uCsillam(140, 206, 6, "#fff", 0) + uCsillam(262, 248, 5, "#ffe08a", 1.1);
@@ -179,7 +160,7 @@ function bankBelsoSVG() {
     '<path d="M300 140 q-5 8 0 12 q5 -4 0 -12Z" fill="#7cc8e2"><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 40;0 40" keyTimes="0;.6;.95;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.6;.9;1" dur="3.6s" repeatCount="indefinite"/></path>' +
     '<text x="300" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7ea0">💧 tündérharmat</text></g></g>';
   /* bagoly a pult mögött, a széf előtt */
-  s += bankarBagoly(200, 124, .78);
+  s += bagolyRajz("bankar", 200, 124, .78);
   /* pult (a gyerekek barna doboza) */
   s += '<g filter="url(#bk-firka)">';
   s += '<ellipse cx="200" cy="266" rx="112" ry="9" fill="#000" opacity=".15"/>';

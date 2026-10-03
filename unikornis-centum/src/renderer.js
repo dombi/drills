@@ -1048,27 +1048,6 @@ function nezetDiszRetegek(nezet, oltozet) {
   });
   return r;
 }
-function bagolySVG() {
-  return '<svg class="bagoly-figura" viewBox="-52 -60 104 126" xmlns="http://www.w3.org/2000/svg">' +
-    '<path d="M-40,52 Q0,40 40,52" stroke="#6b5442" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-    '<g class="bagoly-test">' +
-      '<ellipse cx="0" cy="0" rx="34" ry="42" fill="#c9a8e6"/>' +
-      '<ellipse cx="0" cy="8" rx="22" ry="30" fill="#e9ddf3"/>' +
-      '<path d="M-34,-6 Q-46,10 -34,30 Q-30,10 -30,-6 Z" fill="#b48fd6"/>' +
-      '<path d="M34,-6 Q46,10 34,30 Q30,10 30,-6 Z" fill="#b48fd6"/>' +
-      '<path d="M-26,-40 l10,-14 l6,14 Z" fill="#c9a8e6"/>' +
-      '<path d="M26,-40 l-10,-14 l-6,14 Z" fill="#c9a8e6"/>' +
-      '<circle cx="-13" cy="-14" r="14" fill="#fdfdfd"/>' +
-      '<circle cx="13" cy="-14" r="14" fill="#fdfdfd"/>' +
-      '<circle class="bagoly-pupilla" cx="-11" cy="-12" r="6.5" fill="#4a3b7a"/>' +
-      '<circle class="bagoly-pupilla" cx="11" cy="-12" r="6.5" fill="#4a3b7a"/>' +
-      '<circle cx="-13" cy="-15" r="2" fill="#fff"/><circle cx="9" cy="-15" r="2" fill="#fff"/>' +
-      '<path d="M-5,-2 L5,-2 L0,10 Z" fill="#ffcf6b"/>' +
-      '<path d="M-30,44 l-6,10 M-22,46 l-2,10 M22,46 l2,10 M30,44 l6,10" stroke="#ffcf6b" stroke-width="4" stroke-linecap="round"/>' +
-      '<path d="M18,-44 l2,6 l6,2 l-6,2 l-2,6 l-2,-6 l-6,-2 l6,-2 Z" fill="#fff2c4"/>' +
-    '</g>' +
-  '</svg>';
-}
 
 var NEZ_SZ = 900, NEZ_MA = 460;
 /* TESZT (pálya 2): kamera nélküli, teljes-út nézet. A jelenet-render állítja be. */

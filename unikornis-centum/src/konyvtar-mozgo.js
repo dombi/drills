@@ -9,7 +9,7 @@
 function ekmHatter() {
   var s = '<rect width="800" height="420" fill="#f8ecd9"/>';
   for (var x = 22; x < 800; x += 48) s += '<rect x="' + x + '" y="0" width="4" height="360" fill="rgba(190,140,90,.08)"/>';
-  return s + '<rect y="360" width="800" height="60" fill="#e3c29a"/><rect y="356" width="800" height="6" fill="#b98652"/>' + ekBagoly(752, 58, .5);
+  return s + '<rect y="360" width="800" height="60" fill="#e3c29a"/><rect y="356" width="800" height="6" fill="#b98652"/>' + bagolyRajz("konyvtaros", 752, 58, .5);
 }
 var EKM_F = 'font-family="Fredoka,Segoe UI,sans-serif"';
 function ekmUni(id, x, y, s) { return '<g class="' + id + '" transform="translate(' + x + ',' + y + ')">' + mkUni(0, 0, s) + '</g>'; }

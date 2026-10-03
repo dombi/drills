@@ -1226,9 +1226,7 @@ function mKoppMutat(f) {
 }
 /* rossz koppintás: a motor könyvelése (mint az ertekel rossz ága), de hallgatás nélkül */
 function mKoppRossz(f, cimke, html, kimond) {
-  meresTanulNez(f, false);
-  J.probak++; J.allomasHibatlan = false; streakLep(false);
-  naplozz(f.naplo, false, cimke); hangHiba();
+  rosszValaszKonyvel(f, cimke);
   var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.innerHTML = html;
   if (kimond) mondd(kimond);
   ment();

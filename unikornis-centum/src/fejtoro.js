@@ -202,11 +202,10 @@ function ftFelolvasSzoveg(f) {
 /* felolvasás: a szám utáni pontot a gép sorszámnak olvassa („50.” → „ötvenedik”) — ezért kivesszük */
 function ftKiejt(s) { return String(s).replace(/(\d)\.(?=\s|$|[”"'])/g, "$1"); }
 function ftMondd(s, kesz) { mondd(ftKiejt(s), kesz); }
-function ftEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function ftKiemel(szoveg, szavak) {
-  var h = ftEsc(szoveg);
+  var h = htmlVed(szoveg);
   (szavak || []).slice().sort(function (a, b) { return b.length - a.length; }).forEach(function (w) {
-    var e = ftEsc(w); h = h.split(e).join("\u0001" + e + "\u0002");
+    var e = htmlVed(w); h = h.split(e).join("\u0001" + e + "\u0002");
   });
   return h.replace(/\u0001/g, "<mark>").replace(/\u0002/g, "</mark>");
 }
@@ -217,13 +216,13 @@ function ftAllomas(tetel) {
   var t = ftTartalom();
   if (tetel.vissza) t.appendChild(el("div", "ft-vissza-cim", "🔁 Emlékszel erre? Próbáld meg újra!"));
   var fk = el("div", "ft-kartya ft-feladat");
-  fk.innerHTML = '<div class="ft-szoveg" id="ft-szoveg">' + ftEsc(f.szoveg) + '</div>';
+  fk.innerHTML = '<div class="ft-szoveg" id="ft-szoveg">' + htmlVed(f.szoveg) + '</div>';
   t.appendChild(fk);
   var vs = el("div", "ft-valaszok"); vs.id = "ft-valaszok";
   FT_BETUK.forEach(function (b) {
     var g = el("button", "ft-betu");
     g.dataset.b = b;
-    g.innerHTML = '<b>' + b + '</b><span>' + ftEsc(f.valaszok[b]) + '</span>';
+    g.innerHTML = '<b>' + b + '</b><span>' + htmlVed(f.valaszok[b]) + '</span>';
     g.addEventListener("click", function () { ftValasz(b); });
     vs.appendChild(g);
   });
@@ -269,7 +268,7 @@ function ftSegit() {
 function ftKerdesKartya(f, hova, tovabb) {
   $("ft-szoveg").innerHTML = ftKiemel(f.szoveg, f.kerdes && f.kerdes.kiemel);
   var k = el("div", "ft-kartya ft-kerdes");
-  k.innerHTML = '<div class="ft-lepes-fej">🔎 Mit kérdeznek?</div><p>' + ftEsc(f.kerdes && f.kerdes.mondat) + '</p>';
+  k.innerHTML = '<div class="ft-lepes-fej">🔎 Mit kérdeznek?</div><p>' + htmlVed(f.kerdes && f.kerdes.mondat) + '</p>';
   if (tovabb) {
     var b = el("button", "nagy-gomb kiemelt", "Értem! ➜");
     b.addEventListener("click", function () { hangGomb(); b.remove(); tovabb(); });
@@ -293,8 +292,8 @@ function ftSzamKi(szoveg) {
 /* egy megoldás-lépés: a művelet felíródik, a gyerek kimondja vagy beírja az eredményt */
 function ftLepesKartya(l, li, hova, kesz) {
   var k = el("div", "ft-kartya ft-lepes");
-  var elotte = ftEsc(l.muvelet).split("?");
-  k.innerHTML = '<div class="ft-lepes-fej">' + (li + 1) + '. lépés</div><p>' + ftEsc(l.szoveg) + '</p>' +
+  var elotte = htmlVed(l.muvelet).split("?");
+  k.innerHTML = '<div class="ft-lepes-fej">' + (li + 1) + '. lépés</div><p>' + htmlVed(l.szoveg) + '</p>' +
     (l.kepSvg ? '<div class="ft-kep">' + l.kepSvg + '</div>' : '') +
     '<div class="ft-muvelet">' + elotte[0] + '<span class="ft-ures">?</span>' + (elotte[1] || "") + '</div>' +
     '<div class="ft-lepes-valasz"></div><div class="ft-lepes-jel"></div>';
@@ -397,7 +396,7 @@ function ftValasz(b) {
     var mondat = c ? c.mondat : "Nézzük meg együtt, lépésről lépésre!";
     if (FTJ.mester && c) mondat += " Most együtt végigmegyünk rajta.";
     var k3 = el("div", "ft-kartya ft-csapda");
-    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + ftEsc(mondat) + '</p>';
+    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + htmlVed(mondat) + '</p>';
     hova.appendChild(k3); ftGorget(k3);
     ftMondd((FTJ.mester ? "Majdnem! " : "Ez most nem jó. ") + mondat, function () { ftMagyarazat(); });
   }
@@ -420,9 +419,9 @@ function ftOsszefoglalo() {
   var k = el("div", "ft-kartya ft-fuzet-kartya");
   k.innerHTML = '<div class="ft-lepes-fej">📓 A füzetben így néz ki</div><div class="ft-fuzet">' +
     (f.osszefoglalo || []).map(function (s) {
-      return /^Válasz:/.test(s) ? '<b class="ft-valasz-sor">' + ftEsc(s) + '</b>' : ftEsc(s);
+      return /^Válasz:/.test(s) ? '<b class="ft-valasz-sor">' + htmlVed(s) + '</b>' : htmlVed(s);
     }).join("<br>") + '</div>' +
-    (f.trukk ? '<div class="ft-trukk">💡 ' + ftEsc(f.trukk) + '</div>' : '');
+    (f.trukk ? '<div class="ft-trukk">💡 ' + htmlVed(f.trukk) + '</div>' : '');
   hova.appendChild(k); ftGorget(k);
   ftMondd("A helyes válasz: " + f.helyes + ", " + f.valaszok[f.helyes] + ". " + (f.trukk ? "Jegyezd meg: " + f.trukk : ""), function () { ftTovabbGomb(k); });
 }

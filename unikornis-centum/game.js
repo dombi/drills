@@ -414,6 +414,10 @@ var SZORZOS_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectR
 function $(id) { return document.getElementById(id); }
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 function veletlen(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+/* mozgáskímélő mód (a gép beállítása): ilyenkor a mozdulatok azonnal a végállapotba ugranak */
+function nyugiMod() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+/* szöveg-védő: felhasználói/adatbázis-szöveg HTML-be írás előtt */
+function htmlVed(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
 var EGYES = ["nulla", "egy", "kettő", "három", "négy", "öt", "hat", "hét", "nyolc", "kilenc"];
 var TIZES = { 10: "tíz", 20: "húsz", 30: "harminc", 40: "negyven", 50: "ötven", 60: "hatvan", 70: "hetven", 80: "nyolcvan", 90: "kilencven" };
@@ -2297,27 +2301,6 @@ function nezetDiszRetegek(nezet, oltozet) {
   });
   return r;
 }
-function bagolySVG() {
-  return '<svg class="bagoly-figura" viewBox="-52 -60 104 126" xmlns="http://www.w3.org/2000/svg">' +
-    '<path d="M-40,52 Q0,40 40,52" stroke="#6b5442" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-    '<g class="bagoly-test">' +
-      '<ellipse cx="0" cy="0" rx="34" ry="42" fill="#c9a8e6"/>' +
-      '<ellipse cx="0" cy="8" rx="22" ry="30" fill="#e9ddf3"/>' +
-      '<path d="M-34,-6 Q-46,10 -34,30 Q-30,10 -30,-6 Z" fill="#b48fd6"/>' +
-      '<path d="M34,-6 Q46,10 34,30 Q30,10 30,-6 Z" fill="#b48fd6"/>' +
-      '<path d="M-26,-40 l10,-14 l6,14 Z" fill="#c9a8e6"/>' +
-      '<path d="M26,-40 l-10,-14 l-6,14 Z" fill="#c9a8e6"/>' +
-      '<circle cx="-13" cy="-14" r="14" fill="#fdfdfd"/>' +
-      '<circle cx="13" cy="-14" r="14" fill="#fdfdfd"/>' +
-      '<circle class="bagoly-pupilla" cx="-11" cy="-12" r="6.5" fill="#4a3b7a"/>' +
-      '<circle class="bagoly-pupilla" cx="11" cy="-12" r="6.5" fill="#4a3b7a"/>' +
-      '<circle cx="-13" cy="-15" r="2" fill="#fff"/><circle cx="9" cy="-15" r="2" fill="#fff"/>' +
-      '<path d="M-5,-2 L5,-2 L0,10 Z" fill="#ffcf6b"/>' +
-      '<path d="M-30,44 l-6,10 M-22,46 l-2,10 M22,46 l2,10 M30,44 l6,10" stroke="#ffcf6b" stroke-width="4" stroke-linecap="round"/>' +
-      '<path d="M18,-44 l2,6 l6,2 l-6,2 l-2,6 l-2,-6 l-6,-2 l6,-2 Z" fill="#fff2c4"/>' +
-    '</g>' +
-  '</svg>';
-}
 
 var NEZ_SZ = 900, NEZ_MA = 460;
 /* TESZT (pálya 2): kamera nélküli, teljes-út nézet. A jelenet-render állítja be. */
@@ -2659,11 +2642,121 @@ function figArc(arc) {
 }
 
 /* a közös tábla képe: emoji → rajz (az emoji tartaléknak megmarad) */
+/* szereplő-érem (HTML) a könyvtár és a vásár képeihez: e = rajz/emoji, sz = szám alatta („?” → gondolkodó arc), c = név;
+   o.sok = sok-emojis érem, o.cls = plusz osztály, o.ki = név, hogy Tüske néni rámutathasson (vasar.js) */
+function szereploErem(e, sz, c, o) {
+  o = o || {}; if (sz === "?") e = figArcCsere(e, "gondol");
+  return '<div class="ek-erem' + (o.cls ? ' ' + o.cls : '') + '"' + (o.ki ? ' data-ki="' + o.ki + '"' : '') + '><div class="e' + (o.sok ? ' sok' : '') + '">' + e + '</div>' +
+    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
+}
 Object.keys(FIGURA).forEach(function (k) {
   if (!FIG_RAJZ[k]) return;
   FIGURA[k].emo = FIGURA[k].e;
   FIGURA[k].e = figuraSVG(k, "vidam", "fej");
 });
+/* ══ 🦉 BAGOLY — a játék négy baglya egy helyen (takarító kör H, 2026-10-03) ══
+   kabala (a jelenet sarkában, beszél) · konyvtaros (a kabala szemüveggel, pislog) ·
+   bankar (karamell, szemüveg, pink csokornyakkendő, pislog) · boltos (körvonalas, 3 szárny-póz).
+   Producer döntése: egy modul, külsőre változatlanul — a rajzok betűre azonosak a korábbi 4 külön függvénnyel.
+   Hívás: bagolyRajz("kabala") · bagolyRajz("konyvtaros", x, y, s) · bagolyRajz("bankar", x, y, s) · bagolyRajz("boltos", poz).
+   Új bagoly = egy sor a BAGOLY-táblába, a közös darabokból (pupilla, pislogás, szemüveg). */
+
+/* ── közös darabok ── */
+var BAGOLY_AG = '<path d="M-40,52 Q0,40 40,52" stroke="#6b5442" stroke-width="9" fill="none" stroke-linecap="round"/>';
+function bagolyHelyen(x, y, s, belso) { return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' + belso + '</g>'; }
+function bagolyPupillak(cy, r, cls) {
+  var c = cls ? ' class="' + cls + '"' : '';
+  return '<circle' + c + ' cx="-11" cy="' + cy + '" r="' + r + '" fill="#4a3b7a"/><circle' + c + ' cx="11" cy="' + cy + '" r="' + r + '" fill="#4a3b7a"/>';
+}
+function bagolyFeny(cy) { return '<circle cx="-13" cy="' + cy + '" r="2" fill="#fff"/><circle cx="9" cy="' + cy + '" r="2" fill="#fff"/>'; }
+/* pislogás: a pupillák függőlegesen összecsukódnak (dur = egy kör, kt = mikor csukódik) */
+function bagolyPislog(dur, kt, belso) {
+  return '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="' + kt + '" dur="' + dur + '" repeatCount="indefinite" additive="sum"/>' + belso + '</g>';
+}
+function bagolySzemuveg(cy, r, szin, hid) {
+  var kv = ' fill="none" stroke="' + szin + '" stroke-width="2.5"/>';
+  return '<circle cx="-13" cy="' + cy + '" r="' + r + '"' + kv + '<circle cx="13" cy="' + cy + '" r="' + r + '"' + kv +
+    '<path d="M' + (-hid / 2) + ',' + (cy - 2) + ' h' + hid + '" stroke="' + szin + '" stroke-width="2.5"/>';
+}
+/* a lila bagoly teste (kabala és könyvtáros): ág nélkül, a pupillák helye kívülről jön */
+function bagolyLilaTest(pupillak) {
+  return '<ellipse cx="0" cy="0" rx="34" ry="42" fill="#c9a8e6"/>' +
+    '<ellipse cx="0" cy="8" rx="22" ry="30" fill="#e9ddf3"/>' +
+    '<path d="M-34,-6 Q-46,10 -34,30 Q-30,10 -30,-6 Z" fill="#b48fd6"/>' +
+    '<path d="M34,-6 Q46,10 34,30 Q30,10 30,-6 Z" fill="#b48fd6"/>' +
+    '<path d="M-26,-40 l10,-14 l6,14 Z" fill="#c9a8e6"/>' +
+    '<path d="M26,-40 l-10,-14 l-6,14 Z" fill="#c9a8e6"/>' +
+    '<circle cx="-13" cy="-14" r="14" fill="#fdfdfd"/>' +
+    '<circle cx="13" cy="-14" r="14" fill="#fdfdfd"/>' +
+    pupillak + bagolyFeny(-15) +
+    '<path d="M-5,-2 L5,-2 L0,10 Z" fill="#ffcf6b"/>' +
+    '<path d="M-30,44 l-6,10 M-22,46 l-2,10 M22,46 l2,10 M30,44 l6,10" stroke="#ffcf6b" stroke-width="4" stroke-linecap="round"/>';
+}
+
+/* ── a bagoly-boltos: 3 póz, csak a szárny-path és a pupillák térnek el ── */
+var BOLT_BAGOLY_POZ = {
+  nyugalmi: { szarny: "M28 -40 Q40 -30 35 -16 Q26 -24 26 -38 Z", bal: [-11, -43], jobb: [11, -43] },
+  fel:      { szarny: "M28 -44 Q52 -54 66 -66 Q56 -44 34 -34 Z", bal: [-10, -47], jobb: [12, -47] },
+  oldal:    { szarny: "M28 -34 Q54 -34 70 -30 Q54 -22 32 -24 Z", bal: [-7, -43],  jobb: [15, -43] }
+};
+
+var BAGOLY = {
+  /* a jelenet sarkában ülő kabala (main.js teszi ki; beszéd közben az audio.js bagolyAnimal mozgatja) */
+  kabala: function () {
+    return '<svg class="bagoly-figura" viewBox="-52 -60 104 126" xmlns="http://www.w3.org/2000/svg">' + BAGOLY_AG +
+      '<g class="bagoly-test">' + bagolyLilaTest(bagolyPupillak(-12, 6.5, "bagoly-pupilla")) +
+        '<path d="M18,-44 l2,6 l6,2 l-6,2 l-2,6 l-2,-6 l-6,-2 l6,-2 Z" fill="#fff2c4"/>' +
+      '</g>' +
+    '</svg>';
+  },
+  /* 📚 a könyvtáros: a kabala szemüveggel, pislog */
+  konyvtaros: function (x, y, s) {
+    return bagolyHelyen(x, y, s, BAGOLY_AG + bagolyLilaTest(bagolyPislog("4.5s", "0;.94;.97;1", bagolyPupillak(-12, 6.5))) +
+      bagolySzemuveg(-14, 17, "#8a6a4a", 2));
+  },
+  /* 🏦 a bankár (rajzterv: karamell, szemüveg, pink csokornyakkendő, pislog) — 0,0 a test közepe */
+  bankar: function (x, y, s) {
+    return bagolyHelyen(x, y, s,
+      '<ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity=".18"/>' +
+      '<path d="M-26,-40 l8,-16 l8,15 Z" fill="#c98d55"/><path d="M26,-40 l-8,-16 l-8,15 Z" fill="#c98d55"/>' +
+      '<ellipse cx="0" cy="0" rx="34" ry="44" fill="#e2b07a"/>' +
+      '<ellipse cx="0" cy="12" rx="22" ry="29" fill="#fbe6c8"/>' +
+      '<path d="M-10,14 q3,4 6,0 M2,22 q3,4 6,0 M-6,30 q3,4 6,0" stroke="#e2b07a" stroke-width="2" fill="none"/>' +
+      '<path d="M-34,-4 Q-48,14 -33,34 Q-28,14 -29,-4 Z" fill="#c98d55"/><path d="M34,-4 Q48,14 33,34 Q28,14 29,-4 Z" fill="#c98d55"/>' +
+      '<circle cx="-13" cy="-15" r="13" fill="#fffaf0"/><circle cx="13" cy="-15" r="13" fill="#fffaf0"/>' +
+      bagolyPislog("4.2s", "0;.93;.965;1", bagolyPupillak(-13, 6)) +
+      bagolyFeny(-16) +
+      bagolySzemuveg(-15, 16, "#7a5230", 4) +
+      '<path d="M-5,-3 L5,-3 L0,8 Z" fill="#ffb347"/>' +
+      '<g transform="translate(0,17)"><path d="M0,0 L-13,-7 L-13,7 Z" fill="#f06aa8"/><path d="M0,0 L13,-7 L13,7 Z" fill="#f06aa8"/><circle r="3.5" fill="#d84f96"/></g>' +
+      '<path d="M-14,44 l-4,8 M-8,45 l-1,8 M8,45 l1,8 M14,44 l4,8" stroke="#ffb347" stroke-width="4" stroke-linecap="round"/>');
+  },
+  /* 🛍️ a boltos az odú boltjában: nyugalmi · fel (szárnnyal a kiválasztott felé) · oldal */
+  boltos: function (poz) {
+    var p = BOLT_BAGOLY_POZ[poz] || BOLT_BAGOLY_POZ.nyugalmi;
+    function szem(c) {   /* a fénypötty mindig 2 px-szel balra és 3 px-szel fölé */
+      return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="5" fill="#4a3b2a"/>' +
+             '<circle cx="' + (c[0] - 2) + '" cy="' + (c[1] - 3) + '" r="1.8" fill="#fff"/>';
+    }
+    return '<g class="bolt-bagoly" transform="translate(140,430)">' +
+      '<ellipse cx="0" cy="3" rx="32" ry="5" fill="#3b2f66" opacity="0.18"/>' +
+      '<g stroke="#e8a23d" stroke-width="3.4" stroke-linecap="round" fill="none">' +
+        '<path d="M-11 -8 v10"/><path d="M11 -8 v10"/><path d="M-15 2 h9 M-11 2 v3"/><path d="M7 2 h9 M11 2 v3"/></g>' +
+      '<ellipse cx="0" cy="-36" rx="31" ry="35" fill="#c9a06a" stroke="#222" stroke-width="2.2"/>' +
+      '<ellipse cx="0" cy="-28" rx="21" ry="25" fill="#e9d3ad"/>' +
+      '<path d="M-28 -62 l10 18 l11 -11 Z" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
+      '<path d="M28 -62 l-10 18 l-11 -11 Z" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
+      '<circle cx="-11" cy="-44" r="11.5" fill="#fff" stroke="#222" stroke-width="2"/>' +
+      '<circle cx="11" cy="-44" r="11.5" fill="#fff" stroke="#222" stroke-width="2"/>' +
+      '<g class="bolt-bagoly-szem">' + szem(p.bal) + szem(p.jobb) + '</g>' +
+      '<path d="M0 -34 l-5 7 l10 0 Z" fill="#e8a23d" stroke="#222" stroke-width="1.6"/>' +
+      '<path d="M-19 -16 Q0 -21 19 -16 Q21 -4 18 4 Q0 9 -18 4 Q-21 -4 -19 -16 Z" fill="#f7b8d0" stroke="#e79ac0" stroke-width="1.8"/>' +
+      '<path d="M-8 -10 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#fff2c4"/>' +
+      '<path class="bolt-bagoly-szarny" d="' + p.szarny + '" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
+    '</g>';
+  }
+};
+function bagolyRajz(fajta) { return BAGOLY[fajta].apply(null, Array.prototype.slice.call(arguments, 1)); }
 /* ============ 6b) MÉRÉS-LIGETEK — 🧵 Szabóműhely · 🧪 Bájitalkonyha · 🧁 Mézes pékség ============
    Rendszerterv: Matekos\meres-palyacsoport-rendszerterv.html · rajzterv: meres-palyacsoport-rajzterv.html (1. kör:
    hátterek + mozgóképek) és meres-palyacsoport-rajzterv-2.html (2. kör: feladat-képernyők + kártyák).
@@ -3892,9 +3985,7 @@ function mKoppMutat(f) {
 }
 /* rossz koppintás: a motor könyvelése (mint az ertekel rossz ága), de hallgatás nélkül */
 function mKoppRossz(f, cimke, html, kimond) {
-  meresTanulNez(f, false);
-  J.probak++; J.allomasHibatlan = false; streakLep(false);
-  naplozz(f.naplo, false, cimke); hangHiba();
+  rosszValaszKonyvel(f, cimke);
   var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.innerHTML = html;
   if (kimond) mondd(kimond);
   ment();
@@ -5173,11 +5264,7 @@ function ekKiejt(s) {
 
 /* ── HTML-darabok (a rajzterv jóváhagyott elemei) ── */
 function ekSok(e, n) { if (n > 8) return e; var s = ""; for (var i = 0; i < n; i++) s += e; return s; }
-function ekErem(e, sz, c, o) {
-  o = o || {}; if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
-  return '<div class="ek-erem"><div class="e' + (o.sok ? ' sok' : '') + '">' + e + '</div>' +
-    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
-}
+function ekErem(e, sz, c, o) { return szereploErem(e, sz, c, o); }   /* közös érem (figurak.js) */
 function ekSzamsor(t) { return '<div class="ek-szamsor">' + t.map(function (x) { return '<span>' + x + '</span>'; }).join("") + '</div>'; }
 function ekBub(o) {
   return '<div class="ek-bub">' + (o.kep ? '<div class="ek-kep">' + o.kep + '</div>' : '') +
@@ -6091,8 +6178,7 @@ function ekKoppJo(f, k) {
   setTimeout(function () { if (J && J.feladat === f) ertekel(f.helyes); }, 380);
 }
 function ekKoppRossz(f, cimke, msg, fajta) {
-  J.probak++; J.allomasHibatlan = false; J.ekHibas = true; J.kopp.hiba++;
-  streakLep(false); naplozz(f.naplo, false, cimke); hangHiba();
+  rosszValaszKonyvel(f, cimke); J.ekHibas = true; J.kopp.hiba++;
   var v = $("visszajelzes"), sug = f.ek.sug || "Olvassuk el újra a kérdést!";
   if (msg) ekCsapdaSzamol(fajta);
   if (J.kopp.hiba >= 2) {
@@ -6283,18 +6369,6 @@ function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (k
   if (n >= 14) g += '<path d="M0 -58 V-80" stroke="#6b5442" stroke-width="2"/><path d="M0 -80 L16 -75 L0 -70Z" fill="#e2589b"/>';
   return g + '</g>';
 }
-function ekBagoly(x, y, s) {
-  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-40,52 Q0,40 40,52" stroke="#6b5442" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-    '<ellipse cx="0" cy="0" rx="34" ry="42" fill="#c9a8e6"/><ellipse cx="0" cy="8" rx="22" ry="30" fill="#e9ddf3"/>' +
-    '<path d="M-34,-6 Q-46,10 -34,30 Q-30,10 -30,-6 Z" fill="#b48fd6"/><path d="M34,-6 Q46,10 34,30 Q30,10 30,-6 Z" fill="#b48fd6"/>' +
-    '<path d="M-26,-40 l10,-14 l6,14 Z" fill="#c9a8e6"/><path d="M26,-40 l-10,-14 l-6,14 Z" fill="#c9a8e6"/>' +
-    '<circle cx="-13" cy="-14" r="14" fill="#fdfdfd"/><circle cx="13" cy="-14" r="14" fill="#fdfdfd"/>' +
-    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.94;.97;1" dur="4.5s" repeatCount="indefinite" additive="sum"/>' +
-    '<circle cx="-11" cy="-12" r="6.5" fill="#4a3b7a"/><circle cx="11" cy="-12" r="6.5" fill="#4a3b7a"/></g>' +
-    '<circle cx="-13" cy="-15" r="2" fill="#fff"/><circle cx="9" cy="-15" r="2" fill="#fff"/><path d="M-5,-2 L5,-2 L0,10 Z" fill="#ffcf6b"/>' +
-    '<path d="M-30,44 l-6,10 M-22,46 l-2,10 M22,46 l2,10 M30,44 l6,10" stroke="#ffcf6b" stroke-width="4" stroke-linecap="round"/>' +
-    '<circle cx="-13" cy="-14" r="17" fill="none" stroke="#8a6a4a" stroke-width="2.5"/><circle cx="13" cy="-14" r="17" fill="none" stroke="#8a6a4a" stroke-width="2.5"/><path d="M-1,-16 h2" stroke="#8a6a4a" stroke-width="2.5"/></g>';
-}
 var EK_KSZIN = ["#c9a8e6", "#9ec9f0", "#f6a5c0", "#a7d99a", "#f7c59f", "#fce49a", "#b48fd6", "#e8b27c", "#8fc3c7"];
 function ekPolc(x0, x1, yTop, yAlj, sorok, r) {
   var s = '<rect x="' + (x0 - 6) + '" y="' + (yTop - 8) + '" width="' + (x1 - x0 + 12) + '" height="' + (yAlj - yTop + 8) + '" fill="#a8744a"/><rect x="' + x0 + '" y="' + yTop + '" width="' + (x1 - x0) + '" height="' + (yAlj - yTop) + '" fill="#7a5134"/>';
@@ -6334,7 +6408,7 @@ function ekKonyvtarSVG(W, H, fal, id) {
   var lx0 = W - 14 - pw - 28;
   s += '<g opacity=".95"><path d="M' + lx0 + ' ' + (fal + 2) + ' L' + (lx0 + 56) + ' 6 M' + (lx0 + 24) + ' ' + (fal + 2) + ' L' + (lx0 + 80) + ' 6" stroke="#8a5a36" stroke-width="5" stroke-linecap="round"/>';
   for (var i = 1; i < 8; i++) { var t = i / 8; s += '<path d="M' + (lx0 + 56 * t) + ' ' + (fal + 2 - (fal - 4) * t) + ' H' + (lx0 + 24 + 56 * t) + '" stroke="#8a5a36" stroke-width="4"/>'; }
-  s += '</g>' + ekBagoly(14 + pw * .8, 38, .42);
+  s += '</g>' + bagolyRajz("konyvtaros", 14 + pw * .8, 38, .42);
   s += '<rect y="' + fal + '" width="' + W + '" height="' + (H - fal) + '" fill="#e3c29a"/>';
   for (var y = fal + 22; y < H; y += 30) s += '<path d="M0 ' + y + ' H' + W + '" stroke="#d2ad80" stroke-width="2"/>';
   for (var y2 = fal, k = 0; y2 < H; y2 += 30, k++) for (var x2 = (k % 2) * 90; x2 < W; x2 += 180) s += '<path d="M' + x2 + ' ' + y2 + ' v22" stroke="#d2ad80" stroke-width="2"/>';
@@ -6564,7 +6638,7 @@ function ekMesterKapuSVG(palya) {
 function ekmHatter() {
   var s = '<rect width="800" height="420" fill="#f8ecd9"/>';
   for (var x = 22; x < 800; x += 48) s += '<rect x="' + x + '" y="0" width="4" height="360" fill="rgba(190,140,90,.08)"/>';
-  return s + '<rect y="360" width="800" height="60" fill="#e3c29a"/><rect y="356" width="800" height="6" fill="#b98652"/>' + ekBagoly(752, 58, .5);
+  return s + '<rect y="360" width="800" height="60" fill="#e3c29a"/><rect y="356" width="800" height="6" fill="#b98652"/>' + bagolyRajz("konyvtaros", 752, 58, .5);
 }
 var EKM_F = 'font-family="Fredoka,Segoe UI,sans-serif"';
 function ekmUni(id, x, y, s) { return '<g class="' + id + '" transform="translate(' + x + ',' + y + ')">' + mkUni(0, 0, s) + '</g>'; }
@@ -7044,12 +7118,8 @@ function vsSzalag(sorok, egyseg) {
   });
   return vsSvg(W, sorok.length * 44 + 10, s, "szeles").replace('<svg ', '<svg style="height:calc(' + sorok.length + ' * min(46px, 7.4vh) + 6px)" ');
 }
-/* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson */
-function vsErem(e, sz, c, ki) {
-  if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
-  return '<div class="ek-erem vs-erem"' + (ki ? ' data-ki="' + ki + '"' : '') + '><div class="e">' + e + '</div>' +
-    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
-}
+/* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson — közös érem (figurak.js) */
+function vsErem(e, sz, c, ki) { return szereploErem(e, sz, c, { cls: "vs-erem", ki: ki }); }
 var VS_NYIL = '<div class="vs-nyil">→</div>';
 /* a Dobozoló képe: kupac + minta-tartó „b fér bele”; KELL-csapdánál a teli tartók + a félig teli utolsó */
 function vsDobozKep(D, g, telik) {
@@ -8517,6 +8587,17 @@ function bekotUresNegyzet() {
     });
   }
 }
+/* egy rossz válasz könyvelése — közös a szóbeli válasznak (ertekel) és a koppintós feladatoknak (meres.js mKoppRossz,
+   konyvtar.js ekKoppRossz): próbaszám, az állomás már nem hibátlan, sorozat megszakad, napló, hiba-hang.
+   A visszajelzés (mit mond, mit mutat) és a mentés a hívó dolga. */
+function rosszValaszKonyvel(f, cimke) {
+  meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js); más feladatnál nem csinál semmit */
+  J.probak++;
+  J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
+  streakLep(false);
+  naplozz(f.naplo, false, cimke);
+  hangHiba();
+}
 function ertekel(valasz) {
   var f = J.feladat;
   if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
@@ -8558,12 +8639,7 @@ function ertekel(valasz) {
     else setTimeout(tovabb, Math.max(900, fv));
   } else {
     if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
-    meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
-    J.probak++;
-    J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
-    streakLep(false);
-    naplozz(f.naplo, false, mar ? (valasz.h + "m" + valasz.m) : valasz);
-    hangHiba();
+    rosszValaszKonyvel(f, mar ? (valasz.h + "m" + valasz.m) : valasz);
     $("visszajelzes").className = "visszajelzes rossz";
     if (mar) {
       maradekosKitolt(false);
@@ -10269,7 +10345,7 @@ function oduUniSetal(celX, kesz) {
   var mozgo = document.getElementById("odu-uni-mozgo"), flip = document.getElementById("odu-uni-flip");
   clearTimeout(_oduSetaIdo);
   var tav = Math.abs(celX - ODU_UNI.x);
-  var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nyugi = nyugiMod();
   if (!mozgo || tav < 6 || nyugi) {
     ODU_UNI.x = celX;
     if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)"; }
@@ -10653,7 +10729,7 @@ function oduVillany(svg, este, regiBogarak) {
 var _oduVillanyIdo = [];
 function oduVillanyKapcsol() {
   var v = _oduVillany; if (!v || !document.body.contains(v.svg)) return;
-  var svg = v.svg, nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var svg = v.svg, nyugi = nyugiMod();
   _oduVillanyIdo.forEach(clearTimeout); _oduVillanyIdo = []; svg.classList.remove("felvillan");
   function kesobb(fn, ms) { _oduVillanyIdo.push(setTimeout(fn, ms)); }
   v.zs.classList.remove("huz"); void v.zs.getBoundingClientRect(); v.zs.classList.add("huz");
@@ -10681,7 +10757,7 @@ function oduVillanyKapcsol() {
    kertkapu); a szentjánosbogarak lassan kóborolnak; a katica végigmászik az ágy ívén és visszafordul.
    Csak amíg az odú látszik — utána a rAF leáll (a következő renderOdu újraindítja). */
 function oduEletUt(lepke, lb, bogarak, katB) {
-  var nyugi = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nyugi = nyugiMod();
   var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
   var poz = [240, 300], cel = 0, ul = true, ulIg = 0, repIg = 0, honnan = poz.slice(), kontroll = [0, 0], ido = 3200;
   function ujCel(most) {
@@ -10735,6 +10811,8 @@ function oduEletUt(lepke, lb, bogarak, katB) {
    Teljesen additív: saját mentés-ág P().kert, saját DOM #kepernyo-kert + .kert-* CSS.
    Belépés az odú kertkapuján (csak P().kert.nyitva esetén). Séta: koppints a fűre → odasétál. */
 var KERT_UNI_X = 50;   /* az unikornis vízszintes helye, % */
+var KERT_SUGO_SETA = "Koppints a fűre — az unikornis odasétál. 🚶";   /* séta-módban ez a súgó */
+function kertSugo(t) { var s = $("kert-sugo"); if (s) s.textContent = t; }
 function kertNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
@@ -10778,7 +10856,7 @@ function kertSzinterKlikk(e) {
   }
   var r = host.getBoundingClientRect();
   if (KERT_MOD === "rak") {
-    if (!KERT_RAK_TIP) { var s0 = $("kert-sugo"); if (s0) s0.textContent = "Válassz lentről egy tárgyat, majd koppints a fűre! 🧺"; return; }
+    if (!KERT_RAK_TIP) { kertSugo("Válassz lentről egy tárgyat, majd koppints a fűre! 🧺"); return; }
     kertElemRak(KERT_RAK_TIP, ((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100);
     return;
   }
@@ -10819,12 +10897,11 @@ function kertModValt(mod) {
   KERT_MOD = (KERT_MOD === mod) ? null : mod;   /* ugyanarra koppintva kikapcsol */
   if (KERT_MOD !== "rak") KERT_RAK_TIP = null;
   if ((KERT_UL || KERT_FEKSZIK) && KERT_MOD) kertAll();   /* berendezés közben ne maradjon ülve/fekve */
-  var sugo = $("kert-sugo");
-  if (sugo) sugo.textContent = (KERT_MOD === "rak")
+  kertSugo((KERT_MOD === "rak")
     ? "Válassz egy tárgyat, majd koppints a fűre, hová tegyem! 🧺"
     : (KERT_MOD === "pakol")
     ? "Koppints egy tárgyra — visszakerül a fészerbe. 🧹"
-    : "Koppints a fűre — az unikornis odasétál. 🚶";
+    : KERT_SUGO_SETA);
   kertEszkozsorRender(); kertFeszerRender(); kertElemekRender();
 }
 /* elpakolás: egy lerakott tárgyra koppintva visszakerül a fészerbe (semmi nem vész el) */
@@ -10835,10 +10912,9 @@ function kertElemPakol(i) {
   hangGomb(); ment();
   if ((P().kert.elemek || []).length === 0) KERT_MOD = null;   /* elfogytak a tárgyak → vissza séta-módba */
   kertElemekRender(); kertEszkozsorRender(); kertFeszerRender();
-  var sugo = $("kert-sugo");
-  if (sugo) sugo.textContent = (KERT_MOD === "pakol")
+  kertSugo((KERT_MOD === "pakol")
     ? "Visszatettem a fészerbe! Koppints másikra, vagy lépj ki. 🧹"
-    : "Koppints a fűre — az unikornis odasétál. 🚶";
+    : KERT_SUGO_SETA);
 }
 /* a fészer: a megvett, még le nem tett tárgyak (id→db). Berendezés-módban látszik. */
 function kertFeszerRender() {
@@ -10859,8 +10935,7 @@ function kertFeszerRender() {
     hangGomb();
     var tip = b.getAttribute("data-tip");
     KERT_RAK_TIP = (KERT_RAK_TIP === tip) ? null : tip;
-    var sugo = $("kert-sugo");
-    if (sugo) sugo.textContent = KERT_RAK_TIP ? "Koppints a fűre, hová tegyem! 🧺" : "Válassz egy tárgyat lentről! 🧺";
+    kertSugo(KERT_RAK_TIP ? "Koppints a fűre, hová tegyem! 🧺" : "Válassz egy tárgyat lentről! 🧺");
     kertFeszerRender();
   };
 }
@@ -10901,10 +10976,9 @@ function kertElemRak(tip, x, y) {
   hangCsilla(); ment();
   if ((P().kert.keszlet[tip] || 0) <= 0) KERT_RAK_TIP = null;   /* elfogyott → válassz másikat */
   kertElemekRender(); kertFeszerRender();
-  var sugo = $("kert-sugo");
-  if (sugo) sugo.textContent = (P().kert.keszlet[tip] > 0)
+  kertSugo((P().kert.keszlet[tip] > 0)
     ? "Szuper! Tehetsz le még egyet, vagy válassz mást. 🧺"
-    : "Letéve! 🌿 Berendezésből kilépni: koppints a 🧺 gombra.";
+    : "Letéve! 🌿 Berendezésből kilépni: koppints a 🧺 gombra.");
 }
 /* A megvett trükkökhöz 1-1 gomb a kert alján (adatvezérelt: KERT_BOLT trükk-sorai).
    Rákoppintva az unikornis eljátssza. Ha még nincs trükk, a sor rejtve. */
@@ -10944,7 +11018,7 @@ function kertUl() {
   doboz.classList.add("ules-all");
   KERT_UL = true;
   hangCsilla();
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🛋️ Ül — koppints a gombra vagy a fűre, hogy felálljon.";
+  kertSugo("🛋️ Ül — koppints a gombra vagy a fűre, hogy felálljon.");
   kertTrukksorRender();
 }
 function kertAll() {
@@ -10963,7 +11037,7 @@ function kertAll() {
   kertZzzTorol();                  /* alvó-Zzz eltakarítása */
   KERT_UL = false; KERT_FEKSZIK = false;
   hangGomb();
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
+  kertSugo(KERT_SUGO_SETA);
   kertTrukksorRender();
 }
 /* egy EGYSZERI trükk lejátszása: a meglévő figurára tesz egy .trukk-<id> osztályt (a mozgást a CSS
@@ -10978,10 +11052,10 @@ function kertTrukkJatszik(id) {
   /* 🌀 Pörgés: 4 nézetes sprite-swap forgás (nem CSS-animáció) */
   if (id === "porges") {
     hangCsilla();
-    var sugo0 = $("kert-sugo"); if (sugo0) sugo0.textContent = t.emoji + " " + t.nev + "!";
+    kertSugo(t.emoji + " " + t.nev + "!");
     kertPorgesForgas(doboz, t.perc, function () {
       KERT_TRUKK_FUT = false;
-      var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
+      kertSugo(KERT_SUGO_SETA);
     });
     return;
   }
@@ -11010,13 +11084,13 @@ function kertTrukkJatszik(id) {
       csillamElemek.push(ko);
     }
   }
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = t.emoji + " " + t.nev + "!";
+  kertSugo(t.emoji + " " + t.nev + "!");
   clearTimeout(doboz._trukkTimer);
   doboz._trukkTimer = setTimeout(function () {
     doboz.classList.remove(cls);
     csillamElemek.forEach(function (e) { e.parentNode && e.parentNode.removeChild(e); });
     KERT_TRUKK_FUT = false;
-    var s2 = $("kert-sugo"); if (s2) s2.textContent = "Koppints a fűre — az unikornis odasétál. 🚶";
+    kertSugo(KERT_SUGO_SETA);
   }, t.perc + 80);
 }
 /* 🦘 az ugrás ELŐRE visz (amerre néz) — a vízszintes elmozdulás csak a levegőben töltött szakaszra
@@ -11024,7 +11098,7 @@ function kertTrukkJatszik(id) {
    arra ugrik. Mozgáskímélő módban helyben marad. */
 var KERT_UGRAS_TAV = 12;   /* ennyi %-ot ugrik előre */
 function kertUgrasElore(doboz) {
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (nyugiMod()) return;
   var dir = (+doboz.style.getPropertyValue("--dir") < 0) ? -1 : 1;
   var cel = KERT_UNI_X + KERT_UGRAS_TAV * dir;
   if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; doboz.style.setProperty("--dir", dir); }
@@ -11034,7 +11108,7 @@ function kertUgrasElore(doboz) {
 }
 /* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
 function kertPorgesForgas(doboz, idoMs, cb) {
-  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reducedMotion = nyugiMod();
   if (reducedMotion) {
     var flip = doboz.querySelector(".kert-uni-flip");
     if (flip) flip.style.setProperty("--dir", "-1");
@@ -11113,10 +11187,9 @@ function kertEtelKoppint(i) {
   if (KERT_TRUKK_FUT) return;                       /* épp eszik/trükközik → nem indítunk újat */
   var o = P().kert.elemek[i]; if (!o) return;
   var def = kertTargyDef(o.tip); if (!def || def.csoport !== "etel") return;
-  var sugo = $("kert-sugo");
   if (!(P().kert.trukkok && P().kert.trukkok.eves)) {   /* nincs meg az Evés → súgó */
     hangGomb();
-    if (sugo) sugo.textContent = "😋 Vedd meg a boltban az Evés képességet, és az unikornis idesétál falatozni!";
+    kertSugo("😋 Vedd meg a boltban az Evés képességet, és az unikornis idesétál falatozni!");
     return;
   }
   if (KERT_UL || KERT_FEKSZIK) kertAll();
@@ -11135,7 +11208,7 @@ function kertSetalEszik(celX, o) {
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek a finom falatért…";
+  kertSugo("🚶 Megyek a finom falatért…");
   clearTimeout(doboz._jarTimer);
   doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertEszik(o); }, mp * 1000 + 90);
 }
@@ -11145,7 +11218,7 @@ function kertEszik(o) {
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   doboz.classList.add("eszik");
   hangCsilla(); kertNyihog();                    /* halk nyihogás a falatnak (terv: 3. döntés) */
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "😋 Nyami-nyami… csámcsog!";
+  kertSugo("😋 Nyami-nyami… csámcsog!");
   var host = $("kert-szinter");
   if (host && o) {
     var sz = document.createElement("div");
@@ -11160,7 +11233,7 @@ function kertEszik(o) {
   doboz._eszikTimer = setTimeout(function () {
     doboz.classList.remove("eszik");
     KERT_TRUKK_FUT = false;
-    var s2 = $("kert-sugo"); if (s2) s2.textContent = "Finom volt! 🌿 Koppints a fűre, vagy másik falatra.";
+    kertSugo("Finom volt! 🌿 Koppints a fűre, vagy másik falatra.");
   }, 1650);
 }
 
@@ -11185,7 +11258,7 @@ function kertSetalSzagol(celX, o) {
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek megszagolni…";
+  kertSugo("🚶 Megyek megszagolni…");
   clearTimeout(doboz._jarTimer);
   doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertSzagol(o); }, mp * 1000 + 90);
 }
@@ -11194,7 +11267,7 @@ function kertSzagol(o) {
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
   doboz.classList.add("szagol");
   hangCsilla();
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🌸 Milyen finom illat!";
+  kertSugo("🌸 Milyen finom illat!");
   var host = $("kert-szinter");
   if (host && o) {
     var sz = document.createElement("div");
@@ -11209,7 +11282,7 @@ function kertSzagol(o) {
   doboz._szagolTimer = setTimeout(function () {
     doboz.classList.remove("szagol");
     KERT_TRUKK_FUT = false;
-    var s2 = $("kert-sugo"); if (s2) s2.textContent = "Micsoda illat! 🌿 Koppints a fűre, vagy szagolgass tovább.";
+    kertSugo("Micsoda illat! 🌿 Koppints a fűre, vagy szagolgass tovább.");
   }, 1300);
 }
 
@@ -11220,10 +11293,9 @@ function kertAgyKoppint(i) {
   var o = P().kert.elemek[i]; if (!o || o.tip !== "agy") return;
   if (KERT_FEKSZIK) { kertAll(); return; }           /* már fekszik → az ágyra koppintva feláll */
   if (KERT_TRUKK_FUT) return;                          /* épp sétál/eszik → nem indítunk újat */
-  var sugo = $("kert-sugo");
   if (!(P().kert.trukkok && P().kert.trukkok.befekves)) {   /* nincs meg a Befekvés → súgó */
     hangGomb();
-    if (sugo) sugo.textContent = "😴 Vedd meg a boltban a Befekvés képességet, és az unikornis lepihen ide!";
+    kertSugo("😴 Vedd meg a boltban a Befekvés képességet, és az unikornis lepihen ide!");
     return;
   }
   if (KERT_UL) kertAll();
@@ -11243,7 +11315,7 @@ function kertSetalFekszik(i) {
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
   }
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "🚶 Megyek lepihenni…";
+  kertSugo("🚶 Megyek lepihenni…");
   clearTimeout(doboz._jarTimer);
   doboz._jarTimer = setTimeout(function () { doboz.classList.remove("jar"); kertLepesHang(false); kertFekszik(i); }, mp * 1000 + 90);
 }
@@ -11275,7 +11347,7 @@ function kertFekszik(i) {
   KERT_FEKSZIK = true;
   kertZzzTesz(doboz);
   hangCsilla();
-  var sugo = $("kert-sugo"); if (sugo) sugo.textContent = "😴 Pihen az ágyon — koppints, hogy felkeljen.";
+  kertSugo("😴 Pihen az ágyon — koppints, hogy felkeljen.");
 }
 /* lágy „z z z" az unikornis fölé (a dobozban, így követi a helyét); felállásnál eltakarítjuk */
 function kertZzzTesz(doboz) {
@@ -11417,35 +11489,6 @@ function boltHelyek(n, felso, tablas) {
   return ki;
 }
 
-/* ── a bagoly-boltos: 3 póz, csak a szárny-path és a pupillák térnek el ── */
-var BOLT_BAGOLY_POZ = {
-  nyugalmi: { szarny: "M28 -40 Q40 -30 35 -16 Q26 -24 26 -38 Z", bal: [-11, -43], jobb: [11, -43] },
-  fel:      { szarny: "M28 -44 Q52 -54 66 -66 Q56 -44 34 -34 Z", bal: [-10, -47], jobb: [12, -47] },
-  oldal:    { szarny: "M28 -34 Q54 -34 70 -30 Q54 -22 32 -24 Z", bal: [-7, -43],  jobb: [15, -43] }
-};
-function boltBagolySVG(poz) {
-  var p = BOLT_BAGOLY_POZ[poz] || BOLT_BAGOLY_POZ.nyugalmi;
-  function szem(c) {   /* a fénypötty mindig 2 px-szel balra és 3 px-szel fölé */
-    return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="5" fill="#4a3b2a"/>' +
-           '<circle cx="' + (c[0] - 2) + '" cy="' + (c[1] - 3) + '" r="1.8" fill="#fff"/>';
-  }
-  return '<g class="bolt-bagoly" transform="translate(140,430)">' +
-    '<ellipse cx="0" cy="3" rx="32" ry="5" fill="#3b2f66" opacity="0.18"/>' +
-    '<g stroke="#e8a23d" stroke-width="3.4" stroke-linecap="round" fill="none">' +
-      '<path d="M-11 -8 v10"/><path d="M11 -8 v10"/><path d="M-15 2 h9 M-11 2 v3"/><path d="M7 2 h9 M11 2 v3"/></g>' +
-    '<ellipse cx="0" cy="-36" rx="31" ry="35" fill="#c9a06a" stroke="#222" stroke-width="2.2"/>' +
-    '<ellipse cx="0" cy="-28" rx="21" ry="25" fill="#e9d3ad"/>' +
-    '<path d="M-28 -62 l10 18 l11 -11 Z" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
-    '<path d="M28 -62 l-10 18 l-11 -11 Z" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
-    '<circle cx="-11" cy="-44" r="11.5" fill="#fff" stroke="#222" stroke-width="2"/>' +
-    '<circle cx="11" cy="-44" r="11.5" fill="#fff" stroke="#222" stroke-width="2"/>' +
-    '<g class="bolt-bagoly-szem">' + szem(p.bal) + szem(p.jobb) + '</g>' +
-    '<path d="M0 -34 l-5 7 l10 0 Z" fill="#e8a23d" stroke="#222" stroke-width="1.6"/>' +
-    '<path d="M-19 -16 Q0 -21 19 -16 Q21 -4 18 4 Q0 9 -18 4 Q-21 -4 -19 -16 Z" fill="#f7b8d0" stroke="#e79ac0" stroke-width="1.8"/>' +
-    '<path d="M-8 -10 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z" fill="#fff2c4"/>' +
-    '<path class="bolt-bagoly-szarny" d="' + p.szarny + '" fill="#c9a06a" stroke="#222" stroke-width="2"/>' +
-  '</g>';
-}
 /* mit mond a boltos — ez nem dísz: egy 6-7 éves nem tud fejben kivonni,
    a bagoly mondja meg, futja-e (és a buborékra koppintva fel is olvassa) */
 function boltBagolySzoveg(k) {
@@ -11593,7 +11636,7 @@ function boltSzinterSVG() {
   s += '<rect x="70" y="430" width="470" height="13" rx="3" fill="#d9b48a"/>';
   s += '<rect x="70" y="443" width="470" height="6" rx="2" fill="#c19a72"/>';
   s += '<path d="M100 449 l0 12 M508 449 l0 12" stroke="#c19a72" stroke-width="5"/>';
-  s += boltBagolySVG(!k ? "nyugalmi" : (boltKivalHelye(o, k, helyek) ? "fel" : "oldal"));
+  s += bagolyRajz("boltos", !k ? "nyugalmi" : (boltKivalHelye(o, k, helyek) ? "fel" : "oldal"));
   s += also;
   /* beszéd-buborék (a szélességét a második menet igazítja a szöveghez) */
   s += '<g class="bolt-buborek" pointer-events="none">' +
@@ -12678,25 +12721,6 @@ function bankLigetMondat(ids) {
   return l.length ? BANK_LIGET_BEN[l[0].slice(1)] : "";
 }
 
-/* ── a bankár bagoly (rajzterv: karamell, szemüveg, pink csokornyakkendő, pislog) — 0,0 a test közepe ── */
-function bankarBagoly(x, y, s) {
-  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' +
-    '<ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity=".18"/>' +
-    '<path d="M-26,-40 l8,-16 l8,15 Z" fill="#c98d55"/><path d="M26,-40 l-8,-16 l-8,15 Z" fill="#c98d55"/>' +
-    '<ellipse cx="0" cy="0" rx="34" ry="44" fill="#e2b07a"/>' +
-    '<ellipse cx="0" cy="12" rx="22" ry="29" fill="#fbe6c8"/>' +
-    '<path d="M-10,14 q3,4 6,0 M2,22 q3,4 6,0 M-6,30 q3,4 6,0" stroke="#e2b07a" stroke-width="2" fill="none"/>' +
-    '<path d="M-34,-4 Q-48,14 -33,34 Q-28,14 -29,-4 Z" fill="#c98d55"/><path d="M34,-4 Q48,14 33,34 Q28,14 29,-4 Z" fill="#c98d55"/>' +
-    '<circle cx="-13" cy="-15" r="13" fill="#fffaf0"/><circle cx="13" cy="-15" r="13" fill="#fffaf0"/>' +
-    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.93;.965;1" dur="4.2s" repeatCount="indefinite" additive="sum"/>' +
-    '<circle cx="-11" cy="-13" r="6" fill="#4a3b7a"/><circle cx="11" cy="-13" r="6" fill="#4a3b7a"/></g>' +
-    '<circle cx="-13" cy="-16" r="2" fill="#fff"/><circle cx="9" cy="-16" r="2" fill="#fff"/>' +
-    '<circle cx="-13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><circle cx="13" cy="-15" r="16" fill="none" stroke="#7a5230" stroke-width="2.5"/><path d="M-2,-17 h4" stroke="#7a5230" stroke-width="2.5"/>' +
-    '<path d="M-5,-3 L5,-3 L0,8 Z" fill="#ffb347"/>' +
-    '<g transform="translate(0,17)"><path d="M0,0 L-13,-7 L-13,7 Z" fill="#f06aa8"/><path d="M0,0 L13,-7 L13,7 Z" fill="#f06aa8"/><circle r="3.5" fill="#d84f96"/></g>' +
-    '<path d="M-14,44 l-4,8 M-8,45 l-1,8 M8,45 l1,8 M14,44 l4,8" stroke="#ffb347" stroke-width="4" stroke-linecap="round"/>' +
-    '</g>';
-}
 
 /* ── a bank háza az utcán (rajzterv külső jelenete, ég nélkül): 0,4-re kicsinyítve, középen x=200, talp 432
    (az utca régi koordinátáiban — szalon.js utcaHely teszi a helyére) ── */
@@ -12717,7 +12741,7 @@ function utcaBankRajz(zarva) {
   h += '</g>';
   /* a bagoly néha kikukucskál a bal ablakon */
   h += '<g clip-path="url(#u-b-bal)"><g><animateTransform attributeName="transform" type="translate" values="0 60;0 60;0 0;0 0;0 60" keyTimes="0;.55;.62;.85;1" dur="9s" repeatCount="indefinite"/>' +
-    bankarBagoly(148, 160, .62) + '</g></g>';
+    bagolyRajz("bankar", 148, 160, .62) + '</g></g>';
   h += '<g filter="url(#u-firka)"><rect x="126" y="196" width="148" height="62" rx="6" fill="#f7b8d0"/><rect x="131" y="201" width="138" height="52" rx="4" fill="url(#u-b-tabla)"/></g>' +
     '<text x="200" y="240" text-anchor="middle" font-family="Comic Sans MS, Fredoka, Segoe UI, sans-serif" font-size="38" font-style="italic" font-weight="700" fill="#eef0ff" stroke="#4a5ad8" stroke-width="5" paint-order="stroke">bank</text>' +
     uCsillam(140, 206, 6, "#fff", 0) + uCsillam(262, 248, 5, "#ffe08a", 1.1);
@@ -12775,7 +12799,7 @@ function bankBelsoSVG() {
     '<path d="M300 140 q-5 8 0 12 q5 -4 0 -12Z" fill="#7cc8e2"><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 40;0 40" keyTimes="0;.6;.95;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.6;.9;1" dur="3.6s" repeatCount="indefinite"/></path>' +
     '<text x="300" y="164" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7ea0">💧 tündérharmat</text></g></g>';
   /* bagoly a pult mögött, a széf előtt */
-  s += bankarBagoly(200, 124, .78);
+  s += bagolyRajz("bankar", 200, 124, .78);
   /* pult (a gyerekek barna doboza) */
   s += '<g filter="url(#bk-firka)">';
   s += '<ellipse cx="200" cy="266" rx="112" ry="9" fill="#000" opacity=".15"/>';
@@ -14025,7 +14049,6 @@ var TK = {
 var TK_FELOLDAS_AR = 10;   /* 💧 tündérharmat, egyszeri feloldás (P().tkNyitva) */
 var TK_Y_MIN = 60, TK_Y_MAX = 93;   /* a felhőmező sétálható sávja (a színtér magasságának %-a) */
 
-function tkEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function tkMa() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate(); }
 /* napi számláló profilonként (helyi dátum): hány ösvényt járt végig ma + hány mp-et volt a felhőkertben */
 function tkNap() {
@@ -14115,7 +14138,7 @@ function tkLepcsoSVG() {
     '<text x="' + cx + '" y="' + (cy + 35) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#8a4fd0">felhőkert</text>';
   if (!k.nyitva) {
     g += '<rect x="' + (cx - 44) + '" y="' + (cy + 44) + '" width="88" height="19" rx="9" fill="#1a1338" opacity="0.9"/>' +
-      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">' + (k.zar ? "🔒 " : "💤 ") + tkEsc(k.rovid) + '</text>';
+      '<text x="' + cx + '" y="' + (cy + 57) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd24d">' + (k.zar ? "🔒 " : "💤 ") + htmlVed(k.rovid) + '</text>';
   }
   g += '</g>';
   return g;
@@ -14295,7 +14318,7 @@ function tkMeret(y) { return 0.62 + 0.38 * (y - TK_Y_MIN) / (TK_Y_MAX - TK_Y_MIN
 function tkUniEl(kulcs, a, sajat) {
   var d = el("div", "tk-uni" + (sajat ? " sajat" : ""));
   d.id = "tk-uni-" + kulcs;
-  d.innerHTML = '<div class="tk-nev">' + tkEsc(a.nev) + '</div>' + tkUniSVG(kulcs, a) + (sajat ? '<div class="tk-te">✦ te ✦</div>' : '');
+  d.innerHTML = '<div class="tk-nev">' + htmlVed(a.nev) + '</div>' + tkUniSVG(kulcs, a) + (sajat ? '<div class="tk-te">✦ te ✦</div>' : '');
   return d;
 }
 function tkUniSVG(kulcs, a) {
@@ -14492,7 +14515,7 @@ var TK_UGRAS_TAV = 10;
 function tkUgrasElore(d, x, y, celX) {
   var dir = (+d.style.getPropertyValue("--dir") < 0) ? -1 : 1, nx = celX;
   if (typeof nx !== "number") {
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return x;
+    if (nyugiMod()) return x;
     nx = x + TK_UGRAS_TAV * dir;
     if (nx < 8 || nx > 92) { dir = -dir; nx = x + TK_UGRAS_TAV * dir; }
     nx = Math.round(nx * 10) / 10;
@@ -14598,7 +14621,7 @@ function tkTalcaRajzol() {
   (window.TK_DISZEK || []).forEach(function (d) {
     var zs = tkDiszZsak(d.id), cimke = zs ? "×" + zs : ar + " 💧";
     h += '<button class="tk-d-elem' + (TK.dMod === d.id ? " kivalasztva" : "") + (!zs && harmat < ar ? " draga" : "") +
-      '" data-d="' + d.id + '" aria-label="' + tkEsc(d.nev) + '" title="' + tkEsc(d.nev) + '">' +
+      '" data-d="' + d.id + '" aria-label="' + htmlVed(d.nev) + '" title="' + htmlVed(d.nev) + '">' +
       tkDiszSVG(d.id, "tk-d-kep") + '<span class="tk-d-cimke' + (zs ? " zsak" : "") + '">' + cimke + "</span></button>";
   });
   t.innerHTML = h;
@@ -14919,11 +14942,10 @@ function ftFelolvasSzoveg(f) {
 /* felolvasás: a szám utáni pontot a gép sorszámnak olvassa („50.” → „ötvenedik”) — ezért kivesszük */
 function ftKiejt(s) { return String(s).replace(/(\d)\.(?=\s|$|[”"'])/g, "$1"); }
 function ftMondd(s, kesz) { mondd(ftKiejt(s), kesz); }
-function ftEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function ftKiemel(szoveg, szavak) {
-  var h = ftEsc(szoveg);
+  var h = htmlVed(szoveg);
   (szavak || []).slice().sort(function (a, b) { return b.length - a.length; }).forEach(function (w) {
-    var e = ftEsc(w); h = h.split(e).join("\u0001" + e + "\u0002");
+    var e = htmlVed(w); h = h.split(e).join("\u0001" + e + "\u0002");
   });
   return h.replace(/\u0001/g, "<mark>").replace(/\u0002/g, "</mark>");
 }
@@ -14934,13 +14956,13 @@ function ftAllomas(tetel) {
   var t = ftTartalom();
   if (tetel.vissza) t.appendChild(el("div", "ft-vissza-cim", "🔁 Emlékszel erre? Próbáld meg újra!"));
   var fk = el("div", "ft-kartya ft-feladat");
-  fk.innerHTML = '<div class="ft-szoveg" id="ft-szoveg">' + ftEsc(f.szoveg) + '</div>';
+  fk.innerHTML = '<div class="ft-szoveg" id="ft-szoveg">' + htmlVed(f.szoveg) + '</div>';
   t.appendChild(fk);
   var vs = el("div", "ft-valaszok"); vs.id = "ft-valaszok";
   FT_BETUK.forEach(function (b) {
     var g = el("button", "ft-betu");
     g.dataset.b = b;
-    g.innerHTML = '<b>' + b + '</b><span>' + ftEsc(f.valaszok[b]) + '</span>';
+    g.innerHTML = '<b>' + b + '</b><span>' + htmlVed(f.valaszok[b]) + '</span>';
     g.addEventListener("click", function () { ftValasz(b); });
     vs.appendChild(g);
   });
@@ -14986,7 +15008,7 @@ function ftSegit() {
 function ftKerdesKartya(f, hova, tovabb) {
   $("ft-szoveg").innerHTML = ftKiemel(f.szoveg, f.kerdes && f.kerdes.kiemel);
   var k = el("div", "ft-kartya ft-kerdes");
-  k.innerHTML = '<div class="ft-lepes-fej">🔎 Mit kérdeznek?</div><p>' + ftEsc(f.kerdes && f.kerdes.mondat) + '</p>';
+  k.innerHTML = '<div class="ft-lepes-fej">🔎 Mit kérdeznek?</div><p>' + htmlVed(f.kerdes && f.kerdes.mondat) + '</p>';
   if (tovabb) {
     var b = el("button", "nagy-gomb kiemelt", "Értem! ➜");
     b.addEventListener("click", function () { hangGomb(); b.remove(); tovabb(); });
@@ -15010,8 +15032,8 @@ function ftSzamKi(szoveg) {
 /* egy megoldás-lépés: a művelet felíródik, a gyerek kimondja vagy beírja az eredményt */
 function ftLepesKartya(l, li, hova, kesz) {
   var k = el("div", "ft-kartya ft-lepes");
-  var elotte = ftEsc(l.muvelet).split("?");
-  k.innerHTML = '<div class="ft-lepes-fej">' + (li + 1) + '. lépés</div><p>' + ftEsc(l.szoveg) + '</p>' +
+  var elotte = htmlVed(l.muvelet).split("?");
+  k.innerHTML = '<div class="ft-lepes-fej">' + (li + 1) + '. lépés</div><p>' + htmlVed(l.szoveg) + '</p>' +
     (l.kepSvg ? '<div class="ft-kep">' + l.kepSvg + '</div>' : '') +
     '<div class="ft-muvelet">' + elotte[0] + '<span class="ft-ures">?</span>' + (elotte[1] || "") + '</div>' +
     '<div class="ft-lepes-valasz"></div><div class="ft-lepes-jel"></div>';
@@ -15114,7 +15136,7 @@ function ftValasz(b) {
     var mondat = c ? c.mondat : "Nézzük meg együtt, lépésről lépésre!";
     if (FTJ.mester && c) mondat += " Most együtt végigmegyünk rajta.";
     var k3 = el("div", "ft-kartya ft-csapda");
-    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + ftEsc(mondat) + '</p>';
+    k3.innerHTML = '<div class="ft-nagy">' + (FTJ.mester ? "🤔 Majdnem!" : "🤔 Ez most nem jó.") + '</div><p>' + htmlVed(mondat) + '</p>';
     hova.appendChild(k3); ftGorget(k3);
     ftMondd((FTJ.mester ? "Majdnem! " : "Ez most nem jó. ") + mondat, function () { ftMagyarazat(); });
   }
@@ -15137,9 +15159,9 @@ function ftOsszefoglalo() {
   var k = el("div", "ft-kartya ft-fuzet-kartya");
   k.innerHTML = '<div class="ft-lepes-fej">📓 A füzetben így néz ki</div><div class="ft-fuzet">' +
     (f.osszefoglalo || []).map(function (s) {
-      return /^Válasz:/.test(s) ? '<b class="ft-valasz-sor">' + ftEsc(s) + '</b>' : ftEsc(s);
+      return /^Válasz:/.test(s) ? '<b class="ft-valasz-sor">' + htmlVed(s) + '</b>' : htmlVed(s);
     }).join("<br>") + '</div>' +
-    (f.trukk ? '<div class="ft-trukk">💡 ' + ftEsc(f.trukk) + '</div>' : '');
+    (f.trukk ? '<div class="ft-trukk">💡 ' + htmlVed(f.trukk) + '</div>' : '');
   hova.appendChild(k); ftGorget(k);
   ftMondd("A helyes válasz: " + f.helyes + ", " + f.valaszok[f.helyes] + ". " + (f.trukk ? "Jegyezd meg: " + f.trukk : ""), function () { ftTovabbGomb(k); });
 }
@@ -15200,7 +15222,7 @@ function fejtoroKilep() {
 /* ============ 11) INDÍTÁS ============ */
 betolt();
 felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
-document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolySVG());
+document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolyRajz("kabala"));
 esemenyek();
 renderProfil();
 mutat("kepernyo-profil");

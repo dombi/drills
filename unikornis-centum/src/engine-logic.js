@@ -421,6 +421,17 @@ function bekotUresNegyzet() {
     });
   }
 }
+/* egy rossz válasz könyvelése — közös a szóbeli válasznak (ertekel) és a koppintós feladatoknak (meres.js mKoppRossz,
+   konyvtar.js ekKoppRossz): próbaszám, az állomás már nem hibátlan, sorozat megszakad, napló, hiba-hang.
+   A visszajelzés (mit mond, mit mutat) és a mentés a hívó dolga. */
+function rosszValaszKonyvel(f, cimke) {
+  meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js); más feladatnál nem csinál semmit */
+  J.probak++;
+  J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
+  streakLep(false);
+  naplozz(f.naplo, false, cimke);
+  hangHiba();
+}
 function ertekel(valasz) {
   var f = J.feladat;
   if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
@@ -462,12 +473,7 @@ function ertekel(valasz) {
     else setTimeout(tovabb, Math.max(900, fv));
   } else {
     if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
-    meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js) */
-    J.probak++;
-    J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
-    streakLep(false);
-    naplozz(f.naplo, false, mar ? (valasz.h + "m" + valasz.m) : valasz);
-    hangHiba();
+    rosszValaszKonyvel(f, mar ? (valasz.h + "m" + valasz.m) : valasz);
     $("visszajelzes").className = "visszajelzes rossz";
     if (mar) {
       maradekosKitolt(false);

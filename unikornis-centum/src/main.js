@@ -1,7 +1,7 @@
 /* ============ 11) INDÍTÁS ============ */
 betolt();
 felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
-document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolySVG());
+document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolyRajz("kabala"));
 esemenyek();
 renderProfil();
 mutat("kepernyo-profil");

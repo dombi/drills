@@ -82,11 +82,7 @@ function ekKiejt(s) {
 
 /* ── HTML-darabok (a rajzterv jóváhagyott elemei) ── */
 function ekSok(e, n) { if (n > 8) return e; var s = ""; for (var i = 0; i < n; i++) s += e; return s; }
-function ekErem(e, sz, c, o) {
-  o = o || {}; if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
-  return '<div class="ek-erem"><div class="e' + (o.sok ? ' sok' : '') + '">' + e + '</div>' +
-    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
-}
+function ekErem(e, sz, c, o) { return szereploErem(e, sz, c, o); }   /* közös érem (figurak.js) */
 function ekSzamsor(t) { return '<div class="ek-szamsor">' + t.map(function (x) { return '<span>' + x + '</span>'; }).join("") + '</div>'; }
 function ekBub(o) {
   return '<div class="ek-bub">' + (o.kep ? '<div class="ek-kep">' + o.kep + '</div>' : '') +
@@ -1000,8 +996,7 @@ function ekKoppJo(f, k) {
   setTimeout(function () { if (J && J.feladat === f) ertekel(f.helyes); }, 380);
 }
 function ekKoppRossz(f, cimke, msg, fajta) {
-  J.probak++; J.allomasHibatlan = false; J.ekHibas = true; J.kopp.hiba++;
-  streakLep(false); naplozz(f.naplo, false, cimke); hangHiba();
+  rosszValaszKonyvel(f, cimke); J.ekHibas = true; J.kopp.hiba++;
   var v = $("visszajelzes"), sug = f.ek.sug || "Olvassuk el újra a kérdést!";
   if (msg) ekCsapdaSzamol(fajta);
   if (J.kopp.hiba >= 2) {
@@ -1192,18 +1187,6 @@ function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (k
   if (n >= 14) g += '<path d="M0 -58 V-80" stroke="#6b5442" stroke-width="2"/><path d="M0 -80 L16 -75 L0 -70Z" fill="#e2589b"/>';
   return g + '</g>';
 }
-function ekBagoly(x, y, s) {
-  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-40,52 Q0,40 40,52" stroke="#6b5442" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-    '<ellipse cx="0" cy="0" rx="34" ry="42" fill="#c9a8e6"/><ellipse cx="0" cy="8" rx="22" ry="30" fill="#e9ddf3"/>' +
-    '<path d="M-34,-6 Q-46,10 -34,30 Q-30,10 -30,-6 Z" fill="#b48fd6"/><path d="M34,-6 Q46,10 34,30 Q30,10 30,-6 Z" fill="#b48fd6"/>' +
-    '<path d="M-26,-40 l10,-14 l6,14 Z" fill="#c9a8e6"/><path d="M26,-40 l-10,-14 l-6,14 Z" fill="#c9a8e6"/>' +
-    '<circle cx="-13" cy="-14" r="14" fill="#fdfdfd"/><circle cx="13" cy="-14" r="14" fill="#fdfdfd"/>' +
-    '<g><animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .1;1 1" keyTimes="0;.94;.97;1" dur="4.5s" repeatCount="indefinite" additive="sum"/>' +
-    '<circle cx="-11" cy="-12" r="6.5" fill="#4a3b7a"/><circle cx="11" cy="-12" r="6.5" fill="#4a3b7a"/></g>' +
-    '<circle cx="-13" cy="-15" r="2" fill="#fff"/><circle cx="9" cy="-15" r="2" fill="#fff"/><path d="M-5,-2 L5,-2 L0,10 Z" fill="#ffcf6b"/>' +
-    '<path d="M-30,44 l-6,10 M-22,46 l-2,10 M22,46 l2,10 M30,44 l6,10" stroke="#ffcf6b" stroke-width="4" stroke-linecap="round"/>' +
-    '<circle cx="-13" cy="-14" r="17" fill="none" stroke="#8a6a4a" stroke-width="2.5"/><circle cx="13" cy="-14" r="17" fill="none" stroke="#8a6a4a" stroke-width="2.5"/><path d="M-1,-16 h2" stroke="#8a6a4a" stroke-width="2.5"/></g>';
-}
 var EK_KSZIN = ["#c9a8e6", "#9ec9f0", "#f6a5c0", "#a7d99a", "#f7c59f", "#fce49a", "#b48fd6", "#e8b27c", "#8fc3c7"];
 function ekPolc(x0, x1, yTop, yAlj, sorok, r) {
   var s = '<rect x="' + (x0 - 6) + '" y="' + (yTop - 8) + '" width="' + (x1 - x0 + 12) + '" height="' + (yAlj - yTop + 8) + '" fill="#a8744a"/><rect x="' + x0 + '" y="' + yTop + '" width="' + (x1 - x0) + '" height="' + (yAlj - yTop) + '" fill="#7a5134"/>';
@@ -1243,7 +1226,7 @@ function ekKonyvtarSVG(W, H, fal, id) {
   var lx0 = W - 14 - pw - 28;
   s += '<g opacity=".95"><path d="M' + lx0 + ' ' + (fal + 2) + ' L' + (lx0 + 56) + ' 6 M' + (lx0 + 24) + ' ' + (fal + 2) + ' L' + (lx0 + 80) + ' 6" stroke="#8a5a36" stroke-width="5" stroke-linecap="round"/>';
   for (var i = 1; i < 8; i++) { var t = i / 8; s += '<path d="M' + (lx0 + 56 * t) + ' ' + (fal + 2 - (fal - 4) * t) + ' H' + (lx0 + 24 + 56 * t) + '" stroke="#8a5a36" stroke-width="4"/>'; }
-  s += '</g>' + ekBagoly(14 + pw * .8, 38, .42);
+  s += '</g>' + bagolyRajz("konyvtaros", 14 + pw * .8, 38, .42);
   s += '<rect y="' + fal + '" width="' + W + '" height="' + (H - fal) + '" fill="#e3c29a"/>';
   for (var y = fal + 22; y < H; y += 30) s += '<path d="M0 ' + y + ' H' + W + '" stroke="#d2ad80" stroke-width="2"/>';
   for (var y2 = fal, k = 0; y2 < H; y2 += 30, k++) for (var x2 = (k % 2) * 90; x2 < W; x2 += 180) s += '<path d="M' + x2 + ' ' + y2 + ' v22" stroke="#d2ad80" stroke-width="2"/>';

@@ -171,12 +171,8 @@ function vsSzalag(sorok, egyseg) {
   });
   return vsSvg(W, sorok.length * 44 + 10, s, "szeles").replace('<svg ', '<svg style="height:calc(' + sorok.length + ' * min(46px, 7.4vh) + 6px)" ');
 }
-/* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson */
-function vsErem(e, sz, c, ki) {
-  if (sz === "?") e = figArcCsere(e, "gondol");   /* a „?”-es szereplő gondolkodik (figurak.js) */
-  return '<div class="ek-erem vs-erem"' + (ki ? ' data-ki="' + ki + '"' : '') + '><div class="e">' + e + '</div>' +
-    (sz == null ? '' : '<div class="sz' + (sz === "?" ? ' q' : '') + '">' + sz + '</div>') + (c ? '<div class="c">' + c + '</div>' : '') + '</div>';
-}
+/* szereplő-érem (HTML); ki = név, hogy Tüske néni rámutathasson — közös érem (figurak.js) */
+function vsErem(e, sz, c, ki) { return szereploErem(e, sz, c, { cls: "vs-erem", ki: ki }); }
 var VS_NYIL = '<div class="vs-nyil">→</div>';
 /* a Dobozoló képe: kupac + minta-tartó „b fér bele”; KELL-csapdánál a teli tartók + a félig teli utolsó */
 function vsDobozKep(D, g, telik) {
