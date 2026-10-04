@@ -438,6 +438,11 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
    A koppintást a legfelső átlátszó réteg (.odu-cel) fogja; egér fölötte → a tárgy (.fel) megemelkedik,
    ragyog, és kiírja a nevét. */
 .odu-targy{ transition:transform .16s ease-out, filter .16s ease-out; }
+/* odúbeli ágy (unikornis pózok 9. lépés): fekve az ágy elülső pereme egy második példányban az unikornis ELÉ kerül, az árnyéka eltűnik */
+#odu-agy-elore{ display:none; }
+.odu-agy-fekve #odu-agy-elore{ display:inline; }
+#odu-uni-arnyek{ transition:opacity .3s ease; }
+.odu-fekszik #odu-uni-arnyek{ opacity:0; }
 .odu-targy.fel{ transform:translateY(-6px); filter:brightness(1.06) drop-shadow(0 0 6px rgba(255,224,138,.9)); }
 .odu-cel{ cursor:pointer; }
 .odu-felirat{ opacity:0; transition:opacity .16s; }
@@ -1025,12 +1030,13 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
    (mélyebbre nyomódik, majd visszarugózik), utána az alvó lélegzéssel együtt emelkedik-süllyed */
 .kt-agy-elol .kt-el-svg{ filter:none; }   /* a perem a matrac része: saját árnyék nélkül */
 .kt-agy-matrac{ transform-box:fill-box; transform-origin:50% 100%; transition:transform .35s ease; }
-.kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac{ transform:scale(1.015,.95);
+.odu-agy-matrac{ transform-box:fill-box; transform-origin:50% 100%; transition:transform .35s ease; }   /* odú: ugyanez a besüppedés (9. lépés) */
+.kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac, .odu-agy-terhelt .odu-agy-matrac{ transform:scale(1.015,.95);
   animation:kt-agy-huppan .6s ease-out 1, kt-agy-leleg 4.2s ease-in-out .6s infinite; }
 @keyframes kt-agy-huppan{ 0%{ transform:scale(1,1); } 40%{ transform:scale(1.03,.9); } 75%{ transform:scale(1.01,.97); } 100%{ transform:scale(1.015,.95); } }
 @keyframes kt-agy-leleg{ 0%,100%{ transform:scale(1.015,.95); } 50%{ transform:scale(1.012,.965); } }
 @media (prefers-reduced-motion:reduce){
-  .kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac{ animation:none; }   /* a besüppedés marad, rugózás nélkül */
+  .kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac, .odu-agy-terhelt .odu-agy-matrac{ animation:none; }   /* a besüppedés marad, rugózás nélkül */
 }
 /* ── ALVÁS — minden helyszínen (unikornis pózok 8. lépés, uniElalszik/uniFelebred, renderer.js) ──
    .uni-almos: a szemhéj kétszer lecsukódik · .uni-alszik: csukott szem, lassú lélegzés (a test a has alja
@@ -1061,7 +1067,21 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   70% { opacity:.9; }
   100%{ transform:translate(calc(-50% + var(--dir,1) * 26px),-46px) scale(1.15) rotate(calc(var(--dir,1) * 12deg)); opacity:0; }
 }
+/* rajzolt Zzz (odú, uniZzz SVG-ága): a tükör-csoport visszafordítja a betűket, az irányt a --dir adja */
+.uni-zzz-svg .uni-zzz-tukor{ transform:scale(var(--dir,1),1); }
+.uni-zzz-svg .uni-zzz-z{ transform-box:view-box; transform-origin:0 0; opacity:0; animation:uni-zzz-g 3.6s ease-out infinite; }
+.uni-zzz-svg .uni-zzz-z:nth-child(2){ animation-delay:1.2s; }
+.uni-zzz-svg .uni-zzz-z:nth-child(3){ animation-delay:2.4s; }
+@keyframes uni-zzz-g{
+  0%  { transform:scale(.5) rotate(0); opacity:0; }
+  15% { opacity:1; }
+  70% { opacity:.9; }
+  100%{ transform:translate(calc(var(--dir,1) * 27px),-48px) scale(1.15) rotate(calc(var(--dir,1) * 12deg)); opacity:0; }
+}
 @media (prefers-reduced-motion:reduce){
+  .uni-zzz-svg .uni-zzz-z{ animation:none; opacity:.9; }
+  .uni-zzz-svg .uni-zzz-z:nth-child(2){ transform:translate(calc(var(--dir,1) * 12px),-17px); }
+  .uni-zzz-svg .uni-zzz-z:nth-child(3){ transform:translate(calc(var(--dir,1) * 27px),-38px); }
   .uni-alszik .uni-elo{ animation:none!important; }
   .uni-zzz i{ animation:none; opacity:.9; }
   .uni-zzz i:nth-child(2){ transform:translate(calc(-50% + var(--dir,1) * 12px),-16px); }

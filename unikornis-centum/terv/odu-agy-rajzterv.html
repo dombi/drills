@@ -1,0 +1,80 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Odúbeli ágy</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; margin-bottom:12px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+</style></head><body><main>
+<h1>9. lépés — odúbeli ágy</h1>
+<p>Unikornis pózok terve, 9. (utolsó) lépés (7. panasz: „az odúban az ágy funkció nélküli”). Nagyság: <b>apró–közepes</b>. Állapot: <b>KÉSZ</b> (2026-10-04, <i>?v=20261004-6</i>).</p>
+
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ.</b> A producer döntései: <b>D1 = B</b> (csak az ágyra koppintva fekszik be; a villanyoltás nem fekteti le), <b>D2 = A</b> (alvás közben villanygyújtásra felkel, nyújtózik, hazasétál), <b>D3 = A</b> (ingyen, képesség nélkül).</p>
+<ul>
+<li><b>Közös kód, nem háromszor:</b> a fekvő póz, az elalvás, a Zzz, a szuszogás, a felébredés és a nyújtózás ugyanaz a renderer.js-kód, mint a kertben. A helyszín csak a helyet és a rétegeket adja.</li>
+<li><b>renderer.js:</b> <i>uniElalszik(el, azonnal)</i> (újrarajzoláskor rögtön alszik); a szuszogás rejtett képernyőn néma; <i>uniZzz</i> rajzon belül (SVG) is megy, a kertivel azonos helyen és méretben (<i>UNI_ZZZ_SVG</i>).</li>
+<li><b>odu.js:</b> <i>ODU_CELOK</i> „agy” (felirat: Ágy); <i>ODU_FEKSZIK</i>, <i>oduBefekszik / oduFekszik / oduFelkel</i>; új csoportok: <i>#odu-t-agy</i> (koppintható ágy, <i>.odu-agy-matrac</i> besüpped), <i>#odu-uni-emel</i> (felhuppanás), <i>#odu-uni-alvo</i> (póz + alvás), <i>#odu-agy-elore</i> (a perem fekve az unikornis elé), <i>#odu-uni-arnyek</i>. Alvás közben bármely más koppintás (bolt, kert, utca, ablak, „← Főmenü”) előbb felkelti. Az <i>oduNyit</i> nullázza (nem mentődik); ablakméret-váltáskor ébresztés nélkül újra az ágyban alszik.</li>
+<li><b>style.css:</b> rajzolt Zzz (<i>uni-zzz-g</i>), az odú matracának besüppedése a kertivel közös szabályban, az elülső perem és az árnyék.</li>
+<li><b>Teszt (néma):</b> mindhárom ágy; befekvés, 2. koppintásra azonnal; villanyoltás alvás közben (alszik tovább), villanygyújtás (felkel, nyújtózik, haza); ablakméret-váltás fekve; alvásból boltba; „← Főmenü” alvás közben; újranyitás ébren; kerti alvás változatlan. Konzol tiszta.</li>
+</ul>
+</div>
+
+<h2>1. Mi van most (felmérés)</h2>
+<div class="doboz terv">
+<ul>
+<li>Az odú ágya (Felhőfészek / Holdbölcső / Lótuszágy, 7. lépés) <b>csak dísz</b>: nem lehet rá koppintani, nincs felirata.</li>
+<li>A <b>villanyoltás</b> (csillaglámpa, 2026-09-28) kész: sötét fátyol, holdfény, csillagkép, a <b>szarv dereng</b>. Az unikornis közben csak áll a szőnyegen.</li>
+<li>A <b>szép fekvés és alvás</b> (8. lépés) közös kód, de eddig csak a kert használja. A fekvés helye az odúban már ki van mérve mindhárom ágyra.</li>
+<li>Két technikai akadály: (1) az ágy elülső pereme ma az unikornis <b>mögött</b> van — fekve elé kell kerülnie, hogy „belesüppedjen”; (2) a Zzz-buborékok a kertben HTML-ből vannak, az odú viszont egy rajz (SVG) → a Zzz-nek kell egy rajzolt változat is (ugyanaz a „Z”, ugyanaz a mozgás).</li>
+</ul>
+</div>
+
+<h2>2. Ahogy működne</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Az ágy koppintható</b>, mint a többi tárgy: rámutatva kiemelődik, „Ágy” felirattal.</li>
+<li><b>Befekvés:</b> az unikornis odasétál az ágyhoz (közös járás), a párna felé fordul, felhuppan, a matrac besüpped, lábait a teste alá hajtja → álmos pislogás → elalszik → Zzz → halk szuszogás. <b>Pont úgy, mint a kertben</b> — ugyanaz a kód.</li>
+<li><b>Felkelés:</b> az ágyra vagy magára az unikornisra koppintva leugrik a szőnyegre, nyújtózik és ásít, aztán hazasétál a helyére.</li>
+<li><b>Ha alvás közben másik tárgyra koppintasz</b> (bolt, kert, utca, ablak…): gyorsan felkel (nyújtózás nélkül) és megy oda — nem kell előbb külön felébreszteni.</li>
+<li><b>Nem mentődik:</b> ha elhagyod az odút, legközelebb ébren, a szőnyegen vár (mint a villany is mindig felkapcsolva nyílik).</li>
+<li>Sötétben a szarva alvás közben is halványan dereng — a gyerek látja, hol alszik.</li>
+<li>Kímélő mód: azonnal fekszik és alszik, séta és huppanás nélkül.</li>
+</ul>
+</div>
+
+<h2>3. Döntések</h2>
+<div class="doboz terv">
+<p><b>D1 — Mitől fekszik be?</b></p>
+<ul>
+<li><b>A)</b> Az ágyra koppintva <b>és</b> villanyoltáskor magától is: ha lekapcsolod a villanyt, odasétál és lefekszik aludni. <span class="javasolt">javasolt</span> (így „összeér” a kettő: esti lefekvés-szertartás)</li>
+<li><b>B)</b> Csak az ágyra koppintva; a villany külön dolog marad.</li>
+<li><b>C)</b> Csak villanyoltáskor.</li>
+</ul>
+<p><b>D2 — Ha alszik és felkapcsolod a villanyt?</b></p>
+<ul>
+<li><b>A)</b> Felébred, leugrik, nyújtózik és ásít (reggel van!). <span class="javasolt">javasolt</span></li>
+<li><b>B)</b> Alszik tovább, amíg rá vagy az ágyra nem koppintasz.</li>
+</ul>
+<p><b>D3 — Kell hozzá a bolti Befekvés képesség (mint a kertben)?</b></p>
+<ul>
+<li><b>A)</b> Nem — az odúban a saját ágyába mindig lefekhet, ingyen. <span class="javasolt">javasolt</span> (a panasz pont az volt, hogy az ágy „nem csinál semmit”)</li>
+<li><b>B)</b> Igen, ugyanaz a képesség nyitja, mint a kertben.</li>
+</ul>
+</div>
+
+<h2>4. Kód (a döntések után)</h2>
+<div class="doboz terv">
+<ul>
+<li><b>odu.js:</b> új koppintási hely <i>„agy”</i> az <i>ODU_CELOK</i>-ban; az ágy elülső pereme egy második példányban az unikornis fölé kerül (csak fekve látszik); <i>oduFekszik / oduFelkel</i> — az unikornis a választott ágy <i>AGY_FEKVES</i> pontjára huppan (1,28-as méretben), <i>uniElalszik</i> / <i>uniFelebred</i> / <i>uniNyujtozik</i> (közös, renderer.js); minden más koppintás előbb felkelti.</li>
+<li><b>renderer.js:</b> a <i>uniZzz</i> rajzolt (SVG) változatot is tud — ugyanaz a „Z”, ugyanaz az időzítés.</li>
+<li><b>odu-elet.js:</b> villanyoltás → befekvés / villanygyújtás → felkelés (D1, D2 szerint).</li>
+<li><b>style.css:</b> az odúbeli fekvés és a rajzolt Zzz.</li>
+<li><b>Teszt (néma):</b> mindhárom ágy; befekvés koppintásra és villanyoltásra; felkelés ágyra/unikornisra/villanyra; alvásból boltba, kertbe, ablakon át; ablakméret-váltás fekve; odúból ki-be. Konzol tiszta.</li>
+</ul>
+</div>
+</main></body></html>

@@ -1608,19 +1608,19 @@ function uniZzzSVG() {   /* egy lekerekített „Z” (lila, fehér szegéllyel)
   return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#8a55d0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
-function uniElalszik(el) {
+/* azonnal = true: rögtön alszik, álmosság nélkül (pl. az odú újrarajzolásakor, ha már aludt) */
+function uniElalszik(el, azonnal) {
   if (!el) return;
   uniFelebred(el);
-  if (nyugiMod()) { el.classList.add("uni-alszik"); uniZzz(el, true); return; }
+  function szuszog() {   /* halk szuszogás minden kifújásnál, a lélegzéssel egy ütemben (audio.js); rejtett képernyőn néma */
+    el._szusz = setInterval(function () { if (!el.isConnected) { uniFelebred(el); return; } if (el.getClientRects().length) hangSzuszog(); }, UNI_ALVAS.leleg);
+  }
+  if (nyugiMod() || azonnal) { el.classList.add("uni-alszik"); uniZzz(el, true); if (!nyugiMod()) szuszog(); return; }
   el._alvas = [
     setTimeout(function () { el.classList.add("uni-almos"); }, UNI_ALVAS.almos),
     setTimeout(function () {
       el.classList.remove("uni-almos"); el.classList.add("uni-alszik");
-      /* halk szuszogás minden kifújásnál, a lélegzéssel egy ütemben (audio.js) */
-      el._alvas.push(setTimeout(function () {
-        hangSzuszog();
-        el._szusz = setInterval(function () { if (!el.isConnected) { uniFelebred(el); return; } hangSzuszog(); }, UNI_ALVAS.leleg);
-      }, UNI_ALVAS.kifuj));
+      el._alvas.push(setTimeout(function () { hangSzuszog(); szuszog(); }, UNI_ALVAS.kifuj));
     }, UNI_ALVAS.alszik),
     setTimeout(function () { uniZzz(el, true); }, UNI_ALVAS.zzz)
   ];
@@ -1644,11 +1644,24 @@ function uniZzz(el, be) {
   var z = el.querySelector(":scope > .uni-zzz");
   if (!be) { if (z) z.parentNode.removeChild(z); return; }
   if (z) return;
+  if (el instanceof SVGElement) {   /* rajzon belül (odú): el = az unikornis-rajzot tartó csoport, unikornis-egységben */
+    z = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    z.setAttribute("class", "uni-zzz uni-zzz-svg"); z.setAttribute("pointer-events", "none");
+    z.setAttribute("transform", "translate(" + UNI_ZZZ_SVG.hely.join(",") + ")");
+    z.innerHTML = '<g class="uni-zzz-tukor">' + UNI_ZZZ_SVG.meret.map(function (m) {
+      return '<g class="uni-zzz-z">' + uniZzzSVG().replace("<svg ", '<svg x="' + (-m / 2) + '" y="' + (-m) + '" width="' + m + '" height="' + m + '" ') + '</g>';
+    }).join("") + '</g>';
+    el.appendChild(z);
+    return;
+  }
   z = document.createElement("div");
   z.className = "uni-zzz"; z.setAttribute("aria-hidden", "true");
   z.innerHTML = "<i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i>";
   el.appendChild(z);
 }
+/* a rajzolt Zzz ugyanott és ugyanakkora, mint a kerti (HTML) — unikornis-egységben: a kerti doboz 45%-a / 50%+22%-a,
+   a betűk 12/16/21 px a kerti ~0,95 px/egységgel. Mozgása a style.css „ALVÁS” blokkjában (uni-zzz-g). */
+var UNI_ZZZ_SVG = { hely: [44, -71], meret: [12.6, 16.8, 22] };
 /* MEGÁLLÁS: a láb, a test, a fej és a farok UNI_FORDUL.simit mp alatt simul vissza (a járó helyzetet
    pillanatképként rögzítjük, aztán elengedjük → a CSS-átmenet viszi a póz/álló helyzetbe) */
 function uniAll(el) {
@@ -10553,7 +10566,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   /* ── ÁGY (bal) — a választott ágy (bolti szint), közös rajz: agyRajz ── */
   var agySz = (o.szint && o.szint.agy) || 1;
-  s += '<g class="odu-agy-hatso">' + agyRajz(agySz, "hatso") + '</g>' + agyRajz(agySz, "elol");
+  s += '<g id="odu-t-agy" class="odu-targy"><g class="odu-agy-matrac">' + AGY_KERET + '<g class="odu-agy-hatso">' + agyRajz(agySz, "hatso") + '</g>' + agyRajz(agySz, "elol") + '</g></g>';   /* 9. lépés: koppintható, fekve besüpped */
 
   /* ── GYÖKÉRPOLC (jobb-közép) ── */
   s += '<rect x="398" y="296" width="150" height="12" rx="4" fill="#cbb6e6"/>';
@@ -10619,9 +10632,11 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   if (!elonezet) {
     var ux = tag ? ODU_UNI.x - ODU_UNI_RAJZ : 0, udir = tag ? ODU_UNI.dir : 1;
     s += '<g id="odu-uni-mozgo" style="transform:translate(' + ux + 'px,0px)">';
-    s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
-    s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" style="--dir:' + udir + ';transform:scale(var(--dir,1),1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
+    s += '<ellipse id="odu-uni-arnyek" cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
+    /* #odu-uni-emel: befekvéskor felhuppan az ágyra (függőlegesen); #odu-uni-alvo: a póz és az alvás osztályai (9. lépés) */
+    s += '<g id="odu-uni-emel"><g transform="translate(346,492)"><g id="odu-uni-flip" style="--dir:' + udir + ';transform:scale(var(--dir,1),1)"><g id="odu-uni-alvo" transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
     s += '</g>';
+    s += '<g id="odu-agy-elore" pointer-events="none"><g class="odu-agy-matrac">' + AGY_KERET + agyRajz((o.szint && o.szint.agy) || 1, "elol") + '</g></g>';   /* fekve az ágy pereme az unikornis elé */
   }
 
   /* mennyezeti csillámok */
@@ -10780,6 +10795,7 @@ function meseKonyvSVG() {
    unikornis odasétál. A sorrend a rétegsorrend (a későbbi van felül: a könyv a kapu széle fölött). */
 var ODU_CELOK = [
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
+  { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
   { id: "osveny", felirat: "Ösvény", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
@@ -10787,7 +10803,7 @@ var ODU_CELOK = [
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
 ];
-var ODU_CEL_RAJZ = { lampa: "", osveny: "odu-t-ablak", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
+var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
   osveny: { szo: function () { return "Ösvények"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
@@ -10797,7 +10813,11 @@ var ODU_CEL_TETT = {
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
   bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } },
-  lampa: { nyit: function () { oduVillanyKapcsol(); } }
+  lampa: { nyit: function () {
+    oduVillanyKapcsol();
+    if (!ODU_SOTET && ODU_FEKSZIK) _oduAgyIdo.push(setTimeout(function () { oduFelkel(true); }, 450));   /* villanygyújtás: reggel van — felkel és nyújtózik */
+  } },
+  agy: { nyit: function () { if (ODU_FEKSZIK) oduFelkel(true); else oduBefekszik(); } }
 };
 
 /* ── az unikornis sétája az odúban: koppintásra odaüget a tárgyhoz, és csak odaérve nyílik meg (~½–1 mp);
@@ -10841,7 +10861,8 @@ function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
   ODU_CELOK.forEach(function (d) { if (d.id === cel) def = d; });
   if (!t || !def) return;
-  if (def.helyben) { t.nyit(); return; }         /* a lámpa: azonnal kapcsol, séta és beszéd nélkül */
+  if (def.helyben) { t.nyit(); return; }         /* a lámpa: azonnal kapcsol, séta és beszéd nélkül; az ágy: maga intézi */
+  if (ODU_FEKSZIK) { oduFelkel(false, function () { oduTargyKoppint(cel); }); return; }   /* alszik → előbb felkel, aztán megy */
   if (cel === "osveny") { oduTavozik(); return; }   /* az ösvényekre: a szivárványhídon át */
   if (_oduSetaCel === cel) {                    /* türelmetlen második koppintás → azonnal nyílik */
     clearTimeout(_oduSetaIdo); _oduSetaCel = null;
@@ -10865,6 +10886,62 @@ function oduUniHaza() {
   });
 }
 
+/* ── ODÚBELI ÁGY (unikornis pózok 9. lépés, terv/odu-agy-rajzterv.html; producer: csak az ágyra koppintva, ingyen,
+   villanygyújtásra felkel). Az ágyra koppintva odasétál, a párna felé fordul, felhuppan, a matrac besüpped, és elalszik —
+   a fekvés, az alvás, a Zzz és a nyújtózás a KÖZÖS kód (renderer.js: UNI_POZ.fekszik, uniElalszik/uniFelebred/uniNyujtozik),
+   ugyanaz, mint a kertben; itt csak a hely (AGY_FEKVES, 1.28-as méret) és a rétegek vannak. Nem mentődik. ── */
+var ODU_FEKSZIK = false;
+var _oduAgyIdo = [];
+function oduAgyFekves() { return AGY_FEKVES[agyFajta((P().odu.szint && P().odu.szint.agy) || 1)]; }
+function oduAktiv() { var k = $("kepernyo-odu"); return !!(k && k.classList.contains("aktiv")); }
+function oduBefekszik() {
+  if (_oduTavozas) return;
+  if (_oduSetaCel === "agy") {                  /* türelmetlen második koppintás → azonnal befekszik */
+    clearTimeout(_oduSetaIdo); _oduSetaCel = null; uniAll(document.getElementById("odu-uni-mozgo")); oduFekszik(false); return;
+  }
+  hangGomb(); mondd("Ágy");
+  _oduSetaCel = "agy";
+  oduUniSetal(oduAgyFekves().x, function () { _oduSetaCel = null; if (oduAktiv()) oduFekszik(false); });
+}
+/* azonnal = true: huppanás és álmosság nélkül (újrarajzoláskor) */
+function oduFekszik(azonnal) {
+  var svg = $("odu-szoba").querySelector("svg"), mozgo = document.getElementById("odu-uni-mozgo"), emel = document.getElementById("odu-uni-emel");
+  var flip = document.getElementById("odu-uni-flip"), alvo = document.getElementById("odu-uni-alvo");
+  if (!svg || !mozgo || !emel || !alvo) return;
+  _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];
+  var f = oduAgyFekves(), nyugi = nyugiMod() || azonnal;
+  ODU_FEKSZIK = true; ODU_UNI.x = f.x; ODU_UNI.dir = -1;   /* fejjel a párna (bal) felé */
+  svg.classList.add("odu-fekszik");
+  mozgo.style.transition = nyugi ? "none" : "transform .55s ease-out";
+  mozgo.style.transform = "translate(" + (f.x - ODU_UNI_RAJZ) + "px,0px)";
+  emel.style.transition = nyugi ? "none" : "transform .55s cubic-bezier(.3,1.7,.55,1)";   /* kis ív: felhuppan */
+  emel.style.transform = "translate(0px," + (f.y - 492) + "px)";
+  if (nyugi) flip.style.setProperty("--dir", -1); else uniFordul(flip, -1);
+  alvo.classList.add("fekszik-all");
+  function landol() { svg.classList.add("odu-agy-fekve", "odu-agy-terhelt"); }   /* a perem elé kerül, a matrac besüpped */
+  if (nyugi) landol(); else { _oduAgyIdo.push(setTimeout(landol, 380)); hangCsilla(); }
+  uniElalszik(alvo, azonnal);
+}
+/* nyujt = true: a szőnyegre érve nyújtózik és ásít, aztán hazasétál; kesz: utána (pl. a koppintott tárgy felé indul) */
+function oduFelkel(nyujt, kesz) {
+  _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];
+  var svg = $("odu-szoba").querySelector("svg"), emel = document.getElementById("odu-uni-emel"), alvo = document.getElementById("odu-uni-alvo");
+  ODU_FEKSZIK = false;
+  if (!svg || !emel || !alvo) { if (kesz) kesz(); return; }
+  var nyugi = nyugiMod();
+  svg.classList.remove("odu-fekszik", "odu-agy-fekve", "odu-agy-terhelt");
+  alvo.classList.remove("fekszik-all");
+  uniFelebred(alvo);
+  emel.style.transition = nyugi ? "none" : "transform .5s ease";   /* leugrik a szőnyegre */
+  emel.style.transform = "translate(0px,0px)";
+  hangGomb();
+  _oduAgyIdo.push(setTimeout(function () {
+    if (!oduAktiv() || ODU_FEKSZIK) return;
+    if (nyujt) uniNyujtozik(alvo, function () { if (oduAktiv() && !ODU_FEKSZIK && !_oduSetaCel && !_oduTavozas) oduUniHaza(); });
+    if (kesz) kesz();
+  }, nyugi ? 0 : 520));
+}
+
 /* ── SZIVÁRVÁNYOS TÁVOZÁS az ösvényekre (unikornis pózok 6. lépés): az ablakból szivárványhíd nő le a felhőig,
    az unikornis odasétál, hátat fordít, és felszalad rajta az ablakba. Ugyanez a „← Főmenü” gombra.
    Közben egy második koppintás (ablak vagy gomb) azonnal átvált. ── */
@@ -10873,6 +10950,7 @@ ODU_HID.ut = szivarvanyGorbe([ODU_HID.x, 492], [34, 350], [104, 196], [186, 186]
 var _oduTavozas = null;
 function oduTavozik() {
   if (_oduTavozas) { oduTavozasVege(); return; }   /* türelmetlen második koppintás */
+  if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Főmenü” gomb alvás közben: előbb felkel */
   hangGomb(); mondd("Ösvények");
   var tok = _oduTavozas = { hid: false, ott: false };
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
@@ -10902,6 +10980,7 @@ function oduNyit(honnan) {
   oduPanelZar();
   clearTimeout(_oduSetaIdo); _oduSetaCel = null; _oduTavozas = null;
   ODU_SOTET = false;                        /* a villanyoltás nem mentődik: az odú mindig világosan nyílik */
+  ODU_FEKSZIK = false; _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];   /* az alvás sem: ébren, a szőnyegen vár */
   /* a menüből belépve a szőnyegen áll; a kertből / utcáról visszajőve a kapunál / ajtónál, a szoba felé nézve */
   ODU_UNI.x = honnan === "kert" ? 326 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
   ODU_UNI.dir = (honnan === "kert" || honnan === "utca") ? -1 : 1;
@@ -10932,6 +11011,7 @@ function renderOdu() {
     h.addEventListener("mouseleave", function () { if (rajz) rajz.classList.remove("fel"); });
     h.addEventListener("click", function () { oduTargyKoppint(cel); });
   });
+  if (ODU_FEKSZIK) oduFekszik(true);         /* újrarajzolás (ablakméret) alvás közben: rögtön újra az ágyban alszik */
 }
 /* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
 var _oduMeretIdo = null;

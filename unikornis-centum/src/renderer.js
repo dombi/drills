@@ -333,19 +333,19 @@ function uniZzzSVG() {   /* egy lekerekített „Z” (lila, fehér szegéllyel)
   return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#8a55d0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
-function uniElalszik(el) {
+/* azonnal = true: rögtön alszik, álmosság nélkül (pl. az odú újrarajzolásakor, ha már aludt) */
+function uniElalszik(el, azonnal) {
   if (!el) return;
   uniFelebred(el);
-  if (nyugiMod()) { el.classList.add("uni-alszik"); uniZzz(el, true); return; }
+  function szuszog() {   /* halk szuszogás minden kifújásnál, a lélegzéssel egy ütemben (audio.js); rejtett képernyőn néma */
+    el._szusz = setInterval(function () { if (!el.isConnected) { uniFelebred(el); return; } if (el.getClientRects().length) hangSzuszog(); }, UNI_ALVAS.leleg);
+  }
+  if (nyugiMod() || azonnal) { el.classList.add("uni-alszik"); uniZzz(el, true); if (!nyugiMod()) szuszog(); return; }
   el._alvas = [
     setTimeout(function () { el.classList.add("uni-almos"); }, UNI_ALVAS.almos),
     setTimeout(function () {
       el.classList.remove("uni-almos"); el.classList.add("uni-alszik");
-      /* halk szuszogás minden kifújásnál, a lélegzéssel egy ütemben (audio.js) */
-      el._alvas.push(setTimeout(function () {
-        hangSzuszog();
-        el._szusz = setInterval(function () { if (!el.isConnected) { uniFelebred(el); return; } hangSzuszog(); }, UNI_ALVAS.leleg);
-      }, UNI_ALVAS.kifuj));
+      el._alvas.push(setTimeout(function () { hangSzuszog(); szuszog(); }, UNI_ALVAS.kifuj));
     }, UNI_ALVAS.alszik),
     setTimeout(function () { uniZzz(el, true); }, UNI_ALVAS.zzz)
   ];
@@ -369,11 +369,24 @@ function uniZzz(el, be) {
   var z = el.querySelector(":scope > .uni-zzz");
   if (!be) { if (z) z.parentNode.removeChild(z); return; }
   if (z) return;
+  if (el instanceof SVGElement) {   /* rajzon belül (odú): el = az unikornis-rajzot tartó csoport, unikornis-egységben */
+    z = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    z.setAttribute("class", "uni-zzz uni-zzz-svg"); z.setAttribute("pointer-events", "none");
+    z.setAttribute("transform", "translate(" + UNI_ZZZ_SVG.hely.join(",") + ")");
+    z.innerHTML = '<g class="uni-zzz-tukor">' + UNI_ZZZ_SVG.meret.map(function (m) {
+      return '<g class="uni-zzz-z">' + uniZzzSVG().replace("<svg ", '<svg x="' + (-m / 2) + '" y="' + (-m) + '" width="' + m + '" height="' + m + '" ') + '</g>';
+    }).join("") + '</g>';
+    el.appendChild(z);
+    return;
+  }
   z = document.createElement("div");
   z.className = "uni-zzz"; z.setAttribute("aria-hidden", "true");
   z.innerHTML = "<i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i>";
   el.appendChild(z);
 }
+/* a rajzolt Zzz ugyanott és ugyanakkora, mint a kerti (HTML) — unikornis-egységben: a kerti doboz 45%-a / 50%+22%-a,
+   a betűk 12/16/21 px a kerti ~0,95 px/egységgel. Mozgása a style.css „ALVÁS” blokkjában (uni-zzz-g). */
+var UNI_ZZZ_SVG = { hely: [44, -71], meret: [12.6, 16.8, 22] };
 /* MEGÁLLÁS: a láb, a test, a fej és a farok UNI_FORDUL.simit mp alatt simul vissza (a járó helyzetet
    pillanatképként rögzítjük, aztán elengedjük → a CSS-átmenet viszi a póz/álló helyzetbe) */
 function uniAll(el) {
