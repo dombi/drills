@@ -1,0 +1,58 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Új ágy</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; margin-bottom:12px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+</style></head><body><main>
+<h1>7. lépés — új ágy</h1>
+<p>Unikornis pózok terve, 7. lépés (5. panasz: „az ágy maga sem tetszik”). Nagyság: <b>közepes</b>. Állapot: <b>terv, döntésre vár</b> (2026-10-04).</p>
+
+<h2>1. Mi van most (felmérés)</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Egy rajz, két helyen:</b> az odú bal oldalán a „Felhő-ágy” (szivárvány-ív fejtámla + lila keret 2 lábon + felhő-matrac + csillag-párna + csíkos takaró). A <b>kerti ágy</b> ugyanez, 0,45-re kicsinyítve, külön elülső peremmel, hogy a fekvő unikornis belesüppedjen.</li>
+<li><b>Méret:</b> az odúban az ágy kb. 166 egység széles, a fekvő unikornis valódi méretben kb. 225 → <b>nem fér bele</b> (a 9. lépésben bele kell feküdnie). A kertben azért fér el, mert ott kisebb az unikornis az ágyhoz képest — a két hely aránya nem egyezik.</li>
+<li><b>A szivárvány-ív</b> külön áll az ágy mögött; fekvéskor az unikornis feje elé lóg, a csillag-párnát eltakarja.</li>
+<li><b>Bolti szintek</b> (odú): 1 = Felhő-ágy, 2 = Szivárványos felhő-ágy (60 ✨), 3 = Csillagbaldachinos ágy (150 ✨). Az „Ágyon” dísz-zóna (plüss, pokróc, hímzett párna) is erre az ágyra kerül.</li>
+<li><b>Producer (2026-10-04):</b> a mostani <b>túl robusztus, más hangulat kell</b>; <b>egy közös rajz</b> az odúba és a kertbe; a <b>3 bolti szint megmarad</b> az új ágyon.</li>
+</ul>
+</div>
+
+<h2>2. A három változat</h2>
+<div class="doboz terv">
+<p>Mind könnyű, légies: nincs vastag keret, nincs nehéz fejtámla. Mindhárom akkora, hogy a <b>valódi méretű</b> fekvő unikornis belefér (az odúban is), és két rétegből áll: ami mögötte van, és egy elülső perem, amibe <b>belesüpped</b>. A szintek mindháromnál ugyanígy: <b>2. szint</b> = vékony szivárványcsíkos takaró lelóg az ágy elején; <b>3. szint</b> = két karcsú aranypálca, köztük áttetsző fátyol-ív csillagokkal.</p>
+<ul>
+<li><b>A) Felhőfészek</b> — keret és láb nélkül, egy puha, kicsit lebegő felhő-fészek (alatta árnyék és csillámpor). A párna egy kis, alvó holdsarló. A legkönnyebb, a „felhőkert” világához illik.</li>
+<li><b>B) Holdbölcső</b> — aranyló holdsarló-bölcső két karcsú lábon, a sarló csúcsa a fejvég (alvó arca van, róla egy kis csillag lóg), benne felhőpárna. A legjobban „ágy-formájú”, mégis légies.</li>
+<li><b>C) Lótuszágy</b> — halvány tavirózsa: a szirmok legyezőként szétterülnek, elöl tulipánszerűen összezárnak az unikornis előtt, alatta két levél. A legmesésebb, de a legtöbb rózsaszín.</li>
+</ul>
+<p>Az összehasonlító képeken a <b>valódi játékrajz</b> látszik (odú este, Ragyogás, fej-, nyak- és lábdísszel); a fekvő póz még a mai — a szép fekvő póz (csukott szem, lélegzés, Zzz) a 8. lépés.</p>
+</div>
+<!--ELONEZET-->
+
+<h2>3. Döntések</h2>
+<div class="doboz terv">
+<p><b>D1 — Melyik ágy legyen?</b> A) Felhőfészek <span class="javasolt">javasolt</span> · B) Holdbölcső · C) Lótuszágy. (Keverni is lehet, pl. „B, de felhőből”.)</p>
+<p>Miért az A: ez a legkönnyebb, a legkevésbé „bútor”, és a felhő mindhárom helyszínen (odú, kert, felhőkert) otthon van; a meglévő felhő-matrac besüppedése is megmarad rajta.</p>
+</div>
+
+<h2>4. Hogyan kerül a játékba (a döntés után)</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Egy közös rajz-függvény</b> az odu.js-ben: <i>agyRajz(szint, réteg)</i> (réteg = mögötte / elöl). Ezt hívja az odú-szoba és a kerti ágy (<i>kertTargyBelso “agy” / “agy-elol”</i>) — a mostani 3 külön rajzpéldány (odú, kert, kert-perem) és a szint-rárajzolások (<i>agy2, agy3a, agy3b</i>) megszűnnek.</li>
+<li><b>Méret:</b> az odúban az új ágy kb. x 40–275 (a kertkapu előtt megáll); a kertben a kerti ágy mérete úgy változik, hogy az unikornis és az ágy aránya ugyanaz legyen, mint az odúban. A kerti befekvés helye (<i>KERT_AGY_FEL / KERT_AGY_JOBBRA</i>) ehhez igazodik.</li>
+<li><b>Bolt:</b> a 3 szint és az áraik maradnak; az ágy-nevek a választott változathoz igazodnak (pl. „Felhőfészek / Szivárványos felhőfészek / Csillagbaldachinos felhőfészek”). A bolti előnézet ugyanazt a rajzot mutatja.</li>
+<li><b>„Ágyon” dísz-zóna:</b> a plüss, a pokróc és a hímzett párna helye az új ágyhoz igazodik.</li>
+<li><b>Ellenőrzés:</b> az összehasonlító lap előtte/utána, csendes teszt: odú (mindhárom szint + ágy-díszek), bolti előnézet, kert (lerakás, befekvés, felkelés), konzol tiszta.</li>
+<li><b>Nem ebben a lépésben:</b> a szép fekvő póz (8. lépés) és az odúbeli befekvés (9. lépés).</li>
+</ul>
+</div>
+
+<p style="font-size:13px;color:#6b5f80">Összehasonlító lap: <i>python terv/agy-build.py</i> → <i>Matekos/uc-agy.html</i> (localhost:8802). A rajzváltozatok: <i>terv/agy-valtozatok.js</i> (csak az előnézethez).</p>
+</main></body></html>
