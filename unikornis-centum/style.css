@@ -780,6 +780,11 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes uni-farok{ 0%,100%{ transform:rotate(3.5deg); } 50%{ transform:rotate(-3.5deg); } }
 @keyframes uni-tincs{ 0%,100%{ transform:rotate(-3deg); } 50%{ transform:rotate(3deg); } }
 @keyframes uni-pislog{ 0%,95%,100%{ transform:scaleY(1); } 97.5%{ transform:scaleY(.08); } }
+/* pálya: jó válasznál kis örömugrás (unikornis pózok 5. lépés, osveny.js osvenyOrom) — a lábat a UNI_MOZDULAT.ugras
+   hajlítja (.uni-mozd-ugras), ez a réteg emeli; közben látszik a talaj-árnyék */
+#szinpad .osveny-orom .uni-magas{ animation:osveny-orom 1.1s ease-in-out 1; }
+#szinpad .osveny-orom .uni-arnyek{ display:inline; }
+@keyframes osveny-orom{ 0%,14%{ transform:translateY(0); } 26%{ transform:translateY(-20px); } 38%{ transform:translateY(-62px); } 50%{ transform:translateY(0); } 62%{ transform:translateY(-14px); } 74%,100%{ transform:translateY(0); } }
 
 @media (prefers-reduced-motion:reduce){
   #szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo,
@@ -787,6 +792,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   #szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok,
   #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
   #szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{ animation:none; }
+  #szinpad .osveny-orom .uni-magas{ animation:none; }
 }
 
 /* ============================================================================

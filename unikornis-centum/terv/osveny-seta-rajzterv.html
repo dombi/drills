@@ -13,10 +13,19 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 .tabla-wrap{ overflow-x:auto; }
 </style></head><body><main>
 <h1>5. lépés — séta a pályákon</h1>
-<p>Unikornis pózok terve, 5. lépés (12. panasz) + az F tétel (a 4 pálya-kép közös váza). Nagyság: <b>közepes</b>. Állapot: <b>terv, jóváhagyásra vár</b> (2026-10-04).</p>
+<p>Unikornis pózok terve, 5. lépés (12. panasz) + az F tétel (a 4 pálya-kép közös váza). Nagyság: <b>közepes</b>. Állapot: <b>KÉSZ</b> (2026-10-04).</p>
 
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ (2026-10-04, <i>?v=20261004-2</i>).</b> A producer döntései: <b>1 A</b> (közös tempó-szabály), <b>2 A</b> (kitérő az út mellett), <b>3 A</b> (besétál az odúba), <b>+1 igen</b> (örömugrás).</p>
+<ul>
+<li><b>Új modul: src/osveny.js</b> (a build-sorrendben a renderer.js után). Váz: <b>osvenyVaz(palya, c, díszlet)</b> + <i>osvenyCelOdu</i>, <i>osvenyPipaSVG</i>, <i>osvenyUtD</i>, <i>osvenySzakasz</i>; ide költözött az <i>allomasX/Y</i>, <i>SCENE_N</i>, <i>TU_X0/X1</i>. Az unikornis a <i>#unikornis-hely</i> (hely) › <i>#uni-irany</i> (irány: <i>--dir</i>, járás-osztályok, nézet-adat) csoportban áll.</li>
+<li><b>Séta:</b> <b>osvenyMegy(pontsor, o, kész)</b> — irány-szakaszokra vágja, mindegyik előtt <i>uniFordul</i>, utána egyenletesen halad a görbén (<i>requestAnimationFrame</i>), a lábat <i>uniUt/uniJar/uniAll</i> mozgatja; új út vagy a pálya elhagyása leállítja (a régi a háttérben továbbment). Erre épül: <b>osvenyAllomasra</b> (állomásról állomásra, a rajzolt görbén), <b>osvenyKerulo</b> (Catmull–Rom kitérő az út alatt, <i>OSV_KERULO</i>: 95 egységgel lejjebb, legfeljebb 530-ig; természetes séta, a fordulóknál megszagolja a füvet = <i>UNI_MOZDULAT.szagol</i>; az utolsó állomáson visszafelé tér ki), <b>osvenyOduba</b> (az ajtóhoz sétál, hátulról-nézet, összemegy és elhalványul, utána <i>palyaVege</i>), <b>osvenyOrom</b> (jó válasznál: <i>.uni-mozd-ugras</i> + <i>.osveny-orom</i>, a style.css emeli a <i>.uni-magas</i>-t, árnyékkal).</li>
+<li><b>A négy pálya-család</b> (renderer.js <i>jelenetSVG</i> + <i>erdoHatterSVG</i>, meres.js <i>muhelyJelenetSVG</i>, konyvtar.js <i>konyvtarJelenetSVG</i>, vasar.js <i>vasarJelenetSVG</i>) már csak díszletet ad. A régi kamerás nézet, a <i>kameraAllit</i>, <i>unikornisOda</i>, <i>curX/curY</i>, <i>NEZ_SZ/NEZ_MA</i>, <i>SCENE_TELJES</i> megszűnt.</li>
+<li><b>Ellenőrzés:</b> gépi képösszevetés 9 pályán (erdő ×2, szabó, bájital, pékség, könyvtár ×2, vásár ×2): <b>0 eltérő képpont</b> a régihez képest. Csendes teszt (valódi időzítéssel): állomások közt ügetés ~1,7 mp, legfeljebb 0,4 egység eltérés a rajzolt úttól; kerülő ~14,4 mp, két fordulóval és szaglászással, a következő állomásnál ér vissza; kerülő az utolsó állomáson + besétálás + jutalom-képernyő; 4 jó válasz → 4 ugrás (emelés −60, árnyék); konzol tiszta.</li>
+<li>Mozgó előnézet külön lapon nem készült: a valódi játékban próbálható ki (élő próba).</li>
+</ul></div>
 <div class="doboz terv">
-<p><b>Mi van ma a pályákon (felmérés)</b></p>
+<p><b>Mi volt a pályákon (felmérés)</b></p>
 <ul>
 <li><b>Az unikornis csúszik, nem sétál:</b> állomásról állomásra 1,2 mp alatt odasiklik, közben kicsit fel-le ugrál, de a lába nem mozog. A kertben, felhőkertben és odúban már a közös járás van (3. lépés) — a pályákon még a régi.</li>
 <li><b>Nem az úton megy:</b> egyenes vonalban vág át két állomás között, pedig az út kanyarog. Kanyarnál le is lép a sávról.</li>

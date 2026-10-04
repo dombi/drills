@@ -1,6 +1,5 @@
 /* ============ 8) JÁTÉK-LOGIKA ============ */
 var J = null;
-var curX = allomasX(0), curY = allomasY(0);
 
 /* ── KAPU + DARABKORLÁT A PULTRÓL (2026-09-27; eredete: rendszerterv 6.4, a régi fix 12 órás kapu) ──
    A producer gyerekenként / csoportonként választja ki a kulcs-pályákat (overrides[id].kulcs = true)
@@ -87,8 +86,7 @@ function palyaInditas(id) {
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
     : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : pa.vasar ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
-  curX = allomasX(0); curY = allomasY(0);
-  kameraAllit(0, true);
+  osvenyIndul();                                    /* az unikornis a Rajtnál (osveny.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
@@ -101,47 +99,10 @@ function palyaInditas(id) {
   /* ösvény-indító szöveg: a gyerekek únták a hosszú bevezetőt → csak ennyi (2026-09-14) */
   setTimeout(function () { mondd("Induljunk!", function () { kovAllomas(); }); }, 400);
 }
-function kameraAllit(i, azonnal) {
-  var kam = document.querySelector("#szinpad #kamera");
-  if (!kam) return;
-  if (SCENE_TELJES) { kam.style.transition = "none"; kam.style.transform = "translateX(0)"; if (J) J.kameraX = 0; return; }
-  var n = J.allomasok.length;
-  var szelesseg = allomasX(n - 1) + 260;
-  var cel = -(allomasX(i) - NEZ_SZ * 0.42);
-  var minPan = -(szelesseg - NEZ_SZ + 40);
-  if (cel < minPan) cel = minPan;
-  if (cel > 40) cel = 40;
-  if (J) J.kameraX = cel;
-  kam.style.transition = azonnal ? "none" : "transform 1.1s ease";
-  kam.style.transform = "translateX(" + cel + "px)";
-}
-function unikornisOda(i, dur, kesz) {
-  var u = document.querySelector("#szinpad #unikornis-hely");
-  var ko = document.getElementById("mosti-ko");
-  if (!u) { if (kesz) kesz(); return; }
-  var x0 = curX, y0 = curY, x1 = allomasX(i), y1 = allomasY(i);
-  if (window.__UC_GYORS) { curX = x1; curY = y1; u.setAttribute("transform", "translate(" + x1 + "," + y1 + ")"); if (ko) { ko.setAttribute("cx", x1); ko.setAttribute("cy", y1 + 8); } if (kesz) setTimeout(kesz, 0); return; }
-  var t0 = performance.now();
-  function lep(now) {
-    var t = Math.min(1, (now - t0) / dur);
-    var e = t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    var x = x0 + (x1 - x0) * e, y = y0 + (y1 - y0) * e - Math.sin(t * Math.PI * 4) * 5;
-    u.setAttribute("transform", "translate(" + x + "," + y + ")");
-    if (t < 1) requestAnimationFrame(lep);
-    else {
-      curX = x1; curY = y1;
-      u.setAttribute("transform", "translate(" + x1 + "," + y1 + ")");
-      if (ko) { ko.setAttribute("cx", x1); ko.setAttribute("cy", y1 + 8); }
-      if (kesz) kesz();
-    }
-  }
-  requestAnimationFrame(lep);
-}
 function kovAllomas() {
   J.allomasIdx++;
   var i = J.allomasIdx, a = J.allomasok[i];
-  kameraAllit(i);
-  unikornisOda(i, 1200, function () {
+  osvenyAllomasra(i, function () {                 /* az út görbéjén, a közös járással (osveny.js) */
     J.probak = 0; J.feladatKesz = 0; J.kerultKulcsok = {};
     J.allomasHibatlan = true;                 /* jelvény: „Hibátlan állomás" – egy hibás válasz kikapcsolja */
     var felmondosE = (a.tipus === "szambontas" || a.tipus === "szorzotabla-felmondas");
@@ -452,6 +413,7 @@ function ertekel(valasz) {
       : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
+    osvenyOrom();                              /* az unikornis örömében ugrik egyet (osveny.js) */
     csillagRepul($("bagoly-buborek"));
     if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
@@ -641,7 +603,7 @@ function felmondSiker() {
     else J.allomasHibatlan = false;
     if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
   }
-  hangJo(); hangCsilla();
+  hangJo(); hangCsilla(); osvenyOrom();
   dropUnnepel(dropProbal(0.30));
   jelvenyEllenoriz();
   var szt = (J.feladat.felmod === "szorzotabla");
@@ -735,7 +697,7 @@ function allomasKesz() {
   $("jatek-csillampor").textContent = P().csillampor; ment();
   if (J.allomasHibatlan && P().jelvSzam) P().jelvSzam.hibatlanAllomas = 1;   /* jelvény: minden feladat elsőre jó volt */
   jelvenyEllenoriz();
-  if (a.cel) { palyaVege(); return; }
+  if (a.cel) { osvenyOduba(palyaVege); return; }   /* besétál az odúba, aztán a jutalom */
   mondd("Ügyes! Mehetünk tovább.", function () { kovAllomas(); });
 }
 function keruloUt() {
@@ -749,25 +711,14 @@ function keruloUt() {
   var pipa = $("pipa-" + J.allomasIdx);
   if (pipa) { var kr = pipa.querySelector("circle"); if (kr) kr.setAttribute("fill", "#cdbfe0"); pipa.setAttribute("opacity", "1"); }
   mondd("Menjünk a hosszú úton.");
-  var u = document.querySelector("#szinpad #unikornis-hely");
-  var x0 = curX, y0 = curY, t0 = performance.now(), TART = 15000;
-  function lep(now) {
-    var t = Math.min(1, (now - t0) / TART);
-    var x = x0 + 120 * Math.sin(t * Math.PI * 2) * (1 - t) + 60 * t;
-    var y = y0 + 70 * Math.sin(t * Math.PI) + Math.sin(t * 30) * 4;
-    if (u) u.setAttribute("transform", "translate(" + x + "," + y + ")");
-    if (t < 1) requestAnimationFrame(lep);
-    else {
-      curX = x0 + 60; curY = y0;
-      var kd = dropProbal(0.25);           /* kerülőn: állomásonként 25% talált tárgy */
-      if (kd && kd.talalt && P().jelvSzam) P().jelvSzam.keruloTargy = (P().jelvSzam.keruloTargy || 0) + 1;
-      dropUnnepel(kd);
-      jelvenyEllenoriz();
-      if (a.cel) { palyaVege(); return; }
-      kovAllomas();
-    }
-  }
-  requestAnimationFrame(lep);
+  osvenyKerulo(J.allomasIdx, function () {          /* kitérő a fűben, a következő állomásnál vissza (osveny.js) */
+    var kd = dropProbal(0.25);           /* kerülőn: állomásonként 25% talált tárgy */
+    if (kd && kd.talalt && P().jelvSzam) P().jelvSzam.keruloTargy = (P().jelvSzam.keruloTargy || 0) + 1;
+    dropUnnepel(kd);
+    jelvenyEllenoriz();
+    if (a.cel) { osvenyOduba(palyaVege); return; }
+    kovAllomas();
+  });
 }
 function palyaVege() {
   var id = J.palya.id;

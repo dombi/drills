@@ -1325,17 +1325,10 @@ GEN.meres = function (cfg, kerultMar) {
 };
 
 /* ═════════════════ MŰHELY-ÖSVÉNY (a jelenet: fal + padló, az ösvény a szőnyeg, az állomás munkapad) ═════════════════ */
+/* MŰHELY-ÖSVÉNY a közös ösvény-vázon (osveny.js): fal + füzér + padló, szőnyeg-út, munkapadok */
 function muhelyJelenetSVG(palya, c) {
   var L = palya.muhely, T = MR.LIGA[L], F = MR.F, W = 1200, n = palya.allomasok.length;
-  var px = [], py = [];
-  for (var k = 0; k < n; k++) { px.push(allomasX(k)); py.push(allomasY(k)); }
-  var d = "M " + px[0].toFixed(1) + " " + py[0].toFixed(1);
-  for (var i = 1; i < n; i++) {
-    var dx = px[i] - px[i - 1];
-    d += " C " + (px[i - 1] + dx / 2).toFixed(1) + " " + py[i - 1].toFixed(1) + " " + (px[i] - dx / 2).toFixed(1) + " " + py[i].toFixed(1) +
-         " " + px[i].toFixed(1) + " " + py[i].toFixed(1);
-  }
-  var FAL = 150, s = '<svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' +
+  var FAL = 150, s =
     '<defs><linearGradient id="mh-fal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + T.fal1 + '"/><stop offset="1" stop-color="' + T.fal2 + '"/></linearGradient></defs>' +
     '<rect width="1200" height="560" fill="url(#mh-fal)"/>';
   for (var x = 20; x < W; x += 44) s += '<rect x="' + x + '" y="0" width="5" height="' + FAL + '" fill="' + T.csik + '"/>';
@@ -1356,42 +1349,38 @@ function muhelyJelenetSVG(palya, c) {
   s += '<rect y="' + FAL + '" width="1200" height="' + (560 - FAL) + '" fill="' + T.padlo + '"/>';
   for (var pl = -40; pl < W + 80; pl += 64) s += '<path d="M' + pl + ' ' + FAL + ' L' + (pl - 80) + ' 560" stroke="' + T.padlo2 + '" stroke-width="2" opacity=".6"/>';
   s += '<rect y="' + (FAL - 4) + '" width="1200" height="8" fill="' + T.padlo2 + '"/>';
-  /* a szőnyeg-ösvény */
-  s += '<g id="kamera"><path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="50" stroke-linecap="round"/>' +
-       '<path d="' + d + '" fill="none" stroke="' + T.ut + '" stroke-width="40" stroke-linecap="round"/>' +
-       (L === "szabo" ? '<path d="' + d + '" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 6" opacity=".9"/>' :
-        L === "bajital" ? '<path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="30" stroke-dasharray="2 22" stroke-linecap="round" opacity=".45"/>' :
-        '<path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="40" stroke-dasharray="3 26" opacity=".7"/>');
-  /* Rajt-szőnyegecske + Cél-odú (a pad-sor elé kerül az unikornis, a padok elé a névtábla) */
-  s += '<g transform="translate(' + px[0] + ',' + py[0] + ')"><ellipse cx="0" cy="10" rx="44" ry="16" fill="' + T.ut2 + '"/><ellipse cx="0" cy="8" rx="36" ry="12" fill="#fff" opacity=".45"/>' +
-       '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="#f6a5c0"/></g>';
-  var cx = px[n - 1] + 62, cy = py[n - 1] - 6;
-  s += '<g transform="translate(' + cx.toFixed(1) + ',' + cy.toFixed(1) + ')">' +
-    '<ellipse cx="0" cy="34" rx="60" ry="16" fill="#2f4a3a" opacity="0.25"/>' +
-    '<path d="M-44,40 C-44,-30 -28,-70 0,-78 C28,-70 44,-30 44,40 Z" fill="#8a6242" stroke="' + KOR + '" stroke-width="2.5"/>' +
-    '<ellipse cx="0" cy="-6" rx="23" ry="30" fill="#3a2a20"/><ellipse cx="0" cy="0" rx="16" ry="23" fill="#ffe9ad"/><ellipse cx="0" cy="8" rx="9" ry="13" fill="#fff6d8"/>' +
-    '<g transform="translate(0,-100)"><rect x="-56" y="-15" width="112" height="30" rx="12" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/><text x="0" y="5" font-size="14" ' + F + ' fill="#6a4a8a" text-anchor="middle">Odú-küszöb</text></g>' +
-    csillagSVG(0, -128, 8, "#ffe08a") + '</g>';
-  s += '<ellipse id="mosti-ko" cx="' + px[0].toFixed(1) + '" cy="' + (py[0] + 8).toFixed(1) + '" rx="40" ry="20" fill="none" stroke="#ffe08a" stroke-width="4" opacity="0.9"/>' +
-    '<g id="unikornis-hely" transform="translate(' + px[0].toFixed(1) + ',' + py[0].toFixed(1) + ')">' + unikornisSVG("uni", c, 0.62, P().oltozet) + '</g>';
-  /* munkapadok (az unikornis a pad MÖGÖTT áll, a névtábla a pad elején) + pipák */
-  for (var a = 1; a < n - 1; a++) {
-    var ax = px[a] + 18, ay = py[a] + 22, nev = kiiras(palya.allomasok[a].nev), w = Math.max(84, palya.allomasok[a].nev.length * 7.6 + 20);
-    var kellek = L === "szabo" ? MR.tekercs(-18, -30, T.szinek[a % 6], .32) + '<rect x="2" y="-27" width="26" height="5" rx="2" fill="#ffd96b"/>' :
-                 L === "bajital" ? MR.lombik(-16, -24, T.szinek[a % 6], .34) + MR.lombik(14, -24, T.szinek[(a + 1) % 6], .26) :
-                 MR.kalacs(-14, -24, .42) + MR.zsak(18, -24, "#f3e3c3", .3);
-    s += '<g transform="translate(' + ax.toFixed(1) + ',' + ay.toFixed(1) + ') scale(1.3)"><ellipse cx="0" cy="16" rx="50" ry="13" fill="' + T.ut2 + '" opacity=".55"/>' +
-      '<rect x="-40" y="-14" width="9" height="30" fill="#b58556"/><rect x="31" y="-14" width="9" height="30" fill="#b58556"/>' +
-      '<rect x="-44" y="-24" width="88" height="11" rx="4" fill="#c99b6d"/>' + kellek +
-      '<rect x="' + (-w / 2) + '" y="-8" width="' + w + '" height="28" rx="11" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/>' +
-      '<text x="0" y="11" font-size="13.5" ' + F + ' fill="#6a4a8a" text-anchor="middle">' + nev + '</text></g>';
-  }
-  for (var b = 0; b < n; b++) {
-    var pxx = b > 0 && b < n - 1 ? px[b] + 18 + (Math.max(84, palya.allomasok[b].nev.length * 7.6 + 20) / 2 - 2) * 1.3 : px[b];
-    var pyy = b > 0 && b < n - 1 ? py[b] + 22 - 8 * 1.3 : py[b];
-    s += '<g class="allomas-pipa" id="pipa-' + b + '" transform="translate(' + pxx.toFixed(1) + ',' + pyy.toFixed(1) + ')" opacity="0"><circle r="13" fill="#a7d99a" stroke="#fff" stroke-width="2"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
-  }
-  return s + '</g></svg>';
+  function padSz(b) { return Math.max(84, palya.allomasok[b].nev.length * 7.6 + 20); }
+  return osvenyVaz(palya, c, {
+    hatter: s,
+    ut: function (d) {   /* a szőnyeg-ösvény */
+      return '<path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="50" stroke-linecap="round"/>' +
+        '<path d="' + d + '" fill="none" stroke="' + T.ut + '" stroke-width="40" stroke-linecap="round"/>' +
+        (L === "szabo" ? '<path d="' + d + '" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 6" opacity=".9"/>' :
+         L === "bajital" ? '<path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="30" stroke-dasharray="2 22" stroke-linecap="round" opacity=".45"/>' :
+         '<path d="' + d + '" fill="none" stroke="' + T.ut2 + '" stroke-width="40" stroke-dasharray="3 26" opacity=".7"/>');
+    },
+    elotte: function (px, py) {   /* Rajt-szőnyegecske */
+      return '<g transform="translate(' + px[0] + ',' + py[0] + ')"><ellipse cx="0" cy="10" rx="44" ry="16" fill="' + T.ut2 + '"/><ellipse cx="0" cy="8" rx="36" ry="12" fill="#fff" opacity=".45"/>' +
+        '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="#f6a5c0"/></g>';
+    },
+    odu: { arnyek: "#2f4a3a", arnyekOp: "0.25", felirat: { font: F } },
+    utana: function (px, py) {   /* munkapadok (az unikornis a pad MÖGÖTT áll, a névtábla a pad elején) */
+      var s = '';
+      for (var a = 1; a < n - 1; a++) {
+        var ax = px[a] + 18, ay = py[a] + 22, nev = kiiras(palya.allomasok[a].nev), w = padSz(a);
+        var kellek = L === "szabo" ? MR.tekercs(-18, -30, T.szinek[a % 6], .32) + '<rect x="2" y="-27" width="26" height="5" rx="2" fill="#ffd96b"/>' :
+                     L === "bajital" ? MR.lombik(-16, -24, T.szinek[a % 6], .34) + MR.lombik(14, -24, T.szinek[(a + 1) % 6], .26) :
+                     MR.kalacs(-14, -24, .42) + MR.zsak(18, -24, "#f3e3c3", .3);
+        s += '<g transform="translate(' + ax.toFixed(1) + ',' + ay.toFixed(1) + ') scale(1.3)"><ellipse cx="0" cy="16" rx="50" ry="13" fill="' + T.ut2 + '" opacity=".55"/>' +
+          '<rect x="-40" y="-14" width="9" height="30" fill="#b58556"/><rect x="31" y="-14" width="9" height="30" fill="#b58556"/>' +
+          '<rect x="-44" y="-24" width="88" height="11" rx="4" fill="#c99b6d"/>' + kellek +
+          '<rect x="' + (-w / 2) + '" y="-8" width="' + w + '" height="28" rx="11" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/>' +
+          '<text x="0" y="11" font-size="13.5" ' + F + ' fill="#6a4a8a" text-anchor="middle">' + nev + '</text></g>';
+      }
+      return s;
+    },
+    pipa: function (b, px, py) { return b > 0 && b < n - 1 ? [px[b] + 18 + (padSz(b) / 2 - 2) * 1.3, py[b] + 22 - 8 * 1.3] : [px[b], py[b]]; }
+  });
 }
 
 /* ═════════════════ LIGET-HÁTTEREK a pályaválasztóba (rajzterv 1. kör, jóváhagyva) ═════════════════

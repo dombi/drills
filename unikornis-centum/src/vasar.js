@@ -876,37 +876,27 @@ var VASAR_HATTER = '<svg class="hatter" viewBox="0 0 1120 420" preserveAspectRat
   vsLampion(300, 70, .9, 0) + vsLampion(820, 64, .9, 1) + vsLampion(560, 84, .8, 2) + '</svg>';
 
 /* ═════════════════ A PÁLYA-JELENET: vásártér, macskaköves út, 5 csíkos sátor + Odú-küszöb (rajzterv 2.) ═════════════════ */
-function vasarJelenetSVG(palya, c) {
-  var n = palya.allomasok.length, px = [], py = [], k;
-  for (k = 0; k < n; k++) { px.push(allomasX(k)); py.push(allomasY(k)); }
-  var d = "M " + px[0].toFixed(1) + " " + py[0].toFixed(1);
-  for (var i = 1; i < n; i++) { var dx = px[i] - px[i - 1]; d += " C " + (px[i - 1] + dx / 2).toFixed(1) + " " + py[i - 1].toFixed(1) + " " + (px[i] - dx / 2).toFixed(1) + " " + py[i].toFixed(1) + " " + px[i].toFixed(1) + " " + py[i].toFixed(1); }
-  var s = '<svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' +
-    '<defs><linearGradient id="vsj" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dcc0"/><stop offset=".4" stop-color="#f6ead8"/><stop offset="1" stop-color="#eee4c8"/></linearGradient>' +
-    '<pattern id="vs-macska" width="22" height="16" patternUnits="userSpaceOnUse"><rect width="22" height="16" fill="#e2cfae"/><ellipse cx="6" cy="5" rx="5" ry="3.5" fill="#d3bd98"/><ellipse cx="17" cy="12" rx="5" ry="3.5" fill="#d3bd98"/></pattern></defs>' +
-    '<rect width="1200" height="560" fill="url(#vsj)"/><circle cx="1010" cy="70" r="90" fill="#ffdf9e" opacity=".35"/>' +
-    '<path d="M0 170 Q200 140 400 166 Q600 192 800 160 Q1000 132 1200 166 L1200 560 L0 560 Z" fill="#dcc8e2" opacity=".5"/>' +
-    '<path d="M0 520 Q300 500 600 520 Q900 540 1200 516 L1200 560 L0 560 Z" fill="#e2cfae"/>' +
-    vsFuzer(14, 1200, 24) + vsLampion(120, 60, 1, 0) + vsLampion(470, 70, 1, 1) + vsLampion(820, 58, 1, 2) + vsLampion(1100, 72, 1, 3);
-  s += '<g id="kamera"><path d="' + d + '" fill="none" stroke="#c9ad84" stroke-width="52" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="url(#vs-macska)" stroke-width="44" stroke-linecap="round"/>';
-  s += '<g transform="translate(' + px[0] + ',' + (py[0] + 34) + ')"><rect x="-34" y="-15" width="68" height="30" rx="12" fill="#fff" stroke="#c9a8e6" stroke-width="2.5"/><text y="5" font-size="14" ' + VS_F + ' fill="#6a4a8a" text-anchor="middle">Rajt</text></g>';
-  for (var a = 1; a < n - 1; a++) {
-    var st = palya.allomasok[a].stand, sz = VS_SZIN[palya.allomasok[a].szin || st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
-    if (palya.allomasok[a].szin && st === "doboz") sz = { teto: sz.teto, csik: sz.csik, sotet: sz.sotet, cimer: "📦" };
-    s += vsSator(sx, sy, sz, nagy ? .82 : .76, nagy) +
-      '<g transform="translate(' + sx.toFixed(1) + ',' + (sy + 22).toFixed(1) + ')"><rect x="' + (-w / 2) + '" y="-13" width="' + w + '" height="26" rx="11" fill="#fff" stroke="' + sz.sotet + '" stroke-width="2" stroke-opacity=".5"/><text y="5" font-size="13.5" ' + VS_F + ' fill="#4a3b7a" text-anchor="middle" font-weight="600">' + kiiras(nev) + '</text></g>';
-  }
-  var ox = px[n - 1] + 62, oy = py[n - 1] - 6;
-  s += '<g transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ')"><ellipse cx="0" cy="34" rx="60" ry="16" fill="#6b4a2a" opacity=".22"/>' +
-    '<path d="M-44,40 C-44,-30 -28,-70 0,-78 C28,-70 44,-30 44,40 Z" fill="#8a6242" stroke="' + KOR + '" stroke-width="2.5"/>' +
-    '<ellipse cx="0" cy="-6" rx="23" ry="30" fill="#3a2a20"/><ellipse cx="0" cy="0" rx="16" ry="23" fill="#ffe9ad"/><ellipse cx="0" cy="8" rx="9" ry="13" fill="#fff6d8"/>' +
-    '<g transform="translate(0,-100)"><rect x="-56" y="-15" width="112" height="30" rx="12" fill="#fdf4d8" stroke="#c9a8e6" stroke-width="2.5"/><text x="0" y="5" font-size="14" ' + VS_F + ' fill="#6a4a8a" text-anchor="middle">Odú-küszöb</text></g>' +
-    csillagSVG(0, -128, 8, "#ffe08a") + '</g>';
-  s += '<ellipse id="mosti-ko" cx="' + px[0].toFixed(1) + '" cy="' + (py[0] + 8).toFixed(1) + '" rx="40" ry="20" fill="none" stroke="#ffe08a" stroke-width="4" opacity="0.9"/>' +
-    '<g id="unikornis-hely" transform="translate(' + px[0].toFixed(1) + ',' + py[0].toFixed(1) + ')">' + unikornisSVG("uni", c, 0.62, P().oltozet) + '</g>';
-  for (var b = 0; b < n; b++) {
-    var bx = b > 0 && b < n - 1 ? px[b] + 96 : px[b], by = b > 0 && b < n - 1 ? py[b] - 70 : py[b];
-    s += '<g class="allomas-pipa" id="pipa-' + b + '" transform="translate(' + bx.toFixed(1) + ',' + by.toFixed(1) + ')" opacity="0"><circle r="13" fill="#a7d99a" stroke="#fff" stroke-width="2"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
-  }
-  return s + '</g></svg>';
+function vasarJelenetSVG(palya, c) {   /* a közös ösvény-vázon (osveny.js): vásártér, macskakő-út, sátrak */
+  var n = palya.allomasok.length;
+  return osvenyVaz(palya, c, {
+    hatter: '<defs><linearGradient id="vsj" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dcc0"/><stop offset=".4" stop-color="#f6ead8"/><stop offset="1" stop-color="#eee4c8"/></linearGradient>' +
+      '<pattern id="vs-macska" width="22" height="16" patternUnits="userSpaceOnUse"><rect width="22" height="16" fill="#e2cfae"/><ellipse cx="6" cy="5" rx="5" ry="3.5" fill="#d3bd98"/><ellipse cx="17" cy="12" rx="5" ry="3.5" fill="#d3bd98"/></pattern></defs>' +
+      '<rect width="1200" height="560" fill="url(#vsj)"/><circle cx="1010" cy="70" r="90" fill="#ffdf9e" opacity=".35"/>' +
+      '<path d="M0 170 Q200 140 400 166 Q600 192 800 160 Q1000 132 1200 166 L1200 560 L0 560 Z" fill="#dcc8e2" opacity=".5"/>' +
+      '<path d="M0 520 Q300 500 600 520 Q900 540 1200 516 L1200 560 L0 560 Z" fill="#e2cfae"/>' +
+      vsFuzer(14, 1200, 24) + vsLampion(120, 60, 1, 0) + vsLampion(470, 70, 1, 1) + vsLampion(820, 58, 1, 2) + vsLampion(1100, 72, 1, 3),
+    ut: function (d) { return '<path d="' + d + '" fill="none" stroke="#c9ad84" stroke-width="52" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="url(#vs-macska)" stroke-width="44" stroke-linecap="round"/>'; },
+    elotte: function (px, py) {
+      var s = '<g transform="translate(' + px[0] + ',' + (py[0] + 34) + ')"><rect x="-34" y="-15" width="68" height="30" rx="12" fill="#fff" stroke="#c9a8e6" stroke-width="2.5"/><text y="5" font-size="14" ' + VS_F + ' fill="#6a4a8a" text-anchor="middle">Rajt</text></g>';
+      for (var a = 1; a < n - 1; a++) {
+        var st = palya.allomasok[a].stand, sz = VS_SZIN[palya.allomasok[a].szin || st], nev = palya.allomasok[a].nev, w = nev.length * 8.4 + 28, nagy = st === "nagy", sx = px[a] + 44, sy = py[a] - 4;
+        if (palya.allomasok[a].szin && st === "doboz") sz = { teto: sz.teto, csik: sz.csik, sotet: sz.sotet, cimer: "📦" };
+        s += vsSator(sx, sy, sz, nagy ? .82 : .76, nagy) +
+          '<g transform="translate(' + sx.toFixed(1) + ',' + (sy + 22).toFixed(1) + ')"><rect x="' + (-w / 2) + '" y="-13" width="' + w + '" height="26" rx="11" fill="#fff" stroke="' + sz.sotet + '" stroke-width="2" stroke-opacity=".5"/><text y="5" font-size="13.5" ' + VS_F + ' fill="#4a3b7a" text-anchor="middle" font-weight="600">' + kiiras(nev) + '</text></g>';
+      }
+      return s;
+    },
+    odu: { felirat: { font: VS_F } },
+    pipa: function (b, px, py) { return b > 0 && b < n - 1 ? [px[b] + 96, py[b] - 70] : [px[b], py[b]]; }
+  });
 }

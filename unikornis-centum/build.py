@@ -33,6 +33,7 @@ MODULES = [
 
     # ── Grafika ──
     "renderer.js",        # 6) SVG: unikornis, jelenet, tárgyak, díszek
+    "osveny.js",          # 6-) a pálya-kép közös váza (út, Cél-odú, pipák) + az unikornis útja rajta (séta, kerülő, odúba)
     "figurak.js",         # 6a) 🎨 az állandó szereplők rajza (FIGURA.e → SVG fej-érem), 3 arc: vidám / gondol / ujjong
     "bagoly.js",          # 6a2) 🦉 a négy bagoly (kabala, könyvtáros, bankár, boltos) egy közös rajzolóval
     "meres.js",           # 6b) mérés-ligetek: mértékegység-motor, generátorok, műhely-jelenet, liget-hátterek

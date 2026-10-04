@@ -1260,30 +1260,23 @@ function ekAsztal(x, y, P, nev, i) {
     '<rect x="' + (-w / 2) + '" y="-8" width="' + w + '" height="28" rx="11" fill="#fffaf0" stroke="' + P[1] + '" stroke-width="2.5"/>' +
     '<text x="0" y="11" font-size="13.5" ' + MR.F + ' fill="#6a4a3a" text-anchor="middle">' + kiiras(nev) + '</text></g>';
 }
-function konyvtarJelenetSVG(palya, c) {
-  var n = palya.allomasok.length, SZ = EK_SZIN[palya.kocka] || EK_SZIN.K1, px = [], py = [];
-  for (var k = 0; k < n; k++) { px.push(allomasX(k)); py.push(allomasY(k)); }
-  var d = "M " + px[0].toFixed(1) + " " + py[0].toFixed(1);
-  for (var i = 1; i < n; i++) { var dx = px[i] - px[i - 1]; d += " C " + (px[i - 1] + dx / 2).toFixed(1) + " " + py[i - 1].toFixed(1) + " " + (px[i] - dx / 2).toFixed(1) + " " + py[i].toFixed(1) + " " + px[i].toFixed(1) + " " + py[i].toFixed(1); }
-  var s = '<svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' + ekKonyvtarSVG(1200, 560, 150, "j");
-  s += '<g id="kamera"><path d="' + d + '" fill="none" stroke="#b79fd4" stroke-width="52" stroke-linecap="round" opacity=".55"/><path d="' + d + '" fill="none" stroke="#e9ddf3" stroke-width="42" stroke-linecap="round"/>' +
-    '<path d="' + d + '" fill="none" stroke="#c9a8e6" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>';
-  s += '<g transform="translate(' + px[0] + ',' + py[0] + ')"><ellipse cx="0" cy="10" rx="44" ry="16" fill="#d8c3ea"/><ellipse cx="0" cy="8" rx="36" ry="12" fill="#fff" opacity=".45"/>' +
-    '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="' + SZ[1] + '"/></g>';
-  var ox = px[n - 1] + 62, oy = py[n - 1] - 6;
-  s += '<g transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ')"><ellipse cx="0" cy="34" rx="60" ry="16" fill="#6b4a2a" opacity=".22"/>' +
-    ekMesterKapuSVG(palya) +                           /* 🏅 arany kapu a küszöb mögött, ha a Mesterpróba nyitva / kész */
-    '<path d="M-44,40 C-44,-30 -28,-70 0,-78 C28,-70 44,-30 44,40 Z" fill="#8a6242" stroke="' + KOR + '" stroke-width="2.5"/>' +
-    '<ellipse cx="0" cy="-6" rx="23" ry="30" fill="#3a2a20"/><ellipse cx="0" cy="0" rx="16" ry="23" fill="#ffe9ad"/><ellipse cx="0" cy="8" rx="9" ry="13" fill="#fff6d8"/>' +
-    '<g transform="translate(0,-100)"><rect x="-56" y="-15" width="112" height="30" rx="12" fill="#fffaf0" stroke="' + SZ[1] + '" stroke-width="2.5"/><text x="0" y="5" font-size="14" ' + MR.F + ' fill="#6a4a3a" text-anchor="middle">Odú-küszöb</text></g>' +
-    csillagSVG(0, -128, 8, "#ffe08a") + '</g>';
-  s += '<ellipse id="mosti-ko" cx="' + px[0].toFixed(1) + '" cy="' + (py[0] + 8).toFixed(1) + '" rx="40" ry="20" fill="none" stroke="#ffe08a" stroke-width="4" opacity="0.9"/>' +
-    '<g id="unikornis-hely" transform="translate(' + px[0].toFixed(1) + ',' + py[0].toFixed(1) + ')">' + unikornisSVG("uni", c, 0.62, P().oltozet) + '</g>';
-  for (var a = 1; a < n - 1; a++) s += ekAsztal(px[a] + 18, py[a] + 22, SZ, palya.allomasok[a].nev, a);
-  for (var b = 0; b < n; b++) {
-    var w = Math.max(84, palya.allomasok[b].nev.length * 7.6 + 20);
-    var pxx = b > 0 && b < n - 1 ? px[b] + 18 + (w / 2 - 2) * 1.3 : px[b], pyy = b > 0 && b < n - 1 ? py[b] + 22 - 8 * 1.3 : py[b];
-    s += '<g class="allomas-pipa" id="pipa-' + b + '" transform="translate(' + pxx.toFixed(1) + ',' + pyy.toFixed(1) + ')" opacity="0"><circle r="13" fill="#a7d99a" stroke="#fff" stroke-width="2"/><path d="M-5,0 l3,4 l7,-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>';
-  }
-  return s + '</g></svg>';
+function konyvtarJelenetSVG(palya, c) {   /* a közös ösvény-vázon (osveny.js): könyvtár-háttér, lila út, olvasóasztalok */
+  var n = palya.allomasok.length, SZ = EK_SZIN[palya.kocka] || EK_SZIN.K1;
+  return osvenyVaz(palya, c, {
+    hatter: ekKonyvtarSVG(1200, 560, 150, "j"),
+    ut: function (d) {
+      return '<path d="' + d + '" fill="none" stroke="#b79fd4" stroke-width="52" stroke-linecap="round" opacity=".55"/><path d="' + d + '" fill="none" stroke="#e9ddf3" stroke-width="42" stroke-linecap="round"/>' +
+        '<path d="' + d + '" fill="none" stroke="#c9a8e6" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>';
+    },
+    elotte: function (px, py) {
+      return '<g transform="translate(' + px[0] + ',' + py[0] + ')"><ellipse cx="0" cy="10" rx="44" ry="16" fill="#d8c3ea"/><ellipse cx="0" cy="8" rx="36" ry="12" fill="#fff" opacity=".45"/>' +
+        '<path d="M0 -24 L0 -2" stroke="#8f6a3e" stroke-width="3"/><path d="M0 -24 L15 -17 L0 -10 Z" fill="' + SZ[1] + '"/></g>';
+    },
+    odu: { mogotte: ekMesterKapuSVG(palya), felirat: { fill: "#fffaf0", stroke: SZ[1], szin: "#6a4a3a", font: MR.F } },   /* 🏅 arany kapu a küszöb mögött, ha a Mesterpróba nyitva / kész */
+    utana: function (px, py) { var s = ''; for (var a = 1; a < n - 1; a++) s += ekAsztal(px[a] + 18, py[a] + 22, SZ, palya.allomasok[a].nev, a); return s; },
+    pipa: function (b, px, py) {
+      var w = Math.max(84, palya.allomasok[b].nev.length * 7.6 + 20);
+      return b > 0 && b < n - 1 ? [px[b] + 18 + (w / 2 - 2) * 1.3, py[b] + 22 - 8 * 1.3] : [px[b], py[b]];
+    }
+  });
 }
