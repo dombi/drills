@@ -1,0 +1,78 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fordulás mozgásterv</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+h3{ color:var(--lila); margin:18px 0 4px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; margin-bottom:12px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px solid var(--keret); padding:5px 8px; text-align:left; vertical-align:top; } th{ background:#f6efff; }
+.tabla-wrap{ overflow-x:auto; }
+</style></head><body><main>
+<h1>4. lépés — közös fordulás és pörgés</h1>
+<p>Unikornis pózok terve, 4. lépés (panasz 1 és 3). Nagyság: <b>közepes</b>. Ide került a 3. lépésből maradt apróság is: <b>az indulás és a megállás</b>.</p>
+
+<div class="doboz terv">
+<p><b>Mi a baj ma</b></p>
+<ul>
+<li><b>A fordulás egy pillanat:</b> az unikornis a tükörképébe ugrik. Mindhárom helyszínen külön kód csinálja (kert, felhőkert, odú), és 9 helyen van beírva (séta, ugrás a kert szélén, ágyba fekvés, pacsi, hazasétálás az odúban…).</li>
+<li><b>Kétféle pörgés:</b> a kertben szemből és hátulról is látjuk (4 nézet, díszekkel), a felhőkertben viszont csak az oldalkép nyomódik össze, mint egy papírcsík (3. panasz). A többiek unikornisa a felhőkertben szintén papírcsíkként pörög.</li>
+<li><b>Indulás és megállás:</b> a láb egy pillanat alatt kattan át álló és járó helyzet között.</li>
+</ul>
+</div>
+
+<div class="doboz terv">
+<p><b>Mit fogsz látni a játékban</b></p>
+<ul>
+<li><b>Megfordul, mielőtt elindul:</b> ha visszafelé kell mennie, egy pillanatra (kb. ⅓ mp) <b>felénk néz</b> (szemből látjuk, a díszeivel), aztán már a másik irányba áll, és csak ezután lép. Mindenhol így: kertben, felhőkertben, odúban — a saját és a többiek unikornisa is.</li>
+<li><b>Ugyanaz a pörgés mindenhol:</b> a felhőkertben is szemből és hátulról látjuk, a festékével és a díszeivel, minden nézetben kis ugrással; alatta a földön marad egy árnyék-folt (ez az, amit a 3. lépés a repüléshez előkészített).</li>
+<li><b>Sima indulás:</b> a járás a lépésnek abból a pillanatából indul, ahol a lábak a legközelebb vannak az álló helyzethez (gép keresi ki), így nincs rándulás.</li>
+<li><b>Sima megállás:</b> megálláskor a láb, a test, a fej és a farok kb. ¼ mp alatt simul vissza álló helyzetbe.</li>
+<li>Mozgáskímélő módban (ha a gépen be van kapcsolva) nincs köztes kép: azonnal fordul, a pörgés kimarad.</li>
+</ul>
+</div>
+
+<h2>Mozgó előnézet — a valódi rajzkódból</h2>
+<p>Minden sávban az unikornis oda-vissza jár, a végén megáll és megfordul. A lassítással jobban látszik a köztes nézet.</p>
+<!--ELONEZET-->
+
+<h2>Hol fordul ma, és mi lesz helyette</h2>
+<div class="tabla-wrap"><table>
+<tr><th>Helyszín</th><th>Mikor fordul</th><th>Ma</th><th>Új</th></tr>
+<tr><td rowspan="4">Kert</td><td>séta (koppintás, étel, virág, ágy)</td><td>pillanat</td><td rowspan="3">közös fordulás</td></tr>
+<tr><td>ugrás a kert szélén</td><td>pillanat</td></tr>
+<tr><td>ágyba fekvés (fejjel a párna felé)</td><td>pillanat</td></tr>
+<tr><td>🌀 pörgés</td><td>4 nézet (saját kód)</td><td>közös pörgés</td></tr>
+<tr><td rowspan="4">Felhőkert</td><td>séta (saját és a többieké)</td><td>pillanat</td><td rowspan="3">közös fordulás</td></tr>
+<tr><td>ugrás a szélen</td><td>pillanat</td></tr>
+<tr><td>🙌 pacsi (szembefordulnak)</td><td>pillanat</td></tr>
+<tr><td>🌀 pörgés (saját és a többieké)</td><td>papírcsík</td><td>közös pörgés</td></tr>
+<tr><td rowspan="2">Odú</td><td>séta a tárgyakhoz</td><td>pillanat</td><td rowspan="2">közös fordulás</td></tr>
+<tr><td>hazaérve a szoba felé fordul</td><td>pillanat</td></tr>
+</table></div>
+
+<h2>Mi változik a kódban</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Milyen közös alapra épül:</b> az 1b-ben készült szemből/hátulról-rajzra (<i>unikornisNezetArt</i>: színek, festék, díszek egy forrásból), a 3. lépés járására (<i>uniJar</i>, <i>uniAll</i>) és magasság-rétegére (<i>.uni-magas</i>, árnyék-folt). <b>Mit ad hozzá:</b> egyetlen irány-kezelést (a <i>--dir</i> mindenhol ugyanott, az odúban is) és két közös mozdulatot. Erre épül az 5. lépés (séta a pályákon) és a repülés (fordulás a levegőben).</li>
+<li><b>renderer.js:</b> <b>UNI_FORDUL</b> (a köztes nézet ideje, melyik nézeten át fordul, a pörgés ugrásai, a megállás simítása), <b>uniFordul(elem, irány, kész)</b>, <b>uniPorog(elem, idő, kész)</b>; a köztes nézet <b>rá</b>kerül az oldalrajzra (azt csak elrejti) — így a rajz, a póz és a lebegés nem épül újra. A lény adata (lény, kinézet, díszek) rajzoláskor az elemre kerül: <i>uniNezoAdat</i>. A <i>uniJar</i> / <i>uniAll</i> magától simán indul és áll meg — a helyszíneken ehhez nem kell semmit átírni.</li>
+<li><b>kert.js:</b> a <i>kertPorgesForgas</i> (saját 4 nézetes motor) megszűnik → <i>uniPorog</i>; séta, ugrás, ágy → <i>uniFordul</i>. <b>tunemenykert.js:</b> séta, ugrás, pacsi → <i>uniFordul</i>; pörgés → <i>uniPorog</i> (a többiek unikornisán is, a saját díszeikkel). <b>odu.js:</b> az odúbeli tükrözés (<i>odu-uni-flip</i> transform-attribútuma) átáll a közös <i>--dir</i>-re.</li>
+<li><b>style.css:</b> megszűnik a felhőkerti <i>tk-porges</i> (papírcsík) animáció.</li>
+<li><b>Időzítés:</b> visszafelé indulva az út kb. ⅓ mp-cel hosszabb (előbb fordul). Ha nem kell fordulnia, minden olyan gyors, mint most.</li>
+</ul>
+<p><b>Nem része ennek a lépésnek:</b> séta a pályákon (5.), szivárványos távozás (6.), ágy és alvás (7–9.), repülés.</p>
+<p><b>Biztonsági háló:</b> állva semmi sem változik. Csendes teszt: kert (mind a 4 út, ugrás a szélen, ágy, pörgés, utána séta balra), felhőkert (ál-adatbázissal, a többiek unikornisa is), odú (tárgyak, hazasétálás); a konzol tiszta legyen. Utána élő próba nálad.</p>
+</div>
+
+<h2>Döntés</h2>
+<div class="doboz terv">
+<ol>
+<li><b>Merre forduljon?</b> <span class="javasolt">Javasolt: A) felénk</span> — a gyerek ilyenkor egy pillanatra az unikornis arcát látja, ez kedves és élő. B) elfordul (hátulról látjuk). C) körbe: mindig egy irányba forog (balra hátulról, jobbra szemből).</li>
+<li><b>Tetszik így a pörgés és a sima indulás/megállás?</b> A köztes nézet ideje, az ugrások magassága és a simítás egy-egy számmal hangolható.</li>
+</ol>
+</div>
+</main></body></html>
