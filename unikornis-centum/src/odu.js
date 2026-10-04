@@ -38,7 +38,7 @@ var ODU_BUTOR = {
   fal:     [{ id: 1, nev: "Sima fal", ar: 0 }, { id: 2, nev: "Csillagmintás tapéta", ar: 45 }, { id: 3, nev: "Erdőmintás tapéta", ar: 105 }],
   ablak:   [{ id: 1, nev: "Kerek ablak", ar: 0 }, { id: 2, nev: "Ólomüveg ablak", ar: 70 }, { id: 3, nev: "Rózsaablak", ar: 160 }],
   fuggony: [{ id: 1, nev: "Nincs függöny", ar: 0 }, { id: 2, nev: "Muszlin függöny", ar: 30 }, { id: 3, nev: "Bársony függöny", ar: 90 }],
-  agy:     [{ id: 1, nev: "Felhő-ágy", ar: 0 }, { id: 2, nev: "Szivárványos felhő-ágy", ar: 60 }, { id: 3, nev: "Csillagbaldachinos ágy", ar: 150 }],
+  agy:     [{ id: 1, nev: "Felhőfészek", ar: 0 }, { id: 2, nev: "Holdbölcső", ar: 60 }, { id: 3, nev: "Lótuszágy", ar: 150 }],   /* 7. lépés: a szint = másik ágy (agyRajz) */
   kalyha:  [{ id: 1, nev: "Egyszerű kályha", ar: 0 }, { id: 2, nev: "Pasztell cserépkályha", ar: 50 }, { id: 3, nev: "Szikrázó tündérkályha", ar: 130 }],
   polc:    [{ id: 1, nev: "Gyökérpolc", ar: 0 }, { id: 2, nev: "Faragott polc", ar: 40 }, { id: 3, nev: "Üvegcsés varázspolc", ar: 110 }],
   asztal:  [{ id: 1, nev: "Egyszerű asztal", ar: 0 }, { id: 2, nev: "Kerek tölgyasztal", ar: 40 }, { id: 3, nev: "Holdfa asztal", ar: 100 }],
@@ -53,7 +53,7 @@ var BUTOR_HELY = [
 
 /* ── ODÚ v3 BERENDEZÉS-SZINTEK (a grafikai session mockup-odu-szintek.html-jéből, 2026-09-06).
    Minden csoport a 680×540 szoba-koordinátában; az oduSVG a hely szintje szerint szúrja be
-   a megfelelő z-ponton (butorElem/butorAgyHatso/butorAsztal). Az asztal-csoportokat a hívó
+   a megfelelő z-ponton (butorElem/butorAsztal; az ágy: agyRajz). Az asztal-csoportokat a hívó
    a bázis-asztal translate(115,0) keretébe teszi. */
 var BERENDEZES_SZINT = {
   "fal2": '<g fill="#e5d6f2"> <path d="M140 200 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z"/> <path d="M250 165 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z"/> <path d="M360 150 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z"/> <path d="M470 165 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z"/> <path d="M560 205 l2.2 5.4 l5.4 2.2 l-5.4 2.2 l-2.2 5.4 l-2.2 -5.4 l-5.4 -2.2 l5.4 -2.2 Z"/> <path d="M195 285 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/> <path d="M305 262 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/> <path d="M415 258 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/> <path d="M525 280 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/> <circle cx="245" cy="225" r="3"/><circle cx="355" cy="212" r="3"/><circle cx="465" cy="225" r="3"/> <circle cx="140" cy="330" r="2.6"/><circle cx="570" cy="330" r="2.6"/> </g>',
@@ -64,9 +64,6 @@ var BERENDEZES_SZINT = {
   "ablak3": '<g opacity="0.55"> <path d="M190 128 Q152 132 140 168 Q166 172 188 176 Z" fill="#f6a5c0"/> <path d="M192 128 Q230 133 242 168 Q216 172 192 176 Z" fill="#fce49a"/> <path d="M188 184 Q164 188 140 192 Q152 226 188 232 Z" fill="#9ec9f0"/> <path d="M192 184 Q216 188 242 192 Q230 226 192 232 Z" fill="#a7d99a"/> </g> <path d="M191 106 Q263 108 265 180 Q263 252 190 254 Q117 252 115 180 Q117 108 191 106 Z" fill="none" stroke="#e0b8ea" stroke-width="11"/> <path d="M191 106 Q263 108 265 180 Q263 252 190 254 Q117 252 115 180 Q117 108 191 106 Z" fill="none" stroke="#c9a8e6" stroke-width="4"/> <g fill="#ffe08a"> <circle cx="190" cy="108" r="5"/><circle cx="263" cy="180" r="5"/> <circle cx="190" cy="252" r="5"/><circle cx="118" cy="180" r="5"/> </g> <path d="M122 258 Q190 252 258 258 Q258 270 190 274 Q122 270 122 258 Z" fill="#c197bf"/> <path d="M126 258 Q190 253 254 258" stroke="#d9b8d6" stroke-width="3" fill="none"/> <path d="M214 258 q-8 -6 0 -12 q9 5 0 12 Z" fill="#a7d99a"/> <path d="M224 258 q-9 -9 -1 -16 q10 7 1 16 Z" fill="#8fbf7a"/> <rect x="206" y="244" width="24" height="15" rx="4" fill="#f7c59f"/> <circle cx="146" cy="250" r="7" fill="#fdf0d0"/><circle cx="158" cy="252" r="5" fill="#f7b8d0"/>',
   "fuggony2": '<path d="M112 104 Q190 96 268 104 L268 116 Q190 108 112 116 Z" fill="#b79fd4"/> <path d="M116 114 Q126 180 120 250 Q136 244 146 250 Q142 180 138 112 Z" fill="#f7b8d0"/> <path d="M264 114 Q254 180 260 250 Q244 244 234 250 Q238 180 242 112 Z" fill="#f7b8d0"/>',
   "fuggony3": '<path d="M108 100 Q190 90 272 100 L272 118 Q190 108 108 118 Z" fill="#c9a8e6"/> <path d="M110 116 Q120 130 132 118 Q144 130 156 118 Q168 130 180 118 Q192 130 204 118 Q216 130 228 118 Q240 130 252 118 Q264 130 270 116 L270 104 Q190 94 110 104 Z" fill="#b79fd4"/> <path d="M112 116 Q124 190 116 268 Q136 258 152 266 Q146 190 142 114 Z" fill="#f6a5c0"/> <path d="M268 116 Q256 190 264 268 Q244 258 228 266 Q234 190 238 114 Z" fill="#f6a5c0"/> <path d="M120 200 Q136 210 152 200" stroke="#ffe08a" stroke-width="5" fill="none" stroke-linecap="round"/> <path d="M228 200 Q244 210 260 200" stroke="#ffe08a" stroke-width="5" fill="none" stroke-linecap="round"/> <g fill="#fff2c4"><circle cx="130" cy="150" r="2.4"/><circle cx="250" cy="150" r="2.4"/> <circle cx="126" cy="238" r="2.4"/><circle cx="254" cy="238" r="2.4"/></g>',
-  "agy2": '<path d="M108 404 Q134 396 158 404 Q162 418 158 428 Q134 434 108 428 Q104 416 108 404 Z" fill="#fdf0d0"/> <path d="M112 410 Q134 404 154 410" stroke="#f0c98a" stroke-width="2.5" fill="none"/>',
-  "agy3a": '<rect x="96" y="300" width="9" height="130" rx="4" fill="#c9a8e6"/> <rect x="231" y="300" width="9" height="130" rx="4" fill="#c9a8e6"/> <path d="M92 306 Q168 288 244 306 Q244 320 168 302 Q92 320 92 306 Z" fill="#b79fd4"/> <path d="M96 312 Q112 330 128 314 Q144 332 160 316 Q176 332 192 314 Q208 330 224 314 Q236 328 240 312 L240 302 Q168 286 96 302 Z" fill="#cbb6e6"/> <circle cx="100" cy="298" r="5" fill="#ffe08a"/><circle cx="236" cy="298" r="5" fill="#ffe08a"/>',
-  "agy3b": '<path d="M158 400 Q206 394 254 400 Q258 418 254 436 Q206 442 158 436 Q154 418 158 400 Z" fill="#cbb6e6"/> <g stroke="#e0d0f0" stroke-width="2.5" fill="none"> <path d="M170 404 Q206 399 242 404"/><path d="M168 414 Q206 409 244 414"/> <path d="M170 424 Q206 419 242 424"/> </g> <g fill="#ffe08a"> <path d="M182 408 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/> <path d="M228 418 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/> </g>',
   "fuzer2": '<path d="M108 122 Q340 156 572 122" stroke="#c9a8e6" stroke-width="2" fill="none"/> <g><circle cx="152" cy="135" r="4" fill="#ffe08a"/><circle cx="204" cy="141" r="4" fill="#f6a5c0"/> <circle cx="262" cy="147" r="4" fill="#a7d99a"/><circle cx="330" cy="149" r="4" fill="#9ec9f0"/> <circle cx="400" cy="148" r="4" fill="#ffe08a"/><circle cx="468" cy="143" r="4" fill="#f6a5c0"/> <circle cx="528" cy="135" r="4" fill="#a7d99a"/></g> <g fill="#fff6d8" opacity="0.75"><circle cx="152" cy="135" r="1.6"/><circle cx="262" cy="147" r="1.6"/> <circle cx="400" cy="148" r="1.6"/><circle cx="528" cy="135" r="1.6"/></g>',
   "kalyha2": '<g stroke="#c197bf" stroke-width="1.2"> <path d="M512 368 q10 -2 20 0 q2 8 0 16 q-10 2 -20 0 q-2 -8 0 -16 Z" fill="#e6d3ea"/> <path d="M536 368 q10 -2 20 0 q2 8 0 16 q-10 2 -20 0 q-2 -8 0 -16 Z" fill="#f2d9e6"/> <path d="M560 368 q10 -2 20 0 q2 8 0 16 q-10 2 -20 0 q-2 -8 0 -16 Z" fill="#e6d3ea"/> </g> <g fill="#c9a8e6"><circle cx="522" cy="376" r="2"/><circle cx="546" cy="376" r="2"/><circle cx="570" cy="376" r="2"/></g>',
   "kalyha3": '<ellipse cx="542" cy="452" rx="42" ry="10" fill="#ffb3d6" opacity="0.18"/> <g stroke="#8f7ab8" stroke-width="1.4"> <path d="M521 348 q-2 -14 21 -14 q23 0 21 14 q1 4 -3 5 q-18 3 -36 0 q-4 -1 -3 -5 Z" fill="#cbb6e6"/> <path d="M521 341 q-10 -1 -12 6 q6 2 10 -1 Z" fill="#b79fd4"/> <path d="M529 335 q13 -9 26 0" fill="none" stroke="#8f7ab8" stroke-width="2.2"/> </g> <ellipse cx="542" cy="334" rx="6" ry="3" fill="#f6a5c0"/><circle cx="542" cy="331" r="2.2" fill="#ffe08a"/>',
@@ -103,7 +100,7 @@ var DISZ_TARGY = {
   "kispatna": { nev: "Kispárna", ar: 20, hova: "padlo-bal", tf: "translate(180,500) scale(0.7) translate(-40,-64)", svg: '<ellipse cx="40" cy="62" rx="18" ry="3" fill="#3b2f66" opacity="0.14"/> <path d="M22 42 Q40 36 58 42 Q64 50 58 58 Q40 64 22 58 Q16 50 22 42 Z" fill="#a7d99a" stroke="#7fb872" stroke-width="1.4"/> <path d="M28 45 Q40 42 52 45" stroke="#c9e6bb" stroke-width="1.4" fill="none"/> <circle cx="40" cy="50" r="3.5" fill="#fce49a"/> <circle cx="22" cy="50" r="2.4" fill="#fce49a"/><circle cx="58" cy="50" r="2.4" fill="#fce49a"/>' },
   "fuggodisz": { nev: "Függődísz", ar: 30, hova: "ablak", tf: "translate(210,150) scale(0.6) translate(-40,-40)", svg: '<line x1="40" y1="8" x2="40" y2="18" stroke="#c9a8e6" stroke-width="1.4"/> <circle cx="40" cy="28" r="11" fill="#ffe9ad" opacity="0.4"/> <circle cx="40" cy="28" r="8" fill="none" stroke="#ffd24d" stroke-width="2"/> <path d="M40 22 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#ffd24d"/> <line x1="33" y1="36" x2="31" y2="52" stroke="#c9a8e6" stroke-width="1"/><circle cx="31" cy="54" r="3" fill="#f6a5c0"/> <line x1="40" y1="39" x2="40" y2="58" stroke="#c9a8e6" stroke-width="1"/><circle cx="40" cy="60" r="3" fill="#9ec9f0"/> <line x1="47" y1="36" x2="49" y2="52" stroke="#c9a8e6" stroke-width="1"/><circle cx="49" cy="54" r="3" fill="#a7d99a"/>' },
 };
-/* a hely aktív szintjéhez tartozó rárajzolt csoport(ok) — a bázis-bútor UTÁN (kivéve az ágy-baldachin) */
+/* a hely aktív szintjéhez tartozó rárajzolt csoport(ok) — a bázis-bútor UTÁN (az ágynál a szint = másik ágy: agyRajz) */
 function butorElem(o, hely) {
   var lvl = (o.szint && o.szint[hely]) || 1, out = "";
   function add(id) { out += '<g>' + BERENDEZES_SZINT[id] + '</g>'; }
@@ -114,10 +111,62 @@ function butorElem(o, hely) {
   else if (hely === "fuzer") { if (lvl >= 2) add("fuzer2"); }
   else if (hely === "kalyha") { if (lvl >= 2) add("kalyha2"); if (lvl >= 3) add("kalyha3"); }
   else if (hely === "polc") { if (lvl >= 2) add("polc2"); if (lvl >= 3) add("polc3"); }
-  else if (hely === "agy") { if (lvl >= 2) add("agy2"); if (lvl >= 3) add("agy3b"); }   /* elülső rész (a takaró fölé) */
   return out;
 }
-function butorAgyHatso(o) { return (((o.szint && o.szint.agy) || 1) >= 3) ? '<g>' + BERENDEZES_SZINT["agy3a"] + '</g>' : ""; }   /* baldachin: az ágy MÖGÉ */
+
+/* ══ 🛏️ ÁGYAK (unikornis pózok, 7. lépés — terv/agy-rajzterv.html, producer: 2026-10-04) ══
+   Három könnyű ágy = a három bolti ágy-szint: 1 Felhőfészek (ingyen) · 2 Holdbölcső · 3 Lótuszágy.
+   EGY rajz az odúban és a kertben (kertTargyBelso "agy" / "agy-elol" ugyanezt hívja, kicsinyítve).
+   Odú-koordinátában: az ágy közepe x=155, a padló y=452; akkora, hogy a valódi méretű (1.28) fekvő unikornis belefér.
+   Két réteg: "hatso" = az unikornis MÖGÉ, "elol" = a perem az unikornis ELÉ (fekve ebbe süpped bele).
+   AGY_FEKVES = a fekvő unikornis helye (az unikornis-rajz origója) ugyanebben a koordinátában. */
+var AGY_FAJTA = { 1: "felho", 2: "hold", 3: "lotusz" };
+var AGY_FEKVES = { felho: { x: 158, y: 430 }, hold: { x: 162, y: 428 }, lotusz: { x: 158, y: 428 } };
+var KERT_AGY_SKALA = 0.322;   /* odú-egység → kerti tárgy-egység: a kerti unikornis ~0,95 px/egység, az odúban 1.28× → az ágy 0,95/1.28 px/odú-egység (KERT_AGY_PX-szel osztva) */
+var AGY_KERET = '<rect x="28" y="300" width="262" height="160" fill="none"/>';   /* azonos befoglaló a két rétegnek (a kerti besüppedés közös origója) */
+function agySzirom(x, y, fok, L, W, szin, el, er) {   /* hegyes szirom (x,y)-ból, fok irányba */
+  return '<g transform="translate(' + x + ',' + y + ') rotate(' + fok + ')"><path d="M0 0 C' + W + ' ' + (-L * .38) + ' ' + (W * .55) + ' ' + (-L) + ' 0 ' + (-L) +
+    ' C' + (-W * .55) + ' ' + (-L) + ' ' + (-W) + ' ' + (-L * .38) + ' 0 0 Z" fill="' + szin + '" stroke="' + el + '" stroke-width="1.4"/>' +
+    '<path d="M0 -9 V' + (-L + 15) + '" stroke="' + er + '" stroke-width="2" stroke-linecap="round"/></g>';
+}
+var AGY_RAJZ = {
+  /* A) Felhőfészek: keret és láb nélkül, kicsit lebegő felhő; párna = kis alvó holdsarló */
+  felho: {
+    hatso: '<ellipse cx="155" cy="452" rx="104" ry="8" fill="#3b2f66" opacity=".14"/>' +
+      '<g fill="#fdfdfd"><circle cx="52" cy="406" r="18"/><circle cx="80" cy="394" r="25"/><circle cx="120" cy="386" r="29"/><circle cx="162" cy="384" r="30"/><circle cx="204" cy="388" r="28"/><circle cx="242" cy="398" r="23"/><circle cx="266" cy="410" r="15"/></g>' +
+      '<ellipse cx="158" cy="414" rx="106" ry="13" fill="#efe7fa"/>' +
+      '<g class="e-parna"><path d="M60 370 a22 22 0 1 0 28 32 a17 17 0 1 1 -28 -32 Z" fill="#fce49a" stroke="#f0c870" stroke-width="1.4"/>' +
+      '<path d="M66 392 q3 3 6 0" stroke="#c99a3a" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="68" cy="398" r="2" fill="#f7b8d0"/></g>' +
+      '<g fill="#fff6c8"><circle cx="100" cy="360" r="2"/><circle cx="230" cy="366" r="1.6"/><circle cx="282" cy="392" r="1.4"/></g>',
+    elol: '<g fill="#fdfdfd"><rect x="40" y="410" width="232" height="26" rx="13"/><circle cx="56" cy="418" r="16"/><circle cx="92" cy="418" r="20"/><circle cx="132" cy="420" r="21"/><circle cx="172" cy="420" r="21"/><circle cx="212" cy="418" r="20"/><circle cx="248" cy="418" r="16"/><circle cx="266" cy="414" r="11"/></g>' +
+      '<path d="M76 404 q14 -6 28 0 M150 404 q14 -6 28 0 M222 404 q12 -5 24 0" stroke="#efe7fa" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<path d="M54 438 Q158 452 262 436" stroke="#e2d6f2" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<g fill="#fff6c8"><circle cx="96" cy="446" r="1.6"/><circle cx="196" cy="448" r="1.8"/><circle cx="150" cy="449" r="1.2"/></g>'
+  },
+  /* B) Holdbölcső: aranyló holdsarló két karcsú lábon, alvó arccal; a csúcsán kis csillag lóg; benne felhőpárna */
+  hold: {
+    hatso: '<ellipse cx="155" cy="452" rx="96" ry="8" fill="#3b2f66" opacity=".14"/>' +
+      '<g stroke="#e6b94f" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M106 440 L98 452"/><path d="M214 440 L222 452"/></g><circle cx="97" cy="452" r="2.6" fill="#f0c870"/><circle cx="223" cy="452" r="2.6" fill="#f0c870"/>' +
+      '<path d="M50 316 C20 382 46 444 150 446 C214 447 256 424 272 392 C244 418 204 428 152 428 C84 428 50 390 50 316 Z" fill="#fce49a" stroke="#efc566" stroke-width="1.6"/>' +
+      '<path d="M38 368 q5 4 10 0" stroke="#c99a3a" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="44" cy="378" r="2.6" fill="#f7b8d0" opacity=".8"/>' +
+      '<line x1="50" y1="316" x2="50" y2="330" stroke="#e6b94f" stroke-width="1"/><path d="M50 330 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#ffe08a"/>' +
+      '<g fill="#fdfdfd"><rect x="62" y="404" width="200" height="22" rx="11"/><circle cx="80" cy="404" r="14"/><circle cx="116" cy="398" r="18"/><circle cx="156" cy="397" r="19"/><circle cx="196" cy="399" r="18"/><circle cx="234" cy="404" r="15"/></g>' +
+      '<g class="e-parna"><ellipse cx="78" cy="396" rx="18" ry="11" fill="#e9ddf3"/><path d="M66 394 q12 -6 24 0" stroke="#fdfdfd" stroke-width="2" fill="none"/></g>',
+    elol: '<g fill="#fdfdfd"><rect x="64" y="410" width="196" height="20" rx="10"/><circle cx="92" cy="414" r="13"/><circle cx="128" cy="416" r="15"/><circle cx="166" cy="416" r="15"/><circle cx="204" cy="415" r="14"/><circle cx="238" cy="412" r="12"/></g>' +
+      '<path d="M62 426 C96 446 200 448 262 414 C244 430 204 440 152 440 C108 440 80 434 62 426 Z" fill="#fce49a" stroke="#efc566" stroke-width="1.2"/>'
+  },
+  /* C) Lótuszágy: halvány tavirózsa — hátul szirom-legyező, elöl tulipánszerűen összezáruló szirmok, alatta két levél */
+  lotusz: {
+    hatso: '<ellipse cx="155" cy="452" rx="108" ry="8" fill="#3b2f66" opacity=".14"/>' +
+      '<ellipse cx="70" cy="447" rx="30" ry="6" fill="#b8deb0" transform="rotate(-8 70 447)"/><ellipse cx="244" cy="447" rx="30" ry="6" fill="#b8deb0" transform="rotate(8 244 447)"/>' +
+      [[-80, 120], [-62, 128], [-44, 122], [44, 122], [62, 128], [80, 120]].map(function (p) { return agySzirom(158, 432, p[0], p[1], 30, "#fbdbe8", "#f2b6cc", "#fdeef4"); }).join("") +
+      '<g fill="#fdf6e3"><rect x="48" y="404" width="220" height="26" rx="13"/><circle cx="70" cy="404" r="14"/><circle cx="108" cy="399" r="17"/><circle cx="150" cy="397" r="18"/><circle cx="192" cy="398" r="17"/><circle cx="232" cy="403" r="15"/></g>' +
+      '<g class="e-parna"><ellipse cx="74" cy="396" rx="17" ry="10" fill="#fff0b8"/><g fill="#f6c84c"><circle cx="68" cy="394" r="1.6"/><circle cx="76" cy="392" r="1.6"/><circle cx="80" cy="398" r="1.6"/></g></g>',
+    elol: [[-62, 64], [-34, 58], [0, 54], [34, 58], [62, 64]].map(function (p) { return agySzirom(158, 452, p[0], p[1], 24, "#f9cadb", "#f0aac4", "#fde6ef"); }).join("")
+  }
+};
+function agyFajta(szint) { return AGY_FAJTA[szint] || "felho"; }
+function agyRajz(szint, reteg) { return AGY_RAJZ[agyFajta(szint)][reteg]; }
 function butorAsztal(o) { var lvl = (o.szint && o.szint.asztal) || 1, out = ""; if (lvl >= 2) out += '<g>' + BERENDEZES_SZINT["asztal2"] + '</g>'; if (lvl >= 3) out += '<g>' + BERENDEZES_SZINT["asztal3"] + '</g>'; return out; }
 
 /* ── dísztárgyak: zónák (egy zóna = egy „hova"-kulcs, egyszerre EGY tárgy) ── */
@@ -337,32 +386,10 @@ function kertTargyBelso(id) {
     + '<path class="kt-szokokut-sugar" d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/>'
     + '<path class="kt-szokokut-ag" d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>'
     + '<path class="kt-szokokut-ag" style="animation-delay:1.2s" d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
-  if (id === "agy") {   /* az odú felhő-ágya (odu.js „FELHŐ-ÁGY"), kicsinyítve; a .kt-agy-matrac csoport süpped be az unikornis súlyától */
-    var ivek = "", bx = [13, 22, 31, 40, 49, 58], br = [97, 88, 79, 70, 61, 52], bc = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
-    for (var b = 0; b < 6; b++) ivek += '<path d="M' + bx[b] + ' 432 A' + br[b] + ' ' + br[b] + ' 0 0 1 ' + (bx[b] + br[b] * 2) + ' 432" stroke="' + bc[b] + '"/>';
-    return arny.replace("RX", 50).replace("RY", 7)
-      + '<g transform="scale(0.45) translate(-130,-455)">'
-      + '<g stroke-linecap="round" fill="none" stroke-width="10">' + ivek + '</g>'                                   /* szivárvány-fejtámla */
-      + '<path d="M84 408 Q70 358 62 300 Q80 356 102 402 Z" fill="#fdf0d0"/>'
-      + '<g stroke="#f0c98a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M78 396 Q90 392 98 399"/><path d="M74 374 Q85 370 93 376"/><path d="M71 352 Q81 349 88 354"/><path d="M68 332 Q76 330 82 334"/></g><circle cx="62" cy="300" r="3" fill="#fff6d8"/>'
-      + '<rect x="80" y="422" width="166" height="22" rx="9" fill="#c9a8e6"/><rect x="88" y="444" width="14" height="11" rx="3" fill="#b48fd6"/><rect x="226" y="444" width="14" height="11" rx="3" fill="#b48fd6"/>'   /* keret + lábak */
-      + '<g class="kt-agy-matrac">'
-      + '<rect x="84" y="404" width="156" height="26" rx="13" fill="#fdfdfd"/><circle cx="102" cy="404" r="20" fill="#fdfdfd"/><circle cx="134" cy="398" r="24" fill="#fdfdfd"/><circle cx="172" cy="398" r="24" fill="#fdfdfd"/><circle cx="206" cy="403" r="20" fill="#fdfdfd"/><circle cx="228" cy="409" r="15" fill="#fdfdfd"/>'   /* felhő-matrac */
-      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
-      + '<path d="M150 404 h92 v20 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'                                      /* takaró */
-      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
-      + '<polygon points="122,372 128,388 145,389 131,399 136,415 122,406 108,415 113,399 99,389 116,388" fill="#f7b8d0" stroke="#e79ac0" stroke-width="2"/>'   /* csillag-párna */
-      + '<path d="M114 394 q3 3 6 0 M124 394 q3 3 6 0" stroke="#b56b93" stroke-width="2" fill="none"/><circle cx="112" cy="399" r="2.5" fill="#f59ab8"/><circle cx="131" cy="399" r="2.5" fill="#f59ab8"/>'
-      + '</g></g>';
-  }
-  if (id === "agy-elol")   /* a kerti ágy matracának ELÜLSŐ pereme — külön rétegben az unikornis ELÉ, így fekve „belesüpped" a felhőbe */
-    return '<g transform="scale(0.45) translate(-130,-455)"><g class="kt-agy-matrac">'
-      + '<rect x="84" y="404" width="1" height="1" fill="none"/>'                                                         /* a matrac-csoporttal azonos befoglaló (azonos süppedés) */
-      + '<path d="M86 416 Q104 408 122 414 Q140 406 160 413 Q182 406 204 413 Q224 407 240 415 L240 418 a12 12 0 0 1 -12 12 h-132 a12 12 0 0 1 -12 -12 Z" fill="#fdfdfd"/>'
-      + '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>'
-      + '<path d="M150 416 h92 v8 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>'
-      + '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>'
-      + '</g></g>';
+  if (id === "agy" || id === "agy-elol")   /* a kerti ágy = az odúban választott ágy (agyRajz), kicsinyítve; a .kt-agy-matrac süpped be az unikornis súlyától.
+     Az "agy-elol" a perem: külön rétegben az unikornis ELÉ, így fekve belesüpped. KERT_AGY_SKALA: az unikornis és az ágy aránya ugyanaz, mint az odúban. */
+    return '<g transform="scale(' + KERT_AGY_SKALA + ') translate(-155,-452)"><g class="kt-agy-matrac">' + AGY_KERET
+      + agyRajz((P().odu.szint && P().odu.szint.agy) || 1, id === "agy" ? "hatso" : "elol") + '</g></g>';
   if (id === "viragagyas") return arny.replace("RX", 36).replace("RY", 9)
     + '<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/>'
     + '<ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/>'
@@ -418,7 +445,7 @@ function kertTargyBelso(id) {
 function kertTargyIkon(id) {
   return '<svg viewBox="-49 -84 98 98" xmlns="http://www.w3.org/2000/svg">' +
     '<path d="M-42 -4 Q0 -13 42 -4 L42 14 L-42 14 Z" fill="#8ecf6e"/>' +   /* rét-sáv a talajnál */
-    kertTargyBelso(id) + '</svg>';
+    (id === "agy" ? kertTargyBelso("agy") + kertTargyBelso("agy-elol") : kertTargyBelso(id)) + '</svg>';
 }
 /* a bolt „Kert" fülének tárgy-csoportjai (csak nyitott kert esetén) */
 function kertTargyBoltCsoportok() {
@@ -703,23 +730,9 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += butorElem(o, "fuggony");             /* v3: függöny az ablakra */
   s += '</g>';
 
-  /* ── FELHŐ-ÁGY (bal) ── */
-  s += butorAgyHatso(o);                     /* v3: baldachin az ágy MÖGÉ (3. szint) */
-  s += '<g stroke-linecap="round" fill="none" stroke-width="10">';
-  var bx = [13, 22, 31, 40, 49, 58], br = [97, 88, 79, 70, 61, 52], bc = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c3a5e0"];
-  for (var b = 0; b < 6; b++) { s += '<path d="M' + bx[b] + ' 432 A' + br[b] + ' ' + br[b] + ' 0 0 1 ' + (bx[b] + br[b] * 2) + ' 432" stroke="' + bc[b] + '"/>'; }
-  s += '</g>';
-  s += '<ellipse cx="160" cy="452" rx="98" ry="11" fill="#3b2f66" opacity="0.18"/>';
-  s += '<path d="M84 408 Q70 358 62 300 Q80 356 102 402 Z" fill="#fdf0d0"/>';
-  s += '<g stroke="#f0c98a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M78 396 Q90 392 98 399"/><path d="M74 374 Q85 370 93 376"/><path d="M71 352 Q81 349 88 354"/><path d="M68 332 Q76 330 82 334"/></g><circle cx="62" cy="300" r="3" fill="#fff6d8"/>';
-  s += '<rect x="80" y="422" width="166" height="22" rx="9" fill="#c9a8e6"/><rect x="88" y="444" width="14" height="11" rx="3" fill="#b48fd6"/><rect x="226" y="444" width="14" height="11" rx="3" fill="#b48fd6"/>';
-  s += '<rect x="84" y="404" width="156" height="26" rx="13" fill="#fdfdfd"/><circle cx="102" cy="404" r="20" fill="#fdfdfd"/><circle cx="134" cy="398" r="24" fill="#fdfdfd"/><circle cx="172" cy="398" r="24" fill="#fdfdfd"/><circle cx="206" cy="403" r="20" fill="#fdfdfd"/><circle cx="228" cy="409" r="15" fill="#fdfdfd"/>';
-  s += '<path d="M88 424 Q160 434 236 424" stroke="#e9ddf3" stroke-width="4" fill="none"/>';
-  s += '<path d="M150 404 h92 v20 a12 12 0 0 1 -12 12 h-68 a12 12 0 0 1 -12 -12 Z" fill="#d7c4ee"/>';
-  s += '<g stroke-width="3" stroke-linecap="round"><path d="M154 420 h84" stroke="#f7b8d0"/><path d="M156 426 h80" stroke="#fbe0a0"/><path d="M160 432 h72" stroke="#a7d99a"/></g>';
-  s += '<polygon points="122,372 128,388 145,389 131,399 136,415 122,406 108,415 113,399 99,389 116,388" fill="#f7b8d0" stroke="#e79ac0" stroke-width="2"/>';
-  s += '<path d="M114 394 q3 3 6 0 M124 394 q3 3 6 0" stroke="#b56b93" stroke-width="2" fill="none"/><circle cx="112" cy="399" r="2.5" fill="#f59ab8"/><circle cx="131" cy="399" r="2.5" fill="#f59ab8"/>';
-  s += butorElem(o, "agy");                  /* v3: párna + dúsabb paplan a takaró fölé */
+  /* ── ÁGY (bal) — a választott ágy (bolti szint), közös rajz: agyRajz ── */
+  var agySz = (o.szint && o.szint.agy) || 1;
+  s += '<g class="odu-agy-hatso">' + agyRajz(agySz, "hatso") + '</g>' + agyRajz(agySz, "elol");
 
   /* ── GYÖKÉRPOLC (jobb-közép) ── */
   s += '<rect x="398" y="296" width="150" height="12" rx="4" fill="#cbb6e6"/>';

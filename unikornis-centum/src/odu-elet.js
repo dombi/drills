@@ -2,7 +2,7 @@
    A kész odú-SVG-t (oduSVG) a renderOdu után „éleszti fel”: semmi ne álljon mozdulatlanul.
      A · élénk szoba — színátmenetes fal/padló, fénytócsák (lámpa, kályha, befőtt), ablak-fénysáv, szél-sötétítés
      F · kis élet    — láng, füst, lámpa-himbálózás, zászlók, porszemek, ablak, befőtt-csillag, párna, erdő,
-                       katica a szivárvány-ágyon, nappal lepke / este szentjánosbogarak
+                       katica az ágyon, nappal lepke / este szentjánosbogarak
      B · élő polc    — inda + csiga + derengő helyek + fény-suhanás + kristály-csillanás a Kincsvitrinen,
                        bugyogó üvegcsék + billegő makk + hajtás a gyökérpolcon, lebbenő lap a mesekönyvben
    Élénkség: közepes; koppintásra nem reagálnak (producer-ajánlás, 2026-09-28).
@@ -89,12 +89,12 @@ function oduElet(svg, o) {
   /* 8 befőtt-csillag */
   burok([q('circle[cx="345"][cy="376"]'), q('polygon[points^="345,366"]')], "e-befott");
   /* 10 csillag-párna */
-  burok([q('polygon[points^="122,372"]'), q('path[d^="M114 394"]'), q('circle[cx="112"][cy="399"]'), q('circle[cx="131"][cy="399"]')], "e-parna");
+  /* (10 az ágy párnája: a rajzban eleve .e-parna — odu.js AGY_RAJZ) */
   /* (11 erdő a kijáraton túl: megszűnt — a bal fali ösvény-nyílás helyén felhő van, 6. lépés) */
-  /* 9 katica a szivárvány-ágy ívén (a felhő-ágy MÖGÉ, hogy a felhő eltakarja az ív alját) */
-  var katB = null, ivV = q('path[d^="M13 432"]');
-  if (ivV) {
-    var kat = utana(el("g", { "pointer-events": "none" }), ivV.parentNode);
+  /* 9 katica az ágy hátsó peremén (a hátsó réteg UTÁN, az elülső perem elé nem kerül) */
+  var katB = null, agyH = q('g.odu-agy-hatso');
+  if (agyH) {
+    var kat = utana(el("g", { "pointer-events": "none" }), agyH);
     katB = el("g", {}, kat);
     el("ellipse", { cx: 0, cy: 0, rx: 4.2, ry: 3.4, fill: "#e8505b" }, katB);
     el("line", { x1: 0, y1: -3.4, x2: 0, y2: 3.4, stroke: "#7a2a30", "stroke-width": 0.8 }, katB);
@@ -316,12 +316,12 @@ function oduVillanyKapcsol() {
   }
 }
 
-/* a lepke útja pontról pontra hajlított ívben, leszállásokkal (szivárvány, mesekönyv, zászló, felhő-ágy, kályha,
-   kertkapu); a szentjánosbogarak lassan kóborolnak; a katica végigmászik az ágy ívén és visszafordul.
+/* a lepke útja pontról pontra hajlított ívben, leszállásokkal (ágy-párna, mesekönyv, zászló, ágy, kályha,
+   kertkapu); a szentjánosbogarak lassan kóborolnak; a katica végigmászik az ágy hátsó peremén és visszafordul.
    Csak amíg az odú látszik — utána a rAF leáll (a következő renderOdu újraindítja). */
 function oduEletUt(lepke, lb, bogarak, katB) {
   var nyugi = nyugiMod();
-  var megallok = [[110, 326], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
+  var megallok = [[74, 372], [430, 246], [380, 142], [172, 374], [530, 346], [326, 338]];
   var poz = [240, 300], cel = 0, ul = true, ulIg = 0, repIg = 0, honnan = poz.slice(), kontroll = [0, 0], ido = 3200;
   function ujCel(most) {
     honnan = poz.slice();
@@ -334,7 +334,7 @@ function oduEletUt(lepke, lb, bogarak, katB) {
   if (nyugi) {                                /* kevesebb mozgás: a lepke a kapun ül, a többiek is egy helyben */
     if (lepke) { lepke.classList.add("ul"); lepke.setAttribute("transform", "translate(326,338)"); }
     bogarak.forEach(function (g, i) { g.setAttribute("transform", "translate(" + (80 + i * 120) + "," + (250 + (i % 2) * 40) + ")"); });
-    if (katB) katB.setAttribute("transform", "translate(110,329) rotate(0)");
+    if (katB) katB.setAttribute("transform", "translate(158,384) rotate(0)");
     return;
   }
   ujCel(performance.now());
@@ -362,7 +362,7 @@ function oduEletUt(lepke, lb, bogarak, katB) {
     });
     if (katB) {
       var sz = Math.sin(t * 0.09), a = (90 - sz * 52) * Math.PI / 180, ir = Math.cos(t * 0.09) >= 0 ? 1 : -1;
-      var kx = 110 + 103 * Math.cos(a), ky = 432 - 103 * Math.sin(a);
+      var kx = 158 + 104 * Math.cos(a), ky = 418 - 34 * Math.sin(a);   /* lapos ív az ágy hátsó pereme fölött */
       katB.setAttribute("transform", "translate(" + kx.toFixed(1) + "," + ky.toFixed(1) + ") rotate(" + (90 - a * 57.3).toFixed(1) + ") scale(" + ir + ",1)");
     }
     if (_oduVillany && most - szarvIdo > 120) { _oduVillany.szarvHely(); szarvIdo = most; }   /* a szarv-fény követi az unikornist */

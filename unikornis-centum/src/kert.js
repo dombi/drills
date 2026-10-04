@@ -141,7 +141,7 @@ function kertElemekRender() {
     var etel = (def.csoport === "etel");
     var agy = (o.tip === "agy");
     var noveny = (def.csoport === "noveny");
-    var vb = agy ? "-54 -62 108 70" : "-50 -90 100 96";
+    var vb = agy ? KERT_AGY_VB : "-50 -90 100 96";
     var hitRect = noveny ? '<rect x="-50" y="-90" width="100" height="96" fill="none" pointer-events="all"/>' : '';
     html += '<div class="kt-elem' + (etel ? ' kt-etel-elem' : '') + (agy ? ' kt-agy-elem' + ((KERT_FEKSZIK && KERT_AGY_I === i) ? ' terhelt' : '') : '') + (noveny ? ' kt-noveny-elem' : '') + '" data-i="' + i + '" style="left:' + o.x + '%;top:' + o.y + '%;z-index:' + z + '">' +
       '<svg class="kt-el-svg" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg">' + hitRect + kertTargyBelso(o.tip) + '</svg>';
@@ -437,11 +437,16 @@ function kertSetalFekszik(i) {
   kertSugo("🚶 Megyek lepihenni…");
   kertSetalIde(P().kert.elemek[i].x, function () { kertFekszik(i); });
 }
-/* a befekvés: az unikornis felhuppan az ágyra (a doboz a matrac tetejére ugrik, fejjel a csillag-párna felé),
+/* a befekvés: az unikornis felhuppan az ágyra (a doboz a matrac tetejére ugrik, fejjel a párna felé),
    a lábak behajlanak (CSS .fekszik-all), a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
-   Tartós póz — koppintásra leugrik és feláll. A KERT_AGY_* értékek a kert-ágy rajzához (kertTargyBelso "agy") igazítva. */
-var KERT_AGY_FEL = 12;    /* px: a doboz alja ennyivel az ágy talajpontja fölé kerül → a has a besüppedt felhőn */
-var KERT_AGY_JOBBRA = 36; /* px: a matrac közepe az ágy közepétől jobbra van (a bal végén a fejtámla-ív) */
+   Tartós póz — koppintásra leugrik és feláll. A hely a választott ágy AGY_FEKVES pontjából jön (odu.js, közös ágyrajz). */
+var KERT_AGY_VB = "-46 -54 92 62";   /* a kerti ágy SVG-doboza (tárgy-egység); a CSS szélesség 212px → KERT_AGY_PX px/egység */
+var KERT_AGY_PX = 212 / 92;
+var KERT_UNI_TALP = 25;   /* px: a kerti unikornis-doboz alja ennyivel van a rajz origója alatt (viewBox alja 26 egység × ~0,95 px) */
+function kertAgyHely() {   /* {jobbra, fel} px az ágy talajpontjától: ide kerül az unikornis-doboz alja-közepe */
+  var f = AGY_FEKVES[agyFajta((P().odu.szint && P().odu.szint.agy) || 1)], k = KERT_AGY_SKALA * KERT_AGY_PX;
+  return { jobbra: Math.round((f.x - 155) * k), fel: Math.round((452 - f.y) * k - KERT_UNI_TALP) };
+}
 function kertFekszik(i) {
   var doboz = $("kert-uni-doboz");
   if (!doboz) { KERT_TRUKK_FUT = false; return; }
@@ -453,8 +458,9 @@ function kertFekszik(i) {
     doboz.style.zIndex = Math.round(o.y * 10) + 5;     /* közvetlenül az ágy fölé (mélységben is azon fekszik) */
     uniFordul(doboz, -1);                              /* fejjel a párna (bal) felé — felhuppanás közben fordul */
     doboz.style.transition = "left .55s ease-out, bottom .55s cubic-bezier(.3,1.7,.55,1), transform .45s ease";   /* kis ív: felhuppan */
-    doboz.style.left = "calc(" + o.x + "% + " + KERT_AGY_JOBBRA + "px)";
-    doboz.style.bottom = "calc(" + (100 - o.y) + "% + " + KERT_AGY_FEL + "px)";
+    var hely = kertAgyHely();
+    doboz.style.left = "calc(" + o.x + "% + " + hely.jobbra + "px)";
+    doboz.style.bottom = "calc(" + (100 - o.y) + "% + " + hely.fel + "px)";
     var agyEl = document.querySelectorAll('.kt-agy-elem[data-i="' + i + '"], .kt-agy-elol[data-i="' + i + '"]');   /* matrac + elülső pereme együtt */
     setTimeout(function () {
       if (!KERT_FEKSZIK || KERT_AGY_I !== i) return;
