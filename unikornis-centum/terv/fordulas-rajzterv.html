@@ -14,6 +14,13 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 .tabla-wrap{ overflow-x:auto; }
 </style></head><body><main>
 <h1>4. lépés — közös fordulás és pörgés</h1>
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ (2026-10-04, <i>?v=20261004-1</i>).</b> A producer döntése: <b>A) felénk fordul</b>. Mozgó előnézet (már a valódi kódból): <b>python terv/fordulas-build.py</b>; póz-próbapad: <b>python terv/pozok-felmero-build.py</b> (a pörgés-kártyák a közös uniPorog-ot fényképezik).</p>
+<ul>
+<li><b>renderer.js:</b> <b>UNI_FORDUL</b> (ido .34 mp, nezet „elol”, porges = 8 ugrás-magasság, simit .22 mp), <b>uniNezoAdat</b>, <b>uniIrany</b>, <b>uniNezetMutat</b> (a köztes nézet <i>.uni-nezet-reteg</i>-ként az oldalrajz mellé; <i>.uni-nezetben</i> elrejti az oldalt), <b>uniFordul(el, irány, kész)</b> → visszaadja a ms-ot (0 = nem kellett), <b>uniPorog(el, ms, kész)</b> (ugrás a <i>--uni-magas</i>-sal, árnyék-folt, szikrák HTML-elemen), <b>uniForduloCSS()</b>. Sima indulás: <b>uniJarasIndul</b> + <i>--jar-kezd</i> (a járás-CSS-ben animation-delay); sima megállás: a <b>uniAll</b> pillanatképből enged vissza. <b>uniJarFut</b>.</li>
+<li><b>kert.js:</b> <i>kertPorgesForgas</i> megszűnt → uniPorog; <i>kertSetalIde</i> előbb fordul, menet közbeni új célnál onnan indul, ahol jár; ugrás a szélen: fordul, majd <i>kertTrukkMozdul</i>; ágy: uniFordul. <b>tunemenykert.js:</b> <i>tkNezoAdat</i>; <i>tkSetal</i> fordul + visszaadja a ms-ot (a pacsi ebből vár); <i>tkUgrasElore(…, kész)</i>; pacsi: szembefordulnak, utána csapnak; pörgés: uniPorog (a többiekén is). <b>odu.js:</b> <i>#odu-uni-flip</i> CSS <i>--dir</i>-rel; séta előtt fordul; hazaérve visszafordul. <b>style.css:</b> a <i>tk-porges</i> „papírcsík” törölve. <b>main.js:</b> UC.uniPorog / uniFordul / uniNezoAdat / UNI_FORDUL.</li>
+<li>Csendes teszt (localhost, ál-adatbázissal a felhőkertben): kert (séta oda-vissza, menet közbeni új cél, ugrás a szélen, pörgés, ágy), odú (séta a tárgyhoz, pörgés-kép), felhőkert (saját séta, pacsi Lilivel, Lili távoli pörgése, ugrás a szélen) — mind a várt sorrendben; képen szemből/hátulról díszekkel, jó helyen. A konzolon csak a tesztben szándékosan elrontott díszlista hibája volt.</li>
+</ul></div>
 <p>Unikornis pózok terve, 4. lépés (panasz 1 és 3). Nagyság: <b>közepes</b>. Ide került a 3. lépésből maradt apróság is: <b>az indulás és a megállás</b>.</p>
 
 <div class="doboz terv">
@@ -71,7 +78,7 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 <h2>Döntés</h2>
 <div class="doboz terv">
 <ol>
-<li><b>Merre forduljon?</b> <span class="javasolt">Javasolt: A) felénk</span> — a gyerek ilyenkor egy pillanatra az unikornis arcát látja, ez kedves és élő. B) elfordul (hátulról látjuk). C) körbe: mindig egy irányba forog (balra hátulról, jobbra szemből).</li>
+<li><b>Merre forduljon?</b> <b>Döntés (2026-10-04): A) felénk.</b> <span class="javasolt">Javasolt: A) felénk</span> — a gyerek ilyenkor egy pillanatra az unikornis arcát látja, ez kedves és élő. B) elfordul (hátulról látjuk). C) körbe: mindig egy irányba forog (balra hátulról, jobbra szemből).</li>
 <li><b>Tetszik így a pörgés és a sima indulás/megállás?</b> A köztes nézet ideje, az ugrások magassága és a simítás egy-egy számmal hangolható.</li>
 </ol>
 </div>

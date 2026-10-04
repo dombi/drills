@@ -111,13 +111,10 @@ PAD = r"""<style>
     h += '<h2>1. Kert — a pózok</h2><div class="fm-sor" id="fm-kert">';
     KERT_POZOK.forEach(function (p) { h += kartya(kertUni(uid(), p[0], p[2]), p[3], p[4], p[5]); });
     h += '</div>';
-    h += '<h2>2. Kert — pörgés (4 nézet) és a hátrafelé menés</h2><div class="fm-sor" id="fm-porges"><figure><div class="fm-szin" id="fm-porges-gyujto">' + '</div><figcaption>pörgés készül…</figcaption></figure></div>';
-    h += '<h2>3. Felhőkert — ugyanaz a pörgés, másik kóddal</h2><div class="fm-sor" id="fm-tk">' +
+    h += '<h2>2. Pörgés (közös: kert és felhőkert) és a séta utána</h2><div class="fm-sor" id="fm-porges"><figure><div class="fm-szin" id="fm-porges-gyujto">' + '</div><figcaption>pörgés készül…</figcaption></figure></div>';
+    h += '<h2>3. Felhőkert</h2><div class="fm-sor" id="fm-tk">' +
       kartya(tkUni(uid(), ""), "Áll", "Ugyanaz a rajz, mint a kertben.", "ok") +
-      kartya(tkUni(uid(), "uni-jar-seta"), "Séta", "Ugyanaz a közös járás, mint a kertben (3. lépés).", "ok") +
-      kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/8", "Nem fordul, hanem vízszintesen összenyomódik.", "hiba") +
-      kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/16", "", "hiba") +
-      kartya(tkUni(uid(), "g-porges"), "Pörgés — 1/4", "Tükörkép: ez a „hátulnézet” helyett.", "hiba") +
+      kartya(tkUni(uid(), "uni-jar-seta"), "Séta", "Ugyanaz a közös járás (3. lépés), fordulás és pörgés (4. lépés), mint a kertben.", "ok") +
       '</div>';
     h += '<h2>4. Odú és a többi helyszín</h2><div class="fm-sor" id="fm-tobbi">' +
       '<figure class="fm-odu gyanu"><div class="fm-szin" id="odu-szoba">' + UC.oduSVG() + '</div><figcaption><b>Odú — séta közben</b>A közös járás (3. lépés); a tempót az oduUniSetal a közös út-tervezőtől kéri. Az ágyba még nem lehet belefeküdni (9. lépés).<br><span class="cimke gyanu">FURCSA</span></figcaption></figure>' +
@@ -133,33 +130,39 @@ PAD = r"""<style>
     var kartyak = fm.querySelectorAll("#fm-kert figure");
     KERT_POZOK.forEach(function (p, i) { fagyaszt(kartyak[i], p[1]); });
     var tk = fm.querySelectorAll("#fm-tk figure");
-    [0, 0, 0.0625, 0.03, 0.25].forEach(function (f, i) { fagyaszt(tk[i], i === 1 ? 0.5 : f); });
+    [0, 0.5].forEach(function (f, i) { fagyaszt(tk[i], f); });
     var odu = fm.querySelector("#odu-szoba #odu-uni-mozgo");
     if (odu) odu.classList.add("uni-jar-seta");
     fagyaszt(fm.querySelector("#fm-tobbi"), 0.5);
     porgesFelvesz();
   }
-  /* a VALÓDI kerti pörgés-függvényt futtatjuk egy rejtett figurán, és lefényképezzük a 4 nézetét */
+  /* a VALÓDI közös pörgés-függvényt (uniPorog) futtatjuk egy rejtett figurán, és lefényképezzük a 4 nézetét */
   function porgesFelvesz() {
     var gy = document.getElementById("fm-porges-gyujto");
     gy.innerHTML = kertUni("kert-uni", "", 1).replace(/^<div id="kert-szinter" class="fm-szin">|<\/div>$/g, "");
     var doboz = gy.querySelector(".kert-uni-doboz"), svg = doboz.querySelector(".kert-uni-svg"), flip = doboz.querySelector(".kert-uni-flip");
-    var keretek = [];
-    var mo = new MutationObserver(function () { keretek.push({ html: svg.innerHTML, dir: flip.style.getPropertyValue("--dir") }); });
-    mo.observe(svg, { childList: true });
-    UC.kertPorgesForgas(doboz, 800, function () {
+    doboz.style.setProperty("--dir", 1);
+    UC.uniNezoAdat(doboz, { rajz: lenyC().rajz, kinezet: null, oltozet: UC.mentes.profilok[UC.mentes.leny].oltozet });
+    var keretek = [], utolso = "";
+    var mo = new MutationObserver(function () {
+      var k = { html: svg.innerHTML, dir: doboz.style.getPropertyValue("--dir"), nezet: doboz.classList.contains("uni-nezetben") };
+      var kulcs = k.dir + k.nezet + (svg.querySelector(".uni-nezet-reteg") ? svg.querySelector(".uni-nezet-reteg").innerHTML.length : 0);
+      if (kulcs !== utolso && doboz.classList.contains("uni-porog")) { keretek.push(k); utolso = kulcs; }
+    });
+    mo.observe(doboz, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+    UC.uniPorog(doboz, 800, function () {
       mo.disconnect();
       var nev = ["Pörgés — oldalról", "Pörgés — szemből", "Pörgés — balról", "Pörgés — hátulról"];
       var megj = ["", "Színek, pata és festék a közös színtáblából (1a), a díszek a NEZET_DISZ-ből (1b).", "", "Színek, pata és festék a közös színtáblából (1a), a díszek a NEZET_DISZ-ből (1b)."];
       var all = ["ok", "ok", "ok", "ok"];
       var out = "";
       for (var i = 0; i < 4 && i < keretek.length; i++) {
-        out += kartya('<div id="kert-szinter" class="fm-szin"><div class="kert-uni-doboz" style="--dir:1"><div class="kert-uni-flip" style="--dir:' + (keretek[i].dir || 1) + '">' +
+        out += kartya('<div id="kert-szinter" class="fm-szin"><div class="kert-uni-doboz' + (keretek[i].nezet ? " uni-nezetben" : "") + '" style="--dir:' + (keretek[i].dir || 1) + '"><div class="kert-uni-flip">' +
           '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' + keretek[i].html + '</svg></div></div></div>', nev[i], megj[i], all[i]);
       }
       /* ugyanez a figura a pörgés UTÁN, balra indítva — a cimkét MÉRJÜK: marad-e irány a belső rétegen (D1 javította) */
       doboz.style.setProperty("--dir", -1); doboz.classList.add("uni-jar-seta");
-      var ragad = !!flip.style.getPropertyValue("--dir");
+      var ragad = !!flip.style.getPropertyValue("--dir") || doboz.classList.contains("uni-nezetben");
       var bizonyit = '<figure class="' + (ragad ? "hiba" : "") + '"><div class="fm-szin" id="kert-szinter">' + gy.innerHTML + '</div><figcaption><b>Séta balra — pörgés UTÁN</b>' +
         (ragad ? 'Ugyanaz a parancs, mint fent a „Séta balra” — de jobbra néz, tehát hátrafelé megy. A pörgés „jobbra” irányt hagy a belső rétegen.<br><span class="cimke hiba">HIBA</span>'
                : 'A pörgés nem hagy irányt a belső rétegen: balra néz, előre megy (D1).<br><span class="cimke ok">rendben</span>') + '</figcaption></figure>';

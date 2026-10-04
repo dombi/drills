@@ -1514,7 +1514,7 @@ function uniJarasCSS() {
     function anim(resz, sel, fv) {
       var an = "uni-j-" + nev + "-" + resz;
       css += "@keyframes " + an + "{" + kocka.map(function (a, k) { return uniK(k * 100 / UNI_JARAS_LEPES) + "%{transform:" + fv(a) + "}"; }).join("") + "}\n";
-      css += ".uni-jar-" + nev + " " + sel + "{animation:" + an + " calc(" + md.ido + "s / var(--jar-tempo, 1)) linear infinite}\n";
+      css += ".uni-jar-" + nev + " " + sel + "{animation:" + an + " calc(" + md.ido + "s / var(--jar-tempo, 1)) linear var(--jar-kezd, 0s) infinite}\n";   /* --jar-kezd: sima indulás (uniJar) */
     }
     UNI_JARAS_LAB.forEach(function (lab, i) {
       anim("c" + i, lab + " .uni-comb", function (a) { return "rotate(" + uniK(a.lab[i][0]) + "deg)"; });
@@ -1550,16 +1550,122 @@ function uniUt(el, tavPx) {
   if (mod === "uget" && mp > UNI_UT_MAX) { tempo = Math.min(UNI_TEMPO_MAX, mp / UNI_UT_MAX); mp /= tempo; }
   return { mod: mod, tempo: tempo, mp: Math.max(0.2, mp) };
 }
+/* INDULÁS: a lépésciklus abból a pillanatából indul, ahol a lábak a legközelebb vannak az álló helyzethez
+   (gép keresi ki, mozgásmódonként egyszer) → nincs rándulás (4. lépés). */
+var UNI_JARAS_INDUL = {};
+function uniJarasIndul(nev) {
+  if (UNI_JARAS_INDUL[nev] != null) return UNI_JARAS_INDUL[nev];
+  var md = UNI_JARAS[nev], legjobb = 0, min = 1e9;
+  for (var k = 0; k < UNI_JARAS_LEPES; k++) {
+    var a = uniJarasAllas(md, k / UNI_JARAS_LEPES), s = 0;
+    a.lab.forEach(function (l) { s += l[0] * l[0] + l[1] * l[1]; });
+    s += a.t[0] * a.t[0] * 40 + a.t[2] * a.t[2] * 4 + a.fe * a.fe;
+    if (s < min) { min = s; legjobb = k / UNI_JARAS_LEPES; }
+  }
+  return (UNI_JARAS_INDUL[nev] = legjobb);
+}
+function uniJarFut(el) { return !!el && (el.classList.contains("uni-jar-seta") || el.classList.contains("uni-jar-uget")); }
 function uniJar(el, ut) {
   if (!el) return;
   el.classList.remove("uni-jar-seta", "uni-jar-uget");
-  el.classList.add("uni-jar-" + ut.mod);
   el.style.setProperty("--jar-tempo", ut.tempo.toFixed(2));
+  el.style.setProperty("--jar-kezd", (-uniJarasIndul(ut.mod) * UNI_JARAS[ut.mod].ido / ut.tempo).toFixed(3) + "s");
+  el.classList.add("uni-jar-" + ut.mod);
 }
-function uniAll(el) { if (el) el.classList.remove("uni-jar-seta", "uni-jar-uget"); }
+/* MEGÁLLÁS: a láb, a test, a fej és a farok UNI_FORDUL.simit mp alatt simul vissza (a járó helyzetet
+   pillanatképként rögzítjük, aztán elengedjük → a CSS-átmenet viszi a póz/álló helyzetbe) */
+function uniAll(el) {
+  if (!uniJarFut(el)) return;
+  var reszek = (typeof getComputedStyle === "function" && !nyugiMod()) ? el.querySelectorAll(UNI_IZ_CSOPORT) : [], most = [], i;
+  for (i = 0; i < reszek.length; i++) most.push(getComputedStyle(reszek[i]).transform);
+  for (i = 0; i < reszek.length; i++) { reszek[i].style.transition = "none"; reszek[i].style.transform = most[i]; }
+  el.classList.remove("uni-jar-seta", "uni-jar-uget");
+  if (!reszek.length) return;
+  void el.getBoundingClientRect();
+  for (i = 0; i < reszek.length; i++) { reszek[i].style.transition = "transform " + UNI_FORDUL.simit + "s ease-out"; reszek[i].style.transform = ""; }
+  clearTimeout(el._simitTimer);
+  el._simitTimer = setTimeout(function () { for (var j = 0; j < reszek.length; j++) reszek[j].style.transition = ""; }, UNI_FORDUL.simit * 1000 + 50);
+}
+
+/* ── FORDULÁS ÉS PÖRGÉS: EGY KÖZÖS KÓD (unikornis pózok 4. lépés, terv/fordulas-rajzterv.html) ──────
+   Unikornis-elem (el) = amelyiken a --dir ül (1 jobbra, -1 balra), és amelyikben a unikornisSVG() rajza van
+   (kert: a doboz, felhőkert: a .tk-uni, odú: #odu-uni-flip). A köztes nézet (szemből/hátulról) RÁKERÜL az
+   oldalrajzra (azt csak elrejti), így a póz, a lebegés és a rajz nem épül újra. A nézet-képhez kell a lény
+   adata: uniNezoAdat(el, {rajz, kinezet, oltozet}) — minden rajzoláskor. */
+var UNI_FORDUL = {
+  ido: .34,      /* mp: ennyi ideig látszik a köztes nézet fordulás közben */
+  nezet: "elol", /* felénk fordul — producer döntése (2026-10-04) */
+  porges: [0, 6, 0, 10, 0, 6, 0, 10],   /* pörgés: nézetenként a kis ugrás (rajz-egység, a .uni-magas réteggel) */
+  simit: .22     /* mp: megálláskor ennyi idő alatt simulnak a lábak álló helyzetbe */
+};
+var _uniNezoSzam = 0;
+function uniNezoAdat(el, adat) { if (el) { el._uniNezo = adat; el._uniNezoPfx = "nz" + (++_uniNezoSzam); } }
+function uniIrany(el) { return el && +el.style.getPropertyValue("--dir") < 0 ? -1 : 1; }
+/* a köztes nézet (elol/hatul) rárakása az oldalrajzra; null → vissza az oldalrajzra */
+function uniNezetMutat(el, nezet) {
+  var reteg = el.querySelector(".uni-nezet-reteg");
+  if (reteg) reteg.parentNode.removeChild(reteg);
+  el.classList.toggle("uni-nezetben", !!nezet);
+  var magas = el.querySelector(".uni-magas"), a = el._uniNezo || {};
+  if (!nezet || !magas) return;
+  var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("class", "uni-magas uni-nezet-reteg");
+  g.innerHTML = '<g class="uni-elo">' + unikornisNezetArt(nezet, a.rajz || "korall", a.kinezet || null, el._uniNezoPfx, a.oltozet || null) + '</g>';
+  magas.parentNode.appendChild(g);
+}
+/* FORDULÁS: oldalról → szemből → a másik oldalra. Visszaadja, hány ms múlva áll az új irányba
+   (0 = nem kellett fordulnia); kesz() akkor fut. */
+function uniFordul(el, dir, kesz) {
+  if (!el) { if (kesz) kesz(); return 0; }
+  dir = dir < 0 ? -1 : 1;
+  clearTimeout(el._fordulTimer);
+  if (el.classList.contains("uni-nezetben")) uniNezetMutat(el, null);
+  if (uniIrany(el) === dir || nyugiMod()) { el.style.setProperty("--dir", dir); if (kesz) kesz(); return 0; }
+  uniAll(el);
+  uniNezetMutat(el, UNI_FORDUL.nezet);
+  el.style.setProperty("--dir", dir);   /* a köztes nézet takarásában tükrözünk: nem látszik */
+  el._fordulTimer = setTimeout(function () { uniNezetMutat(el, null); if (kesz) kesz(); }, UNI_FORDUL.ido * 1000);
+  return UNI_FORDUL.ido * 1000;
+}
+/* PÖRGÉS: kétszer körbe (oldal → szemből → másik oldal → hátulról), minden nézetben kis ugrás,
+   szikrákkal (HTML-elemen). Ugyanez a kertben és a felhőkertben (a többiek unikornisán is). */
+function uniPorog(el, ms, kesz) {
+  if (!el) { if (kesz) kesz(); return; }
+  var d0 = uniIrany(el), kockak = UNI_FORDUL.porges, i = 0, km = ms / kockak.length;
+  clearTimeout(el._fordulTimer);
+  uniAll(el);
+  if (nyugiMod()) { el._fordulTimer = setTimeout(function () { if (kesz) kesz(); }, ms); return; }
+  el.classList.add("uni-porog");
+  (function kocka() {
+    if (i >= kockak.length) {
+      uniNezetMutat(el, null); el.style.setProperty("--dir", d0);
+      el.style.removeProperty("--uni-magas"); el.classList.remove("uni-porog");
+      if (kesz) kesz(); return;
+    }
+    var f = i % 4;   /* 0: oldal, 1: szemből, 2: a másik oldal, 3: hátulról */
+    uniNezetMutat(el, f === 1 ? "elol" : f === 3 ? "hatul" : null);
+    el.style.setProperty("--dir", f === 2 ? -d0 : d0);
+    el.style.setProperty("--uni-magas", kockak[i]);
+    if (el instanceof HTMLElement) {
+      var sp = document.createElement("span");
+      sp.className = "forgato-szikra";
+      sp.textContent = ["✨", "⭐", "💫", "🌟"][Math.floor(Math.random() * 4)];
+      sp.style.left = (30 + Math.random() * 40) + "%"; sp.style.top = (20 + Math.random() * 50) + "%";
+      el.appendChild(sp);
+      setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 650);
+    }
+    i++;
+    el._fordulTimer = setTimeout(kocka, km);
+  })();
+}
+function uniForduloCSS() {
+  return ".uni-nezetben .uni-magas:not(.uni-nezet-reteg){visibility:hidden}\n" +
+         ".uni-porog .uni-magas{transition:transform .08s ease-out}\n" +
+         ".uni-porog .uni-arnyek{display:inline}\n";
+}
 (function uniPozStilus() {   /* egyszer, betöltéskor: a táblából készült CSS a lap végére */
   if (typeof document === "undefined" || document.getElementById("uni-poz-css")) return;
-  var st = document.createElement("style"); st.id = "uni-poz-css"; st.textContent = uniPozCSS() + uniJarasCSS();
+  var st = document.createElement("style"); st.id = "uni-poz-css"; st.textContent = uniPozCSS() + uniJarasCSS() + uniForduloCSS();
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -1791,7 +1897,7 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
 }
 /* ── 4 NÉZETES FORGATÓ MOTOR (sprite-swap rotation) ────────────────────────
    Bármilyen figurát/tárgyat körbeforgathatunk 4 nézettel (jobb/elöl/bal/hátul).
-   A kert 🌀 Pörgés trükk ezt használja — így sosem lesz papírvékony csík.
+   A közös fordulás (uniFordul) és 🌀 pörgés (uniPorog) ezt használja — így sosem lesz papírvékony csík.
    A színek UGYANABBÓL a UNI_SZIN-ből jönnek, mint az oldalrajzé (unikornis pózok 1a). */
 function forgatoSzinek(rajz, kinezet) {
   var a = UNI_SZIN[rajz] || UNI_SZIN.korall;
@@ -10267,12 +10373,12 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   }
 
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon).
-     A külső csoportot a séta tolja (CSS transform), a belsőt a fordulás tükrözi (oduUniSetal). ── */
+     A külső csoportot a séta tolja (CSS transform), a belsőt a közös fordulás tükrözi (--dir, uniFordul). ── */
   if (!elonezet) {
     var ux = tag ? ODU_UNI.x - ODU_UNI_RAJZ : 0, udir = tag ? ODU_UNI.dir : 1;
     s += '<g id="odu-uni-mozgo" style="transform:translate(' + ux + 'px,0px)">';
     s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
-    s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" transform="scale(' + udir + ',1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
+    s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" style="--dir:' + udir + ';transform:scale(var(--dir,1),1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
     s += '</g>';
   }
 
@@ -10473,23 +10579,33 @@ var _oduSetaIdo = null, _oduSetaCel = null;
 function oduUniSetal(celX, kesz) {
   var mozgo = document.getElementById("odu-uni-mozgo"), flip = document.getElementById("odu-uni-flip");
   clearTimeout(_oduSetaIdo);
+  if (uniJarFut(mozgo)) {   /* menet közben új cél: onnan indul, ahol épp jár */
+    var most = new DOMMatrix(getComputedStyle(mozgo).transform).e;
+    ODU_UNI.x = ODU_UNI_RAJZ + most;
+    mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + most + "px,0px)";
+  }
   var tav = Math.abs(celX - ODU_UNI.x);
   var nyugi = nyugiMod();
   if (!mozgo || tav < 6 || nyugi) {
+    uniAll(mozgo);
     ODU_UNI.x = celX;
     if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)"; }
     _oduSetaIdo = setTimeout(function () { if (kesz) kesz(); }, 120);
     return;
   }
   ODU_UNI.dir = celX < ODU_UNI.x ? -1 : 1;
-  if (flip) flip.setAttribute("transform", "scale(" + ODU_UNI.dir + ",1)");
-  var svg = mozgo.ownerSVGElement, m = svg && svg.getScreenCTM && svg.getScreenCTM();
-  var ut = uniUt(mozgo, tav * (m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1)), mp = ut.mp;   /* a közös járás: séta vagy ügetés */
-  mozgo.style.transition = "transform " + mp.toFixed(2) + "s linear";   /* egyenletes: a földön lévő pata nem csúszik */
-  uniJar(mozgo, ut);
-  ODU_UNI.x = celX;
-  mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
-  _oduSetaIdo = setTimeout(function () { uniAll(mozgo); if (kesz) kesz(); }, mp * 1000 + 60);
+  if (uniIrany(flip) !== ODU_UNI.dir) uniAll(mozgo);
+  var fordul = uniFordul(flip, ODU_UNI.dir);   /* előbb megfordul (közös fordulás), csak utána lép */
+  function indul() {
+    var svg = mozgo.ownerSVGElement, m = svg && svg.getScreenCTM && svg.getScreenCTM();
+    var ut = uniUt(mozgo, tav * (m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1)), mp = ut.mp;   /* a közös járás: séta vagy ügetés */
+    mozgo.style.transition = "transform " + mp.toFixed(2) + "s linear";   /* egyenletes: a földön lévő pata nem csúszik */
+    uniJar(mozgo, ut);
+    ODU_UNI.x = celX;
+    mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
+    _oduSetaIdo = setTimeout(function () { uniAll(mozgo); if (kesz) kesz(); }, mp * 1000 + 60);
+  }
+  if (fordul) _oduSetaIdo = setTimeout(indul, fordul); else indul();
 }
 function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
@@ -10514,7 +10630,7 @@ function oduUniHaza() {
   if (Math.abs(ODU_UNI.x - ODU_UNI_HAZA) < 1) return;
   oduUniSetal(ODU_UNI_HAZA, function () {
     ODU_UNI.dir = 1;
-    var f = document.getElementById("odu-uni-flip"); if (f) f.setAttribute("transform", "scale(1,1)");
+    uniFordul(document.getElementById("odu-uni-flip"), 1);
   });
 }
 
@@ -10547,6 +10663,7 @@ function renderOdu() {
   $("odu-szoba").innerHTML = "";            /* a régi rajz ne feszítse a mérést */
   $("odu-szoba").innerHTML = oduSVG(mentes.leny, o, false, oduTeruletArany());
   oduElet($("odu-szoba").querySelector("svg"), o);   /* élő szoba: fények, láng, füst, lepke… (odu-elet.js) */
+  uniNezoAdat($("odu-uni-flip"), { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás szemből-képéhez */
   /* a szoba-SVG minden rajzoláskor újraépül → a koppintó réteget is újra bekötjük */
   Array.prototype.forEach.call(document.querySelectorAll("#odu-szoba .odu-cel"), function (h) {
     var cel = h.getAttribute("data-cel"), rajz = document.getElementById(ODU_CEL_RAJZ[cel]);
@@ -10967,6 +11084,7 @@ function renderKert() {
   var doboz = $("kert-uni-doboz");
   doboz.style.left = KERT_UNI_X + "%";
   doboz.style.setProperty("--dir", 1);
+  uniNezoAdat(doboz, { rajz: c.rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás/pörgés szemből-képéhez */
   doboz.style.zIndex = 870;   /* talajpontja ~87%: a lentebb (y>87) tett tárgyak elé, a fentebbiek mögé kerül */
   KERT_UL = false; KERT_FEKSZIK = false;   /* friss belépéskor áll (a doboz DOM újraépült, a pihenő-pózok eltűntek) */
   host.onclick = kertSzinterKlikk;
@@ -11179,18 +11297,23 @@ function kertTrukkJatszik(id) {
   var doboz = $("kert-uni-doboz"); if (!doboz || KERT_TRUKK_FUT) return;
   KERT_TRUKK_FUT = true;
   kertJarKi(doboz);
-  /* 🌀 Pörgés: 4 nézetes sprite-swap forgás (nem CSS-animáció) */
+  /* 🌀 Pörgés: a közös, 4 nézetes pörgés (uniPorog, renderer.js) — ugyanaz, mint a felhőkertben */
   if (id === "porges") {
     hangCsilla();
     kertSugo(t.emoji + " " + t.nev + "!");
-    kertPorgesForgas(doboz, t.perc, function () {
+    uniPorog(doboz, t.perc, function () {
       KERT_TRUKK_FUT = false;
       kertSugo(KERT_SUGO_SETA);
     });
     return;
   }
+  /* ugrás a kert szélén: előbb megfordul (közös fordulás), csak utána ugrik */
+  var fordul = id === "ugras" ? kertUgrasElore(doboz) : 0;
+  if (fordul) { kertSugo(t.emoji + " " + t.nev + "!"); setTimeout(function () { kertTrukkMozdul(doboz, id, t); }, fordul); }
+  else kertTrukkMozdul(doboz, id, t);
+}
+function kertTrukkMozdul(doboz, id, t) {
   var cls = "trukk-" + id;
-  if (id === "ugras") kertUgrasElore(doboz);
   doboz.classList.add(cls);
   hangCsilla();
   /* ✨ Csillámszórás effekt: szikrák + konfetti a szarv fölött */
@@ -11225,76 +11348,18 @@ function kertTrukkJatszik(id) {
 }
 /* 🦘 az ugrás ELŐRE visz (amerre néz) — a vízszintes elmozdulás csak a levegőben töltött szakaszra
    esik (a CSS-ben 26%→50% = ~0,28 s-tól ~0,27 s-ig). Ha a kert széle útban van, megfordul és
-   arra ugrik. Mozgáskímélő módban helyben marad. */
+   arra ugrik (előbb megfordul: a visszaadott ms után indul az ugrás). Mozgáskímélő módban helyben marad. */
 var KERT_UGRAS_TAV = 12;   /* ennyi %-ot ugrik előre */
 function kertUgrasElore(doboz) {
-  if (nyugiMod()) return;
-  var dir = (+doboz.style.getPropertyValue("--dir") < 0) ? -1 : 1;
+  if (nyugiMod()) return 0;
+  var dir = uniIrany(doboz);
   var cel = KERT_UNI_X + KERT_UGRAS_TAV * dir;
-  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; doboz.style.setProperty("--dir", dir); }
-  doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; }
   KERT_UNI_X = cel;
-  doboz.style.left = cel + "%";
-}
-/* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
-function kertPorgesForgas(doboz, idoMs, cb) {
-  var reducedMotion = nyugiMod();
-  if (reducedMotion) {
-    var flip = doboz.querySelector(".kert-uni-flip");
-    if (flip) flip.style.setProperty("--dir", "-1");
-    setTimeout(function () { if (flip) flip.style.removeProperty("--dir"); if (cb) cb(); }, idoMs);   /* ne hagyjon irányt a belső rétegen: a séta a dobozon fordít */
-    return;
-  }
-  var c = LENYEK[mentes.leny], rajz = (c && c.rajz) || "korall";   /* a kiválasztott lény palettája (P().karakter nem létezik → mindig korall volt) */
-  var kinezet = P().kinezet || null;
-  var svg = doboz.querySelector(".kert-uni-svg");
-  var flip = doboz.querySelector(".kert-uni-flip");
-  if (!svg || !flip) { if (cb) cb(); return; }
-  var eredeti = svg.innerHTML;
-  var eredetiDir = flip.style.getPropertyValue("--dir");   /* rendesen üres: az irányt a doboz --dir-je adja */
-  var wrapArt = function (art) {
-    return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
-  };
-  var frontHtml = wrapArt(unikornisNezetArt("elol", rajz, kinezet, "kert", P().oltozet));   /* színek + festék ugyanonnan, mint az oldalrajz */
-  var backHtml = wrapArt(unikornisNezetArt("hatul", rajz, kinezet, "kert", P().oltozet));
-  var keretek = [
-    { html: eredeti, dir: "1" },
-    { html: frontHtml, dir: "1" },
-    { html: eredeti, dir: "-1" },
-    { html: backHtml, dir: "1" }
-  ];
-  var total = 8, keretMs = Math.floor(idoMs / total), i = 0;
-  var bounce = [0, -4, 0, -6, 0, -4, 0, -6];
-  var kont = doboz.parentNode, szikrak = [];
-  var szikraEmoji = ["✨","⭐","💫","🌟"];
-  function szikra() {
-    var sp = document.createElement("span");
-    sp.className = "forgato-szikra";
-    sp.textContent = szikraEmoji[Math.floor(Math.random() * 4)];
-    sp.style.left = (30 + Math.random() * 40) + "%";
-    sp.style.top = (20 + Math.random() * 50) + "%";
-    kont.appendChild(sp);
-    szikrak.push(sp);
-    setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 600);
-  }
-  function koviKeret() {
-    if (i >= total) {
-      svg.innerHTML = eredeti;
-      if (eredetiDir) flip.style.setProperty("--dir", eredetiDir); else flip.style.removeProperty("--dir");
-      doboz.style.transform = "";
-      szikrak.forEach(function (sp) { if (sp.parentNode) sp.parentNode.removeChild(sp); });
-      if (cb) cb();
-      return;
-    }
-    var k = keretek[i % 4];
-    svg.innerHTML = k.html;
-    flip.style.setProperty("--dir", k.dir);
-    doboz.style.transform = "translateY(" + bounce[i] + "px)";
-    szikra();
-    i++;
-    setTimeout(koviKeret, keretMs);
-  }
-  koviKeret();
+  return uniFordul(doboz, dir, function () {
+    doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+    doboz.style.left = cel + "%";
+  });
 }
 function kertSetal(celX) { kertSetalIde(celX); }
 /* a kert EGYETLEN séta-útja (koppintás, étel, növény, ágy): odamegy celX-re (%), utána kesz().
@@ -11302,19 +11367,22 @@ function kertSetal(celX) { kertSetalIde(celX); }
 function kertSetalIde(celX, kesz) {
   var doboz = $("kert-uni-doboz"), host = $("kert-szinter"); if (!doboz) return;
   celX = Math.max(13, Math.min(87, celX));
-  var tav = Math.abs(celX - KERT_UNI_X), mp = 0;
-  if (tav < 1.2 && !kesz) return;
-  if (tav >= 1.2) {
-    var ut = uniUt(doboz, tav / 100 * (host ? host.clientWidth : 1000));
-    mp = ut.mp;
-    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+  clearTimeout(doboz._jarTimer);
+  if (uniJarFut(doboz) && host && host.clientWidth) {   /* menet közben új cél: onnan indul, ahol épp jár */
+    KERT_UNI_X = parseFloat(getComputedStyle(doboz).left) / host.clientWidth * 100;
+    doboz.style.transition = "none"; doboz.style.left = KERT_UNI_X + "%";
+  }
+  if (Math.abs(celX - KERT_UNI_X) < 1.2) { kertJarKi(doboz); if (kesz) kesz(); return; }
+  var dir = celX < KERT_UNI_X ? -1 : 1;
+  if (uniIrany(doboz) !== dir) kertJarKi(doboz);
+  uniFordul(doboz, dir, function () {   /* előbb megfordul (közös fordulás), csak utána lép */
+    var ut = uniUt(doboz, Math.abs(celX - KERT_UNI_X) / 100 * (host ? host.clientWidth : 1000)), mp = ut.mp;
     doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
     uniJar(doboz, ut); kertLepesHang(true, ut);
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
-  }
-  clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { kertJarKi(doboz); if (kesz) kesz(); }, mp * 1000 + 90);
+    doboz._jarTimer = setTimeout(function () { kertJarKi(doboz); if (kesz) kesz(); }, mp * 1000 + 90);
+  });
 }
 function kertJarKi(doboz) { uniAll(doboz); kertLepesHang(false); clearTimeout(doboz._jarTimer); }
 
@@ -11439,7 +11507,7 @@ function kertFekszik(i) {
   if (o) {
     KERT_AGY_I = i;
     doboz.style.zIndex = Math.round(o.y * 10) + 5;     /* közvetlenül az ágy fölé (mélységben is azon fekszik) */
-    doboz.style.setProperty("--dir", -1);             /* fejjel a párna (bal) felé */
+    uniFordul(doboz, -1);                              /* fejjel a párna (bal) felé — felhuppanás közben fordul */
     doboz.style.transition = "left .55s ease-out, bottom .55s cubic-bezier(.3,1.7,.55,1), transform .45s ease";   /* kis ív: felhuppan */
     doboz.style.left = "calc(" + o.x + "% + " + KERT_AGY_JOBBRA + "px)";
     doboz.style.bottom = "calc(" + (100 - o.y) + "% + " + KERT_AGY_FEL + "px)";
@@ -14425,7 +14493,13 @@ function tkUniEl(kulcs, a, sajat) {
   var d = el("div", "tk-uni" + (sajat ? " sajat" : ""));
   d.id = "tk-uni-" + kulcs;
   d.innerHTML = '<div class="tk-nev">' + htmlVed(a.nev) + '</div>' + tkUniSVG(kulcs, a) + (sajat ? '<div class="tk-te">✦ te ✦</div>' : '');
+  tkNezoAdat(d, a);
   return d;
+}
+/* a közös fordulás/pörgés szemből-képéhez: melyik lény, milyen kinézettel és díszekkel */
+function tkNezoAdat(d, a) {
+  var c = LENYEK[a.leny] || LENYEK[mentes.leny];
+  uniNezoAdat(d, { rajz: c.rajz, kinezet: tkKinezet(a.kin), oltozet: a.olt || {} });
 }
 function tkUniSVG(kulcs, a) {
   var c = LENYEK[a.leny] || LENYEK[mentes.leny];
@@ -14440,18 +14514,27 @@ function tkPoz(d, x, y) {
   d.style.zIndex = Math.round(y * 10);
 }
 /* séta egyik pontból a másikba (a saját és a többiek unikornisa is ezzel megy) */
+/* Ha visszafelé kell mennie, előbb megfordul (közös fordulás). Visszaadja, hány ms múlva ér oda. */
 function tkSetal(d, x0, y0, x1, y1) {
-  var dx = x1 - x0, dy = y1 - y0;
-  if (Math.sqrt(dx * dx + dy * dy * 2.56) < 1) return;
   var h = d.parentNode && d.parentNode.getBoundingClientRect ? d.parentNode.getBoundingClientRect() : {};
+  clearTimeout(d._jarTimer);
+  if (uniJarFut(d) && h.width && h.height) {   /* menet közben új cél: onnan indul, ahol épp jár */
+    var cs = getComputedStyle(d);
+    x0 = parseFloat(cs.left) / h.width * 100; y0 = 100 - parseFloat(cs.bottom) / h.height * 100;
+    d.style.setProperty("--t", "0s"); tkPoz(d, x0, y0); void d.offsetWidth;
+  }
+  var dx = x1 - x0, dy = y1 - y0;
+  if (Math.sqrt(dx * dx + dy * dy * 2.56) < 1) { uniAll(d); return 0; }
   var tavPx = Math.sqrt(Math.pow(dx * (h.width || 1000) / 100, 2) + Math.pow(dy * (h.height || 560) / 100, 2));   /* rejtett színtérnél becsült méret */
   var ut = uniUt(d, tavPx), mp = ut.mp;   /* a közös járás: séta vagy ügetés, csúszás nélkül */
-  if (Math.abs(dx) > 0.5) d.style.setProperty("--dir", dx < 0 ? -1 : 1);
-  d.style.setProperty("--t", mp.toFixed(2) + "s");
-  uniJar(d, ut);
-  tkPoz(d, x1, y1);
-  clearTimeout(d._jarTimer);
-  d._jarTimer = setTimeout(function () { uniAll(d); }, mp * 1000 + 80);
+  var dir = Math.abs(dx) > 0.5 ? (dx < 0 ? -1 : 1) : uniIrany(d);
+  var fordul = uniFordul(d, dir, function () {
+    d.style.setProperty("--t", mp.toFixed(2) + "s");
+    uniJar(d, ut);
+    tkPoz(d, x1, y1);
+    d._jarTimer = setTimeout(function () { uniAll(d); }, mp * 1000 + 80);
+  });
+  return fordul + mp * 1000;
 }
 function tkSzinterKlikk(e) {
   if (!TK.bent || TK.hazaTimer || TK.gFut) return;
@@ -14495,6 +14578,7 @@ function tkMasikValt(snap) {
   var r = m.a; m.a = a;
   if (JSON.stringify([r.leny, r.kin, r.olt]) !== JSON.stringify([a.leny, a.kin, a.olt])) {   /* átöltözött / másik unikornis */
     var bob = m.d.querySelector(".tk-bob"); if (bob) bob.outerHTML = tkUniSVG(uid, a);
+    tkNezoAdat(m.d, a);
   }
   if (r.nev !== a.nev) { var t = m.d.querySelector(".tk-nev"); if (t) t.textContent = a.nev; tkSugo(); }
   if (r.x !== a.x || r.y !== a.y) tkSetal(m.d, +r.x, +r.y, +a.x, +a.y);
@@ -14569,11 +14653,10 @@ function tkGesztusIndit(id) {
   if (!TK.bent || TK.hazaTimer || TK.gFut || !tkGesztusSzabad(id)) return;
   var d = $("tk-uni-sajat"), a = tkGesztusAdat(id); if (!d || !a) return;
   TK.gFut = true;
-  if (id === "ugras") {   /* előre ugrik: az új helyet a gesztussal együtt küldjük, és a pozíciót is mentjük */
-    TK.x = tkUgrasElore(d, TK.x, TK.y);
+  if (id === "ugras") {   /* előre ugrik (a szélen előbb megfordul): az új helyet a gesztussal együtt küldjük, és a pozíciót is mentjük */
+    TK.x = tkUgrasElore(d, TK.x, TK.y, undefined, function () { tkGesztusJatszik(d, id); });
     if (TK.ref) TK.ref.update({ x: TK.x, y: Math.round(TK.y * 10) / 10, t: firebase.database.ServerValue.TIMESTAMP }).catch(tkHiba);
-  }
-  tkGesztusJatszik(d, id);
+  } else tkGesztusJatszik(d, id);
   tkGesztusKuld(id, null, id === "ugras" ? TK.x : undefined);
   setTimeout(function () { TK.gFut = false; }, a.ms + TK_G_SZUNET);
 }
@@ -14583,9 +14666,7 @@ function tkPacsiIndit(uid) {
   TK.gFut = true;
   var mx = +m.a.x || 50, my = +m.a.y || 80;
   var x = Math.max(8, Math.min(92, mx + (TK.x <= mx ? -9 : 9)));
-  var dx = x - TK.x, dy = (my - TK.y) * 1.6, tav = Math.sqrt(dx * dx + dy * dy);
-  var mp = tav < 1 ? 0 : Math.max(0.5, Math.min(3.4, tav * 0.05));   /* ugyanaz a tempó, mint a tkSetal-ban */
-  tkSetal(d, TK.x, TK.y, x, my);
+  var ms = tkSetal(d, TK.x, TK.y, x, my);   /* fordulás + út: ennyi múlva ér oda */
   TK.x = x; TK.y = my;
   if (TK.ref) TK.ref.update({ x: Math.round(x * 10) / 10, y: Math.round(my * 10) / 10, t: firebase.database.ServerValue.TIMESTAMP }).catch(tkHiba);
   setTimeout(function () {
@@ -14594,7 +14675,7 @@ function tkPacsiIndit(uid) {
     tkPacsiJatszik(d, mm.d, TK.x, TK.y, +mm.a.x, +mm.a.y);
     tkGesztusKuld("pacsi", uid);
     setTimeout(function () { TK.gFut = false; }, tkGesztusAdat("pacsi").ms + TK_G_SZUNET);
-  }, mp * 1000 + 120);
+  }, ms + 120);
 }
 /* egy másik gyerek gesztusa érkezett */
 function tkGesztusJott(snap) {
@@ -14604,8 +14685,9 @@ function tkGesztusJott(snap) {
   if (a.g === "ugras" && typeof a.x === "number" && Math.abs(a.x - (+m.a.x)) > 0.5) {
     /* a gesztus ért ide előbb: odaugratjuk; a később jövő pozíció-frissítés így már nem indít sétát.
        (Ha a pozíció jött előbb, már odasétált — akkor helyben ugrik.) */
-    tkUgrasElore(m.d, +m.a.x, +m.a.y, a.x);
+    tkUgrasElore(m.d, +m.a.x, +m.a.y, a.x, function () { tkGesztusJatszik(m.d, "ugras"); });
     m.a.x = a.x;
+    return;
   }
   if (a.g !== "pacsi") { tkGesztusJatszik(m.d, a.g); return; }
   var en = a.cel === FELHO.uid, c = en ? null : TK.masok[a.cel];
@@ -14620,19 +14702,22 @@ function tkGesztusJott(snap) {
    mozgás csak a levegőben töltött szakaszra esik (mint a Kertben). celX: kész célpont (a többiek
    ugrásánál a küldő számolta). Visszaadja az új x-et (1 tizedesre kerekítve, ahogy a mentés is). */
 var TK_UGRAS_TAV = 10;
-function tkUgrasElore(d, x, y, celX) {
-  var dir = (+d.style.getPropertyValue("--dir") < 0) ? -1 : 1, nx = celX;
+/* kesz(): ha meg kellett fordulnia, a fordulás után (akkor indul az ugrás-mozdulat) */
+function tkUgrasElore(d, x, y, celX, kesz) {
+  var dir = uniIrany(d), nx = celX;
   if (typeof nx !== "number") {
-    if (nyugiMod()) return x;
+    if (nyugiMod()) { if (kesz) kesz(); return x; }
     nx = x + TK_UGRAS_TAV * dir;
     if (nx < 8 || nx > 92) { dir = -dir; nx = x + TK_UGRAS_TAV * dir; }
     nx = Math.round(nx * 10) / 10;
   } else dir = nx < x ? -1 : 1;
-  d.style.setProperty("--dir", dir);
-  d.style.transition = "left .27s ease-in-out .28s";
-  tkPoz(d, nx, y);
-  clearTimeout(d._ugrTimer);
-  d._ugrTimer = setTimeout(function () { d.style.transition = ""; }, 650);
+  uniFordul(d, dir, function () {
+    d.style.transition = "left .27s ease-in-out .28s";
+    tkPoz(d, nx, y);
+    clearTimeout(d._ugrTimer);
+    d._ugrTimer = setTimeout(function () { d.style.transition = ""; }, 650);
+    if (kesz) kesz();
+  });
   return nx;
 }
 /* egy gesztus lejátszása egy unikornis-elemen (a saját és a többieké is ezzel megy) */
@@ -14649,12 +14734,8 @@ function tkGesztusJatszik(d, id) {
     for (var i = 0; i < 5; i++) { var sz = el("span", "csillam-szikra csillam-sz-" + i); sz.style.color = szinek[i]; d.appendChild(sz); extra.push(sz); }
     for (var k = 0; k < 6; k++) { var ko = el("span", "csillam-konf csillam-ko-" + k); ko.style.background = konf[k]; d.appendChild(ko); extra.push(ko); }
     hangCsilla();
-  } else if (id === "porges") {   /* a pörgés itt tükrözéses forgás (a 4 nézetes sprite csak a saját kertben van) */
-    for (var j = 0; j < 6; j++) setTimeout(function () {
-      var sp = el("span", "forgato-szikra"); sp.textContent = ["✨", "⭐", "💫", "🌟"][Math.floor(Math.random() * 4)];
-      sp.style.left = (30 + Math.random() * 40) + "%"; sp.style.top = (20 + Math.random() * 50) + "%";
-      d.appendChild(sp); setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 650);
-    }, j * 220);
+  } else if (id === "porges") {   /* ugyanaz a 4 nézetes pörgés, mint a Kertben (uniPorog, a lény saját díszeivel) */
+    uniPorog(d, a.ms);
     hangCsilla();
   } else hangCsilla();
   clearTimeout(d._gTimer);
@@ -14667,23 +14748,26 @@ function tkGesztusJatszik(d, id) {
 function tkPacsiJatszik(d1, d2, x1, y1, x2, y2) {
   if (!d1 || !d2) return;
   var ms = tkGesztusAdat("pacsi").ms;
-  d1.style.setProperty("--dir", x2 < x1 ? -1 : 1);
-  d2.style.setProperty("--dir", x1 < x2 ? -1 : 1);
+  /* szembefordulnak (közös fordulás), utána csapnak össze */
+  var fordul = Math.max(uniFordul(d1, x2 < x1 ? -1 : 1), uniFordul(d2, x1 < x2 ? -1 : 1));
   [d1, d2].forEach(function (d) {
-    uniAll(d); d.classList.remove("g-pacsi"); void d.offsetWidth; d.classList.add("g-pacsi");
+    uniAll(d);
     clearTimeout(d._gTimer);
-    d._gTimer = setTimeout(function () { d.classList.remove("g-pacsi"); }, ms + 80);
+    d._gTimer = setTimeout(function () {
+      d.classList.remove("g-pacsi"); void d.offsetWidth; d.classList.add("g-pacsi");
+      d._gTimer = setTimeout(function () { d.classList.remove("g-pacsi"); }, ms + 80);
+    }, fordul);
   });
   var kont = $("tk-unik");
-  if (kont) {
+  if (kont) setTimeout(function () {
     var p = el("div", "tk-pacsi-pukk"), y = (y1 + y2) / 2;
     p.innerHTML = '<span class="tk-pp-fo">🙌</span><span class="tk-pp tk-pp-0">✨</span><span class="tk-pp tk-pp-1">💖</span><span class="tk-pp tk-pp-2">⭐</span><span class="tk-pp tk-pp-3">✨</span>';
     p.style.left = ((x1 + x2) / 2) + "%";
     p.style.bottom = (100 - y + 26 * tkMeret(y)) + "%";   /* a két összeérő fej fölött */
     kont.appendChild(p);
     setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, ms + 200);
-  }
-  setTimeout(function () { beep(1175, 0.06, "square", 0, 0.05); beep(1568, 0.12, "triangle", 0.06, 0.09); beep(2093, 0.12, "triangle", 0.14, 0.06); }, ms * 0.38);
+  }, fordul);
+  setTimeout(function () { beep(1175, 0.06, "square", 0, 0.05); beep(1568, 0.12, "triangle", 0.06, 0.09); beep(2093, 0.12, "triangle", 0.14, 0.06); }, fordul + ms * 0.38);
 }
 
 /* ── 5d) KÖZÖS DÍSZÍTÉS ──
@@ -15385,7 +15469,7 @@ window.UC = {
   oduVitrinVesz: function (id) { var t = null; KRISTALY.forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVitrinVesz(t); },
   KERT_BOLT: KERT_BOLT, kertNyit: kertNyit, renderKert: renderKert, kertSetal: kertSetal,
   kertTrukkJatszik: kertTrukkJatszik, kertTrukkGomb: kertTrukkGomb, kertUl: kertUl, kertAll: kertAll,
-  kertPorgesForgas: kertPorgesForgas, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
+  uniPorog: uniPorog, uniFordul: uniFordul, uniNezoAdat: uniNezoAdat, UNI_FORDUL: UNI_FORDUL, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
   kertAgyKoppint: kertAgyKoppint,
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,

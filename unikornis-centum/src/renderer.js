@@ -261,7 +261,7 @@ function uniJarasCSS() {
     function anim(resz, sel, fv) {
       var an = "uni-j-" + nev + "-" + resz;
       css += "@keyframes " + an + "{" + kocka.map(function (a, k) { return uniK(k * 100 / UNI_JARAS_LEPES) + "%{transform:" + fv(a) + "}"; }).join("") + "}\n";
-      css += ".uni-jar-" + nev + " " + sel + "{animation:" + an + " calc(" + md.ido + "s / var(--jar-tempo, 1)) linear infinite}\n";
+      css += ".uni-jar-" + nev + " " + sel + "{animation:" + an + " calc(" + md.ido + "s / var(--jar-tempo, 1)) linear var(--jar-kezd, 0s) infinite}\n";   /* --jar-kezd: sima indulás (uniJar) */
     }
     UNI_JARAS_LAB.forEach(function (lab, i) {
       anim("c" + i, lab + " .uni-comb", function (a) { return "rotate(" + uniK(a.lab[i][0]) + "deg)"; });
@@ -297,16 +297,122 @@ function uniUt(el, tavPx) {
   if (mod === "uget" && mp > UNI_UT_MAX) { tempo = Math.min(UNI_TEMPO_MAX, mp / UNI_UT_MAX); mp /= tempo; }
   return { mod: mod, tempo: tempo, mp: Math.max(0.2, mp) };
 }
+/* INDULÁS: a lépésciklus abból a pillanatából indul, ahol a lábak a legközelebb vannak az álló helyzethez
+   (gép keresi ki, mozgásmódonként egyszer) → nincs rándulás (4. lépés). */
+var UNI_JARAS_INDUL = {};
+function uniJarasIndul(nev) {
+  if (UNI_JARAS_INDUL[nev] != null) return UNI_JARAS_INDUL[nev];
+  var md = UNI_JARAS[nev], legjobb = 0, min = 1e9;
+  for (var k = 0; k < UNI_JARAS_LEPES; k++) {
+    var a = uniJarasAllas(md, k / UNI_JARAS_LEPES), s = 0;
+    a.lab.forEach(function (l) { s += l[0] * l[0] + l[1] * l[1]; });
+    s += a.t[0] * a.t[0] * 40 + a.t[2] * a.t[2] * 4 + a.fe * a.fe;
+    if (s < min) { min = s; legjobb = k / UNI_JARAS_LEPES; }
+  }
+  return (UNI_JARAS_INDUL[nev] = legjobb);
+}
+function uniJarFut(el) { return !!el && (el.classList.contains("uni-jar-seta") || el.classList.contains("uni-jar-uget")); }
 function uniJar(el, ut) {
   if (!el) return;
   el.classList.remove("uni-jar-seta", "uni-jar-uget");
-  el.classList.add("uni-jar-" + ut.mod);
   el.style.setProperty("--jar-tempo", ut.tempo.toFixed(2));
+  el.style.setProperty("--jar-kezd", (-uniJarasIndul(ut.mod) * UNI_JARAS[ut.mod].ido / ut.tempo).toFixed(3) + "s");
+  el.classList.add("uni-jar-" + ut.mod);
 }
-function uniAll(el) { if (el) el.classList.remove("uni-jar-seta", "uni-jar-uget"); }
+/* MEGÁLLÁS: a láb, a test, a fej és a farok UNI_FORDUL.simit mp alatt simul vissza (a járó helyzetet
+   pillanatképként rögzítjük, aztán elengedjük → a CSS-átmenet viszi a póz/álló helyzetbe) */
+function uniAll(el) {
+  if (!uniJarFut(el)) return;
+  var reszek = (typeof getComputedStyle === "function" && !nyugiMod()) ? el.querySelectorAll(UNI_IZ_CSOPORT) : [], most = [], i;
+  for (i = 0; i < reszek.length; i++) most.push(getComputedStyle(reszek[i]).transform);
+  for (i = 0; i < reszek.length; i++) { reszek[i].style.transition = "none"; reszek[i].style.transform = most[i]; }
+  el.classList.remove("uni-jar-seta", "uni-jar-uget");
+  if (!reszek.length) return;
+  void el.getBoundingClientRect();
+  for (i = 0; i < reszek.length; i++) { reszek[i].style.transition = "transform " + UNI_FORDUL.simit + "s ease-out"; reszek[i].style.transform = ""; }
+  clearTimeout(el._simitTimer);
+  el._simitTimer = setTimeout(function () { for (var j = 0; j < reszek.length; j++) reszek[j].style.transition = ""; }, UNI_FORDUL.simit * 1000 + 50);
+}
+
+/* ── FORDULÁS ÉS PÖRGÉS: EGY KÖZÖS KÓD (unikornis pózok 4. lépés, terv/fordulas-rajzterv.html) ──────
+   Unikornis-elem (el) = amelyiken a --dir ül (1 jobbra, -1 balra), és amelyikben a unikornisSVG() rajza van
+   (kert: a doboz, felhőkert: a .tk-uni, odú: #odu-uni-flip). A köztes nézet (szemből/hátulról) RÁKERÜL az
+   oldalrajzra (azt csak elrejti), így a póz, a lebegés és a rajz nem épül újra. A nézet-képhez kell a lény
+   adata: uniNezoAdat(el, {rajz, kinezet, oltozet}) — minden rajzoláskor. */
+var UNI_FORDUL = {
+  ido: .34,      /* mp: ennyi ideig látszik a köztes nézet fordulás közben */
+  nezet: "elol", /* felénk fordul — producer döntése (2026-10-04) */
+  porges: [0, 6, 0, 10, 0, 6, 0, 10],   /* pörgés: nézetenként a kis ugrás (rajz-egység, a .uni-magas réteggel) */
+  simit: .22     /* mp: megálláskor ennyi idő alatt simulnak a lábak álló helyzetbe */
+};
+var _uniNezoSzam = 0;
+function uniNezoAdat(el, adat) { if (el) { el._uniNezo = adat; el._uniNezoPfx = "nz" + (++_uniNezoSzam); } }
+function uniIrany(el) { return el && +el.style.getPropertyValue("--dir") < 0 ? -1 : 1; }
+/* a köztes nézet (elol/hatul) rárakása az oldalrajzra; null → vissza az oldalrajzra */
+function uniNezetMutat(el, nezet) {
+  var reteg = el.querySelector(".uni-nezet-reteg");
+  if (reteg) reteg.parentNode.removeChild(reteg);
+  el.classList.toggle("uni-nezetben", !!nezet);
+  var magas = el.querySelector(".uni-magas"), a = el._uniNezo || {};
+  if (!nezet || !magas) return;
+  var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("class", "uni-magas uni-nezet-reteg");
+  g.innerHTML = '<g class="uni-elo">' + unikornisNezetArt(nezet, a.rajz || "korall", a.kinezet || null, el._uniNezoPfx, a.oltozet || null) + '</g>';
+  magas.parentNode.appendChild(g);
+}
+/* FORDULÁS: oldalról → szemből → a másik oldalra. Visszaadja, hány ms múlva áll az új irányba
+   (0 = nem kellett fordulnia); kesz() akkor fut. */
+function uniFordul(el, dir, kesz) {
+  if (!el) { if (kesz) kesz(); return 0; }
+  dir = dir < 0 ? -1 : 1;
+  clearTimeout(el._fordulTimer);
+  if (el.classList.contains("uni-nezetben")) uniNezetMutat(el, null);
+  if (uniIrany(el) === dir || nyugiMod()) { el.style.setProperty("--dir", dir); if (kesz) kesz(); return 0; }
+  uniAll(el);
+  uniNezetMutat(el, UNI_FORDUL.nezet);
+  el.style.setProperty("--dir", dir);   /* a köztes nézet takarásában tükrözünk: nem látszik */
+  el._fordulTimer = setTimeout(function () { uniNezetMutat(el, null); if (kesz) kesz(); }, UNI_FORDUL.ido * 1000);
+  return UNI_FORDUL.ido * 1000;
+}
+/* PÖRGÉS: kétszer körbe (oldal → szemből → másik oldal → hátulról), minden nézetben kis ugrás,
+   szikrákkal (HTML-elemen). Ugyanez a kertben és a felhőkertben (a többiek unikornisán is). */
+function uniPorog(el, ms, kesz) {
+  if (!el) { if (kesz) kesz(); return; }
+  var d0 = uniIrany(el), kockak = UNI_FORDUL.porges, i = 0, km = ms / kockak.length;
+  clearTimeout(el._fordulTimer);
+  uniAll(el);
+  if (nyugiMod()) { el._fordulTimer = setTimeout(function () { if (kesz) kesz(); }, ms); return; }
+  el.classList.add("uni-porog");
+  (function kocka() {
+    if (i >= kockak.length) {
+      uniNezetMutat(el, null); el.style.setProperty("--dir", d0);
+      el.style.removeProperty("--uni-magas"); el.classList.remove("uni-porog");
+      if (kesz) kesz(); return;
+    }
+    var f = i % 4;   /* 0: oldal, 1: szemből, 2: a másik oldal, 3: hátulról */
+    uniNezetMutat(el, f === 1 ? "elol" : f === 3 ? "hatul" : null);
+    el.style.setProperty("--dir", f === 2 ? -d0 : d0);
+    el.style.setProperty("--uni-magas", kockak[i]);
+    if (el instanceof HTMLElement) {
+      var sp = document.createElement("span");
+      sp.className = "forgato-szikra";
+      sp.textContent = ["✨", "⭐", "💫", "🌟"][Math.floor(Math.random() * 4)];
+      sp.style.left = (30 + Math.random() * 40) + "%"; sp.style.top = (20 + Math.random() * 50) + "%";
+      el.appendChild(sp);
+      setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 650);
+    }
+    i++;
+    el._fordulTimer = setTimeout(kocka, km);
+  })();
+}
+function uniForduloCSS() {
+  return ".uni-nezetben .uni-magas:not(.uni-nezet-reteg){visibility:hidden}\n" +
+         ".uni-porog .uni-magas{transition:transform .08s ease-out}\n" +
+         ".uni-porog .uni-arnyek{display:inline}\n";
+}
 (function uniPozStilus() {   /* egyszer, betöltéskor: a táblából készült CSS a lap végére */
   if (typeof document === "undefined" || document.getElementById("uni-poz-css")) return;
-  var st = document.createElement("style"); st.id = "uni-poz-css"; st.textContent = uniPozCSS() + uniJarasCSS();
+  var st = document.createElement("style"); st.id = "uni-poz-css"; st.textContent = uniPozCSS() + uniJarasCSS() + uniForduloCSS();
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -538,7 +644,7 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
 }
 /* ── 4 NÉZETES FORGATÓ MOTOR (sprite-swap rotation) ────────────────────────
    Bármilyen figurát/tárgyat körbeforgathatunk 4 nézettel (jobb/elöl/bal/hátul).
-   A kert 🌀 Pörgés trükk ezt használja — így sosem lesz papírvékony csík.
+   A közös fordulás (uniFordul) és 🌀 pörgés (uniPorog) ezt használja — így sosem lesz papírvékony csík.
    A színek UGYANABBÓL a UNI_SZIN-ből jönnek, mint az oldalrajzé (unikornis pózok 1a). */
 function forgatoSzinek(rajz, kinezet) {
   var a = UNI_SZIN[rajz] || UNI_SZIN.korall;

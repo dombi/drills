@@ -28,6 +28,7 @@ function renderKert() {
   var doboz = $("kert-uni-doboz");
   doboz.style.left = KERT_UNI_X + "%";
   doboz.style.setProperty("--dir", 1);
+  uniNezoAdat(doboz, { rajz: c.rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás/pörgés szemből-képéhez */
   doboz.style.zIndex = 870;   /* talajpontja ~87%: a lentebb (y>87) tett tárgyak elé, a fentebbiek mögé kerül */
   KERT_UL = false; KERT_FEKSZIK = false;   /* friss belépéskor áll (a doboz DOM újraépült, a pihenő-pózok eltűntek) */
   host.onclick = kertSzinterKlikk;
@@ -240,18 +241,23 @@ function kertTrukkJatszik(id) {
   var doboz = $("kert-uni-doboz"); if (!doboz || KERT_TRUKK_FUT) return;
   KERT_TRUKK_FUT = true;
   kertJarKi(doboz);
-  /* 🌀 Pörgés: 4 nézetes sprite-swap forgás (nem CSS-animáció) */
+  /* 🌀 Pörgés: a közös, 4 nézetes pörgés (uniPorog, renderer.js) — ugyanaz, mint a felhőkertben */
   if (id === "porges") {
     hangCsilla();
     kertSugo(t.emoji + " " + t.nev + "!");
-    kertPorgesForgas(doboz, t.perc, function () {
+    uniPorog(doboz, t.perc, function () {
       KERT_TRUKK_FUT = false;
       kertSugo(KERT_SUGO_SETA);
     });
     return;
   }
+  /* ugrás a kert szélén: előbb megfordul (közös fordulás), csak utána ugrik */
+  var fordul = id === "ugras" ? kertUgrasElore(doboz) : 0;
+  if (fordul) { kertSugo(t.emoji + " " + t.nev + "!"); setTimeout(function () { kertTrukkMozdul(doboz, id, t); }, fordul); }
+  else kertTrukkMozdul(doboz, id, t);
+}
+function kertTrukkMozdul(doboz, id, t) {
   var cls = "trukk-" + id;
-  if (id === "ugras") kertUgrasElore(doboz);
   doboz.classList.add(cls);
   hangCsilla();
   /* ✨ Csillámszórás effekt: szikrák + konfetti a szarv fölött */
@@ -286,76 +292,18 @@ function kertTrukkJatszik(id) {
 }
 /* 🦘 az ugrás ELŐRE visz (amerre néz) — a vízszintes elmozdulás csak a levegőben töltött szakaszra
    esik (a CSS-ben 26%→50% = ~0,28 s-tól ~0,27 s-ig). Ha a kert széle útban van, megfordul és
-   arra ugrik. Mozgáskímélő módban helyben marad. */
+   arra ugrik (előbb megfordul: a visszaadott ms után indul az ugrás). Mozgáskímélő módban helyben marad. */
 var KERT_UGRAS_TAV = 12;   /* ennyi %-ot ugrik előre */
 function kertUgrasElore(doboz) {
-  if (nyugiMod()) return;
-  var dir = (+doboz.style.getPropertyValue("--dir") < 0) ? -1 : 1;
+  if (nyugiMod()) return 0;
+  var dir = uniIrany(doboz);
   var cel = KERT_UNI_X + KERT_UGRAS_TAV * dir;
-  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; doboz.style.setProperty("--dir", dir); }
-  doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+  if (cel < 13 || cel > 87) { dir = -dir; cel = KERT_UNI_X + KERT_UGRAS_TAV * dir; }
   KERT_UNI_X = cel;
-  doboz.style.left = cel + "%";
-}
-/* 🌀 4 nézetes pörgés: sprite-swap motor + szikrák */
-function kertPorgesForgas(doboz, idoMs, cb) {
-  var reducedMotion = nyugiMod();
-  if (reducedMotion) {
-    var flip = doboz.querySelector(".kert-uni-flip");
-    if (flip) flip.style.setProperty("--dir", "-1");
-    setTimeout(function () { if (flip) flip.style.removeProperty("--dir"); if (cb) cb(); }, idoMs);   /* ne hagyjon irányt a belső rétegen: a séta a dobozon fordít */
-    return;
-  }
-  var c = LENYEK[mentes.leny], rajz = (c && c.rajz) || "korall";   /* a kiválasztott lény palettája (P().karakter nem létezik → mindig korall volt) */
-  var kinezet = P().kinezet || null;
-  var svg = doboz.querySelector(".kert-uni-svg");
-  var flip = doboz.querySelector(".kert-uni-flip");
-  if (!svg || !flip) { if (cb) cb(); return; }
-  var eredeti = svg.innerHTML;
-  var eredetiDir = flip.style.getPropertyValue("--dir");   /* rendesen üres: az irányt a doboz --dir-je adja */
-  var wrapArt = function (art) {
-    return '<g id="kert-uni" transform="scale(1)"><g transform="scale(0.5) translate(-190,-272)"><g class="uni-elo">' + art + '</g></g></g>';
-  };
-  var frontHtml = wrapArt(unikornisNezetArt("elol", rajz, kinezet, "kert", P().oltozet));   /* színek + festék ugyanonnan, mint az oldalrajz */
-  var backHtml = wrapArt(unikornisNezetArt("hatul", rajz, kinezet, "kert", P().oltozet));
-  var keretek = [
-    { html: eredeti, dir: "1" },
-    { html: frontHtml, dir: "1" },
-    { html: eredeti, dir: "-1" },
-    { html: backHtml, dir: "1" }
-  ];
-  var total = 8, keretMs = Math.floor(idoMs / total), i = 0;
-  var bounce = [0, -4, 0, -6, 0, -4, 0, -6];
-  var kont = doboz.parentNode, szikrak = [];
-  var szikraEmoji = ["✨","⭐","💫","🌟"];
-  function szikra() {
-    var sp = document.createElement("span");
-    sp.className = "forgato-szikra";
-    sp.textContent = szikraEmoji[Math.floor(Math.random() * 4)];
-    sp.style.left = (30 + Math.random() * 40) + "%";
-    sp.style.top = (20 + Math.random() * 50) + "%";
-    kont.appendChild(sp);
-    szikrak.push(sp);
-    setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 600);
-  }
-  function koviKeret() {
-    if (i >= total) {
-      svg.innerHTML = eredeti;
-      if (eredetiDir) flip.style.setProperty("--dir", eredetiDir); else flip.style.removeProperty("--dir");
-      doboz.style.transform = "";
-      szikrak.forEach(function (sp) { if (sp.parentNode) sp.parentNode.removeChild(sp); });
-      if (cb) cb();
-      return;
-    }
-    var k = keretek[i % 4];
-    svg.innerHTML = k.html;
-    flip.style.setProperty("--dir", k.dir);
-    doboz.style.transform = "translateY(" + bounce[i] + "px)";
-    szikra();
-    i++;
-    setTimeout(koviKeret, keretMs);
-  }
-  koviKeret();
+  return uniFordul(doboz, dir, function () {
+    doboz.style.transition = "left .27s ease-in-out .28s, transform .45s ease";
+    doboz.style.left = cel + "%";
+  });
 }
 function kertSetal(celX) { kertSetalIde(celX); }
 /* a kert EGYETLEN séta-útja (koppintás, étel, növény, ágy): odamegy celX-re (%), utána kesz().
@@ -363,19 +311,22 @@ function kertSetal(celX) { kertSetalIde(celX); }
 function kertSetalIde(celX, kesz) {
   var doboz = $("kert-uni-doboz"), host = $("kert-szinter"); if (!doboz) return;
   celX = Math.max(13, Math.min(87, celX));
-  var tav = Math.abs(celX - KERT_UNI_X), mp = 0;
-  if (tav < 1.2 && !kesz) return;
-  if (tav >= 1.2) {
-    var ut = uniUt(doboz, tav / 100 * (host ? host.clientWidth : 1000));
-    mp = ut.mp;
-    doboz.style.setProperty("--dir", (celX < KERT_UNI_X) ? -1 : 1);
+  clearTimeout(doboz._jarTimer);
+  if (uniJarFut(doboz) && host && host.clientWidth) {   /* menet közben új cél: onnan indul, ahol épp jár */
+    KERT_UNI_X = parseFloat(getComputedStyle(doboz).left) / host.clientWidth * 100;
+    doboz.style.transition = "none"; doboz.style.left = KERT_UNI_X + "%";
+  }
+  if (Math.abs(celX - KERT_UNI_X) < 1.2) { kertJarKi(doboz); if (kesz) kesz(); return; }
+  var dir = celX < KERT_UNI_X ? -1 : 1;
+  if (uniIrany(doboz) !== dir) kertJarKi(doboz);
+  uniFordul(doboz, dir, function () {   /* előbb megfordul (közös fordulás), csak utána lép */
+    var ut = uniUt(doboz, Math.abs(celX - KERT_UNI_X) / 100 * (host ? host.clientWidth : 1000)), mp = ut.mp;
     doboz.style.transition = "left " + mp.toFixed(2) + "s linear, transform .45s ease";   /* a leülés/felállás simasága séta után is */
     uniJar(doboz, ut); kertLepesHang(true, ut);
     KERT_UNI_X = celX;
     doboz.style.left = celX + "%";
-  }
-  clearTimeout(doboz._jarTimer);
-  doboz._jarTimer = setTimeout(function () { kertJarKi(doboz); if (kesz) kesz(); }, mp * 1000 + 90);
+    doboz._jarTimer = setTimeout(function () { kertJarKi(doboz); if (kesz) kesz(); }, mp * 1000 + 90);
+  });
 }
 function kertJarKi(doboz) { uniAll(doboz); kertLepesHang(false); clearTimeout(doboz._jarTimer); }
 
@@ -500,7 +451,7 @@ function kertFekszik(i) {
   if (o) {
     KERT_AGY_I = i;
     doboz.style.zIndex = Math.round(o.y * 10) + 5;     /* közvetlenül az ágy fölé (mélységben is azon fekszik) */
-    doboz.style.setProperty("--dir", -1);             /* fejjel a párna (bal) felé */
+    uniFordul(doboz, -1);                              /* fejjel a párna (bal) felé — felhuppanás közben fordul */
     doboz.style.transition = "left .55s ease-out, bottom .55s cubic-bezier(.3,1.7,.55,1), transform .45s ease";   /* kis ív: felhuppan */
     doboz.style.left = "calc(" + o.x + "% + " + KERT_AGY_JOBBRA + "px)";
     doboz.style.bottom = "calc(" + (100 - o.y) + "% + " + KERT_AGY_FEL + "px)";

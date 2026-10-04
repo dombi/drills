@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """fordulas-build.py — MOZGÓ ELŐNÉZET a 4. lépéshez (közös fordulás, pörgés, indulás/megállás).
 
-Mit csinál: a VALÓDI unikornis-rajz (src/renderer.js) + a próba-függvények (terv/fordulas-proto.js)
+Mit csinál: a VALÓDI unikornis-rajz (src/renderer.js: uniFordul, uniPorog, uniJar/uniAll)
 egy sávon oda-vissza sétál, a végén megfordul. Soronként: „ma” (pillanatszerű tükrözés, a láb bekattan),
 és az új fordulás három változata. Alatta a pörgés: a mai felhőkerti és az új, közös pörgés.
 Fölötte a terv szövege (terv/fordulas-rajzterv.html <main> része, ha már megvan).
@@ -19,7 +19,7 @@ SRC = os.path.dirname(HERE)
 DST = r"C:\Users\Dombi-NyárádiGabriel\Matekos\uc-fordulas.html"
 rd = lambda p: open(p, encoding="utf-8").read()
 renderer = rd(os.path.join(SRC, "src", "renderer.js"))
-proto = rd(os.path.join(HERE, "fordulas-proto.js")) if os.path.exists(os.path.join(HERE, "fordulas-proto.js")) else ""
+proto = "function nyugiMod(){ return false; }"   # a játék helpers.js-éből csak ez kell
 
 OLT = {"kek": {"lab": "lab-a", "farok": "farok-a", "hat": "hat-k", "oldal": "oldal-k", "nyak": "nyak-k", "fej": "fej-k"},
        "rozsa": {"lab": "lab-r", "farok": "farok-k", "hat": "hat-r", "oldal": "oldal-r", "nyak": "nyak-r", "fej": "fej-r"},
@@ -40,9 +40,9 @@ LAP = r"""
   var OLT = __OLT__, T = 1;
   var SOROK = [
     { id: "ma", nev: "Ma", rajz: "kek", szoveg: "Mindhárom helyszínen: a végén egy pillanat alatt átfordul (tükörkép), induláskor és megálláskor a láb bekattan." },
-    { id: "elol", nev: "A) felénk fordul", jav: true, rajz: "kek", szoveg: "Oldalról → szemből (ránk néz) → a másik oldalra. Indulás és megállás simán." },
-    { id: "hatul", nev: "B) elfordul", rajz: "rozsa", szoveg: "Oldalról → hátulról → a másik oldalra." },
-    { id: "valt", nev: "C) körbe", rajz: "korall", szoveg: "Mindig egy irányba forog: balra fordulva hátulról, jobbra fordulva szemből látjuk." }
+    { id: "elol", nev: "Új: felénk fordul", rajz: "kek", szoveg: "Oldalról → szemből (ránk néz) → a másik oldalra. Indulás és megállás simán. (Producer döntése: A.)" },
+    { id: "elol2", nev: "", rajz: "rozsa", szoveg: "Csillámharmat" },
+    { id: "elol3", nev: "", rajz: "korall", szoveg: "Tűz, dísz nélkül" }
   ];
   function rajzol(el, id, rajz) {
     el.innerHTML = '<div class="kert-uni-flip"><svg viewBox="-100 -150 200 176">' + unikornisSVG(id, { rajz: rajz }, 1, OLT[rajz], null) + '</svg></div>';
@@ -65,16 +65,15 @@ LAP = r"""
       function indul() {
         var ut = uniUt(el, tav); ut.mp *= T; ut.tempo /= T;
         el.style.transition = "left " + ut.mp.toFixed(2) + "s linear";
-        if (s.id === "ma") uniJar(el, ut); else uniJarSima(el, ut);
+        if (s.id === "ma") { el.classList.add("uni-jar-" + ut.mod); el.style.setProperty("--jar-tempo", ut.tempo); } else uniJar(el, ut);
         el.style.left = hely(cel) + "px";
         setTimeout(function () {
-          if (s.id === "ma") uniAll(el); else uniAllSima(el);
+          if (s.id === "ma") el.classList.remove("uni-jar-seta", "uni-jar-uget"); else uniAll(el);
           x = cel; cel = 1 - cel;
           setTimeout(lep, 900 * T);
         }, ut.mp * 1000);
       }
       if (s.id === "ma") { el.style.setProperty("--dir", dir); indul(); return; }
-      UNI_FORDUL.nezet = s.id;
       uniFordul(el, dir, indul);
     }
     setTimeout(lep, 600);
@@ -112,7 +111,7 @@ LAP = r"""
     };
   });
   var st = document.createElement("style");
-  st.textContent = uniJarasCSS().replace(/ linear infinite\}/g, " linear var(--jar-kezd,0s) infinite}") + uniForduloCSS();
+  st.textContent = "";   /* a póz-, járás- és fordulás-CSS-t a renderer.js maga teszi a lapra */
   document.head.appendChild(st);
 })();
 </script>"""

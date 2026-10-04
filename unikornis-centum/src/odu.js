@@ -776,12 +776,12 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   }
 
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon).
-     A külső csoportot a séta tolja (CSS transform), a belsőt a fordulás tükrözi (oduUniSetal). ── */
+     A külső csoportot a séta tolja (CSS transform), a belsőt a közös fordulás tükrözi (--dir, uniFordul). ── */
   if (!elonezet) {
     var ux = tag ? ODU_UNI.x - ODU_UNI_RAJZ : 0, udir = tag ? ODU_UNI.dir : 1;
     s += '<g id="odu-uni-mozgo" style="transform:translate(' + ux + 'px,0px)">';
     s += '<ellipse cx="348" cy="492" rx="56" ry="13" fill="#3b2f66" opacity="0.16"/>';
-    s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" transform="scale(' + udir + ',1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
+    s += '<g class="odu-uni-bob"><g transform="translate(346,492)"><g id="odu-uni-flip" style="--dir:' + udir + ';transform:scale(var(--dir,1),1)"><g transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
     s += '</g>';
   }
 
@@ -982,23 +982,33 @@ var _oduSetaIdo = null, _oduSetaCel = null;
 function oduUniSetal(celX, kesz) {
   var mozgo = document.getElementById("odu-uni-mozgo"), flip = document.getElementById("odu-uni-flip");
   clearTimeout(_oduSetaIdo);
+  if (uniJarFut(mozgo)) {   /* menet közben új cél: onnan indul, ahol épp jár */
+    var most = new DOMMatrix(getComputedStyle(mozgo).transform).e;
+    ODU_UNI.x = ODU_UNI_RAJZ + most;
+    mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + most + "px,0px)";
+  }
   var tav = Math.abs(celX - ODU_UNI.x);
   var nyugi = nyugiMod();
   if (!mozgo || tav < 6 || nyugi) {
+    uniAll(mozgo);
     ODU_UNI.x = celX;
     if (mozgo) { mozgo.style.transition = "none"; mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)"; }
     _oduSetaIdo = setTimeout(function () { if (kesz) kesz(); }, 120);
     return;
   }
   ODU_UNI.dir = celX < ODU_UNI.x ? -1 : 1;
-  if (flip) flip.setAttribute("transform", "scale(" + ODU_UNI.dir + ",1)");
-  var svg = mozgo.ownerSVGElement, m = svg && svg.getScreenCTM && svg.getScreenCTM();
-  var ut = uniUt(mozgo, tav * (m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1)), mp = ut.mp;   /* a közös járás: séta vagy ügetés */
-  mozgo.style.transition = "transform " + mp.toFixed(2) + "s linear";   /* egyenletes: a földön lévő pata nem csúszik */
-  uniJar(mozgo, ut);
-  ODU_UNI.x = celX;
-  mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
-  _oduSetaIdo = setTimeout(function () { uniAll(mozgo); if (kesz) kesz(); }, mp * 1000 + 60);
+  if (uniIrany(flip) !== ODU_UNI.dir) uniAll(mozgo);
+  var fordul = uniFordul(flip, ODU_UNI.dir);   /* előbb megfordul (közös fordulás), csak utána lép */
+  function indul() {
+    var svg = mozgo.ownerSVGElement, m = svg && svg.getScreenCTM && svg.getScreenCTM();
+    var ut = uniUt(mozgo, tav * (m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1)), mp = ut.mp;   /* a közös járás: séta vagy ügetés */
+    mozgo.style.transition = "transform " + mp.toFixed(2) + "s linear";   /* egyenletes: a földön lévő pata nem csúszik */
+    uniJar(mozgo, ut);
+    ODU_UNI.x = celX;
+    mozgo.style.transform = "translate(" + (celX - ODU_UNI_RAJZ) + "px,0px)";
+    _oduSetaIdo = setTimeout(function () { uniAll(mozgo); if (kesz) kesz(); }, mp * 1000 + 60);
+  }
+  if (fordul) _oduSetaIdo = setTimeout(indul, fordul); else indul();
 }
 function oduTargyKoppint(cel) {
   var t = ODU_CEL_TETT[cel], def = null;
@@ -1023,7 +1033,7 @@ function oduUniHaza() {
   if (Math.abs(ODU_UNI.x - ODU_UNI_HAZA) < 1) return;
   oduUniSetal(ODU_UNI_HAZA, function () {
     ODU_UNI.dir = 1;
-    var f = document.getElementById("odu-uni-flip"); if (f) f.setAttribute("transform", "scale(1,1)");
+    uniFordul(document.getElementById("odu-uni-flip"), 1);
   });
 }
 
@@ -1056,6 +1066,7 @@ function renderOdu() {
   $("odu-szoba").innerHTML = "";            /* a régi rajz ne feszítse a mérést */
   $("odu-szoba").innerHTML = oduSVG(mentes.leny, o, false, oduTeruletArany());
   oduElet($("odu-szoba").querySelector("svg"), o);   /* élő szoba: fények, láng, füst, lepke… (odu-elet.js) */
+  uniNezoAdat($("odu-uni-flip"), { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás szemből-képéhez */
   /* a szoba-SVG minden rajzoláskor újraépül → a koppintó réteget is újra bekötjük */
   Array.prototype.forEach.call(document.querySelectorAll("#odu-szoba .odu-cel"), function (h) {
     var cel = h.getAttribute("data-cel"), rajz = document.getElementById(ODU_CEL_RAJZ[cel]);

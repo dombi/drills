@@ -1243,14 +1243,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .tk-uni.g-ugras .kert-uni-svg{ animation:trukk-ugras 1.1s ease-in-out 1; transform-origin:50% 100%; }
 .tk-uni.g-ugras .kert-uni-flip::after{ background:rgba(120,90,180,.24); animation:trukk-ugras-arnyek 1.1s ease-in-out 1; }
 .tk-uni.g-csillam .tk-bob{ animation:trukk-csillam 1.8s ease-in-out 1; }
-.tk-uni.g-porges .kert-uni-flip{ animation:tk-porges 1.4s ease-in-out 1; }
-.tk-uni.g-porges .tk-bob{ animation:tk-porges-hop 1.4s ease-in-out 1; }
-@keyframes tk-porges{
-  0%{ transform:scaleX(var(--dir,1)); } 12.5%{ transform:scaleX(0); } 25%{ transform:scaleX(calc(-1 * var(--dir,1))); }
-  37.5%{ transform:scaleX(0); } 50%{ transform:scaleX(var(--dir,1)); } 62.5%{ transform:scaleX(0); }
-  75%{ transform:scaleX(calc(-1 * var(--dir,1))); } 87.5%{ transform:scaleX(0); } 100%{ transform:scaleX(var(--dir,1)); }
-}
-@keyframes tk-porges-hop{ 0%,100%{ transform:translateY(0); } 25%,75%{ transform:translateY(-10px); } 50%{ transform:translateY(-4px); } }
+/* 🌀 pörgés: a közös, 4 nézetes uniPorog (renderer.js) — a régi „papírcsík” forgás megszűnt (4. lépés) */
 .tk-uni.g-integet .tk-bob{ animation:tk-integet 1.5s ease-in-out 1; transform-origin:50% 100%; }
 @keyframes tk-integet{ 0%,100%{ transform:rotate(0); } 15%,45%,75%{ transform:rotate(-5deg) translateY(-6px); } 30%,60%{ transform:rotate(4deg) translateY(-2px); } }
 .tk-g-buborek{
@@ -1286,7 +1279,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes tk-pp-3{ 0%,38%{ opacity:0; transform:translate(-50%,-50%); } 50%{ opacity:1; } 100%{ opacity:0; transform:translate(10px,-40px) scale(.6); } }
 @media (prefers-reduced-motion:reduce){
   .tk-uni.g-ugras .kert-uni-svg, .tk-uni.g-csillam .tk-bob,
-  .tk-uni.g-porges .kert-uni-flip, .tk-uni.g-porges .tk-bob, .tk-uni.g-integet .tk-bob, .tk-uni.g-pacsi .tk-bob{ animation:none; }
+  .tk-uni.g-integet .tk-bob, .tk-uni.g-pacsi .tk-bob{ animation:none; }
 }
 /* felhőlépcső az utcán */
 .tk-lepcso .tk-fok{ animation:tk-lebeg 4s ease-in-out infinite; }
