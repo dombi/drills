@@ -75,6 +75,28 @@ function kertLepesHang(be, ut) {
     } catch (e) {}
   }
 }
+/* Szuszogás alvás közben (unikornis pózok 8. lépés): egy egészen halk, puha kifújás — szűrt zaj, nem felvétel.
+   A lélegzéssel egy ütemben hívja a uniElalszik (renderer.js). */
+var SZUSZ_VOL = 0.05, SZUSZ_HOSSZ = 1.5;
+var SZUSZ_ZAJ = null;
+function hangSzuszog() {
+  if (!mentes.hang) return;
+  var c = ac(); if (!c || c.state !== "running") return;
+  if (!SZUSZ_ZAJ) {
+    SZUSZ_ZAJ = c.createBuffer(1, Math.round(c.sampleRate * SZUSZ_HOSSZ), c.sampleRate);
+    var d = SZUSZ_ZAJ.getChannelData(0), u = 0;
+    for (var i = 0; i < d.length; i++) { u = u * 0.92 + (Math.random() * 2 - 1) * 0.08; d[i] = u * 4; }   /* lágy, „barnás” zaj */
+  }
+  var src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(), t0 = c.currentTime;
+  src.buffer = SZUSZ_ZAJ;
+  f.type = "bandpass"; f.Q.value = 0.8;
+  f.frequency.setValueAtTime(700, t0); f.frequency.exponentialRampToValueAtTime(380, t0 + SZUSZ_HOSSZ);   /* „hhhh” → lefelé hal */
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(SZUSZ_VOL, t0 + 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + SZUSZ_HOSSZ);
+  src.connect(f); f.connect(g); g.connect(c.destination);
+  src.start(t0); src.stop(t0 + SZUSZ_HOSSZ + 0.05);
+}
 /* Nyihogás: a klipek közül váltogat (soha nem ugyanaz kétszer egymás után), lehűlési idővel. */
 var KERT_NYIH_UTOLSO = 0, KERT_NYIH_IDX = -1;
 function kertNyihog() {

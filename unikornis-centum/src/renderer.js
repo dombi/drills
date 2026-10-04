@@ -91,7 +91,7 @@ function uniLabSVG(i, sz, labDisz) {
       izForgo("uni-terd", iz, also) + felso) +
     '</g>';
 }
-var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
+var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M293 114.5 q-4 2 -6 6" stroke-width="2"/> <path d="M297 116.5 q-2 3 -3 7" stroke-width="2"/> <path d="M301.5 117 q0 3.5 0 7" stroke-width="2"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g> <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
 function uniOldalArt(rajz, labDisz) {
   var sz = UNI_SZIN[rajz] || UNI_SZIN.korall;
   var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: UNI_JEL[rajz] || UNI_JEL.korall };
@@ -122,7 +122,9 @@ function uniAlapArt(rajz, labDisz) {
 var UNI_POZ_PONT = [215, 288];   /* a test dőlés-pontja: az elülső paták a talajon */
 var UNI_POZ = {
   ul:      { h: [-50, 120], e: [26, 0],    test: [-26, 0, 6], fej: 16, farok: 40, osztaly: [".ules-all"] },   /* A: „kutyás ülés”; a farok a földre simul */
-  fekszik: { h: [-70, 150], e: [70, -150], test: [0, 0, 0],   fej: 6,  farok: 16, osztaly: [".fekszik-all"] }, /* lábak a test alá (a kerti ágyon) */
+  fekszik: { h: [-85, 165], e: [95, -175], test: [0, 0, 46], fej: 4,  farok: 34, osztaly: [".fekszik-all"] }, /* 8. lépés: a lábak a test alá, a has a matracon, a farok a test mellett */
+  alszik:  { h: [-85, 165], e: [95, -175], test: [3, 0, 46], fej: 36, farok: 34, osztaly: [".uni-alszik"] },  /* alvás (uniElalszik): a fej a mellkasra hajlik */
+  nyujt:   { h: [-26, 6],   e: [-90, 90],  test: [20, 0, 27], fej: -24, farok: -40 },   /* nyújtózás (felkeléskor): mellkas le, mellső lábak előre, far és farok fel, fej fel (ásít) */
   guggol:  { h: [50, -100], e: [-50, 100], test: "talaj",     fej: 8,  farok: -10, szarny: -14 },   /* elöl a térd előre, hátul a csánk hátra */
   hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 }    /* evés, szagolás: az elülső térd rogy, a fej lehajol */
 };
@@ -130,7 +132,8 @@ var UNI_MOZDULAT = {
   ugras:   { poz: "guggol", ido: 1.1,  kulcs: [[0, 0], [14, 1], [26, 0], [50, .8], [62, 0], [74, .4], [100, 0]], osztaly: [".trukk-ugras", ".g-ugras"] },
   csillam: { poz: "guggol", ido: 1.8,  kulcs: [[0, 0], [15, .6], [30, 0], [100, 0]], osztaly: [".trukk-csillam", ".g-csillam"] },
   eszik:   { poz: "hajol",  ido: 1.65, kulcs: [[0, 0], [16, 1], [32, .8], [48, 1], [64, .8], [80, 1], [100, 0]], osztaly: [".kert-uni-doboz.eszik"] },   /* csám-csám: a fej bólogat */
-  szagol:  { poz: "hajol",  ido: 1.3,  kulcs: [[0, 0], [20, .8], [45, .68], [65, .8], [100, 0]], osztaly: [".kert-uni-doboz.szagol"] }
+  szagol:  { poz: "hajol",  ido: 1.3,  kulcs: [[0, 0], [20, .8], [45, .68], [65, .8], [100, 0]], osztaly: [".kert-uni-doboz.szagol"] },
+  nyujt:   { poz: "nyujt",  ido: 1.8,  kulcs: [[0, 0], [30, 1], [75, 1], [100, 0]] }   /* + ásítás és hunyorgás (style.css .uni-mozd-nyujt) */
 };
 function uniForgat(q, a, c) {
   var r = a * Math.PI / 180, x = q[0] - c[0], y = q[1] - c[1];
@@ -318,6 +321,58 @@ function uniJar(el, ut) {
   el.style.setProperty("--jar-tempo", ut.tempo.toFixed(2));
   el.style.setProperty("--jar-kezd", (-uniJarasIndul(ut.mod) * UNI_JARAS[ut.mod].ido / ut.tempo).toFixed(3) + "s");
   el.classList.add("uni-jar-" + ut.mod);
+}
+/* ── ALVÁS (unikornis pózok 8. lépés, terv/fekves-rajzterv.html) — minden helyszínen ugyanez ─────
+   A fekvő pózt (UNI_POZ.fekszik) a helyszín adja (pl. kert: .fekszik-all), az elalvást ez:
+   1. álmos pislogás (.uni-almos, a szemhéj kétszer lecsukódik), 2. alszik (.uni-alszik = UNI_POZ.alszik:
+   a fej lassan a mellkasra hajlik, csukott szem, lassú lélegzés), 3. Zzz a fej fölött.
+   el = a figura doboza (position: absolute/relative; a --dir iránya szerint a fej fölé kerül a Zzz).
+   UNI_ALVAS: mikor (ms a befekvéstől) jön az álmosság, az alvás és a Zzz. Felkeléskor: uniNyujtozik (nyújtózás + ásítás). */
+var UNI_ALVAS = { almos: 700, alszik: 2300, zzz: 3300, leleg: 4200, kifuj: 1900 };   /* leleg = egy lélegzet (= .uni-alszik .uni-elo animáció), kifuj = a kifújás kezdete benne */
+function uniZzzSVG() {   /* egy lekerekített „Z” (lila, fehér szegéllyel) */
+  return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M4 4.5 H16 L5 15.5 H16.5" fill="none" stroke="#8a55d0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function uniElalszik(el) {
+  if (!el) return;
+  uniFelebred(el);
+  if (nyugiMod()) { el.classList.add("uni-alszik"); uniZzz(el, true); return; }
+  el._alvas = [
+    setTimeout(function () { el.classList.add("uni-almos"); }, UNI_ALVAS.almos),
+    setTimeout(function () {
+      el.classList.remove("uni-almos"); el.classList.add("uni-alszik");
+      /* halk szuszogás minden kifújásnál, a lélegzéssel egy ütemben (audio.js) */
+      el._alvas.push(setTimeout(function () {
+        hangSzuszog();
+        el._szusz = setInterval(function () { if (!el.isConnected) { uniFelebred(el); return; } hangSzuszog(); }, UNI_ALVAS.leleg);
+      }, UNI_ALVAS.kifuj));
+    }, UNI_ALVAS.alszik),
+    setTimeout(function () { uniZzz(el, true); }, UNI_ALVAS.zzz)
+  ];
+}
+function uniFelebred(el) {
+  if (!el) return;
+  (el._alvas || []).forEach(clearTimeout); el._alvas = null;
+  clearInterval(el._szusz); el._szusz = null;
+  el.classList.remove("uni-almos", "uni-alszik");
+  uniZzz(el, false);
+}
+/* NYÚJTÓZÁS: felkelés után egyszer (UNI_MOZDULAT.nyujt + ásítás); kesz a végén */
+function uniNyujtozik(el, kesz) {
+  if (!el || nyugiMod()) { if (kesz) kesz(); return; }
+  el.classList.remove("uni-mozd-nyujt"); void el.getBoundingClientRect();
+  el.classList.add("uni-mozd-nyujt");
+  clearTimeout(el._nyujtT);
+  el._nyujtT = setTimeout(function () { el.classList.remove("uni-mozd-nyujt"); if (kesz) kesz(); }, UNI_MOZDULAT.nyujt.ido * 1000 + 50);
+}
+function uniZzz(el, be) {
+  var z = el.querySelector(":scope > .uni-zzz");
+  if (!be) { if (z) z.parentNode.removeChild(z); return; }
+  if (z) return;
+  z = document.createElement("div");
+  z.className = "uni-zzz"; z.setAttribute("aria-hidden", "true");
+  z.innerHTML = "<i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i><i>" + uniZzzSVG() + "</i>";
+  el.appendChild(z);
 }
 /* MEGÁLLÁS: a láb, a test, a fej és a farok UNI_FORDUL.simit mp alatt simul vissza (a járó helyzetet
    pillanatképként rögzítjük, aztán elengedjük → a CSS-átmenet viszi a póz/álló helyzetbe) */

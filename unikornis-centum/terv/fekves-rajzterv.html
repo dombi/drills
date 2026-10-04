@@ -1,0 +1,79 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Szép fekvő póz</title>
+<style>
+:root{ --bg:#fffaf3; --ink:#3b2f55; --lila:#6a3fb8; --keret:#eadcf7; }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:Fredoka,"Segoe UI",sans-serif; }
+main{ max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+h1{ color:var(--lila); margin:0 0 4px; } h2{ color:var(--lila); border-bottom:2px solid var(--keret); padding-bottom:4px; margin-top:30px; }
+.doboz{ background:#fff; border:2px solid var(--keret); border-radius:14px; padding:12px 16px; margin-bottom:12px; }
+.terv li{ margin:4px 0; } .terv b{ color:#4b2f8a; }
+.javasolt{ display:inline-block; background:#e2f6dc; color:#2f7a2e; font-weight:800; font-size:12px; border-radius:999px; padding:1px 9px; }
+</style></head><body><main>
+<h1>8. lépés — szép fekvő póz</h1>
+<p>Unikornis pózok terve, 8. lépés (6. panasz: „a kerti ágyba fekvés nem szép”). Nagyság: <b>közepes</b>. Állapot: <b>KÉSZ</b> (2026-10-04, <i>?v=20261004-5</i>).</p>
+
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ.</b> A producer döntései: <b>D1 = B</b> (felkeléskor nyújtózik és ásít), <b>D2 = B</b> (halk szuszogás).</p>
+<ul>
+<li><b>renderer.js:</b> <i>UNI_POZ.fekszik</i> (lábak a test alatt, has a matracon, test +46), új <i>alszik</i> (<i>.uni-alszik</i>: fej 36°, test 3°) és <i>nyujt</i> (mellkas le, mellső lábak előre, far és farok fel, fej fel); <i>UNI_MOZDULAT.nyujt</i> (1,8 mp). <i>UNI_ALVAS</i>, <i>uniElalszik</i>, <i>uniFelebred</i>, <i>uniNyujtozik</i>, <i>uniZzz</i>, <i>uniZzzSVG</i>. A rajzban két rejtett csoport: <i>.uni-szem-csuk</i> (csukott szem) és <i>.uni-asit</i> (ásító száj) — álló pózban semmi sem változik.</li>
+<li><b>audio.js:</b> <i>hangSzuszog</i> — szűrt, lágy zaj, nagyon halk (0,05), lefelé hajló „hhh”. <b>Eltérés a tervtől:</b> nem minden Z-nél szól (az 1,2 mp-enként lenne — túl sűrű), hanem minden kifújásnál, a lélegzéssel egy ütemben (4,2 mp-enként).</li>
+<li><b>style.css:</b> közös „ALVÁS” blokk (<i>.uni-almos</i>, <i>.uni-alszik</i>, <i>.uni-zzz</i>, <i>.uni-mozd-nyujt</i> ásítás + hunyorgás); megszűnt a 13°-os billentés, a doboz lebegése és a <i>.kert-zzz</i>.</li>
+<li><b>odu.js:</b> <i>AGY_FEKVES</i> y −29 (a pózban lejjebb került test miatt). <b>kert.js:</b> <i>kertAll(nyujt)</i> — fűre, az unikornisra vagy az ágyra koppintva felkel és nyújtózik (közben nem indul új mozdulat); trükk-gombnál (pl. Ülés) nyújtózás nélkül áll fel. <i>kertZzzTesz/Torol</i> megszűnt.</li>
+<li><b>Teszt (néma):</b> kert Holdbölcsővel: odasétál → befekszik → álmos → alszik → Zzz; felkelés + nyújtózás; alvásból Ülés gombra; alvás közben odúba ki, majd vissza (az időzítők leállnak). Összehasonlító lap: mindhárom ágy. Konzol tiszta.</li>
+</ul>
+</div>
+
+<h2>1. Mi van most (felmérés)</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Nyitott szem:</b> fekve is ugyanúgy néz és pislog, mint állva — nem látszik, hogy alszik.</li>
+<li><b>Orral előre bukik:</b> a fejet régen nem lehetett külön mozgatni, ezért az egész unikornist 13°-kal előre billentettük. A 2b lépés óta a fejnek saját ízülete van, ez a trükk már nem kell.</li>
+<li><b>Lábak és farok kilógnak</b> az ágy alól (a has nem a matracon van, hanem a behajlított lábakon „áll”).</li>
+<li><b>Lebeg:</b> a lélegzést az egész unikornis fel-le mozgatása adta — 5 képpontot emelkedik az ágy fölé.</li>
+<li><b>A Zzz rossz helyen:</b> mindig a doboz jobb oldalán van, de fekve a feje balra néz → a Zzz a farka fölött száll. Sima betűk.</li>
+<li><b>Csak a kertben</b> van: az alvás a kert.js-ben él, a 9. lépés (odúbeli ágy) nem tudná használni.</li>
+</ul>
+</div>
+
+<h2>2. Az új fekvés</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Befekszik</b> (mint eddig: odasétál, felhuppan az ágyra, az ágy besüpped) → a lábait <b>a test alá hajtja</b>, a <b>hasa a matracra</b> kerül, a farka a teste mellé simul. A feje még fent van, körülnéz.</li>
+<li><b>Elálmosodik</b> (0,7 mp múlva): a szemhéja kétszer lassan lecsukódik.</li>
+<li><b>Elalszik</b> (2,3 mp): <b>csukott szem</b> (lefelé ívelő szemhéj, lefelé álló pillák), a <b>feje lassan a mellkasára hajlik</b>, a teste lassan, nyugodtan <b>lélegzik</b> (a has alja a matracon marad, a hát emelkedik-süllyed — az ágy vele együtt), a sörénye és a farka alig leng.</li>
+<li><b>Zzz</b> (3,3 mp): három lila, fehér szegélyű, rajzolt „Z” száll fel <b>a feje fölül</b>, abba az irányba, amerre néz, egyre nagyobbak és elhalványulnak.</li>
+<li><b>Felébred</b> koppintásra: kinyitja a szemét, felemeli a fejét, leugrik és feláll (mint eddig).</li>
+<li>Kímélő mód (csökkentett mozgás): rögtön alszik, nincs lélegzés, a Zzz áll.</li>
+</ul>
+</div>
+<!--ELONEZET-->
+
+<h2>3. Döntések</h2>
+<div class="doboz terv">
+<p><b>D1 — Felkeléskor nyújtózzon egyet?</b></p>
+<ul>
+<li><b>A)</b> Nem, úgy kel fel, mint eddig: kinyitja a szemét, leugrik, feláll.</li>
+<li><b>B)</b> Igen: a fűre érve előrenyújtja a mellső lábait, a hátulját feltolja (mint egy macska), és nagyot ásít — 1,5 mp. Plusz egy új mozdulat a közös táblában, a kertben és később az odúban is ugyanez. <span class="javasolt">javasolt</span> (a gyerekek az élő, „igazi” mozdulatokat szeretik)</li>
+</ul>
+<p><b>D2 — Legyen halk alvás-hang?</b></p>
+<ul>
+<li><b>A)</b> Nem, csendben alszik.</li>
+<li><b>B)</b> Igen: minden Z-nél egy egészen halk, puha szuszogás (a kert többi hangjához illő gépi hang, nem felvétel). <span class="javasolt">javasolt</span></li>
+</ul>
+</div>
+
+<h2>4. Hogyan kerül a játékba</h2>
+<div class="doboz terv">
+<ul>
+<li><b>Egy közös alvás minden helyszínre</b> (renderer.js): <i>uniElalszik(el)</i> / <i>uniFelebred(el)</i> + <i>UNI_ALVAS</i> (mikor jön az álmosság, az alvás és a Zzz) + <i>uniZzz</i>. A kert ezt hívja; a 9. lépésben az odú ágya is ezt fogja.</li>
+<li><b>Pózok a közös táblában</b> (UNI_POZ): <i>fekszik</i> = lábak a test alatt, has a matracon (a test 46 rajz-egységgel lejjebb), farok a test mellett; új sor <i>alszik</i> = ugyanez, a fej a mellkasra hajlik.</li>
+<li><b>Csukott szem</b> a rajzban: a nyitott szem mellett egy rejtett „csukott szem” csoport (<i>.uni-szem-csuk</i>) — álló pózban semmi sem változik.</li>
+<li><b>style.css:</b> a 13°-os billentés, a fel-le lebegés és a régi szöveges Zzz megszűnik; helyette a közös „ALVÁS” szabályok (<i>.uni-almos</i>, <i>.uni-alszik</i>, <i>.uni-zzz</i>).</li>
+<li><b>odu.js:</b> <i>AGY_FEKVES</i> (hol fekszik az ágyon) 29 egységgel feljebb, mert a test most lejjebb van a pózban — így a kertben és később az odúban is pont a matracon fekszik.</li>
+<li><b>kert.js:</b> a saját Zzz-kód megszűnik, a befekvés <i>uniElalszik</i>-ot, a felkelés <i>uniFelebred</i>-et hív.</li>
+<li><b>Ellenőrzés:</b> összehasonlító lap (fent) + csendes teszt a kertben mindhárom ággyal (befekvés, alvás, felkelés, ülés/trükk utána), konzol tiszta.</li>
+<li><b>Nem ebben a lépésben:</b> befekvés az odú ágyába (9. lépés, a villanyoltással).</li>
+</ul>
+</div>
+</main></body></html>

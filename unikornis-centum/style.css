@@ -1018,14 +1018,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .kert-eszikszikra span{ animation:none; opacity:1; }
 }
 
-/* 😴 Befekvés = TARTÓS pihenő-póz az ágyon: a test rásüllyed és lágyan lélegzik (kert-alszik),
-   a lábak a test alá hajlanak (UNI_POZ.fekszik, renderer.js). Koppintásra feláll. */
-#kert-uni-doboz.fekszik-all{ animation:kert-alszik 4.2s ease-in-out infinite; }
-@keyframes kert-alszik{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
-/* fekve, a landolás után lassan lehajtja a fejét a csillag-párnára: az egész figura a hátsó csípő körül
-   előrebillen (újrarajzolás nélkül — a fej nem külön csoport), az eleje mélyebben süpped a felhőbe */
-#kert-szinter .kert-uni-svg{ transition:transform .35s ease; }
-#kert-uni-doboz.fekszik-all .kert-uni-svg{ transform-origin:24% 69%; transform:rotate(13deg); transition:transform .9s ease-in-out .5s; }
+/* 😴 Befekvés = TARTÓS pihenő-póz az ágyon: a lábak a test alá hajlanak, a has a matracra kerül (UNI_POZ.fekszik),
+   aztán elalszik (uniElalszik, renderer.js: álmos pislogás → csukott szem, a fej a mellkasra hajlik, lélegzik, Zzz).
+   Koppintásra felébred és feláll. A közös alvás-szabályok lent: „ALVÁS — minden helyszínen”. */
 /* a kerti ágy (az egész, közös ágyrajz) kicsit besüpped az unikornis súlyától: landoláskor huppan
    (mélyebbre nyomódik, majd visszarugózik), utána az alvó lélegzéssel együtt emelkedik-süllyed */
 .kt-agy-elol .kt-el-svg{ filter:none; }   /* a perem a matrac része: saját árnyék nélkül */
@@ -1034,18 +1029,43 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   animation:kt-agy-huppan .6s ease-out 1, kt-agy-leleg 4.2s ease-in-out .6s infinite; }
 @keyframes kt-agy-huppan{ 0%{ transform:scale(1,1); } 40%{ transform:scale(1.03,.9); } 75%{ transform:scale(1.01,.97); } 100%{ transform:scale(1.015,.95); } }
 @keyframes kt-agy-leleg{ 0%,100%{ transform:scale(1.015,.95); } 50%{ transform:scale(1.012,.965); } }
-/* lágy „z z z" az alvó unikornis fölött */
-.kert-zzz{ position:absolute; top:2%; left:60%; display:flex; align-items:flex-end; gap:3px;
-  pointer-events:none; z-index:6; font-family:inherit; font-weight:800; color:#7a3bc0; }
-.kert-zzz span{ opacity:0; animation:kert-zzz 3s ease-in-out infinite; }
-.kert-zzz span:nth-child(1){ font-size:13px; }
-.kert-zzz span:nth-child(2){ font-size:17px; animation-delay:.55s; }
-.kert-zzz span:nth-child(3){ font-size:22px; animation-delay:1.1s; }
-@keyframes kert-zzz{ 0%{ transform:translateY(6px) scale(.6); opacity:0; } 30%{ opacity:.9; } 100%{ transform:translateY(-24px) scale(1); opacity:0; } }
 @media (prefers-reduced-motion:reduce){
-  #kert-uni-doboz.fekszik-all{ animation:none; transform:translateY(-2px); }   /* póz marad, mozgás nélkül */
   .kt-agy-elem.terhelt .kt-agy-matrac, .kt-agy-elol.terhelt .kt-agy-matrac{ animation:none; }   /* a besüppedés marad, rugózás nélkül */
-  .kert-zzz span{ animation:none; opacity:.85; }
+}
+/* ── ALVÁS — minden helyszínen (unikornis pózok 8. lépés, uniElalszik/uniFelebred, renderer.js) ──
+   .uni-almos: a szemhéj kétszer lecsukódik · .uni-alszik: csukott szem, lassú lélegzés (a test a has alja
+   körül emelkedik), a fej lassan a mellkasra hajlik (UNI_POZ.alszik), sörény és farok alig leng · .uni-zzz a fej fölött. */
+.uni-alszik .uni-szem{ display:none; }
+.uni-alszik .uni-szem-csuk{ display:inline; }
+.uni-almos .uni-szem{ transform-box:fill-box; transform-origin:50% 55%; animation:uni-almos 1.6s ease-in-out forwards!important; }
+@keyframes uni-almos{ 0%{ transform:scaleY(1); } 22%{ transform:scaleY(.12); } 42%{ transform:scaleY(.75); } 70%{ transform:scaleY(.08); } 84%{ transform:scaleY(.4); } 100%{ transform:scaleY(.05); } }
+.uni-alszik .uni-elo{ transform-box:fill-box; transform-origin:50% 100%; animation:uni-alvo-leleg 4.2s ease-in-out infinite!important; }
+@keyframes uni-alvo-leleg{ 0%,100%{ transform:scale(1,1); } 45%{ transform:scale(1.012,1.035); } }
+.uni-alszik .uni-fej, .uni-alszik .uni-nyak{ transition-duration:1.6s; transition-timing-function:ease-in-out; }
+.uni-alszik .uni-soreny, .uni-alszik .uni-farok, .uni-alszik .uni-tincs{ animation-duration:7s!important; }
+/* nyújtózás felkeléskor (UNI_MOZDULAT.nyujt): ásít (.uni-asit = a rajz rejtett szája) és közben hunyorog */
+.uni-asit{ transform-box:fill-box; transform-origin:50% 0%; }
+.uni-mozd-nyujt .uni-asit{ animation:uni-asit 1.8s ease-in-out 1; }
+@keyframes uni-asit{ 0%,22%{ opacity:0; transform:scale(.4,.1); } 40%,70%{ opacity:1; transform:scale(1,1); } 85%,100%{ opacity:0; transform:scale(.6,.1); } }
+.uni-mozd-nyujt .uni-szem{ transform-box:fill-box; transform-origin:50% 55%; animation:uni-asit-szem 1.8s ease-in-out 1!important; }
+@keyframes uni-asit-szem{ 0%,25%{ transform:scaleY(1); } 40%,70%{ transform:scaleY(.15); } 85%,100%{ transform:scaleY(1); } }
+.uni-zzz{ position:absolute; top:45%; left:calc(50% + var(--dir,1) * 22%); width:0; height:0; pointer-events:none; z-index:6; }
+.uni-zzz i{ position:absolute; left:0; bottom:0; display:block; opacity:0; animation:uni-zzz 3.6s ease-out infinite; }
+.uni-zzz i svg{ display:block; width:100%; height:100%; }
+.uni-zzz i:nth-child(1){ width:12px; height:12px; }
+.uni-zzz i:nth-child(2){ width:16px; height:16px; animation-delay:1.2s; }
+.uni-zzz i:nth-child(3){ width:21px; height:21px; animation-delay:2.4s; }
+@keyframes uni-zzz{
+  0%  { transform:translate(-50%,0) scale(.5) rotate(0); opacity:0; }
+  15% { opacity:1; }
+  70% { opacity:.9; }
+  100%{ transform:translate(calc(-50% + var(--dir,1) * 26px),-46px) scale(1.15) rotate(calc(var(--dir,1) * 12deg)); opacity:0; }
+}
+@media (prefers-reduced-motion:reduce){
+  .uni-alszik .uni-elo{ animation:none!important; }
+  .uni-zzz i{ animation:none; opacity:.9; }
+  .uni-zzz i:nth-child(2){ transform:translate(calc(-50% + var(--dir,1) * 12px),-16px); }
+  .uni-zzz i:nth-child(3){ transform:translate(calc(-50% + var(--dir,1) * 26px),-36px); }
 }
 
 /* alsó eszközsor: Berendezés / Elpakolás gombok */

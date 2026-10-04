@@ -53,14 +53,14 @@ function kertSzinterKlikk(e) {
     return;
   }
   /* séta mód (alap) */
-  if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
+  if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(true); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
   var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }
   var agyDiv = e.target.closest && e.target.closest(".kt-agy-elem");     /* letett ÁGY-ra koppintva: Befekvés (vagy súgó) */
   if (agyDiv) { kertAgyKoppint(parseInt(agyDiv.getAttribute("data-i"), 10)); return; }
   var novenyDiv = e.target.closest && e.target.closest(".kt-noveny-elem");   /* letett NÖVÉNY-re: megszagolom */
   if (novenyDiv) { kertNovenyKoppint(parseInt(novenyDiv.getAttribute("data-i"), 10)); return; }
-  if (KERT_UL || KERT_FEKSZIK) { kertAll(); return; }                    /* ha ül vagy fekszik, a fűre koppintás előbb felállítja */
+  if (KERT_UL || KERT_FEKSZIK) { kertAll(true); return; }                /* ha ül vagy fekszik, a fűre koppintás előbb felállítja (fekvésből nyújtózik is) */
   kertSetal(((e.clientX - r.left) / r.width) * 100);
 }
 
@@ -213,8 +213,11 @@ function kertUl() {
   kertSugo("🛋️ Ül — koppints a gombra vagy a fűre, hogy felálljon.");
   kertTrukksorRender();
 }
-function kertAll() {
+/* nyujt = true: ha fekvésből kel, a fűre érve nyújtózik és ásít egyet (uniNyujtozik, renderer.js) — csak ha a felkelés maga a cél,
+   nem amikor egy másik mozdulat (trükk, séta) előtt áll fel */
+function kertAll(nyujt) {
   var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  var fekudt = KERT_FEKSZIK;
   doboz.classList.remove("ules-all");
   doboz.classList.remove("fekszik-all");
   if (KERT_FEKSZIK) {              /* leugrik az ágyról vissza a fűre, a matrac kipuffad */
@@ -226,11 +229,18 @@ function kertAll() {
   }
   KERT_AGY_I = -1;
   doboz.style.zIndex = 870;        /* vissza az alap mélységre (fekvéskor az ágy fölé emeltük) */
-  kertZzzTorol();                  /* alvó-Zzz eltakarítása */
+  uniFelebred(doboz);              /* felébred: kinyitja a szemét, a Zzz eltűnik (renderer.js) */
   KERT_UL = false; KERT_FEKSZIK = false;
   hangGomb();
   kertSugo(KERT_SUGO_SETA);
   kertTrukksorRender();
+  if (nyujt && fekudt) {
+    KERT_TRUKK_FUT = true;                         /* nyújtózás közben nem indul új mozdulat */
+    setTimeout(function () {                       /* előbb leér a fűre (.5 s) */
+      if (!doboz.isConnected || KERT_FEKSZIK || KERT_UL) { KERT_TRUKK_FUT = false; return; }
+      uniNyujtozik(doboz, function () { KERT_TRUKK_FUT = false; });
+    }, 520);
+  }
 }
 /* egy EGYSZERI trükk lejátszása: a meglévő figurára tesz egy .trukk-<id> osztályt (a mozgást a CSS
    végzi, újrarajzolás nincs), majd a trükk hossza után leveszi. Egyszerre egy trükk fut. */
@@ -420,7 +430,7 @@ function kertSzagol(o) {
    A fekvés TARTÓS pihenő-póz (mint az ülés): koppintásra (ágyra vagy fűre) feláll. */
 function kertAgyKoppint(i) {
   var o = P().kert.elemek[i]; if (!o || o.tip !== "agy") return;
-  if (KERT_FEKSZIK) { kertAll(); return; }           /* már fekszik → az ágyra koppintva feláll */
+  if (KERT_FEKSZIK) { kertAll(true); return; }       /* már fekszik → az ágyra koppintva feláll és nyújtózik */
   if (KERT_TRUKK_FUT) return;                          /* épp sétál/eszik → nem indítunk újat */
   if (!(P().kert.trukkok && P().kert.trukkok.befekves)) {   /* nincs meg a Befekvés → súgó */
     hangGomb();
@@ -438,7 +448,7 @@ function kertSetalFekszik(i) {
   kertSetalIde(P().kert.elemek[i].x, function () { kertFekszik(i); });
 }
 /* a befekvés: az unikornis felhuppan az ágyra (a doboz a matrac tetejére ugrik, fejjel a párna felé),
-   a lábak behajlanak (CSS .fekszik-all), a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
+   a lábak behajlanak, a has a matracra kerül (UNI_POZ.fekszik), aztán elalszik (uniElalszik); a matrac a súlyától besüpped és vele együtt lélegzik (.kt-agy-elem.terhelt).
    Tartós póz — koppintásra leugrik és feláll. A hely a választott ágy AGY_FEKVES pontjából jön (odu.js, közös ágyrajz). */
 var KERT_AGY_VB = "-46 -54 92 62";   /* a kerti ágy SVG-doboza (tárgy-egység); a CSS szélesség 212px → KERT_AGY_PX px/egység */
 var KERT_AGY_PX = 212 / 92;
@@ -469,23 +479,10 @@ function kertFekszik(i) {
   }
   doboz.classList.add("fekszik-all");
   KERT_FEKSZIK = true;
-  kertZzzTesz(doboz);
+  uniElalszik(doboz);              /* álmos pislogás → alszik, a fej a mellkasra hajlik, Zzz (renderer.js) */
   hangCsilla();
   kertSugo("😴 Pihen az ágyon — koppints, hogy felkeljen.");
 }
-/* lágy „z z z" az unikornis fölé (a dobozban, így követi a helyét); felállásnál eltakarítjuk */
-function kertZzzTesz(doboz) {
-  kertZzzTorol();
-  var z = document.createElement("div");
-  z.className = "kert-zzz"; z.setAttribute("aria-hidden", "true");
-  z.innerHTML = '<span>z</span><span>z</span><span>z</span>';
-  doboz.appendChild(z);
-}
-function kertZzzTorol() {
-  var doboz = $("kert-uni-doboz"); if (!doboz) return;
-  var z = doboz.querySelector(".kert-zzz"); if (z && z.parentNode) z.parentNode.removeChild(z);
-}
-
 /* napfényes rét — festett, rétegelt SVG + ambient (a fű/porszem/lepke a CSS-ben mozog).
    Könnyen bővíthető: új elemet a megfelelő réteghez adva. viewBox 1000×620, slice-olva tölti a teret. */
 function kertHatterSVG() {

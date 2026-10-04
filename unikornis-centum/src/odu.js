@@ -121,7 +121,7 @@ function butorElem(o, hely) {
    Két réteg: "hatso" = az unikornis MÖGÉ, "elol" = a perem az unikornis ELÉ (fekve ebbe süpped bele).
    AGY_FEKVES = a fekvő unikornis helye (az unikornis-rajz origója) ugyanebben a koordinátában. */
 var AGY_FAJTA = { 1: "felho", 2: "hold", 3: "lotusz" };
-var AGY_FEKVES = { felho: { x: 158, y: 430 }, hold: { x: 162, y: 428 }, lotusz: { x: 158, y: 428 } };
+var AGY_FEKVES = { felho: { x: 158, y: 401 }, hold: { x: 162, y: 399 }, lotusz: { x: 158, y: 399 } };   /* 8. lépés: a fekvő pózban a test 46 rajz-egységgel lejjebb van (UNI_POZ.fekszik) → a hely 46×0,5×1,28 ≈ 29-cel feljebb */
 var KERT_AGY_SKALA = 0.322;   /* odú-egység → kerti tárgy-egység: a kerti unikornis ~0,95 px/egység, az odúban 1.28× → az ágy 0,95/1.28 px/odú-egység (KERT_AGY_PX-szel osztva) */
 var AGY_KERET = '<rect x="28" y="300" width="262" height="160" fill="none"/>';   /* azonos befoglaló a két rétegnek (a kerti besüppedés közös origója) */
 function agySzirom(x, y, fok, L, W, szin, el, er) {   /* hegyes szirom (x,y)-ból, fok irányba */
