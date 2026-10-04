@@ -445,6 +445,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .odu-targy-szikra{ animation:odu-bolt-szikra 3.6s ease-in-out infinite; opacity:.25; }
 .odu-kijarat-feny{ animation:odu-kijarat-feny 3.2s ease-in-out infinite; }
 @keyframes odu-kijarat-feny{ 0%,100%{ opacity:.25; } 50%{ opacity:.6; } }
+/* szivárványos távozás (unikornis pózok 6. lépés, renderer.js uniSzivarvanyba): a végén szétpattanó csillagok */
+.szivarvany-szikra{ transform-box:fill-box; transform-origin:center; animation:szivarvany-szikra .7s ease-out forwards; }
+@keyframes szivarvany-szikra{ 0%{ transform:translate(0,0) scale(.3); opacity:1; } 100%{ transform:translate(var(--sx),var(--sy)) scale(1.1); opacity:0; } }
 /* az unikornis sétája az odúban (oduUniSetal): a külső csoportot a transform viszi, a lábakat a közös járás (UNI_JARAS, renderer.js) */
 @media (prefers-reduced-motion:reduce){
   .odu-targy, .odu-felirat{ transition:none; }
@@ -478,9 +481,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes e-befott{ 0%,100%{ transform:scale(1); opacity:.85; } 50%{ transform:scale(1.18); opacity:1; } }
 #odu-szoba .e-parna{ transform-box:fill-box; transform-origin:50% 100%; animation:e-parna 4.4s ease-in-out infinite; }
 @keyframes e-parna{ 0%,100%{ transform:scale(1,1); } 50%{ transform:scale(1.03,.96); } }
-#odu-szoba .e-lomb{ animation:e-lomb 4.8s ease-in-out infinite; }
-#odu-szoba .e-lomb2{ animation:e-lomb 3.9s ease-in-out infinite reverse; }
-@keyframes e-lomb{ 0%,100%{ transform:translateX(-1.6px); } 50%{ transform:translateX(1.6px); } }
 #odu-szoba .e-szarny{ transform-box:fill-box; transform-origin:100% 50%; animation:e-csap .16s ease-in-out infinite alternate; }
 #odu-szoba .e-szarny.j{ transform-origin:0% 50%; }
 #odu-szoba .ul .e-szarny{ animation-duration:1.4s; }
@@ -511,7 +511,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @media (prefers-reduced-motion:reduce){   /* kímélő mód: minden áll; a csak mozgásban látszó szemcsék rejtve maradnak */
   #odu-szoba .e-lang, #odu-szoba .e-lang-feny, #odu-szoba .e-parazs, #odu-szoba .e-fust, #odu-szoba .e-lampa, #odu-szoba .e-lampa-feny,
   #odu-szoba .e-zaszlo, #odu-szoba .e-por, #odu-szoba .e-csillag, #odu-szoba .e-felho, #odu-szoba .e-befott, #odu-szoba .e-parna,
-  #odu-szoba .e-lomb, #odu-szoba .e-lomb2, #odu-szoba .e-szarny, #odu-szoba .e-bogar-feny, #odu-szoba .e-inda, #odu-szoba .e-makk,
+  #odu-szoba .e-szarny, #odu-szoba .e-bogar-feny, #odu-szoba .e-inda, #odu-szoba .e-makk,
   #odu-szoba .e-csiga, #odu-szoba .e-csiga-szarv, #odu-szoba .e-hely, #odu-szoba .e-kristaly, #odu-szoba .e-uveg, #odu-szoba .e-bub,
   #odu-szoba .e-lap, #odu-szoba .e-konyv-sz, #odu-szoba .e-hajtas, #odu-szoba .e-suhan{ animation:none; }
   #odu-szoba .e-fust{ opacity:.9; }                 /* a füstpamacsok (a régi rajz része) álló helyzetben is látszanak */

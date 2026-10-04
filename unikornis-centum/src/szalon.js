@@ -51,7 +51,7 @@ function uCsillam(x, y, r, c, kes) {
 function utcaPortalSVG() {
   var cx = 200, cy = 158, g = '<g id="utca-portal" class="utca-portal">';
   g += '<rect x="96" y="40" width="208" height="140" fill="transparent"/>';   /* koppintó-felület */
-  var cols = ["#e0417a", "#f0a800", "#3f9e6a", "#29a3dd", "#8a4fd0"];
+  var cols = SZIVARVANY_SZIN;   /* a szivárványos távozás hídja is ezekből a színekből (renderer.js) */
   for (var i = 0; i < cols.length; i++) {
     var r = 86 - i * 7;
     g += '<path d="M' + (cx - r) + ' ' + cy + ' A' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy + '" fill="none" stroke="' + cols[i] + '" stroke-width="6" stroke-linecap="round" opacity="0.92"/>';
@@ -168,6 +168,7 @@ function utcaSVG(mod) {
     ["utca-bank", "bank", 200, utcaBankRajz(bankZarva()), "tündérbank"]
   ].sort(function (x, y) { return H[x[1]][1] - H[y[1]][1]; });
   sor.forEach(function (e) { s += utcaHely(e[0], H[e[1]], e[2], e[3], e[4]); });
+  s += '<g id="utca-hid" pointer-events="none"></g><g id="utca-uni-hely" pointer-events="none"></g><g id="utca-hid-szikra" pointer-events="none"></g>';   /* szivárványos távozás (utcaTavozik) */
   /* szentjánosbogár-fények a föld fölött */
   for (var i = 0; i < 7; i++) {
     var fx = (w / 7) * i + 26, fy = L.fold + 18 + ((i * 37) % 60);
@@ -180,12 +181,12 @@ var UTCA_ELR_MOST = null;   /* az utoljára rajzolt elrendezés („szeles” | 
 window.addEventListener("resize", function () {
   var host = document.getElementById("utca-szinter"), akt = document.querySelector(".kepernyo.aktiv");
   if (!host || !akt || akt.id !== "kepernyo-utca") return;
-  if (utcaMod(host.clientWidth, host.clientHeight) !== UTCA_ELR_MOST) renderUtca();
+  if (utcaMod(host.clientWidth, host.clientHeight) !== UTCA_ELR_MOST) { if (_utcaTavozas) utcaTavozasVege(); else renderUtca(); }
 });
 function utcaNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
-  UTCA_MOD = "nez";
+  UTCA_MOD = "nez"; _utcaTavozas = null;
   mutat("kepernyo-utca");
   renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
@@ -207,7 +208,7 @@ function renderUtca() {
   utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
   utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
   utcaKot("utca-felhokert", tkLepcsoKoppint);
-  utcaKot("utca-portal", function () { hangGomb(); mondd("Induljunk matekozni!"); renderFomenu(); mutat("kepernyo-fomenu"); });
+  utcaKot("utca-portal", utcaTavozik);
   var sugo = $("utca-sugo");
   if (sugo) {
     if (UTCA_MOD === "megerosit-belepo") {
@@ -222,6 +223,37 @@ function renderUtca() {
       sugo.textContent = "Koppints egy házra — oda mész! 👆";
     }
   }
+}
+/* ── SZIVÁRVÁNYOS TÁVOZÁS az utcán (unikornis pózok 6. lépés, közös kód: renderer.js uniSzivarvanyba):
+   a Matek-kapuból szivárványhíd nő le az odú-ház ajtajáig, kilép az unikornis, és felszalad rajta a kapuba.
+   Közben egy második koppintás azonnal átvált. ── */
+var _utcaTavozas = null;
+function utcaTavozik() {
+  if (_utcaTavozas) { utcaTavozasVege(); return; }
+  var hely = $("utca-uni-hely"); if (!hely) return;
+  hangGomb(); mondd("Induljunk matekozni!");
+  var tok = _utcaTavozas = {};
+  var L = UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles, h = L.hazak.odu, k = 0.32 * h[2];
+  var ajto = [h[0], h[1] - 2 * h[2]], kapu = [L.portal[0], L.portal[1] - 18];
+  var ut = szivarvanyGorbe(ajto, [ajto[0], ajto[1] - 140], [kapu[0] + 110, kapu[1] + 20], kapu, 40);
+  hely.innerHTML = '<g id="utca-uni-mozgo" style="opacity:0;transform:translate(' + ajto[0] + 'px,' + ajto[1] + 'px) scale(' + k + ')">' +
+    '<g id="utca-uni-flip" style="--dir:' + (kapu[0] < ajto[0] ? -1 : 1) + ';transform:scale(var(--dir,1),1)">' + unikornisSVG("utca-uni", LENYEK[mentes.leny], 1, P().oltozet) + '</g></g>';
+  var m = $("utca-uni-mozgo"), fl = $("utca-uni-flip");
+  uniNezoAdat(fl, { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });
+  void m.getBoundingClientRect();
+  m.style.transition = "opacity .3s"; m.style.opacity = "1";   /* kilép az odú-ház ajtaján */
+  hangCsilla();
+  szivarvanyNo($("utca-hid"), ut, 34 * h[2], 10 * h[2], function () {
+    if (_utcaTavozas !== tok) return;
+    uniSzivarvanyba({ mozgo: m, el: fl, talp: [0, 0], ut: ut, skala: [k, k * 0.3], szikra: $("utca-hid-szikra") },
+      function () { if (_utcaTavozas === tok) utcaTavozasVege(); });
+  });
+}
+function utcaTavozasVege() {
+  _utcaTavozas = null;
+  var k = $("kepernyo-utca");
+  if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
+  renderFomenu(); mutat("kepernyo-fomenu");
 }
 function utcaFodraszKoppint() {
   hangGomb();

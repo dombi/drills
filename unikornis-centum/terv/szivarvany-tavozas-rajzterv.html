@@ -19,7 +19,18 @@ table{ border-collapse:collapse; width:100%; font-size:14px; } td,th{ border:1px
 .fazis p{ margin:4px 0 0; font-size:13px; }
 </style></head><body><main>
 <h1>6. lépés — szivárványos távozás</h1>
-<p>Unikornis pózok terve, 6. lépés (11. panasz: „az odúból ne kisétáljon az Ösvényekre, hanem felfelé egy szivárványba, ugyanabba, mint az utcán”). Nagyság: <b>kicsi–közepes</b>. Állapot: <b>TERV — döntésre vár</b> (2026-10-04).</p>
+<p>Unikornis pózok terve, 6. lépés (11. panasz: „az odúból ne kisétáljon az Ösvényekre, hanem felfelé egy szivárványba, ugyanabba, mint az utcán”). Nagyság: <b>kicsi–közepes</b>. Állapot: <b>KÉSZ</b> (2026-10-04).</p>
+
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ KÉSZ (2026-10-04, <i>?v=20261004-3</i>).</b> A producer döntései: <b>D1 C</b> (az ablakból szivárványhíd nő le), <b>D2 A</b> (az utcán az odú-ház ajtajából fut fel a kapuba), <b>D3 A</b> (a „← Főmenü” is a hídon át visz). Pontosítás: a gyerek az <b>ablakra</b> koppint; a bal fali erdei nyílás <b>megszűnt</b>, a helyén puha <b>felhő</b> ül a padlón, onnan indul a híd. A producer élőben megnézte: „tetszik”.</p>
+<ul>
+<li><b>Közös kód (renderer.js):</b> <i>SZIVARVANY_SZIN</i> (az utcai kapu is ebből), <i>UNI_SZIVARVANY</i> (időzítések: kinövés 0,8 mp, guggolás 0,22 mp, futás 1,35 mp, 4 szökkenés), <i>szivarvanyGorbe / szivarvanyPont / szivarvanySVG</i> (5 színsáv + fehér dereng, a távolba szűkülő szalag), <i>szivarvanyNo</i> (a híd a végéről nő ki), <b>uniSzivarvanyba(o, kész)</b> (hátulról-nézet, szökdelve fut a hídon, összemegy, elhalványul, szikra), <i>szivarvanySzikra</i>.</li>
+<li><b>Odú (odu.js):</b> <i>ODU_HID</i> (talp x = 60, szélesség 124 → 26, méret 1 → 0,15), <i>oduHidFelhoSVG</i> (az <i>osvenyKijaratSVG</i> helyett), az ablak <i>#odu-t-ablak</i> = az „Ösvény” célpont, <i>oduTavozik / oduTavozasVege</i>. Második koppintás vagy átméretezés közben: azonnal átvált.</li>
+<li><b>Utca (szalon.js):</b> <i>utcaTavozik / utcaTavozasVege</i>, a híd a kapu közepétől az odú-ház ajtajáig.</li>
+<li><b>events.js:</b> „← Főmenü” → <i>oduTavozik</i>. <b>style.css:</b> <i>.szivarvany-szikra</i>; az erdő-lomb mozgása törölve.</li>
+<li><b>Teszt (néma):</b> odú (ablak és gomb), utca, türelmetlen második koppintás, visszatérés félbehagyás után; konzol tiszta. Mozgó előnézet helyett a producer a böngészőpanelen élőben nézte meg.</li>
+</ul>
+</div>
 
 <h2>1. Mi van most (felmérés)</h2>
 <div class="doboz terv">

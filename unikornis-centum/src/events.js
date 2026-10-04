@@ -234,7 +234,7 @@ function esemenyek() {
   });
   $("fomenu-odu").addEventListener("click", function () { hangGomb(); oduNyit("fomenu"); });
   $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
-  $("odu-vissza").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("odu-vissza").addEventListener("click", function () { oduTavozik(); });   /* a szivárványhídon át (odu.js); 2. koppintás: azonnal */
   $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; oduUniHaza(); });

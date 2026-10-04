@@ -405,6 +405,124 @@ function uniPorog(el, ms, kesz) {
     el._fordulTimer = setTimeout(kocka, km);
   })();
 }
+/* ── SZIVÁRVÁNYOS TÁVOZÁS: EGY KÖZÖS KÓD (unikornis pózok 6. lépés, terv/szivarvany-tavozas-rajzterv.html) ──
+   A szivárvány egy pontsor (a híd közepe) mentén húzott 5 színsáv; a szélessége az elejétől a végéig szűkül
+   (w0 → w1: a híd a távolba fut). Odúban az ablakból nő le a padlóig, az utcán a Matek-kapuból az odú-ház ajtajáig.
+   Az unikornis hátat fordít, és szökdelve végigfut rajta; közben összemegy, a végén szikrázva eltűnik. */
+var SZIVARVANY_SZIN = ["#e0417a", "#f0a800", "#3f9e6a", "#29a3dd", "#8a4fd0"];   /* az utcai Matek-kapu színei */
+var UNI_SZIVARVANY = {
+  no: 0.8,       /* mp: ennyi alatt nő ki a híd */
+  guggol: 0.22,  /* mp: lendületvétel */
+  fut: 1.35,     /* mp: a futás a hídon */
+  szokken: 12,   /* rajz-egység: a szökdelés magassága (a .uni-magas réteggel) */
+  szokkenDb: 4,  /* ennyit szökken a hídon */
+  eltunik: 0.25  /* a futás utolsó ennyiad részében halványul el */
+};
+/* köbös Bézier-görbe pontsorrá (n szakasz) */
+function szivarvanyGorbe(a, b, c, d, n) {
+  var p = [];
+  for (var i = 0; i <= n; i++) {
+    var t = i / n, u = 1 - t;
+    p.push([u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0],
+            u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1]]);
+  }
+  return p;
+}
+/* a pontsor t-edik helye (0..1, a hossz arányában) */
+function szivarvanyPont(p, t) {
+  var L = [0];
+  for (var i = 1; i < p.length; i++) L.push(L[i - 1] + Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]));
+  var s = Math.max(0, Math.min(1, t)) * L[L.length - 1], k = 1;
+  while (k < p.length - 1 && L[k] < s) k++;
+  var r = L[k] > L[k - 1] ? (s - L[k - 1]) / (L[k] - L[k - 1]) : 1;
+  return [p[k - 1][0] + (p[k][0] - p[k - 1][0]) * r, p[k - 1][1] + (p[k][1] - p[k - 1][1]) * r];
+}
+/* a híd rajza a pontsor [t0..t1] szakaszán: fehér dereng + 5 színsáv, mindegyik egy kitöltött szalag */
+function szivarvanySVG(p, w0, w1, t0, t1) {
+  t0 = t0 || 0; t1 = t1 === undefined ? 1 : t1;
+  var n = p.length - 1, sor = [], ts = [t0];
+  for (var i = Math.floor(t0 * n) + 1; i < t1 * n; i++) ts.push(i / n);
+  ts.push(t1);
+  ts.forEach(function (t) {
+    var q = szivarvanyPont(p, t), a = szivarvanyPont(p, t - 0.02), b = szivarvanyPont(p, t + 0.02);
+    var dx = b[0] - a[0], dy = b[1] - a[1], h = Math.hypot(dx, dy) || 1;
+    sor.push({ x: q[0], y: q[1], nx: -dy / h, ny: dx / h, w: w0 + (w1 - w0) * t });
+  });
+  if (sor.length < 2 || t1 - t0 < 0.002) return "";
+  function szalag(f0, f1) {   /* a szélesség f0..f1 része (−0,5..0,5) */
+    var bal = [], jobb = [];
+    sor.forEach(function (o) {
+      bal.push((o.x + o.nx * o.w * f0).toFixed(1) + "," + (o.y + o.ny * o.w * f0).toFixed(1));
+      jobb.unshift((o.x + o.nx * o.w * f1).toFixed(1) + "," + (o.y + o.ny * o.w * f1).toFixed(1));
+    });
+    return "M" + bal.join(" L") + " L" + jobb.join(" L") + " Z";
+  }
+  var s = '<path d="' + szalag(-0.64, 0.64) + '" fill="#ffffff" opacity="0.4"/>';
+  for (var k = 0; k < 5; k++) s += '<path d="' + szalag(-0.5 + k * 0.2, -0.29 + k * 0.2) + '" fill="' + SZIVARVANY_SZIN[k] + '"/>';
+  return s;
+}
+/* a híd kinövése: g-be rajzol, a pontsor VÉGÉRŐL indulva (ablak / kapu) az eleje felé (padló / ajtó) */
+function szivarvanyNo(g, p, w0, w1, kesz) {
+  if (!g) { if (kesz) kesz(); return; }
+  if (nyugiMod() || window.__UC_GYORS) { g.innerHTML = szivarvanySVG(p, w0, w1); if (kesz) kesz(); return; }
+  var t0 = performance.now(), ms = UNI_SZIVARVANY.no * 1000;
+  requestAnimationFrame(function lep(most) {
+    if (!g.isConnected) return;
+    var t = Math.min(1, (most - t0) / ms), e = 1 - (1 - t) * (1 - t);
+    g.innerHTML = szivarvanySVG(p, w0, w1, 1 - e, 1);
+    if (t < 1) requestAnimationFrame(lep); else if (kesz) kesz();
+  });
+}
+/* AZ UNIKORNIS A HÍDON: o = { mozgo: a csoport, amit tolunk-kicsinyítünk (CSS transform),
+   el: a --dir/nézet eleme, talp: [x,y] a talp helye a mozgo saját rajzában (eltolás nélkül),
+   ut: a híd pontsora (az unikornis talpa ezen fut végig), skala: [eleje, vége], szikra: g a végső csillagoknak } */
+function uniSzivarvanyba(o, kesz) {
+  var m = o.mozgo, el = o.el, U = UNI_SZIVARVANY, sk = o.skala || [1, 0.2];
+  function hely(t, s) {
+    var q = szivarvanyPont(o.ut, t);
+    m.style.transition = "none";
+    m.style.transform = "translate(" + (q[0] - o.talp[0] * s).toFixed(2) + "px," + (q[1] - o.talp[1] * s).toFixed(2) + "px) scale(" + s.toFixed(4) + ")";
+  }
+  function vege() {
+    if (el) { uniNezetMutat(el, null); el.style.removeProperty("--uni-magas"); }
+    if (kesz) kesz();
+  }
+  if (!m || !m.isConnected) { if (kesz) kesz(); return; }
+  if (el) { uniAll(el); clearTimeout(el._fordulTimer); }
+  if (nyugiMod() || window.__UC_GYORS) {   /* nyugodt mód: csak elhalványul */
+    m.style.transition = "opacity .4s"; m.style.opacity = "0";
+    setTimeout(vege, window.__UC_GYORS ? 0 : 420); return;
+  }
+  if (el) uniNezetMutat(el, "hatul");   /* hátat fordít: a híd a távolba fut */
+  hely(0, sk[0]);
+  if (el) el.style.setProperty("--uni-magas", -3);   /* guggol: lendületet vesz */
+  setTimeout(function () {
+    if (!m.isConnected) return;
+    hangAllomas();
+    var t0 = performance.now(), ms = U.fut * 1000;
+    requestAnimationFrame(function lep(most) {
+      if (!m.isConnected) return;
+      var t = Math.min(1, (most - t0) / ms), e = t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
+      hely(e, sk[0] + (sk[1] - sk[0]) * e);
+      if (el) el.style.setProperty("--uni-magas", (Math.abs(Math.sin(t * Math.PI * U.szokkenDb)) * U.szokken * (1 - 0.5 * t)).toFixed(1));
+      m.style.opacity = t > 1 - U.eltunik ? ((1 - t) / U.eltunik).toFixed(3) : "1";
+      if (t < 1) { requestAnimationFrame(lep); return; }
+      if (o.szikra) szivarvanySzikra(o.szikra, o.ut[o.ut.length - 1]);
+      hangCsilla();
+      setTimeout(vege, 380);
+    });
+  }, U.guggol * 1000);
+}
+/* a végén: csillagok pattannak szét a szivárvány végénél */
+function szivarvanySzikra(g, q) {
+  var s = "";
+  for (var i = 0; i < 7; i++) {
+    var a = i / 7 * Math.PI * 2, r = 16 + (i % 3) * 8;
+    s += '<g class="szivarvany-szikra" style="--sx:' + (Math.cos(a) * r).toFixed(1) + 'px;--sy:' + (Math.sin(a) * r).toFixed(1) + 'px;animation-delay:' + (i % 3) * 0.05 + 's">' +
+         csillagSVG(q[0], q[1], 3 + (i % 3), i % 2 ? "#ffffff" : "#ffd24d") + '</g>';
+  }
+  g.innerHTML = s;
+}
 function uniForduloCSS() {
   return ".uni-nezetben .uni-magas:not(.uni-nezet-reteg){visibility:hidden}\n" +
          ".uni-porog .uni-magas{transition:transform .08s ease-out}\n" +

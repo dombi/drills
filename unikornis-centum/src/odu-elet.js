@@ -90,8 +90,7 @@ function oduElet(svg, o) {
   burok([q('circle[cx="345"][cy="376"]'), q('polygon[points^="345,366"]')], "e-befott");
   /* 10 csillag-párna */
   burok([q('polygon[points^="122,372"]'), q('path[d^="M114 394"]'), q('circle[cx="112"][cy="399"]'), q('circle[cx="131"][cy="399"]')], "e-parna");
-  /* 11 erdő a kijáraton túl */
-  cls(q('#odu-t-osveny g[fill="#9fd48a"]'), "e-lomb"); cls(q('#odu-t-osveny g[fill="#7fc26a"]'), "e-lomb2");
+  /* (11 erdő a kijáraton túl: megszűnt — a bal fali ösvény-nyílás helyén felhő van, 6. lépés) */
   /* 9 katica a szivárvány-ágy ívén (a felhő-ágy MÖGÉ, hogy a felhő eltakarja az ív alját) */
   var katB = null, ivV = q('path[d^="M13 432"]');
   if (ivV) {
