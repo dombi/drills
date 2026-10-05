@@ -8575,7 +8575,7 @@ var VSM = { arcedula: VSM_ARCEDULA, tobbszor: VSM_TOBBSZOR, doboz: VSM_DOBOZ };
    KÖZÖS (a ligettérkép, később a kissárkány-térkép): egy térkép = egy adat-tábla
      T = { helyek: { id: { szeles:[x,y], allo:[x,y], magas, szel } },   (x,y = a jelkép talppontja; magas = a rajz magassága, szel = állóhely-távolság)
            utak:   [[A, B, kanyar], …]  (kanyar = a görbe kihajlása, képpont),
-           elr:    { szeles:{w,h,uni,jk,hz}, allo:{…} }  (fekvő 800×460, álló 400×760; uni = az unikornis mérete, jk = a jelképeké),
+           elr:    { szeles:{w,h,uni,jk,hz}, allo:{…} }  (fekvő 800×460, álló 400×760; uni = az unikornis mérete, jk = a jelképeké; jelLe = a ⭐-tábla a név alá),
            oldal:  { szeles:{id:±1}, allo:{…} }  (melyik oldalán áll az unikornis a jelképnek; alap: jobbra),
            jelkep: { id: fn → SVG }, taj(T, mod) → { allo, mozgo }, defs }
    terkepHalo(T, lathato) — az elrejtett zsákutca-helyek lenyesve; az elrejtett átmenő hely helyén bokor áll, az út megmarad
@@ -8631,8 +8631,8 @@ function terkepUtkereso(T, halo, honnan, hova, mod) {
 }
 /* állóhely: az unikornis a jelkép MELLETT áll (az úton állva eltakarná a nevet); o = melyik oldalon (+1 jobbra) */
 function terkepAllas(T, id, mod) {
-  var h = T.helyek[id], p = h[mod], o = (T.oldal[mod] || {})[id] || 1;
-  return { x: p[0] + o * h.szel * T.elr[mod].jk, y: p[1] + 2, o: o };
+  var h = T.helyek[id], p = h[mod], o = (T.oldal[mod] || {})[id] || 1, L = T.elr[mod], fel = 86 * L.uni;   /* fel = az unikornis fél szélessége (farokkal) */
+  return { x: Math.max(fel, Math.min(L.w - fel, p[0] + o * h.szel * L.jk)), y: p[1] + 2, o: o };   /* ne lógjon ki a képből */
 }
 function ltF(n) { return n.toFixed(1); }
 function ltGorbeD(g, kezd) { return (kezd ? "M" + ltF(g[0][0]) + " " + ltF(g[0][1]) : "") + "C" + ltF(g[1][0]) + " " + ltF(g[1][1]) + " " + ltF(g[2][0]) + " " + ltF(g[2][1]) + " " + ltF(g[3][0]) + " " + ltF(g[3][1]); }
@@ -8662,7 +8662,7 @@ function terkepRajzol(host, T, o) {
   }).join("");
   var cimkek = liget.map(function (id) {
     var p = T.helyek[id][mod];
-    return '<g class="terkep-hely" data-id="' + id + '" aria-hidden="true">' + ltCimke(p[0], p[1], o.nev(id), k) + '</g>' + ltJelzesRajz(T, id, p[0], p[1], k, o.nev(id), jel[id], L.w);
+    return '<g class="terkep-hely" data-id="' + id + '" aria-hidden="true">' + ltCimke(p[0], p[1], o.nev(id), k) + '</g>' + ltJelzesRajz(T, id, p[0], p[1], k, o.nev(id), jel[id], L);
   }).join("");
   var a = terkepAllas(T, o.all, mod);
   host.innerHTML =
@@ -8880,12 +8880,13 @@ function ltCimke(x, y, nev, k) {
   return '<g transform="translate(' + x + ' ' + y + ') scale(' + k + ')"><rect x="' + ltF(-sz / 2) + '" y="7" width="' + ltF(sz) + '" height="22" rx="11" fill="#ffffff" opacity=".94" stroke="#e6d8f0"/>' +
          '<text y="23" text-anchor="middle" font-size="13.5" font-weight="700" fill="#2a2140">' + htmlVed(nev) + '</text></g>';
 }
-function ltJelzesRajz(T, id, x, y, k, nev, j, w) {
+function ltJelzesRajz(T, id, x, y, k, nev, j, L) {
   if (!j) return "";
   var s = "", sz = nev.length * 7.2 + 22, magas = T.helyek[id].magas;
   if (j.ossz) {
-    var tele = j.kesz >= j.ossz, cx = x + (sz / 2 + 4) * k, cy = y + 7 * k;
-    if (cx + 48 * k > w) { cx = x - 22 * k; cy = y + 32 * k; }   /* jobbra nem fér el: a név alá kerül */
+    var tele = j.kesz >= j.ossz, cx = x + (sz / 2 + 4) * k, cy = y + 7 * k, le = y + 56 * k <= L.h;
+    /* a név mellé (jobbra); álló képen (jelLe) a név alá, mert ott a szomszéd hely neve túl közel van — vagy ha jobbra nem fér el */
+    if (le && (L.jelLe || cx + 48 * k > L.w)) { cx = x - 22 * k; cy = y + 32 * k; }
     s += '<g pointer-events="none" transform="translate(' + ltF(cx) + ' ' + ltF(cy) + ') scale(' + k + ')"><rect width="44" height="22" rx="11" fill="' + (tele ? "#fff1b8" : "#ffffff") + '" stroke="' + (tele ? "#e3a92a" : "#3f9e6a") + '" stroke-width="1.6"/>' +
          '<text x="22" y="15.5" text-anchor="middle" font-size="11.5" font-weight="700" fill="' + (tele ? "#b07a10" : "#3f9e6a") + '">' + (tele ? "🌟" : "⭐") + ' ' + j.kesz + '/' + j.ossz + '</text></g>';
   }
@@ -8932,19 +8933,19 @@ var LIGET_TERKEP = {
     utca:     { szeles: [ 52, 322], allo: [195, 700], magas:  80, szel: 52 },
     egyeni:   { szeles: [205, 425], allo: [295, 720], magas:  76, szel: 64 },
     osszeado: { szeles: [300, 350], allo: [125, 592], magas:  92, szel: 72 },
-    szorzo:   { szeles: [175, 250], allo: [300, 568], magas: 102, szel: 60 },
+    szorzo:   { szeles: [175, 250], allo: [305, 585], magas: 102, szel: 60 },
     szabo:    { szeles: [330, 212], allo: [ 75, 447], magas:  74, szel: 70 },
     bajital:  { szeles: [452, 300], allo: [205, 425], magas:  84, szel: 64 },
     pekseg:   { szeles: [582, 402], allo: [310, 447], magas:  76, szel: 64 },
     vasar:    { szeles: [688, 334], allo: [300, 302], magas:  76, szel: 72 },
     konyvtar: { szeles: [578, 218], allo: [105, 282], magas: 114, szel: 58 },
-    fejtoro:  { szeles: [690, 122], allo: [245, 142], magas: 118, szel: 86 }
+    fejtoro:  { szeles: [690, 122], allo: [245, 142], magas: 118, szel: 56 }
   },
   utak: [["odu", "utca", -10], ["odu", "egyeni", 14], ["odu", "osszeado", -26], ["osszeado", "szorzo", 24], ["osszeado", "bajital", -18],
          ["bajital", "szabo", 20], ["bajital", "pekseg", 22], ["pekseg", "vasar", -20], ["bajital", "konyvtar", -16],
          ["vasar", "konyvtar", 18], ["konyvtar", "fejtoro", 24]],
   elr: { szeles: { w: 800, h: 460, hz: 110, uni: 0.5, jk: 1, to: [740, 432, 50, 13], lepkek: [[395, 190, 7, "#f7b8d0"], [640, 300, 9, "#fce49a"]] },
-         allo:   { w: 400, h: 760, hz: 120, uni: 0.44, jk: 0.86, to: [40, 520, 30, 10], lepkek: [[220, 240, 7, "#f7b8d0"], [150, 660, 9, "#fce49a"]] } },
+         allo:   { w: 400, h: 760, hz: 120, uni: 0.44, jk: 0.86, jelLe: true, to: [40, 520, 30, 10], lepkek: [[220, 240, 7, "#f7b8d0"], [150, 660, 9, "#fce49a"]] } },
   oldal: { szeles: { vasar: -1, fejtoro: -1, szorzo: 1 }, allo: { odu: -1, utca: -1, szorzo: -1, vasar: -1, fejtoro: -1 } },
   jelkep: LT_JELKEP,
   taj: ltTaj,
@@ -9004,9 +9005,11 @@ function ligetUniReteg() {
   ligetUniAlap();
 }
 function ligetUniAllit(x, y) { var U = LIGET_UNI; if (!U) return; U.x = x; U.y = y; U.hely.setAttribute("transform", "translate(" + ltF(x) + " " + ltF(y) + ")"); }
-function ligetUniAlap() {   /* bal lent, a kártyák alatt */
+function ligetUniAlap() {   /* bal lent, a kártyák alatt — a napi statisztika sora fölött (különben eltakarná) */
   var U = LIGET_UNI; if (!U || U.fut) return;
-  ligetUniAllit(window.innerWidth < 600 ? 58 : 92, (U.reteg.clientHeight || window.innerHeight) - 10);
+  var y = (U.reteg.clientHeight || window.innerHeight) - 10, st = $("ma-statisztika");
+  if (st && st.offsetParent && st.textContent.trim()) y = Math.min(y, st.getBoundingClientRect().top - U.reteg.getBoundingClientRect().top - 2);
+  ligetUniAllit(window.innerWidth < 600 ? 58 : 92, y);
 }
 /* a kártya választásakor: odaüget a kártya alá (kb. 1 mp), aztán indit(). Közben még egy választás = azonnal indul (az új). */
 function ligetUget(kart, indit) {
