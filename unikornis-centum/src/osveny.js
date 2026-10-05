@@ -8,8 +8,7 @@
      utana(px,py)  = ami ELÉ (munkapad, olvasóasztal — az unikornis a pad mögött áll)
      odu           = a Cél-odú: { arnyek, arnyekOp, mogotte (SVG az odú mögé), felirat: {fill, stroke, szin, font} | null, csillag: [y, r] }
      pipa(b,px,py) = a b. pipa helye ([x, y]); pipaKicsi = az erdei kis pipa; pipaElobb = a pipák az odú elé (az unikornis alá)
-   SÉTA: az unikornis a rajzolt görbén halad (osvenyMegy), a lábát a közös járás mozgatja (uniUt/uniJar/uniAll),
-   és visszafelé előbb megfordul (uniFordul). Erre épül: állomásról állomásra (osvenyAllomasra), a kerülő (osvenyKerulo),
+   SÉTA: az unikornis a rajzolt görbén halad (osvenyMegy → a közös uniUtvonal, renderer.js: járás + fordulás). Erre épül: állomásról állomásra (osvenyAllomasra), a kerülő (osvenyKerulo),
    a pálya vége (osvenyOduba) és a jó válasz öröme (osvenyOrom). */
 var SCENE_N = 8;
 var TU_X0 = 78, TU_X1 = 1092;
@@ -65,12 +64,12 @@ function osvenyVaz(palya, c, o) {
 }
 
 /* ── SÉTA ─────────────────────────────────────────────────────────────────────────────────── */
-var OSV = { x: 0, y: 0, fut: null };   /* hol áll az unikornis (rajz-egység), és az épp futó út */
+var OSV = { x: 0, y: 0 };   /* hol áll az unikornis (rajz-egység) */
 var OSV_KERULO = { le: 95, alja: 530 };   /* a kitérő: ennyivel az út alatt, de legfeljebb itt (pálya-egység) */
 function osvenyUni() { return { hely: document.querySelector("#szinpad #unikornis-hely"), el: document.getElementById("uni-irany") }; }
 /* pálya-indításkor, a jelenet kirajzolása után */
 function osvenyIndul() {
-  OSV.x = allomasX(0); OSV.y = allomasY(0); OSV.fut = null;
+  OSV.x = allomasX(0); OSV.y = allomasY(0);
   var u = osvenyUni();
   if (u.el) uniNezoAdat(u.el, { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás szemből-képéhez */
 }
@@ -80,79 +79,17 @@ function osvenyAllit(x, y) {
   if (u.hely) u.hely.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
   if (ko) { ko.setAttribute("cx", x.toFixed(1)); ko.setAttribute("cy", (y + 8).toFixed(1)); }
 }
-/* köbös görbék → sűrű pontsor */
-function osvenyPontok(gorbek) {
-  var p = [], LEP = 24;
-  gorbek.forEach(function (g, gi) {
-    for (var k = gi ? 1 : 0; k <= LEP; k++) {
-      var t = k / LEP, u = 1 - t, a = u * u * u, b = 3 * u * u * t, cc = 3 * u * t * t, d = t * t * t;
-      p.push([a * g[0][0] + b * g[1][0] + cc * g[2][0] + d * g[3][0], a * g[0][1] + b * g[1][1] + cc * g[2][1] + d * g[3][1]]);
-    }
-  });
-  return p;
-}
-/* sima görbe a pontokon át (Catmull–Rom → köbös darabok) */
-function osvenySimaGorbe(q) {
-  var g = [];
-  for (var i = 0; i < q.length - 1; i++) {
-    var a = q[Math.max(0, i - 1)], b = q[i], c = q[i + 1], d = q[Math.min(q.length - 1, i + 2)];
-    g.push([b, [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6], [c[0] - (d[0] - b[0]) / 6, c[1] - (d[1] - b[1]) / 6], c]);
-  }
-  return g;
-}
-/* a pontsor szétvágása irány szerint: ahol visszafelé indul, ott fordulni kell */
-function osvenyIranySzakaszok(p) {
-  var sz = [[p[0]]], dir = 0;
-  for (var i = 1; i < p.length; i++) {
-    var dx = p[i][0] - p[i - 1][0], d = dx > 0.01 ? 1 : dx < -0.01 ? -1 : dir;
-    if (dir && d !== dir) sz.push([p[i - 1]]);
-    if (d) dir = d;
-    sz[sz.length - 1].push(p[i]);
-  }
-  return sz;
-}
-function osvenyHossz(p) { var L = 0; for (var i = 1; i < p.length; i++) L += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return L; }
 function osvenyPxEgyseg() {   /* hány képernyő-képpont egy pálya-egység */
   var k = document.querySelector("#szinpad #kamera"), m = k && k.getScreenCTM && k.getScreenCTM();
   return m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1;
 }
-/* VÉGIGMEGY egy pontsoron: irány-szakaszonként előbb (ha kell) megfordul, aztán egyenletesen halad, járó lábbal.
-   A közös uniUt dönt (séta/ügetés, tempó); o.seta = mindig természetes séta (a kerülőn);
-   o.fordulon(tovabb) = mi történjen, mielőtt visszafelé indul (a kerülőn: megszagolja a füvet). */
+/* VÉGIGMEGY egy pontsoron a pálya képén — a közös uniUtvonal (renderer.js) viszi; o.seta / o.fordulon ott */
 function osvenyMegy(p, o, kesz) {
-  o = o || {};
-  var u = osvenyUni(), fut = OSV.fut = {};
-  if (!u.hely || !u.el || p.length < 2 || osvenyHossz(p) < 2) { if (p.length) osvenyAllit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) kesz(); return; }
-  if (window.__UC_GYORS) { osvenyAllit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) setTimeout(kesz, 0); return; }
-  var szak = osvenyIranySzakaszok(p), egys = osvenyPxEgyseg(), si = 0;
-  var iranyok = szak.map(function (q) { return q[q.length - 1][0] < q[0][0] ? -1 : 1; });
-  (function kov() {
-    if (fut !== OSV.fut || !u.hely.isConnected) return;   /* új út indult, vagy elhagytuk a pályát */
-    if (si >= szak.length) { uniAll(u.el); if (kesz) kesz(); return; }
-    if (si && o.fordulon && !o._kozte) { o._kozte = true; uniAll(u.el); o.fordulon(kov); return; }
-    o._kozte = false;
-    var q = szak[si], L = osvenyHossz(q), dir = iranyok[si++];
-    u.el.classList.remove("uni-mozd-ugras", "osveny-orom");
-    uniFordul(u.el, dir, function () {
-      if (fut !== OSV.fut || !u.hely.isConnected) return;
-      var ut = o.seta ? { mod: "seta", tempo: 1, mp: L * egys / (uniJarasSebesseg("seta") * uniPxEgyseg(u.el)) } : uniUt(u.el, L * egys);
-      var cum = [0]; for (var i = 1; i < q.length; i++) cum.push(cum[i - 1] + Math.hypot(q[i][0] - q[i - 1][0], q[i][1] - q[i - 1][1]));
-      if (!nyugiMod()) uniJar(u.el, ut);
-      var t0 = performance.now(), k = 1;
-      requestAnimationFrame(function lep(most) {
-        if (fut !== OSV.fut || !u.hely.isConnected) return;
-        var s = Math.min(1, (most - t0) / (ut.mp * 1000)) * L;
-        while (k < q.length - 1 && cum[k] < s) k++;
-        var a = q[k - 1], b = q[k], r = cum[k] > cum[k - 1] ? (s - cum[k - 1]) / (cum[k] - cum[k - 1]) : 1;
-        osvenyAllit(a[0] + (b[0] - a[0]) * r, a[1] + (b[1] - a[1]) * r);
-        if (s < L) requestAnimationFrame(lep); else kov();
-      });
-    });
-  })();
+  uniUtvonal({ el: osvenyUni().el, allit: osvenyAllit, egyseg: osvenyPxEgyseg }, p, o, kesz);
 }
 /* állomásról állomásra, az út görbéjén */
 function osvenyAllomasra(i, kesz) {
-  osvenyMegy(i > 0 ? osvenyPontok([osvenySzakasz(i)]) : [[OSV.x, OSV.y], [allomasX(0), allomasY(0)]], null, kesz);
+  osvenyMegy(i > 0 ? uniGorbePontok([osvenySzakasz(i)]) : [[OSV.x, OSV.y], [allomasX(0), allomasY(0)]], null, kesz);
 }
 /* KERÜLŐ („hosszú út”): lelép az útról, kanyarodik egyet a fűben (egyszer visszafordul, aztán újra előre),
    és a következő állomásnál (az utolsón: ugyanott) tér vissza — természetes sétával; a fordulóknál megszagolja a füvet. */
@@ -162,7 +99,7 @@ function osvenyKerulo(i, kesz) {
   var lent = Math.min(OSV_KERULO.alja, Math.max(y0, y1) + OSV_KERULO.le);
   var q = [[x0, y0], [x0 + dx * 0.78, lent - 30], [x0 + dx * 0.2, lent], [x1, y1]];
   if (vegso) q = [[x0, y0], [x0 - dx * 0.6, lent - 20], [x0 - dx * 0.2, lent], [x0, y0]];   /* az utolsón visszafelé tér ki (az odú felé nincs hely) */
-  osvenyMegy(osvenyPontok(osvenySimaGorbe(q)), { seta: true, fordulon: function (tovabb) {
+  osvenyMegy(uniGorbePontok(uniSimaGorbe(q)), { seta: true, fordulon: function (tovabb) {
     var el = osvenyUni().el; if (!el || nyugiMod()) { tovabb(); return; }
     el.classList.add("uni-mozd-szagol");
     setTimeout(function () { el.classList.remove("uni-mozd-szagol"); setTimeout(tovabb, 250); }, UNI_MOZDULAT.szagol.ido * 1000);

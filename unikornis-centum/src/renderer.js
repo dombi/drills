@@ -322,6 +322,81 @@ function uniJar(el, ut) {
   el.style.setProperty("--jar-kezd", (-uniJarasIndul(ut.mod) * UNI_JARAS[ut.mod].ido / ut.tempo).toFixed(3) + "s");
   el.classList.add("uni-jar-" + ut.mod);
 }
+/* ── ÚTVONAL: VÉGIGMEGY EGY PONTSORON (ligetválasztó 1. kör, terv/ligetvalaszto-rendszerterv.html) ──────
+   Egy közös kód a pályának (osveny.js), és majd a ligettérképnek, a liget-belsőnek, a sárkány-térképnek.
+   Irány-szakaszonként előbb (ha kell) megfordul (uniFordul), aztán egyenletesen halad, járó lábbal (uniUt/uniJar/uniAll).
+   f = a figura: { el: az unikornis-elem (rajta a --dir), allit(x, y): tedd ide (a hívó egységében),
+                   egyseg(): hány képernyő-képpont egy hívó-egység }
+   p = pontsor [[x, y], …] a hívó egységében (görbéből: uniGorbePontok, pontokon át: uniSimaGorbe)
+   o.seta = mindig természetes séta (pl. a kerülőn); o.fordulon(tovabb) = mi történjen, mielőtt visszafelé indul.
+   Új út ugyanazon az elemen (vagy uniUtvonalAll) → a régi csendben abbamarad; kesz() csak a végigjárt útnál fut.
+   Gyorsított teszt (__UC_GYORS): rögtön a végén áll. */
+function uniUtvonal(f, p, o, kesz) {
+  o = o || {};
+  var el = f.el, fut = el ? (el._uniUtvonal = {}) : null;
+  if (!el || p.length < 2 || uniUtHossz(p) < 2) { if (p.length) f.allit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) kesz(); return; }
+  if (window.__UC_GYORS) { f.allit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) setTimeout(kesz, 0); return; }
+  function el_maradt() { return fut !== el._uniUtvonal || !el.isConnected; }   /* új út indult, vagy eltűnt a képernyő */
+  var szak = uniIranySzakaszok(p), egys = f.egyseg(), si = 0, kozte = false;
+  var iranyok = szak.map(function (q) { return q[q.length - 1][0] < q[0][0] ? -1 : 1; });
+  (function kov() {
+    if (el_maradt()) return;
+    if (si >= szak.length) { uniAll(el); if (kesz) kesz(); return; }
+    if (si && o.fordulon && !kozte) { kozte = true; uniAll(el); o.fordulon(kov); return; }
+    kozte = false;
+    var q = szak[si], L = uniUtHossz(q), dir = iranyok[si++];
+    el.classList.remove("uni-mozd-ugras", "osveny-orom");
+    uniFordul(el, dir, function () {
+      if (el_maradt()) return;
+      var ut = o.seta ? { mod: "seta", tempo: 1, mp: L * egys / (uniJarasSebesseg("seta") * uniPxEgyseg(el)) } : uniUt(el, L * egys);
+      var cum = [0]; for (var i = 1; i < q.length; i++) cum.push(cum[i - 1] + Math.hypot(q[i][0] - q[i - 1][0], q[i][1] - q[i - 1][1]));
+      if (!nyugiMod()) uniJar(el, ut);
+      var t0 = performance.now(), k = 1;
+      requestAnimationFrame(function lep(most) {
+        if (el_maradt()) return;
+        var s = Math.min(1, (most - t0) / (ut.mp * 1000)) * L;
+        while (k < q.length - 1 && cum[k] < s) k++;
+        var a = q[k - 1], b = q[k], r = cum[k] > cum[k - 1] ? (s - cum[k - 1]) / (cum[k] - cum[k - 1]) : 1;
+        f.allit(a[0] + (b[0] - a[0]) * r, a[1] + (b[1] - a[1]) * r);
+        if (s < L) requestAnimationFrame(lep); else kov();
+      });
+    });
+  })();
+}
+/* MEGÁLL ott, ahol épp tart (pl. második koppintás: a hívó utána oda teszi, ahova kell) */
+function uniUtvonalAll(el) { if (el) { el._uniUtvonal = null; uniAll(el); } }
+/* köbös görbék ([[A, c1, c2, B], …]) → sűrű pontsor */
+function uniGorbePontok(gorbek) {
+  var p = [], LEP = 24;
+  gorbek.forEach(function (g, gi) {
+    for (var k = gi ? 1 : 0; k <= LEP; k++) {
+      var t = k / LEP, u = 1 - t, a = u * u * u, b = 3 * u * u * t, cc = 3 * u * t * t, d = t * t * t;
+      p.push([a * g[0][0] + b * g[1][0] + cc * g[2][0] + d * g[3][0], a * g[0][1] + b * g[1][1] + cc * g[2][1] + d * g[3][1]]);
+    }
+  });
+  return p;
+}
+/* sima görbe a pontokon át (Catmull–Rom → köbös darabok) */
+function uniSimaGorbe(q) {
+  var g = [];
+  for (var i = 0; i < q.length - 1; i++) {
+    var a = q[Math.max(0, i - 1)], b = q[i], c = q[i + 1], d = q[Math.min(q.length - 1, i + 2)];
+    g.push([b, [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6], [c[0] - (d[0] - b[0]) / 6, c[1] - (d[1] - b[1]) / 6], c]);
+  }
+  return g;
+}
+/* a pontsor szétvágása irány szerint: ahol visszafelé indul, ott fordulni kell */
+function uniIranySzakaszok(p) {
+  var sz = [[p[0]]], dir = 0;
+  for (var i = 1; i < p.length; i++) {
+    var dx = p[i][0] - p[i - 1][0], d = dx > 0.01 ? 1 : dx < -0.01 ? -1 : dir;
+    if (dir && d !== dir) sz.push([p[i - 1]]);
+    if (d) dir = d;
+    sz[sz.length - 1].push(p[i]);
+  }
+  return sz;
+}
+function uniUtHossz(p) { var L = 0; for (var i = 1; i < p.length; i++) L += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return L; }
 /* ── ALVÁS (unikornis pózok 8. lépés, terv/fekves-rajzterv.html) — minden helyszínen ugyanez ─────
    A fekvő pózt (UNI_POZ.fekszik) a helyszín adja (pl. kert: .fekszik-all), az elalvást ez:
    1. álmos pislogás (.uni-almos, a szemhéj kétszer lecsukódik), 2. alszik (.uni-alszik = UNI_POZ.alszik:
