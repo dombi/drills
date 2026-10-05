@@ -134,6 +134,7 @@ function fejtoroInditas(pid) {
   var pa = null;
   FT.palyak.forEach(function (p) { if (p.id === pid) pa = p; });
   if (!pa) return;
+  ligetJegyez("fejtoro");                          /* a hegy vége után ide tér vissza (ui.js) */
   var ids = ftPalyaFeladatok(pa), all = ftAllapot();
   var st = all.palyak[pid] || (all.palyak[pid] = { poz: 0, kesz: 0 });
   if ((st.poz || 0) >= ids.length) st.poz = 0;

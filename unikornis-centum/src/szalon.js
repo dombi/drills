@@ -253,7 +253,7 @@ function utcaTavozasVege() {
   _utcaTavozas = null;
   var k = $("kepernyo-utca");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  renderFomenu(); mutat("kepernyo-fomenu");
+  terkepNyit();
 }
 function utcaFodraszKoppint() {
   hangGomb();

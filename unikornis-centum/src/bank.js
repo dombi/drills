@@ -42,7 +42,7 @@ function bankAllapot(v) {
 function bankZarva() { return !bankValtasok().some(function (v) { return !bankAllapot(v).zarva; }); }
 /* kijelölt-e a pálya: a lista pálya-id-ket ÉS egész ligeteket tartalmazhat („@szorzo”, „@egyeni” = minden egyéni pálya).
    Az egész liget a később hozzá kerülő pályákra is érvényes. */
-function bankLiget(pa) { return pa.egyeni ? "egyeni" : (pa.regio || "osszeado"); }
+function bankLiget(pa) { return palyaLiget(pa); }
 function bankKijelolt(lista, pid) {
   if (!lista || !lista.length) return false;
   if (lista.indexOf(pid) >= 0) return true;

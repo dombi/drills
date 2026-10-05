@@ -59,6 +59,7 @@ function palyaInditas(id) {
   var pa = palyaKeres(id);                          /* beépített vagy egyéni (4b) */
   if (!pa || pa.hamarosan) return;
   if (palyaZarva(pa) || palyaElfogyott(pa)) return;   /* zárt kapu (csak a kulcsok játszhatók) / elfogyott darabkorlát */
+  ligetJegyez(palyaLiget(pa));                     /* pálya után ebbe a ligetbe tér vissza (ui.js) */
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
   if (!P().napok) P().napok = {};
   if (!P().napok[maJelv]) { P().napok[maJelv] = 1; ment(); }

@@ -155,7 +155,9 @@ function esemenyek() {
   bekotUresNegyzet();
   hosszuNyomas($("profil-szuloi"), belepSzuloi);
   hosszuNyomas($("fomenu-szuloi"), belepSzuloi);
-  $("fomenu-vissza").addEventListener("click", function () { hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
+  $("fomenu-vissza").addEventListener("click", function () {   /* a liget belsejéből a választóra, onnan a profilokhoz */
+    if (FOMENU_LIGET) { hangGomb(); FOMENU_LIGET = null; renderFomenu(); fomenuFelulre(); return; }
+    hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();
     if (J && J.palya) esemeny("palya_kilep", { palyaId: J.palya.id, allomas: J.allomasIdx, feladat: J.futoOssz, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000) });
     sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });

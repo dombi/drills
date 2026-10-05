@@ -11,7 +11,7 @@ function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tün
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false } }; }
+function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "" }; }
 function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = alapProfil(); }); return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr }; }
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
 /* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
@@ -41,6 +41,7 @@ function profilNormal(p) {
   else { var ajsz = alapJelvSzam(), jk; for (jk in ajsz) if (typeof p.jelvSzam[jk] !== "number") p.jelvSzam[jk] = ajsz[jk]; }
   if (!p.napok) p.napok = {};
   if (!p.meresNapok) p.meresNapok = {};             /* mérés-jelvény: Hűséges inas */
+  if (typeof p.utolsoLiget !== "string") p.utolsoLiget = "";   /* ligetválasztó: hol járt utoljára (üres = az odú előtt) */
   if (typeof p.streakRekord !== "number") p.streakRekord = 0;
   if (typeof p.dropUres !== "number") p.dropUres = 0;
   p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */

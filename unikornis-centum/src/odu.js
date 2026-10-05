@@ -1136,7 +1136,7 @@ function oduTavozasVege() {
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   var k = $("kepernyo-odu");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  renderFomenu(); mutat("kepernyo-fomenu");
+  terkepNyit();
 }
 
 /* --- vezérlés --- */
