@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tamagocsi-kert tervlap</title>
+<style>
+  :root{
+    --bg:#f3faf6; --panel:#ffffff; --ink:#22303a; --muted:#5f6f78;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#2a9fd6; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#e2efe8; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3e0;
+    --soil:#c9a27a; --soil-d:#9c7651; --leaf:#5cb77a; --leaf-d:#3d8f5a; --bud:#f4a9c8; --petal:#e0417a; --petal3:#a874e8;
+    --water:#8fd3f0; --sketch-ink:#3d4a52; --sketch-bg:#f2fbef;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#161f1c; --panel:#20302a; --ink:#ecf5f0; --muted:#a9bdb4; --line:#2f4239;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2320;
+      --soil:#6e5640; --soil-d:#4f3d2c; --water:#3f7fa0; --sketch-ink:#e2efe8; --sketch-bg:#1d2e26;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161f1c; --panel:#20302a; --ink:#ecf5f0; --muted:#a9bdb4; --line:#2f4239;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2320;
+    --soil:#6e5640; --soil-d:#4f3d2c; --water:#3f7fa0; --sketch-ink:#e2efe8; --sketch-bg:#1d2e26;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#2a9fd6 0%,#3f9e6a 55%,#e0417a 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(63,158,106,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🌷";position:absolute;right:18px;top:6px;font-size:100px;opacity:.2;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--green)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--blue-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--green);font-weight:800}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:4px}
+  .no{border-left:5px solid var(--red);background:var(--red-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{font-size:13px;color:var(--muted)}
+  code{background:var(--green-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  .elet{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center}
+  @media (max-width:560px){ .elet{grid-template-columns:repeat(2,1fr)} }
+  .elet div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 6px;font-size:13px}
+  .elet b{display:block;font-size:15px}
+  .elet svg{width:70px;height:70px;display:block;margin:0 auto 4px}
+  .mondat{background:var(--blue-soft);border-radius:10px;padding:6px 12px;margin:4px 0;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🌷 Tény-kert: a Tamagocsi-kert</h1>
+  <div class="sub">A kert, ahol a tudás rejtve virágzik ki, és ahol a virágokat gondozni lehet. A gyerek nem lát táblát és számot. Csak annyit tapasztal, hogy amikor gyakorol, a kertje kivirágzik, és a virágok minden visszatéréskor örülnek neki.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-05</span>
+    <span class="chip">Nagyság: nagy (6 kör)</span>
+    <span class="chip">A Tény-motor tervének 9–11. pontja helyett</span>
+    <span class="chip">A motor (1–3. kör) érintetlen</span>
+  </div>
+</header>
+
+<h2>Röviden: mi változott, és miért</h2>
+<div class="panel">
+  <p>A <a href="teny-motor-rendszerterv.html">Tény-motor rendszertervében</a> a kert eredetileg egy 10 × 10-es virágos tábla volt. A producer szerint ez <b>nem gyerekközpontú</b>, mert a gyerek a saját tudását nézte volna egy táblázatban. Ezért 2026-10-05-én ezt döntötte:</p>
+  <ul>
+    <li><b>A gyerek nem látja, mit tud.</b> A tudástábla a pulté, és ott is marad. A gyerek oldaláról kiesik a 10 × 10-es tábla, a 3 szirompár és a „sorlocsolás = fókusz”.</li>
+    <li><b>Új virág csak tanulásból nő, rejtve:</b> ha egy tény fejből kezd menni, kibújik egy hajtás, másnapra bimbó lesz, aztán kinyílik. A gyerek ebből csak ennyit hall: <i>„🌸 Két új virág nyílt a kertedben!”</i> A kert nem hazudik: pénzért nem nő virág.</li>
+    <li><b>Tamagocsi-gondozás most:</b> a virágok <b>jókedvűen szomjasak</b>, és <b>örülnek, amikor a gyerek visszajön</b>. A locsolás 💧-ért egyszerű gondozás. Van „amíg nem voltál itt” meglepetés, és napokon át érő <b>ritka mag</b>. Hervadás, halál és bűntudat soha nincs.</li>
+    <li><b>C patakparti kert</b>, látványosabban (tavirózsa, hal, szitakötő). Az ágyás hátul van, de az unikornis <b>belesétál</b>, és a kép <b>ráközelít</b>.</li>
+    <li><b>A kert ingyenes.</b> A kertkapu-kulcs megszűnik. Aki megvette, egyszer visszakapja a 150 ✨-t.</li>
+  </ul>
+  <p class="lead">Ez a terv ezt bontja ki: mit lát a gyerek, mitől nő a virág, hogyan működik a gondozás, a meglepetés és a ritka mag, mit mentünk, és milyen sorrendben készül. A kódolás csak a jóváhagyás után kezdődik.</p>
+</div>
+
+<h2>Mit lát és mit csinál a gyerek</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>A kert távolról: patak, híd, két kerek ágyás</h3>
+    <ul>
+      <li>A kert a <b>C patakparti</b> változat lesz: elöl a fű, ahol a tárgyak, ételek és ágyak állnak (ugyanúgy, mint ma). Középen kanyarog a patak, rajta egy fahíd. A túlparton, hátul van a két kővel szegett, <b>kerek ágyás</b>: a rózsaszín (összeadás–kivonás) és a lila (szorzás–osztás). A színük csak finom jel, a gyereknek nem mondjuk ki, mit jelentenek.</li>
+      <li><b>Látványosság:</b> tavirózsák a patak öblében, egy hal, ami néha kiugrik, és egy szitakötő, ami körözik és leszáll. Ezek akkor is mozognak, ha a gyerek semmit nem csinál, mert a gyerekek kinevetik a mozdulatlan képet.</li>
+      <li>Távolról az ágyás <b>színfoltként</b> virágzik: minél több virág nyílt, annál színesebb. Az elején szinte csupasz föld, néhány hajtással. Ez rendben van, mert a kert együtt nő a gyerekkel.</li>
+    </ul>
+    <span class="ok">Döntve (producer, 2026-10-05)</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Belesétálás és ráközelítés</h3>
+    <div class="flow"><span class="step">koppintás az ágyásra</span><span class="arr">→</span><span class="step">az unikornis a hídhoz sétál</span><span class="arr">→</span><span class="step">átmegy a hídon</span><span class="arr">→</span><span class="step">a kép lassan ráközelít (kb. 1,2 mp)</span><span class="arr">→</span><span class="step">közeli nézet: virágok között</span></div>
+    <ul>
+      <li>A közeli nézetben az unikornis <b>a virágok között sétál</b>: koppintásra odamegy, ahová a gyerek mutat. Egy virágra koppintva odasétál, <b>megszagolja</b> (a kert meglévő szagolás-mozdulata), a virág pedig kuncogva meghajol, és felszáll belőle egy kis szikra.</li>
+      <li>A közeli nézetben van a <b>💧 Locsolás</b> gomb (lásd lent) és egy <b>⤺ Vissza a kertbe</b> gomb. Vissza is úgy megyünk, ahogy jöttünk: a kép eltávolodik, az unikornis visszasétál a hídon.</li>
+      <li>Telefonon (álló képen) a közeli nézet egy ágyást tölt ki. A két ágyás között egy nyíllal vagy a híd felé sétálva lehet váltani.</li>
+      <li>A pontos képet a <b>C2 rajzterv</b> adja (lásd a „Körök” részt).</li>
+    </ul>
+    <span class="ok">Döntve (producer, 2026-10-05)</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>Az ágyás belülről: egy tő = egy számcsalád, egy virág = egy tény</h3>
+    <ul>
+      <li>Az ágyásban <b>tövek</b> nőnek. Egy tő egy számcsalád (pl. 6, 7, 42), és <b>a tövön annyi virág nyílhat, ahány ténye van a családnak</b>: rendszerint 3 (6 × 7, 42 ÷ 6, 42 ÷ 7). A dupláknak (7 + 7, 14 − 7) csak 2. Egy ágyásban 55 tő van, ez összesen 155 virág ágyásonként.</li>
+      <li>Így a „virág nyílt” hír <b>gyakran</b> jön (tényenként, nem csak családonként), és a tő látványosan dúsul: egy virággal még szerény, hárommal már pompás.</li>
+      <li><b>A tövek helye: napraforgó-spirál a közepétől kifelé.</b> A könnyű családok (amiket a motor <code>tenyNehez</code> szerint előbb hoz) állnak középen, a nehezek kint. Így az ágyás <b>belülről kifelé telik meg</b>, ahogy a gyerek tanul. Ez természetesnek hat, nincs rács, és nincs üres, kitöltésre váró hely, ami „hiányt” mutatna. Egy tő helye mindig ugyanaz, így a pulton meg lehet mutatni, melyik tő melyik család.</li>
+      <li>A gyerek <b>nem lát számot</b>, és a virágra koppintva sem hangzik el a tény. A virág egyszerűen az övé.</li>
+    </ul>
+    <span class="prop">Javaslat — 1. kérdés</span>
+  </div>
+</div>
+
+<h2>Mitől nő a virág (rejtve, de igazul)</h2>
+<div class="panel">
+  <div class="elet">
+    <div>
+      <svg viewBox="0 0 70 70"><ellipse cx="35" cy="60" rx="24" ry="6" fill="var(--soil)"/><path d="M35 58 V44" stroke="var(--leaf-d)" stroke-width="3" stroke-linecap="round"/><path d="M35 48 q-9 -2 -11 -9 q8 0 11 7" fill="var(--leaf)"/><path d="M35 46 q8 -3 10 -10 q-8 1 -10 8" fill="var(--leaf)"/></svg>
+      <b>🌱 Hajtás</b>ugyanazon a napon, amikor a tény fejből kezd menni
+    </div>
+    <div>
+      <svg viewBox="0 0 70 70"><ellipse cx="35" cy="60" rx="24" ry="6" fill="var(--soil)"/><path d="M35 58 V30" stroke="var(--leaf-d)" stroke-width="3" stroke-linecap="round"/><path d="M35 48 q-11 -2 -13 -10 q9 0 13 7" fill="var(--leaf)"/><path d="M35 44 q10 -3 12 -11 q-9 1 -12 8" fill="var(--leaf)"/><ellipse cx="35" cy="26" rx="6" ry="9" fill="var(--bud)"/><path d="M29 30 q6 6 12 0" fill="var(--leaf)"/></svg>
+      <b>🌷 Bimbó</b>másnapra, magától („amíg nem voltál itt”)
+    </div>
+    <div>
+      <svg viewBox="0 0 70 70"><ellipse cx="35" cy="60" rx="24" ry="6" fill="var(--soil)"/><path d="M35 58 V30" stroke="var(--leaf-d)" stroke-width="3" stroke-linecap="round"/><path d="M35 48 q-11 -2 -13 -10 q9 0 13 7" fill="var(--leaf)"/><g fill="var(--petal)"><circle cx="35" cy="17" r="7"/><circle cx="44" cy="24" r="7"/><circle cx="41" cy="34" r="7"/><circle cx="29" cy="34" r="7"/><circle cx="26" cy="24" r="7"/></g><circle cx="35" cy="26" r="5" fill="var(--gold)"/></svg>
+      <b>🌸 Virág</b>a következő gyakorlós napon nyílik ki
+    </div>
+    <div>
+      <svg viewBox="0 0 70 70"><ellipse cx="35" cy="60" rx="24" ry="6" fill="var(--soil)"/><path d="M35 58 V34 M35 50 L24 30 M35 50 L46 30" stroke="var(--leaf-d)" stroke-width="3" stroke-linecap="round" fill="none"/><g fill="var(--petal3)"><circle cx="35" cy="24" r="6"/><circle cx="35" cy="34" r="0"/></g><g fill="var(--petal)"><circle cx="24" cy="24" r="6"/><circle cx="46" cy="24" r="6"/></g><g fill="var(--gold)"><circle cx="24" cy="24" r="2.5"/><circle cx="46" cy="24" r="2.5"/><circle cx="35" cy="24" r="2.5"/></g></svg>
+      <b>💐 Teljes tő</b>a család mind a 3 ténye kinyílt
+    </div>
+  </div>
+
+  <h3>A szabály</h3>
+  <ul>
+    <li><b>Hajtás:</b> egy tény akkor hajt ki, amikor <b>először jön villám-válasz</b> (a rejtett óra szerint a határon belül, alapból 3 mp), <b>és a tény már legalább kétszer ment jól</b>. A motor nyelvén: a válasz után a doboz legalább 3, és a betű V. Így nem nő virág egy szerencsés tippből, de nem is kell rá egy hetet várni.</li>
+    <li><b>Bimbó:</b> a hajtás <b>a következő naptári napon</b> magától bimbó lesz, akkor is, ha a gyerek nem játszik. Ez az „amíg nem voltál itt” egyik meglepetése: belép, és a kertben változott valami.</li>
+    <li><b>Virág:</b> a bimbó <b>a következő gyakorlós napon</b> nyílik ki, vagyis amikor a gyerek egy újabb napon végigjátszik egy pályát. A hír ennek a pályának a végén szól: <i>„🌸 Két új virág nyílt a kertedben!”</i> Ez a csúcs–vég szabály: az ösvény jó hírrel zárul.</li>
+    <li><b>Ami kinyílt, nyitva marad.</b> Ha a tény később botlik, a virág nem csukódik be, nem hervad, nem tűnik el. A botlást csak a motor jegyzi (és visszahozza a tényt gyakorolni), a gyerek a kertben nem lát belőle semmit. A virág azt őrzi, hogy egyszer már fejből ment, és a motor gondoskodik róla, hogy újra menjen.</li>
+    <li><b>Pénzért nem nő virág.</b> A 💧 csak a gondozásra megy, a növekedést semmi nem gyorsítja a tanuláson kívül.</li>
+  </ul>
+
+  <h3>Az első belépés: a meglévő tudás nem vész el</h3>
+  <p>A motor 2026-10-05 óta gyűjti az adatot, ezért a kert indulásakor sok gyereknek már lesznek „fejből menő” tényei. Ezek <b>az első belépéskor egyszerre bimbóként</b> jelennek meg (<i>„Nézd, mennyi bimbó! Holnapra kinyílnak.”</i>), és a következő gyakorlós napon mind kinyílnak. Ez a második napra nagy élményt ad, és nem árulja el a gyereknek, hogy „ennyit tudsz”.</p>
+
+  <h3>A 100-as kör típusai</h3>
+  <p>A 100-as kör (kerek tízesek, átlépéses összeadás…) típusai most <b>nem kapnak virágot</b>. Később, javaslatként, a túlparton álló <b>gyümölcsfák</b> lehetnek: egy típus = egy fa, a gyümölcs érik. Ez külön csomag, nem része ennek a körnek.</p>
+  <span class="prop">Javaslat — 2. és 3. kérdés</span>
+</div>
+
+<h2>Gondozás: jókedvűen szomjas virágok</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">4</span>
+    <h3>A szomjúság: három fokozat, mindegyik vidám</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Mikor</th><th>Állapot</th><th>Hogy néz ki</th></tr>
+      <tr><td>locsolás napján</td><td>💧 <b>jóllakott</b></td><td>a virágok ringatóznak, lepkék jönnek, a levelek fényesek</td></tr>
+      <tr><td>1 nappal utána</td><td>🙂 <b>kicsit szomjas</b></td><td>néhány virág levélkét tart fel, mint egy poharat, és csücsörít</td></tr>
+      <tr><td>2 vagy több nappal utána</td><td>😄 <b>nagyon szomjas, de vidám</b></td><td>minden virág a patak felé nyújtózik, levél-poharakat tart, kacsint; <b>ennél rosszabb soha nem lesz</b></td></tr>
+    </table></div>
+    <ul>
+      <li>Ez <b>egy ágyásnyi (vagy egy kertnyi) állapot</b>, nem virágonként, mert a gyereknek nem kell 300 virágot külön ápolnia.</li>
+      <li>A szomjúság <b>semmire nincs hatással</b>: nem lassítja a növekedést, nem vesz el semmit. Csak kedves kérés. Ha a gyerek egy hétig nincs itt, a virágok ugyanolyan vidáman szomjasak, mint két nap után.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>Locsolás 💧-ért</h3>
+    <ul>
+      <li>A közeli nézetben a <b>💧 Locsolás</b> gombra az unikornis szarva <b>kis esőfelhőt</b> varázsol az ágyás fölé. A 💧 a fejléc számlálójából a felhőbe száll, esik, a virágok kortyolnak, aztán táncolnak, és odaszáll néhány lepke.</li>
+      <li><b>Ára: 1 💧, az egész kertnek, naponta egyszer.</b> A 💧 csak végigjátszott pályáért jár (1–2 db), így a gondozás magától a gyakorláshoz kötődik, és nem kell rá külön szabály.</li>
+      <li>Ha a gyerek aznap már locsolt, a gomb helyén ez áll: <i>„Ma már jóllaktak. Holnap újra örülnek a harmatnak!”</i></li>
+      <li>Ha nincs 💧-je: <i>„Egy ösvény után lesz harmatod, és akkor locsolhatunk!”</i> Semmi nem romlik el.</li>
+    </ul>
+    <span class="prop">Javaslat — 4. kérdés</span>
+  </div>
+
+  <div class="dec"><span class="num">6</span>
+    <h3>A virágok örülnek, amikor a gyerek visszajön</h3>
+    <ul>
+      <li><b>Belépéskor</b>, ha legalább egy nap telt el a legutóbbi kertbeli látogatás óta, a virágok <b>az unikornis felé fordulnak, integetnek a leveleikkel, nyújtózkodnak</b>, a hal kiugrik, a szitakötő odarepül. Ugyanazon a napon visszajövet csak egy kis biccentés van, hogy ne legyen unalmas.</li>
+      <li>Az üdvözlés <b>mindig ugyanolyan boldog</b>, akármennyi idő telt el. Nincs „hiányoztál, már azt hittük…”.</li>
+    </ul>
+    <span class="ok">Döntve (producer, 2026-10-05)</span>
+  </div>
+</div>
+
+<h2>„Amíg nem voltál itt”: a napi meglepetés</h2>
+<div class="panel">
+  <ul>
+    <li><b>Mikor:</b> a nap <b>első végigjátszott pályája</b> után a kertben vár valami új (a producer szabálya: visszatérés = egy végigjátszott pálya, nem puszta belépés). Naponta legfeljebb egy, és <b>legfeljebb egy gyűlik össze</b>: aki egy hétig nem jött, az is egyet talál, nem hetet, és nem marad le semmiről.</li>
+    <li><b>Mi lehet</b> (egy adat-táblából, sorban vagy keverve, könnyen bővíthető):
+      <ul>
+        <li>🐞 <b>látogató</b>: katica a tavirózsán, sün a híd alatt, csiga a kövön, madárka a korláton. Koppintásra köszön, és a nap végéig ott marad.</li>
+        <li>🐚 <b>part menti apróság</b>: szép kavics, kagyló, toll sodródott a partra. Koppintásra felveszi az unikornis („Ezt elteszem!”), és a <b>Kincsvitrin</b> egy új polcára kerül. Ez kicsi, gyűjthető, és ingyen van.</li>
+        <li>🌰 <b>ritka mag</b> (lásd lent), amikor éppen sorra kerül.</li>
+        <li>🌷 a <b>bimbók</b> megjelenése is ilyen meglepetés (ez a tanulásból jön, nem a táblából).</li>
+      </ul>
+    </li>
+    <li>Az odúban a <b>kertkapun egy pillangó ül</b>, ha a kertben új dolog vár. Nincs számláló, piros pötty vagy villogás, csak egy kedves jel.</li>
+  </ul>
+  <span class="prop">Javaslat — 6. kérdés</span>
+</div>
+
+<h2>A ritka mag: napokon át érő titok</h2>
+<div class="panel">
+  <ul>
+    <li><b>Az első mag ajándék</b> a kert megnyitásakor. Utána <b>mindig akkor jön a következő</b>, amikor az előző kinyílt: a következő gyakorlós nap meglepetése egy új mag. Így mindig van egy, ami érik, de soha nincs három, ami „sürget”.</li>
+    <li>A magot az unikornis a patak partján, egy <b>külön kis dombon</b> ülteti el (a csodaágyásban, ami nem a két tény-ágyás része).</li>
+    <li><b>Érés gyakorlós napokon</b> (amikor a gyerek végigjátszik egy pályát), <b>nem egymást követő napokon</b>:
+      <div class="flow"><span class="step">🌰 mag</span><span class="arr">→</span><span class="step">1. gyakorlós nap: csíra</span><span class="arr">→</span><span class="step">2.: levelek</span><span class="arr">→</span><span class="step">3.: bimbó (a színe már sejtet valamit)</span><span class="arr">→</span><span class="step">4.: kinyílik</span></div>
+      Aki kihagy egy hetet, annál a mag ott vár, ahol volt, és nem romlik.</li>
+    <li><b>A fajta titok</b>, amíg ki nem nyílik. A bimbó színe ad egy kis támpontot, és ettől izgalmas (Loewenstein: információs rés). Első készlet (adat-táblában, könnyen bővíthető): 🌙 <b>holdvirág</b> (sötétben halványan világít), 🌈 <b>szivárványliliom</b>, 🔔 <b>csengővirág</b> (koppintásra csilingel), ⭐ <b>csillagrózsa</b>, 🔥 <b>tűzpipacs</b> (Tűz kedvence), 💧 <b>harmatharang</b>, ☁️ <b>felhőpitypang</b> (pihéket fúj), 🍯 <b>mézvirág</b> (méhecske jár hozzá).</li>
+    <li>A kinyílt ritka virág <b>a dombon marad</b>, és bekerül a gyűjteménybe (új „Ritka virágok” polc a Kincsvitrinben vagy a gyűjtemény-kártyák között). Ha mind megvan, a sor új színváltozatokkal folytatódik.</li>
+    <li>A ritka mag fajtáját nem sorsoljuk ✨-ért. Ez nem szerencsedoboz: a sorrend előre adott, és ingyen jár, a kitartásért.</li>
+  </ul>
+  <p class="lead">Ez a visszahívás-tervben szereplő „napokon át érő tojás” kicsiben. A ritka mag ugyanazt a <b>gyakorlós-nap számlálót</b> használja, mint később a varázstojás és a kissárkány, így ott már kész alapra építünk.</p>
+  <span class="prop">Javaslat — 5. kérdés</span>
+</div>
+
+<h2>Mit hall a gyerek (és mit soha)</h2>
+<div class="panel">
+  <h3>Mondatok</h3>
+  <div class="mondat">„🌱 Új hajtás bújt ki a kertedben!” — ösvény végén, ha aznap hajtott ki valami</div>
+  <div class="mondat">„🌸 Két új virág nyílt a kertedben!” — ösvény végén, a gyakorlós napon</div>
+  <div class="mondat">„Nézd, mennyi bimbó! Holnapra kinyílnak.” — az első belépéskor</div>
+  <div class="mondat">„A virágok szomjasak, de nagyon vidámak. Meglocsoljuk őket?” — belépéskor, ha szomjasak</div>
+  <div class="mondat">„Valaki járt itt, amíg nem voltál! Nézd csak!” — napi meglepetés</div>
+  <div class="mondat">„A ritka mag kicsírázott! Vajon mi lesz belőle?” — ritka mag</div>
+  <div class="mondat">„A kertkapu mostantól mindenkinek nyitva áll. Visszaadtuk a 150 csillámport!” — egyszer, aki megvette a kulcsot</div>
+
+  <h3>Tiltólista: ezek nem lesznek a kertben</h3>
+  <div class="no">Hervadás, kiszáradás, elpusztulás · szomorú vagy beteg virág · bűntudat-mondat („szomorúak voltunk, mert nem jöttél”) · „csak ma!”, siettetés · ritka mag ✨-ért vagy véletlen dobozból · számláló, ami lenullázódik · büntetés a kimaradásért · összehasonlítás más gyerekek kertjével · szám vagy tény a virágon.</div>
+</div>
+
+<h2>Hogy néz ki (vázlat, nem rajzterv)</h2>
+<div class="vazlatok">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Távoli kert: patak, híd, két kerek ágyás">
+      <rect x="0" y="0" width="400" height="96" fill="var(--blue-soft)"/>
+      <rect x="0" y="96" width="400" height="164" fill="var(--green-soft)"/>
+      <path d="M0 150 C80 128 140 168 210 146 S330 120 400 140 L400 168 C330 150 280 182 210 172 S80 160 0 178 Z" fill="var(--water)"/>
+      <ellipse cx="300" cy="160" rx="10" ry="4" fill="var(--leaf)"/><circle cx="300" cy="158" r="3" fill="var(--bud)"/>
+      <ellipse cx="90" cy="168" rx="9" ry="3.5" fill="var(--leaf)"/>
+      <path d="M180 166 Q200 146 220 166" stroke="var(--soil-d)" stroke-width="7" fill="none"/>
+      <ellipse cx="110" cy="116" rx="62" ry="20" fill="var(--soil)" stroke="var(--soil-d)" stroke-width="3" stroke-dasharray="6 4"/>
+      <ellipse cx="290" cy="112" rx="62" ry="20" fill="var(--soil)" stroke="var(--soil-d)" stroke-width="3" stroke-dasharray="6 4"/>
+      <g fill="var(--petal)"><circle cx="104" cy="112" r="5"/><circle cx="116" cy="118" r="5"/><circle cx="96" cy="120" r="4"/></g>
+      <g fill="var(--leaf)"><circle cx="128" cy="110" r="3"/><circle cx="84" cy="112" r="3"/></g>
+      <g fill="var(--petal3)"><circle cx="290" cy="110" r="5"/></g><g fill="var(--bud)"><circle cx="300" cy="116" r="4"/><circle cx="280" cy="116" r="4"/></g>
+      <path d="M346 70 l10 -4 l-4 10 z M356 66 l8 6" stroke="var(--violet)" stroke-width="2" fill="none"/>
+      <text x="200" y="226" text-anchor="middle" font-size="12">elöl a fű: tárgyak, ételek, ágy, séta, mint eddig</text>
+      <text x="200" y="250" text-anchor="middle" font-size="11" opacity=".7">(a pontos képet a C2 rajzterv adja)</text>
+    </svg>
+    <figcaption>Távolról: a két ágyás a túlparton, középről kifelé telik.</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Közeli nézet: tövek spirálban, unikornis, esőfelhő">
+      <ellipse cx="200" cy="150" rx="180" ry="92" fill="var(--soil)" stroke="var(--soil-d)" stroke-width="4" stroke-dasharray="10 6"/>
+      <g id="spiral"></g>
+      <g><ellipse cx="300" cy="44" rx="34" ry="14" fill="#fff" opacity=".9"/><circle cx="284" cy="38" r="12" fill="#fff" opacity=".9"/><circle cx="310" cy="34" r="14" fill="#fff" opacity=".9"/>
+      <g stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M282 64 l-3 8"/><path d="M298 66 l-3 8"/><path d="M314 64 l-3 8"/></g></g>
+      <text x="200" y="20" text-anchor="middle" font-size="13" font-weight="700">közeli nézet: a rózsaszín ágyás</text>
+      <text x="200" y="252" text-anchor="middle" font-size="11">💧 Locsolás · ⤺ Vissza a kertbe</text>
+    </svg>
+    <figcaption>Közelről: tövek napraforgó-spirálban, középen a könnyűek. Szám sehol.</figcaption>
+  </figure>
+</div>
+
+<h2>Mentés és adat</h2>
+<div class="panel">
+  <h3>Új mentés-ágak (gyerekenként, unikornisonként, mint a <code>P().tenyek</code>)</h3>
+  <ul>
+    <li><code>P().tenyKert</code>:
+      <ul>
+        <li><code>v</code>: virágok, tényenként egy szám vagy rövid sor, kulcs = a motor tény-kulcsa (<code>s6_7</code>, <code>d42_6</code>…): <code>{ a: 1 hajtás · 2 bimbó · 3 virág, n: a hajtás napja, g: a bimbó gyakorlós-nap sorszáma }</code>. Csak a már kihajtott tények kerülnek bele (legfeljebb 310 kis sor, kb. 8 KB).</li>
+        <li><code>loc</code>: a legutóbbi locsolás napja (a szomjúság ebből számolódik, nem kell külön menteni).</li>
+        <li><code>bent</code>: a legutóbbi kertbeli látogatás napja (az üdvözléshez).</li>
+        <li><code>mag</code>: a most érő ritka mag <code>{ f: fajta, g: hány gyakorlós napot ért, t: az ültetés gyakorlós-nap sorszáma }</code>; <code>ritka</code>: a kinyílt ritka virágok <code>{ holdvirag: 1, … }</code>; <code>rk</code>: a sorban következő fajta sorszáma.</li>
+        <li><code>meg</code>: a napi meglepetés <code>{ nap, tip, id, kesz }</code>; <code>kincs</code>: a felvett part menti apróságok.</li>
+        <li><code>indult</code>: az első belépés megtörtént (a meglévő tudás bimbóként egyszer, itt jelenik meg).</li>
+      </ul>
+    </li>
+    <li><code>P().gyak</code> <b>(közös, nem csak a kerté)</b>: <code>{ db: a gyakorlós napok száma, nap: az utolsó gyakorlós nap }</code>. Gyakorlós nap = olyan helyi naptári nap (a motor <code>tenyNap</code>-ja), amelyen legalább egy pályát végigjátszott. A <code>palyaVege</code> lépteti, naponta egyszer. (A meglévő <code>P().napok</code> a pálya <i>indításakor</i> és világidő szerint jegyez, ezért külön mező kell; a Visszatérő jelvényt nem bántjuk.)</li>
+    <li>Kertkapu: <code>P().kert.nyitva</code> mindenkinek igaz lesz. Aki már megvette, egyszer +150 ✨-t kap, és a <code>P().kert.kulcsVissza = 1</code> jel nem engedi, hogy kétszer kapja meg. A „Kertkapu kulcsa” tétel kikerül a boltból, a lakat a kapuról.</li>
+  </ul>
+
+  <h3>Bekötés a motorba (a motor szabálya nem változik)</h3>
+  <ul>
+    <li>A <code>tenyJegyez</code> most is visszaadja a betűt és az új dobozt. Ha <code>betu === "V" &amp;&amp; d &gt;= 3</code>, és a ténynek még nincs virága, a kert felvesz egy hajtást (<code>tenyKertHajt(kulcs)</code>). Ez egyetlen új sor a motor után, a motor számolása érintetlen.</li>
+    <li>A <code>tenyKertAllapot()</code> bővül: a mostani (pultnak szóló) számok mellé visszaadja a gyerek kertjét is: <code>{ hajtas, bimbo, virag, szomj: 0–2, mag: {f, g}, meglepetes: van/nincs }</code>. Erre épül majd a visszahívás („amíg nem voltál itt” levél, unikornis-gondozás).</li>
+  </ul>
+
+  <h3>Pult</h3>
+  <ul>
+    <li>A 🌸 Tények fülön a tábla mellett egy kis <b>„a gyerek kertje”</b> nézet: a két ágyás spirálja, és mellette, hogy melyik tő melyik család, illetve mikor locsolt utoljára. Így a pedagógus is látja, mit lát a gyerek.</li>
+    <li><b>Új beállítás nem kell.</b> A locsolás ára, a ritka mag érési ideje és a meglepetés-tábla a kódban, adat-táblában áll. Ha később pultról kell állítani, az a meglévő 🌸 Tény-motor kártyára kerül, gyerekre és csoportra.</li>
+  </ul>
+</div>
+
+<h2>Milyen közös alapra épül, mit ad hozzá a közöshöz?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Új közös modul: <code>src/gondozas.js</code></b>. Ez nem a kerté, hanem a visszahívásé. Mostantól minden gondozás és visszatérés ezen megy át:
+      <ul>
+        <li><code>gyakNap()</code> / <code>gyakLep()</code>: a gyakorlós-nap számláló. Most a virágnyílás és a ritka mag használja, később a varázstojás, a kissárkány-térkép és a heti kártya.</li>
+        <li><code>igeny(utolso, fokok)</code>: a „szomjúság”-féle igény, puha alsó határral (0 → 1 → 2, és ennél sosem rosszabb). Most a virágoké, később az unikornis éhsége, álmossága és játékkedve.</li>
+        <li><code>meglepetesSor(tabla)</code>: a napi meglepetés, legfeljebb egy gyűlik, a nap első végigjátszott pályája nyitja. Később a FIGURA-szereplők levelei és a vendégek is ide kerülnek.</li>
+        <li><code>erik(obj, lepcsok)</code>: gyakorlós napokon érő dolog (mag → csíra → levelek → bimbó → virág). Később a tojás → fióka → kölyök → nagy.</li>
+      </ul>
+      Így nem lesz egy kerti, egy unikornisos és egy sárkányos „mikor jött vissza” logika, csak egy.</li>
+    <li><b><code>src/teny-kert.js</code></b>: a két ágyás rajza (spirál, tövek, virág-fázisok), a közeli nézet és a locsolás. A kert (<code>kert.js</code>) csak elhelyezi, a sétát a meglévő <code>kertSetalIde</code> és a <code>uniUtvonal</code> adja, a szagolást a meglévő <code>kertSzagol</code>.</li>
+    <li>A ráközelítés egy általános <b>„kamera”</b> a kert-színtéren (nagyítás + eltolás, egy függvényben). Ezt a Tüneménykert és később a kissárkány-térkép is használhatja.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="panel">
+  <p class="lead">Ezek a körök a Tény-motor terv 5–7. köre helyett jönnek. Mindegyik külön kipróbálható és feltölthető.</p>
+  <ol>
+    <li><b>C2 rajzterv</b> (összehasonlító lap): a patakparti kert látványosabban (tavirózsa, hal, szitakötő), a belesétálás és a ráközelítés lejátszható próbaként, a két ágyás a spirállal és a virág-fázisokkal, a szomjas, jóllakott és üdvözlő virág, a csodaágyás-domb a ritka maggal, a 8 ritka virág, fekvő és álló kép. A 4. körös rajzterv virág-részei ezzel elavulnak.</li>
+    <li><b>Ingyenes kert + az újrarajzolt C2 kert:</b> a kulcs kikerül, egyszeri visszatérítés, új háttér. A tárgyak tiltott sávja kb. 66 %-ra nő, a régi tárgyakat a játék egyszer, magától előrébb tolja. A tárgyak, a séta, a trükkök, az evés és a fekvés a helyén marad.</li>
+    <li><b>Közös alap láthatatlanul:</b> <code>src/gondozas.js</code> (gyakorlós nap, igény, meglepetés-sor, érés) + a hajtás-könyvelés a motor után. A gyerek még semmit nem lát, de a virágok már gyűlnek.</li>
+    <li><b>Tény-kert:</b> ágyások, spirál, virág-fázisok, belesétálás, ráközelítés, közeli nézet, szagolás, első belépés bimbókkal, „virág nyílt” hír az ösvény végén. Pult: „a gyerek kertje” nézet.</li>
+    <li><b>Gondozás:</b> szomjúság, locsolás 💧-ért (esőfelhő), üdvözlés, napi meglepetés (látogatók, part menti apróságok, Kincsvitrin-polc), pillangó a kertkapun.</li>
+    <li><b>Ritka mag</b> (domb, érés, 8 fajta, gyűjtemény), majd <b>élő próba a gyerekekkel</b>: a hajtás-szabály, a szomjúság üteme és a meglepetések finomhangolása.</li>
+  </ol>
+</div>
+
+<h2>Döntésre vár (a javaslatom mindenhol elöl)</h2>
+<div class="cards">
+  <div class="q"><b>1. Egy tő = egy család, rajta tényenként egy virág (2–3 virág tövenként), napraforgó-spirálban, középen a könnyűek?</b>Másik lehetőség: egy virág = egy család (ritkább hír, egyszerűbb kép).</div>
+  <div class="q"><b>2. Mikor hajt ki: az első villám-válasznál, ha a tény már legalább kétszer ment jól?</b>Szigorúbb: csak ha a tény elérte a „villám” lépcsőt (több nap kell hozzá, kevesebb hír). Engedékenyebb: már az első villám-válasznál.</div>
+  <div class="q"><b>3. Hajtás → másnapra bimbó (magától) → a következő gyakorlós napon nyílik, és a hír az ösvény végén szól?</b>Másik lehetőség: a bimbó is csak gyakorlós napon jön (lassabb, de akkor a kimaradt nap után nem vár semmi új).</div>
+  <div class="q"><b>4. Locsolás: 1 💧 az egész kertnek, naponta egyszer?</b>Másik lehetőség: ágyásonként 1 💧 (két locsolás naponta, több 💧 megy el).</div>
+  <div class="q"><b>5. Ritka mag: egyszerre egy, 4 gyakorlós nap alatt nyílik, és a következő akkor jön, amikor az előző kinyílt; 8 fajta kezdetnek?</b>Ez kb. 5 gyakorlós naponként egy ritka virág.</div>
+  <div class="q"><b>6. Napi meglepetés: látogatók + part menti apróságok a Kincsvitrin új polcára, és egy pillangó a kertkapun jelzi az odúban?</b>Másik lehetőség: csak látogatók, gyűjtés nélkül.</div>
+</div>
+
+<h2>Előzmény: a producer döntései (2026-10-05)</h2>
+<div class="panel">
+  <ul>
+    <li>A rajztervből a <b>C patakparti kert</b> legyen, de látványosabban (tavirózsa, hal, szitakötő). Az ágyás maradhat hátul, de az unikornis <b>belesétál</b>, és a kép <b>ráközelít</b>.</li>
+    <li>A <b>kertbe ingyen</b> lehet bemenni. Aki megvette a kulcsot, egyszer visszakapja a 150 ✨-t, kedves üzenettel. A kert a kertben marad, <b>nem a térképen</b>.</li>
+    <li>A tudástábla nem gyerekközpontú: <b>a gyerek nem látja, mit tud</b>. A tábla a pulté.</li>
+    <li><b>Új virág csak tanulásból nő, rejtve</b>, és a kert nem hazudik.</li>
+    <li><b>Tamagocsi-hatás most:</b> jókedvűen szomjas virágok, öröm a visszatéréskor, locsolás 💧-ért, „amíg nem voltál itt”, ritka mag. Soha hervadás, halál, bűntudat.</li>
+    <li>A motor (1–3. kör) érintetlen.</li>
+  </ul>
+</div>
+
+</div>
+<script>
+/* vázlat: tövek napraforgó-spirálban (csak illusztráció) — középen nyílnak, kint még csupasz */
+(function () {
+  var g = document.getElementById("spiral"); if (!g) return;
+  var h = "", arany = 2.39996, cx = 200, cy = 150;
+  for (var i = 0; i < 55; i++) {
+    var r = 11 * Math.sqrt(i + 0.5), t = i * arany, x = cx + r * Math.cos(t) * 2.0, y = cy + r * Math.sin(t) * 1.0;
+    if (i < 14) h += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6" fill="var(--petal)"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2" fill="var(--gold)"/>';
+    else if (i < 22) h += '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="3.5" ry="5" fill="var(--bud)"/>';
+    else if (i < 28) h += '<path d="M' + x.toFixed(1) + ' ' + (y + 4).toFixed(1) + ' v-7" stroke="var(--leaf-d)" stroke-width="2"/><circle cx="' + (x - 2).toFixed(1) + '" cy="' + (y - 3).toFixed(1) + '" r="2.4" fill="var(--leaf)"/>';
+  }
+  g.innerHTML = h;
+})();
+</script>
+</body>
+</html>
