@@ -112,6 +112,7 @@
     <radialGradient id="lt-gHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe3a0" stop-opacity=".55"/><stop offset="1" stop-color="#ffe3a0" stop-opacity="0"/></radialGradient>
     <radialGradient id="lt-gNap" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff7cc"/><stop offset=".55" stop-color="#ffeaa0" stop-opacity=".7"/><stop offset="1" stop-color="#ffeaa0" stop-opacity="0"/></radialGradient>
     <radialGradient id="lt-gPapir" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#f7ead0"/><stop offset="1" stop-color="#ddc293"/></radialGradient>
+    <linearGradient id="lt-gUtca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset=".6" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>
     <linearGradient id="lt-gEgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8e3f7"/><stop offset="1" stop-color="#eef6ee"/></linearGradient>
     <linearGradient id="lt-gRetA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4f0c8"/><stop offset="1" stop-color="#b3dea4"/></linearGradient>
     <linearGradient id="lt-gEgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f2c74"/><stop offset=".6" stop-color="#8a5aa6"/><stop offset="1" stop-color="#f4ad8c"/></linearGradient>
@@ -181,10 +182,10 @@
 <header class="top">
   <h1>🗺️ Ligettérkép: rajzterv</h1>
   <div class="sub">A jóváhagyott ligetválasztó tervlap következő lépése: maga a térkép, három változatban, laptopra és telefonra. Itt már ki is lehet próbálni. Koppints egy ligetre, és az unikornis odasétál.</div>
-  <span class="chip">Rajzterv · jóváhagyásra</span>
+  <span class="chip">Rajzterv · JÓVÁHAGYVA (A változat)</span>
   <span class="chip">2026-10-05</span>
   <span class="chip">Alap: ligetválasztó tervlap (017e2a9)</span>
-  <span class="chip">Utána: 1. kör (kód)</span>
+  <span class="chip">+ utca-kapu (2026-10-05)</span><span class="chip">Utána: 1. kör (kód)</span>
 </header>
 
 <h2>Próbáld ki</h2>
@@ -249,7 +250,7 @@
 </div>
 <div class="q"><b>Továbbgondolás: A és B együtt, a napszak szerint</b>A játékban már van napszak (időjárás). A térkép követhetné: napközben az A, este 6 után a B. Ugyanaz a térkép és ugyanazok a helyek, csak a táj színei cserélődnek. Ez kb. fél kör plusz munka. Javaslom, hogy most csak az A készüljön el, és ezt később tegyük rá.</div>
 
-<h2>A tíz jelkép közelről</h2>
+<h2>A tizenegy jelkép közelről</h2>
 <p class="lead">Minden liget egy kis festett épületet vagy fát kap, nem emojit. Így a térkép egy valódi táj lesz. A nevek mindig ott vannak alattuk, mert a kisebbek még nem olvasnak jól, de a képet megjegyzik.</p>
 <div class="galeria" id="galeria"></div>
 
@@ -279,10 +280,11 @@
 <h2>Döntések</h2>
 <div class="panel">
   <ol>
-    <li><b>Melyik változat?</b> A (Tavaszi völgy), B (Alkonyi völgy) vagy C (Mesekönyv-térkép). <span class="prop">javaslat: A</span></li>
-    <li><b>Napszak szerint váltson-e később</b> (nappal A, este B)? <span class="prop">javaslat: igen, de később, külön kis körben</span></li>
-    <li><b>A jelképek jók így?</b> Ha valamelyik nem tetszik (pl. a Szorzós liget holdas fája), azt külön újrarajzolom.</li>
-    <li><b>Az unikornis mérete a térképen</b> jó így, vagy legyen nagyobb?</li>
+    <li><b>Változat:</b> <span class="ok">A · Tavaszi völgy</span> A B és a C változat csak itt, a rajztervben marad meg.</li>
+    <li><b>Napszak szerinti váltás</b> (nappal A, este B): <span class="prop">esetleg később, külön kis körben</span></li>
+    <li><b>Jelképek:</b> <span class="ok">jók így</span></li>
+    <li><b>Az unikornis mérete a térképen:</b> <span class="ok">jó így</span></li>
+    <li><b>Utca-kapu:</b> <span class="ok">igen</span> Lent, az Odú mellett egy rózsaszín kőkapu, amelynek nyílásában az esti utca látszik. Koppintásra az unikornis odasétál, és kimegy az utcára, ugyanúgy, mint egy ligetbe. A térkép-táblában ez egy új hely, de nem liget: nincs rajta ⭐, és nincs liget-belseje.</li>
   </ol>
 </div>
 
@@ -293,10 +295,11 @@
 "use strict";
 /* ───────── 1. ADAT-TÁBLÁK (ez lesz a src/terkep.js magja) ───────── */
 var HELYEK = {
-  odu:      { nev:"Odú",            szeles:[ 80,400], allo:[ 85,705] },
+  odu:      { nev:"Odú",            szeles:[ 95,405], allo:[ 85,705] },
+  utca:     { nev:"Utca",           szeles:[ 52,322], allo:[195,700] },
   egyeni:   { nev:"Neked készült",  szeles:[205,425], allo:[295,720] },
   osszeado: { nev:"Összeadó liget", szeles:[300,350], allo:[125,592] },
-  szorzo:   { nev:"Szorzós liget",  szeles:[150,258], allo:[300,568] },
+  szorzo:   { nev:"Szorzós liget",  szeles:[175,250], allo:[300,568] },
   szabo:    { nev:"Szabóműhely",    szeles:[330,212], allo:[ 75,447] },
   bajital:  { nev:"Bájitalkonyha",  szeles:[452,300], allo:[205,425] },
   pekseg:   { nev:"Mézes pékség",   szeles:[582,402], allo:[310,447] },
@@ -305,7 +308,7 @@ var HELYEK = {
   fejtoro:  { nev:"Fejtörő-hegy",   szeles:[690,122], allo:[245,142] }
 };
 /* utak: [A, B, kanyar] — a kanyar a görbe kihajlása képpontban */
-var UTAK = [["odu","egyeni",14],["odu","osszeado",-26],["osszeado","szorzo",24],["osszeado","bajital",-18],
+var UTAK = [["odu","utca",-10],["odu","egyeni",14],["odu","osszeado",-26],["osszeado","szorzo",24],["osszeado","bajital",-18],
             ["bajital","szabo",20],["bajital","pekseg",22],["pekseg","vasar",-20],["bajital","konyvtar",-16],
             ["vasar","konyvtar",18],["konyvtar","fejtoro",24]];
 var ELR = { szeles:{ w:800, h:460, uni:0.22, jk:1 }, allo:{ w:400, h:760, uni:0.2, jk:0.86 } };
@@ -313,8 +316,8 @@ var ELR = { szeles:{ w:800, h:460, uni:0.22, jk:1 }, allo:{ w:400, h:760, uni:0.
 var JELZES = { osszeado:{csillag:[4,9]}, szorzo:{csillag:[2,6], ikon:["💧"]}, szabo:{csillag:[3,4]},
   bajital:{csillag:[1,4], ikon:["💖"]}, pekseg:{csillag:[4,4]}, vasar:{csillag:[0,5], ikon:["🏦"]},
   konyvtar:{csillag:[1,8]}, fejtoro:{csillag:[0,6], alszik:true}, egyeni:{csillag:[0,2], ikon:["💖"]} };
-var MAGAS = { odu:86, egyeni:76, osszeado:92, szorzo:102, szabo:74, bajital:84, pekseg:76, vasar:76, konyvtar:114, fejtoro:118 };
-var LEIRAS = { odu:"Fatönk-otthon, meleg ablakkal. Innen indul minden séta.", egyeni:"Szív alakú rózsabokor, ajándékdobozzal: ezt a pályát neked készítették.",
+var MAGAS = { utca:80, odu:86, egyeni:76, osszeado:92, szorzo:102, szabo:74, bajital:84, pekseg:76, vasar:76, konyvtar:114, fejtoro:118 };
+var LEIRAS = { utca:"Rózsaszín kőkapu: a nyílásában már az esti utca látszik, mellette lámpás.", odu:"Fatönk-otthon, meleg ablakkal. Innen indul minden séta.", egyeni:"Szív alakú rózsabokor, ajándékdobozzal: ezt a pályát neked készítették.",
   osszeado:"Kerek, zöld fa „+” alakú virágokkal, mellette egy kis fa.", szorzo:"Karcsú, lila-kék fa holdsarlóval és „×” csillámokkal.",
   szabo:"Rózsaszín tetős házikó, gomb-ablak, cérnaorsó-cégér.", bajital:"Kupolás kunyhó, a kéményből színes buborékok szállnak.",
   pekseg:"Mázas tetejű házikó cseresznyével, füstöl a kémény.", vasar:"Csíkos sátor zászlófüzérrel és gyümölcskosárral.",
@@ -331,6 +334,19 @@ function falHaz(tetoUrl, tetoD, tetoSzin){
          '<path d="'+tetoD+'" fill="'+tetoUrl+'" stroke="'+tetoSzin+'" stroke-width="2" stroke-linejoin="round"/>';
 }
 var JELKEP = {
+  utca: function(){ return arnyek(38) +
+    '<path d="M-18 1V-40Q-18 -60 0 -62Q18 -60 18 -40V1Z" fill="url(#lt-gUtca)"/>' +
+    '<circle cx="-9" cy="-46" r="1" fill="#fff"/><circle cx="6" cy="-52" r="1.2" fill="#fff"/><circle cx="12" cy="-38" r=".9" fill="#fff"/>' +
+    '<path d="M7 -48A5 5 0 1 0 12 -42A3.6 3.6 0 1 1 7 -48Z" fill="#fff1b8"/>' +
+    '<path d="M-17 1V-15L-10 -22L-3 -15V1ZM1 1V-19L8.5 -26L16 -19V1Z" fill="#0e1650"/>' +
+    '<rect x="-12" y="-12" width="4" height="4" fill="#ffd98a"/><rect x="6.5" y="-15" width="4" height="4" fill="#ffd98a"/><rect x="6.5" y="-7" width="4" height="4" fill="#ffd98a"/>' +
+    '<path d="M-31 1L-30 -48L-19 -48L-18 1Z M18 1L19 -48L30 -48L31 1Z" fill="#ece0d0" stroke="#8a7a6e" stroke-width="1.8" stroke-linejoin="round"/>' +
+    '<path d="M-30 -30H-19M-30 -14H-19M19 -24H30M19 -8H30" stroke="#c9b9a6" stroke-width="1.2"/>' +
+    '<path d="M-32 -48Q-31 -78 0 -80Q31 -78 32 -48L19 -48Q18 -64 0 -66Q-18 -64 -19 -48Z" fill="#f3c9d8" stroke="#b5607e" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M-22 -60Q-14 -72 -2 -74" stroke="#fff" stroke-width="2.4" opacity=".5" fill="none" stroke-linecap="round"/>' +
+    csillam(0,-73,4.5,"#fce49a","2.4s",0) +
+    '<path d="M31 -40H39V-36" stroke="#6e4a36" stroke-width="1.6" fill="none"/><circle cx="39" cy="-31" r="9" fill="url(#lt-gHalo)">' + anim("opacity","0.6;1;0.6","2.8s") + '</circle>' +
+    '<rect x="36" y="-36" width="6" height="9" rx="2" fill="#ffe08a" stroke="#6e4a36" stroke-width="1.2"/>'; },
   odu: function(){ return arnyek(42) +
     '<path d="M-34 2Q-42 4 -47 1M34 2Q42 5 47 2M-20 3Q-26 7 -30 6" stroke="#6e4a36" stroke-width="3" fill="none" stroke-linecap="round"/>' +
     '<path d="M-34 2Q-31 -10 -30 -30Q-31 -48 -27 -60Q-12 -66 2 -65Q18 -66 27 -60Q31 -46 30 -28Q31 -10 35 2Q20 5 0 4Q-20 5 -34 2Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="2"/>' +
@@ -516,8 +532,8 @@ function utkereso(honnan, hova, mod){
   var ut=[hova]; while (ut[0]!==honnan) ut.unshift(elozo[ut[0]]); return ut;
 }
 /* állóhely: az unikornis a jelkép MELLETT áll (nem a név fölött). oldal: +1 jobbra, -1 balra; a tábla felülírhatja */
-var SZEL = { odu:66, egyeni:64, osszeado:72, szorzo:60, szabo:70, bajital:64, pekseg:64, vasar:72, konyvtar:58, fejtoro:86 };
-var OLDAL = { szeles:{ vasar:-1, fejtoro:-1, szorzo:1 }, allo:{ egyeni:-1, szorzo:-1, vasar:-1, fejtoro:-1 } };
+var SZEL = { utca:52, odu:66, egyeni:64, osszeado:72, szorzo:60, szabo:70, bajital:64, pekseg:64, vasar:72, konyvtar:58, fejtoro:86 };
+var OLDAL = { szeles:{ vasar:-1, fejtoro:-1, szorzo:1 }, allo:{ odu:-1, utca:-1, szorzo:-1, vasar:-1, fejtoro:-1 } };
 function allas(id, mod){ var p=HELYEK[id][mod], o=OLDAL[mod][id]||1; return { x:p[0]+o*SZEL[id]*ELR[mod].jk, y:p[1]+2, o:o }; }
 
 function utakRajz(v, mod){
@@ -621,6 +637,10 @@ function belep(cel){
   svg.style.transformOrigin = (p[0]/ELR_MOST.w*100)+"% "+((p[1]-30)/ELR_MOST.h*100)+"%";
   svg.classList.add("belep");
   document.getElementById("lb-nev").textContent = HELYEK[cel].nev;
+  var utca = cel==="utca";   /* az utca nem liget: a mostani utca-képernyő nyílik */
+  document.querySelector(".lb-racs").style.display = utca ? "none" : "";
+  document.querySelector(".lb-megj").textContent = utca ? "Itt nyílik meg a mostani utca: fodrász, bolt, kert, odú, bank. Az utcáról az „Induljunk matekozni!” hoz vissza a térképre, az unikornis a kapu mellett áll."
+                                                        : "Itt jönnek a liget saját kártyái, a liget mostani hátterével. Ezek nem változnak.";
   setTimeout(function(){ document.getElementById("liget-belso").classList.add("lathato"); seta=null; }, 380);
 }
 document.getElementById("lb-vissza").addEventListener("click", function(){
