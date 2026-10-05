@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligettérkép rajzterv</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap">
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --blue:#29a3dd; --line:#efe4f4;
+    --green:#3f9e6a; --green-soft:#dff3e7; --warn:#b86a00; --warn-soft:#fff3dc; --pink:#e0417a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:1000px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#3f9e6a 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:26px 28px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🗺️";position:absolute;right:18px;top:4px;font-size:96px;opacity:.2;transform:rotate(8deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{max-width:620px;opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600;margin:10px 6px 0 0}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:4px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .ctrl{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 14px;align-items:center}
+  .ctrl .csop{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .ctrl .csop>span{font-size:13px;font-weight:700;color:var(--muted);margin-right:2px}
+  .ctrl button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--violet-soft);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+  .ctrl button.on{background:var(--violet);color:#fff}
+  .sugo-sor{font-size:14px;color:var(--muted);margin:10px 0 0;text-align:center}
+  .q{border-left:5px solid #f0a800;background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:2px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:1px 9px;font-size:13px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:1px 9px;font-size:13px}
+  .valtozatok{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.valtozatok{grid-template-columns:1fr}}
+  .valt{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .valt.ajanlott{border:2px solid var(--green)}
+  .valt .betu{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--violet);color:#fff;font-weight:800;align-items:center;justify-content:center;margin-right:6px}
+  .valt ul{font-size:14px}
+  .galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .jk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 8px 10px;text-align:center}
+  .jk svg{width:100%;height:auto;display:block;background:linear-gradient(#eaf4fb,#e3f3dc);border-radius:10px}
+  .jk b{display:block;margin-top:6px;font-size:14px}
+  .jk span{display:block;font-size:12.5px;color:var(--muted);line-height:1.35}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+
+  /* ── a játék képernyőjének utánzata ── */
+  .keszulek{display:flex;justify-content:center}
+  .kepernyo{display:flex;flex-direction:column;background:#fbf3e6;border:8px solid #2a2140;border-radius:18px;overflow:hidden;font-family:Fredoka,"Segoe UI",sans-serif;width:100%;max-width:820px}
+  .kepernyo.telefon{width:300px;border-radius:30px;border-width:9px}
+  .fejlec{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 10px;background:#fdf0dc;color:#4a3b7a;font-weight:700;font-size:13px}
+  .fejlec .gomb{background:#fff4d6;border-radius:10px;padding:2px 8px;box-shadow:0 2px 0 #e8d3a8}
+  .fejlec .sz{background:#fff2c4;border-radius:10px;padding:2px 7px;margin-left:4px}
+  .fejlec .sz.h{background:#dff1fb}
+  .terkep-hely{position:relative;width:100%;aspect-ratio:800/460;overflow:hidden;background:#cfe6f7}
+  .telefon .terkep-hely{aspect-ratio:400/760}
+  .terkep-hely>svg{position:absolute;inset:0;width:100%;height:100%;display:block;transition:transform .45s ease-in,opacity .45s ease-in}
+  .terkep-hely>svg.belep{transform:scale(2.4);opacity:0}
+  .hely{cursor:pointer}
+  .hely .hb{transition:transform .2s ease,filter .2s ease;transform-box:fill-box;transform-origin:50% 100%}
+  .hely:hover .hb{transform:translateY(-4px) scale(1.05);filter:drop-shadow(0 0 7px rgba(255,236,170,.95))}
+  .hely.alszik .hb{opacity:.55;filter:saturate(.35)}
+  .hely.alszik:hover .hb{filter:saturate(.35) drop-shadow(0 0 6px rgba(255,255,255,.8))}
+  .uni-ring{transform-box:fill-box;transform-origin:50% 100%}
+  .uni-ring.lep{animation:uni-lep .32s ease-in-out infinite}
+  .uni-ring.uget{animation:uni-uget .24s ease-in-out infinite}
+  @keyframes uni-lep{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes uni-uget{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
+  .uni-all{animation:uni-pihen 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+  @keyframes uni-pihen{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.018)}}
+  .liget-belso{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .35s ease;background:linear-gradient(#e6f2ea,#cdeec4)}
+  .liget-belso.lathato{opacity:1;pointer-events:auto}
+  .lb-fej{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(236,224,251,.92);font-weight:700;color:#4a3b7a}
+  .lb-fej button{font:inherit;font-weight:700;border:0;background:#fff;border-radius:12px;padding:4px 12px;color:#4a3b7a;cursor:pointer;box-shadow:0 2px 0 #c9b5e8}
+  .lb-racs{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:14px;align-content:start}
+  .lb-racs div{background:#fff;border:2px solid #c9b5e8;border-radius:14px;height:78px;display:flex;align-items:center;justify-content:center;color:#6b6280;font-size:13px;text-align:center;padding:4px}
+  .lb-megj{font-size:12px;color:#4a3b7a;text-align:center;padding:0 10px 10px}
+  .sugo{text-align:center;font-weight:600;font-size:12px;color:#4a3b7a;padding:6px;background:#fdf6ee}
+</style>
+</head>
+<body>
+
+<!-- közös rajz-eszközök (színátmenetek, firka-szűrő, unikornis) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lt-gFa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe8b0"/><stop offset="1" stop-color="#6fbf7a"/></linearGradient>
+    <linearGradient id="lt-gFa2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8c6f4"/><stop offset="1" stop-color="#8fa6e0"/></linearGradient>
+    <linearGradient id="lt-gSziv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c7ecb8"/><stop offset="1" stop-color="#86c98c"/></linearGradient>
+    <linearGradient id="lt-gTorzs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6f52"/><stop offset=".45" stop-color="#c79e76"/><stop offset="1" stop-color="#8c6248"/></linearGradient>
+    <linearGradient id="lt-gFal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6ea"/><stop offset="1" stop-color="#f0d9bd"/></linearGradient>
+    <linearGradient id="lt-gTetoR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9b6cf"/><stop offset="1" stop-color="#e07aa3"/></linearGradient>
+    <linearGradient id="lt-gTetoT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ade8de"/><stop offset="1" stop-color="#5cb8b2"/></linearGradient>
+    <linearGradient id="lt-gTetoM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f0aa3c"/></linearGradient>
+    <linearGradient id="lt-gTorony" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b9a0de"/><stop offset=".5" stop-color="#ddcdf5"/><stop offset="1" stop-color="#a98fd4"/></linearGradient>
+    <linearGradient id="lt-gHegy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4c8ec"/><stop offset="1" stop-color="#9483c2"/></linearGradient>
+    <radialGradient id="lt-gAblak" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#fff6c4"/><stop offset="1" stop-color="#ffbe55"/></radialGradient>
+    <radialGradient id="lt-gHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe3a0" stop-opacity=".55"/><stop offset="1" stop-color="#ffe3a0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lt-gNap" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff7cc"/><stop offset=".55" stop-color="#ffeaa0" stop-opacity=".7"/><stop offset="1" stop-color="#ffeaa0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lt-gPapir" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#f7ead0"/><stop offset="1" stop-color="#ddc293"/></radialGradient>
+    <linearGradient id="lt-gEgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8e3f7"/><stop offset="1" stop-color="#eef6ee"/></linearGradient>
+    <linearGradient id="lt-gRetA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4f0c8"/><stop offset="1" stop-color="#b3dea4"/></linearGradient>
+    <linearGradient id="lt-gEgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f2c74"/><stop offset=".6" stop-color="#8a5aa6"/><stop offset="1" stop-color="#f4ad8c"/></linearGradient>
+    <linearGradient id="lt-gRetB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7aa48c"/><stop offset="1" stop-color="#4d7466"/></linearGradient>
+    <filter id="lt-firka" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/>
+      <feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <symbol id="lt-uni" viewBox="0 0 380 300" overflow="visible"><g stroke="#222222" stroke-linejoin="round" stroke-linecap="round">
+<path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#e6a92e" stroke="none"/>
+<path d="M94 158 Q62 176 46 224" fill="none" stroke="#ffe6a0" stroke-width="6"/>
+<path d="M96 176 Q70 206 54 264" fill="none" stroke="#ffe6a0" stroke-width="5"/>
+<path d="M92 150 Q78 172 82 214" fill="none" stroke="#ffcf4d" stroke-width="5"/>
+<path d="M90 190 Q66 234 58 278" fill="none" stroke="#e6a92e" stroke-width="5"/>
+<path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#fdf3f7" stroke-width="5"/>
+<path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#ffffff" stroke="none"/>
+<path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M248 80 Q214 114 198 172" fill="none" stroke="#e6a92e" stroke-width="8"/>
+<path d="M254 86 Q226 126 210 186" fill="none" stroke="#e6a92e" stroke-width="7"/>
+<path d="M242 94 Q220 138 208 196" fill="none" stroke="#ffcf4d" stroke-width="6"/>
+<path d="M238 100 Q214 150 202 208" fill="none" stroke="#e6a92e" stroke-width="5"/>
+<path d="M250 82 Q224 108 208 158" fill="none" stroke="#ffe6a0" stroke-width="4"/>
+<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#fdf3f7" stroke="none"/>
+<path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/>
+<ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.4" stroke="none"/>
+<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/>
+  <circle cx="301" cy="112.5" r="5" fill="#e67ba6" stroke="none"/>
+  <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/>
+  <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/>
+  <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/>
+  <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/>
+  <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/>
+  <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>
+  <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/>
+  <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/>
+</g>
+<path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M272 82 Q264 108 268 136" fill="none" stroke="#e6a92e" stroke-width="6"/>
+<path d="M288 84 Q284 104 286 120" fill="none" stroke="#ffe6a0" stroke-width="4"/>
+<path d="M250 92 L266 92 L258 58 Z" fill="#fdf3f7" stroke-width="4"/>
+<path d="M268 92 L285 84 L306 24 Z" fill="#ffcf4d" stroke-width="4"/>
+<path d="M270 84 L285 79" stroke="#e0a52e" stroke-width="3"/>
+<path d="M275 68 L291 62" stroke="#e0a52e" stroke-width="3"/>
+<path d="M281 50 L296 44" stroke="#e0a52e" stroke-width="3"/>
+<path d="M287 36 L300 31" stroke="#e0a52e" stroke-width="3"/>
+<path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/>
+<path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/>
+<g stroke="none">
+<path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#f4a6c6"/>
+<path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#f28ab8"/>
+<path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#ffd24d"/>
+</g>
+</g></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+<header class="top">
+  <h1>🗺️ Ligettérkép: rajzterv</h1>
+  <div class="sub">A jóváhagyott ligetválasztó tervlap következő lépése: maga a térkép, három változatban, laptopra és telefonra. Itt már ki is lehet próbálni. Koppints egy ligetre, és az unikornis odasétál.</div>
+  <span class="chip">Rajzterv · jóváhagyásra</span>
+  <span class="chip">2026-10-05</span>
+  <span class="chip">Alap: ligetválasztó tervlap (017e2a9)</span>
+  <span class="chip">Utána: 1. kör (kód)</span>
+</header>
+
+<h2>Próbáld ki</h2>
+<div class="panel">
+  <div class="ctrl">
+    <div class="csop" id="c-valt"><span>Változat:</span>
+      <button data-v="A" class="on">A · Tavaszi völgy</button>
+      <button data-v="B">B · Alkonyi völgy</button>
+      <button data-v="C">C · Mesekönyv-térkép</button>
+    </div>
+    <div class="csop" id="c-mod"><span>Képernyő:</span>
+      <button data-m="szeles" class="on">💻 Laptop</button>
+      <button data-m="allo">📱 Telefon</button>
+    </div>
+    <div class="csop" id="c-jel"><span>Jelzések:</span>
+      <button data-j="1" class="on">be</button>
+      <button data-j="0">ki</button>
+    </div>
+  </div>
+  <div class="keszulek"><div class="kepernyo" id="kepernyo">
+    <div class="fejlec"><span><span class="gomb">🏠 Odú</span></span><span>🦄 Ragyogás<span class="sz">✨ 128</span><span class="sz h">💧 6</span></span></div>
+    <div class="terkep-hely" id="terkep-hely">
+      <div class="liget-belso" id="liget-belso">
+        <div class="lb-fej"><button id="lb-vissza">← Térkép</button><span id="lb-nev"></span></div>
+        <div class="lb-racs"><div>1. ösvény</div><div>2. ösvény</div><div>3. ösvény</div><div>4. ösvény</div></div>
+        <div class="lb-megj">Itt jönnek a liget saját kártyái, a liget mostani hátterével. Ezek nem változnak.</div>
+      </div>
+    </div>
+    <div class="sugo">Hová menjünk ma?</div>
+  </div></div>
+  <p class="sugo-sor">Koppints egy ligetre: az unikornis odasétál, aztán belép. Bent a <b>← Térkép</b> gombbal jössz vissza.<br>Séta közben még egy koppintás: azonnal ott van.</p>
+  <div class="q"><b>A bemutatóról</b>Itt az unikornis csak siklik és ringatózik. A játékban a valódi lépés-animációval jár és fordul, ugyanazzal a kóddal, mint a pályán. A térkép tája és a jelképek viszont már a végleges rajz-javaslat.</div>
+</div>
+
+<h2>A három változat</h2>
+<div class="valtozatok">
+  <div class="valt ajanlott">
+    <h3><span class="betu">A</span>Tavaszi völgy</h3>
+    <span class="ok">Ezt javaslom</span>
+    <ul>
+      <li>Világos, nappali, pasztell. Ugyanaz a hangulat, mint a mostani Összeadó liget háttere.</li>
+      <li>A nevek és a jelzések minden fényben jól olvashatók.</li>
+      <li>Mozog: úszó felhők, két pillangó, lengő zászló a hegyen, bájital-buborékok, pékség-füst, pislogó bagoly.</li>
+    </ul>
+  </div>
+  <div class="valt">
+    <h3><span class="betu">B</span>Alkonyi völgy</h3>
+    <ul>
+      <li>Naplemente, világító ablakok, lámpások az úton, szentjánosbogarak. Nagyon hangulatos.</li>
+      <li>Illik az utcához, ami szintén esti.</li>
+      <li>Mire figyelni: napközben furcsa lehet, hogy mindig este van. A sötétebb rét miatt a jelképek kevésbé ugranak ki.</li>
+    </ul>
+  </div>
+  <div class="valt">
+    <h3><span class="betu">C</span>Mesekönyv-térkép</h3>
+    <ul>
+      <li>Pergamen, tintával rajzolt dombok, szélrózsa, tenger a sarokban, szaggatott „kincses” út.</li>
+      <li>Nagyon „térképes”, a gyerek érzi, hogy tervez.</li>
+      <li>Mire figyelni: más stílus, mint a játék többi része. A festett jelképek kicsit kilógnak a tintás tájból.</li>
+    </ul>
+  </div>
+</div>
+<div class="q"><b>Továbbgondolás: A és B együtt, a napszak szerint</b>A játékban már van napszak (időjárás). A térkép követhetné: napközben az A, este 6 után a B. Ugyanaz a térkép és ugyanazok a helyek, csak a táj színei cserélődnek. Ez kb. fél kör plusz munka. Javaslom, hogy most csak az A készüljön el, és ezt később tegyük rá.</div>
+
+<h2>A tíz jelkép közelről</h2>
+<p class="lead">Minden liget egy kis festett épületet vagy fát kap, nem emojit. Így a térkép egy valódi táj lesz. A nevek mindig ott vannak alattuk, mert a kisebbek még nem olvasnak jól, de a képet megjegyzik.</p>
+<div class="galeria" id="galeria"></div>
+
+<h2>Jelzések a térképen</h2>
+<div class="panel">
+  <p class="lead" style="margin-top:0">A jóváhagyott szabály szerint. A „Jelzések: be/ki” gombbal fent ki-be kapcsolhatod, hogy lásd, mennyit ad hozzá.</p>
+  <table>
+    <tr><th>Mit látsz</th><th>Mit jelent</th></tr>
+    <tr><td><b>⭐ 4/9</b> kis tábla a név mellett</td><td>Hány ösvényt járt már végig a ligetben. Ha mindet, aranyszínű lesz: <b>🌟 4/4</b> (a bemutatóban a Mézes pékség).</td></tr>
+    <tr><td>Kerek jelvény a jelkép bal vállán, legfeljebb kettő</td><td>💧 napi kiemelt → 💖 ajánlott → 🏦 bankot nyit → 💖 egyéni pálya, ebben a fontossági sorrendben.</td></tr>
+    <tr><td>Halvány liget, alvó holddal és „z”-kkel</td><td>Most minden ösvénye zárva (🔒 kapu vagy „mára elég volt”). Koppintani lehet, a felolvasó megmondja, mikor nyílik. (A bemutatóban a Fejtörő-hegy alszik.)</td></tr>
+    <tr><td>Laptopon egérrel ráállva megemelkedik és felragyog</td><td>Jelzi, hogy oda lehet koppintani.</td></tr>
+  </table>
+</div>
+
+<h2>Hogyan lesz belőle kód</h2>
+<div class="panel">
+  <ul>
+    <li>Ez a lap már úgy készült, ahogy a játékba kerül. Van egy <b>hely-tábla</b> (minden ligetnek egy sor: név, jelkép, hely a laptopos és a telefonos képen) és egy <b>út-tábla</b> (melyik hely melyikkel van összekötve). Az utat egy kis <b>útkereső</b> számolja ki. Ez lesz a <code>src/terkep.js</code> magja.</li>
+    <li>Új liget = egy új sor a két táblában. A térkép magától rajzolja meg, és az unikornis is magától odatalál.</li>
+    <li>A táj (égbolt, dombok, virágok, felhők) külön réteg a helyek alatt. A kissárkány-térkép később ugyanezt a modult kapja, más tájjal és a „köd” réteggel.</li>
+    <li>Firka-szabály: a táj kap enyhe kézi vonalremegést. A nevek, a jelzések és az unikornis nem.</li>
+    <li>Ha egy liget el van rejtve a pulton, a helye és a hozzá vezető zsákutca-ösvény nem rajzolódik ki. Ha egy átmenő hely tűnne el (pl. a Bájitalkonyha), az út megmarad, csak a jelkép helyén egy bokor áll.</li>
+  </ul>
+</div>
+
+<h2>Döntések</h2>
+<div class="panel">
+  <ol>
+    <li><b>Melyik változat?</b> A (Tavaszi völgy), B (Alkonyi völgy) vagy C (Mesekönyv-térkép). <span class="prop">javaslat: A</span></li>
+    <li><b>Napszak szerint váltson-e később</b> (nappal A, este B)? <span class="prop">javaslat: igen, de később, külön kis körben</span></li>
+    <li><b>A jelképek jók így?</b> Ha valamelyik nem tetszik (pl. a Szorzós liget holdas fája), azt külön újrarajzolom.</li>
+    <li><b>Az unikornis mérete a térképen</b> jó így, vagy legyen nagyobb?</li>
+  </ol>
+</div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ───────── 1. ADAT-TÁBLÁK (ez lesz a src/terkep.js magja) ───────── */
+var HELYEK = {
+  odu:      { nev:"Odú",            szeles:[ 80,400], allo:[ 85,705] },
+  egyeni:   { nev:"Neked készült",  szeles:[205,425], allo:[295,720] },
+  osszeado: { nev:"Összeadó liget", szeles:[300,350], allo:[125,592] },
+  szorzo:   { nev:"Szorzós liget",  szeles:[150,258], allo:[300,568] },
+  szabo:    { nev:"Szabóműhely",    szeles:[330,212], allo:[ 75,447] },
+  bajital:  { nev:"Bájitalkonyha",  szeles:[452,300], allo:[205,425] },
+  pekseg:   { nev:"Mézes pékség",   szeles:[582,402], allo:[310,447] },
+  vasar:    { nev:"Tündérvásár",    szeles:[688,334], allo:[300,302] },
+  konyvtar: { nev:"Bagolykönyvtár", szeles:[578,218], allo:[105,282] },
+  fejtoro:  { nev:"Fejtörő-hegy",   szeles:[690,122], allo:[245,142] }
+};
+/* utak: [A, B, kanyar] — a kanyar a görbe kihajlása képpontban */
+var UTAK = [["odu","egyeni",14],["odu","osszeado",-26],["osszeado","szorzo",24],["osszeado","bajital",-18],
+            ["bajital","szabo",20],["bajital","pekseg",22],["pekseg","vasar",-20],["bajital","konyvtar",-16],
+            ["vasar","konyvtar",18],["konyvtar","fejtoro",24]];
+var ELR = { szeles:{ w:800, h:460, uni:0.22, jk:1 }, allo:{ w:400, h:760, uni:0.2, jk:0.86 } };
+/* bemutató-jelzések (a játékban a mentésből és a pultról jönnek) */
+var JELZES = { osszeado:{csillag:[4,9]}, szorzo:{csillag:[2,6], ikon:["💧"]}, szabo:{csillag:[3,4]},
+  bajital:{csillag:[1,4], ikon:["💖"]}, pekseg:{csillag:[4,4]}, vasar:{csillag:[0,5], ikon:["🏦"]},
+  konyvtar:{csillag:[1,8]}, fejtoro:{csillag:[0,6], alszik:true}, egyeni:{csillag:[0,2], ikon:["💖"]} };
+var MAGAS = { odu:86, egyeni:76, osszeado:92, szorzo:102, szabo:74, bajital:84, pekseg:76, vasar:76, konyvtar:114, fejtoro:118 };
+var LEIRAS = { odu:"Fatönk-otthon, meleg ablakkal. Innen indul minden séta.", egyeni:"Szív alakú rózsabokor, ajándékdobozzal: ezt a pályát neked készítették.",
+  osszeado:"Kerek, zöld fa „+” alakú virágokkal, mellette egy kis fa.", szorzo:"Karcsú, lila-kék fa holdsarlóval és „×” csillámokkal.",
+  szabo:"Rózsaszín tetős házikó, gomb-ablak, cérnaorsó-cégér.", bajital:"Kupolás kunyhó, a kéményből színes buborékok szállnak.",
+  pekseg:"Mázas tetejű házikó cseresznyével, füstöl a kémény.", vasar:"Csíkos sátor zászlófüzérrel és gyümölcskosárral.",
+  konyvtar:"Lila torony, a kerek ablakból kinéz és pislog a bagoly.", fejtoro:"Havas csúcsú hegy, kanyargós ösvény, lengő zászló."};
+
+/* ───────── 2. JELKÉPEK (talppont: 0,0; felfelé rajzolva) ───────── */
+function anim(attr, values, dur, extra){ return '<animate attributeName="'+attr+'" values="'+values+'" dur="'+dur+'" repeatCount="indefinite"'+(extra||"")+'/>'; }
+function arnyek(rx){ return '<ellipse cx="0" cy="3" rx="'+rx+'" ry="'+(rx*0.17).toFixed(1)+'" fill="#3c2a50" opacity=".16"/>'; }
+function plusz(x,y,c){ return '<path d="M'+(x-3.5)+' '+y+'H'+(x+3.5)+'M'+x+' '+(y-3.5)+'V'+(y+3.5)+'" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round"/>'; }
+function csillam(x,y,s,c,dur,kesl){ return '<path d="M'+x+' '+(y-s)+'L'+(x+s*.3)+' '+(y-s*.3)+'L'+(x+s)+' '+y+'L'+(x+s*.3)+' '+(y+s*.3)+'L'+x+' '+(y+s)+'L'+(x-s*.3)+' '+(y+s*.3)+'L'+(x-s)+' '+y+'L'+(x-s*.3)+' '+(y-s*.3)+'Z" fill="'+c+'">'+anim("opacity","0.2;1;0.2",dur,' begin="'+(kesl||0)+'s"')+'</path>'; }
+function falHaz(tetoUrl, tetoD, tetoSzin){
+  return '<path d="M-26 1 Q-25.5 -17 -25 -34 Q0 -35.5 25 -35 Q25.5 -17 26 1 Q0 2.5 -26 1Z" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2"/>' +
+         '<path d="M-8 1.5V-15Q-8 -23 0 -23Q8 -23 8 -15V1.5Z" fill="#c99272" stroke="#8a6a7e" stroke-width="1.8"/><circle cx="4.5" cy="-9" r="1.3" fill="#6e4a36"/>' +
+         '<path d="'+tetoD+'" fill="'+tetoUrl+'" stroke="'+tetoSzin+'" stroke-width="2" stroke-linejoin="round"/>';
+}
+var JELKEP = {
+  odu: function(){ return arnyek(42) +
+    '<path d="M-34 2Q-42 4 -47 1M34 2Q42 5 47 2M-20 3Q-26 7 -30 6" stroke="#6e4a36" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M-34 2Q-31 -10 -30 -30Q-31 -48 -27 -60Q-12 -66 2 -65Q18 -66 27 -60Q31 -46 30 -28Q31 -10 35 2Q20 5 0 4Q-20 5 -34 2Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="2"/>' +
+    '<path d="M-21 -50Q-23 -30 -20 -12M20 -48Q23 -30 21 -10" stroke="#7a5440" stroke-width="1.6" fill="none" opacity=".55"/>' +
+    '<ellipse cx="0" cy="-61" rx="27" ry="7" fill="#ecd0a6" stroke="#6e4a36" stroke-width="2"/>' +
+    '<ellipse cx="0" cy="-61" rx="16" ry="4" fill="none" stroke="#c9a476" stroke-width="1.4"/><ellipse cx="0" cy="-61" rx="7" ry="1.8" fill="none" stroke="#c9a476" stroke-width="1.2"/>' +
+    '<path d="M-12 3V-20Q-12 -32 0 -32Q12 -32 12 -20V3Z" fill="url(#lt-gAblak)" stroke="#6e4a36" stroke-width="2"/><circle cx="7" cy="-12" r="1.6" fill="#6e4a36"/>' +
+    '<circle cx="19" cy="-42" r="5.5" fill="url(#lt-gAblak)" stroke="#6e4a36" stroke-width="1.6"/>' +
+    '<path d="M-5 -66Q-7 -77 -1 -84" stroke="#5f9e6a" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M-5 -72Q-14 -77 -17 -70Q-10 -67 -5 -72Z M-2 -80Q6 -86 9 -79Q2 -76 -2 -80Z" fill="#8fd18f" stroke="#5f9e6a" stroke-width="1.2"/>' +
+    '<path d="M-31 -1Q-32 -9 -24 -10Q-17 -9 -18 -1Z" fill="#f6a5c0" stroke="#b5607e" stroke-width="1.4"/><circle cx="-27" cy="-6" r="1.3" fill="#fff"/><circle cx="-22" cy="-7" r="1" fill="#fff"/>'; },
+  egyeni: function(){ return arnyek(36) +
+    '<path d="M-3 1L-2 -14L2 -14L3 1Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="1.4"/>' +
+    '<path d="M0 -12C-42 -34 -36 -76 -13 -72Q-4 -70 0 -60Q4 -70 13 -72C36 -76 42 -34 0 -12Z" fill="url(#lt-gSziv)" stroke="#5f9e6a" stroke-width="2"/>' +
+    [[-16,-52],[12,-56],[-2,-38],[18,-40],[-20,-36],[2,-62]].map(function(p,i){ var c=["#f6a5c0","#f28ab8","#fbc4d8"][i%3];
+      return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5.2" fill="'+c+'" stroke="#c0567f" stroke-width="1.1"/><path d="M'+(p[0]-2)+' '+p[1]+'q2 -2.5 3.5 0q-1 2 -3 1" stroke="#c0567f" stroke-width="1" fill="none"/>'; }).join("") +
+    '<rect x="12" y="-13" width="18" height="14" rx="2" fill="#c9a8e6" stroke="#7a5ea8" stroke-width="1.6"/><path d="M21 -13V1M12 -7H30" stroke="#fce49a" stroke-width="3"/>' +
+    '<path d="M21 -13Q15 -20 17 -22Q20 -21 21 -13Q22 -21 25 -22Q27 -20 21 -13Z" fill="#fce49a" stroke="#d1a23a" stroke-width="1"/>' +
+    csillam(-30,-70,5,"#fff3a8","2.2s",0) + csillam(30,-64,4,"#fff3a8","2.6s",.8) + csillam(0,-80,3.5,"#ffffff","1.9s",1.3); },
+  osszeado: function(){ return arnyek(46) +
+    '<path d="M-27 1L-26 -26L-21 -26L-20 1Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="1.5"/>' +
+    '<path d="M-38 -34Q-44 -48 -32 -54Q-26 -62 -16 -56Q-6 -52 -10 -40Q-12 -28 -24 -28Q-36 -26 -38 -34Z" fill="url(#lt-gFa)" stroke="#5f9e6a" stroke-width="1.8"/>' +
+    '<path d="M-5 2Q-2 -20 -7 -36L7 -36Q3 -18 6 2Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="1.8"/>' +
+    '<path d="M-22 -48Q-32 -66 -14 -76Q-6 -92 12 -86Q30 -92 35 -70Q46 -56 32 -42Q26 -30 8 -34Q-12 -28 -22 -48Z" fill="url(#lt-gFa)" stroke="#5f9e6a" stroke-width="2"/>' +
+    '<ellipse cx="0" cy="-72" rx="13" ry="7" fill="#fff" opacity=".28"/>' +
+    plusz(-10,-62,"#f6a5c0") + plusz(15,-75,"#fff") + plusz(23,-52,"#f28ab8") + plusz(2,-46,"#fce49a") + plusz(-28,-44,"#fff") + plusz(28,-66,"#fce49a"); },
+  szorzo: function(){ return arnyek(40) +
+    '<path d="M14 1Q8 -10 16 -16Q22 -24 30 -16Q38 -10 30 1Z" fill="url(#lt-gFa2)" stroke="#6f6aa8" stroke-width="1.6"/>' +
+    '<path d="M-3 2Q-1 -24 -4 -44L4 -44Q2 -22 4 2Z" fill="url(#lt-gTorzs)" stroke="#6e4a36" stroke-width="1.6"/>' +
+    '<path d="M0 -102Q23 -82 23 -60Q23 -40 0 -38Q-23 -40 -23 -60Q-23 -82 0 -102Z" fill="url(#lt-gFa2)" stroke="#6f6aa8" stroke-width="2"/>' +
+    '<path d="M-6 -86Q-13 -74 -12 -62" stroke="#fff" stroke-width="3" opacity=".35" fill="none" stroke-linecap="round"/>' +
+    '<path d="M-27 -100A12 12 0 1 0 -14 -80A9 9 0 1 1 -27 -100Z" fill="#ffe08a" stroke="#d1a23a" stroke-width="1.3"/>' +
+    '<g stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M16 -94l6 6M22 -94l-6 6">'+anim("opacity","0.3;1;0.3","2.4s")+'</path><path d="M27 -72l5 5M32 -72l-5 5">'+anim("opacity","1;0.3;1","2.8s")+'</path><path d="M-14 -56l5 5M-9 -56l-5 5">'+anim("opacity","0.4;1;0.4","3.1s")+'</path></g>'; },
+  szabo: function(){ return arnyek(40) +
+    falHaz("url(#lt-gTetoR)", "M-33 -32Q-14 -58 0 -66Q14 -58 33 -33Q0 -38 -33 -32Z", "#b5607e") +
+    '<circle cx="15" cy="-21" r="7" fill="#fce49a" stroke="#d1a23a" stroke-width="1.6"/><circle cx="12.6" cy="-23.4" r="1.2" fill="#d1a23a"/><circle cx="17.4" cy="-23.4" r="1.2" fill="#d1a23a"/><circle cx="12.6" cy="-18.6" r="1.2" fill="#d1a23a"/><circle cx="17.4" cy="-18.6" r="1.2" fill="#d1a23a"/>' +
+    '<path d="M-26 -28H-40" stroke="#6e4a36" stroke-width="2.4" stroke-linecap="round"/><path d="M-37 -28V-24M-31 -28V-24" stroke="#6e4a36" stroke-width="1"/>' +
+    '<g><animateTransform attributeName="transform" type="rotate" values="-5 -34 -28;5 -34 -28;-5 -34 -28" dur="3s" repeatCount="indefinite"/>' +
+    '<rect x="-42" y="-24" width="16" height="3" rx="1" fill="#c99272" stroke="#6e4a36" stroke-width="1"/><rect x="-40" y="-21" width="12" height="11" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1"/>' +
+    '<path d="M-40 -18H-28M-40 -15H-28M-40 -12H-28" stroke="#cfe5fa" stroke-width="1"/><rect x="-42" y="-10" width="16" height="3" rx="1" fill="#c99272" stroke="#6e4a36" stroke-width="1"/></g>' +
+    '<path d="M-6 -60Q4 -64 12 -58" stroke="#fff" stroke-width="2.4" opacity=".45" fill="none" stroke-linecap="round"/>'; },
+  bajital: function(){ return arnyek(40) +
+    '<path d="M-26 1Q-25.5 -16 -25 -32Q0 -33.5 25 -33Q25.5 -16 26 1Q0 2.5 -26 1Z" fill="url(#lt-gFal)" stroke="#5f8e8a" stroke-width="2"/>' +
+    '<rect x="11" y="-80" width="9" height="20" rx="1.5" fill="#c99a8a" stroke="#7a5a6e" stroke-width="1.6"/>' +
+    '<path d="M-31 -30Q-31 -70 0 -72Q31 -70 31 -30Q0 -35 -31 -30Z" fill="url(#lt-gTetoT)" stroke="#3f8a85" stroke-width="2"/>' +
+    '<path d="M-16 -54Q-8 -64 4 -64" stroke="#fff" stroke-width="2.6" opacity=".45" fill="none" stroke-linecap="round"/>' +
+    '<path d="M-8 1.5V-15Q-8 -23 0 -23Q8 -23 8 -15V1.5Z" fill="#9a7bc0" stroke="#5f4a86" stroke-width="1.8"/><circle cx="4.5" cy="-9" r="1.3" fill="#fce49a"/>' +
+    '<path d="M13 -26h6v4l4 6q1 4 -3 4h-8q-4 0 -3 -4l4 -6z" fill="#a7d99a" stroke="#5f8e6a" stroke-width="1.4"/><path d="M12 -16h12" stroke="#d9f5cf" stroke-width="2"/>' +
+    '<path d="M-22 -24h8v8h-8z" fill="url(#lt-gAblak)" stroke="#5f8e8a" stroke-width="1.4"/>' +
+    [["#c9a8e6",0,3.6],["#a7d99a",.9,3],["#f6a5c0",1.8,2.6]].map(function(b){
+      return '<circle cx="15.5" cy="-84" r="'+b[2]+'" fill="'+b[0]+'" stroke="#fff" stroke-width=".8" opacity="0">' +
+        anim("cy","-84;-118",'2.7s',' begin="'+b[1]+'s"') + anim("cx","15.5;20;13;18",'2.7s',' begin="'+b[1]+'s"') + anim("opacity","0;1;0",'2.7s',' begin="'+b[1]+'s"') + '</circle>'; }).join(""); },
+  pekseg: function(){ return arnyek(40) +
+    '<rect x="-20" y="-78" width="9" height="18" rx="1.5" fill="#c99a8a" stroke="#7a5a6e" stroke-width="1.6"/>' +
+    [0,1.3].map(function(k){ return '<circle cx="-15.5" cy="-82" r="5" fill="#fff" opacity="0">'+anim("cy","-82;-112",'2.6s',' begin="'+k+'s"')+anim("r","4;9",'2.6s',' begin="'+k+'s"')+anim("opacity","0;.75;0",'2.6s',' begin="'+k+'s"')+'</circle>'; }).join("") +
+    falHaz("url(#lt-gTetoM)", "M-33 -31Q-31 -58 0 -66Q31 -58 33 -31Q27 -25 22 -31Q16 -23 10 -31Q4 -25 -2 -31Q-8 -23 -14 -31Q-20 -25 -26 -31Q-30 -27 -33 -31Z", "#c9862a") +
+    '<circle cx="0" cy="-69" r="5" fill="#f2708f" stroke="#b5405e" stroke-width="1.4"/><path d="M0 -74Q3 -80 7 -80" stroke="#5f9e6a" stroke-width="1.6" fill="none"/><circle cx="-1.6" cy="-70.5" r="1.3" fill="#fff" opacity=".7"/>' +
+    '<path d="M-8 -52Q0 -58 10 -54" stroke="#fff" stroke-width="2.4" opacity=".5" fill="none" stroke-linecap="round"/>' +
+    '<rect x="10" y="-27" width="12" height="10" rx="2" fill="url(#lt-gAblak)" stroke="#8a6a7e" stroke-width="1.4"/>' +
+    '<path d="M-24 -20h10l-2 9h-6z" fill="#e8b27a" stroke="#8a5a3a" stroke-width="1.2"/><path d="M-25 -20q0 -7 6 -7q6 0 6 7z" fill="#f7b8d0" stroke="#b5607e" stroke-width="1.2"/><circle cx="-19" cy="-28" r="1.6" fill="#f2708f"/>'; },
+  vasar: function(){ return arnyek(44) +
+    '<path d="M-30 1L-29 -36L29 -36L30 1Z" fill="#fff4e4" stroke="#b5607e" stroke-width="2"/>' +
+    '<path d="M-9 1L0 -30L9 1Z" fill="#7a5ea8" opacity=".55"/>' +
+    '<path d="M-36 -34Q-18 -58 0 -70Q18 -58 36 -34Q30 -28 24 -34Q18 -28 12 -34Q6 -28 0 -34Q-6 -28 -12 -34Q-18 -28 -24 -34Q-30 -28 -36 -34Z" fill="#fff4e4" stroke="#b5607e" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M0 -70L-24 -34Q-18 -28 -12 -34ZM0 -70L0 -34Q6 -28 12 -34ZM0 -70L24 -34Q30 -28 36 -34Q30 -42 24 -48Z" fill="#f6a5c0" opacity=".9"/>' +
+    '<path d="M0 -70V-84" stroke="#6e4a36" stroke-width="1.8"/>' +
+    '<path d="M0 -84Q7 -86 13 -82Q7 -78 0 -78Z" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1">' + anim("d","M0 -84Q7 -86 13 -82Q7 -78 0 -78Z;M0 -84Q7 -81 13 -83Q7 -77 0 -78Z;M0 -84Q7 -86 13 -82Q7 -78 0 -78Z","1.6s") + '</path>' +
+    '<path d="M36 -34Q42 -30 44 -24" stroke="#6e4a36" stroke-width="1.4" fill="none"/>' +
+    '<path d="M44 -42V1" stroke="#6e4a36" stroke-width="2.2" stroke-linecap="round"/><path d="M31 -40Q38 -34 44 -40" stroke="#6e4a36" stroke-width="1" fill="none"/>' +
+    '<path d="M33 -39l2 5l2 -5zM38 -37l2 5l2 -5z" fill="#fce49a" stroke="#d1a23a" stroke-width=".6"/>' +
+    '<path d="M-28 -2Q-28 -12 -18 -12Q-8 -12 -8 -2Z" fill="#e8b27a" stroke="#8a5a3a" stroke-width="1.4"/><path d="M-26 -8H-10" stroke="#8a5a3a" stroke-width="1"/>' +
+    '<circle cx="-22" cy="-14" r="3.6" fill="#f2708f"/><circle cx="-16" cy="-15" r="3.4" fill="#fce49a"/><circle cx="-13" cy="-12.5" r="2.8" fill="#a7d99a"/>'; },
+  konyvtar: function(){ return arnyek(36) +
+    '<path d="M-18 1L-16 -78Q0 -80 16 -78L18 1Q0 3 -18 1Z" fill="url(#lt-gTorony)" stroke="#6f5a9e" stroke-width="2"/>' +
+    '<path d="M-17 -38Q0 -40 17 -38M-17.5 -20Q0 -22 17.5 -20" stroke="#8f78bf" stroke-width="1.2" fill="none" opacity=".6"/>' +
+    '<path d="M-26 -74Q-8 -90 0 -112Q8 -90 26 -74Q0 -80 -26 -74Z" fill="#8a6fc0" stroke="#5a4890" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M-6 -96Q-10 -86 -14 -80" stroke="#fff" stroke-width="2.2" opacity=".35" fill="none" stroke-linecap="round"/>' +
+    csillam(0,-116,4.5,"#fce49a","2.4s",0) +
+    '<circle cx="0" cy="-57" r="11" fill="url(#lt-gAblak)" stroke="#6f5a9e" stroke-width="2"/>' +
+    '<path d="M-7 -50Q-7 -62 0 -62Q7 -62 7 -50Z" fill="#b08a68"/><path d="M-6 -61l2 -4l2 3M6 -61l-2 -4l-2 3" fill="#b08a68"/>' +
+    '<circle cx="-3" cy="-56" r="2.6" fill="#fff"/><circle cx="3" cy="-56" r="2.6" fill="#fff"/><circle cx="-3" cy="-56" r="1.3" fill="#2a2140"/><circle cx="3" cy="-56" r="1.3" fill="#2a2140"/>' +
+    '<path d="M-1 -53l1 2l1 -2z" fill="#f0aa3c"/>' +
+    '<rect x="-6" y="-59" width="12" height="0" fill="#b08a68">' + anim("height","0;0;6;0;0","4s",' keyTimes="0;0.86;0.9;0.94;1"') + '</rect>' +
+    '<path d="M-7 1.5V-13Q-7 -20 0 -20Q7 -20 7 -13V1.5Z" fill="#c99272" stroke="#6f5a9e" stroke-width="1.6"/>' +
+    '<rect x="18" y="-6" width="16" height="6" rx="1" fill="#f6a5c0" stroke="#b5607e" stroke-width="1"/><rect x="20" y="-12" width="13" height="6" rx="1" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1"/><rect x="19" y="-17" width="12" height="5" rx="1" fill="#a7d99a" stroke="#5f8e6a" stroke-width="1"/>'; },
+  fejtoro: function(){ return arnyek(66) +
+    '<path d="M-72 2Q-50 -30 -30 -52Q-14 -72 -2 -94Q8 -78 18 -66Q28 -74 34 -62Q54 -32 74 2Q0 6 -72 2Z" fill="url(#lt-gHegy)" stroke="#6f5a9e" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M18 -66Q30 -40 40 -20M-2 -94Q-20 -60 -30 -30" stroke="#fff" stroke-width="2" opacity=".3" fill="none"/>' +
+    '<path d="M-15 -72Q-7 -86 -2 -94Q6 -82 12 -72Q7 -66 3 -72Q-3 -64 -8 -72Q-11 -67 -15 -72Z" fill="#fff" stroke="#c9bde6" stroke-width="1.2"/>' +
+    '<path d="M24 -70Q28 -73 31 -66Q28 -63 26 -66Z" fill="#fff"/>' +
+    '<path d="M-22 1Q-6 -8 -18 -20Q0 -28 -12 -42Q2 -50 -5 -64" stroke="#f3e2c2" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-dasharray="1 5"/>' +
+    '<path d="M-2 -93V-118" stroke="#6e4a36" stroke-width="2" stroke-linecap="round"/>' +
+    '<path d="M-2 -118Q8 -120 17 -115Q8 -111 -2 -108Z" fill="#f6a5c0" stroke="#b5607e" stroke-width="1">' + anim("d","M-2 -118Q8 -120 17 -115Q8 -111 -2 -108Z;M-2 -118Q8 -115 17 -117Q8 -109 -2 -108Z;M-2 -118Q8 -120 17 -115Q8 -111 -2 -108Z","1.4s") + '</path>' +
+    '<path d="M44 -6q0 -9 9 -9t9 9z" fill="#b8b0c8" stroke="#6f5a9e" stroke-width="1.4"/><text x="53" y="-5.5" font-size="9" font-weight="700" text-anchor="middle" fill="#4a3b7a" font-family="Fredoka,sans-serif">?</text>'; }
+};
+
+/* ───────── 3. TÁJ (változatonként) ───────── */
+function veletlen(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; var t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function szabadHely(x, y, mod, tav){
+  for (var k in HELYEK){ var p=HELYEK[k][mod]; if (Math.abs(x-p[0])<(tav||52) && y>p[1]-MAGAS[k]-12 && y<p[1]+34) return false; }
+  return true;
+}
+function felho(x,y,s,dur,kesl,szin){
+  return '<g opacity=".92"><animateTransform attributeName="transform" type="translate" values="-160 0;'+(ELR_MOST.w+160)+' 0" dur="'+dur+'s" begin="-'+kesl+'s" repeatCount="indefinite"/>' +
+    '<path d="M'+x+' '+y+'q'+(-4*s)+' '+(-14*s)+' '+(10*s)+' '+(-14*s)+'q'+(6*s)+' '+(-12*s)+' '+(22*s)+' '+(-6*s)+'q'+(14*s)+' '+(-4*s)+' '+(16*s)+' '+(10*s)+'q'+(10*s)+' '+(2*s)+' '+(4*s)+' '+(10*s)+'z" fill="'+szin+'"/></g>';
+}
+function lepke(x,y,dur,c){
+  return '<g><animateTransform attributeName="transform" type="translate" values="0 0;30 -14;60 4;34 18;0 0" dur="'+dur+'s" repeatCount="indefinite"/>' +
+    '<g transform="translate('+x+' '+y+')"><path d="M0 0q-6 -7 -8 -1q2 4 8 1zM0 0q6 -7 8 -1q-2 4 -8 1z" fill="'+c+'" stroke="#8a6a7e" stroke-width=".6">' +
+    '<animateTransform attributeName="transform" type="scale" values="1 1;0.3 1;1 1" dur=".35s" repeatCount="indefinite"/></path></g></g>';
+}
+function bokor(x,y,s,c1,c2){ return '<path d="M'+(x-10*s)+' '+y+'q-3 '+(-10*s)+' '+(6*s)+' '+(-12*s)+'q'+(4*s)+' '+(-8*s)+' '+(12*s)+' '+(-2*s)+'q'+(8*s)+' 0 '+(6*s)+' '+(14*s)+'z" fill="'+c1+'" stroke="'+c2+'" stroke-width="1.2"/>'; }
+function kisfa(x,y,s,c1,c2){ return '<path d="M'+(x-1.5)+' '+y+'v'+(-10*s)+'h3v'+(10*s)+'z" fill="#9a6f52"/><circle cx="'+x+'" cy="'+(y-16*s)+'" r="'+(9*s)+'" fill="'+c1+'" stroke="'+c2+'" stroke-width="1.2"/>'; }
+
+function taj(v, mod){
+  var L=ELR[mod], w=L.w, h=L.h, hz = mod==="szeles" ? 110 : 120, r=veletlen(v==="A"?7:v==="B"?11:19), s="", mozgo="", i, x, y;
+  if (v==="A"){
+    s += '<rect width="'+w+'" height="'+h+'" fill="url(#lt-gEgA)"/>';
+    s += '<circle cx="'+(w*0.08)+'" cy="'+(h*0.1)+'" r="54" fill="url(#lt-gNap)"/><circle cx="'+(w*0.08)+'" cy="'+(h*0.1)+'" r="21" fill="#fff4c2"/>';
+    s += '<path d="M0 '+(hz-10)+'Q'+(w*.18)+' '+(hz-58)+' '+(w*.38)+' '+(hz-28)+'T'+(w*.78)+' '+(hz-40)+'T'+w+' '+(hz-22)+'V'+h+'H0Z" fill="#d9cbef"/>';
+    s += '<path d="M0 '+(hz+18)+'Q'+(w*.24)+' '+(hz-20)+' '+(w*.5)+' '+(hz+8)+'T'+w+' '+(hz)+'V'+h+'H0Z" fill="#c4e6bc"/>';
+    s += '<path d="M0 '+(hz+44)+'Q'+(w*.3)+' '+(hz+20)+' '+(w*.62)+' '+(hz+40)+'T'+w+' '+(hz+30)+'V'+h+'H0Z" fill="url(#lt-gRetA)"/>';
+    var to = mod==="szeles" ? [740,432,50,13] : [40,520,30,10];
+    s += '<ellipse cx="'+to[0]+'" cy="'+to[1]+'" rx="'+to[2]+'" ry="'+to[3]+'" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="2"/><path d="M'+(to[0]-to[2]*.5)+' '+(to[1]-2)+'h'+(to[2]*.5)+'" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>';
+    for (i=0;i<14;i++){ x=20+r()*(w-40); y=hz+50+r()*(h-hz-60); if (szabadHely(x,y,mod,58)) s += r()<.5 ? bokor(x,y,1+r()*.4,"#a8dc9c","#6fae74") : kisfa(x,y,1+r()*.3,"#9fd49a","#6fae74"); }
+    for (i=0;i<70;i++){ x=8+r()*(w-16); y=hz+40+r()*(h-hz-44); if (szabadHely(x,y,mod,40)) s += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(1.6+r()*1.4).toFixed(1)+'" fill="'+["#f6a5c0","#fce49a","#ffffff","#c9a8e6"][i%4]+'"/>'; }
+    mozgo += felho(0, 46, 1.2, 80, 10, "#ffffff") + felho(0, 78, .8, 110, 70, "#ffffff") + felho(0, 30, .9, 95, 40, "#fdfdfd");
+    mozgo += mod==="szeles" ? lepke(395,190,7,"#f7b8d0") + lepke(640,300,9,"#fce49a") : lepke(220,240,7,"#f7b8d0") + lepke(150,660,9,"#fce49a");
+  } else if (v==="B"){
+    s += '<rect width="'+w+'" height="'+(hz+60)+'" fill="url(#lt-gEgB)"/>';
+    for (i=0;i<26;i++){ x=r()*w; y=r()*(hz-10); if (x>w*.18||y>60) mozgo += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(0.8+r()*1.2).toFixed(1)+'" fill="#fff">'+anim("opacity","0.2;1;0.2",(2+r()*3).toFixed(1)+"s",' begin="'+(r()*3).toFixed(1)+'s"')+'</circle>'; }
+    s += '<path d="M'+(w*.08-14)+' '+(h*.1-16)+'A20 20 0 1 0 '+(w*.08+10)+' '+(h*.1+16)+'A15 15 0 1 1 '+(w*.08-14)+' '+(h*.1-16)+'Z" fill="#fff1b8"/>';
+    s += '<path d="M0 '+(hz-10)+'Q'+(w*.18)+' '+(hz-58)+' '+(w*.38)+' '+(hz-28)+'T'+(w*.78)+' '+(hz-40)+'T'+w+' '+(hz-22)+'V'+h+'H0Z" fill="#6c5aa0"/>';
+    s += '<path d="M0 '+(hz+18)+'Q'+(w*.24)+' '+(hz-20)+' '+(w*.5)+' '+(hz+8)+'T'+w+' '+(hz)+'V'+h+'H0Z" fill="#5f8790"/>';
+    s += '<path d="M0 '+(hz+44)+'Q'+(w*.3)+' '+(hz+20)+' '+(w*.62)+' '+(hz+40)+'T'+w+' '+(hz+30)+'V'+h+'H0Z" fill="url(#lt-gRetB)"/>';
+    for (i=0;i<14;i++){ x=20+r()*(w-40); y=hz+50+r()*(h-hz-60); if (szabadHely(x,y,mod,58)) s += r()<.5 ? bokor(x,y,1+r()*.4,"#5f8f78","#3f6a58") : kisfa(x,y,1+r()*.3,"#5f8f78","#3f6a58"); }
+    for (i=0;i<16;i++){ x=20+r()*(w-40); y=hz+40+r()*(h-hz-50); mozgo += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2" fill="#fff3a0">' +
+      '<animateTransform attributeName="transform" type="translate" values="0 0;'+(r()*16-8).toFixed(0)+' '+(-6-r()*10).toFixed(0)+';0 0" dur="'+(3+r()*3).toFixed(1)+'s" repeatCount="indefinite"/>' +
+      anim("opacity","0;1;0",(2+r()*2).toFixed(1)+"s",' begin="'+(r()*2).toFixed(1)+'s"') + '</circle>'; }
+  } else {
+    s += '<rect width="'+w+'" height="'+h+'" fill="url(#lt-gPapir)"/>';
+    var tg = mod==="szeles" ? "M0 0H250Q200 50 150 70Q80 95 60 130Q30 150 0 150Z" : "M0 0H120Q100 40 70 60Q40 80 0 86Z";
+    s += '<path d="'+tg+'" fill="#cfe3e6" stroke="#8a6b4f" stroke-width="2"/>';
+    var hul = mod==="szeles" ? [[30,40],[90,30],[60,90],[150,40]] : [[20,30],[60,20],[30,60]];
+    hul.forEach(function(p){ s += '<path d="M'+p[0]+' '+p[1]+'q5 -5 10 0t10 0" stroke="#7aa3b0" stroke-width="1.6" fill="none"/>'; });
+    for (i=0;i<26;i++){ x=20+r()*(w-40); y=(mod==="szeles"?150:110)+r()*(h-(mod==="szeles"?160:120)); if (!szabadHely(x,y,mod,56)) continue;
+      s += r()<.5 ? '<path d="M'+(x-12)+' '+y+'q12 -16 24 0" stroke="#8a6b4f" stroke-width="1.6" fill="none"/><path d="M'+(x-4)+' '+(y-6)+'q4 -3 7 0" stroke="#8a6b4f" stroke-width="1" fill="none"/>'
+                  : '<path d="M'+x+' '+y+'v-7" stroke="#8a6b4f" stroke-width="1.6"/><circle cx="'+x+'" cy="'+(y-12)+'" r="6" fill="#cfe0b8" stroke="#8a6b4f" stroke-width="1.6"/>'; }
+    var ro = mod==="szeles" ? [764,422,22] : [362,50,18], c=ro;
+    s += '<g stroke="#8a6b4f" stroke-width="1.4"><circle cx="'+c[0]+'" cy="'+c[1]+'" r="'+c[2]+'" fill="#f7ead0"/>' +
+      '<path d="M'+c[0]+' '+(c[1]-c[2]-6)+'L'+(c[0]+5)+' '+c[1]+'L'+c[0]+' '+(c[1]+c[2]+6)+'L'+(c[0]-5)+' '+c[1]+'Z" fill="#e07a6a"/>' +
+      '<path d="M'+(c[0]-c[2]-6)+' '+c[1]+'L'+c[0]+' '+(c[1]-5)+'L'+(c[0]+c[2]+6)+' '+c[1]+'L'+c[0]+' '+(c[1]+5)+'Z" fill="#f7ead0"/></g>' +
+      '<text x="'+c[0]+'" y="'+(c[1]-c[2]-9)+'" font-size="10" font-weight="700" text-anchor="middle" fill="#8a6b4f" font-family="Fredoka,sans-serif">É</text>';
+    var sz = mod==="szeles" ? [395,34] : [95,112];
+    s += '<path d="M'+(sz[0]-86)+' '+(sz[1]-14)+'h172l-10 14l10 14h-172l10 -14z" fill="#f2c9a6" stroke="#8a6b4f" stroke-width="1.6"/>' +
+         '<text x="'+sz[0]+'" y="'+(sz[1]+5)+'" font-size="14" font-weight="700" text-anchor="middle" fill="#6b4a36" font-family="Fredoka,sans-serif">Unikornis-völgy</text>';
+    mozgo += mod==="szeles" ? '<g><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2.4s" repeatCount="indefinite"/><path d="M96 112h26l-4 7h-18z" fill="#c99272" stroke="#8a6b4f" stroke-width="1.4"/><path d="M108 112v-18l12 14z" fill="#fff" stroke="#8a6b4f" stroke-width="1.2"/></g>' : '';
+  }
+  return { allo: s, mozgo: mozgo };
+}
+
+/* ───────── 4. UTAK + ÚTKERESŐ ───────── */
+function pont(id, mod){ var p=HELYEK[id][mod]; return [p[0], p[1]+6]; }
+function gorbe(a, b, kanyar){
+  var dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy), nx=-dy/L, ny=dx/L;
+  return [a, [a[0]+dx/3+nx*kanyar, a[1]+dy/3+ny*kanyar], [a[0]+dx*2/3-nx*kanyar*.5, a[1]+dy*2/3-ny*kanyar*.5], b];
+}
+function el(a, b, mod){
+  for (var i=0;i<UTAK.length;i++){ var u=UTAK[i];
+    if (u[0]===a && u[1]===b) return gorbe(pont(a,mod), pont(b,mod), u[2]);
+    if (u[1]===a && u[0]===b){ var g=gorbe(pont(b,mod), pont(a,mod), u[2]); return [g[3],g[2],g[1],g[0]]; } }
+  return null;
+}
+function f(n){ return n.toFixed(1); }
+function dElsz(g, kezd){ return (kezd?'M'+f(g[0][0])+' '+f(g[0][1]):'')+'C'+f(g[1][0])+' '+f(g[1][1])+' '+f(g[2][0])+' '+f(g[2][1])+' '+f(g[3][0])+' '+f(g[3][1]); }
+function utkereso(honnan, hova, mod){
+  var tav={}, elozo={}, nyitott=Object.keys(HELYEK); nyitott.forEach(function(k){ tav[k]=Infinity; }); tav[honnan]=0;
+  while (nyitott.length){
+    nyitott.sort(function(a,b){ return tav[a]-tav[b]; }); var u=nyitott.shift(); if (u===hova) break;
+    UTAK.forEach(function(e){ var v = e[0]===u ? e[1] : e[1]===u ? e[0] : null; if (!v) return;
+      var a=pont(u,mod), b=pont(v,mod), d=tav[u]+Math.hypot(a[0]-b[0],a[1]-b[1]); if (d<tav[v]){ tav[v]=d; elozo[v]=u; } });
+  }
+  var ut=[hova]; while (ut[0]!==honnan) ut.unshift(elozo[ut[0]]); return ut;
+}
+/* állóhely: az unikornis a jelkép MELLETT áll (nem a név fölött). oldal: +1 jobbra, -1 balra; a tábla felülírhatja */
+var SZEL = { odu:66, egyeni:64, osszeado:72, szorzo:60, szabo:70, bajital:64, pekseg:64, vasar:72, konyvtar:58, fejtoro:86 };
+var OLDAL = { szeles:{ vasar:-1, fejtoro:-1, szorzo:1 }, allo:{ egyeni:-1, szorzo:-1, vasar:-1, fejtoro:-1 } };
+function allas(id, mod){ var p=HELYEK[id][mod], o=OLDAL[mod][id]||1; return { x:p[0]+o*SZEL[id]*ELR[mod].jk, y:p[1]+2, o:o }; }
+
+function utakRajz(v, mod){
+  var szin = v==="A" ? ["#d9bf94","#f5e6c6","#fffaf0"] : v==="B" ? ["#7a5f4a","#e8cfa4","#fff3d6"] : ["#8a6b4f","#f7ead0","#b4553f"];
+  var d = UTAK.map(function(u){ return dElsz(el(u[0],u[1],mod), true); }).join("");
+  var s = '<path d="'+d+'" fill="none" stroke="'+szin[0]+'" stroke-width="'+(v==="C"?9:17)+'" stroke-linecap="round"/>' +
+          '<path d="'+d+'" fill="none" stroke="'+szin[1]+'" stroke-width="'+(v==="C"?6:12)+'" stroke-linecap="round"/>' +
+          '<path d="'+d+'" fill="none" stroke="'+szin[2]+'" stroke-width="'+(v==="C"?2.4:2.6)+'" stroke-linecap="round" stroke-dasharray="'+(v==="C"?"7 6":"2 11")+'" opacity="'+(v==="C"?.9:.8)+'"/>';
+  if (v==="B") UTAK.forEach(function(u, i){ if (i%2) return; var g=el(u[0],u[1],mod), t=.5, m=1-t;
+    var x=m*m*m*g[0][0]+3*m*m*t*g[1][0]+3*m*t*t*g[2][0]+t*t*t*g[3][0], y=m*m*m*g[0][1]+3*m*m*t*g[1][1]+3*m*t*t*g[2][1]+t*t*t*g[3][1];
+    s += '<circle cx="'+f(x+12)+'" cy="'+f(y-16)+'" r="12" fill="url(#lt-gHalo)"/><path d="M'+f(x+12)+' '+f(y+2)+'v-14" stroke="#4a3b5a" stroke-width="1.6"/><rect x="'+f(x+8.5)+'" y="'+f(y-20)+'" width="7" height="8" rx="2" fill="#ffe08a" stroke="#4a3b5a" stroke-width="1"/>'; });
+  return s;
+}
+
+/* ───────── 5. HELYEK + JELZÉSEK ───────── */
+function cimke(x, y, nev, k){
+  var sz = nev.length*7.2+22;
+  return '<g transform="translate('+x+' '+y+') scale('+k+')"><rect x="'+f(-sz/2)+'" y="7" width="'+f(sz)+'" height="22" rx="11" fill="#ffffff" opacity=".94" stroke="#e6d8f0"/>' +
+         '<text y="23" text-anchor="middle" font-size="13.5" font-weight="700" fill="#2a2140" font-family="Fredoka,\'Segoe UI\',sans-serif">'+nev+'</text></g>';
+}
+function jelzesRajz(id, x, y, k, nev){
+  var j=JELZES[id]; if (!j) return "";
+  var s="", sz=nev.length*7.2+22;
+  if (j.csillag){ var tele = j.csillag[0]===j.csillag[1], cx = x + (sz/2+4)*k, cy = y+7*k; if (cx+48*k > ELR_MOST.w){ cx = x-22*k; cy = y+32*k; }   /* nem fér el jobbra: a név alá kerül */
+    s += '<g transform="translate('+f(cx)+' '+f(cy)+') scale('+k+')"><rect width="44" height="22" rx="11" fill="'+(tele?"#fff1b8":"#ffffff")+'" stroke="'+(tele?"#e3a92a":"#3f9e6a")+'" stroke-width="1.6"/>' +
+         '<text x="22" y="15.5" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+(tele?"#b07a10":"#3f9e6a")+'" font-family="Fredoka,sans-serif">'+(tele?"🌟":"⭐")+' '+j.csillag[0]+'/'+j.csillag[1]+'</text></g>'; }
+  (j.ikon||[]).slice(0,2).forEach(function(ik, i){ var ix = x-36*k, iy = y-MAGAS[id]*k*0.62 + i*26*k;
+    s += '<g transform="translate('+f(ix)+' '+f(iy)+') scale('+k+')"><circle r="12" fill="#fff" stroke="'+(ik==="💧"?"#29a3dd":ik==="🏦"?"#b07a10":"#e0417a")+'" stroke-width="2"/>' +
+         '<text y="4.5" text-anchor="middle" font-size="13">'+ik+'</text>' + anim("opacity","1;.75;1","2.2s") + '</g>'; });
+  if (j.alszik){ var ax = x+30*k, ay = y-MAGAS[id]*k*0.8;
+    s += '<g transform="translate('+f(ax)+' '+f(ay)+') scale('+k+')"><path d="M-8 -10A11 11 0 1 0 4 8A8 8 0 1 1 -8 -10Z" fill="#fff1b8" stroke="#b07a10" stroke-width="1.4"/>' +
+         '<text x="10" y="-6" font-size="11" font-weight="700" fill="#6b6280" font-family="Fredoka,sans-serif">z' + anim("opacity","0;1;0","2.4s") + '</text>' +
+         '<text x="17" y="-15" font-size="9" font-weight="700" fill="#6b6280" font-family="Fredoka,sans-serif">z' + anim("opacity","0;1;0","2.4s",' begin=".6s"') + '</text></g>'; }
+  return s;
+}
+
+/* ───────── 6. A TÉRKÉP ÖSSZERAKÁSA ───────── */
+var ALL = { v:"A", mod:"szeles", jel:true, all:{ szeles:"odu", allo:"odu" } };
+var ELR_MOST = ELR.szeles, svg, uniG, uniRing, nyomvonal, seta=null;
+var hely = document.getElementById("terkep-hely");
+
+function rajzol(){
+  var L=ELR[ALL.mod], mod=ALL.mod; ELR_MOST=L;
+  var t=taj(ALL.v, mod);
+  var sorrend = Object.keys(HELYEK).sort(function(a,b){ return HELYEK[a][mod][1]-HELYEK[b][mod][1]; });
+  var helyek = sorrend.map(function(id){ var p=HELYEK[id][mod], k=L.jk;
+    var halo = ALL.v==="B" && id!=="fejtoro" && id!=="szorzo" && id!=="osszeado" && id!=="egyeni" ? '<ellipse cx="0" cy="-34" rx="46" ry="40" fill="url(#lt-gHalo)"/>' : "";
+    var alszik = ALL.jel && JELZES[id] && JELZES[id].alszik;
+    return '<g class="hely'+(alszik?" alszik":"")+'" data-id="'+id+'" role="button" aria-label="'+HELYEK[id].nev+'"><g transform="translate('+p[0]+' '+p[1]+') scale('+k+')">' +
+      '<rect x="-56" y="'+(-MAGAS[id]-6)+'" width="112" height="'+(MAGAS[id]+38)+'" fill="transparent"/>' + halo + '<g class="hb">'+JELKEP[id]()+'</g></g></g>'; }).join("");
+  var cimkek = sorrend.map(function(id){ var p=HELYEK[id][mod];
+    return '<g class="hely" data-id="'+id+'">'+cimke(p[0], p[1], HELYEK[id].nev, L.jk)+'</g>' + (ALL.jel ? jelzesRajz(id, p[0], p[1], L.jk, HELYEK[id].nev) : ""); }).join("");
+  hely.querySelectorAll("svg").forEach(function(n){ n.remove(); });
+  hely.insertAdjacentHTML("afterbegin",
+    '<svg viewBox="0 0 '+L.w+' '+L.h+'" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+      '<g filter="url(#lt-firka)">'+t.allo+utakRajz(ALL.v, mod)+'</g>' + t.mozgo +
+      '<path class="nyom" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".85" stroke-dasharray="0 99999"/>' +
+      helyek + cimkek +
+      '<g class="uni" pointer-events="none"><g class="uni-ring"><g class="uni-all"><use href="#lt-uni" width="380" height="300"/></g></g></g>' +
+    '</svg>');
+  svg = hely.querySelector("svg"); uniG = svg.querySelector(".uni"); uniRing = svg.querySelector(".uni-ring"); nyomvonal = svg.querySelector(".nyom");
+  svg.addEventListener("click", function(e){ var g=e.target.closest(".hely"); if (g) koppint(g.getAttribute("data-id")); });
+  allit();
+}
+function uniHelyre(x, y, irany){
+  var k=ELR_MOST.uni; uniG.setAttribute("transform", 'translate('+f(x)+' '+f(y)+') scale('+(irany*k)+' '+k+') translate(-190 -288)');
+}
+function allit(){
+  var a=allas(ALL.all[ALL.mod], ALL.mod); uniHelyre(a.x, a.y, -a.o);   /* a hely felé néz */
+}
+
+/* ───────── 7. SÉTA ───────── */
+function koppint(cel){
+  if (seta){ seta.azonnal = true; return; }                    /* második koppintás: azonnal ott van */
+  var mod=ALL.mod, honnan=ALL.all[mod], ut=utkereso(honnan, cel, mod), a=allas(honnan, mod), b=allas(cel, mod), i;
+  /* állóhely → a hely ajtaja → ösvények → a cél ajtaja → a cél állóhelye */
+  var p0=pont(honnan, mod), d='M'+f(a.x)+' '+f(a.y)+'Q'+f((a.x+p0[0])/2)+' '+f(p0[1]+4)+' '+f(p0[0])+' '+f(p0[1]);
+  for (i=0;i<ut.length-1;i++) d += dElsz(el(ut[i], ut[i+1], mod), false);
+  var p1=pont(cel, mod); d += 'Q'+f((b.x+p1[0])/2)+' '+f(p1[1]+4)+' '+f(b.x)+' '+f(b.y);
+  nyomvonal.setAttribute("d", d);
+  var L = nyomvonal.getTotalLength(), kezd = 0, vege = L, hossz = Math.max(0, vege-kezd), uget = hossz>260, seb = Math.max(uget?0.22:0.12, hossz/2000), t0=null, irany=1;
+  uniRing.classList.add(uget?"uget":"lep");
+  seta = { azonnal:false };
+  function lepes(ts){
+    if (t0===null) t0=ts;
+    var s = Math.min(vege, kezd + (ts-t0)*seb); if (seta.azonnal) s = vege;
+    var pt = nyomvonal.getPointAtLength(s), elore = nyomvonal.getPointAtLength(Math.min(L, s+6));
+    if (Math.abs(elore.x-pt.x)>0.3) irany = elore.x<pt.x ? -1 : 1;
+    if (s>=vege) irany = -b.o;                                    /* megérkezett: a hely felé fordul */
+    uniHelyre(pt.x, pt.y, irany);
+    nyomvonal.setAttribute("stroke-dasharray", f(s)+" 99999");
+    if (s<vege) { requestAnimationFrame(lepes); return; }
+    uniRing.classList.remove("uget","lep");
+    ALL.all[mod] = cel;
+    setTimeout(function(){ belep(cel); }, seta.azonnal ? 0 : 220);
+  }
+  requestAnimationFrame(lepes);
+}
+function belep(cel){
+  var p=HELYEK[cel][ALL.mod];
+  svg.style.transformOrigin = (p[0]/ELR_MOST.w*100)+"% "+((p[1]-30)/ELR_MOST.h*100)+"%";
+  svg.classList.add("belep");
+  document.getElementById("lb-nev").textContent = HELYEK[cel].nev;
+  setTimeout(function(){ document.getElementById("liget-belso").classList.add("lathato"); seta=null; }, 380);
+}
+document.getElementById("lb-vissza").addEventListener("click", function(){
+  document.getElementById("liget-belso").classList.remove("lathato");
+  nyomvonal.setAttribute("stroke-dasharray","0 99999"); allit();
+  svg.classList.remove("belep");
+});
+
+/* ───────── 8. VEZÉRLŐK + GALÉRIA ───────── */
+function gombsor(id, attr, fv){
+  document.getElementById(id).addEventListener("click", function(e){ var b=e.target.closest("button"); if (!b) return;
+    this.querySelectorAll("button").forEach(function(x){ x.classList.toggle("on", x===b); }); fv(b.getAttribute(attr)); });
+}
+function alaphelyzet(){ seta=null; document.getElementById("liget-belso").classList.remove("lathato"); }
+gombsor("c-valt","data-v", function(v){ ALL.v=v; alaphelyzet(); rajzol(); });
+gombsor("c-mod","data-m", function(m){ ALL.mod=m; alaphelyzet(); document.getElementById("kepernyo").classList.toggle("telefon", m==="allo"); rajzol(); });
+gombsor("c-jel","data-j", function(j){ ALL.jel = j==="1"; alaphelyzet(); rajzol(); });
+rajzol();
+
+document.getElementById("galeria").innerHTML = Object.keys(HELYEK).map(function(id){
+  return '<div class="jk"><svg viewBox="-62 -126 124 136" xmlns="http://www.w3.org/2000/svg">'+JELKEP[id]()+'</svg><b>'+HELYEK[id].nev+'</b><span>'+LEIRAS[id]+'</span></div>'; }).join("");
+})();
+</script>
+</body>
+</html>
