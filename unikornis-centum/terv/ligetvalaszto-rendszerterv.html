@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligetválasztó rendszerterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --map-sky:#e9f6ff; --map-grass:#d9f2dc; --map-path:#f3e2c2; --map-ink:#5a4a6e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+      --map-sky:#22324a; --map-grass:#23402e; --map-path:#5a4a33; --map-ink:#e6dcf5;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    --map-sky:#22324a; --map-grass:#23402e; --map-path:#5a4a33; --map-ink:#e6dcf5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.28);position:relative;overflow:hidden}
+  header.top::after{content:"🗺️";position:absolute;right:18px;top:6px;font-size:100px;opacity:.18;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--blue-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--violet);font-weight:800}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .vazlatok{display:grid;grid-template-columns:2fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line)}
+  svg.vazlat text{fill:var(--map-ink);font-family:"Segoe UI",system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🗺️ Ligetválasztó</h1>
+  <div class="sub">A túl hosszú ösvénylista helyett egy térkép: a főképernyőn csak a ligetek látszanak. Az unikornis odasétál a választott ligethez, és csak bent látszanak az ösvények.</div>
+  <div class="meta">
+    <span class="chip">Rendszerterv · JÓVÁHAGYVA</span>
+    <span class="chip">2026-10-04 · jóváhagyva 2026-10-05</span>
+    <span class="chip">Nagyság: közepes–nagy (4 kör)</span>
+    <span class="chip">Utána: rajzterv a térképhez</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <ul>
+    <li>Ma <b>egyetlen hosszú, görgetős lista</b> van, kb. <b>35–45 kártyával</b> 9 ligetben. A pontos szám attól függ, mit rejtettél el a pulton, és be van-e lépve a gyerek. A következő körök (alapművelet-pályák, Tény-kert) <b>még több kártyát</b> hoznak, ezért kell előbb a hely.</li>
+    <li>Az új főképernyő egy <b>festett ligettérkép</b>. Ezen <b>legfeljebb 9 hely</b> van, egy-egy rajzolt jelképpel, névvel és egy-két apró jelzéssel.</li>
+    <li>Koppintásra <b>az unikornis odasétál</b> a ligethez a térkép ösvényein, és belép. Bent <b>csak annak a ligetnek a kártyái</b> vannak, a liget saját hátterével (ezek a hátterek már megvannak).</li>
+    <li>Pálya után a gyerek <b>ugyanabba a ligetbe tér vissza</b>, nem a térkép elejére.</li>
+    <li>A térkép <b>közös térkép-modul</b> lesz. Később a kissárkány-térkép (visszahívás, 3. lépés) is ezt használja.</li>
+  </ul>
+</div>
+
+<h2>Hogy néz ki</h2>
+<p class="lead">Csak elrendezés-vázlat, nem a végleges rajz. A rajz a következő lépés (rajzterv, 2–3 változattal).</p>
+<div class="vazlatok">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ligettérkép vázlat, széles képernyő">
+      <rect width="800" height="460" fill="var(--map-sky)"/>
+      <path d="M0 170 Q200 120 400 150 T800 140 V460 H0Z" fill="var(--map-grass)"/>
+      <path d="M70 420 C180 400 200 360 250 340 S360 330 400 300 S520 280 560 250 S650 200 640 120" fill="none" stroke="var(--map-path)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M250 340 C220 300 170 280 140 250" fill="none" stroke="var(--map-path)" stroke-width="12" stroke-linecap="round"/>
+      <path d="M400 300 C420 360 480 380 540 390" fill="none" stroke="var(--map-path)" stroke-width="12" stroke-linecap="round"/>
+      <path d="M560 250 C620 270 690 300 720 330" fill="none" stroke="var(--map-path)" stroke-width="12" stroke-linecap="round"/>
+      <path d="M400 300 C380 240 330 210 300 190" fill="none" stroke="var(--map-path)" stroke-width="12" stroke-linecap="round"/>
+      <g font-size="13" text-anchor="middle">
+        <text x="70" y="402" font-size="26">🏠</text><text x="70" y="448">Odú</text>
+        <text x="250" y="330" font-size="30">🌳</text><text x="250" y="358">Összeadó liget</text>
+        <text x="140" y="240" font-size="30">🌙</text><text x="140" y="268">Szorzós liget</text>
+        <text x="300" y="180" font-size="26">🧵</text><text x="300" y="206">Szabóműhely</text>
+        <text x="400" y="290" font-size="26">🧪</text><text x="410" y="318">Bájitalkonyha</text>
+        <text x="540" y="380" font-size="26">🧁</text><text x="540" y="408">Mézes pékség</text>
+        <text x="720" y="320" font-size="26">🧺</text><text x="720" y="348">Tündérvásár</text>
+        <text x="560" y="240" font-size="26">📚</text><text x="560" y="268">Bagolykönyvtár</text>
+        <text x="640" y="110" font-size="34">🏔️</text><text x="640" y="136">Fejtörő-hegy</text>
+        <text x="110" y="340" font-size="22">💖</text><text x="110" y="362" font-size="11">Neked készült</text>
+      </g>
+      <g font-size="12" font-weight="700">
+        <rect x="270" y="292" width="40" height="18" rx="9" fill="#fff" stroke="#3f9e6a"/><text x="290" y="305" text-anchor="middle" fill="#3f9e6a">⭐ 4/9</text>
+        <rect x="160" y="200" width="30" height="18" rx="9" fill="#fff" stroke="#29a3dd"/><text x="175" y="213" text-anchor="middle" fill="#29a3dd">💧</text>
+        <rect x="575" y="200" width="30" height="18" rx="9" fill="#fff" stroke="#e0417a"/><text x="590" y="213" text-anchor="middle" fill="#e0417a">💖</text>
+      </g>
+      <text x="215" y="372" font-size="28">🦄</text>
+    </svg>
+    <figcaption>Ligettérkép, laptopon (fekvő). Lent az odú, fent a Fejtörő-hegy.</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 300 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Liget-belső vázlat">
+      <rect width="300" height="460" fill="var(--map-grass)"/>
+      <rect x="0" y="0" width="300" height="46" fill="var(--violet-soft)"/>
+      <text x="14" y="29" font-size="13" font-weight="700">← Térkép</text>
+      <text x="200" y="29" font-size="13" font-weight="700" text-anchor="middle">🌙 Szorzós liget</text>
+      <g font-size="12" text-anchor="middle">
+        <rect x="16" y="64" width="126" height="92" rx="12" fill="#fff" stroke="#c9b5e8"/><text x="79" y="102" font-size="22">🎵</text><text x="79" y="128">Szorzódallam</text>
+        <rect x="158" y="64" width="126" height="92" rx="12" fill="#fff" stroke="#c9b5e8"/><text x="221" y="102" font-size="22">🔮</text><text x="221" y="128">Egy szám bűvköre</text>
+        <rect x="16" y="170" width="126" height="92" rx="12" fill="#fff" stroke="#c9b5e8"/><text x="79" y="208" font-size="22">➗</text><text x="79" y="234">Osztogató tisztás</text>
+        <rect x="158" y="170" width="126" height="92" rx="12" fill="#fff" stroke="#c9b5e8"/><text x="221" y="208" font-size="22">🧺</text><text x="221" y="234">Mi maradt?</text>
+        <rect x="16" y="276" width="126" height="92" rx="12" fill="#fff" stroke="#c9b5e8"/><text x="79" y="314" font-size="22">🌲</text><text x="79" y="340">Szám-rengeteg</text>
+      </g>
+      <path d="M40 430 C120 418 160 400 210 330" fill="none" stroke="var(--pink)" stroke-width="2" stroke-dasharray="5 5"/>
+      <text x="22" y="446" font-size="28">🦄</text>
+    </svg>
+    <figcaption>Bent a ligetben: csak a saját kártyái. A szaggatott vonal: az unikornis a választott kártyához ügetett.</figcaption>
+  </figure>
+</div>
+
+<h2>A gyerek útja</h2>
+<div class="panel">
+  <div class="flow">
+    <span class="step">🦄 Váltás / utca</span><span class="arr">→</span>
+    <span class="step">🗺️ Ligettérkép</span><span class="arr">→</span>
+    <span class="step">koppint egy ligetre</span><span class="arr">→</span>
+    <span class="step">az unikornis odasétál (1–2 mp)</span><span class="arr">→</span>
+    <span class="step">🌙 Liget belseje</span><span class="arr">→</span>
+    <span class="step">koppint egy ösvényre</span><span class="arr">→</span>
+    <span class="step">pálya</span><span class="arr">→</span>
+    <span class="step">vissza ugyanebbe a ligetbe</span>
+  </div>
+  <ul style="margin-top:12px">
+    <li><b>Második koppintás séta közben = azonnal ott van.</b> Ugyanígy működik az utcán is, a türelmetlen gyerek nem vár.</li>
+    <li>A térképre a liget fejlécében lévő <b>„← Térkép”</b> gombbal lehet visszamenni. Az unikornis ilyenkor a liget előtt áll a térképen.</li>
+    <li>Az unikornis <b>arra a helyre emlékszik, ahol utoljára járt</b> (gyerekenként mentve). Legelőször az odú előtt áll.</li>
+    <li>Koppintáskor a felolvasó <b>csak a liget nevét</b> mondja („Szorzós liget!”). Hosszabb szöveg nincs, ahogy az induló szövegnél is kérted.</li>
+  </ul>
+</div>
+
+<h2>Döntések</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>Két szint: térkép és liget-belső</h3>
+    <ul>
+      <li>A térképen <b>egy hely = egy liget</b>. A mai 9 csoport: Összeadó, Szorzós, Szabóműhely, Bájitalkonyha, Mézes pékség, Tündérvásár, Bagolykönyvtár, Fejtörő-hegy, Neked készült.</li>
+      <li>A belső nézet a <b>mai kártyákat</b> mutatja, változatlanul: sorszám, ⭐/🌟, 🔒, 💧 napi kiemelt, 💖 ajánlott, 🏦, 🔊 felolvasás, a Bagolykönyvtár szárny-sorai. A gyerek semmit nem tanul újra.</li>
+      <li>A „☀ Kihagyás nélkül: arany szilánk” szabály a fejlécből a liget-belsőbe költözik, mert ott van értelme.</li>
+    </ul>
+    <span class="ok">Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Mi látszik egy ligeten a térképen</h3>
+    <ul>
+      <li><b>Mindig:</b> a liget jelképe (rajz), a neve, és egy kis <b>⭐ x/y</b> („hány ösvényt jártál már végig”).</li>
+      <li><b>Ha van benne:</b> legfeljebb <b>két jelzés</b>, ebben a sorrendben: 💧 napi kiemelt → 💖 ajánlott → 🏦 bankot nyit → 💖 egyéni pálya. Ha több is van, a kettő legfontosabb látszik, így a térkép nem lesz zsúfolt.</li>
+      <li><b>Ha minden ösvénye zárva</b> (🔒 kapu-óraszám vagy 🌙 „mára elég volt”): a liget halványabb, és egy kis hold alszik rajta. Koppintani lehet, a felolvasó megmondja, mikor nyílik.</li>
+      <li>Laptopon <b>egérrel ráállva</b> a liget kicsit megemelkedik és felragyog.</li>
+    </ul>
+    <span class="ok">Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>A térkép elrendezése</h3>
+    <ul>
+      <li>Lent az <b>odú</b> (onnan indul), fent a <b>Fejtörő-hegy</b> (ott a legnehezebb). A ligetek az ösvény mentén <b>nagyjából nehézségi sorrendben</b> vannak: Összeadó és Szorzós közel az odúhoz, a három mérés-műhely egymás mellett, aztán a Tündérvásár, a Bagolykönyvtár, végül a hegy. A Neked készült az odú mellett van, mert „neked szól”.</li>
+      <li><b>Két elrendezés:</b> fekvő (laptop, 800×460) és álló (telefon, 400×760), pont úgy, mint az utcán. A gép a képernyő alakjából választ. Telefonon a helyek egymás alatt kanyarognak, a térkép ott se görget oldalra.</li>
+      <li>Ha egy liget teljesen el van rejtve a pulton (vagy a Fejtörő-hegy belépés nélkül), <b>a helye nem jelenik meg</b>. Az ösvény ott tájkép marad, nem marad lyuk.</li>
+    </ul>
+    <span class="ok">Jóváhagyva</span> <span class="prop">a pontos képet a rajzterv adja</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Az unikornis mozgása</h3>
+    <ul>
+      <li><b>A térképen:</b> a térkép ösvényein sétál, a kanyarokban és visszafordulásnál a már kész fordulással. Rövid úton sétál, hosszú úton üget. Ezt a már meglévő közös kód (<code>uniUt</code>) dönti el, ugyanúgy, mint a pályán. Legfeljebb kb. 2 másodperc, aztán belép (halványul és ránagyít a ligetre).</li>
+      <li><b>A liget belsejében:</b> az unikornis a kártyák alatt áll. Ha a gyerek választ egy ösvényt, odaüget a kártyához (kb. 1 mp), aztán indul a pálya.</li>
+      <li><b>Nyugalmas mód</b> (a pulton) és a tesztek gyorsítása: nincs séta, rögtön ott van.</li>
+      <li>A figurán a saját öltözet és kinézet van, mint mindenhol (közös <code>unikornisSVG</code>).</li>
+    </ul>
+    <span class="ok">Jóváhagyva</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>Visszatérés pálya után</h3>
+    <ul>
+      <li>A pálya vége, a „🏠 Haza”, és a Fejtörő vége is <b>ugyanabba a ligetbe</b> visz vissza, ahonnan a gyerek indult. Így rögtön látja a következő ösvényt, ami a gyakorlásnak jó.</li>
+      <li>Az odúból és az utcáról („Induljunk matekozni!”) a <b>térképre</b> jön, az unikornis az utolsó ligete előtt áll.</li>
+    </ul>
+    <span class="ok">Jóváhagyva</span>
+  </div>
+
+</div>
+
+<h2>Milyen közös alapra épül, mit ad hozzá a közöshöz?</h2>
+<div class="panel">
+  <table>
+    <tr><th>Közös alap (már kész)</th><th>Mire kell itt</th></tr>
+    <tr><td><code>uniUt</code>, <code>uniJar</code>, <code>uniFordul</code> (renderer.js)</td><td>séta/ügetés, lábmozgás, fordulás</td></tr>
+    <tr><td><code>unikornisSVG</code> + <code>uniNezoAdat</code></td><td>a gyerek saját unikornisa, öltözve</td></tr>
+    <tr><td>a liget-hátterek (<code>REGIO_HATTER</code>), a kártya-rajzoló (<code>keszitKartya</code>)</td><td>a liget-belső, változatlanul</td></tr>
+    <tr><td>az utca két elrendezése (<code>UTCA_ELR</code> + <code>utcaMod</code>)</td><td>minta a fekvő/álló térképhez</td></tr>
+  </table>
+  <h3>Ami új, és közös lesz</h3>
+  <ul>
+    <li><b>Kiemelés (még a térkép előtt):</b> a pályán futó <code>osvenyMegy</code> ma a pálya állapotához (<code>OSV</code>) kötött. Kiemelem belőle a <b>„menj végig ezen a pontsoron”</b> részt egy közös függvénybe (<code>uniUtvonal</code>). A pálya, a ligettérkép, a liget-belső és később a sárkány-térkép is ezt hívja. A pályán a gyerek semmi változást nem lát.</li>
+    <li><b>Új modul: <code>src/terkep.js</code>.</b> Egy térkép adat-táblákból áll: <b>helyek</b> (azonosító, név, jelkép, hely a fekvő és az álló képen), <b>utak</b> (melyik hely melyikkel, milyen görbén), és egy <b>útkereső</b>, ami kiszámolja, merre sétáljon az unikornis A-ból B-be. Új liget = egy új sor a táblában, a térkép magától rajzolja.</li>
+    <li>A kissárkány-térkép később ugyanezt kapja, plusz egy <b>„köd” réteget</b>, amit a gyerek pályánként feltisztít. Ezért a köd-réteg helyét már most kihagyom a modulban, de megírni majd akkor kell.</li>
+  </ul>
+</div>
+
+<h2>Mentés és pult</h2>
+<div class="panel">
+  <ul>
+    <li>Új mentett adat gyerekenként: <code>utolsoLiget</code> (hol áll az unikornis). Régi mentésnél üres, ilyenkor az odú előtt áll.</li>
+    <li><b>A pultban nem kell új beállítás.</b> A meglévők (elrejtés, ajánlott, kapu, darabkorlát, bank, napi kiemelt) maguktól megjelennek a térképen is.</li>
+    <li>A liget-sorrendet és a jelképeket egy adat-tábla adja, nem a pult.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="cards">
+  <div class="dec"><span class="num">0</span><h3>Rajzterv a térképhez</h3>A térkép tája és a 9 liget-jelkép, 2–3 változatban, pasztell, festett SVG. Telefonos nézet is. <b>Jóváhagyás után</b> jön a kód. <span class="prop">következő lépés</span></div>
+  <div class="dec"><span class="num">1</span><h3>Közös mozgás kiemelése</h3><code>osvenyMegy</code> → <code>uniUtvonal</code>. A gyerek semmit nem lát belőle, a pálya ugyanúgy működik. Kicsi kör.</div>
+  <div class="dec"><span class="num">2</span><h3>Liget-belső + visszatérés</h3>A mostani lista ligetenként szétválik, egyszerű ideiglenes ligetválasztóval (kártyák). Ezzel már most megszűnik a hosszú görgetés. Közepes kör.</div>
+  <div class="dec"><span class="num">3</span><h3>Festett térkép + séta</h3><code>src/terkep.js</code>, a rajzterv képe, fekvő és álló elrendezés, az unikornis sétál a térképen és a ligetben. Nagyobb kör.</div>
+  <div class="dec"><span class="num">4</span><h3>Jelzések + próba</h3>⭐ x/y, 💧/💖/🏦, alvó liget, felolvasás, egér-ráállás. Csendes böngészős teszt laptop- és telefonméretben, rendszerterv frissítése. Kis–közepes kör.</div>
+</div>
+
+<h2>A producer döntései (2026-10-05)</h2>
+<div class="panel">
+  <ol>
+    <li><b>A ligeten belül is odaüget az unikornis a választott kártyához</b> (kb. 1 mp). <span class="ok">Döntve: igen</span></li>
+    <li><b>Pálya után a gyerek a ligetbe tér vissza</b>, nem a térképre. <span class="ok">Döntve: ligetbe</span></li>
+    <li><b>A három mérés-műhely három külön hely</b> a térképen, egymás mellett. <span class="ok">Döntve: három külön</span></li>
+  </ol>
+</div>
+
+</div>
+</body>
+</html>
