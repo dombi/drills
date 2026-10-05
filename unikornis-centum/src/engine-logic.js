@@ -137,6 +137,7 @@ function ujFeladat() {
 }
 function feladatMutat(f) {
   J.parokKesz = 0;
+  tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
@@ -181,7 +182,7 @@ function feladatMutat(f) {
     if (kezNelkulE()) { kezNelkulModUI(); kezNelkulKor(); return; }
     modBeallit();
   }
-  mondd(f.felolvas);
+  mondd(f.felolvas, function () { tenyOraIndit(f); });   /* 🌸 az óra a felolvasás végén indul */
 }
 /* bontás: átváltás a VÁLASZ (hallgatás) állapotra */
 function frissitMegvan() {
@@ -345,7 +346,7 @@ function billentyuzetEpit() {
       hangGomb();
       if (k === "⌫") J.beirt = J.beirt.slice(0, -1);
       else if (k === "✓") { billentyuBekuld(); return; }
-      else if (J.beirt.length < beirMax()) J.beirt += k;
+      else if (J.beirt.length < beirMax()) { J.beirt += k; tenyOraAll(); }
       $("beiro-kijelzo").textContent = J.beirt;
     });
     box.appendChild(b);
@@ -369,6 +370,7 @@ function bekotUresNegyzet() {
   if (mezo) {
     mezo.addEventListener("input", function () {
       J.beirt = mezo.value.replace(/[^0-9]/g, "").slice(0, beirMax());
+      if (J.beirt) tenyOraAll();                 /* 🌸 az első számjegy megállítja a rejtett órát */
       mezo.value = J.beirt;
       $("beiro-kijelzo").textContent = J.beirt;
     });
@@ -825,6 +827,7 @@ function kovetkezoJatszhato(id) {
   return null;
 }
 function naplozz(alap, elsore, valasz) {
+  tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
   P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
     helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });
   if (P().naplo.length > 80) P().naplo.shift();

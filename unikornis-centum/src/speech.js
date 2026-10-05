@@ -12,8 +12,10 @@ function figyelj(siker, hiba) {
   /* védelem: ez a felismerő csak EGYSZER adhat eredményt/hibát, és a saját 7 mp-es
      időzítője csak a SAJÁT (nem egy időközben elindult újabb) felismerőt állíthatja le
      — előfordulhat, hogy a böngésző kétszer sül el egy elhangzott válaszra. */
+  sajat.onspeechstart = function () { if (!lezart) tenyOraAll(); };   /* 🌸 a beszéd kezdete állítja meg a rejtett órát (teny.js) */
   sajat.onresult = function (ev) {
     if (lezart) return; lezart = true; kaptunk = true; clearTimeout(ido);
+    tenyOraAll(1000);                          /* tartalék, ha nem jött onspeechstart: a felismerés kb. 1 mp-ét levonjuk */
     var alt = []; for (var i = 0; i < ev.results[0].length; i++) alt.push(ev.results[0][i].transcript);
     siker(alt);
   };

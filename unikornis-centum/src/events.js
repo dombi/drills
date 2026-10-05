@@ -26,7 +26,9 @@ function kezNelkulKor() {
   $("hallgat-e").hidden = true;
   $("visszajelzes").className = "visszajelzes";
   $("visszajelzes").textContent = "";
-  mondd(J.feladat.felolvas, function () {
+  var fk = J.feladat;
+  mondd(fk.felolvas, function () {
+    tenyOraIndit(fk);                                  /* 🌸 a rejtett óra a felolvasás végén indul (teny.js) */
     if (!kezNelkulE()) return;
     beep(1046, 0.12, "sine", 0, 0.18);                 /* „vége a kérdésnek" pittyentés */
     setTimeout(kezNelkulFigyel, 280);
@@ -211,7 +213,7 @@ function esemenyek() {
     else if (/^Numpad[0-9]$/.test(e.code)) d = e.code.charAt(6);
     else if (e.key && e.key.length === 1 && e.key >= "0" && e.key <= "9") d = e.key;
     if (d !== null) {
-      if (J.beirt.length < beirMax()) { J.beirt += d; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); }
+      if (J.beirt.length < beirMax()) { J.beirt += d; $("beiro-kijelzo").textContent = J.beirt; hangGomb(); tenyOraAll(); }
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (J.beirt) { J.beirt = J.beirt.slice(0, -1); $("beiro-kijelzo").textContent = J.beirt; }

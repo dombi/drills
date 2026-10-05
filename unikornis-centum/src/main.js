@@ -12,6 +12,8 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
+  tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO,
   tovabbMehetE: tovabbMehetE,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
