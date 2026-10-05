@@ -7,7 +7,7 @@
 <title>Producer-pult · Unikornis Centum</title>
 <!--
   Unikornis Centum — Producer-pult (backend 3–4. fázis)
-  Olvas: users + unicorns + events. Ír (4. fázis): producerConfig (egyéni felülírások, megjegyzés, egyéni pályák) + groups (csoportok + csoport-pályák). Belépés: admin@unikornis.app (a producer saját jelszavával).
+  Olvas: users + unicorns (+ 🌸 tenyek/tenyTipus a Tények fülön) + events. Ír (4. fázis): producerConfig (egyéni felülírások, megjegyzés, egyéni pályák, teny) + groups (csoportok + csoport-pályák). Belépés: admin@unikornis.app (a producer saját jelszavával).
   Az admin-jogot a firestore.rules isAdmin() adja (e-mail alapján) — Cloud Function nélkül.
   FONTOS: külön Firebase-app ("pult") → a belépés NEM keveredik a játék belépésével ugyanabban a böngészőben.
 -->
@@ -145,6 +145,29 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 .ikonok button{ font-size:19px; padding:3px 8px; }
 .pipak.fajtak{ max-width:none; width:min(560px,100%); display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); padding:6px 10px; }
 .elonezet{ margin:2px 0 4px 20px; font-size:14px; }
+/* 🌸 Tények (tény-motor 2. kör) */
+.teny-tablak{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; margin-top:12px; }
+.teny-racs{ width:auto; border-collapse:separate; border-spacing:2px; font-size:11px; }
+.teny-racs th{ background:none; position:static; padding:0; width:28px; height:22px; text-align:center; color:var(--halvany); border:none; }
+.teny-racs td{ padding:0; border:2px solid transparent; border-radius:7px; cursor:pointer; }
+.teny-racs td.botlo{ border-color:var(--piros); }
+.teny-racs td.kij{ outline:2px solid var(--lila-sotet); outline-offset:1px; }
+.teny-racs .cella{ position:relative; width:26px; height:26px; border-radius:5px; overflow:hidden; background:#fff; }
+.teny-racs .cella i{ position:absolute; left:0; right:0; }
+.teny-racs .cella .fel{ top:0; height:55%; }
+.teny-racs .cella .le{ bottom:0; height:43%; }
+.teny-racs .cella .le1{ bottom:0; height:43%; right:51%; }
+.teny-racs .cella .le2{ bottom:0; height:43%; left:51%; }
+.teny-racs td.esed .cella::after{ content:""; position:absolute; top:2px; right:2px; width:6px; height:6px; border-radius:50%; background:#3d6fd8; box-shadow:0 0 0 1px #fff; }
+.l-uj{ background:#ece6f1; } .l-tanulja{ background:#fbd27a; } .l-tudja{ background:#9fd0f3; } .l-villam{ background:#5cb85f; }
+.folt{ display:inline-block; width:11px; height:11px; border-radius:3px; vertical-align:-1px; margin-right:3px; }
+.teny-ossz{ display:flex; flex-wrap:wrap; gap:4px 12px; font-size:13px; margin:2px 0 8px; }
+.teny-kij{ margin-top:12px; border-color:var(--lila); } .teny-kij div{ padding:3px 0; }
+.betuk i{ font-style:normal; font-family:ui-monospace,Consolas,monospace; font-weight:700; font-size:12px; padding:0 2px; border-radius:3px; margin-right:1px; }
+.betuk .b-V{ background:#d8f0d8; color:#2f7a32; } .betuk .b-J{ background:#dcecfa; color:#2d5f8a; } .betuk .b-S{ background:#eee; color:#777; } .betuk .b-H{ background:#fbdde3; color:#b2324f; }
+.kal{ display:inline-block; margin:2px 4px 0 0; padding:1px 7px; border-radius:99px; background:#f3ecff; }
+.kal.most{ background:var(--lila-sotet); color:#fff; }
+@media (max-width:420px){ .teny-tablak{ grid-template-columns:1fr; } .teny-racs th{ width:24px; } .teny-racs .cella{ width:23px; height:23px; } }
 </style>
 </head>
 <body>
@@ -186,6 +209,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
+<script src="../src/teny.js?v=20261005-3"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script>
 (function () {
 "use strict";
@@ -424,7 +448,7 @@ function profilOssz(u, mezo) { var s = 0; for (var k in u.unicorns) s += +u.unic
 
 /* ══════════ fülek ══════════ */
 var FULEK = [
-  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["fejtoro", "🏔️ Fejtörő"], ["epitokocka", "🧱 Építőkockák"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
+  ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["tenyek", "🌸 Tények"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["fejtoro", "🏔️ Fejtörő"], ["epitokocka", "🧱 Építőkockák"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
 ];
 function rajzol() {
   $("fulek").innerHTML = FULEK.map(function (f) {
@@ -433,7 +457,7 @@ function rajzol() {
   Array.prototype.forEach.call($("fulek").children, function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, fejtoro: rajzFejtoro, epitokocka: rajzEpitokocka, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
+  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, tenyek: rajzTenyek, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, fejtoro: rajzFejtoro, epitokocka: rajzEpitokocka, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
 }
 
 /* ── 📋 Áttekintés ── */
@@ -621,6 +645,225 @@ function rajzJatekos(t) {
 }
 
 /* ── 🌲 Pályák ── */
+/* ── 🌸 Tények (tény-motor 2. kör, 2026-10-05) ──────────────────────────────
+   A játék src/teny.js-e minden tényt külön könyvel (P().tenyek, P().tenyTipus — unikornisonként). Itt a
+   két 10×10-es tábla (+ − és × ÷), a 100-as kör típusai a rokon tényekkel, a botlós tények, a villám-határ
+   kalibrálója és a csoport-nézet. A számolás a közös teny.js függvényeivel megy (tenyCsaladok, tenyLepcso…). */
+var TENY_LEPCSO_NEV = { uj: "új", tanulja: "tanulja", tudja: "tudja", villam: "villám" };
+var TENY_TIPUS_NEV = {
+  t10: "kerek tízesek (30 + 40)", e1: "kétjegyű ± egyjegyű, átlépés nélkül (63 + 4)", e1a: "kétjegyű ± egyjegyű, átlépéssel (67 + 5)",
+  tz: "kétjegyű ± kerek tízes (47 + 30)", k2: "kétjegyű ± kétjegyű, átlépés nélkül (43 + 25)", k2a: "kétjegyű ± kétjegyű, átlépéssel (47 + 35)"
+};
+/* a típus rokon tényei: melyik tábla tényeiből épül (a k2/k2a-nak nincs egy rokon ténye) */
+var TENY_TIPUS_ROKON = { t10: "ok10", e1: "ok10", e1a: "ok20", tz: "ok10", k2: null, k2a: null };
+var TENY_BETU_NEV = { V: "villám", J: "jó, de lassú", S: "jó, szünettel (20 mp fölött)", H: "botlás" };
+
+/* a gyerek tény-profilja: az az unikornis, amelyiken a legtöbb próba van (vagy amit a producer kiválasztott) */
+function tenyProfilok(u) {
+  return Object.keys(u.unicorns).filter(function (k) { var p = u.unicorns[k]; return p.tenyek && Object.keys(p.tenyek).length || p.tenyTipus && Object.keys(p.tenyTipus).length; });
+}
+function tenyProbak(p) { var n = 0, k; for (k in (p.tenyek || {})) n += p.tenyek[k].n || 0; for (k in (p.tenyTipus || {})) n += p.tenyTipus[k].n || 0; return n; }
+function tenyProfil(u) {
+  var l = tenyProfilok(u); if (!l.length) return null;
+  var v = (A.tenyLeny || {})[u.uid];
+  if (l.indexOf(v) < 0) v = l.slice().sort(function (a, b) { return tenyProbak(u.unicorns[b]) - tenyProbak(u.unicorns[a]); })[0];
+  var p = u.unicorns[v];
+  return { leny: v, tar: p.tenyek || {}, tipus: p.tenyTipus || {} };
+}
+/* az érvényes beállítás egy gyereknél (alap < csoport < egyéni) — ugyanaz a tenyOsszevon, mint a játékban */
+function tenyHatas(uid) {
+  return tenyBeall(tenyOsszevon((A.cfg[uid] || {}).teny || {}, jatekosCsoportjai(uid).map(function (g) { return g.teny || {}; })));
+}
+function tenyHatasSzoveg(uid) {
+  var b = tenyHatas(uid);
+  return "villám-határ <b>" + b.hatar + " mp</b> (100-as kör: " + b.hatarTipus + " mp) · új tény / kör: <b>" + b.ujKor + "</b> · becsempészés: <b>" + (b.becsempesz ? "be" : "ki") +
+    "</b> · Neked szóló ösvény: <b>" + (b.osveny ? "látszik" : "rejtve") + "</b> · táblák: <b>" +
+    (b.tablak ? (b.tablak.length ? b.tablak.map(function (x) { return TENY_TABLAK.filter(function (t) { return t[0] === x; })[0][1]; }).join(", ") : "egyik sem") : "automatikus") + "</b>";
+}
+function tenyKiir(k) {   /* o5_7 → „5 + 7”, k12_5 → „12 − 5” */
+  var m = /^([okds])(\d+)_(\d+)$/.exec(k); if (!m) return k;
+  return m[2] + " " + { o: "+", k: "−", s: "×", d: ":" }[m[1]] + " " + m[3];
+}
+function tenyMp(m) { return m ? (m / 10).toFixed(1).replace(".", ",") + " mp" : "–"; }
+function tenyEsedSzoveg(s) {
+  if (!s || !s.d) return "még nem találkozott vele";
+  var ma = tenyNap(), d = s.e - ma;
+  return d <= 0 ? "esedékes" : d === 1 ? "holnap esedékes" : d + " nap múlva esedékes";
+}
+function tenyBetuk(h) {
+  return '<span class="betuk">' + String(h || "").split("").map(function (b) { return '<i class="b-' + b + '" title="' + TENY_BETU_NEV[b] + '">' + b + "</i>"; }).join("") + "</span>";
+}
+function tenySorSzoveg(k, s) {
+  return "<b>" + esc(tenyKiir(k)) + "</b> · " + TENY_LEPCSO_NEV[tenyLepcso(s)] + (s ? " · " + s.n + " próba · utolsó idő " + tenyMp(s.m) + " · " + tenyBetuk(s.h) : "") +
+    ' <span class="halvany">· ' + tenyEsedSzoveg(s) + "</span>";
+}
+
+/* egy 10×10-es tábla: a cella felső fele a művelet (6 × 7), az alsó két negyede a két fordított tény (42 : 6, 42 : 7);
+   a tükörhelyen ugyanaz a család áll (mint a kert virága) */
+function tenyRacs(tar, agy) {
+  var ma = tenyNap(), muv = agy === "sd" ? "×" : "+";
+  var h = '<table class="teny-racs"><tr><th>' + muv + "</th>";
+  for (var c = 1; c <= 10; c++) h += "<th>" + c + "</th>";
+  h += "</tr>";
+  for (var r = 1; r <= 10; r++) {
+    h += "<th>" + r + "</th>";
+    for (c = 1; c <= 10; c++) {
+      var lo = Math.min(r, c), hi = Math.max(r, c), e = agy === "sd" ? lo * hi : lo + hi;
+      var fo = (agy === "sd" ? "s" : "o") + lo + "_" + hi, f1 = (agy === "sd" ? "d" : "k") + e + "_" + lo, f2 = (agy === "sd" ? "d" : "k") + e + "_" + hi;
+      var tk = lo === hi ? [fo, f1] : [fo, f1, f2];
+      var esed = tk.some(function (k) { var s = tar[k]; return s && s.d >= 1 && s.e <= ma; });
+      var botlo = tk.some(function (k) { var s = tar[k]; return s && /H/.test((s.h || "").slice(-3)); });
+      var cim = tk.map(function (k) { var s = tar[k]; return tenyKiir(k) + ": " + TENY_LEPCSO_NEV[tenyLepcso(s)] + (s ? ", " + tenyMp(s.m) + ", " + (s.h || "") : ""); }).join("\n");
+      h += '<td data-teny-cs="' + agy + ":" + lo + ":" + hi + '" title="' + esc(cim) + '" class="' + (esed ? "esed " : "") + (botlo ? "botlo " : "") +
+        (A.tenyKij === agy + ":" + lo + ":" + hi ? "kij" : "") + '"><div class="cella">' +
+        '<i class="fel l-' + tenyLepcso(tar[fo]) + '"></i>' +
+        (lo === hi ? '<i class="le l-' + tenyLepcso(tar[f1]) + '"></i>' : '<i class="le1 l-' + tenyLepcso(tar[f1]) + '"></i><i class="le2 l-' + tenyLepcso(tar[f2]) + '"></i>') +
+        "</div></td>";
+    }
+    h += "</tr>";
+  }
+  return h + "</table>";
+}
+/* egy tábla összegzése: lépcsők + a mért idők */
+function tenyTablaOssz(tar, agy) {
+  var o = { uj: 0, tanulja: 0, tudja: 0, villam: 0 }, esed = 0, ma = tenyNap();
+  tenyMind(agy).forEach(function (k) { var s = tar[k]; o[tenyLepcso(s)]++; if (s && s.d >= 1 && s.e <= ma) esed++; });
+  return '<div class="teny-ossz">' + ["villam", "tudja", "tanulja", "uj"].map(function (l) {
+    return '<span><i class="folt l-' + l + '"></i>' + TENY_LEPCSO_NEV[l] + " <b>" + o[l] + "</b></span>";
+  }).join("") + '<span class="halvany">· esedékes: <b>' + esed + "</b></span></div>";
+}
+/* villám-határ kalibráló: a tények utolsó mért ideje (csak elsőre jó, 20 mp alatti) — hány lenne villám 2–8 mp-es határral */
+function tenyKalibral(tar, hatar) {
+  var l = [];
+  Object.keys(tar).forEach(function (k) { var s = tar[k]; if (s.m > 0 && s.m <= 200) l.push(s.m / 10); });
+  if (l.length < 5) return '<p class="kicsi halvany">Még kevés a mért idő (' + l.length + " tény) — pár nap játék után itt látod, hol érdemes a villám-határt húzni.</p>";
+  l.sort(function (a, b) { return a - b; });
+  var med = l[Math.floor(l.length / 2)];
+  return '<div class="kicsi">⏱ <b>' + l.length + "</b> tény mért ideje · medián <b>" + med.toFixed(1).replace(".", ",") + " mp</b> · ennyi lenne villám, ha a határ … lenne: " +
+    [2, 3, 4, 5, 6, 8].map(function (m) {
+      var db = l.filter(function (x) { return x <= m; }).length;
+      return '<span class="kal' + (m === hatar ? " most" : "") + '">' + m + " mp: <b>" + Math.round(100 * db / l.length) + "%</b></span>";
+    }).join(" ") + '<div class="halvany">(Az utolsó mért időből, csak az elsőre jó válaszokból. A kiemelt a mostani határ. Ha a gyerek szinte mindent tud, de a villám-arány alacsony, a határ szigorú; ha minden villám, laza.)</div></div>';
+}
+/* a 100-as kör típusai + a rokon tények állása (ha a 67 + 5 lassú, de a 7 + 5 villám → a típus a gyenge) */
+function tenyTipusTabla(tip, tar) {
+  var h = '<div class="tabla-keret"><table><tr><th>Típus</th><th>Lépcső</th><th class="szam">Próba</th><th>Utolsó 6</th><th class="szam">Utolsó idő</th><th>Rokon tények (tudja + villám)</th><th>Mit jelent?</th></tr>';
+  Object.keys(TENY_TIPUS_NEV).forEach(function (k) {
+    var s = tip[k], rt = TENY_TIPUS_ROKON[k], arany = null, jel = '<span class="halvany">–</span>';
+    if (rt) {
+      var l = tenyMind("ok").filter(function (x) { return tenyTabla(x) === rt; }), jo = l.filter(function (x) { var d = (tar[x] || {}).d || 0; return d >= 3; }).length;
+      arany = l.length ? jo / l.length : 0;
+    }
+    if (s && s.n >= 3 && tenyLepcso(s) !== "villam" && arany != null) {
+      jel = arany >= 0.7 ? "a rokon tények mennek → <b>a típus a gyenge</b> (" + (k === "e1a" ? "a tízes-átlépés" : "a helyiérték") + ")"
+        : arany < 0.4 ? "a rokon tények sem mennek → <b>előbb azokat</b>" : '<span class="halvany">vegyes — figyelni</span>';
+    } else if (s && tenyLepcso(s) === "villam") jel = '<span class="jo">megy</span>';
+    h += "<tr><td>" + esc(TENY_TIPUS_NEV[k]) + "</td><td>" + (s ? '<i class="folt l-' + tenyLepcso(s) + '"></i> ' + TENY_LEPCSO_NEV[tenyLepcso(s)] : '<span class="halvany">még nem</span>') +
+      '</td><td class="szam">' + (s ? s.n : 0) + "</td><td>" + (s ? tenyBetuk(s.h) : "") + '</td><td class="szam">' + (s ? tenyMp(s.m) : "–") + "</td>" +
+      "<td>" + (rt ? sav(Math.round(100 * arany), 100) + ' <span class="kicsi halvany">' + (rt === "ok10" ? "10-en belül" : "20-as kör, átlépéssel") + "</span>" : '<span class="halvany">nincs egy rokon tény</span>') +
+      '</td><td class="tores kicsi">' + jel + "</td></tr>";
+  });
+  return h + "</table></div>";
+}
+/* botlós tények: ahol az utolsó 6-ban van botlás — a legtöbb botlás elöl */
+function tenyBotlosak(tar, db) {
+  return Object.keys(tar).map(function (k) { return { k: k, s: tar[k], hdb: ((tar[k].h || "").match(/H/g) || []).length }; })
+    .filter(function (x) { return x.hdb > 0; })
+    .sort(function (a, b) { return b.hdb - a.hdb || a.s.d - b.s.d; }).slice(0, db);
+}
+
+function rajzTenyek(t) {
+  if (!A.tenyCel || (A.tenyCel.charAt(0) === "u" && !userById(A.tenyCel.slice(2))) || (A.tenyCel.charAt(0) === "g" && A.tenyCel !== "g:*" && !csoportById(A.tenyCel.slice(2))))
+    A.tenyCel = "u:" + A.users[0].uid;
+  var cel = A.tenyCel;
+  var h = '<div class="celsor"><span class="cimke">Gyerek:</span>' + A.users.map(function (u) {
+    return '<button data-teny-cel="u:' + esc(u.uid) + '" class="' + (cel === "u:" + u.uid ? "aktiv" : "") + '">' + esc(jNev(u.uid)) + "</button>";
+  }).join("") + "</div>" +
+    '<div class="celsor"><span class="cimke">Csoport-nézet:</span><button data-teny-cel="g:*" class="' + (cel === "g:*" ? "aktiv" : "") + '">👥 mindenki</button>' +
+    A.groups.map(function (g) { return '<button data-teny-cel="g:' + esc(g.id) + '" class="' + (cel === "g:" + g.id ? "aktiv" : "") + '">👥 ' + esc(g.name) + "</button>"; }).join("") + "</div>";
+
+  if (cel.charAt(0) === "g") h += rajzTenyCsoport(cel === "g:*" ? A.users : A.users.filter(function (u) { return csoportById(cel.slice(2)).members.indexOf(u.uid) >= 0; }));
+  else h += rajzTenyGyerek(userById(cel.slice(2)));
+  t.innerHTML = h;
+
+  Array.prototype.forEach.call(t.querySelectorAll("[data-teny-cel]"), function (b) { b.onclick = function () { A.tenyCel = b.dataset.tenyCel; A.tenyKij = null; rajzol(); }; });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-teny-leny]"), function (b) {
+    b.onclick = function () { (A.tenyLeny || (A.tenyLeny = {}))[cel.slice(2)] = b.dataset.tenyLeny; A.tenyKij = null; rajzol(); };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-teny-cs]"), function (td) {
+    td.onclick = function () { A.tenyKij = A.tenyKij === td.dataset.tenyCs ? null : td.dataset.tenyCs; rajzol(); };
+  });
+}
+function rajzTenyGyerek(u) {
+  var pr = tenyProfil(u), b = tenyHatas(u.uid);
+  if (!pr) return '<div class="kartya" style="margin-top:10px"><h3>🌸 ' + esc(jNev(u.uid)) + '</h3><div class="ures">Még nincs mért tény. A tény-motor 2026-10-05 óta jegyez: ' +
+    "amint a gyerek összeadós, kivonós, szorzós vagy osztós pályán játszik (felhős fiókkal), itt megjelennek a tények.</div></div>";
+  var h = "", lenyek = tenyProfilok(u);
+  if (lenyek.length > 1) h += '<div class="celsor"><span class="cimke">Unikornis:</span>' + lenyek.map(function (k) {
+    return '<button data-teny-leny="' + esc(k) + '" class="' + (k === pr.leny ? "aktiv" : "") + '">' + esc(lenyNev(k)) + " <small>(" + tenyProbak(u.unicorns[k]) + " próba)</small></button>";
+  }).join("") + "</div>";
+  h += '<div class="kartya" style="margin-top:10px"><h3>🌸 ' + esc(jNev(u.uid)) + ' <small class="halvany">— ' + esc(lenyNev(pr.leny)) + "</small></h3>" +
+    '<div class="kicsi halvany">Beállítás (🎛️ Beállítások fül): ' + tenyHatasSzoveg(u.uid) + "</div>" + tenyKalibral(pr.tar, b.hatar) + "</div>";
+
+  /* a két tábla */
+  h += '<div class="teny-tablak">';
+  [["ok", "➕➖ Összeadás–kivonás (20-as kör)"], ["sd", "✖️➗ Szorzás–osztás (10 × 10)"]].forEach(function (x) {
+    h += '<div class="kartya"><h3>' + x[1] + "</h3>" + tenyTablaOssz(pr.tar, x[0]) + tenyRacs(pr.tar, x[0]) + "</div>";
+  });
+  h += "</div>";
+  h += '<div class="kicsi halvany" style="margin:6px 2px 0">Egy mező = egy számcsalád; felül a művelet (6 × 7), alul a két fordítottja (42 : 6 · 42 : 7) — így látszik, ha a szorzás megy, de az osztás még nem. ' +
+    'A tükörhelyen ugyanaz a család áll. <i class="folt l-villam"></i> villám · <i class="folt l-tudja"></i> tudja · <i class="folt l-tanulja"></i> tanulja · <i class="folt l-uj"></i> új. ' +
+    "Pötty = esedékes ismétlés, piros keret = botlás az utolsó 3 próbában. Kattints egy mezőre a részletekért.</div>";
+
+  /* a kijelölt család részletei */
+  if (A.tenyKij) {
+    var p = A.tenyKij.split(":"), agy = p[0], lo = +p[1], hi = +p[2];
+    var cs = tenyCsaladok(agy).filter(function (c) { return c.a === lo && c.b === hi; })[0];
+    if (cs) h += '<div class="kartya teny-kij"><h3>Számcsalád: ' + lo + ", " + hi + ", " + cs.c + "</h3>" +
+      cs.tenyek.map(function (k) { return "<div>" + tenySorSzoveg(k, pr.tar[k]) + "</div>"; }).join("") + "</div>";
+  }
+
+  /* botlós tények */
+  var bl = tenyBotlosak(pr.tar, 12);
+  h += "<h3>🌧️ Botlós tények <small class=\"halvany\">(botlás az utolsó 6 próbában — a legtöbb elöl)</small></h3>" +
+    (bl.length ? '<div class="kartya">' + bl.map(function (x) { return "<div>" + tenySorSzoveg(x.k, x.s) + "</div>"; }).join("") + "</div>" : '<div class="ures">Nincs botlós tény. 🌸</div>');
+
+  h += "<h3>💯 A 100-as kör típusai</h3>" + tenyTipusTabla(pr.tipus, pr.tar) +
+    '<p class="kicsi halvany" style="margin-top:6px">A 100-as körben nem minden feladat külön tény, hanem a típusát mérjük. A rokon tény a diagnózis: ha a 67 + 5 lassú, de a 7 + 5 már megy, ' +
+    "akkor a típus (a tízes-átlépés) a gyenge, nem a tény; ha a 7 + 5 sem megy, előbb azt kell gyakorolni.</p>";
+  return h;
+}
+/* csoport-nézet: melyik tény botlós a legtöbb gyereknél (tanórára) + a lépcsők gyerekenként */
+function rajzTenyCsoport(tagok) {
+  var vel = tagok.map(function (u) { return { u: u, pr: tenyProfil(u) }; }).filter(function (x) { return x.pr; });
+  if (!vel.length) return '<div class="ures">A csoportban még senkinek nincs mért ténye.</div>';
+  var h = '<h3>👥 Gyerekenként</h3><div class="tabla-keret"><table><tr><th>Gyerek</th><th>Tábla</th><th class="szam">villám</th><th class="szam">tudja</th><th class="szam">tanulja</th><th class="szam">új</th><th class="szam">esedékes</th></tr>';
+  vel.forEach(function (x) {
+    var ka = tenyKertAllapot(x.pr.tar);
+    [["ok", "+ −"], ["sd", "× ÷"]].forEach(function (a, i) {
+      var o = ka[a[0]];
+      h += "<tr>" + (i === 0 ? '<td rowspan="2">' + esc(jNev(x.u.uid)) + "</td>" : "") + "<td>" + a[1] + '</td><td class="szam">' + o.tenyek.villam + '</td><td class="szam">' + o.tenyek.tudja +
+        '</td><td class="szam">' + o.tenyek.tanulja + '</td><td class="szam">' + o.tenyek.uj + '</td><td class="szam">' + o.esedekes + "</td></tr>";
+    });
+  });
+  h += "</table></div>";
+  /* tényenként: hány gyereknél botlós (botlás az utolsó 6-ban) */
+  var szaml = {}, hossz = {};   /* tény → [kinél], és az összes botlás (döntetlennél a több botlás elöl) */
+  vel.forEach(function (x) {
+    tenyBotlosak(x.pr.tar, 999).forEach(function (b) {
+      (szaml[b.k] || (szaml[b.k] = [])).push(jNev(x.u.uid) + (b.hdb > 1 ? " (" + b.hdb + "×)" : ""));
+      hossz[b.k] = (hossz[b.k] || 0) + b.hdb;
+    });
+  });
+  var l = Object.keys(szaml).sort(function (a, b) { return szaml[b].length - szaml[a].length || hossz[b] - hossz[a]; }).slice(0, 20);
+  h += '<h3>🌧️ A legtöbb gyereknél botlós tények <small class="halvany">(tanórára)</small></h3>' + (l.length
+    ? '<div class="tabla-keret"><table><tr><th>Tény</th><th class="szam">Gyerek</th><th>Kinél</th></tr>' + l.map(function (k) {
+        return "<tr><td><b>" + esc(tenyKiir(k)) + '</b></td><td class="szam">' + szaml[k].length + " / " + vel.length + '</td><td class="tores">' + esc(szaml[k].join(", ")) + "</td></tr>";
+      }).join("") + "</table></div>"
+    : '<div class="ures">Senkinél nincs botlós tény. 🌸</div>');
+  return h;
+}
+
 function rajzPalyak(t) {
   var h = '<div class="eszkozsor"><label class="kicsi halvany">Játékos <select id="p-szuro"><option value="">mindenki</option>' +
     A.users.map(function (u) { return '<option value="' + esc(u.uid) + '"' + (A.palyaSzuro === u.uid ? " selected" : "") + ">" + esc(jNev(u.uid)) + "</option>"; }).join("") +
@@ -790,7 +1033,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {} }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -967,6 +1210,33 @@ function rajzBeallitasok(t) {
     "Sorrend: csoport → egyéni (az egyéni a legerősebb). Ha a gyerek több csoportban van, és azok mást mondanak, <b>a szigorúbb nyer</b>: a magasabb ár, a kisebb napi korlát, " +
     "a kikapcsolt; a „pályák után” erősebb a „naponta”-nál, és a kijelölt pályák listái összeadódnak.</p></div>";
 
+  /* ── 🌸 Tény-motor (2026-10-05): villám-határ, táblák, új tény/kör, becsempészés, Neked szóló ösvény ── */
+  var sajatTeny = (egyeni ? (A.cfg[id] || {}).teny : csoportById(id).teny) || {};
+  var tUres = egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap") : "— nincs";
+  function tenyValaszto(mezo, ertek, opc) {
+    return '<select data-teny-mezo="' + mezo + '"' + (ertek != null ? ' class="beallitva"' : "") + ">" +
+      opc.map(function (o) { return '<option value="' + o[0] + '"' + (String(ertek == null ? "" : ertek) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>";
+  }
+  var mpOpc = [2, 3, 4, 5, 6, 8].map(function (n) { return [String(n), n + " mp"]; });
+  var beKi = egyeni ? [["true", "✅ be"], ["false", "⏸️ ki"]] : [["false", "⏸️ ki"]];
+  var tList = Array.isArray(sajatTeny.tablak) ? sajatTeny.tablak : null;
+  h += '<div class="kartya" style="margin-top:10px"><h3>🌸 Tény-motor</h3><div class="bank-sor">' +
+    "<label>Villám-határ (20-as kör, szorzótábla): " + tenyValaszto("hatar", sajatTeny.hatar, [["", tUres + (tUres === "— alap" ? " (3 mp)" : "")]].concat(mpOpc)) + "</label>" +
+    "<label>Villám-határ (100-as kör): " + tenyValaszto("hatarTipus", sajatTeny.hatarTipus, [["", tUres + (tUres === "— alap" ? " (5 mp)" : "")]].concat(mpOpc)) + "</label></div>" +
+    '<div class="bank-sor">' +
+    "<label>Új tény egy körben: " + tenyValaszto("ujKor", sajatTeny.ujKor, [["", tUres + (tUres === "— alap" ? " (4)" : "")]].concat([0, 1, 2, 3, 4, 5, 6, 8].map(function (n) { return [String(n), n === 0 ? "0 (csak ismétlés)" : String(n)]; }))) + "</label>" +
+    "<label>Becsempészés: " + tenyValaszto("becsempesz", sajatTeny.becsempesz, [["", tUres]].concat(beKi)) + "</label>" +
+    "<label>Neked szóló ösvény: " + tenyValaszto("osveny", sajatTeny.osveny, [["", tUres]].concat(egyeni ? [["true", "✅ látszik"], ["false", "🚫 rejtve"]] : [["false", "🚫 rejtve"]])) + "</label></div>" +
+    '<div class="bank-sor"><span>Táblák:</span><span class="pipak' + (tList ? " beallitva" : "") + '" style="max-width:none">' + TENY_TABLAK.map(function (tb) {
+      return '<label><input type="checkbox" data-teny-tabla value="' + tb[0] + '"' + (tList && tList.indexOf(tb[0]) >= 0 ? " checked" : "") + "> " + esc(tb[1]) + "</label>";
+    }).join("") + "</span>" + (tList ? '<button id="teny-tabla-torol">↺ ' + (egyeni && jatekosCsoportjai(id).length ? "csoport szerint" : "automatikus") + "</button>" : "") + "</div>";
+  if (egyeni) h += '<div class="kicsi">Most ennél a gyereknél: ' + tenyHatasSzoveg(id) + "</div>";
+  h += '<p class="kicsi halvany" style="margin-top:8px">Villám = elsőre jó válasz a határon belül (a gyerek ezt soha nem látja, csak a Tény-kert virágzásán). ' +
+    "A határ csak az ezután jövő válaszokra hat; a 🌸 Tények fülön látod, a gyerek mért idejével hány tény lenne villám 2–8 mp-es határral. " +
+    "Táblák: semmi bepipálva = automatikus (amivel a gyerek a pályákon már találkozott). Az új tény / kör, a becsempészés, a Neked szóló ösvény és a táblák a 3. körtől hatnak " +
+    "(Neked szóló ösvény + becsempészés); addig eltárolódnak. Sorrend: alap → csoport → egyéni. Több csoportnál <b>az engedékenyebb nyer</b>: a nagyobb határ, " +
+    "a kevesebb új tény, a közös táblák; a becsempészés és az ösvény ki van kapcsolva, ha bármelyik csoport kikapcsolja.</p></div>";
+
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
   var effKulcs = egyeni ? kapuHatas(id).kulcs : [];
@@ -1066,6 +1336,23 @@ function rajzBeallitasok(t) {
   Array.prototype.forEach.call(t.querySelectorAll("[data-bank-palya-torol]"), function (b) {
     b.onclick = function () { bankIr(b.dataset.bankPalyaTorol, { palyak: FV.delete() }); };
   });
+  /* 🌸 tény-motor mezők: { teny: { mezo: érték | törlés } } */
+  function tenyIr(mezok) { ment(docRef.set({ teny: mezok, updatedAt: FV.serverTimestamp() }, { merge: true })); }
+  Array.prototype.forEach.call(t.querySelectorAll("select[data-teny-mezo]"), function (sel) {
+    sel.onchange = function () {
+      var m = sel.dataset.tenyMezo, v = sel.value, o = {};
+      o[m] = v === "" ? FV.delete() : (m === "becsempesz" || m === "osveny") ? v === "true" : +v;
+      tenyIr(o);
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-teny-tabla]"), function (c) {
+    c.onchange = function () {
+      var l = [];
+      Array.prototype.forEach.call(t.querySelectorAll("[data-teny-tabla]"), function (x) { if (x.checked) l.push(x.value); });
+      tenyIr({ tablak: l.length ? l : FV.delete() });
+    };
+  });
+  if ($("teny-tabla-torol")) $("teny-tabla-torol").onclick = function () { tenyIr({ tablak: FV.delete() }); };
   $("uj-csoport").onclick = function () {
     var nev = (prompt("Az új csoport neve (pl. 2.b osztály):") || "").trim();
     if (!nev) return;

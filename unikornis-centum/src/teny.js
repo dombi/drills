@@ -3,6 +3,8 @@
    tudja-e a gyerek, és fejből, gyorsan tudja-e. MINDEN tény-ügy egyedül ezen megy át (a pult, a
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
+   2. kör (2026-10-05): a pult 🌸 Tények füle ugyanezt a fájlt tölti be (tenyCsaladok, tenyLepcso, tenyTabla,
+     tenyKertAllapot(tar), tenyOsszevon) — a beállításokat (TENY_ALAP ← FELULIR.teny) lásd lent.
    1. kör (2026-10-05): a motor LÁTHATATLANUL fut. A gyereknek semmi nem változik, csak gyűlik az adat.
      • Rejtett időmérés: tenyOraElo(f) a feladat megjelenésekor, tenyOraIndit(f) a felolvasás végén,
        tenyOraAll() az első leütött számjegynél / a beszéd kezdeténél (onspeechstart). A felolvasás
@@ -25,14 +27,62 @@
 var TENY_TIPUSOK = { osszeadas: 1, kivonas: 1, tizesek: 1, szorzas: 1, osztas: 1 };   /* ezek a naplo-típusok számítanak */
 var TENY_KOZ = [0, 0, 1, 2, 5, 14];          /* doboz → hány nap múlva esedékes (0: új, nincs) */
 var TENY_SZUNET_MS = 20000;                  /* 20 mp fölött „szünet”: nem lassú, csak nem villám */
-var TENY_ALAP = { hatar: 3, hatarTipus: 5, ujKor: 4, becsempesz: true };   /* a pult (2. kör) írja felül: FELULIR.teny */
+var TENY_ALAP = { hatar: 3, hatarTipus: 5, ujKor: 4, becsempesz: true, osveny: true, tablak: null };
 
-function tenyBeall() {
-  var f = (typeof FELULIR !== "undefined" && FELULIR.teny) || {}, b = {}, k;
+/* ── a pult beállításai (2. kör, 2026-10-05) ────────────────────────────────
+   producerConfig/{uid}.teny és groups/{gid}.teny = { hatar?, hatarTipus?, ujKor?, becsempesz?, osveny?, tablak? }
+     hatar       villám-határ (mp) a 20-as körben és a szorzótáblában, 2–8 (alap 3)
+     hatarTipus  villám-határ (mp) a 100-as kör típusainál, 2–8 (alap 5)
+     ujKor       legfeljebb ennyi új tény egy Neked szóló körben, 0–8 (alap 4)
+     becsempesz  false = a meglévő pályák nem kérnek esedékes tényt (alap: igen)
+     osveny      false = a Neked szóló ösvény nem látszik (alap: látszik)
+     tablak      a bekapcsolt táblák (TENY_TABLAK kulcsai); nincs = automatikus: amivel a gyerek már találkozott
+   Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a nagyobb villám-határ, a kevesebb
+   új tény/kör, a táblák metszete; a becsempészés és az ösvény ki, ha bármelyik csoport kikapcsolja.
+   A pult (admin/index.html) ugyanezt a fájlt tölti be, így a két oldal szabálya nem válhat el. */
+var TENY_TABLAK = [
+  ["ok10", "+ − 10-en belül"], ["ok20", "+ − a 20-as körben (átlépéssel)"],
+  ["s", "× szorzótábla"], ["d", "÷ bennfoglalás"], ["kor100", "+ − a 100-as körben"]
+];
+function tenyOsszevon(egyeni, csoportok) {
+  var ki = {};
+  function szam(v, min, max) { v = +v; return (v >= min && v <= max && v % 1 === 0) ? v : null; }
+  function tablaLista(l) { return Array.isArray(l) ? l.filter(function (x) { return TENY_TABLAK.some(function (t) { return t[0] === x; }); }) : null; }
+  (csoportok || []).forEach(function (c) {
+    if (!c) return;
+    var h = szam(c.hatar, 2, 8), ht = szam(c.hatarTipus, 2, 8), u = szam(c.ujKor, 0, 8), t = tablaLista(c.tablak);
+    if (h != null) ki.hatar = Math.max(ki.hatar || 0, h);
+    if (ht != null) ki.hatarTipus = Math.max(ki.hatarTipus || 0, ht);
+    if (u != null) ki.ujKor = ki.ujKor == null ? u : Math.min(ki.ujKor, u);
+    if (c.becsempesz === false) ki.becsempesz = false;
+    if (c.osveny === false) ki.osveny = false;
+    if (t) ki.tablak = ki.tablak ? ki.tablak.filter(function (x) { return t.indexOf(x) >= 0; }) : t;
+  });
+  var e = egyeni || {}, v;
+  if ((v = szam(e.hatar, 2, 8)) != null) ki.hatar = v;
+  if ((v = szam(e.hatarTipus, 2, 8)) != null) ki.hatarTipus = v;
+  if ((v = szam(e.ujKor, 0, 8)) != null) ki.ujKor = v;
+  if (typeof e.becsempesz === "boolean") ki.becsempesz = e.becsempesz;
+  if (typeof e.osveny === "boolean") ki.osveny = e.osveny;
+  if ((v = tablaLista(e.tablak))) ki.tablak = v;
+  return ki;
+}
+/* az érvényes beállítás a játékban (alap + a pult összevont felülírása: FELULIR.teny) */
+function tenyBeall(f) {
+  f = f || (typeof FELULIR !== "undefined" && FELULIR.teny) || {};
+  var b = {}, k;
   for (k in TENY_ALAP) b[k] = TENY_ALAP[k];
-  if (+f.hatar >= 2 && +f.hatar <= 8) b.hatar = +f.hatar;
-  if (+f.hatarTipus >= 2 && +f.hatarTipus <= 8) b.hatarTipus = +f.hatarTipus;
+  for (k in f) if (f[k] != null) b[k] = f[k];
   return b;
+}
+/* melyik táblához tartozik egy tény (a pult színezéséhez és a 3. kör választójához) */
+function tenyTabla(k) {
+  var m = /^([okds])(\d+)_(\d+)$/.exec(k || "");
+  if (!m) return TENY_TIPUS_KULCS[k] ? "kor100" : null;
+  var a = +m[2], b = +m[3];
+  if (m[1] === "s") return "s";
+  if (m[1] === "d") return "d";
+  return (m[1] === "o" ? a + b : a) > 10 ? "ok20" : "ok10";
 }
 function tenyNap(t) { var d = new Date(t || Date.now()); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
 
@@ -71,7 +121,7 @@ function tenyTar(tipus) { var p = P(); if (tipus) return p.tenyTipus || (p.tenyT
 function tenySor(kulcs, tipus) { return tenyTar(tipus)[kulcs] || null; }
 /* új → tanulja → tudja → villám (a doboz 0 / 1–2 / 3 / 4–5) */
 function tenyLepcso(k) {
-  var s = (k && typeof k === "object") ? k : tenySor(k, TENY_TIPUS_KULCS[k] === 1);
+  var s = (k && typeof k === "object") ? k : typeof k === "string" ? tenySor(k, TENY_TIPUS_KULCS[k] === 1) : null;   /* nincs sor = új */
   var d = s ? s.d : 0;
   return d >= 4 ? "villam" : d === 3 ? "tudja" : d >= 1 ? "tanulja" : "uj";
 }
@@ -157,8 +207,9 @@ function tenyCsaladok(agy) {
 function tenyMind(agy) { var ki = []; tenyCsaladok(agy).forEach(function (cs) { ki = ki.concat(cs.tenyek); }); return ki; }
 function tenyAgyE(k) { var c = k.charAt(0); return (c === "o" || c === "k") ? "ok" : (c === "s" || c === "d") ? "sd" : null; }
 /* esedékes (és már látott) tények, a „tanulja” elöl, azon belül a legrégebben esedékes elöl */
-function tenyEsedekes(halmaz) {
-  var tar = tenyTar(false), ma = tenyNap(), ki = [];
+function tenyEsedekes(halmaz, tar) {
+  tar = tar || tenyTar(false);
+  var ma = tenyNap(), ki = [];
   (halmaz || Object.keys(tar)).forEach(function (k) { var s = tar[k]; if (s && s.d >= 1 && s.e <= ma) ki.push(k); });
   ki.sort(function (x, y) {
     var sx = tar[x], sy = tar[y], lx = sx.d <= 2 ? 0 : 1, ly = sy.d <= 2 ? 0 : 1;
@@ -190,10 +241,11 @@ function tenyValaszt(halmaz, db, opc) {
   while (ki.length < db && ujMaradek.length) ki.push(ujMaradek.shift());
   return ki;
 }
-/* A Tény-kert és a későbbi visszahívás (Tamagocsi) kérdezhető összegzése:
+/* A Tény-kert, a pult és a későbbi visszahívás (Tamagocsi) kérdezhető összegzése (a pult a tar-t adja át):
    ágyásonként hány virág (család) és hány tény van az egyes lépcsőkön, hány esedékes. */
-function tenyKertAllapot() {
-  var tar = tenyTar(false), ma = tenyNap(), ki = { ok: null, sd: null, csillogoSor: null };
+function tenyKertAllapot(tar) {
+  tar = tar || tenyTar(false);
+  var ma = tenyNap(), ki = { ok: null, sd: null, csillogoSor: null };
   ["ok", "sd"].forEach(function (agy) {
     var o = { tenyek: { uj: 0, tanulja: 0, tudja: 0, villam: 0 }, viragok: { nyilik: 0, bimbo: 0, hajtas: 0, mag: 0 }, esedekes: 0, osszes: 0 };
     tenyCsaladok(agy).forEach(function (cs) {
