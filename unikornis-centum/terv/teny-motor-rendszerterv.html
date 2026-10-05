@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tény-motor rendszerterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --soil:#c9a27a; --soil-d:#9c7651; --leaf:#5cb77a; --bud:#f4a9c8; --petal:#e0417a; --petal2:#f0a800; --petal3:#8a4fd0; --sketch-ink:#5a4a6e; --sketch-bg:#f2fbef;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+      --soil:#6e5640; --soil-d:#4f3d2c; --sketch-ink:#e6dcf5; --sketch-bg:#22332a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    --soil:#6e5640; --soil-d:#4f3d2c; --sketch-ink:#e6dcf5; --sketch-bg:#22332a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--pink) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(224,65,122,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🌸";position:absolute;right:18px;top:6px;font-size:100px;opacity:.2;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--blue-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--violet);font-weight:800}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  .lepcso{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center}
+  @media (max-width:560px){ .lepcso{grid-template-columns:repeat(2,1fr)} }
+  .lepcso div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 6px;font-size:13px}
+  .lepcso b{display:block;font-size:15px}
+  .lepcso svg{width:64px;height:64px;display:block;margin:0 auto 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🌸 Tény-motor + Tény-kert</h1>
+  <div class="sub">A játék eddig pályákat jegyzett. Mostantól minden egyes tényt is (7 + 5, 13 − 7, 6 × 7, 42 ÷ 6): tudja-e a gyerek, és fejből, gyorsan tudja-e. A fejlődés a kertben látszik: minden tény egy virág, és kinyílik, amikor már fejből megy.</div>
+  <div class="meta">
+    <span class="chip">Rendszerterv · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-05</span>
+    <span class="chip">Nagyság: nagy (7 kör + később ösvény-csomagok)</span>
+    <span class="chip">A sorban: 2. (a ligetválasztó után)</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>A játék a gyakorlásban már erős: sok feladat, felolvasás, jutalom. Az <b>automatizmushoz</b> négy dolog hiányzik belőle:</p>
+  <ol>
+    <li><b>Nem mér időt.</b> A lassan, ujjon kiszámolt jó válasz ugyanannyit ér, mint a fejből tudott.</li>
+    <li><b>Pályákat jegyez, nem tényeket.</b> A 7 × 8-at, amin a gyerek mindig megbotlik, nem hozza vissza gyakrabban.</li>
+    <li><b>Mindig ugyanaz a kérdésforma</b> („mennyi az eredmény?”). Nincs „7 + ? = 12” és „? × 6 = 42”.</li>
+    <li><b>Nincs vegyes gyakorlás.</b> A műveletek ligetenként külön vannak.</li>
+  </ol>
+  <p>Ez a terv a <b>gerincet</b> adja: a <b>tény-motort</b> (méri és jegyzi a tényeket, és visszahozza a botlósakat), a <b>Tény-kertet</b> (itt látja a gyerek a fejlődést) és egy saját <b>„Neked szóló” ösvényt</b>. Az ötletlista többi eleme (Mi bújt el?, Villámkör, Okos trükkök…) erre épül, később, külön csomagokban.</p>
+  <p class="lead">Mérce: <b>az automatizmus a kb. 2–3 mp-en belüli helyes válasz, több napon át.</b> A gyerek ebből semmit nem lát órával: a gyorsaságot rejtve mérjük, és csak a kert virágzásán látszik.</p>
+</div>
+
+<h2>Mi számít egy „ténynek”?</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>A tény-kör: két virágos tábla</h3>
+    <ul>
+      <li><b>Összeadás–kivonás tábla (20-as kör):</b> a + b, ahol a és b 1-től 10-ig megy. Egy <b>számcsalád</b> (pl. 7, 5, 12) <b>3 tényből</b> áll: <code>7 + 5</code> (az 5 + 7 ugyanaz a tény), <code>12 − 5</code>, <code>12 − 7</code>. Ez <b>55 család, 155 tény</b>.</li>
+      <li><b>Szorzás–osztás tábla (10×10):</b> ugyanígy. A (6, 7, 42) család: <code>6 × 7</code> (= 7 × 6), <code>42 ÷ 6</code>, <code>42 ÷ 7</code>. Ez is <b>55 család, 155 tény</b>.</li>
+      <li>A dupláknál (6 + 6, 7 × 7) a családnak csak 2 tagja van.</li>
+      <li>A 0-s tények (7 + 0, 5 × 0) kimaradnak: semmit nem mondanak a tudásról.</li>
+      <li>A ×1 és ×10 bent marad: ezek gyorsan kinyílnak, és ez jó, mert a gyerek az első napokban is lát virágot.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>A 100-as kör: típusok, nem egyes tények</h3>
+    <p>Ha a 100-as kör minden feladata külön tény lenne, ezernél is több lenne belőlük, és egyiket sem látnánk elég sokszor. Ezért a 100-as kört <b>feladattípusonként</b> mérjük, ugyanazzal a módszerrel, mint a tényeket:</p>
+    <div class="tblwrap"><table>
+      <tr><th>Típus</th><th>Példa</th><th>Rokon tény</th></tr>
+      <tr><td>Kerek tízesek</td><td>30 + 40, 70 − 20</td><td>3 + 4, 7 − 2</td></tr>
+      <tr><td>Kétjegyű ± egyjegyű, átlépés nélkül</td><td>53 + 4, 58 − 3</td><td>3 + 4, 8 − 3</td></tr>
+      <tr><td>Kétjegyű ± egyjegyű, átlépéssel</td><td>67 + 5, 62 − 7</td><td>7 + 5, 12 − 7</td></tr>
+      <tr><td>Kétjegyű ± kerek tízes</td><td>45 + 30, 86 − 40</td><td>4 + 3, 8 − 4</td></tr>
+      <tr><td>Kétjegyű ± kétjegyű, átlépés nélkül</td><td>34 + 25</td><td>—</td></tr>
+      <tr><td>Kétjegyű ± kétjegyű, átlépéssel</td><td>38 + 47</td><td>—</td></tr>
+    </table></div>
+    <p>A <b>rokon tény</b> a pulton segít: ha a 67 + 5 lassú, de a 7 + 5 már villám, akkor a <i>típus</i> gyenge (a tízes-átlépés), nem a tény. Ha a 7 + 5 sem megy, akkor előbb azt kell gyakorolni.</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>Honnan jönnek a mérések: mindenhonnan</h3>
+    <ul>
+      <li><b>Minden meglévő pálya számít</b>, amelyik összeadást, kivonást, szorzást vagy osztást kérdez (Összeadó és Szorzós liget, egyéni pályák). Ezek már most is a <code>naplozz()</code>-on mennek át. Itt egyetlen hívással a motor is megkapja a feladatot (<code>tenyJegyez</code>), így a gyereknek semmi nem változik.</li>
+      <li>A mérés-, vásár-, könyvtár- és fejtörő-feladatok <b>nem</b> számítanak: ott a szöveg megértése a feladat, nem a tény felidézése.</li>
+      <li>A felmondós feladatok (szorzótábla-felmondás, számbontás) sem: ott egy egész sort mond fel, nem egy tényt idéz fel.</li>
+      <li>A későbbi új kérdésformák (7 + ? = 12) <b>ugyanahhoz a tényhez</b> könyvelődnek, egy „forma” jellel, így a pulton látszik, ha a gyerek csak az egyik irányban tudja.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>A rejtett időmérés</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Mit mérünk pontosan</h3>
+    <div class="flow">
+      <span class="step">Feladat a képernyőn</span><span class="arr">→</span>
+      <span class="step">A felolvasás véget ér ⏱ indul</span><span class="arr">→</span>
+      <span class="step">Az első leütött számjegy, vagy a beszéd kezdete ⏱ áll</span>
+    </div>
+    <ul>
+      <li><b>Az óra a felolvasás végén indul</b>, mert addig a gyerek nem is tudhatja, mit kérdeznek. Ha a felolvasás előtt már beír (hiszen el tudja olvasni), az 0 mp-nek, vagyis villámnak számít.</li>
+      <li><b>Beírásnál az első számjegyig</b> mérünk, nem a beküldésig. Így a lassú gépelés vagy a kétjegyű szám nem rontja az időt.</li>
+      <li><b>Beszédnél a beszéd kezdetéig</b> mérünk (a felismerő <code>onspeechstart</code> jelzése), nem a felismert szóig. A felismerés maga kb. 1 mp, ez nem a gyerek ideje. Ha a böngésző ezt a jelzést nem adja, a felismerés ideje mínusz 1 mp lesz a mérés.</li>
+      <li><b>Csak az első próba számít.</b> A rossz válasz „botlás”, a tipp utáni jó válasz pedig „segítséggel”: egyik sem lassú, egyik sem villám.</li>
+      <li><b>20 mp fölött „szünet”</b>: a gyerek felállt, beszélgetett. Ezt nem könyveljük lassúnak, csak nem villám.</li>
+    </ul>
+    <span class="prop">Javaslat</span> <span class="prop">a beszéd-mérést élőben ki kell próbálni</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>A villám-határ</h3>
+    <ul>
+      <li>Alapból <b>3 mp</b> a 20-as körben és a szorzótáblában, <b>5 mp</b> a 100-as kör típusainál.</li>
+      <li>A pulton <b>gyerekenként és csoportra</b> állítható (2–8 mp), a szokott rend szerint: alap &lt; csoport &lt; egyéni.</li>
+      <li>A gyerek <b>soha nem lát órát</b>, és soha nem hallja, hogy „lassú volt”. A dicséret ugyanaz marad, mint ma.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>A tény érettsége: négy lépcső</h2>
+<div class="panel">
+  <div class="lepcso">
+    <div>
+      <svg viewBox="0 0 64 64"><ellipse cx="32" cy="52" rx="24" ry="7" fill="var(--soil)"/><ellipse cx="32" cy="48" rx="5" ry="3.5" fill="var(--soil-d)"/></svg>
+      <b>Új</b>mag a földben<br>még nem találkozott vele
+    </div>
+    <div>
+      <svg viewBox="0 0 64 64"><ellipse cx="32" cy="52" rx="24" ry="7" fill="var(--soil)"/><path d="M32 50 C32 40 32 36 32 30" stroke="var(--leaf)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 38 C24 36 21 30 22 27 C28 28 32 32 32 38Z" fill="var(--leaf)"/><path d="M32 34 C39 32 42 27 41 24 C35 25 32 29 32 34Z" fill="var(--leaf)"/></svg>
+      <b>Tanulja</b>hajtás<br>néha jó, néha botlik
+    </div>
+    <div>
+      <svg viewBox="0 0 64 64"><ellipse cx="32" cy="52" rx="24" ry="7" fill="var(--soil)"/><path d="M32 50 C32 40 32 30 32 22" stroke="var(--leaf)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 40 C24 38 21 32 22 29 C28 30 32 34 32 40Z" fill="var(--leaf)"/><path d="M32 22 C26 18 27 8 32 5 C37 8 38 18 32 22Z" fill="var(--bud)"/></svg>
+      <b>Tudja</b>bimbó<br>jól mondja, de még számol
+    </div>
+    <div>
+      <svg viewBox="0 0 64 64"><ellipse cx="32" cy="52" rx="24" ry="7" fill="var(--soil)"/><path d="M32 50 C32 40 32 30 32 24" stroke="var(--leaf)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 42 C24 40 21 34 22 31 C28 32 32 36 32 42Z" fill="var(--leaf)"/><g transform="translate(32 16)"><ellipse rx="5" ry="9" transform="rotate(0) translate(0 -8)" fill="var(--petal)"/><ellipse rx="5" ry="9" transform="rotate(120) translate(0 -8)" fill="var(--petal2)"/><ellipse rx="5" ry="9" transform="rotate(240) translate(0 -8)" fill="var(--petal3)"/><ellipse rx="5" ry="9" transform="rotate(60) translate(0 -8)" fill="var(--petal)"/><ellipse rx="5" ry="9" transform="rotate(180) translate(0 -8)" fill="var(--petal2)"/><ellipse rx="5" ry="9" transform="rotate(300) translate(0 -8)" fill="var(--petal3)"/><circle r="5" fill="#ffe27a"/></g></svg>
+      <b>Villám</b>nyíló virág<br>fejből, gyorsan, több napon át
+    </div>
+  </div>
+  <h3>Hogyan lép a tény (a „doboz”-szabály)</h3>
+  <p>Minden tény egy 0–5-ös „dobozban” van. A doboz egyszerre mondja meg, hol tart a tény, és mikor jöjjön vissza.</p>
+  <div class="tblwrap"><table>
+    <tr><th>Doboz</th><th>Lépcső</th><th>Mikor jön vissza (ha magától nem jön elő)</th></tr>
+    <tr><td>0</td><td>Új</td><td>—</td></tr>
+    <tr><td>1–2</td><td>Tanulja</td><td>még ugyanazon a napon, illetve másnap</td></tr>
+    <tr><td>3</td><td>Tudja</td><td>2 nap múlva</td></tr>
+    <tr><td>4</td><td>Villám</td><td>5 nap múlva</td></tr>
+    <tr><td>5</td><td>Villám, megmaradt</td><td>14 nap múlva</td></tr>
+  </table></div>
+  <ul>
+    <li><b>Villám-válasz</b> (elsőre jó, határon belül): egy dobozzal feljebb. A <b>3 → 4 lépés csak másik napon</b> történhet, mint az előző feljebb lépés. Így lesz belőle „több napon át” tudás, nem egyetlen szerencsés délután.</li>
+    <li><b>Lassú jó válasz:</b> legfeljebb a 3-as dobozig visz fel. A gyerek tudja, de még nem fejből.</li>
+    <li><b>Botlás:</b> két dobozzal lejjebb, de <b>legalább az 1-esbe</b>. Egy villám virág tehát nem lesz újra mag, csak visszacsukódik bimbóvá. Ez a „soha ne vesszen el semmi” elv.</li>
+    <li><b>Segítséggel jó:</b> nem változtat.</li>
+  </ul>
+  <span class="prop">Javaslat</span>
+</div>
+
+<h2>Hol gyakorolja: mindenhol + a saját ösvényén</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">6</span>
+    <h3>„Neked szóló” ösvény (a motor rakja össze)</h3>
+    <ul>
+      <li>Egy új ösvény-kártya, amit <b>a tény-motor állít össze</b> a gyereknek, minden indításkor frissen. Az ösvény a megszokott hosszúságú: Rajt → 4 szakasz → küszöb, szakaszonként 4 feladat = <b>20 feladat</b>.</li>
+      <li><b>A keverék egy körben:</b> kb. <b>10 esedékes</b> tény (a „tanulja” lépcső előnyben, a legrégebben esedékesek elöl), kb. <b>6 ismétlés</b> a „tudja” és „villám” tényekből (ettől sikerélmény a kör), és <b>legfeljebb 4 új</b> tény (a pulton állítható).</li>
+      <li>A cél, hogy a gyerek <b>kb. 4 válaszból 3-at elsőre eltaláljon</b>. Ha túl sok a botlás, a következő szakasz könnyebb tényeket hoz.</li>
+      <li>A <b>botlós tény ugyanabban a körben visszajön</b>, 3–5 feladattal később. Ugyanaz a tény kétszer egymás után sosem jön.</li>
+      <li>A <b>műveletek keverednek</b> (+, −, ×, ÷), de csak azokból a táblákból, amelyek a pulton be vannak kapcsolva a gyereknek. Ez az első vegyes gyakorlás a játékban.</li>
+      <li>Jutalom a szokásos: ✨ feladatonként, ⭐ az ösvény végén. A 12 órás kapu és a „mára elég” darabkorlát erre is érvényes.</li>
+    </ul>
+    <span class="prop">Javaslat</span> <span class="prop">Kérdés: hol legyen a kártya (lent, a döntések között)</span>
+  </div>
+
+  <div class="dec"><span class="num">7</span>
+    <h3>„Becsempészés” a meglévő pályákba</h3>
+    <ul>
+      <li>Ha egy meglévő pálya sorsolhatna olyan tényt, ami a gyereknek esedékes, akkor <b>állomásonként legfeljebb 1 feladatot</b> abból választ. Ez csak a pálya saját keretein belül történik: a 3-as szorzó állomás csak a 3-as tábla esedékes tényeit kérheti.</li>
+      <li>A gyerek ebből semmit nem vesz észre, de a botlós tények így maguktól gyakrabban előjönnek.</li>
+      <li>A pulton kikapcsolható (gyerekenként és csoportra).</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>A Tény-kert</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">8</span>
+    <h3>Két virágágyás az újrarajzolt kertben</h3>
+    <ul>
+      <li>A kertben két ágyás lesz: a rózsaszín <b>Összeadás–kivonás ágyás</b> és a lila <b>Szorzás–osztás ágyás</b>. Később, javaslatként, a 100-as kör típusai <b>gyümölcsfák</b> lehetnek a kert szélén, egy típus = egy fa, és a gyümölcs érik.</li>
+      <li><b>A producer kikötése szerint a kertet újra kell rajzolni</b>, hogy az ágyások a kép természetes részei legyenek, nem utólag beleerőltetve. Erre <b>külön rajzterv</b> készül (összehasonlító lap, 2–3 változat).</li>
+      <li>A rajzterv kötelező feltételei: a meglévő díszek, növények, ételek, ágyak és a fészer a helyükön maradnak, és az unikornis ugyanúgy sétál. A lerakott tárgyak helye százalékban van elmentve (<code>P().kert.elemek</code>), ezért <b>az új kép ugyanazt a fű-területet és talajvonalat tartja</b>. Az ágyások a fű mögé, a kép hátsó sávjába kerülnek. Ha mégis esne oda lerakott tárgy, egyszer, automatikusan előrébb tesszük.</li>
+      <li>A távoli képen az ágyás <b>színfoltokként</b> virágzik: minél több a villám tény, annál színesebb.</li>
+    </ul>
+    <span class="prop">Javaslat</span> <span class="ok">Kikötés: újrarajzolt kert (producer, 2026-10-04)</span>
+  </div>
+
+  <div class="dec"><span class="num">9</span>
+    <h3>A közeli nézet: virágos tábla</h3>
+    <ul>
+      <li>Az ágyásra koppintva az unikornis odasétál, és kinyílik a <b>közeli nézet: egy 10 × 10-es virágos tábla</b>, éppen olyan, mint a szorzótábla, amit a gyerek ismer. A sor és az oszlop a két szám, a virág a családjuk.</li>
+      <li>A <b>tükörkép-helyeken ugyanaz a virág</b> áll (a 6 × 7 és a 7 × 6 együtt nyílik). Így a felcserélhetőség látszik, nem kell elmagyarázni.</li>
+      <li>Egy virágnak <b>3 szirompárja</b> van, egy-egy a család 3 tényének (6 × 7, 42 ÷ 6, 42 ÷ 7). A virág szirompáronként nyílik ki. Így látszik, ha a szorzás már megy, de az osztás még nem.</li>
+      <li><b>Sorra koppintva</b> (pl. a hetes sor) a sor kiemelődik, és a felolvasó elmondja: „A hetes sorban 6 virág nyílik, 3 bimbó, 1 hajtás.”</li>
+      <li><b>Virágra koppintva</b> a felolvasó elmondja a családot: „Hat, hét, negyvenkettő.”</li>
+      <li>Telefonon is elfér: 10 × 10 mező kb. 32 px-es virágokkal, a tábla nem görget oldalra.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">10</span>
+    <h3>Öntözés 💧-ért = fókusz-választás</h3>
+    <ul>
+      <li>A virág <b>csak a tudástól nyílik</b>, pénzért nem. Ha 💧-ért ki lehetne nyitni, a kert hazudna.</li>
+      <li>Az öntözés ezért <b>választás</b>: a gyerek meglocsol egy sort (pl. a hetes sort, <b>1 💧</b>), és a sor egy napig csillog. Ezután <b>a következő Neked szóló ösvény ebből a sorból hoz több tényt</b>. A gyerek maga dönti el, mit akar gyakorolni (autonómia), és a 💧-nek is lesz értelme.</li>
+      <li>Ez illik a meglévő szabályhoz: ✨ a feladatokért jár, 💧 a kert ápolására megy.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">11</span>
+    <h3>Soha nem hervad + hely a visszahívásnak</h3>
+    <ul>
+      <li>A kertben <b>semmi nem hervad el, nem szárad ki, nem hal meg</b>. Az esedékes tény virága kicsit összecsukódik, és egy apró harmatcsepp jelzi, hogy ismétlésre vár. Bűntudat-mondat nincs.</li>
+      <li>Az ösvény végén jó hír zár (a „csúcs–vég” szabály): <b>„🌸 Két új virág nyílt a Tény-kertben!”</b>, ha volt ilyen. Ez a gyerek egyetlen jele a rejtett mérésről.</li>
+      <li><b>A visszahívás (3. a sorban) bekötési pontja:</b> a motor egy kérdezhető összegzést ad (<code>tenyKertAllapot()</code>: hány virág nyílik, hány esedékes, melyik sor csillog). Erre épülhet majd a gondozás és az „amíg nem voltál itt” hír. Most csak a felületet készítjük el, a gondozást nem.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>Hogy néz ki (vázlat, nem rajzterv)</h2>
+<div class="vazlatok">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Kert vázlat két ágyással">
+      <rect x="0" y="0" width="400" height="110" fill="var(--blue-soft)"/>
+      <rect x="0" y="110" width="400" height="150" fill="var(--green-soft)"/>
+      <rect x="40" y="96" width="140" height="40" rx="18" fill="var(--soil)"/>
+      <rect x="220" y="96" width="140" height="40" rx="18" fill="var(--soil)"/>
+      <g fill="var(--petal)"><circle cx="62" cy="108" r="6"/><circle cx="84" cy="118" r="6"/><circle cx="106" cy="106" r="6"/><circle cx="130" cy="120" r="6"/></g>
+      <g fill="var(--bud)"><circle cx="150" cy="108" r="5"/><circle cx="72" cy="126" r="5"/></g>
+      <g fill="var(--petal3)"><circle cx="244" cy="110" r="6"/><circle cx="270" cy="122" r="6"/></g>
+      <g fill="var(--leaf)"><circle cx="300" cy="108" r="4"/><circle cx="324" cy="120" r="4"/><circle cx="346" cy="108" r="4"/></g>
+      <text x="110" y="88" text-anchor="middle" font-size="12" font-weight="700">+ − ágyás</text>
+      <text x="290" y="88" text-anchor="middle" font-size="12" font-weight="700">× ÷ ágyás</text>
+      <text x="200" y="200" text-anchor="middle" font-size="12">fű: díszek, ételek, ágy, séta, mint eddig</text>
+      <text x="200" y="244" text-anchor="middle" font-size="11" opacity=".7">(a pontos képet a kert-rajzterv adja)</text>
+    </svg>
+    <figcaption>A kert: az ágyások a fű mögött, a kép hátsó sávjában.</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Közeli nézet: virágos tábla">
+      <text x="200" y="20" text-anchor="middle" font-size="13" font-weight="700">× ÷ ágyás — a hetes sor kiemelve</text>
+      <rect x="50" y="104" width="292" height="18" rx="6" fill="var(--warn-soft)" stroke="var(--gold)"/>
+      <g id="racs"></g>
+      <text x="200" y="250" text-anchor="middle" font-size="11">„A hetes sorban 6 virág nyílik, 3 bimbó, 1 hajtás.” · 💧 Meglocsolom</text>
+    </svg>
+    <figcaption>Közeli nézet: 10 × 10-es virágos tábla, a tükörkép-helyeken ugyanaz a virág.</figcaption>
+  </figure>
+</div>
+
+<h2>Mentés és pult</h2>
+<div class="panel">
+  <h3>Mentés</h3>
+  <ul>
+    <li>Új ág a profilban: <code>P().tenyek</code>, egy térkép, ahol <b>tényenként egy rövid sor</b> áll. A kulcsok a Firestore-ban is biztonságosak: <code>o7_5</code> (összeadás), <code>k12_5</code> (kivonás), <code>s6_7</code> (szorzás), <code>d42_6</code> (osztás). A 100-as kör típusai a <code>P().tenyTipus</code> ágba kerülnek, ugyanilyen alakban.</li>
+    <li>Egy tény sora: <code>{ d: doboz, e: esedékes nap, n: próbák, h: "VVJH…" utolsó 6 eredmény, m: utolsó idő tized mp-ben, fl: forma-jelek, ln: utolsó feljebb lépés napja }</code>.</li>
+    <li>Méret: kb. 310 tény × kb. 60 bájt = kb. 20 KB gyerekenként, ez bőven belefér. A felhő-szinkron levélszinten fésül össze, így két gép mérései nem írják felül egymást.</li>
+    <li>A meglévő <code>naplo</code> (utolsó 80 válasz) változatlan marad.</li>
+  </ul>
+  <h3>Pult (gyerekenként ÉS csoportra, alap &lt; csoport &lt; egyéni)</h3>
+  <ul>
+    <li><b>Tény-tábla:</b> a két 10 × 10-es tábla színezve (új / tanulja / tudja / villám), és mezőre állva megjelenik az utolsó idő és az utolsó 6 eredmény. Mellette a 100-as kör típusai és a „rokon tény” jelzés.</li>
+    <li><b>Csoport-nézet:</b> melyik tény botlós a legtöbb gyereknél (ez a tanórára is jó).</li>
+    <li><b>Beállítások:</b> villám-határ (mp) · mely táblák vannak bekapcsolva (+/− 10-en belül, 20-as kör, ×, ÷, 100-as kör) · új tény/kör (alap 4) · becsempészés be/ki · a Neked szóló ösvény látszik-e.</li>
+    <li>Felmérő teszt nincs: a tábla a meglévő játékból töltődik fel. Mire a kert elkészül, már lesz benne adat.</li>
+  </ul>
+</div>
+
+<h2>Milyen közös alapra épül, mit ad hozzá a közöshöz?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Új közös modul: <code>src/teny.js</code></b>, és minden tény-ügy egyedül ezen megy át: <code>tenyKulcs(naplo)</code> (a feladatból kulcs, a 100-as körnél típus + rokon tény), <code>tenyJegyez(f, eredmeny, ms)</code>, <code>tenyLepcso(k)</code>, <code>tenyEsedekes()</code>, <code>tenyValaszt(halmaz, db)</code> és <code>tenyKertAllapot()</code>. A Neked szóló ösvény, a becsempészés, a kert, a pult és a későbbi Villámkör / Mi bújt el? is ugyanezt a választót használja. Nem lesz három külön „melyik tény jöjjön” logika.</li>
+    <li><b>Időmérés egy helyen:</b> <code>tenyOraIndit()</code> a felolvasás végén, <code>tenyOraAll()</code> az első bevitelnél, és ezt a beírás is, a beszéd is ugyanúgy hívja.</li>
+    <li><b>Kert-ágyás: <code>src/teny-kert.js</code></b> (ágyás-rajz, közeli nézet). A kert (<code>kert.js</code>) csak elhelyezi, és a séta a kert meglévő <code>kertSetal</code>-ját használja.</li>
+    <li>A Neked szóló ösvény a meglévő ösvény-motoron fut (állomások, <code>osvenyMegy</code>), egy új generátor-típussal: <code>GEN.teny</code>.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="panel">
+  <ol>
+    <li><b>Tény-motor, láthatatlanul:</b> <code>teny.js</code>, rejtett időmérés, könyvelés a meglévő pályákból. A gyereknek semmi nem változik, de innentől gyűlik az adat.</li>
+    <li><b>Pult: tény-tábla + beállítások.</b> A producer már napok óta valódi adatot lát, mielőtt bármi más elkészül. Ekkor a villám-határt is be lehet lőni a gyerekek valódi idejéből.</li>
+    <li><b>Neked szóló ösvény + becsempészés</b> (<code>GEN.teny</code>, a választó, vegyes műveletek).</li>
+    <li><b>Kert-rajzterv</b> (összehasonlító lap, 2–3 változat az újrarajzolt kertre, a két ágyással).</li>
+    <li><b>Az újrarajzolt kert</b> a jóváhagyott változat szerint. A meglévő tárgyak, a séta és a trükkök a helyükön maradnak.</li>
+    <li><b>Tény-kert:</b> ágyások, közeli nézet, felolvasás, öntözés 💧-ért, az ösvény végi „virág nyílt” hír.</li>
+    <li><b>Élő próba a gyerekekkel</b> + finomhangolás (beszéd-mérés, határok, a keverék aránya).</li>
+  </ol>
+  <h3>Később, külön csomagokban (mind a motorra épül)</h3>
+  <ul>
+    <li><b>B) Mi bújt el?</b> 7 + ? = 12, ? × 6 = 42, tízes és százas barátok, pótlás. Egy kis lény bújik el a szám mögé.</li>
+    <li><b>F) Villámkör:</b> 1 perc, saját rekord, csak „tudja/villám” tények. Választható, és ez az egyetlen hely, ahol látszik az idő.</li>
+    <li><b>E) Okos trükkök:</b> dupla, majdnem dupla, tízen át, ×4 = dupla duplája, ×9 = ×10 − 1×…</li>
+    <li><b>C) számcsalád · D) rokon feladatok · G) varázsgép / számpiramis · H) Nagy vegyes.</b></li>
+  </ul>
+</div>
+
+<h2>A producer döntései (2026-10-04) — ezekre épül a terv</h2>
+<div class="panel">
+  <ul>
+    <li>A gyorsaságot <b>rejtve mérjük</b>, a fejlődés a kert virágzásán látszik. A Villámkör külön van, és választható.</li>
+    <li>Tény-kör: <b>20-as kör +/−</b> és a <b>10 × 10-es tábla ×/÷</b>. A 100-as kört típusonként mérjük, rokon feladatokkal.</li>
+    <li><b>Mindenhol</b> működik (a meglévő pályák is számítanak), és van saját „Neked szóló” ösvény.</li>
+    <li>A Tény-kert a <b>meglévő kertben</b> van, virágágyásként, koppintásra közeli nézettel, öntözéssel 💧-ért. <b>A kertet újra kell rajzolni</b>, nem szabad beleerőltetni.</li>
+  </ul>
+</div>
+
+<h2>Jóváhagyásra váró kérdések</h2>
+<div class="q"><b>1. Hol legyen a „Neked szóló” ösvény kártyája?</b>
+Javaslat: a <b>Neked készült</b> ligetben, az egyéni pályák előtt, hiszen „neked szól”. Másik lehetőség: a kert kapujánál, az ágyás mellett, vagy két helyen (az Összeadó és a Szorzós ligetben).</div>
+<div class="q"><b>2. Becsempészés a meglévő pályákba (7. pont): mehet?</b>
+Javaslat: igen, állomásonként legfeljebb 1 feladat, a pulton kikapcsolható.</div>
+<div class="q"><b>3. Öntözés = fókusz-választás (10. pont)?</b>
+Javaslat: igen, 1 💧 soronként, egy napig csillog, és a következő Neked szóló ösvény többet hoz abból a sorból.</div>
+<div class="q"><b>4. A virág szirompárjai (9. pont): 3 szirompár a család 3 tényének?</b>
+Javaslat: igen. Így látszik, ha a szorzás már megy, de az osztás még nem.</div>
+<div class="q"><b>5. A körök sorrendje: a pult-tábla jöjjön korán (2. kör)?</b>
+Javaslat: igen. Így napokig gyűlik a valódi adat, mielőtt a kert elkészül, és a határokat a gyerekek idejéből lőjük be.</div>
+
+</div>
+<script>
+/* vázlat: 10×10 virágos tábla a közeli nézet ábrájába (csak illusztráció) */
+(function () {
+  var g = document.getElementById("racs"); if (!g) return;
+  var ns = "http://www.w3.org/2000/svg", x0 = 72, y0 = 34, s = 22, h = "";
+  function lep(a, b) { var lo = Math.min(a, b), hi = Math.max(a, b); if (lo <= 2 || hi === 10 || lo === 5) return 3; if (lo + hi <= 10) return 2; if (lo * hi < 50) return 1; return 0; }
+  var szin = ["var(--soil-d)", "var(--leaf)", "var(--bud)", "var(--petal)"];
+  for (var r = 1; r <= 10; r++) {
+    h += '<text x="' + (x0 - 12) + '" y="' + (y0 + (r - 1) * s * 0.6 + 4) + '" font-size="8" text-anchor="middle">' + r + '</text>';
+    for (var c = 1; c <= 10; c++) {
+      var L = lep(r, c), cx = x0 + (c - 1) * s * 1.3, cy = y0 + (r - 1) * s * 0.6;
+      h += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (L === 3 ? 5 : L === 2 ? 4 : L === 1 ? 3 : 2) + '" fill="' + szin[L] + '"/>';
+    }
+  }
+  g.innerHTML = h;
+})();
+</script>
+</body>
+</html>
