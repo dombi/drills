@@ -458,6 +458,7 @@ function ftVege() {
   var harmat = FT_ZARO_HARMAT + ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
+  gyakPalyaVege();   /* 🌱 a Fejtörő-hegy ösvénye is gyakorlós nap (gondozas.js) */
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
     idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });

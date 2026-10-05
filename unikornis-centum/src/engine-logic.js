@@ -757,6 +757,7 @@ function palyaVege() {
   harmat += ajanlottExtra;
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
+  gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
   var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
@@ -828,6 +829,7 @@ function kovetkezoJatszhato(id) {
 }
 function naplozz(alap, elsore, valasz) {
   var tj = tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
+  tenyKertHajt(tj);                            /* 🌷 Tamagocsi-kert: az első villám-válasz (doboz ≥ 3) → rejtett hajtás */
   if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
   P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
     helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });

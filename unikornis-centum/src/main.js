@@ -13,6 +13,8 @@ document.addEventListener("pointerdown", function egyszer() {
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
+  gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
+  tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,

@@ -3,6 +3,7 @@
    tudja-e a gyerek, és fejből, gyorsan tudja-e. MINDEN tény-ügy egyedül ezen megy át (a pult, a
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
+   Tamagocsi-kert 3. kör (2026-10-05): a virágok rejtett könyvelése (tenyKertHajt, tenyKertNyit; lent) + src/gondozas.js.
    3. kör (2026-10-05): a 🌸 Neked szóló ösvény (tenyPalya, GEN.teny: a motor rakja össze, minden indításkor frissen,
      vegyes műveletekkel) + a becsempészés (tenyCsempesz: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt
      kérnek, a saját keretükön belül). A beállítások (ujKor, tablak, becsempesz, osveny) innentől hatnak.
@@ -267,8 +268,11 @@ function tenyValaszt(halmaz, db, opc) {
   return ki;
 }
 /* A Tény-kert, a pult és a későbbi visszahívás (Tamagocsi) kérdezhető összegzése (a pult a tar-t adja át):
-   ágyásonként hány virág (család) és hány tény van az egyes lépcsőkön, hány esedékes. */
-function tenyKertAllapot(tar) {
+   ágyásonként hány virág (család) és hány tény van az egyes lépcsőkön, hány esedékes.
+   + .kert: a gyerek kertje (Tamagocsi): { hajtas, bimbo, virag, szomj 0–2, mag {f, g}, meglepetes } — a játékban
+   magától, a pult a kert-tárral (P().tenyKert) kéri. Erre épül majd a visszahívás. */
+function tenyKertAllapot(tar, kert) {
+  if (!tar && kert === undefined) kert = tenyKertTar();
   tar = tar || tenyTar(false);
   var ma = tenyNap(), ki = { ok: null, sd: null, csillogoSor: null };
   ["ok", "sd"].forEach(function (agy) {
@@ -286,7 +290,55 @@ function tenyKertAllapot(tar) {
     });
     ki[agy] = o;
   });
+  if (kert) {
+    var g = { hajtas: 0, bimbo: 0, virag: 0, szomj: typeof igeny === "function" ? igeny(kert.loc) : null,
+      mag: kert.mag ? { f: kert.mag.f, g: kert.mag.g || 0 } : null, meglepetes: !!(kert.meg && !kert.meg.kesz) };
+    Object.keys(kert.v || {}).forEach(function (k) { g[["", "hajtas", "bimbo", "virag"][tenyViragFazis(kert.v[k], ma)]]++; });
+    ki.kert = g;
+  }
   return ki;
+}
+
+/* ════════════ Tamagocsi-kert 3. kör (2026-10-05): a virágok rejtve gyűlnek (terv/teny-kert-tamagocsi-terv.html) ════════════
+   P().tenyKert.v[kulcs] = { a: 1 hajtás · 2 bimbó · 3 virág, n: a hajtás napja (tenyNap), g: a nyílás gyakorlós napja }.
+   Hajtás: az első villám-válasz, ha a doboz utána ≥ 3 (a tény már legalább kétszer ment jól) — a naplozz hívja a
+     tenyJegyez után; a motor számolása érintetlen. Csak a két tény-ágyás tényei (a 100-as kör típusai nem).
+   Bimbó: a hajtás utáni naptári napon magától (nem kell menteni, a fázis a napból számolódik).
+   Virág: a következő gyakorlós napon (a nap első végigjátszott pályája: gyakLep → tenyKertNyit). Ami nyílt, nyitva marad.
+   Amíg a gyerek a kertet még nem látta (indult = 0), a virágok bimbóban várnak, így az első belépés
+   „Nézd, mennyi bimbó!” élménye megmarad (a 4. kör kapcsolja be). */
+function tenyKertTar(p) {
+  p = p || P();
+  var k = p.tenyKert;
+  if (!k || typeof k !== "object") k = p.tenyKert = {};
+  if (!k.v || typeof k.v !== "object") k.v = {};
+  return k;
+}
+function tenyKertHajt(tj) {
+  if (!tj || tj.tipus || tj.betu !== "V" || tj.d < 3 || !tenyAgyE(tj.kulcs)) return false;
+  var v = tenyKertTar().v;
+  if (v[tj.kulcs]) return false;                   /* már van hajtása / virága */
+  v[tj.kulcs] = { a: 1, n: tenyNap() };
+  return true;
+}
+/* 0 nincs · 1 hajtás · 2 bimbó · 3 virág */
+function tenyViragFazis(r, ma) {
+  if (!r) return 0;
+  if (r.a >= 2) return r.a;
+  return (ma == null ? tenyNap() : ma) > r.n ? 2 : 1;
+}
+/* a nap első végigjátszott pályája után: kinyílik minden bimbó, ami nem ma bújt ki. Visszaad: hány nyílt
+   (a hír a 4. körtől szól: „🌸 Két új virág nyílt a kertedben!”; addig csak a K.hir-be kerül). */
+function tenyKertNyit() {
+  var K = tenyKertTar();
+  if (!K.indult) return 0;
+  var ma = tenyNap(), gy = gyakNap(), db = 0;
+  Object.keys(K.v).forEach(function (k) {
+    var r = K.v[k];
+    if (r.a < 3 && r.n < ma) { r.a = 3; r.g = gy; db++; }
+  });
+  if (db) K.hir = { nap: ma, nyilt: db };
+  return db;
 }
 
 /* ════════════ 3. KÖR (2026-10-05): a 🌸 Neked szóló ösvény + a becsempészés ════════════ */
