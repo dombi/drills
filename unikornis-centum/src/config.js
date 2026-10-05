@@ -352,7 +352,8 @@ function egyeniPalyaEpit(id, r) {
   return { id: id, nev: String(r.nev || "Neked készült ösvény").slice(0, 40), ikon: r.ikon || "💖", regio: "egyeni", egyeni: true,
            szint: szint, palcim: mat, alap: alap, kez_nelkul: kez, allomasok: allomasok, letrehozva: +r.letrehozva || 0 };
 }
-/* az aktív egyéni pályák, létrehozás szerint (a legrégebbi elöl) — csak akkor épít újra, ha változott a forrás */
+/* az aktív egyéni pályák, létrehozás szerint (a legrégebbi elöl) — csak akkor épít újra, ha változott a forrás.
+   Legelöl a 🌸 Neked szóló ösvény (teny.js tenyPalya), ha a gyereknek látszik. */
 function egyeniPalyak() {
   var kulcs = JSON.stringify(FELULIR.palyak || {});
   if (kulcs !== EGYENI_MEMO.kulcs) {
@@ -364,7 +365,9 @@ function egyeniPalyak() {
     l.sort(function (a, b) { return a.letrehozva - b.letrehozva || (a.id < b.id ? -1 : 1); });
     EGYENI_MEMO = { kulcs: kulcs, lista: l };
   }
-  return EGYENI_MEMO.lista;
+  var tp = null;
+  try { tp = tenyPalya(); } catch (e) { tp = null; }   /* 🌸 a Neked szóló ösvény az egyéniek előtt (teny.js); profil nélkül nincs */
+  return tp ? [tp].concat(EGYENI_MEMO.lista) : EGYENI_MEMO.lista;
 }
 /* pálya keresése azonosító szerint: előbb a beépítettek, aztán az egyéniek */
 function palyaKeres(id) {

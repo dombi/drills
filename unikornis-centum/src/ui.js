@@ -149,7 +149,8 @@ function renderFomenu() {
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
       if (ajanlott) mondat += " Ezt most neked ajánlom! Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.";
-      if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
+      if (pa.teny) mondat += " Ezt az ösvényt a tündérek mindig a te feladataidból rakják össze, minden alkalommal újat!";
+      else if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (bankos) mondat += " Ha végigviszed, a Tündérbankban válthatsz!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
       mondd(mondat);

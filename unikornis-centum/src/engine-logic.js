@@ -21,7 +21,7 @@ function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : 
 function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
 function palyaZarva(pa) { if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
-  return !pa.hamarosan && !pa.egyeni && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva */
+  return !pa.hamarosan && (!pa.egyeni || pa.teny) && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva — a 🌸 Neked szóló ösvényt viszont a kapu is zárja */
 function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }
 /* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mind éles → nyílik a kapu.
    Ha a producer közben másik kulcs-készletet állított, a félkész élesítés elvész (újrakezdés).
@@ -126,7 +126,7 @@ function ujFeladat() {
     if (a.szorzo_keszlet != null && J.allomasSzorzo != null) {
       eff = {}; for (var kk in a) eff[kk] = a[kk]; eff.szorzo = J.allomasSzorzo;
     }
-    J.feladat = GEN[a.tipus](eff, J.kerultKulcsok);
+    J.feladat = tenyCsempesz(eff, J.kerultKulcsok) || GEN[a.tipus](eff, J.kerultKulcsok);   /* 🌸 állomásonként ≤1 esedékes tény (teny.js) */
   }
   var f = J.feladat;
   /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat;
@@ -827,7 +827,8 @@ function kovetkezoJatszhato(id) {
   return null;
 }
 function naplozz(alap, elsore, valasz) {
-  tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
+  var tj = tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
+  if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
   P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
     helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });
   if (P().naplo.length > 80) P().naplo.shift();

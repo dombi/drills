@@ -1014,7 +1014,7 @@ function celEgyeniPalyak(tipus, id) {
 function kapuHatas(uid) {
   var cs = jatekosCsoportjai(uid), cfg = A.cfg[uid] || {};
   var v = felulirOsszevon(cfg.overrides || {}, cs.map(function (g) { return g.overrides; }));
-  var ids = PALYA_SORREND.concat(celEgyeniPalyak("u", uid).map(function (x) { return x.id; }));
+  var ids = PALYA_SORREND.concat([TENY_OSVENY_ID], celEgyeniPalyak("u", uid).map(function (x) { return x.id; }));
   var kulcs = [], rejtett = [];
   ids.forEach(function (pid) {
     if ((v[pid] || {}).kulcs !== true) return;
@@ -1233,8 +1233,10 @@ function rajzBeallitasok(t) {
   if (egyeni) h += '<div class="kicsi">Most ennél a gyereknél: ' + tenyHatasSzoveg(id) + "</div>";
   h += '<p class="kicsi halvany" style="margin-top:8px">Villám = elsőre jó válasz a határon belül (a gyerek ezt soha nem látja, csak a Tény-kert virágzásán). ' +
     "A határ csak az ezután jövő válaszokra hat; a 🌸 Tények fülön látod, a gyerek mért idejével hány tény lenne villám 2–8 mp-es határral. " +
-    "Táblák: semmi bepipálva = automatikus (amivel a gyerek a pályákon már találkozott). Az új tény / kör, a becsempészés, a Neked szóló ösvény és a táblák a 3. körtől hatnak " +
-    "(Neked szóló ösvény + becsempészés); addig eltárolódnak. Sorrend: alap → csoport → egyéni. Több csoportnál <b>az engedékenyebb nyer</b>: a nagyobb határ, " +
+    "Táblák: semmi bepipálva = automatikus (amivel a gyerek a pályákon már találkozott). " +
+    "🌸 Neked szóló ösvény: a „💖 Neked készült” ligetben, 20 feladat a bekapcsolt táblákból, vegyesen (kb. 10 esedékes, 6 ismétlés, legfeljebb az „új tény / kör”); " +
+    "a kapu és a „🔁 Hányszor” rá is érvényes (lent, a pálya-táblában állítható). Becsempészés: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt kérnek, " +
+    "a saját keretükön belül. Sorrend: alap → csoport → egyéni. Több csoportnál <b>az engedékenyebb nyer</b>: a nagyobb határ, " +
     "a kevesebb új tény, a közös táblák; a becsempészés és az ösvény ki van kapcsolva, ha bármelyik csoport kikapcsolja.</p></div>";
 
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
@@ -1280,7 +1282,16 @@ function rajzBeallitasok(t) {
       "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
       (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
   }
-  /* az egyéni („💖 Neked készült”) pályák: csak kulcs + darabkorlát állítható itt (a többit a ✏️ fülön) */
+  /* az egyéni („💖 Neked készült”) pályák: csak kulcs + darabkorlát állítható itt (a többit a ✏️ fülön);
+     legelöl a 🌸 Neked szóló ösvény (a tény-motor rakja össze; a láthatóságát a fenti 🌸 Tény-motor kártya állítja) */
+  (function () {
+    var pid = TENY_OSVENY_ID, o = ov[pid] || {}, kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
+    h += '<tr class="egyeni-sor' + (kulcs ? " kulcs" : "") + '"><td>🌸 Neked szóló ösvény <span class="halvany kicsi">(tény-motor)</span></td>' +
+      '<td colspan="6" class="halvany kicsi">a tény-motor rakja össze — láthatóság, táblák, új tény / kör: a fenti 🌸 Tény-motor kártyán</td>' +
+      "<td>" + valaszto("kulcs", pid, o.kulcs, kulcsOpc) + "</td>" +
+      "<td>" + valaszto("korlat", pid, o.korlat, korlatOpc) + "</td>" +
+      (egyeni ? '<td class="hatas">' + hatasLeiras(id, pid) + "</td>" : "") + "</tr>";
+  })();
   celEgyeniPalyak(tipus, id).forEach(function (x) {
     var pid = x.id, o = ov[pid] || {}, kulcs = egyeni ? effKulcs.indexOf(pid) >= 0 : o.kulcs === true;
     h += '<tr class="egyeni-sor' + (kulcs ? " kulcs" : "") + '"><td>' + esc((x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")) +
@@ -1442,6 +1453,7 @@ function egyeniLista() {
 }
 /* a statisztikák / események is a pálya nevével mutassák az egyéni pályát */
 function egyeniNevekFrissit() {
+  PALYA[TENY_OSVENY_ID] = { nev: "Neked szóló ösvény", ikon: "🌸", sorrend: 899, egyeni: true };   /* 🌸 a tény-motor ösvénye (src/teny.js) */
   egyeniLista().forEach(function (x, i) { PALYA[x.id] = { nev: x.r.nev || "Egyéni pálya", ikon: x.r.ikon || "💖", sorrend: 900 + i, egyeni: true }; });
 }
 function celNev(cel) {

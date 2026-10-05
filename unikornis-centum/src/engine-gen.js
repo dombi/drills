@@ -41,6 +41,33 @@ function tippMaradekos(osztando, d, q, r) {
   if (r === 0) return szorSzo(q) + " " + szo(d) + " az " + szo(osztando) + ", pont kijön, maradék nulla.";
   return szorSzo(q) + " " + szo(d) + " az " + szo(q * d) + ". " + szo(osztando) + " mínusz " + szo(q * d) + " az " + szo(r) + ".";
 }
+/* a négy alapművelet feladat-alakja EGY helyen: a generátorok, a 🌸 Neked szóló ösvény és a becsempészés
+   (teny.js) is ezekkel épít feladatot, így a kártya, a felolvasás, a tipp és a napló mindenhol ugyanaz */
+function feladatOsszeadas(a, b) {
+  return { csalad: "egyenkent", keplet: a + " + " + b, szoveg: a + " + " + b + " = ?",
+    kartyaHTML: '<span class="k-nagy">' + a + ' + ' + b + ' = <b>?</b></span>',
+    felolvas: "Mennyi " + szo(a) + " meg " + szo(b) + "?", helyes: a + b, tipp: tippOsszeadas(a, b),
+    naplo: { tipus: "osszeadas", kerdes: a + " + " + b, helyes: a + b, atlepes: atlepesE(a, b, "+") } };
+}
+function feladatKivonas(a, b) {
+  return { csalad: "egyenkent", keplet: a + " − " + b, szoveg: a + " − " + b + " = ?",
+    kartyaHTML: '<span class="k-nagy">' + a + ' − ' + b + ' = <b>?</b></span>',
+    felolvas: szo(a) + " mínusz " + szo(b) + ". Mennyi?", helyes: a - b, tipp: tippKivonas(a, b),
+    naplo: { tipus: "kivonas", kerdes: a + " − " + b, helyes: a - b, atlepes: atlepesE(a, b, "-") } };
+}
+function feladatSzorzas(N, a) {
+  return { csalad: "egyenkent", keplet: N + " × " + a, szoveg: N + " × " + a + " = ?",
+    kartyaHTML: '<span class="k-nagy">' + N + ' × ' + a + ' = <b>?</b></span>',
+    felolvas: szorSzo(N) + " " + szo(a) + ". Mennyi?", helyes: N * a, tipp: tippSzorzas(N, a),
+    naplo: { tipus: "szorzas", kerdes: N + "×" + a, helyes: N * a, atlepes: false } };
+}
+function feladatOsztas(d, q) {
+  var osztando = d * q;
+  return { csalad: "egyenkent", keplet: osztando + " ÷ " + d, szoveg: osztando + " ÷ " + d + " = ?",
+    kartyaHTML: '<span class="k-nagy">' + osztando + ' ÷ ' + d + ' = <b>?</b></span>',
+    felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
+    naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
+}
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
@@ -53,10 +80,7 @@ var GEN = {
       kulcs = Math.min(a, b) + "|" + Math.max(a, b); kor++;
     } while (kor < 500 && (a + b > emax || !atlepesOK(a, b, "+", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
-    return { csalad: "egyenkent", keplet: a + " + " + b, szoveg: a + " + " + b + " = ?",
-      kartyaHTML: '<span class="k-nagy">' + a + ' + ' + b + ' = <b>?</b></span>',
-      felolvas: "Mennyi " + szo(a) + " meg " + szo(b) + "?", helyes: a + b, tipp: tippOsszeadas(a, b),
-      naplo: { tipus: "osszeadas", kerdes: a + " + " + b, helyes: a + b, atlepes: atlepesE(a, b, "+") } };
+    return feladatOsszeadas(a, b);
   },
   kivonas: function (cfg, kerultMar) {
     var a, b, kulcs, kor = 0;
@@ -69,10 +93,7 @@ var GEN = {
       kulcs = a + "|" + b; kor++;
     } while (kor < 500 && (b > a || !atlepesOK(a, b, "-", cfg.atlepes) || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
-    return { csalad: "egyenkent", keplet: a + " − " + b, szoveg: a + " − " + b + " = ?",
-      kartyaHTML: '<span class="k-nagy">' + a + ' − ' + b + ' = <b>?</b></span>',
-      felolvas: szo(a) + " mínusz " + szo(b) + ". Mennyi?", helyes: a - b, tipp: tippKivonas(a, b),
-      naplo: { tipus: "kivonas", kerdes: a + " − " + b, helyes: a - b, atlepes: atlepesE(a, b, "-") } };
+    return feladatKivonas(a, b);
   },
   szambontas: function (cfg) {
     var N = (cfg.szam != null) ? cfg.szam
@@ -108,10 +129,7 @@ var GEN = {
     do { a = veletlen(1, 10); kulcs = "sz" + Math.min(N, a) + "x" + Math.max(N, a); kor++; }
     while (kor < 200 && (N * a > 100 || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
-    return { csalad: "egyenkent", keplet: N + " × " + a, szoveg: N + " × " + a + " = ?",
-      kartyaHTML: '<span class="k-nagy">' + N + ' × ' + a + ' = <b>?</b></span>',
-      felolvas: szorSzo(N) + " " + szo(a) + ". Mennyi?", helyes: N * a, tipp: tippSzorzas(N, a),
-      naplo: { tipus: "szorzas", kerdes: N + "×" + a, helyes: N * a, atlepes: false } };
+    return feladatSzorzas(N, a);
   },
   /* osztás mindig maradék nélkül: hányadosból építve, d = osztó, q = hányados (1–10) */
   osztas: function (cfg, kerultMar) {
@@ -122,11 +140,7 @@ var GEN = {
     do { q = veletlen(1, 10); kulcs = "o" + d + "/" + q; kor++; }
     while (kor < 200 && (d * q > 100 || kerultMar[kulcs]));
     kerultMar[kulcs] = true;
-    var osztando = d * q;
-    return { csalad: "egyenkent", keplet: osztando + " ÷ " + d, szoveg: osztando + " ÷ " + d + " = ?",
-      kartyaHTML: '<span class="k-nagy">' + osztando + ' ÷ ' + d + ' = <b>?</b></span>',
-      felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
-      naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
+    return feladatOsztas(d, q);
   },
   /* maradékos osztás: a hányadosból + maradékból építve (mi-maradt pálya, maradekos-osztas-terv.html) */
   maradekos_osztas: function (cfg, kerultMar) {

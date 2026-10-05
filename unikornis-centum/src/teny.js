@@ -3,6 +3,9 @@
    tudja-e a gyerek, és fejből, gyorsan tudja-e. MINDEN tény-ügy egyedül ezen megy át (a pult, a
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
+   3. kör (2026-10-05): a 🌸 Neked szóló ösvény (tenyPalya, GEN.teny: a motor rakja össze, minden indításkor frissen,
+     vegyes műveletekkel) + a becsempészés (tenyCsempesz: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt
+     kérnek, a saját keretükön belül). A beállítások (ujKor, tablak, becsempesz, osveny) innentől hatnak.
    2. kör (2026-10-05): a pult 🌸 Tények füle ugyanezt a fájlt tölti be (tenyCsaladok, tenyLepcso, tenyTabla,
      tenyKertAllapot(tar), tenyOsszevon) — a beállításokat (TENY_ALAP ← FELULIR.teny) lásd lent.
    1. kör (2026-10-05): a motor LÁTHATATLANUL fut. A gyereknek semmi nem változik, csak gyűlik az adat.
@@ -207,37 +210,59 @@ function tenyCsaladok(agy) {
 function tenyMind(agy) { var ki = []; tenyCsaladok(agy).forEach(function (cs) { ki = ki.concat(cs.tenyek); }); return ki; }
 function tenyAgyE(k) { var c = k.charAt(0); return (c === "o" || c === "k") ? "ok" : (c === "s" || c === "d") ? "sd" : null; }
 /* esedékes (és már látott) tények, a „tanulja” elöl, azon belül a legrégebben esedékes elöl */
+/* egy tény VAGY egy 100-as típus sora (a halmazban vegyesen lehetnek); a pult a saját tar-ját adja át */
+function tenySorBarmi(k, tar) { return tar ? tar[k] : TENY_TIPUS_KULCS[k] ? tenyTar(true)[k] : tenyTar(false)[k]; }
 function tenyEsedekes(halmaz, tar) {
-  tar = tar || tenyTar(false);
   var ma = tenyNap(), ki = [];
-  (halmaz || Object.keys(tar)).forEach(function (k) { var s = tar[k]; if (s && s.d >= 1 && s.e <= ma) ki.push(k); });
+  (halmaz || Object.keys(tar || tenyTar(false))).forEach(function (k) { var s = tenySorBarmi(k, tar); if (s && s.d >= 1 && s.e <= ma) ki.push(k); });
+  tenyKever(ki);   /* egyenlő rangnál véletlen sorrend (a rendezés stabil), ne mindig a tábla eleje jöjjön */
   ki.sort(function (x, y) {
-    var sx = tar[x], sy = tar[y], lx = sx.d <= 2 ? 0 : 1, ly = sy.d <= 2 ? 0 : 1;
+    var sx = tenySorBarmi(x, tar), sy = tenySorBarmi(y, tar), lx = sx.d <= 2 ? 0 : 1, ly = sy.d <= 2 ? 0 : 1;
     return lx - ly || sx.e - sy.e || sx.d - sy.d;
   });
   return ki;
 }
 /* A KÖZÖS VÁLASZTÓ: a halmazból (tény-kulcsok) db darab, a rendszerterv keveréke szerint:
    kb. fele esedékes, kb. 3/10 ismétlés a „tudja/villám” tényekből, legfeljebb ujKor új; ami hiányzik,
-   azt a többi csoport tölti ki. A Neked szóló ösvény (3. kör) és a becsempészés is ezt hívja. */
+   azt a többi csoport tölti ki. Az új tények a könnyebbtől a nehezebb felé jönnek (tenyNehez), és előbb
+   azoknak a családoknak a fordítottjai, amelyek műveletét a gyerek már tudja (5 + 7 megy → 12 − 7 jöhet).
+   opc.szigoru: az új tények száma SOSEM lépi túl a korlátot (a Neked szóló ösvény inkább ismétel, lásd tenyKorEpit).
+   A Neked szóló ösvény (3. kör) ezt hívja; a becsempészés csak az esedékeseket nézi (tenyEsedekes). */
+function tenyKever(t) { for (var i = t.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = t[i]; t[i] = t[j]; t[j] = x; } return t; }
+/* mennyire nehéz egy MÉG ÚJ tény (kisebb = előbb jön): + − a tagok nagysága, a 10 átlépése; × ÷ a „barátságos”
+   táblák (1, 2, 5, 10) elöl; a fordított művelet kicsit később, de ha a család művelete már megy, előrébb */
+function tenyNehez(k) {
+  if (TENY_TIPUS_KULCS[k]) return { t10: 4, e1: 5, tz: 5, e1a: 7, k2: 7, k2a: 9 }[k];
+  var m = /^([okds])(\d+)_(\d+)$/.exec(k), op = m[1], x = +m[2], y = +m[3], a, b, n;
+  if (op === "o" || op === "s") { a = x; b = y; }
+  else { var z = op === "k" ? x - y : x / y; a = Math.min(y, z); b = Math.max(y, z); }
+  if (op === "o" || op === "k") n = (a + b) / 2 + (a + b > 10 ? 3 : 0);
+  else n = (a <= 2 || a === 5 || b === 5 || b === 10) ? 1 + b / 10 : 1 + a * b / 12;
+  if (op === "k" || op === "d") {
+    var s = tenySorBarmi((op === "k" ? "o" : "s") + a + "_" + b);
+    n += (s && s.d >= 3) ? -2 : 1.5;
+  }
+  return n;
+}
 function tenyValaszt(halmaz, db, opc) {
   opc = opc || {};
-  var tar = tenyTar(false), B = tenyBeall(), ma = tenyNap();
+  var B = tenyBeall(), ma = tenyNap();
   var maxUj = opc.ujMax != null ? opc.ujMax : B.ujKor;
   var esed = tenyEsedekes(halmaz), ism = [], uj = [];
   halmaz.forEach(function (k) {
-    var s = tar[k];
+    var s = tenySorBarmi(k);
     if (!s || !s.d) uj.push(k);
     else if (s.e > ma && s.d >= 3) ism.push(k);
   });
-  function kever(t) { for (var i = t.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = t[i]; t[i] = t[j]; t[j] = x; } return t; }
-  kever(ism); kever(uj);
+  tenyKever(ism);
+  var ujS = {}; uj.forEach(function (k) { ujS[k] = tenyNehez(k) + Math.random() * 2; });   /* egy kis véletlen, hogy ne mindig ugyanaz jöjjön */
+  uj.sort(function (x, y) { return ujS[x] - ujS[y]; });
   var ki = [], kell = { esed: Math.round(db * 0.5), ism: Math.round(db * 0.3) };
   kell.uj = Math.min(maxUj, db - kell.esed - kell.ism);
   ki = ki.concat(esed.slice(0, kell.esed), ism.slice(0, kell.ism), uj.slice(0, kell.uj));
   var tartalek = esed.slice(kell.esed).concat(ism.slice(kell.ism));   /* hiány esetén: előbb a többi esedékes/ismétlés, … */
   while (ki.length < db && tartalek.length) ki.push(tartalek.shift());
-  var ujMaradek = uj.slice(kell.uj);                                    /* … végül új (a korláton túl csak, ha nincs más) */
+  var ujMaradek = opc.szigoru ? [] : uj.slice(kell.uj);                                   /* … végül új (a korláton túl csak, ha nincs más) */
   while (ki.length < db && ujMaradek.length) ki.push(ujMaradek.shift());
   return ki;
 }
@@ -262,4 +287,239 @@ function tenyKertAllapot(tar) {
     ki[agy] = o;
   });
   return ki;
+}
+
+/* ════════════ 3. KÖR (2026-10-05): a 🌸 Neked szóló ösvény + a becsempészés ════════════ */
+
+/* ── melyik táblák vannak bekapcsolva: a pult listája, vagy (üres = automatikus) amivel a gyerek már találkozott ── */
+function tenyTablakAktiv(B) {
+  B = B || tenyBeall();
+  if (Array.isArray(B.tablak)) return B.tablak.slice();
+  var lat = {};
+  Object.keys(tenyTar(false)).forEach(function (k) { var t = tenyTabla(k); if (t) lat[t] = 1; });
+  if (Object.keys(tenyTar(true)).length) lat.kor100 = 1;
+  return TENY_TABLAK.map(function (t) { return t[0]; }).filter(function (t) { return lat[t]; });
+}
+/* a táblák összes ténye (+ a 100-as kör 6 típusa, ha az is be van kapcsolva) */
+function tenyHalmaz(tablak) {
+  var ki = [];
+  tenyMind("ok").concat(tenyMind("sd")).forEach(function (k) { if (tablak.indexOf(tenyTabla(k)) >= 0) ki.push(k); });
+  if (tablak.indexOf("kor100") >= 0) ki = ki.concat(Object.keys(TENY_TIPUS_KULCS));
+  return ki;
+}
+
+/* ── egy tényből (vagy 100-as típusból) feladat, a megszokott alakban (engine-gen.js feladat*) ── */
+var TENY_TIPUS_GEN = {   /* típus → [generátor, beállítás] változatok; a kész feladatot a tenyKulcs ellenőrzi */
+  t10: [["tizesek", {}]],
+  e1: [["osszeadas", { a_min: 11, a_max: 89, b_min: 1, b_max: 9, atlepes: "nem", eredmeny_max: 100 }], ["kivonas", { a_min: 11, a_max: 99, b_min: 1, b_max: 9, atlepes: "nem" }]],
+  e1a: [["osszeadas", { a_min: 11, a_max: 89, b_min: 2, b_max: 9, atlepes: "kell", eredmeny_max: 100 }], ["kivonas", { a_min: 11, a_max: 99, b_min: 2, b_max: 9, atlepes: "kell" }]],
+  tz: [["osszeadas", { a_min: 11, a_max: 89, b_min: 10, b_max: 80, b_tizes: true, eredmeny_max: 100 }], ["kivonas", { a_min: 21, a_max: 99, b_min: 10, b_max: 80, b_tizes: true }]],
+  k2: [["osszeadas", { a_min: 11, a_max: 88, b_min: 11, b_max: 88, atlepes: "nem", eredmeny_max: 100 }], ["kivonas", { a_min: 22, a_max: 99, b_min: 11, b_max: 88, atlepes: "nem" }]],
+  k2a: [["osszeadas", { a_min: 11, a_max: 88, b_min: 11, b_max: 88, atlepes: "kell", eredmeny_max: 100 }], ["kivonas", { a_min: 22, a_max: 99, b_min: 11, b_max: 88, atlepes: "kell" }]]
+};
+function tenyFeladat(k) {
+  var f = null;
+  if (TENY_TIPUS_KULCS[k]) {
+    for (var i = 0; i < 60 && !f; i++) {
+      var v = veletlenElem(TENY_TIPUS_GEN[k]), g = GEN[v[0]](v[1], {}), tk = tenyKulcs(g.naplo);
+      if (tk && tk.kulcs === k) f = g;
+    }
+    if (!f) f = k === "t10" ? feladatOsszeadas(30, 40) : feladatOsszeadas(53, 4);   /* (nem fordul elő) */
+  } else {
+    var m = /^([okds])(\d+)_(\d+)$/.exec(k), x = +m[2], y = +m[3], cs = Math.random() < 0.5;
+    if (m[1] === "o") f = cs ? feladatOsszeadas(x, y) : feladatOsszeadas(y, x);
+    else if (m[1] === "k") f = feladatKivonas(x, y);
+    else if (m[1] === "s") f = cs ? feladatSzorzas(x, y) : feladatSzorzas(y, x);
+    else f = feladatOsztas(y, x / y);
+  }
+  f.tenyK = k;
+  return f;
+}
+
+/* ── a Neked szóló ösvény mint pálya: a „💖 Neked készült” ligetben, az egyéni pályák előtt (egyeniPalyak) ──
+   Rajt → 4 szakasz → Odú-küszöb, állomásonként 4 feladat = 20. Egyéni pálya: ✨ + 💧 jár, égi szilánk nem;
+   a 12 órás kapu és a pult „🔁 Hányszor” korlátja viszont rá is érvényes (palyaZarva, palyaElfogyott).
+   Akkor látszik, ha a pult nem rejti (osveny), és van miből összerakni (legalább egy bekapcsolt tábla;
+   ha az új tény / kör 0, akkor legalább 5 már ismert tény is). */
+var TENY_OSVENY_ID = "teny-neked";
+var TENY_ALLOMAS_NEVEK = ["Harmatos rét", "Pitypangmező", "Lepkerét", "Virágos domb"];
+var TENY_KOR_DB = 20;
+var TENY_PALYA = null;
+var TENY_CSAK_ISMERT_MIN = 5;   /* új tény / kör = 0 esetén legalább ennyi ismert tény kell (különben egy-két tény ismétlődne 20-szor) */
+function tenyPalya() {
+  var B = tenyBeall();
+  if (B.osveny === false) return null;
+  var tablak = tenyTablakAktiv(B), H = tenyHalmaz(tablak);
+  if (!H.length) return null;
+  if (!B.ujKor && H.filter(function (k) { var s = tenySorBarmi(k); return s && s.d >= 1; }).length < TENY_CSAK_ISMERT_MIN) return null;
+  if (!TENY_PALYA) {
+    var all = [{ nev: "Rajt" }];
+    TENY_ALLOMAS_NEVEK.forEach(function (n) { all.push({ nev: n, darab: 4 }); });
+    all.push({ nev: "Odú-küszöb", darab: 4, cel: true });
+    TENY_PALYA = { id: TENY_OSVENY_ID, nev: "Neked szóló ösvény", ikon: "🌸", regio: "egyeni", egyeni: true, teny: true,
+                   szint: 1, palcim: "", alap: { tipus: "teny" }, kez_nelkul: false, allomasok: all, letrehozva: 0 };
+  }
+  var jel = [], szint = 1;
+  if (tablak.some(function (t) { return t === "ok10" || t === "ok20" || t === "kor100"; })) jel.push("+ −");
+  if (tablak.indexOf("s") >= 0) jel.push("×");
+  if (tablak.indexOf("d") >= 0) jel.push("÷");
+  tablak.forEach(function (t) { szint = Math.max(szint, { ok10: 1, ok20: 2, kor100: 3, s: 4, d: 5 }[t] || 1); });
+  TENY_PALYA.szint = szint;
+  TENY_PALYA.palcim = jel.join(" ") + (jel.length > 1 ? " vegyesen" : "") + " · mindig a neked való feladatok";
+  return TENY_PALYA;
+}
+
+/* ── egy kör összeállítása (az ösvény első feladatánál, J.tenyKor) ──────────────
+   A keverék: kb. 10 esedékes, kb. 6 ismétlés, legfeljebb ujKor új (tenyValaszt, szigorúan). Ha ez kevés
+   (a gyereknek még kevés ismert ténye van), a hiányt így töltjük fel:
+     0. a még nem esedékes „tanulja” tények (holnapra várnának, de gyakorolni ma is jó);
+     1. az új és az esedékes tények egyszer még visszajönnek (egy tény legfeljebb kétszer egy körben);
+     2. ha még mindig kevés, további új tények, a legkönnyebbek (ilyenkor a kör elején lévő gyerek tényleg
+        kezdő; a korlát a sok ismert tény közé kevert újak számát fogja vissza) — ujKor = 0 esetén soha;
+     3. végső esetben bármelyik kiválasztott újra (ujKor = 0 és nagyon kevés ismert tény).
+   Az első feladat lehetőleg egy már tudott tény (jó kezdés), két új tény lehetőleg nem jön egymás után. */
+function tenyKorEpit() {
+  var B = tenyBeall(), H = tenyHalmaz(tenyTablakAktiv(B)), db = TENY_KOR_DB;
+  var kul = tenyValaszt(H, db, { ujMax: B.ujKor, szigoru: true }), ma = tenyNap();
+  H.filter(function (k) { var s = tenySorBarmi(k); return s && s.d >= 1 && s.d <= 2 && s.e > ma && kul.indexOf(k) < 0; })
+    .sort(function (x, y) { return tenySorBarmi(x).e - tenySorBarmi(y).e; })
+    .forEach(function (k) { if (kul.length < db) kul.push(k); });
+  if (!kul.length) kul = tenyValaszt(H, db, { ujMax: Math.max(1, B.ujKor) });   /* (a tenyPalya ezt kizárja; biztonsági háló) */
+  var sor = kul.map(function (k) {
+    var s = tenySorBarmi(k);
+    return { k: k, f: !s || !s.d ? "uj" : s.e <= ma ? "esed" : "ism" };
+  });
+  var masodszor = tenyKever(sor.slice()).filter(function (x) { return x.f !== "ism"; });
+  for (var i = 0; sor.length < db && i < masodszor.length; i++) sor.push({ k: masodszor[i].k, f: "ujra" });
+  if (sor.length < db && B.ujKor > 0) {
+    tenyValaszt(H, db, { ujMax: db }).forEach(function (k) {
+      if (sor.length < db && kul.indexOf(k) < 0 && !(tenySorBarmi(k) || {}).d) { kul.push(k); sor.push({ k: k, f: "uj" }); }
+    });
+  }
+  for (var u = 0; sor.length < db && kul.length; u++) sor.push({ k: kul[u % kul.length], f: "ujra" });
+  tenyKever(sor);
+  var elso = -1;
+  sor.forEach(function (x, j) { if (elso < 0 && x.f === "ism") elso = j; });
+  if (elso < 0) sor.forEach(function (x, j) { if (elso < 0 && x.f === "esed" && (tenySorBarmi(x.k) || {}).d >= 3) elso = j; });
+  if (elso > 0) sor.unshift(sor.splice(elso, 1)[0]);
+  for (var a = 1; a < sor.length; a++) {   /* két új egymás után → a második hátrébb, egy nem-új helyére */
+    if (sor[a].f === "uj" && sor[a - 1].f === "uj") {
+      for (var b = a + 1; b < sor.length; b++) if (sor[b].f !== "uj") { var t = sor[a]; sor[a] = sor[b]; sor[b] = t; break; }
+    }
+  }
+  tenySzomszedRendez(sor, 1);
+  return { sor: sor, hol: 0, allomas: -1, botlasAll: 0, vissza: {}, utolso: null };
+}
+/* ugyanaz a tény kétszer egymás után sosem jön: a második helyet cserél egy későbbivel */
+function tenySzomszedRendez(sor, tol) {
+  for (var i = Math.max(1, tol); i < sor.length; i++) {
+    if (sor[i].k !== sor[i - 1].k) continue;
+    for (var j = i + 1; j < sor.length; j++) {
+      if (sor[j].k !== sor[i - 1].k && (j + 1 >= sor.length || sor[j + 1].k !== sor[i].k) && sor[j - 1].k !== sor[i].k) {
+        var t = sor[i]; sor[i] = sor[j]; sor[j] = t; break;
+      }
+    }
+  }
+}
+/* túl sok botlás egy szakaszban (4-ből legalább 2) → a következő szakasz új tényei hátrébb kerülnek,
+   a helyükre a későbbi, már ismert tények jönnek előre */
+function tenyKorKonnyit(K) {
+  var veg = Math.min(K.sor.length, K.hol + 4);
+  for (var i = K.hol; i < veg; i++) {
+    if (K.sor[i].f !== "uj") continue;
+    for (var j = K.sor.length - 1; j >= veg; j--) {
+      if (K.sor[j].f !== "uj") { var t = K.sor[i]; K.sor[i] = K.sor[j]; K.sor[j] = t; break; }
+    }
+  }
+  tenySzomszedRendez(K.sor, K.hol);
+}
+/* a Neked szóló ösvény feladat-generátora (az állomás tipusa: "teny"); a pult is betölti ezt a fájlt, ott nincs GEN */
+function tenyGen(cfg, kerultMar) {
+  var K = J.tenyKor || (J.tenyKor = tenyKorEpit());
+  if (K.allomas !== J.allomasIdx) {
+    if (K.allomas >= 0 && K.botlasAll >= 2) tenyKorKonnyit(K);
+    K.allomas = J.allomasIdx; K.botlasAll = 0;
+  }
+  if (K.hol >= K.sor.length) K.sor.push({ k: K.sor[Math.floor(Math.random() * K.sor.length)].k, f: "ujra" });   /* (nem fordul elő) */
+  if (K.sor[K.hol].k === K.utolso && K.hol + 1 < K.sor.length) { var t = K.sor[K.hol]; K.sor[K.hol] = K.sor[K.hol + 1]; K.sor[K.hol + 1] = t; }
+  var x = K.sor[K.hol++];
+  K.utolso = x.k;
+  return tenyFeladat(x.k);
+}
+if (typeof GEN !== "undefined") GEN.teny = tenyGen;
+/* a naplozz hívja a tenyJegyez eredményével: a Neked szóló ösvényen a botlós tény 3–5 feladattal később visszajön
+   (egy körben egyszer), és számoljuk a szakasz botlásait */
+function tenyKorJegyez(tj) {
+  var K = J && J.tenyKor;
+  if (!K || !tj || tj.betu !== "H") return;
+  K.botlasAll++;
+  if (K.vissza[tj.kulcs]) return;
+  var hova = K.hol + veletlen(2, 4);           /* a mostani a hol−1. helyen van → 3–5 feladattal később */
+  if (hova >= Math.min(K.sor.length, TENY_KOR_DB)) return;
+  K.vissza[tj.kulcs] = 1;
+  K.sor.splice(hova, 0, { k: tj.kulcs, f: "vissza" });
+  tenySzomszedRendez(K.sor, K.hol);
+}
+
+/* ── becsempészés: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt kérnek ──
+   Csak a pálya saját keretein belül (a 3-as szorzó állomás csak a 3-as tábla esedékes tényét kérheti; az
+   összeadó állomás tartománya, átlépés-szabálya, eredmény-korlátja is áll). Az állomáson belül véletlen
+   helyen jön, egy pályán egy tény legfeljebb egyszer. A pulton kikapcsolható (becsempesz). */
+var TENY_CSEMPESZ_TIPUS = { osszeadas: 1, kivonas: 1, szorzas: 1, osztas: 1, szorzasosztas: 1 };
+function tenyBenne(v, lo, hi) { return lo != null && hi != null && v >= lo && v <= hi; }
+/* a tény belefér-e az állomás keretébe → a feladat (és a generátor „volt már” jele), vagy null */
+function tenyKeretben(k, cfg, kerult) {
+  var m = /^([okds])(\d+)_(\d+)$/.exec(k || "");
+  if (!m) return null;
+  var op = m[1], x = +m[2], y = +m[3], t = cfg.tipus, i, p;
+  if (t === "szorzasosztas") t = op === "s" ? "szorzas" : op === "d" ? "osztas" : null;
+  if (t === "osszeadas" && op === "o") {
+    if (cfg.csak_tizes || cfg.b_tizes || kerult[x + "|" + y]) return null;
+    var parok = Math.random() < 0.5 ? [[x, y], [y, x]] : [[y, x], [x, y]];
+    for (i = 0; i < 2; i++) {
+      p = parok[i];
+      if (tenyBenne(p[0], cfg.a_min, cfg.a_max) && tenyBenne(p[1], cfg.b_min, cfg.b_max) && p[0] + p[1] <= (cfg.eredmeny_max || 100) &&
+          atlepesOK(p[0], p[1], "+", cfg.atlepes)) { kerult[x + "|" + y] = true; return feladatOsszeadas(p[0], p[1]); }
+    }
+    return null;
+  }
+  if (t === "kivonas" && op === "k") {
+    if (cfg.csak_tizes || cfg.b_tizes || kerult[x + "|" + y]) return null;
+    if (!tenyBenne(x, cfg.a_min, cfg.a_max) || !tenyBenne(y, cfg.b_min, Math.min(cfg.b_max, x)) || !atlepesOK(x, y, "-", cfg.atlepes)) return null;
+    kerult[x + "|" + y] = true;
+    return feladatKivonas(x, y);
+  }
+  if (t === "szorzas" && op === "s") {
+    var N = cfg.szorzo != null ? [cfg.szorzo] : (cfg.tablak || []), jo = [];
+    if (kerult["sz" + x + "x" + y]) return null;
+    if (N.indexOf(x) >= 0) jo.push([x, y]);
+    if (x !== y && N.indexOf(y) >= 0) jo.push([y, x]);
+    if (!jo.length) return null;
+    p = veletlenElem(jo); kerult["sz" + x + "x" + y] = true;
+    return feladatSzorzas(p[0], p[1]);
+  }
+  if (t === "osztas" && op === "d") {
+    var D = cfg.oszto != null ? [cfg.oszto] : cfg.osztok || (cfg.szorzo != null ? [cfg.szorzo] : (cfg.tablak || [])), q = x / y;
+    if (D.indexOf(y) < 0 || kerult["o" + y + "/" + q]) return null;
+    kerult["o" + y + "/" + q] = true;
+    return feladatOsztas(y, q);
+  }
+  return null;
+}
+/* az ujFeladat hívja a generátor előtt: ha ez az állomás „becsempészett” helye, és van a keretbe illő
+   esedékes tény → az lesz a feladat; különben null (marad a pálya saját sorsolása) */
+function tenyCsempesz(cfg, kerult) {
+  if (!J || !J.palya || J.palya.teny || !cfg || !TENY_CSEMPESZ_TIPUS[cfg.tipus]) return null;
+  if (!tenyBeall().becsempesz) return null;
+  var cs = J.tenyCsempesz || (J.tenyCsempesz = { all: -1, cel: 0, kesz: false, volt: {} });
+  if (cs.all !== J.allomasIdx) { cs.all = J.allomasIdx; cs.kesz = false; cs.cel = veletlen(0, Math.max(0, (J.feladatDb || 1) - 1)); }
+  if (cs.kesz || J.feladatKesz < cs.cel) return null;
+  cs.kesz = true;
+  var esed = tenyEsedekes();
+  for (var i = 0; i < esed.length; i++) {
+    if (cs.volt[esed[i]]) continue;
+    var f = tenyKeretben(esed[i], cfg, kerult);
+    if (f) { cs.volt[esed[i]] = 1; f.tenyK = esed[i]; f.csempeszett = true; return f; }
+  }
+  return null;
 }
