@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tény-kert rajzterv</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap">
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --line:#efe4f4;
+    --green:#3f9e6a; --green-soft:#dff3e7; --warn:#b86a00; --warn-soft:#fff3dc; --pink:#e0417a; --pink-soft:#fde3ee;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --pink-soft:#45213a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --pink-soft:#45213a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:1000px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#e0699b 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:26px 28px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🌷";position:absolute;right:18px;top:4px;font-size:96px;opacity:.22;transform:rotate(8deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{max-width:640px;opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600;margin:10px 6px 0 0}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:4px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .ctrl{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 14px;align-items:center}
+  .ctrl .csop{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .ctrl .csop>span{font-size:13px;font-weight:700;color:var(--muted);margin-right:2px}
+  .ctrl button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--violet-soft);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+  .ctrl button.on{background:var(--violet);color:#fff}
+  .q{border-left:5px solid #f0a800;background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:2px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:1px 9px;font-size:13px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:1px 9px;font-size:13px}
+  .valtozatok{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.valtozatok{grid-template-columns:1fr}}
+  .valt{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .valt.ajanlott{border:2px solid var(--green)}
+  .valt .betu{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--violet);color:#fff;font-weight:800;align-items:center;justify-content:center;margin-right:6px}
+  .valt ul{font-size:14px}
+  .valt .kis{width:100%;height:auto;display:block;border-radius:10px;margin:6px 0 4px;cursor:pointer}
+  .galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .jk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 8px 10px;text-align:center}
+  .jk svg{width:100%;height:auto;display:block;background:linear-gradient(#f6ead6,#ecd7b8);border-radius:10px}
+  .jk b{display:block;margin-top:6px;font-size:14px}
+  .jk span{display:block;font-size:12.5px;color:var(--muted);line-height:1.35}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+
+  /* ── a játék képernyőjének utánzata ── */
+  .keszulek{display:flex;justify-content:center}
+  .kepernyo{display:flex;flex-direction:column;background:#fbf3e6;border:8px solid #2a2140;border-radius:18px;overflow:hidden;font-family:Fredoka,"Segoe UI",sans-serif;width:100%;max-width:820px}
+  .kepernyo.telefon{width:300px;border-radius:30px;border-width:9px}
+  .fejlec{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 10px;background:#fdf0dc;color:#4a3b7a;font-weight:700;font-size:13px}
+  .fejlec .gomb{background:#fff4d6;border-radius:10px;padding:2px 8px;box-shadow:0 2px 0 #e8d3a8}
+  .fejlec .sz{background:#fff2c4;border-radius:10px;padding:2px 7px;margin-left:4px}
+  .fejlec .sz.h{background:#dff1fb}
+  .szinter{position:relative;width:100%;overflow:hidden;background:#cfe6f7}
+  .szinter>svg{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+  .eszkozsor{display:flex;gap:6px;justify-content:center;padding:6px;background:#fdf6ee}
+  .eszkozsor span{background:#fff;border:2px solid #e3d3f3;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600;color:#6b5a96}
+  .sugo{text-align:center;font-weight:600;font-size:12px;color:#4a3b7a;padding:6px;background:#fdf6ee;min-height:2.6em}
+
+  .agyas .agy-test{transition:filter .2s ease}
+  .agyas:hover .agy-test{filter:drop-shadow(0 0 7px rgba(255,246,190,.95)) brightness(1.04)}
+  .mv{transform-box:fill-box;transform-origin:50% 100%;animation:ring 3.4s ease-in-out infinite}
+  @keyframes ring{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .fuszal{transform-box:fill-box;transform-origin:50% 100%;animation:ring 2.8s ease-in-out infinite}
+  .hullam{stroke-dasharray:14 26;animation:folyik 2.6s linear infinite}
+  @keyframes folyik{to{stroke-dashoffset:-80}}
+  .lepke{animation:repul 9s ease-in-out infinite}
+  @keyframes repul{0%,100%{transform:translate(0,0)}25%{transform:translate(70px,-22px)}50%{transform:translate(140px,6px)}75%{transform:translate(64px,24px)}}
+  .lepke .sz1,.lepke .sz2{transform-box:fill-box;animation:csap .28s ease-in-out infinite}
+  .lepke .sz1{transform-origin:100% 50%}.lepke .sz2{transform-origin:0 50%}
+  @keyframes csap{50%{transform:scaleX(.45)}}
+  .csillog{transform-box:fill-box;transform-origin:center;animation:csill 1.7s ease-in-out infinite;opacity:0}
+  @keyframes csill{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+  .uni-ring{transform-box:fill-box;transform-origin:50% 100%}
+  .uni-ring.lep{animation:uni-lep .32s ease-in-out infinite}
+  @keyframes uni-lep{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .uni-pihen{animation:uni-pihen 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+  @keyframes uni-pihen{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.018)}}
+
+  /* ── közeli nézet ── */
+  .kozeli{position:absolute;inset:0;display:flex;flex-direction:column;background:linear-gradient(#fbf1e2,#f3e2c8);opacity:0;pointer-events:none;transition:opacity .35s ease;overflow:auto}
+  .kozeli.lathato{opacity:1;pointer-events:auto}
+  .kz-fej{display:flex;align-items:center;gap:8px;padding:7px 10px;font-weight:700;color:#4a3b7a;font-size:14px}
+  .kz-fej button{font:inherit;font-size:12px;font-weight:700;border:0;background:#fff;border-radius:12px;padding:4px 10px;color:#4a3b7a;cursor:pointer;box-shadow:0 2px 0 #d9c3a0}
+  .kz-fej .cim{flex:1;text-align:center}
+  .kz-test{flex:1;display:flex;gap:12px;padding:0 12px 10px;align-items:flex-start}
+  .telefon .kz-fej{font-size:12px;padding:6px 8px}
+  .telefon .kz-test{flex-direction:column;gap:6px;padding:0 8px 8px}
+  .racs{flex:0 0 auto;width:52%;max-width:430px}
+  .telefon .racs{width:100%}
+  .racs svg{width:100%;height:auto;display:block}
+  .kz-oldal{flex:1;display:flex;flex-direction:column;gap:8px;font-size:13px;color:#4a3b7a}
+  .buborek{background:#fff;border-radius:14px;padding:9px 11px;box-shadow:0 2px 0 #e3cfae;font-weight:600;min-height:3.2em}
+  .buborek small{display:block;font-weight:400;color:#7a6a95;margin-top:4px;font-size:11.5px}
+  .locsol{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:14px;padding:7px 12px;background:#8fd0f2;color:#173a55;cursor:pointer;box-shadow:0 3px 0 #5aa8d6}
+  .locsol:disabled{opacity:.45;cursor:default}
+  .jelmagy{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 6px;font-size:11px;color:#6b5a96}
+  .telefon .jelmagy{grid-template-columns:repeat(6,1fr);font-size:9.5px;text-align:center}
+  .jelmagy div{display:flex;align-items:center;gap:3px}
+  .telefon .jelmagy div{flex-direction:column;gap:0}
+  .jelmagy svg{width:24px;height:24px;flex:0 0 auto}
+  .sorfej,.cella{cursor:pointer}
+  .sorfej:hover circle{fill:#fff6c8}
+  .van-kiem .sor:not(.kiemelt){opacity:.45}
+  .sor .barazda{transition:stroke .2s}
+  .sor.kiemelt .barazda{stroke:#ffd84d;stroke-width:3}
+  .sor.locsolt .barazda{fill:#7a5333}
+  .cella:hover .hit{fill:rgba(255,255,255,.28)}
+  .vbal{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:4px}
+
+  @media (prefers-reduced-motion:reduce){
+    .mv,.fuszal,.hullam,.lepke,.lepke .sz1,.lepke .sz2,.csillog,.uni-ring.lep,.uni-pihen{animation:none}
+    .csillog{opacity:.8}
+  }
+</style>
+</head>
+<body>
+
+<!-- közös rajz-eszközök -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="tk-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3fb"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient>
+    <radialGradient id="tk-nap" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff7d2"/><stop offset="55%" stop-color="#ffe987"/><stop offset="100%" stop-color="#ffe987" stop-opacity="0"/></radialGradient>
+    <linearGradient id="tk-tav" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6f0c2"/><stop offset="1" stop-color="#bfe6a8"/></linearGradient>
+    <linearGradient id="tk-domb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8eba4"/><stop offset="1" stop-color="#97d07a"/></linearGradient>
+    <linearGradient id="tk-koz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9dd8c"/><stop offset="1" stop-color="#8ecf6e"/></linearGradient>
+    <linearGradient id="tk-fu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#87cc66"/><stop offset="1" stop-color="#5fae49"/></linearGradient>
+    <linearGradient id="tk-fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6b42"/><stop offset="1" stop-color="#7a5230"/></linearGradient>
+    <linearGradient id="tk-deszka" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecc996"/><stop offset="1" stop-color="#c99761"/></linearGradient>
+    <linearGradient id="tk-perem" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe6c2"/><stop offset="1" stop-color="#ecd0a2"/></linearGradient>
+    <linearGradient id="tk-ko" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eeeae2"/><stop offset="1" stop-color="#c6bdad"/></linearGradient>
+    <linearGradient id="tk-viz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdeefc"/><stop offset="1" stop-color="#86c9ee"/></linearGradient>
+    <linearGradient id="tk-osveny" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4e8cf"/><stop offset="1" stop-color="#e6d2ab"/></linearGradient>
+    <!-- a játék tárgy-színátmenetei (index.html #ko-*) -->
+    <linearGradient id="ko-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd36f"/><stop offset="1" stop-color="#4f9e46"/></linearGradient>
+    <linearGradient id="ko-leaf2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc75d"/><stop offset="1" stop-color="#3f8a3c"/></linearGradient>
+    <linearGradient id="ko-trunk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98a55"/><stop offset="1" stop-color="#8c6238"/></linearGradient>
+    <linearGradient id="ko-stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5e9ee"/><stop offset="1" stop-color="#b9c2cc"/></linearGradient>
+    <linearGradient id="ko-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dff4ff"/><stop offset="1" stop-color="#8fd0f2"/></linearGradient>
+    <linearGradient id="ko-water2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfeeff"/><stop offset="1" stop-color="#7cc3ea"/></linearGradient>
+    <!-- firka-mérték: enyhe kézi vonalremegés a világon (numOctaves=1!) -->
+    <filter id="tk-firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+    <symbol id="tk-uni" viewBox="0 0 380 300" overflow="visible"><g stroke="#222222" stroke-linejoin="round" stroke-linecap="round">
+<path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="#e6a92e" stroke="none"/>
+<path d="M94 158 Q62 176 46 224" fill="none" stroke="#ffe6a0" stroke-width="6"/>
+<path d="M96 176 Q70 206 54 264" fill="none" stroke="#ffe6a0" stroke-width="5"/>
+<path d="M92 150 Q78 172 82 214" fill="none" stroke="#ffcf4d" stroke-width="5"/>
+<path d="M90 190 Q66 234 58 278" fill="none" stroke="#e6a92e" stroke-width="5"/>
+<path d="M102 208 L121 208 L114 286 L92 286 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M135 216 L154 216 L152 288 L130 288 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M177 216 L197 216 L202 288 L180 288 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M212 208 L232 208 L256 286 L232 286 Z" fill="#ffffff" stroke-width="4"/>
+<path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="#fdf3f7" stroke-width="5"/>
+<path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="#ffffff" stroke="none"/>
+<path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M248 80 Q214 114 198 172" fill="none" stroke="#e6a92e" stroke-width="8"/>
+<path d="M254 86 Q226 126 210 186" fill="none" stroke="#e6a92e" stroke-width="7"/>
+<path d="M242 94 Q220 138 208 196" fill="none" stroke="#ffcf4d" stroke-width="6"/>
+<path d="M238 100 Q214 150 202 208" fill="none" stroke="#e6a92e" stroke-width="5"/>
+<path d="M250 82 Q224 108 208 158" fill="none" stroke="#ffe6a0" stroke-width="4"/>
+<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="#fdf3f7" stroke="none"/>
+<path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/>
+<ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="0.4" stroke="none"/>
+<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/>
+  <circle cx="301" cy="112.5" r="5" fill="#e67ba6" stroke="none"/>
+  <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/>
+  <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/>
+  <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/>
+  <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/>
+  <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/>
+  <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>
+  <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/>
+  <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/>
+</g>
+<path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="#ffcf4d" stroke="none"/>
+<path d="M272 82 Q264 108 268 136" fill="none" stroke="#e6a92e" stroke-width="6"/>
+<path d="M288 84 Q284 104 286 120" fill="none" stroke="#ffe6a0" stroke-width="4"/>
+<path d="M250 92 L266 92 L258 58 Z" fill="#fdf3f7" stroke-width="4"/>
+<path d="M268 92 L285 84 L306 24 Z" fill="#ffcf4d" stroke-width="4"/>
+<path d="M270 84 L285 79" stroke="#e0a52e" stroke-width="3"/>
+<path d="M275 68 L291 62" stroke="#e0a52e" stroke-width="3"/>
+<path d="M281 50 L296 44" stroke="#e0a52e" stroke-width="3"/>
+<path d="M287 36 L300 31" stroke="#e0a52e" stroke-width="3"/>
+<path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/>
+<path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/>
+<g stroke="none">
+<path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="#f4a6c6"/>
+<path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="#f28ab8"/>
+<path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#ffd24d"/>
+</g>
+</g></symbol>
+
+  </defs>
+</svg>
+
+<div class="wrap">
+<header class="top">
+  <h1>Tény-kert — kert-rajzterv</h1>
+  <div class="sub">Az újrarajzolt kert három változatban, a két virágágyással. Az ágyások a kép részei, nem utólag rárakott dobozok. Kipróbálható: koppints a fűre, és az unikornis odasétál; koppints egy ágyásra, és kinyílik a közeli nézet.</div>
+  <span class="chip">Tény-motor · 4. kör</span><span class="chip">csak rajz, kód nincs</span><span class="chip">laptop + telefon</span>
+</header>
+
+<h2>Mit kell tudnia a rajznak</h2>
+<div class="panel">
+  <ul>
+    <li><b>Két ágyás:</b> a rózsaszín <b>Összeadás–kivonás</b> (+ −) és a lila <b>Szorzás–osztás</b> (× ÷). Mindkettőben 55 virág, egy virág egy számcsalád.</li>
+    <li><b>Hátul vannak, a fű mögött.</b> Az előtér marad a gyereké: itt sétál az unikornis, ide teszi le a díszeket, az ágyat és az ételeket.</li>
+    <li><b>A lerakott tárgyak a helyükön maradnak.</b> A fű és a talaj ott van, ahol eddig; csak a kép hátsó sávja változik.</li>
+    <li><b>Távolról színfolt:</b> minél több tény megy fejből, annál több virág nyílik ki az ágyásban. Ezt a „Virágzás” gombokkal lehet megnézni.</li>
+    <li><b>Telefonon is egészben látszik.</b> Ma a kert képe telefonon középen van levágva. Az új kertnek saját, álló elrendezése is lesz (mint a ligettérképnek), így telefonon mindkét ágyás látszik.</li>
+  </ul>
+</div>
+
+<h2>Próbáld ki</h2>
+<div class="ctrl">
+  <div class="csop" id="c-valt"><span>Változat:</span><button data-v="A" class="on">A · Kerítéses ágyások</button><button data-v="B">B · Teraszos domb</button><button data-v="C">C · Patakparti kert</button></div>
+  <div class="csop" id="c-eszk"><span>Eszköz:</span><button data-o="f" class="on">💻 Laptop</button><button data-o="a">📱 Telefon</button></div>
+  <div class="csop" id="c-vir"><span>Virágzás:</span><button data-b="0">Kezdet</button><button data-b="1" class="on">Félúton</button><button data-b="2">Sok virág</button></div>
+  <div class="csop" id="c-targy"><span>Tárgyak:</span><button data-t="1" class="on">vannak</button><button data-t="0">üres kert</button></div>
+</div>
+<div class="keszulek" id="szinpad"></div>
+<p class="lead" style="text-align:center;font-size:14px;margin:8px 0 0">A tárgyak (bokor, lámpás, fácska, szökőkút, virágágyás, torta) a játék saját rajzai, a mostani helyükön.</p>
+
+<h2>A három változat</h2>
+<div class="valtozatok">
+  <div class="valt ajanlott">
+    <h3><span class="betu">A</span>Kerítéses ágyások</h3>
+    <span class="prop">Javaslat</span>
+    <div id="kis-A"></div>
+    <ul>
+      <li>Két <b>emelt fa-ágyás</b> egymás mellett, mögöttük fehér léckerítés, középen <b>rózsalugas</b> és kavicsos ösvény.</li>
+      <li><b>A legnagyobb koppintási felület</b>, telefonon is: a két ágyás jól elkülönül.</li>
+      <li>A fa ágyás rokona a meglévő kerítés-elemnek és a kerti ágynak, így a kert egy kézből valónak hat.</li>
+      <li>Később a kerítés mentén elférnek a 100-as kör gyümölcsfái.</li>
+    </ul>
+  </div>
+  <div class="valt">
+    <h3><span class="betu">B</span>Teraszos domb</h3>
+    <div id="kis-B"></div>
+    <ul>
+      <li>A háttér dombja két <b>virágteraszt</b> kap kőfallal, mint egy szőlőhegy; középen kőlépcső.</li>
+      <li>A legszebb távoli kép: a domb lassan kiszíneződik.</li>
+      <li>De a felső terasz kicsi és messze van: telefonon nehéz eltalálni, és a virágok aprók.</li>
+    </ul>
+  </div>
+  <div class="valt">
+    <h3><span class="betu">C</span>Patakparti kert</h3>
+    <div id="kis-C"></div>
+    <ul>
+      <li>Hátul csobogó patak <b>fahíddal</b>, előtte két kerek, <b>kővel szegett</b> ágyás.</li>
+      <li>Sok élet: folyik a víz, a híd hívogat.</li>
+      <li>De a legzsúfoltabb: a víz, a híd és az ösvény elviszi a figyelmet az ágyásokról. A kerek ágyásban a sorok nem egyformán hosszúak.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Egy virág élete</h2>
+<p class="lead">A közeli nézetben minden virágnak három szirompárja van, egy-egy a család három tényének: <b>fent–lent</b> a szorzás (vagy összeadás), a két <b>ferde pár</b> a két osztás (vagy kivonás). Így látszik, ha a szorzás már megy, de az osztás még nem.</p>
+<div class="galeria" id="galeria"></div>
+
+<h2>A közeli nézet</h2>
+<div class="panel">
+  <ul>
+    <li>Az ágyásra koppintva az unikornis odasétál az ágyás elé, és kinyílik a <b>10 × 10-es virágos tábla</b>. Fent és bal oldalt kis fa-cövekeken a számok, mint a szorzótáblán.</li>
+    <li>A sorok <b>barázdák</b> a földben. A tükörkép-helyeken (6 × 7 és 7 × 6) ugyanaz a virág áll, így a felcserélhetőség magától látszik.</li>
+    <li><b>Sorszámra koppintva</b> a sor kiemelődik, a felolvasó elmondja: „A hetes sorban 6 virág nyílik, 3 bimbó, 1 hajtás.” Ilyenkor lehet <b>💧 meglocsolni</b>: a barázda nedves lesz, és a sor egy napig csillog.</li>
+    <li><b>Virágra koppintva</b> a felolvasó a családot mondja: „Hat, hét, negyvenkettő.”</li>
+    <li>Az ismétlésre váró virágon egy <b>harmatcsepp</b> ül, és a feje kicsit összecsukódik. Semmi nem hervad, nem szárad ki.</li>
+    <li>Telefonon a tábla felül, a magyarázat alatta; a tábla nem görget oldalra.</li>
+  </ul>
+</div>
+
+<h2>Hogyan lesz belőle kód (5. és 6. kör)</h2>
+<div class="panel">
+  <table>
+    <tr><th>Mi</th><th>Hogyan</th></tr>
+    <tr><td>A kert képe</td><td>A <code>kertHatterSVG()</code> két elrendezést kap (fekvő 1000 × 620 és álló 400 × 660), mint a ligettérkép. Az ég, a nap, a felhők és az előtér-fű ugyanaz marad.</td></tr>
+    <tr><td>Az ágyások</td><td>Külön, koppintható réteg a képben: <code>src/teny-kert.js</code> rajzolja (ágyás, 55 kis virág, tábla), a virágok állapotát a <code>tenyKertAllapot()</code> adja. A <code>kert.js</code> csak elhelyezi.</td></tr>
+    <tr><td>Séta az ágyáshoz</td><td>A meglévő <code>kertSetalIde</code>, a végén megnyílik a közeli nézet. Ülésből és fekvésből előbb feláll, mint az evésnél.</td></tr>
+    <tr><td>A lerakott tárgyak</td><td>Maradnak, ahol vannak. A berendezésnél a tiltott sáv a mostani 48 %-ról az ágyások alá (kb. 66 %-ra) kerül. Ha egy régi tárgy feljebb áll, egyszer, magától lejjebb tesszük (fészerbe semmi nem kerül vissza).</td></tr>
+    <tr><td>Mozgás</td><td>Ringó virágok, lepke, csillogó (meglocsolt) sor, a C-nél folyó víz. Ha a gépen ki van kapcsolva a mozgás, minden áll.</td></tr>
+  </table>
+</div>
+
+<h2>Döntések</h2>
+<div class="q"><b>1. Melyik kert legyen?</b> Javaslat: <b>A · Kerítéses ágyások</b>. Ennek a legnagyobbak a koppintási felületei, és telefonon is tiszta. A B szebb messziről, de a felső terasza kicsi.</div>
+<div class="q"><b>2. A táblácska az ágyáson: „+ −” és „× ÷” jel, vagy kép?</b> Javaslat: a <b>műveleti jel</b>, mert a gyerek ezt ismeri a pályákról.</div>
+<div class="q"><b>3. Kerüljön-e a rózsalugas alá valami?</b> Javaslat: <b>most semmi</b>. Később ide jöhet a visszahívás eltévedt kissárkánya, vagy a Villámkör kapuja.</div>
+<div class="q"><b>4. A tárgyak tiltott sávja.</b> Javaslat: az ágyás elé nem lehet tárgyat tenni (66 % alatt). A pár régi, túl hátra tett tárgyat a játék egyszer, magától kicsit előrébb teszi.</div>
+</div>
+
+<script>
+/* ════════════════ adatok: álmodott (kitalált) tény-állapotok a bemutatóhoz ════════════════ */
+function hs(n){ n=(n^61)^(n>>>16); n=n+(n<<3); n^=n>>>4; n=Math.imul(n,0x27d4eb2d); n^=n>>>15; return (n>>>0)/4294967296; }
+var KONNYU={1:0,10:.02,2:.08,5:.12,3:.28,4:.3,9:.4,6:.48,8:.52,7:.56};
+var BLOOM=[.3,.62,.97];
+/* egy család 3 (dupla: 2) tényének lépcsője: 0 mag · 1 hajtás · 2 bimbó · 3 nyílik; + esedékes jel */
+function csalad(op,a,b,B){
+  var n=(a===b)?2:3, ki=[], esed=false;
+  for(var i=0;i<n;i++){
+    var d;
+    if(op==="o"){ d=.12+((a+b>10)?.32:0)+((Math.min(a,b)>=6)?.06:0)-((Math.min(a,b)===1)?.1:0)-((a===b)?.07:0)-((a===10||b===10)?.1:0); }
+    else { var ea=KONNYU[a], eb=KONNYU[b]; d=.04+ea*.4+eb*.4+Math.max(ea,eb)*.2; }
+    if(i>0) d+=.12;
+    var v=(BLOOM[B]-d)*6+(hs(a*131+b*17+i*7+(op==="o"?900:0))-.5)*1.7;
+    var s=v<.3?0:v<1.2?1:v<2?2:3;
+    ki.push(s);
+  }
+  var mx=Math.max.apply(null,ki), r=hs(a*53+b*29+(op==="o"?77:5)+B*1000);
+  if((mx===1||mx===2)&&r<.22) esed=true;
+  if(mx===3&&r<.05) esed=true;
+  return {s:ki,esed:esed,max:mx};
+}
+var CSALADOK=[]; for(var a=1;a<=10;a++) for(var b=a;b<=10;b++) CSALADOK.push([a,b]);
+/* távoli ágyás: a családok keverten ülnek, hogy a színfolt természetes legyen */
+var KEVERT=CSALADOK.slice().sort(function(p,q){ return hs(p[0]*11+p[1]*101)-hs(q[0]*11+q[1]*101); });
+
+var SZIN={o:{szirom:["#ff9ec4","#ff83b5","#ffb7d4","#f98fbb"],bimbo:"#e66f9f",tabla:"#e0417a",nev:"Összeadás–kivonás ágyás",jel:"+ −"},
+          s:{szirom:["#b89ef3","#a587ec","#cbb8f8","#9f88e8"],bimbo:"#8466d4",tabla:"#7a4fc8",nev:"Szorzás–osztás ágyás",jel:"× ÷"}};
+
+/* ════════════════ virág-rajzok ════════════════ */
+/* kicsi virág a távoli ágyásba (origó = talajpont) */
+function miniVirag(st,op,i){
+  var c=SZIN[op], sz=c.szirom[i%4];
+  if(st===0) return '<ellipse cx="0" cy="0" rx="2.4" ry="1.2" fill="#5b3a20"/>';
+  if(st===1) return '<path d="M0 0 q-1 -3 -5 -3 M0 0 q1 -4 5 -4 M0 0 v-3" stroke="#63b24c" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  var g='<g class="mv" style="animation-delay:-'+(i%7*0.45).toFixed(2)+'s">';
+  if(st===2) return g+'<path d="M0 0 v-7" stroke="#4f9e46" stroke-width="1.5"/><path d="M0 -3 q-4 -1 -4 -4 q3 0 4 3" fill="#6fbf5a"/><ellipse cx="0" cy="-9" rx="2.3" ry="3.4" fill="'+c.bimbo+'"/></g>';
+  return g+'<path d="M0 0 v-8" stroke="#4f9e46" stroke-width="1.5"/><path d="M0 -3 q-4 -1 -4 -4 q3 0 4 3" fill="#6fbf5a"/>'+
+    '<g fill="'+sz+'"><circle cx="0" cy="-13.2" r="2.7"/><circle cx="3.1" cy="-11" r="2.7"/><circle cx="2" cy="-7.6" r="2.7"/><circle cx="-2" cy="-7.6" r="2.7"/><circle cx="-3.1" cy="-11" r="2.7"/></g>'+
+    '<circle cx="0" cy="-10.2" r="1.6" fill="#ffd24d"/></g>';
+}
+/* nagy virág a közeli nézetbe: 3 szirompár (origó = fej közepe, talaj y=+12) */
+function nagyVirag(cs,op,valt){
+  var c=SZIN[op], sz=c.szirom[valt%4], s=cs.s, mx=Math.max.apply(null,s), o="";
+  if(mx===0) return '<ellipse cx="0" cy="11" rx="7" ry="2.6" fill="#6a4426"/><ellipse cx="0" cy="9.4" rx="2.6" ry="1.7" fill="#d9b27a"/>';
+  if(mx===1){
+    return '<path d="M0 12 Q-.6 7 0 3" stroke="#4f9e46" stroke-width="1.7" fill="none"/>'+
+      '<path d="M0 6 q-7 0 -8 -6 q6 0 8 6" fill="#6fbf5a"/><path d="M0 4 q6 -1 7 -6 q-5 0 -7 6" fill="#82cc68"/>';
+  }
+  var szog=(s.length===2)?[90,0]:[90,30,150];
+  o+='<path d="M0 12 Q-1 5 0 -2" stroke="#4f9e46" stroke-width="1.8" fill="none"/>';
+  o+='<path d="M0 8 q-7 0 -8 -5 q6 -1 8 5" fill="#6fbf5a"/>';
+  if(mx>=3) o+='<path d="M0 6 q6 -1 7 -5 q-5 0 -7 5" fill="#82cc68"/>';
+  var fej='';
+  for(var k=0;k<szog.length;k++){
+    var st=s[k];
+    for(var e=0;e<2;e++){
+      var A=szog[k]+e*180, rad=A*Math.PI/180;
+      if(st===3) fej+='<ellipse cx="'+(Math.cos(rad)*6.4).toFixed(2)+'" cy="'+(-Math.sin(rad)*6.4-2).toFixed(2)+'" rx="4.9" ry="3.1" transform="rotate('+(-A)+' '+(Math.cos(rad)*6.4).toFixed(2)+' '+(-Math.sin(rad)*6.4-2).toFixed(2)+')" fill="'+sz+'" stroke="#fff" stroke-width=".5"/>';
+      else if(st===2) fej+='<ellipse cx="'+(Math.cos(rad)*3.8).toFixed(2)+'" cy="'+(-Math.sin(rad)*3.8-2).toFixed(2)+'" rx="2.9" ry="1.8" transform="rotate('+(-A)+' '+(Math.cos(rad)*3.8).toFixed(2)+' '+(-Math.sin(rad)*3.8-2).toFixed(2)+')" fill="'+c.bimbo+'"/>';
+      else if(st===1) fej+='<ellipse cx="'+(Math.cos(rad)*3.2).toFixed(2)+'" cy="'+(-Math.sin(rad)*3.2-2).toFixed(2)+'" rx="2.1" ry="1.3" transform="rotate('+(-A)+' '+(Math.cos(rad)*3.2).toFixed(2)+' '+(-Math.sin(rad)*3.2-2).toFixed(2)+')" fill="#7cc75d"/>';
+    }
+  }
+  fej+='<circle cx="0" cy="-2" r="'+(mx>=3?3:2.4)+'" fill="#ffd24d" stroke="#f0b52e" stroke-width=".5"/>';
+  o+=cs.esed?'<g transform="translate(0 -2) scale(.82) translate(0 2)">'+fej+'</g>':fej;
+  if(cs.esed) o+='<path d="M8.6 -15.5 q4.4 5.6 0 7.6 q-4.4 -2 0 -7.6 Z" fill="#8fd6fb" stroke="#fff" stroke-width=".8"/><circle cx="7.6" cy="-10.6" r=".9" fill="#fff"/>';
+  return o;
+}
+function kategoria(cs){ return cs.max; } /* 3 nyílik · 2 bimbó · 1 hajtás · 0 mag */
+
+/* ════════════════ a játék tárgyai (kertTargyBelso, odu.js — kivonat) ════════════════ */
+function targy(id){
+  var arny=function(rx,ry){return '<ellipse cx="0" cy="0" rx="'+rx+'" ry="'+ry+'" fill="#2c5a1e" opacity="0.16"/>';};
+  if(id==="bokor") return arny(34,8)+'<circle cx="-17" cy="-20" r="19" fill="url(#ko-leaf2)"/><circle cx="17" cy="-20" r="19" fill="url(#ko-leaf2)"/><circle cx="0" cy="-34" r="23" fill="url(#ko-leaf)"/><circle cx="0" cy="-15" r="19" fill="url(#ko-leaf)"/><g fill="#ff9ec4"><circle cx="-11" cy="-34" r="3.6"/><circle cx="12" cy="-40" r="3.6"/><circle cx="0" cy="-23" r="3.6"/><circle cx="18" cy="-27" r="3.2"/></g>';
+  if(id==="facska") return arny(26,7)+'<rect x="-6" y="-40" width="12" height="40" rx="4" fill="url(#ko-trunk)"/><circle cx="-16" cy="-52" r="18" fill="url(#ko-leaf2)"/><circle cx="16" cy="-52" r="18" fill="url(#ko-leaf2)"/><circle cx="0" cy="-66" r="22" fill="url(#ko-leaf)"/><circle cx="0" cy="-46" r="18" fill="url(#ko-leaf)"/><circle cx="-10" cy="-58" r="3.4" fill="#ff6b6b"/><circle cx="10" cy="-52" r="3.4" fill="#ff6b6b"/><circle cx="2" cy="-68" r="3.4" fill="#ff8f6b"/>';
+  if(id==="lampas") return arny(15,5)+'<circle cx="0" cy="-52" r="19" fill="#fff3b0" opacity="0.5"/><rect x="-3" y="-48" width="6" height="48" rx="2.5" fill="url(#ko-trunk)"/><rect x="-10" y="-66" width="20" height="20" rx="3" fill="#ffe9a3" stroke="#7a6a3a" stroke-width="1.3"/><line x1="0" y1="-66" x2="0" y2="-46" stroke="#c9a24a" stroke-width="1"/><path d="M-11 -66 h22 l-3 -7 h-16 Z" fill="#4a3d66"/><circle cx="0" cy="-56" r="3.6" fill="#fff4c2"/>';
+  if(id==="szokokut") return arny(40,11)+'<ellipse cx="0" cy="-4" rx="40" ry="13" fill="url(#ko-stone)"/><ellipse cx="0" cy="-8" rx="34" ry="10" fill="url(#ko-water2)"/><rect x="-5" y="-40" width="10" height="34" rx="3" fill="url(#ko-stone)"/><ellipse cx="0" cy="-40" rx="14" ry="5" fill="url(#ko-stone)"/><ellipse cx="0" cy="-42" rx="9" ry="3.4" fill="url(#ko-water)"/><path d="M0 -44 C-7 -56 -4 -66 0 -70 C4 -66 7 -56 0 -44 Z" fill="url(#ko-water)" opacity="0.9"/><path d="M-4 -40 C-12 -30 -14 -18 -14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/><path d="M4 -40 C12 -30 14 -18 14 -10" stroke="url(#ko-water)" stroke-width="3" fill="none" opacity="0.75"/>';
+  if(id==="viragagyas") return arny(36,9)+'<ellipse cx="0" cy="-2" rx="34" ry="10" fill="#7a5230"/><ellipse cx="0" cy="-5" rx="30" ry="7" fill="#8a5f39"/><g stroke="#4f9e46" stroke-width="2"><line x1="-22" y1="-6" x2="-22" y2="-20"/><line x1="-8" y1="-6" x2="-8" y2="-24"/><line x1="6" y1="-6" x2="6" y2="-22"/><line x1="20" y1="-6" x2="20" y2="-18"/></g><circle cx="-22" cy="-22" r="5.5" fill="#ff9ec2"/><circle cx="-8" cy="-26" r="6" fill="#ffd24d"/><circle cx="6" cy="-24" r="5.5" fill="#c79cff"/><circle cx="20" cy="-20" r="5" fill="#8fd0ff"/>';
+  if(id==="torta") return arny(28,7)+'<rect x="-26" y="-26" width="52" height="20" rx="5" fill="#ffd9a6"/><path d="M-26 -22 q13 8 26 0 q13 -8 26 0 v-4 h-52 Z" fill="#fff3f6"/><rect x="-20" y="-44" width="40" height="20" rx="5" fill="#ffe1ec"/><path d="M-20 -40 q10 7 20 0 q10 -7 20 0 v-4 h-40 Z" fill="#fff6fa"/><rect x="-2" y="-58" width="4" height="14" rx="2" fill="#8fd0ff"/><path d="M0 -62 c-3 3 -3 6 0 6 c3 0 3 -3 0 -6 Z" fill="#ffb03a"/>';
+  return "";
+}
+/* a tárgyak helye százalékban (mint a P().kert.elemek) */
+var TARGYAK={f:[["bokor",7,76],["lampas",27,72],["facska",93,72],["szokokut",72,78],["viragagyas",38,94],["torta",58,93]],
+             a:[["bokor",10,74],["lampas",88,72],["szokokut",74,80],["viragagyas",24,95],["torta",66,95]]};
+
+/* ════════════════ a kert rajza ════════════════ */
+var GEO={f:{W:1000,H:620,G:540,uni:.5,tsk:1.2},a:{W:400,H:660,G:574,uni:.42,tsk:1}};
+function f1(n){return Math.round(n*10)/10;}
+function eg(o){
+  var g=GEO[o], W=g.W, s='<rect width="'+W+'" height="'+g.H+'" fill="url(#tk-eg)"/>';
+  var nx=o==="f"?820:330, ny=o==="f"?92:84;
+  s+='<circle cx="'+nx+'" cy="'+ny+'" r="'+(o==="f"?74:58)+'" fill="url(#tk-nap)"/><circle cx="'+nx+'" cy="'+ny+'" r="'+(o==="f"?24:19)+'" fill="#fff3b0"/>';
+  s+=o==="f"?'<g fill="#fff" opacity=".85"><ellipse cx="215" cy="92" rx="60" ry="24"/><ellipse cx="262" cy="80" rx="46" ry="21"/><ellipse cx="560" cy="66" rx="50" ry="20"/><ellipse cx="600" cy="74" rx="38" ry="17"/></g>'
+            :'<g fill="#fff" opacity=".85"><ellipse cx="90" cy="96" rx="48" ry="20"/><ellipse cx="128" cy="86" rx="36" ry="17"/></g>';
+  return s;
+}
+function tavDomb(o){ return o==="f"?'<path d="M0 300 Q230 250 480 292 T1000 276 V620 H0 Z" fill="url(#tk-tav)"/>':'<path d="M0 270 Q120 228 230 258 T400 250 V660 H0 Z" fill="url(#tk-tav)"/>'; }
+function eloFu(o,y){
+  var g=GEO[o], W=g.W, H=g.H;
+  var s='<path d="M0 '+(y+2)+' Q'+(W/2)+' '+(y-18)+' '+W+' '+(y+2)+' V'+H+' H0 Z" fill="url(#tk-fu)"/>';
+  /* fűcsomók a perem mentén: így a fű „elé nő” az ágyások aljának */
+  s+='<g fill="#7cc35c">';
+  for(var x=8;x<W;x+=(o==="f"?46:38)){ var yy=y+2-18*(1-Math.pow((x-W/2)/(W/2),2))+3;
+    s+='<path d="M'+(x-9)+' '+f1(yy+4)+' q4 -11 6 -2 q2 -12 5 -1 q4 -9 6 3 Z"/>'; }
+  s+='</g>';
+  return s;
+}
+function elotter(o){
+  var g=GEO[o], W=g.W, H=g.H, s='<g stroke-linecap="round" fill="none">';
+  var sz=o==="f"?[[70,600,-30],[130,604,26],[540,606,-24],[700,600,-34],[900,604,-22],[300,604,24],[420,600,-28]]:[[30,640,-26],[120,646,22],[250,644,-24],[370,640,24]];
+  sz.forEach(function(b,i){ var c=(i%2?"#5aa843":"#4f9c3a"); s+='<g transform="translate('+b[0]+' '+b[1]+')"><g class="fuszal" style="animation-delay:-'+(i*.4).toFixed(1)+'s"><path d="M0 0 q-5 -16 -14 -24 M0 0 q-1 -22 3 -34 M0 0 q6 -14 15 -20" stroke="'+c+'" stroke-width="4.5"/></g></g>'; });
+  s+='</g>';
+  var lx=o==="f"?640:250, ly=o==="f"?236:226;
+  s+='<g transform="translate('+lx+' '+ly+')"><g class="lepke"><path class="sz1" d="M0 0 q-14 -12 -22 0 q8 12 22 5 Z" fill="#ff9ec4"/><path class="sz2" d="M0 0 q14 -12 22 0 q-8 12 -22 5 Z" fill="#b6a7f2"/><circle r="2.6" fill="#4a3f6b"/></g></g>';
+  return s;
+}
+function tabla(x,y,op){
+  var c=SZIN[op];
+  return '<g transform="translate('+f1(x)+' '+f1(y)+')"><rect x="-2.5" y="-30" width="5" height="32" rx="2" fill="url(#ko-trunk)"/>'+
+    '<g filter="url(#tk-firka)"><rect x="-25" y="-46" width="50" height="25" rx="6" fill="#fdf3dc" stroke="'+c.tabla+'" stroke-width="2.6"/></g>'+
+    '<text x="0" y="-27.5" text-anchor="middle" font-family="Fredoka,Segoe UI,sans-serif" font-weight="700" font-size="17" fill="'+c.tabla+'">'+c.jel+'</text></g>';
+}
+function csillagok(pontok){
+  var s='';
+  pontok.forEach(function(p,i){ s+='<g transform="translate('+f1(p[0])+' '+f1(p[1])+')"><path class="csillog" style="animation-delay:'+(i*.35).toFixed(2)+'s" d="M0 -7 L1.6 -1.6 7 0 1.6 1.6 0 7 -1.6 1.6 -7 0 -1.6 -1.6 Z" fill="#fffbe0" stroke="#ffd84d" stroke-width=".8"/></g>'; });
+  return s;
+}
+/* a virágok kiosztása a helyekre (hely = [x,y,meret]) */
+function viragok(op,helyek,B){
+  var s='';
+  for(var i=0;i<helyek.length&&i<55;i++){
+    var p=KEVERT[i], cs=csalad(op,p[0],p[1],B), h=helyek[i];
+    s+='<g transform="translate('+f1(h[0])+' '+f1(h[1])+') scale('+h[2].toFixed(2)+')">'+miniVirag(kategoria(cs),op,i)+'</g>';
+  }
+  return s;
+}
+/* ── A: emelt fa-ágyás (trapéz, hátul keskenyebb) ── */
+function faAgyas(op,k,B,sorok,locs){
+  var h=[], n=0, R=sorok.length;
+  for(var r=0;r<R;r++){
+    var t=(r+.6)/(R+.2), y=k.yb+8+t*(k.yf-k.yb-10);
+    var xl=k.xbl+(k.xfl-k.xbl)*t+16, xr=k.xbr+(k.xfr-k.xbr)*t-16;
+    for(var i=0;i<sorok[r];i++){ h.push([xl+(i+.5)*(xr-xl)/sorok[r]+(hs(n*7+r)-.5)*4, y+(hs(n*13)-.5)*3, (.78+.32*t)*k.mer]); n++; }
+  }
+  var s='<g class="agyas" data-agy="'+op+'"><g class="agy-test">';
+  s+='<ellipse cx="'+f1((k.xfl+k.xfr)/2)+'" cy="'+(k.yf+k.p+2)+'" rx="'+f1((k.xfr-k.xfl)/2+8)+'" ry="7" fill="#2c5a1e" opacity=".15"/>';
+  s+='<g filter="url(#tk-firka)">';
+  /* oldallapok (perspektíva) */
+  s+='<path d="M'+k.xbl+' '+k.yb+' L'+k.xfl+' '+k.yf+' V'+(k.yf+k.p)+' L'+k.xbl+' '+(k.yb+k.p*.55)+' Z" fill="#c4935e"/>';
+  s+='<path d="M'+k.xbr+' '+k.yb+' L'+k.xfr+' '+k.yf+' V'+(k.yf+k.p)+' L'+k.xbr+' '+(k.yb+k.p*.55)+' Z" fill="#c4935e"/>';
+  /* elülső deszka */
+  s+='<rect x="'+k.xfl+'" y="'+k.yf+'" width="'+(k.xfr-k.xfl)+'" height="'+k.p+'" fill="url(#tk-deszka)"/>';
+  for(var x=k.xfl+48;x<k.xfr-20;x+=52) s+='<line x1="'+x+'" y1="'+(k.yf+2)+'" x2="'+x+'" y2="'+(k.yf+k.p-1)+'" stroke="#b5844f" stroke-width="1.4"/>';
+  s+='<line x1="'+k.xfl+'" y1="'+(k.yf+k.p*.55)+'" x2="'+k.xfr+'" y2="'+(k.yf+k.p*.55)+'" stroke="#d8ad78" stroke-width="1"/>';
+  /* perem + föld */
+  s+='<path d="M'+k.xbl+' '+k.yb+' H'+k.xbr+' L'+k.xfr+' '+k.yf+' H'+k.xfl+' Z" fill="url(#tk-perem)" stroke="#d9b884" stroke-width="1"/>';
+  s+='<path d="M'+(k.xbl+7)+' '+(k.yb+5)+' H'+(k.xbr-7)+' L'+(k.xfr-8)+' '+(k.yf-5)+' H'+(k.xfl+8)+' Z" fill="url(#tk-fold)"/>';
+  s+='</g>';
+  /* föld-rögök a soroknak */
+  for(r=0;r<R;r++){ var tt=(r+.6)/(R+.2), yy=k.yb+8+tt*(k.yf-k.yb-10);
+    s+='<path d="M'+f1(k.xbl+(k.xfl-k.xbl)*tt+12)+' '+f1(yy+1.5)+' H'+f1(k.xbr+(k.xfr-k.xbr)*tt-12)+'" stroke="#6b4426" stroke-width="2" opacity=".35" stroke-linecap="round"/>'; }
+  s+=viragok(op,h,B);
+  if(locs) s+=csillagok([[k.xbl+60,k.yb+10],[(k.xbl+k.xbr)/2,k.yb+30],[k.xbr-50,k.yb+18],[(k.xfl+k.xfr)/2+40,k.yf-8]]);
+  s+='</g>';
+  s+=op==="o"?tabla(k.xbl+28,k.yb+4,op):tabla(k.xbr-28,k.yb+4,op);
+  s+='<path d="M'+k.xbl+' '+(k.yb-48)+' H'+k.xbr+' L'+k.xfr+' '+k.yf+' V'+(k.yf+k.p)+' H'+k.xfl+' V'+k.yf+' Z" fill="transparent"/>';
+  return s+'</g>';
+}
+function kerites(x0,x1,yTop,yAlj,kihagy){
+  var s='<g filter="url(#tk-firka)">';
+  [[x0,kihagy?kihagy[0]:x1],kihagy?[kihagy[1],x1]:null].forEach(function(sz){ if(!sz) return;
+    s+='<rect x="'+sz[0]+'" y="'+(yTop+12)+'" width="'+(sz[1]-sz[0])+'" height="6" rx="2" fill="#fffaf0" stroke="#dccaa6"/>';
+    s+='<rect x="'+sz[0]+'" y="'+(yTop+26)+'" width="'+(sz[1]-sz[0])+'" height="6" rx="2" fill="#fffaf0" stroke="#dccaa6"/>';
+    for(var x=sz[0]+8;x<=sz[1]-6;x+=24) s+='<path d="M'+(x-6)+' '+yAlj+' V'+(yTop+6)+' L'+x+' '+yTop+' L'+(x+6)+' '+(yTop+6)+' V'+yAlj+' Z" fill="#fffaf0" stroke="#dccaa6"/>';
+  });
+  return s+'</g>';
+}
+function lugas(cx,yAlj,fel,mag){
+  var s='<g filter="url(#tk-firka)"><rect x="'+(cx-fel-6)+'" y="'+(yAlj-mag)+'" width="11" height="'+mag+'" rx="3" fill="url(#tk-perem)" stroke="#d9b884"/>'+
+    '<rect x="'+(cx+fel-5)+'" y="'+(yAlj-mag)+'" width="11" height="'+mag+'" rx="3" fill="url(#tk-perem)" stroke="#d9b884"/>'+
+    '<path d="M'+(cx-fel)+' '+(yAlj-mag+4)+' A'+fel+' '+fel+' 0 0 1 '+(cx+fel)+' '+(yAlj-mag+4)+'" stroke="#ecd0a2" stroke-width="9" fill="none"/></g>';
+  for(var A=180;A>=0;A-=15){ var r=A*Math.PI/180, x=cx+Math.cos(r)*fel, y=yAlj-mag+4-Math.sin(r)*fel;
+    s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+(fel>30?7:4.5)+'" fill="'+(A%30?"#6fbf5a":"#82cc68")+'"/>';
+    if(A%30===0) s+='<circle cx="'+f1(x+2)+'" cy="'+f1(y-2)+'" r="'+(fel>30?4.6:3)+'" fill="'+(A%60?"#ff9ec4":"#b89ef3")+'"/>'; }
+  /* lecsüngő indák a két oszlopon */
+  [cx-fel,cx+fel].forEach(function(x,i){ for(var y=yAlj-mag+18;y<yAlj-8;y+=(fel>30?16:12)) s+='<circle cx="'+(x+(i?-2:2))+'" cy="'+y+'" r="'+(fel>30?5:3.5)+'" fill="#7cc75d"/>'; });
+  return s;
+}
+function osveny(pts,kavics){
+  var s='<path d="M'+pts.map(function(p){return p.join(" ");}).join(" L")+' Z" fill="url(#tk-osveny)"/>';
+  s+='<g fill="#d8c29b">';
+  for(var i=0;i<kavics;i++){ var t=hs(i*31+5), u=hs(i*17+9);
+    var yA=pts[0][1], yB=pts[2][1], y=yA+(yB-yA)*t;
+    var xl=pts[0][0]+(pts[3][0]-pts[0][0])*t, xr=pts[1][0]+(pts[2][0]-pts[1][0])*t;
+    s+='<ellipse cx="'+f1(xl+(xr-xl)*(.1+u*.8))+'" cy="'+f1(y)+'" rx="'+f1(1.5+t*3)+'" ry="'+f1(1+t*1.8)+'"/>'; }
+  return s+'</g>';
+}
+function valtA(o,B,L){
+  var s='', beds={};
+  if(o==="f"){
+    s+=tavDomb(o)+'<path d="M0 334 Q500 300 1000 334 V620 H0 Z" fill="url(#tk-koz)"/>';
+    s+=kerites(24,976,276,326,[438,562]);
+    s+=lugas(500,334,46,104);
+    s+=osveny([[474,330],[526,330],[612,620],[388,620]],0);
+    var ko={xbl:96,xbr:430,yb:326,xfl:80,xfr:446,yf:386,p:18,mer:1.2}, ks={xbl:570,xbr:904,yb:326,xfl:554,xfr:920,yf:386,p:18,mer:1.2};
+    s+=faAgyas("o",ko,B,[14,14,14,13],L.o)+faAgyas("s",ks,B,[14,14,14,13],L.s);
+    s+=eloFu(o,404)+osveny([[452,404],[548,404],[612,620],[388,620]],60);
+    beds={o:263,s:737};
+  } else {
+    s+=tavDomb(o)+'<path d="M0 300 Q200 284 400 300 V660 H0 Z" fill="url(#tk-koz)"/>';
+    s+=kerites(6,394,262,308,[178,222]);
+    s+=lugas(200,308,18,74);
+    s+=osveny([[193,306],[207,306],[236,660],[164,660]],0);
+    var ko2={xbl:22,xbr:184,yb:316,xfl:10,xfr:190,yf:380,p:16,mer:1}, ks2={xbl:216,xbr:378,yb:316,xfl:210,xfr:390,yf:380,p:16,mer:1};
+    s+=faAgyas("o",ko2,B,[11,11,11,11,11],L.o)+faAgyas("s",ks2,B,[11,11,11,11,11],L.s);
+    s+=eloFu(o,398)+osveny([[187,398],[213,398],[236,660],[164,660]],40);
+    beds={o:100,s:300};
+  }
+  return {svg:s,beds:beds};
+}
+/* ── B: teraszok a dombon ── */
+function terasz(op,T,B,sorok,locs){
+  function yb(x){ var u=(x-T.cx)/T.fel; return T.y+T.k*u*u; }
+  var N=40, hat=[], elo=[], fal=[];
+  for(var i=0;i<=N;i++){ var x=T.x0+(T.x1-T.x0)*i/N; hat.push([x,yb(x)]); }
+  var s='<g class="agyas" data-agy="'+op+'"><g class="agy-test"><g filter="url(#tk-firka)">';
+  var dp=hat.map(function(p){return f1(p[0])+' '+f1(p[1]);}), de=hat.slice().reverse().map(function(p){return f1(p[0])+' '+f1(p[1]+T.m);});
+  var dw=hat.slice().reverse().map(function(p){return f1(p[0])+' '+f1(p[1]+T.m+T.fal);});
+  s+='<path d="M'+dp.join(" L")+' L'+de.join(" L")+' Z" fill="url(#tk-fold)"/>';
+  /* kőfal */
+  s+='<path d="M'+hat.map(function(p){return f1(p[0])+' '+f1(p[1]+T.m);}).join(" L")+' L'+dw.join(" L")+' Z" fill="url(#tk-ko)" stroke="#b3a892" stroke-width="1"/>';
+  for(i=0;i<N;i++){ var x=hat[i][0]+ (i%2?6:0), y=yb(x)+T.m;
+    s+='<line x1="'+f1(x)+'" y1="'+f1(y+1)+'" x2="'+f1(x)+'" y2="'+f1(y+T.fal*.5)+'" stroke="#a89d86" stroke-width="1"/>';
+    s+='<line x1="'+f1(x+8)+'" y1="'+f1(y+T.fal*.5)+'" x2="'+f1(x+8)+'" y2="'+f1(y+T.fal-1)+'" stroke="#a89d86" stroke-width="1"/>'; }
+  s+='<path d="M'+hat.map(function(p){return f1(p[0])+' '+f1(p[1]+T.m+T.fal*.5);}).join(" L")+'" stroke="#a89d86" stroke-width="1" fill="none"/>';
+  s+='</g>';
+  /* virágok: a lépcső két oldalán */
+  var h=[], n=0;
+  for(var r=0;r<sorok.length;r++){
+    var off=T.m*(r+.75)/(sorok.length+.25), n1=Math.ceil(sorok[r]/2), n2=sorok[r]-n1;
+    [[T.x0+12,T.cx-T.res,n1],[T.cx+T.res,T.x1-12,n2]].forEach(function(sz){
+      for(var j=0;j<sz[2];j++){ var x=sz[0]+(j+.5)*(sz[1]-sz[0])/sz[2]+(hs(n*7)-.5)*3; h.push([x,yb(x)+off,T.mer+r*.1]); n++; }
+    });
+  }
+  s+=viragok(op,h,B);
+  if(locs) s+=csillagok([[T.x0+60,yb(T.x0+60)+4],[T.cx-90,T.y+6],[T.cx+120,yb(T.cx+120)+8],[T.x1-60,yb(T.x1-60)+4]]);
+  s+='</g>';
+  s+=op==="o"?tabla(T.x0+24,yb(T.x0+24)+4,op):tabla(T.x1-24,yb(T.x1-24)+4,op);
+  s+='<path d="M'+dp.join(" L")+' L'+dw.join(" L")+' Z" fill="transparent"/>';
+  return s+'</g>';
+}
+function lepcso(cx,yAlj,yTet,sz){
+  var s='<g filter="url(#tk-firka)">', n=Math.round((yAlj-yTet)/13);
+  for(var i=0;i<n;i++){ var y=yAlj-(i+1)*(yAlj-yTet)/n, w=sz*(1-i*.025);
+    s+='<rect x="'+f1(cx-w/2)+'" y="'+f1(y)+'" width="'+f1(w)+'" height="'+f1((yAlj-yTet)/n+1)+'" rx="2" fill="url(#tk-ko)" stroke="#b3a892" stroke-width=".8"/>'; }
+  return s+'</g>';
+}
+function valtB(o,B,L){
+  var s='', beds={};
+  if(o==="f"){
+    s+='<path d="M0 364 C140 250 320 192 500 192 C690 192 860 248 1000 352 V620 H0 Z" fill="url(#tk-domb)"/>';
+    s+=lepcso(500,372,236,40);
+    var TS={x0:214,x1:786,cx:500,fel:286,y:236,k:44,m:24,fal:13,res:26,mer:1};
+    var TO={x0:118,x1:882,cx:500,fel:382,y:304,k:52,m:30,fal:16,res:26,mer:1.1};
+    s+=terasz("s",TS,B,[28,27],L.s)+terasz("o",TO,B,[28,27],L.o);
+    s+=eloFu(o,404);
+    beds={o:330,s:670};
+  } else {
+    s+='<path d="M0 346 C70 260 150 214 200 214 C250 214 330 258 400 336 V660 H0 Z" fill="url(#tk-domb)"/>';
+    s+=lepcso(200,372,246,26);
+    var TS2={x0:30,x1:370,cx:200,fel:170,y:248,k:30,m:22,fal:12,res:17,mer:.82};
+    var TO2={x0:10,x1:390,cx:200,fel:190,y:312,k:34,m:28,fal:15,res:17,mer:.9};
+    s+=terasz("s",TS2,B,[28,27],L.s)+terasz("o",TO2,B,[28,27],L.o);
+    s+=eloFu(o,398);
+    beds={o:110,s:290};
+  }
+  return {svg:s,beds:beds};
+}
+/* ── C: patak, híd, kővel szegett kerek ágyások ── */
+function kerekAgyas(op,K,B,sorok,locs){
+  var s='<g class="agyas" data-agy="'+op+'"><g class="agy-test">';
+  s+='<ellipse cx="'+K.cx+'" cy="'+(K.cy+K.ry*.55)+'" rx="'+(K.rx+8)+'" ry="'+(K.ry*.6)+'" fill="#2c5a1e" opacity=".14"/>';
+  s+='<g filter="url(#tk-firka)"><ellipse cx="'+K.cx+'" cy="'+K.cy+'" rx="'+K.rx+'" ry="'+K.ry+'" fill="url(#tk-fold)"/>';
+  var N=Math.round(K.rx/7.5);
+  for(var i=0;i<N;i++){ var A=i/N*Math.PI*2, x=K.cx+Math.cos(A)*K.rx, y=K.cy+Math.sin(A)*K.ry;
+    s+='<ellipse cx="'+f1(x)+'" cy="'+f1(y)+'" rx="'+f1(8.5+hs(i*3)*2.5)+'" ry="'+f1(5.6+hs(i*5)*1.6)+'" fill="url(#tk-ko)" stroke="#b3a892" stroke-width=".8"/>'; }
+  s+='</g>';
+  var h=[], n=0, R=sorok.length;
+  for(var r=0;r<R;r++){ var dy=-K.ry+10+ (r+.5)*(2*K.ry-20)/R, hw=(K.rx-18)*Math.sqrt(Math.max(0,1-Math.pow(dy/(K.ry-6),2)));
+    for(var j=0;j<sorok[r];j++){ h.push([K.cx-hw+(j+.5)*2*hw/sorok[r]+(hs(n*7)-.5)*3, K.cy+dy+5, K.mer+.25*r/R]); n++; } }
+  s+=viragok(op,h,B);
+  if(locs) s+=csillagok([[K.cx-K.rx*.6,K.cy-6],[K.cx,K.cy-K.ry*.6],[K.cx+K.rx*.55,K.cy+4],[K.cx-K.rx*.1,K.cy+K.ry*.5]]);
+  s+='</g>';
+  s+=op==="o"?tabla(K.cx-K.rx*.78,K.cy-K.ry*.55,op):tabla(K.cx+K.rx*.78,K.cy-K.ry*.55,op);
+  s+='<ellipse cx="'+K.cx+'" cy="'+(K.cy-12)+'" rx="'+(K.rx+6)+'" ry="'+(K.ry+18)+'" fill="transparent"/>';
+  return s+'</g>';
+}
+function patak(W,y0,y1,vast){
+  var N=40, fel=[], al=[];
+  for(var i=0;i<=N;i++){ var x=W*i/N, y=y0+(y1-y0)*i/N+Math.sin(i*.7)*4; fel.push(f1(x)+' '+f1(y)); al.unshift(f1(x)+' '+f1(y+vast+Math.sin(i*.9)*2)); }
+  var s='<path d="M'+fel.join(" L")+' L'+al.join(" L")+' Z" fill="url(#tk-viz)" stroke="#e9f7ff" stroke-width="2"/>';
+  for(var k=0;k<3;k++){ var p=[]; for(i=0;i<=N;i++){ var x2=W*i/N; p.push(f1(x2)+' '+f1(y0+(y1-y0)*i/N+Math.sin(i*.7)*4+vast*(.3+k*.22))); }
+    s+='<path class="hullam" style="animation-delay:-'+k*.8+'s" d="M'+p.join(" L")+'" stroke="#f4fbff" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".85"/>'; }
+  return s;
+}
+function hid(cx,y,fel){
+  var s='<g filter="url(#tk-firka)"><path d="M'+(cx-fel)+' '+(y+10)+' Q'+cx+' '+(y-22)+' '+(cx+fel)+' '+(y+10)+'" stroke="#c99761" stroke-width="13" fill="none" stroke-linecap="round"/>'+
+    '<path d="M'+(cx-fel)+' '+(y+8)+' Q'+cx+' '+(y-24)+' '+(cx+fel)+' '+(y+8)+'" stroke="#ecc996" stroke-width="7" fill="none" stroke-linecap="round"/>'+
+    '<path d="M'+(cx-fel+4)+' '+(y-6)+' Q'+cx+' '+(y-40)+' '+(cx+fel-4)+' '+(y-6)+'" stroke="#fbe6c2" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  for(var i=0;i<=4;i++){ var t=i/4, x=cx-fel+4+t*(2*fel-8), yy=(1-t)*(1-t)*(y-6)+2*t*(1-t)*(y-40)+t*t*(y-6), yd=(1-t)*(1-t)*(y+8)+2*t*(1-t)*(y-24)+t*t*(y+8);
+    s+='<line x1="'+f1(x)+'" y1="'+f1(yy)+'" x2="'+f1(x)+'" y2="'+f1(yd)+'" stroke="#e2bb85" stroke-width="3"/>'; }
+  return s+'</g>';
+}
+function nad(x,y){ return '<g stroke="#5aa843" stroke-width="3" stroke-linecap="round"><path d="M'+x+' '+y+' q-4 -22 -2 -38"/><path d="M'+(x+8)+' '+y+' q2 -24 6 -34"/><path d="M'+(x-8)+' '+y+' q-6 -14 -12 -22"/></g><rect x="'+(x-5)+'" y="'+(y-48)+'" width="6" height="16" rx="3" fill="#9a6b42"/><rect x="'+(x+5)+'" y="'+(y-44)+'" width="6" height="14" rx="3" fill="#9a6b42"/>'; }
+function fuz(x,y,m){
+  var s='<rect x="'+(x-6*m)+'" y="'+(y-70*m)+'" width="'+(12*m)+'" height="'+(70*m)+'" rx="4" fill="url(#ko-trunk)"/>';
+  s+='<ellipse cx="'+x+'" cy="'+(y-78*m)+'" rx="'+(54*m)+'" ry="'+(34*m)+'" fill="url(#ko-leaf)"/>';
+  for(var i=-4;i<=4;i++) s+='<path d="M'+(x+i*11*m)+' '+(y-82*m)+' q'+(i*2*m)+' '+(30*m)+' '+(i*3*m)+' '+(62*m)+'" stroke="#6fbf5a" stroke-width="'+(5*m)+'" fill="none" stroke-linecap="round"/>';
+  return s;
+}
+function valtC(o,B,L){
+  var s='', beds={};
+  if(o==="f"){
+    s+=tavDomb(o)+fuz(90,300,1)+'<path d="M0 300 Q500 284 1000 302 V620 H0 Z" fill="url(#tk-koz)"/>';
+    s+=patak(1000,296,306,22)+nad(950,318)+nad(40,316);
+    s+=hid(500,300,58);
+    s+=osveny([[478,318],[522,318],[600,620],[400,620]],0);
+    s+=kerekAgyas("o",{cx:268,cy:362,rx:168,ry:32,mer:1.02},B,[11,15,15,14],L.o)+kerekAgyas("s",{cx:732,cy:362,rx:168,ry:32,mer:1.02},B,[11,15,15,14],L.s);
+    s+=eloFu(o,406)+osveny([[456,406],[544,406],[600,620],[400,620]],60);
+    beds={o:268,s:732};
+  } else {
+    s+=tavDomb(o)+'<path d="M0 282 Q200 270 400 284 V660 H0 Z" fill="url(#tk-koz)"/>';
+    s+=patak(400,278,288,18)+nad(380,300);
+    s+=hid(200,282,32);
+    s+=osveny([[193,300],[207,300],[236,660],[164,660]],0);
+    s+=kerekAgyas("o",{cx:97,cy:350,rx:88,ry:32,mer:.8},B,[11,15,15,14],L.o)+kerekAgyas("s",{cx:303,cy:350,rx:88,ry:32,mer:.8},B,[11,15,15,14],L.s);
+    s+=eloFu(o,400)+osveny([[187,400],[213,400],[236,660],[164,660]],40);
+    beds={o:100,s:300};
+  }
+  return {svg:s,beds:beds};
+}
+var VALT={A:valtA,B:valtB,C:valtC};
+
+function uniG(o,x,dir){
+  var g=GEO[o];
+  return '<g id="uni" transform="translate('+f1(x)+' '+g.G+') scale('+(g.uni*dir)+' '+g.uni+') translate(-190 -288)"><g class="uni-ring"><g class="uni-pihen"><use href="#tk-uni" width="380" height="300"/></g></g></g>';
+}
+function targyak(o,elol){
+  var g=GEO[o], s='';
+  TARGYAK[o].forEach(function(t){ var x=t[1]/100*g.W, y=t[2]/100*g.H; if((y>g.G)!==elol) return;
+    s+='<g transform="translate('+f1(x)+' '+f1(y)+') scale('+g.tsk+')">'+targy(t[0])+'</g>'; });
+  return s;
+}
+function kertSVG(v,o,B,T,L,uniX,dir){
+  var g=GEO[o], k=VALT[v](o,B,L);
+  var s='<svg viewBox="0 0 '+g.W+' '+g.H+'" xmlns="http://www.w3.org/2000/svg">'+eg(o)+k.svg+elotter(o);
+  if(T) s+=targyak(o,false);
+  if(uniX!=null) s+=uniG(o,uniX,dir);
+  if(T) s+=targyak(o,true);
+  return {svg:s+'</svg>',beds:k.beds};
+}
+
+/* ════════════════ közeli nézet ════════════════ */
+var E1=["","egy","kettő","három","négy","öt","hat","hét","nyolc","kilenc"], TZ=["","tíz","húsz","harminc","negyven","ötven","hatvan","hetven","nyolcvan","kilencven"], TP=["","tizen","huszon","harminc","negyven","ötven","hatvan","hetven","nyolcvan","kilencven"];
+function szo(n){ if(n===100) return "száz"; var t=Math.floor(n/10), e=n%10; return e?TP[t]+E1[e]:TZ[t]; }
+function nagy(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+var SORNEV=["","egyes","kettes","hármas","négyes","ötös","hatos","hetes","nyolcas","kilences","tízes"];
+var ALLAPOT_IKON=["🟤 mag","🌱 hajtás","🌷 bimbó","🌸 nyílik"];
+function racsSVG(op,B,kiem,locsolt){
+  var C=31, M=28, s='<svg viewBox="0 0 '+(M+C*10+2)+' '+(M+C*10+2)+'" xmlns="http://www.w3.org/2000/svg" class="'+(kiem?"van-kiem":"")+'">';
+  s+='<rect x="'+(M-2)+'" y="'+(M-2)+'" width="'+(C*10+4)+'" height="'+(C*10+4)+'" rx="12" fill="#c99a6a"/>';
+  for(var b=1;b<=10;b++) s+='<g><circle cx="'+(M+C*(b-.5))+'" cy="13" r="11" fill="#fdf3dc" stroke="#c9a86a" stroke-width="1.5"/><text x="'+(M+C*(b-.5))+'" y="17.5" text-anchor="middle" font-family="Fredoka,Segoe UI,sans-serif" font-weight="700" font-size="12.5" fill="#6b4a2e">'+b+'</text></g>';
+  for(var a=1;a<=10;a++){
+    var y0=M+C*(a-1);
+    s+='<g class="sor'+(kiem===a?" kiemelt":"")+(locsolt[a]?" locsolt":"")+'" data-sor="'+a+'">';
+    s+='<rect class="barazda" x="'+(M+1)+'" y="'+(y0+3)+'" width="'+(C*10-2)+'" height="'+(C-5)+'" rx="11" fill="'+(a%2?"#9d6e45":"#a6774d")+'" stroke="none"/>';
+    for(b=1;b<=10;b++){
+      var p=Math.min(a,b), q=Math.max(a,b), cs=csalad(op,p,q,B), cx=M+C*(b-.5), cy=y0+C/2-2;
+      s+='<g class="cella" data-a="'+a+'" data-b="'+b+'"><rect class="hit" x="'+(cx-C/2+1)+'" y="'+(y0+1)+'" width="'+(C-2)+'" height="'+(C-2)+'" rx="7" fill="transparent"/>'+
+        '<g transform="translate('+cx+' '+cy+') scale(1.28)">'+nagyVirag(cs,op,p*7+q)+'</g></g>';
+    }
+    if(locsolt[a]) s+=csillagok([[M+C*1.6,y0+8],[M+C*4.3,y0+6],[M+C*7.2,y0+9],[M+C*9.3,y0+5]]);
+    s+='</g>';
+    s+='<g class="sorfej" data-sor="'+a+'"><circle cx="13" cy="'+(y0+C/2)+'" r="11" fill="'+(kiem===a?"#ffe27a":"#fdf3dc")+'" stroke="#c9a86a" stroke-width="1.5"/><text x="13" y="'+(y0+C/2+4.5)+'" text-anchor="middle" font-family="Fredoka,Segoe UI,sans-serif" font-weight="700" font-size="12.5" fill="#6b4a2e" pointer-events="none">'+a+'</text></g>';
+  }
+  return s+'</svg>';
+}
+function sorMondat(op,B,a){
+  var n=[0,0,0,0];
+  for(var b=1;b<=10;b++){ n[kategoria(csalad(op,Math.min(a,b),Math.max(a,b),B))]++; }
+  var r=[];
+  if(n[3]) r.push(n[3]+" virág nyílik"); if(n[2]) r.push(n[2]+" bimbó"); if(n[1]) r.push(n[1]+" hajtás"); if(n[0]) r.push(n[0]+" mag vár a földben");
+  var m=r.length>1?r.slice(0,-1).join(", ")+" és "+r[r.length-1]:r[0];
+  return "„A"+(a===1||a===5?"z":"")+" "+SORNEV[a]+" sorban "+m+".”";
+}
+function csaladMondat(op,B,a,b){
+  var p=Math.min(a,b), q=Math.max(a,b), cs=csalad(op,p,q,B), e=op==="o"?p+q:p*q;
+  var jel=op==="o"?["+","−"]:["×","÷"];
+  var tenyek=[p+" "+jel[0]+" "+q+" = "+e, e+" "+jel[1]+" "+p+" = "+q];
+  if(p!==q) tenyek.push(e+" "+jel[1]+" "+q+" = "+p);
+  var resz=tenyek.map(function(t,i){ return t+" "+ALLAPOT_IKON[cs.s[i]]; }).join(" · ");
+  return "„"+nagy(szo(p))+", "+szo(q)+", "+szo(e)+".”<small>A producernek: "+resz+(cs.esed?" · 💧 ismétlésre vár":"")+"</small>";
+}
+function jelmagy(op){
+  var minta=[["mag",{s:[0,0,0],max:0}],["hajtás",{s:[1,1,0],max:1}],["bimbó",{s:[2,2,1],max:2}],["félig",{s:[3,2,1],max:3}],["nyílik",{s:[3,3,3],max:3}],["ismétel",{s:[3,2,2],max:3,esed:true}]];
+  return '<div class="jelmagy">'+minta.map(function(m){ return '<div><svg viewBox="-13 -16 26 30">'+nagyVirag(m[1],op,1)+'</svg>'+m[0]+'</div>'; }).join("")+'</div>';
+}
+
+/* ════════════════ a színpad ════════════════ */
+var A={v:"A",o:"f",b:1,t:1,x:{f:560,a:200},dir:1,agy:null,sor:null,locs:{o:{},s:{}},harmat:12,fut:null};
+function locsoltAgy(){ return {o:Object.keys(A.locs.o).length>0,s:Object.keys(A.locs.s).length>0}; }
+function rajzol(){
+  var g=GEO[A.o], el=document.getElementById("szinpad");
+  var k=kertSVG(A.v,A.o,A.b,A.t,locsoltAgy(),A.x[A.o],A.dir);
+  A.beds=k.beds;
+  el.innerHTML='<div class="kepernyo'+(A.o==="a"?" telefon":"")+'">'+
+    '<div class="fejlec"><span class="gomb">← Odú</span><span>A kert</span><span><span class="sz">✨ 248</span><span class="sz h">💧 '+A.harmat+'</span></span></div>'+
+    '<div class="szinter" id="szinter" style="aspect-ratio:'+g.W+'/'+g.H+'">'+k.svg+'<div class="kozeli" id="kozeli"></div></div>'+
+    '<div class="eszkozsor"><span>🧺 Berendezés</span><span>🛋️ Ülés</span><span>🦘 Ugrás</span></div>'+
+    '<div class="sugo" id="sugo">Koppints a fűre — az unikornis odasétál. 🚶 Vagy koppints egy virágágyásra!</div></div>';
+  document.querySelector("#szinter svg").addEventListener("click",kertKlikk);
+  if(A.agy) kozeliRajz(true);
+}
+function sugo(t){ var s=document.getElementById("sugo"); if(s) s.textContent=t; }
+function kertKlikk(e){
+  if(A.agy) return;
+  var svg=e.currentTarget, r=svg.getBoundingClientRect(), g=GEO[A.o];
+  var agy=e.target.closest&&e.target.closest(".agyas");
+  if(agy){ var op=agy.getAttribute("data-agy");
+    sugo(op==="o"?"Odasétál a rózsaszín ágyáshoz… 🌸":"Odasétál a lila ágyáshoz… 💜");
+    setal(A.beds[op],function(){ A.agy=op; A.sor=null; kozeliRajz(); }); return; }
+  var x=(e.clientX-r.left)/r.width*g.W;
+  setal(Math.max(g.W*.08,Math.min(g.W*.92,x)),function(){ sugo("Koppints a fűre — az unikornis odasétál. 🚶 Vagy koppints egy virágágyásra!"); });
+}
+function setal(cel,kesz){
+  var o=A.o, g=GEO[o], uni=document.getElementById("uni"), ring=uni&&uni.querySelector(".uni-ring");
+  if(A.fut) cancelAnimationFrame(A.fut);
+  var x0=A.x[o], d=cel-x0;
+  if(Math.abs(d)<4){ kesz&&kesz(); return; }
+  A.dir=d>0?1:-1;
+  var ido=Math.max(350,Math.abs(d)/(g.W*.32)*1000), t0=performance.now();
+  ring&&ring.classList.add("lep");
+  function lep(t){
+    var u=Math.min(1,(t-t0)/ido), e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+    A.x[o]=x0+d*e;
+    uni.setAttribute("transform","translate("+f1(A.x[o])+" "+g.G+") scale("+(g.uni*A.dir)+" "+g.uni+") translate(-190 -288)");
+    if(u<1) A.fut=requestAnimationFrame(lep); else { A.fut=null; ring&&ring.classList.remove("lep"); kesz&&kesz(); }
+  }
+  A.fut=requestAnimationFrame(lep);
+}
+function kozeliRajz(azonnal){
+  var k=document.getElementById("kozeli"), op=A.agy, c=SZIN[op];
+  var gomb=A.sor?'<button class="locsol" id="locsol"'+(A.locs[op][A.sor]?" disabled":"")+'>'+(A.locs[op][A.sor]?"💧 Meglocsolva — holnap ebből a sorból jön több":"💧 Meglocsolom a "+SORNEV[A.sor]+" sort (1 💧)")+'</button>'
+    :'<button class="locsol" disabled>💧 Előbb válassz egy sort</button>';
+  k.innerHTML='<div class="kz-fej"><button id="kz-vissza">← Vissza a kertbe</button><span class="cim"><span class="vbal" style="background:'+c.szirom[0]+'"></span>'+c.nev+'</span></div>'+
+    '<div class="kz-test"><div class="racs" id="racs">'+racsSVG(op,A.b,A.sor,A.locs[op])+'</div>'+
+    '<div class="kz-oldal"><div class="buborek" id="buborek">'+(A.buborek||"Koppints egy sorszámra (bal oldalt) vagy egy virágra!")+'</div>'+gomb+jelmagy(op)+'</div></div>';
+  if(azonnal) k.classList.add("lathato"); else requestAnimationFrame(function(){ k.classList.add("lathato"); });
+  sugo(op==="o"?"🌸 Az összeadás–kivonás ágyás közelről":"💜 A szorzás–osztás ágyás közelről");
+  document.getElementById("kz-vissza").onclick=function(){ A.agy=null; A.sor=null; A.buborek=null; k.classList.remove("lathato"); rajzol(); };
+  document.getElementById("racs").onclick=function(e){
+    var sf=e.target.closest(".sorfej"), ce=e.target.closest(".cella");
+    if(sf){ A.sor=+sf.getAttribute("data-sor"); A.buborek=sorMondat(op,A.b,A.sor); kozeliRajz(true); return; }
+    if(ce){ A.buborek=csaladMondat(op,A.b,+ce.getAttribute("data-a"),+ce.getAttribute("data-b")); kozeliRajz(true); }
+  };
+  var l=document.getElementById("locsol");
+  if(l&&A.sor&&!A.locs[op][A.sor]) l.onclick=function(){ A.locs[op][A.sor]=true; A.harmat=Math.max(0,A.harmat-1);
+    A.buborek="„Meglocsoltad a"+(A.sor===1||A.sor===5?"z":"")+" "+SORNEV[A.sor]+" sort! Holnap több feladat jön belőle.”"; rajzol(); };
+}
+function gombsor(id,attr,mit){
+  document.getElementById(id).addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return;
+    this.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);}); mit(b.getAttribute(attr)); });
+}
+gombsor("c-valt","data-v",function(v){ A.v=v; A.agy=null; A.buborek=null; rajzol(); });
+gombsor("c-eszk","data-o",function(o){ A.o=o; rajzol(); });
+gombsor("c-vir","data-b",function(b){ A.b=+b; A.buborek=null; rajzol(); });
+gombsor("c-targy","data-t",function(t){ A.t=+t; rajzol(); });
+rajzol();
+
+/* kis előnézetek a változat-kártyákon (koppintásra betölti a színpadra) */
+["A","B","C"].forEach(function(v){
+  var el=document.getElementById("kis-"+v);
+  el.innerHTML=kertSVG(v,"f",1,1,{o:false,s:false},560,1).svg.replace("<svg ",'<svg class="kis" ');
+  el.onclick=function(){ document.querySelector('#c-valt [data-v="'+v+'"]').click(); document.getElementById("szinpad").scrollIntoView({behavior:"smooth",block:"center"}); };
+});
+/* a virág élete */
+(function(){
+  var lap=[["Mag","még nem találkozott vele",{s:[0,0,0],max:0},"s"],["Hajtás","tanulja: néha jó, néha botlik",{s:[1,1,0],max:1},"s"],["Bimbó","tudja, de még számol",{s:[2,2,1],max:2},"s"],
+    ["Félig nyílt","6 × 7 már fejből megy, az osztás még bimbó",{s:[3,2,2],max:3},"s"],["Kétharmad","a szorzás és az egyik osztás nyílik",{s:[3,3,2],max:3},"s"],["Teljesen nyílt","mind a három tény villám",{s:[3,3,3],max:3},"s"],
+    ["Ismétlésre vár","harmatcsepp ül rajta, a feje kicsit becsukódik",{s:[3,3,2],max:3,esed:true},"s"],["Dupla: 6 × 6","csak két tény, ezért két szirompár",{s:[3,3],max:3},"s"],["Rózsaszín ágyás","7 + 5 nyílik, a 12 − 5 és a 12 − 7 bimbó",{s:[3,2,2],max:3},"o"]];
+  document.getElementById("galeria").innerHTML=lap.map(function(l,i){
+    return '<div class="jk"><svg viewBox="-20 -24 40 40">'+nagyVirag(l[2],l[3],i)+'</svg><b>'+l[0]+'</b><span>'+l[1]+'</span></div>'; }).join("");
+})();
+</script>
+</body>
+</html>
