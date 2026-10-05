@@ -8,7 +8,7 @@ function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0:
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
-function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=megvett kertkapu-kulcs; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
+function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=1 (2026-10 óta mindenkinek; régen: megvett kertkapu-kulcs), kulcsVissza=a kulcs árát már visszakapta, attolva=a tárgyak egyszer a C2 kert füves partjára kerültek; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
 function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {} }; }
@@ -63,6 +63,10 @@ function profilNormal(p) {
   if (!p.kert.trukkok) p.kert.trukkok = {};
   if (!p.kert.keszlet) p.kert.keszlet = {};      /* fészer: megvett, még le nem tett tárgyak */
   if (!p.kert.elemek) p.kert.elemek = [];        /* lerakott kerti tárgyak */
+  if (!p.kert.attolva) {                         /* C2 kert (2026-10): hátul patak + túlpart, a tárgyak csak a füves partra (y ≥ 70 %) kerülhetnek → a régieket egyszer, a sorrendjüket megtartva lejjebb toljuk */
+    p.kert.elemek.forEach(function (o) { if (typeof o.y === "number" && o.y < 70) o.y = Math.round(70 + (Math.max(48, o.y) - 48) * 25 / 47); });
+    p.kert.attolva = 1;
+  }
   if (!p.szalon) p.szalon = alapSzalon();        /* FODRÁSZAT */
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};

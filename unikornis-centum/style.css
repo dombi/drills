@@ -855,18 +855,39 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #kert-szinter .uni-tincs{ transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite; }
 #kert-szinter .uni-szem{ transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite; }
 
-/* ambient: lengő fű, szálló porszemek, lepke */
-.kb-blade{ transform-box:fill-box; transform-origin:bottom center; animation:kb-sway 3.4s ease-in-out infinite; }
-.kb-mote{ animation:kb-drift 6s linear infinite; }
-.kb-fly{ transform-box:fill-box; animation:kb-flutter 7s ease-in-out infinite; }
-@keyframes kb-sway{ 0%,100%{ transform:rotate(-4deg); } 50%{ transform:rotate(4deg); } }
-@keyframes kb-drift{ 0%{ transform:translate(0,0); opacity:0; } 12%{ opacity:.9; } 88%{ opacity:.9; } 100%{ transform:translate(34px,-46px); opacity:0; } }
-@keyframes kb-flutter{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(26px,-18px); } 50%{ transform:translate(52px,4px); } 75%{ transform:translate(26px,20px); } }
+/* ambient a patakparti C2 kertben (kert-tajkep.js): folyó víz, úszó felhők, lengő fűzág és fű, ringó levél, lepke, szitakötő */
+.kc-hullam{ stroke-dasharray:14 26; animation:kc-folyik 2.6s linear infinite; }
+@keyframes kc-folyik{ to{ stroke-dashoffset:-80; } }
+.kc-felho{ animation:kc-usz 60s linear infinite alternate; }
+@keyframes kc-usz{ to{ transform:translateX(60px); } }
+.kc-fuzag{ animation:kc-fuz 4.6s ease-in-out infinite; }
+@keyframes kc-fuz{ 0%,100%{ transform:rotate(-2.5deg); } 50%{ transform:rotate(2.5deg); } }
+.kc-lap{ animation:kc-lap 5s ease-in-out infinite; }
+@keyframes kc-lap{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(1.6px); } }
+.kc-fuszal{ transform-box:fill-box; transform-origin:50% 100%; animation:kc-ring 2.8s ease-in-out infinite; }
+@keyframes kc-ring{ 0%,100%{ transform:rotate(-4deg); } 50%{ transform:rotate(4deg); } }
+.kc-lepke{ animation:kc-repul 9s ease-in-out infinite; }
+@keyframes kc-repul{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(70px,-22px); } 50%{ transform:translate(140px,6px); } 75%{ transform:translate(64px,24px); } }
+.kc-lepke .kc-sz1, .kc-lepke .kc-sz2, .kc-szk-szarny{ transform-box:fill-box; animation:kc-csap .28s ease-in-out infinite; }
+.kc-lepke .kc-sz1{ transform-origin:100% 50%; } .kc-lepke .kc-sz2{ transform-origin:0 50%; }
+.kc-szk-szarny{ transform-origin:50% 100%; animation-duration:.09s; }
+@keyframes kc-csap{ 50%{ transform:scaleX(.45); } }
+.kc-gyuru{ transform-box:fill-box; transform-origin:center; animation:kc-gyuru 1.1s ease-out forwards; }
+@keyframes kc-gyuru{ from{ transform:scale(.2); opacity:.9; } to{ transform:scale(1.6); opacity:0; } }
+
+/* kedves hír-szalag a képernyő tetején (kertHir, kert.js): pl. a kertkapu-kulcs visszatérítése, később a Tény-kert hírei */
+.kert-hir{ position:fixed; left:50%; top:14px; z-index:9000; max-width:min(92vw,560px);
+  transform:translate(-50%,-140%); opacity:0; transition:transform .45s cubic-bezier(.3,1.4,.5,1), opacity .3s ease;
+  background:#fffaf0; color:var(--lila-sotet,#5a4a86); border:2px solid #f3d27a; border-radius:18px;
+  padding:12px 18px; font-size:17px; font-weight:600; line-height:1.35; text-align:center;
+  box-shadow:0 8px 24px rgba(90,74,134,.22); cursor:pointer; }
+.kert-hir.lat{ transform:translate(-50%,0); opacity:1; }
 
 @media (prefers-reduced-motion:reduce){
   #kert-szinter .uni-elo, #kert-szinter .uni-soreny, #kert-szinter .uni-farok,
   #kert-szinter .uni-tincs, #kert-szinter .uni-szem,
-  .kb-blade, .kb-mote, .kb-fly{ animation:none; }
+  .kc-hullam, .kc-felho, .kc-fuzag, .kc-lap, .kc-fuszal, .kc-lepke, .kc-lepke .kc-sz1, .kc-lepke .kc-sz2, .kc-szk-szarny{ animation:none; }
+  .kert-hir{ transition:opacity .3s ease; }
 }
 
 /* Kertkapu az odúban: az egér alá emelkedik (kattinthatóság-jelzés), nyíl helyett */

@@ -242,7 +242,7 @@ function esemenyek() {
   $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; oduUniHaza(); });
-  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); oduNyit("kert"); });
+  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); kertTajMozgasStop(); oduNyit("kert"); });
   $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
   $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });

@@ -253,20 +253,11 @@ var KRISTALY = [
       '<rect x="31" y="28" width="18" height="28" rx="8" fill="#ffd98f" stroke="#e0a85a" stroke-width="1.6"/>' +
       '<path d="M40 36 q-4 6 0 11 q4 -5 0 -11 Z" fill="#ffb43a"/><circle cx="40" cy="44" r="2" fill="#fff2c4"/>' }
 ];
-/* ── KERT bolt-fül. A „kulcs" ✨-ért nyitja a kaput (1. fázis). A séta-TRÜKKÖK (2. fázis)
-   ugyanitt, a bolt „Kert" fülén vehetők meg, de 💧 TÜNDÉRHARMATÉRT (kitartás-valuta) —
-   csak akkor jelennek meg, ha a kert már nyitva. Adatvezérelt: egy trükk = egy sor
+/* ── KERT bolt-fül. A kert 2026-10 óta ingyenes (a régi ✨-os kertkapu-kulcs megszűnt, kertKulcsRendez).
+   A séta-TRÜKKÖK (2. fázis) a bolt „Kert" fülén vehetők meg, 💧 TÜNDÉRHARMATÉRT (kitartás-valuta). Adatvezérelt: egy trükk = egy sor
    (id = animáció-osztály neve is: .trukk-<id>; `emoji`+`perc` a kertbeli lejátszáshoz,
    `svg` a bolti bélyegkép). 3. fázis = ide még egy sor + egy CSS-keyframe. ── */
 var KERT_BOLT = [
-  { id: "kulcs", nev: "Kertkapu kulcsa", ar: 150,
-    svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +   /* napfényes rét-korong a kulcs mögött */
-      '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/><circle cx="55" cy="27" r="8" fill="#ffe987"/>' +
-      '<g transform="translate(40 42) rotate(38)">' +   /* aranykulcs */
-      '<circle cx="0" cy="-14" r="9" fill="none" stroke="#e0a92e" stroke-width="5"/>' +
-      '<rect x="-2.6" y="-6" width="5.2" height="30" rx="2.2" fill="#e0a92e"/>' +
-      '<rect x="-2.6" y="18" width="12" height="4.6" rx="1.6" fill="#e0a92e"/><rect x="-2.6" y="11" width="9" height="4.6" rx="1.6" fill="#e0a92e"/>' +
-      '</g>' },
   { id: "ules", nev: "Ülés", ar: 3, emoji: "🛋️", perc: 1600,
     svg: '<rect x="14" y="16" width="52" height="52" rx="6" fill="#eaf6ff"/>' +   /* rét-korong (mint a kulcsnál) */
       '<path d="M14 52 Q40 44 66 52 L66 68 L14 68 Z" fill="#8ecf6e"/>' +
@@ -449,7 +440,6 @@ function kertTargyIkon(id) {
 }
 /* a bolt „Kert" fülének tárgy-csoportjai (csak nyitott kert esetén) */
 function kertTargyBoltCsoportok() {
-  if (!P().kert.nyitva) return [];
   return KERT_TARGY_CSOPORTOK.map(function (cs) {
     return { kulcs: cs.kulcs, nev: cs.nev, fajta: "kertdisz",
       tetelek: KERT_TARGYAK.filter(function (t) { return t.csoport === cs.csoport; }) };
@@ -480,20 +470,17 @@ function oduVitrinVesz(t) {
 }
 /* A „Kert" fül tételei két valutát kevernek: a kulcs ✨ (csillampor), a séta-trükkök
    💧 (tunderharmat, kitartás-valuta). Ez a három segéd dönti el, melyik a tétel valutája. */
-function kertTrukkTetel(cs, t) { return !!(cs && cs.fajta === "kert" && t && t.id !== "kulcs"); }
+function kertTrukkTetel(cs, t) { return !!(cs && cs.fajta === "kert" && t); }
 /* 💧-s tétel: a séta-trükkök ÉS a berendezési tárgyak (kertdisz) is tündérharmatért mennek */
 function harmatTetel(cs, t) { return kertTrukkTetel(cs, t) || !!(cs && cs.fajta === "kertdisz"); }
 function boltValuta(cs, t) { return harmatTetel(cs, t) ? "💧" : "✨"; }
 function boltPenz(cs, t) { return harmatTetel(cs, t) ? (P().tunderharmat || 0) : P().csillampor; }
 /* Kert-tétel vétele: a „kulcs" (✨) kinyitja a kertkaput; a séta-trükkök (💧) a kertben játszhatók. */
 function oduKertVesz(t) {
-  var harmat = (t.id !== "kulcs");
-  var penz = harmat ? (P().tunderharmat || 0) : P().csillampor;
-  if (penz < t.ar) { renderOduPanel(); return; }
-  if (harmat) P().tunderharmat -= t.ar; else P().csillampor -= t.ar;
-  vasarlasNaplo(t.id, t.ar, harmat ? "tunderharmat" : "csillampor");
-  if (t.id === "kulcs") P().kert.nyitva = 1;
-  else P().kert.trukkok[t.id] = 1;
+  if ((P().tunderharmat || 0) < t.ar) { renderOduPanel(); return; }
+  P().tunderharmat -= t.ar;
+  vasarlasNaplo(t.id, t.ar, "tunderharmat");
+  P().kert.trukkok[t.id] = 1;
   hangCsilla(); hangJo(); ment();
   renderOdu(); renderOduPanel();
 }
@@ -778,7 +765,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
      csoport viszi a helyére (a belső .odu-targy CSS-transformja így nem írja felül). ── */
   if (!elonezet) {
     s += '<ellipse cx="326" cy="439" rx="48" ry="6" fill="#3b2f66" opacity="0.16"/>';
-    s += '<g transform="translate(326,436) scale(0.78) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(!!P().kert.nyitva) + '</g></g>';
+    s += '<g transform="translate(326,436) scale(0.78) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(true) + '</g></g>';
     s += '<rect x="286" y="434" width="80" height="9" rx="4.5" fill="#a7d99a"/><path d="M292 438.5 h68" stroke="#d8f5b8" stroke-width="2"/>';
   }
 
@@ -974,8 +961,7 @@ var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", utca: "
 var ODU_CEL_TETT = {
   osveny: { szo: function () { return "Ösvények"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   utca: { szo: function () { return "Kimegyünk az utcára!"; }, nyit: function () { utcaNyit(); } },
-  kapu: { szo: function () { return P().kert.nyitva ? "Kert" : "A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"; },
-    nyit: function () { if (P().kert.nyitva) kertNyit(); else { BOLT_VAL.kert = { g: "kert", id: "kulcs" }; oduPanelNyit("kert"); } } },
+  kapu: { szo: function () { return "Kert"; }, nyit: function () { kertNyit(); } },   /* a kert ingyenes (2026-10) */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
   bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } },
@@ -1151,6 +1137,7 @@ function oduNyit(honnan) {
   ODU_UNI.x = honnan === "kert" ? 326 : honnan === "utca" ? 618 : ODU_UNI_HAZA;
   ODU_UNI.dir = (honnan === "kert" || honnan === "utca") ? -1 : 1;
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
+  kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */

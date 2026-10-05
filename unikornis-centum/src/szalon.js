@@ -202,8 +202,7 @@ function renderUtca() {
   utcaKot("utca-bolt", function () { hangGomb(); oduNyit(); oduPanelNyit(); });
   utcaKot("utca-kert", function () {
     hangGomb();
-    if (P().kert.nyitva) kertNyit();
-    else { mondd("A kert kapuja zárva. A kulcsot a boltban szerezheted meg!"); oduNyit(); oduPanelNyit("kert"); }
+    kertNyit();   /* a kert ingyenes (2026-10) */
   });
   utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
   utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
