@@ -154,36 +154,25 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   font-size:12px; color:#7a6a9a; line-height:1;
 }
 .ma-statisztika{ font-size:13px; color:#5a6a5e; padding:4px 0 10px; }
-/* ── Ligetválasztó (2. kör, ideiglenes kártyák; a 3. körben festett térkép váltja) ── */
+/* ── Ligetválasztó: festett ligettérkép (3. kör, src/terkep.js) + az unikornis a liget-belsőben ── */
 #kepernyo-fomenu:not(.liget-bent) .fomenu-szabaly{ display:none; }   /* a szabály a liget belsejébe tartozik */
-.liget-valaszto{
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; padding:4px 0 8px;
+#kepernyo-fomenu.terkep-mod .fomenu-hatter, #kepernyo-fomenu.terkep-mod .ma-statisztika{ display:none; }
+#kepernyo-fomenu.terkep-mod .palya-racs{ max-width:none; padding:0; overflow:hidden; }
+.terkep-host{ position:relative; flex:1 1 auto; min-height:0; width:100%; overflow:hidden;
+  background:linear-gradient(#c8e3f7 0%, #e4f1ec 26%, #c4e6bc 34%, #b3dea4 100%); }
+.terkep-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; transition:transform .45s ease-in, opacity .45s ease-in; }
+.terkep-svg.belep{ transform:scale(2.4); opacity:0; }
+.terkep-hely{ cursor:pointer; outline:none; }
+.terkep-hely .hb{ transition:transform .2s ease, filter .2s ease; transform-box:fill-box; transform-origin:50% 100%; }
+@media (hover:hover){
+  .terkep-hely:hover .hb{ transform:translateY(-4px) scale(1.05); filter:drop-shadow(0 0 7px rgba(255,236,170,.95)); }
 }
-.liget-kartya{
-  position:relative; border:2px solid #fff; border-radius:20px; padding:18px 12px 14px; min-height:150px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-  font:inherit; color:#4a3b7a; cursor:pointer; text-align:center;
-  background:linear-gradient(160deg,#eaf6e4 0%,#f4f9ee 100%);
-  box-shadow:0 4px 14px rgba(74,59,122,.14); transition:transform .14s, box-shadow .14s;
-}
-.liget-kartya:hover{ transform:translateY(-3px); box-shadow:0 8px 20px rgba(74,59,122,.2), 0 0 0 4px rgba(255,236,170,.55); }
-.liget-kartya:active{ transform:scale(.97); }
-.liget-jel{ font-size:46px; line-height:1; }
-.liget-nev{ font-size:17px; font-weight:800; }
-.liget-csillag{ font-size:13px; font-weight:700; color:#8a6a1e; background:rgba(255,255,255,.8); border-radius:999px; padding:2px 10px; }
-.liget-jelzes{ position:absolute; top:8px; right:10px; font-size:20px; letter-spacing:2px; }
-.liget-alszik{ position:absolute; top:8px; left:10px; font-size:20px; }
-.liget-uni{ position:absolute; bottom:6px; right:10px; font-size:22px; }
-.liget-kartya.alszik{ filter:saturate(.55); opacity:.78; }
-.liget-kartya.l-egyeni{ background:linear-gradient(160deg,#fde6f0 0%,#f3e6fb 55%,#e8f0fd 100%); }
-.liget-kartya.l-fejtoro{ background:linear-gradient(160deg,#e3ebfa 0%,#f1f4fb 100%); }
-.liget-kartya.l-osszeado{ background:linear-gradient(160deg,#dcefd2 0%,#eef7e6 100%); }
-.liget-kartya.l-szorzo{ background:linear-gradient(160deg,#f7e2c6 0%,#ece0f0 100%); }
-.liget-kartya.l-szabo{ background:linear-gradient(160deg,#fbe1ec 0%,#fdf1f5 100%); }
-.liget-kartya.l-bajital{ background:linear-gradient(160deg,#e6defa 0%,#f3effc 100%); }
-.liget-kartya.l-pekseg{ background:linear-gradient(160deg,#fbe9c6 0%,#fdf5e4 100%); }
-.liget-kartya.l-vasar{ background:linear-gradient(160deg,#fde0cc 0%,#fdf0e6 100%); }
-.liget-kartya.l-konyvtar{ background:linear-gradient(160deg,#f1e2c4 0%,#f9f1e1 100%); }
+.terkep-hely:focus-visible .hb{ filter:drop-shadow(0 0 6px #8a4fd0); }
+.terkep-hely.alszik .hb{ opacity:.55; filter:saturate(.35); }
+.liget-uni-reteg{ position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+.liget-uni-reteg svg{ display:block; overflow:visible; }
+#kepernyo-fomenu.liget-bent .palya-racs{ padding-bottom:96px; }   /* az utolsó kártyasor is az unikornis fölé görgethető */
+@media (prefers-reduced-motion:reduce){ .terkep-svg{ transition:none; } }
 .palya-regio-cim{
   position:relative; z-index:1; display:block; width:fit-content; margin:0 auto 12px;
   font-size:15px; font-weight:800; color:#4a3b7a;
@@ -195,16 +184,13 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .palya-racs{ padding:14px 12px 20px; }
   .palya-regio{ padding:12px 10px 14px; }
   .palya-regio-grid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  #kepernyo-fomenu.liget-bent .palya-racs{ padding-bottom:80px; }
   .fomenu-szabaly{ display:none; }
-  .liget-valaszto{ grid-template-columns:repeat(2,1fr); gap:12px; }
   #kepernyo-fomenu .fejlec{ gap:6px; padding:8px 8px; }   /* telefonon a liget hosszú neve se tolja ki a 👪 gombot */
   #kepernyo-fomenu .fej-cim{ flex:1 1 auto; min-width:0; font-size:15px; text-align:center; }
   #kepernyo-fomenu.liget-bent .fej-cim{ visibility:hidden; }   /* a liget neve ott van a panel tetején is */
   #kepernyo-fomenu .fej-jobb{ gap:6px; flex-shrink:0; }
   #kepernyo-fomenu .fej-gomb{ padding:8px 9px; }
-  .liget-kartya{ min-height:128px; padding:14px 8px 12px; }
-  .liget-jel{ font-size:38px; }
-  .liget-nev{ font-size:15px; }
 }
 
 #kepernyo-jatek{ background:linear-gradient(#dcecff,#ece0f3 55%,#e3f2dd); }
@@ -792,31 +778,31 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
    eloAnimHorgony() teszi a rajzra. CSAK a "hős" konténerekben fut, hogy a pici
    bélyegképek (menü, bolt, jelvények) mozdulatlanok maradjanak.
    ============================================================================ */
-#szinpad .uni-elo,   #odu-szoba .uni-elo,   #profil-lista .uni-elo,
-#szinpad .uni-soreny,#odu-szoba .uni-soreny,#profil-lista .uni-soreny,
-#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok,
-#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
-#szinpad .uni-szem,  #odu-szoba .uni-szem,  #profil-lista .uni-szem{
+#szinpad .uni-elo,   #odu-szoba .uni-elo,   #profil-lista .uni-elo, .uni-terep .uni-elo,
+#szinpad .uni-soreny,#odu-szoba .uni-soreny,#profil-lista .uni-soreny, .uni-terep .uni-soreny,
+#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok, .uni-terep .uni-farok,
+#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs, .uni-terep .uni-tincs,
+#szinpad .uni-szem,  #odu-szoba .uni-szem,  #profil-lista .uni-szem, .uni-terep .uni-szem{
   transform-box:fill-box;
 }
 /* lágy lebegés (az egész figura, ruhástul) */
-#szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo{
+#szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo, .uni-terep .uni-elo{
   animation:uni-lebeg 3.8s ease-in-out infinite;
 }
 /* sörény — a nyaknál fogva leng */
-#szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny{
+#szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny, .uni-terep .uni-soreny{
   transform-origin:100% 0%; animation:uni-soreny 3.2s ease-in-out infinite;
 }
 /* farok — a tövénél fogva leng, kicsit erősebben */
-#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok{
+#szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok, .uni-terep .uni-farok{
   transform-box:view-box; transform-origin:0 0; animation:uni-farok 2.8s ease-in-out infinite;
 }
 /* homloktincs — finoman a széllel */
-#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs{
+#szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs, .uni-terep .uni-tincs{
   transform-origin:50% 0%; animation:uni-tincs 3.5s ease-in-out infinite;
 }
 /* pislogás */
-#szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{
+#szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem, .uni-terep .uni-szem{
   transform-origin:50% 55%; animation:uni-pislog 5.2s ease-in-out infinite;
 }
 @keyframes uni-lebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
@@ -831,11 +817,11 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes osveny-orom{ 0%,14%{ transform:translateY(0); } 26%{ transform:translateY(-20px); } 38%{ transform:translateY(-62px); } 50%{ transform:translateY(0); } 62%{ transform:translateY(-14px); } 74%,100%{ transform:translateY(0); } }
 
 @media (prefers-reduced-motion:reduce){
-  #szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo,
-  #szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny,
-  #szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok,
-  #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs,
-  #szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem{ animation:none; }
+  #szinpad .uni-elo, #odu-szoba .uni-elo, #profil-lista .uni-elo, .uni-terep .uni-elo,
+  #szinpad .uni-soreny, #odu-szoba .uni-soreny, #profil-lista .uni-soreny, .uni-terep .uni-soreny,
+  #szinpad .uni-farok, #odu-szoba .uni-farok, #profil-lista .uni-farok, .uni-terep .uni-farok,
+  #szinpad .uni-tincs, #odu-szoba .uni-tincs, #profil-lista .uni-tincs, .uni-terep .uni-tincs,
+  #szinpad .uni-szem, #odu-szoba .uni-szem, #profil-lista .uni-szem, .uni-terep .uni-szem{ animation:none; }
   #szinpad .osveny-orom .uni-magas{ animation:none; }
 }
 

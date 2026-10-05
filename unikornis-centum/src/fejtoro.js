@@ -120,7 +120,7 @@ function fejtoroKartya(pa) {
     '<div class="pnev">' + kiiras(pa.nev || "Fejtörő-ösvény") + '</div>' +
     '<div class="palcim">' + n + ' fejtörő' + (poz ? ' · ' + poz + '/' + n + ' kész' : '') + '</div>' +
     '<div class="also"><span class="jutalom">✨ + 💧</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>';
-  kart.addEventListener("click", function () { hangGomb(); fejtoroInditas(pa.id); });
+  kart.addEventListener("click", function () { hangGomb(); ligetUget(kart, function () { fejtoroInditas(pa.id); }); });
   kart.querySelector(".palya-felolvas").addEventListener("click", function (e) {
     e.stopPropagation(); hangGomb();
     ftMondd(kiiras(pa.nev || "Fejtörő-ösvény") + ". " + n + " versenyfeladat. Papírral és ceruzával kell megoldani, és nem kell sietni." +

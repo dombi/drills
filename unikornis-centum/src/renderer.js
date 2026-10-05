@@ -289,6 +289,7 @@ var UNI_TESTHOSSZ = 270;      /* rajz-egység: a farok tövétől az orrig */
 var UNI_SETA_HATAR = 1.5;     /* ennyi testhosszig sétál, fölötte üget */
 var UNI_UT_MAX = 3.4;         /* mp: ennél tovább nem tart egy út … */
 var UNI_TEMPO_MAX = 1.4;      /* … amíg a láb legfeljebb ennyiszer szaporábban lép (fölötte már hosszabb lesz) */
+var UNI_TEMPO_MAX_KERET = 2.2;   /* időkeretes útnál (uniUtvonal o.ido, pl. a térképen) a láb legfeljebb ennyiszer szaporább */
 function uniPxEgyseg(el) {   /* hány képernyő-képpont egy rajz-egység (a valódi, kirajzolt méretből) */
   var g = el && el.querySelector && el.querySelector(".uni-elo"), m = g && g.getScreenCTM && g.getScreenCTM();
   var px = m ? Math.sqrt(m.a * m.a + m.b * m.b) : 0;
@@ -329,6 +330,8 @@ function uniJar(el, ut) {
                    egyseg(): hány képernyő-képpont egy hívó-egység }
    p = pontsor [[x, y], …] a hívó egységében (görbéből: uniGorbePontok, pontokon át: uniSimaGorbe)
    o.seta = mindig természetes séta (pl. a kerülőn); o.fordulon(tovabb) = mi történjen, mielőtt visszafelé indul.
+   o.ido = időkeret (mp) az egész útra, fordulás nélkül (térkép: a gyerek ne várjon) — ha hosszabb lenne, végig egy mozgással
+   (hosszú úton üget) és gyorsabban megy, a láb legfeljebb UNI_TEMPO_MAX_KERET-szer szaporábban lép.
    Új út ugyanazon az elemen (vagy uniUtvonalAll) → a régi csendben abbamarad; kesz() csak a végigjárt útnál fut.
    Gyorsított teszt (__UC_GYORS): rögtön a végén áll. */
 function uniUtvonal(f, p, o, kesz) {
@@ -337,7 +340,11 @@ function uniUtvonal(f, p, o, kesz) {
   if (!el || p.length < 2 || uniUtHossz(p) < 2) { if (p.length) f.allit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) kesz(); return; }
   if (window.__UC_GYORS) { f.allit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) setTimeout(kesz, 0); return; }
   function el_maradt() { return fut !== el._uniUtvonal || !el.isConnected; }   /* új út indult, vagy eltűnt a képernyő */
-  var szak = uniIranySzakaszok(p), egys = f.egyseg(), si = 0, kozte = false;
+  var szak = uniIranySzakaszok(p), egys = f.egyseg(), si = 0, kozte = false, keret = null;
+  if (o.ido && !o.seta) {   /* időkeret: egy mozgás az egész útra, a sebesség az egész úthoz igazítva */
+    var osszPx = uniUtHossz(p) * egys, kmod = uniUt(el, osszPx).mod, v = uniJarasSebesseg(kmod) * uniPxEgyseg(el), sz = Math.max(1, osszPx / v / o.ido);
+    keret = { mod: kmod, tempo: Math.min(UNI_TEMPO_MAX_KERET, sz), v: v * sz };
+  }
   var iranyok = szak.map(function (q) { return q[q.length - 1][0] < q[0][0] ? -1 : 1; });
   (function kov() {
     if (el_maradt()) return;
@@ -348,7 +355,8 @@ function uniUtvonal(f, p, o, kesz) {
     el.classList.remove("uni-mozd-ugras", "osveny-orom");
     uniFordul(el, dir, function () {
       if (el_maradt()) return;
-      var ut = o.seta ? { mod: "seta", tempo: 1, mp: L * egys / (uniJarasSebesseg("seta") * uniPxEgyseg(el)) } : uniUt(el, L * egys);
+      var ut = o.seta ? { mod: "seta", tempo: 1, mp: L * egys / (uniJarasSebesseg("seta") * uniPxEgyseg(el)) }
+             : keret ? { mod: keret.mod, tempo: keret.tempo, mp: Math.max(0.05, L * egys / keret.v) } : uniUt(el, L * egys);
       var cum = [0]; for (var i = 1; i < q.length; i++) cum.push(cum[i - 1] + Math.hypot(q[i][0] - q[i - 1][0], q[i][1] - q[i - 1][1]));
       if (!nyugiMod()) uniJar(el, ut);
       var t0 = performance.now(), k = 1;

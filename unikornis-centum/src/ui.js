@@ -23,8 +23,8 @@ function renderProfil() {
     lista.appendChild(kart);
   });
 }
-/* ── Ligetválasztó (2. kör): a főképernyő két szintje ──
-   FOMENU_LIGET = null → a ligetek választója (később a festett térkép, src/terkep.js);
+/* ── Ligetválasztó: a főképernyő két szintje ──
+   FOMENU_LIGET = null → a festett ligettérkép (src/terkep.js: renderLigetTerkep — az unikornis odasétál a ligethez);
    különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / Haza / Fejtörő után
    ugyanide jön vissza (a palyaInditas / fejtoroInditas jegyzi fel); odúból, utcáról, profilváltás
    után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
@@ -33,11 +33,11 @@ var LIGET_NEV = { egyeni: ["💖", "Neked készült"], fejtoro: ["🏔️", "Fej
                   szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"] };
 function palyaLiget(pa) { return pa.egyeni ? "egyeni" : (pa.regio || "osszeado"); }
 function ligetJegyez(r) {
-  FOMENU_LIGET = r;
+  FOMENU_LIGET = r; TERKEP_HOL = { leny: mentes.leny, id: r };   /* a térképen is itt áll majd */
   if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
 }
 function terkepNyit() { FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu"); }
-function ligetbeLep(r) { hangGomb(); ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
+function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
 /* a fomenü pályái ligetenként, a megjelenítés sorrendjében (a választó és a liget-belső is ezt használja) */
 function fomenuLigetek() {
@@ -66,7 +66,7 @@ function fomenuLigetek() {
   }
   return { regiok: regiok, sorrend: regioSorrend };
 }
-/* egy liget összesítője a választóhoz: ⭐ kész/összes, legfeljebb 2 jelzés, alszik-e (minden ösvénye zárva) */
+/* egy liget összesítője a térképhez: ⭐ kész/összes, legfeljebb 2 jelzés, alszik-e (minden ösvénye zárva) */
 function ligetOsszegzo(r, lista) {
   var napiId = napiKiemeltId(), napiKesz = napiKiemeltTeljesitve();
   var kesz = 0, ossz = 0, nyitott = 0, j = { napi: false, ajanlott: false, bank: false };
@@ -88,27 +88,6 @@ function ligetOsszegzo(r, lista) {
   if (r === "egyeni" && jelzes.indexOf("💖") < 0) jelzes.push("💖");
   return { kesz: kesz, ossz: ossz, alszik: ossz > 0 && nyitott === 0, jelzes: jelzes.slice(0, 2) };
 }
-function renderLigetValaszto(racs, L) {
-  var g = el("div", "liget-valaszto"), utolso = P().utolsoLiget;
-  L.sorrend.forEach(function (r) {
-    var nev = LIGET_NEV[r] || ["🌿", r], o = ligetOsszegzo(r, L.regiok[r]);
-    var k = el("button", "liget-kartya l-" + r + (o.alszik ? " alszik" : ""));
-    k.type = "button";
-    k.innerHTML =
-      '<span class="liget-jel">' + nev[0] + '</span>' +
-      '<span class="liget-nev">' + nev[1] + '</span>' +
-      (o.ossz ? '<span class="liget-csillag">⭐ ' + o.kesz + '/' + o.ossz + '</span>' : '') +
-      (o.jelzes.length ? '<span class="liget-jelzes">' + o.jelzes.join("") + '</span>' : '') +
-      (o.alszik ? '<span class="liget-alszik" title="Most alszik">🌙</span>' : '') +
-      (r === utolso ? '<span class="liget-uni" title="Itt jártál legutóbb">🦄</span>' : '');
-    k.addEventListener("click", function () {
-      ligetbeLep(r);
-      mondd(o.alszik ? zarvaMondat() : nev[1] + "!");
-    });
-    g.appendChild(k);
-  });
-  racs.appendChild(g);
-}
 function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
@@ -119,12 +98,14 @@ function renderFomenu() {
   if (FOMENU_LIGET && !regiok[FOMENU_LIGET]) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a választóra */
   var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
+  $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
   $("fomenu-vissza").textContent = bent ? "← Térkép" : "🦄 Váltás";
-  $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Válassz ligetet";
+  $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
-  if (!bent) { renderLigetValaszto(racs, L); return; }
+  ligetUniReteg();                               /* bent: az unikornis a kártyák alatt (terkep.js); a térképen nincs réteg */
+  if (!bent) { renderLigetTerkep(racs, L); return; }
   var _napiId = napiKiemeltId(), _napiKesz = napiKiemeltTeljesitve();
   function keszitKartya(pa, idx) {
     var prc = P().palyak[pa.id];
@@ -160,7 +141,7 @@ function renderFomenu() {
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
       if (zarva) { mondd(pa.konyvtar ? ekLakatMondat(pa) : zarvaMondat()); return; }
       if (elfogyott) { mondd(elfogyottMondat()); return; }
-      palyaInditas(pa.id);
+      ligetUget(kart, function () { palyaInditas(pa.id); });   /* odaüget a kártyához, aztán indul */
     });
     var fbtn = kart.querySelector(".palya-felolvas");
     if (fbtn) fbtn.addEventListener("click", function (e) {
