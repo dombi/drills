@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Térkép mint központ</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3df;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#47221d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#47221d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.28);position:relative;overflow:hidden}
+  header.top::after{content:"🧭";position:absolute;right:18px;top:6px;font-size:100px;opacity:.18;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:12px 0}
+  .q b.cim{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{font-size:13px;color:var(--muted)}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .ki{color:var(--red);font-weight:700}
+  .uj{color:var(--green);font-weight:700}
+  /* a navigációs fa */
+  .fa{display:grid;gap:10px}
+  .fa .gyoker{justify-self:center;background:linear-gradient(135deg,var(--green),var(--violet));color:#fff;font-weight:800;border-radius:14px;padding:10px 22px;font-size:17px}
+  .fa .ag{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media (max-width:640px){ .fa .ag{grid-template-columns:1fr 1fr} }
+  .fa .hely{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+  .fa .hely.el{border-color:var(--green)}
+  .fa .hely.kolt{border-color:var(--pink)}
+  .fa .hely b{display:block;font-size:15px}
+  .fa .hely small{color:var(--muted);display:block;line-height:1.4;margin-top:4px}
+  .fa .hely .al{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+  .fa .hely .al span{background:var(--blue-soft);border-radius:8px;padding:1px 8px;font-size:13px}
+  .fa .hely.kolt .al span{background:var(--pink-soft)}
+  .jelmagy{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
+  .jelmagy i{display:inline-block;width:14px;height:14px;border-radius:4px;border:2px solid;vertical-align:-2px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🧭 Térkép mint központ</h1>
+  <div class="sub">A térkép lesz a játék közepe. Minden helynek egyetlen bejárata van, és a „Vissza” mindig egy szinttel feljebb visz, végül a térképre.</div>
+  <div class="meta">
+    <span class="chip">Rendszerterv · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-06</span>
+    <span class="chip">Nagyság: nagy (rajzterv + 4 kör)</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <ul>
+    <li>Ma <b>több bejárata is van</b> ugyanannak a helynek (a kertbe az odúból és az utcáról is be lehet menni), és a „Vissza” gombok <b>máshová visznek, mint ahonnan jöttél</b>. A gombok neve sem mindig igaz: a „Főmenü” a térkép, a „Haza” a ligetbe visz.</li>
+    <li>Az új rend egy <b>kétszintes fa</b>. <b>Térkép = ahol élsz és gyűjtesz</b> (ligetek, Odú, Kert). <b>Utca = ahol költesz</b> (Fodrász, Bank, Felhőkert, Bolt).</li>
+    <li>A <b>Kert</b> a térképre kerül, az Odú mellé. A <b>Bolt</b> az utcára költözik: vásárolni az utcán lehet, rakosgatni otthon.</li>
+    <li>A „Vissza” gomb <b>mindig a célt mondja</b> („← Térkép”, „← Utca”, „← Liget”), és a térképen az unikornis <b>annál a helynél áll</b>, ahonnan jött.</li>
+  </ul>
+</div>
+
+<h2>A játék térképe (a navigációs fa)</h2>
+<div class="panel">
+  <div class="fa">
+    <div class="gyoker">🗺️ Térkép</div>
+    <div class="ag">
+      <div class="hely el"><b>🌳 Ligetek</b><small>itt gyűjtöd a ✨-ot</small><div class="al"><span>liget belseje</span><span>pályák</span></div></div>
+      <div class="hely el"><b>🏠 Odú</b><small>itt laksz</small><div class="al"><span>🧺 Szekrény</span><span>🏅 Jelvények</span><span>📖 Gyűjtemény</span><span>🛏️ Ágy</span><span>💡 Lámpa</span></div></div>
+      <div class="hely el"><b>🌷 Kert</b><small>itt laksz <span class="uj">(új a térképen)</span></small><div class="al"><span>Tény-kert</span><span>domb</span><span>fészer</span><span>trükkök</span></div></div>
+      <div class="hely kolt"><b>🏮 Utca</b><small>itt költesz</small><div class="al"><span>✂️ Fodrász</span><span>🛍️ Bolt <span class="uj">(ide költözik)</span></span><span>🏦 Bank</span><span>☁️ Felhőkert</span></div></div>
+    </div>
+    <div class="jelmagy"><span><i style="border-color:var(--green)"></i>élsz és gyűjtesz</span><span><i style="border-color:var(--pink)"></i>költesz</span></div>
+  </div>
+  <p class="lead" style="margin:12px 0 0">Ha később új hely jön (például a kissárkány vagy egy új műhely), ugyanez a kérdés dönti el, hová kerül: ott élsz vagy gyűjtesz valamit, akkor a térképre; ott költesz, akkor az utcára.</p>
+</div>
+
+<h2>Képernyőnként: ma → új</h2>
+<div class="panel tblwrap">
+  <table>
+    <tr><th>Hely</th><th>Ma</th><th>Új</th></tr>
+    <tr><td><b>🗺️ Térkép</b></td>
+        <td>ligetek, Odú, utca-kapu · fejléc: 🦄 Váltás, 🏠 Odú, 👪</td>
+        <td>ligetek, Odú, <span class="uj">Kert</span>, utca-kapu · fejléc: 🦄 Váltás, 👪 · <span class="ki">a „🏠 Odú” gomb kikerül</span> (az Odú a térképen van)</td></tr>
+    <tr><td><b>🌳 Liget belseje</b></td><td>pályák · „← Térkép”</td><td>változatlan</td></tr>
+    <tr><td><b>Pálya közben</b></td><td>„🏠 Haza” → a ligetbe</td><td><b>„← Liget”</b> → a ligetbe (csak a felirat változik; a Fejtörőn is)</td></tr>
+    <tr><td><b>Pálya vége</b></td><td>„🏠 Főmenü” (→ liget) · „🏡 Odú”</td><td><b>„Tovább a ligetben”</b> · <b>„🗺️ Térkép”</b> · <span class="ki">az „Odú” gomb kikerül</span></td></tr>
+    <tr><td><b>🏠 Odú</b></td>
+        <td>ablak és „← Főmenü” → térkép · ajtó → utca · kapu → kert · Bolt · Jelvények · Gyűjtemény · Ágy · 🦄 Váltás</td>
+        <td>ablak (szivárványhíd) és <b>„← Térkép”</b> → térkép · <span class="ki">az utca-ajtó és a kertkapu megszűnik</span> · a Bolt helyén <span class="uj">🧺 Szekrény</span> · Jelvények · Gyűjtemény · Ágy · <span class="ki">a 🦄 Váltás kikerül</span></td></tr>
+    <tr><td><b>🌷 Kert</b></td><td>egyetlen kijárat: „← Odú”</td><td><b>„← Térkép”</b> → a térképen a Kert mellett áll</td></tr>
+    <tr><td><b>🏮 Utca</b></td>
+        <td>fodrász, csillagbolt (→ átdob az odúba), kertkapu, odú-ház, bank, felhőkert, szivárványkapu → térkép · „← Odú”</td>
+        <td>fodrász, <span class="uj">Bolt (itt nyílik meg)</span>, bank, felhőkert, szivárványkapu → térkép · <b>„← Térkép”</b> · <span class="ki">a kertkapu és az odú-ház megszűnik</span> (a rajzterv dönti el, mi kerül a helyükre)</td></tr>
+    <tr><td><b>✂️ Fodrász · 🏦 Bank · ☁️ Felhőkert</b></td><td>„← Utca”</td><td>változatlan</td></tr>
+    <tr><td><b>🛍️ Bolt</b></td><td>az odú fölött nyíló panel</td><td>az <b>utca fölött</b> nyíló panel, „✕ Bezár” → az utcán marad</td></tr>
+  </table>
+</div>
+
+<h2>Döntések</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>Egy hely = egy bejárat</h3>
+    <ul>
+      <li>A <b>Kert</b> csak a térképről érhető el. Az odú kertkapuja és az utca kertkapuja megszűnik.</li>
+      <li>Az <b>Odú</b> csak a térképről érhető el. Az utca odú-háza megszűnik.</li>
+      <li>Az <b>utcáról</b> csak olyan helyekre lehet menni, amelyek nem a térképen vannak: Fodrász, Bolt, Bank, Felhőkert.</li>
+      <li>A pálya végi „Odú” gomb és a térkép fejlécének „🏠 Odú” gombja kikerül, mert második bejárat lenne.</li>
+    </ul>
+    <span class="ok">Jóváhagyva (2026-10-06)</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>A „Vissza” szabálya</h3>
+    <ul>
+      <li><b>Mindig egy szinttel feljebb visz:</b> pálya → liget → térkép; Fodrász / Bank / Felhőkert → utca → térkép; Odú → térkép; Kert → térkép.</li>
+      <li><b>A felirat a célt mondja</b>, mindig ugyanazzal a nyíllal: „← Térkép”, „← Utca”, „← Liget”. A „Főmenü” és a „Haza” szó eltűnik a játékból.</li>
+      <li>A térképre érve az unikornis <b>annál a helynél áll</b>, ahonnan kijött (Odú, Kert vagy utca-kapu). Ma csak a ligetekre emlékszik így.</li>
+      <li>A kedvelt kivonulások maradnak: az odúból a szivárványhídon, az utcáról a szivárványkapun megy ki. A kertből a kert kapuján sétál ki (a pontos képet a rajzterv adja).</li>
+    </ul>
+    <span class="ok">Jóváhagyva (2026-10-06)</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>A Kert a térképen</h3>
+    <ul>
+      <li>Új hely a térkép-táblában, <b>közvetlenül az Odú mellett</b>, saját festett jelképpel (kertkapu virágokkal, patakkal: a C2 kert kicsiben). Fekvő és álló térképen is.</li>
+      <li>Nem liget: nincs rajta ⭐ x/y és nincs liget-belseje; koppintásra az unikornis odasétál, a kép ránagyít, és megnyílik a kert. Ugyanúgy működik, mint ma az utca-kapu.</li>
+      <li><b>A 🦋 pillangó a térképre költözik.</b> Ma az odú kertkapuján ül, ha a kertben új dolog vár (meglepetés, kinyílt virág). A kapu megszűnik, ezért a pillangó a térképen a Kert jelképén jelenik meg, a meglévő jelzés-rendszerrel (mint a 💧 / 💖 a ligeteken).</li>
+    </ul>
+    <span class="ok">Jóváhagyva (2026-10-06)</span> <span class="prop">a képét a rajzterv adja</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Bolt az utcán, rakosgatás otthon</h3>
+    <p style="margin:.2em 0 .4em">A mai bolt <b>két dolgot csinál</b>: itt veszel, és itt választod ki a már megvett bútort, díszt, időjárást is. Ha a bolt az utcára költözik, ezt a két szerepet szét kell választani.</p>
+    <ul>
+      <li><b>Utcai Bolt:</b> a mai bolt, ugyanazokkal a fülekkel és polcokkal (Holmik, Kinézet, Bútorok, Díszek, Időjárás, Kristály, Kert). Az utcai csillagbolt házára koppintva <b>az utca fölött</b> nyílik meg, nem ugrik át az odúba. Vásárlás után a tárgy <b>rögtön a helyére kerül</b>, mint ma (a bútor kint van az odúban, a ruha rajtad, a kerti tárgy a fészerben vár).</li>
+      <li><b>Otthon: 🧺 Szekrény az odúban</b>, pontosan a mai Bolt-jel helyén, hogy a gyerek megszokott koppintása megmaradjon. Csak a <b>már megvett</b> holmik vannak benne, ár nélkül; koppintásra kirakod vagy felveszed. Ez a mai Gyűjtemény kártyáira épül, amelyek a ruhákra és az időjárásra már tudják ezt; bővül a bútorokkal, díszekkel, kristályokkal és a kinézettel.</li>
+      <li>A <b>Kert</b> már ma is így működik: a fészerben vannak a megvett tárgyak, a kertben rakod le őket. Ez változatlan marad.</li>
+      <li>Ha a Szekrényben valami még nincs meg, a felolvasó kedvesen elmondja: „Ezt a Boltban veheted meg, az utcán!” A Szekrényből <b>nincs gomb</b> a boltba, mert az második bejárat lenne.</li>
+    </ul>
+    <span class="ok">Jóváhagyva: a bolt az utcára költözik (2026-10-06)</span> <span class="prop">Javaslat: a Szekrény a régi Bolt-jel helyén</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>Profilváltás és szülői rész</h3>
+    <ul>
+      <li>A 🦄 Váltás és a 👪 szülői rész <b>csak a térkép fejlécében</b> van. Az odúból a Váltás gomb kikerül.</li>
+      <li>A térkép fejlécének bal gombja a liget belsejében ma is „← Térkép”, a térképen „🦄 Váltás”. Ez így marad.</li>
+    </ul>
+    <span class="ok">Jóváhagyva (2026-10-06)</span>
+  </div>
+
+  <div class="dec"><span class="num">6</span>
+    <h3>Az átállás a gyerekeknek</h3>
+    <ul>
+      <li>A gyerekek a mai utakat már megtanulták, ezért <b>az első belépéskor az unikornis egyszer elmondja</b>, mi változott: „Nézd, a kertünk mostantól itt van, a házunk mellett! A boltot az utcán találod.” Közben a Kert és az utca-kapu egyszer felragyog a térképen.</li>
+      <li>Az odúban első alkalommal a Szekrény mellett is elhangzik egy mondat: „Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!”</li>
+      <li>Mindkettő egyszer szól, gyerekenként mentve.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>Milyen közös alapra épül?</h2>
+<div class="panel">
+  <table>
+    <tr><th>Közös alap (már kész)</th><th>Mire kell itt</th></tr>
+    <tr><td>a térkép-modul (<code>src/terkep.js</code>): hely-tábla, út-tábla, útkereső, séta, belépés, jelzések</td><td>a Kert új hely egy sorral + egy úttal + egy jelképpel; a 🦋 egy jelzés</td></tr>
+    <tr><td>a térkép emlékezete (<code>TERKEP_HOL</code>)</td><td>kilépéskor ide íródik a hely, ahonnan jött (Odú, Kert, utca-kapu)</td></tr>
+    <tr><td>a bolt (<code>renderOduPanel</code>, polcok, fülek)</td><td>változatlanul, csak az utca fölött nyílik meg</td></tr>
+    <tr><td>a Gyűjtemény kártyái (<code>renderGyujtemeny</code>: „koppints: kirakod / felveszed”)</td><td>ebből lesz a Szekrény, több csoporttal</td></tr>
+    <tr><td>a kivonulások (szivárványhíd, szivárványkapu)</td><td>maradnak, csak a térképen a helyes helyen érkezik meg</td></tr>
+  </table>
+  <h3>Ami új, és közös lesz</h3>
+  <ul>
+    <li><b>Egy közös „Vissza” szabály:</b> minden helynek egy sor egy kis táblában: ki a szülője, és mi a felirata. A gombok ebből kapják a feliratukat és a céljukat, így egy új helynél sem kell külön kitalálni. Ez kiváltja a mai szétszórt, gombonként beírt célokat.</li>
+  </ul>
+</div>
+
+<h2>Mentés és pult</h2>
+<div class="panel">
+  <ul>
+    <li>Új mentett adat gyerekenként: <b>bemutatva</b> jel (a 6. pont mondatai egyszer hangozzanak el). Régi mentésnél üres, ilyenkor egyszer elhangzik.</li>
+    <li>A vásárlások, a meglévő holmik és a kint lévő tárgyak mentése <b>nem változik</b>. Senki nem veszít semmit.</li>
+    <li><b>A pultban nem kell új beállítás.</b></li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="cards">
+  <div class="dec"><span class="num">0</span><h3>Rajzterv</h3>A Kert jelképe a térképen (fekvő + álló), a 🦋 helye; az utca új elrendezése a kertkapu és az odú-ház nélkül (mi kerüljön a helyükre); az odú a kertkapu és az utca-ajtó nélkül; a 🧺 Szekrény a régi Bolt-jel helyén; a Bolt az utca fölött; a kert kijárata. Összehasonlító lap, 2–3 változattal. <b>Jóváhagyás után</b> jön a kód.</div>
+  <div class="dec"><span class="num">1</span><h3>Navigáció és feliratok</h3>A közös „Vissza” szabály; minden „Vissza” a szülőre; a feliratok („← Térkép”, „← Utca”, „← Liget”, „Tovább a ligetben”); a rövidítések ki (térkép-fejléc Odú, pálya vége Odú, odú Váltás); a térképen a helyes helyen áll az unikornis. Közepes kör.</div>
+  <div class="dec"><span class="num">2</span><h3>A Kert a térképen</h3>Új hely a térkép-táblában az új jelképpel, séta, belépés, 🦋 jelzés; a kert kijárata a térképre. Az odú kertkapuja és az utca kertkapuja megszűnik. Közepes kör.</div>
+  <div class="dec"><span class="num">3</span><h3>Bolt az utcán + Szekrény</h3>A bolt az utca fölött nyílik; az odúban a Bolt-jel helyén a Szekrény (a Gyűjtemény kártyáiból, bővítve). Az utca odú-háza megszűnik, a rajzterv szerinti új utca-kép. Nagyobb kör.</div>
+  <div class="dec"><span class="num">4</span><h3>Bemutatás + próba</h3>Az egyszeri magyarázó mondatok, a felragyogás. Csendes böngészős próba laptop- és telefonméretben: minden gomb, minden út oda-vissza. A rendszerterv frissítése. Kis kör.</div>
+</div>
+
+<h2>Nyitott kérdések</h2>
+<div class="q"><b class="cim">1. A Szekrény a régi Bolt-jel helyén legyen az odúban?</b>Javaslat: igen. A gyerek ugyanoda koppint, mint eddig, csak ott már a saját holmijait rakosgatja. A Gyűjtemény (a teljes lista, a hiányzókkal együtt) külön marad, mert az a „mi van még hátra” öröme.</div>
+<div class="q"><b class="cim">2. A Kinézet fül (sörény színe, szemszín) a Boltban maradjon, vagy költözzön a Fodrászhoz?</b>Javaslat: költözzön a Fodrászhoz, mert ott már ma is a frizura formája és a festés van; a kinézet egy helyen lenne. Ha most nem akarod bolygatni, maradhat a Boltban, és később átköltöztetjük.</div>
+<div class="q"><b class="cim">3. Az utcán a kertkapu és az odú-ház helyére kerüljön valami?</b>Javaslat: igen, ne maradjon üres, de nem is halott dísz. A gyerekek mindenre rákoppintanak, és egy ház, amire koppintva nem történik semmi, csalódást okoz. A rajzterv 2–3 lehetőséget mutat: rövidebb utca három házzal; vagy jövőbeli helyek „hamarosan” táblával; vagy egy élő apróság (szökőkút, lámpás, sétáló szomszéd), amire koppintva történik valami kedves.</div>
+<div class="q"><b class="cim">4. Az egyszeri magyarázó mondatok (6. pont) jók így?</b>Javaslat: igen, egyszer, rövid mondatokban, a felragyogással együtt.</div>
+
+<h2>A producer döntései (2026-10-06)</h2>
+<div class="panel">
+  <ol>
+    <li><b>Térkép = élsz és gyűjtesz, Utca = költesz; egy hely = egy bejárat; „Vissza” = egy szinttel feljebb, a felirat a célt mondja.</b> <span class="ok">Döntve</span></li>
+    <li><b>Az odúbeli kertkapu megszűnik.</b> <span class="ok">Döntve: igen</span></li>
+    <li><b>A bolt az utcára költözik:</b> vásárlás az utcán, elhelyezés otthon. <span class="ok">Döntve: igen</span></li>
+    <li><b>A pálya végéről az „Odú” gomb kikerül.</b> <span class="ok">Döntve: igen</span></li>
+    <li><b>A felhőkert az utcán marad.</b> <span class="ok">Döntve: igen</span></li>
+  </ol>
+</div>
+
+</div>
+</body>
+</html>
