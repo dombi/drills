@@ -105,6 +105,8 @@
   .hop{transform-box:fill-box;transform-origin:50% 100%;animation:hop .45s ease-in-out infinite}
   @keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
   .uni-szagol{transform-box:fill-box;transform-origin:20% 100%;transition:transform .8s}
+  .tanc{transform-box:fill-box;transform-origin:50% 100%;animation:tanc .6s ease-in-out 4}
+  @keyframes tanc{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-14px) rotate(-4deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-14px) rotate(4deg)}}
   .nevgomb{cursor:pointer}
   .nevgomb:hover rect{fill:#fff6d6}
 
@@ -284,11 +286,11 @@
     <div class="csop"><span>Mozdulat:</span>
       <button data-m="tusszent">🐣 Fióka: tüsszent</button>
       <button data-m="rebben">🐉 Kölyök: röppen + buborék</button>
-      <button data-m="korrepul">🌈 Nagy: körrepülés az unikornissal ▶</button>
+      <button data-m="korrepul">🌈 Nagy: repül egy kört, aztán együtt táncolnak ▶</button>
     </div>
   </div>
   <div class="keszulek"><div class="kepernyo" id="kep-lepcso" style="max-width:980px"></div></div>
-  <p class="kepalairas">Méretarány: a bal szélen álló unikornishoz képest. A nagy sárkány akkora, hogy elbírja az unikornist.</p>
+  <p class="kepalairas">Méretarány: a bal szélen álló unikornishoz képest. A nagy sárkány nagyobb, mint az unikornis, de nem ül rá senki: a sárkány egyedül repül, aztán egymás mellett táncolnak.</p>
 
   <h2>A lépcsők</h2>
   <div class="panel">
@@ -298,7 +300,7 @@
       <tr><td>🐣 Fióka</td><td>Gömbölyű, a feje akkora, mint a teste. Apró szárnycsonk, kurta lábak, pici szarvdudorok.</td><td>totyog, pislog, szikrát tüsszent</td><td>2 gyak. nap</td></tr>
       <tr><td>🦋 Kalandozik</td><td>A térképen csak a nyomait látjuk.</td><td>képeslapot rajzol</td><td>12 felhő (4–6 nap)</td></tr>
       <tr><td>🐉 Kölyök</td><td>Megnyúlt, négy lábon áll, rövid nyaka van, nagyobb szárnyai, és a farka végén szív.</td><td>röpköd, buborékot fúj</td><td>10 gyak. nap</td></tr>
-      <tr><td>🌈 Nagy</td><td>Hosszú nyak, széles szárnyak, ívelt szarvak. Nagyobb, mint az unikornis.</td><td>repül, a hátán viszi az unikornist, együtt táncolnak</td><td>végleges</td></tr>
+      <tr><td>🌈 Nagy</td><td>Hosszú nyak, széles szárnyak, ívelt szarvak. Nagyobb, mint az unikornis.</td><td>repül a kert fölött, leszáll az unikornis mellé, és együtt táncolnak (egymás mellett, senki nem ül a hátán)</td><td>végleges</td></tr>
     </table>
     <p class="lead" style="margin-bottom:0">Minden napszám a pultról állítható. A lépcsőket mindig a gyakorlós napok léptetik (<code>erik()</code>). Ha a gyerek kimarad, a lény ott vár, ahol volt.</p>
   </div>
@@ -382,7 +384,7 @@
   <div class="q"><b>6. A 12 név jó így?</b>Pamacs, Szikra, Bogyó, Mazsola, Füge, Pitypang, Bodza, Csipke, Pöttöm, Zsömle, Málna, Cinke. Bármelyiket átírhatod, vagy kérhetsz újakat.</div>
   <div class="q"><b>7. A B rész (postaláda, igény-buborékok, csemegék, heti kártya) a sárkány élő próbája után jön?</b>Javaslat: <b>igen</b>, ugyanebbe a fájlba, a postaláda-kód előtt. A kód 2. köre (az alap, láthatatlanul) és a tojás-kör ettől már indulhat.</div>
 </div>
-<div class="panel" style="margin-top:12px"><span class="ok">✅ 8. döntés (producer, 2026-10-06)</span> A <b>nagy sárkány a kert állandó lakója</b> lesz, saját hellyel (pl. napozó szikla vagy puha fészekdomb a patakparton), és innen indul a körrepülés. A kölyök addig az odú és a kert között jár. A kerti hely rajza a többi döntés után kerül ide.</div>
+<div class="panel" style="margin-top:12px"><span class="ok">✅ 8. döntés (producer, 2026-10-06)</span> A <b>nagy sárkány a kert állandó lakója</b> lesz, saját hellyel (pl. napozó szikla vagy puha fészekdomb a patakparton), innen száll fel egy-egy körre a kert fölött, és ide száll vissza az unikornis mellé táncolni. A kölyök addig az odú és a kert között jár. A kerti hely rajza a többi döntés után kerül ide.</div>
 <p class="lead" style="text-align:center;margin-top:30px">Unikornis Centum · Visszahívás · rajzterv, A rész · 2026-10-06</p>
 </div>
 
@@ -723,10 +725,10 @@ function elropFut(sv,o){
 function lepcsoRajzol(){
   const W=1120, H=470, G=430; let s=`<svg viewBox="0 0 ${W} ${H}" id="sv-lepcso">`;
   s+=`<rect width="${W}" height="${H}" fill="url(#g-eg)"/><g filter="url(#f-firka)"><path d="M0 ${G-60}Q${W*.3} ${G-110} ${W*.6} ${G-70}T${W} ${G-80}V${H}H0Z" fill="#d9cbef"/><path d="M0 ${G-10}Q${W*.4} ${G-30} ${W} ${G-8}V${H}H0Z" fill="url(#g-fu)"/></g>`;
-  s+=uni(205,G,1,false,'');
+  s+=`<g id="lpUni">${uni(205,G,1,false,'tanc-uni')}</g>`;
   s+=`<g transform="translate(350 ${G})" id="lpFioka">${lenyRajz('fioka')}</g>`;
   s+=`<g transform="translate(510 ${G})"><g id="lpKolyok" class="mozgo">${lenyRajz('kolyok')}</g></g>`;
-  s+=`<g transform="translate(880 ${G})" id="lpNagyPoz"><g id="lpNagy">${lenyRajz('nagy')}</g><g id="lpLovas" style="opacity:0">${uni(-12,-166,.5,false,'')}</g></g>`;
+  s+=`<g transform="translate(880 ${G})" id="lpNagyPoz"><g id="lpNagy">${lenyRajz('nagy')}</g></g>`;
   const cimke=(x,t)=>`<g transform="translate(${x} ${G+12})"><rect x="${-t.length*4.2-12}" y="0" width="${t.length*8.4+24}" height="26" rx="13" fill="#fff" opacity=".95" stroke="#e6d8f0"/><text y="18" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#2a2140">${t}</text></g>`;
   s+=cimke(190,'Unikornis')+cimke(350,'🐣 Fióka')+cimke(520,'🐉 Kölyök')+cimke(880,'🌈 Nagy sárkány');
   s+='</svg>';
@@ -747,12 +749,12 @@ function lepcsoMozdulat(m){
   if(m==='tusszent') tusszent(sv.querySelector('#lpFioka'));
   if(m==='rebben'){ const k=sv.querySelector('#lpKolyok'), sa=k.querySelector('.sarkany'); sa.classList.add('repul'); k.style.transform='translate(0px,-60px)'; buborekFuj(k); setTimeout(()=>{ k.style.transform='translate(0px,0px)'; },1300); setTimeout(()=>sa.classList.remove('repul'),1900); }
   if(m==='korrepul'){
-    const poz=sv.querySelector('#lpNagyPoz'), ny=sv.querySelector('#lpNagy .sarkany'), lov=sv.querySelector('#lpLovas');
-    lov.style.opacity='1'; ny.classList.add('repul'); let t0=null;
+    const poz=sv.querySelector('#lpNagyPoz'), ny=sv.querySelector('#lpNagy .sarkany'), tu=sv.querySelector('.tanc-uni'), tn=sv.querySelector('#lpNagy');
+    ny.classList.add('repul'); let t0=null;
     function lep(t){ if(!t0) t0=t; const s=Math.min(1,(t-t0)/5200), a=s*Math.PI*2;
       const x=880-Math.sin(a)*340, y=430-Math.sin(a/2)*150+Math.sin(a*2)*-18, sc=1-Math.sin(a/2)*.35;
       poz.setAttribute('transform',`translate(${F(x)} ${F(y)}) scale(${F(Math.cos(a)<0?-sc:sc)} ${F(sc)})`);
-      if(s<1) requestAnimationFrame(lep); else { poz.setAttribute('transform','translate(880 430)'); ny.classList.remove('repul'); setTimeout(()=>lov.style.opacity='0',700); } }
+      if(s<1) requestAnimationFrame(lep); else { poz.setAttribute('transform','translate(880 430)'); ny.classList.remove('repul'); [tu,tn].forEach(e=>{ e.classList.remove('tanc'); void e.getBBox(); e.classList.add('tanc'); }); } }
     requestAnimationFrame(lep);
   }
 }
