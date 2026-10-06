@@ -2,7 +2,7 @@
    Csak a próbaoldalon él (terv/terkep-kozpont-build.py fűzi a main.js elé). ?uj=1 nélkül a mai játék látszik.
    A rajzok a játék stílusában készülnek, hogy a kódkörökben szinte változatlanul átkerülhessenek a src/-be. */
 var RT = (function () {
-  var q = new URLSearchParams(location.search);
+  var q = new URLSearchParams(location.search || location.hash.slice(1));   /* az összehasonlító lap a #-ben adja át (blob-keret) */
   return { mind: q.get("mind") === "1", uj: q.get("uj") === "1", valt: q.get("valt") || "C", kep: q.get("kep") || "terkep", leny: q.get("leny"), lepke: q.get("lepke") === "1" };
 })();
 

@@ -80,6 +80,13 @@ def lap():
     fej = t.split("<body>", 1)[0]
     test = t.split("<main>", 1)[1].split("</main>", 1)[0]
     keretek = olvas(os.path.join(HERE, "terkep-kozpont-keretek.html"))
+    # a próbaoldal BELE a lapba (egy fájl): a keretek blob-címről töltik, így dupla kattintással és előnézetben is megy
+    import json
+    beagy = json.dumps(olvas(PROBA)).replace("</", "<\\/")
+    keretek += ('<script type="application/json" id="proba-oldal">' + beagy + '</script>\n<script>(function () {\n'
+                '  var u = URL.createObjectURL(new Blob([JSON.parse(document.getElementById("proba-oldal").textContent)], { type: "text/html" }));\n'
+                '  [].forEach.call(document.querySelectorAll("iframe[data-q]"), function (f) { f.src = u + "#" + f.getAttribute("data-q"); });\n'
+                '})();</script>\n')
     with open(LAP, "w", encoding="utf-8", newline="\n") as f:
         f.write(fej + "<body>\n<main>\n" + test.replace("<!--KERETEK-->", keretek) + "\n</main>\n</body>\n</html>\n")
 
