@@ -758,7 +758,7 @@ function palyaVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
-  var kertV = tenyKertPalyaHir(J.tvHajt || 0);   /* 🌷 „Két új virág nyílt a kertedben!” / „Új hajtás bújt ki…” (teny-kert.js) */
+  var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
   var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */

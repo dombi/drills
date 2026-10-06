@@ -9,7 +9,8 @@
    • Távolról (kertHatterSVG ágyásai): színes pöttyök a spirálon (toMini). Ágyásra koppintva az unikornis a hídon át
      belesétál, a kép ráközelít (kert-kamera), majd a közeli kép (tvk-kozel) jön: tövek, sétálás, szagolás.
    • Első belépés (tenyKertBelep): a meglévő tudás (doboz ≥ 3) bimbóként jelenik meg, a következő gyakorlós napon nyílik.
-   • Az ösvény végén (palyaVege, ftVege): „🌸 Két új virág nyílt a kertedben!” / „🌱 Új hajtás bújt ki…” (tenyKertPalyaHir).
+   • Az ösvény végén (palyaVege, ftVege): „🌸 Két új virág nyílt a kertedben!” / „🌱 Új hajtás bújt ki…” (tenyKertHirek →
+     a közös hír-sor: gondozas.js visszaHir).
    • A pult (admin) is betölti: tenyKertTovek + tenyKertPultSVG rajzolja a „gyerek kertje” nézetet.
    • 5. kör (gondozás, lent a 6. részben): jókedvűen szomjas virágok (igeny(K.loc) → jol/szomj1/szomj2), 💧 locsolás
      esőfelhővel (naponta egyszer, 1 💧 az egész kertnek), üdvözlés (K.bent), napi meglepetés (látogató / part menti
@@ -1271,10 +1272,10 @@ function tenyKertRitkaPolc(X, W, ry) {
   return s + '</g>';
 }
 
-/* ════════════ 4. AZ ÖSVÉNY VÉGÉN: a kert híre (palyaVege, ftVege) ════════════
-   hajtDb = ennyi új hajtás bújt ki ezen az ösvényen. Visszaad: { html, mondat } vagy null. A nyílás híre egyszer szól. */
+/* ════════════ 4. AZ ÖSVÉNY VÉGÉN: a kert hírei (a közös hír-sor forrása: gondozas.js visszaHir) ════════════
+   hajtDb = ennyi új hajtás bújt ki ezen az ösvényen. Visszaad: a hírek tömbje (lehet üres). A nyílás híre egyszer szól. */
 function tvDb(n) { return ["", "Egy", "Két", "Három", "Négy", "Öt", "Hat", "Hét", "Nyolc", "Kilenc", "Tíz"][n] || String(n); }
-function tenyKertPalyaHir(hajtDb) {
+function tenyKertHirek(hajtDb) {
   var K = tenyKertTar(), ma = tenyNap(), sor = [];
   if (K.hir && K.hir.nap === ma && K.hir.nyilt && !K.hir.mondva) {
     K.hir.mondva = 1;
@@ -1283,9 +1284,7 @@ function tenyKertPalyaHir(hajtDb) {
   if (hajtDb) sor.push("🌱 Új hajtás bújt ki a kertedben!");
   var m = K.mag;   /* 🌰 a ritka mag továbbnőtt (6. kör) — egyszer szól */
   if (m && m.h && m.h.nap === ma && !m.h.mondva) { m.h.mondva = 1; sor.push(TV_RITKA_HIR[m.h.i]); }
-  if (!sor.length) return null;
-  return { html: sor.map(function (x) { return '<br><span style="color:#3f9e6a;font-weight:800">' + x + '</span>'; }).join(""),
-    mondat: " " + sor.join(" ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "").replace(/\s+/g, " ").trim() };
+  return sor;
 }
 
 /* ════════════ 5. A PULT: „a gyerek kertje” (admin/index.html, 🌸 Tények fül) ════════════

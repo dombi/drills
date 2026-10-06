@@ -1260,6 +1260,13 @@ function tenyCsempesz(cfg, kerult) {
      • meglepetesSor(tar, tabla): a napi meglepetés — naponta legfeljebb egy, és legfeljebb egy gyűlik össze.
      • erik(obj, lepcsok): gyakorlós napokon érő dolog (mag → csíra → levelek → bimbó → virág); a kimaradt nap
        nem ront rajta, ott vár, ahol volt.
+   Visszahívás 2. kör (2026-10-06, terv/visszahivas-rendszerterv.html): LÁTHATATLANUL bővül, a gyerek semmit nem lát:
+     • visszaHir(opc): KÖZÖS hír-sor az ösvény végére (palyaVege, ftVege). A források egy adat-táblában (VISSZA_HIR),
+       sorrendben; most a Tény-kert hírei, később a tojás, a felhő, a levél, a pecsét. Legfeljebb egy „holnapra” mondat.
+     • napiHatar(tar, n) / napiMarad(tar, n): „naponta legfeljebb n” (pl. 3 felhő a kalandtérképen).
+     • visszaTar(p): a mentés-ágak (P().posta, .uni, .leny2, .het) — a mentes.js profilNormal-ja hívja.
+     • hetPecset(): gyakorlós naponként egy pecsét a hét kártyáján (P().het[hétAzon]); sosem nullázódik.
+     • visszaAllapot(p): egy helyen, mi vár a gyerekre (gyakorlás, hét, levél, igény, lény, kert) — a pultnak, a hír-sornak.
    Tiltólista (visszahivas-tamagocsi): nincs hervadás, büntetés, lenullázódó számláló, „csak ma!”.
    A pult is betölti (admin/index.html) — itt a P()-t használó függvények mind kaphatnak saját tárat. */
 
@@ -1287,6 +1294,7 @@ function gyakPalyaVege() {
   tenyKertNyit();
   tenyKertRitkaErik();    /* 🌰 a ritka mag egy lépcsővel tovább érik a dombon (teny-kert.js, 6. kör) */
   tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
+  hetPecset();            /* 📅 a hét kártyáján egy pecsét (még láthatatlan; a heti kártya köre mutatja meg) */
   return true;
 }
 
@@ -1332,6 +1340,114 @@ function erik(obj, lepcsok, gy) {
   var i = Math.max(0, Math.min(lepcsok.length - 1, gy - (obj.t || 0)));
   obj.g = i;
   return { i: i, nev: lepcsok[i], kesz: i === lepcsok.length - 1 };
+}
+
+/* ── naponta legfeljebb n (pl. felhőfújás) ─────────────────────────────────────
+   tar.napi = { nap, db }: ma hányat használt el. Másnap magától újra n jár; a fel nem használt nem gyűlik. */
+function napiMarad(tar, n, ma) {
+  ma = ma == null ? tenyNap() : ma;
+  var d = tar && tar.napi;
+  return Math.max(0, n - (d && d.nap === ma ? d.db || 0 : 0));
+}
+/* igaz, ha még belefért (és el is számolta); hamis, ha mára elfogyott */
+function napiHatar(tar, n) {
+  var ma = tenyNap();
+  if (!napiMarad(tar, n, ma)) return false;
+  if (!tar.napi || tar.napi.nap !== ma) tar.napi = { nap: ma, db: 0 };
+  tar.napi.db++;
+  return true;
+}
+
+/* ── a visszahívás mentés-ágai (terv/visszahivas-rendszerterv.html, „Mentés és adat”) ──────────────
+   Gyerekenként és unikornisonként (P()), mint minden gondozás. A mentes.js profilNormal-ja hívja.
+     posta: { meg, megSz } a napi levél (meglepetesSor), pult: [{ id, szoveg, kitol, olvasva }], vendeg, album: []
+     uni:   { etel, jatek, apol } = a legutóbbi gondozás napja (tenyNap; null = még soha) → igeny();
+            sziv = barátság (csak nő), szivNap = melyik napon kapott utoljára gondozásért, kedvenc = megtalálta-e, kosar = { id: db }
+     leny2: a kis lény; fazis "" = még nincs tojás, aztán "tojas" | "fioka" | "kaland" | "kolyok" | "nagy";
+            t = a fázis kezdő gyakorlós napja (erik), terkep: { tiszta: [táj-sorszámok], napi: { nap, db } }, kepeslap: []
+     het:   { [hetAzon]: pecsétszám } — minden hét megmarad */
+function visszaTar(p) {
+  p = p || P();
+  if (!p.posta || typeof p.posta !== "object") p.posta = {};
+  var po = p.posta;
+  if (!Array.isArray(po.pult)) po.pult = [];
+  if (!Array.isArray(po.album)) po.album = [];
+  if (po.vendeg === undefined) po.vendeg = null;
+  if (!p.uni || typeof p.uni !== "object") p.uni = {};
+  var u = p.uni;
+  ["etel", "jatek", "apol"].forEach(function (k) { if (typeof u[k] !== "number") u[k] = null; });
+  if (typeof u.sziv !== "number") u.sziv = 0;
+  if (typeof u.szivNap !== "number") u.szivNap = 0;
+  if (typeof u.kedvenc !== "number") u.kedvenc = 0;
+  if (!u.kosar || typeof u.kosar !== "object") u.kosar = {};
+  if (!p.leny2 || typeof p.leny2 !== "object") p.leny2 = {};
+  var l = p.leny2;
+  if (typeof l.fazis !== "string") l.fazis = "";
+  if (typeof l.faj !== "string") l.faj = "";
+  if (typeof l.nev !== "string") l.nev = "";
+  if (typeof l.t !== "number") l.t = 0;
+  if (!l.terkep || typeof l.terkep !== "object") l.terkep = {};
+  if (!Array.isArray(l.terkep.tiszta)) l.terkep.tiszta = [];
+  if (!Array.isArray(l.kepeslap)) l.kepeslap = [];
+  if (!p.het || typeof p.het !== "object") p.het = {};
+  return p;
+}
+
+/* ── a heti kártya pecsétje ────────────────────────────────────────────────────
+   hetAzon(nap) = annak a hétfőnek a tenyNap-ja, amelyik hetébe a nap esik (a 0. nap, 1970. jan. 1. csütörtök).
+   A gyakPalyaVege hívja (naponta egyszer), így egy gyakorlós nap = egy pecsét. 4 = teljes hét; 5–7 is pecsét. */
+function hetAzon(nap) { nap = nap == null ? tenyNap() : nap; return nap - (((nap + 3) % 7) + 7) % 7; }
+function hetPecset(p) {
+  var h = visszaTar(p).het, k = hetAzon();
+  h[k] = (h[k] || 0) + 1;
+  return h[k];
+}
+
+/* ── közös hír-sor az ösvény végére („mi lett ma jobb”) ───────────────────────────
+   VISSZA_HIR: a források sorrendben (adat-tábla). Mindegyik fn(opc) → tömb: szöveg, vagy
+   { t: szöveg, szin?: "#…", holnap?: 1 }. A „holnapra” kedvcsinálóból legfeljebb egy szól, a sor végén
+   (csúcs–vég szabály). A forrás maga jegyzi meg, hogy már elmondta (egyszer szól).
+   Új forrás (tojás, felhő, levél, pecsét) = egy új sor ebben a táblában. opc.hajt = új hajtások ezen az ösvényen. */
+var VISSZA_HIR = [
+  { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } }   /* 🌸 Tény-kert (teny-kert.js) */
+];
+var VISSZA_HIR_SZIN = "#3f9e6a";
+/* Visszaad: { sor, html, mondat } vagy null (nincs hír) */
+function visszaHir(opc) {
+  opc = opc || {};
+  var sor = [], holnap = null;
+  VISSZA_HIR.forEach(function (f) {
+    var l = [];
+    try { l = f.fn(opc) || []; } catch (e) { l = []; }   /* egy forrás hibája ne vigye el az ösvény végét */
+    l.forEach(function (h) {
+      if (typeof h === "string") h = { t: h };
+      if (!h || !h.t) return;
+      if (h.holnap) { if (!holnap) holnap = h; } else sor.push(h);
+    });
+  });
+  if (holnap) sor.push(holnap);
+  if (!sor.length) return null;
+  var t = sor.map(function (h) { return h.t; });
+  return {
+    sor: t,
+    html: sor.map(function (h) { return '<br><span style="color:' + (h.szin || VISSZA_HIR_SZIN) + ';font-weight:800">' + h.t + '</span>'; }).join(""),
+    mondat: " " + t.join(" ").replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu, "")   /* az emojik (és a ☁️-féle változat-jel) ne hangozzanak el */.replace(/\s+/g, " ").trim()
+  };
+}
+
+/* ── mi vár a gyerekre? (a pultnak és a hír-sornak; a tenyKertAllapot mintájára) ─────────────
+   p = profil (alap: P(); a pult a saját tárát adja). A hiányzó ágakat pótolja, mást nem állít át. */
+function visszaAllapot(p) {
+  p = visszaTar(p);
+  var ma = tenyNap(), g = gyakTar(p), u = p.uni, l = p.leny2, K = p.tenyKert || {};
+  return {
+    gyak: { db: g.db || 0, ma: g.nap === ma, utolso: g.nap || null },
+    het: { ez: p.het[hetAzon(ma)] || 0, hetek: Object.keys(p.het).length },
+    posta: { var: meglepetesVar(p.posta), pult: p.posta.pult.filter(function (x) { return !x.olvasva; }).length },
+    uni: { etel: igeny(u.etel), jatek: igeny(u.jatek), apol: igeny(u.apol), sziv: u.sziv, kedvenc: !!u.kedvenc },
+    leny: { fazis: l.fazis, nev: l.nev, tiszta: l.terkep.tiszta.length, kepeslap: l.kepeslap.length },
+    kert: { szomj: igeny(K.loc), meglepetes: meglepetesVar(K) }
+  };
 }
 /* ============ 4) MENTÉS ============ */
 var KULCS = "unikornis_centum_v1";
@@ -1415,6 +1531,7 @@ function profilNormal(p) {
   if (!p.tenyTipus || typeof p.tenyTipus !== "object") p.tenyTipus = {};   /* 🌸 a 100-as kör típusai, ugyanilyen sorokkal */
   tenyKertTar(p);                                  /* 🌷 Tamagocsi-kert (teny.js): P().tenyKert = { v: kulcs → { a, n, g }, loc, bent, mag, meg, … } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
+  visszaTar(p);                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;
@@ -10761,7 +10878,7 @@ function palyaVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
-  var kertV = tenyKertPalyaHir(J.tvHajt || 0);   /* 🌷 „Két új virág nyílt a kertedben!” / „Új hajtás bújt ki…” (teny-kert.js) */
+  var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
   var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
@@ -12943,7 +13060,8 @@ function kertTajMozgasIndit() {
    • Távolról (kertHatterSVG ágyásai): színes pöttyök a spirálon (toMini). Ágyásra koppintva az unikornis a hídon át
      belesétál, a kép ráközelít (kert-kamera), majd a közeli kép (tvk-kozel) jön: tövek, sétálás, szagolás.
    • Első belépés (tenyKertBelep): a meglévő tudás (doboz ≥ 3) bimbóként jelenik meg, a következő gyakorlós napon nyílik.
-   • Az ösvény végén (palyaVege, ftVege): „🌸 Két új virág nyílt a kertedben!” / „🌱 Új hajtás bújt ki…” (tenyKertPalyaHir).
+   • Az ösvény végén (palyaVege, ftVege): „🌸 Két új virág nyílt a kertedben!” / „🌱 Új hajtás bújt ki…” (tenyKertHirek →
+     a közös hír-sor: gondozas.js visszaHir).
    • A pult (admin) is betölti: tenyKertTovek + tenyKertPultSVG rajzolja a „gyerek kertje” nézetet.
    • 5. kör (gondozás, lent a 6. részben): jókedvűen szomjas virágok (igeny(K.loc) → jol/szomj1/szomj2), 💧 locsolás
      esőfelhővel (naponta egyszer, 1 💧 az egész kertnek), üdvözlés (K.bent), napi meglepetés (látogató / part menti
@@ -14205,10 +14323,10 @@ function tenyKertRitkaPolc(X, W, ry) {
   return s + '</g>';
 }
 
-/* ════════════ 4. AZ ÖSVÉNY VÉGÉN: a kert híre (palyaVege, ftVege) ════════════
-   hajtDb = ennyi új hajtás bújt ki ezen az ösvényen. Visszaad: { html, mondat } vagy null. A nyílás híre egyszer szól. */
+/* ════════════ 4. AZ ÖSVÉNY VÉGÉN: a kert hírei (a közös hír-sor forrása: gondozas.js visszaHir) ════════════
+   hajtDb = ennyi új hajtás bújt ki ezen az ösvényen. Visszaad: a hírek tömbje (lehet üres). A nyílás híre egyszer szól. */
 function tvDb(n) { return ["", "Egy", "Két", "Három", "Négy", "Öt", "Hat", "Hét", "Nyolc", "Kilenc", "Tíz"][n] || String(n); }
-function tenyKertPalyaHir(hajtDb) {
+function tenyKertHirek(hajtDb) {
   var K = tenyKertTar(), ma = tenyNap(), sor = [];
   if (K.hir && K.hir.nap === ma && K.hir.nyilt && !K.hir.mondva) {
     K.hir.mondva = 1;
@@ -14217,9 +14335,7 @@ function tenyKertPalyaHir(hajtDb) {
   if (hajtDb) sor.push("🌱 Új hajtás bújt ki a kertedben!");
   var m = K.mag;   /* 🌰 a ritka mag továbbnőtt (6. kör) — egyszer szól */
   if (m && m.h && m.h.nap === ma && !m.h.mondva) { m.h.mondva = 1; sor.push(TV_RITKA_HIR[m.h.i]); }
-  if (!sor.length) return null;
-  return { html: sor.map(function (x) { return '<br><span style="color:#3f9e6a;font-weight:800">' + x + '</span>'; }).join(""),
-    mondat: " " + sor.join(" ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "").replace(/\s+/g, " ").trim() };
+  return sor;
 }
 
 /* ════════════ 5. A PULT: „a gyerek kertje” (admin/index.html, 🌸 Tények fül) ════════════
@@ -18781,7 +18897,7 @@ function ftVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
   gyakPalyaVege();   /* 🌱 a Fejtörő-hegy ösvénye is gyakorlós nap (gondozas.js) */
-  var kertV = tenyKertPalyaHir(0);   /* 🌷 „… új virág nyílt a kertedben!” (teny-kert.js) */
+  var kertV = visszaHir();   /* 🌱 közös hír-sor (gondozas.js): „… új virág nyílt a kertedben!” */
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
     idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });
@@ -18820,8 +18936,9 @@ document.addEventListener("pointerdown", function egyszer() {
 window.UC = {
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
   gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
+  visszaHir: visszaHir, VISSZA_HIR: VISSZA_HIR, napiHatar: napiHatar, napiMarad: napiMarad, visszaTar: visszaTar, hetAzon: hetAzon, hetPecset: hetPecset, visszaAllapot: visszaAllapot,   /* 💌 VISSZAHÍVÁS (2. kör) */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
-  tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertPalyaHir: tenyKertPalyaHir,
+  tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertHirek: tenyKertHirek,
   tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */
   tenyKertRitkaAjandek: tenyKertRitkaAjandek, tenyKertRitkaErik: tenyKertRitkaErik, RITKA_VIRAGOK: RITKA_VIRAGOK, ritkaRajz: ritkaRajz, tvRitkaUltet: tvRitkaUltet,   /* 🌰 ritka mag (6. kör) */
   tenyKertPultSVG: tenyKertPultSVG, TVK: TVK, tvkSzagol: tvkSzagol, tvkKozelZar: tvkKozelZar, tvkMasikAgy: tvkMasikAgy, viragKinezet: viragKinezet, VIRAG_FORMAK: VIRAG_FORMAK,   /* 🌷 Tény-kert (4. kör) */

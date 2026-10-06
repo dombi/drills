@@ -14,8 +14,9 @@ document.addEventListener("pointerdown", function egyszer() {
 window.UC = {
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
   gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
+  visszaHir: visszaHir, VISSZA_HIR: VISSZA_HIR, napiHatar: napiHatar, napiMarad: napiMarad, visszaTar: visszaTar, hetAzon: hetAzon, hetPecset: hetPecset, visszaAllapot: visszaAllapot,   /* 💌 VISSZAHÍVÁS (2. kör) */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
-  tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertPalyaHir: tenyKertPalyaHir,
+  tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertHirek: tenyKertHirek,
   tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */
   tenyKertRitkaAjandek: tenyKertRitkaAjandek, tenyKertRitkaErik: tenyKertRitkaErik, RITKA_VIRAGOK: RITKA_VIRAGOK, ritkaRajz: ritkaRajz, tvRitkaUltet: tvRitkaUltet,   /* 🌰 ritka mag (6. kör) */
   tenyKertPultSVG: tenyKertPultSVG, TVK: TVK, tvkSzagol: tvkSzagol, tvkKozelZar: tvkKozelZar, tvkMasikAgy: tvkMasikAgy, viragKinezet: viragKinezet, VIRAG_FORMAK: VIRAG_FORMAK,   /* 🌷 Tény-kert (4. kör) */

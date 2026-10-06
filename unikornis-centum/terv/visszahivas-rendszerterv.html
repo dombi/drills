@@ -81,6 +81,7 @@
     <span class="chip">2026-10-06</span>
     <span class="chip">Nagyság: NAGY (8 kör)</span>
     <span class="chip">Sorrend: 3. lépés</span>
+    <span class="chip">Kód: 2. kör kész (2026-10-06)</span>
     <span class="chip">Alap: a meglévő src/gondozas.js</span>
   </div>
 </header>
@@ -324,7 +325,7 @@
     <li><code>P().uni</code>: <code>{ etel, jatek, apol }</code> = a legutóbbi gondozás napja (az igény ebből számolódik), <code>sziv</code> (barátság, csak nő), <code>szivNap</code> (aznap kapott-e már gondozásért), <code>kedvenc</code> (megtalálta-e), <code>kosar: { szivarvanyalma: 2, … }</code>.</li>
     <li><code>P().leny2</code> (a kis lény): <code>{ faj, nev, fazis, t, terkep: { tiszta: [táj-sorszámok], napi: { nap, db } }, kepeslap: [] }</code>. A fázist az <code>erik()</code> számolja.</li>
     <li><code>P().het</code>: <code>{ [hét-azonosító]: pecsétszám }</code>, minden hét megmarad.</li>
-    <li><code>tenyKertAllapot()</code> mintájára új <code>visszaAllapot()</code>: egy helyen adja vissza, mi vár a gyerekre (levél, felhő, tojás, igény). Ebből dolgozik a hír-sor és a pult.</li>
+    <li><code>tenyKertAllapot()</code> mintájára új <code>visszaAllapot(p)</code>: egy helyen adja vissza, mi vár a gyerekre (gyakorlós nap, a hét pecsétjei, levél, igények, a lény fázisa, a kert). A pult a saját tárát adja át. Ebből dolgozik a hír-sor és a pult. ✅ kész (2. kör)</li>
   </ul>
   <h3>Pult</h3>
   <ul>
@@ -339,8 +340,10 @@
     <li><b><code>src/gondozas.js</code> bővül</b> (nem lesz második gondozás-modul):
       <ul>
         <li><code>gyakPalyaVege()</code> kibővül a postaládával, a tojással vagy lénnyel, a heti pecséttel és a felhő-joggal.</li>
-        <li><code>visszaHir(sor)</code>: <b>közös hír-sor</b> az ösvény végére. A Tény-kert mostani hírei is ide költöznek, így egy helyen dől el a sorrend és az, hogy legfeljebb egy „holnapra” mondat szól.</li>
-        <li><code>napiHatar(tar, n)</code>: a felhőfújás-féle „naponta legfeljebb n” számláló, újrahasznosítható.</li>
+        <li><code>visszaHir(opc)</code>: <b>közös hír-sor</b> az ösvény végére. A források egy adat-táblában állnak (<code>VISSZA_HIR</code>), sorrendben. Egy új forrás (tojás, felhő, levél, pecsét) egy új sor ebben a táblában. A Tény-kert hírei már ide költöztek (<code>tenyKertHirek</code>), így egy helyen dől el a sorrend és az, hogy legfeljebb egy „holnapra” mondat szól, mindig a sor végén. ✅ kész</li>
+        <li><code>napiHatar(tar, n)</code> + <code>napiMarad(tar, n)</code>: a felhőfújás-féle „naponta legfeljebb n” számláló, újrahasznosítható (<code>tar.napi = { nap, db }</code>). ✅ kész</li>
+        <li><code>visszaTar(p)</code>: a mentés-ágak (<code>posta</code>, <code>uni</code>, <code>leny2</code>, <code>het</code>) alapértékkel; a mentés betöltése és a felhőből jött profil is ezen megy át. ✅ kész</li>
+        <li><code>hetAzon(nap)</code> + <code>hetPecset()</code>: a hét a hétfőjével azonosítva; a <code>gyakPalyaVege</code> gyakorlós naponként egy pecsétet ír. Már most gyűlik, de még láthatatlan: a heti kártya köre mutatja meg. ✅ kész</li>
       </ul></li>
     <li><b><code>src/posta.js</code></b>: postaláda, levelek (<code>LEVELEK</code> adat-tábla), vendégek, pult-levél, „emlékszik” mondat.</li>
     <li><b><code>src/uni-gondozas.js</code></b>: igény-buborékok, csemegék (<code>CSEMEGEK</code> adat-tábla: id, ár, igény, mozdulat), barátság, kedvenc. A kert meglévő evés- és trükk-mozdulatait hívja.</li>
@@ -353,7 +356,7 @@
   <p class="lead">Ez <b>nagy</b> munka, 8 kör. Mindegyik külön kipróbálható és feltölthető. A kód a jóváhagyás után, és a ligetválasztó, illetve a Tény-kert élő próbája után indul, hogy a gyerekek visszajelzése bekerülhessen.</p>
   <ol>
     <li><b>Rajzterv:</b> a tojás 3 állapota, fióka, kölyök, nagy sárkány, kalandtérkép felhőkkel és nyomokkal, képeslap; utána a postaláda, az igény-buborékok, a csemegék és a heti kártya. Fekvő és álló kép.</li>
-    <li><b>Közös alap láthatatlanul:</b> <code>gondozas.js</code> bővítése (<code>visszaHir</code>, <code>napiHatar</code>), mentés-ágak, <code>visszaAllapot()</code>. A Tény-kert hírei átköltöznek a közös hír-sorba, a gyerek ebből semmit nem lát.</li>
+    <li>✅ <b>Közös alap láthatatlanul</b> (kész, 2026-10-06): <code>gondozas.js</code> bővítése (<code>visszaHir</code>, <code>napiHatar</code>), mentés-ágak, <code>visszaAllapot()</code>. A Tény-kert hírei átköltöznek a közös hír-sorba, a gyerek ebből semmit nem lát.</li>
     <li><b>🥚 Tojás és fióka:</b> a tojás megtalálása a patakparton, fészek, reccsenések, kikelés-jelenet, névadás, a fióka az odúban, „holnapra” mondat az ösvény végén.</li>
     <li><b>🗺️ Kalandtérkép:</b> elröppenés, 12 táj, felhőfújás, nyomok, képeslap-album, megtalálás, kölyök. Utána <b>élő próba</b>.</li>
     <li><b>🌈 Nagy sárkány + 📅 heti kártya:</b> az utolsó lépcső és a pecsétes kártya.</li>

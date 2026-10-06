@@ -459,7 +459,7 @@ function ftVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
   gyakPalyaVege();   /* 🌱 a Fejtörő-hegy ösvénye is gyakorlós nap (gondozas.js) */
-  var kertV = tenyKertPalyaHir(0);   /* 🌷 „… új virág nyílt a kertedben!” (teny-kert.js) */
+  var kertV = visszaHir();   /* 🌱 közös hír-sor (gondozas.js): „… új virág nyílt a kertedben!” */
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
     idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });
