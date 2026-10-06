@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Térkép-központ rajzterv</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3df;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#47221d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#47221d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.28);position:relative;overflow:hidden}
+  header.top::after{content:"🧭";position:absolute;right:18px;top:6px;font-size:100px;opacity:.18;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:12px 0}
+  .q b.cim{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{font-size:13px;color:var(--muted)}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .ki{color:var(--red);font-weight:700}
+  .uj{color:var(--green);font-weight:700}
+  /* a navigációs fa */
+  .fa{display:grid;gap:10px}
+  .fa .gyoker{justify-self:center;background:linear-gradient(135deg,var(--green),var(--violet));color:#fff;font-weight:800;border-radius:14px;padding:10px 22px;font-size:17px}
+  .fa .ag{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media (max-width:640px){ .fa .ag{grid-template-columns:1fr 1fr} }
+  .fa .hely{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+  .fa .hely.el{border-color:var(--green)}
+  .fa .hely.kolt{border-color:var(--pink)}
+  .fa .hely b{display:block;font-size:15px}
+  .fa .hely small{color:var(--muted);display:block;line-height:1.4;margin-top:4px}
+  .fa .hely .al{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+  .fa .hely .al span{background:var(--blue-soft);border-radius:8px;padding:1px 8px;font-size:13px}
+  .fa .hely.kolt .al span{background:var(--pink-soft)}
+  .jelmagy{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
+  .jelmagy i{display:inline-block;width:14px;height:14px;border-radius:4px;border:2px solid;vertical-align:-2px;margin-right:4px}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+
+<header class="top">
+  <h1>🧭 Térkép mint központ: rajzterv</h1>
+  <div class="sub">Hogyan néz ki az új rend: a Kert a térképen, az utca az odú-ház és a kertkapu nélkül, az odú a Szekrénnyel, a Bolt az utcán, és a kert kijárata.</div>
+  <div class="meta">
+    <span class="chip">Rajzterv · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-06</span>
+    <span class="chip">Alap: a jóváhagyott rendszerterv</span>
+    <span class="chip">Utána: kód 4 körben</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <ul>
+    <li>A rajzok a <b>valódi játékban</b> készültek: lent minden kép kipróbálható, „ma” és „új” egymás mellett, laptop- és telefonméretben.</li>
+    <li><b>Térkép:</b> a Kert rózsaíves kertkapuként áll közvetlenül az Odú mellett. Ehhez két hely arrébb kerül (lásd 1. pont).</li>
+    <li><b>Utca:</b> három változat a két üres helyre. Javaslat: <b>C · Szökőkutas tér</b>.</li>
+    <li><b>Új: az unikornis az utcán is látszik.</b> Ott áll, ahová a szivárványkapuból érkezett, és onnan indul vissza. Eddig az odú-ház ajtajából lépett ki, de az odú-ház megszűnik.</li>
+    <li><b>Odú:</b> a kertkapu és az utca-ajtó eltűnik, az unikornis újra a szőnyeg közepén vár; a Bolt-jel helyén a 🧺 Szekrény.</li>
+  </ul>
+</div>
+
+<h2>Döntések a rajzokban</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>A Kert a térképen</h3>
+    <ul>
+      <li><b>Jelkép:</b> fehér fa rózsaív sövénnyel, a kiskapu félig nyitva. A kapun át a kert két virágágyása látszik (rózsaszín és lila, mint a patakparti kertben), mellette kis patak-kanyar tavirózsával.</li>
+      <li><b>Laptopon</b> a Kert az Odú jobb oldalára kerül. Ehhez a <b>„Neked készült”</b> a térkép alsó közepére költözik. Ez magában is javítás: ma az Odúnál álló unikornis eltakarja a „Neked készült” felét. Az Összeadó liget egy kicsit feljebb kerül.</li>
+      <li><b>Telefonon</b> a Kert az utca-kapu mai helyére kerül, az Odú mellé. Az <b>utca-kapu</b> egy lépéssel beljebb kerül, az Összeadó és a Szorzós liget közé.</li>
+      <li>A két elrendezés saját ösvényhálót kap, hogy telefonon se keresztezzék egymást az utak (ez kis bővítés a térkép-modulban).</li>
+      <li>A 🦋 a Kert jelképén ül, ha a kertben új dolog vár; ugyanolyan kerek jelvény, mint a 💧 és a 💖 a ligeteken.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Az utca: mi kerüljön a kert és az odú-ház helyére?</h3>
+    <ul>
+      <li><b>A · Rövid utca:</b> csak a három ház, nagyobban. Egyszerű, de a fodrász és a bank máshová kerül, mint ahol a gyerekek megszokták, és telefonon üres marad az alsó sor.</li>
+      <li><b>B · „Hamarosan” telkek:</b> kerítés, tábla, csemete. Ígéretet tesz, amit be kell tartani; és üresnek hat.</li>
+      <li><b>C · Szökőkutas tér (javaslat):</b> a kert helyén csobogó szökőkút, az odú-ház helyén holdfényes pad egy virágzó fa alatt, rajta alvó cica. A fodrász, a csillagbolt és a bank <b>a mai helyén marad</b>. A szökőkútra koppintva magasabbra szökik a víz, a cicára koppintva felébred és csóválja a farkát. Egyik sem visz sehová, és nincs feliratuk, mert nem helyek, csak játék.</li>
+      <li>Az unikornis a <b>szökőkút mellett</b> áll. Innen nő ki a szivárványhíd a Matek-kapuba, amikor indul.</li>
+    </ul>
+    <span class="prop">Javaslat: C</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>A Bolt az utca fölött</h3>
+    <ul>
+      <li>A csillagbolt házára koppintva a mai bolt nyílik meg, változatlanul (Holmik, Kinézet, Bútorok, Díszek, Időjárás, Kristály, Kert), csak <b>az utca fölött</b>. A ✕ után a gyerek az utcán marad.</li>
+    </ul>
+    <span class="ok">A rendszerterv szerint</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Az odú és a 🧺 Szekrény</h3>
+    <ul>
+      <li>A kertkapu (a padlón, a hátsó fal előtt) és a jobb falon az utca-ajtó eltűnik; a helyükre <b>nem kerül semmi</b>. Egy ajtó, amire koppintva nem történik semmi, csalódás lenne. Az unikornis újra a szőnyeg közepén vár.</li>
+      <li><b>A Szekrény</b> a Bolt-jel helyén: kis lila szekrény koronával és csillaggal, a jobb ajtaja résnyire nyitva, kilóg egy csíkos sál. A felirata „Szekrény”.</li>
+      <li><b>Belül</b> a mai Gyűjtemény-kártyák, de csak a <b>már megvett</b> holmik, ár nélkül, hat csoportban: Holmik, Kinézet, Bútorok, Díszek, Időjárás, Kristályok. Koppintásra felveszed vagy kirakod. Ha egy csoport üres: „Még üres. Ezt a Boltban veheted meg, az utcán!” A kerti tárgyak nincsenek benne, azok a fészerben várnak, mint eddig.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>A kert kijárata</h3>
+    <ul>
+      <li>A füves part bal alsó sarkában ugyanaz a <b>rózsaíves kapu</b> áll, mint a térképen. Rákoppintva (vagy a „← Térkép” gombra) az unikornis odasétál, kimegy, és a térképen a Kert mellett áll.</li>
+      <li>Így a gyerek látja, hogy ugyanazon a kapun megy ki, amelyiken bejött.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">6</span>
+    <h3>Gombok</h3>
+    <ul>
+      <li>Térkép fejléce: a „🏠 Odú” kikerül. Odú, Kert, Utca: „← Térkép”. Odú: a 🦄 Váltás kikerül.</li>
+      <li>Pálya közben „← Liget”; a pálya végén „Tovább a ligetben” és „🗺️ Térkép”. (Ezek csak feliratok, rajz nem kell hozzájuk.)</li>
+    </ul>
+    <span class="ok">A rendszerterv szerint</span>
+  </div>
+</div>
+
+<!--KERETEK-->
+
+<h2>A kérdések</h2>
+<div class="q"><b class="cim">1. Melyik utca legyen: A, B vagy C?</b>Javaslat: C (Szökőkutas tér). A gyerekek által megszokott házak a helyükön maradnak, és a két új dolog játékos.</div>
+<div class="q"><b class="cim">2. Áthelyezhetjük a „Neked készült” ligetet (laptop) és az utca-kaput (telefon)?</b>Javaslat: igen. Így a Kert közvetlenül az Odú mellé fér, és megszűnik, hogy az unikornis eltakarja a „Neked készült” ligetet. A térkép még élő próba előtt áll, így most a legolcsóbb tologatni.</div>
+<div class="q"><b class="cim">3. Látsszon az unikornis az utcán (a szökőkút mellett)?</b>Javaslat: igen. Az odú-ház megszűnése miatt kell egy hely, ahonnan elindul, és az utca is élőbb lesz tőle.</div>
+<div class="q"><b class="cim">4. Jó így a Szekrény (a rajza és a hat csoport)?</b>Javaslat: igen.</div>
+<div class="q"><b class="cim">5. Jó a kert kijárata a rózsaíves kapuval a bal alsó sarokban?</b>Javaslat: igen.</div>
+
+<h2>Utána: a kód körei</h2>
+<div class="panel">
+  <ol>
+    <li><b>Navigáció és feliratok:</b> a közös „Vissza” szabály, a feliratok, a rövidítések ki, a térképen a helyes helyen áll az unikornis.</li>
+    <li><b>A Kert a térképen:</b> új hely + jelkép + ösvény, az áthelyezések, a 🦋, a kert kapuja, az odú kertkapuja ki.</li>
+    <li><b>Bolt az utcán + Szekrény + új utca-kép:</b> a jóváhagyott utca-változat, az unikornis az utcán, a szivárványhíd onnan.</li>
+    <li><b>Bemutatás + próba:</b> az egyszeri mondatok, a felragyogás, csendes próba laptop- és telefonméretben.</li>
+  </ol>
+  <p class="lead" style="margin:8px 0 0">A rajzok már a játék kódjának stílusában készültek (<code>terv/terkep-kozpont-proto.js</code>), így szinte változatlanul átkerülhetnek.</p>
+</div>
+
+</div>
+</main>
+</body>
+</html>
