@@ -480,5 +480,5 @@ function fejtoroKilep() {
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
   if (FTJ) esemeny("palya_kilep", { palyaId: FTJ.pa.id, fejtoro: true, allomas: FTJ.i });
   FTJ = null;
-  renderFomenu(); mutat("kepernyo-fomenu");
+  visszaUgrik("fejtoro");   /* → a liget (ui.js) */
 }

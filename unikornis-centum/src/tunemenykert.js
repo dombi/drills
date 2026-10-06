@@ -203,7 +203,7 @@ function tkKilep(gombbal) {
     esemeny("kert_kilep", { szoba: TK.szoba, mp: TK.belepMp });
     ment();
   }
-  utcaNyit();
+  visszaUgrik("tunemenykert");   /* → utca (ui.js) */
   if (gombbal) mondd("Visszaértünk az utcára!");
 }
 function tkHazakuld(szoveg) {

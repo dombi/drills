@@ -229,8 +229,8 @@ function renderUtca() {
 var _utcaTavozas = null;
 function utcaTavozik() {
   if (_utcaTavozas) { utcaTavozasVege(); return; }
-  var hely = $("utca-uni-hely"); if (!hely) return;
-  hangGomb(); mondd("Induljunk matekozni!");
+  var hely = $("utca-uni-hely"); if (!hely) { hangGomb(); visszaUgrik("utca"); return; }
+  hangGomb(); mondd("Irány a térkép!");
   var tok = _utcaTavozas = {};
   var L = UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles, h = L.hazak.odu, k = 0.32 * h[2];
   var ajto = [h[0], h[1] - 2 * h[2]], kapu = [L.portal[0], L.portal[1] - 18];
@@ -252,7 +252,7 @@ function utcaTavozasVege() {
   _utcaTavozas = null;
   var k = $("kepernyo-utca");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  terkepNyit();
+  visszaUgrik("utca");   /* a térképen az utca-kapunál áll (ui.js) */
 }
 function utcaFodraszKoppint() {
   hangGomb();

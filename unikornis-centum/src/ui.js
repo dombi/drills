@@ -4,6 +4,7 @@ function mutat(id) {
   if (volt) volt.classList.remove("aktiv");
   $(id).classList.add("aktiv");
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
+  if (id === "kepernyo-vege") vegeGombok();
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
@@ -25,7 +26,7 @@ function renderProfil() {
 }
 /* ── Ligetválasztó: a főképernyő két szintje ──
    FOMENU_LIGET = null → a festett ligettérkép (src/terkep.js: renderLigetTerkep — az unikornis odasétál a ligethez);
-   különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / Haza / Fejtörő után
+   különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / „← Liget” / Fejtörő után
    ugyanide jön vissza (a palyaInditas / fejtoroInditas jegyzi fel); odúból, utcáról, profilváltás
    után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
 var FOMENU_LIGET = null;
@@ -36,7 +37,41 @@ function ligetJegyez(r) {
   FOMENU_LIGET = r; TERKEP_HOL = { leny: mentes.leny, id: r };   /* a térképen is itt áll majd */
   if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
 }
-function terkepNyit() { FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu"); }
+/* a térkép; ha hol adott (odu / utca / kert / egy liget), az unikornis ott áll majd — onnan jött ki (TERKEP_HOL) */
+function terkepNyit(hol) {
+  if (hol) TERKEP_HOL = { leny: mentes.leny, id: hol };
+  FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu");
+}
+/* ── KÖZÖS „VISSZA” SZABÁLY (Térkép mint központ, 1. kör): minden helynek egy sor — ki a szülője, és mi a
+   gomb felirata. A „Vissza” mindig egy szinttel feljebb visz, a felirat a célt mondja. Új helynél ide kerül egy sor.
+   (A kivonulás-animációk — odú: szivárványhíd, utca: szivárványkapu, felhőkert: kilépés — a végén visszaUgrik-ot hívnak.) */
+var VISSZA = {
+  liget:   { szulo: "terkep", felirat: "← Térkép", gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
+  palya:   { szulo: "liget",  felirat: "← Liget",  gomb: "jatek-haza" },
+  fejtoro: { szulo: "liget",  felirat: "← Liget",  gomb: "ft-haza" },
+  odu:     { szulo: "terkep", felirat: "← Térkép", gomb: "odu-vissza" },
+  kert:    { szulo: "terkep", felirat: "← Térkép", gomb: "kert-vissza" },
+  utca:    { szulo: "terkep", felirat: "← Térkép", gomb: "utca-vissza" },
+  szalon:  { szulo: "utca",   felirat: "← Utca",   gomb: "szalon-vissza" },
+  bank:    { szulo: "utca",   felirat: "← Utca",   gomb: "bank-vissza" },
+  tunemenykert: { szulo: "utca", felirat: "← Utca", gomb: "tk-vissza" }
+};
+function visszaFeliratok() {   /* indításkor: minden vissza-gomb a táblából kapja a feliratát */
+  Object.keys(VISSZA).forEach(function (h) { var g = $(VISSZA[h].gomb); if (g && h !== "liget") g.textContent = VISSZA[h].felirat; });
+}
+/* egy szinttel feljebb a helyről: a térképen a hely mellett áll az unikornis, a ligetbe / utcára / odúba vissza */
+function visszaUgrik(hely) {
+  var sz = (VISSZA[hely] || {}).szulo || "terkep";
+  if (sz === "liget") { renderFomenu(); mutat("kepernyo-fomenu"); }   /* FOMENU_LIGET még az a liget, ahonnan indult */
+  else if (sz === "utca") utcaNyit();
+  else if (sz === "odu") oduNyit(hely);
+  else terkepNyit(hely === "liget" ? FOMENU_LIGET : hely);
+}
+/* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
+function vegeGombok() {
+  var ln = LIGET_NEV[FOMENU_LIGET];
+  $("vege-fomenu").textContent = (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+}
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
 /* a fomenü pályái ligetenként, a megjelenítés sorrendjében (a választó és a liget-belső is ezt használja) */
@@ -99,7 +134,7 @@ function renderFomenu() {
   var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
-  $("fomenu-vissza").textContent = bent ? "← Térkép" : "🦄 Váltás";
+  $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });

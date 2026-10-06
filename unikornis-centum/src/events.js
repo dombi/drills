@@ -153,6 +153,7 @@ function tovabbMegoldasNelkul() {
   if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat();
 }
 function esemenyek() {
+  visszaFeliratok();   /* a közös „Vissza” tábla feliratai (ui.js) */
   billentyuzetEpit();
   bekotUresNegyzet();
   hosszuNyomas($("profil-szuloi"), belepSzuloi);
@@ -162,7 +163,7 @@ function esemenyek() {
     hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();
     if (J && J.palya) esemeny("palya_kilep", { palyaId: J.palya.id, allomas: J.allomasIdx, feladat: J.futoOssz, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000) });
-    sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });
+    sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} visszaUgrik("palya"); });
   $("mondom-gomb").addEventListener("click", mikrofonInd);
   $("mondom-bontas-gomb").addEventListener("click", mikrofonInd);
   $("bontas-kesz-gomb").addEventListener("click", function () {
@@ -226,7 +227,8 @@ function esemenyek() {
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
   $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
-  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább a ligetben */
+  $("vege-terkep").addEventListener("click", function () { hangGomb(); terkepNyit(FOMENU_LIGET); });   /* a liget mellett áll majd */
   $("szuloi-vissza").addEventListener("click", function () { hangGomb(); renderProfil(); mutat("kepernyo-profil"); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });
   $("beall-valaszmod").addEventListener("change", function () { mentes.valaszmod = $("beall-valaszmod").value; ment(); });
@@ -236,16 +238,13 @@ function esemenyek() {
       mentes.profilok[szuloiFul].naplo = []; mentes.profilok[szuloiFul].jatekMp = 0; ment(); renderSzuloi();
     }
   });
-  $("fomenu-odu").addEventListener("click", function () { hangGomb(); oduNyit("fomenu"); });
-  $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
   $("odu-vissza").addEventListener("click", function () { oduTavozik(); });   /* a szivárványhídon át (odu.js); 2. koppintás: azonnal */
-  $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; oduUniHaza(); });
-  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); kertTajMozgasStop(); oduNyit("kert"); });
-  $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
+  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); kertTajMozgasStop(); visszaUgrik("kert"); });
+  $("utca-vissza").addEventListener("click", function () { utcaTavozik(); });   /* a szivárványkapun át (szalon.js); 2. koppintás: azonnal */
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
-  $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
-  $("bank-vissza").addEventListener("click", function () { hangGomb(); utcaNyit(); });
+  $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); visszaUgrik("szalon"); });
+  $("bank-vissza").addEventListener("click", function () { hangGomb(); visszaUgrik("bank"); });
 }
 

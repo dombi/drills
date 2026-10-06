@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=20261006-4">
+<link rel="stylesheet" href="style.css?v=20261006-5">
 </head>
 <body>
 
@@ -40,7 +40,6 @@
       <div class="fej-jobb">
         <span class="fomenu-szabaly">☀ Kihagyás nélkül: <b>arany szilánk + dupla bónusz</b></span>
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="fomenu-csillampor">0</b></span>
-        <button class="fej-gomb" id="fomenu-odu">🏠 Odú</button>
         <button class="fej-gomb" id="fomenu-szuloi" data-hosszu>👪</button>
       </div>
     </header>
@@ -50,7 +49,7 @@
 
   <section id="kepernyo-jatek" class="kepernyo">
     <header class="fejlec">
-      <button class="fej-gomb" id="jatek-haza">🏠 Haza</button>
+      <button class="fej-gomb" id="jatek-haza">← Liget</button>
       <div class="fej-cim" id="jatek-palyanev">Pálya</div>
       <div class="fej-jobb">
         <span id="jatek-szorzo" class="jatek-szorzo" hidden>×2</span>
@@ -116,7 +115,7 @@
   <!-- 🏔️ Fejtörő-hegy: versenyfeladat-állomások (tartalom a felhőből, src/fejtoro.js rajzolja) -->
   <section id="kepernyo-fejtoro" class="kepernyo">
     <header class="fejlec">
-      <button class="fej-gomb" id="ft-haza">🏠 Haza</button>
+      <button class="fej-gomb" id="ft-haza">← Liget</button>
       <div class="fej-cim" id="ft-cim">Fejtörő-hegy</div>
       <div class="fej-jobb">
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="ft-csillampor">0</b></span>
@@ -135,8 +134,8 @@
       <div class="szilank-nagy">🌟</div>
       <p id="vege-szoveg" class="vege-szoveg"></p>
       <div class="vege-gombok">
-        <button id="vege-fomenu" class="nagy-gomb">🏠 Főmenü</button>
-        <button id="vege-odu" class="nagy-gomb">🏡 Odú</button>
+        <button id="vege-terkep" class="nagy-gomb">🗺️ Térkép</button>
+        <button id="vege-fomenu" class="nagy-gomb">Tovább a ligetben</button>
         <button id="vege-kovetkezo" class="nagy-gomb kiemelt">➡ Következő pálya</button>
       </div>
     </div>
@@ -144,12 +143,11 @@
 
   <section id="kepernyo-odu" class="kepernyo">
     <header class="fejlec">
-      <button class="fej-gomb" id="odu-vissza">← Főmenü</button>
+      <button class="fej-gomb" id="odu-vissza">← Térkép</button>
       <div class="fej-cim">Az odú</div>
       <div class="fej-jobb">
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="odu-csillampor">0</b></span>
         <span class="csilla-szamlalo harmat" title="Tündérharmat – kitartásért jár"><span class="csilla-ikon">💧</span> <b id="odu-harmat">0</b></span>
-        <button class="fej-gomb" id="odu-valto">🦄 Váltás</button>
       </div>
     </header>
 
@@ -174,7 +172,7 @@
 
   <section id="kepernyo-kert" class="kepernyo">
     <header class="fejlec">
-      <button class="fej-gomb" id="kert-vissza">← Odú</button>
+      <button class="fej-gomb" id="kert-vissza">← Térkép</button>
       <div class="fej-cim">A kert</div>
       <div class="fej-jobb">
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="kert-csillampor">0</b></span>
@@ -190,7 +188,7 @@
 
   <section id="kepernyo-utca" class="kepernyo">
     <header class="fejlec">
-      <button class="fej-gomb" id="utca-vissza">← Odú</button>
+      <button class="fej-gomb" id="utca-vissza">← Térkép</button>
       <div class="fej-cim">Az utca</div>
       <div class="fej-jobb">
         <span class="csilla-szamlalo"><span class="csilla-ikon">✨</span> <b id="utca-csillampor">0</b></span>
@@ -272,6 +270,6 @@
 
 <script src="kert-hangok.js?v=20260919-1"></script>
 <script src="tk-diszek.js?v=20260924-1"></script>
-<script src="game.js?v=20261006-4"></script>
+<script src="game.js?v=20261006-5"></script>
 </body>
 </html>

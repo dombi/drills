@@ -953,7 +953,7 @@ function meseKonyvSVG() {
 var ODU_CELOK = [
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
-  { id: "osveny", felirat: "Ösvény", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
+  { id: "osveny", felirat: "Térkép", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
@@ -963,7 +963,7 @@ var ODU_CELOK = [
 var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
-  osveny: { szo: function () { return "Ösvények"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
+  osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   utca: { szo: function () { return "Kimegyünk az utcára!"; }, nyit: function () { utcaNyit(); } },
   kapu: { szo: function () { return "Kert"; }, nyit: function () { kertNyit(); } },   /* a kert ingyenes (2026-10) */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
@@ -1099,15 +1099,15 @@ function oduFelkel(nyujt, kesz) {
 }
 
 /* ── SZIVÁRVÁNYOS TÁVOZÁS az ösvényekre (unikornis pózok 6. lépés): az ablakból szivárványhíd nő le a felhőig,
-   az unikornis odasétál, hátat fordít, és felszalad rajta az ablakba. Ugyanez a „← Főmenü” gombra.
+   az unikornis odasétál, hátat fordít, és felszalad rajta az ablakba. Ugyanez a „← Térkép” gombra.
    Közben egy második koppintás (ablak vagy gomb) azonnal átvált. ── */
 var ODU_HID = { x: 60, w0: 124, w1: 26, skala: [1, 0.15] };
 ODU_HID.ut = szivarvanyGorbe([ODU_HID.x, 492], [34, 350], [104, 196], [186, 186], 40);
 var _oduTavozas = null;
 function oduTavozik() {
   if (_oduTavozas) { oduTavozasVege(); return; }   /* türelmetlen második koppintás */
-  if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Főmenü” gomb alvás közben: előbb felkel */
-  hangGomb(); mondd("Ösvények");
+  if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Térkép” gomb alvás közben: előbb felkel */
+  hangGomb(); mondd("Térkép");
   var tok = _oduTavozas = { hid: false, ott: false };
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   oduPanelZar();
@@ -1126,7 +1126,7 @@ function oduTavozasVege() {
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   var k = $("kepernyo-odu");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  terkepNyit();
+  visszaUgrik("odu");   /* a térképen az Odú mellett áll (ui.js) */
 }
 
 /* --- vezérlés --- */

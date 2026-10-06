@@ -9721,6 +9721,7 @@ function mutat(id) {
   if (volt) volt.classList.remove("aktiv");
   $(id).classList.add("aktiv");
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
+  if (id === "kepernyo-vege") vegeGombok();
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
@@ -9742,7 +9743,7 @@ function renderProfil() {
 }
 /* ── Ligetválasztó: a főképernyő két szintje ──
    FOMENU_LIGET = null → a festett ligettérkép (src/terkep.js: renderLigetTerkep — az unikornis odasétál a ligethez);
-   különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / Haza / Fejtörő után
+   különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / „← Liget” / Fejtörő után
    ugyanide jön vissza (a palyaInditas / fejtoroInditas jegyzi fel); odúból, utcáról, profilváltás
    után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
 var FOMENU_LIGET = null;
@@ -9753,7 +9754,41 @@ function ligetJegyez(r) {
   FOMENU_LIGET = r; TERKEP_HOL = { leny: mentes.leny, id: r };   /* a térképen is itt áll majd */
   if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
 }
-function terkepNyit() { FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu"); }
+/* a térkép; ha hol adott (odu / utca / kert / egy liget), az unikornis ott áll majd — onnan jött ki (TERKEP_HOL) */
+function terkepNyit(hol) {
+  if (hol) TERKEP_HOL = { leny: mentes.leny, id: hol };
+  FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu");
+}
+/* ── KÖZÖS „VISSZA” SZABÁLY (Térkép mint központ, 1. kör): minden helynek egy sor — ki a szülője, és mi a
+   gomb felirata. A „Vissza” mindig egy szinttel feljebb visz, a felirat a célt mondja. Új helynél ide kerül egy sor.
+   (A kivonulás-animációk — odú: szivárványhíd, utca: szivárványkapu, felhőkert: kilépés — a végén visszaUgrik-ot hívnak.) */
+var VISSZA = {
+  liget:   { szulo: "terkep", felirat: "← Térkép", gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
+  palya:   { szulo: "liget",  felirat: "← Liget",  gomb: "jatek-haza" },
+  fejtoro: { szulo: "liget",  felirat: "← Liget",  gomb: "ft-haza" },
+  odu:     { szulo: "terkep", felirat: "← Térkép", gomb: "odu-vissza" },
+  kert:    { szulo: "terkep", felirat: "← Térkép", gomb: "kert-vissza" },
+  utca:    { szulo: "terkep", felirat: "← Térkép", gomb: "utca-vissza" },
+  szalon:  { szulo: "utca",   felirat: "← Utca",   gomb: "szalon-vissza" },
+  bank:    { szulo: "utca",   felirat: "← Utca",   gomb: "bank-vissza" },
+  tunemenykert: { szulo: "utca", felirat: "← Utca", gomb: "tk-vissza" }
+};
+function visszaFeliratok() {   /* indításkor: minden vissza-gomb a táblából kapja a feliratát */
+  Object.keys(VISSZA).forEach(function (h) { var g = $(VISSZA[h].gomb); if (g && h !== "liget") g.textContent = VISSZA[h].felirat; });
+}
+/* egy szinttel feljebb a helyről: a térképen a hely mellett áll az unikornis, a ligetbe / utcára / odúba vissza */
+function visszaUgrik(hely) {
+  var sz = (VISSZA[hely] || {}).szulo || "terkep";
+  if (sz === "liget") { renderFomenu(); mutat("kepernyo-fomenu"); }   /* FOMENU_LIGET még az a liget, ahonnan indult */
+  else if (sz === "utca") utcaNyit();
+  else if (sz === "odu") oduNyit(hely);
+  else terkepNyit(hely === "liget" ? FOMENU_LIGET : hely);
+}
+/* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
+function vegeGombok() {
+  var ln = LIGET_NEV[FOMENU_LIGET];
+  $("vege-fomenu").textContent = (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+}
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
 /* a fomenü pályái ligetenként, a megjelenítés sorrendjében (a választó és a liget-belső is ezt használja) */
@@ -9816,7 +9851,7 @@ function renderFomenu() {
   var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
-  $("fomenu-vissza").textContent = bent ? "← Térkép" : "🦄 Váltás";
+  $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
@@ -10963,6 +10998,7 @@ function tovabbMegoldasNelkul() {
   if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat();
 }
 function esemenyek() {
+  visszaFeliratok();   /* a közös „Vissza” tábla feliratai (ui.js) */
   billentyuzetEpit();
   bekotUresNegyzet();
   hosszuNyomas($("profil-szuloi"), belepSzuloi);
@@ -10972,7 +11008,7 @@ function esemenyek() {
     hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();
     if (J && J.palya) esemeny("palya_kilep", { palyaId: J.palya.id, allomas: J.allomasIdx, feladat: J.futoOssz, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000) });
-    sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} renderFomenu(); mutat("kepernyo-fomenu"); });
+    sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} visszaUgrik("palya"); });
   $("mondom-gomb").addEventListener("click", mikrofonInd);
   $("mondom-bontas-gomb").addEventListener("click", mikrofonInd);
   $("bontas-kesz-gomb").addEventListener("click", function () {
@@ -11036,7 +11072,8 @@ function esemenyek() {
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
   $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
-  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });
+  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább a ligetben */
+  $("vege-terkep").addEventListener("click", function () { hangGomb(); terkepNyit(FOMENU_LIGET); });   /* a liget mellett áll majd */
   $("szuloi-vissza").addEventListener("click", function () { hangGomb(); renderProfil(); mutat("kepernyo-profil"); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });
   $("beall-valaszmod").addEventListener("change", function () { mentes.valaszmod = $("beall-valaszmod").value; ment(); });
@@ -11046,17 +11083,14 @@ function esemenyek() {
       mentes.profilok[szuloiFul].naplo = []; mentes.profilok[szuloiFul].jatekMp = 0; ment(); renderSzuloi();
     }
   });
-  $("fomenu-odu").addEventListener("click", function () { hangGomb(); oduNyit("fomenu"); });
-  $("vege-odu").addEventListener("click", function () { hangGomb(); oduNyit("vege"); });
   $("odu-vissza").addEventListener("click", function () { oduTavozik(); });   /* a szivárványhídon át (odu.js); 2. koppintás: azonnal */
-  $("odu-valto").addEventListener("click", function () { hangGomb(); sorozatMegtor(); oduPanelZar(); renderProfil(); mutat("kepernyo-profil"); });
   $("odu-panel-zar").addEventListener("click", function () { hangGomb(); oduPanelZar(); });
   $("odu-lap-zar").addEventListener("click", function () { hangGomb(); $("odu-lap").hidden = true; oduUniHaza(); });
-  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); kertTajMozgasStop(); oduNyit("kert"); });
-  $("utca-vissza").addEventListener("click", function () { hangGomb(); oduNyit("utca"); });
+  $("kert-vissza").addEventListener("click", function () { hangGomb(); kertLepesHang(false); kertTajMozgasStop(); visszaUgrik("kert"); });
+  $("utca-vissza").addEventListener("click", function () { utcaTavozik(); });   /* a szivárványkapun át (szalon.js); 2. koppintás: azonnal */
   $("tk-vissza").addEventListener("click", function () { hangGomb(); tkKilep(true); });
-  $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); utcaNyit(); });
-  $("bank-vissza").addEventListener("click", function () { hangGomb(); utcaNyit(); });
+  $("szalon-vissza").addEventListener("click", function () { hangGomb(); mondd("Kész! Szuper lettél."); visszaUgrik("szalon"); });
+  $("bank-vissza").addEventListener("click", function () { hangGomb(); visszaUgrik("bank"); });
 }
 
 /* ============ 10b) ODÚ — v0: hazamehető szoba · v1: időjárás-vásárlás ============ */
@@ -12014,7 +12048,7 @@ function meseKonyvSVG() {
 var ODU_CELOK = [
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
-  { id: "osveny", felirat: "Ösvény", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
+  { id: "osveny", felirat: "Térkép", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
   { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "kapu", felirat: "Kert", hit: [280, 333, 92, 112], fx: 326, fy: 326, cx: 326 },   /* a padlón álló kapu, akkora, mint a többi ajtó (2026-09-28) */
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
@@ -12024,7 +12058,7 @@ var ODU_CELOK = [
 var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", utca: "odu-t-utca", kapu: "odu-kert-kapu", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
-  osveny: { szo: function () { return "Ösvények"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
+  osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   utca: { szo: function () { return "Kimegyünk az utcára!"; }, nyit: function () { utcaNyit(); } },
   kapu: { szo: function () { return "Kert"; }, nyit: function () { kertNyit(); } },   /* a kert ingyenes (2026-10) */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
@@ -12160,15 +12194,15 @@ function oduFelkel(nyujt, kesz) {
 }
 
 /* ── SZIVÁRVÁNYOS TÁVOZÁS az ösvényekre (unikornis pózok 6. lépés): az ablakból szivárványhíd nő le a felhőig,
-   az unikornis odasétál, hátat fordít, és felszalad rajta az ablakba. Ugyanez a „← Főmenü” gombra.
+   az unikornis odasétál, hátat fordít, és felszalad rajta az ablakba. Ugyanez a „← Térkép” gombra.
    Közben egy második koppintás (ablak vagy gomb) azonnal átvált. ── */
 var ODU_HID = { x: 60, w0: 124, w1: 26, skala: [1, 0.15] };
 ODU_HID.ut = szivarvanyGorbe([ODU_HID.x, 492], [34, 350], [104, 196], [186, 186], 40);
 var _oduTavozas = null;
 function oduTavozik() {
   if (_oduTavozas) { oduTavozasVege(); return; }   /* türelmetlen második koppintás */
-  if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Főmenü” gomb alvás közben: előbb felkel */
-  hangGomb(); mondd("Ösvények");
+  if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Térkép” gomb alvás közben: előbb felkel */
+  hangGomb(); mondd("Térkép");
   var tok = _oduTavozas = { hid: false, ott: false };
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   oduPanelZar();
@@ -12187,7 +12221,7 @@ function oduTavozasVege() {
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   var k = $("kepernyo-odu");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  terkepNyit();
+  visszaUgrik("odu");   /* a térképen az Odú mellett áll (ui.js) */
 }
 
 /* --- vezérlés --- */
@@ -15804,8 +15838,8 @@ function renderUtca() {
 var _utcaTavozas = null;
 function utcaTavozik() {
   if (_utcaTavozas) { utcaTavozasVege(); return; }
-  var hely = $("utca-uni-hely"); if (!hely) return;
-  hangGomb(); mondd("Induljunk matekozni!");
+  var hely = $("utca-uni-hely"); if (!hely) { hangGomb(); visszaUgrik("utca"); return; }
+  hangGomb(); mondd("Irány a térkép!");
   var tok = _utcaTavozas = {};
   var L = UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles, h = L.hazak.odu, k = 0.32 * h[2];
   var ajto = [h[0], h[1] - 2 * h[2]], kapu = [L.portal[0], L.portal[1] - 18];
@@ -15827,7 +15861,7 @@ function utcaTavozasVege() {
   _utcaTavozas = null;
   var k = $("kepernyo-utca");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
-  terkepNyit();
+  visszaUgrik("utca");   /* a térképen az utca-kapunál áll (ui.js) */
 }
 function utcaFodraszKoppint() {
   hangGomb();
@@ -17643,7 +17677,7 @@ function tkKilep(gombbal) {
     esemeny("kert_kilep", { szoba: TK.szoba, mp: TK.belepMp });
     ment();
   }
-  utcaNyit();
+  visszaUgrik("tunemenykert");   /* → utca (ui.js) */
   if (gombbal) mondd("Visszaértünk az utcára!");
 }
 function tkHazakuld(szoveg) {
@@ -18649,7 +18683,7 @@ function fejtoroKilep() {
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
   if (FTJ) esemeny("palya_kilep", { palyaId: FTJ.pa.id, fejtoro: true, allomas: FTJ.i });
   FTJ = null;
-  renderFomenu(); mutat("kepernyo-fomenu");
+  visszaUgrik("fejtoro");   /* → a liget (ui.js) */
 }
 /* ============ 11) INDÍTÁS ============ */
 betolt();
@@ -18721,6 +18755,7 @@ window.UC = {
   OSV: OSV, OSV_KERULO: OSV_KERULO, osvenyAllomasra: osvenyAllomasra, osvenyKerulo: osvenyKerulo, osvenyOduba: osvenyOduba, osvenyOrom: osvenyOrom, keruloUt: keruloUt,
   uniPorog: uniPorog, uniFordul: uniFordul, uniNezoAdat: uniNezoAdat, UNI_FORDUL: UNI_FORDUL, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
   kertAgyKoppint: kertAgyKoppint,
+  VISSZA: VISSZA, visszaUgrik: visszaUgrik, terkepNyit: terkepNyit, terkepHol: function () { return TERKEP_HOL; }, terkepAll: function () { return LIGET_M && LIGET_M.all; },   /* TÉRKÉP MINT KÖZPONT */
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,
   bankOsszevon: bankOsszevon, VALTASOK: VALTASOK, VALUTAK: VALUTAK, FELULIR: FELULIR, utcaMod: utcaMod,   /* 🏦 TÜNDÉRBANK */
