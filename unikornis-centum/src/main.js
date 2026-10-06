@@ -15,6 +15,7 @@ window.UC = {
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
   gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
   visszaHir: visszaHir, VISSZA_HIR: VISSZA_HIR, napiHatar: napiHatar, napiMarad: napiMarad, visszaTar: visszaTar, hetAzon: hetAzon, hetPecset: hetPecset, visszaAllapot: visszaAllapot,   /* 💌 VISSZAHÍVÁS (2. kör) */
+  lenyTar: lenyTar, lenyPalyaVege: lenyPalyaVege, lenyHirek: lenyHirek, lenyRajz: lenyRajz, lenyPal: lenyPal, lenyOduMod: lenyOduMod, lenyKikeles: lenyKikeles, LENY_NAP: LENY_NAP,   /* 🐣 VISSZAHÍVÁS (3. kör): tojás + fióka */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
   tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertHirek: tenyKertHirek,
   tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */

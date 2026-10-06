@@ -11,6 +11,8 @@
      • meglepetesSor(tar, tabla): a napi meglepetés — naponta legfeljebb egy, és legfeljebb egy gyűlik össze.
      • erik(obj, lepcsok): gyakorlós napokon érő dolog (mag → csíra → levelek → bimbó → virág); a kimaradt nap
        nem ront rajta, ott vár, ahol volt.
+   Visszahívás 3. kör (2026-10-06): a gyakPalyaVege a varázstojást is lépteti (leny.js lenyPalyaVege), a hír-sornak
+   új forrása van („leny”). A lelet MINDEN pályavégén megtörténhet (ha még nincs tojás), a lépcsők csak új gyakorlós napon.
    Visszahívás 2. kör (2026-10-06, terv/visszahivas-rendszerterv.html): LÁTHATATLANUL bővül, a gyerek semmit nem lát:
      • visszaHir(opc): KÖZÖS hír-sor az ösvény végére (palyaVege, ftVege). A források egy adat-táblában (VISSZA_HIR),
        sorrendben; most a Tény-kert hírei, később a tojás, a felhő, a levél, a pecsét. Legfeljebb egy „holnapra” mondat.
@@ -41,7 +43,9 @@ function gyakLep(p) {
 /* egy végigjátszott pálya vége (palyaVege, a Fejtörő-hegy ftVege): ha ez a nap első pályája, itt indul minden,
    ami gyakorlós napra vár — most a bimbók nyílása, később a napi meglepetés és a ritka mag érése. */
 function gyakPalyaVege() {
-  if (!gyakLep()) return false;
+  var uj = gyakLep();
+  lenyPalyaVege(uj);      /* 🥚 a varázstojás: az első pályavégén lelet, aztán gyakorlós naponként egy lépcső (leny.js) */
+  if (!uj) return false;
   tenyKertNyit();
   tenyKertRitkaErik();    /* 🌰 a ritka mag egy lépcsővel tovább érik a dombon (teny-kert.js, 6. kör) */
   tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
@@ -160,7 +164,8 @@ function hetPecset(p) {
    (csúcs–vég szabály). A forrás maga jegyzi meg, hogy már elmondta (egyszer szól).
    Új forrás (tojás, felhő, levél, pecsét) = egy új sor ebben a táblában. opc.hajt = új hajtások ezen az ösvényen. */
 var VISSZA_HIR = [
-  { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } }   /* 🌸 Tény-kert (teny-kert.js) */
+  { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } },   /* 🌸 Tény-kert (teny-kert.js) */
+  { id: "leny", fn: function () { return lenyHirek(); } }                     /* 🥚 tojás, 🐣 fióka (leny.js, 3. kör) */
 ];
 var VISSZA_HIR_SZIN = "#3f9e6a";
 /* Visszaad: { sor, html, mondat } vagy null (nincs hír) */

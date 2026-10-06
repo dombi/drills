@@ -778,6 +778,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
     s += '<g id="odu-uni-emel"><g transform="translate(346,492)"><g id="odu-uni-flip" style="--dir:' + udir + ';transform:scale(var(--dir,1),1)"><g id="odu-uni-alvo" transform="scale(1.28)">' + unikornisSVG("odu-uni", c, 1, P().oltozet) + '</g></g></g></g>';
     s += '</g>';
     s += '<g id="odu-agy-elore" pointer-events="none"><g class="odu-agy-matrac">' + AGY_KERET + agyRajz((o.szint && o.szint.agy) || 1, "elol") + '</g></g>';   /* fekve az ágy pereme az unikornis elé */
+    if (tag) s += lenyOduReteg();   /* 🥚 fészek a tojással / 🐣 a fióka a padlón, elöl (leny.js, visszahívás 3. kör) */
   }
 
   /* mennyezeti csillámok */
@@ -1052,6 +1053,7 @@ function oduNyit(honnan) {
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();
   bemutat("szekreny");   /* egyszer: „Itt vannak a holmijaid…” (ui.js) */
+  lenyOduNyit();         /* 🥚 ami vár: a patakparti lelet, a kikelés (leny.js) */
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */
 function oduTeruletArany() {
@@ -1078,6 +1080,7 @@ function renderOdu() {
     h.addEventListener("click", function () { oduTargyKoppint(cel); });
   });
   if (ODU_FEKSZIK) oduFekszik(true);         /* újrarajzolás (ablakméret) alvás közben: rögtön újra az ágyban alszik */
+  lenyOduKot($("odu-szoba").querySelector("svg"));   /* 🥚 tojás-koppintás, 🐣 a fióka totyogása (leny.js) */
 }
 /* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
 var _oduMeretIdo = null;
