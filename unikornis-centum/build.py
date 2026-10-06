@@ -64,6 +64,7 @@ MODULES = [
     "odu.js",             # 10b) odú + bolt (napszak, időjárás, bútorok, díszek, ruhák, kristályok)
     "odu-elet.js",        # 10b2) élet az odúban: élénk szoba (A), élő polc (B), kis élet (F)
     "kert-tajkep.js",     # 10c2) 🌿 a patakparti C2 kert képe (fekvő/álló), hal + szitakötő — a Tény-kert is erre épül
+    "teny-kert.js",       # 10c3) 🌷 Tény-kert: virág-modul (12 forma), tövek a spirálon, belesétálás + ráközelítés, közeli kép, hír
     "kert.js",            # 10d) kert/udvar (séta, trükkök, berendezés, ételek)
     "szalon.js",          # 10e) fodrászat/szépségszalon + utca-hub
     "bank.js",            # 10f) 🏦 Tündérbank: ✨→💧 váltás (VALUTAK/VALTASOK tábla, pályás nyitás)

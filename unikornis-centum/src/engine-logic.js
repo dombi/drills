@@ -758,6 +758,7 @@ function palyaVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
+  var kertV = tenyKertPalyaHir(J.tvHajt || 0);   /* 🌷 „Két új virág nyílt a kertedben!” / „Új hajtás bújt ki…” (teny-kert.js) */
   var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
@@ -800,7 +801,7 @@ function palyaVege() {
   $("vege-szoveg").innerHTML =
     "<b>" + J.futoOssz + "</b> feladatból <b>" + J.futoElsore + "</b> sikerült elsőre.<br>" +
     "Gyűjtöttél: <b>" + J.futoCsilla + " ✨</b> csillámport." +
-    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + bankSor + (ekV ? ekV.html : "") +
+    teljesSor + napiSor + ajanlottSor + harmatSor + kapuSor + bankSor + (ekV ? ekV.html : "") + (kertV ? kertV.html : "") +
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
@@ -815,7 +816,7 @@ function palyaVege() {
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
   var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
   if (bankJegy) ajanlottSzov += " A Tündérbankban most válthatsz!";
-  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + (ekV ? ekV.mondat : "") + napiSzov + ajanlottSzov + buzd);
+  mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + (ekV ? ekV.mondat : "") + napiSzov + ajanlottSzov + (kertV ? kertV.mondat : "") + buzd);
 }
 function keruloSzilankHalvanyit() { var s = $("jatek-szilank"); if (s) s.classList.add("halvany"); }
 /* a sorozat megtörése (pálya félbehagyása cél előtt, profilváltás) — néma, nincs felirat (7.1b) */
@@ -829,7 +830,7 @@ function kovetkezoJatszhato(id) {
 }
 function naplozz(alap, elsore, valasz) {
   var tj = tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
-  tenyKertHajt(tj);                            /* 🌷 Tamagocsi-kert: az első villám-válasz (doboz ≥ 3) → rejtett hajtás */
+  if (tenyKertHajt(tj)) J.tvHajt = (J.tvHajt || 0) + 1;   /* 🌷 Tamagocsi-kert: az első villám-válasz (doboz ≥ 3) → rejtett hajtás (az ösvény végén hír) */
   if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
   P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
     helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });

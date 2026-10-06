@@ -459,6 +459,7 @@ function ftVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();
   gyakPalyaVege();   /* 🌱 a Fejtörő-hegy ösvénye is gyakorlós nap (gondozas.js) */
+  var kertV = tenyKertPalyaHir(0);   /* 🌷 „… új virág nyílt a kertedben!” (teny-kert.js) */
   ment();
   esemeny("palya_end", { palyaId: pid, fejtoro: true, feladat: FTJ.osszes, elsore: FTJ.elsore,
     idoMp: Math.round((Date.now() - FTJ.indult) / 1000), teljes: true, csillampor: FTJ.csilla, harmat: harmat });
@@ -467,11 +468,11 @@ function ftVege() {
     "<b>" + FTJ.osszes + "</b> fejtörőből <b>" + FTJ.elsore + "</b> sikerült elsőre, segítség nélkül.<br>" +
     "Gyűjtöttél: <b>" + FTJ.csilla + " ✨</b> csillámport." +
     (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>' : '') +
-    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>';
+    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>' + (kertV ? kertV.html : "");
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
-  ftMondd("Megmásztad a hegyet! " + FTJ.osszes + " fejtörőt oldottál meg. Szép munka volt!");
+  ftMondd("Megmásztad a hegyet! " + FTJ.osszes + " fejtörőt oldottál meg. Szép munka volt!" + (kertV ? kertV.mondat : ""));
   FTJ = null;
 }
 function fejtoroKilep() {

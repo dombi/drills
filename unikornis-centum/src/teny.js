@@ -306,7 +306,10 @@ function tenyKertAllapot(tar, kert) {
    Bimbó: a hajtás utáni naptári napon magától (nem kell menteni, a fázis a napból számolódik).
    Virág: a következő gyakorlós napon (a nap első végigjátszott pályája: gyakLep → tenyKertNyit). Ami nyílt, nyitva marad.
    Amíg a gyerek a kertet még nem látta (indult = 0), a virágok bimbóban várnak, így az első belépés
-   „Nézd, mennyi bimbó!” élménye megmarad (a 4. kör kapcsolja be). */
+   „Nézd, mennyi bimbó!” élménye megmarad (a 4. kör óta a teny-kert.js tenyKertBelep állítja be az első belépéskor:
+   a meglévő tudás — doboz ≥ 3 — és a várakozó hajtások ekkor bimbók lesznek, n = aznap, így a következő gyakorlós napon nyílnak).
+   K.gy = a gyerek virág-magja (a kinézethez), K.lg[agy] = az a gyakorlós nap, amikor utoljára látta közelről az ágyást
+   (ami azóta nyílt, annak egyszer lejátszódik a nyílás-jelenete), K.hir.mondva = az ösvény végén már elhangzott a hír. */
 function tenyKertTar(p) {
   p = p || P();
   var k = p.tenyKert;

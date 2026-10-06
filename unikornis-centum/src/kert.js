@@ -2,7 +2,7 @@
    Teljesen additív: saját mentés-ág P().kert, saját DOM #kepernyo-kert + .kert-* CSS.
    Belépés az odú kertkapuján (2026-10: ingyenes, nincs kulcs — kertKulcsRendez). Séta: koppints a fűre → odasétál. */
 var KERT_UNI_X = 50;   /* az unikornis vízszintes helye, % */
-var KERT_SUGO_SETA = "Koppints a fűre — az unikornis odasétál. 🚶";   /* séta-módban ez a súgó */
+var KERT_SUGO_SETA = "Koppints a fűre, vagy a túlparton egy virágágyásra! 🌷";   /* séta-módban ez a súgó */
 function kertSugo(t) { var s = $("kert-sugo"); if (s) s.textContent = t; }
 function kertNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -11,8 +11,12 @@ function kertNyit() {
   KERT_UNI_X = 50;
   KERT_MOD = null; KERT_RAK_TIP = null;   /* friss belépéskor séta-mód */
   kertKulcsRendez();                     /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk */
+  tenyKertAlaphelyzet();                 /* 🌷 Tény-kert: a fűben kezdünk (teny-kert.js) */
+  var bimboHir = tenyKertBelep();        /* első belépés: a meglévő tudás bimbóként jelenik meg */
   mutat("kepernyo-kert");                /* előbb látható legyen, hogy a színtér aránya mérhető (fekvő/álló kép) */
   renderKert();
+  if (bimboHir) { var h = $("kert-hir"); setTimeout(function () { kertHir(bimboHir); }, h && h.classList.contains("lat") ? 6200 : 400); }
+  else if (tenyKertUjVirag()) kertSugo("🌸 Új virág nyílt a túlparton! Koppints az ágyásra!");
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.
@@ -38,7 +42,7 @@ function kertHir(szoveg) {
   h.classList.remove("lat"); void h.offsetWidth; h.classList.add("lat");
   clearTimeout(kertHir._t); kertHir._t = setTimeout(function () { h.classList.remove("lat"); }, 6000);
   h.onclick = function () { h.classList.remove("lat"); };
-  try { if (mentes.hang) mondd(szoveg.replace(/[🌿✨🌸]/g, "")); } catch (e) {}
+  try { if (mentes.hang) mondd(szoveg.replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu, "")); } catch (e) {}
 }
 function renderKert() {
   var cel = $("kert-csillampor"); if (cel) cel.textContent = P().csillampor;
@@ -46,12 +50,13 @@ function renderKert() {
   var host = $("kert-szinter"); if (!host) return;
   var c = LENYEK[mentes.leny];
   host.innerHTML =
+    '<div id="kert-kamera" class="kert-kamera">' +                          /* 🌷 a ráközelítés rétege: az ágyásra koppintva ez nagyít (teny-kert.js) */
     kertHatterSVG(kertTajOrient(host)) +                                    /* a patakparti C2 kert (kert-tajkep.js), fekvő vagy álló */
     '<div id="kert-elemek" class="kert-elemek"></div>' +                    /* lerakott tárgyak rétege (mélység szerint sorolva) */
     '<div id="kert-uni-doboz" class="kert-uni-doboz"><div class="kert-uni-flip">' +
       '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' +
         unikornisSVG("kert-uni", c, 1, P().oltozet) +
-      '</svg></div></div>';
+      '</svg></div></div></div>';
   var doboz = $("kert-uni-doboz");
   doboz.style.left = KERT_UNI_X + "%";
   doboz.style.setProperty("--dir", 1);
@@ -64,21 +69,24 @@ function renderKert() {
   kertFeszerRender();
   kertTrukksorRender();
   kertTajMozgasIndit();                  /* hal + szitakötő */
+  tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
 }
 /* ha a színtér aránya átbillen (telefon elforgatása), csak a háttér cserélődik a másik elrendezésre */
 window.addEventListener("resize", function () {
   var host = $("kert-szinter"), k = $("kepernyo-kert");
   if (!host || !k || !k.classList.contains("aktiv")) return;
   var o = kertTajOrient(host); if (o === KERT_ORIENT) return;
+  if (TVK.allapot) { tenyKertAlaphelyzet(); renderKert(); kertSugo(KERT_SUGO_SETA); return; }   /* a Tény-kertben (séta, közeli kép) elforgatva: vissza a fűre */
   var regi = host.querySelector(".kert-hatter"); if (!regi) return;
   var t = document.createElement("div"); t.innerHTML = kertHatterSVG(o);
-  host.replaceChild(t.firstChild, regi);
+  regi.parentNode.replaceChild(t.firstChild, regi);
   kertTajMozgasIndit();
+  tenyKertTavol();
 });
 /* a színtérre koppintás: berendezés-módban lerakás, egyébként séta */
 function kertSzinterKlikk(e) {
   var host = $("kert-szinter"); if (!host) return;
-  if (KERT_TRUKK_FUT) return;                                            /* egyszeri trükk közben nem történik semmi */
+  if (KERT_TRUKK_FUT || TVK.allapot) return;                             /* egyszeri trükk, ill. a Tény-kert sétája / közeli képe közben nem történik semmi */
   if (KERT_MOD === "pakol") {
     var pe = e.target.closest && e.target.closest(".kt-elem");
     if (pe) kertElemPakol(parseInt(pe.getAttribute("data-i"), 10));
@@ -91,6 +99,8 @@ function kertSzinterKlikk(e) {
     return;
   }
   /* séta mód (alap) */
+  var agyas = e.target.closest && e.target.closest(".kc-agyas");          /* 🌷 a túlparti ágyásra: átsétál a hídon, és ráközelít (teny-kert.js) */
+  if (agyas) { tenyKertBesetal(agyas.getAttribute("data-agy")); return; }
   if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(true); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
   var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }

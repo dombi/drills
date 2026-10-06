@@ -18,7 +18,8 @@ var KERT_LAY = {
        hid: { x: 500, yF: 418, yB: 338, wF: 44, wB: 24 },
        hal: [668, 374], nad: [[934, 392], [70, 404], [338, 402], [868, 396]],
        fuz: [52, 300], fak: [[968, 262, 1], [905, 252, .78]],
-       szk: [[930, 344], [840, 290], [720, 318], [640, 300], [760, 360], [880, 330]] },
+       szk: [[930, 344], [840, 290], [720, 318], [640, 300], [760, 360], [880, 330]],
+       allo: { o: [352, 338], s: [648, 338], d: [500, 302] } },
   a: { W: 400, H: 660,
        agy: { o: { cx: 100, cy: 302, rx: 86, ry: 30 }, s: { cx: 300, cy: 302, rx: 86, ry: 30 } },
        domb: { cx: 200, cy: 258, rx: 34, ry: 14 },
@@ -26,8 +27,10 @@ var KERT_LAY = {
        hid: { x: 200, yF: 420, yB: 346, wF: 30, wB: 17 },
        hal: [292, 378], nad: [[388, 398], [150, 402]],
        fuz: [18, 300], fak: [[388, 262, .62]],
-       szk: [[386, 350], [330, 300], [250, 322], [300, 362]] }
+       szk: [[386, 350], [330, 300], [250, 322], [300, 362]],
+       allo: { o: [154, 346], s: [246, 346], d: [200, 288] } }
 };
+/* allo: a híd túlsó végénél, az ágyások (o, s) és a domb (d) előtt itt áll meg az unikornis, mielőtt a kép ráközelít (teny-kert.js) */
 var KERT_ORIENT = "f";   /* az épp kirajzolt elrendezés: "f" fekvő, "a" álló */
 
 /* fekvő vagy álló kép: a színtér arányából (a telefon álló képernyőjén az álló változat) */
@@ -139,9 +142,10 @@ function kertTajHid(Hh) {
   });
   return s + '</g>';
 }
-/* egy ágyás a túlparton: kővel szegett, frissen ásott föld (a virágok a 4. körben a .kc-agy-virag csoportba nőnek) */
+/* egy ágyás a túlparton: kővel szegett föld; a virágok (teny-kert.js, tenyKertTavol) a .kc-agy-virag csoportba nőnek.
+   Koppintható (a .kc-agy-hit nagyobb, láthatatlan folt): az unikornis belesétál, a kép ráközelít. */
 function kertTajAgy(op, L) {
-  var K = L.agy[op], s = '<g class="kc-agyas" data-agy="' + op + '">';
+  var K = L.agy[op], s = '<g class="kc-agyas" data-agy="' + op + '"><g class="kc-agy-test">';
   s += '<ellipse cx="' + K.cx + '" cy="' + ktR(K.cy + K.ry * .5) + '" rx="' + (K.rx + 10) + '" ry="' + ktR(K.ry * .7) + '" fill="#2c5a1e" opacity=".14"/>';
   s += '<g filter="url(#kcg-firka)"><ellipse cx="' + K.cx + '" cy="' + K.cy + '" rx="' + K.rx + '" ry="' + K.ry + '" fill="url(#kcg-fold)"/>';
   for (var j = 1; j < 4; j++) s += '<ellipse cx="' + K.cx + '" cy="' + ktR(K.cy + 1) + '" rx="' + ktR(K.rx * j / 4.3) + '" ry="' + ktR(K.ry * j / 4.3) + '" fill="none" stroke="#8d6440" stroke-width="1" opacity=".45"/>';
@@ -150,7 +154,7 @@ function kertTajAgy(op, L) {
     var a = i / N * Math.PI * 2;
     s += '<ellipse cx="' + ktR(K.cx + Math.cos(a) * K.rx) + '" cy="' + ktR(K.cy + Math.sin(a) * K.ry) + '" rx="' + ktR(8 + ktHash(op + i) % 30 / 10) + '" ry="' + ktR(5.2 + ktHash(i + op) % 16 / 10) + '" fill="url(#kcg-ko-' + op + ')" stroke="#b3a3a8" stroke-width=".7"/>';
   }
-  return s + '</g><g class="kc-agy-virag"></g></g>';
+  return s + '</g><g class="kc-agy-virag"></g></g><ellipse class="kc-agy-hit" cx="' + K.cx + '" cy="' + (K.cy - 10) + '" rx="' + (K.rx + 8) + '" ry="' + (K.ry + 22) + '" fill="transparent"/></g>';
 }
 /* a csodaágyás-domb a két ágyás között (a ritka mag helye; most még üres, fehér kavics-gyűrű) */
 function kertTajDomb(L) {

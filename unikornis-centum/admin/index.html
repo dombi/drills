@@ -147,6 +147,8 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 .elonezet{ margin:2px 0 4px 20px; font-size:14px; }
 /* 🌸 Tények (tény-motor 2. kör) */
 .teny-tablak{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; margin-top:12px; }
+.teny-kert-agyak{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-top:8px; }
+.tv-pult{ width:100%; height:auto; display:block; border-radius:12px; }
 .teny-racs{ width:auto; border-collapse:separate; border-spacing:2px; font-size:11px; }
 .teny-racs th{ background:none; position:static; padding:0; width:28px; height:22px; text-align:center; color:var(--halvany); border:none; }
 .teny-racs td{ padding:0; border:2px solid transparent; border-radius:7px; cursor:pointer; }
@@ -211,6 +213,8 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261005-4"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261005-1"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
+<script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
+<script src="../src/teny-kert.js?v=20261006-1"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
 <script>
 (function () {
 "use strict";
@@ -669,7 +673,7 @@ function tenyProfil(u) {
   var v = (A.tenyLeny || {})[u.uid];
   if (l.indexOf(v) < 0) v = l.slice().sort(function (a, b) { return tenyProbak(u.unicorns[b]) - tenyProbak(u.unicorns[a]); })[0];
   var p = u.unicorns[v];
-  return { leny: v, tar: p.tenyek || {}, tipus: p.tenyTipus || {} };
+  return { leny: v, tar: p.tenyek || {}, tipus: p.tenyTipus || {}, kert: p.tenyKert || null };
 }
 /* az érvényes beállítás egy gyereknél (alap < csoport < egyéni) — ugyanaz a tenyOsszevon, mint a játékban */
 function tenyHatas(uid) {
@@ -816,6 +820,8 @@ function rajzTenyGyerek(u) {
     'A tükörhelyen ugyanaz a család áll. <i class="folt l-villam"></i> villám · <i class="folt l-tudja"></i> tudja · <i class="folt l-tanulja"></i> tanulja · <i class="folt l-uj"></i> új. ' +
     "Pötty = esedékes ismétlés, piros keret = botlás az utolsó 3 próbában. Kattints egy mezőre a részletekért.</div>";
 
+  h += rajzTenyKert(pr);   /* 🌷 a gyerek kertje (Tamagocsi-kert 4. kör) */
+
   /* a kijelölt család részletei */
   if (A.tenyKij) {
     var p = A.tenyKij.split(":"), agy = p[0], lo = +p[1], hi = +p[2];
@@ -832,6 +838,26 @@ function rajzTenyGyerek(u) {
   h += "<h3>💯 A 100-as kör típusai</h3>" + tenyTipusTabla(pr.tipus, pr.tar) +
     '<p class="kicsi halvany" style="margin-top:6px">A 100-as körben nem minden feladat külön tény, hanem a típusát mérjük. A rokon tény a diagnózis: ha a 67 + 5 lassú, de a 7 + 5 már megy, ' +
     "akkor a típus (a tízes-átlépés) a gyenge, nem a tény; ha a 7 + 5 sem megy, előbb azt kell gyakorolni.</p>";
+  return h;
+}
+/* 🌷 a gyerek kertje (Tamagocsi-kert 4. kör): amit a gyerek a Tény-kertben lát — ugyanaz a rajz (src/teny-kert.js), szám nélkül.
+   A pedagógus itt látja, melyik tő melyik család (az egér a tő fölött), és hol tart a kert. */
+function tenyNapDatum(n) { var d = new Date(n * 86400000); return d.getUTCFullYear() + "." + String(d.getUTCMonth() + 1).padStart(2, "0") + "." + String(d.getUTCDate()).padStart(2, "0") + "."; }
+var TENY_FAZIS_NEV = ["–", "🌱 hajtás", "🌷 bimbó", "🌸 virág"];
+function rajzTenyKert(pr) {
+  var K = pr.kert || { v: {} }, ka = tenyKertAllapot(pr.tar, K).kert;
+  function cim(to) {
+    var c = to.cs;
+    return esc(c.a + ", " + c.b + ", " + c.c + " · " + VIRAG_FORMAK[to.forma].nev + "\n" + to.tenyek.map(function (t) { return tenyKiir(t.kulcs) + ": " + TENY_FAZIS_NEV[t.f]; }).join("\n"));
+  }
+  var h = '<h3>🌷 A gyerek kertje <small class="halvany">(amit a gyerek a Tény-kertben lát — szám nélkül)</small></h3><div class="kartya">';
+  h += '<div class="kicsi">' + (K.indult ? "Először járt a kertben: <b>" + tenyNapDatum(K.indult) + "</b>" : "<b>Még nem járt a kertben.</b> Az első belépéskor a fejből menő tényei (doboz ≥ 3) bimbóként jelennek meg.") +
+    " · 🌱 hajtás <b>" + ka.hajtas + "</b> · 🌷 bimbó <b>" + ka.bimbo + "</b> · 🌸 virág <b>" + ka.virag + "</b> · 💧 utolsó locsolás: <b>" + (K.loc ? tenyNapDatum(K.loc) : "még nincs") + "</b></div>";
+  h += '<div class="teny-kert-agyak">' + [["ok", "Rózsaszín ágyás (+ −)"], ["sd", "Lila ágyás (× ÷)"]].map(function (x) {
+    return '<div><div class="kicsi"><b>' + x[1] + "</b></div>" + tenyKertPultSVG(K, x[0], cim) + "</div>";
+  }).join("") + "</div>";
+  h += '<div class="kicsi halvany" style="margin-top:6px">Egy tő = egy számcsalád, rajta tényenként egy virág. Középen a könnyű családok, kifelé a nehezek; a tő helye mindig ugyanaz. ' +
+    "Vidd az egeret egy tő fölé: melyik család, és melyik ténye hol tart. Hajtás: az első villám-válasz (doboz ≥ 3) · bimbó: másnapra · virág: a következő gyakorlós napon. Ami nyílt, nyitva marad (botláskor sem csukódik be — a botlást a tábla mutatja).</div></div>";
   return h;
 }
 /* csoport-nézet: melyik tény botlós a legtöbb gyereknél (tanórára) + a lépcsők gyerekenként */
