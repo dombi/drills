@@ -48,6 +48,7 @@ MODULES = [
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
+    "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör
 
     # ── Képernyők ──
     "ui.js",              # 7) mutat(), renderProfil, renderFomenu

@@ -9,7 +9,8 @@
    terkepHalo(T, lathato, mod) — az elrejtett zsákutca-helyek lenyesve; az elrejtett átmenő hely helyén bokor áll, az út megmarad
    terkepRajzol(host, T, o) — a kép + az unikornis (a gyerek saját, öltöztetett unikornisa: unikornisSVG)
    terkepSetal(M, cel, kesz) — végigmegy az ösvényeken (Dijkstra-út → a közös uniUtvonal: járás, fordulás); 2. hívás séta közben = azonnal ott van
-   (A kissárkány-térkép „köd” rétege ide jön majd, a helyek fölé — még nincs megírva.)
+   Opcionális: T.utRajz(d) = saját út-stílus (a kalandtérkép szaggatott ösvénye); o.fedo = SVG-réteg a helyek fölé, az unikornis alá
+   (a kalandtérkép felhői, nyomai — kaland.js, visszahívás 4. kör).
    LIGETTÉRKÉP: LIGET_TERKEP + renderLigetTerkep (a fomenü hívja, ha nincs liget kiválasztva).
    LIGET-BELSŐ: ligetUniReteg + ligetUget — az unikornis a kártyák alatt áll, választáskor odaüget, aztán indul a pálya. */
 
@@ -67,6 +68,7 @@ function ltF(n) { return n.toFixed(1); }
 function ltGorbeD(g, kezd) { return (kezd ? "M" + ltF(g[0][0]) + " " + ltF(g[0][1]) : "") + "C" + ltF(g[1][0]) + " " + ltF(g[1][1]) + " " + ltF(g[2][0]) + " " + ltF(g[2][1]) + " " + ltF(g[3][0]) + " " + ltF(g[3][1]); }
 function terkepUtakSVG(T, halo, mod) {
   var d = halo.utak.map(function (u) { return ltGorbeD(terkepEl(T, halo.utak, u[0], u[1], mod), true); }).join("");
+  if (T.utRajz) return T.utRajz(d);
   return '<path d="' + d + '" fill="none" stroke="#d9bf94" stroke-width="17" stroke-linecap="round"/>' +
          '<path d="' + d + '" fill="none" stroke="#f5e6c6" stroke-width="12" stroke-linecap="round"/>' +
          '<path d="' + d + '" fill="none" stroke="#fffaf0" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="2 11" opacity=".8"/>';
@@ -96,7 +98,7 @@ function terkepRajzol(host, T, o) {
   var a = terkepAllas(T, o.all, mod);
   host.innerHTML =
     '<svg class="terkep-svg" viewBox="0 0 ' + L.w + ' ' + L.h + '" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' + T.defs +
-      '<g filter="url(#lt-firka)">' + t.allo + terkepUtakSVG(T, halo, mod) + '</g>' + t.mozgo + bokrok + helyek + cimkek +
+      '<g filter="url(#lt-firka)">' + t.allo + terkepUtakSVG(T, halo, mod) + '</g>' + t.mozgo + bokrok + helyek + cimkek + (o.fedo || "") +
       '<g class="terkep-uni" pointer-events="none"><g class="terkep-uni-irany" style="--dir:' + (-a.o) + ';transform:scale(var(--dir,1),1)">' +
         unikornisSVG("lt-uni", LENYEK[mentes.leny], L.uni, P().oltozet) + '</g></g>' +
     '</svg>';
@@ -351,6 +353,7 @@ function ltJelzesRajz(T, id, x, y, k, nev, j, L, mod) {
   var bal = ((T.oldal[mod] || {})[id] || 1) > 0, le = !bal && j.alszik ? 1 : 0;   /* jobbra a hold alá */
   (j.jelzes || []).slice(0, 2).forEach(function (ik, i) {
     var ix = x + (bal ? -36 : 36) * k, iy = y - magas * k * 0.62 + (i + le) * 26 * k;
+    if (T.jelFent && T.jelFent[id]) { ix = x + (18 + i * 26) * k; iy = y - (magas + 10) * k; }   /* a jelkép tetején (pl. az Odún: balra az Utca neve, jobbra az unikornis) */
     s += '<g pointer-events="none" transform="translate(' + ltF(ix) + ' ' + ltF(iy) + ') scale(' + k + ')"><circle r="12" fill="#fff" stroke="' + (ik === "💧" ? "#29a3dd" : ik === "🏦" ? "#b07a10" : ik === "🦋" ? "#8a6fc0" : "#e0417a") + '" stroke-width="2"/>' +
          '<text y="4.5" text-anchor="middle" font-size="13">' + ik + '</text>' + ltAnim("opacity", "1;.75;1", "2.2s") + '</g>';
   });
@@ -414,6 +417,7 @@ var LIGET_TERKEP = {
   elr: { szeles: { w: 800, h: 460, hz: 110, uni: 0.5, jk: 1, to: [740, 432, 50, 13], lepkek: [[395, 190, 7, "#f7b8d0"], [640, 300, 9, "#fce49a"]] },
          allo:   { w: 400, h: 760, hz: 120, uni: 0.44, jk: 0.86, jelLe: true, to: [40, 520, 30, 10], lepkek: [[220, 240, 7, "#f7b8d0"], [150, 660, 9, "#fce49a"]] } },
   oldal: { szeles: { kert: -1, vasar: -1, fejtoro: -1, szorzo: 1 }, allo: { odu: -1, kert: -1, utca: 1, szorzo: -1, vasar: -1, fejtoro: -1 } },
+  jelFent: { odu: true },   /* az Odú jele (🥚 / 🦋 / ☁️, kaland.js) a csonk tetején */
   jelkep: LT_JELKEP,
   taj: ltTaj,
   defs: LT_DEFS
@@ -427,6 +431,7 @@ function renderLigetTerkep(racs, L) {
   var lathato = { odu: true, utca: true, kert: true }, jel = {}, mod = utcaMod(host.clientWidth, host.clientHeight);
   L.sorrend.forEach(function (r) { if (LIGET_TERKEP.helyek[r]) { lathato[r] = true; jel[r] = ligetOsszegzo(r, L.regiok[r]); } });
   jel.kert = { jelzes: tenyKertVar() ? ["🦋"] : [] };   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
+  jel.odu = { jelzes: lenyTerkepJel() };                 /* 🥚 / 🦋 / ☁️ a kis lény vár az odúban (kaland.js, visszahívás 4. kör) */
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
   var hol = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget;
   if (!lathato[hol]) hol = "odu";

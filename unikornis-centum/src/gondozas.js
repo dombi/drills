@@ -119,7 +119,8 @@ function napiHatar(tar, n) {
      uni:   { etel, jatek, apol } = a legutóbbi gondozás napja (tenyNap; null = még soha) → igeny();
             sziv = barátság (csak nő), szivNap = melyik napon kapott utoljára gondozásért, kedvenc = megtalálta-e, kosar = { id: db }
      leny2: a kis lény; fazis "" = még nincs tojás, aztán "tojas" | "fioka" | "kaland" | "kolyok" | "nagy";
-            t = a fázis kezdő gyakorlós napja (erik), terkep: { tiszta: [táj-sorszámok], napi: { nap, db } }, kepeslap: []
+            t = a fázis kezdő gyakorlós napja (erik), terkep: { tiszta: [táj-id], jog, napi: { nap, db }, hol, bagoly },
+            kepeslap: [táj-id], pikkely: [táj-id] (kaland.js, 4. kör)
      het:   { [hetAzon]: pecsétszám } — minden hét megmarad */
 function visszaTar(p) {
   p = p || P();
@@ -144,6 +145,10 @@ function visszaTar(p) {
   if (!l.terkep || typeof l.terkep !== "object") l.terkep = {};
   if (!Array.isArray(l.terkep.tiszta)) l.terkep.tiszta = [];
   if (!Array.isArray(l.kepeslap)) l.kepeslap = [];
+  if (!Array.isArray(l.pikkely)) l.pikkely = [];
+  if (typeof l.terkep.jog !== "number") l.terkep.jog = 0;
+  if (typeof l.terkep.hol !== "string") l.terkep.hol = "k";
+  if (typeof l.terkep.bagoly !== "number") l.terkep.bagoly = 0;
   if (!p.het || typeof p.het !== "object") p.het = {};
   return p;
 }
@@ -165,7 +170,7 @@ function hetPecset(p) {
    Új forrás (tojás, felhő, levél, pecsét) = egy új sor ebben a táblában. opc.hajt = új hajtások ezen az ösvényen. */
 var VISSZA_HIR = [
   { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } },   /* 🌸 Tény-kert (teny-kert.js) */
-  { id: "leny", fn: function () { return lenyHirek(); } }                     /* 🥚 tojás, 🐣 fióka (leny.js, 3. kör) */
+  { id: "leny", fn: function () { return lenyHirek(); } }                     /* 🥚 tojás, 🐣 fióka, 🦋 elröppenés, ☁️ felhő (leny.js, 3–4. kör) */
 ];
 var VISSZA_HIR_SZIN = "#3f9e6a";
 /* Visszaad: { sor, html, mondat } vagy null (nincs hír) */
@@ -201,7 +206,7 @@ function visszaAllapot(p) {
     het: { ez: p.het[hetAzon(ma)] || 0, hetek: Object.keys(p.het).length },
     posta: { var: meglepetesVar(p.posta), pult: p.posta.pult.filter(function (x) { return !x.olvasva; }).length },
     uni: { etel: igeny(u.etel), jatek: igeny(u.jatek), apol: igeny(u.apol), sziv: u.sziv, kedvenc: !!u.kedvenc },
-    leny: { fazis: l.fazis, nev: l.nev, tiszta: l.terkep.tiszta.length, kepeslap: l.kepeslap.length },
+    leny: { fazis: l.fazis, nev: l.nev, tiszta: l.terkep.tiszta.length, felho: l.terkep.jog, kepeslap: l.kepeslap.length, pikkely: l.pikkely.length },
     kert: { szomj: igeny(K.loc), meglepetes: meglepetesVar(K) }
   };
 }

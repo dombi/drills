@@ -695,6 +695,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   /* Kincsvitrin a fő falon (megvett kristály-díszek) — 2026-09-28 óta a kertkapu régi helyén, a gyökérpolc fölött */
   s += '<g transform="translate(180,-80)">' + vitrinReteg(o) + '</g>';
+  s += lenyPikkelyVitrin();   /* ✨ a kalandtérképen talált fényes pikkelyek, szalagon a felső polc alatt (leny.js, visszahívás 4. kör) */
   /* 🐚 a Kincsvitrin új polca a bal falon (az ablak mellett, a patkó-zóna fölött): a kertben talált part menti apróságok (teny-kert.js) */
   s += tenyKertKincsPolc(6, 112, 232);
   s += tenyKertRitkaPolc(6, 112, 276);   /* 🌰 alatta a Ritka virágok polca: a dombon kinyílt ritka virágok kis cserépben (teny-kert.js, 6. kör) */
