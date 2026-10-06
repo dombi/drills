@@ -703,6 +703,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += '<g transform="translate(180,-80)">' + vitrinReteg(o) + '</g>';
   /* 🐚 a Kincsvitrin új polca a bal falon (az ablak mellett, a patkó-zóna fölött): a kertben talált part menti apróságok (teny-kert.js) */
   s += tenyKertKincsPolc(6, 112, 232);
+  s += tenyKertRitkaPolc(6, 112, 276);   /* 🌰 alatta a Ritka virágok polca: a dombon kinyílt ritka virágok kis cserépben (teny-kert.js, 6. kör) */
 
   /* ── ABLAK (napszak + időjárás) ── */
   s += '<g id="odu-t-ablak" class="odu-targy">';   /* koppintható: innen nő ki a szivárványhíd az ösvényekre (6. lépés) */

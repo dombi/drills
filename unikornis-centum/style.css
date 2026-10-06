@@ -991,6 +991,43 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .tv-bimbo-el{ animation:none; opacity:0; }
 }
 
+/* 🌰 a ritka mag a dombon (Tamagocsi-kert 6. kör): a 8 ritka virág saját mozgása (a C2 rajzterv szerint) */
+.kert-hatter .kc-domb{ pointer-events:auto; cursor:pointer; }
+.kc-domb:hover > path{ filter:drop-shadow(0 0 7px rgba(255,246,190,.95)) brightness(1.04); }
+.kert-szinter.rak .kert-hatter .kc-domb, .kert-szinter.pakol .kert-hatter .kc-domb{ pointer-events:none; }
+.tvr-to{ cursor:pointer; }
+.tvr-dereng{ animation:tvr-dereng 3.4s ease-in-out infinite; }
+@keyframes tvr-dereng{ 0%,100%{ opacity:.45; } 50%{ opacity:1; } }
+.tvr-kering{ animation:tvr-kering 7s linear infinite; }
+@keyframes tvr-kering{ to{ transform:rotate(360deg); } }
+.tvr-lang .tvr-sz{ animation:tvr-lang .5s ease-in-out infinite alternate; animation-delay:calc(var(--i) * -.13s); }
+@keyframes tvr-lang{ from{ transform:scale(1,1); } to{ transform:scale(.92,1.1); } }
+.tvr-csileng{ animation:tvr-csileng 1.8s ease-in-out infinite; }
+@keyframes tvr-csileng{ 0%,100%{ transform:rotate(-7deg); } 50%{ transform:rotate(7deg); } }
+.tvr-csepeg{ animation:tvr-csepeg 2.4s ease-in infinite; animation-delay:var(--k,0s); }
+@keyframes tvr-csepeg{ 0%,40%{ transform:translateY(0); opacity:0; } 50%{ opacity:1; } 100%{ transform:translateY(22px); opacity:0; } }
+.tvr-pihe{ animation:tvr-pihe 5s ease-in-out infinite; animation-delay:var(--k,0s); }
+@keyframes tvr-pihe{ 0%,30%{ transform:translate(0,0); opacity:0; } 40%{ opacity:1; } 100%{ transform:translate(var(--dx,30px),-46px) rotate(40deg); opacity:0; } }
+.tvr-meh{ animation:tvr-kering 4s linear infinite; }
+.tvr-hang{ animation:tvr-hang 1.2s ease-out both; animation-delay:var(--k,0s); }
+@keyframes tvr-hang{ from{ transform:translate(0,0); opacity:0; } 20%{ opacity:1; } to{ transform:translate(var(--dx,10px),-30px); opacity:0; } }
+.tvr-jatszik .tvr-csileng{ animation-duration:.3s; }
+.tvr-jatszik .tvr-pihe{ animation-duration:1.6s; }
+.tvr-jatszik .tvr-meh{ animation-duration:1.2s; }
+.tvr-jatszik .tvr-dereng{ animation-duration:.6s; }
+.tvr-jatszik .tvr-kering{ animation-duration:1.4s; }
+.tvr-jatszik .tvr-lang .tvr-sz{ animation-duration:.22s; }
+.tvr-jatszik .tvr-fej{ animation:tvr-orom 1.2s ease-in-out 2; transform-box:fill-box; transform-origin:50% 50%; }
+@keyframes tvr-orom{ 0%,100%{ transform:scale(1) rotate(0); } 30%{ transform:scale(1.12) rotate(-6deg); } 65%{ transform:scale(1.06) rotate(5deg); } }
+.tvr-nyilik .tvr-fej{ animation:tvr-nyit 1.3s cubic-bezier(.3,1.5,.5,1) both; transform-box:fill-box; transform-origin:50% 50%; }
+@keyframes tvr-nyit{ from{ transform:scale(.05) rotate(-40deg); opacity:0; } to{ transform:none; opacity:1; } }
+.tvr-ujmag{ animation:tvr-ujmag .9s ease-out 3; }
+@keyframes tvr-ujmag{ 0%,100%{ filter:none; } 50%{ filter:drop-shadow(0 0 6px #fff6b0) brightness(1.2); } }
+@media (prefers-reduced-motion:reduce){
+  .tvr-dereng, .tvr-kering, .tvr-lang .tvr-sz, .tvr-csileng, .tvr-csepeg, .tvr-pihe, .tvr-meh, .tvr-hang, .tvr-jatszik .tvr-fej, .tvr-nyilik .tvr-fej, .tvr-ujmag{ animation:none; }
+  .tvr-pihe, .tvr-csepeg{ opacity:0; }
+}
+
 /* Kertkapu az odúban: az egér alá emelkedik (kattinthatóság-jelzés), nyíl helyett */
 #odu-kert-kapu{ cursor:pointer; transition:transform .16s ease-out, filter .16s ease-out; }
 #odu-kert-kapu.fel{ transform:translateY(-8px); filter:drop-shadow(0 7px 5px rgba(60,50,90,.28)); }

@@ -13,9 +13,10 @@ function kertNyit() {
   kertKulcsRendez();                     /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk */
   tenyKertAlaphelyzet();                 /* 🌷 Tény-kert: a fűben kezdünk (teny-kert.js) */
   var bimboHir = tenyKertBelep();        /* első belépés: a meglévő tudás bimbóként jelenik meg */
+  var ritkaHir = tenyKertRitkaAjandek(); /* 🌰 az első ritka mag ajándék, a dombra (teny-kert.js, 6. kör) */
   mutat("kepernyo-kert");                /* előbb látható legyen, hogy a színtér aránya mérhető (fekvő/álló kép) */
   renderKert();
-  tenyKertErkezik(bimboHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
+  tenyKertErkezik(bimboHir, ritkaHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.
@@ -109,6 +110,7 @@ function kertSzinterKlikk(e) {
   if (meglep) { tenyKertMeglepKlikk(meglep); return; }
   var agyas = e.target.closest && e.target.closest(".kc-agyas");          /* 🌷 a túlparti ágyásra: átsétál a hídon, és ráközelít (teny-kert.js) */
   if (agyas) { tenyKertBesetal(agyas.getAttribute("data-agy")); return; }
+  if (e.target.closest && e.target.closest(".kc-domb")) { tenyKertBesetal("d"); return; }   /* 🌰 a csodaágyás-domb: a ritka mag (teny-kert.js) */
   if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(true); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
   var etelDiv = e.target.closest && e.target.closest(".kt-etel-elem");   /* letett ÉTEL-re koppintva: Evés (vagy súgó) */
   if (etelDiv) { kertEtelKoppint(parseInt(etelDiv.getAttribute("data-i"), 10)); return; }

@@ -36,6 +36,7 @@ function gyakLep(p) {
 function gyakPalyaVege() {
   if (!gyakLep()) return false;
   tenyKertNyit();
+  tenyKertRitkaErik();    /* 🌰 a ritka mag egy lépcsővel tovább érik a dombon (teny-kert.js, 6. kör) */
   tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
   return true;
 }

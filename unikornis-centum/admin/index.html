@@ -211,10 +211,10 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
-<script src="../src/teny.js?v=20261005-4"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/gondozas.js?v=20261005-1"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
+<script src="../src/teny.js?v=20261006-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/gondozas.js?v=20261006-2"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
-<script src="../src/teny-kert.js?v=20261006-1"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
+<script src="../src/teny-kert.js?v=20261006-2"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
 <script>
 (function () {
 "use strict";
@@ -854,7 +854,9 @@ function rajzTenyKert(pr) {
   h += '<div class="kicsi">' + (K.indult ? "Először járt a kertben: <b>" + tenyNapDatum(K.indult) + "</b>" : "<b>Még nem járt a kertben.</b> Az első belépéskor a fejből menő tényei (doboz ≥ 3) bimbóként jelennek meg.") +
     " · 🌱 hajtás <b>" + ka.hajtas + "</b> · 🌷 bimbó <b>" + ka.bimbo + "</b> · 🌸 virág <b>" + ka.virag + "</b> · 💧 utolsó locsolás: <b>" + (K.loc ? tenyNapDatum(K.loc) : "még nincs") + "</b>" +
     " · 🚪 utoljára a kertben: <b>" + (K.bent ? tenyNapDatum(K.bent) : "–") + "</b> · 🎁 meglepetés " + (ka.meglepetes ? "<b>vár rá</b>" : "nem vár") +
-    " · 🐚 kincsek a vitrinben: <b>" + ka.kincs + " / " + TVK_KINCSEK.length + "</b></div>";
+    " · 🐚 kincsek a vitrinben: <b>" + ka.kincs + " / " + TVK_KINCSEK.length + "</b>" +
+    " · 🌰 ritka mag: <b>" + (K.mag ? RITKA_VIRAGOK[K.mag.f].nev + " — " + ["mag", "csíra", "levelek", "bimbó", "kinyílt"][ka.magFazis] : "még nincs") + "</b>" +
+    " · ✨ ritka virágok: <b>" + ka.ritka + " / " + RITKA_VIRAGOK.length + "</b></div>";
   h += '<div class="teny-kert-agyak">' + [["ok", "Rózsaszín ágyás (+ −)"], ["sd", "Lila ágyás (× ÷)"]].map(function (x) {
     return '<div><div class="kicsi"><b>' + x[1] + "</b></div>" + tenyKertPultSVG(K, x[0], cim) + "</div>";
   }).join("") + "</div>";
