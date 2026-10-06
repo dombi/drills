@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Élő próba – megfigyelőlap</title>
+<style>
+  :root{ --tinta:#2a2140; --halvany:#6b6280; --vonal:#d9cfe6; --lila:#8a4fd0; --zold:#3f9e6a; --hatter:#fbf8ff; --kartya:#ffffff; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--hatter); color:var(--tinta); font:15px/1.45 "Segoe UI", system-ui, sans-serif; }
+  .lap{ max-width:820px; margin:0 auto; padding:24px 16px 40px; }
+  h1{ font-size:24px; margin:0 0 4px; }
+  .al{ color:var(--halvany); margin:0 0 16px; }
+  .fej{ display:flex; flex-wrap:wrap; gap:8px 24px; margin-bottom:14px; }
+  .fej span{ border-bottom:1px solid var(--vonal); min-width:180px; padding-bottom:2px; color:var(--halvany); }
+  .tipp{ background:#f1eafb; border-radius:10px; padding:10px 14px; margin-bottom:18px; }
+  .tipp b{ color:var(--lila); }
+  .tipp ul{ margin:6px 0 0; padding-left:20px; }
+  section{ background:var(--kartya); border:1px solid var(--vonal); border-radius:12px; padding:12px 16px 6px; margin-bottom:14px; break-inside:avoid; }
+  h2{ font-size:17px; margin:0 0 8px; }
+  h2 small{ font-weight:400; color:var(--halvany); font-size:13px; }
+  .k{ display:grid; grid-template-columns:auto 1fr; gap:4px 10px; padding:7px 0; border-top:1px dashed var(--vonal); }
+  .k:first-of-type{ border-top:none; }
+  .sz{ font-weight:700; color:var(--lila); min-width:22px; }
+  .k p{ margin:0; }
+  .k .mit{ color:var(--halvany); font-size:13px; }
+  .valasz{ grid-column:2; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:14px; }
+  .valasz label{ white-space:nowrap; }
+  .valasz input{ width:15px; height:15px; vertical-align:-2px; }
+  .ir{ grid-column:2; border-bottom:1px solid var(--vonal); height:22px; }
+  .nap{ display:inline-block; font-size:12px; background:#e5f4ea; color:var(--zold); border-radius:8px; padding:0 7px; margin-left:4px; }
+  .vege .ir{ height:26px; }
+  @media print{
+    body{ background:#fff; font-size:12.5px; }
+    .lap{ padding:0; max-width:none; }
+    section{ border-color:#bbb; }
+    .tipp{ background:#f3f3f3; }
+    @page{ size:A4; margin:12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="lap">
+  <h1>Élő próba: megfigyelőlap</h1>
+  <p class="al">Unikornis Centum · ligetválasztó (térkép) · Térkép mint központ · Tény-kert. Egy lap egy gyerekhez.</p>
+  <div class="fej"><span>Gyerek: </span><span>Nap: </span><span>Eszköz: laptop / tablet / telefon</span></div>
+
+  <div class="tipp">
+    <b>Hogyan figyelj?</b>
+    <ul>
+      <li>Indítás előtt <b>Ctrl+Shift+R</b>, hogy biztosan az új változat töltődjön be.</li>
+      <li><b>Ne segíts</b>, és ne mutasd meg, hova kell menni. Az a legfontosabb, ahol megakad vagy keresgél.</li>
+      <li>Írd le szó szerint, amit mond, és azt is, min nevet vagy min unatkozik.</li>
+      <li>A <span class="nap">2–3 nap</span> jelű sorokat csak a következő napokon lehet megfigyelni.</li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>1. Az első belépés <small>(bemutató mondatok)</small></h2>
+    <div class="k"><span class="sz">1</span><p>A térképen elhangzott a mondat: „a kertünk mostantól itt van…”, és felragyogott a Kert és az Utca?<br><span class="mit">Figyelt rá? Odanézett? Rögtön a Kertbe vagy az Utcára ment?</span></p>
+      <div class="valasz"><label><input type="checkbox"> elhangzott</label><label><input type="checkbox"> figyelt rá</label><label><input type="checkbox"> nem vette észre</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">2</span><p>Az odúban elhangzott: „Itt vannak a holmijaid…”, és felragyogott a 🧺 Szekrény?</p>
+      <div class="valasz"><label><input type="checkbox"> elhangzott</label><label><input type="checkbox"> megnyitotta a Szekrényt</label><label><input type="checkbox"> nem vette észre</label></div><div class="ir"></div></div>
+  </section>
+
+  <section>
+    <h2>2. Merre megy? <small>(térkép, liget, vissza)</small></h2>
+    <div class="k"><span class="sz">3</span><p>Megtalálja a ligeteket a térképen, és szívesen nézi a sétát, vagy türelmetlen közben?<br><span class="mit">Kétszer koppint? (Ilyenkor az unikornis azonnal odaér.)</span></p>
+      <div class="valasz"><label><input type="checkbox"> élvezi</label><label><input type="checkbox"> türelmetlen</label><label><input type="checkbox"> kétszer koppint</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">4</span><p>A pálya végén melyik gombot választja: „Tovább a ligetben”, „Térkép” vagy „Következő pálya”?</p>
+      <div class="valasz"><label><input type="checkbox"> ligetben marad</label><label><input type="checkbox"> Térkép</label><label><input type="checkbox"> következő pálya</label><label><input type="checkbox"> tanácstalan</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">5</span><p>Keresi még az odúban a régi kertkaput vagy a régi Bolt-jelet? Kérdezi, hová lettek?</p>
+      <div class="valasz"><label><input type="checkbox"> nem keresi</label><label><input type="checkbox"> keresi a kertkaput</label><label><input type="checkbox"> keresi a boltot</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">6</span><p>Ha vásárolni akar, magától eljut az Utcán a Boltba? Utána otthon, a Szekrényben felveszi vagy kirakja, amit vett?</p>
+      <div class="valasz"><label><input type="checkbox"> megtalálta a Boltot</label><label><input type="checkbox"> megtalálta a Szekrényben</label><label><input type="checkbox"> elakadt (hol?)</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">7</span><p>A „← Térkép / ← Utca / ← Liget” gombok oda visznek, ahova várja? Volt, hogy meglepődött, hol köt ki?</p>
+      <div class="valasz"><label><input type="checkbox"> mindig jó</label><label><input type="checkbox"> egyszer-kétszer meglepődött</label></div><div class="ir"></div></div>
+  </section>
+
+  <section>
+    <h2>3. Az utca apróságai</h2>
+    <div class="k"><span class="sz">8</span><p>Rákoppint a szökőkútra, vagy a padon alvó cicára? Mit szól hozzá?</p>
+      <div class="valasz"><label><input type="checkbox"> kút</label><label><input type="checkbox"> cica</label><label><input type="checkbox"> észre sem vette</label></div><div class="ir"></div></div>
+  </section>
+
+  <section>
+    <h2>4. Tény-kert <small>(virágok, gondozás)</small></h2>
+    <div class="k"><span class="sz">9</span><p>Bemegy magától a Kertbe? Mit csinál ott a virágokkal: közel megy, nézegeti, megöntözi őket?</p>
+      <div class="valasz"><label><input type="checkbox"> bement</label><label><input type="checkbox"> közel ment</label><label><input type="checkbox"> megöntözte</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">10</span><p>A szomjas virág: viccesnek vagy szomorúnak látja? Megérti, hogy inni kér? <span class="nap">2–3 nap</span><br><span class="mit">Ha szorong vagy bűntudata van, azonnal szólj, mert a terv szerint ennek mindig kedvesnek kell lennie.</span></p>
+      <div class="valasz"><label><input type="checkbox"> vicces</label><label><input type="checkbox"> szomorú / aggódik</label><label><input type="checkbox"> nem értette</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">11</span><p>Észreveszi a 🦋 jelet a Kertnél a térképen? Megnézi a napi meglepetést, és várja a ritka mag kinyílását? <span class="nap">2–3 nap</span></p>
+      <div class="valasz"><label><input type="checkbox"> 🦋 jel</label><label><input type="checkbox"> meglepetés</label><label><input type="checkbox"> ritka mag</label></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">12</span><p>Megkérdezi másnap magától, hogy mi van a virágaival? <span class="nap">2–3 nap</span><br><span class="mit">Ez mutatja meg, hogy működik-e a „visszahívás”.</span></p>
+      <div class="valasz"><label><input type="checkbox"> igen</label><label><input type="checkbox"> nem</label></div><div class="ir"></div></div>
+  </section>
+
+  <section class="vege">
+    <h2>Összbenyomás</h2>
+    <div class="k"><span class="sz">★</span><p>Mit szeretett a legjobban? Mit mondott szó szerint?</p><div class="ir"></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">✗</span><p>Min akadt el, mit unt, min nevetett ki valamit?</p><div class="ir"></div><div class="ir"></div></div>
+    <div class="k"><span class="sz">?</span><p>Hibát láttál? (Mi történt, melyik képernyőn, milyen eszközön?)</p><div class="ir"></div><div class="ir"></div></div>
+  </section>
+</div>
+</body>
+</html>
