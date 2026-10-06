@@ -71,7 +71,7 @@ function meglepetesSor(tar, tabla, opc) {
   tar.meg = { nap: ma, tip: t.tip, id: t.id, kesz: 0 };
   return tar.meg;
 }
-function meglepetesVar(tar) { return !!(tar && tar.meg && !tar.meg.kesz); }   /* pl. a pillangó a kertkapun */
+function meglepetesVar(tar) { return !!(tar && tar.meg && !tar.meg.kesz); }   /* pl. a 🦋 a térképen, a Kert jelképén */
 function meglepetesKesz(tar) { if (tar && tar.meg) tar.meg.kesz = 1; }        /* a gyerek megtalálta */
 
 /* ── érés gyakorlós napokon ───────────────────────────────────────────────────

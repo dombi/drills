@@ -1,6 +1,6 @@
 /* ============ 10d) KERT / UDVAR (1. fázis: séta) ============
    Teljesen additív: saját mentés-ág P().kert, saját DOM #kepernyo-kert + .kert-* CSS.
-   Belépés az odú kertkapuján (2026-10: ingyenes, nincs kulcs — kertKulcsRendez). Séta: koppints a fűre → odasétál. */
+   Belépés a térképről, a Kert jelképén (Térkép mint központ 2. kör; 2026-10 óta ingyenes, nincs kulcs — kertKulcsRendez). Séta: koppints a fűre → odasétál. */
 var KERT_UNI_X = 50;   /* az unikornis vízszintes helye, % */
 var KERT_SUGO_SETA = "Koppints a fűre, vagy a túlparton egy virágágyásra! 🌷";   /* séta-módban ez a súgó */
 function kertSugo(t) { var s = $("kert-sugo"); if (s) s.textContent = t; }
@@ -57,6 +57,7 @@ function renderKert() {
       '<svg class="kert-uni-svg" viewBox="-100 -150 200 176" xmlns="http://www.w3.org/2000/svg">' +
         unikornisSVG("kert-uni", c, 1, P().oltozet) +
       '</svg></div></div></div>';
+  kertTerkepJel($("kert-kamera"));                                         /* a kijárat: térkép-jel bal lent (Térkép mint központ 2. kör) */
   var doboz = $("kert-uni-doboz");
   doboz.style.left = KERT_UNI_X + "%";
   doboz.style.setProperty("--dir", 1);
@@ -376,6 +377,40 @@ function kertUgrasElore(doboz) {
 function kertSetal(celX) { kertSetalIde(celX); }
 /* a kert EGYETLEN séta-útja (koppintás, étel, növény, ágy): odamegy celX-re (%), utána kesz().
    A mozgásmód (séta/ügetés), a tempó és az időtartam a közös járásból jön (uniUt, renderer.js). */
+/* ── A KERT KIJÁRATA (Térkép mint központ, 2. kör; terv/terkep-kozpont-rajzterv.html): a füves part bal szélén
+   fa oszlopon álló, hajtogatott kis térkép (zöld rét, kék patak, pöttyös ösvény, piros tű), alatta „Térkép” tábla.
+   Koppintásra az unikornis odasétál, és a térképen a Kert mellett áll (VISSZA.kert). ── */
+function terkepJelSVG() {
+  return '<svg viewBox="-50 -92 100 104" xmlns="http://www.w3.org/2000/svg">' +
+    '<ellipse cx="0" cy="6" rx="30" ry="5" fill="#3c2a50" opacity=".16"/>' +
+    '<rect x="-4" y="-30" width="8" height="36" rx="2" fill="#a4734a" stroke="#6b4a33" stroke-width="1.6"/>' +
+    '<path d="M-40 -84L-14 -78L14 -86L40 -80V-30L14 -36L-14 -28L-40 -34Z" fill="#fff6e0" stroke="#b5a08a" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M-14 -78V-28M14 -86V-36" stroke="#d9cbb4" stroke-width="1.6"/>' +
+    '<path d="M-38 -60Q-26 -70 -14 -62Q0 -54 14 -64Q26 -72 38 -62V-32L14 -38L-14 -30L-38 -36Z" fill="#c4e6bc"/>' +
+    '<path d="M-38 -44Q-20 -50 -6 -42Q8 -34 38 -44" stroke="#a9d6ef" stroke-width="3.4" fill="none"/>' +
+    '<path d="M-30 -40Q-24 -60 -6 -58Q10 -56 12 -70Q16 -78 26 -74" stroke="#c9862a" stroke-width="2" fill="none" stroke-dasharray="1.5 4" stroke-linecap="round"/>' +
+    '<path d="M-31 -72l-3 6h6z M-22 -76l-3 6h6z" fill="#8fc98a"/><path d="M28 -54h6v-5l-3 -3l-3 3z" fill="#f6a5c0" stroke="#b5607e" stroke-width=".8"/>' +
+    '<path d="M26 -74q0 -9 0 0" /><circle cx="26" cy="-78" r="4.6" fill="#e0417a" stroke="#fff" stroke-width="1.4"/><path d="M26 -74v7" stroke="#e0417a" stroke-width="2" stroke-linecap="round"/>' +
+    '<rect x="-30" y="-24" width="60" height="18" rx="9" fill="#ffffff" stroke="#e6d8f0"/><text y="-11" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2a2140" font-family="Fredoka,sans-serif">Térkép</text>' +
+    '</svg>';
+}
+function kertTerkepJel(kam) {
+  if (!kam) return;
+  var d = el("div", "kert-terkep-jel");
+  d.setAttribute("role", "button"); d.setAttribute("tabindex", "0"); d.setAttribute("aria-label", "Térkép");
+  d.innerHTML = terkepJelSVG();
+  d.addEventListener("click", function (e) { e.stopPropagation(); kertKilep(); });
+  d.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kertKilep(); } });
+  kam.appendChild(d);
+}
+function kertKilep() {
+  if (KERT_TRUKK_FUT) return;   /* trükk közben nem indulunk el */
+  hangGomb(); mondd("Térkép!");
+  kertSetalIde(7, function () {
+    if (!$("kepernyo-kert").classList.contains("aktiv")) return;   /* közben máshová ment */
+    kertLepesHang(false); kertTajMozgasStop(); visszaUgrik("kert");
+  });
+}
 function kertSetalIde(celX, kesz) {
   var doboz = $("kert-uni-doboz"), host = $("kert-szinter"); if (!doboz) return;
   celX = Math.max(13, Math.min(87, celX));

@@ -1,6 +1,8 @@
 /* ═════════════ RAJZTERV-PROTOTÍPUS: Térkép mint központ (terv/terkep-kozpont-rajzterv.html) ═════════════
    Csak a próbaoldalon él (terv/terkep-kozpont-build.py fűzi a main.js elé). ?uj=1 nélkül a mai játék látszik.
-   A rajzok a játék stílusában készülnek, hogy a kódkörökben szinte változatlanul átkerülhessenek a src/-be. */
+   A rajzok a játék stílusában készülnek, hogy a kódkörökben szinte változatlanul átkerülhessenek a src/-be.
+   ⚠️ A 2. kör óta a Kert, a szökőkút és a térkép-jel a src/-ben él (a térkép útjai elrendezésenként: utak.szeles/allo) — ez a
+   prototípus a jóváhagyott rajzterv pillanatképe; újragyártás előtt igazítani kellene (a ?uj=1 ág a régi, tömb-utakra épül). */
 var RT = (function () {
   var q = new URLSearchParams(location.search || location.hash.slice(1));   /* az összehasonlító lap a #-ben adja át (blob-keret) */
   return { mind: q.get("mind") === "1", uj: q.get("uj") === "1", valt: q.get("valt") || "C", kep: q.get("kep") || "terkep", leny: q.get("leny"), lepke: q.get("lepke") === "1" };

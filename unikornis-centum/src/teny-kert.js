@@ -13,7 +13,7 @@
    • A pult (admin) is betölti: tenyKertTovek + tenyKertPultSVG rajzolja a „gyerek kertje” nézetet.
    • 5. kör (gondozás, lent a 6. részben): jókedvűen szomjas virágok (igeny(K.loc) → jol/szomj1/szomj2), 💧 locsolás
      esőfelhővel (naponta egyszer, 1 💧 az egész kertnek), üdvözlés (K.bent), napi meglepetés (látogató / part menti
-     apróság → a Kincsvitrin új polca, P().tenyKert.kincs), pillangó a kertkapun (tenyKertVar). Soha hervadás, bűntudat.
+     apróság → a Kincsvitrin új polca, P().tenyKert.kincs), 🦋 a térképen, a Kert jelképén (tenyKertVar). Soha hervadás, bűntudat.
    • 6. kör (ritka mag, lent a 3c. részben): az első mag ajándék, gyakorlós napokon érik a dombon (erik), a fajta titok;
      a kinyílt ritka virág a dombon marad, és a Kincsvitrin „Ritka virágok” polcára kerül; a következő mag a parton vár. */
 
@@ -719,7 +719,7 @@ function tenyKertAlaphelyzet() {
 }
 
 /* ════════════ 3b. GONDOZÁS (Tamagocsi-kert 5. kör) ════════════
-   Jókedvűen szomjas virágok, 💧 locsolás esőfelhővel, üdvözlés, napi meglepetés, pillangó a kertkapun.
+   Jókedvűen szomjas virágok, 💧 locsolás esőfelhővel, üdvözlés, napi meglepetés, 🦋 a térképen.
    Közös alap: gondozas.js (igeny, meglepetesSor). Mentés: P().tenyKert.loc (utolsó locsolás napja), .bent (utolsó
    kerti látogatás napja), .meg / .megSz (a napi meglepetés), .kincs (a felvett part menti apróságok → Kincsvitrin).
    Tiltólista: nincs hervadás, büntetés, „hiányoztál” — a szomjúság semmire nem hat, csak kedves kérés. */
@@ -959,14 +959,10 @@ function tenyKertKincsPolc(X, W, ry) {
   van.forEach(function (id, i) { s += '<g transform="translate(' + ktR(X + 13 + i * (W - 26) / 5) + ' ' + (ry + 4) + ') scale(1)">' + tvMeglepRajz(id) + '</g>'; });
   return s + '</g>';
 }
-/* vár-e valami új a kertben (meglepetés, kinyílt, még nem látott virág) → pillangó a kertkapun az odúban */
+/* vár-e valami új a kertben (meglepetés, kinyílt, még nem látott virág) → 🦋 a Kert jelképén a térképen (terkep.js) */
 function tenyKertVar() {
   var K = tenyKertTar(); if (!K.indult) return false;
   return !!(meglepetesVar(K) && tvkMeglepLathato(K)) || tenyKertUjVirag() || tvRitkaUj(K);
-}
-/* a pillangó a kertkapun (odú-koordináta): lassan nyitogatja a szárnyát. Nincs számláló, piros pötty vagy villogás. */
-function tenyKertKapuLepke(x, y) {
-  return '<g class="tv-kapu-lepke" transform="translate(' + x + ' ' + y + ') rotate(-14) scale(1.1)"><path class="tv-ksz1" d="M0 0 q-14 -12 -22 0 q8 12 22 5 Z" fill="#ff9ec4"/><path class="tv-ksz2" d="M0 0 q14 -12 22 0 q-8 12 -22 5 Z" fill="#b6a7f2"/><circle r="2.6" fill="#4a3f6b"/><path d="M0 -2 q-3 -6 -6 -7 M0 -2 q3 -6 6 -7" stroke="#4a3f6b" stroke-width="1" fill="none"/></g>';
 }
 
 /* ════════════ 3c. A RITKA MAG: napokon át érő titok a dombon (Tamagocsi-kert 6. kör) ════════════
