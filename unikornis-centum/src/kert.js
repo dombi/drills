@@ -67,6 +67,7 @@ function renderKert() {
   kertEszkozsorRender();
   kertFeszerRender();
   kertTrukksorRender();
+  kertTajIgazit(host);                   /* a kép kivágása: az ágyások mindig látszanak (kert-tajkep.js) */
   kertTajMozgasIndit();                  /* hal + szitakötő */
   tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
 }
@@ -74,11 +75,17 @@ function renderKert() {
 window.addEventListener("resize", function () {
   var host = $("kert-szinter"), k = $("kepernyo-kert");
   if (!host || !k || !k.classList.contains("aktiv")) return;
-  var o = kertTajOrient(host); if (o === KERT_ORIENT) return;
+  var o = kertTajOrient(host);
+  if (o === KERT_ORIENT) {               /* ugyanaz az elrendezés: csak a kivágás igazodik az új mérethez */
+    kertTajIgazit(host);
+    if (TVK.allapot === "bent") tvkKamera(TVK.agy, 0);
+    return;
+  }
   if (TVK.allapot) { tenyKertAlaphelyzet(); renderKert(); kertSugo(KERT_SUGO_SETA); return; }   /* a Tény-kertben (séta, közeli kép) elforgatva: vissza a fűre */
   var regi = host.querySelector(".kert-hatter"); if (!regi) return;
   var t = document.createElement("div"); t.innerHTML = kertHatterSVG(o);
   regi.parentNode.replaceChild(t.firstChild, regi);
+  kertTajIgazit(host);
   kertTajMozgasIndit();
   tenyKertTavol();
 });

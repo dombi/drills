@@ -403,11 +403,8 @@ var TVK_KLAY = {
 };
 var TVK_UNI_TALP = 8;   /* a játék unikornis-rajzán a paták ennyivel az origó alatt vannak (rajz-egység) */
 
-/* a háttér-SVG (xMidYMax slice) → a színtér képpontjai */
-function tvkTerkep(host) {
-  var L = KERT_LAY[KERT_ORIENT], w = host.clientWidth || 1, h = host.clientHeight || 1, s = Math.max(w / L.W, h / L.H);
-  return { s: s, ox: (w - L.W * s) / 2, oy: h - L.H * s, w: w, h: h };
-}
+/* a háttér-SVG → a színtér képpontjai (ugyanaz a kivágás, mint a képen: kert-tajkep.js kertTajNezet) */
+function tvkTerkep(host) { return kertTajNezet(host); }
 function tvkHidPont(Hh, t) { var ym = (Hh.yF + Hh.yB) / 2 - 14, p = ktQ2([Hh.x, Hh.yF], [Hh.x, ym + 4], [Hh.x, Hh.yB], t); return [p[0], p[1]]; }
 /* a távoli unikornis (a kerti doboz) a kép (x, y) pontján, mélység szerint kisebb, és a fű tárgyai mögé kerül */
 function tvkDobozAllit(x, y) {
@@ -904,10 +901,10 @@ function tvkMeglepRajzol() {
   var L = KERT_LAY[KERT_ORIENT], svg = $("kc-meglep-reteg");
   if (!svg) {
     var t = document.createElement("div");
-    t.innerHTML = '<svg id="kc-meglep-reteg" class="kc-meglep-reteg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
+    t.innerHTML = '<svg id="kc-meglep-reteg" class="kc-meglep-reteg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
     svg = t.firstChild; kam.appendChild(svg);
   }
-  svg.setAttribute("viewBox", "0 0 " + L.W + " " + L.H);
+  svg.setAttribute("viewBox", kertTajNezet($("kert-szinter")).vb.map(ktR).join(" "));
   svg.innerHTML = "";
   var m = tvkMeglepLathato(tenyKertTar()), p = m && TVK_MEGLEP_HELY[KERT_ORIENT][m.id]; if (!p) return;
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");

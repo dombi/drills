@@ -12650,6 +12650,31 @@ function kertTajOrient(host) {
   return (host.clientWidth / host.clientHeight) < 0.95 ? "a" : "f";
 }
 
+/* ── a kép kivágása a színtér arányára (2026-10-06, producer-jelzés: széles, alacsony laptop-ablakban az alulra
+   igazított vágás a túlparti ágyásokat is levágta, a fejléc alá csúsztak). Szabály: keskeny képen jobbról-balról
+   vágunk (mint eddig); széles képen előbb az eget, de legfeljebb a KERT_TAJ_TETO vonalig — ami ennél is több,
+   az alul, a fű aljáról megy el (az unikornis és a tárgyak a színtér %-ában állnak, ők a füvön maradnak).
+   Minden kép-réteg (háttér, meglepetés-réteg) és minden helyszámítás (tvkTerkep) ezt használja. ── */
+var KERT_TAJ_TETO = { f: 196, a: 196 };   /* az ágyások (virágokkal) és a domb teteje fölött */
+function kertTajNezet(host, o) {
+  o = o || KERT_ORIENT;
+  var L = KERT_LAY[o], w = (host && host.clientWidth) || 1, h = (host && host.clientHeight) || 1, s;
+  if (w / h >= L.W / L.H) {
+    s = w / L.W;
+    var vh = h / s, top = Math.max(0, Math.min(L.H - vh, KERT_TAJ_TETO[o]));
+    return { s: s, ox: 0, oy: -top * s, w: w, h: h, vb: [0, top, L.W, vh] };
+  }
+  s = h / L.H;
+  var vw = w / s, bal = (L.W - vw) / 2;
+  return { s: s, ox: -bal * s, oy: 0, w: w, h: h, vb: [bal, 0, vw, L.H] };
+}
+/* a kép-rétegek viewBox-a a mostani színtér-mérethez (renderKert, átméretezés) */
+function kertTajIgazit(host) {
+  host = host || $("kert-szinter"); if (!host) return;
+  var vb = kertTajNezet(host).vb.map(function (v) { return Math.round(v * 100) / 100; }).join(" ");
+  Array.prototype.forEach.call(host.querySelectorAll(".kert-hatter, #kc-meglep-reteg"), function (svg) { svg.setAttribute("viewBox", vb); });
+}
+
 /* kis segédek (a rajzterv r1/hashStr/q2/P megfelelői) */
 function ktR(n) { return Math.round(n * 10) / 10; }
 function ktHash(s) { var h = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -12807,13 +12832,14 @@ function kertTajSzitakoto() {
   return '<g id="kc-szk"><g class="kc-szk-szarny"><ellipse cx="-3" cy="-6" rx="3" ry="9" fill="#e6fbff" stroke="#9fd8e8" stroke-width=".6" opacity=".85" transform="rotate(-62 -3 -6)"/><ellipse cx="3" cy="-6" rx="3" ry="9" fill="#e6fbff" stroke="#9fd8e8" stroke-width=".6" opacity=".85" transform="rotate(62 3 -6)"/></g><path d="M-12 0 L 12 0" stroke="#3fb3ad" stroke-width="2.6" stroke-linecap="round"/><circle cx="13" cy="0" r="2.8" fill="#2f8f8a"/><circle cx="14" cy="-1" r=".9" fill="#fff"/></g>';
 }
 
-/* a teljes kert-háttér (o: "f" | "a"). Alulra igazítva vágódik (xMidYMax slice): széles laptop-képen
+/* a teljes kert-háttér (o: "f" | "a"). A kivágást a kertTajIgazit állítja (fent: az ég megy el először, de az ágyások
+   mindig látszanak). Régi megjegyzés: alulra igazítva vágódott (xMidYMax slice): széles laptop-képen
    az ég fogy el, a füves part, ahol az unikornis és a tárgyak állnak, mindig látszik. */
 function kertHatterSVG(o) {
   o = o === "a" ? "a" : "f";
   KERT_ORIENT = o;
   var L = KERT_LAY[o], W = L.W, H = L.H, f = o === "f";
-  var s = '<svg class="kert-hatter" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">';
+  var s = '<svg class="kert-hatter" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">';
   s += kertTajDefs() + kertTajEg(L, f);
   L.fak.forEach(function (t) { s += kertTajFa(t[0], t[1], t[2]); });
   s += kertTajFuz(L.fuz[0], L.fuz[1], f ? 1 : .62);
@@ -13299,11 +13325,8 @@ var TVK_KLAY = {
 };
 var TVK_UNI_TALP = 8;   /* a játék unikornis-rajzán a paták ennyivel az origó alatt vannak (rajz-egység) */
 
-/* a háttér-SVG (xMidYMax slice) → a színtér képpontjai */
-function tvkTerkep(host) {
-  var L = KERT_LAY[KERT_ORIENT], w = host.clientWidth || 1, h = host.clientHeight || 1, s = Math.max(w / L.W, h / L.H);
-  return { s: s, ox: (w - L.W * s) / 2, oy: h - L.H * s, w: w, h: h };
-}
+/* a háttér-SVG → a színtér képpontjai (ugyanaz a kivágás, mint a képen: kert-tajkep.js kertTajNezet) */
+function tvkTerkep(host) { return kertTajNezet(host); }
 function tvkHidPont(Hh, t) { var ym = (Hh.yF + Hh.yB) / 2 - 14, p = ktQ2([Hh.x, Hh.yF], [Hh.x, ym + 4], [Hh.x, Hh.yB], t); return [p[0], p[1]]; }
 /* a távoli unikornis (a kerti doboz) a kép (x, y) pontján, mélység szerint kisebb, és a fű tárgyai mögé kerül */
 function tvkDobozAllit(x, y) {
@@ -13800,10 +13823,10 @@ function tvkMeglepRajzol() {
   var L = KERT_LAY[KERT_ORIENT], svg = $("kc-meglep-reteg");
   if (!svg) {
     var t = document.createElement("div");
-    t.innerHTML = '<svg id="kc-meglep-reteg" class="kc-meglep-reteg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
+    t.innerHTML = '<svg id="kc-meglep-reteg" class="kc-meglep-reteg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
     svg = t.firstChild; kam.appendChild(svg);
   }
-  svg.setAttribute("viewBox", "0 0 " + L.W + " " + L.H);
+  svg.setAttribute("viewBox", kertTajNezet($("kert-szinter")).vb.map(ktR).join(" "));
   svg.innerHTML = "";
   var m = tvkMeglepLathato(tenyKertTar()), p = m && TVK_MEGLEP_HELY[KERT_ORIENT][m.id]; if (!p) return;
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -13960,6 +13983,7 @@ function renderKert() {
   kertEszkozsorRender();
   kertFeszerRender();
   kertTrukksorRender();
+  kertTajIgazit(host);                   /* a kép kivágása: az ágyások mindig látszanak (kert-tajkep.js) */
   kertTajMozgasIndit();                  /* hal + szitakötő */
   tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
 }
@@ -13967,11 +13991,17 @@ function renderKert() {
 window.addEventListener("resize", function () {
   var host = $("kert-szinter"), k = $("kepernyo-kert");
   if (!host || !k || !k.classList.contains("aktiv")) return;
-  var o = kertTajOrient(host); if (o === KERT_ORIENT) return;
+  var o = kertTajOrient(host);
+  if (o === KERT_ORIENT) {               /* ugyanaz az elrendezés: csak a kivágás igazodik az új mérethez */
+    kertTajIgazit(host);
+    if (TVK.allapot === "bent") tvkKamera(TVK.agy, 0);
+    return;
+  }
   if (TVK.allapot) { tenyKertAlaphelyzet(); renderKert(); kertSugo(KERT_SUGO_SETA); return; }   /* a Tény-kertben (séta, közeli kép) elforgatva: vissza a fűre */
   var regi = host.querySelector(".kert-hatter"); if (!regi) return;
   var t = document.createElement("div"); t.innerHTML = kertHatterSVG(o);
   regi.parentNode.replaceChild(t.firstChild, regi);
+  kertTajIgazit(host);
   kertTajMozgasIndit();
   tenyKertTavol();
 });
