@@ -959,7 +959,8 @@ function tenyKertAllapot(tar, kert) {
   });
   if (kert) {
     var g = { hajtas: 0, bimbo: 0, virag: 0, szomj: typeof igeny === "function" ? igeny(kert.loc) : null,
-      mag: kert.mag ? { f: kert.mag.f, g: kert.mag.g || 0 } : null, meglepetes: !!(kert.meg && !kert.meg.kesz) };
+      mag: kert.mag ? { f: kert.mag.f, g: kert.mag.g || 0 } : null, meglepetes: !!(kert.meg && !kert.meg.kesz),
+      kincs: Object.keys(kert.kincs || {}).length, locsolt: kert.loc || null, bent: kert.bent || null };
     Object.keys(kert.v || {}).forEach(function (k) { g[["", "hajtas", "bimbo", "virag"][tenyViragFazis(kert.v[k], ma)]]++; });
     ki.kert = g;
   }
@@ -1250,7 +1251,8 @@ function tenyCsempesz(cfg, kerult) {
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
    Így nincs külön kerti, unikornisos és sárkányos visszatérés-logika, csak egy.
 
-   3. kör (2026-10-05): LÁTHATATLANUL fut, a gyerek még semmit nem lát.
+   3. kör (2026-10-05): LÁTHATATLANUL fut, a gyerek még semmit nem lát. 5. kör (2026-10-06): a Tény-kert gondozása
+   (teny-kert.js) erre épül: szomjúság = igeny(K.loc), napi meglepetés = meglepetesSor (a gyakPalyaVege indítja).
      • gyakorlós nap (P().gyak = { db, nap }): olyan helyi naptári nap (tenyNap), amelyen legalább egy pályát
        végigjátszott. A palyaVege lépteti (gyakLep), naponta egyszer. A P().napok marad a Visszatérő jelvényé.
      • igeny(utolso, fokok): „szomjúság”-féle igény puha felső határral: 0 → 1 → 2, ennél sosem rosszabb.
@@ -1282,6 +1284,7 @@ function gyakLep(p) {
 function gyakPalyaVege() {
   if (!gyakLep()) return false;
   tenyKertNyit();
+  tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
   return true;
 }
 
@@ -11757,6 +11760,8 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   /* Kincsvitrin a fő falon (megvett kristály-díszek) — 2026-09-28 óta a kertkapu régi helyén, a gyökérpolc fölött */
   s += '<g transform="translate(180,-80)">' + vitrinReteg(o) + '</g>';
+  /* 🐚 a Kincsvitrin új polca a bal falon (az ablak mellett, a patkó-zóna fölött): a kertben talált part menti apróságok (teny-kert.js) */
+  s += tenyKertKincsPolc(6, 112, 232);
 
   /* ── ABLAK (napszak + időjárás) ── */
   s += '<g id="odu-t-ablak" class="odu-targy">';   /* koppintható: innen nő ki a szivárványhíd az ösvényekre (6. lépés) */
@@ -11822,6 +11827,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   if (!elonezet) {
     s += '<ellipse cx="326" cy="439" rx="48" ry="6" fill="#3b2f66" opacity="0.16"/>';
     s += '<g transform="translate(326,436) scale(0.78) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(true) + '</g></g>';
+    if (tenyKertVar()) s += tenyKertKapuLepke(350, 350);   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel */
     s += '<rect x="286" y="434" width="80" height="9" rx="4.5" fill="#a7d99a"/><path d="M292 438.5 h68" stroke="#d8f5b8" stroke-width="2"/>';
   }
 
@@ -12841,7 +12847,9 @@ function kertHatterSVG(o) {
 
 /* ── élet a vízen: a hal néha kiugrik (gyűrűvel), a szitakötő körbe repül a nád fölött.
    Egy futás = egy azonosító; új kirajzoláskor vagy a kertből kilépve a régi magától leáll. ── */
-var KERT_TAJ_FUT = 0, KERT_TAJ_HAL = null;
+var KERT_TAJ_FUT = 0, KERT_TAJ_HAL = null, KERT_TAJ_SZK_ODA = null;
+/* a szitakötő egyszer odarepül a (x, y) pontra (pl. üdvözléskor az unikornis feje mellé), ott pihen kicsit, aztán körözik tovább */
+function kertTajSzkOda(x, y) { KERT_TAJ_SZK_ODA = [x, y]; }
 function kertTajMozgasStop() { KERT_TAJ_FUT++; clearInterval(KERT_TAJ_HAL); KERT_TAJ_HAL = null; }
 function kertTajLathato() { var k = $("kepernyo-kert"); return !!(k && k.classList.contains("aktiv")) && document.visibilityState === "visible"; }
 function kertTajGyuru(x, y) {
@@ -12878,8 +12886,8 @@ function kertTajMozgasIndit() {
     var dt = Math.min(50, t - elozo); elozo = t;
     if (s.varj > 0) s.varj -= dt;
     else {
-      var cel = kor[(s.i + 1) % kor.length], dx = cel[0] - s.x, dy = cel[1] - s.y, d = Math.hypot(dx, dy), v = (f ? .16 : .1) * dt;
-      if (d < v) { s.x = cel[0]; s.y = cel[1]; s.i = (s.i + 1) % kor.length; if (s.i === 0) s.varj = 2600; }
+      var oda = KERT_TAJ_SZK_ODA, cel = oda || kor[(s.i + 1) % kor.length], dx = cel[0] - s.x, dy = cel[1] - s.y, d = Math.hypot(dx, dy), v = (f ? .16 : .1) * dt * (oda ? 2 : 1);
+      if (d < v) { s.x = cel[0]; s.y = cel[1]; if (oda) { KERT_TAJ_SZK_ODA = null; s.varj = 1800; } else { s.i = (s.i + 1) % kor.length; if (s.i === 0) s.varj = 2600; } }
       else { s.x += dx / d * v; s.y += dy / d * v + Math.sin(t / 180) * .3; s.irany = dx < 0 ? -1 : 1; }
     }
     g.setAttribute("transform", "translate(" + ktR(s.x) + " " + ktR(s.y) + ") scale(" + ktR(m * s.irany * 100) / 100 + " " + m + ")");
@@ -12899,8 +12907,10 @@ function kertTajMozgasIndit() {
    • Első belépés (tenyKertBelep): a meglévő tudás (doboz ≥ 3) bimbóként jelenik meg, a következő gyakorlós napon nyílik.
    • Az ösvény végén (palyaVege, ftVege): „🌸 Két új virág nyílt a kertedben!” / „🌱 Új hajtás bújt ki…” (tenyKertPalyaHir).
    • A pult (admin) is betölti: tenyKertTovek + tenyKertPultSVG rajzolja a „gyerek kertje” nézetet.
-   5. kör (gondozás: szomjúság, locsolás, üdvözlés, napi meglepetés) és 6. kör (ritka mag) még hátra: a toRajz kedv-állapotai
-   (szomj1/szomj2/jol/koszon) már itt vannak, a C2 rajzterv szerint. */
+   • 5. kör (gondozás, lent a 6. részben): jókedvűen szomjas virágok (igeny(K.loc) → jol/szomj1/szomj2), 💧 locsolás
+     esőfelhővel (naponta egyszer, 1 💧 az egész kertnek), üdvözlés (K.bent), napi meglepetés (látogató / part menti
+     apróság → a Kincsvitrin új polca, P().tenyKert.kincs), pillangó a kertkapun (tenyKertVar). Soha hervadás, bűntudat.
+   6. kör (ritka mag) még hátra. */
 
 /* ════════════ 1. A VIRÁG-MODUL (a C2 rajzterv kódja) ════════════ */
 function tvRad(a) { return a * Math.PI / 180; }
@@ -13244,6 +13254,7 @@ function tenyKertBelep() {
   if (!K.gy) K.gy = Math.random().toString(36).slice(2, 8);
   if (!K.lg || typeof K.lg !== "object") K.lg = {};
   if (!elso) return null;
+  TVK.elso = true;   /* az első napon nincs üdvözlés: ott a bimbók a hír */
   var T = tenyTar(false);
   tenyMind("ok").concat(tenyMind("sd")).forEach(function (k) { var s = T[k]; if (s && s.d >= 3 && !K.v[k]) K.v[k] = { a: 2, n: ma }; });
   var db = 0;
@@ -13276,10 +13287,11 @@ function tenyKertTavol() {
       return '<g transform="translate(' + ktR(p[0]) + ' ' + ktR(p[1]) + ') scale(' + ktR(ds * 100) / 100 + ')">' + toMini(x[1]) + '</g>';
     }).join("");
   });
+  tvkMeglepRajzol();
 }
 
 /* ── a színpad állapota: null = a fűben · "megy" = átsétál · "bent" = közeli kép · "vissza" = visszasétál ── */
-var TVK = { allapot: null, agy: null, G: 0, kTovek: [], kux: 0, kuy: 0, zar: false, kedv: {} };
+var TVK = { allapot: null, agy: null, G: 0, kTovek: [], kux: 0, kuy: 0, zar: false, kedv: {}, kozos: null, elso: false, udvKozel: false };
 /* a közeli kép elrendezése (C2 rajzterv KLAY): az ágyás nagyban, uni = az unikornis mérete (a játék rajzán: 0,5 × 380 egység = 1) */
 var TVK_KLAY = {
   f: { W: 1000, H: 620, agy: { cx: 500, cy: 390, rx: 446, ry: 176, irx: 398, iry: 146 }, T: 1.3, uni: 1.2, uniY0: 596, uniX0: 120, yHat: 214, yEl: 600, zoomTo: 2, minW: .4 },
@@ -13332,6 +13344,7 @@ function tenyKertBesetal(op) {
   if (KERT_UL || KERT_FEKSZIK) kertAll();
   hangGomb();
   TVK.allapot = "megy"; TVK.agy = op; tvkBentJel(true);
+  clearTimeout(TVK.hirT);                   /* a még sorban álló hírek elmaradnak: a közeli képen eltakarnák a gombokat */
   var M = tvkTerkep(host), L = KERT_LAY[KERT_ORIENT], Hh = L.hid;
   var fx = KERT_UNI_X / 100 * M.w, fy = M.h * .87 - KERT_UNI_TALP;   /* a doboz alapja: bottom 13 % */
   var x0 = (fx - M.ox) / M.s, y0 = (fy - M.oy) / M.s;
@@ -13366,11 +13379,14 @@ function tvkKozelHatter(K, f) {
   return s;
 }
 function tvkToDs(K, y) { var Ag = K.agy; return K.T * (.76 + .48 * (y - (Ag.cy - Ag.iry)) / (2 * Ag.iry)); }
+/* a tő kedve: egyéni (kuncog) > közös jelenet (koszon, kortyol, tancol) > a szomjúság (jol / szomj1 / szomj2) */
+var TVK_KEDV_OSZTALY = { kuncog: " tv-hajol", koszon: " tv-integet", kortyol: " tv-kortyol", tancol: " tv-tancol", szomj2: " tv-nyujtozik" };
 function tvkToG(q) {
-  var K = TVK_KLAY[KERT_ORIENT], ds = tvkToDs(K, q.p[1]), kedv = TVK.kedv[q.to.i] || "alap";
-  return '<g class="tv-to' + (kedv === "kuncog" ? " tv-hajol" : "") + '" data-i="' + q.to.i + '" data-y="' + ktR(q.p[1]) + '" transform="translate(' + ktR(q.p[0]) + ' ' + ktR(q.p[1]) + ') scale(' + ktR(ds * 100) / 100 + ')">' +
-    '<ellipse cx="0" cy="1" rx="13" ry="3.6" fill="#4a2f18" opacity=".28"/>' + toRajz(q.to, { kedv: kedv, arc: true, fel: TVK.kux < q.p[0] ? -1 : 1 }) + '<circle cx="0" cy="-26" r="26" fill="transparent"/></g>';
+  var K = TVK_KLAY[KERT_ORIENT], ds = tvkToDs(K, q.p[1]), kedv = TVK.kedv[q.to.i] || TVK.kozos || tvkKedvAlap();
+  return '<g class="tv-to' + (TVK_KEDV_OSZTALY[kedv] || "") + '" data-i="' + q.to.i + '" data-y="' + ktR(q.p[1]) + '" transform="translate(' + ktR(q.p[0]) + ' ' + ktR(q.p[1]) + ') scale(' + ktR(ds * 100) / 100 + ')">' +
+    '<ellipse cx="0" cy="1" rx="13" ry="3.6" fill="#4a2f18" opacity=".28"/>' + toRajz(q.to, { kedv: kedv === "kortyol" || kedv === "tancol" ? "jol" : kedv, arc: true, fel: TVK.kux < q.p[0] ? -1 : 1 }) + '<circle cx="0" cy="-26" r="26" fill="transparent"/></g>';
 }
+function tvkTovekUjra() { TVK.kTovek.forEach(tvkToCsere); }
 function tvkToCsere(q) {
   var el = document.querySelector('#tvk-tovek .tv-to[data-i="' + q.to.i + '"]'); if (!el) return;
   var t = document.createElementNS("http://www.w3.org/2000/svg", "g"); t.innerHTML = tvkToG(q);
@@ -13394,7 +13410,7 @@ function tvkKozelSVG(op) {
   (f ? [[40, 616], [300, 620], [640, 618], [960, 614]] : [[24, 656], [200, 660], [380, 654]]).forEach(function (b, i) {
     s += '<g transform="translate(' + b[0] + ' ' + b[1] + ')"><g class="kc-fuszal" style="animation-delay:-' + i * .5 + 's"><path d="M0 0 q-5 -16 -14 -24 M0 0 q-1 -22 3 -34 M0 0 q6 -14 15 -20" stroke="#4f9c3a" stroke-width="5"/></g></g>';
   });
-  return s + '</g><g id="tvk-szikrak"></g></svg>';
+  return s + '</g><g id="tvk-szikrak"></g><g id="tvk-eso"></g><g id="tvk-lepkek"></g></svg>';
 }
 /* a közeli unikornis: mélység szerint kisebb (hátul), a talppontja a (x, y)-on; a tövek közé sorolva */
 function tvkUniSc(y) { var K = TVK_KLAY[KERT_ORIENT]; return K.uni * Math.max(.5, Math.min(1, .55 + .45 * (y - K.yHat) / (K.yEl - K.yHat))); }
@@ -13443,13 +13459,14 @@ function tvkNezet(cel, ms, kesz) {
 }
 function tvkGombok(op) {
   return '<div class="tvk-gombok"><button type="button" id="tvk-vissza">⤺ <span class="tvk-hosszu">Vissza a kertbe</span><span class="tvk-rovid">Vissza</span></button>' +
-    '<button type="button" id="tvk-masik">' + (op === "o" ? "A lila ágyás ▶" : "◀ A rózsaszín ágyás") + '</button></div>';
+    '<button type="button" id="tvk-masik">' + (op === "o" ? "A lila ágyás ▶" : "◀ A rózsaszín ágyás") + '</button></div>' +
+    '<div class="tvk-also" id="tvk-also">' + tvkLocsolGomb() + '</div>';
 }
 function tvkKozelNyit(op) {
   var host = $("kert-szinter"); if (!host) return;
   var regi = $("tvk-kozel"); if (regi) regi.parentNode.removeChild(regi);
   var K = TVK_KLAY[KERT_ORIENT], Ag = K.agy, agy = op === "o" ? "ok" : "sd", Kt = tenyKertTar();
-  TVK.agy = op; TVK.kedv = {}; TVK.zar = false;
+  TVK.agy = op; TVK.kedv = {}; TVK.kozos = null; TVK.zar = false;
   TVK.kTovek = tenyKertTovek(agy, Kt).filter(tvVanValami)
     .map(function (to) { return { to: to, p: tvSpiral(to.i, Ag.cx, Ag.cy - 6, Ag.irx, Ag.iry) }; })
     .sort(function (a, b) { return a.p[1] - b.p[1]; });
@@ -13470,6 +13487,7 @@ function tvkKozelNyit(op) {
   d.onclick = tvkKozKlikk;
   $("tvk-vissza").onclick = function (e) { e.stopPropagation(); tvkKozelZar(); };
   $("tvk-masik").onclick = function (e) { e.stopPropagation(); tvkMasikAgy(); };
+  tvkLocsolBekot();
   requestAnimationFrame(function () { d.classList.add("lathato"); });
   TVK.allapot = "bent";
   /* a nyílás jelenete: ami a legutóbbi látogatás óta nyílt, most bomlik ki (egyszer); az unikornis odafordul */
@@ -13481,11 +13499,21 @@ function tvkKozelNyit(op) {
     kertSugo("Nézd, kinyílik! Vajon milyen lesz? 🌸");
     uniFordul(el, TVK.kux < q.p[0] ? 1 : -1);
     setTimeout(function () { if (TVK.allapot === "bent") tvkNezet(tvkKeret(q.p[0], q.p[1] - 30 * K.T, K.W / 1.6), 900); }, 450);
-    setTimeout(function () { if (TVK.allapot === "bent" && !TVK.zar) { tvkNezet(tvkAlapKeret(), 900); kertSugo("Koppints egy virágra, és az unikornis megszagolja. 🌷"); } }, 3400);
+    setTimeout(function () { if (TVK.allapot === "bent" && !TVK.zar) { tvkNezet(tvkAlapKeret(), 900); kertSugo(tvkSzomjasE() ? "A virágok szomjasak, de nagyon vidámak. Meglocsoljuk őket? 💧" : "Koppints egy virágra, és az unikornis megszagolja. 🌷"); } }, 3400);
     setTimeout(function () { uj.forEach(function (x) { x.to.tenyek.forEach(function (t) { t.nyilik = false; }); }); }, 2600);
     hangCsilla();
   }
   else if (!TVK.kTovek.length) kertSugo("Itt még csak a föld pihen. Figyeld, mi bújik majd ki belőle! 🌱");
+  else if (TVK.udvKozel) {   /* aznap először jön közel (és legalább egy nap telt el): a virágok integetnek */
+    TVK.udvKozel = false; TVK.kozos = "koszon"; tvkTovekUjra();
+    kertSugo(tvkSzomjasE() ? "A virágok integetnek! Szomjasak, de nagyon vidámak. Meglocsoljuk őket? 💧" : "A virágok integetnek, és nyújtózkodnak! 👋");
+    setTimeout(function () {
+      if (TVK.allapot !== "bent" || TVK.kozos !== "koszon") return;
+      TVK.kozos = null; tvkTovekUjra();
+      kertSugo(tvkSzomjasE() ? "A virágok szomjasak, de nagyon vidámak. Meglocsoljuk őket? 💧" : "Koppints egy virágra, és az unikornis megszagolja. 🌷");
+    }, 3800);
+  }
+  else if (tvkSzomjasE()) kertSugo("A virágok szomjasak, de nagyon vidámak. Meglocsoljuk őket? 💧");
   else if (TVK.kTovek.some(function (x) { return x.to.tenyek.some(function (t) { return t.f === 2; }); }) && Kt.indult === tenyNap()) kertSugo("Nézd, mennyi bimbó! Holnapra kinyílnak. 🌷");
   else kertSugo("Koppints egy virágra, és az unikornis megszagolja. 🌷");
 }
@@ -13573,15 +13601,261 @@ function tvkKozelZar() {
       KERT_UNI_X = Math.max(13, Math.min(87, (M.ox + vx * M.s) / M.w * 100));
       tvkDobozVissza();
       TVK.allapot = null; tvkBentJel(false);
-      kertSugo(KERT_SUGO_SETA);
+      var mg = tvkMeglepLathato(tenyKertTar());
+      kertSugo(mg && !mg.kesz ? (mg.tip === "kincs" ? "Valami csillog a parton! Koppints rá! 🎁" : "Valaki vár a kertben! Koppints rá! 🎁") : KERT_SUGO_SETA);
     });
   }, nyugiMod() ? 0 : 350);
 }
 /* kilépés / újrarajzolás: minden vissza alaphelyzetbe (a DOM újraépül) */
 function tenyKertAlaphelyzet() {
   var d = $("kert-uni-doboz"); if (d) uniUtvonalAll(d);
-  TVK.allapot = null; TVK.zar = false; TVK.kedv = {};
+  TVK.allapot = null; TVK.zar = false; TVK.kedv = {}; TVK.kozos = null;
   tvkBentJel(false);
+}
+
+/* ════════════ 3b. GONDOZÁS (Tamagocsi-kert 5. kör) ════════════
+   Jókedvűen szomjas virágok, 💧 locsolás esőfelhővel, üdvözlés, napi meglepetés, pillangó a kertkapun.
+   Közös alap: gondozas.js (igeny, meglepetesSor). Mentés: P().tenyKert.loc (utolsó locsolás napja), .bent (utolsó
+   kerti látogatás napja), .meg / .megSz (a napi meglepetés), .kincs (a felvett part menti apróságok → Kincsvitrin).
+   Tiltólista: nincs hervadás, büntetés, „hiányoztál” — a szomjúság semmire nem hat, csak kedves kérés. */
+var TVK_LOCSOL_AR = 1;   /* 💧 naponta egyszer, az egész kertnek (jóváhagyva, 4.) */
+function tvkSzomj() { return igeny(tenyKertTar().loc); }                     /* 0 jóllakott · 1 kicsit · 2 nagyon (és sosem rosszabb) */
+function tvkKedvAlap() { return ["jol", "szomj1", "szomj2"][tvkSzomj()]; }
+function tvkVanVirag(K) { K = K || tenyKertTar(); var ma = tenyNap(); return Object.keys(K.v).some(function (k) { return tenyViragFazis(K.v[k], ma) === 3; }); }
+function tvkSzomjasE() { return tvkSzomj() > 0 && tvkVanVirag(); }
+
+/* ── locsolás (a közeli kép alján) ── */
+function tvkLocsolGomb() {
+  if (!TVK.kTovek.length) return "";
+  if (tenyKertTar().loc === tenyNap()) return '<span class="tvk-locsol-kesz">Ma már jóllaktak. Holnap újra örülnek a harmatnak! 💚</span>';
+  if ((P().tunderharmat || 0) < TVK_LOCSOL_AR) return '<span class="tvk-locsol-kesz">Egy ösvény után lesz harmatod, és akkor locsolhatunk! 💧</span>';
+  return '<button type="button" id="tvk-locsol" class="tvk-locsol">💧 Locsolás</button>';
+}
+function tvkLocsolBekot() { var b = $("tvk-locsol"); if (b) b.onclick = function (e) { e.stopPropagation(); tvkLocsol(); }; }
+function tvkLocsolFrissit() { var a = $("tvk-also"); if (a) { a.innerHTML = tvkLocsolGomb(); tvkLocsolBekot(); } }
+function tvkSvgPont(x, y) { var svg = $("tvk-svg"), pt = svg.createSVGPoint(); pt.x = x; pt.y = y; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+/* 💧 a fejléc számlálójából a szarvba száll → esőfelhő → a virágok kortyolnak → táncolnak, jönnek a lepkék */
+function tvkLocsol() {
+  if (TVK.allapot !== "bent" || TVK.zar) return;
+  var K = tenyKertTar(), ma = tenyNap();
+  if (K.loc === ma || (P().tunderharmat || 0) < TVK_LOCSOL_AR) { tvkLocsolFrissit(); return; }
+  TVK.zar = true; hangGomb();
+  P().tunderharmat -= TVK_LOCSOL_AR; K.loc = ma;   /* rögtön mentjük: ha közben kilép, se kétszer, se elveszve */
+  vasarlasNaplo("tenyKertLocsol", TVK_LOCSOL_AR, "tunderharmat"); ment();
+  var a = $("tvk-also"); if (a) a.innerHTML = "";
+  var uni = $("tvk-uni"), szarv = uni && uni.querySelector('polygon[points^="190,"]'), cr = (szarv || uni).getBoundingClientRect();
+  var sx = cr.left + cr.width / 2, sy = cr.top + 2, h = $("kert-harmat"), fr = h ? h.getBoundingClientRect() : { left: sx, top: 0 };
+  if (h) h.textContent = P().tunderharmat;
+  var c = document.createElement("span"); c.className = "tvk-repulo"; c.textContent = "💧";
+  c.style.left = ktR(fr.left) + "px"; c.style.top = ktR(fr.top - 4) + "px"; document.body.appendChild(c);
+  requestAnimationFrame(function () { requestAnimationFrame(function () { c.style.transform = "translate(" + ktR(sx - fr.left - 12) + "px," + ktR(sy - fr.top - 8) + "px) scale(.7)"; }); });
+  kertSugo("A harmat a szarvba száll… ✨");
+  var gy = nyugiMod() || window.__UC_GYORS ? .3 : 1, bent = function () { return TVK.allapot === "bent"; };
+  setTimeout(function () {
+    c.style.opacity = "0"; setTimeout(function () { if (c.parentNode) c.parentNode.removeChild(c); }, 300);
+    if (!bent()) return;
+    var pt = tvkSvgPont(sx, sy); tvkSzikraFel(pt.x, pt.y); hangCsilla();
+    tvkFelho(); kertSugo("Esik a harmat! 🌧️");
+    setTimeout(function () { if (!bent()) return; TVK.kozos = "kortyol"; tvkTovekUjra(); kertSugo("Kortyolnak… 💧"); }, 1700 * gy);
+    setTimeout(function () {
+      if (!bent()) return;
+      var f = $("tvk-felho"); if (f) f.setAttribute("class", "tv-felho-ki");
+      TVK.kozos = "tancol"; tvkTovekUjra(); tvkLepkekBe(); hangCsilla();
+      kertSugo("Táncolnak, és jönnek a lepkék! 🦋");
+    }, 3200 * gy);
+    setTimeout(function () {
+      if (!bent()) return;
+      var e = $("tvk-eso"); if (e) e.innerHTML = "";
+      TVK.kozos = null; tvkTovekUjra(); TVK.zar = false; tvkLocsolFrissit();
+      kertSugo("Jóllaktak, és nagyon boldogok. 💚");
+    }, 6200 * gy);
+  }, 1050 * gy);
+}
+function tvkFelho() {
+  var svg = $("tvk-svg"), eso = $("tvk-eso"); if (!svg || !eso) return;
+  var vb = svg.viewBox.baseVal, K = TVK_KLAY[KERT_ORIENT], fx = vb.x + vb.width / 2, fy = vb.y + vb.height * .16, m = vb.width / K.W * (KERT_ORIENT === "f" ? 1.6 : 1.3);
+  var s = '<g transform="translate(' + ktR(fx) + ' ' + ktR(fy) + ') scale(' + ktR(m * 100) / 100 + ')"><g class="tv-felho-be" id="tvk-felho"><g fill="#fff" stroke="#cfe3f3" stroke-width="1.2"><ellipse cx="-30" cy="6" rx="34" ry="20"/><ellipse cx="22" cy="4" rx="38" ry="22"/><ellipse cx="-4" cy="-10" rx="32" ry="24"/></g><ellipse cx="-12" cy="-16" rx="14" ry="7" fill="#fff" opacity=".9"/>';
+  for (var i = 0; i < 26; i++) s += '<path class="tv-esocsepp" style="animation-delay:' + ktR((i % 7) * .08) + 's;--esik:' + ktR(vb.height * .55 / m) + 'px" d="M' + (-60 + ((i * 37) % 120)) + ' 22 v8" stroke="#8fcff2" stroke-width="2.4" stroke-linecap="round"/>';
+  eso.innerHTML = s + '</g></g>';
+}
+function tvLepkeRajz(c1, c2) { return '<path class="kc-sz1" d="M0 0 q-14 -12 -22 0 q8 12 22 5 Z" fill="' + c1 + '"/><path class="kc-sz2" d="M0 0 q14 -12 22 0 q-8 12 -22 5 Z" fill="' + c2 + '"/><circle r="2.6" fill="#4a3f6b"/>'; }
+function tvkLepkekBe() {
+  var svg = $("tvk-svg"), g = $("tvk-lepkek"); if (!svg || !g) return;
+  var vb = svg.viewBox.baseVal, m = vb.width / TVK_KLAY[KERT_ORIENT].W * (KERT_ORIENT === "f" ? 1.3 : 1.1), s = "";
+  [["#ff9ec4", "#b6a7f2"], ["#ffd36b", "#ff9e7a"], ["#9ed6f0", "#c9a8e6"]].forEach(function (c, i) {
+    s += '<g transform="translate(' + ktR(vb.x + vb.width * (.25 + i * .25)) + ' ' + ktR(vb.y + vb.height * (.3 + (i % 2) * .15)) + ') scale(' + ktR(m * 100) / 100 + ')"><g class="' + (i % 2 ? "kc-lepke2" : "kc-lepke") + '" style="animation-delay:-' + ktR(i * 1.3) + 's">' + tvLepkeRajz(c[0], c[1]) + '</g></g>';
+  });
+  g.innerHTML = s;
+}
+
+/* ── érkezés a kertbe (kertNyit): első nap a bimbók híre; egy nap után üdvözlés (a virágok integetnek, a hal kiugrik,
+   a szitakötő odarepül); ugyanazon a napon csak egy biccentés. Utána a meglepetés híre. Az üdvözlés mindig ugyanolyan boldog. */
+function tenyKertErkezik(bimboHir) {
+  var K = tenyKertTar(), ma = tenyNap(), regi = K.bent, elso = TVK.elso, hirek = [];
+  TVK.elso = false; TVK.udvKozel = false;
+  K.bent = ma; ment();
+  var vanTo = Object.keys(K.v).length > 0;
+  if (bimboHir) hirek.push(bimboHir);
+  else if (!elso && typeof regi === "number" && regi < ma) {
+    tvkUdvozles(); TVK.udvKozel = vanTo;
+    hirek.push(tvkSzomjasE() ? "👋 Szia! A virágok integetnek. Szomjasak, de nagyon vidámak. Meglocsoljuk őket? 💧"
+      : vanTo ? "👋 Szia! A virágok integetnek, a hal kiugrik, a szitakötő odarepül!" : "👋 Szia! A hal kiugrik, a szitakötő odarepül!");
+  }
+  else if (!elso && regi === ma) setTimeout(function () { if (!TVK.allapot) tvkAgyasJel("tv-biccent", 900); }, 500);
+  var mg = meglepetesVar(K) && tvkMeglepLathato(K);
+  if (mg) hirek.push("🎁 Valaki járt itt, amíg nem voltál! Nézd csak!");
+  if (mg) kertSugo(mg.tip === "kincs" ? "Valami csillog a parton! Koppints rá! 🎁" : "Valaki vár a kertben! Koppints rá! 🎁");
+  else if (tenyKertUjVirag()) kertSugo("🌸 Új virág nyílt a túlparton! Koppints az ágyásra!");
+  else if (tvkSzomjasE()) kertSugo("A virágok szomjasak, de vidámak. Koppints az ágyásra, és meglocsoljuk! 💧");
+  tvkHirSor(hirek);
+}
+/* a hírek egymás után (a kertHir szalagja), amíg a gyerek a kertben van */
+function tvkHirSor(l) {
+  var h = $("kert-hir"), t = h && h.classList.contains("lat") ? 6200 : 400, i = 0;
+  clearTimeout(TVK.hirT);
+  (function kov() {
+    if (i >= l.length) return;
+    TVK.hirT = setTimeout(function () { var k = $("kepernyo-kert"); if (!k || !k.classList.contains("aktiv")) return; kertHir(l[i++]); t = 6200; kov(); }, t);
+  })();
+}
+function tvkAgyasJel(cls, ms) {
+  Array.prototype.forEach.call(document.querySelectorAll("#kert-szinter .kc-agyas"), function (g) {
+    g.classList.remove(cls); void g.getBoundingClientRect(); g.classList.add(cls);
+    setTimeout(function () { g.classList.remove(cls); }, ms);
+  });
+}
+function tvkUdvozles() {
+  setTimeout(function () {
+    if (TVK.allapot) return;
+    tvkAgyasJel("tv-koszon", 2600);
+    kertTajHalUgrik();
+    var d = $("kert-uni-doboz"), host = $("kert-szinter"); if (!d || !host) return;
+    var r = d.getBoundingClientRect(), hr = host.getBoundingClientRect(), M = tvkTerkep(host), dir = uniIrany(d) || 1;
+    var px = r.left - hr.left + r.width * (dir > 0 ? .8 : .2), py = r.top - hr.top + r.height * .12;
+    kertTajSzkOda((px - M.ox) / M.s, (py - M.oy) / M.s);
+  }, nyugiMod() ? 0 : 700);
+}
+
+/* ── a napi meglepetés („amíg nem voltál itt”): adat-tábla, sorban, körbe (gondozas.js meglepetesSor).
+   latogato: koppintásra köszön, és a nap végéig ott marad · kincs: az unikornis felveszi → a Kincsvitrin új polcára.
+   A kincs csak egyszer jön (felt), utána a sor a többivel megy tovább. ── */
+var TVK_MEGLEP = [
+  { tip: "latogato", id: "katica" }, { tip: "kincs", id: "kavics" }, { tip: "latogato", id: "sun" }, { tip: "kincs", id: "kagylo" },
+  { tip: "latogato", id: "csiga" }, { tip: "kincs", id: "toll" }, { tip: "latogato", id: "madar" }, { tip: "kincs", id: "uveggolyo" },
+  { tip: "kincs", id: "makk" }, { tip: "kincs", id: "csillagko" }
+];
+TVK_MEGLEP.forEach(function (m) { if (m.tip === "kincs") m.felt = function (K) { return !(K.kincs && K.kincs[m.id]); }; });
+var TVK_KINCSEK = ["kavics", "kagylo", "toll", "uveggolyo", "makk", "csillagko"];   /* a Kincsvitrin új polcának sorrendje */
+var TVK_MEGLEP_HELY = {
+  f: { katica: [172, 390], sun: [446, 410], csiga: [640, 398], madar: [530, 350], kavics: [318, 430], kagylo: [706, 422], toll: [392, 432], uveggolyo: [318, 430], makk: [392, 432], csillagko: [706, 422] },
+  a: { katica: [66, 394], sun: [164, 412], csiga: [300, 404], madar: [214, 358], kavics: [120, 438], kagylo: [322, 430], toll: [262, 442], uveggolyo: [120, 438], makk: [262, 442], csillagko: [322, 430] }
+};
+var TVK_MEGLEP_SZOVEG = {
+  katica: "🐞 Katica: „Szia! Ma itt napozom a tavirózsán.”", sun: "🦔 Sün: „Pszt, csak szundítok a híd alatt. Szia!”",
+  csiga: "🐌 Csiga: „Lassan értem ide, de megérte!”", madar: "🐦 Madárka: „Csip-csip! Szép a kerted!”",
+  kavics: "✨ Egy csillogó kavics! „Ezt elteszem!” A Kincsvitrin új polcára kerül.", kagylo: "🐚 Egy kagyló sodródott a partra! „Ezt elteszem!” A Kincsvitrin új polcára kerül.",
+  toll: "🪶 Egy rózsaszín toll! „Ezt elteszem!” A Kincsvitrin új polcára kerül.", uveggolyo: "🔮 Egy kék üveggolyó csillan a fűben! „Ezt elteszem!” A Kincsvitrin új polcára kerül.",
+  makk: "🌰 Egy aranyló makk! „Ezt elteszem!” A Kincsvitrin új polcára kerül.", csillagko: "⭐ Egy csillag alakú kavics! „Ezt elteszem!” A Kincsvitrin új polcára kerül."
+};
+function tvMeglepRajz(id) {
+  var s = "", i, a, x, y, rr;
+  switch (id) {
+    case "katica": return '<ellipse cx="0" cy="-4" rx="6.4" ry="5" fill="#ff5a5a" stroke="#7a1f1f" stroke-width=".8"/><path d="M0 -9 V1" stroke="#7a1f1f" stroke-width=".8"/><circle cx="-2.6" cy="-5" r="1.2" fill="#2a1a1a"/><circle cx="2.6" cy="-3" r="1.2" fill="#2a1a1a"/><circle cx="-2" cy="-1.4" r=".9" fill="#2a1a1a"/><circle cx="6.6" cy="-5.4" r="2.8" fill="#2a1a1a"/><circle cx="7.4" cy="-6" r=".7" fill="#fff"/><circle cx="-3" cy="-7" r="1.4" fill="#fff" opacity=".5"/>';
+    case "sun":
+      for (i = 0; i < 11; i++) { a = tvRad(-170 + i * 16); x = Math.cos(a) * 12; y = Math.sin(a) * 10; s += '<path d="M' + ktP(x * .6, y * .6 - 1, "L", x * 1.18, y * 1.18 - 1, "L", Math.cos(a + .2) * 12 * .6, Math.sin(a + .2) * 10 * .6 - 1) + 'Z" fill="#8a6a4a"/>'; }
+      return '<ellipse cx="0" cy="0" rx="14" ry="3" fill="#2c5a1e" opacity=".2"/>' + s + '<ellipse cx="0" cy="-5" rx="11" ry="7.6" fill="#a8845e"/><path d="M6 -6 C 12 -6 15 -3 16 -1 C 13 0 8 0 5 -2Z" fill="#f3dcc0"/><circle cx="16" cy="-1.2" r="1.4" fill="#2a1a1a"/><circle cx="9.6" cy="-5" r="1.2" fill="#2a1a1a"/><circle cx="10" cy="-5.4" r=".4" fill="#fff"/><ellipse cx="8.6" cy="-2.6" rx="1.4" ry=".9" fill="#ff9fb4" opacity=".7"/>';
+    case "csiga": return '<ellipse cx="2" cy="0" rx="12" ry="2.4" fill="#2c5a1e" opacity=".18"/><path d="M-10 0 C -10 -3 4 -4 12 -2 C 14 -6 13 -10 12 -12 M 12 -2 C 15 -6 16 -9 17 -11" stroke="#b9d68e" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="12" cy="-12.6" r="1.3" fill="#3a3a2a"/><circle cx="17" cy="-11.6" r="1.3" fill="#3a3a2a"/><circle cx="-1" cy="-8" r="8" fill="#f7c59f" stroke="#b97a4a" stroke-width="1"/><path d="M-1 -8 m0 -5 a5 5 0 1 1 -4.6 3 a3 3 0 1 1 3 3" stroke="#b97a4a" stroke-width="1.1" fill="none"/>';
+    case "madar": return '<path d="M-9 -4 L-15 -1 L-9 0Z" fill="#7fb6e6"/><ellipse cx="0" cy="-5" rx="9" ry="7" fill="#9ec9f0"/><ellipse cx="1" cy="-3" rx="6" ry="4.4" fill="#e9f5ff"/><circle cx="6" cy="-12" r="5.6" fill="#9ec9f0"/><path d="M11 -12.6 L 15 -11.6 L 11 -10.4Z" fill="#ffb03a"/><circle cx="7.6" cy="-13" r="1.2" fill="#2a1a1a"/><circle cx="7.9" cy="-13.4" r=".4" fill="#fff"/><path d="M-6 -7 Q -1 -11 4 -7" fill="#7fb6e6"/><path d="M-1 2 V5 M2 2 V5" stroke="#d99a3a" stroke-width="1"/>';
+    case "kavics": return '<ellipse cx="0" cy="0" rx="10" ry="2.2" fill="#2c5a1e" opacity=".2"/><path d="M-9 -2 C -9 -8 9 -9 9 -3 C 9 1 -9 2 -9 -2Z" fill="#bcc7e6" stroke="#8d9ac0" stroke-width=".8"/><path d="M-5 -5 Q 0 -8 4 -6" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8"/>' + tvCsillam(5, -9, 5);
+    case "kagylo":
+      s = '<ellipse cx="0" cy="0" rx="10" ry="2.2" fill="#2c5a1e" opacity=".2"/><path d="M0 0 L -9 -6 C -8 -14 8 -14 9 -6Z" fill="#ffd9c7" stroke="#e0a08a" stroke-width=".8"/>';
+      for (i = -3; i <= 3; i++) s += '<path d="M0 0 L' + ktR(i * 2.6) + ' -12" stroke="#e8b29e" stroke-width=".7"/>';
+      return s + '<path d="M-2 0 h4 v2 h-4Z" fill="#f2b8a2"/>' + tvCsillam(-6, -12, 4.6);
+    case "toll": return '<ellipse cx="0" cy="0" rx="12" ry="2" fill="#2c5a1e" opacity=".2"/><path d="M-12 -1 C -4 -12 8 -12 12 -8 C 6 -4 -4 -2 -12 -1Z" fill="#f7b8d0" stroke="#d98aa8" stroke-width=".7"/><path d="M-13 0 Q 0 -6 12 -8" stroke="#c97a98" stroke-width=".9" fill="none"/>' + tvCsillam(6, -12, 4.4);
+    case "uveggolyo": return '<ellipse cx="0" cy="0" rx="8" ry="2" fill="#2c5a1e" opacity=".2"/><circle cx="0" cy="-6.5" r="6.5" fill="#8fd6ee" stroke="#4fa6cf" stroke-width=".8"/><path d="M-4 -4 C -2 -9 3 -9 4 -5 C 2 -7 -1 -7 -4 -4Z" fill="#c9a8e6"/><circle cx="-2.2" cy="-9" r="1.8" fill="#fff" opacity=".85"/>' + tvCsillam(5, -12, 4);
+    case "makk": return '<ellipse cx="0" cy="0" rx="8" ry="2" fill="#2c5a1e" opacity=".2"/><path d="M-5.6 -7 C -6 -1 -3 1 0 1 C 3 1 6 -1 5.6 -7Z" fill="#ffcf5a" stroke="#c9922a" stroke-width=".8"/><path d="M-7 -7 C -7 -12 7 -12 7 -7 C 3 -6 -3 -6 -7 -7Z" fill="#a8743f" stroke="#7a5228" stroke-width=".8"/><path d="M0 -10.6 L 1.4 -13" stroke="#7a5228" stroke-width="1.4" stroke-linecap="round"/><path d="M-3 -5 Q -3.4 -2 -1.4 -.6" stroke="#fff3c4" stroke-width="1.2" fill="none"/>' + tvCsillam(6, -12, 4);
+    case "csillagko":
+      s = "M0 -14";
+      for (i = 1; i <= 10; i++) { a = tvRad(i * 36); rr = i % 2 ? 3.6 : 8; s += " L" + ktR(Math.sin(a) * rr) + " " + ktR(-6 - Math.cos(a) * rr); }
+      return '<ellipse cx="0" cy="0" rx="9" ry="2" fill="#2c5a1e" opacity=".2"/><path d="' + s + 'Z" fill="#ffc0cf" stroke="#e08aa2" stroke-width=".8" stroke-linejoin="round"/><circle cx="-1.6" cy="-8" r="1.3" fill="#fff" opacity=".8"/>' + tvCsillam(6, -13, 4);
+  }
+  return "";
+}
+/* a gyakPalyaVege hívja (a nap első végigjátszott pályája után): ha a kertet már látta, jöhet a következő meglepetés */
+function tenyKertMeglepetes() {
+  var K = tenyKertTar(); if (!K.indult) return null;
+  var m = meglepetesSor(K, TVK_MEGLEP);
+  if (m) ment();
+  return m;
+}
+/* a most látható meglepetés: ami még vár, vagy amit ma talált meg (a látogató a nap végéig ott marad); a felvett kincs már nem */
+function tvkMeglepLathato(K) {
+  var m = K && K.meg; if (!m || m.fel) return null;
+  return !m.kesz || m.lat === tenyNap() ? m : null;
+}
+/* saját réteg a lerakott tárgyak fölött (a bokor kerete ne nyelje el a koppintást), de az unikornis mögött;
+   ugyanaz a viewBox és vágás, mint a háttéré, így a hely a kert-képhez igazodik */
+function tvkMeglepRajzol() {
+  var kam = $("kert-kamera"); if (!kam) return;
+  var L = KERT_LAY[KERT_ORIENT], svg = $("kc-meglep-reteg");
+  if (!svg) {
+    var t = document.createElement("div");
+    t.innerHTML = '<svg id="kc-meglep-reteg" class="kc-meglep-reteg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
+    svg = t.firstChild; kam.appendChild(svg);
+  }
+  svg.setAttribute("viewBox", "0 0 " + L.W + " " + L.H);
+  svg.innerHTML = "";
+  var m = tvkMeglepLathato(tenyKertTar()), p = m && TVK_MEGLEP_HELY[KERT_ORIENT][m.id]; if (!p) return;
+  var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("id", "kc-meglep"); g.setAttribute("class", "kc-meglep" + (m.kesz ? "" : " kc-meglep-var")); g.setAttribute("data-m", m.id);
+  g.setAttribute("transform", "translate(" + p[0] + " " + p[1] + ") scale(" + (KERT_ORIENT === "f" ? 1.35 : 1) + ")");
+  g.innerHTML = '<g class="kc-ugral">' + tvMeglepRajz(m.id) + '</g><circle r="22" cy="-6" fill="transparent"/>';
+  svg.appendChild(g);
+}
+/* koppintás a meglepetésre (kertSzinterKlikk): a látogató köszön; a kincshez az unikornis odasétál, és felveszi */
+function tenyKertMeglepKlikk(g) {
+  var K = tenyKertTar(), m = K.meg, ma = tenyNap(); if (!m || TVK.allapot || KERT_TRUKK_FUT) return;
+  var szoveg = TVK_MEGLEP_SZOVEG[m.id] || "";
+  if (m.tip !== "kincs") {
+    g.classList.remove("kc-koszon"); void g.getBoundingClientRect(); g.classList.add("kc-koszon");
+    hangCsilla();
+    if (!m.kesz) { meglepetesKesz(K); m.lat = ma; ment(); esemeny("tenyKertMeglepetes", { id: m.id }); g.classList.remove("kc-meglep-var"); }
+    kertHir(szoveg); kertSugo(KERT_SUGO_SETA);
+    return;
+  }
+  var host = $("kert-szinter"), M = tvkTerkep(host), p = TVK_MEGLEP_HELY[KERT_ORIENT][m.id], xp = (M.ox + p[0] * M.s) / M.w * 100;
+  if (KERT_UL || KERT_FEKSZIK) kertAll();
+  KERT_TRUKK_FUT = true; kertSugo("Odasétál… ✨");
+  var cel = Math.max(13, Math.min(87, xp + (KERT_UNI_X < xp ? -7 : 7)));
+  kertSetalIde(cel, function () {
+    uniFordul($("kert-uni-doboz"), KERT_UNI_X < xp ? 1 : -1);
+    if (!K.kincs || typeof K.kincs !== "object") K.kincs = {};
+    K.kincs[m.id] = 1; meglepetesKesz(K); m.lat = ma; m.fel = 1; ment();
+    esemeny("tenyKertMeglepetes", { id: m.id, kincs: 1 });
+    hangCsilla(); hangJo();
+    var u = g.querySelector(".kc-ugral"); g.classList.remove("kc-meglep-var");
+    if (u) { u.style.transition = "transform .9s cubic-bezier(.4,-.4,.6,1), opacity .9s ease"; u.style.transform = "translateY(-60px) scale(1.6)"; u.style.opacity = "0"; }
+    kertHir(szoveg); kertSugo("Ezt elteszem! ✨ A Kincsvitrin új polcára kerül.");
+    setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); KERT_TRUKK_FUT = false; }, 950);
+  });
+}
+/* a Kincsvitrin új polca (odu.js, a bal falon): a felvett part menti apróságok, sorrendben; üres hely nem látszik */
+function tenyKertKincsPolc(X, W, ry) {
+  var K = P().tenyKert, kin = (K && K.kincs) || {}, van = TVK_KINCSEK.filter(function (id) { return kin[id]; });
+  if (!van.length) return "";
+  var s = '<g class="odu-kincspolc"><rect x="' + X + '" y="' + (ry + 4) + '" width="' + W + '" height="7" rx="3" fill="#cbb6e6"/><rect x="' + X + '" y="' + (ry + 4) + '" width="' + W + '" height="3" rx="1.5" fill="#dcc7f0"/>';
+  s += '<path d="M' + (X + 12) + ' ' + (ry + 11) + ' q-6 8 2 16" stroke="#ab90cf" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M' + (X + W - 12) + ' ' + (ry + 11) + ' q6 8 -2 16" stroke="#ab90cf" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  van.forEach(function (id, i) { s += '<g transform="translate(' + ktR(X + 13 + i * (W - 26) / 5) + ' ' + (ry + 4) + ') scale(1)">' + tvMeglepRajz(id) + '</g>'; });
+  return s + '</g>';
+}
+/* vár-e valami új a kertben (meglepetés, kinyílt, még nem látott virág) → pillangó a kertkapun az odúban */
+function tenyKertVar() {
+  var K = tenyKertTar(); if (!K.indult) return false;
+  return !!(meglepetesVar(K) && tvkMeglepLathato(K)) || tenyKertUjVirag();
+}
+/* a pillangó a kertkapun (odú-koordináta): lassan nyitogatja a szárnyát. Nincs számláló, piros pötty vagy villogás. */
+function tenyKertKapuLepke(x, y) {
+  return '<g class="tv-kapu-lepke" transform="translate(' + x + ' ' + y + ') rotate(-14) scale(1.1)"><path class="tv-ksz1" d="M0 0 q-14 -12 -22 0 q8 12 22 5 Z" fill="#ff9ec4"/><path class="tv-ksz2" d="M0 0 q14 -12 22 0 q-8 12 -22 5 Z" fill="#b6a7f2"/><circle r="2.6" fill="#4a3f6b"/><path d="M0 -2 q-3 -6 -6 -7 M0 -2 q3 -6 6 -7" stroke="#4a3f6b" stroke-width="1" fill="none"/></g>';
 }
 
 /* ════════════ 4. AZ ÖSVÉNY VÉGÉN: a kert híre (palyaVege, ftVege) ════════════
@@ -13634,8 +13908,7 @@ function kertNyit() {
   var bimboHir = tenyKertBelep();        /* első belépés: a meglévő tudás bimbóként jelenik meg */
   mutat("kepernyo-kert");                /* előbb látható legyen, hogy a színtér aránya mérhető (fekvő/álló kép) */
   renderKert();
-  if (bimboHir) { var h = $("kert-hir"); setTimeout(function () { kertHir(bimboHir); }, h && h.classList.contains("lat") ? 6200 : 400); }
-  else if (tenyKertUjVirag()) kertSugo("🌸 Új virág nyílt a túlparton! Koppints az ágyásra!");
+  tenyKertErkezik(bimboHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.
@@ -13718,6 +13991,8 @@ function kertSzinterKlikk(e) {
     return;
   }
   /* séta mód (alap) */
+  var meglep = e.target.closest && e.target.closest(".kc-meglep");        /* 🎁 a napi meglepetés: a látogató köszön, a kincset felveszi (teny-kert.js) */
+  if (meglep) { tenyKertMeglepKlikk(meglep); return; }
   var agyas = e.target.closest && e.target.closest(".kc-agyas");          /* 🌷 a túlparti ágyásra: átsétál a hídon, és ráközelít (teny-kert.js) */
   if (agyas) { tenyKertBesetal(agyas.getAttribute("data-agy")); return; }
   if (e.target.closest && e.target.closest("#kert-uni-doboz")) { if (KERT_FEKSZIK) kertAll(true); else kertNyihog(); return; }   /* magára az unikornisra koppintva nem lép, hanem nyihog (fekve: felkel) */
@@ -18041,6 +18316,7 @@ window.UC = {
   gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
   tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertPalyaHir: tenyKertPalyaHir,
+  tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */
   tenyKertPultSVG: tenyKertPultSVG, TVK: TVK, tvkSzagol: tvkSzagol, tvkKozelZar: tvkKozelZar, tvkMasikAgy: tvkMasikAgy, viragKinezet: viragKinezet, VIRAG_FORMAK: VIRAG_FORMAK,   /* 🌷 Tény-kert (4. kör) */
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,

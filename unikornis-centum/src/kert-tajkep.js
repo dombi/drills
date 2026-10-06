@@ -236,7 +236,9 @@ function kertHatterSVG(o) {
 
 /* ── élet a vízen: a hal néha kiugrik (gyűrűvel), a szitakötő körbe repül a nád fölött.
    Egy futás = egy azonosító; új kirajzoláskor vagy a kertből kilépve a régi magától leáll. ── */
-var KERT_TAJ_FUT = 0, KERT_TAJ_HAL = null;
+var KERT_TAJ_FUT = 0, KERT_TAJ_HAL = null, KERT_TAJ_SZK_ODA = null;
+/* a szitakötő egyszer odarepül a (x, y) pontra (pl. üdvözléskor az unikornis feje mellé), ott pihen kicsit, aztán körözik tovább */
+function kertTajSzkOda(x, y) { KERT_TAJ_SZK_ODA = [x, y]; }
 function kertTajMozgasStop() { KERT_TAJ_FUT++; clearInterval(KERT_TAJ_HAL); KERT_TAJ_HAL = null; }
 function kertTajLathato() { var k = $("kepernyo-kert"); return !!(k && k.classList.contains("aktiv")) && document.visibilityState === "visible"; }
 function kertTajGyuru(x, y) {
@@ -273,8 +275,8 @@ function kertTajMozgasIndit() {
     var dt = Math.min(50, t - elozo); elozo = t;
     if (s.varj > 0) s.varj -= dt;
     else {
-      var cel = kor[(s.i + 1) % kor.length], dx = cel[0] - s.x, dy = cel[1] - s.y, d = Math.hypot(dx, dy), v = (f ? .16 : .1) * dt;
-      if (d < v) { s.x = cel[0]; s.y = cel[1]; s.i = (s.i + 1) % kor.length; if (s.i === 0) s.varj = 2600; }
+      var oda = KERT_TAJ_SZK_ODA, cel = oda || kor[(s.i + 1) % kor.length], dx = cel[0] - s.x, dy = cel[1] - s.y, d = Math.hypot(dx, dy), v = (f ? .16 : .1) * dt * (oda ? 2 : 1);
+      if (d < v) { s.x = cel[0]; s.y = cel[1]; if (oda) { KERT_TAJ_SZK_ODA = null; s.varj = 1800; } else { s.i = (s.i + 1) % kor.length; if (s.i === 0) s.varj = 2600; } }
       else { s.x += dx / d * v; s.y += dy / d * v + Math.sin(t / 180) * .3; s.irany = dx < 0 ? -1 : 1; }
     }
     g.setAttribute("transform", "translate(" + ktR(s.x) + " " + ktR(s.y) + ") scale(" + ktR(m * s.irany * 100) / 100 + " " + m + ")");

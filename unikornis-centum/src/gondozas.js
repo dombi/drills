@@ -3,7 +3,8 @@
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
    Így nincs külön kerti, unikornisos és sárkányos visszatérés-logika, csak egy.
 
-   3. kör (2026-10-05): LÁTHATATLANUL fut, a gyerek még semmit nem lát.
+   3. kör (2026-10-05): LÁTHATATLANUL fut, a gyerek még semmit nem lát. 5. kör (2026-10-06): a Tény-kert gondozása
+   (teny-kert.js) erre épül: szomjúság = igeny(K.loc), napi meglepetés = meglepetesSor (a gyakPalyaVege indítja).
      • gyakorlós nap (P().gyak = { db, nap }): olyan helyi naptári nap (tenyNap), amelyen legalább egy pályát
        végigjátszott. A palyaVege lépteti (gyakLep), naponta egyszer. A P().napok marad a Visszatérő jelvényé.
      • igeny(utolso, fokok): „szomjúság”-féle igény puha felső határral: 0 → 1 → 2, ennél sosem rosszabb.
@@ -35,6 +36,7 @@ function gyakLep(p) {
 function gyakPalyaVege() {
   if (!gyakLep()) return false;
   tenyKertNyit();
+  tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
   return true;
 }
 

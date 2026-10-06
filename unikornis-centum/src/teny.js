@@ -292,7 +292,8 @@ function tenyKertAllapot(tar, kert) {
   });
   if (kert) {
     var g = { hajtas: 0, bimbo: 0, virag: 0, szomj: typeof igeny === "function" ? igeny(kert.loc) : null,
-      mag: kert.mag ? { f: kert.mag.f, g: kert.mag.g || 0 } : null, meglepetes: !!(kert.meg && !kert.meg.kesz) };
+      mag: kert.mag ? { f: kert.mag.f, g: kert.mag.g || 0 } : null, meglepetes: !!(kert.meg && !kert.meg.kesz),
+      kincs: Object.keys(kert.kincs || {}).length, locsolt: kert.loc || null, bent: kert.bent || null };
     Object.keys(kert.v || {}).forEach(function (k) { g[["", "hajtas", "bimbo", "virag"][tenyViragFazis(kert.v[k], ma)]]++; });
     ki.kert = g;
   }

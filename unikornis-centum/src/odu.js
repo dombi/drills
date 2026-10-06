@@ -701,6 +701,8 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   /* Kincsvitrin a fő falon (megvett kristály-díszek) — 2026-09-28 óta a kertkapu régi helyén, a gyökérpolc fölött */
   s += '<g transform="translate(180,-80)">' + vitrinReteg(o) + '</g>';
+  /* 🐚 a Kincsvitrin új polca a bal falon (az ablak mellett, a patkó-zóna fölött): a kertben talált part menti apróságok (teny-kert.js) */
+  s += tenyKertKincsPolc(6, 112, 232);
 
   /* ── ABLAK (napszak + időjárás) ── */
   s += '<g id="odu-t-ablak" class="odu-targy">';   /* koppintható: innen nő ki a szivárványhíd az ösvényekre (6. lépés) */
@@ -766,6 +768,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   if (!elonezet) {
     s += '<ellipse cx="326" cy="439" rx="48" ry="6" fill="#3b2f66" opacity="0.16"/>';
     s += '<g transform="translate(326,436) scale(0.78) translate(-499,-290)"><g id="odu-kert-kapu" class="odu-targy">' + kertKapuSVG(true) + '</g></g>';
+    if (tenyKertVar()) s += tenyKertKapuLepke(350, 350);   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel */
     s += '<rect x="286" y="434" width="80" height="9" rx="4.5" fill="#a7d99a"/><path d="M292 438.5 h68" stroke="#d8f5b8" stroke-width="2"/>';
   }
 
