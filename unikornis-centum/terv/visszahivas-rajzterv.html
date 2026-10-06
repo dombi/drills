@@ -225,7 +225,7 @@
   <ul>
     <li><b>Egy rajzoló, négy alak.</b> A fióka, a kölyök, a nagy és az alvó kölyök ugyanabból a rajzolóból készül, csak más méretekkel. Ezért mindegyik lépcsőn ugyanaz a lény, és egy szín- vagy stílusváltás egyszerre hat mind a négyre.</li>
     <li><b>A sárkány mindig vidám.</b> Nagy szem, pír, mosoly, kerekded szarvacska és szív alakú farokvég. A tüskék is puha háromszögek. Egyik lépcsőn sincs fog, karom vagy tűz, a „tűz” helyett szikrát tüsszent.</li>
-    <li><b>A kalandtérkép a meglévő térkép-modulra épül</b> (<code>terkep.js</code>: helyek, utak, sétáló unikornis). Új benne a felhő-réteg, a nyomok és a képeslapok.</li>
+    <li><b>A kalandtérkép egy külön mesevilág</b>, nem a ligetek térképe: bármelyik végigjátszott pálya ad egy felhőt. Rajzolni a meglévő térkép-modul rajzolja (<code>terkep.js</code>: helyek, utak, sétáló unikornis), ebben új a felhő-réteg, a nyomok és a képeslapok.</li>
     <li>Fent mindenhol váltható a <b>stílus</b>, a <b>szín</b> és a <b>képernyő</b> (fekvő laptop vagy álló telefon). A lap végén 7 döntés vár rád.</li>
   </ul>
 </div>
@@ -331,7 +331,7 @@
       <h3>A felhők</h3>
       <ul>
         <li>Az elején csak az <b>Odú és a kert</b> tiszta. A lila bagoly hozza a térképet: „Huhú! Láttam, merre repült a kicsi. Kövessétek a nyomát!”</li>
-        <li>Pályánként 1 felhő, naponta legfeljebb 3. Elfújni csak olyan felhőt lehet, amelyik a <b>kitisztult rész mellett</b> van (arany fény jelzi). A gyerek maga választ közülük.</li>
+        <li><b>Bármelyik</b> végigjátszott pálya után 1 felhő jár (az is számít, ha a gyerek csak egy témát, pl. az osztást gyakorolja), naponta legfeljebb 3. Elfújni csak olyan felhőt lehet, amelyik a <b>kitisztult rész mellett</b> van (arany fény jelzi). A gyerek maga választ közülük.</li>
         <li>Ami kitisztult, <b>soha nem felhősödik vissza</b>.</li>
         <li>A térkép két ösvényből áll, és ezeket keresztutak kötik össze (mint egy létra). Így majdnem mindig két felhő közül lehet választani.</li>
       </ul>
@@ -346,7 +346,8 @@
     </div>
   </div>
   <div class="panel" style="margin-top:14px">
-    <h3>A 12 táj (a ligeteket tükrözik)</h3>
+    <h3>A 12 táj: egy külön mesevilág</h3>
+    <p class="lead" style="margin-top:0">A kalandtérkép <b>nem a ligetek térképe</b>. <b>Bármelyik végigjátszott pálya</b> ad egy felhőt, akármelyik ligetben van. Aki egész héten csak osztást gyakorol, ugyanolyan gyorsan találja meg a kissárkányt, mint aki mindenfelé jár.</p>
     <div id="tajTabla"></div>
   </div>
 </section>
@@ -761,16 +762,16 @@ function lepcsoMozdulat(m){
 const KALAND_TAJ=[
   null,
   {nev:'Pillangós rét',     ny:'lap',  mondat:'Itt virágkoszorút font! Egy képeslapot is hagyott.', szin:'#c4e6bc'},
-  {nev:'Számerdő',          ny:'lab',  mondat:'Makkokat rakott sorba: egy, kettő, három, négy, öt!', szin:'#b9dea4'},
-  {nev:'Szabórét',          ny:'lap',  mondat:'Egy gombolyaggal játszott, és kicsit összegabalyodott! Képeslapot is rajzolt.', szin:'#f3d6e4'},
-  {nev:'Bájitalforrás',     ny:'pik',  mondat:'Buborékot fújt a forrásból. Nézd, egy fényes pikkely!', szin:'#d8ccf2'},
-  {nev:'Malom-mező',        ny:'lap',  mondat:'Mézes kalácsot kóstolt a malomnál. Képeslapot is küldött!', szin:'#f7e3a8'},
-  {nev:'Szorzós dombok',    ny:'lab',  mondat:'Csillagokat számolt. Szikrás lábnyomok vezetnek tovább!', szin:'#d4c8ec'},
-  {nev:'Tündérvásár',       ny:'lap',  mondat:'Körhintázott a vásárban! Ezt is megírta egy képeslapon.', szin:'#fbd3c4'},
+  {nev:'Suttogó erdő',      ny:'lab',  mondat:'Makkokat rakott sorba: egy, kettő, három, négy, öt!', szin:'#b9dea4'},
+  {nev:'Bárányka-rét',      ny:'lap',  mondat:'Egy gombolyaggal játszott, és kicsit összegabalyodott! Képeslapot is rajzolt.', szin:'#f3d6e4'},
+  {nev:'Buborék-forrás',    ny:'pik',  mondat:'Buborékot fújt a forrásból. Nézd, egy fényes pikkely!', szin:'#d8ccf2'},
+  {nev:'Szélmalom-domb',    ny:'lap',  mondat:'Mézes kalácsot kóstolt a malomnál. Képeslapot is küldött!', szin:'#f7e3a8'},
+  {nev:'Holdas dombok',     ny:'lab',  mondat:'Csillagokat számolt. Szikrás lábnyomok vezetnek tovább!', szin:'#d4c8ec'},
+  {nev:'Körhinta-tisztás',  ny:'lap',  mondat:'Körhintázott a tisztáson! Ezt is megírta egy képeslapon.', szin:'#fbd3c4'},
   {nev:'Szivárvány-tó',     ny:'pik',  mondat:'Homokvárat épített a parton. Itt is elhagyott egy fényes pikkelyt!', szin:'#c3e3f4'},
-  {nev:'Bagolyerdő',        ny:'lap',  mondat:'A bagoly mesét olvasott neki. Képeslap is vár!', szin:'#c9dcb8'},
+  {nev:'Bagolyfa',          ny:'lap',  mondat:'A bagoly mesét olvasott neki. Képeslap is vár!', szin:'#c9dcb8'},
   {nev:'Csillag-vízesés',   ny:'lab',  mondat:'Lezuhanyzott a vízesés alatt. Vizes lábnyomok!', szin:'#c8e0f4'},
-  {nev:'Fejtörő-hegy',      ny:'lap',  mondat:'Kirakót rakott a kövekből. Utolsó képeslap!', szin:'#ddd2ee'},
+  {nev:'Kavics-hegy',       ny:'lap',  mondat:'Kirakót rakott a kövekből. Utolsó képeslap!', szin:'#ddd2ee'},
   {nev:'Holdfény-barlang',  ny:'veg',  mondat:'', szin:'#cbbfe4'}
 ];
 const KALAND_TERKEP={
@@ -790,16 +791,16 @@ function tajRajz(i){ /* kis festett jelkép, közepe (0,0), talp kb. y=10 */
   const s={
     k:`<path d="M-40 10Q0 -6 40 10Z" fill="#bfe3a8"/><path d="M-12 8V-26h24V8Z" fill="#b98a5c" stroke="#7c5636" stroke-width="1.6"/><circle cx="0" cy="-40" r="26" fill="#a8dc9c" stroke="#6fae74" stroke-width="1.6"/><circle cx="-14" cy="-48" r="12" fill="#bfe8b0"/><path d="M-6 8V-6a6 6 0 0 1 12 0V8Z" fill="#7a4fa0"/><circle cx="3" cy="0" r="1.2" fill="#fce49a"/><circle cx="26" cy="4" r="3" fill="#f6a5c0"/><circle cx="32" cy="7" r="2.5" fill="#fce49a"/>`,
     1:`<path d="M-36 10Q0 -12 36 10Z" fill="#bfe3a8"/>`+[[-16,-2,'#f6a5c0'],[0,-9,'#fce49a'],[16,-1,'#c9a8e6'],[-26,4,'#fff'],[26,5,'#f7b8d0']].map(([x,y,c])=>`<path d="M${x} ${y+10}V${y}" stroke="#6fae74" stroke-width="2"/><circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="#c0567f" stroke-width=".8"/><circle cx="${x}" cy="${y}" r="1.6" fill="#ffd24d"/>`).join('')+`<g transform="translate(10 -28) scale(1.1)">${lepke()}</g>`,
-    2:[[-20,-10,12,'#a8dc9c','1'],[0,-20,15,'#8fcf8a','2'],[20,-8,11,'#b9e2a6','3']].map(([x,y,r,c,n])=>`<path d="M${x-2} 10V${y+r-2}h4V10Z" fill="#9a6f52"/><circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="#6fae74" stroke-width="1.4"/><circle cx="${x}" cy="${y}" r="5.5" fill="#fff" stroke="#6fae74"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="8" font-weight="700" fill="#3f8a6b" font-family="Fredoka">${n}</text>`).join(''),
+    2:[[-20,-10,12,'#a8dc9c','1'],[0,-20,15,'#8fcf8a','2'],[20,-8,11,'#b9e2a6','3']].map(([x,y,r,c,n])=>`<path d="M${x-2} 10V${y+r-2}h4V10Z" fill="#9a6f52"/><circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="#6fae74" stroke-width="1.4"/><circle cx="${x-r*.35}" cy="${y-r*.35}" r="${r*.35}" fill="#fff" opacity=".35"/>`).join(''),
     3:`<path d="M-36 10Q0 -8 36 10Z" fill="#c4e6bc"/><g transform="translate(-8 -8)"><path d="M-8 8v6M6 8v6" stroke="#4a3b5a" stroke-width="2.4" stroke-linecap="round"/>`+[[-8,-2,8],[2,-6,9],[10,0,7],[-2,4,8],[8,6,7]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#c9bcd6" stroke-width="1.2"/>`).join('')+`<ellipse cx="18" cy="-4" rx="6" ry="7" fill="#4a3b5a"/><circle cx="20" cy="-6" r="1.3" fill="#fff"/></g><g transform="translate(22 -2)"><rect x="-6" y="-10" width="12" height="18" rx="2" fill="#f7b8d0" stroke="#c0567f"/><path d="M-6 -5h12M-6 0h12M-6 4h12" stroke="#c0567f" stroke-width=".8"/><path d="M6 -2q10 4 4 14" stroke="#e0699b" stroke-width="1.4" fill="none"/></g>`,
     4:`<ellipse cx="0" cy="4" rx="30" ry="9" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.6"/><path d="M-30 6q-6 -10 6 -10M30 6q6 -10 -6 -10" fill="#b8b0c8" stroke="#8a7fa6" stroke-width="1.2"/>`+[[-6,-8,4],[4,-18,3],[-2,-28,2.4],[10,-6,3.4]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#e8f6ff" fill-opacity=".7" stroke="#9ec9f0"/>`).join('')+`<g transform="translate(-24 -4)"><path d="M-2 8V-2h4V8Z" fill="#fdf0d0"/><path d="M-10 -1Q0 -16 10 -1Z" fill="#c9a8e6" stroke="#8d6aa8" stroke-width="1.2"/><circle cx="-3" cy="-6" r="1.6" fill="#fff"/><circle cx="4" cy="-8" r="1.3" fill="#fff"/></g>`,
     5:`<path d="M-36 10Q0 -4 36 10Z" fill="#f2df9a"/><path d="M-8 10L-6 -28H6L8 10Z" fill="#fdf0d0" stroke="#b98a5c" stroke-width="1.6"/><path d="M-8 -28L0 -38L8 -28Z" fill="#e07aa3" stroke="#b05a80" stroke-width="1.2"/><g transform="translate(0 -26)"><g class="malom"><path d="M0 0L-3 -22H3ZM0 0L22 -3V3ZM0 0L3 22H-3ZM0 0L-22 3V-3Z" fill="#f7b8d0" stroke="#c0567f" stroke-width="1"/><circle r="3" fill="#c0567f"/></g></g>`+[-26,-20,20,26].map(x=>`<path d="M${x} 10V-6" stroke="#d9a63a" stroke-width="1.6"/><ellipse cx="${x}" cy="-8" rx="2.4" ry="5" fill="#f0c04a"/>`).join(''),
-    6:`<path d="M-38 10Q-20 -24 0 6Q18 -20 38 10Z" fill="#c9b8ea" stroke="#9483c2" stroke-width="1.4"/><path d="M14 -34a10 10 0 1 0 8 14a8 8 0 1 1 -8 -14Z" fill="#fff1b8" stroke="#e3a92a" stroke-width="1.2"/>`+[[-18,-24,4],[-4,-32,3],[30,-10,3]].map(([x,y,r])=>csillag(x,y,r,'#ffd24d')).join('')+`<text x="-20" y="2" font-size="11" font-weight="700" fill="#6a4f9e" font-family="Fredoka">×</text>`,
+    6:`<path d="M-38 10Q-20 -24 0 6Q18 -20 38 10Z" fill="#c9b8ea" stroke="#9483c2" stroke-width="1.4"/><path d="M14 -34a10 10 0 1 0 8 14a8 8 0 1 1 -8 -14Z" fill="#fff1b8" stroke="#e3a92a" stroke-width="1.2"/>`+[[-18,-24,4],[-4,-32,3],[30,-10,3]].map(([x,y,r])=>csillag(x,y,r,'#ffd24d')).join(''),
     7:`<path d="M-36 10Q0 -2 36 10Z" fill="#c4e6bc"/><path d="M-20 10L0 -26L20 10Z" fill="#fff" stroke="#e0699b" stroke-width="1.6"/><path d="M-10 10L0 -26L-4 10ZM4 10L0 -26L12 10Z" fill="#f7b8d0"/><path d="M0 -26V-36l10 4l-10 4" fill="#fce49a" stroke="#c9a032" stroke-width="1"/><path d="M-36 -14Q-24 -6 -14 -14M14 -14Q24 -6 36 -14" stroke="#9a6f52" stroke-width="1" fill="none"/>`+[-30,-22,22,30].map((x,i)=>`<path d="M${x-3} -12h6l-3 6Z" fill="${['#9ec9f0','#fce49a','#a7d99a','#f6a5c0'][i]}"/>`).join(''),
     8:`<ellipse cx="0" cy="2" rx="36" ry="10" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.6"/>`+['#f6a5c0','#fce49a','#a7d99a','#9ec9f0'].map((c,i)=>`<path d="M${-30+i*4} 0A${30-i*4} ${28-i*4} 0 0 1 ${30-i*4} 0" stroke="${c}" stroke-width="3.4" fill="none"/>`).join('')+`<path d="M8 8l4 -8l4 4l4 -6l4 10Z" fill="#f2df9a" stroke="#c9a032" stroke-width="1"/>`,
     9:`<path d="M-4 10V-14h12V10Z" fill="#9a6f52" stroke="#6e472c" stroke-width="1.4"/><circle cx="2" cy="-30" r="24" fill="#9fd49a" stroke="#6fae74" stroke-width="1.4"/><circle cx="-12" cy="-38" r="11" fill="#c7e8b6"/><ellipse cx="2" cy="-4" rx="5" ry="6" fill="#4a3b5a"/><circle cx="0" cy="-5" r="1.6" fill="#fce49a"/><circle cx="4" cy="-5" r="1.6" fill="#fce49a"/><g transform="translate(-24 4) rotate(-10)"><rect x="-8" y="-6" width="16" height="11" rx="1.5" fill="#9ec9f0" stroke="#5a7fa8"/><path d="M0 -6v11" stroke="#5a7fa8"/></g>`,
     10:`<path d="M-30 10V-26q10 -10 22 -4V10Z" fill="#c8bcd8" stroke="#8a7fa6" stroke-width="1.4"/><path d="M-6 -24q2 18 0 32" stroke="#a9d6ef" stroke-width="9" fill="none"/><path class="zuhatag" d="M-6 -24q2 18 0 32" stroke="#fff" stroke-width="3" fill="none"/><ellipse cx="2" cy="10" rx="20" ry="5" fill="#a9d6ef"/>`+[[14,-26,4],[24,-12,3],[-20,-34,3]].map(([x,y,r])=>csillag(x,y,r,'#ffd24d')).join(''),
-    11:`<path d="M-36 10L-6 -34L10 -14L18 -24L38 10Z" fill="#cbbde6" stroke="#8a7fa6" stroke-width="1.4"/><path d="M-14 -22L-6 -34L2 -24L-4 -20Z" fill="#fff"/><path d="M18 -24V-44" stroke="#6a4f9e" stroke-width="1.6"/><path d="M18 -44h14l-4 5l4 5h-14Z" fill="#fce49a" stroke="#c9a032"/><text x="24" y="-35" text-anchor="middle" font-size="8" font-weight="700" fill="#6a4f9e" font-family="Fredoka">?</text>`,
+    11:`<path d="M-36 10L-6 -34L10 -14L18 -24L38 10Z" fill="#cbbde6" stroke="#8a7fa6" stroke-width="1.4"/><path d="M-14 -22L-6 -34L2 -24L-4 -20Z" fill="#fff"/><path d="M18 -24V-44" stroke="#6a4f9e" stroke-width="1.6"/><path d="M18 -44h14l-4 5l4 5h-14Z" fill="#fce49a" stroke="#c9a032"/>`,
     12:`<path d="M-40 10Q-36 -36 0 -36Q36 -36 40 10Z" fill="#b9a8d9" stroke="#7d6aa8" stroke-width="1.6"/><path d="M-16 10Q-16 -16 0 -16Q16 -16 16 10Z" fill="#3a2d55"/><path d="M22 -50a9 9 0 1 0 7 12a7 7 0 1 1 -7 -12Z" fill="#fff1b8" stroke="#e3a92a" stroke-width="1"/>`+csillag(-24,-44,3,'#ffd24d')+csillag(36,-24,2.5,'#fff')
   };
   return s[i];
@@ -950,9 +951,8 @@ function terkepGomb(k){
 }
 function tajTabla(){
   const jel={lap:'📮 képeslap',pik:'✨ pikkely',lab:'🐾 lábnyom',veg:'🐉 itt alszik'};
-  const tukor=['','(ahonnan a pillangó jött)','Összeadó liget','Szabóműhely','Bájitalkonyha','Mézes pékség','Szorzós liget','Tündérvásár','(a pihenő tó)','Bagolykönyvtár','(a csillagos rész)','Fejtörő-hegy','(a kaland vége)'];
-  let s='<table><tr><th>#</th><th>Táj</th><th>Melyik ligetet tükrözi</th><th>Nyom</th><th>Mit csinált ott a kissárkány</th></tr>';
-  for(let i=1;i<=12;i++){ const T=KALAND_TAJ[i]; s+=`<tr><td>${i}</td><td><b>${T.nev}</b></td><td>${tukor[i]}</td><td>${jel[T.ny]}</td><td>${T.mondat||'Összegömbölyödve alszik, és kölyökként ébred.'}</td></tr>`; }
+    let s='<table><tr><th>#</th><th>Táj</th><th>Nyom</th><th>Mit csinált ott a kissárkány</th></tr>';
+  for(let i=1;i<=12;i++){ const T=KALAND_TAJ[i]; s+=`<tr><td>${i}</td><td><b>${T.nev}</b></td><td>${jel[T.ny]}</td><td>${T.mondat||'Összegömbölyödve alszik, és kölyökként ébred.'}</td></tr>`; }
   document.getElementById('tajTabla').innerHTML=s+'</table>';
 }
 
@@ -965,11 +965,11 @@ function kretaSarkany(x,y,s){
 }
 const LAPOK=[
   {taj:1, sor:['Itt jártam a','Pillangós réten!','Virágkoszorút','fontam.','Szép vagyok?'], rajz:()=>kretaSarkany(70,96,1.3)+[[-14,-48],[-2,-54],[10,-52],[20,-44]].map(([dx,dy],i)=>`<circle cx="${92+dx}" cy="${96+dy+18}" r="5" fill="${['#f6a5c0','#fce49a','#c9a8e6','#f6a5c0'][i]}" stroke="#c0567f" stroke-width="2"/>`).join('')+`<path d="M20 130q60 -16 120 0" stroke="#7cc07a" stroke-width="4" fill="none"/>`},
-  {taj:3, sor:['A Szabóréten egy','gombolyaggal','játszottam. Kicsit','összegabalyodtam!'], rajz:()=>kretaSarkany(62,94,1.2)+`<circle cx="118" cy="104" r="16" fill="#f7b8d0" stroke="#c0567f" stroke-width="3"/><path d="M106 96q12 6 24 0M104 106q14 6 28 0" stroke="#c0567f" stroke-width="2" fill="none"/><path d="M102 110q-30 30 -60 -4q-10 -20 10 -24" stroke="#e0699b" stroke-width="2.6" fill="none"/>`},
+  {taj:3, sor:['A Bárányka-réten','gombolyaggal','játszottam. Kicsit','összegabalyodtam!'], rajz:()=>kretaSarkany(62,94,1.2)+`<circle cx="118" cy="104" r="16" fill="#f7b8d0" stroke="#c0567f" stroke-width="3"/><path d="M106 96q12 6 24 0M104 106q14 6 28 0" stroke="#c0567f" stroke-width="2" fill="none"/><path d="M102 110q-30 30 -60 -4q-10 -20 10 -24" stroke="#e0699b" stroke-width="2.6" fill="none"/>`},
   {taj:5, sor:['A malomnál','mézes kalácsot','kóstoltam.','Hmm, de finom','volt!'], rajz:()=>kretaSarkany(60,96,1.2)+`<path d="M98 112q20 -26 42 0q-20 10 -42 0Z" fill="#f0c04a" stroke="#b07a10" stroke-width="3"/><path d="M106 104l6 8M118 100l4 10M128 104l-2 8" stroke="#b07a10" stroke-width="2"/><path d="M128 40v40M118 52l20 -4M118 70l20 -4" stroke="#b98a5c" stroke-width="3"/>`},
-  {taj:7, sor:['A Tündérvásáron','körhintáztam!','Háromszor','három kört!'], rajz:()=>`<path d="M30 60L90 30L150 60Z" fill="#f7b8d0" stroke="#c0567f" stroke-width="3"/><path d="M40 60v60M90 60v60M140 60v60" stroke="#9a6f52" stroke-width="3"/><path d="M26 122h128" stroke="#9a6f52" stroke-width="4"/>`+kretaSarkany(92,104,.9)+`<path d="M32 90h14M136 90h12" stroke="#fce49a" stroke-width="5"/>`},
-  {taj:9, sor:['A Bagolyerdőben','a bagoly mesét','olvasott nekem.','Huhú!'], rajz:()=>kretaSarkany(54,104,1.1)+`<ellipse cx="124" cy="82" rx="20" ry="24" fill="#c9a8e6" stroke="#6a4f9e" stroke-width="3"/><circle cx="116" cy="76" r="6" fill="#fff" stroke="#6a4f9e" stroke-width="2"/><circle cx="132" cy="76" r="6" fill="#fff" stroke="#6a4f9e" stroke-width="2"/><circle cx="116" cy="77" r="2.4" fill="#3b2f4a"/><circle cx="132" cy="77" r="2.4" fill="#3b2f4a"/><path d="M98 120l26 -6l26 6v-16l-26 -6l-26 6Z" fill="#9ec9f0" stroke="#5a7fa8" stroke-width="2.6"/>`},
-  {taj:11,sor:['A Fejtörő-hegyen','kirakót raktam','a kövekből.','Majdnem kész','lett!'], rajz:()=>kretaSarkany(60,100,1.15)+`<path d="M98 120h20v-8a5 5 0 1 1 6 -6v-6h20v26h-14a5 5 0 1 0 -8 0h-24Z" fill="#fce49a" stroke="#c9a032" stroke-width="3"/><path d="M104 60l20 -30l20 30Z" fill="#cbbde6" stroke="#8a7fa6" stroke-width="3"/>`}
+  {taj:7, sor:['A tisztáson','körhintáztam!','Háromszor','három kört!'], rajz:()=>`<path d="M30 60L90 30L150 60Z" fill="#f7b8d0" stroke="#c0567f" stroke-width="3"/><path d="M40 60v60M90 60v60M140 60v60" stroke="#9a6f52" stroke-width="3"/><path d="M26 122h128" stroke="#9a6f52" stroke-width="4"/>`+kretaSarkany(92,104,.9)+`<path d="M32 90h14M136 90h12" stroke="#fce49a" stroke-width="5"/>`},
+  {taj:9, sor:['A Bagolyfánál','a bagoly mesét','olvasott nekem.','Huhú!'], rajz:()=>kretaSarkany(54,104,1.1)+`<ellipse cx="124" cy="82" rx="20" ry="24" fill="#c9a8e6" stroke="#6a4f9e" stroke-width="3"/><circle cx="116" cy="76" r="6" fill="#fff" stroke="#6a4f9e" stroke-width="2"/><circle cx="132" cy="76" r="6" fill="#fff" stroke="#6a4f9e" stroke-width="2"/><circle cx="116" cy="77" r="2.4" fill="#3b2f4a"/><circle cx="132" cy="77" r="2.4" fill="#3b2f4a"/><path d="M98 120l26 -6l26 6v-16l-26 -6l-26 6Z" fill="#9ec9f0" stroke="#5a7fa8" stroke-width="2.6"/>`},
+  {taj:11,sor:['A Kavics-hegyen','kirakót raktam','a kövekből.','Majdnem kész','lett!'], rajz:()=>kretaSarkany(60,100,1.15)+`<path d="M98 120h20v-8a5 5 0 1 1 6 -6v-6h20v26h-14a5 5 0 1 0 -8 0h-24Z" fill="#fce49a" stroke="#c9a032" stroke-width="3"/><path d="M104 60l20 -30l20 30Z" fill="#cbbde6" stroke="#8a7fa6" stroke-width="3"/>`}
 ];
 function lapSVG(L){
   const p=PAL[ALL.pal], T=KALAND_TAJ[L.taj];
