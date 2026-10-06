@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visszahívás tervlap</title>
+<style>
+  :root{
+    --bg:#f7f4fb; --panel:#ffffff; --ink:#2a2638; --muted:#6a6478;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#2a9fd6; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#ebe4f3; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3e0;
+    --egg:#fff4d6; --egg-d:#e8c77a; --drak:#7fcf9a; --drak-d:#3f9e6a; --fog:#d9d3e6; --parch:#fbf1dc; --parch-d:#d9bf8c;
+    --sketch-ink:#3d3a4a; --sketch-bg:#fbf8ff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1722; --panel:#252030; --ink:#f0ecf7; --muted:#b3abc2; --line:#3a3348;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2320;
+      --egg:#5a4d2c; --egg-d:#8a7240; --fog:#4a4458; --parch:#3a3224; --parch-d:#6a5a3a; --sketch-ink:#ece6f5; --sketch-bg:#221d2c;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1722; --panel:#252030; --ink:#f0ecf7; --muted:#b3abc2; --line:#3a3348;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2320;
+    --egg:#5a4d2c; --egg-d:#8a7240; --fog:#4a4458; --parch:#3a3224; --parch-d:#6a5a3a; --sketch-ink:#ece6f5; --sketch-bg:#221d2c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#8a4fd0 0%,#e0417a 55%,#f0a800 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🥚";position:absolute;right:18px;top:6px;font-size:100px;opacity:.22;transform:rotate(12deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .cards>*{min-width:0}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--violet-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--pink);font-weight:800}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b{display:block;margin-bottom:4px}
+  .no{border-left:5px solid var(--red);background:var(--red-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{font-size:13px;color:var(--muted)}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  .mondat{background:var(--violet-soft);border-radius:10px;padding:6px 12px;margin:4px 0;font-style:italic}
+  .lepcso{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center}
+  @media (max-width:640px){ .lepcso{grid-template-columns:repeat(2,1fr)} }
+  .lepcso div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 6px;font-size:13px}
+  .lepcso b{display:block;font-size:15px}
+  .lepcso .e{font-size:30px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🥚 Visszahívás: a Tamagocsi-hatás</h1>
+  <div class="sub">Miért várja a gyerek, hogy holnap is leülhessen? Mert az unikornisa örül neki, mert levél várja, mert a tojás reccsent egyet, és mert a kissárkány nyoma egy felhővel közelebb van. Halál, büntetés és bűntudat nincs benne. A visszatérés mindig egy végigjátszott pálya.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-06</span>
+    <span class="chip">Nagyság: NAGY (8 kör)</span>
+    <span class="chip">Sorrend: 3. lépés</span>
+    <span class="chip">Alap: a meglévő src/gondozas.js</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>A 2026-10-04-i elemzés kutatásokra épül (önmeghatározás-elmélet, „My-Pet”, Finch, Neko Atsume, Animal Crossing, kíváncsiság-rés, elosztott gyakorlás). Ebből és a producer kiegészítéseiből <b>öt dolog</b> hívja vissza a gyereket. Mindegyik ugyanarra az egy szabályra épül:</p>
+  <div class="mondat" style="font-style:normal"><b>Visszatérés = a nap első végigjátszott pályája.</b> Puszta belépésért semmi nem jár. Ami „napokon át érik”, az <b>gyakorlós napokon</b> érik, nem egymás utáni napokon, így a kimaradt nap soha nem ront semmin.</div>
+  <ol>
+    <li><b>💌 Postaláda az odúban:</b> „amíg nem voltál itt” levelek és vendégek a mesefiguráktól, dicsérő levél a pultról, és az unikornis emlékszik a tegnapra.</li>
+    <li><b>🦄 Unikornis-gondozás:</b> jókedvűen éhes, játszana, fésülni kellene. Ingyenes alap-gondozás, és ✨-ért újra megvehető csemegék. A barátság soha nem csökken.</li>
+    <li><b>🥚 Varázstojás:</b> 3 gyakorlós nap alatt kel ki. Az első reccsenés már az induláskor ott van. Hogy mi kel ki, az titok.</li>
+    <li><b>🗺️ A kissárkány nyomában:</b> a kikelt kissárkány egy pillangó után elrepül, és bújócskázik. Minden végigjátszott pálya után a gyerek elfúj egy felhőt a kalandtérképről, és közelebb jut hozzá. Mire megtalálja, a kissárkány nagyot nőtt.</li>
+    <li><b>📅 Heti kártya és ünnepek:</b> 4 pecsét = teljes hét, sosem nullázódik. Évszakok, ünnepek, születésnap a pultról.</li>
+  </ol>
+  <p class="lead">A Tény-kert gondozása (szomjas virágok, napi meglepetés, ritka mag) már él. Ez a terv ugyanazt a közös alapot használja, és nem épít mellé másodikat.</p>
+</div>
+
+<h2>Ami már megvan, és amire építünk</h2>
+<div class="panel tblwrap">
+  <table>
+    <tr><th>Meglévő elem</th><th>Mit ad ehhez a tervhez</th></tr>
+    <tr><td><code>src/gondozas.js</code></td><td><code>gyakLep/gyakNap</code> (gyakorlós nap), <code>igeny</code> (puha felső határú igény), <code>meglepetesSor</code> (legfeljebb egy gyűlik), <code>erik</code> (lépcsőnként érő dolog). A tojás, a sárkány, az éhség és a levelek mind ezt használják.</td></tr>
+    <tr><td><code>gyakPalyaVege()</code></td><td>Itt indul minden reggeli (napi első) esemény. Ide kerül be a postaláda, a tojás és a heti pecsét.</td></tr>
+    <tr><td>Tény-kert hírek az ösvény végén</td><td>A „🌸 Két új virág nyílt” sorból <b>közös hír-sor</b> lesz: a tojás, a sárkány és a levél is ide ír.</td></tr>
+    <tr><td><code>src/terkep.js</code> (ligettérkép)</td><td>A kalandtérkép ugyanazzal a festett térkép-modullal és sétáló unikornissal készül.</td></tr>
+    <tr><td>Kert: ételek, evés, ágy, fekvés, nyújtózás</td><td>Az ingyenes alap-etetés és az alvás meglévő mozdulatokkal megy.</td></tr>
+    <tr><td><code>FIGURA</code> (13 mesefigura)</td><td>Ők írják a leveleket és ők jönnek vendégségbe.</td></tr>
+    <tr><td>Kincsvitrin, Szekrény, bolt az utcán</td><td>Ide kerülnek a képeslapok és a csemegék polca.</td></tr>
+    <tr><td>Visszatérő jelvény, napi kiemelt pálya, darabkorlát</td><td>Maradnak. A darabkorlátos „eleget gyakoroltál” mondat mellé kedvcsináló kerül („holnap talán megreccsen a tojás…”).</td></tr>
+  </table>
+</div>
+
+<h2>1 · 💌 Postaláda: „amíg nem voltál itt”</h2>
+<div class="cards">
+  <div class="dec"><span class="num">1</span>
+    <h3>Levelek és vendégek a mesefiguráktól</h3>
+    <ul>
+      <li>Az odú ajtaja mellett egy <b>kis postaláda</b> áll. Ha levél vár, a zászlója fel van csapva, és egy madárka ül rajta. Számláló nincs, csak a zászló.</li>
+      <li><b>Mikor jön levél?</b> A nap első végigjátszott pályája után, a meglévő <code>meglepetesSor</code>-ral: naponta legfeljebb egy, és <b>legfeljebb egy gyűlik össze</b>. Aki egy hétig nem jött, egy levelet talál, nem hét elmaradt levelet.</li>
+      <li><b>Mi van benne?</b> Rövid, felolvasott levél egy <code>FIGURA</code>-szereplőtől, néha kis ajándékkal (egy csemege, egy matrica az albumba, 1 💧). Példák:
+        <div class="mondat">„Kedves Ragyogás! Sün Samu vagyok. Találtam egy fényes gesztenyét, neked hoztam. Ölel: Samu”</div>
+        <div class="mondat">„Brekus kérdezi: tudod, hány lába van három békának? Ő tudja. Holnap elmondja!”</div>
+        A második egy kis kíváncsiság-rés: a válasz a következő levélben jön.</li>
+      <li><b>Vendég:</b> néha nem levél jön, hanem maga a szereplő ül az odúban (pl. Kacsa Kata a kályha mellett). Koppintásra köszön, és a nap végéig ott marad. Ugyanaz a minta, mint a Tény-kert látogatói.</li>
+      <li>A levelek adat-táblában állnak (<code>LEVELEK</code>), sorban és körbe járnak. Indulásnak kb. 30 levél, a vendégek a 13 figurából.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Dicsérő levél a pultról</h3>
+    <ul>
+      <li>A pulton egy új mezőben a producer vagy a szülő <b>rövid levelet írhat</b> a gyereknek (gyerekre vagy csoportra, a szokásos pult-irányítással).</li>
+      <li>A levél a következő belépéskor <b>soron kívül</b> érkezik a postaládába (nem kell hozzá végigjátszott pálya, és nem foglalja el a napi levél helyét), és a játék felolvassa. A feladó neve az, amit a pulton beírnak (pl. „Anya”, vagy a tanító néni neve).</li>
+      <li>Ez a legolcsóbb és talán a legerősebb visszahívó: egy valódi felnőtt valódi dicsérete.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>Az unikornis emlékszik</h3>
+    <ul>
+      <li>Belépéskor (ha legalább egy nap eltelt) az unikornis <b>egy mondatot mond a legutóbbi közös gyakorlásról</b>, a meglévő mentésből:
+        <div class="mondat">„Tegnap a Szorzós ligetben jártunk. Olyan ügyes voltál a hetes sorral!”</div>
+        <div class="mondat">„Legutóbb a Mézes pékségben mértünk. Ma hová megyünk?”</div></li>
+      <li>Csak jó dolgot mond. Hibát, „régen voltál itt”-et, hiányt soha.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Az ösvény vége: csúcspont és „holnapra” kedvcsináló</h3>
+    <ul>
+      <li>A zárólapon a Tény-kert hírei mellett egy <b>közös hír-sor</b> mondja el, mi lett ma jobb: <i>„🥚 A tojás megreccsent!”</i>, <i>„☁️ Elfújhatsz egy felhőt a kalandtérképen!”</i>, <i>„💌 Levél jött a postaládába!”</i>.</li>
+      <li>A legvégén legfeljebb <b>egy</b> holnapra mutató mondat, kíváncsiságot keltve, nem sürgetve: <i>„Holnap talán kikukucskál valaki a tojásból…”</i> Soha nem: „ne felejts el holnap jönni!”.</li>
+      <li>A csúcs–vég szabály miatt a nap legjobb pillanata a végére kerül.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>2 · 🦄 Unikornis-gondozás</h2>
+<div class="cards">
+  <div class="dec"><span class="num">5</span>
+    <h3>Három jókedvű igény + álmos este</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Igény</th><th>Honnan látszik</th><th>Ingyenes alap</th><th>✨ csemege (újra megvehető)</th></tr>
+      <tr><td>🍎 <b>Éhes</b></td><td>a hasát simogatja, nyalogatja a száját</td><td>a kertben letett étel (mint ma: odasétál és eszik)</td><td>szivárványalma, csillagzab, mézes kalács</td></tr>
+      <tr><td>🎈 <b>Játszana</b></td><td>ugrándozik, a labdát böködi</td><td>a meglévő kerti trükkök</td><td>játéklabda, buborékfújó, lufi, tűzijáték</td></tr>
+      <tr><td>🪮 <b>Fésülni kellene</b></td><td>a sörénye kicsit kócos, egy levél ragadt bele</td><td>fésülés az odúban (simítás az ujjal)</td><td>fürdősó, sörénybalzsam</td></tr>
+      <tr><td>🌙 <b>Álmos</b></td><td>csak este (a napszakos ablak szerint), ásít</td><td>az ágy: lefekszik, nyújtózik (meglévő)</td><td>nincs, ez mindig ingyenes</td></tr>
+    </table></div>
+    <ul>
+      <li>Az igényt a közös <code>igeny()</code> számolja: 0 = jóllakott, 1 = kicsit, 2 = nagyon, <b>és ennél sosem rosszabb</b>. Aki egy hétig nem jött, annál sem rosszabb, mint két nap után. Az igény <b>semmire nem hat</b>: a pályák, a jutalmak és a barátság ugyanúgy mennek.</li>
+      <li>Az igényt <b>vidáman mutatja</b>: kis buborék a feje fölött (🍎, 🎈, 🪮), csak az odúban és a kertben. Szomorú arc, könny, betegség soha.</li>
+      <li><b>Miért kell az ingyenes alap?</b> Mert ✨ nélkül is meg kell tudni etetni. A csemege többet ad: saját mozdulatot (a buborékfújótól buborékot kerget, a fürdősótól habos lesz és megrázza magát), és lehet, hogy ez a kedvence.</li>
+      <li>A csemegék a bolt új <b>„Csemegék” polcán</b> vannak, olcsók (kb. 5–15 ✨), és elfogynak. Így mindig van mire gyűjteni, és a ✨ értékes marad. Kosárban legfeljebb 5 darab lehet egyfélékből, hogy ne halmozza.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">6</span>
+    <h3>Barátság-szívek, amik soha nem fogynak</h3>
+    <ul>
+      <li>Minden unikornisnak van egy <b>barátság-szintje</b> (szívecskék). Nő, ha gyakorlós nap van (+1), és ha aznap gondozta (+1, naponta egyszer). <b>Soha nem csökken.</b></li>
+      <li>Bizonyos szinteken (pl. 5, 15, 30, 60) az unikornis <b>új kedves mozdulatot</b> tanul (orrpuszi a képernyőre, szivárvány-hempergés, a gyerek nevét suttogja). Ezeket nem mondjuk előre, meglepetésként jönnek.</li>
+      <li>Ranglista, összehasonlítás más gyerekekkel nincs.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">7</span>
+    <h3>Titkos kedvenc étel</h3>
+    <ul>
+      <li>Mindhárom unikornisnak van egy titkos kedvenc csemegéje (a rajztervnél döntjük el, melyik). Ha a gyerek eltalálja, az unikornis <b>örömtáncot</b> jár, és ettől kezdve a bolti polcon egy kis szív jelzi.</li>
+      <li>Kíváncsiság-rés: „vajon mit szeret Tűz?” A gyerek kipróbálja, és nincs rossz válasz, mert minden csemegének örül.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>3 · 🥚 Varázstojás és a kissárkány élete</h2>
+<div class="cards">
+  <div class="dec"><span class="num">8</span>
+    <h3>A teljes út: tojás → fióka → kalandozás → kölyök → nagy</h3>
+    <div class="lepcso">
+      <div><span class="e">🥚</span><b>Tojás</b>3 gyakorlós nap. Az első reccsenés már ott van.</div>
+      <div><span class="e">🐣</span><b>Fióka</b>2 gyakorlós nap az odúban, az unikornis vigyáz rá.</div>
+      <div><span class="e">🦋</span><b>Kalandozik</b>egy pillangó után repül. Kalandtérkép, kb. 4–6 nap.</div>
+      <div><span class="e">🐉</span><b>Kölyök</b>megtaláltuk, és nagyot nőtt! 10 gyakorlós nap.</div>
+      <div><span class="e">🌈</span><b>Nagy</b>végleges, repül, és saját trükkjei vannak.</div>
+    </div>
+    <ul>
+      <li><b>Mikor kapja meg a tojást?</b> Az első pályavége után, amikor ez a terv élesedik. Az unikornis hozza a postaládából: „Nézd, mit találtam! Meleg, és mintha mocorogna…”</li>
+      <li><b>A tojás</b> az odúban, az ágy melletti kis fészekben van, a csillaglámpa melegíti. A közös <code>erik()</code> lépteti: 1. nap kis reccsenés (ez már az induláskor látszik, Nunes–Drèze: az „elajándékozott” előrehaladás), 2. nap nagyobb repedés és billeg, 3. nap kikel. Koppintásra a tojás megbillen, és belülről kopog egyet.</li>
+      <li><b>Hogy mi kel ki, az titok.</b> A gyerek csak a tojás színéből sejthet valamit. Az első tojásból kissárkány kel, a későbbi tojásokból (ha lesznek) más kis lények (pl. csillagbagoly, szivárványcsiga). Ez később dől el.</li>
+      <li><b>Fióka:</b> az odúban totyog, az unikornis mellett alszik, pislog, apró szikrát tüsszent. A gyerek megsimogathatja és nevet adhat neki (felolvasott névajánlásból választ, nem gépel).</li>
+      <li><b>Minden lépcső új kinézet és új tudás:</b> a fióka tüsszent, a kölyök röpköd és buborékot fúj, a nagy repül, és az unikornissal együtt táncol. A pontos rajzot a rajzterv adja.</li>
+      <li>A lépcsőket minden esetben a <b>gyakorlós napok</b> léptetik, az <code>erik()</code>-kel. Ha a gyerek kimarad, a sárkány ott vár, ahol volt.</li>
+    </ul>
+    <span class="prop">Javaslat (a napszámok a pultról állíthatók)</span>
+  </div>
+
+  <div class="dec"><span class="num">9</span>
+    <h3>A kissárkány nyomában: a kalandtérkép</h3>
+    <div class="flow"><span class="step">a fióka elrepül egy pillangó után</span><span class="arr">→</span><span class="step">a postaládában térkép</span><span class="arr">→</span><span class="step">pályánként 1 felhő elfújása</span><span class="arr">→</span><span class="step">nyomok, képeslapok</span><span class="arr">→</span><span class="step">megtaláltuk! kölyökként jön haza</span></div>
+    <ul>
+      <li><b>Nem eltéved, hanem bújócskázik.</b> A fióka egy szivárványpillangó után elröppen. Az unikornis nem ijed meg: „Bújócskázik! Gyere, kövessük a nyomát!” A sárkány <b>végig biztonságban van</b>, minden megtalált nyomnál látszik, hogy jól érzi magát (homokvárat épített, virágkoszorút font, egy mókussal játszott). Sírás, veszély, „segíts, mert baj lesz” soha.</li>
+      <li><b>A térkép</b> egy festett pergamen-térkép (a <code>terkep.js</code> közös moduljával), <b>12 tájjal</b>, amelyek a ligeteket tükrözik: Számerdő, Szorzós hold, Mézes pékség, Szabóműhely, Bájitalkonyha, Tündérvásár, Fejtörő-hegy… A tájakat <b>felhő</b> takarja.</li>
+      <li><b>Minden végigjátszott pálya után</b> a hír-sor szól: „☁️ Elfújhatsz egy felhőt!”. A gyerek a térképen <b>maga választja ki</b>, melyik felhőt fújja el (a már feltisztított rész mellettieket). Az unikornis odasétál, nagyot fúj, a felhő szétszáll. Ami feltisztult, <b>soha nem nő vissza</b>.</li>
+      <li>A feltisztult tájon a sárkány <b>nyoma</b> van: lábnyom, egy elhagyott fényes pikkely, vagy egy <b>képeslap</b>, amit a kissárkány rajzolt („Itt jártam! Finom volt a pékség illata!”). A képeslapok egy albumba kerülnek a Kincsvitrin mellé (a Finch „kirándulós” mintája).</li>
+      <li>A nyomok <b>irányt mutatnak</b> (melyik szomszédos felhő mögé vezet tovább), de bármelyik felhő elfújható. Az út végén, a 12. tájon egy barlangban vagy egy fa odvában ott alszik összegömbölyödve, és amikor felébred, <b>sokkal nagyobb</b>: kölyök lett. „Nézd, mekkorát nőttél, amíg kalandoztál!” Együtt sétálnak haza.</li>
+      <li><b>Napi határ:</b> pályánként 1 felhő, de naponta legfeljebb 3 (a pultról állítható). Így a 12 táj legalább 4 gyakorlós nap, és a kaland nem fogy el egyetlen délután alatt (elosztott gyakorlás). A 3. felhő után: „Mára elég a felhőfújásból, holnap folytatjuk a nyomkeresést!”</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">10</span>
+    <h3>Hazaérve: a kölyök és a nagy sárkány</h3>
+    <ul>
+      <li>A kölyöksárkány az odúban és a kertben él, a fiókánál bátrabb: a kertben röpköd, az unikornis után totyog, buborékot fúj. <b>Ő is lehet jókedvűen éhes</b> (ugyanaz az <code>igeny()</code>, ugyanazok a csemegék, ugyanolyan ingyenes alap).</li>
+      <li>10 gyakorlós nap után <b>nagy sárkány</b> lesz: repül, az unikornissal együtt táncol, és a gyerek ráültetheti az unikornist egy kis körrepülésre a kert fölött. Ez a végleges alak, ezzel a történet lezárul.</li>
+      <li>A nagy sárkány után jöhet a <b>következő tojás</b>, más titkos lénnyel. Ezt az élő próba után döntjük el.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<div class="vazlatok" style="margin-top:16px">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Odú: fészek a tojással, postaláda zászlóval, unikornis igény-buborékkal">
+      <rect x="20" y="40" width="360" height="190" rx="40" fill="var(--violet-soft)"/>
+      <rect x="20" y="190" width="360" height="40" rx="10" fill="var(--parch-d)" opacity=".5"/>
+      <rect x="40" y="110" width="30" height="80" rx="6" fill="var(--parch-d)"/><rect x="34" y="96" width="42" height="24" rx="12" fill="var(--pink)"/>
+      <path d="M76 100 v-26 h20 v12 h-20" fill="var(--gold)" stroke="var(--warn)" stroke-width="2"/>
+      <text x="56" y="214" text-anchor="middle" font-size="11">postaláda</text>
+      <ellipse cx="300" cy="186" rx="40" ry="14" fill="var(--parch-d)"/>
+      <ellipse cx="300" cy="170" rx="18" ry="24" fill="var(--egg)" stroke="var(--egg-d)" stroke-width="3"/>
+      <path d="M288 166 l6 6 l5 -7 l6 6" stroke="var(--warn)" stroke-width="2" fill="none"/>
+      <text x="300" y="214" text-anchor="middle" font-size="11">fészek a tojással</text>
+      <ellipse cx="185" cy="160" rx="46" ry="26" fill="#fff" stroke="var(--pink)" stroke-width="3"/>
+      <circle cx="225" cy="128" r="16" fill="#fff" stroke="var(--pink)" stroke-width="3"/>
+      <path d="M232 112 l8 -18" stroke="var(--gold)" stroke-width="4"/>
+      <circle cx="252" cy="82" r="18" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><text x="252" y="88" text-anchor="middle" font-size="16">🍎</text>
+      <text x="200" y="28" text-anchor="middle" font-size="13" font-weight="700">az odúban</text>
+    </svg>
+    <figcaption>Odú: postaláda zászlóval, fészek a tojással, jókedvű igény-buborék. (Csak vázlat, a rajzterv adja a képet.)</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Kalandtérkép felhőkkel, feltisztított tájak nyomokkal">
+      <rect x="14" y="20" width="372" height="226" rx="16" fill="var(--parch)" stroke="var(--parch-d)" stroke-width="3"/>
+      <g id="terkep-vazlat"></g>
+      <text x="200" y="14" text-anchor="middle" font-size="13" font-weight="700">a kissárkány nyomában</text>
+    </svg>
+    <figcaption>Kalandtérkép: 12 táj, a tisztán maradt rész sosem felhősödik vissza. 🐾 = nyom, 💌 = képeslap.</figcaption>
+  </figure>
+</div>
+
+<h2>4 · 📅 Heti kártya, évszakok, ünnepek</h2>
+<div class="cards">
+  <div class="dec"><span class="num">11</span>
+    <h3>Heti kártya: 4 pecsét = teljes hét</h3>
+    <ul>
+      <li>Minden héten egy új kártya van az odú falán, 4 üres pecséthellyel. <b>Gyakorlós naponként egy pecsét</b> kerül rá (a nap első végigjátszott pályája után, a hír-sorban: „🐾 Új pecsét a heti kártyán!”).</li>
+      <li>4 pecsét után a hét teljes: kis ünneplés, és egy meglepetés-csemege a kosárba. Az 5., 6. és 7. nap is pecsétet ad (szivárványos pecsét), de semmit nem vár el.</li>
+      <li><b>Sosem nullázódik.</b> Hétfőn új kártya jön, a régiek egy kis füzetbe kerülnek. Ha egy héten csak 2 pecsét lett, az is ott van, és szép. Nincs „elveszett sorozat”.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+  <div class="dec"><span class="num">12</span>
+    <h3>Évszakok, ünnepek, születésnap</h3>
+    <ul>
+      <li><b>Évszak:</b> az odú ablaka és a kert a valódi évszakot mutatja (hulló levél, hó, rügyek, nyári szentjánosbogarak).</li>
+      <li><b>Ünnepek:</b> Mikulás, karácsony, farsang, húsvét, nyári szünet: ünnepi dísz az odúban, ünnepi levél a postaládában, és egy ünnepi csemege a polcon. Az ünnepi csemege az ünnep elmúltával is megvehető marad: <b>soha nincs „csak ma, siess!”</b>.</li>
+      <li><b>A gyerek születésnapja</b> a pulton állítható: aznap feldíszített odú, torta, és a figurák levelei.</li>
+      <li><b>Váltakozó kínálat:</b> a Csemegék polcán hetente egy-két új csemege tűnik fel, és a régiek is visszajönnek. Ez kíváncsiság, nem hiányérzet.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+</div>
+
+<h2>Tiltólista (ezek nem kerülhetnek a játékba)</h2>
+<div class="no">
+  <ul>
+    <li>Halál, betegség, hervadás, elszökés, „elveszíted, ha…”.</li>
+    <li>Bűntudat-mondat: „szomorú voltam, mert nem jöttél”, „hiányoztál, hol voltál?”.</li>
+    <li>FOMO: „csak ma!”, visszaszámláló óra, eltűnő ajánlat.</li>
+    <li>Véletlen tartalmú doboz ✨-ért (loot box). Ami véletlen, az csak ajándék lehet, soha nem vásárolt.</li>
+    <li>Nullázódó sorozat, büntetés a hiányzásért, gyerekek közti ranglista.</li>
+    <li>Értesítés, ami a gyereket a játékon kívül zaklatja.</li>
+    <li>Végtelen „még egyet!” hurok: a napi határok (felhő, levél, meglepetés) szándékosak.</li>
+  </ul>
+</div>
+
+<h2>Mentés és adat</h2>
+<div class="panel">
+  <p class="lead">Mint minden eddigi gondozás: gyerekenként és unikornisonként (<code>P()</code>), mert a tojás annak az unikornisnak az odújában van, akivel a gyerek játszik. A gyakorlós nap (<code>P().gyak</code>) már létezik, és ugyanaz marad.</p>
+  <ul>
+    <li><code>P().posta</code>: <code>{ meg, megSz }</code> a napi levélhez (<code>meglepetesSor</code>), <code>pult: [{ id, szoveg, kitol, olvasva }]</code> a pultról jött levelekhez, <code>vendeg</code>, <code>album</code> (matricák, képeslapok).</li>
+    <li><code>P().uni</code>: <code>{ etel, jatek, apol }</code> = a legutóbbi gondozás napja (az igény ebből számolódik), <code>sziv</code> (barátság, csak nő), <code>szivNap</code> (aznap kapott-e már gondozásért), <code>kedvenc</code> (megtalálta-e), <code>kosar: { szivarvanyalma: 2, … }</code>.</li>
+    <li><code>P().leny2</code> (a kis lény): <code>{ faj, nev, fazis, t, terkep: { tiszta: [táj-sorszámok], napi: { nap, db } }, kepeslap: [] }</code>. A fázist az <code>erik()</code> számolja.</li>
+    <li><code>P().het</code>: <code>{ [hét-azonosító]: pecsétszám }</code>, minden hét megmarad.</li>
+    <li><code>tenyKertAllapot()</code> mintájára új <code>visszaAllapot()</code>: egy helyen adja vissza, mi vár a gyerekre (levél, felhő, tojás, igény). Ebből dolgozik a hír-sor és a pult.</li>
+  </ul>
+  <h3>Pult</h3>
+  <ul>
+    <li>Új <b>💌 Visszahívás</b> kártya, gyerekre és csoportra (alap &lt; csoport &lt; egyéni): levélírás, születésnap, felhő napi határa (alap 3), a tojás és a sárkány napszámai, és modulonként be- és kikapcsolás.</li>
+    <li>Megmutatja, hol tart a gyerek: barátság, a lény fázisa, hány táj tisztult, hány pecsét van a héten, és mikor volt az utolsó gyakorlós nap.</li>
+  </ul>
+</div>
+
+<h2>Közös alap: mi kerül a közös modulba?</h2>
+<div class="panel">
+  <ul>
+    <li><b><code>src/gondozas.js</code> bővül</b> (nem lesz második gondozás-modul):
+      <ul>
+        <li><code>gyakPalyaVege()</code> kibővül a postaládával, a tojással vagy lénnyel, a heti pecséttel és a felhő-joggal.</li>
+        <li><code>visszaHir(sor)</code>: <b>közös hír-sor</b> az ösvény végére. A Tény-kert mostani hírei is ide költöznek, így egy helyen dől el a sorrend és az, hogy legfeljebb egy „holnapra” mondat szól.</li>
+        <li><code>napiHatar(tar, n)</code>: a felhőfújás-féle „naponta legfeljebb n” számláló, újrahasznosítható.</li>
+      </ul></li>
+    <li><b><code>src/posta.js</code></b>: postaláda, levelek (<code>LEVELEK</code> adat-tábla), vendégek, pult-levél, „emlékszik” mondat.</li>
+    <li><b><code>src/uni-gondozas.js</code></b>: igény-buborékok, csemegék (<code>CSEMEGEK</code> adat-tábla: id, ár, igény, mozdulat), barátság, kedvenc. A kert meglévő evés- és trükk-mozdulatait hívja.</li>
+    <li><b><code>src/leny.js</code></b>: tojás, fióka, kölyök, nagy (<code>LENY_FAZISOK</code> adat-tábla), és a kalandtérkép a <code>terkep.js</code> közös moduljával. A lény rajza a <code>figurak.js</code> mintájára egy helyen.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="panel">
+  <p class="lead">Ez <b>nagy</b> munka, 8 kör. Mindegyik külön kipróbálható és feltölthető. A kód a jóváhagyás után, és a ligetválasztó, illetve a Tény-kert élő próbája után indul, hogy a gyerekek visszajelzése bekerülhessen.</p>
+  <ol>
+    <li><b>Rajzterv:</b> postaláda, igény-buborékok, csemegék, a tojás 3 állapota, fióka, kölyök, nagy sárkány, kalandtérkép felhőkkel és nyomokkal, képeslap, heti kártya. Fekvő és álló kép.</li>
+    <li><b>Közös alap láthatatlanul:</b> <code>gondozas.js</code> bővítése (<code>visszaHir</code>, <code>napiHatar</code>), mentés-ágak, <code>visszaAllapot()</code>. A Tény-kert hírei átköltöznek a közös hír-sorba, a gyerek ebből semmit nem lát.</li>
+    <li><b>💌 Postaláda:</b> levelek, vendégek, pult-levél, „emlékszik” mondat, „holnapra” kedvcsináló. Ez a legkisebb, legolcsóbb kör, és már önmagában visszahív.</li>
+    <li><b>🦄 Unikornis-gondozás:</b> igények, ingyenes alap, Csemegék polc, barátság-szívek, kedvenc étel. Utána <b>élő próba</b>.</li>
+    <li><b>🥚 Tojás és fióka:</b> fészek, reccsenések, kikelés-jelenet, névadás, a fióka az odúban.</li>
+    <li><b>🗺️ Kalandtérkép:</b> elröppenés, 12 táj, felhőfújás, nyomok, képeslap-album, megtalálás, kölyök. Utána <b>élő próba</b>.</li>
+    <li><b>🌈 Nagy sárkány + 📅 heti kártya:</b> az utolsó lépcső és a pecsétes kártya.</li>
+    <li><b>🎄 Évszakok, ünnepek, születésnap, váltakozó kínálat.</b></li>
+  </ol>
+</div>
+
+<h2>Döntések (jóváhagyásra)</h2>
+<div class="cards">
+  <div class="q"><b>1. Ingyenes alap-gondozás + ✨-ért csemegék?</b>Javaslat: igen, az éhséget a kert meglévő étele is elüti, a csemege csak többet ad (saját mozdulat, kedvenc). Másik lehetőség: etetni csak bolti csemegével lehet (erősebb ✨-szívás, de ✨ nélkül a gyerek nem tudja megetetni).</div>
+  <div class="q"><b>2. Három igény (éhes, játszana, fésülni kellene) + álmos csak este, ingyen?</b>Másik lehetőség: négy egyenrangú igény (több teendő, nagyobb nyomás).</div>
+  <div class="q"><b>3. A kissárkány nem eltéved, hanem egy pillangó után elrepül, és bújócskázik?</b>Ugyanaz a történet, csak semmi szorongás. Másik lehetőség: „eltévedt”, ahogy eredetileg szólt (az unikornis akkor is vigyáz rá, de a szó maga kicsit ijesztőbb).</div>
+  <div class="q"><b>4. Kalandtérkép: 12 táj, pályánként 1 felhő, naponta legfeljebb 3, a gyerek választja ki, melyiket fújja el?</b>Másik lehetőség: korlátlan (egy délután alatt elfogyhat), vagy naponta csak 1 (12 nap, lassú).</div>
+  <div class="q"><b>5. A lény útja: tojás 3 nap → fióka 2 nap → térkép (4–6 nap) → kölyökként kerül elő → 10 nap → nagy?</b>Ez kb. 3–4 hétnyi gyakorlás, minden lépcsőn új kinézettel és tudással. Minden napszám a pultról állítható.</div>
+  <div class="q"><b>6. Heti kártya 4 pecséttel, sosem nullázódik, a régiek füzetbe kerülnek?</b>Másik lehetőség: kimarad, és a Visszatérő jelvény elég.</div>
+  <div class="q"><b>7. Sorrend: a postaláda jön először (olcsó, gyors haszon), utána a gondozás, a tojás és a térkép?</b>Másik lehetőség: a tojás és a sárkány előre, mert a gyerekeknek az a leglátványosabb.</div>
+</div>
+
+<h2>Előzmény: a producer döntései (2026-10-04)</h2>
+<div class="panel">
+  <ul>
+    <li>A Tamagocsi-hatás mindenképp kell, és legyenek folyamatosan újra megvehető bolti dolgok is.</li>
+    <li><b>SOHA halál, és semmi nyomás.</b></li>
+    <li>„Visszatérés” = <b>egy pálya végigjátszása</b>, nem puszta belépés.</li>
+    <li>Keltető továbbfejlődéssel: a tojás kb. 3 végigjátszott nap után kikel, aztán x újabb nap után továbbfejlődik, új kinézettel és új tudással.</li>
+    <li>Eltévedt kissárkány + térkép, amelyen visszatérésenként egy újabb terület tisztul fel.</li>
+    <li>A kissárkányra <b>az unikornis vigyáz</b> (nem Brumi).</li>
+    <li>Sorrendben a 3. lépés, a ligetválasztó és a tény-motor után.</li>
+  </ul>
+</div>
+
+</div>
+<script>
+/* vázlat: 12 táj-folt; az első 5 tiszta (nyommal), a többi felhős — csak illusztráció */
+(function () {
+  var g = document.getElementById("terkep-vazlat"); if (!g) return;
+  var h = "", tajak = [[60,70],[120,60],[180,80],[240,62],[300,74],[350,110],[70,140],[140,130],[210,150],[280,140],[110,200],[250,206]];
+  var jel = ["🐾","💌","🐾","🐾","💌"];
+  tajak.forEach(function (p, i) {
+    if (i < 5) h += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="28" fill="var(--green-soft)" stroke="var(--drak-d)" stroke-width="2"/><text x="' + p[0] + '" y="' + (p[1] + 6) + '" text-anchor="middle" font-size="16">' + jel[i] + '</text>';
+    else h += '<g fill="var(--fog)" opacity=".95"><circle cx="' + (p[0] - 14) + '" cy="' + p[1] + '" r="18"/><circle cx="' + p[0] + '" cy="' + (p[1] - 8) + '" r="22"/><circle cx="' + (p[0] + 16) + '" cy="' + p[1] + '" r="17"/></g>';
+  });
+  h += '<text x="250" y="212" text-anchor="middle" font-size="18" opacity=".6">🐉?</text>';
+  g.innerHTML = h;
+})();
+</script>
+</body>
+</html>
