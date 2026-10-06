@@ -185,7 +185,10 @@ utcaSVG = function (mod) {
   L.csillagok.forEach(function (p, i) { s += '<circle class="u-pisl" style="animation-delay:' + (i * 0.43).toFixed(2) + 's" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (i % 3 ? 1.6 : 2.2) + '" fill="#fff"/>'; });
   var hx = L.hold[0], hy = L.hold[1];
   s += '<circle class="u-feny" cx="' + hx + '" cy="' + hy + '" r="44" fill="url(#u-hold)"/><circle cx="' + hx + '" cy="' + hy + '" r="20" fill="#fdf3c4"/><circle cx="' + (hx - 8) + '" cy="' + (hy - 6) + '" r="20" fill="#1c2560" opacity="0.55"/>';
-  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() + '</g>';
+  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() +
+    /* a szivárvány a térképre visz: a „Matek” tábla alatt egy „Térkép” tábla (producer, 2026-10-06) */
+    '<g id="utca-portal-terkep" class="utca-portal"><rect x="148" y="194" width="104" height="24" rx="12" fill="#e8f6e2" stroke="#3f9e6a" stroke-width="1.6"/>' +
+    '<text x="200" y="211" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7a50">🗺️ Térkép</text></g></g>';
   s += '<g transform="translate(' + L.tk[0] + ',' + L.tk[1] + ')">' + tkLepcsoSVG() + '</g>';
   s += '<rect x="-400" y="' + L.fold + '" width="' + (w + 800) + '" height="' + (h - L.fold + 600) + '" fill="url(#utca-fold)"/>';
   L.jardak.forEach(function (y) { s += utcaJarda(w, y); });
@@ -224,6 +227,7 @@ renderUtca = function () {
     a.style.display = "none"; e.style.display = "";
     clearTimeout(renderUtca._cica); renderUtca._cica = setTimeout(function () { a.style.display = ""; e.style.display = "none"; }, 2600);
   });
+  utcaKot("utca-portal-terkep", utcaTavozik);
   [].forEach.call(document.querySelectorAll(".utca-telek"), function (t) { t.style.cursor = "pointer"; t.addEventListener("click", function () { hangGomb(); mondd("Ide még épül valami szép!"); }); });
 };
 /* a szivárványos távozás onnan indul, ahol az unikornis áll (ma: az odú-ház ajtajából) */
@@ -343,15 +347,30 @@ function renderSzekreny() {
   ODU_FUL = regiFul;
 }
 
-/* ─────────────── 4. A KERT KIJÁRATA: a rózsaíves kapu a füves part bal szélén (ugyanaz, mint a térképen) ─────────────── */
+/* ─────────────── 4. A KERT KIJÁRATA: térkép-jel a füves part bal szélén (producer, 2026-10-06: nem kert-jel, hanem térkép) ───────────────
+   Fa oszlopon álló, hajtogatott kis térkép: zöld rét, kék patak, pöttyös ösvény, piros tű; alatta „Térkép” tábla. */
+function terkepJelSVG() {
+  return '<svg viewBox="-50 -92 100 104" xmlns="http://www.w3.org/2000/svg">' +
+    '<ellipse cx="0" cy="6" rx="30" ry="5" fill="#3c2a50" opacity=".16"/>' +
+    '<rect x="-4" y="-30" width="8" height="36" rx="2" fill="#a4734a" stroke="#6b4a33" stroke-width="1.6"/>' +
+    '<path d="M-40 -84L-14 -78L14 -86L40 -80V-30L14 -36L-14 -28L-40 -34Z" fill="#fff6e0" stroke="#b5a08a" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M-14 -78V-28M14 -86V-36" stroke="#d9cbb4" stroke-width="1.6"/>' +
+    '<path d="M-38 -60Q-26 -70 -14 -62Q0 -54 14 -64Q26 -72 38 -62V-32L14 -38L-14 -30L-38 -36Z" fill="#c4e6bc"/>' +
+    '<path d="M-38 -44Q-20 -50 -6 -42Q8 -34 38 -44" stroke="#a9d6ef" stroke-width="3.4" fill="none"/>' +
+    '<path d="M-30 -40Q-24 -60 -6 -58Q10 -56 12 -70Q16 -78 26 -74" stroke="#c9862a" stroke-width="2" fill="none" stroke-dasharray="1.5 4" stroke-linecap="round"/>' +
+    '<path d="M-31 -72l-3 6h6z M-22 -76l-3 6h6z" fill="#8fc98a"/><path d="M28 -54h6v-5l-3 -3l-3 3z" fill="#f6a5c0" stroke="#b5607e" stroke-width=".8"/>' +
+    '<path d="M26 -74q0 -9 0 0" /><circle cx="26" cy="-78" r="4.6" fill="#e0417a" stroke="#fff" stroke-width="1.4"/><path d="M26 -74v7" stroke="#e0417a" stroke-width="2" stroke-linecap="round"/>' +
+    '<rect x="-30" y="-24" width="60" height="18" rx="9" fill="#ffffff" stroke="#e6d8f0"/><text y="-11" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2a2140" font-family="Fredoka,sans-serif">Térkép</text>' +
+    '</svg>';
+}
 var _rtRenderKert = renderKert;
 renderKert = function () {
   _rtRenderKert();
   if (!RT.uj) return;
   var kam = $("kert-kamera"); if (!kam) return;
   var d = el("div", "rt-kert-kapu");
-  d.setAttribute("role", "button"); d.setAttribute("aria-label", "Ki a térképre");
-  d.innerHTML = '<svg viewBox="-56 -76 112 96" xmlns="http://www.w3.org/2000/svg">' + LT_DEFS + LT_JELKEP.kert() + '</svg>';
+  d.setAttribute("role", "button"); d.setAttribute("aria-label", "Térkép");
+  d.innerHTML = terkepJelSVG();
   d.addEventListener("click", function (e) { e.stopPropagation(); kertKilep(); });
   kam.appendChild(d);
 };
@@ -362,6 +381,10 @@ function kertKilep() {
     kertLepesHang(false); kertTajMozgasStop(); terkepNyit();
   });
 }
+
+/* ─────────────── 5. A FELHŐKERT az utcán MARAD. A próbaoldalon nincs belépés és pult-beállítás, ezért bekapcsoljuk, hogy látsszon. ─────────────── */
+tkKapu = function () { return { nyitva: true }; };
+tkLepcsoKoppint = function () { hangGomb(); mondd("Felhőkert!"); };
 
 /* ══ VEZÉRLŐ ══ */
 (function () {
@@ -380,7 +403,7 @@ function kertKilep() {
   } catch (e) { console.warn("bemutató holmik", e); }
   if (RT.uj) {
     var st = document.createElement("style");
-    st.textContent = ".rt-kert-kapu{position:absolute;left:1%;bottom:5%;width:min(15%,150px);z-index:900;cursor:pointer;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}" +
+    st.textContent = ".rt-kert-kapu{position:absolute;left:1%;bottom:5%;width:min(11%,110px);z-index:900;cursor:pointer;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}" +
       ".rt-kert-kapu:hover{transform:translateY(-3px)}.rt-kert-kapu svg{width:100%;display:block}" +
       ".szekreny-ures{color:#8a7aa8;font-style:italic;padding:6px 4px 14px}";
     document.head.appendChild(st);
