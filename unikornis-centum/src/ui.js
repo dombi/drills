@@ -67,6 +67,29 @@ function visszaUgrik(hely) {
   else if (sz === "odu") oduNyit(hely);
   else terkepNyit(hely === "liget" ? FOMENU_LIGET : hely);
 }
+/* ── EGYSZERI BEMUTATÁS (Térkép mint központ, 4. kör): az unikornis egyszer elmondja, mi változott, közben a
+   szóban forgó hely felragyog. Gyerekenként mentve (P().bemutatva). Új bemutatás: egy sor ide + egy bemutat(kulcs) hívás. */
+var BEMUTATAS = {
+  terkep:   { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="kert"] .hb', '.terkep-hely[data-id="utca"] .hb'],
+              mondat: "Nézd, a kertünk mostantól itt van, a házunk mellett! A boltot az utcán találod." },
+  szekreny: { kepernyo: "kepernyo-odu", ragyog: ["#odu-szekreny"],
+              mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" }
+};
+function bemutat(kulcs) {
+  var b = BEMUTATAS[kulcs], leny = mentes.leny;
+  if (!b || P().bemutatva[kulcs]) return;
+  setTimeout(function () {   /* előbb rendeződjön be a kép (és elhallgasson a belépő mondat) */
+    if (!$(b.kepernyo).classList.contains("aktiv") || mentes.leny !== leny || P().bemutatva[kulcs]) return;
+    if (kulcs === "terkep" && FOMENU_LIGET) return;   /* a liget belsejében nem — majd a térképen */
+    P().bemutatva[kulcs] = 1; ment();
+    b.ragyog.forEach(function (sel) {
+      Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) {
+        e.classList.add("bemutat-ragyog"); setTimeout(function () { e.classList.remove("bemutat-ragyog"); }, 6500);
+      });
+    });
+    mondd(b.mondat);
+  }, 900);
+}
 /* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
 function vegeGombok() {
   var ln = LIGET_NEV[FOMENU_LIGET];

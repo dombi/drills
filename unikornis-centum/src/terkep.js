@@ -432,6 +432,7 @@ function renderLigetTerkep(racs, L) {
   if (!lathato[hol]) hol = "odu";
   LIGET_M = terkepRajzol(host, LIGET_TERKEP, { mod: mod, all: hol, halo: halo, nev: ltNev, jelzes: jel, koppint: ligetTerkepKoppint });
   LIGET_M.jel = jel;
+  bemutat("terkep");   /* egyszer: „a kertünk mostantól itt van…” (ui.js) */
 }
 function ligetTerkepKoppint(id) {
   var M = LIGET_M; if (!M || !M.svg.isConnected) return;

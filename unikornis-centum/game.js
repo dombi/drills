@@ -1416,6 +1416,7 @@ function profilNormal(p) {
   tenyKertTar(p);                                  /* 🌷 Tamagocsi-kert (teny.js): P().tenyKert = { v: kulcs → { a, n, g }, loc, bent, mag, meg, … } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+  if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;
 }
 function betolt() {
@@ -9696,6 +9697,7 @@ function renderLigetTerkep(racs, L) {
   if (!lathato[hol]) hol = "odu";
   LIGET_M = terkepRajzol(host, LIGET_TERKEP, { mod: mod, all: hol, halo: halo, nev: ltNev, jelzes: jel, koppint: ligetTerkepKoppint });
   LIGET_M.jel = jel;
+  bemutat("terkep");   /* egyszer: „a kertünk mostantól itt van…” (ui.js) */
 }
 function ligetTerkepKoppint(id) {
   var M = LIGET_M; if (!M || !M.svg.isConnected) return;
@@ -9824,6 +9826,29 @@ function visszaUgrik(hely) {
   else if (sz === "utca") utcaNyit();
   else if (sz === "odu") oduNyit(hely);
   else terkepNyit(hely === "liget" ? FOMENU_LIGET : hely);
+}
+/* ── EGYSZERI BEMUTATÁS (Térkép mint központ, 4. kör): az unikornis egyszer elmondja, mi változott, közben a
+   szóban forgó hely felragyog. Gyerekenként mentve (P().bemutatva). Új bemutatás: egy sor ide + egy bemutat(kulcs) hívás. */
+var BEMUTATAS = {
+  terkep:   { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="kert"] .hb', '.terkep-hely[data-id="utca"] .hb'],
+              mondat: "Nézd, a kertünk mostantól itt van, a házunk mellett! A boltot az utcán találod." },
+  szekreny: { kepernyo: "kepernyo-odu", ragyog: ["#odu-szekreny"],
+              mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" }
+};
+function bemutat(kulcs) {
+  var b = BEMUTATAS[kulcs], leny = mentes.leny;
+  if (!b || P().bemutatva[kulcs]) return;
+  setTimeout(function () {   /* előbb rendeződjön be a kép (és elhallgasson a belépő mondat) */
+    if (!$(b.kepernyo).classList.contains("aktiv") || mentes.leny !== leny || P().bemutatva[kulcs]) return;
+    if (kulcs === "terkep" && FOMENU_LIGET) return;   /* a liget belsejében nem — majd a térképen */
+    P().bemutatva[kulcs] = 1; ment();
+    b.ragyog.forEach(function (sel) {
+      Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) {
+        e.classList.add("bemutat-ragyog"); setTimeout(function () { e.classList.remove("bemutat-ragyog"); }, 6500);
+      });
+    });
+    mondd(b.mondat);
+  }, 900);
 }
 /* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
 function vegeGombok() {
@@ -12187,6 +12212,7 @@ function oduNyit(honnan) {
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();
+  bemutat("szekreny");   /* egyszer: „Itt vannak a holmijaid…” (ui.js) */
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */
 function oduTeruletArany() {
@@ -18848,7 +18874,7 @@ window.UC = {
   OSV: OSV, OSV_KERULO: OSV_KERULO, osvenyAllomasra: osvenyAllomasra, osvenyKerulo: osvenyKerulo, osvenyOduba: osvenyOduba, osvenyOrom: osvenyOrom, keruloUt: keruloUt,
   uniPorog: uniPorog, uniFordul: uniFordul, uniNezoAdat: uniNezoAdat, UNI_FORDUL: UNI_FORDUL, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
   kertAgyKoppint: kertAgyKoppint,
-  VISSZA: VISSZA, visszaUgrik: visszaUgrik, terkepNyit: terkepNyit, terkepHol: function () { return TERKEP_HOL; }, terkepAll: function () { return LIGET_M && LIGET_M.all; },   /* TÉRKÉP MINT KÖZPONT */
+  VISSZA: VISSZA, visszaUgrik: visszaUgrik, terkepNyit: terkepNyit, terkepHol: function () { return TERKEP_HOL; }, terkepAll: function () { return LIGET_M && LIGET_M.all; }, BEMUTATAS: BEMUTATAS, bemutat: bemutat,   /* TÉRKÉP MINT KÖZPONT */
   renderSzekreny: renderSzekreny, utcaBoltNyit: utcaBoltNyit, renderUtca: renderUtca,   /* 3. kör: Szekrény + Bolt az utcán */
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,

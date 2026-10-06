@@ -1051,6 +1051,7 @@ function oduNyit(honnan) {
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();
+  bemutat("szekreny");   /* egyszer: „Itt vannak a holmijaid…” (ui.js) */
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */
 function oduTeruletArany() {

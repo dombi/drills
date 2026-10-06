@@ -68,7 +68,7 @@ window.UC = {
   OSV: OSV, OSV_KERULO: OSV_KERULO, osvenyAllomasra: osvenyAllomasra, osvenyKerulo: osvenyKerulo, osvenyOduba: osvenyOduba, osvenyOrom: osvenyOrom, keruloUt: keruloUt,
   uniPorog: uniPorog, uniFordul: uniFordul, uniNezoAdat: uniNezoAdat, UNI_FORDUL: UNI_FORDUL, forgatoSzinek: forgatoSzinek, unikornisNezetArt: unikornisNezetArt, UNI_SZIN: UNI_SZIN,
   kertAgyKoppint: kertAgyKoppint,
-  VISSZA: VISSZA, visszaUgrik: visszaUgrik, terkepNyit: terkepNyit, terkepHol: function () { return TERKEP_HOL; }, terkepAll: function () { return LIGET_M && LIGET_M.all; },   /* TÉRKÉP MINT KÖZPONT */
+  VISSZA: VISSZA, visszaUgrik: visszaUgrik, terkepNyit: terkepNyit, terkepHol: function () { return TERKEP_HOL; }, terkepAll: function () { return LIGET_M && LIGET_M.all; }, BEMUTATAS: BEMUTATAS, bemutat: bemutat,   /* TÉRKÉP MINT KÖZPONT */
   renderSzekreny: renderSzekreny, utcaBoltNyit: utcaBoltNyit, renderUtca: renderUtca,   /* 3. kör: Szekrény + Bolt az utcán */
   utcaNyit: utcaNyit, szalonNyit: szalonNyit, szalonKefe: szalonKefe, szalonTegely: szalonTegely, szalonFestekVesz: szalonFestekVesz, szalonFest: szalonFest, FESTEKEK: FESTEKEK,           /* FODRÁSZAT */
   bankNyit: bankNyit, bankValtoKoppint: bankValtoKoppint, bankValt: bankValt, bankAllapot: bankAllapot, bankZarva: bankZarva, bankPalyaKesz: bankPalyaKesz, bankPalyaNyit: bankPalyaNyit,

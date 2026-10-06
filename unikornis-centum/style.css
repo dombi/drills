@@ -168,6 +168,10 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   .terkep-hely:hover .hb{ transform:translateY(-4px) scale(1.05); filter:drop-shadow(0 0 7px rgba(255,236,170,.95)); }
 }
 .terkep-hely:focus-visible .hb{ filter:drop-shadow(0 0 6px #8a4fd0); }
+/* egyszeri bemutatás (ui.js BEMUTATAS): a hely néhányszor felragyog, amíg az unikornis beszél */
+.terkep-hely .hb.bemutat-ragyog, #odu-szekreny.bemutat-ragyog{ animation:bemutat-ragyog 1.3s ease-in-out 5; }
+@keyframes bemutat-ragyog{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,224,138,0)); } 50%{ filter:brightness(1.12) drop-shadow(0 0 10px rgba(255,220,120,1)) drop-shadow(0 0 4px #fff6d8); } }
+@media (prefers-reduced-motion:reduce){ .terkep-hely .hb.bemutat-ragyog, #odu-szekreny.bemutat-ragyog{ animation:none; filter:drop-shadow(0 0 8px rgba(255,220,120,1)); } }
 .terkep-hely.alszik .hb{ opacity:.55; filter:saturate(.35); }
 .liget-uni-reteg{ position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
 .liget-uni-reteg svg{ display:block; overflow:visible; }

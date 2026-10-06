@@ -81,6 +81,7 @@ function profilNormal(p) {
   tenyKertTar(p);                                  /* 🌷 Tamagocsi-kert (teny.js): P().tenyKert = { v: kulcs → { a, n, g }, loc, bent, mag, meg, … } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+  if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;
 }
 function betolt() {
