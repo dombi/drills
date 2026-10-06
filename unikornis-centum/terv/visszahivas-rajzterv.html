@@ -215,7 +215,7 @@
 <header class="top">
   <h1>🐉 Visszahívás: rajzterv — a tojás és a kissárkány</h1>
   <div class="sub">A jóváhagyott tervlap rajzai, a sárkány-részekkel kezdve (a 7. döntés szerint ez jön elsőnek): a tojás három állapota és a kikelés, a fióka, a kölyök, a nagy sárkány, a kalandtérkép felhőkkel és nyomokkal, és a képeslapok. Minden kipróbálható, fekvő és álló képen is.</div>
-  <span class="chip">Rajzterv · A rész JÓVÁHAGYVA (a nevek megerősítésre várnak)</span>
+  <span class="chip">Rajzterv · A rész JÓVÁHAGYVA</span>
   <span class="chip">2026-10-06</span>
   <span class="chip">A rész (sárkány) · B rész később</span>
   <span class="chip">Alap: visszahivas-rendszerterv.html ✅</span>
@@ -305,6 +305,10 @@
     <p class="lead" style="margin-bottom:0">Minden napszám a pultról állítható. A lépcsőket mindig a gyakorlós napok léptetik (<code>erik()</code>). Ha a gyerek kimarad, a lény ott vár, ahol volt.</p>
   </div>
 
+  <h2>A nagy sárkány helye a kertben (8. döntés)</h2>
+  <div class="keszulek"><div class="kepernyo" id="kep-kert"></div></div>
+  <p class="kepalairas">A patakparton egy napmeleg, mohás szikla: itt pihen a nagy sárkány. Innen száll fel egy-egy körre a kert fölött, és ide száll vissza táncolni az unikornis mellé. Koppints rá: felrepül egy kört.</p>
+
   <h2>A tojás színe árulkodik</h2>
   <div class="panel">
     <div id="tojasSor"></div>
@@ -383,7 +387,7 @@
     <li><b>A lila bagoly hozza a térképet.</b></li>
     <li><b>A Holdfény-barlang csak a többi 11 felhő után nyílik meg</b>, kilógó szíves farokkal.</li>
     <li><b>6 képeslap + 2 pikkely + 4 lábnyom.</b></li>
-    <li><b>Sárkányosabb nevek</b>, a javaslat: Parázs, Szikra, Pikkely, Füsti, Zsarátnok, Lángi, Tüsszi, Pöfi, Villám, Smaragd, Taréj, Szárnyi. <i>(Megerősítésre vár.)</i></li>
+    <li><b>Sárkányosabb nevek</b>, a javaslat: Parázs, Szikra, Pikkely, Füsti, Zsarátnok, Lángi, Tüsszi, Pöfi, Villám, Smaragd, Taréj, Szárnyi. ✅</li>
     <li><b>A B rész</b> (postaláda, igény-buborékok, csemegék, heti kártya) a sárkány élő próbája után jön, ugyanebbe a lapba.</li>
   </ol>
   <p class="lead" style="margin-bottom:0">További döntések ugyanebből a körből: a térkép <b>külön mesevilág</b>, bármelyik végigjátszott pálya ad felhőt; a nagy sárkányra <b>senki nem ül fel</b>, egymás mellett táncolnak; a sorrend marad: tojás → fióka → <b>kalandtérkép</b> → kölyök → nagy.</p>
@@ -748,6 +752,27 @@ function tojasSorSVG(){
   });
   ALL.pal=ment; return s+'</svg>';
 }
+function kertRajzol(){
+  const o=ALL.o, L=JEL[o], host=document.getElementById('kep-kert'); if(!host) return;
+  host.classList.toggle('telefon',o==='a');
+  const f=o==='f', sx=f?560:250, sy=f?372:440, ks=f?.62:.45;
+  let s=`<svg viewBox="0 0 ${L.w} ${L.h}">`+patakHatter(o);
+  /* napozó szikla: mohás, lapos tetejű */
+  s+=`<g filter="url(#f-firka)"><ellipse cx="${sx}" cy="${sy+8}" rx="${f?150:120}" ry="18" fill="#3c2a50" opacity=".12"/>`+
+     `<path d="M${sx-140*ks/.62} ${sy+8}Q${sx-150*ks/.62} ${sy-40} ${sx-90*ks/.62} ${sy-52}Q${sx} ${sy-66} ${sx+96*ks/.62} ${sy-50}Q${sx+150*ks/.62} ${sy-36} ${sx+138*ks/.62} ${sy+8}Z" fill="#cfc4dc" stroke="#9483c2" stroke-width="2.4"/>`+
+     `<path d="M${sx-96*ks/.62} ${sy-50}Q${sx} ${sy-66} ${sx+92*ks/.62} ${sy-48}Q${sx+40} ${sy-40} ${sx-20} ${sy-44}Q${sx-70} ${sy-42} ${sx-96*ks/.62} ${sy-50}Z" fill="#a8dc9c" opacity=".85"/>`+
+     [[-60,-30],[30,-22],[80,-30]].map(([dx,dy])=>`<circle cx="${sx+dx*ks/.62}" cy="${sy+dy}" r="2.6" fill="#f6a5c0"/>`).join('')+`</g>`;
+  s+=`<circle cx="${f?90:60}" cy="${f?70:80}" r="36" fill="#fff4c2" opacity=".9"/>`;
+  s+=`<g transform="translate(${sx+10} ${sy-52})" style="cursor:pointer" id="kertNagyPoz"><g transform="scale(${ks})" id="kertNagy">${lenyRajz('nagy')}</g></g>`;
+  s+=`<g id="kertUni">${uni(f?250:95,f?374:528,f?.55:.4,false,'')}</g>`;
+  host.innerHTML=s+'</svg>';
+  const poz=host.querySelector('#kertNagyPoz');
+  poz.addEventListener('click',()=>{ const ny=poz.querySelector('.sarkany'); if(ny.classList.contains('repul')) return; ny.classList.add('repul'); let t0=null;
+    function lep(t){ if(!t0) t0=t; const q=Math.min(1,(t-t0)/4200), a=q*Math.PI*2, x=sx+10-Math.sin(a)*(f?300:120), y=sy-52-Math.sin(a/2)*(f?190:240), sc=1-Math.sin(a/2)*.3;
+      poz.setAttribute('transform',`translate(${F(x)} ${F(y)}) scale(${F(Math.cos(a)<0?-sc:sc)} ${F(sc)})`);
+      if(q<1) requestAnimationFrame(lep); else { poz.setAttribute('transform',`translate(${sx+10} ${sy-52})`); ny.classList.remove('repul'); } }
+    requestAnimationFrame(lep); });
+}
 function lepcsoMozdulat(m){
   const sv=document.getElementById('sv-lepcso'); if(!sv) return;
   if(m==='tusszent') tusszent(sv.querySelector('#lpFioka'));
@@ -996,7 +1021,7 @@ function albumRajzol(){ document.getElementById('album').innerHTML=LAPOK.map(L=>
 /* ════════════════════════════════════════════════════════════════════
    7. VEZÉRLÉS
    ════════════════════════════════════════════════════════════════════ */
-function mindentRajzol(){ tojasJelenet(TOJ.jelenet); lepcsoRajzol(); terkepRajzol(); albumRajzol(); }
+function mindentRajzol(){ tojasJelenet(TOJ.jelenet); lepcsoRajzol(); kertRajzol(); terkepRajzol(); albumRajzol(); }
 document.getElementById('globCtrl').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.stil) ALL.stil=b.dataset.stil; if(b.dataset.pal) ALL.pal=b.dataset.pal; if(b.dataset.o) ALL.o=b.dataset.o;
