@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=20261006-6">
+<link rel="stylesheet" href="style.css?v=20261006-7">
 </head>
 <body>
 
@@ -154,12 +154,6 @@
     <div id="odu-szoba" class="odu-szoba"></div>
 
 
-    <div id="odu-panel" class="odu-panel" hidden>
-      <div class="odu-bolt-keret">
-        <div id="odu-bolt-szinter" class="odu-bolt-szinter"></div>
-        <button class="fej-gomb odu-panel-zar" id="odu-panel-zar" title="Bezár">✕</button>
-      </div>
-    </div>
 
     <div id="odu-lap" class="odu-lap" hidden>
       <div class="odu-lap-fej">
@@ -197,6 +191,14 @@
     </header>
     <div id="utca-szinter" class="utca-szinter"></div>
     <p class="kert-sugo" id="utca-sugo">Koppints egy házra — oda mész! 👆</p>
+
+    <!-- a Csillagbolt az utca fölött nyílik (Térkép mint központ, 3. kör; a nevek a régi odú-boltból maradtak) -->
+    <div id="odu-panel" class="odu-panel" hidden>
+      <div class="odu-bolt-keret">
+        <div id="odu-bolt-szinter" class="odu-bolt-szinter"></div>
+        <button class="fej-gomb odu-panel-zar" id="odu-panel-zar" title="Bezár">✕</button>
+      </div>
+    </div>
   </section>
 
   <section id="kepernyo-bank" class="kepernyo">
@@ -270,6 +272,6 @@
 
 <script src="kert-hangok.js?v=20260919-1"></script>
 <script src="tk-diszek.js?v=20260924-1"></script>
-<script src="game.js?v=20261006-6"></script>
+<script src="game.js?v=20261006-7"></script>
 </body>
 </html>

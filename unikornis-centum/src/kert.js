@@ -577,7 +577,13 @@ function kertFekszik(i) {
   kertSugo("😴 Pihen az ágyon — koppints, hogy felkeljen.");
 }
 function oduPanelNyit(fulKezd) { ODU_FUL = fulKezd || "ido"; BOLT_MEGEROSIT = false; BOLT_BAGOLY_EXTRA = null; $("odu-panel").hidden = false; renderOduPanel(); }
-function oduPanelZar() { $("odu-panel").hidden = true; var l = $("odu-lap"); if (l) l.hidden = true; oduUniHaza(); }
+function oduPanelZar() {
+  var pan = $("odu-panel"), nyitva = !pan.hidden;
+  pan.hidden = true; var l = $("odu-lap"); if (l) l.hidden = true;
+  var u = $("kepernyo-utca");
+  if (u && u.classList.contains("aktiv")) { if (nyitva) renderUtca(); }   /* a bolt az utcán: friss számlálók, az unikornison az új holmi */
+  else oduUniHaza();
+}
 /* a bolt körüli sötét sávra koppintva is bezárul (a boltra koppintva nem) */
 (function () {
   document.addEventListener("DOMContentLoaded", function () {

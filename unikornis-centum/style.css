@@ -453,10 +453,10 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .ikon-gomb.kiemelt:active{ box-shadow:0 1px 0 #7bbd7a; }
 
 /* mesebolt-stand a szobában — kattintható; finoman ragyog (a filter nem mozdítja a kattint-területet) */
-#odu-bolt-jel{ cursor:pointer; animation:odu-bolt-glow 2.6s ease-in-out infinite; }
-#odu-bolt-jel.fel{ filter:brightness(1.07) drop-shadow(0 0 7px rgba(255,224,138,.85)); }
+#odu-szekreny{ cursor:pointer; animation:odu-bolt-glow 2.6s ease-in-out infinite; }
+#odu-szekreny.fel{ filter:brightness(1.07) drop-shadow(0 0 7px rgba(255,224,138,.85)); }
 @keyframes odu-bolt-glow{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,224,138,0)); } 50%{ filter:drop-shadow(0 0 5px rgba(255,224,138,.6)); } }
-#odu-bolt-jel .odu-bolt-szikra{ animation:odu-bolt-szikra 1.8s ease-in-out infinite; }
+#odu-szekreny .odu-bolt-szikra{ animation:odu-bolt-szikra 1.8s ease-in-out infinite; }
 @keyframes odu-bolt-szikra{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
 
 /* odú D2, 2. lépés: a gombsor helyett koppintható tárgyak a szobában (odu.js ODU_CELOK).
@@ -684,6 +684,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 
 /* gyűjtemény-könyv */
 .gyujt-szakasz{ margin-bottom:18px; }
+.szekreny-ures{ color:#8a7aa8; font-style:italic; padding:6px 4px 14px; cursor:pointer; }
 .gyujt-szakasz-cim{
   font-weight:800; color:#6a4a8a; font-size:14px; margin-bottom:8px;
   background:#fdf4d8; border:1.5px solid #d9b8e0; border-radius:999px; padding:4px 14px; display:inline-block;

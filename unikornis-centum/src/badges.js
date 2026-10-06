@@ -374,3 +374,56 @@ function renderGyujtemeny() {
   });
 }
 
+/* ── 🧺 A SZEKRÉNY (Térkép mint központ, 3. kör): csak a MÁR MEGVETT holmik, ár nélkül; koppintásra felveszed / leveszed,
+   kirakod / elpakolod. A bolt csoportjaiból épül (boltCsoportok + boltBirt + boltAktiv, kert.js), a Kert fül nélkül
+   (a kerti tárgyak a kert fészerében várnak). Vásárolni az utcai Csillagboltban lehet — innen nincs gomb oda. ── */
+var SZEKRENY_SZAK = { holmik: "👗 Holmik", kinezet: "🎨 Kinézet", butorok: "🛋️ Bútorok", diszek: "🎀 Díszek", ido: "🌦 Időjárás", kristaly: "💎 Kristályok" };
+function renderSzekreny() {
+  $("odu-lap-cim").textContent = "🧺 Szekrény";
+  var host = $("odu-lap-tartalom"); host.innerHTML = "";
+  host.appendChild(el("div", "jelveny-osszeg", "Ezek a te holmijaid. Koppints rájuk!"));
+  var regiFul = ODU_FUL;   /* a boltCsoportok az aktív bolt-fület nézi: fülenként átállítjuk, a végén vissza */
+  BOLT_FULEK.forEach(function (f) {
+    if (!SZEKRENY_SZAK[f.id]) return;
+    ODU_FUL = f.id;
+    var racs = el("div", "gyujt-racs"), db = 0;
+    boltCsoportok().forEach(function (cs) {
+      cs.tetelek.forEach(function (t) {
+        var aktiv = boltAktiv(cs, t);
+        if (!boltBirt(cs, t) && !aktiv) return;   /* ami még nincs meg, az nincs a szekrényben */
+        db++;
+        var allap = cs.fajta === "vitrin" ? "a vitrinben"
+          : aktiv ? (cs.fajta === "ruha" ? "✓ rajtad · leveszed" : cs.fajta === "kinezet" ? "✓ rajtad" : cs.fajta === "disz" ? "✓ kint · elpakolod" : "✓ kint")
+          : (cs.fajta === "ruha" || cs.fajta === "kinezet" ? "koppints: felveszed" : "koppints: kirakod");
+        var k = el("div", "gyujt-kartya van" + (aktiv ? " rajta" : "") + " kattint");
+        k.innerHTML = '<div class="gkep">' + boltThumb(cs, t) + '</div><div class="gnev">' + kiiras(t.nev) + '</div><div class="gallap">' + allap + '</div>';
+        k.addEventListener("click", function () {
+          if (cs.fajta === "ruha") { oduRuhaVisel(cs.kulcs, aktiv ? null : t.id); mondd(aktiv ? "Levéve" : "Felvéve"); }
+          else if (cs.fajta === "vitrin") { hangGomb(); mondd("Ez a Kincsvitrinben ragyog!"); }
+          else if (cs.fajta === "disz" && aktiv) { oduDiszBeallit(cs.kulcs, "nincs"); mondd("Elpakolva"); }
+          else if (aktiv) hangGomb();
+          else {
+            if (cs.fajta === "butor") oduButorBeallit(cs.kulcs, t.id);
+            else if (cs.fajta === "disz") oduDiszBeallit(cs.kulcs, t.id);
+            else if (cs.fajta === "kinezet") oduKinezetBeallit(cs.kulcs, t.id, false);
+            else oduBeallit(cs.kulcs, t.id);
+            mondd(cs.fajta === "kinezet" ? "Felvéve" : "Kirakva");
+          }
+          renderSzekreny();
+        });
+        racs.appendChild(k);
+      });
+    });
+    var blk = el("div", "gyujt-szakasz");
+    blk.appendChild(el("div", "gyujt-szakasz-cim", SZEKRENY_SZAK[f.id]));
+    if (db) blk.appendChild(racs);
+    else {
+      var ures = el("div", "szekreny-ures kattint", "Még üres. Ezt a Boltban veheted meg, az utcán!");
+      ures.addEventListener("click", function () { hangGomb(); mondd("Ezt a Boltban veheted meg, az utcán!"); });
+      blk.appendChild(ures);
+    }
+    host.appendChild(blk);
+  });
+  ODU_FUL = regiFul;
+}
+

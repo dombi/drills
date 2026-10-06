@@ -596,29 +596,23 @@ function oduIdoSVG(ido, W, H, db) {
   return s;
 }
 
-/* --- kis mesebolt-stand a szobában (a katalógus/bolt megnyitója) --- */
-function boltStandSVG(cx, cy) {
+/* --- 🧺 a Szekrény a szobában, a régi bolt-stand helyén (Térkép mint központ, 3. kör): pasztell ruhásszekrény
+   csillagos koronával; a jobb ajtó résnyire nyitva, kilóg egy csíkos sál, bent egy csillag ragyog --- */
+function szekrenySVG(cx, cy) {
   var s = '<g transform="translate(' + cx + ',' + cy + ')">';
-  s += '<ellipse cx="0" cy="16" rx="42" ry="9" fill="#3b2f66" opacity="0.16"/>';
-  /* oszlopok */
-  s += '<rect x="-34" y="-42" width="6" height="52" rx="2" fill="#b79fd4"/><rect x="28" y="-42" width="6" height="52" rx="2" fill="#b79fd4"/>';
-  /* pult */
-  s += '<rect x="-38" y="-6" width="76" height="20" rx="4" fill="#d9b8d6"/><rect x="-42" y="-12" width="84" height="8" rx="3" fill="#c9a8e6"/>';
-  s += '<g stroke-width="2.4" stroke-linecap="round"><path d="M-32 2 h64" stroke="#f7b8d0"/><path d="M-32 7 h64" stroke="#fbe0a0"/></g>';
-  /* ponyva – csipkés cukorcsík */
-  s += '<path d="M-44 -42 Q0 -52 44 -42 L44 -36 L-44 -36 Z" fill="#e79ac0"/>';
-  var pc = ["#f6a5c0", "#fdf0d0"];
-  for (var i = 0; i < 7; i++) { var x = -42 + i * 12; s += '<path d="M' + x + ' -36 q6 8 12 0 Z" fill="' + pc[i % 2] + '"/>'; }
-  /* csillag-cégér */
-  s += '<line x1="0" y1="-42" x2="0" y2="-54" stroke="#8f7ab8" stroke-width="2"/>';
-  s += '<g stroke="#a88fce" stroke-width="1.4" stroke-linejoin="round">' + csillagSVG(0, -58, 7, "#ffd878") + '</g>';
-  /* portéka a pulton */
-  s += csillagSVG(-22, -12, 4.5, "#fff6d8");
-  s += '<circle cx="-6" cy="-10" r="5" fill="#9ec9f0"/>';
-  s += '<rect x="4" y="-16" width="12" height="12" rx="2" fill="#a7d99a"/><path d="M10 -16 v12 M4 -10 h12" stroke="#fff" stroke-width="1.6"/>';
-  s += '<rect x="22" y="-14" width="7" height="12" rx="2" fill="#f7b8d0"/>';
-  /* csillámok – „nyomj rám" */
-  s += '<g class="odu-bolt-szikra" fill="#fff2c4">' + csillagSVG(-40, -20, 2.6, "#fff2c4") + csillagSVG(42, -14, 2.2, "#fff2c4") + '</g>';
+  s += '<ellipse cx="0" cy="16" rx="40" ry="8" fill="#3b2f66" opacity="0.16"/>';
+  s += '<rect x="-30" y="8" width="7" height="9" rx="2" fill="#a88fce"/><rect x="23" y="8" width="7" height="9" rx="2" fill="#a88fce"/>';   /* lábak */
+  s += '<path d="M-34 10V-48Q-34 -58 -24 -58H24Q34 -58 34 -48V10Z" fill="#e9d6f0" stroke="#a88fce" stroke-width="2.4"/>';   /* törzs */
+  s += '<path d="M-38 -56Q0 -78 38 -56Q38 -52 34 -52H-34Q-38 -52 -38 -56Z" fill="#c9a8e6" stroke="#a88fce" stroke-width="2"/>';   /* korona */
+  s += '<g stroke="#a88fce" stroke-width="1.4" stroke-linejoin="round">' + csillagSVG(0, -64, 5.5, "#ffd878") + '</g>';
+  s += '<rect x="-29" y="-48" width="27" height="52" rx="4" fill="#f7d6ea" stroke="#c197bf" stroke-width="1.8"/>';   /* bal ajtó */
+  s += '<path d="M-15.5 -32c-3 -4 -8 -1 -5 3l5 5l5 -5c3 -4 -2 -7 -5 -3z" fill="#f6a5c0"/><circle cx="-6" cy="-14" r="2.2" fill="#ffd24d" stroke="#c9a06a" stroke-width="1"/>';
+  s += '<rect x="2" y="-48" width="27" height="52" rx="4" fill="#5e4a8a"/>';   /* a résnyire nyitott jobb ajtó mögött */
+  s += csillagSVG(18, -30, 5, "#ffe9ad");
+  s += '<path d="M6 -40q6 8 2 18q-3 8 2 16" stroke="#f6a5c0" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M6 -40q6 8 2 18q-3 8 2 16" stroke="#fce49a" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="4 5"/>';
+  s += '<path d="M14 -49L31 -53V7L14 5Z" fill="#f7d6ea" stroke="#c197bf" stroke-width="1.8"/><circle cx="18" cy="-16" r="2" fill="#ffd24d" stroke="#c9a06a" stroke-width="1"/>';
+  s += '<path d="M23 -36c-2 -3 -6 -1 -4 2l4 4l4 -4c2 -3 -2 -5 -4 -2z" fill="#f6a5c0"/>';
+  s += '<g class="odu-bolt-szikra" fill="#fff2c4">' + csillagSVG(-40, -24, 2.6, "#fff2c4") + csillagSVG(40, -40, 2.2, "#fff2c4") + '</g>';   /* „nyomj rám” */
   return s + '</g>';
 }
 
@@ -765,12 +759,10 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
 
   /* (a kertkapu a Térkép mint központ 2. körében megszűnt: a Kert a térképen van, az Odú mellett; a 🦋 is oda költözött) */
 
-  /* ── KOPPINTHATÓ TÁRGYAK a gombsor helyett (odú D2, 2. lépés): nagy mesekönyv a gyökérpolcon,
-     jobb falon az utcaajtó (csak a rugalmas szobában fér el); az ösvényekre az ablakon át visz a szivárványhíd ── */
-  if (!elonezet && tag) {
-    s += '<g id="odu-t-gyujt" class="odu-targy">' + meseKonyvSVG() + '</g>';
-    s += '<g id="odu-t-utca" class="odu-targy">' + utcaAjtoSVG() + '</g>';
-  }
+  /* ── KOPPINTHATÓ TÁRGYAK a gombsor helyett (odú D2, 2. lépés): nagy mesekönyv a gyökérpolcon (csak a rugalmas
+     szobában fér el); a térképre az ablakon át visz a szivárványhíd. (Az utca-ajtó a Térkép mint központ 3. körében
+     megszűnt: az utca csak a térképről nyílik.) ── */
+  if (!elonezet && tag) s += '<g id="odu-t-gyujt" class="odu-targy">' + meseKonyvSVG() + '</g>';
 
   /* ── AZ UNIKORNIS a szőnyegen (előnézetben elhagyva, hogy a bútor jól látszódjon).
      A külső csoportot a séta tolja (CSS transform), a belsőt a közös fordulás tükrözi (--dir, uniFordul). ── */
@@ -800,8 +792,8 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   /* hangulatfény */
   s += '<rect x="' + (F.L - 20) + '" y="' + (F.T - 20) + '" width="' + (F.W + 40) + '" height="' + (F.H + 40) + '" fill="' + tint[0] + '" opacity="' + tint[1] + '" pointer-events="none" class="odu-tint"/>';
 
-  /* ── MESEBOLT-STAND a szőnyegtől jobbra — MINDIG legfelül, hogy biztosan kattintható legyen (előnézetben nincs) ── */
-  if (!elonezet) s += '<g id="odu-bolt-jel" class="odu-targy"><rect x="508" y="444" width="96" height="84" fill="transparent"/>' + boltStandSVG(556, 506) + '</g>';
+  /* ── 🧺 SZEKRÉNY a szőnyegtől jobbra (a régi bolt-stand helyén) — MINDIG legfelül, hogy biztosan kattintható legyen (előnézetben nincs) ── */
+  if (!elonezet) s += '<g id="odu-szekreny" class="odu-targy"><rect x="508" y="430" width="96" height="98" fill="transparent"/>' + szekrenySVG(556, 506) + '</g>';
 
   if (!elonezet) s += '<g id="odu-hid-szikra" pointer-events="none"></g>';
 
@@ -843,25 +835,6 @@ function oduHidFelhoSVG() {
   s += oduSzikra(x + 52, y - 26, 3.2, 0.4);
   return s;
 }
-/* 🚪 bejárati faajtó a jobb falon: kerek ablakán az utca házai, előtte lábtörlő */
-function utcaAjtoSVG() {
-  var ny = "M654 436 V372 A36 36 0 0 1 726 372 V436 Z", s = "";
-  s += '<defs><clipPath id="odu-ajto-ablak"><circle cx="690" cy="364" r="13"/></clipPath></defs>';
-  s += '<path d="M646 436 V372 A44 44 0 0 1 734 372 V436 Z" fill="#3b2f66" opacity="0.16"/>';
-  s += '<path d="' + ny + '" fill="#c99a6a"/>';
-  s += '<g stroke="#a97c4e" stroke-width="2.4"><line x1="672" y1="340" x2="672" y2="436"/><line x1="690" y1="336" x2="690" y2="350"/><line x1="690" y1="378" x2="690" y2="436"/><line x1="708" y1="340" x2="708" y2="436"/></g>';
-  s += '<g clip-path="url(#odu-ajto-ablak)"><rect x="676" y="350" width="28" height="28" fill="#bfe3fb"/>' +
-    '<rect x="679" y="364" width="9" height="10" fill="#f7b8d0"/><path d="M678 364 l5.5 -6 l5.5 6 Z" fill="#e0706a"/>' +
-    '<rect x="691" y="362" width="10" height="12" fill="#fce49a"/><path d="M690 362 l6 -6 l6 6 Z" fill="#7a8fd0"/>' +
-    '<rect x="676" y="373" width="28" height="6" fill="#cfe8b0"/></g>';
-  s += '<circle cx="690" cy="364" r="13" fill="none" stroke="#8a6a3e" stroke-width="3.4"/><g stroke="#8a6a3e" stroke-width="1.6"><line x1="690" y1="351" x2="690" y2="377"/><line x1="677" y1="364" x2="703" y2="364"/></g>';
-  s += '<g fill="#8a6a3e"><rect x="657" y="352" width="10" height="4" rx="1.5"/><rect x="657" y="414" width="10" height="4" rx="1.5"/></g>';   /* zsanérok */
-  s += '<circle cx="714" cy="400" r="4" fill="#ffd24d" stroke="#c9a06a" stroke-width="1.4"/>';
-  s += '<path d="' + ny + '" fill="none" stroke="#b79fd4" stroke-width="10"/><path d="' + ny + '" fill="none" stroke="#cbb6e6" stroke-width="4"/>';
-  s += '<rect x="650" y="437" width="80" height="11" rx="5" fill="#e79ac0"/><g stroke-width="2.2"><line x1="656" y1="441" x2="724" y2="441" stroke="#fbe0a0"/><line x1="656" y1="445" x2="724" y2="445" stroke="#fdf0d0"/></g>';   /* lábtörlő */
-  s += oduSzikra(722, 334, 3.2, 0.9);
-  return s;
-}
 /* 🏅 jelvénytábla a falon: a gyerek (a lista szerinti) legutóbbi 3 jelvénye, üres helyen halvány kör */
 function jelvenyTablaSVG() {
   var s = '<rect x="262" y="148" width="60" height="50" rx="5" fill="#b98a55"/><rect x="266" y="152" width="52" height="42" rx="3" fill="#f3e2c0"/>';
@@ -895,19 +868,17 @@ var ODU_CELOK = [
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
   { id: "osveny", felirat: "Térkép", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
-  { id: "utca", felirat: "Utca", csakTag: true, hit: [644, 290, 92, 162], fx: 690, fy: 300, cx: 618 },
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
-  { id: "bolt", felirat: "Bolt", hit: [508, 438, 96, 92], fx: 556, fy: 432, cx: 472 }
+  { id: "szekreny", felirat: "Szekrény", hit: [508, 424, 96, 106], fx: 556, fy: 426, cx: 472 }
 ];
-var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", utca: "odu-t-utca", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", bolt: "odu-bolt-jel" };
+var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", szekreny: "odu-szekreny" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
   osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
-  utca: { szo: function () { return "Kimegyünk az utcára!"; }, nyit: function () { utcaNyit(); } },
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
-  bolt: { szo: function () { return "Bolt"; }, nyit: function () { oduPanelNyit(); } },
+  szekreny: { szo: function () { return "Szekrény"; }, nyit: function () { renderSzekreny(); $("odu-lap").hidden = false; } },   /* badges.js */
   lampa: { nyit: function () {
     oduVillanyKapcsol();
     if (!ODU_SOTET && ODU_FEKSZIK) _oduAgyIdo.push(setTimeout(function () { oduFelkel(true); }, 450));   /* villanygyújtás: reggel van — felkel és nyújtózik */
@@ -1076,9 +1047,7 @@ function oduNyit(honnan) {
   clearTimeout(_oduSetaIdo); _oduSetaCel = null; _oduTavozas = null;
   ODU_SOTET = false;                        /* a villanyoltás nem mentődik: az odú mindig világosan nyílik */
   ODU_FEKSZIK = false; _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];   /* az alvás sem: ébren, a szőnyegen vár */
-  /* a térképről belépve a szőnyegen áll; az utcáról visszajőve az ajtónál, a szoba felé nézve */
-  ODU_UNI.x = honnan === "utca" ? 618 : ODU_UNI_HAZA;
-  ODU_UNI.dir = honnan === "utca" ? -1 : 1;
+  ODU_UNI.x = ODU_UNI_HAZA; ODU_UNI.dir = 1;   /* a szőnyegen áll (az odú csak a térképről nyílik) */
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();

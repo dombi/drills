@@ -12,16 +12,18 @@ var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség
    Terv: terv/utca-kepernyoterv.html (jóváhagyva 2026-10-01). Két elrendezés a képernyő alakja szerint:
    fekvő → „szeles” (800×460, 5 ház egy sorban), álló → „allo” (400×760, hátul 3, elöl 2 ház).
    A házak a régi rajzok a régi 400×460-as koordinátáikban (talpvonal y=432); utcaHely() teszi őket a helyükre.
-   Sorrend: fodrász · csillagbolt · ⛲ szökőkút · odú · bank (a bank a jobb szélen). Ambient mozgás: style.css .u-*
-   Térkép mint központ, 2. kör: a kertkapu helyén szökőkút (a Kert csak a térképről nyílik; rajzterv C: szökőkutas tér). */
+   Sorrend: fodrász · csillagbolt · ⛲ szökőkút · 🌙 pad · bank (a bank a jobb szélen). Ambient mozgás: style.css .u-*
+   Térkép mint központ (rajzterv C: szökőkutas tér): 2. kör — a kertkapu helyén szökőkút (a Kert csak a térképről nyílik);
+   3. kör — az odú-ház helyén holdfényes pad alvó cicával, az unikornis LÁTSZIK az utcán (uni: talppont + méret), onnan
+   indul a szivárványhíd; a szivárvány alatt „🗺️ Térkép” tábla; a csillagbolt az utca fölött nyílik (utcaBoltNyit). */
 var UTCA_ELR = {
   szeles: { w: 800, h: 460, fold: 290, hold: [86, 62], portal: [400, 138], tk: [400, -34],
-    hazak: { fodrasz: [88, 430, 1.32], bolt: [244, 430, 1.32], kut: [392, 430, 1.25], odu: [556, 430, 1.32], bank: [712, 430, 1.32] },
-    jardak: [430], lampak: [[166, 430], [322, 430], [478, 430], [634, 430]],
+    hazak: { fodrasz: [88, 430, 1.32], bolt: [244, 430, 1.32], kut: [392, 430, 1.25], pad: [556, 430, 1.25], bank: [712, 430, 1.32] },
+    uni: [468, 432, 0.42], jardak: [430], lampak: [[166, 430], [322, 430], [634, 430]],
     csillagok: [[150, 30], [250, 80], [300, 24], [520, 40], [560, 96], [640, 30], [40, 140], [180, 170], [620, 170], [700, 110], [500, 200], [270, 210]] },
   allo: { w: 400, h: 760, fold: 268, hold: [46, 50], portal: [200, 150], tk: [0, -6],
-    hazak: { fodrasz: [70, 470, 1], bolt: [200, 470, 1], bank: [330, 470, 1], kut: [112, 728, 1.15], odu: [294, 728, 1.3] },
-    jardak: [470, 728], lampak: [[135, 470], [265, 470], [200, 728]],
+    hazak: { fodrasz: [70, 470, 1], bolt: [200, 470, 1], bank: [330, 470, 1], kut: [112, 728, 1.15], pad: [318, 728, 1.05] },
+    uni: [222, 730, 0.44], jardak: [470, 728], lampak: [[135, 470], [265, 470]],
     csillagok: [[130, 34], [270, 30], [330, 66], [96, 92], [190, 60], [70, 160], [300, 200], [30, 230], [120, 240]] }
 };
 function utcaMod(w, h) {
@@ -119,13 +121,27 @@ function utcaKutRajz(x, talp, s) {
   g += uCsillam(-34, -18, 3.4, "#fff6a8", .3) + uCsillam(30, -16, 2.8, "#fff6a8", 1.4) + uCsillam(0, -96, 4, "#ffd24d", .8);
   return g + '</g>';
 }
-function utcaOduRajz() {
-  return '<rect x="296" y="272" width="98" height="186" fill="transparent"/>' +
-    '<rect x="322" y="340" width="46" height="92" fill="#9c6b3f"/>' +
-    '<g class="u-lomb"><circle cx="345" cy="318" r="42" fill="#3fa15e"/><circle cx="316" cy="326" r="24" fill="#57b877"/><circle cx="374" cy="328" r="22" fill="#57b877"/>' +
-    '<circle class="u-feny" cx="336" cy="300" r="22" fill="url(#u-izz)"/>' +
-    '<circle cx="336" cy="300" r="14" fill="#bfe6f2" stroke="#20267f" stroke-width="2"/><path d="M336 287 v27 M323 300 h26" stroke="#20267f" stroke-width="1.5"/></g>' +
-    '<ellipse cx="345" cy="408" rx="16" ry="22" fill="#5c2f1a"/>';
+/* 🌙 holdfényes pad egy virágzó fa alatt, rajta alvó cica (talppont: x, talp; s = méret; nem visz sehová).
+   Koppintásra a cica felébred, csóválja a farkát, aztán visszaalszik. */
+function utcaPadRajz(x, talp, s) {
+  var g = '<g id="utca-pad" class="utca-epulet" transform="translate(' + x + ' ' + talp + ') scale(' + s + ')">';
+  g += '<rect x="-58" y="-150" width="116" height="158" fill="transparent"/>';
+  g += '<rect x="-4" y="-104" width="9" height="106" rx="3" fill="#6b4a7a"/>';
+  g += '<g class="u-lomb"><circle cx="0" cy="-118" r="38" fill="#b46aa8"/><circle cx="-28" cy="-104" r="22" fill="#c27bb6"/><circle cx="28" cy="-106" r="22" fill="#c27bb6"/>' +
+    '<circle cx="-12" cy="-130" r="4" fill="#ffd0ea"/><circle cx="14" cy="-122" r="3.4" fill="#ffd0ea"/><circle cx="-24" cy="-110" r="3" fill="#ffd0ea"/><circle cx="26" cy="-102" r="3.2" fill="#ffd0ea"/><circle cx="2" cy="-104" r="2.6" fill="#ffd0ea"/></g>';
+  g += '<circle class="u-feny" cx="-40" cy="-62" r="26" fill="url(#u-izz)"/><path d="M-40 -48V2" stroke="#2a2a5e" stroke-width="3"/><rect x="-46" y="-64" width="12" height="15" rx="4" fill="#fff2a0" stroke="#2a2a5e" stroke-width="2.4"/>';
+  g += '<rect x="-30" y="-30" width="62" height="7" rx="3" fill="#a4734a"/><rect x="-30" y="-20" width="62" height="7" rx="3" fill="#b9845a"/>';
+  g += '<path d="M-26 -13V2M28 -13V2" stroke="#6b4a33" stroke-width="4" stroke-linecap="round"/>';
+  g += '<g id="utca-cica-alszik"><ellipse cx="8" cy="-38" rx="15" ry="9" fill="#f3c08a"/><circle cx="-5" cy="-40" r="7.5" fill="#f3c08a"/><path d="M-10 -46l2 -6l4 5M-3 -47l3 -6l2 6" fill="#f3c08a"/>' +
+    '<path d="M-8 -40q2 1.6 4 0M-3 -40q2 1.6 4 0" stroke="#7a4a2a" stroke-width="1" fill="none"/><path d="M20 -34q8 2 6 -8" stroke="#f3c08a" stroke-width="4.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M2 -42q4 -2 8 0M8 -34q4 -2 8 0" stroke="#d9925a" stroke-width="1.6" fill="none"/>' +
+    '<text x="4" y="-56" font-size="10" font-weight="700" fill="#cfd6ff">z<animate attributeName="opacity" values="0;1;0" dur="2.4s" repeatCount="indefinite"/></text>' +
+    '<text x="12" y="-66" font-size="8" font-weight="700" fill="#cfd6ff">z<animate attributeName="opacity" values="0;1;0" dur="2.4s" begin=".6s" repeatCount="indefinite"/></text></g>';
+  g += '<g id="utca-cica-ebren" style="display:none"><ellipse cx="8" cy="-36" rx="13" ry="10" fill="#f3c08a"/><circle cx="-4" cy="-48" r="8" fill="#f3c08a"/><path d="M-10 -54l2 -7l4 5M-1 -55l3 -7l2 7" fill="#f3c08a"/>' +
+    '<circle cx="-7" cy="-49" r="1.6" fill="#2a2140"/><circle cx="-1" cy="-49" r="1.6" fill="#2a2140"/><path d="M-5 -45q1 1 2 0" stroke="#7a4a2a" stroke-width="1" fill="none"/>' +
+    '<path d="M20 -32q10 -4 8 -20" stroke="#f3c08a" stroke-width="4.6" fill="none" stroke-linecap="round"><animate attributeName="d" values="M20 -32q10 -4 8 -20;M20 -32q14 -2 14 -18;M20 -32q10 -4 8 -20" dur=".8s" repeatCount="indefinite"/></path>' +
+    '<text x="10" y="-62" font-size="9" font-weight="700" fill="#ffd0ea">♥</text></g>';
+  return g + '</g>';
 }
 /* (a bank háza: bank.js utcaBankRajz) */
 
@@ -172,7 +188,10 @@ function utcaSVG(mod) {
   s += '<circle class="u-feny" cx="' + hx + '" cy="' + hy + '" r="44" fill="url(#u-hold)"/>' +
     '<circle cx="' + hx + '" cy="' + hy + '" r="20" fill="#fdf3c4"/><circle cx="' + (hx - 8) + '" cy="' + (hy - 6) + '" r="20" fill="#1c2560" opacity="0.55"/>';
   s += '<g transform="translate(' + (w * 0.82) + ',30)"><g class="u-hullo"><path d="M0 0 L46 -16" stroke="url(#u-hullo-gr)" stroke-width="2.5" stroke-linecap="round"/><circle r="2.4" fill="#fff"/></g></g>';
-  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() + '</g>';
+  s += '<g transform="translate(' + (L.portal[0] - 200) + ',' + (L.portal[1] - 158) + ')">' + utcaPortalSVG() +
+    /* a szivárvány a térképre visz: a „Matek” tábla alatt egy „Térkép” tábla (producer, 2026-10-06) */
+    '<g id="utca-portal-terkep" class="utca-portal"><rect x="148" y="194" width="104" height="24" rx="12" fill="#e8f6e2" stroke="#3f9e6a" stroke-width="1.6"/>' +
+    '<text x="200" y="211" text-anchor="middle" font-size="13" font-weight="800" fill="#2f7a50">🗺️ Térkép</text></g></g>';
   s += '<g transform="translate(' + L.tk[0] + ',' + L.tk[1] + ')">' + tkLepcsoSVG() + '</g>';   /* Égi Tüneménykert felhőlépcső (csak felhő-módban + pulton engedélyezve) */
   s += '<rect x="-400" y="' + L.fold + '" width="' + (w + 800) + '" height="' + (h - L.fold + 600) + '" fill="url(#utca-fold)"/>';
   L.jardak.forEach(function (y) { s += utcaJarda(w, y); });
@@ -182,10 +201,13 @@ function utcaSVG(mod) {
     [H.fodrasz, utcaHely("utca-fodrasz", H.fodrasz, 54, utcaFodraszRajz(!P().szalon.nyitva, uni), "fodrász")],
     [H.bolt, utcaHely("utca-bolt", H.bolt, 150, utcaBoltRajz(), "csillagbolt")],
     [H.kut, utcaKutRajz(H.kut[0], H.kut[1], H.kut[2])],
-    [H.odu, utcaHely("utca-odu", H.odu, 345, utcaOduRajz(), "odú")],
+    [H.pad, utcaPadRajz(H.pad[0], H.pad[1], H.pad[2])],
     [H.bank, utcaHely("utca-bank", H.bank, 200, utcaBankRajz(bankZarva()), "tündérbank")]
   ].sort(function (x, y) { return x[0][1] - y[0][1]; });
   sor.forEach(function (e) { s += e[1]; });
+  /* az unikornis az utcán: itt érkezett a szivárványkapuból, innen indul vissza (utcaTavozik) */
+  var u = L.uni;
+  s += '<g id="utca-uni-all" pointer-events="none" transform="translate(' + u[0] + ' ' + u[1] + ') scale(' + u[2] + ')">' + unikornisSVG("utca-all-uni", c, 1, P().oltozet) + '</g>';
   s += '<g id="utca-hid" pointer-events="none"></g><g id="utca-uni-hely" pointer-events="none"></g><g id="utca-hid-szikra" pointer-events="none"></g>';   /* szivárványos távozás (utcaTavozik) */
   /* szentjánosbogár-fények a föld fölött */
   for (var i = 0; i < 7; i++) {
@@ -205,6 +227,7 @@ function utcaNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   UTCA_MOD = "nez"; _utcaTavozas = null;
+  $("odu-panel").hidden = true;   /* a bolt csukva (ha nyitva hagyta, amikor elment) */
   mutat("kepernyo-utca");
   renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
@@ -217,17 +240,23 @@ function renderUtca() {
   UTCA_ELR_MOST = utcaMod(host.clientWidth, host.clientHeight);
   host.innerHTML = utcaSVG(UTCA_ELR_MOST);
   utcaKot("utca-fodrasz", utcaFodraszKoppint);
-  utcaKot("utca-bolt", function () { hangGomb(); oduNyit(); oduPanelNyit(); });
+  utcaKot("utca-bolt", function () { hangGomb(); utcaBoltNyit(); });
   utcaKot("utca-kut", function () {   /* ⛲ csak egy kedves apróság: magasabbra szökik a víz */
     hangCsilla(); mondd("Csobb!");
     var sug = $("utca-kut-sugar"); if (!sug) return;
     sug.classList.remove("szok"); void sug.getBoundingClientRect(); sug.classList.add("szok");
     clearTimeout(renderUtca._kut); renderUtca._kut = setTimeout(function () { sug.classList.remove("szok"); }, 700);
   });
-  utcaKot("utca-odu", function () { hangGomb(); oduNyit(); });
+  utcaKot("utca-pad", function () {   /* 🐈 a cica felébred, csóvál, aztán visszaalszik */
+    hangGomb(); mondd("Miaú!");
+    var a = $("utca-cica-alszik"), e = $("utca-cica-ebren"); if (!a || !e) return;
+    a.style.display = "none"; e.style.display = "";
+    clearTimeout(renderUtca._cica); renderUtca._cica = setTimeout(function () { a.style.display = ""; e.style.display = "none"; }, 2600);
+  });
   utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
   utcaKot("utca-felhokert", tkLepcsoKoppint);
   utcaKot("utca-portal", utcaTavozik);
+  utcaKot("utca-portal-terkep", utcaTavozik);
   var sugo = $("utca-sugo");
   if (sugo) {
     if (UTCA_MOD === "megerosit-belepo") {
@@ -244,7 +273,7 @@ function renderUtca() {
   }
 }
 /* ── SZIVÁRVÁNYOS TÁVOZÁS az utcán (unikornis pózok 6. lépés, közös kód: renderer.js uniSzivarvanyba):
-   a Matek-kapuból szivárványhíd nő le az odú-ház ajtajáig, kilép az unikornis, és felszalad rajta a kapuba.
+   a Matek-kapuból szivárványhíd nő le oda, ahol az unikornis áll (a szökőkút mellett), és felszalad rajta a kapuba.
    Közben egy második koppintás azonnal átvált. ── */
 var _utcaTavozas = null;
 function utcaTavozik() {
@@ -252,17 +281,16 @@ function utcaTavozik() {
   var hely = $("utca-uni-hely"); if (!hely) { hangGomb(); visszaUgrik("utca"); return; }
   hangGomb(); mondd("Irány a térkép!");
   var tok = _utcaTavozas = {};
-  var L = UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles, h = L.hazak.odu, k = 0.32 * h[2];
-  var ajto = [h[0], h[1] - 2 * h[2]], kapu = [L.portal[0], L.portal[1] - 18];
-  var ut = szivarvanyGorbe(ajto, [ajto[0], ajto[1] - 140], [kapu[0] + 110, kapu[1] + 20], kapu, 40);
-  hely.innerHTML = '<g id="utca-uni-mozgo" style="opacity:0;transform:translate(' + ajto[0] + 'px,' + ajto[1] + 'px) scale(' + k + ')">' +
+  var L = UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles, u = L.uni, k = u[2];
+  var all = $("utca-uni-all"); if (all) all.style.display = "none";   /* a mozgó másolat veszi át a helyét */
+  var ajto = [u[0], u[1]], kapu = [L.portal[0], L.portal[1] - 18];
+  var ut = szivarvanyGorbe(ajto, [ajto[0], ajto[1] - 140], [kapu[0] + (ajto[0] < kapu[0] ? -110 : 110), kapu[1] + 20], kapu, 40);
+  hely.innerHTML = '<g id="utca-uni-mozgo" style="transform:translate(' + ajto[0] + 'px,' + ajto[1] + 'px) scale(' + k + ')">' +
     '<g id="utca-uni-flip" style="--dir:' + (kapu[0] < ajto[0] ? -1 : 1) + ';transform:scale(var(--dir,1),1)">' + unikornisSVG("utca-uni", LENYEK[mentes.leny], 1, P().oltozet) + '</g></g>';
   var m = $("utca-uni-mozgo"), fl = $("utca-uni-flip");
   uniNezoAdat(fl, { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });
-  void m.getBoundingClientRect();
-  m.style.transition = "opacity .3s"; m.style.opacity = "1";   /* kilép az odú-ház ajtaján */
   hangCsilla();
-  szivarvanyNo($("utca-hid"), ut, 34 * h[2], 10 * h[2], function () {
+  szivarvanyNo($("utca-hid"), ut, 34 * k / 0.42, 10 * k / 0.42, function () {
     if (_utcaTavozas !== tok) return;
     uniSzivarvanyba({ mozgo: m, el: fl, talp: [0, 0], ut: ut, skala: [k, k * 0.3], szikra: $("utca-hid-szikra") },
       function () { if (_utcaTavozas === tok) utcaTavozasVege(); });
@@ -273,6 +301,12 @@ function utcaTavozasVege() {
   var k = $("kepernyo-utca");
   if (!k || !k.classList.contains("aktiv")) return;   /* közben máshová ment */
   visszaUgrik("utca");   /* a térképen az utca-kapunál áll (ui.js) */
+}
+/* 🛍️ a Csillagbolt az utca fölött nyílik (Térkép mint központ, 3. kör): vásárlás az utcán, a megvett holmi rögtön a helyére
+   kerül (a bútor az odúban, a ruha rajtad); rakosgatni otthon, a 🧺 Szekrényben lehet. Bezárva az utcán maradsz (oduPanelZar). */
+function utcaBoltNyit() {
+  mondd("Csillagbolt!");
+  oduPanelNyit("holmik");
 }
 function utcaFodraszKoppint() {
   hangGomb();
