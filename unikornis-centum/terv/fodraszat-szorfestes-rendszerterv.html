@@ -82,9 +82,9 @@
   <b>✅ A producer döntései (2026-10-07):</b>
   <ul>
     <li><b>a szarv, a szemszín és a far-jel nem változik</b>, hogy az unikornis festett szőrrel is felismerhető maradjon</li>
-    <li><b>színek és pár minta</b>; a Pöttyös és a Felhőfoltos <b>kimarad</b>, a Citromkrém és a Csoki helyett <b>kétféle lila</b> (2. kör)</li>
+    <li><b>színek és pár minta</b>; a Pöttyös és a Felhőfoltos helyett <b>✨ Csillámszőr</b> és <b>🍬 Cukorcsíkos</b>, a Citromkrém és a Csoki helyett <b>kétféle lila</b> (2. kör); a javaslatok maradnak</li>
     <li>festékenként <b>12 💧</b></li>
-    <li>az első körben így <b>6 szőrfesték</b> (5 szín + a Szivárvány); a polcon 2 hely üres marad, később bővíthető</li>
+    <li>az első körben <b>8 szőrfesték</b> (5 szín + 3 minta, pont egy polc-oldal; később bővíthető)</li>
   </ul>
 </div>
 
@@ -102,11 +102,11 @@
   <p class="lead" style="margin-top:10px"><b>Saját ötletem: a far-jel szegélyt kap.</b> Ha a szőr színe közel esik a jeléhez (például Tűz piros virágja egy barackszínű szőrön), a jel kap egy vékony, világos szegélyt, mint egy matrica. Így a jel bármilyen szőrön jól látszik, és nem olvad bele a festékbe. A rajzterv mind a 8 festéken megmutatja a 3 unikornisnál.</p>
 </div>
 
-<h2>A 6 szőrfesték</h2>
+<h2>A 8 szőrfesték</h2>
 <p class="lead">Lágy pasztell színek, hogy illjenek a játék stílusához, és a fekete körvonal, a szem meg a szarv jól kiváljon belőlük. Szándékosan nincs köztük Tűz barackszíne, Csillámharmat halványkékje és Ragyogás fehérje, hogy ne lehessen egyik unikornist a másikra „átfesteni”. A minták itt csak az irányt mutatják; a valódi rajz a rajztervben lesz, a 3 unikornison.</p>
 <h3 class="sub">Színek (5)</h3>
 <div class="paints" id="szinek"></div>
-<h3 class="sub">Minta (1)</h3>
+<h3 class="sub">Minták (3)</h3>
 <div class="paints" id="mintak"></div>
 <p class="lead" style="margin-top:10px">Mindegyik egy sor egy listában, ugyanúgy, mint a sörényfestékek és a lakkok: <b>új szőrfesték = egy új sor</b>. Ha a gyerekek újat kérnek, nem kell hozzá új kód.</p>
 
@@ -115,7 +115,7 @@
 
   <div class="dec"><div class="num">1</div><h3>Mi festődik?</h3>
     <p>Egy koppintással <b>az egész szőr</b>: test, fej, fül és a 4 láb. A has magától világosabb árnyalatot kap, mert az unikornisoknak most is van világosabb hasuk. A felsorolt 6 felismerő jel kimarad.</p>
-    <p class="lead">A Szivárványnál az átmenet a testen és a fejen látszik, a lábak egy egyszínű, halvány árnyalatot kapnak, mert a vékony, mozgó lábakon az átmenet szétesne.</p>
+    <p class="lead">A mintás festékeknél a minta a testen és a fejen látszik, a lábak a minta egyszínű, halvány alapját kapják, mert a vékony, mozgó lábakon a minta szétesne.</p>
     <span class="ok">A producer döntése (a 6 felismerő jel marad)</span></div>
 
   <div class="dec"><div class="num">2</div><h3>Ár</h3>
@@ -203,13 +203,13 @@
 <div class="panel">
   <div class="flow">
     <span class="step">① ez a tervlap ✋ jóváhagyásra</span><span class="arr">→</span>
-    <span class="step">② rajzterv: a 6 szőrfesték a 3 unikornison + a jel-szegély + az élő polc</span><span class="arr">→</span>
+    <span class="step">② rajzterv: a 8 szőrfesték a 3 unikornison + a jel-szegély + az élő polc</span><span class="arr">→</span>
     <span class="step">③ kód egy körben + teszt + feltöltés</span>
   </div>
 </div>
 
 <h2>Jóváhagyás</h2>
-<div class="panel wait"><b>⏳ Jóváhagyásra vár.</b> Nyitott javaslatok: a 3. (polc), az 5. (előbb megmutatja), a 6. (kedves terelés), a 8. (öröm-pillanat), a jel-szegély és a 6 festék neve, színe.</div>
+<div class="panel wait"><b>⏳ Jóváhagyásra vár.</b> Nyitott javaslatok: a 3. (polc), az 5. (előbb megmutatja), a 6. (kedves terelés), a 8. (öröm-pillanat), a jel-szegély és a 8 festék neve, színe.</div>
 
 </div>
 <script>
@@ -223,6 +223,8 @@ var SZINEK = [
   ["🔮", "Ametiszt", { t: "#b8a0e8", h: "#ddd0f6" }, "erősebb, kékes lila"]
 ];
 var MINTAK = [
+  ["✨", "Csillámszőr", { t: "#dccdf6", h: "#f1eafd", m: "csillam" }, "halvány levendula, apró fehér csillanások"],
+  ["🍬", "Cukorcsíkos", { t: "#f7c6da", h: "#fde9f1", m: "csik" }, "széles, ferde pasztell csíkok: rózsa, menta, lila"],
   ["🌈", "Szivárvány", { t: "#ffd0dc", h: "#fff4f7", m: "sziv" }, "pasztell átmenet a fejtől a farig"]
 ];
 var n = 0;
@@ -230,8 +232,10 @@ function kartya(l) {
   var m = l[2], id = "sz" + (++n), defs = "", fill = m.t;
   if (m.m === "potty") { defs = '<pattern id="' + id + '" patternUnits="userSpaceOnUse" width="14" height="14"><rect width="14" height="14" fill="' + m.t + '"/><circle cx="4" cy="4" r="2.4" fill="#fff"/><circle cx="11" cy="10" r="2" fill="#fff"/></pattern>'; fill = "url(#" + id + ")"; }
   if (m.m === "felho") { defs = '<pattern id="' + id + '" patternUnits="userSpaceOnUse" width="44" height="30"><rect width="44" height="30" fill="#fff"/><ellipse cx="12" cy="9" rx="9" ry="5.5" fill="#bcdcf5"/><ellipse cx="34" cy="22" rx="8" ry="5" fill="#cfe6f8"/></pattern>'; fill = "url(#" + id + ")"; }
+  if (m.m === "csillam") { defs = '<pattern id="' + id + '" patternUnits="userSpaceOnUse" width="22" height="18"><rect width="22" height="18" fill="' + m.t + '"/>' + cs(6, 5, 3.6, "#fff") + cs(16, 13, 2.6, "#fff") + '<circle cx="17" cy="4" r=".9" fill="#fff"/><circle cx="5" cy="14" r=".8" fill="#fff"/></pattern>'; fill = "url(#" + id + ")"; }
+  if (m.m === "csik") { defs = '<pattern id="' + id + '" patternUnits="userSpaceOnUse" width="30" height="30" patternTransform="rotate(35)"><rect width="10" height="30" fill="#f7c6da"/><rect x="10" width="10" height="30" fill="#c8f0dc"/><rect x="20" width="10" height="30" fill="#ddcdf7"/></pattern>'; fill = "url(#" + id + ")"; }
   if (m.m === "sziv") { defs = '<linearGradient id="' + id + '" x1="1" x2="0"><stop offset="0" stop-color="#ffc2d4"/><stop offset=".22" stop-color="#ffd8b0"/><stop offset=".42" stop-color="#fff0a8"/><stop offset=".62" stop-color="#c8f0d4"/><stop offset=".82" stop-color="#c6e2fb"/><stop offset="1" stop-color="#ddcdf7"/></linearGradient>'; fill = "url(#" + id + ")"; }
-  var lab = m.m ? (m.m === "sziv" ? "#e8dcf6" : m.t) : m.t;
+  var lab = m.m === "sziv" ? "#e8dcf6" : m.t;
   if (m.m === "felho") lab = "#ffffff";
   var s = '<svg viewBox="0 -8 150 84"><defs>' + defs + '</defs><g stroke="#222" stroke-width="2" stroke-linejoin="round">' +
     '<rect x="40" y="44" width="9" height="26" rx="3" fill="' + lab + '"/><rect x="92" y="44" width="9" height="26" rx="3" fill="' + lab + '"/>' +
