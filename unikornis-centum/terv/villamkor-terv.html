@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villámkör tervlap</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --track:#f6e2b8; --track-d:#d9b979; --card:#fffaf2; --sky:#dff1fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#f0a800 0%,var(--pink) 55%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(224,65,122,.25);position:relative;overflow:hidden}
+  header.top::after{content:"⚡";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  .chip a{color:#fff}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+  svg.vazlat .palya{fill:none;stroke:var(--track);stroke-width:22}
+  svg.vazlat .palya-sz{fill:none;stroke:var(--track-d);stroke-width:2;stroke-dasharray:4 8}
+  svg.vazlat .eg{fill:var(--sky)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>⚡ Villámkör</h1>
+  <div class="sub">Egy perc futás a réten. Az unikornis minden jó válaszra egyet ugrik előre, mellette halványan fut a <b>tegnapi önmaga</b>, vagyis a saját rekordja. Csak olyan tények jönnek, amelyeket a gyerek már tud. Ez az egyetlen hely a játékban, ahol a gyorsaság látszik.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-07</span>
+    <span class="chip">Nagyság: közepes (5 kör, ebből 1 rajzterv)</span>
+    <span class="chip">A sorban: 4. csomag, F) — a B) Mi bújt el? után</span>
+    <span class="chip">Alap: <a href="teny-motor-rendszerterv.html">teny-motor-rendszerterv.html</a></span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>A tény-motor már <b>rejtve</b> méri, hogy egy tény fejből megy-e (villám = kb. 3 mp-en belül, több napon át). A Tény-kert virágai ebből nőnek. Ami még hiányzik: egy hely, ahol a gyerek a <b>gyorsaságát</b> játékosan, a saját korábbi eredményével versenyezve gyakorolja. Ez a <b>Villámkör</b>.</p>
+  <ul>
+    <li><b>Egy perc</b>, egymás után jönnek a feladatok, felolvasás nélkül (a felolvasás elvenné az időt).</li>
+    <li>Csak a <b>„tudja” és „villám” lépcsőn</b> álló tények jönnek. Itt nem tanul újat, csak gyorsítja, amit már tud.</li>
+    <li><b>Saját rekord</b>, más gyerekkel soha nem hasonlítjuk össze.</li>
+    <li>A gyerek <b>beírhatja vagy kimondhatja</b> a választ (a hangos mód saját rekordot kap, mert lassabb).</li>
+    <li><b>Választható</b>: senki nem kerül bele magától, és nem kapu semmihez.</li>
+  </ul>
+  <p class="lead">A pultnak is fontos: a Villámkör pontszáma hétről hétre a <b>legtisztább mérőszám</b> arra, hogy az alapok mennyire mennek készségszinten. Ez a „Zetamac-szintű” alap-követelmény mérője.</p>
+</div>
+
+<h2>Az alapelvek</h2>
+<div class="elv">
+  <div><b>⏱️ Óra, de nem számokkal</b>Nincs visszaszámláló számlap. A nap átível a pálya fölött, és amikor lebukik, vége. Az utolsó 10 mp-ben nincs riasztó hang.</div>
+  <div><b>🦄 Önmagával versenyez</b>Az árnyék-unikornis a rekord tempójában fut. A gyerek látja, hogy „utolérte-e tegnapi önmagát”.</div>
+  <div><b>🌱 Soha nem büntet</b>A rossz válasz nem vesz el ugrást, és a tény dobozát sem rántja le. Csak visszaküldi a tényt gyakorolni.</div>
+  <div><b>💬 Csak jó hír</b>Rekord alatt soha nem mondjuk, hogy „rosszabb volt”. „Ma 15 ugrás! Holnap megint futhatsz.”</div>
+</div>
+
+<h2>Hogy néz ki</h2>
+<div class="vazlatok">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 300" role="img" aria-label="Futás közben: fent a feladatkártya, alatta ovális futópálya a réten, rajta az unikornis és mögötte egy halvány árnyék-unikornis, az égen a nap íve">
+      <rect class="eg" x="0" y="0" width="400" height="120"/>
+      <!-- nap íve -->
+      <path d="M30,118 Q200,-10 370,118" fill="none" stroke="var(--gold)" stroke-width="2" stroke-dasharray="3 6" opacity=".7"/>
+      <circle cx="120" cy="52" r="15" fill="var(--gold)"/>
+      <!-- kártya -->
+      <rect class="kartya" x="110" y="14" width="180" height="70" rx="16" opacity=".97"/>
+      <text x="200" y="62" font-size="34" font-weight="700" text-anchor="middle">7 + 5</text>
+      <!-- pálya -->
+      <ellipse class="palya" cx="200" cy="205" rx="160" ry="62"/>
+      <ellipse class="palya-sz" cx="200" cy="205" rx="160" ry="62"/>
+      <!-- ugrás-pöttyök (lábnyom-csillagok) -->
+      <g fill="var(--pink)"><circle cx="70" cy="180" r="4"/><circle cx="95" cy="163" r="4"/><circle cx="125" cy="152" r="4"/><circle cx="158" cy="146" r="4"/><circle cx="192" cy="143" r="4"/></g>
+      <!-- árnyék-unikornis -->
+      <g transform="translate(250,140)" opacity=".35">
+        <ellipse cx="0" cy="0" rx="20" ry="11" fill="var(--violet)"/>
+        <circle cx="20" cy="-12" r="9" fill="var(--violet)"/>
+        <path d="M24,-20 L30,-34" stroke="var(--violet)" stroke-width="3"/>
+      </g>
+      <!-- unikornis -->
+      <g transform="translate(215,146)">
+        <ellipse cx="0" cy="0" rx="20" ry="11" fill="#fff" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="20" cy="-12" r="9" fill="#fff" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <path d="M24,-20 L30,-34" stroke="var(--gold)" stroke-width="3"/>
+        <path d="M-18,-4 Q-30,-10 -34,2" fill="none" stroke="var(--pink)" stroke-width="4"/>
+      </g>
+      <text x="200" y="215" font-size="15" text-anchor="middle">⚡ 5 ugrás</text>
+      <text x="200" y="290" font-size="13" text-anchor="middle">alul a megszokott számbillentyűzet / 🎤</text>
+    </svg>
+    <figcaption>Futás közben. A halvány lila a rekord-árnyék, a nap jelzi az időt.</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 300" role="img" aria-label="A kör vége: az unikornis a célban, nagy felirat: 21 ugrás, új rekord, alatta három csillag és a jutalom">
+      <rect class="eg" x="0" y="0" width="400" height="120" opacity=".6"/>
+      <ellipse class="palya" cx="200" cy="205" rx="160" ry="62" opacity=".6"/>
+      <rect class="kartya" x="60" y="40" width="280" height="190" rx="22"/>
+      <text x="200" y="88" font-size="20" text-anchor="middle">⚡ Villámkör</text>
+      <text x="200" y="138" font-size="44" font-weight="800" text-anchor="middle" style="fill:var(--pink)">21 ugrás</text>
+      <text x="200" y="170" font-size="17" font-weight="700" text-anchor="middle">🏆 Új rekord! (eddig 18)</text>
+      <text x="200" y="206" font-size="15" text-anchor="middle">+21 ✨   +3 💧</text>
+      <text x="200" y="270" font-size="13" text-anchor="middle">[ Még egy kör ]   [ Vissza ]</text>
+    </svg>
+    <figcaption>A kör vége. Rekord alatt: „Ma 15 ugrás! Holnap megint futhatsz.” (Csak vázlat, a kép a rajztervé.)</figcaption>
+  </figure>
+</div>
+
+<h2>A játékmenet</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>Hol van, és mikor nyílik ki</h3>
+    <ul>
+      <li>A <b>Neked készült ligetben</b>, a 🌸 Neked szóló ösvény mellett egy ⚡ Villámkör kártya. Új hely a térképen nem kell.</li>
+      <li>Akkor nyílik ki, ha a gyereknek legalább <b>10 tudott tény</b> van egy halmazban (lásd lent). Addig a kártya halvány, és ezt mondja: <span class="say">„Ha tíz feladatot már fejből tudsz, itt versenyt futhatsz!”</span></li>
+      <li>A kör elején a gyerek választ, <b>miből fusson</b>. Csak a kinyílt halmazok látszanak:
+        <div class="tblwrap"><table>
+          <tr><th>Halmaz</th><th>Mi jön</th><th>Kinyílik</th></tr>
+          <tr><td>🌷 Összeadó villám</td><td>+ és − a 20-as körben</td><td>≥ 10 tudott +/− tény</td></tr>
+          <tr><td>🪻 Szorzó villám</td><td>× és ÷ a 10 × 10-es táblában</td><td>≥ 10 tudott ×/÷ tény</td></tr>
+          <tr><td>🌈 Vegyes villám</td><td>mind a négy művelet keverve</td><td>ha mindkettő nyitva van</td></tr>
+        </table></div>
+      </li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Egy kör: 1 perc</h3>
+    <ol>
+      <li>Rövid indulás: az unikornis a rajtvonalra áll. <span class="say">„Vigyázz, kész, rajt!”</span> (3 lépés, kb. 2 mp)</li>
+      <li>A feladat <b>felolvasás nélkül</b> jelenik meg a kártyán. A gyerek beírja vagy kimondja.</li>
+      <li><b>Jó válasz:</b> kis csengés, az unikornis egyet ugrik a pályán, és <b>azonnal</b> jön a következő feladat (kb. 0,3 mp). Nincs „Ez az!” mondat, mert az időt venne el.</li>
+      <li><b>Rossz válasz:</b> a kártyán fél másodpercig halványan megjelenik a helyes eredmény (<b>7 + 5 = 12</b>), aztán jön a következő. Ugrás nincs, de nem is vesz el semmit. A tény a körben 4–6 feladattal később még egyszer visszajön.</li>
+      <li>Amikor a nap lebukik, a kártya eltűnik, és ha a gyerek épp írt valamit, azt még értékeljük.</li>
+      <li>Vége-kép: hány ugrás, rekord-e, jutalom. <b>Még egy kör</b> vagy <b>Vissza</b>.</li>
+    </ol>
+    <p class="lead">A „hangosan is”: a hangos (🎤) módban a játék folyamatosan figyel, nem kell gombot nyomni. Ennek a rekordja külön van, mert a felismerés kb. 1 mp-et elvesz.</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>Melyik tény jön</h3>
+    <ul>
+      <li>A kiválasztott halmazból csak a <b>3-as doboztól felfelé</b> lévő tények (tudja / villám).</li>
+      <li>Előnyben a <b>„tudja, de még nem villám”</b> tények (3-as doboz és a lassú J betűsek). Nagyjából fele ilyen, fele villám. A villámok adják a lendületet és a sikerélményt, a „tudja” tényeken pedig itt gyorsul a gyerek.</li>
+      <li>Egy tény legfeljebb kétszer jön egy körben, és sosem kétszer egymás után.</li>
+      <li>A <b>100-as kör</b> (37 + 5 és társai) egyelőre kimarad: ott 5 mp a villám-határ, nem fér bele a sprintbe. Később lehet belőle 💯 Százas villám.</li>
+      <li>Csak „mennyi az eredmény?” forma. A 🌿 „mi bújt el” forma itt nem jön, mert a levél és Cincin mozgása időt venne el.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>A rekord és az árnyék-unikornis</h3>
+    <ul>
+      <li>A rekord <b>halmazonként és beviteli módonként</b> külön van: 🌷 / 🪻 / 🌈 × ⌨️ / 🎤. Így a hangos kör nem „rosszabb”, csak más.</li>
+      <li>Az <b>árnyék-unikornis</b> (a gyerek saját unikornisa, halványan) pontosan úgy fut, ahogy a rekord-körben futott, mert a rekord-kör ugrásainak idejét eltesszük. Ha a gyerek megelőzi, az árnyék egy pillanatra elmosolyodik, és lemarad.</li>
+      <li>Első körben nincs árnyék, csak „Fuss, ameddig a nap le nem megy!”.</li>
+      <li>Egy kör, ami alatt a gyerek elment a géptől (10 mp-ig semmi bevitel), nem számít bele a rekordba és a jutalomba. Csendben véget ér: <span class="say">„Pihenünk egyet? Bármikor újrakezdheted!”</span></li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>Jutalom</h3>
+    <ul>
+      <li><b>1 ✨ minden jó válaszért</b>, szinttől függetlenül. Csak a nap <b>első 3 körében</b>, utána a kör „csak a buli kedvéért” megy, jutalom nélkül, és ezt a vége-kép kedvesen meg is mondja. Így a Villámkör nem lesz ✨-farm.</li>
+      <li><b>Új rekord: +3 💧</b> (kitartás-valuta), naponta egyszer halmazonként.</li>
+      <li><b>Jelvény: ⚡ Villám-futó</b>, ha a gyerek <b>7 különböző napon</b> futott Villámkört. A kitartást jutalmazzuk, nem a sebességet.</li>
+      <li>A 12 órás kapu és a pult „hányszor” korlátja ugyanúgy vonatkozik rá, mint egy pályára. A kulcs-pálya listába viszont nem kerülhet, mert nem „végigjárható”.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>A tény-motor és a pult</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">6</span>
+    <h3>Mit jegyez a tény-motor</h3>
+    <ul>
+      <li>Minden válasz a meglévő <code>tenyJegyez</code>-en megy át, <code>forma: "v"</code> jellel. Az óra itt a <b>kártya megjelenésétől</b> az első bevitelig mér, mert nincs felolvasás.</li>
+      <li><b>Villám-válasz (V) és lassú jó (J):</b> pontosan úgy léptet, mint máshol. A „3-asból feljebb csak másik napon” szabály itt is áll, így egy jó délutáni sprint sem csinál villámot egy napból.</li>
+      <li><b>Botlás:</b> a sprintben a kapkodás is hibát okoz, ezért a Villámkör botlása <b>nem rántja le a dobozt</b> (nem −2). Csak <b>esedékessé teszi a tényt</b>, és a Neked szóló ösvény ott nyugodtan, felolvasással visszahozza. Ha ott is botlik, az már rendes botlás.</li>
+      <li>A tény sorában külön rövid előzmény a Villámkörről (<code>vh</code>, utolsó 6). A pult így látja, ha valami csak sprintben csúszik el.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">7</span>
+    <h3>Pult</h3>
+    <ul>
+      <li><b>Pálya-tábla:</b> a Villámkör saját sort kap (látszik · 🔁 hányszor), gyerekenként és csoportra, alap &lt; csoport &lt; egyéni.</li>
+      <li><b>🌸 Tény-motor kártya</b>, új mezők: a kör hossza (30 / <b>60</b> / 90 mp), a kinyílás (alap 10 tudott tény), és hogy a Vegyes villám látszik-e.</li>
+      <li><b>🌸 Tények fül, új „⚡ Villámkör-görbe”:</b> halmazonként a körök pontszáma napra lebontva (a nap legjobbja), hétről hétre. Mellette az átlagos válaszidő és a sprintben botló tények listája. Ez a gyerek <b>alap-készségének mérője</b>: ha a görbe hetek alatt emelkedik, az automatizmus épül.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>Milyen közös alapra épül, mit ad hozzá a közöshöz?</h2>
+<div class="panel">
+  <ul>
+    <li><b>A tény-választó közös marad.</b> A Villámkör nem ír saját „melyik tény jöjjön” logikát: a <code>tenyHalmaz</code> és a <code>tenyLepcso</code> adja a tudott tényeket, a <code>tenyFeladat(k)</code> a kész feladatot. Csak egy kis rendező kell hozzá (<code>villamSor</code>: fele „tudja”, fele villám, ismétlés-szabály).</li>
+    <li><b>A feladat-alak is közös:</b> a <code>feladatOsszeadas / Kivonas / Szorzas / Osztas</code> készíti, mint a Neked szóló ösvényen. Új feladat-típus nincs.</li>
+    <li><b>Új modul: <code>src/villam.js</code></b>, és a sprint minden ügye ebben van: a halmazok és a kinyílás (<code>villamHalmazok</code>), a kör sorrendje, a saját, gyors játékképernyő (a meglévő számbillentyűzetet és beszédfelismerést használja, de a lassú ösvény-folyamatot, a felolvasást és a 0,9 mp-es továbblépést nem), a rekord és az árnyék.</li>
+    <li><b>A tény-motor két apró bővítést kap</b> (teny.js): <code>forma "v"</code> + a <code>vh</code> előzmény, és a „szelíd botlás” (esedékessé tesz, a dobozt nem rántja le). A Mi bújt el? <code>hh</code> mezője mintájára.</li>
+    <li><b>Mentés:</b> <code>P().villam = { rek: { "ok_b": {p, t:[…ugrás-idők]}, … }, nap: {…mai körök száma}, korok: [ {n, h, m, p, jo, rossz, ms} … ] }</code>. A <code>korok</code> lista a pult görbéje (az utolsó 120 kör marad meg).</li>
+    <li><b>Beköthető a nagy célhoz:</b> a <code>villamAllapot()</code> lekérdezés (halmazonként rekord, hét átlag, emelkedik-e) a későbbi „gyereket ismerő” játéknak és az intelligens pultnak szól. Például: ha a Szorzó villám hetek óta áll, a játék a trükköket (E) ajánlhatja; ha a Neked szóló ösvényen sok tény lett „tudja”, a Villámkört.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="panel">
+  <ol>
+    <li><b>Rajzterv</b> (kicsi): a futópálya a réten, a futó és ugró unikornis, az árnyék-unikornis, a nap mint óra, a vége-kép. Összehasonlító lap 2–3 változattal (ovális pálya · kanyargó ösvény · szivárvány-híd), mozgással, telefonon és laptopon is.</li>
+    <li><b>Közös alap, láthatatlanul:</b> <code>src/villam.js</code> (halmazok, kinyílás, sorrend, rekord, mentés) + a teny.js bővítése (<code>forma "v"</code>, <code>vh</code>, szelíd botlás). A gyereknek még semmi nem változik. Tesztelve sorsolt körökkel.</li>
+    <li><b>Villámkör élesben, beírással:</b> a kártya a ligetben, a halmaz-választó, a gyors képernyő, az árnyék-unikornis, a vége-kép, a jutalom és a napi 3 jutalmas kör.</li>
+    <li><b>Pult + jelvény:</b> pálya-sor, a Tény-motor kártya új mezői, ⚡ Villámkör-görbe, ⚡ Villám-futó jelvény.</li>
+    <li><b>Hangos mód (🎤)</b> a saját rekordjával + élő próba a gyerekekkel.</li>
+  </ol>
+  <p class="lead">Kód csak a tervlap jóváhagyása után. Az élő próbák (B) Mi bújt el? és a többiek) nem tartják fel, párhuzamosan mehetnek.</p>
+</div>
+
+<h2>Eldöntendő kérdések</h2>
+<div class="panel">
+  <div class="q"><b class="t">1. Hol legyen?</b>A Neked készült ligetben, a Neked szóló ösvény mellett. <span class="prop">Javaslat</span> · Másik lehetőség: saját hely a térképen (pl. versenyrét), de az új bejárat lenne.</div>
+  <div class="q"><b class="t">2. Milyen hosszú egy kör?</b>1 perc, a pulton állítható (30 / 60 / 90 mp). <span class="prop">Javaslat</span></div>
+  <div class="q"><b class="t">3. Rossz válasznál mi legyen?</b>Fél mp-re megmutatja a jó eredményt, és megy tovább; a tény a körben még egyszer visszajön. <span class="prop">Javaslat</span> · Másik lehetőség: addig marad a feladat, amíg jó nem lesz (ez stresszesebb, és egy elakadás megeszi a kört).</div>
+  <div class="q"><b class="t">4. A sprint-botlás a tény-motorban</b>Nem rántja le a dobozt, csak esedékessé teszi a tényt (a Neked szóló ösvény nyugodtan visszahozza). <span class="prop">Javaslat</span></div>
+  <div class="q"><b class="t">5. Az árnyék-unikornis</b>A saját rekord-köre fut mellette, halványan. <span class="prop">Javaslat</span> · Másik lehetőség: csak egy rekord-zászló a pályán, ameddig a rekord ért.</div>
+  <div class="q"><b class="t">6. Jutalom</b>1 ✨ / jó válasz a nap első 3 körében; új rekord +3 💧; ⚡ Villám-futó jelvény 7 különböző napért. <span class="prop">Javaslat</span></div>
+  <div class="q"><b class="t">7. Halmazok és kinyílás</b>🌷 Összeadó, 🪻 Szorzó, 🌈 Vegyes; 10 tudott ténynél nyílik. A 100-as kör egyelőre kimarad. <span class="prop">Javaslat</span></div>
+</div>
+
+</div>
+</body>
+</html>
