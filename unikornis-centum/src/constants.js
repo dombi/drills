@@ -51,6 +51,22 @@ var PALYAK = [
       { nev: "Odú-küszöb", darab: 4, a_min: 5, a_max: 15, b_min: 3, b_max: 9, atlepes: "lehet", cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
+  /* 🌿 MI BÚJT EL? (terv/mi-bujt-el-terv.html, src/bujocska.js) — a hiányzó szám: Cincin a levél mögött (3. kör, 2026-10-07) */
+  {
+    id: "bujocska-ret", nev: "Bújócska-rét", ikon: "🍃", bujocska: true,
+    szint: 2,
+    palcim: "Mi bújt el? Tízes barátok és pótlás húszig",
+    alap: { tipus: "hianyzo", takaro: "level", min: 11, max: 20, b_max: 9 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Tízes barátok", formak: ["tizesbarat"], darab: 4 },                    /* 7 + ? = 10 · ? + 4 = 10 */
+      { nev: "Lombsátor", formak: ["tag"], elobb_nem: 2, darab: 4 },                 /* 12 + ? = 17 · 8 + ? = 13 (eleinte átlépés nélkül) */
+      { nev: "Páfrányos", formak: ["kivonando"], min: 10, darab: 4 },                /* 13 − ? = 8 · 10 − ? = 6 */
+      { nev: "Mohás kő", formak: ["tag", "kivonando"], darab: 4 },                   /* ? + 6 = 14 · 15 − ? = 9 */
+      { nev: "Odú-küszöb", formak: ["tag", "kivonando", "kisebbitendo"], darab: 4, cel: true }   /* a legnehezebb (? − 5 = 8) csak itt */
+    ]
+  },
   {
     id: "tizesek", nev: "Tízesek ösvénye", ikon: "🔟",
     szint: 3,
@@ -183,6 +199,21 @@ var PALYAK = [
       { nev: "Sötét sűrű", osztok: [6, 7], darab: 4 },
       { nev: "Szikla-hágó", osztok: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
+    ]
+  },
+  /* 🌿 MI BÚJT EL? — a hiányzó tényező, osztó, osztandó: Cincin a felhő mögött (3. kör, 2026-10-07) */
+  {
+    id: "holdfeny-bujocska", nev: "Holdfény-bújócska", ikon: "🌙", regio: "szorzo", bujocska: true,
+    szint: 5,
+    palcim: "Mi bújt el? A hiányzó tényező, osztó és osztandó",
+    alap: { tipus: "hianyzo", takaro: "felho" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Csillagszem", formak: ["tenyezo"], tablak: [2, 5, 10], darab: 4 },     /* ? × 5 = 35 · 2 × ? = 16 */
+      { nev: "Holdudvar", formak: ["tenyezo"], tablak: [3, 4], darab: 4 },
+      { nev: "Bagolyfa", formak: ["tenyezo"], tablak: [6, 7, 8, 9], darab: 4 },
+      { nev: "Harmatcsepp", formak: ["oszto", "osztando"], tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4 },   /* 42 ÷ ? = 6 · ? ÷ 6 = 7 */
+      { nev: "Odú-küszöb", formak: ["tenyezo", "oszto", "osztando"], tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }
     ]
   },
   {
@@ -377,6 +408,8 @@ var PALYA_IKON = {
   "erdo-szive": '<circle cx="30" cy="28" r="21" fill="#ffe9ad" opacity="0.55"/> <path d="M30 9 l11 16 l-22 0 Z" fill="#5f9c4e" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 21 l14 20 l-28 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="41" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/> <path d="M30 30 c-3 -4 -8 -1 -5 3 c1.6 2 3.4 3.4 5 4.6 c1.6 -1.2 3.4 -2.6 5 -4.6 c3 -4 -2 -7 -5 -3 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.1"/>',
   "szorzo-dallam": '<line x1="10" y1="40" x2="50" y2="37" stroke="#c9bda8" stroke-width="1.4"/> <line x1="10" y1="46" x2="50" y2="43" stroke="#c9bda8" stroke-width="1.4"/> <line x1="28" y1="38" x2="47" y2="15" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <line x1="47" y1="15" x2="47" y2="34" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M27 15 L47 12" stroke="#e8b84a" stroke-width="4.2" stroke-linecap="round"/> <g transform="rotate(-20 22 38)"><ellipse cx="22" cy="38" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <g transform="rotate(-20 42 34)"><ellipse cx="42" cy="34" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <line x1="27.5" y1="35" x2="27.5" y2="16" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M45 8 l1.4 4 l4 1.4 l-4 1.4 l-1.4 4 l-1.4 -4 l-4 -1.4 l4 -1.4 Z" fill="#ffd24d" stroke="none"/>',
   "egy-szam": '<path d="M18 46 Q30 40 42 46 L45 51 Q30 55 15 51 Z" fill="#c9a86a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <circle cx="30" cy="27" r="16" fill="#bcd8f0" stroke="#222" stroke-width="1.8"/> <path d="M20 20 Q22 15 28 14" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/> <path d="M34 30 l1.6 4.6 l4.6 1.6 l-4.6 1.6 l-1.6 4.6 l-1.6 -4.6 l-4.6 -1.6 l4.6 -1.6 Z" fill="#fff2b8" stroke="none"/> <path d="M42 15 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 l3 -1 Z" fill="#c9a8e6" stroke="none"/>',
+  "bujocska-ret": '<circle cx="23" cy="20" r="6" fill="#cbc1da" stroke="#222" stroke-width="1.6"/> <circle cx="37" cy="20" r="6" fill="#cbc1da" stroke="#222" stroke-width="1.6"/> <circle cx="23" cy="20" r="3" fill="#f3c6d8"/> <circle cx="37" cy="20" r="3" fill="#f3c6d8"/> <path d="M10 50 C6 34 26 20 52 22 C54 40 36 54 10 50 Z" fill="#9ed686" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <path d="M13 48 Q32 38 49 25" fill="none" stroke="#4f8f42" stroke-width="1.6" stroke-linecap="round"/>',
+  "holdfeny-bujocska": '<path d="M38 8 A16 16 0 1 0 52 30 A12 12 0 1 1 38 8 Z" fill="#fff2b8" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="22" cy="31" r="5" fill="#cbc1da" stroke="#222" stroke-width="1.5"/> <circle cx="34" cy="31" r="5" fill="#cbc1da" stroke="#222" stroke-width="1.5"/> <path d="M12 52 C4 52 4 40 14 39 C13 30 26 26 30 33 C35 26 48 30 46 40 C55 41 55 52 46 52 Z" fill="#ffffff" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>',
   "osztas-100": '<rect x="13" y="27" width="34" height="6" rx="3" fill="#86c9a6" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="30" cy="17" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/> <circle cx="30" cy="43" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/>',
   "mi-maradt": '<path d="M14 28 Q13 46 18 50 Q30 54 42 50 Q47 46 46 28 Z" fill="#d9a64a" stroke="#222" stroke-width="1.6"/> <path d="M16 34 Q30 32 44 34" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M17 40 Q30 38 43 40" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M18 46 Q30 44 42 46" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M22 28 Q30 14 38 28" stroke="#b8883a" stroke-width="2.4" fill="none" stroke-linecap="round"/> <circle cx="50" cy="44" r="2.2" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="48" cy="50" r="1.6" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="10" cy="48" r="1.8" fill="#f0d090" stroke="#222" stroke-width="1"/>',
   "vegyes-szorzo": '<path d="M16 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M16 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="13.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M44 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M44 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="41.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M30 12 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <path d="M30 24 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <rect x="26" y="44" width="8" height="8" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
@@ -385,6 +418,7 @@ var PALYA_MAT = {
   "bontas-felmondas": "hangosan, lentről fölfelé",
   "oszkiv-10": "10-ig, átlépés nélkül",
   "oszkiv-20": "20-ig, tízes átlépéssel",
+  "bujocska-ret": "7 + ? = 10 · 13 − ? = 8",
   "tizesek": "csak kerek tízesek",
   "aprok": "kétjegyű ± egyjegyű",
   "lepegeto": "kétjegyű ± kerek tízes",
@@ -394,6 +428,7 @@ var PALYA_MAT = {
   "szorzo-dallam": "szorzótábla, hangosan",
   "egy-szam": "egy szám: × és ÷ együtt",
   "osztas-100": "osztás, 100-ig",
+  "holdfeny-bujocska": "? × 6 = 42 · 42 ÷ ? = 6",
   "mi-maradt": "osztás maradékkal",
   "vegyes-szorzo": "× és ÷ keverve, 100-ig",
   "meres-szabo-1": "m · dm · cm — 1–2. o.", "meres-szabo-2": "+ mm, km — 3. o.", "meres-szabo-3": "vegyesen, 10 000-ig — 4. o.", "meres-szabo-4": "nagy ugrások — 5. o.",

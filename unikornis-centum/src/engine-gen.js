@@ -73,9 +73,8 @@ function feladatOsztas(d, q) {
    feladatHianyzo(f, hol): f a fenti négy feladat* egyike (a tény: a op b = c), hol "a" | "b": melyik szám
    bújik el (7 + ? = 12 → "b"; ? − 5 = 7 → "a"; 42 ÷ ? = 6 → "b"). A naplo.kerdes a TELJES tény marad
    ("7 + 5"), mellé forma "h" — így a tény-motor ugyanazt a tényt lépteti, és külön jegyzi a „mi bújt el”
-   előzményt (hh). A bújó lény rajza (Cincin a levél/felhő mögött) a kártyán a 3. körben jön; addig a
-   kérdőjel helyén egy sima <b class="hi-hely">?</b> áll. A pályák (GEN.hianyzo, src/bujocska.js), a
-   becsempészés és a Neked szóló ösvény is ezt hívja. */
+   előzményt (hh). A kérdőjel helyén Cincin bújik a takaró mögött (bujHTML, src/bujocska.js; takaro: "level" |
+   "felho", alap a levél). A pályák (GEN.hianyzo), a becsempészés és a Neked szóló ösvény is ezt hívja. */
 /* magyar rag a szám szavához: a hangrend az utolsó nem-i magánhangzóból (tíz → tíztől, harminc → harminctól) */
 function hangRend(w) {
   for (var i = w.length - 1; i >= 0; i--) {
@@ -118,7 +117,7 @@ function tippHianyzo(a, op, b, c, hol) {
   if (hol === "b") return elsoNagy(szorSzo(c)) + " mennyi az " + szo(a) + "?";
   return elsoNagy(szorSzo(c)) + " " + szo(b) + ". Mennyi az?";
 }
-function feladatHianyzo(f, hol) {
+function feladatHianyzo(f, hol, takaro) {
   var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(String(f.naplo.kerdes));
   if (!m) return f;
   var a = +m[1], op = m[2], b = +m[3], c = f.helyes;
@@ -130,13 +129,13 @@ function feladatHianyzo(f, hol) {
   else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
   else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
   else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
-  var hely = '<b class="hi-hely">?</b>';
+  var hely = bujHTML(rejtett, takaro);
   var naplo = {}, k;
   for (k in f.naplo) naplo[k] = f.naplo[k];
   naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
   naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
   var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
-    kartyaHTML: '<span class="k-nagy">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
     felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
     megoldas: a + " " + op + " " + b + " = " + c,
     hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },

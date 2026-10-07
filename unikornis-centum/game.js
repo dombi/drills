@@ -57,6 +57,22 @@ var PALYAK = [
       { nev: "Odú-küszöb", darab: 4, a_min: 5, a_max: 15, b_min: 3, b_max: 9, atlepes: "lehet", cel: true }   /* 7 → 4+küszöb, 4 feladat/szakasz (2026-10-01, producer) */
     ]
   },
+  /* 🌿 MI BÚJT EL? (terv/mi-bujt-el-terv.html, src/bujocska.js) — a hiányzó szám: Cincin a levél mögött (3. kör, 2026-10-07) */
+  {
+    id: "bujocska-ret", nev: "Bújócska-rét", ikon: "🍃", bujocska: true,
+    szint: 2,
+    palcim: "Mi bújt el? Tízes barátok és pótlás húszig",
+    alap: { tipus: "hianyzo", takaro: "level", min: 11, max: 20, b_max: 9 },
+    kez_nelkul: true,
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Tízes barátok", formak: ["tizesbarat"], darab: 4 },                    /* 7 + ? = 10 · ? + 4 = 10 */
+      { nev: "Lombsátor", formak: ["tag"], elobb_nem: 2, darab: 4 },                 /* 12 + ? = 17 · 8 + ? = 13 (eleinte átlépés nélkül) */
+      { nev: "Páfrányos", formak: ["kivonando"], min: 10, darab: 4 },                /* 13 − ? = 8 · 10 − ? = 6 */
+      { nev: "Mohás kő", formak: ["tag", "kivonando"], darab: 4 },                   /* ? + 6 = 14 · 15 − ? = 9 */
+      { nev: "Odú-küszöb", formak: ["tag", "kivonando", "kisebbitendo"], darab: 4, cel: true }   /* a legnehezebb (? − 5 = 8) csak itt */
+    ]
+  },
   {
     id: "tizesek", nev: "Tízesek ösvénye", ikon: "🔟",
     szint: 3,
@@ -189,6 +205,21 @@ var PALYAK = [
       { nev: "Sötét sűrű", osztok: [6, 7], darab: 4 },
       { nev: "Szikla-hágó", osztok: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
+    ]
+  },
+  /* 🌿 MI BÚJT EL? — a hiányzó tényező, osztó, osztandó: Cincin a felhő mögött (3. kör, 2026-10-07) */
+  {
+    id: "holdfeny-bujocska", nev: "Holdfény-bújócska", ikon: "🌙", regio: "szorzo", bujocska: true,
+    szint: 5,
+    palcim: "Mi bújt el? A hiányzó tényező, osztó és osztandó",
+    alap: { tipus: "hianyzo", takaro: "felho" },
+    allomasok: [
+      { nev: "Rajt" },
+      { nev: "Csillagszem", formak: ["tenyezo"], tablak: [2, 5, 10], darab: 4 },     /* ? × 5 = 35 · 2 × ? = 16 */
+      { nev: "Holdudvar", formak: ["tenyezo"], tablak: [3, 4], darab: 4 },
+      { nev: "Bagolyfa", formak: ["tenyezo"], tablak: [6, 7, 8, 9], darab: 4 },
+      { nev: "Harmatcsepp", formak: ["oszto", "osztando"], tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4 },   /* 42 ÷ ? = 6 · ? ÷ 6 = 7 */
+      { nev: "Odú-küszöb", formak: ["tenyezo", "oszto", "osztando"], tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }
     ]
   },
   {
@@ -383,6 +414,8 @@ var PALYA_IKON = {
   "erdo-szive": '<circle cx="30" cy="28" r="21" fill="#ffe9ad" opacity="0.55"/> <path d="M30 9 l11 16 l-22 0 Z" fill="#5f9c4e" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <path d="M30 21 l14 20 l-28 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/> <rect x="26" y="41" width="8" height="9" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/> <path d="M30 30 c-3 -4 -8 -1 -5 3 c1.6 2 3.4 3.4 5 4.6 c1.6 -1.2 3.4 -2.6 5 -4.6 c3 -4 -2 -7 -5 -3 Z" fill="#f6a5c0" stroke="#222" stroke-width="1.1"/>',
   "szorzo-dallam": '<line x1="10" y1="40" x2="50" y2="37" stroke="#c9bda8" stroke-width="1.4"/> <line x1="10" y1="46" x2="50" y2="43" stroke="#c9bda8" stroke-width="1.4"/> <line x1="28" y1="38" x2="47" y2="15" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <line x1="47" y1="15" x2="47" y2="34" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M27 15 L47 12" stroke="#e8b84a" stroke-width="4.2" stroke-linecap="round"/> <g transform="rotate(-20 22 38)"><ellipse cx="22" cy="38" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <g transform="rotate(-20 42 34)"><ellipse cx="42" cy="34" rx="6.5" ry="4.8" fill="#b48ad8" stroke="#222" stroke-width="1.6"/></g> <line x1="27.5" y1="35" x2="27.5" y2="16" stroke="#6a4a9a" stroke-width="2.4" stroke-linecap="round"/> <path d="M45 8 l1.4 4 l4 1.4 l-4 1.4 l-1.4 4 l-1.4 -4 l-4 -1.4 l4 -1.4 Z" fill="#ffd24d" stroke="none"/>',
   "egy-szam": '<path d="M18 46 Q30 40 42 46 L45 51 Q30 55 15 51 Z" fill="#c9a86a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <circle cx="30" cy="27" r="16" fill="#bcd8f0" stroke="#222" stroke-width="1.8"/> <path d="M20 20 Q22 15 28 14" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/> <path d="M34 30 l1.6 4.6 l4.6 1.6 l-4.6 1.6 l-1.6 4.6 l-1.6 -4.6 l-4.6 -1.6 l4.6 -1.6 Z" fill="#fff2b8" stroke="none"/> <path d="M42 15 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 l3 -1 Z" fill="#c9a8e6" stroke="none"/>',
+  "bujocska-ret": '<circle cx="23" cy="20" r="6" fill="#cbc1da" stroke="#222" stroke-width="1.6"/> <circle cx="37" cy="20" r="6" fill="#cbc1da" stroke="#222" stroke-width="1.6"/> <circle cx="23" cy="20" r="3" fill="#f3c6d8"/> <circle cx="37" cy="20" r="3" fill="#f3c6d8"/> <path d="M10 50 C6 34 26 20 52 22 C54 40 36 54 10 50 Z" fill="#9ed686" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <path d="M13 48 Q32 38 49 25" fill="none" stroke="#4f8f42" stroke-width="1.6" stroke-linecap="round"/>',
+  "holdfeny-bujocska": '<path d="M38 8 A16 16 0 1 0 52 30 A12 12 0 1 1 38 8 Z" fill="#fff2b8" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="22" cy="31" r="5" fill="#cbc1da" stroke="#222" stroke-width="1.5"/> <circle cx="34" cy="31" r="5" fill="#cbc1da" stroke="#222" stroke-width="1.5"/> <path d="M12 52 C4 52 4 40 14 39 C13 30 26 26 30 33 C35 26 48 30 46 40 C55 41 55 52 46 52 Z" fill="#ffffff" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>',
   "osztas-100": '<rect x="13" y="27" width="34" height="6" rx="3" fill="#86c9a6" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/> <circle cx="30" cy="17" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/> <circle cx="30" cy="43" r="4.4" fill="#86c9a6" stroke="#222" stroke-width="1.8"/>',
   "mi-maradt": '<path d="M14 28 Q13 46 18 50 Q30 54 42 50 Q47 46 46 28 Z" fill="#d9a64a" stroke="#222" stroke-width="1.6"/> <path d="M16 34 Q30 32 44 34" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M17 40 Q30 38 43 40" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M18 46 Q30 44 42 46" stroke="#c4913a" stroke-width="1.2" fill="none"/> <path d="M22 28 Q30 14 38 28" stroke="#b8883a" stroke-width="2.4" fill="none" stroke-linecap="round"/> <circle cx="50" cy="44" r="2.2" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="48" cy="50" r="1.6" fill="#f0d090" stroke="#222" stroke-width="1"/> <circle cx="10" cy="48" r="1.8" fill="#f0d090" stroke="#222" stroke-width="1"/>',
   "vegyes-szorzo": '<path d="M16 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M16 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="13.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M44 20 l7 11 l-14 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <path d="M44 28 l9 13 l-18 0 Z" fill="#7fae5f" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/> <rect x="41.5" y="41" width="5" height="6" fill="#8f6a3e" stroke="#222" stroke-width="1.2"/> <path d="M30 12 l11 16 l-22 0 Z" fill="#4f8f42" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <path d="M30 24 l14 20 l-28 0 Z" fill="#457a3a" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/> <rect x="26" y="44" width="8" height="8" fill="#8f6a3e" stroke="#222" stroke-width="1.4"/>',
@@ -391,6 +424,7 @@ var PALYA_MAT = {
   "bontas-felmondas": "hangosan, lentről fölfelé",
   "oszkiv-10": "10-ig, átlépés nélkül",
   "oszkiv-20": "20-ig, tízes átlépéssel",
+  "bujocska-ret": "7 + ? = 10 · 13 − ? = 8",
   "tizesek": "csak kerek tízesek",
   "aprok": "kétjegyű ± egyjegyű",
   "lepegeto": "kétjegyű ± kerek tízes",
@@ -400,6 +434,7 @@ var PALYA_MAT = {
   "szorzo-dallam": "szorzótábla, hangosan",
   "egy-szam": "egy szám: × és ÷ együtt",
   "osztas-100": "osztás, 100-ig",
+  "holdfeny-bujocska": "? × 6 = 42 · 42 ÷ ? = 6",
   "mi-maradt": "osztás maradékkal",
   "vegyes-szorzo": "× és ÷ keverve, 100-ig",
   "meres-szabo-1": "m · dm · cm — 1–2. o.", "meres-szabo-2": "+ mm, km — 3. o.", "meres-szabo-3": "vegyesen, 10 000-ig — 4. o.", "meres-szabo-4": "nagy ugrások — 5. o.",
@@ -536,9 +571,8 @@ function feladatOsztas(d, q) {
    feladatHianyzo(f, hol): f a fenti négy feladat* egyike (a tény: a op b = c), hol "a" | "b": melyik szám
    bújik el (7 + ? = 12 → "b"; ? − 5 = 7 → "a"; 42 ÷ ? = 6 → "b"). A naplo.kerdes a TELJES tény marad
    ("7 + 5"), mellé forma "h" — így a tény-motor ugyanazt a tényt lépteti, és külön jegyzi a „mi bújt el”
-   előzményt (hh). A bújó lény rajza (Cincin a levél/felhő mögött) a kártyán a 3. körben jön; addig a
-   kérdőjel helyén egy sima <b class="hi-hely">?</b> áll. A pályák (GEN.hianyzo, src/bujocska.js), a
-   becsempészés és a Neked szóló ösvény is ezt hívja. */
+   előzményt (hh). A kérdőjel helyén Cincin bújik a takaró mögött (bujHTML, src/bujocska.js; takaro: "level" |
+   "felho", alap a levél). A pályák (GEN.hianyzo), a becsempészés és a Neked szóló ösvény is ezt hívja. */
 /* magyar rag a szám szavához: a hangrend az utolsó nem-i magánhangzóból (tíz → tíztől, harminc → harminctól) */
 function hangRend(w) {
   for (var i = w.length - 1; i >= 0; i--) {
@@ -581,7 +615,7 @@ function tippHianyzo(a, op, b, c, hol) {
   if (hol === "b") return elsoNagy(szorSzo(c)) + " mennyi az " + szo(a) + "?";
   return elsoNagy(szorSzo(c)) + " " + szo(b) + ". Mennyi az?";
 }
-function feladatHianyzo(f, hol) {
+function feladatHianyzo(f, hol, takaro) {
   var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(String(f.naplo.kerdes));
   if (!m) return f;
   var a = +m[1], op = m[2], b = +m[3], c = f.helyes;
@@ -593,13 +627,13 @@ function feladatHianyzo(f, hol) {
   else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
   else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
   else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
-  var hely = '<b class="hi-hely">?</b>';
+  var hely = bujHTML(rejtett, takaro);
   var naplo = {}, k;
   for (k in f.naplo) naplo[k] = f.naplo[k];
   naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
   naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
   var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
-    kartyaHTML: '<span class="k-nagy">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
     felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
     megoldas: a + " " + op + " " + b + " = " + c,
     hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },
@@ -1276,13 +1310,14 @@ function tenyKorJegyez(tj) {
    Csak a pálya saját keretein belül (a 3-as szorzó állomás csak a 3-as tábla esedékes tényét kérheti; az
    összeadó állomás tartománya, átlépés-szabálya, eredmény-korlátja is áll). Az állomáson belül véletlen
    helyen jön, egy pályán egy tény legfeljebb egyszer. A pulton kikapcsolható (becsempesz). */
-var TENY_CSEMPESZ_TIPUS = { osszeadas: 1, kivonas: 1, szorzas: 1, osztas: 1, szorzasosztas: 1 };
+var TENY_CSEMPESZ_TIPUS = { osszeadas: 1, kivonas: 1, szorzas: 1, osztas: 1, szorzasosztas: 1, hianyzo: 1 };   /* hianyzo: 🌿 „mi bújt el” formában (bujocska.js) */
 function tenyBenne(v, lo, hi) { return lo != null && hi != null && v >= lo && v <= hi; }
 /* a tény belefér-e az állomás keretébe → a feladat (és a generátor „volt már” jele), vagy null */
 function tenyKeretben(k, cfg, kerult) {
   var m = /^([okds])(\d+)_(\d+)$/.exec(k || "");
   if (!m) return null;
   var op = m[1], x = +m[2], y = +m[3], t = cfg.tipus, i, p;
+  if (t === "hianyzo") return typeof hianyzoKeretben === "function" ? hianyzoKeretben(k, cfg, kerult) : null;   /* 🌿 bújócska-pályák */
   if (t === "szorzasosztas") t = op === "s" ? "szorzas" : op === "d" ? "osztas" : null;
   if (t === "osszeadas" && op === "o") {
     if (cfg.csak_tizes || cfg.b_tizes || kerult[x + "|" + y]) return null;
@@ -1335,11 +1370,13 @@ function tenyCsempesz(cfg, kerult) {
   return null;
 }
 /* ============ 3d) 🌿 MI BÚJT EL? — a bújócska-pályák generátora (terv/mi-bujt-el-terv.html) ============
-   2. kör (2026-10-07): a közös alap LÁTHATATLANUL. Még egy pálya sem használja; a gyereknek semmi nem változik.
-   A feladat-alak (kártya, felolvasás, tipp, napló) a feladatHianyzo-ban van (engine-gen.js), itt csak az dől el,
-   melyik tény jöjjön és melyik száma bújjon el. A 3. körben ide jön a bújó lény (Cincin a levél / felhő mögött).
+   2. kör (2026-10-07): a közös alap (GEN.hianyzo + a feladat-alak, a feladatHianyzo az engine-gen.js-ben).
+   3. kör (2026-10-07): élesben — 🍃 Bújócska-rét + 🌙 Holdfény-bújócska (constants.js), a bújó Cincin a kártyán
+     (bujHTML / bujJo / bujRossz + 5 mp-es kukucs, terv/mi-bujt-el-rajzterv.html: levél az Összeadó, felhő a Holdfény
+     pályán), a pálya legelső feladata előtt „Cincin elbújt!”, és a becsempészés „mi bújt el” formában (hianyzoKeretben,
+     a teny.js tenyKeretben-je hívja, ha az állomás tipusa "hianyzo").
 
-   Az állomás beállítása: { tipus: "hianyzo", formak: [...], max, min, b_min, b_max, atlepes, elobb_nem, hol, tablak, muvelet }
+   Az állomás beállítása: { tipus: "hianyzo", formak: [...], max, min, b_min, b_max, atlepes, elobb_nem, hol, tablak, muvelet, takaro }
      formak     amiből az állomás sorsol (feladatonként egyet):
                 tizesbarat   7 + ? = 10 · ? + 4 = 10
                 tag          12 + ? = 17 · ? + 6 = 14   (hiányzó tag; a 100-as körben is: 45 + ? = 52)
@@ -1356,7 +1393,8 @@ function tenyCsempesz(cfg, kerult) {
      atlepes    "nem" | "kell" | "lehet" (alap) — a tízes átlépése; elobb_nem: N → az állomás első N feladata átlépés nélkül
      hol        "a" | "b": a tag-formánál rögzített hely (alap: véletlen)
      tablak     × ÷: az ismert tábla (a 6 × ? = 42-ben a 6, a 42 ÷ ? = 6-ban az osztó) — alap 2–10
-     muvelet    szazasbarat: "+" vagy "-" (alap: vegyesen) */
+     muvelet    szazasbarat: "+" vagy "-" (alap: vegyesen)
+     takaro     ami mögé Cincin bújik: "level" (alap) | "felho" */
 var HI_TABLAK = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 function hiHol(cfg) { return cfg.hol || (Math.random() < 0.5 ? "a" : "b"); }
 /* egy forma → [alapfeladat, hol], vagy null, ha a beállításba nem fér */
@@ -1402,24 +1440,154 @@ var HI_FORMA = {
     return d * q > 100 ? null : [feladatOsztas(d, q), "a"];
   }
 };
+/* a „volt már” jel: egy tény egy szakaszban egyszer, akármelyik száma bújik el (7 + ? = 12 és ? + 5 = 12 ugyanaz) */
+function hiKulcs(f) {
+  var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(f.naplo.kerdes), a = +m[1], b = +m[3];
+  return "h" + m[2] + ((m[2] === "+" || m[2] === "×") ? Math.min(a, b) + "|" + Math.max(a, b) : a + "|" + b);
+}
+/* az átlépés-szabály most: az állomás első elobb_nem feladata átlépés nélkül */
+function hiAtlepes(cfg) {
+  return (cfg.elobb_nem && typeof J !== "undefined" && J && (J.feladatKesz || 0) < cfg.elobb_nem) ? "nem" : cfg.atlepes;
+}
+/* a pálya legelső bújós feladata előtt egyszer: „Cincin elbújt!” (tervlap: A három pálya) */
+function hiBemutat(f) {
+  if (typeof J !== "undefined" && J && !J.cincinVolt) { J.cincinVolt = true; f.felolvas = "Cincin elbújt! " + f.felolvas; }
+  return f;
+}
 GEN.hianyzo = function (cfg, kerultMar) {
   var formak = (cfg.formak || ["tag"]).filter(function (x) { return HI_FORMA[x]; });
   if (!formak.length) formak = ["tag"];
-  var at = cfg.atlepes;
-  if (cfg.elobb_nem && typeof J !== "undefined" && J && (J.feladatKesz || 0) < cfg.elobb_nem) at = "nem";
+  var at = hiAtlepes(cfg);
   var r = null, kulcs, tartalek = null;
   for (var i = 0; i < 300; i++) {
     r = HI_FORMA[veletlenElem(formak)](cfg, at);
     if (!r) continue;
     tartalek = tartalek || r;
-    kulcs = "h" + r[0].naplo.kerdes + r[1];
+    kulcs = hiKulcs(r[0]);
     if (!kerultMar[kulcs]) break;
     r = null;
   }
   r = r || tartalek || [feladatOsszeadas(7, 3), "b"];   /* (nem fordul elő) */
-  kerultMar["h" + r[0].naplo.kerdes + r[1]] = true;
-  return feladatHianyzo(r[0], r[1]);
+  kerultMar[hiKulcs(r[0])] = true;
+  return hiBemutat(feladatHianyzo(r[0], r[1], cfg.takaro));
 };
+
+/* ── 🌸 becsempészés „mi bújt el” formában: az esedékes tény belefér-e az állomás valamelyik formájába ──
+   (a teny.js tenyKeretben-je hívja, ha az állomás tipusa "hianyzo"). A keret ugyanaz, mint a sorsolásnál: a
+   Csillagszem csak a 2-es, 5-ös, 10-es tábla tényét kérheti, a Lombsátor csak a 20-as kör pótlását stb.
+   Csak a 20-as kör és a szorzótábla tényei (o, k, s, d); a 100-as kör típusai nem csempészhetők. */
+var HI_KERET = {
+  tizesbarat: function (op, x, y) {
+    if (op !== "o" || x + y !== 10) return [];
+    return [[feladatOsszeadas(x, y), "a"], [feladatOsszeadas(x, y), "b"], [feladatOsszeadas(y, x), "a"], [feladatOsszeadas(y, x), "b"]];
+  },
+  tag: function (op, x, y, cfg, at) {
+    if (op !== "o") return [];
+    var max = cfg.max || 20, c = x + y, ki = [];
+    if (c < Math.max(2, cfg.min || 2) || c > max) return [];
+    [[x, y], [y, x]].forEach(function (p) {
+      ["a", "b"].forEach(function (hol) {
+        var h = hol === "b" ? p[1] : p[0], k = hol === "b" ? p[0] : p[1];
+        if (cfg.hol && cfg.hol !== hol) return;
+        if (h < (cfg.b_min || 1) || h > Math.min(cfg.b_max || max - 1, c - 1) || !atlepesOK(k, h, "+", at)) return;
+        ki.push([feladatOsszeadas(p[0], p[1]), hol]);
+      });
+    });
+    return ki;
+  },
+  kivonando: function (op, x, y, cfg, at) {
+    var max = cfg.max || 20;
+    if (op !== "k" || x < Math.max(2, cfg.min || 2) || x > max) return [];
+    if (y < (cfg.b_min || 1) || y > Math.min(cfg.b_max || max - 1, x - 1) || !atlepesOK(x, y, "-", at)) return [];
+    return [[feladatKivonas(x, y), "b"]];
+  },
+  kisebbitendo: function (op, x, y, cfg, at) {
+    return HI_KERET.kivonando(op, x, y, cfg, at).map(function (r) { return [r[0], "a"]; });
+  },
+  tenyezo: function (op, x, y, cfg) {
+    if (op !== "s") return [];
+    var T = cfg.tablak || HI_TABLAK, ki = [];
+    if (T.indexOf(x) >= 0) ki.push([feladatSzorzas(x, y), "b"], [feladatSzorzas(y, x), "a"]);
+    if (x !== y && T.indexOf(y) >= 0) ki.push([feladatSzorzas(y, x), "b"], [feladatSzorzas(x, y), "a"]);
+    return ki;
+  },
+  oszto: function (op, x, y, cfg) {
+    return op === "d" && (cfg.tablak || HI_TABLAK).indexOf(y) >= 0 ? [[feladatOsztas(y, x / y), "b"]] : [];
+  },
+  osztando: function (op, x, y, cfg) {
+    return op === "d" && (cfg.tablak || HI_TABLAK).indexOf(y) >= 0 ? [[feladatOsztas(y, x / y), "a"]] : [];
+  }
+};
+function hianyzoKeretben(k, cfg, kerult) {
+  var m = /^([okds])(\d+)_(\d+)$/.exec(k || "");
+  if (!m) return null;
+  var at = hiAtlepes(cfg), jelolt = [];
+  (cfg.formak || ["tag"]).forEach(function (fo) {
+    if (HI_KERET[fo]) jelolt = jelolt.concat(HI_KERET[fo](m[1], +m[2], +m[3], cfg, at));
+  });
+  jelolt = jelolt.filter(function (r) { return !kerult[hiKulcs(r[0])]; });
+  if (!jelolt.length) return null;
+  var r = veletlenElem(jelolt);
+  kerult[hiKulcs(r[0])] = true;
+  return hiBemutat(feladatHianyzo(r[0], r[1], cfg.takaro));
+}
+
+/* ══ 🐭 A BÚJÓ CINCIN a kártyán (terv/mi-bujt-el-rajzterv.html, jóváhagyva 2026-10-07) ══
+   bujHTML(szam, takaro) a kérdőjel helye: Cincin a takaró (levél / felhő) mögött, a szám-tábla, a szálló darabkák
+   és a kis fej, ami a végén integet. Az állapotokat osztály adja (style.css „🐭 MI BÚJT EL?” blokk):
+     kukucs  kb. 5 mp-enként magától kikukucskál (lent, egy közös időzítő)
+     rossz   gondolkodó arccal kinéz, megrázza a fejét, visszabújik (bujRossz)
+     nyit    a takaró el, Cincin előugrik, maga előtt tartja a számot (bujJo)
+     kesz    a szám a helyén, Cincin lebukik, a kis feje a sarokból integet a következő feladatig
+   Az arcot a közös figArc is cseréli (jó → ujjong, rossz → gondol); a takaró pontosan akkora, mint a szám. */
+var BUJ_TAKARO = {
+  level: '<svg viewBox="0 0 100 80" preserveAspectRatio="none"><path d="M6,74 C0,34 36,4 94,6 C99,46 64,82 6,74 Z" fill="#9ed686" stroke="#4f8f42" stroke-width="3.5" stroke-linejoin="round"/>' +
+    '<path d="M10,70 Q48,44 90,10" fill="none" stroke="#4f8f42" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M34,54 Q30,40 34,28 M52,42 Q50,30 56,18 M44,48 Q58,52 70,46 M62,36 Q74,38 84,30" fill="none" stroke="#6fae5c" stroke-width="2" stroke-linecap="round"/>' +
+    '<ellipse cx="30" cy="40" rx="7" ry="4" fill="#fff" opacity=".35" transform="rotate(-30 30 40)"/></svg>',
+  felho: '<svg viewBox="0 0 100 80" preserveAspectRatio="none"><path d="M14,77 C1,77 1,52 18,50 C15,29 40,15 54,26 C62,9 93,18 86,42 C100,45 99,77 84,77 Z" fill="#ffffff" stroke="#c9b8e8" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M18,50 Q26,46 32,52 M54,26 Q60,30 60,38 M86,42 Q80,44 78,50" fill="none" stroke="#c9b8e8" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<path d="M14,70 Q50,76 86,70" fill="none" stroke="#ece4f8" stroke-width="5" stroke-linecap="round"/><ellipse cx="40" cy="40" rx="9" ry="5" fill="#f6f1fc"/></svg>'
+};
+var BUJ_RESZ = {   /* szálló darabkák: levél → harmatcseppek · felhő → pamacsok */
+  level: ['<svg viewBox="0 0 10 10"><path d="M5,0 C8,4 9,7 5,10 C1,7 2,4 5,0 Z" fill="#bfe8ff" stroke="#6fb8e0" stroke-width="1"/></svg>', 2],
+  felho: ['<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.2" fill="#fff" stroke="#c9b8e8" stroke-width="1"/></svg>', 5]
+};
+var BUJ_IRANY = [["-.9em", "-.7em", "-120deg"], [".95em", "-.6em", "140deg"], ["-.6em", "-1.2em", "60deg"], [".7em", "-1.25em", "-80deg"], ["0em", "-1.5em", "30deg"]];
+function bujHTML(szam, takaro) {
+  takaro = BUJ_TAKARO[takaro] ? takaro : "level";
+  var r = BUJ_RESZ[takaro], s = '<span class="buj buj-' + takaro + '" style="--n:' + String(szam).length + '">' +
+    '<span class="buj-ablak"><span class="buj-cin">' + figuraSVG("cincin", "vidam", "alak") + '</span></span>' +
+    '<span class="buj-tabla">' + szam + '</span>' +
+    '<span class="buj-takaro">' + BUJ_TAKARO[takaro] + '</span>';
+  for (var i = 0; i < r[1]; i++) s += '<span class="buj-resz" style="--dx:' + BUJ_IRANY[i][0] + ';--dy:' + BUJ_IRANY[i][1] + ';--r:' + BUJ_IRANY[i][2] + '">' + r[0] + '</span>';
+  return s + '<span class="buj-fej">' + figuraSVG("cincin", "ujjong", "fej") + '</span></span>';
+}
+function bujMost() { return document.querySelector("#buborek-feladat .buj"); }
+var bujIdoz = null;
+function bujJo() {
+  var b = bujMost(); if (!b || b.classList.contains("kesz")) return;
+  b.classList.remove("kukucs", "rossz"); b.classList.add("nyit");
+  clearTimeout(bujIdoz);
+  bujIdoz = setTimeout(function () { b.classList.add("kesz"); }, 900);
+}
+function bujRossz() {
+  var b = bujMost(); if (!b || b.classList.contains("nyit")) return;
+  b.classList.remove("kukucs", "rossz"); void b.offsetWidth;
+  b.classList.add("rossz");
+  clearTimeout(bujIdoz);
+  bujIdoz = setTimeout(function () {
+    b.classList.remove("rossz");
+    var c = b.querySelector(".buj-cin"); if (c) c.innerHTML = figuraSVG("cincin", "vidam", "alak");
+  }, 1500);
+}
+/* magától kikukucskál kb. 5 mp-enként, amíg a kártya a képernyőn van (a gyerekek kinevetik, ami mozdulatlan) */
+setInterval(function () {
+  var b = bujMost();
+  if (!b || !b.offsetParent || /nyit|kesz|rossz|kukucs/.test(b.className)) return;
+  b.classList.add("kukucs");
+  setTimeout(function () { b.classList.remove("kukucs"); }, 1100);
+}, 5200);
 /* ============ 3c) 🌱 GONDOZÁS — a visszatérés közös alapja (terv/teny-kert-tamagocsi-terv.html) ============
    Nem a kerté, hanem a visszahívásé: MINDEN gondozás és „mikor jött vissza” ezen megy át — most a Tény-kert
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
@@ -12087,6 +12255,7 @@ function ertekel(valasz) {
       : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
+    if (f.hianyzo) bujJo();                    /* 🐭 Cincin előugrik a számmal (bujocska.js) */
     osvenyOrom();                              /* az unikornis örömében ugrik egyet (osveny.js) */
     csillagRepul($("bagoly-buborek"));
     if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
@@ -12106,7 +12275,7 @@ function ertekel(valasz) {
     if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
-    else setTimeout(tovabb, Math.max(900, fv));
+    else setTimeout(tovabb, Math.max(f.hianyzo ? 1300 : 900, fv));   /* 🐭 bújós feladatnál a mozdulat végigér */
   } else {
     if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
     rosszValaszKonyvel(f, mar ? (valasz.h + "m" + valasz.m) : valasz);
@@ -12128,6 +12297,7 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
     }
     figArc("gondol");                          /* 🎨 rossz válasznál a szereplők gondolkodnak, nem szomorúak (figurak.js) */
+    if (f.hianyzo) bujRossz();                 /* 🐭 Cincin kikukucskál, megrázza a fejét, visszabújik (bujocska.js) */
     ment();
   }
 }
@@ -18151,9 +18321,9 @@ var JELVENYEK = [
   { id: "atlepo-bajnok", csalad: "A", nev: "Átlépő bajnok", felt: "A 7. és 9. pálya kész", szin: "#c9a8e6",
     teljesul: function (p) { return palyakKeszek(p, ["atlepo", "erdo-szive"]); } },
   { id: "szorzo-vandor", csalad: "A", nev: "Szorzó-vándor", felt: "A Szorzós liget összes pályája kész", szin: "#7fd0c4",
-    teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.regio === "szorzo" && !palyaRejtve(x); }); return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
+    teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.regio === "szorzo" && !x.bujocska && !palyaRejtve(x); });   /* a bújócska-pályáknak saját jelvényük lesz */ return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
   { id: "erdo-ura", csalad: "A", nev: "Az erdő ura", felt: "Az Összeadó liget mind a 9 pályája kész", szin: "#ffd24d",
-    teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || palyaRejtve(x) || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
+    teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || x.bujocska || palyaRejtve(x) || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
   { id: "ejfeli-kapu", csalad: "A", titkos: true, nev: "Éjféli kapu", felt: "Fedezd fel a rejtett kaput", szin: "#b39ddb",
     teljesul: function (p) { return !!(p.kapu && p.kapu.nyitvaEddig > 0); } },
   /* A · 📏 Mérés (meres:true → alcím; ikon a csillag helyett; arany = mester-gyűrű) */
@@ -19141,6 +19311,8 @@ function nehezsegAlkalmaz(pa, allomasok) {
         else o.tablak = metszet(o.tablak);
       } else if (tip === "osztas" || tip === "maradekos_osztas") {
         o.osztok = metszet(o.osztok);
+      } else if (tip === "hianyzo" && o.tablak) {   /* 🌙 Holdfény-bújócska: az ismert tábla / osztó */
+        o.tablak = metszet(o.tablak);
       }
     }
     if (!felmondos && darab >= 1 && darab <= 12) o.darab = darab;

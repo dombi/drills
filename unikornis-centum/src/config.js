@@ -246,6 +246,8 @@ function nehezsegAlkalmaz(pa, allomasok) {
         else o.tablak = metszet(o.tablak);
       } else if (tip === "osztas" || tip === "maradekos_osztas") {
         o.osztok = metszet(o.osztok);
+      } else if (tip === "hianyzo" && o.tablak) {   /* 🌙 Holdfény-bújócska: az ismert tábla / osztó */
+        o.tablak = metszet(o.tablak);
       }
     }
     if (!felmondos && darab >= 1 && darab <= 12) o.darab = darab;

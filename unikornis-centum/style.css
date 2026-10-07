@@ -2122,3 +2122,53 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .het-lap svg{ width:100%; height:auto; display:block; }
 .het-ures{ color:#6b6280; font-weight:700; text-align:center; }
 @media (prefers-reduced-motion: reduce){ .het-ut, .het-vege{ animation:none; } }
+
+/* ══ 🐭 MI BÚJT EL? — Cincin a hiányzó szám mögött (src/bujocska.js, terv/mi-bujt-el-rajzterv.html) ══
+   A takaró (levél / felhő) pontosan akkora, mint a szám (--n = számjegyek). A k-nagy fölött kell egy kis hely
+   (padding-top), mert a buborék le van vágva, és Cincin a szám fölé ugrik. Az svg display:block (különben
+   alapvonal-eltolás). Állapotok: kukucs · rossz · nyit · kesz. */
+.buborek-feladat .k-nagy.hi-k{ display:inline-block; padding-top:.5em; white-space:nowrap; }
+.bagoly-buborek:has(.buj){ overflow:visible; }   /* a röppenő levél / pöffenő felhő ne rakjon görgetősávot a buborékra */
+.buj.kesz .buj-takaro, .buj.kesz .buj-resz{ display:none; }
+.buj{ position:relative; display:inline-block; width:calc(1.02em + var(--n,1) * .62em); height:1.15em; vertical-align:-.2em; margin:0 .1em; }
+.buj-ablak{ position:absolute; left:-.45em; right:-.45em; top:-2.4em; bottom:0; overflow:hidden; pointer-events:none; }
+.buj-cin{ position:absolute; left:50%; bottom:0; width:1.25em; height:1.5625em; margin-left:-.625em;
+  transform:translateY(.12em); transition:transform .35s cubic-bezier(.3,1.4,.5,1); }
+.buj-cin svg.fg, .buj-fej svg.fg{ width:100%; height:100%; display:block; }
+.buj.kukucs .buj-cin, .buj.rossz .buj-cin{ transform:translateY(-.38em); }
+.buj.rossz .buj-cin svg{ animation:bujFejraz .5s ease-in-out .3s 2; transform-origin:50% 60%; }
+@keyframes bujFejraz{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-8deg); } 75%{ transform:rotate(8deg); } }
+.buj.nyit .buj-cin{ transform:translateY(.04em); transition-delay:.18s; }
+.buj.kesz .buj-cin{ transform:translateY(1.7em); transition:transform .3s ease-in; }
+.buj-tabla{ position:absolute; left:50%; bottom:1.62em; transform:translate(-50%,0) scale(.5); opacity:0;
+  font-size:1em; line-height:1; padding:.06em .18em; border-radius:.3em; background:#ffe9ad; border:.06em solid #f0c98a; color:#b06a1a;
+  transition:bottom .3s ease, transform .3s ease, opacity .2s, background .3s, border-color .3s; white-space:nowrap; z-index:3; }
+.buj.nyit .buj-tabla{ opacity:1; transform:translate(-50%,0) scale(.55); bottom:-.02em; transition-delay:.25s; }
+.buj.kesz .buj-tabla{ opacity:1; bottom:-.05em; transform:translate(-50%,0) scale(1); background:transparent; border-color:transparent; color:#e0417a; }
+.buj-takaro{ position:absolute; left:-.14em; right:-.14em; bottom:-.08em; height:1.3em; z-index:2; transform-origin:50% 100%; }
+.buj-takaro svg{ width:100%; height:100%; display:block; overflow:visible; }
+.buj.rossz .buj-takaro{ animation:bujRazkod .35s ease-in-out 2; }
+@keyframes bujRazkod{ 0%,100%{ transform:rotate(0); } 30%{ transform:rotate(-4deg); } 70%{ transform:rotate(4deg); } }
+/* levél: lengedez; jó válaszra elröppen */
+.buj-level .buj-takaro{ animation:bujLevelLeng 3.2s ease-in-out infinite; transform-origin:15% 90%; }
+@keyframes bujLevelLeng{ 0%,100%{ transform:rotate(0); } 50%{ transform:rotate(-4deg); } }
+.buj-level.nyit .buj-takaro, .buj-level.kesz .buj-takaro{ animation:bujLevelEl .6s ease-in forwards; }
+@keyframes bujLevelEl{ 0%{ transform:rotate(0); } 35%{ transform:translate(.25em,-.35em) rotate(-18deg); } 100%{ transform:translate(1.4em,.7em) rotate(85deg); opacity:0; } }
+/* felhő: lebeg; jó válaszra szétpöffen */
+.buj-felho .buj-takaro{ animation:bujFelhoLeb 3s ease-in-out infinite; }
+@keyframes bujFelhoLeb{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-.05em); } }
+.buj-felho.nyit .buj-takaro, .buj-felho.kesz .buj-takaro{ animation:bujFelhoEl .55s ease-out forwards; }
+@keyframes bujFelhoEl{ 0%{ transform:scale(1); } 40%{ transform:scale(1.12); } 100%{ transform:scale(1.55) translateY(-.2em); opacity:0; } }
+.buj-resz{ position:absolute; left:50%; bottom:.4em; width:.24em; height:.24em; z-index:4; opacity:0; pointer-events:none; }
+.buj-resz svg{ width:100%; height:100%; display:block; }
+.buj.nyit .buj-resz{ animation:bujReszEl .7s ease-out .05s forwards; }
+@keyframes bujReszEl{ 0%{ opacity:1; transform:translate(0,0) scale(.6); } 100%{ opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(var(--r)); } }
+/* a végén: Cincin kis feje a szám sarkából integet a következő feladatig */
+.buj-fej{ position:absolute; right:-.5em; bottom:.02em; width:.62em; height:.62em; z-index:5; opacity:0; transform:scale(.3) translateY(.3em); transition:opacity .2s, transform .35s cubic-bezier(.3,1.6,.5,1); }
+.buj.kesz .buj-fej{ opacity:1; transform:scale(1); transition-delay:.25s; }
+.buj.kesz .buj-fej svg{ animation:bujFejInt 1.2s ease-in-out .6s 2; transform-origin:50% 90%; }
+@keyframes bujFejInt{ 0%,100%{ transform:rotate(0); } 30%{ transform:rotate(-10deg); } 60%{ transform:rotate(6deg); } }
+@media (prefers-reduced-motion: reduce){
+  .buj *, .buj{ animation:none !important; transition:opacity .2s !important; }
+  .buj.nyit .buj-takaro, .buj.kesz .buj-takaro{ opacity:0; }
+}

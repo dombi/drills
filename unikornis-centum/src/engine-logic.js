@@ -416,6 +416,7 @@ function ertekel(valasz) {
       : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
+    if (f.hianyzo) bujJo();                    /* 🐭 Cincin előugrik a számmal (bujocska.js) */
     osvenyOrom();                              /* az unikornis örömében ugrik egyet (osveny.js) */
     csillagRepul($("bagoly-buborek"));
     if (f.ek) ekFuzetJo(f);                    /* 📚 könyvtár: több lépéses pöttynél a lépés beíródik a füzetbe (konyvtar-fuzet.js) */
@@ -435,7 +436,7 @@ function ertekel(valasz) {
     if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
-    else setTimeout(tovabb, Math.max(900, fv));
+    else setTimeout(tovabb, Math.max(f.hianyzo ? 1300 : 900, fv));   /* 🐭 bújós feladatnál a mozdulat végigér */
   } else {
     if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
     rosszValaszKonyvel(f, mar ? (valasz.h + "m" + valasz.m) : valasz);
@@ -457,6 +458,7 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
     }
     figArc("gondol");                          /* 🎨 rossz válasznál a szereplők gondolkodnak, nem szomorúak (figurak.js) */
+    if (f.hianyzo) bujRossz();                 /* 🐭 Cincin kikukucskál, megrázza a fejét, visszabújik (bujocska.js) */
     ment();
   }
 }

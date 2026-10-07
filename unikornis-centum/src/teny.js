@@ -533,13 +533,14 @@ function tenyKorJegyez(tj) {
    Csak a pálya saját keretein belül (a 3-as szorzó állomás csak a 3-as tábla esedékes tényét kérheti; az
    összeadó állomás tartománya, átlépés-szabálya, eredmény-korlátja is áll). Az állomáson belül véletlen
    helyen jön, egy pályán egy tény legfeljebb egyszer. A pulton kikapcsolható (becsempesz). */
-var TENY_CSEMPESZ_TIPUS = { osszeadas: 1, kivonas: 1, szorzas: 1, osztas: 1, szorzasosztas: 1 };
+var TENY_CSEMPESZ_TIPUS = { osszeadas: 1, kivonas: 1, szorzas: 1, osztas: 1, szorzasosztas: 1, hianyzo: 1 };   /* hianyzo: 🌿 „mi bújt el” formában (bujocska.js) */
 function tenyBenne(v, lo, hi) { return lo != null && hi != null && v >= lo && v <= hi; }
 /* a tény belefér-e az állomás keretébe → a feladat (és a generátor „volt már” jele), vagy null */
 function tenyKeretben(k, cfg, kerult) {
   var m = /^([okds])(\d+)_(\d+)$/.exec(k || "");
   if (!m) return null;
   var op = m[1], x = +m[2], y = +m[3], t = cfg.tipus, i, p;
+  if (t === "hianyzo") return typeof hianyzoKeretben === "function" ? hianyzoKeretben(k, cfg, kerult) : null;   /* 🌿 bújócska-pályák */
   if (t === "szorzasosztas") t = op === "s" ? "szorzas" : op === "d" ? "osztas" : null;
   if (t === "osszeadas" && op === "o") {
     if (cfg.csak_tizes || cfg.b_tizes || kerult[x + "|" + y]) return null;

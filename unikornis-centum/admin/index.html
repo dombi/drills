@@ -211,7 +211,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
-<script src="../src/teny.js?v=20261007-1"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -937,7 +937,7 @@ function nehezLehet(pid) {
   var t = (PALYA[pid] || {}).tipus;
   return {
     muvelet: t === "osszeadas" ? ["osszeadas", "kivonas"] : t === "szorzasosztas" ? ["szorzas", "osztas"] : null,
-    tablak: t === "szorzotabla-felmondas" || t === "szorzasosztas" || t === "osztas" ? [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    tablak: t === "szorzotabla-felmondas" || t === "szorzasosztas" || t === "osztas" || (t === "hianyzo" && (PALYA[pid] || {}).regio === "szorzo") ? [2, 3, 4, 5, 6, 7, 8, 9, 10]
           : t === "maradekos_osztas" ? [2, 3, 4, 5, 6, 7, 8, 9] : null,
     tablaSzo: t === "osztas" || t === "maradekos_osztas" ? "osztó" : "tábla",
     darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas"
