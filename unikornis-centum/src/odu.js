@@ -687,6 +687,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   /* JELVÉNYTÁBLA a falon (odú D2, 2. lépés) — a régi szivárványos falikép helyén, ugyanakkora keretben,
      hogy ne lógjon az ablakra, a lámpára és a vitrinre; a függő kristály-dísz ezért jobbra költözött */
   s += '<g id="odu-t-jelveny" class="odu-targy">' + jelvenyTablaSVG() + '</g>';
+  if (tag) s += hetOduKartya();   /* 📅 a heti kártya fakeretben, a jelvénytábla alatt (het.js, visszahívás 5. kör) */
 
   /* mennyezeti csillag-lámpa */
   s += '<line x1="345" y1="112" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
@@ -1082,6 +1083,7 @@ function renderOdu() {
   });
   if (ODU_FEKSZIK) oduFekszik(true);         /* újrarajzolás (ablakméret) alvás közben: rögtön újra az ágyban alszik */
   lenyOduKot($("odu-szoba").querySelector("svg"));   /* 🥚 tojás-koppintás, 🐣 a fióka totyogása (leny.js) */
+  hetOduKot($("odu-szoba").querySelector("svg"));    /* 📅 a heti kártya koppintásra nagyban (het.js) */
 }
 /* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
 var _oduMeretIdo = null;

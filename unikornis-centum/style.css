@@ -2103,3 +2103,22 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 @keyframes lnTanc{ 0%,100%{ transform:translateY(0) rotate(0); } 25%{ transform:translateY(-14px) rotate(-4deg); } 50%{ transform:translateY(0) rotate(0); } 75%{ transform:translateY(-14px) rotate(4deg); } }
 @keyframes lnTancNagy{ 0%,100%{ transform:translateY(0) rotate(0); } 25%{ transform:translateY(-34px) rotate(-4deg); } 50%{ transform:translateY(0) rotate(0); } 75%{ transform:translateY(-34px) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce){ #ln-kert-tanc.ln-tanc, #kert-uni-doboz.ln-tanc .kert-uni-svg{ animation:none; } }
+
+/* ── 📅 heti kártya (het.js, visszahívás 5. kör) ── */
+.het-vege{ width:min(190px,60%); margin:4px auto 0; animation:hetFel .6s ease-out both; }
+.het-vege svg{ display:block; width:100%; height:auto; }
+.het-vege + .vege-szoveg{ margin-top:8px; }
+#kepernyo-vege .vege-kartya:has(.het-vege) .szilank-nagy{ font-size:40px; }
+.het-ut{ transform-box:fill-box; transform-origin:50% 50%; animation:hetUt .55s cubic-bezier(.3,1.6,.5,1) both; }
+.het-vege .het-ut{ animation-delay:.7s; }
+@keyframes hetUt{ 0%{ transform:scale(1.9) rotate(-14deg); opacity:0; } 60%{ transform:scale(.92) rotate(3deg); opacity:1; } 100%{ transform:scale(1) rotate(0); opacity:1; } }
+@keyframes hetFel{ from{ transform:translateY(16px); opacity:0; } to{ transform:none; opacity:1; } }
+#het-odu{ cursor:pointer; }
+.het-nagy-svg{ width:min(560px,100%); height:auto; display:block; }
+.het-gombok{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.het-fuzet{ background:#fffaf0 !important; border-radius:22px; padding:14px; max-height:86vh; overflow:auto; }
+.het-fuzet-fej{ display:flex; justify-content:space-between; align-items:center; width:100%; font-size:20px; color:#5a3f8a; }
+.het-fuzet-racs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; width:100%; }
+.het-lap svg{ width:100%; height:auto; display:block; }
+.het-ures{ color:#6b6280; font-weight:700; text-align:center; }
+@media (prefers-reduced-motion: reduce){ .het-ut, .het-vege{ animation:none; } }

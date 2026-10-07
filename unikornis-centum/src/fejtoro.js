@@ -469,6 +469,7 @@ function ftVege() {
     "Gyűjtöttél: <b>" + FTJ.csilla + " ✨</b> csillámport." +
     (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>' : '') +
     '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>' + (kertV ? kertV.html : "");
+  hetVegeMutat();   /* 📅 heti kártya (het.js) */
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");

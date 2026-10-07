@@ -56,7 +56,7 @@ function felhoElsoAllapot(snap) {
       megvan[d.id] = 1;
     });
     LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
-      if (!megvan[k]) { mentes.profilok[k] = alapProfil(); FELHO.alap[k] = {}; }
+      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil());   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
     });
     felhoUserRef().set({ kod: FELHO.kod, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
   }

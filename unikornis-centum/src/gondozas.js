@@ -49,7 +49,7 @@ function gyakPalyaVege() {
   tenyKertNyit();
   tenyKertRitkaErik();    /* 🌰 a ritka mag egy lépcsővel tovább érik a dombon (teny-kert.js, 6. kör) */
   tenyKertMeglepetes();   /* „amíg nem voltál itt”: a kertben vár valami új (teny-kert.js, 5. kör) */
-  hetPecset();            /* 📅 a hét kártyáján egy pecsét (még láthatatlan; a heti kártya köre mutatja meg) */
+  hetPecset();            /* 📅 a hét kártyáján egy pecsét (az ösvény végén és az odú falán látszik, het.js) */
   return true;
 }
 
@@ -121,7 +121,8 @@ function napiHatar(tar, n) {
      leny2: a kis lény; fazis "" = még nincs tojás, aztán "tojas" | "fioka" | "kaland" | "kolyok" | "nagy";
             t = a fázis kezdő gyakorlós napja (erik), terkep: { tiszta: [táj-id], jog, napi: { nap, db }, hol, bagoly },
             kepeslap: [táj-id], pikkely: [táj-id] (kaland.js, 4. kör)
-     het:   { [hetAzon]: pecsétszám } — minden hét megmarad */
+     het:   { [hetAzon]: [tenyNap, …] } — a hét pecsétjei (melyik napon); minden hét megmarad. (A 2. kör még számot
+            írt: azt itt alakítjuk át, a régi pecsétek napja null = a nevük nélkül látszanak.) */
 function visszaTar(p) {
   p = p || P();
   if (!p.posta || typeof p.posta !== "object") p.posta = {};
@@ -150,17 +151,41 @@ function visszaTar(p) {
   if (typeof l.terkep.hol !== "string") l.terkep.hol = "k";
   if (typeof l.terkep.bagoly !== "number") l.terkep.bagoly = 0;
   if (!p.het || typeof p.het !== "object") p.het = {};
+  Object.keys(p.het).forEach(function (k) {
+    var v = p.het[k];
+    if (typeof v === "number") { var a = []; for (var i = 0; i < v; i++) a.push(null); p.het[k] = a; }
+    else if (!Array.isArray(v)) p.het[k] = [];
+  });
   return p;
 }
 
 /* ── a heti kártya pecsétje ────────────────────────────────────────────────────
    hetAzon(nap) = annak a hétfőnek a tenyNap-ja, amelyik hetébe a nap esik (a 0. nap, 1970. jan. 1. csütörtök).
-   A gyakPalyaVege hívja (naponta egyszer), így egy gyakorlós nap = egy pecsét. 4 = teljes hét; 5–7 is pecsét. */
+   A gyakPalyaVege hívja (naponta egyszer), így egy gyakorlós nap = egy pecsét. 4 = teljes hét; 5–7 is pecsét.
+   Visszahívás 5. kör (2026-10-07): a teljes hét (a 4. pecsét) HET_TELJES_HARMAT 💧-t ad; a pecsét az ösvény végén és
+   az odú falán látszik (het.js). HET_UJ = a ma ütött pecsét (az ösvény vége ebből rajzolja a pecsételést). */
+var HET_TELJES = 4, HET_TELJES_HARMAT = 3;
+var HET_UJ = null;   /* { k: hetAzon, n: hányadik pecsét, teljes, nap, mondva } — a hír-sor és az ösvény vége olvassa */
 function hetAzon(nap) { nap = nap == null ? tenyNap() : nap; return nap - (((nap + 3) % 7) + 7) % 7; }
 function hetPecset(p) {
-  var h = visszaTar(p).het, k = hetAzon();
-  h[k] = (h[k] || 0) + 1;
-  return h[k];
+  p = visszaTar(p);
+  var h = p.het, k = hetAzon(), ma = tenyNap();
+  if (!h[k]) h[k] = [];
+  if (h[k].indexOf(ma) >= 0) return h[k].length;   /* egy napra egy pecsét */
+  h[k].push(ma);
+  var n = h[k].length, teljes = n === HET_TELJES;
+  if (teljes) p.tunderharmat = (p.tunderharmat || 0) + HET_TELJES_HARMAT;   /* 🌟 teljes hét (rajzterv B, 3. döntés: most 💧, később csemege) */
+  HET_UJ = { k: k, n: n, teljes: teljes, nap: ma, mondva: 0 };
+  return n;
+}
+function hetDb(p, k) { var v = visszaTar(p).het[k == null ? hetAzon() : k]; return v ? v.length : 0; }
+/* a hír-sor forrása: a ma ütött pecsét egyszer szól */
+function hetHirek() {
+  var u = HET_UJ;
+  if (!u || u.mondva || u.nap !== tenyNap()) return [];
+  u.mondva = 1;
+  if (u.teljes) return [{ t: "🌟 Teljes hét a heti kártyán! +" + HET_TELJES_HARMAT + " 💧", szin: "#b0417a" }];
+  return [{ t: u.n > HET_TELJES ? "🌈 Ráadás-pecsét a heti kártyán!" : "🐾 Új pecsét a heti kártyán!", szin: "#b0417a" }];
 }
 
 /* ── közös hír-sor az ösvény végére („mi lett ma jobb”) ───────────────────────────
@@ -169,6 +194,7 @@ function hetPecset(p) {
    (csúcs–vég szabály). A forrás maga jegyzi meg, hogy már elmondta (egyszer szól).
    Új forrás (tojás, felhő, levél, pecsét) = egy új sor ebben a táblában. opc.hajt = új hajtások ezen az ösvényen. */
 var VISSZA_HIR = [
+  { id: "het", fn: function () { return hetHirek(); } },                     /* 🐾 heti kártya (5. kör) */
   { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } },   /* 🌸 Tény-kert (teny-kert.js) */
   { id: "leny", fn: function () { return lenyHirek(); } }                     /* 🥚 tojás, 🐣 fióka, 🦋 elröppenés, ☁️ felhő (leny.js, 3–4. kör) */
 ];
@@ -203,7 +229,7 @@ function visszaAllapot(p) {
   var ma = tenyNap(), g = gyakTar(p), u = p.uni, l = p.leny2, K = p.tenyKert || {};
   return {
     gyak: { db: g.db || 0, ma: g.nap === ma, utolso: g.nap || null },
-    het: { ez: p.het[hetAzon(ma)] || 0, hetek: Object.keys(p.het).length },
+    het: { ez: (p.het[hetAzon(ma)] || []).length, hetek: Object.keys(p.het).length },
     posta: { var: meglepetesVar(p.posta), pult: p.posta.pult.filter(function (x) { return !x.olvasva; }).length },
     uni: { etel: igeny(u.etel), jatek: igeny(u.jatek), apol: igeny(u.apol), sziv: u.sziv, kedvenc: !!u.kedvenc },
     leny: { fazis: l.fazis, nev: l.nev, tiszta: l.terkep.tiszta.length, felho: l.terkep.jog, kepeslap: l.kepeslap.length, pikkely: l.pikkely.length },
