@@ -31,7 +31,9 @@
   .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
   .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
   h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--pink)}
+  h3.sub{margin:16px 0 4px;font-size:16px}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .panel.done{background:var(--green-soft)}
   .lead{color:var(--muted)}
   ul{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
   .cards{display:grid;gap:16px}
@@ -40,7 +42,7 @@
   .dec h3{margin:2px 0 6px 24px;font-size:17px}
   .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
   .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
-  .paints{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:8px}
+  .paints{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:8px}
   .paint{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--panel)}
   .paint svg{display:block;width:100%;height:54px;margin-bottom:6px}
   .paint b{display:block}
@@ -53,8 +55,6 @@
   table{width:100%;border-collapse:collapse;font-size:14px}
   td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
   code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
-  details{margin-top:10px}
-  summary{cursor:pointer;font-weight:700;color:var(--violet)}
 </style>
 </head>
 <body>
@@ -62,68 +62,85 @@
 
 <header class="top">
   <h1>Patalakk</h1>
-  <div class="sub">Fodrászat · 2. fázis, második rész. A szalon falán eddig csak díszletként álló körömlakkok élővé válnak: a gyerek kifestheti az unikornisa patáit.</div>
+  <div class="sub">Fodrászat · 2. fázis, második rész. A szalon falán eddig csak díszletként álló körömlakkok élővé válnak: a gyerek patánként kifestheti az unikornisa patáit.</div>
   <div class="meta">
     <span class="chip">Unikornis Centum</span>
     <span class="chip">2026-10-07</span>
-    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">Tervlap · 2. változat · jóváhagyásra vár</span>
     <span class="chip">Méret: közepes</span>
   </div>
 </header>
 
 <h2>Röviden</h2>
 <div class="panel">
-  <p>A szalonban a gyerek <b>levesz egy lakkot a falipolcról</b>, aztán <b>rákoppint a patákra</b>, és mind a négy pata azonnal fényes, új színt kap. Pont úgy működik, mint a sörényfestés: minden lakkot <b>egyszer kell megvenni</b>, utána ingyen újra felkenhető, a 🧽 szivacs pedig lemossa. A lakkozott pata <b>mindenhol látszik</b>: pályán, odúban, kertben, utcán, a gyűjteményben.</p>
-  <p class="lead">Miért könnyű? A pata már most is külön színhely a közös unikornis-rajzban (a pózok munkánál pont ezért így rajzoltuk), a patkó-dísz pedig csak egy vékony csík a talpon, így nem takarja el a lakkot. A szalon kerete, a vásárlás-ablak és a szivacs kész, ezeket csak tovább kell használni.</p>
+  <p>A szalonban a gyerek <b>levesz egy lakkot a falipolcról</b>, aztán <b>rákoppint egy patára</b>, és az a pata azonnal fényes, új színt kap. <b>Mind a 4 pata külön festhető</b>, így lehet négy különböző szín vagy két-két egyforma pár. Pont úgy működik, mint a sörényfestés: minden lakkot <b>egyszer kell megvenni 12 💧-ért</b>, utána ingyen újra felkenhető, a 🧽 szivacs pedig lemossa. A lakkozott pata <b>mindenhol látszik</b>: pályán, odúban, kertben, utcán, a gyűjteményben.</p>
+  <p class="lead">Miért könnyű? A pata már most is külön színhely a közös unikornis-rajzban, a patkó-dísz pedig csak egy vékony csík a talpon, így nem takarja el a lakkot. A szalon kerete, a vásárlás-ablak, a lapozás és a szivacs kész, ezeket használjuk tovább.</p>
+</div>
+<div class="panel done" style="margin-top:12px">
+  <b>✅ A producer döntései (2026-10-07):</b>
+  <ul>
+    <li><b>patánként más szín</b> tehető</li>
+    <li>lakkonként <b>12 💧</b></li>
+    <li>az első 8 lakk maradhat, de <b>legyen több</b>, a sörényfestékekből kiindulva</li>
+  </ul>
 </div>
 
-<h2>A 8 lakk (javaslat az első körre)</h2>
-<p class="lead">Kis felületre kerül, ezért a minták egyszerűek és fényesek (fehér csillanás a pata oldalán). A pontos kinézet a rajztervben lesz, a 3 valódi unikornis patáján. Ugyanúgy bővíthető, mint a festékek: <b>új lakk = egy új sor a listában</b>.</p>
-<div class="paints">
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l1" x1="0" x2="1"><stop offset="0" stop-color="#d63a3a"/><stop offset="1" stop-color="#ff7a7a"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l1)" stroke="#222" stroke-width="1.6"/><path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/></svg><b>🍓 Eper</b><small>élénk piros, fényes</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l2" x1="0" x2="1"><stop offset="0" stop-color="#e64f9a"/><stop offset="1" stop-color="#ff9ccb"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l2)" stroke="#222" stroke-width="1.6"/><path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/></svg><b>🌸 Pink</b><small>rózsaszín, fényes</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l3" x1="0" x2="1"><stop offset="0" stop-color="#f2b51b"/><stop offset="1" stop-color="#ffe170"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l3)" stroke="#222" stroke-width="1.6"/><path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/></svg><b>🍋 Napsárga</b><small>citromsárga, fényes</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l4" x1="0" x2="1"><stop offset="0" stop-color="#1f8fd0"/><stop offset="1" stop-color="#6fcaf2"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l4)" stroke="#222" stroke-width="1.6"/><path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/></svg><b>💙 Tengerkék</b><small>égszínkék, fényes</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l5" x1="0" x2="1"><stop offset="0" stop-color="#7040c0"/><stop offset="1" stop-color="#b48cf0"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l5)" stroke="#222" stroke-width="1.6"/><path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".7" stroke-linecap="round"/></svg><b>💜 Szeder</b><small>lila, fényes</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l6" x1="0" x2="1"><stop offset="0" stop-color="#e0a20f"/><stop offset=".5" stop-color="#ffe27a"/><stop offset="1" stop-color="#e8b020"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l6)" stroke="#222" stroke-width="1.6"/><circle cx="6" cy="5" r="1.3" fill="#fff"/><circle cx="14" cy="10" r="1.1" fill="#fff"/><circle cx="20" cy="4" r=".9" fill="#fff"/><circle cx="9" cy="12" r=".8" fill="#fff"/></svg><b>✨ Arany csillám</b><small>arany, apró szikrákkal</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><defs><linearGradient id="l7" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e94b4b"/><stop offset=".2" stop-color="#e94b4b"/><stop offset=".2" stop-color="#f5a13b"/><stop offset=".4" stop-color="#f5a13b"/><stop offset=".4" stop-color="#f5dc3b"/><stop offset=".6" stop-color="#f5dc3b"/><stop offset=".6" stop-color="#5cc85c"/><stop offset=".8" stop-color="#5cc85c"/><stop offset=".8" stop-color="#3ba3dd"/><stop offset="1" stop-color="#3ba3dd"/></linearGradient></defs><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="url(#l7)" stroke="#222" stroke-width="1.6"/></svg><b>🌈 Szivárvány</b><small>vízszintes csíkok fentről le</small></div>
-  <div class="paint"><svg viewBox="-40 -6 110 26"><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="#6a6fd6" stroke="#222" stroke-width="1.6"/><path d="M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z" fill="#fff" opacity=".22"/><path d="M5 4 l1 2.4 l2.4 1 l-2.4 1 l-1 2.4 l-1 -2.4 l-2.4 -1 l2.4 -1 Z" fill="#fff"/><circle cx="15" cy="9" r="1.2" fill="#fff"/><circle cx="20" cy="4" r="1" fill="#ffe9ff"/><path d="M19 10 l.7 1.6 l1.6 .7 l-1.6 .7 l-.7 1.6 l-.7 -1.6 l-1.6 -.7 l1.6 -.7 Z" fill="#fff"/></svg><b>💎 Csillámlakk</b><small>átlátszó: a saját pataszín marad, csak csillog</small></div>
-</div>
-<p class="lead" style="margin-top:10px">A 💎 Csillámlakk az én hozzátételem: aki szereti az unikornisa eredeti színét, az is lakkozhat. Ez a lakk mindhárom unikornison mást mutat (Tűznél narancs, Csillámharmatnál kék, Ragyogásnál sárga csillogás), mert a saját pataszínre kerül.</p>
+<h2>A 21 lakk</h2>
+<p class="lead"><b>17 lakk a sörényfestékek ikertestvére</b>: ugyanaz a név és hangulat, csak a pata kis felületére egyszerűsítve (kevesebb, nagyobb csillag vagy pötty, fényes csillanás az oldalán). Mellettük <b>4 saját lakk</b> marad az első listából (a másik 4 beolvadt az ikrekbe: Pink, Szivárványos, Arany csillagos, Tengerkék csillagos). Így egy unikornisnak lehet galaxis sörénye és hozzáillő galaxis patája. A pontos kinézet a rajztervben lesz, a 3 valódi unikornis patáján.</p>
+<h3 class="sub">A sörényfestékek ikerlakkjai (17)</h3>
+<div class="paints" id="iker"></div>
+<h3 class="sub">Saját lakkok (4)</h3>
+<div class="paints" id="sajat"></div>
+<p class="lead" style="margin-top:10px">A 💎 Csillámlakk átlátszó: a saját pataszín marad, csak csillogni kezd, ezért mindhárom unikornison másképp néz ki. A polc ugyanúgy lapoz, mint a festékszekrény (8 üvegcse egy oldalon, ◀ ▶, most 3 oldal), így <b>új lakk = egy új sor a listában</b>.</p>
 
 <h2>Döntések</h2>
 <div class="cards">
 
-  <div class="dec"><div class="num">1</div><h3>Mire kerül a lakk?</h3>
-    <p><b>Mind a 4 patára egyszerre</b>, egy koppintással. Oldalnézetben egy pata kb. akkora, mint egy borsószem a képernyőn, ezért egyenként nehéz lenne eltalálni. Később bővíthető „elöl / hátul” párra, ha a gyerekek kérik.</p>
-    <span class="prop">Javaslat · a te döntésed (1. kérdés)</span></div>
+  <div class="dec"><div class="num">1</div><h3>Patánként más szín</h3>
+    <p>Mind a 4 pata külön festhető. Oldalnézetben egy pata kicsi a képernyőn, ezért kétféleképpen lehet lakkozni:</p>
+    <ul>
+      <li><b>4 nagy pata-gombbal</b> lent, ugyanabban a sorrendben, ahogy a képen balról jobbra állnak a lábak. Mindegyik gomb a rajta lévő lakk színét mutatja, felirat nem kell.</li>
+      <li>vagy közvetlenül a nagy unikornis <b>patájára koppintva</b>. A pata körül nagyobb, láthatatlan koppintó-felület van, hogy könnyű legyen eltalálni.</li>
+    </ul>
+    <p>Mellettük egy <b>„✨ Mind a 4”</b> gomb, ha a gyerek gyorsan egyszínűre akarja.</p>
+    <span class="ok">Producer döntése</span></div>
 
-  <div class="dec"><div class="num">2</div><h3>Hol vannak a lakkok?</h3>
-    <p>A <b>falipolcon</b>, ahol most a „körömlakkok · hamarosan” felirat áll. A felirat lekerül, a polc 2 sorban 8 üvegcsét tart; minden üvegcse kupakján a lakk színe, alatta az ár vagy egy zöld ✓. Ha később több lakk lesz, ugyanaz a ◀ ▶ lapozó jön, mint a festékszekrényen.</p>
+  <div class="dec"><div class="num">2</div><h3>Ár</h3>
+    <p>Lakkonként <b>12 💧</b>, egyszer kell megvenni, utána bármelyik patára ingyen újra felkenhető. A lakk és az ikerfestéke <b>külön</b> vásárlás: aki megvette a galaxis festéket, annak a galaxis lakkot is meg kell vennie.</p>
+    <span class="ok">Producer döntése: 12 💧</span> <span class="prop">Javaslat: a lakk külön vásárlás</span></div>
+
+  <div class="dec"><div class="num">3</div><h3>Hol vannak a lakkok?</h3>
+    <p>A <b>falipolcon</b>, ahol most a „körömlakkok · hamarosan” felirat áll. A felirat lekerül, a polc 2 sorban 8 üvegcsét tart, lapozva. Minden üvegcse kupakján a lakk színe, alatta az ár vagy egy zöld ✓.</p>
     <span class="prop">Javaslat</span></div>
 
-  <div class="dec"><div class="num">3</div><h3>Ár</h3>
-    <p>Lakkonként <b>12 💧</b>, egyszer kell megvenni, utána ingyen újra felkenhető. Ugyanannyi, mint egy festék, hogy a gyerek egyetlen árat jegyezzen meg a szalonban.</p>
-    <span class="prop">Javaslat · a te döntésed (2. kérdés)</span></div>
-
-  <div class="dec"><div class="num">4</div><h3>Negyedik nagy gomb: „Paták”</h3>
-    <p>A Sörény · Farok · Tincs gombok mellé jön egy negyedik, <b>Paták</b> gomb (pata-rajzzal, ami a felkent lakk színét mutatja). A nagy unikornis patáira közvetlenül is lehet koppintani.</p>
+  <div class="dec"><div class="num">4</div><h3>A gombsor ahhoz igazodik, ami a gyerek kezében van</h3>
+    <ul>
+      <li><b>festék</b> a kézben: Sörény · Farok · Tincs (mint most)</li>
+      <li><b>lakk</b> a kézben: a 4 pata-gomb + „✨ Mind a 4”</li>
+      <li><b>szivacs</b> a kézben: mind a 7 hely mosható, a gombsor kétsoros</li>
+    </ul>
+    <p>Így sosem áll a gyerek előtt olyan gomb, amivel épp nem tud mit kezdeni.</p>
     <span class="prop">Javaslat</span></div>
 
   <div class="dec"><div class="num">5</div><h3>Festék ≠ lakk, de kedvesen</h3>
-    <p>Ha a gyerek festékkel a patára koppint: <i>„A patára lakk kell! Nézd a polcon!”</i>, és a polc felvillan. Ha lakkal a sörényre: <i>„A lakk a patára való!”</i>, és a paták villannak fel. Nem büntet, hanem odavezet.</p>
+    <p>Ha a gyerek festékkel koppint a patára: <i>„A patára lakk kell! Nézd a polcon!”</i>, és a polc felvillan. Ha lakkal a sörényre: <i>„A lakk a patára való!”</i>, és a paták villannak fel. Nem szól rá, hanem odavezeti.</p>
     <span class="prop">Javaslat</span></div>
 
-  <div class="dec"><div class="num">6</div><h3>A 🧽 szivacs a patát is lemossa</h3>
-    <p>Ugyanaz a szivacs, nincs új eszköz. Lemosás után visszajön az unikornis saját pataszíne.</p>
+  <div class="dec"><div class="num">6</div><h3>A 🧽 szivacs patánként mos</h3>
+    <p>Ugyanaz a szivacs, nincs új eszköz. Egy patára koppintva csak azt mossa le, a „Mind a 4” gombbal mind a négyet. Lemosás után visszajön az unikornis saját pataszíne.</p>
     <span class="ok">A sörényfestés mintájára</span></div>
 
-  <div class="dec"><div class="num">7</div><h3>A kis öröm-pillanat</h3>
-    <p>Felkenéskor rövid csillanás fut végig a 4 patán, és egy csilingelő hang szól: <i>„Csillog-villog! Gyönyörű paták!”</i>. Ehhez nem kell új mozdulat, a meglévő csillám-hangot és szikrát használjuk.</p>
+  <div class="dec"><div class="num">7</div><h3>A kis öröm-pillanatok</h3>
+    <ul>
+      <li>Felkenéskor rövid csillanás fut végig a patán, és csilingelő hang szól: <i>„Csillog-villog!”</i></li>
+      <li>Ha mind a 4 patán <b>más</b> lakk van: <i>„Hű, négy különböző!”</i></li>
+      <li>Ha egy pata ugyanazt kapja, ami a sörényen van: <i>„Most illik a sörényedhez!”</i></li>
+    </ul>
+    <p>Ehhez nem kell új mozdulat, a meglévő csillám-hangot és szikrát használjuk.</p>
     <span class="prop">Javaslat</span></div>
 
   <div class="dec"><div class="num">8</div><h3>Mindenhol látszik</h3>
-    <p>Pálya, odú, kert, Tény-kert, felhőkert, utca, gyűjtemény, bolti előnézet, és a szemből/hátulról nézet is (forduláskor, kerti pörgéskor). A patkó-dísz a talpon marad, fölötte látszik a lakk; a bokapánt a csüdön van, nem takarja.</p>
+    <p>Pálya, odú, kert, Tény-kert, felhőkert, utca, gyűjtemény, bolti előnézet, és a szemből/hátulról nézet is (forduláskor, kerti pörgéskor), ott is mindegyik pata a saját színével. A patkó-dísz a talpon marad, fölötte látszik a lakk; a bokapánt a csüdön van, nem takarja.</p>
     <span class="ok">A közös unikornis-rajz miatt egy helyen kell megoldani</span></div>
 </div>
 
@@ -132,9 +149,10 @@
   <div class="flow">
     <span class="step">lakk a polcon</span><span class="arr">→</span>
     <span class="step">nincs még? „Megveszed 12 💧-ért?”</span><span class="arr">→</span>
-    <span class="step">„Hova kenjem?” · a paták felvillannak</span><span class="arr">→</span>
-    <span class="step">koppintás a patára / a Paták gombra</span><span class="arr">→</span>
-    <span class="step">✨ csillanás + „Csillog-villog!”</span>
+    <span class="step">„Melyik patára?” · a paták felvillannak</span><span class="arr">→</span>
+    <span class="step">koppintás egy patára / pata-gombra / „Mind a 4”-re</span><span class="arr">→</span>
+    <span class="step">✨ csillanás + „Csillog-villog!”</span><span class="arr">→</span>
+    <span class="step">jöhet a következő pata, akár más lakkal</span>
   </div>
   <p class="lead" style="margin-top:10px">Ha kevés a 💧: ugyanaz a kedves mondat, mint a festékeknél („Ehhez még kell egy kis tündérharmat…”).</p>
 </div>
@@ -142,8 +160,7 @@
 <h2>Ami NEM része ennek a körnek</h2>
 <div class="panel">
   <ul>
-    <li>🖌️ szőrfesték (a „szőrfesték · hamarosan” polc marad díszlet)</li>
-    <li>patánként különböző lakk (az 1. döntés szerint később, ha kérik)</li>
+    <li>🖌️ szőrfesték (a „szőrfesték · hamarosan” polc díszlet marad)</li>
     <li>pult-beállítás a lakkokhoz (a festékeknek sincs; az ár a listában áll)</li>
   </ul>
 </div>
@@ -152,30 +169,74 @@
 <div class="panel">
   <table>
     <tr><th>Mi</th><th>Hol</th><th>Hogyan</th></tr>
-    <tr><td>Lakk-lista</td><td><code>src/renderer.js</code>, a <code>FESTEKEK</code> mellett</td><td><code>LAKKOK</code> adat-tábla: id, név, emoji, ár, rajz (sima 2 árnyalat / csillám / csíkos / átlátszó). Új lakk = új sor.</td></tr>
-    <tr><td>Rajzolás</td><td><code>renderer.js</code>, egy közös függvény: <code>lakkAlkalmaz</code></td><td>A kész rajzban minden <code>class="uni-pata"</code> elem színét cseréli a lakk mintájára, és rátesz egy fényes csillanást. Az oldalrajz <b>és</b> a szemből/hátulról nézet is ugyanazt a függvényt hívja, így nem lesz két külön megoldás.</td></tr>
-    <tr><td>Hívás</td><td><code>unikornisSVG</code> + <code>unikornisNezetArt</code></td><td>A festés (<code>festekAlkalmaz</code>) után, egy sorban. Ismeretlen lakk-id → nincs változás.</td></tr>
-    <tr><td>Mentés</td><td><code>src/mentes.js</code></td><td><code>P().kinezet.lakk</code> = lakk-id vagy <code>null</code>; megvettek: <code>P().szalon.lakkok</code>. A régi mentések maguktól kapják meg az üres értéket.</td></tr>
-    <tr><td>Szalon</td><td><code>src/szalon.js</code></td><td>A falipolc élővé válik (8 üvegcse), 4. „Paták” gomb, a 3 gomb arrébb csúszik; a vásárlás-ablak és a szivacs a meglévő, csak lakkot is ismernek.</td></tr>
-    <tr><td>Napló</td><td><code>vasarlasNaplo</code></td><td><code>"lakk-" + id</code>, 12 💧, tündérharmat — a pult vásárlás-listájában látszik.</td></tr>
+    <tr><td>Lakk-lista</td><td><code>src/renderer.js</code>, a <code>FESTEKEK</code> mellett</td><td><code>LAKKOK</code> adat-tábla: id, név, emoji, ár, és egy rajz-típus (sima 2 árnyalat / kis minta / csíkos / kétszínű / átlátszó csillám). Az ikerlakk ugyanazt az id-t kapja, mint a festéke (pl. <code>galaxis</code>), de saját, pata-méretű rajzzal. Új lakk = új sor.</td></tr>
+    <tr><td>Rajzolás</td><td><code>renderer.js</code>, egy közös függvény: <code>lakkAlkalmaz</code></td><td>A kész rajzban a 4 <code>uni-pata</code> elemet sorszám szerint színezi át (mindegyiket a saját lakkjával), és rátesz egy fényes csillanást. A pata-elemek kapnak egy <code>data-pata="0…3"</code> jelet, a <code>UNI_LABAK</code> sorrendjében.</td></tr>
+    <tr><td>Szemből / hátulról</td><td><code>unikornisNezetArt</code></td><td>Ugyanaz a <code>lakkAlkalmaz</code>. Egy kis tábla mondja meg, melyik látható pata melyik lábé (hátulról tükrözve); ezt a rajzterv ellenőrzi a 3 unikornison.</td></tr>
+    <tr><td>Hívás</td><td><code>unikornisSVG</code></td><td>A festés (<code>festekAlkalmaz</code>) után, egy sorban. Ismeretlen lakk-id → az a pata a saját színén marad.</td></tr>
+    <tr><td>Mentés</td><td><code>src/mentes.js</code></td><td><code>P().kinezet.lakk</code> = 4 elemű lista (lakk-id vagy <code>null</code> patánként); megvettek: <code>P().szalon.lakkok</code>. A régi mentések maguktól kapják meg az üres listát.</td></tr>
+    <tr><td>Szalon</td><td><code>src/szalon.js</code></td><td>Élő, lapozós falipolc; az eszköz szerint váltó gombsor (4. döntés); nagyobb, láthatatlan koppintó-felület a patákon; a vásárlás-ablak és a szivacs a meglévő, csak a lakkot is ismerik.</td></tr>
+    <tr><td>Napló</td><td><code>vasarlasNaplo</code></td><td><code>"lakk-" + id</code>, 12 💧, tündérharmat; a pult vásárlás-listájában látszik.</td></tr>
   </table>
-  <p class="lead" style="margin-top:10px">Kockázat: alacsony. A pata színhelye egyetlen helyről jön (<code>UNI_SZIN[...].pata</code>), a rajz kódja nem változik, csak utólag színezünk rá.</p>
+  <p class="lead" style="margin-top:10px">Kockázat: alacsony. A pata színe egyetlen helyről jön (<code>UNI_SZIN[...].pata</code>), a rajz kódja alig változik (csak a sorszám-jel kerül rá), a színezés utólag történik.</p>
 </div>
 
 <h2>Sorrend</h2>
 <div class="panel">
   <div class="flow">
     <span class="step">① ez a tervlap ✋ jóváhagyásra</span><span class="arr">→</span>
-    <span class="step">② rajzterv: a 8 lakk a 3 unikornis patáján + az élő polc + a 4 gomb</span><span class="arr">→</span>
+    <span class="step">② rajzterv: a 21 lakk a 3 unikornis patáján + az élő polc + a pata-gombsor</span><span class="arr">→</span>
     <span class="step">③ kód egy körben + teszt + feltöltés</span>
   </div>
 </div>
 
-<h2>Nyitott kérdések</h2>
-<div class="q"><b>1. Mind a 4 pata egyszerre?</b>Javaslat: igen, egy koppintással mind a négy (később lehet elöl/hátul pár).</div>
-<div class="q"><b>2. Ár: 12 💧 lakkonként?</b>Javaslat: igen, mint a festékek.</div>
-<div class="q"><b>3. A 8 lakk jó így?</b>Eper · Pink · Napsárga · Tengerkék · Szeder · Arany csillám · Szivárvány · Csillámlakk. Ha a gyerekek mást kérnek, vagy rajzolnak lakkot, az új sorként bekerül.</div>
+<h2>Nyitott kérdés</h2>
+<div class="q"><b>Mehet így a 2. változat?</b>Főleg a 4. döntést nézd meg (a gombsor attól függ, mi van a gyerek kezében), és hogy a lakk külön vásárlás legyen-e a festéktől (2. döntés).</div>
 
 </div>
+<script>
+/* a minták itt csak irányt mutatnak; a valódi rajz a rajztervben lesz */
+var H = "M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z";
+function cs(x, y, r, c) { var p = []; for (var i = 0; i < 8; i++) { var a = Math.PI / 4 * i - Math.PI / 2, q = i % 2 ? r * .38 : r; p.push((x + Math.cos(a) * q).toFixed(1) + "," + (y + Math.sin(a) * q).toFixed(1)); } return '<path d="M' + p.join(" L") + 'Z" fill="' + c + '"/>'; }
+function sima(a, b) { return { g: [[a, 0], [b, 1]] }; }
+var IKER = [
+  ["✨", "Arany csillagos", { g: [["#e0a20f", 0], ["#ffe27a", .5], ["#e8b020", 1]], d: cs(7, 6, 3.4, "#fffbe0") + cs(18, 10, 2.6, "#fff6b0") }, "arany, két csillaggal"],
+  ["⚫", "Pöttyös", { g: [["#1b1b1f", 0], ["#33333b", 1]], d: '<circle cx="6" cy="5" r="2.2" fill="#fff"/><circle cx="17" cy="4" r="2.2" fill="#fff"/><circle cx="11" cy="11" r="2.2" fill="#fff"/><circle cx="22" cy="11" r="2" fill="#fff"/>' }, "fekete, fehér pöttyök"],
+  ["🌈", "Szivárványos", { v: 1, g: [["#e94b4b", 0], ["#e94b4b", .2], ["#f5a13b", .2], ["#f5a13b", .4], ["#f5dc3b", .4], ["#f5dc3b", .6], ["#5cc85c", .6], ["#5cc85c", .8], ["#3ba3dd", .8], ["#3ba3dd", 1]] }, "csíkok fentről le"],
+  ["🌅", "Naplemente", { v: 1, g: [["#6f45b8", 0], ["#e8649a", .5], ["#ffb85c", 1]] }, "lilából narancsba"],
+  ["🌌", "Galaxis", { g: [["#1a2350", 0], ["#3a2a70", 1]], d: '<ellipse cx="14" cy="7" rx="9" ry="4" fill="#8a4fd0" opacity=".6"/>' + cs(7, 9, 2.6, "#fff") + '<circle cx="19" cy="4" r="1" fill="#fff"/><circle cx="20" cy="12" r=".9" fill="#fff"/>' }, "sötétkék, lila köd, csillag"],
+  ["🍭", "Nyalóka", { s: 1 }, "rózsaszín–fehér ferde csík"],
+  ["❄️", "Jégkristály", { g: [["#bfe6fb", 0], ["#e9f7ff", 1]], d: '<g stroke="#fff" stroke-width="1.3" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="13"/><line x1="7.7" y1="5.5" x2="16.3" y2="10.5"/><line x1="16.3" y1="5.5" x2="7.7" y2="10.5"/></g>' }, "halványkék, hópehely"],
+  ["🌊", "Tengerkék csillagos", { k: ["#12bfe6", "#8ef0f7"], d: cs(8, 6, 3, "#ff5fbf") + cs(18, 11, 2.4, "#ff5fbf") }, "kétszínű kék, pink csillag"],
+  ["🍃", "Menta csillagos", { g: [["#7fe0b8", 0], ["#c4f5df", 1]], d: cs(8, 7, 3, "#ff5fbf") + cs(18, 9, 2.4, "#ff5fbf") }, "mentazöld, pink csillag"],
+  ["🍦", "Vanília csillagos", { g: [["#f2e2c4", 0], ["#fff6e6", 1]], d: cs(8, 7, 3, "#ff3fa0") + cs(18, 9, 2.4, "#ff3fa0") }, "krémszín, élénk pink csillag"],
+  ["🌠", "Éjszakai csillámpor", { g: [["#1c2a6a", 0], ["#2a3a88", 1]], d: '<circle cx="4" cy="4" r=".9" fill="#fff"/><circle cx="9" cy="9" r=".8" fill="#fff"/><circle cx="14" cy="4" r=".9" fill="#fff"/><circle cx="19" cy="10" r=".8" fill="#fff"/><circle cx="12" cy="13" r=".8" fill="#fff"/><circle cx="21" cy="4" r=".7" fill="#fff"/><circle cx="5" cy="12" r=".7" fill="#fff"/>' }, "sötétkék, sok apró fehér pötty"],
+  ["💗", "Pink", sima("#ff5fa8", "#ff9fcf"), "rózsaszín"],
+  ["🐬", "Türkiz", sima("#1fc0c0", "#7fe6e0"), "türkizkék"],
+  ["🌿", "Zöld", sima("#4fc07a", "#b8ecc8"), "friss zöld"],
+  ["💜", "Levendula", sima("#a98be0", "#d9c8f5"), "halványlila"],
+  ["🍑", "Barack", sima("#ff9f7a", "#ffd0b0"), "barackszín"],
+  ["🥈", "Ezüst", sima("#a8b0c0", "#eef1f6"), "ezüstös"]
+];
+var SAJAT = [
+  ["🍓", "Eper", sima("#d63a3a", "#ff7a7a"), "élénk piros"],
+  ["🍋", "Napsárga", sima("#f2b51b", "#ffe170"), "citromsárga"],
+  ["🫐", "Szeder", sima("#5a2fa8", "#9a6fe0"), "mélylila"],
+  ["💎", "Csillámlakk", { atl: 1 }, "átlátszó, a saját pataszín csillog"]
+];
+var n = 0;
+function kartya(l) {
+  var m = l[2], id = "lk" + (++n), defs = "", fill = "url(#" + id + ")", fol = "";
+  if (m.g) defs = '<linearGradient id="' + id + '" ' + (m.v ? 'x1="0" x2="0" y1="0" y2="1"' : 'x1="0" x2="1"') + '>' + m.g.map(function (s) { return '<stop offset="' + s[1] + '" stop-color="' + s[0] + '"/>'; }).join("") + '</linearGradient>';
+  if (m.k) defs = '<linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset=".5" stop-color="' + m.k[0] + '"/><stop offset=".5" stop-color="' + m.k[1] + '"/></linearGradient>';
+  if (m.s) defs = '<pattern id="' + id + '" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(40)"><rect width="8" height="8" fill="#fff"/><rect width="4" height="8" fill="#f27aa8"/></pattern>';
+  if (m.atl) { fill = "#6a6fd6"; fol = '<path d="' + H + '" fill="#fff" opacity=".22"/>' + cs(6, 6, 3.4, "#fff") + '<circle cx="15" cy="9" r="1.2" fill="#fff"/><circle cx="20" cy="4" r="1" fill="#ffe9ff"/>' + cs(19, 11, 2.4, "#fff"); }
+  var clip = '<clipPath id="' + id + 'c"><path d="' + H + '"/></clipPath>';
+  var fenyes = m.atl ? "" : '<path d="M18 3 L21 12" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/>';
+  return '<div class="paint"><svg viewBox="-40 -6 110 26"><defs>' + defs + clip + '</defs><path d="' + H + '" fill="' + fill + '"/><g clip-path="url(#' + id + 'c)">' + (m.d || "") + fol + '</g>' + fenyes +
+    '<path d="' + H + '" fill="none" stroke="#222" stroke-width="1.6"/></svg><b>' + l[0] + " " + l[1] + "</b><small>" + l[3] + " · 12 💧</small></div>";
+}
+document.getElementById("iker").innerHTML = IKER.map(kartya).join("");
+document.getElementById("sajat").innerHTML = SAJAT.map(kartya).join("");
+</script>
 </body>
 </html>
