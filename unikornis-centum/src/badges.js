@@ -39,6 +39,8 @@ var JELVENYEK = [
     teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.regio === "szorzo" && !x.bujocska && !palyaRejtve(x); });   /* a bújócska-pályáknak saját jelvényük lesz */ return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
   { id: "erdo-ura", csalad: "A", nev: "Az erdő ura", felt: "Az Összeadó liget mind a 9 pályája kész", szin: "#ffd24d",
     teljesul: function (p) { return PALYAK.every(function (x) { return (x.regio || "osszeado") !== "osszeado" || x.bujocska || palyaRejtve(x) || (p.palyak[x.id] && p.palyak[x.id].kesz); }); } },
+  { id: "bujocska-bajnok", csalad: "A", ikon: "level", nev: "Bújócska-bajnok", felt: "Mindhárom bújócska-pálya kész", szin: "#ffe3a3",   /* 🌿 Mi bújt el? 4. kör (2026-10-07) */
+    teljesul: function (p) { var l = PALYAK.filter(function (x) { return x.bujocska && !palyaRejtve(x); }); return l.length > 0 && l.every(function (x) { return p.palyak[x.id] && p.palyak[x.id].kesz; }); } },
   { id: "ejfeli-kapu", csalad: "A", titkos: true, nev: "Éjféli kapu", felt: "Fedezd fel a rejtett kaput", szin: "#b39ddb",
     teljesul: function (p) { return !!(p.kapu && p.kapu.nyitvaEddig > 0); } },
   /* A · 📏 Mérés (meres:true → alcím; ikon a csillag helyett; arany = mester-gyűrű) */
@@ -145,6 +147,7 @@ function jelvIkon(n, x, y, s, van) {
     case "tojas": return g + '<ellipse cy="1" rx="7" ry="9" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><circle cx="-2" cy="-2" r="1.3" fill="#c9a8e6"/><circle cx="3" cy="3" r="1.6" fill="#c9a8e6"/>' + e;
     case "tekercs": return g + '<rect x="-8" y="-7" width="16" height="14" rx="2" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><path d="M-5 -3 H5 M-5 0 H5 M-5 3 H2" stroke="#6a4a8a" stroke-width="1.2"/>' + e;
     case "korte": return g + '<path d="M0 -10 Q8 -10 8 -2 Q8 3 3 6 V8 H-3 V6 Q-8 3 -8 -2 Q-8 -10 0 -10 Z" fill="#fff6c0" stroke="#c77d12" stroke-width="1.5"/><rect x="-3" y="8" width="6" height="2.5" fill="#8a7a6a"/>' + e;
+    case "level": return g + '<circle cx="-3.5" cy="-6" r="2.6" fill="#cbc1da" stroke="#6a4a8a" stroke-width="1"/><circle cx="3.5" cy="-6" r="2.6" fill="#cbc1da" stroke="#6a4a8a" stroke-width="1"/><path d="M-9 9 C-11 0 -1 -7 10 -6 C11 3 3 11 -9 9 Z" fill="#9ed686" stroke="#4f8f42" stroke-width="1.5" stroke-linejoin="round"/><path d="M-8 8 Q1 3 9 -5" fill="none" stroke="#4f8f42" stroke-width="1.2" stroke-linecap="round"/>' + e;   /* 🌿 Cincin a levél mögött */
     case "naptar": return g + '<rect x="-8" y="-7" width="16" height="15" rx="2" fill="#fff" stroke="#6a4a8a" stroke-width="1.5"/><rect x="-8" y="-7" width="16" height="4" fill="#e2589b"/><path d="M-4 1 l2 2 l4 -4" stroke="#2e9e6a" stroke-width="2" fill="none"/>' + e;
   }
   return "";

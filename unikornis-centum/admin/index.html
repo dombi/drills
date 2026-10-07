@@ -164,6 +164,8 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 .l-uj{ background:#ece6f1; } .l-tanulja{ background:#fbd27a; } .l-tudja{ background:#9fd0f3; } .l-villam{ background:#5cb85f; }
 .folt{ display:inline-block; width:11px; height:11px; border-radius:3px; vertical-align:-1px; margin-right:3px; }
 .teny-ossz{ display:flex; flex-wrap:wrap; gap:4px 12px; font-size:13px; margin:2px 0 8px; }
+.teny-racs .cella .hh{ position:absolute; left:0; top:-1px; font-size:10px; line-height:1; font-style:normal; z-index:1; filter:drop-shadow(0 0 1px #fff); }   /* 🌿 a „mi bújt el” formában botlik */
+.hh-sor{ padding:1px 0 0 18px !important; }
 .teny-kij{ margin-top:12px; border-color:var(--lila); } .teny-kij div{ padding:3px 0; }
 .betuk i{ font-style:normal; font-family:ui-monospace,Consolas,monospace; font-weight:700; font-size:12px; padding:0 2px; border-radius:3px; margin-right:1px; }
 .betuk .b-V{ background:#d8f0d8; color:#2f7a32; } .betuk .b-J{ background:#dcecfa; color:#2d5f8a; } .betuk .b-S{ background:#eee; color:#777; } .betuk .b-H{ background:#fbdde3; color:#b2324f; }
@@ -699,9 +701,15 @@ function tenyEsedSzoveg(s) {
 function tenyBetuk(h) {
   return '<span class="betuk">' + String(h || "").split("").map(function (b) { return '<i class="b-' + b + '" title="' + TENY_BETU_NEV[b] + '">' + b + "</i>"; }).join("") + "</span>";
 }
+/* 🌿 „Mi bújt el?” (4. kör, 2026-10-07): a tény sorának hh-ja a „mi bújt el” forma utolsó 6 eredménye (7 + ? = 12, ? × 6 = 42).
+   Botlós ebben a formában, ha az utolsó 3-ban van botlás (mint a tábla piros kerete) — így látszik, ha a 6 × 7 megy, de a ? × 6 = 42 még nem. */
+function tenyHhBotlo(s) { return !!(s && /H/.test((s.hh || "").slice(-3))); }
+function tenyHhSor(s) {
+  return s && s.hh ? '<div class="kicsi hh-sor">🌿 Mi bújt el: ' + tenyBetuk(s.hh) + (tenyHhBotlo(s) ? ' <span class="halvany">— ebben a formában még botlik</span>' : "") + "</div>" : "";
+}
 function tenySorSzoveg(k, s) {
   return "<b>" + esc(tenyKiir(k)) + "</b> · " + TENY_LEPCSO_NEV[tenyLepcso(s)] + (s ? " · " + s.n + " próba · utolsó idő " + tenyMp(s.m) + " · " + tenyBetuk(s.h) : "") +
-    ' <span class="halvany">· ' + tenyEsedSzoveg(s) + "</span>";
+    (tenyHhBotlo(s) ? " 🌿" : "") + ' <span class="halvany">· ' + tenyEsedSzoveg(s) + "</span>" + tenyHhSor(s);
 }
 
 /* egy 10×10-es tábla: a cella felső fele a művelet (6 × 7), az alsó két negyede a két fordított tény (42 : 6, 42 : 7);
@@ -719,9 +727,10 @@ function tenyRacs(tar, agy) {
       var tk = lo === hi ? [fo, f1] : [fo, f1, f2];
       var esed = tk.some(function (k) { var s = tar[k]; return s && s.d >= 1 && s.e <= ma; });
       var botlo = tk.some(function (k) { var s = tar[k]; return s && /H/.test((s.h || "").slice(-3)); });
-      var cim = tk.map(function (k) { var s = tar[k]; return tenyKiir(k) + ": " + TENY_LEPCSO_NEV[tenyLepcso(s)] + (s ? ", " + tenyMp(s.m) + ", " + (s.h || "") : ""); }).join("\n");
+      var hhBotlo = tk.some(function (k) { return tenyHhBotlo(tar[k]); });
+      var cim = tk.map(function (k) { var s = tar[k]; return tenyKiir(k) + ": " + TENY_LEPCSO_NEV[tenyLepcso(s)] + (s ? ", " + tenyMp(s.m) + ", " + (s.h || "") : "") + (s && s.hh ? " · 🌿 mi bújt el: " + s.hh : ""); }).join("\n");
       h += '<td data-teny-cs="' + agy + ":" + lo + ":" + hi + '" title="' + esc(cim) + '" class="' + (esed ? "esed " : "") + (botlo ? "botlo " : "") +
-        (A.tenyKij === agy + ":" + lo + ":" + hi ? "kij" : "") + '"><div class="cella">' +
+        (A.tenyKij === agy + ":" + lo + ":" + hi ? "kij" : "") + '"><div class="cella">' + (hhBotlo ? '<i class="hh">🌿</i>' : "") +
         '<i class="fel l-' + tenyLepcso(tar[fo]) + '"></i>' +
         (lo === hi ? '<i class="le l-' + tenyLepcso(tar[f1]) + '"></i>' : '<i class="le1 l-' + tenyLepcso(tar[f1]) + '"></i><i class="le2 l-' + tenyLepcso(tar[f2]) + '"></i>') +
         "</div></td>";
@@ -764,8 +773,8 @@ function tenyTipusTabla(tip, tar) {
       jel = arany >= 0.7 ? "a rokon tények mennek → <b>a típus a gyenge</b> (" + (k === "e1a" ? "a tízes-átlépés" : k === "sb" ? "a pótlás százig" : "a helyiérték") + ")"
         : arany < 0.4 ? "a rokon tények sem mennek → <b>előbb azokat</b>" : '<span class="halvany">vegyes — figyelni</span>';
     } else if (s && tenyLepcso(s) === "villam") jel = '<span class="jo">megy</span>';
-    h += "<tr><td>" + esc(TENY_TIPUS_NEV[k]) + "</td><td>" + (s ? '<i class="folt l-' + tenyLepcso(s) + '"></i> ' + TENY_LEPCSO_NEV[tenyLepcso(s)] : '<span class="halvany">még nem</span>') +
-      '</td><td class="szam">' + (s ? s.n : 0) + "</td><td>" + (s ? tenyBetuk(s.h) : "") + '</td><td class="szam">' + (s ? tenyMp(s.m) : "–") + "</td>" +
+    h += "<tr><td>" + esc(TENY_TIPUS_NEV[k]) + (tenyHhBotlo(s) ? " 🌿" : "") + "</td><td>" + (s ? '<i class="folt l-' + tenyLepcso(s) + '"></i> ' + TENY_LEPCSO_NEV[tenyLepcso(s)] : '<span class="halvany">még nem</span>') +
+      '</td><td class="szam">' + (s ? s.n : 0) + "</td><td>" + (s ? tenyBetuk(s.h) : "") + (s && s.hh ? '<div class="kicsi">🌿 ' + tenyBetuk(s.hh) + "</div>" : "") + '</td><td class="szam">' + (s ? tenyMp(s.m) : "–") + "</td>" +
       "<td>" + (rt ? sav(Math.round(100 * arany), 100) + ' <span class="kicsi halvany">' + (rt === "ok10" ? "10-en belül" : "20-as kör, átlépéssel") + "</span>" : '<span class="halvany">nincs egy rokon tény</span>') +
       '</td><td class="tores kicsi">' + jel + "</td></tr>";
   });
@@ -819,7 +828,7 @@ function rajzTenyGyerek(u) {
   h += "</div>";
   h += '<div class="kicsi halvany" style="margin:6px 2px 0">Egy mező = egy számcsalád; felül a művelet (6 × 7), alul a két fordítottja (42 : 6 · 42 : 7) — így látszik, ha a szorzás megy, de az osztás még nem. ' +
     'A tükörhelyen ugyanaz a család áll. <i class="folt l-villam"></i> villám · <i class="folt l-tudja"></i> tudja · <i class="folt l-tanulja"></i> tanulja · <i class="folt l-uj"></i> új. ' +
-    "Pötty = esedékes ismétlés, piros keret = botlás az utolsó 3 próbában. Kattints egy mezőre a részletekért.</div>";
+    "Pötty = esedékes ismétlés, piros keret = botlás az utolsó 3 próbában, 🌿 = a „mi bújt el” formában (7 + ? = 12, ? × 6 = 42) botlik az utolsó 3-ban. Kattints egy mezőre a részletekért.</div>";
 
   h += rajzTenyKert(pr);   /* 🌷 a gyerek kertje (Tamagocsi-kert 4. kör) */
 
@@ -838,7 +847,8 @@ function rajzTenyGyerek(u) {
 
   h += "<h3>💯 A 100-as kör típusai</h3>" + tenyTipusTabla(pr.tipus, pr.tar) +
     '<p class="kicsi halvany" style="margin-top:6px">A 100-as körben nem minden feladat külön tény, hanem a típusát mérjük. A rokon tény a diagnózis: ha a 67 + 5 lassú, de a 7 + 5 már megy, ' +
-    "akkor a típus (a tízes-átlépés) a gyenge, nem a tény; ha a 7 + 5 sem megy, előbb azt kell gyakorolni.</p>";
+    "akkor a típus (a tízes-átlépés) a gyenge, nem a tény; ha a 7 + 5 sem megy, előbb azt kell gyakorolni. " +
+    "🌿 = a „mi bújt el” forma (45 + ? = 52, 37 + ? = 100) előzménye a Százas bújócskából; a 🌿 a típus neve mellett: ebben a formában botlik.</p>";
   return h;
 }
 /* 🌷 a gyerek kertje (Tamagocsi-kert 4. kör): amit a gyerek a Tény-kertben lát — ugyanaz a rajz (src/teny-kert.js), szám nélkül.

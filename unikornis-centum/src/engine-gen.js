@@ -95,7 +95,7 @@ function tippPotlas(ismert, cel) {
   var T = Math.ceil(ismert / 10) * 10;
   if (cel === 10 && ismert < 10) return "Mutass " + szoJelzo(ismert) + " ujjat. Hány ujj hiányzik a tízhez?";
   if (ismert % 10 === 0 && cel % 10 === 0)
-    return "Számold tízesekben: " + szoJelzo(ismert / 10) + " tízes meg hány tízes az " + szoJelzo(cel / 10) + " tízes?";
+    return "Számold tízesekben: " + szoJelzo(ismert / 10) + " tízes meg hány tízes az " + (cel === 100 ? "száz? A száz tíz tízes." : szoJelzo(cel / 10) + " tízes?");
   if (ismert % 10 !== 0 && cel === T) return "Nézd az egyeseket: " + szo(ismert % 10) + " meg mennyi az tíz?";
   if (ismert % 10 !== 0 && cel > T)
     return "Előbb " + szo(T) + "ig: " + szo(ismert) + " meg " + szo(T - ismert) + " az " + szo(T) + ". " +
