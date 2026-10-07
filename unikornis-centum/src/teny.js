@@ -4,6 +4,8 @@
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
    Tamagocsi-kert 3. kör (2026-10-05): a virágok rejtett könyvelése (tenyKertHajt, tenyKertNyit; lent) + src/gondozas.js.
+   Mi bújt el? 5. kör (2026-10-07): a Neked szóló ösvényen kb. minden ötödik feladat „mi bújt el” formában, ha a gyerek
+     abban a családban már végigjárt egy bújócska-pályát (hiNekedJelol / hiNekedForma, src/bujocska.js).
    3. kör (2026-10-05): a 🌸 Neked szóló ösvény (tenyPalya, GEN.teny: a motor rakja össze, minden indításkor frissen,
      vegyes műveletekkel) + a becsempészés (tenyCsempesz: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt
      kérnek, a saját keretükön belül). A beállítások (ujKor, tablak, becsempesz, osveny) innentől hatnak.
@@ -476,6 +478,7 @@ function tenyKorEpit() {
     }
   }
   tenySzomszedRendez(sor, 1);
+  if (typeof hiNekedJelol === "function") hiNekedJelol(sor);   /* 🌿 kb. minden ötödik „mi bújt el” formában (bujocska.js) */
   return { sor: sor, hol: 0, allomas: -1, botlasAll: 0, vissza: {}, utolso: null };
 }
 /* ugyanaz a tény kétszer egymás után sosem jön: a második helyet cserél egy későbbivel */
@@ -512,7 +515,8 @@ function tenyGen(cfg, kerultMar) {
   if (K.sor[K.hol].k === K.utolso && K.hol + 1 < K.sor.length) { var t = K.sor[K.hol]; K.sor[K.hol] = K.sor[K.hol + 1]; K.sor[K.hol + 1] = t; }
   var x = K.sor[K.hol++];
   K.utolso = x.k;
-  return tenyFeladat(x.k);
+  var f = tenyFeladat(x.k);
+  return (x.h && typeof hiNekedForma === "function") ? hiNekedForma(f) : f;
 }
 if (typeof GEN !== "undefined") GEN.teny = tenyGen;
 /* a naplozz hívja a tenyJegyez eredményével: a Neked szóló ösvényen a botlós tény 3–5 feladattal később visszajön
@@ -525,7 +529,8 @@ function tenyKorJegyez(tj) {
   var hova = K.hol + veletlen(2, 4);           /* a mostani a hol−1. helyen van → 3–5 feladattal később */
   if (hova >= Math.min(K.sor.length, TENY_KOR_DB)) return;
   K.vissza[tj.kulcs] = 1;
-  K.sor.splice(hova, 0, { k: tj.kulcs, f: "vissza" });
+  var most = K.sor[K.hol - 1];
+  K.sor.splice(hova, 0, { k: tj.kulcs, f: "vissza", h: !!(most && most.k === tj.kulcs && most.h) });   /* 🌿 ugyanabban a formában jön vissza */
   tenySzomszedRendez(K.sor, K.hol);
 }
 

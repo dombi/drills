@@ -799,6 +799,8 @@ var GEN = {
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
    Tamagocsi-kert 3. kör (2026-10-05): a virágok rejtett könyvelése (tenyKertHajt, tenyKertNyit; lent) + src/gondozas.js.
+   Mi bújt el? 5. kör (2026-10-07): a Neked szóló ösvényen kb. minden ötödik feladat „mi bújt el” formában, ha a gyerek
+     abban a családban már végigjárt egy bújócska-pályát (hiNekedJelol / hiNekedForma, src/bujocska.js).
    3. kör (2026-10-05): a 🌸 Neked szóló ösvény (tenyPalya, GEN.teny: a motor rakja össze, minden indításkor frissen,
      vegyes műveletekkel) + a becsempészés (tenyCsempesz: a meglévő pályák állomásonként legfeljebb 1 esedékes tényt
      kérnek, a saját keretükön belül). A beállítások (ujKor, tablak, becsempesz, osveny) innentől hatnak.
@@ -1271,6 +1273,7 @@ function tenyKorEpit() {
     }
   }
   tenySzomszedRendez(sor, 1);
+  if (typeof hiNekedJelol === "function") hiNekedJelol(sor);   /* 🌿 kb. minden ötödik „mi bújt el” formában (bujocska.js) */
   return { sor: sor, hol: 0, allomas: -1, botlasAll: 0, vissza: {}, utolso: null };
 }
 /* ugyanaz a tény kétszer egymás után sosem jön: a második helyet cserél egy későbbivel */
@@ -1307,7 +1310,8 @@ function tenyGen(cfg, kerultMar) {
   if (K.sor[K.hol].k === K.utolso && K.hol + 1 < K.sor.length) { var t = K.sor[K.hol]; K.sor[K.hol] = K.sor[K.hol + 1]; K.sor[K.hol + 1] = t; }
   var x = K.sor[K.hol++];
   K.utolso = x.k;
-  return tenyFeladat(x.k);
+  var f = tenyFeladat(x.k);
+  return (x.h && typeof hiNekedForma === "function") ? hiNekedForma(f) : f;
 }
 if (typeof GEN !== "undefined") GEN.teny = tenyGen;
 /* a naplozz hívja a tenyJegyez eredményével: a Neked szóló ösvényen a botlós tény 3–5 feladattal később visszajön
@@ -1320,7 +1324,8 @@ function tenyKorJegyez(tj) {
   var hova = K.hol + veletlen(2, 4);           /* a mostani a hol−1. helyen van → 3–5 feladattal később */
   if (hova >= Math.min(K.sor.length, TENY_KOR_DB)) return;
   K.vissza[tj.kulcs] = 1;
-  K.sor.splice(hova, 0, { k: tj.kulcs, f: "vissza" });
+  var most = K.sor[K.hol - 1];
+  K.sor.splice(hova, 0, { k: tj.kulcs, f: "vissza", h: !!(most && most.k === tj.kulcs && most.h) });   /* 🌿 ugyanabban a formában jön vissza */
   tenySzomszedRendez(K.sor, K.hol);
 }
 
@@ -1393,6 +1398,8 @@ function tenyCsempesz(cfg, kerult) {
      (bujHTML / bujJo / bujRossz + 5 mp-es kukucs, terv/mi-bujt-el-rajzterv.html: levél az Összeadó, felhő a Holdfény
      pályán), a pálya legelső feladata előtt „Cincin elbújt!”, és a becsempészés „mi bújt el” formában (hianyzoKeretben,
      a teny.js tenyKeretben-je hívja, ha az állomás tipusa "hianyzo").
+   4. kör (2026-10-07): 🍂 Százas bújócska + pult 🌿 jel + Bújócska-bajnok jelvény.
+   5. kör (2026-10-07): a 🌸 Neked szóló ösvény is kérdez így (hiNekedJelol / hiNekedForma, a fájl végén).
 
    Az állomás beállítása: { tipus: "hianyzo", formak: [...], max, min, b_min, b_max, atlepes, elobb_nem, hol, tablak, muvelet, takaro }
      formak     amiből az állomás sorsol (feladatonként egyet):
@@ -1606,6 +1613,55 @@ setInterval(function () {
   b.classList.add("kukucs");
   setTimeout(function () { b.classList.remove("kukucs"); }, 1100);
 }, 5200);
+
+/* ══ 🌸 A NEKED SZÓLÓ ÖSVÉNY „mi bújt el” formában (5. kör, 2026-10-07; tervlap: „A Neked szóló ösvény is kérdezhet így”) ══
+   A kör összerakásakor (teny.js tenyKorEpit) kb. minden ötödik feladat (20-ból 4) „mi bújt el” jelet kap (x.h), a
+   tenyGen pedig így kérdezi (hiNekedForma). Szabályok:
+     • csak abban a családban, amelyikben a gyerek már végigjárt egy bújócska-pályát, hogy ne érje váratlanul:
+         + − a 20-as körben  ← 🍃 Bújócska-rét vagy 🍂 Százas bújócska · a 100-as kör típusai ← 🍂 Százas bújócska
+         × ÷                 ← 🌙 Holdfény-bújócska
+     • új tény soha (először rendes formában ismerje meg), és a kör legelső feladata sem (jó kezdés);
+     • előnyben a fordítva már jól menő, de így még nem kérdezett tények (magas doboz, nincs / kevés hh);
+     • két bújós feladat nem jön egymás után; a botlás után visszajövő tény ugyanabban a formában jön vissza;
+     • a kivonásnál és az osztásnál a második szám bújik (13 − ? = 8, 42 ÷ ? = 6) — a ? − 5 = 8 és a ? ÷ 6 = 7
+       a pályákon is csak a küszöbön / később jön. */
+var HI_NEKED_ARANY = 5;   /* kb. minden ötödik */
+function hiNekedNyitva() {
+  var pk = (typeof P === "function" && P() && P().palyak) || {};
+  function kesz(id) { return !!(pk[id] && pk[id].kesz); }
+  var kor = kesz("szazas-bujocska");
+  return { ok: kesz("bujocska-ret") || kor, kor: kor, sd: kesz("holdfeny-bujocska") };
+}
+function hiNekedCsalad(k) {
+  var c = k.charAt(0);
+  if (/^[okds]\d/.test(k)) return (c === "o" || c === "k") ? "ok" : "sd";
+  return "kor";   /* a 100-as kör típusai (t10, e1a, sb …) */
+}
+function hiNekedJelol(sor) {
+  var ny = hiNekedNyitva();
+  if (!ny.ok && !ny.kor && !ny.sd) return;
+  var db = Math.round(sor.length / HI_NEKED_ARANY), jelolt = [];
+  sor.forEach(function (x, i) {
+    if (i === 0 || x.f === "uj" || !ny[hiNekedCsalad(x.k)]) return;
+    var s = tenySorBarmi(x.k) || {}, hh = s.hh || "", jo = (hh.match(/[VJS]/g) || []).length;
+    jelolt.push({ i: i, k: x.k, p: (s.d || 0) + (hh ? 0 : 3) - jo * 0.5 + Math.random() });
+  });
+  jelolt.sort(function (a, b) { return b.p - a.p; });
+  var volt = {}, n = 0;
+  [true, false].forEach(function (egyszer) {   /* előbb különböző tények, aztán ha kell, ismétlés is */
+    jelolt.forEach(function (j) {
+      if (n >= db || sor[j.i].h || (egyszer && volt[j.k])) return;
+      if ((sor[j.i - 1] && sor[j.i - 1].h) || (sor[j.i + 1] && sor[j.i + 1].h)) return;
+      sor[j.i].h = true; volt[j.k] = 1; n++;
+    });
+  });
+}
+function hiNekedForma(f) {
+  var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(String(f.naplo && f.naplo.kerdes));
+  if (!m) return f;
+  var op = m[2], hol = (op === "+" || op === "×") ? (Math.random() < 0.5 ? "a" : "b") : "b";
+  return hiBemutat(feladatHianyzo(f, hol, (op === "×" || op === "÷") ? "felho" : "level"));
+}
 /* ============ 3c) 🌱 GONDOZÁS — a visszatérés közös alapja (terv/teny-kert-tamagocsi-terv.html) ============
    Nem a kerté, hanem a visszahívásé: MINDEN gondozás és „mikor jött vissza” ezen megy át — most a Tény-kert
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
