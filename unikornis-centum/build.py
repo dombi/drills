@@ -24,6 +24,7 @@ MODULES = [
     # ── Motor (1/2) ──
     "engine-gen.js",      # 3) feladatgenerátor
     "teny.js",            # 3b) 🌸 tény-motor: tény-kulcsok, rejtett óra, doboz-szabály, választó, kert-összegzés
+    "bujocska.js",        # 3d) 🌿 Mi bújt el?: a bújócska-pályák generátora (GEN.hianyzo) — a feladat-alak a feladatHianyzo (engine-gen.js)
     "gondozas.js",        # 3c) 🌱 gondozás: gyakorlós nap, igény, napi meglepetés, érés — a visszatérés közös alapja
 
     # ── Perzisztencia ──

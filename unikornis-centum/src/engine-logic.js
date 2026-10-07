@@ -833,8 +833,10 @@ function naplozz(alap, elsore, valasz) {
   var tj = tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
   if (tenyKertHajt(tj)) J.tvHajt = (J.tvHajt || 0) + 1;   /* 🌷 Tamagocsi-kert: az első villám-válasz (doboz ≥ 3) → rejtett hajtás (az ösvény végén hír) */
   if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
-  P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
-    helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });
+  var sor = { t: Date.now(), palya: J.palya.id, kerdes: alap.lathato || alap.kerdes, valasz: String(valasz),
+    helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus };
+  if (alap.forma) sor.forma = alap.forma;      /* 🌿 „mi bújt el”: a kérdés a látott alak (7 + ? = 12), a válasz a rejtett szám */
+  P().naplo.push(sor);
   if (P().naplo.length > 80) P().naplo.shift();
 }
 var idomeroTimer = null;

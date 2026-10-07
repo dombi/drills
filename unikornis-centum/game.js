@@ -531,6 +531,82 @@ function feladatOsztas(d, q) {
     felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
     naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
 }
+
+/* ── 🌿 „Mi bújt el?” (terv/mi-bujt-el-terv.html): az alapfeladat hiányzó-szám változata, EGY helyen ──
+   feladatHianyzo(f, hol): f a fenti négy feladat* egyike (a tény: a op b = c), hol "a" | "b": melyik szám
+   bújik el (7 + ? = 12 → "b"; ? − 5 = 7 → "a"; 42 ÷ ? = 6 → "b"). A naplo.kerdes a TELJES tény marad
+   ("7 + 5"), mellé forma "h" — így a tény-motor ugyanazt a tényt lépteti, és külön jegyzi a „mi bújt el”
+   előzményt (hh). A bújó lény rajza (Cincin a levél/felhő mögött) a kártyán a 3. körben jön; addig a
+   kérdőjel helyén egy sima <b class="hi-hely">?</b> áll. A pályák (GEN.hianyzo, src/bujocska.js), a
+   becsempészés és a Neked szóló ösvény is ezt hívja. */
+/* magyar rag a szám szavához: a hangrend az utolsó nem-i magánhangzóból (tíz → tíztől, harminc → harminctól) */
+function hangRend(w) {
+  for (var i = w.length - 1; i >= 0; i--) {
+    var c = w.charAt(i);
+    if ("aáoóuú".indexOf(c) >= 0) return "mely";
+    if ("öőüű".indexOf(c) >= 0) return "kerek";
+    if ("eé".indexOf(c) >= 0) return "magas";
+  }
+  return "magas";
+}
+function ragTol(n) { var w = szo(n); return w + (hangRend(w) === "mely" ? "tól" : "től"); }
+function ragHoz(n) { var w = szo(n), h = hangRend(w); return w + (h === "mely" ? "hoz" : h === "kerek" ? "höz" : "hez"); }
+/* jelzői alak főnév előtt: „két ujjat”, „két tízes” (nem „kettő ujjat”) */
+function szoJelzo(n) { return szo(n).replace(/kettő$/, "két"); }
+function elsoNagy(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+/* pótlás-tipp: ismert + ? = cel (a kivonandó-forma is erre vezet vissza, ha a szám nagy) */
+function tippPotlas(ismert, cel) {
+  var T = Math.ceil(ismert / 10) * 10;
+  if (cel === 10 && ismert < 10) return "Mutass " + szoJelzo(ismert) + " ujjat. Hány ujj hiányzik a tízhez?";
+  if (ismert % 10 === 0 && cel % 10 === 0)
+    return "Számold tízesekben: " + szoJelzo(ismert / 10) + " tízes meg hány tízes az " + szoJelzo(cel / 10) + " tízes?";
+  if (ismert % 10 !== 0 && cel === T) return "Nézd az egyeseket: " + szo(ismert % 10) + " meg mennyi az tíz?";
+  if (ismert % 10 !== 0 && cel > T)
+    return "Előbb " + szo(T) + "ig: " + szo(ismert) + " meg " + szo(T - ismert) + " az " + szo(T) + ". " +
+           elsoNagy(ragTol(T)) + " " + szo(cel) + "ig még " + szo(cel - T) + ". " + elsoNagy(szo(T - ismert)) + " meg " + szo(cel - T) + "?";
+  if (cel - ismert >= 10) return "Előbb pótold a tízeseket, aztán az egyeseket.";
+  return "Számolj fölfelé " + ragTol(ismert) + " " + szo(cel) + "ig.";
+}
+function tippHianyzo(a, op, b, c, hol) {
+  if (op === "+") return tippPotlas(hol === "b" ? a : b, c);
+  if (op === "−") {
+    if (hol === "a") return "Ami maradt, meg amit elvettünk: " + szo(c) + " meg " + szo(b) + ".";
+    if (a <= 20) return "Számolj fölfelé " + ragTol(c) + " " + szo(a) + "ig.";
+    return "Gondold pótlásként: " + szo(c) + " meg mennyi az " + szo(a) + "? " + tippPotlas(c, a);
+  }
+  if (op === "×") {
+    var tsz = tablaSzo(hol === "b" ? a : b);
+    return "Mondd " + ("aáeéiíoóöőuúüű".indexOf(tsz.charAt(0)) >= 0 ? "az " : "a ") + tsz + " sort, amíg " + azSzo(c) + " " + ragHoz(c) + " érsz.";
+  }
+  if (hol === "b") return elsoNagy(szorSzo(c)) + " mennyi az " + szo(a) + "?";
+  return elsoNagy(szorSzo(c)) + " " + szo(b) + ". Mennyi az?";
+}
+function feladatHianyzo(f, hol) {
+  var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(String(f.naplo.kerdes));
+  if (!m) return f;
+  var a = +m[1], op = m[2], b = +m[3], c = f.helyes;
+  hol = hol === "a" ? "a" : "b";
+  var rejtett = hol === "a" ? a : b;
+  var A = hol === "a" ? "?" : a, Bs = hol === "b" ? "?" : b;
+  var fel;
+  if (op === "+") fel = hol === "b" ? szo(a) + " meg mennyi az " + szo(c) + "?" : "Mennyi meg " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
+  else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
+  var hely = '<b class="hi-hely">?</b>';
+  var naplo = {}, k;
+  for (k in f.naplo) naplo[k] = f.naplo[k];
+  naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
+  naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
+  var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
+    kartyaHTML: '<span class="k-nagy">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
+    megoldas: a + " " + op + " " + b + " = " + c,
+    hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },
+    naplo: naplo };
+  if (f.tenyK) ki.tenyK = f.tenyK;
+  return ki;
+}
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
@@ -686,12 +762,14 @@ var GEN = {
      o{a}_{b}  összeadás  (a ≤ b, a 7 + 5 és az 5 + 7 ugyanaz: o5_7)   k{c}_{b}  kivonás   (12 − 5: k12_5)
      s{a}_{b}  szorzás    (a ≤ b: s6_7)                                 d{c}_{b}  osztás    (42 ÷ 6: d42_6)
    A 100-as kör típusonként (P().tenyTipus): t10 kerek tízesek · e1 / e1a kétjegyű ± egyjegyű átlépés
-   nélkül / átlépéssel · tz kétjegyű ± kerek tízes · k2 / k2a kétjegyű ± kétjegyű. A rokon tény (67 + 5 → 5 + 7)
+   nélkül / átlépéssel · tz kétjegyű ± kerek tízes · k2 / k2a kétjegyű ± kétjegyű · sb százas barátok
+   (37 + 63, 100 − 36; „Mi bújt el?” 2. kör, 2026-10-07). A rokon tény (67 + 5 → 5 + 7; 37 + 63 → 7 + 3)
    csak számolt, nincs elmentve.
 
    Egy tény sora (P().tenyek[kulcs], a P().tenyTipus is ugyanilyen):
      { d: doboz 0–5, e: esedékes nap, n: próbák, h: utolsó 6 eredmény, m: utolsó idő (tized mp),
-       fl: forma-jelek („e” = mennyi az eredmény; később „h” = mi bújt el), ln: utolsó feljebb lépés napja }
+       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el), ln: utolsó feljebb lépés napja,
+       hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít) }
    Eredmény-betűk: V villám · J jó, de lassú · S jó, de 20 mp fölött (szünet) · H botlás.
    Nap = helyi naptári nap sorszáma (tenyNap), így az „esedékes” éjfélkor fordul. */
 
@@ -779,6 +857,9 @@ function tenyKulcs(naplo) {
   if (op === "+" && a < b) { var cs = a; a = b; b = cs; }   /* 4 + 53 ugyanaz a típus, mint 53 + 4 */
   if (b < 1 || a < 10 || a > 100 || (op === "+" && a + b > 100) || (op === "-" && b > a)) return null;   /* 0-s és egyjegyű feladat nem típus */
   var kt, rokon = null;
+  /* százas barátok: két nem kerek szám, együtt pont száz (37 + 63, 100 − 36); rokon: az egyesek tízes barátja (7 + 3) */
+  if ((op === "+" && a + b === 100 && b % 10 !== 0 && b > 10) || (op === "-" && a === 100 && b % 10 !== 0 && b > 10 && b < 90))
+    return { kulcs: "sb", tipus: true, rokon: tenyTenyKulcs("+", b % 10, 10 - b % 10) };
   if (a % 10 === 0 && b % 10 === 0) { kt = "t10"; rokon = tenyTenyKulcs(op, a / 10, b / 10); }
   else if (b < 10) { kt = atlepesE(a, b, op) ? "e1a" : "e1";
     rokon = tenyTenyKulcs(op, op === "+" ? a % 10 : (atlepesE(a, b, op) ? 10 + a % 10 : a % 10), b); }
@@ -796,7 +877,7 @@ function tenyLepcso(k) {
   var d = s ? s.d : 0;
   return d >= 4 ? "villam" : d === 3 ? "tudja" : d >= 1 ? "tanulja" : "uj";
 }
-var TENY_TIPUS_KULCS = { t10: 1, e1: 1, e1a: 1, tz: 1, k2: 1, k2a: 1 };
+var TENY_TIPUS_KULCS = { t10: 1, e1: 1, e1a: 1, tz: 1, k2: 1, k2a: 1, sb: 1 };
 
 /* a doboz-szabály (rendszerterv „Hogyan lép a tény”):
    V → +1 (a 3-asból feljebb csak másik napon, mint az előző feljebb lépés) · J → +1, de legfeljebb 3-ig
@@ -831,6 +912,7 @@ function tenyJegyez(naplo, elsore, ms) {
   s.h = ((s.h || "") + betu).slice(-6);
   var forma = naplo.forma || "e";
   if ((s.fl || "").indexOf(forma) < 0) s.fl = (s.fl || "") + forma;
+  if (forma === "h") s.hh = ((s.hh || "") + betu).slice(-6);   /* 🌿 „mi bújt el”: külön előzmény (a pult 🌿 jele ebből) */
   tenyLep(s, betu, ma);
   return { kulcs: tk.kulcs, tipus: tk.tipus, betu: betu, d: s.d };
 }
@@ -900,7 +982,7 @@ function tenyKever(t) { for (var i = t.length - 1; i > 0; i--) { var j = Math.fl
 /* mennyire nehéz egy MÉG ÚJ tény (kisebb = előbb jön): + − a tagok nagysága, a 10 átlépése; × ÷ a „barátságos”
    táblák (1, 2, 5, 10) elöl; a fordított művelet kicsit később, de ha a család művelete már megy, előrébb */
 function tenyNehez(k) {
-  if (TENY_TIPUS_KULCS[k]) return { t10: 4, e1: 5, tz: 5, e1a: 7, k2: 7, k2a: 9 }[k];
+  if (TENY_TIPUS_KULCS[k]) return { t10: 4, e1: 5, tz: 5, e1a: 7, k2: 7, k2a: 9, sb: 8 }[k];
   var m = /^([okds])(\d+)_(\d+)$/.exec(k), op = m[1], x = +m[2], y = +m[3], a, b, n;
   if (op === "o" || op === "s") { a = x; b = y; }
   else { var z = op === "k" ? x - y : x / y; a = Math.min(y, z); b = Math.max(y, z); }
@@ -1028,7 +1110,9 @@ function tenyTablakAktiv(B) {
 function tenyHalmaz(tablak) {
   var ki = [];
   tenyMind("ok").concat(tenyMind("sd")).forEach(function (k) { if (tablak.indexOf(tenyTabla(k)) >= 0) ki.push(k); });
-  if (tablak.indexOf("kor100") >= 0) ki = ki.concat(Object.keys(TENY_TIPUS_KULCS));
+  if (tablak.indexOf("kor100") >= 0) ki = ki.concat(Object.keys(TENY_TIPUS_KULCS).filter(function (k) {
+    return k !== "sb" || tenyTar(true).sb;   /* a százas barátok csak azután, hogy a gyerek már találkozott velük */
+  }));
   return ki;
 }
 
@@ -1043,7 +1127,10 @@ var TENY_TIPUS_GEN = {   /* típus → [generátor, beállítás] változatok; a
 };
 function tenyFeladat(k) {
   var f = null;
-  if (TENY_TIPUS_KULCS[k]) {
+  if (k === "sb") {   /* százas barátok: 37 + 63 vagy 100 − 36 (a sima generátorok ritkán adnak pont százat) */
+    var n = veletlen(1, 8) * 10 + veletlen(1, 9);
+    f = Math.random() < 0.5 ? feladatOsszeadas(n, 100 - n) : feladatKivonas(100, n);
+  } else if (TENY_TIPUS_KULCS[k]) {
     for (var i = 0; i < 60 && !f; i++) {
       var v = veletlenElem(TENY_TIPUS_GEN[k]), g = GEN[v[0]](v[1], {}), tk = tenyKulcs(g.naplo);
       if (tk && tk.kulcs === k) f = g;
@@ -1247,6 +1334,92 @@ function tenyCsempesz(cfg, kerult) {
   }
   return null;
 }
+/* ============ 3d) 🌿 MI BÚJT EL? — a bújócska-pályák generátora (terv/mi-bujt-el-terv.html) ============
+   2. kör (2026-10-07): a közös alap LÁTHATATLANUL. Még egy pálya sem használja; a gyereknek semmi nem változik.
+   A feladat-alak (kártya, felolvasás, tipp, napló) a feladatHianyzo-ban van (engine-gen.js), itt csak az dől el,
+   melyik tény jöjjön és melyik száma bújjon el. A 3. körben ide jön a bújó lény (Cincin a levél / felhő mögött).
+
+   Az állomás beállítása: { tipus: "hianyzo", formak: [...], max, min, b_min, b_max, atlepes, elobb_nem, hol, tablak, muvelet }
+     formak     amiből az állomás sorsol (feladatonként egyet):
+                tizesbarat   7 + ? = 10 · ? + 4 = 10
+                tag          12 + ? = 17 · ? + 6 = 14   (hiányzó tag; a 100-as körben is: 45 + ? = 52)
+                kivonando    13 − ? = 8 · 100 − ? = 64
+                kisebbitendo ? − 5 = 8                   (a legnehezebb: csak az Odú-küszöbön)
+                kerekszaz    30 + ? = 100
+                kerektizes   37 + ? = 40
+                szazasbarat  37 + ? = 100 · 100 − ? = 64
+                tenyezo      6 × ? = 42 · ? × 7 = 42
+                oszto        42 ÷ ? = 6
+                osztando     ? ÷ 6 = 7
+     max / min  a legnagyobb szám (összeg, kisebbítendő) felső / alsó határa — alap 20 / 2
+     b_min/b_max a rejtett szám határai a tag / kivonando / kisebbitendo formánál — alap 1 / max − 1
+     atlepes    "nem" | "kell" | "lehet" (alap) — a tízes átlépése; elobb_nem: N → az állomás első N feladata átlépés nélkül
+     hol        "a" | "b": a tag-formánál rögzített hely (alap: véletlen)
+     tablak     × ÷: az ismert tábla (a 6 × ? = 42-ben a 6, a 42 ÷ ? = 6-ban az osztó) — alap 2–10
+     muvelet    szazasbarat: "+" vagy "-" (alap: vegyesen) */
+var HI_TABLAK = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+function hiHol(cfg) { return cfg.hol || (Math.random() < 0.5 ? "a" : "b"); }
+/* egy forma → [alapfeladat, hol], vagy null, ha a beállításba nem fér */
+var HI_FORMA = {
+  tizesbarat: function () { var x = veletlen(1, 9); return [feladatOsszeadas(x, 10 - x), hiHol({})]; },
+  tag: function (cfg, at) {
+    var max = cfg.max || 20, c = veletlen(Math.max(2, cfg.min || 2), max);
+    var h = veletlen(cfg.b_min || 1, Math.min(cfg.b_max || max - 1, c - 1)), k = c - h, hol = hiHol(cfg);
+    if (h < 1 || k < 1 || !atlepesOK(k, h, "+", at)) return null;
+    return [hol === "b" ? feladatOsszeadas(k, h) : feladatOsszeadas(h, k), hol];
+  },
+  kivonando: function (cfg, at) {
+    var max = cfg.max || 20, c = veletlen(Math.max(2, cfg.min || 2), max);
+    var h = veletlen(cfg.b_min || 1, Math.min(cfg.b_max || max - 1, c - 1));
+    if (h < 1 || c - h < 1 || !atlepesOK(c, h, "-", at)) return null;
+    return [feladatKivonas(c, h), "b"];
+  },
+  kisebbitendo: function (cfg, at) {
+    var r = HI_FORMA.kivonando(cfg, at);
+    return r && [r[0], "a"];
+  },
+  kerekszaz: function (cfg) { var T = veletlen(1, 9) * 10; return [feladatOsszeadas(T, 100 - T), cfg.hol || "b"]; },
+  kerektizes: function (cfg) {
+    var a = veletlen(Math.max(11, cfg.min || 11), Math.min(99, cfg.max || 99));
+    if (a % 10 === 0) return null;
+    return [feladatOsszeadas(a, 10 - a % 10), "b"];
+  },
+  szazasbarat: function (cfg) {
+    var n = veletlen(1, 8) * 10 + veletlen(1, 9), op = cfg.muvelet || (Math.random() < 0.5 ? "+" : "-");
+    return [op === "+" ? feladatOsszeadas(n, 100 - n) : feladatKivonas(100, 100 - n), "b"];
+  },
+  tenyezo: function (cfg) {
+    var N = veletlenElem(cfg.tablak || HI_TABLAK), x = veletlen(1, 10);
+    if (N * x > 100) return null;
+    return Math.random() < 0.5 ? [feladatSzorzas(N, x), "b"] : [feladatSzorzas(x, N), "a"];
+  },
+  oszto: function (cfg) {
+    var d = veletlenElem(cfg.tablak || HI_TABLAK), q = veletlen(1, 10);
+    return d * q > 100 ? null : [feladatOsztas(d, q), "b"];
+  },
+  osztando: function (cfg) {
+    var d = veletlenElem(cfg.tablak || HI_TABLAK), q = veletlen(1, 10);
+    return d * q > 100 ? null : [feladatOsztas(d, q), "a"];
+  }
+};
+GEN.hianyzo = function (cfg, kerultMar) {
+  var formak = (cfg.formak || ["tag"]).filter(function (x) { return HI_FORMA[x]; });
+  if (!formak.length) formak = ["tag"];
+  var at = cfg.atlepes;
+  if (cfg.elobb_nem && typeof J !== "undefined" && J && (J.feladatKesz || 0) < cfg.elobb_nem) at = "nem";
+  var r = null, kulcs, tartalek = null;
+  for (var i = 0; i < 300; i++) {
+    r = HI_FORMA[veletlenElem(formak)](cfg, at);
+    if (!r) continue;
+    tartalek = tartalek || r;
+    kulcs = "h" + r[0].naplo.kerdes + r[1];
+    if (!kerultMar[kulcs]) break;
+    r = null;
+  }
+  r = r || tartalek || [feladatOsszeadas(7, 3), "b"];   /* (nem fordul elő) */
+  kerultMar["h" + r[0].naplo.kerdes + r[1]] = true;
+  return feladatHianyzo(r[0], r[1]);
+};
 /* ============ 3c) 🌱 GONDOZÁS — a visszatérés közös alapja (terv/teny-kert-tamagocsi-terv.html) ============
    Nem a kerté, hanem a visszahívásé: MINDEN gondozás és „mikor jött vissza” ezen megy át — most a Tény-kert
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
@@ -12331,8 +12504,10 @@ function naplozz(alap, elsore, valasz) {
   var tj = tenyJegyez(alap, elsore, tenyOraMs(alap));   /* 🌸 tény-motor: csak az első próba számít, láthatatlanul (teny.js) */
   if (tenyKertHajt(tj)) J.tvHajt = (J.tvHajt || 0) + 1;   /* 🌷 Tamagocsi-kert: az első villám-válasz (doboz ≥ 3) → rejtett hajtás (az ösvény végén hír) */
   if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
-  P().naplo.push({ t: Date.now(), palya: J.palya.id, kerdes: alap.kerdes, valasz: String(valasz),
-    helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus });
+  var sor = { t: Date.now(), palya: J.palya.id, kerdes: alap.lathato || alap.kerdes, valasz: String(valasz),
+    helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus };
+  if (alap.forma) sor.forma = alap.forma;      /* 🌿 „mi bújt el”: a kérdés a látott alak (7 + ? = 12), a válasz a rejtett szám */
+  P().naplo.push(sor);
   if (P().naplo.length > 80) P().naplo.shift();
 }
 var idomeroTimer = null;

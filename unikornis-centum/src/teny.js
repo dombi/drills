@@ -19,12 +19,14 @@
      o{a}_{b}  összeadás  (a ≤ b, a 7 + 5 és az 5 + 7 ugyanaz: o5_7)   k{c}_{b}  kivonás   (12 − 5: k12_5)
      s{a}_{b}  szorzás    (a ≤ b: s6_7)                                 d{c}_{b}  osztás    (42 ÷ 6: d42_6)
    A 100-as kör típusonként (P().tenyTipus): t10 kerek tízesek · e1 / e1a kétjegyű ± egyjegyű átlépés
-   nélkül / átlépéssel · tz kétjegyű ± kerek tízes · k2 / k2a kétjegyű ± kétjegyű. A rokon tény (67 + 5 → 5 + 7)
+   nélkül / átlépéssel · tz kétjegyű ± kerek tízes · k2 / k2a kétjegyű ± kétjegyű · sb százas barátok
+   (37 + 63, 100 − 36; „Mi bújt el?” 2. kör, 2026-10-07). A rokon tény (67 + 5 → 5 + 7; 37 + 63 → 7 + 3)
    csak számolt, nincs elmentve.
 
    Egy tény sora (P().tenyek[kulcs], a P().tenyTipus is ugyanilyen):
      { d: doboz 0–5, e: esedékes nap, n: próbák, h: utolsó 6 eredmény, m: utolsó idő (tized mp),
-       fl: forma-jelek („e” = mennyi az eredmény; később „h” = mi bújt el), ln: utolsó feljebb lépés napja }
+       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el), ln: utolsó feljebb lépés napja,
+       hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít) }
    Eredmény-betűk: V villám · J jó, de lassú · S jó, de 20 mp fölött (szünet) · H botlás.
    Nap = helyi naptári nap sorszáma (tenyNap), így az „esedékes” éjfélkor fordul. */
 
@@ -112,6 +114,9 @@ function tenyKulcs(naplo) {
   if (op === "+" && a < b) { var cs = a; a = b; b = cs; }   /* 4 + 53 ugyanaz a típus, mint 53 + 4 */
   if (b < 1 || a < 10 || a > 100 || (op === "+" && a + b > 100) || (op === "-" && b > a)) return null;   /* 0-s és egyjegyű feladat nem típus */
   var kt, rokon = null;
+  /* százas barátok: két nem kerek szám, együtt pont száz (37 + 63, 100 − 36); rokon: az egyesek tízes barátja (7 + 3) */
+  if ((op === "+" && a + b === 100 && b % 10 !== 0 && b > 10) || (op === "-" && a === 100 && b % 10 !== 0 && b > 10 && b < 90))
+    return { kulcs: "sb", tipus: true, rokon: tenyTenyKulcs("+", b % 10, 10 - b % 10) };
   if (a % 10 === 0 && b % 10 === 0) { kt = "t10"; rokon = tenyTenyKulcs(op, a / 10, b / 10); }
   else if (b < 10) { kt = atlepesE(a, b, op) ? "e1a" : "e1";
     rokon = tenyTenyKulcs(op, op === "+" ? a % 10 : (atlepesE(a, b, op) ? 10 + a % 10 : a % 10), b); }
@@ -129,7 +134,7 @@ function tenyLepcso(k) {
   var d = s ? s.d : 0;
   return d >= 4 ? "villam" : d === 3 ? "tudja" : d >= 1 ? "tanulja" : "uj";
 }
-var TENY_TIPUS_KULCS = { t10: 1, e1: 1, e1a: 1, tz: 1, k2: 1, k2a: 1 };
+var TENY_TIPUS_KULCS = { t10: 1, e1: 1, e1a: 1, tz: 1, k2: 1, k2a: 1, sb: 1 };
 
 /* a doboz-szabály (rendszerterv „Hogyan lép a tény”):
    V → +1 (a 3-asból feljebb csak másik napon, mint az előző feljebb lépés) · J → +1, de legfeljebb 3-ig
@@ -164,6 +169,7 @@ function tenyJegyez(naplo, elsore, ms) {
   s.h = ((s.h || "") + betu).slice(-6);
   var forma = naplo.forma || "e";
   if ((s.fl || "").indexOf(forma) < 0) s.fl = (s.fl || "") + forma;
+  if (forma === "h") s.hh = ((s.hh || "") + betu).slice(-6);   /* 🌿 „mi bújt el”: külön előzmény (a pult 🌿 jele ebből) */
   tenyLep(s, betu, ma);
   return { kulcs: tk.kulcs, tipus: tk.tipus, betu: betu, d: s.d };
 }
@@ -233,7 +239,7 @@ function tenyKever(t) { for (var i = t.length - 1; i > 0; i--) { var j = Math.fl
 /* mennyire nehéz egy MÉG ÚJ tény (kisebb = előbb jön): + − a tagok nagysága, a 10 átlépése; × ÷ a „barátságos”
    táblák (1, 2, 5, 10) elöl; a fordított művelet kicsit később, de ha a család művelete már megy, előrébb */
 function tenyNehez(k) {
-  if (TENY_TIPUS_KULCS[k]) return { t10: 4, e1: 5, tz: 5, e1a: 7, k2: 7, k2a: 9 }[k];
+  if (TENY_TIPUS_KULCS[k]) return { t10: 4, e1: 5, tz: 5, e1a: 7, k2: 7, k2a: 9, sb: 8 }[k];
   var m = /^([okds])(\d+)_(\d+)$/.exec(k), op = m[1], x = +m[2], y = +m[3], a, b, n;
   if (op === "o" || op === "s") { a = x; b = y; }
   else { var z = op === "k" ? x - y : x / y; a = Math.min(y, z); b = Math.max(y, z); }
@@ -361,7 +367,9 @@ function tenyTablakAktiv(B) {
 function tenyHalmaz(tablak) {
   var ki = [];
   tenyMind("ok").concat(tenyMind("sd")).forEach(function (k) { if (tablak.indexOf(tenyTabla(k)) >= 0) ki.push(k); });
-  if (tablak.indexOf("kor100") >= 0) ki = ki.concat(Object.keys(TENY_TIPUS_KULCS));
+  if (tablak.indexOf("kor100") >= 0) ki = ki.concat(Object.keys(TENY_TIPUS_KULCS).filter(function (k) {
+    return k !== "sb" || tenyTar(true).sb;   /* a százas barátok csak azután, hogy a gyerek már találkozott velük */
+  }));
   return ki;
 }
 
@@ -376,7 +384,10 @@ var TENY_TIPUS_GEN = {   /* típus → [generátor, beállítás] változatok; a
 };
 function tenyFeladat(k) {
   var f = null;
-  if (TENY_TIPUS_KULCS[k]) {
+  if (k === "sb") {   /* százas barátok: 37 + 63 vagy 100 − 36 (a sima generátorok ritkán adnak pont százat) */
+    var n = veletlen(1, 8) * 10 + veletlen(1, 9);
+    f = Math.random() < 0.5 ? feladatOsszeadas(n, 100 - n) : feladatKivonas(100, n);
+  } else if (TENY_TIPUS_KULCS[k]) {
     for (var i = 0; i < 60 && !f; i++) {
       var v = veletlenElem(TENY_TIPUS_GEN[k]), g = GEN[v[0]](v[1], {}), tk = tenyKulcs(g.naplo);
       if (tk && tk.kulcs === k) f = g;

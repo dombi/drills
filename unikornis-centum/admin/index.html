@@ -211,7 +211,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
-<script src="../src/teny.js?v=20261006-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/teny.js?v=20261007-1"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -657,10 +657,11 @@ function rajzJatekos(t) {
 var TENY_LEPCSO_NEV = { uj: "új", tanulja: "tanulja", tudja: "tudja", villam: "villám" };
 var TENY_TIPUS_NEV = {
   t10: "kerek tízesek (30 + 40)", e1: "kétjegyű ± egyjegyű, átlépés nélkül (63 + 4)", e1a: "kétjegyű ± egyjegyű, átlépéssel (67 + 5)",
-  tz: "kétjegyű ± kerek tízes (47 + 30)", k2: "kétjegyű ± kétjegyű, átlépés nélkül (43 + 25)", k2a: "kétjegyű ± kétjegyű, átlépéssel (47 + 35)"
+  tz: "kétjegyű ± kerek tízes (47 + 30)", k2: "kétjegyű ± kétjegyű, átlépés nélkül (43 + 25)", k2a: "kétjegyű ± kétjegyű, átlépéssel (47 + 35)",
+  sb: "százas barátok (37 + 63, 100 − 36)"
 };
 /* a típus rokon tényei: melyik tábla tényeiből épül (a k2/k2a-nak nincs egy rokon ténye) */
-var TENY_TIPUS_ROKON = { t10: "ok10", e1: "ok10", e1a: "ok20", tz: "ok10", k2: null, k2a: null };
+var TENY_TIPUS_ROKON = { t10: "ok10", e1: "ok10", e1a: "ok20", tz: "ok10", k2: null, k2a: null, sb: "ok10" };
 var TENY_BETU_NEV = { V: "villám", J: "jó, de lassú", S: "jó, szünettel (20 mp fölött)", H: "botlás" };
 
 /* a gyerek tény-profilja: az az unikornis, amelyiken a legtöbb próba van (vagy amit a producer kiválasztott) */
@@ -760,7 +761,7 @@ function tenyTipusTabla(tip, tar) {
       arany = l.length ? jo / l.length : 0;
     }
     if (s && s.n >= 3 && tenyLepcso(s) !== "villam" && arany != null) {
-      jel = arany >= 0.7 ? "a rokon tények mennek → <b>a típus a gyenge</b> (" + (k === "e1a" ? "a tízes-átlépés" : "a helyiérték") + ")"
+      jel = arany >= 0.7 ? "a rokon tények mennek → <b>a típus a gyenge</b> (" + (k === "e1a" ? "a tízes-átlépés" : k === "sb" ? "a pótlás százig" : "a helyiérték") + ")"
         : arany < 0.4 ? "a rokon tények sem mennek → <b>előbb azokat</b>" : '<span class="halvany">vegyes — figyelni</span>';
     } else if (s && tenyLepcso(s) === "villam") jel = '<span class="jo">megy</span>';
     h += "<tr><td>" + esc(TENY_TIPUS_NEV[k]) + "</td><td>" + (s ? '<i class="folt l-' + tenyLepcso(s) + '"></i> ' + TENY_LEPCSO_NEV[tenyLepcso(s)] : '<span class="halvany">még nem</span>') +

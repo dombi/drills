@@ -68,6 +68,82 @@ function feladatOsztas(d, q) {
     felolvas: szo(osztando) + " osztva " + osztVal(d) + ". Mennyi?", helyes: q, tipp: tippOsztas(osztando, d, q),
     naplo: { tipus: "osztas", kerdes: osztando + "÷" + d, helyes: q, atlepes: false } };
 }
+
+/* ── 🌿 „Mi bújt el?” (terv/mi-bujt-el-terv.html): az alapfeladat hiányzó-szám változata, EGY helyen ──
+   feladatHianyzo(f, hol): f a fenti négy feladat* egyike (a tény: a op b = c), hol "a" | "b": melyik szám
+   bújik el (7 + ? = 12 → "b"; ? − 5 = 7 → "a"; 42 ÷ ? = 6 → "b"). A naplo.kerdes a TELJES tény marad
+   ("7 + 5"), mellé forma "h" — így a tény-motor ugyanazt a tényt lépteti, és külön jegyzi a „mi bújt el”
+   előzményt (hh). A bújó lény rajza (Cincin a levél/felhő mögött) a kártyán a 3. körben jön; addig a
+   kérdőjel helyén egy sima <b class="hi-hely">?</b> áll. A pályák (GEN.hianyzo, src/bujocska.js), a
+   becsempészés és a Neked szóló ösvény is ezt hívja. */
+/* magyar rag a szám szavához: a hangrend az utolsó nem-i magánhangzóból (tíz → tíztől, harminc → harminctól) */
+function hangRend(w) {
+  for (var i = w.length - 1; i >= 0; i--) {
+    var c = w.charAt(i);
+    if ("aáoóuú".indexOf(c) >= 0) return "mely";
+    if ("öőüű".indexOf(c) >= 0) return "kerek";
+    if ("eé".indexOf(c) >= 0) return "magas";
+  }
+  return "magas";
+}
+function ragTol(n) { var w = szo(n); return w + (hangRend(w) === "mely" ? "tól" : "től"); }
+function ragHoz(n) { var w = szo(n), h = hangRend(w); return w + (h === "mely" ? "hoz" : h === "kerek" ? "höz" : "hez"); }
+/* jelzői alak főnév előtt: „két ujjat”, „két tízes” (nem „kettő ujjat”) */
+function szoJelzo(n) { return szo(n).replace(/kettő$/, "két"); }
+function elsoNagy(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+/* pótlás-tipp: ismert + ? = cel (a kivonandó-forma is erre vezet vissza, ha a szám nagy) */
+function tippPotlas(ismert, cel) {
+  var T = Math.ceil(ismert / 10) * 10;
+  if (cel === 10 && ismert < 10) return "Mutass " + szoJelzo(ismert) + " ujjat. Hány ujj hiányzik a tízhez?";
+  if (ismert % 10 === 0 && cel % 10 === 0)
+    return "Számold tízesekben: " + szoJelzo(ismert / 10) + " tízes meg hány tízes az " + szoJelzo(cel / 10) + " tízes?";
+  if (ismert % 10 !== 0 && cel === T) return "Nézd az egyeseket: " + szo(ismert % 10) + " meg mennyi az tíz?";
+  if (ismert % 10 !== 0 && cel > T)
+    return "Előbb " + szo(T) + "ig: " + szo(ismert) + " meg " + szo(T - ismert) + " az " + szo(T) + ". " +
+           elsoNagy(ragTol(T)) + " " + szo(cel) + "ig még " + szo(cel - T) + ". " + elsoNagy(szo(T - ismert)) + " meg " + szo(cel - T) + "?";
+  if (cel - ismert >= 10) return "Előbb pótold a tízeseket, aztán az egyeseket.";
+  return "Számolj fölfelé " + ragTol(ismert) + " " + szo(cel) + "ig.";
+}
+function tippHianyzo(a, op, b, c, hol) {
+  if (op === "+") return tippPotlas(hol === "b" ? a : b, c);
+  if (op === "−") {
+    if (hol === "a") return "Ami maradt, meg amit elvettünk: " + szo(c) + " meg " + szo(b) + ".";
+    if (a <= 20) return "Számolj fölfelé " + ragTol(c) + " " + szo(a) + "ig.";
+    return "Gondold pótlásként: " + szo(c) + " meg mennyi az " + szo(a) + "? " + tippPotlas(c, a);
+  }
+  if (op === "×") {
+    var tsz = tablaSzo(hol === "b" ? a : b);
+    return "Mondd " + ("aáeéiíoóöőuúüű".indexOf(tsz.charAt(0)) >= 0 ? "az " : "a ") + tsz + " sort, amíg " + azSzo(c) + " " + ragHoz(c) + " érsz.";
+  }
+  if (hol === "b") return elsoNagy(szorSzo(c)) + " mennyi az " + szo(a) + "?";
+  return elsoNagy(szorSzo(c)) + " " + szo(b) + ". Mennyi az?";
+}
+function feladatHianyzo(f, hol) {
+  var m = /^\s*(\d+)\s*([+−×÷])\s*(\d+)\s*$/.exec(String(f.naplo.kerdes));
+  if (!m) return f;
+  var a = +m[1], op = m[2], b = +m[3], c = f.helyes;
+  hol = hol === "a" ? "a" : "b";
+  var rejtett = hol === "a" ? a : b;
+  var A = hol === "a" ? "?" : a, Bs = hol === "b" ? "?" : b;
+  var fel;
+  if (op === "+") fel = hol === "b" ? szo(a) + " meg mennyi az " + szo(c) + "?" : "Mennyi meg " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
+  else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
+  var hely = '<b class="hi-hely">?</b>';
+  var naplo = {}, k;
+  for (k in f.naplo) naplo[k] = f.naplo[k];
+  naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
+  naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
+  var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
+    kartyaHTML: '<span class="k-nagy">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
+    megoldas: a + " " + op + " " + b + " = " + c,
+    hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },
+    naplo: naplo };
+  if (f.tenyK) ki.tenyK = f.tenyK;
+  return ki;
+}
 var GEN = {
   osszeadas: function (cfg, kerultMar) {
     var emax = cfg.eredmeny_max || 100, a, b, kulcs, kor = 0;
