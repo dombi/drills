@@ -61,7 +61,7 @@ function kertTajNezet(host, o) {
 function kertTajIgazit(host) {
   host = host || $("kert-szinter"); if (!host) return;
   var vb = kertTajNezet(host).vb.map(function (v) { return Math.round(v * 100) / 100; }).join(" ");
-  Array.prototype.forEach.call(host.querySelectorAll(".kert-hatter, #kc-meglep-reteg"), function (svg) { svg.setAttribute("viewBox", vb); });
+  Array.prototype.forEach.call(host.querySelectorAll(".kert-hatter, #kc-meglep-reteg, #ln-kert-reteg"), function (svg) { svg.setAttribute("viewBox", vb); });
 }
 
 /* kis segédek (a rajzterv r1/hashStr/q2/P megfelelői) */

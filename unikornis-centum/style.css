@@ -2093,3 +2093,13 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .kt-album-ures{ font-weight:700; color:#6e4a36; }
 @media (max-width:600px){ .kt-fej .kt-gomb{ padding:6px 10px; font-size:14px; } .kt-lab{ flex-direction:column; align-items:stretch; } .kt-jel{ align-self:flex-start; } }
 @media (prefers-reduced-motion: reduce){ .kt-felho .kt-ring, .kt-kilog, .kt-malom, .kt-zuhatag, .kt-bagoly-repul, .ln-rebben, .ln-pikkely{ animation:none; } }
+
+/* ── 🌈 a nagy sárkány a kertben (leny.js, visszahívás 5. kör): a napozó szikla rétege a tárgyak (y-mélység) és az unikornis (870) mögött ── */
+.ln-kert-reteg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:715; }
+.ln-kert-nagy{ pointer-events:auto; cursor:pointer; }
+.kert-szinter.rak .ln-kert-nagy, .kert-szinter.pakol .ln-kert-nagy{ pointer-events:none; }
+#ln-kert-tanc.ln-tanc{ transform-box:fill-box; transform-origin:50% 100%; animation:lnTancNagy .6s ease-in-out 4; }
+#kert-uni-doboz.ln-tanc .kert-uni-svg{ transform-origin:50% 100%; animation:lnTanc .6s ease-in-out 4; }
+@keyframes lnTanc{ 0%,100%{ transform:translateY(0) rotate(0); } 25%{ transform:translateY(-14px) rotate(-4deg); } 50%{ transform:translateY(0) rotate(0); } 75%{ transform:translateY(-14px) rotate(4deg); } }
+@keyframes lnTancNagy{ 0%,100%{ transform:translateY(0) rotate(0); } 25%{ transform:translateY(-34px) rotate(-4deg); } 50%{ transform:translateY(0) rotate(0); } 75%{ transform:translateY(-34px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce){ #ln-kert-tanc.ln-tanc, #kert-uni-doboz.ln-tanc .kert-uni-svg{ animation:none; } }

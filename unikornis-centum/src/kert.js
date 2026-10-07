@@ -17,6 +17,7 @@ function kertNyit() {
   mutat("kepernyo-kert");                /* előbb látható legyen, hogy a színtér aránya mérhető (fekvő/álló kép) */
   renderKert();
   tenyKertErkezik(bimboHir, ritkaHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
+  lenyKertErkezik();                               /* 🌈 a nagy sárkány első érkezése a patakparti sziklára (leny.js, visszahívás 5. kör) */
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.
@@ -72,6 +73,7 @@ function renderKert() {
   kertTajIgazit(host);                   /* a kép kivágása: az ágyások mindig látszanak (kert-tajkep.js) */
   kertTajMozgasIndit();                  /* hal + szitakötő */
   tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
+  lenyKertRajzol();                      /* 🌈 a nagy sárkány a napozó sziklán (leny.js, visszahívás 5. kör) */
 }
 /* ha a színtér aránya átbillen (telefon elforgatása), csak a háttér cserélődik a másik elrendezésre */
 window.addEventListener("resize", function () {
@@ -90,6 +92,7 @@ window.addEventListener("resize", function () {
   kertTajIgazit(host);
   kertTajMozgasIndit();
   tenyKertTavol();
+  lenyKertRajzol();
 });
 /* a színtérre koppintás: berendezés-módban lerakás, egyébként séta */
 function kertSzinterKlikk(e) {
@@ -109,6 +112,7 @@ function kertSzinterKlikk(e) {
   /* séta mód (alap) */
   var meglep = e.target.closest && e.target.closest(".kc-meglep");        /* 🎁 a napi meglepetés: a látogató köszön, a kincset felveszi (teny-kert.js) */
   if (meglep) { tenyKertMeglepKlikk(meglep); return; }
+  if (e.target.closest && e.target.closest(".ln-kert-nagy")) { lenyKertKopp(); return; }   /* 🌈 a nagy sárkány: repül egy kört, aztán együtt táncolnak (leny.js) */
   var agyas = e.target.closest && e.target.closest(".kc-agyas");          /* 🌷 a túlparti ágyásra: átsétál a hídon, és ráközelít (teny-kert.js) */
   if (agyas) { tenyKertBesetal(agyas.getAttribute("data-agy")); return; }
   if (e.target.closest && e.target.closest(".kc-domb")) { tenyKertBesetal("d"); return; }   /* 🌰 a csodaágyás-domb: a ritka mag (teny-kert.js) */

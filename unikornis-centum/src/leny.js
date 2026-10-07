@@ -10,6 +10,8 @@
    Visszahívás 4. kör (2026-10-06): a fióka 2 gyakorlós nap után egy szivárványpillangó után elröppen (lenyElroppenes,
    az odúba lépve), a lila bagoly hozza a térképet, és jön a kalandtérkép (kaland.js). A fészekben marad a térkép-tekercs
    (koppintásra nyílik), mellette az album; a Holdfény-barlangban kölyökként kerül elő → az odúban él, röppen, buborékot fúj.
+   Visszahívás 5. kör (2026-10-06): a kölyök LENY_NAP.kolyok gyakorlós nap után nagy sárkány lesz, és a kertbe költözik
+   (a fájl végén: napozó szikla, érkezés, körrepülés, közös tánc). Az odúban az üres fészek és az album marad.
    Egy rajzoló (lenyRajz) + adat-tábla (LENY_RAJZ): fióka, kölyök, nagy és alvó ugyanabból. A szín unikornisonként
    (LENY_SZIN). Mentés: P().leny2 (gondozas.js visszaTar) — fazis, faj, nev, t, lelet, hir, terkep, kepeslap, pikkely.
    Tiltólista: soha halál, betegség, szomorúság; a kimaradt nap semmin nem ront, a lény ott vár, ahol volt. */
@@ -23,7 +25,7 @@ var LENY_PAL = {
 var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula" };   /* rajzterv 2. döntés */
 var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Lángi", "Tüsszi", "Pöfi", "Villám", "Smaragd", "Taréj", "Szárnyi"];
 /* hány gyakorlós nap egy-egy lépcső (tervlap 5. döntés; később a pultról állítható) */
-var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 10 };   /* a kölyök → nagy az 5. kör */
+var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 10 };
 var LENY_TOJAS_LEPCSO = ["reccs", "repedes", "kikel"];   /* a tojás gyakorlós napjai: erik() */
 var LENY_INK = "#3b2f4a";
 
@@ -35,7 +37,9 @@ var LENY_HIR = {
   kikel: function () { return ["🐣 Nagyon mocorog a tojás az odúban! Menj, nézd meg!"]; },
   fioka: function (u, n) { return ["🐣 " + n + " már ügyesen totyog az odúban."]; },
   elrop: function (u, n) { return ["🦋 Egy szivárványpillangó röpköd az odú körül… Nézd meg, mit csinál " + n + "!"]; },
-  felho: function () { return ["☁️ Elfújhatsz egy felhőt a kalandtérképen!"]; }
+  felho: function () { return ["☁️ Elfújhatsz egy felhőt a kalandtérképen!"]; },
+  szarny: function (u, n) { return [{ t: "🐉 " + n + " már a szárnyát próbálgatja… Legközelebb talán nagyot nő!", holnap: 1 }]; },
+  nagy: function (u, n) { return ["🌈 " + n + " nagyot nőtt, már nem fér el az odúban! Keresd a kertben, a patakparti sziklán!"]; }
 };
 var LENY_HIR_SZIN = "#a0603a";
 
@@ -43,6 +47,7 @@ var LENY_HIR_SZIN = "#a0603a";
 function lenyTar(p) {
   var l = visszaTar(p).leny2;
   if (typeof l.lelet !== "number") l.lelet = 0;   /* 1 = a gyerek már látta a patakparti leletet */
+  if (typeof l.kertLatta !== "number") l.kertLatta = 0;   /* 1 = a nagy sárkány már megérkezett a kertbe */
   return l;
 }
 function lenyPal(lenyKulcs) { return LENY_PAL[LENY_SZIN[lenyKulcs || mentes.leny]] || LENY_PAL.menta; }
@@ -69,6 +74,10 @@ function lenyPalyaVege(ujNap) {
   } else if (l.fazis === "fioka") {
     if (lenyElropVar(l)) l.hir = { nap: ma, tip: "elrop" };
     else if (gyakNap() - l.t === 1) l.hir = { nap: ma, tip: "fioka" };
+  } else if (l.fazis === "kolyok") {   /* 🌈 a kölyök gyakorlós napokon nő; a végén nagy sárkány lesz, és a kertbe költözik */
+    var n = gyakNap() - l.t;
+    if (n >= LENY_NAP.kolyok) { l.fazis = "nagy"; l.t = gyakNap(); l.kertLatta = 0; l.nagyLett = Date.now(); l.hir = { nap: ma, tip: "nagy" }; esemeny("leny_nagy", { nev: l.nev, leny: mentes.leny }); }
+    else if (n === LENY_NAP.kolyok - 1) l.hir = { nap: ma, tip: "szarny" };
   }
 }
 /* eljött-e az elröppenés ideje (a fióka LENY_NAP.fioka gyakorlós napig az odúban; utána az odúba lépve elröppen) */
@@ -282,7 +291,7 @@ var _lnIdo = [], _lnFut = false;
 function lnIdo(ms, fn) { _lnIdo.push(setTimeout(fn, ms)); }
 function lnIdoTorol() { _lnIdo.forEach(clearTimeout); _lnIdo = []; }
 /* mi látszik az odúban: "" (semmi), "tojas" (még a patakparton), "tojas1", "tojas2", "kesz" (kikelhet), "fioka",
-   "kaland" (üres fészek a térkép-tekerccsel), "kolyok" */
+   "kaland" (üres fészek a térkép-tekerccsel), "kolyok", "nagy" (üres fészek az albummal: a sárkány a kertben lakik) */
 function lenyOduMod() {
   var l = lenyTar();
   if (l.fazis === "tojas") {
@@ -290,7 +299,7 @@ function lenyOduMod() {
     var e = lenyTojasAll(l);
     return e.kesz ? "kesz" : e.i ? "tojas2" : "tojas1";
   }
-  return l.fazis === "fioka" || l.fazis === "kaland" || l.fazis === "kolyok" ? l.fazis : "";
+  return l.fazis === "fioka" || l.fazis === "kaland" || l.fazis === "kolyok" || l.fazis === "nagy" ? l.fazis : "";
 }
 function lenyOduReteg() {
   return '<g id="leny-odu">' + lenyOduBelso(lenyOduMod()) + "</g>";
@@ -300,12 +309,12 @@ function lenyOduBelso(mod) {
   var p = lenyPal(), l = lenyTar(), fx = LENY_ODU.feszek[0], fy = LENY_ODU.feszek[1], fs = LENY_ODU.s, s = LN_DEFS;
   s += '<ellipse cx="' + fx + '" cy="' + (fy - 30) + '" rx="78" ry="58" fill="url(#ln-g-repedes)" opacity=".55" class="ln-lampa"/>';   /* a csillaglámpa meleg fénye a fészken */
   s += lenyFeszek(fx, fy, fs);
-  if (mod === "fioka" || mod === "kaland" || mod === "kolyok") {
+  if (mod === "fioka" || mod === "kaland" || mod === "kolyok" || mod === "nagy") {
     s += '<g transform="translate(' + fx + " " + (fy - 6) + ") scale(" + fs + ')">' + lenyHejAlso(p) + "</g>";   /* az üres héj a fészekben */
     if (mod === "kaland" && kalandTar(l).bagoly) s += lenyTekercs(fx + 8, fy - 22);   /* 🗺️ a bagoly hozta térkép a fészekben */
     s += lenyFeszekElol(fx, fy, fs);
     s += lenyAlbumKonyv(l);
-    if (mod !== "kaland") {
+    if (mod === "fioka" || mod === "kolyok") {
       var ko = mod === "kolyok", h = (ko ? LENY_ODU.kHelyek : LENY_ODU.helyek)[0], sk = ko ? LENY_ODU.kolyok : fs, sapka = !ko && gyakNap() === l.t;   /* a kikelés napján még rajta a héjsapka */
       s += '<g id="ln-fioka-poz" class="ln-seta" style="transform:translate(' + h[0] + "px," + h[1] + 'px)" role="button" aria-label="' + htmlVed(l.nev || "Fióka") + '">' +
         '<ellipse cx="0" cy="2" rx="' + lnF((ko ? 52 : 30) * sk) + '" ry="6" fill="#3b2f66" opacity=".16"/>' +
@@ -380,6 +389,7 @@ function lenyOduNyit() {
   var l = lenyTar();
   if (lenyElropVar(l)) { lnIdo(1400, lenyElroppenes); return; }                       /* 🦋 a fióka elröppen (4. kör) */
   if (l.fazis === "kaland" && !kalandTar(l).bagoly) { lnIdo(900, kalandBagoly); return; }   /* 🦉 a bagoly hozza a térképet */
+  if (l.fazis === "nagy" && !l.kertLatta) { lnIdo(900, function () { if (oduAktiv()) mondd(l.nev + " nagyot nőtt, és a kertben vár, a patakparti sziklán!"); }); return; }   /* 🌈 (5. kör) */
   if (l.fazis !== "tojas") return;
   if (!l.lelet) { lnIdo(900, lenyLeletJelenet); return; }
   if (lenyTojasAll(l).kesz) lnIdo(1300, lenyKikeles);
@@ -610,3 +620,156 @@ function lenyElroppenes() {
     kalandBagoly();
   });
 }
+
+/* ════════════ 🌈 A NAGY SÁRKÁNY A KERTBEN (visszahívás 5. kör, 2026-10-06) ════════════
+   Terv: rendszerterv „Hazaérve: a kölyök és a nagy sárkány” + rajzterv A rész (8. döntés, napozó szikla).
+     • A kölyök LENY_NAP.kolyok gyakorlós nap után nagy sárkány lesz (lenyPalyaVege); egy nappal előtte kedvcsináló hír.
+     • A nagy sárkány a KERT állandó lakója: a patakparti napmeleg, mohás sziklán pihen (saját réteg a kert-képen, ugyanaz
+       a viewBox és vágás, mint a háttéré). Az odúban az üres fészek és az album marad.
+     • Az első kertbe lépéskor megérkezik: berepül, leszáll a sziklára, az unikornis odasétál, és együtt táncolnak.
+     • Koppintásra: az unikornis odasétál, a sárkány egyedül repül egy kört a kert fölött, visszaszáll, és együtt táncolnak.
+       Senki nem ül a hátára (producer, 2026-10-06). Közben pislog, lélegzik, néha szikrát tüsszent.
+   Mentés: P().leny2.fazis = "nagy", .t (mikor lett nagy), .kertLatta (1 = már megérkezett a kertbe). */
+/* a szikla helye a kert-képen (KERT_LAY koordináta: a szikla talppontja) és mérete; r, h: a körrepülés szélessége, magassága */
+var LENY_KERT = { f: { x: 830, y: 452, s: 0.66, r: 330, h: 200 }, a: { x: 268, y: 486, s: 0.5, r: 120, h: 250 } };
+var LENY_KERT_SARKANY = 0.76;   /* a sárkány mérete a szikla-egységben: nagyobb, mint az unikornis */
+var _lkIdo = [], _lkFut = false;
+function lkIdo(ms, fn) { _lkIdo.push(setTimeout(fn, ms)); }
+function lkIdoTorol() { _lkIdo.forEach(clearTimeout); _lkIdo = []; }
+function lenyNagyKertben(l) { l = l || lenyTar(); return l.fazis === "nagy"; }
+function lkSzikla() {   /* napozó szikla: mohás, lapos tetejű (rajzterv kertRajzol), talppont (0,0) */
+  return '<ellipse cx="0" cy="8" rx="150" ry="18" fill="#3c2a50" opacity=".12"/>' +
+    '<path d="M-140 8Q-150 -40 -90 -52Q0 -66 96 -50Q150 -36 138 8Z" fill="#cfc4dc" stroke="#9483c2" stroke-width="2.4"/>' +
+    '<path d="M-96 -50Q0 -66 92 -48Q40 -40 -20 -44Q-70 -42 -96 -50Z" fill="#a8dc9c" opacity=".85"/>' +
+    '<path d="M-118 -10Q-90 -22 -60 -14M40 -8Q70 -18 104 -10" stroke="#b3a6c9" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    [[-60, -30], [30, -22], [80, -30]].map(function (d) { return '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="2.6" fill="#f6a5c0"/>'; }).join("");
+}
+/* a kert rajzolásakor (renderKert, átfordítás): a szikla + a sárkány saját rétege a kert-képen, az unikornis mögött */
+function lenyKertRajzol() {
+  lkIdoTorol();
+  if (_lkFut) { _lkFut = false; KERT_TRUKK_FUT = false; }   /* félbeszakadt jelenet (kilépés, forgatás) → tiszta lap */
+  var kam = $("kert-kamera"), svg = $("ln-kert-reteg");
+  if (!lenyNagyKertben()) { if (svg) svg.parentNode.removeChild(svg); return; }
+  if (!kam) return;
+  if (!svg) {
+    var t = document.createElement("div");
+    t.innerHTML = '<svg id="ln-kert-reteg" class="ln-kert-reteg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>';
+    svg = t.firstChild; kam.appendChild(svg);
+  }
+  svg.setAttribute("viewBox", kertTajNezet($("kert-szinter")).vb.map(ktR).join(" "));
+  var K = LENY_KERT[KERT_ORIENT], l = lenyTar(), megjott = !!l.kertLatta;
+  svg.innerHTML = '<g transform="translate(' + K.x + " " + K.y + ") scale(" + K.s + ')">' + lkSzikla() + "</g>" +
+    '<g id="ln-kert-nagy" class="ln-kert-nagy" role="button" aria-label="' + htmlVed(l.nev || "Sárkány") + '"' + (megjott ? "" : ' style="display:none"') + ">" +
+    '<g id="ln-kert-flip"><g id="ln-kert-tanc">' + lenyRajz("nagy", lenyPal()) + "</g>" +
+    '<rect x="-260" y="-380" width="480" height="390" fill="transparent"/></g></g>';
+  lkHelyez(lkAlap(), -1, 1);
+  if (megjott) lkElet();
+}
+/* a sárkány talppontja a szikla tetején (réteg-koordináta) */
+function lkAlap() { var K = LENY_KERT[KERT_ORIENT]; return [K.x + 10 * K.s, K.y - 52 * K.s]; }
+function lkMeret() { return LENY_KERT_SARKANY * LENY_KERT[KERT_ORIENT].s; }
+/* hely + irány (-1 = balra néz, a kert közepe felé) + méret-szorzó */
+function lkHelyez(q, dir, sc) {
+  var g = $("ln-kert-nagy"), f = $("ln-kert-flip"); if (!g || !f) return;
+  var m = lkMeret() * (sc || 1);
+  g.setAttribute("transform", "translate(" + lnF(q[0]) + " " + lnF(q[1]) + ")");
+  f.setAttribute("transform", "scale(" + lnF(dir * m) + " " + lnF(m) + ")");
+}
+function lkKertben() { var k = $("kepernyo-kert"); return !!(k && k.classList.contains("aktiv")); }
+/* a sziklán: néha szikrát tüsszent, néha megrebbenti a szárnyát */
+function lkElet() {
+  lkIdo(8000 + Math.random() * 6000, function () {
+    var g = $("ln-kert-nagy");
+    if (!g || !lkKertben()) return;
+    if (!_lkFut && !KERT_TRUKK_FUT) {
+      if (Math.random() < 0.5) lenyTusszent(g);
+      else { var sa = g.querySelector(".sarkany"); sa.classList.add("repul"); setTimeout(function () { sa.classList.remove("repul"); }, 1100); }
+    }
+    lkElet();
+  });
+}
+/* a szikla előtti hely, ahová az unikornis odasétál (a színtér %-ában) */
+function lkUniHely() {
+  var host = $("kert-szinter"), K = LENY_KERT[KERT_ORIENT], nz = kertTajNezet(host);
+  var x = K.x - 150 * K.s - (KERT_ORIENT === "f" ? 130 : 40);
+  return ((x - nz.vb[0]) * nz.s) / (nz.w || 1) * 100;
+}
+/* az unikornis odasétál, és a sárkány felé fordul */
+function lkUniOda(kesz) {
+  var doboz = $("kert-uni-doboz"); if (!doboz) return;
+  if (KERT_UL || KERT_FEKSZIK) kertAll(false);
+  kertSetalIde(lkUniHely(), function () { uniFordul(doboz, 1, kesz); });
+}
+/* repülés egy pályán: fn(q 0..1) → [x, y, irány, méret]; utána kesz() */
+function lkRepul(ms, fn, kesz) {
+  var g = $("ln-kert-nagy"); if (!g) return;
+  var sa = g.querySelector(".sarkany"), t0 = null;
+  sa.classList.add("repul");
+  function lep(t) {
+    if (!g.isConnected) return;
+    if (t0 === null) t0 = t;
+    var q = Math.min(1, (t - t0) / ms), r = fn(q);
+    lkHelyez([r[0], r[1]], r[2], r[3]);
+    if (q < 1) requestAnimationFrame(lep);
+    else { sa.classList.remove("repul"); if (kesz) kesz(); }
+  }
+  requestAnimationFrame(lep);
+}
+/* egy kör a kert fölött, vissza a sziklára (rajzterv: körrepülés) */
+function lkKor(kesz) {
+  var a0 = lkAlap(), K = LENY_KERT[KERT_ORIENT];
+  lkRepul(nyugiMod() ? 2600 : 4200, function (q) {
+    var a = q * Math.PI * 2, sc = 1 - Math.sin(a / 2) * 0.3;
+    return [a0[0] - Math.sin(a) * K.r, a0[1] - Math.sin(a / 2) * K.h, Math.cos(a) < 0 ? 1 : -1, sc];
+  }, function () { lkHelyez(a0, -1, 1); if (kesz) kesz(); });
+}
+/* együtt táncolnak: egymás mellett, ugyanarra a ritmusra (senki nem ül a hátán) */
+function lkTanc(kesz) {
+  var t = $("ln-kert-tanc"), doboz = $("kert-uni-doboz");
+  hangCsilla();
+  [t, doboz].forEach(function (e) { if (!e) return; e.classList.remove("ln-tanc"); void e.getBoundingClientRect(); e.classList.add("ln-tanc"); });
+  lkIdo(2500, function () { [t, doboz].forEach(function (e) { if (e) e.classList.remove("ln-tanc"); }); if (kesz) kesz(); });
+}
+/* koppintás a sárkányra (kertSzinterKlikk) */
+function lenyKertKopp() {
+  var l = lenyTar();
+  if (_lkFut || KERT_TRUKK_FUT || !l.kertLatta) return;
+  _lkFut = true; KERT_TRUKK_FUT = true; hangGomb();
+  mondd(l.nev + " repül egy kört!");
+  kertSugo("🌈 " + l.nev + " repül!");
+  lkUniOda(function () {});
+  lkKor(function () {
+    mondd("Táncoljunk!");
+    lkTanc(function () { _lkFut = false; KERT_TRUKK_FUT = false; kertSugo(KERT_SUGO_SETA); });
+  });
+}
+/* az első kertbe lépés a nagy sárkánnyal: berepül, leszáll a sziklára, aztán együtt táncolnak (kertNyit hívja) */
+function lenyKertErkezik() {
+  var l = lenyTar();
+  if (!lenyNagyKertben(l) || l.kertLatta) return;
+  var g = $("ln-kert-nagy"); if (!g) return;
+  _lkFut = true; KERT_TRUKK_FUT = true;
+  var vb = kertTajNezet($("kert-szinter")).vb, a0 = lkAlap();
+  var s0 = [vb[0] + vb[2] + 260, vb[1] - 160], c = [vb[0] + vb[2] * 0.45, vb[1] + 30];
+  lkHelyez(s0, -1, 0.7);
+  lkIdo(900, function () {
+    if (!lkKertben()) return;
+    g.style.display = "";
+    mondd("Nézd, ki jön! " + l.nev + "!");
+    lkRepul(nyugiMod() ? 2600 : 4200, function (q) {
+      var u = 1 - q;
+      return [u * u * s0[0] + 2 * u * q * c[0] + q * q * a0[0], u * u * s0[1] + 2 * u * q * c[1] + q * q * a0[1], -1, 0.7 + 0.3 * q];
+    }, function () {
+      lkHelyez(a0, -1, 1); lenyTusszent(g);
+      l.kertLatta = 1; ment();
+      esemeny("leny_nagy_kertben", { nev: l.nev, leny: mentes.leny });
+      mondd(l.nev + " nagyon megnőtt! Mostantól itt lakik a kertben, a napmeleg sziklán.");
+      kertSugo("🌈 Koppints " + l.nev + " sárkányra, és repül egy kört!");
+      lkUniOda(function () {
+        lkTanc(function () { _lkFut = false; KERT_TRUKK_FUT = false; lkElet(); });
+      });
+    });
+  });
+}
+/* a ligettérkép Kert-jelzése: 🌈, amíg a nagy sárkány még nem érkezett meg a kertbe */
+function lenyKertJel() { var l = lenyTar(); return lenyNagyKertben(l) && !l.kertLatta ? ["🌈"] : []; }
