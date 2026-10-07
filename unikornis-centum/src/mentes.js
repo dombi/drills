@@ -82,6 +82,7 @@ function profilNormal(p) {
   if (!p.tenyek || typeof p.tenyek !== "object") p.tenyek = {};           /* 🌸 tény-motor (teny.js): kulcs → { d, e, n, h, m, fl, ln } */
   if (!p.tenyTipus || typeof p.tenyTipus !== "object") p.tenyTipus = {};   /* 🌸 a 100-as kör típusai, ugyanilyen sorokkal */
   tenyKertTar(p);                                  /* 🌷 Tamagocsi-kert (teny.js): P().tenyKert = { v: kulcs → { a, n, g }, loc, bent, mag, meg, … } */
+  villamTar(p);                                    /* ⚡ Villámkör (villam.js): P().villam = { rek, nap, rh, napok, un, korok } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   visszaTar(p);                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };

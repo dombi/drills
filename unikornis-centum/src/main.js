@@ -12,6 +12,8 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  villamHalmazok: villamHalmazok, villamNyitva: villamNyitva, villamTudott: villamTudott, villamKorEpit: villamKorEpit, villamKov: villamKov, villamRossz: villamRossz,
+  villamFeladat: villamFeladat, villamArnyek: villamArnyek, villamKorZar: villamKorZar, villamAllapot: villamAllapot, villamTar: villamTar, villamBeall: villamBeall,   /* ⚡ VILLÁMKÖR (2. kör) */
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */
   gyakNap: gyakNap, gyakLep: gyakLep, gyakPalyaVege: gyakPalyaVege, igeny: igeny, meglepetesSor: meglepetesSor, erik: erik,   /* 🌱 GONDOZÁS */
   visszaHir: visszaHir, VISSZA_HIR: VISSZA_HIR, napiHatar: napiHatar, napiMarad: napiMarad, visszaTar: visszaTar, hetAzon: hetAzon, hetPecset: hetPecset, visszaAllapot: visszaAllapot,   /* 💌 VISSZAHÍVÁS (2. kör) */

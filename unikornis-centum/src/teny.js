@@ -3,6 +3,9 @@
    tudja-e a gyerek, és fejből, gyorsan tudja-e. MINDEN tény-ügy egyedül ezen megy át (a pult, a
    Neked szóló ösvény, a becsempészés, a Tény-kert és a későbbi Villámkör is ezt használja).
 
+   ⚡ Villámkör 2. kör (2026-10-07): forma "v" (a sprint feladatai, src/villam.js) — külön rövid előzmény (vh), és SZELÍD
+     botlás: a sprintben a kapkodás is hibát okoz, ezért a doboz nem csúszik le, a tény csak esedékes lesz (a Neked szóló
+     ösvény nyugodtan, felolvasással visszahozza; ha ott is botlik, az már rendes botlás). A V/J ugyanúgy léptet.
    Tamagocsi-kert 3. kör (2026-10-05): a virágok rejtett könyvelése (tenyKertHajt, tenyKertNyit; lent) + src/gondozas.js.
    Mi bújt el? 5. kör (2026-10-07): a Neked szóló ösvényen kb. minden ötödik feladat „mi bújt el” formában, ha a gyerek
      abban a családban már végigjárt egy bújócska-pályát (hiNekedJelol / hiNekedForma, src/bujocska.js).
@@ -27,8 +30,9 @@
 
    Egy tény sora (P().tenyek[kulcs], a P().tenyTipus is ugyanilyen):
      { d: doboz 0–5, e: esedékes nap, n: próbák, h: utolsó 6 eredmény, m: utolsó idő (tized mp),
-       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el), ln: utolsó feljebb lépés napja,
-       hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít) }
+       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el, „v” = Villámkör), ln: utolsó feljebb lépés napja,
+       hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít),
+       vh: a Villámkör utolsó 6 eredménye (csak ha volt ilyen; a h-ba is beleszámít, a botlása szelíd) }
    Eredmény-betűk: V villám · J jó, de lassú · S jó, de 20 mp fölött (szünet) · H botlás.
    Nap = helyi naptári nap sorszáma (tenyNap), így az „esedékes” éjfélkor fordul. */
 
@@ -172,7 +176,9 @@ function tenyJegyez(naplo, elsore, ms) {
   var forma = naplo.forma || "e";
   if ((s.fl || "").indexOf(forma) < 0) s.fl = (s.fl || "") + forma;
   if (forma === "h") s.hh = ((s.hh || "") + betu).slice(-6);   /* 🌿 „mi bújt el”: külön előzmény (a pult 🌿 jele ebből) */
-  tenyLep(s, betu, ma);
+  if (forma === "v") s.vh = ((s.vh || "") + betu).slice(-6);   /* ⚡ Villámkör: külön előzmény (a pult látja, ha csak sprintben csúszik el) */
+  if (forma === "v" && betu === "H") s.e = ma;                  /* ⚡ szelíd botlás: a doboz marad, csak esedékes lesz */
+  else tenyLep(s, betu, ma);
   return { kulcs: tk.kulcs, tipus: tk.tipus, betu: betu, d: s.d };
 }
 
