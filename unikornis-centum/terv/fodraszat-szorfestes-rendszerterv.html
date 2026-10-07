@@ -68,7 +68,7 @@
   <div class="meta">
     <span class="chip">Unikornis Centum</span>
     <span class="chip">2026-10-07</span>
-    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">Tervlap 2. kör · jóváhagyásra vár</span>
     <span class="chip">Méret: közepes</span>
   </div>
 </header>
@@ -82,9 +82,9 @@
   <b>✅ A producer döntései (2026-10-07):</b>
   <ul>
     <li><b>a szarv, a szemszín és a far-jel nem változik</b>, hogy az unikornis festett szőrrel is felismerhető maradjon</li>
-    <li><b>színek és pár minta</b></li>
+    <li><b>színek és pár minta</b>; a Pöttyös és a Felhőfoltos <b>kimarad</b>, a Citromkrém és a Csoki helyett <b>kétféle lila</b> (2. kör)</li>
     <li>festékenként <b>12 💧</b></li>
-    <li>az első körben <b>8 szőrfesték</b> (pont egy polc-oldal; később bővíthető)</li>
+    <li>az első körben így <b>6 szőrfesték</b> (5 szín + a Szivárvány); a polcon 2 hely üres marad, később bővíthető</li>
   </ul>
 </div>
 
@@ -102,11 +102,11 @@
   <p class="lead" style="margin-top:10px"><b>Saját ötletem: a far-jel szegélyt kap.</b> Ha a szőr színe közel esik a jeléhez (például Tűz piros virágja egy barackszínű szőrön), a jel kap egy vékony, világos szegélyt, mint egy matrica. Így a jel bármilyen szőrön jól látszik, és nem olvad bele a festékbe. A rajzterv mind a 8 festéken megmutatja a 3 unikornisnál.</p>
 </div>
 
-<h2>A 8 szőrfesték</h2>
+<h2>A 6 szőrfesték</h2>
 <p class="lead">Lágy pasztell színek, hogy illjenek a játék stílusához, és a fekete körvonal, a szem meg a szarv jól kiváljon belőlük. Szándékosan nincs köztük Tűz barackszíne, Csillámharmat halványkékje és Ragyogás fehérje, hogy ne lehessen egyik unikornist a másikra „átfesteni”. A minták itt csak az irányt mutatják; a valódi rajz a rajztervben lesz, a 3 unikornison.</p>
 <h3 class="sub">Színek (5)</h3>
 <div class="paints" id="szinek"></div>
-<h3 class="sub">Minták (3)</h3>
+<h3 class="sub">Minta (1)</h3>
 <div class="paints" id="mintak"></div>
 <p class="lead" style="margin-top:10px">Mindegyik egy sor egy listában, ugyanúgy, mint a sörényfestékek és a lakkok: <b>új szőrfesték = egy új sor</b>. Ha a gyerekek újat kérnek, nem kell hozzá új kód.</p>
 
@@ -115,7 +115,7 @@
 
   <div class="dec"><div class="num">1</div><h3>Mi festődik?</h3>
     <p>Egy koppintással <b>az egész szőr</b>: test, fej, fül és a 4 láb. A has magától világosabb árnyalatot kap, mert az unikornisoknak most is van világosabb hasuk. A felsorolt 6 felismerő jel kimarad.</p>
-    <p class="lead">A mintás festékeknél a minta a testen és a fejen látszik, a lábak a minta egyszínű alapját kapják, mert a vékony, mozgó lábakon a minta szétesne.</p>
+    <p class="lead">A Szivárványnál az átmenet a testen és a fejen látszik, a lábak egy egyszínű, halvány árnyalatot kapnak, mert a vékony, mozgó lábakon az átmenet szétesne.</p>
     <span class="ok">A producer döntése (a 6 felismerő jel marad)</span></div>
 
   <div class="dec"><div class="num">2</div><h3>Ár</h3>
@@ -203,13 +203,13 @@
 <div class="panel">
   <div class="flow">
     <span class="step">① ez a tervlap ✋ jóváhagyásra</span><span class="arr">→</span>
-    <span class="step">② rajzterv: a 8 szőrfesték a 3 unikornison + a jel-szegély + az élő polc</span><span class="arr">→</span>
+    <span class="step">② rajzterv: a 6 szőrfesték a 3 unikornison + a jel-szegély + az élő polc</span><span class="arr">→</span>
     <span class="step">③ kód egy körben + teszt + feltöltés</span>
   </div>
 </div>
 
 <h2>Jóváhagyás</h2>
-<div class="panel wait"><b>⏳ Jóváhagyásra vár.</b> Nyitott javaslatok: a 3. (polc), az 5. (előbb megmutatja), a 6. (kedves terelés), a 8. (öröm-pillanat), a jel-szegély és a 8 festék neve, színe.</div>
+<div class="panel wait"><b>⏳ Jóváhagyásra vár.</b> Nyitott javaslatok: a 3. (polc), az 5. (előbb megmutatja), a 6. (kedves terelés), a 8. (öröm-pillanat), a jel-szegély és a 6 festék neve, színe.</div>
 
 </div>
 <script>
@@ -218,13 +218,11 @@ function cs(x, y, r, c) { var p = []; for (var i = 0; i < 8; i++) { var a = Math
 var SZINEK = [
   ["🍃", "Menta", { t: "#bfeedd", h: "#e4f8ef" }, "lágy mentazöld"],
   ["💜", "Levendula", { t: "#d9c8f5", h: "#efe6fc" }, "halványlila"],
-  ["🍋", "Citromkrém", { t: "#fbe9a6", h: "#fff6d6" }, "vajsárga"],
+  ["🌸", "Orgona", { t: "#ecc6ea", h: "#f8e8f7" }, "rózsaszínes lila, mint az orgonavirág"],
   ["🌙", "Holdezüst", { t: "#cfd5e2", h: "#eef1f6" }, "ezüstösszürke"],
-  ["🍫", "Csoki", { t: "#b78466", h: "#e2c3ad" }, "tejcsokibarna"]
+  ["🔮", "Ametiszt", { t: "#b8a0e8", h: "#ddd0f6" }, "erősebb, kékes lila"]
 ];
 var MINTAK = [
-  ["🩷", "Pöttyös", { t: "#f9cfe0", h: "#fde9f1", m: "potty" }, "rózsaszín, fehér pöttyök"],
-  ["☁️", "Felhőfoltos", { t: "#ffffff", h: "#ffffff", m: "felho" }, "fehér, halványkék felhőfoltok"],
   ["🌈", "Szivárvány", { t: "#ffd0dc", h: "#fff4f7", m: "sziv" }, "pasztell átmenet a fejtől a farig"]
 ];
 var n = 0;
