@@ -50,7 +50,7 @@
 <header class="top">
   <h1>Patalakk · rajzterv</h1>
   <div class="sub">A 21 lakk a játék VALÓDI unikornisain (a <code>src/renderer.js</code> rajzolja), patánként más színnel, szemből és hátulról is. Lent egy kipróbálható szalon: élő falipolc, és a gombsor ahhoz igazodik, ami a gyerek kezében van.</div>
-  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · jóváhagyásra vár</span>
+  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · JÓVÁHAGYVA · kódolva</span>
 </header>
 
 <h2>1. A 21 lakk a 3 unikornis patáján</h2>
@@ -67,7 +67,7 @@
 <svg id="szalon" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg>
 <p class="lead" style="text-align:center;margin-top:8px">A festékszekrény itt egyszerűsítve, 4 tégellyel (a játékban 17 festék van, lapozva).</p>
 
-<h2>4. Mit kérek jóváhagyásra?</h2>
+<h2>4. Jóváhagyva (2026-10-07) — mind a 4 pont így került a játékba</h2>
 <div class="dontes"><b>a) A lakkok kinézete (1. rész)</b>Tetszenek-e a pata-méretű minták, főleg a csillagosak, a Pöttyös, a Galaxis és a 💎 Csillámlakk?</div>
 <div class="dontes"><b>b) Az élő falipolc (3. rész)</b>2 sorban 8 üvegcse, az üvegben a lakk színe, mellette ✓ vagy az ár, ◀ ▶ lapozóval (alatta az oldalszám). A régi „körömlakkok · hamarosan” felirat eltűnik, új felirat sem kell.</div>
 <div class="dontes"><b>c) A gombsor (3. rész)</b>Festék a kézben → Sörény · Farok · Tincs; lakk → 4 pata-gomb + „✨ Mind”; szivacs → két sor, mind a 7 hely. Ha üres a kéz, a 3 rész-gomb látszik, mellettük egy „Paták” gomb, ami a polcra mutat.</div>
@@ -287,9 +287,9 @@ function szalonRajz() {
   var olt = S.patko ? { lab: "lab-k" } : null, k = { frizura: S.frizura, festek: S.festek };
   s += '<g id="m-uni" transform="translate(208,207) scale(1.12)">' + (S.nezet === "oldal" ? uniOldal("m-u", S.rajz, S.lakk, k, olt) : uniNezet("m-u", S.nezet, S.rajz, S.lakk, k, olt)) + '</g>';
   /* beszédbuborék: jobb oldalt, a fejjel egy magasságban */
-  var sorok = tordel(S.szoveg, 19), bh = 14 + sorok.length * 12;
-  s += '<path d="M302 ' + (136) + ' h88 a8 8 0 0 1 8 8 v' + (bh - 16) + ' a8 8 0 0 1 -8 8 h-88 a8 8 0 0 1 -8 -8 v-' + (bh - 30) + ' l-8 -4 l8 -4 v-2 a8 8 0 0 1 8 -8 Z" fill="#fff" stroke="#e0417a" stroke-width="1.5"/>';
-  sorok.forEach(function (t, i) { s += '<text x="346" y="' + (151 + i * 12) + '" text-anchor="middle" font-size="9.5" font-weight="800" fill="#e0417a">' + t + '</text>'; });
+  var sorok = tordel(S.szoveg, 19), bh = Math.max(34, 14 + sorok.length * 12), ty = 136 + (bh - sorok.length * 12) / 2 + 9;
+  s += '<path d="M302 ' + (136) + ' h88 a8 8 0 0 1 8 8 v' + (bh - 16) + ' a8 8 0 0 1 -8 8 h-88 a8 8 0 0 1 -8 -8 v-' + (bh - 26) + ' l-8 -4 l8 -4 v-2 a8 8 0 0 1 8 -8 Z" fill="#fff" stroke="#e0417a" stroke-width="1.5"/>';
+  sorok.forEach(function (t, i) { s += '<text x="346" y="' + (ty + i * 12) + '" text-anchor="middle" font-size="9.5" font-weight="800" fill="#e0417a">' + t + '</text>'; });
   if (S.dlg) {
     var l = LAKK_BY[S.dlg] || FESTEK_BY[S.dlg], y0 = 136 + bh + 4, eleg = S.harmat >= 12;
     s += eleg ? gomb("igen", 300, y0, 46, 22, '<text x="323" y="' + (y0 + 15) + '" text-anchor="middle" font-size="9.5" font-weight="800" fill="#3f9e6a">Igen ✓</text>', true) +

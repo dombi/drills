@@ -4,11 +4,11 @@ var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
+function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null }, lakk: [null, null, null, null] }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
-function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=1 (2026-10 óta mindenkinek; régen: megvett kertkapu-kulcs), kulcsVissza=a kulcs árát már visszakapta, attolva=a tárgyak egyszer a C2 kert füves partjára kerültek; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
+function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {}, lakkok: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=1 (2026-10 óta mindenkinek; régen: megvett kertkapu-kulcs), kulcsVissza=a kulcs árát már visszakapta, attolva=a tárgyak egyszer a C2 kert füves partjára kerültek; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
 function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {}, tenyKert: { v: {} }, gyak: { db: 0, nap: 0 } }; }
@@ -52,6 +52,8 @@ function profilNormal(p) {
   if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
   if (!p.kinezet.festek || typeof p.kinezet.festek !== "object") p.kinezet.festek = {};   /* FODRÁSZAT 2.: részenkénti festék-id */
   ["soreny", "farok", "tincs"].forEach(function (r) { if (typeof p.kinezet.festek[r] !== "string") p.kinezet.festek[r] = null; });
+  var lk0 = p.kinezet.lakk;   /* FODRÁSZAT 2.: patalakk, patánként (UNI_LABAK sorrend); tömb vagy {2:"id"} alak is jöhet */
+  p.kinezet.lakk = [0, 1, 2, 3].map(function (i) { return lk0 && typeof lk0[i] === "string" ? lk0[i] : null; });
   p.kinezet.vanSoreny[0] = 1; p.kinezet.vanSzem["0"] = 1;
   if (!p.kapu) p.kapu = alapKapu();
   if (!p.fejtoro) p.fejtoro = { palyak: {}, vissza: {} };   /* Fejtörő-hegy: pályánként poz/kesz, visszatérő feladatok (id → {nap, db}) */
@@ -71,6 +73,7 @@ function profilNormal(p) {
   if (typeof p.szalon.nyitva !== "number") p.szalon.nyitva = 0;
   if (!p.szalon.kefek) p.szalon.kefek = {};
   if (!p.szalon.festekek) p.szalon.festekek = {};   /* FODRÁSZAT 2.: megvett festékek { id: 1 } */
+  if (!p.szalon.lakkok) p.szalon.lakkok = {};       /* FODRÁSZAT 2.: megvett patalakkok { id: 1 } */
   if (!p.bank || typeof p.bank !== "object") p.bank = alapBank();   /* 🏦 TÜNDÉRBANK */
   if (typeof p.bank.nap !== "string") p.bank.nap = "";
   if (!p.bank.valtva) p.bank.valtva = {};

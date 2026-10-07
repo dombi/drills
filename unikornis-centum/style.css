@@ -1413,6 +1413,15 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .szalon-svg.festheto .szalon-resz{ animation:szalon-resz-csillog 1.3s ease-in-out infinite; }
 @keyframes szalon-resz-csillog{ 0%,100%{ filter:drop-shadow(0 0 1px rgba(255,214,0,.4)); } 50%{ filter:drop-shadow(0 0 7px rgba(255,214,0,.95)); } }
 @media (prefers-reduced-motion:reduce){ .szalon-svg.festheto .szalon-resz{ animation:none; filter:drop-shadow(0 0 4px rgba(255,214,0,.9)); } }
+/* PATALAKK: lakk / szivacs a kézben → a paták csillognak; rossz eszköznél a polc felvillan; felkenéskor csillanás */
+.szalon-uveg, .szalon-llapoz, .szalon-pgomb{ cursor:pointer; }
+.szalon-uveg:active, .szalon-llapoz:active, .szalon-pgomb:active{ opacity:.8; }
+.szalon-svg.lakkozhato .szalon-pata{ animation:szalon-resz-csillog 1.3s ease-in-out infinite; }
+.szalon-villan{ animation:szalon-villan .5s ease-in-out 3; opacity:0; }
+@keyframes szalon-villan{ 0%,100%{ opacity:0; } 50%{ opacity:1; } }
+.szalon-csill{ transform-box:fill-box; transform-origin:center; animation:szalon-csill .8s ease-out forwards; }
+@keyframes szalon-csill{ 0%{ opacity:0; transform:scale(.4); } 40%{ opacity:1; } 100%{ opacity:0; transform:scale(1.4); } }
+@media (prefers-reduced-motion:reduce){ .szalon-svg.lakkozhato .szalon-pata{ animation:none; filter:drop-shadow(0 0 4px rgba(255,214,0,.9)); } .szalon-villan{ animation:none; opacity:1; } .szalon-csill{ animation:none; opacity:0; } }
 .szalon-dlg{ position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; background:rgba(60,40,90,.35); padding:16px; }
 .szalon-dlg-kartya{ background:#fffaf3; border-radius:22px; padding:18px 20px 16px; max-width:320px; width:100%; text-align:center; box-shadow:0 8px 28px rgba(60,40,90,.3); }
 .szalon-dlg-folt{ border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }

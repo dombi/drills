@@ -66,7 +66,7 @@
   <div class="meta">
     <span class="chip">Unikornis Centum</span>
     <span class="chip">2026-10-07</span>
-    <span class="chip">Tervlap · JÓVÁHAGYVA · rajzterv következik</span>
+    <span class="chip">Tervlap + rajzterv jóváhagyva · KÓDOLVA</span>
     <span class="chip">Méret: közepes</span>
   </div>
 </header>
@@ -192,7 +192,17 @@
 </div>
 
 <h2>Jóváhagyás</h2>
-<div class="panel done"><b>✅ A tervlap jóváhagyva (2026-10-07).</b> Következik a rajzterv: a 21 lakk a 3 unikornis patáján, az élő polc és a pata-gombsor.</div>
+<div class="panel done"><b>✅ A tervlap jóváhagyva (2026-10-07).</b></div>
+<div class="panel done" style="margin-top:10px"><b>✅ A rajzterv jóváhagyva (2026-10-07):</b> <code>terv/patalakk-rajzterv.html</code> (generálja: <code>python terv/patalakk-build.py</code>).</div>
+<div class="panel done" style="margin-top:10px"><b>✅ Kódolva (2026-10-07)</b>, így, ahogy a játékban van:
+  <ul>
+    <li><code>LAKKOK</code> (21 sor) + <code>lakkFolt</code> + <code>lakkAlkalmaz</code> a <code>src/renderer.js</code>-ben; a <code>unikornisSVG</code> és a <code>unikornisNezetArt</code> is meghívja, így pálya, odú, kert, Tény-kert, utca, gyűjtemény és forduláskor a szemből/hátulról nézet is lakkos.</li>
+    <li>A bolti kinézet-előnézet (<code>kinezetPreview</code>) és a felhőkert (<code>tkKinezet</code>, ismeretlen lakk-id kiszűrve) is viszi a lakkot.</li>
+    <li>Mentés: <code>P().kinezet.lakk</code> (4 elem) + <code>P().szalon.lakkok</code>; a régi mentések maguktól kapják meg; a <code>{2:"id"}</code> alakot is elfogadja.</li>
+    <li>Szalon (<code>src/szalon.js</code>): élő falipolc (2 × 4, ◀ ▶, oldalszám a ◀ alatt), eszköz szerinti gombsor, üres kézzel „Paták” gomb a polcra mutat, nagyobb láthatatlan koppintó-felület a patákon, lakk/szivacs a kézben → a paták csillognak, felkenéskor csillanás; a beszédbuborék jobbra, a fej mellé került.</li>
+    <li>Napló: <code>vasarlasNaplo("lakk-" + id, 12, "tunderharmat")</code>.</li>
+  </ul>
+</div>
 
 </div>
 <script>

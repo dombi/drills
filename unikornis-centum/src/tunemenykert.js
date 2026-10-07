@@ -145,6 +145,8 @@ function tkKinezet(k) {
   var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, frizura: k.frizura || "egyenes" };
   /* FODRÁSZAT 2.: festés — csak ismert festék-id megy át (a hiányzó rész = festetlen) */
   if (k.festek) { var f = {}, van = false; ["soreny", "farok", "tincs"].forEach(function (x) { if (FESTEK_BY[k.festek[x]]) { f[x] = k.festek[x]; van = true; } }); if (van) r.festek = f; }
+  /* patalakk: csak ismert lakk-id megy át; a felhőből {2:"id"} alakban is jöhet */
+  if (k.lakk) { var l = [0, 1, 2, 3].map(function (i) { return LAKK_BY[k.lakk[i]] ? k.lakk[i] : null; }); if (l.some(function (x) { return x; })) r.lakk = l; }
   return r;
 }
 function tkOltozet(o) { var r = {}; ["hat", "farok", "oldal", "lab", "nyak", "fej"].forEach(function (h) { if (o && typeof o[h] === "string") r[h] = o[h]; }); return r; }
