@@ -1426,6 +1426,14 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .szalon-dlg-kartya{ background:#fffaf3; border-radius:22px; padding:18px 20px 16px; max-width:320px; width:100%; text-align:center; box-shadow:0 8px 28px rgba(60,40,90,.3); }
 .szalon-dlg-folt{ border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }
 .szalon-dlg-kartya p{ margin:10px 0 12px; font-size:17px; font-weight:700; color:#5a3a90; line-height:1.35; }
+/* SZŐRFESTÉS: polc, „Szőr” gomb, csillogó test, megrázás; a vásárlás-ablak lent, hogy a próbált szőr látsszon */
+.szalon-szuveg, .szalon-sgomb{ cursor:pointer; }
+.szalon-szuveg:active, .szalon-sgomb:active{ opacity:.8; }
+.szalon-svg.szorfesto #szalon-uni .uni-szor{ cursor:pointer; animation:szalon-resz-csillog 1.3s ease-in-out infinite; }
+.szalon-razza{ transform-box:fill-box; transform-origin:50% 100%; animation:szalon-razza .7s ease-in-out 1; }
+@keyframes szalon-razza{ 0%,100%{ transform:rotate(0); } 15%{ transform:rotate(-5deg); } 30%{ transform:rotate(5deg); } 45%{ transform:rotate(-4deg); } 60%{ transform:rotate(3deg); } 75%{ transform:rotate(-1.5deg); } }
+.szalon-dlg.also{ align-items:flex-end; background:rgba(60,40,90,.12); }
+@media (prefers-reduced-motion:reduce){ .szalon-svg.szorfesto #szalon-uni .uni-szor{ animation:none; filter:drop-shadow(0 0 4px rgba(255,214,0,.9)); } .szalon-razza{ animation:none; } }
 
 /* ── FELHŐ (backend 1. fázis): belépő képernyő + állapotsor ── */
 .felho-belepo { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center;

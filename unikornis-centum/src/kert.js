@@ -1274,7 +1274,7 @@ function boltThumb(cs, t) {
 }
 /* kinézet-előnézet: a jelenlegi kinézet, de a kérdéses tulajdonság a kért értéken */
 function kinezetPreview(kulcs, id) {
-  var k = P().kinezet, uj = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, lakk: k.lakk || null };   /* a patalakk az előnézeten is látszik */
+  var k = P().kinezet, uj = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, lakk: k.lakk || null, szor: k.szor || null };   /* a patalakk és a szőrfesték az előnézeten is látszik */
   if (kulcs === "soreny") uj.sorenySzin = id;
   else uj.szemSzin = SZEM_SZIN[id] ? (SZEM_SZIN[id].hex || null) : null;
   return uj;

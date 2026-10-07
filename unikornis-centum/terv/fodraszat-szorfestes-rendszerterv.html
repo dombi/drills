@@ -68,7 +68,7 @@
   <div class="meta">
     <span class="chip">Unikornis Centum</span>
     <span class="chip">2026-10-07</span>
-    <span class="chip">Tervlap JÓVÁHAGYVA</span>
+    <span class="chip">Tervlap JÓVÁHAGYVA · kódolva</span>
     <span class="chip">Méret: közepes</span>
   </div>
 </header>
@@ -210,7 +210,8 @@
 
 <h2>Jóváhagyás</h2>
 <div class="panel done"><b>✅ A tervlap jóváhagyva (2026-10-07):</b> a producer szerint a javaslatok jók (polc, előbb megmutatja, kedves terelés, öröm-pillanat, jel-szegély); a 8 festék: Menta, Levendula, Orgona, Ametiszt, Holdezüst + Csillámszőr, Cukorcsíkos, Szivárvány. Következik: rajzterv.</div>
-<div class="panel wait" style="margin-top:12px"><b>⏳ Rajzterv kész, jóváhagyásra vár (2026-10-07):</b> <code>terv/szorfestes-rajzterv.html</code> (generálva: <code>python terv/szorfestes-build.py</code> a <code>szorfestes-rajzterv.sablon.html</code>-ből + <code>src/renderer.js</code>). A 8 szőr a 3 valódi unikornison, 7 pózban, szemből/hátulról, díszekkel; a jel-szegély gépi döntéssel (színtávolság &lt; 80); kipróbálható szalon az élő polccal, a 2 mp-es próbával, a söpréssel és a kedves tereléssel. A sablonban a <code>SZORFESTEKEK</code>, a <code>szorSzinek</code>, a <code>szorMintaDef</code> és a jel-szegély PROTOTÍPUS: kódoláskor ezek kerülnek a renderer.js-be.</div>
+<div class="panel done" style="margin-top:12px"><b>✅ KÓDOLVA (2026-10-07):</b> a rajzterv mind az 5 pontja jóváhagyva, és bekerült a játékba: <code>SZORFESTEKEK</code>, <code>szorSzinek</code>, <code>szorMintaDef</code>, <code>szorPeldany</code>, jel-szegély a <code>renderer.js</code>-ben (<code>uniAlapArt(rajz, labDisz, szor)</code>, a cache kulcsa rajz|lábdísz|szőr; a test/fej/fül <code>class="uni-szor"</code>); mentés <code>P().kinezet.szor</code> + <code>P().szalon.szorfestekek</code>; élő polc, „Szőr” gomb, 2 mp-es próba, söprés + megrázás + <code>uniPorog</code> a <code>szalon.js</code>-ben; felhőkert (<code>tkKinezet</code>) és bolti előnézet (<code>kinezetPreview</code>) továbbadja; napló <code>"szor-"+id</code>. Köv.: élő próba.</div>
+<div class="panel wait" style="margin-top:12px"><b>Rajzterv (előzmény) (2026-10-07):</b> <code>terv/szorfestes-rajzterv.html</code> (generálva: <code>python terv/szorfestes-build.py</code> a <code>szorfestes-rajzterv.sablon.html</code>-ből + <code>src/renderer.js</code>). A 8 szőr a 3 valódi unikornison, 7 pózban, szemből/hátulról, díszekkel; a jel-szegély gépi döntéssel (színtávolság &lt; 80); kipróbálható szalon az élő polccal, a 2 mp-es próbával, a söpréssel és a kedves tereléssel. A sablonban a <code>SZORFESTEKEK</code>, a <code>szorSzinek</code>, a <code>szorMintaDef</code> és a jel-szegély PROTOTÍPUS: kódoláskor ezek kerülnek a renderer.js-be.</div>
 
 </div>
 <script>

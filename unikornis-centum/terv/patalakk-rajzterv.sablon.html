@@ -54,7 +54,7 @@
 </header>
 
 <h2>1. A 21 lakk a 3 unikornis patáján</h2>
-<p class="lead">Minden kártyán fentről le: Tűz · Ragyogás · Csillámharmat, közelről, a lábaknál. A 17 ikerlakk ugyanazt a nevet viseli, mint a sörényfesték; a minta a pata kis felületére egyszerűsítve (kevesebb, nagyobb csillag vagy pötty), fényes csillanással.</p>
+<p class="lead">Minden kártyán fentről le: Tűz · Csillámharmat · Ragyogás, közelről, a lábaknál. A 17 ikerlakk ugyanazt a nevet viseli, mint a sörényfesték; a minta a pata kis felületére egyszerűsítve (kevesebb, nagyobb csillag vagy pötty), fényes csillanással.</p>
 <div class="grid" id="lakkok"></div>
 
 <h2>2. Patánként más szín — példák</h2>
@@ -148,7 +148,7 @@ function lakkAlkalmaz(art, lakk, pfx, nezet) {
 }
 /* ══ vége a prototípusnak ══ */
 
-var LENY = [["korall", "Tűz"], ["kek", "Ragyogás"], ["rozsa", "Csillámharmat"]];
+var LENY = [["korall", "Tűz"], ["kek", "Csillámharmat"], ["rozsa", "Ragyogás"]];
 function kin(o) { return { sorenySzin: 0, szemSzin: null, frizura: o.frizura || "egyenes", festek: o.festek || { soreny: null, farok: null, tincs: null } }; }
 function uniOldal(id, rajz, lakk, k, olt) { return lakkAlkalmaz(unikornisSVG(id, { rajz: rajz }, 1, olt || null, kin(k || {})), lakk, id, "oldal"); }
 function uniNezet(id, nezet, rajz, lakk, k, olt) {
@@ -170,11 +170,11 @@ function uniNezet(id, nezet, rajz, lakk, k, olt) {
 (function () {
   var P = [
     ["Tűz", "korall", ["eper", "napsarga", "zold", "tengerkek"], {}, null, "Négy különböző: „Hű, négy különböző!”"],
-    ["Ragyogás", "kek", ["ejcsillam", "ejcsillam", "galaxis", "galaxis"], {}, null, "Pár: elöl Galaxis, hátul Éjszakai csillámpor"],
-    ["Csillámharmat", "rozsa", ["galaxis", "galaxis", "galaxis", "galaxis"], { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, null, "Galaxis sörény + Galaxis lakk: „Most illik a sörényedhez!”"],
-    ["Ragyogás", "kek", ["csillam", "csillam", "csillam", "csillam"], { frizura: "gondor" }, { lab: "lab-k" }, "Csillámlakk + patkó: a patkó a talpon, fölötte csillog a lakk"],
+    ["Csillámharmat", "kek", ["ejcsillam", "ejcsillam", "galaxis", "galaxis"], {}, null, "Pár: elöl Galaxis, hátul Éjszakai csillámpor"],
+    ["Ragyogás", "rozsa", ["galaxis", "galaxis", "galaxis", "galaxis"], { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, null, "Galaxis sörény + Galaxis lakk: „Most illik a sörényedhez!”"],
+    ["Csillámharmat", "kek", ["csillam", "csillam", "csillam", "csillam"], { frizura: "gondor" }, { lab: "lab-k" }, "Csillámlakk + patkó: a patkó a talpon, fölötte csillog a lakk"],
     ["Tűz", "korall", ["nyaloka", "pink", "nyaloka", "pink"], { festek: { soreny: "nyaloka", farok: "pink", tincs: "nyaloka" } }, { lab: "lab-a" }, "Nyalóka + Pink váltakozva, bokapánttal"],
-    ["Csillámharmat", "rozsa", ["szivarvany", null, "szivarvany", null], {}, { lab: "lab-r" }, "Csak két patán lakk: a másik kettő a saját színén"]
+    ["Ragyogás", "rozsa", ["szivarvany", null, "szivarvany", null], {}, { lab: "lab-r" }, "Csak két patán lakk: a másik kettő a saját színén"]
   ];
   var h = "";
   P.forEach(function (x, j) {

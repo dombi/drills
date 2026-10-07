@@ -59,11 +59,11 @@
 <header class="top">
   <h1>Szőrfestés · rajzterv</h1>
   <div class="sub">A 8 szőrfesték a játék VALÓDI unikornisain (a <code>src/renderer.js</code> rajzolja): minden pózban, szemből és hátulról, díszekkel. A szarv, a szemszín és a far-jel mindenhol a sajátja marad. Lent egy kipróbálható szalon az élő szőrfesték-polccal.</div>
-  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · jóváhagyásra vár</span>
+  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · JÓVÁHAGYVA · kódolva</span>
 </header>
 
 <h2>1. A 8 szőrfesték a 3 unikornison</h2>
-<p class="lead">Minden kártyán fentről le: Tűz · Ragyogás · Csillámharmat. Az első kártya az eredeti szőr, összehasonlításnak. A has magától világosabb, a lábak a has színét kapják (mint most is). A <span class="szegely">jel-szegély</span> címke ott van, ahol a far-jel matrica-szegélyt kapott.</p>
+<p class="lead">Minden kártyán fentről le: Tűz · Csillámharmat · Ragyogás. Az első kártya az eredeti szőr, összehasonlításnak. A has magától világosabb, a lábak a has színét kapják (mint most is). A <span class="szegely">jel-szegély</span> címke ott van, ahol a far-jel matrica-szegélyt kapott.</p>
 <div class="grid" id="szorok"></div>
 
 <h2>2. Minden pózban</h2>
@@ -72,7 +72,7 @@
 <div class="pozok" id="pozok"></div>
 
 <h2>3. A far-jel szegélye közelről</h2>
-<p class="lead">Ha a szőr színe közel esik a jel színéhez, a jel vékony, fehér matrica-szegélyt kap. A gép dönti el, a színek távolsága alapján, nem kell kézzel beállítani. Tűz piros virága és Ragyogás kék hópelyhe minden pasztell szőrön jól kiválik, így ott nem kell. Csillámharmat rózsaszín csillagánál viszont szinte mindenhol kell.</p>
+<p class="lead">Ha a szőr színe közel esik a jel színéhez, a jel vékony, fehér matrica-szegélyt kap. A gép dönti el, a színek távolsága alapján, nem kell kézzel beállítani. Tűz piros virága és Csillámharmat kék hópelyhe minden pasztell szőrön jól kiválik, így ott nem kell. Ragyogás rózsaszín csillagánál viszont szinte mindenhol kell.</p>
 <div class="jelek" id="jelek"></div>
 
 <h2>4. Díszekkel, festett sörénnyel, lakkal</h2>
@@ -85,9 +85,9 @@
 <svg id="szalon" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg>
 <p class="lead" style="text-align:center;margin-top:8px">A festékszekrény itt 4 tégellyel, a lakk-polc halványan, csak díszletnek (a játékban mindkettő teljes).</p>
 
-<h2>6. Jóváhagyásra</h2>
+<h2>6. Jóváhagyva (2026-10-07) — mind az 5 pont így került a játékba</h2>
 <div class="dontes"><b>a) A 8 szőr kinézete (1–2. rész)</b>Tetszenek-e a színek és a 3 minta a valódi unikornisokon? Főleg a Csillámszőr csillanásai, a Cukorcsíkos csíkjai és a Szivárvány fejtől farig futó átmenete.</div>
-<div class="dontes"><b>b) A jel-szegély (3. rész)</b>Fehér matrica-szegély, csak ahol kell (most: Csillámharmat csillaga szinte minden szőrön, a másik kettőnél sehol).</div>
+<div class="dontes"><b>b) A jel-szegély (3. rész)</b>Fehér matrica-szegély, csak ahol kell (Ragyogás csillaga szinte minden szőrön, a másik kettőnél sehol).</div>
 <div class="dontes"><b>c) Az élő szőrfesték-polc (5. rész)</b>A „szőrfesték · hamarosan” díszlet helyén 2 × 4 öblös üveg, az üvegen a szín vagy a minta, alatta ár vagy ✓. Új felirat nem kell.</div>
 <div class="dontes"><b>d) A gombsor (5. rész)</b>Üres kéz: Sörény · Farok · Tincs · Paták · <b>Szőr</b> (a Paták és a Szőr a polcra mutat). Szőrfesték a kézben: egy nagy <b>„Szőr”</b> gomb. Szivacs a kézben: a felső sor végére kerül a <b>„Szőr”</b>, így mind a 8 hely lemosható.</div>
 <div class="dontes"><b>e) Az öröm-pillanat (5. rész)</b>A szín 1 másodperc alatt végigfut a fejtől a farig, az unikornis megrázza magát, egyszer körbefordul, és szól: „Nézd, milyen szép lettem!” (ha a sörény illik hozzá: „Most minden összeillik!”).</div>
@@ -96,7 +96,7 @@
 
 <script>/*__RENDERER__*/</script>
 <script>
-/* ══ PROTOTÍPUS — ez kerül majd a renderer.js-be (SZORFESTEKEK + szorSzinek + jel-szegély) ══════════
+/* ══ PROTOTÍPUS (a kódolás óta a renderer.js-ben is megvan; a rajzterv a sajátját használja) — ez került a renderer.js-be (SZORFESTEKEK + szorSzinek + jel-szegély) ══════════
    Egy szőrfesték: test = a szőr színe (mintánál a minta alapszíne), has = a has ÉS a lábak színe (világosabb),
    minta = "csillam" | "csik" | "sziv" (a test, a fej és a fül kitöltése), illik = ezekkel a sörényfestékekkel
    „minden összeillik”. ► Új szőrfesték = egy új SOR. A szarv, a szem, a szikrák és a far-jel sosem változik. */
@@ -182,7 +182,7 @@ function szorKoppinthato(art, testFill) {
 }
 /* ══ vége a prototípusnak ══ */
 
-var LENY = [["korall", "Tűz"], ["kek", "Ragyogás"], ["rozsa", "Csillámharmat"]];
+var LENY = [["korall", "Tűz"], ["kek", "Csillámharmat"], ["rozsa", "Ragyogás"]];
 function kin(o) { return { sorenySzin: 0, szemSzin: null, frizura: o.frizura || "egyenes", festek: o.festek || { soreny: null, farok: null, tincs: null }, lakk: o.lakk || null }; }
 function uniOldal(id, rajz, szor, k, olt) {
   var f = SZOR_BY[szor] || null; SZOR_MOST = f;
@@ -254,11 +254,11 @@ function pozRajz() {
 (function () {
   var P = [
     ["Tűz", "korall", "menta", {}, { fej: "fej-a", nyak: "nyak-k", lab: "lab-a" }, "Menta + virágkoszorú, szív-medál, bokapánt"],
-    ["Ragyogás", "kek", "levendula", { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, { hat: "hat-r", oldal: "oldal-k" }, "Levendula + Galaxis sörény + csillagköpeny, szivárvány-szárny"],
-    ["Csillámharmat", "rozsa", "cukorcsik", { frizura: "gondor", festek: { soreny: "menta", farok: "menta", tincs: "menta" }, lakk: ["pink", "pink", "pink", "pink"] }, null, "Cukorcsíkos + göndör Menta csillagos sörény + Pink lakk"],
+    ["Csillámharmat", "kek", "levendula", { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, { hat: "hat-r", oldal: "oldal-k" }, "Levendula + Galaxis sörény + csillagköpeny, szivárvány-szárny"],
+    ["Ragyogás", "rozsa", "cukorcsik", { frizura: "gondor", festek: { soreny: "menta", farok: "menta", tincs: "menta" }, lakk: ["pink", "pink", "pink", "pink"] }, null, "Cukorcsíkos + göndör Menta csillagos sörény + Pink lakk"],
     ["Tűz", "korall", "szivarvany", {}, { oldal: "oldal-r", farok: "farok-k" }, "Szivárvány + fény-szárny, csengettyűs farokdísz"],
-    ["Ragyogás", "kek", "holdezust", {}, { hat: "hat-k", lab: "lab-k", fej: "fej-r" }, "Holdezüst + hímzett nyeregtakaró, ezüst patkó, hold-korona"],
-    ["Csillámharmat", "rozsa", "csillam", { festek: { soreny: "arany", farok: "arany", tincs: "arany" } }, { nyak: "nyak-r", farok: "farok-a" }, "Csillámszőr + Arany csillagos sörény + sál, szalagcsokor"]
+    ["Csillámharmat", "kek", "holdezust", {}, { hat: "hat-k", lab: "lab-k", fej: "fej-r" }, "Holdezüst + hímzett nyeregtakaró, ezüst patkó, hold-korona"],
+    ["Ragyogás", "rozsa", "csillam", { festek: { soreny: "arany", farok: "arany", tincs: "arany" } }, { nyak: "nyak-r", farok: "farok-a" }, "Csillámszőr + Arany csillagos sörény + sál, szalagcsokor"]
   ];
   var h = "";
   P.forEach(function (x, j) {

@@ -59,11 +59,11 @@
 <header class="top">
   <h1>Szőrfestés · rajzterv</h1>
   <div class="sub">A 8 szőrfesték a játék VALÓDI unikornisain (a <code>src/renderer.js</code> rajzolja): minden pózban, szemből és hátulról, díszekkel. A szarv, a szemszín és a far-jel mindenhol a sajátja marad. Lent egy kipróbálható szalon az élő szőrfesték-polccal.</div>
-  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · jóváhagyásra vár</span>
+  <span class="chip">Unikornis Centum</span><span class="chip">2026-10-07</span><span class="chip">Rajzterv · JÓVÁHAGYVA · kódolva</span>
 </header>
 
 <h2>1. A 8 szőrfesték a 3 unikornison</h2>
-<p class="lead">Minden kártyán fentről le: Tűz · Ragyogás · Csillámharmat. Az első kártya az eredeti szőr, összehasonlításnak. A has magától világosabb, a lábak a has színét kapják (mint most is). A <span class="szegely">jel-szegély</span> címke ott van, ahol a far-jel matrica-szegélyt kapott.</p>
+<p class="lead">Minden kártyán fentről le: Tűz · Csillámharmat · Ragyogás. Az első kártya az eredeti szőr, összehasonlításnak. A has magától világosabb, a lábak a has színét kapják (mint most is). A <span class="szegely">jel-szegély</span> címke ott van, ahol a far-jel matrica-szegélyt kapott.</p>
 <div class="grid" id="szorok"></div>
 
 <h2>2. Minden pózban</h2>
@@ -72,7 +72,7 @@
 <div class="pozok" id="pozok"></div>
 
 <h2>3. A far-jel szegélye közelről</h2>
-<p class="lead">Ha a szőr színe közel esik a jel színéhez, a jel vékony, fehér matrica-szegélyt kap. A gép dönti el, a színek távolsága alapján, nem kell kézzel beállítani. Tűz piros virága és Ragyogás kék hópelyhe minden pasztell szőrön jól kiválik, így ott nem kell. Csillámharmat rózsaszín csillagánál viszont szinte mindenhol kell.</p>
+<p class="lead">Ha a szőr színe közel esik a jel színéhez, a jel vékony, fehér matrica-szegélyt kap. A gép dönti el, a színek távolsága alapján, nem kell kézzel beállítani. Tűz piros virága és Csillámharmat kék hópelyhe minden pasztell szőrön jól kiválik, így ott nem kell. Ragyogás rózsaszín csillagánál viszont szinte mindenhol kell.</p>
 <div class="jelek" id="jelek"></div>
 
 <h2>4. Díszekkel, festett sörénnyel, lakkal</h2>
@@ -85,9 +85,9 @@
 <svg id="szalon" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg>
 <p class="lead" style="text-align:center;margin-top:8px">A festékszekrény itt 4 tégellyel, a lakk-polc halványan, csak díszletnek (a játékban mindkettő teljes).</p>
 
-<h2>6. Jóváhagyásra</h2>
+<h2>6. Jóváhagyva (2026-10-07) — mind az 5 pont így került a játékba</h2>
 <div class="dontes"><b>a) A 8 szőr kinézete (1–2. rész)</b>Tetszenek-e a színek és a 3 minta a valódi unikornisokon? Főleg a Csillámszőr csillanásai, a Cukorcsíkos csíkjai és a Szivárvány fejtől farig futó átmenete.</div>
-<div class="dontes"><b>b) A jel-szegély (3. rész)</b>Fehér matrica-szegély, csak ahol kell (most: Csillámharmat csillaga szinte minden szőrön, a másik kettőnél sehol).</div>
+<div class="dontes"><b>b) A jel-szegély (3. rész)</b>Fehér matrica-szegély, csak ahol kell (Ragyogás csillaga szinte minden szőrön, a másik kettőnél sehol).</div>
 <div class="dontes"><b>c) Az élő szőrfesték-polc (5. rész)</b>A „szőrfesték · hamarosan” díszlet helyén 2 × 4 öblös üveg, az üvegen a szín vagy a minta, alatta ár vagy ✓. Új felirat nem kell.</div>
 <div class="dontes"><b>d) A gombsor (5. rész)</b>Üres kéz: Sörény · Farok · Tincs · Paták · <b>Szőr</b> (a Paták és a Szőr a polcra mutat). Szőrfesték a kézben: egy nagy <b>„Szőr”</b> gomb. Szivacs a kézben: a felső sor végére kerül a <b>„Szőr”</b>, így mind a 8 hely lemosható.</div>
 <div class="dontes"><b>e) Az öröm-pillanat (5. rész)</b>A szín 1 másodperc alatt végigfut a fejtől a farig, az unikornis megrázza magát, egyszer körbefordul, és szól: „Nézd, milyen szép lettem!” (ha a sörény illik hozzá: „Most minden összeillik!”).</div>
@@ -187,22 +187,26 @@ function uniLabSVG(i, sz, labDisz) {
       izForgo("uni-terd", iz, also) + felso) +
     '</g>';
 }
-var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M293 114.5 q-4 2 -6 6" stroke-width="2"/> <path d="M297 116.5 q-2 3 -3 7" stroke-width="2"/> <path d="M301.5 117 q0 3.5 0 7" stroke-width="2"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g> <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
-function uniOldalArt(rajz, labDisz) {
-  var sz = UNI_SZIN[rajz] || UNI_SZIN.korall;
-  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: UNI_JEL[rajz] || UNI_JEL.korall };
+var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" class="uni-szor" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" class="uni-szor" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M293 114.5 q-4 2 -6 6" stroke-width="2"/> <path d="M297 116.5 q-2 3 -3 7" stroke-width="2"/> <path d="M301.5 117 q0 3.5 0 7" stroke-width="2"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g> <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" class="uni-szor" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
+/* szor = a szőrfesték (SZORFESTEKEK sora) vagy semmi: a test, a has és a láb színe cserélődik, a jel szükség
+   esetén matrica-szegélyt kap (jelKozel); a minta kitöltése url(#SZORMINTA), amit a példány cserél (szorPeldany).
+   A test, a fej és a fül class="uni-szor" (a szalonban erre lehet koppintani). */
+function uniOldalArt(rajz, labDisz, szor) {
+  var sz = szorSzinek(UNI_SZIN[rajz] || UNI_SZIN.korall, szor), jel = UNI_JEL[rajz] || UNI_JEL.korall;
+  if (szor && jelKozel(rajz, szor)) jel = jelSzegely(jel) + jel;
+  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: jel };
   for (var i = 0; i < 4; i++) ertek["lab" + i] = uniLabSVG(i, sz, labDisz);
   ["fej", "nyak", "farok"].forEach(function (n) { var z = UNI_TEST_IZ[n]; ertek[n + "Be"] = izNyit(z.cls, z.pont); ertek[n + "Ki"] = izZar(z.cls); });
   return UNI_SABLON.replace(/\{(\w+)\}/g, function (m, k) { return k in ertek ? ertek[k] : sz[k]; });
 }
 var UNI_RAJZ = { korall: uniOldalArt("korall"), kek: uniOldalArt("kek"), rozsa: uniOldalArt("rozsa") };
-/* az oldalrajz a lábdísszel együtt (a dísz a láb alsó részében van); rajz+dísz szerint egyszer készül el */
+/* az oldalrajz a lábdísszel és a szőrfestékkel együtt (a dísz a láb alsó részében van); rajz+dísz+szőr szerint egyszer készül el */
 var UNI_RAJZ_LAB = {};
-function uniAlapArt(rajz, labDisz) {
+function uniAlapArt(rajz, labDisz, szor) {
   if (!UNI_SZIN[rajz]) rajz = "korall";
-  if (!labDisz) return UNI_RAJZ[rajz];
-  var k = rajz + "|" + labDisz;
-  return UNI_RAJZ_LAB[k] || (UNI_RAJZ_LAB[k] = uniOldalArt(rajz, labDisz));
+  if (!labDisz && !szor) return UNI_RAJZ[rajz];
+  var k = rajz + "|" + (labDisz || "") + "|" + (szor ? szor.id : "");
+  return UNI_RAJZ_LAB[k] || (UNI_RAJZ_LAB[k] = uniOldalArt(rajz, labDisz, szor));
 }
 /* ── PÓZOK: EGY KÖZÖS TÁBLA (unikornis pózok 2a, terv/izuletek-rajzterv.html) ────────────────
    Minden helyszín (kert, felhőkert, odú, …) ugyanazt a pózt kapja: a táblából készül a CSS (uniPozCSS),
@@ -1021,6 +1025,72 @@ var LAKK_BY = {}; LAKKOK.forEach(function (l) { LAKK_BY[l.id] = l; });
    Oldalt a sablon sorrendje. Szemből a jobb lábak vannak a képernyő bal felén, hátulról a balok. */
 var LAKK_SORREND = { oldal: [0, 1, 2, 3], elol: [1, 0, 3, 2], hatul: [0, 1, 2, 3] };
 var LAKK_SORSZAM = 0;
+/* ── FODRÁSZAT (2. fázis): SZŐRFESTÉS ───────────────────────────────────────
+   Terv: terv/fodraszat-szorfestes-rendszerterv.html + szorfestes-rajzterv.html (jóváhagyva 2026-10-07).
+   Mentés: P().kinezet.szor = szőrfesték-id vagy null; megvett: P().szalon.szorfestekek.
+   Egy koppintás = az egész szőr: test, fej, fül (test) + has és a 4 láb (has). A szarv, a szem, a 3 szikra
+   és a far-jel SOSEM változik (felismerhetőség); a far-jel matrica-szegélyt kap, ha a színe közel esik
+   a szőréhez (jelKozel). ► ÚJ SZŐRFESTÉK = ÚJ SOR: id, nev, em, ar, test, has, (minta), illik.
+     minta = "csillam" | "csik" | "sziv" (szorMintaDef) — a test, a fej és a fül kitöltése;
+     illik = ezekkel a sörényfestékekkel „Most minden összeillik!” (szalon). */
+var SZORFESTEKEK = [
+  { id: "menta",      nev: "Menta",       em: "🍃", ar: 12, test: "#bfeedd", has: "#e4f8ef", illik: ["menta", "zold", "turkiz"] },
+  { id: "levendula",  nev: "Levendula",   em: "💜", ar: 12, test: "#d9c8f5", has: "#efe6fc", illik: ["levendula", "galaxis", "naplemente"] },
+  { id: "orgona",     nev: "Orgona",      em: "🌸", ar: 12, test: "#ecc6ea", has: "#f8e8f7", illik: ["pink", "nyaloka", "naplemente"] },
+  { id: "ametiszt",   nev: "Ametiszt",    em: "🔮", ar: 12, test: "#b8a0e8", has: "#ddd0f6", illik: ["galaxis", "levendula", "ejcsillam"] },
+  { id: "holdezust",  nev: "Holdezüst",   em: "🌙", ar: 12, test: "#cfd5e2", has: "#eef1f6", illik: ["ezust", "jeg", "ejcsillam"] },
+  { id: "csillam",    nev: "Csillámszőr", em: "✨", ar: 12, test: "#dccdf6", has: "#f1eafd", minta: "csillam", illik: ["arany", "ejcsillam", "levendula"] },
+  { id: "cukorcsik",  nev: "Cukorcsíkos", em: "🍬", ar: 12, test: "#f7c6da", has: "#fde9f1", minta: "csik", illik: ["nyaloka", "pink", "menta"] },
+  { id: "szivarvany", nev: "Szivárvány",  em: "🌈", ar: 12, test: "#ffd0dc", has: "#fff4f7", minta: "sziv", illik: ["szivarvany", "naplemente"] }
+];
+var SZOR_BY = {}; SZORFESTEKEK.forEach(function (f) { SZOR_BY[f.id] = f; });
+var SZOR_SORSZAM = 0;
+function szorCs(x, y, r, c) {   /* négyágú csillanás */
+  var p = []; for (var i = 0; i < 8; i++) { var a = Math.PI / 4 * i - Math.PI / 2, q = i % 2 ? r * .3 : r; p.push(uniK(x + Math.cos(a) * q) + "," + uniK(y + Math.sin(a) * q)); }
+  return '<path d="M' + p.join(" L") + 'Z" fill="' + c + '" stroke="none"/>';
+}
+/* a minta rajza; hol = "oldal" (oldalnézet, 380×300-as keret) · "nezet" (szemből/hátulról) · "kicsi" (üveg, gomb-ikon) */
+function szorMintaDef(f, pid, hol) {
+  var k = hol === "kicsi" ? .32 : 1;
+  if (f.minta === "csillam") return '<pattern id="' + pid + '" patternUnits="userSpaceOnUse" width="56" height="46" patternTransform="scale(' + k + ')">' +
+    '<rect width="56" height="46" fill="' + f.test + '"/>' + szorCs(14, 12, 9, "#fff") + szorCs(42, 34, 6.5, "#fff") +
+    '<circle cx="43" cy="10" r="2" fill="#fff"/><circle cx="12" cy="36" r="1.8" fill="#fff"/><circle cx="29" cy="23" r="1.4" fill="#fff" opacity=".8"/></pattern>';
+  if (f.minta === "csik") return '<pattern id="' + pid + '" patternUnits="userSpaceOnUse" width="48" height="48" patternTransform="rotate(35) scale(' + k + ')">' +
+    '<rect width="16" height="48" fill="#f7c6da"/><rect x="16" width="16" height="48" fill="#c8f0dc"/><rect x="32" width="16" height="48" fill="#ddcdf7"/></pattern>';
+  if (f.minta === "sziv") {
+    var xy = hol === "oldal" ? 'gradientUnits="userSpaceOnUse" x1="344" y1="0" x2="60" y2="0"'
+           : hol === "nezet" ? 'gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="0" y2="240"' : 'x1="0" y1="0" x2="1" y2="0"';
+    return '<linearGradient id="' + pid + '" ' + xy + '><stop offset="0" stop-color="#ffc2d4"/><stop offset=".22" stop-color="#ffd8b0"/><stop offset=".42" stop-color="#fff0a8"/>' +
+      '<stop offset=".62" stop-color="#c8f0d4"/><stop offset=".82" stop-color="#c6e2fb"/><stop offset="1" stop-color="#ddcdf7"/></linearGradient>';
+  }
+  return "";
+}
+/* egy kis kitöltés (üveg, gomb): sima szín, vagy a már definiált "kicsi" minta (pid) */
+function szorKitoltes(f, pid) { return !f ? null : f.minta ? "url(#" + pid + ")" : f.test; }
+/* a lény színei a szőrfestékkel (a test, a has, a láb cserélődik; minden más a sajátja) */
+function szorSzinek(alap, f) {
+  if (!f) return alap;
+  var sz = {}; for (var k in alap) sz[k] = alap[k];
+  sz.test = f.minta ? "url(#SZORMINTA)" : f.test; sz.has = f.has; sz.lab = f.has;
+  return sz;
+}
+/* a kész rajzban a minta-hely kicserélése egy saját id-re (több unikornis is lehet egy képernyőn) */
+function szorPeldany(art, f, pfx, hol) {
+  if (!f || !f.minta) return art;
+  var pid = "szm" + (++SZOR_SORSZAM) + "-" + String(pfx || "u").replace(/[^A-Za-z0-9_-]/g, "");
+  return '<defs>' + szorMintaDef(f, pid, hol) + '</defs>' + art.split("url(#SZORMINTA)").join("url(#" + pid + ")");
+}
+/* JEL-SZEGÉLY: ha a far-jel színe közel esik a szőréhez (RGB-távolság < 80), fehér matrica-szegély kerül alá */
+var JEL_SZIN = { korall: "#d63a3a", kek: "#2b7fd0", rozsa: "#f4a6c6" };
+function szinTav(a, b) {
+  function rgb(h) { h = h.replace("#", ""); return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
+  var x = rgb(a), y = rgb(b); return Math.sqrt(Math.pow(x[0] - y[0], 2) + Math.pow(x[1] - y[1], 2) + Math.pow(x[2] - y[2], 2));
+}
+function jelKozel(rajz, f) { return !!f && szinTav(JEL_SZIN[rajz] || JEL_SZIN.korall, f.test) < 80; }
+function jelSzegely(jel) {
+  return '<g stroke-width="6" stroke-linejoin="round" opacity=".95">' + jel.replace(/fill="#[0-9a-fA-F]{3,6}"/g, 'fill="#fff"')
+    .replace(/stroke="(#[0-9a-fA-F]{3,6}|none)"/g, 'stroke="#fff"').replace(/stroke-width="[\d.]+"/g, 'stroke-width="7"') + '</g>';
+}
 function lakkDef(l, pid) {
   if (l.k) return '<linearGradient id="' + pid + '" x1="0" y1="0" x2="1" y2="1"><stop offset=".5" stop-color="' + l.k[0] + '"/><stop offset=".5" stop-color="' + l.k[1] + '"/></linearGradient>';
   return '<linearGradient id="' + pid + '" ' + (l.v ? 'x1="0" y1="0" x2="0" y2="1"' : 'x1="0" y1="0" x2="1" y2="0.4"') + '>' +
@@ -1059,12 +1129,14 @@ var UNI_ARNYEK = '<ellipse class="uni-arnyek" cx="174" cy="291" rx="92" ry="8" f
 function unikornisSVG(id, c, meret, oltozet, kinezet) {
   var s = meret || 1;
   var rajz = (c && c.rajz) || "korall";
-  var art = uniAlapArt(rajz, oltozet && oltozet.lab);   /* a lábdísz a láb része (2a) */
   if (kinezet === undefined) kinezet = (typeof P === "function" && P() && P().kinezet) || null;
+  var szor = kinezet && SZOR_BY[kinezet.szor] || null;   /* FODRÁSZAT 2.: szőrfesték (ismeretlen id → saját szín) */
+  var art = uniAlapArt(rajz, oltozet && oltozet.lab, szor);   /* a lábdísz a láb része (2a) */
   if (kinezet && kinezet.frizura === "gondor") art = frizuraGondorArt(rajz, art);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
   art = kinezetAlkalmaz(art, rajz, kinezet);
   art = festekAlkalmaz(art, kinezet && kinezet.festek, id);   /* FODRÁSZAT 2.: festék a bolti szín fölé */
   art = lakkAlkalmaz(art, kinezet && kinezet.lakk, id, "oldal");   /* FODRÁSZAT 2.: patalakk, patánként */
+  art = szorPeldany(art, szor, id, "oldal");   /* FODRÁSZAT 2.: a szőr-minta saját id-vel */
   art = eloAnimHorgony(art);
   var ruha = "";
   var KERET = { farok: "farok", oldal: "szarny", nyak: "nyak", fej: "fej" };   /* a dísz a testrésze ízület-keretében (2b) */
@@ -1094,7 +1166,7 @@ function forgatoSzinek(rajz, kinezet) {
     if (lista && lista[kinezet.sorenySzin]) { var c = lista[kinezet.sorenySzin].c; sz.s1 = c[0]; sz.s2 = c[1]; sz.s3 = c[2]; }
   }
   if (kinezet && kinezet.szemSzin) sz.szem = kinezet.szemSzin;
-  return sz;
+  return szorSzinek(sz, kinezet && SZOR_BY[kinezet.szor]);   /* szőrfesték: a test, a has, a láb */
 }
 /* szemből ("elol") vagy hátulról ("hatul") — a lény színeivel, frizurájával, a VALÓDI festékmintával
    és a felvett díszekkel (oltozet; unikornis pózok 1b, terv/diszek-nezetek-rajzterv.html) */
@@ -1103,7 +1175,9 @@ function unikornisNezetArt(nezet, rajz, kinezet, pfx, oltozet) {
   var r = nezetDiszRetegek(nezet === "hatul" ? "hatul" : "elol", oltozet);
   var art = nezet === "hatul" ? unikornisBackArt(sz, gondor, r) : unikornisFrontArt(sz, gondor, r);
   art = festekAlkalmaz(art, kinezet && kinezet.festek, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol", sz.s3);
-  return lakkAlkalmaz(art, kinezet && kinezet.lakk, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol");
+  art = lakkAlkalmaz(art, kinezet && kinezet.lakk, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol");
+  art = art.split('fill="' + sz.test + '" stroke-width="').join('class="uni-szor" fill="' + sz.test + '" stroke-width="');   /* a test, a fej, a fül koppintható */
+  return szorPeldany(art, kinezet && SZOR_BY[kinezet.szor], (pfx || "nz") + nezet, "nezet");
 }
 /* ── SZEMBŐL/HÁTULRÓL: A 4 LÁB ── ugyanaz a [bal-felső, jobb-felső, jobb-alsó, bal-alsó] alak, mint a
    UNI_LABAK-ban, így a lábdísz (labDiszSVG) ugyanazzal a kóddal kerül rá, mint oldalról.
@@ -1789,7 +1863,7 @@ function kiiras(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;
 
 </script>
 <script>
-/* ══ PROTOTÍPUS — ez kerül majd a renderer.js-be (SZORFESTEKEK + szorSzinek + jel-szegély) ══════════
+/* ══ PROTOTÍPUS (a kódolás óta a renderer.js-ben is megvan; a rajzterv a sajátját használja) — ez került a renderer.js-be (SZORFESTEKEK + szorSzinek + jel-szegély) ══════════
    Egy szőrfesték: test = a szőr színe (mintánál a minta alapszíne), has = a has ÉS a lábak színe (világosabb),
    minta = "csillam" | "csik" | "sziv" (a test, a fej és a fül kitöltése), illik = ezekkel a sörényfestékekkel
    „minden összeillik”. ► Új szőrfesték = egy új SOR. A szarv, a szem, a szikrák és a far-jel sosem változik. */
@@ -1875,7 +1949,7 @@ function szorKoppinthato(art, testFill) {
 }
 /* ══ vége a prototípusnak ══ */
 
-var LENY = [["korall", "Tűz"], ["kek", "Ragyogás"], ["rozsa", "Csillámharmat"]];
+var LENY = [["korall", "Tűz"], ["kek", "Csillámharmat"], ["rozsa", "Ragyogás"]];
 function kin(o) { return { sorenySzin: 0, szemSzin: null, frizura: o.frizura || "egyenes", festek: o.festek || { soreny: null, farok: null, tincs: null }, lakk: o.lakk || null }; }
 function uniOldal(id, rajz, szor, k, olt) {
   var f = SZOR_BY[szor] || null; SZOR_MOST = f;
@@ -1947,11 +2021,11 @@ function pozRajz() {
 (function () {
   var P = [
     ["Tűz", "korall", "menta", {}, { fej: "fej-a", nyak: "nyak-k", lab: "lab-a" }, "Menta + virágkoszorú, szív-medál, bokapánt"],
-    ["Ragyogás", "kek", "levendula", { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, { hat: "hat-r", oldal: "oldal-k" }, "Levendula + Galaxis sörény + csillagköpeny, szivárvány-szárny"],
-    ["Csillámharmat", "rozsa", "cukorcsik", { frizura: "gondor", festek: { soreny: "menta", farok: "menta", tincs: "menta" }, lakk: ["pink", "pink", "pink", "pink"] }, null, "Cukorcsíkos + göndör Menta csillagos sörény + Pink lakk"],
+    ["Csillámharmat", "kek", "levendula", { festek: { soreny: "galaxis", farok: "galaxis", tincs: "galaxis" } }, { hat: "hat-r", oldal: "oldal-k" }, "Levendula + Galaxis sörény + csillagköpeny, szivárvány-szárny"],
+    ["Ragyogás", "rozsa", "cukorcsik", { frizura: "gondor", festek: { soreny: "menta", farok: "menta", tincs: "menta" }, lakk: ["pink", "pink", "pink", "pink"] }, null, "Cukorcsíkos + göndör Menta csillagos sörény + Pink lakk"],
     ["Tűz", "korall", "szivarvany", {}, { oldal: "oldal-r", farok: "farok-k" }, "Szivárvány + fény-szárny, csengettyűs farokdísz"],
-    ["Ragyogás", "kek", "holdezust", {}, { hat: "hat-k", lab: "lab-k", fej: "fej-r" }, "Holdezüst + hímzett nyeregtakaró, ezüst patkó, hold-korona"],
-    ["Csillámharmat", "rozsa", "csillam", { festek: { soreny: "arany", farok: "arany", tincs: "arany" } }, { nyak: "nyak-r", farok: "farok-a" }, "Csillámszőr + Arany csillagos sörény + sál, szalagcsokor"]
+    ["Csillámharmat", "kek", "holdezust", {}, { hat: "hat-k", lab: "lab-k", fej: "fej-r" }, "Holdezüst + hímzett nyeregtakaró, ezüst patkó, hold-korona"],
+    ["Ragyogás", "rozsa", "csillam", { festek: { soreny: "arany", farok: "arany", tincs: "arany" } }, { nyak: "nyak-r", farok: "farok-a" }, "Csillámszőr + Arany csillagos sörény + sál, szalagcsokor"]
   ];
   var h = "";
   P.forEach(function (x, j) {
