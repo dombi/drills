@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Villámkör rajzterv</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280; --line:#f1e6dc;
+    --pink:#e0417a; --violet:#8a4fd0; --violet-soft:#ece0fb; --gold:#f0a800;
+    --green:#3f9e6a; --green-soft:#dff3e7; --warn:#b86a00; --warn-soft:#fff3dc;
+    --gomb:#fdf0d0; --gomb-ar:#d8c69a; --gomb-spec:#c9a8e6; --gomb-spec-ar:#a17fc0; --kartya:#fffdf8; --kartya-ink:#4a3b7a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:24px 16px 60px}
+  .wrap{max-width:900px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#f0a800 0%,var(--pink) 55%,var(--violet) 100%);color:#fff;border-radius:22px;padding:24px 26px 20px;position:relative;overflow:hidden}
+  header.top::after{content:"⚡";position:absolute;right:18px;top:0;font-size:92px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:26px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+  .chip a{color:#fff}
+  h2{font-size:19px;margin:28px 0 10px;padding-left:12px;border-left:6px solid var(--gold)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .lead{color:var(--muted)}
+  ul{margin:.3em 0;padding-left:22px} li{margin:.25em 0}
+
+  /* vezérlők */
+  .vez{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:4px 0 12px}
+  .vez .csop{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .vez .cim{font-size:13px;color:var(--muted);font-weight:600;margin-right:2px}
+  .vez button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 13px;cursor:pointer}
+  .vez button.be{background:var(--violet);border-color:var(--violet);color:#fff;font-weight:700}
+  .inditok{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .inditok button{font:inherit;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:9px 16px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--gold),var(--pink))}
+  .inditok button.masod{background:var(--violet)}
+  .inditok button.harm{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+
+  /* a játékképernyő (a játék saját színeivel — ez a festett kép része, nem a lap témája) */
+  .keret{margin:0 auto;transition:max-width .3s ease}
+  .keret.telefon{max-width:380px}
+  .jatek{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#ece0f3;box-shadow:0 10px 26px rgba(74,59,122,.15)}
+  .szin{position:relative}
+  .szin svg{display:block;width:100%;height:auto}
+  .telefon .szin svg{aspect-ratio:auto}
+  .rajt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-weight:800;color:#fff;font-size:clamp(26px,6vw,44px);text-shadow:0 3px 0 rgba(74,59,122,.45),0 0 18px rgba(224,65,122,.5);opacity:0;transition:opacity .2s}
+  .rajt.lat{opacity:1}
+  .uzenet{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:rgba(255,255,255,.88);color:#4a3b7a;font-weight:700;border-radius:999px;padding:5px 14px;font-size:14px;white-space:nowrap;opacity:0;transition:opacity .3s}
+  .uzenet.lat{opacity:1}
+  .vege{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(74,59,122,.25)}
+  .vege[hidden]{display:none}
+  .vege-k{background:#fffdf8;color:#4a3b7a;border-radius:18px;padding:16px 22px 14px;text-align:center;min-width:230px;box-shadow:0 10px 30px rgba(74,59,122,.3);animation:vege-be .35s ease-out}
+  @keyframes vege-be{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+  .vege-k .c{font-weight:700;color:#8f7ab8;font-size:14px}
+  .vege-k .n{font-size:34px;font-weight:800;margin:2px 0}
+  .vege-k .r{font-weight:700;color:#e0417a;min-height:1.4em}
+  .vege-k .j{margin:6px 0 10px;font-weight:700;font-size:16px}
+  .vege-k .gombok{display:flex;gap:8px;justify-content:center}
+  .vege-k button{font:inherit;font-weight:700;border:none;border-radius:12px;padding:8px 14px;cursor:pointer;background:#fdf0d0;color:#4a3b7a;box-shadow:0 2px 0 #d8c69a}
+  .vege-k button.fo{background:#c9a8e6;color:#fff;box-shadow:0 2px 0 #a17fc0}
+
+  .alul{display:flex;gap:12px;align-items:center;justify-content:center;padding:12px;background:#f6eefb;flex-wrap:wrap}
+  .kartya{flex:1 1 220px;max-width:340px;background:#fffdf8;border-radius:16px;padding:10px 14px;text-align:center;box-shadow:0 2px 0 #e5d6f0;position:relative}
+  .feladat{font-size:clamp(30px,7vw,42px);font-weight:800;color:#4a3b7a;letter-spacing:.5px;min-height:1.3em;transition:opacity .12s}
+  .feladat .be{display:inline-block;min-width:1.6em;border-bottom:4px solid #c9a8e6;color:#8a4fd0;text-align:center}
+  .feladat.halvany{opacity:.45}
+  .feladat.jo .be{color:#3f9e6a;border-color:#a7d99a}
+  .mutato{font-weight:700;color:#8f7ab8;font-size:15px}
+  .bill{display:grid;grid-template-columns:repeat(3,52px);gap:6px}
+  .bill button{font:inherit;width:52px;font-size:20px;font-weight:800;padding:8px 0;border:none;border-radius:10px;background:#fdf0d0;color:#4a3b7a;box-shadow:0 2px 0 #d8c69a;cursor:pointer;touch-action:manipulation}
+  .bill button:active{transform:translateY(2px);box-shadow:0 1px 0 #d8c69a}
+  .bill .spec{background:#c9a8e6;color:#fff;box-shadow:0 2px 0 #a17fc0}
+  .telefon .alul{flex-direction:column}
+  .telefon .kartya{width:100%;max-width:none}
+
+  /* árnyék-unikornis */
+  .arnyek-uni{opacity:.42;transition:opacity .4s}
+  .arnyek-uni.lemarad{opacity:.26}
+  .mosoly{font-size:22px;opacity:0;transition:opacity .25s}
+  .mosoly.lat{opacity:1}
+  .szikra{animation:szikra .7s ease-out forwards}
+  @keyframes szikra{0%{opacity:1;transform:translateY(0) scale(.6)}100%{opacity:0;transform:translateY(-26px) scale(1.2)}}
+
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:11px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:3px}
+  .prop{display:inline-block;background:var(--panel);color:var(--warn);font-weight:700;border-radius:8px;padding:1px 9px;font-size:13px;margin-left:4px}
+  .valt-leiras{font-size:14px;color:var(--muted);margin:2px 0 10px;min-height:2.6em}
+  .apro{font-size:13px;color:var(--muted)}
+  @media (prefers-reduced-motion:reduce){ .vege-k{animation:none} .szikra{animation:none;opacity:0} }
+
+  /*__ELO_CSS__*/
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>⚡ Villámkör — rajzterv</h1>
+  <div class="sub">Három pálya a futáshoz, a valódi unikornissal. Indíts egy kört, és nézd meg, melyik a legjobb: hol látszik legjobban, hogy „messzebb jutottam”, és hogy utolértem-e a tegnapi önmagamat.</div>
+  <div class="meta">
+    <span class="chip">Rajzterv · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-07</span>
+    <span class="chip">Tervlap: <a href="villamkor-terv.html">villamkor-terv.html</a> ✅</span>
+  </div>
+</header>
+
+<h2>Próbáld ki</h2>
+<div class="panel">
+  <div class="vez">
+    <div class="csop" id="valt-gombok"><span class="cim">Pálya:</span></div>
+    <div class="csop" id="leny-gombok"><span class="cim">Unikornis:</span></div>
+    <div class="csop" id="meret-gombok"><span class="cim">Méret:</span>
+      <button data-m="laptop" class="be">💻 Laptop</button><button data-m="telefon">📱 Telefon</button></div>
+  </div>
+  <div class="valt-leiras" id="valt-leiras"></div>
+  <div class="inditok">
+    <button id="b-proba">▶ Futok egy kört (1 perc)</button>
+    <button id="b-bemutato" class="masod">⏩ Bemutató (gyorsítva, 20 mp)</button>
+    <button id="b-vege" class="harm">🏁 Csak a vége-kép</button>
+  </div>
+  <div class="keret" id="keret">
+    <div class="jatek">
+      <div class="szin uni-terep" id="szin-doboz">
+        <svg id="szin" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="uzenet" id="uzenet"></div>
+        <div class="rajt" id="rajt"></div>
+        <div class="vege" id="vege" hidden>
+          <div class="vege-k">
+            <div class="c">⚡ Villámkör</div>
+            <div class="n" id="v-n">0 ugrás</div>
+            <div class="r" id="v-r"></div>
+            <div class="j" id="v-j"></div>
+            <div class="gombok"><button class="fo" id="v-meg">Még egy kör</button><button id="v-vissza">Vissza</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="alul">
+        <div class="kartya">
+          <div class="feladat" id="feladat">⚡</div>
+          <div class="mutato" id="mutato">Indíts egy kört fent!</div>
+        </div>
+        <div class="bill" id="bill"></div>
+      </div>
+    </div>
+  </div>
+  <p class="apro">Laptopon a billentyűzet számai is mennek. A rajzterven a feladatok a 20-as kör összeadásai és kivonásai. A játékban a gyerek saját, már tudott tényei jönnek, és az első 3 mindig villám-tény (ezt itt könnyű feladatokkal mutatjuk). Az árnyék a „tegnapi rekord” (18 ugrás). Ha megdöntöd, a következő körben a te futásod lesz az árnyék.</p>
+</div>
+
+<h2>Mi látszik a képen</h2>
+<div class="panel">
+  <ul>
+    <li><b>A nap az óra.</b> Bal oldalt felkel, átível a pálya fölött, jobb oldalt lebukik a domb mögé, és akkor vége. A pontozott vonal a nap útja, így a gyerek látja, mennyi van még hátra. Számlap nincs, és a végén nincs riasztó hang. Az utolsó negyedben az ég aranyosra vált, ez csak szép, nem sürget.</li>
+    <li><b>Jó válasz:</b> az unikornis egyet ugrik előre (kis szikra, csengés), és már ott is a következő feladat.</li>
+    <li><b>Rossz válasz:</b> a kártyán fél másodpercig halványan ott a jó eredmény (7 + 5 = 12), aztán jön a következő. Az unikornis ilyenkor csak áll, nem lép hátra.</li>
+    <li><b>Az árnyék-unikornis</b> a gyerek saját unikornisa, halvány lilában. Pontosan úgy ugrál, ahogy a rekord-körben. Amikor a gyerek megelőzi, az árnyék elmosolyodik 😊 és elhalványul.</li>
+    <li><b>Virág-jelek ötösével</b> a pálya mellett (számok nélkül): gyorsan látszik, mennyit ugrott.</li>
+    <li><b>Vége-kép:</b> hány ugrás, rekord-e, mennyi jutalom. Új rekordnál az unikornis örömében körbepörög.</li>
+    <li><b>10 mp tétlenség</b> (a gyerek elment a géptől): a kör csendben véget ér, nem számít bele semmibe. „Pihenünk egyet? Bármikor újrakezdheted!”</li>
+  </ul>
+</div>
+
+<h2>Eldöntendő kérdések</h2>
+<div class="panel">
+  <div class="q"><b class="t">1. Melyik pálya legyen?</b>
+    <b>B) Kanyargó ösvény a dombra</b> <span class="prop">Javaslat</span><br>
+    Ezen látszik a legtisztábban, hogy „minél többet tudok, annál messzebb jutok”. Az unikornis mindig előre, jobbra fut, így nem kell megfordulnia. A dombra fölfelé haladva kisebb lesz, mintha távolodna. Hasonlít a pályák ösvényére, ezt a gyerekek már ismerik.<br>
+    <span class="apro">A) Ovális versenypálya: igazi „verseny”-hangulat, de a túlsó oldalon az unikornis kicsi, a kanyarban meg kell fordulnia, és két kör után nehéz látni, ki jár elöl. C) Szivárványhíd: a legvarázslatosabb, de rövid, és a lejtős felén furcsa a futás. Lehet belőle később egy „ünnepi” változat, például új rekordnál.</span></div>
+  <div class="q"><b class="t">2. Kell-e ✓ gombot nyomni a válasz után?</b>
+    <b>Nem kell: amint annyi számjegy van beírva, ahány jegyű a jó eredmény, a játék rögtön értékel</b> <span class="prop">Javaslat</span><br>
+    A sprintben minden gombnyomás számít, és a ✓ elfelejtése a leggyakoribb „elakadás”. A rajzterven így működik, próbáld ki. A ✓ gomb a helyén marad annak, aki megszokásból megnyomja, és a ⌫ gombbal javítani is lehet, amíg nincs kész a szám.</div>
+  <div class="q"><b class="t">3. Ha a gyerek 20-nál többet ugrik, mi legyen?</b>
+    <b>Az ösvény tetején egy virágkapu áll (30 ugrásnál). Aki eléri, átfut rajta, és a kapu kivirágzik. Utána ott ugrál tovább, a számláló pedig nő</b> <span class="prop">Javaslat</span><br>
+    <span class="apro">30 ugrás percenként már nagyon gyors, felnőtt-szint. Ritka, de ünnepelni kell.</span></div>
+</div>
+
+<h2>Hogyan tovább</h2>
+<div class="panel">
+  <ul>
+    <li>A jóváhagyás után jön a 2. kör: a közös alap, láthatatlanul (<code>src/villam.js</code> + a tény-motor bővítése). A gyereknek ekkor még semmi nem változik.</li>
+    <li>A 3. körben ez a képernyő élesbe kerül a választott pályával, a Neked készült ligetben.</li>
+  </ul>
+</div>
+</div>
+
+<script>window.P = function () { return {}; };
+function nyugiMod() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }</script>
+<script>/*__RENDERER__*/</script>
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var KOR_MP = 60, SLOT = 30, UGRAS_MS = 240, TETLEN_MS = 10000;
+  var LENY = [["korall", "Tűz"], ["kek", "Ragyogás"], ["rozsa", "Csillámharmat"]];
+  var allapot = { valt: "B", leny: "rozsa", meret: "laptop" };
+  try { var m = JSON.parse(localStorage.getItem("villamkor-rajzterv") || "null"); if (m) { allapot.valt = m.valt || "B"; allapot.leny = m.leny || "rozsa"; } } catch (e) {}
+  function ment() { try { localStorage.setItem("villamkor-rajzterv", JSON.stringify({ valt: allapot.valt, leny: allapot.leny })); } catch (e) {} }
+  function kin() { return { sorenySzin: 0, szemSzin: null, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
+
+  /* ── a rekord (a „tegnapi” kör ugrás-idői, ms) ── */
+  function alapRekord() {
+    var t = [], ido = 2200;
+    for (var i = 0; i < 18; i++) { ido += 2700 + ((i * 7919) % 1300) - 400; t.push(Math.min(59500, ido)); }
+    return { p: 18, t: t };
+  }
+  var rekord = alapRekord();
+
+  /* ── a három pálya ── */
+  var VALT = {
+    A: { nev: "A) Ovális versenypálya", leiras: "Igazi versenypálya a réten. Körbe-körbe fut, a túlsó oldalon kisebb (távolabb van), a kanyarban megfordul. 30 ugrás = egy teljes kör.",
+         ut: "M400,352 A320,58 0 0,0 720,294 A320,58 0 0,0 80,294 A320,58 0 0,0 400,352", kor: true, melyseg: [236, 352], dolt: 0 },
+    B: { nev: "B) Kanyargó ösvény a dombra", leiras: "Az ösvény a rét aljáról kanyarog fel a domb tetejére. Mindig előre fut, és ahogy feljebb ér, kisebb lesz, mintha távolodna. Fent a virágkapu (30 ugrás).",
+         ut: "M48,352 C170,372 250,318 340,318 S470,336 540,296 S650,226 744,214", kor: false, melyseg: [214, 352], dolt: .5 },
+    C: { nev: "C) Szivárványhíd", leiras: "Szivárvány ível át a réten, egyik felhőtől a másikig. Az unikornis a szivárvány tetején ugrál fel, majd le. A túlsó felhő a 30. ugrás.",
+         ut: "M96,326 A304,236 0 0,1 704,326", kor: false, melyseg: null, dolt: .55 }
+  };
+
+  var svg = document.getElementById("szin");
+  function el(tag, at, szulo) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (szulo) szulo.appendChild(e); return e; }
+
+  var S = {};   /* a kirajzolt kép részei */
+  function epit() {
+    var v = VALT[allapot.valt];
+    svg.innerHTML =
+      '<defs>' +
+        '<linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3fa"/><stop offset=".7" stop-color="#e9f4fb"/><stop offset="1" stop-color="#fdf1e4"/></linearGradient>' +
+        '<linearGradient id="eg-arany" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7c3a8"/><stop offset=".6" stop-color="#fbd9a6"/><stop offset="1" stop-color="#fde9c2"/></linearGradient>' +
+        '<linearGradient id="ret" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe5b0"/><stop offset="1" stop-color="#9fd48f"/></linearGradient>' +
+        '<radialGradient id="nap-g"><stop offset="0" stop-color="#fff6c4"/><stop offset=".6" stop-color="#ffd86b"/><stop offset="1" stop-color="#ffc24a"/></radialGradient>' +
+        '<filter id="arnyek-szuro" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.22 0.22 0.22 0 0.36  0.16 0.16 0.16 0 0.2  0.24 0.24 0.24 0 0.66  0 0 0 1 0"/></filter>' +
+      '</defs>' +
+      '<rect width="800" height="380" fill="url(#eg)"/>' +
+      '<rect id="eg-arany-r" width="800" height="380" fill="url(#eg-arany)" opacity="0"/>' +
+      '<g fill="#fff" opacity=".85"><ellipse cx="150" cy="70" rx="46" ry="15"/><ellipse cx="180" cy="60" rx="30" ry="14"/><ellipse cx="610" cy="96" rx="52" ry="15"/><ellipse cx="640" cy="86" rx="28" ry="13"/></g>' +
+      '<path id="nap-ut" d="M40,286 Q400,-124 760,286" fill="none" stroke="#f5b942" stroke-width="2.5" stroke-dasharray="2 11" stroke-linecap="round" opacity=".55"/>' +
+      '<g id="nap"><circle r="34" fill="#ffe27a" opacity=".35"/><circle r="24" fill="url(#nap-g)"/><circle cx="-7" cy="-2" r="2.2" fill="#c98a1e"/><circle cx="7" cy="-2" r="2.2" fill="#c98a1e"/><path d="M-7,6 Q0,12 7,6" stroke="#c98a1e" stroke-width="2" fill="none" stroke-linecap="round"/></g>' +
+      '<path d="M0,262 C110,226 210,248 300,238 C390,228 470,252 560,240 C650,228 720,236 800,226 L800,380 L0,380Z" fill="#cbe9bd"/>' +
+      (allapot.valt === "B" ? '<path d="M420,380 C520,300 610,232 744,208 C770,204 790,206 800,208 L800,380Z" fill="#b6deA6"/>' : '') +
+      '<path d="M0,282 C150,268 300,286 430,276 C560,266 680,282 800,272 L800,380 L0,380Z" fill="url(#ret)"/>';
+    S.nap = svg.querySelector("#nap"); S.napUt = svg.querySelector("#nap-ut"); S.arany = svg.querySelector("#eg-arany-r");
+
+    var ter = el("g", {}, svg);
+    /* a pálya maga */
+    if (allapot.valt === "A") {
+      el("ellipse", { cx: 400, cy: 294, rx: 320, ry: 58, fill: "none", stroke: "#f2dcae", "stroke-width": 30 }, ter);
+      el("ellipse", { cx: 400, cy: 294, rx: 320, ry: 58, fill: "none", stroke: "#dcbf86", "stroke-width": 1.5, "stroke-dasharray": "6 10" }, ter);
+      el("ellipse", { cx: 400, cy: 294, rx: 290, ry: 40, fill: "#b4e0a2" }, ter);
+      el("ellipse", { cx: 400, cy: 294, rx: 120, ry: 16, fill: "#c3e8b2" }, ter);
+      for (var c = 0; c < 6; c++) el("rect", { x: 396 + (c % 2) * 4, y: 337 + c * 5, width: 4, height: 5, fill: c % 2 ? "#fff" : "#4a3b7a" }, ter);
+    } else if (allapot.valt === "B") {
+      el("path", { d: v.ut, fill: "none", stroke: "#f2dcae", "stroke-width": 26, "stroke-linecap": "round" }, ter);
+      el("path", { d: v.ut, fill: "none", stroke: "#dcbf86", "stroke-width": 1.5, "stroke-dasharray": "5 12" }, ter);
+    } else {
+      var szin = ["#f6a5c0", "#f7c59f", "#fce49a", "#a7d99a", "#9ec9f0", "#c9a8e6"];
+      szin.forEach(function (s, i) { var r = 7 * i + 3.5; el("path", { d: "M" + (96 + r) + ",326 A" + (304 - r) + "," + (236 - r) + " 0 0,1 " + (704 - r) + ",326", fill: "none", stroke: s, "stroke-width": 7.5 }, ter); });
+      [[96, 330], [704, 330]].forEach(function (p) { var g = el("g", { fill: "#fff" }, ter); el("ellipse", { cx: p[0], cy: p[1] + 6, rx: 58, ry: 18 }, g); el("ellipse", { cx: p[0] - 24, cy: p[1] - 2, rx: 26, ry: 16 }, g); el("ellipse", { cx: p[0] + 20, cy: p[1] - 4, rx: 30, ry: 18 }, g); });
+    }
+    S.ut = el("path", { d: v.ut, fill: "none", stroke: "none" }, ter);
+    S.hossz = S.ut.getTotalLength();
+    /* virág-jelek ötösével + a kapu */
+    S.kapu = null;
+    for (var k = 5; k <= SLOT; k += 5) {
+      if (allapot.valt === "A" && k === SLOT) break;
+      var p = hely(k, true), oldal = allapot.valt === "A" ? (p.y > 294 ? 19 : -19) : 17;
+      if (k === SLOT) { S.kapu = kapuRajz(ter, p); continue; }
+      if (allapot.valt === "C") { var nx = p.x - 400, ny = p.y - 326, nh = Math.hypot(nx, ny) || 1; virag(ter, p.x - nx / nh * 22, p.y - ny / nh * 22 + 6, 1.1, k); }
+      else virag(ter, p.x + 6, p.y + oldal, p.s * 3, k);
+    }
+    /* figurák */
+    S.arnyek = figura("arny", true);
+    S.jatekos = figura("jat", false);
+    S.mosoly = el("text", { class: "mosoly", "text-anchor": "middle" }, svg); S.mosoly.textContent = "😊";
+    S.szikrak = el("g", {}, svg);
+    allit(S.arnyek, 0); allit(S.jatekos, 0);
+    napAllit(0);
+  }
+  function virag(g, x, y, s, k) {
+    var v = el("g", { transform: "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ") scale(" + s.toFixed(2) + ")" }, g);
+    var sz = ["#f6a5c0", "#c9a8e6", "#9ec9f0", "#f7c59f", "#fce49a"][(k / 5 - 1) % 5];
+    el("path", { d: "M0,0 L0,7", stroke: "#6fb36a", "stroke-width": 1.4 }, v);
+    for (var i = 0; i < 5; i++) { var a = i * 72 * Math.PI / 180; el("circle", { cx: (Math.cos(a) * 2.6).toFixed(2), cy: (Math.sin(a) * 2.6).toFixed(2), r: 2.1, fill: sz }, v); }
+    el("circle", { r: 1.5, fill: "#ffe08a" }, v);
+  }
+  function kapuRajz(g, p) {
+    var k = el("g", { transform: "translate(" + p.x.toFixed(1) + "," + p.y.toFixed(1) + ") scale(" + (p.s / 0.5 * 0.9).toFixed(2) + ")" }, g);
+    if (allapot.valt === "C") return null;
+    el("path", { d: "M-34,0 L-34,-58 Q0,-92 34,-58 L34,0", fill: "none", stroke: "#a7d99a", "stroke-width": 7, "stroke-linecap": "round" }, k);
+    var vir = el("g", { class: "kapu-virag", opacity: ".35" }, k);
+    [[-34, -20], [-34, -44], [-22, -72], [0, -80], [22, -72], [34, -44], [34, -20]].forEach(function (q, i) {
+      el("circle", { cx: q[0], cy: q[1], r: 6, fill: ["#f6a5c0", "#c9a8e6", "#fce49a", "#9ec9f0"][i % 4] }, vir);
+      el("circle", { cx: q[0], cy: q[1], r: 2.2, fill: "#fff6c4" }, vir);
+    });
+    return vir;
+  }
+
+  /* a pálya k-adik ugrás-helye (k lehet tört is) → {x, y, s, a} */
+  function hely(k, nyers) {
+    var v = VALT[allapot.valt], f = k / SLOT;
+    if (v.kor) f = ((f % 1) + 1) % 1; else f = Math.max(0, Math.min(1, f));
+    var L = f * S.hossz, p = S.ut.getPointAtLength(L);
+    var p1 = S.ut.getPointAtLength(Math.max(0, L - 3)), p2 = S.ut.getPointAtLength(Math.min(S.hossz, L + 3));
+    var s = 0.5;
+    if (v.melyseg) s *= 0.58 + 0.42 * (p.y - v.melyseg[0]) / (v.melyseg[1] - v.melyseg[0]);
+    var a = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+    var dir = p2.x < p1.x ? -1 : 1;
+    if (dir < 0) a = a > 0 ? a - 180 : a + 180;
+    a = Math.max(-26, Math.min(26, a * v.dolt));
+    return { x: p.x, y: p.y, s: s, a: a, dir: dir };
+  }
+
+  function figura(id, arnyek) {
+    var g = el("g", { class: arnyek ? "arnyek-uni" : "" }, svg);
+    if (arnyek) g.setAttribute("filter", "url(#arnyek-szuro)");
+    var irany = el("g", { style: "--dir:1;transform:scale(var(--dir,1),1)" }, g);
+    irany.innerHTML = unikornisSVG(id, { rajz: allapot.leny }, 1, null, kin());
+    uniNezoAdat(irany, { rajz: allapot.leny, kinezet: kin() });
+    return { g: g, el: irany, k: 0, cel: 0, fut: false, arnyek: arnyek };
+  }
+  function allit(f, k, emel) {
+    var p = hely(k), hatra = f.arnyek ? (allapot.valt === "C" ? 4 : 10) * p.s / 0.5 : 0;   /* az árnyék egy sávval hátrébb fut */
+    f.g.setAttribute("transform", "translate(" + (p.x - hatra * .4).toFixed(1) + "," + (p.y - hatra - (emel || 0) * p.s).toFixed(1) + ") rotate(" + p.a.toFixed(1) + ") scale(" + p.s.toFixed(3) + ")");
+    f.hely = p;
+  }
+  /* egy ugrás előre (ha épp ugrik, sorba áll) */
+  function ugrik(f) {
+    f.cel++;
+    if (!f.fut) kovUgras(f);
+  }
+  function kovUgras(f) {
+    if (f.k >= f.cel) { f.fut = false; uniAll(f.el); return; }
+    f.fut = true;
+    if (f.cel - f.k > 3) { f.k = f.cel - 1; allit(f, f.k); }   /* nagyon lemaradt (pl. háttérben volt a lap) → utoléri magát */
+    var k0 = f.k, k1 = f.k + 1, cel = hely(k1);
+    if (!VALT[allapot.valt].kor && k1 > SLOT) { f.k = k1; allit(f, SLOT); if (f === S.jatekos) helybenUgras(f); setTimeout(function () { kovUgras(f); }, UGRAS_MS); return; }
+    var ido = uniFordul(f.el, cel.dir, null);
+    setTimeout(function () {
+      if (!nyugiMod()) uniJar(f.el, { mod: "uget", tempo: 1.6 });
+      var t0 = performance.now(), hossz = f.cel - f.k > 1 ? UGRAS_MS * .7 : UGRAS_MS;
+      requestAnimationFrame(function lep(most) {
+        var t = Math.min(1, (most - t0) / hossz);
+        allit(f, k0 + t, nyugiMod() ? 0 : 70 * 4 * t * (1 - t));
+        if (t < 1) { requestAnimationFrame(lep); return; }
+        f.k = k1;
+        if (f === S.jatekos) { szikra(f.hely); if (k1 === SLOT && S.kapu) S.kapu.setAttribute("opacity", "1"); }
+        kovUgras(f);
+      });
+    }, ido);
+  }
+  function helybenUgras(f) {
+    var t0 = performance.now();
+    requestAnimationFrame(function lep(most) { var t = Math.min(1, (most - t0) / UGRAS_MS); allit(f, SLOT, 60 * 4 * t * (1 - t)); if (t < 1) requestAnimationFrame(lep); });
+    szikra(hely(SLOT));
+  }
+  function szikra(p) {
+    if (nyugiMod()) return;
+    var t = el("text", { x: p.x.toFixed(1), y: (p.y - 46 * p.s / 0.5).toFixed(1), "text-anchor": "middle", "font-size": 18, class: "szikra", style: "transform-box:fill-box;transform-origin:center" }, S.szikrak);
+    t.textContent = "✨";
+    setTimeout(function () { t.remove(); }, 750);
+  }
+  function napAllit(f) {
+    f = Math.max(0, Math.min(1, f));
+    var p = S.napUt.getPointAtLength(f * S.napUt.getTotalLength());
+    S.nap.setAttribute("transform", "translate(" + p.x.toFixed(1) + "," + p.y.toFixed(1) + ")");
+    S.arany.setAttribute("opacity", Math.max(0, (f - .72) / .28 * .8).toFixed(2));
+  }
+
+  /* ── feladatok (rajzterv: 20-as kör; a játékban a gyerek tudott tényei) ── */
+  var elozo = null;
+  function ujFeladat(sorszam) {
+    var a, b, plusz, f, kicsi = sorszam < 3;
+    do {
+      plusz = Math.random() < .55;
+      if (plusz) { a = 1 + Math.floor(Math.random() * (kicsi ? 5 : 10)); b = 1 + Math.floor(Math.random() * (kicsi ? 5 : 10)); f = { sz: a + " + " + b, e: a + b }; }
+      else { a = (kicsi ? 3 : 6) + Math.floor(Math.random() * (kicsi ? 7 : 13)); b = 1 + Math.floor(Math.random() * Math.min(kicsi ? 3 : 9, a - 1)); f = { sz: a + " − " + b, e: a - b }; }
+    } while (elozo && f.sz === elozo.sz);
+    return (elozo = f);
+  }
+
+  /* ── egy kör ── */
+  var K = null;   /* a futó kör */
+  var feladatEl = document.getElementById("feladat"), mutato = document.getElementById("mutato");
+  var uzenet = document.getElementById("uzenet"), rajtEl = document.getElementById("rajt"), vege = document.getElementById("vege");
+  function uzen(t, ms) { uzenet.textContent = t; uzenet.classList.add("lat"); clearTimeout(uzen._t); uzen._t = setTimeout(function () { uzenet.classList.remove("lat"); }, ms || 1800); }
+  function leallit() {
+    if (K) { K.vege = true; K.idozitok.forEach(clearTimeout); cancelAnimationFrame(K.raf); }
+    K = null;
+  }
+  function indit(bemutato) {
+    leallit(); epit(); vege.hidden = true;
+    var k = K = { bemutato: bemutato, seb: bemutato ? 3 : 1, ugras: 0, rossz: 0, sorszam: 0, be: "", idok: [], idozitok: [], arnyekI: 0, megelozte: false, fut: false, utolso: 0 };
+    feladatEl.textContent = "⚡"; mutato.textContent = "⚡ 0 ugrás";
+    var lepes = ["Vigyázz…", "kész…", "rajt!"];
+    lepes.forEach(function (t, i) { k.idozitok.push(setTimeout(function () { if (K !== k) return; rajtEl.textContent = t; rajtEl.classList.add("lat"); }, i * 650)); });
+    k.idozitok.push(setTimeout(function () {
+      if (K !== k) return;
+      rajtEl.classList.remove("lat");
+      k.fut = true; k.t0 = performance.now(); k.utolso = k.t0;
+      kovFeladat(k);
+      if (bemutato) autoValasz(k);
+      k.raf = requestAnimationFrame(function tik(most) {
+        if (K !== k || k.vege) return;
+        var jt = (most - k.t0) * k.seb;
+        napAllit(jt / (KOR_MP * 1000));
+        while (k.arnyekI < rekord.t.length && rekord.t[k.arnyekI] <= jt) { k.arnyekI++; ugrik(S.arnyek); }
+        if (!k.megelozte && k.ugras > k.arnyekI && k.ugras > 0) megeloz(k);
+        if (!bemutato && most - k.utolso > TETLEN_MS) { pihen(k); return; }
+        if (jt >= KOR_MP * 1000) { korVege(k); return; }
+        k.raf = requestAnimationFrame(tik);
+      });
+    }, lepes.length * 650 + 150));
+  }
+  function megeloz(k) {
+    k.megelozte = true;
+    var p = S.arnyek.hely;
+    S.mosoly.setAttribute("x", p.x.toFixed(1)); S.mosoly.setAttribute("y", (p.y - 64 * p.s / 0.5).toFixed(1));
+    S.mosoly.classList.add("lat");
+    setTimeout(function () { S.mosoly.classList.remove("lat"); S.arnyek.g.classList.add("lemarad"); }, 1100);
+  }
+  function kovFeladat(k) {
+    k.f = ujFeladat(k.sorszam++); k.be = ""; k.fIdo = performance.now();
+    rajzolFeladat(k);
+  }
+  function rajzolFeladat(k, jo) {
+    feladatEl.className = "feladat";
+    feladatEl.innerHTML = k.f.sz + ' = <span class="be">' + (k.be || "&nbsp;") + "</span>";
+  }
+  function bevisz(k, jel) {
+    if (!k || !k.fut || k.var) return;
+    k.utolso = performance.now();
+    if (jel === "⌫") { k.be = k.be.slice(0, -1); rajzolFeladat(k); return; }
+    if (jel === "✓") { if (k.be) ertekel(k); return; }
+    if (k.be.length >= 3) return;
+    k.be += jel; rajzolFeladat(k);
+    if (k.be.length >= String(k.f.e).length) ertekel(k);
+  }
+  function ertekel(k) {
+    var jo = +k.be === k.f.e;
+    k.idok.push(Math.round((performance.now() - k.t0) * k.seb));
+    if (jo) {
+      k.ugras++; ugrik(S.jatekos); csengo();
+      mutato.textContent = "⚡ " + k.ugras + " ugrás";
+      feladatEl.classList.add("jo");
+      k.var = true;
+      k.idozitok.push(setTimeout(function () { k.var = false; if (K === k && !k.vege) kovFeladat(k); }, 120 / k.seb * (k.bemutato ? 1.5 : 1)));
+    } else {
+      k.rossz++; k.var = true;
+      feladatEl.className = "feladat halvany";
+      feladatEl.innerHTML = k.f.sz + ' = <span class="be">' + k.f.e + "</span>";
+      k.idozitok.push(setTimeout(function () { k.var = false; if (K === k && !k.vege) kovFeladat(k); }, 500 / (k.bemutato ? 1.5 : 1)));
+    }
+  }
+  function autoValasz(k) {
+    var ido = (1100 + Math.random() * 1500) / k.seb;
+    k.idozitok.push(setTimeout(function () {
+      if (K !== k || k.vege || !k.fut) return;
+      if (k.var) { autoValasz(k); return; }
+      var v = String(Math.random() < .12 ? k.f.e + (Math.random() < .5 ? 1 : -1) : k.f.e);
+      v.split("").forEach(function (c, i) { k.idozitok.push(setTimeout(function () { bevisz(k, c); }, i * 90)); });
+      autoValasz(k);
+    }, ido));
+  }
+  function korVege(k) {
+    k.vege = true; k.fut = false; napAllit(1);
+    feladatEl.className = "feladat"; feladatEl.textContent = "🌅";
+    setTimeout(function () { if (K === k) vegeKep(k.ugras, k); }, 700);
+  }
+  function pihen(k) {
+    k.vege = true; k.fut = false;
+    feladatEl.className = "feladat"; feladatEl.textContent = "💤";
+    mutato.textContent = "Pihenünk egyet? Bármikor újrakezdheted!";
+    uzen("Pihenünk egyet? Bármikor újrakezdheted!", 3500);
+  }
+  function vegeKep(n, k) {
+    var uj = n > rekord.p, eddig = rekord.p;
+    document.getElementById("v-n").textContent = n + " ugrás";
+    document.getElementById("v-r").textContent = uj ? "🏆 Új rekord! (eddig " + eddig + ")" : "Ma " + n + " ugrás! Holnap megint futhatsz.";
+    document.getElementById("v-j").textContent = "+" + n + " ✨" + (uj ? "   +3 💧" : "");
+    vege.hidden = false;
+    if (uj && k && !k.bemutato) rekord = { p: n, t: k.idok.slice() };
+    if (uj) setTimeout(function () { uniPorog(S.jatekos.el, 1600); }, 300);
+    mutato.textContent = uj && k && !k.bemutato ? "Új rekord: a következő körben ez a futás lesz az árnyék." : "⚡ " + n + " ugrás";
+  }
+
+  /* kis csengés (nincs hangfájl: egy rövid hang a böngészőből) */
+  var hang = null;
+  function csengo() {
+    try {
+      hang = hang || new (window.AudioContext || window.webkitAudioContext)();
+      var o = hang.createOscillator(), g = hang.createGain(), t = hang.currentTime;
+      o.type = "sine"; o.frequency.setValueAtTime(1320, t); o.frequency.exponentialRampToValueAtTime(1760, t + .06);
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.08, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + .18);
+      o.connect(g); g.connect(hang.destination); o.start(t); o.stop(t + .2);
+    } catch (e) {}
+  }
+
+  /* ── vezérlők ── */
+  var bill = document.getElementById("bill");
+  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"].forEach(function (c) {
+    var b = document.createElement("button"); b.textContent = c; if (c === "⌫" || c === "✓") b.className = "spec";
+    b.addEventListener("click", function () { bevisz(K, c); }); bill.appendChild(b);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!K || !K.fut || K.bemutato) return;
+    var m = /^(?:Digit|Numpad)(\d)$/.exec(e.code);
+    if (m) { bevisz(K, m[1]); e.preventDefault(); }
+    else if (e.key === "Backspace") { bevisz(K, "⌫"); e.preventDefault(); }
+    else if (e.key === "Enter") { bevisz(K, "✓"); e.preventDefault(); }
+  });
+  function gombsor(dobozId, lista, kulcs, valt) {
+    var d = document.getElementById(dobozId);
+    lista.forEach(function (x) {
+      var b = document.createElement("button"); b.textContent = x[1]; b.dataset.v = x[0];
+      b.addEventListener("click", function () { allapot[kulcs] = x[0]; ment(); frissit(); valt(); });
+      d.appendChild(b);
+    });
+  }
+  function frissit() {
+    document.querySelectorAll("#valt-gombok button").forEach(function (b) { b.classList.toggle("be", b.dataset.v === allapot.valt); });
+    document.querySelectorAll("#leny-gombok button").forEach(function (b) { b.classList.toggle("be", b.dataset.v === allapot.leny); });
+    document.getElementById("valt-leiras").textContent = VALT[allapot.valt].leiras;
+  }
+  function alaphelyzet() { leallit(); vege.hidden = true; epit(); feladatEl.className = "feladat"; feladatEl.textContent = "⚡"; mutato.textContent = "Indíts egy kört fent!"; }
+  gombsor("valt-gombok", Object.keys(VALT).map(function (k) { return [k, VALT[k].nev]; }), "valt", alaphelyzet);
+  gombsor("leny-gombok", LENY, "leny", alaphelyzet);
+  document.querySelectorAll("#meret-gombok button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#meret-gombok button").forEach(function (x) { x.classList.toggle("be", x === b); });
+      document.getElementById("keret").classList.toggle("telefon", b.dataset.m === "telefon");
+    });
+  });
+  document.getElementById("b-proba").addEventListener("click", function () { indit(false); });
+  document.getElementById("b-bemutato").addEventListener("click", function () { indit(true); });
+  document.getElementById("b-vege").addEventListener("click", function () {
+    alaphelyzet();
+    for (var i = 0; i < 21; i++) ugrik(S.jatekos);
+    for (var j = 0; j < rekord.p; j++) ugrik(S.arnyek);
+    napAllit(1);
+    setTimeout(function () { vegeKep(21, null); }, 900);
+  });
+  document.getElementById("v-meg").addEventListener("click", function () { indit(K ? K.bemutato : false); });
+  document.getElementById("v-vissza").addEventListener("click", alaphelyzet);
+  frissit(); epit();
+  window.VK = { indit: indit, allapot: allapot, S: S, K: function () { return K; } };
+})();
+</script>
+</body>
+</html>
