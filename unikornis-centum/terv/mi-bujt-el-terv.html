@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi bújt el? tervlap</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#f2fbef; --leaf:#5cb77a; --leaf-d:#3f8f5a; --card:#fffaf2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--leaf-d) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🌿";position:absolute;right:18px;top:6px;font-size:100px;opacity:.2;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--leaf-d),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🌿 Mi bújt el?</h1>
+  <div class="sub">Új kérdésforma: nem az eredményt kérdezzük, hanem a <b>hiányzó számot</b>. 7 + ? = 10, 13 − ? = 8, ? × 6 = 42. A kérdőjel helyén egy levél van, mögötte egy kis lény bújik, és a jó válaszra előugrik a számmal.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-07</span>
+    <span class="chip">Nagyság: közepes (5 kör, ebből 1 rajzterv)</span>
+    <span class="chip">A sorban: 4. csomag, B) — a tervlap most, a kód a visszahívás után</span>
+    <span class="chip">Alap: <a href="teny-motor-rendszerterv.html" style="color:#fff">teny-motor-rendszerterv.html</a></span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>A játékban ma minden feladat azt kérdezi: <b>„mennyi az eredmény?”</b>. A gyerek így a 7 + 5-öt megtanulja, de a <b>7 + ? = 12</b>-t (pótlás) és a <b>? × 6 = 42</b>-t nem gyakorolja. Pedig ez a két forma kell a kivonáshoz (a kivonás = pótlás), az osztáshoz, a szöveges feladatokhoz, és később az egyenletekhez.</p>
+  <p>A terv <b>három új pálya</b>, egyetlen közös „hiányzó szám” feladat-alakkal:</p>
+  <ul>
+    <li>🌳 <b>Bújócska-rét</b> (Összeadó liget): tízes barátok, pótlás 20-ig, hiányzó tag és kivonandó.</li>
+    <li>🌳 <b>Százas bújócska</b> (Összeadó liget): kerek százra pótlás, százas barátok (37 + ? = 100).</li>
+    <li>🌙 <b>Holdfény-bújócska</b> (Szorzós liget): hiányzó tényező, osztó és osztandó.</li>
+  </ul>
+  <p class="lead">Minden válasz a tény-motorba megy, a <b>tényhez</b> könyvelve, „mi bújt el” jellel. A 7 + ? = 12 tehát ugyanannak a családnak (5, 7, 12) a virágát öntözi, mint a 7 + 5. A pulton viszont külön látszik, ha a gyerek csak az egyik irányban tudja.</p>
+</div>
+
+<h2>Hogy néz ki</h2>
+<div class="vazlatok">
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 230" role="img" aria-label="Feladatkártya: hét meg egy levél egyenlő tíz, a levél mögül egy egér füle kandikál ki">
+      <rect class="kartya" x="20" y="30" width="360" height="150" rx="22"/>
+      <text x="62" y="128" font-size="58" font-weight="700">7 +</text>
+      <!-- levél -->
+      <g transform="translate(205,105)">
+        <path d="M-38,22 C-44,-20 -10,-46 34,-40 C40,0 10,34 -38,22 Z" fill="var(--leaf)" stroke="var(--leaf-d)" stroke-width="3"/>
+        <path d="M-34,18 C-6,-2 14,-18 30,-36" fill="none" stroke="var(--leaf-d)" stroke-width="2.5"/>
+        <!-- egér fülek a levél mögül -->
+        <circle cx="-16" cy="-38" r="11" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="8" cy="-44" r="11" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="-16" cy="-38" r="5" fill="#f4b6c8"/>
+        <circle cx="8" cy="-44" r="5" fill="#f4b6c8"/>
+      </g>
+      <text x="268" y="128" font-size="58" font-weight="700">= 10</text>
+      <text x="200" y="212" font-size="15" text-anchor="middle">„Hét meg mennyi az tíz?”</text>
+    </svg>
+    <figcaption>A kérdőjel helyén levél, mögüle kilóg a kis lény füle.</figcaption>
+  </figure>
+  <figure>
+    <svg class="vazlat" viewBox="0 0 400 230" role="img" aria-label="Jó válasz után: a levél félrehajlik, az egér a hármas számmal a kezében előugrik">
+      <rect class="kartya" x="20" y="30" width="360" height="150" rx="22"/>
+      <text x="62" y="128" font-size="58" font-weight="700">7 +</text>
+      <g transform="translate(250,140) rotate(35)">
+        <path d="M-30,16 C-34,-14 -8,-34 26,-30 C30,0 8,26 -30,16 Z" fill="var(--leaf)" stroke="var(--leaf-d)" stroke-width="3" opacity=".75"/>
+      </g>
+      <!-- egér -->
+      <g transform="translate(200,82)">
+        <ellipse cx="0" cy="34" rx="22" ry="18" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="0" cy="6" r="17" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="-14" cy="-10" r="9" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="14" cy="-10" r="9" fill="#c9b8c8" stroke="var(--sketch-ink)" stroke-width="2"/>
+        <circle cx="-6" cy="4" r="2.4" fill="var(--sketch-ink)"/><circle cx="6" cy="4" r="2.4" fill="var(--sketch-ink)"/>
+        <path d="M-5,12 Q0,16 5,12" fill="none" stroke="var(--sketch-ink)" stroke-width="2"/>
+      </g>
+      <text x="200" y="74" font-size="40" font-weight="800" text-anchor="middle" fill="var(--pink)" style="fill:var(--pink)">3</text>
+      <text x="268" y="128" font-size="58" font-weight="700">= 10</text>
+      <text x="200" y="212" font-size="15" text-anchor="middle">Előugrik, a feje fölé tartja a számot</text>
+    </svg>
+    <figcaption>Jó válasz: a levél félrehajlik, a lény előugrik. (Csak vázlat — a pontos kép a rajztervé.)</figcaption>
+  </figure>
+</div>
+
+<h2>A feladat-formák</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>Hat „mi bújt el” forma, mind egy tényhez könyvelve</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Forma</th><th>Példa</th><th>Felolvasás</th><th>Melyik tény</th></tr>
+      <tr><td>hiányzó második tag</td><td>7 + ? = 12</td><td class="say">„Hét meg mennyi az tizenkettő?”</td><td>7 + 5</td></tr>
+      <tr><td>hiányzó első tag</td><td>? + 5 = 12</td><td class="say">„Mennyi meg öt az tizenkettő?”</td><td>7 + 5</td></tr>
+      <tr><td>hiányzó kivonandó</td><td>12 − ? = 7</td><td class="say">„Tizenkettő mínusz mennyi az hét?”</td><td>12 − 5</td></tr>
+      <tr><td>hiányzó kisebbítendő</td><td>? − 5 = 7</td><td class="say">„Mennyi mínusz öt az hét?”</td><td>12 − 5</td></tr>
+      <tr><td>hiányzó tényező</td><td>6 × ? = 42 · ? × 7 = 42</td><td class="say">„Hatszor mennyi az negyvenkettő?” · „Hányszor hét az negyvenkettő?”</td><td>6 × 7</td></tr>
+      <tr><td>hiányzó osztó / osztandó</td><td>42 ÷ ? = 6 · ? ÷ 6 = 7</td><td class="say">„Negyvenkettő osztva mennyivel az hat?” · „Mennyi osztva hattal az hét?”</td><td>42 ÷ 7 · 42 ÷ 6</td></tr>
+    </table></div>
+    <p>A beírás és a beszéd ugyanúgy megy, mint most: egy számot kell mondani vagy beírni. A számbillentyűzet, a kézmentes mód és a rejtett időmérés változás nélkül működik.</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Tippek: a „mi bújt el” mindig visszavezet a családra</h3>
+    <ul>
+      <li><b>Tízes barát</b> (7 + ? = 10): <span class="say">„Mutass hét ujjat. Hány ujj hiányzik a tízhez?”</span></li>
+      <li><b>Pótlás tízen át</b> (8 + ? = 13): <span class="say">„Előbb tízig: nyolc meg kettő az tíz. Tíztől tizenháromig még három. Kettő meg három?”</span></li>
+      <li><b>Hiányzó kivonandó</b> (13 − ? = 8): <span class="say">„Számolj fölfelé nyolctól tizenháromig.”</span></li>
+      <li><b>Hiányzó kisebbítendő</b> (? − 5 = 8): <span class="say">„Ami maradt, meg amit elvettünk: nyolc meg öt.”</span></li>
+      <li><b>Hiányzó tényező</b> (? × 6 = 42): <span class="say">„Mondd a hatos sort, amíg a negyvenkettőhöz érsz.”</span></li>
+      <li><b>Hiányzó osztó / osztandó</b>: <span class="say">„Hatszor mennyi az negyvenkettő?”</span> · <span class="say">„Hétszer hat. Mennyi az?”</span></li>
+    </ul>
+    <p class="lead">Ezek a meglévő tipp-rendszeren mennek (egy tipp, utána a „segítséggel jó” könyvelés), új gomb nincs.</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>A három pálya</h2>
+<p class="lead">Mind a szokott hosszú: Rajt → 4 szakasz → Odú-küszöb, szakaszonként 4 feladat = 20 feladat. Indításkor csak „Induljunk!”, hosszú bevezető nincs. A legelső feladatnál egyszer elhangzik: <span class="say">„Cincin elbújt! Hét meg mennyi az tíz?”</span></p>
+<div class="cards">
+
+  <div class="dec"><span class="num">3</span>
+    <h3>🌳 Bújócska-rét — 20-ig (Összeadó liget, a „20-ig” pálya után)</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Állomás</th><th>Mi bújik el</th><th>Példa</th></tr>
+      <tr><td>Rajt</td><td>—</td><td></td></tr>
+      <tr><td>Tízes barátok</td><td>a tízes barát (mindkét helyen)</td><td>7 + ? = 10 · ? + 4 = 10</td></tr>
+      <tr><td>Lombsátor</td><td>pótlás 20-ig, eleinte tíz átlépése nélkül</td><td>12 + ? = 17 · 8 + ? = 13</td></tr>
+      <tr><td>Páfrányos</td><td>hiányzó kivonandó</td><td>13 − ? = 8 · 10 − ? = 6</td></tr>
+      <tr><td>Mohás kő</td><td>vegyes: tag és kivonandó</td><td>? + 6 = 14 · 15 − ? = 9</td></tr>
+      <tr><td>Odú-küszöb</td><td>vegyes, itt jön a legnehezebb is: a hiányzó kisebbítendő</td><td>? − 5 = 8</td></tr>
+    </table></div>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>🌳 Százas bújócska — 100-ig (Összeadó liget, a „Tízes-átlépő” után)</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Állomás</th><th>Mi bújik el</th><th>Példa</th></tr>
+      <tr><td>Rajt</td><td>—</td><td></td></tr>
+      <tr><td>Kerek százas</td><td>kerek tízesek százig</td><td>30 + ? = 100</td></tr>
+      <tr><td>Kerek tízesig</td><td>pótlás a következő tízesig</td><td>37 + ? = 40</td></tr>
+      <tr><td>Százas barátok</td><td>pótlás százig</td><td>37 + ? = 100 · 100 − ? = 64</td></tr>
+      <tr><td>Hosszú ugrás</td><td>hiányzó tag a 100-as körben</td><td>45 + ? = 52 · 80 − ? = 74</td></tr>
+      <tr><td>Odú-küszöb</td><td>vegyes</td><td></td></tr>
+    </table></div>
+    <p class="lead">A százas barátok a 37 + ? = 100 két lépése: előbb a tízesig (+3), aztán a százig (+60). A tipp is ezt mondja. A tény-motorban ez egy új 100-as típus: <b>százas barátok</b>, rokon ténye a 7 + 3 (az egyesek tízes barátja).</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>🌙 Holdfény-bújócska — szorzás-osztás (Szorzós liget, az „Osztogató tisztás” után)</h3>
+    <div class="tblwrap"><table>
+      <tr><th>Állomás</th><th>Mi bújik el</th><th>Táblák</th></tr>
+      <tr><td>Rajt</td><td>—</td><td></td></tr>
+      <tr><td>Csillagszem</td><td>hiányzó tényező</td><td>2, 5, 10</td></tr>
+      <tr><td>Holdudvar</td><td>hiányzó tényező</td><td>3, 4</td></tr>
+      <tr><td>Bagolyfa</td><td>hiányzó tényező</td><td>6, 7, 8, 9</td></tr>
+      <tr><td>Harmatcsepp</td><td>hiányzó osztó és osztandó</td><td>2–10</td></tr>
+      <tr><td>Odú-küszöb</td><td>vegyes</td><td>2–10</td></tr>
+    </table></div>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">6</span>
+    <h3>Ugyanazok a szabályok, mint a többi pályán</h3>
+    <ul>
+      <li><b>Jutalom:</b> ✨ feladatonként, ⭐ az ösvény végén, égi szilánk és jutalom-progresszió, mint egy rendes ligetbeli pályán.</li>
+      <li><b>Becsempészés:</b> állomásonként legfeljebb 1 esedékes tény, a szakasz keretén belül (a Csillagszem csak a 2-es, 5-ös vagy 10-es tábla tényét kérheti), de <b>„mi bújt el” formában</b>.</li>
+      <li><b>Pult:</b> a három pálya a pálya-táblában kap egy-egy sort (látszik, 🔑 kulcs, 🔁 hányszor, nehézség), gyerekenként és csoportra, alap &lt; csoport &lt; egyéni. Új beállítás nem kell.</li>
+      <li><b>Unikornis-séta</b> az állomások között, ahogy a többi pályán.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>A tény-motor és a pult</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">7</span>
+    <h3>Egy tény, két irány</h3>
+    <ul>
+      <li>A „mi bújt el” válasz <b>ugyanannak a ténynek</b> a dobozát lépteti (a ? × 6 = 42 a 6 × 7-ét). A virág ettől is nyílik.</li>
+      <li>Emellett a tény sora kap egy rövid, <b>külön előzményt</b> a „mi bújt el” formáról (utolsó 6 eredmény). Így a pulton látszik, ha a 6 × 7 villám, de a ? × 6 = 42 még botlik.</li>
+      <li><b>Pult, 🌸 Tények fül:</b> a mezőn egy kis <b>🌿 jel</b>, ha a „mi bújt el” formában botlós. A mezőre kattintva a részletekben külön sor: „Mi bújt el: V V J H…”.</li>
+      <li>A 100-as kör típusainál ugyanígy (a 45 + ? = 52 az átlépéses típushoz megy, 🌿 jellel), és jön az új <b>százas barátok</b> típus.</li>
+    </ul>
+    <span class="prop">Javaslat</span>
+  </div>
+
+  <div class="dec"><span class="num">8</span>
+    <h3>A „Neked szóló” ösvény is kérdezhet így</h3>
+    <p>Ha a gyerek a Bújócska-rétet vagy a Holdfény-bújócskát már egyszer végigjárta, akkor a Neked szóló ösvényén a feladatok kb. <b>ötöde</b> „mi bújt el” formában jön. Előnyben azok a tények, amelyek fordítva mennek, de így még nem. Előtte soha, hogy ne érje váratlanul.</p>
+    <span class="prop">Javaslat</span>
+  </div>
+
+</div>
+
+<h2>Milyen közös alapra épül, mit ad hozzá a közöshöz?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Egy feladat-alak, egy helyen.</b> A meglévő <code>feladatOsszeadas / Kivonas / Szorzas / Osztas</code> mellé (engine-gen.js) egyetlen új függvény jön: <code>feladatHianyzo(tenyFeladat, hol)</code>. Bármelyik alapfeladatból elkészíti a „mi bújt el” változatot: kártya a levéllel, felolvasás, tipp, napló. Három külön „hiányzó” logika nem lesz. A pályák, a becsempészés és a Neked szóló ösvény is ezt hívja.</li>
+    <li><b>Napló.</b> A <code>naplo.kerdes</code> marad a teljes tény (pl. <code>6×7</code>), mellé <code>forma: "h"</code>. A <code>tenyKulcs</code> így változás nélkül megtalálja a tényt, a <code>tenyJegyez</code> pedig a formát már most is jegyzi (<code>fl</code>). Új mező a tény sorában: <code>hh</code> (a „mi bújt el” forma utolsó 6 eredménye).</li>
+    <li><b>Új generátor:</b> <code>GEN.hianyzo</code>, az állomás beállításai (<code>formak</code>, <code>tablak</code>, tartomány) alapján. A pályák a <code>PALYAK</code> táblába kerülnek, ugyanúgy, mint a többi.</li>
+    <li><b>A bújó lény:</b> egy kis rajz-modul a kártyához (levél + lény, előugrás). A lény a meglévő <code>FIGURA</code>-tábla szereplője, saját rajzzal (figurak.js). Később más pálya is használhatja: a varázsgép (G) és a számpiramis (G) is „rejtett számra” épül.</li>
+    <li><b>Beköthető a nagy célhoz:</b> a <code>hh</code> előzmény megmondja, melyik irányban gyengébb a gyerek. A későbbi „gyereket ismerő” játék (és az intelligens pult) ebből tudja eldönteni, hogy pótlást vagy eredményt gyakoroltasson.</li>
+  </ul>
+</div>
+
+<h2>Körök (sorrend)</h2>
+<div class="panel">
+  <ol>
+    <li><b>Rajzterv</b> (kicsi): a bújás a kártyán, 3 változat összehasonlító lapon (levél · bokor · felhő), mozgással. Telefonon és laptopon is.</li>
+    <li><b>Közös alap, láthatatlanul:</b> <code>feladatHianyzo</code>, <code>GEN.hianyzo</code>, <code>forma "h"</code> + <code>hh</code> a tény-motorban, százas barátok típus. A gyereknek még semmi nem változik.</li>
+    <li><b>Bújócska-rét + Holdfény-bújócska</b> élesben, a bújó lénnyel és a tippekkel.</li>
+    <li><b>Százas bújócska</b> + pult (🌿 jel, „Mi bújt el” sor a részletekben).</li>
+    <li><b>Neked szóló ösvény „mi bújt el” formában</b> + élő próba a gyerekekkel.</li>
+  </ol>
+  <p class="lead">Kód csak a tervlap jóváhagyása után, és a visszahívás lezárása után (a producer döntése szerint, 2026-10-06).</p>
+</div>
+
+<h2>Nyitott döntések</h2>
+<div class="q"><b class="t">1. Ki bújik el?</b>
+  A) <b>Egér Cincin</b> mindhárom pályán: meglévő szereplő, kicsi, az egér-bújócska jól illik hozzá. <i>(javaslat)</i><br>
+  B) Ligetenként más: Összeadóban Cincin, Szorzósban Katica Kitti.<br>
+  C) A gyerek saját kissárkánya, ha már kikelt (különben Cincin). Erős kötődés, de a visszahívástól függ, és a kalandtérképen már bújócskázik.
+</div>
+<div class="q"><b class="t">2. Mennyi pálya legyen először?</b>
+  A) <b>Mind a három</b> (20-ig, 100-ig, szorzós). <i>(javaslat)</i><br>
+  B) Csak a Bújócska-rét és a Holdfény-bújócska, a Százas bújócska később.
+</div>
+<div class="q"><b class="t">3. A legnehezebb forma (? − 5 = 8) hol jöjjön?</b>
+  A) <b>Csak az Odú-küszöbön</b>, a végén. <i>(javaslat)</i><br>
+  B) Saját állomáson.<br>
+  C) Sehol, majd egy későbbi pályán.
+</div>
+<div class="q"><b class="t">4. A Neked szóló ösvény kérdezzen-e „mi bújt el” formában?</b>
+  A) <b>Igen, kb. minden ötödik feladat</b>, de csak miután a gyerek egy bújócska-pályát végigjárt. <i>(javaslat)</i><br>
+  B) Nem, maradjon csak „mennyi az eredmény”.
+</div>
+<div class="q"><b class="t">5. Legyen hozzá jelvény?</b>
+  A) <b>Igen, egy: 🌿 „Bújócska-bajnok”</b>, ha mindhárom pályát végigjárta. <i>(javaslat)</i><br>
+  B) Nem kell.
+</div>
+<div class="q"><b class="t">6. Nevek</b>
+  Bújócska-rét · Százas bújócska · Holdfény-bújócska, és az állomásnevek a táblákban. Ha valamelyik nem tetszik, írd át, vagy kérj másikat.
+</div>
+
+</div>
+</body>
+</html>
