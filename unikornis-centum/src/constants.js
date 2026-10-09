@@ -410,6 +410,17 @@ PALYAK.push(
      5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. számkörei (g ≥ 5) megmaradnak;
      visszakapcsolás: ide sorok, mint fent, 5-ös osztállyal és „-5” / „-5v” végű azonosítóval. */
 );
+/* 🧰 SZERSZÁM-LÉTRÁK (szerszam-palya.js; terv: Matekos\szerszam-letrak-terv.html ✅) — szerszámonként 3 pálya a 🌙 Holdfény-szárnyban:
+   📖 Mesekönyv (5 feladat) · 📜 Varázstekercs (4) · 🏅 Mesterpróba (1). Nincs lakat, nincs kocka-nap; a menüben polcként
+   jelennek meg (szerszam-polc.js), nem kártyaként. Melyik látszik: a pult (szerszamLatszik — alap: csak a 📌 KOTOTT). */
+var SZ_PALYA_FOK = { mese: ["📖", "Mesekönyv", 5], tekercs: ["📜", "Varázstekercs", 4], mester: ["🏅", "Mesterpróba", 1] };
+function szPalya(sz, nev, fok) {
+  var F = SZ_PALYA_FOK[fok];
+  return { id: "sz-" + sz.toLowerCase() + "-" + fok, nev: nev + " – " + F[1], ikon: F[0], szerszam: sz, fok: fok, szerszamNev: nev,
+    regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
+    allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
+}
+PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
 var PALYA_IKON = {

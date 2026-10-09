@@ -45,10 +45,12 @@ function fgFej(F, arc) {
   if (F.ful === "malac") s += fgTk('<path d="M30,42 L25,21 L45,33 Z" fill="' + b + '"' + fgKv(d) + '/><path d="M31,37 L28,26 L40,33 Z" fill="#f58fa8"/>');
   if (F.ful === "katica") s += fgTk('<path d="M42,34 Q36,19 30,14" fill="none" stroke="' + FG_INK + '" stroke-width="2.2" stroke-linecap="round"/><circle cx="30" cy="14" r="3.4" fill="' + FG_INK + '"/>');
   if (beka) s += fgTk('<circle cx="36" cy="38" r="12" fill="' + b + '"' + fgKv(d) + '/>');
+  if (F.ful === "kutya") s += fgTk('<path d="M30,38 Q13,38 12,58 Q12,73 22,74 Q27,62 33,46 Z" fill="' + (F.fl || d) + '"' + fgKv(d) + '/>');   /* lógó kutyafül (szerszám-létrák) */
   /* maga a fej */
   s += beka ? '<ellipse cx="50" cy="61" rx="33" ry="24" fill="' + b + '"' + fgKv(d) + '/>' : '<ellipse cx="50" cy="58" rx="30" ry="27" fill="' + b + '"' + fgKv(d) + '/>';
   if (beka) s += fgTk('<circle cx="36" cy="38" r="8.5" fill="#fff"/>');
   /* arc-díszek */
+  if (F.folt) s += '<path d="M54,36 Q72,34 74,52 Q72,62 60,60 Q52,50 54,36 Z" fill="' + F.folt + '" opacity=".85"/>';   /* folt a szem körül (Foltos) */
   if (F.pofa === "borz") s += '<path d="M44.5,32 Q50,30 55.5,32 L53.5,64 Q50,66 46.5,64 Z" fill="#f7f7f7"/>' + fgTk('<ellipse cx="38" cy="55" rx="7.5" ry="11" fill="#3e434b" transform="rotate(20 38 55)"/><circle cx="39" cy="56" r="6" fill="#fff"/>') + '<ellipse cx="50" cy="72" rx="11" ry="8" fill="#f2f3f5"/>';
   if (F.pofa === "roka") s += '<path d="M21,62 Q36,58 50,70 Q64,58 79,62 Q72,85 50,85 Q28,85 21,62 Z" fill="' + F.l + '"/>';
   if (F.ful === "katica") s += '<path d="M20.3,54 A30,27 0 0 1 79.7,54 Q50,44 20.3,54 Z" fill="#f0766a"' + fgKv(d) + '/><circle cx="37" cy="42" r="3.4" fill="' + FG_INK + '"/><circle cx="58" cy="37" r="3" fill="' + FG_INK + '"/><circle cx="68" cy="47" r="2.6" fill="' + FG_INK + '"/>';

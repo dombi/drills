@@ -27,6 +27,8 @@ window.UC = {
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,
+  szkGeneral: szkGeneral, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz, szSzekreny: szSzekreny,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
+  dobAllas: function () { return DOB && dobAllas(); }, dobogoTesz: dobogoTesz, get DOB() { return DOB; }, opLapol: opLapol, opBetuAllit: opBetuAllit, get OP() { return OP; },
   SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */
   szerszamFeny: szerszamFeny, szerszamLadaban: szerszamLadaban, szerszamOnalloDb: szerszamOnalloDb, szerszamMesterKov: szerszamMesterKov, szerszamFeladatFriss: szerszamFeladatFriss,
   szerszamKicsiJegyez: szerszamKicsiJegyez, szerszamOsszegzes: szerszamOsszegzes, liftUj: liftUj, liftRossz: liftRossz, liftJo: liftJo, liftSegitseg: liftSegitseg, liftKer: liftKer,

@@ -46,6 +46,11 @@ MODULES = [
     "konyvtar.js",        # 6d) 📚 Bagolykönyvtár: Zrínyi építőkocka-pályák (sablonok, csapdák, végigvezetés, liget, jelenet)
     "konyvtar-mester.js", # 6e) 🏅 Mesterpróba-kapu + 🏰 Kockavár (a Fejtörő-motorral), stabil-küszöb
     "konyvtar-mozgo.js",  # 6f) 📚 a 3 bemutató-mozgókép (🔎 nagyító · 🔤 NEM · ✋ lépcső), gyerekenként egyszer
+    "olvasopult.js",      # 6n) 📖 olvasópult: a hosszú szöveg nyitott könyve (bal: szöveg + kérdés, jobb: rajz), lapozás, 3 betűméret, kiemelő felolvasás
+    "dobogo.js",          # 6o) 🏆 dobogó: koppintós sorba rakás (verseny / sor / polc / ház / táblázat, kétsoros is)
+    "szerszam-kotott.js", # 3g) 📌 KOTOTT tartalom: 4 mese-keret, szereplő-rajzok, sablon-generátor egyértelműség-próbával, 4 Mesterpróba + testvérek
+    "szerszam-palya.js",  # 6p) 🧰 szerszám-pálya: GEN.szerszam, jó/rossz, 🛗 lift, végigvezetés, pálya vége (mester-szalag, láda)
+    "szerszam-polc.js",   # 6q) 🧰 szerszám-szekrény a Holdfény-szárnyban: polc + 3 tárgy + névtábla-fény + láda-pillanat
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)

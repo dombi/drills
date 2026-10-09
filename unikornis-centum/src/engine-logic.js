@@ -20,7 +20,8 @@ function kapuVan() { return kapuKulcsok().length > 0; }
 function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : KAPU_ALAP_ORAK) * 3600 * 1000; }
 function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
+function palyaZarva(pa) { if (pa.szerszam) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
+  if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
   return !pa.hamarosan && (!pa.egyeni || pa.teny) && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva — a 🌸 Neked szóló ösvényt viszont a kapu is zárja */
 function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }
 /* egy kulcs-pálya kerülő nélküli teljesítése → élesítés; ha mind éles → nyílik a kapu.
@@ -80,6 +81,7 @@ function palyaInditas(id) {
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
+  opMod(!!pa.szerszam);                            /* 🧰 szerszám-létra: olvasópult-mód (szerszam-palya.js) */
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
@@ -139,6 +141,7 @@ function feladatMutat(f) {
   J.parokKesz = 0;
   tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
+  dobogoRejt();                              /* 🏆 a dobogó is (dobogo.js) */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
   $("buborek-feladat").hidden = false;
@@ -175,6 +178,7 @@ function feladatMutat(f) {
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
+    if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
     $("beiro-doboz").classList.toggle("hosszu", beirMax() > 3);   /* mérés: 6 jegyű válasz is beírható */
     J.kezCsend = 0; J.kezBeiras = false;
@@ -773,12 +777,12 @@ function palyaVege() {
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
 
-  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
+  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
   var vegeAdat = { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat };
-  if (ekV) vegeAdat[J.palya.vasar ? "vs" : "ek"] = ekV.adat;
+  if (ekV) vegeAdat[J.palya.vasar ? "vs" : J.palya.szerszam ? "sz" : "ek"] = ekV.adat;
   esemeny("palya_end", vegeAdat);
   var ujJelv = jelvenyEllenoriz();
 
@@ -808,7 +812,7 @@ function palyaVege() {
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
-  var kov = kovetkezoJatszhato(id);
+  var kov = J.palya.szerszam ? szKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📖 → 📜 → 🏅 */
   $("vege-kovetkezo").style.display = kov ? "" : "none";
   $("vege-kovetkezo").onclick = function () { hangGomb(); if (kov) palyaInditas(kov); };
   konfettiSzor(); hangVege();

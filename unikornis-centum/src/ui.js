@@ -105,7 +105,7 @@ function fomenuLigetek() {
   var regiok = {}, regioSorrend = [], lathato = 0;
   egyeniPalyak().concat(PALYAK).forEach(function (pa) {
     if (palyaRejtve(pa)) return;
-    var idx = (pa.egyeni || pa.konyvtar) ? null : lathato++, r = palyaLiget(pa);   /* könyvtár: szárnyonként saját sorszám (ekKartyaDisz) */
+    var idx = (pa.egyeni || pa.konyvtar || pa.szerszam) ? null : lathato++, r = palyaLiget(pa);   /* könyvtár: szárnyonként saját sorszám (ekKartyaDisz) */
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -226,10 +226,11 @@ function renderFomenu() {
       szSor.forEach(function (sz) {
         szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
         var kSor = [], kP = {};                    /* kockánként egy sor: 📖 Mesekönyv → 📜 Varázstekercs → 🏅 */
-        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
+        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz || rec.pa.szerszam) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
         var g = el("div", "ek-kocka-sorok");
         kSor.forEach(function (k) { g.appendChild(ekMenuSor(kP[k], function (pa) { return keszitKartya(pa, null); })); });
         szek.appendChild(g);
+        if (sz === "3o") { var szk = szSzekreny(); if (szk) szek.appendChild(szk); }   /* 🧰 a szerszám-szekrény a kocka-sorok alatt (szerszam-polc.js) */
       });
       racs.appendChild(szek);
       ekLigetHatter(szek);

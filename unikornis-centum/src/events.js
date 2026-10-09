@@ -171,6 +171,7 @@ function esemenyek() {
   });
   $("halld-ujra").addEventListener("click", function () {
     if (!J || !J.feladat) return;
+    if (J.feladat.op) { opFelolvas(J.feladat); return; }   /* 📖 olvasópult: mondatonként, kiemeléssel */
     if (kezNelkulE()) { figyelStop(); kezNelkulKor(); return; }
     mondd(J.feladat.felolvas);
   });
