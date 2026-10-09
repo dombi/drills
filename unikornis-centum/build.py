@@ -26,6 +26,7 @@ MODULES = [
     "teny.js",            # 3b) 🌸 tény-motor: tény-kulcsok, rejtett óra, doboz-szabály, választó, kert-összegzés
     "bujocska.js",        # 3d) 🌿 Mi bújt el?: a bújócska-pályák generátora (GEN.hianyzo) — a feladat-alak a feladatHianyzo (engine-gen.js)
     "villam.js",          # 3e) ⚡ Villámkör: halmazok + kinyílás, a kör sorrendje (első 3 villám), rekord + árnyék, P().villam, villamAllapot
+    "szerszam.js",        # 3f) 🧰 szerszám-létrák közös alapja: 🛗 lift, 🧰 láda (5-ből 4), napló, pult-beállítás (P().szerszam)
     "gondozas.js",        # 3c) 🌱 gondozás: gyakorlós nap, igény, napi meglepetés, érés — a visszatérés közös alapja
 
     # ── Perzisztencia ──

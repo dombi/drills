@@ -214,6 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261009-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -1075,7 +1076,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {} }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -1943,6 +1944,7 @@ function ekStabilOssz(egyeni, csop) {        /* ugyanaz, mint a játék config.j
   return ki ? { nap: Math.round(ki.nap || 3), arany: ki.arany || 0.8 } : EK_STABIL_ALAP;
 }
 function ekStabilHatas(uid) { return ekStabilOssz((A.cfg[uid] || {}).ekStabil, jatekosCsoportjai(uid).map(function (g) { return g.ekStabil; })); }
+function szerszamHatas(uid) { return szerszamBeall(szerszamOsszevon((A.cfg[uid] || {}).szerszam, jatekosCsoportjai(uid).map(function (g) { return g.szerszam; }))); }   /* 🧰 src/szerszam.js */
 function ekSzazalek(x) { return Math.round(x * 100) + "%"; }
 function rajzEpitokocka(t) {
   if (!A.ft.betoltve) {
@@ -2015,6 +2017,48 @@ function rajzEpitokocka(t) {
     '<p class="kicsi halvany">Alap: 3 nap × 80% — nem kell hozzányúlni. Sorrend: alap → csoport → egyéni (az egyéni a legerősebb); több csoportnál az engedékenyebb (kevesebb nap, kisebb arány) nyer. ' +
     "A már összegyűjtött kocka-napok megmaradnak; ha csökkented a napszámot, a Mesterpróba azonnal nyílhat.</p></div>";
 
+  /* ── 🧰 Szerszám-létrák (szerszam-letrak-terv.html 7. pont; a játék: src/szerszam.js) ── */
+  var szSorok = [], EBETU = { o: ["✅", "önálló"], l: ["🛗", "lifttel"], s: ["🙋", "segítséggel"], v: ["🤝", "végigvezetéssel"], "2": ["2️⃣", "második próbára (A–E)"], r: ["❌", "rossz (A–E)"] };
+  A.users.forEach(function (u) {
+    var b = szerszamHatas(u.uid);
+    Object.keys(u.unicorns).forEach(function (leny) {
+      var adat = u.unicorns[leny].szerszam;
+      if (!adat || !adat.t) return;
+      szerszamOsszegzes(adat, b).forEach(function (x) {
+        if (!x.utolso.length && !x.liftek && !x.lada) return;
+        var mp = Object.keys(x.mesterek).map(function (fid) { var m = x.mesterek[fid]; return esc(fid) + " " + (EBETU[m.e] || ["?"])[0]; });
+        szSorok.push("<tr><td>" + esc(jNev(u.uid)) + '<br><span class="kicsi halvany">' + esc(lenyNev(leny)) + "</span></td><td>" + x.ikon + " " + esc(x.nev) + "</td>" +
+          '<td style="font-size:17px">' + x.utolso.map(function (h) { var e = EBETU[h.e] || ["?", h.e]; return '<span title="' + esc(e[1] + " · " + h.d) + '">' + e[0] + "</span>"; }).join(" ") +
+          '<br><span class="kicsi halvany">' + x.onallo + " önálló az utolsó " + x.n + "-ből (kell: " + x.k + ")</span></td>" +
+          "<td>" + (x.lada ? "🧰 igen (" + esc(x.lada) + ")" : '<span class="halvany">még nem</span>') + "</td>" +
+          "<td>" + (x.liftek ? x.liftek + " lift, utána maga oldotta: " + x.liftSiker : '<span class="halvany">–</span>') + "</td>" +
+          "<td>" + (x.mester ? "🎀 mester (" + esc(x.mester) + ")" : "") + (mp.length ? '<br><span class="kicsi">' + mp.join(" · ") + "</span>" : (x.mester ? "" : '<span class="halvany">–</span>')) + "</td></tr>");
+      });
+    });
+  });
+  var szSajat = (egyeni ? (A.cfg[cid] || {}).szerszam : (csoportById(cid) || {}).szerszam) || {}, szL = szSajat.latszik || {};
+  function szOpt(l, v) { return l.map(function (o) { return '<option value="' + o[0] + '"' + (String(v == null ? "" : v) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join(""); }
+  h += '<div class="kartya" style="margin-top:14px"><h3>🧰 Szerszám-létrák — lift és láda</h3>' +
+    '<p class="kicsi halvany">Új létrák (📌 KOTOTT, 🧺 EGESZ, 🔍 MIT): lakat nincs, elakadáskor a 🛗 lift „kicsiben” segít, és ez beszámít. A szerszám akkor kerül a 🧰 ládába, ha az utolsó nagy feladatokból (📜 Tekercs / 🏅 Mesterpróba) elég sok önálló. ' +
+    "A gyerek ebből még semmit nem lát (kód 1. kör) — a sorok akkor jelennek meg, amikor a létrák élesek.</p>" +
+    '<div class="tabla-keret"><table><tr><th>Gyerek</th><th>Szerszám</th><th>Utolsó nagy feladatok</th><th>🧰 Ládában</th><th>🛗 Liftek</th><th>🏅 Mesterpróbák</th></tr>' +
+    (szSorok.length ? szSorok.join("") : '<tr><td colspan="6"><div class="ures">Még nincs adat — a létrák a következő körben kerülnek a játékba.</div></td></tr>') + "</table></div>" +
+    '<p class="kicsi halvany" style="margin-top:6px">✅ önálló · 🛗 lifttel (utána maga oldotta) · 🙋 segítséggel · 🤝 végigvezetéssel · 2️⃣ A–E második próbára · ❌ A–E rossz. A beállítás a fenti Gyerek / Csoport gombokra vonatkozik.</p>' +
+    '<div class="kapu-sor"><span>Láda:</span><select id="sz-k"' + (szSajat.k ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (4)"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"], ["6", "6"]], szSajat.k) + '</select><span>önálló az utolsó</span><select id="sz-n"' + (szSajat.n ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (5)"], ["3", "3"], ["4", "4"], ["5", "5"], ["6", "6"], ["7", "7"], ["8", "8"]], szSajat.n) + "</select><span>nagy feladatból</span></div>" +
+    '<div class="kapu-sor"><span>Látszik a könyvtárban:</span>' + SZERSZAMOK.map(function (x) {
+      var v = typeof szL[x.id] === "boolean" ? String(szL[x.id]) : "";
+      return '<label style="margin-right:10px">' + x.ikon + " " + esc(x.nev) + ' <select data-szlat="' + x.id + '"' + (v ? ' class="beallitva"' : "") + ">" +
+        szOpt([["", ures + (SZERSZAM_ALAP.latszik[x.id] ? " (igen)" : " (nem)")], ["true", "igen"], ["false", "nem"]], v) + "</select></label>";
+    }).join("") + "</div>" +
+    '<div class="kapu-sor"><span>🙋-ban kérhető „🔎 Nézzük kicsiben”:</span><select id="sz-lk"' + (typeof szSajat.liftKer === "boolean" ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (igen)"], ["true", "igen"], ["false", "nem"]], typeof szSajat.liftKer === "boolean" ? String(szSajat.liftKer) : "") + "</select></div>" +
+    (egyeni ? (function () { var b = szerszamHatas(cid); return '<div class="kicsi">Most ennél a gyereknél: <b>' + b.k + " az " + b.n + "-ből</b> · látszik: " +
+      SZERSZAMOK.filter(function (x) { return b.latszik[x.id]; }).map(function (x) { return x.ikon; }).join(" ") + " · lift kérhető: " + (b.liftKer ? "igen" : "nem") + "</div>"; })() : "") +
+    '<p class="kicsi halvany">Alap: 4 az 5-ből, csak a 📌 látszik, a lift kérhető. Sorrend: alap → csoport → egyéni; több csoportnál az engedékenyebb küszöb nyer, a létra látszik, ha bármelyik csoport megnyitja. ' +
+    "A ládából nem lehet kiesni: ha szigorítod a küszöböt, ami már bent van, bent marad.</p></div>";
+
   /* ── Mesterpróba-feladatok kockánként ── */
   var fl = Object.keys(A.ft.feladatok).sort().map(function (id) { return [id, ftFeladatNev(id)]; });
   var kockak = Object.keys(EK_MESTER_ALAP).sort();
@@ -2043,6 +2087,17 @@ function rajzEpitokocka(t) {
     ment(ref.set({ ekStabil: (n || a) ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
   }
   $("ek-nap").onchange = stabilMent; $("ek-arany").onchange = stabilMent;
+  function szerszamMent() {
+    var o = {}, k = $("sz-k").value, n = $("sz-n").value, lk = $("sz-lk").value, lat = {};
+    if (k) o.k = +k; if (n) o.n = +n;
+    if (o.k && o.n && o.k > o.n) o.k = o.n;
+    Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { if (x.value) lat[x.dataset.szlat] = x.value === "true"; });
+    if (Object.keys(lat).length) o.latszik = lat;
+    if (lk) o.liftKer = lk === "true";
+    ment(ref.set({ szerszam: Object.keys(o).length ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
+  }
+  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent;
+  Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { x.onchange = szerszamMent; });
   Array.prototype.forEach.call(t.querySelectorAll("[data-ekm]"), function (sl) {
     sl.onchange = function () {
       var k = sl.dataset.ekm, l = [], sajat = false, alap = EK_MESTER_ALAP[k] || [];

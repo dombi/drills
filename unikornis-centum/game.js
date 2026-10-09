@@ -1885,6 +1885,261 @@ function villamAllapot(tar, ma) {
   });
   return ki;
 }
+/* ============ 3f) 🧰 SZERSZÁM-LÉTRÁK — közös alap: 🛗 lift + 🧰 láda-statisztika + napló + pult-beállítás ============
+   Terv: Matekos\szerszam-letrak-terv.html (✅ 2026-10-09) · rajz: …-rajzterv.html · tartalom: …-tartalom.html
+   1. kör (2026-10-09): LÁTHATATLAN alap. A gyerek ebből még semmit sem lát; a pályák a 2. körtől kötik be
+   (📌 KOTOTT létra), utána a régi 3 kocka is (lakat ki, lift be). Egy darab modul, nem pályánként külön.
+
+   🛗 LIFT (lakat helyett, terv 5. pont). A pálya egy lift-állapotot kér a NAGY feladathoz (📜 Tekercs / 🏅 Mesterpróba),
+   és jelenti, mi történt; a modul megmondja, mi jöjjön. A pálya adja a kicsinyített testvért (ugyanabban a mese-keretben).
+     var L = liftUj({ sz:"KOTOTT", palya:"…", fok:"tekercs"|"mester", fid:"…", ae:false })
+     liftRossz(L)        → "ujra" (1. rossz) · "lift" (2. rossz: indul a lift) · "vegig" (a lift után is 2. rossz)
+     liftSegitseg(L, s)  → 🙋 s. sora: 1 = „Mit kérdeznek?” (még önálló) → "semmi"; 2+ → "lift" (ha még nem volt)
+     liftKer(L)          → a gyerek kérte („🔎 Nézzük kicsiben”) → "lift" · "semmi", ha a pult kikapcsolta
+     liftKicsi(L, jo)    → egy kicsi vége: "kicsi" (jöhet még egy) · "vissza" (2 jó → vissza a nagyra) · "vegig" (3 kicsi után)
+     liftVegig(L)        → a pálya végigvezette a nagyot (együtt oldották meg)
+     liftNagyKesz(L, jo) → a nagy feladat vége: könyvel (napló + láda) → { e, onallo, ladaba, mester }
+   A kicsi BESZÁMÍT abba a pályába, ahol a gyerek tart, teljes jutalommal (ezt a pálya intézi); a menüsor sem mutatja.
+   Mondatok: liftMondat("indul" | "vissza", { kicsi, nagy }) — a tiltott szavakat (LIFT_TILOS) a modul kiszűri.
+
+   🧰 LÁDA (terv 6. pont). Az utolsó n NAGY feladatból k ÖNÁLLÓ (alap 4 az 5-ből; a pult állítja).
+     Önálló = nem volt lift, és a 🙋-ból legfeljebb a „Mit kérdeznek?” kellett. Kicsi (lift, Mesekönyv) nem számít.
+     A–E-s Mesterpróba csak elsőre jó válasszal önálló, és egymagában sosem tesz ládába: az ablakban legfeljebb
+     EGY A–E-s önálló számít. Nincs nap-feltétel. A ládából nem lehet kiesni. A gyerek a számlálót nem látja,
+     csak a szerszám ikonja fényesedik (szerszamFeny 0–1).
+   🏅 Mesterpróba: minden befejezett feladat elhasználódik (szerszamMesterKov a következő még nem látottat adja;
+     lifttel / végigvezetéssel oldott → legközelebb másikat); elsőre jó, önálló → „mester” szalag (st.m = nap).
+
+   Állapot: P().szerszam = {
+     t: { KOTOTT: { h: [ {e, ae?, d} … az utolsó 8 nagy ], l: láda napja | "", m: mester-szalag napja | "",
+                    mh: { fid: { d, e } } elhasznált Mesterpróbák } },
+     n: [ … feladat-napló, az utolsó 200 ],  li: [ … lift-napló, az utolsó 60 ] }
+   Eredmény-betűk (e): o önálló · l lifttel (utána maga oldotta) · s segítséggel (🙋 2+, lift nélkül) · v végigvezetéssel ·
+     2 A–E, a második próbára jó (nem önálló) · r A–E, rossz (a végigvezetés megmutatta)
+   A napló minden sora az eseménynaplóba is megy (events: szerszam_feladat / szerszam_lift / szerszam_lada) dátummal,
+   feladatonként — így a hosszú távú „intelligens pult” átalakítás nélkül tudja használni. */
+
+var SZERSZAMOK = [
+  { id: "KOTOTT", ikon: "📌", nev: "Ahol csak egyféle lehet", kartya: "Ott kezdem, ahol csak egyféle lehet." },
+  { id: "EGESZ",  ikon: "🧺", nev: "Előbb az egész",          kartya: "Összeszámolom, mennyi van összesen." },
+  { id: "MIT",    ikon: "🔍", nev: "Mit számolok?",           kartya: "Megnézem, mit számolok egynek." }
+];
+var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
+var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
+var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
+var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
+var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true };
+
+/* ── a pult beállításai ────────────────────────────────────────────────────
+   producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer? }
+     k / n     a láda-küszöb: az utolsó n nagy feladatból k önálló (n 3–8, k 1–n; alap 4 az 5-ből)
+     latszik   melyik létra látszik a könyvtárban (alap: csak a 📌 KOTOTT)
+     liftKer   false = a 🙋-ban nincs „🔎 Nézzük kicsiben” (a lift magától akkor is jön)
+   Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a kisebb arányú küszöb (egyenlőnél a
+   rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja.
+   A pult (admin/index.html) ugyanezt a fájlt tölti be, így a két oldal szabálya nem válhat el. */
+function szerszamKuszob(o) {
+  if (!o) return null;
+  var n = +o.n, k = +o.k;
+  if (!(n >= 3 && n <= 8 && n % 1 === 0)) n = null;
+  if (!(k >= 1 && k <= 8 && k % 1 === 0)) k = null;
+  if (n == null && k == null) return null;
+  n = n || SZERSZAM_ALAP.n; k = Math.min(k || SZERSZAM_ALAP.k, n);
+  return { k: k, n: n };
+}
+function szerszamOsszevon(egyeni, csoportok) {
+  var ki = {};
+  (csoportok || []).forEach(function (c) {
+    if (!c) return;
+    var q = szerszamKuszob(c);
+    if (q && (ki.k == null || q.k / q.n < ki.k / ki.n || (q.k / q.n === ki.k / ki.n && q.n < ki.n))) { ki.k = q.k; ki.n = q.n; }
+    if (c.latszik) SZERSZAMOK.forEach(function (s) { if (c.latszik[s.id] === true) (ki.latszik = ki.latszik || {})[s.id] = true; });
+    if (c.liftKer === false) ki.liftKer = false;
+  });
+  var e = egyeni || {}, q = szerszamKuszob(e);
+  if (q) { ki.k = q.k; ki.n = q.n; }
+  if (e.latszik) SZERSZAMOK.forEach(function (s) { if (typeof e.latszik[s.id] === "boolean") (ki.latszik = ki.latszik || {})[s.id] = e.latszik[s.id]; });
+  if (typeof e.liftKer === "boolean") ki.liftKer = e.liftKer;
+  return ki;
+}
+/* az érvényes beállítás (alap + a pult összevont felülírása: FELULIR.szerszam) */
+function szerszamBeall(f) {
+  f = f || (typeof FELULIR !== "undefined" && FELULIR.szerszam) || {};
+  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer };
+  SZERSZAMOK.forEach(function (s) { b.latszik[s.id] = SZERSZAM_ALAP.latszik[s.id]; });
+  if (f.k != null && f.n != null) { b.k = f.k; b.n = f.n; }
+  if (f.latszik) for (var id in f.latszik) if (typeof f.latszik[id] === "boolean") b.latszik[id] = f.latszik[id];
+  if (typeof f.liftKer === "boolean") b.liftKer = f.liftKer;
+  return b;
+}
+function szerszamLatszik(sz) { return !!szerszamBeall().latszik[sz]; }
+
+/* ── állapot ── */
+function szerszamTar(p) {
+  p = p || P();
+  var s = p.szerszam;
+  if (!s || typeof s !== "object") s = p.szerszam = {};
+  if (!s.t || typeof s.t !== "object") s.t = {};
+  if (!Array.isArray(s.n)) s.n = [];
+  if (!Array.isArray(s.li)) s.li = [];
+  return s;
+}
+function szerszamT(sz, p) {
+  var s = szerszamTar(p), t = s.t[sz];
+  if (!t || typeof t !== "object") t = s.t[sz] = {};
+  if (!Array.isArray(t.h)) t.h = [];
+  if (typeof t.l !== "string") t.l = "";
+  if (typeof t.m !== "string") t.m = "";
+  if (!t.mh || typeof t.mh !== "object") t.mh = {};
+  return t;
+}
+function szerszamNap() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }   /* = helyiNap() */
+function szerszamVeg(lista, max) { if (lista.length > max) lista.splice(0, lista.length - max); }
+function szerszamEsemeny(tipus, adat) { if (typeof esemeny === "function") esemeny(tipus, adat); }
+
+/* ── 🧰 láda ── */
+/* hány önálló az ablakban (A–E-s önállóból legfeljebb egy számít) — a pult is ezt hívja a gyerek mentett adatán */
+function szerszamOnalloDb(h, n) {
+  var ae = 0, db = 0;
+  (h || []).slice(-n).forEach(function (x) {
+    if (x.e !== "o") return;
+    if (x.ae) { if (ae) return; ae = 1; }
+    db++;
+  });
+  return db;
+}
+function szerszamLadaban(sz, p) { return !!szerszamT(sz, p).l; }
+/* 0–1: mennyire fényes a szerszám ikonja (a gyerek számlálót nem lát) */
+function szerszamFeny(sz, p) {
+  var t = szerszamT(sz, p), b = szerszamBeall();
+  if (t.l) return 1;
+  return Math.min(1, szerszamOnalloDb(t.h, b.n) / b.k);
+}
+function szerszamLadaNez(sz, p) {
+  var t = szerszamT(sz, p), b = szerszamBeall();
+  if (t.l) return false;
+  if (szerszamOnalloDb(t.h, b.n) < b.k) return false;
+  t.l = szerszamNap();
+  szerszamEsemeny("szerszam_lada", { sz: sz, k: b.k, n: b.n });
+  return true;
+}
+
+/* ── napló ── */
+/* minden befejezett feladat (nagy, Mesekönyv, kicsi): r = { sz, palya, fok, fid, e, kicsi?, seg?, mp? } */
+function szerszamNaplo(r) {
+  var s = szerszamTar(), sor = { d: szerszamNap(), ts: Date.now(), sz: r.sz, p: r.palya || "", f: r.fok, id: r.fid || "", e: r.e };
+  if (r.kicsi) sor.k = r.kicsi;
+  if (r.seg) sor.s = r.seg;
+  if (r.mp != null) sor.mp = r.mp;
+  s.n.push(sor); szerszamVeg(s.n, SZERSZAM_N_MAX);
+  szerszamEsemeny("szerszam_feladat", sor);
+  return sor;
+}
+/* a Mesekönyv és a lift kicsijei csak a naplóba mennek, a ládába nem */
+function szerszamKicsiJegyez(sz, palya, fok, fid, jo) { szerszamNaplo({ sz: sz, palya: palya, fok: fok, fid: fid, e: jo ? "o" : "r" }); }
+
+/* ── 🏅 Mesterpróba-készlet ── */
+function szerszamMesterKov(sz, lista) {
+  var mh = szerszamT(sz).mh;
+  for (var i = 0; i < (lista || []).length; i++) if (!mh[lista[i]]) return lista[i];
+  return null;                                   /* elfogyott: a pálya dönti el (pl. számváltozat) */
+}
+/* friss-e még a feladat ennél a gyereknél (a Rejtélyterem nem adja „friss”-ként, ha Mesterpróba volt) */
+function szerszamFeladatFriss(fid, p) {
+  var t = szerszamTar(p).t;
+  for (var sz in t) if (t[sz] && t[sz].mh && t[sz].mh[fid]) return false;
+  return true;
+}
+
+/* ── 🛗 lift ── */
+var LIFT_TILOS = /könnyebb|könnyű|mesekönyv|visszalép|egyszerűbben|egyszerűbb|szint|osztály/i;
+var LIFT_MONDATOK = {
+  indul: ["Nézzük kicsiben – a matekosok is így csinálják.", "Nézzük meg kicsiben – a matekosok is így csinálják."],
+  vissza: ["Ügyes! Ugyanaz, csak {nagy}.", "Ügyes! Most ugyanez jön, csak {nagy}."]
+};
+/* „indul” / „vissza”; m = { kicsi: „Most csak három kutya fut…”, nagy: „öt kutyával” } — a pálya adja a mese-részt */
+function liftMondat(mi, m) {
+  m = m || {};
+  var L = LIFT_MONDATOK[mi] || [""], s = L[Math.floor(Math.random() * L.length)];
+  if (mi === "vissza") s = m.nagy ? s.replace("{nagy}", m.nagy) : "Ügyes! Most jöhet a nagy feladat.";
+  if (mi === "indul" && m.kicsi) s += " " + m.kicsi;
+  if (mi === "vissza" && m.utana) s += " " + m.utana;
+  return LIFT_TILOS.test(s) ? (mi === "indul" ? LIFT_MONDATOK.indul[0] : "Ügyes! Most jöhet a nagy feladat.") : s;
+}
+function liftUj(o) {
+  o = o || {};
+  return { sz: o.sz, palya: o.palya || "", fok: o.fok || "tekercs", fid: o.fid || "", ae: !!o.ae,
+           rossz: 0, elso: null, seg: 0, lift: false, ok: "", bent: false, kicsi: 0, kicsiJo: 0, vegig: false, kesz: false, t0: Date.now() };
+}
+function liftIndul(L, ok) {
+  L.lift = true; L.bent = true; L.ok = ok; L.rossz = 0;
+  return "lift";
+}
+function liftRossz(L) {
+  if (L.kesz || L.bent) return "semmi";
+  if (L.elso === null) L.elso = false;
+  L.rossz++;
+  if (L.rossz < 2) return "ujra";
+  if (!L.lift) return liftIndul(L, "auto");
+  L.vegig = true; return "vegig";                /* a lift után is elakadt: együtt oldják meg, a pálya megy tovább */
+}
+function liftJo(L) { if (L.elso === null) L.elso = true; }
+function liftSegitseg(L, szint) {
+  if (L.kesz) return "semmi";
+  L.seg = Math.max(L.seg, szint || 1);
+  if (szint >= 2 && !L.lift && !L.bent) return liftIndul(L, "seg");
+  return "semmi";
+}
+function liftKer(L) {
+  if (L.kesz || L.lift || L.bent || !szerszamBeall().liftKer) return "semmi";
+  return liftIndul(L, "kert");
+}
+function liftKicsi(L, jo) {
+  if (!L.bent) return "semmi";
+  L.kicsi++; if (jo) L.kicsiJo++;
+  szerszamKicsiJegyez(L.sz, L.palya, "kicsi", L.fid, jo);
+  if (L.kicsiJo >= LIFT_KICSI_JO) { L.bent = false; return "vissza"; }
+  if (L.kicsi >= LIFT_KICSI_MAX) { L.bent = false; L.vegig = true; return "vegig"; }
+  return "kicsi";
+}
+function liftVegig(L) { L.bent = false; L.vegig = true; }
+/* a nagy feladat vége — jo: a gyerek végül maga oldotta-e meg (végigvezetésnél false) */
+function liftNagyKesz(L, jo) {
+  if (L.kesz) return null;
+  L.kesz = true;
+  if (L.elso === null) L.elso = !!jo;
+  var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
+  if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
+  var nagy = L.fok === "tekercs" || L.fok === "mester", ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
+  if (L.lift) {
+    var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };
+    s.li.push(li); szerszamVeg(s.li, SZERSZAM_LI_MAX);
+    szerszamEsemeny("szerszam_lift", li);
+  }
+  if (nagy && L.sz) {
+    var t = szerszamT(L.sz), sor = { e: e, d: szerszamNap() };
+    if (L.ae) sor.ae = 1;
+    t.h.push(sor); szerszamVeg(t.h, SZERSZAM_H_MAX);
+    if (L.fok === "mester" && L.fid) {
+      t.mh[L.fid] = { d: szerszamNap(), e: e };
+      if (e === "o" && L.elso && !t.m) { t.m = szerszamNap(); ki.mester = true; }
+    }
+    ki.ladaba = szerszamLadaNez(L.sz);
+  }
+  if (typeof ment === "function") ment();
+  return ki;
+}
+/* a pultnak: egy gyerek mentett szerszám-adatából (u.unicorns[leny].szerszam) egy sor szerszámonként */
+function szerszamOsszegzes(adat, beall) {
+  var b = szerszamBeall(beall), t = (adat && adat.t) || {}, li = (adat && adat.li) || [];
+  return SZERSZAMOK.map(function (s) {
+    var x = t[s.id] || {}, h = Array.isArray(x.h) ? x.h : [], sl = li.filter(function (l) { return l.sz === s.id; });
+    return { id: s.id, ikon: s.ikon, nev: s.nev, utolso: h.slice(-b.n), onallo: szerszamOnalloDb(h, b.n), k: b.k, n: b.n,
+             lada: x.l || "", mester: x.m || "", mesterek: x.mh || {}, liftek: sl.length, liftSiker: sl.filter(function (l) { return l.siker; }).length,
+             latszik: !!b.latszik[s.id] };
+  });
+}
 /* ============ 3c) 🌱 GONDOZÁS — a visszatérés közös alapja (terv/teny-kert-tamagocsi-terv.html) ============
    Nem a kerté, hanem a visszahívásé: MINDEN gondozás és „mikor jött vissza” ezen megy át — most a Tény-kert
    virágai és a ritka mag, később a varázstojás, a kissárkány-térkép, az unikornis éhsége/álmossága és a levelek.
@@ -2210,6 +2465,7 @@ function profilNormal(p) {
   if (!p.tenyTipus || typeof p.tenyTipus !== "object") p.tenyTipus = {};   /* 🌸 a 100-as kör típusai, ugyanilyen sorokkal */
   tenyKertTar(p);                                  /* 🌷 Tamagocsi-kert (teny.js): P().tenyKert = { v: kulcs → { a, n, g }, loc, bent, mag, meg, … } */
   villamTar(p);                                    /* ⚡ Villámkör (villam.js): P().villam = { rek, nap, rh, napok, un, korok } */
+  szerszamTar(p);                                  /* 🧰 szerszám-létrák (szerszam.js): P().szerszam = { t: sz → { h, l, m, mh }, n: napló, li: lift-napló } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   visszaTar(p);                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
@@ -19813,7 +20069,8 @@ window.addEventListener("error", function (e) {
      producerConfig/{uid}.ekStabil = { nap, arany } (📚 Bagolykönyvtár stabil-küszöb, alap 3 nap × 0,8 — pult 🧱 fül)
      producerConfig/{uid}.bank = { valtasId: { ar, korlat, ki, mod, palyak } } (🏦 Tündérbank, bank.js — bankOsszevon)
      producerConfig/{uid}.teny = { hatar, hatarTipus, ujKor, becsempesz, osveny, tablak } (🌸 tény-motor, teny.js — tenyOsszevon)
-     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil?, bank?, teny? }  — csoportos
+     producerConfig/{uid}.szerszam = { k, n, latszik, liftKer } (🧰 szerszám-létrák, szerszam.js — szerszamOsszevon)
+     groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil?, bank?, teny?, szerszam? }  — csoportos
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
@@ -19840,6 +20097,9 @@ var FELULIR = {
   egyeniTeny: null,   /* producerConfig/{uid}.teny */
   csoportTeny: {},    /* gid → teny */
   teny: {},           /* összevont tény-motor beállítás (üres = alap, teny.js TENY_ALAP) */
+  egyeniSzer: null,   /* producerConfig/{uid}.szerszam */
+  csoportSzer: {},    /* gid → szerszam */
+  szerszam: {},       /* összevont szerszám-létra beállítás (üres = alap, szerszam.js SZERSZAM_ALAP) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
   palyak: {},         /* összevont egyéni pályák: id → nyers leírás (csak az aktívak) */
@@ -19849,11 +20109,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; FELULIR.teny = c.teny || {}; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; FELULIR.teny = c.teny || {}; FELULIR.szerszam = c.szerszam || {}; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {}; FELULIR.teny = {};
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {}; FELULIR.teny = {}; FELULIR.szerszam = {};
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -19870,19 +20130,21 @@ function felulirFigyel() {
     FELULIR.egyeniStabil = (d.exists && d.data().ekStabil) || null;
     FELULIR.egyeniBank = (d.exists && d.data().bank) || {};
     FELULIR.egyeniTeny = (d.exists && d.data().teny) || {};
+    FELULIR.egyeniSzer = (d.exists && d.data().szerszam) || {};
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {}, cst = {}, cb = {}, ct = {};
+    var cs = {}, cp = {}, co = {}, cst = {}, cb = {}, ct = {}, csz = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
       if (d.data().ekStabil) cst[d.id] = d.data().ekStabil;
       if (d.data().bank) cb[d.id] = d.data().bank;
       if (d.data().teny) ct[d.id] = d.data().teny;
+      if (d.data().szerszam) csz[d.id] = d.data().szerszam;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb; FELULIR.csoportTeny = ct;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb; FELULIR.csoportTeny = ct; FELULIR.csoportSzer = csz;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -19990,11 +20252,12 @@ function felulirSzamol() {
   var ujS = ekStabilOsszevon(FELULIR.egyeniStabil, Object.keys(FELULIR.csoportStabil || {}).sort().map(function (g) { return FELULIR.csoportStabil[g]; }));
   var ujB = bankOsszevon(FELULIR.egyeniBank, Object.keys(FELULIR.csoportBank || {}).sort().map(function (g) { return FELULIR.csoportBank[g]; }));
   var ujT = tenyOsszevon(FELULIR.egyeniTeny, Object.keys(FELULIR.csoportTeny || {}).sort().map(function (g) { return FELULIR.csoportTeny[g]; }));
+  var ujSz = szerszamOsszevon(FELULIR.egyeniSzer, Object.keys(FELULIR.csoportSzer || {}).sort().map(function (g) { return FELULIR.csoportSzer[g]; }));
   if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
       JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil) && JSON.stringify(ujB) === JSON.stringify(FELULIR.bank) &&
-      JSON.stringify(ujT) === JSON.stringify(FELULIR.teny)) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB; FELULIR.teny = ujT;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB, teny: ujT })); } catch (e) {}
+      JSON.stringify(ujT) === JSON.stringify(FELULIR.teny) && JSON.stringify(ujSz) === JSON.stringify(FELULIR.szerszam)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB; FELULIR.teny = ujT; FELULIR.szerszam = ujSz;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB, teny: ujT, szerszam: ujSz })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();
@@ -21431,6 +21694,10 @@ window.UC = {
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,
+  SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */
+  szerszamFeny: szerszamFeny, szerszamLadaban: szerszamLadaban, szerszamOnalloDb: szerszamOnalloDb, szerszamMesterKov: szerszamMesterKov, szerszamFeladatFriss: szerszamFeladatFriss,
+  szerszamKicsiJegyez: szerszamKicsiJegyez, szerszamOsszegzes: szerszamOsszegzes, liftUj: liftUj, liftRossz: liftRossz, liftJo: liftJo, liftSegitseg: liftSegitseg, liftKer: liftKer,
+  liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
