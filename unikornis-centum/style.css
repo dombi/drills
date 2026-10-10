@@ -2197,7 +2197,8 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 #kepernyo-jatek.op-mod .bagoly-buborek{ position:relative; left:auto; top:auto; transform:none; flex:none; width:min(96vw,1040px); max-height:none; overflow:visible;
   margin:8px auto 0; padding:0; background:transparent; border:none; box-shadow:none; text-align:left; }
 #kepernyo-jatek.op-mod .buborek-feladat{ font-size:inherit; font-weight:inherit; color:inherit; line-height:inherit; }
-#kepernyo-jatek.op-mod .halld-ujra{ display:block; margin:6px auto 0; }
+#kepernyo-jatek.op-mod #halld-ujra,#kepernyo-jatek.op-mod #haladas-pottyok{ display:none; }   /* 🔊 a könyv fejlécében, a haladást a csík mutatja */
+#kepernyo-jatek.op-mod .visszajelzes:empty{ display:none; }
 #kepernyo-jatek.op-mod .valaszter{ position:relative; flex:none; max-height:none; overflow:visible; background:transparent; border-top:none; padding:4px 10px 14px; }
 #kepernyo-jatek.op-mod #kerulo-gomb{ display:none!important; }
 #kepernyo-jatek.op-mod .valasz-panel{ max-width:1040px; }
@@ -2210,6 +2211,7 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .op-csik i.kesz{ background:#a7d99a; border-color:#6fb36a; }
 .op-csik i.most{ width:26px; height:26px; background:#fff; border-color:#c9a8e6; }
 .op-betu{ display:flex; gap:4px; align-items:flex-end; }
+.op-halld{ background:#f3e3cb; color:#6a4a2a; border-radius:8px; padding:1px 9px; font-size:17px; line-height:1.4; }
 .op-betu button{ background:#f3e3cb; color:#6a4a2a; border-radius:8px; padding:1px 8px; font-weight:800; line-height:1.25; }
 .op-betu button:nth-child(1){ font-size:13px; } .op-betu button:nth-child(2){ font-size:17px; } .op-betu button:nth-child(3){ font-size:21px; }
 .op-betu button.akt{ background:#fff; box-shadow:0 0 0 2px #c9a8e6; }
@@ -2223,6 +2225,9 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .op-kerdes{ margin:.55em 0 0; color:#6a3bc0; font-weight:800; line-height:1.35; padding:1px 5px; border-radius:6px; font-size:23px; }
 .op-b1 .op-m{ font-size:17px; } .op-b1 .op-kerdes{ font-size:19px; }
 .op-b3 .op-m{ font-size:24px; } .op-b3 .op-kerdes{ font-size:27px; }
+.op-szuk .op-m{ font-size:17px; } .op-szuk .op-kerdes{ font-size:19px; }              /* ha nem fér el: előbb egy fokkal kisebb, csak utána lapoz */
+.op-b1 .op-szuk .op-m{ font-size:15px; } .op-b1 .op-szuk .op-kerdes{ font-size:17px; }
+.op-b3 .op-szuk .op-m{ font-size:20px; } .op-b3 .op-szuk .op-kerdes{ font-size:23px; }
 .op-m.olvas,.op-kerdes.olvas{ background:#fff1b8; }
 .op-m.nem{ background:#ffe6f0; box-shadow:inset 4px 0 0 #e2589b; }
 .op-m mark{ background:#f9c6dc; color:inherit; border-radius:4px; padding:0 2px; }
@@ -2252,16 +2257,36 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
   .op-rajz{ max-height:26vh; }
   .op-lap{ min-height:0; padding:10px 12px 14px; }
   .op-szoveg{ max-height:40vh; }
+  .op-jobb.dob-lap{ order:1; padding:4px; }                      /* telefonon a kirakó a szöveg ALATT, közvetlenül a tál fölött */
 }
 @media (prefers-reduced-motion:reduce){ .op-fuzet,.op-lepesek,.op-lepes,.op-m.villan,.op-kerdes.villan{ animation:none; } }
 
 /* ═════════ 🏆 DOBOGÓ (dobogo.js) ═════════ */
 .dobogo-panel{ width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; }
-.dobogo-panel.zar .dob-d,.dobogo-panel.zar .dob-ujra,.dobogo-panel.zar .dob-kesz{ pointer-events:none; }
+.dobogo-panel.zar .dob-d,.dobogo-panel.zar .dob-ures,.dobogo-panel.zar .dob-ujra,.dobogo-panel.zar .dob-kesz{ pointer-events:none; }
 .dobogo-panel.zar .dob-kesz{ opacity:.6; }
-.dob-fo{ display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; justify-content:center; width:100%; }
-.dob-ter{ display:flex; justify-content:center; max-width:100%; overflow-x:auto; padding:2px 0; }
-.dob-talak{ display:flex; flex-direction:column; gap:6px; align-items:center; max-width:min(100%,440px); }
+.dob-also{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; justify-content:center; width:100%; }   /* egy sáv: tál + gombok */
+.dob-kulon{ display:flex; justify-content:center; width:100%; }
+.dob-ter{ display:flex; justify-content:center; align-items:center; max-width:100%; padding:2px 0; }
+.dob-talak{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; }
+/* a kirakó a könyv jobb lapján: a rajz = a kirakó; a mese-keret szerinti háttérrel */
+.op-jobb.dob-lap{ padding:6px; align-items:stretch; }
+.dob-lap .dob-ter{ width:100%; border-radius:8px; padding:8px 6px; }
+.dob-ter.k-dobogo{ background:linear-gradient(#dff0d4 62%, #b6dd9a 62%); }
+.dob-ter.k-sor{ background:linear-gradient(#fdf0e0 75%, #efd9b8 75%); }
+.dob-ter.k-polc{ background:#f6ead8; }
+.dob-ter.k-haz,.dob-ter.k-haz2{ background:linear-gradient(#dcecff 80%, #b6dd9a 80%); }
+.dob-ter.k-tabla{ background:#e6f3ff; }
+.dob-lap.zar .dob-d,.dob-lap.zar .dob-ures{ pointer-events:none; }
+#kepernyo-jatek.op-mod .op-konyv:has(.dob-lap) .op-szoveg{ max-height:min(56vh,440px); }   /* a bal lap olyan magas lehet, mint a kirakó */
+@media (max-width:640px){ #kepernyo-jatek.op-mod .op-konyv:has(.dob-lap) .op-szoveg{ max-height:none; } }   /* telefonon görgethet: a szöveg teljesen, alatta a kirakó + a tál */
+.dob-lap .dob-polc .dob-h,.dob-lap .dob-haz .dob-h{ min-height:56px; }
+.dob-lap .dob-polc .dob-ures,.dob-lap .dob-haz .dob-ures{ width:42px; height:42px; }
+.dob-also.ket .dob-tal{ flex-wrap:nowrap; gap:5px; padding:5px 8px 5px 4px; }
+.dob-also.ket .dob-talnev{ width:auto; writing-mode:vertical-rl; transform:rotate(180deg); font-size:11px; }
+.dob-also.ket .dob-d{ min-width:56px; padding:3px 4px 2px; }
+.dob-also.ket .dob-kep{ width:38px; height:38px; }
+.dob-also.ket .dob-gombok{ gap:6px; }
 .dob-d{ display:inline-flex; flex-direction:column; align-items:center; gap:1px; background:#fff; border:3px solid #d9c6ec; border-radius:14px; padding:4px 6px 3px; min-width:66px;
   box-shadow:0 3px 0 #cdb8e2; -webkit-tap-highlight-color:transparent; }
 .dob-d:active{ transform:translateY(2px); box-shadow:0 1px 0 #cdb8e2; }
@@ -2269,6 +2294,15 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .dob-kep svg{ width:100%; height:100%; display:block; }
 .dob-nev{ font-size:13px; font-weight:800; color:#4a3b5a; white-space:nowrap; }
 .dob-d.bent{ border-color:#c9a8e6; }
+.dob-d.kez{ border-color:#e2589b; transform:translateY(-7px); box-shadow:0 7px 0 #f9c6dc; }      /* kézbe vette */
+.dob-ures{ font-family:inherit; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.dob-h.cel .dob-ures{ border-style:solid; border-color:#e2589b; color:#e2589b; background:#fff; box-shadow:0 0 0 4px #f9c6dc; }   /* kijelölt üres hely */
+.dob-h.var .dob-ures{ border-color:#b98ae6; color:#b98ae6; animation:dob-var 1.1s ease-in-out infinite; }   /* ide teheti, ami a kezében van */
+.dob-h.var .dob-d.bent{ border-style:dashed; }
+@keyframes dob-var{ 50%{ background:#f3eaff; transform:scale(1.06); } }
+.dob-tal.var{ box-shadow:0 0 0 3px #f9c6dc; }
+.dob-razo{ animation:dob-razo .35s ease-in-out; }
+@keyframes dob-razo{ 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
 .dob-h{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-width:80px; min-height:80px; }
 .dob-ures{ width:58px; height:58px; margin-bottom:4px; border:3px dashed #c9b6e0; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#c9b6e0; font-weight:800; font-size:22px; background:rgba(255,255,255,.4); }
 .dob-attr .dob-ures{ border-color:#a7d99a; color:#8cc47e; }
@@ -2315,7 +2349,7 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
   .dob-tfej,.dob-tsor{ grid-template-columns:repeat(var(--n), minmax(58px,1fr)); }
   .dob-polcsor{ padding:2px 30px 0; }
 }
-@media (prefers-reduced-motion:reduce){ .dob-uj .dob-d{ animation:none; } }
+@media (prefers-reduced-motion:reduce){ .dob-uj .dob-d,.dob-h.var .dob-ures,.dob-razo{ animation:none; } }
 
 /* ═════════ 🧰 SZERSZÁM-SZEKRÉNY (szerszam-polc.js) ═════════ */
 .szp-szekreny{ margin:16px auto 8px; max-width:720px; background:linear-gradient(#a8743c,#8a5a32); border:4px solid #6e4a22; border-radius:16px 16px 8px 8px;

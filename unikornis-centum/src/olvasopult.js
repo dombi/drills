@@ -9,7 +9,8 @@
                          o = { mondatok: [html…], kerdes: html, rajz: html, fuzet: { mondatok, kerdes } | null, halvany }
                          A 🛗 lift kis füzete (o.fuzet) rózsaszín szélű lapként fekszik a bal lapon, ferdén; alatta
                          halványan látszik a nagy feladat. Felirat nincs rajta (se „Mesekönyv”, se „könnyebb”).
-     opLapol()         → ha a bal lap szövege nem fér el, lapokra bontja (sarok-fül →); a kérdés mindig az utolsó lapon.
+     opLapol()         → ha a bal lap szövege nem fér el, előbb egy fokkal kisebb betű, és csak utána lapokra bontja
+                         (sarok-fül →); a kérdés mindig az utolsó lapon. A 🔊 „Halld újra” a könyv fejlécében van.
                          Nincs görgetés. A rajz lapozáskor is a helyén marad.
      opFelolvas(f, k)  → mondatonként felolvas, és közben kiemeli a sort, amit mond (a lapot is odalapozza).
      opJelol(i, resz)  → egy mondat kiemelése (rossz válasznál: „ez a mondat nem stimmel”); opJelolTorol().
@@ -46,7 +47,7 @@ function opKonyv(o) {
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
   return '<div class="op-konyv' + (fz ? " op-liftes" : "") + '">' +
-    '<div class="op-fej">' + opCsik() + '<div class="op-betu" role="group" aria-label="betűméret">' +
+    '<div class="op-fej">' + opCsik() + '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
       [1, 2, 3].map(function (x) { return '<button type="button" data-b="' + x + '" class="' + (x === b ? "akt" : "") + '">A</button>'; }).join("") + '</div></div>' +
     '<div class="op-lapok"><div class="op-lap op-bal">' + bal + '</div><div class="op-gerinc"></div><div class="op-lap op-jobb">' + (o.rajz || "") + '</div></div>' +
   '</div>';
@@ -56,12 +57,15 @@ function opAktivSzoveg() {
   var bal = document.querySelector("#buborek-feladat .op-bal"); if (!bal) return null;
   return bal.querySelector(".op-fuzet .op-szoveg") || bal.querySelector(".op-szoveg");
 }
-/* lapokra bontás mérés alapján: a sorok addig kerülnek egy lapra, amíg elférnek */
+/* lapokra bontás mérés alapján: a sorok addig kerülnek egy lapra, amíg elférnek.
+   Előbb egy fokkal kisebb betűvel próbálja (op-szuk), és csak ha úgy sem fér el, akkor lapoz —
+   a gyerek lássa egyszerre az egész szöveget (dobogó-javítás 3/4: a kötött mondat ne lapozódjon el). */
 function opLapol() {
-  var sz = opAktivSzoveg(), lapozo = document.querySelector("#buborek-feladat .op-lapozo");
+  var sz = opAktivSzoveg(), lapozo = document.querySelector("#buborek-feladat .op-lapozo"), konyv = document.querySelector("#buborek-feladat .op-konyv");
   if (!sz || !lapozo) return;
   var sorok = Array.prototype.slice.call(sz.children);
   sorok.forEach(function (x) { x.hidden = false; x.removeAttribute("data-lap"); });
+  if (konyv) { konyv.classList.remove("op-szuk"); if (sz.scrollHeight > sz.clientHeight + 2) konyv.classList.add("op-szuk"); }
   if (!sorok.length || sz.scrollHeight <= sz.clientHeight + 2) { OP.lapDb = 1; OP.lap = 0; lapozo.hidden = true; sorok.forEach(function (x) { x.setAttribute("data-lap", 0); }); return; }
   var max = sz.clientHeight - 34, lap = 0, kezd = sorok[0].offsetTop;   /* 34: hely a lapozó-fülnek */
   sorok.forEach(function (x) {
@@ -148,6 +152,7 @@ function opLepes(h) {
     b.addEventListener("click", function (ev) {
       var t = ev.target.closest ? ev.target.closest("button") : null; if (!t || !b.querySelector(".op-konyv")) return;
       if (t.hasAttribute("data-b")) { hangGomb(); opBetuAllit(+t.getAttribute("data-b")); }
+      else if (t.classList.contains("op-halld")) { var h = $("halld-ujra"); if (h) h.click(); }
       else if (t.classList.contains("op-lapoz-elore")) { hangGomb(); opLapra(OP.lap + 1); }
       else if (t.classList.contains("op-lapoz-vissza")) { hangGomb(); opLapra(OP.lap - 1); }
     });

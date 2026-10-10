@@ -26,10 +26,13 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   var lista = [], felt = [];
   f.mon.forEach(function (m) {
     if (!lista.length || lista[lista.length - 1] !== m.s) lista.push(m.s);
-    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f });
+    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f, rend: m.rend != null ? m.rend : 99, sor: felt.length });
   });
+  /* a hibajelzés a GONDOLATMENET sorrendjében keres (a kötött mondat az első), nem a szöveg sorrendjében
+     (dobogó-javítás 3/1: a Tekercsben a kötött mondat szándékosan a végén van) */
+  felt.sort(function (a, b) { return a.rend - b.rend || a.sor - b.sor; });
   f.sz = sz; f.szerep = szerep; f.csalad = "dobogo"; f.helyes = 1; f.lanc = null; f.felt = felt;
-  f.op = { mondatok: lista, kerdes: f.kerdes, rajz: f.rajz };
+  f.op = { mondatok: lista, kerdes: f.kerdes, rajz: "" };       /* a jobb lapra maga a kirakó kerül (dobogo.js) */
   if (szerep === "kicsi") { f.nagy = nagy; f.op.fuzet = { mondatok: lista, kerdes: f.kerdes }; f.op.mondatok = nagy.op.mondatok; f.op.kerdes = nagy.op.kerdes; }
   f.kartyaHTML = opKonyv(f.op);
   f.szoveg = f.kerdes; f.felolvas = ekKiejt(lista.concat([f.kerdes]).join(" "));
@@ -47,8 +50,8 @@ function szKicsi(nagy) {
 /* ── megjelenítés (a feladatMutat hívja, miután a könyv a buborékba került) ── */
 function szMutat(f) {
   opMod(true);
+  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
-  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
   opFelolvas(f);

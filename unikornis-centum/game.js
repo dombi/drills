@@ -9269,7 +9269,8 @@ function ekElottKell(f, tovabb) {
                          o = { mondatok: [html…], kerdes: html, rajz: html, fuzet: { mondatok, kerdes } | null, halvany }
                          A 🛗 lift kis füzete (o.fuzet) rózsaszín szélű lapként fekszik a bal lapon, ferdén; alatta
                          halványan látszik a nagy feladat. Felirat nincs rajta (se „Mesekönyv”, se „könnyebb”).
-     opLapol()         → ha a bal lap szövege nem fér el, lapokra bontja (sarok-fül →); a kérdés mindig az utolsó lapon.
+     opLapol()         → ha a bal lap szövege nem fér el, előbb egy fokkal kisebb betű, és csak utána lapokra bontja
+                         (sarok-fül →); a kérdés mindig az utolsó lapon. A 🔊 „Halld újra” a könyv fejlécében van.
                          Nincs görgetés. A rajz lapozáskor is a helyén marad.
      opFelolvas(f, k)  → mondatonként felolvas, és közben kiemeli a sort, amit mond (a lapot is odalapozza).
      opJelol(i, resz)  → egy mondat kiemelése (rossz válasznál: „ez a mondat nem stimmel”); opJelolTorol().
@@ -9306,7 +9307,7 @@ function opKonyv(o) {
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
   return '<div class="op-konyv' + (fz ? " op-liftes" : "") + '">' +
-    '<div class="op-fej">' + opCsik() + '<div class="op-betu" role="group" aria-label="betűméret">' +
+    '<div class="op-fej">' + opCsik() + '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
       [1, 2, 3].map(function (x) { return '<button type="button" data-b="' + x + '" class="' + (x === b ? "akt" : "") + '">A</button>'; }).join("") + '</div></div>' +
     '<div class="op-lapok"><div class="op-lap op-bal">' + bal + '</div><div class="op-gerinc"></div><div class="op-lap op-jobb">' + (o.rajz || "") + '</div></div>' +
   '</div>';
@@ -9316,12 +9317,15 @@ function opAktivSzoveg() {
   var bal = document.querySelector("#buborek-feladat .op-bal"); if (!bal) return null;
   return bal.querySelector(".op-fuzet .op-szoveg") || bal.querySelector(".op-szoveg");
 }
-/* lapokra bontás mérés alapján: a sorok addig kerülnek egy lapra, amíg elférnek */
+/* lapokra bontás mérés alapján: a sorok addig kerülnek egy lapra, amíg elférnek.
+   Előbb egy fokkal kisebb betűvel próbálja (op-szuk), és csak ha úgy sem fér el, akkor lapoz —
+   a gyerek lássa egyszerre az egész szöveget (dobogó-javítás 3/4: a kötött mondat ne lapozódjon el). */
 function opLapol() {
-  var sz = opAktivSzoveg(), lapozo = document.querySelector("#buborek-feladat .op-lapozo");
+  var sz = opAktivSzoveg(), lapozo = document.querySelector("#buborek-feladat .op-lapozo"), konyv = document.querySelector("#buborek-feladat .op-konyv");
   if (!sz || !lapozo) return;
   var sorok = Array.prototype.slice.call(sz.children);
   sorok.forEach(function (x) { x.hidden = false; x.removeAttribute("data-lap"); });
+  if (konyv) { konyv.classList.remove("op-szuk"); if (sz.scrollHeight > sz.clientHeight + 2) konyv.classList.add("op-szuk"); }
   if (!sorok.length || sz.scrollHeight <= sz.clientHeight + 2) { OP.lapDb = 1; OP.lap = 0; lapozo.hidden = true; sorok.forEach(function (x) { x.setAttribute("data-lap", 0); }); return; }
   var max = sz.clientHeight - 34, lap = 0, kezd = sorok[0].offsetTop;   /* 34: hely a lapozó-fülnek */
   sorok.forEach(function (x) {
@@ -9408,6 +9412,7 @@ function opLepes(h) {
     b.addEventListener("click", function (ev) {
       var t = ev.target.closest ? ev.target.closest("button") : null; if (!t || !b.querySelector(".op-konyv")) return;
       if (t.hasAttribute("data-b")) { hangGomb(); opBetuAllit(+t.getAttribute("data-b")); }
+      else if (t.classList.contains("op-halld")) { var h = $("halld-ujra"); if (h) h.click(); }
       else if (t.classList.contains("op-lapoz-elore")) { hangGomb(); opLapra(OP.lap + 1); }
       else if (t.classList.contains("op-lapoz-vissza")) { hangGomb(); opLapra(OP.lap - 1); }
     });
@@ -9415,10 +9420,16 @@ function opLepes(h) {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bekot); else setTimeout(bekot, 0);
 })();
-/* ============ 6o) 🏆 DOBOGÓ — a 📌 KOTOTT válaszformája: a szereplőket koppintással sorba rakja ============
-   Rajz: Matekos\szerszam-letrak-rajzterv.html 4. pont (✅ 2026-10-09) + tartalom-lap 8/2 (kétsoros dobogó ✅).
-   KOPPINTÁS, nem húzás: a szereplőre koppintva a következő üres helyre ugrik (a helyek SORSZÁM szerint telnek: 1. → 2. → 3.);
-   egy felrakott szereplőre koppintva visszajön. Laptopon, tableten, telefonon ugyanígy megy.
+/* ============ 6o) 🏆 DOBOGÓ — a 📌 KOTOTT válaszformája: a szereplőket koppintással a helyükre rakja ============
+   Rajz: Matekos\szerszam-letrak-rajzterv.html 4. pont (✅ 2026-10-09) + tartalom-lap 8/2 (kétsoros dobogó ✅)
+   + dobogó-javítás (Matekos\szerszam-letrak-dobogo-javitas.html, ✅ 2026-10-10).
+   BÁRKI BÁRHOVA, BÁRMILYEN SORRENDBEN (producer): a gyerek a kötött szereplővel kezdhet, bárhol is van a helye.
+     KÉT KOPPINTÁS: szereplő → „kézbe veszi” (felemelkedik) → hely → oda kerül. Fordítva is: üres hely → szereplő.
+     Felrakott szereplőre koppintva kézbe veszi: másik helyre koppintva átteszi (ha ott áll valaki, helyet cserélnek),
+     a tálra koppintva visszateszi. Üres helyek bárhol maradhatnak. Kétsoros táblán (zöldség / sport) a darab csak a saját
+     sorába mehet — rossz sorra koppintva a hely csak finoman megrázkódik. Húzás nincs: laptopon, tableten, telefonon ugyanígy.
+   EGY KÉPEN: ha a feladat az olvasópult könyvében van, a kirakó maga a könyv JOBB LAPJA (a rajz = a kirakó); a könyv alatt
+   egyetlen sáv: a tál (a még fel nem rakott szereplők) + 🙋 · ↺ · Kész. Könyv nélkül a kirakó a sáv fölé kerül.
    A mese-keret szerint más a rajz, a működés ugyanaz (egy közös elem, öt rajz):
      dobogo  verseny: 3 helynél dobogó (2–1–3), 4–5 helynél lépcsősor
      sor     sorban állás (fagyis pult / vacsoratálak): az 1. hely a pultnál
@@ -9426,10 +9437,10 @@ function opLepes(h) {
      haz     emeletes ház: emeletek alulról felfelé (haz2: emeletenként két hely, pl. barát + sport)
      tabla   táblázat: oszlop-fejlécek (pl. magasságok), soronként egy darab-fajta (gyerek, zöldség)
    A feladat (f.dob) = { keret, n, cimkek: [html…], sorok: [ { nev, darabok: [ { id, nev, kep } ] } ], jo: [ [id…] soronként ] }
-   Az ellenőrzést (jó / rossz) a feladat gazdája végzi: dobogoMutat(f, { kesz(jo, rosszak), segit }) — a szerszam-palya.js.
+   Az ellenőrzést (jó / rossz) a feladat gazdája végzi: dobogoMutat(f, { kesz(jo, allas), segit(menu) }) — a szerszam-palya.js.
    Rossz válasznál nincs piros: a jó helyen állók maradnak, a többiek visszaugranak (dobogoVisszaRossz). */
 
-var DOB = null;     /* { f, hely: [[id|null]…] soronként, zar, h } */
+var DOB = null;     /* { f, o, hely: [[id|null]…] soronként, zar, kez: {r,id,honnan}|null, cel: {r,i}|null, uj: {r,i}|null, razo } */
 
 function dobPanel() {
   var p = $("dobogo-panel");
@@ -9440,20 +9451,31 @@ function dobPanel() {
   }
   return p;
 }
+/* a könyv jobb lapja, ha a feladat az olvasópultban van — ide kerül a kirakó */
+function dobKonyvLap() {
+  var j = document.querySelector("#buborek-feladat .op-jobb");
+  if (j && !j.__dob) { j.__dob = true; j.addEventListener("click", dobKatt); }
+  return j;
+}
 function dobogoRejt() { var p = $("dobogo-panel"); if (p) { p.hidden = true; p.innerHTML = ""; } DOB = null; }
 function dobDarab(D, r, id) { var L = D.sorok[r].darabok; for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i]; return null; }
 function dobToken(d, r, hol) {
-  return '<button type="button" class="dob-d' + (hol ? " bent" : "") + '" data-r="' + r + '" data-id="' + htmlVed(d.id) + '">' +
-    '<span class="dob-kep">' + d.kep + '</span><span class="dob-nev">' + d.nev + '</span></button>';
+  var kez = DOB.kez && DOB.kez.r === r && DOB.kez.id === d.id;
+  return '<button type="button" class="dob-d' + (hol ? " bent" : "") + (kez ? " kez" : "") + '" data-r="' + r + '" data-id="' + htmlVed(d.id) + '"' +
+    (kez ? ' aria-pressed="true"' : '') + '><span class="dob-kep">' + d.kep + '</span><span class="dob-nev">' + d.nev + '</span></button>';
 }
-/* egy hely: data-r (sor), data-i (sorszám); benne a szereplő vagy egy halvány üres jel */
+/* egy hely: data-r (sor), data-i (sorszám); benne a szereplő vagy egy halvány üres jel (az is koppintható) */
 function dobHely(r, i, cimke, extra) {
-  var id = DOB.hely[r][i], d = id != null ? dobDarab(DOB.f.dob, r, id) : null;
-  return '<div class="dob-h' + (d ? " teli" : "") + (extra ? " " + extra : "") + '" data-r="' + r + '" data-i="' + i + '">' +
-    (d ? dobToken(d, r, true) : '<span class="dob-ures">?</span>') + (cimke != null ? '<span class="dob-cimke">' + cimke + '</span>' : '') + '</div>';
+  var id = DOB.hely[r][i], d = id != null ? dobDarab(DOB.f.dob, r, id) : null, c = extra ? " " + extra : "";
+  if (DOB.cel && DOB.cel.r === r && DOB.cel.i === i) c += " cel";
+  else if (DOB.kez && DOB.kez.r === r && DOB.kez.honnan !== i) c += " var";     /* ide teheti, ami a kezében van */
+  if (DOB.uj && DOB.uj.r === r && DOB.uj.i === i) c += " dob-uj";
+  if (DOB.razo && DOB.razo.r === r && DOB.razo.i === i) c += " dob-razo";
+  return '<div class="dob-h' + (d ? " teli" : "") + c + '" data-r="' + r + '" data-i="' + i + '">' +
+    (d ? dobToken(d, r, true) : '<button type="button" class="dob-ures" aria-label="üres hely">?</button>') +
+    (cimke != null ? '<span class="dob-cimke">' + cimke + '</span>' : '') + '</div>';
 }
-function dobRajz() {
-  var p = $("dobogo-panel"); if (!p || !DOB) return;
+function dobTerRajz() {
   var D = DOB.f.dob, n = D.n, h = "", r, i;
   var C = D.cimkek || [];
   if (D.keret === "dobogo") {
@@ -9467,7 +9489,7 @@ function dobRajz() {
       Array.apply(null, { length: n }).map(function (x, j) { return dobHely(0, j, (j + 1) + "."); }).join("") + '</div>';
   } else if (D.keret === "polc") {
     h = '<div class="dob-polc">' + Array.apply(null, { length: n }).map(function (x, j) {
-      return '<div class="dob-polcsor"><span class="dob-oldal">' + (j === 0 ? "fent" : j === n - 1 ? "lent" : "") + '</span>' + dobHely(0, j, null) + '<div class="dob-deszka"></div></div>';
+      return '<div class="dob-polcsor"><span class="dob-oldal">' + (j === 0 ? "fent" : j === n - 1 ? "lent" : "") + '</span>' + dobHely(0, j, null) + '</div>';
     }).join("") + '</div>';
   } else if (D.keret === "haz" || D.keret === "haz2") {
     var em = [];
@@ -9486,29 +9508,43 @@ function dobRajz() {
     }
     h += '</div>';
   }
-  /* a még fel nem rakott szereplők (soronként külön tál) */
+  return '<div class="dob-ter k-' + D.keret + '">' + h + '</div>';
+}
+function dobRajz() {
+  var p = $("dobogo-panel"); if (!p || !DOB) return;
+  var D = DOB.f.dob, r;
+  /* a még fel nem rakott szereplők (soronként külön tál); ha egy üres hely ki van jelölve, az ő soruk tála „vár” */
   var tal = "";
   for (r = 0; r < D.sorok.length; r++) {
     var kint = D.sorok[r].darabok.filter(function (d) { return DOB.hely[r].indexOf(d.id) < 0; });
-    tal += '<div class="dob-tal' + (r ? " dob-attr" : "") + '">' + (D.sorok.length > 1 && D.sorok[r].nev ? '<span class="dob-talnev">' + D.sorok[r].nev + '</span>' : '') +
+    var varo = (DOB.cel && DOB.cel.r === r) || (DOB.kez && DOB.kez.r === r && DOB.kez.honnan != null);
+    tal += '<div class="dob-tal' + (r ? " dob-attr" : "") + (varo ? " var" : "") + '" data-r="' + r + '">' + (D.sorok.length > 1 && D.sorok[r].nev ? '<span class="dob-talnev">' + D.sorok[r].nev + '</span>' : '') +
       (kint.length ? kint.map(function (d) { return dobToken(d, r, false); }).join("") : '<span class="dob-mind">✓</span>') + '</div>';
   }
   var gomb = '<div class="dob-gombok">' +
     (DOB.o.segit ? '<button type="button" class="kis-gomb dob-segit" data-g="segit">🙋 Segítség</button>' : '') +
     '<button type="button" class="kis-gomb dob-ujra" data-g="ujra">↺ Újra</button>' +
-    '<button type="button" class="nagy-gomb kiemelt dob-kesz" data-g="kesz">Kész! ✓</button></div>' +
-    '<div class="dob-segitmenu" hidden></div>';
-  p.innerHTML = '<div class="dob-fo"><div class="dob-ter k-' + D.keret + '">' + h + '</div><div class="dob-talak">' + tal + '</div></div>' + gomb;   /* széles kijelzőn a tál a dobogó mellett */
+    '<button type="button" class="nagy-gomb kiemelt dob-kesz" data-g="kesz">Kész! ✓</button></div>';
+  var lap = dobKonyvLap(), ter = dobTerRajz();
+  if (!p.querySelector(".dob-also"))                          /* a váz egyszer készül: a 🙋 menü (és a gombjai) megmarad */
+    p.innerHTML = '<div class="dob-kulon"></div><div class="dob-also"></div><div class="dob-segitmenu" hidden></div>';
+  if (lap) { lap.innerHTML = ter; lap.classList.add("dob-lap"); lap.classList.toggle("zar", !!DOB.zar); }
+  var ku = p.querySelector(".dob-kulon"); ku.innerHTML = lap ? "" : ter; ku.hidden = !!lap;
+  var also = p.querySelector(".dob-also");
+  also.innerHTML = '<div class="dob-talak">' + tal + '</div>' + gomb;
+  also.classList.toggle("ket", D.sorok.length > 1);           /* két tál (gyerek + zöldség): tömörebb, hogy egy sorba férjen a gombokkal */
   p.classList.toggle("zar", !!DOB.zar);
+  DOB.uj = null; DOB.razo = null;
 }
-/* o = { kesz: function (jo, rosszak) {}, segit: function (menu) {} | null } */
+/* o = { kesz: function (jo, allas) {}, segit: function (menu) {} | null } */
 function dobogoMutat(f, o) {
   var D = f.dob;
-  DOB = { f: f, o: o || {}, zar: false, hely: D.sorok.map(function () { var a = []; for (var i = 0; i < D.n; i++) a.push(null); return a; }) };
+  DOB = { f: f, o: o || {}, zar: false, kez: null, cel: null, uj: null, razo: null,
+    hely: D.sorok.map(function () { var a = []; for (var i = 0; i < D.n; i++) a.push(null); return a; }) };
   var p = dobPanel();
   $("valasz-egyenkent").classList.add("koppint");
   $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
-  p.hidden = false;
+  p.hidden = false; p.innerHTML = "";
   dobRajz();
 }
 function dobTeli() { return DOB.hely.every(function (s) { return s.every(function (x) { return x != null; }); }); }
@@ -9519,6 +9555,7 @@ function dobJoE() {
 /* a jó helyen állók maradnak, a többiek visszaugranak; visszaadja, hány ugrott vissza */
 function dobogoVisszaRossz() {
   var J0 = DOB.f.dob.jo, db = 0;
+  DOB.kez = null; DOB.cel = null;
   DOB.hely.forEach(function (s, r) { s.forEach(function (x, i) { if (x != null && x !== J0[r][i]) { s[i] = null; db++; } }); });
   dobRajz();
   return db;
@@ -9535,33 +9572,64 @@ function dobogoTesz(r, i, id) {
   if (!DOB) return;
   var s = DOB.hely[r], j = s.indexOf(id);
   if (j >= 0) s[j] = null;
-  s[i] = id; dobRajz();
-  var x = document.querySelector('#dobogo-panel .dob-h[data-r="' + r + '"][data-i="' + i + '"]');
-  if (x) { x.classList.add("dob-uj"); }
+  s[i] = id; DOB.kez = null; DOB.cel = null; DOB.uj = { r: r, i: i };
+  dobRajz();
 }
-function dobogoZar(z) { if (DOB) { DOB.zar = !!z; var p = $("dobogo-panel"); if (p) p.classList.toggle("zar", !!z); } }
-function dobogoUrit() { if (!DOB) return; DOB.hely.forEach(function (s) { for (var i = 0; i < s.length; i++) s[i] = null; }); dobRajz(); }
+function dobogoZar(z) {
+  if (!DOB) return;
+  DOB.zar = !!z; DOB.kez = null; DOB.cel = null;
+  dobRajz();
+}
+function dobogoUrit() { if (!DOB) return; DOB.kez = null; DOB.cel = null; DOB.hely.forEach(function (s) { for (var i = 0; i < s.length; i++) s[i] = null; }); dobRajz(); }
+
+/* ── koppintások ── */
+/* id letétele az r. sor i. helyére. honnan: ha egy másik helyről jön, az ott állóval helyet cserél;
+   ha a tálból jön, az ott álló visszamegy a tálba. */
+function dobLetesz(r, i, id, honnan) {
+  var s = DOB.hely[r], regi = s[i];
+  if (honnan != null) s[honnan] = regi === id ? null : regi;
+  s[i] = id;
+  DOB.uj = { r: r, i: i };
+}
+function dobHelyKatt(r, i) {
+  var K = DOB.kez, bent = DOB.hely[r][i];
+  if (K) {
+    if (K.r !== r) { DOB.razo = { r: r, i: i }; return; }           /* zöldség a gyerek-sorba: nem megy */
+    if (K.honnan !== i) dobLetesz(r, i, K.id, K.honnan);
+    DOB.kez = null;
+  } else if (bent != null) { DOB.kez = { r: r, id: bent, honnan: i }; DOB.cel = null; }
+  else DOB.cel = DOB.cel && DOB.cel.r === r && DOB.cel.i === i ? null : { r: r, i: i };
+}
+function dobTalKatt(r, id) {
+  if (DOB.cel && DOB.cel.r === r) { dobLetesz(r, DOB.cel.i, id, null); DOB.cel = null; DOB.kez = null; return; }
+  DOB.kez = DOB.kez && DOB.kez.id === id && DOB.kez.r === r ? null : { r: r, id: id, honnan: null };
+  DOB.cel = null;
+}
 function dobKatt(ev) {
   if (!DOB) return;
-  var t = ev.target.closest ? ev.target.closest("button, .dob-h") : null; if (!t) return;
+  var t = ev.target.closest ? ev.target.closest("button, .dob-h, .dob-tal") : null; if (!t) return;
   var g = t.getAttribute("data-g");
-  if (g === "segit") { hangGomb(); if (DOB.o.segit) DOB.o.segit(t.parentNode.nextSibling); return; }
-  if (DOB.zar) return;
+  if (g === "segit") { hangGomb(); if (DOB.o.segit) DOB.o.segit($("dobogo-panel").querySelector(".dob-segitmenu")); return; }
+  if (DOB.zar || !g && t.closest(".dob-segitmenu")) return;
   if (g === "ujra") { hangGomb(); dobogoUrit(); return; }
   if (g === "kesz") {
     hangGomb();
     if (!dobTeli()) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "Előbb tedd mindenkit a helyére!"; mondd("Előbb tedd mindenkit a helyére!"); return; }
+    DOB.kez = null; DOB.cel = null;
     if (DOB.o.kesz) DOB.o.kesz(dobJoE(), dobAllas());
     return;
   }
-  if (t.classList.contains("dob-d")) {
-    hangGomb();
-    var r = +t.getAttribute("data-r"), id = t.getAttribute("data-id"), s = DOB.hely[r], j = s.indexOf(id);
-    if (j >= 0) s[j] = null;                                   /* felrakott → vissza a tálba */
-    else { var u = s.indexOf(null); if (u < 0) return; s[u] = id; }
-    $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
-    dobRajz();
-  }
+  var hely = ev.target.closest(".dob-h"), tal = ev.target.closest(".dob-tal");
+  if (hely) dobHelyKatt(+hely.getAttribute("data-r"), +hely.getAttribute("data-i"));
+  else if (t.classList.contains("dob-d")) dobTalKatt(+t.getAttribute("data-r"), t.getAttribute("data-id"));
+  else if (tal) {                                              /* a tál üres részére: a kézben lévőt visszateszi */
+    var K = DOB.kez;
+    if (K && K.honnan != null && K.r === +tal.getAttribute("data-r")) DOB.hely[K.r][K.honnan] = null;
+    DOB.kez = null;
+  } else return;
+  hangGomb();
+  $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
+  dobRajz();
 }
 /* ============ 3g) 📌 KOTOTT — „Ott kezdem, ahol csak egyféle lehet” — a szerszám-létra tartalma ============
    Tartalom: Matekos\szerszam-letrak-tartalom.html 3. pont (✅ döntések 2026-10-09; a 🖊️ mondatok lektorra várnak).
@@ -9627,28 +9695,6 @@ function szkZoldsegKep(z) { return '<svg class="szk-fej" viewBox="6 4 48 56" ari
 var SZK_SPORT = { "úszás": "🏊", "kosárlabda": "🏀", "kajak": "🛶", "tollaslabda": "🏸" };
 function szkSportKep(s) { return '<span class="szk-emo">' + SZK_SPORT[s] + '</span>'; }
 
-/* ── a jobb lap rajza: a mese helyszíne + a szereplők (a bevezető sorrendjében, NEM a megoldás szerint) ── */
-function szkJelenet(hely, szerep, nevek, extra) {
-  var bg = {
-    verseny: '<rect width="320" height="230" fill="#dff0d4"/><path d="M0,150 Q160,120 320,150 L320,230 L0,230 Z" fill="#b6dd9a"/><path d="M0,175 Q160,150 320,178" stroke="#fff" stroke-width="4" fill="none" stroke-dasharray="10 8"/>' +
-      '<g transform="translate(262,40)"><rect x="0" y="0" width="4" height="110" fill="#8a6a4a"/><g>' + [0, 1, 2, 3].map(function (i) { return [0, 1, 2, 3, 4].map(function (j) { return '<rect x="' + (4 + j * 8) + '" y="' + (i * 8) + '" width="8" height="8" fill="' + ((i + j) % 2 ? "#fff" : "#3b2f4a") + '"/>'; }).join(""); }).join("") + '</g></g>',
-    fagyi: '<rect width="320" height="230" fill="#fdf0e0"/><rect x="14" y="70" width="110" height="90" rx="8" fill="#fff" stroke="#e0a8c0" stroke-width="3"/><path d="M8,70 L130,70 L120,44 L18,44 Z" fill="#f6a5c0"/><path d="M18,44 L28,70 M38,44 L46,70 M58,44 L64,70 M78,44 L82,70 M98,44 L100,70" stroke="#fff" stroke-width="6"/>' +
-      '<g transform="translate(40,82)"><path d="M10,18 L18,44 L26,18 Z" fill="#e8b06a"/><circle cx="18" cy="14" r="10" fill="#c9a8e6"/><path d="M40,18 L48,44 L56,18 Z" fill="#e8b06a"/><circle cx="48" cy="14" r="10" fill="#a7d99a"/></g><rect y="200" width="320" height="30" fill="#efd9b8"/>',
-    polc: '<rect width="320" height="230" fill="#f6ead8"/><rect x="40" y="16" width="240" height="150" rx="6" fill="#c9905a" stroke="#8a5a32" stroke-width="3"/>' +
-      [0, 1, 2, 3].map(function (i) { return '<rect x="48" y="' + (26 + i * 36) + '" width="224" height="28" fill="#f0d9b5"/>'; }).join("") + '<rect y="196" width="320" height="34" fill="#d8b896"/><ellipse cx="160" cy="210" rx="140" ry="14" fill="#c9a8e6" opacity=".6"/>',
-    haz: '<rect width="320" height="230" fill="#dcecff"/><path d="M90,60 L160,14 L230,60 Z" fill="#e07a6a" stroke="#a84a3a" stroke-width="3"/><rect x="100" y="60" width="120" height="120" fill="#fff4dc" stroke="#c9a46a" stroke-width="3"/>' +
-      [0, 1, 2].map(function (i) { return '<rect x="116" y="' + (70 + i * 36) + '" width="22" height="20" fill="#9ec9f0" stroke="#6a8aa8" stroke-width="2"/><rect x="182" y="' + (70 + i * 36) + '" width="22" height="20" fill="#9ec9f0" stroke="#6a8aa8" stroke-width="2"/>'; }).join("") + '<rect y="180" width="320" height="50" fill="#b6dd9a"/>',
-    tal: '<rect width="320" height="230" fill="#fdf0e0"/><rect y="150" width="320" height="80" fill="#e8d2b0"/>' + [0, 1, 2, 3, 4].map(function (i) { return '<g transform="translate(' + (34 + i * 62) + ',190)"><ellipse rx="22" ry="8" fill="#9ec9f0" stroke="#4a7aa8" stroke-width="2"/><ellipse cy="-3" rx="16" ry="4" fill="#c98a4b"/></g>'; }).join(""),
-    tura: '<rect width="320" height="230" fill="#e6f3ff"/><path d="M0,140 L70,60 L130,130 L200,40 L320,150 L320,230 L0,230 Z" fill="#b6dd9a"/><path d="M200,40 L220,62 L180,62 Z" fill="#fff"/><rect y="190" width="320" height="40" fill="#9ccf7e"/>'
-  }[hely] || "";
-  var n = nevek.length, w = Math.min(70, 290 / n);
-  var fejek = nevek.map(function (nv, i) {
-    var x = 160 + (i - (n - 1) / 2) * (w + 4), y = hely === "polc" ? 172 : hely === "tal" ? 132 : 150;
-    return '<g transform="translate(' + (x - w / 2) + ',' + (y - w) + ')"><foreignObject width="' + w + '" height="' + (w + 22) + '"><div xmlns="http://www.w3.org/1999/xhtml" class="szk-szereplo">' + szkKep(szerep, nv) + '<span>' + nv + '</span></div></foreignObject></g>';
-  }).join("");
-  return '<svg class="op-rajz" viewBox="0 0 320 230" preserveAspectRatio="xMidYMid meet">' + bg + (extra || "") + fejek + '</svg>';
-}
-
 /* ── a négy mese-keret (tartalom-lap 3.1) ── */
 var SZK_KERET = {
   verseny: { hely: "verseny", szerep: "kutya", dob: "dobogo", nevek: ["Bodri", "Cézár", "Foltos", "Morzsa", "Pamacs", "Lurkó"],
@@ -9703,9 +9749,10 @@ function szkGeneral(o) {
     var e = o.veg != null ? (o.veg ? n - 1 : 0) : veletlen(0, 1) * (n - 1), f = n - 1 - e;
     var D = N[0], C = N[1], A = N[2], B = N[3];
     var sol, felt = [], mon = [];
-    var kotott = { t: e === 0 ? "elso" : "utolso", x: D }, csali = { t: f === 0 ? "nemElso" : "nemUtolso", x: C };
+    /* rend: a gondolatmenet sorrendje (a hibajelzés ebben keres): kötött → (viszonyító) → csali */
+    var kotott = { t: e === 0 ? "elso" : "utolso", x: D, rend: 0 }, csali = { t: f === 0 ? "nemElso" : "nemUtolso", x: C, rend: n === 3 ? 1 : 2 };
     if (n === 3) { sol = e === 0 ? [D, C, A] : [A, C, D]; felt = [csali, kotott]; }
-    else { var kozv = { t: "kozv", x: A, y: B }; sol = e === 0 ? [D, C, A, B] : [A, B, C, D]; felt = [kozv, csali, kotott]; }
+    else { var kozv = { t: "kozv", x: A, y: B, rend: 1 }; sol = e === 0 ? [D, C, A, B] : [A, B, C, D]; felt = [kozv, csali, kotott]; }
     if (szkMegoldasDb(N, felt) !== 1 || !felt.every(function (c) { return szkIgaz(c, sol); })) continue;
     var bevL = mKever(N);                                       /* a bevezető NEM a megoldás sorrendjében sorolja őket */
     mon.push({ s: K.bev[n - 3].replace("{L}", szkLista(bevL)) });
@@ -9740,10 +9787,10 @@ var SZK_MESTER = [
     nevek: ["Berci", "Luna", "Néró", "Panka", "Szellem"], jo: ["Luna", "Panka", "Berci", "Néró", "Szellem"],
     mon: [{ s: "Az öt kutyámat: Bercit (B), Lunát (L), Nérót (N), Pankát (P) és Szellemet (Sz) vacsorázni hívtam." },
           { s: "Táljaikhoz egymás után értek oda úgy, hogy Bercit két kutya előzte meg, Szellem és Néró Panka után érkezett, de Panka nem lett első, Néró pedig nem lett utolsó.",
-            ok: [["Bercit két kutya előzte meg", "Berci", function (A) { return A.hol("Berci") === 2; }],
-                 ["Szellem és Néró Panka után érkezett", "Panka", function (A) { return A.hol("Szellem") > A.hol("Panka") && A.hol("Néró") > A.hol("Panka"); }],
-                 ["Panka nem lett első", "Panka", function (A) { return A.hol("Panka") !== 0; }],
-                 ["Néró pedig nem lett utolsó", "Néró", function (A) { return A.hol("Néró") !== 4; }]] }],
+            ok: [["Bercit két kutya előzte meg", "Berci", function (A) { return A.hol("Berci") === 2; }, 0],
+                 ["Szellem és Néró Panka után érkezett", "Panka", function (A) { return A.hol("Szellem") > A.hol("Panka") && A.hol("Néró") > A.hol("Panka"); }, 2],
+                 ["Panka nem lett első", "Panka", function (A) { return A.hol("Panka") !== 0; }, 1],
+                 ["Néró pedig nem lett utolsó", "Néró", function (A) { return A.hol("Néró") !== 4; }, 3]] }],
     kerdes: "Milyen sorrendben értek táljaikhoz a kutyák?",
     vissza: "Itt is Berci helye a biztos. Kezdd vele!",
     lep: [{ t: "Bercit két kutya előzte meg: ő a harmadik.", tesz: [[0, 2, "Berci"]] },
@@ -9753,15 +9800,15 @@ var SZK_MESTER = [
     kicsik: [
       { nevek: ["Berci", "Luna", "Panka"], jo: ["Luna", "Berci", "Panka"],
         mon: [{ s: "A három kutyámat: Bercit, Lunát és Pankát vacsorázni hívtam." },
-              { s: "Bercit egy kutya előzte meg.", ki: "Berci", ok1: function (A) { return A.hol("Berci") === 1; } },
-              { s: "Panka nem lett első.", ki: "Panka", ok1: function (A) { return A.hol("Panka") !== 0; } }],
+              { s: "Bercit egy kutya előzte meg.", ki: "Berci", rend: 0, ok1: function (A) { return A.hol("Berci") === 1; } },
+              { s: "Panka nem lett első.", ki: "Panka", rend: 1, ok1: function (A) { return A.hol("Panka") !== 0; } }],
         kerdes: "Milyen sorrendben értek táljaikhoz a kutyák?",
         lep: [{ t: "Bercit egy kutya előzte meg: ő a második.", tesz: [[0, 1, "Berci"]] }, { t: "Panka nem lett első, tehát ő a harmadik.", tesz: [[0, 2, "Panka"]] }, { t: "Luna maradt: ő az első.", tesz: [[0, 0, "Luna"]] }] },
       { nevek: ["Berci", "Luna", "Néró", "Panka"], jo: ["Luna", "Panka", "Berci", "Néró"],
         mon: [{ s: "A négy kutyámat: Bercit, Lunát, Nérót és Pankát vacsorázni hívtam." },
-              { s: "Bercit két kutya előzte meg.", ki: "Berci", ok1: function (A) { return A.hol("Berci") === 2; } },
-              { s: "Néró Panka után érkezett.", ki: "Néró", ok1: function (A) { return A.hol("Néró") > A.hol("Panka"); } },
-              { s: "Panka nem lett első.", ki: "Panka", ok1: function (A) { return A.hol("Panka") !== 0; } }],
+              { s: "Bercit két kutya előzte meg.", ki: "Berci", rend: 0, ok1: function (A) { return A.hol("Berci") === 2; } },
+              { s: "Néró Panka után érkezett.", ki: "Néró", rend: 2, ok1: function (A) { return A.hol("Néró") > A.hol("Panka"); } },
+              { s: "Panka nem lett első.", ki: "Panka", rend: 1, ok1: function (A) { return A.hol("Panka") !== 0; } }],
         kerdes: "Milyen sorrendben értek táljaikhoz a kutyák?",
         lep: [{ t: "Bercit két kutya előzte meg: ő a harmadik.", tesz: [[0, 2, "Berci"]] }, { t: "Panka nem lett első, és Néró utána jött: Panka a második.", tesz: [[0, 1, "Panka"]] },
               { t: "Néró Panka után jött: ő a negyedik. Luna az első.", tesz: [[0, 3, "Néró"], [0, 0, "Luna"]] }] }] },
@@ -9771,30 +9818,30 @@ var SZK_MESTER = [
     nevek: ["Bodri", "Cézár", "Kormos", "Foltos", "Tappancs"], jo: ["Cézár", "Kormos", "Bodri", "Tappancs", "Foltos"],
     mon: [{ s: "Az agárverseny döntőjében öt kutya állt rajthoz: Bodri, Cézár, Kormos, Foltos és Tappancs." },
           { s: "Kormos nem nyert, de gyorsabb volt Tappancsnál és Bodrinál.",
-            ok: [["Kormos nem nyert", "Kormos", function (A) { return A.hol("Kormos") !== 0; }],
-                 ["gyorsabb volt Tappancsnál és Bodrinál", "Kormos", function (A) { return A.hol("Kormos") < A.hol("Tappancs") && A.hol("Kormos") < A.hol("Bodri"); }]] },
-          { s: "Bodri nem lett utolsó.", ki: "Bodri", ok1: function (A) { return A.hol("Bodri") !== 4; } },
-          { s: "Tappancs közvetlenül Foltos előtt ért célba.", ki: "Tappancs", ok1: function (A) { return A.hol("Tappancs") === A.hol("Foltos") - 1; } }],
+            ok: [["Kormos nem nyert", "Kormos", function (A) { return A.hol("Kormos") !== 0; }, 0],
+                 ["gyorsabb volt Tappancsnál és Bodrinál", "Kormos", function (A) { return A.hol("Kormos") < A.hol("Tappancs") && A.hol("Kormos") < A.hol("Bodri"); }, 0]] },
+          { s: "Bodri nem lett utolsó.", ki: "Bodri", rend: 2, ok1: function (A) { return A.hol("Bodri") !== 4; } },
+          { s: "Tappancs közvetlenül Foltos előtt ért célba.", ki: "Tappancs", rend: 1, ok1: function (A) { return A.hol("Tappancs") === A.hol("Foltos") - 1; } }],
     kerdes: "Milyen sorrendben érkeztek be a kutyák a célba, ha nem volt holtverseny? Válaszodat indokold!",
-    indok: "Kormos nem nyert, és Tappancs, Bodri meg Foltos is mögötte van, ezért csak Cézár nyerhetett. Kormos lett a második. Tappancs és Foltos egymás után jött, Bodri pedig nem lett utolsó, ezért Bodri a harmadik, Tappancs a negyedik, Foltos az ötödik.",
+    indok: "Tappancs, Bodri és Foltos is Kormos mögött van, Kormos pedig nem nyert: így Kormos lett a második, és csak Cézár nyerhetett. Tappancs és Foltos egymás után jött, Bodri pedig nem lett utolsó, ezért Bodri a harmadik, Tappancs a negyedik, Foltos az ötödik.",
     vissza: "Most is Kormosról tudunk a legtöbbet.",
-    lep: [{ t: "Kormos nem nyert, de Tappancs és Bodri is mögötte van. Foltos pedig Tappancs mögött jön. Így az első csak Cézár lehet.", tesz: [[0, 0, "Cézár"]] },
-          { t: "Kormos mindenki más előtt van: ő a második.", tesz: [[0, 1, "Kormos"]] },
+    lep: [{ t: "Kormos mögött ott van Tappancs és Bodri, és Foltos is, mert ő Tappancs után jön. Kormos nem nyert. Így Kormos a második.", tesz: [[0, 1, "Kormos"]] },
+          { t: "Kormos előtt csak egy kutya lehet, és az nem Tappancs, Bodri vagy Foltos: Cézár nyert.", tesz: [[0, 0, "Cézár"]] },
           { t: "Tappancs és Foltos egymás után jön, Bodri pedig nem utolsó: Bodri a harmadik.", tesz: [[0, 2, "Bodri"]] },
           { t: "Tappancs a negyedik, közvetlenül utána Foltos az ötödik.", tesz: [[0, 3, "Tappancs"], [0, 4, "Foltos"]] }],
     kicsik: [
       { nevek: ["Bodri", "Kormos", "Tappancs"], jo: ["Bodri", "Kormos", "Tappancs"],
         mon: [{ s: "Az agárverseny döntőjében három kutya állt rajthoz: Bodri, Kormos és Tappancs." },
-              { s: "Kormos nem nyert, de gyorsabb volt Tappancsnál.", ki: "Kormos", ok1: function (A) { return A.hol("Kormos") !== 0 && A.hol("Kormos") < A.hol("Tappancs"); } }],
+              { s: "Kormos nem nyert, de gyorsabb volt Tappancsnál.", ki: "Kormos", rend: 0, ok1: function (A) { return A.hol("Kormos") !== 0 && A.hol("Kormos") < A.hol("Tappancs"); } }],
         kerdes: "Milyen sorrendben érkeztek be a kutyák a célba?",
         lep: [{ t: "Kormos nem nyert, de Tappancs mögötte van: Kormos a második, Tappancs a harmadik.", tesz: [[0, 1, "Kormos"], [0, 2, "Tappancs"]] }, { t: "Bodri maradt: ő nyert.", tesz: [[0, 0, "Bodri"]] }] },
       { nevek: ["Bodri", "Kormos", "Foltos", "Tappancs"], jo: ["Bodri", "Kormos", "Tappancs", "Foltos"],
         mon: [{ s: "Az agárverseny döntőjében négy kutya állt rajthoz: Bodri, Kormos, Foltos és Tappancs." },
-              { s: "Kormos nem nyert, de gyorsabb volt Tappancsnál.", ki: "Kormos", ok1: function (A) { return A.hol("Kormos") !== 0 && A.hol("Kormos") < A.hol("Tappancs"); } },
-              { s: "Bodri nem lett utolsó.", ki: "Bodri", ok1: function (A) { return A.hol("Bodri") !== 3; } },
-              { s: "Tappancs közvetlenül Foltos előtt ért célba.", ki: "Tappancs", ok1: function (A) { return A.hol("Tappancs") === A.hol("Foltos") - 1; } }],
+              { s: "Kormos nem nyert, de gyorsabb volt Tappancsnál.", ki: "Kormos", rend: 0, ok1: function (A) { return A.hol("Kormos") !== 0 && A.hol("Kormos") < A.hol("Tappancs"); } },
+              { s: "Bodri nem lett utolsó.", ki: "Bodri", rend: 2, ok1: function (A) { return A.hol("Bodri") !== 3; } },
+              { s: "Tappancs közvetlenül Foltos előtt ért célba.", ki: "Tappancs", rend: 1, ok1: function (A) { return A.hol("Tappancs") === A.hol("Foltos") - 1; } }],
         kerdes: "Milyen sorrendben érkeztek be a kutyák a célba?",
-        lep: [{ t: "Kormos nem nyert, Tappancs és Foltos pedig mögötte van: így Bodri nyert.", tesz: [[0, 0, "Bodri"]] }, { t: "Kormos a második.", tesz: [[0, 1, "Kormos"]] },
+        lep: [{ t: "Tappancs és Foltos is Kormos mögött van, Kormos pedig nem nyert: így Kormos a második.", tesz: [[0, 1, "Kormos"]] }, { t: "Kormos előtt csak Bodri lehet: Bodri nyert.", tesz: [[0, 0, "Bodri"]] },
               { t: "Tappancs közvetlenül Foltos előtt: Tappancs a harmadik, Foltos a negyedik.", tesz: [[0, 2, "Tappancs"], [0, 3, "Foltos"]] }] }] },
 
   { id: "kalmar-2023-3-M-5", cim: "Szendvics a túrán", forras: "Kalmár 2023 / 3. o. megyei 5.",
@@ -9805,12 +9852,12 @@ var SZK_MESTER = [
     mon: [{ s: "Anna, Berci, Cili és Dani túrázni indultak, az útra mindenki szendvicset készített magának." },
           { s: "Mindegyikük egyféle zöldséget evett a szendvicséhez a paprika, retek, uborka és zöldhagyma közül, és nem volt két gyerek, aki ugyanolyan zöldséget evett volna." },
           { s: "A gyerekek magassága 134 cm, 144 cm, 146 cm és 156 cm." },
-          { s: "Tudjuk, hogy Berci uborkát eszik a szendvicséhez.", ki: "Berci", ok1: function (A) { return A.attr("Berci") === "uborka"; } },
-          { s: "Aki paprikát eszik, az 10 centiméterrel magasabb Daninál.", ok1: function (A) { var H = [134, 144, 146, 156], k = A.kie("paprika"); return k != null && H[A.hol(k)] === H[A.hol("Dani")] + 10; } },
-          { s: "Dani nem szereti a zöldhagymát.", ki: "Dani", ok1: function (A) { return A.attr("Dani") !== "zöldhagyma"; } },
-          { s: "Anna 146 cm magas.", ki: "Anna", ok1: function (A) { return A.hol("Anna") === 2; } }],
+          { s: "Tudjuk, hogy Berci uborkát eszik a szendvicséhez.", ki: "Berci", rend: 2, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
+          { s: "Aki paprikát eszik, az 10 centiméterrel magasabb Daninál.", rend: 1, ok1: function (A) { var H = [134, 144, 146, 156], k = A.kie("paprika"); return k != null && H[A.hol(k)] === H[A.hol("Dani")] + 10; } },
+          { s: "Dani nem szereti a zöldhagymát.", ki: "Dani", rend: 3, ok1: function (A) { return A.attr("Dani") !== "zöldhagyma"; } },
+          { s: "Anna 146 cm magas.", ki: "Anna", rend: 0, ok1: function (A) { return A.hol("Anna") === 2; } }],
     kerdes: "Írd be a táblázatba, ki melyik zöldséget ette a szendvicséhez, és milyen magas?",
-    vissza: "Most is Daniról tudsz a legtöbbet.",
+    vissza: "Most is kezdd azzal, amit biztosan tudsz: Anna magasságával.",
     lep: [{ t: "Anna 146 cm magas: őt tesszük a 146 centis oszlopba.", tesz: [[0, 2, "Anna"]] },
           { t: "A paprikás gyerek 10 centivel magasabb Daninál. Csak a 134 és a 144 között van ennyi, ezért Dani 134 cm, a paprikás gyerek pedig 144 cm magas.", tesz: [[0, 0, "Dani"], [1, 1, "paprika"]] },
           { t: "Berci uborkát eszik, így nem ő a paprikás: Berci a legmagasabb, Cili eszi a paprikát.", tesz: [[0, 3, "Berci"], [0, 1, "Cili"], [1, 3, "uborka"]] },
@@ -9820,8 +9867,8 @@ var SZK_MESTER = [
         dob: { keret: "tabla", fejNevek: true }, jo: ["Anna", "Berci", "Dani"], joAttr: ["paprika", "uborka", "retek"],
         mon: [{ s: "Anna, Berci és Dani túrázni indultak." },
               { s: "Mindegyikük más zöldséget evett a szendvicséhez: paprikát, retket vagy uborkát." },
-              { s: "Berci uborkát eszik.", ki: "Berci", ok1: function (A) { return A.attr("Berci") === "uborka"; } },
-              { s: "Dani nem szereti a paprikát.", ki: "Dani", ok1: function (A) { return A.attr("Dani") !== "paprika"; } }],
+              { s: "Berci uborkát eszik.", ki: "Berci", rend: 0, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
+              { s: "Dani nem szereti a paprikát.", ki: "Dani", rend: 1, ok1: function (A) { return A.attr("Dani") !== "paprika"; } }],
         kerdes: "Ki melyik zöldséget ette?",
         lep: [{ t: "Berci uborkát eszik.", tesz: [[1, 1, "uborka"]] }, { t: "Dani nem szereti a paprikát, ezért ő a retket eszi.", tesz: [[1, 2, "retek"]] }, { t: "Annának marad a paprika.", tesz: [[1, 0, "paprika"]] }] },
       { nevek: ["Anna", "Berci", "Dani"], attr: ["paprika", "retek", "uborka"],
@@ -9829,9 +9876,9 @@ var SZK_MESTER = [
         mon: [{ s: "Anna, Berci és Dani túrázni indultak." },
               { s: "Mindegyikük más zöldséget evett a szendvicséhez: paprikát, retket vagy uborkát." },
               { s: "A gyerekek magassága 130 cm, 135 cm és 140 cm." },
-              { s: "Berci uborkát eszik.", ki: "Berci", ok1: function (A) { return A.attr("Berci") === "uborka"; } },
-              { s: "Aki paprikát eszik, az 5 centiméterrel magasabb Daninál.", ok1: function (A) { var k = A.kie("paprika"); return k != null && A.hol(k) === A.hol("Dani") + 1; } },
-              { s: "Anna 140 cm magas.", ki: "Anna", ok1: function (A) { return A.hol("Anna") === 2; } }],
+              { s: "Berci uborkát eszik.", ki: "Berci", rend: 1, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
+              { s: "Aki paprikát eszik, az 5 centiméterrel magasabb Daninál.", rend: 2, ok1: function (A) { var k = A.kie("paprika"); return k != null && A.hol(k) === A.hol("Dani") + 1; } },
+              { s: "Anna 140 cm magas.", ki: "Anna", rend: 0, ok1: function (A) { return A.hol("Anna") === 2; } }],
         kerdes: "Ki melyik zöldséget ette, és milyen magas?",
         lep: [{ t: "Anna 140 cm magas.", tesz: [[0, 2, "Anna"]] }, { t: "Berci uborkát eszik, így nem ő a paprikás. Ha Dani 130 centis lenne, Berci lenne a paprikás, ezért Dani 135 cm, Berci 130 cm.", tesz: [[0, 1, "Dani"], [0, 0, "Berci"], [1, 0, "uborka"]] },
               { t: "A paprikás 5 centivel magasabb Daninál: ő Anna. Daninak marad a retek.", tesz: [[1, 2, "paprika"], [1, 1, "retek"]] }] }] },
@@ -9843,11 +9890,11 @@ var SZK_MESTER = [
     jo: ["Csaba", "Gábor", "Dávid", "András"], joAttr: ["tollaslabda", "úszás", "kosárlabda", "kajak"],
     mon: [{ s: "Négy barát, András, Gábor, Dávid és Csaba egy négyemeletes ház négy különböző emeletén lakik." },
           { s: "Mind a négyen sportolnak, egyikük úszik, másik kosárlabdázik, harmadik kajakozik, negyedik tollaslabdázik." },
-          { s: "A kosárlabdázó, az úszó és Csaba, mindhárman András alatt laknak.", ki: "András",
+          { s: "A kosárlabdázó, az úszó és Csaba, mindhárman András alatt laknak.", ki: "András", rend: 0,
             ok1: function (A) { var a = A.hol("András"), k = A.kie("kosárlabda"), u = A.kie("úszás"); return k !== "Csaba" && u !== "Csaba" && A.hol(k) < a && A.hol(u) < a && A.hol("Csaba") < a; } },
           { s: "Az úszónak egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot, és egy emeletet le, ha a tollaslabdázót szeretné felkeresni.",
-            ok: [["egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot", "Dávid", function (A) { var u = A.kie("úszás"); return A.hol("Dávid") === A.hol(u) + 1; }],
-                 ["egy emeletet le, ha a tollaslabdázót szeretné felkeresni", null, function (A) { var u = A.kie("úszás"), t = A.kie("tollaslabda"); return A.hol(t) === A.hol(u) - 1; }]] }],
+            ok: [["egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot", "Dávid", function (A) { var u = A.kie("úszás"); return A.hol("Dávid") === A.hol(u) + 1; }, 1],
+                 ["egy emeletet le, ha a tollaslabdázót szeretné felkeresni", null, function (A) { var u = A.kie("úszás"), t = A.kie("tollaslabda"); return A.hol(t) === A.hol(u) - 1; }, 1]] }],
     kerdes: "Ki mit sportol, és hányadik emeleten lakik?",
     vissza: "Most is Andrással kezdd: hányan laknak alatta?",
     lep: [{ t: "A kosárlabdázó, az úszó és Csaba három különböző gyerek, és mind András alatt lakik. Így András lakik legfelül, a negyedik emeleten.", tesz: [[0, 3, "András"]] },
@@ -9858,17 +9905,17 @@ var SZK_MESTER = [
     kicsik: [
       { nevek: ["András", "Gábor", "Csaba"], dob: { keret: "haz" }, jo: ["Gábor", "Csaba", "András"],
         mon: [{ s: "Három barát, András, Gábor és Csaba egy háromemeletes ház három különböző emeletén lakik." },
-              { s: "Gábor és Csaba is András alatt lakik.", ki: "András", ok1: function (A) { return A.hol("András") === 2; } },
-              { s: "Csaba nem a legalsó emeleten lakik.", ki: "Csaba", ok1: function (A) { return A.hol("Csaba") !== 0; } }],
+              { s: "Gábor és Csaba is András alatt lakik.", ki: "András", rend: 0, ok1: function (A) { return A.hol("András") === 2; } },
+              { s: "Csaba nem a legalsó emeleten lakik.", ki: "Csaba", rend: 1, ok1: function (A) { return A.hol("Csaba") !== 0; } }],
         kerdes: "Ki hányadik emeleten lakik?",
         lep: [{ t: "Gábor és Csaba is András alatt lakik: András lakik legfelül.", tesz: [[0, 2, "András"]] }, { t: "Csaba nem a legalsó emeleten lakik: ő a második emeleten van.", tesz: [[0, 1, "Csaba"]] }, { t: "Gábor maradt: ő lakik a legalsó emeleten.", tesz: [[0, 0, "Gábor"]] }] },
       { nevek: ["András", "Gábor", "Csaba"], attr: ["úszás", "kosárlabda", "kajak"], dob: { keret: "haz2" },
         jo: ["Gábor", "Csaba", "András"], joAttr: ["úszás", "kosárlabda", "kajak"],
         mon: [{ s: "Három barát, András, Gábor és Csaba egy háromemeletes ház három különböző emeletén lakik." },
               { s: "Egyikük úszik, másik kosárlabdázik, harmadik kajakozik." },
-              { s: "Az úszó és Csaba is András alatt lakik.", ki: "András", ok1: function (A) { var u = A.kie("úszás"); return u !== "Csaba" && A.hol("András") === 2; } },
-              { s: "Az úszónak egy emeletet kell felmenni, ha meg akarja látogatni Csabát.", ok1: function (A) { var u = A.kie("úszás"); return A.hol("Csaba") === A.hol(u) + 1; } },
-              { s: "Csaba kosárlabdázik.", ki: "Csaba", ok1: function (A) { return A.attr("Csaba") === "kosárlabda"; } }],
+              { s: "Az úszó és Csaba is András alatt lakik.", ki: "András", rend: 0, ok1: function (A) { var u = A.kie("úszás"); return u !== "Csaba" && A.hol("András") === 2; } },
+              { s: "Az úszónak egy emeletet kell felmenni, ha meg akarja látogatni Csabát.", rend: 2, ok1: function (A) { var u = A.kie("úszás"); return A.hol("Csaba") === A.hol(u) + 1; } },
+              { s: "Csaba kosárlabdázik.", ki: "Csaba", rend: 1, ok1: function (A) { return A.attr("Csaba") === "kosárlabda"; } }],
         kerdes: "Ki mit sportol, és hányadik emeleten lakik?",
         lep: [{ t: "Az úszó és Csaba is András alatt lakik: András legfelül lakik.", tesz: [[0, 2, "András"]] }, { t: "Csaba kosárlabdázik, így Gábor az úszó, és Andrásnak marad a kajak.", tesz: [[1, 2, "kajak"]] },
               { t: "Gábor egy emelettel Csaba alatt lakik: Gábor a legalsó, Csaba a második emeleten.", tesz: [[0, 0, "Gábor"], [1, 0, "úszás"], [0, 1, "Csaba"], [1, 1, "kosárlabda"]] }] }] }
@@ -9877,11 +9924,11 @@ function szkMester(id) { for (var i = 0; i < SZK_MESTER.length; i++) if (SZK_MES
 
 /* egy kézzel írt feladat (Mesterpróba vagy testvére) → mondatok, dobogó, ellenőrzők */
 function szkKezi(M, szulo) {
-  var hely = szulo ? szulo.hely : M.hely, szerep = szulo ? szulo.szerep : M.szerep, dobO = M.dob || szulo.dob, ket = !!M.attr;
+  var szerep = szulo ? szulo.szerep : M.szerep, dobO = M.dob || szulo.dob, ket = !!M.attr;
   var mon = [], i;
   M.mon.forEach(function (m) {
-    if (m.ok) m.ok.forEach(function (o) { mon.push({ s: m.s, resz: o[0], ki: o[1], f: o[2] }); });
-    else mon.push({ s: m.s, ki: m.ki, f: m.ok1 || null });
+    if (m.ok) m.ok.forEach(function (o) { mon.push({ s: m.s, resz: o[0], ki: o[1], f: o[2], rend: o[3] }); });
+    else mon.push({ s: m.s, ki: m.ki, f: m.ok1 || null, rend: m.rend });
   });
   var tokNev = function (nv) { return { id: nv, nev: nv, kep: szkKep(szerep, nv) }; };
   var tokAttr = function (a) { return { id: a, nev: a, kep: SZK_ZOLDSEG[a] ? szkZoldsegKep(a) : szkSportKep(a) }; };
@@ -9903,8 +9950,7 @@ function szkKezi(M, szulo) {
   var tesz = function (L) { return L.map(function (t) { return M.csakAttr ? [0, t[1], t[2]] : t; }); };
   var joKiir = M.csakAttr ? M.nevek.map(function (nv, j) { return nv + ": " + M.joAttr[j]; }).join(" · ")
     : ket ? M.jo.map(function (nv, j) { return nv + " " + (D.cimkek ? D.cimkek[j] : (j + 1) + ".") + " " + M.joAttr[j]; }).join(" · ") : M.jo.join(" – ");
-  return { mon: mon, kerdes: M.kerdes, dob: D, nezet: nezet, lep: M.lep.map(function (l) { return { t: l.t, tesz: tesz(l.tesz) }; }), joKiir: joKiir,
-    rajz: szkJelenet(hely, szerep, M.nevek), nevek: M.nevek };
+  return { mon: mon, kerdes: M.kerdes, dob: D, nezet: nezet, lep: M.lep.map(function (l) { return { t: l.t, tesz: tesz(l.tesz) }; }), joKiir: joKiir, nevek: M.nevek };
 }
 
 /* ── a 📌 polc tartalma a szerszám-pályának (szerszam-palya.js SZ_TARTALOM) ── */
@@ -9939,14 +9985,14 @@ var SZK_TART = {
 function szkFeladatGen(g, fok) {
   return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.K.tobb[g.n - 3],
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
-    mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
+    mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
     kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, joKiir: g.sol.join(" – "),
-    rajz: szkJelenet(g.K.hely, g.K.szerep, g.bevL), mitKerdez: "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
+    mitKerdez: "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
 }
 function szkFeladatKezi(M, fok, szulo) {
   var k = szkKezi(M, szulo);
   return { forma: "dobogo", fok: fok, mester: fok === "mester", fid: M.id || (szulo ? szulo.id + "-kicsi" : ""), keret: (szulo || M).hely, nevek: k.nevek,
-    tobb: M.tobb, vissza: M.vissza, indok: M.indok || "", mon: k.mon, kerdes: k.kerdes, dob: k.dob, nezet: k.nezet, lep: k.lep, joKiir: k.joKiir, rajz: k.rajz,
+    tobb: M.tobb, vissza: M.vissza, indok: M.indok || "", mon: k.mon, kerdes: k.kerdes, dob: k.dob, nezet: k.nezet, lep: k.lep, joKiir: k.joKiir,
     mitKerdez: M.attr || (szulo && szulo.attr) ? "Azt kérdezik, ki hol van, és kihez mi tartozik. Tedd mindenkit a helyére!" : "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
 }
 /* ============ 6p) 🧰 SZERSZÁM-PÁLYA — egy létra-fok lefutása: olvasópult + válaszforma + 🛗 lift + végigvezetés ============
@@ -9977,10 +10023,13 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   var lista = [], felt = [];
   f.mon.forEach(function (m) {
     if (!lista.length || lista[lista.length - 1] !== m.s) lista.push(m.s);
-    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f });
+    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f, rend: m.rend != null ? m.rend : 99, sor: felt.length });
   });
+  /* a hibajelzés a GONDOLATMENET sorrendjében keres (a kötött mondat az első), nem a szöveg sorrendjében
+     (dobogó-javítás 3/1: a Tekercsben a kötött mondat szándékosan a végén van) */
+  felt.sort(function (a, b) { return a.rend - b.rend || a.sor - b.sor; });
   f.sz = sz; f.szerep = szerep; f.csalad = "dobogo"; f.helyes = 1; f.lanc = null; f.felt = felt;
-  f.op = { mondatok: lista, kerdes: f.kerdes, rajz: f.rajz };
+  f.op = { mondatok: lista, kerdes: f.kerdes, rajz: "" };       /* a jobb lapra maga a kirakó kerül (dobogo.js) */
   if (szerep === "kicsi") { f.nagy = nagy; f.op.fuzet = { mondatok: lista, kerdes: f.kerdes }; f.op.mondatok = nagy.op.mondatok; f.op.kerdes = nagy.op.kerdes; }
   f.kartyaHTML = opKonyv(f.op);
   f.szoveg = f.kerdes; f.felolvas = ekKiejt(lista.concat([f.kerdes]).join(" "));
@@ -9998,8 +10047,8 @@ function szKicsi(nagy) {
 /* ── megjelenítés (a feladatMutat hívja, miután a könyv a buborékba került) ── */
 function szMutat(f) {
   opMod(true);
+  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
-  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
   opFelolvas(f);
