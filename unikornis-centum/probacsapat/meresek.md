@@ -14,3 +14,14 @@ Tanulság (1. próba): egy agent ~85–120 e token — a becsült 300–800 e-n�
 A gyerek-játékosok találtak olyat, amit a hibavadász nem (első-betöltéses térkép-összeomlás, beíró-mező fókusz)
 → a gyerek-játékosok MARADNAK. Hibák a folyamatban: a hibavadász egyszer más fülére küldött billentyűt
 (→ `kozos-szabalyok.md`: minden hívásnál tabId); a lektor nem kapott fület (tab cap → README).
+
+| 2026-10-10 | Régi építőkockák (2. próba) | 🔴 | Dani | sonnet | 272 974 | 1693 s (435 hívás, 2 Mesekönyv végig + Tekercsek) |
+| 2026-10-10 | Régi építőkockák (2. próba) | 🔴 | Bence | sonnet | 239 242 | 1188 s (326 hívás) |
+| 2026-10-10 | Régi építőkockák (2. próba) | 🔴 | hibavadász | sonnet | ≈ 223 000 + megszakadt 1. futás | API-korlát miatt megállt, folytatva; mobile mérés elveszett |
+| 2026-10-10 | Régi építőkockák (2. próba) | 🔴 | ördögügyvéd | opus | 156 393 | 240 s (csak olvasás) |
+| | **2. próba összesen (4 agent)** | 🔴 | | | **≈ 900 000+** | ~30 perc |
+
+Tanulság (2. próba): a régi kockák 29–43 feladatos pályák → a gyerek-agentek végigjátszották (a Tekercs nyitásáért),
+ezért kétszer annyiba kerültek, mint a Bújócskán. Legközelebb: a zárt pályát a feladatlap nyissa ki előre (mentésbe írva),
+és „legfeljebb N feladat” határ. A hibavadász az 5. agent-kör alatt a session-korlátba futott → nagy próbát ne indíts
+kevés maradék kerettel. A lefagyott/leállt 8814-es szerver a mobile mérést vitte el.
