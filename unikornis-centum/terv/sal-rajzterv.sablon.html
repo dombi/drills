@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sál rajzterv</title>
+<style>
+  :root{ --bg:#fdf4fb; --panel:#fff; --ink:#2a2140; --muted:#6b6280; --pink:#e0417a; --pink-soft:#ffd6ea;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3df; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2220; } }
+  :root[data-theme="dark"]{ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2220; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:24px 16px 70px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--violet),var(--pink));color:#fff;border-radius:22px;padding:24px 26px;box-shadow:0 12px 30px rgba(138,79,208,.28)}
+  header.top h1{margin:0 0 6px;font-size:27px} header.top .sub{opacity:.95;max-width:720px}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600;margin:10px 6px 0 0}
+  h2{font-size:20px;margin:34px 0 10px;padding-left:12px;border-left:6px solid var(--pink)}
+  .lead{color:var(--muted);margin:4px 0 12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .valt{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:16px}
+  .valt.most{border:2px dashed var(--red);background:var(--red-soft)}
+  .valt.javasolt{border:2px solid var(--green)}
+  .valt h3{margin:0 0 2px;font-size:18px} .valt .mit{color:var(--muted);margin:0 0 8px;font-size:14.5px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;margin-left:6px;vertical-align:2px}
+  .badge.j{background:var(--green);color:#fff} .badge.r{background:var(--red);color:#fff}
+  .sor{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:8px}
+  .sor figure{margin:0;background:#f3fbff;border-radius:12px;padding:4px;text-align:center}
+  .sor figure svg{width:100%;height:auto;display:block}
+  .sor figcaption{font-size:12.5px;color:#556}
+  .harom{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .harom figure{margin:0;background:#f3fbff;border-radius:12px;padding:4px;text-align:center}
+  .harom svg{width:100%;height:auto;display:block}
+  .harom figcaption{font-size:12.5px;color:#556}
+  .kicsi{display:flex;gap:10px;align-items:flex-end;margin-top:8px;flex-wrap:wrap}
+  .kicsi figure{margin:0;background:#f3fbff;border-radius:10px;padding:4px 6px;text-align:center}
+  .kicsi figcaption{font-size:12px;color:#556}
+  ul.pro{margin:8px 0 0;padding-left:20px;font-size:14.5px} ul.pro li{margin:2px 0}
+  .dontes{border-left:6px solid var(--violet);background:var(--violet-soft);border-radius:12px;padding:12px 16px}
+  table{border-collapse:collapse;width:100%;font-size:14.5px} td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  @media (max-width:700px){ .sor{grid-template-columns:1fr 1fr} .harom{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>🧣 Szivárvány-sál — rajzterv</h1>
+  <div class="sub">Lili jelezte: „fura a sál, olyan, mintha szakáll lenne.” Itt a mostani sál és 3 új változat, a játék <b>valódi</b> unikornis-rajzával (oldalról, szemből, hátulról, kicsiben).</div>
+  <span class="chip">csak rajz — a játék nem változik</span><span class="chip">1 dísz · 3 nézet · 3 unikornis</span>
+</header>
+
+<h2>Mi a baj a mostanival?</h2>
+<div class="panel">
+  <ol style="margin:0;padding-left:20px">
+    <li><b>Rossz helyen van:</b> a sál a fej <i>alsó szélére</i> kerül, a száj alá — oda, ahol a szakáll nőne.</li>
+    <li><b>Rossz alakú:</b> középen egy lefelé keskenyedő háromszög lóg — pont olyan, mint egy kecskeszakáll.</li>
+    <li><b>Rossz rétegben van:</b> a fej <i>fölé</i> rajzolódik, ezért nem látszik, hogy a nyakat körbeöleli. Egy igazi sálat a fej eltakar fölül.</li>
+    <li><b>Nincs „sál-jele”:</b> nincs rojt, nincs tekeredés, nincs kötött csík — semmi, amiről egy gyerek ránézésre sálnak ismeri.</li>
+  </ol>
+</div>
+
+<h2>A változatok</h2>
+<p class="lead">Mind a hármat a fej <b>alá</b> rajzolom (a fej eltakarja a sál felső szélét), és a nyak <b>tövére</b>, nem a száj alá. A mostanit pirossal kereteztem.</p>
+<div id="valtozatok"></div>
+
+<h2>Mind a három unikornison</h2>
+<p class="lead">Tűz, Csillámharmat, Ragyogás — a sál színei mindhárom szőrszínen látsszanak.</p>
+<div id="lenyek"></div>
+
+<h2>Mi változik a kódban (ha jóváhagyod)?</h2>
+<div class="panel">
+  <table>
+    <tr><th>Mi</th><th>Hogyan</th></tr>
+    <tr><td>Új réteg: „a fej alatt”</td><td>A nyakdísz eddig a fej fölé került. Kap egy saját helyet a sörény <i>után</i>, de a fej <i>előtt</i> — oldalról, szemből és hátulról is. Egy közös helyen, hogy később más nyakdísz (pl. masni) is használhassa.</td></tr>
+    <tr><td>Szivárvány-sál újrarajzolva</td><td>Csak a <code>nyak-r</code> rajza cserélődik (oldal + szemből + hátulról). Ár, név, bolt, mentés: változatlan — akinek már megvan, annak azonnal az új sál látszik.</td></tr>
+    <tr><td>Mozgás</td><td>A sál a nyak ízületével együtt mozdul (bólintás, járás, fordulás), mint eddig.</td></tr>
+    <tr><td>Makk-lánc, Szív-medál</td><td>Nem nyúlok hozzájuk (azok nem szakáll-szerűek).</td></tr>
+  </table>
+</div>
+
+<h2>Döntés</h2>
+<div class="dontes">
+  <b>Javaslatom: A) Tekert sál, két lógó véggel.</b> Ez a „tankönyvi” sál: körbetekerve, csomóval, két rojtos véggel — ránézésre sál. A végek a mellkason lógnak, jóval a száj mögött, ezért szakállnak nem nézhetők.<br>
+  B) is jó, ha mozgalmasabbat szeretnél (a szélben lobog — a gyerekek a mozgást szeretik); C) a legbiztonságosabb, de a legkevésbé „sálas”.
+</div>
+</div>
+
+<script>/*__RENDERER__*/</script>
+<script>
+/* ══ PROTOTÍPUS — ez kerül majd a renderer.js-be (salCsik + SAL tábla + „fej alatti” nyak-réteg) ══
+   salCsik: egy kötött csík egy köbös görbe mentén. p = 4 pont (görbe), w = fél-szélesség (szám vagy [eleje, vége]),
+   szinek = a kötött színsávok (keresztben váltakoznak), n = hány sáv, rojt = rojt a csík végén. */
+var SAL_SZIN = ["#f6a5c0", "#fce49a", "#a7d99a", "#9ec9f0", "#c9a8e6"];
+function salPt(p, t) { var u = 1 - t; return [u*u*u*p[0][0] + 3*u*u*t*p[1][0] + 3*u*t*t*p[2][0] + t*t*t*p[3][0], u*u*u*p[0][1] + 3*u*u*t*p[1][1] + 3*u*t*t*p[2][1] + t*t*t*p[3][1]]; }
+function salEr(p, t) { var u = 1 - t, x = 3*u*u*(p[1][0]-p[0][0]) + 6*u*t*(p[2][0]-p[1][0]) + 3*t*t*(p[3][0]-p[2][0]), y = 3*u*u*(p[1][1]-p[0][1]) + 6*u*t*(p[2][1]-p[1][1]) + 3*t*t*(p[3][1]-p[2][1]), h = Math.hypot(x, y) || 1; return [x/h, y/h]; }
+function salCsik(p, w, szinek, n, o) {
+  o = o || {};
+  var L = [], R = [], k = Math.max(n * 3, 12), s = "";
+  for (var i = 0; i <= k; i++) {
+    var t = i / k, c = salPt(p, t), e = salEr(p, t), ww = typeof w === "number" ? w : w[0] + (w[1] - w[0]) * t;
+    L.push([c[0] - e[1] * ww, c[1] + e[0] * ww]); R.push([c[0] + e[1] * ww, c[1] - e[0] * ww]);
+  }
+  function P(q) { return uniK(q[0]) + " " + uniK(q[1]); }
+  if (o.sorok) {   /* hosszanti sávok (csősál): a szélesség mentén osztva */
+    var m = szinek.length;
+    for (var j = 0; j < m; j++) {
+      var a = [], b = [];
+      for (var i2 = 0; i2 <= k; i2++) { var f1 = j / m, f2 = (j + 1) / m;
+        a.push([L[i2][0] + (R[i2][0] - L[i2][0]) * f1, L[i2][1] + (R[i2][1] - L[i2][1]) * f1]);
+        b.push([L[i2][0] + (R[i2][0] - L[i2][0]) * f2, L[i2][1] + (R[i2][1] - L[i2][1]) * f2]); }
+      s += '<path d="M' + a.map(P).join(" L") + " L" + b.reverse().map(P).join(" L") + ' Z" fill="' + szinek[j] + '" stroke="none"/>';
+    }
+    for (var r = 1; r < k; r += 2) s += '<path d="M' + P(L[r]) + " L" + P(R[r]) + '" stroke="#222" stroke-width=".7" opacity=".22"/>';   /* bordázat */
+  } else {           /* keresztbe kötött színsávok */
+    var per = k / n;
+    for (var q = 0; q < n; q++) {
+      var i0 = Math.round(q * per), i1 = Math.round((q + 1) * per), pts = [];
+      for (var x = i0; x <= i1; x++) pts.push(L[x]);
+      for (var y = i1; y >= i0; y--) pts.push(R[y]);
+      s += '<path d="M' + pts.map(P).join(" L") + ' Z" fill="' + szinek[(q + (o.eltol || 0)) % szinek.length] + '" stroke="none"/>';
+    }
+  }
+  if (o.rojt) {   /* rojt a végén: a végső él mentén, a görbe irányában kifelé */
+    var e1 = salEr(p, 1), v0 = L[k], v1 = R[k], db = o.rojt;
+    for (var f = 0; f < db; f++) {
+      var tt = (f + .5) / db, x0 = v0[0] + (v1[0] - v0[0]) * tt, y0 = v0[1] + (v1[1] - v0[1]) * tt, hh = 7 + (f % 2) * 2;
+      var fs = '<path d="M' + uniK(x0) + " " + uniK(y0) + " l" + uniK(e1[0] * hh) + " " + uniK(e1[1] * hh) + '"';
+      s += fs + ' stroke="#222" stroke-width="3.6" stroke-linecap="round"/>' + fs + ' stroke="' + szinek[(n - 1 + (o.eltol || 0)) % szinek.length] + '" stroke-width="1.8" stroke-linecap="round"/>';
+    }
+  }
+  s += '<path d="M' + L.map(P).join(" L") + " L" + R.slice().reverse().map(P).join(" L") + ' Z" fill="none" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>';
+  return s;
+}
+function salCsomo(x, y, rx, ry, szin) {
+  return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + ry + '" fill="' + szin + '" stroke="#222" stroke-width="1.5"/>' +
+    '<path d="M' + (x - rx * .5) + " " + (y - ry * .55) + " Q" + x + " " + (y + ry * .1) + " " + (x - rx * .3) + " " + (y + ry * .7) + '" fill="none" stroke="#222" stroke-width=".9" opacity=".4"/>';
+}
+
+/* A SAL tábla: változatonként oldal / elol / hatul (art-koordinátában, a fej ALÁ kerül) */
+var SAL = {
+  A: {
+    oldal: salCsik([[258, 192], [254, 206], [250, 220], [240, 238]], 7.5, SAL_SZIN, 4, { rojt: 4, eltol: 2 }) +
+           salCsik([[212, 132], [226, 172], [252, 190], [282, 178]], 10.5, SAL_SZIN, 7) +
+           salCsik([[266, 192], [270, 208], [268, 222], [262, 236]], 7.5, SAL_SZIN, 4, { rojt: 4, eltol: 1 }) +
+           salCsomo(263, 190, 9, 8, "#f6a5c0"),
+    elol:  salCsik([[166, 150], [158, 166], [160, 180], [150, 198]], 6.5, SAL_SZIN, 4, { rojt: 4, eltol: 2 }) +
+           salCsik([[144, 120], [152, 160], [228, 160], [236, 120]], 10, SAL_SZIN, 8) +
+           salCsik([[174, 152], [176, 168], [172, 184], [176, 200]], 6.5, SAL_SZIN, 4, { rojt: 4, eltol: 1 }) +
+           salCsomo(169, 149, 9, 8, "#f6a5c0"),
+    hatul: salCsik([[144, 118], [152, 156], [228, 156], [236, 118]], 10, SAL_SZIN, 8)
+  },
+  B: {
+    oldal: salCsik([[212, 132], [226, 172], [252, 190], [282, 178]], 10.5, SAL_SZIN, 7) +
+           salCsik([[214, 152], [196, 158], [184, 176], [160, 176]], [7, 6], SAL_SZIN, 4, { rojt: 4, eltol: 3 }) +
+           salCsik([[214, 146], [186, 126], [170, 154], [128, 134]], [8, 7], SAL_SZIN, 6, { rojt: 5, eltol: 1 }) +
+           salCsomo(215, 148, 9, 9, "#f6a5c0"),
+    elol:  salCsik([[144, 120], [152, 160], [228, 160], [236, 120]], 10, SAL_SZIN, 8) +
+           salCsik([[214, 150], [236, 160], [246, 176], [268, 174]], [6.5, 5.5], SAL_SZIN, 4, { rojt: 4, eltol: 3 }) +
+           salCsik([[216, 144], [240, 126], [248, 152], [274, 138]], [7.5, 6.5], SAL_SZIN, 5, { rojt: 5, eltol: 1 }) +
+           salCsomo(214, 146, 9, 8, "#f6a5c0"),
+    hatul: salCsik([[144, 118], [152, 156], [228, 156], [236, 118]], 10, SAL_SZIN, 8) +
+           salCsik([[166, 146], [140, 126], [132, 152], [106, 138]], [7.5, 6.5], SAL_SZIN, 5, { rojt: 5, eltol: 1 }) +
+           salCsomo(166, 146, 9, 8, "#f6a5c0")
+  },
+  C: {
+    oldal: salCsik([[210, 128], [224, 176], [254, 196], [286, 180]], 14, ["#f6a5c0", "#fce49a", "#9ec9f0", "#c9a8e6"], 7, { sorok: 1 }),
+    elol:  salCsik([[142, 118], [150, 166], [230, 166], [238, 118]], 14, ["#f6a5c0", "#fce49a", "#9ec9f0", "#c9a8e6"], 8, { sorok: 1 }),
+    hatul: salCsik([[142, 116], [150, 162], [230, 162], [238, 116]], 14, ["#f6a5c0", "#fce49a", "#9ec9f0", "#c9a8e6"], 8, { sorok: 1 })
+  }
+};
+/* „a fej alatti” nyak-réteg: oldalról a fej ízülete elé (a sörény után), a nyak keretében;
+   szemből/hátulról a fej köre elé. */
+function salOldalra(art, sal) {
+  var fejNyit = izNyit(UNI_TEST_IZ.fej.cls, UNI_TEST_IZ.fej.pont);
+  return art.replace(fejNyit, uniIzKeret("nyak", '<g stroke-linejoin="round">' + sal + '</g>') + fejNyit);
+}
+function salNezetre(art, sal) {
+  var fej = '<circle cx="190" cy="88" r="42"';
+  return art.replace(fej, '<g stroke-linejoin="round">' + sal + '</g>' + fej);
+}
+/* ══ vége a prototípusnak ══ */
+
+function kin() { return { sorenySzin: 0, szemSzin: null, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null } }; }
+var SZAM = 0;
+function oldal(v, rajz) {
+  var id = "u" + (++SZAM);
+  if (v === "most") return unikornisSVG(id, { rajz: rajz }, 1, { nyak: "nyak-r" }, kin());
+  var s = unikornisSVG(id, { rajz: rajz }, 1, null, kin());
+  return v ? salOldalra(s, SAL[v].oldal) : s;
+}
+function nezet(v, n, rajz) {
+  var id = "n" + (++SZAM), art;
+  if (v === "most") art = unikornisNezetArt(n, rajz, kin(), id, { nyak: "nyak-r" });
+  else { art = unikornisNezetArt(n, rajz, kin(), id, null); if (v) art = salNezetre(art, SAL[v][n]); }
+  return '<g transform="scale(0.5) translate(-190,-272)">' + art + '</g>';
+}
+var VB_OLDAL = "-100 -142 200 158", VB_NYAK = "-30 -118 116 106", VB_NEZET = "-62 -142 124 158";
+
+var VALT = [
+  ["most", "Mostani sál", "r", "Háromszög-kendő a száj alatt, a fej fölé rajzolva.",
+    ["❌ a száj alatt lóg, lefelé keskenyedik → szakáll", "❌ szemből is a száj alatt, középen", "❌ nem látszik, hogy a nyakat öleli"]],
+  ["A", "A) Tekert sál, két lógó véggel", "j", "Kötött, szivárványcsíkos sál a nyak tövén; elöl csomó, két rojtos vég lóg a mellkason.",
+    ["✅ ránézésre sál: tekeredés + csomó + rojt", "✅ a végek a mellkason, jóval a száj mögött; szemből oldalra csúsztatva", "➖ álló, nyugodt"]],
+  ["B", "B) Lobogó sál", "", "Ugyanaz a tekerés, de a csomó hátul van, és a két vég hátrafelé lobog a szélben a hát fölött.",
+    ["✅ a legmozgalmasabb — a vég lebeghet is (később: lengés járás közben)", "✅ semmi sincs a száj alatt", "➖ a sörény egy részét eltakarja"]],
+  ["C", "C) Kötött csősál", "", "Vastag, bordázott, körbetekert nyakmelegítő, vég nélkül.",
+    ["✅ a legbiztosabb: nincs lógó része", "➖ kevésbé „sálas” — lehet gallérnak vagy úszógumi-nak is nézni", "➖ nincs rojt, nincs lobogás"]]
+];
+(function () {
+  var h = "";
+  VALT.forEach(function (v) {
+    h += '<div class="valt' + (v[0] === "most" ? " most" : v[2] === "j" ? " javasolt" : "") + '"><h3>' + v[1] +
+      (v[2] === "j" ? '<span class="badge j">javasolt</span>' : v[2] === "r" ? '<span class="badge r">ez a baj</span>' : "") + '</h3><p class="mit">' + v[3] + '</p>';
+    h += '<div class="sor">' +
+      '<figure><svg viewBox="' + VB_NYAK + '">' + oldal(v[0], "kek") + '</svg><figcaption>közelről, oldalról</figcaption></figure>' +
+      '<figure><svg viewBox="' + VB_NEZET + '">' + nezet(v[0], "elol", "kek") + '</svg><figcaption>szemből</figcaption></figure>' +
+      '<figure><svg viewBox="' + VB_NEZET + '">' + nezet(v[0], "hatul", "kek") + '</svg><figcaption>hátulról</figcaption></figure>' +
+      '<figure><svg viewBox="' + VB_OLDAL + '">' + oldal(v[0], "kek") + '</svg><figcaption>egész alak</figcaption></figure>' +
+      '</div>';
+    h += '<div class="kicsi"><figure><svg viewBox="' + VB_OLDAL + '" width="90">' + oldal(v[0], "korall") + '</svg><figcaption>kicsiben (sétáló méret)</figcaption></figure>' +
+      '<figure><svg viewBox="' + VB_OLDAL + '" width="54">' + oldal(v[0], "rozsa") + '</svg><figcaption>bolt-kártya méret</figcaption></figure>' +
+      '<ul class="pro">' + v[4].map(function (x) { return "<li>" + x + "</li>"; }).join("") + '</ul></div>';
+    h += '</div>';
+  });
+  document.getElementById("valtozatok").innerHTML = h;
+
+  var LENY = [["korall", "Tűz"], ["kek", "Csillámharmat"], ["rozsa", "Ragyogás"]], g = "";
+  ["A", "B", "C"].forEach(function (v) {
+    g += '<div class="valt"><h3>' + VALT.filter(function (x) { return x[0] === v; })[0][1] + '</h3><div class="harom">';
+    LENY.forEach(function (u) { g += '<figure><svg viewBox="' + VB_OLDAL + '">' + oldal(v, u[0]) + '</svg><figcaption>' + u[1] + '</figcaption></figure>'; });
+    g += '</div></div>';
+  });
+  document.getElementById("lenyek").innerHTML = g;
+})();
+</script>
+</body>
+</html>

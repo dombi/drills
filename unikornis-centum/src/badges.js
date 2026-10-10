@@ -190,7 +190,7 @@ function dropProbal(esely) {
   var lehet = [];
   RUHA_HELY.forEach(function (h) {
     (RUHAK[h.kulcs] || []).forEach(function (t, rang) {
-      if (!p.oltozet.van[t.id]) { var suly = [3, 2, 1][rang] || 1; for (var s = 0; s < suly; s++) lehet.push({ t: t, rang: rang, kulcs: h.kulcs }); }
+      if (!p.oltozet.van[t.id] && !t.emlek) { var suly = [3, 2, 1][rang] || 1; for (var s = 0; s < suly; s++) lehet.push({ t: t, rang: rang, kulcs: h.kulcs }); }
     });
   });
   if (!lehet.length) { p.csillampor += 5; p.dropUres = 0; ment(); return { vigasz: true }; }

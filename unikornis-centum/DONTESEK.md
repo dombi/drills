@@ -1003,3 +1003,19 @@ asztalt `translate(115,0)`-val rajzolja), ezért a „hova kerül" tábla is a s
   a szemszínek kitöltik az alsó polcot. Bútorok/Díszek/Holmik oldalai nem változtak.
 - A bolt-polc rajzterv mind a 6 pontja kész. `index.html` `game.js?v=` → 20261001-9.
 
+
+## 2026-10-10 — Szivárvány-sál újrarajzolva + Szivárvány-szakáll emlékbe
+
+- **Panasz (Lili):** „fura a sál, olyan, mintha szakáll lenne." Ok: a `nyak-r` a fej FÖLÉ
+  rajzolódott, és középen háromszög lógott a száj alatt (oldalról és szemből is).
+- **Rajzterv:** `terv/sal-rajzterv.html` (3 változat). A producer az **A)** változatot választotta:
+  kötött, szivárványcsíkos sál a nyak tövén, elöl csomó, két rojtos vég a mellkason (szemből
+  oldalra csúsztatva). A sál a fej ALÁ kerül: új közös réteg, `NYAK_ALATT` + `nyakAlattBe`
+  (renderer.js; oldalról a nyak ízület-keretében, szemből/hátulról a fej köre előtt). `salCsik`
+  = kötött csík köbös görbén, rojttal — később más nyakdísz is használhatja.
+- **A „szakáll" megmarad, emlékbe** (producer-kérés): új tétel `nyak-sz` „Szivárvány-szakáll",
+  20 ✨, a régi rajzzal (oldal + szemből + hátulról + polc-kép). `emlek: true` → a boltban
+  „♥ EMLÉK" címke, nem rangsorolt (a Szivárvány-sál marad RITKA), és nem esik talált tárgyként.
+- A Holmik fülön a nyak-polc 4 tárgyas lett → a lapolás szerint felső polcra kerül
+  (1. oldal: Fej · Hát, 2. oldal: Nyak · Láb, 3. oldal: Oldal · Farok).
+  `index.html` `?v=` → 20261010-10.

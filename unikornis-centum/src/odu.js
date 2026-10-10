@@ -19,10 +19,11 @@ var ODU_KAT = {
 var ODU_FUL = "ido";
 var BOLT_VAL = { holmik: null, ido: null };   /* a bolt aktív fülén kiválasztott tétel { g, id } */
 
-/* v2a: unikornis-ruhák (Holmik). Hely → 3 tétel (alap / különleges / ritka). */
+/* v2a: unikornis-ruhák (Holmik). Hely → 3 tétel (alap / különleges / ritka); + emlek: egy régi rajz, emlékbe (nem rangsorolt). */
 var RUHAK = {
   fej:   [{ id: "fej-a", nev: "Virágkoszorú", ar: 20 }, { id: "fej-k", nev: "Csillag-szarvdísz", ar: 60 }, { id: "fej-r", nev: "Hold-korona", ar: 140 }],
-  nyak:  [{ id: "nyak-a", nev: "Makk-lánc", ar: 15 }, { id: "nyak-k", nev: "Szív-medál", ar: 50 }, { id: "nyak-r", nev: "Szivárvány-sál", ar: 120 }],
+  nyak:  [{ id: "nyak-a", nev: "Makk-lánc", ar: 15 }, { id: "nyak-k", nev: "Szív-medál", ar: 50 }, { id: "nyak-r", nev: "Szivárvány-sál", ar: 120 },
+          { id: "nyak-sz", nev: "Szivárvány-szakáll", ar: 20, emlek: true }],   /* a régi sál rajza, emlékbe (sal-rajzterv) */
   hat:   [{ id: "hat-a", nev: "Pillekönnyű takaró", ar: 30 }, { id: "hat-k", nev: "Hímzett nyeregtakaró", ar: 80 }, { id: "hat-r", nev: "Csillagköpeny", ar: 180 }],
   lab:   [{ id: "lab-a", nev: "Fűzöld bokapánt", ar: 20 }, { id: "lab-k", nev: "Ezüst patkó", ar: 70 }, { id: "lab-r", nev: "Kristály-patkó", ar: 160 }],
   oldal: [{ id: "oldal-a", nev: "Pihe-szárny", ar: 40 }, { id: "oldal-k", nev: "Szivárvány-szárny", ar: 110 }, { id: "oldal-r", nev: "Fény-szárny", ar: 220 }],

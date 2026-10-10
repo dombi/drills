@@ -953,9 +953,10 @@ function boltCedulaSVG(k) {
     return s;
   }
   var cs = k.cs, t = k.t, birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), eleg = boltPenz(cs, t) >= t.ar;
-  var rang = (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz") ? 0 : (k.rang >= cs.tetelek.length - 1 ? 2 : 1);
-  if (rang > 0) s += '<g><rect x="646" y="180" width="120" height="20" rx="10" fill="' + (rang === 2 ? "#ffd24d" : "#f0c869") + '"/>' +
-    '<text x="706" y="194" font-size="11" font-weight="800" fill="#7a5a1e" text-anchor="middle">' + (rang === 2 ? "★ RITKA" : "✦ KÜLÖNLEGES") + '</text></g>';
+  var rangos = cs.tetelek.filter(function (x) { return !x.emlek; }).length;   /* az emlék-tétel nem rangsorolt */
+  var rang = t.emlek ? 3 : (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz") ? 0 : (k.rang >= rangos - 1 ? 2 : 1);
+  if (rang > 0) s += '<g><rect x="646" y="180" width="120" height="20" rx="10" fill="' + (rang === 3 ? "#f6c3d8" : rang === 2 ? "#ffd24d" : "#f0c869") + '"/>' +
+    '<text x="706" y="194" font-size="11" font-weight="800" fill="#7a5a1e" text-anchor="middle">' + (rang === 3 ? "♥ EMLÉK" : rang === 2 ? "★ RITKA" : "✦ KÜLÖNLEGES") + '</text></g>';
   s += '<text x="706" y="' + (rang > 0 ? 222 : 210) + '" font-size="15.5" font-weight="800" fill="#7a5a2a" text-anchor="middle">' + kiiras(t.nev) + '</text>';
   s += '<text x="706" y="' + (rang > 0 ? 240 : 228) + '" font-size="11" font-weight="700" fill="#c2a887" text-anchor="middle">' + kiiras(cs.nev) + '</text>';
   s += '<text x="706" y="' + (rang > 0 ? 256 : 244) + '" font-size="11.5" fill="#a08a6a" text-anchor="middle">' + kiiras(BOLT_TIPP[t.id] || "") + '</text>';
@@ -1212,6 +1213,14 @@ var POLC_POZ = {
     '<path d="M86 76 Q80 120 76 168 L90 168 Q94 120 98 78 Z" fill="#f6a5c0"/><path d="M124 76 Q130 120 134 168 L120 168 Q116 120 112 78 Z" fill="#f6a5c0"/>' +
     '<path d="M84 90 Q105 80 126 90" fill="none" stroke="#fce49a" stroke-width="3"/><path d="M85 98 Q105 90 125 98" fill="none" stroke="#a7d99a" stroke-width="2.4"/>' +
     '</g><path d="M80 168 l2 10 l5 -8 Z" fill="#9ec9f0"/><path d="M128 168 l3 9 l4 -9 Z" fill="#c9a8e6"/>',
+  "nyak-sz": /* Szivárvány-szakáll: a régi sál háromszög-kendője, rúdra akasztva */
+    '<rect x="92" y="66" width="26" height="7" rx="3" fill="#b79fd4" stroke="#222" stroke-width="1"/><circle cx="120" cy="69.5" r="4" fill="#cbb6e6" stroke="#222" stroke-width="1"/>' +
+    '<g stroke="#222" stroke-width="1.3" stroke-linejoin="round">' +
+    '<path d="M97 74 Q104 68 111 74" fill="none" stroke="#f6a5c0" stroke-width="5"/>' +
+    '<path d="M74 92 Q105 70 136 92 Q124 106 105 104 Q86 106 74 92 Z" fill="#f6a5c0"/>' +
+    '<path d="M88 102 L105 158 L122 102 Z" fill="#f6a5c0"/>' +
+    '<path d="M91 114 L119 114" stroke="#fce49a" stroke-width="4"/><path d="M95 127 L115 127" stroke="#a7d99a" stroke-width="3.8"/><path d="M99 140 L111 140" stroke="#9ec9f0" stroke-width="3.4"/>' +
+    '</g>',
   /* hát-takarók: ugyanaz a rajz, mint az unikornison (renderer.js HAT_DISZ), rúdra akasztva */
   "hat-a": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-a"] + '</g>',
   "hat-k": '<rect x="14" y="30" width="182" height="8" rx="4" fill="#d9b48a" stroke="#222" stroke-width="1.4"/><circle cx="18" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/><circle cx="192" cy="34" r="6" fill="#c9a07a" stroke="#222" stroke-width="1.2"/>' + '<g transform="translate(105 36) scale(1.2) translate(-155 -103)">' + HAT_DISZ["hat-k"] + '</g>',
@@ -1288,7 +1297,7 @@ function butorPreviewOdu(hely, level) {
 
 var BOLT_TIPP = {
   "fej-a": "Erdei virágokból font koszorú.", "fej-k": "Csillagszikra a szarv köré.", "fej-r": "Vékony holdsarló-korona.",
-  "nyak-a": "Makkokból fűzött lánc.", "nyak-k": "Rózsaszín szív-medál aranyláncon.", "nyak-r": "Puha, színes sál a hidegre.",
+  "nyak-a": "Makkokból fűzött lánc.", "nyak-k": "Rózsaszín szív-medál aranyláncon.", "nyak-r": "Puha, színes sál a hidegre.", "nyak-sz": "A régi sál, ami szakállnak látszott. Emlékbe!",
   "hat-a": "Könnyű takaró a hátra.", "hat-k": "Hímzett nyeregtakaró.", "hat-r": "Csillagmintás köpeny.",
   "lab-a": "Fűzöld pánt mind a négy bokára.", "lab-k": "Fényes ezüst patkó.", "lab-r": "Kristályból csiszolt patkó.",
   "oldal-a": "Hófehér, pihe-puha tollszárny.", "oldal-k": "Minden tolla más szivárványszín.", "oldal-r": "Aranyvégű, ragyogó tollszárny.",
