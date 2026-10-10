@@ -33,11 +33,12 @@
    feladatonként — így a hosszú távú „intelligens pult” átalakítás nélkül tudja használni. */
 
 var SZERSZAMOK = [
-  { id: "KOTOTT", ikon: "📌", nev: "Ahol csak egyféle lehet", kartya: "Ott kezdem, ahol csak egyféle lehet." },
+  { id: "KOTOTT", ikon: "📌", nev: "Ahol csak egyféle lehet", kartya: "Ott kezdem, ahol csak egyféle lehet.", vkocka: 14 },   /* vkocka: a Mesterpróba saját kockája (EK_KOCKAK index) */
   { id: "EGESZ",  ikon: "🧺", nev: "Előbb az egész",          kartya: "Összeszámolom, mennyi van összesen." },
   { id: "MIT",    ikon: "🔍", nev: "Mit számolok?",           kartya: "Megnézem, mit számolok egynek." }
 ];
-/* 📚 az OLVASÓ-POLC két polca (olvaso-polc.js; terv: Matekosegi-kockak-konyvtar-terv.html ✅) — ugyanaz a lift + láda, mint a
+/* 📚 az OLVASÓ-POLC két polca (olvaso-polc.js; terv: Matekos
+egi-kockak-konyvtar-terv.html ✅) — ugyanaz a lift + láda, mint a
    szerszámoknál (egy közös láda, egy közös pult-küszöb); a kocka: a régi építőkocka, ami a Kockavárban gyűlik */
 var OLVASO_POLCOK = [
   { id: "KERES",  ikon: "🔎", nev: "Mire felelsz?",    kartya: "Megkeresem, mit kérdeznek – és pont arra felelek.", kocka: "K1" },

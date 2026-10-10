@@ -105,12 +105,15 @@ function ekKockaLista() {
     var pa = palyaKeres(pid), d = EK_KOCKA_DEF[pa ? pa.kocka : EK_REGI_PALYAK[pid]];   /* a régi ek-k*-3v pályák már nincsenek a listában (2026-10-10) */
     if (d && d.var != null && L.indexOf(d.var) < 0) L.push(d.var);
   }
+  SZERSZAMOK.forEach(function (s) {                  /* 🧰 a szerszám-Mesterpróba kockája: ami mester-szalagos, az a vár része (a 2026-10-10 előtti is) */
+    if (s.vkocka != null && L.indexOf(s.vkocka) < 0 && szerszamT(s.id).m) L.push(s.vkocka);
+  });
   return L.slice(0, EK_KOCKAK.length);
 }
 function ekKockaDb() { return ekKockaLista().length; }
 /* nagy vár (600×360) — az ünneplésnél; uj = a berepülő kocka sorszáma a listában (-1 = nincs) */
 function ekKockavarNagySVG(lista, uj) {
-  var n = lista.length, S = 3.4, ox = 300 - 60 * S, oy = 290 - 108 * S;
+  var n = lista.length, S = 2.8, ox = 300 - 60 * S, oy = 290 - 108 * S;   /* 2.8: a 15. kocka (📌 tornyocska) is elfér */
   var s = '<svg viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ekvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f7"/><stop offset="1" stop-color="#fbe4ef"/></linearGradient></defs>' +
     '<rect width="600" height="360" rx="18" fill="url(#ekvg)"/><ellipse cx="120" cy="60" rx="46" ry="14" fill="#fff" opacity=".8"/><ellipse cx="470" cy="90" rx="60" ry="16" fill="#fff" opacity=".7"/>' +
     '<path d="M0 300 Q300 230 600 300 V342 Q600 360 582 360 H18 Q0 360 0 342Z" fill="#b6e0a8"/><path d="M0 330 Q300 280 600 330 V342 Q600 360 582 360 H18 Q0 360 0 342Z" fill="#a7d99a"/>';
@@ -134,8 +137,8 @@ function ekKockavarNagySVG(lista, uj) {
     for (var k = 0; k < 3; k++) s += '<rect x="' + (b[0] + 4 + k * (b[2] - 8) / 2.5) + '" y="' + (b[1] - 12) + '" width="' + ((b[2] - 8) / 5) + '" height="12" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="#fff" stroke-width="2"/>';
   });
   if (n >= EK_KOCKAK.length) {
-    var ty = oy + (EK_VAR_HELY[13][1] - 7.5) * S;
-    s += '<path d="M300 ' + ty + ' V' + (ty - 70) + '" stroke="#6b5442" stroke-width="5"/><path d="M300 ' + (ty - 70) + ' L350 ' + (ty - 56) + ' L300 ' + (ty - 42) + 'Z" fill="#e2589b"/>';
+    var ty = oy + (EK_VAR_HELY[EK_VAR_HELY.length - 1][1] - 7.5) * S;
+    s += '<path d="M300 ' + ty + ' V' + (ty - 56) + '" stroke="#6b5442" stroke-width="5"/><path d="M300 ' + (ty - 56) + ' L346 ' + (ty - 44) + ' L300 ' + (ty - 32) + 'Z" fill="#e2589b"/>';
   }
   return s + '</svg>';
 }
@@ -158,10 +161,13 @@ function ekMesterKapuSVG(palya) {
 }
 
 /* 📚 olvasó-polc: egy kocka a Kockavárba (olvaso-polc.js hívja a Mesterpróba után) — true, ha most került be */
-function ekKockaBe(kocka) {
-  var st = ekAllapot(), d = EK_KOCKA_DEF[kocka], L = ekKockaLista();
-  if (!d || d.var == null || L.indexOf(d.var) >= 0) return false;
-  st.varSor = L.concat([d.var]); ment();
+function ekKockaBe(kocka) { var d = EK_KOCKA_DEF[kocka]; return !!d && ekVarBe(d.var); }
+/* egy kocka (EK_KOCKAK index) a vár sorába — a szerszám-Mesterpróba is ezt hívja (szerszam-palya.js); true, ha most került be.
+   sorbol: csak a mentett sort nézi — a szerszám mester-szalagja (amiből az ekKockaLista már látja) a pálya végénél korábban születik */
+function ekVarBe(hely, sorbol) {
+  var st = ekAllapot(), L = ekKockaLista(), volt = sorbol ? (st.varSor || []).indexOf(hely) >= 0 : L.indexOf(hely) >= 0;
+  if (hely == null || !EK_KOCKAK[hely] || volt) return false;
+  st.varSor = L.filter(function (x) { return x !== hely; }).concat([hely]); ment();
   return true;
 }
 /* a régi 🏅 Mesterpróba megvolt-e ennél a kockánál (az új polcon a 🏅 könyv már szalagos) */

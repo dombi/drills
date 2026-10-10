@@ -214,6 +214,10 @@ function szPalyaVege() {
     html += '<br><span class="ek-vege">🏅 Mesterpróba elsőre! A szerszámod mester-szalagot kapott. +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
     mondat += " Mesterpróba elsőre! A szerszámod mester-szalagot kapott.";
     sorok.push("🎀 A szerszámod mester-szalagot kapott.");
+    if (d.vkocka != null) {                                  /* a szerszám saját kockája a Kockavárba (producer, 2026-10-10) */
+      var ujKocka = ekVarBe(d.vkocka, true);
+      sorok.push(ujKocka ? "Új kocka repült a Kockavárba!" : "A kockád ott ragyog a Kockavárban.");
+    }
   }
   if (lada) {
     szerszamTar().ujLada = sz;                              /* a szekrényben a láda-pillanat (szerszam-polc.js) */
@@ -223,7 +227,7 @@ function szPalyaVege() {
   }
   if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
   ment();
-  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
+  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
 function szKovetkezo(id) {

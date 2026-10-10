@@ -279,6 +279,8 @@ var FIGURA = {
   kitti:  { e: "🐞", n: "Kitti", tel: "Katica Kitti", t: "Kittit", a: "a katica", nak: "Kittinek", nal: "Kittinél" },
   pali:   { e: "🐰", n: "Pali", tel: "Nyúl Pali", t: "Palit", a: "a nyúl", nak: "Palinak", nal: "Palinál" },
   juli:   { e: "🦊", n: "Juli", tel: "Róka Juli", t: "Julit", a: "a róka", nak: "Julinak", nal: "Julinál" },
+  cirmi:  { e: "🐈", n: "Cirmi", tel: "Cica Cirmi", t: "Cirmit", a: "a cica", nak: "Cirminek", nal: "Cirminél" },     /* a két cica: Fanni kérése (2026-10-10) */
+  bogyo:  { e: "🐈‍⬛", n: "Bogyó", tel: "Cica Bogyó", t: "Bogyót", a: "a cica", nak: "Bogyónak", nal: "Bogyónál" },
   tuske:  { e: "🦔", n: "Tüske néni", tel: "Tüske néni", t: "Tüske nénit", a: "a sün-árus", nak: "Tüske néninek", nal: "Tüske néninél" }
 };
 

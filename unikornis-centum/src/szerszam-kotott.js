@@ -26,8 +26,8 @@ var SZK_KUTYA = {
   Tappancs:{ b: "#e8d2b0", d: "#9a7a52", l: "#fff4e2", fl: "#c4a57a", folt: "#c4a57a" }
 };
 var SZK_PLUSS = { Maci: "brumi", Nyuszi: "pali", "Süni": "samu", Kacsa: "kata", "Róka": "juli" };
-var SZK_CICA = { b: "#f2b880", d: "#a8653a", l: "#fde6cc", ful: "malac", pofa: "eger" };
-var SZK_LANY = ["Anna", "Csilla", "Emma", "Bori", "Lili", "Noémi", "Cili"];
+var SZK_CICA = FIG_RAJZ.cirmi;   /* a plüss cica = Cirmi rajza (4. kód-kör, 2026-10-10) */
+var SZK_LANY = ["Anna", "Csilla", "Emma", "Bori", "Lili", "Noémi", "Cili", "Fanni"];
 function szkHash(s) { var h = 7; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973; return h; }
 function szkFejSVG(F) { return '<svg class="szk-fej" viewBox="6 2 88 88" aria-hidden="true">' + fgFej(F, "vidam") + '</svg>'; }
 function szkGyerekSVG(nev) {
@@ -69,7 +69,7 @@ var SZK_KERET = {
     bev: ["Három kiskutya futott versenyt: {L}.", "Négy kiskutya futott versenyt: {L}."],
     elso: "{X} nyert.", utolso: "{X} lett az utolsó.", nemElso: "{X} nem nyert.", nemUtolso: "{X} nem lett utolsó.",
     kozv: "{X} közvetlenül {Y} előtt ért célba.", kerdes: "Milyen sorrendben értek célba?", fn: "helyre", tobb: ["három kutyával", "négy kutyával"] },
-  fagyi: { hely: "fagyi", szerep: "gyerek", dob: "sor", pult: "🍦", nevek: ["Anna", "Bence", "Csilla", "Dani", "Emma", "Feri"],
+  fagyi: { hely: "fagyi", szerep: "gyerek", dob: "sor", pult: "🍦", nevek: ["Anna", "Bence", "Csilla", "Dani", "Emma", "Feri", "Fanni"],   /* + Fanni (a kérése, 2026-10-10) */
     bev: ["{L} sorban áll a fagyisnál.", "{L} sorban áll a fagyisnál."],
     elso: "{X} áll legelöl, a pultnál.", utolso: "{X} áll a sor végén.", nemElso: "{X} nem áll legelöl.", nemUtolso: "{X} nem a sor végén áll.",
     kozv: "{X} közvetlenül {Y} előtt áll.", kerdes: "Milyen sorrendben állnak a sorban?", fn: "helyre", tobb: ["három gyerekkel", "négy gyerekkel"] },

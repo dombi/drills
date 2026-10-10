@@ -41,12 +41,18 @@ function opCsik() {
   return '<div class="op-csik' + (J.palya && J.palya.fok === "mester" ? " op-csik-mester" : "") + '" aria-hidden="true"><span class="op-csik-ut"></span>' + s + '</div>';
 }
 function opSorok(mondatok, cls) {
-  return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + m + '</p>'; }).join("");
+  return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + opNb(m) + '</p>'; }).join("");
+}
+/* „7-et”, „5-tel”: a szám és a ragja egy sorban marad (tervlap 8. pont: nincs „7-/et” törés) — csak a szövegben, a címkékhez nem nyúl */
+function opNb(h) {
+  return String(h == null ? "" : h).split(/(<[^>]*>)/).map(function (d) {
+    return d.charAt(0) === "<" ? d : d.replace(/(\d+-[a-záéíóöőúüű]+)/gi, '<span class="op-nb">$1</span>');
+  }).join("");
 }
 /* a szöveg: mondatok + a kérdés (hely: hányadik mondat elé kerül — a 📚 olvasó-polc 🔍 formájában véletlen; alap: a végén)
    + a 🪜 lépcsőfok-sor a kérdés alatt (lepcso: kész html) */
 function opSzoveg(mondatok, kerdes, hely, lepcso) {
-  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + m + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + kerdes + '</p>';
+  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + opNb(kerdes) + '</p>';
   if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
   return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
 }
@@ -132,6 +138,7 @@ function opJelol(i, resz) {
   opJelolTorol();
   var x = opSorElem(i); if (!x) return;
   if (resz) {
+    resz = opNb(resz);
     var h = x.innerHTML, j = h.indexOf(resz);
     if (j >= 0) { x.setAttribute("data-eredeti", h); x.innerHTML = h.slice(0, j) + "<mark>" + resz + "</mark>" + h.slice(j + resz.length); }
   }

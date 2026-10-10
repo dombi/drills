@@ -9,8 +9,8 @@
    a döntő szó aranyba kerül. A lánc / ikerkérdés / lépcsőfok a meglévő „lanc” úton megy (egy pötty).
    Kocka-nap: az aznapi ELSŐ végigjárásban a pöttyök ≥ 80%-a elsőre jó → ◼ (3 nap → stabil → 🏅 Mesterpróba: konyvtar-mester.js). */
 
-/* ── szereplők (csak a 10 állat — producer, 2026-09-28) és tárgyak ── */
-var EK_SZ = ["mia", "samu", "brumi", "cincin", "brekus", "kata", "tas", "potyi", "bence", "kitti"].map(function (k) { return FIGURA[k]; });   /* a közös FIGURA-táblából (constants.js) */
+/* ── szereplők (a 10 állat — producer, 2026-09-28 — + a 2 cica, Fanni kérése, 2026-10-10) és tárgyak ── */
+var EK_SZ = ["mia", "samu", "brumi", "cincin", "brekus", "kata", "tas", "potyi", "bence", "kitti", "cirmi", "bogyo"].map(function (k) { return FIGURA[k]; });   /* a közös FIGURA-táblából (constants.js) */
 var EK_TARGY = [
   { e: "🌰", n: "dió", t: "diót", ige: "gyűjtött", i: "diói" },
   { e: "🍄", n: "gomba", t: "gombát", ige: "talált", i: "gombái" },
@@ -81,7 +81,7 @@ function ekKiejt(s) {
 }
 
 /* ── HTML-darabok (a rajzterv jóváhagyott elemei) ── */
-function ekSok(e, n) { if (n > 8) return e; var s = ""; for (var i = 0; i < n; i++) s += e; return s; }
+function ekSok(e, n) { if (n > 8) return e; var s = ""; for (var i = 0; i < n; i++) s += (i && i % 5 === 0 ? "<br>" : "") + e; return s; }   /* 5-ös sorokban (tervlap 8. pont) */
 function ekErem(e, sz, c, o) { return szereploErem(e, sz, c, o); }   /* közös érem (figurak.js) */
 function ekSzamsor(t) { return '<div class="ek-szamsor">' + t.map(function (x) { return '<span>' + x + '</span>'; }).join("") + '</div>'; }
 function ekBub(o) {
@@ -425,7 +425,7 @@ function ekIker(cfg) {
     GY.forEach(function (x) { for (var r = ekR(1, 3); r > 0; r--) kosar.push(x[0]); });
     kosar = mKever(kosar);
     if (kosar.length === GY.length) return null;
-    o = { kep: '<div class="ek-kosar">' + kosar.map(function (e) { return '<span class="ek-gy">' + e + '</span>'; }).join("") + '</div>', tort: ["A kosárban gyümölcsök vannak."], kerdes: "Hány gyümölcs van a kosárban?", helyes: kosar.length, megoldas: kosar.length + "",
+    o = { kep: '<div class="ek-kosar">' + kosar.map(function (e, i) { return (i && i % 5 === 0 ? '<br>' : '') + '<span class="ek-gy">' + e + '</span>'; }).join("") + '</div>', tort: ["A kosárban gyümölcsök vannak."], kerdes: "Hány gyümölcs van a kosárban?", helyes: kosar.length, megoldas: kosar.length + "",
       ism: "Számold meg újra! Koppints egyenként minden gyümölcsre.", ismJelol: ".ek-kosar",   /* elszámolta: a kosár kiemelődik (próba 2026-10-10) */
       lanc: [{ kerdes: "És hány " + ekKi("KÜLÖNBÖZŐ") + " fajta?", teljes: "Hány különböző fajta gyümölcs van a kosárban?", helyes: GY.length, arany: "KÜLÖNBÖZŐ", megoldas: GY.map(function (x) { return x[1]; }).join(", ") + " → " + GY.length,
         csap: [[kosar.length, ekA(kosar.length, true) + " az összes gyümölcs. Hányféle van?", "mind"]], vezet: null }], kulcs: "ig" + kosar.join("") };
@@ -1185,8 +1185,9 @@ function ekMenuSor(palyak, kartya) {
 }
 function ekSzarnyNev(sz, ikonnal) { for (var i = 0; i < SZARNYAK.length; i++) if (SZARNYAK[i].id === sz) return (ikonnal && SZARNYAK[i].ikon ? SZARNYAK[i].ikon + " " : "") + SZARNYAK[i].nev; return sz; }
 var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], ["📋", "#fce49a"], ["🎲", "#c9a8e6"], ["🌳", "#b6e0a8"], ["📊", "#f7c59f"],
-  ["🏆", "#ffd35c"], ["🤔", "#d8cdf0"], ["🚶", "#f3cfe0"], ["📅", "#9fd8e0"], ["📏", "#e8d6b0"], ["🔁", "#c3d7f7"], ["🧩", "#f6b8a6"]];   /* a 14 építőkocka-pálya (jóváhagyott sorrend) */
-var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });
+  ["🏆", "#ffd35c"], ["🤔", "#d8cdf0"], ["🚶", "#f3cfe0"], ["📅", "#9fd8e0"], ["📏", "#e8d6b0"], ["🔁", "#c3d7f7"], ["🧩", "#f6b8a6"],   /* a 14 építőkocka-pálya (jóváhagyott sorrend) */
+  ["📌", "#f2a7b8"]];   /* 15.: a 📌 szerszám-Mesterpróba saját kockája (producer, 2026-10-10) — a vár tetején, a tornyocska csúcsán */
+var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3], [0, 4]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });
 function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (konyvtar-mester.js) */
   var n = lista.length;
   var g = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-70 40 Q0 10 70 40 V60 H-70Z" fill="#b6e0a8"/>';
@@ -1194,7 +1195,8 @@ function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (k
     g += i < n ? '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="#fff" stroke-width="1.2"/>'
       : '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 2" opacity=".7"/>';
   });
-  if (n >= 14) g += '<path d="M0 -58 V-80" stroke="#6b5442" stroke-width="2"/><path d="M0 -80 L16 -75 L0 -70Z" fill="#e2589b"/>';
+  var cs = EK_VAR_HELY[EK_VAR_HELY.length - 1][1] - 118;   /* a zászló a legfelső kocka tetején, ha kész a vár */
+  if (n >= EK_VAR_HELY.length) g += '<path d="M0 ' + cs + ' V' + (cs - 20) + '" stroke="#6b5442" stroke-width="2"/><path d="M0 ' + (cs - 20) + ' L16 ' + (cs - 15) + ' L0 ' + (cs - 10) + 'Z" fill="#e2589b"/>';
   return g + '</g>';
 }
 var EK_KSZIN = ["#c9a8e6", "#9ec9f0", "#f6a5c0", "#a7d99a", "#f7c59f", "#fce49a", "#b48fd6", "#e8b27c", "#8fc3c7"];

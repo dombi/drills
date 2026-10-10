@@ -45,7 +45,7 @@ MODULES = [
     "meres-mozgo.js",     # 6c) mérés-mozgóképek: bájital / szabó / pékség / lépcső + csoportos (rossz válasz után)
     "konyvtar.js",        # 6d) 📚 Bagolykönyvtár: Zrínyi építőkocka-pályák (sablonok, csapdák, végigvezetés, liget, jelenet)
     "konyvtar-mester.js", # 6e) 🏅 Mesterpróba-kapu + 🏰 Kockavár (a Fejtörő-motorral), stabil-küszöb
-    "konyvtar-mozgo.js",  # 6f) 📚 a 3 bemutató-mozgókép (🔎 nagyító · 🔤 NEM · ✋ lépcső), gyerekenként egyszer
+    "konyvtar-mozgo.js",  # 6f) 📚 a 2 polc bemutató-mozgóképe (🔎 nagyító · ✋ lépcső): ≤ 15 mp, zárókép = névtábla + célmondat
     "olvasopult.js",      # 6n) 📖 olvasópult: a hosszú szöveg nyitott könyve (bal: szöveg + kérdés, jobb: rajz), lapozás, 3 betűméret, kiemelő felolvasás
     "olvaso-ellenor.js",  # 6n2) 🔎/✋ olvasó-ellenőr: „Mire felelsz?” kérdés-keret + „Ez már a válasz?” köztes-szám tábla, konkrét tippek (közös modul)
     "dobogo.js",          # 6o) 🏆 dobogó: koppintós sorba rakás (verseny / sor / polc / ház / táblázat, kétsoros is)

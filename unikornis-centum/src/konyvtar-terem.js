@@ -127,7 +127,7 @@ function bktVege(V, o) {
   var sorok = (V.sorok || []).concat(o.extra || []).slice(0, 3);
   var pottyok = mester ? [o.potty.length ? o.potty[o.potty.length - 1] : true] : o.potty;
   var kep = "";
-  var var_ = mester && V.mesterKesz && !!pa.polc;          /* olvasó-polc Mesterpróba: a kis vár, benne (ha új) a berepülő kocka */
+  var var_ = mester && V.mesterKesz && (!!pa.polc || !!V.varKocka);   /* Mesterpróba (polc + szerszám): a kis vár, benne (ha új) a berepülő kocka */
   if (var_) { var L = ekKockaLista(); kep = '<div class="ek-var-nagy bkt-var">' + ekKockavarNagySVG(L, V.kocka ? L.length - 1 : -1) + '</div>'; }
   else kep = '<div class="bkt-pottyok' + (mester ? " mester" : "") + '" aria-hidden="true">' + pottyok.map(function (x) { return '<i class="' + (x ? "o" : "s") + '"></i>'; }).join("") + '</div>';
   document.querySelector("#kepernyo-vege h2").textContent = V.cim || "Kész!";

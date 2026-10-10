@@ -48,6 +48,13 @@ function szpBekot(sz) {
       ligetUget(b, function () { if (mester) bktMesterKapu(function () { palyaInditas(pa.id); }); else palyaInditas(pa.id); });
     });
   });
+  /* 📚 olvasó-polc: a névtáblára koppintva a bemutató-mozgókép újra (konyvtar-mozgo.js) */
+  Array.prototype.forEach.call(sz.querySelectorAll(".szp-polc"), function (pl) {
+    var id = pl.getAttribute("data-sz"), t = pl.querySelector(".szp-tabla");
+    if (!t || typeof EK_MOZGO === "undefined" || !EK_MOZGO[id]) return;
+    t.classList.add("szp-tabla-mozgo"); t.setAttribute("role", "button"); t.setAttribute("tabindex", "0"); t.setAttribute("aria-label", "Nézd meg újra: " + polcIdx(id).nev);
+    t.addEventListener("click", function () { hangGomb(); bktMozgoNez(id); });
+  });
   setTimeout(function () { szpLadaPillanat(sz); }, 500);
 }
 /* 🧰 a láda pillanata: a névtábla ikonja egy csillámcsíkon a ládába repül, a fedél kinyílik, majd becsukódik */

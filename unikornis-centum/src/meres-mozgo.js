@@ -860,6 +860,7 @@ function mkLejatszik(valasztas, cim, kesz) {
   svg.innerHTML = klip.render(o);
   if (klip.init) klip.init(svg, o);
   felirat.textContent = ""; gomb.textContent = "⏭ Átugrom"; gomb.classList.remove("vege");
+  r.classList.toggle("mk-bkt", !!klip.megall);   /* 📚 könyvtári mozgókép: „⏭ Átugrom” a jobb felső sarokban (konyvtar-mozgo.js) */
   r.hidden = false; r.classList.add("fut");
   var ctx = { skip: false, lassu: window.__UC_GYORS ? .03 : MK_TEMPO, fut: true, el: function () { return MKJ.token === tok; } };
   MKJ.ctx = ctx;
@@ -867,7 +868,8 @@ function mkLejatszik(valasztas, cim, kesz) {
   klip.play(ctx, svg, fel, o).catch(function (e) { if (e !== "stop") console.error(e); }).then(function () {
     if (!ctx.el()) return;
     ctx.fut = false; r.classList.remove("fut");
-    gomb.textContent = "Értem, jöhet! ▶"; gomb.classList.add("vege");
+    gomb.textContent = klip.gombVege || "Értem, jöhet! ▶"; gomb.classList.add("vege");
+    if (klip.megall) return;                     /* a könyvtári zárókép megvárja a koppintást (rajzterv 5. döntés ✅) */
     MKJ.idozito = setTimeout(function () { if (ctx.el()) mkBezar(); }, ctx.skip ? 2600 : 2200);   /* magától is továbbmegy (kézmentes mód) */
   });
 }

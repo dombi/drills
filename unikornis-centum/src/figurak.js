@@ -18,7 +18,11 @@ var FIG_RAJZ = {
   kitti:  { b: "#fde6d8", d: "#a8403a", l: "#fde6d8", ful: "katica", pofa: "orr", ruha: "#f0766a", test: "katica", tart: "virag" },
   pali:   { b: "#ece6f0", d: "#9187a3", l: "#fbf8fd", ful: "nyul", pofa: "nyul", tart: "repa" },
   juli:   { b: "#f4a15e", d: "#b35f28", l: "#fff4e8", ful: "roka", pofa: "roka", farok: "roka", test: "sal" },
-  tuske:  { b: "#ecd0ad", d: "#6d5446", l: "#fbeede", tu: "#a8988e", ful: "sun", pofa: "orr", farok: "sun", fej: "kendo", ruha: "#9ec9f0", test: "koteny" }
+  tuske:  { b: "#ecd0ad", d: "#6d5446", l: "#fbeede", tu: "#a8988e", ful: "sun", pofa: "orr", farok: "sun", fej: "kendo", ruha: "#9ec9f0", test: "koteny" },
+  /* a két cica (Fanni kérése, tartalom-lap 4. döntés ✅, rajz: 4. kód-kör 2026-10-10) — csik: cirmos csíkok · szem: színes írisz, keskeny
+     pupillával · szemV: a csukott (ujjongó) szem vonala sötét bundán · bajusz: a bajusz színe */
+  cirmi:  { b: "#f2b880", d: "#a8653a", l: "#fde6cc", ful: "macska", pofa: "macska", farok: "macska", csik: "#d0814a" },
+  bogyo:  { b: "#4f4858", d: "#2e2936", l: "#a99fb6", ful: "macska", pofa: "macska", farok: "macska", szem: "#b8e07a", szemV: "#e8e2f0", bajusz: "#e8e2f0" }
 };
 /* pislogás-eltolás: ne pislogjon egyszerre az egész csapat */
 Object.keys(FIG_RAJZ).forEach(function (k, i) { FIG_RAJZ[k].kes = +(i * 0.73 % 4.2).toFixed(2); });
@@ -45,6 +49,7 @@ function fgFej(F, arc) {
   if (F.ful === "malac") s += fgTk('<path d="M30,42 L25,21 L45,33 Z" fill="' + b + '"' + fgKv(d) + '/><path d="M31,37 L28,26 L40,33 Z" fill="#f58fa8"/>');
   if (F.ful === "katica") s += fgTk('<path d="M42,34 Q36,19 30,14" fill="none" stroke="' + FG_INK + '" stroke-width="2.2" stroke-linecap="round"/><circle cx="30" cy="14" r="3.4" fill="' + FG_INK + '"/>');
   if (beka) s += fgTk('<circle cx="36" cy="38" r="12" fill="' + b + '"' + fgKv(d) + '/>');
+  if (F.ful === "macska") s += fgTk('<path d="M27,45 L23,15 L46,33 Z" fill="' + b + '"' + fgKv(d) + '/><path d="M29,39 L27,23 L39,33 Z" fill="#f7b6c8"/>');
   if (F.ful === "kutya") s += fgTk('<path d="M30,38 Q13,38 12,58 Q12,73 22,74 Q27,62 33,46 Z" fill="' + (F.fl || d) + '"' + fgKv(d) + '/>');   /* lógó kutyafül (szerszám-létrák) */
   /* maga a fej */
   s += beka ? '<ellipse cx="50" cy="61" rx="33" ry="24" fill="' + b + '"' + fgKv(d) + '/>' : '<ellipse cx="50" cy="58" rx="30" ry="27" fill="' + b + '"' + fgKv(d) + '/>';
@@ -55,6 +60,8 @@ function fgFej(F, arc) {
   if (F.pofa === "roka") s += '<path d="M21,62 Q36,58 50,70 Q64,58 79,62 Q72,85 50,85 Q28,85 21,62 Z" fill="' + F.l + '"/>';
   if (F.ful === "katica") s += '<path d="M20.3,54 A30,27 0 0 1 79.7,54 Q50,44 20.3,54 Z" fill="#f0766a"' + fgKv(d) + '/><circle cx="37" cy="42" r="3.4" fill="' + FG_INK + '"/><circle cx="58" cy="37" r="3" fill="' + FG_INK + '"/><circle cx="68" cy="47" r="2.6" fill="' + FG_INK + '"/>';
   if (F.fej === "kendo") s += '<path d="M16,61 Q11,17 50,16 Q89,17 84,61 Q67,41 50,41 Q33,41 16,61 Z" fill="#c9aee6"' + fgKv("#7a5ca8") + '/><circle cx="34" cy="29" r="1.8" fill="#fff"/><circle cx="50" cy="23" r="1.8" fill="#fff"/><circle cx="66" cy="29" r="1.8" fill="#fff"/><circle cx="43" cy="37" r="1.5" fill="#fff"/><circle cx="57" cy="37" r="1.5" fill="#fff"/>';
+  if (F.csik) s += '<path d="M44,33 L46,42 M50,31 V41 M56,33 L54,42" stroke="' + F.csik + '" stroke-width="2.8" stroke-linecap="round" fill="none"/>' +
+    fgTk('<path d="M21,55 L29,57 M22,62 L29,61.5" stroke="' + F.csik + '" stroke-width="2.4" stroke-linecap="round" fill="none"/>');
   if (F.fej === "sapka") s += '<path d="M21,50 Q22,27 50,27 Q78,27 79,50 Q50,44 21,50 Z" fill="#fcd66a"' + fgKv("#c9a032") + '/><path d="M74,48 Q90,46 93,53 Q82,56 70,52 Z" fill="#fcd66a"' + fgKv("#c9a032") + '/><circle cx="50" cy="28" r="2.5" fill="#f5a54a"/>';
   if (F.ful === "kacsa") s += '<path d="M47,33 Q43,19 53,15 Q48,23 54,32 Z" fill="' + b + '"' + fgKv(d) + '/>';
   /* pofi */
@@ -62,10 +69,11 @@ function fgFej(F, arc) {
   s += fgTk('<ellipse cx="' + px + '" cy="' + py + '" rx="5" ry="3.2" fill="#f59bb0" opacity=".55"/>');
   /* szemek */
   var ey = beka ? 38 : 56, xs = beka ? [36, 64] : [39, 61], sz = "";
-  if (arc === "ujjong") xs.forEach(function (x) { sz += '<path d="M' + (x - 4.5) + ',' + (ey + 1.5) + ' Q' + x + ',' + (ey - 4.5) + ' ' + (x + 4.5) + ',' + (ey + 1.5) + '" fill="none" stroke="' + FG_INK + '" stroke-width="2.6" stroke-linecap="round"/>'; });
+  if (arc === "ujjong") xs.forEach(function (x) { sz += '<path d="M' + (x - 4.5) + ',' + (ey + 1.5) + ' Q' + x + ',' + (ey - 4.5) + ' ' + (x + 4.5) + ',' + (ey + 1.5) + '" fill="none" stroke="' + (F.szemV || FG_INK) + '" stroke-width="2.6" stroke-linecap="round"/>'; });
   else {
     var fel = arc === "gondol" || arc === "mutat", dx = fel ? 1.4 : 0, dy = fel ? -1.8 : 0;   /* gondol + mutat: felfelé néz */
-    xs.forEach(function (x) { sz += '<ellipse cx="' + (x + dx) + '" cy="' + (ey + dy) + '" rx="4.3" ry="5.3" fill="' + FG_INK + '"/><circle cx="' + (x + dx + 1.6) + '" cy="' + (ey + dy - 2) + '" r="1.7" fill="#fff"/>'; });
+    if (F.szem) xs.forEach(function (x) { sz += '<ellipse cx="' + (x + dx) + '" cy="' + (ey + dy) + '" rx="5.4" ry="6.2" fill="' + F.szem + '"/><ellipse cx="' + (x + dx) + '" cy="' + (ey + dy) + '" rx="2.2" ry="5.2" fill="' + FG_INK + '"/><circle cx="' + (x + dx + 1.8) + '" cy="' + (ey + dy - 2.4) + '" r="1.5" fill="#fff"/>'; });
+    else xs.forEach(function (x) { sz += '<ellipse cx="' + (x + dx) + '" cy="' + (ey + dy) + '" rx="4.3" ry="5.3" fill="' + FG_INK + '"/><circle cx="' + (x + dx + 1.6) + '" cy="' + (ey + dy - 2) + '" r="1.7" fill="#fff"/>'; });
   }
   s += '<g class="fg-szem" style="animation-delay:' + (F.kes || 0) + 's">' + sz + '</g>';
   if (arc === "gondol") s += '<path d="M' + (xs[1] - 5) + ',' + (ey - 10) + ' Q' + xs[1] + ',' + (ey - 14) + ' ' + (xs[1] + 5) + ',' + (ey - 10.5) + '" fill="none" stroke="' + d + '" stroke-width="2" stroke-linecap="round"/>';
@@ -81,6 +89,11 @@ function fgFej(F, arc) {
   if (F.pofa === "borz") { s += '<ellipse cx="50" cy="67" rx="4" ry="3" fill="#2f2a33"/>'; my = 74; }
   if (F.pofa === "nyul") { s += '<path d="M47.5,64 L52.5,64 L50,67 Z" fill="#f28aa5"/>'; my = 71; }
   if (F.pofa === "roka") { s += '<ellipse cx="50" cy="68" rx="3.6" ry="2.8" fill="#3a2a2a"/>'; my = 74; }
+  if (F.pofa === "macska") {
+    s += '<ellipse cx="44.5" cy="70" rx="7" ry="5.5" fill="' + F.l + '"/><ellipse cx="55.5" cy="70" rx="7" ry="5.5" fill="' + F.l + '"/><path d="M46.6,64.5 L53.4,64.5 L50,68.4 Z" fill="#f28aa5"/>' +
+      fgTk('<path d="M38,68.5 L23,65.5 M38,71.5 L23,73" stroke="' + (F.bajusz || F.d) + '" stroke-width="1.3" stroke-linecap="round"/>');
+    my = 74; hw = 5;
+  }
   if (F.pofa === "beka") { my = 69; hw = 12; }
   /* száj */
   if (F.pofa === "csor") {
@@ -122,6 +135,7 @@ function fgAlak(F, arc) {
   if (F.farok === "mokus") s += '<path d="M76,132 C104,138 122,112 116,86 C112,66 96,58 86,66 C80,72 84,80 92,80 C100,84 100,100 90,108 C84,114 78,116 76,120 Z" fill="' + F.b + '"' + fgKv(d) + '/><path d="M104,76 C112,88 110,104 100,114" fill="none" stroke="' + F.l + '" stroke-width="5" stroke-linecap="round" opacity=".8"/>';
   if (F.farok === "roka") s += '<path d="M80,130 C110,132 114,104 104,94 C100,112 90,118 80,118 Z" fill="' + F.b + '"' + fgKv(d) + '/><path d="M104,94 C110,100 111,108 108,114 C104,110 101,104 104,94 Z" fill="#fff"' + fgKv(d, 1.5) + '/>';
   if (F.farok === "eger") s += '<path d="M82,132 Q110,136 106,114 Q103,100 111,94" fill="none" stroke="#f2a3b8" stroke-width="3" stroke-linecap="round"/>';
+  if (F.farok === "macska") s += '<path d="M80,132 Q110,134 108,108 Q106,92 114,84" fill="none" stroke="' + d + '" stroke-width="11" stroke-linecap="round"/><path d="M80,132 Q110,134 108,108 Q106,92 114,84" fill="none" stroke="' + F.b + '" stroke-width="7" stroke-linecap="round"/>';
   if (F.farok === "malac") s += '<path d="M84,124 Q95,123 93,115 Q91,109 86,112 Q83,116 89,118" fill="none" stroke="' + d + '" stroke-width="2.6" stroke-linecap="round"/>';
   if (F.farok === "sun") s += fgTuskek(60, 113, 24, 34, 150, 390, 10, F.tu, d);
   if (F.farok === "pancel") s += '<ellipse cx="60" cy="111" rx="33" ry="30" fill="#a9864f"' + fgKv("#6d5530") + '/><ellipse cx="29" cy="104" rx="3.5" ry="6" fill="#c9a46a"/><ellipse cx="91" cy="104" rx="3.5" ry="6" fill="#c9a46a"/><ellipse cx="31" cy="124" rx="3.5" ry="6" fill="#c9a46a"/><ellipse cx="89" cy="124" rx="3.5" ry="6" fill="#c9a46a"/>';
