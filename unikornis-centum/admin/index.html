@@ -326,6 +326,8 @@ function palyakBetolt() {
     while ((m = rm.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, tipus: "meres", regio: m[4] }; PALYA_SORREND.push(m[1]); }
     var rk = /ekPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*(\d+),\s*"[^"]+"(?:,\s*"([^"]+)")?/g;   /* 📚 Bagolykönyvtár: kockánként 📖 Mesekönyv + 📜 Varázstekercs (src/constants.js ekPalya) */
     while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + (m[5] === "tekercs" ? " · 📜 Varázstekercs" : " · 📖 Mesekönyv") + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar", regio: "konyvtar" }; PALYA_SORREND.push(m[1]); }
+    var rsz = /szPalya\("([^"]+)",\s*"([^"]+)",\s*"(\w+)"\)/g, SZF = { mese: ["📖", "Mesekönyv"], tekercs: ["📜", "Varázstekercs"], mester: ["🏅", "Mesterpróba"] };   /* 🧰 Szerszám-létrák (src/constants.js szPalya) — ugyanaz az azonosító, mint a játékban */
+    while ((m = rsz.exec(t))) if (SZF[m[3]]) { var szId = "sz-" + m[1].toLowerCase() + "-" + m[3]; PALYA[szId] = { nev: "🧰 " + m[2] + " – " + SZF[m[3]][1], ikon: SZF[m[3]][0], sorrend: i++, tipus: "szerszam", regio: "konyvtar" }; PALYA_SORREND.push(szId); }
     var rkm = /(K\d+):\s*\{[^}]*?mester:\s*\[([^\]]*)\]/g;   /* 🏅 a kockák alap Mesterpróba-feladatai (EK_KOCKA_DEF[k].mester) */
     while ((m = rkm.exec(t))) EK_MESTER_ALAP[m[1]] = (m[2].match(/"[^"]+"/g) || []).map(function (x) { return x.slice(1, -1); });
     var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
@@ -951,7 +953,7 @@ function nehezLehet(pid) {
     tablak: t === "szorzotabla-felmondas" || t === "szorzasosztas" || t === "osztas" || (t === "hianyzo" && (PALYA[pid] || {}).regio === "szorzo") ? [2, 3, 4, 5, 6, 7, 8, 9, 10]
           : t === "maradekos_osztas" ? [2, 3, 4, 5, 6, 7, 8, 9] : null,
     tablaSzo: t === "osztas" || t === "maradekos_osztas" ? "osztó" : "tábla",
-    darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas"
+    darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas" && t !== "szerszam"
   };
 }
 function felulirOsszevon(egyeni, csoportLista) {
