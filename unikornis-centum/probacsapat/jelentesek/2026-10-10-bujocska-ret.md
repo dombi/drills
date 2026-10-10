@@ -40,4 +40,4 @@ A gyerek-játékosok találtak olyat, amit a hibavadász nem (1., 2., 3., 4.) �
 - ✅ 3. 2. hiba után: „Semmi baj! Nézd: 7 + 3 = 10” (az egész játékban, a „✘” helyett)
 - ✅ 4. a kártyán „Melyik szám bújt el?”; ha az eredményt írja be: „Ez az eredmény. Melyik szám bújt el?”
 - ✅ 6. kisebbítendő: „Melyik számból marad nyolc, ha öt elmegy belőle?”
-- ⏳ 5. korai beszéd — élő próbán figyelni · ⏳ 7. ✨-farmolás — producer-döntés
+- ⏳ 5. korai beszéd — élő próbán figyelni · ✅ 7. ✨-farmolás — a producer döntése: maradjon így
