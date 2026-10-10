@@ -2399,3 +2399,23 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
   .szp-t svg{ width:60px; height:54px; }
 }
 @media (prefers-reduced-motion:reduce){ .szp-repulo,.szp-fedel,.szp-szalag-kep{ transition:none; } }
+
+/* ============ 🔎/✋ OLVASÓ-ELLENŐR (src/olvaso-ellenor.js) — rajz: regi-kockak-konyvtar-rajzterv.html 3. pont ============ */
+/* 🔎 a kérdés lila szaggatott keretben lüktet; megtalálva teli lila; a többi mondat koppintható */
+.oe-keret{ outline:3px dashed #8a5cd6; outline-offset:3px; border-radius:8px; cursor:pointer; animation:oe-lukt 1.3s ease-in-out infinite; }
+@keyframes oe-lukt{ 0%,100%{ outline-color:#8a5cd6; background:rgba(138,92,214,.06); } 50%{ outline-color:#c7a8f3; background:rgba(138,92,214,.16); } }
+.oe-keres .op-m,.oe-keres .ek-tort p{ cursor:pointer; }
+.op-kerdes.oe-megvan,.ek-kk.oe-megvan{ background:#e6dafb; box-shadow:inset 0 0 0 3px #8a5cd6; border-radius:8px; }
+.oe-billen{ animation:oe-billen .6s ease; opacity:.75; }
+@keyframes oe-billen{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-1.2deg); } 75%{ transform:rotate(1.2deg); } }
+.oe-var #beiro-doboz,.oe-var #szambillentyuzet{ opacity:.45; }
+/* ✋ köztes szám: meleg sárga tábla — nem piros, nem hiba, „még egy lépcső” */
+.visszajelzes.oe-tabla{ display:inline-block; background:#fff3c4; border:2.5px solid #e6ad2e; border-radius:12px; padding:6px 12px; color:#6a4a00; font-weight:700; }
+.visszajelzes.oe-tabla .oe-kez{ font-size:1.2em; }
+.visszajelzes.oe-mit{ color:#5b3aa8; font-weight:700; }
+/* a feladat saját tippjénél kiemelt rajz-rész (pl. a kosár) + koppintással számolható gyümölcsök */
+.oe-kiemel{ background:#fff3c4; box-shadow:0 0 0 3px #e6ad2e; border-radius:10px; }
+.ek-gy{ position:relative; display:inline-block; cursor:pointer; }
+.ek-gy.szamolt{ opacity:.55; }
+.ek-gy.szamolt::after{ content:attr(data-n); position:absolute; right:-4px; top:-6px; font-size:13px; font-weight:800; color:#fff; background:#8a5cd6; border-radius:999px; min-width:18px; line-height:18px; text-align:center; letter-spacing:0; }
+@media (prefers-reduced-motion:reduce){ .oe-keret,.oe-billen{ animation:none; } }

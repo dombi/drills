@@ -54,7 +54,14 @@ function szMutat(f) {
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
+  if (szKeresKell(f)) { dobogoZar(true); opFelolvas(f, function () { szKeres(f); }); return; }
   opFelolvas(f);
+}
+/* 🔎 „Mire felelsz?” (olvaso-ellenor.js) — 2. döntés: csak ha kell: a pálya első feladatánál és a liftben (a 🙋 a menüből) */
+function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi")); }
+function szKeres(f) {
+  if (!J || J.feladat !== f) return;
+  oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
 }
 function opMod(be) {
   var k = $("kepernyo-jatek"); if (!k) return;
@@ -157,9 +164,9 @@ function szSegitMenu(menu) {
       ev.stopPropagation(); hangGomb(); menu.hidden = true;
       var s = b.getAttribute("data-s");
       if (s === "mit") {
-        if (f.szerep === "nagy" && L) liftSegitseg(L, 1);
-        opKerdesVillan();
-        mondd("Mit kérdeznek? " + ekKiejt(f.op.fuzet ? f.op.fuzet.kerdes : f.op.kerdes) + " " + f.mitKerdez);
+        if (f.szerep === "nagy" && L) liftSegitseg(L, 1);            /* a ládában ez még önálló */
+        opOlvasAll(); dobogoZar(true);
+        oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
       } else if (s === "kicsi") { if (liftKer(L) === "lift") szLiftIndul(f); }
       else if (s === "tovabb") { if (liftSegitseg(L, 2) === "lift") szLiftIndul(f); }
     });

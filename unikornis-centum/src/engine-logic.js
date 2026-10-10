@@ -138,7 +138,9 @@ function ujFeladat() {
   feladatMutat(f);
 }
 function feladatMutat(f) {
-  J.parokKesz = 0;
+  J.parokKesz = 0; J.joVolt = null;
+  oeTorol();                                 /* 🔎/✋ az előző feladat jelzései le (olvaso-ellenor.js) */
+  if (!f.ek && $("ek-fuzet")) $("ek-fuzet").hidden = true;   /* 📓 a régi könyvtári pálya füzete ne maradjon a következő pálya kérdésén (2026-10-10) */
   tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   dobogoRejt();                              /* 🏆 a dobogó is (dobogo.js) */
@@ -403,9 +405,11 @@ function rosszValaszKonyvel(f, cimke) {
 function ertekel(valasz) {
   var f = J.feladat;
   if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
+  if (J.joVolt === f) return;                  /* a jó válasz után a továbblépésig nincs második értékelés (dupla Enter / beszéd + gomb → dupla jutalom, kihagyott feladat — próbacsapat 2026-10-10) */
   var mar = (f.csalad === "maradekos");
   var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
   if (helyesE) {
+    J.joVolt = f;
     var elsore = (J.probak === 0 && !f.vezet);   /* mérés: a végigvezetett lépés nem „elsőre jó” */
     naplozz(f.naplo, elsore, mar ? (valasz.h + "m" + valasz.m) : valasz);
     J.futoOssz++; if (elsore) J.futoElsore++;
@@ -436,13 +440,15 @@ function ertekel(valasz) {
     dropUnnepel(dropProbal(0.15));
     jelvenyEllenoriz();
     ment();
-    var tovabb = function () { if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };
+    var Jmost = J;
+    var tovabb = function () { if (!J || J !== Jmost || J.feladat !== f) return; if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };   /* közben kilépett / új pályát indított: a késleltetett lépés ne fusson az új pályán */
     if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
     else setTimeout(tovabb, Math.max(f.hianyzo ? 1300 : 900, fv));   /* 🐭 bújós feladatnál a mozdulat végigér */
   } else {
     if (f.vs && vsResz(f, valasz)) return;     /* 🧺 vásár: részeredmény = „jó lépés”, nem hiba (vasar.js) */
+    if (!mar && (f.ek || f.oe) && oeJelzes(f, valasz, kezNelkulUjra)) { ment(); return; }   /* 🔎/✋ köztes szám vagy másik mennyiség: nem hiba, csak jelzés — nem fogy próba (olvaso-ellenor.js) */
     rosszValaszKonyvel(f, mar ? (valasz.h + "m" + valasz.m) : valasz);
     $("visszajelzes").className = "visszajelzes rossz";
     if (mar) {
@@ -844,7 +850,8 @@ function naplozz(alap, elsore, valasz) {
   if (J.palya.teny) tenyKorJegyez(tj);         /* 🌸 Neked szóló ösvény: a botlós tény 3–5 feladattal később visszajön */
   var sor = { t: Date.now(), palya: J.palya.id, kerdes: alap.lathato || alap.kerdes, valasz: String(valasz),
     helyes: alap.helyes, elsore: !!elsore, atlepes: !!alap.atlepes, tipus: alap.tipus };
-  if (alap.forma) sor.forma = alap.forma;      /* 🌿 „mi bújt el”: a kérdés a látott alak (7 + ? = 12), a válasz a rejtett szám */
+  if (alap.forma) sor.forma = alap.forma;
+  if (alap.oe) sor.oe = alap.oe;              /* 🔎/✋ előtte jelzés volt (pl. „✋13” köztes szám), utána önjavítás */      /* 🌿 „mi bújt el”: a kérdés a látott alak (7 + ? = 12), a válasz a rejtett szám */
   P().naplo.push(sor);
   if (P().naplo.length > 80) P().naplo.shift();
 }
