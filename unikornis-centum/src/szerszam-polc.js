@@ -22,7 +22,8 @@ var SZP_LADA = '<svg class="szp-lada-svg" viewBox="0 0 120 80" aria-hidden="true
   '<g class="szp-fedel"><path d="M10,36 Q10,14 60,14 Q110,14 110,36 Z" fill="#c98a4b" stroke="#6e4a22" stroke-width="3"/><path d="M14,30 Q60,18 106,30" stroke="#e8b06a" stroke-width="3" fill="none"/></g></svg>';
 
 function szpPolc(s) {
-  var t = szerszamT(s.id), feny = szerszamFeny(s.id), L = PALYAK.filter(function (p) { return p.szerszam === s.id && !palyaRejtve(p); });
+  var t = szerszamT(s.id), feny = szerszamFeny(s.id), polc = !!s.kocka;   /* 📚 olvasó-polc (s.kocka): ugyanaz a polc, 🔮 nélkül (olvaso-polc.js) */
+  var L = PALYAK.filter(function (p) { return (polc ? p.polc : p.szerszam) === s.id && !palyaRejtve(p); });
   var targy = ["mese", "tekercs", "gomb", "mester"].map(function (fok) {
     var pa = L.filter(function (p) { return p.fok === fok; })[0]; if (!pa) return "";
     return '<button type="button" class="szp-t szp-' + fok + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
@@ -30,22 +31,26 @@ function szpPolc(s) {
   }).join("");
   return '<div class="szp-polc' + (t.l ? " lada" : "") + '" data-sz="' + s.id + '">' +
     '<div class="szp-tabla" style="--feny:' + feny.toFixed(2) + '"><span class="szp-ikon">' + s.ikon + '</span><span class="szp-nev">' + s.nev + '</span>' +
-      (t.m ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
+      ((polc ? polcSzalag(s.id) : t.m) ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
     '<div class="szp-targyak">' + targy + '</div><div class="szp-deszka"></div></div>';
 }
-/* a szekrény (ui.js hívja a Holdfény-szárny kocka-sorai alatt); null, ha egy szerszám sem látszik */
+/* a szekrény (ui.js hívja a Holdfény-szárnyban): fent a 📚 olvasó-polc (🔎 ✋), alatta a 🧰 szerszámok, lent a közös láda; null, ha semmi sem látszik.
+   (A teljes terem — bal fal olvasó-polc, közép Kockavár, jobb fal szekrény — a 3. kód-körben.) */
 function szSzekreny() {
   var lista = SZERSZAMOK.filter(function (s) { return PALYAK.some(function (p) { return p.szerszam === s.id && !palyaRejtve(p); }); });
-  if (!lista.length) return null;
-  var benn = SZERSZAMOK.filter(function (s) { return szerszamLadaban(s.id); });
+  var olvaso = OLVASO_POLCOK.filter(function (s) { return PALYAK.some(function (p) { return p.polc === s.id && !palyaRejtve(p); }); });
+  if (!lista.length && !olvaso.length) return null;
+  var benn = OLVASO_POLCOK.concat(SZERSZAMOK).filter(function (s) { return szerszamLadaban(s.id); });   /* egy KÖZÖS láda (rajzterv 3. döntés ✅) */
   var sz = el("div", "szp-szekreny");
-  sz.innerHTML = '<div class="szp-tetej">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") +
+  sz.innerHTML = (olvaso.length ? '<div class="szp-tetej">📚 Olvasó-polc</div>' + olvaso.map(szpPolc).join("") : '') +
+    (lista.length ? '<div class="szp-tetej' + (olvaso.length ? ' szp-tetej2' : '') + '">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") : '') +
     '<div class="szp-lab"><div class="szp-lada">' + SZP_LADA + '<span class="szp-lada-ikonok">' + benn.map(function (s) { return '<i data-sz="' + s.id + '">' + s.ikon + '</i>'; }).join("") + '</span></div></div>';
   Array.prototype.forEach.call(sz.querySelectorAll(".szp-t"), function (b) {
     b.addEventListener("click", function () {
       hangGomb();
       var pa = palyaKeres(b.getAttribute("data-pid")); if (!pa) return;
       if (palyaElfogyott(pa)) { mondd(elfogyottMondat()); return; }
+      if (pa.polc && pa.fok === "mester" && !polcMesterLista(pa.polc).length) { mondd("Ez a Mesterpróba hamarosan kinyílik!"); return; }   /* a szöveg a felhőben van */
       if (b.classList.contains("szp-mester")) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
       ligetUget(b, function () { palyaInditas(pa.id); });
     });

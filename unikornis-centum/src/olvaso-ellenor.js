@@ -19,7 +19,7 @@
                              ✋ meleg sárga tábla vagy 🔎 „Mit kérdeznek?” + a kérdés felvillan. Feladatonként EGYSZER;
                              ha utána jó → önjavítás (3. döntés ✅: önállónak számít; mondat: oeDicser). true = kezelte.
      oeKeres(f, o)         → 🔎 kérdés-keret: a kérdés lila szaggatott keretben lüktet, a gyerek megkoppintja.
-                             Rossz mondatra: megbillen, a kérdés felvillan, nincs „rossz” hang. o = { kesz, mondat, szo }
+                             Rossz mondatra: megbillen, a kérdés felvillan, nincs „rossz” hang. o = { kesz, mondat, szo, al: { mondat-index: saját mondat } }
      oeKeresFut()          → épp a kérdést keresi-e (a pálya addig zárva tarthatja a választ)
      oeTorol()             → új feladatnál (feladatMutat) minden jelzés le.
    Mikor kérdez a 🔎 (2. döntés ✅ „csak ha kell”): a pálya első feladatánál · a liftben · a 🙋 „Mit kérdeznek?”-ből ·
@@ -144,8 +144,9 @@ function oeKeresKatt(ev) {
     K.hiba++;
     mon.classList.remove("oe-billen"); void mon.offsetWidth; mon.classList.add("oe-billen");
     oeKerdesVillan();
-    var v2 = $("visszajelzes"); v2.className = "visszajelzes oe-mit"; v2.textContent = OE_M.keresMas;
-    mondd(OE_M.keresMas);
+    var mas = (K.o.al && K.o.al[mon.getAttribute("data-m")]) || OE_M.keresMas;   /* ál-kérdés („Kata megszámolta, hány…”): saját mondat */
+    var v2 = $("visszajelzes"); v2.className = "visszajelzes oe-mit"; v2.textContent = mas;
+    mondd(ekKiejt(mas));
     return true;
   }
   return false;

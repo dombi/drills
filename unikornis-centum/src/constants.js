@@ -365,13 +365,13 @@ PALYAK.push(
 var EK_KOCKA_DEF = {
   K1: { sablonok: ["nagyito", "kirol", "mit", "lanc", "nyomoz"],
         asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"],
-        var: 0, mester: ["zrinyi-2020-3-M-13", "zrinyi-2021-3-M-11"] },          /* Röfi házai · csokigolyó és perec */
+        var: 0, mester: ["zrinyi-2021-3-M-11", "zrinyi-2020-3-M-13"] },          /* 🔎 polc: csokigolyó és perec (53%) → Röfi házai (42%) — a könnyebb elöl (tartalom-lap 1. döntés ✅) */
   K2: { sablonok: ["iker", "nem", "legalabb", "par", "mindketto"],
         asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"],
         var: 1, mester: ["zrinyi-2024-3-M-8", "zrinyi-2023-3-M-8"] },           /* telefonszám · a 23 számszomszédai (ÚJ, fejtoro-mesterproba.json) */
   K3: { sablonok: ["lepcso", "kinek", "felut", "hanylepes", "kakas"],
         asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"],
-        var: 2, mester: ["zrinyi-2022-3-M-13", "zrinyi-2022-3-M-18"] }          /* Varjú Varga Pál cipői · a kiskakas szemétdombja */
+        var: 2, mester: ["zrinyi-2021-3-O-4", "zrinyi-2024-3-M-10"] }           /* ✋ polc: Mekk Elek (81%) → Icike, picike, aprócska (46%) — ÚJ, fejtoro-mesterproba-polc.json (2026-10-10) */
 };
 var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pályahossz”: 29 / 29 / 28 pötty) */
   K1: [5, 5, 5, 4, 5, 5],
@@ -399,17 +399,21 @@ function ekPalya(id, nev, ikon, osztaly, kocka, fok) {
     regio: "konyvtar", konyvtar: true, szarny: sz.id, kocka: kocka, osztaly: osztaly, szint: sz.szint,
     palcim: EK_FOK[fok].al, kez_nelkul: true, alap: { tipus: "konyvtar" }, allomasok: all };
 }
-PALYAK.push(
-  ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1", "mese"),
-  ekPalya("ek-k1-3v", "Kit kérdeznek?", "🔎", 3, "K1", "tekercs"),
-  ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2", "mese"),
-  ekPalya("ek-k2-3v", "Kis szavak", "🔤", 3, "K2", "tekercs"),
-  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3", "mese"),
-  ekPalya("ek-k3-3v", "Ez már a válasz?", "✋", 3, "K3", "tekercs")
-  /* ✨ Csillagtorony (5. o.) — a producer döntése (2026-09-29): addig NINCS a menüben, amíg meg nem jönnek az IGAZI
-     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. számkörei (g ≥ 5) megmaradnak;
-     visszakapcsolás: ide sorok, mint fent, 5-ös osztállyal és „-5” / „-5v” végű azonosítóval. */
-);
+/* ⚠️ A régi 6 kocka-pálya (ek-k1/k2/k3, 📖 + 📜) VÉGLEG kikerült (regi-kockak-konyvtar-terv.html 4. döntés ✅, 2026-10-10):
+   a megszerzett kockák, a Mesterpróba-eredmények és a napló megmaradnak (P().ek), a generátoraik (konyvtar.js) lift-anyagként élnek.
+   Helyettük a 📚 OLVASÓ-POLC két polca (olvaso-polc.js) — szerszám-módra: 📖 Mesekönyv (20) · 📜 Varázstekercs (20) · 🏅 Mesterpróba (1),
+   nincs lakat, nincs kocka-nap, 🛗 lift, 🧰 láda (szerszam.js), folytatás kilépés után ugyanazon a napon. */
+var POLC_PALYA_FOK = { mese: ["📖", "Mesekönyv", 20], tekercs: ["📜", "Varázstekercs", 20], mester: ["🏅", "Mesterpróba", 1] };
+function polcPalya(polc, nev, fok) {
+  var F = POLC_PALYA_FOK[fok];
+  return { id: "polc-" + polc.toLowerCase() + "-" + fok, nev: nev + " – " + F[1], ikon: F[0], polc: polc, fok: fok, polcNev: nev,
+    regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "polc", polc: polc, fok: fok },
+    allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
+}
+PALYAK.push(polcPalya("KERES", "Mire felelsz?", "mese"), polcPalya("KERES", "Mire felelsz?", "tekercs"), polcPalya("KERES", "Mire felelsz?", "mester"),
+  polcPalya("VALASZ", "Ez már a válasz?", "mese"), polcPalya("VALASZ", "Ez már a válasz?", "tekercs"), polcPalya("VALASZ", "Ez már a válasz?", "mester"));
+/* a régi pályák neve (a pult és a régi mentések miatt) — a játékban már nem indíthatók */
+var EK_REGI_PALYAK = { "ek-k1-3v": "K1", "ek-k2-3v": "K2", "ek-k3-3v": "K3" };
 /* 🧰 SZERSZÁM-LÉTRÁK (szerszam-palya.js; terv: Matekos\szerszam-letrak-terv.html ✅) — szerszámonként 3 pálya a 🌙 Holdfény-szárnyban:
    📖 Mesekönyv (5 feladat) · 📜 Varázstekercs (4) · 🔮 Kristálygömb (4, kétféle dolog: hely + pár; Matekos\szerszam-letrak-uj-allomas.html ✅ 2026-10-10) · 🏅 Mesterpróba (1). Nincs lakat, nincs kocka-nap; a menüben polcként
    jelennek meg (szerszam-polc.js), nem kártyaként. Melyik látszik: a pult (szerszamLatszik — alap: csak a 📌 KOTOTT). */

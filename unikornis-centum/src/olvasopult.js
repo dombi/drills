@@ -15,6 +15,8 @@
      opFelolvas(f, k)  → mondatonként felolvas, és közben kiemeli a sort, amit mond (a lapot is odalapozza).
      opJelol(i, resz)  → egy mondat kiemelése (rossz válasznál: „ez a mondat nem stimmel”); opJelolTorol().
      opLepesLap(), opLepes(html) → a végigvezetés a könyv második lapjára kerül: „a bagoly lapoz egyet”.
+     A 📚 olvasó-polc (olvaso-polc.js, 2026-10-10) még: o.kerdesHely (a kérdés a mese közepén / elején), o.rejt (a kérdés addig
+     nem lila, amíg a gyerek meg nem találja), o.lepcso (🪜 lépcsőfok-sor a kérdés alatt), o.segit (🙋 a fejlécben), o.mester (arany szegély).
    A betűméret (1–3) gyerekenként megmarad: P().opBetu. */
 
 var OP_SORSZ = ["első", "második", "harmadik", "negyedik", "ötödik", "hatodik"];
@@ -40,15 +42,24 @@ function opCsik() {
 function opSorok(mondatok, cls) {
   return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + m + '</p>'; }).join("");
 }
+/* a szöveg: mondatok + a kérdés (hely: hányadik mondat elé kerül — a 📚 olvasó-polc 🔍 formájában véletlen; alap: a végén)
+   + a 🪜 lépcsőfok-sor a kérdés alatt (lepcso: kész html) */
+function opSzoveg(mondatok, kerdes, hely, lepcso) {
+  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + m + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + kerdes + '</p>';
+  if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
+  return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
+}
 function opKonyv(o) {
   var b = opBetu(), fz = o.fuzet;
-  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSorok(o.mondatok) + '<p class="op-kerdes" data-m="k">' + o.kerdes + '</p></div>';
-  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSorok(fz.mondatok) + '<p class="op-kerdes" data-m="k">' + fz.kerdes + '</p></div></div>';
+  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso) + '</div>';
+  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso) + '</div></div>';
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
-  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + '">' +
-    '<div class="op-fej">' + opCsik() + '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
+  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +
+    '<div class="op-fej">' + opCsik() + (o.segit ? '<button type="button" class="op-segit" aria-label="Segítség">🙋</button>' : '') +
+    '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
       [1, 2, 3].map(function (x) { return '<button type="button" data-b="' + x + '" class="' + (x === b ? "akt" : "") + '">A</button>'; }).join("") + '</div></div>' +
+    (o.segit ? '<div class="op-segitmenu" hidden></div>' : '') +
     '<div class="op-lapok"><div class="op-lap op-bal">' + bal + '</div><div class="op-gerinc"></div><div class="op-lap op-jobb">' + (o.rajz || "") + '</div></div>' +
   '</div>';
 }
@@ -93,9 +104,10 @@ function opFelolvas(f, kesz) {
   var tok = ++OP.olvasTok, sz = opAktivSzoveg();
   var lista = [];
   if (f.opElo) { lista.push({ t: f.opElo }); f.opElo = null; }
-  var M = f.op.fuzet ? f.op.fuzet.mondatok : f.op.mondatok;
-  M.forEach(function (m, i) { lista.push({ t: m, i: i }); });
-  lista.push({ t: f.op.fuzet ? f.op.fuzet.kerdes : f.op.kerdes, i: "k" });
+  var O = f.op.fuzet || f.op, M = O.mondatok, kh = O.kerdesHely != null && O.kerdesHely >= 0 && O.kerdesHely < M.length ? O.kerdesHely : M.length;
+  M.forEach(function (m, i) { if (i === kh) lista.push({ t: O.kerdes, i: "k" }); lista.push({ t: m, i: i }); });
+  if (kh === M.length) lista.push({ t: O.kerdes, i: "k" });
+  if (O.lepcsoFel) lista.push({ t: O.lepcsoFel });   /* 🪜 a lépcsőfok kérdése (olvaso-polc.js) */
   var i = 0;
   (function kov() {
     if (tok !== OP.olvasTok || !J || J.feladat !== f) return;

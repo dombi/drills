@@ -371,13 +371,13 @@ PALYAK.push(
 var EK_KOCKA_DEF = {
   K1: { sablonok: ["nagyito", "kirol", "mit", "lanc", "nyomoz"],
         asztalok: ["Nagyító", "Kiről szól?", "Mit számolunk?", "Lánc-kérdés", "Nyomozás"],
-        var: 0, mester: ["zrinyi-2020-3-M-13", "zrinyi-2021-3-M-11"] },          /* Röfi házai · csokigolyó és perec */
+        var: 0, mester: ["zrinyi-2021-3-M-11", "zrinyi-2020-3-M-13"] },          /* 🔎 polc: csokigolyó és perec (53%) → Röfi házai (42%) — a könnyebb elöl (tartalom-lap 1. döntés ✅) */
   K2: { sablonok: ["iker", "nem", "legalabb", "par", "mindketto"],
         asztalok: ["Ikerkérdés", "Nem, különböző", "Legalább", "Pár, hét, tucat", "Mindkettő"],
         var: 1, mester: ["zrinyi-2024-3-M-8", "zrinyi-2023-3-M-8"] },           /* telefonszám · a 23 számszomszédai (ÚJ, fejtoro-mesterproba.json) */
   K3: { sablonok: ["lepcso", "kinek", "felut", "hanylepes", "kakas"],
         asztalok: ["Lépcsőfok", "Kinek van igaza?", "Félút-figyelő", "Hány lépés?", "Kakasmagasság"],
-        var: 2, mester: ["zrinyi-2022-3-M-13", "zrinyi-2022-3-M-18"] }          /* Varjú Varga Pál cipői · a kiskakas szemétdombja */
+        var: 2, mester: ["zrinyi-2021-3-O-4", "zrinyi-2024-3-M-10"] }           /* ✋ polc: Mekk Elek (81%) → Icike, picike, aprócska (46%) — ÚJ, fejtoro-mesterproba-polc.json (2026-10-10) */
 };
 var EK_DARAB = {          /* 1–5. asztal + Odú-küszöb (tartalom-lap „Pályahossz”: 29 / 29 / 28 pötty) */
   K1: [5, 5, 5, 4, 5, 5],
@@ -405,17 +405,21 @@ function ekPalya(id, nev, ikon, osztaly, kocka, fok) {
     regio: "konyvtar", konyvtar: true, szarny: sz.id, kocka: kocka, osztaly: osztaly, szint: sz.szint,
     palcim: EK_FOK[fok].al, kez_nelkul: true, alap: { tipus: "konyvtar" }, allomasok: all };
 }
-PALYAK.push(
-  ekPalya("ek-k1-3", "Kit kérdeznek?", "🔎", 3, "K1", "mese"),
-  ekPalya("ek-k1-3v", "Kit kérdeznek?", "🔎", 3, "K1", "tekercs"),
-  ekPalya("ek-k2-3", "Kis szavak", "🔤", 3, "K2", "mese"),
-  ekPalya("ek-k2-3v", "Kis szavak", "🔤", 3, "K2", "tekercs"),
-  ekPalya("ek-k3-3", "Ez már a válasz?", "✋", 3, "K3", "mese"),
-  ekPalya("ek-k3-3v", "Ez már a válasz?", "✋", 3, "K3", "tekercs")
-  /* ✨ Csillagtorony (5. o.) — a producer döntése (2026-09-29): addig NINCS a menüben, amíg meg nem jönnek az IGAZI
-     5. osztályos Zrínyi-feladatok (a mostaniak mind 3. osztályosak). A konyvtar.js 5. o. számkörei (g ≥ 5) megmaradnak;
-     visszakapcsolás: ide sorok, mint fent, 5-ös osztállyal és „-5” / „-5v” végű azonosítóval. */
-);
+/* ⚠️ A régi 6 kocka-pálya (ek-k1/k2/k3, 📖 + 📜) VÉGLEG kikerült (regi-kockak-konyvtar-terv.html 4. döntés ✅, 2026-10-10):
+   a megszerzett kockák, a Mesterpróba-eredmények és a napló megmaradnak (P().ek), a generátoraik (konyvtar.js) lift-anyagként élnek.
+   Helyettük a 📚 OLVASÓ-POLC két polca (olvaso-polc.js) — szerszám-módra: 📖 Mesekönyv (20) · 📜 Varázstekercs (20) · 🏅 Mesterpróba (1),
+   nincs lakat, nincs kocka-nap, 🛗 lift, 🧰 láda (szerszam.js), folytatás kilépés után ugyanazon a napon. */
+var POLC_PALYA_FOK = { mese: ["📖", "Mesekönyv", 20], tekercs: ["📜", "Varázstekercs", 20], mester: ["🏅", "Mesterpróba", 1] };
+function polcPalya(polc, nev, fok) {
+  var F = POLC_PALYA_FOK[fok];
+  return { id: "polc-" + polc.toLowerCase() + "-" + fok, nev: nev + " – " + F[1], ikon: F[0], polc: polc, fok: fok, polcNev: nev,
+    regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "polc", polc: polc, fok: fok },
+    allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
+}
+PALYAK.push(polcPalya("KERES", "Mire felelsz?", "mese"), polcPalya("KERES", "Mire felelsz?", "tekercs"), polcPalya("KERES", "Mire felelsz?", "mester"),
+  polcPalya("VALASZ", "Ez már a válasz?", "mese"), polcPalya("VALASZ", "Ez már a válasz?", "tekercs"), polcPalya("VALASZ", "Ez már a válasz?", "mester"));
+/* a régi pályák neve (a pult és a régi mentések miatt) — a játékban már nem indíthatók */
+var EK_REGI_PALYAK = { "ek-k1-3v": "K1", "ek-k2-3v": "K2", "ek-k3-3v": "K3" };
 /* 🧰 SZERSZÁM-LÉTRÁK (szerszam-palya.js; terv: Matekos\szerszam-letrak-terv.html ✅) — szerszámonként 3 pálya a 🌙 Holdfény-szárnyban:
    📖 Mesekönyv (5 feladat) · 📜 Varázstekercs (4) · 🔮 Kristálygömb (4, kétféle dolog: hely + pár; Matekos\szerszam-letrak-uj-allomas.html ✅ 2026-10-10) · 🏅 Mesterpróba (1). Nincs lakat, nincs kocka-nap; a menüben polcként
    jelennek meg (szerszam-polc.js), nem kártyaként. Melyik látszik: a pult (szerszamLatszik — alap: csak a 📌 KOTOTT). */
@@ -1908,9 +1912,9 @@ function villamAllapot(tar, ma) {
      liftRossz(L)        → "ujra" (1. rossz) · "lift" (2. rossz: indul a lift) · "vegig" (a lift után is 2. rossz)
      liftSegitseg(L, s)  → 🙋 s. sora: 1 = „Mit kérdeznek?” (még önálló) → "semmi"; 2+ → "lift" (ha még nem volt)
      liftKer(L)          → a gyerek kérte („🔎 Nézzük kicsiben”) → "lift" · "semmi", ha a pult kikapcsolta
-     liftKicsi(L, jo)    → egy kicsi vége: "kicsi" (jöhet még egy) · "vissza" (2 jó → vissza a nagyra) · "vegig" (3 kicsi után)
+     liftKicsi(L, jo)    → egy kicsi vége: "kicsi" (jöhet még egy) · "vissza" (2 jó → vissza a nagyra; L.kicsiJoKell felülírja) · "vegig" (3 kicsi után)
      liftVegig(L)        → a pálya végigvezette a nagyot (együtt oldották meg)
-     liftNagyKesz(L, jo) → a nagy feladat vége: könyvel (napló + láda) → { e, onallo, ladaba, mester }
+     liftNagyKesz(L, jo) → a nagy feladat vége: könyvel (napló + láda) → { e, onallo, ladaba, mester } (L.nagy: számít-e a ládába)
    A kicsi BESZÁMÍT abba a pályába, ahol a gyerek tart, teljes jutalommal (ezt a pálya intézi); a menüsor sem mutatja.
    Mondatok: liftMondat("indul" | "vissza", { kicsi, nagy }) — a tiltott szavakat (LIFT_TILOS) a modul kiszűri.
 
@@ -1935,6 +1939,13 @@ var SZERSZAMOK = [
   { id: "KOTOTT", ikon: "📌", nev: "Ahol csak egyféle lehet", kartya: "Ott kezdem, ahol csak egyféle lehet." },
   { id: "EGESZ",  ikon: "🧺", nev: "Előbb az egész",          kartya: "Összeszámolom, mennyi van összesen." },
   { id: "MIT",    ikon: "🔍", nev: "Mit számolok?",           kartya: "Megnézem, mit számolok egynek." }
+];
+/* 📚 az OLVASÓ-POLC két polca (olvaso-polc.js; terv: Matekos
+egi-kockak-konyvtar-terv.html ✅) — ugyanaz a lift + láda, mint a
+   szerszámoknál (egy közös láda, egy közös pult-küszöb); a kocka: a régi építőkocka, ami a Kockavárban gyűlik */
+var OLVASO_POLCOK = [
+  { id: "KERES",  ikon: "🔎", nev: "Mire felelsz?",    kartya: "Megkeresem, mit kérdeznek – és pont arra felelek.", kocka: "K1" },
+  { id: "VALASZ", ikon: "✋", nev: "Ez már a válasz?", kartya: "Megnézem: ez már a válasz, vagy csak egy lépcső?",  kocka: "K3" }
 ];
 var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
@@ -2110,7 +2121,7 @@ function liftKicsi(L, jo) {
   if (!L.bent) return "semmi";
   L.kicsi++; if (jo) L.kicsiJo++;
   szerszamKicsiJegyez(L.sz, L.palya, "kicsi", L.fid, jo);
-  if (L.kicsiJo >= LIFT_KICSI_JO) { L.bent = false; return "vissza"; }
+  if (L.kicsiJo >= (L.kicsiJoKell || LIFT_KICSI_JO)) { L.bent = false; return "vissza"; }   /* polc: 1 (generált) vagy 2 (Mesterpróba-testvér) */
   if (L.kicsi >= LIFT_KICSI_MAX) { L.bent = false; L.vegig = true; return "vegig"; }
   return "kicsi";
 }
@@ -2122,7 +2133,7 @@ function liftNagyKesz(L, jo) {
   if (L.elso === null) L.elso = !!jo;
   var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
   if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
-  var nagy = L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester", ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
   szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
   if (L.lift) {
     var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };
@@ -2145,11 +2156,11 @@ function liftNagyKesz(L, jo) {
 /* a pultnak: egy gyerek mentett szerszám-adatából (u.unicorns[leny].szerszam) egy sor szerszámonként */
 function szerszamOsszegzes(adat, beall) {
   var b = szerszamBeall(beall), t = (adat && adat.t) || {}, li = (adat && adat.li) || [];
-  return SZERSZAMOK.map(function (s) {
+  return SZERSZAMOK.concat(OLVASO_POLCOK).map(function (s) {
     var x = t[s.id] || {}, h = Array.isArray(x.h) ? x.h : [], sl = li.filter(function (l) { return l.sz === s.id; });
     return { id: s.id, ikon: s.ikon, nev: s.nev, utolso: h.slice(-b.n), onallo: szerszamOnalloDb(h, b.n), k: b.k, n: b.n,
              lada: x.l || "", mester: x.m || "", mesterek: x.mh || {}, liftek: sl.length, liftSiker: sl.filter(function (l) { return l.siker; }).length,
-             latszik: !!b.latszik[s.id] };
+             latszik: s.kocka ? true : !!b.latszik[s.id], polc: !!s.kocka };
   });
 }
 /* ============ 3c) 🌱 GONDOZÁS — a visszatérés közös alapja (terv/teny-kert-tamagocsi-terv.html) ============
@@ -9045,7 +9056,7 @@ function ekKockaLista() {
   var st = ekAllapot(), L = (st.varSor || []).slice();
   for (var pid in st.mester) {                       /* régebbi mentés / pult-javítás: ami a mester-listában van, az is a vár része */
     if (!st.mester[pid]) continue;
-    var pa = palyaKeres(pid), d = pa && EK_KOCKA_DEF[pa.kocka];
+    var pa = palyaKeres(pid), d = EK_KOCKA_DEF[pa ? pa.kocka : EK_REGI_PALYAK[pid]];   /* a régi ek-k*-3v pályák már nincsenek a listában (2026-10-10) */
     if (d && d.var != null && L.indexOf(d.var) < 0) L.push(d.var);
   }
   return L.slice(0, EK_KOCKAK.length);
@@ -9098,6 +9109,20 @@ function ekMesterKapuSVG(palya) {
   return '<g class="ek-kapu" transform="translate(-8,0)"><path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#e8b43a" stroke-width="12" stroke-linecap="round"/>' +
     '<path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#fff3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 10"/>' +
     '<circle cx="0" cy="-160" r="18" fill="#fff6d8" stroke="#e8b43a" stroke-width="3"/><text x="0" y="-153" font-size="20" text-anchor="middle">' + (kesz ? "✅" : "🏅") + '</text></g>';
+}
+
+/* 📚 olvasó-polc: egy kocka a Kockavárba (olvaso-polc.js hívja a Mesterpróba után) — true, ha most került be */
+function ekKockaBe(kocka) {
+  var st = ekAllapot(), d = EK_KOCKA_DEF[kocka], L = ekKockaLista();
+  if (!d || d.var == null || L.indexOf(d.var) >= 0) return false;
+  st.varSor = L.concat([d.var]); ment();
+  return true;
+}
+/* a régi 🏅 Mesterpróba megvolt-e ennél a kockánál (az új polcon a 🏅 könyv már szalagos) */
+function ekRegiMester(kocka) {
+  var m = ekAllapot().mester;
+  for (var pid in EK_REGI_PALYAK) if (EK_REGI_PALYAK[pid] === kocka && m[pid]) return true;
+  return false;
 }
 /* ============ 6f) 📚 BAGOLYKÖNYVTÁR — a 3 bemutató-mozgókép (rajzterv 5. rész, jóváhagyva 2026-09-28) ============
    Kockánként egy, gyerekenként EGYSZER (P().ekLatott[kocka]) — a kocka első feladata előtt (Mesekönyv vagy Varázstekercs,
@@ -9286,6 +9311,8 @@ function ekElottKell(f, tovabb) {
      opFelolvas(f, k)  → mondatonként felolvas, és közben kiemeli a sort, amit mond (a lapot is odalapozza).
      opJelol(i, resz)  → egy mondat kiemelése (rossz válasznál: „ez a mondat nem stimmel”); opJelolTorol().
      opLepesLap(), opLepes(html) → a végigvezetés a könyv második lapjára kerül: „a bagoly lapoz egyet”.
+     A 📚 olvasó-polc (olvaso-polc.js, 2026-10-10) még: o.kerdesHely (a kérdés a mese közepén / elején), o.rejt (a kérdés addig
+     nem lila, amíg a gyerek meg nem találja), o.lepcso (🪜 lépcsőfok-sor a kérdés alatt), o.segit (🙋 a fejlécben), o.mester (arany szegély).
    A betűméret (1–3) gyerekenként megmarad: P().opBetu. */
 
 var OP_SORSZ = ["első", "második", "harmadik", "negyedik", "ötödik", "hatodik"];
@@ -9311,15 +9338,24 @@ function opCsik() {
 function opSorok(mondatok, cls) {
   return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + m + '</p>'; }).join("");
 }
+/* a szöveg: mondatok + a kérdés (hely: hányadik mondat elé kerül — a 📚 olvasó-polc 🔍 formájában véletlen; alap: a végén)
+   + a 🪜 lépcsőfok-sor a kérdés alatt (lepcso: kész html) */
+function opSzoveg(mondatok, kerdes, hely, lepcso) {
+  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + m + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + kerdes + '</p>';
+  if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
+  return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
+}
 function opKonyv(o) {
   var b = opBetu(), fz = o.fuzet;
-  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSorok(o.mondatok) + '<p class="op-kerdes" data-m="k">' + o.kerdes + '</p></div>';
-  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSorok(fz.mondatok) + '<p class="op-kerdes" data-m="k">' + fz.kerdes + '</p></div></div>';
+  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso) + '</div>';
+  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso) + '</div></div>';
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
-  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + '">' +
-    '<div class="op-fej">' + opCsik() + '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
+  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +
+    '<div class="op-fej">' + opCsik() + (o.segit ? '<button type="button" class="op-segit" aria-label="Segítség">🙋</button>' : '') +
+    '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
       [1, 2, 3].map(function (x) { return '<button type="button" data-b="' + x + '" class="' + (x === b ? "akt" : "") + '">A</button>'; }).join("") + '</div></div>' +
+    (o.segit ? '<div class="op-segitmenu" hidden></div>' : '') +
     '<div class="op-lapok"><div class="op-lap op-bal">' + bal + '</div><div class="op-gerinc"></div><div class="op-lap op-jobb">' + (o.rajz || "") + '</div></div>' +
   '</div>';
 }
@@ -9364,9 +9400,10 @@ function opFelolvas(f, kesz) {
   var tok = ++OP.olvasTok, sz = opAktivSzoveg();
   var lista = [];
   if (f.opElo) { lista.push({ t: f.opElo }); f.opElo = null; }
-  var M = f.op.fuzet ? f.op.fuzet.mondatok : f.op.mondatok;
-  M.forEach(function (m, i) { lista.push({ t: m, i: i }); });
-  lista.push({ t: f.op.fuzet ? f.op.fuzet.kerdes : f.op.kerdes, i: "k" });
+  var O = f.op.fuzet || f.op, M = O.mondatok, kh = O.kerdesHely != null && O.kerdesHely >= 0 && O.kerdesHely < M.length ? O.kerdesHely : M.length;
+  M.forEach(function (m, i) { if (i === kh) lista.push({ t: O.kerdes, i: "k" }); lista.push({ t: m, i: i }); });
+  if (kh === M.length) lista.push({ t: O.kerdes, i: "k" });
+  if (O.lepcsoFel) lista.push({ t: O.lepcsoFel });   /* 🪜 a lépcsőfok kérdése (olvaso-polc.js) */
   var i = 0;
   (function kov() {
     if (tok !== OP.olvasTok || !J || J.feladat !== f) return;
@@ -9452,7 +9489,7 @@ function opLepes(h) {
                              ✋ meleg sárga tábla vagy 🔎 „Mit kérdeznek?” + a kérdés felvillan. Feladatonként EGYSZER;
                              ha utána jó → önjavítás (3. döntés ✅: önállónak számít; mondat: oeDicser). true = kezelte.
      oeKeres(f, o)         → 🔎 kérdés-keret: a kérdés lila szaggatott keretben lüktet, a gyerek megkoppintja.
-                             Rossz mondatra: megbillen, a kérdés felvillan, nincs „rossz” hang. o = { kesz, mondat, szo }
+                             Rossz mondatra: megbillen, a kérdés felvillan, nincs „rossz” hang. o = { kesz, mondat, szo, al: { mondat-index: saját mondat } }
      oeKeresFut()          → épp a kérdést keresi-e (a pálya addig zárva tarthatja a választ)
      oeTorol()             → új feladatnál (feladatMutat) minden jelzés le.
    Mikor kérdez a 🔎 (2. döntés ✅ „csak ha kell”): a pálya első feladatánál · a liftben · a 🙋 „Mit kérdeznek?”-ből ·
@@ -9577,8 +9614,9 @@ function oeKeresKatt(ev) {
     K.hiba++;
     mon.classList.remove("oe-billen"); void mon.offsetWidth; mon.classList.add("oe-billen");
     oeKerdesVillan();
-    var v2 = $("visszajelzes"); v2.className = "visszajelzes oe-mit"; v2.textContent = OE_M.keresMas;
-    mondd(OE_M.keresMas);
+    var mas = (K.o.al && K.o.al[mon.getAttribute("data-m")]) || OE_M.keresMas;   /* ál-kérdés („Kata megszámolta, hány…”): saját mondat */
+    var v2 = $("visszajelzes"); v2.className = "visszajelzes oe-mit"; v2.textContent = mas;
+    mondd(ekKiejt(mas));
     return true;
   }
   return false;
@@ -10514,6 +10552,926 @@ function szKovetkezo(id) {
   var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === fok; })[0];
   return k && !palyaRejtve(k) ? k.id : null;
 }
+/* ============ 6r) 📚 OLVASÓ-POLC MESÉI — a 🔎 „Mire felelsz?” és a ✋ „Ez már a válasz?” polc mese-keretei ============
+   Tartalom: Matekos\regi-kockak-konyvtar-tartalom.html 4. és 5. pont (✅ döntések, 2026-10-10). A motor: olvaso-polc.js.
+   Minden keret egy generátor: PM_KERET[id](o) → egy „mese” (vagy null → új számok), o = { tek, kis, egy, lanc, nyomoz }:
+     tek    📜 Varázstekercs (hosszabb mese, számok ≤ 100) · különben 📖 Mesekönyv (számok ≤ 30)
+     kis    a ✋ lift kicsije: ugyanaz a mese kisebb számokkal · egy: a 🔢 „Hány lépés?” pár 1 lépéses tagja
+     lanc   🔗 két kérdés egy mesében (🔎 Tekercs) · nyomoz: 🕵️ elbújt kérdés / ál-kérdés (🔎 Tekercs)
+   A mese mezői:
+     mondatok [html] · kerdes · helyes · szo (a kérdezett szó) · rajz (jobb lap) · kulcs
+     oe = { szo, koztes: {n: jelentés | {m}}, masik: {n: {m}}, csap: {n: {m, jelol:[mondat, "rész"]}} }  ← olvaso-ellenor.js étlapja
+     lep [{ k: kérdés, v: érték, m: művelet, nev: a köztes szám jelentése }] — a 🪜 lépcsőfok, a végigvezetés és a ✋ lift ebből épül
+     mit [jó, …] — a végigvezetés „Mit kérdeznek?” kártyái · kirol / mitK [{h, jo}] — a 👀 / 🧮 forma kártyái
+     kicsi { mondatok, kerdes, helyes, oe, vissza } — a 🔎 lift: a nagy feladat első lépése, más kérdéssel
+     lanc { kerdes, helyes, oe, lep } — a 🔗 második kérdése · al { mondat: mondat } — az ál-kérdés saját mondata
+   Tiszta csapdák: ha egy csapda-szám egyezik a jó válasszal vagy egy másik, más jelentésű csapdával → null (a motor új számokat húz).
+   Mondat-szabály (tartalom-lap 2. pont): egyik mondat sem végződik számmal és ponttal; tegezés; pénz: tallér. */
+
+var PM_TARGY = [
+  { n: "dió", t: "diót", e: "🌰", ige: "gyűjtött", tobb: "gyűjtöttek", i: "dióit" },
+  { n: "gomba", t: "gombát", e: "🍄", ige: "talált", tobb: "találtak", i: "gombáit" },
+  { n: "alma", t: "almát", e: "🍎", ige: "szedett", tobb: "szedtek", i: "almáit" },
+  { n: "virág", t: "virágot", e: "🌼", ige: "szedett", tobb: "szedtek", i: "virágait" },
+  { n: "tojás", t: "tojást", e: "🥚", ige: "talált", tobb: "találtak", i: "tojásait" }
+];
+function pmR(o, m, t) { var a = o.tek ? t : m; return ekR(a[0], o.kis ? Math.max(a[0], Math.floor((a[0] + a[1]) / 2)) : a[1]); }
+function pmAz(sz) { return (/^[aáeéiíoóöőuúüű]/i.test(sz) ? "az " : "a ") + sz; }
+function pmRajz(L) { return '<div class="pm-rajz">' + L.map(function (x) { return ekErem(x[0], x[1], x[2]); }).join("") + '</div>'; }
+function pmSzam(t) { return (ekSima(t).match(/\d+/g) || []).map(Number); }
+/* felszólítás a kérdésből: „Hány lába van…?” → „Számold ki, hány lába van…!” */
+function pmFelszolit(k) { return "Számold ki, " + k.charAt(0).toLowerCase() + k.slice(1).replace(/\?$/, "!"); }
+/* az étlap egy listából: [szám, "k" | "m" | "c", jelentés | {m, jelol}] — ütközésnél null */
+function pmEtlap(helyes, szo, L) {
+  var o = { szo: szo, koztes: {}, masik: {}, csap: {} }, volt = {};
+  for (var i = 0; i < L.length; i++) {
+    var n = L[i][0], f = L[i][1];
+    if (n == null || n <= 0 || n % 1) continue;
+    if (n === helyes || volt[n]) return null;
+    volt[n] = 1;
+    o[{ k: "koztes", m: "masik", c: "csap" }[f]][n] = L[i][2];
+  }
+  return o;
+}
+/* a kész mese ellenőrzése: számkör, mondatvég, étlap */
+function pmKesz(o, M) {
+  if (!M || !M.oe || !(M.helyes > 0) || M.helyes % 1) return null;
+  var max = o.tek ? 100 : 30, rossz = false;
+  M.mondatok.concat([M.kerdes]).forEach(function (s) {
+    pmSzam(s).forEach(function (n) { if (n > max) rossz = true; });
+    if (/\d\.\s*$/.test(ekSima(s))) rossz = true;
+  });
+  if (M.helyes > max) rossz = true;
+  (M.lep || []).forEach(function (l) { if (!(l.v > 0) || l.v % 1 || l.v > max) rossz = true; });
+  if (M.lanc && (!M.lanc.oe || M.lanc.helyes > max)) rossz = true;
+  if (M.kicsi && !M.kicsi.oe) rossz = true;
+  return rossz ? null : M;
+}
+
+/* ═════════════════ 🔎 MIRE FELELSZ? — hat keret ═════════════════ */
+var PM_KERES = {
+  /* 🧺 gyűjtés: két szereplő, „-val több / kevesebb” */
+  gyujt: function (o) {
+    var S = ekSzereplok(3), A = S[0], B = S[1], C = S[2], t = ekE(PM_TARGY), a = pmR(o, [6, 13], [15, 40]), k = pmR(o, [2, 6], [3, 15]), tobb = ekR(0, 2) > 0;
+    var b = tobb ? a + k : a - k, TK = tobb ? "többet" : "kevesebbet", NT = tobb ? "kevesebbet" : "többet", rossz = tobb ? a - k : a + k;
+    if (b < 2) return null;
+    var q = o.lanc ? "B" : ekE(["B", "egyutt"]);
+    var M = { keret: "gyujt", mondatok: [A.n + " " + a + " " + t.t + " " + t.ige + ".", B.n + " " + ekRag(k, "val") + " " + TK + " " + t.ige + ", mint " + A.n + "."],
+      rajz: pmRajz([[A.e, a, A.n], [B.e, "?", B.n]]), kulcs: "gy" + a + k + tobb };
+    var kB = "Hány " + t.t + " " + t.ige + " " + B.n + "?", csapK = [k, "c", { m: ekA(k, true) + " nem " + t.n + "-darab: ennyivel " + t.ige + " " + TK + " " + B.n + ".", jelol: [1, ekRag(k, "val") + " " + TK] }],
+        csapI = [rossz, "c", { m: B.n + " " + TK + " " + t.ige + ", nem " + NT + ".", jelol: [1, TK] }];
+    var specB = { kerdes: kB, helyes: b, oe: pmEtlap(b, B.n, [[a, "m", { m: ekA(a, true) + " " + A.n + " " + t.i.replace(/t$/, "") + ". De kiről kérdeztünk?" }], csapK, csapI,
+        [a + b, "m", { m: ekA(a + b, true) + " kettejük együtt. De csak " + B.n + " " + t.i + " kérdeztük." }]]),
+      lep: [{ k: kB, v: b, m: a + (tobb ? " + " : " − ") + k + " = " + b, nev: "ennyi " + t.t + " " + t.ige + " " + B.n }] };
+    var kE = "Hány " + t.t + " " + t.tobb + " ketten együtt?";
+    var specE = { kerdes: kE, helyes: a + b, oe: pmEtlap(a + b, "ketten együtt", [[b, "k", "ennyi " + t.t + " " + t.ige + " " + B.n], [a, "m", { m: ekA(a, true) + " " + A.n + " " + t.i.replace(/t$/, "") + ". Kettejüket kérdeztük!" }],
+        csapK, [a + rossz, "c", csapI[2]]]),
+      lep: [specB.lep[0], { k: "És ketten együtt?", v: a + b, m: a + " + " + b + " = " + (a + b) }] };
+    if (q === "B") {
+      M.kerdes = specB.kerdes; M.helyes = b; M.oe = specB.oe; M.lep = specB.lep; M.szo = B.n;
+      M.mit = [B.n + " " + t.i, A.n + " " + t.i, "kettejük " + t.i + " együtt"];
+      M.kirol = [{ h: ekTk(A.e, A.n) }, { h: ekTk(B.e, B.n), jo: 1 }, { h: ekTk("👫", "ketten együtt") }];
+      M.kicsi = { mondatok: M.mondatok, kerdes: "Hány " + t.t + " " + t.ige + " " + A.n + "?", helyes: a, oe: pmEtlap(a, A.n, [[b, "m", { m: ekA(b, true) + " lenne " + B.n + " része. Most " + A.t + " kérdeztük!" }]]),
+        vissza: "Ügyes! Most " + B.t + " kérdezzük." };
+      if (o.lanc && specE.oe) { M.lanc = specE; delete specE.oe.koztes[b]; specE.oe.masik[b] = { m: "Ez az előző kérdés válasza volt. Most mit kérdeztünk?" }; specE.kerdes = "És hány " + t.t + " " + t.tobb + " ketten együtt?"; specE.lep = [specE.lep[1]]; specE.mit = ["kettejük " + t.i + " együtt", B.n + " " + t.i, A.n + " " + t.i]; }
+    } else {
+      M.kerdes = specE.kerdes; M.helyes = a + b; M.oe = specE.oe; M.lep = specE.lep; M.szo = "ketten együtt";
+      M.mit = ["kettejük " + t.i + " együtt", B.n + " " + t.i, A.n + " " + t.i];
+      M.kirol = [{ h: ekTk(A.e, A.n) }, { h: ekTk(B.e, B.n) }, { h: ekTk("👫", "ketten együtt"), jo: 1 }];
+      M.kicsi = { mondatok: M.mondatok, kerdes: kB, helyes: b, oe: specB.oe, vissza: "Ügyes! És most mindkettőjüket kérdezzük." };
+    }
+    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + t.t + " " + t.ige + " " + A.n + ": " + a + " lett a vége."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
+    return M;
+  },
+  /* 🐾 udvar: kétlábú és négylábú állatok */
+  udvar: function (o) {
+    var K2 = ekE(EK_KET_LAB), K4 = ekE(EK_NEGY_LAB), t = pmR(o, [2, 6], [4, 15]), k = pmR(o, [2, 5], [3, 12]), C = ekE(EK_SZ);
+    if (t === k) return null;
+    var negy = o.lanc ? false : ekR(0, 1) === 1, Q = negy ? K4 : K2, Mx = negy ? K2 : K4, qn = negy ? k : t, ql = negy ? 4 : 2, mn = negy ? t : k, ml = negy ? 2 : 4;
+    var M = { keret: "udvar", mondatok: ["Az udvaron " + t + " " + K2.n + " sétál.", "Mellettük " + k + " " + K4.n + " áll."], rajz: pmRajz([[K2.e, t, K2.n], [K4.e, k, K4.n]]), kulcs: "ud" + t + k + negy };
+    var qi = negy ? 1 : 0;
+    function spec(Q, qn, ql, M2, mn, ml, qi) {
+      var kk = "Hány lába van a " + Q.nak + "?";
+      return { kerdes: kk, helyes: qn * ql, szo: "a " + Q.nak,
+        oe: pmEtlap(qn * ql, "a " + Q.nak, [[mn * ml, "m", { m: ekA(mn * ml, true) + " a " + M2.k + " lába. De kiről kérdeztünk?" }], [2 * t + 4 * k, "m", { m: ekA(2 * t + 4 * k, true) + " mindenki lába együtt. Mi csak a " + Q.k + " lábát kérdeztük." }],
+          [qn, "c", { m: ekA(qn, true) + " a " + Q.k + " száma. De a lábukról kérdeztünk!", jelol: [qi, qn + " " + Q.n] }], [t + k, "c", { m: ekA(t + k, true) + " az összes állat. A " + Q.k + " lábát kérdeztük." }]]),
+        lep: [{ k: "Hány lábon áll egy " + Q.n + "?", v: ql, nev: "ennyi lába van egyetlen állatnak" }, { k: "És a " + qn + " " + Q.n + "?", v: qn * ql, m: qn + " · " + ql + " = " + qn * ql }] };
+    }
+    var s = spec(Q, qn, ql, Mx, mn, ml, qi);
+    M.kerdes = s.kerdes; M.helyes = s.helyes; M.szo = s.szo; M.oe = s.oe; M.lep = s.lep;
+    M.mit = ["a " + Q.k + " lábát", "a " + Mx.k + " lábát", "mindenki lábát"];
+    M.mitK = [{ h: ekTk(Q.e, Q.k) }, { h: ekTk("🦶", "lábak"), jo: 1 }, { h: ekTk("🐾", "minden állat") }];
+    M.kicsi = { mondatok: M.mondatok, kerdes: "Hány " + Q.n + " van az udvaron?", helyes: qn, oe: pmEtlap(qn, Q.k, [[mn, "m", { m: ekA(mn, true) + " a " + Mx.k + " száma. A " + Q.k + " számát kérdeztük!" }]]), vissza: "Ügyes! Most a lábukat kérdezzük." };
+    if (o.lanc) { var s2 = spec(K4, k, 4, K2, t, 2, 1); if (!s2.oe) return null; s2.kerdes = "És hány lába van a " + K4.nak + "?"; s2.oe.masik[2 * t] = { m: "Ez az előző kérdés válasza volt: a " + K2.k + " lába. Most a " + K4.k + " lábát kérdeztük." }; s2.mit = ["a " + K4.k + " lábát", "a " + K2.k + " lábát", "mindenki lábát"]; M.lanc = s2; }
+    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + K2.n + " sétál az udvaron: " + t + " lett a vége."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
+    return M;
+  },
+  /* 📅 hét és nap */
+  het: function (o) {
+    var S = ekSzereplok(2), A = S[0], B = S[1], ket = o.lanc || o.tek ? true : ekR(0, 1) === 1;
+    if (!ket) {
+      var h = pmR(o, [2, 4], [2, 4]);
+      return { keret: "het", mondatok: [A.n + " " + h + " hétig olvasott egy könyvet.", "Minden nap olvasott belőle egy kicsit."], kerdes: "Hány napig olvasta a könyvet?", helyes: 7 * h, szo: "napig", kulcs: "h1" + h,
+        rajz: pmRajz([[A.e, h + " hét", A.n], ["☀️", "?", "nap"]]),
+        oe: pmEtlap(7 * h, "napig", [[h, "m", { m: ekA(h, true) + " a hetek száma. De napokat kérdeztünk!" }], [h + 7, "c", { m: "Nem 7-tel több: " + h + " hétben " + ekRag(h, "szor") + " 7 nap van.", jelol: [0, h + " hétig"] }], [7, "c", { m: "A 7 csak EGY hét napjai." }]]),
+        lep: [{ k: "Hány nap van egy hétben?", v: 7, nev: "ennyi nap van egy hétben" }, { k: "És " + h + " hétben?", v: 7 * h, m: h + " · 7 = " + 7 * h }],
+        mit: ["hány napig olvasott", "hány hétig olvasott", "hány könyvet olvasott"],
+        mitK: [{ h: ekTk("🗓️", "hetek") }, { h: ekTk("☀️", "napok"), jo: 1 }, { h: ekTk("📖", "könyvek") }],
+        kicsi: { mondatok: [A.n + " " + h + " hétig olvasott egy könyvet.", "Minden nap olvasott belőle egy kicsit."], kerdes: "Hány nap van egy hétben?", helyes: 7, oe: pmEtlap(7, "egy hétben", []), vissza: "Ügyes! És " + h + " hétben hány nap van?" } };
+    }
+    var w = pmR(o, [1, 3], [2, 8]), d = ekR(3, 7 * w - 2), ny = ekE(["nyaralt", "táborozott"]);
+    if (d === w) return null;
+    var M = { keret: "het", mondatok: [A.n + " " + w + " hétig " + ny + ".", B.n + " " + d + " napig " + ny + "."], kulcs: "h2" + w + d,
+      kerdes: "Hány nappal " + ny + " többet " + A.n + ", mint " + B.n + "?", helyes: 7 * w - d, szo: "hány nappal többet",
+      rajz: pmRajz([[A.e, w + " hét", A.n], [B.e, d + " nap", B.n]]),
+      oe: pmEtlap(7 * w - d, "hány nappal többet", [[7 * w, "k", "ennyi napig " + ny + " " + A.n], [d, "m", { m: ekA(d, true) + " " + B.n + " napjai. Mennyivel többet kérdeztünk." }], [w, "m", { m: ekA(w, true) + " " + A.n + " heteinek száma." }],
+        [Math.abs(d - w), "c", { m: "A " + w + " hét nem " + w + " nap! Előbb váltsd napra.", jelol: [0, w + " hétig"] }], [7 * w + d, "c", { m: "Ez összeadás lett. Mennyivel TÖBB — ahhoz el kell venni." }]]),
+      lep: [{ k: "Hány napig " + ny + " " + A.n + "?", v: 7 * w, m: w + " · 7 = " + 7 * w, nev: "ennyi napig " + ny + " " + A.n }, { k: "Mennyivel több ez, mint " + B.n + " napjai?", v: 7 * w - d, m: 7 * w + " − " + d + " = " + (7 * w - d) }],
+      mit: ["mennyivel " + ny + " többet " + A.n, "hány napig " + ny + " " + A.n, "hány napig " + ny + " " + B.n],
+      kirol: [{ h: ekTk(A.e, A.n) }, { h: ekTk(B.e, B.n) }, { h: ekTk("⚖️", "a kettő különbsége"), jo: 1 }],
+      mitK: [{ h: ekTk("🗓️", "hetek") }, { h: ekTk("☀️", "napok"), jo: 1 }, { h: ekTk("👫", "gyerekek") }] };
+    M.kicsi = { mondatok: M.mondatok, kerdes: "Hány napig " + ny + " " + A.n + "?", helyes: 7 * w, oe: pmEtlap(7 * w, "napig", [[w, "m", { m: ekA(w, true) + " a hetek száma. De napokat kérdeztünk!" }]]), vissza: "Ügyes! Most már napban tudod. Mennyivel több ez, mint " + B.n + " napjai?" };
+    if (o.lanc) {
+      if (!M.oe || !M.kicsi.oe) return null;
+      M.kerdes = M.kicsi.kerdes; M.helyes = 7 * w; M.szo = "napig"; var regi = M.oe; M.oe = M.kicsi.oe; M.lep = [M.lep[0]];
+      M.lanc = { kerdes: "És hány nappal " + ny + " többet " + A.n + ", mint " + B.n + "?", helyes: 7 * w - d, oe: regi, lep: [{ k: "Mennyivel több ez, mint " + B.n + " napjai?", v: 7 * w - d, m: 7 * w + " − " + d + " = " + (7 * w - d) }], mit: M.mit };
+      M.lanc.oe.masik[7 * w] = { m: "Ez az előző kérdés válasza volt. Most azt kérdeztük, mennyivel több." }; delete M.lanc.oe.koztes[7 * w];
+    }
+    return M;
+  },
+  /* 🛒 bolt: egyforma tárgyak ára, „drágább / olcsóbb” */
+  bolt: function (o) {
+    var P = ekE([["ceruza", "ceruzák", "radír", "radírt"], ["kifli", "kiflik", "pogácsa", "pogácsát"], ["füzet", "füzetek", "matrica", "matricát"]]), X = P[0], Y = P[2];
+    var n = pmR(o, [2, 4], [3, 5]), p = pmR(o, [2, 6], [4, 12]), d = pmR(o, [1, 4], [2, 6]), drag = ekR(0, 2) > 0, v = drag ? p + d : p - d, A = ekE(EK_SZ), DO = drag ? "drágább" : "olcsóbb";
+    if (v < 1 || d === p) return null;
+    var M = { keret: "bolt", mondatok: [n + " egyforma " + X + " " + n * p + " tallérba kerül.", "Egy " + Y + " " + d + " tallérral " + DO + ", mint egy " + X + "."], kulcs: "bo" + n + p + d + drag,
+      kerdes: "Mennyibe kerül egy " + Y + "?", helyes: v, szo: "egy " + Y, rajz: pmRajz([["🛒", n * p, n + " " + X], ["🏷️", "?", "1 " + Y]]),
+      oe: pmEtlap(v, "egy " + Y, [[p, "k", "ennyibe kerül egy " + X], [n * p + (drag ? d : -d), "c", { m: "A " + n + " " + X + " árával számoltál. A " + Y + " csak egyetlen " + X + " áránál " + DO + ".", jelol: [1, "mint egy " + X] }],
+        [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " együtt." }], [drag ? p - d : p + d, "c", { m: "A " + Y + " " + DO + ", nem " + (drag ? "olcsóbb" : "drágább") + ".", jelol: [1, DO] }]]),
+      lep: [{ k: "Mennyibe kerül egy " + X + "?", v: p, m: n * p + " : " + n + " = " + p, nev: "ennyibe kerül egy " + X }, { k: "És egy " + Y + "?", v: v, m: p + (drag ? " + " : " − ") + d + " = " + v }],
+      mit: ["egy " + Y + " árát", "egy " + X + " árát", "a " + n + " " + X + " árát"],
+      kirol: [{ h: ekTk("✏️", "egy " + X) }, { h: ekTk("🏷️", "egy " + Y), jo: 1 }, { h: ekTk("🛒", "a " + n + " " + X) }] };
+    M.kicsi = { mondatok: M.mondatok, kerdes: "Mennyibe kerül egy " + X + "?", helyes: p, oe: pmEtlap(p, "egy " + X, [[n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " együtt. De EGY " + X + " árát kérdeztük." }]]), vissza: "Ügyes! Most a " + Y + " árát kérdezzük." };
+    if (o.lanc) {
+      var m = ekR(2, 4);
+      if (!M.oe || !M.kicsi.oe) return null;
+      M.kerdes = M.kicsi.kerdes; M.helyes = p; M.szo = "egy " + X; var nagyOe = M.oe; M.oe = M.kicsi.oe; M.lep = [M.lep[0]];
+      M.lanc = { kerdes: "És mennyibe kerül " + m + " " + Y + "?", helyes: m * v, oe: pmEtlap(m * v, m + " " + Y, [[v, "k", { m: "Ez egy lépcsőfok volt: EGY " + Y + " ára. De hány darabról kérdeztünk?" }], [p, "m", { m: "Ez az előző kérdés válasza volt. Most mit kérdeztünk?" }],
+          [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " ára. " + ekNagy(Y) + " árát kérdeztük!" }], [n * p + (drag ? d : -d), "c", nagyOe.csap[n * p + (drag ? d : -d)] || { m: "Egy " + X + " árából indulj!" }]]),
+        lep: [{ k: "Mennyibe kerül egy " + Y + "?", v: v, m: p + (drag ? " + " : " − ") + d + " = " + v, nev: "ennyibe kerül EGY " + Y }, { k: "És " + m + " " + Y + "?", v: m * v, m: v + " · " + m + " = " + m * v }], mit: [m + " " + Y + " árát", "egy " + Y + " árát", "egy " + X + " árát"] };
+    }
+    if (o.nyomoz && M.oe) { M.mondatok.unshift(A.n + " megkérdezte az árust, mennyibe kerül a sok " + X + "."); M.al = { 0: "Ebben is van kérdés, de ez csak elmeséli, mit csinált " + A.n + ". Nekünk melyikre kell felelni?" };
+      for (var cn in M.oe.csap) if (M.oe.csap[cn].jelol) M.oe.csap[cn].jelol[0]++; }
+    return M;
+  },
+  /* 🏡 házsor: egymás után épít, az egyik idő hétben (🏅 Röfi házai kicsiben) */
+  haz: function (o) {
+    var A = ekE(EK_SZ);
+    if (o.tek) {               /* három kunyhó (T2): a második fele / harmada az elsőnek */
+      var r = ekE([2, 2, 3]), w = r === 2 ? ekE([2, 4]) : 3, e1 = 7 * w, e2 = e1 / r, y = ekR(3, 15), ossz = e1 + e2 + y, H = ["fakunyhót", "kőkunyhót", "nádkunyhót"], HN = ["fakunyhó", "kőkunyhó", "nádkunyhó"];
+      if (ossz > 100) return null;
+      var resz = r === 2 ? "feleannyi" : "harmad annyi";
+      var M = { keret: "haz", mondatok: [A.n + " egymás után három kunyhót épített: egy fakunyhót, egy kőkunyhót és egy nádkunyhót.", "A fakunyhót " + w + " hét alatt építette fel.", "A kőkunyhóhoz " + resz + " idő kellett, mint a fakunyhóhoz.", "A három kunyhóhoz összesen " + ossz + " nap kellett."],
+        kerdes: "Hány napig épült a nádkunyhó?", helyes: y, szo: "a nádkunyhó", kulcs: "ht" + w + r + y, rajz: pmRajz([["🪵", w + " hét", "fa"], ["🪨", "?", "kő"], ["🌾", "?", "nád"]]),
+        oe: pmEtlap(y, "a nádkunyhó", [[e2, "m", { m: "A " + e2 + " a kőkunyhó ideje. A nádkunyhót kérdeztük!" }], [e1, "m", { m: "A " + e1 + " a fakunyhó ideje. A nádkunyhót kérdeztük!" }], [ossz - e2, "k", { m: "Ez egy lépcsőfok volt: csak a kőkunyhót vetted el. A fakunyhót is!" }],
+          [e1 + e2, "k", { m: "Ez egy lépcsőfok volt: a fa- és a kőkunyhó együtt. Mennyi maradt a nádra?" }], [ossz - e1, "k", { m: "Ez egy lépcsőfok volt: ennyi nap maradt a kő- és a nádkunyhóra együtt." }],
+          [ossz - w - e2, "c", { m: "A " + w + " hét nem " + w + " nap! " + w + " hét = " + e1 + " nap.", jelol: [1, w + " hét"] }]]),
+        lep: [{ k: "Hány nap a " + w + " hét?", v: e1, m: w + " · 7 = " + e1, nev: "ennyi napig épült a fakunyhó" }, { k: "Hány napig épült a kőkunyhó?", v: e2, m: e1 + " : " + r + " = " + e2, nev: "ennyi napig épült a kőkunyhó" },
+          { k: "Mennyi maradt a nádkunyhóra?", v: y, m: ossz + " − " + e1 + " − " + e2 + " = " + y }],
+        mit: ["hány napig épült a nádkunyhó", "hány napig épült a kőkunyhó", "hány nap kellett összesen"] };
+      M.kicsi = { mondatok: M.mondatok.slice(0, 3), kerdes: "Hány napig épült a kőkunyhó?", helyes: e2, oe: pmEtlap(e2, "a kőkunyhó", [[e1, "m", { m: "A " + e1 + " a fakunyhó ideje." }], [w, "c", { m: "A " + w + " hét nem " + w + " nap!" }]]), vissza: "Ügyes! Most a nádkunyhó jön: mennyi maradt rá?" };
+      if (o.lanc) { if (!M.oe || !M.kicsi.oe) return null; var nagy = { kerdes: "És hány napig épült a nádkunyhó?", helyes: y, oe: M.oe, lep: [M.lep[2]], mit: M.mit }; nagy.oe.masik[e2] = { m: "Ez az előző kérdés válasza volt: a kőkunyhó. Most a nádkunyhót kérdeztük." };
+        M.kerdes = M.kicsi.kerdes; M.helyes = e2; M.szo = "a kőkunyhó"; M.oe = M.kicsi.oe; M.lep = M.lep.slice(0, 2); M.lanc = nagy; }
+      return M;
+    }
+    var T = ekE([["odút", "kamrát", "odú", "kamra"], ["hidat", "kaput", "híd", "kapu"], ["tutajt", "csónakot", "tutaj", "csónak"]]), h = pmR(o, [1, 2], [1, 2]), x = pmR(o, [2, 9], [2, 9]), ossz2 = 7 * h + x;
+    var az1 = pmAz(T[2]), az2 = pmAz(T[3]);
+    var M2 = { keret: "haz", mondatok: [A.n + " előbb egy " + T[0] + ", aztán egy " + T[1] + " épített.", ekNagy(pmAz(T[0])) + " " + h + " hét alatt építette fel.", "A két építéshez összesen " + ossz2 + " nap kellett."],
+      kerdes: "Hány nap alatt építette fel " + pmAz(T[1]) + "?", helyes: x, szo: az2, kulcs: "hz" + h + x + T[2], rajz: pmRajz([[A.e, h + " hét", T[2]], ["🔨", "?", T[3]]]),
+      oe: pmEtlap(x, az2, [[7 * h, "k", "ennyi napig épült " + az1], [ossz2 - h, "c", { m: "A " + h + " hét nem " + h + " nap! Előbb váltsd napra: hány nap a " + h + " hét?", jelol: [1, h + " hét"] }],
+        [h, "m", { m: "A " + h + " " + az1 + " ideje, hétben. Mi " + pmAz(T[1]) + " kérdeztük, napban." }], [ossz2, "m", { m: ekA(ossz2, true) + " a két építés együtt." }], [ossz2 + 7 * h, "c", { m: ekNagy(az1) + " napjai benne vannak az összesben: elvenni kell, nem hozzáadni." }]]),
+      lep: [{ k: "Hány nap a " + h + " hét?", v: 7 * h, m: h + " · 7 = " + 7 * h, nev: "ennyi napig épült " + az1 }, { k: "Mennyi nap maradt a másik építésre?", v: x, m: ossz2 + " − " + 7 * h + " = " + x }],
+      mit: ["hány napig épült " + az2, "hány napig épült " + az1, "hány nap kellett összesen"],
+      kirol: [{ h: ekTk("🔨", az1) }, { h: ekTk("🔨", az2), jo: 1 }, { h: ekTk("➕", "a kettő együtt") }] };
+    M2.kicsi = { mondatok: [A.n + " " + h + " hét alatt építette fel " + pmAz(T[0]) + "."], kerdes: "Hány nap ez?", helyes: 7 * h, oe: pmEtlap(7 * h, "hány nap", [[h, "m", { m: ekA(h, true) + " a hetek száma. Napokat kérdeztünk!" }]]),
+      vissza: "Ügyes! Most már napban tudod " + pmAz(T[0]) + ". Mennyi maradt a másik építésre?" };
+    return M2;
+  },
+  /* ⚖️ csere: „… ára ugyanannyi, mint … ára” (🏅 csokigolyó és perec kicsiben) */
+  csere: function (o) {
+    var P = ekE([{ x: "körte", xt: "körtét", xk: "körték", y: "szilva", yk: "szilvák", yrol: "a szilváról" }, { x: "mézeskalács", xt: "mézeskalácsot", xk: "mézeskalácsok", y: "cukorka", yk: "cukorkák", yrol: "a cukorkáról" }, { x: "kifli", xt: "kiflit", xk: "kiflik", y: "keksz", yk: "kekszek", yrol: "a kekszről" }]);
+    var A = ekE(EK_SZ);
+    if (o.tek) {               /* elbújt adat (T4): az egyik fajta árát egy vásárlásból kell kiszámolni */
+      var c = ekR(2, 6), b = ekR(3, 6), a = ekR(2, b - 1), xp = b * c / a, m = ekR(3, 6);
+      if (xp % 1 || m === a || m * xp > 100 || xp === c) return null;
+      var T2 = m * xp;
+      var M = { keret: "csere", mondatok: ["A vásáron " + a + " " + P.x + " ára ugyanannyi, mint " + b + " " + P.y + " ára.", A.n + " " + m + " " + P.xt + " vett " + T2 + " tallérért."],
+        kerdes: "Hány tallérba kerül egy " + P.y + "?", helyes: c, szo: "egy " + P.y, kulcs: "ct" + a + b + c + m, rajz: pmRajz([["⚖️", a + " = " + b, P.x + " / " + P.y], ["🏷️", "?", "1 " + P.y]]),
+        oe: pmEtlap(c, "egy " + P.y, [[xp, "m", { m: ekA(xp, true) + " egy " + P.x.toUpperCase() + " ára. De " + P.yrol + " kérdeztünk!" }], [b * c, "k", "ennyibe kerül a " + b + " " + P.y + " együtt"], [T2, "m", { m: ekA(T2, true) + " a " + m + " " + P.x + " ára." }],
+          [T2 / b % 1 ? null : T2 / b, "c", { m: "A " + T2 + " tallér " + m + " " + P.x + " ára, nem " + b + " " + P.y + "é. Előbb egy " + P.x + " ára kell." }]]),
+        lep: [{ k: "Mennyibe kerül egy " + P.x + "?", v: xp, m: T2 + " : " + m + " = " + xp, nev: "ennyibe kerül egy " + P.x }, { k: "Mennyibe kerül " + a + " " + P.x + "?", v: a * xp, m: xp + " · " + a + " = " + a * xp, nev: "ennyibe kerül a " + b + " " + P.y + " együtt" },
+          { k: "És egy " + P.y + "?", v: c, m: b * c + " : " + b + " = " + c }],
+        mit: ["egy " + P.y + " árát", "egy " + P.x + " árát", "a " + m + " " + P.x + " árát"] };
+      M.kicsi = { mondatok: [M.mondatok[1]], kerdes: "Mennyibe kerül egy " + P.x + "?", helyes: xp, oe: pmEtlap(xp, "egy " + P.x, [[T2, "m", { m: ekA(T2, true) + " a " + m + " " + P.x + " együtt." }]]), vissza: "Ügyes! Most a " + P.y + " jön: hány tallér egy?" };
+      return M;
+    }
+    var s = pmR(o, [2, 4], [2, 4]), bb = pmR(o, [3, 8], [3, 8]), T = bb * s, aa = null;
+    for (var i = 0; i < 6 && aa == null; i++) { var j = ekR(2, bb - 1); if (T % j === 0 && T / j !== s) aa = j; }
+    if (aa == null || T > 30) return null;
+    var M3 = { keret: "csere", mondatok: [aa + " " + P.x + " ára ugyanannyi, mint " + bb + " " + P.y + " ára.", "A " + aa + " " + P.x + " " + T + " tallérba kerül."], kerdes: "Hány tallérba kerül egy " + P.y + "?", helyes: s, szo: "egy " + P.y, kulcs: "cs" + aa + bb + s,
+      rajz: pmRajz([["⚖️", aa + " = " + bb, P.x + " / " + P.y], ["🏷️", "?", "1 " + P.y]]),
+      oe: pmEtlap(s, "egy " + P.y, [[T / aa, "m", { m: ekA(T / aa, true) + " egy " + P.x.toUpperCase() + " ára. De " + P.yrol + " kérdeztünk!" }], [T, "k", "ennyibe kerül a " + bb + " " + P.y + " együtt"],
+        [bb, "c", { m: ekA(bb, true) + " a " + P.yk + " SZÁMA, nem az áruk.", jelol: [0, bb + " " + P.y] }], [aa, "c", { m: ekA(aa, true) + " a " + P.xk + " száma." }]]),
+      lep: [{ k: "Mennyibe kerül a " + bb + " " + P.y + " együtt?", v: T, nev: "ennyibe kerül a " + bb + " " + P.y + " együtt" }, { k: "Mennyibe kerül egy " + P.y + "?", v: s, m: T + " : " + bb + " = " + s }],
+      mit: ["egy " + P.y + " árát", "egy " + P.x + " árát", "a " + bb + " " + P.y + " árát együtt"],
+      kirol: [{ h: ekTk("🏷️", "egy " + P.x) }, { h: ekTk("🏷️", "egy " + P.y), jo: 1 }, { h: ekTk("🛒", "a " + bb + " " + P.y) }] };
+    M3.kicsi = { mondatok: [bb + " " + P.y + " " + T + " tallérba kerül."], kerdes: "Hány tallérba kerül egy " + P.y + "?", helyes: s, oe: pmEtlap(s, "egy " + P.y, [[T, "m", { m: ekA(T, true) + " a " + bb + " " + P.y + " együtt." }]]),
+      vissza: "Ügyes! Nézd meg újra a nagyot: mennyibe kerül a " + bb + " " + P.y + "?" };
+    return M3;
+  }
+};
+
+/* ═════════════════ ✋ EZ MÁR A VÁLASZ? — hat keret ═════════════════ */
+function pmLep(k, v, m, nev) { return { k: k, v: v, m: m, nev: nev }; }
+var PM_VALASZ = {
+  /* 🧺 kosár és evés */
+  kosar: function (o) {
+    var t = ekE([{ n: "alma", t: "almát", e: "🍎" }, { n: "körte", t: "körtét", e: "🍐" }, { n: "szilva", t: "szilvát", e: "🟣" }]), k = pmR(o, [4, 8], [6, 12]), n = pmR(o, [2, 4], [3, 6]), e = ekR(2, Math.min(9, k * n - 2)), S = ekSzereplok(2);
+    if (o.egy) {
+      var x = k * n;
+      return { keret: "kosar", mondatok: ["Egy kosárban " + x + " " + t.n + " volt.", "Ebből " + e + " " + t.t + " megettünk."], kerdes: "Hány " + t.n + " maradt?", helyes: x - e, szo: "maradt", kulcs: "ke" + x + e,
+        rajz: pmRajz([["🧺", x, t.n], [t.e, e, "megettük"]]), oe: pmEtlap(x - e, "maradt", [[x + e, "c", { m: "Megettük — el kell venni, nem hozzáadni!" }]]), lep: [pmLep("Hány " + t.n + " maradt?", x - e, x + " − " + e + " = " + (x - e))] };
+    }
+    if (o.tek) {
+      var e2 = ekR(2, 9), ossz = k * n;
+      if (ossz - e - e2 < 2 || e === e2) return null;
+      return { keret: "kosar", mondatok: ["Egy kosárba " + k + " " + t.n + " fér.", "A kamrában " + n + " teli kosár áll.", S[0].n + " megevett belőle " + e + " darabot, " + S[1].n + " pedig " + e2 + " darabot."], kerdes: "Hány " + t.n + " maradt a kosarakban?", helyes: ossz - e - e2, szo: "maradt",
+        kulcs: "kt" + k + n + e + e2, rajz: pmRajz([["🧺", n, "kosár"], [t.e, k, "egy kosárban"]]),
+        oe: pmEtlap(ossz - e - e2, "maradt", [[ossz, "k", "ennyi " + t.n + " volt a kosarakban az evés előtt"], [ossz - e, "k", { m: "Ez egy lépcsőfok volt: ennyi maradt " + S[0].n + " után. De " + S[1].n + " is evett!" }], [ossz - e2, "k", { m: "Ez egy lépcsőfok volt: ennyi maradt " + S[1].n + " után. De " + S[0].n + " is evett!" }],
+          [e + e2, "k", "ennyit ettek meg együtt"], [k - e - e2 > 0 ? k - e - e2 : null, "c", { m: "Nem egy kosárból, hanem " + n + " kosárból ettek!", jelol: [1, n + " teli kosár"] }]]),
+        lep: [pmLep("Hány " + t.n + " volt a " + n + " kosárban?", ossz, n + " · " + k + " = " + ossz, "ennyi " + t.n + " volt az evés előtt"), pmLep("Hányat ettek meg ketten?", e + e2, e + " + " + e2 + " = " + (e + e2), "ennyit ettek meg együtt"), pmLep("Hány maradt?", ossz - e - e2, ossz + " − " + (e + e2) + " = " + (ossz - e - e2))] };
+    }
+    var kn = k * n;
+    return { keret: "kosar", mondatok: ["Egy kosárba " + k + " " + t.n + " fér.", n + " teli kosárból " + e + " " + t.t + " megettünk."], kerdes: "Hány " + t.n + " maradt?", helyes: kn - e, szo: "maradt", kulcs: "kk" + k + n + e,
+      rajz: pmRajz([["🧺", n, "kosár"], [t.e, k, "egy kosárban"]]),
+      oe: pmEtlap(kn - e, "maradt", [[kn, "k", "ennyi " + t.n + " volt a kosarakban az evés előtt"], [k - e > 0 ? k - e : null, "c", { m: "Nem egy kosárból, hanem " + n + " kosárból ettünk!", jelol: [1, n + " teli kosárból"] }],
+        [kn + e, "c", { m: "Megettük — el kell venni, nem hozzáadni!" }], [k, "c", { m: ekA(k, true) + " csak egy kosár." }]]),
+      lep: [pmLep("Hány " + t.n + " volt a " + n + " kosárban?", kn, n + " · " + k + " = " + kn, "ennyi " + t.n + " volt az evés előtt"), pmLep("Megettünk " + ekRag(e, "t") + ". Hány maradt?", kn - e, kn + " − " + e + " = " + (kn - e))] };
+  },
+  /* 🎀 szalag */
+  szalag: function (o) {
+    var h = pmR(o, [20, 30], [60, 100]), n = pmR(o, [2, 3], [2, 4]), d = pmR(o, [3, 8], [6, 15]);
+    if (o.egy) return h - d < 2 ? null : { keret: "szalag", mondatok: ["Egy szalag " + h + " cm hosszú.", "Levágtak belőle egy " + d + " cm-es darabot."], kerdes: "Hány cm maradt?", helyes: h - d, szo: "maradt", kulcs: "se" + h + d,
+      rajz: pmRajz([["🎀", h + " cm", "szalag"], ["✂️", d + " cm", "levágva"]]), oe: pmEtlap(h - d, "maradt", [[h + d, "c", { m: "Levágták — el kell venni, nem hozzáadni!" }]]), lep: [pmLep("Hány cm maradt?", h - d, h + " − " + d + " = " + (h - d))] };
+    if (o.tek) {
+      var f = ekR(5, 12), mr = h - n * d - f;
+      if (mr < 3) return null;
+      return { keret: "szalag", mondatok: ["Egy szalag " + h + " cm hosszú.", "Levágtak belőle " + n + " darab " + d + " cm-es darabot.", "Aztán még egy " + f + " cm-es darabot is."], kerdes: "Hány cm maradt a szalagból?", helyes: mr, szo: "maradt", kulcs: "st" + h + n + d + f,
+        rajz: pmRajz([["🎀", h + " cm", "szalag"], ["✂️", n + " × " + d + " cm", "levágva"], ["✂️", f + " cm", "még"]]),
+        oe: pmEtlap(mr, "maradt", [[n * d, "k", "ennyi a " + n + " egyforma darab együtt"], [n * d + f, "k", "ennyit vágtak le összesen"], [h - n * d, "k", { m: "Ez egy lépcsőfok volt: ennyi maradt az első vágások után. De még egy darabot levágtak!" }],
+          [h - d - f, "c", { m: n + " egyforma darabot vágtak le, nem egyet!", jelol: [1, n + " darab"] }]]),
+        lep: [pmLep("Hány cm a " + n + " egyforma darab?", n * d, n + " · " + d + " = " + n * d, "ennyi a " + n + " egyforma darab együtt"), pmLep("Hány cm-t vágtak le összesen?", n * d + f, n * d + " + " + f + " = " + (n * d + f), "ennyit vágtak le összesen"), pmLep("Hány cm maradt?", mr, h + " − " + (n * d + f) + " = " + mr)] };
+    }
+    if (h - n * d < 2) return null;
+    return { keret: "szalag", mondatok: ["Egy szalag " + h + " cm hosszú.", "Levágtak belőle " + n + " darab " + d + " cm-es darabot."], kerdes: "Hány cm maradt?", helyes: h - n * d, szo: "maradt", kulcs: "sz" + h + n + d,
+      rajz: pmRajz([["🎀", h + " cm", "szalag"], ["✂️", n + " × " + d + " cm", "levágva"]]),
+      oe: pmEtlap(h - n * d, "maradt", [[n * d, "k", "ennyi a levágott darabok hossza együtt"], [h - d, "c", { m: n + " darabot vágtak le, nem egyet!", jelol: [1, n + " darab"] }], [h + n * d, "c", { m: "Levágták — el kell venni, nem hozzáadni!" }]]),
+      lep: [pmLep("Hány cm-t vágtak le összesen?", n * d, n + " · " + d + " = " + n * d, "ennyi a levágott darabok hossza együtt"), pmLep("Hány cm maradt?", h - n * d, h + " − " + n * d + " = " + (h - n * d))] };
+  },
+  /* 🎂 életkor */
+  eletkor: function (o) {
+    var A = ekE(EK_SZ), ev = pmR(o, [5, 9], [6, 9]), k = pmR(o, [2, 6], [2, 6]);
+    if (o.egy) return { keret: "eletkor", mondatok: [A.n + " " + ev + " éves.", "A nővére " + k + " évvel idősebb nála."], kerdes: "Hány éves a nővére?", helyes: ev + k, szo: "a nővére", kulcs: "ee" + ev + k,
+      rajz: pmRajz([[A.e, ev, A.n], ["🎂", "?", "nővére"]]), oe: pmEtlap(ev + k, "a nővére", [[ev - k, "c", { m: "A nővére idősebb, nem fiatalabb.", jelol: [1, "idősebb"] }]]), lep: [pmLep("Hány éves a nővére?", ev + k, ev + " + " + k + " = " + (ev + k))] };
+    if (o.tek) {
+      var k2 = ekR(1, ev - 2), nov = ev + k, occ = ev - k2, ossz = ev + nov + occ;
+      return { keret: "eletkor", mondatok: [A.n + " " + ev + " éves.", "A nővére " + k + " évvel idősebb nála.", "Az öccse " + k2 + " évvel fiatalabb nála."], kerdes: "Hány évesek hárman együtt?", helyes: ossz, szo: "hárman együtt", kulcs: "et" + ev + k + k2,
+        rajz: pmRajz([["🎂", "?", "nővére"], [A.e, ev, A.n], ["🍼", "?", "öccse"]]),
+        oe: pmEtlap(ossz, "hárman együtt", [[nov, "k", "ennyi idős a nővére"], [occ, "k", "ennyi idős az öccse"], [ev + nov, "k", { m: "Ez egy lépcsőfok volt: " + A.n + " és a nővére együtt. Az öccse is kell!" }], [ev + occ, "k", { m: "Ez egy lépcsőfok volt: " + A.n + " és az öccse együtt. A nővére is kell!" }],
+          [3 * ev + k + k2, "c", { m: "Az öccse fiatalabb, nem idősebb.", jelol: [2, "fiatalabb"] }]]),
+        lep: [pmLep("Hány éves a nővére?", nov, ev + " + " + k + " = " + nov, "ennyi idős a nővére"), pmLep("Hány éves az öccse?", occ, ev + " − " + k2 + " = " + occ, "ennyi idős az öccse"), pmLep("Hány évesek hárman együtt?", ossz, ev + " + " + nov + " + " + occ + " = " + ossz)] };
+    }
+    return { keret: "eletkor", mondatok: [A.n + " " + ev + " éves.", "A nővére " + k + " évvel idősebb nála."], kerdes: "Hány évesek ketten együtt?", helyes: 2 * ev + k, szo: "ketten együtt", kulcs: "ek" + ev + k,
+      rajz: pmRajz([[A.e, ev, A.n], ["🎂", "?", "nővére"]]),
+      oe: pmEtlap(2 * ev + k, "ketten együtt", [[ev + k, "k", "ennyi idős a nővére"], [2 * ev - k, "c", { m: "A nővére idősebb, nem fiatalabb.", jelol: [1, "idősebb"] }], [ev + 2 * k, "c", { m: A.n + " " + ev + " éves, nem " + k + ". Kettejük éveit add össze!" }]]),
+      lep: [pmLep("Hány éves a nővére?", ev + k, ev + " + " + k + " = " + (ev + k), "ennyi idős a nővére"), pmLep("Hány évesek ketten együtt?", 2 * ev + k, ev + " + " + (ev + k) + " = " + (2 * ev + k))] };
+  },
+  /* 🛒 vásár, maradt pénz */
+  vasar: function (o) {
+    var A = ekE(EK_SZ), p = pmR(o, [15, 30], [40, 100]), n = pmR(o, [2, 4], [3, 6]), ar = pmR(o, [2, 5], [3, 9]);
+    if (o.egy) { var m = ekR(3, 9); return { keret: "vasar", mondatok: [A.n + " " + p + " tallérral ment a vásárba.", "Vett egy " + m + " talléros mézeskalácsot."], kerdes: "Mennyi pénze maradt?", helyes: p - m, szo: "maradt", kulcs: "ve" + p + m,
+      rajz: pmRajz([[A.e, p, "tallér"], ["🍪", m, "tallér"]]), oe: pmEtlap(p - m, "maradt", [[p + m, "c", { m: A.n + " költött, nem kapott pénzt: elvenni kell." }]]), lep: [pmLep("Mennyi pénze maradt?", p - m, p + " − " + m + " = " + (p - m))] }; }
+    if (o.tek) {       /* gyöngyök (T1): vett – felfűz – marad */
+      var cs = ekR(3, 6), gy = ekE([6, 8, 10, 12]), l = ekR(2, 4), mm = ekR(5, 12), ossz = cs * gy, fel = l * mm;
+      if (ossz - fel < 3 || ossz > 100) return null;
+      return { keret: "vasar", mondatok: [A.n + " " + cs + " csomag gyöngyöt vett, mindegyikben " + gy + " gyöngy van.", l + " karkötőt fűz, mindegyikre " + mm + " gyöngyöt."], kerdes: "Hány gyöngy marad?", helyes: ossz - fel, szo: "marad", kulcs: "vt" + cs + gy + l + mm,
+        rajz: pmRajz([["📿", cs, "csomag"], ["💍", l, "karkötő"]]),
+        oe: pmEtlap(ossz - fel, "marad", [[ossz, "k", "ennyi gyöngyöt vett"], [fel, "k", { m: "Ez egy lépcsőfok volt: ennyit fűz fel. Mennyi marad?" }], [ossz - mm, "c", { m: "Nem egy karkötőt fűz, hanem " + ekRag(l, "t") + "!", jelol: [1, l + " karkötőt"] }]]),
+        lep: [pmLep("Hány gyöngyöt vett?", ossz, cs + " · " + gy + " = " + ossz, "ennyi gyöngyöt vett"), pmLep("Hányat fűz fel?", fel, l + " · " + mm + " = " + fel, "ennyit fűz fel"), pmLep("Hány gyöngy marad?", ossz - fel, ossz + " − " + fel + " = " + (ossz - fel))] };
+    }
+    if (p - n * ar < 2) return null;
+    return { keret: "vasar", mondatok: [A.n + " " + p + " tallérral ment a vásárba.", "Vett " + n + " kiflit, darabját " + ar + " tallérért."], kerdes: "Mennyi pénze maradt?", helyes: p - n * ar, szo: "maradt", kulcs: "vk" + p + n + ar,
+      rajz: pmRajz([[A.e, p, "tallér"], ["🥐", n, "kifli"]]),
+      oe: pmEtlap(p - n * ar, "maradt", [[n * ar, "k", "ennyibe került a " + n + " kifli"], [p - ar, "c", { m: "Nem egy kiflit vett, hanem " + ekRag(n, "t") + "!", jelol: [1, n + " kiflit"] }], [p + n * ar, "c", { m: A.n + " költött, nem kapott pénzt: elvenni kell." }]]),
+      lep: [pmLep("Mennyibe került a " + n + " kifli?", n * ar, n + " · " + ar + " = " + n * ar, "ennyibe került a " + n + " kifli"), pmLep("Mennyi pénze maradt?", p - n * ar, p + " − " + n * ar + " = " + (p - n * ar))] };
+  },
+  /* 🧱 csempés padló (🏅 Mekk Elek kicsiben) */
+  padlo: function (o) {
+    var A = ekE(EK_SZ), r = pmR(o, [3, 5], [5, 7]), c = o.tek ? ekR(5, 7) : r, rc = r * c;
+    if (o.egy) return { keret: "padlo", mondatok: [A.n + " kamrájának padlóján " + r + " sor csempe van.", "Minden sorban " + c + " csempe van egymás mellett."], kerdes: "Hány csempe van az egész padlón?", helyes: rc, szo: "az egész padlón", kulcs: "pe" + r + c,
+      rajz: pmPadlo(r, c, []), oe: pmEtlap(rc, "az egész padlón", [[r + c, "c", { m: "Ezt összeadtad. De " + r + " sor van, és minden sorban " + c + "." }]]), lep: [pmLep("Hány csempe van az egész padlón?", rc, r + " · " + c + " = " + rc)] };
+    if (o.tek) {
+      var pi = ekR(3, 9), sa = ekR(2, 6), fe = rc - pi - sa;
+      if (fe - pi < 2 || pi === sa) return null;
+      return { keret: "padlo", mondatok: [A.n + " konyhájában a padlón " + r + " sor csempe van, minden sorban " + c + " darab.", "A csempék közül " + pi + " piros, " + sa + " sárga, a többi fehér."], kerdes: "Hány fehér csempével van több, mint pirossal?", helyes: fe - pi, szo: "mennyivel több",
+        kulcs: "pt" + r + c + pi + sa, rajz: pmPadlo(r, c, [[pi, "#f28b8b"], [sa, "#f6d36a"]]),
+        oe: pmEtlap(fe - pi, "mennyivel több", [[rc, "k", "ennyi csempe van az egész padlón"], [pi + sa, "k", "ennyi a színes csempe együtt"], [fe, "k", { m: "Ez egy lépcsőfok volt: ennyi a fehér csempe. De mennyivel van több, mint a piros?" }],
+          [rc - pi - pi, "c", { m: "A sárgák sem fehérek: őket is el kell venni!", jelol: [1, sa + " sárga"] }], [fe - pi - sa, "c", { m: "A pirosakkal kell összevetni, nem az összes színessel.", jelol: [1, pi + " piros"] }]]),
+        lep: [pmLep("Hány csempe van az egész padlón?", rc, r + " · " + c + " = " + rc, "ennyi csempe van az egész padlón"), pmLep("Hány fehér csempe van?", fe, rc + " − " + pi + " − " + sa + " = " + fe, "ennyi a fehér csempe"), pmLep("Mennyivel több a fehér, mint a piros?", fe - pi, fe + " − " + pi + " = " + (fe - pi))] };
+    }
+    var s = pmR(o, [2, 4], [2, 4]), w = rc - s;
+    if (w - s < 2) return null;
+    return { keret: "padlo", mondatok: [A.n + " fürdőszobájának padlóján " + r + " sor csempe van, minden sorban " + c + " darab.", "Ebből " + s + " kék, a többi fehér."], kerdes: "Hány fehér csempével van több, mint kékkel?", helyes: w - s, szo: "mennyivel több",
+      kulcs: "pk" + r + s, rajz: pmPadlo(r, c, [[s, "#8cc3ee"]]),
+      oe: pmEtlap(w - s, "mennyivel több", [[rc, "k", "ennyi csempe van az egész padlón"], [w, "k", { m: "Ez egy lépcsőfok volt: ennyi a fehér csempe. De mennyivel van több, mint a kék?" }], [rc + s, "c", { m: "A kék csempék is benne vannak az összesben: elvenni kell, nem hozzáadni." }], [s, "m", { m: ekA(s, true) + " a kék csempék száma." }]]),
+      lep: [pmLep("Hány csempe van az egész padlón?", rc, r + " · " + c + " = " + rc, "ennyi csempe van az egész padlón"), pmLep("Hány fehér?", w, rc + " − " + s + " = " + w, "ennyi a fehér csempe"), pmLep("Mennyivel több, mint a kék?", w - s, w + " − " + s + " = " + (w - s))] };
+  },
+  /* 🫙 kannák és poharak (🏅 Icike kicsiben) */
+  kanna: function (o) {
+    var a = ekR(2, o.tek ? 4 : 3), b = ekR(o.tek ? 3 : 2, o.tek ? 6 : 5), n = ekR(2, o.tek ? 4 : 3);
+    if (n === a && !o.egy) n = a === 2 ? 3 : 2;
+    var M0 = ["1 nagy kannába " + a + " kis kanna víz fér.", "1 kis kannába " + b + " pohár víz fér."];
+    if (o.egy) return { keret: "kanna", mondatok: [M0[0]], kerdes: "Hány kis kanna víz fér " + n + " nagy kannába?", helyes: n * a, szo: n + " nagy kannába", kulcs: "ne" + a + n,
+      rajz: pmRajz([["🫙", 1, "nagy"], ["🥛", a, "kis kanna"]]), oe: pmEtlap(n * a, n + " nagy kannába", [[n + a, "c", { m: "Ezt összeadtad. De minden nagy kannába " + a + " kicsi fér." }]]), lep: [pmLep("Hány kis kanna víz fér " + n + " nagy kannába?", n * a, n + " · " + a + " = " + n * a)] };
+    if (o.tek) {
+      var m = ekR(1, 3), kis = n * a + m, ossz = kis * b;
+      if (ossz > 100 || m === a) return null;
+      return { keret: "kanna", mondatok: M0.concat(["Brumi megtöltött " + n + " nagy és még " + m + " kis kannát."]), kerdes: "Hány pohár víz van összesen a kannákban?", helyes: ossz, szo: "hány pohár", kulcs: "nt" + a + b + n + m,
+        rajz: pmRajz([["🫙", n, "nagy kanna"], ["🥛", m, "kis kanna"]]),
+        oe: pmEtlap(ossz, "hány pohár", [[n * a, "k", "ennyi kis kanna víz fér a " + n + " nagy kannába"], [kis, "k", { m: "Ez egy lépcsőfok volt: ennyi kis kanna víz van összesen. De poharat kérdeztek!" }], [n * a * b, "k", { m: "Ez egy lépcsőfok volt: ennyi pohár fér a nagy kannákba. A kis kannák is kellenek!" }],
+          [(n + m) * b, "c", { m: "A nagy kanna nem egy kis kanna: egy nagyba " + a + " kicsi fér.", jelol: [0, a + " kis kanna"] }]]),
+        lep: [pmLep("Hány kis kanna víz fér a " + n + " nagy kannába?", n * a, n + " · " + a + " = " + n * a, "ennyi kis kanna víz fér a nagy kannákba"), pmLep("Hány kis kanna víz van összesen?", kis, n * a + " + " + m + " = " + kis, "ennyi kis kanna víz van összesen"), pmLep("Hány pohár ez?", ossz, kis + " · " + b + " = " + ossz)] };
+    }
+    var h = n * a * b;
+    return { keret: "kanna", mondatok: M0, kerdes: "Hány pohár víz fér " + n + " nagy kannába?", helyes: h, szo: n + " nagy kannába", kulcs: "nk" + a + b + n,
+      rajz: pmRajz([["🫙", 1, "nagy"], ["🥛", a, "kis kanna"], ["🥤", b, "pohár"]]),
+      oe: pmEtlap(h, n + " nagy kannába", [[a * b, "k", { m: "Ez egy lépcsőfok volt: ennyi pohár fér EGY nagy kannába. De hány nagy kannáról kérdeztek?" }], [n * a, "k", { m: "Ez egy lépcsőfok volt: ennyi kis kanna víz fér a " + n + " nagy kannába. De poharat kérdeztek!" }],
+        [n * b, "c", { m: ekA(n * b, true) + " pohár csak " + n + " kis kanna. A nagy kannák kellenek." }], [a + b, "c", { m: "Ezt összeadtad. De minden nagy kannában " + a + " kicsi van, és minden kicsiben " + b + " pohár." }]]),
+      lep: [pmLep("Hány pohár fér EGY nagy kannába?", a * b, a + " · " + b + " = " + a * b, "ennyi pohár fér EGY nagy kannába"), pmLep("És " + n + " nagy kannába?", h, a * b + " · " + n + " = " + h)] };
+  }
+};
+/* a csempés padló rajza: r × c lap, a színes lapok elszórva (5-ös sorok helyett a rács mutatja a szorzást) */
+function pmPadlo(r, c, szinek) {
+  var L = []; for (var i = 0; i < r * c; i++) L.push("#fff");
+  var hely = mKever(L.map(function (x, i) { return i; })), k = 0;
+  szinek.forEach(function (sz) { for (var j = 0; j < sz[0]; j++) L[hely[k++]] = sz[1]; });
+  var s = '<svg class="op-rajz pm-padlo" viewBox="0 0 ' + (c * 24 + 8) + ' ' + (r * 24 + 8) + '">';
+  for (var y = 0; y < r; y++) for (var x = 0; x < c; x++) s += '<rect x="' + (4 + x * 24) + '" y="' + (4 + y * 24) + '" width="24" height="24" fill="' + L[y * c + x] + '" stroke="#9a8a7a" stroke-width="1.5"/>';
+  return s + '</svg>';
+}
+var PM_KERET = { KERES: PM_KERES, VALASZ: PM_VALASZ };
+/* ============ 6s) 📚 OLVASÓ-POLC — a 🔎 „Mire felelsz?” és a ✋ „Ez már a válasz?” polc pályái az olvasópulton ============
+   Terv: Matekos\regi-kockak-konyvtar-terv.html (✅) · rajz: …-rajzterv.html (✅) · tartalom: …-tartalom.html (✅ döntések).
+   2. kód-kör (2026-10-10): a két polc 3-3 pályája (📖 Mesekönyv 20 · 📜 Varázstekercs 20 · 🏅 Mesterpróba 1) a közös motoron:
+   palyaInditas → GEN.polc → feladatMutat (polcMutat) → ertekel (polcJo / polcHiba) → palyaVege (polcPalyaVege).
+   A mesék: polc-mesek.js (PM_KERET). A 🔎/✋ jelzés: olvaso-ellenor.js. A lift + láda + napló: szerszam.js (sz = "KERES" / "VALASZ").
+
+   Egy pötty = egy lánc a motor „lanc” útján (nem új pötty): [elő-lépés] → … → a NAGY beírás (polcSzerep "nagy").
+     elő-lépések: 👀 Kiről? / 🧮 Mit számolunk? (3 kártya) · 🔢 Hány lépés? (1 / 2 / 3) · 🐰🦊 Kinek van igaza? · 🔗 a lánc 1. kérdése ·
+                  🪜 lépcsőfok (lépés-beírás → ✋ „Ez már a válasz?” Igen / Nem, a végén a csúcs).
+   🔎 kérdés-keret (2. döntés: csak ha kell): 🔍 formában mindig · a pálya első feladatánál · a liftben · 🙋-ból · ha másik mennyiségre felelt.
+     A Mesterpróbán előre nem kérdez (az segítség lenne).
+   🛗 LIFT a nagy beíráson: 1. rossz → konkrét tipp (kiemelt mondat) · 2. rossz → „Nézzük kicsiben!” (🔎: a mese első lépése más kérdéssel;
+     ✋: ugyanaz a mese 🪜 lépcsőfokkal, kisebb számokkal; 🏅: a 2 testvér), beszámít, teljes jutalommal → vissza a nagyra ·
+     ha a nagy a lift után is kétszer rossz → végigvezetés a könyv második lapján („Mit kérdeznek?” → lépések → „Most újra a kérdés”).
+   🧰 LÁDA: a kör utolsó 5 pöttye (a Mesterpróba-keretek) és a Mesterpróba számít (L.nagy); önálló = lift nélkül, 🙋-ból legfeljebb a
+     „Mit kérdeznek?”; a ✋/🔎 jelzés utáni jó = önjavítás = önálló (3. döntés ✅).
+   🏅 MESTERPRÓBA: a Fejtörő-feladat szövege (felhő, FT) az olvasópulton, beírással, 🙋 nélkül; rossz → nem zár be, jön a lift;
+     elsőre jó (a jelzés utáni javítás is) → a polc kockája a 🏰 Kockavárba (ekKockaBe) + mester-szalag a polc tábláján.
+   FOLYTATÁS: P().polcAll[pályaId] = { d: nap, k: kész pöttyök } — kilépés után ugyanazon a napon onnan folytatja. */
+
+var POLC_REND = {
+  KERES: {
+    mese: ["kopp", "sima", "kirol", "sima", "mit", "kopp", "sima", "kirol", "sima", "mit", "sima", "kirol", "sima", "kopp", "sima", "sima", "kirol", "sima", "kopp", "sima"],
+    tekercs: ["lanc", "nyomoz", "lanc", "nyomoz", "lanc", "nyomoz", "lanc", "nyomoz", "lanc", "nyomoz", "lanc", "nyomoz", "lanc", "nyomoz", "lanc", "lanc", "nyomoz", "lanc", "nyomoz", "lanc"],
+    elso: ["gyujt", "udvar", "het", "bolt"], vegso: ["haz", "csere"]
+  },
+  VALASZ: {
+    mese: ["lepcso", "felut", "hl", "hl2", "felut", "lepcso", "felut", "hl", "hl2", "felut", "felut", "lepcso", "felut", "hl1", "felut", "felut", "felut", "lepcso", "felut", "felut"],
+    tekercs: ["harom", "harom", "kinek", "harom", "kinek", "harom", "harom", "kinek", "harom", "harom", "kinek", "harom", "harom", "kinek", "harom", "harom", "kinek", "harom", "harom", "kinek"],
+    elso: ["kosar", "szalag", "eletkor", "vasar"], vegso: ["padlo", "kanna"]
+  }
+};
+var POLC_DICSER = { KERES: ["Pontosan ezt kérdezték!", "Jó nyomozó vagy!", "Megtaláltad, mire kell felelni!"], VALASZ: ["Felértél a lépcső tetejére!", "Nem álltál meg félúton – ügyes!", "Ez már tényleg a válasz!"] };
+var POLC_M = {
+  kirol: "Kiről (miről) kérdeznek? Koppints rá! Számolni még nem kell.", mit: "Mit kell megszámolni? Koppints rá!", hl: "Hány lépés kell? Előbb csak ezt döntsd el!",
+  kinek: "Kinek van igaza?", lepcso: "Ez már a válasz?", mester: "Ez a Mesterpróba. Olvasd el nyugodtan!", liftKicsi: "Nézzük kicsiben!",
+  liftValasz: "Ügyes! Most a nagyot is így: minden lépés után kérdezd meg, ez már a válasz?", vezet: "Nézzük meg együtt, lépésenként!",
+  hlRossz: "Nézzük meg együtt: mit kell tudnunk, mielőtt a kérdezett számot megkapjuk?", tippJo: "Így már jó – most a kérdésre feleltél!"
+};
+
+/* ── a 4 Mesterpróba didaktikai rétege (a SZÖVEG a felhőben van: FT.feladatok; itt csak a számok jelentése + a testvérek) ──
+   tartalom-lap 4.5 és 5.5 (✅). jelol: [null, "rész"] → a mondatot a rész alapján keresi meg. kicsi.mondatok: "{0}" = az eredeti 1. mondata. */
+var POLC_MESTER = {
+  "zrinyi-2021-3-M-11": { polc: "KERES", szo: "egy csokigolyó", rajz: [["🥨", 4, "perec"], ["⚖️", "=", "ugyanannyi"], ["🍫", 10, "csokigolyó"]],
+    oe: { masik: { 5: { m: "Az 5 tallér egy PEREC ára. De a kérdés egy csokigolyó ára!" } }, koztes: { 20: { m: "Ez egy lépcsőfok volt: ennyibe kerül a 10 csokigolyó együtt. De mit kérdeztek?" } },
+          csap: { 10: { m: "A 10 a csokigolyók SZÁMA, nem az áruk. Mennyibe kerül egy?" }, 4: { m: "A 4 a perecek száma. A kérdés egy csokigolyó ára." } } },
+    mit: ["egy csokigolyó árát", "egy perec árát", "a 10 csokigolyó árát"],
+    kicsi: [{ mondatok: [], kerdes: "Hány tallérba kerül egy csokigolyó, ha 5 csokigolyó 15 tallérba kerül?", helyes: 3, oe: { csap: { 5: { m: "Az 5 a csokigolyók száma, nem az áruk." } } } },
+            { mondatok: [], kerdes: "Hány tallérba kerül egy csokigolyó, ha 3 kerek perec ára ugyanannyi, mint 6 csokigolyó ára, és 3 kerek perec 24 tallérba kerül?", helyes: 4,
+              oe: { koztes: { 24: { m: "Ez egy lépcsőfok volt: ennyibe kerül a 6 csokigolyó együtt. De mit kérdeztek?" } }, masik: { 8: { m: "A 8 egy PEREC ára. De a kérdés egy csokigolyó ára!" } } } }],
+    vissza: "Ügyes! Ugyanaz, csak több perec és több csokigolyó. Most is előbb azt nézd meg: mennyibe kerül az összes csokigolyó?" },
+  "zrinyi-2020-3-M-13": { polc: "KERES", szo: "a faház", rajz: [["🧱", "6 hét", "tégla"], ["🌾", "?", "szalma"], ["🪵", "?", "fa"]],
+    oe: { masik: { 14: { m: "A 14 nap a SZALMAHÁZ ideje. A kérdés a faház!" }, 42: { m: "A 42 nap a TÉGLAHÁZ ideje. A kérdés a faház!" }, 2: { m: "A 2 hét a szalmaház ideje, hétben. A faházat kérdezték, napban." } },
+          koztes: { 56: { m: "Ez egy lépcsőfok volt: a tégla- és a szalmaház együtt. Mennyi maradt a faházra?" }, 35: { m: "Ez egy lépcsőfok volt: csak a téglaházat vetted el. A szalmaházat is!" },
+                    63: { m: "Ez egy lépcsőfok volt: csak a szalmaházat vetted el. A téglaházat is!" } },
+          csap: { 69: { m: "Hetet és napot nem vonhatunk ki egymásból! Előbb mindent napra kell váltani.", jelol: [null, "6 hét"] }, 3: { m: "3 hét – ez igaz! De a kérdés NAPBAN kérdez." } } },
+    mit: ["hány nap alatt épült a faház", "hány nap alatt épült a téglaház", "hány nap kellett összesen"],
+    kicsi: [{ mondatok: ["Röfi, a kismalac egy téglaházat épített.", "2 hét alatt építette fel."], kerdes: "Hány nap alatt építette fel?", helyes: 14, oe: { masik: { 2: { m: "A 2 a hetek száma. Napokat kérdeztünk!" } } } },
+            { mondatok: ["Röfi, a kismalac egymás után egy téglaházat és egy faházat épített.", "A téglaházat 1 hét alatt építette fel."], kerdes: "Hány nap alatt építette fel a faházat, ha a két ház építéséhez 12 napra volt szüksége?", helyes: 5,
+              oe: { masik: { 7: { m: "A 7 a téglaház ideje. A faházat kérdeztük!" } }, csap: { 11: { m: "Az 1 hét nem 1 nap! Előbb váltsd napra.", jelol: [null, "1 hét"] } } } }],
+    vissza: "Ügyes! Ugyanaz, csak három házzal. Most is előbb mindent napra váltasz." },
+  "zrinyi-2021-3-O-4": { polc: "VALASZ", szo: "mennyivel több fehér", padlo: 1,
+    oe: { koztes: { 38: { m: "Ez egy lépcsőfok volt: ennyi a fehér lap. De mennyivel használt többet, mint szürkét?" }, 49: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón." } },
+          masik: { 11: { m: "A 11 a szürke lapok száma." } }, csap: { 60: { m: "A szürke lapok is benne vannak a 49-ben: elvenni kell, nem hozzáadni." }, 7: { m: "A 7 csak egy sor." } } },
+    mit: ["mennyivel több a fehér, mint a szürke", "hány fehér lap van", "hány lap van az egész padlón"],
+    elso: "Ne számold meg egyenként a sok fehér lapot! Hány lap van az egész padlón, ha minden sorban ugyanannyi? Ebből a kevés szürkét kell elvenned.",
+    kicsi: [{ mondatok: ["Mekk Elek fehér és szürke lapokkal fedte be a kamrája padlóját: 3 sor, minden sorban 3 lap.", "Ebből 2 szürke."], kerdes: "Hány fehér lap van?", helyes: 7, padlo: [3, 2],
+              oe: { koztes: { 9: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón. De a fehéreket kérdeztük!" } } } },
+            { mondatok: ["Mekk Elek fehér és szürke lapokkal fedte be a konyhája padlóját: 5 sor, minden sorban 5 lap.", "Ebből 7 szürke."], kerdes: "Hány fehér lappal használt többet, mint szürkét?", helyes: 11, padlo: [5, 7],
+              oe: { koztes: { 25: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón." }, 18: { m: "Ez egy lépcsőfok volt: ennyi a fehér lap. De mennyivel több, mint a szürke?" } } } }],
+    vissza: "Ügyes! Ugyanaz, csak nagyobb szobában. Minden lépés után kérdezd meg: ez már a válasz?" },
+  "zrinyi-2024-3-M-10": { polc: "VALASZ", szo: "hány aprócska", rajz: [["📏", 1, "icike = 4 picike"], ["📏", 1, "picike = 5 aprócska"], ["❓", 10, "icike"]],
+    oe: { koztes: { 20: { m: "Ez egy lépcsőfok volt: ennyi aprócska EGY icike. De 10 icikét kérdeztek!" }, 40: { m: "Ez egy lépcsőfok volt: a 10 icike 40 picike. De aprócskában kérdezték!" } },
+          csap: { 50: { m: "A picikéket kihagytad: egy icikében 4 picike van.", jelol: [null, "1 icike = 4 picike"] }, 9: { m: "Ezt összeadtad. De 1 icike 4 picike, és mindegyik picike 5 aprócska." },
+                  90: { m: "Ezt összeadtad. De 1 icike 4 picike, és mindegyik picike 5 aprócska." } } },
+    mit: ["hány aprócska a 10 icike", "hány aprócska egy icike", "hány picike a 10 icike"],
+    elso: "Kezdd egyetlen icikével! Hány picike az? És az hány aprócska? Ha egy icikét már tudod, a 10 icike könnyű.",
+    kicsi: [{ mondatok: ["A törpök a picikét és az aprócskát is használják."], kerdes: "Hány aprócskával egyenlő 3 picike, ha 1 picike = 5 aprócska?", helyes: 15, oe: { csap: { 8: { m: "Ezt összeadtad. De minden picike 5 aprócska." } } } },
+            { mondatok: ["{0}"], kerdes: "Hány aprócskával egyenlő 2 icike, ha 1 icike = 2 picike és 1 picike = 3 aprócska?", helyes: 12,
+              oe: { koztes: { 6: { m: "Ez egy lépcsőfok volt: ennyi aprócska EGY icike. De 2 icikét kérdeztek!" }, 4: { m: "Ez egy lépcsőfok volt: a 2 icike 4 picike. De aprócskában kérdezték!" } } } }],
+    vissza: "Ügyes! Ugyanaz, csak 10 icikével. Haladj lépcsőről lépcsőre, és csak a végén mondd ki!" }
+};
+/* Mekk Elek padlója: 7 × 7, a 11 szürke egy „3”-ast rajzol (az eredeti ábra szerint) */
+var POLC_MEKK = [[1, 2], [1, 3], [1, 4], [2, 4], [3, 2], [3, 3], [3, 4], [4, 4], [5, 2], [5, 3], [5, 4]];
+function polcRacs(r, c, szurke) {
+  var s = '<svg class="op-rajz pm-padlo" viewBox="0 0 ' + (c * 22 + 8) + ' ' + (r * 22 + 8) + '">';
+  for (var y = 0; y < r; y++) for (var x = 0; x < c; x++) {
+    var sz = szurke.some(function (p) { return p[0] === y && p[1] === x; });
+    s += '<rect x="' + (4 + x * 22) + '" y="' + (4 + y * 22) + '" width="22" height="22" fill="' + (sz ? "#b4b4b4" : "#fff") + '" stroke="#7a6a5a" stroke-width="1.4"/>';
+  }
+  return s + '</svg>';
+}
+
+/* ═════════════════ állapot + folytatás ═════════════════ */
+function polcAllapot() { var p = P(); if (!p.polcAll || typeof p.polcAll !== "object") p.polcAll = {}; return p.polcAll; }
+function polcFolytat() {                               /* kovAllomas hívja: ugyanazon a napon ott folytatja, ahol abbahagyta */
+  var r = polcAllapot()[J.palya.id];
+  if (r && r.d === helyiNap() && r.k > 0 && r.k < J.feladatDb) J.feladatKesz = r.k;
+}
+function polcHaladas(k) { if (J.palya.fok === "mester") return; polcAllapot()[J.palya.id] = { d: helyiNap(), k: k }; }
+function polcIdx(id) { for (var i = 0; i < OLVASO_POLCOK.length; i++) if (OLVASO_POLCOK[i].id === id) return OLVASO_POLCOK[i]; return null; }
+function polcMesterLista(polc) { var d = polcIdx(polc); return d && typeof ekMesterLista === "function" ? ekMesterLista(d.kocka).filter(function (id) { return !!POLC_MESTER[id]; }) : []; }
+function polcSzalag(polc) { var d = polcIdx(polc); return !!(szerszamT(polc).m || (d && ekRegiMester(d.kocka))); }
+
+/* ═════════════════ GENERÁLÁS ═════════════════ */
+GEN.polc = function (cfg) {
+  if (!J.polc || J.polc.palya !== J.palya.id) J.polc = { palya: J.palya.id, eredm: [], elozo: null, par: null, kezd: J.feladatKesz };
+  return cfg.fok === "mester" ? polcMesterFeladat(cfg.polc) : polcPotty(cfg.polc, cfg.fok, J.feladatKesz);
+};
+function polcKeretek(polc) { return Object.keys(PM_KERET[polc]); }
+function polcKeretValaszt(polc, fok, i, forma) {
+  var R = POLC_REND[polc], L;
+  if (i >= 15) L = [R.vegso[(i + (J.polc.vegsoEltol || 0)) % 2]];
+  else L = (i < 5 ? R.elso : polcKeretek(polc)).filter(function (k) { return k !== J.polc.elozo; });
+  if (polc === "KERES" && fok === "tekercs" && forma === "nyomoz") L = L.filter(function (k) { return k !== "het" && k !== "haz"; }).concat(i >= 15 ? ["csere"] : []);
+  if (polc === "KERES" && fok === "tekercs" && forma === "lanc") L = L.filter(function (k) { return k !== "csere"; }).concat(i >= 15 ? ["haz"] : []);
+  return ekE(L.length ? L : R.elso);
+}
+function polcPotty(polc, fok, i) {
+  var R = POLC_REND[polc], forma = R[fok][i % 20], M = null, o, keret = null;
+  if (J.polc.vegsoEltol == null) J.polc.vegsoEltol = ekR(0, 1);
+  if (forma === "hl2" && !J.polc.par) forma = "hl";
+  for (var t = 0; t < 80 && !M; t++) {
+    if (forma === "hl2") { M = J.polc.par; keret = M.keret; break; }
+    keret = polcKeretValaszt(polc, fok, i, forma);
+    o = { tek: fok === "tekercs", lanc: forma === "lanc", nyomoz: forma === "nyomoz", egy: (forma === "hl" || forma === "hl1") && ekR(0, 1) === 1 };
+    var x = pmKesz(o, PM_KERET[polc][keret](o));
+    if (!x) continue;
+    if (forma === "kirol" && !x.kirol) continue;
+    if (forma === "mit" && !x.mitK) continue;
+    M = x;
+  }
+  if (!M) { forma = "sima"; keret = R.elso[0]; for (t = 0; t < 200 && !M; t++) M = pmKesz({}, PM_KERET[polc][keret]({})); }
+  if (forma === "hl") {                                  /* a pár másik tagja (ugyanaz a keret, a másik lépésszám) a következő pöttybe */
+    var oo = { egy: !o.egy }, y = null;
+    for (t = 0; t < 60 && !y; t++) y = pmKesz(oo, PM_KERET[polc][keret](oo));
+    J.polc.par = y;
+  } else if (forma === "hl2") J.polc.par = null;
+  J.polc.elozo = keret;
+  var L = liftUj({ sz: polc, palya: J.palya.id, fok: fok, fid: keret });
+  L.nagy = i >= 15; L.kicsiJoKell = 1;
+  J.polc.L = L; J.polc.kicsiHiba = 0;
+  var N = polcNagy(M, polc, fok, L, forma);
+  if (forma === "kopp") { N.op.kerdesHely = ekR(0, M.mondatok.length); N.op.rejt = true; N.keresKell = true; }
+  if (forma === "nyomoz" && M.al) { N.keresAl = M.al; N.op.kerdes = pmFelszolit(M.kerdes); if (ekR(0, 1)) N.op.kerdesHely = Math.min(1, M.mondatok.length); }
+  else if (forma === "nyomoz") { N.op.kerdesHely = Math.min(1, M.mondatok.length); }
+  N.kartyaHTML = opKonyv(N.op);
+  if (i === J.polc.kezd && i === 0) N.keresKell = true;    /* a pálya első feladata (2. döntés) */
+  var elso = N;
+  if (forma === "kirol" || forma === "mit") elso = polcKartyaLepes(N, forma === "kirol" ? POLC_M.kirol : POLC_M.mit, mKever((forma === "kirol" ? M.kirol : M.mitK).map(function (k) { return { h: k.h, jo: !!k.jo }; })), N);
+  else if (forma === "hl" || forma === "hl1" || forma === "hl2") {
+    var n = M.lep.length, lepK = '<small>' + M.lep.map(function (l, j) { return (j + 1) + ". " + l.k; }).join(" · ") + '</small>';
+    elso = polcKartyaLepes(N, POLC_M.hl, [1, 2, 3].map(function (x) { return { h: '<span class="cimke">' + x + ' lépés</span>', jo: x === n, m: POLC_M.hlRossz + " " + lepK }; }), N);
+  } else if (forma === "lanc" && M.lanc) elso = polcLancLepes(N, M);
+  else if (forma === "lepcso") elso = polcLepcso(N, M, N, false);
+  else if (forma === "kinek") elso = polcKinek(N, M);
+  if (N.keresKell && elso !== N) { elso.keresKell = true; N.keresKell = forma === "kopp"; }
+  return elso;
+};
+/* a NAGY beírás (a pötty fő kérdése) */
+function polcNagy(M, polc, fok, L, forma) {
+  var utolso = M.lep && M.lep.length ? M.lep[M.lep.length - 1] : null;
+  var f = { csalad: "egyenkent", polc: polc, polcSzerep: "nagy", polcVeg: true, polcL: L, M: M, helyes: M.helyes, oe: M.oe, jegyMax: 3, lanc: null,
+    op: { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, segit: true },
+    szoveg: ekSima(M.kerdes), megoldas: utolso && utolso.m ? utolso.m : String(M.helyes), keplet: "", tipp: "",
+    naplo: { tipus: "polc-" + polc.toLowerCase() + "-" + fok + "-" + M.keret + (forma ? "-" + forma : ""), kerdes: ekSima(M.kerdes).slice(0, 60), helyes: M.helyes, atlepes: false } };
+  f.felolvas = ekKiejt(M.mondatok.concat([M.kerdes]).join(" "));
+  f.kartyaHTML = opKonyv(f.op);
+  return f;
+}
+/* koppintós elő-lépés (kártyák a válasz helyén), utána a nagy beírás jön (lanc) */
+function polcKartyaLepes(N, cim, kartyak, kov) {
+  var jo = kartyak.filter(function (k) { return k.jo; })[0];
+  return { csalad: "egyenkent", polc: N.polc, polcSzerep: "kartya", polcN: N, kartyak: kartyak, cim: cim, helyes: 1, joKiir: jo ? ekSima(jo.h) : "", op: N.op, kartyaHTML: N.kartyaHTML,
+    szoveg: cim, felolvas: N.felolvas, megoldas: jo ? ekSima(jo.h) : "", keplet: "", tipp: "", lanc: kov ? [kov] : null,
+    naplo: { tipus: N.naplo.tipus + "-kartya", kerdes: cim.slice(0, 60), helyes: jo ? ekSima(jo.h) : "", atlepes: false } };
+}
+/* 🔗 a lánc 1. kérdése: ugyanaz a mese, a nagy a 2. kérdés */
+function polcLancLepes(N, M) {
+  var L2 = M.lanc, q1 = { csalad: "egyenkent", polc: N.polc, polcSzerep: "lanc1", polcN: N, helyes: M.helyes, oe: M.oe, jegyMax: 3, op: { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, kerdesHely: N.op.kerdesHely },
+    szoveg: ekSima(M.kerdes), felolvas: N.felolvas, megoldas: M.lep && M.lep[0] && M.lep[0].m ? M.lep[0].m : String(M.helyes), keplet: "", tipp: "", lanc: [N],
+    naplo: { tipus: N.naplo.tipus + "-1", kerdes: ekSima(M.kerdes).slice(0, 60), helyes: M.helyes, atlepes: false } };
+  q1.kartyaHTML = opKonyv(q1.op);
+  N.helyes = L2.helyes; N.oe = L2.oe; N.M = { mondatok: M.mondatok, kerdes: L2.kerdes, helyes: L2.helyes, lep: (M.lep || []).concat(L2.lep || []), mit: L2.mit || M.mit, keret: M.keret, rajz: M.rajz,
+    kicsi: { mondatok: M.mondatok, kerdes: M.kerdes, helyes: M.helyes, oe: M.oe, vissza: "Ügyes! És most a második kérdés: " + ekSima(L2.kerdes).replace(/^És /, "") } };   /* a lánc kicsije = az 1. kérdés */
+  N.op = { mondatok: M.mondatok, kerdes: L2.kerdes, rajz: M.rajz, segit: true, lepcso: '<p class="op-lepcso-kesz">1. ' + M.kerdes + ' <b>✓ ' + M.helyes + '</b></p>' };
+  N.szoveg = ekSima(L2.kerdes); N.felolvas = ekKiejt("Ügyes! És most: " + ekSima(L2.kerdes)); N.opCsakKerdes = true;
+  var ul = L2.lep && L2.lep.length ? L2.lep[L2.lep.length - 1] : null; N.megoldas = ul && ul.m ? ul.m : String(L2.helyes);
+  N.naplo.kerdes = ekSima(L2.kerdes).slice(0, 60); N.naplo.helyes = L2.helyes;
+  N.kartyaHTML = opKonyv(N.op);
+  return q1;
+}
+/* 🪜 lépcsőfok: minden lépés beírás → ✋ „Ez már a válasz?” — a végén a csúcs. kov: ahova a csúcs után megy (a nagy, vagy a lift után vissza) */
+function polcLepcso(N, M, vegCel, fuzet) {
+  var n = M.lep.length, lanc = [], kesz = [];
+  function sor(j, most) {
+    return M.lep.slice(0, j).map(function (l, x) { return '<p class="op-lepcso-kesz">' + (x + 1) + '. ' + l.k + ' <b>✓ ' + l.v + '</b> <span class="op-nem">✋ még nem</span></p>'; }).join("") +
+      (most ? '<p class="op-lepcso-most">' + (j + 1) + '. ' + M.lep[j].k + '</p>' : "");
+  }
+  for (var j = 0; j < n; j++) {
+    var l = M.lep[j], utolso = j === n - 1, opS = polcOpFuzet(N, M, fuzet, sor(j, true));
+    var S = { csalad: "egyenkent", polc: N.polc, polcSzerep: fuzet ? "kicsi" : "lepes", polcN: N, helyes: l.v, oe: utolso ? M.oe : null, jegyMax: 3, op: opS,
+      szoveg: ekSima(l.k), felolvas: ekKiejt((j === 0 ? M.mondatok.join(" ") + " A kérdés: " + ekSima(M.kerdes) + " Lépésről lépésre! " : "") + l.k), lepFel: ekKiejt(l.k),
+      megoldas: l.m || String(l.v), keplet: "", tipp: "", lanc: null, naplo: { tipus: N.naplo.tipus + "-lepcso", kerdes: ekSima(l.k).slice(0, 60), helyes: l.v, atlepes: false } };
+    if (j > 0) S.csakLepes = true;
+    S.kartyaHTML = opKonyv(S.op);
+    var opT = polcOpFuzet(N, M, fuzet, sor(j, false) + '<p class="op-lepcso-most">' + (j + 1) + '. ' + l.k + ' <b>✓ ' + l.v + '</b></p>');
+    var K = [{ h: ekTk("👍", "Igen"), cls: "ek-in igen", jo: utolso, m: utolso ? null : "Még nem! A kérdés: „" + ekSima(M.kerdes) + "” — " + ekA(l.v) + " még csak " + (l.nev || "egy lépcsőfok") + "." },
+             { h: ekTk("✋", "Nem"), cls: "ek-in nem", jo: !utolso, nemUtolso: utolso, utan: utolso ? null : "Így van! Mit kell még kiszámolni?" }];
+    var C = polcKartyaLepes(N, '<span class="ek-kez">✋</span> ' + ekA(l.v, true) + ' — ' + POLC_M.lepcso, K, null);
+    C.op = opT; C.kartyaHTML = opKonyv(opT); C.polcSzerep = fuzet ? "kicsi" : "kartya"; C.csakLepes = true; C.lepFel = POLC_M.lepcso;
+    if (utolso) { C.utoSiker = "Igen! Felértél a lépcső tetejére!"; if (vegCel === N && !fuzet) { C.polcVeg = true; C.polcL = N.polcL; } }
+    lanc.push(S, C);
+  }
+  for (j = 0; j < lanc.length - 1; j++) lanc[j].lanc = [lanc[j + 1]];
+  var veg = lanc[lanc.length - 1];
+  if (fuzet) { veg.polcKicsiVeg = true; veg.lanc = null; }
+  else if (vegCel !== N) veg.lanc = [vegCel];
+  return lanc[0];
+}
+function polcOpFuzet(N, M, fuzet, lepcso) {
+  if (!fuzet) return { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, lepcso: lepcso };
+  return { mondatok: N.op.mondatok, kerdes: N.op.kerdes, rajz: M.rajz || N.op.rajz, fuzet: { mondatok: M.mondatok, kerdes: M.kerdes, lepcso: lepcso } };
+}
+/* 🐰🦊 Kinek van igaza? — Pali és Juli a rajz-lapon; kb. minden negyedikben senkinek */
+function polcKinek(N, M) {
+  var kz = Object.keys(M.oe.koztes).map(Number), cs = Object.keys(M.oe.csap).map(Number);
+  if (!kz.length) return N;
+  var mod = ekR(0, 3) === 0 && kz.length + cs.length >= 2 ? 2 : ekR(0, 1), mond = [], NEV = ["Pali", "Juli"], EM = [FIGURA.pali.e, FIGURA.juli.e];
+  function jel(v) { var k = M.oe.koztes[v]; if (k) return typeof k === "string" ? k : ekSima(k.m).replace(/^Ez egy lépcsőfok volt: /, "").replace(/\..*$/, ""); var c = M.oe.csap[v]; return c ? "tévedés" : ""; }
+  if (mod === 2) { var a = kz[0], b = kz[1] != null ? kz[1] : cs[0]; mond = mKever([a, b]); }
+  else { mond[mod] = M.helyes; mond[1 - mod] = ekE(kz); }
+  var K = [0, 1].map(function (i) {
+    var v = mond[i], jo = mod === i;
+    return { h: ekTk(EM[i], NEV[i], null, '<span class="mond">' + v + '</span>'), cls: "ek-fig", jo: jo,
+      m: jo ? null : NEV[i] + " " + ekRag(v, "t") + " mondott. Mi " + ekA(v) + "? " + ekNagy(jel(v) || "Nem ezt kérdezték") + ". Ezt kérdezték?",
+      utan: jo ? NEV[1 - i] + " félúton megállt: " + ekA(mond[1 - i]) + " " + (jel(mond[1 - i]) || "nem a válasz") + "." : null };
+  });
+  K.push({ h: ekTk("🤷", "Senkinek", "és megmondom a jót"), jo: mod === 2, m: mod === 2 ? null : "Nézd meg újra – valamelyikük jól számolt!" });
+  var C = polcKartyaLepes(N, M.kerdes + '<span class="kis"> ' + POLC_M.kinek + '</span>', K, mod === 2 ? N : null);
+  if (mod === 2) { N.op.kerdes = "Senkinek sincs igaza! Mennyi a jó válasz? " + M.kerdes; N.kartyaHTML = opKonyv(N.op); N.opElo = "Így van, mindketten tévedtek!"; N.opCsakKerdes = true; }
+  else { C.polcVeg = true; C.polcL = N.polcL; }
+  C.kinek = true;
+  return C;
+}
+
+/* ═════════════════ 🏅 MESTERPRÓBA ═════════════════ */
+function polcMesterKiv(polc) { var L = polcMesterLista(polc); return L.length ? szMesterValaszt(polc, L) : null; }
+function polcMondatok(sz) { return String(sz).replace(/\s+/g, " ").trim().split(/(?<=[.?!])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ0-9(„])/); }
+function polcMesterFeladat(polc) {
+  var fid = polcMesterKiv(polc), F = fid && FT.feladatok[fid], D = POLC_MESTER[fid];
+  if (!F || !D) { J.polc.nincsMester = true; return polcPotty(polc, "mese", 15); }
+  var S = polcMondatok(F.szoveg), qi = -1;
+  for (var i = S.length - 1; i >= 0; i--) if (/\?$/.test(S[i])) { qi = i; break; }
+  if (qi < 0) qi = S.length - 1;
+  var kerdes = S[qi], mondatok = S.filter(function (x, i) { return i !== qi; });
+  var helyes = +String(F.valaszok[F.helyes]).replace(/\D/g, "");
+  var oe = { szo: D.szo, koztes: D.oe.koztes || {}, masik: D.oe.masik || {}, csap: {} };
+  for (var n in D.oe.csap || {}) { var c = D.oe.csap[n], jl = c.jelol; oe.csap[n] = { m: c.m, jelol: jl && jl[0] == null ? polcJelolKeres(mondatok, jl[1]) : jl }; }
+  var lep = (F.lepesek || []).map(function (l) { var e = +String(l.eredmeny).replace(/\D/g, ""); return { k: l.szoveg, v: e, m: String(l.muvelet || "").replace("?", l.eredmeny) }; }).filter(function (l) { return l.v > 0; });
+  var rajz = D.padlo ? polcRacs(7, 7, POLC_MEKK) : pmRajz(D.rajz || []);
+  var M = { keret: "mester", mondatok: mondatok, kerdes: kerdes, helyes: helyes, oe: oe, lep: lep, mit: D.mit, rajz: rajz, fid: fid };
+  var L = liftUj({ sz: polc, palya: J.palya.id, fok: "mester", fid: fid });
+  L.nagy = true; L.kicsiJoKell = 2; J.polc.L = L; J.polc.mesterFid = fid; J.polc.kicsiHiba = 0;
+  var N = polcNagy(M, polc, "mester", L);
+  N.mester = D; N.op.segit = false; N.op.mester = true; N.kartyaHTML = opKonyv(N.op);
+  N.opElo = POLC_M.mester; N.jegyMax = 4;
+  return N;
+}
+function polcJelolKeres(mondatok, resz) { for (var i = 0; i < mondatok.length; i++) if (mondatok[i].indexOf(resz) >= 0) return [i, resz]; return null; }
+
+/* ═════════════════ MEGJELENÍTÉS (feladatMutat hívja) ═════════════════ */
+function polcMutat(f) {
+  opMod(true);
+  $("buborek-feladat").innerHTML = opKonyv(f.op);
+  if (f.vezetSor) { opLepesLap(); f.vezetSor.forEach(function (h) { opLepes(h); }); if (f.vezetMost) opLepes("<b>" + f.vezetMost + "</b>"); }
+  opLapol();
+  mKoppRejt();
+  var v = $("visszajelzes");
+  if (f.opElo) { v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }
+  if (f.kartyak) polcKartyaMutat(f); else modBeallit();
+  var utana = function () { if (!J || J.feladat !== f) return; if (polcKeresKell(f)) polcKeres(f); };
+  if (f.vezetSor) { mondd(ekKiejt((f.opElo ? f.opElo + " " : "") + (f.vezetMost || "")), utana); f.opElo = null; return; }
+  if (f.csakLepes || f.opCsakKerdes) { mondd(ekKiejt((f.opElo ? f.opElo + " " : "") + (f.lepFel || ekSima(f.op.kerdes))), utana); f.opElo = null; return; }
+  opFelolvas(f, function () { if (f.lepFel && !f.csakLepes) mondd(f.lepFel, utana); else if (f.kartyak && f.cim) mondd(ekKiejt(f.cim), utana); else utana(); });
+}
+function polcKeresKell(f) { return !f.oeKeresVolt && !f.vezet && (f.keresKell || f.liftKeres); }
+function polcKeres(f) {
+  if (!J || J.feladat !== f) return;
+  oeKeres(f, { szo: (f.oe && f.oe.szo) || (f.M && f.M.szo) || "", al: f.keresAl || (f.polcN && f.polcN.keresAl) || null });
+}
+/* ertekel elejéről: amíg a 🔎 kérdés-keret vár, nem lehet válaszolni */
+function polcZar(f) {
+  if (!f || !f.polc) return false;
+  if (oeKeresFut() && OE.keres && !OE.keres.o.lagy) { mondd("Előbb koppints a kérdésre!"); return true; }
+  if (polcKeresKell(f)) { opOlvasAll(); polcKeres(f); return true; }   /* a felolvasás alatt gyorsan válaszolt: előbb a kérdés */
+  return false;
+}
+function polcKartyaMutat(f) {
+  var p = mKoppPanel();
+  if (!p.__polc) { p.__polc = true; p.addEventListener("click", polcKartyaKatt); }
+  $("valasz-egyenkent").classList.add("koppint");
+  $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
+  $("mondom-gomb").style.display = "none"; $("beiras-valt").style.display = "none";
+  J.polcKartya = { f: f, hiba: 0, kesz: false };
+  p.innerHTML = '<div class="ek-tabla">' + f.cim + '</div><div class="kartyak ek-kartyak">' +
+    f.kartyak.map(function (k, i) { return '<button class="ek-tk ' + (k.cls || "") + '" data-i="' + i + '">' + k.h + '</button>'; }).join("") + '</div>';
+  p.hidden = false;
+}
+function polcKartyaKatt(ev) {
+  var b = ev.target.closest ? ev.target.closest("[data-i]") : null, K = J && J.polcKartya;
+  if (!b || !K || K.kesz || !J.feladat || J.feladat !== K.f || b.classList.contains("kiszurkul")) return;
+  if (polcZar(K.f)) return;
+  var f = K.f, k = f.kartyak[+b.getAttribute("data-i")], v = $("visszajelzes"), p = $("valasz-kartyak");
+  hangGomb();
+  if (k.jo || k.nemUtolso) {
+    K.kesz = true; b.classList.add("jo");
+    Array.prototype.forEach.call(p.querySelectorAll(".ek-tk"), function (x) { if (x !== b) x.classList.add("kiszurkul"); });
+    if (k.nemUtolso) {                                   /* a csúcson a „Nem”: nem hiba, csak nem elsőre jó */
+      J.probak = Math.max(J.probak, 1); f.utoMondat = "Pedig ez már az! Épp ezt kérdezték. Felértél a lépcső tetejére!";
+    } else if (k.utan) f.utoMondat = k.utan;
+    else if (f.utoSiker) f.utoMondat = f.utoSiker;
+    f.joKiir = ekSima(k.h);
+    setTimeout(function () { if (J && J.feladat === f) ertekel(f.helyes); }, 380);
+    return;
+  }
+  mBillegHalvany(b);
+  rosszValaszKonyvel(f, ekSima(k.h).slice(0, 40)); K.hiba++; J.polc.kicsiHiba++;
+  if (f.polcN && f.polcN.polcL && f.polcSzerep !== "kicsi") f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
+  var msg = k.m || "Nézd meg újra!";
+  if (K.hiba >= 2) {
+    var jb = p.querySelector('.ek-tk[data-i="' + f.kartyak.map(function (x) { return !!x.jo; }).indexOf(true) + '"]'); if (jb) jb.classList.add("ek-sug");
+    opKerdesVillan();
+  }
+  v.className = "visszajelzes ek-csapda"; v.innerHTML = msg; mondd(ekKiejt(msg));
+  figArc("gondol"); ment();
+}
+
+/* ═════════════════ JÓ VÁLASZ (ertekel hívja, mielőtt a láncot nézi) ═════════════════ */
+function polcDicser(f, elsore) {
+  if (f.vezet) return "Most már megy!";
+  var oj = oeDicser(f); if (oj) return oj;
+  if (f.polcSzerep !== "nagy" && !f.polcVeg) return elsore ? "Ez az!" : "Így már jó!";
+  if (!elsore) return POLC_M.tippJo;
+  return ekE(POLC_DICSER[f.polc] || ["Ez az!"]);
+}
+function polcJo(f, elsore) {
+  if (!elsore && f.polcN && f.polcN.polcL && f.polcSzerep !== "kicsi" && f.polcSzerep !== "nagy" && !f.vezet) f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
+  if (f.polcKicsiVeg) {                                  /* a lift kicsije kész → még egy testvér, vagy vissza a nagyra */
+    var N = f.polcN, L = N.polcL, r = liftKicsi(L, !J.polc.kicsiHiba && elsore);
+    J.polc.kicsiHiba = 0;
+    var tv = N.mester && N.mester.kicsi, kov = tv && L.kicsi < tv.length ? L.kicsi : -1;
+    if (r === "kicsi" && kov >= 0) { var k2 = polcKicsiFeladat(N, kov); k2.opElo = "Még egy ilyen!"; f.lanc = [k2]; return; }
+    L.bent = false;
+    if (r === "vegig") { f.lanc = [polcVegigLanc(N)]; return; }
+    N.opElo = N.polcVissza || "Ügyes! Most jöhet a nagy feladat."; N.liftKeres = false; f.lanc = [N];
+    return;
+  }
+  if (f.polcVeg) {
+    var L2 = f.polcL || (f.polcN && f.polcN.polcL);
+    if (L2) { if (!f.vezet) liftJo(L2); var ki = liftNagyKesz(L2, !f.vegigVolt); if (ki) J.polc.eredm.push(ki); }
+    polcHaladas(J.feladatKesz + 1);
+  }
+}
+
+/* ═════════════════ ROSSZ VÁLASZ (ertekel hívja, a 🔎/✋ jelzés után) ═════════════════ */
+function polcHiba(f, valasz) {
+  var v = $("visszajelzes");
+  if (f.vezet) {
+    if (J.probak === 1) { v.className = "visszajelzes rossz"; v.textContent = "Nem " + valasz + ". Számold ki újra!"; mondd("Nem talált. Számold ki újra!", kezNelkulUjra); }
+    else { v.className = "visszajelzes rossz"; v.textContent = "Nézd: " + f.megoldas + ". Most írd be te!"; mondd(ekKiejt("Nézd: " + f.megoldas + ". Most írd be te!"), kezNelkulUjra); }
+    return;
+  }
+  if (f.polcSzerep === "kicsi" || f.polcSzerep === "lanc1" || f.polcSzerep === "lepes") J.polc.kicsiHiba++;
+  if (f.polcSzerep === "lepes" && f.polcN && f.polcN.polcL) f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
+  if (f.polcSzerep === "nagy" && f.polcL && !f.vegigVolt) {
+    var r = liftRossz(f.polcL);
+    if (r === "lift") { polcLiftIndul(f); return; }
+    if (r === "vegig") { polcVegig(f); return; }
+  } else if (J.probak >= 2) {                         /* kicsi, lépcsőfok, lánc 1. kérdése: a 2. rossz után megmutatja */
+    v.className = "visszajelzes rossz"; v.textContent = "Semmi baj! Nézd: " + f.megoldas + ". Most írd be te!";
+    mondd(ekKiejt("Semmi baj! Nézd: " + f.megoldas + ". Most írd be te!"), kezNelkulUjra);
+    return;
+  }
+  polcTipp(f, valasz);
+}
+function polcTipp(f, valasz) {
+  var v = $("visszajelzes"), o = oeOsztaly(f, valasz);
+  if (!f.oe) o = { fajta: "ismeretlen", m: "Nem " + valasz + ". Számold ki újra!" };
+  opJelolTorol();
+  if (o.fajta === "csap" || o.fajta === "koztes" || o.fajta === "masik") {
+    if (o.jelol && o.jelol[0] != null) opJelol(o.jelol[0], o.jelol[1]);
+    v.className = "visszajelzes ek-csapda"; v.innerHTML = o.m; mondd(ekKiejt(o.m.replace(/^🔎\s*/, "")), kezNelkulUjra);
+  } else {
+    var m = f.oe ? "Nem " + valasz + ". " + (o.m || OE_M.ism) : o.m;
+    v.className = "visszajelzes rossz"; v.textContent = m; opKerdesVillan();
+    mondd(ekKiejt(m + (f.oe ? " " + ekSima(f.op.fuzet ? f.op.fuzet.kerdes : f.op.kerdes) : "")), kezNelkulUjra);
+  }
+}
+
+/* ═════════════════ 🛗 LIFT ═════════════════ */
+function polcKicsiFeladat(N, idx) {
+  var M = N.M, K;
+  if (N.mester) {
+    var T = N.mester.kicsi[idx], mon = (T.mondatok || []).map(function (s) { return s === "{0}" ? (N.M.mondatok[0] || "") : s; }).filter(Boolean);
+    K = { mondatok: mon, kerdes: T.kerdes, helyes: T.helyes, oe: { szo: "", koztes: (T.oe && T.oe.koztes) || {}, masik: (T.oe && T.oe.masik) || {}, csap: {} }, rajz: T.padlo ? pmPadlo(T.padlo[0], T.padlo[0], [[T.padlo[1], "#b4b4b4"]]) : null };
+    for (var n in (T.oe && T.oe.csap) || {}) { var c = T.oe.csap[n]; K.oe.csap[n] = { m: c.m, jelol: c.jelol && c.jelol[0] == null ? polcJelolKeres(mon, c.jelol[1]) : c.jelol }; }
+    N.polcVissza = N.mester.vissza;
+  } else if (N.polc === "VALASZ") {
+    var Mk = null, o = { kis: true };
+    for (var t = 0; t < 80 && !Mk; t++) Mk = pmKesz(o, PM_VALASZ[M.keret](o));
+    if (!Mk) Mk = M;
+    N.polcVissza = POLC_M.liftValasz;
+    var e = polcLepcso(N, Mk, N, true);
+    e.liftKeres = true;
+    return e;
+  } else {
+    K = M.kicsi; N.polcVissza = K.vissza;
+  }
+  var f = { csalad: "egyenkent", polc: N.polc, polcSzerep: "kicsi", polcKicsiVeg: true, polcN: N, helyes: K.helyes, oe: K.oe, jegyMax: 3, lanc: null, liftKeres: true,
+    op: { mondatok: N.op.mondatok, kerdes: N.op.kerdes, rajz: K.rajz || N.op.rajz, fuzet: { mondatok: K.mondatok, kerdes: K.kerdes } },
+    szoveg: ekSima(K.kerdes), megoldas: String(K.helyes), keplet: "", tipp: "",
+    naplo: { tipus: N.naplo.tipus + "-kicsi", kerdes: ekSima(K.kerdes).slice(0, 60), helyes: K.helyes, atlepes: false } };
+  f.felolvas = ekKiejt(K.mondatok.concat([K.kerdes]).join(" "));
+  f.kartyaHTML = opKonyv(f.op);
+  return f;
+}
+function polcLiftIndul(N) {
+  opOlvasAll(); figyelStop();
+  J.polc.kicsiHiba = 0;
+  var k = polcKicsiFeladat(N, 0);
+  k.opElo = liftMondat("indul");
+  J.lancKov = k;
+  $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "";
+  setTimeout(function () { if (J && J.lancKov === k) ujFeladat(); }, 350);
+}
+
+/* ═════════════════ VÉGIGVEZETÉS — a könyv második lapján ═════════════════ */
+function polcVegigLanc(N) {
+  if (N.polcL) liftVegig(N.polcL);
+  N.vegigVolt = true;
+  var M = N.M, sor = [], mit = (M.mit || []).slice(0, 3), lep = (M.lep || []).slice(0, -1);
+  var kozos = { vezetSor: sor };
+  function vez(f) { f.vezet = true; f.vezetSor = sor; f.op = N.op; f.kartyaHTML = N.kartyaHTML; return f; }
+  var lanc = [];
+  if (mit.length) {
+    var K = mKever(mit.map(function (t, i) { return { h: '<span class="cimke">' + t + '</span>', jo: i === 0, cls: "ek-mit" }; }));
+    var C = vez(polcKartyaLepes(N, "Mit kérdeznek?", K, null)); C.vezetMost = "1. Mit kérdeznek?"; C.utoSor = "1. Mit kérdeznek? <b>" + mit[0] + "</b>";
+    lanc.push(C);
+  }
+  if (N.mester && N.mester.elso) lanc.length && (lanc[0].opElo = N.mester.elso);
+  lep.forEach(function (l, i) {
+    var S = vez({ csalad: "egyenkent", polc: N.polc, polcSzerep: "vezet", polcN: N, helyes: l.v, oe: null, jegyMax: 4, lanc: null, szoveg: ekSima(l.k), felolvas: ekKiejt(l.k),
+      megoldas: l.m || String(l.v), keplet: "", tipp: "", naplo: { tipus: N.naplo.tipus + "-lepes", kerdes: ekSima(l.k).slice(0, 60), helyes: l.v, atlepes: false } });
+    S.vezetMost = (lanc.length + 1) + ". " + l.k; S.utoSor = S.vezetMost + " <b>" + (l.m || l.v) + "</b> <span class=\"op-nem\">✋ még nem a válasz</span>";
+    lanc.push(S);
+  });
+  N.vezet = true; N.vezetSor = sor; N.vezetMost = "Most újra a kérdés: " + ekSima(N.op.kerdes); N.opElo = null; N.liftKeres = false;
+  lanc.push(N);
+  for (var i = 0; i < lanc.length - 1; i++) lanc[i].lanc = [lanc[i + 1]];
+  lanc[0].opElo = lanc[0].opElo || POLC_M.vezet;
+  void kozos;
+  return lanc[0];
+}
+function polcVegig(N) {
+  opOlvasAll(); figyelStop();
+  var e = polcVegigLanc(N);
+  J.lancKov = e;
+  var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + POLC_M.vezet;
+  setTimeout(function () { if (J && J.lancKov === e) ujFeladat(); }, 350);
+}
+/* a végigvezetés egy lépése kész → beíródik a lap sorába (ertekel jó ágából, a lánc előtt) */
+function polcVezetJo(f) { if (f.vezetSor && f.utoSor) f.vezetSor.push(f.utoSor); }
+
+/* ═════════════════ 🙋 a könyv fejlécében ═════════════════ */
+function polcSegitMenu(menu) {
+  var f = J && J.feladat, L = f && f.polcL; if (!f || !menu) return;
+  if (!menu.hidden) { menu.hidden = true; return; }
+  var h = '<button type="button" class="kis-gomb" data-s="mit">🔎 Mit kérdeznek?</button>';
+  if (f.polcSzerep === "nagy" && L && !L.lift && !f.vegigVolt && szerszamBeall().liftKer) h += '<button type="button" class="kis-gomb" data-s="kicsi">🔎 Nézzük kicsiben</button>';
+  menu.innerHTML = h; menu.hidden = false;
+}
+(function () {
+  function bekot() {
+    var b = $("buborek-feladat"); if (!b || b.__polc) return; b.__polc = true;
+    b.addEventListener("click", function (ev) {
+      var f = J && J.feladat; if (!f || !f.polc) return;
+      var t = ev.target.closest ? ev.target.closest("button") : null; if (!t) return;
+      var menu = b.querySelector(".op-segitmenu");
+      if (t.classList.contains("op-segit")) { hangGomb(); polcSegitMenu(menu); return; }
+      var s = t.getAttribute("data-s"); if (!s || !menu || !menu.contains(t)) return;
+      hangGomb(); menu.hidden = true;
+      if (s === "mit") { if (f.polcL && f.polcSzerep === "nagy") liftSegitseg(f.polcL, 1); opOlvasAll(); oeKeres(f, { szo: (f.oe && f.oe.szo) || "", al: f.keresAl || null }); }
+      else if (s === "kicsi" && f.polcL && liftKer(f.polcL) === "lift") polcLiftIndul(f);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bekot); else setTimeout(bekot, 0);
+})();
+
+/* ═════════════════ A PÁLYA VÉGE (palyaVege hívja) ═════════════════ */
+function polcPalyaVege() {
+  var pa = J.palya, E = (J.polc && J.polc.eredm) || [], d = polcIdx(pa.polc), html = "", mondat = "", mesterKocka = false, ujKocka = false;
+  delete polcAllapot()[pa.id];
+  var lada = E.some(function (x) { return x && x.ladaba; });
+  if (pa.fok === "mester") {
+    var x = E[0] || null, L = J.polc && J.polc.L;
+    if (x && x.e === "o" && L && L.elso !== false) {
+      mesterKocka = true; ujKocka = ekKockaBe(d.kocka);
+      if (!szerszamT(pa.polc).m) { szerszamT(pa.polc).m = szerszamNap(); }
+      P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
+      P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
+      var lista = ekKockaLista();
+      html += '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, ujKocka ? lista.length - 1 : -1) + '</div>' +
+        '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
+      mondat += " Mesterpróba kész!" + (ujKocka ? " Új kocka repült a Kockavárba!" : "");
+    } else if (J.polc && J.polc.nincsMester) {
+      html += '<br><span class="ek-vege">🏅 A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!</span>';
+    } else {
+      html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.</span>';
+      mondat += " Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.";
+    }
+  } else {
+    var t = pa.fok === "tekercs" ? "📜 Kész a varázstekercs!" : "📖 Kész a mesekönyv!";
+    html += '<br><span class="ek-vege">' + t + " " + (lada ? "" : d.ikon + " A „" + d.nev + "” tábla fényesebb lett.") + '</span>';
+    mondat += " " + t.replace(/^\S+ /, "") + (lada ? "" : " A " + d.nev + " tábla fényesebb lett.");
+  }
+  if (lada) {
+    szerszamTar().ujLada = pa.polc;
+    html += '<br><span class="ek-vege">🧰 Ezt már tudod! A ' + d.ikon + ' a ládába került.</span>';
+    mondat += " Ezt már tudod! A " + d.nev + " a ládába került.";
+  }
+  ment();
+  return { html: html, mondat: mondat, kocka: ujKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
+}
+/* a vége-képernyő „következő” gombja: 📖 → 📜 → 🏅, a Mesterpróba után vissza a polchoz */
+function polcKovetkezo(id) {
+  var pa = palyaKeres(id); if (!pa) return null;
+  var fok = { mese: "tekercs", tekercs: "mester" }[pa.fok]; if (!fok) return null;
+  if (fok === "mester" && !polcMesterLista(pa.polc).length) return null;
+  var k = palyaKeres("polc-" + pa.polc.toLowerCase() + "-" + fok);
+  return k && !palyaRejtve(k) ? k.id : null;
+}
 /* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Holdfény-szárnyban: szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda
@@ -10538,7 +11496,8 @@ var SZP_LADA = '<svg class="szp-lada-svg" viewBox="0 0 120 80" aria-hidden="true
   '<g class="szp-fedel"><path d="M10,36 Q10,14 60,14 Q110,14 110,36 Z" fill="#c98a4b" stroke="#6e4a22" stroke-width="3"/><path d="M14,30 Q60,18 106,30" stroke="#e8b06a" stroke-width="3" fill="none"/></g></svg>';
 
 function szpPolc(s) {
-  var t = szerszamT(s.id), feny = szerszamFeny(s.id), L = PALYAK.filter(function (p) { return p.szerszam === s.id && !palyaRejtve(p); });
+  var t = szerszamT(s.id), feny = szerszamFeny(s.id), polc = !!s.kocka;   /* 📚 olvasó-polc (s.kocka): ugyanaz a polc, 🔮 nélkül (olvaso-polc.js) */
+  var L = PALYAK.filter(function (p) { return (polc ? p.polc : p.szerszam) === s.id && !palyaRejtve(p); });
   var targy = ["mese", "tekercs", "gomb", "mester"].map(function (fok) {
     var pa = L.filter(function (p) { return p.fok === fok; })[0]; if (!pa) return "";
     return '<button type="button" class="szp-t szp-' + fok + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
@@ -10546,22 +11505,26 @@ function szpPolc(s) {
   }).join("");
   return '<div class="szp-polc' + (t.l ? " lada" : "") + '" data-sz="' + s.id + '">' +
     '<div class="szp-tabla" style="--feny:' + feny.toFixed(2) + '"><span class="szp-ikon">' + s.ikon + '</span><span class="szp-nev">' + s.nev + '</span>' +
-      (t.m ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
+      ((polc ? polcSzalag(s.id) : t.m) ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
     '<div class="szp-targyak">' + targy + '</div><div class="szp-deszka"></div></div>';
 }
-/* a szekrény (ui.js hívja a Holdfény-szárny kocka-sorai alatt); null, ha egy szerszám sem látszik */
+/* a szekrény (ui.js hívja a Holdfény-szárnyban): fent a 📚 olvasó-polc (🔎 ✋), alatta a 🧰 szerszámok, lent a közös láda; null, ha semmi sem látszik.
+   (A teljes terem — bal fal olvasó-polc, közép Kockavár, jobb fal szekrény — a 3. kód-körben.) */
 function szSzekreny() {
   var lista = SZERSZAMOK.filter(function (s) { return PALYAK.some(function (p) { return p.szerszam === s.id && !palyaRejtve(p); }); });
-  if (!lista.length) return null;
-  var benn = SZERSZAMOK.filter(function (s) { return szerszamLadaban(s.id); });
+  var olvaso = OLVASO_POLCOK.filter(function (s) { return PALYAK.some(function (p) { return p.polc === s.id && !palyaRejtve(p); }); });
+  if (!lista.length && !olvaso.length) return null;
+  var benn = OLVASO_POLCOK.concat(SZERSZAMOK).filter(function (s) { return szerszamLadaban(s.id); });   /* egy KÖZÖS láda (rajzterv 3. döntés ✅) */
   var sz = el("div", "szp-szekreny");
-  sz.innerHTML = '<div class="szp-tetej">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") +
+  sz.innerHTML = (olvaso.length ? '<div class="szp-tetej">📚 Olvasó-polc</div>' + olvaso.map(szpPolc).join("") : '') +
+    (lista.length ? '<div class="szp-tetej' + (olvaso.length ? ' szp-tetej2' : '') + '">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") : '') +
     '<div class="szp-lab"><div class="szp-lada">' + SZP_LADA + '<span class="szp-lada-ikonok">' + benn.map(function (s) { return '<i data-sz="' + s.id + '">' + s.ikon + '</i>'; }).join("") + '</span></div></div>';
   Array.prototype.forEach.call(sz.querySelectorAll(".szp-t"), function (b) {
     b.addEventListener("click", function () {
       hangGomb();
       var pa = palyaKeres(b.getAttribute("data-pid")); if (!pa) return;
       if (palyaElfogyott(pa)) { mondd(elfogyottMondat()); return; }
+      if (pa.polc && pa.fok === "mester" && !polcMesterLista(pa.polc).length) { mondd("Ez a Mesterpróba hamarosan kinyílik!"); return; }   /* a szöveg a felhőben van */
       if (b.classList.contains("szp-mester")) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
       ligetUget(b, function () { palyaInditas(pa.id); });
     });
@@ -13754,7 +14717,7 @@ function fomenuLigetek() {
   var regiok = {}, regioSorrend = [], lathato = 0;
   egyeniPalyak().concat(PALYAK).forEach(function (pa) {
     if (palyaRejtve(pa)) return;
-    var idx = (pa.egyeni || pa.konyvtar || pa.szerszam) ? null : lathato++, r = palyaLiget(pa);   /* könyvtár: szárnyonként saját sorszám (ekKartyaDisz) */
+    var idx = (pa.egyeni || pa.konyvtar || pa.szerszam || pa.polc) ? null : lathato++, r = palyaLiget(pa);   /* könyvtár: szárnyonként saját sorszám (ekKartyaDisz) */
     if (!regiok[r]) { regiok[r] = []; regioSorrend.push(r); }
     regiok[r].push({ pa: pa, idx: idx });
   });
@@ -13875,7 +14838,7 @@ function renderFomenu() {
       szSor.forEach(function (sz) {
         szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
         var kSor = [], kP = {};                    /* kockánként egy sor: 📖 Mesekönyv → 📜 Varázstekercs → 🏅 */
-        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz || rec.pa.szerszam) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
+        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz || rec.pa.szerszam || rec.pa.polc) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
         var g = el("div", "ek-kocka-sorok");
         kSor.forEach(function (k) { g.appendChild(ekMenuSor(kP[k], function (pa) { return keszitKartya(pa, null); })); });
         szek.appendChild(g);
@@ -13913,7 +14876,7 @@ function kapuVan() { return kapuKulcsok().length > 0; }
 function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : KAPU_ALAP_ORAK) * 3600 * 1000; }
 function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { if (pa.szerszam) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
+function palyaZarva(pa) { if (pa.szerszam || pa.polc) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
   if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
   return !pa.hamarosan && (!pa.egyeni || pa.teny) && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva — a 🌸 Neked szóló ösvényt viszont a kapu is zárja */
 function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }
@@ -13974,7 +14937,7 @@ function palyaInditas(id) {
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
-  opMod(!!pa.szerszam);                            /* 🧰 szerszám-létra: olvasópult-mód (szerszam-palya.js) */
+  opMod(!!pa.szerszam || !!pa.polc);               /* 🧰 szerszám-létra + 📚 olvasó-polc: olvasópult-mód (szerszam-palya.js) */
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
@@ -14006,6 +14969,7 @@ function kovAllomas() {
     /* állomás-szintű sorsolás: a „nehéz" állomás egy fókusz-számot kap az egész állomásra */
     J.allomasSzorzo = a.szorzo_keszlet ? veletlenElem(a.szorzo_keszlet) : null;
     J.lancKov = null;                         /* mérés: a félbemaradt kérdés-lánc nem folytatódik a következő állomáson */
+    if (J.palya.polc) polcFolytat();          /* 📚 olvasó-polc: kilépés után ugyanazon a napon ott folytatja (olvaso-polc.js) */
     $("kerulo-gomb").style.display = "block";
     ujFeladat();
   });
@@ -14072,6 +15036,7 @@ function feladatMutat(f) {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
+    if (f.polc) { figyelStop(); polcMutat(f); return; }                                         /* 📚 olvasó-polc: olvasópult + beírás / kártyák (olvaso-polc.js) */
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
@@ -14298,12 +15263,14 @@ function rosszValaszKonyvel(f, cimke) {
 function ertekel(valasz) {
   var f = J.feladat;
   if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
+  if (f.polc && polcZar(f)) return;            /* 📚 olvasó-polc: amíg a 🔎 kérdés-keret vár, nem lehet válaszolni */
   if (J.joVolt === f) return;                  /* a jó válasz után a továbblépésig nincs második értékelés (dupla Enter / beszéd + gomb → dupla jutalom, kihagyott feladat — próbacsapat 2026-10-10) */
   var mar = (f.csalad === "maradekos");
   var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
   if (helyesE) {
     J.joVolt = f;
     var elsore = (J.probak === 0 && !f.vezet);   /* mérés: a végigvezetett lépés nem „elsőre jó” */
+    if (f.polc) { polcVezetJo(f); polcJo(f, elsore); }   /* 📚 olvasó-polc: lift / láda / folytatás, mielőtt a láncot nézzük (olvaso-polc.js) */
     naplozz(f.naplo, elsore, mar ? (valasz.h + "m" + valasz.m) : valasz);
     J.futoOssz++; if (elsore) J.futoElsore++;
     streakLep(elsore);
@@ -14314,7 +15281,7 @@ function ertekel(valasz) {
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = mar
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
-      : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
+      : ((f.ek ? ekDicser(f, elsore) : f.polc ? polcDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
     if (f.hianyzo) bujJo();                    /* 🐭 Cincin előugrik a számmal (bujocska.js) */
@@ -14350,6 +15317,8 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
     } else if (f.vs) {
       vsHiba(f, valasz);                      /* 🧺 vásár: 1. → csapda-mondat, 2. → (mozgókép) + lépésenként (vasar.js) */
+    } else if (f.polc) {
+      polcHiba(f, valasz);                    /* 📚 olvasó-polc: konkrét tipp → 🛗 lift → végigvezetés (olvaso-polc.js) */
     } else if (f.ek) {
       ekHiba(f, valasz);                      /* 📚 könyvtár: 1. → csapda-mondat, 2. → végigvezetés „Mit kérdeznek?”-kel (konyvtar.js) */
     } else if (f.vegig && !f.vezet) {
@@ -14681,12 +15650,12 @@ function palyaVege() {
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
 
-  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
+  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : J.palya.polc ? polcPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
   var vegeAdat = { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat };
-  if (ekV) vegeAdat[J.palya.vasar ? "vs" : J.palya.szerszam ? "sz" : "ek"] = ekV.adat;
+  if (ekV) vegeAdat[J.palya.vasar ? "vs" : J.palya.szerszam ? "sz" : J.palya.polc ? "polc" : "ek"] = ekV.adat;
   esemeny("palya_end", vegeAdat);
   var ujJelv = jelvenyEllenoriz();
 
@@ -14716,11 +15685,12 @@ function palyaVege() {
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
-  var kov = J.palya.szerszam ? szKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📖 → 📜 → 🏅 */
+  var kov = J.palya.szerszam ? szKovetkezo(id) : J.palya.polc ? polcKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📚 📖 → 📜 → 🏅 */
   $("vege-kovetkezo").style.display = kov ? "" : "none";
   $("vege-kovetkezo").onclick = function () { hangGomb(); if (kov) palyaInditas(kov); };
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
+  if (ekV && ekV.kocka) ekKockaBerepul();           /* 📚 olvasó-polc Mesterpróba: a kocka berepül a Kockavárba */
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
   var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
@@ -23075,6 +24045,7 @@ window.UC = {
   liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
+  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, szSzekreny: szSzekreny,   /* 📚 OLVASÓ-POLC */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
   ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, ekValaszMondat: ekValaszMondat, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */

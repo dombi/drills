@@ -20,7 +20,7 @@ function kapuVan() { return kapuKulcsok().length > 0; }
 function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : KAPU_ALAP_ORAK) * 3600 * 1000; }
 function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { if (pa.szerszam) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
+function palyaZarva(pa) { if (pa.szerszam || pa.polc) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
   if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
   return !pa.hamarosan && (!pa.egyeni || pa.teny) && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva — a 🌸 Neked szóló ösvényt viszont a kapu is zárja */
 function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }
@@ -81,7 +81,7 @@ function palyaInditas(id) {
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
-  opMod(!!pa.szerszam);                            /* 🧰 szerszám-létra: olvasópult-mód (szerszam-palya.js) */
+  opMod(!!pa.szerszam || !!pa.polc);               /* 🧰 szerszám-létra + 📚 olvasó-polc: olvasópult-mód (szerszam-palya.js) */
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
   $("jatek-csillampor").textContent = P().csillampor;
@@ -113,6 +113,7 @@ function kovAllomas() {
     /* állomás-szintű sorsolás: a „nehéz" állomás egy fókusz-számot kap az egész állomásra */
     J.allomasSzorzo = a.szorzo_keszlet ? veletlenElem(a.szorzo_keszlet) : null;
     J.lancKov = null;                         /* mérés: a félbemaradt kérdés-lánc nem folytatódik a következő állomáson */
+    if (J.palya.polc) polcFolytat();          /* 📚 olvasó-polc: kilépés után ugyanazon a napon ott folytatja (olvaso-polc.js) */
     $("kerulo-gomb").style.display = "block";
     ujFeladat();
   });
@@ -179,6 +180,7 @@ function feladatMutat(f) {
     $("valasz-felmondas").hidden = true;
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
+    if (f.polc) { figyelStop(); polcMutat(f); return; }                                         /* 📚 olvasó-polc: olvasópult + beírás / kártyák (olvaso-polc.js) */
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
@@ -405,12 +407,14 @@ function rosszValaszKonyvel(f, cimke) {
 function ertekel(valasz) {
   var f = J.feladat;
   if (f.vsKesz) return;                        /* 🧺 vásár: a jó válasz után (füzet-írás / Tovább-várás) nem értékelünk újra */
+  if (f.polc && polcZar(f)) return;            /* 📚 olvasó-polc: amíg a 🔎 kérdés-keret vár, nem lehet válaszolni */
   if (J.joVolt === f) return;                  /* a jó válasz után a továbblépésig nincs második értékelés (dupla Enter / beszéd + gomb → dupla jutalom, kihagyott feladat — próbacsapat 2026-10-10) */
   var mar = (f.csalad === "maradekos");
   var helyesE = mar ? (valasz.h === f.helyes.h && valasz.m === f.helyes.m) : (valasz === f.helyes);
   if (helyesE) {
     J.joVolt = f;
     var elsore = (J.probak === 0 && !f.vezet);   /* mérés: a végigvezetett lépés nem „elsőre jó” */
+    if (f.polc) { polcVezetJo(f); polcJo(f, elsore); }   /* 📚 olvasó-polc: lift / láda / folytatás, mielőtt a láncot nézzük (olvaso-polc.js) */
     naplozz(f.naplo, elsore, mar ? (valasz.h + "m" + valasz.m) : valasz);
     J.futoOssz++; if (elsore) J.futoElsore++;
     streakLep(elsore);
@@ -421,7 +425,7 @@ function ertekel(valasz) {
     $("visszajelzes").className = "visszajelzes jo";
     $("visszajelzes").textContent = mar
       ? ("Ez az! " + f.helyes.h + " maradék " + f.helyes.m + "  (+" + jar + " ✨)")
-      : ((f.ek ? ekDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
+      : ((f.ek ? ekDicser(f, elsore) : f.polc ? polcDicser(f, elsore) : f.vs ? vsDicser(f, elsore) : "Ez az!") + " " + (f.joKiir != null ? f.joKiir : f.helyes) + "  (+" + jar + " ✨)");
     if (mar) maradekosKitolt(true);
     figArc("ujjong");                          /* 🎨 a szereplők ujjonganak (figurak.js) */
     if (f.hianyzo) bujJo();                    /* 🐭 Cincin előugrik a számmal (bujocska.js) */
@@ -457,6 +461,8 @@ function ertekel(valasz) {
       else { $("visszajelzes").textContent = "💡 " + f.tipp; mondd(f.tipp, maradekosUjra); }
     } else if (f.vs) {
       vsHiba(f, valasz);                      /* 🧺 vásár: 1. → csapda-mondat, 2. → (mozgókép) + lépésenként (vasar.js) */
+    } else if (f.polc) {
+      polcHiba(f, valasz);                    /* 📚 olvasó-polc: konkrét tipp → 🛗 lift → végigvezetés (olvaso-polc.js) */
     } else if (f.ek) {
       ekHiba(f, valasz);                      /* 📚 könyvtár: 1. → csapda-mondat, 2. → végigvezetés „Mit kérdeznek?”-kel (konyvtar.js) */
     } else if (f.vegig && !f.vezet) {
@@ -788,12 +794,12 @@ function palyaVege() {
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
 
-  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
+  var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : J.palya.polc ? polcPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
   $("jatek-csillampor").textContent = P().csillampor;
   ment();
   var vegeAdat = { palyaId: id, feladat: J.futoOssz, elsore: J.futoElsore, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000),
     teljes: teljes, csillampor: J.futoCsilla, harmat: harmat };
-  if (ekV) vegeAdat[J.palya.vasar ? "vs" : J.palya.szerszam ? "sz" : "ek"] = ekV.adat;
+  if (ekV) vegeAdat[J.palya.vasar ? "vs" : J.palya.szerszam ? "sz" : J.palya.polc ? "polc" : "ek"] = ekV.adat;
   esemeny("palya_end", vegeAdat);
   var ujJelv = jelvenyEllenoriz();
 
@@ -823,11 +829,12 @@ function palyaVege() {
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
-  var kov = J.palya.szerszam ? szKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📖 → 📜 → 🏅 */
+  var kov = J.palya.szerszam ? szKovetkezo(id) : J.palya.polc ? polcKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📚 📖 → 📜 → 🏅 */
   $("vege-kovetkezo").style.display = kov ? "" : "none";
   $("vege-kovetkezo").onclick = function () { hangGomb(); if (kov) palyaInditas(kov); };
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
+  if (ekV && ekV.kocka) ekKockaBerepul();           /* 📚 olvasó-polc Mesterpróba: a kocka berepül a Kockavárba */
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
   var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;

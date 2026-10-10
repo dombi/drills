@@ -9,9 +9,9 @@
      liftRossz(L)        → "ujra" (1. rossz) · "lift" (2. rossz: indul a lift) · "vegig" (a lift után is 2. rossz)
      liftSegitseg(L, s)  → 🙋 s. sora: 1 = „Mit kérdeznek?” (még önálló) → "semmi"; 2+ → "lift" (ha még nem volt)
      liftKer(L)          → a gyerek kérte („🔎 Nézzük kicsiben”) → "lift" · "semmi", ha a pult kikapcsolta
-     liftKicsi(L, jo)    → egy kicsi vége: "kicsi" (jöhet még egy) · "vissza" (2 jó → vissza a nagyra) · "vegig" (3 kicsi után)
+     liftKicsi(L, jo)    → egy kicsi vége: "kicsi" (jöhet még egy) · "vissza" (2 jó → vissza a nagyra; L.kicsiJoKell felülírja) · "vegig" (3 kicsi után)
      liftVegig(L)        → a pálya végigvezette a nagyot (együtt oldották meg)
-     liftNagyKesz(L, jo) → a nagy feladat vége: könyvel (napló + láda) → { e, onallo, ladaba, mester }
+     liftNagyKesz(L, jo) → a nagy feladat vége: könyvel (napló + láda) → { e, onallo, ladaba, mester } (L.nagy: számít-e a ládába)
    A kicsi BESZÁMÍT abba a pályába, ahol a gyerek tart, teljes jutalommal (ezt a pálya intézi); a menüsor sem mutatja.
    Mondatok: liftMondat("indul" | "vissza", { kicsi, nagy }) — a tiltott szavakat (LIFT_TILOS) a modul kiszűri.
 
@@ -36,6 +36,12 @@ var SZERSZAMOK = [
   { id: "KOTOTT", ikon: "📌", nev: "Ahol csak egyféle lehet", kartya: "Ott kezdem, ahol csak egyféle lehet." },
   { id: "EGESZ",  ikon: "🧺", nev: "Előbb az egész",          kartya: "Összeszámolom, mennyi van összesen." },
   { id: "MIT",    ikon: "🔍", nev: "Mit számolok?",           kartya: "Megnézem, mit számolok egynek." }
+];
+/* 📚 az OLVASÓ-POLC két polca (olvaso-polc.js; terv: Matekosegi-kockak-konyvtar-terv.html ✅) — ugyanaz a lift + láda, mint a
+   szerszámoknál (egy közös láda, egy közös pult-küszöb); a kocka: a régi építőkocka, ami a Kockavárban gyűlik */
+var OLVASO_POLCOK = [
+  { id: "KERES",  ikon: "🔎", nev: "Mire felelsz?",    kartya: "Megkeresem, mit kérdeznek – és pont arra felelek.", kocka: "K1" },
+  { id: "VALASZ", ikon: "✋", nev: "Ez már a válasz?", kartya: "Megnézem: ez már a válasz, vagy csak egy lépcső?",  kocka: "K3" }
 ];
 var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
@@ -211,7 +217,7 @@ function liftKicsi(L, jo) {
   if (!L.bent) return "semmi";
   L.kicsi++; if (jo) L.kicsiJo++;
   szerszamKicsiJegyez(L.sz, L.palya, "kicsi", L.fid, jo);
-  if (L.kicsiJo >= LIFT_KICSI_JO) { L.bent = false; return "vissza"; }
+  if (L.kicsiJo >= (L.kicsiJoKell || LIFT_KICSI_JO)) { L.bent = false; return "vissza"; }   /* polc: 1 (generált) vagy 2 (Mesterpróba-testvér) */
   if (L.kicsi >= LIFT_KICSI_MAX) { L.bent = false; L.vegig = true; return "vegig"; }
   return "kicsi";
 }
@@ -223,7 +229,7 @@ function liftNagyKesz(L, jo) {
   if (L.elso === null) L.elso = !!jo;
   var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
   if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
-  var nagy = L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester", ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
   szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
   if (L.lift) {
     var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };
@@ -246,10 +252,10 @@ function liftNagyKesz(L, jo) {
 /* a pultnak: egy gyerek mentett szerszám-adatából (u.unicorns[leny].szerszam) egy sor szerszámonként */
 function szerszamOsszegzes(adat, beall) {
   var b = szerszamBeall(beall), t = (adat && adat.t) || {}, li = (adat && adat.li) || [];
-  return SZERSZAMOK.map(function (s) {
+  return SZERSZAMOK.concat(OLVASO_POLCOK).map(function (s) {
     var x = t[s.id] || {}, h = Array.isArray(x.h) ? x.h : [], sl = li.filter(function (l) { return l.sz === s.id; });
     return { id: s.id, ikon: s.ikon, nev: s.nev, utolso: h.slice(-b.n), onallo: szerszamOnalloDb(h, b.n), k: b.k, n: b.n,
              lada: x.l || "", mester: x.m || "", mesterek: x.mh || {}, liftek: sl.length, liftSiker: sl.filter(function (l) { return l.siker; }).length,
-             latszik: !!b.latszik[s.id] };
+             latszik: s.kocka ? true : !!b.latszik[s.id], polc: !!s.kocka };
   });
 }

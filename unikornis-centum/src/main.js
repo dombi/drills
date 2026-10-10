@@ -35,6 +35,7 @@ window.UC = {
   liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
+  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, szSzekreny: szSzekreny,   /* 📚 OLVASÓ-POLC */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
   ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, ekValaszMondat: ekValaszMondat, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */

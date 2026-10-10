@@ -2419,3 +2419,19 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .ek-gy.szamolt{ opacity:.55; }
 .ek-gy.szamolt::after{ content:attr(data-n); position:absolute; right:-4px; top:-6px; font-size:13px; font-weight:800; color:#fff; background:#8a5cd6; border-radius:999px; min-width:18px; line-height:18px; text-align:center; letter-spacing:0; }
 @media (prefers-reduced-motion:reduce){ .oe-keret,.oe-billen{ animation:none; } }
+
+/* ═════════ 📚 OLVASÓ-POLC (olvaso-polc.js, polc-mesek.js — 2. kód-kör, 2026-10-10) ═════════ */
+.pm-rajz{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:flex-end; padding:6px; }
+.pm-rajz .ek-erem{ font-size:15px; }
+.pm-padlo{ max-width:260px; }
+.op-lepcso{ margin-top:.6em; border-top:2px dashed #e3c29a; padding-top:.4em; }
+.op-lepcso p{ margin:.25em 0; padding:3px 8px; border-radius:8px; font-size:18px; line-height:1.35; color:#4a3b5a; }
+.op-lepcso-kesz{ background:#eef8ea; } .op-lepcso-kesz b{ color:#3d8a3a; }
+.op-lepcso-most{ background:#f6f0ff; font-weight:800; color:#5b3aa8 !important; }
+.op-nem{ font-size:14px; color:#b07a00; font-weight:700; }
+.op-segit{ background:#f3e3cb; color:#6a4a2a; border-radius:8px; padding:1px 9px; font-size:17px; line-height:1.4; }
+.op-segitmenu{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:0 4px 8px; }
+.op-rejtett .op-kerdes:not(.oe-megvan){ color:#4a3b5a; font-weight:600; font-size:20px; margin:0 0 .4em; }   /* 🔍: a kérdés csak megtalálva lesz lila */
+.op-b1 .op-rejtett .op-kerdes:not(.oe-megvan){ font-size:17px; } .op-b3 .op-rejtett .op-kerdes:not(.oe-megvan){ font-size:24px; }
+.op-konyv.op-mester{ background:linear-gradient(#e8b84a,#c9902a); box-shadow:0 0 0 3px #fff3c4, 0 10px 24px rgba(120,80,10,.3); }
+.szp-tetej2{ margin-top:10px; border-top:3px solid #6e4a22; padding-top:8px; }

@@ -102,7 +102,7 @@ function ekKockaLista() {
   var st = ekAllapot(), L = (st.varSor || []).slice();
   for (var pid in st.mester) {                       /* régebbi mentés / pult-javítás: ami a mester-listában van, az is a vár része */
     if (!st.mester[pid]) continue;
-    var pa = palyaKeres(pid), d = pa && EK_KOCKA_DEF[pa.kocka];
+    var pa = palyaKeres(pid), d = EK_KOCKA_DEF[pa ? pa.kocka : EK_REGI_PALYAK[pid]];   /* a régi ek-k*-3v pályák már nincsenek a listában (2026-10-10) */
     if (d && d.var != null && L.indexOf(d.var) < 0) L.push(d.var);
   }
   return L.slice(0, EK_KOCKAK.length);
@@ -155,4 +155,18 @@ function ekMesterKapuSVG(palya) {
   return '<g class="ek-kapu" transform="translate(-8,0)"><path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#e8b43a" stroke-width="12" stroke-linecap="round"/>' +
     '<path d="M-52,40 C-54,-70 -36,-150 0,-158 C36,-150 54,-70 52,40" fill="none" stroke="#fff3b8" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 10"/>' +
     '<circle cx="0" cy="-160" r="18" fill="#fff6d8" stroke="#e8b43a" stroke-width="3"/><text x="0" y="-153" font-size="20" text-anchor="middle">' + (kesz ? "✅" : "🏅") + '</text></g>';
+}
+
+/* 📚 olvasó-polc: egy kocka a Kockavárba (olvaso-polc.js hívja a Mesterpróba után) — true, ha most került be */
+function ekKockaBe(kocka) {
+  var st = ekAllapot(), d = EK_KOCKA_DEF[kocka], L = ekKockaLista();
+  if (!d || d.var == null || L.indexOf(d.var) >= 0) return false;
+  st.varSor = L.concat([d.var]); ment();
+  return true;
+}
+/* a régi 🏅 Mesterpróba megvolt-e ennél a kockánál (az új polcon a 🏅 könyv már szalagos) */
+function ekRegiMester(kocka) {
+  var m = ekAllapot().mester;
+  for (var pid in EK_REGI_PALYAK) if (EK_REGI_PALYAK[pid] === kocka && m[pid]) return true;
+  return false;
 }

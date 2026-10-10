@@ -51,6 +51,8 @@ MODULES = [
     "dobogo.js",          # 6o) 🏆 dobogó: koppintós sorba rakás (verseny / sor / polc / ház / táblázat, kétsoros is)
     "szerszam-kotott.js", # 3g) 📌 KOTOTT tartalom: 4 mese-keret, szereplő-rajzok, sablon-generátor egyértelműség-próbával, 4 Mesterpróba + testvérek
     "szerszam-palya.js",  # 6p) 🧰 szerszám-pálya: GEN.szerszam, jó/rossz, 🛗 lift, végigvezetés, pálya vége (mester-szalag, láda)
+    "polc-mesek.js",      # 6r) 📚 olvasó-polc mesék: 🔎 hat keret (gyűjtés, udvar, hét, bolt, házsor, csere) + ✋ hat keret (kosár, szalag, életkor, vásár, padló, kannák)
+    "olvaso-polc.js",     # 6s) 📚 olvasó-polc motor: 20 pötty sorrendje, formák, 🛗 lift, végigvezetés, 🏅 Mesterpróba beírással, folytatás
     "szerszam-polc.js",   # 6q) 🧰 szerszám-szekrény a Holdfény-szárnyban: polc + 3 tárgy + névtábla-fény + láda-pillanat
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)

@@ -214,7 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/szerszam.js?v=20261010-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261010-2"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -328,6 +328,8 @@ function palyakBetolt() {
     while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + (m[5] === "tekercs" ? " · 📜 Varázstekercs" : " · 📖 Mesekönyv") + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar", regio: "konyvtar" }; PALYA_SORREND.push(m[1]); }
     var rsz = /szPalya\("([^"]+)",\s*"([^"]+)",\s*"(\w+)"\)/g, SZF = { mese: ["📖", "Mesekönyv"], tekercs: ["📜", "Varázstekercs"], gomb: ["🔮", "Kristálygömb"], mester: ["🏅", "Mesterpróba"] };   /* 🧰 Szerszám-létrák (src/constants.js szPalya) — ugyanaz az azonosító, mint a játékban */
     while ((m = rsz.exec(t))) if (SZF[m[3]]) { var szId = "sz-" + m[1].toLowerCase() + "-" + m[3]; PALYA[szId] = { nev: "🧰 " + m[2] + " – " + SZF[m[3]][1], ikon: SZF[m[3]][0], sorrend: i++, tipus: "szerszam", regio: "konyvtar" }; PALYA_SORREND.push(szId); }
+    var rpo = /polcPalya\("(\w+)",\s*"([^"]+)",\s*"(\w+)"\)/g, POF = { mese: ["📖", "Mesekönyv"], tekercs: ["📜", "Varázstekercs"], mester: ["🏅", "Mesterpróba"] };   /* 📚 olvasó-polc (src/constants.js polcPalya) */
+    while ((m = rpo.exec(t))) if (POF[m[3]]) { var poId = "polc-" + m[1].toLowerCase() + "-" + m[3]; PALYA[poId] = { nev: "📚 " + m[2] + " – " + POF[m[3]][1], ikon: POF[m[3]][0], sorrend: i++, tipus: "polc", regio: "konyvtar" }; PALYA_SORREND.push(poId); }
     var rkm = /(K\d+):\s*\{[^}]*?mester:\s*\[([^\]]*)\]/g;   /* 🏅 a kockák alap Mesterpróba-feladatai (EK_KOCKA_DEF[k].mester) */
     while ((m = rkm.exec(t))) EK_MESTER_ALAP[m[1]] = (m[2].match(/"[^"]+"/g) || []).map(function (x) { return x.slice(1, -1); });
     var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
@@ -1929,10 +1931,12 @@ var EK_CSAPDA_NEV = { masik: "a másik szereplőre felelt", elozo: "az előző k
   resz: "részeredménynél megállt (félút)", alkerdes: "egy közbenső kérdésnél megállt", egyeb: "egyéb tévedés" };
 var EK_STABIL_ALAP = { nap: 3, arany: 0.8 };
 function ekKockaNev(k) {
+  if (EK_REGI_NEV[k]) return EK_REGI_NEV[k];
   for (var id in PALYA) if (PALYA[id].tipus === "konyvtar" && /v$/.test(id) && ekKockaIdbol(id) === k) return PALYA[id].ikon + " " + PALYA[id].nev.split(" · ")[0];
   return k;
 }
-function ekTekercsIdk() { return PALYA_SORREND.filter(function (id) { return PALYA[id] && PALYA[id].tipus === "konyvtar" && /v$/.test(id); }); }
+var EK_REGI_NEV = { K1: "🔎 Kit kérdeznek?", K2: "🔤 Kis szavak", K3: "✋ Ez már a válasz?" };   /* a régi 6 pálya 2026-10-10-én kikerült a játékból; az adatuk itt még látszik */
+function ekTekercsIdk() { return ["ek-k1-3v", "ek-k2-3v", "ek-k3-3v"]; }
 function ekKockaIdbol(id) { var m = /^ek-k(\d+)-/.exec(id || ""); return m ? "K" + m[1] : null; }
 function ekStabilOssz(egyeni, csop) {        /* ugyanaz, mint a játék config.js ekStabilOsszevon-ja */
   function jo(x) { return x && (x.nap >= 1 || x.arany > 0); }
@@ -1956,8 +1960,9 @@ function rajzEpitokocka(t) {
   }
   var tekIdk = ekTekercsIdk(), ma = napKulcs(new Date());
   var h = "<h2>🧱 Építőkockák — Bagolykönyvtár</h2>" +
-    '<p class="kicsi halvany">Egy kocka = egy Zrínyi-részlépés. Létra: 📖 Mesekönyv → 📜 Varázstekercs (itt gyűlnek a kocka-napok) → 🏅 Mesterpróba (egy igazi versenyfeladat) → a kocka berepül a 🏰 Kockavárba. ' +
-    "A csapda-statisztika és az „elsőre jó” az eseménynaplóból jön (a fenti időszak-választó szerint).</p>";
+    '<p class="kicsi halvany">Új (2026-10-10): a régi három kocka helyén a <b>📚 olvasó-polc</b> két polca — 🔎 „Mire felelsz?” és ✋ „Ez már a válasz?” — szerszám-módra: 📖 Mesekönyv (20) → 📜 Varázstekercs (20) → 🏅 Mesterpróba (beírással). ' +
+    "Nincs lakat és kocka-nap: elakadáskor a 🛗 lift segít, a 🧰 láda mutatja a tudást, a Mesterpróba hozza a kockát a 🏰 Kockavárba. A polcok sorai lent, a láda-táblázatban vannak.</p>" +
+    '<h3>Régi kocka-pályák (kivezetve — csak az eddigi eredmények)</h3>';
 
   /* ── a táblázat ── */
   var sorok = [];
@@ -2002,22 +2007,13 @@ function rajzEpitokocka(t) {
   var egyeni = cel.charAt(0) === "u", cid = cel.slice(2);
   var sajat = (egyeni ? (A.cfg[cid] || {}).ekStabil : (csoportById(cid) || {}).ekStabil) || {};
   var ures = egyeni ? (jatekosCsoportjai(cid).length ? "— csoport szerint" : "— alap") : "— alap";
-  h += '<div class="kartya" style="margin-top:14px"><h3>📏 Stabil-küszöb — mikor nyílik a 🏅 Mesterpróba?</h3>' +
+  h += '<div class="kartya" style="margin-top:14px"><h3>🎯 Kinek szól a beállítás?</h3>' +
     '<div class="celsor"><span class="cimke">Gyerek:</span>' + A.users.map(function (u) {
       return '<button data-ekcel="u:' + esc(u.uid) + '" class="' + (cel === "u:" + u.uid ? "aktiv" : "") + '">' + esc(jNev(u.uid)) + "</button>";
     }).join("") + '</div><div class="celsor"><span class="cimke">Csoport:</span>' + (A.groups.length ? A.groups.map(function (g) {
       return '<button data-ekcel="g:' + esc(g.id) + '" class="' + (cel === "g:" + g.id ? "aktiv" : "") + '">👥 ' + esc(g.name) + "</button>";
     }).join("") : '<span class="halvany kicsi">nincs csoport (a 🎛️ Beállításokban hozhatsz létre)</span>') + "</div>" +
-    '<div class="kapu-sor"><span>Ennyi külön napon:</span><select id="ek-nap"' + (sajat.nap ? ' class="beallitva"' : "") + ">" +
-    [["", ures + " (3 nap)"], ["1", "1 nap"], ["2", "2 nap"], ["3", "3 nap"], ["4", "4 nap"], ["5", "5 nap"]].map(function (o) {
-      return '<option value="' + o[0] + '"' + (String(sajat.nap || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
-    }).join("") + '</select><span>× legalább</span><select id="ek-arany"' + (sajat.arany ? ' class="beallitva"' : "") + ">" +
-    [["", ures + " (80%)"], ["0.6", "60%"], ["0.7", "70%"], ["0.8", "80%"], ["0.9", "90%"], ["1", "100%"]].map(function (o) {
-      return '<option value="' + o[0] + '"' + (String(sajat.arany || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
-    }).join("") + "</select><span>elsőre jó a Varázstekercsen</span></div>" +
-    (egyeni ? '<div class="kicsi">Most ennél a gyereknél: <b>' + ekStabilHatas(cid).nap + " nap × " + ekSzazalek(ekStabilHatas(cid).arany) + "</b></div>" : "") +
-    '<p class="kicsi halvany">Alap: 3 nap × 80% — nem kell hozzányúlni. Sorrend: alap → csoport → egyéni (az egyéni a legerősebb); több csoportnál az engedékenyebb (kevesebb nap, kisebb arány) nyer. ' +
-    "A már összegyűjtött kocka-napok megmaradnak; ha csökkented a napszámot, a Mesterpróba azonnal nyílhat.</p></div>";
+    '<p class="kicsi halvany">A lenti 🧰 láda-beállítás erre a gyerekre / csoportra vonatkozik. (A régi „stabil-küszöb” — nap × arány — megszűnt, mert nincs többé kocka-nap.)</p></div>';
 
   /* ── 🧰 Szerszám-létrák (szerszam-letrak-terv.html 7. pont; a játék: src/szerszam.js) ── */
   var szSorok = [], EBETU = { o: ["✅", "önálló"], l: ["🛗", "lifttel"], s: ["🙋", "segítséggel"], v: ["🤝", "végigvezetéssel"], "2": ["2️⃣", "második próbára (A–E)"], r: ["❌", "rossz (A–E)"] };
@@ -2040,9 +2036,9 @@ function rajzEpitokocka(t) {
   });
   var szSajat = (egyeni ? (A.cfg[cid] || {}).szerszam : (csoportById(cid) || {}).szerszam) || {}, szL = szSajat.latszik || {};
   function szOpt(l, v) { return l.map(function (o) { return '<option value="' + o[0] + '"' + (String(v == null ? "" : v) === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join(""); }
-  h += '<div class="kartya" style="margin-top:14px"><h3>🧰 Szerszám-létrák — lift és láda</h3>' +
-    '<p class="kicsi halvany">Új létrák (📌 KOTOTT, 🧺 EGESZ, 🔍 MIT): lakat nincs, elakadáskor a 🛗 lift „kicsiben” segít, és ez beszámít. A szerszám akkor kerül a 🧰 ládába, ha az utolsó nagy feladatokból (📜 Tekercs / 🏅 Mesterpróba) elég sok önálló. ' +
-    "A gyerek ebből még semmit nem lát (kód 1. kör) — a sorok akkor jelennek meg, amikor a létrák élesek.</p>" +
+  h += '<div class="kartya" style="margin-top:14px"><h3>🧰 Láda és lift — 📚 olvasó-polc + szerszám-létrák</h3>' +
+    '<p class="kicsi halvany">Egy közös láda: 🔎 ✋ (olvasó-polc) és 📌 🧺 🔍 (szerszám-létrák). Lakat nincs, elakadáskor a 🛗 lift „kicsiben” segít, és ez beszámít. Ládába kerül, ha az utolsó nagy feladatokból elég sok önálló ' +
+    "(olvasó-polcon: a kör utolsó 5 feladata + a Mesterpróba; szerszámnál: 📜 Tekercs / 🔮 / 🏅). A ✋/🔎 jelzés utáni javítás önállónak számít.</p>" +
     '<div class="tabla-keret"><table><tr><th>Gyerek</th><th>Szerszám</th><th>Utolsó nagy feladatok</th><th>🧰 Ládában</th><th>🛗 Liftek</th><th>🏅 Mesterpróbák</th></tr>' +
     (szSorok.length ? szSorok.join("") : '<tr><td colspan="6"><div class="ures">Még nincs adat — a létrák a következő körben kerülnek a játékba.</div></td></tr>') + "</table></div>" +
     '<p class="kicsi halvany" style="margin-top:6px">✅ önálló · 🛗 lifttel (utána maga oldotta) · 🙋 segítséggel · 🤝 végigvezetéssel · 2️⃣ A–E második próbára · ❌ A–E rossz. A beállítás a fenti Gyerek / Csoport gombokra vonatkozik.</p>' +
@@ -2063,8 +2059,8 @@ function rajzEpitokocka(t) {
 
   /* ── Mesterpróba-feladatok kockánként ── */
   var fl = Object.keys(A.ft.feladatok).sort().map(function (id) { return [id, ftFeladatNev(id)]; });
-  var kockak = Object.keys(EK_MESTER_ALAP).sort();
-  h += '<div class="kartya" style="margin-top:14px"><h3>🏅 Mesterpróba-feladat (kockánként)</h3>' +
+  var kockak = Object.keys(EK_MESTER_ALAP).sort().filter(function (k) { return k !== "K2"; });   /* 🔤 Kis szavak: nincs többé saját polca */
+  h += '<div class="kartya" style="margin-top:14px"><h3>🏅 Mesterpróba-feladat (polconként: K1 = 🔎, K3 = ✋)</h3>' +
     '<p class="kicsi halvany">A Fejtörő-hegyre feltöltött feladatokból. A gyerek sorban kapja őket (egy próba = egy feladat); egy teljes kör után a számváltozataik jönnek. Üres = az alap.</p>' +
     (kockak.length ? '<div class="tabla-keret"><table><tr><th>Kocka</th><th>1. feladat</th><th>2. feladat</th><th>Alap</th></tr>' + kockak.map(function (k) {
       var fel = (A.ft.palyak["mester-" + k] || {}).feladatok || [], alap = EK_MESTER_ALAP[k] || [];
@@ -2077,7 +2073,7 @@ function rajzEpitokocka(t) {
         return esc(ftFeladatNev(id)) + (A.ft.feladatok[id] ? "" : ' <span class="rossz-sz">⚠️ nincs feltöltve</span>');
       }).join("<br>") + "</td></tr>";
     }).join("") + "</table></div>" : '<div class="ures">A kockák listája nem töltődött be (src/constants.js).</div>') +
-    '<p class="kicsi halvany" style="margin-top:6px">A 🔤 Kis szavak két új feladata (telefonszám, a 23 számszomszédai) a <b>fejtoro-mesterproba.json</b> + <b>fejtoro-mesterproba-valtozatok.json</b> fájlban van — a 🏔️ Fejtörő fülön töltsd fel (előbb az elsőt).</p></div>';
+    '<p class="kicsi halvany" style="margin-top:6px">A ✋ polc két új Mesterpróbája (Mekk Elek, Icike) a <b>fejtoro-mesterproba-polc.json</b> fájlban van — a 🏔️ Fejtörő fülön töltsd fel. Az olvasó-polc a Mesterpróbát beírással kéri (A–E nélkül).</p></div>';
   t.innerHTML = h;
 
   var FV = firebase.firestore.FieldValue;
@@ -2088,7 +2084,7 @@ function rajzEpitokocka(t) {
     if (n) o.nap = +n; if (a) o.arany = +a;
     ment(ref.set({ ekStabil: (n || a) ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
   }
-  $("ek-nap").onchange = stabilMent; $("ek-arany").onchange = stabilMent;
+  void stabilMent;   /* a régi stabil-küszöb választói 2026-10-10-én kikerültek (nincs kocka-nap) */
   function szerszamMent() {
     var o = {}, k = $("sz-k").value, n = $("sz-n").value, lk = $("sz-lk").value, lat = {};
     if (k) o.k = +k; if (n) o.n = +n;
