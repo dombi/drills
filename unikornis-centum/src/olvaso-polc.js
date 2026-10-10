@@ -500,6 +500,7 @@ function polcSegitMenu(menu) {
 /* ═════════════════ A PÁLYA VÉGE (palyaVege hívja) ═════════════════ */
 function polcPalyaVege() {
   var pa = J.palya, E = (J.polc && J.polc.eredm) || [], d = polcIdx(pa.polc), html = "", mondat = "", mesterKocka = false, ujKocka = false;
+  var cim = "", sorok = [];                                 /* a közös végképernyőnek (konyvtar-terem.js bktVege): cím + legfeljebb 3 sor */
   delete polcAllapot()[pa.id];
   var lada = E.some(function (x) { return x && x.ladaba; });
   if (pa.fok === "mester") {
@@ -513,24 +514,29 @@ function polcPalyaVege() {
       html += '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, ujKocka ? lista.length - 1 : -1) + '</div>' +
         '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
       mondat += " Mesterpróba kész!" + (ujKocka ? " Új kocka repült a Kockavárba!" : "");
+      cim = "🏅 Mesterpróba kész!"; sorok.push(ujKocka ? "Új kocka repült a Kockavárba!" : "A kockád ott ragyog a Kockavárban.");
     } else if (J.polc && J.polc.nincsMester) {
       html += '<br><span class="ek-vege">🏅 A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!</span>';
+      cim = "🏅 Ügyes munka!"; sorok.push("A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!");
     } else {
       html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.</span>';
       mondat += " Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.";
+      cim = "🏅 Együtt sikerült!"; sorok.push("A kocka a következő Mesterpróbánál vár rád.");
     }
   } else {
     var t = pa.fok === "tekercs" ? "📜 Kész a varázstekercs!" : "📖 Kész a mesekönyv!";
     html += '<br><span class="ek-vege">' + t + " " + (lada ? "" : d.ikon + " A „" + d.nev + "” tábla fényesebb lett.") + '</span>';
     mondat += " " + t.replace(/^\S+ /, "") + (lada ? "" : " A " + d.nev + " tábla fényesebb lett.");
+    cim = t; if (!lada) sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
   }
   if (lada) {
     szerszamTar().ujLada = pa.polc;
     html += '<br><span class="ek-vege">🧰 Ezt már tudod! A ' + d.ikon + ' a ládába került.</span>';
     mondat += " Ezt már tudod! A " + d.nev + " a ládába került.";
+    sorok.push("🧰 Ezt már tudod! A " + d.ikon + " a ládába került.");
   }
   ment();
-  return { html: html, mondat: mondat, kocka: ujKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
+  return { html: html, mondat: mondat, kocka: ujKocka, cim: cim, sorok: sorok, mesterKesz: mesterKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🏅, a Mesterpróba után vissza a polchoz */
 function polcKovetkezo(id) {

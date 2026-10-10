@@ -92,8 +92,13 @@ function bemutat(kulcs) {
 }
 /* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
 function vegeGombok() {
-  var ln = LIGET_NEV[FOMENU_LIGET];
-  $("vege-fomenu").textContent = (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+  var ln = LIGET_NEV[FOMENU_LIGET], bkt = BKT_VEGE;
+  BKT_VEGE = false;                                /* 📚 a közös könyvtári végképernyő csak arra az egy megjelenésre (bktVege) */
+  $("kepernyo-vege").classList.toggle("bkt-vege", bkt);
+  $("vege-meg").hidden = !bkt;
+  $("vege-terkep").hidden = bkt;
+  if (!bkt) document.querySelector("#kepernyo-vege h2").textContent = "Megérkeztél!";
+  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (ln ? ln[0] + " " : "") + "Tovább a ligetben";
 }
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
@@ -157,6 +162,7 @@ function renderFomenu() {
   var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
+  if (!bent) $("kepernyo-fomenu").classList.remove("bkt-mod");
   $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
@@ -218,22 +224,14 @@ function renderFomenu() {
   }
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
+    $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", (LIGET_NEV[regio] || ["", ""]).join(" ").trim()));
-    if (regio === "konyvtar") {                    /* szárnyanként (🌙 Holdfény-szárny, ✨ Csillagtorony) egy sor, fejléccel */
-      var szSor = [];
-      regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
-      szSor.forEach(function (sz) {
-        szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
-        var kSor = [], kP = {};                    /* kockánként egy sor: 📖 Mesekönyv → 📜 Varázstekercs → 🏅 */
-        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz || rec.pa.szerszam || rec.pa.polc) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
-        var g = el("div", "ek-kocka-sorok");
-        kSor.forEach(function (k) { g.appendChild(ekMenuSor(kP[k], function (pa) { return keszitKartya(pa, null); })); });
-        szek.appendChild(g);
-        if (sz === "3o") { var szk = szSzekreny(); if (szk) szek.appendChild(szk); }   /* 🧰 a szerszám-szekrény a kocka-sorok alatt (szerszam-polc.js) */
-      });
+    if (regio === "konyvtar") {                    /* 📚 egy terem: olvasó-polc · ablak + Kockavár + olvasópult · szekrény + láda · Csillagtorony-ajtó (konyvtar-terem.js) */
+      szek.querySelector(".palya-regio-cim").textContent = "📚 Bagolykönyvtár · 🌙 Holdfény-terem";
+      szek.appendChild(bktTerem());
       racs.appendChild(szek);
-      ekLigetHatter(szek);
+      setTimeout(ligetUniAlap, 0);                   /* az unikornis az olvasópult mellé áll (terkep.js) */
       return;
     }
     var grid = el("div", "palya-regio-grid");

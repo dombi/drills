@@ -312,7 +312,8 @@ function talalatKovetkezo() {
   if (!talalatSor.length) { talalatFut = false; return; }
   talalatFut = true;
   var m = talalatSor.shift();
-  (m.ritka ? talalatKartya : talalatToast)(m, function () { setTimeout(talalatKovetkezo, 180); });
+  var op = $("kepernyo-jatek").classList.contains("op-mod");   /* 📖 olvasópulton nincs felugró kártya: a bagoly buborékában szól (opBagsor) */
+  (m.ritka && !op ? talalatKartya : talalatToast)(m, function () { setTimeout(talalatKovetkezo, 180); });
 }
 function dropUnnepel(res) {
   if (!res) return;

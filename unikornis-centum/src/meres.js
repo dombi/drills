@@ -1167,7 +1167,7 @@ function mKoppPanel() {
   var p = $("valasz-kartyak");
   if (!p) {
     p = el("div", "valasz-kartyak"); p.id = "valasz-kartyak";
-    var v = $("visszajelzes"); v.parentNode.insertBefore(p, v.nextSibling);
+    var v = $("vj-hely"); v.parentNode.insertBefore(p, v.nextSibling);   /* a visszajelzés helye (olvasópult-módban a bagoly buborékába költözik) */
     p.addEventListener("click", mKoppKatt);
   }
   return p;

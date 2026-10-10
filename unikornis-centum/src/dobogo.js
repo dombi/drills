@@ -25,7 +25,7 @@ function dobPanel() {
   var p = $("dobogo-panel");
   if (!p) {
     p = el("div", "dobogo-panel"); p.id = "dobogo-panel";
-    var v = $("visszajelzes"); v.parentNode.insertBefore(p, v.nextSibling);
+    var v = $("vj-hely"); v.parentNode.insertBefore(p, v.nextSibling);   /* a visszajelzés olvasópult-módban a bagoly buborékában van (opBagsor) */
     p.addEventListener("click", dobKatt);
   }
   return p;

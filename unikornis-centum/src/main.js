@@ -27,7 +27,7 @@ window.UC = {
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,
-  szkGeneral: szkGeneral, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz, szSzekreny: szSzekreny,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
+  szkGeneral: szkGeneral, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
   dobAllas: function () { return DOB && dobAllas(); }, dobogoTesz: dobogoTesz, get DOB() { return DOB; }, opLapol: opLapol, opBetuAllit: opBetuAllit, get OP() { return OP; },
   SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */
   szerszamFeny: szerszamFeny, szerszamLadaban: szerszamLadaban, szerszamOnalloDb: szerszamOnalloDb, szerszamMesterKov: szerszamMesterKov, szerszamFeladatFriss: szerszamFeladatFriss,
@@ -35,7 +35,7 @@ window.UC = {
   liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
-  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, szSzekreny: szSzekreny,   /* 📚 OLVASÓ-POLC */
+  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, bktTerem: bktTerem, bktVarNagy: bktVarNagy, bktMesterKapu: bktMesterKapu,   /* 📚 OLVASÓ-POLC */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
   ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, ekValaszMondat: ekValaszMondat, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */
@@ -60,7 +60,7 @@ window.UC = {
   bontasEloChunk: bontasEloChunk,
   JELVENYEK: JELVENYEK, jelvenyEllenoriz: jelvenyEllenoriz, dropProbal: dropProbal, dropUnnepel: dropUnnepel,
   renderJelveny: renderJelveny, renderGyujtemeny: renderGyujtemeny,
-  jutalom: jutalom, palyaBecsultErtek: palyaBecsultErtek, renderFomenu: renderFomenu,
+  jutalom: jutalom, palyaBecsultErtek: palyaBecsultErtek, renderFomenu: renderFomenu, ligetbeLep: ligetbeLep,
   PALYAK: PALYAK,
   ODU_BUTOR: ODU_BUTOR,
   oduButorVesz: function (hely, id) { var t = null; (ODU_BUTOR[hely] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduButorVesz(hely, t); },

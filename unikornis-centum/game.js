@@ -6417,7 +6417,7 @@ function mKoppPanel() {
   var p = $("valasz-kartyak");
   if (!p) {
     p = el("div", "valasz-kartyak"); p.id = "valasz-kartyak";
-    var v = $("visszajelzes"); v.parentNode.insertBefore(p, v.nextSibling);
+    var v = $("vj-hely"); v.parentNode.insertBefore(p, v.nextSibling);   /* a visszajelzés helye (olvasópult-módban a bagoly buborékába költözik) */
     p.addEventListener("click", mKoppKatt);
   }
   return p;
@@ -9332,8 +9332,9 @@ var OP = { lap: 0, lapDb: 1, olvasTok: 0 };
 function opCsik() {
   if (!J || !J.feladatDb) return "";
   var s = "";
-  for (var i = 0; i < J.feladatDb; i++) s += '<i class="' + (i < J.feladatKesz ? "kesz" : i === J.feladatKesz ? "most" : "") + '">' + (i === J.feladatKesz ? "🦄" : "") + '</i>';
-  return '<div class="op-csik" aria-hidden="true"><span class="op-csik-ut"></span>' + s + '</div>';
+  var bp = J.bktP || [], el0 = J.feladatKesz - bp.length;   /* folytatásnál a korábbi pöttyökről nincs adat → sima kész */
+  for (var i = 0; i < J.feladatDb; i++) s += '<i class="' + (i < J.feladatKesz ? "kesz" + (i >= el0 && bp[i - el0] === false ? " seg" : "") : i === J.feladatKesz ? "most" : "") + '">' + (i === J.feladatKesz ? "🦄" : "") + '</i>';
+  return '<div class="op-csik' + (J.palya && J.palya.fok === "mester" ? " op-csik-mester" : "") + '" aria-hidden="true"><span class="op-csik-ut"></span>' + s + '</div>';
 }
 function opSorok(mondatok, cls) {
   return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + m + '</p>'; }).join("");
@@ -9662,7 +9663,7 @@ function dobPanel() {
   var p = $("dobogo-panel");
   if (!p) {
     p = el("div", "dobogo-panel"); p.id = "dobogo-panel";
-    var v = $("visszajelzes"); v.parentNode.insertBefore(p, v.nextSibling);
+    var v = $("vj-hely"); v.parentNode.insertBefore(p, v.nextSibling);   /* a visszajelzés olvasópult-módban a bagoly buborékában van (opBagsor) */
     p.addEventListener("click", dobKatt);
   }
   return p;
@@ -10373,7 +10374,9 @@ GEN.szerszam = function (cfg) {
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
   var f = cfg.fok === "mester" ? T.mester(szMesterValaszt(cfg.sz, T.mesterLista())) : T.general(cfg.fok, J.feladatKesz);
-  return szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  var F = szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  if (cfg.fok === "mester") { F.op.mester = true; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester; }   /* 🏅 arany szegélyű pult (rajzterv 4. pont) */
+  return F;
 };
 /* a tartalom-modul feladatából motor-feladat: mondatok (ismétlés nélkül), ellenőrzők, könyv, napló */
 function szFeladatKesz(f, sz, szerep, nagy) {
@@ -10404,7 +10407,8 @@ function szKicsi(nagy) {
 /* ── megjelenítés (a feladatMutat hívja, miután a könyv a buborékba került) ── */
 function szMutat(f) {
   opMod(true);
-  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
+  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -10412,7 +10416,7 @@ function szMutat(f) {
   opFelolvas(f);
 }
 /* 🔎 „Mire felelsz?” (olvaso-ellenor.js) — 2. döntés: csak ha kell: a pálya első feladatánál és a liftben (a 🙋 a menüből) */
-function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi")); }
+function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi" && f.fok !== "mester")); }
 function szKeres(f) {
   if (!J || J.feladat !== f) return;
   oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
@@ -10422,6 +10426,32 @@ function opMod(be) {
   k.classList.toggle("op-mod", !!be);
   k.classList.remove("op-b1", "op-b2", "op-b3");
   if (be) k.classList.add("op-b" + opBetu());
+  opBagsor(!!be);
+}
+/* 🦉 EGY HANG (tervlap 8/3, rajzterv 3. pont): az olvasópulton csak a bagoly beszél, és mindig a könyv alatt, jobbra ül;
+   a buboréka a könyv szélén van, soha nem a kérdésen. A buborékba költözik minden, amit a bagoly mond: a visszajelzés sora
+   (tipp, ✋ tábla, dicséret), a rövid bagoly-mondat és a talált holmi — nincs felugró ablak a feladat közben.
+   Az elemek az azonosítójukkal együtt költöznek (a többi modul ugyanúgy írja őket); kilépéskor visszakerülnek a helyükre. */
+function opBagsor(be) {
+  var jt = document.querySelector("#kepernyo-jatek .jatekter"), sor = $("op-bagsor"); if (!jt) return;
+  var bagoly = document.querySelector(".bagoly-figura");
+  if (be) {
+    if (!sor) {
+      sor = el("div", "op-bagsor"); sor.id = "op-bagsor";
+      sor.innerHTML = '<div id="op-bub" class="op-bub"></div><span class="op-bagoly-hely"></span>';
+    }
+    if (sor.parentNode !== jt || sor.previousElementSibling !== $("bagoly-buborek")) jt.insertBefore(sor, $("valaszter"));
+    var bub = $("op-bub");
+    ["talalt-buborek", "bagoly-mondat", "visszajelzes"].forEach(function (id) { var x = $(id); if (x && x.parentNode !== bub) bub.appendChild(x); });
+    if (bagoly && bagoly.parentNode !== sor.lastChild) sor.lastChild.appendChild(bagoly);
+    return;
+  }
+  if (!sor) return;
+  var hely = $("vj-hely"); if (hely) hely.parentNode.insertBefore($("visszajelzes"), hely);
+  jt.insertBefore($("talalt-buborek"), $("bagoly-buborek"));
+  jt.insertBefore($("bagoly-mondat"), $("bagoly-buborek"));
+  if (bagoly) jt.appendChild(bagoly);
+  sor.remove();
 }
 
 /* ── a gyerek a „Kész!” gombra koppintott ── */
@@ -10531,19 +10561,24 @@ function szSegitMenu(menu) {
 function szPalyaVege() {
   var E = (J.sz && J.sz.eredm) || [], sz = J.palya.szerszam, html = "", mondat = "";
   var mester = E.some(function (x) { return x && x.mester; }), lada = E.some(function (x) { return x && x.ladaba; });
+  var fok = J.palya.fok, d = SZERSZAMOK.filter(function (s) { return s.id === sz; })[0] || { ikon: "🧰", nev: "" }, sorok = [];   /* a közös végképernyőnek (bktVege) */
+  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
     html += '<br><span class="ek-vege">🏅 Mesterpróba elsőre! A szerszámod mester-szalagot kapott. +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
     mondat += " Mesterpróba elsőre! A szerszámod mester-szalagot kapott.";
+    sorok.push("🎀 A szerszámod mester-szalagot kapott.");
   }
   if (lada) {
     szerszamTar().ujLada = sz;                              /* a szekrényben a láda-pillanat (szerszam-polc.js) */
     html += '<br><span class="ek-vege">🧰 Ez a szerszám most már a tiéd. Bármikor elő tudod venni.</span>';
     mondat += " Ez a szerszám most már a tiéd. Bármikor elő tudod venni.";
+    sorok.push("🧰 Ez a szerszám most már a tiéd: a " + d.ikon + " a ládába került.");
   }
+  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
   ment();
-  return { html: html, mondat: mondat, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
+  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
 function szKovetkezo(id) {
@@ -11432,6 +11467,7 @@ function polcSegitMenu(menu) {
 /* ═════════════════ A PÁLYA VÉGE (palyaVege hívja) ═════════════════ */
 function polcPalyaVege() {
   var pa = J.palya, E = (J.polc && J.polc.eredm) || [], d = polcIdx(pa.polc), html = "", mondat = "", mesterKocka = false, ujKocka = false;
+  var cim = "", sorok = [];                                 /* a közös végképernyőnek (konyvtar-terem.js bktVege): cím + legfeljebb 3 sor */
   delete polcAllapot()[pa.id];
   var lada = E.some(function (x) { return x && x.ladaba; });
   if (pa.fok === "mester") {
@@ -11445,24 +11481,29 @@ function polcPalyaVege() {
       html += '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, ujKocka ? lista.length - 1 : -1) + '</div>' +
         '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
       mondat += " Mesterpróba kész!" + (ujKocka ? " Új kocka repült a Kockavárba!" : "");
+      cim = "🏅 Mesterpróba kész!"; sorok.push(ujKocka ? "Új kocka repült a Kockavárba!" : "A kockád ott ragyog a Kockavárban.");
     } else if (J.polc && J.polc.nincsMester) {
       html += '<br><span class="ek-vege">🏅 A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!</span>';
+      cim = "🏅 Ügyes munka!"; sorok.push("A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!");
     } else {
       html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.</span>';
       mondat += " Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.";
+      cim = "🏅 Együtt sikerült!"; sorok.push("A kocka a következő Mesterpróbánál vár rád.");
     }
   } else {
     var t = pa.fok === "tekercs" ? "📜 Kész a varázstekercs!" : "📖 Kész a mesekönyv!";
     html += '<br><span class="ek-vege">' + t + " " + (lada ? "" : d.ikon + " A „" + d.nev + "” tábla fényesebb lett.") + '</span>';
     mondat += " " + t.replace(/^\S+ /, "") + (lada ? "" : " A " + d.nev + " tábla fényesebb lett.");
+    cim = t; if (!lada) sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
   }
   if (lada) {
     szerszamTar().ujLada = pa.polc;
     html += '<br><span class="ek-vege">🧰 Ezt már tudod! A ' + d.ikon + ' a ládába került.</span>';
     mondat += " Ezt már tudod! A " + d.nev + " a ládába került.";
+    sorok.push("🧰 Ezt már tudod! A " + d.ikon + " a ládába került.");
   }
   ment();
-  return { html: html, mondat: mondat, kocka: ujKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
+  return { html: html, mondat: mondat, kocka: ujKocka, cim: cim, sorok: sorok, mesterKesz: mesterKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🏅, a Mesterpróba után vissza a polchoz */
 function polcKovetkezo(id) {
@@ -11472,7 +11513,7 @@ function polcKovetkezo(id) {
   var k = palyaKeres("polc-" + pa.polc.toLowerCase() + "-" + fok);
   return k && !palyaRejtve(k) ? k.id : null;
 }
-/* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Holdfény-szárnyban: szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
+/* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Bagolykönyvtár termében (konyvtar-terem.js): szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda
        (szerszamFeny 0–1) — számot, csíkot a gyerek nem lát;
@@ -11508,29 +11549,21 @@ function szpPolc(s) {
       ((polc ? polcSzalag(s.id) : t.m) ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
     '<div class="szp-targyak">' + targy + '</div><div class="szp-deszka"></div></div>';
 }
-/* a szekrény (ui.js hívja a Holdfény-szárnyban): fent a 📚 olvasó-polc (🔎 ✋), alatta a 🧰 szerszámok, lent a közös láda; null, ha semmi sem látszik.
-   (A teljes terem — bal fal olvasó-polc, közép Kockavár, jobb fal szekrény — a 3. kód-körben.) */
-function szSzekreny() {
-  var lista = SZERSZAMOK.filter(function (s) { return PALYAK.some(function (p) { return p.szerszam === s.id && !palyaRejtve(p); }); });
-  var olvaso = OLVASO_POLCOK.filter(function (s) { return PALYAK.some(function (p) { return p.polc === s.id && !palyaRejtve(p); }); });
-  if (!lista.length && !olvaso.length) return null;
-  var benn = OLVASO_POLCOK.concat(SZERSZAMOK).filter(function (s) { return szerszamLadaban(s.id); });   /* egy KÖZÖS láda (rajzterv 3. döntés ✅) */
-  var sz = el("div", "szp-szekreny");
-  sz.innerHTML = (olvaso.length ? '<div class="szp-tetej">📚 Olvasó-polc</div>' + olvaso.map(szpPolc).join("") : '') +
-    (lista.length ? '<div class="szp-tetej' + (olvaso.length ? ' szp-tetej2' : '') + '">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") : '') +
-    '<div class="szp-lab"><div class="szp-lada">' + SZP_LADA + '<span class="szp-lada-ikonok">' + benn.map(function (s) { return '<i data-sz="' + s.id + '">' + s.ikon + '</i>'; }).join("") + '</span></div></div>';
+/* a polcok tárgyai (📖 📜 🔮 🏅) a teremben (konyvtar-terem.js bktTerem): koppintás → az unikornis odaüget, a könyv kinyílik;
+   🏅 → a szalag lecsúszik, és a Mesterpróba-kapun át indul (bktMesterKapu). Utána a láda pillanata, ha van új. */
+function szpBekot(sz) {
   Array.prototype.forEach.call(sz.querySelectorAll(".szp-t"), function (b) {
     b.addEventListener("click", function () {
       hangGomb();
       var pa = palyaKeres(b.getAttribute("data-pid")); if (!pa) return;
       if (palyaElfogyott(pa)) { mondd(elfogyottMondat()); return; }
       if (pa.polc && pa.fok === "mester" && !polcMesterLista(pa.polc).length) { mondd("Ez a Mesterpróba hamarosan kinyílik!"); return; }   /* a szöveg a felhőben van */
-      if (b.classList.contains("szp-mester")) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
-      ligetUget(b, function () { palyaInditas(pa.id); });
+      var mester = pa.fok === "mester";
+      if (mester) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
+      ligetUget(b, function () { if (mester) bktMesterKapu(function () { palyaInditas(pa.id); }); else palyaInditas(pa.id); });
     });
   });
   setTimeout(function () { szpLadaPillanat(sz); }, 500);
-  return sz;
 }
 /* 🧰 a láda pillanata: a névtábla ikonja egy csillámcsíkon a ládába repül, a fedél kinyílik, majd becsukódik */
 function szpLadaPillanat(sz) {
@@ -11551,6 +11584,146 @@ function szpLadaPillanat(sz) {
     }); });
     setTimeout(function () { r.remove(); if (cel) cel.style.visibility = ""; lada.classList.remove("nyit"); hangCsilla(); }, 1500);
   }, nyugiMod() ? 0 : 450);
+}
+/* ============ 6t) 📚 A BAGOLYKÖNYVTÁR TERME — egy terem a kártyasorok helyett (3. kód-kör, 2026-10-10) ============
+   Terv: Matekos\regi-kockak-konyvtar-terv.html 3. + 8. pont (✅) · rajz: …-rajzterv.html 1., 1b., 4., 7. pont (✅, világos színek).
+   A teremben négy dolog van (fekvő képernyőn balról jobbra):
+     📚 OLVASÓ-POLC (bal fal, nyitott fali polc, világosabb fa): 🔎 és ✋ — ugyanaz a polc, mint a szekrényben (szpPolc), 🔮 nélkül;
+     🪟 KÖZÉP: ablakfülke, a párkányon a 🏰 Kockavár kicsiben (koppintásra nagyban) + alatta a 📖 olvasópult a könyvtáros bagollyal;
+     🧰 SZERSZÁM-SZEKRÉNY (jobb fal) + a lábánál a KÖZÖS láda (szerszam-polc.js) — egy szekrényben legfeljebb BKT_POLC_MAX polc,
+        a többi egy második szekrénybe kerül mellé (rajzterv 1b.: a terem nő, a polc mérete fix; 9+ polcnál galéria — ha odaérünk);
+     ✨ CSILLAGTORONY ajtaja (jobb szél): látszik, zárva, „Hamarosan” — koppintásra a bagoly: „Ez a torony még épül.”
+   Üres polc soha nem látszik (a pult nyitja a létrákat). Álló tableten a három fal egymás alá kerül, telefonon egy oszlop
+   (a terem-lista görgethető, a feladat-képernyő soha). 🏅 Mesterpróba-kapu: bktMesterKapu (a szalag lecsúszik → arany kapu 1–2 mp). */
+
+var BKT_POLC_MAX = 4;          /* egy szekrényben / egy falon legfeljebb ennyi polc (rajzterv 1b.) */
+var BKT_KAPU_MS = 1500;        /* az arany kapu pillanata (rajzterv 4. pont: 1–2 mp, átugorható) */
+
+/* az ablakfülke: alkonyi égbolt, vándorló hold, a párkányon a Kockavár kicsiben */
+function bktAblakSVG() {
+  var kl = ekKockaLista();
+  return '<svg viewBox="0 0 200 210" aria-hidden="true"><defs><linearGradient id="bkt-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9b3ea"/><stop offset="1" stop-color="#fbe4ef"/></linearGradient></defs>' +
+    '<path d="M18 196 V84 Q100 -8 182 84 V196Z" fill="#a87b52"/>' +
+    '<path d="M28 190 V88 Q100 8 172 88 V190Z" fill="url(#bkt-eg)"/>' +
+    '<g class="bkt-hold"><circle cx="70" cy="62" r="15" fill="#fdf3c4"/><circle cx="63" cy="57" r="13.5" fill="#c7c0ee"/></g>' +
+    '<g fill="#fff6cf"><circle class="bkt-cs" cx="128" cy="52" r="1.8"/><circle class="bkt-cs k2" cx="150" cy="92" r="1.5"/><circle class="bkt-cs k3" cx="46" cy="104" r="1.6"/><circle class="bkt-cs" cx="104" cy="34" r="1.3"/></g>' +
+    '<ellipse cx="140" cy="128" rx="22" ry="6" fill="#fff" opacity=".7"/>' +
+    ekKockavarKicsi(kl, 100, 178, .8) +
+    '<path d="M100 22 V190 M28 120 H172" stroke="#a87b52" stroke-width="4" opacity=".55"/>' +
+    '<rect x="8" y="188" width="184" height="14" rx="4" fill="#c99a6a"/><rect x="8" y="200" width="184" height="5" rx="2" fill="#8a6140"/></svg>';
+}
+/* az olvasópult a könyvtáros bagollyal; a nyitott könyv néha lapoz egyet (a mozdulatlanság ellen) */
+function bktPultSVG() {
+  return '<svg viewBox="0 0 200 150" aria-hidden="true"><defs><linearGradient id="bkt-fa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a87b52"/><stop offset="1" stop-color="#8a6140"/></linearGradient></defs>' +
+    '<ellipse cx="86" cy="144" rx="58" ry="6" fill="#7a5638" opacity=".45"/>' +
+    '<rect x="72" y="66" width="28" height="76" fill="#8a6140"/>' +
+    '<path d="M18 50 H154 L166 74 H6Z" fill="url(#bkt-fa)" stroke="#6e4a22" stroke-width="2"/>' +
+    '<path d="M24 48 Q52 34 84 48 V62 Q52 50 24 62Z" fill="#fffaf0" stroke="#c9a27a" stroke-width="1.5"/>' +
+    '<path d="M148 48 Q120 34 88 48 V62 Q120 50 148 62Z" fill="#fffaf0" stroke="#c9a27a" stroke-width="1.5"/>' +
+    '<path class="bkt-lap" d="M86 48 Q116 34 146 48 V62 Q116 50 86 62Z" fill="#fff6e4" stroke="#c9a27a" stroke-width="1.2"/>' +
+    '<path d="M32 50 Q52 44 74 50 M32 55 Q52 49 72 55 M98 50 Q118 44 138 50" stroke="#c9a27a" stroke-width="1.2" fill="none" opacity=".7"/>' +
+    bagolyRajz("konyvtaros", 168, 40, .56) + '</svg>';
+}
+/* a Csillagtorony zárt ajtaja (5. döntés ✅: látszik, „Hamarosan”; nincs lakat, nincs szürkeség) */
+function bktAjtoSVG() {
+  return '<svg viewBox="0 0 80 200" aria-hidden="true">' +
+    '<path d="M6 196 V70 Q40 22 74 70 V196Z" fill="#9b8fe0" stroke="#6f63b8" stroke-width="4"/>' +
+    '<path d="M14 192 V74 Q40 36 66 74 V192Z" fill="#aca2ea"/>' +
+    '<g fill="#fff6cf"><circle class="bkt-cs" cx="28" cy="96" r="2"/><circle class="bkt-cs k2" cx="52" cy="122" r="1.7"/><circle class="bkt-cs k3" cx="34" cy="160" r="1.8"/></g>' +
+    '<path d="M40 58 l3.5 8 8.5 1.2 -6.2 5.8 1.6 8.4 -7.4 -4 -7.4 4 1.6 -8.4 -6.2 -5.8 8.5 -1.2Z" fill="#fff3b0"/>' +
+    '<circle cx="62" cy="140" r="4" fill="#f3d08a" stroke="#c99a45" stroke-width="1.5"/>' +
+    '<path d="M24 120 L40 106 L56 120" stroke="#8a6140" stroke-width="2" fill="none"/></svg>';
+}
+
+/* ── a terem (ui.js hívja a 📚 liget belsejében) ── */
+function bktTerem() {
+  var olvaso = OLVASO_POLCOK.filter(function (s) { return PALYAK.some(function (p) { return p.polc === s.id && !palyaRejtve(p); }); }).slice(0, BKT_POLC_MAX);
+  var lista = SZERSZAMOK.filter(function (s) { return PALYAK.some(function (p) { return p.szerszam === s.id && !palyaRejtve(p); }); });
+  var benn = OLVASO_POLCOK.concat(SZERSZAMOK).filter(function (s) { return szerszamLadaban(s.id); });   /* egy KÖZÖS láda (rajzterv 3. döntés ✅) */
+  var szekr = [];
+  for (var i = 0; i < lista.length; i += BKT_POLC_MAX) szekr.push(lista.slice(i, i + BKT_POLC_MAX));
+  var db = ekKockaDb();
+  var t = el("div", "bkt-terem" + (szekr.length > 1 ? " bkt-ket-szekreny" : ""));
+  t.innerHTML =
+    '<div class="bkt-bal">' + (olvaso.length ? '<div class="bkt-nyitott"><div class="bkt-iv"><span>📚 Olvasó-polc</span></div>' + olvaso.map(szpPolc).join("") + '</div>' : '') + '</div>' +
+    '<div class="bkt-kozep">' +
+      '<button type="button" class="bkt-ablak" aria-label="Kockavár: ' + db + ' kocka. Koppints, és nagyban látod.">' + bktAblakSVG() + '<span class="bkt-cimke">🏰 Kockavár</span></button>' +
+      '<div class="bkt-pult" aria-hidden="true">' + bktPultSVG() + '</div>' +
+    '</div>' +
+    '<div class="bkt-jobb">' +
+      (szekr.length ? '<div class="bkt-szekrenyek">' + szekr.map(function (sor, i) {
+        return '<div class="szp-szekreny bkt-szekreny"><div class="szp-tetej">🧰 Szerszámok' + (szekr.length > 1 ? " " + (i + 1) + "." : "") + '</div>' + sor.map(szpPolc).join("") + '</div>';
+      }).join("") + '</div>' : '') +
+      '<div class="szp-lab"><div class="szp-lada" role="img" aria-label="A közös láda: amit már tudsz">' + SZP_LADA + '<span class="szp-lada-ikonok">' +
+        benn.map(function (s) { return '<i data-sz="' + s.id + '">' + s.ikon + '</i>'; }).join("") + '</span></div></div>' +
+    '</div>' +
+    '<button type="button" class="bkt-ajto" aria-label="Csillagtorony: hamarosan">' + bktAjtoSVG() + '<span class="bkt-cimke">✨ Csillagtorony</span><span class="bkt-hamarosan">Hamarosan</span></button>';
+  szpBekot(t);
+  t.querySelector(".bkt-ablak").addEventListener("click", function () { hangGomb(); bktVarNagy(); });
+  t.querySelector(".bkt-ajto").addEventListener("click", function () { hangGomb(); mondd("Ez a torony még épül."); });
+  return t;
+}
+
+/* ── 🏰 a Kockavár nagyban (koppintás az ablakra, vagy a Mesterpróba végképernyőjén „Megnézem a várat”) ── */
+function bktVarNagy(uj) {
+  var regi = $("bkt-var-reteg"); if (regi) regi.remove();
+  var lista = ekKockaLista(), n = lista.length;
+  var r = el("div", "bkt-var-reteg"); r.id = "bkt-var-reteg";
+  r.innerHTML = '<div class="bkt-var-doboz" role="dialog" aria-label="Kockavár"><div class="ek-var-nagy">' + ekKockavarNagySVG(lista, uj ? n - 1 : -1) + '</div>' +
+    '<div class="bkt-var-sor">' + (n >= EK_KOCKAK.length ? "🏰 Kész a Kockavár!" : n ? "🏰 " + n + " kocka a várban" : "🏰 Még üres a vár. Minden 🏅 Mesterpróba hoz egy kockát!") + '</div>' +
+    '<button type="button" class="nagy-gomb">✓ Megnéztem</button></div>';
+  document.body.appendChild(r);
+  function zar() { hangGomb(); r.remove(); }
+  r.querySelector("button").addEventListener("click", zar);
+  r.addEventListener("click", function (e) { if (e.target === r) zar(); });
+  if (uj) ekKockaBerepul();
+  mondd(n ? (n >= EK_KOCKAK.length ? "Kész a Kockavár!" : n + " kocka van a várban.") : "Még üres a vár. Minden Mesterpróba hoz egy kockát!");
+}
+
+/* ── 🏅 Mesterpróba-kapu (rajzterv 4. pont): a szalag lecsúszik → rövid arany kapu, az unikornis átlép → arany szegélyű pult ──
+   Koppintás bárhová = azonnal indul (nincs várakoztatás). Nyugalmi módban és a gyors-tesztben a kapu kimarad. */
+function bktMesterKapu(indit) {
+  if (nyugiMod() || window.__UC_GYORS) { indit(); return; }
+  var r = el("div", "bkt-kapu-reteg");
+  r.setAttribute("aria-hidden", "true");
+  r.innerHTML = '<svg viewBox="0 0 300 220"><defs><linearGradient id="bkt-arany" x1="0" x2="1"><stop offset="0" stop-color="#f7d36b"/><stop offset=".5" stop-color="#ffe9a8"/><stop offset="1" stop-color="#e6ad2e"/></linearGradient>' +
+      '<radialGradient id="bkt-kfeny"><stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></radialGradient></defs>' +
+      '<ellipse cx="150" cy="120" rx="120" ry="100" fill="url(#bkt-kfeny)"/>' +
+      '<path d="M88 208 V96 Q150 18 212 96 V208Z" fill="#fff3b0" opacity=".6"/>' +
+      '<path d="M80 210 V92 Q150 6 220 92 V210" fill="none" stroke="url(#bkt-arany)" stroke-width="14" stroke-linecap="round"/>' +
+      '<path d="M80 210 V92 Q150 6 220 92 V210" fill="none" stroke="#fff3c4" stroke-width="3" stroke-dasharray="3 11" stroke-linecap="round"/>' +
+      '<g fill="#f0a800"><circle class="bkt-cs" cx="112" cy="70" r="3"/><circle class="bkt-cs k2" cx="190" cy="62" r="3"/><circle class="bkt-cs k3" cx="150" cy="120" r="3.4"/></g>' +
+      '<circle cx="150" cy="40" r="17" fill="#fff6d8" stroke="#e8b43a" stroke-width="3"/><text x="150" y="47" font-size="19" text-anchor="middle">🏅</text>' +
+      '<g transform="translate(150 200)"><g class="bkt-kapu-uni">' + unikornisSVG("bkt-kapu-uni", LENYEK[mentes.leny], .5, P().oltozet, P().kinezet || null) + '</g></g></svg>';
+  document.body.appendChild(r);
+  var kesz = false;
+  function tovabb() { if (kesz) return; kesz = true; r.classList.add("ki"); setTimeout(function () { r.remove(); }, 250); indit(); }
+  r.addEventListener("click", tovabb);
+  hangCsilla();
+  setTimeout(tovabb, BKT_KAPU_MS);
+}
+
+/* ── közös végképernyő minden könyvtári pályán (rajzterv 5. pont; palyaVege hívja a polc- és a szerszám-pályák végén) ──
+   Legfeljebb 3 sor + a jutalom + 2 gomb: „Még egyet” (ugyanaz a könyv, új mesék) · „📚 Vissza a polchoz”. A Mesterpróba után,
+   ha kész: a kocka berepül a kis várba (ugyanebben a dobozban), a gomb „🏰 Megnézem a várat”. A pöttyök: arany = önálló, lila =
+   segítséggel; számot nem írunk ki. A doboz 768 px magasságon is elfér. V: a polcPalyaVege / szPalyaVege eredménye. */
+var BKT_VEGE = false;          /* a vegeGombok (ui.js) olvassa, egy megjelenésre */
+var BKT_GOMB = { mese: "📖 Még egyet", tekercs: "📜 Még egyet", gomb: "🔮 Még egyet", mester: "🏅 Még egyszer" };
+function bktVege(V, o) {
+  var pa = J.palya, mester = pa.fok === "mester";
+  var sorok = (V.sorok || []).concat(o.extra || []).slice(0, 3);
+  var pottyok = mester ? [o.potty.length ? o.potty[o.potty.length - 1] : true] : o.potty;
+  var kep = "";
+  var var_ = mester && V.mesterKesz && !!pa.polc;          /* olvasó-polc Mesterpróba: a kis vár, benne (ha új) a berepülő kocka */
+  if (var_) { var L = ekKockaLista(); kep = '<div class="ek-var-nagy bkt-var">' + ekKockavarNagySVG(L, V.kocka ? L.length - 1 : -1) + '</div>'; }
+  else kep = '<div class="bkt-pottyok' + (mester ? " mester" : "") + '" aria-hidden="true">' + pottyok.map(function (x) { return '<i class="' + (x ? "o" : "s") + '"></i>'; }).join("") + '</div>';
+  document.querySelector("#kepernyo-vege h2").textContent = V.cim || "Kész!";
+  $("vege-szoveg").innerHTML = kep + sorok.map(function (s) { return '<span class="bkt-sor">' + s + '</span>'; }).join("") +
+    '<span class="bkt-jut">+ ' + o.csilla + ' ✨ · + ' + o.harmat + ' 💧</span>';
+  var meg = $("vege-meg");
+  if (var_) { meg.textContent = "🏰 Megnézem a várat"; meg.onclick = function () { hangGomb(); bktVarNagy(); }; }
+  else { meg.textContent = BKT_GOMB[pa.fok] || "📖 Még egyet"; meg.onclick = function () { hangGomb(); if (mester) bktMesterKapu(function () { palyaInditas(pa.id); }); else palyaInditas(pa.id); }; }
+  BKT_VEGE = true;
 }
 /* ═════════════════ 📓 VÉGIGVEZETÉS-FÜZET (Bagolykönyvtár) ═════════════════
    Terv: Matekos/vegigvezetes-fuzet-rajzterv.html · döntések 2026-09-29 (A✅ B✅ C✅ D✅).
@@ -14032,6 +14205,13 @@ function ligetUniReteg() {
 function ligetUniAllit(x, y) { var U = LIGET_UNI; if (!U) return; U.x = x; U.y = y; U.hely.setAttribute("transform", "translate(" + ltF(x) + " " + ltF(y) + ")"); }
 function ligetUniAlap() {   /* bal lent, a kártyák alatt — a napi statisztika sora fölött (különben eltakarná) */
   var U = LIGET_UNI; if (!U || U.fut) return;
+  var pult = document.querySelector("#palya-racs .bkt-pult");   /* 📚 a Bagolykönyvtárban az olvasópult mellett áll (konyvtar-terem.js) */
+  if (pult && pult.offsetParent) {
+    var pr = pult.getBoundingClientRect(), rr = U.reteg.getBoundingClientRect();
+    var jobbra = window.innerWidth <= 820 || (window.innerWidth <= 1000 && window.innerHeight > window.innerWidth);   /* álló tablet, telefon: a pult jobb oldalán van hely */
+    var ux = jobbra ? Math.min(rr.width - 40, pr.right - rr.left + 34) : Math.max(40, pr.left - rr.left - 30);
+    if (pr.bottom > rr.top && pr.top < rr.bottom) { ligetUniAllit(ux, Math.min(rr.height - 10, pr.bottom - rr.top - 2)); return; }
+  }
   var y = (U.reteg.clientHeight || window.innerHeight) - 10, st = $("ma-statisztika");
   if (st && st.offsetParent && st.textContent.trim()) y = Math.min(y, st.getBoundingClientRect().top - U.reteg.getBoundingClientRect().top - 2);
   ligetUniAllit(window.innerWidth < 600 ? 58 : 92, y);
@@ -14704,8 +14884,13 @@ function bemutat(kulcs) {
 }
 /* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
 function vegeGombok() {
-  var ln = LIGET_NEV[FOMENU_LIGET];
-  $("vege-fomenu").textContent = (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+  var ln = LIGET_NEV[FOMENU_LIGET], bkt = BKT_VEGE;
+  BKT_VEGE = false;                                /* 📚 a közös könyvtári végképernyő csak arra az egy megjelenésre (bktVege) */
+  $("kepernyo-vege").classList.toggle("bkt-vege", bkt);
+  $("vege-meg").hidden = !bkt;
+  $("vege-terkep").hidden = bkt;
+  if (!bkt) document.querySelector("#kepernyo-vege h2").textContent = "Megérkeztél!";
+  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (ln ? ln[0] + " " : "") + "Tovább a ligetben";
 }
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
@@ -14769,6 +14954,7 @@ function renderFomenu() {
   var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
+  if (!bent) $("kepernyo-fomenu").classList.remove("bkt-mod");
   $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
@@ -14830,22 +15016,14 @@ function renderFomenu() {
   }
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
+    $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
     if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", (LIGET_NEV[regio] || ["", ""]).join(" ").trim()));
-    if (regio === "konyvtar") {                    /* szárnyanként (🌙 Holdfény-szárny, ✨ Csillagtorony) egy sor, fejléccel */
-      var szSor = [];
-      regiok[regio].forEach(function (rec) { if (szSor.indexOf(rec.pa.szarny) < 0) szSor.push(rec.pa.szarny); });
-      szSor.forEach(function (sz) {
-        szek.appendChild(el("div", "ek-szarny-cim", ekSzarnyNev(sz, true)));
-        var kSor = [], kP = {};                    /* kockánként egy sor: 📖 Mesekönyv → 📜 Varázstekercs → 🏅 */
-        regiok[regio].forEach(function (rec) { if (rec.pa.szarny !== sz || rec.pa.szerszam || rec.pa.polc) return; if (!kP[rec.pa.kocka]) { kP[rec.pa.kocka] = []; kSor.push(rec.pa.kocka); } kP[rec.pa.kocka].push(rec.pa); });
-        var g = el("div", "ek-kocka-sorok");
-        kSor.forEach(function (k) { g.appendChild(ekMenuSor(kP[k], function (pa) { return keszitKartya(pa, null); })); });
-        szek.appendChild(g);
-        if (sz === "3o") { var szk = szSzekreny(); if (szk) szek.appendChild(szk); }   /* 🧰 a szerszám-szekrény a kocka-sorok alatt (szerszam-polc.js) */
-      });
+    if (regio === "konyvtar") {                    /* 📚 egy terem: olvasó-polc · ablak + Kockavár + olvasópult · szekrény + láda · Csillagtorony-ajtó (konyvtar-terem.js) */
+      szek.querySelector(".palya-regio-cim").textContent = "📚 Bagolykönyvtár · 🌙 Holdfény-terem";
+      szek.appendChild(bktTerem());
       racs.appendChild(szek);
-      ekLigetHatter(szek);
+      setTimeout(ligetUniAlap, 0);                   /* az unikornis az olvasópult mellé áll (terkep.js) */
       return;
     }
     var grid = el("div", "palya-regio-grid");
@@ -15255,6 +15433,7 @@ function bekotUresNegyzet() {
 function rosszValaszKonyvel(f, cimke) {
   meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js); más feladatnál nem csinál semmit */
   J.probak++;
+  J.pottyHibas = true;                       /* 📚 a pötty már nem önálló (a csíkon és a közös végképernyőn lila) */
   J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
   streakLep(false);
   naplozz(f.naplo, false, cimke);
@@ -15291,7 +15470,10 @@ function ertekel(valasz) {
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
       J.lancKov = f.lanc[0];
       if (f.lanc.length > 1) J.lancKov.lanc = f.lanc.slice(1);
-    } else { J.feladatKesz++; if (f.ek) ekPottyKesz(); }   /* 📚 könyvtár: a pötty kész (elsőre jó-e → kocka-nap) */
+    } else {
+      (J.bktP || (J.bktP = [])).push(!(J.pottyHibas || f.vezet || f.vegigVolt)); J.pottyHibas = false;   /* 📚 pöttyönként: önálló (arany) vagy segítséggel (lila) */
+      J.feladatKesz++; if (f.ek) ekPottyKesz();
+    }   /* 📚 könyvtár: a pötty kész (elsőre jó-e → kocka-nap) */
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
       if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
@@ -15684,6 +15866,14 @@ function palyaVege() {
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
+  if (ekV && (J.palya.polc || J.palya.szerszam)) {   /* 📚 közös végképernyő minden könyvtári pályán (konyvtar-terem.js): ≤ 3 sor + jutalom + 2 gomb */
+    var extra = [];
+    if (ujJelv.length) extra.push("🏅 Új jelvény: " + ujJelv.map(function (j) { return j.nev; }).join(", "));
+    if (kertV) String(kertV.html).split(/<br\s*\/?>|<\/div>|<\/p>/i).forEach(function (h) { var t = ekSima(h).replace(/\s+/g, " ").trim(); if (t) extra.push(t); });
+    if (bankJegy) extra.push("🏦 A Tündérbankban most válthatsz!");
+    if (kapuMostNyilt) extra.push("🗝️ Kinyílt az egész erdő!");
+    bktVege(ekV, { csilla: J.futoCsilla, harmat: harmat, extra: extra, potty: J.bktP || [] });
+  }
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
   var kov = J.palya.szerszam ? szKovetkezo(id) : J.palya.polc ? polcKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📚 📖 → 📜 → 🏅 */
   $("vege-kovetkezo").style.display = kov ? "" : "none";
@@ -21934,7 +22124,8 @@ function talalatKovetkezo() {
   if (!talalatSor.length) { talalatFut = false; return; }
   talalatFut = true;
   var m = talalatSor.shift();
-  (m.ritka ? talalatKartya : talalatToast)(m, function () { setTimeout(talalatKovetkezo, 180); });
+  var op = $("kepernyo-jatek").classList.contains("op-mod");   /* 📖 olvasópulton nincs felugró kártya: a bagoly buborékában szól (opBagsor) */
+  (m.ritka && !op ? talalatKartya : talalatToast)(m, function () { setTimeout(talalatKovetkezo, 180); });
 }
 function dropUnnepel(res) {
   if (!res) return;
@@ -24037,7 +24228,7 @@ window.UC = {
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,
-  szkGeneral: szkGeneral, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz, szSzekreny: szSzekreny,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
+  szkGeneral: szkGeneral, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
   dobAllas: function () { return DOB && dobAllas(); }, dobogoTesz: dobogoTesz, get DOB() { return DOB; }, opLapol: opLapol, opBetuAllit: opBetuAllit, get OP() { return OP; },
   SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */
   szerszamFeny: szerszamFeny, szerszamLadaban: szerszamLadaban, szerszamOnalloDb: szerszamOnalloDb, szerszamMesterKov: szerszamMesterKov, szerszamFeladatFriss: szerszamFeladatFriss,
@@ -24045,7 +24236,7 @@ window.UC = {
   liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
-  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, szSzekreny: szSzekreny,   /* 📚 OLVASÓ-POLC */
+  PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, bktTerem: bktTerem, bktVarNagy: bktVarNagy, bktMesterKapu: bktMesterKapu,   /* 📚 OLVASÓ-POLC */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
   ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, ekValaszMondat: ekValaszMondat, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */
@@ -24070,7 +24261,7 @@ window.UC = {
   bontasEloChunk: bontasEloChunk,
   JELVENYEK: JELVENYEK, jelvenyEllenoriz: jelvenyEllenoriz, dropProbal: dropProbal, dropUnnepel: dropUnnepel,
   renderJelveny: renderJelveny, renderGyujtemeny: renderGyujtemeny,
-  jutalom: jutalom, palyaBecsultErtek: palyaBecsultErtek, renderFomenu: renderFomenu,
+  jutalom: jutalom, palyaBecsultErtek: palyaBecsultErtek, renderFomenu: renderFomenu, ligetbeLep: ligetbeLep,
   PALYAK: PALYAK,
   ODU_BUTOR: ODU_BUTOR,
   oduButorVesz: function (hely, id) { var t = null; (ODU_BUTOR[hely] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduButorVesz(hely, t); },

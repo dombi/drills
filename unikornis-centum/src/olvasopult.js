@@ -36,8 +36,9 @@ var OP = { lap: 0, lapDb: 1, olvasTok: 0 };
 function opCsik() {
   if (!J || !J.feladatDb) return "";
   var s = "";
-  for (var i = 0; i < J.feladatDb; i++) s += '<i class="' + (i < J.feladatKesz ? "kesz" : i === J.feladatKesz ? "most" : "") + '">' + (i === J.feladatKesz ? "🦄" : "") + '</i>';
-  return '<div class="op-csik" aria-hidden="true"><span class="op-csik-ut"></span>' + s + '</div>';
+  var bp = J.bktP || [], el0 = J.feladatKesz - bp.length;   /* folytatásnál a korábbi pöttyökről nincs adat → sima kész */
+  for (var i = 0; i < J.feladatDb; i++) s += '<i class="' + (i < J.feladatKesz ? "kesz" + (i >= el0 && bp[i - el0] === false ? " seg" : "") : i === J.feladatKesz ? "most" : "") + '">' + (i === J.feladatKesz ? "🦄" : "") + '</i>';
+  return '<div class="op-csik' + (J.palya && J.palya.fok === "mester" ? " op-csik-mester" : "") + '" aria-hidden="true"><span class="op-csik-ut"></span>' + s + '</div>';
 }
 function opSorok(mondatok, cls) {
   return mondatok.map(function (m, i) { return '<p class="op-m' + (cls ? " " + cls : "") + '" data-m="' + i + '">' + m + '</p>'; }).join("");

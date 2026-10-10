@@ -1,4 +1,4 @@
-/* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Holdfény-szárnyban: szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
+/* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Bagolykönyvtár termében (konyvtar-terem.js): szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda
        (szerszamFeny 0–1) — számot, csíkot a gyerek nem lát;
@@ -34,29 +34,21 @@ function szpPolc(s) {
       ((polc ? polcSzalag(s.id) : t.m) ? '<span class="szp-szalag" title="mester-szalag">🎀</span>' : '') + '</div>' +
     '<div class="szp-targyak">' + targy + '</div><div class="szp-deszka"></div></div>';
 }
-/* a szekrény (ui.js hívja a Holdfény-szárnyban): fent a 📚 olvasó-polc (🔎 ✋), alatta a 🧰 szerszámok, lent a közös láda; null, ha semmi sem látszik.
-   (A teljes terem — bal fal olvasó-polc, közép Kockavár, jobb fal szekrény — a 3. kód-körben.) */
-function szSzekreny() {
-  var lista = SZERSZAMOK.filter(function (s) { return PALYAK.some(function (p) { return p.szerszam === s.id && !palyaRejtve(p); }); });
-  var olvaso = OLVASO_POLCOK.filter(function (s) { return PALYAK.some(function (p) { return p.polc === s.id && !palyaRejtve(p); }); });
-  if (!lista.length && !olvaso.length) return null;
-  var benn = OLVASO_POLCOK.concat(SZERSZAMOK).filter(function (s) { return szerszamLadaban(s.id); });   /* egy KÖZÖS láda (rajzterv 3. döntés ✅) */
-  var sz = el("div", "szp-szekreny");
-  sz.innerHTML = (olvaso.length ? '<div class="szp-tetej">📚 Olvasó-polc</div>' + olvaso.map(szpPolc).join("") : '') +
-    (lista.length ? '<div class="szp-tetej' + (olvaso.length ? ' szp-tetej2' : '') + '">🧰 Szerszámok</div>' + lista.map(szpPolc).join("") : '') +
-    '<div class="szp-lab"><div class="szp-lada">' + SZP_LADA + '<span class="szp-lada-ikonok">' + benn.map(function (s) { return '<i data-sz="' + s.id + '">' + s.ikon + '</i>'; }).join("") + '</span></div></div>';
+/* a polcok tárgyai (📖 📜 🔮 🏅) a teremben (konyvtar-terem.js bktTerem): koppintás → az unikornis odaüget, a könyv kinyílik;
+   🏅 → a szalag lecsúszik, és a Mesterpróba-kapun át indul (bktMesterKapu). Utána a láda pillanata, ha van új. */
+function szpBekot(sz) {
   Array.prototype.forEach.call(sz.querySelectorAll(".szp-t"), function (b) {
     b.addEventListener("click", function () {
       hangGomb();
       var pa = palyaKeres(b.getAttribute("data-pid")); if (!pa) return;
       if (palyaElfogyott(pa)) { mondd(elfogyottMondat()); return; }
       if (pa.polc && pa.fok === "mester" && !polcMesterLista(pa.polc).length) { mondd("Ez a Mesterpróba hamarosan kinyílik!"); return; }   /* a szöveg a felhőben van */
-      if (b.classList.contains("szp-mester")) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
-      ligetUget(b, function () { palyaInditas(pa.id); });
+      var mester = pa.fok === "mester";
+      if (mester) b.classList.add("szp-nyit");   /* a szalag lecsúszik */
+      ligetUget(b, function () { if (mester) bktMesterKapu(function () { palyaInditas(pa.id); }); else palyaInditas(pa.id); });
     });
   });
   setTimeout(function () { szpLadaPillanat(sz); }, 500);
-  return sz;
 }
 /* 🧰 a láda pillanata: a névtábla ikonja egy csillámcsíkon a ládába repül, a fedél kinyílik, majd becsukódik */
 function szpLadaPillanat(sz) {

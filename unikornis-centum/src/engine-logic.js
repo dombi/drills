@@ -399,6 +399,7 @@ function bekotUresNegyzet() {
 function rosszValaszKonyvel(f, cimke) {
   meresTanulNez(f, false);                   /* mérés: „Tanultam belőle” figyelése (meres.js); más feladatnál nem csinál semmit */
   J.probak++;
+  J.pottyHibas = true;                       /* 📚 a pötty már nem önálló (a csíkon és a közös végképernyőn lila) */
   J.allomasHibatlan = false;                 /* egy hibás válasz → az állomás már nem hibátlan */
   streakLep(false);
   naplozz(f.naplo, false, cimke);
@@ -435,7 +436,10 @@ function ertekel(valasz) {
     if (f.lanc && f.lanc.length) {             /* mérés: a lánc következő kérdése ugyanennek a feladatnak a része (nem új pötty) */
       J.lancKov = f.lanc[0];
       if (f.lanc.length > 1) J.lancKov.lanc = f.lanc.slice(1);
-    } else { J.feladatKesz++; if (f.ek) ekPottyKesz(); }   /* 📚 könyvtár: a pötty kész (elsőre jó-e → kocka-nap) */
+    } else {
+      (J.bktP || (J.bktP = [])).push(!(J.pottyHibas || f.vezet || f.vegigVolt)); J.pottyHibas = false;   /* 📚 pöttyönként: önálló (arany) vagy segítséggel (lila) */
+      J.feladatKesz++; if (f.ek) ekPottyKesz();
+    }   /* 📚 könyvtár: a pötty kész (elsőre jó-e → kocka-nap) */
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
       if (J.probak >= 2) P().jelvSzam.kuzdottGyozelem = 1;
@@ -828,6 +832,14 @@ function palyaVege() {
     (ujRekord ? '<br><span style="color:#c86bb0;font-weight:800">✨ ÚJ SAJÁT REKORD! ✨</span>' : "") +
     (egyeniP ? '' : '<br>Megvan egy újabb <b>' + (teljes ? "arany " : "") + 'csillagszilánk</b> 🌟') +
     (ujJelv.length ? '<br><span style="color:#8a6a1e;font-weight:800">🏅 Új jelvény: ' + ujJelv.map(function (j) { return j.nev; }).join(", ") + '</span>' : "");
+  if (ekV && (J.palya.polc || J.palya.szerszam)) {   /* 📚 közös végképernyő minden könyvtári pályán (konyvtar-terem.js): ≤ 3 sor + jutalom + 2 gomb */
+    var extra = [];
+    if (ujJelv.length) extra.push("🏅 Új jelvény: " + ujJelv.map(function (j) { return j.nev; }).join(", "));
+    if (kertV) String(kertV.html).split(/<br\s*\/?>|<\/div>|<\/p>/i).forEach(function (h) { var t = ekSima(h).replace(/\s+/g, " ").trim(); if (t) extra.push(t); });
+    if (bankJegy) extra.push("🏦 A Tündérbankban most válthatsz!");
+    if (kapuMostNyilt) extra.push("🗝️ Kinyílt az egész erdő!");
+    bktVege(ekV, { csilla: J.futoCsilla, harmat: harmat, extra: extra, potty: J.bktP || [] });
+  }
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
   var kov = J.palya.szerszam ? szKovetkezo(id) : J.palya.polc ? polcKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📚 📖 → 📜 → 🏅 */
   $("vege-kovetkezo").style.display = kov ? "" : "none";

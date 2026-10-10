@@ -482,6 +482,13 @@ function ligetUniReteg() {
 function ligetUniAllit(x, y) { var U = LIGET_UNI; if (!U) return; U.x = x; U.y = y; U.hely.setAttribute("transform", "translate(" + ltF(x) + " " + ltF(y) + ")"); }
 function ligetUniAlap() {   /* bal lent, a kártyák alatt — a napi statisztika sora fölött (különben eltakarná) */
   var U = LIGET_UNI; if (!U || U.fut) return;
+  var pult = document.querySelector("#palya-racs .bkt-pult");   /* 📚 a Bagolykönyvtárban az olvasópult mellett áll (konyvtar-terem.js) */
+  if (pult && pult.offsetParent) {
+    var pr = pult.getBoundingClientRect(), rr = U.reteg.getBoundingClientRect();
+    var jobbra = window.innerWidth <= 820 || (window.innerWidth <= 1000 && window.innerHeight > window.innerWidth);   /* álló tablet, telefon: a pult jobb oldalán van hely */
+    var ux = jobbra ? Math.min(rr.width - 40, pr.right - rr.left + 34) : Math.max(40, pr.left - rr.left - 30);
+    if (pr.bottom > rr.top && pr.top < rr.bottom) { ligetUniAllit(ux, Math.min(rr.height - 10, pr.bottom - rr.top - 2)); return; }
+  }
   var y = (U.reteg.clientHeight || window.innerHeight) - 10, st = $("ma-statisztika");
   if (st && st.offsetParent && st.textContent.trim()) y = Math.min(y, st.getBoundingClientRect().top - U.reteg.getBoundingClientRect().top - 2);
   ligetUniAllit(window.innerWidth < 600 ? 58 : 92, y);

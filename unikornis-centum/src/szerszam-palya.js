@@ -19,7 +19,9 @@ GEN.szerszam = function (cfg) {
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
   var f = cfg.fok === "mester" ? T.mester(szMesterValaszt(cfg.sz, T.mesterLista())) : T.general(cfg.fok, J.feladatKesz);
-  return szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  var F = szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  if (cfg.fok === "mester") { F.op.mester = true; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester; }   /* 🏅 arany szegélyű pult (rajzterv 4. pont) */
+  return F;
 };
 /* a tartalom-modul feladatából motor-feladat: mondatok (ismétlés nélkül), ellenőrzők, könyv, napló */
 function szFeladatKesz(f, sz, szerep, nagy) {
@@ -50,7 +52,8 @@ function szKicsi(nagy) {
 /* ── megjelenítés (a feladatMutat hívja, miután a könyv a buborékba került) ── */
 function szMutat(f) {
   opMod(true);
-  dobogoMutat(f, { kesz: szKesz, segit: szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
+  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -58,7 +61,7 @@ function szMutat(f) {
   opFelolvas(f);
 }
 /* 🔎 „Mire felelsz?” (olvaso-ellenor.js) — 2. döntés: csak ha kell: a pálya első feladatánál és a liftben (a 🙋 a menüből) */
-function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi")); }
+function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi" && f.fok !== "mester")); }
 function szKeres(f) {
   if (!J || J.feladat !== f) return;
   oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
@@ -68,6 +71,32 @@ function opMod(be) {
   k.classList.toggle("op-mod", !!be);
   k.classList.remove("op-b1", "op-b2", "op-b3");
   if (be) k.classList.add("op-b" + opBetu());
+  opBagsor(!!be);
+}
+/* 🦉 EGY HANG (tervlap 8/3, rajzterv 3. pont): az olvasópulton csak a bagoly beszél, és mindig a könyv alatt, jobbra ül;
+   a buboréka a könyv szélén van, soha nem a kérdésen. A buborékba költözik minden, amit a bagoly mond: a visszajelzés sora
+   (tipp, ✋ tábla, dicséret), a rövid bagoly-mondat és a talált holmi — nincs felugró ablak a feladat közben.
+   Az elemek az azonosítójukkal együtt költöznek (a többi modul ugyanúgy írja őket); kilépéskor visszakerülnek a helyükre. */
+function opBagsor(be) {
+  var jt = document.querySelector("#kepernyo-jatek .jatekter"), sor = $("op-bagsor"); if (!jt) return;
+  var bagoly = document.querySelector(".bagoly-figura");
+  if (be) {
+    if (!sor) {
+      sor = el("div", "op-bagsor"); sor.id = "op-bagsor";
+      sor.innerHTML = '<div id="op-bub" class="op-bub"></div><span class="op-bagoly-hely"></span>';
+    }
+    if (sor.parentNode !== jt || sor.previousElementSibling !== $("bagoly-buborek")) jt.insertBefore(sor, $("valaszter"));
+    var bub = $("op-bub");
+    ["talalt-buborek", "bagoly-mondat", "visszajelzes"].forEach(function (id) { var x = $(id); if (x && x.parentNode !== bub) bub.appendChild(x); });
+    if (bagoly && bagoly.parentNode !== sor.lastChild) sor.lastChild.appendChild(bagoly);
+    return;
+  }
+  if (!sor) return;
+  var hely = $("vj-hely"); if (hely) hely.parentNode.insertBefore($("visszajelzes"), hely);
+  jt.insertBefore($("talalt-buborek"), $("bagoly-buborek"));
+  jt.insertBefore($("bagoly-mondat"), $("bagoly-buborek"));
+  if (bagoly) jt.appendChild(bagoly);
+  sor.remove();
 }
 
 /* ── a gyerek a „Kész!” gombra koppintott ── */
@@ -177,19 +206,24 @@ function szSegitMenu(menu) {
 function szPalyaVege() {
   var E = (J.sz && J.sz.eredm) || [], sz = J.palya.szerszam, html = "", mondat = "";
   var mester = E.some(function (x) { return x && x.mester; }), lada = E.some(function (x) { return x && x.ladaba; });
+  var fok = J.palya.fok, d = SZERSZAMOK.filter(function (s) { return s.id === sz; })[0] || { ikon: "🧰", nev: "" }, sorok = [];   /* a közös végképernyőnek (bktVege) */
+  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
     html += '<br><span class="ek-vege">🏅 Mesterpróba elsőre! A szerszámod mester-szalagot kapott. +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
     mondat += " Mesterpróba elsőre! A szerszámod mester-szalagot kapott.";
+    sorok.push("🎀 A szerszámod mester-szalagot kapott.");
   }
   if (lada) {
     szerszamTar().ujLada = sz;                              /* a szekrényben a láda-pillanat (szerszam-polc.js) */
     html += '<br><span class="ek-vege">🧰 Ez a szerszám most már a tiéd. Bármikor elő tudod venni.</span>';
     mondat += " Ez a szerszám most már a tiéd. Bármikor elő tudod venni.";
+    sorok.push("🧰 Ez a szerszám most már a tiéd: a " + d.ikon + " a ládába került.");
   }
+  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
   ment();
-  return { html: html, mondat: mondat, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
+  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
 function szKovetkezo(id) {
