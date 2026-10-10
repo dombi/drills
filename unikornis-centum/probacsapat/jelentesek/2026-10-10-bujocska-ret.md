@@ -33,3 +33,11 @@ Matek 5 szakasz × 60 minta: 0 hiba. Dupla beküldés nem ad dupla jutalmat. Hib
 
 ## Az 1. próba kérdése
 A gyerek-játékosok találtak olyat, amit a hibavadász nem (1., 2., 3., 4.) → **maradnak**.
+
+## Javítások állapota (2026-10-10, 2. kör)
+- ✅ 1. térkép-összeomlás (`f49f929`)
+- ✅ 2. „Inkább beírom” után a gomb elengedi a fókuszt (Enter = beküldés); érintőn a négyzet kap fókuszt (`beiroFokuszba`, events.js)
+- ✅ 3. 2. hiba után: „Semmi baj! Nézd: 7 + 3 = 10” (az egész játékban, a „✘” helyett)
+- ✅ 4. a kártyán „Melyik szám bújt el?”; ha az eredményt írja be: „Ez az eredmény. Melyik szám bújt el?”
+- ✅ 6. kisebbítendő: „Melyik számból marad nyolc, ha öt elmegy belőle?”
+- ⏳ 5. korai beszéd — élő próbán figyelni · ⏳ 7. ✨-farmolás — producer-döntés

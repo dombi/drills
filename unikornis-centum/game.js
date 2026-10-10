@@ -653,7 +653,7 @@ function feladatHianyzo(f, hol, takaro) {
   var A = hol === "a" ? "?" : a, Bs = hol === "b" ? "?" : b;
   var fel;
   if (op === "+") fel = hol === "b" ? szo(a) + " meg mennyi az " + szo(c) + "?" : "Mennyi meg " + szo(b) + " az " + szo(c) + "?";
-  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Melyik számból marad " + szo(c) + ", ha " + szo(b) + " elmegy belőle?";   /* „Mennyi mínusz öt az nyolc?” fülre nehéz volt (lektor, 2026-10-10) */
   else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
   else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
   var hely = bujHTML(rejtett, takaro);
@@ -662,7 +662,8 @@ function feladatHianyzo(f, hol, takaro) {
   naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
   naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
   var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
-    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>" +
+      '<div class="hi-kerdes">Melyik szám bújt el?</div>',   /* a kép is mondja, mit kérdezünk (próbacsapat, 2026-10-10) */
     felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
     megoldas: a + " " + op + " " + b + " = " + c,
     hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },
@@ -14167,8 +14168,11 @@ function ertekel(valasz) {
     } else if ((f.mk || f.mkk || f.mkd) && J.probak === 1) {
       mkHiba(f, valasz);                      /* mérés, átváltás / „Mennyi hiányzik?” / „Mennyivel több?”: mozgókép a feladat számaival, aztán újra (meres-mozgo.js) */
     } else {
-      if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
-      else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
+      var hi = f.hianyzo;                     /* 🐭 bújós feladat: a kérdés a levél mögötti szám (próbacsapat, 2026-10-10) */
+      if (J.probak === 1 && hi && valasz === hi.c) { $("visszajelzes").textContent = "Ez az eredmény. Melyik szám bújt el?"; mondd("Ez az eredmény. Melyik szám bújt el?", kezNelkulUjra); }
+      else if (J.probak === 1 && hi) { $("visszajelzes").textContent = "Nem " + valasz + ". Melyik szám bújt el? Nézd meg még egyszer!"; mondd("Nem talált. Melyik szám bújt el?", kezNelkulUjra); }
+      else if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
+      else { $("visszajelzes").textContent = "Semmi baj! Nézd: " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }   /* a nyers „✘ 7 + 3 = 10” szidásnak hatott */
     }
     figArc("gondol");                          /* 🎨 rossz válasznál a szereplők gondolkodnak, nem szomorúak (figurak.js) */
     if (f.hianyzo) bujRossz();                 /* 🐭 Cincin kikukucskál, megrázza a fejét, visszabújik (bujocska.js) */
@@ -14708,7 +14712,16 @@ function kezNelkulCsend() {
     $("beiro-doboz").hidden = false; beiroReset();
     $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
     $("beiras-valt").textContent = "🎤 Inkább mondom";
+    beiroFokuszba();
   }
+}
+/* beírásra váltás után: a gomb ne tartsa a fókuszt (különben az Enter újra a gombot nyomja — próbacsapat, 2026-10-10);
+   érintőn a négyzet kapja (feljön a rendszer-számbillentyűzet), egéren a fizikai billentyűzet a document-keydown úton megy */
+function beiroFokuszba() {
+  var ae = document.activeElement;
+  if (ae && ae.tagName === "BUTTON") ae.blur();
+  if ($("beiro-doboz").hidden) return;
+  try { if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) mezoFokusz($("beiro-mezo")); } catch (e) {}
 }
 /* ── KÉZMENTES HANG a felmondás-pályán (Erdei bontás): felolvas → pittyentés →
    magától indul az élő hallgatás (bontasEloStart, CSAK a legelső indításnál nulláz).
@@ -14813,6 +14826,7 @@ function esemenyek() {
     mentes.valaszmod = (mentes.valaszmod === "beiras") ? "beszed" : "beiras";
     if (!beszedTamogatott) mentes.valaszmod = "beiras";
     ment(); modBeallit();
+    beiroFokuszba();
   });
   $("bontas-beiras").addEventListener("click", function () { hangGomb(); if (J && J.lepesAktiv) felmondHangVissza(); else bontasLepesNyit(); });
   /* Enter globális tartalék a beírós módban: akkor is ellenőriz, ha a fókusz épp nincs mezőn */

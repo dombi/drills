@@ -82,7 +82,16 @@ function kezNelkulCsend() {
     $("beiro-doboz").hidden = false; beiroReset();
     $("beiras-valt").style.display = beszedTamogatott ? "" : "none";
     $("beiras-valt").textContent = "🎤 Inkább mondom";
+    beiroFokuszba();
   }
+}
+/* beírásra váltás után: a gomb ne tartsa a fókuszt (különben az Enter újra a gombot nyomja — próbacsapat, 2026-10-10);
+   érintőn a négyzet kapja (feljön a rendszer-számbillentyűzet), egéren a fizikai billentyűzet a document-keydown úton megy */
+function beiroFokuszba() {
+  var ae = document.activeElement;
+  if (ae && ae.tagName === "BUTTON") ae.blur();
+  if ($("beiro-doboz").hidden) return;
+  try { if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) mezoFokusz($("beiro-mezo")); } catch (e) {}
 }
 /* ── KÉZMENTES HANG a felmondás-pályán (Erdei bontás): felolvas → pittyentés →
    magától indul az élő hallgatás (bontasEloStart, CSAK a legelső indításnál nulláz).
@@ -187,6 +196,7 @@ function esemenyek() {
     mentes.valaszmod = (mentes.valaszmod === "beiras") ? "beszed" : "beiras";
     if (!beszedTamogatott) mentes.valaszmod = "beiras";
     ment(); modBeallit();
+    beiroFokuszba();
   });
   $("bontas-beiras").addEventListener("click", function () { hangGomb(); if (J && J.lepesAktiv) felmondHangVissza(); else bontasLepesNyit(); });
   /* Enter globális tartalék a beírós módban: akkor is ellenőriz, ha a fókusz épp nincs mezőn */

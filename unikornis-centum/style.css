@@ -2145,6 +2145,7 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
    (padding-top), mert a buborék le van vágva, és Cincin a szám fölé ugrik. Az svg display:block (különben
    alapvonal-eltolás). Állapotok: kukucs · rossz · nyit · kesz. */
 .buborek-feladat .k-nagy.hi-k{ display:inline-block; padding-top:.5em; white-space:nowrap; }
+.buborek-feladat .hi-kerdes{ font-size:.95rem; font-weight:700; color:#6a5a9a; margin-top:.15em; }
 .bagoly-buborek:has(.buj){ overflow:visible; }   /* a röppenő levél / pöffenő felhő ne rakjon görgetősávot a buborékra */
 .buj.kesz .buj-takaro, .buj.kesz .buj-resz{ display:none; }
 .buj{ position:relative; display:inline-block; width:calc(1.02em + var(--n,1) * .62em); height:1.15em; vertical-align:-.2em; margin:0 .1em; }

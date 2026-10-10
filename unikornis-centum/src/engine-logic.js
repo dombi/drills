@@ -458,8 +458,11 @@ function ertekel(valasz) {
     } else if ((f.mk || f.mkk || f.mkd) && J.probak === 1) {
       mkHiba(f, valasz);                      /* mérés, átváltás / „Mennyi hiányzik?” / „Mennyivel több?”: mozgókép a feladat számaival, aztán újra (meres-mozgo.js) */
     } else {
-      if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
-      else { $("visszajelzes").textContent = "✘ " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }
+      var hi = f.hianyzo;                     /* 🐭 bújós feladat: a kérdés a levél mögötti szám (próbacsapat, 2026-10-10) */
+      if (J.probak === 1 && hi && valasz === hi.c) { $("visszajelzes").textContent = "Ez az eredmény. Melyik szám bújt el?"; mondd("Ez az eredmény. Melyik szám bújt el?", kezNelkulUjra); }
+      else if (J.probak === 1 && hi) { $("visszajelzes").textContent = "Nem " + valasz + ". Melyik szám bújt el? Nézd meg még egyszer!"; mondd("Nem talált. Melyik szám bújt el?", kezNelkulUjra); }
+      else if (J.probak === 1) { $("visszajelzes").textContent = "Nem " + valasz + ". Nézd meg még egyszer!"; mondd("Nem talált. Próbáld újra!", kezNelkulUjra); }
+      else { $("visszajelzes").textContent = "Semmi baj! Nézd: " + (f.megoldas || (f.keplet + " = " + f.helyes)); mondd(f.tipp, kezNelkulUjra); }   /* a nyers „✘ 7 + 3 = 10” szidásnak hatott */
     }
     figArc("gondol");                          /* 🎨 rossz válasznál a szereplők gondolkodnak, nem szomorúak (figurak.js) */
     if (f.hianyzo) bujRossz();                 /* 🐭 Cincin kikukucskál, megrázza a fejét, visszabújik (bujocska.js) */

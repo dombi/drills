@@ -126,7 +126,7 @@ function feladatHianyzo(f, hol, takaro) {
   var A = hol === "a" ? "?" : a, Bs = hol === "b" ? "?" : b;
   var fel;
   if (op === "+") fel = hol === "b" ? szo(a) + " meg mennyi az " + szo(c) + "?" : "Mennyi meg " + szo(b) + " az " + szo(c) + "?";
-  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Mennyi mínusz " + szo(b) + " az " + szo(c) + "?";
+  else if (op === "−") fel = hol === "b" ? szo(a) + " mínusz mennyi az " + szo(c) + "?" : "Melyik számból marad " + szo(c) + ", ha " + szo(b) + " elmegy belőle?";   /* „Mennyi mínusz öt az nyolc?” fülre nehéz volt (lektor, 2026-10-10) */
   else if (op === "×") fel = hol === "b" ? szorSzo(a) + " mennyi az " + szo(c) + "?" : "Hányszor " + szo(b) + " az " + szo(c) + "?";
   else fel = hol === "b" ? szo(a) + " osztva mennyivel az " + szo(c) + "?" : "Mennyi osztva " + osztVal(b) + " az " + szo(c) + "?";
   var hely = bujHTML(rejtett, takaro);
@@ -135,7 +135,8 @@ function feladatHianyzo(f, hol, takaro) {
   naplo.forma = "h"; naplo.hol = hol; naplo.helyes = rejtett;
   naplo.lathato = A + " " + op + " " + Bs + " = " + c;   /* a válasznaplóba ez kerül (a kerdes a tény marad) */
   var ki = { csalad: "egyenkent", keplet: naplo.lathato, szoveg: naplo.lathato,
-    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>",
+    kartyaHTML: '<span class="k-nagy hi-k">' + (hol === "a" ? hely : a) + " " + op + " " + (hol === "b" ? hely : b) + " = " + c + "</span>" +
+      '<div class="hi-kerdes">Melyik szám bújt el?</div>',   /* a kép is mondja, mit kérdezünk (próbacsapat, 2026-10-10) */
     felolvas: elsoNagy(fel), helyes: rejtett, tipp: tippHianyzo(a, op, b, c, hol),
     megoldas: a + " " + op + " " + b + " = " + c,
     hianyzo: { hol: hol, ertek: rejtett, a: a, op: op, b: b, c: c },
