@@ -613,6 +613,8 @@ function felmondErtekel(altList) {
   ment();
 }
 function felmondSiker() {
+  if (J.joVolt === J.feladat) return;          /* gyors Enter a kész lista után: ne jutalmazzunk / számoljunk kétszer (mint ertekel-ben) */
+  J.joVolt = J.feladat;
   naplozz(J.feladat.naplo, J.probak === 0, "helyes felmondás");
   J.futoOssz++; if (J.probak === 0) J.futoElsore++;
   streakLep(J.probak === 0);
