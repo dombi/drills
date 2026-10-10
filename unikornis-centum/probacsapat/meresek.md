@@ -25,3 +25,7 @@ Tanulság (2. próba): a régi kockák 29–43 feladatos pályák → a gyerek-a
 ezért kétszer annyiba kerültek, mint a Bújócskán. Legközelebb: a zárt pályát a feladatlap nyissa ki előre (mentésbe írva),
 és „legfeljebb N feladat” határ. A hibavadász az 5. agent-kör alatt a session-korlátba futott → nagy próbát ne indíts
 kevés maradék kerettel. A lefagyott/leállt 8814-es szerver a mobile mérést vitte el.
+
+| 2026-10-10 | Bagolykönyvtár kérdései (rész/egész) | 🟡 rövid | Dani | sonnet | 115 401 | 352 s (112 hívás, ~13 kérdés) |
+| 2026-10-10 | Bagolykönyvtár kérdései (rész/egész) | 🟡 rövid | Bence | sonnet | 161 452 | 545 s (203 hívás, ~12 kérdés) |
+| | **3. próba összesen (2 agent)** | | | | **≈ 277 000** | ~9 perc |
