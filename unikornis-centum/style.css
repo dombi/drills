@@ -2337,6 +2337,20 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .dob-tfej span{ font-weight:800; color:#6a4a8a; display:flex; flex-direction:column; align-items:center; font-size:15px; }
 .dob-fejkep svg{ width:42px; height:42px; display:block; }
 .dob-polc .dob-h,.dob-haz .dob-h{ min-height:62px; min-width:70px; }
+/* 🔮 kétsoros dobogó / sor / polc: a pár-hely kisebb, a szereplő alatt (dobogó, sor) vagy mellett (polc) */
+.dob-ter.ket .dob-h.dob-attr{ min-height:52px; min-width:60px; }
+.dob-ter.ket .dob-attr .dob-ures{ width:40px; height:40px; margin:2px 0; }
+.dob-ter.ket .dob-attr .dob-kep{ width:34px; height:34px; }
+.dob-ter.ket .dob-attr .dob-d{ min-width:52px; }
+.dob-ter.ket .szk-emo{ font-size:26px; line-height:34px; }
+.dob-oszlop{ display:flex; flex-direction:column; align-items:center; }
+.dob-ter.ket .dob-polcsor{ gap:6px; }
+@media (max-width:600px){                                       /* telefonon a 4 fős kétsoros fagyis sor is férjen a lapra */
+  .dob-ter.ket .dob-sor{ gap:2px; }
+  .dob-ter.ket .dob-pult{ font-size:28px; }
+  .dob-ter.ket .dob-h{ min-width:52px; }
+  .dob-ter.ket .dob-d{ min-width:48px; }
+}
 .dob-polc .dob-ures,.dob-haz .dob-ures{ width:46px; height:46px; margin:2px 0; }
 .dob-polc .dob-kep,.dob-haz .dob-kep{ width:36px; height:36px; }
 @media (max-width:600px){

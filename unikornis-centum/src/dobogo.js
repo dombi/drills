@@ -9,6 +9,7 @@
    EGY KÉPEN: ha a feladat az olvasópult könyvében van, a kirakó maga a könyv JOBB LAPJA (a rajz = a kirakó); a könyv alatt
    egyetlen sáv: a tál (a még fel nem rakott szereplők) + 🙋 · ↺ · Kész. Könyv nélkül a kirakó a sáv fölé kerül.
    A mese-keret szerint más a rajz, a működés ugyanaz (egy közös elem, öt rajz):
+     (🔮 Kristálygömb: a dobogó, a sor és a polc is lehet kétsoros — a pár a szereplő alatt / mellett, zöld hellyel)
      dobogo  verseny: 3 helynél dobogó (2–1–3), 4–5 helynél lépcsősor
      sor     sorban állás (fagyis pult / vacsoratálak): az 1. hely a pultnál
      polc    könyvespolc: polcok fentről lefelé
@@ -60,14 +61,17 @@ function dobTerRajz() {
     var sor = n === 3 ? [1, 0, 2] : Array.apply(null, { length: n }).map(function (x, j) { return j; });
     h = '<div class="dob-dobogo n' + n + '">' + sor.map(function (j) {
       var mag = n === 3 ? [3, 2, 1][j] : n - j;
-      return '<div class="dob-fok" style="--m:' + mag + '">' + dobHely(0, j, null) + '<div class="dob-kocka"><b>' + (j + 1) + '.</b></div></div>';
+      return '<div class="dob-fok" style="--m:' + mag + '">' + dobHely(0, j, null) + (D.sorok.length > 1 ? dobHely(1, j, null, "dob-attr") : "") +
+        '<div class="dob-kocka"><b>' + (j + 1) + '.</b></div></div>';
     }).join("") + '</div>';
   } else if (D.keret === "sor") {
     h = '<div class="dob-sor"><div class="dob-pult">' + (D.pult || "🍦") + '</div>' +
-      Array.apply(null, { length: n }).map(function (x, j) { return dobHely(0, j, (j + 1) + "."); }).join("") + '</div>';
+      Array.apply(null, { length: n }).map(function (x, j) {
+        return D.sorok.length > 1 ? '<div class="dob-oszlop">' + dobHely(0, j, null) + dobHely(1, j, (j + 1) + ".", "dob-attr") + '</div>' : dobHely(0, j, (j + 1) + ".");
+      }).join("") + '</div>';
   } else if (D.keret === "polc") {
     h = '<div class="dob-polc">' + Array.apply(null, { length: n }).map(function (x, j) {
-      return '<div class="dob-polcsor"><span class="dob-oldal">' + (j === 0 ? "fent" : j === n - 1 ? "lent" : "") + '</span>' + dobHely(0, j, null) + '</div>';
+      return '<div class="dob-polcsor"><span class="dob-oldal">' + (j === 0 ? "fent" : j === n - 1 ? "lent" : "") + '</span>' + dobHely(0, j, null) + (D.sorok.length > 1 ? dobHely(1, j, null, "dob-attr") : "") + '</div>';
     }).join("") + '</div>';
   } else if (D.keret === "haz" || D.keret === "haz2") {
     var em = [];
@@ -86,7 +90,7 @@ function dobTerRajz() {
     }
     h += '</div>';
   }
-  return '<div class="dob-ter k-' + D.keret + '">' + h + '</div>';
+  return '<div class="dob-ter k-' + D.keret + (D.sorok.length > 1 ? " ket" : "") + '">' + h + '</div>';
 }
 function dobRajz() {
   var p = $("dobogo-panel"); if (!p || !DOB) return;

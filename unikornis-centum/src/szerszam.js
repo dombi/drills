@@ -3,9 +3,9 @@
    1. kör (2026-10-09): LÁTHATATLAN alap. A gyerek ebből még semmit sem lát; a pályák a 2. körtől kötik be
    (📌 KOTOTT létra), utána a régi 3 kocka is (lakat ki, lift be). Egy darab modul, nem pályánként külön.
 
-   🛗 LIFT (lakat helyett, terv 5. pont). A pálya egy lift-állapotot kér a NAGY feladathoz (📜 Tekercs / 🏅 Mesterpróba),
+   🛗 LIFT (lakat helyett, terv 5. pont). A pálya egy lift-állapotot kér a NAGY feladathoz (📜 Tekercs / 🔮 Kristálygömb / 🏅 Mesterpróba),
    és jelenti, mi történt; a modul megmondja, mi jöjjön. A pálya adja a kicsinyített testvért (ugyanabban a mese-keretben).
-     var L = liftUj({ sz:"KOTOTT", palya:"…", fok:"tekercs"|"mester", fid:"…", ae:false })
+     var L = liftUj({ sz:"KOTOTT", palya:"…", fok:"tekercs"|"gomb"|"mester", fid:"…", ae:false })
      liftRossz(L)        → "ujra" (1. rossz) · "lift" (2. rossz: indul a lift) · "vegig" (a lift után is 2. rossz)
      liftSegitseg(L, s)  → 🙋 s. sora: 1 = „Mit kérdeznek?” (még önálló) → "semmi"; 2+ → "lift" (ha még nem volt)
      liftKer(L)          → a gyerek kérte („🔎 Nézzük kicsiben”) → "lift" · "semmi", ha a pult kikapcsolta
@@ -37,7 +37,7 @@ var SZERSZAMOK = [
   { id: "EGESZ",  ikon: "🧺", nev: "Előbb az egész",          kartya: "Összeszámolom, mennyi van összesen." },
   { id: "MIT",    ikon: "🔍", nev: "Mit számolok?",           kartya: "Megnézem, mit számolok egynek." }
 ];
-var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
+var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
 var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
 var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
@@ -223,7 +223,7 @@ function liftNagyKesz(L, jo) {
   if (L.elso === null) L.elso = !!jo;
   var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
   if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
-  var nagy = L.fok === "tekercs" || L.fok === "mester", ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  var nagy = L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester", ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
   szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
   if (L.lift) {
     var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };

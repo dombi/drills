@@ -214,7 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/szerszam.js?v=20261009-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261010-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -326,7 +326,7 @@ function palyakBetolt() {
     while ((m = rm.exec(t))) { PALYA[m[1]] = { nev: m[2], ikon: m[3], sorrend: i++, tipus: "meres", regio: m[4] }; PALYA_SORREND.push(m[1]); }
     var rk = /ekPalya\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*(\d+),\s*"[^"]+"(?:,\s*"([^"]+)")?/g;   /* 📚 Bagolykönyvtár: kockánként 📖 Mesekönyv + 📜 Varázstekercs (src/constants.js ekPalya) */
     while ((m = rk.exec(t))) { PALYA[m[1]] = { nev: m[2] + (m[5] === "tekercs" ? " · 📜 Varázstekercs" : " · 📖 Mesekönyv") + " · " + m[4] + ". o.", ikon: m[3], sorrend: i++, tipus: "konyvtar", regio: "konyvtar" }; PALYA_SORREND.push(m[1]); }
-    var rsz = /szPalya\("([^"]+)",\s*"([^"]+)",\s*"(\w+)"\)/g, SZF = { mese: ["📖", "Mesekönyv"], tekercs: ["📜", "Varázstekercs"], mester: ["🏅", "Mesterpróba"] };   /* 🧰 Szerszám-létrák (src/constants.js szPalya) — ugyanaz az azonosító, mint a játékban */
+    var rsz = /szPalya\("([^"]+)",\s*"([^"]+)",\s*"(\w+)"\)/g, SZF = { mese: ["📖", "Mesekönyv"], tekercs: ["📜", "Varázstekercs"], gomb: ["🔮", "Kristálygömb"], mester: ["🏅", "Mesterpróba"] };   /* 🧰 Szerszám-létrák (src/constants.js szPalya) — ugyanaz az azonosító, mint a játékban */
     while ((m = rsz.exec(t))) if (SZF[m[3]]) { var szId = "sz-" + m[1].toLowerCase() + "-" + m[3]; PALYA[szId] = { nev: "🧰 " + m[2] + " – " + SZF[m[3]][1], ikon: SZF[m[3]][0], sorrend: i++, tipus: "szerszam", regio: "konyvtar" }; PALYA_SORREND.push(szId); }
     var rkm = /(K\d+):\s*\{[^}]*?mester:\s*\[([^\]]*)\]/g;   /* 🏅 a kockák alap Mesterpróba-feladatai (EK_KOCKA_DEF[k].mester) */
     while ((m = rkm.exec(t))) EK_MESTER_ALAP[m[1]] = (m[2].match(/"[^"]+"/g) || []).map(function (x) { return x.slice(1, -1); });

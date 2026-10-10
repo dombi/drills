@@ -184,10 +184,10 @@ function szPalyaVege() {
   ment();
   return { html: html, mondat: mondat, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
-/* a vége-képernyő „következő” gombja: 📖 → 📜 → 🏅, a Mesterpróba után vissza a szekrényhez */
+/* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
 function szKovetkezo(id) {
   var pa = palyaKeres(id); if (!pa) return null;
-  var fok = { mese: "tekercs", tekercs: "mester" }[pa.fok]; if (!fok) return null;
+  var fok = { mese: "tekercs", tekercs: "gomb", gomb: "mester" }[pa.fok]; if (!fok) return null;
   var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === fok; })[0];
   return k && !palyaRejtve(k) ? k.id : null;
 }
