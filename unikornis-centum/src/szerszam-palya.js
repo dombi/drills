@@ -53,7 +53,7 @@ function szKicsi(nagy) {
 function szMutat(f) {
   opMod(true);
   var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
-  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu });     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -69,6 +69,7 @@ function szKeres(f) {
 function opMod(be) {
   var k = $("kepernyo-jatek"); if (!k) return;
   k.classList.toggle("op-mod", !!be);
+  if (!be) k.classList.remove("nt-mod");
   k.classList.remove("op-b1", "op-b2", "op-b3");
   if (be) k.classList.add("op-b" + opBetu());
   opBagsor(!!be);
@@ -140,12 +141,12 @@ function szRossz(f, A) {
   ment();
 }
 function szHibaMutat(f, c) {
-  dobogoVisszaRossz();
+  if (DOB && DOB.nt) dobogoHibaJelol(c && c.ki); else dobogoVisszaRossz();   /* 📋 táblánál senki nem ugrik vissza, a hibás kocka kap keretet */
   var v = $("visszajelzes"), msg;
   if (c) {
     opJelol(c.mi, c.resz);
     msg = (c.resz ? "Nézd a kiemelt részt: „" + c.resz + "”." : "Nézd: " + (f.op.fuzet ? f.op.fuzet.mondatok : f.op.mondatok)[c.mi]) +
-      (f.dob.sorok.length > 1 || !c.ki ? " Stimmel ez nálad?" : " A te sorrendedben hol van " + c.ki + "?");
+      (f.dob.sorok.length > 1 || !c.ki ? " Stimmel ez nálad?" : DOB && DOB.nt ? " A táblában hová tetted " + c.ki + " ✓-ét?" : " A te sorrendedben hol van " + c.ki + "?");
   } else msg = "Nézd meg újra a mondatokat, egyenként!";
   v.className = "visszajelzes ek-csapda"; v.textContent = msg;
   mondd(ekKiejt(msg));

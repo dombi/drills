@@ -48,6 +48,7 @@ MODULES = [
     "konyvtar-mozgo.js",  # 6f) 📚 a 2 polc bemutató-mozgóképe (🔎 nagyító · ✋ lépcső): ≤ 15 mp, zárókép = névtábla + célmondat
     "olvasopult.js",      # 6n) 📖 olvasópult: a hosszú szöveg nyitott könyve (bal: szöveg + kérdés, jobb: rajz), lapozás, 3 betűméret, kiemelő felolvasás
     "olvaso-ellenor.js",  # 6n2) 🔎/✋ olvasó-ellenőr: „Mire felelsz?” kérdés-keret + „Ez már a válasz?” köztes-szám tábla, konkrét tippek (közös modul)
+    "nyomozotabla.js",    # 6o0) 📋 Nyomozótábla: pipás ✓/✗ tábla (közös modul; a ✓ a gazda állásából jön, a ✗ a tábláé, 🦉 kihúzás, R3)
     "dobogo.js",          # 6o) 🏆 dobogó: koppintós sorba rakás (verseny / sor / polc / ház / táblázat, kétsoros is)
     "szerszam-kotott.js", # 3g) 📌 KOTOTT tartalom: 4 mese-keret, szereplő-rajzok, sablon-generátor egyértelműség-próbával, 4 Mesterpróba + testvérek
     "szerszam-palya.js",  # 6p) 🧰 szerszám-pálya: GEN.szerszam, jó/rossz, 🛗 lift, végigvezetés, pálya vége (mester-szalag, láda)

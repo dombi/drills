@@ -17,9 +17,31 @@
      tabla   táblázat: oszlop-fejlécek (pl. magasságok), soronként egy darab-fajta (gyerek, zöldség)
    A feladat (f.dob) = { keret, n, cimkek: [html…], sorok: [ { nev, darabok: [ { id, nev, kep } ] } ], jo: [ [id…] soronként ] }
    Az ellenőrzést (jó / rossz) a feladat gazdája végzi: dobogoMutat(f, { kesz(jo, allas), segit(menu) }) — a szerszam-palya.js.
-   Rossz válasznál nincs piros: a jó helyen állók maradnak, a többiek visszaugranak (dobogoVisszaRossz). */
+   Rossz válasznál nincs piros: a jó helyen állók maradnak, a többiek visszaugranak (dobogoVisszaRossz).
+   📋 NYOMOZÓTÁBLA (o.tabla, nyomozotabla.js — rajzterv: Matekos\nyomozotabla-rajzterv.html ✅ 2026-10-11):
+     EGY ÁLLÁS, KÉT NÉZET: a DOB.hely a tábla ✓-einek forrása is. A tábla a könyv mellé kerül (#nt-oszlop; 1100 px fölött
+     jobbra, alatta a könyv alá, telefonon minden egymás alá). Ilyenkor nincs külön tál: aki még nincs a helyén, az a rajz
+     alján vár (dob-varo: fű / járda / szőnyeg), a helyek mellett annyi kis ✗, ahány szereplőt a táblában kizártak (R4),
+     és a szereplők átsétálnak a helyükre (dobSetal). Rossz válasznál senki nem ugrik vissza: a hibás mondat szereplőjének
+     kockája rózsaszín keretet kap (dobogoHibaJelol). */
 
-var DOB = null;     /* { f, o, hely: [[id|null]…] soronként, zar, kez: {r,id,honnan}|null, cel: {r,i}|null, uj: {r,i}|null, razo } */
+var DOB = null;     /* { f, o, hely: [[id|null]…] soronként, zar, kez: {r,id,honnan}|null, cel: {r,i}|null, uj: {r,i}|null, razo, nt: bool } */
+/* a tábla fejlécei keretenként (rajzterv 3. pont): oszlop = hely, a rajz sorrendjében (0-tól);
+   ki(X, i, n): a bagoly mondata, amikor egy ✓ után kihúzza a sort és az oszlopot (3. döntés: kimondja, miért) */
+function dobAz(i) { return i === 0 || i === 4 ? "az " : "a "; }                /* „az 1.”, „az 5.”, „a 2.” */
+var DOB_NT = {
+  dobogo: { cim: "Ki hányadik lett?", osz: function (i) { return (i + 1) + "."; },
+            ki: function (X, i) { return "Ha " + X + " " + (i + 1) + ". lett, más helyezést nem kaphatott, és " + (i + 1) + ". más nem lehetett."; } },
+  sor:    { cim: "Ki hányadik a sorban?", osz: function (i, n, D) { return i ? (i + 1) + "." : '<span class="nt-pult">' + (D.pult || "🍦") + '</span>1.'; },
+            ki: function (X, i) { return "Ha " + X + " " + (i + 1) + ". a sorban, máshol nem állhat, és ott más nem állhat."; } },
+  polc:   { cim: "Ki melyik polcon ül?", osz: function (i, n) { return i === 0 ? "fent" : i === n - 1 ? "lent" : n === 3 ? "közép" : (i + 1) + "."; },
+            ki: function (X, i, n) { return "Ha " + X + " " + (i === 0 ? "a legfelső" : i === n - 1 ? "a legalsó" : n === 3 ? "a középső" : "fentről " + dobAz(i) + (i + 1) + ".") + " polcon ül, máshol nem ülhet, és ott más nem ülhet."; } },
+  haz:    { cim: "Ki hol lakik?", osz: function (i) { return (i + 1) + ". em."; },
+            ki: function (X, i) { return "Ha " + X + " " + dobAz(i) + (i + 1) + ". emeleten lakik, máshol nem lakhat, és ott más nem lakhat."; } },
+  tabla:  { cim: "Ki hol?", osz: function (i, n, D) { return (D.cimkek || [])[i] || (i + 1) + "."; },
+            ki: function (X, i, n, D) { return "Ha " + X + " helye " + ((D.cimkek || [])[i] || (i + 1) + ".") + ", máshol nem lehet, és ott más nem lehet."; } }
+};
+DOB_NT.haz2 = DOB_NT.haz;
 
 function dobPanel() {
   var p = $("dobogo-panel");
@@ -36,7 +58,11 @@ function dobKonyvLap() {
   if (j && !j.__dob) { j.__dob = true; j.addEventListener("click", dobKatt); }
   return j;
 }
-function dobogoRejt() { var p = $("dobogo-panel"); if (p) { p.hidden = true; p.innerHTML = ""; } DOB = null; }
+function dobogoRejt() {
+  var p = $("dobogo-panel"); if (p) { p.hidden = true; p.innerHTML = ""; }
+  ntRejt(); var k = $("kepernyo-jatek"); if (k) k.classList.remove("nt-mod");
+  DOB = null;
+}
 function dobDarab(D, r, id) { var L = D.sorok[r].darabok; for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i]; return null; }
 function dobToken(d, r, hol) {
   var kez = DOB.kez && DOB.kez.r === r && DOB.kez.id === d.id;
@@ -50,9 +76,11 @@ function dobHely(r, i, cimke, extra) {
   else if (DOB.kez && DOB.kez.r === r && DOB.kez.honnan !== i) c += " var";     /* ide teheti, ami a kezében van */
   if (DOB.uj && DOB.uj.r === r && DOB.uj.i === i) c += " dob-uj";
   if (DOB.razo && DOB.razo.r === r && DOB.razo.i === i) c += " dob-razo";
+  var xdb = DOB.nt && r === 0 ? Math.min(ntXDb(i), 4) : 0, xek = "";        /* 📋 R4: minden kizárt szereplőért egy egyforma kis ✗ */
+  if (xdb) { xek = '<span class="dob-xek" aria-hidden="true">'; for (var x = 0; x < xdb; x++) xek += '<i>✗</i>'; xek += '</span>'; }
   return '<div class="dob-h' + (d ? " teli" : "") + c + '" data-r="' + r + '" data-i="' + i + '">' +
     (d ? dobToken(d, r, true) : '<button type="button" class="dob-ures" aria-label="üres hely">?</button>') +
-    (cimke != null ? '<span class="dob-cimke">' + cimke + '</span>' : '') + '</div>';
+    (cimke != null ? '<span class="dob-cimke">' + cimke + '</span>' : '') + xek + '</div>';
 }
 function dobTerRajz() {
   var D = DOB.f.dob, n = D.n, h = "", r, i;
@@ -90,19 +118,25 @@ function dobTerRajz() {
     }
     h += '</div>';
   }
-  return '<div class="dob-ter k-' + D.keret + (D.sorok.length > 1 ? " ket" : "") + '">' + h + '</div>';
+  return '<div class="dob-ter k-' + D.keret + (D.sorok.length > 1 ? " ket" : "") + (DOB.nt ? " nt" : "") + '">' + h + (DOB.nt ? dobTalak(" dob-varo") : "") + '</div>';
 }
-function dobRajz() {
-  var p = $("dobogo-panel"); if (!p || !DOB) return;
-  var D = DOB.f.dob, r;
-  /* a még fel nem rakott szereplők (soronként külön tál); ha egy üres hely ki van jelölve, az ő soruk tála „vár” */
-  var tal = "";
+/* a még fel nem rakott szereplők (soronként külön tál); ha egy üres hely ki van jelölve, az ő soruk tála „vár”.
+   📋 táblás feladatnál ez a rajz alja (a várakozók a füvön / a járdán / a szőnyegen), nem külön sáv. */
+function dobTalak(extra) {
+  var D = DOB.f.dob, tal = "", r;
   for (r = 0; r < D.sorok.length; r++) {
     var kint = D.sorok[r].darabok.filter(function (d) { return DOB.hely[r].indexOf(d.id) < 0; });
     var varo = (DOB.cel && DOB.cel.r === r) || (DOB.kez && DOB.kez.r === r && DOB.kez.honnan != null);
-    tal += '<div class="dob-tal' + (r ? " dob-attr" : "") + (varo ? " var" : "") + '" data-r="' + r + '">' + (D.sorok.length > 1 && D.sorok[r].nev ? '<span class="dob-talnev">' + D.sorok[r].nev + '</span>' : '') +
-      (kint.length ? kint.map(function (d) { return dobToken(d, r, false); }).join("") : '<span class="dob-mind">✓</span>') + '</div>';
+    tal += '<div class="dob-tal' + (extra || "") + (r ? " dob-attr" : "") + (varo ? " var" : "") + '" data-r="' + r + '">' + (D.sorok.length > 1 && D.sorok[r].nev ? '<span class="dob-talnev">' + D.sorok[r].nev + '</span>' : '') +
+      (kint.length ? kint.map(function (d) { return dobToken(d, r, false); }).join("") : (extra ? '' : '<span class="dob-mind">✓</span>')) + '</div>';
   }
+  return tal;
+}
+function dobRajz() {
+  var p = $("dobogo-panel"); if (!p || !DOB) return;
+  var D = DOB.f.dob;
+  if (DOB.nt) ntEgyeztet();                                    /* 📋 előbb a tábla igazodik az álláshoz (R3, 🦉 kihúzás), utána rajzol minden */
+  var tal = DOB.nt ? "" : dobTalak(), elotte = DOB.nt ? dobHolVan() : null;
   var gomb = '<div class="dob-gombok">' +
     (DOB.o.segit ? '<button type="button" class="kis-gomb dob-segit" data-g="segit">🙋 Segítség</button>' : '') +
     '<button type="button" class="kis-gomb dob-ujra" data-g="ujra">↺ Újra</button>' +
@@ -113,21 +147,80 @@ function dobRajz() {
   if (lap) { lap.innerHTML = ter; lap.classList.add("dob-lap"); lap.classList.toggle("zar", !!DOB.zar); }
   var ku = p.querySelector(".dob-kulon"); ku.innerHTML = lap ? "" : ter; ku.hidden = !!lap;
   var also = p.querySelector(".dob-also");
-  also.innerHTML = '<div class="dob-talak">' + tal + '</div>' + gomb;
+  also.innerHTML = (tal ? '<div class="dob-talak">' + tal + '</div>' : '') + gomb;
   also.classList.toggle("ket", D.sorok.length > 1);           /* két tál (gyerek + zöldség): tömörebb, hogy egy sorba férjen a gombokkal */
   p.classList.toggle("zar", !!DOB.zar);
+  if (DOB.nt) { ntRajz(); dobSetal(elotte); }
   DOB.uj = null; DOB.razo = null;
 }
-/* o = { kesz: function (jo, allas) {}, segit: function (menu) {} | null } */
+/* 🚶 a szereplők átsétálnak az új helyükre (újrarajzolás után a régi helyükről indulnak: FLIP) — csak táblás feladatnál */
+function dobHolVan() {
+  var H = {};
+  Array.prototype.forEach.call(document.querySelectorAll("#buborek-feladat .dob-d, #dobogo-panel .dob-d"), function (b) {
+    var k = b.getAttribute("data-r") + "|" + b.getAttribute("data-id"), q = b.getBoundingClientRect(); if (q.width) H[k] = q;
+  });
+  return H;
+}
+function dobSetal(elotte) {
+  if (!elotte) return;
+  var lassu = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  Array.prototype.forEach.call(document.querySelectorAll("#buborek-feladat .dob-d, #dobogo-panel .dob-d"), function (b) {
+    var a = elotte[b.getAttribute("data-r") + "|" + b.getAttribute("data-id")]; if (!a || !lassu) return;
+    var q = b.getBoundingClientRect(), dx = a.left - q.left, dy = a.top - q.top;
+    if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
+    b.parentNode.classList.remove("dob-uj");
+    b.style.transition = "none"; b.style.transform = "translate(" + dx + "px," + dy + "px)"; b.classList.add("setal");
+    void b.offsetWidth;
+    b.style.transition = ""; b.style.transform = "";
+    setTimeout(function () { b.classList.remove("setal"); }, 900);
+  });
+}
+/* o = { kesz: function (jo, allas) {}, segit: function (menu) {} | null,
+         tabla: { auto: bool, cim?: html, mondat?: function (nev, oszlop) → szöveg, rejtve?: bool } | null — 📋 Nyomozótábla } */
 function dobogoMutat(f, o) {
   var D = f.dob;
-  DOB = { f: f, o: o || {}, zar: false, kez: null, cel: null, uj: null, razo: null,
+  ntRejt();
+  DOB = { f: f, o: o || {}, zar: false, kez: null, cel: null, uj: null, razo: null, nt: false,
     hely: D.sorok.map(function () { var a = []; for (var i = 0; i < D.n; i++) a.push(null); return a; }) };
   var p = dobPanel();
   $("valasz-egyenkent").classList.add("koppint");
   $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
   p.hidden = false; p.innerHTML = "";
+  if (DOB.o.tabla) dobNtIndul(DOB.o.tabla);
+  var k = $("kepernyo-jatek"); if (k) k.classList.toggle("nt-mod", DOB.nt);
   dobRajz();
+}
+/* 📋 a tábla a „Ki hol?” sorra (0. sor). A kétsoros „Ki mit?” tábla a 3. kód-kör. */
+function dobNtIndul(t) {
+  var D = DOB.f.dob, S = D.sorok[0].darabok, F = DOB_NT[D.keret] || DOB_NT.tabla, hova = $("nt-oszlop");
+  if (!hova) {
+    hova = el("div", "nt-oszlop"); hova.id = "nt-oszlop";
+    var jt = document.querySelector("#kepernyo-jatek .jatekter"), bub = $("bagoly-buborek");
+    jt.insertBefore(hova, bub.nextSibling);                       /* könyv → tábla → bagoly → gombok */
+  }
+  DOB.nt = true;
+  ntUj({ hova: hova, cim: t.cim || F.cim, auto: !!t.auto, rejtve: !!t.rejtve,
+    sorok: S.map(function (d) { return { id: d.id, nev: d.nev, kep: d.kep }; }),
+    oszlopok: Array.apply(null, { length: D.n }).map(function (x, i) { return F.osz(i, D.n, D); }),
+    hol: function (r) { return DOB.hely[0].indexOf(S[r].id); },
+    tesz: function (r, c) { dobNtTesz(S[r].id, c); },
+    levesz: function (r) { var j = DOB.hely[0].indexOf(S[r].id); if (j >= 0) DOB.hely[0][j] = null; DOB.kez = null; DOB.cel = null; dobRajz(); },
+    valt: function () { dobRajz(); },
+    mondat: function (r, c) { return t.mondat ? t.mondat(S[r].nev, c) : F.ki(S[r].nev, c, D.n, D) + " Ezeket kihúztam."; } });
+}
+/* a táblából: id a c. helyre; aki ott állt, visszamegy a várakozók közé (tervlap 4. pont) */
+function dobNtTesz(id, c) {
+  var s = DOB.hely[0], j = s.indexOf(id);
+  if (j >= 0) s[j] = null;
+  s[c] = id; DOB.kez = null; DOB.cel = null;
+  dobRajz();
+}
+/* Kész után, rossz válasznál (táblás feladat): senki nem ugrik vissza, a hibás mondat szereplőjének kockája kap keretet */
+function dobogoHibaJelol(id) {
+  if (!DOB || !DOB.nt) return;
+  DOB.kez = null; DOB.cel = null;
+  var r = -1; DOB.f.dob.sorok[0].darabok.forEach(function (d, i) { if (d.id === id) r = i; });
+  dobRajz(); ntHiba(r);
 }
 function dobTeli() { return DOB.hely.every(function (s) { return s.every(function (x) { return x != null; }); }); }
 function dobJoE() {
@@ -160,9 +253,10 @@ function dobogoTesz(r, i, id) {
 function dobogoZar(z) {
   if (!DOB) return;
   DOB.zar = !!z; DOB.kez = null; DOB.cel = null;
+  if (DOB.nt) NT.zar = !!z;
   dobRajz();
 }
-function dobogoUrit() { if (!DOB) return; DOB.kez = null; DOB.cel = null; DOB.hely.forEach(function (s) { for (var i = 0; i < s.length; i++) s[i] = null; }); dobRajz(); }
+function dobogoUrit() { if (!DOB) return; DOB.kez = null; DOB.cel = null; DOB.hely.forEach(function (s) { for (var i = 0; i < s.length; i++) s[i] = null; }); if (DOB.nt) ntUrit(); dobRajz(); }
 
 /* ── koppintások ── */
 /* id letétele az r. sor i. helyére. honnan: ha egy másik helyről jön, az ott állóval helyet cserél;

@@ -2366,6 +2366,114 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 }
 @media (prefers-reduced-motion:reduce){ .dob-uj .dob-d,.dob-h.var .dob-ures,.dob-razo{ animation:none; } }
 
+/* ═════════ 📋 NYOMOZÓTÁBLA (nyomozotabla.js + dobogo.js o.tabla) — rajzterv: Matekos\nyomozotabla-rajzterv.html (✅ R1–R4) ═════════
+   Fa írótábla fém csipesszel, rajta fehér papír; sorfejléc = a szereplő feje + neve; kocka: üres → ✗ → ✓ → üres.
+   ✗ = halvány rózsaszín alap, barnás ✗ · ✓ = halványzöld alap, zöld ✓ · a bagoly ✗-e egyszer sárgán felvillan · hiba: rózsaszín keret.
+   Elrendezés: 1100 px fölött a tábla a könyv mellett jobbra (B), alatta a könyv alatt (A), 640 px alatt minden egymás alatt. */
+.nt-oszlop{ flex:none; display:flex; justify-content:center; width:min(96vw,1040px); margin:10px auto 0; }
+.nt-iro{ position:relative; max-width:100%; background:#c99a64; border-radius:14px; padding:20px 10px 10px; box-shadow:0 6px 14px rgba(74,40,20,.2); }
+.nt-iro::before{ content:""; position:absolute; left:50%; top:-8px; width:84px; height:22px; margin-left:-42px; background:linear-gradient(#e4e4ea,#a9a9b4); border-radius:8px 8px 12px 12px; box-shadow:0 2px 0 #8a8a94; }
+.nt-papir{ background:#fff; border-radius:6px; padding:6px 6px 8px; box-shadow:0 1px 0 #e3d3bd; max-width:100%; overflow-x:auto; }
+.nt-cim{ font-size:15px; font-weight:800; color:#8a6a5a; text-align:center; margin-bottom:2px; }
+.nt-tabla{ border-collapse:separate; border-spacing:4px; margin:0 auto; }
+.nt-tabla th{ font-size:14px; color:#8a6a5a; font-weight:800; padding:0 2px; white-space:nowrap; text-align:center; }
+.nt-tabla th.nt-sf{ border-radius:8px; padding:0; }
+.nt-sf .nt-fej,.nt-sf .nt-nev{ display:block; margin:0 auto; }
+.nt-tabla th.nt-sf.hiba{ box-shadow:0 0 0 3px #f9c6dc; }
+.nt-fej{ width:32px; height:32px; }
+.nt-fej svg{ width:100%; height:100%; display:block; }
+.nt-fej .szk-emo{ font-size:24px; line-height:32px; }
+.nt-nev{ color:#4a3b5a; font-size:13px; line-height:1.1; max-width:76px; overflow:hidden; text-overflow:ellipsis; }   /* a név a fej alatt: keskeny sorfejléc */
+.nt-pult{ font-size:13px; margin-right:1px; }
+.nt-tabla td{ padding:0; }
+.nt-k{ display:block; width:64px; height:54px; padding:0; border:2.5px solid #d9cbbb; border-radius:10px; background:#fff; color:#c07a6a; font-family:inherit; font-size:28px; font-weight:800; line-height:1;
+  cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; }
+.nt-k.x{ background:#fbf1ee; color:#c07a6a; }
+.nt-k.v{ background:#e5f5e0; border-color:#7fbf6a; color:#3f8a2e; }
+.nt-k.uj{ animation:nt-villan .8s ease-out; }
+@keyframes nt-villan{ 0%,30%{ background:#ffe7a8; } }
+.nt-k.hiba{ border-color:#e2589b; box-shadow:0 0 0 4px #f9c6dc; }
+.nt-tabla.m5 .nt-k{ width:52px; height:46px; font-size:24px; }
+.nt-tabla.m5 .nt-fej{ width:28px; height:28px; }
+.nt-iro.zar .nt-k{ pointer-events:none; }
+/* a rajz: R4 — minden kizárt szereplőért egy egyforma kis ✗ a hely mellett (kié, az a táblából derül ki) */
+.dob-xek{ position:absolute; right:-6px; top:4px; display:flex; flex-direction:column; pointer-events:none; z-index:2; }
+.dob-xek i{ font-style:normal; font-weight:900; font-size:15px; line-height:14px; color:#c07a6a; opacity:.85; }
+/* a várakozók a rajz alján (nincs külön tál): fű / járda / szőnyeg */
+.dob-ter.nt{ flex-direction:column; justify-content:flex-end; gap:6px; }
+.dob-ter.nt.k-dobogo,.dob-ter.nt.k-haz,.dob-ter.nt.k-haz2{ background:#dcecff; }
+.dob-ter.nt.k-dobogo{ background:#dff0d4; }
+.dob-ter.nt.k-sor{ background:#fdf0e0; }
+.dob-ter.nt.k-polc{ background:#f6ead8; }
+.dob-varo{ width:100%; min-height:62px; border-radius:10px; background:#b6dd9a; padding:5px 8px; }
+.k-sor .dob-varo{ background:#efd9b8; }
+.k-polc .dob-varo{ background:#e8b4c4; }
+.k-tabla .dob-varo{ background:rgba(255,255,255,.6); }
+.dob-varo.dob-attr{ background:rgba(214,240,200,.8); }
+.dob-varo .dob-d{ min-width:60px; }
+/* a kirakó a LAP szélességéhez igazodik (nem a képernyőhöz): keskeny lapon (B-ben a tábla mellett, álló tableten) 4–5 hely is elfér */
+.op-jobb.dob-lap{ container:doblap / inline-size; }
+@container doblap (max-width:480px){
+  .dob-h{ min-width:62px; }
+  .dob-d{ min-width:56px; padding:3px 4px 2px; }
+  .dob-kep{ width:38px; height:38px; }
+  .dob-ures{ width:44px; height:44px; }
+  .dob-kocka,.dob-dobogo.n4 .dob-kocka,.dob-dobogo.n5 .dob-kocka{ width:64px; }
+  .dob-sor{ gap:4px; }
+  .dob-pult{ font-size:32px; }
+}
+@container doblap (max-width:380px){
+  .dob-h{ min-width:54px; }
+  .dob-d{ min-width:50px; }
+  .dob-kep{ width:32px; height:32px; }
+  .dob-nev{ font-size:12px; }
+  .dob-ures{ width:40px; height:40px; font-size:18px; }
+  .dob-kocka,.dob-dobogo.n4 .dob-kocka,.dob-dobogo.n5 .dob-kocka{ width:56px; }
+  .dob-dobogo{ gap:2px; }
+  .dob-pult{ font-size:26px; }
+}
+/* 🚶 séta a helyére (dobSetal, FLIP) */
+.dob-d.setal{ position:relative; z-index:3; transition:transform .65s cubic-bezier(.45,.05,.35,1); }
+@media (prefers-reduced-motion:reduce){ .nt-k.uj{ animation:none; } .dob-d.setal{ transition:none; } }
+/* B: a tábla a könyv mellett, jobbra (a könyv magassága nem változik, a tábla a ház magasságában) */
+@media (min-width:1100px){
+  #kepernyo-jatek.op-mod.nt-mod .jatekter{ display:grid; grid-template-columns:minmax(0,930px) 380px; grid-template-rows:auto auto 1fr; column-gap:16px; justify-content:center; align-content:start; }
+  #kepernyo-jatek.op-mod.nt-mod .bagoly-buborek{ grid-column:1; grid-row:1 / span 3; width:auto; margin:8px 0 0; }
+  #kepernyo-jatek.op-mod.nt-mod .nt-oszlop{ grid-column:2; grid-row:1; width:auto; margin:18px 0 0; }
+  #kepernyo-jatek.op-mod.nt-mod .op-bagsor{ grid-column:2; grid-row:2; width:auto; margin:6px 0 0; }
+  #kepernyo-jatek.op-mod.nt-mod .valaszter{ grid-column:2; grid-row:3; padding:2px 0 14px; }
+  #kepernyo-jatek.op-mod.nt-mod .op-bub{ max-width:calc(100% - 56px); }
+  #kepernyo-jatek.op-mod.nt-mod .dob-gombok{ justify-content:flex-end; }
+}
+/* A (641–1099 px): a tábla a könyv alatt, mellette a bagoly és a gombok egy sorban; a várakozók a rajz MELLETT (nem alatta), hogy a ház ne zsugorodjon */
+@media (min-width:641px) and (max-width:1099px){
+  #kepernyo-jatek.op-mod.nt-mod .jatekter{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; grid-template-rows:auto auto 1fr; column-gap:12px; justify-content:center; align-content:start; padding:0 12px; }
+  #kepernyo-jatek.op-mod.nt-mod .bagoly-buborek{ grid-column:1 / -1; grid-row:1; width:auto; max-width:1040px; margin:8px auto 0; justify-self:stretch; }
+  #kepernyo-jatek.op-mod.nt-mod .nt-oszlop{ grid-column:1; grid-row:2; width:auto; margin:14px 0 0; }
+  #kepernyo-jatek.op-mod.nt-mod .op-bagsor{ grid-column:2; grid-row:2; width:auto; margin:0; align-self:center; }
+  #kepernyo-jatek.op-mod.nt-mod .valaszter{ grid-column:3; grid-row:2; padding:0; align-self:end; }
+  #kepernyo-jatek.op-mod.nt-mod .dob-gombok{ flex-direction:column; align-items:stretch; gap:8px; }
+  .nt-k{ width:58px; height:44px; font-size:24px; }
+  .nt-tabla.m5 .nt-k{ width:50px; height:40px; font-size:22px; }
+  .nt-fej{ width:26px; height:26px; }
+  .nt-iro{ padding:16px 8px 8px; }
+}
+/* 1100 px alatt (A és telefon): a MAGAS rajzoknál (ház, polc) a várakozók a rajz mellett állnak, nem alatta — így a ház nem zsugorodik,
+   és telefonon egy görgetéssel együtt látszik a rajz, a tábla és a gombok. A széles rajzoknál (dobogó, sor, táblázat) maradnak alul. */
+@media (max-width:1099px){
+  .dob-ter.nt.k-haz,.dob-ter.nt.k-haz2,.dob-ter.nt.k-polc{ flex-direction:row; align-items:flex-end; justify-content:center; gap:10px; }
+  .k-haz .dob-varo,.k-haz2 .dob-varo,.k-polc .dob-varo{ width:auto; max-width:170px; min-height:0; align-self:stretch; align-content:flex-end; }
+}
+/* telefon: minden egymás alatt (szöveg → rajz → tábla → bagoly → gombok) */
+@media (max-width:640px){
+  .nt-k{ width:58px; height:50px; }
+  .nt-tabla.m4 .nt-k{ width:52px; height:44px; }
+  .k-haz .dob-varo,.k-haz2 .dob-varo,.k-polc .dob-varo{ max-width:74px; padding:4px; }
+  .nt-tabla.m5 .nt-k{ width:44px; height:44px; font-size:22px; }
+  .nt-nev{ font-size:12px; max-width:62px; }
+  .nt-iro{ padding:18px 6px 6px; }
+}
+
 /* ═════════ 🧰 SZERSZÁM-SZEKRÉNY (szerszam-polc.js) ═════════ */
 .szp-szekreny{ margin:16px auto 8px; max-width:720px; background:linear-gradient(#a8743c,#8a5a32); border:4px solid #6e4a22; border-radius:16px 16px 8px 8px;
   padding:8px 12px 10px; box-shadow:0 8px 20px rgba(60,30,10,.25); position:relative; z-index:1; }
@@ -2567,7 +2675,7 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .bkt-vege .vege-gombok{ flex-wrap:nowrap; gap:12px; }
 .bkt-vege .vege-gombok .nagy-gomb{ padding:12px 18px; font-size:18px; white-space:nowrap; }
 @media (max-width:480px){ .bkt-vege .vege-gombok{ flex-wrap:wrap; } }
-#kepernyo-jatek.op-mod #bagoly-buborek[hidden] + .op-bagsor{ display:none; }   /* a könyv nélkül a bagoly sem ül ott (séta, pálya eleje) */
+#kepernyo-jatek.op-mod #bagoly-buborek[hidden] ~ .op-bagsor,#bagoly-buborek[hidden] ~ .nt-oszlop{ display:none; }   /* a könyv nélkül a bagoly sem ül ott (séta, pálya eleje) */
 
 /* ── 📚 4. kód-kör (2026-10-10): könyvtári mozgókép — „⏭ Átugrom” jobb fent, a zárókép koppintásra vár; névtábla = újranézés ── */
 .mk-reteg.mk-bkt .mk-doboz{ position:relative; }
