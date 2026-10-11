@@ -56,6 +56,14 @@ function kalandFelhoJar(l) {
   T.jog++;
   return true;
 }
+/* 🏠 a kalandozó fióka aznapra hazarepül, ha mára mind a KALAND_FELHO_NAP felhőt elfújták (producer, 2026-10-11);
+   ilyenkor az odúban totyog, mint a fióka, másnap újra bújócskázik a térképen */
+function kalandOtthon(l) {
+  l = l || lenyTar();
+  if (l.fazis !== "kaland") return false;
+  var d = kalandTar(l).napi;
+  return !!d && d.nap === tenyNap() && (d.db || 0) >= KALAND_FELHO_NAP;
+}
 /* most elfújható-e felhő (a ligettérkép ☁️ jele, az aranyfény) */
 function kalandFujhat(l) {
   var T = kalandTar(l);
@@ -330,7 +338,8 @@ function ktFuj(id, dir) {
     M.halo = ktJaroHalo(T);
     if (id === KALAND_BARLANG) { ktAllapot(); ktMegtalaltuk(); return; }
     var utolso = T.tiszta.length === KALAND_IDK.length - 1;
-    ktMond(D.nev + ": " + D.mondat + (utolso ? " Nézd, a barlang felhője alól kilóg valami!" : ""));
+    ktMond(D.nev + ": " + D.mondat + (utolso ? " Nézd, a barlang felhője alól kilóg valami!" : "") +
+      (kalandOtthon(l) ? " Mára ennyi kaland! " + l.nev + " hazarepült, az odúban vár." : ""));
     KT.fut = false; ktAllapot();
     if (D.ny === "lap") ktIdo(2600, function () { if (KT && !KT.fut) kalandLapMutat(id, true); });
   });
