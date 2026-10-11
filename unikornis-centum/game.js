@@ -13065,7 +13065,9 @@ var LENY_PAL = {
 var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula" };   /* rajzterv 2. döntés */
 var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Lángi", "Tüsszi", "Pöfi", "Villám", "Smaragd", "Taréj", "Szárnyi"];
 /* hány gyakorlós nap egy-egy lépcső (tervlap 5. döntés; később a pultról állítható) */
-var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 10 };
+/* kolyok: 0 = a kölyök NEM nő fel (producer, 2026-10-11: ha megkerül, maradjon kölyök); a nagy sárkány kódja kész,
+   egy számmal (pl. 10) visszakapcsolható */
+var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 0 };
 var LENY_TOJAS_LEPCSO = ["reccs", "repedes", "kikel"];   /* a tojás gyakorlós napjai: erik() */
 var LENY_INK = "#3b2f4a";
 
@@ -13114,7 +13116,7 @@ function lenyPalyaVege(ujNap) {
   } else if (l.fazis === "fioka") {
     if (lenyElropVar(l)) l.hir = { nap: ma, tip: "elrop" };
     else if (gyakNap() - l.t === 1) l.hir = { nap: ma, tip: "fioka" };
-  } else if (l.fazis === "kolyok") {   /* 🌈 a kölyök gyakorlós napokon nő; a végén nagy sárkány lesz, és a kertbe költözik */
+  } else if (l.fazis === "kolyok" && LENY_NAP.kolyok > 0) {   /* 🌈 a kölyök gyakorlós napokon nő; a végén nagy sárkány lesz, és a kertbe költözik */
     var n = gyakNap() - l.t;
     if (n >= LENY_NAP.kolyok) { l.fazis = "nagy"; l.t = gyakNap(); l.kertLatta = 0; l.nagyLett = Date.now(); l.hir = { nap: ma, tip: "nagy" }; esemeny("leny_nagy", { nev: l.nev, leny: mentes.leny }); }
     else if (n === LENY_NAP.kolyok - 1) l.hir = { nap: ma, tip: "szarny" };
