@@ -137,7 +137,19 @@ function szkGeneral(o) {
       lep.push({ t: szkM(K, csali.t, C) + " Így " + C + " " + szkHelyre(K, ci) + " kerül.", tesz: [[0, ci, C]] });
       lep.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]] });
     }
-    return { keret: o.keret, K: K, n: n, nevek: N, bevL: bevL, sol: sol, mon: mon, kerdes: K.kerdes, lep: lep, veg: e ? 1 : 0,
+    /* 📋 ugyanez TÁBLA NYELVEN (nyomozotabla-terv 5. pont): ✓ a kötöttnek → kihúzás (sor + oszlop) → a csali ✗-e → „csak egy maradt” ✓-ek.
+       tesz: [[sor, hely, id]] · ki: [id] = az id sorának és oszlopának kihúzása · x: [[id, hely]] = egy ✗ */
+    var lepT = [{ t: szkM(K, kotott.t, D) + " Őt tesszük " + szkHelyre(K, e) + ".", tesz: [[0, e, D]] },
+                { t: "Ha " + D + " ott van, máshol nem lehet, és oda más nem kerülhet. Kihúzom a sorát és az oszlopát.", ki: [D] },
+                { t: szkM(K, csali.t, C) + " Ezt a kockát kihúzom.", x: [[C, f]] }];
+    if (n === 3) {
+      lepT.push({ t: C + " sorában csak egy üres kocka maradt: " + C + " " + szkHelyre(K, 1) + " kerül.", tesz: [[0, 1, C]], ki: [C] });
+      lepT.push({ t: A + " sorában is csak egy maradt: ő kerül " + szkHelyre(K, f) + ".", tesz: [[0, f, A]] });
+    } else {
+      lepT.push({ t: szkM(K, "kozv", A, B) + " Ők ketten csak egymás mellett férnek el, ezért " + C + " " + szkHelyre(K, ci) + " kerül.", tesz: [[0, ci, C]], ki: [C] });
+      lepT.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]] });
+    }
+    return { keret: o.keret, K: K, n: n, nevek: N, bevL: bevL, sol: sol, mon: mon, kerdes: K.kerdes, lep: lep, lepT: lepT, veg: e ? 1 : 0,
       kulcs: o.keret + ":" + sol.join(",") };
   }
   return null;
@@ -450,6 +462,9 @@ function szkFeladatPar(g, fok) {
     mitKerdez: csak ? "Azt kérdezik, kihez mi tartozik. Tedd mindenki alá a párját!" : "Két dolgot kérdeznek: ki hol van, és kihez mi tartozik. Tedd mindenkit a helyére, és mindenki mellé a párját!" };
 }
 
+/* 📋 a Nyomozótábla első feladata előtt a bagoly egy mondatban bemutatja a táblát (🖊️ lektorra) */
+var SZK_TABLA_ELSO = "Ez a nyomozótábla! Egy koppintás: ✗, ide biztosan nem. Két koppintás: ✓, ide kerül.";
+
 /* ── a 📌 polc tartalma a szerszám-pályának (szerszam-palya.js SZ_TARTALOM) ── */
 var SZK_TART = {
   /* 📖 / 📜 / 🔮 : a pálya i. feladata. A keret-sor pályánként egyszer sorsolódik (J.szk): 4 különböző keret, a Mesekönyv 5.-e ismétel egyet
@@ -462,6 +477,7 @@ var SZK_TART = {
       S.sor = k;
     }
     var keret = S.sor[i % S.sor.length], veg = S.veg[keret] != null ? 1 - S.veg[keret] : null, n = fok === "mese" ? 3 : 4;
+    if (fok === "tabla") n = i < 2 ? 3 : 4;                       /* 📋 Nyomozótábla: 2 × 3, aztán 2 × 4 szereplő — csak a tábla új */
     var tip = fok === "gomb" ? Math.min(i, 3) + 1 : 0;           /* 🔮 Kristálygömb: a pálya i. feladata az i+1. fajta (szkGeneralPar) */
     if (tip) n = tip === 4 ? 4 : 3;
     var hasz = S.nevek[keret] || [], szabad = SZK_KERET[keret].nevek.filter(function (x) { return hasz.indexOf(x) < 0; });   /* ismételt keret: más nevekkel */
@@ -472,7 +488,12 @@ var SZK_TART = {
     }
     var g = szkGeneral({ keret: keret, n: n, veg: veg, nevek: szabad.length >= n ? szabad : null });
     S.veg[keret] = g.veg; S.nevek[keret] = hasz.concat(g.nevek);
-    return szkFeladatGen(g, fok);
+    var fg = szkFeladatGen(g, fok);
+    if (fok === "tabla") {                                        /* 📋 a tábla + a 3. döntés: az első 2 feladatban a bagoly húz ki */
+      fg.tabla = { auto: i < 2 };
+      if (i === 0) fg.opElo = SZK_TABLA_ELSO;
+    }
+    return fg;
   },
   /* 🛗 a nagy feladat kicsinyített testvére, ugyanabban a mese-keretben */
   kicsi: function (nagy, k) {
@@ -491,7 +512,7 @@ function szkFeladatGen(g, fok) {
   return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.K.tobb[g.n - 3],
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
     mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
-    kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, joKiir: g.sol.join(" – "),
+    kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, lepT: g.lepT, joKiir: g.sol.join(" – "),
     mitKerdez: "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
 }
 function szkFeladatKezi(M, fok, szulo) {

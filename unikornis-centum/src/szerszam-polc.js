@@ -2,7 +2,7 @@
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda
        (szerszamFeny 0–1) — számot, csíkot a gyerek nem lát;
-     - a polcon balról jobbra: 📖 mesekönyv · 📜 tekercs a tartójában · 🔮 kristálygömb (2026-10-10) · 🏅 aranykötésű könyv szalaggal (a szalag dísz, nem zár:
+     - a polcon balról jobbra: 📖 mesekönyv · 📜 tekercs a tartójában · 📋 írótábla (Nyomozótábla, 2026-10-12) · 🔮 kristálygömb (2026-10-10) · 🏅 aranykötésű könyv szalaggal (a szalag dísz, nem zár:
        koppintásra lecsúszik). Mindhárom mindig levehető: nincs nyíl, nincs lakat, nincs ▢▢▢;
      - elsőre jó Mesterpróba → rózsaszín mester-szalag a táblán; ládában → a tábla teljes fénnyel ég, kis másolata a ládában ül;
      - a még nem nyitott szerszám polca NEM látszik (nincs üres, poros, lezárt polc) — a pult nyitja (szerszamLatszik).
@@ -12,6 +12,9 @@
 var SZP_TARGY = {
   mese: '<svg viewBox="0 0 60 56" aria-hidden="true"><path d="M8,12 Q20,6 30,12 L30,50 Q20,44 8,50 Z" fill="#9ec9f0" stroke="#4a6a9a" stroke-width="2"/><path d="M52,12 Q40,6 30,12 L30,50 Q40,44 52,50 Z" fill="#c3d7f7" stroke="#4a6a9a" stroke-width="2"/><path d="M13,20 Q20,17 26,20 M13,27 Q20,24 26,27 M34,20 Q40,17 47,20 M34,27 Q40,24 47,27" stroke="#4a6a9a" stroke-width="1.4" fill="none" opacity=".6"/></svg>',
   tekercs: '<svg viewBox="0 0 60 56" aria-hidden="true"><rect x="10" y="44" width="40" height="7" rx="3" fill="#a8743c" stroke="#6e4a22" stroke-width="1.6"/><path d="M14,44 L18,36 M46,44 L42,36" stroke="#6e4a22" stroke-width="2.2"/><rect x="12" y="10" width="36" height="28" rx="2" fill="#fbecc4" stroke="#b98a3a" stroke-width="2"/><ellipse cx="12" cy="24" rx="5" ry="14" fill="#f3d99a" stroke="#b98a3a" stroke-width="2"/><ellipse cx="48" cy="24" rx="5" ry="14" fill="#f3d99a" stroke="#b98a3a" stroke-width="2"/><path d="M20,18 H40 M20,24 H38 M20,30 H36" stroke="#b98a3a" stroke-width="1.4" opacity=".6"/></svg>',
+  tabla: '<svg viewBox="0 0 60 56" aria-hidden="true"><rect x="13" y="6" width="34" height="46" rx="4" fill="#c99a64" stroke="#7a5230" stroke-width="2"/><rect x="17" y="13" width="26" height="35" rx="2" fill="#fff"/>' +
+    '<rect x="23" y="3" width="14" height="7" rx="2" fill="#c9c9d2" stroke="#8a8a94" stroke-width="1.4"/><path d="M17,25 H43 M17,36 H43 M26,13 V48 M34,13 V48" stroke="#d9cbbb" stroke-width="1.2"/>' +
+    '<path d="M28,19 l2,2.4 3.4,-4.4" stroke="#3f8a2e" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M19.5,28 l4,5 M23.5,28 l-4,5 M36.5,39 l4,5 M40.5,39 l-4,5" stroke="#c07a6a" stroke-width="2" stroke-linecap="round"/></svg>',
   gomb: '<svg viewBox="0 0 60 56" aria-hidden="true"><ellipse cx="30" cy="51" rx="20" ry="4" fill="#c9a8e6" opacity=".7"/><path d="M17,50 L21,40 H39 L43,50 Z" fill="#a8743c" stroke="#6e4a22" stroke-width="2"/>' +
     '<circle cx="30" cy="23" r="17" fill="#e6dafb" stroke="#7a5aa8" stroke-width="2.4"/><circle cx="25" cy="25" r="4" fill="#e2589b" opacity=".8"/><circle cx="35" cy="27" r="4" fill="#6fbf5a" opacity=".85"/>' +
     '<ellipse cx="23" cy="15" rx="6" ry="3.5" fill="#fff" opacity=".8" transform="rotate(-30 23 15)"/><path d="M40,11 l1,2.5 2.5,1 -2.5,1 -1,2.5 -1,-2.5 -2.5,-1 2.5,-1 Z" fill="#fff"/></svg>',
@@ -24,9 +27,9 @@ var SZP_LADA = '<svg class="szp-lada-svg" viewBox="0 0 120 80" aria-hidden="true
 function szpPolc(s) {
   var t = szerszamT(s.id), feny = szerszamFeny(s.id), polc = !!s.kocka;   /* 📚 olvasó-polc (s.kocka): ugyanaz a polc, 🔮 nélkül (olvaso-polc.js) */
   var L = PALYAK.filter(function (p) { return (polc ? p.polc : p.szerszam) === s.id && !palyaRejtve(p); });
-  var targy = ["mese", "tekercs", "gomb", "mester"].map(function (fok) {
+  var targy = ["mese", "tekercs", "tabla", "gomb", "mester"].map(function (fok) {
     var pa = L.filter(function (p) { return p.fok === fok; })[0]; if (!pa) return "";
-    return '<button type="button" class="szp-t szp-' + fok + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
+    return '<button type="button" class="szp-t szp-' + (fok === "tabla" ? "nyomozo" : fok) + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
       '<span class="szp-tnev">' + SZERSZAM_FOKOK[fok].replace(/^\S+\s/, "") + '</span></button>';
   }).join("");
   return '<div class="szp-polc' + (t.l ? " lada" : "") + '" data-sz="' + s.id + '">' +

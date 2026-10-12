@@ -219,8 +219,7 @@ function dobNtTesz(id, c) {
 function dobogoHibaJelol(id) {
   if (!DOB || !DOB.nt) return;
   DOB.kez = null; DOB.cel = null;
-  var r = -1; DOB.f.dob.sorok[0].darabok.forEach(function (d, i) { if (d.id === id) r = i; });
-  dobRajz(); ntHiba(r);
+  dobRajz(); ntHiba(dobNtSor(id));
 }
 function dobTeli() { return DOB.hely.every(function (s) { return s.every(function (x) { return x != null; }); }); }
 function dobJoE() {
@@ -248,8 +247,13 @@ function dobogoTesz(r, i, id) {
   var s = DOB.hely[r], j = s.indexOf(id);
   if (j >= 0) s[j] = null;
   s[i] = id; DOB.kez = null; DOB.cel = null; DOB.uj = { r: r, i: i };
+  if (DOB.nt && r === 0) NT.uj[dobNtSor(id) + "," + i] = 1;    /* 📋 a bagoly ✓-e egyszer sárgán felvillan */
   dobRajz();
 }
+/* 📋 a végigvezetés tábla nyelven (szerszam-palya.js szVegigFut): id sorának és oszlopának kihúzása · egy ✗ */
+function dobNtSor(id) { var r = -1; DOB.f.dob.sorok[0].darabok.forEach(function (d, i) { if (d.id === id) r = i; }); return r; }
+function dobogoNtKihuz(id) { if (DOB && DOB.nt) { ntKihuz(dobNtSor(id)); dobRajz(); } }
+function dobogoNtX(id, i) { if (DOB && DOB.nt) { ntX(dobNtSor(id), i); dobRajz(); } }
 function dobogoZar(z) {
   if (!DOB) return;
   DOB.zar = !!z; DOB.kez = null; DOB.cel = null;

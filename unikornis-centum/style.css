@@ -2632,6 +2632,10 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
   .bkt-terem .szp-polc{ padding:5px 6px 2px; gap:4px; }
   .bkt-terem .szp-tabla{ width:96px; }
   .bkt-terem .szp-t svg{ width:50px; height:48px; }
+  /* 5 tárgyas polc (📖 📜 📋 🔮 🏅, 2026-10-12): a névtábla a tárgyak fölé kerül, hogy mind az öt elférjen */
+  .bkt-terem .szp-polc:has(.szp-t:nth-child(5)){ flex-wrap:wrap; justify-content:center; }
+  .bkt-terem .szp-polc:has(.szp-t:nth-child(5)) .szp-tabla{ width:auto; margin:0 auto 2px; }
+  .bkt-terem .szp-polc:has(.szp-t:nth-child(5)) .szp-targyak{ flex:1 1 100%; }
 }
 @media (prefers-reduced-motion:reduce){ .bkt-hold,.bkt-cs,.bkt-lap,.bkt-kapu-uni{ animation:none; } }
 /* 📚 közös végképernyő (bktVege) — legfeljebb 3 sor + jutalom + 2 gomb, 768 px magasságon is elfér */

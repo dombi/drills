@@ -121,7 +121,7 @@ function bktMesterKapu(indit) {
    ha kész: a kocka berepül a kis várba (ugyanebben a dobozban), a gomb „🏰 Megnézem a várat”. A pöttyök: arany = önálló, lila =
    segítséggel; számot nem írunk ki. A doboz 768 px magasságon is elfér. V: a polcPalyaVege / szPalyaVege eredménye. */
 var BKT_VEGE = false;          /* a vegeGombok (ui.js) olvassa, egy megjelenésre */
-var BKT_GOMB = { mese: "📖 Még egyet", tekercs: "📜 Még egyet", gomb: "🔮 Még egyet", mester: "🏅 Még egyszer" };
+var BKT_GOMB = { mese: "📖 Még egyet", tekercs: "📜 Még egyet", tabla: "📋 Még egyet", gomb: "🔮 Még egyet", mester: "🏅 Még egyszer" };
 function bktVege(V, o) {
   var pa = J.palya, mester = pa.fok === "mester";
   var sorok = (V.sorok || []).concat(o.extra || []).slice(0, 3);

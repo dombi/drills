@@ -214,7 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/szerszam.js?v=20261010-2"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261012-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -2052,8 +2052,10 @@ function rajzEpitokocka(t) {
     }).join("") + "</div>" +
     '<div class="kapu-sor"><span>🙋-ban kérhető „🔎 Nézzük kicsiben”:</span><select id="sz-lk"' + (typeof szSajat.liftKer === "boolean" ? ' class="beallitva"' : "") + ">" +
     szOpt([["", ures + " (igen)"], ["true", "igen"], ["false", "nem"]], typeof szSajat.liftKer === "boolean" ? String(szSajat.liftKer) : "") + "</select></div>" +
+    '<div class="kapu-sor"><span>📋 Nyomozótábla (pipás ✓/✗ tábla) látszik:</span><select id="sz-nt"' + (typeof szSajat.tabla === "boolean" ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (igen)"], ["true", "igen"], ["false", "nem — a 📋 fok rejtve"]], typeof szSajat.tabla === "boolean" ? String(szSajat.tabla) : "") + "</select></div>" +
     (egyeni ? (function () { var b = szerszamHatas(cid); return '<div class="kicsi">Most ennél a gyereknél: <b>' + b.k + " az " + b.n + "-ből</b> · látszik: " +
-      SZERSZAMOK.filter(function (x) { return b.latszik[x.id]; }).map(function (x) { return x.ikon; }).join(" ") + " · lift kérhető: " + (b.liftKer ? "igen" : "nem") + "</div>"; })() : "") +
+      SZERSZAMOK.filter(function (x) { return b.latszik[x.id]; }).map(function (x) { return x.ikon; }).join(" ") + " · lift kérhető: " + (b.liftKer ? "igen" : "nem") + " · 📋 tábla: " + (b.tabla ? "igen" : "nem") + "</div>"; })() : "") +
     '<p class="kicsi halvany">Alap: 4 az 5-ből, csak a 📌 látszik, a lift kérhető. Sorrend: alap → csoport → egyéni; több csoportnál az engedékenyebb küszöb nyer, a létra látszik, ha bármelyik csoport megnyitja. ' +
     "A ládából nem lehet kiesni: ha szigorítod a küszöböt, ami már bent van, bent marad.</p></div>";
 
@@ -2092,9 +2094,10 @@ function rajzEpitokocka(t) {
     Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { if (x.value) lat[x.dataset.szlat] = x.value === "true"; });
     if (Object.keys(lat).length) o.latszik = lat;
     if (lk) o.liftKer = lk === "true";
+    var nt = $("sz-nt").value; if (nt) o.tabla = nt === "true";
     ment(ref.set({ szerszam: Object.keys(o).length ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
   }
-  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent;
+  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent; $("sz-nt").onchange = szerszamMent;
   Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { x.onchange = szerszamMent; });
   Array.prototype.forEach.call(t.querySelectorAll("[data-ekm]"), function (sl) {
     sl.onchange = function () {

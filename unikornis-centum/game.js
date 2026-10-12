@@ -425,14 +425,16 @@ var EK_REGI_PALYAK = { "ek-k1-3v": "K1", "ek-k2-3v": "K2", "ek-k3-3v": "K3" };
 /* 🧰 SZERSZÁM-LÉTRÁK (szerszam-palya.js; terv: Matekos\szerszam-letrak-terv.html ✅) — szerszámonként 3 pálya a 🌙 Holdfény-szárnyban:
    📖 Mesekönyv (5 feladat) · 📜 Varázstekercs (4) · 🔮 Kristálygömb (4, kétféle dolog: hely + pár; Matekos\szerszam-letrak-uj-allomas.html ✅ 2026-10-10) · 🏅 Mesterpróba (1). Nincs lakat, nincs kocka-nap; a menüben polcként
    jelennek meg (szerszam-polc.js), nem kártyaként. Melyik látszik: a pult (szerszamLatszik — alap: csak a 📌 KOTOTT). */
-var SZ_PALYA_FOK = { mese: ["📖", "Mesekönyv", 5], tekercs: ["📜", "Varázstekercs", 4], gomb: ["🔮", "Kristálygömb", 4], mester: ["🏅", "Mesterpróba", 1] };
+var SZ_PALYA_FOK = { mese: ["📖", "Mesekönyv", 5], tekercs: ["📜", "Varázstekercs", 4], tabla: ["📋", "Nyomozótábla", 4], gomb: ["🔮", "Kristálygömb", 4], mester: ["🏅", "Mesterpróba", 1] };
+/* 📋 Nyomozótábla (Matekos\nyomozotabla-terv.html ✅, 2. kód-kör 2026-10-12): a 📜 és a 🔮 között; egysoros feladatok (2 × 3, aztán 2 × 4 szereplő),
+   a rajz mellett a pipás tábla; az első 2 feladatban a bagoly húzza ki a sort és az oszlopot. A pult kikapcsolhatja (szerszamBeall().tabla). */
 function szPalya(sz, nev, fok) {
   var F = SZ_PALYA_FOK[fok];
   return { id: "sz-" + sz.toLowerCase() + "-" + fok, nev: nev + " – " + F[1], ikon: F[0], szerszam: sz, fok: fok, szerszamNev: nev,
     regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
     allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
 }
-PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
+PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tabla"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
 var PALYA_IKON = {
@@ -1949,19 +1951,21 @@ var OLVASO_POLCOK = [
   { id: "KERES",  ikon: "🔎", nev: "Mire felelsz?",    kartya: "Megkeresem, mit kérdeznek – és pont arra felelek.", kocka: "K1" },
   { id: "VALASZ", ikon: "✋", nev: "Ez már a válasz?", kartya: "Megnézem: ez már a válasz, vagy csak egy lépcső?",  kocka: "K3" }
 ];
-var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
+var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", tabla: "📋 Nyomozótábla", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
 var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
 var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
-var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true };
+var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true, tabla: true };
 
 /* ── a pult beállításai ────────────────────────────────────────────────────
-   producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer? }
+   producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer?, tabla? }
      k / n     a láda-küszöb: az utolsó n nagy feladatból k önálló (n 3–8, k 1–n; alap 4 az 5-ből)
      latszik   melyik létra látszik a könyvtárban (alap: csak a 📌 KOTOTT)
      liftKer   false = a 🙋-ban nincs „🔎 Nézzük kicsiben” (a lift magától akkor is jön)
+     tabla     false = a 📋 Nyomozótábla nem látszik: a 📋 fok rejtve (a kicsiknél), a 🔮/🏅 tábla nélkül (alap: látszik)
    Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a kisebb arányú küszöb (egyenlőnél a
-   rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja.
+   rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja; a 📋 tábla látszik,
+   ha bármelyik csoport bekapcsolja, különben ki, ha valamelyik kikapcsolja.
    A pult (admin/index.html) ugyanezt a fájlt tölti be, így a két oldal szabálya nem válhat el. */
 function szerszamKuszob(o) {
   if (!o) return null;
@@ -1980,21 +1984,24 @@ function szerszamOsszevon(egyeni, csoportok) {
     if (q && (ki.k == null || q.k / q.n < ki.k / ki.n || (q.k / q.n === ki.k / ki.n && q.n < ki.n))) { ki.k = q.k; ki.n = q.n; }
     if (c.latszik) SZERSZAMOK.forEach(function (s) { if (c.latszik[s.id] === true) (ki.latszik = ki.latszik || {})[s.id] = true; });
     if (c.liftKer === false) ki.liftKer = false;
+    if (c.tabla === true) ki.tabla = true; else if (c.tabla === false && ki.tabla !== true) ki.tabla = false;
   });
   var e = egyeni || {}, q = szerszamKuszob(e);
   if (q) { ki.k = q.k; ki.n = q.n; }
   if (e.latszik) SZERSZAMOK.forEach(function (s) { if (typeof e.latszik[s.id] === "boolean") (ki.latszik = ki.latszik || {})[s.id] = e.latszik[s.id]; });
   if (typeof e.liftKer === "boolean") ki.liftKer = e.liftKer;
+  if (typeof e.tabla === "boolean") ki.tabla = e.tabla;
   return ki;
 }
 /* az érvényes beállítás (alap + a pult összevont felülírása: FELULIR.szerszam) */
 function szerszamBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.szerszam) || {};
-  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer };
+  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer, tabla: SZERSZAM_ALAP.tabla };
   SZERSZAMOK.forEach(function (s) { b.latszik[s.id] = SZERSZAM_ALAP.latszik[s.id]; });
   if (f.k != null && f.n != null) { b.k = f.k; b.n = f.n; }
   if (f.latszik) for (var id in f.latszik) if (typeof f.latszik[id] === "boolean") b.latszik[id] = f.latszik[id];
   if (typeof f.liftKer === "boolean") b.liftKer = f.liftKer;
+  if (typeof f.tabla === "boolean") b.tabla = f.tabla;
   return b;
 }
 function szerszamLatszik(sz) { return !!szerszamBeall().latszik[sz]; }
@@ -2135,7 +2142,7 @@ function liftNagyKesz(L, jo) {
   if (L.elso === null) L.elso = !!jo;
   var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
   if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
-  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "tabla" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
   szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
   if (L.lift) {
     var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };
@@ -9731,7 +9738,7 @@ function oeKeresKatt(ev) {
    Rejtve is indítható (o.rejtve: az állás él, de nem látszik) és utólag előhívható (ntElohiv) — a Fejtörő-hegyen majd a
    gyerek veszi elő a szerszámosládából (producer, 2026-10-11).
    API: ntUj(o) → NT · ntEgyeztet() (a gazda állása változott) · ntRajz() · ntXDb(c) (a rajz ✗-eihez) · ntHiba(r) · ntZar(z) ·
-        ntUrit() · ntRejt() · ntElohiv()
+        ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r) / ntX(r, c) (a végigvezetés: a bagoly húz ki, sárga villanással)
    o = { hova: elem, cim: html, sorok: [{ id, nev, kep }], oszlopok: [html], auto: bool, rejtve: bool,
          hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
 
@@ -9760,17 +9767,27 @@ function ntEgyeztet(csend) {
   NT.elo = H;
   if (csend || NT.zar || !NT.o.auto || !uj.length) return;
   var mondat = "";
-  uj.forEach(function (r0) {
-    var c0 = H[r0], db = 0;
-    function ki(rr, cc) { if (H[rr] !== cc && !X[rr][cc]) { X[rr][cc] = 3; O[rr][cc] = r0 + "," + c0; NT.uj[rr + "," + cc] = 1; db++; } }
-    for (c = 0; c < m; c++) if (c !== c0) ki(r0, c);
-    for (r = 0; r < n; r++) if (r !== r0) ki(r, c0);
-    if (db && NT.o.mondat) mondat = NT.o.mondat(r0, c0);
-  });
+  uj.forEach(function (r0) { if (ntKihuz(r0) && NT.o.mondat) mondat = NT.o.mondat(r0, H[r0]); });
   if (mondat) {
     var v = $("visszajelzes"); if (v) { v.className = "visszajelzes"; v.textContent = "🦉 " + mondat; }
     mondd(ekKiejt(mondat));
   }
+}
+/* 🦉 a bagoly kihúzza az r. sor ✓-ének sorát és oszlopát (az üres kockákat); a ✗-ek a ✓-hez tartoznak (R3). Visszaad: hányat húzott ki */
+function ntKihuz(r0) {
+  if (!NT || r0 < 0) return 0;
+  var X = NT.X, O = NT.O, n = X.length, m = X[0].length, c0 = ntHol(r0), db = 0, r, c;
+  if (c0 < 0) return 0;
+  function ki(rr, cc) { if (ntHol(rr) !== cc && !X[rr][cc]) { X[rr][cc] = 3; O[rr][cc] = r0 + "," + c0; NT.uj[rr + "," + cc] = 1; db++; } }
+  for (c = 0; c < m; c++) if (c !== c0) ki(r0, c);
+  for (r = 0; r < n; r++) if (r !== r0) ki(r, c0);
+  return db;
+}
+/* 🦉 egy ✗ a bagolytól (a végigvezetés: „Bori nem a legalsó emeleten lakik.”) — ugyanaz, mint a gyereké, csak felvillan */
+function ntX(r, c) {
+  if (!NT || r < 0 || ntHol(r) === c) return;
+  if (!NT.X[r][c]) { NT.X[r][c] = 1; NT.O[r][c] = null; }
+  NT.uj[r + "," + c] = 1;
 }
 /* hány szereplő van kizárva a c. helyről (a rajz kis ✗-eihez, R4) */
 function ntXDb(c) {
@@ -10049,8 +10066,7 @@ function dobNtTesz(id, c) {
 function dobogoHibaJelol(id) {
   if (!DOB || !DOB.nt) return;
   DOB.kez = null; DOB.cel = null;
-  var r = -1; DOB.f.dob.sorok[0].darabok.forEach(function (d, i) { if (d.id === id) r = i; });
-  dobRajz(); ntHiba(r);
+  dobRajz(); ntHiba(dobNtSor(id));
 }
 function dobTeli() { return DOB.hely.every(function (s) { return s.every(function (x) { return x != null; }); }); }
 function dobJoE() {
@@ -10078,8 +10094,13 @@ function dobogoTesz(r, i, id) {
   var s = DOB.hely[r], j = s.indexOf(id);
   if (j >= 0) s[j] = null;
   s[i] = id; DOB.kez = null; DOB.cel = null; DOB.uj = { r: r, i: i };
+  if (DOB.nt && r === 0) NT.uj[dobNtSor(id) + "," + i] = 1;    /* 📋 a bagoly ✓-e egyszer sárgán felvillan */
   dobRajz();
 }
+/* 📋 a végigvezetés tábla nyelven (szerszam-palya.js szVegigFut): id sorának és oszlopának kihúzása · egy ✗ */
+function dobNtSor(id) { var r = -1; DOB.f.dob.sorok[0].darabok.forEach(function (d, i) { if (d.id === id) r = i; }); return r; }
+function dobogoNtKihuz(id) { if (DOB && DOB.nt) { ntKihuz(dobNtSor(id)); dobRajz(); } }
+function dobogoNtX(id, i) { if (DOB && DOB.nt) { ntX(dobNtSor(id), i); dobRajz(); } }
 function dobogoZar(z) {
   if (!DOB) return;
   DOB.zar = !!z; DOB.kez = null; DOB.cel = null;
@@ -10276,7 +10297,19 @@ function szkGeneral(o) {
       lep.push({ t: szkM(K, csali.t, C) + " Így " + C + " " + szkHelyre(K, ci) + " kerül.", tesz: [[0, ci, C]] });
       lep.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]] });
     }
-    return { keret: o.keret, K: K, n: n, nevek: N, bevL: bevL, sol: sol, mon: mon, kerdes: K.kerdes, lep: lep, veg: e ? 1 : 0,
+    /* 📋 ugyanez TÁBLA NYELVEN (nyomozotabla-terv 5. pont): ✓ a kötöttnek → kihúzás (sor + oszlop) → a csali ✗-e → „csak egy maradt” ✓-ek.
+       tesz: [[sor, hely, id]] · ki: [id] = az id sorának és oszlopának kihúzása · x: [[id, hely]] = egy ✗ */
+    var lepT = [{ t: szkM(K, kotott.t, D) + " Őt tesszük " + szkHelyre(K, e) + ".", tesz: [[0, e, D]] },
+                { t: "Ha " + D + " ott van, máshol nem lehet, és oda más nem kerülhet. Kihúzom a sorát és az oszlopát.", ki: [D] },
+                { t: szkM(K, csali.t, C) + " Ezt a kockát kihúzom.", x: [[C, f]] }];
+    if (n === 3) {
+      lepT.push({ t: C + " sorában csak egy üres kocka maradt: " + C + " " + szkHelyre(K, 1) + " kerül.", tesz: [[0, 1, C]], ki: [C] });
+      lepT.push({ t: A + " sorában is csak egy maradt: ő kerül " + szkHelyre(K, f) + ".", tesz: [[0, f, A]] });
+    } else {
+      lepT.push({ t: szkM(K, "kozv", A, B) + " Ők ketten csak egymás mellett férnek el, ezért " + C + " " + szkHelyre(K, ci) + " kerül.", tesz: [[0, ci, C]], ki: [C] });
+      lepT.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]] });
+    }
+    return { keret: o.keret, K: K, n: n, nevek: N, bevL: bevL, sol: sol, mon: mon, kerdes: K.kerdes, lep: lep, lepT: lepT, veg: e ? 1 : 0,
       kulcs: o.keret + ":" + sol.join(",") };
   }
   return null;
@@ -10589,6 +10622,9 @@ function szkFeladatPar(g, fok) {
     mitKerdez: csak ? "Azt kérdezik, kihez mi tartozik. Tedd mindenki alá a párját!" : "Két dolgot kérdeznek: ki hol van, és kihez mi tartozik. Tedd mindenkit a helyére, és mindenki mellé a párját!" };
 }
 
+/* 📋 a Nyomozótábla első feladata előtt a bagoly egy mondatban bemutatja a táblát (🖊️ lektorra) */
+var SZK_TABLA_ELSO = "Ez a nyomozótábla! Egy koppintás: ✗, ide biztosan nem. Két koppintás: ✓, ide kerül.";
+
 /* ── a 📌 polc tartalma a szerszám-pályának (szerszam-palya.js SZ_TARTALOM) ── */
 var SZK_TART = {
   /* 📖 / 📜 / 🔮 : a pálya i. feladata. A keret-sor pályánként egyszer sorsolódik (J.szk): 4 különböző keret, a Mesekönyv 5.-e ismétel egyet
@@ -10601,6 +10637,7 @@ var SZK_TART = {
       S.sor = k;
     }
     var keret = S.sor[i % S.sor.length], veg = S.veg[keret] != null ? 1 - S.veg[keret] : null, n = fok === "mese" ? 3 : 4;
+    if (fok === "tabla") n = i < 2 ? 3 : 4;                       /* 📋 Nyomozótábla: 2 × 3, aztán 2 × 4 szereplő — csak a tábla új */
     var tip = fok === "gomb" ? Math.min(i, 3) + 1 : 0;           /* 🔮 Kristálygömb: a pálya i. feladata az i+1. fajta (szkGeneralPar) */
     if (tip) n = tip === 4 ? 4 : 3;
     var hasz = S.nevek[keret] || [], szabad = SZK_KERET[keret].nevek.filter(function (x) { return hasz.indexOf(x) < 0; });   /* ismételt keret: más nevekkel */
@@ -10611,7 +10648,12 @@ var SZK_TART = {
     }
     var g = szkGeneral({ keret: keret, n: n, veg: veg, nevek: szabad.length >= n ? szabad : null });
     S.veg[keret] = g.veg; S.nevek[keret] = hasz.concat(g.nevek);
-    return szkFeladatGen(g, fok);
+    var fg = szkFeladatGen(g, fok);
+    if (fok === "tabla") {                                        /* 📋 a tábla + a 3. döntés: az első 2 feladatban a bagoly húz ki */
+      fg.tabla = { auto: i < 2 };
+      if (i === 0) fg.opElo = SZK_TABLA_ELSO;
+    }
+    return fg;
   },
   /* 🛗 a nagy feladat kicsinyített testvére, ugyanabban a mese-keretben */
   kicsi: function (nagy, k) {
@@ -10630,7 +10672,7 @@ function szkFeladatGen(g, fok) {
   return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.K.tobb[g.n - 3],
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
     mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
-    kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, joKiir: g.sol.join(" – "),
+    kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, lepT: g.lepT, joKiir: g.sol.join(" – "),
     mitKerdez: "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
 }
 function szkFeladatKezi(M, fok, szulo) {
@@ -10676,6 +10718,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   felt.sort(function (a, b) { return a.rend - b.rend || a.sor - b.sor; });
   f.sz = sz; f.szerep = szerep; f.csalad = "dobogo"; f.helyes = 1; f.lanc = null; f.felt = felt;
   f.op = { mondatok: lista, kerdes: f.kerdes, rajz: "" };       /* a jobb lapra maga a kirakó kerül (dobogo.js) */
+  if (f.tabla && f.lepT) f.lep = f.lepT;                         /* 📋 táblás feladatnál a végigvezetés tábla nyelven (✓ · kihúzás · ✗) */
   if (szerep === "kicsi") { f.nagy = nagy; f.op.fuzet = { mondatok: lista, kerdes: f.kerdes }; f.op.mondatok = nagy.op.mondatok; f.op.kerdes = nagy.op.kerdes; }
   f.kartyaHTML = opKonyv(f.op);
   f.szoveg = f.kerdes; f.felolvas = ekKiejt(lista.concat([f.kerdes]).join(" "));
@@ -10687,6 +10730,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
 function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
+  if (nagy.tabla && k.dob && k.dob.sorok.length === 1) k.tabla = { auto: true };   /* 📋 kicsiben is tábla, a bagoly segít kihúzni */
   return szFeladatKesz(k, nagy.sz, "kicsi", nagy);
 }
 
@@ -10819,6 +10863,8 @@ function szVegigFut(f) {
     var l = f.lep[i++];
     opLepes(l.t);
     (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); });
+    (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
+    (l.x || []).forEach(function (q) { dobogoNtX(q[0], q[1]); });
     mondd(ekKiejt(l.t), function () { setTimeout(kov, 350); });
   }
   mondd("Nézzük meg együtt, lépésenként!", kov);
@@ -10849,7 +10895,7 @@ function szPalyaVege() {
   var E = (J.sz && J.sz.eredm) || [], sz = J.palya.szerszam, html = "", mondat = "";
   var mester = E.some(function (x) { return x && x.mester; }), lada = E.some(function (x) { return x && x.ladaba; });
   var fok = J.palya.fok, d = SZERSZAMOK.filter(function (s) { return s.id === sz; })[0] || { ikon: "🧰", nev: "" }, sorok = [];   /* a közös végképernyőnek (bktVege) */
-  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
+  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", tabla: "📋 Kész a nyomozótábla!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
@@ -10871,12 +10917,15 @@ function szPalyaVege() {
   ment();
   return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
-/* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
+/* a vége-képernyő „következő” gombja: 📖 → 📜 → 📋 → 🔮 → 🏅 (a rejtett fokot átugorja), a Mesterpróba után vissza a szekrényhez */
+var SZ_FOK_SOR = ["mese", "tekercs", "tabla", "gomb", "mester"];
 function szKovetkezo(id) {
   var pa = palyaKeres(id); if (!pa) return null;
-  var fok = { mese: "tekercs", tekercs: "gomb", gomb: "mester" }[pa.fok]; if (!fok) return null;
-  var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === fok; })[0];
-  return k && !palyaRejtve(k) ? k.id : null;
+  for (var i = SZ_FOK_SOR.indexOf(pa.fok) + 1; i > 0 && i < SZ_FOK_SOR.length; i++) {
+    var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === SZ_FOK_SOR[i]; })[0];
+    if (k && !palyaRejtve(k)) return k.id;
+  }
+  return null;
 }
 /* ============ 6r) 📚 OLVASÓ-POLC MESÉI — a 🔎 „Mire felelsz?” és a ✋ „Ez már a válasz?” polc mese-keretei ============
    Tartalom: Matekos\regi-kockak-konyvtar-tartalom.html 4. és 5. pont (✅ döntések, 2026-10-10). A motor: olvaso-polc.js.
@@ -11808,7 +11857,7 @@ function polcKovetkezo(id) {
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda
        (szerszamFeny 0–1) — számot, csíkot a gyerek nem lát;
-     - a polcon balról jobbra: 📖 mesekönyv · 📜 tekercs a tartójában · 🔮 kristálygömb (2026-10-10) · 🏅 aranykötésű könyv szalaggal (a szalag dísz, nem zár:
+     - a polcon balról jobbra: 📖 mesekönyv · 📜 tekercs a tartójában · 📋 írótábla (Nyomozótábla, 2026-10-12) · 🔮 kristálygömb (2026-10-10) · 🏅 aranykötésű könyv szalaggal (a szalag dísz, nem zár:
        koppintásra lecsúszik). Mindhárom mindig levehető: nincs nyíl, nincs lakat, nincs ▢▢▢;
      - elsőre jó Mesterpróba → rózsaszín mester-szalag a táblán; ládában → a tábla teljes fénnyel ég, kis másolata a ládában ül;
      - a még nem nyitott szerszám polca NEM látszik (nincs üres, poros, lezárt polc) — a pult nyitja (szerszamLatszik).
@@ -11818,6 +11867,9 @@ function polcKovetkezo(id) {
 var SZP_TARGY = {
   mese: '<svg viewBox="0 0 60 56" aria-hidden="true"><path d="M8,12 Q20,6 30,12 L30,50 Q20,44 8,50 Z" fill="#9ec9f0" stroke="#4a6a9a" stroke-width="2"/><path d="M52,12 Q40,6 30,12 L30,50 Q40,44 52,50 Z" fill="#c3d7f7" stroke="#4a6a9a" stroke-width="2"/><path d="M13,20 Q20,17 26,20 M13,27 Q20,24 26,27 M34,20 Q40,17 47,20 M34,27 Q40,24 47,27" stroke="#4a6a9a" stroke-width="1.4" fill="none" opacity=".6"/></svg>',
   tekercs: '<svg viewBox="0 0 60 56" aria-hidden="true"><rect x="10" y="44" width="40" height="7" rx="3" fill="#a8743c" stroke="#6e4a22" stroke-width="1.6"/><path d="M14,44 L18,36 M46,44 L42,36" stroke="#6e4a22" stroke-width="2.2"/><rect x="12" y="10" width="36" height="28" rx="2" fill="#fbecc4" stroke="#b98a3a" stroke-width="2"/><ellipse cx="12" cy="24" rx="5" ry="14" fill="#f3d99a" stroke="#b98a3a" stroke-width="2"/><ellipse cx="48" cy="24" rx="5" ry="14" fill="#f3d99a" stroke="#b98a3a" stroke-width="2"/><path d="M20,18 H40 M20,24 H38 M20,30 H36" stroke="#b98a3a" stroke-width="1.4" opacity=".6"/></svg>',
+  tabla: '<svg viewBox="0 0 60 56" aria-hidden="true"><rect x="13" y="6" width="34" height="46" rx="4" fill="#c99a64" stroke="#7a5230" stroke-width="2"/><rect x="17" y="13" width="26" height="35" rx="2" fill="#fff"/>' +
+    '<rect x="23" y="3" width="14" height="7" rx="2" fill="#c9c9d2" stroke="#8a8a94" stroke-width="1.4"/><path d="M17,25 H43 M17,36 H43 M26,13 V48 M34,13 V48" stroke="#d9cbbb" stroke-width="1.2"/>' +
+    '<path d="M28,19 l2,2.4 3.4,-4.4" stroke="#3f8a2e" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M19.5,28 l4,5 M23.5,28 l-4,5 M36.5,39 l4,5 M40.5,39 l-4,5" stroke="#c07a6a" stroke-width="2" stroke-linecap="round"/></svg>',
   gomb: '<svg viewBox="0 0 60 56" aria-hidden="true"><ellipse cx="30" cy="51" rx="20" ry="4" fill="#c9a8e6" opacity=".7"/><path d="M17,50 L21,40 H39 L43,50 Z" fill="#a8743c" stroke="#6e4a22" stroke-width="2"/>' +
     '<circle cx="30" cy="23" r="17" fill="#e6dafb" stroke="#7a5aa8" stroke-width="2.4"/><circle cx="25" cy="25" r="4" fill="#e2589b" opacity=".8"/><circle cx="35" cy="27" r="4" fill="#6fbf5a" opacity=".85"/>' +
     '<ellipse cx="23" cy="15" rx="6" ry="3.5" fill="#fff" opacity=".8" transform="rotate(-30 23 15)"/><path d="M40,11 l1,2.5 2.5,1 -2.5,1 -1,2.5 -1,-2.5 -2.5,-1 2.5,-1 Z" fill="#fff"/></svg>',
@@ -11830,9 +11882,9 @@ var SZP_LADA = '<svg class="szp-lada-svg" viewBox="0 0 120 80" aria-hidden="true
 function szpPolc(s) {
   var t = szerszamT(s.id), feny = szerszamFeny(s.id), polc = !!s.kocka;   /* 📚 olvasó-polc (s.kocka): ugyanaz a polc, 🔮 nélkül (olvaso-polc.js) */
   var L = PALYAK.filter(function (p) { return (polc ? p.polc : p.szerszam) === s.id && !palyaRejtve(p); });
-  var targy = ["mese", "tekercs", "gomb", "mester"].map(function (fok) {
+  var targy = ["mese", "tekercs", "tabla", "gomb", "mester"].map(function (fok) {
     var pa = L.filter(function (p) { return p.fok === fok; })[0]; if (!pa) return "";
-    return '<button type="button" class="szp-t szp-' + fok + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
+    return '<button type="button" class="szp-t szp-' + (fok === "tabla" ? "nyomozo" : fok) + '" data-pid="' + pa.id + '" title="' + SZERSZAM_FOKOK[fok] + '">' + SZP_TARGY[fok] +
       '<span class="szp-tnev">' + SZERSZAM_FOKOK[fok].replace(/^\S+\s/, "") + '</span></button>';
   }).join("");
   return '<div class="szp-polc' + (t.l ? " lada" : "") + '" data-sz="' + s.id + '">' +
@@ -12006,7 +12058,7 @@ function bktMesterKapu(indit) {
    ha kész: a kocka berepül a kis várba (ugyanebben a dobozban), a gomb „🏰 Megnézem a várat”. A pöttyök: arany = önálló, lila =
    segítséggel; számot nem írunk ki. A doboz 768 px magasságon is elfér. V: a polcPalyaVege / szPalyaVege eredménye. */
 var BKT_VEGE = false;          /* a vegeGombok (ui.js) olvassa, egy megjelenésre */
-var BKT_GOMB = { mese: "📖 Még egyet", tekercs: "📜 Még egyet", gomb: "🔮 Még egyet", mester: "🏅 Még egyszer" };
+var BKT_GOMB = { mese: "📖 Még egyet", tekercs: "📜 Még egyet", tabla: "📋 Még egyet", gomb: "🔮 Még egyet", mester: "🏅 Még egyszer" };
 function bktVege(V, o) {
   var pa = J.palya, mester = pa.fok === "mester";
   var sorok = (V.sorok || []).concat(o.extra || []).slice(0, 3);
@@ -23127,6 +23179,7 @@ function felulirSzamol() {
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
 function palyaRejtve(pa) {
   if (pa && pa.szerszam && !szerszamLatszik(pa.szerszam)) return true;   /* 🧰 a létrát a pult nyitja (szerszam.js) */
+  if (pa && pa.szerszam && pa.fok === "tabla" && !szerszamBeall().tabla) return true;   /* 📋 a Nyomozótábla a pultról kikapcsolható (alap: látszik) */
   if (pa && pa.meres && !meresLathato()) return true;   /* mérés-ligetek: élesítve 2026-09-27 (meres.js meresLathato) */
   return !!pa && palyaFelulir(pa.id).enabled === false;
 }

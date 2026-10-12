@@ -35,6 +35,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   felt.sort(function (a, b) { return a.rend - b.rend || a.sor - b.sor; });
   f.sz = sz; f.szerep = szerep; f.csalad = "dobogo"; f.helyes = 1; f.lanc = null; f.felt = felt;
   f.op = { mondatok: lista, kerdes: f.kerdes, rajz: "" };       /* a jobb lapra maga a kirakó kerül (dobogo.js) */
+  if (f.tabla && f.lepT) f.lep = f.lepT;                         /* 📋 táblás feladatnál a végigvezetés tábla nyelven (✓ · kihúzás · ✗) */
   if (szerep === "kicsi") { f.nagy = nagy; f.op.fuzet = { mondatok: lista, kerdes: f.kerdes }; f.op.mondatok = nagy.op.mondatok; f.op.kerdes = nagy.op.kerdes; }
   f.kartyaHTML = opKonyv(f.op);
   f.szoveg = f.kerdes; f.felolvas = ekKiejt(lista.concat([f.kerdes]).join(" "));
@@ -46,6 +47,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
 function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
+  if (nagy.tabla && k.dob && k.dob.sorok.length === 1) k.tabla = { auto: true };   /* 📋 kicsiben is tábla, a bagoly segít kihúzni */
   return szFeladatKesz(k, nagy.sz, "kicsi", nagy);
 }
 
@@ -178,6 +180,8 @@ function szVegigFut(f) {
     var l = f.lep[i++];
     opLepes(l.t);
     (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); });
+    (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
+    (l.x || []).forEach(function (q) { dobogoNtX(q[0], q[1]); });
     mondd(ekKiejt(l.t), function () { setTimeout(kov, 350); });
   }
   mondd("Nézzük meg együtt, lépésenként!", kov);
@@ -208,7 +212,7 @@ function szPalyaVege() {
   var E = (J.sz && J.sz.eredm) || [], sz = J.palya.szerszam, html = "", mondat = "";
   var mester = E.some(function (x) { return x && x.mester; }), lada = E.some(function (x) { return x && x.ladaba; });
   var fok = J.palya.fok, d = SZERSZAMOK.filter(function (s) { return s.id === sz; })[0] || { ikon: "🧰", nev: "" }, sorok = [];   /* a közös végképernyőnek (bktVege) */
-  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
+  var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", tabla: "📋 Kész a nyomozótábla!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
@@ -230,10 +234,13 @@ function szPalyaVege() {
   ment();
   return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
-/* a vége-képernyő „következő” gombja: 📖 → 📜 → 🔮 → 🏅, a Mesterpróba után vissza a szekrényhez */
+/* a vége-képernyő „következő” gombja: 📖 → 📜 → 📋 → 🔮 → 🏅 (a rejtett fokot átugorja), a Mesterpróba után vissza a szekrényhez */
+var SZ_FOK_SOR = ["mese", "tekercs", "tabla", "gomb", "mester"];
 function szKovetkezo(id) {
   var pa = palyaKeres(id); if (!pa) return null;
-  var fok = { mese: "tekercs", tekercs: "gomb", gomb: "mester" }[pa.fok]; if (!fok) return null;
-  var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === fok; })[0];
-  return k && !palyaRejtve(k) ? k.id : null;
+  for (var i = SZ_FOK_SOR.indexOf(pa.fok) + 1; i > 0 && i < SZ_FOK_SOR.length; i++) {
+    var k = PALYAK.filter(function (x) { return x.szerszam === pa.szerszam && x.fok === SZ_FOK_SOR[i]; })[0];
+    if (k && !palyaRejtve(k)) return k.id;
+  }
+  return null;
 }

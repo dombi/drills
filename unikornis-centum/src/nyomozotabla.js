@@ -12,7 +12,7 @@
    Rejtve is indítható (o.rejtve: az állás él, de nem látszik) és utólag előhívható (ntElohiv) — a Fejtörő-hegyen majd a
    gyerek veszi elő a szerszámosládából (producer, 2026-10-11).
    API: ntUj(o) → NT · ntEgyeztet() (a gazda állása változott) · ntRajz() · ntXDb(c) (a rajz ✗-eihez) · ntHiba(r) · ntZar(z) ·
-        ntUrit() · ntRejt() · ntElohiv()
+        ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r) / ntX(r, c) (a végigvezetés: a bagoly húz ki, sárga villanással)
    o = { hova: elem, cim: html, sorok: [{ id, nev, kep }], oszlopok: [html], auto: bool, rejtve: bool,
          hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
 
@@ -41,17 +41,27 @@ function ntEgyeztet(csend) {
   NT.elo = H;
   if (csend || NT.zar || !NT.o.auto || !uj.length) return;
   var mondat = "";
-  uj.forEach(function (r0) {
-    var c0 = H[r0], db = 0;
-    function ki(rr, cc) { if (H[rr] !== cc && !X[rr][cc]) { X[rr][cc] = 3; O[rr][cc] = r0 + "," + c0; NT.uj[rr + "," + cc] = 1; db++; } }
-    for (c = 0; c < m; c++) if (c !== c0) ki(r0, c);
-    for (r = 0; r < n; r++) if (r !== r0) ki(r, c0);
-    if (db && NT.o.mondat) mondat = NT.o.mondat(r0, c0);
-  });
+  uj.forEach(function (r0) { if (ntKihuz(r0) && NT.o.mondat) mondat = NT.o.mondat(r0, H[r0]); });
   if (mondat) {
     var v = $("visszajelzes"); if (v) { v.className = "visszajelzes"; v.textContent = "🦉 " + mondat; }
     mondd(ekKiejt(mondat));
   }
+}
+/* 🦉 a bagoly kihúzza az r. sor ✓-ének sorát és oszlopát (az üres kockákat); a ✗-ek a ✓-hez tartoznak (R3). Visszaad: hányat húzott ki */
+function ntKihuz(r0) {
+  if (!NT || r0 < 0) return 0;
+  var X = NT.X, O = NT.O, n = X.length, m = X[0].length, c0 = ntHol(r0), db = 0, r, c;
+  if (c0 < 0) return 0;
+  function ki(rr, cc) { if (ntHol(rr) !== cc && !X[rr][cc]) { X[rr][cc] = 3; O[rr][cc] = r0 + "," + c0; NT.uj[rr + "," + cc] = 1; db++; } }
+  for (c = 0; c < m; c++) if (c !== c0) ki(r0, c);
+  for (r = 0; r < n; r++) if (r !== r0) ki(r, c0);
+  return db;
+}
+/* 🦉 egy ✗ a bagolytól (a végigvezetés: „Bori nem a legalsó emeleten lakik.”) — ugyanaz, mint a gyereké, csak felvillan */
+function ntX(r, c) {
+  if (!NT || r < 0 || ntHol(r) === c) return;
+  if (!NT.X[r][c]) { NT.X[r][c] = 1; NT.O[r][c] = null; }
+  NT.uj[r + "," + c] = 1;
 }
 /* hány szereplő van kizárva a c. helyről (a rajz kis ✗-eihez, R4) */
 function ntXDb(c) {

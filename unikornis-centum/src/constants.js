@@ -419,14 +419,16 @@ var EK_REGI_PALYAK = { "ek-k1-3v": "K1", "ek-k2-3v": "K2", "ek-k3-3v": "K3" };
 /* 🧰 SZERSZÁM-LÉTRÁK (szerszam-palya.js; terv: Matekos\szerszam-letrak-terv.html ✅) — szerszámonként 3 pálya a 🌙 Holdfény-szárnyban:
    📖 Mesekönyv (5 feladat) · 📜 Varázstekercs (4) · 🔮 Kristálygömb (4, kétféle dolog: hely + pár; Matekos\szerszam-letrak-uj-allomas.html ✅ 2026-10-10) · 🏅 Mesterpróba (1). Nincs lakat, nincs kocka-nap; a menüben polcként
    jelennek meg (szerszam-polc.js), nem kártyaként. Melyik látszik: a pult (szerszamLatszik — alap: csak a 📌 KOTOTT). */
-var SZ_PALYA_FOK = { mese: ["📖", "Mesekönyv", 5], tekercs: ["📜", "Varázstekercs", 4], gomb: ["🔮", "Kristálygömb", 4], mester: ["🏅", "Mesterpróba", 1] };
+var SZ_PALYA_FOK = { mese: ["📖", "Mesekönyv", 5], tekercs: ["📜", "Varázstekercs", 4], tabla: ["📋", "Nyomozótábla", 4], gomb: ["🔮", "Kristálygömb", 4], mester: ["🏅", "Mesterpróba", 1] };
+/* 📋 Nyomozótábla (Matekos\nyomozotabla-terv.html ✅, 2. kód-kör 2026-10-12): a 📜 és a 🔮 között; egysoros feladatok (2 × 3, aztán 2 × 4 szereplő),
+   a rajz mellett a pipás tábla; az első 2 feladatban a bagoly húzza ki a sort és az oszlopot. A pult kikapcsolhatja (szerszamBeall().tabla). */
 function szPalya(sz, nev, fok) {
   var F = SZ_PALYA_FOK[fok];
   return { id: "sz-" + sz.toLowerCase() + "-" + fok, nev: nev + " – " + F[1], ikon: F[0], szerszam: sz, fok: fok, szerszamNev: nev,
     regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
     allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
 }
-PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
+PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tabla"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
 var PALYA_IKON = {

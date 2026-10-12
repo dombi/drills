@@ -44,19 +44,21 @@ var OLVASO_POLCOK = [
   { id: "KERES",  ikon: "🔎", nev: "Mire felelsz?",    kartya: "Megkeresem, mit kérdeznek – és pont arra felelek.", kocka: "K1" },
   { id: "VALASZ", ikon: "✋", nev: "Ez már a válasz?", kartya: "Megnézem: ez már a válasz, vagy csak egy lépcső?",  kocka: "K3" }
 ];
-var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
+var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", tabla: "📋 Nyomozótábla", gomb: "🔮 Kristálygömb", mester: "🏅 Mesterpróba", kicsi: "🛗 kicsi" };
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
 var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
 var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
-var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true };
+var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true, tabla: true };
 
 /* ── a pult beállításai ────────────────────────────────────────────────────
-   producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer? }
+   producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer?, tabla? }
      k / n     a láda-küszöb: az utolsó n nagy feladatból k önálló (n 3–8, k 1–n; alap 4 az 5-ből)
      latszik   melyik létra látszik a könyvtárban (alap: csak a 📌 KOTOTT)
      liftKer   false = a 🙋-ban nincs „🔎 Nézzük kicsiben” (a lift magától akkor is jön)
+     tabla     false = a 📋 Nyomozótábla nem látszik: a 📋 fok rejtve (a kicsiknél), a 🔮/🏅 tábla nélkül (alap: látszik)
    Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a kisebb arányú küszöb (egyenlőnél a
-   rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja.
+   rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja; a 📋 tábla látszik,
+   ha bármelyik csoport bekapcsolja, különben ki, ha valamelyik kikapcsolja.
    A pult (admin/index.html) ugyanezt a fájlt tölti be, így a két oldal szabálya nem válhat el. */
 function szerszamKuszob(o) {
   if (!o) return null;
@@ -75,21 +77,24 @@ function szerszamOsszevon(egyeni, csoportok) {
     if (q && (ki.k == null || q.k / q.n < ki.k / ki.n || (q.k / q.n === ki.k / ki.n && q.n < ki.n))) { ki.k = q.k; ki.n = q.n; }
     if (c.latszik) SZERSZAMOK.forEach(function (s) { if (c.latszik[s.id] === true) (ki.latszik = ki.latszik || {})[s.id] = true; });
     if (c.liftKer === false) ki.liftKer = false;
+    if (c.tabla === true) ki.tabla = true; else if (c.tabla === false && ki.tabla !== true) ki.tabla = false;
   });
   var e = egyeni || {}, q = szerszamKuszob(e);
   if (q) { ki.k = q.k; ki.n = q.n; }
   if (e.latszik) SZERSZAMOK.forEach(function (s) { if (typeof e.latszik[s.id] === "boolean") (ki.latszik = ki.latszik || {})[s.id] = e.latszik[s.id]; });
   if (typeof e.liftKer === "boolean") ki.liftKer = e.liftKer;
+  if (typeof e.tabla === "boolean") ki.tabla = e.tabla;
   return ki;
 }
 /* az érvényes beállítás (alap + a pult összevont felülírása: FELULIR.szerszam) */
 function szerszamBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.szerszam) || {};
-  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer };
+  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer, tabla: SZERSZAM_ALAP.tabla };
   SZERSZAMOK.forEach(function (s) { b.latszik[s.id] = SZERSZAM_ALAP.latszik[s.id]; });
   if (f.k != null && f.n != null) { b.k = f.k; b.n = f.n; }
   if (f.latszik) for (var id in f.latszik) if (typeof f.latszik[id] === "boolean") b.latszik[id] = f.latszik[id];
   if (typeof f.liftKer === "boolean") b.liftKer = f.liftKer;
+  if (typeof f.tabla === "boolean") b.tabla = f.tabla;
   return b;
 }
 function szerszamLatszik(sz) { return !!szerszamBeall().latszik[sz]; }
@@ -230,7 +235,7 @@ function liftNagyKesz(L, jo) {
   if (L.elso === null) L.elso = !!jo;
   var e = L.vegig || !jo ? (L.ae && !L.lift && !L.vegig ? "r" : "v") : L.lift ? "l" : L.seg >= 2 ? "s" : "o";
   if (L.ae && e === "o" && !L.elso) e = "2";     /* A–E: csak elsőre jó számít önállónak (tippelni is lehet) */
-  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
+  var nagy = L.nagy != null ? !!L.nagy : (L.fok === "tekercs" || L.fok === "tabla" || L.fok === "gomb" || L.fok === "mester"), ki = { e: e, onallo: e === "o", ladaba: false, mester: false };
   szerszamNaplo({ sz: L.sz, palya: L.palya, fok: L.fok, fid: L.fid, e: e, kicsi: L.kicsi || 0, seg: L.seg || 0, mp: Math.round((Date.now() - L.t0) / 1000) });
   if (L.lift) {
     var s = szerszamTar(), li = { d: szerszamNap(), sz: L.sz, p: L.palya, f: L.fok, id: L.fid, ok: L.ok, k: L.kicsi, kj: L.kicsiJo, siker: e === "l" ? 1 : 0 };

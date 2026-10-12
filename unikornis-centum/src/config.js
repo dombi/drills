@@ -206,6 +206,7 @@ function felulirSzamol() {
 function palyaFelulir(id) { return FELULIR.kesz[id] || {}; }
 function palyaRejtve(pa) {
   if (pa && pa.szerszam && !szerszamLatszik(pa.szerszam)) return true;   /* 🧰 a létrát a pult nyitja (szerszam.js) */
+  if (pa && pa.szerszam && pa.fok === "tabla" && !szerszamBeall().tabla) return true;   /* 📋 a Nyomozótábla a pultról kikapcsolható (alap: látszik) */
   if (pa && pa.meres && !meresLathato()) return true;   /* mérés-ligetek: élesítve 2026-09-27 (meres.js meresLathato) */
   return !!pa && palyaFelulir(pa.id).enabled === false;
 }
