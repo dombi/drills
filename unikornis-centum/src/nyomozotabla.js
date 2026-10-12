@@ -11,23 +11,29 @@
    ⚠️ KISKAPU-VÉDELEM: a pipálás semmit nem árul el arról, jó-e (nincs zöld villanás, nincs hang, nincs ✨); csak a Kész után.
    Rejtve is indítható (o.rejtve: az állás él, de nem látszik) és utólag előhívható (ntElohiv) — a Fejtörő-hegyen majd a
    gyerek veszi elő a szerszámosládából (producer, 2026-10-11).
-   TÖBB TÁBLA EGYSZERRE (3. kód-kör, 2026-10-12): a 🔮/🏅 kétsoros feladatainál két kis tábla él egymás alatt („Ki hol?” +
-   „Ki mit?”). Minden ntUj egy új táblát ad (NT_L); az NT az első (a „Ki hol?”, ha van). A függvények utolsó paramétere a tábla
-   (elhagyva: NT); ntEgyeztet / ntRajz / ntZar / ntUrit / ntElohiv paraméter nélkül mindegyikre hat, az ntRejt mindet eltünteti.
+   EGY KÖZÖS TÁBLA, SÁVOKKAL (rajzterv: Matekos
+yomozotabla-egytabla-rajzterv.html, ✅ K1–K3, 2026-10-12): a NEVEK FENT
+   vannak (oszlopok), alattuk sávonként a tulajdonságok (sorok). Minden ntUj egy sávot ad (NT_L); az azonos o.hova-ba tett
+   sávok EGY táblát alkotnak (🔮/🏅: 🏠 hely-sáv + ⚽ pár-sáv; a 📋 fokon egy sáv). Belül minden sáv a régi szereplő × hely
+   rács (X[r][c]: r = szereplő, c = hely) — a kihúzás, R3, a hibakeret és a „csak egy maradt” sávonként számol; csak a rajz
+   fordul el. o.fordit: a sáv sorai fordított sorrendben (K3: a ház legfelső emelete fent, ahogy a rajzon). Az NT az első sáv.
+   A függvények utolsó paramétere a sáv (elhagyva: NT); ntEgyeztet / ntRajz / ntZar / ntUrit / ntElohiv paraméter nélkül
+   mindegyikre hat, az ntRejt mindet eltünteti.
    API: ntUj(o) → T · ntEgyeztet() (a gazda állása változott) · ntRajz() · ntXDb(c, T) (a rajz ✗-eihez) · ntHiba(r, T) · ntZar(z) ·
         ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r, T) / ntX(r, c, T) (a végigvezetés: a bagoly húz ki, sárga villanással)
-   o = { hova: elem, cim: html, kicsi?: bool (két táblánál a kisebb kocka), sorok: [{ id, nev, kep }], oszlopok: [html], auto: bool, rejtve: bool,
+   o = { hova: elem (azonos elem = közös tábla), cim: html (a sáv címe: „🏠 Hol lakik?”), sav?: "hely"|"par" (a sáv színe),
+         fordit?: bool, sorok: [{ id, nev, kep }] (a nevek: a tábla oszlopai), oszlopok: [html] (a sáv sorai), auto: bool, rejtve: bool,
          hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
 
 var NT = null;     /* az első tábla: { o, X: [[0|1|3]], O: [["r,c"|null]], elo: [oszlop…], uj: {"r,c":1}, hiba: {r,c}|null, zar, lathato } */
-var NT_L = [];     /* minden élő tábla (két táblánál: „Ki hol?”, „Ki mit?”) */
+var NT_L = [];     /* minden élő sáv (🔮/🏅: hely-sáv + pár-sáv, egy táblában) */
 
 function ntUj(o) {
   var n = o.sorok.length, m = o.oszlopok.length, X = [], O = [];
   for (var r = 0; r < n; r++) { X.push([]); O.push([]); for (var c = 0; c < m; c++) { X[r].push(0); O[r].push(null); } }
   var T = { o: o, X: X, O: O, elo: o.sorok.map(function () { return -1; }), uj: {}, hiba: null, zar: false, lathato: !o.rejtve };
   NT_L.push(T); if (!NT) NT = T;
-  if (o.hova) { o.hova.__ntT = T; if (!o.hova.__nt) { o.hova.__nt = true; o.hova.addEventListener("click", ntKatt); } }
+  if (o.hova && !o.hova.__nt) { o.hova.__nt = true; o.hova.addEventListener("click", ntKatt); }
   ntEgyeztet(true, T);
   ntRajz(T);
   return T;
@@ -78,36 +84,44 @@ function ntXDb(c, T) {
   var db = 0; T.X.forEach(function (s) { if (s[c]) db++; });
   return db;
 }
-function ntKocka(T, r, c) {
+function ntKocka(T, r, c, b) {
   var S = T.o.sorok[r], v = ntHol(r, T) === c ? 2 : T.X[r][c], k = "nt-k" + (v === 2 ? " v" : v ? " x" : "");
   if (T.uj[r + "," + c]) k += " uj";
   if (T.hiba && T.hiba.r === r && T.hiba.c === c) k += " hiba";
   var cim = String(T.o.oszlopok[c]).replace(/<[^>]*>/g, "");
-  return '<td><button type="button" class="' + k + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + htmlVed(S.nev + ", " + cim + ": " + (v === 2 ? "ide" : v ? "ide nem" : "üres")) + '">' +
+  return '<td><button type="button" class="' + k + '" data-t="' + b + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + htmlVed(S.nev + ", " + cim + ": " + (v === 2 ? "ide" : v ? "ide nem" : "üres")) + '">' +
     (v === 2 ? "✓" : v ? "✗" : "") + '</button></td>';
 }
+/* a közös tábla sávjai (az ugyanabba az elembe tett sávok), a létrehozás sorrendjében */
+function ntSavok(h) { return NT_L.filter(function (t) { return t.o.hova === h; }); }
 function ntRajz(T) {
-  if (!T) { ntMind(function (t) { ntRajz(t); }); return; }
+  if (!T) { var volt = []; ntMind(function (t) { if (volt.indexOf(t.o.hova) < 0) { volt.push(t.o.hova); ntRajz(t); } }); return; }
   if (!T.o.hova) return;
-  var o = T.o, h = o.hova;
-  h.hidden = !T.lathato;
-  if (!T.lathato) { h.innerHTML = ""; return; }
-  var sarok = o.kicsi && o.cim;                                  /* két táblánál a cím a sarokkockába kerül (kevesebb hely kell) */
-  var t = '<tr><th' + (sarok ? ' class="nt-sarok">' + o.cim : '>') + '</th>' + o.oszlopok.map(function (x) { return '<th scope="col">' + x + '</th>'; }).join("") + '</tr>';
-  o.sorok.forEach(function (S, r) {
-    t += '<tr><th scope="row" class="nt-sf' + (T.hiba && T.hiba.r === r && T.hiba.c < 0 ? " hiba" : "") + '"><span class="nt-fej">' + S.kep + '</span><span class="nt-nev">' + S.nev + '</span></th>';
-    for (var c = 0; c < o.oszlopok.length; c++) t += ntKocka(T, r, c);
-    t += '</tr>';
+  var h = T.o.hova, G = ntSavok(h), E = G[0] || T, S = E.o.sorok, n = S.length;
+  h.hidden = !E.lathato;
+  if (!E.lathato) { h.innerHTML = ""; return; }
+  var t = '<tr><th class="nt-sarok"></th>' + S.map(function (s, r) {           /* fent a nevek (K2: a 📋 fokon is) */
+    var hiba = G.some(function (g) { return g.hiba && g.hiba.r === r && g.hiba.c < 0; });
+    return '<th scope="col" class="nt-sf' + (hiba ? " hiba" : "") + '"><span class="nt-fej">' + s.kep + '</span><span class="nt-nev">' + s.nev + '</span></th>';
+  }).join("") + '</tr>';
+  G.forEach(function (g, b) {
+    var o = g.o, m = o.oszlopok.length, sav = " nt-" + (o.sav || (b ? "par" : "hely"));
+    t += '<tr class="nt-savcim' + sav + (b ? " nt-tovabbi" : "") + '"><th colspan="' + (n + 1) + '">' + (o.cim || "") + '</th></tr>';
+    for (var j = 0; j < m; j++) {
+      var c = o.fordit ? m - 1 - j : j;
+      t += '<tr class="nt-savsor' + sav + '"><th scope="row" class="nt-sl">' + o.oszlopok[c] + '</th>';
+      for (var r = 0; r < n; r++) t += ntKocka(g, r, c, b);
+      t += '</tr>';
+    }
   });
-  var m = o.oszlopok.length;
-  h.innerHTML = '<div class="nt-iro' + (T.zar ? " zar" : "") + (o.kicsi ? " kicsi" : "") + '"><div class="nt-papir">' + (o.cim && !sarok ? '<div class="nt-cim">' + o.cim + '</div>' : '') +
-    '<table class="nt-tabla m' + Math.min(m, 5) + '">' + t + '</table></div></div>';
-  T.uj = {};
+  h.innerHTML = '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
+    '<table class="nt-tabla n' + Math.min(Math.max(n, 3), 5) + (G.length > 1 ? " s2" : "") + '">' + t + '</table></div></div>';
+  G.forEach(function (g) { g.uj = {}; });
 }
 function ntKatt(ev) {
-  var T = this.__ntT;
-  if (!T || NT_L.indexOf(T) < 0 || T.zar) return;
   var b = ev.target.closest ? ev.target.closest(".nt-k") : null; if (!b) return;
+  var T = ntSavok(this)[+b.getAttribute("data-t") || 0];
+  if (!T || T.zar) return;
   var r = +b.getAttribute("data-r"), c = +b.getAttribute("data-c");
   hangGomb();
   ntMind(function (t) { t.hiba = null; });
@@ -124,7 +138,7 @@ function ntHiba(r, T) {
   T.hiba = r != null && r >= 0 ? { r: r, c: ntHol(r, T) } : null;
   ntRajz(T);
 }
-function ntZar(z) { ntMind(function (T) { T.zar = !!z; ntRajz(T); }); }
+function ntZar(z) { ntMind(function (T) { T.zar = !!z; }); ntRajz(); }
 function ntUrit() {
   ntMind(function (T) {
     T.X.forEach(function (s, r) { for (var c = 0; c < s.length; c++) { s[c] = 0; T.O[r][c] = null; } });
@@ -132,7 +146,7 @@ function ntUrit() {
   });
 }
 function ntRejt() {
-  ntMind(function (T) { if (T.o.hova) { T.o.hova.hidden = true; T.o.hova.innerHTML = ""; T.o.hova.__ntT = null; } });
+  ntMind(function (T) { if (T.o.hova) { T.o.hova.hidden = true; T.o.hova.innerHTML = ""; } });
   NT_L = []; NT = null;
 }
-function ntElohiv() { ntMind(function (T) { T.lathato = true; ntRajz(T); }); }
+function ntElohiv() { ntMind(function (T) { T.lathato = true; }); ntRajz(); }

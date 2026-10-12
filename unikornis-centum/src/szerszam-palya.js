@@ -47,7 +47,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
 function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
-  if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (két táblánál is), a bagoly segít kihúzni */
+  if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (a két sávos táblánál is), a bagoly segít kihúzni */
   return szFeladatKesz(k, nagy.sz, "kicsi", nagy);
 }
 
@@ -179,7 +179,7 @@ function szVegigFut(f) {
     }
     var l = f.lep[i++];
     opLepes(l.t);
-    (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a „Ki mit?” táblában */
+    (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a pár-sávban */
     (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); if (!f.lepKezi) dobogoNtKihuzTesz(t[0], t[2]); });   /* 🔮/🏅: minden ✓ után kihúz */
     (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
     (l.x || []).forEach(function (q) { dobogoNtX(q[0], q[1]); });

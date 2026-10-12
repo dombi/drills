@@ -9737,23 +9737,29 @@ function oeKeresKatt(ev) {
    ⚠️ KISKAPU-VÉDELEM: a pipálás semmit nem árul el arról, jó-e (nincs zöld villanás, nincs hang, nincs ✨); csak a Kész után.
    Rejtve is indítható (o.rejtve: az állás él, de nem látszik) és utólag előhívható (ntElohiv) — a Fejtörő-hegyen majd a
    gyerek veszi elő a szerszámosládából (producer, 2026-10-11).
-   TÖBB TÁBLA EGYSZERRE (3. kód-kör, 2026-10-12): a 🔮/🏅 kétsoros feladatainál két kis tábla él egymás alatt („Ki hol?” +
-   „Ki mit?”). Minden ntUj egy új táblát ad (NT_L); az NT az első (a „Ki hol?”, ha van). A függvények utolsó paramétere a tábla
-   (elhagyva: NT); ntEgyeztet / ntRajz / ntZar / ntUrit / ntElohiv paraméter nélkül mindegyikre hat, az ntRejt mindet eltünteti.
+   EGY KÖZÖS TÁBLA, SÁVOKKAL (rajzterv: Matekos
+yomozotabla-egytabla-rajzterv.html, ✅ K1–K3, 2026-10-12): a NEVEK FENT
+   vannak (oszlopok), alattuk sávonként a tulajdonságok (sorok). Minden ntUj egy sávot ad (NT_L); az azonos o.hova-ba tett
+   sávok EGY táblát alkotnak (🔮/🏅: 🏠 hely-sáv + ⚽ pár-sáv; a 📋 fokon egy sáv). Belül minden sáv a régi szereplő × hely
+   rács (X[r][c]: r = szereplő, c = hely) — a kihúzás, R3, a hibakeret és a „csak egy maradt” sávonként számol; csak a rajz
+   fordul el. o.fordit: a sáv sorai fordított sorrendben (K3: a ház legfelső emelete fent, ahogy a rajzon). Az NT az első sáv.
+   A függvények utolsó paramétere a sáv (elhagyva: NT); ntEgyeztet / ntRajz / ntZar / ntUrit / ntElohiv paraméter nélkül
+   mindegyikre hat, az ntRejt mindet eltünteti.
    API: ntUj(o) → T · ntEgyeztet() (a gazda állása változott) · ntRajz() · ntXDb(c, T) (a rajz ✗-eihez) · ntHiba(r, T) · ntZar(z) ·
         ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r, T) / ntX(r, c, T) (a végigvezetés: a bagoly húz ki, sárga villanással)
-   o = { hova: elem, cim: html, kicsi?: bool (két táblánál a kisebb kocka), sorok: [{ id, nev, kep }], oszlopok: [html], auto: bool, rejtve: bool,
+   o = { hova: elem (azonos elem = közös tábla), cim: html (a sáv címe: „🏠 Hol lakik?”), sav?: "hely"|"par" (a sáv színe),
+         fordit?: bool, sorok: [{ id, nev, kep }] (a nevek: a tábla oszlopai), oszlopok: [html] (a sáv sorai), auto: bool, rejtve: bool,
          hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
 
 var NT = null;     /* az első tábla: { o, X: [[0|1|3]], O: [["r,c"|null]], elo: [oszlop…], uj: {"r,c":1}, hiba: {r,c}|null, zar, lathato } */
-var NT_L = [];     /* minden élő tábla (két táblánál: „Ki hol?”, „Ki mit?”) */
+var NT_L = [];     /* minden élő sáv (🔮/🏅: hely-sáv + pár-sáv, egy táblában) */
 
 function ntUj(o) {
   var n = o.sorok.length, m = o.oszlopok.length, X = [], O = [];
   for (var r = 0; r < n; r++) { X.push([]); O.push([]); for (var c = 0; c < m; c++) { X[r].push(0); O[r].push(null); } }
   var T = { o: o, X: X, O: O, elo: o.sorok.map(function () { return -1; }), uj: {}, hiba: null, zar: false, lathato: !o.rejtve };
   NT_L.push(T); if (!NT) NT = T;
-  if (o.hova) { o.hova.__ntT = T; if (!o.hova.__nt) { o.hova.__nt = true; o.hova.addEventListener("click", ntKatt); } }
+  if (o.hova && !o.hova.__nt) { o.hova.__nt = true; o.hova.addEventListener("click", ntKatt); }
   ntEgyeztet(true, T);
   ntRajz(T);
   return T;
@@ -9804,36 +9810,44 @@ function ntXDb(c, T) {
   var db = 0; T.X.forEach(function (s) { if (s[c]) db++; });
   return db;
 }
-function ntKocka(T, r, c) {
+function ntKocka(T, r, c, b) {
   var S = T.o.sorok[r], v = ntHol(r, T) === c ? 2 : T.X[r][c], k = "nt-k" + (v === 2 ? " v" : v ? " x" : "");
   if (T.uj[r + "," + c]) k += " uj";
   if (T.hiba && T.hiba.r === r && T.hiba.c === c) k += " hiba";
   var cim = String(T.o.oszlopok[c]).replace(/<[^>]*>/g, "");
-  return '<td><button type="button" class="' + k + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + htmlVed(S.nev + ", " + cim + ": " + (v === 2 ? "ide" : v ? "ide nem" : "üres")) + '">' +
+  return '<td><button type="button" class="' + k + '" data-t="' + b + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + htmlVed(S.nev + ", " + cim + ": " + (v === 2 ? "ide" : v ? "ide nem" : "üres")) + '">' +
     (v === 2 ? "✓" : v ? "✗" : "") + '</button></td>';
 }
+/* a közös tábla sávjai (az ugyanabba az elembe tett sávok), a létrehozás sorrendjében */
+function ntSavok(h) { return NT_L.filter(function (t) { return t.o.hova === h; }); }
 function ntRajz(T) {
-  if (!T) { ntMind(function (t) { ntRajz(t); }); return; }
+  if (!T) { var volt = []; ntMind(function (t) { if (volt.indexOf(t.o.hova) < 0) { volt.push(t.o.hova); ntRajz(t); } }); return; }
   if (!T.o.hova) return;
-  var o = T.o, h = o.hova;
-  h.hidden = !T.lathato;
-  if (!T.lathato) { h.innerHTML = ""; return; }
-  var sarok = o.kicsi && o.cim;                                  /* két táblánál a cím a sarokkockába kerül (kevesebb hely kell) */
-  var t = '<tr><th' + (sarok ? ' class="nt-sarok">' + o.cim : '>') + '</th>' + o.oszlopok.map(function (x) { return '<th scope="col">' + x + '</th>'; }).join("") + '</tr>';
-  o.sorok.forEach(function (S, r) {
-    t += '<tr><th scope="row" class="nt-sf' + (T.hiba && T.hiba.r === r && T.hiba.c < 0 ? " hiba" : "") + '"><span class="nt-fej">' + S.kep + '</span><span class="nt-nev">' + S.nev + '</span></th>';
-    for (var c = 0; c < o.oszlopok.length; c++) t += ntKocka(T, r, c);
-    t += '</tr>';
+  var h = T.o.hova, G = ntSavok(h), E = G[0] || T, S = E.o.sorok, n = S.length;
+  h.hidden = !E.lathato;
+  if (!E.lathato) { h.innerHTML = ""; return; }
+  var t = '<tr><th class="nt-sarok"></th>' + S.map(function (s, r) {           /* fent a nevek (K2: a 📋 fokon is) */
+    var hiba = G.some(function (g) { return g.hiba && g.hiba.r === r && g.hiba.c < 0; });
+    return '<th scope="col" class="nt-sf' + (hiba ? " hiba" : "") + '"><span class="nt-fej">' + s.kep + '</span><span class="nt-nev">' + s.nev + '</span></th>';
+  }).join("") + '</tr>';
+  G.forEach(function (g, b) {
+    var o = g.o, m = o.oszlopok.length, sav = " nt-" + (o.sav || (b ? "par" : "hely"));
+    t += '<tr class="nt-savcim' + sav + (b ? " nt-tovabbi" : "") + '"><th colspan="' + (n + 1) + '">' + (o.cim || "") + '</th></tr>';
+    for (var j = 0; j < m; j++) {
+      var c = o.fordit ? m - 1 - j : j;
+      t += '<tr class="nt-savsor' + sav + '"><th scope="row" class="nt-sl">' + o.oszlopok[c] + '</th>';
+      for (var r = 0; r < n; r++) t += ntKocka(g, r, c, b);
+      t += '</tr>';
+    }
   });
-  var m = o.oszlopok.length;
-  h.innerHTML = '<div class="nt-iro' + (T.zar ? " zar" : "") + (o.kicsi ? " kicsi" : "") + '"><div class="nt-papir">' + (o.cim && !sarok ? '<div class="nt-cim">' + o.cim + '</div>' : '') +
-    '<table class="nt-tabla m' + Math.min(m, 5) + '">' + t + '</table></div></div>';
-  T.uj = {};
+  h.innerHTML = '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
+    '<table class="nt-tabla n' + Math.min(Math.max(n, 3), 5) + (G.length > 1 ? " s2" : "") + '">' + t + '</table></div></div>';
+  G.forEach(function (g) { g.uj = {}; });
 }
 function ntKatt(ev) {
-  var T = this.__ntT;
-  if (!T || NT_L.indexOf(T) < 0 || T.zar) return;
   var b = ev.target.closest ? ev.target.closest(".nt-k") : null; if (!b) return;
+  var T = ntSavok(this)[+b.getAttribute("data-t") || 0];
+  if (!T || T.zar) return;
   var r = +b.getAttribute("data-r"), c = +b.getAttribute("data-c");
   hangGomb();
   ntMind(function (t) { t.hiba = null; });
@@ -9850,7 +9864,7 @@ function ntHiba(r, T) {
   T.hiba = r != null && r >= 0 ? { r: r, c: ntHol(r, T) } : null;
   ntRajz(T);
 }
-function ntZar(z) { ntMind(function (T) { T.zar = !!z; ntRajz(T); }); }
+function ntZar(z) { ntMind(function (T) { T.zar = !!z; }); ntRajz(); }
 function ntUrit() {
   ntMind(function (T) {
     T.X.forEach(function (s, r) { for (var c = 0; c < s.length; c++) { s[c] = 0; T.O[r][c] = null; } });
@@ -9858,10 +9872,10 @@ function ntUrit() {
   });
 }
 function ntRejt() {
-  ntMind(function (T) { if (T.o.hova) { T.o.hova.hidden = true; T.o.hova.innerHTML = ""; T.o.hova.__ntT = null; } });
+  ntMind(function (T) { if (T.o.hova) { T.o.hova.hidden = true; T.o.hova.innerHTML = ""; } });
   NT_L = []; NT = null;
 }
-function ntElohiv() { ntMind(function (T) { T.lathato = true; ntRajz(T); }); }
+function ntElohiv() { ntMind(function (T) { T.lathato = true; }); ntRajz(); }
 /* ============ 6o) 🏆 DOBOGÓ — a 📌 KOTOTT válaszformája: a szereplőket koppintással a helyükre rakja ============
    Rajz: Matekos\szerszam-letrak-rajzterv.html 4. pont (✅ 2026-10-09) + tartalom-lap 8/2 (kétsoros dobogó ✅)
    + dobogó-javítás (Matekos\szerszam-letrak-dobogo-javitas.html, ✅ 2026-10-10).
@@ -9888,30 +9902,37 @@ function ntElohiv() { ntMind(function (T) { T.lathato = true; ntRajz(T); }); }
      alján vár (dob-varo: fű / járda / szőnyeg), a helyek mellett annyi kis ✗, ahány szereplőt a táblában kizártak (R4),
      és a szereplők átsétálnak a helyükre (dobSetal). Rossz válasznál senki nem ugrik vissza: a hibás mondat szereplőjének
      kockája rózsaszín keretet kap (dobogoHibaJelol).
-   📋 KÉT TÁBLA (3. kód-kör, 2026-10-12, rajzterv 5. pont): a kétsoros feladatnál (🔮 Kristálygömb, 🏅 szendvics / emeletek)
-     „Ki hol?” (szereplő × hely) + „Ki mit?” (szereplő × pár); a csak-pár feladatnál (🔮 1. fajta, D.csak) csak a „Ki mit?”.
+   📋 EGY KÖZÖS TÁBLA, KÉT SÁV (rajzterv: Matekos
+yomozotabla-egytabla-rajzterv.html, ✅ K1–K3, 2026-10-12): fent a nevek,
+     alattuk a 🏠 hely-sáv (DOB.ntHol: szereplő × hely) és a ⚽ pár-sáv (DOB.ntMit: szereplő × pár) — a kétsoros feladatnál
+     (🔮 Kristálygömb, 🏅 szendvics / emeletek) mindkettő, a csak-pár feladatnál (🔮 1. fajta, D.csak) csak a pár-sáv.
+     A hely-sáv sorai a rajzzal egy irányban mennek (K3: a ház legfelső emelete fent).
      A PÁR A SZEREPLŐHÖZ TARTOZIK: ha a szereplő máshová kerül (táblából vagy a rajzon), a párja vele megy (dobParok →
      dobParIgazit); aki még vár, a kezében tartja (DOB.fog). Üres helyre is tehető pár (R2): azé lesz, aki odaköltözik — ha az
-     már hoz magával egyet, a hely párja visszakerül a többi közé. A „Ki mit?” ✗-e csak a táblában látszik, a rajzon nem. */
+     már hoz magával egyet, a hely párja visszakerül a többi közé. A pár-sáv ✗-e csak a táblában látszik, a rajzon nem. */
 
 var DOB = null;     /* { f, o, hely: [[id|null]…] soronként, zar, kez: {r,id,honnan}|null, cel: {r,i}|null, uj: {r,i}|null, razo, nt: bool,
-                       ntHol / ntMit: a „Ki hol?” / „Ki mit?” tábla (nyomozotabla.js) | null, fog: { szereplő: pár } (aki még vár, kézben tartja) } */
-/* a tábla fejlécei keretenként (rajzterv 3. pont): oszlop = hely, a rajz sorrendjében (0-tól);
+                       ntHol / ntMit: a hely- / pár-sáv (nyomozotabla.js) | null, fog: { szereplő: pár } (aki még vár, kézben tartja) } */
+/* a hely-sáv keretenként: cim = a sáv címe (kérdés, a nevekre: „Hol lakik?”), osz = a sáv sorai (a helyek, 0-tól);
+   fordit: a sorok a rajz irányában (K3: a ház legfelső emelete fent);
    ki(X, i, n): a bagoly mondata, amikor egy ✓ után kihúzza a sort és az oszlopot (3. döntés: kimondja, miért) */
 function dobAz(i) { return i === 0 || i === 4 ? "az " : "a "; }                /* „az 1.”, „az 5.”, „a 2.” */
 var DOB_NT = {
-  dobogo: { cim: "Ki hányadik lett?", osz: function (i) { return (i + 1) + "."; },
+  dobogo: { cim: "🏁 Hányadik lett?", osz: function (i) { return (i + 1) + "."; },
             ki: function (X, i) { return "Ha " + X + " " + (i + 1) + ". lett, más helyezést nem kaphatott, és " + (i + 1) + ". más nem lehetett."; } },
-  sor:    { cim: "Ki hányadik a sorban?", osz: function (i, n, D) { return i ? (i + 1) + "." : '<span class="nt-pult">' + (D.pult || "🍦") + '</span>1.'; },
+  sor:    { cim: "🧍 Hányadik a sorban?", osz: function (i, n, D) { return i ? (i + 1) + "." : '<span class="nt-pult">' + (D.pult || "🍦") + '</span>1.'; },
             ki: function (X, i) { return "Ha " + X + " " + (i + 1) + ". a sorban, máshol nem állhat, és ott más nem állhat."; } },
-  polc:   { cim: "Ki melyik polcon ül?", osz: function (i, n) { return i === 0 ? "fent" : i === n - 1 ? "lent" : n === 3 ? "közép" : (i + 1) + "."; },
+  polc:   { cim: "📚 Melyik polcon ül?", osz: function (i, n) { return i === 0 ? "fent" : i === n - 1 ? "lent" : n === 3 ? "közép" : (i + 1) + "."; },
             ki: function (X, i, n) { return "Ha " + X + " " + (i === 0 ? "a legfelső" : i === n - 1 ? "a legalsó" : n === 3 ? "a középső" : "fentről " + dobAz(i) + (i + 1) + ".") + " polcon ül, máshol nem ülhet, és ott más nem ülhet."; } },
-  haz:    { cim: "Ki hol lakik?", osz: function (i) { return (i + 1) + ". em."; },
+  haz:    { cim: "🏠 Hol lakik?", fordit: true, osz: function (i) { return (i + 1) + ". em."; },
             ki: function (X, i) { return "Ha " + X + " " + dobAz(i) + (i + 1) + ". emeleten lakik, máshol nem lakhat, és ott más nem lakhat."; } },
-  tabla:  { cim: "Ki hol?", osz: function (i, n, D) { return (D.cimkek || [])[i] || (i + 1) + "."; },
+  tabla:  { cim: "📍 Hol a helye?", osz: function (i, n, D) { return (D.cimkek || [])[i] || (i + 1) + "."; },
             ki: function (X, i, n, D) { return "Ha " + X + " helye " + ((D.cimkek || [])[i] || (i + 1) + ".") + ", máshol nem lehet, és ott más nem lehet."; } }
 };
 DOB_NT.haz2 = DOB_NT.haz;
+/* a pár-sáv címe a pár fajtája szerint (D.sorok[…].nev) — 🖊️ lektorra */
+var DOB_NT_PAR = { "nyakörv": "🏷️ Milyen a nyakörve?", "fagyi": "🍨 Milyen fagyit kér?", "kezében": "🎈 Mi van a kezében?",
+  "sport": "⚽ Mit sportol?", "zöldség": "🥪 Mit eszik?" };
 
 function dobPanel() {
   var p = $("dobogo-panel");
@@ -9935,7 +9956,7 @@ function dobogoRejt() {
 }
 function dobNtRejt() {
   ntRejt();
-  var o = $("nt-oszlop"); if (o) { o.hidden = true; o.innerHTML = ""; o.classList.remove("ket"); }
+  var o = $("nt-oszlop"); if (o) { o.hidden = true; o.innerHTML = ""; }
   var k = $("kepernyo-jatek"); if (k) k.classList.remove("nt-mod", "nt-ket");
 }
 function dobDarab(D, r, id) { var L = D.sorok[r].darabok; for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i]; return null; }
@@ -9953,7 +9974,7 @@ function dobHely(r, i, cimke, extra) {
   else if (DOB.kez && DOB.kez.r === r && DOB.kez.honnan !== i) c += " var";     /* ide teheti, ami a kezében van */
   if (DOB.uj && DOB.uj.r === r && DOB.uj.i === i) c += " dob-uj";
   if (DOB.razo && DOB.razo.r === r && DOB.razo.i === i) c += " dob-razo";
-  var xdb = DOB.ntHol && r === 0 ? Math.min(ntXDb(i, DOB.ntHol), 4) : 0, xek = "";   /* 📋 R4: minden kizárt szereplőért egy egyforma kis ✗ (csak a „Ki hol?”) */
+  var xdb = DOB.ntHol && r === 0 ? Math.min(ntXDb(i, DOB.ntHol), 4) : 0, xek = "";   /* 📋 R4: minden kizárt szereplőért egy egyforma kis ✗ (csak a hely-sáv) */
   if (xdb) { xek = '<span class="dob-xek" aria-hidden="true">'; for (var x = 0; x < xdb; x++) xek += '<i>✗</i>'; xek += '</span>'; }
   return '<div class="dob-h' + (d ? " teli" : "") + c + '" data-r="' + r + '" data-i="' + i + '">' +
     (d ? dobToken(d, r, true) : '<button type="button" class="dob-ures" aria-label="üres hely">?</button>') +
@@ -10067,8 +10088,9 @@ function dobogoMutat(f, o) {
   var k = $("kepernyo-jatek"); if (k) { k.classList.toggle("nt-mod", DOB.nt); k.classList.toggle("nt-ket", !!(DOB.ntHol && DOB.ntMit)); }
   dobRajz();
 }
-/* 📋 a táblák: „Ki hol?” (0. sor: szereplő × hely) és / vagy „Ki mit?” (szereplő × pár: kétsoros feladat 1. sora, vagy a csak-pár
-   feladat egyetlen sora, ahol a helyek maguk a szereplők — D.csak). t.auto: a bagoly húz ki (a 📋 fok első 2 feladata, a 🛗 kicsik). */
+/* 📋 a közös tábla: hely-sáv (0. sor: szereplő × hely) és / vagy pár-sáv (szereplő × pár: kétsoros feladat 1. sora, vagy a csak-pár
+   feladat egyetlen sora, ahol a helyek maguk a szereplők — D.csak). Mindkét sáv ugyanabba az elembe kerül: egy tábla, fent a nevek.
+   t.auto: a bagoly húz ki (a 📋 fok első 2 feladata, a 🛗 kicsik). */
 function dobNtIndul(t) {
   var D = DOB.f.dob, F = DOB_NT[D.keret] || DOB_NT.tabla, oszlop = $("nt-oszlop");
   if (!oszlop) {
@@ -10080,17 +10102,16 @@ function dobNtIndul(t) {
   var csak = !!D.csak, ket = !csak && D.sorok.length > 1;
   var S = csak ? D.csak : D.sorok[0].darabok, A = csak ? D.sorok[0].darabok : ket ? D.sorok[1].darabok : null;
   var sorok = S.map(function (d) { return { id: d.id, nev: d.nev, kep: d.kep }; });
-  var uj = function () { var h = el("div", "nt-egy"); oszlop.appendChild(h); return h; };
+  var hova = el("div", "nt-egy"); oszlop.appendChild(hova);
   DOB.nt = true;
-  oszlop.classList.toggle("ket", ket);
-  if (!csak) DOB.ntHol = ntUj({ hova: uj(), cim: t.cim || D.ntCim || F.cim, auto: !!t.auto, rejtve: !!t.rejtve, kicsi: ket, sorok: sorok,
+  if (!csak) DOB.ntHol = ntUj({ hova: hova, cim: t.cim || D.ntCim || F.cim, sav: "hely", fordit: !!F.fordit, auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok,
     oszlopok: Array.apply(null, { length: D.n }).map(function (x, i) { return F.osz(i, D.n, D); }),
     hol: function (r) { return DOB.hely[0].indexOf(S[r].id); },
     tesz: function (r, c) { dobNtTesz(S[r].id, c); },
     levesz: function (r) { var P = dobParok(), j = DOB.hely[0].indexOf(S[r].id); if (j >= 0) DOB.hely[0][j] = null; dobParIgazit(P); DOB.kez = null; DOB.cel = null; dobRajz(); },
     valt: function () { dobRajz(); },
     mondat: function (r, c) { return t.mondat ? t.mondat(S[r].nev, c) : F.ki(S[r].nev, c, D.n, D) + " Ezeket kihúztam."; } });
-  if (A) DOB.ntMit = ntUj({ hova: uj(), cim: "Ki mit?", auto: !!t.auto, rejtve: !!t.rejtve, kicsi: ket, sorok: sorok,
+  if (A) DOB.ntMit = ntUj({ hova: hova, cim: DOB_NT_PAR[D.sorok[csak ? 0 : 1].nev] || "🔗 Mi az övé?", sav: "par", auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok,
     oszlopok: A.map(function (a) { return '<span class="nt-okep">' + a.kep + '</span><span class="nt-onev">' + a.nev + '</span>'; }),
     hol: function (r) { var a = dobParja(S[r].id); return a == null ? -1 : dobAIdx(a); },
     tesz: function (r, c) { dobNtParTesz(S[r].id, A[c].id); },
@@ -10110,7 +10131,7 @@ function dobParja(id) {
   var i = DOB.hely[0].indexOf(id);
   return i >= 0 ? DOB.hely[1][i] : DOB.fog[id] != null ? DOB.fog[id] : null;
 }
-/* kié a pár (a „Ki mit?” tábla sora): a hely szereplője, vagy aki a kezében tartja */
+/* kié a pár (a pár-sáv oszlopa): a hely szereplője, vagy aki a kezében tartja */
 function dobParGazda(a) {
   var D = DOB.f.dob;
   if (D.csak) { var j = DOB.hely[0].indexOf(a); return j >= 0 ? D.csak[j].id : null; }
@@ -10137,7 +10158,7 @@ function dobParIgazit(P) {
   for (i = 0; i < H1.length; i++) H1[i] = uj[i];
   DOB.fog = fog;
 }
-/* a „Ki mit?” táblából: a pár (a) a szereplőé (id) lesz — a == null: elveszi tőle. A pár onnan jön, ahol eddig volt;
+/* a pár-sávból: a pár (a) a szereplőé (id) lesz — a == null: elveszi tőle. A pár onnan jön, ahol eddig volt;
    ami a szereplőnél volt, visszakerül a többi közé. */
 function dobNtParTesz(id, a) {
   var D = DOB.f.dob, s = DOB.hely[dobParSor()], j;
@@ -10206,8 +10227,8 @@ function dobNtVillan(r, id) {
   if (DOB.ntMit && gazda != null) { var a = dobParja(gazda), rm = dobNtSor(gazda); if (a != null && rm >= 0) DOB.ntMit.uj[rm + "," + dobAIdx(a)] = 1; }
 }
 /* 📋 a végigvezetés tábla nyelven (szerszam-palya.js szVegigFut): id sorának és oszlopának kihúzása · egy ✗ ·
-   dobogoNtKihuzTesz: egy bagoly-✓ után a hozzá tartozó kihúzás mindkét táblában (a 🔮/🏅 végigvezetése) ·
-   dobogoNtXPar: egy ✗ a „Ki mit?” táblában („Gergő nem úszik.”) */
+   dobogoNtKihuzTesz: egy bagoly-✓ után a hozzá tartozó kihúzás mindkét sávban (a 🔮/🏅 végigvezetése) ·
+   dobogoNtXPar: egy ✗ a pár-sávban („Gergő nem úszik.”) */
 function dobNtSor(id) { var D = DOB.f.dob, L = D.csak || D.sorok[0].darabok, r = -1; L.forEach(function (d, i) { if (d.id === id) r = i; }); return r; }
 function dobogoNtKihuz(id) { if (DOB && DOB.ntHol) { ntKihuz(dobNtSor(id), DOB.ntHol); dobRajz(); } }
 function dobogoNtX(id, i) { if (DOB && DOB.ntHol) { ntX(dobNtSor(id), i, DOB.ntHol); dobRajz(); } }
@@ -10508,7 +10529,7 @@ var SZK_MESTER = [
 
   { id: "kalmar-2023-3-M-5", cim: "Szendvics a túrán", forras: "Kalmár 2023 / 3. o. megyei 5.",
     hely: "tura", szerep: "gyerek", tobb: "négy gyerekkel", kicsiKeret: "fagyi", ket: true,
-    dob: { keret: "tabla", cimkek: ["134 cm", "144 cm", "146 cm", "156 cm"], sorNev: ["gyerek", "zöldség"], ntCim: "Ki milyen magas?" },
+    dob: { keret: "tabla", cimkek: ["134 cm", "144 cm", "146 cm", "156 cm"], sorNev: ["gyerek", "zöldség"], ntCim: "📏 Milyen magas?" },
     nevek: ["Anna", "Berci", "Cili", "Dani"], attr: ["paprika", "retek", "uborka", "zöldhagyma"],
     jo: ["Dani", "Cili", "Anna", "Berci"], joAttr: ["retek", "paprika", "zöldhagyma", "uborka"],
     mon: [{ s: "Anna, Berci, Cili és Dani túrázni indultak, az útra mindenki szendvicset készített magának." },
@@ -10534,7 +10555,7 @@ var SZK_MESTER = [
         kerdes: "Ki melyik zöldséget ette?",
         lep: [{ t: "Berci uborkát eszik.", tesz: [[1, 1, "uborka"]] }, { t: "Dani nem szereti a paprikát, ezért ő a retket eszi.", tesz: [[1, 2, "retek"]] }, { t: "Annának marad a paprika.", tesz: [[1, 0, "paprika"]] }] },
       { nevek: ["Anna", "Berci", "Dani"], attr: ["paprika", "retek", "uborka"],
-        dob: { keret: "tabla", cimkek: ["130 cm", "135 cm", "140 cm"], ntCim: "Ki milyen magas?" }, jo: ["Berci", "Dani", "Anna"], joAttr: ["uborka", "retek", "paprika"],
+        dob: { keret: "tabla", cimkek: ["130 cm", "135 cm", "140 cm"], ntCim: "📏 Milyen magas?" }, jo: ["Berci", "Dani", "Anna"], joAttr: ["uborka", "retek", "paprika"],
         mon: [{ s: "Anna, Berci és Dani túrázni indultak." },
               { s: "Mindegyikük más zöldséget evett a szendvicséhez: paprikát, retket vagy uborkát." },
               { s: "A gyerekek magassága 130 cm, 135 cm és 140 cm." },
@@ -10598,7 +10619,7 @@ function szkKezi(M, szulo) {
   var sorNev = dobO.sorNev || (szulo && szulo.dob && szulo.dob.sorNev) || [];
   if (M.csakAttr) {                                            /* fejlécben a gyerekek, egy sor zöldség */
     D.cimkek = M.nevek.map(function (nv) { return '<span class="dob-fejkep">' + szkKep(szerep, nv) + '</span>' + nv; });
-    D.csak = M.nevek.map(tokNev);                               /* 📋 a „Ki mit?” tábla sorai */
+    D.csak = M.nevek.map(tokNev);                               /* 📋 a tábla nevei (fent); alattuk a pár-sáv */
     D.sorok.push({ nev: "zöldség", darabok: mKever(M.attr).map(tokAttr) }); D.jo.push(M.joAttr.slice());
   } else {
     D.sorok.push({ nev: sorNev[0] || "", darabok: mKever(M.nevek).map(tokNev) }); D.jo.push(M.jo.slice());
@@ -10669,7 +10690,7 @@ function szkGeneralPar(o) {
   for (var proba = 0; proba < 80; proba++) {
     var at = mKever(P.L).slice(0, n).map(szkParElem), ord, mon = [], felt = [], lep = [], g = null, r = tip === 1 ? 0 : 1, e = 0;
     var vegso = function (ki, i, a) { lep.push({ t: "Már csak " + ki + " és " + mi(a) + " maradt: ők összetartoznak.", tesz: [[r, i, a.n]] }); };
-    var nincsLep = function (c, i) { lep.push({ t: sv(P.nincs, c.x, c.at) + " Neki csak " + mi(at[i]) + " maradhat.", x2: [[c.x, c.a]], tesz: [[r, i, at[i].n]] }); };   /* x2: 📋 ✗ a „Ki mit?” táblában */
+    var nincsLep = function (c, i) { lep.push({ t: sv(P.nincs, c.x, c.at) + " Neki csak " + mi(at[i]) + " maradhat.", x2: [[c.x, c.a]], tesz: [[r, i, at[i].n]] }); };   /* x2: 📋 ✗ a pár-sávban */
     if (tip === 1) {
       ord = mKever(o.nevek && o.nevek.length >= n ? o.nevek : K.nevek).slice(0, n);
       var ix = veletlen(0, n - 1), iy = (ix + veletlen(1, n - 1)) % n, iz = 3 - ix - iy;
@@ -10724,7 +10745,7 @@ function szkGeneralPar(o) {
   }
   return null;
 }
-/* 📋 melyik tábla kockáját jelölje a hibajelzés: 1 = „Ki hol?” · 2 = „Ki mit?” · 3 = mindkettő (összekötő mondat) */
+/* 📋 melyik tábla kockáját jelölje a hibajelzés: 1 = hely-sáv · 2 = pár-sáv · 3 = mindkettő (összekötő mondat) */
 function szkTab(c, csak) { return !c ? null : csak || c.t === "van" || c.t === "nincs" ? 2 : c.l ? 3 : 1; }
 function szkFeladatPar(g, fok) {
   var K = g.K, P = g.P, atN = g.at.map(function (a) { return a.n; }), csak = g.tip === 1;
@@ -10732,7 +10753,7 @@ function szkFeladatPar(g, fok) {
   var D = { keret: csak ? "tabla" : K.dob === "haz" ? "haz2" : K.dob, pult: K.pult, n: g.n, cimkek: null, sorok: [], jo: [] };
   if (csak) {                                                  /* fejlécben a szereplők, alattuk egy sor pár */
     D.cimkek = g.nevek.map(function (nv) { return '<span class="dob-fejkep">' + szkKep(K.szerep, nv) + '</span>' + nv; });
-    D.csak = g.nevek.map(tokNev);                               /* 📋 a „Ki mit?” tábla sorai (a fejléc szereplői) */
+    D.csak = g.nevek.map(tokNev);                               /* 📋 a tábla nevei (fent; a rajz fejlécének szereplői) */
     D.sorok.push({ nev: P.sorNev[1], darabok: mKever(g.at).map(szkParTok) }); D.jo.push(atN.slice());
   } else {
     D.sorok.push({ nev: P.sorNev[0], darabok: mKever(g.bevL).map(tokNev) }, { nev: P.sorNev[1], darabok: mKever(g.at).map(szkParTok) });
@@ -10771,7 +10792,7 @@ var SZK_TART = {
       var gp = szkGeneralPar({ keret: keret, tip: tip, veg: veg, nevek: szabad.length >= n ? szabad : null });
       S.veg[keret] = gp.veg; S.nevek[keret] = hasz.concat(gp.nevek);
       var fp = szkFeladatPar(gp, fok);
-      if (szerszamBeall().tabla) fp.tabla = { auto: false };   /* 📋 3. kód-kör: 🔮 két tábla („Ki hol?” + „Ki mit?”; az 1. fajtánál csak „Ki mit?”) */
+      if (szerszamBeall().tabla) fp.tabla = { auto: false };   /* 📋 3. kód-kör: 🔮 egy közös tábla (hely- + pár-sáv; az 1. fajtánál csak a pár-sáv) */
       return fp;
     }
     var g = szkGeneral({ keret: keret, n: n, veg: veg, nevek: szabad.length >= n ? szabad : null });
@@ -10862,7 +10883,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
 function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
-  if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (két táblánál is), a bagoly segít kihúzni */
+  if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (a két sávos táblánál is), a bagoly segít kihúzni */
   return szFeladatKesz(k, nagy.sz, "kicsi", nagy);
 }
 
@@ -10994,7 +11015,7 @@ function szVegigFut(f) {
     }
     var l = f.lep[i++];
     opLepes(l.t);
-    (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a „Ki mit?” táblában */
+    (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a pár-sávban */
     (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); if (!f.lepKezi) dobogoNtKihuzTesz(t[0], t[2]); });   /* 🔮/🏅: minden ✓ után kihúz */
     (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
     (l.x || []).forEach(function (q) { dobogoNtX(q[0], q[1]); });
