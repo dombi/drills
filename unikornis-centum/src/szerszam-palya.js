@@ -28,14 +28,14 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   var lista = [], felt = [];
   f.mon.forEach(function (m) {
     if (!lista.length || lista[lista.length - 1] !== m.s) lista.push(m.s);
-    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f, rend: m.rend != null ? m.rend : 99, sor: felt.length });
+    if (m.f) felt.push({ mi: lista.length - 1, resz: m.resz || "", ki: m.ki || "", f: m.f, rend: m.rend != null ? m.rend : 99, sor: felt.length, tab: m.tab || 1 });
   });
   /* a hibajelzés a GONDOLATMENET sorrendjében keres (a kötött mondat az első), nem a szöveg sorrendjében
      (dobogó-javítás 3/1: a Tekercsben a kötött mondat szándékosan a végén van) */
   felt.sort(function (a, b) { return a.rend - b.rend || a.sor - b.sor; });
   f.sz = sz; f.szerep = szerep; f.csalad = "dobogo"; f.helyes = 1; f.lanc = null; f.felt = felt;
   f.op = { mondatok: lista, kerdes: f.kerdes, rajz: "" };       /* a jobb lapra maga a kirakó kerül (dobogo.js) */
-  if (f.tabla && f.lepT) f.lep = f.lepT;                         /* 📋 táblás feladatnál a végigvezetés tábla nyelven (✓ · kihúzás · ✗) */
+  if (f.tabla && f.lepT) { f.lep = f.lepT; f.lepKezi = true; }  /* 📋 táblás feladatnál a végigvezetés tábla nyelven (✓ · kihúzás · ✗) */
   if (szerep === "kicsi") { f.nagy = nagy; f.op.fuzet = { mondatok: lista, kerdes: f.kerdes }; f.op.mondatok = nagy.op.mondatok; f.op.kerdes = nagy.op.kerdes; }
   f.kartyaHTML = opKonyv(f.op);
   f.szoveg = f.kerdes; f.felolvas = ekKiejt(lista.concat([f.kerdes]).join(" "));
@@ -47,7 +47,7 @@ function szFeladatKesz(f, sz, szerep, nagy) {
 function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
-  if (nagy.tabla && k.dob && k.dob.sorok.length === 1) k.tabla = { auto: true };   /* 📋 kicsiben is tábla, a bagoly segít kihúzni */
+  if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (két táblánál is), a bagoly segít kihúzni */
   return szFeladatKesz(k, nagy.sz, "kicsi", nagy);
 }
 
@@ -143,7 +143,7 @@ function szRossz(f, A) {
   ment();
 }
 function szHibaMutat(f, c) {
-  if (DOB && DOB.nt) dobogoHibaJelol(c && c.ki); else dobogoVisszaRossz();   /* 📋 táblánál senki nem ugrik vissza, a hibás kocka kap keretet */
+  if (DOB && DOB.nt) dobogoHibaJelol(c && c.ki, c && c.tab); else dobogoVisszaRossz();   /* 📋 táblánál senki nem ugrik vissza, a hibás kocka kap keretet */
   var v = $("visszajelzes"), msg;
   if (c) {
     opJelol(c.mi, c.resz);
@@ -179,7 +179,8 @@ function szVegigFut(f) {
     }
     var l = f.lep[i++];
     opLepes(l.t);
-    (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); });
+    (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a „Ki mit?” táblában */
+    (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); if (!f.lepKezi) dobogoNtKihuzTesz(t[0], t[2]); });   /* 🔮/🏅: minden ✓ után kihúz */
     (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
     (l.x || []).forEach(function (q) { dobogoNtX(q[0], q[1]); });
     mondd(ekKiejt(l.t), function () { setTimeout(kov, 350); });

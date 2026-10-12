@@ -147,7 +147,7 @@ function szkGeneral(o) {
       lepT.push({ t: A + " sorában is csak egy maradt: ő kerül " + szkHelyre(K, f) + ".", tesz: [[0, f, A]] });
     } else {
       lepT.push({ t: szkM(K, "kozv", A, B) + " Ők ketten csak egymás mellett férnek el, ezért " + C + " " + szkHelyre(K, ci) + " kerül.", tesz: [[0, ci, C]], ki: [C] });
-      lepT.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]] });
+      lepT.push({ t: A + " és " + B + " a maradék két helyre kerül, ebben a sorrendben.", tesz: [[0, ai, A], [0, ai + 1, B]], ki: [A, B] });
     }
     return { keret: o.keret, K: K, n: n, nevek: N, bevL: bevL, sol: sol, mon: mon, kerdes: K.kerdes, lep: lep, lepT: lepT, veg: e ? 1 : 0,
       kulcs: o.keret + ":" + sol.join(",") };
@@ -226,15 +226,15 @@ var SZK_MESTER = [
 
   { id: "kalmar-2023-3-M-5", cim: "Szendvics a túrán", forras: "Kalmár 2023 / 3. o. megyei 5.",
     hely: "tura", szerep: "gyerek", tobb: "négy gyerekkel", kicsiKeret: "fagyi", ket: true,
-    dob: { keret: "tabla", cimkek: ["134 cm", "144 cm", "146 cm", "156 cm"], sorNev: ["gyerek", "zöldség"] },
+    dob: { keret: "tabla", cimkek: ["134 cm", "144 cm", "146 cm", "156 cm"], sorNev: ["gyerek", "zöldség"], ntCim: "Ki milyen magas?" },
     nevek: ["Anna", "Berci", "Cili", "Dani"], attr: ["paprika", "retek", "uborka", "zöldhagyma"],
     jo: ["Dani", "Cili", "Anna", "Berci"], joAttr: ["retek", "paprika", "zöldhagyma", "uborka"],
     mon: [{ s: "Anna, Berci, Cili és Dani túrázni indultak, az útra mindenki szendvicset készített magának." },
           { s: "Mindegyikük egyféle zöldséget evett a szendvicséhez a paprika, retek, uborka és zöldhagyma közül, és nem volt két gyerek, aki ugyanolyan zöldséget evett volna." },
           { s: "A gyerekek magassága 134 cm, 144 cm, 146 cm és 156 cm." },
-          { s: "Tudjuk, hogy Berci uborkát eszik a szendvicséhez.", ki: "Berci", rend: 2, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
-          { s: "Aki paprikát eszik, az 10 centiméterrel magasabb Daninál.", rend: 1, ok1: function (A) { var H = [134, 144, 146, 156], k = A.kie("paprika"); return k != null && H[A.hol(k)] === H[A.hol("Dani")] + 10; } },
-          { s: "Dani nem szereti a zöldhagymát.", ki: "Dani", rend: 3, ok1: function (A) { return A.attr("Dani") !== "zöldhagyma"; } },
+          { s: "Tudjuk, hogy Berci uborkát eszik a szendvicséhez.", ki: "Berci", rend: 2, tab: 2, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
+          { s: "Aki paprikát eszik, az 10 centiméterrel magasabb Daninál.", rend: 1, tab: 3, ok1: function (A) { var H = [134, 144, 146, 156], k = A.kie("paprika"); return k != null && H[A.hol(k)] === H[A.hol("Dani")] + 10; } },
+          { s: "Dani nem szereti a zöldhagymát.", ki: "Dani", rend: 3, tab: 2, ok1: function (A) { return A.attr("Dani") !== "zöldhagyma"; } },
           { s: "Anna 146 cm magas.", ki: "Anna", rend: 0, ok1: function (A) { return A.hol("Anna") === 2; } }],
     kerdes: "Írd be a táblázatba, ki melyik zöldséget ette a szendvicséhez, és milyen magas?",
     vissza: "Most is kezdd azzal, amit biztosan tudsz: Anna magasságával.",
@@ -252,12 +252,12 @@ var SZK_MESTER = [
         kerdes: "Ki melyik zöldséget ette?",
         lep: [{ t: "Berci uborkát eszik.", tesz: [[1, 1, "uborka"]] }, { t: "Dani nem szereti a paprikát, ezért ő a retket eszi.", tesz: [[1, 2, "retek"]] }, { t: "Annának marad a paprika.", tesz: [[1, 0, "paprika"]] }] },
       { nevek: ["Anna", "Berci", "Dani"], attr: ["paprika", "retek", "uborka"],
-        dob: { keret: "tabla", cimkek: ["130 cm", "135 cm", "140 cm"] }, jo: ["Berci", "Dani", "Anna"], joAttr: ["uborka", "retek", "paprika"],
+        dob: { keret: "tabla", cimkek: ["130 cm", "135 cm", "140 cm"], ntCim: "Ki milyen magas?" }, jo: ["Berci", "Dani", "Anna"], joAttr: ["uborka", "retek", "paprika"],
         mon: [{ s: "Anna, Berci és Dani túrázni indultak." },
               { s: "Mindegyikük más zöldséget evett a szendvicséhez: paprikát, retket vagy uborkát." },
               { s: "A gyerekek magassága 130 cm, 135 cm és 140 cm." },
-              { s: "Berci uborkát eszik.", ki: "Berci", rend: 1, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
-              { s: "Aki paprikát eszik, az 5 centiméterrel magasabb Daninál.", rend: 2, ok1: function (A) { var k = A.kie("paprika"); return k != null && A.hol(k) === A.hol("Dani") + 1; } },
+              { s: "Berci uborkát eszik.", ki: "Berci", rend: 1, tab: 2, ok1: function (A) { return A.attr("Berci") === "uborka"; } },
+              { s: "Aki paprikát eszik, az 5 centiméterrel magasabb Daninál.", rend: 2, tab: 3, ok1: function (A) { var k = A.kie("paprika"); return k != null && A.hol(k) === A.hol("Dani") + 1; } },
               { s: "Anna 140 cm magas.", ki: "Anna", rend: 0, ok1: function (A) { return A.hol("Anna") === 2; } }],
         kerdes: "Ki melyik zöldséget ette, és milyen magas?",
         lep: [{ t: "Anna 140 cm magas.", tesz: [[0, 2, "Anna"]] }, { t: "Berci uborkát eszik, így nem ő a paprikás. Ha Dani 130 centis lenne, Berci lenne a paprikás, ezért Dani 135 cm, Berci 130 cm.", tesz: [[0, 1, "Dani"], [0, 0, "Berci"], [1, 0, "uborka"]] },
@@ -270,9 +270,9 @@ var SZK_MESTER = [
     jo: ["Csaba", "Gábor", "Dávid", "András"], joAttr: ["tollaslabda", "úszás", "kosárlabda", "kajak"],
     mon: [{ s: "Négy barát, András, Gábor, Dávid és Csaba egy négyemeletes ház négy különböző emeletén lakik." },
           { s: "Mind a négyen sportolnak, egyikük úszik, másik kosárlabdázik, harmadik kajakozik, negyedik tollaslabdázik." },
-          { s: "A kosárlabdázó, az úszó és Csaba, mindhárman András alatt laknak.", ki: "András", rend: 0,
+          { s: "A kosárlabdázó, az úszó és Csaba, mindhárman András alatt laknak.", ki: "András", rend: 0, tab: 3,
             ok1: function (A) { var a = A.hol("András"), k = A.kie("kosárlabda"), u = A.kie("úszás"); return k !== "Csaba" && u !== "Csaba" && A.hol(k) < a && A.hol(u) < a && A.hol("Csaba") < a; } },
-          { s: "Az úszónak egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot, és egy emeletet le, ha a tollaslabdázót szeretné felkeresni.",
+          { s: "Az úszónak egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot, és egy emeletet le, ha a tollaslabdázót szeretné felkeresni.", tab: 3,
             ok: [["egy emeletet kell felmenni az otthonából, ha meg akarja látogatni Dávidot", "Dávid", function (A) { var u = A.kie("úszás"); return A.hol("Dávid") === A.hol(u) + 1; }, 1],
                  ["egy emeletet le, ha a tollaslabdázót szeretné felkeresni", null, function (A) { var u = A.kie("úszás"), t = A.kie("tollaslabda"); return A.hol(t) === A.hol(u) - 1; }, 1]] }],
     kerdes: "Ki mit sportol, és hányadik emeleten lakik?",
@@ -293,9 +293,9 @@ var SZK_MESTER = [
         jo: ["Gábor", "Csaba", "András"], joAttr: ["úszás", "kosárlabda", "kajak"],
         mon: [{ s: "Három barát, András, Gábor és Csaba egy háromemeletes ház három különböző emeletén lakik." },
               { s: "Egyikük úszik, másik kosárlabdázik, harmadik kajakozik." },
-              { s: "Az úszó és Csaba is András alatt lakik.", ki: "András", rend: 0, ok1: function (A) { var u = A.kie("úszás"); return u !== "Csaba" && A.hol("András") === 2; } },
-              { s: "Az úszónak egy emeletet kell felmenni, ha meg akarja látogatni Csabát.", rend: 2, ok1: function (A) { var u = A.kie("úszás"); return A.hol("Csaba") === A.hol(u) + 1; } },
-              { s: "Csaba kosárlabdázik.", ki: "Csaba", rend: 1, ok1: function (A) { return A.attr("Csaba") === "kosárlabda"; } }],
+              { s: "Az úszó és Csaba is András alatt lakik.", ki: "András", rend: 0, tab: 3, ok1: function (A) { var u = A.kie("úszás"); return u !== "Csaba" && A.hol("András") === 2; } },
+              { s: "Az úszónak egy emeletet kell felmenni, ha meg akarja látogatni Csabát.", rend: 2, tab: 3, ok1: function (A) { var u = A.kie("úszás"); return A.hol("Csaba") === A.hol(u) + 1; } },
+              { s: "Csaba kosárlabdázik.", ki: "Csaba", rend: 1, tab: 2, ok1: function (A) { return A.attr("Csaba") === "kosárlabda"; } }],
         kerdes: "Ki mit sportol, és hányadik emeleten lakik?",
         lep: [{ t: "Az úszó és Csaba is András alatt lakik: András legfelül lakik.", tesz: [[0, 2, "András"]] }, { t: "Csaba kosárlabdázik, így Gábor az úszó, és Andrásnak marad a kajak.", tesz: [[1, 2, "kajak"]] },
               { t: "Gábor egy emelettel Csaba alatt lakik: Gábor a legalsó, Csaba a második emeleten.", tesz: [[0, 0, "Gábor"], [1, 0, "úszás"], [0, 1, "Csaba"], [1, 1, "kosárlabda"]] }] }] }
@@ -307,15 +307,16 @@ function szkKezi(M, szulo) {
   var szerep = szulo ? szulo.szerep : M.szerep, dobO = M.dob || szulo.dob, ket = !!M.attr;
   var mon = [], i;
   M.mon.forEach(function (m) {
-    if (m.ok) m.ok.forEach(function (o) { mon.push({ s: m.s, resz: o[0], ki: o[1], f: o[2], rend: o[3] }); });
-    else mon.push({ s: m.s, ki: m.ki, f: m.ok1 || null, rend: m.rend });
+    if (m.ok) m.ok.forEach(function (o) { mon.push({ s: m.s, resz: o[0], ki: o[1], f: o[2], rend: o[3], tab: M.csakAttr ? 2 : o[4] || m.tab || 1 }); });
+    else mon.push({ s: m.s, ki: m.ki, f: m.ok1 || null, rend: m.rend, tab: M.csakAttr ? 2 : m.tab || 1 });
   });
   var tokNev = function (nv) { return { id: nv, nev: nv, kep: szkKep(szerep, nv) }; };
   var tokAttr = function (a) { return { id: a, nev: a, kep: SZK_ZOLDSEG[a] ? szkZoldsegKep(a) : szkSportKep(a) }; };
-  var D = { keret: dobO.keret, pult: dobO.pult, n: M.nevek.length, cimkek: dobO.cimkek || null, sorok: [], jo: [] };
+  var D = { keret: dobO.keret, pult: dobO.pult, n: M.nevek.length, cimkek: dobO.cimkek || null, ntCim: dobO.ntCim || null, sorok: [], jo: [] };
   var sorNev = dobO.sorNev || (szulo && szulo.dob && szulo.dob.sorNev) || [];
   if (M.csakAttr) {                                            /* fejlécben a gyerekek, egy sor zöldség */
     D.cimkek = M.nevek.map(function (nv) { return '<span class="dob-fejkep">' + szkKep(szerep, nv) + '</span>' + nv; });
+    D.csak = M.nevek.map(tokNev);                               /* 📋 a „Ki mit?” tábla sorai */
     D.sorok.push({ nev: "zöldség", darabok: mKever(M.attr).map(tokAttr) }); D.jo.push(M.joAttr.slice());
   } else {
     D.sorok.push({ nev: sorNev[0] || "", darabok: mKever(M.nevek).map(tokNev) }); D.jo.push(M.jo.slice());
@@ -386,7 +387,7 @@ function szkGeneralPar(o) {
   for (var proba = 0; proba < 80; proba++) {
     var at = mKever(P.L).slice(0, n).map(szkParElem), ord, mon = [], felt = [], lep = [], g = null, r = tip === 1 ? 0 : 1, e = 0;
     var vegso = function (ki, i, a) { lep.push({ t: "Már csak " + ki + " és " + mi(a) + " maradt: ők összetartoznak.", tesz: [[r, i, a.n]] }); };
-    var nincsLep = function (c, i) { lep.push({ t: sv(P.nincs, c.x, c.at) + " Neki csak " + mi(at[i]) + " maradhat.", tesz: [[r, i, at[i].n]] }); };
+    var nincsLep = function (c, i) { lep.push({ t: sv(P.nincs, c.x, c.at) + " Neki csak " + mi(at[i]) + " maradhat.", x2: [[c.x, c.a]], tesz: [[r, i, at[i].n]] }); };   /* x2: 📋 ✗ a „Ki mit?” táblában */
     if (tip === 1) {
       ord = mKever(o.nevek && o.nevek.length >= n ? o.nevek : K.nevek).slice(0, n);
       var ix = veletlen(0, n - 1), iy = (ix + veletlen(1, n - 1)) % n, iz = 3 - ix - iy;
@@ -441,12 +442,15 @@ function szkGeneralPar(o) {
   }
   return null;
 }
+/* 📋 melyik tábla kockáját jelölje a hibajelzés: 1 = „Ki hol?” · 2 = „Ki mit?” · 3 = mindkettő (összekötő mondat) */
+function szkTab(c, csak) { return !c ? null : csak || c.t === "van" || c.t === "nincs" ? 2 : c.l ? 3 : 1; }
 function szkFeladatPar(g, fok) {
   var K = g.K, P = g.P, atN = g.at.map(function (a) { return a.n; }), csak = g.tip === 1;
   var tokNev = function (nv) { return { id: nv, nev: nv, kep: szkKep(K.szerep, nv) }; };
   var D = { keret: csak ? "tabla" : K.dob === "haz" ? "haz2" : K.dob, pult: K.pult, n: g.n, cimkek: null, sorok: [], jo: [] };
   if (csak) {                                                  /* fejlécben a szereplők, alattuk egy sor pár */
     D.cimkek = g.nevek.map(function (nv) { return '<span class="dob-fejkep">' + szkKep(K.szerep, nv) + '</span>' + nv; });
+    D.csak = g.nevek.map(tokNev);                               /* 📋 a „Ki mit?” tábla sorai (a fejléc szereplői) */
     D.sorok.push({ nev: P.sorNev[1], darabok: mKever(g.at).map(szkParTok) }); D.jo.push(atN.slice());
   } else {
     D.sorok.push({ nev: P.sorNev[0], darabok: mKever(g.bevL).map(tokNev) }, { nev: P.sorNev[1], darabok: mKever(g.at).map(szkParTok) });
@@ -456,7 +460,7 @@ function szkFeladatPar(g, fok) {
   return { forma: "dobogo", fok: fok, par: true, tip: g.tip, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs,
     tobb: csak ? "" : g.n === 4 ? K.tobb[1] + ", és a helyükkel együtt" : "a helyükkel együtt",
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
-    mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? ell(m.c) : null }; }),
+    mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? ell(m.c) : null, tab: szkTab(m.c, csak) }; }),
     kerdes: g.kerdes, dob: D, nezet: function (A) { return A; }, lep: g.lep,
     joKiir: csak ? g.nevek.map(function (nv, j) { return nv + ": " + atN[j]; }).join(" · ") : g.sol.map(function (nv, j) { return nv + " (" + atN[j] + ")"; }).join(" – "),
     mitKerdez: csak ? "Azt kérdezik, kihez mi tartozik. Tedd mindenki alá a párját!" : "Két dolgot kérdeznek: ki hol van, és kihez mi tartozik. Tedd mindenkit a helyére, és mindenki mellé a párját!" };
@@ -484,7 +488,9 @@ var SZK_TART = {
     if (tip) {
       var gp = szkGeneralPar({ keret: keret, tip: tip, veg: veg, nevek: szabad.length >= n ? szabad : null });
       S.veg[keret] = gp.veg; S.nevek[keret] = hasz.concat(gp.nevek);
-      return szkFeladatPar(gp, fok);
+      var fp = szkFeladatPar(gp, fok);
+      if (szerszamBeall().tabla) fp.tabla = { auto: false };   /* 📋 3. kód-kör: 🔮 két tábla („Ki hol?” + „Ki mit?”; az 1. fajtánál csak „Ki mit?”) */
+      return fp;
     }
     var g = szkGeneral({ keret: keret, n: n, veg: veg, nevek: szabad.length >= n ? szabad : null });
     S.veg[keret] = g.veg; S.nevek[keret] = hasz.concat(g.nevek);
@@ -505,7 +511,11 @@ var SZK_TART = {
     if (nagy.par) return szkFeladatPar(szkGeneralPar({ keret: nagy.keret, tip: 1, nevek: nagy.nevek }), "kicsi");   /* 🔮: kicsiben = csak a pár */
     return szkFeladatGen(szkGeneral({ keret: nagy.keret, n: 3, nevek: nagy.nevek }), "kicsi");
   },
-  mester: function (id) { var M = szkMester(id); return M ? szkFeladatKezi(M, "mester") : null; },
+  mester: function (id) {
+    var M = szkMester(id), f = M ? szkFeladatKezi(M, "mester") : null;
+    if (f && szerszamBeall().tabla) f.tabla = { auto: false };  /* 📋 3. kód-kör: a Mesterpróbán is ott a tábla (öt kutyánál 5 × 5) */
+    return f;
+  },
   mesterLista: function () { return SZK_MESTER.map(function (m) { return m.id; }); }
 };
 function szkFeladatGen(g, fok) {

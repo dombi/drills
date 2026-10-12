@@ -2464,9 +2464,63 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
   .dob-ter.nt.k-haz,.dob-ter.nt.k-haz2,.dob-ter.nt.k-polc{ flex-direction:row; align-items:flex-end; justify-content:center; gap:10px; }
   .k-haz .dob-varo,.k-haz2 .dob-varo,.k-polc .dob-varo{ width:auto; max-width:170px; min-height:0; align-self:stretch; align-content:flex-end; }
 }
+/* 📋 KÉT TÁBLA (🔮 / 🏅, 3. kód-kör): „Ki hol?” + „Ki mit?” egymás alatt (B és telefon), 641–1099 px között egymás mellett;
+   kisebb kockák (rajzterv 5. pont: 50 × 44); a „Ki mit?” fejlécében a pár képe + kis neve; aki vár, a párját a kezében tartja */
+.nt-egy{ display:flex; justify-content:center; max-width:100%; }
+.nt-oszlop.ket{ flex-direction:column; align-items:center; gap:14px; }
+.nt-iro.kicsi{ padding:15px 7px 7px; }
+.nt-iro.kicsi .nt-papir{ padding:3px 4px 5px; }
+.nt-iro.kicsi .nt-cim{ font-size:14px; margin-bottom:0; }
+.nt-iro.kicsi .nt-tabla{ border-spacing:3px; }
+.nt-iro.kicsi .nt-k{ width:50px; height:44px; font-size:24px; }
+.nt-iro.kicsi .nt-fej{ width:26px; height:26px; }
+.nt-iro.kicsi .nt-nev{ font-size:12px; }
+.nt-okep{ display:block; height:26px; }
+.nt-okep svg{ width:26px; height:26px; display:block; margin:0 auto; }
+.nt-okep .szk-emo{ font-size:20px; line-height:26px; }
+.nt-onev{ display:block; font-size:11px; line-height:1.1; max-width:56px; overflow:hidden; text-overflow:ellipsis; }
+.nt-tabla th.nt-sarok{ font-size:12px; line-height:1.1; white-space:normal; max-width:80px; color:#b08a6a; vertical-align:bottom; padding-bottom:3px; }
+/* két táblánál a sorfejléc egy sor: kis fej + név mellette (alacsonyabb sorok) */
+.nt-iro.kicsi .nt-sf{ text-align:left; }
+.nt-iro.kicsi .nt-sf .nt-fej,.nt-iro.kicsi .nt-sf .nt-nev{ display:inline-block; vertical-align:middle; margin:0; }
+.nt-iro.kicsi .nt-sf .nt-nev{ margin-left:3px; max-width:62px; }
+@media (min-width:641px){                                        /* B és A, két tábla: hogy a gombok is a képen maradjanak (1366 × 660, 1024 × 768) */
+  #kepernyo-jatek.op-mod.nt-mod.nt-ket .nt-oszlop{ margin-top:10px; gap:8px; }
+  .nt-iro.kicsi{ padding:13px 6px 6px; }
+  .nt-iro.kicsi .nt-k{ width:46px; height:36px; font-size:22px; }
+  .nt-iro.kicsi .nt-fej{ width:24px; height:24px; }
+  .nt-iro.kicsi .nt-okep{ height:22px; }
+  .nt-iro.kicsi .nt-okep svg{ width:22px; height:22px; }
+  .nt-iro.kicsi .nt-okep .szk-emo{ font-size:18px; line-height:22px; }
+  .nt-iro.kicsi::before{ top:-7px; height:18px; }
+  #kepernyo-jatek.op-mod.nt-mod.nt-ket .op-bagsor{ min-height:50px; margin-top:4px; }
+  #kepernyo-jatek.op-mod.nt-mod.nt-ket .op-bagoly-hely,#kepernyo-jatek.op-mod.nt-mod.nt-ket .op-bagoly-hely .bagoly-figura{ width:42px; height:50px; }
+  #kepernyo-jatek.op-mod.nt-mod.nt-ket .op-bub{ margin-bottom:10px; }
+}
+.dob-d.fog{ position:relative; }
+.dob-fog{ position:absolute; right:-10px; top:-9px; width:30px; height:30px; background:#fff; border:2px solid #a7d99a; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 2px 0 #cfe8c4; pointer-events:none; }
+.dob-fog svg{ width:22px; height:22px; display:block; }
+.dob-fog .szk-emo{ font-size:17px; line-height:1; }
+@media (min-width:641px) and (max-width:1099px){
+  .nt-oszlop.ket{ flex-direction:row; flex-wrap:wrap; align-items:flex-start; justify-content:center; gap:10px; }
+  .nt-iro.kicsi .nt-k{ width:46px; height:30px; font-size:19px; }
+  .nt-iro.kicsi{ padding:11px 5px 5px; }
+  #kepernyo-jatek.op-mod.nt-mod.nt-ket .nt-oszlop{ margin-top:6px; }
+  /* a sorfejléc egy sor (kis fej + név) — alacsonyabb sorok; az 5 × 5-ös tábla (agárverseny, öt kutya) is kisebb kockákkal */
+  .nt-sf{ text-align:left; }
+  .nt-sf .nt-fej,.nt-sf .nt-nev{ display:inline-block !important; vertical-align:middle; margin:0 !important; }
+  .nt-sf .nt-nev{ margin-left:3px !important; max-width:62px; }
+  .nt-tabla.m5 .nt-k{ width:46px; height:29px; font-size:19px; }
+  .nt-tabla.m5 .nt-fej{ width:24px; height:24px; }
+  /* két táblánál a várakozó szereplők és párjaik egymás mellett (nem két sorban) — így a könyv alacsonyabb marad */
+  .dob-ter.nt.ket:not(.k-haz2):not(.k-polc){ display:grid; grid-template-columns:1fr 1fr; align-items:end; }
+  .dob-ter.nt.ket:not(.k-haz2):not(.k-polc) > :first-child{ grid-column:1 / -1; justify-self:center; }
+}
 /* telefon: minden egymás alatt (szöveg → rajz → tábla → bagoly → gombok) */
 @media (max-width:640px){
   .nt-k{ width:58px; height:50px; }
+  .nt-iro.kicsi .nt-k{ width:50px; height:44px; }
   .nt-tabla.m4 .nt-k{ width:52px; height:44px; }
   .k-haz .dob-varo,.k-haz2 .dob-varo,.k-polc .dob-varo{ max-width:74px; padding:4px; }
   .nt-tabla.m5 .nt-k{ width:44px; height:44px; font-size:22px; }
