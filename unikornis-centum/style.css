@@ -2242,6 +2242,11 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .op-fuzet{ position:absolute; left:6%; top:8%; width:88%; background:#fff; border:3px solid #f6a5c0; border-radius:12px; padding:10px 14px 12px; transform:rotate(-1.5deg);
   box-shadow:0 8px 18px rgba(120,60,90,.22); animation:op-csuszik .5s ease-out; z-index:2; }
 @keyframes op-csuszik{ from{ transform:translate(-40px,50px) rotate(-8deg); opacity:0; } }
+/* próbacsapat 4. (🟡5): a füzet nem lóghat le a lapról (a kérdés félig takarva volt) — a halvány szöveg és a füzet egy
+   rácscellában fekszik egymáson, így a lap a magasabbikhoz igazodik */
+.op-liftes .op-bal{ display:grid; align-items:start; }
+.op-liftes .op-bal > .op-alatta,.op-liftes .op-bal > .op-fuzet{ grid-area:1 / 1; }
+.op-liftes .op-bal > .op-fuzet{ position:relative; left:auto; top:auto; width:auto; margin:4px 2% 6px; }
 .op-bal.op-masodik > .op-szoveg,.op-bal.op-masodik > .op-fuzet{ display:none; }
 .op-lepesek{ animation:op-lapoz .45s ease-out; transform-origin:right center; }
 @keyframes op-lapoz{ from{ transform:perspective(700px) rotateY(-75deg); opacity:.2; } }
@@ -2414,6 +2419,13 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .nt-tabla.s2.n5 .nt-k{ width:50px; }
 .nt-tabla.s2 .nt-fej{ width:28px; height:28px; }
 .nt-iro.zar .nt-k{ pointer-events:none; }
+/* 🟡2: a 📋 fok első feladatában a tábla fölött: mit jelent egy és két koppintás */
+.nt-egy:has(.nt-sugo){ flex-direction:column; align-items:center; }
+.nt-sugo{ font-size:14px; font-weight:700; color:#5a4a5a; background:#fffaf0; border:2px dashed #d9cbbb; border-radius:10px; padding:4px 12px; margin:0 0 12px; line-height:1.9; }
+.nt-si{ display:block; white-space:nowrap; }
+.nt-sk{ display:inline-block; vertical-align:middle; width:26px; height:22px; border:2px solid #d9cbbb; border-radius:6px; background:#fff; font-size:15px; line-height:18px; text-align:center; font-weight:800; }
+.nt-sk.x{ background:#fbf1ee; color:#c07a6a; }
+.nt-sk.v{ background:#e5f5e0; border-color:#7fbf6a; color:#3f8a2e; }
 /* a rajz: R4 — minden kizárt szereplőért egy egyforma kis ✗ a hely mellett (kié, az a táblából derül ki) */
 .dob-xek{ position:absolute; right:-6px; top:4px; display:flex; flex-direction:column; pointer-events:none; z-index:2; }
 .dob-xek i{ font-style:normal; font-weight:900; font-size:15px; line-height:14px; color:#c07a6a; opacity:.85; }
@@ -2591,6 +2603,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .visszajelzes.oe-tabla{ display:inline-block; background:#fff3c4; border:2.5px solid #e6ad2e; border-radius:12px; padding:6px 12px; color:#6a4a00; font-weight:700; }
 .visszajelzes.oe-tabla .oe-kez{ font-size:1.2em; }
 .visszajelzes.oe-mit{ color:#5b3aa8; font-weight:700; }
+.visszajelzes.oe-sugo{ cursor:pointer; text-decoration:underline dotted #b9a2e6; text-underline-offset:3px; }   /* 🟡1: a súgóra is lehet koppintani */
 /* a feladat saját tippjénél kiemelt rajz-rész (pl. a kosár) + koppintással számolható gyümölcsök */
 .oe-kiemel{ background:#fff3c4; box-shadow:0 0 0 3px #e6ad2e; border-radius:10px; }
 .ek-gy{ position:relative; display:inline-block; cursor:pointer; }

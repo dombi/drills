@@ -2087,13 +2087,14 @@ function szerszamFeladatFriss(fid, p) {
 var LIFT_TILOS = /könnyebb|könnyű|mesekönyv|visszalép|egyszerűbben|egyszerűbb|szint|osztály/i;
 var LIFT_MONDATOK = {
   indul: ["Nézzük kicsiben – a matekosok is így csinálják.", "Nézzük meg kicsiben – a matekosok is így csinálják."],
-  vissza: ["Ügyes! Ugyanaz, csak {nagy}.", "Ügyes! Most ugyanez jön, csak {nagy}."]
+  vissza: ["Ügyes! Ugyanaz, csak {nagy}.", "Ügyes! Most ugyanez jön, csak {nagy}."],
+  ujra: ["Ügyes! Most próbáld újra az előzőt!", "Ügyes! Most jöhet újra az előző feladat."]   /* a kicsi ugyanakkora volt (🖊️ lektorra) */
 };
 /* „indul” / „vissza”; m = { kicsi: „Most csak három kutya fut…”, nagy: „öt kutyával” } — a pálya adja a mese-részt */
 function liftMondat(mi, m) {
   m = m || {};
   var L = LIFT_MONDATOK[mi] || [""], s = L[Math.floor(Math.random() * L.length)];
-  if (mi === "vissza") s = m.nagy ? s.replace("{nagy}", m.nagy) : "Ügyes! Most jöhet a nagy feladat.";
+  if (mi === "vissza") s = m.nagy ? s.replace("{nagy}", m.nagy) : LIFT_MONDATOK.ujra[Math.floor(Math.random() * 2)];   /* próbacsapat 4. (🟡4) */
   if (mi === "indul" && m.kicsi) s += " " + m.kicsi;
   if (mi === "vissza" && m.utana) s += " " + m.utana;
   return LIFT_TILOS.test(s) ? (mi === "indul" ? LIFT_MONDATOK.indul[0] : "Ügyes! Most jöhet a nagy feladat.") : s;
@@ -9588,6 +9589,8 @@ var OE_M = {
   keres: "🔎 Mire felelsz? Koppints a kérdésre!",
   keresJo: "Igen, ez a kérdés",
   keresMas: "Ez a mese egy része. Melyik mondat kérdez?",
+  nosz: "🔎 Előbb a kérdés! Koppints rá – ott villog a könyvben.",   /* 🖊️ lektorra (próbacsapat 4., 🟡1) */
+  sugo: "Itt a kérdés:",
   koztes: function (jel) { return "Ez egy lépcsőfok volt: " + jel + ". De mit kérdeztek?"; },
   masik: function (n, jel) { return "🔎 " + ekA(n, true) + " " + jel + ". Mit kérdeznek?"; },
   kozBagoly: "Nézd meg még egyszer a kérdést!",
@@ -9669,7 +9672,7 @@ function oeKeres(f, o) {
   var bub = $("buborek-feladat"); if (bub) bub.classList.add("oe-keres");
   if (!o.lagy) $("valaszter").classList.add("oe-var");
   if (!o.csendes) {
-    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = OE_M.keres;
+    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit oe-sugo"; v.textContent = OE_M.keres;
     mondd(ekKiejt(OE_M.keres.replace(/^🔎\s*/, "")));
   }
 }
@@ -9683,21 +9686,44 @@ function oeTorol() {
   oeKeresVege();
   Array.prototype.forEach.call(document.querySelectorAll("#buborek-feladat .oe-megvan, #buborek-feladat .oe-kiemel"), function (x) { x.classList.remove("oe-megvan", "oe-kiemel"); });
 }
+/* a kérdés megvan: a kérdés-keret le, a bagoly visszamondja, és a válasz kinyílik. elo: a súgóból „Itt a kérdés: …” */
+function oeKeresMegvan(q, elo) {
+  var K = OE.keres, f = K.f;
+  var szo = K.o.szo != null ? K.o.szo : (oeEtlap(f) || {}).szo;
+  var m = elo ? elo + " " + ekSima(q.innerHTML || "").replace(/\s+/g, " ").trim() + (K.o.mondat ? " " + K.o.mondat : "")
+              : OE_M.keresJo + (szo ? ": " + szo + "." : "!") + (K.o.mondat ? " " + K.o.mondat : "");
+  oeKeresVege();
+  q.classList.add("oe-megvan");
+  f.oeKeresVolt = true;
+  var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = "🔎 " + m;
+  var kesz = K.o.kesz;
+  mondd(ekKiejt(m), function () { if (kesz && J && J.feladat === f) kesz(); });
+}
+/* próbacsapat 4. (🟡1): amíg a kérdést keresi, a zárt válaszra (tábla, rajz, Kész) koppintás NEM néma — a kérdés
+   felvillan, és a bagoly megmutatja, hol van. Visszaad: true, ha kezelte (a hívó ilyenkor semmi mást nem csinál). */
+function oeNoszog() {
+  if (!oeKeresFut()) return false;
+  var q = oeKerdesEl(); if (!q) return false;
+  OE.keres.nosz = (OE.keres.nosz || 0) + 1;
+  if (typeof opMutatSor === "function" && q.classList.contains("op-kerdes")) opMutatSor(q);
+  oeKerdesVillan();
+  var v = $("visszajelzes"); v.className = "visszajelzes oe-mit oe-sugo"; v.textContent = OE_M.nosz;
+  if (OE.keres.nosz < 3 || OE.keres.nosz % 3 === 0) mondd(ekKiejt(OE_M.nosz.replace(/^🔎\s*/, "")));   /* ne darálja minden koppintásra */
+  return true;
+}
+/* a súgóra (a bagoly buborékában: „🔎 Mire felelsz? …”) koppintva a bagoly megmutatja a kérdést, és kinyílik a válasz */
+function oeSugoKatt() {
+  if (!oeKeresFut()) return;
+  var q = oeKerdesEl(); if (!q) return;
+  hangGomb();
+  if (typeof opMutatSor === "function" && q.classList.contains("op-kerdes")) opMutatSor(q);
+  oeKerdesVillan();
+  oeKeresMegvan(q, OE_M.sugo);
+}
 function oeKeresKatt(ev) {
   if (!oeKeresFut()) return false;
   var K = OE.keres, f = K.f, t = ev.target, q = oeKerdesEl(); if (!q) return false;
-  if (q.contains(t)) {
-    hangGomb();
-    var szo = K.o.szo != null ? K.o.szo : (oeEtlap(f) || {}).szo;
-    var m = OE_M.keresJo + (szo ? ": " + szo + "." : "!") + (K.o.mondat ? " " + K.o.mondat : "");
-    oeKeresVege();
-    q.classList.add("oe-megvan");
-    f.oeKeresVolt = true;
-    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = "🔎 " + m;
-    var kesz = K.o.kesz;
-    mondd(ekKiejt(m), function () { if (kesz && J && J.feladat === f) kesz(); });
-    return true;
-  }
+  if (q.contains(t)) { hangGomb(); oeKeresMegvan(q, ""); return true; }
   var mon = oeMondatEl(t);
   if (mon) {
     K.hiba++;
@@ -9714,6 +9740,8 @@ function oeKeresKatt(ev) {
   function bekot() {
     var b = $("buborek-feladat"); if (!b || b.__oe) return; b.__oe = true;
     b.addEventListener("click", function (ev) { if (oeKeresKatt(ev)) ev.stopPropagation(); });
+    var vj = $("visszajelzes");                                  /* a súgó (🟡1) */
+    if (vj && !vj.__oe) { vj.__oe = true; vj.addEventListener("click", oeSugoKatt); }
     /* a régi kosaras feladat: „Koppints egyenként minden gyümölcsre” — a megkoppintott gyümölcs kap egy sorszámot */
     b.addEventListener("click", function (ev) {
       var g = ev.target.closest ? ev.target.closest(".ek-gy") : null; if (!g) return;
@@ -9749,7 +9777,9 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3, 2026-10-12): a NEVEK FENT
         ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r, T) / ntX(r, c, T) (a végigvezetés: a bagoly húz ki, sárga villanással)
    o = { hova: elem (azonos elem = közös tábla), cim: html (a sáv címe: „🏠 Hol lakik?”), sav?: "hely"|"par" (a sáv színe),
          fordit?: bool, sorok: [{ id, nev, kep }] (a nevek: a tábla oszlopai), oszlopok: [html] (a sáv sorai), auto: bool, rejtve: bool,
-         hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
+         hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg,
+         zarKatt?: function () — zárt táblára koppintott (a gazda megmondja, miért zárt: pl. „Előbb a kérdés!”),
+         sugo?: html — egy sor a tábla fölött (a 📋 fok első feladatában: mit jelent egy és két koppintás) } */
 
 var NT = null;     /* az első tábla: { o, X: [[0|1|3]], O: [["r,c"|null]], elo: [oszlop…], uj: {"r,c":1}, hiba: {r,c}|null, zar, lathato } */
 var NT_L = [];     /* minden élő sáv (🔮/🏅: hely-sáv + pár-sáv, egy táblában) */
@@ -9840,13 +9870,15 @@ function ntRajz(T) {
       t += '</tr>';
     }
   });
-  h.innerHTML = '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
+  h.innerHTML = (E.o.sugo ? '<div class="nt-sugo">' + E.o.sugo + '</div>' : '') + '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
     '<table class="nt-tabla n' + Math.min(Math.max(n, 3), 5) + (G.length > 1 ? " s2" : "") + '">' + t + '</table></div></div>';
   G.forEach(function (g) { g.uj = {}; });
 }
 function ntKatt(ev) {
+  var G = ntSavok(this);
+  if (G[0] && G[0].zar) { if (G[0].o.zarKatt) G[0].o.zarKatt(); return; }   /* próbacsapat 4. (🟡1): a zárt tábla se legyen néma */
   var b = ev.target.closest ? ev.target.closest(".nt-k") : null; if (!b) return;
-  var T = ntSavok(this)[+b.getAttribute("data-t") || 0];
+  var T = G[+b.getAttribute("data-t") || 0];
   if (!T || T.zar) return;
   var r = +b.getAttribute("data-r"), c = +b.getAttribute("data-c");
   hangGomb();
@@ -9934,6 +9966,9 @@ DOB_NT.haz2 = DOB_NT.haz;
 var DOB_NT_PAR = { "nyakörv": "🏷️ Milyen a nyakörve?", "fagyi": "🍨 Milyen fagyit kér?", "kezében": "🎈 Mi van a kezében?",
   "sport": "⚽ Mit sportol?", "zöldség": "🥪 Mit eszik?" };
 
+/* 📋 a tábla fölötti súgó-sor (próbacsapat 4., 🟡2: a bemutató mondat a kérdés-keresés mellett elsikkadt) — 🖊️ lektorra */
+var DOB_NT_SUGO = '<span class="nt-si">1 koppintás: <span class="nt-sk x">✗</span> ide nem</span><span class="nt-si">2 koppintás: <span class="nt-sk v">✓</span> ide kerül</span>';
+
 function dobPanel() {
   var p = $("dobogo-panel");
   if (!p) {
@@ -9956,6 +9991,7 @@ function dobogoRejt() {
 }
 function dobNtRejt() {
   ntRejt();
+  var lap = document.querySelector("#buborek-feladat .op-jobb"); if (lap) lap.style.minHeight = "";
   var o = $("nt-oszlop"); if (o) { o.hidden = true; o.innerHTML = ""; }
   var k = $("kepernyo-jatek"); if (k) k.classList.remove("nt-mod", "nt-ket");
 }
@@ -10042,7 +10078,7 @@ function dobRajz() {
   var lap = dobKonyvLap(), ter = dobTerRajz();
   if (!p.querySelector(".dob-also"))                          /* a váz egyszer készül: a 🙋 menü (és a gombjai) megmarad */
     p.innerHTML = '<div class="dob-kulon"></div><div class="dob-also"></div><div class="dob-segitmenu" hidden></div>';
-  if (lap) { lap.innerHTML = ter; lap.classList.add("dob-lap"); lap.classList.toggle("zar", !!DOB.zar); }
+  if (lap) { lap.innerHTML = ter; lap.classList.add("dob-lap"); lap.classList.toggle("zar", !!DOB.zar); if (DOB.nt) dobLapMagas(lap); }
   var ku = p.querySelector(".dob-kulon"); ku.innerHTML = lap ? "" : ter; ku.hidden = !!lap;
   var also = p.querySelector(".dob-also");
   also.innerHTML = (tal ? '<div class="dob-talak">' + tal + '</div>' : '') + gomb;
@@ -10050,6 +10086,15 @@ function dobRajz() {
   p.classList.toggle("zar", !!DOB.zar);
   if (DOB.nt) { ntRajz(); dobSetal(elotte); }
   DOB.uj = null; DOB.razo = null;
+}
+/* 📋 próbacsapat 4. (🟡7): ahogy a várakozók a helyükre sétálnak, a rajz alja (a várakozók sora) összemehetne, és a könyv
+   alatti / melletti tábla elcsúszna a gyerek ujja alól. Ezért a lap csak nőhet egy feladaton belül (méretváltáskor újramér). */
+function dobLapMagas(lap) {
+  var sz = window.innerWidth + "x" + window.innerHeight;
+  if (DOB.lapSz !== sz) { DOB.lapSz = sz; DOB.lapMin = 0; lap.style.minHeight = ""; }
+  var h = lap.offsetHeight;
+  if (h > (DOB.lapMin || 0)) DOB.lapMin = h;
+  lap.style.minHeight = DOB.lapMin + "px";
 }
 /* 🚶 a szereplők átsétálnak az új helyükre (újrarajzolás után a régi helyükről indulnak: FLIP) — csak táblás feladatnál */
 function dobHolVan() {
@@ -10073,8 +10118,8 @@ function dobSetal(elotte) {
     setTimeout(function () { b.classList.remove("setal"); }, 900);
   });
 }
-/* o = { kesz: function (jo, allas) {}, segit: function (menu) {} | null,
-         tabla: { auto: bool, cim?: html, mondat?: function (nev, oszlop) → szöveg, rejtve?: bool } | null — 📋 Nyomozótábla } */
+/* o = { kesz: function (jo, allas) {}, segit: function (menu) {} | null, zarKatt?: function () (zárt kirakóra / táblára koppintott),
+         tabla: { auto: bool, cim?: html, mondat?: function (nev, oszlop) → szöveg, rejtve?: bool, sugo?: html } | null — 📋 Nyomozótábla } */
 function dobogoMutat(f, o) {
   var D = f.dob;
   dobNtRejt();
@@ -10104,14 +10149,15 @@ function dobNtIndul(t) {
   var sorok = S.map(function (d) { return { id: d.id, nev: d.nev, kep: d.kep }; });
   var hova = el("div", "nt-egy"); oszlop.appendChild(hova);
   DOB.nt = true;
-  if (!csak) DOB.ntHol = ntUj({ hova: hova, cim: t.cim || D.ntCim || F.cim, sav: "hely", fordit: !!F.fordit, auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok,
+  var zk = DOB.o.zarKatt || null, sugo = t.sugo ? DOB_NT_SUGO : "";
+  if (!csak) DOB.ntHol = ntUj({ hova: hova, cim: t.cim || D.ntCim || F.cim, sav: "hely", fordit: !!F.fordit, auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok, zarKatt: zk, sugo: sugo,
     oszlopok: Array.apply(null, { length: D.n }).map(function (x, i) { return F.osz(i, D.n, D); }),
     hol: function (r) { return DOB.hely[0].indexOf(S[r].id); },
     tesz: function (r, c) { dobNtTesz(S[r].id, c); },
     levesz: function (r) { var P = dobParok(), j = DOB.hely[0].indexOf(S[r].id); if (j >= 0) DOB.hely[0][j] = null; dobParIgazit(P); DOB.kez = null; DOB.cel = null; dobRajz(); },
     valt: function () { dobRajz(); },
     mondat: function (r, c) { return t.mondat ? t.mondat(S[r].nev, c) : F.ki(S[r].nev, c, D.n, D) + " Ezeket kihúztam."; } });
-  if (A) DOB.ntMit = ntUj({ hova: hova, cim: DOB_NT_PAR[D.sorok[csak ? 0 : 1].nev] || "🔗 Mi az övé?", sav: "par", auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok,
+  if (A) DOB.ntMit = ntUj({ hova: hova, cim: DOB_NT_PAR[D.sorok[csak ? 0 : 1].nev] || "🔗 Mi az övé?", sav: "par", auto: !!t.auto, rejtve: !!t.rejtve, sorok: sorok, zarKatt: zk, sugo: csak ? sugo : "",
     oszlopok: A.map(function (a) { return '<span class="nt-okep">' + a.kep + '</span><span class="nt-onev">' + a.nev + '</span>'; }),
     hol: function (r) { var a = dobParja(S[r].id); return a == null ? -1 : dobAIdx(a); },
     tesz: function (r, c) { dobNtParTesz(S[r].id, A[c].id); },
@@ -10274,10 +10320,11 @@ function dobTalKatt(r, id) {
 }
 function dobKatt(ev) {
   if (!DOB) return;
-  var t = ev.target.closest ? ev.target.closest("button, .dob-h, .dob-tal") : null; if (!t) return;
-  var g = t.getAttribute("data-g");
+  var t = ev.target.closest ? ev.target.closest("button, .dob-h, .dob-tal") : null;
+  var g = t ? t.getAttribute("data-g") : null;
   if (g === "segit") { hangGomb(); if (DOB.o.segit) DOB.o.segit($("dobogo-panel").querySelector(".dob-segitmenu")); return; }
-  if (DOB.zar || !g && t.closest(".dob-segitmenu")) return;
+  if (DOB.zar) { if (DOB.o.zarKatt && !(ev.target.closest && ev.target.closest(".dob-segitmenu"))) DOB.o.zarKatt(); return; }   /* 🟡1: a zár ne legyen néma */
+  if (!t || !g && t.closest(".dob-segitmenu")) return;
   if (g === "ujra") { hangGomb(); dobogoUrit(); return; }
   if (g === "kesz") {
     hangGomb();
@@ -10799,8 +10846,9 @@ var SZK_TART = {
     S.veg[keret] = g.veg; S.nevek[keret] = hasz.concat(g.nevek);
     var fg = szkFeladatGen(g, fok);
     if (fok === "tabla") {                                        /* 📋 a tábla + a 3. döntés: az első 2 feladatban a bagoly húz ki */
-      fg.tabla = { auto: i < 2 };
+      fg.tabla = { auto: i < 2, sugo: i === 0 };                  /* 🟡2: az első feladatban a ✗/✓ súgó-sor a tábla fölött */
       if (i === 0) fg.opElo = SZK_TABLA_ELSO;
+      if (i === 2 && J.sz) { fg.opElo = SZ_ATAD; J.sz.atadVolt = true; }   /* 🟡3: „Most te húzod ki!” (szerszam-palya.js) */
     }
     return fg;
   },
@@ -10822,7 +10870,7 @@ var SZK_TART = {
   mesterLista: function () { return SZK_MESTER.map(function (m) { return m.id; }); }
 };
 function szkFeladatGen(g, fok) {
-  return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.K.tobb[g.n - 3],
+  return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.n > 3 ? g.K.tobb[g.n - 3] : "",   /* 🟡4: 3 szereplős nagy → a kicsi is 3 szereplős, nincs „ugyanaz, csak…” */
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
     mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
     kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, lepT: g.lepT, joKiir: g.sol.join(" – "),
@@ -10891,7 +10939,7 @@ function szKicsi(nagy) {
 function szMutat(f) {
   opMod(true);
   var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
-  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null, zarKatt: oeNoszog });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -10950,7 +10998,7 @@ function szJo(f) {
   if (f.szerep === "kicsi") {
     var r = liftKicsi(L, jo1), nagy = f.nagy;
     if (r === "kicsi") { var k = szKicsi(nagy); k.opElo = SZ_KICSI_MEG; f.lanc = [k]; }
-    else if (r === "vissza") { nagy.opElo = liftMondat("vissza", { nagy: nagy.tobb, utana: nagy.vissza }); f.lanc = [nagy]; }
+    else if (r === "vissza") { nagy.opElo = liftMondat("vissza", { nagy: nagy.tobb, utana: szAtadMondat(nagy) || nagy.vissza }); f.lanc = [nagy]; }
     else { nagy.opVegig = true; f.lanc = [nagy]; }               /* 3 kicsi után: együtt oldják meg a nagyot */
   } else if (f.szerep === "nagy") {
     liftJo(L);
@@ -10959,6 +11007,14 @@ function szJo(f) {
     if (f.indok && !f.vegigVolt) f.utoMondat = f.indok;       /* „Válaszodat indokold!” → a bagoly elmondja (tartalom-lap 8/5) */
   } else szerszamKicsiJegyez(f.sz, J.palya.id, "mese", f.fid, jo1);
   ertekel(1);
+}
+/* 📋 próbacsapat 4. (🟡3): a bagoly eddig kihúzott (a kicsiben / a 📋 fok első 2 feladatában), most már a gyerek húz ki —
+   ezt egyszer, pályánként egyszer kimondja. Visszaad: a mondat, vagy "" (nem táblás / már elhangzott / a bagoly húz ki). */
+var SZ_ATAD = "Eddig én húztam ki a sort és az oszlopot. Most te húzod ki: egy koppintás, és ott a ✗!";   /* 🖊️ lektorra */
+function szAtadMondat(f) {
+  if (!f || !f.tabla || f.tabla.auto || !J.sz || J.sz.atadVolt) return "";
+  J.sz.atadVolt = true;
+  return SZ_ATAD;
 }
 /* az első mondat (vagy mondatrész), ami a gyerek elrendezésére nem igaz */
 function szElsoHiba(f, A) {

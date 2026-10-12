@@ -55,7 +55,7 @@ function szKicsi(nagy) {
 function szMutat(f) {
   opMod(true);
   var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
-  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null, zarKatt: oeNoszog });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -114,7 +114,7 @@ function szJo(f) {
   if (f.szerep === "kicsi") {
     var r = liftKicsi(L, jo1), nagy = f.nagy;
     if (r === "kicsi") { var k = szKicsi(nagy); k.opElo = SZ_KICSI_MEG; f.lanc = [k]; }
-    else if (r === "vissza") { nagy.opElo = liftMondat("vissza", { nagy: nagy.tobb, utana: nagy.vissza }); f.lanc = [nagy]; }
+    else if (r === "vissza") { nagy.opElo = liftMondat("vissza", { nagy: nagy.tobb, utana: szAtadMondat(nagy) || nagy.vissza }); f.lanc = [nagy]; }
     else { nagy.opVegig = true; f.lanc = [nagy]; }               /* 3 kicsi után: együtt oldják meg a nagyot */
   } else if (f.szerep === "nagy") {
     liftJo(L);
@@ -123,6 +123,14 @@ function szJo(f) {
     if (f.indok && !f.vegigVolt) f.utoMondat = f.indok;       /* „Válaszodat indokold!” → a bagoly elmondja (tartalom-lap 8/5) */
   } else szerszamKicsiJegyez(f.sz, J.palya.id, "mese", f.fid, jo1);
   ertekel(1);
+}
+/* 📋 próbacsapat 4. (🟡3): a bagoly eddig kihúzott (a kicsiben / a 📋 fok első 2 feladatában), most már a gyerek húz ki —
+   ezt egyszer, pályánként egyszer kimondja. Visszaad: a mondat, vagy "" (nem táblás / már elhangzott / a bagoly húz ki). */
+var SZ_ATAD = "Eddig én húztam ki a sort és az oszlopot. Most te húzod ki: egy koppintás, és ott a ✗!";   /* 🖊️ lektorra */
+function szAtadMondat(f) {
+  if (!f || !f.tabla || f.tabla.auto || !J.sz || J.sz.atadVolt) return "";
+  J.sz.atadVolt = true;
+  return SZ_ATAD;
 }
 /* az első mondat (vagy mondatrész), ami a gyerek elrendezésére nem igaz */
 function szElsoHiba(f, A) {

@@ -29,6 +29,8 @@ var OE_M = {
   keres: "🔎 Mire felelsz? Koppints a kérdésre!",
   keresJo: "Igen, ez a kérdés",
   keresMas: "Ez a mese egy része. Melyik mondat kérdez?",
+  nosz: "🔎 Előbb a kérdés! Koppints rá – ott villog a könyvben.",   /* 🖊️ lektorra (próbacsapat 4., 🟡1) */
+  sugo: "Itt a kérdés:",
   koztes: function (jel) { return "Ez egy lépcsőfok volt: " + jel + ". De mit kérdeztek?"; },
   masik: function (n, jel) { return "🔎 " + ekA(n, true) + " " + jel + ". Mit kérdeznek?"; },
   kozBagoly: "Nézd meg még egyszer a kérdést!",
@@ -110,7 +112,7 @@ function oeKeres(f, o) {
   var bub = $("buborek-feladat"); if (bub) bub.classList.add("oe-keres");
   if (!o.lagy) $("valaszter").classList.add("oe-var");
   if (!o.csendes) {
-    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = OE_M.keres;
+    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit oe-sugo"; v.textContent = OE_M.keres;
     mondd(ekKiejt(OE_M.keres.replace(/^🔎\s*/, "")));
   }
 }
@@ -124,21 +126,44 @@ function oeTorol() {
   oeKeresVege();
   Array.prototype.forEach.call(document.querySelectorAll("#buborek-feladat .oe-megvan, #buborek-feladat .oe-kiemel"), function (x) { x.classList.remove("oe-megvan", "oe-kiemel"); });
 }
+/* a kérdés megvan: a kérdés-keret le, a bagoly visszamondja, és a válasz kinyílik. elo: a súgóból „Itt a kérdés: …” */
+function oeKeresMegvan(q, elo) {
+  var K = OE.keres, f = K.f;
+  var szo = K.o.szo != null ? K.o.szo : (oeEtlap(f) || {}).szo;
+  var m = elo ? elo + " " + ekSima(q.innerHTML || "").replace(/\s+/g, " ").trim() + (K.o.mondat ? " " + K.o.mondat : "")
+              : OE_M.keresJo + (szo ? ": " + szo + "." : "!") + (K.o.mondat ? " " + K.o.mondat : "");
+  oeKeresVege();
+  q.classList.add("oe-megvan");
+  f.oeKeresVolt = true;
+  var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = "🔎 " + m;
+  var kesz = K.o.kesz;
+  mondd(ekKiejt(m), function () { if (kesz && J && J.feladat === f) kesz(); });
+}
+/* próbacsapat 4. (🟡1): amíg a kérdést keresi, a zárt válaszra (tábla, rajz, Kész) koppintás NEM néma — a kérdés
+   felvillan, és a bagoly megmutatja, hol van. Visszaad: true, ha kezelte (a hívó ilyenkor semmi mást nem csinál). */
+function oeNoszog() {
+  if (!oeKeresFut()) return false;
+  var q = oeKerdesEl(); if (!q) return false;
+  OE.keres.nosz = (OE.keres.nosz || 0) + 1;
+  if (typeof opMutatSor === "function" && q.classList.contains("op-kerdes")) opMutatSor(q);
+  oeKerdesVillan();
+  var v = $("visszajelzes"); v.className = "visszajelzes oe-mit oe-sugo"; v.textContent = OE_M.nosz;
+  if (OE.keres.nosz < 3 || OE.keres.nosz % 3 === 0) mondd(ekKiejt(OE_M.nosz.replace(/^🔎\s*/, "")));   /* ne darálja minden koppintásra */
+  return true;
+}
+/* a súgóra (a bagoly buborékában: „🔎 Mire felelsz? …”) koppintva a bagoly megmutatja a kérdést, és kinyílik a válasz */
+function oeSugoKatt() {
+  if (!oeKeresFut()) return;
+  var q = oeKerdesEl(); if (!q) return;
+  hangGomb();
+  if (typeof opMutatSor === "function" && q.classList.contains("op-kerdes")) opMutatSor(q);
+  oeKerdesVillan();
+  oeKeresMegvan(q, OE_M.sugo);
+}
 function oeKeresKatt(ev) {
   if (!oeKeresFut()) return false;
   var K = OE.keres, f = K.f, t = ev.target, q = oeKerdesEl(); if (!q) return false;
-  if (q.contains(t)) {
-    hangGomb();
-    var szo = K.o.szo != null ? K.o.szo : (oeEtlap(f) || {}).szo;
-    var m = OE_M.keresJo + (szo ? ": " + szo + "." : "!") + (K.o.mondat ? " " + K.o.mondat : "");
-    oeKeresVege();
-    q.classList.add("oe-megvan");
-    f.oeKeresVolt = true;
-    var v = $("visszajelzes"); v.className = "visszajelzes oe-mit"; v.textContent = "🔎 " + m;
-    var kesz = K.o.kesz;
-    mondd(ekKiejt(m), function () { if (kesz && J && J.feladat === f) kesz(); });
-    return true;
-  }
+  if (q.contains(t)) { hangGomb(); oeKeresMegvan(q, ""); return true; }
   var mon = oeMondatEl(t);
   if (mon) {
     K.hiba++;
@@ -155,6 +180,8 @@ function oeKeresKatt(ev) {
   function bekot() {
     var b = $("buborek-feladat"); if (!b || b.__oe) return; b.__oe = true;
     b.addEventListener("click", function (ev) { if (oeKeresKatt(ev)) ev.stopPropagation(); });
+    var vj = $("visszajelzes");                                  /* a súgó (🟡1) */
+    if (vj && !vj.__oe) { vj.__oe = true; vj.addEventListener("click", oeSugoKatt); }
     /* a régi kosaras feladat: „Koppints egyenként minden gyümölcsre” — a megkoppintott gyümölcs kap egy sorszámot */
     b.addEventListener("click", function (ev) {
       var g = ev.target.closest ? ev.target.closest(".ek-gy") : null; if (!g) return;

@@ -496,8 +496,9 @@ var SZK_TART = {
     S.veg[keret] = g.veg; S.nevek[keret] = hasz.concat(g.nevek);
     var fg = szkFeladatGen(g, fok);
     if (fok === "tabla") {                                        /* 📋 a tábla + a 3. döntés: az első 2 feladatban a bagoly húz ki */
-      fg.tabla = { auto: i < 2 };
+      fg.tabla = { auto: i < 2, sugo: i === 0 };                  /* 🟡2: az első feladatban a ✗/✓ súgó-sor a tábla fölött */
       if (i === 0) fg.opElo = SZK_TABLA_ELSO;
+      if (i === 2 && J.sz) { fg.opElo = SZ_ATAD; J.sz.atadVolt = true; }   /* 🟡3: „Most te húzod ki!” (szerszam-palya.js) */
     }
     return fg;
   },
@@ -519,7 +520,7 @@ var SZK_TART = {
   mesterLista: function () { return SZK_MESTER.map(function (m) { return m.id; }); }
 };
 function szkFeladatGen(g, fok) {
-  return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.K.tobb[g.n - 3],
+  return { forma: "dobogo", fok: fok, keret: g.keret, nevek: g.nevek, fid: "KOTOTT-" + fok + "-" + g.kulcs, kulcs: g.kulcs, tobb: g.n > 3 ? g.K.tobb[g.n - 3] : "",   /* 🟡4: 3 szereplős nagy → a kicsi is 3 szereplős, nincs „ugyanaz, csak…” */
     vissza: "Ott is van egy mondat, ami csak egyféleképpen lehet. Megtalálod?",
     mon: g.mon.map(function (m) { return { s: m.s, ki: m.ki, rend: m.c ? m.c.rend : null, f: m.c ? (function (c) { return function (A) { return szkIgaz(c, A.s[0]); }; })(m.c) : null }; }),
     kerdes: g.kerdes, dob: szkDob(g), nezet: function (A) { return A; }, lep: g.lep, lepT: g.lepT, joKiir: g.sol.join(" – "),

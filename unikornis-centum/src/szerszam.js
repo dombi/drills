@@ -180,13 +180,14 @@ function szerszamFeladatFriss(fid, p) {
 var LIFT_TILOS = /könnyebb|könnyű|mesekönyv|visszalép|egyszerűbben|egyszerűbb|szint|osztály/i;
 var LIFT_MONDATOK = {
   indul: ["Nézzük kicsiben – a matekosok is így csinálják.", "Nézzük meg kicsiben – a matekosok is így csinálják."],
-  vissza: ["Ügyes! Ugyanaz, csak {nagy}.", "Ügyes! Most ugyanez jön, csak {nagy}."]
+  vissza: ["Ügyes! Ugyanaz, csak {nagy}.", "Ügyes! Most ugyanez jön, csak {nagy}."],
+  ujra: ["Ügyes! Most próbáld újra az előzőt!", "Ügyes! Most jöhet újra az előző feladat."]   /* a kicsi ugyanakkora volt (🖊️ lektorra) */
 };
 /* „indul” / „vissza”; m = { kicsi: „Most csak három kutya fut…”, nagy: „öt kutyával” } — a pálya adja a mese-részt */
 function liftMondat(mi, m) {
   m = m || {};
   var L = LIFT_MONDATOK[mi] || [""], s = L[Math.floor(Math.random() * L.length)];
-  if (mi === "vissza") s = m.nagy ? s.replace("{nagy}", m.nagy) : "Ügyes! Most jöhet a nagy feladat.";
+  if (mi === "vissza") s = m.nagy ? s.replace("{nagy}", m.nagy) : LIFT_MONDATOK.ujra[Math.floor(Math.random() * 2)];   /* próbacsapat 4. (🟡4) */
   if (mi === "indul" && m.kicsi) s += " " + m.kicsi;
   if (mi === "vissza" && m.utana) s += " " + m.utana;
   return LIFT_TILOS.test(s) ? (mi === "indul" ? LIFT_MONDATOK.indul[0] : "Ügyes! Most jöhet a nagy feladat.") : s;

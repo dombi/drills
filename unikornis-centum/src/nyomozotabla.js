@@ -23,7 +23,9 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3, 2026-10-12): a NEVEK FENT
         ntUrit() · ntRejt() · ntElohiv() · ntKihuz(r, T) / ntX(r, c, T) (a végigvezetés: a bagoly húz ki, sárga villanással)
    o = { hova: elem (azonos elem = közös tábla), cim: html (a sáv címe: „🏠 Hol lakik?”), sav?: "hely"|"par" (a sáv színe),
          fordit?: bool, sorok: [{ id, nev, kep }] (a nevek: a tábla oszlopai), oszlopok: [html] (a sáv sorai), auto: bool, rejtve: bool,
-         hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg } */
+         hol: function (r) → oszlop | -1, tesz: function (r, c), levesz: function (r), mondat: function (r, c) → szöveg,
+         zarKatt?: function () — zárt táblára koppintott (a gazda megmondja, miért zárt: pl. „Előbb a kérdés!”),
+         sugo?: html — egy sor a tábla fölött (a 📋 fok első feladatában: mit jelent egy és két koppintás) } */
 
 var NT = null;     /* az első tábla: { o, X: [[0|1|3]], O: [["r,c"|null]], elo: [oszlop…], uj: {"r,c":1}, hiba: {r,c}|null, zar, lathato } */
 var NT_L = [];     /* minden élő sáv (🔮/🏅: hely-sáv + pár-sáv, egy táblában) */
@@ -114,13 +116,15 @@ function ntRajz(T) {
       t += '</tr>';
     }
   });
-  h.innerHTML = '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
+  h.innerHTML = (E.o.sugo ? '<div class="nt-sugo">' + E.o.sugo + '</div>' : '') + '<div class="nt-iro' + (E.zar ? " zar" : "") + '"><div class="nt-papir">' +
     '<table class="nt-tabla n' + Math.min(Math.max(n, 3), 5) + (G.length > 1 ? " s2" : "") + '">' + t + '</table></div></div>';
   G.forEach(function (g) { g.uj = {}; });
 }
 function ntKatt(ev) {
+  var G = ntSavok(this);
+  if (G[0] && G[0].zar) { if (G[0].o.zarKatt) G[0].o.zarKatt(); return; }   /* próbacsapat 4. (🟡1): a zárt tábla se legyen néma */
   var b = ev.target.closest ? ev.target.closest(".nt-k") : null; if (!b) return;
-  var T = ntSavok(this)[+b.getAttribute("data-t") || 0];
+  var T = G[+b.getAttribute("data-t") || 0];
   if (!T || T.zar) return;
   var r = +b.getAttribute("data-r"), c = +b.getAttribute("data-c");
   hangGomb();
