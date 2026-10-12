@@ -29,3 +29,6 @@ kevés maradék kerettel. A lefagyott/leállt 8814-es szerver a mobile mérést 
 | 2026-10-10 | Bagolykönyvtár kérdései (rész/egész) | 🟡 rövid | Dani | sonnet | 115 401 | 352 s (112 hívás, ~13 kérdés) |
 | 2026-10-10 | Bagolykönyvtár kérdései (rész/egész) | 🟡 rövid | Bence | sonnet | 161 452 | 545 s (203 hívás, ~12 kérdés) |
 | | **3. próba összesen (2 agent)** | | | | **≈ 277 000** | ~9 perc |
+| 2026-10-12 | Nyomozótábla (4. próba) | 🔴 | Dani | sonnet | 158 317 | 483 s (180 hívás, 8 feladat) |
+| 2026-10-12 | Nyomozótábla (4. próba) | 🔴 | Bence | sonnet | 133 720 | 547 s (115 hívás, 6 feladat) |
+| | **4. próba összesen (2 agent)** | | | | **≈ 292 000** | ~9 perc |
