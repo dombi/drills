@@ -1,0 +1,21 @@
+# 🤖 Gépi próba — ④ szöveg-őr: tiltott szavak a játék szövegeiben (látott és hallott).
+# Forrás: visszahivas-tamagocsi tiltólista (soha halál, betegség, bűntudat, FOMO, büntetés, nyomás).
+# Soronként egy reguláris kifejezés (kis-nagybetű mindegy). A # utáni rész megjegyzés.
+# ⚠️ a „hal” önmagában NEM tiltott (a kertben hal úszik) — ezért csak a teljes szóalakok vannak itt.
+\bhalál
+\bmeghal
+\bhalott
+\belpusztul
+\bbeteg
+\bhervad
+\belhervad
+\bkiszárad
+\belveszí?te?d\b      # elveszíted / elveszted
+\bnyomás
+\bcsak ma\b
+\bhiányoztál
+\bnem jöttél
+\bbüntet
+\bszomorú vagyok
+\bsiess\b
+\bgyorsabban\b

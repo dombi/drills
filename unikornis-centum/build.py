@@ -105,7 +105,8 @@ MODULES = [
 HEADER = '/* AmbitusNumerorum: Unicornis Centum — MVP-A. Vanilla JS, függőség nélkül, file:// alól fut. */\n'
 GENERATED = '/* ⚠️ GENERÁLT FÁJL — NE SZERKESZD! Forrás: src/ · Build: python build.py */\n'
 
-def build():
+def osszerak():
+    """A game.js tartalma a src/ modulokból (a gépi próba verzió-őre is ezt hívja, fájlírás nélkül)."""
     parts = [HEADER, GENERATED, '\n(function () {\n"use strict";\n\n']
     for mod in MODULES:
         path = os.path.join(SRC, mod)
@@ -117,9 +118,13 @@ def build():
         if not parts[-1].endswith("\n"):
             parts.append("\n")
     parts.append("\n})();\n")
+    return "".join(parts)
+
+def build():
+    tartalom = osszerak()
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
-        f.write("".join(parts))
-    total = sum(1 for c in "".join(parts) if c == "\n")
+        f.write(tartalom)
+    total = tartalom.count("\n")
     print(f"✓ game.js built — {len(MODULES)} modul, {total} sor")
 
 if __name__ == "__main__":
