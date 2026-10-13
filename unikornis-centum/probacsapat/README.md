@@ -6,8 +6,14 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
 
 ## ⭐ Új rend (a producer döntése, 2026-10-13) — ez felülírja az alábbi szint-táblát
 
-1. **Gépi próba** (token nélkül, minden kód-kör után): üres mentés + konzolhiba, 4 képméret, matek-minta, névelők, dupla kattintás.
-   ⏳ Még nincs megírva → külön beszélgetés: „Gépi próba: tervlap.”
+1. **Gépi próba** (token nélkül, minden kód-kör után, commit előtt) — tervlap: `terv/gepi-proba-terv.html`.
+   Indítás a `drills` mappából: `PYTHONIOENCODING=utf-8 py -3 unikornis-centum/probacsapat/gepi_proba.py`
+   (`--teljes` élesítés előtt · `--n 50` kevesebb minta · `--csak matek,szoveg`). ≈ 2–2,5 perc, nem nyit fület,
+   nem foglal portot. A végén 1–2 sor összegzés; a részletek a `gepi-jelentesek/` mappába kerülnek.
+   Kilépési kód 1 = új 🔴. Ismert („maradjon így”) hibák kulcsa: `gepi/ismert.txt`.
+   ✅ 1. kód-kör: ① indulás (26 képernyő, `gepi/kepernyok.py` — **új helyszín = új sor**) · ③ matek (minden pálya
+   300 feladat) · ④ szöveg (`gepi/tiltolista.txt`) · ⑦ verzió. ⏳ 2. kör: ② méret + ⑤ kiskapu; 3. kör: ⑥ mentés + végigjátszás.
+   Ha agent / élő próba olyat talál, amit gép is megfoghatott volna → új szabály az őrbe.
 2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.
 3. **Gyerek-agent** csak teljesen ÚJ képernyő-típusnál, akkor is legfeljebb EGY; a hibavadász-agentet a gépi próba váltja ki.
 4. **A döntő próba a gyerekeké**: egy funkció akkor kész, ha élő próbán volt. Az agent csak előszűrő.
