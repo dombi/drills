@@ -56,3 +56,9 @@ NEM_NEZI = {
 # a vissza-gombok, amelyekkel a térképre lehet jutni (a VISSZA tábla gombjai + a panel-zárók)
 VISSZA_GOMBOK = ["kt-vissza", "tvk-vissza", "het-zar", "odu-panel-zar", "odu-lap-zar", "szalon-vissza", "bank-vissza", "tk-vissza", "utca-vissza",
                  "odu-vissza", "kert-vissza", "ft-haza", "jatek-haza", "vege-terkep", "szuloi-vissza", "fomenu-vissza"]
+
+# ② méret-őr: amit szándékosan NEM néz (se fontos elemként, se takaróként), és miért. "*" = minden képernyőn.
+MERET_KIVETEL = {
+    "*": [".kt-puff", "[id^='kt-felho']"],   # a kalandtérkép felhői szándékosan takarják a még fel nem fedezett helyeket (és a térkép szélén túllóghatnak)
+    "Tény-kert": [".kert-terkep-jel"],       # ráközelítéskor a kert „Térkép” táblája kiesik a képből; innen a „Vissza a kertbe” visz ki
+}

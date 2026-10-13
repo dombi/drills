@@ -8,11 +8,19 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
 
 1. **Gépi próba** (token nélkül, minden kód-kör után, commit előtt) — tervlap: `terv/gepi-proba-terv.html`.
    Indítás a `drills` mappából: `PYTHONIOENCODING=utf-8 py -3 unikornis-centum/probacsapat/gepi_proba.py`
-   (`--teljes` élesítés előtt · `--n 50` kevesebb minta · `--csak matek,szoveg`). ≈ 2–2,5 perc, nem nyit fület,
-   nem foglal portot. A végén 1–2 sor összegzés; a részletek a `gepi-jelentesek/` mappába kerülnek.
+   (`--teljes` élesítés előtt · `--n 50` kevesebb minta · `--csak matek,szoveg` ·
+   `--hol odu,vasar-3` = a gyors próba ② méret- és ⑤ kiskapu-őre az épp módosított képernyőt / pályát is nézze).
+   Gyors ≈ 3,5 perc, teljes ≈ 10 perc; nem nyit fület, nem foglal portot. A végén 1–2 sor összegzés; a részletek
+   a `gepi-jelentesek/` mappába kerülnek (a méret-őr képei a `kepek/` almappába — nincs a git-ben).
    Kilépési kód 1 = új 🔴. Ismert („maradjon így”) hibák kulcsa: `gepi/ismert.txt`.
    ✅ 1. kód-kör: ① indulás (26 képernyő, `gepi/kepernyok.py` — **új helyszín = új sor**) · ③ matek (minden pálya
-   300 feladat) · ④ szöveg (`gepi/tiltolista.txt`) · ⑦ verzió. ⏳ 2. kör: ② méret + ⑤ kiskapu; 3. kör: ⑥ mentés + végigjátszás.
+   300 feladat) · ④ szöveg (`gepi/tiltolista.txt`) · ⑦ verzió.
+   ✅ 2. kód-kör: ② méret (`gepi/meret.js`: kilóg / levágva / eltakarja / oldalra görget, 4 méret; szándékos
+   kivétel: `MERET_KIVETEL` a `kepernyok.py`-ban) · ⑤ kiskapu (`gepi/kiskapu.py`+`.js`: valódi billentyű és dupla
+   kattintás pályatípusonként, 5 rossz válasz, kilépés-visszalépés, újratöltés, bolt, bank). A teszt-lap game.js-ét
+   a szerver egy „kémlelővel” adja (`__GEPI_EVAL`: a zárt csomag belseje elérhető), a fájl nem változik.
+   Az őrök próbája: `GEPI_BEULTET=hibak.json` ([[régi, új], …]) → szándékosan elrontott game.js a teszt-lapon.
+   ⏳ 3. kör: ⑥ mentés + végigjátszás (+ a 📌 dobogós pálya kiskapu-próbája).
    Ha agent / élő próba olyat talál, amit gép is megfoghatott volna → új szabály az őrbe.
 2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.
 3. **Gyerek-agent** csak teljesen ÚJ képernyő-típusnál, akkor is legfeljebb EGY; a hibavadász-agentet a gépi próba váltja ki.

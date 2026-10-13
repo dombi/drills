@@ -51,6 +51,20 @@ def teszt_lap():
     return js_minta.sub(lambda m: ELOJATEK + m.group(1) + UTOJATEK, html)
 
 
+def kemlelo_js():
+    """A game.js a lemezről, a végén egy kémlelővel: window.__GEPI_EVAL(kód) a játék belsejében fut
+    (a P(), J, FELULIR, boltKivalasztott… így a próbából elérhető). Csak a próba-szerver adja így; a fájl nem változik."""
+    js = open(os.path.join(UC, "game.js"), encoding="utf-8").read()
+    ultet = os.environ.get("GEPI_BEULTET")   # az őrök próbája: JSON-fájl [[régi, új], …] — szándékosan elrontott játék
+    if ultet:
+        for regi, uj in json.load(open(ultet, encoding="utf-8")):
+            if regi not in js: raise RuntimeError("GEPI_BEULTET: nem találom: " + regi[:60])
+            js = js.replace(regi, uj, 1)
+    i = js.rstrip().rfind("})();")
+    if i < 0: raise RuntimeError("game.js: nem találom a záró })(); sort")
+    return (js[:i] + "window.__GEPI_EVAL = function (__k) { return eval(__k); };\n" + js[i:]).encode("utf-8")
+
+
 class Kiszolgalo:
     """A játék mappája egy szabad porton (127.0.0.1); a /_gepi.html a teszt-lap."""
     def __init__(self):
@@ -62,9 +76,14 @@ class Kiszolgalo:
             def end_headers(s):
                 s.send_header("Cache-Control", "no-store"); super().end_headers()
             def do_GET(s):
-                if s.path.split("?")[0] == "/_gepi.html":
+                ut = s.path.split("?")[0]
+                if ut == "/_gepi.html":
                     s.send_response(200); s.send_header("Content-Type", "text/html; charset=utf-8")
                     s.send_header("Content-Length", str(len(lap))); s.end_headers(); s.wfile.write(lap)
+                elif ut == "/game.js":
+                    js = kemlelo_js()
+                    s.send_response(200); s.send_header("Content-Type", "text/javascript; charset=utf-8")
+                    s.send_header("Content-Length", str(len(js))); s.end_headers(); s.wfile.write(js)
                 else:
                     super().do_GET()
 
@@ -151,6 +170,7 @@ class Lap:
         self.parancs("Runtime.enable"); self.parancs("Log.enable"); self.parancs("Page.enable")
         self.parancs("Network.enable")
         self.parancs("Network.setBlockedURLs", {"urls": TILTOTT_CIMEK})
+        self.parancs("Emulation.setFocusEmulationEnabled", {"enabled": True})   # a billentyűk a lapra menjenek
 
     def _esemeny(self, u):
         m, p = u.get("method"), u.get("params", {})
@@ -191,6 +211,10 @@ class Lap:
             raise JSHiba(((d.get("exception") or {}).get("description") or d.get("text", "")).split("\n")[0])
         return r.get("result", {}).get("value")
 
+    def belul(self, kod):
+        """JS a játék belsejében (a zárt csomag változóival és függvényeivel: P(), FELULIR, …)."""
+        return self.js("__GEPI_EVAL(%s)" % json.dumps(kod))
+
     def pihen(self, mp):
         """Vár, közben feldolgozza a beérkező eseményeket (konzolhibák)."""
         self.js("new Promise(function(r){ setTimeout(r, %d); })" % int(mp * 1000))
@@ -218,6 +242,36 @@ class Lap:
                                                       "buttons": 1 if tipus == "mousePressed" else 0, "clickCount": 1})
         if mp: self.pihen(mp)
         return True
+
+    def duplakatt(self, selector, mp=0):
+        """Két gyors kattintás ugyanoda (kapkodó gyerek / dupla koppintás); a második a böngészőnek dupla katt."""
+        r = self.js("(function(){ var e=document.querySelector(%s); if(!e || !e.getClientRects().length) return null;"
+                    " e.scrollIntoView({block:'center', inline:'center'}); var b=e.getBoundingClientRect();"
+                    " return [b.left+b.width/2, b.top+b.height/2]; })()" % json.dumps(selector))
+        if not r: return False
+        self.parancs("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": r[0], "y": r[1]})
+        for n in (1, 2):
+            for tipus in ("mousePressed", "mouseReleased"):
+                self.parancs("Input.dispatchMouseEvent", {"type": tipus, "x": r[0], "y": r[1], "button": "left",
+                                                          "buttons": 1 if tipus == "mousePressed" else 0, "clickCount": n})
+        if mp: self.pihen(mp)
+        return True
+
+    def gombok(self, sor, szunet=0):
+        """Valódi billentyűleütések: „4 Enter 4 Enter”, „a l m a Enter”, „- 3”, „2 , 5”.
+        A szóközzel elválasztott elemek egy-egy billentyű; szunet: ennyi mp két billentyű között (0 = gépi tempó)."""
+        for i, k in enumerate(sor.split()):
+            if szunet and i: self.pihen(szunet)
+            if k.isdigit() and len(k) == 1: p = {"key": k, "code": "Digit" + k, "windowsVirtualKeyCode": 48 + int(k), "text": k}
+            elif k == "Enter": p = {"key": "Enter", "code": "Enter", "windowsVirtualKeyCode": 13, "text": "\r"}
+            elif k == "Backspace": p = {"key": "Backspace", "code": "Backspace", "windowsVirtualKeyCode": 8}
+            elif k == "-": p = {"key": "-", "code": "Minus", "windowsVirtualKeyCode": 189, "text": "-"}
+            elif k == ",": p = {"key": ",", "code": "Comma", "windowsVirtualKeyCode": 188, "text": ","}
+            elif len(k) == 1 and k.isalpha(): p = {"key": k, "code": "Key" + k.upper(), "windowsVirtualKeyCode": ord(k.upper()), "text": k}
+            else: raise ValueError("ismeretlen billentyű: " + k)
+            self.parancs("Input.dispatchKeyEvent", dict(p, type="keyDown" if "text" in p else "rawKeyDown"))
+            self.parancs("Input.dispatchKeyEvent", {"type": "keyUp", "key": p["key"], "code": p["code"],
+                                                    "windowsVirtualKeyCode": p["windowsVirtualKeyCode"]})
 
     def nyom(self, selector, tart=1.2, mp=0):
         """Hosszú nyomás (pl. a szülői rész gombja)."""

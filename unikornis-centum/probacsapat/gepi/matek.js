@@ -5,10 +5,12 @@
      • a számok a pálya határain belül; nincs negatív, NaN, üres feladat;
      • nincs két egyforma feladat egymás után;
      • hang = kép: a képernyőn látható minden szám (≤ 100) elhangzik a felolvasásban.
-   Vissza: { hibak: [{suly, kulcs, szoveg, pelda}], szovegek: [{hol, s}] (a szöveg-őrnek), stat }. */
+   Vissza: { hibak: [{suly, kulcs, szoveg, pelda}], szovegek: [{hol, s}] (a szöveg-őrnek), stat,
+            tipusok: {pályaId: pályatípus-kulcs} (a ② méret- és ⑤ kiskapu-őrnek) }.
+   A TIPUS_KULCS függvényt a gepi_proba.py fűzi elé (tipus.js). */
 (async function () {
   var N = MATEK_N;
-  var hibak = [], szovegek = {}, stat = {};
+  var hibak = [], szovegek = {}, stat = {}, tipusok = {};
   function hiba(suly, kulcs, szoveg, pelda) { hibak.push({ suly: suly, kulcs: kulcs, szoveg: szoveg, pelda: pelda || "" }); }
   function pihen(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   async function varj(f, ms) { var t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (f()) return true; } catch (e) {} await pihen(30); } return false; }
@@ -207,6 +209,7 @@
     if (!(await varj(function () { return UC.J.feladat && document.querySelector("#kepernyo-jatek.aktiv"); }, 8000)))
       hiba("piros", "matek:elso:" + pid, "A pálya nem jut el az első feladatig — " + pid, "8 mp után sincs feladat");
     await pihen(150);
+    tipusok[pid] = TIPUS_KULCS(pa, UC.J.feladat);   /* a ② méret- és ⑤ kiskapu-őr pályatípusonként egy képviselőt néz */
     blokkSzovegek(document.getElementById("kepernyo-jatek")).forEach(function (kt) {   /* blokk.js (elé fűzve) */
       szovegek[kt] = szovegek[kt] || (pid + " · képernyő");
     });
@@ -238,5 +241,5 @@
   await pihen(300);
   console.info("GEPI-HOL", "matek-őr · vége");
   return { hibak: hibak, szovegek: Object.keys(szovegek).map(function (s) { var h = szovegek[s];
-    return { hol: h, s: s, hang: / · (hang|tipp)$/.test(h) }; }), stat: stat };
+    return { hol: h, s: s, hang: / · (hang|tipp)$/.test(h) }; }), stat: stat, tipusok: tipusok };
 })()

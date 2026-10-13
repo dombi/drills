@@ -28,7 +28,7 @@
 <body>
 <main>
 <h1>🤖 Gépi próba</h1>
-<p class="al">Unikornis Centum · tervlap · ✅ JÓVÁHAGYVA 2026-10-13 (mind a 3 döntés: A) · ✅ 1. kód-kör KÉSZ (2026-10-13) · készítette: Claude, producer: Dombi-Nyárádi Gabriella</p>
+<p class="al">Unikornis Centum · tervlap · ✅ JÓVÁHAGYVA 2026-10-13 (mind a 3 döntés: A) · ✅ 1. és 2. kód-kör KÉSZ (2026-10-13) · készítette: Claude, producer: Dombi-Nyárádi Gabriella</p>
 
 <div class="kartya igen">
 <b>Az elv egy mondatban:</b> egy ellenőrző program, ami <b>token nélkül</b>, néhány perc alatt végignézi a játékot,
@@ -168,7 +168,8 @@ Közben figyeli a hibaüzeneteket. <span class="cimke">ez fogta volna meg</span>
 <tr><th>Kör</th><th>Tartalom</th></tr>
 <tr><td>1. ✅</td><td>A motor (Edge-vezérlő, szerver, jelentés) + ① indulás + ③ matek + ④ szöveg + ⑦ verzió. Ezután már a gyors próba használható.
 <br><small>✅ Kész 2026-10-13. Fájlok: <code>probacsapat\gepi_proba.py</code> (indító) + <code>probacsapat\gepi\</code>: <code>motor.py</code> (Edge-vezérlő saját websockettel, szerver, valódi kattintás, jelentés), <code>kepernyok.py</code> (26 képernyő, egy sor = egy hely), <code>indulas.py</code>, <code>matek.js</code> (43 pálya × 300 feladat; képlet, megoldás-sor, mértékegység-váltás, koppintós kártyák, határok, átlépés, hang = kép ragozott számnevekkel), <code>szoveg.py</code> + <code>tiltolista.txt</code> (névelő, „a(z)”, dupla szó, „undefined”, üres hely, kérdőjel, tiltott szó, mondatvégi „4.” a felolvasóban, hosszú mondat), <code>verzio.py</code> (build + <code>?v=</code>), <code>ismert.txt</code>. A <code>build.py</code> új <code>osszerak()</code> függvényt kapott. Egy gyors futás ≈ 2–2,5 perc. Beültetett hibákkal kipróbálva: mind a 7 fajtát elkapta.</small></td></tr>
-<tr><td>2.</td><td>② méret + ⑤ kiskapu (valódi billentyűkkel) + újratöltés.</td></tr>
+<tr><td>2. ✅</td><td>② méret + ⑤ kiskapu (valódi billentyűkkel) + újratöltés.
+<br><small>✅ Kész 2026-10-13. Új fájlok a <code>probacsapat\gepi\</code>-ben: <code>meret.py</code> + <code>meret.js</code> (minden képernyő és pályatípus, 4 méret: kilóg, levágva, eltakarja, oldalra görget; képet csak a hibás helyről; szándékos kivételek a <code>kepernyok.py</code> <code>MERET_KIVETEL</code> táblájában), <code>kiskapu.py</code> + <code>kiskapu.js</code> (pályatípusonként valódi billentyűvel: 3× gyors jó válasz, üres Enter / „alma” / 250 / −3 / 2,5, 5 rossz egymás után, kilépés-visszalépés; egyszer: újratöltés pálya közben, bolt és bank dupla kattintással), <code>tipus.js</code> (pályatípus-kulcs). A motor új tudása: valódi billentyűleütés, dupla kattintás, „kémlelő” a játék belsejébe (csak a teszt-lapon). Ütem (1A szerint): a gyors próba a ⑤-öt válaszformánként egy pályán futtatja, a ②-t csak a <code>--hol</code> kapcsolóval megnevezett, épp módosított helyen; a teljes mindent néz. Gyors ≈ 3,5 perc, teljes ≈ 10 perc. Beültetett hibákkal kipróbálva (dupla Enter, üres Enter továbblép, bank dupla váltás, kilógó gomb, oldalra görgetés, kilógó beíró-négyzet): mindet elkapta. A 📌 dobogós pálya kiskapu-próbája a 3. körre maradt.</small></td></tr>
 <tr><td>3.</td><td>⑥ mentés-őr + pályák gyors végigjátszása (eljut-e a vége-képernyőig, annyi ✨-t ad-e, amennyit a terv mond) + az első teljes futás → a lista eléd kerül.</td></tr>
 </table>
 <p>Az első teljes futás valószínűleg <b>régi, eddig észre nem vett hibákat</b> is talál (például a Bagolykönyvtárban, ahol a próbacsapat félúton leállt). Ezeket egyszer, összegyűjtve hozom eléd.</p>
