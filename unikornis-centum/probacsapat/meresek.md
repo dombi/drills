@@ -32,3 +32,10 @@ kevés maradék kerettel. A lefagyott/leállt 8814-es szerver a mobile mérést 
 | 2026-10-12 | Nyomozótábla (4. próba) | 🔴 | Dani | sonnet | 158 317 | 483 s (180 hívás, 8 feladat) |
 | 2026-10-12 | Nyomozótábla (4. próba) | 🔴 | Bence | sonnet | 133 720 | 547 s (115 hívás, 6 feladat) |
 | | **4. próba összesen (2 agent)** | | | | **≈ 292 000** | ~9 perc |
+| 2026-10-12 | Egységes Bagolykönyvtár (5. próba) | 🔴 | lektor | sonnet | 160 151 | 229 s (34 hívás) — kész |
+| 2026-10-12 | Egységes Bagolykönyvtár (5. próba) | 🔴 | Dani, Bence, Zsófi, hibavadász | sonnet | ? (nem mérhető) | mind leállt: munkamenet-keret elfogyott (429) |
+
+Tanulság (5. próba, 2026-10-13 — a producerrel átnézve): 3 nap alatt 5 próba ≈ 2–2,5 M token (a terv havi 2–5 M volt), és a
+párhuzamos 5 agent elvitte a munkamenet-keretet. Az agentek valódi hibákat találtak (térkép-összeomlás, kiskapu, dupla jó válasz,
+névelők), de ezek többsége GÉPIES ellenőrzés — egy token nélküli program is megtalálná. A legolcsóbb és leghasznosabb: a lektor.
+Közben egyetlen élő próba sem zárult le. → ÚJ REND (README).

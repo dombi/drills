@@ -35,7 +35,7 @@ var POLC_M = {
   kirol: "Kiről (miről) kérdeznek? Koppints rá! Számolni még nem kell.", mit: "Mit kell megszámolni? Koppints rá!", hl: "Hány lépés kell? Előbb csak ezt döntsd el!",
   kinek: "Kinek van igaza?", lepcso: "Ez már a válasz?", mester: "Ez a Mesterpróba. Olvasd el nyugodtan!", liftKicsi: "Nézzük kicsiben!",
   liftValasz: "Ügyes! Most a nagyot is így: minden lépés után kérdezd meg, ez már a válasz?", vezet: "Nézzük meg együtt, lépésenként!",
-  hlRossz: "Nézzük meg együtt: mit kell tudnunk, mielőtt a kérdezett számot megkapjuk?", tippJo: "Így már jó – most a kérdésre feleltél!"
+  hlRossz: "Nézzük meg együtt: mit kell előbb kiszámolni?", tippJo: "Így már jó – most a kérdésre feleltél!"
 };
 
 /* ── a 4 Mesterpróba didaktikai rétege (a SZÖVEG a felhőben van: FT.feladatok; itt csak a számok jelentése + a testvérek) ──
@@ -184,7 +184,7 @@ function polcLancLepes(N, M) {
   N.helyes = L2.helyes; N.oe = L2.oe; N.M = { mondatok: M.mondatok, kerdes: L2.kerdes, helyes: L2.helyes, lep: (M.lep || []).concat(L2.lep || []), mit: L2.mit || M.mit, keret: M.keret, rajz: M.rajz,
     kicsi: { mondatok: M.mondatok, kerdes: M.kerdes, helyes: M.helyes, oe: M.oe, vissza: "Ügyes! És most a második kérdés: " + ekSima(L2.kerdes).replace(/^És /, "") } };   /* a lánc kicsije = az 1. kérdés */
   N.op = { mondatok: M.mondatok, kerdes: L2.kerdes, rajz: M.rajz, segit: true, lepcso: '<p class="op-lepcso-kesz">1. ' + M.kerdes + ' <b>✓ ' + M.helyes + '</b></p>' };
-  N.szoveg = ekSima(L2.kerdes); N.felolvas = ekKiejt("Ügyes! És most: " + ekSima(L2.kerdes)); N.opCsakKerdes = true;
+  N.szoveg = ekSima(L2.kerdes); N.felolvas = ekKiejt("Ügyes! És most: " + ekSima(L2.kerdes).replace(/^És /, "")); N.opCsakKerdes = true;
   var ul = L2.lep && L2.lep.length ? L2.lep[L2.lep.length - 1] : null; N.megoldas = ul && ul.m ? ul.m : String(L2.helyes);
   N.naplo.kerdes = ekSima(L2.kerdes).slice(0, 60); N.naplo.helyes = L2.helyes;
   N.kartyaHTML = opKonyv(N.op);
@@ -205,7 +205,7 @@ function polcLepcso(N, M, vegCel, fuzet) {
     if (j > 0) S.csakLepes = true;
     S.kartyaHTML = opKonyv(S.op);
     var opT = polcOpFuzet(N, M, fuzet, sor(j, false) + '<p class="op-lepcso-most">' + (j + 1) + '. ' + l.k + ' <b>✓ ' + l.v + '</b></p>');
-    var K = [{ h: ekTk("👍", "Igen"), cls: "ek-in igen", jo: utolso, m: utolso ? null : "Még nem! A kérdés: „" + ekSima(M.kerdes) + "” — " + ekA(l.v) + " még csak " + (l.nev || "egy lépcsőfok") + "." },
+    var K = [{ h: ekTk("👍", "Igen"), cls: "ek-in igen", jo: utolso, m: utolso ? null : "Még nem! " + ekA(l.v, true) + " csak egy lépcsőfok" + (l.nev ? ": " + l.nev : "") + ". A kérdés: „" + ekSima(M.kerdes) + "”" },
              { h: ekTk("✋", "Nem"), cls: "ek-in nem", jo: !utolso, nemUtolso: utolso, utan: utolso ? null : "Így van! Mit kell még kiszámolni?" }];
     var C = polcKartyaLepes(N, '<span class="ek-kez">✋</span> ' + ekA(l.v, true) + ' — ' + POLC_M.lepcso, K, null);
     C.op = opT; C.kartyaHTML = opKonyv(opT); C.polcSzerep = fuzet ? "kicsi" : "kartya"; C.csakLepes = true; C.lepFel = POLC_M.lepcso;
@@ -367,7 +367,7 @@ function polcJo(f, elsore) {
 function polcHiba(f, valasz) {
   var v = $("visszajelzes");
   if (f.vezet) {
-    if (J.probak === 1) { v.className = "visszajelzes rossz"; v.textContent = "Nem " + valasz + ". Számold ki újra!"; mondd("Nem talált. Számold ki újra!", kezNelkulUjra); }
+    if (J.probak === 1) { v.className = "visszajelzes rossz"; v.textContent = "Nem " + valasz + ". Számold ki újra!"; mondd("Ez még nem jó. Számold ki újra!", kezNelkulUjra); }
     else { v.className = "visszajelzes rossz"; v.textContent = "Nézd: " + f.megoldas + ". Most írd be te!"; mondd(ekKiejt("Nézd: " + f.megoldas + ". Most írd be te!"), kezNelkulUjra); }
     return;
   }
@@ -532,7 +532,7 @@ function polcPalyaVege() {
   if (lada) {
     szerszamTar().ujLada = pa.polc;
     html += '<br><span class="ek-vege">🧰 Ezt már tudod! A ' + d.ikon + ' a ládába került.</span>';
-    mondat += " Ezt már tudod! A " + d.nev + " a ládába került.";
+    mondat += " Ezt már tudod! A „" + d.nev + "” szerszám a ládába került.";
     sorok.push("🧰 Ezt már tudod! A " + d.ikon + " a ládába került.");
   }
   ment();

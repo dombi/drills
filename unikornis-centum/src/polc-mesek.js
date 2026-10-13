@@ -51,7 +51,14 @@ function pmKesz(o, M) {
   (M.lep || []).forEach(function (l) { if (!(l.v > 0) || l.v % 1 || l.v > max) rossz = true; });
   if (M.lanc && (!M.lanc.oe || M.lanc.helyes > max)) rossz = true;
   if (M.kicsi && !M.kicsi.oe) rossz = true;
-  return rossz ? null : M;
+  return rossz ? null : pmAzIgazit(M, 0);
+}
+/* névelő a szám előtt: „a 5” → „az 5”, „A 54” → „Az 54” (próbacsapat 5., lektor) — a kész mese minden szövegén végigmegy */
+function pmAzIgazit(x, mely) {
+  if (typeof x === "string") return x.replace(/(^|[\s„(>])([aA]) (\d+)(?![\d,])/g, function (m, e, a, n) { return e + (mAz(+n) === "az" ? a + "z" : a) + " " + n; });
+  if (!x || typeof x !== "object" || mely > 6) return x;
+  for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) x[k] = pmAzIgazit(x[k], mely + 1);
+  return x;
 }
 
 /* ═════════════════ 🔎 MIRE FELELSZ? — hat keret ═════════════════ */
@@ -64,13 +71,13 @@ var PM_KERES = {
     var q = o.lanc ? "B" : ekE(["B", "egyutt"]);
     var M = { keret: "gyujt", mondatok: [A.n + " " + a + " " + t.t + " " + t.ige + ".", B.n + " " + ekRag(k, "val") + " " + TK + " " + t.ige + ", mint " + A.n + "."],
       rajz: pmRajz([[A.e, a, A.n], [B.e, "?", B.n]]), kulcs: "gy" + a + k + tobb };
-    var kB = "Hány " + t.t + " " + t.ige + " " + B.n + "?", csapK = [k, "c", { m: ekA(k, true) + " nem " + t.n + "-darab: ennyivel " + t.ige + " " + TK + " " + B.n + ".", jelol: [1, ekRag(k, "val") + " " + TK] }],
+    var kB = "Hány " + t.t + " " + t.ige + " " + B.n + "?", csapK = [k, "c", { m: ekA(k, true) + " csak a különbség: ennyivel " + t.ige + " " + TK + " " + B.n + ".", jelol: [1, ekRag(k, "val") + " " + TK] }],
         csapI = [rossz, "c", { m: B.n + " " + TK + " " + t.ige + ", nem " + NT + ".", jelol: [1, TK] }];
     var specB = { kerdes: kB, helyes: b, oe: pmEtlap(b, B.n, [[a, "m", { m: ekA(a, true) + " " + A.n + " " + t.i.replace(/t$/, "") + ". De kiről kérdeztünk?" }], csapK, csapI,
         [a + b, "m", { m: ekA(a + b, true) + " kettejük együtt. De csak " + B.n + " " + t.i + " kérdeztük." }]]),
       lep: [{ k: kB, v: b, m: a + (tobb ? " + " : " − ") + k + " = " + b, nev: "ennyi " + t.t + " " + t.ige + " " + B.n }] };
     var kE = "Hány " + t.t + " " + t.tobb + " ketten együtt?";
-    var specE = { kerdes: kE, helyes: a + b, oe: pmEtlap(a + b, "ketten együtt", [[b, "k", "ennyi " + t.t + " " + t.ige + " " + B.n], [a, "m", { m: ekA(a, true) + " " + A.n + " " + t.i.replace(/t$/, "") + ". Kettejüket kérdeztük!" }],
+    var specE = { kerdes: kE, helyes: a + b, oe: pmEtlap(a + b, "ketten együtt", [[b, "k", "ennyi " + t.t + " " + t.ige + " " + B.n], [a, "m", { m: ekA(a, true) + " csak " + A.n + " " + t.i.replace(/t$/, "") + ". Mi kettejük " + t.i + " együtt kérdeztük!" }],
         csapK, [a + rossz, "c", csapI[2]]]),
       lep: [specB.lep[0], { k: "És ketten együtt?", v: a + b, m: a + " + " + b + " = " + (a + b) }] };
     if (q === "B") {
@@ -86,7 +93,7 @@ var PM_KERES = {
       M.kirol = [{ h: ekTk(A.e, A.n) }, { h: ekTk(B.e, B.n) }, { h: ekTk("👫", "ketten együtt"), jo: 1 }];
       M.kicsi = { mondatok: M.mondatok, kerdes: kB, helyes: b, oe: specB.oe, vissza: "Ügyes! És most mindkettőjüket kérdezzük." };
     }
-    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + t.t + " " + t.ige + " " + A.n + ": " + a + " lett a vége."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
+    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + t.t + " " + t.ige + " " + A.n + ": " + a + " volt."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
     return M;
   },
   /* 🐾 udvar: kétlábú és négylábú állatok */
@@ -109,7 +116,7 @@ var PM_KERES = {
     M.mitK = [{ h: ekTk(Q.e, Q.k) }, { h: ekTk("🦶", "lábak"), jo: 1 }, { h: ekTk("🐾", "minden állat") }];
     M.kicsi = { mondatok: M.mondatok, kerdes: "Hány " + Q.n + " van az udvaron?", helyes: qn, oe: pmEtlap(qn, Q.k, [[mn, "m", { m: ekA(mn, true) + " a " + Mx.k + " száma. A " + Q.k + " számát kérdeztük!" }]]), vissza: "Ügyes! Most a lábukat kérdezzük." };
     if (o.lanc) { var s2 = spec(K4, k, 4, K2, t, 2, 1); if (!s2.oe) return null; s2.kerdes = "És hány lába van a " + K4.nak + "?"; s2.oe.masik[2 * t] = { m: "Ez az előző kérdés válasza volt: a " + K2.k + " lába. Most a " + K4.k + " lábát kérdeztük." }; s2.mit = ["a " + K4.k + " lábát", "a " + K2.k + " lábát", "mindenki lábát"]; M.lanc = s2; }
-    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + K2.n + " sétál az udvaron: " + t + " lett a vége."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
+    if (o.nyomoz) { M.mondatok[0] = C.n + " megszámolta, hány " + K2.n + " sétál az udvaron: " + t + " volt."; M.al = { 0: "Ebben is van „hány”, de ez csak elmeséli, mit csinált " + C.n + ". Nekünk melyikre kell felelni?" }; }
     return M;
   },
   /* 📅 hét és nap */
@@ -130,7 +137,7 @@ var PM_KERES = {
     var M = { keret: "het", mondatok: [A.n + " " + w + " hétig " + ny + ".", B.n + " " + d + " napig " + ny + "."], kulcs: "h2" + w + d,
       kerdes: "Hány nappal " + ny + " többet " + A.n + ", mint " + B.n + "?", helyes: 7 * w - d, szo: "hány nappal többet",
       rajz: pmRajz([[A.e, w + " hét", A.n], [B.e, d + " nap", B.n]]),
-      oe: pmEtlap(7 * w - d, "hány nappal többet", [[7 * w, "k", "ennyi napig " + ny + " " + A.n], [d, "m", { m: ekA(d, true) + " " + B.n + " napjai. Mennyivel többet kérdeztünk." }], [w, "m", { m: ekA(w, true) + " " + A.n + " heteinek száma." }],
+      oe: pmEtlap(7 * w - d, "hány nappal többet", [[7 * w, "k", "ennyi napig " + ny + " " + A.n], [d, "m", { m: ekA(d, true) + " " + B.n + " napjai. Mi azt kérdeztük: mennyivel több?" }], [w, "m", { m: ekA(w, true) + " " + A.n + " heteinek száma." }],
         [Math.abs(d - w), "c", { m: "A " + w + " hét nem " + w + " nap! Előbb váltsd napra.", jelol: [0, w + " hétig"] }], [7 * w + d, "c", { m: "Ez összeadás lett. Mennyivel TÖBB — ahhoz el kell venni." }]]),
       lep: [{ k: "Hány napig " + ny + " " + A.n + "?", v: 7 * w, m: w + " · 7 = " + 7 * w, nev: "ennyi napig " + ny + " " + A.n }, { k: "Mennyivel több ez, mint " + B.n + " napjai?", v: 7 * w - d, m: 7 * w + " − " + d + " = " + (7 * w - d) }],
       mit: ["mennyivel " + ny + " többet " + A.n, "hány napig " + ny + " " + A.n, "hány napig " + ny + " " + B.n],
@@ -153,17 +160,17 @@ var PM_KERES = {
     var M = { keret: "bolt", mondatok: [n + " egyforma " + X + " " + n * p + " tallérba kerül.", "Egy " + Y + " " + d + " tallérral " + DO + ", mint egy " + X + "."], kulcs: "bo" + n + p + d + drag,
       kerdes: "Mennyibe kerül egy " + Y + "?", helyes: v, szo: "egy " + Y, rajz: pmRajz([["🛒", n * p, n + " " + X], ["🏷️", "?", "1 " + Y]]),
       oe: pmEtlap(v, "egy " + Y, [[p, "k", "ennyibe kerül egy " + X], [n * p + (drag ? d : -d), "c", { m: "A " + n + " " + X + " árával számoltál. A " + Y + " csak egyetlen " + X + " áránál " + DO + ".", jelol: [1, "mint egy " + X] }],
-        [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " együtt." }], [drag ? p - d : p + d, "c", { m: "A " + Y + " " + DO + ", nem " + (drag ? "olcsóbb" : "drágább") + ".", jelol: [1, DO] }]]),
+        [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " ára együtt." }], [drag ? p - d : p + d, "c", { m: "A " + Y + " " + DO + ", nem " + (drag ? "olcsóbb" : "drágább") + ".", jelol: [1, DO] }]]),
       lep: [{ k: "Mennyibe kerül egy " + X + "?", v: p, m: n * p + " : " + n + " = " + p, nev: "ennyibe kerül egy " + X }, { k: "És egy " + Y + "?", v: v, m: p + (drag ? " + " : " − ") + d + " = " + v }],
       mit: ["egy " + Y + " árát", "egy " + X + " árát", "a " + n + " " + X + " árát"],
       kirol: [{ h: ekTk("✏️", "egy " + X) }, { h: ekTk("🏷️", "egy " + Y), jo: 1 }, { h: ekTk("🛒", "a " + n + " " + X) }] };
-    M.kicsi = { mondatok: M.mondatok, kerdes: "Mennyibe kerül egy " + X + "?", helyes: p, oe: pmEtlap(p, "egy " + X, [[n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " együtt. De EGY " + X + " árát kérdeztük." }]]), vissza: "Ügyes! Most a " + Y + " árát kérdezzük." };
+    M.kicsi = { mondatok: M.mondatok, kerdes: "Mennyibe kerül egy " + X + "?", helyes: p, oe: pmEtlap(p, "egy " + X, [[n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " ára együtt. De EGY " + X + " árát kérdeztük." }]]), vissza: "Ügyes! Most a " + Y + " árát kérdezzük." };
     if (o.lanc) {
       var m = ekR(2, 4);
       if (!M.oe || !M.kicsi.oe) return null;
       M.kerdes = M.kicsi.kerdes; M.helyes = p; M.szo = "egy " + X; var nagyOe = M.oe; M.oe = M.kicsi.oe; M.lep = [M.lep[0]];
       M.lanc = { kerdes: "És mennyibe kerül " + m + " " + Y + "?", helyes: m * v, oe: pmEtlap(m * v, m + " " + Y, [[v, "k", { m: "Ez egy lépcsőfok volt: EGY " + Y + " ára. De hány darabról kérdeztünk?" }], [p, "m", { m: "Ez az előző kérdés válasza volt. Most mit kérdeztünk?" }],
-          [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " ára. " + ekNagy(Y) + " árát kérdeztük!" }], [n * p + (drag ? d : -d), "c", nagyOe.csap[n * p + (drag ? d : -d)] || { m: "Egy " + X + " árából indulj!" }]]),
+          [n * p, "m", { m: ekA(n * p, true) + " a " + n + " " + X + " ára együtt. A " + Y + " árát kérdeztük!" }], [n * p + (drag ? d : -d), "c", nagyOe.csap[n * p + (drag ? d : -d)] || { m: "Egy " + X + " árából indulj!" }]]),
         lep: [{ k: "Mennyibe kerül egy " + Y + "?", v: v, m: p + (drag ? " + " : " − ") + d + " = " + v, nev: "ennyibe kerül EGY " + Y }, { k: "És " + m + " " + Y + "?", v: m * v, m: v + " · " + m + " = " + m * v }], mit: [m + " " + Y + " árát", "egy " + Y + " árát", "egy " + X + " árát"] };
     }
     if (o.nyomoz && M.oe) { M.mondatok.unshift(A.n + " megkérdezte az árust, mennyibe kerül a sok " + X + "."); M.al = { 0: "Ebben is van kérdés, de ez csak elmeséli, mit csinált " + A.n + ". Nekünk melyikre kell felelni?" };
@@ -176,13 +183,13 @@ var PM_KERES = {
     if (o.tek) {               /* három kunyhó (T2): a második fele / harmada az elsőnek */
       var r = ekE([2, 2, 3]), w = r === 2 ? ekE([2, 4]) : 3, e1 = 7 * w, e2 = e1 / r, y = ekR(3, 15), ossz = e1 + e2 + y, H = ["fakunyhót", "kőkunyhót", "nádkunyhót"], HN = ["fakunyhó", "kőkunyhó", "nádkunyhó"];
       if (ossz > 100) return null;
-      var resz = r === 2 ? "feleannyi" : "harmad annyi";
+      var resz = r === 2 ? "feleannyi" : "harmadannyi";
       var M = { keret: "haz", mondatok: [A.n + " egymás után három kunyhót épített: egy fakunyhót, egy kőkunyhót és egy nádkunyhót.", "A fakunyhót " + w + " hét alatt építette fel.", "A kőkunyhóhoz " + resz + " idő kellett, mint a fakunyhóhoz.", "A három kunyhóhoz összesen " + ossz + " nap kellett."],
         kerdes: "Hány napig épült a nádkunyhó?", helyes: y, szo: "a nádkunyhó", kulcs: "ht" + w + r + y, rajz: pmRajz([["🪵", w + " hét", "fa"], ["🪨", "?", "kő"], ["🌾", "?", "nád"]]),
         oe: pmEtlap(y, "a nádkunyhó", [[e2, "m", { m: "A " + e2 + " a kőkunyhó ideje. A nádkunyhót kérdeztük!" }], [e1, "m", { m: "A " + e1 + " a fakunyhó ideje. A nádkunyhót kérdeztük!" }], [ossz - e2, "k", { m: "Ez egy lépcsőfok volt: csak a kőkunyhót vetted el. A fakunyhót is!" }],
           [e1 + e2, "k", { m: "Ez egy lépcsőfok volt: a fa- és a kőkunyhó együtt. Mennyi maradt a nádra?" }], [ossz - e1, "k", { m: "Ez egy lépcsőfok volt: ennyi nap maradt a kő- és a nádkunyhóra együtt." }],
           [ossz - w - e2, "c", { m: "A " + w + " hét nem " + w + " nap! " + w + " hét = " + e1 + " nap.", jelol: [1, w + " hét"] }]]),
-        lep: [{ k: "Hány nap a " + w + " hét?", v: e1, m: w + " · 7 = " + e1, nev: "ennyi napig épült a fakunyhó" }, { k: "Hány napig épült a kőkunyhó?", v: e2, m: e1 + " : " + r + " = " + e2, nev: "ennyi napig épült a kőkunyhó" },
+        lep: [{ k: "Hány nap van " + w + " hétben?", v: e1, m: w + " · 7 = " + e1, nev: "ennyi napig épült a fakunyhó" }, { k: "Hány napig épült a kőkunyhó?", v: e2, m: e1 + " : " + r + " = " + e2, nev: "ennyi napig épült a kőkunyhó" },
           { k: "Mennyi maradt a nádkunyhóra?", v: y, m: ossz + " − " + e1 + " − " + e2 + " = " + y }],
         mit: ["hány napig épült a nádkunyhó", "hány napig épült a kőkunyhó", "hány nap kellett összesen"] };
       M.kicsi = { mondatok: M.mondatok.slice(0, 3), kerdes: "Hány napig épült a kőkunyhó?", helyes: e2, oe: pmEtlap(e2, "a kőkunyhó", [[e1, "m", { m: "A " + e1 + " a fakunyhó ideje." }], [w, "c", { m: "A " + w + " hét nem " + w + " nap!" }]]), vissza: "Ügyes! Most a nádkunyhó jön: mennyi maradt rá?" };
@@ -194,9 +201,9 @@ var PM_KERES = {
     var az1 = pmAz(T[2]), az2 = pmAz(T[3]);
     var M2 = { keret: "haz", mondatok: [A.n + " előbb egy " + T[0] + ", aztán egy " + T[1] + " épített.", ekNagy(pmAz(T[0])) + " " + h + " hét alatt építette fel.", "A két építéshez összesen " + ossz2 + " nap kellett."],
       kerdes: "Hány nap alatt építette fel " + pmAz(T[1]) + "?", helyes: x, szo: az2, kulcs: "hz" + h + x + T[2], rajz: pmRajz([[A.e, h + " hét", T[2]], ["🔨", "?", T[3]]]),
-      oe: pmEtlap(x, az2, [[7 * h, "k", "ennyi napig épült " + az1], [ossz2 - h, "c", { m: "A " + h + " hét nem " + h + " nap! Előbb váltsd napra: hány nap a " + h + " hét?", jelol: [1, h + " hét"] }],
+      oe: pmEtlap(x, az2, [[7 * h, "k", "ennyi napig épült " + az1], [ossz2 - h, "c", { m: "A " + h + " hét nem " + h + " nap! Előbb váltsd napra: hány nap van " + h + " hétben?", jelol: [1, h + " hét"] }],
         [h, "m", { m: "A " + h + " " + az1 + " ideje, hétben. Mi " + pmAz(T[1]) + " kérdeztük, napban." }], [ossz2, "m", { m: ekA(ossz2, true) + " a két építés együtt." }], [ossz2 + 7 * h, "c", { m: ekNagy(az1) + " napjai benne vannak az összesben: elvenni kell, nem hozzáadni." }]]),
-      lep: [{ k: "Hány nap a " + h + " hét?", v: 7 * h, m: h + " · 7 = " + 7 * h, nev: "ennyi napig épült " + az1 }, { k: "Mennyi nap maradt a másik építésre?", v: x, m: ossz2 + " − " + 7 * h + " = " + x }],
+      lep: [{ k: "Hány nap van " + h + " hétben?", v: 7 * h, m: h + " · 7 = " + 7 * h, nev: "ennyi napig épült " + az1 }, { k: "Mennyi nap maradt a másik építésre?", v: x, m: ossz2 + " − " + 7 * h + " = " + x }],
       mit: ["hány napig épült " + az2, "hány napig épült " + az1, "hány nap kellett összesen"],
       kirol: [{ h: ekTk("🔨", az1) }, { h: ekTk("🔨", az2), jo: 1 }, { h: ekTk("➕", "a kettő együtt") }] };
     M2.kicsi = { mondatok: [A.n + " " + h + " hét alatt építette fel " + pmAz(T[0]) + "."], kerdes: "Hány nap ez?", helyes: 7 * h, oe: pmEtlap(7 * h, "hány nap", [[h, "m", { m: ekA(h, true) + " a hetek száma. Napokat kérdeztünk!" }]]),
@@ -218,7 +225,7 @@ var PM_KERES = {
         lep: [{ k: "Mennyibe kerül egy " + P.x + "?", v: xp, m: T2 + " : " + m + " = " + xp, nev: "ennyibe kerül egy " + P.x }, { k: "Mennyibe kerül " + a + " " + P.x + "?", v: a * xp, m: xp + " · " + a + " = " + a * xp, nev: "ennyibe kerül a " + b + " " + P.y + " együtt" },
           { k: "És egy " + P.y + "?", v: c, m: b * c + " : " + b + " = " + c }],
         mit: ["egy " + P.y + " árát", "egy " + P.x + " árát", "a " + m + " " + P.x + " árát"] };
-      M.kicsi = { mondatok: [M.mondatok[1]], kerdes: "Mennyibe kerül egy " + P.x + "?", helyes: xp, oe: pmEtlap(xp, "egy " + P.x, [[T2, "m", { m: ekA(T2, true) + " a " + m + " " + P.x + " együtt." }]]), vissza: "Ügyes! Most a " + P.y + " jön: hány tallér egy?" };
+      M.kicsi = { mondatok: [M.mondatok[1]], kerdes: "Mennyibe kerül egy " + P.x + "?", helyes: xp, oe: pmEtlap(xp, "egy " + P.x, [[T2, "m", { m: ekA(T2, true) + " a " + m + " " + P.x + " ára együtt." }]]), vissza: "Ügyes! Most a " + P.y + " jön: hány tallér egy?" };
       return M;
     }
     var s = pmR(o, [2, 4], [2, 4]), bb = pmR(o, [3, 8], [3, 8]), T = bb * s, aa = null;
@@ -231,7 +238,7 @@ var PM_KERES = {
       lep: [{ k: "Mennyibe kerül a " + bb + " " + P.y + " együtt?", v: T, nev: "ennyibe kerül a " + bb + " " + P.y + " együtt" }, { k: "Mennyibe kerül egy " + P.y + "?", v: s, m: T + " : " + bb + " = " + s }],
       mit: ["egy " + P.y + " árát", "egy " + P.x + " árát", "a " + bb + " " + P.y + " árát együtt"],
       kirol: [{ h: ekTk("🏷️", "egy " + P.x) }, { h: ekTk("🏷️", "egy " + P.y), jo: 1 }, { h: ekTk("🛒", "a " + bb + " " + P.y) }] };
-    M3.kicsi = { mondatok: [bb + " " + P.y + " " + T + " tallérba kerül."], kerdes: "Hány tallérba kerül egy " + P.y + "?", helyes: s, oe: pmEtlap(s, "egy " + P.y, [[T, "m", { m: ekA(T, true) + " a " + bb + " " + P.y + " együtt." }]]),
+    M3.kicsi = { mondatok: [bb + " " + P.y + " " + T + " tallérba kerül."], kerdes: "Hány tallérba kerül egy " + P.y + "?", helyes: s, oe: pmEtlap(s, "egy " + P.y, [[T, "m", { m: ekA(T, true) + " a " + bb + " " + P.y + " ára együtt." }]]),
       vissza: "Ügyes! Nézd meg újra a nagyot: mennyibe kerül a " + bb + " " + P.y + "?" };
     return M3;
   }
@@ -332,7 +339,7 @@ var PM_VALASZ = {
       return { keret: "padlo", mondatok: [A.n + " konyhájában a padlón " + r + " sor csempe van, minden sorban " + c + " darab.", "A csempék közül " + pi + " piros, " + sa + " sárga, a többi fehér."], kerdes: "Hány fehér csempével van több, mint pirossal?", helyes: fe - pi, szo: "mennyivel több",
         kulcs: "pt" + r + c + pi + sa, rajz: pmPadlo(r, c, [[pi, "#f28b8b"], [sa, "#f6d36a"]]),
         oe: pmEtlap(fe - pi, "mennyivel több", [[rc, "k", "ennyi csempe van az egész padlón"], [pi + sa, "k", "ennyi a színes csempe együtt"], [fe, "k", { m: "Ez egy lépcsőfok volt: ennyi a fehér csempe. De mennyivel van több, mint a piros?" }],
-          [rc - pi - pi, "c", { m: "A sárgák sem fehérek: őket is el kell venni!", jelol: [1, sa + " sárga"] }], [fe - pi - sa, "c", { m: "A pirosakkal kell összevetni, nem az összes színessel.", jelol: [1, pi + " piros"] }]]),
+          [rc - pi - pi, "c", { m: "A sárgák sem fehérek: őket is el kell venni!", jelol: [1, sa + " sárga"] }], [fe - pi - sa, "c", { m: "Csak a pirosakkal hasonlítsd össze, ne az összes színessel!", jelol: [1, pi + " piros"] }]]),
         lep: [pmLep("Hány csempe van az egész padlón?", rc, r + " · " + c + " = " + rc, "ennyi csempe van az egész padlón"), pmLep("Hány fehér csempe van?", fe, rc + " − " + pi + " − " + sa + " = " + fe, "ennyi a fehér csempe"), pmLep("Mennyivel több a fehér, mint a piros?", fe - pi, fe + " − " + pi + " = " + (fe - pi))] };
     }
     var s = pmR(o, [2, 4], [2, 4]), w = rc - s;

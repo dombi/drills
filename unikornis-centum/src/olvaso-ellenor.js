@@ -28,13 +28,13 @@
 var OE_M = {
   keres: "🔎 Mire felelsz? Koppints a kérdésre!",
   keresJo: "Igen, ez a kérdés",
-  keresMas: "Ez a mese egy része. Melyik mondat kérdez?",
+  keresMas: "Ez nem a kérdés. Melyik mondat kérdez?",
   nosz: "🔎 Előbb a kérdés! Koppints rá – ott villog a könyvben.",   /* 🖊️ lektorra (próbacsapat 4., 🟡1) */
   sugo: "Itt a kérdés:",
   koztes: function (jel) { return "Ez egy lépcsőfok volt: " + jel + ". De mit kérdeztek?"; },
   masik: function (n, jel) { return "🔎 " + ekA(n, true) + " " + jel + ". Mit kérdeznek?"; },
   kozBagoly: "Nézd meg még egyszer a kérdést!",
-  onjav: { koztes: "Megálltál, és továbbmentél!", masik: "Így már jó – most a kérdésre feleltél!" },
+  onjav: { koztes: "Ügyes, kijavítottad!", masik: "Így már jó – most a kérdésre feleltél!" },
   ism: "Olvassuk el újra a kérdést!"
 };
 

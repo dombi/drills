@@ -4,7 +4,16 @@ Tervlap (jóváhagyva 2026-10-10): `Matekos\agent-probacsapat-terv.html`.
 Az agentek **előszűrők az élő próba előtt**: a működést mérik, nem azt, hogy tetszik-e.
 A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
 
-## Szint — minden élesítés előtt egy mondatban megmondom a producernek, ő rábólint
+## ⭐ Új rend (a producer döntése, 2026-10-13) — ez felülírja az alábbi szint-táblát
+
+1. **Gépi próba** (token nélkül, minden kód-kör után): üres mentés + konzolhiba, 4 képméret, matek-minta, névelők, dupla kattintás.
+   ⏳ Még nincs megírva → külön beszélgetés: „Gépi próba: tervlap.”
+2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.
+3. **Gyerek-agent** csak teljesen ÚJ képernyő-típusnál, akkor is legfeljebb EGY; a hibavadász-agentet a gépi próba váltja ki.
+4. **A döntő próba a gyerekeké**: egy funkció akkor kész, ha élő próbán volt. Az agent csak előszűrő.
+5. Egyszerre legfeljebb 2 agent fusson (5 párhuzamos agent elvitte a munkamenet-keretet).
+
+## Szint (régi rend) — minden élesítés előtt egy mondatban megmondom a producernek, ő rábólint
 
 | Változás | Ki fut |
 |---|---|
