@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gépi próba</title>
+<style>
+  :root { --bg:#fbf7ff; --kartya:#ffffff; --szoveg:#2e2440; --halvany:#6d6080; --lila:#8a5cc7; --zold:#3f9a6b; --piros:#c4485a; --sarga:#b8860b; --szegely:#e6dcf3; }
+  body { margin:0; background:var(--bg); color:var(--szoveg); font:16px/1.55 system-ui, "Segoe UI", sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:24px 16px 60px; }
+  h1 { color:var(--lila); margin-bottom:4px; }
+  h2 { color:var(--lila); margin-top:36px; border-bottom:2px solid var(--szegely); padding-bottom:4px; }
+  .al { color:var(--halvany); margin-top:0; }
+  .kartya { background:var(--kartya); border:1px solid var(--szegely); border-radius:14px; padding:14px 18px; margin:14px 0; }
+  .kartya h3 { margin:0 0 6px; }
+  .cimke { display:inline-block; font-size:13px; padding:2px 8px; border-radius:10px; background:#efe6fb; color:var(--lila); margin-right:4px; }
+  .nem { border-left:5px solid var(--piros); }
+  .igen { border-left:5px solid var(--zold); }
+  .kerdes { border-left:5px solid var(--sarga); background:#fffaf0; }
+  table { border-collapse:collapse; width:100%; }
+  td, th { border:1px solid var(--szegely); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:#f3ecfc; }
+  ul, ol { padding-left:22px; }
+  pre { background:#f6f1fc; border-radius:10px; padding:10px 14px; overflow-x:auto; font-size:14px; }
+  .tbl { overflow-x:auto; }
+</style>
+</head>
+<body>
+<main>
+<h1>🤖 Gépi próba</h1>
+<p class="al">Unikornis Centum · tervlap jóváhagyásra · 2026-10-13 · készítette: Claude, producer: Dombi-Nyárádi Gabriella</p>
+
+<div class="kartya igen">
+<b>Az elv egy mondatban:</b> egy ellenőrző program, ami <b>token nélkül</b>, néhány perc alatt végignézi a játékot,
+és megtalálja a <b>gépies hibákat</b> (összeomlás, kilógó gomb, rossz eredmény, „a 5 galamb”, dupla Enter).
+Így az agenteknek és a gyerekeknek már csak az marad, amit gép nem tud eldönteni: <b>érthető-e, és szeretik-e</b>.
+</div>
+
+<div class="kartya">
+<b>Miért kell?</b> Az 5 próba alatt az agentek valódi hibákat találtak, de a legtöbb gépies volt: egy program is megtalálta volna.
+Közben 3 nap alatt ≈ 2–2,5 millió tokent fogyasztottak, és az 5. próbán elvitték a munkamenet-keretet.
+A gépi próba ezt a munkát veszi át, <b>gyakorlatilag ingyen</b>: a futtatás nem fogyaszt tokent, én csak a rövid eredményt olvasom el (néhány ezer token).
+<table style="margin-top:10px">
+<tr><th></th><th>Hibavadász-agent</th><th>Gépi próba</th></tr>
+<tr><td>Költség egy futásnál</td><td>≈ 100–270 ezer token</td><td>≈ 3–5 ezer token (csak az eredmény elolvasása)</td></tr>
+<tr><td>Idő</td><td>5–30 perc</td><td>gyors: 1–2 perc · teljes: 5–10 perc</td></tr>
+<tr><td>Mindig ugyanazt nézi?</td><td>nem, ahogy épp eszébe jut</td><td><b>igen</b>: amit egyszer megtanult, soha nem felejti el</td></tr>
+<tr><td>Mennyit lát?</td><td>8–40 feladatot</td><td>pályánként <b>300</b> feladatot, minden képernyőt, 4 méreten</td></tr>
+</table>
+</div>
+
+<h2>1. Mit néz meg? (7 őr)</h2>
+<p class="al">Az első öt a te listád (2026-10-13), a 6–7. az én hozzátételem: ezek a jelentésekből és a git-naplóból jöttek.</p>
+
+<div class="kartya">
+<h3>① Indulás-őr — üres mentés + konzolhibák</h3>
+<p>Friss gép, üres mentés → profilválasztás → <b>minden képernyő</b> egyszer megnyitva (térkép, ligetek, odú, kert, utca, bolt, szalon, Tüneménykert, bank, Bagolykönyvtár, Fejtörő-hegy, Tény-kert, kalandtérkép, Szülői rész).
+Közben figyeli a hibaüzeneteket. <span class="cimke">ez fogta volna meg</span> a Bújócska-próba 🔴 térkép-összeomlását.</p>
+<p>A bejárt képernyők listája <b>egyetlen fájlban</b> van: új helyszín = egy új sor. Ha valamit kifelejtek, az őr szól, hogy van olyan képernyő, amit senki nem néz.</p>
+</div>
+
+<div class="kartya">
+<h3>② Méret-őr — 4 képernyőméret</h3>
+<p>Kis laptop (1280×720), laptop (1366×768), tablet (768×1024), telefon (375×812). Minden képernyőn és minden pályatípuson megméri:</p>
+<ul>
+  <li>kilóg-e fontos elem (feladat, beíró-mező, Kész gomb, vissza-gomb) — <span class="cimke">ez fogta volna meg</span> a „Kész gomb kilóg 1024×768-on” hibát;</li>
+  <li>takarja-e valami a feladatot (például a jelvény-felirat a feladatkártyát);</li>
+  <li>görgethető-e oldalra a képernyő (nem kéne).</li>
+</ul>
+<p>Képet csak ott készít, ahol baj van; ezeket én nézem meg, és csak akkor mutatom neked, ha döntés kell.</p>
+</div>
+
+<div class="kartya">
+<h3>③ Matek-őr</h3>
+<p>Minden pályából <b>300 feladatot</b> sorsol, és mindegyiknél ellenőrzi:</p>
+<ul>
+  <li>a helyes válasz tényleg helyes (a program újra kiszámolja a kiírt feladatból);</li>
+  <li>a számok a pálya határain belül vannak; nincs negatív, „NaN”, üres feladat;</li>
+  <li>nincs két egyforma feladat egymás után;</li>
+  <li><b>hang = kép</b>: a felolvasott mondatban ugyanazok a számok vannak, mint a képernyőn.</li>
+</ul>
+</div>
+
+<div class="kartya">
+<h3>④ Szöveg-őr — névelők és társaik</h3>
+<p>A 300-as mintákon és a játék összes állandó mondatán:</p>
+<ul>
+  <li><b>névelő a szám előtt</b>: „a 5”, „a 1”, „A 54” → hiba (helyesen <i>az</i> 1, 5, 50–59, 500–599…);</li>
+  <li>dupla szó („És most: És hány…”), dupla szóköz, „undefined”, „[object…]”, üresen maradt hely;</li>
+  <li>kérdés kérdőjel nélkül; a tiltólista szavai (nyomás, halál, „elveszíted”…);</li>
+  <li>nagyon hosszú mondat (csak 🟢 jelzés — azt, hogy érthető-e, a lektor dönti el).</li>
+</ul>
+</div>
+
+<div class="kartya">
+<h3>⑤ Kiskapu-őr — dupla kattintás, gyors Enter</h3>
+<p>Minden pályatípuson (egy-egy képviselőn) <b>valódi billentyűkkel</b>, gyorsan, ahogy egy kapkodó gyerek:</p>
+<ul>
+  <li>„4 Enter 4 Enter 4 Enter” → csak egy feladatot léphet, csak egyszer adhat ✨-t;</li>
+  <li>üres Enter, „alma”, 250, −3, 2,5 → nem léphet tovább, nem adhat jutalmat;</li>
+  <li>5 rossz válasz egymás után → nem fagy le, nem ad jutalmat;</li>
+  <li>bolt, bank: dupla kattintás a vásárlásra → csak egyszer von le;</li>
+  <li>kilépés és visszalépés, illetve újratöltés pálya közben → nem omlik össze, a jutalom nem duplázódik.</li>
+</ul>
+<p>⚠️ Ami megoldás nélkül ad jutalmat vagy haladást, az <b>mindig 🔴</b>, és külön, kiemelten szólok róla.</p>
+</div>
+
+<div class="kartya">
+<h3>⑥ Mentés-őr <span class="cimke">új</span></h3>
+<p>A játék <b>évekig kíséri</b> a gyereket, tehát a mentése is évekig él. Az őr régi és teli mentéseket tölt be
+(sok ✨, 💧, bútor, jelvény, fióka, régi formátum), és ellenőrzi: betöltődik-e hiba nélkül, és <b>nem tűnik-e el semmi</b>
+(✨, 💧, tárgyak, jelvények száma ugyanannyi betöltés és mentés után). Ez véd a legfájdalmasabb hiba ellen: hogy egy javítás után Lili gyűjteménye eltűnik.</p>
+</div>
+
+<div class="kartya">
+<h3>⑦ Verzió-őr <span class="cimke">új</span></h3>
+<p>Két apró, de visszatérő feledékenység ellen:</p>
+<ul>
+  <li>a <code>game.js</code> tényleg a friss <code>src/</code> modulokból készült-e (nem maradt-e el az összerakás);</li>
+  <li>ha a játék változott, lépett-e a <code>?v=</code> szám — különben a gyerekek gépén a régi változat marad (ezt már egyszer utólag kellett pótolni).</li>
+</ul>
+</div>
+
+<h2>2. Mikor fut, és mit kapsz belőle?</h2>
+<div class="tbl"><table>
+<tr><th>Fajta</th><th>Mikor</th><th>Mit néz</th><th>Idő</th></tr>
+<tr><td><b>Gyors</b></td><td>minden kód-kör után, commit előtt</td><td>①③④⑥⑦ + ②⑤ csak az épp módosított pályán / képernyőn</td><td>1–2 perc</td></tr>
+<tr><td><b>Teljes</b></td><td>élesítés előtt, és ha kéred</td><td>mind a 7 őr, minden képernyőn és pályán</td><td>5–10 perc</td></tr>
+</table></div>
+<p><b>Neked</b> a végén egy-két sort írok, például:</p>
+<pre>🤖 Gépi próba (teljes): 🔴 0 · 🟡 2 · 🟢 5
+🟡 Telefonon a Nyomozótábla Kész gombja 40 px-re kilóg (képet csatolok)
+🟡 „a 5 tallér” — Tündérvásár, 3. o., 300-ból 4 mintában</pre>
+<p>Ha minden rendben, csak ennyit: <b>„🤖 Gépi próba: tiszta.”</b> A részletes jelentés a <code>probacsapat\gepi-jelentesek\</code> mappába kerül (nekem és a későbbi beszélgetéseknek).</p>
+
+<h2>3. Hogyan illeszkedik az új rendbe?</h2>
+<ol>
+  <li><b>Gépi próba</b> — minden kód-kör után (ez a lap).</li>
+  <li><b>Lektor-agent</b> — ha új szöveg született. A gépi szöveg-őr kiszűri a gépies hibákat, így a lektor a gyerekfülre figyelhet.</li>
+  <li><b>Ördögügyvéd</b> — nagy tervlapnál.</li>
+  <li><b>Egy gyerek-agent</b> — csak teljesen új képernyő-típusnál.</li>
+  <li><b>Élő próba a gyerekekkel</b> — ez dönt. A gépi próba után a gyerekek egy olyan változatot kapnak, ami legalább nem omlik össze és nem számol rosszul.</li>
+</ol>
+<p>A <b>hibavadász-agentet</b> a gépi próba teljesen kiváltja; a fájlja megmarad, de nem indítjuk.</p>
+
+<div class="kartya nem">
+<h3>Amit a gépi próba NEM tud</h3>
+<ul>
+  <li>Hogy <b>érthető</b>-e egy mondat egy 3.-osnak → lektor, élő próba.</li>
+  <li>Hogy <b>tetszik</b>-e, unalmas-e, szép-e → élő próba.</li>
+  <li>A valódi mikrofont és Szabolcs hangját → élő próba (a gép hamis beszéddel dolgozik, némítva).</li>
+  <li>Valódi érintőképernyőt → csak a méretet tudja utánozni, az ujjat nem.</li>
+  <li>A felhőmentést → a próba alatt a felhő el van zárva, hogy véletlenül se írjon bele a gyerekek mentésébe.</li>
+</ul>
+</div>
+
+<h2>4. Technika (ezt én intézem)</h2>
+<ul>
+  <li><b>Semmit nem kell telepíteni, és nincs külső programkönyvtár</b>: a próba a gépen már meglévő Edge böngészőt vezérli, láthatatlanul, egy saját, kis Python-programmal. Így a licenc-szabályod (csak teljesen szabad forrás) érintetlen marad.</li>
+  <li>Egy paranccsal indul: <code>py -3 probacsapat\gepi_proba.py</code> (gyors) vagy <code>… --teljes</code>. Nem nyit fület a beépített böngészőben, és nem foglal portot az agentek elől.</li>
+  <li>Minden futás <b>üres, ideiglenes böngészőprofillal</b> indul, a végén törli: nem marad szemét, és nem ér hozzá semmilyen valódi mentéshez.</li>
+  <li>Az őrök <b>egy-egy külön fájlban</b> élnek, közös motorral: új őrt vagy új képernyőt egy sorral lehet felvenni (stabil alap, egy közös modul).</li>
+  <li>Ha egy agent vagy az élő próba olyan hibát talál, amit a gép is megtalálhatott volna, <b>felveszem az őrök közé</b> — így a gépi próba minden hibából tanul.</li>
+</ul>
+
+<h2>5. Mekkora munka? <span class="cimke">közepes–nagy · 3 kód-kör</span></h2>
+<table>
+<tr><th>Kör</th><th>Tartalom</th></tr>
+<tr><td>1.</td><td>A motor (Edge-vezérlő, szerver, jelentés) + ① indulás + ③ matek + ④ szöveg + ⑦ verzió. Ezután már a gyors próba használható.</td></tr>
+<tr><td>2.</td><td>② méret + ⑤ kiskapu (valódi billentyűkkel) + újratöltés.</td></tr>
+<tr><td>3.</td><td>⑥ mentés-őr + pályák gyors végigjátszása (eljut-e a vége-képernyőig, annyi ✨-t ad-e, amennyit a terv mond) + az első teljes futás → a lista eléd kerül.</td></tr>
+</table>
+<p>Az első teljes futás valószínűleg <b>régi, eddig észre nem vett hibákat</b> is talál (például a Bagolykönyvtárban, ahol a próbacsapat félúton leállt). Ezeket egyszer, összegyűjtve hozom eléd.</p>
+
+<h2>6. Döntések</h2>
+
+<div class="kartya kerdes">
+<h3>1. Ütem</h3>
+<p><b>A) (javasolt)</b> Gyors próba minden kód-kör után, teljes élesítés előtt.<br>
+<b>B)</b> Mindig a teljes (biztosabb, de minden kör 5–10 perccel hosszabb).</p>
+</div>
+
+<div class="kartya kerdes">
+<h3>2. A régi hibák az első teljes futásból</h3>
+<p><b>A) (javasolt)</b> Egyszer eléd hozom a teljes listát röviden; te döntöd el, mit javítunk. Amit „maradjon így”-re teszel, az „ismert” listára kerül, és a gép onnantól csak az <b>új</b> hibákat jelzi.<br>
+<b>B)</b> Előbb minden régi hibát kijavítunk, csak utána megyünk tovább.</p>
+</div>
+
+<div class="kartya kerdes">
+<h3>3. Mentés-őr: milyen mentésekkel próbáljon?</h3>
+<p><b>A) (javasolt)</b> Csak általam gyártott, kitalált mentésekkel (a régi kódváltozatokból előállítva) — semmilyen valódi gyerekadat nem kerül a próbába.<br>
+<b>B)</b> A) + Lili és Fanni felhőmentésének <b>névtelenített</b> másolata, csak ezen a gépen tárolva (a git-be nem kerül). Ez a valódi „furcsaságokat” is megfogja, de valódi adat.</p>
+</div>
+
+</main>
+</body>
+</html>
