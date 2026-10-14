@@ -25,7 +25,8 @@ var LENY_PAL = {
 var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula" };   /* rajzterv 2. döntés */
 var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Lángi", "Tüsszi", "Pöfi", "Villám", "Smaragd", "Taréj", "Szárnyi"];
 /* hány gyakorlós nap egy-egy lépcső (tervlap 5. döntés; később a pultról állítható) */
-/* kolyok: 0 = a kölyök NEM nő fel (producer, 2026-10-11: ha megkerül, maradjon kölyök); a nagy sárkány kódja kész,
+/* kolyok: 0 = a kölyök NEM nő fel (producer, 2026-10-11: ha megkerül, maradjon kölyök; 2026-10-14: egyik
+   sárkány se nőjön, amíg a producer mást nem mond — a már nagy is kölyökké válik, lásd lenyTar); a nagy sárkány kódja kész,
    egy számmal (pl. 10) visszakapcsolható */
 var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 0 };
 var LENY_TOJAS_LEPCSO = ["reccs", "repedes", "kikel"];   /* a tojás gyakorlós napjai: erik() */
@@ -50,6 +51,11 @@ function lenyTar(p) {
   var l = visszaTar(p).leny2;
   if (typeof l.lelet !== "number") l.lelet = 0;   /* 1 = a gyerek már látta a patakparti leletet */
   if (typeof l.kertLatta !== "number") l.kertLatta = 0;   /* 1 = a nagy sárkány már megérkezett a kertbe */
+  /* producer, 2026-10-14: amíg a felnövés ki van kapcsolva, a már megnőtt sárkány visszaváltozik kölyökké (az odúba) */
+  if (l.fazis === "nagy" && !LENY_NAP.kolyok) {
+    l.fazis = "kolyok"; l.t = gyakNap(); l.kertLatta = 0;
+    if (l.hir && (l.hir.tip === "nagy" || l.hir.tip === "szarny")) l.hir = null;
+  }
   return l;
 }
 function lenyPal(lenyKulcs) { return LENY_PAL[LENY_SZIN[lenyKulcs || mentes.leny]] || LENY_PAL.menta; }
