@@ -1,0 +1,107 @@
+/* ============ 6k2) 🐉 KÖLYÖK AZ ÖSVÉNYEN — a megtalált kölyöksárkány elkíséri az unikornist ============
+   Terv: terv/kolyok-osveny-terv.html (✅ jóváhagyva 2026-10-14: mögötte-fölötte; pult-kapcsoló, alapból be; nincs külön rajzterv).
+     • Csak a megtalált kölyök kísér (P().leny2.fazis === "kolyok"), mindig a saját unikornisé (lenyTar, lenyPal).
+       Új mentés nem kell. Amíg a sárkány nem nő (LENY_NAP.kolyok = 0), fióka-méretű (lenyKolyokAlak).
+     • A közös ösvény-rajzoló (osveny.js) adja a helyét: osvenyVaz → lenyKiserSVG (az unikornis mögé rajzolva),
+       osvenyIndul → lenyKiserIndul, osvenyOrom → lenyKiserOrom, osvenyOduba → lenyKiserOduba. Így mind a négy
+       pályacsaládon (erdő, mérés, vásár, könyvtár) egyszerre él.
+     • Kis késéssel követi az unikornist (saját rAF-hurok, csillapított közelítés), mögötte és fölötte lebeg,
+       puhán csapkod; ha az unikornis megfordul, átrepül a másik oldalára, és ő is megfordul.
+     • Jó válasz: szikrát tüsszent és röppen egyet (az örömugrással egyszerre); 3 jó egymás után: buborék is.
+       Rossz válasz: semmi (tiltólista). Koppintás: tüsszent, jutalom nélkül.
+     • Nyugodt mód (kevesebb mozgás): ott van és követ, de nem lebeg, nem tüsszent.
+   PULT: producerConfig/{uid}.leny és groups/{gid}.leny = { kiser: bool } — alap < csoport < egyéni; több csoportnál
+   a bekapcsolt nyer (mint a 📋 tábla). A pult (admin/index.html) ugyanezt a fájlt tölti be: itt csak függvény-definíció
+   lehet, felső szinten semmi nem futhat, ami a játék globálisaira épül. */
+
+var LENY_BEALL_ALAP = { kiser: true };
+/* a pult beállításainak összevonása — a pult is ezt hívja (lenyHatas) */
+function lenyBeallOsszevon(egyeni, csoportok) {
+  var ki = {};
+  (csoportok || []).forEach(function (c) {
+    if (!c) return;
+    if (c.kiser === true) ki.kiser = true; else if (c.kiser === false && ki.kiser !== true) ki.kiser = false;
+  });
+  if (egyeni && typeof egyeni.kiser === "boolean") ki.kiser = egyeni.kiser;
+  return ki;
+}
+function lenyBeall(f) {
+  f = f || (typeof FELULIR !== "undefined" && FELULIR.leny) || {};
+  return { kiser: typeof f.kiser === "boolean" ? f.kiser : LENY_BEALL_ALAP.kiser };
+}
+
+/* ── hol és mekkora: pálya-egységben, az unikornis talppontjához képest (az unikornis 0.62-es méretű az ösvényen) ── */
+var KISER = { hatra: 74, fel: 118, meret: 0.5, tau: 0.32, halo: 6 };
+var _ks = null;   /* a futó kíséret: { x, y, nez, oduba, t, el } */
+
+function lenyKiserVan() {
+  if (typeof P !== "function" || !P()) return false;
+  var l = lenyTar();
+  return l.fazis === "kolyok" && lenyBeall().kiser;
+}
+/* az osvenyVaz rajzolja, közvetlenül az unikornis ELÉ a rétegsorban (így az unikornis takarja, ha összeérnek) */
+function lenyKiserSVG(x, y) {
+  if (!lenyKiserVan()) return "";
+  var l = lenyTar(), kx = x - KISER.hatra, ky = y - KISER.fel;
+  return '<g id="kiser-hely" transform="translate(' + kx.toFixed(1) + "," + ky.toFixed(1) + ')" role="button" aria-label="' + htmlVed(l.nev || "Kölyök") + '">' +
+    '<g id="kiser-flip" style="transform:scale(1,1)"><g class="kiser-lebeg"><g id="kiser-rebben"><g transform="scale(' + KISER.meret + ')">' +
+    lenyRajz(lenyKolyokAlak(), lenyPal(), { cls: "kiser" }) + '</g></g></g></g>' +
+    '<rect x="-30" y="-58" width="62" height="64" fill="transparent"/></g>';
+}
+/* pálya-indításkor (osvenyIndul): a helyére teszi, és elindítja a követést */
+function lenyKiserIndul() {
+  var el = document.querySelector("#szinpad #kiser-hely");
+  _ks = null;
+  if (!el) return;
+  _ks = { el: el, x: OSV.x - KISER.hatra, y: OSV.y - KISER.fel, nez: 1, oduba: null, t: performance.now() };
+  el.addEventListener("click", function (e) { e.stopPropagation(); lenyKiserKopp(); });
+  var ks = _ks;
+  requestAnimationFrame(function lep(most) {
+    if (ks !== _ks || !ks.el.isConnected) return;
+    lenyKiserLep(ks, most);
+    requestAnimationFrame(lep);
+  });
+}
+/* egy képkocka: a cél az unikornis mögött-fölött; csillapítva közelít (kis késéssel repül utána) */
+function lenyKiserLep(ks, most) {
+  var dt = Math.min(0.1, (most - ks.t) / 1000); ks.t = most;
+  var uel = document.getElementById("uni-irany"), dir = typeof uniIrany === "function" ? uniIrany(uel) : 1;
+  var tx = OSV.x - dir * KISER.hatra, ty = OSV.y - KISER.fel, op = 1, sk = 1;
+  if (ks.oduba) {   /* pálya vége: az unikornis után berepül az odú ajtaján */
+    tx = ks.oduba.x; ty = ks.oduba.y;
+    var e = Math.min(1, Math.max(0, (most - ks.oduba.t0 - 250) / 700));
+    op = 1 - e; sk = 1 - 0.55 * e;
+  }
+  if (nyugiMod() || window.__UC_GYORS) { ks.x = tx; ks.y = ty; }
+  else { var k = 1 - Math.exp(-dt / KISER.tau); ks.x += (tx - ks.x) * k; ks.y += (ty - ks.y) * k; }
+  ks.x = Math.max(36, Math.min(1164, ks.x)); ks.y = Math.max(64, ks.y);
+  /* merre néz: amerre repül; ha már a helyén van, amerre az unikornis */
+  var dx = tx - ks.x, nez = Math.abs(dx) > KISER.halo ? (dx < 0 ? -1 : 1) : dir;
+  if (nez !== ks.nez) { ks.nez = nez; var fl = ks.el.querySelector("#kiser-flip"); if (fl) fl.style.transform = "scale(" + nez + ",1)"; }
+  ks.el.setAttribute("transform", "translate(" + ks.x.toFixed(1) + "," + ks.y.toFixed(1) + ")" + (sk < 1 ? " scale(" + sk.toFixed(3) + ")" : ""));
+  if (ks.oduba) ks.el.setAttribute("opacity", op.toFixed(3));
+}
+/* jó válasz (osvenyOrom): szikra + röppenés; minden 3. jó egymás után buborék is */
+function lenyKiserOrom() {
+  if (!_ks || !_ks.el.isConnected || nyugiMod()) return;
+  var el = _ks.el;
+  lenyTusszent(el);
+  var r = el.querySelector("#kiser-rebben");
+  if (r) { r.classList.remove("ki"); void r.getBBox(); r.classList.add("ki"); }
+  var sor = (typeof J !== "undefined" && J.streak) || 0;
+  if (sor >= 3 && sor % 3 === 0) Array.prototype.forEach.call(el.querySelectorAll("[data-bub]"), function (b, i) {
+    b.classList.remove("ki"); b.style.animationDelay = (0.25 + i * 0.3) + "s"; void b.getBBox(); b.classList.add("ki");
+  });
+}
+/* koppintás: csak játék — tüsszent, nincs jutalom */
+function lenyKiserKopp() {
+  if (!_ks || nyugiMod()) return;
+  lenyTusszent(_ks.el);
+  if (typeof hangGomb === "function") hangGomb();
+}
+/* pálya vége (osvenyOduba): az ajtó felé repül, és eltűnik benne */
+function lenyKiserOduba(x, y) {
+  if (!_ks || !_ks.el.isConnected) return;
+  if (nyugiMod() || window.__UC_GYORS) { _ks.el.setAttribute("opacity", "0"); return; }
+  _ks.oduba = { x: x, y: y - 30, t0: performance.now() };
+}

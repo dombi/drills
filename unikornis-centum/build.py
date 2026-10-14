@@ -60,6 +60,7 @@ MODULES = [
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
+    "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör

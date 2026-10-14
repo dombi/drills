@@ -9,7 +9,8 @@
      odu           = a Cél-odú: { arnyek, arnyekOp, mogotte (SVG az odú mögé), felirat: {fill, stroke, szin, font} | null, csillag: [y, r] }
      pipa(b,px,py) = a b. pipa helye ([x, y]); pipaKicsi = az erdei kis pipa; pipaElobb = a pipák az odú elé (az unikornis alá)
    SÉTA: az unikornis a rajzolt görbén halad (osvenyMegy → a közös uniUtvonal, renderer.js: járás + fordulás). Erre épül: állomásról állomásra (osvenyAllomasra), a kerülő (osvenyKerulo),
-   a pálya vége (osvenyOduba) és a jó válasz öröme (osvenyOrom). */
+   a pálya vége (osvenyOduba) és a jó válasz öröme (osvenyOrom).
+   🐉 KÍSÉRŐ: a megtalált kölyöksárkány az unikornis mögött repül (leny-kiser.js) — a váz rajzolja, a séta viszi magával. */
 var SCENE_N = 8;
 var TU_X0 = 78, TU_X1 = 1092;
 function allomasX(i) { return TU_X0 + i * (TU_X1 - TU_X0) / Math.max(1, SCENE_N - 1); }
@@ -57,6 +58,7 @@ function osvenyVaz(palya, c, o) {
     '<g id="kamera">' + o.ut(osvenyUtD(n)) + (o.elotte ? o.elotte(px, py) : "") + (o.pipaElobb ? pipak : "") +
     osvenyCelOdu(px[n - 1] + 62, py[n - 1] - 6, o.odu || {}) +
     '<ellipse id="mosti-ko" cx="' + px[0].toFixed(1) + '" cy="' + (py[0] + 8).toFixed(1) + '" rx="40" ry="20" fill="none" stroke="#ffe08a" stroke-width="4" opacity="0.9"/>' +
+    lenyKiserSVG(px[0], py[0]) +   /* 🐉 a megtalált kölyök kíséri (leny-kiser.js), az unikornis mögött */
     '<g id="unikornis-hely" transform="translate(' + px[0].toFixed(1) + ',' + py[0].toFixed(1) + ')">' +
       '<g id="uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' + unikornisSVG("uni", c, 0.62, P().oltozet) + '</g></g>' +
     (o.utana ? o.utana(px, py) : "") + (o.pipaElobb ? "" : pipak);
@@ -72,6 +74,7 @@ function osvenyIndul() {
   OSV.x = allomasX(0); OSV.y = allomasY(0);
   var u = osvenyUni();
   if (u.el) uniNezoAdat(u.el, { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });   /* a fordulás szemből-képéhez */
+  lenyKiserIndul();   /* 🐉 a kölyök követni kezdi (leny-kiser.js) */
 }
 function osvenyAllit(x, y) {
   var u = osvenyUni(), ko = document.getElementById("mosti-ko");
@@ -111,6 +114,7 @@ function osvenyOduba(kesz) {
   if (!u.hely || window.__UC_GYORS) { if (kesz) kesz(); return; }
   osvenyMegy([[OSV.x, OSV.y], [ax, ay]], null, function () {
     if (!u.hely.isConnected) return;
+    lenyKiserOduba(ax, ay);   /* 🐉 a kölyök utánarepül az ajtón */
     if (nyugiMod()) { u.hely.setAttribute("opacity", "0"); if (kesz) kesz(); return; }
     uniNezetMutat(u.el, "hatul");   /* hátulról látjuk: befelé indul */
     var t0 = performance.now(), MS = 650;
@@ -126,6 +130,7 @@ function osvenyOduba(kesz) {
 /* JÓ VÁLASZ: kis örömugrás a helyén (a kerti ugrás mozdulata, kisebb magassággal) */
 function osvenyOrom() {
   var u = osvenyUni();
+  lenyKiserOrom();   /* 🐉 a kölyök szikrát tüsszent, ugyanabban a pillanatban (leny-kiser.js) */
   if (!u.el || uniJarFut(u.el) || nyugiMod()) return;
   u.el.classList.remove("uni-mozd-ugras", "osveny-orom"); void u.el.getBoundingClientRect();
   u.el.classList.add("uni-mozd-ugras", "osveny-orom");

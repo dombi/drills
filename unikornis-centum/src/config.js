@@ -36,6 +36,9 @@ var FELULIR = {
   teny: {},           /* összevont tény-motor beállítás (üres = alap, teny.js TENY_ALAP) */
   egyeniSzer: null,   /* producerConfig/{uid}.szerszam */
   csoportSzer: {},    /* gid → szerszam */
+  egyeniLeny: null,   /* producerConfig/{uid}.leny — 🐉 a kölyök kíséri-e az ösvényen (leny-kiser.js) */
+  csoportLeny: {},    /* gid → leny */
+  leny: {},           /* összevont: { kiser } */
   szerszam: {},       /* összevont szerszám-létra beállítás (üres = alap, szerszam.js SZERSZAM_ALAP) */
   egyeniP: null,      /* producerConfig/{uid}.customLevels — egyéni pályák (4b) */
   csoportP: null,     /* a csoportok customLevels-e egybe */
@@ -46,11 +49,11 @@ var FELULIR = {
 function felulirCacheBetolt() {
   try {
     var c = JSON.parse(localStorage.getItem(FELULIR_KULCS) || "null");
-    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; FELULIR.teny = c.teny || {}; FELULIR.szerszam = c.szerszam || {}; }
+    if (c && c.kesz) { FELULIR.uid = c.uid || null; FELULIR.kesz = c.kesz; FELULIR.palyak = c.palyak || {}; FELULIR.kapuOrak = c.kapuOrak || null; FELULIR.ekStabil = c.ekStabil || null; FELULIR.bank = c.bank || {}; FELULIR.teny = c.teny || {}; FELULIR.szerszam = c.szerszam || {}; FELULIR.leny = c.leny || {}; }
   } catch (e) {}
 }
 function felulirCacheTorol() {
-  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {}; FELULIR.teny = {}; FELULIR.szerszam = {};
+  FELULIR.kesz = {}; FELULIR.palyak = {}; FELULIR.kapuOrak = null; FELULIR.ekStabil = null; FELULIR.bank = {}; FELULIR.teny = {}; FELULIR.szerszam = {}; FELULIR.leny = {};
   try { localStorage.removeItem(FELULIR_KULCS); } catch (e) {}
 }
 
@@ -68,10 +71,11 @@ function felulirFigyel() {
     FELULIR.egyeniBank = (d.exists && d.data().bank) || {};
     FELULIR.egyeniTeny = (d.exists && d.data().teny) || {};
     FELULIR.egyeniSzer = (d.exists && d.data().szerszam) || {};
+    FELULIR.egyeniLeny = (d.exists && d.data().leny) || {};
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
-    var cs = {}, cp = {}, co = {}, cst = {}, cb = {}, ct = {}, csz = {};
+    var cs = {}, cp = {}, co = {}, cst = {}, cb = {}, ct = {}, csz = {}, cl = {};
     snap.forEach(function (d) {
       cs[d.id] = d.data().overrides || {};
       if (typeof d.data().kapuOrak === "number") co[d.id] = d.data().kapuOrak;
@@ -79,9 +83,10 @@ function felulirFigyel() {
       if (d.data().bank) cb[d.id] = d.data().bank;
       if (d.data().teny) ct[d.id] = d.data().teny;
       if (d.data().szerszam) csz[d.id] = d.data().szerszam;
+      if (d.data().leny) cl[d.id] = d.data().leny;
       var l = d.data().customLevels || {}; for (var k in l) cp[k] = l[k];
     });
-    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb; FELULIR.csoportTeny = ct; FELULIR.csoportSzer = csz;
+    FELULIR.csoportok = cs; FELULIR.csoportP = cp; FELULIR.csoportOrak = co; FELULIR.csoportStabil = cst; FELULIR.csoportBank = cb; FELULIR.csoportTeny = ct; FELULIR.csoportSzer = csz; FELULIR.csoportLeny = cl;
     felulirSzamol();
   }, function (e) { console.warn("[felhő] csoport-beállítás hiba:", e.code || e); }));
 }
@@ -190,11 +195,13 @@ function felulirSzamol() {
   var ujB = bankOsszevon(FELULIR.egyeniBank, Object.keys(FELULIR.csoportBank || {}).sort().map(function (g) { return FELULIR.csoportBank[g]; }));
   var ujT = tenyOsszevon(FELULIR.egyeniTeny, Object.keys(FELULIR.csoportTeny || {}).sort().map(function (g) { return FELULIR.csoportTeny[g]; }));
   var ujSz = szerszamOsszevon(FELULIR.egyeniSzer, Object.keys(FELULIR.csoportSzer || {}).sort().map(function (g) { return FELULIR.csoportSzer[g]; }));
+  var ujL = lenyBeallOsszevon(FELULIR.egyeniLeny, Object.keys(FELULIR.csoportLeny || {}).sort().map(function (g) { return FELULIR.csoportLeny[g]; }));
   if (JSON.stringify(uj) === JSON.stringify(FELULIR.kesz) && JSON.stringify(ujP) === JSON.stringify(FELULIR.palyak) && ujO === FELULIR.kapuOrak &&
       JSON.stringify(ujS) === JSON.stringify(FELULIR.ekStabil) && JSON.stringify(ujB) === JSON.stringify(FELULIR.bank) &&
-      JSON.stringify(ujT) === JSON.stringify(FELULIR.teny) && JSON.stringify(ujSz) === JSON.stringify(FELULIR.szerszam)) return;
-  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB; FELULIR.teny = ujT; FELULIR.szerszam = ujSz;
-  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB, teny: ujT, szerszam: ujSz })); } catch (e) {}
+      JSON.stringify(ujT) === JSON.stringify(FELULIR.teny) && JSON.stringify(ujSz) === JSON.stringify(FELULIR.szerszam) &&
+      JSON.stringify(ujL) === JSON.stringify(FELULIR.leny)) return;
+  FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB; FELULIR.teny = ujT; FELULIR.szerszam = ujSz; FELULIR.leny = ujL;
+  try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB, teny: ujT, szerszam: ujSz, leny: ujL })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
   if (id === "kepernyo-profil") renderProfil();
   else if (id === "kepernyo-fomenu") renderFomenu();

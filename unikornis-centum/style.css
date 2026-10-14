@@ -2772,3 +2772,18 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .szp-tabla-mozgo{ cursor:pointer; }
 .szp-tabla-mozgo:hover, .szp-tabla-mozgo:focus-visible{ filter:brightness(1.06); outline:3px solid #ffe27a; outline-offset:2px; }
 .op-nb{ white-space:nowrap; }
+
+/* ── 🐉 KÖLYÖK AZ ÖSVÉNYEN (leny-kiser.js, terv/kolyok-osveny-terv.html): lebeg, puhán csapkod, jó válasznál röppen ── */
+#kiser-hely{ cursor:pointer; }
+#kiser-flip{ transition:transform .28s ease-in-out; }
+.kiser-lebeg{ animation:kiserLebeg 2.6s ease-in-out infinite; }
+@keyframes kiserLebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-9px); } }
+.sarkany.kiser .sz-szarny{ animation:szCsap .62s ease-in-out infinite; }
+.sarkany.kiser .sz-szarny.tavol{ animation-delay:-.08s; }
+.sarkany.kiser .sz-test{ animation:none; }
+#kiser-rebben.ki{ animation:kiserRebben .8s ease-out 1; }
+@keyframes kiserRebben{ 0%,100%{ transform:translateY(0); } 35%{ transform:translateY(-24px); } 65%{ transform:translateY(-6px); } }
+@media (prefers-reduced-motion:reduce){
+  .kiser-lebeg, #kiser-rebben.ki, .sarkany.kiser .sz-szarny, .sarkany.kiser .sz-farok, .sarkany.kiser .sz-fej{ animation:none; }
+  #kiser-flip{ transition:none; }
+}

@@ -215,6 +215,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/szerszam.js?v=20261012-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/leny-kiser.js?v=20261014-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -1080,7 +1081,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {} }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {}, leny: x.leny || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -1286,6 +1287,21 @@ function rajzBeallitasok(t) {
     "a saját keretükön belül. Sorrend: alap → csoport → egyéni. Több csoportnál <b>az engedékenyebb nyer</b>: a nagyobb határ, " +
     "a kevesebb új tény, a közös táblák; a becsempészés és az ösvény ki van kapcsolva, ha bármelyik csoport kikapcsolja.</p></div>";
 
+  /* ── 🐉 Kis sárkány (2026-10-14, terv/kolyok-osveny-terv.html): a megtalált kölyök kíséri-e az unikornist az ösvényeken ── */
+  var sajatLeny = (egyeni ? (A.cfg[id] || {}).leny : csoportById(id).leny) || {};
+  var lUres = egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap (igen)") : "— nincs (alap: igen)";
+  h += '<div class="kartya" style="margin-top:10px"><h3>🐉 Kis sárkány</h3><div class="kapu-sor"><span>A megtalált kölyök elkíséri az unikornist az ösvényeken:</span>' +
+    '<select id="leny-kiser"' + (typeof sajatLeny.kiser === "boolean" ? ' class="beallitva"' : "") + ">" +
+    [["", lUres], ["true", "✅ igen"], ["false", "🚫 nem"]].map(function (o) {
+      return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kiser === "boolean" ? String(sajatLeny.kiser) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("") + "</select></div>";
+  if (egyeni) {
+    var lh = lenyBeall(lenyBeallOsszevon((A.cfg[id] || {}).leny || {}, jatekosCsoportjai(id).map(function (g) { return g.leny || {}; })));
+    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+  }
+  h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
+    "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer.</p></div>";
+
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
   var effKulcs = egyeni ? kapuHatas(id).kulcs : [];
@@ -1367,6 +1383,9 @@ function rajzBeallitasok(t) {
   Array.prototype.forEach.call(t.querySelectorAll("[data-cel]"), function (b) { b.onclick = function () { A.bCel = b.dataset.cel; rajzol(); }; });
   $("kapu-orak").onchange = function () {
     ment(docRef.set({ kapuOrak: this.value === "" ? FV.delete() : +this.value, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
+  $("leny-kiser").onchange = function () {
+    ment(docRef.set({ leny: this.value === "" ? FV.delete() : { kiser: this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
   /* 🏦 bank-mezők: { bank: { valtasId: { mezo: érték | törlés } } } */
   function bankIr(vid, mezok) { var b = {}; b[vid] = mezok; ment(docRef.set({ bank: b, updatedAt: FV.serverTimestamp() }, { merge: true })); }
