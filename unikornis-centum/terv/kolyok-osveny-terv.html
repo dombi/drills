@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kölyök az ösvényen</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --track:#f6e2b8; --track-d:#d9b979; --card:#fffaf2; --sky:#dff1fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#f0a800 0%,var(--pink) 55%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(224,65,122,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🐉";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  .chip a{color:#fff}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+  svg.vazlat .palya{fill:none;stroke:var(--track);stroke-width:22}
+  svg.vazlat .palya-sz{fill:none;stroke:var(--track-d);stroke-width:2;stroke-dasharray:4 8}
+  svg.vazlat .eg{fill:var(--sky)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+</style>
+</head>
+<body><div class="wrap">
+
+<header class="top">
+  <h1>🐉 Kölyök az ösvényen</h1>
+  <div class="sub">A megtalált kölyöksárkány elkíséri az unikornist minden ösvényen: röpköd mellette, és szikrát tüsszent, ha a gyerek jól válaszol.</div>
+  <div class="meta"><span class="chip">Tervlap · 2026-10-14</span><span class="chip">Méret: közepes, 1 kód-kör</span><span class="chip">Jóváhagyásra vár</span></div>
+</header>
+
+<h2>Amit már eldöntöttél</h2>
+<div class="cards">
+  <div class="dec"><div class="num">1</div><h3>Csak a megtalált kölyök kísér</h3>Az a gyerek, akinek a sárkánya még tojás, fióka vagy a kalandtérképen bujkál, nem lát kísérőt. Ha a Holdfény-barlangban megtalálja a kölyköt, a következő pályán már ott röpköd mellette. Így a kíséret a kaland jutalma lesz.<br><span class="ok">✅ producer, 2026-10-14</span></div>
+  <div class="dec"><div class="num">2</div><h3>Röpködve kísér, és örül a jó válasznak</h3>Az unikornis mögött lebeg, kicsit fölötte, és puhán csap a szárnyával. A jó válasznál szikrát tüsszent.<br><span class="ok">✅ producer, 2026-10-14</span></div>
+  <div class="dec"><div class="num">✓</div><h3>A sárkány nem nő</h3>A kölyök kölyök marad, a kísérő is mindig kölyök.<br><span class="ok">✅ producer, 2026-10-14 (<code>09293ba</code>)</span></div>
+</div>
+
+<h2>Hol jelenik meg</h2>
+<div class="panel">
+  <p>Minden pályán, ahol ösvény van, és az unikornis állomásról állomásra sétál. Ez a négy pályacsalád ugyanazt a közös ösvény-rajzolót használja (<code>osveny.js</code>), ezért a kölyköt csak ott kell bekötni, és mindenhol egyszerre megjelenik:</p>
+  <ul>
+    <li>🌲 a számolós erdei pályák (összeadás, kivonás, szorzás…)</li>
+    <li>🧵 a Mérés-ligetek (Szabóműhely, Bájitalkonyha, Mézes pékség)</li>
+    <li>🎪 a Tündérvásár</li>
+    <li>📚 a Bagolykönyvtár ösvényes pályái</li>
+  </ul>
+  <p class="lead">Nem jelenik meg ott, ahol nincs ösvény: a Tény-kertben, a Villámkörben, a Fejtörő-hegyen, az odúban és a kertben. Az odúban és a kertben eddig is ott van a maga módján.</p>
+</div>
+
+<h2>Mit csinál a kölyök</h2>
+<div class="panel tblwrap">
+<table>
+<tr><th>Mikor</th><th>Mit csinál</th></tr>
+<tr><td>Indul a pálya</td><td>Az unikornis mögött, kicsit fölötte lebeg. Folyamatosan, lassan száll fel-le, és csapkod a szárnyával, így sosem áll mozdulatlanul.</td></tr>
+<tr><td>Az unikornis megy a következő állomásra</td><td>Kis késéssel utánarepül, mint egy kiskutya. Ha az unikornis megfordul, ő is megfordul.</td></tr>
+<tr><td>Kerülő út a fűben</td><td>Vele tart a kerülőn is.</td></tr>
+<tr><td>✅ Jó válasz</td><td><b>Szikrát tüsszent</b>, és egyet röppen. Ez ugyanaz a szikra, amit az odúban is tüsszent, ugyanabban a pillanatban, amikor az unikornis örömében ugrik.</td></tr>
+<tr><td>✅✅✅ Három jó válasz egymás után</td><td>A szikra mellé buborékot is fúj, ahogy az odúban. Ez egy kis meglepetés-plusz.</td></tr>
+<tr><td>❌ Rossz válasz</td><td>Nem csinál semmit, nyugodtan lebeg tovább. Nem szomorú, nem csóválja a fejét (tiltólista: semmi bűntudat).</td></tr>
+<tr><td>Pálya vége</td><td>Az unikornis után berepül az odú ajtaján.</td></tr>
+<tr><td>Koppintás rá</td><td>Tüsszent egyet. Ezért nem jár jutalom, ez csak játék, így kiskapu sem nyílik.</td></tr>
+</table>
+</div>
+
+<h2>Vázlat</h2>
+<div class="panel">
+<svg class="vazlat" viewBox="0 0 600 230" role="img" aria-label="Az unikornis az ösvényen, mögötte fölötte a kölyöksárkány">
+  <path d="M20 190 C140 190 160 140 300 140 C440 140 460 180 580 170" fill="none" stroke="var(--track-d)" stroke-width="26" stroke-linecap="round"/>
+  <path d="M20 190 C140 190 160 140 300 140 C440 140 460 180 580 170" fill="none" stroke="var(--track)" stroke-width="20" stroke-linecap="round"/>
+  <ellipse cx="300" cy="118" rx="44" ry="26" fill="#fff" stroke="var(--sketch-ink)" stroke-width="2"/>
+  <circle cx="342" cy="88" r="16" fill="#fff" stroke="var(--sketch-ink)" stroke-width="2"/><path d="M348 74 L360 52" stroke="#e8b84a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M280 140 v14 M296 142 v14 M314 142 v14 M328 140 v14" stroke="var(--sketch-ink)" stroke-width="3"/>
+  <text x="300" y="215" font-size="13" text-anchor="middle">az unikornis</text>
+  <g transform="translate(222,62)">
+    <ellipse cx="0" cy="0" rx="20" ry="14" fill="#a6e0c4" stroke="#3f8a6b" stroke-width="2"/>
+    <circle cx="20" cy="-14" r="10" fill="#a6e0c4" stroke="#3f8a6b" stroke-width="2"/>
+    <path d="M-6 -10 Q-14 -34 8 -26 Z" fill="#f7b8d0" stroke="#3f8a6b" stroke-width="1.5"/>
+    <path d="M-20 2 Q-34 10 -30 -6" fill="none" stroke="#3f8a6b" stroke-width="3"/>
+    <g fill="#ffd24d"><circle cx="38" cy="-20" r="3"/><circle cx="44" cy="-10" r="2.5"/><circle cx="36" cy="-6" r="2"/></g>
+  </g>
+  <path d="M222 92 q0 8 0 14" stroke="var(--sketch-ink)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="222" y="30" font-size="13" text-anchor="middle">a kölyök: mögötte, fölötte, lebeg</text>
+  <text x="470" y="60" font-size="13" text-anchor="middle">✨ jó válasznál szikra</text>
+</svg>
+<p class="lead">Csak vázlat a helyekről. A kölyök rajza a kész, jóváhagyott kölyökrajz (<code>lenyRajz("kolyok")</code>), a gyerek unikornisának színében (Tűz: barack, Csillámharmat: levendula, Ragyogás: menta).</p>
+</div>
+
+<h2>Szabályok, hogy semmi ne romoljon el</h2>
+<div class="panel"><ul>
+  <li><b>Nem takar el semmit:</b> a feladat, a válaszmező és a buborékok mindig a kölyök fölött vannak. Kicsi, az unikornis kb. fele, és sosem repül a feladat-buborék elé. Telefonon is ellenőrizzük.</li>
+  <li><b>Nem lassít:</b> sosem várakoztatja a gyereket. A tüsszentés egyszerre történik az unikornis örömugrásával, nem utána.</li>
+  <li><b>Nyugodt mód</b> (ha a gép a „kevesebb mozgást” kéri): a kölyök ott van, de csak áll, és nem tüsszent.</li>
+  <li><b>Nem kell hozzá új mentés:</b> a játék abból tudja, hogy kísér-e, hogy a sárkány kölyök-e (<code>P().leny2.fazis</code>).</li>
+  <li><b>Unikornisonként:</b> mindegyik unikornisnak saját sárkánya van, és mindig a sajátja kíséri.</li>
+</ul></div>
+
+<h2>Hogyan épül fel (a stúdió dolga)</h2>
+<div class="panel"><ul>
+  <li>Új kis közös modul: <code>src/leny-kiser.js</code>. A kölyköt kirajzolja az ösvényre, követi az unikornis helyét, és tüsszent.</li>
+  <li><code>osveny.js</code>: a közös ösvény-rajzoló helyet ad a kölyöknek, a séta minden lépésnél szól neki (<code>osvenyAllit</code>), a jó válasznál pedig az örömugrással együtt tüsszent (<code>osvenyOrom</code>).</li>
+  <li>A rajz és a tüsszentés a meglévő <code>leny.js</code>-ből jön, nem rajzoljuk újra.</li>
+  <li>Utána: gépi próba (méret-őr, telefon), aztán élő próba a gyerekekkel.</li>
+</ul></div>
+
+<h2>Nyitott kérdések (javaslattal)</h2>
+<div class="q"><b class="t">A) Mögötte vagy előtte repüljön?</b>Javaslat: <b>mögötte, fölötte</b>. Ha előtte repül, az út felé, akkor könnyebben a feladat elé kerül.<br><span class="prop">javaslat: mögötte</span></div>
+<div class="q"><b class="t">B) Kell-e pult-kapcsoló, amivel gyerekenként ki lehet kapcsolni?</b>Javaslat: <b>igen, gyerekenként és csoportra is</b>, a szokásunk szerint. Alapból bekapcsolva, így ha egy gyereket zavar, egy kattintással eltűnik.<br><span class="prop">javaslat: igen, alapból be</span></div>
+<div class="q"><b class="t">C) Kell-e előbb külön rajzterv?</b>Javaslat: <b>nem kell</b>. A kölyök rajza már kész és jóváhagyott, a mozgás pedig egyszerű. A kód után adok egy kipróbálható oldalt, és ha valami nem tetszik, az élő próba előtt átrajzolom.<br><span class="prop">javaslat: nem kell</span></div>
+
+</div></body></html>
