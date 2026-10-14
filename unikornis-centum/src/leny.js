@@ -29,6 +29,10 @@ var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Láng
    sárkány se nőjön, amíg a producer mást nem mond — a már nagy is kölyökké válik, lásd lenyTar); a nagy sárkány kódja kész,
    egy számmal (pl. 10) visszakapcsolható */
 var LENY_NAP = { tojas: 3, fioka: 2, kolyok: 0 };
+/* producer, 2026-10-14: amíg a sárkány nem nő (LENY_NAP.kolyok = 0), a megtalált kölyök is fióka-méretű marad:
+   a fazis „kolyok” (megkerült, az odúban lakik), de a rajza és a viselkedése a fiókáé */
+function lenyKolyokNagy(l) { l = l || lenyTar(); return l.fazis === "kolyok" && LENY_NAP.kolyok > 0; }
+function lenyKolyokAlak() { return LENY_NAP.kolyok > 0 ? "kolyok" : "fioka"; }
 var LENY_TOJAS_LEPCSO = ["reccs", "repedes", "kikel"];   /* a tojás gyakorlós napjai: erik() */
 var LENY_INK = "#3b2f4a";
 
@@ -325,7 +329,7 @@ function lenyOduBelso(mod) {
     s += lenyFeszekElol(fx, fy, fs);
     s += lenyAlbumKonyv(l);
     if (mod === "fioka" || mod === "kolyok") {
-      var ko = mod === "kolyok", h = (ko ? LENY_ODU.kHelyek : LENY_ODU.helyek)[0], sk = ko ? LENY_ODU.kolyok : fs, sapka = !ko && !otthon && gyakNap() === l.t;   /* a kikelés napján még rajta a héjsapka */
+      var ko = mod === "kolyok" && lenyKolyokNagy(l), h = (ko ? LENY_ODU.kHelyek : LENY_ODU.helyek)[0], sk = ko ? LENY_ODU.kolyok : fs, sapka = l.fazis === "fioka" && !otthon && gyakNap() === l.t;   /* a kikelés napján még rajta a héjsapka */
       s += '<g id="ln-fioka-poz" class="ln-seta" style="transform:translate(' + h[0] + "px," + h[1] + 'px)" role="button" aria-label="' + htmlVed(l.nev || "Fióka") + '">' +
         '<ellipse cx="0" cy="2" rx="' + lnF((ko ? 52 : 30) * sk) + '" ry="6" fill="#3b2f66" opacity=".16"/>' +
         '<g id="ln-fioka-flip" style="transform:scale(1,1)"><g id="ln-fioka-hop"><g transform="scale(' + sk + ')">' + lenyRajz(ko ? "kolyok" : "fioka", p, { sapka: sapka }) + "</g></g></g>" +
@@ -368,7 +372,7 @@ function lenyPikkelyVitrin() {
     return '<g class="ln-pikkely" transform="translate(' + [483, 529][i] + ' 173)"><path d="M0 0v9" stroke="#c9a8e6" stroke-width="1.4"/><g transform="translate(0 20) scale(.85)">' + ktPikkelyRajz() + "</g></g>";
   }).join("");
 }
-function lenyHelyek() { return lenyTar().fazis === "kolyok" ? LENY_ODU.kHelyek : LENY_ODU.helyek; }
+function lenyHelyek() { return lenyKolyokNagy() ? LENY_ODU.kHelyek : LENY_ODU.helyek; }
 /* a kölyök röppen egyet, és buborékot fúj */
 function lenyRebben(f) {
   var hop = f && f.querySelector("#ln-fioka-hop"), sa = f && f.querySelector(".sarkany");
@@ -420,7 +424,7 @@ function lenyTojasKopp(svg) {
 }
 function lenyFiokaKopp(svg) {
   var f = svg.querySelector("#ln-fioka-poz"); if (!f || _lnFut) return;
-  var ko = lenyTar().fazis === "kolyok";
+  var ko = lenyKolyokNagy();
   if (ko) lenyRebben(f); else lenyTusszent(f);
   var nt = f.querySelector(".ln-nevtabla"); if (nt) { nt.classList.add("ki"); setTimeout(function () { nt.classList.remove("ki"); }, 2600); }
   hangGomb();
@@ -431,7 +435,7 @@ function lenyFiokaEl(svg, hol) {
   lnIdo(5200 + Math.random() * 3500, function () {
     var f = svg.querySelector("#ln-fioka-poz"), flip = svg.querySelector("#ln-fioka-flip"), hop = svg.querySelector("#ln-fioka-hop");
     if (!f || !document.body.contains(f)) return;
-    if (Math.random() < 0.25) { if (lenyTar().fazis === "kolyok") lenyRebben(f); else lenyTusszent(f); lenyFiokaEl(svg, hol); return; }
+    if (Math.random() < 0.25) { if (lenyKolyokNagy()) lenyRebben(f); else lenyTusszent(f); lenyFiokaEl(svg, hol); return; }
     var H = lenyHelyek(), uj = (hol + 1 + Math.floor(Math.random() * (H.length - 1))) % H.length, a = H[hol], b = H[uj];
     var mp = Math.max(0.9, Math.abs(b[0] - a[0]) / 70);
     flip.style.transform = "scale(" + (b[0] < a[0] ? -1 : 1) + ",1)";

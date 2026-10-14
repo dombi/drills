@@ -235,7 +235,7 @@ function ktRajzol() {
   var bp = ktPoz(KALAND_BARLANG, mod), pal = lenyPal();
   f += '<g id="kt-barlang-leny" pointer-events="none" transform="translate(' + bp[0] + " " + lnF(bp[1] + 9 * k) + ") scale(" + lnF(0.3 * k) + ')" style="opacity:0;transition:opacity .8s">' +
     '<g id="kt-bl-alvo" style="transition:opacity .7s">' + lenyRajz("alvo", pal) + '<text x="40" y="-70" font-weight="700" font-size="30" fill="' + pal.d + '">z z</text></g>' +
-    '<g id="kt-bl-kolyok" style="opacity:0;transition:opacity .7s">' + lenyRajz("kolyok", pal) + "</g></g>";
+    '<g id="kt-bl-kolyok" style="opacity:0;transition:opacity .7s">' + lenyRajz(lenyKolyokAlak(), pal) + "</g></g>";
   KALAND_IDK.forEach(function (id) {
     if (kalandTiszta(T, id)) return;
     var p = ktPoz(id, mod), suru = id === KALAND_BARLANG;
@@ -352,13 +352,13 @@ function ktMegtalaltuk() {
   ktIdo(2600, function () {
     var a = M.svg.querySelector("#kt-bl-alvo"), ko = M.svg.querySelector("#kt-bl-kolyok");
     a.style.opacity = "0"; ko.style.opacity = "1"; lenyTusszent(ko);
-    ktMond(l.nev + " felébredt! Nézd, mekkorát nőtt, amíg kalandozott!");
+    ktMond(l.nev + (LENY_NAP.kolyok > 0 ? " felébredt! Nézd, mekkorát nőtt, amíg kalandozott!" : " felébredt! Megvan, végre megtaláltad!"));
   });
   ktIdo(6400, function () {
     if (!KT || KT.M !== M) return;
     bl.style.transition = "none"; bl.style.opacity = "0";
     var kg = M.svg.querySelector("#kt-kolyok"), bp = ktPoz(KALAND_BARLANG, mod), s = 0.3 * k;
-    kg.innerHTML = lenyRajz("kolyok", lenyPal()); kg.style.opacity = "1";
+    kg.innerHTML = lenyRajz(lenyKolyokAlak(), lenyPal()); kg.style.opacity = "1";
     kg.setAttribute("transform", "translate(" + bp[0] + " " + lnF(bp[1] + 9 * k) + ") scale(" + lnF(s) + ")");
     ktMond("Együtt sétálunk haza. " + l.nev + " mostantól újra az odúban lakik.");
     /* a kölyök az unikornis nyomában lépked: a séta pontjait kis késéssel követi */
