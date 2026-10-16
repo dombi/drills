@@ -2,7 +2,8 @@
    Terv: Matekos\szerszam-letrak-terv.html (✅) · tartalom: …-tartalom.html 4. pont (✅ 2026-10-09) ·
    átnézés: …-egesz-mit-atnezes.html (✅ 2026-10-16, mind az 5 döntés) · rajz: …-egesz-rajzterv.html (✅ 2026-10-16, mind a 4 döntés).
    1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (a, a, b, a). 2. kód-kör (2026-10-16): a Tekercs 5. feladata, a 🐪 (c)
-   rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js).
+   rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js). 3. kód-kör (2026-10-16): 🔮 Kristálygömb a 📜 és a 🏅
+   között — szerszam-egesz-gomb.js (Matekos\szerszam-letrak-egesz-kristalygomb.html ✅).
 
    Az olvasó-polc motorján fut (olvaso-polc.js: polcMutat / polcJo / polcHiba / lift / végigvezetés) — a feladatok f.polc = "EGESZ"-t
    kapnak, a pálya viszont SZERSZÁM-pálya (pa.szerszam = "EGESZ": a szekrényben áll, a pálya végét a szPalyaVege adja).
@@ -225,6 +226,7 @@ function segFeladat(cfg) {
   if (!J.polc || J.polc.palya !== J.palya.id) J.polc = { palya: J.palya.id, eredm: J.sz.eredm, elozo: null, kezd: J.feladatKesz };
   var i = J.feladatKesz, fok = cfg.fok, M = null, keret, t;
   if (fok === "mester") return segMester();                /* 🏅 2. kód-kör (szerszam-egesz-mester.js) */
+  if (fok === "gomb") return segGomb(i);                   /* 🔮 a 📜 és a 🏅 között (szerszam-egesz-gomb.js) */
   if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "c") return segRakTekercs();
   if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "b") M = segPerselyMese();
   for (t = 0; t < 40 && !M; t++) {

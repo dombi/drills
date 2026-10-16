@@ -138,7 +138,7 @@ function segRakTekercs() {
 /* 🛗 a rakodás kicsije (szerszam-palya.js szKicsi → SZ_TARTALOM.EGESZ.kicsi) */
 SZ_TARTALOM.EGESZ = {
   kicsi: function (nagy, k) {
-    var D = nagy.mester ? segMesterAdat(nagy.fid) : null, L = (D || SEG_RAK_TEK).kicsi, x = L[Math.min(k, L.length - 1)];
+    var D = nagy.mester ? segMesterAdat(nagy.fid) : null, L = nagy.rakKicsi || (D || SEG_RAK_TEK).kicsi, x = L[Math.min(k, L.length - 1)];   /* 🔮: generált kicsik */
     return segRakFeladat(segRakMasol(x.R), { fok: "kicsi", fid: nagy.fid + "-kicsi-" + (k + 1), mon: x.mon, kerdes: x.kerdes });
   }
 };
@@ -204,7 +204,7 @@ function segMester() {
     var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: "mester", fid: D.id });
     L.nagy = true; L.kicsiJoKell = 2; J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
     F = polcNagy(M, "EGESZ", "mester", L);
-    F.mester = { kicsi: D.kicsi, elso: D.elso }; F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
+    F.mester = { kicsi: D.kicsi, elso: D.elso, vissza: D.vissza }; F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
     F.utoMondat = D.uto; F.naplo.tipus = "sz-egesz-mester";
   }
   F.op.mester = true; F.op.segit = !F.rakodas; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester;
@@ -213,7 +213,7 @@ function segMester() {
 }
 /* 🛗 a beírásos Mesterpróba kicsi testvérei (olvaso-polc.js polcKicsiFeladat → N.kicsiGen) */
 function segMesterKicsi(N, idx) {
-  var D = segMesterAdat(N.M.fid), T = D.kicsi[Math.min(idx, D.kicsi.length - 1)];
+  var D = N.mester && N.mester.kicsi ? N.mester : segMesterAdat(N.M.fid), T = D.kicsi[Math.min(idx, D.kicsi.length - 1)];   /* 🔮: a generált testvérek az N.mester-ben */
   var oe = { szo: "", koztes: {}, masik: {}, csap: {} }, n;
   for (n in (T.oe && T.oe.koztes) || {}) oe.koztes[n] = { m: T.oe.koztes[n] };
   for (n in (T.oe && T.oe.csap) || {}) oe.csap[n] = { m: T.oe.csap[n] };
@@ -233,8 +233,9 @@ function segMesterKicsi(N, idx) {
    tábla:   0 ábra · 1 🧺 a kilenc szám összege · 2 soronként 15 · 3 oszlopok összege (kevés kékkel, sok naranccsal) · 4 a csere */
 var SEG_ABRA = null;          /* { E, el, idok } — az éppen látható ábra */
 function segAbraUj(p, segit) {
-  var mozog = p.t === "kerites" ? !!p.tri && p.sq === "?" : !!p.csere;
-  return { p: p, A: 0, kerdo: mozog ? (p.t === "kerites" ? 2 : 3) : 0, max: mozog ? (p.t === "kerites" ? 3 : 4) : 0, segit: segit };
+  var mozog = p.t === "kerites" ? !!(p.tri || p.tegla) && p.sq === "?" : !!p.csere;
+  var kerdo = p.t === "kerites" || p.sorCsere ? 2 : 3, max = p.t === "kerites" || p.sorCsere ? 3 : 4;   /* 🔮 két sor: nincs oszlop-lépés */
+  return { p: p, A: 0, kerdo: mozog ? kerdo : 0, max: mozog ? max : 0, segit: segit };
 }
 function segAbraAll(f) { return f ? f.egAbra || (f.polcN && f.polcN.egAbra) || null : null; }
 function segAbraStop() { if (SEG_ABRA) SEG_ABRA.idok.forEach(clearTimeout); }
@@ -269,20 +270,25 @@ function segAbraSegit(f) {
 function segAbraHTML(p, A, uj) { return p.t === "kerites" ? segKeritesSVG(p, A, uj) : segTablaSVG(p, A, uj); }
 function segU(a, uj) { return a === uj ? ' class="eg-uj"' : ''; }
 function segTx(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" text-anchor="' + (o.a || "middle") + '" font-size="' + (o.m || 13) + '" font-weight="' + (o.w || 700) + '" fill="' + (o.c || "#4a3b2a") + '">' + s + '</text>'; }
-/* kerítés: a háromszög (lehet null), a négyzet (sq: oldal-felirat), a szalag */
+/* kerítés: a bal kert (háromszög vagy 🔮 téglalap, lehet null), a négyzet (sq: oldal-felirat), a szalag */
 function segKeritesSVG(p, A, uj) {
   var s = '<svg class="eg-svg" viewBox="0 0 260 196" aria-hidden="true" font-family="Fredoka,system-ui,sans-serif">';
-  var sqx = p.tri ? 162 : 92, sqy = 30, sqa = 75, oldal = A >= 3 ? "25 m" : p.sq === "?" ? "?" : p.sq + " m";
+  var t = p.tri || (p.tegla ? [p.tegla[0], p.tegla[1], p.tegla[0], p.tegla[1]] : null), ossz = t ? t.reduce(function (a, b) { return a + b; }, 0) : 0, felel = ossz / 4 + " m";
+  var sqx = p.tegla ? 168 : t ? 162 : 92, sqy = 30, sqa = 75, oldal = A >= 3 ? felel : p.sq === "?" ? "?" : p.sq + " m";
   if (p.tri) {
     var b = p.tri[2], a = p.tri[0], h = Math.sqrt(a * a - b * b / 4), sk = Math.min(120 / b, 72 / h), bw = b * sk, hh = h * sk, x0 = 80 - bw / 2;
     s += '<g opacity="' + (A >= 1 ? ".35" : "1") + '"><path d="M' + x0 + ',105 L' + (x0 + bw) + ',105 L80,' + (105 - hh) + ' Z" fill="#dff0d4" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' +
       segTx(80, 96, "🌷", { m: 16 }) + segTx(x0 + bw / 4 - 6, 104 - hh / 2, a + " m", { a: "end" }) + segTx(x0 + 3 * bw / 4 + 6, 104 - hh / 2, a + " m", { a: "start" }) + segTx(80, 122, b + " m") + '</g>';
+  } else if (p.tegla) {
+    var w = p.tegla[0], m = p.tegla[1], k0 = Math.min(84 / w, 64 / m), rw = w * k0, rh = m * k0, rx = 80 - rw / 2, ry = 105 - rh;
+    s += '<g opacity="' + (A >= 1 ? ".35" : "1") + '"><rect x="' + rx + '" y="' + ry + '" width="' + rw + '" height="' + rh + '" fill="#dff0d4" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' +
+      segTx(80, ry + rh / 2 + 6, "🌷", { m: 16 }) + segTx(80, ry - 6, w + " m") + segTx(80, 122, w + " m") + segTx(rx - 4, ry + rh / 2 + 5, m + " m", { a: "end" }) + segTx(rx + rw + 4, ry + rh / 2 + 5, m + " m", { a: "start" }) + '</g>';
   }
   s += '<rect x="' + sqx + '" y="' + sqy + '" width="' + sqa + '" height="' + sqa + '" fill="#f6ead0" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' + segTx(sqx + sqa / 2, sqy + sqa / 2 + 6, "🥕", { m: 18 });
   var oc = A >= 3 ? "#3b8a3b" : "#7a5aa8";
   s += segTx(sqx + sqa / 2, sqy - 7, oldal, { c: oc }) + segTx(sqx + sqa / 2, sqy + sqa + 17, oldal, { c: oc }) + segTx(sqx - 5, sqy + sqa / 2 + 5, oldal, { a: "end", c: oc }) + segTx(sqx + sqa + 5, sqy + sqa / 2 + 5, oldal, { a: "start", c: oc });
-  if (A >= 1 && p.tri) {
-    var t = p.tri, ossz = t[0] + t[1] + t[2], k = 220 / ossz, x = 20, szin = ["#f4a6c0", "#f4a6c0", "#a9d4f5"];
+  if (A >= 1 && t) {
+    var k = 220 / ossz, x = 20, szin = p.tri ? ["#f4a6c0", "#f4a6c0", "#a9d4f5"] : ["#f4a6c0", "#a9d4f5", "#f4a6c0", "#a9d4f5"];
     s += '<g' + segU(1, uj) + '>' + segTx(130, 146, "🧺 " + t.join(" + ") + " = " + ossz + " m", { m: 13 }) + '</g>';
     if (A === 1) {
       s += '<g class="' + (uj === 1 ? "eg-no" : "") + '">';
@@ -290,27 +296,32 @@ function segKeritesSVG(p, A, uj) {
       s += '</g>';
     } else {
       s += '<g' + segU(2, uj) + '>';
-      for (var i = 0; i < 4; i++) s += '<rect x="' + (20 + i * 56) + '" y="154" width="52" height="16" rx="3" fill="#ffd27a" stroke="#8a5a2e" stroke-width="1.6"/>' + segTx(46 + i * 56, 188, A >= 3 ? "25 m" : "?", { c: A >= 3 ? "#3b8a3b" : "#7a5aa8" });
+      for (var i = 0; i < 4; i++) s += '<rect x="' + (20 + i * 56) + '" y="154" width="52" height="16" rx="3" fill="#ffd27a" stroke="#8a5a2e" stroke-width="1.6"/>' + segTx(46 + i * 56, 188, A >= 3 ? felel : "?", { c: A >= 3 ? "#3b8a3b" : "#7a5aa8" });
       s += '</g>';
     }
   }
   return s + '</svg>';
 }
-/* bűvös tábla: a számok rácsban; a kosár-sor, a sorok és az oszlopok összege, a végén a csere */
+/* bűvös tábla: a számok rácsban; a kosár-sor, a sorok és az oszlopok összege, a végén a csere.
+   🔮 két sor (p.sorCsere): nincs oszlop-lépés, a sor-összegek színe mutatja, hol kevés (kék) és hol sok (narancs); a csere a 3. kép */
 function segTablaSVG(p, A, uj) {
-  var S = p.sor.map(function (r) { return r.slice(); }), R = S.length, C = S[0].length, cs = p.csere, c = 40, x0 = 50, y0 = 8, i, j;
-  if (A >= 4 && cs) { var t = S[cs[0][0]][cs[0][1]]; S[cs[0][0]][cs[0][1]] = S[cs[1][0]][cs[1][1]]; S[cs[1][0]][cs[1][1]] = t; }
+  var S = p.sor.map(function (r) { return r.slice(); }), R = S.length, C = S[0].length, cs = p.csere, c = 40, x0 = 50, y0 = 8, i, j, CA = p.sorCsere ? 3 : 4;
+  if (A >= CA && cs) { var t = S[cs[0][0]][cs[0][1]]; S[cs[0][0]][cs[0][1]] = S[cs[1][0]][cs[1][1]]; S[cs[1][0]][cs[1][1]] = t; }
   var ossz = 0; p.sor.forEach(function (r) { r.forEach(function (x) { ossz += x; }); });
   var E = ossz / R, H = y0 + R * c;
   var s = '<svg class="eg-svg" viewBox="0 0 240 ' + (H + 70) + '" aria-hidden="true" font-family="Fredoka,system-ui,sans-serif">';
   for (i = 0; i < R; i++) for (j = 0; j < C; j++) {
-    var cser = cs && A >= 4 && ((i === cs[0][0] && j === cs[0][1]) || (i === cs[1][0] && j === cs[1][1]));
+    var cser = cs && A >= CA && ((i === cs[0][0] && j === cs[0][1]) || (i === cs[1][0] && j === cs[1][1]));
     s += '<rect x="' + (x0 + j * c) + '" y="' + (y0 + i * c) + '" width="' + c + '" height="' + c + '" fill="' + (cser ? "#fff3cf" : A === 1 ? "#f6ead0" : "#fff") + '" stroke="#7a6a5a" stroke-width="2"/>' +
-      '<g' + (cser ? segU(4, uj) : "") + '>' + segTx(x0 + j * c + c / 2, y0 + i * c + 27, S[i][j], { m: 20, c: cser ? "#c0447e" : "#3a3040" }) + '</g>';
+      '<g' + (cser ? segU(CA, uj) : "") + '>' + segTx(x0 + j * c + c / 2, y0 + i * c + 27, S[i][j], { m: 20, c: cser ? "#c0447e" : "#3a3040" }) + '</g>';
   }
   if (A >= 1) s += '<g' + segU(1, uj) + '>' + segTx(120, H + 60, "🧺 " + (A >= 2 ? ossz + " : " + R + " = " + E + " egy sorban" : "mind a " + R * C + " szám: " + ossz), { m: 13 }) + '</g>';
-  if (A >= 2) { s += '<g' + segU(2, uj) + '>'; for (i = 0; i < R; i++) s += segTx(x0 + C * c + 8, y0 + i * c + 26, "= " + S[i].reduce(function (a, b) { return a + b; }, 0), { a: "start", m: 14, c: "#3b8a3b" }); s += '</g>'; }
-  if (A >= 3) {
+  if (A >= 2) {
+    s += '<g' + segU(2, uj) + '>';
+    for (i = 0; i < R; i++) { var so = S[i].reduce(function (a, b) { return a + b; }, 0); s += segTx(x0 + C * c + 8, y0 + i * c + 26, "= " + so, { a: "start", m: 14, c: !p.sorCsere || so === E ? "#3b8a3b" : so < E ? "#3a78c0" : "#d9772e" }); }
+    s += '</g>';
+  }
+  if (A >= 3 && !p.sorCsere) {
     s += '<g' + segU(3, uj) + '>';
     for (j = 0; j < C; j++) { var o = 0; for (i = 0; i < R; i++) o += S[i][j]; s += segTx(x0 + j * c + c / 2, H + 22, o, { m: 15, c: o < E ? "#3a78c0" : o > E ? "#d9772e" : "#3b8a3b" }); }
     s += '</g>';

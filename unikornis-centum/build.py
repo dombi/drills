@@ -57,6 +57,7 @@ MODULES = [
     "olvaso-polc.js",     # 6s) 📚 olvasó-polc motor: 20 pötty sorrendje, formák, 🛗 lift, végigvezetés, 🏅 Mesterpróba beírással, folytatás
     "kosar.js",           # 6s2) 🧺 közös kosár: szereplők + kupacok + kosár a jobb lapon; ① kosárba ② egyforma kupac + cél-golyók ③ átrepül (a válaszra mozdul)
     "szerszam-egesz.js",  # 6s3) 🧺 „Előbb az egész” tartalom: 📖 🪜🪜🎯 lánc, 📜 a/b (közös persely), 🛗 kicsi lépcsőfokokkal — az olvasó-polc motorján
+    "szerszam-egesz-gomb.js", # 6s5) 🧺 3. kör: 🔮 Kristálygömb — kerítés, 3 teve, 2×2 teve (néha 2 megoldás), két sor csere (generált)
     "szerszam-egesz-mester.js", # 6s4) 🧺 2. kör: 📜 (c) 🐪 rakodás + 🏅 3 Mesterpróba (kerítés, bűvös tábla, tevék) + testvérek + ábra-mozgókép
     "szerszam-polc.js",   # 6q) 🧰 szerszám-szekrény a Holdfény-szárnyban: polc + 3 tárgy + névtábla-fény + láda-pillanat
     "konyvtar-terem.js",  # 6t) 📚 a Bagolykönyvtár terme: olvasó-polc · ablak + 🏰 Kockavár + olvasópult · szekrény + láda · ✨ Csillagtorony-ajtó · 🏅 Mesterpróba-kapu

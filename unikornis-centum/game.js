@@ -439,8 +439,8 @@ function szPalya(sz, nev, fok) {
     regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
     allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
 }
-/* 🧺 „Előbb az egész” (szerszam-egesz.js + …-mester.js, 2026-10-16): 📖 5 · 📜 5 (a, a, b, a + 🐪 c rakodás) · 🏅 1 */
-PALYAK.push(szPalya("EGESZ", "Előbb az egész", "mese"), szPalya("EGESZ", "Előbb az egész", "tekercs"), szPalya("EGESZ", "Előbb az egész", "mester"));
+/* 🧺 „Előbb az egész” (szerszam-egesz.js + …-mester.js + …-gomb.js, 2026-10-16): 📖 5 · 📜 5 (a, a, b, a + 🐪 c rakodás) · 🔮 4 (kerítés, 3 teve, 2×2 teve, két sor csere) · 🏅 1 */
+PALYAK.push(szPalya("EGESZ", "Előbb az egész", "mese"), szPalya("EGESZ", "Előbb az egész", "tekercs"), szPalya("EGESZ", "Előbb az egész", "gomb"), szPalya("EGESZ", "Előbb az egész", "mester"));
 PALYAK.filter(function (p) { return p.id === "sz-egesz-tekercs"; })[0].allomasok[1].darab = 5;
 PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tabla"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
@@ -12632,7 +12632,8 @@ function kosarSegit(f) {
    Terv: Matekos\szerszam-letrak-terv.html (✅) · tartalom: …-tartalom.html 4. pont (✅ 2026-10-09) ·
    átnézés: …-egesz-mit-atnezes.html (✅ 2026-10-16, mind az 5 döntés) · rajz: …-egesz-rajzterv.html (✅ 2026-10-16, mind a 4 döntés).
    1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (a, a, b, a). 2. kód-kör (2026-10-16): a Tekercs 5. feladata, a 🐪 (c)
-   rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js).
+   rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js). 3. kód-kör (2026-10-16): 🔮 Kristálygömb a 📜 és a 🏅
+   között — szerszam-egesz-gomb.js (Matekos\szerszam-letrak-egesz-kristalygomb.html ✅).
 
    Az olvasó-polc motorján fut (olvaso-polc.js: polcMutat / polcJo / polcHiba / lift / végigvezetés) — a feladatok f.polc = "EGESZ"-t
    kapnak, a pálya viszont SZERSZÁM-pálya (pa.szerszam = "EGESZ": a szekrényben áll, a pálya végét a szPalyaVege adja).
@@ -12855,6 +12856,7 @@ function segFeladat(cfg) {
   if (!J.polc || J.polc.palya !== J.palya.id) J.polc = { palya: J.palya.id, eredm: J.sz.eredm, elozo: null, kezd: J.feladatKesz };
   var i = J.feladatKesz, fok = cfg.fok, M = null, keret, t;
   if (fok === "mester") return segMester();                /* 🏅 2. kód-kör (szerszam-egesz-mester.js) */
+  if (fok === "gomb") return segGomb(i);                   /* 🔮 a 📜 és a 🏅 között (szerszam-egesz-gomb.js) */
   if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "c") return segRakTekercs();
   if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "b") M = segPerselyMese();
   for (t = 0; t < 40 && !M; t++) {
@@ -12871,6 +12873,219 @@ function segFeladat(cfg) {
   return segLanc(M, { mese: true, L: L, elso: i === 0 });
 }
 SZ_SAJAT.EGESZ = segFeladat;
+/* ============ 6s5) 🧺 „ELŐBB AZ EGÉSZ” — 🔮 KRISTÁLYGÖMB: a 📜 Tekercs és a 🏅 Mesterpróba között ============
+   Terv: Matekos\szerszam-letrak-egesz-kristalygomb.html (✅ 2026-10-16, mind a 4 döntés a javaslat szerint).
+   A Mesterpróbán négy új dolog jön egyszerre; a 🔮 egyenként hozza őket, mindegyiket generált feladattal:
+     1. egyforma kerítés (A: az egész az ábrában van)           — beírás, a kerítés-ábrával (szerszam-egesz-mester.js)
+     2. három teve, tevénként egy csomag (B: keresés a hiányra) — 🐪 rakodás (rakodas.js)
+     3. két teve, tevénként két csomag (C: pár a hiányra)       — 🐪 rakodás; néha (≈ ⅓) két megoldás → „van még egy”:
+        két tevénél, tevénként két csomaggal ez nem lehet (a két pár mindig egymás párja), ezért akkor tevénként HÁROM csomag jön
+     4. két sor, egy csere (D: hol kevés, hol sok)               — beírás, a tábla-ábrával
+   Lift, 🙋 „🧺 Tedd a kosárba!”, végigvezetés, ✋ lépcsőfok-jelzés ugyanúgy, mint a 🏅-on; a 🔮 NAGY feladat a ládában.
+   A beírásos feladat kicsijei az N.mester.kicsi listában vannak (segMesterKicsi olvassa); a rakodásé az f.rakKicsi-ben. */
+
+var SEG_GOMB_FORMA = ["kerites", "teve3", "teve22", "csere"];
+var SEG_TEVEK = ["Fuvi", "Nuvi", "Tuvi"];
+/* 🖊️ lektorra — a 🔮 új mondatai */
+var SEG_G_M = {
+  keritesVissza: "Ügyes! Ugyanaz, csak nagyobb kerttel. Előbb a teljes kerítés, aztán szétosztod.",
+  csereVissza: "Ügyes! Ugyanaz, csak több számmal. Előbb az összes, aztán egy sorra mennyi jut.",
+  rakVissza: "Előbb az összes súly, aztán egy tevére mennyi jut.",
+  egyetlen: function (O, E) { return "Ügyes! Összesen " + O + " kiló, egy tevére " + E + " jut. Ez az egyetlen jó elosztás."; },
+  ketto: function (O, E, nv, kell, parok) { return "Mindkettőt megtaláltad! Összesen " + O + " kiló, egy tevére " + E + " jut. " + nv + "nak még " + kell + " kell: ez " + parok + " lehet."; }
+};
+
+function segSzamLista(L) { return L.slice(0, -1).join(", ") + " és " + L[L.length - 1]; }
+function segOeUj(szo, koztes, csap, valasz) {
+  var oe = { szo: szo || "", koztes: {}, masik: {}, csap: {} };
+  (koztes || []).forEach(function (x) { segOeAdd(oe, "koztes", x[0], x[1], valasz); });
+  (csap || []).forEach(function (x) { segOeAdd(oe, "csap", x[0], x[1], valasz); });
+  return oe;
+}
+
+/* ═════════════════ 1. EGYFORMA KERÍTÉS ═════════════════ */
+/* egy kert: { tri: [szár, szár, alap] } vagy { tegla: [hosszú, rövid] }; S a kerítés körben, s a négyzet oldala */
+function segKert(kicsi) {
+  for (var t = 0; t < 400; t++) {
+    var o;
+    if (ekR(0, 2) < 2) {
+      var a = kicsi ? ekR(2, 6) : ekR(5, 15), b = kicsi ? ekR(2, 6) : ekR(4, 20);
+      if (b >= 2 * a || b < 2) continue;
+      o = { tri: [a, a, b], S: 2 * a + b };
+    } else {
+      var w = kicsi ? ekR(3, 6) : ekR(5, 14), h = kicsi ? ekR(1, w - 1) : ekR(2, w - 1);
+      o = { tegla: [w, h], S: 2 * (w + h) };
+    }
+    if (o.S % 4 || o.S > (kicsi ? 20 : 48) || o.S < (kicsi ? 8 : 16)) continue;
+    o.s = o.S / 4;
+    var oldalak = o.tri || o.tegla;
+    if (oldalak.indexOf(o.s) >= 0) continue;
+    return o;
+  }
+  return { tri: [6, 6, 8], S: 20, s: 5 };
+}
+function segKertMondat(o) {
+  if (o.tegla) return "Vakond Vendel téglalap alakú virágos kertjének két hosszabb oldala " + o.tegla[0] + " méter, a két rövidebb " + o.tegla[1] + " méter.";
+  if (o.tri[0] === o.tri[2]) return "Vakond Vendel háromszög alakú virágos kertjének mindhárom oldala " + o.tri[0] + " méter.";
+  return "Vakond Vendel háromszög alakú virágos kertjének két oldala " + o.tri[0] + " méter, a harmadik " + o.tri[2] + " méter.";
+}
+function segKertReszek(o) { return o.tri || [o.tegla[0], o.tegla[1], o.tegla[0], o.tegla[1]]; }
+function segKertForma(o) { return o.tri ? "háromszög" : "téglalap"; }
+function segKeritesGomb() {
+  var o = segKert(false), R = segKertReszek(o), forma = segKertForma(o);
+  var csap = (o.tri ? [o.tri[0], o.tri[2]] : o.tegla).map(function (x) { return [x, "A " + x + " a " + forma + " egy oldala. A négyzet kerítése az egész " + forma + " kerítésével egyforma: előbb azt számold ki!"]; });
+  var D = {
+    abra: { t: "kerites", tri: o.tri || null, tegla: o.tegla || null, sq: "?" },
+    mon: [segKertMondat(o), "A négyzet alakú veteményes kertjének ugyanolyan hosszú a kerítése, mint a virágos kertnek (lásd ábra)."],
+    kerdes: "Hány méter hosszú a veteményes kert egy oldala?", v: o.s, szo: "a veteményes kert egy oldala",
+    oe: segOeUj("a veteményes kert egy oldala", [[o.S, "Ez egy lépcsőfok volt: ennyi a teljes kerítés körben. De a négyzet egy oldalát kérdezték!"]], csap, o.s),
+    lep: [{ k: "Milyen hosszú a virágos kert kerítése körben?", v: o.S, m: R.join(" + ") + " = " + o.S }, { k: "Hány méter a veteményes kert egy oldala?", v: o.s, m: o.S + " : 4 = " + o.s }],
+    mit: ["hány méter a veteményes kert egy oldala", "milyen hosszú a kerítés körben", "hány méter a " + forma + " egy oldala"],
+    elso: "Ne a " + forma + " egyik oldalát keresd a négyzeten! Előbb számold ki, milyen hosszú a virágos kert teljes kerítése, körbe minden oldalon. A veteményes kert kerítése ugyanilyen hosszú: hány egyforma oldalra kell ezt szétosztanod?",
+    segit: "Előbb a teljes kerítés: " + R.join(" + ") + ". Ezt kell négy egyforma oldalra szétosztani.",
+    uto: "Igen! A teljes kerítés " + o.S + " méter, és ez négy egyforma oldalra " + o.s + " méter.",
+    vissza: SEG_G_M.keritesVissza, naplo: "kerites"
+  };
+  var n = ekR(2, 6), k = segKert(true), kf = segKertForma(k);
+  D.kicsi = [
+    { mon: ["Vakond Vendel négyzet alakú kertjének minden oldala " + n + " méter."], kerdes: "Hány méter hosszú a kerítése körben?", v: 4 * n,
+      abra: { t: "kerites", tri: null, sq: n }, oe: { csap: (function () { var c = {}; c[n] = "A " + n + " egy oldal. A kerítés körbe megy, mind a négy oldalon."; return c; })() } },
+    { mon: [segKertMondat(k), "A négyzet alakú kertjének ugyanolyan hosszú a kerítése."], kerdes: "Hány méter hosszú a négyzet alakú kert egy oldala?", v: k.s,
+      abra: { t: "kerites", tri: k.tri || null, tegla: k.tegla || null, sq: "?" },
+      oe: { koztes: (function () { var c = {}; c[k.S] = "Ez egy lépcsőfok volt: ennyi a teljes kerítés körben. De a négyzet egy oldalát kérdezték!"; return c; })(),
+            csap: (function () { var c = {}; (k.tri ? [k.tri[0], k.tri[2]] : k.tegla).forEach(function (x) { if (x !== k.s) c[x] = "A " + x + " a " + kf + " egy oldala. Előbb a teljes kerítés!"; }); return c; })() } }];
+  return D;
+}
+
+/* ═════════════════ 4. KÉT SOR, EGY CSERE ═════════════════ */
+/* n szám soronként; háromnál pontosan egy jó csere (egy fentről, egy lentről) */
+function segCsereTabla(n) {
+  for (var t = 0; t < 2000; t++) {
+    var L = mKever([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 2 * n), F = L.slice(0, n).sort(function (a, b) { return a - b; }), A = L.slice(n).sort(function (a, b) { return a - b; });
+    var sf = F.reduce(function (a, b) { return a + b; }, 0), sa = A.reduce(function (a, b) { return a + b; }, 0), D = sf - sa;
+    if (!D || D % 2) continue;
+    var d = D / 2, par = [];
+    F.forEach(function (x, i) { A.forEach(function (y, j) { if (x - y === d) par.push([i, j]); }); });
+    if (par.length !== (n === 2 ? 2 : 1)) continue;          /* két számpárnál mindig két jó csere van (a megadott szám dönt) */
+    return { F: F, A: A, sf: sf, sa: sa, T: sf + sa, E: (sf + sa) / 2, D: Math.abs(D), i: par[0][0], j: par[0][1] };
+  }
+  return null;
+}
+function segCsereMon(x) { return "Két sorban " + (x.F.length === 3 ? "hat" : "négy") + " szám áll: fent " + segSzamLista(x.F) + ", lent " + segSzamLista(x.A) + "."; }
+function segCsereGomb() {
+  var x = segCsereTabla(3), fent = ekR(0, 1) === 1, g = fent ? x.F[x.i] : x.A[x.j], v = fent ? x.A[x.j] : x.F[x.i];
+  var kev = x.sf < x.sa ? "fent" : "lent";
+  var D = {
+    abra: { t: "tabla", sor: [x.F, x.A], csere: [[0, x.i], [1, x.j]], sorCsere: true },
+    mon: [segCsereMon(x), "Egy számot fentről és egyet lentről megcserélünk úgy, hogy a két sorban ugyanannyi legyen a számok összege.", "Az egyik szám " + mAz(g) + " " + g + "."],
+    kerdes: "Melyik a másik szám?", v: v, szo: "a másik szám",
+    oe: segOeUj("a másik szám", [[x.T, "Ez egy lépcsőfok volt: ennyi mind a hat szám együtt. De egy számot kérdeztek!"],
+                                [x.E, "Ez egy lépcsőfok volt: ennyi kell legyen mindkét sorban. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"],
+                                [x.sf, "Ez a felső sor összege. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"],
+                                [x.sa, "Ez az alsó sor összege. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"]],
+                [[x.D, "Ennyi a két sor különbsége. De egy számot kérdeztek: melyik cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"]], v),
+    lep: [{ k: "Mennyi mind a hat szám összege?", v: x.T, m: x.F.concat(x.A).join(" + ") + " = " + x.T }, { k: "Mennyi kell legyen egy sorban?", v: x.E, m: x.T + " : 2 = " + x.E },
+          { k: "Melyik a másik szám?", v: v, m: "fent " + x.sf + ", lent " + x.sa + ": " + mAz(x.F[x.i]) + " " + x.F[x.i] + " és " + mAz(x.A[x.j]) + " " + x.A[x.j] + " helyet cserél, és mindkét sorban " + x.E + " lesz" }],
+    mit: ["melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val"), "mennyi a hat szám összege", "mennyi jut egy sorra"],
+    elso: "Add össze mind a hat számot, és oszd el a két sor között! Ennyi kell legyen mindkét sorban. Most nézd meg: melyik sorban kevés, és melyikben sok?",
+    segit: "Előbb mind a hat szám összege, aztán egy sorra ennek a fele. Most nézd a két sort: " + kev + " kevés van. Mennyivel?",
+    uto: "Igen! A hat szám összesen " + x.T + ", egy sorra " + x.E + " jut. " + ekNagy(mAz(g)) + " " + g + " és " + mAz(v) + " " + v + " helyet cserél, és mindkét sorban " + x.E + " lesz.",
+    vissza: SEG_G_M.csereVissza, naplo: "csere"
+  };
+  var y = segCsereTabla(2), gy = y.A[y.j];
+  D.kicsi = [
+    { mon: ["Ugyanez a két sor, ugyanazzal a hat számmal."], kerdes: "Add össze mind a hat számot! Mennyi jut egy sorra, ha a két sorban ugyanannyi az összeg?", v: x.E,
+      abra: { t: "tabla", sor: [x.F, x.A], sorCsere: true }, oe: { koztes: (function () { var c = {}; c[x.T] = "Ez egy lépcsőfok volt: ennyi mind a hat szám. Mennyi jut egy sorra?"; return c; })() } },
+    { mon: [segCsereMon(y), "Két számot megcserélünk, egyet fentről és egyet lentről, úgy, hogy a két sorban ugyanannyi legyen a számok összege.", "Az egyik szám " + mAz(gy) + " " + gy + "."],
+      kerdes: "Melyik a másik szám?", v: y.F[y.i], abra: { t: "tabla", sor: [y.F, y.A], sorCsere: true },
+      oe: { koztes: (function () { var c = {}; c[y.T] = "Ez egy lépcsőfok volt: ennyi a négy szám együtt. De melyik szám cserél helyet " + mAz(gy) + " " + ekRag(gy, "val") + "?";
+              c[y.E] = "Ez egy lépcsőfok volt: ennyi kell legyen egy sorban. De melyik szám cserél helyet " + mAz(gy) + " " + ekRag(gy, "val") + "?"; return c; })() } }];
+  return D;
+}
+
+/* a beírásos 🔮 feladat (a 🏅 beírásos útja, de 🙋-val és arany szegély nélkül) */
+function segGombBeiras(D) {
+  var oe = D.oe, M = { keret: "gomb", mondatok: D.mon, kerdes: D.kerdes, helyes: D.v, oe: oe, lep: D.lep, mit: D.mit, rajz: '<div class="eg-abra"></div>', fid: "EGESZ-gomb-" + D.naplo };
+  var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: "gomb", fid: M.fid });
+  L.nagy = true; L.kicsiJoKell = 1; J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
+  var F = polcNagy(M, "EGESZ", "gomb", L);
+  F.mester = { kicsi: D.kicsi, elso: D.elso, vissza: D.vissza };   /* a kicsi testvérek és a végigvezetés első mondata (olvaso-polc.js + segMesterKicsi) */
+  F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
+  F.utoMondat = D.uto; F.naplo.tipus = "sz-egesz-gomb-" + D.naplo;
+  F.kartyaHTML = opKonyv(F.op);
+  return F;
+}
+
+/* ═════════════════ 2–3. TEVÉK ═════════════════ */
+/* T teve, tevénként per új csomag; ketto: két megoldás kell (különben pontosan egy) */
+function segTeveR(T, per, ketto) {
+  for (var t = 0; t < 4000; t++) {
+    var L = mKever([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, T + T * per), fix = L.slice(0, T).map(function (x) { return [x]; }), uj = L.slice(T).sort(function (a, b) { return a - b; });
+    var O = L.reduce(function (a, b) { return a + b; }, 0);
+    if (O % T) continue;
+    var E = O / T, megold = segTeveMegold(fix, uj, per, E);
+    if (megold.length !== (ketto ? 2 : 1)) continue;
+    if (fix.some(function (f) { return f[0] >= E; })) continue;
+    return { tevek: SEG_TEVEK.slice(0, T), fix: fix, uj: uj, per: per, megold: megold };
+  }
+  return null;
+}
+/* az összes jó elosztás: tevénként a csomagok (növekvő sorrendben) */
+function segTeveMegold(fix, uj, per, E) {
+  var T = fix.length, ki = [];
+  (function lep(k, marad, eddig) {
+    if (k === T) { ki.push(eddig.slice()); return; }
+    var kell = E - fix[k][0];
+    segReszek(marad, per).forEach(function (r) {
+      if (r.reduce(function (a, b) { return a + b; }, 0) !== kell) return;
+      eddig.push(r); lep(k + 1, marad.filter(function (x) { return r.indexOf(x) < 0; }), eddig); eddig.pop();
+    });
+  })(0, uj.slice(), []);
+  return ki;
+}
+function segReszek(L, n) {
+  if (!n) return [[]];
+  var ki = [];
+  L.forEach(function (x, i) { segReszek(L.slice(i + 1), n - 1).forEach(function (r) { ki.push([x].concat(r)); }); });
+  return ki;
+}
+function segTeveMon(R) {
+  var T = R.tevek.length, mon = [];
+  mon.push((T === 3 ? "Három teve, " + R.tevek[0] + ", " + R.tevek[1] + " és " + R.tevek[2] : "Két teve, " + R.tevek[0] + " és " + R.tevek[1]) + " csomagokat szállít.");
+  mon.push(R.tevek.map(function (nv, k) { return nv + " hátán " + (k === 0 ? "már van " : "") + "egy " + R.fix[k][0] + " kilós" + (k === 0 ? " csomag" : ""); }).join(", ") + ".");
+  var n = R.uj.length, szo = { 2: "két", 3: "három", 4: "négy", 6: "hat" }[n] || n;
+  mon.push("Még " + szo + " csomagot kell felrakni: " + R.uj.map(function (x) { return "egy " + x; }).join(", ").replace(/, (egy \d+)$/, " és $1") + " kilósat.");
+  mon.push("Mindegyik teve " + ["", "egy", "két", "három"][R.per] + " új csomagot visz" + ", és " + (T === 2 ? "a két tevén" : "mindhárom tevén") + " ugyanakkora legyen a teher.");
+  return mon;
+}
+function segTeveGomb(forma) {
+  var ketto = forma === "teve22" && ekR(0, 2) === 0;
+  var R = forma === "teve3" ? segTeveR(3, 1, false) : ketto ? segTeveR(2, 3, true) : segTeveR(2, 2, false);
+  if (!R) R = segTeveR(2, 1, false);
+  var O = rakOssz(R), E = rakEgy(R), kerdes = R.per === 1 ? "Melyik teve melyik csomagot vigye?" : "Melyik teve mely csomagokat vigye? Keresd meg az összes lehetőséget!";
+  var indok = R.per === 1 ? "" : R.megold.length > 1
+    ? SEG_G_M.ketto(O, E, R.tevek[0], E - R.fix[0][0], R.megold.map(function (m) { return m[0].join(" + "); }).join(" vagy "))
+    : SEG_G_M.egyetlen(O, E);
+  var c = segRakFeladat(segRakMasol(R), { fok: "gomb", fid: "EGESZ-gomb-" + forma, mon: segTeveMon(R), kerdes: kerdes, vissza: SEG_G_M.rakVissza, indok: indok,
+    tobb: R.per === 1 ? "három tevével" : R.per === 2 ? "tevénként két csomaggal" : "tevénként három csomaggal" });
+  /* a lift kicsijei: kevesebb teve, tevénként egy csomag */
+  var k1 = segTeveR(2, 1, false), k2 = forma === "teve3" ? segTeveR(2, 1, false) : R.per === 3 ? segTeveR(2, 2, false) : segTeveR(3, 1, false);
+  c.rakKicsi = [k1, k2].filter(Boolean).map(function (r) { return { R: r, mon: segTeveMon(r), kerdes: "Melyik teve melyik csomagot vigye?" }; });
+  return segRakNagy(c, 1);
+}
+
+/* ═════════════════ a 🔮 pálya i. feladata (szerszam-egesz.js segFeladat hívja) ═════════════════ */
+var SEG_GOMB_VOLT = {};       /* formánként az előző feladat szövege: ugyanaz ne jöjjön kétszer egymás után (gépi próba, matek-őr) */
+function segGomb(i) {
+  var forma = SEG_GOMB_FORMA[i % SEG_GOMB_FORMA.length], F, sz;
+  for (var t = 0; t < 6; t++) {
+    F = forma === "kerites" ? segGombBeiras(segKeritesGomb()) : forma === "csere" ? segGombBeiras(segCsereGomb()) : segTeveGomb(forma);
+    sz = F.op.mondatok.join(" ");
+    if (sz !== SEG_GOMB_VOLT[forma]) break;
+  }
+  SEG_GOMB_VOLT[forma] = sz;
+  return F;
+}
 /* ============ 6s4) 🧺 „ELŐBB AZ EGÉSZ” — 2. kód-kör: 🐪 rakodás (Tekercs c) + 🏅 3 Mesterpróba ============
    Tartalom: Matekos\szerszam-letrak-tartalom.html 4.3–4.4 (✅) · átnézés: …-egesz-mit-atnezes.html 4. döntés (✅ Tekercs c) ·
    rajz: …-egesz-rajzterv.html 4–5. pont (✅ mind a 4 döntés).
@@ -13011,7 +13226,7 @@ function segRakTekercs() {
 /* 🛗 a rakodás kicsije (szerszam-palya.js szKicsi → SZ_TARTALOM.EGESZ.kicsi) */
 SZ_TARTALOM.EGESZ = {
   kicsi: function (nagy, k) {
-    var D = nagy.mester ? segMesterAdat(nagy.fid) : null, L = (D || SEG_RAK_TEK).kicsi, x = L[Math.min(k, L.length - 1)];
+    var D = nagy.mester ? segMesterAdat(nagy.fid) : null, L = nagy.rakKicsi || (D || SEG_RAK_TEK).kicsi, x = L[Math.min(k, L.length - 1)];   /* 🔮: generált kicsik */
     return segRakFeladat(segRakMasol(x.R), { fok: "kicsi", fid: nagy.fid + "-kicsi-" + (k + 1), mon: x.mon, kerdes: x.kerdes });
   }
 };
@@ -13077,7 +13292,7 @@ function segMester() {
     var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: "mester", fid: D.id });
     L.nagy = true; L.kicsiJoKell = 2; J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
     F = polcNagy(M, "EGESZ", "mester", L);
-    F.mester = { kicsi: D.kicsi, elso: D.elso }; F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
+    F.mester = { kicsi: D.kicsi, elso: D.elso, vissza: D.vissza }; F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
     F.utoMondat = D.uto; F.naplo.tipus = "sz-egesz-mester";
   }
   F.op.mester = true; F.op.segit = !F.rakodas; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester;
@@ -13086,7 +13301,7 @@ function segMester() {
 }
 /* 🛗 a beírásos Mesterpróba kicsi testvérei (olvaso-polc.js polcKicsiFeladat → N.kicsiGen) */
 function segMesterKicsi(N, idx) {
-  var D = segMesterAdat(N.M.fid), T = D.kicsi[Math.min(idx, D.kicsi.length - 1)];
+  var D = N.mester && N.mester.kicsi ? N.mester : segMesterAdat(N.M.fid), T = D.kicsi[Math.min(idx, D.kicsi.length - 1)];   /* 🔮: a generált testvérek az N.mester-ben */
   var oe = { szo: "", koztes: {}, masik: {}, csap: {} }, n;
   for (n in (T.oe && T.oe.koztes) || {}) oe.koztes[n] = { m: T.oe.koztes[n] };
   for (n in (T.oe && T.oe.csap) || {}) oe.csap[n] = { m: T.oe.csap[n] };
@@ -13106,8 +13321,9 @@ function segMesterKicsi(N, idx) {
    tábla:   0 ábra · 1 🧺 a kilenc szám összege · 2 soronként 15 · 3 oszlopok összege (kevés kékkel, sok naranccsal) · 4 a csere */
 var SEG_ABRA = null;          /* { E, el, idok } — az éppen látható ábra */
 function segAbraUj(p, segit) {
-  var mozog = p.t === "kerites" ? !!p.tri && p.sq === "?" : !!p.csere;
-  return { p: p, A: 0, kerdo: mozog ? (p.t === "kerites" ? 2 : 3) : 0, max: mozog ? (p.t === "kerites" ? 3 : 4) : 0, segit: segit };
+  var mozog = p.t === "kerites" ? !!(p.tri || p.tegla) && p.sq === "?" : !!p.csere;
+  var kerdo = p.t === "kerites" || p.sorCsere ? 2 : 3, max = p.t === "kerites" || p.sorCsere ? 3 : 4;   /* 🔮 két sor: nincs oszlop-lépés */
+  return { p: p, A: 0, kerdo: mozog ? kerdo : 0, max: mozog ? max : 0, segit: segit };
 }
 function segAbraAll(f) { return f ? f.egAbra || (f.polcN && f.polcN.egAbra) || null : null; }
 function segAbraStop() { if (SEG_ABRA) SEG_ABRA.idok.forEach(clearTimeout); }
@@ -13142,20 +13358,25 @@ function segAbraSegit(f) {
 function segAbraHTML(p, A, uj) { return p.t === "kerites" ? segKeritesSVG(p, A, uj) : segTablaSVG(p, A, uj); }
 function segU(a, uj) { return a === uj ? ' class="eg-uj"' : ''; }
 function segTx(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" text-anchor="' + (o.a || "middle") + '" font-size="' + (o.m || 13) + '" font-weight="' + (o.w || 700) + '" fill="' + (o.c || "#4a3b2a") + '">' + s + '</text>'; }
-/* kerítés: a háromszög (lehet null), a négyzet (sq: oldal-felirat), a szalag */
+/* kerítés: a bal kert (háromszög vagy 🔮 téglalap, lehet null), a négyzet (sq: oldal-felirat), a szalag */
 function segKeritesSVG(p, A, uj) {
   var s = '<svg class="eg-svg" viewBox="0 0 260 196" aria-hidden="true" font-family="Fredoka,system-ui,sans-serif">';
-  var sqx = p.tri ? 162 : 92, sqy = 30, sqa = 75, oldal = A >= 3 ? "25 m" : p.sq === "?" ? "?" : p.sq + " m";
+  var t = p.tri || (p.tegla ? [p.tegla[0], p.tegla[1], p.tegla[0], p.tegla[1]] : null), ossz = t ? t.reduce(function (a, b) { return a + b; }, 0) : 0, felel = ossz / 4 + " m";
+  var sqx = p.tegla ? 168 : t ? 162 : 92, sqy = 30, sqa = 75, oldal = A >= 3 ? felel : p.sq === "?" ? "?" : p.sq + " m";
   if (p.tri) {
     var b = p.tri[2], a = p.tri[0], h = Math.sqrt(a * a - b * b / 4), sk = Math.min(120 / b, 72 / h), bw = b * sk, hh = h * sk, x0 = 80 - bw / 2;
     s += '<g opacity="' + (A >= 1 ? ".35" : "1") + '"><path d="M' + x0 + ',105 L' + (x0 + bw) + ',105 L80,' + (105 - hh) + ' Z" fill="#dff0d4" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' +
       segTx(80, 96, "🌷", { m: 16 }) + segTx(x0 + bw / 4 - 6, 104 - hh / 2, a + " m", { a: "end" }) + segTx(x0 + 3 * bw / 4 + 6, 104 - hh / 2, a + " m", { a: "start" }) + segTx(80, 122, b + " m") + '</g>';
+  } else if (p.tegla) {
+    var w = p.tegla[0], m = p.tegla[1], k0 = Math.min(84 / w, 64 / m), rw = w * k0, rh = m * k0, rx = 80 - rw / 2, ry = 105 - rh;
+    s += '<g opacity="' + (A >= 1 ? ".35" : "1") + '"><rect x="' + rx + '" y="' + ry + '" width="' + rw + '" height="' + rh + '" fill="#dff0d4" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' +
+      segTx(80, ry + rh / 2 + 6, "🌷", { m: 16 }) + segTx(80, ry - 6, w + " m") + segTx(80, 122, w + " m") + segTx(rx - 4, ry + rh / 2 + 5, m + " m", { a: "end" }) + segTx(rx + rw + 4, ry + rh / 2 + 5, m + " m", { a: "start" }) + '</g>';
   }
   s += '<rect x="' + sqx + '" y="' + sqy + '" width="' + sqa + '" height="' + sqa + '" fill="#f6ead0" stroke="#8a5a2e" stroke-width="3" stroke-dasharray="7 3"/>' + segTx(sqx + sqa / 2, sqy + sqa / 2 + 6, "🥕", { m: 18 });
   var oc = A >= 3 ? "#3b8a3b" : "#7a5aa8";
   s += segTx(sqx + sqa / 2, sqy - 7, oldal, { c: oc }) + segTx(sqx + sqa / 2, sqy + sqa + 17, oldal, { c: oc }) + segTx(sqx - 5, sqy + sqa / 2 + 5, oldal, { a: "end", c: oc }) + segTx(sqx + sqa + 5, sqy + sqa / 2 + 5, oldal, { a: "start", c: oc });
-  if (A >= 1 && p.tri) {
-    var t = p.tri, ossz = t[0] + t[1] + t[2], k = 220 / ossz, x = 20, szin = ["#f4a6c0", "#f4a6c0", "#a9d4f5"];
+  if (A >= 1 && t) {
+    var k = 220 / ossz, x = 20, szin = p.tri ? ["#f4a6c0", "#f4a6c0", "#a9d4f5"] : ["#f4a6c0", "#a9d4f5", "#f4a6c0", "#a9d4f5"];
     s += '<g' + segU(1, uj) + '>' + segTx(130, 146, "🧺 " + t.join(" + ") + " = " + ossz + " m", { m: 13 }) + '</g>';
     if (A === 1) {
       s += '<g class="' + (uj === 1 ? "eg-no" : "") + '">';
@@ -13163,27 +13384,32 @@ function segKeritesSVG(p, A, uj) {
       s += '</g>';
     } else {
       s += '<g' + segU(2, uj) + '>';
-      for (var i = 0; i < 4; i++) s += '<rect x="' + (20 + i * 56) + '" y="154" width="52" height="16" rx="3" fill="#ffd27a" stroke="#8a5a2e" stroke-width="1.6"/>' + segTx(46 + i * 56, 188, A >= 3 ? "25 m" : "?", { c: A >= 3 ? "#3b8a3b" : "#7a5aa8" });
+      for (var i = 0; i < 4; i++) s += '<rect x="' + (20 + i * 56) + '" y="154" width="52" height="16" rx="3" fill="#ffd27a" stroke="#8a5a2e" stroke-width="1.6"/>' + segTx(46 + i * 56, 188, A >= 3 ? felel : "?", { c: A >= 3 ? "#3b8a3b" : "#7a5aa8" });
       s += '</g>';
     }
   }
   return s + '</svg>';
 }
-/* bűvös tábla: a számok rácsban; a kosár-sor, a sorok és az oszlopok összege, a végén a csere */
+/* bűvös tábla: a számok rácsban; a kosár-sor, a sorok és az oszlopok összege, a végén a csere.
+   🔮 két sor (p.sorCsere): nincs oszlop-lépés, a sor-összegek színe mutatja, hol kevés (kék) és hol sok (narancs); a csere a 3. kép */
 function segTablaSVG(p, A, uj) {
-  var S = p.sor.map(function (r) { return r.slice(); }), R = S.length, C = S[0].length, cs = p.csere, c = 40, x0 = 50, y0 = 8, i, j;
-  if (A >= 4 && cs) { var t = S[cs[0][0]][cs[0][1]]; S[cs[0][0]][cs[0][1]] = S[cs[1][0]][cs[1][1]]; S[cs[1][0]][cs[1][1]] = t; }
+  var S = p.sor.map(function (r) { return r.slice(); }), R = S.length, C = S[0].length, cs = p.csere, c = 40, x0 = 50, y0 = 8, i, j, CA = p.sorCsere ? 3 : 4;
+  if (A >= CA && cs) { var t = S[cs[0][0]][cs[0][1]]; S[cs[0][0]][cs[0][1]] = S[cs[1][0]][cs[1][1]]; S[cs[1][0]][cs[1][1]] = t; }
   var ossz = 0; p.sor.forEach(function (r) { r.forEach(function (x) { ossz += x; }); });
   var E = ossz / R, H = y0 + R * c;
   var s = '<svg class="eg-svg" viewBox="0 0 240 ' + (H + 70) + '" aria-hidden="true" font-family="Fredoka,system-ui,sans-serif">';
   for (i = 0; i < R; i++) for (j = 0; j < C; j++) {
-    var cser = cs && A >= 4 && ((i === cs[0][0] && j === cs[0][1]) || (i === cs[1][0] && j === cs[1][1]));
+    var cser = cs && A >= CA && ((i === cs[0][0] && j === cs[0][1]) || (i === cs[1][0] && j === cs[1][1]));
     s += '<rect x="' + (x0 + j * c) + '" y="' + (y0 + i * c) + '" width="' + c + '" height="' + c + '" fill="' + (cser ? "#fff3cf" : A === 1 ? "#f6ead0" : "#fff") + '" stroke="#7a6a5a" stroke-width="2"/>' +
-      '<g' + (cser ? segU(4, uj) : "") + '>' + segTx(x0 + j * c + c / 2, y0 + i * c + 27, S[i][j], { m: 20, c: cser ? "#c0447e" : "#3a3040" }) + '</g>';
+      '<g' + (cser ? segU(CA, uj) : "") + '>' + segTx(x0 + j * c + c / 2, y0 + i * c + 27, S[i][j], { m: 20, c: cser ? "#c0447e" : "#3a3040" }) + '</g>';
   }
   if (A >= 1) s += '<g' + segU(1, uj) + '>' + segTx(120, H + 60, "🧺 " + (A >= 2 ? ossz + " : " + R + " = " + E + " egy sorban" : "mind a " + R * C + " szám: " + ossz), { m: 13 }) + '</g>';
-  if (A >= 2) { s += '<g' + segU(2, uj) + '>'; for (i = 0; i < R; i++) s += segTx(x0 + C * c + 8, y0 + i * c + 26, "= " + S[i].reduce(function (a, b) { return a + b; }, 0), { a: "start", m: 14, c: "#3b8a3b" }); s += '</g>'; }
-  if (A >= 3) {
+  if (A >= 2) {
+    s += '<g' + segU(2, uj) + '>';
+    for (i = 0; i < R; i++) { var so = S[i].reduce(function (a, b) { return a + b; }, 0); s += segTx(x0 + C * c + 8, y0 + i * c + 26, "= " + so, { a: "start", m: 14, c: !p.sorCsere || so === E ? "#3b8a3b" : so < E ? "#3a78c0" : "#d9772e" }); }
+    s += '</g>';
+  }
+  if (A >= 3 && !p.sorCsere) {
     s += '<g' + segU(3, uj) + '>';
     for (j = 0; j < C; j++) { var o = 0; for (i = 0; i < R; i++) o += S[i][j]; s += segTx(x0 + j * c + c / 2, H + 22, o, { m: 15, c: o < E ? "#3a78c0" : o > E ? "#d9772e" : "#3b8a3b" }); }
     s += '</g>';
