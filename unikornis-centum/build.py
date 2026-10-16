@@ -50,12 +50,14 @@ MODULES = [
     "olvaso-ellenor.js",  # 6n2) 🔎/✋ olvasó-ellenőr: „Mire felelsz?” kérdés-keret + „Ez már a válasz?” köztes-szám tábla, konkrét tippek (közös modul)
     "nyomozotabla.js",    # 6o0) 📋 Nyomozótábla: pipás ✓/✗ tábla (közös modul; a ✓ a gazda állásából jön, a ✗ a tábláé, 🦉 kihúzás, R3)
     "dobogo.js",          # 6o) 🏆 dobogó: koppintós sorba rakás (verseny / sor / polc / ház / táblázat, kétsoros is)
+    "rakodas.js",         # 6o2) 🐪 rakodás: a dobogó testvére — csomagok a tevék hátára, a szabály dönt (egyforma teher), kosár-tipp után látszik a súly
     "szerszam-kotott.js", # 3g) 📌 KOTOTT tartalom: 4 mese-keret, szereplő-rajzok, sablon-generátor egyértelműség-próbával, 4 Mesterpróba + testvérek
     "szerszam-palya.js",  # 6p) 🧰 szerszám-pálya: GEN.szerszam, jó/rossz, 🛗 lift, végigvezetés, pálya vége (mester-szalag, láda)
     "polc-mesek.js",      # 6r) 📚 olvasó-polc mesék: 🔎 hat keret (gyűjtés, udvar, hét, bolt, házsor, csere) + ✋ hat keret (kosár, szalag, életkor, vásár, padló, kannák)
     "olvaso-polc.js",     # 6s) 📚 olvasó-polc motor: 20 pötty sorrendje, formák, 🛗 lift, végigvezetés, 🏅 Mesterpróba beírással, folytatás
     "kosar.js",           # 6s2) 🧺 közös kosár: szereplők + kupacok + kosár a jobb lapon; ① kosárba ② egyforma kupac + cél-golyók ③ átrepül (a válaszra mozdul)
     "szerszam-egesz.js",  # 6s3) 🧺 „Előbb az egész” tartalom: 📖 🪜🪜🎯 lánc, 📜 a/b (közös persely), 🛗 kicsi lépcsőfokokkal — az olvasó-polc motorján
+    "szerszam-egesz-mester.js", # 6s4) 🧺 2. kör: 📜 (c) 🐪 rakodás + 🏅 3 Mesterpróba (kerítés, bűvös tábla, tevék) + testvérek + ábra-mozgókép
     "szerszam-polc.js",   # 6q) 🧰 szerszám-szekrény a Holdfény-szárnyban: polc + 3 tárgy + névtábla-fény + láda-pillanat
     "konyvtar-terem.js",  # 6t) 📚 a Bagolykönyvtár terme: olvasó-polc · ablak + 🏰 Kockavár + olvasópult · szekrény + láda · ✨ Csillagtorony-ajtó · 🏅 Mesterpróba-kapu
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)

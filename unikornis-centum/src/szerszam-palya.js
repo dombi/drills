@@ -58,7 +58,7 @@ function szKicsi(nagy) {
 function szMutat(f) {
   opMod(true);
   var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
-  dobogoMutat(f, { kesz: szKesz, segit: mester ? null : szSegitMenu, tabla: f.tabla || null, zarKatt: oeNoszog });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
+  dobogoMutat(f, { kesz: szKesz, segit: mester && !f.rakodas ? null : szSegitMenu, tabla: f.tabla || null, zarKatt: oeNoszog });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
@@ -109,6 +109,7 @@ function opBagsor(be) {
 function szKesz(jo, A) {
   var f = J && J.feladat; if (!f || f.csalad !== "dobogo") return;
   opJelolTorol(); opOlvasAll();
+  if (f.rakodas && segRakKesz(f, jo)) return;               /* 🐪 két megoldás: „Ez jó! De van még egy másik is.” (szerszam-egesz-mester.js) */
   if (jo) { dobogoZar(true); szJo(f); return; }
   szRossz(f, A);
 }
@@ -154,6 +155,7 @@ function szRossz(f, A) {
   ment();
 }
 function szHibaMutat(f, c) {
+  if (f.rakodas) { segRakHiba(f); return; }                  /* 🐪 rakodás: senki nem ugrik vissza, a kosár-tipp jön */
   if (DOB && DOB.nt) dobogoHibaJelol(c && c.ki, c && c.tab); else dobogoVisszaRossz();   /* 📋 táblánál senki nem ugrik vissza, a hibás kocka kap keretet */
   var v = $("visszajelzes"), msg;
   if (c) {
@@ -190,6 +192,7 @@ function szVegigFut(f) {
     }
     var l = f.lep[i++];
     opLepes(l.t);
+    if (l.kosar && f.rakodas) rakKosarMutat(f);                  /* 🐪 „Előbb az összes súly” → a kis kosár előjön */
     (l.x2 || []).forEach(function (q) { dobogoNtXPar(q[0], q[1]); });   /* 📋 „X nem úszik.” → ✗ a pár-sávban */
     (l.tesz || []).forEach(function (t) { dobogoTesz(t[0], t[1], t[2]); if (!f.lepKezi) dobogoNtKihuzTesz(t[0], t[2]); });   /* 🔮/🏅: minden ✓ után kihúz */
     (l.ki || []).forEach(function (id) { dobogoNtKihuz(id); });   /* 📋 tábla nyelven: kihúzás és ✗ (sárgán felvillan) */
@@ -203,6 +206,7 @@ function szSegitMenu(menu) {
   var f = J && J.feladat, L = J && J.sz && J.sz.L; if (!f || !menu) return;
   if (!menu.hidden) { menu.hidden = true; return; }
   var h = '<button type="button" class="kis-gomb" data-s="mit">🔎 Mit kérdeznek?</button>';
+  if (f.rakodas && !f.rakodas.sulyLat && !f.vegigVolt) h = '<button type="button" class="kis-gomb" data-s="kosar">🧺 Tedd a kosárba!</button>' + h;   /* 🐪 a 🙋 első sora (rajzterv 2. döntés) */
   if (f.szerep === "nagy" && L && !L.lift && !f.vegigVolt) h += szerszamBeall().liftKer ? '<button type="button" class="kis-gomb" data-s="kicsi">🔎 Nézzük kicsiben</button>' : '<button type="button" class="kis-gomb" data-s="tovabb">💡 Segíts még</button>';
   menu.innerHTML = h; menu.hidden = false;
   Array.prototype.forEach.call(menu.querySelectorAll("button"), function (b) {
@@ -213,7 +217,8 @@ function szSegitMenu(menu) {
         if (f.szerep === "nagy" && L) liftSegitseg(L, 1);            /* a ládában ez még önálló */
         opOlvasAll(); dobogoZar(true);
         oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
-      } else if (s === "kicsi") { if (liftKer(L) === "lift") szLiftIndul(f); }
+      } else if (s === "kosar") segRakSegit(f);
+      else if (s === "kicsi") { if (liftKer(L) === "lift") szLiftIndul(f); }
       else if (s === "tovabb") { if (liftSegitseg(L, 2) === "lift") szLiftIndul(f); }
     });
   });

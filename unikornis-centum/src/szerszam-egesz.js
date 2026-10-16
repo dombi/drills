@@ -1,7 +1,8 @@
 /* ============ 6s3) 🧺 „ELŐBB AZ EGÉSZ” — a szerszám tartalma (Mesekönyv + Varázstekercs) ============
    Terv: Matekos\szerszam-letrak-terv.html (✅) · tartalom: …-tartalom.html 4. pont (✅ 2026-10-09) ·
    átnézés: …-egesz-mit-atnezes.html (✅ 2026-10-16, mind az 5 döntés) · rajz: …-egesz-rajzterv.html (✅ 2026-10-16, mind a 4 döntés).
-   1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (4: a, a, b, a). A 🐪 rakodás (Tekercs c) és a 3 🏅 Mesterpróba: 2. kör.
+   1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (a, a, b, a). 2. kód-kör (2026-10-16): a Tekercs 5. feladata, a 🐪 (c)
+   rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js).
 
    Az olvasó-polc motorján fut (olvaso-polc.js: polcMutat / polcJo / polcHiba / lift / végigvezetés) — a feladatok f.polc = "EGESZ"-t
    kapnak, a pálya viszont SZERSZÁM-pálya (pa.szerszam = "EGESZ": a szekrényben áll, a pálya végét a szPalyaVege adja).
@@ -26,7 +27,7 @@ var SEG_NEVEK = [["Anna", "Annának"], ["Bori", "Borinak"], ["Csilla", "Csillán
   ["Gergő", "Gergőnek"], ["Hanna", "Hannának"], ["Kata", "Katának"], ["Lili", "Lilinek"], ["Marci", "Marcinak"], ["Peti", "Petinek"],
   ["Fanni", "Fanninak"], ["Olivér", "Olivérnek"]];
 var SEG_MESE_N = [2, 2, 3, 2, 3];                 /* a Mesekönyv 5 feladata: hány gyerek osztozik */
-var SEG_TEK_FORMA = ["a", "a", "b", "a"];         /* a Tekercs 4 feladata */
+var SEG_TEK_FORMA = ["a", "a", "b", "a", "c"];    /* a Tekercs 5 feladata — (c): 🐪 rakodás (szerszam-egesz-mester.js) */
 /* 🖊️ lektorra — a bagoly mondatai */
 var SEG_M = {
   lepcsofok: "Ez egy lépcsőfok: felvisz a nagy kérdéshez.",
@@ -219,6 +220,8 @@ function segFeladat(cfg) {
   if (!J.sz) J.sz = { sz: "EGESZ", eredm: [], L: null };
   if (!J.polc || J.polc.palya !== J.palya.id) J.polc = { palya: J.palya.id, eredm: J.sz.eredm, elozo: null, kezd: J.feladatKesz };
   var i = J.feladatKesz, fok = cfg.fok, M = null, keret, t;
+  if (fok === "mester") return segMester();                /* 🏅 2. kód-kör (szerszam-egesz-mester.js) */
+  if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "c") return segRakTekercs();
   if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "b") M = segPerselyMese();
   for (t = 0; t < 40 && !M; t++) {
     keret = segKeret(J.polc.elozo);

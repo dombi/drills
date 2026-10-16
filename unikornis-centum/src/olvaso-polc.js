@@ -276,6 +276,7 @@ function polcMutat(f) {
   if (f.vezetSor) { opLepesLap(); f.vezetSor.forEach(function (h) { opLepes(h); }); if (f.vezetMost) opLepes("<b>" + f.vezetMost + "</b>"); }
   opLapol();
   kosarMutat(f);                                        /* 🧺 a közös kosár a jobb lapon (kosar.js) — ha a feladatnak van */
+  segAbraMutat(f);                                      /* 🧺 🏅 a Mesterpróba ábrája (kerítés, bűvös tábla — szerszam-egesz-mester.js) */
   mKoppRejt();
   var v = $("visszajelzes");
   if (f.opElo) { v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }
@@ -377,6 +378,7 @@ function polcHiba(f, valasz) {
   if (f.polcSzerep === "lepes" && f.polcN && f.polcN.polcL) f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
   if (f.polcSzerep === "nagy" && f.polcL && !f.vegigVolt) {
     var r = liftRossz(f.polcL);
+    if (r === "ujra" && f.egAbra && f.polcL.lift && !f.kosarSegitVolt) { segAbraSegit(f); return; }   /* 🧺 🏅 a liftből visszajött, és újra elakadt: a kosár-mozgókép (rajzterv 5. pont) */
     if (r === "lift") { polcLiftIndul(f); return; }
     if (r === "vegig") { polcVegig(f); return; }
   } else if (J.probak >= 2) {                         /* kicsi, lépcsőfok, lánc 1. kérdése: a 2. rossz után megmutatja */
@@ -480,7 +482,7 @@ function polcSegitMenu(menu) {
   var f = J && J.feladat, L = f && f.polcL; if (!f || !menu) return;
   if (!menu.hidden) { menu.hidden = true; return; }
   var h = '<button type="button" class="kis-gomb" data-s="mit">🔎 Mit kérdeznek?</button>';
-  if (f.kosar && f.polcSzerep === "nagy" && !f.kosarSegitVolt && !f.vegigVolt) h = '<button type="button" class="kis-gomb" data-s="kosar">🧺 Tedd a kosárba!</button>' + h;   /* 🧺 a 🙋 első sora (rajzterv 2. döntés ✅) */
+  if ((f.kosar || f.egAbra) && f.polcSzerep === "nagy" && !f.kosarSegitVolt && !f.vegigVolt) h = '<button type="button" class="kis-gomb" data-s="kosar">🧺 Tedd a kosárba!</button>' + h;   /* 🧺 a 🙋 első sora (rajzterv 2. döntés ✅) */
   if (f.polcSzerep === "nagy" && L && !L.lift && !f.vegigVolt && szerszamBeall().liftKer) h += '<button type="button" class="kis-gomb" data-s="kicsi">🔎 Nézzük kicsiben</button>';
   menu.innerHTML = h; menu.hidden = false;
 }

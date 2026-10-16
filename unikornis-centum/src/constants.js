@@ -433,8 +433,9 @@ function szPalya(sz, nev, fok) {
     regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
     allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
 }
-/* 🧺 „Előbb az egész” (szerszam-egesz.js, 1. kód-kör 2026-10-16): 📖 + 📜 — a 🏅 Mesterpróba a 2. körben jön */
-PALYAK.push(szPalya("EGESZ", "Előbb az egész", "mese"), szPalya("EGESZ", "Előbb az egész", "tekercs"));
+/* 🧺 „Előbb az egész” (szerszam-egesz.js + …-mester.js, 2026-10-16): 📖 5 · 📜 5 (a, a, b, a + 🐪 c rakodás) · 🏅 1 */
+PALYAK.push(szPalya("EGESZ", "Előbb az egész", "mese"), szPalya("EGESZ", "Előbb az egész", "tekercs"), szPalya("EGESZ", "Előbb az egész", "mester"));
+PALYAK.filter(function (p) { return p.id === "sz-egesz-tekercs"; })[0].allomasok[1].darab = 5;
 PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tabla"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */

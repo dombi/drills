@@ -108,6 +108,7 @@ function dobHely(r, i, cimke, extra) {
 }
 function dobTerRajz() {
   var D = DOB.f.dob, n = D.n, h = "", r, i;
+  if (D.keret === "teve") return rakTerRajz(D);               /* 🐪 rakodás: a helyek a tevék hátán (rakodas.js) */
   var C = D.cimkek || [];
   if (D.keret === "dobogo") {
     var sor = n === 3 ? [1, 0, 2] : Array.apply(null, { length: n }).map(function (x, j) { return j; });
@@ -328,6 +329,7 @@ function dobogoHibaJelol(id, tab) {
 function dobTeli() { return DOB.hely.every(function (s) { return s.every(function (x) { return x != null; }); }); }
 function dobJoE() {
   var J0 = DOB.f.dob.jo;
+  if (DOB.f.dob.joFn) return DOB.f.dob.joFn(DOB.hely[0]);       /* 🐪 rakodás: szabály dönt (több jó megoldás is lehet) */
   return DOB.hely.every(function (s, r) { return s.every(function (x, i) { return x === J0[r][i]; }); });
 }
 /* a jó helyen állók maradnak, a többiek visszaugranak; visszaadja, hány ugrott vissza */
@@ -410,7 +412,7 @@ function dobTalKatt(r, id) {
 }
 function dobKatt(ev) {
   if (!DOB) return;
-  var t = ev.target.closest ? ev.target.closest("button, .dob-h, .dob-tal") : null;
+  var t = ev.target.closest ? ev.target.closest("button, .dob-h, .dob-tal, .rak-teve") : null;   /* 🐪 a tevére is lehet koppintani (rakodas.js) */
   var g = t ? t.getAttribute("data-g") : null;
   if (g === "segit") { hangGomb(); if (DOB.o.segit) DOB.o.segit($("dobogo-panel").querySelector(".dob-segitmenu")); return; }
   if (DOB.zar) { if (DOB.o.zarKatt && !(ev.target.closest && ev.target.closest(".dob-segitmenu"))) DOB.o.zarKatt(); return; }   /* 🟡1: a zár ne legyen néma */
@@ -418,7 +420,7 @@ function dobKatt(ev) {
   if (g === "ujra") { hangGomb(); dobogoUrit(); return; }
   if (g === "kesz") {
     hangGomb();
-    if (!dobTeli()) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "Előbb tedd mindenkit a helyére!"; mondd("Előbb tedd mindenkit a helyére!"); return; }
+    if (!dobTeli()) { var v = $("visszajelzes"); v.className = "visszajelzes"; var tm = DOB.f.dob.teliM || "Előbb tedd mindenkit a helyére!"; v.textContent = tm; mondd(tm); return; }
     DOB.kez = null; DOB.cel = null;
     var kulcs = JSON.stringify(DOB.hely), most = Date.now();   /* 📋 táblánál senki nem ugrik vissza: a gyors dupla koppintás ne számítson két próbának */
     if (DOB.nt && DOB.keszKulcs === kulcs && most - DOB.keszIdo < 2000) return;
@@ -433,7 +435,8 @@ function dobKatt(ev) {
     var K = DOB.kez;
     if (K && K.honnan != null && K.r === +tal.getAttribute("data-r")) { var P = K.r === 0 ? dobParok() : null; DOB.hely[K.r][K.honnan] = null; dobParIgazit(P); }
     DOB.kez = null;
-  } else return;
+  } else if (t.classList.contains("rak-teve")) { if (!rakTeveKatt(+t.getAttribute("data-k"))) return; }
+  else return;
   hangGomb();
   $("visszajelzes").textContent = ""; $("visszajelzes").className = "visszajelzes";
   dobRajz();

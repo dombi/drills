@@ -191,6 +191,7 @@ function kosarFut(vegig) {
 
 /* ── a jó válasz (polcJo hívja, mielőtt a lánc továbbmegy): az érték mondja meg, melyik mozdulat jön ── */
 function kosarJo(f) {
+  if (f.egAbra) { if (f.polcVeg) segAbraFut(f, true); return; }   /* 🏅 a Mesterpróba ábrája a válaszig (szerszam-egesz-mester.js) */
   var K = kosarAllapot(f); if (!K || !KOSAR || KOSAR.K !== K) return;
   var v = f.helyes;
   if (f.polcKicsiVeg || f.polcVeg || f.kosarVeg) { if (f.polcSzerep === "nagy" || f.kosarOsszefog) kosarFut(true); else kosarVegso(); return; }
@@ -200,6 +201,7 @@ function kosarJo(f) {
 }
 /* 🙋 „🧺 Tedd a kosárba!” — a Tekercsben (2. döntés ✅: utána a jó válasz nem önálló) */
 function kosarSegit(f) {
+  if (f.egAbra) { segAbraSegit(f); return; }               /* 🏅 a Mesterpróba ábrája a „?”-ig */
   var K = kosarAllapot(f); if (!K || !KOSAR || KOSAR.K !== K) return;
   if (f.polcL) f.polcL.seg = Math.max(f.polcL.seg || 0, 2);
   f.kosarSegitVolt = true;
