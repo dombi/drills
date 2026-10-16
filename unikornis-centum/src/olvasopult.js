@@ -51,15 +51,19 @@ function opNb(h) {
 }
 /* a szöveg: mondatok + a kérdés (hely: hányadik mondat elé kerül — a 📚 olvasó-polc 🔍 formájában véletlen; alap: a végén)
    + a 🪜 lépcsőfok-sor a kérdés alatt (lepcso: kész html) */
-function opSzoveg(mondatok, kerdes, hely, lepcso) {
-  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + opNb(kerdes) + '</p>';
+/* 🧺 c (szerszam-egesz.js): c.cel = a kérdés a 🎯 nagy kérdés (felirattal), c.celAkt = most erre felel, c.fent = 🪜 lépcsőfok-sorok a kérdés FÖLÖTT */
+function opSzoveg(mondatok, kerdes, hely, lepcso, c) {
+  c = c || {};
+  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }),
+      q = '<p class="op-kerdes' + (c.cel ? " op-cel" : "") + (c.celAkt ? " op-cel-akt" : "") + '" data-m="k">' + opNb(kerdes) + '</p>';
+  if (c.fent) q = '<div class="seg-fent">' + c.fent + '</div>' + q;
   if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
   return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
 }
 function opKonyv(o) {
   var b = opBetu(), fz = o.fuzet;
-  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso) + '</div>';
-  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso) + '</div></div>';
+  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso, fz ? { cel: o.cel } : o) + '</div>';
+  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso, fz) + '</div></div>';
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
   return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +

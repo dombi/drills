@@ -54,6 +54,8 @@ MODULES = [
     "szerszam-palya.js",  # 6p) 🧰 szerszám-pálya: GEN.szerszam, jó/rossz, 🛗 lift, végigvezetés, pálya vége (mester-szalag, láda)
     "polc-mesek.js",      # 6r) 📚 olvasó-polc mesék: 🔎 hat keret (gyűjtés, udvar, hét, bolt, házsor, csere) + ✋ hat keret (kosár, szalag, életkor, vásár, padló, kannák)
     "olvaso-polc.js",     # 6s) 📚 olvasó-polc motor: 20 pötty sorrendje, formák, 🛗 lift, végigvezetés, 🏅 Mesterpróba beírással, folytatás
+    "kosar.js",           # 6s2) 🧺 közös kosár: szereplők + kupacok + kosár a jobb lapon; ① kosárba ② egyforma kupac + cél-golyók ③ átrepül (a válaszra mozdul)
+    "szerszam-egesz.js",  # 6s3) 🧺 „Előbb az egész” tartalom: 📖 🪜🪜🎯 lánc, 📜 a/b (közös persely), 🛗 kicsi lépcsőfokokkal — az olvasó-polc motorján
     "szerszam-polc.js",   # 6q) 🧰 szerszám-szekrény a Holdfény-szárnyban: polc + 3 tárgy + névtábla-fény + láda-pillanat
     "konyvtar-terem.js",  # 6t) 📚 a Bagolykönyvtár terme: olvasó-polc · ablak + 🏰 Kockavár + olvasópult · szekrény + láda · ✨ Csillagtorony-ajtó · 🏅 Mesterpróba-kapu
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)

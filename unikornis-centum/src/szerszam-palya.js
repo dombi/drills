@@ -13,9 +13,12 @@
    A gyerek sosem hallja: könnyebb, Mesekönyv, visszalépés (a liftMondat ki is szűri). Nincs piros, nincs lefokozás. */
 
 var SZ_TARTALOM = { KOTOTT: SZK_TART };
+/* saját motorral futó szerszám: a feladatot maga adja (🧺 EGESZ: beírás az olvasó-polc motorján — szerszam-egesz.js) */
+var SZ_SAJAT = {};
 var SZ_KICSI_MEG = "Még egy ilyen!";
 
 GEN.szerszam = function (cfg) {
+  if (SZ_SAJAT[cfg.sz]) return SZ_SAJAT[cfg.sz](cfg);
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
   var f = cfg.fok === "mester" ? T.mester(szMesterValaszt(cfg.sz, T.mesterLista())) : T.general(cfg.fok, J.feladatKesz);
@@ -239,7 +242,7 @@ function szPalyaVege() {
     mondat += " Ez a szerszám most már a tiéd. Bármikor elő tudod venni.";
     sorok.push("🧰 Ez a szerszám most már a tiéd: a " + d.ikon + " a ládába került.");
   }
-  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
+  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " " + (/^[aeiouáéíóöőúüű]/i.test(d.nev) ? "Az" : "A") + " „" + d.nev + "” tábla fényesebb lett.");   /* „Az „Előbb az egész”” */
   ment();
   return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }

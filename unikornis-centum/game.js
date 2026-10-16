@@ -439,6 +439,8 @@ function szPalya(sz, nev, fok) {
     regio: "konyvtar", szarny: "3o", osztaly: 3, szint: 4, palcim: F[1], alap: { tipus: "szerszam", sz: sz, fok: fok },
     allomasok: [{ nev: "Rajt" }, { nev: "Olvasópult", darab: F[2], cel: true }] };
 }
+/* 🧺 „Előbb az egész” (szerszam-egesz.js, 1. kód-kör 2026-10-16): 📖 + 📜 — a 🏅 Mesterpróba a 2. körben jön */
+PALYAK.push(szPalya("EGESZ", "Előbb az egész", "mese"), szPalya("EGESZ", "Előbb az egész", "tekercs"));
 PALYAK.push(szPalya("KOTOTT", "Ahol csak egyféle lehet", "mese"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tekercs"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "tabla"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "gomb"), szPalya("KOTOTT", "Ahol csak egyféle lehet", "mester"));
 
 /* pályaválasztó: rajzolt ikonok + rövid matek-sor + közös erdő-háttér (grafikai session, 2026-09-08) */
@@ -9586,15 +9588,19 @@ function opNb(h) {
 }
 /* a szöveg: mondatok + a kérdés (hely: hányadik mondat elé kerül — a 📚 olvasó-polc 🔍 formájában véletlen; alap: a végén)
    + a 🪜 lépcsőfok-sor a kérdés alatt (lepcso: kész html) */
-function opSzoveg(mondatok, kerdes, hely, lepcso) {
-  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }), q = '<p class="op-kerdes" data-m="k">' + opNb(kerdes) + '</p>';
+/* 🧺 c (szerszam-egesz.js): c.cel = a kérdés a 🎯 nagy kérdés (felirattal), c.celAkt = most erre felel, c.fent = 🪜 lépcsőfok-sorok a kérdés FÖLÖTT */
+function opSzoveg(mondatok, kerdes, hely, lepcso, c) {
+  c = c || {};
+  var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }),
+      q = '<p class="op-kerdes' + (c.cel ? " op-cel" : "") + (c.celAkt ? " op-cel-akt" : "") + '" data-m="k">' + opNb(kerdes) + '</p>';
+  if (c.fent) q = '<div class="seg-fent">' + c.fent + '</div>' + q;
   if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
   return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
 }
 function opKonyv(o) {
   var b = opBetu(), fz = o.fuzet;
-  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso) + '</div>';
-  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso) + '</div></div>';
+  var bal = '<div class="op-szoveg' + (fz ? " op-alatta" : "") + '">' + opSzoveg(o.mondatok, o.kerdes, o.kerdesHely, fz ? "" : o.lepcso, fz ? { cel: o.cel } : o) + '</div>';
+  if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso, fz) + '</div></div>';
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
   return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +
@@ -11054,9 +11060,12 @@ function szkFeladatKezi(M, fok, szulo) {
    A gyerek sosem hallja: könnyebb, Mesekönyv, visszalépés (a liftMondat ki is szűri). Nincs piros, nincs lefokozás. */
 
 var SZ_TARTALOM = { KOTOTT: SZK_TART };
+/* saját motorral futó szerszám: a feladatot maga adja (🧺 EGESZ: beírás az olvasó-polc motorján — szerszam-egesz.js) */
+var SZ_SAJAT = {};
 var SZ_KICSI_MEG = "Még egy ilyen!";
 
 GEN.szerszam = function (cfg) {
+  if (SZ_SAJAT[cfg.sz]) return SZ_SAJAT[cfg.sz](cfg);
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
   var f = cfg.fok === "mester" ? T.mester(szMesterValaszt(cfg.sz, T.mesterLista())) : T.general(cfg.fok, J.feladatKesz);
@@ -11280,7 +11289,7 @@ function szPalyaVege() {
     mondat += " Ez a szerszám most már a tiéd. Bármikor elő tudod venni.";
     sorok.push("🧰 Ez a szerszám most már a tiéd: a " + d.ikon + " a ládába került.");
   }
-  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " A „" + d.nev + "” tábla fényesebb lett.");
+  if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " " + (/^[aeiouáéíóöőúüű]/i.test(d.nev) ? "Az" : "A") + " „" + d.nev + "” tábla fényesebb lett.");   /* „Az „Előbb az egész”” */
   ment();
   return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
 }
@@ -11956,6 +11965,7 @@ function polcMutat(f) {
   $("buborek-feladat").innerHTML = opKonyv(f.op);
   if (f.vezetSor) { opLepesLap(); f.vezetSor.forEach(function (h) { opLepes(h); }); if (f.vezetMost) opLepes("<b>" + f.vezetMost + "</b>"); }
   opLapol();
+  kosarMutat(f);                                        /* 🧺 a közös kosár a jobb lapon (kosar.js) — ha a feladatnak van */
   mKoppRejt();
   var v = $("visszajelzes");
   if (f.opElo) { v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }
@@ -12026,6 +12036,7 @@ function polcDicser(f, elsore) {
   return ekE(POLC_DICSER[f.polc] || ["Ez az!"]);
 }
 function polcJo(f, elsore) {
+  kosarJo(f);                                           /* 🧺 a kosár a válaszra mozdul (kosar.js) */
   if (!elsore && f.polcN && f.polcN.polcL && f.polcSzerep !== "kicsi" && f.polcSzerep !== "nagy" && !f.vezet) f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
   if (f.polcKicsiVeg) {                                  /* a lift kicsije kész → még egy testvér, vagy vissza a nagyra */
     var N = f.polcN, L = N.polcL, r = liftKicsi(L, !J.polc.kicsiHiba && elsore);
@@ -12081,6 +12092,7 @@ function polcTipp(f, valasz) {
 
 /* ═════════════════ 🛗 LIFT ═════════════════ */
 function polcKicsiFeladat(N, idx) {
+  if (N.kicsiGen) return N.kicsiGen(N, idx);            /* 🧺 a saját kicsije (szerszam-egesz.js) */
   var M = N.M, K;
   if (N.mester) {
     var T = N.mester.kicsi[idx], mon = (T.mondatok || []).map(function (s) { return s === "{0}" ? (N.M.mondatok[0] || "") : s; }).filter(Boolean);
@@ -12158,6 +12170,7 @@ function polcSegitMenu(menu) {
   var f = J && J.feladat, L = f && f.polcL; if (!f || !menu) return;
   if (!menu.hidden) { menu.hidden = true; return; }
   var h = '<button type="button" class="kis-gomb" data-s="mit">🔎 Mit kérdeznek?</button>';
+  if (f.kosar && f.polcSzerep === "nagy" && !f.kosarSegitVolt && !f.vegigVolt) h = '<button type="button" class="kis-gomb" data-s="kosar">🧺 Tedd a kosárba!</button>' + h;   /* 🧺 a 🙋 első sora (rajzterv 2. döntés ✅) */
   if (f.polcSzerep === "nagy" && L && !L.lift && !f.vegigVolt && szerszamBeall().liftKer) h += '<button type="button" class="kis-gomb" data-s="kicsi">🔎 Nézzük kicsiben</button>';
   menu.innerHTML = h; menu.hidden = false;
 }
@@ -12173,6 +12186,7 @@ function polcSegitMenu(menu) {
       hangGomb(); menu.hidden = true;
       if (s === "mit") { if (f.polcL && f.polcSzerep === "nagy") liftSegitseg(f.polcL, 1); opOlvasAll(); oeKeres(f, { szo: (f.oe && f.oe.szo) || "", al: f.keresAl || null }); }
       else if (s === "kicsi" && f.polcL && liftKer(f.polcL) === "lift") polcLiftIndul(f);
+      else if (s === "kosar") kosarSegit(f);
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bekot); else setTimeout(bekot, 0);
@@ -12227,6 +12241,451 @@ function polcKovetkezo(id) {
   var k = palyaKeres("polc-" + pa.polc.toLowerCase() + "-" + fok);
   return k && !palyaRejtve(k) ? k.id : null;
 }
+/* ============ 6s2) 🧺 KÖZÖS KOSÁR — az „Előbb az egész” szerszám rajza az olvasópult jobb lapján ============
+   Rajz: Matekos\szerszam-letrak-egesz-rajzterv.html (✅ 2026-10-16) · átnézés: …-egesz-mit-atnezes.html (✅ 5. döntés:
+   a rajz a VÁLASZRA reagál, a gyerek nem rakosgat). Egy darab modul: a 🧺 polc minden feladata ezt használja.
+
+   Felépítés (mindig ugyanaz): fent a szereplők, alattuk a saját kupacuk, lent középen a kosár.
+   Három mozdulat, mindig ebben a sorrendben:
+     ① kosárba  — minden a kosárba gurul, a kosáron megjelenik az összeg
+     ② oszt     — a kosárból egyforma kupacok lesznek, aztán mindenki kupaca visszamegy, és a szereplők alatt
+                  halvány, szaggatott „cél-golyók” maradnak (ennyi kell legyen)
+     ③ vegso    — ami sok, átrepül oda, ahol kevés van: mindenkinek a cél-helyére
+   Pénzes keret: a golyó érme (felirata: 10 / 20). A közös perselyes feladatnál (Tekercs b) minden a kosárban kezd,
+   a szereplőknek nincs saját kupacuk; a ③ maga a kiosztás (k.kioszt: szereplőnként az érmék sorszáma).
+
+   Az állapot (K) a feladathoz tartozik, és a lánc minden lépése UGYANAZT az objektumot látja (f.kosar, vagy a nagyé:
+   f.polcN.kosar) — így a következő lépés képe már a mozdulat utáni állapotban rajzolódik ki, mozgás nélkül.
+     K = { gy: [{ nev, n }], ermek: [felirat…] | null, egy (golyó / szereplő), egyseg: "10" | "", kezd: "kupac" | "kosar",
+           vOssz, vEgy: a két lépcsőfok VÁLASZA (pénznél forintban, ezért nem a golyók száma), szamOssz, szamEgy: a kosár felirata,
+           tobb: { válasz: felirat } (pénz: „6 érme”), cimkeEgy: a „kell: …” felirat,
+           kioszt: [[érme-index…]…] | null, allapot: "kupac" | "kosar" | "cel" | "kesz", cel: bool, szam: "" }
+   A jó válasz (olvaso-polc.js polcJo → kosarJo) az érték alapján dönt: összes → ①, egy főre → ②, a nagy kérdés → ③. */
+
+var KOSAR_SZIN = ["#f4a6c0", "#a9d4f5", "#ffd27a", "#b9e3a8", "#d4b8f3", "#ffb98a"];
+var KOSAR_GESZT = ["#a0663b", "#8a5530", "#b5753f"];
+var KOSAR_HAJ = ["#f2c14e", "#6b4a2b", "#e07b39", "#3b2f2a", "#c98b5a", "#9b5d3a"];
+var KOSAR_G = 17;            /* a golyók távolsága (px) */
+var KOSAR_M = { segit: "🧺 Tedd mindet a kosárba, aztán oszd el egyformán!" };   /* 🖊️ lektorra */
+
+/* a jobb lap HTML-je (a generátor teszi az op.rajz-ba); a kirajzolás a kosarMutat dolga */
+function kosarHTML() { return '<div class="kosar-jel"></div>'; }
+
+/* egy gyerek-fej (egyszerű, a szín a sorszámból) */
+function kosarFej(i) {
+  var h = KOSAR_HAJ[i % KOSAR_HAJ.length];
+  return '<svg class="kosar-fej" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="22" r="13" fill="#f6d7b8" stroke="#8a6a4a" stroke-width="1.6"/>' +
+    '<path d="M7,20 Q8,6 20,6 Q32,6 33,20 Q27,12 20,13 Q13,12 7,20 Z" fill="' + h + '" stroke="#5a4430" stroke-width="1.2"/>' +
+    '<circle cx="15.5" cy="23" r="1.6" fill="#3a3040"/><circle cx="24.5" cy="23" r="1.6" fill="#3a3040"/>' +
+    '<path d="M16,28 Q20,31 24,28" stroke="#a05a4a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+}
+
+/* ── kirajzolás (polcMutat hívja, a könyv után) ── */
+var KOSAR = null;            /* { K, el, golyok, szellem, idok } — az éppen látható jelenet */
+function kosarAllapot(f) { return f ? (f.kosar || (f.polcN && f.polcN.kosar) || null) : null; }
+function kosarMutat(f) {
+  kosarIdoStop();
+  KOSAR = null;
+  var K = kosarAllapot(f), el = document.querySelector("#buborek-feladat .op-jobb .kosar-jel");
+  if (!K || !el) return;
+  if (!K.allapot) K.allapot = K.kezd || "kupac";
+  var lap = el.closest(".op-jobb"); if (lap) lap.classList.add("kosar-lap");   /* telefonon a szöveg ALATT (rajzterv 1. pont) */
+  var n = K.gy.length, h = "";
+  K.gy.forEach(function (g, i) { h += '<div class="kosar-gy">' + kosarFej(i) + '<span>' + g.nev + '</span></div>'; });
+  h += '<div class="kosar-kosar"><span class="kosar-szam"></span></div>';
+  el.innerHTML = h;
+  el.classList.add("kosar-csendes");                      /* az első kép mozgás nélkül */
+  var J_ = { K: K, el: el, golyok: [], szellem: [], felirat: [], idok: [] };
+  /* a golyók: szereplőnként (vagy a közös perselyben) — a b[] a golyó gazdája (-1: a közösé) */
+  var ermek = K.ermek, db = 0;
+  if (K.kezd === "kosar") {
+    ermek.forEach(function (e) { J_.golyok.push(kosarGolyo(el, K, db++, e)); J_.golyok[J_.golyok.length - 1].gazda = -1; });
+  } else K.gy.forEach(function (g, k) {
+    for (var i = 0; i < g.n; i++) { var b = kosarGolyo(el, K, db++, K.egyseg ? K.egyseg : null); b.gazda = k; J_.golyok.push(b); }
+  });
+  var celDb = K.kioszt ? K.kioszt.map(function (x) { return x.length; }) : K.gy.map(function () { return K.egy; });
+  K.gy.forEach(function (g, k) {
+    for (var j = 0; j < celDb[k]; j++) { var s = document.createElement("div"); s.className = "kosar-szellem"; s.k = k; s.j = j; el.appendChild(s); J_.szellem.push(s); }
+    var fl = document.createElement("div"); fl.className = "kosar-cel"; fl.textContent = "kell: " + (K.cimkeEgy || K.egy); el.appendChild(fl); J_.felirat.push(fl);
+  });
+  KOSAR = J_;
+  kosarMagassag(el, K);
+  kosarRendez();
+  void el.offsetWidth;
+  setTimeout(function () { if (KOSAR === J_) el.classList.remove("kosar-csendes"); }, 30);
+  if (!el.__kosarMeret) { el.__kosarMeret = true; window.addEventListener("resize", function () { if (KOSAR && KOSAR.el.isConnected) { kosarMagassag(KOSAR.el, KOSAR.K); kosarRendez(); } }); }
+}
+function kosarGolyo(el, K, i, felirat) {
+  var b = document.createElement("div");
+  b.className = "kosar-golyo" + (K.gesztenye ? " geszt" : "") + (felirat ? " erme" + (felirat === "20" ? " nagy" : "") : "");
+  if (felirat) b.textContent = felirat;
+  else b.style.background = K.gesztenye ? KOSAR_GESZT[i % 3] : KOSAR_SZIN[i % KOSAR_SZIN.length];
+  el.appendChild(b);
+  return b;
+}
+/* helyek (a jobb lap mért méretéből) */
+function kosarMeret(el) { return { W: el.clientWidth || 300, H: Math.max(el.clientHeight || 260, 240) }; }
+function kosarSor(W, n) { return Math.max(3, Math.min(n > 12 ? 6 : 4, Math.floor((W / n - 10) / KOSAR_G))); }
+function kosarGx(M, n, k) { return M.W * (k + 0.5) / n; }
+function kosarKupacXY(M, n, k, i, sor) { return [kosarGx(M, n, k) + ((i % sor) - (sor - 1) / 2) * KOSAR_G, 70 + Math.floor(i / sor) * KOSAR_G]; }
+function kosarCelY(M, K) {
+  var sor = kosarSor(M.W, K.gy.length), max = 0;
+  K.gy.forEach(function (g) { max = Math.max(max, g.n || 0); });
+  return 70 + Math.ceil(max / sor) * KOSAR_G + 30;
+}
+/* a jelenet magassága: a kupacok + a cél-helyek + a kosár mindig elférjen egymás alatt (ne csússzanak egymásra) */
+function kosarMagassag(el, K) {
+  var W = el.clientWidth || 300, sor = kosarSor(W, K.gy.length), cel = K.kioszt ? Math.max.apply(null, K.kioszt.map(function (x) { return x.length; })) : K.egy;
+  var kell = kosarCelY({ W: W }, K) + Math.ceil(cel / sor) * KOSAR_G + 92;
+  el.style.minHeight = Math.max(230, kell) + "px";
+}
+function kosarCelXY(M, K, k, j) { var sor = kosarSor(M.W, K.gy.length); return [kosarGx(M, K.gy.length, k) + ((j % sor) - (sor - 1) / 2) * KOSAR_G, kosarCelY(M, K) + Math.floor(j / sor) * KOSAR_G]; }
+function kosarKosarXY(M, i, ossz) { var sor = Math.min(10, Math.max(5, Math.ceil(ossz / 3))); return [M.W / 2 + ((i % sor) - (sor - 1) / 2) * 16, M.H - 50 + Math.floor(i / sor) * 15]; }
+function kosarTesz(b, p) { b.style.transform = "translate(" + (p[0] - 8) + "px," + (p[1] - 8) + "px)"; }
+
+/* ki hol áll — A: a kirajzolt kép (a mozgókép köztes képei), alapból a feladat állapota. A K.allapot MINDIG a mozdulat
+   utáni állapot (a mozgás csak látvány): ha a gyerek közben továbblép, a következő lap már a jó képpel nyílik. */
+function kosarRendez(A) {
+  var S = KOSAR; if (!S) return;
+  var K = S.K, el = S.el, M = kosarMeret(el), n = K.gy.length, sor = kosarSor(M.W, n);
+  A = A || K.allapot;
+  Array.prototype.forEach.call(el.querySelectorAll(".kosar-gy"), function (d, k) { d.style.left = kosarGx(M, n, k) + "px"; });
+  var szam = A === "kupac" ? "" : (S.szam != null ? S.szam : K.szam) || "";
+  el.querySelector(".kosar-szam").textContent = szam;
+  el.querySelector(".kosar-szam").classList.toggle("lat", !!szam);
+  var cel = A === "cel";
+  S.szellem.forEach(function (s) { kosarTesz(s, kosarCelXY(M, K, s.k, s.j)); s.classList.toggle("lat", cel); });
+  S.felirat.forEach(function (fl, k) { var p = kosarCelXY(M, K, k, 0); fl.style.left = kosarGx(M, n, k) + "px"; fl.style.top = (p[1] - 26) + "px"; fl.classList.toggle("lat", cel); });
+  var hely = kosarHelyek(S, K, A);
+  S.golyok.forEach(function (b, i) {
+    var p;
+    if (A === "kosar" || (K.kezd === "kosar" && A !== "kesz")) p = kosarKosarXY(M, i, S.golyok.length);
+    else if (A === "kesz" || A === "oszt") p = kosarCelXY(M, K, hely[i][0], hely[i][1]);
+    else p = kosarKupacXY(M, n, b.gazda, hely[i][1], sor);
+    kosarTesz(b, p);
+  });
+}
+/* golyónként: [szereplő, hányadik hely] — kupacban a saját sorszáma; a végén / osztáskor a cél-helyek kitöltése */
+function kosarHelyek(S, K, A) {
+  var H = [], n = K.gy.length;
+  if (A !== "kesz" && A !== "oszt") {
+    var szaml = K.gy.map(function () { return 0; });
+    S.golyok.forEach(function (b) { var k = b.gazda < 0 ? 0 : b.gazda; H.push([k, szaml[k]++]); });
+    return H;
+  }
+  if (K.kioszt) {                                           /* a közös perselyből: a megadott kiosztás */
+    K.kioszt.forEach(function (lista, k) { lista.forEach(function (gi, j) { H[gi] = [k, j]; }); });
+    return H;
+  }
+  if (A === "oszt") {                                       /* ② egyforma kupacok, sorban kitöltve */
+    S.golyok.forEach(function (b, i) { H.push([Math.min(n - 1, Math.floor(i / K.egy)), i % K.egy]); });
+    return H;
+  }
+  /* ③ a vége: mindenki a sajátjából a cél-helyére (legfeljebb K.egy), a többlet a hiányzókhoz */
+  var tele = K.gy.map(function () { return 0; }), tobblet = [];
+  S.golyok.forEach(function (b, i) { if (tele[b.gazda] < K.egy) H[i] = [b.gazda, tele[b.gazda]++]; else tobblet.push(i); });
+  tobblet.forEach(function (i) { for (var k = 0; k < n; k++) if (tele[k] < K.egy) { H[i] = [k, tele[k]++]; return; } H[i] = [0, 0]; });
+  return H;
+}
+function kosarIdoStop() { if (KOSAR) KOSAR.idok.forEach(clearTimeout); }
+/* képsor: [[állapot, ms], …] — a K.allapot közben már a végső */
+function kosarKepsor(sor) {
+  var S = KOSAR; if (!S) return;
+  kosarIdoStop(); S.idok = [];
+  sor.forEach(function (x) { S.idok.push(setTimeout(function () { if (KOSAR === S) kosarRendez(x[0]); }, x[1])); });
+}
+var KOSAR_SORREND = { kupac: 0, kosar: 1, oszt: 2, cel: 3, kesz: 4 };
+
+/* ── a három mozdulat (a K.allapot rögtön a végső; a képsor csak a látvány) ── */
+function kosarBa(szam) {
+  var S = KOSAR; if (!S) return;
+  var K = S.K;
+  if (szam) K.szam = szam;
+  if (KOSAR_SORREND[K.allapot] < 1) K.allapot = "kosar";
+  kosarKepsor([["kosar", 0]]);
+}
+function kosarOszt(szam) {
+  var S = KOSAR; if (!S) return;
+  var K = S.K, volt = K.allapot;
+  if (szam) K.szam = szam;
+  if (K.kioszt) { kosarRendez(); return; }                  /* a közös perselyben a ② csak felirat; a kiosztás a ③ */
+  K.allapot = "cel";
+  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1300]] : [["kosar", 0], ["oszt", 800], ["cel", 2100]]);
+}
+function kosarVegso() {
+  var S = KOSAR; if (!S) return;
+  var K = S.K, volt = K.allapot;
+  K.allapot = "kesz";
+  if (K.kioszt || volt === "cel") { kosarKepsor([["kesz", 0]]); return; }
+  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1300], ["kesz", 2300]] : [["kosar", 0], ["oszt", 800], ["cel", 2100], ["kesz", 3100]]);
+}
+/* a teljes mozgókép: 🙋 „Tedd a kosárba!” (a ③ nélkül) és a nagy jó válasza után az összefoglaló (vegig: a ③ is) */
+function kosarFut(vegig) {
+  var S = KOSAR; if (!S) return;
+  var K = S.K, volt = K.allapot;
+  if (volt === "kesz") return;
+  K.szam = K.kioszt ? K.szamEgy : K.szamEgy || K.szam;
+  if (K.kioszt) { K.allapot = vegig ? "kesz" : "kosar"; kosarKepsor(vegig ? [["kosar", 0], ["kesz", 1200]] : [["kosar", 0]]); return; }
+  if (vegig) { kosarVegso(); return; }
+  if (volt === "cel") return;
+  K.allapot = "cel";
+  kosarKepsor([["kosar", 0], ["oszt", 900], ["cel", 2200]]);
+}
+
+/* ── a jó válasz (polcJo hívja, mielőtt a lánc továbbmegy): az érték mondja meg, melyik mozdulat jön ── */
+function kosarJo(f) {
+  var K = kosarAllapot(f); if (!K || !KOSAR || KOSAR.K !== K) return;
+  var v = f.helyes;
+  if (f.polcKicsiVeg || f.polcVeg || f.kosarVeg) { if (f.polcSzerep === "nagy" || f.kosarOsszefog) kosarFut(true); else kosarVegso(); return; }
+  if (v === K.vOssz) kosarBa(K.szamOssz);
+  else if (v === K.vEgy) kosarOszt(K.szamEgy);
+  else if (K.tobb && K.tobb[v]) { K.szam = K.tobb[v]; kosarRendez(); }   /* pénz: „6 érme” — csak felirat */
+}
+/* 🙋 „🧺 Tedd a kosárba!” — a Tekercsben (2. döntés ✅: utána a jó válasz nem önálló) */
+function kosarSegit(f) {
+  var K = kosarAllapot(f); if (!K || !KOSAR || KOSAR.K !== K) return;
+  if (f.polcL) f.polcL.seg = Math.max(f.polcL.seg || 0, 2);
+  f.kosarSegitVolt = true;
+  kosarFut(false);
+  var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + KOSAR_M.segit;
+  mondd(ekKiejt(KOSAR_M.segit.replace(/^🧺\s*/, "")));
+}
+/* ============ 6s3) 🧺 „ELŐBB AZ EGÉSZ” — a szerszám tartalma (Mesekönyv + Varázstekercs) ============
+   Terv: Matekos\szerszam-letrak-terv.html (✅) · tartalom: …-tartalom.html 4. pont (✅ 2026-10-09) ·
+   átnézés: …-egesz-mit-atnezes.html (✅ 2026-10-16, mind az 5 döntés) · rajz: …-egesz-rajzterv.html (✅ 2026-10-16, mind a 4 döntés).
+   1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (4: a, a, b, a). A 🐪 rakodás (Tekercs c) és a 3 🏅 Mesterpróba: 2. kör.
+
+   Az olvasó-polc motorján fut (olvaso-polc.js: polcMutat / polcJo / polcHiba / lift / végigvezetés) — a feladatok f.polc = "EGESZ"-t
+   kapnak, a pálya viszont SZERSZÁM-pálya (pa.szerszam = "EGESZ": a szekrényben áll, a pálya végét a szPalyaVege adja).
+   A rajz a közös kosár (kosar.js).
+
+   📖 MESEKÖNYV — három kérdés egymás után, ugyanazon a lapon (átnézés 4. pont, ✅ kérdés-szótár):
+     🪜 Hány … van összesen?  →  🪜 Hány … jut egy gyereknek?  →  🎯 Hány …-t ad X Y-nak?
+     A 🎯 nagy kérdés az első pillanattól látszik (lilával, a lap alján); a 🪜 lépcsőfokok fölötte jönnek egyenként.
+   📜 TEKERCS — csak a 🎯. (a) 3 gyerek osztozik · (b) közös persely: ugyanannyi pénz ÉS ugyanannyi érme.
+     🙋 első sora: „🧺 Tedd a kosárba!” (utána a jó válasz nem önálló, 2. döntés ✅) · 🛗 lift: ugyanez kicsiben, 🪜 lépcsőfokokkal.
+   ✋ lépcsőfok-jelzés (olvaso-ellenor.js): a nagy kérdésnél az összes és az egy főre jutó szám = lépcsőfok, nem hiba.
+   Egyértelműség (átnézés 2. pont): az összes, az egy főre jutó és a válasz különböző, és egyik sem szerepel a mesében;
+   pontosan EGY gyereknek van több az átlagnál (ő ad), senkinek nincs eleve annyi, amennyi jut. */
+
+var SEG_KERET = {
+  golyo:     { t: "golyó", tAcc: "golyót", birt: "golyójuk", ige: "talált" },
+  matrica:   { t: "matrica", tAcc: "matricát", birt: "matricájuk", ige: "kapott" },
+  gesztenye: { t: "gesztenye", tAcc: "gesztenyét", birt: "gesztenyéjük", ige: "szedett", geszt: true },
+  persely:   { t: "forint", tAcc: "forintot", birt: "forintjuk", penz: true }
+};
+var SEG_NEVEK = [["Anna", "Annának"], ["Bori", "Borinak"], ["Csilla", "Csillának"], ["Dani", "Daninak"], ["Emma", "Emmának"], ["Feri", "Ferinek"],
+  ["Gergő", "Gergőnek"], ["Hanna", "Hannának"], ["Kata", "Katának"], ["Lili", "Lilinek"], ["Marci", "Marcinak"], ["Peti", "Petinek"],
+  ["Fanni", "Fanninak"], ["Olivér", "Olivérnek"]];
+var SEG_MESE_N = [2, 2, 3, 2, 3];                 /* a Mesekönyv 5 feladata: hány gyerek osztozik */
+var SEG_TEK_FORMA = ["a", "a", "b", "a"];         /* a Tekercs 4 feladata */
+/* 🖊️ lektorra — a bagoly mondatai */
+var SEG_M = {
+  lepcsofok: "Ez egy lépcsőfok: felvisz a nagy kérdéshez.",
+  nagy: "Most jön a nagy kérdés!",
+  osszesJo: function (x) { return "Igen, összesen " + x + ". Mind a kosárba került."; },
+  egyJo: "Igen! A halvány helyek mutatják, mennyi kell legyen.",
+  mesevege: function (e, t) { return "Ügyes! Most már mindenkinek " + e + " " + t + " jut."; },
+  tekVege: function (o, e, t) { return "Összesen " + o + ", egy gyereknek " + e + " " + t + " jut."; },
+  egyGyereke: "Ez csak egy gyereké. Mennyi van mindenkinél együtt?",
+  ezAzOssz: "Ez az összes. Most oszd el: hány jut egy gyereknek?",
+  kozOssz: function (t) { return "Ez egy lépcsőfok volt: ennyi " + t + " van összesen. De mit kérdeztek?"; },
+  kozEgy: "Ez egy lépcsőfok volt: ennyi jut egy gyereknek. De mit kérdeztek?",
+  kulonbseg: function (a, b, bnak) { return "Ez a különbség " + a + " és " + b + " között. Ha ennyit adna, " + bnak + " lenne több! Nézd meg: mennyi jut egy gyereknek?"; },
+  adOssz: function (a, b) { return "Ennyit ad " + a + " a két gyereknek együtt. De mennyit kap " + b + "?"; },
+  visszaA: "Ügyes! Ugyanaz, csak három gyerekkel. Előbb az összes, aztán egy gyereknek mennyi jut.",
+  visszaB: "Ügyes! Ugyanaz, csak több érmével. Előbb az összes pénz, aztán az összes érme."
+};
+POLC_DICSER.EGESZ = ["Előbb az egész – pontosan!", "Mindenkinek ugyanannyi jut – ügyes!", "Ez az! Előbb az összes, aztán egy főre."];   /* 🖊️ lektorra */
+
+/* ── segédek ── */
+function segNevek(n) {                                     /* n név, különböző kezdőbetűvel (a lapon a kezdőbetű is látszik) */
+  var L = mKever(SEG_NEVEK), ki = [], betu = {};
+  for (var i = 0; i < L.length && ki.length < n; i++) { var b = L[i][0].charAt(0); if (!betu[b]) { betu[b] = 1; ki.push(L[i]); } }
+  return ki;
+}
+function segKeret(elozo) { return ekE(Object.keys(SEG_KERET).filter(function (k) { return k !== elozo; })); }
+/* egy osztozkodás: c (darab, pénznél 10 forintos érme), T összesen, E egy főre, g aki ad, r akiről a kérdés szól, v a válasz */
+function segOsztas(n, o) {
+  for (var t = 0; t < 2000; t++) {
+    var c = [], T = 0;
+    for (var i = 0; i < n; i++) { c.push(ekR(o.min, o.max)); T += c[i]; }
+    if (T % n || T > o.maxT || T < o.minT) continue;
+    var E = T / n;
+    if (c.indexOf(E) >= 0) continue;
+    var g = -1, nagyobb = 0;
+    c.forEach(function (x, k) { if (x > E) { nagyobb++; g = k; } });
+    if (nagyobb !== 1) continue;
+    var R = []; c.forEach(function (x, k) { if (k !== g) R.push(k); });
+    var r = ekE(R), v = E - c[r], d = c[g] - c[r], adO = c[g] - E;
+    var foglalt = [T, E, v];
+    if (foglalt[0] === foglalt[1] || foglalt[1] === foglalt[2] || foglalt[0] === foglalt[2]) continue;
+    if (c.indexOf(T) >= 0 || c.indexOf(v) >= 0) continue;
+    if (foglalt.indexOf(d) >= 0) continue;
+    return { c: c, T: T, E: E, g: g, r: r, v: v, d: d, adO: adO };
+  }
+  return null;
+}
+/* az oe-étlap egy kulcsa csak egyszer (a válasz sosem lehet kulcs) */
+function segOeAdd(oe, fajta, n, m, valasz) {
+  if (n === valasz || n == null) return;
+  if (oe.koztes[n] || oe.masik[n] || oe.csap[n]) return;
+  oe[fajta][n] = { m: m };
+}
+function segUresOe(szo) { return { szo: szo || "", koztes: {}, masik: {}, csap: {} }; }
+
+/* ── egy osztozkodós mese (Mesekönyv, Tekercs a, és a lift kicsije) ── */
+function segOsztoMese(keret, n, o) {
+  var K = SEG_KERET[keret], u = K.penz ? 10 : 1, x = segOsztas(n, o);
+  if (!x) return null;
+  var nev = segNevek(n), N = nev.map(function (a) { return a[0]; }), c = x.c.map(function (y) { return y * u; });
+  var T = x.T * u, E = x.E * u, v = x.v * u, d = x.d * u, A = N[x.g], B = N[x.r], Bnak = nev[x.r][1];
+  var m1;
+  if (K.penz) m1 = N.map(function (a, k) { return a + " perselyében " + c[k] + " forint" + (k === 0 ? " van" : ""); }).join(", ") + ".";
+  else m1 = N.map(function (a, k) { return a + " " + c[k] + " " + K.tAcc + (k === 0 ? " " + K.ige : ""); }).join(", ") + ".";
+  var mondatok = [m1];
+  if (K.penz) mondatok.push("Mindenki 10 forintosokat gyűjt.");
+  mondatok.push("Úgy osztják el, hogy " + (n === 2 ? "mindkettőjüknek" : "mindhármuknak") + " ugyanannyi " + (K.penz ? "pénze " : "") + "legyen.");
+  var Q = "Hány " + K.tAcc + " ad " + A + " " + Bnak + "?";
+  var oe = segUresOe("hány " + K.tAcc + " ad " + A + " " + Bnak);
+  segOeAdd(oe, "koztes", T, SEG_M.kozOssz(K.t), v);
+  segOeAdd(oe, "koztes", E, SEG_M.kozEgy, v);
+  segOeAdd(oe, "csap", d, SEG_M.kulonbseg(A, B, Bnak), v);
+  if (n > 2) segOeAdd(oe, "csap", x.adO * u, SEG_M.adOssz(A, B), v);
+  var oe1 = segUresOe(""), oe2 = segUresOe("");
+  c.forEach(function (y) { segOeAdd(oe1, "csap", y, SEG_M.egyGyereke, T); });
+  segOeAdd(oe2, "csap", T, SEG_M.ezAzOssz, E);
+  var lepcso = [
+    { k: "Hány " + K.birt + " van összesen?", v: T, m: c.join(" + ") + " = " + T, oe: oe1, uto: SEG_M.osszesJo(T) },
+    { k: "Hány " + K.t + " jut egy gyereknek?", v: E, m: T + " : " + n + " = " + E, oe: oe2, uto: "Igen! Egy gyereknek " + E + " " + K.t + " jut. " + SEG_M.egyJo.replace(/^Igen! /, "") }
+  ];
+  var kos = { gy: N.map(function (a, k) { return { nev: a, n: x.c[k] }; }), egy: x.E, egyseg: K.penz ? "10" : "", gesztenye: !!K.geszt, kezd: "kupac",
+    vOssz: T, vEgy: E, szamOssz: T + (K.penz ? " Ft" : ""), szamEgy: T + " = " + N.map(function () { return E; }).join(" + ") + (K.penz ? " Ft" : ""), cimkeEgy: E + (K.penz ? " Ft" : "") };
+  return { keret: keret, mondatok: mondatok, kerdes: Q, helyes: v, oe: oe, lepcso: lepcso, kosar: kos,
+    lep: lepcso.map(function (l) { return { k: l.k, v: l.v, m: l.m }; }).concat([{ k: Q, v: v, m: E + " − " + c[x.r] + " = " + v }]),
+    mit: ["hány " + K.tAcc + " ad " + A + " " + Bnak, "hány " + K.t + " jut egy gyereknek", "hány " + K.t + " van összesen"],
+    uto: SEG_M.mesevege(E, K.t), utoNagy: SEG_M.tekVege(T, E, K.t) };
+}
+/* ── a közös persely (Tekercs b): ugyanannyi pénz ÉS ugyanannyi érme ── */
+function segPerselyMese(fix) {
+  var L = [];
+  [2, 4, 6].forEach(function (a) { [2, 4, 6].forEach(function (b) { [20, 10].forEach(function (t) {
+    var V = 20 * a + 10 * b, C = a + b, v = (t === 20 ? a : b) / 2, koz = [V, V / 2, C, C / 2];
+    if (koz.indexOf(v) >= 0 || v === a || v === b) return;
+    if (koz[0] === koz[1] || koz[2] === koz[3] || koz[1] === koz[2]) return;
+    L.push({ a: a, b: b, t: t, V: V, C: C, v: v });
+  }); }); });
+  var x = fix || ekE(L), nev = segNevek(2), A = nev[0][0], B = nev[1][0];
+  var mondatok = [A + " és " + B + " a perselyben " + x.a + " darab 20 forintost és " + x.b + " darab 10 forintost talált.",
+    "Úgy osztják el, hogy mindketten ugyanannyi pénzt és ugyanannyi érmét kapjanak."];
+  var Q = "Hány " + x.t + " forintost kap " + A + "?";
+  var oe = segUresOe("hány " + x.t + " forintost kap " + A);
+  segOeAdd(oe, "koztes", x.V, "Ez egy lépcsőfok volt: ennyi pénzt találtak összesen. De mit kérdeztek?", x.v);
+  segOeAdd(oe, "koztes", x.V / 2, "Ez egy lépcsőfok volt: ennyi pénz jut egy gyereknek. De mit kérdeztek?", x.v);
+  segOeAdd(oe, "koztes", x.C, "Ez egy lépcsőfok volt: ennyi érmét találtak összesen. De mit kérdeztek?", x.v);
+  segOeAdd(oe, "koztes", x.C / 2, "Ez egy lépcsőfok volt: ennyi érme jut egy gyereknek. De mit kérdeztek?", x.v);
+  segOeAdd(oe, "csap", x.t === 20 ? x.a : x.b, "Ennyi " + x.t + " forintost találtak ketten együtt. Mennyit kap " + A + "?", x.v);
+  var ermek = [], i, k1 = [], k2 = [];
+  for (i = 0; i < x.a; i++) { ermek.push("20"); (i < x.a / 2 ? k1 : k2).push(ermek.length - 1); }
+  for (i = 0; i < x.b; i++) { ermek.push("10"); (i < x.b / 2 ? k1 : k2).push(ermek.length - 1); }
+  var tobb = {}; tobb[x.C] = x.C + " érme"; tobb[x.C / 2] = x.C + " = " + x.C / 2 + " + " + x.C / 2 + " érme";
+  var kos = { gy: [{ nev: A, n: 0 }, { nev: B, n: 0 }], ermek: ermek, kioszt: [k1, k2], egy: x.C / 2, kezd: "kosar",
+    vOssz: x.V, vEgy: x.V / 2, szamOssz: x.V + " Ft", szamEgy: x.V + " = " + x.V / 2 + " + " + x.V / 2 + " Ft", tobb: tobb, cimkeEgy: x.V / 2 + " Ft" };
+  var lepcso = [
+    { k: "Hány forint jut egy gyereknek?", v: x.V / 2, m: x.V + " : 2 = " + x.V / 2, oe: segUresOe(""), uto: "Igen! Egy gyereknek " + x.V / 2 + " forint jut." },
+    { k: "Hány érme jut egy gyereknek?", v: x.C / 2, m: x.C + " : 2 = " + x.C / 2, oe: segUresOe(""), uto: "Igen! Egy gyereknek " + x.C / 2 + " érme jut." }
+  ];
+  segOeAdd(lepcso[0].oe, "csap", x.V, SEG_M.ezAzOssz, x.V / 2);
+  segOeAdd(lepcso[1].oe, "csap", x.C, "Ez az összes érme. Most oszd el: hány jut egy gyereknek?", x.C / 2);
+  return { keret: "persely2", mondatok: mondatok, kerdes: Q, helyes: x.v, oe: oe, lepcso: lepcso, kosar: kos,
+    lep: [{ k: "Hány forintot találtak összesen?", v: x.V, m: x.a + " · 20 + " + x.b + " · 10 = " + x.V },
+          { k: "Hány forint jut egy gyereknek?", v: x.V / 2, m: x.V + " : 2 = " + x.V / 2 },
+          { k: "Hány érmét találtak összesen?", v: x.C, m: x.a + " + " + x.b + " = " + x.C },
+          { k: "Hány érme jut egy gyereknek?", v: x.C / 2, m: x.C + " : 2 = " + x.C / 2 },
+          { k: Q, v: x.v, m: (x.t === 20 ? x.a : x.b) + " : 2 = " + x.v }],
+    mit: ["hány " + x.t + " forintost kap " + A, "hány forint jut egy gyereknek", "hány érmét találtak összesen"],
+    uto: "Ügyes! Mindkettőjüknek " + x.V / 2 + " forint jut, " + x.C / 2 + " érmében.", utoNagy: "Összesen " + x.V + " forint és " + x.C + " érme: egy gyereknek " + x.V / 2 + " forint és " + x.C / 2 + " érme jut." };
+}
+
+/* ── a lap: 🪜 sorok a 🎯 fölött ── */
+function segFent(lepcso, j) {
+  var h = "";
+  for (var i = 0; i < Math.min(j, lepcso.length); i++) h += '<p class="seg-lepes kesz">🪜 ' + lepcso[i].k + ' <b>✓ ' + lepcso[i].v + '</b></p>';
+  if (j < lepcso.length) h += '<p class="seg-lepes most">🪜 ' + lepcso[j].k + '</p>';
+  return h;
+}
+function segOp(M, j, fuzet, N) {
+  var lap = { mondatok: M.mondatok, kerdes: M.kerdes, fent: M.lepcso && M.lepcso.length ? segFent(M.lepcso, j) : "", cel: true, celAkt: !M.lepcso || j >= M.lepcso.length };
+  if (!fuzet) { lap.rajz = kosarHTML(); lap.segit = true; return lap; }
+  return { mondatok: N.op.mondatok, kerdes: N.op.kerdes, cel: true, rajz: kosarHTML(), fuzet: lap };
+}
+function segNaplo(tipus, k, v) { return { tipus: tipus, kerdes: ekSima(k).slice(0, 60), helyes: v, atlepes: false }; }
+/* egy lépcsős lánc: 🪜 … 🪜 → 🎯. o = { mese, kicsi, N (a nagy, ha kicsi), L, elso (a pálya első feladata) } */
+function segLanc(M, o) {
+  var lanc = [], kos = {}, tip = "sz-egesz-" + (o.kicsi ? "kicsi" : J.palya.fok) + "-" + M.keret;
+  for (var k in M.kosar) kos[k] = M.kosar[k];
+  M.lepcso.forEach(function (l, j) {
+    var op = segOp(M, j, o.kicsi, o.N), O = op.fuzet || op;
+    var S = { csalad: "egyenkent", polc: "EGESZ", polcSzerep: o.kicsi ? "kicsi" : "lepes", helyes: l.v, oe: l.oe, jegyMax: 3, op: op, kosar: kos,
+      szoveg: ekSima(l.k), felolvas: ekKiejt(M.mondatok.concat([M.kerdes]).join(" ")), megoldas: l.m, keplet: "", tipp: "", lanc: null,
+      utoMondat: l.uto, naplo: segNaplo(tip + "-" + (j + 1), l.k, l.v) };
+    if (j === 0) { O.lepcsoFel = (o.elso ? SEG_M.lepcsofok + " " : "") + l.k; if (o.kicsi) S.liftKeres = true; }
+    else { S.csakLepes = true; S.lepFel = ekKiejt(l.k); }
+    S.kartyaHTML = opKonyv(S.op);
+    lanc.push(S);
+  });
+  var opV = segOp(M, M.lepcso.length, o.kicsi, o.N);
+  var F = { csalad: "egyenkent", polc: "EGESZ", polcSzerep: o.kicsi ? "kicsi" : "lepes", helyes: M.helyes, oe: M.oe, jegyMax: 3, op: opV, kosar: kos, M: M,
+    szoveg: ekSima(M.kerdes), felolvas: ekKiejt(M.mondatok.concat([M.kerdes]).join(" ")), megoldas: M.lep[M.lep.length - 1].m, keplet: "", tipp: "", lanc: null,
+    csakLepes: true, lepFel: ekKiejt(SEG_M.nagy + " " + M.kerdes), utoMondat: M.uto, naplo: segNaplo(tip, M.kerdes, M.helyes) };
+  F.kartyaHTML = opKonyv(F.op);
+  if (o.kicsi) { F.polcKicsiVeg = true; lanc.forEach(function (S) { S.polcN = o.N; }); F.polcN = o.N; }
+  else { F.polcVeg = true; F.polcL = o.L; F.polcN = F; lanc.forEach(function (S) { S.polcN = F; }); }
+  lanc.push(F);
+  for (var i = 0; i < lanc.length - 1; i++) lanc[i].lanc = [lanc[i + 1]];
+  return lanc[0];
+}
+/* a Tekercs nagy feladata: csak a 🎯 (+ a lift és a végigvezetés anyaga) */
+function segNagy(M, L) {
+  var N = { csalad: "egyenkent", polc: "EGESZ", polcSzerep: "nagy", polcVeg: true, polcL: L, M: M, helyes: M.helyes, oe: M.oe, jegyMax: 3, lanc: null,
+    op: { mondatok: M.mondatok, kerdes: M.kerdes, rajz: kosarHTML(), segit: true, cel: true, celAkt: true }, kosar: M.kosar,
+    szoveg: ekSima(M.kerdes), felolvas: ekKiejt(M.mondatok.concat([M.kerdes]).join(" ")), megoldas: M.lep[M.lep.length - 1].m, keplet: "", tipp: "",
+    utoMondat: M.utoNagy, kicsiGen: segKicsi, naplo: segNaplo("sz-egesz-tekercs-" + M.keret, M.kerdes, M.helyes) };
+  N.kartyaHTML = opKonyv(N.op);
+  return N;
+}
+/* 🛗 a lift kicsije (olvaso-polc.js polcKicsiFeladat hívja): ugyanaz a keret, kevesebb, 🪜 lépcsőfokokkal, a kis füzetben */
+function segKicsi(N) {
+  var M = N.M, K = null;
+  if (M.keret === "persely2") { K = segPerselyMese({ a: 2, b: 4, t: 20, V: 80, C: 6, v: 1 }); N.polcVissza = SEG_M.visszaB; }
+  else {
+    for (var t = 0; t < 20 && !K; t++) K = segOsztoMese(M.keret, 2, SEG_KERET[M.keret].penz ? { min: 1, max: 5, maxT: 6, minT: 4 } : { min: 1, max: 9, maxT: 14, minT: 4 });
+    N.polcVissza = SEG_M.visszaA;
+  }
+  K.uto = null;
+  return segLanc(K, { kicsi: true, N: N });
+}
+
+/* ── GEN.szerszam (szerszam-palya.js SZ_SAJAT) ── */
+function segFeladat(cfg) {
+  if (!J.sz) J.sz = { sz: "EGESZ", eredm: [], L: null };
+  if (!J.polc || J.polc.palya !== J.palya.id) J.polc = { palya: J.palya.id, eredm: J.sz.eredm, elozo: null, kezd: J.feladatKesz };
+  var i = J.feladatKesz, fok = cfg.fok, M = null, keret, t;
+  if (fok === "tekercs" && SEG_TEK_FORMA[i % SEG_TEK_FORMA.length] === "b") M = segPerselyMese();
+  for (t = 0; t < 40 && !M; t++) {
+    keret = segKeret(J.polc.elozo);
+    var penz = SEG_KERET[keret].penz;
+    if (fok === "tekercs") M = segOsztoMese(keret, 3, penz ? { min: 1, max: 6, maxT: 9, minT: 6 } : { min: 1, max: 20, maxT: 45, minT: 12 });
+    else M = segOsztoMese(keret, SEG_MESE_N[i % SEG_MESE_N.length], penz ? { min: 1, max: 8, maxT: 10, minT: 4 } : { min: 1, max: 18, maxT: 30, minT: 6 });
+  }
+  J.polc.elozo = M.keret;
+  var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: fok, fid: M.keret });
+  L.nagy = fok === "tekercs"; L.kicsiJoKell = 1;
+  J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
+  if (fok === "tekercs") return segNagy(M, L);
+  return segLanc(M, { mese: true, L: L, elso: i === 0 });
+}
+SZ_SAJAT.EGESZ = segFeladat;
 /* ============ 6q) 🧰 SZERSZÁM-SZEKRÉNY — a Bagolykönyvtár termében (konyvtar-terem.js): szerszám = polc, 3 tárgy, névtábla-fény, 🧰 láda ============
    Rajz: Matekos\szerszam-letrak-rajzterv.html 1–2. + 7. pont (✅ 2026-10-09). Nem kártyasor, hanem könyvespolc:
      - egy szerszám = egy polc; elöl réz névtábla az ikonnal és a mondattal; a tábla FÉNYE mutatja, mennyire közel a láda

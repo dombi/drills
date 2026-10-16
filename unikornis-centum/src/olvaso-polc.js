@@ -275,6 +275,7 @@ function polcMutat(f) {
   $("buborek-feladat").innerHTML = opKonyv(f.op);
   if (f.vezetSor) { opLepesLap(); f.vezetSor.forEach(function (h) { opLepes(h); }); if (f.vezetMost) opLepes("<b>" + f.vezetMost + "</b>"); }
   opLapol();
+  kosarMutat(f);                                        /* 🧺 a közös kosár a jobb lapon (kosar.js) — ha a feladatnak van */
   mKoppRejt();
   var v = $("visszajelzes");
   if (f.opElo) { v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }
@@ -345,6 +346,7 @@ function polcDicser(f, elsore) {
   return ekE(POLC_DICSER[f.polc] || ["Ez az!"]);
 }
 function polcJo(f, elsore) {
+  kosarJo(f);                                           /* 🧺 a kosár a válaszra mozdul (kosar.js) */
   if (!elsore && f.polcN && f.polcN.polcL && f.polcSzerep !== "kicsi" && f.polcSzerep !== "nagy" && !f.vezet) f.polcN.polcL.seg = Math.max(f.polcN.polcL.seg, 2);
   if (f.polcKicsiVeg) {                                  /* a lift kicsije kész → még egy testvér, vagy vissza a nagyra */
     var N = f.polcN, L = N.polcL, r = liftKicsi(L, !J.polc.kicsiHiba && elsore);
@@ -400,6 +402,7 @@ function polcTipp(f, valasz) {
 
 /* ═════════════════ 🛗 LIFT ═════════════════ */
 function polcKicsiFeladat(N, idx) {
+  if (N.kicsiGen) return N.kicsiGen(N, idx);            /* 🧺 a saját kicsije (szerszam-egesz.js) */
   var M = N.M, K;
   if (N.mester) {
     var T = N.mester.kicsi[idx], mon = (T.mondatok || []).map(function (s) { return s === "{0}" ? (N.M.mondatok[0] || "") : s; }).filter(Boolean);
@@ -477,6 +480,7 @@ function polcSegitMenu(menu) {
   var f = J && J.feladat, L = f && f.polcL; if (!f || !menu) return;
   if (!menu.hidden) { menu.hidden = true; return; }
   var h = '<button type="button" class="kis-gomb" data-s="mit">🔎 Mit kérdeznek?</button>';
+  if (f.kosar && f.polcSzerep === "nagy" && !f.kosarSegitVolt && !f.vegigVolt) h = '<button type="button" class="kis-gomb" data-s="kosar">🧺 Tedd a kosárba!</button>' + h;   /* 🧺 a 🙋 első sora (rajzterv 2. döntés ✅) */
   if (f.polcSzerep === "nagy" && L && !L.lift && !f.vegigVolt && szerszamBeall().liftKer) h += '<button type="button" class="kis-gomb" data-s="kicsi">🔎 Nézzük kicsiben</button>';
   menu.innerHTML = h; menu.hidden = false;
 }
@@ -492,6 +496,7 @@ function polcSegitMenu(menu) {
       hangGomb(); menu.hidden = true;
       if (s === "mit") { if (f.polcL && f.polcSzerep === "nagy") liftSegitseg(f.polcL, 1); opOlvasAll(); oeKeres(f, { szo: (f.oe && f.oe.szo) || "", al: f.keresAl || null }); }
       else if (s === "kicsi" && f.polcL && liftKer(f.polcL) === "lift") polcLiftIndul(f);
+      else if (s === "kosar") kosarSegit(f);
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bekot); else setTimeout(bekot, 0);
