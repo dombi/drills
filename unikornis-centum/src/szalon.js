@@ -2,10 +2,10 @@
    Additív helyszín + utca-hub + égi matek-portál (terv: terv/fodraszat-rendszerterv.html,
    terv/fodraszat-rajzterv.html, jóváhagyva 2026-09-18).
    - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor"|"tarej" — a taréjjal Vihar születik;
-     a taréj-kefe az Unikornis-fajták 3. körében jön).
+     a taréj-kefe: Unikornis-fajták, 2026-10-16 — aki taréjjal született (LENYEK sor frizura:"tarej"), ingyen kapja).
      A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
-   - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Két kefe egyszeri képesség 12-12 💧
-     (P().szalon.kefek.gondor / .egyenes); ha megvan, ingyen váltasz vele. */
+   - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Három kefe egyszeri képesség 12-12 💧
+     (P().szalon.kefek.gondor / .egyenes / .tarej); ha megvan, ingyen váltasz vele. */
 var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
 var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
 
@@ -329,7 +329,7 @@ function utcaBelepoVesz() {
 /* ── SZALON-BELSŐ ─────────────────────────────────────────────────────────
    2. fázis (terv/fodraszat-festes-rajzterv.html, jóváhagyva 2026-09-26): balra a festékszekrény
    (8 tégely/oldal, ◀ ▶ lapozó), előtte a padlón az ingyenes 🧽 lemosó szivacs; középen a NAGY
-   unikornis a lila csillag-folton, alatta a gombsor; jobbra a pulton a két kefe (1. fázis).
+   unikornis a lila csillag-folton, alatta a gombsor; jobbra a pulton a három kefe (1. fázis + taréj).
    Menet: tégely → (ha nincs meg: „Megveszed?”) → ecset → rész → átszíneződik.
    PATALAKK (terv/fodraszat-patalakk-rendszerterv.html + patalakk-rajzterv.html, jóváhagyva 2026-10-07):
    fent az élő falipolc (2 × 4 üvegcse, ◀ ▶), patánként más lakk; a gombsor ahhoz igazodik, ami a kézben van
@@ -361,11 +361,17 @@ var SZALON_CSILL = [];         /* egyszeri csillanás ezeken a patákon */
 var SZALON_RESZ_NEV = { soreny: "sörény", farok: "farok", tincs: "tincs" };
 var SZALON_PATA_D = "M0 0 Q12 -3 24 0 L26.5 15 Q12 16.5 -2.5 15 Z";   /* a pata alakja a gombokon (pataD, helyi keret) */
 
+/* a lény a saját születési frizurájához ingyen kapja a kefét (Vihar → taréj) */
+function szalonKefeVan(cel) { return !!P().szalon.kefek[cel] || (LENYEK[mentes.leny] || {}).frizura === cel; }
+/* a taréj-kefe jele: három felálló tüske (nincs rá jó emoji) */
+function szalonTarejJel(x) {
+  return '<path d="M' + (x - 9) + ' 88 L' + (x - 6) + ' 76 L' + (x - 3) + ' 84 L' + x + ' 72 L' + (x + 3) + ' 84 L' + (x + 6) + ' 76 L' + (x + 9) + ' 88 Z" fill="#ffd83a" stroke="#b07a00" stroke-width="1.3" stroke-linejoin="round"/>';
+}
 function szalonKefeSVG(id, x, jel, megvan, aktiv) {
   var g = '<g id="' + id + '" class="szalon-kefe">';
-  g += '<rect x="' + (x - 20) + '" y="60" width="40" height="46" fill="transparent"/>';   /* koppintó-felület */
+  g += '<rect x="' + (x - 16.5) + '" y="60" width="33" height="46" fill="transparent"/>';   /* koppintó-felület */
   g += '<rect x="' + (x - 15) + '" y="66" width="30" height="30" rx="8" fill="' + (aktiv ? "#fff6a8" : "#ffffff") + '" stroke="' + (aktiv ? "#2f8f57" : "#8a4fd0") + '" stroke-width="' + (aktiv ? 2.4 : 1.5) + '"/>';
-  g += '<text x="' + x + '" y="87" text-anchor="middle" font-size="15">' + jel + '</text>';
+  g += jel.charAt(0) === "<" ? jel : '<text x="' + x + '" y="87" text-anchor="middle" font-size="15">' + jel + '</text>';
   if (!megvan) g += '<rect x="' + (x - 15) + '" y="96" width="30" height="11" rx="5.5" fill="#1a2340" opacity="0.85"/><text x="' + x + '" y="104.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#7fd6ec">12 💧</text>';
   return g + '</g>';
 }
@@ -538,9 +544,10 @@ function szalonSVG() {
     '<text x="62" y="284" font-size="8.5" font-weight="800" fill="#5a3a90">lemosó</text></g>';
 
   /* kefék a pulton (1. fázis) */
-  s += '<rect x="300" y="108" width="90" height="7" rx="2" fill="#b06fd0"/>';
-  s += szalonKefeSVG("szalon-kefe-gondor", 324, "🌀", !!P().szalon.kefek.gondor, most === "gondor");
-  s += szalonKefeSVG("szalon-kefe-egyenes", 366, "〰️", !!P().szalon.kefek.egyenes, most === "egyenes");
+  s += '<rect x="292" y="108" width="104" height="7" rx="2" fill="#b06fd0"/>';
+  s += szalonKefeSVG("szalon-kefe-gondor", 311, "🌀", szalonKefeVan("gondor"), most === "gondor");
+  s += szalonKefeSVG("szalon-kefe-egyenes", 344, "〰️", szalonKefeVan("egyenes"), most === "egyenes");
+  s += szalonKefeSVG("szalon-kefe-tarej", 377, szalonTarejJel(377), szalonKefeVan("tarej"), most === "tarej");
   s += '<text x="345" y="127" text-anchor="middle" font-size="8.5" font-weight="700" fill="#8a4fd0" font-style="italic">kefék</text>';
 
   /* lila csillag-folt + a NAGY unikornis (a közös unikornisSVG — frizura, bolti szín, festék, lakk mind rajta) */
@@ -615,6 +622,7 @@ function renderSzalon() {
   host.innerHTML = szalonSVG() + szalonDlgHTML();
   var kg = document.getElementById("szalon-kefe-gondor"); if (kg) szalonKot(kg, function () { szalonKefe("gondor"); });
   var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) szalonKot(ke, function () { szalonKefe("egyenes"); });
+  var kt = document.getElementById("szalon-kefe-tarej"); if (kt) szalonKot(kt, function () { szalonKefe("tarej"); });
   host.querySelectorAll(".szalon-tegely").forEach(function (el) { szalonKot(el, function () { szalonTegely(el.getAttribute("data-f")); }); });
   host.querySelectorAll(".szalon-uveg").forEach(function (el) { szalonKot(el, function () { szalonLakk(el.getAttribute("data-l")); }); });
   host.querySelectorAll(".szalon-szuveg").forEach(function (el) { szalonKot(el, function () { szalonSzor(el.getAttribute("data-sz")); }); });
@@ -789,17 +797,22 @@ function szalonSzorOrom(regi, uj) {
     }, 750);
   }, 1050);
 }
+var SZALON_KEFE_SZOVEG = {   /* [már ilyen, buborék, kimondva] */
+  gondor:  ["Már göndör a sörény!", "Hopp, göndör lett!", "Hopp, göndör lett! Csigavonalak!"],
+  egyenes: ["Már egyenes a sörény!", "Sima, egyenes sörény!", "Sima, egyenes sörény! Szép!"],
+  tarej:   ["Már taréjos a sörény!", "Felállt a taréj!", "Hopp, felállt a taréj! Mint a villám!"]
+};
 function szalonKefe(cel) {
-  var most = P().kinezet.frizura || "egyenes";
-  if (most === cel) { hangGomb(); mondd(cel === "gondor" ? "Már göndör a sörény!" : "Már egyenes a sörény!"); return; }
-  if (!P().szalon.kefek[cel]) {
+  var most = P().kinezet.frizura || "egyenes", sz = SZALON_KEFE_SZOVEG[cel];
+  if (most === cel) { hangGomb(); mondd(sz[0]); return; }
+  if (!szalonKefeVan(cel)) {
     if ((P().tunderharmat || 0) < KEFE_AR) { hangGomb(); mondd("Ehhez a keféhez 12 tündérharmat kell. Gyűjts még kitartással!"); return; }
     P().tunderharmat -= KEFE_AR; vasarlasNaplo("kefe-" + cel, KEFE_AR, "tunderharmat");
     P().szalon.kefek[cel] = 1;
   }
   P().kinezet.frizura = cel;
-  SZALON_SZOVEG = cel === "gondor" ? "Hopp, göndör lett!" : "Sima, egyenes sörény!";
+  SZALON_SZOVEG = sz[1];
   hangCsilla(); hangJo(); ment();
-  mondd(cel === "gondor" ? "Hopp, göndör lett! Csigavonalak!" : "Sima, egyenes sörény! Szép!");
+  mondd(sz[2]);
   renderSzalon();
 }
