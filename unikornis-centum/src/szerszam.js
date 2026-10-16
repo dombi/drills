@@ -48,7 +48,7 @@ var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", 
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
 var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
 var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
-var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: true, MIT: false }, liftKer: true, tabla: true };
+var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: true, MIT: false }, liftKer: true, tabla: true, kep: "A" };
 
 /* ── a pult beállításai ────────────────────────────────────────────────────
    producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer?, tabla? }
@@ -56,6 +56,8 @@ var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: true, MIT: fal
      latszik   melyik létra látszik a könyvtárban (alap: 📌 KOTOTT + 🧺 EGESZ — a producer, 2026-10-16: „pulton ne kelljen bekapcsolni”)
      liftKer   false = a 🙋-ban nincs „🔎 Nézzük kicsiben” (a lift magától akkor is jön)
      tabla     false = a 📋 Nyomozótábla nem látszik: a 📋 fok rejtve (a kicsiknél), a 🔮/🏅 tábla nélkül (alap: látszik)
+     kep       "A" | "B" — a 🧺 polc elrendezése (Matekos\szerszam-letrak-egesz-grafika.html ✅ 2026-10-16): A = a jelenet felül, teljes
+               szélességben (alap) · B = a megszokott könyv, a jelenet a jobb lapon. Több csoportnál az első beállított nyer.
    Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a kisebb arányú küszöb (egyenlőnél a
    rövidebb ablak), a létra látszik, ha bármelyik csoport megnyitja; a lift-kérés ki, ha bármelyik kikapcsolja; a 📋 tábla látszik,
    ha bármelyik csoport bekapcsolja, különben ki, ha valamelyik kikapcsolja.
@@ -78,23 +80,26 @@ function szerszamOsszevon(egyeni, csoportok) {
     if (c.latszik) SZERSZAMOK.forEach(function (s) { if (c.latszik[s.id] === true) (ki.latszik = ki.latszik || {})[s.id] = true; });
     if (c.liftKer === false) ki.liftKer = false;
     if (c.tabla === true) ki.tabla = true; else if (c.tabla === false && ki.tabla !== true) ki.tabla = false;
+    if ((c.kep === "A" || c.kep === "B") && !ki.kep) ki.kep = c.kep;
   });
   var e = egyeni || {}, q = szerszamKuszob(e);
   if (q) { ki.k = q.k; ki.n = q.n; }
   if (e.latszik) SZERSZAMOK.forEach(function (s) { if (typeof e.latszik[s.id] === "boolean") (ki.latszik = ki.latszik || {})[s.id] = e.latszik[s.id]; });
   if (typeof e.liftKer === "boolean") ki.liftKer = e.liftKer;
   if (typeof e.tabla === "boolean") ki.tabla = e.tabla;
+  if (e.kep === "A" || e.kep === "B") ki.kep = e.kep;
   return ki;
 }
 /* az érvényes beállítás (alap + a pult összevont felülírása: FELULIR.szerszam) */
 function szerszamBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.szerszam) || {};
-  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer, tabla: SZERSZAM_ALAP.tabla };
+  var b = { k: SZERSZAM_ALAP.k, n: SZERSZAM_ALAP.n, latszik: {}, liftKer: SZERSZAM_ALAP.liftKer, tabla: SZERSZAM_ALAP.tabla, kep: SZERSZAM_ALAP.kep };
   SZERSZAMOK.forEach(function (s) { b.latszik[s.id] = SZERSZAM_ALAP.latszik[s.id]; });
   if (f.k != null && f.n != null) { b.k = f.k; b.n = f.n; }
   if (f.latszik) for (var id in f.latszik) if (typeof f.latszik[id] === "boolean") b.latszik[id] = f.latszik[id];
   if (typeof f.liftKer === "boolean") b.liftKer = f.liftKer;
   if (typeof f.tabla === "boolean") b.tabla = f.tabla;
+  if (f.kep === "A" || f.kep === "B") b.kep = f.kep;
   return b;
 }
 function szerszamLatszik(sz) { return !!szerszamBeall().latszik[sz]; }

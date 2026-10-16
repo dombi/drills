@@ -1,44 +1,65 @@
-/* ============ 6s2) 🧺 KÖZÖS KOSÁR — az „Előbb az egész” szerszám rajza az olvasópult jobb lapján ============
-   Rajz: Matekos\szerszam-letrak-egesz-rajzterv.html (✅ 2026-10-16) · átnézés: …-egesz-mit-atnezes.html (✅ 5. döntés:
-   a rajz a VÁLASZRA reagál, a gyerek nem rakosgat). Egy darab modul: a 🧺 polc minden feladata ezt használja.
+/* ============ 6s2) 🧺 KÖZÖS KOSÁR — az „Előbb az egész” szerszám jelenete az olvasópulton ============
+   Rajz: Matekos\szerszam-letrak-egesz-grafika.html (✅ 2026-10-16: „A” változat, a „B” a pulton választható) ·
+   előtte: …-egesz-rajzterv.html (✅) · átnézés: …-egesz-mit-atnezes.html (✅ 5. döntés: a rajz a VÁLASZRA reagál, nem rakosgat).
+   Miért új rajz: az első élő próbán a gyerek azonnal elkattintott (szövegfal + pöttyök) → most a játék saját szereplői
+   (FIGURA-rajzok, figurak.js) ülnek egy réten a piknik-plédon, előttük a tálkájuk, középen lent a fonott kosár.
 
-   Felépítés (mindig ugyanaz): fent a szereplők, alattuk a saját kupacuk, lent középen a kosár.
-   Három mozdulat, mindig ebben a sorrendben:
-     ① kosárba  — minden a kosárba gurul, a kosáron megjelenik az összeg
-     ② oszt     — a kosárból egyforma kupacok lesznek, aztán mindenki kupaca visszamegy, és a szereplők alatt
-                  halvány, szaggatott „cél-golyók” maradnak (ennyi kell legyen)
-     ③ vegso    — ami sok, átrepül oda, ahol kevés van: mindenkinek a cél-helyére
-   Pénzes keret: a golyó érme (felirata: 10 / 20). A közös perselyes feladatnál (Tekercs b) minden a kosárban kezd,
-   a szereplőknek nincs saját kupacuk; a ③ maga a kiosztás (k.kioszt: szereplőnként az érmék sorszáma).
+   Felépítés: 640 × 320-as logikai vászon, a helyhez méretezve (kosarMeretez). Három mozdulat, mindig ebben a sorrendben:
+     ① kosárba  — a golyók egyenként, ívben a kosárba ugranak, a kosár megbillen, kiírja az összeget
+     ② oszt     — a kosárból egyforma kupacok lesznek a tálkákon, aztán mindenki kupaca visszamegy: AMI SOK, sárgán lüktet,
+                  az ÜRES hely lila szaggatott karika (a gyerek látja, kinél sok, kinél kevés), fölötte „kell: 5”
+     ③ vegso    — a többlet átrepül oda, ahol kevés van; mindenki örül (a motor figArc-ja: a FIGURA-rajzok ujjonganak)
+   Pénzes keret: a golyó érme (10 / 20). A közös perselyes feladatnál (Tekercs b) minden a kosárban kezd, a ③ a kiosztás.
+   Az első kép: a szereplők beugranak, a golyók a tálkára gurulnak (feladatonként egyszer: K.intro).
 
-   Az állapot (K) a feladathoz tartozik, és a lánc minden lépése UGYANAZT az objektumot látja (f.kosar, vagy a nagyé:
-   f.polcN.kosar) — így a következő lépés képe már a mozdulat utáni állapotban rajzolódik ki, mozgás nélkül.
-     K = { gy: [{ nev, n }], ermek: [felirat…] | null, egy (golyó / szereplő), egyseg: "10" | "", kezd: "kupac" | "kosar",
-           vOssz, vEgy: a két lépcsőfok VÁLASZA (pénznél forintban, ezért nem a golyók száma), szamOssz, szamEgy: a kosár felirata,
-           tobb: { válasz: felirat } (pénz: „6 érme”), cimkeEgy: a „kell: …” felirat,
-           kioszt: [[érme-index…]…] | null, allapot: "kupac" | "kosar" | "cel" | "kesz", cel: bool, szam: "" }
+   Az állapot (K) a feladathoz tartozik; a lánc minden lépése UGYANAZT az objektumot látja (f.kosar, vagy f.polcN.kosar).
+   A K.allapot MINDIG a mozdulat utáni állapot — a mozgás csak látvány —, így ha a gyerek közben továbblép, jó képpel nyílik.
+     K = { gy: [{ nev, k (FIGURA-kulcs), n }], ermek: [felirat…] | null, egy (golyó / szereplő), egyseg: "10" | "", kezd: "kupac" | "kosar",
+           vOssz, vEgy: a két lépcsőfok VÁLASZA (pénznél forintban), szamOssz, szamEgy: a kosár felirata, tobb: { válasz: felirat },
+           cimkeEgy, kioszt: [[érme-index…]…] | null, allapot, szam, intro }
    A jó válasz (olvaso-polc.js polcJo → kosarJo) az érték alapján dönt: összes → ①, egy főre → ②, a nagy kérdés → ③. */
 
-var KOSAR_SZIN = ["#f4a6c0", "#a9d4f5", "#ffd27a", "#b9e3a8", "#d4b8f3", "#ffb98a"];
-var KOSAR_GESZT = ["#a0663b", "#8a5530", "#b5753f"];
-var KOSAR_HAJ = ["#f2c14e", "#6b4a2b", "#e07b39", "#3b2f2a", "#c98b5a", "#9b5d3a"];
-var KOSAR_G = 17;            /* a golyók távolsága (px) */
+var KOSAR_SZIN = [["#ff9fbf", "#e05a86"], ["#8fd0ff", "#3a8fd0"], ["#ffd56a", "#d79a1c"], ["#a7e39a", "#4f9f42"], ["#cfb2ff", "#7d55c9"], ["#ffb58a", "#d9703a"]];
+var KOSAR_GESZT = [["#c98a52", "#7a4a22"], ["#b57a44", "#6a3f1c"], ["#d09660", "#85532a"]];
+var KOSAR_W = 640, KOSAR_H = 320;
+var KOSAR_ALSO = 284;       /* a könyv alatt ennyi hely kell: a bagoly sora (~80) + a beíró sor beíró módban (~210) */
 var KOSAR_M = { segit: "🧺 Tedd mindet a kosárba, aztán oszd el egyformán!" };   /* 🖊️ lektorra */
 
 /* a jobb lap HTML-je (a generátor teszi az op.rajz-ba); a kirajzolás a kosarMutat dolga */
 function kosarHTML() { return '<div class="kosar-jel"></div>'; }
 
-/* egy gyerek-fej (egyszerű, a szín a sorszámból) */
-function kosarFej(i) {
-  var h = KOSAR_HAJ[i % KOSAR_HAJ.length];
-  return '<svg class="kosar-fej" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="22" r="13" fill="#f6d7b8" stroke="#8a6a4a" stroke-width="1.6"/>' +
-    '<path d="M7,20 Q8,6 20,6 Q32,6 33,20 Q27,12 20,13 Q13,12 7,20 Z" fill="' + h + '" stroke="#5a4430" stroke-width="1.2"/>' +
-    '<circle cx="15.5" cy="23" r="1.6" fill="#3a3040"/><circle cx="24.5" cy="23" r="1.6" fill="#3a3040"/>' +
-    '<path d="M16,28 Q20,31 24,28" stroke="#a05a4a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+/* ── a díszlet: rét, ég, piknik-pléd — és a fonott kosár két rétege (hátul a fül, elöl a fonás: a golyók közé esnek) ── */
+var KOSAR_HATTER = '<svg class="ksz-hatter" viewBox="0 0 640 320" preserveAspectRatio="none" aria-hidden="true"><defs>' +
+  '<linearGradient id="ksz-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe8f7"/><stop offset="1" stop-color="#f3f8e8"/></linearGradient>' +
+  '<linearGradient id="ksz-ret" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3a2"/><stop offset="1" stop-color="#94cc78"/></linearGradient>' +
+  '<pattern id="ksz-pled" width="28" height="28" patternUnits="userSpaceOnUse"><rect width="28" height="28" fill="#fbe7ec"/><rect width="14" height="14" fill="#f4b8c6"/><rect x="14" y="14" width="14" height="14" fill="#f4b8c6"/></pattern></defs>' +
+  '<rect width="640" height="320" fill="url(#ksz-eg)"/><circle cx="572" cy="44" r="24" fill="#ffe7a0" opacity=".9"/>' +
+  '<g fill="#fff" opacity=".9"><ellipse cx="110" cy="40" rx="36" ry="13"/><ellipse cx="136" cy="33" rx="24" ry="13"/><ellipse cx="400" cy="28" rx="28" ry="10"/></g>' +
+  '<path d="M0,128 Q160,100 320,120 T640,112 L640,320 L0,320 Z" fill="url(#ksz-ret)"/>' +
+  '<path d="M0,150 Q200,130 380,146 T640,140" stroke="#a9d48c" stroke-width="3" fill="none"/>' +
+  '<g fill="#fff" opacity=".85"><circle cx="30" cy="176" r="3"/><circle cx="612" cy="190" r="3"/><circle cx="240" cy="160" r="2.5"/><circle cx="470" cy="166" r="2.5"/></g>' +
+  '<path d="M40,214 L600,214 L636,318 L4,318 Z" fill="url(#ksz-pled)" stroke="#e79aae" stroke-width="2"/></svg>';
+function kosarRajz(elo) {
+  var s = '<svg viewBox="0 0 170 110" aria-hidden="true">';
+  if (!elo) return s + '<path d="M38,40 Q85,-14 132,40" stroke="#b07a3e" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M38,40 Q85,-14 132,40" stroke="#d9a25e" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="85" cy="48" rx="72" ry="13" fill="#7a4e24"/></svg>';
+  var w = "", i;
+  for (i = 0; i < 9; i++) w += '<path d="M' + (20 + i * 16) + ',52 Q' + (26 + i * 16) + ',76 ' + (24 + i * 15) + ',100" stroke="#b9823f" stroke-width="2" fill="none" opacity=".6"/>';
+  for (i = 0; i < 4; i++) w += '<path d="M' + (16 + i * 4) + ',' + (60 + i * 11) + ' Q85,' + (70 + i * 11) + ' ' + (154 - i * 4) + ',' + (60 + i * 11) + '" stroke="#f3cf8e" stroke-width="3" fill="none" opacity=".7"/>';
+  return s + '<path d="M13,48 Q85,64 157,48 L146,98 Q85,112 24,98 Z" fill="#e2ad66" stroke="#9c6a32" stroke-width="3"/>' + w +
+    '<path d="M13,48 Q85,64 157,48" stroke="#c48a45" stroke-width="7" fill="none" stroke-linecap="round"/></svg>';
 }
+var KOSAR_TAL = '<svg viewBox="0 0 120 26" aria-hidden="true"><ellipse cx="60" cy="14" rx="58" ry="11" fill="#fff" stroke="#c9b9e6" stroke-width="2.5"/><ellipse cx="60" cy="12" rx="44" ry="6" fill="#f3eefb"/></svg>';
+
+/* ── helyek a 640 × 320-as vásznon ── */
+function kosarFx(n, k) { return n === 2 ? [168, 472][k] : KOSAR_W * (k + 0.5) / n; }        /* a szereplő közepe */
+var KOSAR_TAL_Y = 210;                                                                          /* a tálka közepe */
+function kosarTalXY(n, k, i) { return [kosarFx(n, k) - 8 + ((i % 6) - 2.5) * 16, KOSAR_TAL_Y - 10 - Math.floor(i / 6) * 13]; }
+function kosarKosarXY(i) { return [320 - 8 + ((i % 8) - 3.5) * 14, 290 - Math.floor(i / 8) * 11]; }
+function kosarCimkeXY(n, k) { return [kosarFx(n, k), KOSAR_TAL_Y + 12]; }
 
 /* ── kirajzolás (polcMutat hívja, a könyv után) ── */
-var KOSAR = null;            /* { K, el, golyok, szellem, idok } — az éppen látható jelenet */
+var KOSAR = null;            /* { K, el, vaszon, golyok, szellem, felirat, idok } — az éppen látható jelenet */
 function kosarAllapot(f) { return f ? (f.kosar || (f.polcN && f.polcN.kosar) || null) : null; }
 function kosarMutat(f) {
   kosarIdoStop();
@@ -46,111 +67,122 @@ function kosarMutat(f) {
   var K = kosarAllapot(f), el = document.querySelector("#buborek-feladat .op-jobb .kosar-jel");
   if (!K || !el) return;
   if (!K.allapot) K.allapot = K.kezd || "kupac";
-  var lap = el.closest(".op-jobb"); if (lap) lap.classList.add("kosar-lap");   /* telefonon a szöveg ALATT (rajzterv 1. pont) */
-  var n = K.gy.length, h = "";
-  K.gy.forEach(function (g, i) { h += '<div class="kosar-gy">' + kosarFej(i) + '<span>' + g.nev + '</span></div>'; });
-  h += '<div class="kosar-kosar"><span class="kosar-szam"></span></div>';
-  el.innerHTML = h;
-  el.classList.add("kosar-csendes");                      /* az első kép mozgás nélkül */
-  var J_ = { K: K, el: el, golyok: [], szellem: [], felirat: [], idok: [] };
-  /* a golyók: szereplőnként (vagy a közös perselyben) — a b[] a golyó gazdája (-1: a közösé) */
-  var ermek = K.ermek, db = 0;
-  if (K.kezd === "kosar") {
-    ermek.forEach(function (e) { J_.golyok.push(kosarGolyo(el, K, db++, e)); J_.golyok[J_.golyok.length - 1].gazda = -1; });
-  } else K.gy.forEach(function (g, k) {
-    for (var i = 0; i < g.n; i++) { var b = kosarGolyo(el, K, db++, K.egyseg ? K.egyseg : null); b.gazda = k; J_.golyok.push(b); }
+  var lap = el.closest(".op-jobb"); if (lap) lap.classList.add("kosar-lap");
+  var n = K.gy.length, intro = !K.intro; K.intro = true;
+  var h = '<div class="ksz-vaszon">' + KOSAR_HATTER;
+  K.gy.forEach(function (g, k) {
+    h += '<div class="ksz-fig' + (intro ? " ksz-be" : "") + '" style="left:' + (kosarFx(n, k) - 56) + 'px;' + (intro ? "animation-delay:" + (k * 0.22) + "s" : "") + '">' +
+      '<span class="ksz-nev">' + (FIGURA[g.k] ? FIGURA[g.k].tel : g.nev) + '</span>' + figuraSVG(g.k, "vidam", "alak") + '</div>' +
+      '<div class="ksz-tal" style="left:' + (kosarFx(n, k) - 60) + 'px">' + KOSAR_TAL + '</div>';
   });
+  h += '<div class="ksz-kosar-hat">' + kosarRajz(false) + '</div><div class="ksz-kosar-elo">' + kosarRajz(true) + '</div><span class="ksz-szam"></span></div>';
+  el.innerHTML = h;
+  var v = el.firstChild, S = { K: K, el: el, vaszon: v, golyok: [], szellem: [], felirat: [], idok: [] };
+  var db = 0;
+  if (K.kezd === "kosar") K.ermek.forEach(function (e) { var b = kosarGolyo(v, K, db++, e); b.gazda = -1; S.golyok.push(b); });
+  else K.gy.forEach(function (g, k) { for (var i = 0; i < g.n; i++) { var b = kosarGolyo(v, K, db++, K.egyseg || null); b.gazda = k; S.golyok.push(b); } });
   var celDb = K.kioszt ? K.kioszt.map(function (x) { return x.length; }) : K.gy.map(function () { return K.egy; });
   K.gy.forEach(function (g, k) {
-    for (var j = 0; j < celDb[k]; j++) { var s = document.createElement("div"); s.className = "kosar-szellem"; s.k = k; s.j = j; el.appendChild(s); J_.szellem.push(s); }
-    var fl = document.createElement("div"); fl.className = "kosar-cel"; fl.textContent = "kell: " + (K.cimkeEgy || K.egy); el.appendChild(fl); J_.felirat.push(fl);
+    for (var j = 0; j < celDb[k]; j++) { var s = document.createElement("div"); s.className = "ksz-szellem"; s.k = k; s.j = j; v.appendChild(s); S.szellem.push(s);
+      var p = kosarTalXY(n, k, j); s.style.transform = "translate(" + (p[0] - 2) + "px," + (p[1] - 2) + "px)"; }
+    var fl = document.createElement("div"); fl.className = "ksz-cel"; fl.textContent = "kell: " + (K.cimkeEgy || K.egy);
+    var c = kosarCimkeXY(n, k); fl.style.left = c[0] + "px"; fl.style.top = c[1] + "px"; v.appendChild(fl); S.felirat.push(fl);
   });
-  KOSAR = J_;
-  kosarMagassag(el, K);
-  kosarRendez();
-  void el.offsetWidth;
-  setTimeout(function () { if (KOSAR === J_) el.classList.remove("kosar-csendes"); }, 30);
-  if (!el.__kosarMeret) { el.__kosarMeret = true; window.addEventListener("resize", function () { if (KOSAR && KOSAR.el.isConnected) { kosarMagassag(KOSAR.el, KOSAR.K); kosarRendez(); } }); }
+  KOSAR = S;
+  kosarMeretez();
+  if (intro && K.kezd !== "kosar") {                      /* az első kép: a golyók oldalról a tálkára gurulnak */
+    var sz = K.gy.map(function () { return 0; });
+    S.golyok.forEach(function (b) { b.hely = [b.gazda < n / 2 ? -30 : KOSAR_W + 30, KOSAR_TAL_Y - 10]; kosarTesz(b, b.hely); sz[b.gazda]++; });
+    kosarKepsor([[K.allapot, 600]], 70);
+  } else kosarRendez(null, true);
+  if (!window.__kosarMeret) { window.__kosarMeret = true; window.addEventListener("resize", function () { if (KOSAR && KOSAR.el.isConnected) kosarMeretez(); }); }
 }
-function kosarGolyo(el, K, i, felirat) {
+function kosarGolyo(v, K, i, felirat) {
   var b = document.createElement("div");
-  b.className = "kosar-golyo" + (K.gesztenye ? " geszt" : "") + (felirat ? " erme" + (felirat === "20" ? " nagy" : "") : "");
+  b.className = "ksz-golyo" + (felirat ? " erme" + (felirat === "20" ? " nagy" : "") : "") + (K.gesztenye && !felirat ? " geszt" : "");
   if (felirat) b.textContent = felirat;
-  else b.style.background = K.gesztenye ? KOSAR_GESZT[i % 3] : KOSAR_SZIN[i % KOSAR_SZIN.length];
-  el.appendChild(b);
+  else { var c = (K.gesztenye ? KOSAR_GESZT : KOSAR_SZIN)[i % (K.gesztenye ? 3 : KOSAR_SZIN.length)]; b.style.background = "radial-gradient(circle at 35% 30%, #fff 0 8%, " + c[0] + " 32%, " + c[1] + " 100%)"; }
+  v.appendChild(b);
   return b;
 }
-/* helyek (a jobb lap mért méretéből) */
-function kosarMeret(el) { return { W: el.clientWidth || 300, H: Math.max(el.clientHeight || 260, 240) }; }
-function kosarSor(W, n) { return Math.max(3, Math.min(n > 12 ? 6 : 4, Math.floor((W / n - 10) / KOSAR_G))); }
-function kosarGx(M, n, k) { return M.W * (k + 0.5) / n; }
-function kosarKupacXY(M, n, k, i, sor) { return [kosarGx(M, n, k) + ((i % sor) - (sor - 1) / 2) * KOSAR_G, 70 + Math.floor(i / sor) * KOSAR_G]; }
-function kosarCelY(M, K) {
-  var sor = kosarSor(M.W, K.gy.length), max = 0;
-  K.gy.forEach(function (g) { max = Math.max(max, g.n || 0); });
-  return 70 + Math.ceil(max / sor) * KOSAR_G + 30;
-}
-/* a jelenet magassága: a kupacok + a cél-helyek + a kosár mindig elférjen egymás alatt (ne csússzanak egymásra) */
-function kosarMagassag(el, K) {
-  var W = el.clientWidth || 300, sor = kosarSor(W, K.gy.length), cel = K.kioszt ? Math.max.apply(null, K.kioszt.map(function (x) { return x.length; })) : K.egy;
-  var kell = kosarCelY({ W: W }, K) + Math.ceil(cel / sor) * KOSAR_G + 92;
-  el.style.minHeight = Math.max(230, kell) + "px";
-}
-function kosarCelXY(M, K, k, j) { var sor = kosarSor(M.W, K.gy.length); return [kosarGx(M, K.gy.length, k) + ((j % sor) - (sor - 1) / 2) * KOSAR_G, kosarCelY(M, K) + Math.floor(j / sor) * KOSAR_G]; }
-function kosarKosarXY(M, i, ossz) { var sor = Math.min(10, Math.max(5, Math.ceil(ossz / 3))); return [M.W / 2 + ((i % sor) - (sor - 1) / 2) * 16, M.H - 50 + Math.floor(i / sor) * 15]; }
-function kosarTesz(b, p) { b.style.transform = "translate(" + (p[0] - 8) + "px," + (p[1] - 8) + "px)"; }
-
-/* ki hol áll — A: a kirajzolt kép (a mozgókép köztes képei), alapból a feladat állapota. A K.allapot MINDIG a mozdulat
-   utáni állapot (a mozgás csak látvány): ha a gyerek közben továbblép, a következő lap már a jó képpel nyílik. */
-function kosarRendez(A) {
+/* a vászon a helyhez méretezve: a teljes szélesség, de legfeljebb ~36%-nyi képernyőmagasság (laptopon is egy képen maradjon) */
+function kosarMeretez() {
   var S = KOSAR; if (!S) return;
-  var K = S.K, el = S.el, M = kosarMeret(el), n = K.gy.length, sor = kosarSor(M.W, n);
+  var felul = !!S.el.closest(".op-felul") && window.innerWidth < 900;      /* „A” keskeny képernyőn: a jelenet a szöveg fölött */
+  var w = S.el.clientWidth || 320, maxH = Math.max(170, Math.round(window.innerHeight * (felul ? 0.36 : 0.52)));
+  var s = Math.min(w / KOSAR_W, maxH / KOSAR_H);
+  kosarSkala(S, w, s);
+  /* a válasz mindig férjen a képernyőre (1366 × 660-as laptopon is, beíró módban is): a könyv alatt kell ~290 px a bagolynak
+     és a beíró sornak — ha nincs meg, a jelenet annyival kisebb lesz (legalább 130 px) */
+  var kv = S.el.closest(".op-konyv"), tul = kv ? kv.getBoundingClientRect().bottom + KOSAR_ALSO - window.innerHeight : 0;
+  if (tul > 0 && window.innerWidth >= 640) kosarSkala(S, w, Math.max(110 / KOSAR_H, (KOSAR_H * s - tul) / KOSAR_H));
+}
+function kosarSkala(S, w, s) {
+  S.vaszon.style.transform = "translateX(" + Math.max(0, (w - KOSAR_W * s) / 2) + "px) scale(" + s + ")";
+  S.el.style.height = Math.round(KOSAR_H * s) + "px";
+}
+function kosarTesz(b, p) { b.style.transform = "translate(" + p[0] + "px," + p[1] + "px)"; }
+
+/* ki hol áll — A: a kirajzolt kép (a mozgókép köztes képei), alapból a feladat állapota. csendes: mozgás nélkül */
+function kosarRendez(A, csendes, kes) {
+  var S = KOSAR; if (!S) return;
+  var K = S.K, v = S.vaszon, n = K.gy.length;
   A = A || K.allapot;
-  Array.prototype.forEach.call(el.querySelectorAll(".kosar-gy"), function (d, k) { d.style.left = kosarGx(M, n, k) + "px"; });
-  var szam = A === "kupac" ? "" : (S.szam != null ? S.szam : K.szam) || "";
-  el.querySelector(".kosar-szam").textContent = szam;
-  el.querySelector(".kosar-szam").classList.toggle("lat", !!szam);
-  var cel = A === "cel";
-  S.szellem.forEach(function (s) { kosarTesz(s, kosarCelXY(M, K, s.k, s.j)); s.classList.toggle("lat", cel); });
-  S.felirat.forEach(function (fl, k) { var p = kosarCelXY(M, K, k, 0); fl.style.left = kosarGx(M, n, k) + "px"; fl.style.top = (p[1] - 26) + "px"; fl.classList.toggle("lat", cel); });
-  var hely = kosarHelyek(S, K, A);
+  var szam = A === "kupac" ? "" : (K.szam || "");
+  var sz = v.querySelector(".ksz-szam"); sz.textContent = szam; sz.classList.toggle("lat", !!szam);
+  var cel = A === "cel", hely = kosarHelyek(S, K, A), van = K.gy.map(function () { return 0; });
+  if (cel) S.golyok.forEach(function (b, i) { if (hely[i][2]) van[hely[i][0]]++; });
+  S.szellem.forEach(function (s) { s.classList.toggle("lat", cel && s.j >= van[s.k]); });          /* csak az ÜRES hely karikája */
+  S.felirat.forEach(function (fl) { fl.classList.toggle("lat", cel); });
+  var tele = K.gy.map(function () { return 0; });
   S.golyok.forEach(function (b, i) {
-    var p;
-    if (A === "kosar" || (K.kezd === "kosar" && A !== "kesz")) p = kosarKosarXY(M, i, S.golyok.length);
-    else if (A === "kesz" || A === "oszt") p = kosarCelXY(M, K, hely[i][0], hely[i][1]);
-    else p = kosarKupacXY(M, n, b.gazda, hely[i][1], sor);
-    kosarTesz(b, p);
+    var p, h = hely[i];
+    if (h[0] < 0) p = kosarKosarXY(h[1]);
+    else p = kosarTalXY(n, h[0], h[1]);
+    var tobb = cel && h[2] && ++tele[h[0]] > (K.kioszt ? K.kioszt[h[0]].length : K.egy);
+    b.classList.toggle("tobblet", !!tobb);                                                         /* ami sok: lüktet */
+    kosarRepit(b, p, (kes || 0) * i, csendes);
   });
 }
-/* golyónként: [szereplő, hányadik hely] — kupacban a saját sorszáma; a végén / osztáskor a cél-helyek kitöltése */
+/* golyónként: [szereplő (-1 = kosár), hányadik hely, a sajátja-e] */
 function kosarHelyek(S, K, A) {
-  var H = [], n = K.gy.length;
-  if (A !== "kesz" && A !== "oszt") {
+  var H = [], n = K.gy.length, i;
+  if (A === "kosar" || (K.kezd === "kosar" && A !== "kesz")) { S.golyok.forEach(function (b, i) { H.push([-1, i, false]); }); return H; }
+  if (A === "kupac" || A === "cel") {
     var szaml = K.gy.map(function () { return 0; });
-    S.golyok.forEach(function (b) { var k = b.gazda < 0 ? 0 : b.gazda; H.push([k, szaml[k]++]); });
+    S.golyok.forEach(function (b) { H.push([b.gazda, szaml[b.gazda]++, true]); });
     return H;
   }
-  if (K.kioszt) {                                           /* a közös perselyből: a megadott kiosztás */
-    K.kioszt.forEach(function (lista, k) { lista.forEach(function (gi, j) { H[gi] = [k, j]; }); });
-    return H;
-  }
-  if (A === "oszt") {                                       /* ② egyforma kupacok, sorban kitöltve */
-    S.golyok.forEach(function (b, i) { H.push([Math.min(n - 1, Math.floor(i / K.egy)), i % K.egy]); });
-    return H;
-  }
-  /* ③ a vége: mindenki a sajátjából a cél-helyére (legfeljebb K.egy), a többlet a hiányzókhoz */
+  if (K.kioszt) { K.kioszt.forEach(function (lista, k) { lista.forEach(function (gi, j) { H[gi] = [k, j, false]; }); }); return H; }
+  if (A === "oszt") { S.golyok.forEach(function (b, i) { H.push([Math.min(n - 1, Math.floor(i / K.egy)), i % K.egy, false]); }); return H; }
+  /* ③ a vége: mindenki a sajátjából (legfeljebb K.egy), a többlet a hiányzókhoz */
   var tele = K.gy.map(function () { return 0; }), tobblet = [];
-  S.golyok.forEach(function (b, i) { if (tele[b.gazda] < K.egy) H[i] = [b.gazda, tele[b.gazda]++]; else tobblet.push(i); });
-  tobblet.forEach(function (i) { for (var k = 0; k < n; k++) if (tele[k] < K.egy) { H[i] = [k, tele[k]++]; return; } H[i] = [0, 0]; });
+  S.golyok.forEach(function (b, i) { if (tele[b.gazda] < K.egy) H[i] = [b.gazda, tele[b.gazda]++, false]; else tobblet.push(i); });
+  tobblet.forEach(function (i) { for (var k = 0; k < n; k++) if (tele[k] < K.egy) { H[i] = [k, tele[k]++, false]; return; } H[i] = [0, 0, false]; });
   return H;
 }
+/* egy golyó ívben repül a helyére (ha már ott van, nem mozdul) */
+function kosarRepit(b, p, kes, csendes) {
+  var a = b.hely;
+  if (a && a[0] === p[0] && a[1] === p[1]) return;
+  b.hely = p;
+  if (!a || csendes || !b.animate || kosarCsendesE()) { kosarTesz(b, p); return; }
+  var mx = (a[0] + p[0]) / 2, my = Math.min(a[1], p[1]) - (Math.abs(a[0] - p[0]) > 200 ? 110 : 60);
+  try {
+    b.animate([{ transform: "translate(" + a[0] + "px," + a[1] + "px)" }, { transform: "translate(" + mx + "px," + my + "px)", offset: .5 },
+      { transform: "translate(" + p[0] + "px," + p[1] + "px)" }], { duration: 650, delay: kes || 0, easing: "ease-in-out", fill: "backwards" });
+  } catch (e) {}
+  kosarTesz(b, p);
+}
+function kosarCsendesE() { return typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
 function kosarIdoStop() { if (KOSAR) KOSAR.idok.forEach(clearTimeout); }
-/* képsor: [[állapot, ms], …] — a K.allapot közben már a végső */
-function kosarKepsor(sor) {
+/* képsor: [[állapot, ms], …] — a K.allapot közben már a végső. kes: golyónkénti késleltetés (ms) */
+function kosarKepsor(sor, kes) {
   var S = KOSAR; if (!S) return;
   kosarIdoStop(); S.idok = [];
-  sor.forEach(function (x) { S.idok.push(setTimeout(function () { if (KOSAR === S) kosarRendez(x[0]); }, x[1])); });
+  sor.forEach(function (x) { S.idok.push(setTimeout(function () { if (KOSAR === S) { kosarRendez(x[0], false, kes != null ? kes : 45); if (x[0] === "kosar") kosarBillen(); } }, x[1])); });
 }
+function kosarBillen() { var e = KOSAR && KOSAR.vaszon.querySelector(".ksz-kosar-elo"); if (!e) return; e.classList.remove("ksz-billen"); void e.offsetWidth; e.classList.add("ksz-billen"); }
 var KOSAR_SORREND = { kupac: 0, kosar: 1, oszt: 2, cel: 3, kesz: 4 };
 
 /* ── a három mozdulat (a K.allapot rögtön a végső; a képsor csak a látvány) ── */
@@ -167,26 +199,26 @@ function kosarOszt(szam) {
   if (szam) K.szam = szam;
   if (K.kioszt) { kosarRendez(); return; }                  /* a közös perselyben a ② csak felirat; a kiosztás a ③ */
   K.allapot = "cel";
-  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1300]] : [["kosar", 0], ["oszt", 800], ["cel", 2100]]);
+  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1700]] : [["kosar", 0], ["oszt", 1300], ["cel", 3000]]);
 }
 function kosarVegso() {
   var S = KOSAR; if (!S) return;
   var K = S.K, volt = K.allapot;
   K.allapot = "kesz";
-  if (K.kioszt || volt === "cel") { kosarKepsor([["kesz", 0]]); return; }
-  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1300], ["kesz", 2300]] : [["kosar", 0], ["oszt", 800], ["cel", 2100], ["kesz", 3100]]);
+  if (K.kioszt || volt === "cel") { kosarKepsor([["kesz", 0]], 180); return; }
+  kosarKepsor(volt === "kosar" ? [["oszt", 0], ["cel", 1700], ["kesz", 2900]] : [["kosar", 0], ["oszt", 1300], ["cel", 3000], ["kesz", 4200]]);
 }
 /* a teljes mozgókép: 🙋 „Tedd a kosárba!” (a ③ nélkül) és a nagy jó válasza után az összefoglaló (vegig: a ③ is) */
 function kosarFut(vegig) {
   var S = KOSAR; if (!S) return;
   var K = S.K, volt = K.allapot;
   if (volt === "kesz") return;
-  K.szam = K.kioszt ? K.szamEgy : K.szamEgy || K.szam;
-  if (K.kioszt) { K.allapot = vegig ? "kesz" : "kosar"; kosarKepsor(vegig ? [["kosar", 0], ["kesz", 1200]] : [["kosar", 0]]); return; }
+  K.szam = K.szamEgy || K.szam;
+  if (K.kioszt) { K.allapot = vegig ? "kesz" : "kosar"; kosarKepsor(vegig ? [["kosar", 0], ["kesz", 1300]] : [["kosar", 0]]); return; }
   if (vegig) { kosarVegso(); return; }
   if (volt === "cel") return;
   K.allapot = "cel";
-  kosarKepsor([["kosar", 0], ["oszt", 900], ["cel", 2200]]);
+  kosarKepsor([["kosar", 0], ["oszt", 1300], ["cel", 3000]]);
 }
 
 /* ── a jó válasz (polcJo hívja, mielőtt a lánc továbbmegy): az érték mondja meg, melyik mozdulat jön ── */

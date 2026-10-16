@@ -2805,36 +2805,71 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
   #kiser-flip{ transition:none; }
 }
 
-/* ═════════ 🧺 KÖZÖS KOSÁR (kosar.js) + 🪜/🎯 kérdés-szótár (szerszam-egesz.js) — Matekos\szerszam-letrak-egesz-rajzterv.html ✅ ═════════ */
+/* ═════════ 🧺 KÖZÖS KOSÁR (kosar.js) — a jelenet + a kérdés-létra + az „A” elrendezés — Matekos\szerszam-letrak-egesz-grafika.html ✅ 2026-10-16 ═════════ */
 .op-kerdes.op-cel::before{ content:"🎯 a nagy kérdés"; display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#9b7fd0; margin-bottom:2px; }
 .op-kerdes.op-cel-akt{ background:#f1e8ff; border-radius:10px; box-shadow:0 0 0 2px #b593ec; padding:4px 8px; }
-.seg-fent{ margin:.4em 0 .5em; }
-.seg-lepes{ margin:.25em 0; padding:3px 8px; border-radius:8px; font-size:.9em; font-weight:600; color:#8a6d2f; line-height:1.35; }
-.seg-lepes.most{ background:#fff3cf; box-shadow:0 0 0 2px #e8b64a; animation:op-be .4s ease-out; }
-.seg-lepes.kesz{ opacity:.85; }
-.seg-lepes b{ color:#3b8a3b; margin-left:4px; }
+/* a számozott kérdés-létra: MINDIG az aktuális a legnagyobb */
+.op-letra{ list-style:none; padding:0; margin:.35em 0 0; }
+.op-letra li{ display:flex; align-items:center; gap:10px; padding:2px 10px; margin:2px 0; border-radius:12px; color:#a99c8c; font-weight:600; font-size:.82em; line-height:1.3; }
+.op-letra .op-l-sz{ flex:none; width:22px; height:22px; border-radius:50%; background:#efe6d8; color:#a99c8c; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; }
+.op-letra .op-l-sz::before{ content:attr(data-n); }   /* a sorszám dísz: a felolvasás és a szöveg-őr nem látja */
+.op-letra .op-l-t{ flex:1; min-width:0; }
+.op-letra .op-l-ert{ color:#3b8a3b; }
+.op-letra .op-l-kesobb{ flex:none; font-size:12px; color:#b9ab98; }
+.op-letra .op-l-cel{ display:inline; font-size:11px; letter-spacing:.05em; text-transform:uppercase; margin-right:6px; vertical-align:1px; }
+.op-letra li.kesz{ color:#6f8a5e; }
+.op-letra li.kesz .op-l-sz{ background:#cfe9c4; color:#3b8a3b; }
+.op-letra li.most{ background:#f1e8ff; color:#6a35c9; font-size:1em; font-weight:800; box-shadow:0 0 0 3px #b593ec; padding:5px 10px; margin:5px 0; }
+.op-letra li.most .op-l-sz{ background:#6a35c9; color:#fff; width:30px; height:30px; font-size:17px; }
+.op-letra li.most .op-l-cel{ color:#9b7fd0; }
+.op-l-most{ flex:none; font-size:13px; font-weight:700; color:#fff; background:#6a35c9; border-radius:999px; padding:2px 10px; white-space:nowrap; animation:op-biccen 1.4s ease-in-out infinite; }
+@keyframes op-biccen{ 50%{ transform:translateX(-4px); } }
+.op-kszam{ display:block; font:800 16px/17px "Fredoka",system-ui,sans-serif; color:#6a35c9; text-align:center; }
+.beiro-doboz:has(.op-kszam) .beiro-cimke{ display:none; }   /* a „2. kérdés:” a felirat helyére kerül */
+/* „A” elrendezés: a jelenet felül, teljes szélességben, a szöveg alatta (telefonon is) */
+.op-konyv.op-felul .op-lapok{ grid-template-columns:1fr; }
+.op-konyv.op-felul .op-gerinc{ display:none; }
+.op-konyv.op-felul .op-jobb{ order:-1; padding:6px 6px 0; min-height:0; }
+.op-konyv.op-felul .op-bal{ min-height:0; padding-top:8px; }
+@media (min-width:900px){   /* széles (laptop) képernyőn a jelenet BALRA, nagyban, mellette a mese és a kérdés-létra — felül a válaszmező miatt bélyeggé zsugorodna */
+  .op-konyv.op-felul .op-lapok{ grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); }
+  .op-konyv.op-felul .op-jobb{ order:-1; padding:6px; align-items:center; }
+  .op-konyv.op-felul .op-bal{ padding-top:12px; }
+}
+/* a jelenet: 640 × 320-as vászon, a kosarMeretez méretezi */
 .op-jobb.kosar-lap{ align-items:stretch; padding:0; }
-.kosar-jel{ position:relative; width:100%; min-height:250px; overflow:hidden; font-family:"Fredoka",system-ui,sans-serif; }
-.kosar-gy{ position:absolute; top:4px; transform:translateX(-50%); text-align:center; font-size:13px; font-weight:700; color:#5a4430; line-height:1.1; }
-.kosar-fej{ width:36px; height:36px; display:block; margin:0 auto 1px; }
-.kosar-golyo{ position:absolute; left:0; top:0; width:16px; height:16px; border-radius:50%; transition:transform .75s cubic-bezier(.5,.1,.3,1.2);
-  box-shadow:inset -2px -3px 0 rgba(0,0,0,.12), inset 2px 2px 0 rgba(255,255,255,.55); }
-.kosar-golyo.geszt{ border-radius:50% 50% 45% 45%; }
-.kosar-golyo.erme{ background:#f6d77a; border:1.5px solid #b8902e; font:700 8px/13px system-ui,sans-serif; color:#6a4e10; text-align:center; }
-.kosar-golyo.erme.nagy{ background:#f2c14e; font-size:8px; }
-.kosar-szellem{ position:absolute; left:0; top:0; width:16px; height:16px; border-radius:50%; border:2px dashed #b9a07a; opacity:0; transition:opacity .5s; }
-.kosar-szellem.lat{ opacity:.8; }
-.kosar-cel{ position:absolute; transform:translateX(-50%); font-size:12px; font-weight:700; color:#9b8462; opacity:0; transition:opacity .5s; white-space:nowrap; }
-.kosar-cel.lat{ opacity:1; }
-.kosar-kosar{ position:absolute; left:50%; bottom:8px; transform:translateX(-50%); width:190px; max-width:80%; height:60px; border-radius:10px 10px 44px 44px;
-  background:repeating-linear-gradient(45deg,#f2d29b 0 8px,#e8c385 8px 16px); border:3px solid #c8945a; }
-.kosar-kosar::before{ content:""; position:absolute; left:22px; right:22px; top:-24px; height:28px; border:3px solid #c8945a; border-bottom:none; border-radius:40px 40px 0 0; }
-.kosar-szam{ position:absolute; right:-10px; top:-18px; background:#fff; border:2px solid #c8945a; border-radius:12px; padding:0 8px; font-weight:700; font-size:15px; color:#5a4430;
-  opacity:0; transform:scale(.6); transition:all .4s; white-space:nowrap; z-index:2; }
-.kosar-szam.lat{ opacity:1; transform:scale(1); }
-.kosar-csendes .kosar-golyo,.kosar-csendes .kosar-szellem,.kosar-csendes .kosar-szam,.kosar-csendes .kosar-cel{ transition:none; }
-@media (max-width:640px){ .op-jobb.kosar-lap{ order:1; } .kosar-jel{ min-height:230px; } }
-@media (prefers-reduced-motion:reduce){ .kosar-golyo{ transition:transform .2s; } .seg-lepes.most{ animation:none; } }
+.kosar-jel{ position:relative; width:100%; overflow:hidden; border-radius:10px; font-family:"Fredoka",system-ui,sans-serif; }
+.ksz-vaszon{ position:absolute; left:0; top:0; width:640px; height:320px; transform-origin:0 0; }
+.ksz-hatter{ position:absolute; inset:0; width:640px; height:320px; }
+.ksz-fig{ position:absolute; top:42px; width:112px; height:140px; z-index:1; }
+.ksz-fig svg.fg{ width:100%; height:100%; }
+.ksz-be{ animation:ksz-be .8s cubic-bezier(.3,1.5,.5,1) both; }
+@keyframes ksz-be{ from{ transform:translateY(70px) scale(.6); opacity:0; } }
+.ksz-nev{ position:absolute; left:50%; top:-14px; transform:translateX(-50%); background:#fff; border-radius:10px; padding:0 8px; font-weight:700; font-size:14px; color:#5a4430; box-shadow:0 1px 3px rgba(0,0,0,.15); white-space:nowrap; z-index:2; }
+.ksz-tal{ position:absolute; top:198px; width:120px; height:26px; z-index:2; }
+.ksz-tal svg{ width:100%; height:100%; display:block; }
+.ksz-kosar-hat,.ksz-kosar-elo{ position:absolute; left:235px; top:212px; width:170px; height:110px; }
+.ksz-kosar-hat{ z-index:2; } .ksz-kosar-elo{ z-index:4; transform-origin:50% 100%; }
+.ksz-kosar-hat svg,.ksz-kosar-elo svg{ width:100%; height:100%; display:block; }
+.ksz-billen{ animation:ksz-billen .5s ease-in-out; }
+@keyframes ksz-billen{ 25%{ transform:rotate(-5deg); } 75%{ transform:rotate(4deg); } }
+.ksz-szam{ position:absolute; left:320px; top:186px; transform:translateX(-50%) scale(.6); z-index:6; background:#fff; border:2px solid #c8945a; border-radius:12px; padding:0 10px;
+  font-weight:700; font-size:17px; color:#5a4430; white-space:nowrap; opacity:0; transition:all .35s; }
+.ksz-szam.lat{ opacity:1; transform:translateX(-50%) scale(1); }
+.ksz-golyo{ position:absolute; left:0; top:0; width:16px; height:16px; border-radius:50%; z-index:3; box-shadow:inset -2px -3px 0 rgba(0,0,0,.14); }
+.ksz-golyo::after{ content:""; position:absolute; left:3px; top:3px; width:5px; height:4px; border-radius:50%; background:rgba(255,255,255,.85); }
+.ksz-golyo.geszt{ border-radius:50% 50% 42% 42%; }
+.ksz-golyo.erme{ background:radial-gradient(circle at 35% 30%, #fff6c8 0 10%, #f6d77a 40%, #c9952a 100%); border:1.5px solid #a87a1e; font:800 7.5px/13px system-ui,sans-serif; color:#6a4e10; text-align:center; }
+.ksz-golyo.erme::after{ display:none; }
+.ksz-golyo.erme.nagy{ width:18px; height:18px; line-height:15px; font-size:8px; }
+.ksz-golyo.tobblet{ animation:ksz-tobblet 1s ease-in-out infinite; }
+@keyframes ksz-tobblet{ 50%{ box-shadow:0 0 0 3px #ffd23f, 0 0 10px 3px #ffd23f; } }
+.ksz-szellem{ position:absolute; left:0; top:0; width:20px; height:20px; border-radius:50%; border:3px dashed #7d55c9; background:rgba(201,164,240,.28); z-index:3; opacity:0; transition:opacity .5s; }
+.ksz-szellem.lat{ opacity:.95; }
+.ksz-cel{ position:absolute; transform:translateX(-50%); z-index:5; background:#fff; border:2px solid #c8945a; border-radius:10px; padding:0 8px; font-weight:700; font-size:13px; color:#5a4430; opacity:0; transition:opacity .4s; white-space:nowrap; }
+.ksz-cel.lat{ opacity:1; }
+@media (max-width:640px){ .op-konyv:not(.op-felul) .op-jobb.kosar-lap{ order:1; } }   /* „B”: telefonon a szöveg fent, alatta a jelenet */
+@media (prefers-reduced-motion:reduce){ .ksz-be,.ksz-billen,.ksz-golyo.tobblet,.op-l-most{ animation:none; } }
 
 /* ═════════ 🐪 RAKODÁS (rakodas.js) + 🏅 Mesterpróba-ábrák (szerszam-egesz-mester.js) — Matekos\szerszam-letrak-egesz-rajzterv.html 4–5. pont ✅ ═════════ */
 .dob-ter.k-teve{ position:relative; flex-direction:column; justify-content:flex-end; min-height:250px; background:linear-gradient(#fdf3dc 70%, #f0d9a8 70%); padding:8px 4px 6px; }

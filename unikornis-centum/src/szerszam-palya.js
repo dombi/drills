@@ -57,6 +57,7 @@ function szKicsi(nagy) {
 /* ── megjelenítés (a feladatMutat hívja, miután a könyv a buborékba került) ── */
 function szMutat(f) {
   opMod(true);
+  opLetraCimke(null);                                     /* a 🧺 „N. kérdés:” felirat nem marad itt */
   var mester = f.fok === "mester" && f.szerep === "nagy";   /* 🏅 a Mesterpróbán nincs 🙋 és nincs előre 🔎 (rajzterv 4. pont, mint az olvasó-polcon) */
   dobogoMutat(f, { kesz: szKesz, segit: mester && !f.rakodas ? null : szSegitMenu, tabla: f.tabla || null, zarKatt: oeNoszog });   /* 📋 f.tabla: a Nyomozótábla (2. kör: a 📋 fok adja) */     /* előbb a kirakó a jobb lapra, utána a bal lap mérése */
   opLapol();
@@ -74,7 +75,7 @@ function szKeres(f) {
 function opMod(be) {
   var k = $("kepernyo-jatek"); if (!k) return;
   k.classList.toggle("op-mod", !!be);
-  if (!be) k.classList.remove("nt-mod");
+  if (!be) { k.classList.remove("nt-mod"); opLetraCimke(null); }
   k.classList.remove("op-b1", "op-b2", "op-b3");
   if (be) k.classList.add("op-b" + opBetu());
   opBagsor(!!be);

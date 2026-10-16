@@ -214,7 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/szerszam.js?v=20261016-1"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261016-2"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/leny-kiser.js?v=20261014-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
@@ -2073,9 +2073,11 @@ function rajzEpitokocka(t) {
     szOpt([["", ures + " (igen)"], ["true", "igen"], ["false", "nem"]], typeof szSajat.liftKer === "boolean" ? String(szSajat.liftKer) : "") + "</select></div>" +
     '<div class="kapu-sor"><span>📋 Nyomozótábla (pipás ✓/✗ tábla) látszik:</span><select id="sz-nt"' + (typeof szSajat.tabla === "boolean" ? ' class="beallitva"' : "") + ">" +
     szOpt([["", ures + " (igen)"], ["true", "igen"], ["false", "nem — a 📋 fok rejtve"]], typeof szSajat.tabla === "boolean" ? String(szSajat.tabla) : "") + "</select></div>" +
+    '<div class="kapu-sor"><span>🧺 Előbb az egész — a kép elrendezése:</span><select id="sz-kep"' + (szSajat.kep ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (A)"], ["A", "A — a jelenet felül, nagyban"], ["B", "B — könyv, a jelenet a jobb lapon"]], szSajat.kep || "") + "</select></div>" +
     (egyeni ? (function () { var b = szerszamHatas(cid); return '<div class="kicsi">Most ennél a gyereknél: <b>' + b.k + " az " + b.n + "-ből</b> · látszik: " +
-      SZERSZAMOK.filter(function (x) { return b.latszik[x.id]; }).map(function (x) { return x.ikon; }).join(" ") + " · lift kérhető: " + (b.liftKer ? "igen" : "nem") + " · 📋 tábla: " + (b.tabla ? "igen" : "nem") + "</div>"; })() : "") +
-    '<p class="kicsi halvany">Alap: 4 az 5-ből, csak a 📌 látszik, a lift kérhető. Sorrend: alap → csoport → egyéni; több csoportnál az engedékenyebb küszöb nyer, a létra látszik, ha bármelyik csoport megnyitja. ' +
+      SZERSZAMOK.filter(function (x) { return b.latszik[x.id]; }).map(function (x) { return x.ikon; }).join(" ") + " · lift kérhető: " + (b.liftKer ? "igen" : "nem") + " · 📋 tábla: " + (b.tabla ? "igen" : "nem") + " · 🧺 kép: " + b.kep + "</div>"; })() : "") +
+    '<p class="kicsi halvany">Alap: 4 az 5-ből, a 📌 és a 🧺 látszik, a lift kérhető, a 🧺 képe „A”. Sorrend: alap → csoport → egyéni; több csoportnál az engedékenyebb küszöb nyer, a létra látszik, ha bármelyik csoport megnyitja. ' +
     "A ládából nem lehet kiesni: ha szigorítod a küszöböt, ami már bent van, bent marad.</p></div>";
 
   /* ── Mesterpróba-feladatok kockánként ── */
@@ -2114,9 +2116,10 @@ function rajzEpitokocka(t) {
     if (Object.keys(lat).length) o.latszik = lat;
     if (lk) o.liftKer = lk === "true";
     var nt = $("sz-nt").value; if (nt) o.tabla = nt === "true";
+    var kp = $("sz-kep").value; if (kp) o.kep = kp;
     ment(ref.set({ szerszam: Object.keys(o).length ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
   }
-  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent; $("sz-nt").onchange = szerszamMent;
+  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent; $("sz-nt").onchange = szerszamMent; $("sz-kep").onchange = szerszamMent;
   Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { x.onchange = szerszamMent; });
   Array.prototype.forEach.call(t.querySelectorAll("[data-ekm]"), function (sl) {
     sl.onchange = function () {

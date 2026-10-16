@@ -276,6 +276,7 @@ function polcMutat(f) {
   if (f.vezetSor) { opLepesLap(); f.vezetSor.forEach(function (h) { opLepes(h); }); if (f.vezetMost) opLepes("<b>" + f.vezetMost + "</b>"); }
   opLapol();
   kosarMutat(f);                                        /* 🧺 a közös kosár a jobb lapon (kosar.js) — ha a feladatnak van */
+  opLetraCimke(f);                                      /* 🧺 „2. kérdés:” a beíró mező előtt (olvasopult.js) */
   segAbraMutat(f);                                      /* 🧺 🏅 a Mesterpróba ábrája (kerítés, bűvös tábla — szerszam-egesz-mester.js) */
   mKoppRejt();
   var v = $("visszajelzes");

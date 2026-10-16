@@ -57,8 +57,28 @@ function opSzoveg(mondatok, kerdes, hely, lepcso, c) {
   var M = mondatok.map(function (m, i) { return '<p class="op-m" data-m="' + i + '">' + opNb(m) + '</p>'; }),
       q = '<p class="op-kerdes' + (c.cel ? " op-cel" : "") + (c.celAkt ? " op-cel-akt" : "") + '" data-m="k">' + opNb(kerdes) + '</p>';
   if (c.fent) q = '<div class="seg-fent">' + c.fent + '</div>' + q;
+  if (c.letra) q = opLetra(c.letra);
   if (hely != null && hely >= 0 && hely < M.length) M.splice(hely, 0, q); else M.push(q);
   return M.join("") + (lepcso ? '<div class="op-lepcso">' + lepcso + '</div>' : "");
+}
+/* 🧺 számozott kérdés-létra (szerszam-egesz.js; Matekos\szerszam-letrak-egesz-grafika.html ✅): mindegyik kérdés látszik 1–2–3 számmal,
+   MINDIG az aktuális a legnagyobb, lila, „👉 Most erre felelj!” jellel (ez kapja az op-kerdes osztályt: rá villan a ✋, rá mutat a 🔎);
+   a többi halvány („majd” / „a végén”), a megválaszolt mellett ✓ és a szám. L = { k: [kérdés…], ert: [válasz…], most, cel } */
+function opLetra(L) {
+  return '<ol class="op-letra">' + L.k.map(function (q, i) {
+    var kesz = i < L.most, most = i === L.most, cel = i === L.cel;
+    return '<li class="' + (kesz ? "kesz" : most ? "most op-kerdes" : "") + '"' + (most ? ' data-m="k"' : "") + '><span class="op-l-sz" data-n="' + (kesz ? "✓" : i + 1) + '"></span>' +
+      '<span class="op-l-t">' + (cel ? '<span class="op-l-cel">🎯 a nagy kérdés</span>' : "") + opNb(q) + (kesz ? ' <b class="op-l-ert">✓ ' + L.ert[i] + '</b>' : "") + '</span>' +
+      (most ? '<span class="op-l-most">👉 Most erre felelj!</span>' : !kesz ? '<span class="op-l-kesobb">' + (cel ? "a végén" : "majd") + '</span>' : "") + '</li>';
+  }).join("") + '</ol>';
+}
+/* a beíró mező elé: „2. kérdés:” — csak a létrás feladatnál (különben eltűnik) */
+function opLetraCimke(f) {
+  var c = $("op-kszam"), L = f && f.op ? (f.op.fuzet ? f.op.fuzet.letra : f.op.letra) : null, d = $("beiro-doboz");
+  if (!L || !d) { if (c) c.remove(); return; }
+  if (!c) { c = document.createElement("span"); c.id = "op-kszam"; c.className = "op-kszam"; }
+  if (c.parentNode !== d) d.insertBefore(c, d.firstChild);   /* a beíró dobozban: csak beíráskor látszik */
+  c.textContent = (L.most + 1) + ". kérdés:";
 }
 function opKonyv(o) {
   var b = opBetu(), fz = o.fuzet;
@@ -66,7 +86,7 @@ function opKonyv(o) {
   if (fz) bal += '<div class="op-fuzet"><div class="op-szoveg">' + opSzoveg(fz.mondatok, fz.kerdes, fz.kerdesHely, fz.lepcso, fz) + '</div></div>';
   bal += '<div class="op-lepesek" hidden></div>' +
     '<div class="op-lapozo" hidden><button class="op-lapoz-vissza" type="button" aria-label="vissza">←</button><span class="op-lapszam"></span><button class="op-lapoz-elore" type="button" aria-label="tovább">→</button></div>';
-  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +
+  return '<div class="op-konyv' + (fz ? " op-liftes" : "") + (o.felul ? " op-felul" : "") + (o.rejt ? " op-rejtett" : "") + (o.mester ? " op-mester" : "") + '">' +
     '<div class="op-fej">' + opCsik() + (o.segit ? '<button type="button" class="op-segit" aria-label="Segítség">🙋</button>' : '') +
     '<button type="button" class="op-halld" aria-label="Halld újra">🔊</button><div class="op-betu" role="group" aria-label="betűméret">' +
       [1, 2, 3].map(function (x) { return '<button type="button" data-b="' + x + '" class="' + (x === b ? "akt" : "") + '">A</button>'; }).join("") + '</div></div>' +
