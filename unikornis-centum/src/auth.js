@@ -5,8 +5,8 @@
    KÖZÖS GÉP (ugyanazon a gépen már 2+ különböző kóddal léptek be — a gép magától ismeri fel, nincs kapcsoló):
      • a belépő névkártyákat mutat (név + a gyerek unikornisa), a kártya után a kódot be kell írni;
      • a belépés csak a böngésző bezárásáig él (SESSION), utána újra a belépő jön;
-     • nincs „felhő nélkül” játék (különben a két gyerek haladása összekeveredne);
-     • a 👋 Kilépek után a helyi mentés kiürül (a hang/válaszmód gép-beállítás marad). */
+     • a 👋 Kilépek után a helyi mentés kiürül (a hang/válaszmód gép-beállítás marad).
+   „most felhő nélkül játszom” csak olyan gépen van, ahol még senki nem lépett be kóddal. */
 function felhoIndit() {
   if (!felhoBekapcsolva()) return;
   felulirCacheBetolt();   /* a producer-felülírások offline is élnek (az utolsó ismert állapot) */
@@ -123,7 +123,7 @@ function belepoMutat() {
   }
   BELEPO_VALASZTOTT = null;
   belepoJatekosok();
-  $("felho-kesobb").hidden = kozosGep();
+  $("felho-kesobb").hidden = gepJatekosok().length > 0;   /* ahol már léptek be kóddal, a felhő nélküli játék csak elveszne (net nélkül a belépő meg sem jelenik) */
   d.hidden = false;
 }
 /* névkártyák: a gépen már belépett gyerekek (legutóbbi elöl) */
