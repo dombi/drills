@@ -1962,12 +1962,12 @@ var SZERSZAM_FOKOK = { mese: "📖 Mesekönyv", tekercs: "📜 Varázstekercs", 
 var LIFT_KICSI_JO = 2;     /* ennyi jó kicsi után vissza a nagyra */
 var LIFT_KICSI_MAX = 3;    /* legfeljebb ennyi kicsi; utána a végigvezetés oldja meg együtt */
 var SZERSZAM_H_MAX = 8, SZERSZAM_N_MAX = 200, SZERSZAM_LI_MAX = 60;
-var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: false, MIT: false }, liftKer: true, tabla: true };
+var SZERSZAM_ALAP = { k: 4, n: 5, latszik: { KOTOTT: true, EGESZ: true, MIT: false }, liftKer: true, tabla: true };
 
 /* ── a pult beállításai ────────────────────────────────────────────────────
    producerConfig/{uid}.szerszam és groups/{gid}.szerszam = { k?, n?, latszik?: { KOTOTT?, EGESZ?, MIT? }, liftKer?, tabla? }
      k / n     a láda-küszöb: az utolsó n nagy feladatból k önálló (n 3–8, k 1–n; alap 4 az 5-ből)
-     latszik   melyik létra látszik a könyvtárban (alap: csak a 📌 KOTOTT)
+     latszik   melyik létra látszik a könyvtárban (alap: 📌 KOTOTT + 🧺 EGESZ — a producer, 2026-10-16: „pulton ne kelljen bekapcsolni”)
      liftKer   false = a 🙋-ban nincs „🔎 Nézzük kicsiben” (a lift magától akkor is jön)
      tabla     false = a 📋 Nyomozótábla nem látszik: a 📋 fok rejtve (a kicsiknél), a 🔮/🏅 tábla nélkül (alap: látszik)
    Sorrend: alap < csoport(ok) < egyéni. Több csoportnál az ENGEDÉKENYEBB nyer: a kisebb arányú küszöb (egyenlőnél a
