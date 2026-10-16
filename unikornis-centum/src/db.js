@@ -17,7 +17,7 @@ function felhoBelepve(u) {
   felulirFigyel();   /* producer-felülírások + csoportok (4. fázis) */
   fejtoroFigyel();   /* Fejtörő-hegy: versenyfeladatok (csak belépve olvashatók) */
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") felhoKuld(); });
-  window.addEventListener("pagehide", felhoKuld);
+  window.addEventListener("pagehide", function () { gepJatekosJegyez(); felhoKuld(); });   /* a névkártyán a legutóbbi kinézet legyen */
   renderFelhoAllapot();
 }
 
@@ -65,6 +65,7 @@ function felhoElsoAllapot(snap) {
   FELHO.kesz = true;
   try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {}
   esemeny("login", { device: felhoEszkoz(), migrated: migralt });
+  gepJatekosJegyez();                        /* névkártya + közös gép felismerése (2+ kód ezen a gépen) */
   felhoKuld();                               /* a normalizálás miatti apró eltérések felmennek */
   felhoKepernyoFrissit();
 }
@@ -113,6 +114,7 @@ function felhoKepernyoFrissit() {
 
 /* Szülőknek → Beállítások: felhő-állapot sor + kilépés */
 function renderFelhoAllapot() {
+  kilepGombFrissit();
   var blokk = document.querySelector(".szuloi-blokk.beallitasok"); if (!blokk) return;
   var s = $("felho-allapot");
   if (!s) { s = el("p", "felho-allapot"); s.id = "felho-allapot"; blokk.appendChild(s); }

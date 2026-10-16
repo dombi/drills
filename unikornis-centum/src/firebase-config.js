@@ -15,6 +15,7 @@ var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
 var FELHO_EMAIL_DOMAIN = "unikornis.app";   /* belépőkód CSILLAG-42 → csillag-42@unikornis.app, jelszó: CSILLAG-42 */
 var FELHO_KAPCS = "uc_felho";               /* localStorage: "1" = felhő-mód bekapcsolva ezen a gépen */
 var FELHO_GAZDA = "uc_felho_gazda";         /* localStorage: melyik fiók (uid) adatai vannak a helyi mentésben */
+var FELHO_GEP_JATEKOSOK = "uc_gep_jatekosok";   /* localStorage: kik léptek be ezen a gépen (névkártyához: kód + unikornis-kinézet); 2+ = közös gép */
 var FELHO_MENTES_ELOTTE = "unikornis_centum_v1_felho_elott";   /* biztonsági másolat az első felhő-felülírás előtt */
 var FELHO_SZAMLALOK = { csillampor: 1, tunderharmat: 1, jatekMp: 1 };   /* ezek delta-alapon (increment) szinkronizálnak */
 

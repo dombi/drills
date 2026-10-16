@@ -1451,6 +1451,19 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .felho-kartya .nagy-gomb { width: 100%; }
 .felho-kartya .tovabb-link { margin-top: 10px; }
 .felho-allapot { margin-top: 12px; color: #5a4a6a; }
+/* közös gép: névkártyák a belépőn + 👋 Kilépek a profilválasztón */
+.felho-kartya.szeles { width: min(560px, 100%); }
+.felho-jatekosok { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 8px 0 12px; }
+.felho-jatekosok:empty { display: none; }
+.felho-nevkartya { font: inherit; background: #fff; border: 3px solid #e6dcf5; border-radius: 18px; padding: 6px 10px 10px;
+  width: 132px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.felho-nevkartya svg { width: 110px; height: 104px; }
+.felho-nevkartya .nev { font-size: 20px; font-weight: 800; color: #4a3a6a; }
+.felho-nevkartya:hover { border-color: #c8b0ec; }
+.felho-nevkartya.valasztott { border-color: #a57ee0; background: #f6efff; box-shadow: 0 0 0 3px rgba(165, 126, 224, 0.25); }
+.felho-kartya [hidden] { display: none; }
+.sarok-bal { position: absolute; left: 16px; bottom: 16px; }
+#profil-kilep[hidden] { display: none; }
 
 /* ============================================================================
    ÉGI TÜNEMÉNYKERT (5. fázis) — közös felhőkert, egymás unikornisai
