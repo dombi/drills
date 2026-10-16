@@ -8,9 +8,14 @@
 var LENYEK = {   /* a színek NEM itt vannak: rajz → UNI_SZIN (renderer.js), az egyetlen színforrás */
   ragyogas: { nev: "Ragyogás", rajz: "rozsa" },
   tuz: { nev: "Tűz", rajz: "korall" },
-  csillamharmat: { nev: "Csillámharmat", rajz: "kek" }
+  csillamharmat: { nev: "Csillámharmat", rajz: "kek" },
+  /* Unikornis-fajták (terv/unikornis-fajtak-rendszerterv.html): a kinézet ALAPja innen jön — szemForma
+     (pillas | hatarozott), frizura (egyenes | gondor | tarej); hiányzó mező = pillas / egyenes. A mentett
+     kinézet felülírja (a fodrászat átfésülheti). ⛔ nincs fiú/lány címke, a nevek semlegesek. */
+  ejfeny: { nev: "Éjfény", rajz: "ej", szemForma: "hatarozott" },
+  vihar: { nev: "Vihar", rajz: "vihar", szemForma: "hatarozott", frizura: "tarej" }
 };
-var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat"];
+var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat", "ejfeny", "vihar"];
 
 var PALYAK = [
   {
@@ -2417,19 +2422,21 @@ var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null }, lakk: [null, null, null, null], szor: null }; }
+function alapKinezet(k) { var a = (k && LENYEK[k]) || {}; return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: a.frizura || "egyenes", szemForma: a.szemForma || "pillas", festek: { soreny: null, farok: null, tincs: null }, lakk: [null, null, null, null], szor: null }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {}, lakkok: {}, szorfestekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=1 (2026-10 óta mindenkinek; régen: megvett kertkapu-kulcs), kulcsVissza=a kulcs árát már visszakapta, attolva=a tárgyak egyszer a C2 kert füves partjára kerültek; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {}, tenyKert: { v: {} }, gyak: { db: 0, nap: 0 } }; }
-function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = profilNormal(alapProfil()); });   /* friss mentésnél is minden ág meglegyen (bemutatva, szerszám…) — különben a térkép összeomlik */ return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr,
+function alapProfil(k) { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(k), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {}, tenyKert: { v: {} }, gyak: { db: 0, nap: 0 } }; }
+function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = profilNormal(alapProfil(k), k); });   /* friss mentésnél is minden ág meglegyen (bemutatva, szerszám…) — különben a térkép összeomlik */ return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr,
   ragyogasNulla20260906: 1 }; }   /* friss mentés: az egyszeri 2026-09-06-i Ragyogás-nullázás NEM rá vonatkozik — e nélkül az első újratöltés lenullázta Ragyogás ✨-át, ruháit, odúját (gépi próba, 2026-10-13) */
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
-/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
-function profilNormal(p) {
+/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut;
+   k = a lény kulcsa (a kinézet alapja a LENYEK sorából: Vihar taréjjal, Éjfény és Vihar határozott szemmel születik) */
+function profilNormal(p, k) {
+  var alapL = (k && LENYEK[k]) || {};
   if (typeof p.csillampor !== "number") p.csillampor = 0;
   if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
   if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
@@ -2459,11 +2466,12 @@ function profilNormal(p) {
   if (typeof p.streakRekord !== "number") p.streakRekord = 0;
   if (typeof p.dropUres !== "number") p.dropUres = 0;
   p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
-  if (!p.kinezet) p.kinezet = alapKinezet();
+  if (!p.kinezet) p.kinezet = alapKinezet(k);
   if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
   if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
   if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
-  if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
+  if (!p.kinezet.frizura) p.kinezet.frizura = alapL.frizura || "egyenes";   /* FODRÁSZAT */
+  if (!p.kinezet.szemForma) p.kinezet.szemForma = alapL.szemForma || "pillas";   /* Unikornis-fajták */
   if (!p.kinezet.festek || typeof p.kinezet.festek !== "object") p.kinezet.festek = {};   /* FODRÁSZAT 2.: részenkénti festék-id */
   ["soreny", "farok", "tincs"].forEach(function (r) { if (typeof p.kinezet.festek[r] !== "string") p.kinezet.festek[r] = null; });
   var lk0 = p.kinezet.lakk;   /* FODRÁSZAT 2.: patalakk, patánként (UNI_LABAK sorrend); tömb vagy {2:"id"} alak is jöhet */
@@ -2512,9 +2520,9 @@ function betolt() {
     if (m && m.profilok) {
       mentes = m;
       LENY_SORREND.forEach(function (k) {
-        if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil();
+        if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil(k);
         var p = mentes.profilok[k];
-        profilNormal(p);
+        profilNormal(p, k);
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";
@@ -3081,13 +3089,38 @@ var UNI_SZIN = {
   kek:    { test: "#d7ebfb", has: "#ecf6fe", lab: "#ecf6fe", pata: "#6a6fd6", s: ["#29a3dd", "#7a3bc0", "#c98fe6"],
             szarv: "#6a6fd6", szarvCs: "#454bb0", szem: "#2ea8e0", orr: "0.45", szikra: ["#29a3dd", "#7a3bc0", "#b06be0"] },
   rozsa:  { test: "#fdf3f7", has: "#ffffff", lab: "#ffffff", pata: "#ffcf4d", s: ["#ffcf4d", "#e6a92e", "#ffe6a0"],
-            szarv: "#ffcf4d", szarvCs: "#e0a52e", szem: "#e67ba6", orr: "0.4", szikra: ["#f4a6c6", "#f28ab8", "#ffd24d"] }
+            szarv: "#ffcf4d", szarvCs: "#e0a52e", szem: "#e67ba6", orr: "0.4", szikra: ["#f4a6c6", "#f28ab8", "#ffd24d"] },
+  /* Unikornis-fajták (terv/unikornis-fajtak-rajzterv.html, jóváhagyva 2026-10-16): Éjfény = éjkék + holdezüst, Vihar = palakék + villámsárga */
+  ej:     { test: "#56649e", has: "#4a5790", lab: "#4a5790", pata: "#c9d2e6", s: ["#e3e8f4", "#a3aecb", "#ffffff"],
+            szarv: "#dfe4ef", szarvCs: "#9aa4c0", szem: "#e8b52a", orr: "0.55", szikra: ["#fff3b0", "#c9d6ff", "#ffffff"] },
+  vihar:  { test: "#8797ac", has: "#a7b5c6", lab: "#a7b5c6", pata: "#4a5465", s: ["#ffd83a", "#f2a400", "#fff6c0"],
+            szarv: "#b4bdca", szarvCs: "#6b7686", szem: "#1f4fa0", orr: "0.5", szikra: ["#ffd83a", "#ffffff", "#9fd8ff"] }
 };
-/* a far jele (oldalnézet): Tűz = virág, Csillámharmat = hópehely, Ragyogás = csillag */
+/* a far jele (oldalnézet): Tűz = virág, Csillámharmat = hópehely, Ragyogás = csillag, Éjfény = holdsarló + 2 csillag, Vihar = villám */
 var UNI_JEL = {
   korall: ' <g stroke="none"> <ellipse cx="120" cy="166" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="133" cy="174" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="128" cy="189" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="112" cy="189" rx="6" ry="8" fill="#d63a3a"/> <ellipse cx="107" cy="174" rx="6" ry="8" fill="#d63a3a"/> <circle cx="120" cy="178" r="4.5" fill="#ffd24d"/> </g> ',
   kek:    ' <g stroke="#2b7fd0" stroke-width="3" stroke-linecap="round"> <path d="M120 162 V190"/> <path d="M108 169 L132 183"/> <path d="M132 169 L108 183"/> <path d="M120 167 l-5 5 M120 167 l5 5"/> <path d="M120 185 l-5 -5 M120 185 l5 -5"/> </g> <circle cx="120" cy="176" r="3" fill="#7a3bc0" stroke="none"/> ',
-  rozsa:  ' <path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/> <path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/> '
+  rozsa:  ' <path d="M120 162 l3 10 l10 4 l-10 4 l-3 10 l-3 -10 l-10 -4 l10 -4 Z" fill="#f4a6c6" stroke="none"/> <path d="M136 186 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z" fill="#f28ab8" stroke="none"/> ',
+  ej:     ' <path d="M126 161 a15 15 0 1 0 0 30 a20 20 0 0 1 0 -30 Z" fill="#f3e2a0" stroke="none"/>' +
+          ' <path d="M137 164 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="#fff6c8" stroke="none"/>' +
+          ' <path d="M135 182 l1.2 2.7 l2.7 1.2 l-2.7 1.2 l-1.2 2.7 l-1.2 -2.7 l-2.7 -1.2 l2.7 -1.2 Z" fill="#fff6c8" stroke="none"/> ',
+  vihar:  ' <path d="M127 159 L109 181 L120 181 L113 199 L135 173 L123 173 L131 159 Z" fill="#ffd83a" stroke="#6b5200" stroke-width="1.4" stroke-linejoin="round"/> '
+};
+/* ── A LÉNY FORMÁJA (Unikornis-fajták): a szem formája és a frizura alapja a LENYEK sorából jön (rajz szerint),
+   a mentett kinézet (P().kinezet.szemForma / .frizura) felülírja. Így egy kinézet nélküli rajz (választó,
+   közös kert más gépről) is a saját fajtája szerint néz ki. */
+function uniForma(rajz, kinezet) {
+  var a = {}, k = kinezet || {};
+  for (var lk in LENYEK) if (LENYEK[lk].rajz === rajz) { a = LENYEK[lk]; break; }
+  return { szem: SZEM_FORMA[k.szemForma] ? k.szemForma : (a.szemForma || "pillas"),
+           frizura: k.frizura || a.frizura || "egyenes" };
+}
+/* a szem oldalról: nyitva + csukva (alváskor a .uni-szem-csuk látszik). pillas = a régi három (betűre a régi rajz);
+   hatarozott = pillák helyett szemöldök, kicsit keskenyebb szem (rajzterv 4. rész). {szem} = a szemszín.
+   A szemből-nézet párja a unikornisFrontArt-ban (ugyanez a két forma). */
+var SZEM_FORMA = {
+  pillas: { oldal: ' <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M293 114.5 q-4 2 -6 6" stroke-width="2"/> <path d="M297 116.5 q-2 3 -3 7" stroke-width="2"/> <path d="M301.5 117 q0 3.5 0 7" stroke-width="2"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g>' },
+  hatarozott: { oldal: ' <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q297 108 304 108 Q311 108 313 113 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="113.6" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="113.6" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="111.6" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q298 106 314 110" fill="none" stroke-width="3.2"/> <path d="M287 100 Q300 93 315 99" fill="none" stroke-width="3.4"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M288 102 Q300 97 314 101" stroke-width="2.8"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g>' }
 };
 /* ── A 4 LÁB + PATA + ÍZÜLETEK (unikornis pózok 1a + 2a, terv/izuletek-rajzterv.html) ──
    láb = [bal-felső, jobb-felső, jobb-alsó, bal-alsó] a 380×300-as keretben; 0,1 = hátsó, 2,3 = elülső.
@@ -3147,26 +3180,30 @@ function uniLabSVG(i, sz, labDisz) {
       izForgo("uni-terd", iz, also) + felso) +
     '</g>';
 }
-var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" class="uni-szor" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" class="uni-szor" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/> <g stroke="#222" stroke-linejoin="round" stroke-linecap="round"> <path d="M291 114 Q296 105 303 105 Q311 105 313 114 Q308 120 300 120 Q293 120 291 114 Z" fill="#ffffff" stroke-width="1.7"/> <circle cx="301" cy="112.5" r="5" fill="{szem}" stroke="none"/> <circle cx="301" cy="112.5" r="3" fill="#222" stroke="none"/> <circle cx="299" cy="110.4" r="1.6" fill="#fff" stroke="none"/> <circle cx="303" cy="115" r="0.9" fill="#fff" opacity="0.85" stroke="none"/> <path d="M289 113 Q297 103 314 110" fill="none" stroke-width="2.6"/> <path d="M290 112 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/> <path d="M293 108 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/> <path d="M297 105 q-1 -4 0 -9" fill="none" stroke-width="2.2"/> <path d="M294 117 Q301 121 310 116" fill="none" stroke-width="1.1" opacity="0.5"/> </g> <g class="uni-szem-csuk" display="none" fill="none" stroke="#222" stroke-linecap="round"> <path d="M290 111 Q301 121 314 110" stroke-width="2.6"/> <path d="M293 114.5 q-4 2 -6 6" stroke-width="2"/> <path d="M297 116.5 q-2 3 -3 7" stroke-width="2"/> <path d="M301.5 117 q0 3.5 0 7" stroke-width="2"/> <path d="M292 108 Q301 104 311 106" stroke-width="1.1" opacity="0.4"/> </g> <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" class="uni-szor" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
+var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" class="uni-szor" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" class="uni-szor" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/>{szemArt} <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" class="uni-szor" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
 /* szor = a szőrfesték (SZORFESTEKEK sora) vagy semmi: a test, a has és a láb színe cserélődik, a jel szükség
    esetén matrica-szegélyt kap (jelKozel); a minta kitöltése url(#SZORMINTA), amit a példány cserél (szorPeldany).
    A test, a fej és a fül class="uni-szor" (a szalonban erre lehet koppintani). */
-function uniOldalArt(rajz, labDisz, szor) {
+function uniOldalArt(rajz, labDisz, szor, szemForma) {
   var sz = szorSzinek(UNI_SZIN[rajz] || UNI_SZIN.korall, szor), jel = UNI_JEL[rajz] || UNI_JEL.korall;
   if (szor && jelKozel(rajz, szor)) jel = jelSzegely(jel) + jel;
-  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: jel };
+  var szemArt = (SZEM_FORMA[szemForma] || SZEM_FORMA[uniForma(rajz).szem]).oldal.split("{szem}").join(sz.szem);
+  var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: jel, szemArt: szemArt };
   for (var i = 0; i < 4; i++) ertek["lab" + i] = uniLabSVG(i, sz, labDisz);
   ["fej", "nyak", "farok"].forEach(function (n) { var z = UNI_TEST_IZ[n]; ertek[n + "Be"] = izNyit(z.cls, z.pont); ertek[n + "Ki"] = izZar(z.cls); });
   return UNI_SABLON.replace(/\{(\w+)\}/g, function (m, k) { return k in ertek ? ertek[k] : sz[k]; });
 }
-var UNI_RAJZ = { korall: uniOldalArt("korall"), kek: uniOldalArt("kek"), rozsa: uniOldalArt("rozsa") };
-/* az oldalrajz a lábdísszel és a szőrfestékkel együtt (a dísz a láb alsó részében van); rajz+dísz+szőr szerint egyszer készül el */
+var UNI_RAJZ = {};   /* minden rajz a saját (LENYEK szerinti) szemével */
+Object.keys(UNI_SZIN).forEach(function (r) { UNI_RAJZ[r] = uniOldalArt(r); });
+/* az oldalrajz a lábdísszel, a szőrfestékkel és a szem formájával együtt (a dísz a láb alsó részében van);
+   rajz+dísz+szőr+szem szerint egyszer készül el */
 var UNI_RAJZ_LAB = {};
-function uniAlapArt(rajz, labDisz, szor) {
+function uniAlapArt(rajz, labDisz, szor, szemForma) {
   if (!UNI_SZIN[rajz]) rajz = "korall";
-  if (!labDisz && !szor) return UNI_RAJZ[rajz];
-  var k = rajz + "|" + (labDisz || "") + "|" + (szor ? szor.id : "");
-  return UNI_RAJZ_LAB[k] || (UNI_RAJZ_LAB[k] = uniOldalArt(rajz, labDisz, szor));
+  var sajat = !szemForma || szemForma === uniForma(rajz).szem;
+  if (!labDisz && !szor && sajat) return UNI_RAJZ[rajz];
+  var k = rajz + "|" + (labDisz || "") + "|" + (szor ? szor.id : "") + "|" + (sajat ? "" : szemForma);
+  return UNI_RAJZ_LAB[k] || (UNI_RAJZ_LAB[k] = uniOldalArt(rajz, labDisz, szor, szemForma));
 }
 /* ── PÓZOK: EGY KÖZÖS TÁBLA (unikornis pózok 2a, terv/izuletek-rajzterv.html) ────────────────
    Minden helyszín (kert, felhőkert, odú, …) ugyanazt a pózt kapja: a táblából készül a CSS (uniPozCSS),
@@ -3753,7 +3790,9 @@ function uniForduloCSS() {
 var SORENY_SZIN = {
   kek:    [{ nev: "Alap", c: UNI_SZIN.kek.s }, { nev: "Jégkék", c: ["#4ec3e0", "#3f6fd0", "#a7d9f0"] }, { nev: "Magenta-hajnal", c: ["#4aa8dd", "#b03bc0", "#f0a5d8"] }],
   korall: [{ nev: "Alap", c: UNI_SZIN.korall.s }, { nev: "Parázs", c: ["#ff8a3d", "#c22e2e", "#ffd08a"] }, { nev: "Naplemente", c: ["#f2662b", "#b0347a", "#ffc45c"] }],
-  rozsa:  [{ nev: "Alap", c: UNI_SZIN.rozsa.s }, { nev: "Rózsaarany", c: ["#f7b6c8", "#e08aa8", "#ffe0ea"] }, { nev: "Holdezüst", c: ["#e8e4f0", "#a49cc0", "#f7f5fb"] }]
+  rozsa:  [{ nev: "Alap", c: UNI_SZIN.rozsa.s }, { nev: "Rózsaarany", c: ["#f7b6c8", "#e08aa8", "#ffe0ea"] }, { nev: "Holdezüst", c: ["#e8e4f0", "#a49cc0", "#f7f5fb"] }],
+  ej:     [{ nev: "Alap", c: UNI_SZIN.ej.s }],
+  vihar:  [{ nev: "Alap", c: UNI_SZIN.vihar.s }]
 };
 var SZEM_SZIN = [
   { nev: "Alap", hex: null }, { nev: "Égkék", hex: "#2ea8e0" }, { nev: "Rózsa", hex: "#e67ba6" }, { nev: "Sötétbarna", hex: "#3a2a20" },
@@ -3800,6 +3839,100 @@ function frizuraGondorArt(rajz, alap) {
   var lista = SORENY_SZIN[rajz] || SORENY_SZIN.korall, szinek = lista[0].c;
   var parts = [furtCsoport(CURLY.farok, szinek), furtCsoport(CURLY.soreny, szinek), furtCsoport(CURLY.tincs, szinek)], i = 0;
   return alap.replace(/<g class="ucg">[\s\S]*?<\/g>/g, function () { return parts[i++]; });
+}
+/* ── TARÉJ: rövid, felálló sörény (Unikornis-fajták, rajzterv 7. rész; Vihar ezzel születik) ──────────────
+   A göndör mintájára a 3 „ucg" csoportot (farok, sörény, homloktincs) cseréli, a rajz saját színhármasában
+   (SORENY_SZIN[rajz][0].c) — a bolti szín, a festék és az élő animáció így ugyanúgy fut rá.
+   tarejTuskek: n tüske egy másodfokú görbe (p0 → c → p1) mentén, kifelé (oldal = ±1), h magasan;
+   dol = a hegy dőlése a görbe irányába; opt.sav = egybefüggő tő-sáv, opt.kicsi = belső (kisebb) tüskesor. */
+function tarejTuskek(p0, c, p1, n, h, dol, oldal, szin, opt) {
+  opt = opt || {};
+  function Q(t) { var u = 1 - t; return [u * u * p0[0] + 2 * u * t * c[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * c[1] + t * t * p1[1]]; }
+  function D(t) { var x = 2 * (1 - t) * (c[0] - p0[0]) + 2 * t * (p1[0] - c[0]), y = 2 * (1 - t) * (c[1] - p0[1]) + 2 * t * (p1[1] - c[1]), L = Math.hypot(x, y); return [x / L, y / L]; }
+  var s = "", be = opt.be || 3, k = opt.kicsi || 1;
+  for (var i = 0; i < n; i++) {
+    var t0 = i / n, t1 = (i + 1) / n, tm = (t0 + t1) / 2, d = D(tm), nr = [-d[1] * oldal, d[0] * oldal];
+    var hi = h * k * (opt.egyenletes ? 1 : (0.72 + 0.28 * Math.sin(Math.PI * tm)));
+    var b0 = Q(Math.max(0, t0 - 0.02)), b1 = Q(Math.min(1, t1 + 0.02)), m = Q(tm);
+    if (k < 1) { b0 = [m[0] + (b0[0] - m[0]) * 0.62, m[1] + (b0[1] - m[1]) * 0.62]; b1 = [m[0] + (b1[0] - m[0]) * 0.62, m[1] + (b1[1] - m[1]) * 0.62]; }
+    b0 = [b0[0] - nr[0] * be, b0[1] - nr[1] * be]; b1 = [b1[0] - nr[0] * be, b1[1] - nr[1] * be];
+    var tip = [m[0] + nr[0] * hi + d[0] * hi * dol, m[1] + nr[1] * hi + d[1] * hi * dol];
+    var k0 = [(b0[0] + tip[0]) / 2 - d[0] * hi * 0.12, (b0[1] + tip[1]) / 2 - d[1] * hi * 0.12];
+    s += '<path d="M' + uniK(b0[0]) + " " + uniK(b0[1]) + " Q" + uniK(k0[0]) + " " + uniK(k0[1]) + " " + uniK(tip[0]) + " " + uniK(tip[1]) +
+         " L" + uniK(b1[0]) + " " + uniK(b1[1]) + ' Z" fill="' + szin + '" stroke="none"/>';
+  }
+  if (opt.sav) {
+    var a = [], b = [];
+    for (var j = 0; j <= 12; j++) { var t = j / 12, q = Q(t), dd = D(t), nn = [-dd[1] * oldal, dd[0] * oldal];
+      a.push(uniK(q[0] + nn[0] * 2) + " " + uniK(q[1] + nn[1] * 2)); b.unshift(uniK(q[0] - nn[0] * opt.sav) + " " + uniK(q[1] - nn[1] * opt.sav)); }
+    s = '<path d="M' + a.join(" L") + " L" + b.join(" L") + ' Z" fill="' + szin + '" stroke="none"/>' + s;
+  }
+  return s;
+}
+function tarejFeny(p0, c, p1, n, h, oldal, szin, w) {   /* a csillám-szín (C3) vékony fénycsíkjai minden második tüskén */
+  function Q(t) { var u = 1 - t; return [u * u * p0[0] + 2 * u * t * c[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * c[1] + t * t * p1[1]]; }
+  var s = "";
+  for (var i = 0; i < n; i += 2) {
+    var tm = (i + 0.5) / n, a = Q(tm - 0.02), b = Q(tm + 0.02), dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nr = [-dy / L * oldal, dx / L * oldal], m = Q(tm);
+    s += '<path d="M' + uniK(m[0] + nr[0] * h * 0.1) + " " + uniK(m[1] + nr[1] * h * 0.1) + " L" + uniK(m[0] + nr[0] * h * 0.55) + " " + uniK(m[1] + nr[1] * h * 0.55) + '" fill="none" stroke="' + szin + '" stroke-width="' + w + '"/>';
+  }
+  return s;
+}
+/* ► A TARÉJ EGY HELYEN hangolható: [p0, c, p1] görbék a 380×300-as keretben (oldal, szemből, hátulról) */
+var TAREJ = {
+  oldal: { soreny: [[257, 77], [222, 86], [189, 110]], n: 6, h: 30, tincs: [[262, 94], [276, 80], [294, 88]] },
+  elolK: [[164, 52], [190, 40], [216, 52]], elolB: [[150, 92], [138, 108], [134, 128]], elolJ: [[230, 92], [242, 108], [246, 128]],
+  elolTB: [[164, 62], [170, 56], [178, 56]], elolTJ: [[202, 56], [210, 56], [216, 62]],
+  hatulB: [[186, 54], [182, 106], [186, 158]], hatulJ: [[194, 54], [198, 106], [194, 158]], hatulT: [[180, 52], [190, 44], [200, 52]]
+};
+var TAREJ_TAR = {};   /* nézet + színhármas → a kész csoportok (egyszer számolódik) */
+function tarejOldalCsoportok(s) {
+  var k = "o" + s.join(); if (TAREJ_TAR[k]) return TAREJ_TAR[k];
+  var T = TAREJ.oldal, S = T.soreny, I = T.tincs;
+  var farok = '<g class="ucg"><path d="M96 148 Q60 142 42 170 Q57 168 64 175 Q45 190 39 215 Q57 200 68 204 Q55 223 53 244 Q78 221 88 198 Q99 174 96 148 Z" fill="' + s[0] + '" stroke="none"/>' +
+    '<path d="M92 156 Q66 158 55 181 Q68 178 74 185 Q61 201 59 222 Q80 203 86 188 Q93 172 92 156 Z" fill="' + s[1] + '" stroke="none"/>' +
+    '<path d="M94 156 Q66 168 51 194" fill="none" stroke="' + s[2] + '" stroke-width="5"/><path d="M94 172 Q74 196 62 228" fill="none" stroke="' + s[2] + '" stroke-width="4"/></g>';
+  var soreny = '<g class="ucg">' + tarejTuskek(S[0], S[1], S[2], T.n, T.h, 0.62, 1, s[0], { sav: 7, be: 4 }) +
+    tarejTuskek(S[0], S[1], S[2], T.n, T.h, 0.62, 1, s[1], { kicsi: 0.62, be: 2 }) +
+    tarejFeny(S[0], S[1], S[2], T.n, T.h * 0.9, 1, s[2], 2.6) + '</g>';
+  var tincs = '<g class="ucg">' + tarejTuskek(I[0], I[1], I[2], 4, 15, 0.35, -1, s[0], { sav: 5 }) +
+    tarejTuskek(I[0], I[1], I[2], 4, 15, 0.35, -1, s[1], { kicsi: 0.6, be: 1 }) + '</g>';
+  return (TAREJ_TAR[k] = [farok, soreny, tincs]);
+}
+/* a taréj alatt látszik a nyak: testszínű nyak-ív (a hosszú sörény eddig eltakarta) — a nyak keretében, a sörény alatt.
+   A fej körvonala ilyenkor a fül mögül indul (különben a taréj tövénél átlátszana). */
+var TAREJ_NYAK = { d: "M190 116 C206 104 228 88 248 80 C258 77 264 84 264 98 L270 152 C250 160 236 172 226 186 C218 156 208 132 190 116 Z", el: "M192 108 C210 98 230 86 250 79" };
+var FEJ_KONTUR = ['<path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72', '<path d="M262 75.5 C271 73 281 72 292 72 C328 72'];
+function frizuraTarejArt(rajz, alap, szor) {
+  var szinek = (SORENY_SZIN[rajz] || SORENY_SZIN.korall)[0].c, cs = tarejOldalCsoportok(szinek), i = 0;
+  var test = szorSzinek(UNI_SZIN[rajz] || UNI_SZIN.korall, szor).test;
+  var art = alap.replace(/<g class="ucg">[\s\S]*?<\/g>/g, function () {
+    i++;
+    return (i === 2 ? '<path class="uni-szor" d="' + TAREJ_NYAK.d + '" fill="' + test + '" stroke="none"/><path d="' + TAREJ_NYAK.el + '" fill="none" stroke-width="5"/>' : "") + cs[i - 1];
+  });
+  return art.split(FEJ_KONTUR[0]).join(FEJ_KONTUR[1]);
+}
+/* szemből / hátulról: a 3 csoport (szemből: a fej fölötti taréj · a két oldalsó tüskesor · a homloktincs;
+   hátulról: farok · a nyak taréja · a fej búbja) */
+function tarejNezetCsoportok(nezet, sz) {
+  var k = nezet + [sz.s1, sz.s2, sz.s3].join(); if (TAREJ_TAR[k]) return TAREJ_TAR[k];
+  var s = [sz.s1, sz.s2, sz.s3], T = TAREJ, tk = tarejTuskek, r;
+  function g(x) { return '<g class="ucg">' + x + '</g>'; }
+  if (nezet === "elol") r = [
+    g(tk(T.elolK[0], T.elolK[1], T.elolK[2], 5, 22, 0, -1, s[0], { sav: 8 }) + tk(T.elolK[0], T.elolK[1], T.elolK[2], 5, 22, 0, -1, s[1], { kicsi: .6, be: 1 })),
+    g(tk(T.elolB[0], T.elolB[1], T.elolB[2], 3, 12, 0.3, 1, s[0], { sav: 5 }) + tk(T.elolJ[0], T.elolJ[1], T.elolJ[2], 3, 12, 0.3, -1, s[0], { sav: 5 }) +
+      tk(T.elolB[0], T.elolB[1], T.elolB[2], 3, 12, 0.3, 1, s[1], { kicsi: .55, be: 1 }) + tk(T.elolJ[0], T.elolJ[1], T.elolJ[2], 3, 12, 0.3, -1, s[1], { kicsi: .55, be: 1 })),
+    g(tk(T.elolTB[0], T.elolTB[1], T.elolTB[2], 2, 11, -0.2, -1, s[0], { sav: 3 }) + tk(T.elolTJ[0], T.elolTJ[1], T.elolTJ[2], 2, 11, 0.2, -1, s[0], { sav: 3 }) +
+      tk(T.elolTB[0], T.elolTB[1], T.elolTB[2], 2, 11, -0.2, -1, s[1], { kicsi: .5, be: 1 }) + tk(T.elolTJ[0], T.elolTJ[1], T.elolTJ[2], 2, 11, 0.2, -1, s[1], { kicsi: .5, be: 1 }))];
+  else r = [
+    g('<path d="M178 222 Q170 244 162 268 Q177 256 184 263 Q186 246 190 240 Q194 246 196 263 Q203 256 218 268 Q210 244 202 222 Z" fill="' + s[0] + '" stroke="none"/>' +
+      '<path d="M184 224 Q180 242 176 256 Q184 250 188 254 Q190 242 190 236 Q192 242 192 254 Q196 250 204 256 Q200 242 196 224 Z" fill="' + s[1] + '" stroke="none"/>'),
+    g('<path d="M182 52 Q180 106 182 160 L198 160 Q200 106 198 52 Z" fill="' + s[0] + '" stroke="none"/>' +
+      tk(T.hatulB[0], T.hatulB[1], T.hatulB[2], 6, 12, 0.25, 1, s[0], {}) + tk(T.hatulJ[0], T.hatulJ[1], T.hatulJ[2], 6, 12, 0.25, -1, s[0], {}) +
+      '<path d="M187 56 Q186 106 187 156 L193 156 Q194 106 193 56 Z" fill="' + s[1] + '" stroke="none"/>' +
+      '<path d="M190 62 L190 150" fill="none" stroke="' + s[2] + '" stroke-width="2.4" stroke-dasharray="8 10"/>'),
+    g(tk(T.hatulT[0], T.hatulT[1], T.hatulT[2], 4, 14, 0, -1, s[0], { sav: 4, egyenletes: true }) + tk(T.hatulT[0], T.hatulT[1], T.hatulT[2], 4, 14, 0, -1, s[1], { kicsi: .55, be: 1, egyenletes: true }))];
+  return (TAREJ_TAR[k] = r);
 }
 /* ── FODRÁSZAT (2. fázis): sörény-, farok- és tincsfestés ────────────────────
    Terv: terv/fodraszat-festes-rendszerterv.html + fodraszat-festes-rajzterv.html (jóváhagyva 2026-09-26).
@@ -4041,7 +4174,7 @@ function szorPeldany(art, f, pfx, hol) {
   return '<defs>' + szorMintaDef(f, pid, hol) + '</defs>' + art.split("url(#SZORMINTA)").join("url(#" + pid + ")");
 }
 /* JEL-SZEGÉLY: ha a far-jel színe közel esik a szőréhez (RGB-távolság < 80), fehér matrica-szegély kerül alá */
-var JEL_SZIN = { korall: "#d63a3a", kek: "#2b7fd0", rozsa: "#f4a6c6" };
+var JEL_SZIN = { korall: "#d63a3a", kek: "#2b7fd0", rozsa: "#f4a6c6", ej: "#f3e2a0", vihar: "#ffd83a" };
 function szinTav(a, b) {
   function rgb(h) { h = h.replace("#", ""); return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
   var x = rgb(a), y = rgb(b); return Math.sqrt(Math.pow(x[0] - y[0], 2) + Math.pow(x[1] - y[1], 2) + Math.pow(x[2] - y[2], 2));
@@ -4091,8 +4224,10 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
   var rajz = (c && c.rajz) || "korall";
   if (kinezet === undefined) kinezet = (typeof P === "function" && P() && P().kinezet) || null;
   var szor = kinezet && SZOR_BY[kinezet.szor] || null;   /* FODRÁSZAT 2.: szőrfesték (ismeretlen id → saját szín) */
-  var art = uniAlapArt(rajz, oltozet && oltozet.lab, szor);   /* a lábdísz a láb része (2a) */
-  if (kinezet && kinezet.frizura === "gondor") art = frizuraGondorArt(rajz, art);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
+  var forma = uniForma(rajz, kinezet);   /* a szem formája és a frizura (a fajta alapja, ha a kinézet nem mond mást) */
+  var art = uniAlapArt(rajz, oltozet && oltozet.lab, szor, forma.szem);   /* a lábdísz a láb része (2a) */
+  if (forma.frizura === "gondor") art = frizuraGondorArt(rajz, art);   /* FODRÁSZAT: göndör forma (a recolor/anim ugyanúgy fut rá) */
+  else if (forma.frizura === "tarej") art = frizuraTarejArt(rajz, art, szor);   /* Unikornis-fajták: taréj */
   art = kinezetAlkalmaz(art, rajz, kinezet);
   art = festekAlkalmaz(art, kinezet && kinezet.festek, id);   /* FODRÁSZAT 2.: festék a bolti szín fölé */
   art = lakkAlkalmaz(art, kinezet && kinezet.lakk, id, "oldal");   /* FODRÁSZAT 2.: patalakk, patánként */
@@ -4132,9 +4267,9 @@ function forgatoSzinek(rajz, kinezet) {
 /* szemből ("elol") vagy hátulról ("hatul") — a lény színeivel, frizurájával, a VALÓDI festékmintával
    és a felvett díszekkel (oltozet; unikornis pózok 1b, terv/diszek-nezetek-rajzterv.html) */
 function unikornisNezetArt(nezet, rajz, kinezet, pfx, oltozet) {
-  var sz = forgatoSzinek(rajz, kinezet), gondor = !!(kinezet && kinezet.frizura === "gondor");
+  var sz = forgatoSzinek(rajz, kinezet), forma = uniForma(rajz, kinezet);
   var r = nezetDiszRetegek(nezet === "hatul" ? "hatul" : "elol", oltozet);
-  var art = nezet === "hatul" ? unikornisBackArt(sz, gondor, r) : unikornisFrontArt(sz, gondor, r);
+  var art = nezet === "hatul" ? unikornisBackArt(sz, forma, r) : unikornisFrontArt(sz, forma, r);
   art = nyakAlattBe(art, oltozet && NYAK_ALATT[oltozet.nyak], nezet === "hatul" ? "hatul" : "elol");   /* a sál a fej ALÁ */
   art = festekAlkalmaz(art, kinezet && kinezet.festek, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol", sz.s3);
   art = lakkAlkalmaz(art, kinezet && kinezet.lakk, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol");
@@ -4164,9 +4299,11 @@ function nezetPataPar(sz, par, op) {
   var L = NEZET_LABAK[par];
   return nezetPata(sz, L[0][3][0], L[0][2][0], op) + nezetPata(sz, L[1][3][0], L[1][2][0], op);
 }
-/* r = a díszek rétegei (nezetDiszRetegek): mogott · farok · labH · labE · test · nyak · veg */
-function unikornisFrontArt(sz, gondor, r) {
+/* r = a díszek rétegei (nezetDiszRetegek): mogott · farok · labH · labE · test · nyak · veg
+   forma = uniForma(): .frizura (egyenes / gondor / tarej) és .szem (pillas / hatarozott) */
+function unikornisFrontArt(sz, forma, r) {
   r = r || {};
+  var gondor = forma.frizura === "gondor", tarej = forma.frizura === "tarej" && tarejNezetCsoportok("elol", sz);
   var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
   s += (r.mogott || "");   /* szárnyak: a test mögött */
   s += '<path d="M172 228 Q158 256 156 278" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/>';
@@ -4182,7 +4319,8 @@ function unikornisFrontArt(sz, gondor, r) {
   s += '<ellipse cx="218" cy="288" rx="12" ry="3.5" fill="#baa0d0" stroke="none"/>';
   s += nezetPataPar(sz, "elso");   /* az elülső pár patája */
   s += (r.labE || "") + (r.test || "");   /* lábdísz; a hát-takaró két oldala (a sörény rá omlik) */
-  if (gondor) {
+  if (tarej) s += tarej[0] + tarej[1];
+  else if (gondor) {
     s += '<g class="ucg"><circle cx="138" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="128" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="122" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="120" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="126" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="132" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="124" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
     s += '<g class="ucg"><circle cx="242" cy="82" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="252" cy="112" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="258" cy="146" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="260" cy="178" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="254" cy="206" r="12" fill="' + sz.s1 + '" stroke="none"/><circle cx="248" cy="94" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="256" cy="162" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
   } else {
@@ -4196,17 +4334,24 @@ function unikornisFrontArt(sz, gondor, r) {
   s += '<path d="M180 52 L200 52" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
   s += '<path d="M183 40 L197 40" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
   s += '<path d="M186 28 L194 28" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
-  if (gondor) {
+  if (tarej) s += tarej[2];
+  else if (gondor) {
     s += '<g class="ucg"><circle cx="178" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="202" cy="78" r="9" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="74" r="7" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="86" r="3" fill="' + sz.s3 + '" stroke="none"/></g>';
   } else {
     s += '<g class="ucg"><path d="M180 64 Q174 80 178 96" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M186 62 Q180 78 184 94" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/><path d="M194 62 Q200 78 196 94" fill="none" stroke="' + sz.s1 + '" stroke-width="5"/><path d="M200 64 Q206 80 202 96" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/></g>';
   }
-  s += '<path d="M165 86 Q172 76 180 76 Q188 76 191 86 Q186 92 178 92 Q170 92 165 86 Z" fill="#fff" stroke-width="1.7"/>';
+  var hat = forma.szem === "hatarozott";   /* határozott szem: keskenyebb szemforma, pillák helyett szemöldök */
+  s += hat ? '<path d="M165 86 Q171 79.5 179 79.5 Q188 79.5 191 85.5 Q186 92 178 92 Q170 92 165 86 Z" fill="#fff" stroke-width="2.4"/>'
+           : '<path d="M165 86 Q172 76 180 76 Q188 76 191 86 Q186 92 178 92 Q170 92 165 86 Z" fill="#fff" stroke-width="1.7"/>';
   s += '<circle cx="178" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="178" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="176" cy="83" r="1.6" fill="#fff" stroke="none"/>';
-  s += '<path d="M189 86 Q196 76 204 76 Q212 76 215 86 Q210 92 202 92 Q194 92 189 86 Z" fill="#fff" stroke-width="1.7"/>';
+  s += hat ? '<path d="M189 85.5 Q192 79.5 201 79.5 Q209 79.5 215 86 Q210 92 202 92 Q194 92 189 85.5 Z" fill="#fff" stroke-width="2.4"/>'
+           : '<path d="M189 86 Q196 76 204 76 Q212 76 215 86 Q210 92 202 92 Q194 92 189 86 Z" fill="#fff" stroke-width="1.7"/>';
   s += '<circle cx="202" cy="85" r="5.5" fill="' + sz.szem + '" stroke="none"/><circle cx="202" cy="85" r="3.2" fill="#222" stroke="none"/><circle cx="200" cy="83" r="1.6" fill="#fff" stroke="none"/>';
-  s += '<path d="M165 84 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/><path d="M169 80 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>';
-  s += '<path d="M215 84 q3 -3 5 -8" fill="none" stroke-width="2.2"/><path d="M211 80 q2 -4 3 -9" fill="none" stroke-width="2.2"/>';
+  if (hat) s += '<path d="M162 73 Q175 66 188 71" fill="none" stroke-width="3.2"/><path d="M192 71 Q205 66 218 73" fill="none" stroke-width="3.2"/>';
+  else {
+    s += '<path d="M165 84 q-3 -3 -5 -8" fill="none" stroke-width="2.2"/><path d="M169 80 q-2 -4 -3 -9" fill="none" stroke-width="2.2"/>';
+    s += '<path d="M215 84 q3 -3 5 -8" fill="none" stroke-width="2.2"/><path d="M211 80 q2 -4 3 -9" fill="none" stroke-width="2.2"/>';
+  }
   s += '<path d="M183 104 Q190 110 197 104" fill="none" stroke="#e088b0" stroke-width="2"/>';
   s += '<ellipse cx="162" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
   s += '<ellipse cx="218" cy="98" rx="8" ry="5" fill="#f0b8d8" opacity=".35" stroke="none"/>';
@@ -4215,10 +4360,12 @@ function unikornisFrontArt(sz, gondor, r) {
   s += (r.nyak || "") + (r.veg || "");   /* nyakdísz a mellkason, fejdísz a fejen — legfelül */
   return s + '</g>';
 }
-function unikornisBackArt(sz, gondor, r) {
+function unikornisBackArt(sz, forma, r) {
   r = r || {};
+  var gondor = forma.frizura === "gondor", tarej = forma.frizura === "tarej" && tarejNezetCsoportok("hatul", sz);
   var s = '<g stroke="#222" stroke-linejoin="round" stroke-linecap="round">';
-  if (gondor) {
+  if (tarej) s += tarej[0];
+  else if (gondor) {
     s += '<g class="ucg"><circle cx="176" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="248" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="204" cy="238" r="14" fill="' + sz.s2 + '" stroke="none"/><circle cx="170" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="272" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="210" cy="264" r="13" fill="' + sz.s1 + '" stroke="none"/><circle cx="180" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="200" cy="286" r="11" fill="' + sz.s2 + '" stroke="none"/><circle cx="184" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="196" cy="254" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
   } else {
     s += '<g class="ucg"><path d="M190 222 Q164 252 156 274 Q150 288 156 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 220 Q190 258 188 280 Q186 292 190 296" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 222 Q216 252 224 274 Q230 288 224 294" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M190 218 Q176 248 170 270 Q166 284 170 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/><path d="M190 218 Q204 248 210 270 Q214 284 210 292" fill="none" stroke="' + sz.s3 + '" stroke-width="5"/></g>';
@@ -4242,18 +4389,22 @@ function unikornisBackArt(sz, gondor, r) {
   s += '<path d="M183 48 L197 48" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
   s += '<path d="M185 36 L195 36" stroke="' + sz.szarvCs + '" stroke-width="3"/>';
   s += (r.nyak || "");   /* nyakdísz a tarkón + szárnyak a háton: a sörény rájuk omlik */
-  if (gondor) {
+  if (tarej) s += tarej[1];
+  else if (gondor) {
     s += '<g class="ucg"><circle cx="172" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="82" r="16" fill="' + sz.s1 + '" stroke="none"/><circle cx="208" cy="76" r="15" fill="' + sz.s2 + '" stroke="none"/><circle cx="166" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="116" r="15" fill="' + sz.s1 + '" stroke="none"/><circle cx="214" cy="110" r="14" fill="' + sz.s1 + '" stroke="none"/><circle cx="172" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="190" cy="146" r="13" fill="' + sz.s2 + '" stroke="none"/><circle cx="208" cy="142" r="12" fill="' + sz.s2 + '" stroke="none"/><circle cx="180" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="200" cy="92" r="4.5" fill="' + sz.s3 + '" stroke="none"/><circle cx="178" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/><circle cx="202" cy="128" r="4" fill="' + sz.s3 + '" stroke="none"/></g>';
   } else {
     s += '<g class="ucg"><path d="M172 60 Q156 100 154 148 Q152 188 160 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/><path d="M180 56 Q168 100 166 150 Q164 196 172 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M190 52 Q190 100 190 150 Q190 196 190 240" fill="none" stroke="' + sz.s3 + '" stroke-width="6"/><path d="M200 56 Q212 100 214 150 Q216 196 208 236" fill="none" stroke="' + sz.s2 + '" stroke-width="7"/><path d="M208 60 Q224 100 226 148 Q228 188 220 224" fill="none" stroke="' + sz.s1 + '" stroke-width="8"/></g>';
   }
-  s += '<g class="ucg">';
-  if (gondor) {
-    s += '<circle cx="182" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="198" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="48" r="6" fill="' + sz.s2 + '" stroke="none"/>';
-  } else {
-    s += '<path d="M182 52 Q178 36 180 24" fill="none" stroke="' + sz.s1 + '" stroke-width="4"/><path d="M198 52 Q202 36 200 24" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+  if (tarej) s += tarej[2];
+  else {
+    s += '<g class="ucg">';
+    if (gondor) {
+      s += '<circle cx="182" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="198" cy="52" r="8" fill="' + sz.s1 + '" stroke="none"/><circle cx="190" cy="48" r="6" fill="' + sz.s2 + '" stroke="none"/>';
+    } else {
+      s += '<path d="M182 52 Q178 36 180 24" fill="none" stroke="' + sz.s1 + '" stroke-width="4"/><path d="M198 52 Q202 36 200 24" fill="none" stroke="' + sz.s2 + '" stroke-width="4"/>';
+    }
+    s += '</g>';
   }
-  s += '</g>';
   s += (r.veg || "");   /* fejdísz */
   return s + '</g>';
 }
@@ -13543,7 +13694,7 @@ var LENY_PAL = {
   levendula: { b: "#cfb6ee", s: "#ac90d8", d: "#6a4f9e", has: "#fde6c4", csik: "#e5c08f", szarny: "#a9d3f3", szarny2: "#86b9e2", tuske: "#9ec9f0", szarv: "#fce49a", petty: "#fff0dc" },
   barack:    { b: "#f9c9a2", s: "#eea576", d: "#a8603a", has: "#fff4d6", csik: "#eac28c", szarny: "#b6e2a8", szarny2: "#93cc83", tuske: "#f6a5c0", szarv: "#fff1b0", petty: "#fff7e4" }
 };
-var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula" };   /* rajzterv 2. döntés */
+var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula", ejfeny: "levendula", vihar: "menta" };   /* rajzterv 2. döntés */
 var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Lángi", "Tüsszi", "Pöfi", "Villám", "Smaragd", "Taréj", "Szárnyi"];
 /* hány gyakorlós nap egy-egy lépcső (tervlap 5. döntés; később a pultról állítható) */
 /* kolyok: 0 = a kölyök NEM nő fel (producer, 2026-10-11: ha megkerül, maradjon kölyök; 2026-10-14: egyik
@@ -14938,7 +15089,7 @@ function ligetUget(kart, indit) {
    Mentés: P().het = { [hetAzon]: [tenyNap | null, …] } (gondozas.js visszaTar). */
 
 var HET_NAPNEV = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"];
-var HET_PECSET_SZIN = { rozsa: ["#e0699b", "#b0417a"], korall: ["#f08a6a", "#b5543a"], kek: ["#7fb6e6", "#3f78b0"] };
+var HET_PECSET_SZIN = { rozsa: ["#e0699b", "#b0417a"], korall: ["#f08a6a", "#b5543a"], kek: ["#7fb6e6", "#3f78b0"], ej: ["#7f8ccc", "#3e4a86"], vihar: ["#f2b21c", "#8a6a10"] };
 var HET_ODU = { x: 292, y: 262, s: 0.19 };   /* az odú falán: a jelvénytábla alatt, az ablak és a csillaglámpa között */
 var HET_DEFS = '<defs><linearGradient id="het-szivarvany" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6a5c0"/><stop offset=".35" stop-color="#fce49a"/><stop offset=".65" stop-color="#a7d99a"/><stop offset="1" stop-color="#9ec9f0"/></linearGradient></defs>';
 
@@ -21430,7 +21581,8 @@ function oduBeallit(kat, id) {
 /* ============ 10e) FODRÁSZAT / SZÉPSÉGSZALON (1. fázis: forma göndör↔egyenes · 2. fázis: sörény/farok/tincs festés) ============
    Additív helyszín + utca-hub + égi matek-portál (terv: terv/fodraszat-rendszerterv.html,
    terv/fodraszat-rajzterv.html, jóváhagyva 2026-09-18).
-   - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor").
+   - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor"|"tarej" — a taréjjal Vihar születik;
+     a taréj-kefe az Unikornis-fajták 3. körében jön).
      A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
    - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Két kefe egyszeri képesség 12-12 💧
      (P().szalon.kefek.gondor / .egyenes); ha megvan, ingyen váltasz vele. */
@@ -23222,11 +23374,11 @@ function felhoElsoAllapot(snap) {
     snap.forEach(function (d) {
       var t = felhoTiszta(d.data());
       FELHO.alap[d.id] = t;
-      mentes.profilok[d.id] = profilNormal(felhoMasol(t));
+      mentes.profilok[d.id] = profilNormal(felhoMasol(t), d.id);
       megvan[d.id] = 1;
     });
     LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
-      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil());   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
+      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil(k), k);   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
     });
     felhoUserRef().set({ kod: FELHO.kod, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
   }
@@ -23246,7 +23398,7 @@ function felhoTavoliValtozas(snap) {
   snap.docChanges().forEach(function (ch) {
     if (ch.type === "removed") return;       /* törlést a kliens sosem követ — adatvesztés ellen */
     var k = ch.doc.id, t = felhoTiszta(ch.doc.data());
-    if (!mentes.profilok[k]) { mentes.profilok[k] = profilNormal(felhoMasol(t)); FELHO.alap[k] = t; volt = true; return; }
+    if (!mentes.profilok[k]) { mentes.profilok[k] = profilNormal(felhoMasol(t), k); FELHO.alap[k] = t; volt = true; return; }
     if (felhoOsszefesul(mentes.profilok[k], FELHO.alap[k] || {}, t, true)) volt = true;
     FELHO.alap[k] = t;
   });
@@ -23941,7 +24093,9 @@ function tkFeloldasVesz() {
 function tkNev() { var b = TK.jog && TK.jog.becenev; return String(b || (LENYEK[mentes.leny] || {}).nev || "Unikornis").slice(0, 30); }
 function tkKinezet(k) {
   k = k || {};
-  var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, frizura: k.frizura || "egyenes" };
+  var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null };
+  if (typeof k.frizura === "string") r.frizura = k.frizura;   /* hiányzó frizura / szem = a fajta alapja (uniForma) */
+  if (k.szemForma === "pillas" || k.szemForma === "hatarozott") r.szemForma = k.szemForma;
   /* FODRÁSZAT 2.: festés — csak ismert festék-id megy át (a hiányzó rész = festetlen) */
   if (k.festek) { var f = {}, van = false; ["soreny", "farok", "tincs"].forEach(function (x) { if (FESTEK_BY[k.festek[x]]) { f[x] = k.festek[x]; van = true; } }); if (van) r.festek = f; }
   /* patalakk: csak ismert lakk-id megy át; a felhőből {2:"id"} alakban is jöhet */

@@ -52,11 +52,11 @@ function felhoElsoAllapot(snap) {
     snap.forEach(function (d) {
       var t = felhoTiszta(d.data());
       FELHO.alap[d.id] = t;
-      mentes.profilok[d.id] = profilNormal(felhoMasol(t));
+      mentes.profilok[d.id] = profilNormal(felhoMasol(t), d.id);
       megvan[d.id] = 1;
     });
     LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
-      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil());   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
+      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil(k), k);   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
     });
     felhoUserRef().set({ kod: FELHO.kod, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
   }
@@ -76,7 +76,7 @@ function felhoTavoliValtozas(snap) {
   snap.docChanges().forEach(function (ch) {
     if (ch.type === "removed") return;       /* törlést a kliens sosem követ — adatvesztés ellen */
     var k = ch.doc.id, t = felhoTiszta(ch.doc.data());
-    if (!mentes.profilok[k]) { mentes.profilok[k] = profilNormal(felhoMasol(t)); FELHO.alap[k] = t; volt = true; return; }
+    if (!mentes.profilok[k]) { mentes.profilok[k] = profilNormal(felhoMasol(t), k); FELHO.alap[k] = t; volt = true; return; }
     if (felhoOsszefesul(mentes.profilok[k], FELHO.alap[k] || {}, t, true)) volt = true;
     FELHO.alap[k] = t;
   });

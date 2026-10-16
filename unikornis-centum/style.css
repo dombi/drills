@@ -59,17 +59,17 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 #kepernyo-profil{ justify-content:flex-start; overflow-y:auto; padding:30px 12px 40px; background:linear-gradient(#dcecff,#ece0f3 60%,#f5e6f2); }
 .jatekcim{ font-size:32px; color:var(--lila-sotet); text-shadow:0 2px 0 #fff; letter-spacing:1px; margin-top:auto; }
 .alcim{ font-size:19px; color:var(--halvany); margin:6px 0 22px; }
-.profil-lista{ display:flex; gap:20px; flex-wrap:wrap; justify-content:center; margin-bottom:auto; }
+.profil-lista{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:auto; }   /* 5 unikornis: laptopon egy sorban */
 .profil-kartya{
-  width:205px; background:var(--felho); border-radius:24px; padding:14px 14px 16px;
+  width:186px; background:var(--felho); border-radius:24px; padding:12px 12px 14px;
   box-shadow:0 8px 22px rgba(74,59,122,.18); text-align:center; border:3px solid transparent;
   transition:transform .12s, border-color .12s;
 }
 .profil-kartya:active{ transform:scale(.97); }
 .profil-kartya:hover{ border-color:var(--levendula); }
-.profil-kartya .nev{ font-size:21px; font-weight:800; margin-top:4px; }
+.profil-kartya .nev{ font-size:20px; font-weight:800; margin-top:4px; }
 .profil-kartya .adat{ font-size:14px; color:var(--halvany); margin-top:3px; }
-.profil-kartya svg{ width:158px; height:150px; }
+.profil-kartya svg{ width:158px; max-width:100%; height:150px; }
 .szuloi-gomb{ font-size:14px; padding:8px 14px; border-radius:12px; background:var(--uveg); color:var(--halvany); }
 .sarok{ position:absolute; right:16px; bottom:16px; }
 [data-hosszu].nyomva{ background:var(--sarga-mely); }
@@ -398,7 +398,11 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @media (max-width:560px){
   .bagoly-buborek{ max-width:88vw; left:6vw; transform:none; }   /* a középre toló eltolás nélkül (különben balra kilógott) */
   .kerulo-gomb{ font-size:13px; padding:10px 8px; }
-  .profil-kartya{ width:180px; }
+  .profil-lista{ gap:10px; }
+  .profil-kartya{ width:calc(50% - 5px); max-width:180px; padding:10px 6px 12px; }   /* telefonon kettesével */
+  .profil-kartya svg{ height:auto; aspect-ratio:158/150; }
+  .profil-kartya .nev{ font-size:17px; }
+  #profil-szuloi{ position:static; margin-top:18px; flex-shrink:0; }   /* 5 kártya alatt: a sarokban rálógna az utolsóra */
 }
 
 .kaszino-vissza{ position:absolute; left:14px; top:12px; font-size:24px; text-decoration:none; opacity:.65; z-index:10; }

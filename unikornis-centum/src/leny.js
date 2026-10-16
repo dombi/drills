@@ -22,7 +22,7 @@ var LENY_PAL = {
   levendula: { b: "#cfb6ee", s: "#ac90d8", d: "#6a4f9e", has: "#fde6c4", csik: "#e5c08f", szarny: "#a9d3f3", szarny2: "#86b9e2", tuske: "#9ec9f0", szarv: "#fce49a", petty: "#fff0dc" },
   barack:    { b: "#f9c9a2", s: "#eea576", d: "#a8603a", has: "#fff4d6", csik: "#eac28c", szarny: "#b6e2a8", szarny2: "#93cc83", tuske: "#f6a5c0", szarv: "#fff1b0", petty: "#fff7e4" }
 };
-var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula" };   /* rajzterv 2. döntés */
+var LENY_SZIN = { ragyogas: "menta", tuz: "barack", csillamharmat: "levendula", ejfeny: "levendula", vihar: "menta" };   /* rajzterv 2. döntés */
 var LENY_NEVEK = ["Parázs", "Szikra", "Pikkely", "Füsti", "Zsarátnok", "Lángi", "Tüsszi", "Pöfi", "Villám", "Smaragd", "Taréj", "Szárnyi"];
 /* hány gyakorlós nap egy-egy lépcső (tervlap 5. döntés; később a pultról állítható) */
 /* kolyok: 0 = a kölyök NEM nő fel (producer, 2026-10-11: ha megkerül, maradjon kölyök; 2026-10-14: egyik

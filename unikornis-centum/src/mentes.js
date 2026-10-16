@@ -4,19 +4,21 @@ var mentes;
 function alapOdu() { return { napszak: "este", ido: "tiszta", van: { napszak: { este: 1 }, ido: { tiszta: 1 } }, szint: alapButorSzint(), vanButor: {}, disz: {}, vanDisz: {}, vitrin: {} }; }
 function alapButorSzint() { return { fal: 1, szonyeg: 1, ablak: 1, fuggony: 1, agy: 1, fuzer: 1, kalyha: 1, polc: 1, asztal: 1 }; }
 function alapOltozet() { return { fej: null, nyak: null, hat: null, lab: null, oldal: null, farok: null, van: {} }; }
-function alapKinezet() { return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: "egyenes", festek: { soreny: null, farok: null, tincs: null }, lakk: [null, null, null, null], szor: null }; }
+function alapKinezet(k) { var a = (k && LENYEK[k]) || {}; return { sorenySzin: 0, szemSzin: null, vanSoreny: { 0: 1 }, vanSzem: { "0": 1 }, frizura: a.frizura || "egyenes", szemForma: a.szemForma || "pillas", festek: { soreny: null, farok: null, tincs: null }, lakk: [null, null, null, null], szor: null }; }
 function alapKapu() { return { nyitvaEddig: 0, kulcsKesz: {} }; }   /* kapu (pultról állítható; + kulcsSig, darab: {szakasz, n} — engine-logic.js) */
 function alapKert() { return { nyitva: 0, trukkok: {}, keszlet: {}, elemek: [] }; }
 function alapBank() { return { nap: "", valtva: {}, jegy: {} }; }   /* 🏦 Tündérbank (bank.js): nap+valtva = aznapi beváltások, jegy = pályával szerzett váltások (megmarad) */
 function alapSzalon() { return { nyitva: 0, kefek: {}, festekek: {}, lakkok: {}, szorfestekek: {} }; }   /* Fodrászat: nyitva=megvett szalon-belépő; kefek=megvett kefe-képességek (gondor/egyenes) */   /* Kert/udvar: nyitva=1 (2026-10 óta mindenkinek; régen: megvett kertkapu-kulcs), kulcsVissza=a kulcs árát már visszakapta, attolva=a tárgyak egyszer a C2 kert füves partjára kerültek; trukkok=séta-trükkök (2. fázis); keszlet=fészer (megvett, még le nem tett tárgyak, id→db); elemek=lerakott tárgyak [{tip,x,y}] (berendezés, 3. fázis) */
 function alapJelvSzam() { return { felmondasOk: 0, beszedFeladat: 0, kuzdottGyozelem: 0, keruloTargy: 0, hibatlanAllomas: 0, vettMar: 0,
   meresAtvalt: 0, meresBecsles: 0, meresKieg: 0, meresSorba: 0, meresKakukk: 0, meresSzoveg: 0, mkTanult: 0 }; }   /* jelvény-feloldás számlálók (10c) */
-function alapProfil() { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {}, tenyKert: { v: {} }, gyak: { db: 0, nap: 0 } }; }
-function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = profilNormal(alapProfil()); });   /* friss mentésnél is minden ág meglegyen (bemutatva, szerszám…) — különben a térkép összeomlik */ return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr,
+function alapProfil(k) { return { csillampor: 0, tunderharmat: 0, becenev: "", palyak: {}, naplo: [], jatekMp: 0, odu: alapOdu(), oltozet: alapOltozet(), jelvenyek: {}, streakRekord: 0, dropUres: 0, sorozat: { hossz: 0, utolsoPalya: null }, kinezet: alapKinezet(k), kapu: alapKapu(), kert: alapKert(), szalon: alapSzalon(), bank: alapBank(), jelvSzam: alapJelvSzam(), napok: {}, meresNapok: {}, napiKiemelt: { datum: "", teljesitve: false }, utolsoLiget: "", tenyek: {}, tenyTipus: {}, tenyKert: { v: {} }, gyak: { db: 0, nap: 0 } }; }
+function alapMentes() { var pr = {}; LENY_SORREND.forEach(function (k) { pr[k] = profilNormal(alapProfil(k), k); });   /* friss mentésnél is minden ág meglegyen (bemutatva, szerszám…) — különben a térkép összeomlik */ return { verzio: 1, leny: "ragyogas", hang: true, valaszmod: "beszed", profilok: pr,
   ragyogasNulla20260906: 1 }; }   /* friss mentés: az egyszeri 2026-09-06-i Ragyogás-nullázás NEM rá vonatkozik — e nélkül az első újratöltés lenullázta Ragyogás ✨-át, ruháit, odúját (gépi próba, 2026-10-13) */
 function ment() { try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {} felhoMentJelez(); }   /* felhő: no-op, ha nincs belépve */
-/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut */
-function profilNormal(p) {
+/* egy profil hiányzó/régi mezőinek pótlása — a localStorage-ból ÉS a felhőből betöltött adatra is fut;
+   k = a lény kulcsa (a kinézet alapja a LENYEK sorából: Vihar taréjjal, Éjfény és Vihar határozott szemmel születik) */
+function profilNormal(p, k) {
+  var alapL = (k && LENYEK[k]) || {};
   if (typeof p.csillampor !== "number") p.csillampor = 0;
   if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
   if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
@@ -46,11 +48,12 @@ function profilNormal(p) {
   if (typeof p.streakRekord !== "number") p.streakRekord = 0;
   if (typeof p.dropUres !== "number") p.dropUres = 0;
   p.sorozat = { hossz: 0, utolsoPalya: null };   /* egy leülés = egy sorozat: minden betöltéskor nullázódik (7.1b) */
-  if (!p.kinezet) p.kinezet = alapKinezet();
+  if (!p.kinezet) p.kinezet = alapKinezet(k);
   if (typeof p.kinezet.sorenySzin !== "number") p.kinezet.sorenySzin = 0;
   if (!p.kinezet.vanSoreny) p.kinezet.vanSoreny = { 0: 1 };
   if (!p.kinezet.vanSzem) p.kinezet.vanSzem = { "0": 1 };
-  if (!p.kinezet.frizura) p.kinezet.frizura = "egyenes";   /* FODRÁSZAT */
+  if (!p.kinezet.frizura) p.kinezet.frizura = alapL.frizura || "egyenes";   /* FODRÁSZAT */
+  if (!p.kinezet.szemForma) p.kinezet.szemForma = alapL.szemForma || "pillas";   /* Unikornis-fajták */
   if (!p.kinezet.festek || typeof p.kinezet.festek !== "object") p.kinezet.festek = {};   /* FODRÁSZAT 2.: részenkénti festék-id */
   ["soreny", "farok", "tincs"].forEach(function (r) { if (typeof p.kinezet.festek[r] !== "string") p.kinezet.festek[r] = null; });
   var lk0 = p.kinezet.lakk;   /* FODRÁSZAT 2.: patalakk, patánként (UNI_LABAK sorrend); tömb vagy {2:"id"} alak is jöhet */
@@ -99,9 +102,9 @@ function betolt() {
     if (m && m.profilok) {
       mentes = m;
       LENY_SORREND.forEach(function (k) {
-        if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil();
+        if (!mentes.profilok[k]) mentes.profilok[k] = alapProfil(k);
         var p = mentes.profilok[k];
-        profilNormal(p);
+        profilNormal(p, k);
       });
       if (mentes.hang == null) mentes.hang = true;
       if (!mentes.valaszmod) mentes.valaszmod = "beszed";

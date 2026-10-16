@@ -2,9 +2,14 @@
 var LENYEK = {   /* a színek NEM itt vannak: rajz → UNI_SZIN (renderer.js), az egyetlen színforrás */
   ragyogas: { nev: "Ragyogás", rajz: "rozsa" },
   tuz: { nev: "Tűz", rajz: "korall" },
-  csillamharmat: { nev: "Csillámharmat", rajz: "kek" }
+  csillamharmat: { nev: "Csillámharmat", rajz: "kek" },
+  /* Unikornis-fajták (terv/unikornis-fajtak-rendszerterv.html): a kinézet ALAPja innen jön — szemForma
+     (pillas | hatarozott), frizura (egyenes | gondor | tarej); hiányzó mező = pillas / egyenes. A mentett
+     kinézet felülírja (a fodrászat átfésülheti). ⛔ nincs fiú/lány címke, a nevek semlegesek. */
+  ejfeny: { nev: "Éjfény", rajz: "ej", szemForma: "hatarozott" },
+  vihar: { nev: "Vihar", rajz: "vihar", szemForma: "hatarozott", frizura: "tarej" }
 };
-var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat"];
+var LENY_SORREND = ["ragyogas", "tuz", "csillamharmat", "ejfeny", "vihar"];
 
 var PALYAK = [
   {

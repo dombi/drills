@@ -10,7 +10,7 @@
    Mentés: P().het = { [hetAzon]: [tenyNap | null, …] } (gondozas.js visszaTar). */
 
 var HET_NAPNEV = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"];
-var HET_PECSET_SZIN = { rozsa: ["#e0699b", "#b0417a"], korall: ["#f08a6a", "#b5543a"], kek: ["#7fb6e6", "#3f78b0"] };
+var HET_PECSET_SZIN = { rozsa: ["#e0699b", "#b0417a"], korall: ["#f08a6a", "#b5543a"], kek: ["#7fb6e6", "#3f78b0"], ej: ["#7f8ccc", "#3e4a86"], vihar: ["#f2b21c", "#8a6a10"] };
 var HET_ODU = { x: 292, y: 262, s: 0.19 };   /* az odú falán: a jelvénytábla alatt, az ablak és a csillaglámpa között */
 var HET_DEFS = '<defs><linearGradient id="het-szivarvany" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6a5c0"/><stop offset=".35" stop-color="#fce49a"/><stop offset=".65" stop-color="#a7d99a"/><stop offset="1" stop-color="#9ec9f0"/></linearGradient></defs>';
 

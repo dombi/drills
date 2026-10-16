@@ -1,7 +1,8 @@
 /* ============ 10e) FODRÁSZAT / SZÉPSÉGSZALON (1. fázis: forma göndör↔egyenes · 2. fázis: sörény/farok/tincs festés) ============
    Additív helyszín + utca-hub + égi matek-portál (terv: terv/fodraszat-rendszerterv.html,
    terv/fodraszat-rajzterv.html, jóváhagyva 2026-09-18).
-   - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor").
+   - A frizura az unikornis elmentett tulajdonsága: P().kinezet.frizura ("egyenes"|"gondor"|"tarej" — a taréjjal Vihar születik;
+     a taréj-kefe az Unikornis-fajták 3. körében jön).
      A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
    - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Két kefe egyszeri képesség 12-12 💧
      (P().szalon.kefek.gondor / .egyenes); ha megvan, ingyen váltasz vele. */

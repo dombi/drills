@@ -239,8 +239,8 @@ var ESEMENY_LIMIT = 5000;
 var INAKTIV_NAP = 3;              /* ennyi nap szünet után figyelmeztet */
 var GYENGE_ARANY = 0.6;           /* ez alatti elsőre-arány egy pályán = figyelmeztetés */
 
-var LENY_NEV = { ragyogas: "Ragyogás", tuz: "Tűz", csillamharmat: "Csillámharmat" };
-var LENY_IKON = { ragyogas: "🤍", tuz: "🔥", csillamharmat: "💧" };
+var LENY_NEV = { ragyogas: "Ragyogás", tuz: "Tűz", csillamharmat: "Csillámharmat", ejfeny: "Éjfény", vihar: "Vihar" };
+var LENY_IKON = { ragyogas: "🤍", tuz: "🔥", csillamharmat: "💧", ejfeny: "🌙", vihar: "⚡" };
 var EK_MESTER_ALAP = {};          /* 🧱 kocka → [Mesterpróba-feladat id] (src/constants.js EK_KOCKA_DEF) */
 var PALYA = {};                   /* id → { nev, ikon, sorrend } — a játék src/constants.js-éből olvassuk */
 var PALYA_SORREND = [];
@@ -582,7 +582,7 @@ function rajzJatekos(t) {
     ' · <span title="Firebase uid">' + esc(u.uid.slice(0, 8)) + "…</span></div></div>";
 
   /* unikornisok */
-  var LS = ["ragyogas", "tuz", "csillamharmat"];   /* a játék LENY_SORREND-je; új unikornis a végére */
+  var LS = ["ragyogas", "tuz", "csillamharmat", "ejfeny", "vihar"];   /* a játék LENY_SORREND-je; új unikornis a végére */
   var lenyek = Object.keys(u.unicorns).sort(function (a, b) { return (LS.indexOf(a) + 1 || 99) - (LS.indexOf(b) + 1 || 99); });
   h += '<h3>Unikornisok</h3><div class="racs">';
   lenyek.forEach(function (k) {

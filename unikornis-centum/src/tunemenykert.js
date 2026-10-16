@@ -142,7 +142,9 @@ function tkFeloldasVesz() {
 function tkNev() { var b = TK.jog && TK.jog.becenev; return String(b || (LENYEK[mentes.leny] || {}).nev || "Unikornis").slice(0, 30); }
 function tkKinezet(k) {
   k = k || {};
-  var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null, frizura: k.frizura || "egyenes" };
+  var r = { sorenySzin: k.sorenySzin || 0, szemSzin: k.szemSzin || null };
+  if (typeof k.frizura === "string") r.frizura = k.frizura;   /* hiányzó frizura / szem = a fajta alapja (uniForma) */
+  if (k.szemForma === "pillas" || k.szemForma === "hatarozott") r.szemForma = k.szemForma;
   /* FODRÁSZAT 2.: festés — csak ismert festék-id megy át (a hiányzó rész = festetlen) */
   if (k.festek) { var f = {}, van = false; ["soreny", "farok", "tincs"].forEach(function (x) { if (FESTEK_BY[k.festek[x]]) { f[x] = k.festek[x]; van = true; } }); if (van) r.festek = f; }
   /* patalakk: csak ismert lakk-id megy át; a felhőből {2:"id"} alakban is jöhet */
