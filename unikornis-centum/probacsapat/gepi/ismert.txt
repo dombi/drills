@@ -1,3 +1,4 @@
 # 🤖 Gépi próba — ISMERT hibák (2A döntés): amit a producer „maradjon így”-re tett.
 # Soronként egy kulcs (a jelentés „kulcs:” sorából másolva). A # utáni rész megjegyzés: ki, mikor, miért.
 # Ami itt van, azt a gép továbbra is megtalálja, de az összegzésben már nem jelzi (a részletekben „ISMERT”).
+vegig:csilla:sz-egesz-mese   # producer, 2026-10-16: a 🧺 Mesekönyv 🪜 lépcsőfokaiért is jár ✨ (56 a terv 46 helyett) — maradjon így
