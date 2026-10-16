@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unikornis-fajták tervlap</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc; --red:#c0392b; --red-soft:#fde3e0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2420;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --red-soft:#4a2420;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#3b4a8a 0%,var(--violet) 55%,var(--pink) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(59,74,138,.3);position:relative;overflow:hidden}
+  header.top::after{content:"🦄";position:absolute;right:18px;top:6px;font-size:100px;opacity:.18;transform:rotate(12deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--pink)}
+  h3.sub{margin:16px 0 4px;font-size:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .panel.wait{background:var(--warn-soft)}
+  .panel.rule{background:var(--red-soft)}
+  .lead{color:var(--muted)}
+  ul{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:18px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .opt{border-left:4px solid var(--line);padding:4px 10px;margin:6px 0}
+  .opt.best{border-left-color:var(--green)}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .unis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:8px}
+  .uni{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--panel)}
+  .uni h3{margin:0 0 2px;font-size:19px}
+  .uni .tag{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .sw{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px}
+  .sw span{width:30px;height:30px;border-radius:9px;border:2px solid #222;display:inline-block}
+  .uni table td:first-child{color:var(--muted);width:38%}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .flow .step{background:var(--pink-soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+  .flow .arr{color:var(--violet);font-weight:800}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  .scroll{overflow-x:auto}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .size{display:inline-block;border-radius:8px;padding:1px 8px;font-size:12px;font-weight:700;background:var(--blue-soft);color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Unikornis-fajták + kalandos öltözék</h1>
+  <div class="sub">Új, karakteresebb unikornisok a választón, egy erősebb testalkat, határozott szem, rövid felálló sörény és kalandos holmik a boltban. Mindenkinek, fiú/lány címke nélkül.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra</span>
+    <span class="chip">2026-10-16</span>
+    <span class="chip">Méret: nagy (5 kör)</span>
+    <span class="chip">Utána: rajzterv</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>A három unikornisunk (Ragyogás, Tűz, Csillámharmat) pasztell, pillás és hosszú sörényű. Egy 5.-es fiúnak (Andor) és általában a nagyobbaknak ez kevés lehet. <b>Szerintem ez inkább életkor-kérdés, nem nem-kérdés.</b> A megoldás: <b>a választék szélesedik</b>, nem a gyerekeket osztjuk szét.</p>
+  <ul>
+    <li><b>2 új unikornis</b> a választón: <b>Éjfény</b> (éjszakai) és <b>Vihar</b> (villámos). Mély színek, ezüst/acél szarv, határozott szem.</li>
+    <li><b>Erős testalkat:</b> szélesebb mellkas, vaskosabb nyak és láb, nagyobb paták. A hátvonal és a fej helye <b>ugyanaz</b>, ezért minden meglévő holmi ráillik.</li>
+    <li><b>Új sörény-forma a fodrászatban:</b> rövid, felálló taréj.</li>
+    <li><b>Kalandos holmik a boltban</b> (sisak, pikkelyes takaró, nyeregtáska…) és <b>sötétebb festékek</b>, ugyanazon a polcon, mint a masni.</li>
+    <li><b>Saját örömmozdulat:</b> Vihar jó válasznál ágaskodik, Éjfény dobbant egyet.</li>
+  </ul>
+  <p class="lead">A három régi unikornis nem változik. Akik már szeretik őket (Lili, Fanni…), semmit nem veszítenek.</p>
+</div>
+
+<h2>A szabály, ami végig érvényes</h2>
+<div class="panel rule">
+  <b>⛔ Sehol nincs fiú/lány választás</b>, rejtett formában sem:
+  <ul>
+    <li>A játék nem dönt a gyerek helyett. Nincs „fiúknak ajánlott” unikornis, a belépőkód vagy a név alapján sem.</li>
+    <li>A nevek semlegesek (Éjfény, Vihar; ✗ hercegnő, ✗ harcos, ✗ lovag).</li>
+    <li>A boltban és a fodrászatban nincs külön polc. A pikkelyes takaró a masni mellett van, bárki megveheti.</li>
+    <li>Egy lány is választhatja Vihart, egy fiú is Ragyogást, és ez így van jól.</li>
+  </ul>
+</div>
+
+<h2>Az új unikornisok (javaslat)</h2>
+<p class="lead">A színek csak irányok, a pontos árnyalatokat a rajzterv mutatja meg rajzon. A világ stílusa marad (kézzel rajzolt, vastag körvonal, lágy színek), csak mélyebb hangon: éjkék, nem fekete; acél, nem szürke.</p>
+<div class="unis">
+  <div class="uni">
+    <h3>🌙 Éjfény</h3>
+    <div class="tag">éjszakai unikornis · titokzatos, csendes</div>
+    <div class="sw"><span style="background:#3b4a8a" title="test"></span><span style="background:#2a3466" title="has"></span><span style="background:#dfe4f2" title="sörény"></span><span style="background:#a9b4d6" title="sörény 2"></span><span style="background:#c9ced8" title="szarv"></span><span style="background:#ffd24d" title="szem"></span></div>
+    <table>
+      <tr><td>Test</td><td>éjkék, sötétebb has</td></tr>
+      <tr><td>Sörény</td><td>hosszú, egyenes, holdezüst</td></tr>
+      <tr><td>Szarv</td><td>ezüst, csillagszikrával</td></tr>
+      <tr><td>Szem</td><td>határozott, aranysárga</td></tr>
+      <tr><td>Far-jel</td><td>holdsarló + 2 csillag</td></tr>
+      <tr><td>Alkat</td><td>erős</td></tr>
+      <tr><td>Örömmozdulat</td><td>dobbant, csillagpor száll</td></tr>
+    </table>
+  </div>
+  <div class="uni">
+    <h3>⚡ Vihar</h3>
+    <div class="tag">villámos unikornis · gyors, bátor</div>
+    <div class="sw"><span style="background:#7d8fa8" title="test"></span><span style="background:#b9c6d6" title="has"></span><span style="background:#ffe14d" title="sörény"></span><span style="background:#f2f6fb" title="sörény 2"></span><span style="background:#9aa6b5" title="szarv"></span><span style="background:#2e6fd0" title="szem"></span></div>
+    <table>
+      <tr><td>Test</td><td>palakék-szürke</td></tr>
+      <tr><td>Sörény</td><td>rövid, felálló taréj, villámsárga-fehér</td></tr>
+      <tr><td>Szarv</td><td>acél, csavart</td></tr>
+      <tr><td>Szem</td><td>határozott, mélykék</td></tr>
+      <tr><td>Far-jel</td><td>villám</td></tr>
+      <tr><td>Alkat</td><td>erős</td></tr>
+      <tr><td>Örömmozdulat</td><td>ágaskodik</td></tr>
+    </table>
+  </div>
+</div>
+<p class="lead" style="margin-top:10px">Tartalék ötletek, ha más kell: <b>Parázs</b> (vulkán: grafit test, lángsörény; de Tűz már lefedi a tüzet), <b>Felhő</b> (gyöngyszürke; viszont ez is szelíd), <b>Moha</b> (erdei: zöldesbarna, levél-jel).</p>
+
+<h2>Döntések</h2>
+<div class="cards">
+
+  <div class="dec"><div class="num">1</div>
+    <h3>Hol él az új fajta?</h3>
+    <p>Ma <b>minden unikornis külön haladás</b>: saját ✨, ruhák, odú, pályák. A választón az unikornisra koppintva a gyerek tulajdonképpen a „mentését” választja.</p>
+    <div class="opt best"><b>A) Új unikornis a választón (javasolt).</b> Éjfény és Vihar a régi három mellé kerül, saját haladással. Az új gyerek (Andor, Petra) már az első képernyőn látja őket, és amúgy is nulláról indul. Egy régi játékos is kipróbálhatja, de ott nulláról kezd (mint ma, ha másik unikornist választ).</div>
+    <div class="opt"><b>B) Átváltozás a meglévőn.</b> A szalonban a saját unikornis fajtát vált, a haladás megmarad. Viszont Ragyogás akkor már nem Ragyogás: a gyerekek a karakterhez kötődnek, nem csak a színhez.</div>
+    <div class="opt"><b>C) Mindkettő, két lépésben.</b> Most A, a 5. körben pedig az alkotórészek (erős alkat, határozott szem, taréj) bárkinek elérhetők a fodrászatban. Így Ragyogás is lehet erős alkatú, ha a gyerek úgy akarja.</div>
+    <span class="prop">Javaslat: C (most A, később a fodrászat-rész)</span>
+  </div>
+
+  <div class="dec"><div class="num">2</div>
+    <h3>Hány új unikornis, és melyik?</h3>
+    <div class="opt best"><b>Kettő: Éjfény + Vihar (javasolt).</b> Két egészen más hangulat (csendes-titokzatos és gyors-bátor), és egyik sem ismétli Tüzet.</div>
+    <div class="opt"><b>Egy</b> (gyorsabb, de akkor nincs igazi választás). <b>Három</b> (+ Parázs vagy Moha; több rajzolás, és a választón zsúfoltabb lesz).</div>
+    <span class="prop">Javaslat: kettő; a neveken szívesen változtatunk</span>
+  </div>
+
+  <div class="dec"><div class="num">3</div>
+    <h3>Az erős testalkat</h3>
+    <p>Szélesebb mellkas előre-lefelé, vaskosabb nyak (a sörény töve szélesebb), vastagabb lábszár, nagyobb paták. <b>A hátvonal, a fej, a szarv, a farok töve és a lábak helye marad</b>, ezért a sapka, a takaró, a szárny és a farokdísz pontosan ugyanoda ül. A lábdísz és a patalakk a láb új szélességét magától követi (ugyanabból a láb-táblából számolódik).</p>
+    <div class="opt best"><b>Igen, a két új unikornis erős alkatú (javasolt).</b> A régi három karcsú marad.</div>
+    <div class="opt"><b>Nem kell külön alkat,</b> elég a szín, a szem és a sörény. Ez gyorsabb, de a „fiúsabb” hatás nagy része épp a testből jön.</div>
+    <span class="prop">Javaslat: igen; a rajzterv minden pózban (áll, ül, fekszik, sétál, fordul) megmutatja</span>
+  </div>
+
+  <div class="dec"><div class="num">4</div>
+    <h3>Határozott szem</h3>
+    <p>Pillák nélkül; egy enyhe szemöldökív a szem fölött, kicsit keskenyebb szemforma. Barátságos marad, nem mérges. Csukott szemmel (alvás) is működik.</p>
+    <span class="prop">Javaslat: az új kettőnél ez az alap; a régieknél a pillás marad</span>
+  </div>
+
+  <div class="dec"><div class="num">5</div>
+    <h3>Rövid, felálló sörény (taréj)</h3>
+    <p>Új frizura a fodrászatban a göndör és az egyenes mellé: rövid, felálló tincsek a nyakon, rövidebb homloktincs, lobogó, de rövidebb farok. Vihar ezzel születik; a fodrászatban bárki átfésülheti rá a sajátját (és vissza).</p>
+    <span class="prop">Javaslat: a taréj a 3. körben mindenkinek elérhető, a kefe ára a göndörével egyezik</span>
+  </div>
+
+  <div class="dec"><div class="num">6</div>
+    <h3>Kalandos holmik a boltban</h3>
+    <p>Mind a 6 helyre egy-egy új holmi, a meglévő polcon, a meglévő három mellé (nincs külön „kalandos” polc):</p>
+    <div class="scroll"><table>
+      <tr><th>Hely</th><th>Új holmi</th><th>Ár (javaslat)</th></tr>
+      <tr><td>Fej</td><td>⛑️ Felfedező-sisak (bőr, kis tollal)</td><td>90 ✨</td></tr>
+      <tr><td>Nyak</td><td>🧭 Iránytű-medál bőrszíjon</td><td>50 ✨</td></tr>
+      <tr><td>Hát</td><td>🛡️ Pikkelyes takaró (ezüst pikkelyek)</td><td>150 ✨</td></tr>
+      <tr><td>Hát (2.)</td><td>🎒 Felfedező-nyeregtáska (térképtekerccsel)</td><td>80 ✨</td></tr>
+      <tr><td>Láb</td><td>🥾 Vándor-lábvért (bőr, szegecsekkel)</td><td>70 ✨</td></tr>
+      <tr><td>Oldal</td><td>🌌 Éjszárny (sötét tollak, ezüst hegyek)</td><td>200 ✨</td></tr>
+      <tr><td>Farok</td><td>🔩 Bronz farokgyűrű</td><td>40 ✨</td></tr>
+    </table></div>
+    <p class="lead">A nyeregtáska és a pikkelyes takaró ugyanarra a helyre (hát) kerül, tehát egyszerre csak az egyik lehet fent. Ha ez zavar, a táska kaphat saját helyet, de az már nagyobb munka.</p>
+    <span class="prop">Javaslat: ez a 7 holmi; az árak a meglévők közé illeszkednek</span>
+  </div>
+
+  <div class="dec"><div class="num">7</div>
+    <h3>Sötétebb festékek</h3>
+    <p>A fodrászat festékei közé (szintén a meglévő polcon):</p>
+    <ul>
+      <li><b>Sörény/farok/tincs:</b> Éjfekete-csillag, Villám (sárga-fehér), Láng (vörös-narancs), Acél.</li>
+      <li><b>Szőr:</b> Éjkék, Grafit, Acélszürke, Homokbarna.</li>
+    </ul>
+    <span class="prop">Javaslat: 4 + 4 új szín</span>
+  </div>
+
+  <div class="dec"><div class="num">8</div>
+    <h3>Saját örömmozdulat</h3>
+    <p>Ma minden unikornis ugyanazt az örömugrást csinálja jó válasznál. Javaslat: <b>mindegyiknek saját mozdulata legyen</b> (ettől lesz karakter): Ragyogás ugrik (marad), Tűz megrázza a sörényét, Csillámharmat pörög egy félkört, Éjfény dobbant, Vihar ágaskodik. Ugyanaz a közös mozgás-tábla, csak új sorok.</p>
+    <div class="opt best"><b>Mind az öt kap saját mozdulatot (javasolt).</b></div>
+    <div class="opt"><b>Csak az új kettő</b>, a régiek maradnak az ugrásnál.</div>
+    <span class="prop">Javaslat: mind az öt</span>
+  </div>
+</div>
+
+<h2>A gyerek szemével</h2>
+<div class="panel">
+  <div class="flow">
+    <span class="step">Belép a kódjával</span><span class="arr">→</span>
+    <span class="step">5 unikornis a választón</span><span class="arr">→</span>
+    <span class="step">Vihart választja</span><span class="arr">→</span>
+    <span class="step">Vihar ágaskodik az első jó válasznál</span><span class="arr">→</span>
+    <span class="step">✨-ért sisakot vesz</span><span class="arr">→</span>
+    <span class="step">Fodrászatban acélszürkére festi</span>
+  </div>
+  <p class="lead">A választón nincs magyarázat, csak a nevek és a rajzok, ahogy most. Az újoncok bevezetése (egy mondat érkezéskor) külön tervlap lesz a hétvégi megfigyelés után.</p>
+</div>
+
+<h2>Mit figyeljünk a hétvégén (Andor, Petra)</h2>
+<div class="panel wait">
+  <p>A tervlap jóváhagyható most is, de <b>a sürgősséget a hétvége dönti el</b>:</p>
+  <ul>
+    <li>Melyik unikornist választják, és mennyi ideig gondolkodnak rajta?</li>
+    <li>Mond-e Andor valamit a kinézetre („ez lányos”, „ez gyerekes”)? Elhúzza-e a száját a választónál, a boltban, a fodrászatban?</li>
+    <li>Mit vesz először a boltban (ha eljut odáig)?</li>
+    <li>Petrának (2. o.) tetszik-e a mostani világ? (Ha igen, ez megerősíti, hogy a régi hármat nem kell bántani.)</li>
+  </ul>
+  <p>Ha Andort zavarja a kinézet, ez a csomag előre jön a sorban. Ha nem, mehet a ligetválasztó/automatizmus után.</p>
+</div>
+
+<h2>Ami NEM része ennek a körnek</h2>
+<div class="panel">
+  <ul>
+    <li>Sárkány mint választható főszereplő (elvetve).</li>
+    <li>A helyszínek kinézete a játékoshoz igazodva (ugyanaz a Bagolykönyvtár Petrának mesés, Andornak titokzatos). Ez a hosszú távú cél része, később.</li>
+    <li>Felnövő unikornis (csikóból felnőtt). <i>Megjegyzés:</i> az alkat-rendszer (karcsú / erős) ide később beköthető: egy „fiatal” és egy „felnőtt” alkat ugyanígy egy sor lesz a táblában.</li>
+    <li>Repülés, új pózok.</li>
+  </ul>
+</div>
+
+<h2>Sorrend (körök)</h2>
+<div class="panel">
+  <div class="scroll"><table>
+    <tr><th>Kör</th><th>Mi készül</th><th>Méret</th></tr>
+    <tr><td>0.</td><td><b>Rajzterv:</b> Éjfény és Vihar oldalról, szemből, hátulról; erős alkat minden pózban, régi holmikkal felöltöztetve; határozott szem; taréj; az új holmik és festékek rajza</td><td><span class="size">közepes</span></td></tr>
+    <tr><td>1.</td><td><b>Két új unikornis</b> a választón és a pulton, még a karcsú testtel: színek, far-jel, határozott szem, Vihar taréja. <i>Ez már élő próbára mehet.</i></td><td><span class="size">közepes</span></td></tr>
+    <tr><td>2.</td><td><b>Erős alkat</b> az új kettőnek (oldal, szemből, hátulról, minden póz és járás)</td><td><span class="size">nagy</span></td></tr>
+    <tr><td>3.</td><td><b>Kalandos holmik + sötét festékek + taréj-kefe</b> a boltban és a fodrászatban</td><td><span class="size">közepes</span></td></tr>
+    <tr><td>4.</td><td><b>Örömmozdulatok</b> (ágaskodás, dobbantás, sörényrázás, félkör)</td><td><span class="size">kicsi–közepes</span></td></tr>
+    <tr><td>5.</td><td><b>Alkat és szem a fodrászatban</b> bárkinek (ha az 1. döntés C)</td><td><span class="size">közepes</span></td></tr>
+  </table></div>
+  <p class="lead">Minden kör után gépi próba, élő próba a gyerekekkel, és a tervlap frissül.</p>
+</div>
+
+<h2>A kód terve (műszaki rész)</h2>
+<div class="panel">
+  <h3 class="sub">Új unikornis = új sor a táblákban</h3>
+  <ul>
+    <li><code>LENYEK</code> + <code>LENY_SORREND</code> (constants.js): <code>ejfeny</code>, <code>vihar</code>, új rajz-kulcsokkal (pl. <code>ej</code>, <code>vihar</code>). A <code>db.js</code> már kezeli a hiányzó profilt („új unikornis → alapprofil”), a pult (parent.js) és a választó (ui.js) a sorrendből dolgozik.</li>
+    <li>A rajz-kulcsos táblák mind kapnak egy-egy sort: <code>UNI_SZIN</code>, <code>UNI_JEL</code>, <code>JEL_SZIN</code>, <code>SORENY_SZIN</code> (és ami a szemből/hátulról nézetet, a festéket meg a göndör frizurát színezi). <b>Gépi ellenőrzés:</b> minden rajz-kulcsos táblában minden rajz szerepeljen. Ma 10 helyen van beégetve a <code>"korall"</code> mint tartalék; ezeket a felmérés kigyűjti.</li>
+    <li>A választó 5 kártyája laptopon egy sorban, telefonon két sorban fér el (<code>.profil-lista</code> már tördel).</li>
+  </ul>
+  <h3 class="sub">Alkat és szem = a kinézet része</h3>
+  <ul>
+    <li>Új mezők a kinézetben: <code>alkat</code> (<code>"karcsu"</code> | <code>"eros"</code>) és <code>szemForma</code> (<code>"pillas"</code> | <code>"hatarozott"</code>); az alapértéket a <code>LENYEK</code> sora adja. Így az 5. körben a fodrászat csak átírja őket, és később a „felnövő unikornis” is ide köthető.</li>
+    <li><code>UNI_SABLON</code>: a test, a has és a szem részlet helyőrzőt kap (<code>{testD}</code>, <code>{hasD}</code>, <code>{szemArt}</code>); a karcsú érték <b>betűre a mai rajz</b> (gépi összevetés: 0 eltérő pixel a régi hármon).</li>
+    <li><code>UNI_LABAK</code> alkatonként (<code>UNI_ALKAT.eros.labak</code>): a csípő- és ízület-pontok (<code>IZ_Y</code>, <code>UNI_POZ_PONT</code>) <b>maradnak</b>, csak a szélesség és a pata nő → a pózok, a járás és a fordulás képletei változatlanok.</li>
+    <li>Szemből/hátulról nézet (<code>unikornisFrontArt/BackArt</code>, <code>NEZET_LABAK</code>): alkat szerint szélesebb mellkas és lábak.</li>
+    <li>Cache-kulcs (<code>UNI_RAJZ_LAB</code>) bővül az alkattal.</li>
+  </ul>
+  <h3 class="sub">Taréj, holmik, festékek, mozdulat</h3>
+  <ul>
+    <li>Taréj: <code>frizura: "tarej"</code>, a göndör mintájára egy <code>frizuraTarejArt</code> cseréli a 3 <code>ucg</code> csoportot (a színezés és az élő animáció így ugyanúgy fut).</li>
+    <li>Holmik: <code>RUHAK</code> soronként +1 (+1 a háton), rajzuk <code>ruhaSVG</code> + <code>NEZET_DISZ</code> (szemből/hátulról) + <code>HAT_DISZ</code> / <code>SZARNY_DISZ</code> / <code>FAROK_DISZ</code>; bolti leírás a kert.js leírás-táblájában.</li>
+    <li>Festékek: <code>FESTEKEK</code> és <code>SZORFESTEKEK</code> új sorai (a mentés csak id-t tárol, régi mentés nem sérül).</li>
+    <li>Örömmozdulat: <code>UNI_MOZDULAT</code> új sorai (<code>agaskodik</code>, <code>dobbant</code>, <code>sorenyraz</code>, <code>felkor</code>), a <code>LENYEK</code> sorában <code>orom: "agaskodik"</code>; az <code>osvenyOrom</code> ezt kéri az ugrás helyett. Ágaskodásnál a hátsó paták a talajon maradnak (<code>UNI_POZ_PONT</code> helyett a hátsó pata a forgáspont).</li>
+  </ul>
+  <h3 class="sub">Beköthetőség (a hosszú távú cél felé)</h3>
+  <p>A fajta, az alkat és a szem a profil mentett adata: később a játék a gyerek korához igazodva ajánlhat felnőttebb kinézetet, de a választás mindig a gyereké marad.</p>
+</div>
+
+<h2>Jóváhagyás</h2>
+<div class="panel">
+  <p>Kérlek, válaszolj a 8 döntésre (elég a számokkal, pl. „1C, 2 igen, a többi a javaslat szerint”). Utána a <b>rajzterv</b> jön: rajzon látod Éjfényt és Vihart, az erős alkatot és az új holmikat, mielőtt egy sor kód készül.</p>
+</div>
+
+</div>
+</body>
+</html>
