@@ -281,7 +281,7 @@ function polcMutat(f) {
   mKoppRejt();
   var v = $("visszajelzes");
   if (f.opElo) { v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }
-  if (f.kartyak) polcKartyaMutat(f); else modBeallit();
+  if (f.kartyak) polcKartyaMutat(f); else { modBeallit(); segKoppMod(f); }   /* 👆 cserés feladat: nincs beíró doboz */
   var utana = function () { if (!J || J.feladat !== f) return; if (polcKeresKell(f)) polcKeres(f); };
   if (f.vezetSor) { mondd(ekKiejt((f.opElo ? f.opElo + " " : "") + (f.vezetMost || "")), utana); f.opElo = null; return; }
   if (f.csakLepes || f.opCsakKerdes) { mondd(ekKiejt((f.opElo ? f.opElo + " " : "") + (f.lepFel || ekSima(f.op.kerdes))), utana); f.opElo = null; return; }
@@ -342,6 +342,7 @@ function polcKartyaKatt(ev) {
 /* ═════════════════ JÓ VÁLASZ (ertekel hívja, mielőtt a láncot nézi) ═════════════════ */
 function polcDicser(f, elsore) {
   if (f.vezet) return "Most már megy!";
+  var kd = segKoppDicser(f, elsore); if (kd) return kd;    /* 👆 cserés feladat (szerszam-egesz-mester.js) */
   var oj = oeDicser(f); if (oj) return oj;
   if (f.polcSzerep !== "nagy" && !f.polcVeg) return elsore ? "Ez az!" : "Így már jó!";
   if (!elsore) return POLC_M.tippJo;
@@ -372,7 +373,7 @@ function polcHiba(f, valasz) {
   var v = $("visszajelzes");
   if (f.vezet) {
     if (J.probak === 1) { v.className = "visszajelzes rossz"; v.textContent = "Nem " + valasz + ". Számold ki újra!"; mondd("Ez még nem jó. Számold ki újra!", kezNelkulUjra); }
-    else { v.className = "visszajelzes rossz"; v.textContent = "Nézd: " + f.megoldas + ". Most írd be te!"; mondd(ekKiejt("Nézd: " + f.megoldas + ". Most írd be te!"), kezNelkulUjra); }
+    else { v.className = "visszajelzes rossz"; var te = segAbraAll(f) && segAbraAll(f).p.kopp ? "Most koppints rá te!" : "Most írd be te!"; v.textContent = "Nézd: " + f.megoldas + ". " + te; mondd(ekKiejt("Nézd: " + f.megoldas + ". " + te), kezNelkulUjra); }
     return;
   }
   if (f.polcSzerep === "kicsi" || f.polcSzerep === "lanc1" || f.polcSzerep === "lepes") J.polc.kicsiHiba++;
@@ -383,8 +384,9 @@ function polcHiba(f, valasz) {
     if (r === "lift") { polcLiftIndul(f); return; }
     if (r === "vegig") { polcVegig(f); return; }
   } else if (J.probak >= 2) {                         /* kicsi, lépcsőfok, lánc 1. kérdése: a 2. rossz után megmutatja */
-    v.className = "visszajelzes rossz"; v.textContent = "Semmi baj! Nézd: " + f.megoldas + ". Most írd be te!";
-    mondd(ekKiejt("Semmi baj! Nézd: " + f.megoldas + ". Most írd be te!"), kezNelkulUjra);
+    var te2 = segAbraAll(f) && segAbraAll(f).p.kopp ? "Most koppints rá te!" : "Most írd be te!";   /* 👆 cserés kicsi */
+    v.className = "visszajelzes rossz"; v.textContent = "Semmi baj! Nézd: " + f.megoldas + ". " + te2;
+    mondd(ekKiejt("Semmi baj! Nézd: " + f.megoldas + ". " + te2), kezNelkulUjra);
     return;
   }
   polcTipp(f, valasz);

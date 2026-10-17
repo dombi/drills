@@ -16,6 +16,7 @@ window.__KK = (function () {
     if (f.csalad === "koppint") return !!(J.kopp && !J.kopp.kesz) && lat("#valasz-kartyak [data-i]");
     if (f.csalad === "dobogo") return false;
     if (f.polc && G("oeKeresFut() && OE.keres && !OE.keres.o.lagy")) return false;   /* a 🔎 kérdés-keret vár (a polcZar-t NEM hívjuk: beszél és keretet nyit) */
+    if (document.querySelector("#buborek-feladat .eg-kartya.szabad")) return lat("#buborek-feladat .eg-kartya.szabad");   /* 👆 🧺 csere koppintással */
     return lat("#beiro-doboz");
   }
   function allapot() {
@@ -49,6 +50,12 @@ window.__KK = (function () {
       else jo = String(o.jo);
       var rossz = mind.filter(function (x) { return x !== jo; })[0];
       return { mod: "katt", sel: [sel(jo)], rossz: rossz != null ? sel(rossz) : null };
+    }
+    var kk = [].slice.call(document.querySelectorAll("#buborek-feladat .eg-kartya.szabad"));   /* 👆 🧺 csere koppintással: a helyes számú kártya */
+    if (kk.length) {
+      var ks = function (e) { return '#buborek-feladat .eg-kartya.szabad[data-i="' + e.getAttribute("data-i") + '"][data-j="' + e.getAttribute("data-j") + '"]'; };
+      var kj = kk.filter(function (e) { return +e.textContent === f.helyes; })[0], kr = kk.filter(function (e) { return +e.textContent !== f.helyes; })[0];
+      if (kj) return { mod: "katt", sel: [ks(kj)], rossz: kr ? ks(kr) : null };
     }
     if (typeof f.helyes !== "number") return null;
     return { mod: "gepel", sor: jegyek(f.helyes), szam: f.helyes, max: G("beirMax()") };

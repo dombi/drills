@@ -5,7 +5,7 @@
      2. három teve, tevénként egy csomag (B: keresés a hiányra) — 🐪 rakodás (rakodas.js)
      3. két teve, tevénként két csomag (C: pár a hiányra)       — 🐪 rakodás; néha (≈ ⅓) két megoldás → „van még egy”:
         két tevénél, tevénként két csomaggal ez nem lehet (a két pár mindig egymás párja), ezért akkor tevénként HÁROM csomag jön
-     4. két sor, egy csere (D: hol kevés, hol sok)               — beírás, a tábla-ábrával
+     4. két sor, egy csere (D: hol kevés, hol sok)               — két szereplő kártyái, 👆 koppintással cserél (2026-10-17)
    Lift, 🙋 „🧺 Tedd a kosárba!”, végigvezetés, ✋ lépcsőfok-jelzés ugyanúgy, mint a 🏅-on; a 🔮 NAGY feladat a ládában.
    A beírásos feladat kicsijei az N.mester.kicsi listában vannak (segMesterKicsi olvassa); a rakodásé az f.rakKicsi-ben. */
 
@@ -14,7 +14,7 @@ var SEG_TEVEK = ["Fuvi", "Nuvi", "Tuvi"];
 /* 🖊️ lektorra — a 🔮 új mondatai */
 var SEG_G_M = {
   keritesVissza: "Ügyes! Ugyanaz, csak nagyobb kerttel. Előbb a teljes kerítés, aztán szétosztod.",
-  csereVissza: "Ügyes! Ugyanaz, csak több számmal. Előbb az összes, aztán egy sorra mennyi jut.",
+  csereVissza: "Ügyes! Most vissza a nagy cseréhez: előbb az összes, aztán egyikőjüknek mennyi jut.",
   rakVissza: "Előbb az összes súly, aztán egy tevére mennyi jut.",
   egyetlen: function (O, E) { return "Ügyes! Összesen " + O + " kiló, egy tevére " + E + " jut. Ez az egyetlen jó elosztás."; },
   ketto: function (O, E, nv, kell, parok) { return "Mindkettőt megtaláltad! Összesen " + O + " kiló, egy tevére " + E + " jut. " + nv + "nak még " + kell + " kell: ez " + parok + " lehet."; }
@@ -96,35 +96,36 @@ function segCsereTabla(n) {
   }
   return null;
 }
-function segCsereMon(x) { return "Két sorban " + (x.F.length === 3 ? "hat" : "négy") + " szám áll: fent " + segSzamLista(x.F) + ", lent " + segSzamLista(x.A) + "."; }
+/* 👆 a mese-keret (csere-koppintás tervlap 1. döntés ✅): két szereplő kártyái, soronként egyé; aki a megadott kártyát adja,
+   és aki cserébe ad egyet a sajátjai közül — a kérdésben benne van a cél (a producer: „nem jön ki, hogy ugyanannyi legyen”) */
+function segCsereMon(nev, F, A, ado, g) {
+  var kap = 1 - ado;
+  return [nev[0][0] + " kártyáin " + segSzamLista(F) + " áll. " + nev[1][0] + " kártyáin " + segSzamLista(A) + " áll.",
+    nev[ado][0] + " " + mAz(g) + " " + ekRag(g, "os") + " kártyáját odaadja " + nev[kap][1] + ", " + nev[kap][0] + " pedig cserébe ad neki egyet a sajátjai közül."];
+}
+function segCsereKerdes(nev, ado) { return "Melyik kártyáját adja " + nev[1 - ado][0] + ", hogy mindkettőjük kártyái együtt ugyanannyit érjenek?"; }
 function segCsereGomb() {
-  var x = segCsereTabla(3), fent = ekR(0, 1) === 1, g = fent ? x.F[x.i] : x.A[x.j], v = fent ? x.A[x.j] : x.F[x.i];
-  var kev = x.sf < x.sa ? "fent" : "lent";
+  var x = segCsereTabla(3), nev = segNevek(2), ado = ekR(0, 1), gaz = [nev[0][0], nev[1][0]];
+  var g = ado === 0 ? x.F[x.i] : x.A[x.j], v = ado === 0 ? x.A[x.j] : x.F[x.i], B = nev[1 - ado][0];
+  var kerdes = segCsereKerdes(nev, ado);
   var D = {
-    abra: { t: "tabla", sor: [x.F, x.A], csere: [[0, x.i], [1, x.j]], sorCsere: true },
-    mon: [segCsereMon(x), "Egy számot fentről és egyet lentről megcserélünk úgy, hogy a két sorban ugyanannyi legyen a számok összege.", "Az egyik szám " + mAz(g) + " " + g + "."],
-    kerdes: "Melyik a másik szám?", v: v, szo: "a másik szám",
-    oe: segOeUj("a másik szám", [[x.T, "Ez egy lépcsőfok volt: ennyi mind a hat szám együtt. De egy számot kérdeztek!"],
-                                [x.E, "Ez egy lépcsőfok volt: ennyi kell legyen mindkét sorban. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"],
-                                [x.sf, "Ez a felső sor összege. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"],
-                                [x.sa, "Ez az alsó sor összege. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"]],
-                [[x.D, "Ennyi a két sor különbsége. De egy számot kérdeztek: melyik cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?"]], v),
-    lep: [{ k: "Mennyi mind a hat szám összege?", v: x.T, m: x.F.concat(x.A).join(" + ") + " = " + x.T }, { k: "Mennyi kell legyen egy sorban?", v: x.E, m: x.T + " : 2 = " + x.E },
-          { k: "Melyik a másik szám?", v: v, m: "fent " + x.sf + ", lent " + x.sa + ": " + mAz(x.F[x.i]) + " " + x.F[x.i] + " és " + mAz(x.A[x.j]) + " " + x.A[x.j] + " helyet cserél, és mindkét sorban " + x.E + " lesz" }],
-    mit: ["melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val"), "mennyi a hat szám összege", "mennyi jut egy sorra"],
-    elso: "Add össze mind a hat számot, és oszd el a két sor között! Ennyi kell legyen mindkét sorban. Most nézd meg: melyik sorban kevés, és melyikben sok?",
-    segit: "Előbb mind a hat szám összege, aztán egy sorra ennek a fele. Most nézd a két sort: " + kev + " kevés van. Mennyivel?",
-    uto: "Igen! A hat szám összesen " + x.T + ", egy sorra " + x.E + " jut. " + ekNagy(mAz(g)) + " " + g + " és " + mAz(v) + " " + v + " helyet cserél, és mindkét sorban " + x.E + " lesz.",
+    abra: { t: "tabla", sor: [x.F, x.A], csere: [[0, x.i], [1, x.j]], sorCsere: true, kopp: { adott: ado === 0 ? [0, x.i] : [1, x.j], kiemel: true, gazda: gaz } },
+    mon: segCsereMon(nev, x.F, x.A, ado, g), kerdes: kerdes, v: v, szo: "melyik kártyát adja " + B, oe: null,
+    lep: [{ k: "Mennyit ér mind a hat kártya együtt?", v: x.T, m: x.F.concat(x.A).join(" + ") + " = " + x.T }, { k: "Mennyit kell érjen egyikőjük kártyája?", v: x.E, m: x.T + " : 2 = " + x.E },
+          { k: kerdes, v: v, m: ekNagy(mAz(g)) + " " + ekRag(g, "os") + " és " + mAz(v) + " " + ekRag(v, "os") + " helyet cserél: mindkettőjük kártyái " + ekRag(x.E, "t") + " érnek" }],
+    mit: ["melyik kártyát adja " + B, "mennyit ér a hat kártya együtt", "mennyit ér egyikőjük kártyája"],
+    elso: "Előbb add össze mind a hat kártyát, és oszd el kettejük között! Ennyit kell érjen mindkettőjük kártyája. Most nézd meg: kinél kevés, és kinél sok?",
+    segit: "Előbb mind a hat kártya együtt, aztán egyikőjüknek ennek a fele. Most nézd: kinél kevés, kinél sok?",
+    uto: "Igen! A hat kártya együtt " + ekRag(x.T, "t") + " ér, egyikőjüknek " + x.E + " jut. " + ekNagy(mAz(g)) + " " + ekRag(g, "os") + " és " + mAz(v) + " " + ekRag(v, "os") + " helyet cserél, és mindkettőjük kártyái " + ekRag(x.E, "t") + " érnek.",
     vissza: SEG_G_M.csereVissza, naplo: "csere"
   };
   var y = segCsereTabla(2), gy = y.A[y.j];
   D.kicsi = [
-    { mon: ["Ugyanez a két sor, ugyanazzal a hat számmal."], kerdes: "Add össze mind a hat számot! Mennyi jut egy sorra, ha a két sorban ugyanannyi az összeg?", v: x.E,
-      abra: { t: "tabla", sor: [x.F, x.A], sorCsere: true }, oe: { koztes: (function () { var c = {}; c[x.T] = "Ez egy lépcsőfok volt: ennyi mind a hat szám. Mennyi jut egy sorra?"; return c; })() } },
-    { mon: [segCsereMon(y), "Két számot megcserélünk, egyet fentről és egyet lentről, úgy, hogy a két sorban ugyanannyi legyen a számok összege.", "Az egyik szám " + mAz(gy) + " " + gy + "."],
-      kerdes: "Melyik a másik szám?", v: y.F[y.i], abra: { t: "tabla", sor: [y.F, y.A], sorCsere: true },
-      oe: { koztes: (function () { var c = {}; c[y.T] = "Ez egy lépcsőfok volt: ennyi a négy szám együtt. De melyik szám cserél helyet " + mAz(gy) + " " + ekRag(gy, "val") + "?";
-              c[y.E] = "Ez egy lépcsőfok volt: ennyi kell legyen egy sorban. De melyik szám cserél helyet " + mAz(gy) + " " + ekRag(gy, "val") + "?"; return c; })() } }];
+    { mon: ["Ugyanezek a kártyák."], kerdes: "Mennyit kell érjen egyikőjük kártyája, hogy mindkettőjüké ugyanannyi legyen?", v: x.E,
+      abra: { t: "tabla", sor: [x.F, x.A], sorCsere: true, kopp: { nem: true, gazda: gaz } },
+      oe: { koztes: (function () { var c = {}; c[x.T] = "Ez egy lépcsőfok volt: ennyit ér mind a hat kártya. Mennyi jut egyikőjüknek?"; return c; })() } },
+    { mon: segCsereMon(nev, y.F, y.A, 1, gy), kerdes: segCsereKerdes(nev, 1), v: y.F[y.i],
+      abra: { t: "tabla", sor: [y.F, y.A], sorCsere: true, kopp: { adott: [1, y.j], kiemel: true, gazda: gaz } } }];
   return D;
 }
 
@@ -136,6 +137,7 @@ function segGombBeiras(D) {
   var F = polcNagy(M, "EGESZ", "gomb", L);
   F.mester = { kicsi: D.kicsi, elso: D.elso, vissza: D.vissza };   /* a kicsi testvérek és a végigvezetés első mondata (olvaso-polc.js + segMesterKicsi) */
   F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
+  if (D.abra.kopp && D.abra.kopp.adott) F.oe = M.oe = segKoppOe(F.egAbra.p, D.v, D.szo);   /* 👆 a koppintott kártya a válasz */
   F.utoMondat = D.uto; F.naplo.tipus = "sz-egesz-gomb-" + D.naplo;
   F.kartyaHTML = opKonyv(F.op);
   return F;
