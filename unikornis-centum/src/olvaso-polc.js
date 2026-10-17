@@ -251,7 +251,10 @@ function polcKinek(N, M) {
 function polcMesterKiv(polc) {
   return mvValaszt(polcMesterLista(polc), { jo: function (v) { return !!(v.polc && v.polc.polc === polc && v.polc.oe); } });
 }
-mvForras(function () { return polcMesterLista("KERES").concat(polcMesterLista("VALASZ")); });
+mvForras(function () { return polcMesterLista("KERES").concat(polcMesterLista("VALASZ")); }, {
+  palya: function (fid) { var A = POLC_MESTER[fid]; return A ? "polc-" + A.polc.toLowerCase() + "-mester" : null; },     /* a meghívás ezt indítja */
+  hely: function (fid) { var A = POLC_MESTER[fid], d = A && polcIdx(A.polc), k = d && EK_KOCKA_DEF[d.kocka]; return k ? k.var : null; }   /* a Kockavárban */
+});
 /* a bagoly-tudás: az eredetié (POLC_MESTER), változatnál a változat „polc” mezőjéből (a két kicsi testvér mindig az eredetié) */
 function polcMesterD(fid, V) {
   var A = POLC_MESTER[fid], p = V && V.polc;
@@ -529,18 +532,33 @@ function polcSegitMenu(menu) {
 
 /* ═════════════════ A PÁLYA VÉGE (palyaVege hívja) ═════════════════ */
 function polcPalyaVege() {
-  var pa = J.palya, E = (J.polc && J.polc.eredm) || [], d = polcIdx(pa.polc), html = "", mondat = "", mesterKocka = false, ujKocka = false;
+  var pa = J.palya, E = (J.polc && J.polc.eredm) || [], d = polcIdx(pa.polc), html = "", mondat = "", mesterKocka = false, ujKocka = false, fenyes = null, plusz = 0;
   var cim = "", sorok = [];                                 /* a közös végképernyőnek (konyvtar-terem.js bktVege): cím + legfeljebb 3 sor */
   delete polcAllapot()[pa.id];
   var lada = E.some(function (x) { return x && x.ladaba; });
   if (pa.fok === "mester") {
-    var x = E[0] || null, L = J.polc && J.polc.L;
-    if (x && x.e === "o" && L && L.elso !== false) {
+    var x = E[0] || null, L = J.polc && J.polc.L, vissza = !!(J.polc && J.polc.mv && J.polc.mv.vissza);
+    var kdef = EK_KOCKA_DEF[d.kocka], megvan = !!kdef && ekKockaLista().indexOf(kdef.var) >= 0;
+    if (vissza && x && x.e === "o" && L && L.elso !== false) {
+      /* 🏅 visszatérő, önállóan: a kocka kifényesedik (✦) + a Mesterpróba-jutalom fele (mester-valtozat.js 3. kör) */
+      var fv = mvEredmeny(J.polc.mesterFid, true, true);
+      mesterKocka = true; ujKocka = ekKockaBe(d.kocka); fenyes = kdef ? kdef.var : null;
+      P().csillampor += MV_VISSZA_CSILLA; J.futoCsilla += MV_VISSZA_CSILLA;
+      P().tunderharmat = (P().tunderharmat || 0) + MV_VISSZA_HARMAT; plusz = MV_VISSZA_HARMAT;
+      html += '<span class="ek-vege">🏅 Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban. ✦' + (fv > 1 ? " " + fv : "") + ' +' + MV_VISSZA_CSILLA + ' ✨ · 💧 +' + MV_VISSZA_HARMAT + '</span>';
+      mondat += " Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban.";
+      cim = "🏅 Emlékeztél a trükkre!"; sorok.push("✦ A kockád kifényesedett a Kockavárban!" + (fv > 1 ? " Már " + fv + "-szer." : ""));
+    } else if (vissza) {
+      mvEredmeny(J.polc.mesterFid, false, true);
+      html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kockád megmaradt a Kockavárban.</span>';
+      mondat += " Ügyes, együtt sikerült! A kockád megmaradt a Kockavárban.";
+      cim = "🏅 Együtt sikerült!"; sorok.push("A kockád megmaradt a Kockavárban. Legközelebb más számokkal jön.");
+    } else if (x && x.e === "o" && L && L.elso !== false) {
       mvEredmeny(J.polc.mesterFid, true);
       mesterKocka = true; ujKocka = ekKockaBe(d.kocka);
       if (!szerszamT(pa.polc).m) { szerszamT(pa.polc).m = szerszamNap(); }
       P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
-      P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
+      P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT; plusz = EK_MESTER_HARMAT;
       var lista = ekKockaLista();
       html += '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, ujKocka ? lista.length - 1 : -1) + '</div>' +
         '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
@@ -550,9 +568,10 @@ function polcPalyaVege() {
       html += '<br><span class="ek-vege">🏅 A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!</span>';
       cim = "🏅 Ügyes munka!"; sorok.push("A Mesterpróba hamarosan kinyílik. Addig ez is jó gyakorlás volt!");
     } else {
-      html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.</span>';
-      mondat += " Ügyes, együtt sikerült! A kocka a következő Mesterpróbánál vár rád.";
-      cim = "🏅 Együtt sikerült!"; sorok.push("A kocka a következő Mesterpróbánál vár rád.");
+      var kv = megvan ? "A kockád megmaradt a Kockavárban." : "A kocka a következő Mesterpróbánál vár rád.";   /* már kiállt kocka nem vész el */
+      html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! ' + kv + '</span>';
+      mondat += " Ügyes, együtt sikerült! " + kv;
+      cim = "🏅 Együtt sikerült!"; sorok.push(kv);
     }
   } else {
     var t = pa.fok === "tekercs" ? "📜 Kész a varázstekercs!" : "📖 Kész a mesekönyv!";
@@ -567,7 +586,8 @@ function polcPalyaVege() {
     sorok.push("🧰 Ezt már tudod! A " + d.ikon + " a ládába került.");
   }
   ment();
-  return { html: html, mondat: mondat, kocka: ujKocka, cim: cim, sorok: sorok, mesterKesz: mesterKocka, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "" } };
+  return { html: html, mondat: mondat, kocka: ujKocka, fenyes: fenyes, cim: cim, sorok: sorok, mesterKesz: mesterKocka, harmat: plusz, adat: { polc: pa.polc, fok: pa.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mesterKocka ? 1 : 0, lada: lada ? 1 : 0, fid: (J.polc && J.polc.mesterFid) || "",
+    valt: (J.polc && J.polc.mv && J.polc.mv.valt && J.polc.mv.valt.id) || "", vissza: J.polc && J.polc.mv && J.polc.mv.vissza ? 1 : 0 } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 🏅, a Mesterpróba után vissza a polchoz */
 function polcKovetkezo(id) {

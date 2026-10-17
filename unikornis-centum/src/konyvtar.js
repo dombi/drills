@@ -1189,10 +1189,10 @@ var EK_KOCKAK = [["🔎", "#9ec9f0"], ["🔤", "#f6a5c0"], ["✋", "#a7d99a"], [
   ["📌", "#f2a7b8"]];   /* 15.: a 📌 szerszám-Mesterpróba saját kockája (producer, 2026-10-10) — a vár tetején, a tornyocska csúcsán */
 var EK_VAR_HELY = [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [-2, 2], [0, 2], [2, 2], [0, 3], [0, 4]].map(function (x) { return [60 + x[0] * 20.5, 100 - x[1] * 16]; });
 function ekKockavarKicsi(lista, x, y, s) {           /* lista: ekKockaLista() (konyvtar-mester.js) */
-  var n = lista.length;
+  var n = lista.length, J_ = typeof mvVarJel === "function" ? mvVarJel() : { feny: {}, pislog: null };   /* 🏅 ✦ fényes / pislogó kocka (mester-valtozat.js) */
   var g = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-70 40 Q0 10 70 40 V60 H-70Z" fill="#b6e0a8"/>';
   EK_VAR_HELY.forEach(function (h, i) {
-    g += i < n ? '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="#fff" stroke-width="1.2"/>'
+    g += i < n ? '<rect' + (J_.pislog === lista[i] ? ' class="ek-pislog"' : '') + ' x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="' + EK_KOCKAK[lista[i]][1] + '" stroke="' + (J_.feny[lista[i]] ? "#f2c14e" : "#fff") + '" stroke-width="' + (J_.feny[lista[i]] ? 2 : 1.2) + '"/>'
       : '<rect x="' + (h[0] - 60) + '" y="' + (h[1] - 118) + '" width="19" height="15" rx="2" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 2" opacity=".7"/>';
   });
   var cs = EK_VAR_HELY[EK_VAR_HELY.length - 1][1] - 118;   /* a zászló a legfelső kocka tetején, ha kész a vár */

@@ -111,8 +111,10 @@ function ekKockaLista() {
   return L.slice(0, EK_KOCKAK.length);
 }
 function ekKockaDb() { return ekKockaLista().length; }
-/* nagy vár (600×360) — az ünneplésnél; uj = a berepülő kocka sorszáma a listában (-1 = nincs) */
-function ekKockavarNagySVG(lista, uj) {
+/* nagy vár (600×360) — az ünneplésnél; uj = a berepülő kocka sorszáma a listában (-1 = nincs) ·
+   most = az a kocka-hely, amelyik épp kifényesedik (🏅 visszatérő jól megoldva) · a ✦ jel és a pislogás: mvVarJel (mester-valtozat.js) */
+function ekKockavarNagySVG(lista, uj, most) {
+  var J_ = typeof mvVarJel === "function" ? mvVarJel() : { feny: {}, pislog: null };
   var n = lista.length, S = 2.8, ox = 300 - 60 * S, oy = 290 - 108 * S;   /* 2.8: a 15. kocka (📌 tornyocska) is elfér */
   var s = '<svg viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ekvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f7"/><stop offset="1" stop-color="#fbe4ef"/></linearGradient></defs>' +
     '<rect width="600" height="360" rx="18" fill="url(#ekvg)"/><ellipse cx="120" cy="60" rx="46" ry="14" fill="#fff" opacity=".8"/><ellipse cx="470" cy="90" rx="60" ry="16" fill="#fff" opacity=".7"/>' +
@@ -121,10 +123,16 @@ function ekKockavarNagySVG(lista, uj) {
   EK_VAR_HELY.forEach(function (h, i) {
     var b = blokk(i), x = b[0], y = b[1], w = b[2], hh = b[3];
     if (i < n) {
-      var K = EK_KOCKAK[lista[i]];
-      s += '<g' + (i === uj ? ' class="ek-uj-kocka" style="transform:translate(0,-260px);opacity:0"' : '') + '><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="6" fill="' + K[1] + '" stroke="#fff" stroke-width="3"/>' +
+      var K = EK_KOCKAK[lista[i]], fv = J_.feny[lista[i]] || 0, cls = [];
+      if (i === uj) cls.push("ek-uj-kocka");
+      if (J_.pislog === lista[i]) cls.push("ek-pislog");             /* 🏅 egy régi Mesterpróba visszatért: ez a kocka vár rá */
+      if (most === lista[i]) cls.push("ek-fenyes-most");
+      s += '<g' + (cls.length ? ' class="' + cls.join(" ") + '"' : '') + (i === uj ? ' style="transform:translate(0,-260px);opacity:0"' : '') + '><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="6" fill="' + K[1] + '" stroke="' + (fv ? "#f2c14e" : "#fff") + '" stroke-width="3"/>' +
         '<rect x="' + (x + 5) + '" y="' + (y + 5) + '" width="' + (w - 10) + '" height="8" rx="3" fill="#fff" opacity=".35"/>' +
-        '<text x="' + (x + w / 2) + '" y="' + (y + hh / 2 + 11) + '" font-size="28" text-anchor="middle">' + K[0] + '</text></g>';
+        '<text x="' + (x + w / 2) + '" y="' + (y + hh / 2 + 11) + '" font-size="28" text-anchor="middle">' + K[0] + '</text>' +
+        (most === lista[i] ? '<rect class="ek-csillan" x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="6" fill="#fff3b0"/>' : '') +
+        (fv ? '<g class="ek-feny-jel"><circle cx="' + (x + w - 4) + '" cy="' + (y + 4) + '" r="11" fill="#fff6d8" stroke="#e8b43a" stroke-width="2"/>' +
+          '<text x="' + (x + w - 4) + '" y="' + (y + 8.5) + '" font-size="' + (fv > 1 ? 11 : 14) + '" font-weight="800" fill="#b8860b" text-anchor="middle">✦' + (fv > 1 ? fv : "") + '</text></g>' : '') + '</g>';
     } else s += '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="' + (w - 4) + '" height="' + (hh - 4) + '" rx="6" fill="rgba(255,255,255,.35)" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/>';
   });
   [[10, "#c9a8e6"], [12, "#f6a5c0"]].forEach(function (t) {           /* toronytetők */

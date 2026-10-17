@@ -2947,3 +2947,18 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .eg-ksug{ font-weight:600; color:#7a5aa8; font-size:.95rem; text-align:center; }
 @media (max-width:520px){ .eg-kartya{ width:42px; height:54px; font-size:1.3rem; } .eg-kopp:not(.gazdas) .eg-kartya{ width:40px; height:40px; } .eg-gazda{ min-width:44px; } }
 @media (prefers-reduced-motion:reduce){ .eg-kartya.adott,.eg-kartya.proba,.eg-kartya.jo{ animation:none; } }
+
+/* ── 🏅 MESTERPRÓBA-VÁLTOZATOK 3. kör (mester-valtozat.js): meghívás, pislogó kocka, fényesedő kocka ✦ ── */
+.nagy-gomb.mv-meghivas{ background:linear-gradient(#ffe9a8,#f7d36b); color:#6a4a10; box-shadow:0 4px 0 #d39e2a, 0 0 0 3px #fff3c4; animation:mvHiv 2.4s ease-in-out infinite; }
+@keyframes mvHiv{ 0%,100%{ filter:none; } 50%{ filter:drop-shadow(0 0 8px rgba(255,205,90,.95)); } }
+.bkt-vege #vege-kovetkezo.mv-meghivas{ display:inline-block !important; order:-2; flex:1 0 100%; }
+.bkt-vege .vege-gombok:has(.mv-meghivas){ flex-wrap:wrap; justify-content:center; }
+.mv-meghivas-sor{ font-weight:800; color:#8a6a1e; }
+.bkt-var-doboz .mv-meghivas{ margin:0 0 10px; }
+.ek-pislog{ animation:mvPislog 1.3s ease-in-out infinite; }
+@keyframes mvPislog{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+.ek-fenyes-most .ek-csillan{ opacity:0; animation:mvCsillan 1.1s ease-in-out .6s 3; }
+@keyframes mvCsillan{ 0%,100%{ opacity:0; } 50%{ opacity:.85; } }
+.ek-fenyes-most .ek-feny-jel{ transform-box:fill-box; transform-origin:center; animation:mvJelPop .6s cubic-bezier(.3,1.6,.5,1) 2.4s both; }
+@keyframes mvJelPop{ 0%{ transform:scale(0); } 100%{ transform:scale(1); } }
+@media (prefers-reduced-motion:reduce){ .nagy-gomb.mv-meghivas, .ek-pislog, .ek-fenyes-most .ek-csillan, .ek-fenyes-most .ek-feny-jel{ animation:none; } .ek-pislog{ opacity:.6; } }

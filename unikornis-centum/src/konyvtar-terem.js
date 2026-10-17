@@ -80,17 +80,19 @@ function bktTerem() {
 /* ── 🏰 a Kockavár nagyban (koppintás az ablakra, vagy a Mesterpróba végképernyőjén „Megnézem a várat”) ── */
 function bktVarNagy(uj) {
   var regi = $("bkt-var-reteg"); if (regi) regi.remove();
-  var lista = ekKockaLista(), n = lista.length;
+  var lista = ekKockaLista(), n = lista.length, meg = typeof mvMeghivas === "function" ? mvMeghivas() : null;   /* 🏅 visszatért egy Mesterpróba: a pislogó kocka mellett a meghívás */
   var r = el("div", "bkt-var-reteg"); r.id = "bkt-var-reteg";
   r.innerHTML = '<div class="bkt-var-doboz" role="dialog" aria-label="Kockavár"><div class="ek-var-nagy">' + ekKockavarNagySVG(lista, uj ? n - 1 : -1) + '</div>' +
     '<div class="bkt-var-sor">' + (n >= EK_KOCKAK.length ? "🏰 Kész a Kockavár!" : n ? "🏰 " + n + " kocka a várban" : "🏰 Még üres a vár. Minden 🏅 Mesterpróba hoz egy kockát!") + '</div>' +
-    '<button type="button" class="nagy-gomb">✓ Megnéztem</button></div>';
+    (meg ? '<button type="button" class="nagy-gomb kiemelt mv-meghivas" data-mv="1">' + MV_MEGHIV_GOMB + '</button>' : '') +
+    '<button type="button" class="nagy-gomb" data-zar="1">✓ Megnéztem</button></div>';
   document.body.appendChild(r);
   function zar() { hangGomb(); r.remove(); }
-  r.querySelector("button").addEventListener("click", zar);
+  r.querySelector("[data-zar]").addEventListener("click", zar);
+  if (meg) r.querySelector("[data-mv]").addEventListener("click", function () { hangGomb(); r.remove(); mvMeghivasIndit(meg); });
   r.addEventListener("click", function (e) { if (e.target === r) zar(); });
   if (uj) ekKockaBerepul();
-  mondd(n ? (n >= EK_KOCKAK.length ? "Kész a Kockavár!" : n + " kocka van a várban.") : "Még üres a vár. Minden Mesterpróba hoz egy kockát!");
+  mondd(meg ? MV_MEGHIV_MONDAT : n ? (n >= EK_KOCKAK.length ? "Kész a Kockavár!" : n + " kocka van a várban.") : "Még üres a vár. Minden Mesterpróba hoz egy kockát!");
 }
 
 /* ── 🏅 Mesterpróba-kapu (rajzterv 4. pont): a szalag lecsúszik → rövid arany kapu, az unikornis átlép → arany szegélyű pult ──
@@ -128,7 +130,7 @@ function bktVege(V, o) {
   var pottyok = mester ? [o.potty.length ? o.potty[o.potty.length - 1] : true] : o.potty;
   var kep = "";
   var var_ = mester && V.mesterKesz && (!!pa.polc || !!V.varKocka);   /* Mesterpróba (polc + szerszám): a kis vár, benne (ha új) a berepülő kocka */
-  if (var_) { var L = ekKockaLista(); kep = '<div class="ek-var-nagy bkt-var">' + ekKockavarNagySVG(L, V.kocka ? L.length - 1 : -1) + '</div>'; }
+  if (var_) { var L = ekKockaLista(); kep = '<div class="ek-var-nagy bkt-var">' + ekKockavarNagySVG(L, V.kocka ? L.length - 1 : -1, V.fenyes) + '</div>'; }
   else kep = '<div class="bkt-pottyok' + (mester ? " mester" : "") + '" aria-hidden="true">' + pottyok.map(function (x) { return '<i class="' + (x ? "o" : "s") + '"></i>'; }).join("") + '</div>';
   document.querySelector("#kepernyo-vege h2").textContent = V.cim || "Kész!";
   $("vege-szoveg").innerHTML = kep + sorok.map(function (s) { return '<span class="bkt-sor">' + s + '</span>'; }).join("") +

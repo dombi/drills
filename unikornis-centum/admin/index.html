@@ -214,7 +214,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/szerszam.js?v=20261016-2"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/leny-kiser.js?v=20261014-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
@@ -2080,6 +2080,37 @@ function rajzEpitokocka(t) {
     '<p class="kicsi halvany">Alap: 4 az 5-ből, a 📌 és a 🧺 látszik, a lift kérhető, a 🧺 képe „A”. Sorrend: alap → csoport → egyéni; több csoportnál az engedékenyebb küszöb nyer, a létra látszik, ha bármelyik csoport megnyitja. ' +
     "A ládából nem lehet kiesni: ha szigorítod a küszöböt, ami már bent van, bent marad.</p></div>";
 
+  /* ── 🏅 Visszatérő Mesterpróbák (Matekos\mesterproba-valtozatok-terv.html 6/3. döntés ✅; a játék: src/mester-valtozat.js, P().mv) ── */
+  var mvSorok = [];
+  A.users.forEach(function (u) {
+    Object.keys(u.unicorns).forEach(function (leny) {
+      var m = u.unicorns[leny].mv;
+      if (!m || !m.f) return;
+      var kiallt = Object.keys(m.f).filter(function (fid) { return m.f[fid].ok > 0; }).sort(function (a, b) { return m.f[a].l - m.f[b].l; });
+      var vl = (m.vl || []).slice().reverse();
+      if (!kiallt.length && !vl.length) return;
+      mvSorok.push("<tr><td>" + esc(jNev(u.uid)) + '<br><span class="kicsi halvany">' + esc(lenyNev(leny)) + "</span></td>" +
+        '<td class="kicsi">' + (kiallt.length ? kiallt.map(function (fid) { var r = m.f[fid]; return esc(ftFeladatNev(fid)) + " · " + r.n + "× látta" + (r.fv ? ' · <b style="color:#b8860b">✦ ' + r.fv + "</b>" : ""); }).join("<br>") : '<span class="halvany">még nincs kiállt</span>') + "</td>" +
+        "<td>" + (m.e ? "🏅 vár rá: <b>" + esc(ftFeladatNev(m.e)) + "</b>" : kiallt.length ? (m.j || 0) + " / " + (m.h || "?") + ' <span class="kicsi halvany">pálya</span>' : '<span class="halvany">–</span>') + "</td>" +
+        '<td class="kicsi">' + (vl.length ? vl.slice(0, 6).map(function (x) {
+          return esc(x.d || "") + " · " + esc(ftFeladatNev(x.fid)) + " · " + (x.v ? "változat <code>" + esc(String(x.v).replace(/^.*-v/, "v")) + "</code>" : "eredeti") + " · " +
+            (x.ok === 1 ? "✅ sikerült" : x.ok === 0 ? "🤝 együtt" : "⏳ félbehagyta");
+        }).join("<br>") + (vl.length > 6 ? '<br><span class="halvany">… és még ' + (vl.length - 6) + "</span>" : "") : '<span class="halvany">még nem jött vissza</span>') + "</td></tr>");
+    });
+  });
+  var mvMost = egyeni ? szerszamHatas(cid).mv : null;
+  h += '<div class="kartya" style="margin-top:14px"><h3>🏅 Visszatérő Mesterpróbák</h3>' +
+    '<p class="kicsi halvany">Egy már kiállt Mesterpróba időnként visszajön: másodszor már más számokkal (számváltozat), minden 3. visszatérésnél eredetiben. ' +
+    'A pálya végén kiemelt meghívás kínálja fel (nem kötelező), a Kockavárban addig a kocka pislog. Jól megoldva a kocka kifényesedik (✦) és fél jutalom jár (5 ✨ + 1 💧); ha nem sikerül, a kocka akkor is megmarad.</p>' +
+    '<div class="tabla-keret"><table><tr><th>Gyerek</th><th>Kiállt Mesterpróbák</th><th>Számláló a következő visszatérésig</th><th>Visszatérések (legutóbbi elöl)</th></tr>' +
+    (mvSorok.length ? mvSorok.join("") : '<tr><td colspan="4"><div class="ures">Még senkinek nincs kiállt Mesterpróbája az olvasó-polcon.</div></td></tr>') + "</table></div>" +
+    '<div class="kapu-sor" style="margin-top:8px"><span>Visszatér egy kiállt Mesterpróba nagyjából minden</span><select id="sz-mv"' + (szerszamMv(szSajat.mv) ? ' class="beallitva"' : "") + ">" +
+    szOpt([["", ures + " (10)"], ["5", "5."], ["6", "6."], ["8", "8."], ["10", "10."], ["12", "12."], ["15", "15."], ["20", "20."]], szerszamMv(szSajat.mv) ? String(szSajat.mv) : "") +
+    "</select><span>végigjárt könyvtári pálya után (±2, sorsolva)</span></div>" +
+    (egyeni ? '<div class="kicsi">Most ennél a gyereknél: minden <b>' + mvMost + ".</b> pálya körül.</div>" : "") +
+    '<p class="kicsi halvany">A beállítás a fenti Gyerek / Csoport gombokra vonatkozik. Sorrend: alap → csoport → egyéni; több csoportnál az első beállított nyer. ' +
+    "Az új szám a következő visszatérés után lép életbe (a mostani, már sorsolt határ marad).</p></div>";
+
   /* ── Mesterpróba-feladatok kockánként ── */
   var fl = Object.keys(A.ft.feladatok).sort().map(function (id) { return [id, ftFeladatNev(id)]; });
   var kockak = Object.keys(EK_MESTER_ALAP).sort().filter(function (k) { return k !== "K2"; });   /* 🔤 Kis szavak: nincs többé saját polca */
@@ -2117,9 +2148,10 @@ function rajzEpitokocka(t) {
     if (lk) o.liftKer = lk === "true";
     var nt = $("sz-nt").value; if (nt) o.tabla = nt === "true";
     var kp = $("sz-kep").value; if (kp) o.kep = kp;
+    var mv = $("sz-mv").value; if (mv) o.mv = +mv;
     ment(ref.set({ szerszam: Object.keys(o).length ? o : FV.delete(), updatedAt: FV.serverTimestamp() }, { merge: true }));
   }
-  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent; $("sz-nt").onchange = szerszamMent; $("sz-kep").onchange = szerszamMent;
+  $("sz-k").onchange = szerszamMent; $("sz-n").onchange = szerszamMent; $("sz-lk").onchange = szerszamMent; $("sz-nt").onchange = szerszamMent; $("sz-kep").onchange = szerszamMent; $("sz-mv").onchange = szerszamMent;
   Array.prototype.forEach.call(t.querySelectorAll("[data-szlat]"), function (x) { x.onchange = szerszamMent; });
   Array.prototype.forEach.call(t.querySelectorAll("[data-ekm]"), function (sl) {
     sl.onchange = function () {

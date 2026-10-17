@@ -839,17 +839,23 @@ function palyaVege() {
     if (kertV) String(kertV.html).split(/<br\s*\/?>|<\/div>|<\/p>/i).forEach(function (h) { var t = ekSima(h).replace(/\s+/g, " ").trim(); if (t) extra.push(t); });
     if (bankJegy) extra.push("🏦 A Tündérbankban most válthatsz!");
     if (kapuMostNyilt) extra.push("🗝️ Kinyílt az egész erdő!");
-    bktVege(ekV, { csilla: J.futoCsilla, harmat: harmat, extra: extra, potty: J.bktP || [] });
+    bktVege(ekV, { csilla: J.futoCsilla, harmat: harmat + (ekV.harmat || 0), extra: extra, potty: J.bktP || [] });
   }
   hetVegeMutat();   /* 📅 ma új pecsét jött: a heti kártya felúszik, és a pecsét ráüt (het.js) */
   var kov = J.palya.szerszam ? szKovetkezo(id) : J.palya.polc ? polcKovetkezo(id) : kovetkezoJatszhato(id);   /* 🧰 📚 📖 → 📜 → 🏅 */
-  $("vege-kovetkezo").style.display = kov ? "" : "none";
-  $("vege-kovetkezo").onclick = function () { hangGomb(); if (kov) palyaInditas(kov); };
+  /* 🏅 egy régi Mesterpróba visszatért (mester-valtozat.js): a „Következő” helyén kiemelt meghívás — nem kötelező, megvárja */
+  var mvMeg = (J.palya.polc || J.palya.szerszam) && J.palya.fok !== "mester" ? mvMeghivas() : null;
+  if (mvMeg && ekV) { var jut = document.querySelector("#vege-szoveg .bkt-jut"); if (jut) jut.insertAdjacentHTML("beforebegin", '<span class="bkt-sor mv-meghivas-sor">🏅 Emlékszel még a trükkre?</span>'); }
+  $("vege-kovetkezo").textContent = mvMeg ? MV_MEGHIV_GOMB : "➡ Következő pálya";
+  $("vege-kovetkezo").classList.toggle("mv-meghivas", !!mvMeg);
+  $("vege-kovetkezo").style.display = kov || mvMeg ? "" : "none";
+  $("vege-kovetkezo").onclick = function () { hangGomb(); if (mvMeg) mvMeghivasIndit(mvMeg); else if (kov) palyaInditas(kov); };
   konfettiSzor(); hangVege();
   mutat("kepernyo-vege");
   if (ekV && ekV.kocka) ekKockaBerepul();           /* 📚 olvasó-polc Mesterpróba: a kocka berepül a Kockavárba */
+  if (ekV && ekV.fenyes != null) hangCsilla();      /* 🏅 visszatérő jól: a kocka kifényesedik */
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
-  var buzd = kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
+  var buzd = mvMeg ? " " + MV_MEGHIV_MONDAT : kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
   var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";

@@ -35,7 +35,7 @@ window.UC = {
   liftKicsi: liftKicsi, liftVegig: liftVegig, liftNagyKesz: liftNagyKesz, liftMondat: liftMondat, LIFT_TILOS: LIFT_TILOS,
   meresSzamok: meresSzamok, meresLathato: meresLathato, mSzamSzo: mSzamSzo, MR: MR, mkLejatszik: mkLejatszik, mkBemutatoValaszt: mkBemutatoValaszt, mkHibaValaszt: mkHibaValaszt, mkBezar: mkBezar, MKJ: MKJ, MK_KIEG: MK_KIEG, MK_KUL: MK_KUL, mkKulAdat: mkKulAdat, mkKiegDarabok: mkKiegDarabok,   /* MÉRÉS-LIGETEK */
   EK_GEN: EK_GEN, ekPalyaVege: ekPalyaVege, ekLakat: ekLakat, ekKiejt: ekKiejt, SZARNYAK: SZARNYAK,   /* 📚 BAGOLYKÖNYVTÁR */
-  mvAll: mvAll, mvValaszt: mvValaszt, mvEsedekes: mvEsedekes, mvJatekVege: mvJatekVege, mvKiallt: mvKiallt, polcMesterD: polcMesterD,   /* 🏅 MESTERPRÓBA-VÁLTOZATOK */
+  mvAll: mvAll, mvValaszt: mvValaszt, mvEsedekes: mvEsedekes, mvJatekVege: mvJatekVege, mvKiallt: mvKiallt, polcMesterD: polcMesterD, mvMeghivas: mvMeghivas, mvVarJel: mvVarJel, bktVarNagy: bktVarNagy, szerszamBeall: szerszamBeall,   /* 🏅 MESTERPRÓBA-VÁLTOZATOK */
   PM_KERET: PM_KERET, pmKesz: pmKesz, POLC_MESTER: POLC_MESTER, POLC_REND: POLC_REND, polcPotty: polcPotty, polcMesterFeladat: polcMesterFeladat, polcAllapot: polcAllapot, szerszamTar: szerszamTar, ekKockaLista: ekKockaLista, FT: FT, bktTerem: bktTerem, bktVarNagy: bktVarNagy, bktMesterKapu: bktMesterKapu,   /* 📚 OLVASÓ-POLC */
   VS_GEN: VS_GEN, VSM: VSM, vsPalyaVege: vsPalyaVege, vsTovabbNyom: vsTovabbNyom, FIGURA: FIGURA, figuraSVG: figuraSVG, figArc: figArc,   /* 🧺 TÜNDÉRVÁSÁR */
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
