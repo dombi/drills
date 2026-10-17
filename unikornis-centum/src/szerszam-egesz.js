@@ -3,7 +3,8 @@
    átnézés: …-egesz-mit-atnezes.html (✅ 2026-10-16, mind az 5 döntés) · rajz: …-egesz-rajzterv.html (✅ 2026-10-16, mind a 4 döntés).
    1. kód-kör (2026-10-16): 📖 Mesekönyv (5) + 📜 Varázstekercs (a, a, b, a). 2. kód-kör (2026-10-16): a Tekercs 5. feladata, a 🐪 (c)
    rakodás, és a 3 🏅 Mesterpróba — szerszam-egesz-mester.js (+ rakodas.js). 3. kód-kör (2026-10-16): 🔮 Kristálygömb a 📜 és a 🏅
-   között — szerszam-egesz-gomb.js (Matekos\szerszam-letrak-egesz-kristalygomb.html ✅).
+   között — szerszam-egesz-gomb.js (Matekos\szerszam-letrak-egesz-kristalygomb.html ✅). 4. kód-kör (2026-10-17): ÖNT, OSZT —
+   a kosárban a gyerek keze dolgozik (kosar.js; Matekos\szerszam-letrak-egesz-ont-oszt-rajzterv.html ✅ + …-probalap.html ✅).
 
    Az olvasó-polc motorján fut (olvaso-polc.js: polcMutat / polcJo / polcHiba / lift / végigvezetés) — a feladatok f.polc = "EGESZ"-t
    kapnak, a pálya viszont SZERSZÁM-pálya (pa.szerszam = "EGESZ": a szekrényben áll, a pálya végét a szPalyaVege adja).
@@ -112,7 +113,7 @@ function segOsztoMese(keret, n, o) {
     { k: "Hány " + K.t + " jut egyikőjüknek?", v: E, m: T + " : " + n + " = " + E, oe: oe2, uto: "Igen! Egyikőjüknek " + E + " " + K.t + " jut. " + SEG_M.egyJo.replace(/^Igen! /, "") }
   ];
   var kos = { gy: nev.map(function (a, k) { return { nev: a[0], k: a[2], n: x.c[k] }; }), egy: x.E, egyseg: K.penz ? "10" : "", gesztenye: !!K.geszt, kezd: "kupac",
-    vOssz: T, vEgy: E, szamOssz: T + (K.penz ? " Ft" : ""), szamEgy: T + " = " + N.map(function () { return E; }).join(" + ") + (K.penz ? " Ft" : ""), cimkeEgy: E + (K.penz ? " Ft" : "") };
+    kezi: true, ad: { g: x.g, r: x.r }, vOssz: T, vEgy: E, szamOssz: T + (K.penz ? " Ft" : ""), szamEgy: T + " = " + N.map(function () { return E; }).join(" + ") + (K.penz ? " Ft" : ""), cimkeEgy: E + (K.penz ? " Ft" : "") };
   return { keret: keret, mondatok: mondatok, kerdes: Q, helyes: v, oe: oe, lepcso: lepcso, kosar: kos,
     lep: lepcso.map(function (l) { return { k: l.k, v: l.v, m: l.m }; }).concat([{ k: Q, v: v, m: E + " − " + c[x.r] + " = " + v }]),
     mit: ["hány " + K.tAcc + " ad " + A + " " + Bnak, "hány " + K.t + " jut egyikőjüknek", "hány " + K.t + " van összesen"],
@@ -141,7 +142,7 @@ function segPerselyMese(fix) {
   for (i = 0; i < x.a; i++) { ermek.push("20"); (i < x.a / 2 ? k1 : k2).push(ermek.length - 1); }
   for (i = 0; i < x.b; i++) { ermek.push("10"); (i < x.b / 2 ? k1 : k2).push(ermek.length - 1); }
   var tobb = {}; tobb[x.C] = x.C + " érme"; tobb[x.C / 2] = x.C + " = " + x.C / 2 + " + " + x.C / 2 + " érme";
-  var kos = { gy: [{ nev: A, k: nev[0][2], n: 0 }, { nev: B, k: nev[1][2], n: 0 }], ermek: ermek, kioszt: [k1, k2], egy: x.C / 2, kezd: "kosar",
+  var kos = { gy: [{ nev: A, k: nev[0][2], n: 0 }, { nev: B, k: nev[1][2], n: 0 }], ermek: ermek, kioszt: [k1, k2], egy: x.C / 2, kezd: "kosar", kezi: true,
     vOssz: x.V, vEgy: x.V / 2, szamOssz: x.V + " Ft", szamEgy: x.V + " = " + x.V / 2 + " + " + x.V / 2 + " Ft", tobb: tobb, cimkeEgy: x.V / 2 + " Ft" };
   var lepcso = [
     { k: "Hány forint jut egyikőjüknek?", v: x.V / 2, m: x.V + " : 2 = " + x.V / 2, oe: segUresOe(""), uto: "Igen! Egyikőjüknek " + x.V / 2 + " forint jut." },
@@ -178,6 +179,7 @@ function segNaplo(tipus, k, v) { return { tipus: tipus, kerdes: ekSima(k).slice(
 function segLanc(M, o) {
   var lanc = [], kos = {}, tip = "sz-egesz-" + (o.kicsi ? "kicsi" : J.palya.fok) + "-" + M.keret;
   for (var k in M.kosar) kos[k] = M.kosar[k];
+  if (o.mese) kos.mese = true;                              /* 🧺 a Mesekönyv lánca: első találkozáskor szabad játék (kosar.js) */
   M.lepcso.forEach(function (l, j) {
     var op = segOp(M, j, o.kicsi, o.N), O = op.fuzet || op;
     var S = { csalad: "egyenkent", polc: "EGESZ", polcSzerep: o.kicsi ? "kicsi" : "lepes", helyes: l.v, oe: l.oe, jegyMax: 3, op: op, kosar: kos,
@@ -239,7 +241,10 @@ function segFeladat(cfg) {
   var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: fok, fid: M.keret });
   L.nagy = fok === "tekercs"; L.kicsiJoKell = 1;
   J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
-  if (fok === "tekercs") return segNagy(M, L);
+  if (fok === "tekercs") {                                 /* 📜 a Tekercs: előbb felel, a kosár választható; 10 fölött zacskók (önt–oszt rajzterv ✅) */
+    M.kosar.mod = "tek"; if (SEG_KERET[M.keret] && !SEG_KERET[M.keret].penz) M.kosar.zacsko = true;
+    return segNagy(M, L);
+  }
   return segLanc(M, { mese: true, L: L, elso: i === 0 });
 }
 SZ_SAJAT.EGESZ = segFeladat;

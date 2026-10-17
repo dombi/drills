@@ -297,6 +297,7 @@ function polcZar(f) {
   if (!f || !f.polc) return false;
   if (oeKeresFut() && OE.keres && !OE.keres.o.lagy) { mondd("Előbb koppints a kérdésre!"); return true; }
   if (polcKeresKell(f)) { opOlvasAll(); polcKeres(f); return true; }   /* a felolvasás alatt gyorsan válaszolt: előbb a kérdés */
+  if (kosarZar(f)) return true;                         /* 🧺 Mesekönyv: előbb önt / oszt, aztán felel (kosar.js) */
   return false;
 }
 function polcKartyaMutat(f) {
@@ -370,6 +371,7 @@ function polcJo(f, elsore) {
 
 /* ═════════════════ ROSSZ VÁLASZ (ertekel hívja, a 🔎/✋ jelzés után) ═════════════════ */
 function polcHiba(f, valasz) {
+  kosarRossz(f, valasz);                                /* 🧺 a kép felel: eljátssza a gyerek számát (kosar.js) */
   var v = $("visszajelzes");
   if (f.vezet) {
     if (J.probak === 1) { v.className = "visszajelzes rossz"; v.textContent = "Nem " + valasz + ". Számold ki újra!"; mondd("Ez még nem jó. Számold ki újra!", kezNelkulUjra); }

@@ -2853,7 +2853,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .ksz-kosar-hat svg,.ksz-kosar-elo svg{ width:100%; height:100%; display:block; }
 .ksz-billen{ animation:ksz-billen .5s ease-in-out; }
 @keyframes ksz-billen{ 25%{ transform:rotate(-5deg); } 75%{ transform:rotate(4deg); } }
-.ksz-szam{ position:absolute; left:320px; top:186px; transform:translateX(-50%) scale(.6); z-index:6; background:#fff; border:2px solid #c8945a; border-radius:12px; padding:0 10px;
+.ksz-szam{ position:absolute; left:320px; top:278px; transform:translateX(-50%) scale(.6); z-index:6; background:#fff; border:2px solid #c8945a; border-radius:12px; padding:0 10px;
   font-weight:700; font-size:17px; color:#5a4430; white-space:nowrap; opacity:0; transition:all .35s; }
 .ksz-szam.lat{ opacity:1; transform:translateX(-50%) scale(1); }
 .ksz-golyo{ position:absolute; left:0; top:0; width:16px; height:16px; border-radius:50%; z-index:3; box-shadow:inset -2px -3px 0 rgba(0,0,0,.14); }
@@ -2868,8 +2868,30 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .ksz-szellem.lat{ opacity:.95; }
 .ksz-cel{ position:absolute; transform:translateX(-50%); z-index:5; background:#fff; border:2px solid #c8945a; border-radius:10px; padding:0 8px; font-weight:700; font-size:13px; color:#5a4430; opacity:0; transition:opacity .4s; white-space:nowrap; }
 .ksz-cel.lat{ opacity:1; }
+/* 🧺 önt, oszt (kosar.js, 2026-10-17): a gyerek keze dolgozik — tálka, kosár, zacskó koppintható */
+.ksz-fig,.ksz-tal,.ksz-kosar-hat,.ksz-kosar-elo,.ksz-golyo,.ksz-zacsko,.ksz-szam{ cursor:pointer; }
+.ksz-golyo.kicsi{ width:13px; height:13px; }
+.ksz-golyo.kicsi::after{ left:2px; top:2px; width:4px; height:3px; }
+.ksz-golyo.erme{ width:17px; height:17px; }
+.ksz-zacsko{ position:absolute; left:0; top:0; width:28px; height:32px; z-index:3; }
+.ksz-zacsko.bent{ z-index:5; }
+.ksz-zacsko svg{ width:100%; height:100%; display:block; overflow:visible; }
+.ksz-zacsko.tobblet{ animation:ksz-tobblet-z 1s ease-in-out infinite; border-radius:50%; }
+@keyframes ksz-tobblet-z{ 50%{ filter:drop-shadow(0 0 5px #ffd23f) drop-shadow(0 0 3px #ffd23f); } }
+.ksz-el{ opacity:0; transition:opacity .45s; pointer-events:none; }
+.ksz-db{ position:absolute; top:196px; transform:translateX(-50%); z-index:6; min-width:22px; text-align:center; background:#fff; border:2px solid #c8945a;
+  border-radius:10px; padding:0 6px; font-weight:700; font-size:14px; color:#5a4430; white-space:nowrap; pointer-events:none; }
+.ksz-db.rossz{ background:#fde8e8; border-color:#d98c8a; color:#a33a37; }
+.ksz-szam.kicsi{ font-size:13px; border-color:#b593ec; color:#6a35c9; }
+.ksz-ujj{ position:absolute; z-index:7; font-size:36px; line-height:1; pointer-events:none; opacity:0; transition:opacity .3s; }
+.ksz-ujj.lat{ opacity:1; animation:ksz-ujj 1.3s ease-in-out infinite; }
+@keyframes ksz-ujj{ 0%,100%{ transform:translateY(0); } 45%{ transform:translateY(7px) scale(.94); } }
+.ksz-probald{ position:absolute; left:320px; top:10px; transform:translateX(-50%); z-index:6; background:#f1e8ff; border:2px solid #b593ec; color:#6a35c9;
+  border-radius:12px; padding:2px 12px; font-weight:700; font-size:16px; white-space:nowrap; }
+.ksz-kezdjuk{ position:absolute; right:10px; top:276px; z-index:8; font:700 17px "Fredoka",system-ui,sans-serif; border:none; border-radius:12px; padding:7px 16px;
+  background:#c9a4f0; color:#2c1a48; box-shadow:0 3px 0 #9d78c8; cursor:pointer; }
 @media (max-width:640px){ .op-konyv:not(.op-felul) .op-jobb.kosar-lap{ order:1; } }   /* „B”: telefonon a szöveg fent, alatta a jelenet */
-@media (prefers-reduced-motion:reduce){ .ksz-be,.ksz-billen,.ksz-golyo.tobblet,.op-l-most{ animation:none; } }
+@media (prefers-reduced-motion:reduce){ .ksz-be,.ksz-billen,.ksz-golyo.tobblet,.ksz-zacsko.tobblet,.ksz-ujj.lat,.op-l-most{ animation:none; } }
 
 /* ═════════ 🐪 RAKODÁS (rakodas.js) + 🏅 Mesterpróba-ábrák (szerszam-egesz-mester.js) — Matekos\szerszam-letrak-egesz-rajzterv.html 4–5. pont ✅ ═════════ */
 .dob-ter.k-teve{ position:relative; flex-direction:column; justify-content:flex-end; min-height:250px; background:linear-gradient(#fdf3dc 70%, #f0d9a8 70%); padding:8px 4px 6px; }
