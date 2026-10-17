@@ -2628,7 +2628,10 @@ function tudasEsedekes(id, p) { var s = tudasTar(p)[id]; return !!(s && s.megy !
      • Csak a VÉGIGÉRT pálya visz darabot (palyaVege → kuldPalyaVege); a megszakított semmit (kiskapu-elv).
      • A futó küldetés nem változik; csak ha egy pálya közben elérhetetlenné válik (pult: elrejtve), az ő helye csendben
        eltűnik, és a részletek újraosztódnak (kuldIgazit) — a gyerek soha nem ragad bent.
-     • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínál (A1); amit már megkapott, nem jön újra.
+     • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínált (A1); amit már megkapott, nem jön újra.
+     • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
+       is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
+       1 ágy + 1 kisház + a harmadik egy újabb ágy vagy ház (amíg a ruha nincs kész); ha egy típus elfogyott, a másik pótolja.
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz }, keres: { op: [id], nap } }
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
@@ -2637,7 +2640,7 @@ function tudasEsedekes(id, p) { var s = tudasTar(p)[id]; return !!(s && s.megy !
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam"] }
 };
-var KULD_TIPUS = ["agy"];   /* 1. kör: csak ágy; a 2. körtől: ["agy", "haz", "ruha"] (1 + 1 + 1 a választóban) */
+var KULD_TIPUS = ["agy", "haz"];   /* 2. kör: ágy + kisház; a 3. körtől + "ruha" (1 + 1 + 1 a választóban) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
 /* ── a mentés-ág ── */
@@ -2721,6 +2724,12 @@ function kuldKertPalya(id) {
   var a = kuldAkt(); if (!a) return false;
   return a.helyek.some(function (h) { return h.p === id && !h.kesz; });
 }
+/* a térkép Kert-jele: 🐉, ha a kisház egy darabja a kertben vár (terkep.js) */
+function kuldKertJel() {
+  if (!kuldVan()) return [];
+  var a = kuldAkt();
+  return a && a.tip === "haz" && a.hozott > a.felrakva ? ["🐉"] : [];
+}
 /* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) */
 function kuldLigetJel(r) {
   if (!kuldVan()) return [];
@@ -2751,7 +2760,8 @@ function kuldPecsetes(a) {
   return ki;
 }
 
-/* ── a kérés: 3 lehetőség (1. kör: 3 különböző, még meg nem kapott ágy), egy napon egyszer jön elő magától ── */
+/* ── a kérés: 3 lehetőség — típusonként egy véletlen, még meg nem kapott holmi, a maradék helyre egy újabb a többiből;
+   egy napon egyszer jön elő magától ── */
 function kuldKeresKell() {
   if (!kuldVan()) return false;
   var k = kuldTar();
@@ -2761,14 +2771,17 @@ function kuldKeresKell() {
 function kuldKeresOpciok() {
   var k = kuldTar();
   var nincs = function (id) { return SH_HOLMI_BY[id] && k.holmi[SH_HOLMI_BY[id].tip].indexOf(id) < 0; };
-  if (k.keres && k.keres.op.length && k.keres.op.every(nincs)) return k.keres.op;
-  var op = [];
-  if (KULD_TIPUS.length === 1) {
-    op = shKever(SH_HOLMI.filter(function (h) { return h.tip === KULD_TIPUS[0] && nincs(h.id); })).slice(0, 3).map(function (h) { return h.id; });
-  } else {
-    KULD_TIPUS.forEach(function (t) { var l = shKever(SH_HOLMI.filter(function (h) { return h.tip === t && nincs(h.id); })); if (l.length) op.push(l[0].id); });
-  }
-  k.keres = { op: op, nap: null };
+  /* a régi (1. körös, csak ágyas) kérés újra összeáll, ha bővült a típusok köre; a „Majd később” napja megmarad */
+  if (k.keres && k.keres.v === KULD_TIPUS.length && k.keres.op.length && k.keres.op.every(nincs)) return k.keres.op;
+  var op = [], tobbi = [];
+  KULD_TIPUS.forEach(function (t) {
+    var l = shKever(SH_HOLMI.filter(function (h) { return h.tip === t && nincs(h.id); }));
+    if (l.length) op.push(l[0].id);
+    tobbi = tobbi.concat(l.slice(1));
+  });
+  shKever(tobbi).forEach(function (h) { if (op.length < 3) op.push(h.id); });
+  op = op.slice(0, 3).sort(function (a, b) { return KULD_TIPUS.indexOf(SH_HOLMI_BY[a].tip) - KULD_TIPUS.indexOf(SH_HOLMI_BY[b].tip); });
+  k.keres = { op: op, nap: k.keres ? k.keres.nap : null, v: KULD_TIPUS.length };
   return op;
 }
 /* „Majd később”: ma már nem kérdez magától, a 💭 marad */
@@ -2800,7 +2813,7 @@ function kuldFelrak() {
   esemeny("kuld_kesz", { holmi: a.id });
   return "kesz";
 }
-/* a megszerzett ágyak között vált (koppintás az ágyra, ha több is van). Visszaadja az új kint lévőt. */
+/* a megszerzett ágyak (kisházak) között vált (koppintás rá, ha több is van). Visszaadja az új kint lévőt. */
 function kuldValt(tip) {
   var k = kuldTar(), l = k.holmi[tip];
   if (!l || l.length < 2) return k.kint[tip] || null;
@@ -2820,7 +2833,8 @@ function kuldHirek() {
   var darab = a.hir.resz.map(function (i) { return h.r[shSor(h)[i]][2]; });
   var mit = darab.length > 1 ? darab.slice(0, -1).join(", ") + " és " + darab[darab.length - 1] : darab[0];
   sor.push({ t: "🐉 Hoztunk " + mit + " " + nev + " " + SH_TIP_HOZ[h.tip] + "!", szin: KULD_HIR_SZIN });
-  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze az odúban!", szin: KULD_HIR_SZIN });
+  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : "az odúban!"), szin: KULD_HIR_SZIN });
+  else if (h.tip === "haz") sor.push({ t: "🐉 A darab a kertben vár, a szikla mellett.", szin: KULD_HIR_SZIN });
   return sor;
 }
 /* ============ 4) MENTÉS ============ */
@@ -16369,8 +16383,9 @@ function lkSzikla() {   /* napozó szikla: mohás, lapos tetejű (rajzterv kertR
 function lenyKertRajzol() {
   lkIdoTorol();
   if (_lkFut) { _lkFut = false; KERT_TRUKK_FUT = false; }   /* félbeszakadt jelenet (kilépés, forgatás) → tiszta lap */
-  var kam = $("kert-kamera"), svg = $("ln-kert-reteg");
-  if (!lenyNagyKertben()) { if (svg) svg.parentNode.removeChild(svg); return; }
+  kuldKertTorol();   /* 🐉 a kisház-jelenet is tiszta lapot kap (sarkany-holmi.js) */
+  var kam = $("kert-kamera"), svg = $("ln-kert-reteg"), nagy = lenyNagyKertben(), haz = kuldKertVan();   /* 🐉 a kölyök kisháza ugyanezen a sziklán */
+  if (!nagy && !haz) { if (svg) svg.parentNode.removeChild(svg); return; }
   if (!kam) return;
   if (!svg) {
     var t = document.createElement("div");
@@ -16379,10 +16394,13 @@ function lenyKertRajzol() {
   }
   svg.setAttribute("viewBox", kertTajNezet($("kert-szinter")).vb.map(ktR).join(" "));
   var K = LENY_KERT[KERT_ORIENT], l = lenyTar(), megjott = !!l.kertLatta;
-  svg.innerHTML = '<g transform="translate(' + K.x + " " + K.y + ") scale(" + K.s + ')">' + lkSzikla() + "</g>" +
+  svg.innerHTML = '<g transform="translate(' + K.x + " " + K.y + ") scale(" + K.s + ')">' + lkSzikla() + "</g>" + (haz ? kuldKertSVG() : "");
+  if (haz) kuldKertKot(svg);
+  if (!nagy) return;
+  svg.insertAdjacentHTML("beforeend",
     '<g id="ln-kert-nagy" class="ln-kert-nagy" role="button" aria-label="' + htmlVed(l.nev || "Sárkány") + '"' + (megjott ? "" : ' style="display:none"') + ">" +
     '<g id="ln-kert-flip"><g id="ln-kert-tanc">' + lenyRajz("nagy", lenyPal()) + "</g>" +
-    '<rect x="-260" y="-380" width="480" height="390" fill="transparent"/></g></g>';
+    '<rect x="-260" y="-380" width="480" height="390" fill="transparent"/></g></g>');
   lkHelyez(lkAlap(), -1, 1);
   if (megjott) lkElet();
 }
@@ -16620,6 +16638,14 @@ function lenyKiserOduba(x, y) {
      • A kérés: fedőlap 3 ágy-rajzzal + „Majd később” (az odúba lépve, naponta egyszer magától).
      • Kész: a kölyök beleugrik, összegömbölyödik, Zzz — „Az enyém! Köszönöm!”. Ha az unikornis lefekszik, a kölyök is
        az ágyában alszik (rajzterv 3. kérdés A). Több ágynál az ágyra koppintva vált (9. döntés).
+   2. kód-kör (2026-10-17): a KISHÁZ a kertben (rajzterv 9. rész; producer: „minden a kertben”).
+     • A kert-rétegen (leny.js lenyKertRajzol, #ln-kert-reteg) a napozó szikla mellett: az épülő vagy a kész ház, a ház
+       építése alatt mellette a kívánság-tábla és előtte a darab-kupac. A felrakás ugyanúgy megy, mint az odúban: koppintás
+       a kupacra → az unikornis odasétál → a darab a helyére repül → egy rész kiszíneződik, a tábla pecsétet kap.
+     • Az odúban a ház építése alatt a fészek fölött egy 🏡-buborék emlékeztet (benne a félkész ház); koppintásra a tábla.
+     • Kész: a kölyök beszalad a házába, és kikukucskál — „Az enyém! Köszönöm!”. Ettől kezdve, ha a gyerek a kertbe megy,
+       a kölyök is jön, és a házából kukucskál (rajzterv 2. kérdés A). A házra koppintva kiszalad és köszön; több háznál
+       a koppintás vált (9. döntés).
    Tiltólista: nincs szám („4/10”), nincs határidő, a felrakott darab soha nem tűnik el. */
 
 /* ── a fióka-méretű alvó póz (rajzterv) ── */
@@ -16901,7 +16927,7 @@ function shTablaSVG(a, opt) {
 }
 
 /* ════════════ AZ ODÚBAN (odú-koordinátában; leny.js lenyOduBelso hívja) ════════════ */
-var SH_ODU = { agy: [180, 518, 0.8], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], uniKupac: 360 };
+var SH_ODU = { agy: [180, 518, 0.8], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], hazjel: [204, 350], uniKupac: 360 };
 var SH_ALSZIK = false;   /* a kölyök épp az ágyában alszik (kész pillanat, koppintás, az unikornis is alszik) — nem mentődik */
 var _shFut = false;      /* felrakás / beugrás közben nincs új koppintás */
 /* mi áll a fészek helyén: az épülő ágy (akt) vagy a kint lévő kész ágy — vagy semmi (marad a fészek) */
@@ -16923,17 +16949,17 @@ function shOduAgySVG(agy, opt) {
 function kuldOduExtra() {
   if (!kuldVan()) return "";
   var k = kuldTar(), a = k.akt, s = "";
-  if (a) {
+  if (a && a.tip === "haz") {   /* 🏡 a kisház a kertben épül: itt csak egy buborék emlékeztet (benne a félkész ház) */
+    var G0 = SH_ODU.hazjel, hh = SH_HOLMI_BY[a.id], var_ = a.hozott > a.felrakva;
+    s += '<g id="sh-hazjel" class="' + (var_ ? "hr-kupac" : "") + '" transform="translate(' + G0[0] + " " + G0[1] + ')" role="button" aria-label="A kölyök kisháza"><g class="hr-jel"><g>' +
+      '<circle r="32" fill="#fffaf0" stroke="#c9a8e6" stroke-width="2.6"/><circle cx="-22" cy="38" r="7" fill="#fffaf0" stroke="#c9a8e6" stroke-width="2.2"/><circle cx="-32" cy="52" r="4" fill="#fffaf0" stroke="#c9a8e6" stroke-width="1.8"/>' +
+      '<g transform="translate(0 21) scale(.23)">' + shHolmiSVG(hh, a.felrakva, {}) + "</g>" +
+      '<rect x="-36" y="-36" width="72" height="94" fill="transparent"/></g></g></g>';
+  } else if (a) {
     var T = SH_ODU.tabla;
     s += '<g id="sh-tabla" transform="translate(' + T[0] + " " + T[1] + ") scale(" + T[2] + ')" role="button" aria-label="Kívánság-tábla">' +
       shTablaSVG(a) + '<rect x="0" y="0" width="360" height="300" fill="transparent"/></g>';
-    if (a.hozott > a.felrakva) {
-      var h = SH_HOLMI_BY[a.id], K = SH_ODU.kupac, resz = shResz(h, shSor(h)[a.felrakva], lenyPal()), tobb = a.hozott - a.felrakva > 1;
-      s += '<g id="sh-kupac" class="hr-kupac" transform="translate(' + K[0] + " " + K[1] + ')" role="button" aria-label="Hozott darab">' +
-        '<ellipse cx="0" cy="2" rx="34" ry="8" fill="#9fd48a" stroke="#5a9a4a" stroke-width="2"/><path d="M-34 2q-8 -4 -4 -10M34 2q8 -4 4 -10" fill="none" stroke="#5a9a4a" stroke-width="2"/>' +
-        (tobb ? '<g transform="translate(16 -2) rotate(12)" opacity=".85"><g class="hr-kozep" data-fit="40 26">' + shResz(h, shSor(h)[a.felrakva + 1], lenyPal()) + "</g></g>" : "") +
-        '<g transform="translate(-4 -3)"><g class="hr-kozep" data-fit="58 40">' + resz + '</g></g><rect x="-42" y="-54" width="84" height="64" fill="transparent"/></g>';
-    }
+    if (a.hozott > a.felrakva) s += shKupacSVG(a, "sh-kupac", SH_ODU.kupac, 1);
   } else if (kuldKesobbVan()) {
     var G = SH_ODU.gondolat;
     s += '<g id="sh-gondolat" class="hr-jel" transform="translate(' + G[0] + " " + G[1] + ')" role="button" aria-label="A kölyök kívánsága">' +
@@ -16942,12 +16968,25 @@ function kuldOduExtra() {
   }
   return s;
 }
+/* a darab-kupac (a hozott, még fel nem rakott darabok): levél-tálcán dereng; K = talppont, sc = méret */
+function shKupacSVG(a, id, K, sc) {
+  var h = SH_HOLMI_BY[a.id], resz = shResz(h, shSor(h)[a.felrakva], lenyPal()), tobb = a.hozott - a.felrakva > 1;
+  return '<g id="' + id + '" class="hr-kupac" transform="translate(' + K[0] + " " + K[1] + ")" + (sc !== 1 ? " scale(" + sc + ")" : "") + '" role="button" aria-label="Hozott darab">' +
+    '<ellipse cx="0" cy="2" rx="34" ry="8" fill="#9fd48a" stroke="#5a9a4a" stroke-width="2"/><path d="M-34 2q-8 -4 -4 -10M34 2q8 -4 4 -10" fill="none" stroke="#5a9a4a" stroke-width="2"/>' +
+    (tobb ? '<g transform="translate(16 -2) rotate(12)" opacity=".85"><g class="hr-kozep" data-fit="40 26">' + shResz(h, shSor(h)[a.felrakva + 1], lenyPal()) + "</g></g>" : "") +
+    '<g transform="translate(-4 -3)"><g class="hr-kozep" data-fit="58 40">' + resz + '</g></g><rect x="-42" y="-54" width="84" height="64" fill="transparent"/></g>';
+}
 /* a lenyOduKot hívja minden rajzoláskor: koppintások */
 function kuldOduKot(svg) {
   _shFut = false;   /* újrarajzolás (ablakméret) egy jelenet közben: a lnIdoTorol már leállította, tiszta lap */
   if (!svg || !kuldVan()) return;
   shReszKozepre(svg.querySelector("#leny-odu") || svg);
-  var t = svg.querySelector("#sh-tabla"), kp = svg.querySelector("#sh-kupac"), g = svg.querySelector("#sh-gondolat"), ag = svg.querySelector("#sh-agy");
+  var t = svg.querySelector("#sh-tabla"), kp = svg.querySelector("#sh-kupac"), g = svg.querySelector("#sh-gondolat"), ag = svg.querySelector("#sh-agy"), hj = svg.querySelector("#sh-hazjel");
+  if (hj) hj.addEventListener("click", function () {
+    if (_shFut || _lnFut) return;
+    var a = kuldAkt(); hangGomb();
+    kuldTablaNagy(a && a.hozott > a.felrakva ? "Megjöttek a kisházam darabjai! A kertben várnak, a szikla mellett." : "A kisházam a kertben épül, a szikla mellett.");
+  });
   if (t) t.addEventListener("click", function () { if (!_shFut && !_lnFut) { hangGomb(); kuldTablaNagy(); } });
   if (kp) kp.addEventListener("click", function () { if (!_shFut && !_lnFut) kuldFelrakJelenet(); });
   if (g) g.addEventListener("click", function () { if (!_shFut && !_lnFut) { hangGomb(); kuldKeresMutat(); } });
@@ -16980,7 +17019,8 @@ function kuldKeresMutat() {
       if (!a) return;
       lenyOduFrissit();
       var f = document.querySelector("#odu-szoba #ln-fioka-poz"); if (f) lenyTusszent(f);
-      mondd("Ez lesz az! Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + ". Nézd meg a táblát!");
+      mondd(a.tip === "haz" ? "Ez lesz az! A kisházam a kertbe kerül, a napozó szikla mellé. Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + "!"
+        : "Ez lesz az! Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + ". Nézd meg a táblát!");
     });
   });
   d.querySelector(".kuld-kesobb").addEventListener("click", function () {
@@ -16990,13 +17030,14 @@ function kuldKeresMutat() {
 }
 
 /* ── a tábla nagyban: a helyekre koppintva a kölyök megmondja, hova kell még menni ── */
-function kuldTablaNagy() {
+function kuldTablaNagy(elo) {   /* elo: a kölyök első mondata (az odú 🏡-buborékjáról: hol épül a ház) */
   var a = kuldAkt(); if (!a) return;
   var l = lenyTar(), nev = l.nev || "A kölyök";
   var d = lenyFedo('<div class="leny-fogo"></div><div class="kuld-tabla-lap"><svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg">' + shTablaSVG(a) + '</svg>' +
     '<p class="kuld-tabla-mondat" id="kuld-tabla-mondat">🔊 Koppints egy helyre!</p><button class="kuld-tabla-zar">✓ Rendben</button></div>');
   var tobb = a.helyek.filter(function (x) { return !x.kesz; }).length;
-  mondd(tobb ? nev + ": Ezek a pályák kellenek még " + { agy: "az ágyamhoz", haz: "a kisházamhoz", ruha: "a ruhámhoz" }[a.tip] + ". Koppints egy helyre!" : nev + ": Minden darab megvan! Rakjuk fel őket!");
+  if (elo) $("kuld-tabla-mondat").textContent = "🐉 „" + elo + "”";
+  mondd(nev + ": " + (elo ? elo + " " : "") + (tobb ? "Ezek a pályák kellenek még " + { agy: "az ágyamhoz", haz: "a kisházamhoz", ruha: "a ruhámhoz" }[a.tip] + ". Koppints egy helyre!" : "Minden darab megvan! Rakjuk fel őket!"));
   Array.prototype.forEach.call(d.querySelectorAll(".sh-hely"), function (g) {
     g.addEventListener("click", function () {
       var x = a.helyek[+g.getAttribute("data-i")], pa = shPalya(x.p), pn = pa ? kiiras(pa.nev) : "";
@@ -17034,7 +17075,7 @@ function kuldFelrakJelenet() {
     if (ki === "kesz") { SH_ALSZIK = false; lenyOduFrissit(); kuldUjResz(uj); hangCsilla(); lnIdo(800, kuldKeszJelenet); return; }
     lenyOduFrissit(); kuldUjResz(uj);
     var pecset = a2 ? kuldPecsetes(a2) : {}, ujP = null;
-    if (a2) { var elotte = kuldPecsetesN(a2, a2.felrakva - 1); Object.keys(pecset).forEach(function (i) { if (!elotte[i]) ujP = +i; }); }
+    if (a2) ujP = kuldUjPecset(a2);
     if (ujP != null) kuldTablaPecsetFeny(ujP);
     hangCsilla();
     mondd(a2 && a2.felrakva < a2.hozott ? "Még egy darab vár!" : "Egy újabb rész a helyére került!");
@@ -17044,9 +17085,16 @@ function kuldFelrakJelenet() {
   tovabb();
 }
 function kuldPecsetesN(a, n) { var x = { helyek: a.helyek, felrakva: n }; return kuldPecsetes(x); }
+/* melyik hely kapott épp most pecsétet (az utolsó felrakással) — vagy null */
+function kuldUjPecset(a) {
+  var most = kuldPecsetes(a), elotte = kuldPecsetesN(a, a.felrakva - 1), uj = null;
+  Object.keys(most).forEach(function (i) { if (!elotte[i]) uj = +i; });
+  return uj;
+}
 /* az épp felrakott részlet felvillan + szikra */
-function kuldUjResz(uj) {
-  var g = document.querySelector("#odu-szoba #sh-agy .hr[data-r='" + (function () { var ag = kuldOduAgy(); return ag ? shSor(ag.h)[uj] : -1; })() + "']");
+function kuldUjResz(uj) { var ag = kuldOduAgy(); if (ag) shUjResz(document.querySelector("#odu-szoba #sh-agy"), ag.h, uj); }
+function shUjResz(gyoker, h, uj) {
+  var g = gyoker && gyoker.querySelector(".hr[data-r='" + shSor(h)[uj] + "']");
   if (!g || !g.animate || nyugiMod()) return;
   try {
     var b = g.getBBox();
@@ -17054,8 +17102,8 @@ function kuldUjResz(uj) {
     g.parentNode.insertAdjacentHTML("beforeend", shSzikra(b.x + b.width / 2, b.y + b.height / 2, 16));
   } catch (e) {}
 }
-function kuldTablaPecsetFeny(i) {
-  var g = document.querySelector("#odu-szoba #sh-tabla .sh-hely[data-i='" + i + "'] g[opacity]");
+function kuldTablaPecsetFeny(i, sel) {
+  var g = document.querySelector((sel || "#odu-szoba #sh-tabla") + " .sh-hely[data-i='" + i + "'] g[opacity]");
   if (g) g.classList.add("hr-pecset-uj");
 }
 /* kész: a kölyök beleugrik az új ágyba, összegömbölyödik — „Az enyém! Köszönöm!” */
@@ -17087,14 +17135,20 @@ function kuldBeugrik(kesz) {
 }
 function kuldBuborek(t) {
   var svg = document.querySelector("#odu-szoba svg"), g = svg && svg.querySelector("#leny-odu"); if (!g) return;
-  var A = SH_ODU.agy, w = t.length * 8.6 + 34, x = A[0] + 40, y = A[1] - 96;
+  var A = SH_ODU.agy;
+  shBuborek(g, A[0] + 40, A[1] - 96, t, 1, lnIdo);
+}
+/* beszéd-buborék egy svg-csoportba (x, y = a csücske fölött), sc méretben; ido = a réteg időzítője (eltűnik) */
+function shBuborek(g, x, y, t, sc, ido) {
+  var w = t.length * 8.6 + 34;
   var b = document.createElementNS("http://www.w3.org/2000/svg", "g");
   b.setAttribute("class", "sh-bub"); b.setAttribute("pointer-events", "none");
   b.innerHTML = '<rect x="' + shF(x - w / 2) + '" y="' + (y - 34) + '" width="' + shF(w) + '" height="34" rx="14" fill="#fff" stroke="#e6d8f0" stroke-width="2"/>' +
     '<path d="M' + (x - 22) + " " + (y - 1) + "l-8 14l18 -14" + '" fill="#fff" stroke="#e6d8f0" stroke-width="2" stroke-linejoin="round"/><rect x="' + (x - 28) + '" y="' + (y - 4) + '" width="24" height="4" fill="#fff"/>' +
     '<text x="' + x + '" y="' + (y - 11) + '" text-anchor="middle" font-size="16" font-weight="800" fill="#2a2140">' + htmlVed(t) + "</text>";
+  if (sc && sc !== 1) b.setAttribute("transform", "translate(" + shF(x * (1 - sc)) + " " + shF(y * (1 - sc)) + ") scale(" + sc + ")");
   g.appendChild(b);
-  lnIdo(3600, function () { if (b.parentNode) b.parentNode.removeChild(b); });
+  ido(3600, function () { if (b.parentNode) b.parentNode.removeChild(b); });
 }
 /* koppintás az ágyra: alszik → felébred; több ágy → vált (csillámfelhő); egy ágy → beleugrik */
 function kuldAgyKopp() {
@@ -17138,6 +17192,183 @@ function kuldKiserDarab(el) {
 function kuldKartyaJel(pa) {
   if (pa.hamarosan || !kuldKertPalya(pa.id)) return "";
   return '<div class="kuld-pikkely" title="Ezt kéri a kis sárkány"><svg viewBox="-14 -14 28 30" xmlns="http://www.w3.org/2000/svg">' + shPikkely(0, 0, 1, lenyPal()) + "</svg></div>";
+}
+
+/* ════════════ 🏡 A KERTBEN: a kisház a napozó szikla mellett (2. kód-kör) ════════════
+   A kert-rétegen (#ln-kert-reteg, KERT_LAY-koordináta), a szikla (LENY_KERT) bal oldalán. haz = a ház talppontja és
+   mérete; tabla = a tábla talppontja (a szikla előtt) és mérete; kupac = a darab-kupac talppontja és mérete;
+   uni = ennyivel arrébb áll meg az unikornis a kupactól (kert-egységben; fekvőn a tábla mögött, hogy ne takarja), aztán
+   dir felé, a ház felé fordul. Álló képen (telefon) a tábla a szikla tetején áll, a kupac bal elöl. */
+var SH_KERT = {
+  f: { haz: [628, 474, 0.6], tabla: [792, 500, 0.2], kupac: [714, 512, 1.25], uni: 170, dir: -1 },
+  a: { haz: [146, 502, 0.42], tabla: [300, 456, 0.14], kupac: [64, 548, 0.85], uni: 184, dir: -1 }   /* telefon: az unikornis se a kupacot, se a táblát ne takarja */
+};
+var SH_KERT_KINT = false;           /* a kölyök épp a háza előtt áll (kiszaladt, megérkezett) — nem mentődik */
+var _shKFut = false, _shKGen = 0;   /* jelenet a kertben; a gen minden teljes újrarajzoláskor nő (a régi időzítők elhalnak) */
+function kuldKertVan() {
+  if (!kuldVan()) return false;
+  var k = kuldTar();
+  return !!((k.akt && k.akt.tip === "haz") || (k.kint.haz && SH_HOLMI_BY[k.kint.haz]));
+}
+/* mi áll a szikla mellett: az épülő ház (akt) vagy a kint lévő kész ház — vagy semmi */
+function kuldKertHaz() {
+  var k = kuldTar(), a = k.akt;
+  if (a && a.tip === "haz") return { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true, a: a };
+  var id = k.kint.haz;
+  return id && SH_HOLMI_BY[id] ? { h: SH_HOLMI_BY[id], n: KULD_RESZ, epul: false } : null;
+}
+/* a lenyKertRajzol hívja minden teljes rajzolás előtt: félbeszakadt jelenet (kilépés, forgatás) → tiszta lap */
+function kuldKertTorol() {
+  _shKGen++;
+  if (_shKFut) { _shKFut = false; KERT_TRUKK_FUT = false; }
+  SH_KERT_KINT = false;
+}
+function kuldKertSVG() {
+  var hz = kuldKertHaz(); if (!hz) return "";
+  var L = SH_KERT[KERT_ORIENT], H = L.haz, kint = SH_KERT_KINT && !hz.epul, s = '<g id="sh-kert">';
+  s += '<g id="sh-haz" class="sh-kert-kopp" transform="translate(' + H[0] + " " + H[1] + ") scale(" + H[2] + ')" role="button" aria-label="' + htmlVed(hz.h.nev) + '">' +
+    '<ellipse cx="0" cy="4" rx="96" ry="12" fill="#3c2a50" opacity=".12"/>' + shHolmiSVG(hz.h, hz.n, { kukucs: !hz.epul && !kint }) +
+    '<rect x="-100" y="-190" width="200" height="200" fill="transparent"/></g>';
+  if (kint) s += '<g transform="translate(' + H[0] + " " + H[1] + ") scale(" + H[2] + ')" pointer-events="none"><g id="sh-kfuto" transform="translate(84 0)">' +
+    '<ellipse cx="0" cy="2" rx="30" ry="6" fill="#3c2a50" opacity=".14"/><g transform="scale(-1 1)"><g class="ln-hop">' + lenyRajz("fioka", lenyPal()) + "</g></g></g></g>";
+  if (hz.epul) {
+    var T = L.tabla;
+    s += '<g id="sh-ktabla" class="sh-kert-kopp" transform="translate(' + shF(T[0] - 180 * T[2]) + " " + shF(T[1] - 286 * T[2]) + ") scale(" + T[2] + ')" role="button" aria-label="Kívánság-tábla">' +
+      shTablaSVG(hz.a) + '<rect x="0" y="0" width="360" height="300" fill="transparent"/></g>';
+    if (hz.a.hozott > hz.a.felrakva) s += shKupacSVG(hz.a, "sh-kkupac", L.kupac, L.kupac[2]).replace('class="hr-kupac"', 'class="hr-kupac sh-kert-kopp"');
+  }
+  return s + "</g>";
+}
+/* koppintások (a réteg maga átengedi a kattintást, csak ezek fognak) */
+function kuldKertKot(svg) {
+  var g = svg && svg.querySelector("#sh-kert"); if (!g) return;
+  shReszKozepre(g);
+  function kot(id, fn) {
+    var e = g.querySelector("#" + id); if (!e) return;
+    e.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (_shKFut || KERT_TRUKK_FUT || KERT_MOD || (typeof TVK !== "undefined" && TVK.allapot)) return;
+      fn();
+    });
+  }
+  kot("sh-haz", kuldHazKopp);
+  kot("sh-ktabla", function () { hangGomb(); kuldTablaNagy(); });
+  kot("sh-kkupac", kuldKertFelrakJelenet);
+}
+/* csak a ház-csoport rajzolódik újra (jelenet közben: a futó jelenet nem szakad meg) */
+function kuldKertFrissit() {
+  var svg = $("ln-kert-reteg"), g = svg && svg.querySelector("#sh-kert"); if (!g) return;
+  g.insertAdjacentHTML("afterend", kuldKertSVG());
+  g.parentNode.removeChild(g);
+  kuldKertKot(svg);
+}
+function shKertPct(x) { var nz = kertTajNezet($("kert-szinter")); return ((x - nz.vb[0]) * nz.s) / (nz.w || 1) * 100; }
+function shKertBub(t) {
+  var g = $("sh-kert"), H = SH_KERT[KERT_ORIENT].haz; if (!g) return;
+  shBuborek(g, H[0] + 30 * H[2], H[1] - 196 * H[2], t, KERT_ORIENT === "f" ? 1.2 : 0.9, lkIdo);
+}
+/* a kertbe lépve (kertNyit): ha a kisház egy darabja vár, a súgó odairányít */
+function kuldKertErkezik() {
+  if (!kuldVan()) return;
+  var a = kuldAkt();
+  if (a && a.tip === "haz" && a.hozott > a.felrakva) kertSugo("🐉 Megjöttek a kisház darabjai! Koppints rájuk a szikla mellett!");
+}
+
+/* ── felrakás a kertben: az unikornis a kupachoz sétál, a darab a házra repül, egy rész kiszíneződik, a tábla pecsétet kap ── */
+function kuldKertFelrakJelenet() {
+  var a = kuldAkt(); if (!a || a.tip !== "haz" || a.hozott <= a.felrakva) return;
+  _shKFut = true; KERT_TRUKK_FUT = true; hangGomb();
+  var gen = _shKGen, L = SH_KERT[KERT_ORIENT], K = L.kupac, H = L.haz, doboz = $("kert-uni-doboz");
+  function el() { return gen === _shKGen && lkKertben(); }
+  function vege() { if (gen === _shKGen) { _shKFut = false; KERT_TRUKK_FUT = false; } }
+  function rak() {
+    if (!el()) return;
+    var uj = kuldAkt().felrakva, h = SH_HOLMI_BY[a.id], ki = kuldFelrak();
+    if (ki === "kesz") SH_KERT_KINT = true;   /* a kész háznál a kölyök is megérkezik (kuldKertKeszJelenet) */
+    kuldKertFrissit();
+    shUjResz($("sh-haz"), h, uj);
+    hangCsilla();
+    if (ki === "kesz") { lkIdo(700, function () { if (el()) kuldKertKeszJelenet(); }); return; }
+    var a2 = kuldAkt(), ujP = a2 ? kuldUjPecset(a2) : null;
+    if (ujP != null) kuldTablaPecsetFeny(ujP, "#ln-kert-reteg #sh-ktabla");
+    var tobb = a2 && a2.felrakva < a2.hozott;
+    mondd(tobb ? "Még egy darab vár!" : "Egy újabb rész a helyére került!");
+    if (!tobb) kertSugo(KERT_SUGO_SETA);
+    vege();
+  }
+  if (KERT_UL || KERT_FEKSZIK) kertAll(false);
+  kertSetalIde(shKertPct(K[0] + L.uni), function () {
+    if (!el()) return;
+    uniFordul(doboz, L.dir, function () {
+      if (!el()) return;
+      var kp = $("sh-kkupac"), cy = H[1] - 70 * H[2];
+      if (kp && kp.animate && !nyugiMod()) {
+        kp.classList.remove("hr-kupac");
+        kp.animate([{ transform: "translate(" + K[0] + "px," + K[1] + "px) scale(" + K[2] + ")" },
+          { transform: "translate(" + ((K[0] + H[0]) / 2) + "px," + (cy - 70 * H[2]) + "px) scale(" + (K[2] * 0.8) + ")" },
+          { transform: "translate(" + H[0] + "px," + cy + "px) scale(" + (K[2] * 0.5) + ")", opacity: 0.2 }], { duration: 800, easing: "ease-in-out", fill: "forwards" }).onfinish = rak;
+      } else rak();
+    });
+  });
+}
+/* kész: a kölyök megérkezik, beszalad az új házába, és kikukucskál — „Az enyém! Köszönöm!” */
+function kuldKertKeszJelenet() {
+  var gen = _shKGen, f = $("sh-kfuto"), nev = lenyTar().nev || "A kölyök";
+  _shKFut = true; KERT_TRUKK_FUT = true;
+  if (f && f.animate && !nyugiMod()) f.animate([{ transform: "translate(320px,0px)", opacity: 0 }, { transform: "translate(270px,0px)", opacity: 1, offset: 0.15 }, { transform: "translate(84px,0px)" }],
+    { duration: 1300, easing: "ease-out", fill: "forwards" });
+  lkIdo(nyugiMod() ? 300 : 1500, function () {
+    if (gen !== _shKGen) return;
+    kuldKertBeszalad(function () {
+      shKertBub("Az enyém! Köszönöm!");
+      mondd(nev + ": Az enyém! Köszönöm!");
+      var s = $("sh-haz"); if (s) s.insertAdjacentHTML("beforeend", shSzikra(0, -100, 70) + shSzikra(-70, -60, 44) + shSzikra(70, -140, 44));
+      _shKFut = false; KERT_TRUKK_FUT = false;
+      kertSugo(KERT_SUGO_SETA);
+    });
+  });
+}
+/* a kölyök az ajtóhoz szalad, eltűnik benne, aztán kikukucskál */
+function kuldKertBeszalad(kesz) {
+  var gen = _shKGen, f = $("sh-kfuto");
+  function be() {
+    if (gen !== _shKGen) return;
+    SH_KERT_KINT = false; kuldKertFrissit();
+    var k = document.querySelector("#sh-haz .hr-kukucs");
+    if (k && k.animate && !nyugiMod()) k.animate([{ transform: "translate(0,46px)" }, { transform: "translate(0,-4px)", offset: 0.7 }, { transform: "translate(0,0)" }], { duration: 900, easing: "ease-out" });
+    if (kesz) lkIdo(nyugiMod() ? 0 : 900, function () { if (gen === _shKGen) kesz(); });
+  }
+  if (!f || !f.animate || nyugiMod()) { be(); return; }
+  f.animate([{ transform: "translate(84px,0px)", opacity: 1 }, { transform: "translate(6px,0px)", opacity: 1, offset: 0.85 }, { transform: "translate(0px,0px) scale(.85)", opacity: 0 }],
+    { duration: 1000, easing: "ease-in", fill: "forwards" }).onfinish = be;
+}
+/* koppintás a házra: épül → a tábla; több ház → vált (csillámfelhő); egy ház → a kölyök kiszalad és köszön */
+function kuldHazKopp() {
+  var hz = kuldKertHaz(); if (!hz) return;
+  hangGomb();
+  if (hz.epul) { kuldTablaNagy(); return; }
+  var k = kuldTar();
+  if (k.holmi.haz.length > 1) {
+    var uj = SH_HOLMI_BY[kuldValt("haz")];
+    kuldKertFrissit();
+    var s = $("sh-haz"); if (s) s.insertAdjacentHTML("beforeend", shSzikra(0, -90, 70) + shSzikra(-60, -50, 44) + shSzikra(60, -130, 44));
+    mondd(uj.nev + "!");
+    return;
+  }
+  var gen = _shKGen, nev = lenyTar().nev || "A kölyök";
+  _shKFut = true; KERT_TRUKK_FUT = true;
+  SH_KERT_KINT = true; kuldKertFrissit();
+  var f = $("sh-kfuto");
+  if (f && f.animate && !nyugiMod()) f.animate([{ transform: "translate(0px,0px)", opacity: 0 }, { transform: "translate(34px,-34px)", opacity: 1, offset: 0.4 }, { transform: "translate(84px,0px)" }], { duration: 900, easing: "ease-out" });
+  lkIdo(900, function () {
+    if (gen !== _shKGen) return;
+    shKertBub("Szia! Ez az én házam!");
+    mondd(nev + ": Szia! Ez az én házam!");
+    lkIdo(2600, function () {
+      if (gen !== _shKGen) return;
+      kuldKertBeszalad(function () { _shKFut = false; KERT_TRUKK_FUT = false; });
+    });
+  });
 }
 /* ═════════════════ 6j) TÉRKÉP: közös térkép-modul + a ligettérkép (ligetválasztó 3. kör) ═════════════════
    Terv: terv/ligetvalaszto-rendszerterv.html + terv/ligetterkep-rajzterv.html (A · Tavaszi völgy + utca-kapu, jóváhagyva 2026-10-05).
@@ -17572,7 +17803,7 @@ function renderLigetTerkep(racs, L) {
   var lathato = { odu: true, utca: true, kert: true }, jel = {}, mod = utcaMod(host.clientWidth, host.clientHeight);
   L.sorrend.forEach(function (r) { if (LIGET_TERKEP.helyek[r]) { lathato[r] = true; jel[r] = ligetOsszegzo(r, L.regiok[r]); } });
   Object.keys(KULD_LIGET).forEach(function (r) { if (jel[r]) jel[r].jelzes = kuldLigetJel(r).concat(jel[r].jelzes || []).slice(0, 2); });   /* 🐉 innen kért a kölyök (kuldetes.js) */
-  jel.kert = { jelzes: (tenyKertVar() ? ["🦋"] : []).concat(lenyKertJel()) };   /* + 🌈 a nagy sárkány vár a kertben (leny.js, 5. kör) */   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
+  jel.kert = { jelzes: (tenyKertVar() ? ["🦋"] : []).concat(lenyKertJel()).concat(kuldKertJel()).slice(0, 2) };   /* + 🌈 a nagy sárkány vár a kertben (leny.js, 5. kör) + 🐉 a kisház darabja vár (kuldetes.js) */   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
   jel.odu = { jelzes: lenyTerkepJel() };                 /* 🥚 / 🦋 / ☁️ a kis lény vár az odúban (kaland.js, visszahívás 4. kör) */
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
   var hol = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget;
@@ -22790,6 +23021,7 @@ function kertNyit() {
   renderKert();
   tenyKertErkezik(bimboHir, ritkaHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
   lenyKertErkezik();                               /* 🌈 a nagy sárkány első érkezése a patakparti sziklára (leny.js, visszahívás 5. kör) */
+  kuldKertErkezik();                               /* 🐉 ha a kisház egy darabja vár: a súgó odairányít (sarkany-holmi.js) */
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.

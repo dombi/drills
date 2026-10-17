@@ -673,8 +673,9 @@ function lkSzikla() {   /* napozó szikla: mohás, lapos tetejű (rajzterv kertR
 function lenyKertRajzol() {
   lkIdoTorol();
   if (_lkFut) { _lkFut = false; KERT_TRUKK_FUT = false; }   /* félbeszakadt jelenet (kilépés, forgatás) → tiszta lap */
-  var kam = $("kert-kamera"), svg = $("ln-kert-reteg");
-  if (!lenyNagyKertben()) { if (svg) svg.parentNode.removeChild(svg); return; }
+  kuldKertTorol();   /* 🐉 a kisház-jelenet is tiszta lapot kap (sarkany-holmi.js) */
+  var kam = $("kert-kamera"), svg = $("ln-kert-reteg"), nagy = lenyNagyKertben(), haz = kuldKertVan();   /* 🐉 a kölyök kisháza ugyanezen a sziklán */
+  if (!nagy && !haz) { if (svg) svg.parentNode.removeChild(svg); return; }
   if (!kam) return;
   if (!svg) {
     var t = document.createElement("div");
@@ -683,10 +684,13 @@ function lenyKertRajzol() {
   }
   svg.setAttribute("viewBox", kertTajNezet($("kert-szinter")).vb.map(ktR).join(" "));
   var K = LENY_KERT[KERT_ORIENT], l = lenyTar(), megjott = !!l.kertLatta;
-  svg.innerHTML = '<g transform="translate(' + K.x + " " + K.y + ") scale(" + K.s + ')">' + lkSzikla() + "</g>" +
+  svg.innerHTML = '<g transform="translate(' + K.x + " " + K.y + ") scale(" + K.s + ')">' + lkSzikla() + "</g>" + (haz ? kuldKertSVG() : "");
+  if (haz) kuldKertKot(svg);
+  if (!nagy) return;
+  svg.insertAdjacentHTML("beforeend",
     '<g id="ln-kert-nagy" class="ln-kert-nagy" role="button" aria-label="' + htmlVed(l.nev || "Sárkány") + '"' + (megjott ? "" : ' style="display:none"') + ">" +
     '<g id="ln-kert-flip"><g id="ln-kert-tanc">' + lenyRajz("nagy", lenyPal()) + "</g>" +
-    '<rect x="-260" y="-380" width="480" height="390" fill="transparent"/></g></g>';
+    '<rect x="-260" y="-380" width="480" height="390" fill="transparent"/></g></g>');
   lkHelyez(lkAlap(), -1, 1);
   if (megjott) lkElet();
 }

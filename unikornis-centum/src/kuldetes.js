@@ -10,7 +10,10 @@
      • Csak a VÉGIGÉRT pálya visz darabot (palyaVege → kuldPalyaVege); a megszakított semmit (kiskapu-elv).
      • A futó küldetés nem változik; csak ha egy pálya közben elérhetetlenné válik (pult: elrejtve), az ő helye csendben
        eltűnik, és a részletek újraosztódnak (kuldIgazit) — a gyerek soha nem ragad bent.
-     • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínál (A1); amit már megkapott, nem jön újra.
+     • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínált (A1); amit már megkapott, nem jön újra.
+     • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
+       is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
+       1 ágy + 1 kisház + a harmadik egy újabb ágy vagy ház (amíg a ruha nincs kész); ha egy típus elfogyott, a másik pótolja.
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz }, keres: { op: [id], nap } }
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
@@ -19,7 +22,7 @@
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam"] }
 };
-var KULD_TIPUS = ["agy"];   /* 1. kör: csak ágy; a 2. körtől: ["agy", "haz", "ruha"] (1 + 1 + 1 a választóban) */
+var KULD_TIPUS = ["agy", "haz"];   /* 2. kör: ágy + kisház; a 3. körtől + "ruha" (1 + 1 + 1 a választóban) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
 /* ── a mentés-ág ── */
@@ -103,6 +106,12 @@ function kuldKertPalya(id) {
   var a = kuldAkt(); if (!a) return false;
   return a.helyek.some(function (h) { return h.p === id && !h.kesz; });
 }
+/* a térkép Kert-jele: 🐉, ha a kisház egy darabja a kertben vár (terkep.js) */
+function kuldKertJel() {
+  if (!kuldVan()) return [];
+  var a = kuldAkt();
+  return a && a.tip === "haz" && a.hozott > a.felrakva ? ["🐉"] : [];
+}
 /* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) */
 function kuldLigetJel(r) {
   if (!kuldVan()) return [];
@@ -133,7 +142,8 @@ function kuldPecsetes(a) {
   return ki;
 }
 
-/* ── a kérés: 3 lehetőség (1. kör: 3 különböző, még meg nem kapott ágy), egy napon egyszer jön elő magától ── */
+/* ── a kérés: 3 lehetőség — típusonként egy véletlen, még meg nem kapott holmi, a maradék helyre egy újabb a többiből;
+   egy napon egyszer jön elő magától ── */
 function kuldKeresKell() {
   if (!kuldVan()) return false;
   var k = kuldTar();
@@ -143,14 +153,17 @@ function kuldKeresKell() {
 function kuldKeresOpciok() {
   var k = kuldTar();
   var nincs = function (id) { return SH_HOLMI_BY[id] && k.holmi[SH_HOLMI_BY[id].tip].indexOf(id) < 0; };
-  if (k.keres && k.keres.op.length && k.keres.op.every(nincs)) return k.keres.op;
-  var op = [];
-  if (KULD_TIPUS.length === 1) {
-    op = shKever(SH_HOLMI.filter(function (h) { return h.tip === KULD_TIPUS[0] && nincs(h.id); })).slice(0, 3).map(function (h) { return h.id; });
-  } else {
-    KULD_TIPUS.forEach(function (t) { var l = shKever(SH_HOLMI.filter(function (h) { return h.tip === t && nincs(h.id); })); if (l.length) op.push(l[0].id); });
-  }
-  k.keres = { op: op, nap: null };
+  /* a régi (1. körös, csak ágyas) kérés újra összeáll, ha bővült a típusok köre; a „Majd később” napja megmarad */
+  if (k.keres && k.keres.v === KULD_TIPUS.length && k.keres.op.length && k.keres.op.every(nincs)) return k.keres.op;
+  var op = [], tobbi = [];
+  KULD_TIPUS.forEach(function (t) {
+    var l = shKever(SH_HOLMI.filter(function (h) { return h.tip === t && nincs(h.id); }));
+    if (l.length) op.push(l[0].id);
+    tobbi = tobbi.concat(l.slice(1));
+  });
+  shKever(tobbi).forEach(function (h) { if (op.length < 3) op.push(h.id); });
+  op = op.slice(0, 3).sort(function (a, b) { return KULD_TIPUS.indexOf(SH_HOLMI_BY[a].tip) - KULD_TIPUS.indexOf(SH_HOLMI_BY[b].tip); });
+  k.keres = { op: op, nap: k.keres ? k.keres.nap : null, v: KULD_TIPUS.length };
   return op;
 }
 /* „Majd később”: ma már nem kérdez magától, a 💭 marad */
@@ -182,7 +195,7 @@ function kuldFelrak() {
   esemeny("kuld_kesz", { holmi: a.id });
   return "kesz";
 }
-/* a megszerzett ágyak között vált (koppintás az ágyra, ha több is van). Visszaadja az új kint lévőt. */
+/* a megszerzett ágyak (kisházak) között vált (koppintás rá, ha több is van). Visszaadja az új kint lévőt. */
 function kuldValt(tip) {
   var k = kuldTar(), l = k.holmi[tip];
   if (!l || l.length < 2) return k.kint[tip] || null;
@@ -202,6 +215,7 @@ function kuldHirek() {
   var darab = a.hir.resz.map(function (i) { return h.r[shSor(h)[i]][2]; });
   var mit = darab.length > 1 ? darab.slice(0, -1).join(", ") + " és " + darab[darab.length - 1] : darab[0];
   sor.push({ t: "🐉 Hoztunk " + mit + " " + nev + " " + SH_TIP_HOZ[h.tip] + "!", szin: KULD_HIR_SZIN });
-  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze az odúban!", szin: KULD_HIR_SZIN });
+  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : "az odúban!"), szin: KULD_HIR_SZIN });
+  else if (h.tip === "haz") sor.push({ t: "🐉 A darab a kertben vár, a szikla mellett.", szin: KULD_HIR_SZIN });
   return sor;
 }

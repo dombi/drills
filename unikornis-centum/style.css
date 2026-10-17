@@ -3011,3 +3011,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .kuld-pikkely svg{ width:100%; height:100%; display:block; }
 @keyframes ajanlott-pikk{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
 @media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny,.kuld-pikkely{ animation:none!important; } }
+/* 🏡 a kisház a kertben (sarkany-holmi.js, 2. kör): a réteg átengedi a kattintást, csak a ház, a tábla és a kupac fog */
+.sh-kert-kopp{ pointer-events:auto; cursor:pointer; }
+.kert-szinter.rak .sh-kert-kopp, .kert-szinter.pakol .sh-kert-kopp{ pointer-events:none; }
+#sh-hazjel{ cursor:pointer; }
+#sh-kert .hr-halv *{ stroke:#fff!important; stroke-width:2.6!important; opacity:.9; }   /* a füvön a lila szaggatott vonal elveszne */
+@keyframes hrKukucs{ 0%,100%{ transform:translateY(4px); } 45%,60%{ transform:translateY(-2px); } }
+.hr-kukucs{ animation:hrKukucs 3.4s ease-in-out infinite; }
+@media (prefers-reduced-motion:reduce){ .hr-kukucs{ animation:none!important; } }

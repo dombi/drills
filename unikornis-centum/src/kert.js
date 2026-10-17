@@ -18,6 +18,7 @@ function kertNyit() {
   renderKert();
   tenyKertErkezik(bimboHir, ritkaHir);             /* 🌷 hírek, üdvözlés, szomjúság, napi meglepetés (teny-kert.js, 5. kör) */
   lenyKertErkezik();                               /* 🌈 a nagy sárkány első érkezése a patakparti sziklára (leny.js, visszahívás 5. kör) */
+  kuldKertErkezik();                               /* 🐉 ha a kisház egy darabja vár: a súgó odairányít (sarkany-holmi.js) */
 }
 /* ── A KERT INGYENES (Tamagocsi-kert 2. kör): a kertkapu-kulcs megszűnt. Aki megvette, EGYSZER
    visszakapja a 150 ✨-t, kedves üzenettel. A kulcsVissza jel őrzi, hogy kétszer ne kapja meg.
