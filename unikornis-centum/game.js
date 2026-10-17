@@ -2632,15 +2632,21 @@ function tudasEsedekes(id, p) { var s = tudasTar(p)[id]; return !!(s && s.megy !
      • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
        is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
        1 ágy + 1 kisház + a harmadik egy újabb ágy vagy ház (amíg a ruha nincs kész); ha egy típus elfogyott, a másik pótolja.
+     • 3. kör (2026-10-17): + RUHA — a választó 1 ágy + 1 kisház + 1 ruhadarab (ha egy típus elfogyott, egy másik pótolja).
+       A ruha az odúban készül (tábla + kupac, mint az ágynál), a kölyök már magán viseli a készülő ruhát (a hiányzó
+       részletek halvány körvonallal); kész → felveszi és megpördül. Az elsővel jön a ruhaláda (az ágy mellett): benne
+       a megszerzett ruhák, koppintásra fel-le veszi; helyenként (nyak, fej, láb, hát) egy lehet rajta. A kísérő az
+       ösvényen és a kölyök a kertben is viseli (kuldRajta).
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
-                        kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz }, keres: { op: [id], nap } }
+                        kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
+                        rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
 
 /* a ligetek, ahonnan a kölyök kérhet (új liget = egy új sor); kimarad: nem mérhető pálya (🎵 felmondás, 7. döntés) */
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam"] }
 };
-var KULD_TIPUS = ["agy", "haz"];   /* 2. kör: ágy + kisház; a 3. körtől + "ruha" (1 + 1 + 1 a választóban) */
+var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
 /* ── a mentés-ág ── */
@@ -2654,6 +2660,7 @@ function kuldTar(p) {
   if (!k.holmi || typeof k.holmi !== "object") k.holmi = {};
   ["agy", "haz", "ruha"].forEach(function (t) { if (!Array.isArray(k.holmi[t])) k.holmi[t] = []; });
   if (!k.kint || typeof k.kint !== "object") k.kint = {};
+  if (!k.rajta || typeof k.rajta !== "object") k.rajta = {};
   if (k.keres && (typeof k.keres !== "object" || !Array.isArray(k.keres.op))) k.keres = null;
   return k;
 }
@@ -2806,7 +2813,8 @@ function kuldFelrak() {
   a.felrakva++;
   if (a.felrakva < KULD_RESZ) { ment(); return "resz"; }
   if (k.holmi[a.tip].indexOf(a.id) < 0) k.holmi[a.tip].push(a.id);
-  k.kint[a.tip] = a.id;   /* az új kerül ki, a régi megmarad (9. döntés) */
+  if (a.tip === "ruha") k.rajta[SH_HOLMI_BY[a.id].hely] = a.id;   /* a kész ruhát rögtön felveszi */
+  else k.kint[a.tip] = a.id;   /* az új kerül ki, a régi megmarad (9. döntés) */
   k.kesz.push({ id: a.id, nap: tenyNap() });
   k.akt = null;
   ment();
@@ -2822,6 +2830,27 @@ function kuldValt(tip) {
   return k.kint[tip];
 }
 
+/* a ruhaládánál: fel- vagy leveszi (helyenként egy lehet rajta). Visszaad: true = most rajta van, false = levette, null = nincs ilyen */
+function kuldRuhaValt(id) {
+  var k = kuldTar(), h = SH_HOLMI_BY[id];
+  if (!h || h.tip !== "ruha" || k.holmi.ruha.indexOf(id) < 0) return null;
+  if (k.rajta[h.hely] === id) delete k.rajta[h.hely]; else k.rajta[h.hely] = id;
+  ment();
+  return k.rajta[h.hely] === id;
+}
+/* ami most a kölyökön van: [{ h, n }] — a készülő ruha (epul: csak az odúban) a saját helyén a régit eltakarja */
+var SH_RUHA_REND = ["hat", "lab", "nyak", "fej"];   /* rajzolási sorrend: a köpeny legalul, a sál a gallér fölött */
+function kuldRajta(epul) {
+  if (!kuldVan()) return [];
+  var k = kuldTar(), a = k.akt, l = [], fog = {};
+  if (epul && a && a.tip === "ruha" && SH_HOLMI_BY[a.id]) { l.push({ h: SH_HOLMI_BY[a.id], n: a.felrakva }); fog[SH_HOLMI_BY[a.id].hely] = 1; }
+  Object.keys(k.rajta).forEach(function (hely) {
+    var h = SH_HOLMI_BY[k.rajta[hely]];
+    if (h && !fog[hely] && k.holmi.ruha.indexOf(h.id) >= 0) l.push({ h: h, n: KULD_RESZ });
+  });
+  return l.sort(function (x, y) { return SH_RUHA_REND.indexOf(x.h.hely) - SH_RUHA_REND.indexOf(y.h.hely); });
+}
+
 /* ── a közös hír-sor forrása (gondozas.js VISSZA_HIR „kuld”): a ma hozott darab egyszer szól ── */
 var KULD_HIR_SZIN = "#a0603a";
 function kuldHirek() {
@@ -2833,7 +2862,7 @@ function kuldHirek() {
   var darab = a.hir.resz.map(function (i) { return h.r[shSor(h)[i]][2]; });
   var mit = darab.length > 1 ? darab.slice(0, -1).join(", ") + " és " + darab[darab.length - 1] : darab[0];
   sor.push({ t: "🐉 Hoztunk " + mit + " " + nev + " " + SH_TIP_HOZ[h.tip] + "!", szin: KULD_HIR_SZIN });
-  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : "az odúban!"), szin: KULD_HIR_SZIN });
+  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : h.tip === "ruha" ? "és próbáljuk fel az odúban!" : "az odúban!"), szin: KULD_HIR_SZIN });
   else if (h.tip === "haz") sor.push({ t: "🐉 A darab a kertben vár, a szikla mellett.", szin: KULD_HIR_SZIN });
   return sor;
 }
@@ -16047,7 +16076,7 @@ function lenyOduBelso(mod) {
       var ko = mod === "kolyok" && lenyKolyokNagy(l), h = (ko ? LENY_ODU.kHelyek : LENY_ODU.helyek)[0], sk = ko ? LENY_ODU.kolyok : fs, sapka = l.fazis === "fioka" && !otthon && gyakNap() === l.t;   /* a kikelés napján még rajta a héjsapka */
       s += '<g id="ln-fioka-poz" class="ln-seta" style="transform:translate(' + h[0] + "px," + h[1] + 'px)" role="button" aria-label="' + htmlVed(l.nev || "Fióka") + '">' +
         '<ellipse cx="0" cy="2" rx="' + lnF((ko ? 52 : 30) * sk) + '" ry="6" fill="#3b2f66" opacity=".16"/>' +
-        '<g id="ln-fioka-flip" style="transform:scale(1,1)"><g id="ln-fioka-hop"><g transform="scale(' + sk + ')">' + lenyRajz(ko ? "kolyok" : "fioka", p, { sapka: sapka }) + "</g></g></g>" +
+        '<g id="ln-fioka-flip" style="transform:scale(1,1)"><g id="ln-fioka-hop"><g transform="scale(' + sk + ')">' + (mod === "kolyok" && !ko ? shKolyokRajz(p, { epul: 1 }) : lenyRajz(ko ? "kolyok" : "fioka", p, { sapka: sapka })) + "</g></g></g>" +   /* 👕 a kölyök a ruháiban, a készülő ruhával (sarkany-holmi.js) */
         (ko ? '<rect x="-64" y="-112" width="128" height="116" fill="transparent"/>' : '<rect x="-46" y="-100" width="92" height="104" fill="transparent"/>') + lnNevTabla(l.nev || "") + "</g>";
     }
   } else {
@@ -16564,7 +16593,7 @@ function lenyKiserSVG(x, y) {
   var l = lenyTar(), kx = x - KISER.hatra, ky = y - KISER.fel;
   return '<g id="kiser-hely" transform="translate(' + kx.toFixed(1) + "," + ky.toFixed(1) + ')" role="button" aria-label="' + htmlVed(l.nev || "Kölyök") + '">' +
     '<g id="kiser-flip" style="transform:scale(1,1)"><g class="kiser-lebeg"><g id="kiser-rebben"><g transform="scale(' + KISER.meret + ')">' +
-    lenyRajz(lenyKolyokAlak(), lenyPal(), { cls: "kiser" }) + '</g></g></g></g>' +
+    (lenyKolyokAlak() === "fioka" ? shKolyokRajz(lenyPal(), { cls: "kiser" }) : lenyRajz(lenyKolyokAlak(), lenyPal(), { cls: "kiser" })) + '</g></g></g></g>' +
     '<rect x="-30" y="-58" width="62" height="64" fill="transparent"/></g>';
 }
 /* pálya-indításkor (osvenyIndul): a helyére teszi, és elindítja a követést */
@@ -16646,6 +16675,14 @@ function lenyKiserOduba(x, y) {
      • Kész: a kölyök beszalad a házába, és kikukucskál — „Az enyém! Köszönöm!”. Ettől kezdve, ha a gyerek a kertbe megy,
        a kölyök is jön, és a házából kukucskál (rajzterv 2. kérdés A). A házra koppintva kiszalad és köszön; több háznál
        a koppintás vált (9. döntés).
+   3. kód-kör (2026-10-17): a RUHA az odúban (rajzterv 8. rész).
+     • A ruha a kölyökön készül: a tábla és a kupac ugyanott, mint az ágynál, a felrakott darab a kölyökre repül, és a
+       készülő ruha hiányzó részletei halványan látszanak rajta (shKolyokRajz — ezt rajzolja az odú, a kert és a kísérő).
+     • Kész: felveszi és megpördül — „Az enyém! Köszönöm!”. Az első ruhával a fészek mellé kerül a ruhaláda (SH_ODU.lada):
+       koppintásra a fedele hátrabillen, és nagyban nyílik az öltöző (kuldOltozo; a rajzterv kis belső paneljét gyerekujjnyi
+       gombokra cseréltem, ahogy a tábla is nagyban nyílik): fent a kölyök, alatta a megszerzett ruhák; egy ruhára koppintva
+       felveszi (megpördül), újra koppintva leveszi. Helyenként (nyak, fej, láb, hát) egy lehet rajta; az új ugyanarra a
+       helyre a régit leveszi, a régi a ládában marad.
    Tiltólista: nincs szám („4/10”), nincs határidő, a felrakott darab soha nem tűnik el. */
 
 /* ── a fióka-méretű alvó póz (rajzterv) ── */
@@ -16855,7 +16892,7 @@ function shResz(h, i, p) { var r = h.r[i]; return typeof r[1] === "function" ? r
 function shReszek(h, n, uj, p) {
   var kesz = shKeszE(h, n), uji = uj != null ? shSor(h)[uj] : -1, o = { h: "", e: "", f: "" };
   h.r.forEach(function (r, i) {
-    o[r[0]] += '<g class="hr ' + (kesz[i] ? "hr-kesz" : "hr-halv") + (i === uji ? " hr-uj" : "") + '" data-r="' + i + '">' + shResz(h, i, p) + "</g>";
+    o[r[0]] += '<g class="hr ' + (kesz[i] ? "hr-kesz" : "hr-halv") + (i === uji ? " hr-uj" : "") + '" data-h="' + h.id + '" data-r="' + i + '">' + shResz(h, i, p) + "</g>";
   });
   return o;
 }
@@ -16874,7 +16911,7 @@ function shHolmiSVG(h, n, opt) {
     s = R.h;
     if (opt.kukucs) {
       var id = "sh-ajto" + (++_shId);
-      s += '<clipPath id="' + id + '"><path d="' + h.ajto + '"/></clipPath><g clip-path="url(#' + id + ')"><g class="hr-kukucs"><g transform="translate(-16 24)">' + lenyRajz("fioka", p) + "</g></g></g>";
+      s += '<clipPath id="' + id + '"><path d="' + h.ajto + '"/></clipPath><g clip-path="url(#' + id + ')"><g class="hr-kukucs"><g transform="translate(-16 24)">' + shKolyokRajz(p) + "</g></g></g>";
     }
     s += R.e;
   } else {
@@ -16883,6 +16920,19 @@ function shHolmiSVG(h, n, opt) {
     s = R.h + k + R.e;
   }
   return s;
+}
+/* 👕 a kölyök (fióka-alak) azzal, ami most rajta van (kuldetes.js kuldRajta). opt: epul (az odúban a készülő ruha is,
+   halvány körvonallal), uj (a készülő ruha épp felrakott részlete), cls. Az odú, a kert és a kísérő ezt rajzolja. */
+function shKolyokRajz(p, opt) {
+  opt = opt || {}; p = p || lenyPal();
+  var R = { h: "", e: "", f: "" };
+  kuldRajta(opt.epul).forEach(function (t) {
+    var r = shReszek(t.h, t.n, t.n < KULD_RESZ ? opt.uj : null, p);
+    R.h += r.h; R.e += r.e; R.f += r.f;
+  });
+  var k = lenyRajz("fioka", p, { cls: opt.cls || "" });
+  if (R.f) { var i = k.indexOf('</g></g><g class="ln-szikra"'); if (i > 0) k = k.slice(0, i) + R.f + k.slice(i); }
+  return '<g class="sh-kolyok">' + R.h + k + R.e + "</g>";
 }
 function shSzikra(x, y, r) {
   return '<g class="hr-szikra" transform="translate(' + shF(x) + " " + shF(y) + ')">' + [[0, -r, 5, "#ffd24d"], [r, 0, 4, "#f6a5c0"], [0, r, 4, "#9ec9f0"], [-r, 0, 3.5, "#fff"], [r * 0.7, -r * 0.7, 3, "#fff6c0"]].map(function (c) { return shCsillag(c[0], c[1], c[2], c[3]); }).join("") + "</g>";
@@ -16927,7 +16977,8 @@ function shTablaSVG(a, opt) {
 }
 
 /* ════════════ AZ ODÚBAN (odú-koordinátában; leny.js lenyOduBelso hívja) ════════════ */
-var SH_ODU = { agy: [180, 518, 0.8], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], hazjel: [204, 350], uniKupac: 360 };
+var SH_ODU = { agy: [180, 518, 0.8], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], hazjel: [204, 350], uniKupac: 360, lada: [52, 544, 0.8] };
+var SH_LADA_NYIT = false;   /* a ruhaláda nyitva van (nem mentődik) */
 var SH_ALSZIK = false;   /* a kölyök épp az ágyában alszik (kész pillanat, koppintás, az unikornis is alszik) — nem mentődik */
 var _shFut = false;      /* felrakás / beugrás közben nincs új koppintás */
 /* mi áll a fészek helyén: az épülő ágy (akt) vagy a kint lévő kész ágy — vagy semmi (marad a fészek) */
@@ -16966,7 +17017,27 @@ function kuldOduExtra() {
       '<circle r="20" fill="#fff" stroke="#e6d8f0" stroke-width="2"/><circle cx="-14" cy="24" r="5" fill="#fff" stroke="#e6d8f0" stroke-width="2"/>' +
       '<text y="8" text-anchor="middle" font-size="20">💭</text><rect x="-26" y="-26" width="52" height="58" fill="transparent"/></g>';
   }
+  if (k.holmi.ruha.length) s += shLadaSVG(k);
   return s;
+}
+/* 👕 a ruhaláda (rajzterv 8.): az első ruhával jön, a fészek mellett. Koppintásra a fedél hátrabillen, belül dereng,
+   és nagyban nyílik az öltöző (kuldOltozo) — a ruhák ott gyerekujjnyi gombok (a tábla is így nyílik nagyban) */
+function shLadaSVG(k) {
+  var L = SH_ODU.lada;
+  return '<g id="sh-lada" class="sh-lada' + (SH_LADA_NYIT ? " hr-lada-nyit" : "") + '" transform="translate(' + L[0] + " " + L[1] + ") scale(" + L[2] + ')" role="button" aria-label="Ruhaláda">' +
+    '<ellipse cx="0" cy="4" rx="66" ry="8" fill="#3b2f66" opacity=".14"/>' +
+    '<g class="hr-lada-belso"><ellipse cx="0" cy="-50" rx="50" ry="22" fill="#fff3b0" opacity=".75"/>' + shCsillag(-22, -66, 5, "#ffd24d") + shCsillag(18, -74, 4, "#f6a5c0") + shCsillag(2, -86, 3.5, "#9ec9f0") + "</g>" +
+    '<rect x="-56" y="-46" width="112" height="48" rx="6" fill="#c98f6a" stroke="#7c5636" stroke-width="2.6"/><path d="M-56 -26h112" stroke="#a8794c" stroke-width="2"/>' +
+    shCsillag(-36, -14, 5, "#ffd24d") + shCsillag(36, -14, 5, "#ffd24d") + '<rect x="-8" y="-36" width="16" height="14" rx="3" fill="#ffd86b" stroke="#c99a3a" stroke-width="1.8"/>' +
+    '<g class="hr-lada-fedel"><path d="M-58 -44Q-58 -70 0 -70Q58 -70 58 -44Z" fill="#d9a07a" stroke="#7c5636" stroke-width="2.6"/>' + shMancs(0, -56, 10, "#a8794c") + "</g>" +
+    '<rect x="-60" y="-72" width="120" height="78" fill="transparent"/></g>';
+}
+/* egy ruhadarab önmagában (a kölyök nélkül), a ládából kivett képhez — viewBox -20 -20 40 40 */
+var SH_RUHA_KEP = { sal: "translate(-1 19) scale(.5)", sapka: "translate(-10 41) scale(.53)", csizma: "translate(-1 7) scale(.72)", kopeny: "translate(10 14) scale(.38)" };
+function shRuhaKep(h, p) {
+  var R = shReszek(h, KULD_RESZ, null, p);
+  var fej = R.f ? '<g transform="translate(' + LENY_RAJZ.fioka.fej[0] + " " + LENY_RAJZ.fioka.fej[1] + ')">' + R.f + "</g>" : "";
+  return '<g transform="' + (SH_RUHA_KEP[h.id] || "scale(.5)") + '">' + R.h + fej + R.e + "</g>";
 }
 /* a darab-kupac (a hozott, még fel nem rakott darabok): levél-tálcán dereng; K = talppont, sc = méret */
 function shKupacSVG(a, id, K, sc) {
@@ -16991,9 +17062,68 @@ function kuldOduKot(svg) {
   if (kp) kp.addEventListener("click", function () { if (!_shFut && !_lnFut) kuldFelrakJelenet(); });
   if (g) g.addEventListener("click", function () { if (!_shFut && !_lnFut) { hangGomb(); kuldKeresMutat(); } });
   if (ag) ag.addEventListener("click", function () { if (!_shFut && !_lnFut) kuldAgyKopp(); });
+  var ld = svg.querySelector("#sh-lada");
+  if (ld) ld.addEventListener("click", function () {
+    if (_shFut || _lnFut) return;
+    hangGomb();
+    SH_LADA_NYIT = true; ld.classList.add("hr-lada-nyit");
+    _shFut = true;
+    lnIdo(nyugiMod() ? 0 : 550, function () { _shFut = false; if (oduAktiv()) kuldOltozo(); });
+  });
+}
+/* 👕 az öltöző (a nyitott láda nagyban): fent a kölyök abban, ami rajta van, alatta a megszerzett ruhák.
+   Egy ruhára koppintva felveszi (megpördül), újra koppintva leveszi; helyenként egy lehet rajta. */
+function kuldOltozo() {
+  var k = kuldTar(), p = lenyPal(), nev = lenyTar().nev || "A kölyök", valtott = false;
+  var ruhak = SH_HOLMI.filter(function (h) { return k.holmi.ruha.indexOf(h.id) >= 0; });
+  var d = lenyFedo('<div class="leny-fogo"></div><div class="kuld-tabla-lap kuld-oltozo"><svg class="kuld-oltozo-kep" viewBox="-80 -112 160 124" xmlns="http://www.w3.org/2000/svg"></svg>' +
+    '<div class="kuld-ruhak">' + ruhak.map(function (h) {
+      return '<button class="kuld-ruha" data-id="' + h.id + '" aria-label="' + htmlVed(h.nev) + '"><svg viewBox="-20 -20 40 40" xmlns="http://www.w3.org/2000/svg">' + shRuhaKep(h, p) + "</svg><span>" + htmlVed(h.nev) + "</span></button>";
+    }).join("") + '</div><p class="kuld-tabla-mondat" id="kuld-oltozo-mondat">🔊 Koppints egy ruhára!</p><button class="kuld-tabla-zar">✓ Kész</button></div>');
+  function rajzol(porog) {
+    var kep = d.querySelector(".kuld-oltozo-kep");
+    kep.innerHTML = '<ellipse cx="0" cy="2" rx="34" ry="6" fill="#3b2f66" opacity=".14"/>' + shKolyokRajz(p);
+    Array.prototype.forEach.call(d.querySelectorAll(".kuld-ruha"), function (b) { var h = SH_HOLMI_BY[b.getAttribute("data-id")]; b.classList.toggle("rajta", k.rajta[h.hely] === h.id); });
+    var g = kep.querySelector(".sh-kolyok");
+    if (porog && g && !nyugiMod()) g.classList.add("hr-porog");
+  }
+  rajzol(false);
+  mondd(nev + ": Ezek az én ruháim! Koppints egyre, és felveszem.");
+  Array.prototype.forEach.call(d.querySelectorAll(".kuld-ruha"), function (b) {
+    b.addEventListener("click", function () {
+      var h = SH_HOLMI_BY[b.getAttribute("data-id")], on = kuldRuhaValt(h.id); if (on === null) return;
+      valtott = true; hangGomb();
+      rajzol(on);
+      var m = on ? h.nev + "! Jól áll?" : "Leveszem, és visszateszem a ládába.";
+      $("kuld-oltozo-mondat").textContent = "🐉 „" + m + "”";
+      if (on) hangCsilla();
+      mondd(nev + ": " + m);
+    });
+  });
+  d.querySelector(".kuld-tabla-zar").addEventListener("click", function () {
+    hangGomb(); lenyFedoZar();
+    SH_LADA_NYIT = false;
+    var ld = document.querySelector("#odu-szoba #sh-lada"); if (ld) ld.classList.remove("hr-lada-nyit");
+    lnIdo(nyugiMod() ? 0 : 500, function () { if (!oduAktiv()) return; lenyOduFrissit(); if (valtott) kuldPorog(); });
+  });
+}
+/* a kölyök megpördül (a ruha felvételekor) */
+function kuldPorog() {
+  var g = document.querySelector("#odu-szoba #ln-fioka-poz .sh-kolyok");
+  if (!g || nyugiMod()) return;
+  g.classList.remove("hr-porog"); void g.getBBox(); g.classList.add("hr-porog");
+}
+/* hol áll most a kölyök az odúban (a totyogás közben is): [x, y] odú-koordinátában */
+function kuldKolyokHol() {
+  var f = document.querySelector("#odu-szoba #ln-fioka-poz"); if (!f) return null;
+  var m = /translate\(([-\d.]+)px,\s*([-\d.]+)px/.exec(f.style.transform || "");
+  try { var t = getComputedStyle(f).transform, mm = /matrix\(([^)]+)\)/.exec(t); if (mm) { var v = mm[1].split(","); return [+v[4], +v[5]]; } } catch (e) {}
+  return m ? [+m[1], +m[2]] : null;
 }
 /* az oduNyit hívja (lenyOduNyit): ha ma még nem kért, most kér */
 function kuldOduNyit() {
+  SH_LADA_NYIT = false;   /* belépéskor a láda csukva */
+  var ld = document.querySelector("#odu-szoba #sh-lada"); if (ld) ld.classList.remove("hr-lada-nyit");
   if (!kuldMagatolKer()) return false;
   lnIdo(1100, function () { if (oduAktiv() && !_lnFut) kuldKeresMutat(); });
   return true;
@@ -17056,10 +17186,24 @@ function kuldTablaNagy(elo) {   /* elo: a kölyök első mondata (az odú 🏡-b
 function kuldFelrakJelenet() {
   var svg = document.querySelector("#odu-szoba svg"), kp = svg && svg.querySelector("#sh-kupac"); if (!kp) return;
   _shFut = true; hangGomb();
+  var ruha = (kuldAkt() || {}).tip === "ruha";
   function tovabb() {
+    var H0 = lenyHelyek()[0];
+    if (ruha) {   /* 👕 a kölyök a helyére totyog (ott marad az újrarajzolás után is), hogy a darab rá repülhessen */
+      lnIdoTorol();
+      var f = document.querySelector("#odu-szoba #ln-fioka-poz"), hol = kuldKolyokHol(), flip = document.querySelector("#odu-szoba #ln-fioka-flip"), hop = document.querySelector("#odu-szoba #ln-fioka-hop");
+      if (f) {
+        if (flip && hol) flip.style.transform = "scale(" + (H0[0] < hol[0] ? -1 : 1) + ",1)";
+        if (hop && !nyugiMod()) hop.setAttribute("class", "ln-hop");
+        f.style.transition = "transform .8s linear";
+        f.style.transform = "translate(" + H0[0] + "px," + H0[1] + "px)";
+        lnIdo(850, function () { if (hop) hop.setAttribute("class", ""); if (flip) flip.style.transform = "scale(1,1)"; });
+      }
+    }
     oduUniSetal(SH_ODU.uniKupac, function () {
       ODU_UNI.dir = -1; uniFordul(document.getElementById("odu-uni-flip"), -1);
-      var A = SH_ODU.agy, K = SH_ODU.kupac, kp2 = document.querySelector("#odu-szoba #sh-kupac");
+      var K = SH_ODU.kupac, kp2 = document.querySelector("#odu-szoba #sh-kupac");
+      var A = ruha ? [H0[0], H0[1] - 10] : SH_ODU.agy;   /* az ágyra, vagy a ruha a kölyökre repül */
       if (kp2 && kp2.animate && !nyugiMod()) {
         kp2.classList.remove("hr-kupac");
         kp2.animate([{ transform: "translate(" + K[0] + "px," + K[1] + "px)" }, { transform: "translate(" + ((K[0] + A[0]) / 2) + "px," + (A[1] - 90) + "px) scale(.8)" },
@@ -17069,11 +17213,12 @@ function kuldFelrakJelenet() {
   }
   function rak() {
     var a = kuldAkt(); if (!a) { _shFut = false; return; }
-    var uj = a.felrakva, ki = kuldFelrak();
+    var uj = a.felrakva, h = SH_HOLMI_BY[a.id], elso = a.tip === "ruha" && !kuldTar().holmi.ruha.length, ki = kuldFelrak();
     if (!oduAktiv()) { _shFut = false; return; }
     var a2 = kuldAkt();
-    if (ki === "kesz") { SH_ALSZIK = false; lenyOduFrissit(); kuldUjResz(uj); hangCsilla(); lnIdo(800, kuldKeszJelenet); return; }
-    lenyOduFrissit(); kuldUjResz(uj);
+    if (ki === "kesz" && h.tip === "ruha") { lenyOduFrissit(); kuldUjResz(uj, h); hangCsilla(); lnIdo(700, function () { kuldRuhaKeszJelenet(h, elso); }); return; }
+    if (ki === "kesz") { SH_ALSZIK = false; lenyOduFrissit(); kuldUjResz(uj, h); hangCsilla(); lnIdo(800, kuldKeszJelenet); return; }
+    lenyOduFrissit(); kuldUjResz(uj, h);
     var pecset = a2 ? kuldPecsetes(a2) : {}, ujP = null;
     if (a2) ujP = kuldUjPecset(a2);
     if (ujP != null) kuldTablaPecsetFeny(ujP);
@@ -17092,9 +17237,9 @@ function kuldUjPecset(a) {
   return uj;
 }
 /* az épp felrakott részlet felvillan + szikra */
-function kuldUjResz(uj) { var ag = kuldOduAgy(); if (ag) shUjResz(document.querySelector("#odu-szoba #sh-agy"), ag.h, uj); }
+function kuldUjResz(uj, h) { shUjResz(document.querySelector(h.tip === "ruha" ? "#odu-szoba #ln-fioka-poz" : "#odu-szoba #sh-agy"), h, uj); }
 function shUjResz(gyoker, h, uj) {
-  var g = gyoker && gyoker.querySelector(".hr[data-r='" + shSor(h)[uj] + "']");
+  var g = gyoker && gyoker.querySelector(".hr[data-h='" + h.id + "'][data-r='" + shSor(h)[uj] + "']");
   if (!g || !g.animate || nyugiMod()) return;
   try {
     var b = g.getBBox();
@@ -17113,6 +17258,25 @@ function kuldKeszJelenet() {
   kuldBeugrik(function () {
     mondd(nev + ": Az enyém! Köszönöm!");
     kuldBuborek("Az enyém! Köszönöm!");
+    _shFut = false;
+    lnIdo(2500, oduUniHaza);
+  });
+}
+/* 👕 kész a ruha: a kölyök megpördül benne — „Az enyém! Köszönöm!”; az elsővel megjön a ruhaláda is */
+function kuldRuhaKeszJelenet(h, elso) {
+  if (!oduAktiv()) return;
+  _shFut = true;
+  var nev = lenyTar().nev || "A kölyök", hol = lenyHelyek()[0];
+  kuldPorog();
+  var f = document.querySelector("#odu-szoba #ln-fioka-poz"); if (f) f.insertAdjacentHTML("beforeend", shSzikra(0, -40, 34));
+  mondd(nev + ": Az enyém! Köszönöm!");
+  var g = document.querySelector("#odu-szoba #leny-odu"); if (g) shBuborek(g, hol[0] + 40, hol[1] - 70, "Az enyém! Köszönöm!", 1, lnIdo);
+  lnIdo(elso ? 2600 : 1200, function () {
+    if (elso && oduAktiv()) {
+      var ld = document.querySelector("#odu-szoba #sh-lada");
+      if (ld) ld.insertAdjacentHTML("beforeend", shSzikra(0, -40, 50));
+      mondd(nev + ": Nézd, egy ruhaláda! Ebben tartom a ruháimat. Ha koppintasz rá, kinyílik.");
+    }
     _shFut = false;
     lnIdo(2500, oduUniHaza);
   });
@@ -17230,7 +17394,7 @@ function kuldKertSVG() {
     '<ellipse cx="0" cy="4" rx="96" ry="12" fill="#3c2a50" opacity=".12"/>' + shHolmiSVG(hz.h, hz.n, { kukucs: !hz.epul && !kint }) +
     '<rect x="-100" y="-190" width="200" height="200" fill="transparent"/></g>';
   if (kint) s += '<g transform="translate(' + H[0] + " " + H[1] + ") scale(" + H[2] + ')" pointer-events="none"><g id="sh-kfuto" transform="translate(84 0)">' +
-    '<ellipse cx="0" cy="2" rx="30" ry="6" fill="#3c2a50" opacity=".14"/><g transform="scale(-1 1)"><g class="ln-hop">' + lenyRajz("fioka", lenyPal()) + "</g></g></g></g>";
+    '<ellipse cx="0" cy="2" rx="30" ry="6" fill="#3c2a50" opacity=".14"/><g transform="scale(-1 1)"><g class="ln-hop">' + shKolyokRajz(lenyPal()) + "</g></g></g></g>";
   if (hz.epul) {
     var T = L.tabla;
     s += '<g id="sh-ktabla" class="sh-kert-kopp" transform="translate(' + shF(T[0] - 180 * T[2]) + " " + shF(T[1] - 286 * T[2]) + ") scale(" + T[2] + ')" role="button" aria-label="Kívánság-tábla">' +
@@ -28021,6 +28185,7 @@ window.UC = {
   tudasPalyaVege: tudasPalyaVege, tudasMegy: tudasMegy, tudasNapok: tudasNapok, TUDAS: TUDAS, kuldTar: kuldTar, kuldVan: kuldVan, kuldFajtak: kuldFajtak, kuldOsszeallit: kuldOsszeallit,
   kuldPalyaVege: kuldPalyaVege, kuldKeresOpciok: kuldKeresOpciok, kuldValaszt: kuldValaszt, kuldFelrak: kuldFelrak, kuldPecsetes: kuldPecsetes, kuldHirek: kuldHirek, kuldKeresMutat: kuldKeresMutat,
   kuldFelrakJelenet: kuldFelrakJelenet, kuldTablaNagy: kuldTablaNagy, kuldAgyKopp: kuldAgyKopp, kuldKertPalya: kuldKertPalya, kuldLigetJel: kuldLigetJel, kuldKiserDarab: kuldKiserDarab, SH_HOLMI: SH_HOLMI, get SH_ALSZIK() { return SH_ALSZIK; },   /* 🐉 SÁRKÁNY-KÜLDETÉS (1. kör) */
+  kuldRuhaValt: kuldRuhaValt, kuldRajta: kuldRajta, kuldOltozo: kuldOltozo, kuldKeszJelenet: kuldKeszJelenet, lenyOduFrissit: lenyOduFrissit, get SH_LADA_NYIT() { return SH_LADA_NYIT; },   /* 👕 (3. kör) */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
   tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertHirek: tenyKertHirek,
   tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */

@@ -3011,6 +3011,22 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .kuld-pikkely svg{ width:100%; height:100%; display:block; }
 @keyframes ajanlott-pikk{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
 @media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny,.kuld-pikkely{ animation:none!important; } }
+/* 👕 a ruha és a ruhaláda az odúban (sarkany-holmi.js, 3. kör): felvételkor megpördül; a láda fedele hátrabillen */
+@keyframes hrPorog{ 0%{ transform:scaleX(1); } 25%{ transform:scaleX(.05); } 50%{ transform:scaleX(-1); } 75%{ transform:scaleX(.05); } 100%{ transform:scaleX(1); } }
+.hr-porog{ transform-box:fill-box; transform-origin:50% 100%; animation:hrPorog .9s ease-in-out 1; }
+#sh-lada{ cursor:pointer; }
+.hr-lada-fedel{ transition:transform .5s cubic-bezier(.3,.7,.3,1.3); transform-box:fill-box; transform-origin:0% 100%; }
+.hr-lada-nyit .hr-lada-fedel{ transform:rotate(-112deg); }
+.hr-lada-belso{ opacity:0; transition:opacity .3s .2s; }
+.hr-lada-nyit .hr-lada-belso{ opacity:1; }
+.kuld-oltozo-kep{ width:min(300px,70%)!important; height:auto; max-height:36vh!important; }
+.kuld-ruhak{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+.kuld-ruha{ width:clamp(92px,22vw,128px); background:#fff; border:3px solid #c9a8e6; border-radius:18px; padding:6px 4px 8px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; transition:transform .15s; }
+.kuld-ruha:hover{ transform:translateY(-3px); }
+.kuld-ruha.rajta{ background:#fff6d6; border-color:#e0a800; box-shadow:0 0 0 3px #ffe9a8; }
+.kuld-ruha svg{ width:72%; height:auto; }
+.kuld-ruha span{ font-size:clamp(13px,2.8vw,16px); font-weight:800; color:#4a3b7a; }
+@media (prefers-reduced-motion:reduce){ .hr-porog{ animation:none!important; } .hr-lada-fedel,.hr-lada-belso{ transition:none!important; } }
 /* 🏡 a kisház a kertben (sarkany-holmi.js, 2. kör): a réteg átengedi a kattintást, csak a ház, a tábla és a kupac fog */
 .sh-kert-kopp{ pointer-events:auto; cursor:pointer; }
 .kert-szinter.rak .sh-kert-kopp, .kert-szinter.pakol .sh-kert-kopp{ pointer-events:none; }

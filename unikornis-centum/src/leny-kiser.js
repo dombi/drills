@@ -50,7 +50,7 @@ function lenyKiserSVG(x, y) {
   var l = lenyTar(), kx = x - KISER.hatra, ky = y - KISER.fel;
   return '<g id="kiser-hely" transform="translate(' + kx.toFixed(1) + "," + ky.toFixed(1) + ')" role="button" aria-label="' + htmlVed(l.nev || "Kölyök") + '">' +
     '<g id="kiser-flip" style="transform:scale(1,1)"><g class="kiser-lebeg"><g id="kiser-rebben"><g transform="scale(' + KISER.meret + ')">' +
-    lenyRajz(lenyKolyokAlak(), lenyPal(), { cls: "kiser" }) + '</g></g></g></g>' +
+    (lenyKolyokAlak() === "fioka" ? shKolyokRajz(lenyPal(), { cls: "kiser" }) : lenyRajz(lenyKolyokAlak(), lenyPal(), { cls: "kiser" })) + '</g></g></g></g>' +
     '<rect x="-30" y="-58" width="62" height="64" fill="transparent"/></g>';
 }
 /* pálya-indításkor (osvenyIndul): a helyére teszi, és elindítja a követést */

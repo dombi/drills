@@ -337,7 +337,7 @@ function lenyOduBelso(mod) {
       var ko = mod === "kolyok" && lenyKolyokNagy(l), h = (ko ? LENY_ODU.kHelyek : LENY_ODU.helyek)[0], sk = ko ? LENY_ODU.kolyok : fs, sapka = l.fazis === "fioka" && !otthon && gyakNap() === l.t;   /* a kikelés napján még rajta a héjsapka */
       s += '<g id="ln-fioka-poz" class="ln-seta" style="transform:translate(' + h[0] + "px," + h[1] + 'px)" role="button" aria-label="' + htmlVed(l.nev || "Fióka") + '">' +
         '<ellipse cx="0" cy="2" rx="' + lnF((ko ? 52 : 30) * sk) + '" ry="6" fill="#3b2f66" opacity=".16"/>' +
-        '<g id="ln-fioka-flip" style="transform:scale(1,1)"><g id="ln-fioka-hop"><g transform="scale(' + sk + ')">' + lenyRajz(ko ? "kolyok" : "fioka", p, { sapka: sapka }) + "</g></g></g>" +
+        '<g id="ln-fioka-flip" style="transform:scale(1,1)"><g id="ln-fioka-hop"><g transform="scale(' + sk + ')">' + (mod === "kolyok" && !ko ? shKolyokRajz(p, { epul: 1 }) : lenyRajz(ko ? "kolyok" : "fioka", p, { sapka: sapka })) + "</g></g></g>" +   /* 👕 a kölyök a ruháiban, a készülő ruhával (sarkany-holmi.js) */
         (ko ? '<rect x="-64" y="-112" width="128" height="116" fill="transparent"/>' : '<rect x="-46" y="-100" width="92" height="104" fill="transparent"/>') + lnNevTabla(l.nev || "") + "</g>";
     }
   } else {

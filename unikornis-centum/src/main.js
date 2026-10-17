@@ -22,6 +22,7 @@ window.UC = {
   tudasPalyaVege: tudasPalyaVege, tudasMegy: tudasMegy, tudasNapok: tudasNapok, TUDAS: TUDAS, kuldTar: kuldTar, kuldVan: kuldVan, kuldFajtak: kuldFajtak, kuldOsszeallit: kuldOsszeallit,
   kuldPalyaVege: kuldPalyaVege, kuldKeresOpciok: kuldKeresOpciok, kuldValaszt: kuldValaszt, kuldFelrak: kuldFelrak, kuldPecsetes: kuldPecsetes, kuldHirek: kuldHirek, kuldKeresMutat: kuldKeresMutat,
   kuldFelrakJelenet: kuldFelrakJelenet, kuldTablaNagy: kuldTablaNagy, kuldAgyKopp: kuldAgyKopp, kuldKertPalya: kuldKertPalya, kuldLigetJel: kuldLigetJel, kuldKiserDarab: kuldKiserDarab, SH_HOLMI: SH_HOLMI, get SH_ALSZIK() { return SH_ALSZIK; },   /* 🐉 SÁRKÁNY-KÜLDETÉS (1. kör) */
+  kuldRuhaValt: kuldRuhaValt, kuldRajta: kuldRajta, kuldOltozo: kuldOltozo, kuldKeszJelenet: kuldKeszJelenet, lenyOduFrissit: lenyOduFrissit, get SH_LADA_NYIT() { return SH_LADA_NYIT; },   /* 👕 (3. kör) */
   tenyKertTar: tenyKertTar, tenyKertHajt: tenyKertHajt, tenyKertNyit: tenyKertNyit, tenyViragFazis: tenyViragFazis,   /* 🌷 Tamagocsi-kert */
   tenyKertTovek: tenyKertTovek, tenyKertBelep: tenyKertBelep, tenyKertTavol: tenyKertTavol, tenyKertBesetal: tenyKertBesetal, tenyKertHirek: tenyKertHirek,
   tenyKertErkezik: tenyKertErkezik, tenyKertMeglepetes: tenyKertMeglepetes, tenyKertVar: tenyKertVar, tvkLocsol: tvkLocsol, TVK: TVK,   /* 🌷 gondozás (5. kör) */

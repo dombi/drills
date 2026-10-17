@@ -14,15 +14,21 @@
      • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
        is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
        1 ágy + 1 kisház + a harmadik egy újabb ágy vagy ház (amíg a ruha nincs kész); ha egy típus elfogyott, a másik pótolja.
+     • 3. kör (2026-10-17): + RUHA — a választó 1 ágy + 1 kisház + 1 ruhadarab (ha egy típus elfogyott, egy másik pótolja).
+       A ruha az odúban készül (tábla + kupac, mint az ágynál), a kölyök már magán viseli a készülő ruhát (a hiányzó
+       részletek halvány körvonallal); kész → felveszi és megpördül. Az elsővel jön a ruhaláda (az ágy mellett): benne
+       a megszerzett ruhák, koppintásra fel-le veszi; helyenként (nyak, fej, láb, hát) egy lehet rajta. A kísérő az
+       ösvényen és a kölyök a kertben is viseli (kuldRajta).
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
-                        kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz }, keres: { op: [id], nap } }
+                        kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
+                        rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
 
 /* a ligetek, ahonnan a kölyök kérhet (új liget = egy új sor); kimarad: nem mérhető pálya (🎵 felmondás, 7. döntés) */
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam"] }
 };
-var KULD_TIPUS = ["agy", "haz"];   /* 2. kör: ágy + kisház; a 3. körtől + "ruha" (1 + 1 + 1 a választóban) */
+var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
 /* ── a mentés-ág ── */
@@ -36,6 +42,7 @@ function kuldTar(p) {
   if (!k.holmi || typeof k.holmi !== "object") k.holmi = {};
   ["agy", "haz", "ruha"].forEach(function (t) { if (!Array.isArray(k.holmi[t])) k.holmi[t] = []; });
   if (!k.kint || typeof k.kint !== "object") k.kint = {};
+  if (!k.rajta || typeof k.rajta !== "object") k.rajta = {};
   if (k.keres && (typeof k.keres !== "object" || !Array.isArray(k.keres.op))) k.keres = null;
   return k;
 }
@@ -188,7 +195,8 @@ function kuldFelrak() {
   a.felrakva++;
   if (a.felrakva < KULD_RESZ) { ment(); return "resz"; }
   if (k.holmi[a.tip].indexOf(a.id) < 0) k.holmi[a.tip].push(a.id);
-  k.kint[a.tip] = a.id;   /* az új kerül ki, a régi megmarad (9. döntés) */
+  if (a.tip === "ruha") k.rajta[SH_HOLMI_BY[a.id].hely] = a.id;   /* a kész ruhát rögtön felveszi */
+  else k.kint[a.tip] = a.id;   /* az új kerül ki, a régi megmarad (9. döntés) */
   k.kesz.push({ id: a.id, nap: tenyNap() });
   k.akt = null;
   ment();
@@ -204,6 +212,27 @@ function kuldValt(tip) {
   return k.kint[tip];
 }
 
+/* a ruhaládánál: fel- vagy leveszi (helyenként egy lehet rajta). Visszaad: true = most rajta van, false = levette, null = nincs ilyen */
+function kuldRuhaValt(id) {
+  var k = kuldTar(), h = SH_HOLMI_BY[id];
+  if (!h || h.tip !== "ruha" || k.holmi.ruha.indexOf(id) < 0) return null;
+  if (k.rajta[h.hely] === id) delete k.rajta[h.hely]; else k.rajta[h.hely] = id;
+  ment();
+  return k.rajta[h.hely] === id;
+}
+/* ami most a kölyökön van: [{ h, n }] — a készülő ruha (epul: csak az odúban) a saját helyén a régit eltakarja */
+var SH_RUHA_REND = ["hat", "lab", "nyak", "fej"];   /* rajzolási sorrend: a köpeny legalul, a sál a gallér fölött */
+function kuldRajta(epul) {
+  if (!kuldVan()) return [];
+  var k = kuldTar(), a = k.akt, l = [], fog = {};
+  if (epul && a && a.tip === "ruha" && SH_HOLMI_BY[a.id]) { l.push({ h: SH_HOLMI_BY[a.id], n: a.felrakva }); fog[SH_HOLMI_BY[a.id].hely] = 1; }
+  Object.keys(k.rajta).forEach(function (hely) {
+    var h = SH_HOLMI_BY[k.rajta[hely]];
+    if (h && !fog[hely] && k.holmi.ruha.indexOf(h.id) >= 0) l.push({ h: h, n: KULD_RESZ });
+  });
+  return l.sort(function (x, y) { return SH_RUHA_REND.indexOf(x.h.hely) - SH_RUHA_REND.indexOf(y.h.hely); });
+}
+
 /* ── a közös hír-sor forrása (gondozas.js VISSZA_HIR „kuld”): a ma hozott darab egyszer szól ── */
 var KULD_HIR_SZIN = "#a0603a";
 function kuldHirek() {
@@ -215,7 +244,7 @@ function kuldHirek() {
   var darab = a.hir.resz.map(function (i) { return h.r[shSor(h)[i]][2]; });
   var mit = darab.length > 1 ? darab.slice(0, -1).join(", ") + " és " + darab[darab.length - 1] : darab[0];
   sor.push({ t: "🐉 Hoztunk " + mit + " " + nev + " " + SH_TIP_HOZ[h.tip] + "!", szin: KULD_HIR_SZIN });
-  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : "az odúban!"), szin: KULD_HIR_SZIN });
+  if (a.hir.mind) sor.push({ t: "🐉 Megvan minden darab! Rakjuk össze " + (h.tip === "haz" ? "a kertben, a szikla mellett!" : h.tip === "ruha" ? "és próbáljuk fel az odúban!" : "az odúban!"), szin: KULD_HIR_SZIN });
   else if (h.tip === "haz") sor.push({ t: "🐉 A darab a kertben vár, a szikla mellett.", szin: KULD_HIR_SZIN });
   return sor;
 }
