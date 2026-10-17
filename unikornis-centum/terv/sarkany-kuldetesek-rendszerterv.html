@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sárkány-küldetések</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --track:#f6e2b8; --track-d:#d9b979; --card:#fffaf2; --sky:#dff1fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#f0a800 0%,var(--pink) 55%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(224,65,122,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🐉";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  .chip a{color:#fff}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+  svg.vazlat .palya{fill:none;stroke:var(--track);stroke-width:22}
+  svg.vazlat .palya-sz{fill:none;stroke:var(--track-d);stroke-width:2;stroke-dasharray:4 8}
+  svg.vazlat .eg{fill:var(--sky)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+</style>
+</head>
+<body><div class="wrap">
+
+<header class="top">
+  <h1>🐉 Sárkány-küldetések — rendszerterv</h1>
+  <div class="sub">A kölyöksárkány kér valamit (ágyat, kisházat, ruhát), és ehhez épp azokat a pályákat kell végigjárni, amiket a gyereknek még gyakorolnia kell. Ami már jól megy, az csendben kimarad.</div>
+  <div class="meta">
+    <span class="chip">2026-10-17</span>
+    <span class="chip">⏳ jóváhagyásra vár</span>
+    <span class="chip">Nagyság: NAGY (rajzterv + 5 kód-kör)</span>
+    <span class="chip">Rokon: visszahívás · kölyök az ösvényen · intelligens pult · játékadatok</span>
+  </div>
+</header>
+
+<h2>1. Egy mondatban, és miért jó</h2>
+<div class="panel">
+  <p><b>A sárkány kérése elvezeti a gyereket oda, ahol gyakorolnia kell, és a végén kézzelfogható, saját holmi lesz belőle.</b> A ligetek most mind egyformán hívnak, és a gyerek a kedvencét játssza újra. A küldetés kedves, mesei okot ad arra, hogy a többi pályára is elmenjen.</p>
+  <div class="elv">
+    <div><b>🎯 Közel a célhoz, gyorsabban</b>Ha látszik, mennyi van még hátra, a vége felé egyre szívesebben dolgozunk (Kivetz 2006, a pecsétgyűjtő kártya hatása).</div>
+    <div><b>🔨 Amit magam raktam össze</b>Ami a saját kezünk munkája, annak jobban örülünk (Norton 2012, IKEA-hatás). Ezért a gyerek darabonként rakja fel.</div>
+    <div><b>💛 Valakinek segítek</b>Nem „fizetség jó válaszért”, hanem a sárkány kérése. Így a jutalom nem szorítja ki a játék saját örömét (Deci–Koestner–Ryan 1999).</div>
+    <div><b>🧭 Ő választ</b>A gyerek választja ki, melyik ágy legyen, és ő dönti el, milyen sorrendben járja a pályákat. Az önállóság érzése belső motiváció.</div>
+  </div>
+</div>
+
+<h2>2. Amit már eldöntöttél ✅</h2>
+<div class="panel"><ul>
+  <li>Az első 3 küldetés <b>a szorzóligetből</b> jön: 1. sárkány-ágy, 2. kisház, 3. ruhák.</li>
+  <li>Alapszabály: <b>10 pálya, fajtánként legalább 1, legfeljebb 2</b>.</li>
+  <li>Ami már <b>jól megy</b>, azt a játék <b>csendben</b> kihagyja, nem szól róla. „Jól megy” = <b>3 különböző napon</b> tiszta végigjátszás.</li>
+  <li>A sárkány-holmi <b>csak küldetéssel</b> szerezhető, <b>nincs a boltban</b> (a bolt az unikornisé), saját helye van.</li>
+  <li>Ágyból, házból, ruhából <b>sokféle</b> lehet, de a gyerek <b>csak azt látja, ami az adott küldetéssel szerezhető</b>, a teljes készletet nem.</li>
+  <li><b>Nincs napi korlát</b>, <b>nincs határidő</b>, <b>nincs kudarc</b>. Csak a <b>végigért</b> pálya számít.</li>
+  <li>Előbb <b>kézi (pultos)</b> küldetés, de a cél a <b>gépi</b>: sok játékosnál a pult nem kivitelezhető.</li>
+  <li>A sárkányok <b>nem nőnek</b>. A kölyök fióka-méretű marad, és erre a méretre készül minden holmi is.</li>
+  <li>A haladás <b>a képen</b> látszik, pecsétekkel.</li>
+</ul></div>
+
+<h2>3. Amit a gyerek lát: egy küldetés útja</h2>
+<div class="cards">
+  <div class="dec"><span class="num">1</span><h3>A kérés (az odúban)</h3>
+    A gyerek belép az odúba, a kölyök odaröppen, a feje fölött buborék, és megszólal: <span class="say">„Brr, hideg a fészek! Építünk nekem egy ágyat?”</span> Megjelenik <b>3 ágy</b> rajza, a gyerek rákoppint az egyikre: <span class="say">„Ez lesz az! Ehhez kell egy kis segítség a Szorzós ligetből.”</span><br>
+    Ha most nincs kedve: <b>„Majd később”</b> gomb, mire a kölyök: <span class="say">„Jó, majd szólj!”</span> A fészek fölött ott marad egy kis 💭, arra koppintva bármikor újra elő lehet hívni.
+  </div>
+  <div class="dec"><span class="num">2</span><h3>A kívánság-tábla (a fészek mellett)</h3>
+    Kis fatábla: rajta a választott ágy <b>halvány körvonala</b>, alatta a helyek, mindegyikben egy pálya ikonja (🔮 🔮 ➗ ➗ 🌙 🌙 …). Ez maga a terv: <b>a gyerek a táblán látja, mely pályák hiányoznak még.</b> Koppintásra a kölyök felolvassa: <span class="say">„Még két Holdfény-bújócska kell!”</span>
+  </div>
+  <div class="dec"><span class="num">3</span><h3>A térképen</h3>
+    A ligettérképen a Szorzós liget mellett kis 🐉 jel mutatja, hogy innen kért a sárkány. A ligetben a kért pályák kapuján kis pikkely-jel van, a többin nincs. Más pálya is ugyanúgy játszható, ugyanannyi ✨ és 💧 jár érte, csak a táblára nem kerül.
+  </div>
+  <div class="dec"><span class="num">4</span><h3>Az ösvény végén</h3>
+    A kért pálya végigjárása után a kísérő kölyök (ha be van kapcsolva) <b>felkap egy darabot</b> (deszkát, párnát…), és a hír-sorban: <span class="say">„🐉 Hoztunk egy deszkát Parázs ágyához!”</span> Ha az adott fajta mindkét helye tele van már, a pálya ugyanúgy jár, de nem visz darabot. A tábla előre megmutatta, hogy azzal már kész.
+  </div>
+  <div class="dec"><span class="num">5</span><h3>Felrakás: a gyerek építi</h3>
+    Az odúban a fészek mellett ott vár a <b>darab-kupac</b>. A gyerek rákoppint, az unikornis odasétál, és a helyére teszi; az ágy körvonalából egy újabb rész <b>kiszíneződik</b>, a táblán egy hely pecsétet kap. <b>Ezt a gyerek csinálja, nem magától történik.</b>
+  </div>
+  <div class="dec"><span class="num">6</span><h3>Kész!</h3>
+    Az utolsó darabnál a kölyök <b>beleugrik az ágyba</b>, összegömbölyödik, és a farka kilóg: <span class="say">„Saját ágyam! Köszönöm!”</span> Az ágy ezentúl a fészek helyén áll. A következő kérés <b>a következő odú-látogatáskor</b> jön (a kisház), nem azonnal, hogy az örömnek legyen ideje.
+  </div>
+</div>
+
+<h3>Vázlat: a kívánság-tábla és az odú sarka</h3>
+<div class="vazlatok">
+<figure>
+<svg class="vazlat" viewBox="0 0 400 300" role="img" aria-label="Kívánság-tábla vázlat">
+  <rect x="30" y="20" width="340" height="260" rx="18" class="kartya"/>
+  <text x="200" y="48" text-anchor="middle" font-size="16" font-weight="700">Parázs ágya</text>
+  <g fill="none" stroke="var(--sketch-ink)" stroke-width="2.5" stroke-dasharray="6 6" opacity=".45">
+    <rect x="110" y="80" width="180" height="50" rx="10"/><path d="M110 80 v-22 a12 12 0 0 1 24 0 v22 M266 80 v-22 a12 12 0 0 1 24 0 v22"/>
+  </g>
+  <g><rect x="110" y="80" width="72" height="50" rx="10" fill="#f0a800" opacity=".75"/><path d="M110 80 v-22 a12 12 0 0 1 24 0 v22" fill="#f0a800" opacity=".75"/></g>
+  <text x="200" y="160" text-anchor="middle" font-size="12">a kiszíneződő rész = a felrakott darabok</text>
+  <g font-size="20" text-anchor="middle">
+    <g transform="translate(70,200)"><circle r="17" fill="#ffd6ea" stroke="#e0417a" stroke-width="2"/><text y="7">🔮</text></g>
+    <g transform="translate(115,200)"><circle r="17" fill="#ffd6ea" stroke="#e0417a" stroke-width="2"/><text y="7">🔮</text></g>
+    <g transform="translate(160,200)"><circle r="17" fill="#ffd6ea" stroke="#e0417a" stroke-width="2"/><text y="7">➗</text></g>
+    <g transform="translate(205,200)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">➗</text></g>
+    <g transform="translate(250,200)"><circle r="17" fill="#ffd6ea" stroke="#e0417a" stroke-width="2"/><text y="7">🌙</text></g>
+    <g transform="translate(70,245)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">🌙</text></g>
+    <g transform="translate(115,245)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">🧺</text></g>
+    <g transform="translate(160,245)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">🧺</text></g>
+    <g transform="translate(205,245)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">🌲</text></g>
+    <g transform="translate(250,245)"><circle r="17" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-dasharray="3 4"/><text y="7" opacity=".55">🌲</text></g>
+  </g>
+  <text x="300" y="207" font-size="11">● pecsét = kész</text>
+  <text x="300" y="250" font-size="11">○ még kell</text>
+</svg>
+<figcaption>A tábla nem ír ki számot („4/10”): a helyek maguk mutatják, mi van hátra.</figcaption>
+</figure>
+<figure>
+<svg class="vazlat" viewBox="0 0 400 300" role="img" aria-label="Odú sarka vázlat">
+  <rect x="0" y="0" width="400" height="190" fill="#f7ead8" opacity=".6"/>
+  <rect x="0" y="190" width="400" height="110" fill="#d9b979" opacity=".55"/>
+  <rect x="40" y="70" width="70" height="54" rx="6" class="kartya"/><text x="75" y="102" text-anchor="middle" font-size="11">tábla</text>
+  <ellipse cx="170" cy="220" rx="62" ry="20" fill="#c9a26b" stroke="var(--sketch-ink)" stroke-width="2"/>
+  <text x="170" y="256" text-anchor="middle" font-size="12">fészek → később az ágy</text>
+  <g transform="translate(160,198)"><ellipse rx="20" ry="13" fill="#f6b48a" stroke="var(--sketch-ink)" stroke-width="2"/><circle cx="16" cy="-10" r="9" fill="#f6b48a" stroke="var(--sketch-ink)" stroke-width="2"/></g>
+  <g transform="translate(270,222)"><rect x="-26" y="-8" width="52" height="10" rx="3" fill="#b07a45" stroke="var(--sketch-ink)" stroke-width="1.6"/><rect x="-20" y="-18" width="44" height="10" rx="3" fill="#b07a45" stroke="var(--sketch-ink)" stroke-width="1.6"/><ellipse cx="-4" cy="-24" rx="16" ry="7" fill="#ffd6ea" stroke="var(--sketch-ink)" stroke-width="1.6"/></g>
+  <text x="270" y="256" text-anchor="middle" font-size="12">darab-kupac: koppints!</text>
+  <rect x="320" y="180" width="60" height="44" rx="6" fill="#c98f5a" stroke="var(--sketch-ink)" stroke-width="2"/><text x="350" y="240" text-anchor="middle" font-size="11">ruhaláda (3.)</text>
+  <text x="200" y="30" text-anchor="middle" font-size="13" font-weight="700">az odú sarka (a mai fészeknél)</text>
+</svg>
+<figcaption>A fészek helyére kerül az ágy, mellé a ruhaláda. A kisház a kertbe, a napozó sziklához kerül.</figcaption>
+</figure>
+</div>
+
+<div class="q"><b class="t">🖼️ Mit CSINÁL a gyerek a képen, és mit mutat neki erre a kép?</b>
+Kiválasztja az ágyat; a táblán megnézi, mely pályák kellenek még; az odúban <b>maga rakja fel</b> a hozott darabokat, és a kép rögtön mutatja: egy újabb rész kiszíneződött, egy újabb hely pecsétet kapott. Őszintén: ez <b>nem matek-gondolkodás</b>, hanem a <b>tervezés és a gyűjtés</b> helye. A matek a pályákon történik. A tábla viszont ténylegesen döntést segít: „mit játsszak most?”</div>
+
+<h2>4. A szabály: hány hely, melyik pályából</h2>
+<div class="panel">
+  <p><b>Fajta</b> = egy pálya a ligetben. A Szorzós ligetben: 🔮 Egy szám bűvköre · ➗ Osztogató tisztás · 🌙 Holdfény-bújócska · 🧺 Mi maradt? · 🌲 Szám-rengeteg · 🎵 Szorzódallam (ez utóbbiról lásd a 7. döntést).</p>
+  <p>A küldetés összeállításakor a játék <b>csak azokat a fajtákat</b> veszi számba, amelyek a gyereknek <b>látszanak és nyitva vannak</b> (pult, kapu), és amelyek <b>még nem mennek jól</b>.</p>
+  <div class="tblwrap"><table>
+    <tr><th>Még nem megy</th><th>Helyek száma</th><th>Elosztás</th></tr>
+    <tr><td>6 fajta</td><td>10</td><td>mind 1×, és 4 fajta kap egy 2. helyet (amelyik a legkevésbé megy, lásd 5. döntés)</td></tr>
+    <tr><td>5 fajta</td><td>10</td><td>mind 2×</td></tr>
+    <tr><td>4 fajta</td><td>8</td><td>mind 2× (a legfeljebb 2 szabály miatt rövidebb)</td></tr>
+    <tr><td>3 fajta</td><td>6</td><td>mind 2×</td></tr>
+    <tr><td>2 vagy kevesebb</td><td>—</td><td>a liget „kész”: a következő küldetés másik ligetből jön (pultról, később gépi). Ha nincs másik, a sárkány nem kér semmit, egyszerűen ott van és játszik.</td></tr>
+  </table></div>
+  <ul>
+    <li><b>Minden holmi 10 részletből</b> áll. Ha rövidebb a küldetés, egy pálya több részletet hoz (pl. 6 helynél: 2-2-2-2-1-1), így a kész ágy mindig ugyanolyan.</li>
+    <li><b>Emlék-próba</b> (lásd 5. szakasz): ha egy már „menő” fajtánál esedékes, 1 helyre csendben visszakerül. A 10-es plafon marad: egy 2. hely helyére jön.</li>
+    <li>Ha egy pálya küldetés közben <b>elérhetetlenné válik</b> (a pulton elrejted), a helye csendben eltűnik, a részletek újraosztódnak, így a gyerek soha nem ragad bent.</li>
+    <li>A futó küldetés <b>nem változik</b>, ha közben valami „menni” kezd (4. döntés). A változás a következő küldetésnél látszik.</li>
+  </ul>
+</div>
+
+<h2>5. „Megy-e már?”: a tudás-napló</h2>
+<div class="panel">
+  <p>Ez a terv legértékesebb, <b>újra felhasználható része</b>: pályánként, gyerekenként a játék feljegyzi, <b>melyik napokon</b> volt <b>tiszta</b> (kerülő nélküli) végigjátszás. A küldetés csak az első felhasználója; ugyanezt fogja olvasni az intelligens pult, a játékadatok-mérés és a Neked szóló ösvény is.</p>
+  <ol>
+    <li><b>Megy</b> = 3 KÜLÖNBÖZŐ gyakorlós napon tiszta végigjátszás. (Egy napon háromszor nem számít háromnak.)</li>
+    <li><b>Emlék-próbák</b> egyre nagyobb időközzel: a „megy” után ≈ <b>1 hét</b> → <b>3 hét</b> → <b>2 hónap</b>. Esedékességkor a fajta 1 helyre visszakerül a következő küldetésbe. Egy tiszta végigjátszás elég, és a próba sikerült. Ha a gyerek közben magától tisztán játssza, az is számít.</li>
+    <li>Ha a próba helyét <b>kerülővel</b> tölti ki: a „megy” csendben visszavonódik, és 2 újabb tiszta nap kell. Semmi üzenet, semmi piros: a gyerek csak annyit lát, hogy kitöltött egy helyet.</li>
+    <li>A 3. sikeres próba után: <b>„nagyon megy”</b>. Ritkán (≈ 4 havonta) még visszajön, hogy ne kopjon el.</li>
+  </ol>
+  <p class="lead">Ez a lassú, hetekben-hónapokban mért ütem: ért ≠ tud ≠ nagyon tud. A számok (3 nap, 1 hét / 3 hét / 2 hónap) a pultról állíthatók lesznek, tehát élő tapasztalat alapján hangolhatók.</p>
+  <p><b>Javaslat: ez már az 1. kódkörben induljon el, láthatatlanul.</b> Ha addigra, mire az első küldetés elindul, már gyűlnek a napok, akkor az első küldetés sem kezd mindent elölről.</p>
+</div>
+
+<h2>6. A sárkány-holmi helye (nem a bolt)</h2>
+<div class="tblwrap"><table>
+  <tr><th>Küldetés</th><th>Mit kap</th><th>Hol lesz</th><th>Választás</th></tr>
+  <tr><td>1. 🛏️ Ágy</td><td>sárkány-ágy (10 részletből)</td><td>odú, a fészek helyén</td><td>3 ágyból 1 (pl. kosár-ágy, kagyló-ágy, felhő-ágy)</td></tr>
+  <tr><td>2. 🏡 Kisház</td><td>kis sárkány-kuckó</td><td>kert, a patakparti napozó szikla mellett</td><td>3 házból 1 (pl. gomba-ház, kő-barlangocska, kéreg-kunyhó)</td></tr>
+  <tr><td>3. 👕 Ruhák</td><td>ruhaláda + egy 3 darabos szett</td><td>odú, az ágy mellett; a láda koppintásra kinyílik, ott öltöztetjük</td><td>3 szettből 1 (lásd 6. döntés)</td></tr>
+  <tr><td>4.– …</td><td>újabb ruhák, játékok, díszek a házhoz</td><td>ugyanott</td><td>mindig csak az adott küldetés 3 lehetősége látszik</td></tr>
+</table></div>
+<p class="lead">Az ágyat és a házat a gyerek később <b>nem cseréli</b> (nem „bolti tárgyak”). Egy későbbi küldetés hozhat díszt rájuk. Ha kísér a kölyök az ösvényen, a ruháját ott is viseli (4. kör).</p>
+
+<h2>7. A pult: kézi küldetés most, gépi később</h2>
+<div class="panel">
+  <p>Új kártya a Beállításokban: <b>🐉 Sárkány-küldetés</b>, gyerekenként és csoportra (alap &lt; csoport &lt; egyéni, mint minden más).</p>
+  <ul>
+    <li><b>Mód</b>: <i>ki</i> · <i>kézi</i> · (később) <i>gépi</i>.</li>
+    <li><b>Kézi</b>: kiválasztod a <b>ligetet</b> (most csak Szorzós liget), a játék a 4. szakasz szabálya szerint maga rakja össze a helyeket. Ha akarod, <b>kipipálhatsz pályákat</b> bármelyik ligetből (ekkor a te listád számít, a min. 1 / max. 2 szabállyal).</li>
+    <li><b>Látod</b>: a futó küldetést (melyik hely kész), és a tudás-naplót: mely pályák „mennek” (melyik napokon), mikor esedékes a következő emlék-próba. Egy „mégsem megy” gombbal kézzel is visszaveheted.</li>
+    <li><b>Gépi (5. kör, később)</b>: a játék maga választja a ligetet: azt, amelyik a gyereknek nyitva van, és amelyikben a legtöbb a „még nem megy”. Ez az <b>intelligens pult</b> első darabja.</li>
+  </ul>
+</div>
+
+<h2>8. Mi NEM lesz benne (tiltólista)</h2>
+<div class="panel"><ul>
+  <li>Nincs szomorú sárkány, nincs „hiányoztál”, nincs „siess”, nincs „már csak ma”.</li>
+  <li>Nincs határidő, nincs elveszíthető haladás: a pecsét és a felrakott darab soha nem tűnik el.</li>
+  <li>Nincs véletlen, „meglepetés-dobozos” jutalom: amit választott, azt kapja.</li>
+  <li>Nincs szám, ami a gyerek tudását minősíti („3 pálya megy!”). A „megy” csak a pulton látszik.</li>
+  <li>Nincs kiskapu: csak a végigért pálya visz darabot; a 🎵 felmondásról lásd a 7. döntést.</li>
+</ul></div>
+
+<h2>9. Műszaki váz (a stúdiónak)</h2>
+<div class="panel">
+  <ul>
+    <li><b><code>src/tudas.js</code></b>: közös tudás-napló (függvények csak; a pult is betölti). <code>P().tud[palyaId] = { n:[tenyNap…], megy:nap|null, fok:0..3, esed:nap|null }</code>; <code>tudasPalyaVege(id, teljes)</code>, <code>tudasMegy(id)</code>, <code>tudasEsedekes(id)</code>.</li>
+    <li><b><code>src/kuldetes.js</code></b>: az általános küldetés-motor. <code>kuldOsszeallit(fajtak, tud)</code> (tiszta függvény, gépi próbával tesztelve minden esetre a 4. táblából), <code>kuldPalyaVege(id)</code>, <code>KULD_SOR</code> adat-tábla (ágy → ház → ruha → …). Mentés: <code>P().kuld = { akt:{id, tip, valaszt, helyek:[{p, kesz}], felrakva, kezd}, kesz:[…], holmi:{agy, haz, ruha:[…]}, rajta:{} }</code>.</li>
+    <li><b><code>src/sarkany-holmi.js</code></b>: a rajzok (<code>HOLMI_RAJZ</code> tábla, 10 részletre bontva), odú-réteg (tábla, kupac, ágy, láda), kert-réteg (ház). A <code>leny.js</code> fészke a kész ágynál átadja a helyét.</li>
+    <li>Bekötés: <code>engine-logic.js</code> pályavég (a <code>gyakPalyaVege</code> mellé, a <code>teljes</code> értékkel), hír a <code>VISSZA_HIR</code> új „kuld” sorával, kísérő darab-felkapás a <code>leny-kiser.js</code>-ben, pikkely-jel a <code>terkep.js</code>-ben.</li>
+    <li>Pult: <code>producerConfig/{uid}.kuld</code> + <code>groups/{gid}.kuld</code>, játék oldalon <code>FELULIR.kuld</code>.</li>
+    <li>Gépi próba: új képernyők (kérés, tábla, kupac) a <code>probacsapat\gepi</code>-ben; kiskapu-teszt: megszakított pálya nem ad darabot.</li>
+  </ul>
+</div>
+
+<h2>10. Sorrend</h2>
+<div class="panel"><ol>
+  <li><b>Tervlap jóváhagyása</b> (ez a lap, a 11. pont döntéseivel).</li>
+  <li><b>Rajzterv</b>: 3 ágy, 3 ház, 3 ruhaszett a kölyök (fióka-méret) testére; kívánság-tábla; darab-kupac; felrakás-mozdulat; láda. Kérés-buborék. (A gyerekek a mozdulatlanságot nevetik ki → minden lépés mozogjon.)</li>
+  <li><b>Kód 1. kör</b>: tudás-napló láthatatlanul + összeállító + pulton a tudás-napló megtekintése. <i>Ettől kezdve gyűlnek a napok.</i></li>
+  <li><b>Kód 2. kör</b>: ágy-küldetés végig (kérés → választás → tábla → pikkely a térképen → ösvény-vég hír → kupac → felrakás → kész) + pult-kártya kézi módja. → <b>élő próba</b></li>
+  <li><b>Kód 3. kör</b>: kisház a kertben.</li>
+  <li><b>Kód 4. kör</b>: ruhaláda + öltöztetés (a kísérő is viseli).</li>
+  <li><b>Kód 5. kör</b>: emlék-próbák ütemezése + gépi liget-választás alapja.</li>
+</ol>
+<p class="lead">Kód csak jóváhagyás után. A futó élő próbákat (Andor + Petra a hétvégén) ez nem állítja meg.</p></div>
+
+<h2>11. Döntések, amikre a válaszodat várom</h2>
+<div class="cards">
+  <div class="dec"><span class="num">1</span><h3>Kinél indul a küldetés?</h3>
+    A) Csak annál a gyereknél, akinél a kölyök <b>már hazatért</b> a kalandtérképről (Lili, Fanni). Az újaknál (Andor, Petra) akkor kezdődik, amikor megtalálták. · B) Mindenkinél, sárkány nélkül az unikornis kér.
+    <br><span class="prop">Javaslat: A</span> — a kérés a sárkányé, ez adja a mesét; és a kölyök felkutatása (≈ 2–3 hét) jó bevezető.</div>
+  <div class="dec"><span class="num">2</span><h3>Mikor választ a gyerek a 3 holmi közül?</h3>
+    A) <b>Az elején</b>, így végig a saját ágyát látja összeállni. · B) A végén, meglepetésként.
+    <br><span class="prop">Javaslat: A</span> — a konkrét, kiválasztott cél húz igazán; a halvány körvonal ezt mutatja.</div>
+  <div class="dec"><span class="num">3</span><h3>Ki rakja fel a darabot?</h3>
+    A) A <b>gyerek koppint</b> a kupacra az odúban, és az unikornis felrakja. · B) Magától kerül a helyére az ösvény végén.
+    <br><span class="prop">Javaslat: A</span> — ez a „saját kezűleg” öröme, és ok arra, hogy benézzen az odúba.</div>
+  <div class="dec"><span class="num">4</span><h3>Változik-e a futó küldetés?</h3>
+    A) <b>Nem</b>: ami elindult, úgy marad (kivéve, ha egy pálya elérhetetlenné válik). · B) Igen, ha valami közben „menni” kezd, a helye eltűnik.
+    <br><span class="prop">Javaslat: A</span> — a gyerek ne lássa a táblát magától változni.</div>
+  <div class="dec"><span class="num">5</span><h3>6 fajtánál melyik 4 kap 2. helyet?</h3>
+    A) Amelyiknek a <b>legkevesebb tiszta napja</b> van (döntetlennél a legrégebben játszott). · B) Véletlenszerűen.
+    <br><span class="prop">Javaslat: A</span> — így a küldetés oda tol, ahol a legnagyobb a szükség.</div>
+  <div class="dec"><span class="num">6</span><h3>Ruha-küldetés: mikor kapja a ruhát?</h3>
+    A) A szett 3 darabja <b>útközben</b> készül el (a 3., 6. és 10. pecsétnél egy-egy darab, közben látszik a varrás) · B) Mindhárom a végén.
+    <br><span class="prop">Javaslat: A</span> — a ruhának már közben örülhet, és a kölyök azonnal felveheti.</div>
+  <div class="dec"><span class="num">7</span><h3>🎵 Szorzódallam benne legyen-e?</h3>
+    A felmondásnál a játék nem tudja biztosan mérni, volt-e hiba, így a „megy” sem mérhető, és könnyen kiskapuvá válhat. A) <b>Kimarad</b> a küldetésekből (akkor az 1. küldetés: 5 fajta × 2 = 10). · B) Benne van, de legfeljebb 1 helyen, és sosem lesz „megy” (csak a pulton veheted ki).
+    <br><span class="prop">Javaslat: A</span> — ez eltér a korábbi „6 fajta, 10 = 6 + 4” számolástól, ezért kérdezem.</div>
+  <div class="dec"><span class="num">8</span><h3>Pult alapállás</h3>
+    A) Alapból <b>ki</b>, te kapcsolod be gyerekenként vagy csoportra. · B) Alapból be, a szorzóligettel.
+    <br><span class="prop">Javaslat: A</span> — Petrának (2. o.) ne jöjjön szorzós kérés; a gépi mód majd maga választ ligetet.</div>
+</div>
+
+<p class="lead" style="margin-top:28px">Jóváhagyás után a nyitómondat: <b>„Sárkány-küldetések: rajzterv.”</b></p>
+
+</div></body>
+</html>
