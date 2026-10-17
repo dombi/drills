@@ -798,6 +798,7 @@ function palyaVege() {
   P().sorozat.hossz = (P().sorozat.hossz || 0) + 1;
   P().sorozat.utolsoPalya = id;
 
+  if ((J.palya.polc || J.palya.szerszam) && J.palya.fok !== "mester") mvJatekVege();   /* 🏅 visszatérés-számláló: egy végigjárt könyvtári pálya (mester-valtozat.js) */
   var ekV = J.palya.konyvtar ? ekPalyaVege() : J.palya.vasar ? vsPalyaVege() : J.palya.szerszam ? szPalyaVege() : J.palya.polc ? polcPalyaVege() : null;   /* 📚 könyvtár: kocka-nap + csapdák · 🧺 vásár: csapdák + búcsú */
   $("jatek-csillampor").textContent = P().csillampor;
   ment();

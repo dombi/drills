@@ -27,6 +27,7 @@ MODULES = [
     "bujocska.js",        # 3d) 🌿 Mi bújt el?: a bújócska-pályák generátora (GEN.hianyzo) — a feladat-alak a feladatHianyzo (engine-gen.js)
     "villam.js",          # 3e) ⚡ Villámkör: halmazok + kinyílás, a kör sorrendje (első 3 villám), rekord + árnyék, P().villam, villamAllapot
     "szerszam.js",        # 3f) 🧰 szerszám-létrák közös alapja: 🛗 lift, 🧰 láda (5-ből 4), napló, pult-beállítás (P().szerszam)
+    "mester-valtozat.js", # 3f2) 🏅 Mesterpróba-változatok közös szabálya: eredeti / számváltozat, visszatérés-számláló, melyik jön vissza (P().mv)
     "gondozas.js",        # 3c) 🌱 gondozás: gyakorlós nap, igény, napi meglepetés, érés — a visszatérés közös alapja
 
     # ── Perzisztencia ──

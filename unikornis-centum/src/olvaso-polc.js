@@ -16,6 +16,8 @@
      „Mit kérdeznek?”; a ✋/🔎 jelzés utáni jó = önjavítás = önálló (3. döntés ✅).
    🏅 MESTERPRÓBA: a Fejtörő-feladat szövege (felhő, FT) az olvasópulton, beírással, 🙋 nélkül; rossz → nem zár be, jön a lift;
      elsőre jó (a jelzés utáni javítás is) → a polc kockája a 🏰 Kockavárba (ekKockaBe) + mester-szalag a polc tábláján.
+   🏅 VÁLTOZAT (2026-10-17): mester-valtozat.js dönt — elsőre eredeti, utána számváltozat (a „polc” mezője a bagoly-tudás),
+     a régi „véletlenszerű eredeti” ág megszűnt; minden végigjárt polc-pálya a visszatérés-számlálóba megy (engine-logic palyaVege).
    FOLYTATÁS: P().polcAll[pályaId] = { d: nap, k: kész pöttyök } — kilépés után ugyanazon a napon onnan folytatja. */
 
 var POLC_REND = {
@@ -245,11 +247,26 @@ function polcKinek(N, M) {
 }
 
 /* ═════════════════ 🏅 MESTERPRÓBA ═════════════════ */
-function polcMesterKiv(polc) { var L = polcMesterLista(polc); return L.length ? szMesterValaszt(polc, L) : null; }
+/* melyik Mesterpróba, eredetiben vagy számváltozatban (mester-valtozat.js közös szabálya); a polcon csak „polc” mezős változat jöhet */
+function polcMesterKiv(polc) {
+  return mvValaszt(polcMesterLista(polc), { jo: function (v) { return !!(v.polc && v.polc.polc === polc && v.polc.oe); } });
+}
+mvForras(function () { return polcMesterLista("KERES").concat(polcMesterLista("VALASZ")); });
+/* a bagoly-tudás: az eredetié (POLC_MESTER), változatnál a változat „polc” mezőjéből (a két kicsi testvér mindig az eredetié) */
+function polcMesterD(fid, V) {
+  var A = POLC_MESTER[fid], p = V && V.polc;
+  if (!A || !p) return A;
+  var oe = p.oe || {}, cs = {};
+  for (var n in oe.csap || {}) { var c = oe.csap[n]; cs[n] = { m: c.m, jelol: c.jelol ? [null, c.jelol] : null }; }
+  return { polc: A.polc, szo: oe.szo || A.szo, oe: { koztes: oe.koztes || {}, masik: oe.masik || {}, csap: cs },
+    rajz: (p.rajz || []).map(function (r) { return [r.e, r.n, r.c]; }), padlo: p.padlo || null,
+    mit: p.mit || A.mit, elso: p.elso || "", kicsi: A.kicsi, vissza: p.vissza || A.vissza };
+}
 function polcMondatok(sz) { return String(sz).replace(/\s+/g, " ").trim().split(/(?<=[.?!])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ0-9(„])/); }
 function polcMesterFeladat(polc) {
-  var fid = polcMesterKiv(polc), F = fid && FT.feladatok[fid], D = POLC_MESTER[fid];
+  var V = polcMesterKiv(polc), fid = V && V.fid, F = V && V.F, D = fid && polcMesterD(fid, V.valt);
   if (!F || !D) { J.polc.nincsMester = true; return polcPotty(polc, "mese", 15); }
+  if (J.polc.mv !== V) { J.polc.mv = V; mvLatta(V); }
   var S = polcMondatok(F.szoveg), qi = -1;
   for (var i = S.length - 1; i >= 0; i--) if (/\?$/.test(S[i])) { qi = i; break; }
   if (qi < 0) qi = S.length - 1;
@@ -258,7 +275,8 @@ function polcMesterFeladat(polc) {
   var oe = { szo: D.szo, koztes: D.oe.koztes || {}, masik: D.oe.masik || {}, csap: {} };
   for (var n in D.oe.csap || {}) { var c = D.oe.csap[n], jl = c.jelol; oe.csap[n] = { m: c.m, jelol: jl && jl[0] == null ? polcJelolKeres(mondatok, jl[1]) : jl }; }
   var lep = (F.lepesek || []).map(function (l) { var e = +String(l.eredmeny).replace(/\D/g, ""); return { k: l.szoveg, v: e, m: String(l.muvelet || "").replace("?", l.eredmeny) }; }).filter(function (l) { return l.v > 0; });
-  var rajz = D.padlo ? polcRacs(7, 7, POLC_MEKK) : pmRajz(D.rajz || []);
+  var rajz = D.padlo && D.padlo.sor ? polcRacs(D.padlo.sor, D.padlo.oszlop, D.padlo.szurke.map(function (q) { return [q.s, q.o]; }))
+    : D.padlo ? polcRacs(7, 7, POLC_MEKK) : pmRajz(D.rajz || []);
   var M = { keret: "mester", mondatok: mondatok, kerdes: kerdes, helyes: helyes, oe: oe, lep: lep, mit: D.mit, rajz: rajz, fid: fid };
   var L = liftUj({ sz: polc, palya: J.palya.id, fok: "mester", fid: fid });
   L.nagy = true; L.kicsiJoKell = 2; J.polc.L = L; J.polc.mesterFid = fid; J.polc.kicsiHiba = 0;
@@ -518,6 +536,7 @@ function polcPalyaVege() {
   if (pa.fok === "mester") {
     var x = E[0] || null, L = J.polc && J.polc.L;
     if (x && x.e === "o" && L && L.elso !== false) {
+      mvEredmeny(J.polc.mesterFid, true);
       mesterKocka = true; ujKocka = ekKockaBe(d.kocka);
       if (!szerszamT(pa.polc).m) { szerszamT(pa.polc).m = szerszamNap(); }
       P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
