@@ -55,7 +55,7 @@ var POLC_MESTER = {
     oe: { masik: { 14: { m: "A 14 nap a SZALMAHÁZ ideje. A kérdés a faház!" }, 42: { m: "A 42 nap a TÉGLAHÁZ ideje. A kérdés a faház!" }, 2: { m: "A 2 hét a szalmaház ideje, hétben. A faházat kérdezték, napban." } },
           koztes: { 56: { m: "Ez egy lépcsőfok volt: a tégla- és a szalmaház együtt. Mennyi maradt a faházra?" }, 35: { m: "Ez egy lépcsőfok volt: csak a téglaházat vetted el. A szalmaházat is!" },
                     63: { m: "Ez egy lépcsőfok volt: csak a szalmaházat vetted el. A téglaházat is!" } },
-          csap: { 69: { m: "Hetet és napot nem vonhatunk ki egymásból! Előbb mindent napra kell váltani.", jelol: [null, "6 hét"] }, 3: { m: "3 hét – ez igaz! De a kérdés NAPBAN kérdez." } } },
+          csap: { 69: { m: "Hetet és napot nem vonhatunk ki egymásból! Előbb mindent napra kell váltani.", jelol: [null, "6 hét"] }, 3: { m: "3 hét – ez igaz, ennyi ideig épült a faház! De napban kérdezték, nem hétben." } } },
     mit: ["hány nap alatt épült a faház", "hány nap alatt épült a téglaház", "hány nap kellett összesen"],
     kicsi: [{ mondatok: ["Röfi, a kismalac egy téglaházat épített.", "2 hét alatt építette fel."], kerdes: "Hány nap alatt építette fel?", helyes: 14, oe: { masik: { 2: { m: "A 2 a hetek száma. Napokat kérdeztünk!" } } } },
             { mondatok: ["Röfi, a kismalac egymás után egy téglaházat és egy faházat épített.", "A téglaházat 1 hét alatt építette fel."], kerdes: "Hány nap alatt építette fel a faházat, ha a két ház építéséhez 12 napra volt szüksége?", helyes: 5,
@@ -65,16 +65,16 @@ var POLC_MESTER = {
     oe: { koztes: { 38: { m: "Ez egy lépcsőfok volt: ennyi a fehér lap. De mennyivel használt többet, mint szürkét?" }, 49: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón." } },
           masik: { 11: { m: "A 11 a szürke lapok száma." } }, csap: { 60: { m: "A szürke lapok is benne vannak a 49-ben: elvenni kell, nem hozzáadni." }, 7: { m: "A 7 csak egy sor." } } },
     mit: ["mennyivel több a fehér, mint a szürke", "hány fehér lap van", "hány lap van az egész padlón"],
-    elso: "Ne számold meg egyenként a sok fehér lapot! Hány lap van az egész padlón, ha minden sorban ugyanannyi? Ebből a kevés szürkét kell elvenned.",
+    elso: "Ne számold meg egyenként a sok fehér lapot! Hány lap van az egész padlón, ha minden sorban ugyanannyi? Ebből a szürkéket kell elvenned.",
     kicsi: [{ mondatok: ["Mekk Elek fehér és szürke lapokkal fedte be a kamrája padlóját: 3 sor, minden sorban 3 lap.", "Ebből 2 szürke."], kerdes: "Hány fehér lap van?", helyes: 7, padlo: [3, 2],
               oe: { koztes: { 9: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón. De a fehéreket kérdeztük!" } } } },
             { mondatok: ["Mekk Elek fehér és szürke lapokkal fedte be a konyhája padlóját: 5 sor, minden sorban 5 lap.", "Ebből 7 szürke."], kerdes: "Hány fehér lappal használt többet, mint szürkét?", helyes: 11, padlo: [5, 7],
               oe: { koztes: { 25: { m: "Ez egy lépcsőfok volt: ennyi lap van az egész padlón." }, 18: { m: "Ez egy lépcsőfok volt: ennyi a fehér lap. De mennyivel több, mint a szürke?" } } } }],
     vissza: "Ügyes! Ugyanaz, csak nagyobb szobában. Minden lépés után kérdezd meg: ez már a válasz?" },
   "zrinyi-2024-3-M-10": { polc: "VALASZ", szo: "hány aprócska", rajz: [["📏", 1, "icike = 4 picike"], ["📏", 1, "picike = 5 aprócska"], ["❓", 10, "icike"]],
-    oe: { koztes: { 20: { m: "Ez egy lépcsőfok volt: ennyi aprócska EGY icike. De 10 icikét kérdeztek!" }, 40: { m: "Ez egy lépcsőfok volt: a 10 icike 40 picike. De aprócskában kérdezték!" } },
+    oe: { koztes: { 20: { m: "Ez egy lépcsőfok volt: ennyi aprócska EGY icike. De nem 1, hanem 10 icikét kérdeztek!" }, 40: { m: "Ez egy lépcsőfok volt: a 10 icike 40 picike. De aprócskában kérdezték!" } },
           csap: { 50: { m: "A picikéket kihagytad: egy icikében 4 picike van.", jelol: [null, "1 icike = 4 picike"] }, 9: { m: "Ezt összeadtad. De 1 icike 4 picike, és mindegyik picike 5 aprócska." },
-                  90: { m: "Ezt összeadtad. De 1 icike 4 picike, és mindegyik picike 5 aprócska." } } },
+                  90: { m: "Előbb összeadtad a picikét és az aprócskát. De szorozni kell: 1 icike 4 picike, és mindegyik picike 5 aprócska." } } },
     mit: ["hány aprócska a 10 icike", "hány aprócska egy icike", "hány picike a 10 icike"],
     elso: "Kezdd egyetlen icikével! Hány picike az? És az hány aprócska? Ha egy icikét már tudod, a 10 icike könnyű.",
     kicsi: [{ mondatok: ["A törpök a picikét és az aprócskát is használják."], kerdes: "Hány aprócskával egyenlő 3 picike, ha 1 picike = 5 aprócska?", helyes: 15, oe: { csap: { 8: { m: "Ezt összeadtad. De minden picike 5 aprócska." } } } },
@@ -547,7 +547,7 @@ function polcPalyaVege() {
       P().tunderharmat = (P().tunderharmat || 0) + MV_VISSZA_HARMAT; plusz = MV_VISSZA_HARMAT;
       html += '<span class="ek-vege">🏅 Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban. ✦' + (fv > 1 ? " " + fv : "") + ' +' + MV_VISSZA_CSILLA + ' ✨ · 💧 +' + MV_VISSZA_HARMAT + '</span>';
       mondat += " Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban.";
-      cim = "🏅 Emlékeztél a trükkre!"; sorok.push("✦ A kockád kifényesedett a Kockavárban!" + (fv > 1 ? " Már " + fv + "-szer." : ""));
+      cim = "🏅 Emlékeztél a trükkre!"; sorok.push("✦ A kockád kifényesedett a Kockavárban!" + (fv > 10 ? " Már sokszor sikerült!" : fv > 1 ? " Már " + szorSzo(fv) + "." : ""));
     } else if (vissza) {
       mvEredmeny(J.polc.mesterFid, false, true);
       html += '<br><span class="ek-vege">🏅 Ügyes, együtt sikerült! A kockád megmaradt a Kockavárban.</span>';
