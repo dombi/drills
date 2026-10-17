@@ -2724,7 +2724,35 @@ if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = 
    a „deciliter”-t elcsúsztatja; a producer a próbalapon (Matekos\deci-kiejtes-proba.html) az „E”-t választotta. */
 var KIEJTES = [[/([Dd])eciliter/g, "$1eci-líter"],   /* 2026-09-27; a ragos alakokra is: deciliterrel, decilitert… */
   [/([Dd])eci(?![-lm])/g, "$1e-ci"]];                    /* a magában álló „deci” is („Hány centi egy deci?”) → de-ci; a deciméter és a deci-líter marad */
-function kiejtesJavit(s) { s = String(s == null ? "" : s); KIEJTES.forEach(function (k) { s = s.replace(k[0], k[1]); }); return s; }
+/* Mondatvégi szám (2026-10-17): a Szabolcs-hang a „…összesen 100.” végét „századik”-nak olvassa (a pont miatt
+   sorszámnak hiszi). Ha a szám+pont után a szöveg vége vagy nagybetűs új mondat jön, a számot betűvel adjuk át
+   („száz.”) — így nincs mit félreolvasni. A valódi sorszám marad: „a 3. polcon” (kisbetű jön utána), a névelő
+   utáni („a 32. Zrínyi”), és a szöveg/sor elején álló felsorolás-szám is („1. Mit kérdeznek?”). Tizedes tört, „2024/3.”, „M12.” érintetlen. */
+var SZAM_EGY = ["", "egy", "kettő", "három", "négy", "öt", "hat", "hét", "nyolc", "kilenc"];
+var SZAM_TIZ = ["", "tíz", "húsz", "harminc", "negyven", "ötven", "hatvan", "hetven", "nyolcvan", "kilencven"];
+function szamHarom(m, eloTag) {   /* 0–999 betűvel; eloTag: „ezer” elé kerül (ott „két”, nem „kettő”) */
+  var h = Math.floor(m / 100), t = Math.floor(m % 100 / 10), o = m % 10, s = "";
+  if (h) s += (h === 1 ? "" : h === 2 ? "két" : SZAM_EGY[h]) + "száz";
+  if (t === 1) s += o ? "tizen" : "tíz"; else if (t === 2) s += o ? "huszon" : "húsz"; else s += SZAM_TIZ[t];
+  return s + (o === 2 && eloTag ? "két" : SZAM_EGY[o]);
+}
+function szamSzoval(n) {
+  if (n === 0) return "nulla";
+  var e = Math.floor(n / 1000), m = n % 1000;
+  if (!e) return szamHarom(m, false);
+  return (e === 1 ? "" : szamHarom(e, true)) + "ezer" + (m ? (n > 2000 ? "-" : "") + szamHarom(m, false) : "");
+}
+function mondatvegiSzam(s) {
+  return s.replace(/(\d{1,3}(?:[  ]\d{3})+|\d+)\.(?=\s*$|\s+[^a-záéíóöőúüű0-9\s]|["”»)’])/g, function (egesz, szam, hol, teljes) {
+    var elotte = teljes.slice(0, hol);
+    if (/[\d,.\/:A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű]$/.test(elotte)) return egesz;   /* 2,5. · 2024/3. · M12. */
+    if (/(^|[^A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű])[Aa]z? $/.test(elotte)) return egesz;   /* „a 32. Zrínyi” — névelő után sorszám */
+    if (/(^|\n)\s*$/.test(elotte) && !/^\s*$/.test(teljes.slice(hol + egesz.length))) return egesz;   /* „1. Mit kérdeznek?” felsorolás */
+    var n = parseInt(szam.replace(/[  ]/g, ""), 10);
+    return n < 1000000 ? szamSzoval(n) + "." : egesz;
+  });
+}
+function kiejtesJavit(s) { s = String(s == null ? "" : s); KIEJTES.forEach(function (k) { s = s.replace(k[0], k[1]); }); return mondatvegiSzam(s); }
 function mondd(szoveg, kesz) {
   szoveg = kiejtesJavit(szoveg);
   bagolyAnimal(true);
