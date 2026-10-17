@@ -991,12 +991,14 @@ function oduFekszik(azonnal) {
   function landol() { svg.classList.add("odu-agy-fekve", "odu-agy-terhelt"); }   /* a perem elé kerül, a matrac besüpped */
   if (nyugi) landol(); else { _oduAgyIdo.push(setTimeout(landol, 380)); hangCsilla(); }
   uniElalszik(alvo, azonnal);
+  kuldUniAlszik(true);   /* 🐉 a kölyök is befészkeli magát az ágyába (sarkany-holmi.js) */
 }
 /* nyujt = true: a szőnyegre érve nyújtózik és ásít, aztán hazasétál; kesz: utána (pl. a koppintott tárgy felé indul) */
 function oduFelkel(nyujt, kesz) {
   _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];
   var svg = $("odu-szoba").querySelector("svg"), emel = document.getElementById("odu-uni-emel"), alvo = document.getElementById("odu-uni-alvo");
   ODU_FEKSZIK = false;
+  kuldUniAlszik(false);
   if (!svg || !emel || !alvo) { if (kesz) kesz(); return; }
   var nyugi = nyugiMod();
   svg.classList.remove("odu-fekszik", "odu-agy-fekve", "odu-agy-terhelt");
@@ -1051,6 +1053,7 @@ function oduNyit(honnan) {
   clearTimeout(_oduSetaIdo); _oduSetaCel = null; _oduTavozas = null;
   ODU_SOTET = false;                        /* a villanyoltás nem mentődik: az odú mindig világosan nyílik */
   ODU_FEKSZIK = false; _oduAgyIdo.forEach(clearTimeout); _oduAgyIdo = [];   /* az alvás sem: ébren, a szőnyegen vár */
+  SH_ALSZIK = false;                        /* 🐉 a kölyök is ébren (sarkany-holmi.js) */
   ODU_UNI.x = ODU_UNI_HAZA; ODU_UNI.dir = 1;   /* a szőnyegen áll (az odú csak a térképről nyílik) */
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */

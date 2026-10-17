@@ -215,7 +215,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <script src="../tk-diszek.js?v=20260924-1"></script>
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/leny-kiser.js?v=20261014-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/leny-kiser.js?v=20261017-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -1295,11 +1295,18 @@ function rajzBeallitasok(t) {
     [["", lUres], ["true", "✅ igen"], ["false", "🚫 nem"]].map(function (o) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kiser === "boolean" ? String(sajatLeny.kiser) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
     }).join("") + "</select></div>";
+  /* 🐉 Sárkány-küldetés (2026-10-17, terv/sarkany-kuldetesek-rendszerterv.html, 1. kör): csak be/ki; a teljes kártya a 4. körben */
+  h += '<div class="kapu-sor"><span>A kölyök kívánságai (sárkány-küldetés a Szorzós ligetből):</span>' +
+    '<select id="leny-kuld"' + (typeof sajatLeny.kuld === "boolean" ? ' class="beallitva"' : "") + ">" +
+    [["", lUres], ["true", "✅ igen"], ["false", "🚫 nem"]].map(function (o) {
+      return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kuld === "boolean" ? String(sajatLeny.kuld) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("") + "</select></div>";
   if (egyeni) {
     var lh = lenyBeall(lenyBeallOsszevon((A.cfg[id] || {}).leny || {}, jatekosCsoportjai(id).map(function (g) { return g.leny || {}; })));
-    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, kívánság: <b>" + (lh.kuld ? "be" : "ki") + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
   }
   h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
+    "Kívánság: a kölyök ágyat kér, és azokat a Szorzós ligetbeli pályákat kéri (10 hely), amelyek a gyereknek még nem mennek (3 különböző napon tiszta végigjátszás = megy). " +
     "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer.</p></div>";
 
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
@@ -1384,8 +1391,12 @@ function rajzBeallitasok(t) {
   $("kapu-orak").onchange = function () {
     ment(docRef.set({ kapuOrak: this.value === "" ? FV.delete() : +this.value, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
+  /* a leny-ágon belül mezőnként (kiser, kuld): az egyik állítása ne törölje a másikat */
   $("leny-kiser").onchange = function () {
-    ment(docRef.set({ leny: this.value === "" ? FV.delete() : { kiser: this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+    ment(docRef.set({ leny: { kiser: this.value === "" ? FV.delete() : this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
+  $("leny-kuld").onchange = function () {
+    ment(docRef.set({ leny: { kuld: this.value === "" ? FV.delete() : this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
   /* 🏦 bank-mezők: { bank: { valtasId: { mezo: érték | törlés } } } */
   function bankIr(vid, mezok) { var b = {}; b[vid] = mezok; ment(docRef.set({ bank: b, updatedAt: FV.serverTimestamp() }, { merge: true })); }

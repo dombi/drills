@@ -196,7 +196,8 @@ function hetHirek() {
 var VISSZA_HIR = [
   { id: "het", fn: function () { return hetHirek(); } },                     /* 🐾 heti kártya (5. kör) */
   { id: "kert", fn: function (o) { return tenyKertHirek(o.hajt || 0); } },   /* 🌸 Tény-kert (teny-kert.js) */
-  { id: "leny", fn: function () { return lenyHirek(); } }                     /* 🥚 tojás, 🐣 fióka, 🦋 elröppenés, ☁️ felhő (leny.js, 3–4. kör) */
+  { id: "leny", fn: function () { return lenyHirek(); } },                    /* 🥚 tojás, 🐣 fióka, 🦋 elröppenés, ☁️ felhő (leny.js, 3–4. kör) */
+  { id: "kuld", fn: function () { return kuldHirek(); } }                     /* 🐉 „Hoztunk egy párnát Szikra ágyához!” (kuldetes.js) */
 ];
 var VISSZA_HIR_SZIN = "#3f9e6a";
 /* Visszaad: { sor, html, mondat } vagy null (nincs hír) */

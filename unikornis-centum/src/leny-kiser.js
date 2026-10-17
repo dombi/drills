@@ -14,20 +14,25 @@
    a bekapcsolt nyer (mint a 📋 tábla). A pult (admin/index.html) ugyanezt a fájlt tölti be: itt csak függvény-definíció
    lehet, felső szinten semmi nem futhat, ami a játék globálisaira épül. */
 
-var LENY_BEALL_ALAP = { kiser: true };
+/* kuld: 🐉 sárkány-küldetés (kuldetes.js, 2026-10-17) — ugyanebben a pult-ágban, ugyanezzel a szabállyal */
+var LENY_BEALL_ALAP = { kiser: true, kuld: true };
 /* a pult beállításainak összevonása — a pult is ezt hívja (lenyHatas) */
 function lenyBeallOsszevon(egyeni, csoportok) {
   var ki = {};
-  (csoportok || []).forEach(function (c) {
-    if (!c) return;
-    if (c.kiser === true) ki.kiser = true; else if (c.kiser === false && ki.kiser !== true) ki.kiser = false;
+  Object.keys(LENY_BEALL_ALAP).forEach(function (k) {
+    (csoportok || []).forEach(function (c) {
+      if (!c) return;
+      if (c[k] === true) ki[k] = true; else if (c[k] === false && ki[k] !== true) ki[k] = false;
+    });
+    if (egyeni && typeof egyeni[k] === "boolean") ki[k] = egyeni[k];
   });
-  if (egyeni && typeof egyeni.kiser === "boolean") ki.kiser = egyeni.kiser;
   return ki;
 }
 function lenyBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.leny) || {};
-  return { kiser: typeof f.kiser === "boolean" ? f.kiser : LENY_BEALL_ALAP.kiser };
+  var ki = {};
+  Object.keys(LENY_BEALL_ALAP).forEach(function (k) { ki[k] = typeof f[k] === "boolean" ? f[k] : LENY_BEALL_ALAP[k]; });
+  return ki;
 }
 
 /* ── hol és mekkora: pálya-egységben, az unikornis talppontjához képest (az unikornis 0.62-es méretű az ösvényen) ── */
@@ -103,5 +108,6 @@ function lenyKiserKopp() {
 function lenyKiserOduba(x, y) {
   if (!_ks || !_ks.el.isConnected) return;
   if (nyugiMod() || window.__UC_GYORS) { _ks.el.setAttribute("opacity", "0"); return; }
-  _ks.oduba = { x: x, y: y - 30, t0: performance.now() };
+  var vitt = kuldKiserDarab(_ks.el);   /* 🐉 ha ez a pálya a sárkány kérése: felkap egy darabot, és azt viszi be (sarkany-holmi.js) */
+  _ks.oduba = { x: x, y: y - 30, t0: performance.now() + (vitt ? 700 : 0) };   /* a darabbal kicsit tovább látszik */
 }

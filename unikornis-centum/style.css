@@ -2962,3 +2962,52 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .ek-fenyes-most .ek-feny-jel{ transform-box:fill-box; transform-origin:center; animation:mvJelPop .6s cubic-bezier(.3,1.6,.5,1) 2.4s both; }
 @keyframes mvJelPop{ 0%{ transform:scale(0); } 100%{ transform:scale(1); } }
 @media (prefers-reduced-motion:reduce){ .nagy-gomb.mv-meghivas, .ek-pislog, .ek-fenyes-most .ek-csillan, .ek-fenyes-most .ek-feny-jel{ animation:none; } .ek-pislog{ opacity:.6; } }
+
+/* ── 🐉 SÁRKÁNY-KÜLDETÉS (sarkany-holmi.js, 1. kör 2026-10-17; rajzterv: terv/sarkany-kuldetesek-rajzterv.html) ── */
+.hr-halv *{ fill:none!important; stroke:#b9a3dc!important; stroke-width:1.6!important; stroke-dasharray:3 3.5; opacity:.8; }
+.hr-halv .hr-nincs{ display:none; }
+.hr-uj{ transform-box:fill-box; transform-origin:50% 50%; }
+@keyframes hrSzikra{ 0%{ opacity:0; transform:scale(.3); } 30%{ opacity:1; } 100%{ opacity:0; transform:scale(1.6); } }
+.hr-szikra{ transform-box:fill-box; transform-origin:center; animation:hrSzikra .9s ease-out forwards; pointer-events:none; }
+@keyframes hrLang{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
+.hr-lang{ animation:hrLang 2.4s ease-in-out infinite; }
+@keyframes hrFust{ 0%{ opacity:0; transform:translate(0,0) scale(.5); } 20%{ opacity:.8; } 100%{ opacity:0; transform:translate(8px,-34px) scale(1.4); } }
+.hr-fust{ transform-box:fill-box; transform-origin:center; animation:hrFust 3s ease-out infinite; }
+.hr-fust.k2{ animation-delay:1.5s; }
+@keyframes hrZaszlo{ 0%,100%{ transform:skewY(0); } 50%{ transform:skewY(-8deg); } }
+.hr-zaszlo{ transform-box:fill-box; transform-origin:0 50%; animation:hrZaszlo 1.6s ease-in-out infinite; }
+@keyframes hrLeng{ 0%,100%{ transform:rotate(0); } 50%{ transform:rotate(-4deg); } }
+.hr-leng{ transform-box:fill-box; transform-origin:95% 5%; animation:hrLeng 3s ease-in-out infinite; }
+@keyframes hrHinta{ 0%,100%{ transform:rotate(-2deg); } 50%{ transform:rotate(2deg); } }
+.hr-hinta{ transform-box:fill-box; transform-origin:50% 100%; animation:hrHinta 3.6s ease-in-out infinite; }
+@keyframes hrFugg{ 0%,100%{ transform:rotate(-1.5deg); } 50%{ transform:rotate(1.5deg); } }
+.hr-fugg{ transform-box:view-box; transform-origin:0 -104px; animation:hrFugg 3.2s ease-in-out infinite; }
+@keyframes hrPecset{ 0%{ transform:scale(2.2); opacity:0; } 60%{ transform:scale(.9); opacity:1; } 100%{ transform:scale(1); } }
+.hr-pecset-uj{ transform-box:fill-box; transform-origin:center; animation:hrPecset .55s ease-out; }
+@keyframes hrJel{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+.hr-jel > *{ animation:hrJel 1.8s ease-in-out infinite; }
+@keyframes hrKupac{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,224,138,0)); } 50%{ filter:drop-shadow(0 0 6px rgba(255,214,110,.95)); } }
+.hr-kupac{ animation:hrKupac 1.8s ease-in-out infinite; }
+@keyframes hrZzz{ 0%{ opacity:0; transform:translate(0,0) scale(.6); } 25%{ opacity:1; } 100%{ opacity:0; transform:translate(10px,-26px) scale(1.1); } }
+.hr-zzz{ transform-box:fill-box; transform-origin:center; opacity:0; animation:hrZzz 2.8s ease-out infinite; }
+.hr-zzz.k2{ animation-delay:1.4s; }
+@keyframes hrKopeny{ 0%,100%{ transform:rotate(0); } 50%{ transform:rotate(4deg); } }
+.hr-kopeny{ transform-box:fill-box; transform-origin:95% 5%; animation:hrKopeny 2.6s ease-in-out infinite; }
+#sh-agy, #sh-tabla, #sh-kupac, #sh-gondolat{ cursor:pointer; }
+.sh-hely{ cursor:pointer; }
+.kuld-keres, .kuld-tabla-lap{ position:relative; width:min(760px,calc(100% - 16px)); background:#fffaf0; border-radius:22px; padding:14px 16px 16px;
+  box-shadow:0 10px 26px rgba(42,33,64,.28); text-align:center; }
+.leny-fedo:has(.kuld-keres), .leny-fedo:has(.kuld-tabla-lap){ background:rgba(42,33,64,.45); }
+.kuld-keres-cim{ font-size:clamp(17px,3.8vw,23px); font-weight:800; color:#5a3f8a; margin-bottom:10px; }
+.kuld-kartyak{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+.kuld-kartya{ background:#fff; border:3px solid #c9a8e6; border-radius:18px; padding:6px 6px 8px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; transition:transform .15s; }
+.kuld-kartya:hover{ transform:translateY(-3px); background:#fff6d6; }
+.kuld-kartya svg{ width:100%; height:auto; max-height:28vh; }
+.kuld-kartya span{ font-size:clamp(15px,3.2vw,18px); font-weight:800; color:#4a3b7a; }
+.kuld-kesobb, .kuld-tabla-zar{ margin-top:12px; font-size:16px; font-weight:800; padding:9px 18px; border-radius:17px; background:#fdf0d0; border:2px solid #e3c27a; color:#8a5a10; cursor:pointer; }
+.kuld-tabla-lap svg{ width:min(460px,100%); height:auto; max-height:58vh; }
+.kuld-tabla-mondat{ margin:6px 0 0; font-size:clamp(16px,3.4vw,20px); font-weight:800; color:#6a2c4c; min-height:1.4em; }
+.kuld-pikkely{ position:absolute; left:24px; top:3px; width:24px; height:26px; z-index:2; animation:ajanlott-pikk 2.2s ease-in-out infinite; }
+.kuld-pikkely svg{ width:100%; height:100%; display:block; }
+@keyframes ajanlott-pikk{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+@media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny,.kuld-pikkely{ animation:none!important; } }

@@ -91,7 +91,8 @@ function profilNormal(p, k) {
   villamTar(p);                                    /* ⚡ Villámkör (villam.js): P().villam = { rek, nap, rh, napok, un, korok } */
   szerszamTar(p);                                  /* 🧰 szerszám-létrák (szerszam.js): P().szerszam = { t: sz → { h, l, m, mh }, n: napló, li: lift-napló } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
-  visszaTar(p);                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
+  visszaTar(p);
+  tudasTar(p); kuldTar(p);                         /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;

@@ -194,6 +194,7 @@ function renderFomenu() {
       '<div class="allapot">' + (zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
       (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
+      kuldKartyaJel(pa) +   /* 🐉 pikkely: ezt kéri a kis sárkány (sarkany-holmi.js) */
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
@@ -217,6 +218,7 @@ function renderFomenu() {
       else if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (bankos) mondat += " Ha végigviszed, a Tündérbankban válthatsz!";
       if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
+      if (kuldKertPalya(pa.id)) mondat += " Ezt kéri a kis sárkány!";
       mondd(mondat);
     });
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
