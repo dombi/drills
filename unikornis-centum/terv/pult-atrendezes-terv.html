@@ -206,24 +206,40 @@ Eldöntve: pályánként <b>ugyanaz</b> a menü, mint a ligetnél · a banknyit�
 <div class="vazlat"><div class="felirat">vázlat — Lili lapja, 🗺️ Pályái</div>
 <div class="gyl">
   <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center">
-    <span>▸ <b>🌳 Összeadó liget</b> <span class="kicsi halvany">11 pálya · 💖 2 · 🚫 1</span></span>
-    <select><option>vegyes</option><option>normál</option><option>💖 ajánlott</option><option>🚫 rejtett</option><option>🏦 banknyitó</option><option>💖🏦 ajánlott + banknyitó</option></select>
+    <span>▾ <b>🌳 Összeadó liget</b> <span class="kicsi halvany">11 pálya · 💖 2 · 🚫 1</span></span>
+    <select><option>egyenként állítva</option><option>normál</option><option>💖 ajánlott</option><option>🚫 rejtett</option><option>🏦 banknyitó</option><option>💖🏦 ajánlott + banknyitó</option></select>
+    <div style="grid-column:1 / -1;margin:0 0 0 18px;padding:8px 10px;border:2px dashed #e3cfa6;border-radius:10px;background:#fffaf0">
+      <div class="kicsi halvany" style="margin-bottom:6px">⬇ így néz ki kinyitva — pályánként ugyanaz a menü</div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center">
+        <span>Mondd el a bontásokat <span class="kicsi halvany">🌳</span></span><select><option>normál</option></select>
+        <span>Összeadás-kivonás 10-ig <span class="kicsi halvany">🌳</span></span><select><option>💖 ajánlott</option></select>
+        <span>Összeadás-kivonás 20-ig <span class="kicsi halvany">·</span></span><select><option>🚫 rejtett</option></select>
+        <span>Tízes-átlépő <span class="kicsi halvany">🌿</span></span><select><option>💖 ajánlott</option></select>
+        <span class="halvany">… és a liget többi 7 pályája</span><span class="kicsi halvany">normál</span>
+      </div>
+    </div>
 
-    <span>▾ <b>📏 Szabóműhely</b> <span class="kicsi halvany">4 pálya · 🏦 mind</span></span>
-    <select><option>🏦 banknyitó</option></select>
-    <span style="padding-left:22px">Centi és deci <span class="kicsi halvany">🌳</span></span><select><option>🏦 banknyitó</option></select>
-    <span style="padding-left:22px">Méter <span class="kicsi halvany">🌿</span></span><select><option>💖🏦 ajánlott + banknyitó</option></select>
-    <span style="padding-left:22px">Kilométer <span class="kicsi halvany">·</span></span><select><option>🏦 banknyitó</option></select>
-    <span style="padding-left:22px">Vegyes mérés <span class="kicsi halvany">·</span></span><select><option>🏦 banknyitó</option></select>
-
-    <span>▸ <b>🌙 Szorzós liget</b> <span class="kicsi halvany">6 pálya · a Családtól: 💖 1</span></span>
+    <span>▸ <b>🌙 Szorzós liget</b> <span class="kicsi halvany">6 pálya · mind normál</span></span>
     <select><option>normál</option></select>
 
-    <span>▸ <b>📚 Bagolykönyvtár</b> <span class="kicsi halvany">🚫 az egész liget rejtve</span></span>
+    <span>▸ <b>🧺 Tündérvásár</b> <span class="kicsi halvany">3 pálya · 💖 mind</span></span>
+    <select><option>💖 ajánlott</option></select>
+
+    <span>▸ <b>🧵 Szabóműhely</b> <span class="kicsi halvany">4 pálya · 🏦 mind</span></span>
+    <select><option>🏦 banknyitó</option></select>
+
+    <span>▸ <b>🧪 Bájitalkonyha</b> <span class="kicsi halvany">4 pálya · mind normál</span></span>
+    <select><option>normál</option></select>
+
+    <span>▸ <b>🧁 Mézes pékség</b> <span class="kicsi halvany">4 pálya · 💖🏦 mind</span></span>
+    <select><option>💖🏦 ajánlott + banknyitó</option></select>
+
+    <span>▸ <b>📚 Bagolykönyvtár</b> <span class="kicsi halvany">14 pálya · 🚫 mind</span></span>
     <select><option>🚫 rejtett</option></select>
   </div>
   <div class="jel s" style="margin-top:10px">🏦 A bank ennél a gyereknél most csak a banknyitó pályák után nyílik (minden végigvitt banknyitó pálya 1 váltást ér). <b>Még nincs ár</b> → <span class="gomb">kinyitom</span></div>
 </div>
+<p class="kicsi halvany" style="margin:10px 0 0">Minden liget-sor ugyanígy néz ki: ▸ a név (rákattintva nyílik), mellette, hogy mi van benne, jobb szélen a menü. Ha a liget pályái nem egyformák, a menü azt írja: <b>„egyenként állítva”</b> — ilyenkor a sorban látszik, mennyi 💖 / 🚫 / 🏦 van benne. A pályák darabszáma a vázlatban csak példa.</p>
 </div>
 
 <h3>Hogyan működik</h3>
@@ -232,7 +248,7 @@ Eldöntve: pályánként <b>ugyanaz</b> a menü, mint a ligetnél · a banknyit�
 <li><b>Egy menü, öt állapot</b> — a ligetnél és a pályánál ugyanaz:
   <b>normál</b> · <b>💖 ajánlott</b> (szívecske dobog, +2 💧, ×1,5 ✨) · <b>🚫 rejtett</b> · <b>🏦 banknyitó</b> · <b>💖🏦 ajánlott + banknyitó</b>.
   A „rejtett + banknyitó” nincs a menüben, mert értelmetlen: a rejtett pályát a gyerek nem játszhatja.</li>
-<li><b>A menü mindig a mostani állapotot mutatja.</b> Ha egy liget pályái nem egyformák, a liget menüje „vegyes”-t mutat; ha onnan választasz, az <b>a liget összes pályájára</b> egyszerre érvényes.</li>
+<li><b>A menü mindig a mostani állapotot mutatja.</b> Ha egy liget pályái nem egyformák, a liget menüje azt írja: <b>„egyenként állítva”</b> (a sorban látszik, mennyi 💖 / 🚫 / 🏦 van benne); ha onnan választasz, az <b>a liget összes pályájára</b> egyszerre érvényes, és felülírja az egyenkénti beállítást.</li>
 <li><b>🏦 egész ligetre</b>: a liget egészét jelöli be (ahogy ma a Műhely bank-listáján az „egész liget” pipa), így a ligetbe később kerülő új pályák is banknyitók lesznek.</li>
 <li><b>Csoport</b>: ha a gyerek csoportban van, a menüben van egy hatodik sor is: <b>„↺ csoport szerint (most: …)”</b>. Ami a csoporttól jön, mellette halványan ott áll: „a Családtól”.</li>
 <li><b>Bank</b>: az első 🏦 jelöléskor a bank ennél a gyereknél „kijelölt pályák után” módra vált. Ha még nincs ár, a liget-lista alatt egy sárga sor szól, „kinyitom” gombbal (a Műhely bank-kártyájára visz). Ha az összes 🏦 jelölést leveszed, a bank visszaáll az előző módra.</li>
