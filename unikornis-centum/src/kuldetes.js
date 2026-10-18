@@ -9,7 +9,8 @@
        ≤ 2 fajta → a liget „kész”, nincs kérés. Mindig 10 részlet: rövidebb küldetésnél egy hely több részletet hoz.
      • Csak a VÉGIGÉRT pálya visz darabot (palyaVege → kuldPalyaVege); a megszakított semmit (kiskapu-elv).
      • A futó küldetés nem változik; csak ha egy pálya közben elérhetetlenné válik (pult: elrejtve), az ő helye csendben
-       eltűnik, és a részletek újraosztódnak (kuldIgazit) — a gyerek soha nem ragad bent.
+       eltűnik, és a részletek újraosztódnak (kuldIgazit) — a gyerek soha nem ragad bent. Ugyanígy, ha egy pálya
+       utólag a kimaradók közé kerül (🧺 Mi maradt?, 2026-10-18).
      • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínált (A1); amit már megkapott, nem jön újra.
      • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
        is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
@@ -24,9 +25,10 @@
                         rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
 
-/* a ligetek, ahonnan a kölyök kérhet (új liget = egy új sor); kimarad: nem mérhető pálya (🎵 felmondás, 7. döntés) */
+/* a ligetek, ahonnan a kölyök kérhet (új liget = egy új sor); kimarad: nem mérhető pálya (🎵 felmondás, 7. döntés),
+   és ami nem kötelező (🧺 Mi maradt? — maradékos osztás, producer 2026-10-18) */
 var KULD_LIGET = {
-  szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam"] }
+  szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"] }
 };
 var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
@@ -91,7 +93,7 @@ function kuldReszOszt(helyek, n, elso) {
 }
 
 /* ── a futó küldetés ── */
-function kuldAkt(p) { return kuldTar(p).akt; }
+function kuldAkt(p) { var a = kuldTar(p).akt; if (!p) kuldIgazit(a); return a; }
 /* elérhetetlenné vált pálya (a pulton elrejtve) → a helye csendben eltűnik, a részletek újraosztódnak */
 function kuldIgazit(a) {
   if (!a) return;
@@ -99,7 +101,8 @@ function kuldIgazit(a) {
   a.helyek = a.helyek.filter(function (h) {
     if (h.kesz) return true;
     var pa = null; PALYAK.forEach(function (x) { if (x.id === h.p) pa = x; });
-    return !!pa && !palyaRejtve(pa);
+    var L = KULD_LIGET[a.liget];
+    return !!pa && !palyaRejtve(pa) && !(L && L.kimarad.indexOf(h.p) >= 0);   /* kimaradóvá vált pálya is kiesik */
   });
   if (a.helyek.length === elotte) return;
   var nyitott = a.helyek.filter(function (h) { return !h.kesz; }), keszResz = 0;
