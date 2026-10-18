@@ -2,3 +2,7 @@
 # Soronként egy kulcs (a jelentés „kulcs:” sorából másolva). A # utáni rész megjegyzés: ki, mikor, miért.
 # Ami itt van, azt a gép továbbra is megtalálja, de az összegzésben már nem jelzi (a részletekben „ISMERT”).
 vegig:csilla:sz-egesz-mese   # producer, 2026-10-16: a 🧺 Mesekönyv 🪜 lépcsőfokaiért is jár ✨ (56 a terv 46 helyett) — maradjon így
+vegig:csilla:meres-bajital-1   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
+vegig:csilla:meres-pekseg-1   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
+vegig:csilla:meres-szabo-1   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
+vegig:csilla:polc-keres-mese   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
