@@ -5,6 +5,7 @@ function mutat(id) {
   $(id).classList.add("aktiv");
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
   if (id === "kepernyo-vege") vegeGombok();
+  megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";

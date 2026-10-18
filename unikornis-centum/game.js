@@ -2627,6 +2627,96 @@ function tudasNapok(id, p) { var s = tudasTar(p)[id]; return s && Array.isArray(
 function tudasUtolso(id, p) { var s = tudasTar(p)[id]; return s && typeof s.ut === "number" ? s.ut : -1; }
 /* esedékes-e emlék-próba (az 5. kód-körben a küldetés-motor ebből tesz vissza 1 helyet) */
 function tudasEsedekes(id, p) { var s = tudasTar(p)[id]; return !!(s && s.megy != null && typeof s.esed === "number" && s.esed <= tenyNap()); }
+/* ============ 3c4) 🔍 MEGFIGYELŐ NAPLÓ — napi összesítő a pultnak és a jellemzésnek (LÁTHATATLAN) ============
+   Terv: Matekos\pult-atrendezes-terv.html 4c. pont (✅ jóváhagyva 2026-10-18; Pult-átrendezés 2a. kör).
+   A játék naponta feljegyzi, mit indított a gyerek, mit vitt végig, honnan lépett ki, mennyit játszott, és HOVÁ MENT
+   EGY PÁLYA UTÁN. A gyerek ebből semmit nem lát. A közös src/megfigyeles.js (2b. kör) ebből és a tudás-naplóból
+   (tudas.js) írja a gyereklap mondatait — a pult és később a játék is.
+   Mentés: P().mf[nap] (nap = helyi dátum, „2026-10-18”), az utolsó MEGF.napok (60) nap; a régebbi törlődik.
+     mp: játékidő mp-ben (pálya + fejtörő képernyő, mint a jatekMp)
+     i:  { palyaId: indítások száma }            u: { cél: hányszor ment oda egy pálya végén }
+     nu: { palyaId: 1 } — aznap először kipróbált, korábban sosem játszott pálya
+     v:  { palyaId: { n: végigvitel, e: elsőre jó, f: feladat, t: teljes ösvény, mp: idő } }
+     k:  { palyaId: { "állomás (1-től)": kilépések } }
+   „u” célok (nyersen; a csoportosítás a megfigyeles.js dolga): ujra (ugyanaz a pálya rögtön újra), uj (még sosem
+   játszott pálya), masik (másik, már ismert pálya), odu, kert, utca, szalon, bank, tunemenykert.
+   Az esemeny() (analytics.js) és a mutat() (ui.js) hívja — felhő nélkül is gyűlik, a felhőbe a többi mentéssel megy. */
+
+var MEGF = { napok: 60, utanPerc: 15 };
+/* a pálya-vég utáni első cél: a pálya-vég képernyő, a térkép és a ligetválasztó még nem cél — a következő hely vagy pálya az */
+var MEGF_KEPERNYO = { "kepernyo-odu": "odu", "kepernyo-kert": "kert", "kepernyo-utca": "utca", "kepernyo-szalon": "szalon",
+  "kepernyo-bank": "bank", "kepernyo-tunemenykert": "tunemenykert" };
+var _megfUtan = null;   /* { pid, ms } — a legutóbbi pálya-vég, amíg ki nem derül, hová ment utána (csak a memóriában) */
+
+function megfNapKulcs(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate();
+}
+function megfTar(p) {
+  p = p || P();
+  if (!p.mf || typeof p.mf !== "object" || Array.isArray(p.mf)) p.mf = {};
+  return p.mf;
+}
+/* a mai nap sora; az első íráskor a MEGF.napok-nál régebbi napok törlődnek */
+function megfMa(p) {
+  var t = megfTar(p), k = megfNapKulcs();
+  if (!t[k]) {
+    var hatar = megfNapKulcs(new Date(Date.now() - MEGF.napok * 86400000));
+    Object.keys(t).forEach(function (n) { if (n < hatar) delete t[n]; });
+    t[k] = {};
+  }
+  return t[k];
+}
+function megfNo(o, kulcs, db) { o[kulcs] = (o[kulcs] || 0) + (db || 1); }
+function megfAl(d, mezo) { return d[mezo] || (d[mezo] = {}); }
+
+/* az esemeny() hívja: palya_start / palya_end / palya_kilep (a többit nem nézi) */
+function megfEsemeny(tipus, adat) {
+  try {
+    if (typeof P !== "function" || !P() || !adat || !adat.palyaId) return;
+    var pid = String(adat.palyaId);
+    if (tipus === "palya_start") {
+      var d = megfMa();
+      var ismert = !!(P().palyak && P().palyak[pid]) || megfVoltMar(pid);
+      if (_megfUtan) megfUtanJegyez(d, pid === _megfUtan.pid ? "ujra" : ismert ? "masik" : "uj");
+      megfNo(megfAl(d, "i"), pid);
+      if (!ismert) megfAl(d, "nu")[pid] = 1;
+    } else if (tipus === "palya_end") {
+      var d2 = megfMa(), v = megfAl(d2, "v"), s = v[pid] || (v[pid] = {});
+      megfNo(s, "n"); megfNo(s, "e", +adat.elsore || 0); megfNo(s, "f", +adat.feladat || 0);
+      if (adat.teljes) megfNo(s, "t");
+      megfNo(s, "mp", Math.round(+adat.idoMp || 0));
+      _megfUtan = { pid: pid, ms: Date.now() };
+    } else if (tipus === "palya_kilep") {
+      var d3 = megfMa(), k = megfAl(d3, "k"), sk = k[pid] || (k[pid] = {});
+      megfNo(sk, String((+adat.allomas || 0) + 1));
+      _megfUtan = null;
+    }
+  } catch (e) { /* a megfigyelés soha ne akassza meg a játékot */ }
+}
+/* volt-e már ez a pálya a naplóban (a P().palyak csak a végigvitt pályákat ismeri) */
+function megfVoltMar(pid) {
+  var t = megfTar();
+  return Object.keys(t).some(function (n) { var d = t[n]; return (d.i && d.i[pid]) || (d.v && d.v[pid]); });
+}
+function megfUtanJegyez(d, cel) {
+  if (!_megfUtan) return;
+  if (Date.now() - _megfUtan.ms <= MEGF.utanPerc * 60000) megfNo(megfAl(d, "u"), cel);
+  _megfUtan = null;
+}
+/* a mutat() hívja minden képernyőváltáskor */
+function megfKepernyo(id) {
+  try {
+    if (!_megfUtan || typeof P !== "function" || !P()) return;
+    var cel = MEGF_KEPERNYO[id];
+    if (cel) megfUtanJegyez(megfMa(), cel);
+    else if (id === "kepernyo-profil") _megfUtan = null;   /* unikornis-váltás: ez már nem a pálya „utána” */
+  } catch (e) {}
+}
+/* az idomeroInd hívja másodpercenként (a jatekMp mellett) */
+function megfMasodperc() {
+  try { megfNo(megfMa(), "mp"); } catch (e) {}
+}
 /* ============ 3c3) 🐉 SÁRKÁNY-KÜLDETÉSEK — az általános küldetés-motor ============
    Terv: terv/sarkany-kuldetesek-rendszerterv.html (✅ 9/9) + terv/sarkany-kuldetesek-rajzterv.html (✅). 1. kód-kör (2026-10-17):
    az ÁGY-küldetés végig — kérés → választás → tábla → 🐉 a térképen + pikkely a kapukon → darab az ösvény végén + hír →
@@ -2971,7 +3061,7 @@ function profilNormal(p, k) {
   szerszamTar(p);                                  /* 🧰 szerszám-létrák (szerszam.js): P().szerszam = { t: sz → { h, l, m, mh }, n: napló, li: lift-napló } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   visszaTar(p);
-  tudasTar(p); kuldTar(p);                         /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
+  tudasTar(p); kuldTar(p); megfTar(p);   /* 🔍 P().mf: napi megfigyelő napló (megf-naplo.js) */                      /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;
@@ -18645,6 +18735,7 @@ function mutat(id) {
   $(id).classList.add("aktiv");
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
   if (id === "kepernyo-vege") vegeGombok();
+  megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
@@ -19770,7 +19861,7 @@ function naplozz(alap, elsore, valasz) {
   if (P().naplo.length > 80) P().naplo.shift();
 }
 var idomeroTimer = null;
-function idomeroInd() { if (idomeroTimer) return; idomeroTimer = setInterval(function () { P().jatekMp += 1; }, 1000); }
+function idomeroInd() { if (idomeroTimer) return; idomeroTimer = setInterval(function () { P().jatekMp += 1; megfMasodperc(); }, 1000); }   /* + napi játékidő (megf-naplo.js) */
 function idomeroAll() { if (idomeroTimer) { clearInterval(idomeroTimer); idomeroTimer = null; ment(); } }
 function csillaBuborek() {
   var b = el("div", null, "+✨");
@@ -26555,6 +26646,7 @@ function felhoOsszefesul(helyi, alap, tavoli, felso) {
    Offline is gyűlik: a Firestore sorba állítja, és visszatéréskor felküldi. */
 var ESEMENY_HIBA_DB = 0;
 function esemeny(tipus, adat) {
+  megfEsemeny(tipus, adat);   /* 🔍 megfigyelő napló (megf-naplo.js): felhő nélkül is gyűlik, a mentéssel megy fel */
   if (!FELHO.aktiv || !FELHO.db) return;
   try {
     FELHO.db.collection("events").add({
@@ -28207,6 +28299,7 @@ window.UC = {
   visszaHir: visszaHir, VISSZA_HIR: VISSZA_HIR, napiHatar: napiHatar, napiMarad: napiMarad, visszaTar: visszaTar, hetAzon: hetAzon, hetPecset: hetPecset, visszaAllapot: visszaAllapot,   /* 💌 VISSZAHÍVÁS (2. kör) */
   lenyTar: lenyTar, lenyPalyaVege: lenyPalyaVege, lenyHirek: lenyHirek, lenyRajz: lenyRajz, lenyPal: lenyPal, lenyOduMod: lenyOduMod, lenyKikeles: lenyKikeles, LENY_NAP: LENY_NAP, KISER: KISER, lenyKiserVan: lenyKiserVan,   /* 🐣 VISSZAHÍVÁS (3. kör): tojás + fióka */
   lenyElroppenes: lenyElroppenes, kalandNyit: kalandNyit, kalandZar: kalandZar, kalandAlbum: kalandAlbum, kalandTar: kalandTar, kalandFelhoJar: kalandFelhoJar, KALAND_TAJ: KALAND_TAJ, get KT() { return KT; }, ktFelhoKatt: ktFelhoKatt, ktHelyKatt: ktHelyKatt, lenyTerkepJel: lenyTerkepJel, lenyKertKopp: lenyKertKopp, lenyKertErkezik: lenyKertErkezik, lenyKertJel: lenyKertJel, hetVegeMutat: hetVegeMutat, hetNagy: hetNagy, hetFuzet: hetFuzet, hetPecset: hetPecset, hetDb: hetDb, get HET_UJ() { return HET_UJ; },   /* 🗺️ kalandtérkép (4. kör) */
+  megfTar: megfTar, megfEsemeny: megfEsemeny, megfKepernyo: megfKepernyo, MEGF: MEGF,   /* 🔍 megfigyelő napló (megf-naplo.js) */
   tudasPalyaVege: tudasPalyaVege, tudasMegy: tudasMegy, tudasNapok: tudasNapok, TUDAS: TUDAS, kuldTar: kuldTar, kuldVan: kuldVan, kuldFajtak: kuldFajtak, kuldOsszeallit: kuldOsszeallit,
   kuldPalyaVege: kuldPalyaVege, kuldKeresOpciok: kuldKeresOpciok, kuldValaszt: kuldValaszt, kuldFelrak: kuldFelrak, kuldPecsetes: kuldPecsetes, kuldHirek: kuldHirek, kuldKeresMutat: kuldKeresMutat,
   kuldFelrakJelenet: kuldFelrakJelenet, kuldTablaNagy: kuldTablaNagy, kuldAgyKopp: kuldAgyKopp, kuldKertPalya: kuldKertPalya, kuldLigetJel: kuldLigetJel, kuldKiserDarab: kuldKiserDarab, SH_HOLMI: SH_HOLMI, get SH_ALSZIK() { return SH_ALSZIK; },   /* 🐉 SÁRKÁNY-KÜLDETÉS (1. kör) */

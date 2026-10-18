@@ -886,7 +886,7 @@ function naplozz(alap, elsore, valasz) {
   if (P().naplo.length > 80) P().naplo.shift();
 }
 var idomeroTimer = null;
-function idomeroInd() { if (idomeroTimer) return; idomeroTimer = setInterval(function () { P().jatekMp += 1; }, 1000); }
+function idomeroInd() { if (idomeroTimer) return; idomeroTimer = setInterval(function () { P().jatekMp += 1; megfMasodperc(); }, 1000); }   /* + napi játékidő (megf-naplo.js) */
 function idomeroAll() { if (idomeroTimer) { clearInterval(idomeroTimer); idomeroTimer = null; ment(); } }
 function csillaBuborek() {
   var b = el("div", null, "+✨");

@@ -30,6 +30,7 @@ MODULES = [
     "mester-valtozat.js", # 3f2) 🏅 Mesterpróba-változatok közös szabálya: eredeti / számváltozat, visszatérés-számláló, melyik jön vissza (P().mv)
     "gondozas.js",        # 3c) 🌱 gondozás: gyakorlós nap, igény, napi meglepetés, érés — a visszatérés közös alapja
     "tudas.js",           # 3c2) 📒 tudás-napló: pályánként a tiszta napok, „megy-e már” (láthatatlan; P().tud)
+    "megf-naplo.js",      # 3c4) 🔍 megfigyelő napló: napi összesítő (indít, végigvisz, kilép, idő, pálya után hová megy; P().mf) — a pult jellemzéséhez
     "kuldetes.js",        # 3c3) 🐉 sárkány-küldetés motor: összeállítás (10 hely), pályavég, felrakás, kérés (P().kuld)
 
     # ── Perzisztencia ──
