@@ -63,7 +63,7 @@ ol.dont>li{margin:0 0 14px}
 <main>
 
 <h1>🎛️ Pult-átrendezés — tervlap</h1>
-<p class="al">Unikornis Centum · producer-pult (<code>admin/index.html</code>) · 2026-10-18 · <b style="color:var(--zold)">✅ JÓVÁHAGYVA 2026-10-18 (mind az 5 döntés az A javaslat szerint)</b> · <b style="color:var(--sarga)">🔄 MÓDOSÍTVA 2026-10-18 az 1. kör után: a gyereklap legyen az egyetlen hely egy gyerekről (új 1b. kör)</b> · <b style="color:var(--zold)">✅ 1c. kör (legördülő menük) kész — 4b. pont</b></p>
+<p class="al">Unikornis Centum · producer-pult (<code>admin/index.html</code>) · 2026-10-18 · <b style="color:var(--zold)">✅ JÓVÁHAGYVA 2026-10-18 (mind az 5 döntés az A javaslat szerint)</b> · <b style="color:var(--sarga)">🔄 MÓDOSÍTVA 2026-10-18 az 1. kör után: a gyereklap legyen az egyetlen hely egy gyerekről (új 1b. kör)</b> · <b style="color:var(--zold)">✅ 1c. kör (legördülő menük) kész — 4b. pont</b> · <b style="color:var(--piros)">⏳ 2. kör részletes terve jóváhagyásra vár — 4c. pont</b></p>
 
 <div class="doboz lila">
 <b>Egy mondatban:</b> a pult a <b>gyerekekkel</b> kezdődjön, ne a program fiókjaival. Elöl a játék <b>saját szavaival</b> elmondja, milyen most a gyerek: mi megy, mi épül, hol akad és miért. <b>Ugyanott, a gyereklapon</b> látod és állítod a pályáit és a beállításait is, így egy gyerekről soha nem kell máshol keresgélni. A 🗺️ Pályák rács csak a gyerekek és csoportok összehasonlítására marad. Ami nem egy gyerekről szól (feltöltés, egyéni pályák készítése, hibák, export), az a <b>🧰 Műhelyben</b> van, és semmi sem vész el.
@@ -264,6 +264,65 @@ Eldöntve: pályánként <b>ugyanaz</b> a menü, mint a ligetnél · a banknyit�
 <p class="kicsi halvany">Nagyság: közepes. Csak a pult változik.</p>
 <div class="doboz zold"><b>✅ Ahogy elkészült (2026-10-18):</b> a gyereklapon és az új <b>👥 csoport-lapon</b> (👧 Gyerekek fül → „👥 … lapja →”) ugyanez a lista. A rács koppintós maradt, a 🏦 ott jelként látszik. Banknyitó jelöléskor a bank „kijelölt pályák után” módra vált, az előző mód a <code>modElotte</code> mezőbe kerül, és ha az utolsó 🏦 is lekerül, az áll vissza. Ha egy egész ligetre 🏦 van, és egy pályáról leveszed, a liget többi pályája egyenként marad banknyitó. A „↺ csoport szerint” csak a láthatóságot (💖 / 🚫) állítja vissza, a bank-jelölést nem. A „a(z)” helyett helyes névelő: „a Család csoporttól”.</div>
 
+<h2>4c. 2. kör részletes terve — a játék maga írja a jellemzést <span class="cimke c-kis">terv, jóváhagyásra vár</span></h2>
+<div class="doboz lila">
+<b>Egy mondatban:</b> a játék ezentúl minden nap feljegyez egy kis <b>napi összesítőt</b> (mit indított, mit vitt végig, honnan lépett ki, mennyit játszott, és <b>hová ment egy pálya után</b>). Egy közös modul (<code>src/megfigyeles.js</code>) ebből és a már meglévő tudás-naplóból mondatokat ír, a gyereklap pedig ezeket a mondatokat mutatja, nem a mostani egyszerű számolást.
+</div>
+<p class="kicsi halvany">Ez az első kör, amely a játékhoz is hozzányúl, de a gyerek ebből <b>semmit nem lát</b>: nincs új gomb, szöveg vagy szám. Ez felnőtt-oldali megfigyelés.</p>
+
+<h3>A) Amit a játék naponta feljegyez (láthatatlan)</h3>
+<div class="tk"><table>
+<tr><th>Mit</th><th>Mire jó</th><th>Megvan már?</th></tr>
+<tr><td>Melyik pályát indította, és hányszor</td><td>😊 mit választ magától</td><td><span class="cimke c-kis">csak az eseménynaplóban</span> → napi összesítő</td></tr>
+<tr><td>Melyiket vitte végig, elsőre jó / összes feladat</td><td>🌳🌿🌱</td><td><span class="cimke c-kis">csak az eseménynaplóban</span> → napi összesítő</td></tr>
+<tr><td>Honnan lépett ki (melyik állomásnál)</td><td>😊 hol kerül, 🌱 hol akad</td><td><span class="cimke c-kis">csak az eseménynaplóban</span> → napi összesítő</td></tr>
+<tr><td>Mennyit játszott aznap</td><td>a fejléc („átlag 24 perc”)</td><td><span class="cimke c-kis">csak az összes idő</span> → napi bontás</td></tr>
+<tr><td><b>Hová ment egy pálya után</b> (odú, kert, bolt/utca, fodrászat, gyűjtemény, bank, Tüneménykert, rögtön újabb pálya, <b>ugyanaz a pálya újra</b>)</td><td>🧭 Mi hajtja?</td><td><span class="cimke c-uj">új</span></td></tr>
+<tr><td>Melyik pálya „megy” (3 különböző napon tiszta végigjátszás)</td><td>🌳 biztos</td><td><span class="cimke c-van">megvan</span> (tudás-napló)</td></tr>
+<tr><td>Tény-kert: tények lépcsői</td><td>🌳🌿🌱 a 20-as körben és a szorzásban</td><td><span class="cimke c-van">megvan</span> (tény-motor)</td></tr>
+</table></div>
+<p class="kicsi halvany">Hely: a gyerek mentésében, napokra bontva, az utolsó <b>60 nap</b> (a régebbi magától törlődik). A felhőbe ugyanúgy felmegy, mint ma minden más. Ami a mai napig történt, azt a pult a meglévő eseménynaplóból pótolja (az utolsó 90 napból), így a lapok nem indulnak üresen.</p>
+
+<h3>B) A mondatok szabályai (a modul ezt számolja)</h3>
+<div class="tk"><table>
+<tr><th>Rovat</th><th>Mikor mondja</th><th>Példa-mondat</th></tr>
+<tr><td>„Még kevés…”</td><td>az utolsó 30 napban 3-nál kevesebb játéknap</td><td>„Még kevés játékot láttam ahhoz, hogy biztosan jellemezzem — eddig 2 napot játszott.”</td></tr>
+<tr><td>🌳 Biztos</td><td>a tudás-napló szerint „megy” (3 különböző napon tiszta végigjátszás); tény-típusnál a tények többsége villám vagy tudja</td><td>„A Tízes-lépegető már megy: három különböző napon hiba nélkül végigvitte.”</td></tr>
+<tr><td>🌿 Épül</td><td>legalább 2 különböző napon végigvitte, elsőre jó legalább 60%, de még nem „megy”; vagy a tényeket még tanulja</td><td>„A Tízes-átlépőt tudja, de még nem biztos: 4 napon 75% elsőre jó.”</td></tr>
+<tr><td>🌱 Akad</td><td>legalább <b>3 különböző napon</b> 60% alatti elsőre jó, <b>vagy</b> 2 különböző napon ugyanannál az állomásnál kilépett</td><td>„A Tízes-átlépő akasztja meg: 3 napon is a 3. állomásnál lépett ki.”</td></tr>
+<tr><td>😊 Kedv — mit választ</td><td>amit a legtöbb <b>különböző napon</b> magától elindít (nem a darabszám, hogy egy hosszú nap ne torzítson)</td><td>„Legszívesebben a Mérés-ligeteket választja: 5 napból 4-en ott kezdett.”</td></tr>
+<tr><td>😊 Kedv — mit kerül</td><td>legalább 2 különböző napon elindította, de nem vitte végig</td><td>„A Bagolykönyvtárt kétszer is félbehagyta.”</td></tr>
+<tr><td>🧭 Mi hajtja?</td><td>legalább 5 pálya-vég „utána” adata, legalább 3 napról; a leggyakoribb csoport nyer, ha legalább a fele oda esik</td><td>„Leginkább a <b>gyűjtögetés</b>: pálya után 8-ból 6-szor a boltba vagy az odúba ment.”</td></tr>
+</table></div>
+<p class="kicsi">🧭 csoportok (javaslat): <b>🧺 gyűjtögető</b> — bolt/utca, gyűjtemény, odú berendezése, bank · <b>🏆 a siker</b> — ugyanaz a pálya rögtön újra (rekordért), teljes ösvény, jelvény · <b>🧭 felfedező</b> — rögtön egy új, még nem játszott pálya vagy másik liget · <b>🌱 gondoskodó</b> — kert, Tény-kert, kis sárkány, Tüneménykert.</p>
+<p class="kicsi halvany">Mindegyik mondat mellett ott a „miért gondolom?” lenyitás a mögötte lévő számokkal. A 🌱 „és miért” (pl. „a logika jó, csak a számolás terhe akasztja meg”) a 4. kör, a Hiba-oka felismerésből. A „lassul, habozik” jel is később jön.</p>
+
+<h3>C) Hogyan néz ki (vázlat, kitalált adatokkal)</h3>
+<div class="vazlat"><div class="felirat">vázlat — Fanni lapja a 2. kör után</div>
+<div class="gyl">
+  <div class="rovat"><b class="r">🧭 Mi hajtja?</b> Leginkább a <b>gyűjtögetés</b>: pálya után 8-ból 6-szor a boltba vagy az odúba ment. <span class="miert">miért gondolom?</span></div>
+  <div class="rovat"><b class="r">😊 Kedv</b><ul><li>Legszívesebben a Mérés-ligeteket választja: 5 napból 4-en ott kezdett.</li><li>A Bagolykönyvtárt kétszer is félbehagyta, mindkétszer a 2. állomásnál. <span class="miert">miért gondolom?</span></li></ul></div>
+  <div class="rovat"><b class="r">🌳 Biztos</b><ul><li>A Tízes-lépegető már megy: három különböző napon hiba nélkül végigvitte.</li></ul></div>
+  <div class="rovat"><b class="r">🌿 Épül</b><ul><li>A Tízes-átlépőt tudja, de még nem biztos: 4 napon 75% elsőre jó. <span class="miert">miért gondolom?</span></li></ul></div>
+  <div class="rovat"><b class="r">🌱 Akad</b><ul><li>Nem látok elakadást.</li></ul></div>
+</div>
+</div>
+
+<h3>D) A közös modul</h3>
+<ul>
+<li><code>src/megfigyeles.js</code>: a játék is betölti (a 3. körben ebből lép magától), a pult is (ugyanaz a fájl, mint a <code>teny.js</code>-nél). Bemenet: a gyerek unikornisainak mentése (több unikornist összevon, mert a gyerek a lényeg, nem az unikornis). Kimenet: a rovatok mondatai + a „miért” számai.</li>
+<li>A pult mostani egyszerű számolása (1. kör) megszűnik; a kártyák mondata is a modulból jön.</li>
+<li>Gépi próba: hamis mentésekkel minden szabályra (kevés adat, 3 nap, egy hosszú nap ne torzítson, több unikornis).</li>
+</ul>
+
+<h3>E) Eldöntendő</h3>
+<ol class="dont">
+<li><b>A 🧭 csoportok:</b><br><span class="jav">A (javaslom):</span> a fenti négy (gyűjtögető · a siker · felfedező · gondoskodó). · B: csak kettő (gyűjtögetés · a siker), ahogy Fanninál és Lilinél láttad.</li>
+<li><b>Hány különböző nap kell egy ítélethez</b> (🌱 akad, 🧭)?<br><span class="jav">A (javaslom):</span> 3 nap, ahogy a tudás-napló „megy”-e is. · B: 5 nap (lassabb, de óvatosabb).</li>
+<li><b>Meddig őrizze a napi összesítőt?</b><br><span class="jav">A (javaslom):</span> 60 napig. · B: 120 napig (a mentés nagyobb lesz).</li>
+</ol>
+<p class="kicsi halvany">Nagyság: <b>nagy</b> (a játékban: napi összesítő + a „pálya után hová megy” figyelése; új közös modul; a pult átkötése; gépi próba). Javaslom, hogy két részletben menjen: <b>2a</b> a játék feljegyez (élesítés után néhány nap gyűlik az adat), <b>2b</b> a modul és a pult. Utána 1–2 hétig csak figyeljük, igazak-e a mondatok.</p>
+
 <h2>5. Honnan tudja a játék, amit mond?</h2>
 <div class="tk"><table>
 <tr><th>Rovat</th><th>Miből</th><th>Megvan?</th></tr>
@@ -304,7 +363,7 @@ Eldöntve: pályánként <b>ugyanaz</b> a menü, mint a ligetnél · a banknyit�
 <tr><td><b>1.</b> <span class="cimke c-van">✅ kész 2026-10-18</span></td><td>Az új szerkezet: 3 fül, a kezdőlap gyerekkártyái (a mostani figyelmeztetésekből, mondatokká írva), a 🗺️ rács egy-koppintásos cellákkal + csoport-oszlop, a gyereklap váza a meglévő adatokkal, a régi fülek a 🧰 Műhelyben. <b>Csak a pult változik</b>, a játék nem.<br><span class="kicsi halvany">Ahogy elkészült: a 🌳🌿🌱 egyszerű szabályból (utolsó 30 nap, ≥ 10 feladat 2 külön napon; elsőre jó ≥ 90% / 60–90% / alatta) + a tény-motor lépcsőiből; a 🧭 és a 💡 rovat még csak jelzi, hogy később jön; a gyereklap „Részletek” sora gombokkal ugrik a Műhely régi nézeteire (erre a gyerekre állítva), nem lenyitással; a rács alatt lenyitható a régi 🌲 pálya-statisztika; az egyéni pályák a rácsban nincsenek (Műhely → Beállítások / Egyéni pályák).</span></td><td>közepes</td></tr>
 <tr style="background:var(--sarga-h)"><td><b>1b.</b> 🔄 <span class="cimke c-van">✅ kész 2026-10-18</span></td><td><b>A gyereklap az egyetlen hely egy gyerekről.</b> Új rovatok: <b>🗺️ Pályái</b> (ligetenként összecsukva, összesítő a liget-sorban, az egy-koppintásos cellák, „a Családtól” felirat, egész liget gomb; alapból az a liget nyitva, ahol mostanában játszott) és <b>🎛️ Beállításai</b> (mondatokban, csak ami eltér az alaptól: csoport, kapu-kulcs, darabkorlát, nehézség, extra szorzó, egyéni pályák, tény-kert, bank, kölyök; mindegyiknél „módosítom” → a Műhely → Beállítások erre a gyerekre és erre a sorra görgetve). A 🗺️ Pályák fül felirata: „összehasonlítás”. A Műhely alfülei közül a gyerekhez kötöttek („🦄 Játékos”, „🌸 Tények”) a végére kerülnek „régi nézetek” címmel. <b>Csak a pult változik</b>, a játék nem.<br><span class="kicsi halvany">Ahogy elkészült: a ⭐ és a 🚫 a Pályái rovatban van, a Beállításai a többit mondja (a ×1,5-től eltérő szorzót is); az egyéni pályáknál a „módosítom” az ✏️ Egyéni pályák fülre visz (ott nincs gyerekenkénti görgetés); a Bagolykönyvtár-beállítások (láda, lift, létrák, 🏅 visszatérés) az 🧱 Építőkockák fülre ugranak.<br>🔄 Javítás a producer jelzésére (2026-10-18: „a szívecskézés (extra harmat), a banknyitás nem elég egyértelmű, nem is találtam”): a kiemelés jele a rácsban és a gyereklapon is <b>💖 ajánlott</b> (nem ⭐), mellette mindig kiírva: szívecske dobog, <b>+2 💧</b> minden végigvitelért, ×1,5 ✨. A 🎛️ Beállításai a Pályái <b>elé</b> került, és a fő tételek <b>mindig látszanak</b> (csoport, 💖 ajánlott pályák, 🏦 Tündérbank, 🔑 kapu, 🌸 tény-kert, 🐉 kis sárkány, 🧰 Bagolykönyvtár), az alap szerintiek szürkén; zárt banknál a gomb: „kinyitom”.</span></td><td>közepes</td></tr>
 <tr style="background:var(--sarga-h)"><td><b>1c.</b> 🔄 <span class="cimke c-van">✅ kész 2026-10-18</span></td><td>A 🗺️ Pályái rovat legördülő menükkel: ligetek egymás alatt, ligetenként és pályánként ugyanaz az ötállapotú menü (normál · 💖 · 🚫 · 🏦 · 💖🏦), banknyitó jelölés → a bank „kijelölt pályák után” módra vált. Lásd a <b>4b.</b> pontot.</td><td>közepes</td></tr>
-<tr><td><b>2.</b></td><td>A közös <code>megfigyeles.js</code> modul + a napi összesítő a játékban. A gyereklap 🌳🌿🌱, 😊 Kedv és 🧭 Mi hajtja rovata a játék saját mondataival, „miért gondolom?” lenyitással, és kimondja azt is, ha még kevés az adat.</td><td>nagy</td></tr>
+<tr><td><b>2.</b> <span class="cimke c-kis">részletes terv: 4c. — jóváhagyásra vár</span></td><td>A közös <code>megfigyeles.js</code> modul + a napi összesítő a játékban. A gyereklap 🌳🌿🌱, 😊 Kedv és 🧭 Mi hajtja rovata a játék saját mondataival, „miért gondolom?” lenyitással, és kimondja azt is, ha még kevés az adat.</td><td>nagy</td></tr>
 <tr><td><b>3.</b></td><td>💡 Javaslatok: a 3 fajta, a fajtánkénti kapcsoló (①②③✕), a javaslat-napló (mit tett, mi lett utána), és a ② fokon a játék magától lép.</td><td>közepes–nagy</td></tr>
 <tr><td><b>4.</b></td><td>A 🌱 „és miért” bekötése a Hiba-oka felismerésből. Ehhez előbb: „Hiba-oka felismerés: tervlap.”</td><td>külön terv</td></tr>
 </table></div>
