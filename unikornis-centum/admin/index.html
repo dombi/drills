@@ -9,6 +9,7 @@
   Unikornis Centum — Producer-pult (backend 3–4. fázis)
   Olvas: users + unicorns (+ 🌸 tenyek/tenyTipus a Tények fülön) + events. Ír (4. fázis): producerConfig (egyéni felülírások, megjegyzés, egyéni pályák, teny) + groups (csoportok + csoport-pályák). Belépés: admin@unikornis.app (a producer saját jelszavával).
   Az admin-jogot a firestore.rules isAdmin() adja (e-mail alapján) — Cloud Function nélkül.
+  Szerkezet (Pult-átrendezés 1. kör, 2026-10-18): 👧 Gyerekek (kártyák + gyereklap) · 🗺️ Pályák (rács) · 🧰 Műhely (a régi 11 fül, változatlanul).
   FONTOS: külön Firebase-app ("pult") → a belépés NEM keveredik a játék belépésével ugyanabban a böngészőben.
 -->
 <style>
@@ -171,6 +172,56 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 .betuk .b-V{ background:#d8f0d8; color:#2f7a32; } .betuk .b-J{ background:#dcecfa; color:#2d5f8a; } .betuk .b-S{ background:#eee; color:#777; } .betuk .b-H{ background:#fbdde3; color:#b2324f; }
 .kal{ display:inline-block; margin:2px 4px 0 0; padding:1px 7px; border-radius:99px; background:#f3ecff; }
 .kal.most{ background:var(--lila-sotet); color:#fff; }
+/* Pult-átrendezés 1. kör: 3 fő fül + Műhely-alfülek, gyerekkártyák, gyereklap, rács */
+nav button.fo-ful{ font-size:16px; padding:9px 18px; border-radius:99px; }
+.alful{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 14px; padding-bottom:10px; border-bottom:1px dashed var(--keret); }
+.alful button{ font-size:13.5px; padding:5px 11px; }
+.gyk-racs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
+button.gyk{ display:block; width:100%; text-align:left; background:#fff; color:var(--szoveg); border:1px solid var(--keret); border-radius:16px; padding:13px 15px; font-weight:400; }
+button.gyk:hover{ border-color:var(--lila); filter:none; }
+button.gyk.piheno{ opacity:.7; }
+.gyk-fej{ display:flex; flex-direction:column; gap:1px; }
+.gyk .nev{ font-weight:800; font-size:18px; display:flex; align-items:center; gap:7px; }
+.gyk .mondat{ font-size:14.5px; margin:7px 0 2px; }
+.gyk-kod{ margin-top:8px; }
+.jel{ font-size:13.5px; border-radius:9px; padding:5px 9px; margin-top:6px; background:#f3ecff; }
+.jel.s{ background:#fff7e0; } .jel.z{ background:#eef8ec; } .jel.p{ background:#f1eef3; color:var(--halvany); } .jel.k{ background:#eaf3fc; margin:8px 0; }
+.gyl{ background:#fff; border:1px solid var(--keret); border-radius:16px; padding:14px 18px; }
+.gyl-fej h2{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 2px; }
+.gyl-fej{ padding-bottom:8px; }
+.rovat{ border-top:1px solid #f0e8f6; padding:10px 0; }
+.rovat b.r{ display:inline-block; min-width:170px; vertical-align:top; }
+.rovat ul{ margin:4px 0 0; padding-left:22px; }
+.rovat textarea{ margin-top:6px; }
+details.miert{ margin:4px 0 0 22px; font-size:13px; }
+details.miert summary{ color:#3f74a8; cursor:pointer; text-decoration:underline dotted; }
+details.miert > div{ background:#faf6fd; border-radius:10px; padding:6px 10px; margin-top:4px; }
+.gyl-ugrik{ display:inline-flex; flex-wrap:wrap; gap:6px; }
+.gyl-ugrik button{ font-size:13.5px; }
+.racs-keret{ max-height:75vh; overflow:auto; }
+table.palya-racs th, table.palya-racs td{ padding:3px 4px; text-align:center; }
+table.palya-racs th{ position:sticky; top:0; z-index:2; font-size:13px; white-space:normal; min-width:58px; }
+table.palya-racs th.csop{ color:var(--lila-sotet); }
+table.palya-racs .racs-pl{ text-align:left; position:sticky; left:0; background:#fff; z-index:1; white-space:normal; min-width:150px; max-width:240px; font-size:13.5px; }
+table.palya-racs th.racs-pl{ z-index:3; background:#faf6fd; }
+table.palya-racs tr.lig td{ background:#efe7fb; }
+table.palya-racs tr.lig td.racs-pl{ background:#efe7fb; font-weight:700; }
+button.cella{ min-width:46px; min-height:36px; padding:2px 4px; background:#fff; border:1px solid #eee5f4; border-radius:9px; font-weight:400; display:inline-flex; align-items:center; justify-content:center; gap:2px; }
+button.cella.kiemelt{ background:#fff3c9; border-color:#f1d08a; }
+button.cella.rejtett{ background:#eee; border-color:#ddd; }
+button.cella.orok{ border:2px dotted #b79fd4; }
+button.cella .all{ font-size:15px; } button.cella .jl{ font-size:11px; }
+button.lig-gomb{ font-size:11.5px; padding:3px 6px; background:#fff; font-weight:600; }
+button.lig-gomb.mind{ background:#eee; }
+details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer; font-weight:600; margin-bottom:8px; }
+@media (max-width:600px){
+  .rovat b.r{ display:block; min-width:0; }
+  details.miert{ margin-left:0; }
+  table.palya-racs .racs-pl{ min-width:110px; max-width:140px; font-size:12.5px; }
+  button.cella{ min-width:40px; }
+  nav button.fo-ful{ font-size:15px; padding:8px 13px; }
+  header .cim{ font-size:15px; }
+}
 @media (max-width:420px){ .teny-tablak{ grid-template-columns:1fr; } .teny-racs th{ width:24px; } .teny-racs .cella{ width:23px; height:23px; } }
 </style>
 </head>
@@ -191,7 +242,7 @@ textarea{ font:inherit; width:100%; min-height:70px; border:1px solid var(--kere
 <section id="pult" hidden>
   <header>
     <span class="cim">🦄 Producer-pult</span>
-    <label class="kicsi halvany">Időszak
+    <label id="idoszak-cimke" class="kicsi halvany">Időszak
       <select id="idoszak">
         <option value="1">ma</option>
         <option value="7" selected>7 nap</option>
@@ -252,7 +303,10 @@ var auth = app.auth(), db = app.firestore(), rtdb = app.database();
 var A = {
   users: [],          /* [{ uid, doc, unicorns: {leny: profil} }] */
   events: [],         /* [{ id, uid, unicornId, type, ts: Date, data }] (újabb elöl) */
-  fulek: "attekintes",
+  fo: "gyerekek",     /* a fő fül: gyerekek / palyak / muhely (Pult-átrendezés 1. kör) */
+  gyerek: null,       /* 👧 a nyitott gyereklap (uid); null = a kártyák */
+  csopSzuro: "",      /* 👥 a kártyák és a rács csoport-szűrője */
+  fulek: "attekintes",   /* a 🧰 Műhely alfüle (a régi 11 fül) */
   jatekos: null,
   csakHibak: false,
   palyaSzuro: "",
@@ -463,14 +517,362 @@ function profilOssz(u, mezo) { var s = 0; for (var k in u.unicorns) s += +u.unic
 var FULEK = [
   ["attekintes", "📋 Áttekintés"], ["jatekos", "🦄 Játékos"], ["tenyek", "🌸 Tények"], ["palyak", "🌲 Pályák"], ["beallitasok", "🎛️ Beállítások"], ["egyeni", "✏️ Egyéni pályák"], ["fejtoro", "🏔️ Fejtörő"], ["epitokocka", "🧱 Építőkockák"], ["kert", "🌈 Tüneménykert"], ["hibak", "🐞 Hibák"], ["export", "⬇️ Export"]
 ];
+/* Pult-átrendezés 1. kör (2026-10-18, terv: Matekos\pult-atrendezes-terv.html): 3 fő fül. A régi 11 fül változatlanul
+   a 🧰 Műhelyben él (A.fulek = a Műhely alfüle); a 👧 Gyerekek és a 🗺️ Pályák új. */
+var FO_FULEK = [["gyerekek", "👧 Gyerekek"], ["palyak", "🗺️ Pályák"], ["muhely", "🧰 Műhely"]];
+function muhelyFul(f) { return A.fo === "muhely" && A.fulek === f; }
 function rajzol() {
-  $("fulek").innerHTML = FULEK.map(function (f) {
-    return '<button data-ful="' + f[0] + '" class="' + (A.fulek === f[0] ? "aktiv" : "") + '">' + f[1] + "</button>";
+  $("fulek").innerHTML = FO_FULEK.map(function (f) {
+    return '<button data-fo="' + f[0] + '" class="fo-ful' + (A.fo === f[0] ? " aktiv" : "") + '">' + f[1] + "</button>";
   }).join("");
-  Array.prototype.forEach.call($("fulek").children, function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
+  Array.prototype.forEach.call($("fulek").children, function (b) {
+    b.onclick = function () { if (b.dataset.fo === "gyerekek" && A.fo === "gyerekek") A.gyerek = null; A.fo = b.dataset.fo; rajzol(); };
+  });
+  $("idoszak-cimke").hidden = A.fo === "gyerekek";   /* az időszak-választó a Műhely régi nézeteire (és a rács alatti statisztikára) hat */
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, tenyek: rajzTenyek, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, fejtoro: rajzFejtoro, epitokocka: rajzEpitokocka, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek](t);
+  if (A.fo === "gyerekek") return A.gyerek && userById(A.gyerek) ? rajzGyereklap(t, userById(A.gyerek)) : rajzGyerekek(t);
+  if (A.fo === "palyak") return rajzRacs(t);
+  t.innerHTML = '<div class="alful">' + FULEK.map(function (f) {
+    return '<button data-ful="' + f[0] + '" class="' + (A.fulek === f[0] ? "aktiv" : "") + '">' + f[1] + "</button>";
+  }).join("") + '</div><div id="muhely-tartalom"></div>';
+  Array.prototype.forEach.call(t.querySelectorAll("[data-ful]"), function (b) { b.onclick = function () { A.fulek = b.dataset.ful; rajzol(); }; });
+  ({ attekintes: rajzAttekintes, jatekos: rajzJatekos, tenyek: rajzTenyek, palyak: rajzPalyak, beallitasok: rajzBeallitasok, egyeni: rajzEgyeni, fejtoro: rajzFejtoro, epitokocka: rajzEpitokocka, kert: rajzKert, hibak: rajzHibak, export: rajzExport })[A.fulek]($("muhely-tartalom"));
+}
+
+/* ══════════ 👧 Gyerekek (kezdőlap) + a gyereklap váza ══════════
+   1. kör: a meglévő adatokból (események + tény-motor), egyszerű szabállyal. A 2. kör (közös src/megfigyeles.js)
+   a játék saját mondataira cseréli; addig a lap ki is mondja, ha kevés az adat. */
+var MEGF_NAP = 30;        /* a 🌳🌿🌱 ennyi nap pálya-eredményeiből */
+var AKTIV_NAP = 14;       /* a „milyen gyakran játszik” sor ennyi napból */
+var PIHENO_NAP = 10;      /* ennyi nap szünet után 💤 sor a kártyán */
+var MIN_FELADAT = 10, MIN_NAP = 2;   /* ennél kevesebből nem mondunk ítéletet egy pályáról */
+var BIZTOS_ARANY = 0.9;   /* elsőre jó ≥ 90% → 🌳; 60–90% → 🌿; < 60% → 🌱 (GYENGE_ARANY) */
+
+function gyNev(uid) {   /* „LILI-15” → „Lili” */
+  var u = userById(uid), k = u && u.doc.kod;
+  if (!k) return jNev(uid);
+  var n = String(k).split("-")[0].toLowerCase();
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
+function napjaSzo(t) {
+  if (!t) return "még nem játszott";
+  var d = new Date(t); d.setHours(0, 0, 0, 0);
+  var ma = new Date(); ma.setHours(0, 0, 0, 0);
+  var n = Math.round((ma - d) / NAP);
+  return n <= 0 ? "ma játszott" : n === 1 ? "tegnap játszott" : n + " napja játszott";
+}
+function sajatEsemenyek(uid, napok) {
+  var tol = new Date(Date.now() - napok * NAP);
+  return A.events.filter(function (e) { return e.uid === uid && e.ts >= tol; });
+}
+/* pályánként: végigvitt / kilépett / elsőre jó / hány külön napon — és az ítélet (biztos / epul / akad / null = kevés adat) */
+function palyaAllasok(uid) {
+  var per = {};
+  sajatEsemenyek(uid, MEGF_NAP).forEach(function (e) {
+    var pid = e.data && e.data.palyaId; if (!pid) return;
+    var p = per[pid] || (per[pid] = { pid: pid, indit: 0, end: 0, kilep: 0, feladat: 0, elsore: 0, napok: {}, kilepAll: {} });
+    if (e.type === "palya_start") p.indit++;
+    else if (e.type === "palya_end") { p.end++; p.feladat += e.data.feladat || 0; p.elsore += e.data.elsore || 0; p.napok[napKulcs(e.ts)] = 1; }
+    else if (e.type === "palya_kilep") { p.kilep++; var a = (e.data.allomas || 0) + 1; p.kilepAll[a] = (p.kilepAll[a] || 0) + 1; }
+  });
+  Object.keys(per).forEach(function (pid) {
+    var p = per[pid]; p.napDb = Object.keys(p.napok).length; p.arany = p.feladat ? p.elsore / p.feladat : null;
+    p.itelet = p.feladat < MIN_FELADAT || p.napDb < MIN_NAP ? null : p.arany >= BIZTOS_ARANY ? "biztos" : p.arany >= GYENGE_ARANY ? "epul" : "akad";
+    p.kerul = p.kilep >= 2 && p.kilep > p.end;
+  });
+  return per;
+}
+function jatszottaValaha(u, pid) {
+  for (var k in u.unicorns) if ((u.unicorns[k].palyak || {})[pid]) return true;
+  return A.events.some(function (e) { return e.uid === u.uid && e.data && e.data.palyaId === pid; });
+}
+/* 🌸 tény-motor: a két tábla lépcsői (villám / tudja / tanulja / új) */
+function tenyOsszkep(u) {
+  var pr = tenyProfil(u); if (!pr) return null;
+  var ki = {};
+  [["ok", "➕➖ az összeadás–kivonás 20-ig"], ["sd", "✖️➗ a szorzás–osztás 10 × 10"]].forEach(function (x) {
+    var o = { villam: 0, tudja: 0, tanulja: 0, uj: 0, nev: x[1] };
+    var mind = tenyMind(x[0]);
+    mind.forEach(function (k) { o[tenyLepcso(pr.tar[k])]++; });
+    o.ossz = o.villam + o.tudja + o.tanulja + o.uj;
+    o.botlo = tenyBotlosak(pr.tar, 999).filter(function (b) { return mind.indexOf(b.k) >= 0; }).length;
+    ki[x[0]] = o;
+  });
+  return ki;
+}
+function nevLista(l) { return l.length < 2 ? l.join("") : l.slice(0, -1).join(", ") + " és " + l[l.length - 1]; }
+function rovidPalya(pid) { return palyaNev(pid); }
+
+function gyerekKep(u) {
+  var ut = utolsoAktivitas(u), s = osszesit(sajatEsemenyek(u.uid, AKTIV_NAP)), s30 = osszesit(sajatEsemenyek(u.uid, MEGF_NAP));
+  var all = palyaAllasok(u.uid), l = Object.keys(all).map(function (k) { return all[k]; });
+  function rend(a, b) { return palyaSorrend(a.pid) - palyaSorrend(b.pid); }
+  return {
+    u: u, ut: ut, s: s, s30: s30, all: all,
+    keves: s30.napDb < 3,
+    biztos: l.filter(function (p) { return p.itelet === "biztos"; }).sort(rend),
+    epul: l.filter(function (p) { return p.itelet === "epul"; }).sort(rend),
+    akad: l.filter(function (p) { return p.itelet === "akad"; }).sort(function (a, b) { return a.arany - b.arany; }),
+    kerul: l.filter(function (p) { return p.kerul; }).sort(function (a, b) { return b.kilep - a.kilep; }),
+    kedvenc: l.filter(function (p) { return p.indit + p.end > 0; }).sort(function (a, b) { return (b.indit || b.end) - (a.indit || a.end); }),
+    teny: tenyOsszkep(u),
+    pihen: ut ? Math.floor((Date.now() - ut) / NAP) : null
+  };
+}
+function gyakorisagSzo(k) {
+  var n = k.s.napDb;
+  if (!n) return "az elmúlt 2 hétben nem játszott";
+  return "az elmúlt 2 hétben " + n + " nap, átlag " + percKi(k.s.idoMp / n);
+}
+function kartyaMondat(k) {
+  if (k.keves) return "Még kevés játékot láttam ahhoz, hogy jellemezzem.";
+  var m = [];
+  if (k.biztos.length) m.push("Biztosan megy: " + nevLista(k.biztos.slice(0, 2).map(function (p) { return esc(rovidPalya(p.pid)); })) + ".");
+  if (k.epul.length) m.push("Épül: " + esc(rovidPalya(k.epul[0].pid)) + ".");
+  if (!m.length && k.kedvenc.length) m.push("Legtöbbet ezt játssza: " + esc(rovidPalya(k.kedvenc[0].pid)) + ".");
+  return m.join(" ") || "Még nem látok elég végigvitt pályát ahhoz, hogy jellemezzem.";
+}
+function kartyaJelek(k) {
+  var j = [];
+  if (k.pihen != null && k.pihen >= PIHENO_NAP) j.push(["p", "💤 " + k.pihen + " napja nem játszott."]);
+  if (k.akad.length) j.push(["s", "🌱 Itt akad: " + esc(rovidPalya(k.akad[0].pid)) + " (elsőre jó: " + Math.round(k.akad[0].arany * 100) + "%)."]);
+  if (k.kerul.length && j.length < 2) j.push(["s", "🚪 Kilép innen: " + esc(rovidPalya(k.kerul[0].pid)) + " (" + k.kerul[0].kilep + "×)."]);
+  if (!j.length && k.biztos.length && !k.keves) j.push(["z", "🌳 " + k.biztos.length + " pálya már biztos."]);
+  return j.slice(0, 2);
+}
+function csoportSzuro() {
+  if (!A.groups.length) return "";
+  var cel = A.csopSzuro && csoportById(A.csopSzuro) ? A.csopSzuro : "";
+  return '<div class="celsor"><span class="cimke">Kik:</span><button data-csop="" class="' + (cel ? "" : "aktiv") + '">Mind</button>' +
+    A.groups.map(function (g) { return '<button data-csop="' + esc(g.id) + '" class="' + (cel === g.id ? "aktiv" : "") + '">👥 ' + esc(g.name) + "</button>"; }).join("") + "</div>";
+}
+function szurtGyerekek() {
+  var g = A.csopSzuro && csoportById(A.csopSzuro);
+  return g ? A.users.filter(function (u) { return g.members.indexOf(u.uid) >= 0; }) : A.users;
+}
+function csoportSzuroKezel(t) {
+  Array.prototype.forEach.call(t.querySelectorAll("[data-csop]"), function (b) { b.onclick = function () { A.csopSzuro = b.dataset.csop; rajzol(); }; });
+}
+function rajzGyerekek(t) {
+  var gy = szurtGyerekek().map(gyerekKep);
+  /* aki mostanában játszott, elöl; a sokáig pihenők a végén */
+  gy.sort(function (a, b) { return (b.ut || 0) - (a.ut || 0); });
+  var h = csoportSzuro() + '<div class="gyk-racs">';
+  gy.forEach(function (k) {
+    var most = k.ut && Date.now() - k.ut < 10 * 60000;
+    h += '<button class="gyk' + (k.pihen != null && k.pihen >= PIHENO_NAP ? " piheno" : "") + '" data-gy="' + esc(k.u.uid) + '">' +
+      '<div class="gyk-fej"><span class="nev">' + aktivPont(k.ut) + esc(gyNev(k.u.uid)) + '</span><span class="kicsi halvany">' +
+      (most ? "<b style='color:var(--menta-mely)'>most játszik</b>" : napjaSzo(k.ut)) + (k.s.napDb ? " · " + k.s.napDb + " nap / 2 hét" : "") + "</span></div>" +
+      '<div class="mondat">' + kartyaMondat(k) + "</div>" +
+      kartyaJelek(k).map(function (j) { return '<div class="jel ' + j[0] + '">' + j[1] + "</div>"; }).join("") +
+      '<div class="kicsi halvany gyk-kod">' + esc(jNev(k.u.uid)) + "</div></button>";
+  });
+  h += "</div>" + '<p class="kicsi halvany" style="margin-top:12px">A mondatokat most egyszerű szabály írja a meglévő adatokból (az utolsó ' + MEGF_NAP +
+    " nap végigvitt pályái). Hamarosan a játék saját megfigyelése veszi át — kimondja azt is, ha még kevés az adat. Koppints egy gyerekre a lapjáért.</p>";
+  t.innerHTML = h;
+  csoportSzuroKezel(t);
+  Array.prototype.forEach.call(t.querySelectorAll("[data-gy]"), function (b) { b.onclick = function () { A.gyerek = b.dataset.gy; rajzol(); window.scrollTo(0, 0); }; });
+}
+
+function miertDoboz(kulcs, tartalom) {
+  var ny = (A.miertNyitva || {})[kulcs];
+  return '<details class="miert" data-miert="' + esc(kulcs) + '"' + (ny ? " open" : "") + "><summary>miért gondolom?</summary><div>" + tartalom + "</div></details>";
+}
+function palyaSzam(p) {
+  return esc(rovidPalya(p.pid)) + ": " + p.end + "× végigvitte, " + p.napDb + " külön napon, elsőre jó " + (p.feladat ? Math.round(p.arany * 100) + "% (" + p.elsore + "/" + p.feladat + ")" : "–") +
+    (p.kilep ? ", " + p.kilep + "× kilépett" : "");
+}
+function rajzGyereklap(t, u) {
+  var k = gyerekKep(u), uid = u.uid, kulcs = function (r) { return uid + ":" + r; };
+  var h = '<div class="eszkozsor"><button id="gy-vissza">← Gyerekek</button></div>';
+  h += '<div class="gyl"><div class="gyl-fej"><h2>' + aktivPont(k.ut) + esc(gyNev(uid)) + ' <small class="halvany">' + esc(jNev(uid)) + "</small></h2>" +
+    '<span class="kicsi halvany">utoljára: ' + idoKi(k.ut) + " · " + gyakorisagSzo(k) + "</span></div>";
+  if (k.keves) h += '<div class="jel k">Még kevés játékot láttam ahhoz, hogy biztosan jellemezzem (az utolsó ' + MEGF_NAP + " napban " + k.s30.napDb + " játéknap). Amit lent írok, az csak az első benyomás.</div>";
+
+  /* 🧭 Mi hajtja? — a 2. körben (a „pálya után hová megy” még nincs mérve) */
+  h += '<div class="rovat"><b class="r">🧭 Mi hajtja?</b><span class="halvany">Ezt a játék még nem figyeli (azt kell hozzá látni, hová megy a gyerek egy pálya után). Hamarosan jön.</span></div>';
+
+  /* 😊 Kedv: mit indít magától, honnan lép ki */
+  var kedv = [];
+  if (k.kedvenc.length) kedv.push("Legtöbbször ezeket választja: " + nevLista(k.kedvenc.slice(0, 3).map(function (p) { return esc(rovidPalya(p.pid)); })) + ".");
+  k.kerul.slice(0, 2).forEach(function (p) {
+    var a = Object.keys(p.kilepAll).sort(function (x, y) { return p.kilepAll[y] - p.kilepAll[x]; })[0];
+    kedv.push("Innen " + p.kilep + "× kilépett: " + esc(rovidPalya(p.pid)) + (a ? " (legtöbbször a " + a + ". állomásnál)" : "") + ".");
+  });
+  h += '<div class="rovat"><b class="r">😊 Kedv</b>' + (kedv.length ? "<ul><li>" + kedv.join("</li><li>") + "</li></ul>" +
+    miertDoboz(kulcs("kedv"), "<ul>" + k.kedvenc.slice(0, 6).map(function (p) { return "<li>" + esc(rovidPalya(p.pid)) + ": " + p.indit + "× elindította, " + p.end + "× végigvitte, " + p.kilep + "× kilépett</li>"; }).join("") + "</ul>" +
+      '<div class="kicsi halvany">Az utolsó ' + MEGF_NAP + " nap pálya-indításai és kilépései. A „nem szereti” nem ugyanaz, mint a „nem tudja” — ezért külön rovat.</div>")
+    : '<span class="halvany">Még nincs elég pálya-indítás.</span>') + "</div>";
+
+  /* 🌳🌿🌱 */
+  var t1 = k.teny, tenySor = { biztos: [], epul: [], akad: [] };
+  if (t1) ["ok", "sd"].forEach(function (a) {
+    var o = t1[a]; if (!o.ossz || o.villam + o.tudja + o.tanulja === 0) return;
+    if (o.villam + o.tudja) tenySor.biztos.push("Tény-kert, " + o.nev + ": " + (o.villam + o.tudja) + " tény már megy (" + o.villam + " villámgyorsan).");
+    if (o.tanulja) tenySor.epul.push("Tény-kert, " + o.nev + ": " + o.tanulja + " tényt még tanul.");
+    if (o.botlo) tenySor.akad.push("Tény-kert, " + o.nev + ": " + o.botlo + " ténynél botlott mostanában.");
+  });
+  function tudasRovat(cim, l, ts, kulcsR, ures) {
+    var sor = l.slice(0, 4).map(function (p) { return esc(rovidPalya(p.pid)) + (kulcsR === "akad" ? " — elsőre jó " + Math.round(p.arany * 100) + "%" : ""); }).concat(ts);
+    return '<div class="rovat"><b class="r">' + cim + "</b>" + (sor.length ? "<ul><li>" + sor.join("</li><li>") + "</li></ul>" +
+      miertDoboz(kulcs(kulcsR), (l.length ? "<ul>" + l.map(function (p) { return "<li>" + palyaSzam(p) + "</li>"; }).join("") + "</ul>" : "") +
+        '<div class="kicsi halvany">Szabály (egyelőre egyszerű): legalább ' + MIN_FELADAT + " feladat, " + MIN_NAP + " külön napon; elsőre jó ≥ " + Math.round(BIZTOS_ARANY * 100) + "% → 🌳, " +
+        Math.round(GYENGE_ARANY * 100) + "–" + Math.round(BIZTOS_ARANY * 100) + "% → 🌿, alatta → 🌱. A tény-kert sorai a tény-motor lépcsőiből jönnek.</div>")
+      : '<span class="halvany">' + ures + "</span>") + "</div>";
+  }
+  h += tudasRovat("🌳 Biztos", k.biztos, tenySor.biztos, "biztos", "Még nincs olyan pálya, amit több napon át tisztán vitt végig.");
+  h += tudasRovat("🌿 Épül", k.epul, tenySor.epul, "epul", "Nincs ilyen most.");
+  h += tudasRovat("🌱 Akad — és miért", k.akad, tenySor.akad, "akad", "Nem látok elakadást.");
+  h += '<div class="rovat kicsi halvany" style="border-top:none;padding-top:0">A „miért akad” (pl. a logika jó, csak a számolás terhe akasztja meg) egy későbbi körben jön.</div>';
+
+  /* 💡 javaslat — 3. kör */
+  h += '<div class="rovat"><b class="r">💡 Javaslat</b><span class="halvany">A javaslatok később jönnek (kiemelés, ahol épül · pihentetés, ahol kerül · továbblépés, ahol biztos).</span></div>';
+
+  /* 📝 a producer jegyzete (ugyanaz a mező, mint a Műhely → Beállítások „megjegyzés”-e) */
+  var jegyz = (A.jegyzetVazlat || {})[uid] != null ? A.jegyzetVazlat[uid] : ((A.cfg[uid] || {}).notes || "");
+  h += '<div class="rovat"><b class="r">📝 Amit én láttam</b><span class="kicsi halvany">nem kötelező — a játék nem épít rá</span>' +
+    '<textarea id="gy-jegyzet" placeholder="pl. Az összeadásnál látszik az arcán, hogy unja.">' + esc(jegyz) + "</textarea></div>";
+
+  /* részletek: a régi nézetek a Műhelyben, erre a gyerekre állítva */
+  h += '<div class="rovat"><b class="r">Részletek ▸</b><span class="gyl-ugrik">' +
+    '<button data-ugrik="jatekos">🦄 Válasznapló, pálya-haladás, játéknapok</button>' +
+    '<button data-ugrik="tenyek">🌸 Tény-tábla</button>' +
+    '<button data-ugrik="beallitasok">🎛️ Minden beállítása</button></span></div>';
+  h += "</div>";
+
+  var f = document.activeElement, fokusz = f && f.id === "gy-jegyzet", kurzor = fokusz ? f.selectionStart : 0;
+  t.innerHTML = h;
+  $("gy-vissza").onclick = function () { A.gyerek = null; rajzol(); };
+  Array.prototype.forEach.call(t.querySelectorAll("[data-miert]"), function (d) {
+    d.addEventListener("toggle", function () { (A.miertNyitva || (A.miertNyitva = {}))[d.dataset.miert] = d.open; });
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-ugrik]"), function (b) {
+    b.onclick = function () {
+      var f2 = b.dataset.ugrik;
+      if (f2 === "jatekos") A.jatekos = uid; else if (f2 === "tenyek") { A.tenyCel = "u:" + uid; A.tenyKij = null; } else A.bCel = "u:" + uid;
+      A.fo = "muhely"; A.fulek = f2; rajzol(); window.scrollTo(0, 0);
+    };
+  });
+  var ta = $("gy-jegyzet");
+  ta.oninput = function () { (A.jegyzetVazlat || (A.jegyzetVazlat = {}))[uid] = ta.value; };
+  ta.onchange = function () {
+    var v = ta.value, FV = firebase.firestore.FieldValue;
+    ment(db.collection("producerConfig").doc(uid).set({ notes: v, updatedAt: FV.serverTimestamp() }, { merge: true }).then(function () {
+      if (A.jegyzetVazlat && A.jegyzetVazlat[uid] === v) delete A.jegyzetVazlat[uid];
+    }));
+  };
+  if (fokusz) { ta.focus(); ta.setSelectionRange(kurzor, kurzor); }   /* újrarajzolás (új esemény) gépelés közben: a kurzor marad */
+}
+
+/* ══════════ 🗺️ Pályák — a rács (pályák × csoportok + gyerekek) ══════════
+   Egy koppintás a cellán: normál → ⭐ kiemelt → 🚫 rejtett → normál. ⭐ = recommended + extraReward ×1,5 (a régi 💖 + Extra ✨);
+   🚫 = enabled:false. Ugyanazokat a mezőket írja, mint a Műhely → Beállítások, ugyanazzal a felulirOsszevon-nal
+   (alap < csoport < egyéni). Gyereknél: ha a cél-állapot épp a csoportjaitól örökölt, a saját mezőket törli (újra örököl). */
+var RACS_KOVETKEZO = { normal: "kiemelt", kiemelt: "rejtett", rejtett: "normal" };
+var RACS_IKON = { normal: "", kiemelt: "⭐", rejtett: "🚫" };
+var RACS_MEZOK = ["enabled", "recommended", "extraReward"];
+function allapotBol(v) {
+  v = v || {};
+  if (v.enabled === false) return "rejtett";
+  if (v.recommended === true || (typeof v.extraReward === "number" && v.extraReward > 1)) return "kiemelt";
+  return "normal";
+}
+function csoportAllapot(uid, pid) { return allapotBol(felulirOsszevon({}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }))[pid]); }
+function gyerekAllapot(uid, pid) { return allapotBol(felulirOsszevon((A.cfg[uid] || {}).overrides || {}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }))[pid]); }
+function sajatVan(ov, pid) { var o = (ov || {})[pid] || {}; return RACS_MEZOK.some(function (m) { return o[m] != null; }); }
+/* a cél-állapothoz írandó mezők (FV.delete() = törlés) */
+function racsMezok(cel, orokolt, sajat) {
+  var D = firebase.firestore.FieldValue.delete();
+  if (cel === orokolt) return { enabled: D, recommended: D, extraReward: D };
+  if (cel === "rejtett") return { enabled: false, recommended: D, extraReward: D };
+  if (cel === "kiemelt") return { enabled: orokolt === "rejtett" ? true : D, recommended: true, extraReward: (sajat && sajat.extraReward > 1) ? sajat.extraReward : 1.5 };
+  return { enabled: orokolt === "rejtett" ? true : D, recommended: orokolt === "kiemelt" ? false : D, extraReward: orokolt === "kiemelt" ? 1 : D };
+}
+function racsLigetek() {
+  var sor = [], pl = {};
+  PALYA_SORREND.forEach(function (pid) {
+    var r = (PALYA[pid] && PALYA[pid].regio) || "osszeado";
+    if (!pl[r]) { pl[r] = []; sor.push(r); }
+    pl[r].push(pid);
+  });
+  return { sor: sor, pl: pl };
+}
+function htmlNelkul(s) { return String(s).replace(/<[^>]*>/g, ""); }
+function rajzRacs(t) {
+  var g = A.csopSzuro && csoportById(A.csopSzuro);
+  var oszl = (g ? [g] : A.groups).map(function (x) { return { tipus: "g", id: x.id, nev: "👥 " + x.name }; })
+    .concat(szurtGyerekek().map(function (u) { return { tipus: "u", id: u.uid, nev: gyNev(u.uid), u: u, all: palyaAllasok(u.uid) }; }));
+  var L = racsLigetek();
+  var h = csoportSzuro() +
+    '<p class="kicsi halvany" style="margin:0 0 8px">Koppints egy cellára: <b>normál → ⭐ kiemelt → 🚫 rejtett</b> → normál. Azonnal ment, a gyereknél rögtön él. ' +
+    "Pontozott keret = a csoporttól örökli. A kis jel: 🌳 biztos · 🌿 épül · 🌱 akad · ○ játszotta, de még kevés az adat · <span class='halvany'>·</span> még nem játszotta.</p>";
+  h += '<div class="tabla-keret racs-keret"><table class="palya-racs"><tr><th class="racs-pl">Pálya</th>' + oszl.map(function (o) {
+    return '<th class="' + (o.tipus === "g" ? "csop" : "") + '">' + esc(o.nev) + "</th>";
+  }).join("") + "</tr>";
+  L.sor.forEach(function (r) {
+    var pl = L.pl[r];
+    h += '<tr class="lig"><td class="racs-pl">' + esc(LIGET_CIM[r] || r) + "</td>" + oszl.map(function (o) {
+      var rejt = pl.filter(function (pid) { return o.tipus === "u" ? gyerekAllapot(o.id, pid) === "rejtett" : (csoportById(o.id).overrides[pid] || {}).enabled === false; }).length;
+      var mind = rejt === pl.length;
+      return '<td><button class="lig-gomb' + (mind ? " mind" : "") + '" data-lig="' + r + '" data-tip="' + o.tipus + '" data-id="' + esc(o.id) + '" title="' +
+        (mind ? "Az egész liget rejtve — koppints a visszaállításhoz" : "Koppints: az egész liget elrejtése") + '">' + (mind ? "🚫 mind" : rejt ? "🚫 " + rejt + "/" + pl.length : "🚫 …") + "</button></td>";
+    }).join("") + "</tr>";
+    pl.forEach(function (pid) {
+      h += '<tr><td class="racs-pl">' + esc(palyaNev(pid)) + "</td>" + oszl.map(function (o) {
+        var all, orok = false, cim, jel = "";
+        if (o.tipus === "g") {
+          all = allapotBol(csoportById(o.id).overrides[pid]);
+          cim = o.nev + " · " + { normal: "normál", kiemelt: "⭐ kiemelt", rejtett: "🚫 rejtett" }[all];
+        } else {
+          all = gyerekAllapot(o.id, pid);
+          orok = !sajatVan((A.cfg[o.id] || {}).overrides, pid) && csoportAllapot(o.id, pid) !== "normal";
+          var p = o.all[pid];
+          jel = p && p.itelet ? { biztos: "🌳", epul: "🌿", akad: "🌱" }[p.itelet] : jatszottaValaha(o.u, pid) ? "○" : '<span class="halvany">·</span>';
+          cim = o.nev + ": " + htmlNelkul(hatasLeiras(o.id, pid)) + (p ? " — " + htmlNelkul(palyaSzam(p)) : "");
+        }
+        return '<td><button class="cella ' + all + (orok ? " orok" : "") + '" data-pid="' + esc(pid) + '" data-tip="' + o.tipus + '" data-id="' + esc(o.id) + '" title="' + esc(cim) + '">' +
+          '<span class="all">' + (RACS_IKON[all] || (o.tipus === "g" ? '<span class="halvany">–</span>' : "")) + "</span>" + (jel ? '<span class="jl">' + jel + "</span>" : "") + "</button></td>";
+      }).join("") + "</tr>";
+    });
+  });
+  h += "</table></div>" +
+    '<p class="kicsi halvany" style="margin-top:8px">⭐ = ugyanaz, mint eddig az „Ajánlott 💖” + „Extra ✨ ×1,5”. ' +
+    "Más szorzó, kulcs-pálya, darabkorlát, nehézség, egyéni pályák: 🧰 Műhely → Beállítások / Egyéni pályák, mint eddig. Az egér a cella fölött megmutatja, pontosan mit kap a gyerek.</p>";
+  h += '<details class="racs-stat"' + (A.statNyitva ? " open" : "") + '><summary>🌲 Pályák statisztikája (indítás, végigment, félbehagyta, elsőre jó)</summary><div id="racs-stat"></div></details>';
+  t.innerHTML = h;
+  csoportSzuroKezel(t);
+  var FV = firebase.firestore.FieldValue;
+  function irj(tip, id, o) {
+    var ref = tip === "u" ? db.collection("producerConfig").doc(id) : db.collection("groups").doc(id);
+    ment(ref.set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  }
+  Array.prototype.forEach.call(t.querySelectorAll("button.cella"), function (b) {
+    b.onclick = function () {
+      var pid = b.dataset.pid, tip = b.dataset.tip, id = b.dataset.id, o = {};
+      if (tip === "g") {
+        var ov = csoportById(id).overrides, cel = RACS_KOVETKEZO[allapotBol(ov[pid])];
+        o[pid] = racsMezok(cel, "normal", ov[pid]);
+      } else {
+        var own = ((A.cfg[id] || {}).overrides || {})[pid];
+        o[pid] = racsMezok(RACS_KOVETKEZO[gyerekAllapot(id, pid)], csoportAllapot(id, pid), own);
+      }
+      irj(tip, id, o);
+    };
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("button.lig-gomb"), function (b) {
+    b.onclick = function () {
+      var r = b.dataset.lig, tip = b.dataset.tip, id = b.dataset.id, mind = b.classList.contains("mind"), o = {};
+      var nev = tip === "g" ? "a(z) „" + csoportById(id).name + "” csoportnál" : gyNev(id) + " elől";
+      if (!mind && !confirm("Elrejted az egész ligetet (" + htmlNelkul(LIGET_CIM[r] || r) + ") " + nev + "?")) return;
+      L.pl[r].forEach(function (pid) { o[pid] = { enabled: mind ? FV.delete() : false }; });
+      irj(tip, id, o);
+    };
+  });
+  var st = t.querySelector(".racs-stat");
+  function statRajz() { if (st.open) rajzPalyak($("racs-stat")); }
+  st.addEventListener("toggle", function () { A.statNyitva = st.open; statRajz(); });
+  statRajz();
 }
 
 /* ── 📋 Áttekintés ── */
@@ -1077,7 +1479,7 @@ function beallitasokFigyel() {
     db.collection("producerConfig").onSnapshot(function (snap) {
       var c = {}; snap.forEach(function (d) { c[d.id] = d.data(); }); A.cfg = c;
       egyeniNevekFrissit();
-      if (A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
+      if (A.fo !== "muhely" || A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
@@ -1085,7 +1487,7 @@ function beallitasokFigyel() {
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
-      if (A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
+      if (A.fo !== "muhely" || A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
     }, function (e) { console.warn("[pult] groups:", e); })
   ];
 }
@@ -1786,7 +2188,7 @@ function kertFigyel() {
 }
 /* gépelés közben nem rajzolunk újra (elveszne a kurzor) */
 function kertRajzolHa() {
-  if (A.fulek !== "kert") return;
+  if (!muhelyFul("kert")) return;
   var f = document.activeElement;
   if (f && f.closest && f.closest("#tartalom") && /INPUT|SELECT/.test(f.tagName) && f.type !== "checkbox") return;
   rajzol();
@@ -1985,7 +2387,7 @@ function ekSzazalek(x) { return Math.round(x * 100) + "%"; }
 function rajzEpitokocka(t) {
   if (!A.ft.betoltve) {
     t.innerHTML = '<div class="ures">Betöltés…</div>';
-    ftBetolt().then(function () { if (A.fulek === "epitokocka") rajzol(); }, function () { A.ft.betoltve = true; if (A.fulek === "epitokocka") rajzol(); });
+    ftBetolt().then(function () { if (muhelyFul("epitokocka")) rajzol(); }, function () { A.ft.betoltve = true; if (muhelyFul("epitokocka")) rajzol(); });
     return;
   }
   var tekIdk = ekTekercsIdk(), ma = napKulcs(new Date());
@@ -2174,7 +2576,7 @@ function rajzEpitokocka(t) {
       });
       var dref = db.collection("versenyPalyak").doc("mester-" + k);
       var p = sajat && l.length ? dref.set({ liget: "mesterproba", kocka: k, nev: "🏅 Mesterpróba " + k, feladatok: l, updatedAt: FV.serverTimestamp() }) : dref.delete();
-      ment(p.then(function () { return ftBetolt(); }).then(function () { if (A.fulek === "epitokocka") rajzol(); }));
+      ment(p.then(function () { return ftBetolt(); }).then(function () { if (muhelyFul("epitokocka")) rajzol(); }));
     };
   });
 }
@@ -2209,9 +2611,9 @@ function ftEredmeny(d) {
 function rajzFejtoro(t) {
   if (!A.ft.betoltve) {
     t.innerHTML = '<div class="ures">Betöltés…</div>';
-    ftBetolt().then(function () { if (A.fulek === "fejtoro") rajzol(); }, function (e) {
+    ftBetolt().then(function () { if (muhelyFul("fejtoro")) rajzol(); }, function (e) {
       A.ft.betoltve = true; A.ft.uzenet = "⚠️ Nem sikerült betölteni (" + esc(e.code || e) + "). Publikálva vannak az új Firestore-szabályok?";
-      if (A.fulek === "fejtoro") rajzol();
+      if (muhelyFul("fejtoro")) rajzol();
     });
     return;
   }
