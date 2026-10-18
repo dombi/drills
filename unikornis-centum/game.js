@@ -498,6 +498,15 @@ function veletlen(min, max) { return Math.floor(Math.random() * (max - min + 1))
 function nyugiMod() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
 /* szöveg-védő: felhasználói/adatbázis-szöveg HTML-be írás előtt */
 function htmlVed(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+/* ugyanaz a feladat ne jöjjön kétszer egymás után: a feladat „alakja” (kép + hang + helyes válasz);
+   a generátorok az állomás kerultMar-jában (§elozo) tartják az előzőt (gépi próba: matek:dupla) */
+function feladatAlak(f) { return f ? String(f.kartyaHTML || f.keplet || "") + "|" + String(f.felolvas || f.szoveg || "") + "|" + JSON.stringify(f.helyes) : ""; }
+function nemUgyanaz(gen, kerultMar) {
+  var f = null;
+  for (var k = 0; k < 30; k++) { f = gen(); if (!kerultMar || feladatAlak(f) !== kerultMar["§elozo"]) break; }
+  if (kerultMar) kerultMar["§elozo"] = feladatAlak(f);
+  return f;
+}
 
 var EGYES = ["nulla", "egy", "kettő", "három", "négy", "öt", "hat", "hét", "nyolc", "kilenc"];
 var TIZES = { 10: "tíz", 20: "húsz", 30: "harminc", 40: "negyven", 50: "ötven", 60: "hatvan", 70: "hetven", 80: "nyolcvan", 90: "kilencven" };
@@ -511,6 +520,8 @@ function szo(n) {
   if (e === 0) return TIZES[t];
   return TIZ_ELOTAG[t] + EGYES[e];
 }
+/* névelő: „az" magánhangzó előtt („az 5", „az ötös"), különben „a"; számot a kiejtése szerint néz */
+function nevelo(x) { var w = typeof x === "number" ? szo(x) : String(x); return /^[aáeéiíoóöőuúüű]/i.test(w) ? "az" : "a"; }
 var SZOTAR = (function () {
   var m = {}; for (var i = 0; i <= 100; i++) m[szo(i)] = i;
   m["ketto"] = 2; m["harom"] = 3; m["negy"] = 4; m["ot"] = 5; m["het"] = 7; m["ket"] = 2;
@@ -718,9 +729,9 @@ var GEN = {
     var N = (cfg.szam != null) ? cfg.szam
           : (cfg.szam_keszlet ? veletlenElem(cfg.szam_keszlet) : veletlen(cfg.szam_min || 4, cfg.szam_max || 8));   /* szam_keszlet: egyéni pálya (4b) */
     var lapos = []; for (var i = 0; i <= N; i++) { lapos.push(i); lapos.push(N - i); }
-    return { csalad: "felmondas", N: N, szoveg: "Mondd el a(z) " + N + " összes bontását!",
-      kartyaHTML: 'Mondd el a <span class="szam-jelveny">' + N + '</span> összes bontását!',
-      felolvas: "Mondd el " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
+    return { csalad: "felmondas", N: N, szoveg: "Mondd el " + nevelo(N) + " " + N + " összes bontását!",
+      kartyaHTML: 'Mondd el ' + nevelo(N) + ' <span class="szam-jelveny">' + N + '</span> összes bontását!',
+      felolvas: "Mondd el " + nevelo(N) + " " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
       lapos: lapos, tipp: "Kezdd lentről: nulla meg " + szo(N) + ". Aztán egy meg " + szo(N - 1) + ". Folytasd!",
       naplo: { tipus: "szambontas", kerdes: N + " bontása", helyes: N, atlepes: false } };
   },
@@ -734,9 +745,9 @@ var GEN = {
     var szorzatok = []; for (var k = 1; k <= 10; k++) szorzatok.push(k * N);
     return {
       csalad: "felmondas", felmod: "szorzotabla", N: N, szorzatok: szorzatok,
-      szoveg: "Mondd fel a(z) " + N + "-es szorzótáblát!",
-      kartyaHTML: 'Mondd fel a <span class="szam-jelveny">' + N + '</span>-es szorzótáblát!',
-      felolvas: "Mondd fel a " + tablaSzo(N) + " szorzótáblát. " + szorSzo(1) + " " + szo(N) + " az " + szo(N) +
+      szoveg: "Mondd fel " + nevelo(N) + " " + N + "-es szorzótáblát!",
+      kartyaHTML: 'Mondd fel ' + nevelo(N) + ' <span class="szam-jelveny">' + N + '</span>-es szorzótáblát!',
+      felolvas: "Mondd fel " + nevelo(tablaSzo(N)) + " " + tablaSzo(N) + " szorzótáblát. " + szorSzo(1) + " " + szo(N) + " az " + szo(N) +
                 ", " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ", és így tovább.",
       tipp: "Kezdd az elején: " + szorSzo(1) + " " + szo(N) + " az " + szo(N) + ". Aztán " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ". Folytasd!",
       naplo: { tipus: "szorzotabla-felmondas", kerdes: N + "-es szorzótábla", helyes: N, atlepes: false }
@@ -6039,6 +6050,8 @@ function mJel(n, u) { return mSzamIr(n) + " " + u; }                         /*
 function mB(n, u) { return "<b>" + mJel(n, u) + "</b>"; }
 function mAz(n) { return "aáeéiíoóöőuúüű".indexOf(mSzamSzo(n).charAt(0)) >= 0 ? "az" : "a"; }
 function mBen(u) { var n = M_NEV[u]; return /a$/.test(n) ? n.slice(0, -1) + "ában" : n + (/gramm$/.test(n) ? "ban" : "ben"); }
+/* „egy egy deciméter" → „egy deciméter": a mondat „Egy …"-e és a kimondott 1 ne olvadjon dupla szóvá */
+function mEgyEgy(s) { return s == null ? s : String(s).replace(/\b([Ee])gy egy\b/g, "$1gy"); }
 function mNagy(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 var M_VAL = { 10: "tízzel", 100: "százzal", 1000: "ezerrel", 10000: "tízezerrel", 100000: "százezerrel" };
 
@@ -6239,7 +6252,7 @@ function mFeladat(cfg, o) {
   var f = {
     csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: cfg.mennyiseg,
     kartyaHTML: '<div class="meres-kep">' + (o.kep || "") + '</div><div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
-    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: o.felolvas,
+    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: mEgyEgy(o.felolvas),
     helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null, mkk: o.mkk || null, mkd: o.mkd || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.helyes, atlepes: false }
   };
@@ -6856,7 +6869,7 @@ function meresVegigvezet(f, valasz) {
     var vegso = (i === n - 1), cim = vegso ? "Most újra a kérdés:" : (i + 1) + ". lépés";
     var x = { csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: f.meres, liga: f.liga, vezet: true,
       kartyaHTML: '<div class="meres-kerdes hosszu meres-tortenet">' + f.tortenet + '</div><div class="meres-lepes' + (vegso ? ' vegso' : '') + '"><span class="meres-lepes-cim">' + cim + '</span> ' + l.k + '</div>',
-      szoveg: l.k.replace(/<[^>]+>/g, ""), felolvas: (vegso ? "Most újra a kérdés: " : "") + l.f, helyes: l.h, keplet: l.m.replace(/ = [^=]*$/, ""), megoldas: l.m,
+      szoveg: l.k.replace(/<[^>]+>/g, ""), felolvas: mEgyEgy((vegso ? "Most újra a kérdés: " : "") + l.f), helyes: l.h, keplet: l.m.replace(/ = [^=]*$/, ""), megoldas: l.m,
       tipp: "Számold ki: " + mKiejt(l.m.replace(/ = [^=]*$/, "")) + ".", lanc: null,
       naplo: { tipus: f.naplo.tipus + (vegso ? "-ujra" : "-lepes"), kerdes: l.m.replace(/ = [^=]*$/, "").slice(0, 60), helyes: l.h, atlepes: false } };
     return x;
@@ -6891,7 +6904,7 @@ function mKoppFeladat(cfg, o) {
   return {
     csalad: "koppint", meres: cfg.mennyiseg, liga: MENNY[cfg.mennyiseg].liga, kopp: o.kopp,
     kartyaHTML: (o.kep ? '<div class="meres-kep">' + o.kep + '</div>' : "") + '<div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
-    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), felolvas: o.felolvas, helyes: 1, joKiir: o.joKiir, keplet: o.keplet || "", megoldas: o.megoldas || "",
+    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), felolvas: mEgyEgy(o.felolvas), helyes: 1, joKiir: o.joKiir, keplet: o.keplet || "", megoldas: o.megoldas || "",
     tipp: "", lanc: o.lanc || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.joKiir, atlepes: false }
   };
@@ -7302,8 +7315,10 @@ var M_GEN = { meres: genMeres, atvaltas: genAtvaltas, kieg: genKieg, muvelet: ge
   mennyivel: genMennyivel, szoveges: genSzoveges,
   osszeh: genOsszeh, becsles: genBecsles, sorba: genSorba, egyseg: genEgyseg, kakukk: genKakukk };   /* 2. szakasz: koppintós kártyák */
 GEN.meres = function (cfg, kerultMar) {
-  var fajta = mVel(cfg.feladatok || ["atvaltas"]);
-  return (M_GEN[fajta] || genAtvaltas)(cfg, kerultMar);
+  return nemUgyanaz(function () {                 /* ugyanaz a feladat ne jöjjön kétszer egymás után */
+    var fajta = mVel(cfg.feladatok || ["atvaltas"]);
+    return (M_GEN[fajta] || genAtvaltas)(cfg, kerultMar);
+  }, kerultMar);
 };
 
 /* ═════════════════ MŰHELY-ÖSVÉNY (a jelenet: fal + padló, az ösvény a szőnyeg, az állomás munkapad) ═════════════════ */
@@ -12492,7 +12507,7 @@ function polcKartyaLepes(N, cim, kartyak, kov) {
 /* 🔗 a lánc 1. kérdése: ugyanaz a mese, a nagy a 2. kérdés */
 function polcLancLepes(N, M) {
   var L2 = M.lanc, q1 = { csalad: "egyenkent", polc: N.polc, polcSzerep: "lanc1", polcN: N, helyes: M.helyes, oe: M.oe, jegyMax: 3, op: { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, kerdesHely: N.op.kerdesHely },
-    szoveg: ekSima(M.kerdes), felolvas: N.felolvas, megoldas: M.lep && M.lep[0] && M.lep[0].m ? M.lep[0].m : String(M.helyes), keplet: "", tipp: "", lanc: [N],
+    szoveg: ekSima(M.kerdes), felolvas: N.felolvas, megoldas: M.lep && M.lep.length && M.lep[M.lep.length - 1].m ? M.lep[M.lep.length - 1].m : String(M.helyes), keplet: "", tipp: "", lanc: [N],   /* az 1. kérdés válasza = M.lep utolsó lépése */
     naplo: { tipus: N.naplo.tipus + "-1", kerdes: ekSima(M.kerdes).slice(0, 60), helyes: M.helyes, atlepes: false } };
   q1.kartyaHTML = opKonyv(q1.op);
   N.helyes = L2.helyes; N.oe = L2.oe; N.M = { mondatok: M.mondatok, kerdes: L2.kerdes, helyes: L2.helyes, lep: (M.lep || []).concat(L2.lep || []), mit: L2.mit || M.mit, keret: M.keret, rajz: M.rajz,
@@ -15332,10 +15347,11 @@ GEN.vasar = function (cfg, kerultMar) {
     var x = VS_GEN[sab](g, S);
     if (!x) { if (k % 40 === 39) { S.tort = null; S.par = null; } continue; }   /* a közös történet nem ad tiszta feladatot → új történet */
     f = x;
-    if (!x.kulcs || !kerultMar[x.kulcs]) break;
+    if ((!x.kulcs || !kerultMar[x.kulcs]) && feladatAlak(x) !== kerultMar["§elozo"]) break;   /* ne ugyanaz, mint az előző */
   }
   if (!f) { S.tort = null; S.par = null; for (k = 0; !f && k < 400; k++) f = vsK1(g); }
   if (f.kulcs) kerultMar[f.kulcs] = true;
+  kerultMar["§elozo"] = feladatAlak(f);
   f.vs.stand = cfg.stand;
   if (i === 0) {                                  /* a stand első feladata: Tüske néni egy rövid mondata */
     var intro = cfg.intro || VS_INTRO[cfg.stand];
@@ -16040,6 +16056,15 @@ var LENY_ODU = { feszek: [188, 510], s: 0.86, helyek: [[122, 512], [262, 530], [
                  kolyok: 0.6, kHelyek: [[106, 522], [300, 536], [150, 540]], album: [262, 530] };
 var _lnIdo = [], _lnFut = false;
 function lnIdo(ms, fn) { _lnIdo.push(setTimeout(fn, ms)); }
+/* egy fedőlapos jelenet ne ugorjon rá a már nyitott odú-lapra / -panelre (szekrény, jelvények…): megvárja, míg bezárja */
+function lnJelenetkor(ms, fn) {
+  lnIdo(ms, function var_() {
+    if (!oduAktiv()) return;
+    var lap = $("odu-lap"), pan = $("odu-panel");
+    if ((lap && !lap.hidden) || (pan && !pan.hidden)) { lnIdo(800, var_); return; }
+    fn();
+  });
+}
 function lnIdoTorol() { _lnIdo.forEach(clearTimeout); _lnIdo = []; }
 /* mi látszik az odúban: "" (semmi), "tojas" (még a patakparton), "tojas1", "tojas2", "kesz" (kikelhet), "fioka",
    "kaland" (üres fészek a térkép-tekerccsel), "kolyok", "nagy" (üres fészek az albummal: a sárkány a kertben lakik) */
@@ -16146,8 +16171,8 @@ function lenyOduKot(svg) {
 /* az oduNyit hívja: ami vár (lelet, kikelés), az most lejátszódik */
 function lenyOduNyit() {
   var l = lenyTar();
-  if (lenyElropVar(l)) { lnIdo(1400, lenyElroppenes); return; }                       /* 🦋 a fióka elröppen (4. kör) */
-  if (l.fazis === "kaland" && !kalandTar(l).bagoly) { lnIdo(900, kalandBagoly); return; }   /* 🦉 a bagoly hozza a térképet */
+  if (lenyElropVar(l)) { lnJelenetkor(1400, lenyElroppenes); return; }                       /* 🦋 a fióka elröppen (4. kör) */
+  if (l.fazis === "kaland" && !kalandTar(l).bagoly) { lnJelenetkor(900, kalandBagoly); return; }   /* 🦉 a bagoly hozza a térképet */
   if (kalandOtthon(l) && l.otthonMondva !== tenyNap()) {   /* 🏠 hazajött a kalandból: naponta egyszer szól */
     l.otthonMondva = tenyNap(); ment();
     lnIdo(900, function () { if (oduAktiv()) mondd(l.nev + " hazajött vacsorázni! Holnap újra kalandozik."); }); return;
@@ -16155,8 +16180,8 @@ function lenyOduNyit() {
   if (l.fazis === "nagy" && !l.kertLatta) { lnIdo(900, function () { if (oduAktiv()) mondd(l.nev + " nagyot nőtt, és a kertben vár, a patakparti sziklán!"); }); return; }   /* 🌈 (5. kör) */
   if (l.fazis === "kolyok") { kuldOduNyit(); return; }   /* 🐉 a kölyök kívánsága: naponta egyszer magától kér (sarkany-holmi.js) */
   if (l.fazis !== "tojas") return;
-  if (!l.lelet) { lnIdo(900, lenyLeletJelenet); return; }
-  if (lenyTojasAll(l).kesz) lnIdo(1300, lenyKikeles);
+  if (!l.lelet) { lnJelenetkor(900, lenyLeletJelenet); return; }
+  if (lenyTojasAll(l).kesz) lnJelenetkor(1300, lenyKikeles);
 }
 function lenyTojasKopp(svg) {
   var mod = lenyOduMod();

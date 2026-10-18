@@ -2274,6 +2274,10 @@ svg.fg{ width:1.3em; height:1.3em; display:inline-block; vertical-align:middle; 
 .szk-szereplo svg{ width:100%; height:auto; display:block; }
 .szk-emo{ font-size:34px; line-height:44px; display:block; text-align:center; }
 @media (max-width:640px){
+  .op-fej{ flex-wrap:wrap; gap:6px 10px; justify-content:flex-end; }   /* telefonon a csík saját sor, alatta 🔊 + betűméret (ne lógjanak ki) */
+  .op-csik{ flex:1 0 100%; min-width:0; }
+  .op-csik i{ width:9px; height:9px; }
+  .op-csik i.most{ width:22px; height:22px; font-size:13px; }
   .op-lapok{ grid-template-columns:1fr; }
   .op-gerinc{ display:none; }
   .op-jobb{ order:-1; padding:4px 8px 0; min-height:0; }

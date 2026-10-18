@@ -222,6 +222,7 @@
         var darab = (a.tipus === "szambontas" || a.tipus === "szorzotabla-felmondas") ? 1 : (a.darab || 5);
         for (var j = 0; j < darab && db < N; j++) {
           var f;
+          UC.J.allomasIdx = i; UC.J.feladatKesz = j;   /* mint a játékban: a generátor az állomást és a sorszámot is nézi (pl. vásár-stand sora) */
           try { f = UC.GEN[a.tipus](eff, ker); }
           catch (e) { hiba("piros", "matek:kivetel:" + pid, "A feladat-generátor hibát dob — " + pid, i + ". állomás: " + e.message); db++; continue; }
           var lanc = [f]; (f && f.lanc || []).forEach(function (x) { lanc.push(x); });

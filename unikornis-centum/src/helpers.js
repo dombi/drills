@@ -6,6 +6,15 @@ function veletlen(min, max) { return Math.floor(Math.random() * (max - min + 1))
 function nyugiMod() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
 /* szöveg-védő: felhasználói/adatbázis-szöveg HTML-be írás előtt */
 function htmlVed(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+/* ugyanaz a feladat ne jöjjön kétszer egymás után: a feladat „alakja” (kép + hang + helyes válasz);
+   a generátorok az állomás kerultMar-jában (§elozo) tartják az előzőt (gépi próba: matek:dupla) */
+function feladatAlak(f) { return f ? String(f.kartyaHTML || f.keplet || "") + "|" + String(f.felolvas || f.szoveg || "") + "|" + JSON.stringify(f.helyes) : ""; }
+function nemUgyanaz(gen, kerultMar) {
+  var f = null;
+  for (var k = 0; k < 30; k++) { f = gen(); if (!kerultMar || feladatAlak(f) !== kerultMar["§elozo"]) break; }
+  if (kerultMar) kerultMar["§elozo"] = feladatAlak(f);
+  return f;
+}
 
 var EGYES = ["nulla", "egy", "kettő", "három", "négy", "öt", "hat", "hét", "nyolc", "kilenc"];
 var TIZES = { 10: "tíz", 20: "húsz", 30: "harminc", 40: "negyven", 50: "ötven", 60: "hatvan", 70: "hetven", 80: "nyolcvan", 90: "kilencven" };
@@ -19,6 +28,8 @@ function szo(n) {
   if (e === 0) return TIZES[t];
   return TIZ_ELOTAG[t] + EGYES[e];
 }
+/* névelő: „az" magánhangzó előtt („az 5", „az ötös"), különben „a"; számot a kiejtése szerint néz */
+function nevelo(x) { var w = typeof x === "number" ? szo(x) : String(x); return /^[aáeéiíoóöőuúüű]/i.test(w) ? "az" : "a"; }
 var SZOTAR = (function () {
   var m = {}; for (var i = 0; i <= 100; i++) m[szo(i)] = i;
   m["ketto"] = 2; m["harom"] = 3; m["negy"] = 4; m["ot"] = 5; m["het"] = 7; m["ket"] = 2;

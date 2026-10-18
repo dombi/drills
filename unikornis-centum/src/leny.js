@@ -301,6 +301,15 @@ var LENY_ODU = { feszek: [188, 510], s: 0.86, helyek: [[122, 512], [262, 530], [
                  kolyok: 0.6, kHelyek: [[106, 522], [300, 536], [150, 540]], album: [262, 530] };
 var _lnIdo = [], _lnFut = false;
 function lnIdo(ms, fn) { _lnIdo.push(setTimeout(fn, ms)); }
+/* egy fedőlapos jelenet ne ugorjon rá a már nyitott odú-lapra / -panelre (szekrény, jelvények…): megvárja, míg bezárja */
+function lnJelenetkor(ms, fn) {
+  lnIdo(ms, function var_() {
+    if (!oduAktiv()) return;
+    var lap = $("odu-lap"), pan = $("odu-panel");
+    if ((lap && !lap.hidden) || (pan && !pan.hidden)) { lnIdo(800, var_); return; }
+    fn();
+  });
+}
 function lnIdoTorol() { _lnIdo.forEach(clearTimeout); _lnIdo = []; }
 /* mi látszik az odúban: "" (semmi), "tojas" (még a patakparton), "tojas1", "tojas2", "kesz" (kikelhet), "fioka",
    "kaland" (üres fészek a térkép-tekerccsel), "kolyok", "nagy" (üres fészek az albummal: a sárkány a kertben lakik) */
@@ -407,8 +416,8 @@ function lenyOduKot(svg) {
 /* az oduNyit hívja: ami vár (lelet, kikelés), az most lejátszódik */
 function lenyOduNyit() {
   var l = lenyTar();
-  if (lenyElropVar(l)) { lnIdo(1400, lenyElroppenes); return; }                       /* 🦋 a fióka elröppen (4. kör) */
-  if (l.fazis === "kaland" && !kalandTar(l).bagoly) { lnIdo(900, kalandBagoly); return; }   /* 🦉 a bagoly hozza a térképet */
+  if (lenyElropVar(l)) { lnJelenetkor(1400, lenyElroppenes); return; }                       /* 🦋 a fióka elröppen (4. kör) */
+  if (l.fazis === "kaland" && !kalandTar(l).bagoly) { lnJelenetkor(900, kalandBagoly); return; }   /* 🦉 a bagoly hozza a térképet */
   if (kalandOtthon(l) && l.otthonMondva !== tenyNap()) {   /* 🏠 hazajött a kalandból: naponta egyszer szól */
     l.otthonMondva = tenyNap(); ment();
     lnIdo(900, function () { if (oduAktiv()) mondd(l.nev + " hazajött vacsorázni! Holnap újra kalandozik."); }); return;
@@ -416,8 +425,8 @@ function lenyOduNyit() {
   if (l.fazis === "nagy" && !l.kertLatta) { lnIdo(900, function () { if (oduAktiv()) mondd(l.nev + " nagyot nőtt, és a kertben vár, a patakparti sziklán!"); }); return; }   /* 🌈 (5. kör) */
   if (l.fazis === "kolyok") { kuldOduNyit(); return; }   /* 🐉 a kölyök kívánsága: naponta egyszer magától kér (sarkany-holmi.js) */
   if (l.fazis !== "tojas") return;
-  if (!l.lelet) { lnIdo(900, lenyLeletJelenet); return; }
-  if (lenyTojasAll(l).kesz) lnIdo(1300, lenyKikeles);
+  if (!l.lelet) { lnJelenetkor(900, lenyLeletJelenet); return; }
+  if (lenyTojasAll(l).kesz) lnJelenetkor(1300, lenyKikeles);
 }
 function lenyTojasKopp(svg) {
   var mod = lenyOduMod();

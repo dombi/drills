@@ -175,9 +175,9 @@ var GEN = {
     var N = (cfg.szam != null) ? cfg.szam
           : (cfg.szam_keszlet ? veletlenElem(cfg.szam_keszlet) : veletlen(cfg.szam_min || 4, cfg.szam_max || 8));   /* szam_keszlet: egyéni pálya (4b) */
     var lapos = []; for (var i = 0; i <= N; i++) { lapos.push(i); lapos.push(N - i); }
-    return { csalad: "felmondas", N: N, szoveg: "Mondd el a(z) " + N + " összes bontását!",
-      kartyaHTML: 'Mondd el a <span class="szam-jelveny">' + N + '</span> összes bontását!',
-      felolvas: "Mondd el " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
+    return { csalad: "felmondas", N: N, szoveg: "Mondd el " + nevelo(N) + " " + N + " összes bontását!",
+      kartyaHTML: 'Mondd el ' + nevelo(N) + ' <span class="szam-jelveny">' + N + '</span> összes bontását!',
+      felolvas: "Mondd el " + nevelo(N) + " " + szo(N) + " összes bontását. Kezdd lentről: nulla meg " + szo(N) + ", egy meg " + szo(N - 1) + ", és így tovább.",
       lapos: lapos, tipp: "Kezdd lentről: nulla meg " + szo(N) + ". Aztán egy meg " + szo(N - 1) + ". Folytasd!",
       naplo: { tipus: "szambontas", kerdes: N + " bontása", helyes: N, atlepes: false } };
   },
@@ -191,9 +191,9 @@ var GEN = {
     var szorzatok = []; for (var k = 1; k <= 10; k++) szorzatok.push(k * N);
     return {
       csalad: "felmondas", felmod: "szorzotabla", N: N, szorzatok: szorzatok,
-      szoveg: "Mondd fel a(z) " + N + "-es szorzótáblát!",
-      kartyaHTML: 'Mondd fel a <span class="szam-jelveny">' + N + '</span>-es szorzótáblát!',
-      felolvas: "Mondd fel a " + tablaSzo(N) + " szorzótáblát. " + szorSzo(1) + " " + szo(N) + " az " + szo(N) +
+      szoveg: "Mondd fel " + nevelo(N) + " " + N + "-es szorzótáblát!",
+      kartyaHTML: 'Mondd fel ' + nevelo(N) + ' <span class="szam-jelveny">' + N + '</span>-es szorzótáblát!',
+      felolvas: "Mondd fel " + nevelo(tablaSzo(N)) + " " + tablaSzo(N) + " szorzótáblát. " + szorSzo(1) + " " + szo(N) + " az " + szo(N) +
                 ", " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ", és így tovább.",
       tipp: "Kezdd az elején: " + szorSzo(1) + " " + szo(N) + " az " + szo(N) + ". Aztán " + szorSzo(2) + " " + szo(N) + " az " + szo(2 * N) + ". Folytasd!",
       naplo: { tipus: "szorzotabla-felmondas", kerdes: N + "-es szorzótábla", helyes: N, atlepes: false }

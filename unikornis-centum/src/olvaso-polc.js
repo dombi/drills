@@ -180,7 +180,7 @@ function polcKartyaLepes(N, cim, kartyak, kov) {
 /* 🔗 a lánc 1. kérdése: ugyanaz a mese, a nagy a 2. kérdés */
 function polcLancLepes(N, M) {
   var L2 = M.lanc, q1 = { csalad: "egyenkent", polc: N.polc, polcSzerep: "lanc1", polcN: N, helyes: M.helyes, oe: M.oe, jegyMax: 3, op: { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, kerdesHely: N.op.kerdesHely },
-    szoveg: ekSima(M.kerdes), felolvas: N.felolvas, megoldas: M.lep && M.lep[0] && M.lep[0].m ? M.lep[0].m : String(M.helyes), keplet: "", tipp: "", lanc: [N],
+    szoveg: ekSima(M.kerdes), felolvas: N.felolvas, megoldas: M.lep && M.lep.length && M.lep[M.lep.length - 1].m ? M.lep[M.lep.length - 1].m : String(M.helyes), keplet: "", tipp: "", lanc: [N],   /* az 1. kérdés válasza = M.lep utolsó lépése */
     naplo: { tipus: N.naplo.tipus + "-1", kerdes: ekSima(M.kerdes).slice(0, 60), helyes: M.helyes, atlepes: false } };
   q1.kartyaHTML = opKonyv(q1.op);
   N.helyes = L2.helyes; N.oe = L2.oe; N.M = { mondatok: M.mondatok, kerdes: L2.kerdes, helyes: L2.helyes, lep: (M.lep || []).concat(L2.lep || []), mit: L2.mit || M.mit, keret: M.keret, rajz: M.rajz,

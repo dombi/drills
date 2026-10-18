@@ -666,10 +666,11 @@ GEN.vasar = function (cfg, kerultMar) {
     var x = VS_GEN[sab](g, S);
     if (!x) { if (k % 40 === 39) { S.tort = null; S.par = null; } continue; }   /* a közös történet nem ad tiszta feladatot → új történet */
     f = x;
-    if (!x.kulcs || !kerultMar[x.kulcs]) break;
+    if ((!x.kulcs || !kerultMar[x.kulcs]) && feladatAlak(x) !== kerultMar["§elozo"]) break;   /* ne ugyanaz, mint az előző */
   }
   if (!f) { S.tort = null; S.par = null; for (k = 0; !f && k < 400; k++) f = vsK1(g); }
   if (f.kulcs) kerultMar[f.kulcs] = true;
+  kerultMar["§elozo"] = feladatAlak(f);
   f.vs.stand = cfg.stand;
   if (i === 0) {                                  /* a stand első feladata: Tüske néni egy rövid mondata */
     var intro = cfg.intro || VS_INTRO[cfg.stand];

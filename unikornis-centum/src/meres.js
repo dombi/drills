@@ -57,6 +57,8 @@ function mJel(n, u) { return mSzamIr(n) + " " + u; }                         /*
 function mB(n, u) { return "<b>" + mJel(n, u) + "</b>"; }
 function mAz(n) { return "aáeéiíoóöőuúüű".indexOf(mSzamSzo(n).charAt(0)) >= 0 ? "az" : "a"; }
 function mBen(u) { var n = M_NEV[u]; return /a$/.test(n) ? n.slice(0, -1) + "ában" : n + (/gramm$/.test(n) ? "ban" : "ben"); }
+/* „egy egy deciméter" → „egy deciméter": a mondat „Egy …"-e és a kimondott 1 ne olvadjon dupla szóvá */
+function mEgyEgy(s) { return s == null ? s : String(s).replace(/\b([Ee])gy egy\b/g, "$1gy"); }
 function mNagy(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 var M_VAL = { 10: "tízzel", 100: "százzal", 1000: "ezerrel", 10000: "tízezerrel", 100000: "százezerrel" };
 
@@ -257,7 +259,7 @@ function mFeladat(cfg, o) {
   var f = {
     csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: cfg.mennyiseg,
     kartyaHTML: '<div class="meres-kep">' + (o.kep || "") + '</div><div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
-    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: o.felolvas,
+    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), keplet: o.keplet || "", megoldas: o.megoldas, felolvas: mEgyEgy(o.felolvas),
     helyes: o.helyes, tipp: o.tipp || "", lanc: o.lanc || null, liga: liga, mk: o.mk || null, mkk: o.mkk || null, mkd: o.mkd || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.helyes, atlepes: false }
   };
@@ -874,7 +876,7 @@ function meresVegigvezet(f, valasz) {
     var vegso = (i === n - 1), cim = vegso ? "Most újra a kérdés:" : (i + 1) + ". lépés";
     var x = { csalad: "egyenkent", nagySzam: true, jegyMax: 6, meres: f.meres, liga: f.liga, vezet: true,
       kartyaHTML: '<div class="meres-kerdes hosszu meres-tortenet">' + f.tortenet + '</div><div class="meres-lepes' + (vegso ? ' vegso' : '') + '"><span class="meres-lepes-cim">' + cim + '</span> ' + l.k + '</div>',
-      szoveg: l.k.replace(/<[^>]+>/g, ""), felolvas: (vegso ? "Most újra a kérdés: " : "") + l.f, helyes: l.h, keplet: l.m.replace(/ = [^=]*$/, ""), megoldas: l.m,
+      szoveg: l.k.replace(/<[^>]+>/g, ""), felolvas: mEgyEgy((vegso ? "Most újra a kérdés: " : "") + l.f), helyes: l.h, keplet: l.m.replace(/ = [^=]*$/, ""), megoldas: l.m,
       tipp: "Számold ki: " + mKiejt(l.m.replace(/ = [^=]*$/, "")) + ".", lanc: null,
       naplo: { tipus: f.naplo.tipus + (vegso ? "-ujra" : "-lepes"), kerdes: l.m.replace(/ = [^=]*$/, "").slice(0, 60), helyes: l.h, atlepes: false } };
     return x;
@@ -909,7 +911,7 @@ function mKoppFeladat(cfg, o) {
   return {
     csalad: "koppint", meres: cfg.mennyiseg, liga: MENNY[cfg.mennyiseg].liga, kopp: o.kopp,
     kartyaHTML: (o.kep ? '<div class="meres-kep">' + o.kep + '</div>' : "") + '<div class="meres-kerdes' + (o.hosszu ? ' hosszu' : '') + '">' + o.kerdes + '</div>',
-    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), felolvas: o.felolvas, helyes: 1, joKiir: o.joKiir, keplet: o.keplet || "", megoldas: o.megoldas || "",
+    szoveg: o.kerdes.replace(/<[^>]+>/g, ""), felolvas: mEgyEgy(o.felolvas), helyes: 1, joKiir: o.joKiir, keplet: o.keplet || "", megoldas: o.megoldas || "",
     tipp: "", lanc: o.lanc || null,
     naplo: { tipus: "meres-" + o.fajta, kerdes: (o.keplet || o.kerdes.replace(/<[^>]+>/g, "")).slice(0, 60), helyes: o.joKiir, atlepes: false }
   };
@@ -1320,8 +1322,10 @@ var M_GEN = { meres: genMeres, atvaltas: genAtvaltas, kieg: genKieg, muvelet: ge
   mennyivel: genMennyivel, szoveges: genSzoveges,
   osszeh: genOsszeh, becsles: genBecsles, sorba: genSorba, egyseg: genEgyseg, kakukk: genKakukk };   /* 2. szakasz: koppintós kártyák */
 GEN.meres = function (cfg, kerultMar) {
-  var fajta = mVel(cfg.feladatok || ["atvaltas"]);
-  return (M_GEN[fajta] || genAtvaltas)(cfg, kerultMar);
+  return nemUgyanaz(function () {                 /* ugyanaz a feladat ne jöjjön kétszer egymás után */
+    var fajta = mVel(cfg.feladatok || ["atvaltas"]);
+    return (M_GEN[fajta] || genAtvaltas)(cfg, kerultMar);
+  }, kerultMar);
 };
 
 /* ═════════════════ MŰHELY-ÖSVÉNY (a jelenet: fal + padló, az ösvény a szőnyeg, az állomás munkapad) ═════════════════ */
