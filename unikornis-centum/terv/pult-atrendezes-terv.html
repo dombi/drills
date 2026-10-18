@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pult-átrendezés — tervlap</title>
+<style>
+:root{
+  --hatter:#fbf7f1; --lap:#ffffff; --szoveg:#3b3346; --halvany:#7d7488; --vonal:#e9e1d6;
+  --lila:#8a5fb0; --lila-h:#f1e9f8; --zold:#3f8f5a; --zold-h:#e6f4ea; --sarga:#b7832a; --sarga-h:#fbf1dc;
+  --piros:#c0504d; --piros-h:#fbe7e6; --kek:#3f74a8; --kek-h:#e5eef8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--hatter);color:var(--szoveg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:28px;margin:0 0 4px}
+h2{font-size:21px;margin:40px 0 10px;padding-top:14px;border-top:2px solid var(--vonal)}
+h3{font-size:17px;margin:22px 0 8px}
+.al{color:var(--halvany);margin:0 0 18px}
+.doboz{background:var(--lap);border:1px solid var(--vonal);border-radius:12px;padding:14px 18px;margin:12px 0}
+.doboz.lila{background:var(--lila-h);border-color:#dccbec}
+.doboz.sarga{background:var(--sarga-h);border-color:#f0dcae}
+.doboz.zold{background:var(--zold-h);border-color:#c5e3cf}
+.kicsi{font-size:14px}.halvany{color:var(--halvany)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--lap)}
+th,td{border:1px solid var(--vonal);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#f6f0e7}
+.tk{overflow-x:auto;border-radius:10px}
+.cimke{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:99px;font-weight:600}
+.c-van{background:var(--zold-h);color:var(--zold)} .c-kis{background:var(--sarga-h);color:var(--sarga)} .c-uj{background:var(--piros-h);color:var(--piros)}
+ol.dont>li{margin:0 0 14px}
+.jav{color:var(--zold);font-weight:700}
+
+/* ── vázlatok ── */
+.vazlat{background:#f3eee6;border:2px dashed #d8cdbd;border-radius:14px;padding:14px;margin:14px 0}
+.vazlat .felirat{font-size:12.5px;color:var(--halvany);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.fulsor{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ful{background:#fff;border:1px solid var(--vonal);border-radius:99px;padding:5px 14px;font-weight:600;font-size:14.5px}
+.ful.aktiv{background:var(--lila);color:#fff;border-color:var(--lila)}
+.kartyak{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.gyk{background:#fff;border-radius:12px;padding:12px 14px;border:1px solid var(--vonal)}
+.gyk .nev{font-weight:800;font-size:17px}
+.gyk .mondat{font-size:14px;margin:6px 0}
+.jel{font-size:13px;border-radius:8px;padding:4px 8px;margin-top:6px}
+.jel.s{background:var(--sarga-h)} .jel.z{background:var(--zold-h)} .jel.k{background:var(--kek-h)}
+.gyl{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid var(--vonal)}
+.gyl .fej{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+.rovat{border-top:1px solid var(--vonal);padding:9px 0}
+.rovat b.r{display:inline-block;min-width:150px}
+.rovat ul{margin:4px 0 0;padding-left:20px}
+.miert{font-size:12.5px;color:var(--kek);text-decoration:underline dotted}
+.gomb{display:inline-block;border:1px solid var(--vonal);background:#fff;border-radius:8px;padding:2px 10px;font-size:13px;font-weight:600;margin-left:4px}
+.gomb.igen{background:var(--zold);color:#fff;border-color:var(--zold)}
+.racs td,.racs th{text-align:center;padding:6px}
+.racs td:first-child,.racs th:first-child{text-align:left}
+.racs .lig td{background:#f6f0e7;text-align:left;font-weight:700}
+.cella{display:inline-block;min-width:34px;border-radius:7px;padding:2px 6px}
+.cella.ki{background:#fff3c9} .cella.rejt{background:#eee;color:#999} .cella.cs{outline:2px dotted #c9b6dd}
+@media (max-width:600px){ .rovat b.r{min-width:0;display:block} h1{font-size:23px} }
+</style>
+</head>
+<body>
+<main>
+
+<h1>🎛️ Pult-átrendezés — tervlap</h1>
+<p class="al">Unikornis Centum · producer-pult (<code>admin/index.html</code>) · 2026-10-18 · jóváhagyásra · kód csak utána</p>
+
+<div class="doboz lila">
+<b>Egy mondatban:</b> a pult a <b>gyerekekkel</b> kezdődjön, ne a program fiókjaival. Elöl a játék <b>saját szavaival</b> elmondja, milyen most a gyerek: mi megy, mi épül, hol akad és miért. Mellette egy rácson egy koppintással kiemelhetsz vagy elrejthetsz egy pályát. Minden más (feltöltés, egyéni pályák, hibák, export) a <b>🧰 Műhelybe</b> kerül, és semmi sem vész el.
+</div>
+
+<h2>1. Mi a gond most</h2>
+<ul>
+<li>Egy gyerekről <b>7 fülön</b> szétszórva vannak az adatok (Áttekintés, Játékos, Tények, Pályák, Beállítások, Fejtörő, Építőkockák).</li>
+<li>A 🦄 Játékos fül a program <b>tárolását</b> mutatja (unikornisonként), nem a gyereket. A válasznapló nyers sorokból áll, ebből nem derül ki, milyen a gyerek.</li>
+<li>A leggyakoribb dolgod (kiemelni vagy elrejteni egy pályát) egy hosszú beállító-táblában van, gyerekenként külön.</li>
+<li>⚠️ A legfontosabb (a te szavaid): <i>„azért irányítok csak, mert nem tudok gyereket megfigyelni”</i>. A pultból a <b>megfigyelés</b> hiányzik, az irányítás csak pótlék.</li>
+</ul>
+
+<h2>2. Alapelvek</h2>
+<ol>
+<li><b>A jellemzést a játék írja, nem ember.</b> Sok gyereknél nem lesz, aki a pultot nézi. A játéknak egyedül, szülő nélkül is működnie kell, ezért minden mondat a játék saját megfigyeléséből születik. A te 📝 jegyzeted csak opcionális többlet, a rendszer nem épít rá.</li>
+<li><b>Mondatok, tanítói szemmel.</b> Elöl soha nincs nyers szám vagy táblázat. Minden mondat mellett van egy kis <span class="miert">miért gondolom?</span> link, ami lenyitja a mögötte lévő adatot. Így ellenőrizheted, igaz-e.</li>
+<li><b>Szerves, lassú ítélet.</b> Egy rossz nap nem jel. A mondat csak <b>több napnyi</b> egyező jelből születik. Ha kevés az adat, a lap ezt mondja ki: „Még kevés játékot láttam ahhoz, hogy ezt biztosan mondjam.” Ért ≠ tud ≠ nagyon tud.</li>
+<li><b>„Nem szereti” ≠ „nem tudja”.</b> A Kedv (kerül, kilép, lassul) és a Tudás (hibák, fokok) külön rovatban van, mert másképp kell rájuk felelni.</li>
+<li><b>A rábólintás fajtánként történik, nem gyerekenként.</b> Egy javaslatfajtára egyszer mondod, hogy „ezt csinálhatod”, és onnan minden gyereknél a játék teszi meg (szól, visszavonható). A cél, hogy a játék magától tegye.</li>
+<li><b>Egységes irányítás.</b> Minden gyerekre és csoportra is állítható, a meglévő rend szerint: alap &lt; csoport &lt; egyéni.</li>
+<li><b>A gyereknél ebben a tervben semmi nem változik.</b> Ez felnőtt-felület. (A vezérelv kérdése, hogy „mit csinál a gyerek a képen?”, itt nem merül fel.)</li>
+</ol>
+
+<h2>3. Az új szerkezet: 3 fül 11 helyett</h2>
+<div class="tk"><table>
+<tr><th>Új fül</th><th>Mi van rajta</th><th>Honnan jön (régi fül)</th></tr>
+<tr><td><b>👧 Gyerekek</b> (kezdőlap)</td><td>Gyerekkártyák: név, egy mondat, legfeljebb 1–2 jelzés. Koppintásra a gyereklap.</td><td>📋 Áttekintés figyelmeztetései (átfogalmazva) + 🦄 Játékos + 🌸 Tények + 🧱/🏔️ gyerek-része</td></tr>
+<tr><td><b>🗺️ Pályák</b></td><td>Rács: pályák × gyerekek (és csoportok). Egy koppintás: normál → ⭐ kiemelt → 🚫 rejtett.</td><td>🎛️ Beállítások láthatóság + ajánlott + extra ✨ oszlopa; 🌲 Pályák statisztikája (lenyitva)</td></tr>
+<tr><td><b>🧰 Műhely</b></td><td>Minden más, almenüvel: Beállítások (kulcs, korlát, bank, kölyök…), ✏️ Egyéni pályák, 🏔️ Fejtörő-feltöltés, 🧱 Építőkockák, 🌈 Tüneménykert, 🐞 Hibák, ⬇️ Export, és a régi részletes nézetek (válasznapló, tény-tábla).</td><td>a mostani fülek, változatlanul</td></tr>
+</table></div>
+<p class="kicsi halvany">A Műhelyben a mostani fülek kódja nem változik, csak egy szinttel lejjebb kerül. Így semmi nem romlik el, és semmi nem tűnik el.</p>
+
+<h2>4. Képernyő-vázlatok</h2>
+<p class="kicsi halvany">A mondatok a vázlatban <b>kitaláltak</b>, a te megfigyeléseidből (Fanni: gyűjtögető, pontos, de lassú összeadó; Lili: a siker hajtja). Andor és Petra adatait még nem használom.</p>
+
+<h3>A) 👧 Gyerekek — kezdőlap</h3>
+<div class="vazlat"><div class="felirat">vázlat</div>
+<div class="fulsor"><span class="ful aktiv">👧 Gyerekek</span><span class="ful">🗺️ Pályák</span><span class="ful">🧰 Műhely</span></div>
+<div class="kartyak">
+  <div class="gyk"><div class="nev">Fanni</div><div class="kicsi halvany">tegnap játszott · 3 nap / hét</div>
+    <div class="mondat">Pontosan számol, de az átlépéses összeadás még fárasztja. A gyűjtés hozza vissza.</div>
+    <div class="jel s">🌱 A Bagolykönyvtárban kilép, ha 18+23-féle lépés jön.</div>
+    <div class="jel k">💡 1 javaslat vár rád</div></div>
+  <div class="gyk"><div class="nev">Lili</div><div class="kicsi halvany">ma játszott · 5 nap / hét</div>
+    <div class="mondat">Szívesen próbál újra rekordért. A szorzás 2-es és 5-ös sora már biztos.</div>
+    <div class="jel z">🌳 Új: a 3-as szorzósor is biztos lett.</div></div>
+  <div class="gyk"><div class="nev">Petra</div><div class="kicsi halvany">2 játéknap</div>
+    <div class="mondat halvany">Még kevés játékot láttam ahhoz, hogy jellemezzem.</div></div>
+</div>
+<p class="kicsi halvany" style="margin:10px 0 0">Csoportok: a kártyák fölött egy szűrő (pl. „Mind / Család / Kör”). Ha valaki 10+ napja nem játszott, a kártyáján egy halvány 💤 sor jelzi.</p>
+</div>
+
+<h3>B) A gyereklap</h3>
+<div class="vazlat"><div class="felirat">vázlat — Fanni lapja</div>
+<div class="gyl">
+  <div class="fej"><span style="font-size:20px;font-weight:800">Fanni</span><span class="kicsi halvany">utoljára: tegnap 17:40 · az elmúlt 2 hétben 6 nap, átlag 24 perc</span></div>
+
+  <div class="rovat"><b class="r">🧭 Mi hajtja?</b> Leginkább a <b>gyűjtögetés</b>. Pálya után legtöbbször a boltba vagy a kertbe megy, és a sárkány ruháiért ült le játszani. <span class="miert">miért gondolom?</span></div>
+
+  <div class="rovat"><b class="r">😊 Kedv</b>
+    <ul><li>Magától a Mérés-ligeteket és a Tündérvásárt választja.</li>
+    <li>A Bagolykönyvtárból kétszer kilépett, mindkétszer egy számolós lépésnél. <span class="miert">miért gondolom?</span></li></ul></div>
+
+  <div class="rovat"><b class="r">🌳 Biztos</b>
+    <ul><li>Összeadás 100-ig átlépés nélkül: gyorsan és pontosan.</li><li>Hosszúság-mérés (cm, dm).</li></ul></div>
+
+  <div class="rovat"><b class="r">🌿 Épül</b>
+    <ul><li>Két kétjegyű szám összeadása átlépéssel: <b>tudja, de még lassú</b> (nem villám). <span class="miert">miért gondolom?</span></li></ul></div>
+
+  <div class="rovat"><b class="r">🌱 Akad — és miért</b>
+    <ul><li>A Bagolykönyvtárban a gondolatmenete jó, de a 18+23-féle lépésnél lelassul, és ott lép ki. Valószínűleg nem a feladat logikája, hanem a számolás terhe akasztja meg. <span class="miert">miért gondolom?</span></li></ul></div>
+
+  <div class="rovat"><b class="r">💡 Javaslat</b> Pár napig emeljem ki a Tény-kertben az átlépéses összeadást, és a Bagolykönyvtárban adjak hozzá számegyenest.
+    <span class="gomb igen">Igen, ilyenkor mindig tedd</span><span class="gomb">Most nem</span><span class="gomb">Ilyet ne javasolj</span></div>
+
+  <div class="rovat"><b class="r">📝 Amit én láttam</b> <span class="halvany kicsi">(nem kötelező) „Az összeadásnál látszik az arcán, hogy unja.” — 10-17</span></div>
+
+  <div class="rovat kicsi halvany">Részletek ▸ válasznapló · tény-tábla · pálya-haladás · játéknapok (a régi 🦄 és 🌸 fül tartalma, lenyitva)</div>
+</div>
+</div>
+
+<h3>C) 🗺️ Pályák — a rács</h3>
+<div class="vazlat"><div class="felirat">vázlat</div>
+<div class="tk"><table class="racs">
+<tr><th>Pálya</th><th>👥 Család<br><span class="kicsi halvany">csoport</span></th><th>Fanni</th><th>Lili</th><th>Andor</th><th>Petra</th></tr>
+<tr class="lig"><td colspan="6">🌲 Összeadó liget <span class="gomb">🚫 egész liget…</span></td></tr>
+<tr><td>Számbontás</td><td>–</td><td><span class="cella">🌿</span></td><td><span class="cella">🌳</span></td><td><span class="cella rejt">🚫</span></td><td><span class="cella ki">⭐ 🌱</span></td></tr>
+<tr><td>Kétjegyű összeadás</td><td><span class="cella ki">⭐</span></td><td><span class="cella ki cs">⭐ 🌿</span></td><td><span class="cella ki cs">⭐ 🌳</span></td><td><span class="cella rejt">🚫</span></td><td><span class="cella ki cs">⭐</span></td></tr>
+<tr class="lig"><td colspan="6">📏 Szabóműhely</td></tr>
+<tr><td>Centi és deci</td><td>–</td><td><span class="cella">🌳</span></td><td><span class="cella">🌳</span></td><td><span class="cella rejt">🚫</span></td><td><span class="cella">·</span></td></tr>
+</table></div>
+<p class="kicsi" style="margin:10px 0 0"><b>Egy koppintás</b> a cellán: normál → ⭐ kiemelt → 🚫 rejtett → normál. A pontozott keret azt jelenti, hogy a csoporttól örökli (a gyereké a legerősebb). A cellában a kis 🌳🌿🌱 jel a gyereklapról jön, hogy lásd, hol tart azon a pályán; a „·” azt jelenti, hogy még nem játszotta. A ⭐ ugyanaz, mint ma az „Ajánlott 💖” + „Extra ✨ ×1,5”. Ha más szorzót akarsz, vagy kulcsot, korlátot, az a Műhely → Beállítások részben van, mint eddig.</p>
+</div>
+
+<h2>5. Honnan tudja a játék, amit mond?</h2>
+<div class="tk"><table>
+<tr><th>Rovat</th><th>Miből</th><th>Megvan?</th></tr>
+<tr><td>🌳🌿🌱 a 100-as körben és a szorzásban</td><td>Tény-motor fokai (új / tanulja / tudja / villám) típusonként, több nap alapján</td><td><span class="cimke c-van">megvan</span></td></tr>
+<tr><td>🌳🌿🌱 a pályákon</td><td>Végigvitt pályák „elsőre jó” aránya, napokra bontva, és hogy javul-e</td><td><span class="cimke c-van">megvan</span> (pályavég-események)</td></tr>
+<tr><td>🌳🌿🌱 a Bagolykönyvtárban és a szerszámokban</td><td>Kocka-napok, csapdák, liftek, Mesterpróbák</td><td><span class="cimke c-van">megvan</span></td></tr>
+<tr><td>😊 Kedv: mit választ, hol lép ki</td><td>Pálya-indítás és kilépés (melyik állomásnál), játékidő, visszatérés</td><td><span class="cimke c-van">megvan</span></td></tr>
+<tr><td>😊 Kedv: lassul, habozik</td><td>A rejtett időmérés a válaszoknál</td><td><span class="cimke c-kis">részben</span> (pályánként össze kell gyűjteni)</td></tr>
+<tr><td>🧭 Mi hajtja?</td><td>Pálya után hová megy (bolt, kert, gyűjtemény → gyűjtögető; újrajátszás rekordért, teljes ösvény, jelvény → a siker)</td><td><span class="cimke c-kis">részben</span> (az események megvannak, a „pálya UTÁN mit nyit meg” kapcsolás új)</td></tr>
+<tr><td>🌱 „és miért”</td><td>A <b>Hiba-oka felismerés</b> motorja (számolási csúszás felismerése, a lépés típusa, többnapos szabály)</td><td><span class="cimke c-uj">új, külön tervlap</span></td></tr>
+<tr><td>💡 Javaslat + mi lett utána</td><td>Javaslat-napló: mit javasolt, mit döntöttél, javult-e, visszatért-e a gyerek</td><td><span class="cimke c-uj">új</span></td></tr>
+</table></div>
+
+<div class="doboz sarga">
+<b>⚠️ Fontos szerkezeti döntés (a javaslatom):</b> a jellemzést <b>egy közös modul</b> számolja (<code>src/megfigyeles.js</code>). A játék és a pult is <b>ugyanazt</b> használja. Ez azért kell, mert ha a játék magától akar lépni (a ② fok), akkor a játéknak is tudnia kell, mit gondol a gyerekről, és nem várhat arra, hogy valaki megnyissa a pultot. Ezért a játék a gyerek mentésébe egy kis <b>napi összesítőt</b> is ír (mit választott, hol lépett ki, mennyi ideig tartott, hová ment utána). Ebből dolgozik mindkét oldal, és a nyers eseménynaplóra nincs szükség hozzá. (Ma a pultban egy-két szabály kézzel másolva van a játékból, ezt a hibát nem ismételjük meg.)
+</div>
+
+<h2>6. Javaslatok és a „tanuló” rábólintás</h2>
+<p>Minden javaslatfajtának van egy kapcsolója a Műhelyben (és a fajta első javaslatánál a gyereklapon is):</p>
+<div class="tk"><table>
+<tr><th>Fok</th><th>Mit tesz a játék</th></tr>
+<tr><td>① Kérdez</td><td>Javasol a gyereklapon, te döntesz. <b>Új fajta így indul.</b></td></tr>
+<tr><td>② Megteszi és szól</td><td>„Igen, ilyenkor mindig tedd” után minden gyereknél magától lép. A gyereklapon ott van: „💡 Megtettem: … [visszavonom]”.</td></tr>
+<tr><td>③ Csendben</td><td>Csak sok egyező döntés és <b>bizonyított jó hatás</b> után ajánlja fel a pult, hogy ide lépjen. Erre is te bólintasz rá.</td></tr>
+<tr><td>✕ Kikapcsolva</td><td>„Ilyet ne javasolj.” Ha egy fajtát sokszor visszavonsz, a játék magától visszalép ①-re.</td></tr>
+</table></div>
+<h3>Az első három javaslatfajta</h3>
+<ol>
+<li><b>Kiemelés ott, ahol épül</b> 🌿: pár napig ⭐ arra a pályára vagy Tény-kert-típusra, ami „tudja, de lassú”.</li>
+<li><b>Pihentetés ott, ahol kerül</b> 😊: ha egy pályából több napon át kilép, egy hétre lejjebb kerül (nem tűnik el), és helyette egy rokon, könnyebb pálya kerül elő.</li>
+<li><b>Továbblépés, ahol biztos</b> 🌳: ha egy pálya több napon át tiszta, a játék a következő pályát javasolja megnyitni.</li>
+</ol>
+<p class="kicsi halvany">Mindegyik csak olyat tesz, amit ma te is megtehetsz a pulton (kiemel, elrejt, megnyit). A pályák megnyitása (3.) és a „tanult pálya hová kerül” kérdés az Intelligens pult ötlethez tartozik, ott folytatódik.</p>
+
+<h2>7. Kód-körök</h2>
+<div class="tk"><table>
+<tr><th>Kör</th><th>Mi készül</th><th>Nagyság</th></tr>
+<tr><td><b>1.</b></td><td>Az új szerkezet: 3 fül, a kezdőlap gyerekkártyái (a mostani figyelmeztetésekből, mondatokká írva), a 🗺️ rács egy-koppintásos cellákkal + csoport-oszlop, a gyereklap váza a meglévő adatokkal, a régi fülek a 🧰 Műhelyben. <b>Csak a pult változik</b>, a játék nem.</td><td>közepes</td></tr>
+<tr><td><b>2.</b></td><td>A közös <code>megfigyeles.js</code> modul + a napi összesítő a játékban. A gyereklap 🌳🌿🌱, 😊 Kedv és 🧭 Mi hajtja rovata a játék saját mondataival, „miért gondolom?” lenyitással, és kimondja azt is, ha még kevés az adat.</td><td>nagy</td></tr>
+<tr><td><b>3.</b></td><td>💡 Javaslatok: a 3 fajta, a fajtánkénti kapcsoló (①②③✕), a javaslat-napló (mit tett, mi lett utána), és a ② fokon a játék magától lép.</td><td>közepes–nagy</td></tr>
+<tr><td><b>4.</b></td><td>A 🌱 „és miért” bekötése a Hiba-oka felismerésből. Ehhez előbb: „Hiba-oka felismerés: tervlap.”</td><td>külön terv</td></tr>
+</table></div>
+<p class="kicsi halvany">Minden kör után: gépi próba, a backend-rendszerterv frissítése, és élőben megnézzük együtt a pultot. A 2. kör után egy-két hétig csak figyeljük, igazak-e a mondatok, és csak utána jöhet a 3. kör.</p>
+
+<h2>8. Döntések, amiket tőled kérek</h2>
+<ol class="dont">
+<li><b>Mi legyen a kezdőlap?</b><br><span class="jav">A (javaslom):</span> 👧 Gyerekek-kártyák, a rács a második fülön. · B: a rács legyen elöl, a gyerekek alatta.</li>
+<li><b>Hogyan működjön a rács cellája?</b><br><span class="jav">A (javaslom):</span> egy koppintás körbe vált (normál → ⭐ → 🚫). · B: koppintásra kis menü nyílik (⭐ / 🚫 / normál / „csoport szerint”), ez lassabb, de nem lehet véletlenül elállítani.</li>
+<li><b>Mi legyen a régi fülekkel?</b><br><span class="jav">A (javaslom):</span> mind átkerül a 🧰 Műhelybe, változatlanul. · B: ami átkerült a gyereklapra (🦄 Játékos, 🌸 Tények), az egy hónap múlva megszűnik.</li>
+<li><b>Telefonon is kell a pult?</b><br><span class="jav">A (javaslom):</span> a kezdőlap, a gyereklap és a rács telefonon is jól működjön; a Műhely maradhat laptopos. · B: csak laptop.</li>
+<li><b>Jó-e az első három javaslatfajta</b> (kiemelés ahol épül · pihentetés ahol kerül · továbblépés ahol biztos)?<br><span class="jav">A (javaslom):</span> igen, ez a három. · B: csak az első kettő; a továbblépést az Intelligens pult hozza.</li>
+</ol>
+
+<div class="doboz zold">
+<b>Nagyságrend:</b> összesen <b>nagy</b> (3 kód-kör, plusz a Hiba-oka felismerés külön). Az 1. kör önmagában is használható: már az is letisztult, átlátható pultot ad, a játékhoz nem nyúl.
+</div>
+
+</main>
+</body>
+</html>
