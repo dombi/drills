@@ -1801,8 +1801,8 @@ function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g
    A gyerek mentéséből (u.unicorns[leny].kuld, .tud) olvas; írni csak a producerConfig/{uid}.leny ágba ír (kuldPalyak,
    kuldLiget, megsem) — a gyerek mentéséhez nem nyúl, a „mégsem megy”-et a játék veszi át (tudas.js tudasPultVissza). */
 function kuldHatasSzoveg(lh) {
-  if (!lh.kuld) return "ki";
-  return "kézi, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : (KULD_LIGET[lh.kuldLiget] ? KULD_LIGET[lh.kuldLiget].nev : lh.kuldLiget));
+  if (!lh.kuld) return "nincs";
+  return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : (KULD_LIGET[lh.kuldLiget] ? KULD_LIGET[lh.kuldLiget].nev : lh.kuldLiget));
 }
 function napDatum(n) { if (typeof n !== "number") return "–"; var d = new Date(n * NAP); return (d.getUTCMonth() + 1) + ". " + d.getUTCDate() + "."; }
 function kuldGyerekNezet(uid) {
@@ -2044,9 +2044,9 @@ function rajzBeallitasok(t) {
      mód (ki · kézi), liget, kézi pályalista bármelyik ligetből; egyéninél a futó küldetés és a tudás-napló „mégsem megy” gombbal.
      A változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik). */
   h += '<h4 style="margin:12px 0 2px">🐉 Sárkány-küldetés</h4>';
-  h += '<div class="kapu-sor"><span>Mód:</span>' +
+  h += '<div class="kapu-sor"><span>Küldetés:</span>' +
     '<select id="leny-kuld"' + (typeof sajatLeny.kuld === "boolean" ? ' class="beallitva"' : "") + ">" +
-    [["", lUres.replace("igen", "kézi")], ["true", "✅ kézi (a kölyök kér)"], ["false", "🚫 ki (nem kér semmit)"]].map(function (o) {
+    [["", lUres.replace("igen", "van küldetés")], ["true", "✅ van küldetés"], ["false", "🚫 nincs küldetés"]].map(function (o) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kuld === "boolean" ? String(sajatLeny.kuld) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
     }).join("") + "</select>" +
     "<span>Liget:</span>" + '<select id="leny-kuld-liget"' + (typeof sajatLeny.kuldLiget === "string" ? ' class="beallitva"' : "") + ">" +
