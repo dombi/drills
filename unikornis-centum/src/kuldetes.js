@@ -10,7 +10,7 @@
      • Csak a VÉGIGÉRT pálya visz darabot (palyaVege → kuldPalyaVege); a megszakított semmit (kiskapu-elv).
      • A futó küldetés nem változik; csak ha egy pálya közben elérhetetlenné válik (pult: elrejtve), az ő helye csendben
        eltűnik, és a részletek újraosztódnak (kuldIgazit) — a gyerek soha nem ragad bent. Ugyanígy, ha egy pálya
-       utólag a kimaradók közé kerül (🧺 Mi maradt?, 2026-10-18).
+       utólag a kimaradók közé kerül (🧺 Mi maradt?, 2026-10-18). A 🧺 ráadás-pálya: lásd KULD_LIGET.raadas.
      • 1. kör: amíg csak az ágy kész, a kérés 3 KÜLÖNBÖZŐ ágyat kínált (A1); amit már megkapott, nem jön újra.
      • 2. kör (2026-10-17): + KISHÁZ a kertben, a napozó szikla mellett — ott áll a tábla, a darab-kupac és az épülő ház
        is (producer: „minden a kertben”); az odúban a fészek fölött egy 🏡-buborék emlékeztet. A kérés mindig 3 kártya:
@@ -26,9 +26,11 @@
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
 
 /* a ligetek, ahonnan a kölyök kérhet (új liget = egy új sor); kimarad: nem mérhető pálya (🎵 felmondás, 7. döntés),
-   és ami nem kötelező (🧺 Mi maradt? — maradékos osztás, producer 2026-10-18) */
+   és ami nem kötelező (🧺 Mi maradt? — maradékos osztás, producer 2026-10-18).
+   raadas: nem kötelező, de ha végigjátssza, küldetésenként egyszer hoz 1 darabot — a legtöbbet hozó nyitott helytől veszi
+   el (az legalább 1 marad, így minden kért pálya kell továbbra is); a táblán kész helyként jelenik meg (kuldRaadas) */
 var KULD_LIGET = {
-  szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"] }
+  szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"], raadas: ["mi-maradt"] }
 };
 var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
@@ -99,7 +101,7 @@ function kuldIgazit(a) {
   if (!a) return;
   var elotte = a.helyek.length;
   a.helyek = a.helyek.filter(function (h) {
-    if (h.kesz) return true;
+    if (h.kesz || h.raad) return true;
     var pa = null; PALYAK.forEach(function (x) { if (x.id === h.p) pa = x; });
     var L = KULD_LIGET[a.liget];
     return !!pa && !palyaRejtve(pa) && !(L && L.kimarad.indexOf(h.p) >= 0);   /* kimaradóvá vált pálya is kiesik */
@@ -114,7 +116,16 @@ function kuldIgazit(a) {
 function kuldKertPalya(id) {
   if (!kuldVan()) return false;
   var a = kuldAkt(); if (!a) return false;
-  return a.helyek.some(function (h) { return h.p === id && !h.kesz; });
+  return a.helyek.some(function (h) { return h.p === id && !h.kesz; }) || !!kuldRaadas(a, id);
+}
+/* 🧺 ráadás: hozhat-e még ez a nem kötelező pálya egy darabot. Visszaad: a nyitott hely, amelytől a darabot átveszi | null */
+function kuldRaadas(a, id) {
+  var L = KULD_LIGET[a.liget];
+  if (!L || !L.raadas || L.raadas.indexOf(id) < 0 || a.hozott >= KULD_RESZ) return null;
+  if (a.helyek.some(function (h) { return h.p === id; })) return null;   /* küldetésenként egyszer */
+  var tol = null;
+  a.helyek.forEach(function (h) { if (!h.kesz && h.resz > 1 && (!tol || h.resz > tol.resz)) tol = h; });
+  return tol;
 }
 /* a térkép Kert-jele: 🐉, ha a kisház egy darabja a kertben vár (terkep.js) */
 function kuldKertJel() {
@@ -133,7 +144,8 @@ function kuldPalyaVege(id) {
   if (!kuldVan()) return null;
   var a = kuldAkt(); if (!a) return null;
   kuldIgazit(a);
-  var h = a.helyek.filter(function (x) { return x.p === id && !x.kesz; })[0];
+  var h = a.helyek.filter(function (x) { return x.p === id && !x.kesz; })[0], tol0 = !h && kuldRaadas(a, id);
+  if (tol0) { tol0.resz--; h = { p: id, resz: 1, kesz: 0, ks: 0, raad: 1 }; a.helyek.push(h); }   /* 🧺 ráadás-darab */
   if (!h) return null;
   h.kesz = 1; h.ks = ++a.ks;
   var tol = a.hozott;
