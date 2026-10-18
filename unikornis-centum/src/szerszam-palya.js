@@ -63,15 +63,19 @@ function szMutat(f) {
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
-  if (szKeresKell(f)) { dobogoZar(true); opFelolvas(f, function () { szKeres(f); }); return; }
+  if (szKeresKell(f)) { opFelolvas(f, function () { if (!szRakottMar()) szKeres(f); }); return; }   /* a kép felolvasás alatt is él (producer, 2026-10-18, A) */
   opFelolvas(f);
 }
 /* 🔎 „Mire felelsz?” (olvaso-ellenor.js) — 2. döntés: csak ha kell: a pálya első feladatánál és a liftben (a 🙋 a menüből) */
 function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi" && f.fok !== "mester")); }
-function szKeres(f) {
+function szKeres(f, mondat) {
   if (!J || J.feladat !== f) return;
-  oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
+  oeKeres(f, { szo: "", mondat: mondat || f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
 }
+var SZ_KESZ_UJRA = "Ha minden a helyén van, koppints újra a Kész gombra!";   /* 🖊️ lektorra (A5) */
+/* A5 (producer, 2026-10-18, A): a kép soha nem zár a „Mire felelsz?” miatt — a gyerek felolvasás közben is rakhat.
+   Ha a felolvasás végén már rakott valamit, a kérdés-keret nem szakítja félbe: a Kész gombnál jön (szKesz). */
+function szRakottMar() { return !!(DOB && (DOB.kez || DOB.hely.some(function (s) { return s.some(function (x) { return x != null; }); }))); }
 function opMod(be) {
   var k = $("kepernyo-jatek"); if (!k) return;
   k.classList.toggle("op-mod", !!be);
@@ -109,6 +113,8 @@ function opBagsor(be) {
 /* ── a gyerek a „Kész!” gombra koppintott ── */
 function szKesz(jo, A) {
   var f = J && J.feladat; if (!f || f.csalad !== "dobogo") return;
+  if (oeKeresFut()) { oeNoszog(); return; }                   /* A5: a kérdés még nincs megkoppintva → előbb a kérdés */
+  if (szKeresKell(f) && !f.vegigVolt) { opOlvasAll(); szKeres(f, SZ_KESZ_UJRA); return; }   /* A5: felolvasás közben rakta ki → most kéri a kérdést */
   opJelolTorol(); opOlvasAll();
   if (f.rakodas && segRakKesz(f, jo)) return;               /* 🐪 két megoldás: „Ez jó! De van még egy másik is.” (szerszam-egesz-mester.js) */
   if (jo) { dobogoZar(true); szJo(f); return; }
@@ -216,7 +222,7 @@ function szSegitMenu(menu) {
       var s = b.getAttribute("data-s");
       if (s === "mit") {
         if (f.szerep === "nagy" && L) liftSegitseg(L, 1);            /* a ládában ez még önálló */
-        opOlvasAll(); dobogoZar(true);
+        opOlvasAll();
         oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
       } else if (s === "kosar") segRakSegit(f);
       else if (s === "kicsi") { if (liftKer(L) === "lift") szLiftIndul(f); }

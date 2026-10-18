@@ -12193,15 +12193,19 @@ function szMutat(f) {
   opLapol();
   if (f.opVegig) { f.opVegig = false; szVegigFut(f); return; }
   if (f.opElo) { var v = $("visszajelzes"); v.className = "visszajelzes"; v.textContent = "🦉 " + f.opElo; }   /* a lift / visszatérés mondata a könyv alatt is */
-  if (szKeresKell(f)) { dobogoZar(true); opFelolvas(f, function () { szKeres(f); }); return; }
+  if (szKeresKell(f)) { opFelolvas(f, function () { if (!szRakottMar()) szKeres(f); }); return; }   /* a kép felolvasás alatt is él (producer, 2026-10-18, A) */
   opFelolvas(f);
 }
 /* 🔎 „Mire felelsz?” (olvaso-ellenor.js) — 2. döntés: csak ha kell: a pálya első feladatánál és a liftben (a 🙋 a menüből) */
 function szKeresKell(f) { return !f.oeKeresVolt && (f.szerep === "kicsi" || (J.feladatKesz === 0 && f.szerep !== "kicsi" && f.fok !== "mester")); }
-function szKeres(f) {
+function szKeres(f, mondat) {
   if (!J || J.feladat !== f) return;
-  oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
+  oeKeres(f, { szo: "", mondat: mondat || f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
 }
+var SZ_KESZ_UJRA = "Ha minden a helyén van, koppints újra a Kész gombra!";   /* 🖊️ lektorra (A5) */
+/* A5 (producer, 2026-10-18, A): a kép soha nem zár a „Mire felelsz?” miatt — a gyerek felolvasás közben is rakhat.
+   Ha a felolvasás végén már rakott valamit, a kérdés-keret nem szakítja félbe: a Kész gombnál jön (szKesz). */
+function szRakottMar() { return !!(DOB && (DOB.kez || DOB.hely.some(function (s) { return s.some(function (x) { return x != null; }); }))); }
 function opMod(be) {
   var k = $("kepernyo-jatek"); if (!k) return;
   k.classList.toggle("op-mod", !!be);
@@ -12239,6 +12243,8 @@ function opBagsor(be) {
 /* ── a gyerek a „Kész!” gombra koppintott ── */
 function szKesz(jo, A) {
   var f = J && J.feladat; if (!f || f.csalad !== "dobogo") return;
+  if (oeKeresFut()) { oeNoszog(); return; }                   /* A5: a kérdés még nincs megkoppintva → előbb a kérdés */
+  if (szKeresKell(f) && !f.vegigVolt) { opOlvasAll(); szKeres(f, SZ_KESZ_UJRA); return; }   /* A5: felolvasás közben rakta ki → most kéri a kérdést */
   opJelolTorol(); opOlvasAll();
   if (f.rakodas && segRakKesz(f, jo)) return;               /* 🐪 két megoldás: „Ez jó! De van még egy másik is.” (szerszam-egesz-mester.js) */
   if (jo) { dobogoZar(true); szJo(f); return; }
@@ -12346,7 +12352,7 @@ function szSegitMenu(menu) {
       var s = b.getAttribute("data-s");
       if (s === "mit") {
         if (f.szerep === "nagy" && L) liftSegitseg(L, 1);            /* a ládában ez még önálló */
-        opOlvasAll(); dobogoZar(true);
+        opOlvasAll();
         oeKeres(f, { szo: "", mondat: f.mitKerdez || "", kesz: function () { dobogoZar(false); } });
       } else if (s === "kosar") segRakSegit(f);
       else if (s === "kicsi") { if (liftKer(L) === "lift") szLiftIndul(f); }
@@ -17178,6 +17184,9 @@ function lenyKiserOduba(x, y) {
        gombokra cseréltem, ahogy a tábla is nagyban nyílik): fent a kölyök, alatta a megszerzett ruhák; egy ruhára koppintva
        felveszi (megpördül), újra koppintva leveszi. Helyenként (nyak, fej, láb, hát) egy lehet rajta; az új ugyanarra a
        helyre a régit leveszi, a régi a ládában marad.
+   Javítás (2026-10-18, producer): a KÉSZ ágy (ház) az új építése alatt sem tűnik el. Ha már van kész, az marad a helyén
+     (a kölyök abban alszik, abból kukucskál), az új MELLETTE épül (SH_ODU.agyUj, SH_KERT.hazUj); elkészülve az új kerül
+     a régi helyére, a régi koppintással visszaváltható (9. döntés).
    Tiltólista: nincs szám („4/10”), nincs határidő, a felrakott darab soha nem tűnik el. */
 
 /* ── a fióka-méretű alvó póz (rajzterv) ── */
@@ -17472,29 +17481,36 @@ function shTablaSVG(a, opt) {
 }
 
 /* ════════════ AZ ODÚBAN (odú-koordinátában; leny.js lenyOduBelso hívja) ════════════ */
-var SH_ODU = { agy: [180, 518, 0.8], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], hazjel: [204, 350], uniKupac: 360, lada: [52, 544, 0.8] };
+var SH_ODU = { agy: [180, 518, 0.8], agyUj: [690, 532, 0.66], tabla: [-80, 446, 0.27], kupac: [296, 534], gondolat: [238, 470], hazjel: [204, 350], uniKupac: 360, lada: [52, 544, 0.8] };
 var SH_LADA_NYIT = false;   /* a ruhaláda nyitva van (nem mentődik) */
 var SH_ALSZIK = false;   /* a kölyök épp az ágyában alszik (kész pillanat, koppintás, az unikornis is alszik) — nem mentődik */
 var _shFut = false;      /* felrakás / beugrás közben nincs új koppintás */
-/* mi áll a fészek helyén: az épülő ágy (akt) vagy a kint lévő kész ágy — vagy semmi (marad a fészek) */
+/* mi áll a fészek helyén: a kint lévő kész ágy, vagy (ha még nincs kész ágy) az épülő (akt) — vagy semmi (marad a fészek) */
 function kuldOduAgy() {
   if (!kuldVan()) return null;
-  var k = kuldTar(), a = k.akt;
-  if (a && a.tip === "agy") return { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true };
-  var id = k.kint.agy;
-  return id && SH_HOLMI_BY[id] ? { h: SH_HOLMI_BY[id], n: KULD_RESZ, epul: false } : null;
+  var k = kuldTar(), a = k.akt, id = k.kint.agy;
+  if (id && SH_HOLMI_BY[id]) return { h: SH_HOLMI_BY[id], n: KULD_RESZ, epul: false };
+  return a && a.tip === "agy" ? { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true } : null;
 }
+/* az új ágy, ha már van kész: a kész marad a fészek helyén, az új a szoba jobb sarkában épül (SH_ODU.agyUj) */
+function kuldOduAgyUj() {
+  if (!kuldVan()) return null;
+  var k = kuldTar(), a = k.akt, id = k.kint.agy;
+  return a && a.tip === "agy" && id && SH_HOLMI_BY[id] ? { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true, A: SH_ODU.agyUj, uj: true } : null;
+}
+/* hova kerül a felrakott ágy-darab: [x, y, méret] */
+function kuldOduEpuloHely() { var u = kuldOduAgyUj(); return u ? u.A : SH_ODU.agy; }
 function shOduAgySVG(agy, opt) {
   opt = opt || {};
-  var A = SH_ODU.agy;
-  return '<g id="sh-agy" transform="translate(' + A[0] + " " + A[1] + ") scale(" + A[2] + ')" role="button" aria-label="' + htmlVed(agy.h.nev) + '">' +
+  var A = agy.A || SH_ODU.agy;
+  return '<g id="' + (agy.uj ? "sh-agy-uj" : "sh-agy") + '" transform="translate(' + A[0] + " " + A[1] + ") scale(" + A[2] + ')" role="button" aria-label="' + htmlVed(agy.h.nev) + '">' +
     '<ellipse cx="0" cy="2" rx="80" ry="9" fill="#3b2f66" opacity=".14"/>' + shHolmiSVG(agy.h, agy.n, { alvo: opt.alvo, uj: opt.uj }) +
     '<rect x="-92" y="-118" width="184" height="124" fill="transparent"/></g>';
 }
 /* a többi a fészek körül: a tábla, a darab-kupac, a 💭 */
 function kuldOduExtra() {
   if (!kuldVan()) return "";
-  var k = kuldTar(), a = k.akt, s = "";
+  var k = kuldTar(), a = k.akt, uj = kuldOduAgyUj(), s = uj ? shOduAgySVG(uj) : "";
   if (a && a.tip === "haz") {   /* 🏡 a kisház a kertben épül: itt csak egy buborék emlékeztet (benne a félkész ház) */
     var G0 = SH_ODU.hazjel, hh = SH_HOLMI_BY[a.id], var_ = a.hozott > a.felrakva;
     s += '<g id="sh-hazjel" class="' + (var_ ? "hr-kupac" : "") + '" transform="translate(' + G0[0] + " " + G0[1] + ')" role="button" aria-label="A kölyök kisháza"><g class="hr-jel"><g>' +
@@ -17557,6 +17573,8 @@ function kuldOduKot(svg) {
   if (kp) kp.addEventListener("click", function () { if (!_shFut && !_lnFut) kuldFelrakJelenet(); });
   if (g) g.addEventListener("click", function () { if (!_shFut && !_lnFut) { hangGomb(); kuldKeresMutat(); } });
   if (ag) ag.addEventListener("click", function () { if (!_shFut && !_lnFut) kuldAgyKopp(); });
+  var au = svg.querySelector("#sh-agy-uj");   /* az épülő új ágy (a kész mellett): koppintásra a tábla */
+  if (au) au.addEventListener("click", function () { if (!_shFut && !_lnFut) { hangGomb(); kuldTablaNagy(); } });
   var ld = svg.querySelector("#sh-lada");
   if (ld) ld.addEventListener("click", function () {
     if (_shFut || _lnFut) return;
@@ -17695,10 +17713,10 @@ function kuldFelrakJelenet() {
         lnIdo(850, function () { if (hop) hop.setAttribute("class", ""); if (flip) flip.style.transform = "scale(1,1)"; });
       }
     }
+    var A = ruha ? [H0[0], H0[1] - 10] : kuldOduEpuloHely(), dir = A[0] > SH_ODU.uniKupac ? 1 : -1;   /* az épülő ágyra, vagy a ruha a kölyökre repül */
     oduUniSetal(SH_ODU.uniKupac, function () {
-      ODU_UNI.dir = -1; uniFordul(document.getElementById("odu-uni-flip"), -1);
+      ODU_UNI.dir = dir; uniFordul(document.getElementById("odu-uni-flip"), dir);
       var K = SH_ODU.kupac, kp2 = document.querySelector("#odu-szoba #sh-kupac");
-      var A = ruha ? [H0[0], H0[1] - 10] : SH_ODU.agy;   /* az ágyra, vagy a ruha a kölyökre repül */
       if (kp2 && kp2.animate && !nyugiMod()) {
         kp2.classList.remove("hr-kupac");
         kp2.animate([{ transform: "translate(" + K[0] + "px," + K[1] + "px)" }, { transform: "translate(" + ((K[0] + A[0]) / 2) + "px," + (A[1] - 90) + "px) scale(.8)" },
@@ -17732,7 +17750,7 @@ function kuldUjPecset(a) {
   return uj;
 }
 /* az épp felrakott részlet felvillan + szikra */
-function kuldUjResz(uj, h) { shUjResz(document.querySelector(h.tip === "ruha" ? "#odu-szoba #ln-fioka-poz" : "#odu-szoba #sh-agy"), h, uj); }
+function kuldUjResz(uj, h) { shUjResz(document.querySelector(h.tip === "ruha" ? "#odu-szoba #ln-fioka-poz" : "#odu-szoba #sh-agy-uj") || document.querySelector("#odu-szoba #sh-agy"), h, uj); }
 function shUjResz(gyoker, h, uj) {
   var g = gyoker && gyoker.querySelector(".hr[data-h='" + h.id + "'][data-r='" + shSor(h)[uj] + "']");
   if (!g || !g.animate || nyugiMod()) return;
@@ -17859,9 +17877,9 @@ function kuldKartyaJel(pa) {
    uni = ennyivel arrébb áll meg az unikornis a kupactól (kert-egységben; fekvőn a tábla mögött, hogy ne takarja), aztán
    dir felé, a ház felé fordul. Álló képen (telefon) a tábla a szikla tetején áll, a kupac bal elöl. */
 var SH_KERT = {
-  f: { haz: [628, 474, 0.6], tabla: [792, 500, 0.2], kupac: [714, 512, 1.25], uni: 170, dir: -1 },
-  a: { haz: [146, 502, 0.42], tabla: [300, 456, 0.14], kupac: [64, 548, 0.85], uni: 184, dir: -1 }   /* telefon: az unikornis se a kupacot, se a táblát ne takarja */
-};
+  f: { haz: [628, 474, 0.6], hazUj: [560, 590, 0.44], tabla: [792, 500, 0.2], kupac: [714, 512, 1.25], uni: 170, dir: -1 },
+  a: { haz: [146, 502, 0.42], hazUj: [312, 604, 0.34], tabla: [300, 456, 0.14], kupac: [64, 548, 0.85], uni: 184, dir: -1 }   /* telefon: az unikornis se a kupacot, se a táblát ne takarja */
+};   /* hazUj: az új ház itt épül, ha már van kész (az a helyén marad), elöl a fűben */
 var SH_KERT_KINT = false;           /* a kölyök épp a háza előtt áll (kiszaladt, megérkezett) — nem mentődik */
 var _shKFut = false, _shKGen = 0;   /* jelenet a kertben; a gen minden teljes újrarajzoláskor nő (a régi időzítők elhalnak) */
 function kuldKertVan() {
@@ -17869,12 +17887,17 @@ function kuldKertVan() {
   var k = kuldTar();
   return !!((k.akt && k.akt.tip === "haz") || (k.kint.haz && SH_HOLMI_BY[k.kint.haz]));
 }
-/* mi áll a szikla mellett: az épülő ház (akt) vagy a kint lévő kész ház — vagy semmi */
+/* mi áll a szikla mellett: a kint lévő kész ház, vagy (ha még nincs kész ház) az épülő (akt) — vagy semmi */
 function kuldKertHaz() {
-  var k = kuldTar(), a = k.akt;
-  if (a && a.tip === "haz") return { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true, a: a };
-  var id = k.kint.haz;
-  return id && SH_HOLMI_BY[id] ? { h: SH_HOLMI_BY[id], n: KULD_RESZ, epul: false } : null;
+  var k = kuldTar(), a = k.akt, id = k.kint.haz;
+  if (id && SH_HOLMI_BY[id]) return { h: SH_HOLMI_BY[id], n: KULD_RESZ, epul: false };
+  return a && a.tip === "haz" ? { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true, a: a } : null;
+}
+/* az épülő ház, akár a szikla mellett (nincs még kész), akár elöl a fűben (a kész mellett, SH_KERT.hazUj) — vagy null */
+function kuldKertEpulo() {
+  var k = kuldTar(), a = k.akt; if (!a || a.tip !== "haz") return null;
+  var uj = !!(k.kint.haz && SH_HOLMI_BY[k.kint.haz]);
+  return { h: SH_HOLMI_BY[a.id], n: a.felrakva, epul: true, a: a, uj: uj, H: SH_KERT[KERT_ORIENT][uj ? "hazUj" : "haz"] };
 }
 /* a lenyKertRajzol hívja minden teljes rajzolás előtt: félbeszakadt jelenet (kilépés, forgatás) → tiszta lap */
 function kuldKertTorol() {
@@ -17890,11 +17913,17 @@ function kuldKertSVG() {
     '<rect x="-100" y="-190" width="200" height="200" fill="transparent"/></g>';
   if (kint) s += '<g transform="translate(' + H[0] + " " + H[1] + ") scale(" + H[2] + ')" pointer-events="none"><g id="sh-kfuto" transform="translate(84 0)">' +
     '<ellipse cx="0" cy="2" rx="30" ry="6" fill="#3c2a50" opacity=".14"/><g transform="scale(-1 1)"><g class="ln-hop">' + shKolyokRajz(lenyPal()) + "</g></g></g></g>";
-  if (hz.epul) {
+  var ep = kuldKertEpulo();
+  if (ep) {
+    if (ep.uj) {   /* az új ház elöl a fűben épül, a kész a helyén marad */
+      var U = ep.H;
+      s += '<g id="sh-haz-uj" class="sh-kert-kopp" transform="translate(' + U[0] + " " + U[1] + ") scale(" + U[2] + ')" role="button" aria-label="' + htmlVed(ep.h.nev) + '">' +
+        '<ellipse cx="0" cy="4" rx="96" ry="12" fill="#3c2a50" opacity=".12"/>' + shHolmiSVG(ep.h, ep.n, {}) + '<rect x="-100" y="-190" width="200" height="200" fill="transparent"/></g>';
+    }
     var T = L.tabla;
     s += '<g id="sh-ktabla" class="sh-kert-kopp" transform="translate(' + shF(T[0] - 180 * T[2]) + " " + shF(T[1] - 286 * T[2]) + ") scale(" + T[2] + ')" role="button" aria-label="Kívánság-tábla">' +
-      shTablaSVG(hz.a) + '<rect x="0" y="0" width="360" height="300" fill="transparent"/></g>';
-    if (hz.a.hozott > hz.a.felrakva) s += shKupacSVG(hz.a, "sh-kkupac", L.kupac, L.kupac[2]).replace('class="hr-kupac"', 'class="hr-kupac sh-kert-kopp"');
+      shTablaSVG(ep.a) + '<rect x="0" y="0" width="360" height="300" fill="transparent"/></g>';
+    if (ep.a.hozott > ep.a.felrakva) s += shKupacSVG(ep.a, "sh-kkupac", L.kupac, L.kupac[2]).replace('class="hr-kupac"', 'class="hr-kupac sh-kert-kopp"');
   }
   return s + "</g>";
 }
@@ -17911,6 +17940,7 @@ function kuldKertKot(svg) {
     });
   }
   kot("sh-haz", kuldHazKopp);
+  kot("sh-haz-uj", function () { hangGomb(); kuldTablaNagy(); });
   kot("sh-ktabla", function () { hangGomb(); kuldTablaNagy(); });
   kot("sh-kkupac", kuldKertFelrakJelenet);
 }
@@ -17937,7 +17967,8 @@ function kuldKertErkezik() {
 function kuldKertFelrakJelenet() {
   var a = kuldAkt(); if (!a || a.tip !== "haz" || a.hozott <= a.felrakva) return;
   _shKFut = true; KERT_TRUKK_FUT = true; hangGomb();
-  var gen = _shKGen, L = SH_KERT[KERT_ORIENT], K = L.kupac, H = L.haz, doboz = $("kert-uni-doboz");
+  var gen = _shKGen, L = SH_KERT[KERT_ORIENT], K = L.kupac, H = kuldKertEpulo().H, doboz = $("kert-uni-doboz");
+  var dir = H[0] > K[0] + L.uni ? 1 : L.dir;   /* az unikornis az épülő ház felé fordul */
   function el() { return gen === _shKGen && lkKertben(); }
   function vege() { if (gen === _shKGen) { _shKFut = false; KERT_TRUKK_FUT = false; } }
   function rak() {
@@ -17945,7 +17976,7 @@ function kuldKertFelrakJelenet() {
     var uj = kuldAkt().felrakva, h = SH_HOLMI_BY[a.id], ki = kuldFelrak();
     if (ki === "kesz") SH_KERT_KINT = true;   /* a kész háznál a kölyök is megérkezik (kuldKertKeszJelenet) */
     kuldKertFrissit();
-    shUjResz($("sh-haz"), h, uj);
+    shUjResz($("sh-haz-uj") || $("sh-haz"), h, uj);
     hangCsilla();
     if (ki === "kesz") { lkIdo(700, function () { if (el()) kuldKertKeszJelenet(); }); return; }
     var a2 = kuldAkt(), ujP = a2 ? kuldUjPecset(a2) : null;
@@ -17958,7 +17989,7 @@ function kuldKertFelrakJelenet() {
   if (KERT_UL || KERT_FEKSZIK) kertAll(false);
   kertSetalIde(shKertPct(K[0] + L.uni), function () {
     if (!el()) return;
-    uniFordul(doboz, L.dir, function () {
+    uniFordul(doboz, dir, function () {
       if (!el()) return;
       var kp = $("sh-kkupac"), cy = H[1] - 70 * H[2];
       if (kp && kp.animate && !nyugiMod()) {

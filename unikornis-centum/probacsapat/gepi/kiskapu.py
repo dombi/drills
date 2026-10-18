@@ -66,6 +66,9 @@ def bevisz(l, h, dupla=False):
     elif h["mod"] == "dobogo":
         dobogo_rak(l, h, h["lep"])
         (l.duplakatt if dupla else l.katt)(h["kesz"])
+        l.pihen(0.3)
+        if l.js("!!document.querySelector('#buborek-feladat .oe-keret')"):   # A5 (2026-10-18): a 🔎 „Mire felelsz?” a Kész gombnál kér
+            akadaly(l); l.pihen(0.3); l.katt(h["kesz"])
 
 
 def dobogo_rak(l, h, lepesek):
