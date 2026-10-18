@@ -20,6 +20,11 @@
        részletek halvány körvonallal); kész → felveszi és megpördül. Az elsővel jön a ruhaláda (az ágy mellett): benne
        a megszerzett ruhák, koppintásra fel-le veszi; helyenként (nyak, fej, láb, hát) egy lehet rajta. A kísérő az
        ösvényen és a kölyök a kertben is viseli (kuldRajta).
+     • 4. kör (2026-10-18): a pult-kártya. A liget a pultról jön (lenyBeall().kuldLiget, alap: Szorzós liget); ha a
+       pulton KÉZI PÁLYALISTA van (kuldPalyak, bármelyik ligetből), a te listád számít: a gyereknek látszó, nyitott,
+       mérhető pályái, a „megy” is (te választottad), legalább 1 fajta, fajtánként 1–2 hely (kuldUjHelyek) — ekkor
+       akt.liget = "kezi", és a 🐉 minden olyan ligeten látszik, ahol kért pálya van (kuldLigetJel). A pult-változás csak a
+       következő küldetésre hat; a futót csak az elrejtett pálya igazítja (mint eddig).
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
                         rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
@@ -32,6 +37,7 @@
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"], raadas: ["mi-maradt"] }
 };
+var KULD_KEZI = "kezi";   /* akt.liget, ha a küldetés a pult kézi listájából állt össze */
 var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
@@ -63,12 +69,37 @@ function kuldFajtak(liget, p) {
     return pa.regio === liget && !pa.hamarosan && L.kimarad.indexOf(pa.id) < 0 && !palyaRejtve(pa) && !palyaZarva(pa);
   }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
 }
+/* kimaradó (nem mérhető / nem kötelező) pálya-e bármelyik ligetben — a kézi listából is kimarad */
+function kuldKimarad(id) {
+  return Object.keys(KULD_LIGET).some(function (l) { return KULD_LIGET[l].kimarad.indexOf(id) >= 0; });
+}
+/* ── a pult kézi listája (bármelyik ligetből): a gyereknél látszó, nyitott, nem kimaradó pályák, a PALYAK sorrendjében ── */
+function kuldKeziFajtak(ids, p) {
+  return PALYAK.filter(function (pa) {
+    return ids.indexOf(pa.id) >= 0 && !pa.hamarosan && !kuldKimarad(pa.id) && !palyaRejtve(pa) && !palyaZarva(pa);
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+}
+/* honnan kér segítséget (a kérés-mondat): a liget neve; a kézi listánál a közös liget, ha mind egyből van */
+function kuldHonnan(a) {
+  if (KULD_LIGET[a.liget]) return KULD_LIGET[a.liget].honnan;
+  var r = {}; a.helyek.forEach(function (h) { var pa = shPalya(h.p); if (pa) r[palyaLiget(pa)] = 1; });
+  var l = Object.keys(r);
+  return l.length === 1 && KULD_LIGET[l[0]] ? KULD_LIGET[l[0]].honnan : "a ligetekből";
+}
+/* a következő küldetés helyei a pult szerint: { liget, helyek } | null */
+function kuldUjHelyek() {
+  var b = lenyBeall();
+  if (b.kuldPalyak) { var h = kuldOsszeallit(kuldKeziFajtak(b.kuldPalyak), true); return h ? { liget: KULD_KEZI, helyek: h } : null; }
+  var a = kuldOsszeallit(kuldFajtak(b.kuldLiget));
+  return a ? { liget: b.kuldLiget, helyek: a } : null;
+}
 /* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy }] a liget sorrendjében.
    Visszaad: [{ p, resz }] (a fajták sorrendjében, fajtánként egymás után), vagy null (≤ 2 fajta: a liget kész).
-   Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés). ── */
-function kuldOsszeallit(fajtak) {
-  var L = (fajtak || []).filter(function (f) { return !f.megy; });
-  if (L.length <= 2) return null;
+   Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés).
+   kezi (a pult listája): a „megy” is bent marad, és 1 fajta is elég. ── */
+function kuldOsszeallit(fajtak, kezi) {
+  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy; });
+  if (L.length <= (kezi ? 0 : 2)) return null;
   var elso = L.map(function (f, i) { return { f: f, i: i }; }).sort(function (a, b) {
     return (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
   }).map(function (x) { return x.f.id; });
@@ -133,11 +164,12 @@ function kuldKertJel() {
   var a = kuldAkt();
   return a && a.tip === "haz" && a.hozott > a.felrakva ? ["🐉"] : [];
 }
-/* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) */
+/* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) — a kézi listánál pályánként a saját ligete számít */
 function kuldLigetJel(r) {
   if (!kuldVan()) return [];
   var a = kuldAkt();
-  return a && a.liget === r && a.helyek.some(function (h) { return !h.kesz; }) ? ["🐉"] : [];
+  if (!a) return [];
+  return a.helyek.some(function (h) { var pa = shPalya(h.p); return !h.kesz && (a.liget === KULD_KEZI ? !!pa && palyaLiget(pa) === r : a.liget === r); }) ? ["🐉"] : [];
 }
 /* a pályavége hívja (engine-logic.js palyaVege, minden végigért pálya után). Visszaad: { resz: [rajz-részlet sorszámok] } | null */
 function kuldPalyaVege(id) {
@@ -170,7 +202,7 @@ function kuldKeresKell() {
   if (!kuldVan()) return false;
   var k = kuldTar();
   if (k.akt) return false;
-  return !!kuldKeresOpciok().length && !!kuldOsszeallit(kuldFajtak("szorzo"));
+  return !!kuldKeresOpciok().length && !!kuldUjHelyek();
 }
 function kuldKeresOpciok() {
   var k = kuldTar();
@@ -194,9 +226,9 @@ function kuldKesobbVan() { var k = kuldTar(); return !k.akt && !!k.keres && k.ke
 function kuldMagatolKer() { var k = kuldTar(); return kuldKeresKell() && !(k.keres && k.keres.nap === tenyNap()); }
 /* a gyerek választott: indul a küldetés */
 function kuldValaszt(id) {
-  var k = kuldTar(), h = SH_HOLMI_BY[id], helyek = kuldOsszeallit(kuldFajtak("szorzo"));
-  if (!h || !helyek) return null;
-  k.akt = { id: id, tip: h.tip, liget: "szorzo", helyek: helyek.map(function (x) { return { p: x.p, resz: x.resz, kesz: 0, ks: 0 }; }),
+  var k = kuldTar(), h = SH_HOLMI_BY[id], uj = kuldUjHelyek();
+  if (!h || !uj) return null;
+  k.akt = { id: id, tip: h.tip, liget: uj.liget, helyek: uj.helyek.map(function (x) { return { p: x.p, resz: x.resz, kesz: 0, ks: 0 }; }),
             hozott: 0, felrakva: 0, ks: 0, kezd: tenyNap(), hir: null };
   k.keres = null;
   ment();

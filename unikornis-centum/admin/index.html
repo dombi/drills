@@ -116,6 +116,13 @@ tr.egyeni-sor td:first-child{ font-style:italic; }
 .bank-palyak .pl label{ display:inline-flex; align-items:center; gap:3px; cursor:pointer; }
 .bank-palyak .pl label.halvany{ opacity:.55; cursor:default; }
 .bank-palyak .liget label{ cursor:pointer; }
+.kuld-nezet{ margin:8px 0 2px; display:flex; flex-direction:column; gap:8px; }
+.kuld-gyerek{ border:1px solid var(--keret); border-radius:12px; padding:8px 10px; }
+.kuld-cim{ font-weight:700; margin-bottom:2px; }
+.kuld-helyek{ display:flex; flex-wrap:wrap; gap:2px 12px; font-size:13px; margin:4px 0; }
+.kuld-helyek .kesz{ color:var(--menta-mely); }
+table.kuld-tud{ margin-top:6px; font-size:13px; }
+table.kuld-tud th, table.kuld-tud td{ padding:3px 6px; text-align:left; border-bottom:1px solid var(--keret); }
 tr.liget-sor td{ background:#efe7fb; padding-top:10px; }
 tr.liget-sor .liget-gombok{ display:inline-flex; gap:6px; margin-left:14px; vertical-align:middle; }
 tr.liget-sor button{ font-size:12px; padding:3px 8px; }
@@ -298,7 +305,9 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/megfigyeles.js?v=20261018-4"></script><!-- 🔍 a gyerek-jellemzés mondatai (🧭 😊 🌳🌿🌱, kártyák, rács-jelek) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/leny-kiser.js?v=20261017-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/leny-kiser.js?v=20261018-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/tudas.js?v=20261018-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
+<script src="../src/kuldetes.js?v=20261018-1"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -426,6 +435,15 @@ function palyakBetolt() {
   }).catch(function () { /* nélküle is megy: az azonosítók látszanak */ });
 }
 
+/* 🐉 a sárkány-holmik nevei a játék forrásából (src/sarkany-holmi.js SH_HOLMI) — a rajzok a pultnak nem kellenek */
+var HOLMI_NEV = {};
+function holmiBetolt() {
+  return fetch("../src/sarkany-holmi.js", { cache: "no-cache" }).then(function (r) { return r.text(); }).then(function (t) {
+    var re = /\{ id: "(\w+)", tip: "(\w+)",[^\n]*?nev: "([^"]+)"/g, m;
+    while ((m = re.exec(t))) HOLMI_NEV[m[1]] = { tip: m[2], nev: m[3] };
+  }).catch(function () {});
+}
+
 /* ══════════ belépés ══════════ */
 function belepes() {
   var hiba = $("b-hiba"), gomb = $("b-gomb");
@@ -453,7 +471,7 @@ auth.onAuthStateChanged(function (u) {
   if (!u) { $("belepes").hidden = false; $("pult").hidden = true; $("b-jelszo").value = ""; $("b-gomb").disabled = false; $("b-gomb").textContent = "Belépés"; return; }
   $("belepes").hidden = true; $("pult").hidden = false;
   $("ki-belepve").textContent = u.email;
-  palyakBetolt().then(function () { return jatekosokBetolt(); }).then(function () {
+  Promise.all([palyakBetolt(), holmiBetolt()]).then(function () { return jatekosokBetolt(); }).then(function () {
     esemenyekFigyel();
     beallitasokFigyel();
     kertFigyel();
@@ -1100,8 +1118,8 @@ function gyerekBeallitasSorok(uid) {
   sor("🌸", "Tény-kert", tenyHatasSzoveg(uid), !(vanMezo(cfg.teny) || cs.some(function (g) { return vanMezo(g.teny); })), cel("beallitasok", kartyaKeres("🌸 Tény-motor")));
   /* 🐉 kis sárkány */
   var lh = lenyBeall(lenyBeallOsszevon(cfg.leny || {}, cs.map(function (g) { return g.leny || {}; }))), la = lenyBeall({});
-  sor("🐉", "Kis sárkány", (lh.kiser ? "elkíséri az ösvényeken" : "nem kíséri el az ösvényeken") + ", kívánságok: " + (lh.kuld ? "be" : "ki"),
-    lh.kiser === la.kiser && lh.kuld === la.kuld, cel("beallitasok", kartyaKeres("🐉")));
+  sor("🐉", "Kis sárkány", (lh.kiser ? "elkíséri az ösvényeken" : "nem kíséri el az ösvényeken") + ", küldetés: " + kuldHatasSzoveg(lh),
+    lh.kiser === la.kiser && lh.kuld === la.kuld && lh.kuldLiget === la.kuldLiget && !lh.kuldPalyak, cel("beallitasok", kartyaKeres("🐉")));
   /* 🧰 Bagolykönyvtár: láda, létrák, lift, 🏅 visszatérés */
   var sb = szerszamHatas(uid), sa = szerszamBeall({});
   var szAlap = sb.k === sa.k && sb.n === sa.n && sb.liftKer === sa.liftKer && sb.tabla === sa.tabla && sb.kep === sa.kep && sb.mv === sa.mv &&
@@ -1779,6 +1797,54 @@ function ment(p) { p.then(function () { mentveJelez(); }, function (e) { console
 function csoportById(gid) { for (var i = 0; i < A.groups.length; i++) if (A.groups[i].id === gid) return A.groups[i]; return null; }
 function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g.members.indexOf(uid) >= 0; }); }
 
+/* ══════════ 🐉 sárkány-küldetés: a pult nézete (4. kör, 2026-10-18; terv/sarkany-kuldetesek-rendszerterv.html 7. szakasz) ══════════
+   A gyerek mentéséből (u.unicorns[leny].kuld, .tud) olvas; írni csak a producerConfig/{uid}.leny ágba ír (kuldPalyak,
+   kuldLiget, megsem) — a gyerek mentéséhez nem nyúl, a „mégsem megy”-et a játék veszi át (tudas.js tudasPultVissza). */
+function kuldHatasSzoveg(lh) {
+  if (!lh.kuld) return "ki";
+  return "kézi, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : (KULD_LIGET[lh.kuldLiget] ? KULD_LIGET[lh.kuldLiget].nev : lh.kuldLiget));
+}
+function napDatum(n) { if (typeof n !== "number") return "–"; var d = new Date(n * NAP); return (d.getUTCMonth() + 1) + ". " + d.getUTCDate() + "."; }
+function kuldGyerekNezet(uid) {
+  var u = userById(uid); if (!u) return "";
+  var megsem = ((A.cfg[uid] || {}).leny || {}).megsem || {}, h = "";
+  Object.keys(u.unicorns).sort(function (a, b) { return Object.keys(LENY_NEV).indexOf(a) - Object.keys(LENY_NEV).indexOf(b); }).forEach(function (k) {
+    var p = u.unicorns[k] || {}, kd = p.kuld || {}, tud = p.tud || {}, a = kd.akt;
+    var tudIds = Object.keys(tud).filter(function (pid) { return tud[pid] && Array.isArray(tud[pid].n) && (tud[pid].n.length || tud[pid].megy != null); });
+    if (!a && !tudIds.length && !(kd.kesz || []).length) return;
+    h += '<div class="kuld-gyerek"><div class="kuld-cim">' + esc(lenyNev(k)) + "</div>";
+    /* futó küldetés */
+    if (a && Array.isArray(a.helyek)) {
+      var hn = HOLMI_NEV[a.id] || { nev: a.id };
+      h += '<div class="kicsi">Épül: <b>' + esc(hn.nev) + "</b> · " + (a.liget === KULD_KEZI ? "kézi lista" : esc((KULD_LIGET[a.liget] || {}).nev || a.liget)) +
+        " · kezdte " + napDatum(a.kezd) + " · hozott " + (a.hozott || 0) + "/" + KULD_RESZ + " részlet, felrakott " + (a.felrakva || 0) + "</div>" +
+        '<div class="kuld-helyek">' + a.helyek.map(function (x) {
+          return '<span class="' + (x.kesz ? "kesz" : "") + '">' + (x.kesz ? "✅" : "⬜") + " " + esc(palyaNev(x.p)) + (x.raad ? " (ráadás)" : "") + ' <small class="halvany">' + x.resz + " r.</small></span>";
+        }).join("") + "</div>";
+    } else h += '<div class="kicsi halvany">Most nincs futó küldetés' + (kd.keres ? " (a kölyök kér, a gyerek még nem választott)" : "") + ".</div>";
+    var kesz = (kd.kesz || []).map(function (x) { return esc((HOLMI_NEV[x.id] || { nev: x.id }).nev) + ' <small class="halvany">' + napDatum(x.nap) + "</small>"; });
+    if (kesz.length) h += '<div class="kicsi">Megszerezte: ' + kesz.join(", ") + "</div>";
+    /* tudás-napló */
+    if (tudIds.length) {
+      tudIds.sort(function (x, y) { return palyaSorrend(x) - palyaSorrend(y); });
+      h += '<table class="kuld-tud"><tr><th>Pálya</th><th>Tiszta napok</th><th>Megy?</th><th>Emlék-próba</th><th></th></tr>' + tudIds.map(function (pid) {
+        var s = tud[pid], n = s.n.slice().sort(function (x, y) { return x - y; }), ts = megsem[k + "|" + pid], var_ = typeof ts === "number" && ts > (s.vk || 0);
+        var vissza = typeof s.vissza === "number" ? s.vissza : null;
+        var ujN = vissza == null ? n.length : n.filter(function (d) { return d > vissza; }).length;
+        var megy = s.megy != null && !var_ ? '<span class="jo">✅ megy</span> <small class="halvany">' + napDatum(s.megy) + " óta</small>"
+          : var_ ? "⏳ visszavonva — a játék a következő indításkor átveszi"
+          : vissza != null ? "még nem <small class=\"halvany\">(visszavonva " + napDatum(vissza) + "; " + ujN + "/" + TUDAS.visszaNap + " új tiszta nap)</small>"
+          : "még nem <small class=\"halvany\">(" + n.length + "/" + TUDAS.megyNap + " nap)</small>";
+        return "<tr><td>" + esc(palyaNev(pid)) + '</td><td class="kicsi">' + (n.length ? n.slice(-6).map(napDatum).join(", ") + (n.length > 6 ? " …" : "") : "–") + "</td><td>" + megy + "</td>" +
+          '<td class="kicsi">' + (s.megy != null && !var_ && typeof s.esed === "number" ? napDatum(s.esed) + ' <small class="halvany">(még nem élesedik)</small>' : "–") + "</td>" +
+          "<td>" + (s.megy != null && !var_ ? '<button data-kuld-megsem="' + esc(k + "|" + pid) + '" data-nev="' + esc(lenyNev(k) + " · " + palyaNev(pid)) + '">mégsem megy</button>' : "") + "</td></tr>";
+      }).join("") + "</table>";
+    }
+    h += "</div>";
+  });
+  return h ? '<div class="kuld-nezet">' + h + "</div>" : '<div class="kicsi halvany">A gyerek tudás-naplója és küldetései még üresek.</div>';
+}
+
 /* a ligetek neve a pálya-táblában (a játék src/ui.js REGIO_CIM-jével egyezik) */
 var LIGET_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós liget", vasar: "🧺 Tündérvásár", szabo: "🧵 Szabóműhely",
   bajital: "🧪 Bájitalkonyha", pekseg: "🧁 Mézes pékség", konyvtar: "📚 Bagolykönyvtár" };
@@ -1974,19 +2040,47 @@ function rajzBeallitasok(t) {
     [["", lUres], ["true", "✅ igen"], ["false", "🚫 nem"]].map(function (o) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kiser === "boolean" ? String(sajatLeny.kiser) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
     }).join("") + "</select></div>";
-  /* 🐉 Sárkány-küldetés (2026-10-17, terv/sarkany-kuldetesek-rendszerterv.html, 1. kör): csak be/ki; a teljes kártya a 4. körben */
-  h += '<div class="kapu-sor"><span>A kölyök kívánságai (sárkány-küldetés a Szorzós ligetből):</span>' +
+  /* 🐉 Sárkány-küldetés (2026-10-17, terv/sarkany-kuldetesek-rendszerterv.html; 4. kör 2026-10-18: a teljes kártya):
+     mód (ki · kézi), liget, kézi pályalista bármelyik ligetből; egyéninél a futó küldetés és a tudás-napló „mégsem megy” gombbal.
+     A változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik). */
+  h += '<h4 style="margin:12px 0 2px">🐉 Sárkány-küldetés</h4>';
+  h += '<div class="kapu-sor"><span>Mód:</span>' +
     '<select id="leny-kuld"' + (typeof sajatLeny.kuld === "boolean" ? ' class="beallitva"' : "") + ">" +
-    [["", lUres], ["true", "✅ igen"], ["false", "🚫 nem"]].map(function (o) {
+    [["", lUres.replace("igen", "kézi")], ["true", "✅ kézi (a kölyök kér)"], ["false", "🚫 ki (nem kér semmit)"]].map(function (o) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kuld === "boolean" ? String(sajatLeny.kuld) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("") + "</select>" +
+    "<span>Liget:</span>" + '<select id="leny-kuld-liget"' + (typeof sajatLeny.kuldLiget === "string" ? ' class="beallitva"' : "") + ">" +
+    [["", (egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap") : "— nincs (alap)") + " (" + KULD_LIGET[LENY_KULD_LIGET_ALAP].nev + ")"]].concat(
+      Object.keys(KULD_LIGET).map(function (l) { return [l, KULD_LIGET[l].nev]; })).map(function (o) {
+      return '<option value="' + o[0] + '"' + ((sajatLeny.kuldLiget || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
     }).join("") + "</select></div>";
+  /* kézi pályalista: ligetenként, a kimaradók (🎵 nem mérhető, 🧺 nem kötelező) nélkül */
+  var kLista = Array.isArray(sajatLeny.kuldPalyak) ? sajatLeny.kuldPalyak : null, kLig = {}, kLigSor = [];
+  PALYA_SORREND.forEach(function (pid) {
+    if (kuldKimarad(pid)) return;
+    var rg = palyaRegio(pid); if (!kLig[rg]) { kLig[rg] = []; kLigSor.push(rg); } kLig[rg].push(pid);
+  });
+  var kNyit = (A.kuldNyitva || {}).hasOwnProperty(id) ? A.kuldNyitva[id] : !!kLista;
+  h += '<details class="bank-palyak' + (kLista ? " beallitva" : "") + '" data-kuld-nyit="' + esc(id) + '"' + (kNyit ? " open" : "") + "><summary>🏁 Kézi pályalista " +
+    (kLista ? "(itt kijelölve: " + kLista.length + " pálya — a következő küldetés ezekből áll)" : egyeni && jatekosCsoportjai(id).length ? "(nincs — a csoporté vagy a liget szerint, a játék rakja össze)" : "(nincs — a játék rakja össze a ligetből)") + "</summary>";
+  kLigSor.forEach(function (rg) {
+    h += '<div class="liget">' + esc(LIGET_CIM[rg] || rg) + '</div><div class="pl">' + kLig[rg].map(function (pid) {
+      return '<label><input type="checkbox" data-kuld-palya value="' + esc(pid) + '"' + (kLista && kLista.indexOf(pid) >= 0 ? " checked" : "") + "> " + esc(palyaNev(pid)) + "</label>";
+    }).join("") + "</div>";
+  });
+  if (kLista) h += '<div style="margin-top:6px"><button id="kuld-palya-torol">↺ ' + (egyeni && jatekosCsoportjai(id).length ? "Lista törlése (csoport szerint)" : "Lista törlése (a játék rakja össze)") + "</button></div>";
+  h += "</details>";
   if (egyeni) {
     var lh = lenyBeall(lenyBeallOsszevon((A.cfg[id] || {}).leny || {}, jatekosCsoportjai(id).map(function (g) { return g.leny || {}; })));
-    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, kívánság: <b>" + (lh.kuld ? "be" : "ki") + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, küldetés: <b>" + kuldHatasSzoveg(lh) + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+    h += kuldGyerekNezet(id);
   }
   h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
-    "Kívánság: a kölyök ágyat kér, és azokat a Szorzós ligetbeli pályákat kéri (10 hely), amelyek a gyereknek még nem mennek (3 különböző napon tiszta végigjátszás = megy). " +
-    "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer.</p></div>";
+    "Küldetés: a kölyök 3 holmi közül választat (ágy, kisház, ruha), és 10 helyet kér a liget azon pályáiból, amelyek a gyereknek még nem mennek " +
+    "(megy = 3 különböző napon tiszta végigjátszás); ha 2 vagy kevesebb ilyen marad, a liget kész, és nem kér. " +
+    "Kézi pályalista: ha bepipálsz pályákat (bármelyik ligetből), a te listád számít — a „megy” pályák is, pályánként 1–2 hely; ami a gyereknek rejtve vagy zárva van, kimarad. " +
+    "Minden változás csak a <b>következő</b> küldetésre hat, a futó nem változik. " +
+    "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer, a liget az első csoporté, a kézi listák összeadódnak.</p></div>";
 
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
@@ -2077,6 +2171,27 @@ function rajzBeallitasok(t) {
   $("leny-kuld").onchange = function () {
     ment(docRef.set({ leny: { kuld: this.value === "" ? FV.delete() : this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
+  /* 🐉 sárkány-küldetés (4. kör): liget, kézi pályalista, „mégsem megy” */
+  $("leny-kuld-liget").onchange = function () {
+    ment(docRef.set({ leny: { kuldLiget: this.value === "" ? FV.delete() : this.value }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
+  function kuldListaIr(torol) {
+    var l = [];
+    if (!torol) Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-palya]"), function (x) { if (x.checked) l.push(x.value); });
+    ment(docRef.set({ leny: { kuldPalyak: l.length ? l : FV.delete() }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  }
+  Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-palya]"), function (c) { c.onchange = function () { kuldListaIr(false); }; });
+  if ($("kuld-palya-torol")) $("kuld-palya-torol").onclick = function () { kuldListaIr(true); };
+  Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-nyit]"), function (d) {
+    d.addEventListener("toggle", function () { (A.kuldNyitva || (A.kuldNyitva = {}))[d.dataset.kuldNyit] = d.open; });
+  });
+  Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-megsem]"), function (b) {
+    b.onclick = function () {
+      if (!confirm("Biztos? " + b.dataset.nev + "\n\nA „megy” visszavonódik, és " + TUDAS.visszaNap + " új, tiszta nap kell, hogy újra menjen. A gyerek ebből semmit nem lát.")) return;
+      var m = {}; m[b.dataset.kuldMegsem] = Date.now();
+      ment(docRef.set({ leny: { megsem: m }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+    };
+  });
   /* 🏦 bank-mezők: { bank: { valtasId: { mezo: érték | törlés } } } */
   function bankIr(vid, mezok) { var b = {}; b[vid] = mezok; ment(docRef.set({ bank: b, updatedAt: FV.serverTimestamp() }, { merge: true })); }
   Array.prototype.forEach.call(t.querySelectorAll("select[data-bank-mezo]"), function (sel) {

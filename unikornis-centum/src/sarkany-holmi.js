@@ -493,8 +493,8 @@ function kuldKeresMutat() {
       if (!a) return;
       lenyOduFrissit();
       var f = document.querySelector("#odu-szoba #ln-fioka-poz"); if (f) lenyTusszent(f);
-      mondd(a.tip === "haz" ? "Ez lesz az! A kisházam a kertbe kerül, a napozó szikla mellé. Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + "!"
-        : "Ez lesz az! Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + ". Nézd meg a táblát!");
+      mondd(a.tip === "haz" ? "Ez lesz az! A kisházam a kertbe kerül, a napozó szikla mellé. Ehhez kell egy kis segítség " + kuldHonnan(a) + "!"
+        : "Ez lesz az! Ehhez kell egy kis segítség " + kuldHonnan(a) + ". Nézd meg a táblát!");
     });
   });
   d.querySelector(".kuld-kesobb").addEventListener("click", function () {

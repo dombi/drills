@@ -14,8 +14,13 @@
    a bekapcsolt nyer (mint a 📋 tábla). A pult (admin/index.html) ugyanezt a fájlt tölti be: itt csak függvény-definíció
    lehet, felső szinten semmi nem futhat, ami a játék globálisaira épül. */
 
-/* kuld: 🐉 sárkány-küldetés (kuldetes.js, 2026-10-17) — ugyanebben a pult-ágban, ugyanezzel a szabállyal */
+/* kuld: 🐉 sárkány-küldetés (kuldetes.js, 2026-10-17) — ugyanebben a pult-ágban, ugyanezzel a szabállyal.
+   4. kör (2026-10-18): + kuldLiget (melyik ligetből kér; egyéni > az első csoport, amelyik megadja), kuldPalyak (kézi
+   pályalista bármelyik ligetből; egyéni > a csoportok listáinak uniója; nincs = a játék rakja össze), megsem (csak
+   egyéni: { "leny|palyaId": időbélyeg } — a „mégsem megy” gomb; a tudás-napló egyszer veszi át, tudas.js tudasPultVissza).
+   Pult-változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik, 4. döntés). */
 var LENY_BEALL_ALAP = { kiser: true, kuld: true };
+var LENY_KULD_LIGET_ALAP = "szorzo";
 /* a pult beállításainak összevonása — a pult is ezt hívja (lenyHatas) */
 function lenyBeallOsszevon(egyeni, csoportok) {
   var ki = {};
@@ -26,12 +31,25 @@ function lenyBeallOsszevon(egyeni, csoportok) {
     });
     if (egyeni && typeof egyeni[k] === "boolean") ki[k] = egyeni[k];
   });
+  var cs = (csoportok || []).filter(Boolean);
+  cs.forEach(function (c) { if (typeof c.kuldLiget === "string" && !ki.kuldLiget) ki.kuldLiget = c.kuldLiget; });
+  if (egyeni && typeof egyeni.kuldLiget === "string") ki.kuldLiget = egyeni.kuldLiget;
+  cs.forEach(function (c) {
+    if (!Array.isArray(c.kuldPalyak)) return;
+    ki.kuldPalyak = ki.kuldPalyak || [];
+    c.kuldPalyak.forEach(function (id) { if (ki.kuldPalyak.indexOf(id) < 0) ki.kuldPalyak.push(id); });
+  });
+  if (egyeni && Array.isArray(egyeni.kuldPalyak)) ki.kuldPalyak = egyeni.kuldPalyak.slice();
+  if (egyeni && egyeni.megsem && typeof egyeni.megsem === "object") ki.megsem = egyeni.megsem;
   return ki;
 }
 function lenyBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.leny) || {};
   var ki = {};
   Object.keys(LENY_BEALL_ALAP).forEach(function (k) { ki[k] = typeof f[k] === "boolean" ? f[k] : LENY_BEALL_ALAP[k]; });
+  ki.kuldLiget = typeof f.kuldLiget === "string" && f.kuldLiget ? f.kuldLiget : LENY_KULD_LIGET_ALAP;
+  ki.kuldPalyak = Array.isArray(f.kuldPalyak) && f.kuldPalyak.length ? f.kuldPalyak.slice() : null;   /* null = a játék rakja össze */
+  ki.megsem = f.megsem && typeof f.megsem === "object" ? f.megsem : {};
   return ki;
 }
 

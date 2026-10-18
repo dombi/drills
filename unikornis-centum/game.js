@@ -2594,9 +2594,12 @@ function visszaAllapot(p) {
    A gyerek ebből SEMMIT nem lát (nincs szám, nincs minősítés); a küldetés-motor (kuldetes.js), később az intelligens
    pult, a játékadatok és a Neked szóló ösvény olvassa. Mentés: P().tud[palyaId] = { n: [tenyNap…], megy: nap|null,
    fok: 0..3, esed: nap|null, ut: utolsó végigjátszás napja }.
-   A pult is betöltheti: itt csak függvény-definíció van, a P()-t használók saját tárat is kaphatnak. */
+   A pult is betöltheti: itt csak függvény-definíció van, a P()-t használók saját tárat is kaphatnak.
+   4. kör (2026-10-18): a pult „mégsem megy” gombja (FELULIR.leny.megsem["leny|palyaId"] = időbélyeg) → tudasPultVissza:
+   a „megy” csendben visszavonódik, és a kattintás napja UTÁN TUDAS.visszaNap (2) újabb tiszta nap kell (s.vissza = az a
+   nap, s.vk = az átvett időbélyeg, így egy kattintás csak egyszer hat). Ugyanezt használja majd a kerülős emlék-próba. */
 
-var TUDAS = { megyNap: 3, probaNap: [7, 21, 60], nagyonNap: 120 };   /* a számok később a pultról állíthatók */
+var TUDAS = { megyNap: 3, visszaNap: 2, probaNap: [7, 21, 60], nagyonNap: 120 };   /* a számok később a pultról állíthatók */
 
 function tudasTar(p) {
   p = p || P();
@@ -2610,19 +2613,34 @@ function tudasSor(id, p) {
   if (typeof s.megy !== "number") s.megy = null;
   if (typeof s.fok !== "number") s.fok = 0;
   if (typeof s.esed !== "number") s.esed = null;
+  if (typeof s.vissza !== "number") s.vissza = null;
   return s;
 }
+/* a pult „mégsem megy” kattintását egyszer átveszi (csak a játékban, a saját unikornisnál) */
+function tudasPultVissza(id, p) {
+  if (p || typeof FELULIR === "undefined" || !FELULIR.leny || !FELULIR.leny.megsem || typeof mentes !== "object") return;
+  var ts = FELULIR.leny.megsem[mentes.leny + "|" + id];
+  if (typeof ts !== "number") return;
+  var s = tudasSor(id);
+  if (ts <= (s.vk || 0)) return;
+  s.vk = ts;
+  if (s.megy == null) return;
+  s.megy = null; s.fok = 0; s.esed = null; s.vissza = tenyNap(ts);
+}
+/* hány tiszta nap számít a „megy”-hez: visszavonás után csak az azutáni napok */
+function tudasTisztaNapok(s) { return s.vissza == null ? s.n.length : s.n.filter(function (d) { return d > s.vissza; }).length; }
 /* a palyaVege hívja: teljes = kerülő nélkül ért végig. A nap egyszer számít; a 3. tiszta napon „megy”. */
 function tudasPalyaVege(id, teljes, p) {
   if (!id) return null;
+  tudasPultVissza(id, p);
   var s = tudasSor(id, p), ma = tenyNap();
   s.ut = ma;
   if (!teljes) return s;
   if (s.n.indexOf(ma) < 0) { s.n.push(ma); if (s.n.length > 40) s.n.shift(); }
-  if (s.megy == null && s.n.length >= TUDAS.megyNap) { s.megy = ma; s.fok = 0; s.esed = ma + TUDAS.probaNap[0]; }
+  if (s.megy == null && tudasTisztaNapok(s) >= (s.vissza == null ? TUDAS.megyNap : TUDAS.visszaNap)) { s.megy = ma; s.fok = 0; s.esed = ma + TUDAS.probaNap[0]; }
   return s;
 }
-function tudasMegy(id, p) { var s = tudasTar(p)[id]; return !!(s && typeof s.megy === "number"); }
+function tudasMegy(id, p) { tudasPultVissza(id, p); var s = tudasTar(p)[id]; return !!(s && typeof s.megy === "number"); }
 function tudasNapok(id, p) { var s = tudasTar(p)[id]; return s && Array.isArray(s.n) ? s.n.length : 0; }
 function tudasUtolso(id, p) { var s = tudasTar(p)[id]; return s && typeof s.ut === "number" ? s.ut : -1; }
 /* esedékes-e emlék-próba (az 5. kód-körben a küldetés-motor ebből tesz vissza 1 helyet) */
@@ -3032,6 +3050,11 @@ function megfigyelesJatek(most) {
        részletek halvány körvonallal); kész → felveszi és megpördül. Az elsővel jön a ruhaláda (az ágy mellett): benne
        a megszerzett ruhák, koppintásra fel-le veszi; helyenként (nyak, fej, láb, hát) egy lehet rajta. A kísérő az
        ösvényen és a kölyök a kertben is viseli (kuldRajta).
+     • 4. kör (2026-10-18): a pult-kártya. A liget a pultról jön (lenyBeall().kuldLiget, alap: Szorzós liget); ha a
+       pulton KÉZI PÁLYALISTA van (kuldPalyak, bármelyik ligetből), a te listád számít: a gyereknek látszó, nyitott,
+       mérhető pályái, a „megy” is (te választottad), legalább 1 fajta, fajtánként 1–2 hely (kuldUjHelyek) — ekkor
+       akt.liget = "kezi", és a 🐉 minden olyan ligeten látszik, ahol kért pálya van (kuldLigetJel). A pult-változás csak a
+       következő küldetésre hat; a futót csak az elrejtett pálya igazítja (mint eddig).
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
                         rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
@@ -3044,6 +3067,7 @@ function megfigyelesJatek(most) {
 var KULD_LIGET = {
   szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"], raadas: ["mi-maradt"] }
 };
+var KULD_KEZI = "kezi";   /* akt.liget, ha a küldetés a pult kézi listájából állt össze */
 var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
@@ -3075,12 +3099,37 @@ function kuldFajtak(liget, p) {
     return pa.regio === liget && !pa.hamarosan && L.kimarad.indexOf(pa.id) < 0 && !palyaRejtve(pa) && !palyaZarva(pa);
   }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
 }
+/* kimaradó (nem mérhető / nem kötelező) pálya-e bármelyik ligetben — a kézi listából is kimarad */
+function kuldKimarad(id) {
+  return Object.keys(KULD_LIGET).some(function (l) { return KULD_LIGET[l].kimarad.indexOf(id) >= 0; });
+}
+/* ── a pult kézi listája (bármelyik ligetből): a gyereknél látszó, nyitott, nem kimaradó pályák, a PALYAK sorrendjében ── */
+function kuldKeziFajtak(ids, p) {
+  return PALYAK.filter(function (pa) {
+    return ids.indexOf(pa.id) >= 0 && !pa.hamarosan && !kuldKimarad(pa.id) && !palyaRejtve(pa) && !palyaZarva(pa);
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+}
+/* honnan kér segítséget (a kérés-mondat): a liget neve; a kézi listánál a közös liget, ha mind egyből van */
+function kuldHonnan(a) {
+  if (KULD_LIGET[a.liget]) return KULD_LIGET[a.liget].honnan;
+  var r = {}; a.helyek.forEach(function (h) { var pa = shPalya(h.p); if (pa) r[palyaLiget(pa)] = 1; });
+  var l = Object.keys(r);
+  return l.length === 1 && KULD_LIGET[l[0]] ? KULD_LIGET[l[0]].honnan : "a ligetekből";
+}
+/* a következő küldetés helyei a pult szerint: { liget, helyek } | null */
+function kuldUjHelyek() {
+  var b = lenyBeall();
+  if (b.kuldPalyak) { var h = kuldOsszeallit(kuldKeziFajtak(b.kuldPalyak), true); return h ? { liget: KULD_KEZI, helyek: h } : null; }
+  var a = kuldOsszeallit(kuldFajtak(b.kuldLiget));
+  return a ? { liget: b.kuldLiget, helyek: a } : null;
+}
 /* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy }] a liget sorrendjében.
    Visszaad: [{ p, resz }] (a fajták sorrendjében, fajtánként egymás után), vagy null (≤ 2 fajta: a liget kész).
-   Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés). ── */
-function kuldOsszeallit(fajtak) {
-  var L = (fajtak || []).filter(function (f) { return !f.megy; });
-  if (L.length <= 2) return null;
+   Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés).
+   kezi (a pult listája): a „megy” is bent marad, és 1 fajta is elég. ── */
+function kuldOsszeallit(fajtak, kezi) {
+  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy; });
+  if (L.length <= (kezi ? 0 : 2)) return null;
   var elso = L.map(function (f, i) { return { f: f, i: i }; }).sort(function (a, b) {
     return (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
   }).map(function (x) { return x.f.id; });
@@ -3145,11 +3194,12 @@ function kuldKertJel() {
   var a = kuldAkt();
   return a && a.tip === "haz" && a.hozott > a.felrakva ? ["🐉"] : [];
 }
-/* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) */
+/* van-e még kért pálya ebben a ligetben (🐉 a ligettérképen) — a kézi listánál pályánként a saját ligete számít */
 function kuldLigetJel(r) {
   if (!kuldVan()) return [];
   var a = kuldAkt();
-  return a && a.liget === r && a.helyek.some(function (h) { return !h.kesz; }) ? ["🐉"] : [];
+  if (!a) return [];
+  return a.helyek.some(function (h) { var pa = shPalya(h.p); return !h.kesz && (a.liget === KULD_KEZI ? !!pa && palyaLiget(pa) === r : a.liget === r); }) ? ["🐉"] : [];
 }
 /* a pályavége hívja (engine-logic.js palyaVege, minden végigért pálya után). Visszaad: { resz: [rajz-részlet sorszámok] } | null */
 function kuldPalyaVege(id) {
@@ -3182,7 +3232,7 @@ function kuldKeresKell() {
   if (!kuldVan()) return false;
   var k = kuldTar();
   if (k.akt) return false;
-  return !!kuldKeresOpciok().length && !!kuldOsszeallit(kuldFajtak("szorzo"));
+  return !!kuldKeresOpciok().length && !!kuldUjHelyek();
 }
 function kuldKeresOpciok() {
   var k = kuldTar();
@@ -3206,9 +3256,9 @@ function kuldKesobbVan() { var k = kuldTar(); return !k.akt && !!k.keres && k.ke
 function kuldMagatolKer() { var k = kuldTar(); return kuldKeresKell() && !(k.keres && k.keres.nap === tenyNap()); }
 /* a gyerek választott: indul a küldetés */
 function kuldValaszt(id) {
-  var k = kuldTar(), h = SH_HOLMI_BY[id], helyek = kuldOsszeallit(kuldFajtak("szorzo"));
-  if (!h || !helyek) return null;
-  k.akt = { id: id, tip: h.tip, liget: "szorzo", helyek: helyek.map(function (x) { return { p: x.p, resz: x.resz, kesz: 0, ks: 0 }; }),
+  var k = kuldTar(), h = SH_HOLMI_BY[id], uj = kuldUjHelyek();
+  if (!h || !uj) return null;
+  k.akt = { id: id, tip: h.tip, liget: uj.liget, helyek: uj.helyek.map(function (x) { return { p: x.p, resz: x.resz, kesz: 0, ks: 0 }; }),
             hozott: 0, felrakva: 0, ks: 0, kezd: tenyNap(), hir: null };
   k.keres = null;
   ment();
@@ -16980,8 +17030,13 @@ function lenyKertJel() { var l = lenyTar(); return lenyNagyKertben(l) && !l.kert
    a bekapcsolt nyer (mint a 📋 tábla). A pult (admin/index.html) ugyanezt a fájlt tölti be: itt csak függvény-definíció
    lehet, felső szinten semmi nem futhat, ami a játék globálisaira épül. */
 
-/* kuld: 🐉 sárkány-küldetés (kuldetes.js, 2026-10-17) — ugyanebben a pult-ágban, ugyanezzel a szabállyal */
+/* kuld: 🐉 sárkány-küldetés (kuldetes.js, 2026-10-17) — ugyanebben a pult-ágban, ugyanezzel a szabállyal.
+   4. kör (2026-10-18): + kuldLiget (melyik ligetből kér; egyéni > az első csoport, amelyik megadja), kuldPalyak (kézi
+   pályalista bármelyik ligetből; egyéni > a csoportok listáinak uniója; nincs = a játék rakja össze), megsem (csak
+   egyéni: { "leny|palyaId": időbélyeg } — a „mégsem megy” gomb; a tudás-napló egyszer veszi át, tudas.js tudasPultVissza).
+   Pult-változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik, 4. döntés). */
 var LENY_BEALL_ALAP = { kiser: true, kuld: true };
+var LENY_KULD_LIGET_ALAP = "szorzo";
 /* a pult beállításainak összevonása — a pult is ezt hívja (lenyHatas) */
 function lenyBeallOsszevon(egyeni, csoportok) {
   var ki = {};
@@ -16992,12 +17047,25 @@ function lenyBeallOsszevon(egyeni, csoportok) {
     });
     if (egyeni && typeof egyeni[k] === "boolean") ki[k] = egyeni[k];
   });
+  var cs = (csoportok || []).filter(Boolean);
+  cs.forEach(function (c) { if (typeof c.kuldLiget === "string" && !ki.kuldLiget) ki.kuldLiget = c.kuldLiget; });
+  if (egyeni && typeof egyeni.kuldLiget === "string") ki.kuldLiget = egyeni.kuldLiget;
+  cs.forEach(function (c) {
+    if (!Array.isArray(c.kuldPalyak)) return;
+    ki.kuldPalyak = ki.kuldPalyak || [];
+    c.kuldPalyak.forEach(function (id) { if (ki.kuldPalyak.indexOf(id) < 0) ki.kuldPalyak.push(id); });
+  });
+  if (egyeni && Array.isArray(egyeni.kuldPalyak)) ki.kuldPalyak = egyeni.kuldPalyak.slice();
+  if (egyeni && egyeni.megsem && typeof egyeni.megsem === "object") ki.megsem = egyeni.megsem;
   return ki;
 }
 function lenyBeall(f) {
   f = f || (typeof FELULIR !== "undefined" && FELULIR.leny) || {};
   var ki = {};
   Object.keys(LENY_BEALL_ALAP).forEach(function (k) { ki[k] = typeof f[k] === "boolean" ? f[k] : LENY_BEALL_ALAP[k]; });
+  ki.kuldLiget = typeof f.kuldLiget === "string" && f.kuldLiget ? f.kuldLiget : LENY_KULD_LIGET_ALAP;
+  ki.kuldPalyak = Array.isArray(f.kuldPalyak) && f.kuldPalyak.length ? f.kuldPalyak.slice() : null;   /* null = a játék rakja össze */
+  ki.megsem = f.megsem && typeof f.megsem === "object" ? f.megsem : {};
   return ki;
 }
 
@@ -17572,8 +17640,8 @@ function kuldKeresMutat() {
       if (!a) return;
       lenyOduFrissit();
       var f = document.querySelector("#odu-szoba #ln-fioka-poz"); if (f) lenyTusszent(f);
-      mondd(a.tip === "haz" ? "Ez lesz az! A kisházam a kertbe kerül, a napozó szikla mellé. Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + "!"
-        : "Ez lesz az! Ehhez kell egy kis segítség " + KULD_LIGET[a.liget].honnan + ". Nézd meg a táblát!");
+      mondd(a.tip === "haz" ? "Ez lesz az! A kisházam a kertbe kerül, a napozó szikla mellé. Ehhez kell egy kis segítség " + kuldHonnan(a) + "!"
+        : "Ez lesz az! Ehhez kell egy kis segítség " + kuldHonnan(a) + ". Nézd meg a táblát!");
     });
   });
   d.querySelector(".kuld-kesobb").addEventListener("click", function () {
@@ -18389,7 +18457,7 @@ function renderLigetTerkep(racs, L) {
   racs.appendChild(host);
   var lathato = { odu: true, utca: true, kert: true }, jel = {}, mod = utcaMod(host.clientWidth, host.clientHeight);
   L.sorrend.forEach(function (r) { if (LIGET_TERKEP.helyek[r]) { lathato[r] = true; jel[r] = ligetOsszegzo(r, L.regiok[r]); } });
-  Object.keys(KULD_LIGET).forEach(function (r) { if (jel[r]) jel[r].jelzes = kuldLigetJel(r).concat(jel[r].jelzes || []).slice(0, 2); });   /* 🐉 innen kért a kölyök (kuldetes.js) */
+  Object.keys(jel).forEach(function (r) { jel[r].jelzes = kuldLigetJel(r).concat(jel[r].jelzes || []).slice(0, 2); });   /* 🐉 innen kért a kölyök (kuldetes.js; a pult kézi listájával bármelyik ligetből) */
   jel.kert = { jelzes: (tenyKertVar() ? ["🦋"] : []).concat(lenyKertJel()).concat(kuldKertJel()).slice(0, 2) };   /* + 🌈 a nagy sárkány vár a kertben (leny.js, 5. kör) + 🐉 a kisház darabja vár (kuldetes.js) */   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
   jel.odu = { jelzes: lenyTerkepJel() };                 /* 🥚 / 🦋 / ☁️ a kis lény vár az odúban (kaland.js, visszahívás 4. kör) */
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
