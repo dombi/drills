@@ -14,7 +14,8 @@ window.__KK = (function () {
     if (f.csalad === "felmondas") return !!J.lepesAktiv && !!document.querySelector("#felmond-lista .felmond-sor.most .dob-be");
     if (f.csalad === "maradekos") return lat("#mar-h");
     if (f.csalad === "koppint") return !!(J.kopp && !J.kopp.kesz) && lat("#valasz-kartyak [data-i]");
-    if (f.csalad === "dobogo") return false;
+    if (f.csalad === "dobogo") return !!G("DOB && !DOB.zar && DOB.f === J.feladat") && lat('#dobogo-panel [data-g="kesz"]');
+    if (f.kartyak) return lat("#valasz-kartyak .ek-tk");   /* 📚 olvasó-polc: „Kiről kérdeznek?” kártyák */
     if (f.polc && G("oeKeresFut() && OE.keres && !OE.keres.o.lagy")) return false;   /* a 🔎 kérdés-keret vár (a polcZar-t NEM hívjuk: beszél és keretet nyit) */
     if (document.querySelector("#buborek-feladat .eg-kartya.szabad")) return lat("#buborek-feladat .eg-kartya.szabad");   /* 👆 🧺 csere koppintással */
     return lat("#beiro-doboz");
@@ -31,6 +32,7 @@ window.__KK = (function () {
      {mod:"felmond", sor:"1 9 1 0 …"}          — a felmondás hátralévő sorai (az utolsó mező magától ellenőriz)
      {mod:"mar", h:"7", m:"2"}                 — maradékos osztás: két mező
      {mod:"katt", sel:[…], rossz:"…"}          — koppintós kártya(k), sorrendben; rossz: egy nem-jó kártya
+     {mod:"dobogo", lep:[[szereplő, hely]…], kesz:"…", rossz:[…]} — 🏆 dobogó: két koppintás szereplőnként, aztán „Kész”
      null                                      — ezt a gép nem tudja megválaszolni */
   function jegyek(n) { return String(n).split("").join(" "); }
   function helyes() {
@@ -50,6 +52,24 @@ window.__KK = (function () {
       else jo = String(o.jo);
       var rossz = mind.filter(function (x) { return x !== jo; })[0];
       return { mod: "katt", sel: [sel(jo)], rossz: rossz != null ? sel(rossz) : null };
+    }
+    if (f.csalad === "dobogo") {
+      var D = f.dob, lep = [], fel = [];
+      D.jo.forEach(function (sor, r) { sor.forEach(function (id, i) {
+        lep.push(['.dob-d:not(.bent)[data-r="' + r + '"][data-id="' + id + '"]', '.dob-h[data-r="' + r + '"][data-i="' + i + '"]']);
+      }); });
+      /* rossz elrendezés: az első sor első két szereplője helyet cserél (a többi jó helyen) */
+      var jo0 = D.jo[0], cs = jo0.length > 1 ? [jo0[1], jo0[0]].concat(jo0.slice(2)) : null;
+      if (cs) cs.forEach(function (id, i) { fel.push(['.dob-d:not(.bent)[data-r="0"][data-id="' + id + '"]', '.dob-h[data-r="0"][data-i="' + i + '"]']); });
+      D.jo.slice(1).forEach(function (sor, r) { sor.forEach(function (id, i) {
+        fel.push(['.dob-d:not(.bent)[data-r="' + (r + 1) + '"][data-id="' + id + '"]', '.dob-h[data-r="' + (r + 1) + '"][data-i="' + i + '"]']);
+      }); });
+      return { mod: "dobogo", lep: lep, kesz: '#dobogo-panel [data-g="kesz"]', ujra: '#dobogo-panel [data-g="ujra"]', rossz: cs ? fel : null };
+    }
+    if (f.kartyak) {
+      var jk = String(f.kartyak.map(function (k) { return !!k.jo; }).indexOf(true)), sk = function (i) { return '#valasz-kartyak .ek-tk[data-i="' + i + '"]'; };
+      var mk = [].map.call(document.querySelectorAll("#valasz-kartyak .ek-tk"), function (e) { return e.getAttribute("data-i"); }).filter(function (x) { return x !== jk; });
+      return { mod: "katt", sel: [sk(jk)], rossz: mk.length ? sk(mk[0]) : null };
     }
     var kk = [].slice.call(document.querySelectorAll("#buborek-feladat .eg-kartya.szabad"));   /* 👆 🧺 csere koppintással: a helyes számú kártya */
     if (kk.length) {

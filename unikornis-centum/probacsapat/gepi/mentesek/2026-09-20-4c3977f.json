@@ -1,0 +1,983 @@
+{
+ "leiras": "Kitalált teli mentés — a játék 2026-09-20-i változatával (4c3977f) gyártva, mentes_tolto.js",
+ "commit": "4c3977f",
+ "datum": "2026-09-20",
+ "mentes": {
+  "verzio": 1,
+  "leny": "ragyogas",
+  "hang": true,
+  "valaszmod": "beszed",
+  "profilok": {
+   "ragyogas": {
+    "csillampor": 1234,
+    "tunderharmat": 321,
+    "becenev": "Csillagka",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     },
+     "szorzo-dallam": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": false
+     },
+     "egy-szam": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": true
+     },
+     "osztas-100": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": false
+     },
+     "vegyes-szorzo": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54321,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     },
+     "szint": {
+      "fal": 3,
+      "szonyeg": 3,
+      "ablak": 3,
+      "fuggony": 3,
+      "agy": 3,
+      "fuzer": 2,
+      "kalyha": 3,
+      "polc": 3,
+      "asztal": 3
+     },
+     "vanButor": {
+      "fal": {
+       "2": 1,
+       "3": 1
+      },
+      "ablak": {
+       "2": 1,
+       "3": 1
+      },
+      "fuggony": {
+       "2": 1,
+       "3": 1
+      },
+      "agy": {
+       "2": 1,
+       "3": 1
+      },
+      "kalyha": {
+       "2": 1,
+       "3": 1
+      },
+      "polc": {
+       "2": 1,
+       "3": 1
+      },
+      "asztal": {
+       "2": 1,
+       "3": 1
+      },
+      "szonyeg": {
+       "2": 1,
+       "3": 1
+      },
+      "fuzer": {
+       "2": 1
+      }
+     },
+     "disz": {
+      "fal-bal": "patko",
+      "fal-jobb": "erdokep",
+      "ablak": "noveny",
+      "asztal": "vaza",
+      "polc": "konyvek",
+      "agy": "pluss",
+      "mennyezet": "krisztaly",
+      "padlo-bal": "kosar",
+      "padlo-jobb": "ladiko"
+     },
+     "vanDisz": {
+      "patko": 1,
+      "tukor": 1,
+      "koszoru": 1,
+      "erdokep": 1,
+      "noveny": 1,
+      "vaza": 1,
+      "gyertyatarto": 1,
+      "konyvek": 1,
+      "csillag": 1,
+      "pluss": 1,
+      "krisztaly": 1,
+      "terito": 1,
+      "befott": 1,
+      "pokroc": 1,
+      "parna": 1,
+      "uvegcsek": 1,
+      "unifigura": 1,
+      "kosar": 1,
+      "ladiko": 1,
+      "kispatna": 1,
+      "fuggodisz": 1
+     },
+     "vitrin": {
+      "k-gomb": 1,
+      "k-roka": 1,
+      "k-bagoly": 1,
+      "k-terkep": 1,
+      "k-zene": 1,
+      "k-lampas": 1
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "jelvenyek": {
+     "elso-bontas": 1,
+     "tizes-barat": 1,
+     "szazas-felfedezo": 1,
+     "atlepo-bajnok": 1,
+     "szorzo-vandor": 1,
+     "erdo-ura": 1,
+     "ejfeli-kapu": 1,
+     "hibatlan-allomas": 1,
+     "bontas-mester": 1,
+     "fejszamolo": 1,
+     "kitarto": 1,
+     "nem-adom-fel": 1,
+     "visszatero": 1,
+     "kerulo-felfedezo": 1,
+     "elso-vasarlas": 1,
+     "gyujto": 1,
+     "otthonteremto": 1
+    },
+    "streakRekord": 0,
+    "dropUres": 0,
+    "sorozat": {
+     "hossz": 0,
+     "utolsoPalya": null
+    },
+    "kinezet": {
+     "sorenySzin": 0,
+     "szemSzin": null,
+     "vanSoreny": {
+      "0": 1
+     },
+     "vanSzem": {
+      "0": 1
+     },
+     "frizura": "egyenes"
+    },
+    "kapu": {
+     "nyitvaEddig": 0,
+     "kulcsKesz": {}
+    },
+    "kert": {
+     "nyitva": 1,
+     "trukkok": {
+      "kulcs": 1,
+      "ules": 1,
+      "ugras": 1,
+      "porges": 1,
+      "csillam": 1,
+      "eves": 1,
+      "befekves": 1
+     },
+     "keszlet": {
+      "lampas": 2,
+      "agy": 1,
+      "tulipan": 3,
+      "bokor": 2,
+      "ropi": 1,
+      "torta": 3
+     },
+     "elemek": [
+      {
+       "tip": "kerites",
+       "x": 10,
+       "y": 75
+      },
+      {
+       "tip": "szokokut",
+       "x": 24,
+       "y": 81
+      },
+      {
+       "tip": "viragagyas",
+       "x": 38,
+       "y": 87
+      },
+      {
+       "tip": "gombak",
+       "x": 52,
+       "y": 93
+      },
+      {
+       "tip": "facska",
+       "x": 66,
+       "y": 79
+      },
+      {
+       "tip": "eper",
+       "x": 80,
+       "y": 85
+      }
+     ]
+    },
+    "szalon": {
+     "nyitva": 1,
+     "kefek": {}
+    },
+    "jelvSzam": {
+     "felmondasOk": 3,
+     "beszedFeladat": 3,
+     "kuzdottGyozelem": 3,
+     "keruloTargy": 3,
+     "hibatlanAllomas": 3,
+     "vettMar": 3
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    },
+    "napiKiemelt": {
+     "datum": "",
+     "teljesitve": false
+    }
+   },
+   "tuz": {
+    "csillampor": 1345,
+    "tunderharmat": 332,
+    "becenev": "Lángocska",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     },
+     "szorzo-dallam": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": false
+     },
+     "egy-szam": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": true
+     },
+     "osztas-100": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": false
+     },
+     "vegyes-szorzo": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54322,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     },
+     "szint": {
+      "fal": 3,
+      "szonyeg": 3,
+      "ablak": 3,
+      "fuggony": 3,
+      "agy": 3,
+      "fuzer": 2,
+      "kalyha": 3,
+      "polc": 3,
+      "asztal": 3
+     },
+     "vanButor": {
+      "fal": {
+       "2": 1,
+       "3": 1
+      },
+      "ablak": {
+       "2": 1,
+       "3": 1
+      },
+      "fuggony": {
+       "2": 1,
+       "3": 1
+      },
+      "agy": {
+       "2": 1,
+       "3": 1
+      },
+      "kalyha": {
+       "2": 1,
+       "3": 1
+      },
+      "polc": {
+       "2": 1,
+       "3": 1
+      },
+      "asztal": {
+       "2": 1,
+       "3": 1
+      },
+      "szonyeg": {
+       "2": 1,
+       "3": 1
+      },
+      "fuzer": {
+       "2": 1
+      }
+     },
+     "disz": {
+      "fal-bal": "patko",
+      "fal-jobb": "erdokep",
+      "ablak": "noveny",
+      "asztal": "vaza",
+      "polc": "konyvek",
+      "agy": "pluss",
+      "mennyezet": "krisztaly",
+      "padlo-bal": "kosar",
+      "padlo-jobb": "ladiko"
+     },
+     "vanDisz": {
+      "patko": 1,
+      "tukor": 1,
+      "koszoru": 1,
+      "erdokep": 1,
+      "noveny": 1,
+      "vaza": 1,
+      "gyertyatarto": 1,
+      "konyvek": 1,
+      "csillag": 1,
+      "pluss": 1,
+      "krisztaly": 1,
+      "terito": 1,
+      "befott": 1,
+      "pokroc": 1,
+      "parna": 1,
+      "uvegcsek": 1,
+      "unifigura": 1,
+      "kosar": 1,
+      "ladiko": 1,
+      "kispatna": 1,
+      "fuggodisz": 1
+     },
+     "vitrin": {
+      "k-gomb": 1,
+      "k-roka": 1,
+      "k-bagoly": 1,
+      "k-terkep": 1,
+      "k-zene": 1,
+      "k-lampas": 1
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "jelvenyek": {
+     "elso-bontas": 1,
+     "tizes-barat": 1,
+     "szazas-felfedezo": 1,
+     "atlepo-bajnok": 1,
+     "szorzo-vandor": 1,
+     "erdo-ura": 1,
+     "ejfeli-kapu": 1,
+     "hibatlan-allomas": 1,
+     "bontas-mester": 1,
+     "fejszamolo": 1,
+     "kitarto": 1,
+     "nem-adom-fel": 1,
+     "visszatero": 1,
+     "kerulo-felfedezo": 1,
+     "elso-vasarlas": 1,
+     "gyujto": 1,
+     "otthonteremto": 1
+    },
+    "streakRekord": 0,
+    "dropUres": 0,
+    "sorozat": {
+     "hossz": 0,
+     "utolsoPalya": null
+    },
+    "kinezet": {
+     "sorenySzin": 0,
+     "szemSzin": null,
+     "vanSoreny": {
+      "0": 1
+     },
+     "vanSzem": {
+      "0": 1
+     },
+     "frizura": "egyenes"
+    },
+    "kapu": {
+     "nyitvaEddig": 0,
+     "kulcsKesz": {}
+    },
+    "kert": {
+     "nyitva": 1,
+     "trukkok": {
+      "kulcs": 1,
+      "ules": 1,
+      "ugras": 1,
+      "porges": 1,
+      "csillam": 1,
+      "eves": 1,
+      "befekves": 1
+     },
+     "keszlet": {
+      "lampas": 2,
+      "agy": 1,
+      "tulipan": 3,
+      "bokor": 2,
+      "ropi": 1,
+      "torta": 3
+     },
+     "elemek": [
+      {
+       "tip": "kerites",
+       "x": 10,
+       "y": 75
+      },
+      {
+       "tip": "szokokut",
+       "x": 24,
+       "y": 81
+      },
+      {
+       "tip": "viragagyas",
+       "x": 38,
+       "y": 87
+      },
+      {
+       "tip": "gombak",
+       "x": 52,
+       "y": 93
+      },
+      {
+       "tip": "facska",
+       "x": 66,
+       "y": 79
+      },
+      {
+       "tip": "eper",
+       "x": 80,
+       "y": 85
+      }
+     ]
+    },
+    "szalon": {
+     "nyitva": 1,
+     "kefek": {}
+    },
+    "jelvSzam": {
+     "felmondasOk": 3,
+     "beszedFeladat": 3,
+     "kuzdottGyozelem": 3,
+     "keruloTargy": 3,
+     "hibatlanAllomas": 3,
+     "vettMar": 3
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    },
+    "napiKiemelt": {
+     "datum": "",
+     "teljesitve": false
+    }
+   },
+   "csillamharmat": {
+    "csillampor": 1456,
+    "tunderharmat": 343,
+    "becenev": "Harmatka",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     },
+     "szorzo-dallam": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": false
+     },
+     "egy-szam": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": true
+     },
+     "osztas-100": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": false
+     },
+     "vegyes-szorzo": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54323,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     },
+     "szint": {
+      "fal": 3,
+      "szonyeg": 3,
+      "ablak": 3,
+      "fuggony": 3,
+      "agy": 3,
+      "fuzer": 2,
+      "kalyha": 3,
+      "polc": 3,
+      "asztal": 3
+     },
+     "vanButor": {
+      "fal": {
+       "2": 1,
+       "3": 1
+      },
+      "ablak": {
+       "2": 1,
+       "3": 1
+      },
+      "fuggony": {
+       "2": 1,
+       "3": 1
+      },
+      "agy": {
+       "2": 1,
+       "3": 1
+      },
+      "kalyha": {
+       "2": 1,
+       "3": 1
+      },
+      "polc": {
+       "2": 1,
+       "3": 1
+      },
+      "asztal": {
+       "2": 1,
+       "3": 1
+      },
+      "szonyeg": {
+       "2": 1,
+       "3": 1
+      },
+      "fuzer": {
+       "2": 1
+      }
+     },
+     "disz": {
+      "fal-bal": "patko",
+      "fal-jobb": "erdokep",
+      "ablak": "noveny",
+      "asztal": "vaza",
+      "polc": "konyvek",
+      "agy": "pluss",
+      "mennyezet": "krisztaly",
+      "padlo-bal": "kosar",
+      "padlo-jobb": "ladiko"
+     },
+     "vanDisz": {
+      "patko": 1,
+      "tukor": 1,
+      "koszoru": 1,
+      "erdokep": 1,
+      "noveny": 1,
+      "vaza": 1,
+      "gyertyatarto": 1,
+      "konyvek": 1,
+      "csillag": 1,
+      "pluss": 1,
+      "krisztaly": 1,
+      "terito": 1,
+      "befott": 1,
+      "pokroc": 1,
+      "parna": 1,
+      "uvegcsek": 1,
+      "unifigura": 1,
+      "kosar": 1,
+      "ladiko": 1,
+      "kispatna": 1,
+      "fuggodisz": 1
+     },
+     "vitrin": {
+      "k-gomb": 1,
+      "k-roka": 1,
+      "k-bagoly": 1,
+      "k-terkep": 1,
+      "k-zene": 1,
+      "k-lampas": 1
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "jelvenyek": {
+     "elso-bontas": 1,
+     "tizes-barat": 1,
+     "szazas-felfedezo": 1,
+     "atlepo-bajnok": 1,
+     "szorzo-vandor": 1,
+     "erdo-ura": 1,
+     "ejfeli-kapu": 1,
+     "hibatlan-allomas": 1,
+     "bontas-mester": 1,
+     "fejszamolo": 1,
+     "kitarto": 1,
+     "nem-adom-fel": 1,
+     "visszatero": 1,
+     "kerulo-felfedezo": 1,
+     "elso-vasarlas": 1,
+     "gyujto": 1,
+     "otthonteremto": 1
+    },
+    "streakRekord": 0,
+    "dropUres": 0,
+    "sorozat": {
+     "hossz": 0,
+     "utolsoPalya": null
+    },
+    "kinezet": {
+     "sorenySzin": 0,
+     "szemSzin": null,
+     "vanSoreny": {
+      "0": 1
+     },
+     "vanSzem": {
+      "0": 1
+     },
+     "frizura": "egyenes"
+    },
+    "kapu": {
+     "nyitvaEddig": 0,
+     "kulcsKesz": {}
+    },
+    "kert": {
+     "nyitva": 1,
+     "trukkok": {
+      "kulcs": 1,
+      "ules": 1,
+      "ugras": 1,
+      "porges": 1,
+      "csillam": 1,
+      "eves": 1,
+      "befekves": 1
+     },
+     "keszlet": {
+      "lampas": 2,
+      "agy": 1,
+      "tulipan": 3,
+      "bokor": 2,
+      "ropi": 1,
+      "torta": 3
+     },
+     "elemek": [
+      {
+       "tip": "kerites",
+       "x": 10,
+       "y": 75
+      },
+      {
+       "tip": "szokokut",
+       "x": 24,
+       "y": 81
+      },
+      {
+       "tip": "viragagyas",
+       "x": 38,
+       "y": 87
+      },
+      {
+       "tip": "gombak",
+       "x": 52,
+       "y": 93
+      },
+      {
+       "tip": "facska",
+       "x": 66,
+       "y": 79
+      },
+      {
+       "tip": "eper",
+       "x": 80,
+       "y": 85
+      }
+     ]
+    },
+    "szalon": {
+     "nyitva": 1,
+     "kefek": {}
+    },
+    "jelvSzam": {
+     "felmondasOk": 3,
+     "beszedFeladat": 3,
+     "kuzdottGyozelem": 3,
+     "keruloTargy": 3,
+     "hibatlanAllomas": 3,
+     "vettMar": 3
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    },
+    "napiKiemelt": {
+     "datum": "",
+     "teljesitve": false
+    }
+   }
+  },
+  "ragyogasNulla20260906": 1
+ }
+}

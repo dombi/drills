@@ -43,18 +43,18 @@ UTOJATEK = r"""<script>
 </script>"""
 
 
-def teszt_lap():
-    html = open(os.path.join(UC, "index.html"), encoding="utf-8").read()
+def teszt_lap(mappa=UC):
+    html = open(os.path.join(mappa, "index.html"), encoding="utf-8").read()
     js_minta = re.compile(r'(<script src="game\.js[^"]*"></script>)')
     if not js_minta.search(html):
         raise RuntimeError("index.html: nem találom a game.js betöltését")
     return js_minta.sub(lambda m: ELOJATEK + m.group(1) + UTOJATEK, html)
 
 
-def kemlelo_js():
+def kemlelo_js(mappa=UC):
     """A game.js a lemezről, a végén egy kémlelővel: window.__GEPI_EVAL(kód) a játék belsejében fut
     (a P(), J, FELULIR, boltKivalasztott… így a próbából elérhető). Csak a próba-szerver adja így; a fájl nem változik."""
-    js = open(os.path.join(UC, "game.js"), encoding="utf-8").read()
+    js = open(os.path.join(mappa, "game.js"), encoding="utf-8").read()
     ultet = os.environ.get("GEPI_BEULTET")   # az őrök próbája: JSON-fájl [[régi, új], …] — szándékosan elrontott játék
     if ultet:
         for regi, uj in json.load(open(ultet, encoding="utf-8")):
@@ -66,12 +66,13 @@ def kemlelo_js():
 
 
 class Kiszolgalo:
-    """A játék mappája egy szabad porton (127.0.0.1); a /_gepi.html a teszt-lap."""
-    def __init__(self):
-        lap = teszt_lap().encode("utf-8")
+    """A játék mappája egy szabad porton (127.0.0.1); a /_gepi.html a teszt-lap.
+    mappa: alapból a mostani játék; a ⑥ mentés-gyártó egy régi változat kicsomagolt mappáját adja."""
+    def __init__(self, mappa=UC):
+        lap = teszt_lap(mappa).encode("utf-8")
 
         class Kezelo(http.server.SimpleHTTPRequestHandler):
-            def __init__(s, *a, **k): super().__init__(*a, directory=UC, **k)
+            def __init__(s, *a, **k): super().__init__(*a, directory=mappa, **k)
             def log_message(s, *a): pass
             def end_headers(s):
                 s.send_header("Cache-Control", "no-store"); super().end_headers()
@@ -81,7 +82,7 @@ class Kiszolgalo:
                     s.send_response(200); s.send_header("Content-Type", "text/html; charset=utf-8")
                     s.send_header("Content-Length", str(len(lap))); s.end_headers(); s.wfile.write(lap)
                 elif ut == "/game.js":
-                    js = kemlelo_js()
+                    js = kemlelo_js(mappa)
                     s.send_response(200); s.send_header("Content-Type", "text/javascript; charset=utf-8")
                     s.send_header("Content-Length", str(len(js))); s.end_headers(); s.wfile.write(js)
                 else:
@@ -225,9 +226,10 @@ class Lap:
                        " try { ok = !!(%s); } catch(e) {} if (ok) r(true); else if (Date.now()-t0 > %d) r(false);"
                        " else setTimeout(n, 50); })(); })" % (feltetel, int(mp * 1000)))
 
-    def betolt(self, url):
+    def betolt(self, url, kesz="window.UC && window.UC.PALYAK"):
+        """kesz: mikor számít betöltöttnek (a régi változatoknak még nem volt UC-fogantyújuk → a gyártó mást ad)."""
         self.parancs("Page.navigate", {"url": url})
-        if not self.varj("document.readyState === 'complete' && window.UC && window.UC.PALYAK", 30):
+        if not self.varj("document.readyState === 'complete' && " + kesz, 30):
             raise RuntimeError("a játék nem töltődött be 30 mp alatt: " + url)
 
     def katt(self, selector, mp=0):
@@ -333,6 +335,10 @@ class Edge:
 
     def leall(self):
         for l in getattr(self, "lapok", []): l.zar()
+        # az egész folyamatfa (a lapok saját folyamatai is): csak a fő folyamat leállítása után a láthatatlan lapok
+        # tovább futottak és vitték a processzort (3. kód-kör, 2026-10-14)
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(self.proc.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             self.proc.terminate(); self.proc.wait(10)
         except Exception:

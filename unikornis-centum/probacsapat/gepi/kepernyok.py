@@ -48,7 +48,7 @@ KEPERNYOK = [
 # amit az indulás-őr szándékosan NEM néz (a lefedettség-figyelmeztetésből kimarad), és miért
 NEM_NEZI = {
     "kepernyo-jatek": "a pályák indítása nézi (minden pálya)",
-    "kepernyo-vege": "3. kód-kör: pályák végigjátszása",
+    "kepernyo-vege": "a végigjátszás nézi (vegig.py: minden végigjátszott pálya vége-képernyője, a szövegei a szöveg-őrhöz mennek)",
     "kepernyo-tunemenykert": "csak felhővel él — a próba alatt a felhő el van zárva",
     "kepernyo-fejtoro": "a feladatok a felhőből jönnek — a próba alatt a felhő el van zárva",
 }

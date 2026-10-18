@@ -1,0 +1,326 @@
+{
+ "leiras": "Kitalált teli mentés — a játék 2026-09-05-i változatával (0f710f7) gyártva, mentes_tolto.js",
+ "commit": "0f710f7",
+ "datum": "2026-09-05",
+ "mentes": {
+  "verzio": 1,
+  "leny": "ragyogas",
+  "hang": true,
+  "valaszmod": "beszed",
+  "profilok": {
+   "ragyogas": {
+    "csillampor": 1234,
+    "becenev": "Csillagka",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54321,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    }
+   },
+   "tuz": {
+    "csillampor": 1345,
+    "becenev": "Lángocska",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54322,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    }
+   },
+   "csillamharmat": {
+    "csillampor": 1456,
+    "becenev": "Harmatka",
+    "palyak": {
+     "bontas-felmondas": {
+      "kesz": true,
+      "rekordElsore": 3,
+      "arany": true
+     },
+     "oszkiv-10": {
+      "kesz": true,
+      "rekordElsore": 4,
+      "arany": false
+     },
+     "oszkiv-20": {
+      "kesz": true,
+      "rekordElsore": 5,
+      "arany": true
+     },
+     "tizesek": {
+      "kesz": true,
+      "rekordElsore": 6,
+      "arany": false
+     },
+     "aprok": {
+      "kesz": true,
+      "rekordElsore": 7,
+      "arany": true
+     },
+     "lepegeto": {
+      "kesz": true,
+      "rekordElsore": 8,
+      "arany": false
+     },
+     "atlepo": {
+      "kesz": true,
+      "rekordElsore": 9,
+      "arany": true
+     },
+     "erdo-melye": {
+      "kesz": true,
+      "rekordElsore": 10,
+      "arany": false
+     },
+     "erdo-szive": {
+      "kesz": true,
+      "rekordElsore": 11,
+      "arany": true
+     }
+    },
+    "naplo": [],
+    "jatekMp": 54323,
+    "odu": {
+     "napszak": "reggel",
+     "ido": "eso",
+     "van": {
+      "napszak": {
+       "este": 1,
+       "reggel": 1,
+       "del": 1,
+       "eclipse": 1
+      },
+      "ido": {
+       "tiszta": 1,
+       "eso": 1,
+       "ho": 1,
+       "szivarvany": 1
+      }
+     }
+    },
+    "oltozet": {
+     "fej": "fej-a",
+     "nyak": "nyak-a",
+     "hat": "hat-a",
+     "lab": "lab-a",
+     "oldal": "oldal-a",
+     "farok": "farok-a",
+     "van": {
+      "fej-a": 1,
+      "fej-k": 1,
+      "fej-r": 1,
+      "nyak-a": 1,
+      "nyak-k": 1,
+      "nyak-r": 1,
+      "hat-a": 1,
+      "hat-k": 1,
+      "hat-r": 1,
+      "lab-a": 1,
+      "lab-k": 1,
+      "lab-r": 1,
+      "oldal-a": 1,
+      "oldal-k": 1,
+      "oldal-r": 1,
+      "farok-a": 1,
+      "farok-k": 1,
+      "farok-r": 1
+     }
+    },
+    "napok": {
+     "2026-09-01": 1,
+     "2026-09-02": 1,
+     "2026-09-03": 1
+    }
+   }
+  },
+  "ragyogasNulla20260906": 1
+ }
+}

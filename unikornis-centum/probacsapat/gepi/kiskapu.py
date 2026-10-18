@@ -63,6 +63,16 @@ def bevisz(l, h, dupla=False):
     elif h["mod"] == "katt":
         for s in h["sel"]:
             (l.duplakatt if dupla and len(h["sel"]) == 1 else l.katt)(s); l.pihen(0.25)
+    elif h["mod"] == "dobogo":
+        dobogo_rak(l, h, h["lep"])
+        (l.duplakatt if dupla else l.katt)(h["kesz"])
+
+
+def dobogo_rak(l, h, lepesek):
+    """🏆 dobogó: tiszta tábla (↺), aztán szereplőnként két koppintás — a szereplő, majd a helye."""
+    l.katt(h["ujra"]); l.pihen(0.15)
+    for tok, hely in lepesek:
+        l.katt(tok); l.katt(hely); l.pihen(0.1)
 
 
 def rossz_bevitelek(h):
@@ -82,6 +92,10 @@ def rossz_bevitelek(h):
         return [("üres Enter", ("mar", ("", "Enter"))), ("rossz hányados", ("mar", ("9 9", "9 9 Enter")))]
     if h["mod"] == "katt" and h.get("rossz"):
         return [("rossz kártya", ("katt", h["rossz"])), ("rossz kártya duplán", ("dupla", h["rossz"]))]
+    if h["mod"] == "dobogo":
+        ki = [("üres tábla + Kész", ("dobogo", (h, []))), ("félig rakott tábla + Kész", ("dobogo", (h, h["lep"][:1])))]
+        if h.get("rossz"): ki.append(("két szereplő felcserélve + dupla Kész", ("dobogo2", (h, h["rossz"]))))
+        return ki
     return []
 
 
@@ -93,6 +107,8 @@ def rossz_egy(l, mit):
         l.katt("#mar-h"); arg[0] and l.gombok(arg[0]); l.katt("#mar-m"); l.gombok(arg[1])
     elif fajta == "katt": l.katt(arg)
     elif fajta == "dupla": l.duplakatt(arg)
+    elif fajta in ("dobogo", "dobogo2"):
+        dobogo_rak(l, arg[0], arg[1]); (l.duplakatt if fajta == "dobogo2" else l.katt)(arg[0]["kesz"])
 
 
 def haladt(a0, a1):
@@ -146,6 +162,7 @@ def egy_palya(l, pid, tipus, J, naplo):
             if h["mod"] == "gepel": rossz = ("gepel", " ".join(str(h["szam"] + 1)) + " Enter")
             elif h["mod"] == "katt" and h.get("rossz"): rossz = ("katt", h["rossz"])
             elif h["mod"] == "felmond": rossz = ("felmond", "9 9 9 9 9 9 9 9 9")
+            elif h["mod"] == "dobogo" and h.get("rossz"): rossz = ("dobogo", (h, h["rossz"]))
             if rossz:
                 a0 = allapot(l)
                 for _ in range(5):

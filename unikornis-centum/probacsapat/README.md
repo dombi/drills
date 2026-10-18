@@ -9,7 +9,7 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
 1. **Gépi próba** (token nélkül, minden kód-kör után, commit előtt) — tervlap: `terv/gepi-proba-terv.html`.
    Indítás a `drills` mappából: `PYTHONIOENCODING=utf-8 py -3 unikornis-centum/probacsapat/gepi_proba.py`
    (`--teljes` élesítés előtt · `--n 50` kevesebb minta · `--csak matek,szoveg` ·
-   `--hol odu,vasar-3` = a gyors próba ② méret- és ⑤ kiskapu-őre az épp módosított képernyőt / pályát is nézze).
+   `--hol odu,vasar-3` = a gyors próba ② méret-, ⑤ kiskapu- és ⑥ végigjátszás-őre az épp módosított képernyőt / pályát is nézze).
    Gyors ≈ 3,5 perc, teljes ≈ 10 perc; nem nyit fület, nem foglal portot. A végén 1–2 sor összegzés; a részletek
    a `gepi-jelentesek/` mappába kerülnek (a méret-őr képei a `kepek/` almappába — nincs a git-ben).
    Kilépési kód 1 = új 🔴. Ismert („maradjon így”) hibák kulcsa: `gepi/ismert.txt`.
@@ -20,7 +20,13 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
    kattintás pályatípusonként, 5 rossz válasz, kilépés-visszalépés, újratöltés, bolt, bank). A teszt-lap game.js-ét
    a szerver egy „kémlelővel” adja (`__GEPI_EVAL`: a zárt csomag belseje elérhető), a fájl nem változik.
    Az őrök próbája: `GEPI_BEULTET=hibak.json` ([[régi, új], …]) → szándékosan elrontott game.js a teszt-lapon.
-   ⏳ 3. kör: ⑥ mentés + végigjátszás (+ a 📌 dobogós pálya kiskapu-próbája).
+   ✅ 3. kód-kör: ⑥ mentés (`gepi/mentes.py`+`.js`: a `gepi/mentesek/` kitalált teli mentései — a játék régi
+   változataival gyártva, `gepi/mentes_gyarto.py 2026-11-20` → új mentés; betöltés, mentés + 2× újratöltés, ☁️ felhő-alak
+   és összefésülés, friss mentés 3 unikornissal; ami eltűnik / csökken = 🔴; szándékos átalakítás: `ENGEDETT` a
+   `mentes.js`-ben, indokkal) · ⑥b végigjátszás (`gepi/vegig.py`: a vége-képernyőig, ✨ a terv szerint, 💧, kész/arany,
+   újratöltés után is; a játék órája ×5 gyorsítva) · 📌 dobogó a kiskapu-őrben (üres / félig rakott / felcserélt tábla).
+   Az Edge leállításkor a teljes folyamatfát zárja (`taskkill /T`) — régen a láthatatlan lapok tovább futottak.
+   ⭐ Új kitalált mentést érdemes gyártani, ha a mentés szerkezete változik (új mező a `profilNormal`-ban).
    Ha agent / élő próba olyat talál, amit gép is megfoghatott volna → új szabály az őrbe.
 2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.
 3. **Gyerek-agent** csak teljesen ÚJ képernyő-típusnál, akkor is legfeljebb EGY; a hibavadász-agentet a gépi próba váltja ki.
