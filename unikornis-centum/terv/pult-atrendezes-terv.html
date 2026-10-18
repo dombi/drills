@@ -63,7 +63,7 @@ ol.dont>li{margin:0 0 14px}
 <main>
 
 <h1>🎛️ Pult-átrendezés — tervlap</h1>
-<p class="al">Unikornis Centum · producer-pult (<code>admin/index.html</code>) · 2026-10-18 · <b style="color:var(--zold)">✅ JÓVÁHAGYVA 2026-10-18 (mind az 5 döntés az A javaslat szerint)</b> · <b style="color:var(--sarga)">🔄 MÓDOSÍTVA 2026-10-18 az 1. kör után: a gyereklap legyen az egyetlen hely egy gyerekről (új 1b. kör)</b></p>
+<p class="al">Unikornis Centum · producer-pult (<code>admin/index.html</code>) · 2026-10-18 · <b style="color:var(--zold)">✅ JÓVÁHAGYVA 2026-10-18 (mind az 5 döntés az A javaslat szerint)</b> · <b style="color:var(--sarga)">🔄 MÓDOSÍTVA 2026-10-18 az 1. kör után: a gyereklap legyen az egyetlen hely egy gyerekről (új 1b. kör)</b> · <b style="color:var(--piros)">⏳ 1c. kör (legördülő menük): terv, jóváhagyásra vár — 4b. pont</b></p>
 
 <div class="doboz lila">
 <b>Egy mondatban:</b> a pult a <b>gyerekekkel</b> kezdődjön, ne a program fiókjaival. Elöl a játék <b>saját szavaival</b> elmondja, milyen most a gyerek: mi megy, mi épül, hol akad és miért. <b>Ugyanott, a gyereklapon</b> látod és állítod a pályáit és a beállításait is, így egy gyerekről soha nem kell máshol keresgélni. A 🗺️ Pályák rács csak a gyerekek és csoportok összehasonlítására marad. Ami nem egy gyerekről szól (feltöltés, egyéni pályák készítése, hibák, export), az a <b>🧰 Műhelyben</b> van, és semmi sem vész el.
@@ -196,6 +196,57 @@ ol.dont>li{margin:0 0 14px}
 <p class="kicsi" style="margin:10px 0 0"><b>Egy koppintás</b> a cellán: normál → ⭐ kiemelt → 🚫 rejtett → normál. A pontozott keret azt jelenti, hogy a csoporttól örökli (a gyereké a legerősebb). A cellában a kis 🌳🌿🌱 jel a gyereklapról jön, hogy lásd, hol tart azon a pályán; a „·” azt jelenti, hogy még nem játszotta. A ⭐ ugyanaz, mint ma az „Ajánlott 💖” + „Extra ✨ ×1,5”. Ha más szorzót akarsz, vagy kulcsot, korlátot, az a Műhely → Beállítások részben van, mint eddig.</p>
 </div>
 
+<h2>4b. 🔄 1c. kör — legördülő menük a 🗺️ Pályái rovatban <span class="cimke c-kis">terv, jóváhagyásra vár</span></h2>
+<div class="doboz sarga">
+<b>A producer (2026-10-18, az 1b. kör után):</b> „nem tetszik, valahogy így kellene: egymás alatt a ligetek, és legördülő menüből lehessen egész ligetet elrejteni, kiemelni, banknyitósnak rakni; lehessen beleklikkelni a ligetbe, és akkor ott az egyes alpályáknál lehessen ugyanezt.” — „előbb tervezd meg, ne egyből átírd.”<br>
+Eldöntve: pályánként <b>ugyanaz</b> a menü, mint a ligetnél · a banknyitó jelölés után a bank ennél a gyereknél <b>csak a kijelölt pályák után</b> nyílik (nem naponta).
+</div>
+
+<h3>Mit lát a producer</h3>
+<div class="vazlat"><div class="felirat">vázlat — Lili lapja, 🗺️ Pályái</div>
+<div class="gyl">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center">
+    <span>▸ <b>🌳 Összeadó liget</b> <span class="kicsi halvany">11 pálya · 💖 2 · 🚫 1</span></span>
+    <select><option>vegyes</option><option>normál</option><option>💖 ajánlott</option><option>🚫 rejtett</option><option>🏦 banknyitó</option><option>💖🏦 ajánlott + banknyitó</option></select>
+
+    <span>▾ <b>📏 Szabóműhely</b> <span class="kicsi halvany">4 pálya · 🏦 mind</span></span>
+    <select><option>🏦 banknyitó</option></select>
+    <span style="padding-left:22px">Centi és deci <span class="kicsi halvany">🌳</span></span><select><option>🏦 banknyitó</option></select>
+    <span style="padding-left:22px">Méter <span class="kicsi halvany">🌿</span></span><select><option>💖🏦 ajánlott + banknyitó</option></select>
+    <span style="padding-left:22px">Kilométer <span class="kicsi halvany">·</span></span><select><option>🏦 banknyitó</option></select>
+    <span style="padding-left:22px">Vegyes mérés <span class="kicsi halvany">·</span></span><select><option>🏦 banknyitó</option></select>
+
+    <span>▸ <b>🌙 Szorzós liget</b> <span class="kicsi halvany">6 pálya · a Családtól: 💖 1</span></span>
+    <select><option>normál</option></select>
+
+    <span>▸ <b>📚 Bagolykönyvtár</b> <span class="kicsi halvany">🚫 az egész liget rejtve</span></span>
+    <select><option>🚫 rejtett</option></select>
+  </div>
+  <div class="jel s" style="margin-top:10px">🏦 A bank ennél a gyereknél most csak a banknyitó pályák után nyílik (minden végigvitt banknyitó pálya 1 váltást ér). <b>Még nincs ár</b> → <span class="gomb">kinyitom</span></div>
+</div>
+</div>
+
+<h3>Hogyan működik</h3>
+<ul>
+<li><b>Ligetenként egy sor</b>, egymás alatt. A sor szövegére kattintva nyílik ki a liget, és ugyanígy záródik vissza. A menü a sor jobb szélén van, ezért a kinyitás és a menü nem keveredik.</li>
+<li><b>Egy menü, öt állapot</b> — a ligetnél és a pályánál ugyanaz:
+  <b>normál</b> · <b>💖 ajánlott</b> (szívecske dobog, +2 💧, ×1,5 ✨) · <b>🚫 rejtett</b> · <b>🏦 banknyitó</b> · <b>💖🏦 ajánlott + banknyitó</b>.
+  A „rejtett + banknyitó” nincs a menüben, mert értelmetlen: a rejtett pályát a gyerek nem játszhatja.</li>
+<li><b>A menü mindig a mostani állapotot mutatja.</b> Ha egy liget pályái nem egyformák, a liget menüje „vegyes”-t mutat; ha onnan választasz, az <b>a liget összes pályájára</b> egyszerre érvényes.</li>
+<li><b>🏦 egész ligetre</b>: a liget egészét jelöli be (ahogy ma a Műhely bank-listáján az „egész liget” pipa), így a ligetbe később kerülő új pályák is banknyitók lesznek.</li>
+<li><b>Csoport</b>: ha a gyerek csoportban van, a menüben van egy hatodik sor is: <b>„↺ csoport szerint (most: …)”</b>. Ami a csoporttól jön, mellette halványan ott áll: „a Családtól”.</li>
+<li><b>Bank</b>: az első 🏦 jelöléskor a bank ennél a gyereknél „kijelölt pályák után” módra vált. Ha még nincs ár, a liget-lista alatt egy sárga sor szól, „kinyitom” gombbal (a Műhely bank-kártyájára visz). Ha az összes 🏦 jelölést leveszed, a bank visszaáll az előző módra.</li>
+<li><b>A koppintós cellák a gyereklapon megszűnnek</b>, helyettük a menü van. A 🌳🌿🌱 jel a pálya neve mellé kerül.</li>
+<li>Ugyanazokat a mezőket írja, mint eddig (<code>enabled</code>, <code>recommended</code> + <code>extraReward</code>, a bank <code>palyak</code> listája és <code>mod</code>-ja). A játékot nem kell módosítani.</li>
+</ul>
+
+<h3>Eldöntendő</h3>
+<ol class="dont">
+<li><b>A 🗺️ Összehasonlítás-rács</b> (a második fül) is menüs legyen?<br><span class="jav">A (javaslom):</span> marad koppintós, mert ott sok gyerek van egymás mellett, és a menü nem férne el; a banknyitó ott csak jelként látszik (🏦). · B: ott is menü legyen.</li>
+<li><b>Csoportnál ugyanez</b> (egységes irányítás)?<br><span class="jav">A (javaslom):</span> igen: a 👧 Gyerekek fülön a csoport-szűrő mellett lesz egy „👥 Család lapja” gomb, és azon ugyanez a liget-lista menükkel (a csoport pályáira). · B: most csak gyereknél, a csoport marad a rácsban és a Műhelyben.</li>
+</ol>
+<p class="kicsi halvany">Nagyság: közepes. Csak a pult változik.</p>
+
 <h2>5. Honnan tudja a játék, amit mond?</h2>
 <div class="tk"><table>
 <tr><th>Rovat</th><th>Miből</th><th>Megvan?</th></tr>
@@ -235,6 +286,7 @@ ol.dont>li{margin:0 0 14px}
 <tr><th>Kör</th><th>Mi készül</th><th>Nagyság</th></tr>
 <tr><td><b>1.</b> <span class="cimke c-van">✅ kész 2026-10-18</span></td><td>Az új szerkezet: 3 fül, a kezdőlap gyerekkártyái (a mostani figyelmeztetésekből, mondatokká írva), a 🗺️ rács egy-koppintásos cellákkal + csoport-oszlop, a gyereklap váza a meglévő adatokkal, a régi fülek a 🧰 Műhelyben. <b>Csak a pult változik</b>, a játék nem.<br><span class="kicsi halvany">Ahogy elkészült: a 🌳🌿🌱 egyszerű szabályból (utolsó 30 nap, ≥ 10 feladat 2 külön napon; elsőre jó ≥ 90% / 60–90% / alatta) + a tény-motor lépcsőiből; a 🧭 és a 💡 rovat még csak jelzi, hogy később jön; a gyereklap „Részletek” sora gombokkal ugrik a Műhely régi nézeteire (erre a gyerekre állítva), nem lenyitással; a rács alatt lenyitható a régi 🌲 pálya-statisztika; az egyéni pályák a rácsban nincsenek (Műhely → Beállítások / Egyéni pályák).</span></td><td>közepes</td></tr>
 <tr style="background:var(--sarga-h)"><td><b>1b.</b> 🔄 <span class="cimke c-van">✅ kész 2026-10-18</span></td><td><b>A gyereklap az egyetlen hely egy gyerekről.</b> Új rovatok: <b>🗺️ Pályái</b> (ligetenként összecsukva, összesítő a liget-sorban, az egy-koppintásos cellák, „a Családtól” felirat, egész liget gomb; alapból az a liget nyitva, ahol mostanában játszott) és <b>🎛️ Beállításai</b> (mondatokban, csak ami eltér az alaptól: csoport, kapu-kulcs, darabkorlát, nehézség, extra szorzó, egyéni pályák, tény-kert, bank, kölyök; mindegyiknél „módosítom” → a Műhely → Beállítások erre a gyerekre és erre a sorra görgetve). A 🗺️ Pályák fül felirata: „összehasonlítás”. A Műhely alfülei közül a gyerekhez kötöttek („🦄 Játékos”, „🌸 Tények”) a végére kerülnek „régi nézetek” címmel. <b>Csak a pult változik</b>, a játék nem.<br><span class="kicsi halvany">Ahogy elkészült: a ⭐ és a 🚫 a Pályái rovatban van, a Beállításai a többit mondja (a ×1,5-től eltérő szorzót is); az egyéni pályáknál a „módosítom” az ✏️ Egyéni pályák fülre visz (ott nincs gyerekenkénti görgetés); a Bagolykönyvtár-beállítások (láda, lift, létrák, 🏅 visszatérés) az 🧱 Építőkockák fülre ugranak.<br>🔄 Javítás a producer jelzésére (2026-10-18: „a szívecskézés (extra harmat), a banknyitás nem elég egyértelmű, nem is találtam”): a kiemelés jele a rácsban és a gyereklapon is <b>💖 ajánlott</b> (nem ⭐), mellette mindig kiírva: szívecske dobog, <b>+2 💧</b> minden végigvitelért, ×1,5 ✨. A 🎛️ Beállításai a Pályái <b>elé</b> került, és a fő tételek <b>mindig látszanak</b> (csoport, 💖 ajánlott pályák, 🏦 Tündérbank, 🔑 kapu, 🌸 tény-kert, 🐉 kis sárkány, 🧰 Bagolykönyvtár), az alap szerintiek szürkén; zárt banknál a gomb: „kinyitom”.</span></td><td>közepes</td></tr>
+<tr style="background:var(--sarga-h)"><td><b>1c.</b> 🔄 <span class="cimke c-kis">terv, jóváhagyásra vár</span></td><td>A 🗺️ Pályái rovat legördülő menükkel: ligetek egymás alatt, ligetenként és pályánként ugyanaz az ötállapotú menü (normál · 💖 · 🚫 · 🏦 · 💖🏦), banknyitó jelölés → a bank „kijelölt pályák után” módra vált. Lásd a <b>4b.</b> pontot.</td><td>közepes</td></tr>
 <tr><td><b>2.</b></td><td>A közös <code>megfigyeles.js</code> modul + a napi összesítő a játékban. A gyereklap 🌳🌿🌱, 😊 Kedv és 🧭 Mi hajtja rovata a játék saját mondataival, „miért gondolom?” lenyitással, és kimondja azt is, ha még kevés az adat.</td><td>nagy</td></tr>
 <tr><td><b>3.</b></td><td>💡 Javaslatok: a 3 fajta, a fajtánkénti kapcsoló (①②③✕), a javaslat-napló (mit tett, mi lett utána), és a ② fokon a játék magától lép.</td><td>közepes–nagy</td></tr>
 <tr><td><b>4.</b></td><td>A 🌱 „és miért” bekötése a Hiba-oka felismerésből. Ehhez előbb: „Hiba-oka felismerés: tervlap.”</td><td>külön terv</td></tr>
