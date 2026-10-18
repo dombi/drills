@@ -6072,8 +6072,12 @@ function osvenyPxEgyseg() {   /* hány képernyő-képpont egy pálya-egység */
 }
 /* VÉGIGMEGY egy pontsoron a pálya képén — a közös uniUtvonal (renderer.js) viszi; o.seta / o.fordulon ott */
 function osvenyMegy(p, o, kesz) {
+  if (osvenyRejtve()) { if (p.length) osvenyAllit(p[p.length - 1][0], p[p.length - 1][1]); if (kesz) setTimeout(kesz, 0); return; }
   uniUtvonal({ el: osvenyUni().el, allit: osvenyAllit, egyseg: osvenyPxEgyseg }, p, o, kesz);
 }
+/* olvasópult-módban (📚 Bagolykönyvtár, 🧰 szerszám-pályák) az ösvény nem látszik (style.css: .op-mod .szinpad) — ott a séta
+   azonnal célba ér. Eddig láthatatlanul végigsétált az egész úton (2 állomás = a teljes szélesség, ≈ 5 mp üres képernyő). */
+function osvenyRejtve() { var k = document.getElementById("kepernyo-jatek"); return !!(k && k.classList.contains("op-mod")); }
 /* állomásról állomásra, az út görbéjén */
 function osvenyAllomasra(i, kesz) {
   osvenyMegy(i > 0 ? uniGorbePontok([osvenySzakasz(i)]) : [[OSV.x, OSV.y], [allomasX(0), allomasY(0)]], null, kesz);
@@ -6095,7 +6099,7 @@ function osvenyKerulo(i, kesz) {
 /* PÁLYA VÉGE: az Odú-küszöbtől az ajtóhoz sétál, hátat fordít (bemegy), és eltűnik az ajtóban */
 function osvenyOduba(kesz) {
   var u = osvenyUni(), n = SCENE_N, ax = allomasX(n - 1) + 62, ay = allomasY(n - 1) + 14;
-  if (!u.hely || window.__UC_GYORS) { if (kesz) kesz(); return; }
+  if (!u.hely || window.__UC_GYORS || osvenyRejtve()) { if (kesz) kesz(); return; }
   osvenyMegy([[OSV.x, OSV.y], [ax, ay]], null, function () {
     if (!u.hely.isConnected) return;
     lenyKiserOduba(ax, ay);   /* 🐉 a kölyök utánarepül az ajtón */

@@ -17,7 +17,7 @@ try {
   var ss = window.speechSynthesis;
   ss.speak = function (u) { window.__utolsoMondat = (window.__mondatok = window.__mondatok || []).push(u.text) && u.text; setTimeout(function(){ if(u.onstart) u.onstart(); if(u.onend) u.onend(); }, 5); };
   ss.cancel = function(){}; 
-  ss.getVoices = function(){ return [{ lang:"hu-HU", name:"Szabolcs", voiceURI:"hu" }]; };
+  ss.getVoices = function(){ return []; };   /* üres: egy kitalált hang-objektumot az u.voice = … eldob (TypeError), és akkor a mondd() csendben átugorja a beszédet */
 } catch(e) {}
 </script>"""
 # a próbacsapatnak: amit a játék kimondana (mondd), az a window.__mondatok-ba is bekerül — akkor is,
