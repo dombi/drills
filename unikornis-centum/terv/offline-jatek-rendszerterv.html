@@ -86,7 +86,7 @@
   <div class="meta">
     <span class="chip">2026-10-20</span>
     <span class="chip">Nagyságrend: NAGY (3 kör)</span>
-    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 · 🛟 1. kör kész (2026-10-20) → 2. kör jön</span>
+    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 · 🛟 1. kör kész · 📦 2. kör kész (2026-10-20) → 3. kör jön</span>
   </div>
 </header>
 
@@ -249,6 +249,19 @@
     <li><code>?friss</code> = <code>caches</code> törlése + SW leiratkozás + újratöltés (a mai cache-tipp kiterjesztése).</li>
     <li>Tüneménykert: <code>navigator.onLine</code> + RTDB <code>.info/connected</code> → alvó felhő.</li>
     <li>Offline indulásnál a Firebase Auth a tárolt belépést adja (LOCAL perzisztencia), a Firestore az offline tárából → az írások sorba állnak. Ahol az offline tár nem elérhető, az 1. kör hálója fog.</li>
+  </ul>
+
+  <h3>✅ 2. kör — így készült el (2026-10-20)</h3>
+  <ul>
+    <li><b><code>sw.js</code></b> a játék mappájában; a regisztráció és a vészfék egy kis beágyazott szkript az <code>index.html</code> fejében (így akkor is működik, ha a <code>game.js</code> elromlana). Regisztráció csak <code>https:</code>-on; helyi próbán (<code>localhost</code>/<code>127.0.0.1</code>) csak <code>?sw</code>-vel — a gépi próba többi őre így nem lát workert.</li>
+    <li><b>Hálózat először</b> az oldalra (bármilyen kérdőjeles címmel: <code>?felho</code>, <code>?sw</code> → a tárban kérdőjel nélkül), és a hatókörbe eső <code>.js</code>/<code>.css</code> fájlokra. A tárban fájlonként csak a legutóbbi <code>?v=</code> marad. Net nélkül, ha épp az a <code>?v=</code> nincs meg, a tárolt másik változat jön (jobb, mint a semmi).</li>
+    <li><b>Tár először:</b> a 4 Firebase-fájl (app, auth, firestore, database — a Tüneménykerthez is) és a Fredoka (CSS + a betűfájlok, amiket a CSS megnevez). CORS-szal kérjük, hogy ne „átlátszatlan” válasz kerüljön a tárba (az a böngészőben sokkal több helyet foglal).</li>
+    <li><b>Előre letöltés telepítéskor:</b> a fájllistát nem kézzel tartjuk karban — a worker az <code>index.html</code>-ből (és a nyitott lap címéről) olvassa ki, mi kell. Mérve: 6 saját fájl + 4 Firebase + betű-CSS + 3 betűfájl. Egy hibás letöltés nem állítja meg a többit.</li>
+    <li><b>Érintetlenül átmegy:</b> <code>admin/</code>, <code>helyreallitas.html</code>, <code>sw.js</code>, és minden felhő-forgalom (Firestore, belépés, RTDB) — ezekhez a worker nem nyúl.</li>
+    <li><b><code>?friss</code> vészfék:</b> a worker a <code>?friss</code>-es oldalkérésnél leáll (onnantól semmit nem tesz el, nem szolgál ki), az oldal törli a tárat, leiratkoztatja a workert, és a <code>?friss</code> nélküli címre tölt újra (a <code>?felho</code> megmarad). Első próbán kiderült, hogy enélkül a még futó worker a lap betöltése közben visszaírt egy tárat — ezért kell a leállás.</li>
+    <li><b>Tüneménykert — alvó felhő:</b> <code>tkAlszik()</code> = a böngésző „offline” jele, vagy az RTDB <code>.info/connected</code> 6 mp-ig hamis (induláskor egy pillanatig mindig hamis, ezért a türelmi idő). Net nélkül a <code>kertJog</code> nem jön le, ezért a gép megjegyzi, kinek volt lépcsője (<code>uc_tk_jog_&lt;uid&gt;</code>): neki „💤 alszik” feliratú lépcső + koppintásra a mondat („A felhőkert most alszik. Ha lesz net, újra nyílik.”); akinek sosem volt, annak net nélkül sincs. Bent a kertben: ha elmegy a net, az unikornis hazarepül ugyanezzel a mondattal. A kilépés már csak a saját <code>.info/connected</code>-figyelőjét veszi le (azelőtt mindet vitte volna).</li>
+    <li><b>Gépi próba — új ⑧ „📴 net nélkül” őr</b> (<code>probacsapat/gepi/offline.py</code>, a gyors próbában is): nettel betölt <code>?sw</code>-vel → megvárja az előre letöltést → még egyszer nettel (már a worker szolgál ki) → <b>leállítja a próba-szervert</b> (ez a „nincs net”) → újratöltés: elindul-e a tárolt példányból (stílus, profilválasztó, első pálya, konzolhiba nincs) → a Tüneménykert kapuja net nélkül alvó felhőt ad-e → a szerver vissza ugyanazon a porton → <code>?friss</code> után üres-e a tár és nincs-e worker.</li>
+    <li><b>Nem gépi próbálható:</b> a tablet/telefon felolvasó hangja net nélkül (a láthatatlan böngészőnek nincs hangja) és a valódi felhős net nélküli indulás (a próba a felhőt elzárja, gyerek- vagy teszt-kóddal nem lépünk be gépből). Ezt a producer élő próbája fedi (TESZT-1, Wi-Fi ki → <b>a játék újranyitása</b> → játék → Wi-Fi be).</li>
   </ul>
 
   <h3>3. kör — közös gép</h3>

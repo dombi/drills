@@ -68,7 +68,7 @@ def kemlelo_js(mappa=UC):
 class Kiszolgalo:
     """A játék mappája egy szabad porton (127.0.0.1); a /_gepi.html a teszt-lap.
     mappa: alapból a mostani játék; a ⑥ mentés-gyártó egy régi változat kicsomagolt mappáját adja."""
-    def __init__(self, mappa=UC):
+    def __init__(self, mappa=UC, port=0):
         lap = teszt_lap(mappa).encode("utf-8")
 
         class Kezelo(http.server.SimpleHTTPRequestHandler):
@@ -90,7 +90,7 @@ class Kiszolgalo:
 
         class Szerver(socketserver.ThreadingMixIn, http.server.HTTPServer):
             daemon_threads = True
-        self.szerver = Szerver(("127.0.0.1", 0), Kezelo)
+        self.szerver = Szerver(("127.0.0.1", port), Kezelo)   # port: a 📴 net nélkül-őr ugyanott indítja újra
         self.port = self.szerver.server_address[1]
         threading.Thread(target=self.szerver.serve_forever, daemon=True).start()
 

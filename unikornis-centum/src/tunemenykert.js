@@ -15,6 +15,7 @@ var TK = {
   masok: {},          /* uid → { a: utolsó adat, d: DOM } */
   x: 50, y: 80, betoltve: false, oraTimer: null, hazaTimer: null, belepMp: 0,
   gRef: null, gSzobaRef: null, gBetoltve: false, gFut: false,
+  alszik: false, alvasTimer: null, connFn: null,   /* 📴 net nélkül alszik (tkKapcsolat) */
   dRef: null, diszek: {}, dBetoltve: false, dMod: null, talca: false   /* 5d: diszek = "uid/hely" → { a, d } */
 };
 var TK_FELOLDAS_AR = 10;   /* 💧 tündérharmat, egyszeri feloldás (P().tkNyitva) */
@@ -37,9 +38,10 @@ function tkElokeszit() {
     if (!ok || !firebase.database) { console.warn("[kert] az RTDB SDK nem töltődött be"); TK.indul = false; return; }
     try { TK.db = firebase.database(); } catch (e) { console.warn("[kert] RTDB hiba:", e); TK.indul = false; return; }
     TK.kesz = true;
+    TK.db.ref(".info/connected").on("value", tkKapcsolat);
     TK.db.ref("kertBeall").on("value", function (s) { TK.beall = s.val() || {}; tkValtozott(); },
       function (e) { console.warn("[kert] kertBeall:", e && e.code); });
-    TK.db.ref("kertJog/" + FELHO.uid).on("value", function (s) { TK.jog = s.val(); tkValtozott(); },
+    TK.db.ref("kertJog/" + FELHO.uid).on("value", function (s) { TK.jog = s.val(); tkJogJegyez(FELHO.uid, TK.jog); tkValtozott(); },
       function (e) { console.warn("[kert] kertJog:", e && e.code); });
     TK.db.ref("kertVissza/" + FELHO.uid).on("child_added", tkVisszaJott,
       function (e) { console.warn("[kert] kertVissza:", e && e.code); });
@@ -51,12 +53,32 @@ function tkValtozott() {
   if (!TK.bent) return;
   tkGesztussor();
   tkTalcaRajzol();
+  if (tkAlszik()) { tkHazakuld(TK_ALVO_SZOVEG); return; }
   if (!TK.jog || TK.jog.szoba !== TK.szoba) { tkHazakuld("A felhőkert most bezár. Szia!"); return; }
   var nev = tkNev(), sajat = $("tk-uni-sajat");
   if (sajat) { var t = sajat.querySelector(".tk-nev"); if (t && t.textContent !== nev) { t.textContent = nev; if (TK.ref) TK.ref.update({ nev: nev }).catch(tkHiba); } }
 }
 
-/* ── kapuk: null = nincs lépcső · { nyitva } · { nyitva:false, szoveg, rovid } ── */
+/* ── 📴 net nélkül a felhőkert alszik (offline 2. kör, terv/offline-jatek-rendszerterv.html) ──
+   Az RTDB induláskor egy pillanatig „nincs kapcsolat"-ot mond, ezért csak TK_ALVAS_MS után alszik el;
+   a böngésző „offline" jelére azonnal. Net nélkül a kertJog nem jön le → a gép megjegyzi, kinek volt lépcsője. */
+var TK_ALVAS_MS = 6000;
+var TK_ALVO_SZOVEG = "A felhőkert most alszik. Ha lesz net, újra nyílik.";
+var TK_JOG_EMLEK = "uc_tk_jog_";   /* + uid: "1" = volt felhőlépcsője (net nélkül alvó felhőt kap, nem eltűnő lépcsőt) */
+function tkKapcsolat(s) {
+  clearTimeout(TK.alvasTimer); TK.alvasTimer = null;
+  if (s.val() === true) { if (TK.alszik) { TK.alszik = false; tkValtozott(); } return; }
+  TK.alvasTimer = setTimeout(function () { TK.alvasTimer = null; TK.alszik = true; tkValtozott(); }, TK_ALVAS_MS);
+}
+function tkAlszik() { return navigator.onLine === false || !!TK.alszik; }
+function tkJogJegyez(uid, jog) {
+  try { if (jog && jog.szoba) localStorage.setItem(TK_JOG_EMLEK + uid, "1"); else localStorage.removeItem(TK_JOG_EMLEK + uid); } catch (e) {}
+}
+function tkJogEmlek(uid) { try { return !!uid && localStorage.getItem(TK_JOG_EMLEK + uid) === "1"; } catch (e) { return false; } }
+window.addEventListener("online", function () { tkValtozott(); });
+window.addEventListener("offline", function () { tkValtozott(); });
+
+/* ── kapuk: null = nincs lépcső · { nyitva } · { nyitva:false, szoveg, rovid } · { nyitva:false, alszik } ── */
 function tkPerc(hhmm) { var m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || "")); return m ? (+m[1]) * 60 + (+m[2]) : 0; }
 function tkOraSzo(hhmm) { var m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || "")); return !m ? hhmm : (m[2] === "00" ? (+m[1]) + " órakor" : (+m[1]) + ":" + m[2] + "-kor"); }
 function tkNyitvatartas(b) {
@@ -69,7 +91,9 @@ function tkNyitvatartas(b) {
   return { nyitva: false, szoveg: "A felhőkert most zárva. Egy másik napon újra jöhetsz!", rovid: "zárva" };
 }
 function tkKapu() {
-  if (!FELHO.aktiv || !TK.kesz || !TK.jog || !TK.jog.szoba) return null;
+  if (!FELHO.aktiv) return null;
+  if (tkAlszik()) return tkJogEmlek(FELHO.uid) ? { nyitva: false, alszik: true, szoveg: TK_ALVO_SZOVEG, rovid: "alszik" } : null;
+  if (!TK.kesz || !TK.jog || !TK.jog.szoba) return null;
   if (!P().tkNyitva) return { nyitva: false, zar: true, szoveg: "A felhőkert " + TK_FELOLDAS_AR + " tündérharmatért nyílik meg.", rovid: TK_FELOLDAS_AR + " 💧" };
   var b = TK.beall || {};
   if (!b.nyitva) return { nyitva: false, szoveg: "A felhőkert most pihen.", rovid: "pihen" };
@@ -173,7 +197,7 @@ function tkBelep() {
   TK.szobaRef = TK.db.ref("jelenlet/" + TK.szoba);
   TK.ref = TK.szobaRef.child(FELHO.uid);
   TK.connRef = TK.db.ref(".info/connected");
-  TK.connRef.on("value", function (s) {   /* újracsatlakozáskor újra beírjuk magunkat */
+  TK.connFn = TK.connRef.on("value", function (s) {   /* újracsatlakozáskor újra beírjuk magunkat */
     if (s.val() !== true || !TK.bent) return;
     TK.ref.onDisconnect().remove().then(function () { if (TK.bent) return TK.ref.set(tkSajatAdat()); }).catch(tkHiba);
   });
@@ -199,7 +223,7 @@ function tkKilep(gombbal) {
     TK.bent = false;
     clearInterval(TK.oraTimer);
     if (TK.szobaRef) TK.szobaRef.off();
-    if (TK.connRef) TK.connRef.off();
+    if (TK.connRef) TK.connRef.off("value", TK.connFn);   /* csak a sajátunkat: a net-figyelés (tkKapcsolat) ugyanezen a helyen marad */
     if (TK.gSzobaRef) TK.gSzobaRef.off();
     if (TK.dRef) TK.dRef.off();
     TK.dMod = null; TK.talca = false; tkTalcaRajzol();
@@ -225,6 +249,7 @@ function tkOra() {
   if (TK.belepMp % 60 === 0) ment();
   var k = tkKapu();
   if (!k) tkHazakuld("A felhőkert most bezár. Szia!");
+  else if (k.alszik) tkHazakuld(k.szoveg);
   else if (!k.nyitva) tkHazakuld(k.rovid === "holnap újra" ? "Ideje hazarepülni! Holnap újra jöhetsz." : "A felhőkert most bezár. Szia!");
 }
 

@@ -26,6 +26,9 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
    `mentes.js`-ben, indokkal) · ⑥b végigjátszás (`gepi/vegig.py`: a vége-képernyőig, ✨ a terv szerint, 💧, kész/arany,
    újratöltés után is; a játék órája ×5 gyorsítva) · 📌 dobogó a kiskapu-őrben (üres / félig rakott / felcserélt tábla).
    Az Edge leállításkor a teljes folyamatfát zárja (`taskkill /T`) — régen a láthatatlan lapok tovább futottak.
+   ✅ 2026-10-20 (offline 2. kör): ⑧ 📴 net nélkül (`gepi/offline.py`, a gyors próbában is, ≈20–50 mp): `?sw`-vel
+   betölt, a worker eltesz mindent → a próba-szerver leáll (= nincs net) → elindul-e a tárolt példányból (stílus,
+   profilválasztó, első pálya, konzol) → Tüneménykert alvó felhő → `?friss` után üres tár, nincs worker.
    ⭐ Új kitalált mentést érdemes gyártani, ha a mentés szerkezete változik (új mező a `profilNormal`-ban).
    Ha agent / élő próba olyat talál, amit gép is megfoghatott volna → új szabály az őrbe.
 2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.
