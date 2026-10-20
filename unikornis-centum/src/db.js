@@ -25,8 +25,8 @@ function felhoBelepve(u) {
 function felhoElsoAllapot(snap) {
   if (snap.empty && snap.metadata.fromCache) return;       /* még nem tudjuk, üres-e a szerveren — várjuk a szervert */
   var gazda = felhoGazda(), sajat = (gazda === FELHO.uid);
-  if (!sajat) felhoBiztonsagiMasolat();
-  var migralt = false;
+  if (!sajat) { felhoBiztonsagiMasolat(); if (gazda) felhoAlapTorol(gazda); }   /* a helyi mentés mostantól nem a régi gazdáé */
+  var migralt = false, offline = null;
   if (snap.empty) {
     /* üres fiók: ha a helyi mentés még senkié → felköltözik (migráció); ha másé → új, üres kezdés */
     if (gazda && !sajat) mentes = alapMentes();
@@ -47,26 +47,44 @@ function felhoElsoAllapot(snap) {
     });
     batch.commit().catch(function (e) { console.warn("[felhő] első feltöltés hiba:", e.code || e); });
   } else {
-    /* van felhő-adat: az az igazság (a Firestore gyorsítótára a még el nem küldött írásokat is tartalmazza) */
-    var megvan = {};
-    snap.forEach(function (d) {
-      var t = felhoTiszta(d.data());
+    /* van felhő-adat: az az igazság (a Firestore gyorsítótára a még el nem küldött írásokat is tartalmazza) —
+       📴 KIVÉVE, ha a helyi mentésben felhőbe nem jutott játék van: akkor a (helyi − eltett alap) különbség rámegy */
+    var megvan = {}, eltett = sajat ? felhoEltettAlap(FELHO.uid) : null;
+    var helyiElotte = sajat && felhoKuldetlen() === FELHO.uid ? mentes.profilok : null;
+    if (helyiElotte) {
+      offline = { mp: 0, profil: 0, gyanus: 0 };
+      if (!eltett) felhoOfflineMasolat();    /* régi gép / első futás: nincs alap → a mai felülírás, de előtte másolat */
+    }
+    snap.forEach(function (d) {   /* (a helyi profilt a ráírás ELŐTT olvassuk ki: felhoOfflineRavezet → felhoTiszta = másolat) */
+      var t = felhoTiszta(d.data()), uj = felhoMasol(t);
       FELHO.alap[d.id] = t;
-      mentes.profilok[d.id] = profilNormal(felhoMasol(t), d.id);
+      if (helyiElotte && eltett && helyiElotte[d.id] && eltett[d.id]) {
+        var dMp = felhoOfflineRavezet(uj, eltett[d.id], helyiElotte[d.id]);
+        if (dMp < 0) { offline.gyanus++; felhoOfflineMasolat(); }
+        else if (!felhoEgyenlo(uj, t)) { offline.profil++; offline.mp += dMp; }
+      }
+      mentes.profilok[d.id] = profilNormal(uj, d.id);
       megvan[d.id] = 1;
     });
     LENY_SORREND.forEach(function (k) {     /* hiányzó lény (pl. új unikornis) → alapprofil, a következő küldés felteszi */
-      if (!megvan[k]) { mentes.profilok[k] = profilNormal(alapProfil(k), k);   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */ FELHO.alap[k] = {}; }
+      if (megvan[k]) return;
+      FELHO.alap[k] = {};
+      if (helyiElotte && helyiElotte[k]) return;   /* 📴 net nélkül játszott vele → a helyi profil megy fel */
+      mentes.profilok[k] = profilNormal(alapProfil(k), k);   /* a hiányzó ágak (bemutatva, visszahívás…) is meglegyenek */
     });
     felhoUserRef().set({ kod: FELHO.kod, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
   }
   FELHO.alapUser = felhoUserAllapot();
   try { localStorage.setItem(FELHO_GAZDA, FELHO.uid); } catch (e) {}
+  felhoAlapRogzit(FELHO.alap, true);         /* 📴 az eltett alap = a most látott felhő-állapot (a jelzőt a felhoKuld törli, ha minden felment) */
   FELHO.kesz = true;
   try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {}
   esemeny("login", { device: felhoEszkoz(), migrated: migralt });
+  var sor = esemenySorKuld();                /* 📴 net nélkül gyűlt események (eredeti időponttal) */
+  if (offline && (offline.mp >= 30 || sor.palya || offline.gyanus))   /* a pult jele: „📴 net nélkül játszott" */
+    esemeny("offline", { mp: offline.mp, palya: sor.palya, esemeny: sor.db, profil: offline.profil, gyanus: offline.gyanus, alap: eltett ? 1 : 0 });
   gepJatekosJegyez();                        /* névkártya + közös gép felismerése (2+ kód ezen a gépen) */
-  felhoKuld();                               /* a normalizálás miatti apró eltérések felmennek */
+  felhoKuld();                               /* a normalizálás miatti apró eltérések + a net nélküli különbség felmennek */
   felhoKepernyoFrissit();
 }
 
@@ -80,6 +98,7 @@ function felhoTavoliValtozas(snap) {
     if (felhoOsszefesul(mentes.profilok[k], FELHO.alap[k] || {}, t, true)) volt = true;
     FELHO.alap[k] = t;
   });
+  if (!FELHO.memoriaTar || FELHO.nyugtazott === FELHO.kuldSzam) felhoAlapRogzit(FELHO.alap, true);   /* 📴 az eltett alap kövesse a felhőt (a jelzőt csak a küldés törli) */
   if (volt) {
     try { localStorage.setItem(KULCS, JSON.stringify(mentes)); } catch (e) {}
     felhoKepernyoFrissit();

@@ -56,6 +56,14 @@
   </div>
 
   <div class="kartya">
+    <h2>2/B. A gép biztonsági másolatai</h2>
+    <p class="fig">A játék magától eltesz egy másolatot, mielőtt a felhő felülírná a helyi mentést (első belépés, vagy net nélküli
+       játék, amit nem lehetett hozzáadni a felhőhöz). Innen betöltheted a 3/A mezőbe, és visszaírhatod.</p>
+    <button class="mas" onclick="masolatok()">Mutasd a másolatokat</button>
+    <div id="masolat-lista" class="fig"></div>
+  </div>
+
+  <div class="kartya">
     <h2>3/A. Visszaírás kész mentésből</h2>
     <p class="fig">Illeszd be ide a Gabi gépéről kimentett JSON-t (vagy egy korábbi biztonsági másolatot), és írd vissza.</p>
     <textarea id="beilleszt" placeholder='{"verzio":1,"leny":"...","profilok":{...}}'></textarea>
@@ -112,6 +120,25 @@ function mutat() {
   var pre = document.getElementById("kiiras");
   pre.hidden = false;
   pre.textContent = m ? JSON.stringify(m, null, 2) : "(nincs mentés)";
+}
+/* a játék automatikus másolatai: unikornis_centum_v1_felho_elott (első felhő-belépés) + unikornis_centum_v1_offline_elott_<időpont> */
+function masolatok() {
+  var hely = document.getElementById("masolat-lista"), kulcsok = [], i, k;
+  for (i = 0; i < localStorage.length; i++) { k = localStorage.key(i); if (k && k.indexOf(KULCS + "_") === 0) kulcsok.push(k); }
+  kulcsok.sort().reverse();
+  hely.innerHTML = "";
+  if (!kulcsok.length) { hely.textContent = "Nincs másolat ezen a gépen."; return; }
+  kulcsok.forEach(function (k) {
+    var m; try { m = JSON.parse(localStorage.getItem(k)); } catch (e) { m = null; }
+    var ido = k.slice((KULCS + "_offline_elott_").length);   /* 2026-10-20T09-22-31-123 (UTC) */
+    var nev = k === KULCS + "_felho_elott" ? "az első felhő-belépés előtt" : "net nélküli játék után: " + ido.slice(0, 10) + " " + ido.slice(11, 19).replace(/-/g, ":") + " (UTC)";
+    var d = document.createElement("div"); d.style.margin = "10px 0";
+    var b = document.createElement("button"); b.className = "mas"; b.textContent = "Betöltés a 3/A mezőbe";
+    b.onclick = function () { document.getElementById("beilleszt").value = localStorage.getItem(k); statusz("Betöltve a 3/A mezőbe — nézd át, aztán „Ezt írd vissza mentésnek”.", true); };
+    var p = document.createElement("pre"); p.textContent = osszegez(m);
+    d.appendChild(document.createTextNode("📦 " + nev + " ")); d.appendChild(b); d.appendChild(p);
+    hely.appendChild(d);
+  });
 }
 function letolt() {
   var raw = localStorage.getItem(KULCS);

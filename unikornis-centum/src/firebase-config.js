@@ -18,6 +18,12 @@ var FELHO_GAZDA = "uc_felho_gazda";         /* localStorage: melyik fiók (uid) 
 var FELHO_GEP_JATEKOSOK = "uc_gep_jatekosok";   /* localStorage: kik léptek be ezen a gépen (névkártyához: kód + unikornis-kinézet); 2+ = közös gép */
 var FELHO_MENTES_ELOTTE = "unikornis_centum_v1_felho_elott";   /* biztonsági másolat az első felhő-felülírás előtt */
 var FELHO_SZAMLALOK = { csillampor: 1, tunderharmat: 1, jatekMp: 1 };   /* ezek delta-alapon (increment) szinkronizálnak */
+/* 📴 Offline 1. kör — „semmi nem vész el" (terv/offline-jatek-rendszerterv.html) */
+var FELHO_ALAP_ELOTAG = "uc_felho_alap_";   /* + uid: az utolsó, a felhőbe biztosan eljutott állapot (FELHO.alap tükre) — az offline összefésülés alapja */
+var FELHO_KULDETLEN = "uc_kuldetlen";       /* uid: a helyi mentésben van olyan, ami még nem jutott el a felhőbe (net nélkül játszott) */
+var FELHO_ESEMENY_SOR = "uc_esemeny_sor";   /* net nélkül gyűlt események (max. ESEMENY_SOR_MAX), visszatéréskor felmennek */
+var FELHO_OFFLINE_MASOLAT = "unikornis_centum_v1_offline_elott_";   /* + időpont: a helyi mentés másolata, ha nem lehetett összefésülni (max. 3) */
+var ESEMENY_SOR_MAX = 500;
 
 var FELHO = {
   aktiv: false,       /* be van lépve + fut a szinkron */
@@ -26,7 +32,10 @@ var FELHO = {
   auth: null, db: null,
   alap: {},           /* profilonként az utolsó ismert felhő-állapot (a 3-utas összefésülés alapja) */
   alapUser: null,
-  idozito: null, leiratkozas: null
+  idozito: null, leiratkozas: null,
+  be: false,          /* felhő-mód ezen a gépen (felhoIndit) — a ment() ebből tudja, hogy a net nélküli játékot jelölnie kell */
+  memoriaTar: false,  /* a Firestore offline tára nem elérhető (privát ablak…) → az írás csak a szerver nyugtája után számít elküldöttnek */
+  kuldSzam: 0, nyugtazott: 0   /* memoriaTar esetén: hány küldés ment el, és hányat nyugtázott a szerver */
 };
 
 function felhoBekapcsolva() {

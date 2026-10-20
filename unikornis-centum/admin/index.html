@@ -512,10 +512,11 @@ function esemenyekFigyel() {
     .onSnapshot(function (snap) {
       var l = [];
       snap.forEach(function (d) {
-        var x = d.data(), t = tsDate(x.ts);
+        var x = d.data(), t = typeof x.tsKliens === "number" ? new Date(x.tsKliens) : tsDate(x.ts);   /* 📴 net nélkül gyűlt esemény: az eredeti (gépi) időpont */
         if (!t) return;
-        l.push({ id: d.id, uid: x.uid, unicornId: x.unicornId, type: x.type, ts: t, data: x.data || {} });
+        l.push({ id: d.id, uid: x.uid, unicornId: x.unicornId, type: x.type, ts: t, data: x.data || {}, offline: !!x.offline });
       });
+      l.sort(function (a, b) { return b.ts - a.ts; });   /* a felküldés ideje szerint jött → az eredeti időrendbe */
       A.events = l;
       /* ismeretlen uid (új játékos) → játékosok újratöltése */
       var uj = l.some(function (e) { return !userById(e.uid); });
@@ -1245,6 +1246,9 @@ function esemenyLeiras(e) {
     case "fejtoro_valasz": return "🏔️ " + esc(ftFeladatNev(d.feladatId)) + ": " + ftEredmeny(d) + " · " + percKi(d.idoMp) + (d.vissza ? " · 🔁 visszatérő" : "");
     case "vasarlas": return "🛍️ vásárolt: " + esc(d.targyId) + " (" + (d.ar || 0) + (d.valuta === "tunderharmat" ? "💧" : "✨") + ")";
     case "login": return "🔑 belépett — " + esc(d.device || "") + (d.migrated ? " · helyi mentés felköltöztetve" : "");
+    case "offline": return "📴 net nélkül játszott: " + percKi(d.mp) + (d.palya ? ", " + d.palya + " pálya" : "") + " — most felment a felhőbe" +
+      (!d.alap ? ' · <span class="halvany">(régebbi gép: nem volt mihez hozzáadni, a helyi mentésről másolat készült)</span>' : "") +
+      (d.gyanus ? ' · <span class="rossz-sz">⚠️ ' + d.gyanus + " unikornis helyi mentése nem illett a felhőhöz — másolat a gépen (helyreallitas.html)</span>" : "");
     case "error": return '<span class="rossz-sz">🐞 hiba:</span> ' + esc(d.msg) + ' <span class="halvany">(' + esc(d.fajl) + ":" + (d.sor || 0) + ")</span>";
     default: return esc(e.type);
   }
@@ -1271,11 +1275,13 @@ function rajzJatekos(t) {
     return '<button data-j="' + esc(x.uid) + '" class="' + (x.uid === u.uid ? "aktiv" : "") + '">' + esc(jNev(x.uid)) + "</button>";
   }).join("") + "</div>";
 
-  var ut = utolsoAktivitas(u), login = null;
+  var ut = utolsoAktivitas(u), login = null, offl = null;
   for (var i = 0; i < A.events.length; i++) if (A.events[i].uid === u.uid && A.events[i].type === "login") { login = A.events[i]; break; }
+  for (i = 0; i < A.events.length; i++) if (A.events[i].uid === u.uid && A.events[i].type === "offline") { offl = A.events[i]; break; }
   h += '<div class="kartya"><h3>' + aktivPont(ut) + esc(jNev(u.uid)) + "</h3>" +
     '<div class="kicsi halvany">felhős fiók óta: ' + idoKi(tsDate(u.doc.createdAt)) + " · utoljára: " + idoKi(ut) +
     (login ? " · eszköz: " + esc(login.data.device) : "") + (u.doc.migratedFrom ? " · helyi mentésből költözött" : "") +
+    (offl ? " · 📴 net nélkül is játszott (felment: " + idoKi(offl.ts) + ")" : "") +
     ' · <span title="Firebase uid">' + esc(u.uid.slice(0, 8)) + "…</span></div></div>";
 
   /* unikornisok */

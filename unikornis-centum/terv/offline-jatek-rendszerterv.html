@@ -86,7 +86,7 @@
   <div class="meta">
     <span class="chip">2026-10-20</span>
     <span class="chip">Nagyságrend: NAGY (3 kör)</span>
-    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 → 1. kör jön</span>
+    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 · 🛟 1. kör kész (2026-10-20) → 2. kör jön</span>
   </div>
 </header>
 
@@ -118,8 +118,8 @@
     <tr><th>Helyzet</th><th>Ma</th><th>Mi történik</th></tr>
     <tr><td>Játék közben elmegy a net</td><td class="zold">✅ jó</td><td>A Firebase saját gyorsítótárba ír, és visszatéréskor felküld. Nincs teendő.</td></tr>
     <tr><td>Net nélkül indítás</td><td class="piros">❌</td><td>Nincs service worker → a böngésző a „nincs internet” lapot mutatja, a játék el sem indul.</td></tr>
-    <tr><td>Elindul, de a Firebase-rész nem tölt be</td><td class="piros">🔴 adatvesztés</td><td>A gyerek a helyi mentésbe játszik. Következő indításkor a felhő „az az igazság” → a net nélküli haladás <b>csendben eltűnik</b>. (A régi „eltűnt minden” panaszokhoz hasonló kép.)</td></tr>
-    <tr><td>Elindul, a Firebase is betölt (böngésző-gyorsítótárból)</td><td class="sarga">🟡 többnyire jó</td><td>A belépés megmarad, a Firebase a saját offline tárából dolgozik és később felküld. Ha viszont ez a tár nem elérhető (pl. privát ablak, egyes tabletek), ugyanaz a csendes felülírás jöhet.</td></tr>
+    <tr><td>Elindul, de a Firebase-rész nem tölt be</td><td class="zold">✅ javítva (1. kör)</td><td><s>A gyerek a helyi mentésbe játszik. Következő indításkor a felhő „az az igazság” → a net nélküli haladás csendben eltűnik.</s> Az 1. kör óta a net nélküli haladás következő indításkor <b>hozzáadódik</b> a felhőhöz; a pulton „📴 net nélkül játszott” sor jelzi.</td></tr>
+    <tr><td>Elindul, a Firebase is betölt (böngésző-gyorsítótárból)</td><td class="zold">✅ jó (1. kör)</td><td>A belépés megmarad, a Firebase a saját offline tárából dolgozik és később felküld. Ahol ez a tár nem elérhető (pl. privát ablak, egyes tabletek), az 1. kör óta egy írás csak a szerver nyugtája után számít elküldöttnek → nem vész el.</td></tr>
     <tr><td>Közös gép (Andor + Petra)</td><td class="piros">❌</td><td>Ott a belépés csak a böngésző bezárásáig él, utána kód kell, a kódot pedig csak a felhő tudja ellenőrizni → net nélkül senki nem tud belépni. Kilépéskor a helyi mentés kiürül.</td></tr>
     <tr><td>Felhő nélküli gép (nincs <code>?felho</code>)</td><td class="sarga">🟡</td><td>Adat nem vész (minden helyben van), csak el sem indul net nélkül. A 2. réteg ezt is megoldja.</td></tr>
   </table>
@@ -224,6 +224,20 @@
     <li><b>fromCache-eset:</b> a Firestore offline tárából jövő első pillanatkép a még el nem küldött írásokat is tartalmazza → ott nincs teendő; a jelző csak a „Firestore nélkül játszott” időszakot jelöli.</li>
     <li><b>Eseménynapló-pótlás (3A):</b> <code>esemeny()</code> belépés nélkül, de felhő-módban <code>uc_esemeny_sor</code>-ba ír (max. 500, <code>tsKliens</code> mezővel); <code>felhoElsoAllapot</code> után batch-ben felmegy. A pult a <code>tsKliens</code>-t használja, ha van. Rules: a mai „events: csak create, saját uid” elég, ha a <code>tsKliens</code> szám.</li>
     <li><b>Kiskapu:</b> az összefésülés idempotens legyen — az eltett alapot a sikeres összefésülés után azonnal felülírjuk, így egy újratöltés nem vezeti rá kétszer ugyanazt a különbséget.</li>
+  </ul>
+
+  <h3>✅ 1. kör — így készült el (2026-10-20)</h3>
+  <ul>
+    <li><b>Eltérés a tervtől — a jelző:</b> az <code>uc_kuldetlen</code>-t <i>minden</i> <code>ment()</code> beállítja (belépve a <code>FELHO.uid</code>, belépés előtt a gazda), és csak a sikeres <code>felhoKuld</code> törli. Így a „bezárták a lapot a küldés előtt” eset is fogva van, nem csak a „Firestore nélkül játszott”. Az <code>alapUser</code> nem kerül az eltett alapba (a user-dokumentumot az első állapot ma sem olvassa).</li>
+    <li><b>Eltett alap</b> (<code>uc_felho_alap_&lt;uid&gt;</code>): offline tárral = amit a Firestore-nak átadtunk (<code>felhoKuld</code> után azonnal); <b>offline tár nélkül</b> (<code>enablePersistence</code> hibája → <code>FELHO.memoriaTar</code>) = amit a szerver nyugtázott (<code>waitForPendingWrites</code>, küldésenként sorszámmal). Tele tárnál az alap törlődik (inkább semmi, mint egy elavult, ami kétszer adna).</li>
+    <li><b>Gyanús helyi mentés:</b> ha egy unikornis helyi <code>jatekMp</code>-je kisebb az eltett alapénál (a játékidő sosem csökken → sérült / üres mentés), nem vezetjük rá: a felhő nyer, a helyi mentésről másolat készül, a pult ⚠️ jelet kap.</li>
+    <li>Ha a felhőben még nincs egy unikornis, de a helyi mentésben van küldetlen játék vele → a helyi profil megy fel (nem az üres alapprofil).</li>
+    <li><b>Kilépés</b> (<code>felhoKilep</code>) és <b>gazdaváltás</b> törli az eltett alapot és a jelzőt (közös gépen a helyi mentés kiürül → nincs mire összefésülni).</li>
+    <li><b>Másolatok:</b> <code>unikornis_centum_v1_offline_elott_&lt;ISO-idő ms-ig&gt;</code>, max. 3, indításonként egy. Új rész a <code>helyreallitas.html</code>-ben: „2/B. A gép biztonsági másolatai” → betöltés a 3/A mezőbe.</li>
+    <li><b>Eseménysor:</b> <code>esemenySorba</code> / <code>esemenySorKuld</code> (<code>src/analytics.js</code>): felhő-módban, belépés előtt a gép sorába (max. 500, gazda-uid, <code>tsKliens</code>); belépéskor a saját sor batch-ben felmegy (<code>offline: true</code>), a másik gyereké marad. Felküldés előtt kivesszük a sorból (újratöltés ne küldje kétszer).</li>
+    <li><b>📴 jel:</b> <code>offline</code> esemény <code>{ mp, palya, esemeny, profil, gyanus, alap }</code>, ha ≥ 30 mp net nélküli játékidő, kész pálya vagy gyanús mentés volt. A pult (<code>admin/index.html</code>): eseménysorban „📴 net nélkül játszott: 10 perc, 2 pálya — most felment a felhőbe”, a játékos-kártyán „📴 net nélkül is játszott”; az események a <code>tsKliens</code> szerint rendeződnek. Rules-változás nem kellett.</li>
+    <li><b>Próba:</b> logikai próba a valódi <code>src/</code> felhő-modulokkal + hamis Firestore-ral, 32 ellenőrzés, mind ✅: migráció; net nélküli játék + másik gép közben (+30 / +30 → 170, mindkét ruha); 3× újratöltés és játék nélküli net nélküli indítás → nincs duplázás (kiskapu ✅); üres helyi mentés nem nulláz; régi gép alap nélkül → másolat; offline tár nélkül elveszett írás → következő indításkor felmegy, nem duplázódik; távoli változás követése; kilépés + másik gyerek.</li>
+    <li><b>Ismert, vállalt rés:</b> offline tár nélkül, ha az írás már megérkezett a szerverre, de a nyugta előtt zárják be a lapot (ezredmásodpercek), a különbség egyszer duplán mehet fel. Ritka, a gyerek nem tudja előidézni.</li>
   </ul>
 
   <h3>2. kör — service worker (új: <code>sw.js</code> a játék mappájában)</h3>

@@ -9,6 +9,7 @@
    „most felhő nélkül játszom” csak olyan gépen van, ahol még senki nem lépett be kóddal. */
 function felhoIndit() {
   if (!felhoBekapcsolva()) return;
+  FELHO.be = true;
   felulirCacheBetolt();   /* a producer-felülírások offline is élnek (az utolsó ismert állapot) */
   if (kozosGep()) belepoMutat();   /* közös gépen azonnal a belépő — amíg a felhő tölt, senki ne játsszon a másik nevében */
   sdkBetolt(["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"], function (ok) {
@@ -17,7 +18,7 @@ function felhoIndit() {
       firebase.initializeApp(FIREBASE_CONFIG);
       FELHO.auth = firebase.auth();
       FELHO.db = firebase.firestore();
-      FELHO.db.enablePersistence({ synchronizeTabs: true }).catch(function (e) { console.warn("[felhő] offline tár nem elérhető:", e.code); });
+      FELHO.db.enablePersistence({ synchronizeTabs: true }).catch(function (e) { FELHO.memoriaTar = true; console.warn("[felhő] offline tár nem elérhető:", e.code); });
       if (kozosGep()) belepesCsakMost();
     } catch (e) { console.warn("[felhő] indítási hiba:", e); return; }
     FELHO.auth.onAuthStateChanged(function (u) {
@@ -54,6 +55,7 @@ function felhoKilep() {
   felhoKuld();
   var kozos = kozosGep();
   FELHO.aktiv = false; FELHO.kesz = false;
+  felhoAlapTorol(FELHO.uid);   /* 📴 kilépés után a helyi mentés már nem a felhő tükre (közös gépen ki is ürül) → nincs mire összefésülni */
   if (FELHO.leiratkozas) FELHO.leiratkozas();
   felulirLeiratkozik(); felulirCacheTorol(); fejtoroLeiratkozik();
   if (kozos) {   /* a következő gyerek ne a kilépő unikornisait lássa a belépő mögött */
