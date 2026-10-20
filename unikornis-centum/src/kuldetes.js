@@ -25,6 +25,8 @@
        mérhető pályái, a „megy” is (te választottad), legalább 1 fajta, fajtánként 1–2 hely (kuldUjHelyek) — ekkor
        akt.liget = "kezi", és a 🐉 minden olyan ligeten látszik, ahol kért pálya van (kuldLigetJel). A pult-változás csak a
        következő küldetésre hat; a futót csak az elrejtett pálya igazítja (mint eddig).
+     • 5. kör (2026-10-20): GÉPI LIGET — a pult alapja „a játék választ” (KULD_GEPI, kuldGepiLiget): 6 liget (Szorzós,
+       Összeadó, Tündérvásár, a 3 mérés-liget); a lépcsős ligetekben csak a már játszott pályák + a következő egy.
      • 5. kör (2026-10-20): EMLÉK-PRÓBÁK. Ha egy már „menő” pályánál esedékes az emlék-próba (tudas.js tudasEsedekes),
        a következő küldetésbe csendben visszakerül pontosan 1 helyre (nem kap 2. helyet, nem előz; a 10-es plafonnál egy
        2. hely helyére jön). Fajtának számít (a ≤ 2 szabálynál is). A próba eredményét a tudás-napló intézi
@@ -39,9 +41,17 @@
    raadas: nem kötelező, de ha végigjátssza, küldetésenként egyszer hoz 1 darabot — a legtöbbet hozó nyitott helytől veszi
    el (az legalább 1 marad, így minden kért pálya kell továbbra is); a táblán kész helyként jelenik meg (kuldRaadas) */
 var KULD_LIGET = {
-  szorzo: { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"], raadas: ["mi-maradt"] }
+  szorzo:   { nev: "Szorzós liget", honnan: "a Szorzós ligetből", kimarad: ["szorzo-dallam", "mi-maradt"], raadas: ["mi-maradt"] },
+  osszeado: { nev: "Összeadó liget", honnan: "az Összeadó ligetből", kimarad: ["bontas-felmondas"], lepcsos: true },   /* 🌰 felmondás: nem mérhető */
+  vasar:    { nev: "Tündérvásár", honnan: "a Tündérvásárból", kimarad: [], lepcsos: true },
+  szabo:    { nev: "Szabóműhely", honnan: "a Szabóműhelyből", kimarad: [], lepcsos: true },
+  bajital:  { nev: "Bájitalkonyha", honnan: "a Bájitalkonyhából", kimarad: [], lepcsos: true },
+  pekseg:   { nev: "Mézes pékség", honnan: "a Mézes pékségből", kimarad: [], lepcsos: true }
 };
+/* lepcsos: a pályák osztályról osztályra nehezednek → csak az számít, amit a gyerek már végigjátszott, + a sorban
+   következő EGY (producer, 2026-10-20: egy 3.-os ne kapjon 5. osztályos mérést). A Szorzós liget marad a régi módon. */
 var KULD_KEZI = "kezi";   /* akt.liget, ha a küldetés a pult kézi listájából állt össze */
+var KULD_GEPI = "gepi";   /* a pult „liget” mezője: a játék választ (az ALAP, producer 2026-10-20) */
 var KULD_TIPUS = ["agy", "haz", "ruha"];   /* 1 + 1 + 1 a választóban (3. kör) */
 var KULD_RESZ = 10, KULD_MAX_HELY = 10;
 
@@ -69,8 +79,11 @@ function kuldVan() {
 /* ── a liget fajtái a gyereknél: látszik, nyitva van, nem „hamarosan”, nem kimaradó ── */
 function kuldFajtak(liget, p) {
   var L = KULD_LIGET[liget]; if (!L) return [];
+  var pp = (p || P()).palyak || {}, uj = 0;
   return PALYAK.filter(function (pa) {
-    return pa.regio === liget && !pa.hamarosan && L.kimarad.indexOf(pa.id) < 0 && !palyaRejtve(pa) && !palyaZarva(pa);
+    if (palyaLiget(pa) !== liget || pa.hamarosan || L.kimarad.indexOf(pa.id) >= 0 || palyaRejtve(pa) || palyaZarva(pa)) return false;
+    if (!L.lepcsos || pp[pa.id] || tudasUtolso(pa.id, p) >= 0) return true;
+    return !uj++;   /* lépcsős liget: a még nem játszottak közül csak az első */
   }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p), esed: tudasEsedekes(pa.id, p) }; });
 }
 /* kimaradó (nem mérhető / nem kötelező) pálya-e bármelyik ligetben — a kézi listából is kimarad */
@@ -94,9 +107,25 @@ function kuldHonnan(a) {
 function kuldUjHelyek() {
   var b = lenyBeall();
   if (b.kuldPalyak) { var h = kuldOsszeallit(kuldKeziFajtak(b.kuldPalyak), true); return h ? { liget: KULD_KEZI, helyek: h } : null; }
-  var a = kuldOsszeallit(kuldFajtak(b.kuldLiget));
-  return a ? { liget: b.kuldLiget, helyek: a } : null;
+  var l = b.kuldLiget === KULD_GEPI ? kuldGepiLiget() : b.kuldLiget, a = l && kuldOsszeallit(kuldFajtak(l));
+  return a ? { liget: l, helyek: a } : null;
 }
+/* GÉPI LIGET-VÁLASZTÁS (producer A1, 2026-10-20): ahol a legtöbb „még nem megy” (+ esedékes emlék-próba) pálya van;
+   döntetlennél a KULD_LIGET sorrendje. Csak az a liget számít, ahol a gyerek már végigjátszott legalább egy pályát
+   (így egy újonc nem kap szorzós küldetést). A „kész” liget (≤ 2 fajta) kiesik → a kölyök máshonnan kér; ha egyik
+   sem ad küldetést, nincs kérés. Visszaad: liget-azonosító | null. A küldetésbe a VALÓDI liget kerül (akt.liget). */
+function kuldGepiLiget(p) {
+  var pp = (p || P()).palyak || {}, leg = null, max = 2;
+  Object.keys(KULD_LIGET).forEach(function (l) {
+    var f = kuldFajtak(l, p);
+    if (!f.some(function (x) { return !!pp[x.id] || x.ut >= 0; })) return;
+    var db = f.filter(function (x) { return !x.megy || x.esed; }).length;
+    if (db > max) { max = db; leg = l; }
+  });
+  return leg;
+}
+/* a pult „liget” mezőjének neve (a pult is hívja) */
+function kuldLigetNev(l) { return l === KULD_GEPI ? "🤖 a játék választ" : (KULD_LIGET[l] ? KULD_LIGET[l].nev : l); }
 /* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy, esed }] a liget sorrendjében.
    Visszaad: [{ p, resz }] (a fajták sorrendjében, fajtánként egymás után), vagy null (≤ 2 fajta: a liget kész).
    Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés).

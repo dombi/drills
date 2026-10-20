@@ -20,7 +20,7 @@
    egyéni: { "leny|palyaId": időbélyeg } — a „mégsem megy” gomb; a tudás-napló egyszer veszi át, tudas.js tudasPultVissza).
    Pult-változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik, 4. döntés). */
 var LENY_BEALL_ALAP = { kiser: true, kuld: true };
-var LENY_KULD_LIGET_ALAP = "szorzo";
+var LENY_KULD_LIGET_ALAP = "gepi";   /* a játék választ (kuldetes.js kuldGepiLiget; producer 2026-10-20 — előtte "szorzo") */
 /* a pult beállításainak összevonása — a pult is ezt hívja (lenyHatas) */
 function lenyBeallOsszevon(egyeni, csoportok) {
   var ki = {};

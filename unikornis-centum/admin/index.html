@@ -305,9 +305,9 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/teny.js?v=20261007-2"></script><!-- 🌸 a tény-motor közös függvényei (tenyCsaladok, tenyLepcso, tenyOsszevon…) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/megfigyeles.js?v=20261018-4"></script><!-- 🔍 a gyerek-jellemzés mondatai (🧭 😊 🌳🌿🌱, kártyák, rács-jelek) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/leny-kiser.js?v=20261018-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/leny-kiser.js?v=20261020-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/tudas.js?v=20261020-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
-<script src="../src/kuldetes.js?v=20261020-1"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
+<script src="../src/kuldetes.js?v=20261020-2"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -1802,7 +1802,7 @@ function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g
    kuldLiget, megsem) — a gyerek mentéséhez nem nyúl, a „mégsem megy”-et a játék veszi át (tudas.js tudasPultVissza). */
 function kuldHatasSzoveg(lh) {
   if (!lh.kuld) return "nincs";
-  return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : (KULD_LIGET[lh.kuldLiget] ? KULD_LIGET[lh.kuldLiget].nev : lh.kuldLiget));
+  return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : kuldLigetNev(lh.kuldLiget));
 }
 function napDatum(n) { if (typeof n !== "number") return "–"; var d = new Date(n * NAP); return (d.getUTCMonth() + 1) + ". " + d.getUTCDate() + "."; }
 function kuldGyerekNezet(uid) {
@@ -2050,7 +2050,7 @@ function rajzBeallitasok(t) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kiser === "boolean" ? String(sajatLeny.kiser) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
     }).join("") + "</select></div>";
   /* 🐉 Sárkány-küldetés (2026-10-17, terv/sarkany-kuldetesek-rendszerterv.html; 4. kör 2026-10-18: a teljes kártya):
-     mód (ki · kézi), liget, kézi pályalista bármelyik ligetből; egyéninél a futó küldetés és a tudás-napló „mégsem megy” gombbal.
+     mód (ki · kézi), liget (alap: 🤖 a játék választ, 2026-10-20), kézi pályalista bármelyik ligetből; egyéninél a futó küldetés és a tudás-napló „mégsem megy” gombbal.
      A változás csak a KÖVETKEZŐ küldetésre hat (a futó nem változik). */
   h += '<h4 style="margin:12px 0 2px">🐉 Sárkány-küldetés</h4>';
   h += '<div class="kapu-sor"><span>Küldetés:</span>' +
@@ -2059,8 +2059,8 @@ function rajzBeallitasok(t) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kuld === "boolean" ? String(sajatLeny.kuld) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
     }).join("") + "</select>" +
     "<span>Liget:</span>" + '<select id="leny-kuld-liget"' + (typeof sajatLeny.kuldLiget === "string" ? ' class="beallitva"' : "") + ">" +
-    [["", (egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap") : "— nincs (alap)") + " (" + KULD_LIGET[LENY_KULD_LIGET_ALAP].nev + ")"]].concat(
-      Object.keys(KULD_LIGET).map(function (l) { return [l, KULD_LIGET[l].nev]; })).map(function (o) {
+    [["", (egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap") : "— nincs (alap)") + " (" + kuldLigetNev(LENY_KULD_LIGET_ALAP) + ")"]].concat(
+      [KULD_GEPI].concat(Object.keys(KULD_LIGET)).map(function (l) { return [l, kuldLigetNev(l)]; })).map(function (o) {
       return '<option value="' + o[0] + '"' + ((sajatLeny.kuldLiget || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
     }).join("") + "</select></div>";
   /* kézi pályalista: ligetenként, a kimaradók (🎵 nem mérhető, 🧺 nem kötelező) nélkül */
@@ -2087,6 +2087,8 @@ function rajzBeallitasok(t) {
   h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
     "Küldetés: a kölyök 3 holmi közül választat (ágy, kisház, ruha), és 10 helyet kér a liget azon pályáiból, amelyek a gyereknek még nem mennek " +
     "(megy = 3 különböző napon tiszta végigjátszás); ha 2 vagy kevesebb ilyen marad, a liget kész, és nem kér. " +
+    "🤖 A játék választ (alap): abból a ligetből kér, ahol a legtöbb még nem megy — csak olyan ligetből, ahol a gyerek már végigjátszott egy pályát; ha egy liget kész, máshonnan kér. " +
+    "Az Összeadó ligetben, a Tündérvásárban és a mérés-ligetekben csak a már játszott pályák + a következő egy számít (így nem kap az osztályánál nehezebbet). " +
     "Kézi pályalista: ha bepipálsz pályákat (bármelyik ligetből), a te listád számít — a „megy” pályák is, pályánként 1–2 hely; ami a gyereknek rejtve vagy zárva van, kimarad. " +
     "Minden változás csak a <b>következő</b> küldetésre hat, a futó nem változik. " +
     "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer, a liget az első csoporté, a kézi listák összeadódnak.</p></div>";
