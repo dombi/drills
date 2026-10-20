@@ -62,6 +62,8 @@ function palyaInditas(id) {
   if (!pa || pa.hamarosan) return;
   if (palyaZarva(pa) || palyaElfogyott(pa)) return;   /* zárt kapu (csak a kulcsok játszhatók) / elfogyott darabkorlát */
   ligetJegyez(palyaLiget(pa));                     /* pálya után ebbe a ligetbe tér vissza (ui.js) */
+  var rovid = nyitasRovidElso(pa);                 /* 🚪 az újonc első pályája rövidebb: Rajt → 2 szakasz → küszöb (nyitas.js) */
+  if (rovid) { var ra = pa.allomasok, rp = {}, rk; for (rk in pa) rp[rk] = pa[rk]; rp.allomasok = [ra[0], ra[1], ra[2], ra[ra.length - 1]]; pa = rp; }
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */
   if (!P().napok) P().napok = {};
   if (!P().napok[maJelv]) { P().napok[maJelv] = 1; ment(); }
@@ -78,7 +80,7 @@ function palyaInditas(id) {
 
   J = { palya: pa, allomasok: allomasok, allomasIdx: 0, feladat: null, feladatDb: 0, feladatKesz: 0,
         probak: 0, kerultKulcsok: {}, futoElsore: 0, futoOssz: 0, futoCsilla: 0, lepesSor: 0, beirt: "",
-        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan, indultMs: Date.now() };
+        kezCsend: 0, kezBeiras: false, keruloVolt: false, sorozatBan: sorozatBan, indultMs: Date.now(), rovid: rovid };
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
@@ -786,7 +788,7 @@ function palyaVege() {
   P().tunderharmat = (P().tunderharmat || 0) + harmat;
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
-  tudasPalyaVege(id, teljes);   /* 📒 tudás-napló: tiszta (kerülő nélküli) nap — láthatatlan (tudas.js) */
+  if (!J.rovid) tudasPalyaVege(id, teljes);   /* 📒 tudás-napló: tiszta (kerülő nélküli) nap — láthatatlan (tudas.js) */
   kuldPalyaVege(id);            /* 🐉 sárkány-küldetés: a kért pálya hoz egy darabot (kuldetes.js); a hír a visszaHir-ben */
   var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
   var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */

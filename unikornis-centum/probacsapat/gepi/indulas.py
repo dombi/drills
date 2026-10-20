@@ -1,6 +1,6 @@
 """🤖 Gépi próba — ① Indulás-őr (terv/gepi-proba-terv.html).
 
-Friss böngésző, üres mentés → profilválasztó → minden képernyő egyszer (kepernyok.py), valódi kattintással.
+Friss böngésző, üres mentés → az újonc első perce (nyitokep.js) → minden képernyő egyszer (kepernyok.py), valódi kattintással.
 Közben figyeli a konzolhibákat; a végén szól, ha van olyan képernyő, amit senki nem néz.
 A pályák indítását (mind) a matek-őr végzi — annak a hibái is ide, a konzol-figyelőbe futnak be.
 Vissza: a képernyők szövegei és az elhangzott mondatok (a szöveg-őrnek).
@@ -32,6 +32,7 @@ def terkepre(l):
     """A vissza-gombokkal fel a térképre (legfeljebb 6 lépés)."""
     for _ in range(6):
         if _terkepen(l): return True
+        if l.aktiv() in BELEPO: profil_valaszt(l); continue   # 🚪 nyitókép / első perc / profilválasztó: be a térképre
         for v in VISSZA_GOMBOK:
             if v == "fomenu-vissza" and _terkepen(l): continue      # a térképen ez a „🦄 Váltás” → profilválasztó
             e = allapot(l)
@@ -43,9 +44,37 @@ def terkepre(l):
     return _terkepen(l)
 
 
+# 🚪 az első perc után a menet kikapcsolva (osztály nélkül nincs menet, nyitas.js): a próba minden helyet bejárhasson, mint eddig
+MENET_KI = ("(function(){ var m = UC.mentes; Object.keys(m.profilok).forEach(function(k){ var p = m.profilok[k];"
+            " if (p.uj && p.uj.o != null) { p.uj.o = null; UC.ment(); } }); })()")
+BELEPO = ("kepernyo-nyito", "kepernyo-elsoperc", "kepernyo-profil")
+
+
+def elso_perc(l):
+    """🚪 Az újonc első perce (nyitokep.js), ahogy egy gyerek kattintaná: unikornis → név-felhő → 2. osztály lufija."""
+    l.katt("#elsoperc-szin .ny-mozgo", 0.3)
+    if not l.varj("document.querySelector('#elsoperc-szin .ny-felho')", 8): return False
+    l.katt('#elsoperc-szin .ny-felho[data-i="0"]', 0.3)
+    if not l.varj("document.querySelector('#elsoperc-szin .ny-lufi, #kepernyo-fomenu.aktiv')", 8): return False
+    l.katt('#elsoperc-szin .ny-lufi[data-i="1"]', 0.3)
+    return l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 8)
+
+
 def profil_valaszt(l):
-    l.katt("#profil-lista .profil-kartya", 1.0)
-    return l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 5)
+    """Be a térképre: a nyitóképen az unikornis felébresztése, az újoncnál az első percen át, vagy a profilválasztóról."""
+    for _ in range(3):
+        a = l.aktiv()
+        if a == "kepernyo-fomenu": break
+        if a == "kepernyo-elsoperc": elso_perc(l)
+        elif a == "kepernyo-nyito":
+            l.katt("#nyito-szin .ny-alvo", 0.3)
+            l.varj("document.querySelector('#kepernyo-fomenu.aktiv, #kepernyo-elsoperc.aktiv')", 10)
+        else:
+            l.katt("#profil-lista .profil-kartya", 1.0)
+            l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 5)
+    ok = l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 5)
+    if ok: l.js(MENET_KI); l.js("UC.renderFomenu()")
+    return ok
 
 
 def szovegek_most(l, hol):
@@ -81,14 +110,14 @@ def futtat(l, cim, jelentes):
             jelentes.hiba(OR, "piros", "indulas:konzol:%s:%s" % (nev, h["szoveg"][:60]),
                           "Konzolhiba — %s: %s" % (nev, h["szoveg"][:140]), h.get("verem", h["szoveg"])[:600])
 
-    l.hol = "Profilválasztó"
+    l.hol = "Első perc"
     l.betolt(cim)
     if l.js("localStorage.length") not in (0, 1):
         jelentes.naplo.append("⚠️ a mentés nem volt üres induláskor")
     l.pihen(0.8)
     for nev, lepesek, var, latszik in KEPERNYOK:
         tol = len(l.hibak); l.hol = nev
-        if nev == "Profilválasztó":
+        if nev == "Első perc":
             pass
         elif nev == "Térkép":
             profil_valaszt(l)

@@ -144,20 +144,44 @@ function nyitasMenet() {
   if (b.menet === false) return null;
   if (!t) {
     if (b.menet !== true && !nyitasSzuz(mentes.profilok)) return null;
-    if (!b.osztaly || !nyitasMentesKesz()) return null;   /* 1. kör: osztály csak a pultról (a lufik a 2. körben) */
-    var p = P();
-    p.uj = { o: null, g0: gyakNap(p) - (gyakMa(p) ? 1 : 0), t: Date.now() };
-    nyitasNormal(p);
-    nyitasVersek(b.osztaly).forEach(function (v) {   /* a már esedékes vers az első naptól ott van (nem foglal napot, nincs ébredés) */
-      if (nyitasLigetAllapot(p.uj, NYITAS_OSZTALY[b.osztaly], v.liget, false) === "alszik") { p.uj.nyilt["vers:" + v.liget] = 0; p.uj.lat["vers:" + v.liget] = 1; }
-    });
-    p.bemutatva.terkep = 1;   /* a régi „a kertünk mostantól itt van…” mondat a régi játékosoknak szólt */
-    ment();
-    t = { k: mentes.leny, r: p.uj };
+    if (!b.osztaly || !nyitasMentesKesz()) return null;   /* a pult osztálya nélkül a rekordot az első perc lufija hozza létre (nyitasIndit) */
+    nyitasRekordUj(P(), null, b.osztaly);
+    t = { k: mentes.leny, r: P().uj };
   }
   var o = b.osztaly || t.r.o;
   if (!NYITAS_OSZTALY[o]) return null;
   return { r: t.r, k: t.k, p: mentes.profilok[t.k], o: o, sor: NYITAS_OSZTALY[o] };
+}
+/* a rekord születése (a kezdő unikornisnál): o = a gyerek osztálya (lufi) vagy null (a pult adja: po) */
+function nyitasRekordUj(p, o, po) {
+  p.uj = { o: o, g0: gyakNap(p) - (gyakMa(p) ? 1 : 0), t: Date.now() };
+  nyitasNormal(p);
+  nyitasVersek(po || o).forEach(function (v) {   /* a már esedékes vers az első naptól ott van (nem foglal napot, nincs ébredés) */
+    if (nyitasLigetAllapot(p.uj, NYITAS_OSZTALY[po || o], v.liget, false) === "alszik") { p.uj.nyilt["vers:" + v.liget] = 0; p.uj.lat["vers:" + v.liget] = 1; }
+  });
+  p.bemutatva.terkep = 1;   /* a régi „a kertünk mostantól itt van…” mondat a régi játékosoknak szólt */
+  ment();
+}
+/* az első perc vége (nyitokep.js): a lufi osztályával indul a menet (ha a pult is adott osztályt, az erősebb) */
+function nyitasIndit(o) {
+  var p = P(), t = nyitasRekordKeres(mentes.profilok);
+  if (t) { if (o >= 1 && o <= 6) { t.r.o = o; ment(); } return; }
+  nyitasRekordUj(p, o >= 1 && o <= 6 ? o : null, nyitasBeall().osztaly);
+}
+/* az első pálya: ide sétál az unikornis az első perc végén (tervlap 4.② „első pálya” oszlopa) */
+var NYITAS_ELSO_LIGET = { 1: "osszeado", 2: "osszeado", 3: "osszeado", 4: "szorzo", 5: "vasar", 6: "vasar" };
+/* 🛍️ a Bolt az újoncnál: 1 polc (ruhák), a 💧 kerti trükkök a harmattal, minden más a frissítések napjától (tervlap 4.③, 4.⑤) */
+function nyitasBoltFulek() {
+  var m = nyitasMenet(); if (!m || m.r.nyilt.frissites != null) return null;
+  return m.r.nyilt.harmat != null ? ["holmik", "kert"] : ["holmik"];
+}
+/* az újonc rövidebb első pályája (tervlap 4.②): amíg egyik unikornisnál sincs végigjátszott pálya */
+function nyitasRovidElso(pa) {
+  if (!pa || pa.egyeni || pa.konyvtar || pa.szerszam || pa.polc || pa.vasar || pa.meres || pa.muhely || pa.teny || pa.villam || pa.fejtoro) return false;
+  var a = pa.allomasok || [], alap = pa.alap || {};
+  if (a.length < 5 || !a[a.length - 1].cel) return false;
+  if (a.some(function (x) { var t = x.tipus || alap.tipus; return t === "szambontas" || t === "szorzotabla-felmondas"; })) return false;
+  return !!nyitasMenet() && nyitasSzuz(mentes.profilok);
 }
 function nyitasMentesKesz() { return typeof FELHO === "undefined" || !FELHO.be || FELHO.kesz || !!FELHO.offline; }
 function nyitasEgyeniVan() {

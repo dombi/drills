@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=20261020-1">
+<link rel="stylesheet" href="style.css?v=20261020-2">
 <script>
 /* 📴 Offline 2. kör: a service worker (sw.js) eltesz egy példányt a játékból → net nélkül is elindul.
    Csak https-en (GitHub Pages); helyi próbán (localhost) csak ?sw-vel. Nettel mindig a legfrissebb játék jön.
@@ -47,7 +47,22 @@
 
 <div id="app">
 
-  <section id="kepernyo-profil" class="kepernyo aktiv">
+  <section id="kepernyo-nyito" class="kepernyo aktiv">
+    <a href="../index.html" class="kaszino-vissza" title="Vissza a kaszinóba">🎰</a>
+    <div id="nyito-szin" class="ny-szin"></div>
+  </section>
+
+  <section id="kepernyo-elsoperc" class="kepernyo">
+    <div id="elsoperc-szin" class="ny-szin"></div>
+    <div id="ep-sajat" class="ny-sajat" hidden>
+      <input id="ep-sajat-mezo" class="felho-mezo" maxlength="14" autocomplete="off" spellcheck="false" placeholder="az unikornis neve" />
+      <button id="ep-sajat-kesz" class="nagy-gomb kiemelt">Kész ✓</button>
+      <button id="ep-sajat-megse" class="tovabb-link">Mégse</button>
+      <div id="ep-sajat-hiba" class="felho-hiba"></div>
+    </div>
+  </section>
+
+  <section id="kepernyo-profil" class="kepernyo">
     <a href="../index.html" class="kaszino-vissza" title="Vissza a kaszinóba">🎰</a>
     <h1 class="jatekcim">Unicornis Centum</h1>
     <p class="alcim">Ki játszik most?</p>
@@ -296,6 +311,6 @@
 
 <script src="kert-hangok.js?v=20260919-1"></script>
 <script src="tk-diszek.js?v=20260924-1"></script>
-<script src="game.js?v=20261020-9"></script>
+<script src="game.js?v=20261020-10"></script>
 </body>
 </html>

@@ -14,7 +14,7 @@
    háttérben belép, és az 1. kör hozzáadja a net nélküli játékot a felhőhöz. A gyerek ebből semmit nem lát. */
 var HATIZSAK_ELOTAG = "uc_hatizsak_";
 var FELHO_OFFLINE_BELEPES = "uc_offline_belepes";   /* sessionStorage: { uid, kod, k } — a net nélkül belépett gyerek */
-var HATIZSAK_BIZTOS = { "kepernyo-profil": 1, "kepernyo-fomenu": 1 };   /* itt nem fut pálya → a felhő-állapot ráírása nem zavar */
+var HATIZSAK_BIZTOS = { "kepernyo-profil": 1, "kepernyo-fomenu": 1, "kepernyo-nyito": 1 };   /* itt nem fut pálya → a felhő-állapot ráírása nem zavar */
 
 function hatizsakOlvas(uid) {
   try { var h = JSON.parse(localStorage.getItem(HATIZSAK_ELOTAG + uid) || "null"); return h && h.mentes && h.mentes.profilok ? h : null; } catch (e) { return null; }

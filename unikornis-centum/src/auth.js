@@ -3,7 +3,7 @@
    A fiókot a producer hozza létre a Firebase-konzolon (Authentication → Add user).
    EGY gyerek egy gépen: a böngésző megjegyzi a belépést — a gyerek csak egyszer írja be a kódot.
    KÖZÖS GÉP (ugyanazon a gépen már 2+ különböző kóddal léptek be — a gép magától ismeri fel, nincs kapcsoló):
-     • a belépő névkártyákat mutat (név + a gyerek unikornisa), a kártya után a kódot be kell írni;
+     • a belépő a nyitókép: a gyerekek unikornisai alszanak (név a táblán), a felébresztett után a kódot be kell írni;
      • a belépés csak a böngésző bezárásáig él (SESSION), utána újra a belépő jön;
      • a 👋 Kilépek után a helyi mentés kiürül (a hang/válaszmód gép-beállítás marad).
    „most felhő nélkül játszom” csak olyan gépen van, ahol még senki nem lépett be kóddal.
@@ -89,7 +89,8 @@ function felhoKilep() {
   } catch (e) {}
   felhoOfflineVege();
   if (online && FELHO.auth) { FELHO.auth.signOut().then(function () { location.reload(); }); return; }
-  betolt(); renderProfil(); mutat("kepernyo-profil"); belepoMutat();   /* 📴 net nélkül újratöltés nélkül (most lehet, hogy be sem töltene) */
+  NYITO.belepett = false;
+  betolt(); renderProfil(); belepoMutat();   /* 📴 net nélkül újratöltés nélkül (most lehet, hogy be sem töltene): a nyitókép alvó gyerekei */
 }
 
 /* ── a gép játékosai (névkártyákhoz) ── */
@@ -113,9 +114,16 @@ function jatekosNev(kod) {
   return JATEKOS_NEV[n] || (n.charAt(0) + n.slice(1).toLowerCase());
 }
 
-/* ── belépő képernyő (rátét a profilválasztó fölé) ── */
-var BELEPO_VALASZTOTT = null;   /* a kiválasztott névkártya kódja (közös gépen) */
-function belepoMutat() {
+/* ── belépő képernyő (rátét a nyitókép fölé) ──
+   🚪 Újonc-bevezetés 2. kör: ahol a gépen már léptek be kóddal, a belépő maga a nyitókép (nyitokep.js): a gyerekek
+   unikornisai alszanak a fűben, a gyerek a sajátját ébreszti fel, és UTÁNA kéri a kódot ez a kártya — belepoMutat(kod).
+   belepoMutat(null) = „✏️ Új vagyok” (kód névkártya nélkül); belepoMutat() = a gép állapota dönt. */
+var BELEPO_VALASZTOTT = null;   /* a kiválasztott gyerek kódja (közös gépen) */
+function belepoMutat(kod) {
+  if (kod === undefined && gepJatekosok().length) {
+    if (NYITO.mod === "kozos" && $("kepernyo-nyito").classList.contains("aktiv")) return;   /* már ott alszanak (vagy épp a kódját írja valaki) */
+    belepoRejt(); nyitoRajzol("kozos"); return;
+  }
   var d = $("felho-belepo");
   if (!d) {
     d = el("div", "felho-belepo"); d.id = "felho-belepo";
@@ -123,12 +131,12 @@ function belepoMutat() {
       '<div class="felho-kartya">' +
         '<div class="felho-ikon">☁️🦄</div>' +
         '<h2 id="felho-cim">Belépés</h2>' +
-        '<div id="felho-jatekosok" class="felho-jatekosok"></div>' +
         '<p id="felho-kerdes">Írd be a belépőkódodat!</p>' +
         '<input id="felho-kod" class="felho-mezo" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="pl. CSILLAG-42" />' +
         '<div id="felho-hiba" class="felho-hiba"></div>' +
         '<button id="felho-belep" class="nagy-gomb kiemelt">Belépek</button>' +
         '<button id="felho-kesobb" class="tovabb-link">most felhő nélkül játszom</button>' +
+        '<button id="felho-vissza" class="tovabb-link">← Vissza</button>' +
       '</div>';
     document.body.appendChild(d);
     var mezo = $("felho-kod"), gomb = $("felho-belep"), hiba = $("felho-hiba");
@@ -140,11 +148,13 @@ function belepoMutat() {
         return;
       }
       var offline = felhoOfflineBelephet(j);   /* 📴 a gép ismeri ezt a gyereket → net nélkül is beléphet */
+      NYITO.belepett = true;   /* most írta be a kódot: a nyitóképen nem kell még egyszer ébresztenie (nyitokep.js) */
       if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
       gomb.disabled = true; gomb.textContent = "Egy pillanat…";
       kodBelep(kod).catch(function (e) {
         var c = (e && e.code) || "";
         if (c === "auth/network-request-failed" && offline) { felhoOfflineBelep(j, kod); return; }
+        NYITO.belepett = false;
         hiba.textContent = c === "auth/network-request-failed" ? "Nincs internet. Próbáld újra később!"
           : c === "auth/too-many-requests" ? "Túl sok próbálkozás. Várj egy kicsit!"
           : "Ez a kód nem jó. Nézd meg még egyszer!";
@@ -154,37 +164,18 @@ function belepoMutat() {
     gomb.addEventListener("click", probal);
     mezo.addEventListener("keydown", function (e) { if (e.key === "Enter") probal(); });
     $("felho-kesobb").addEventListener("click", belepoRejt);
+    $("felho-vissza").addEventListener("click", function () { hangGomb(); belepoRejt(); nyitoKozosVissza(); });
   }
-  BELEPO_VALASZTOTT = null;
+  BELEPO_VALASZTOTT = kod || null;
   var gb = $("felho-belep"); gb.disabled = false; gb.textContent = "Belépek";
   $("felho-kod").value = ""; $("felho-hiba").textContent = "";
-  belepoJatekosok();
-  $("felho-kesobb").hidden = gepJatekosok().length > 0;   /* ahol már léptek be kóddal, a felhő nélküli játék csak elveszne (net nélkül a belépő meg sem jelenik) */
+  var van = gepJatekosok().length > 0;
+  $("felho-cim").textContent = kod ? jatekosNev(kod) : (van ? "Új vagy?" : "Belépés");
+  $("felho-kerdes").textContent = kod ? NYITO_KOD_KER.replace("{n}", jatekosNev(kod)) : "Írd be a belépőkódodat!";
+  $("felho-kesobb").hidden = van;   /* ahol már léptek be kóddal, a felhő nélküli játék csak elveszne (net nélkül a belépő meg sem jelenik) */
+  $("felho-vissza").hidden = !van;  /* vissza a nyitóképre (a gyerekek újra alszanak) */
   d.hidden = false;
-}
-/* névkártyák: a gépen már belépett gyerekek (legutóbbi elöl) */
-function belepoJatekosok() {
-  var hely = $("felho-jatekosok"), l = gepJatekosok().slice().reverse();
-  hely.innerHTML = "";
-  $("felho-cim").textContent = l.length ? "Ki játszik most?" : "Belépés";
-  $("felho-kerdes").textContent = l.length ? "Kattints a nevedre! Ha új vagy, írd be a kódodat!" : "Írd be a belépőkódodat!";
-  hely.parentNode.classList.toggle("szeles", l.length > 0);
-  l.forEach(function (j, i) {
-    var c = LENYEK[j.leny] || LENYEK[LENY_SORREND[0]];
-    var k = el("button", "felho-nevkartya");
-    k.innerHTML = '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' +
-      unikornisSVG("fb" + i, c, 0.9, j.oltozet || null, j.kinezet || null) + '</svg>' +
-      '<span class="nev">' + kiiras(jatekosNev(j.kod)) + '</span>';
-    k.addEventListener("click", function () {
-      hangGomb();
-      BELEPO_VALASZTOTT = j.kod;
-      Array.prototype.forEach.call(hely.children, function (x) { x.classList.toggle("valasztott", x === k); });
-      $("felho-kerdes").textContent = "Szia, " + jatekosNev(j.kod) + "! Írd be a kódodat!";
-      $("felho-hiba").textContent = "";
-      var m = $("felho-kod"); m.value = ""; m.focus();
-    });
-    hely.appendChild(k);
-  });
+  setTimeout(function () { try { $("felho-kod").focus(); } catch (e) {} }, 50);
 }
 function belepoHiba(szoveg) { var h = $("felho-hiba"); if (h && !$("felho-belepo").hidden) h.textContent = szoveg; }
 function belepoRejt() { var d = $("felho-belepo"); if (d) d.hidden = true; }

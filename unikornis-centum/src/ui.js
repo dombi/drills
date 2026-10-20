@@ -75,13 +75,25 @@ var BEMUTATAS = {
   terkep:   { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="kert"] .hb', '.terkep-hely[data-id="utca"] .hb'],
               mondat: "Nézd, a kertünk mostantól itt van, a házunk mellett! A boltot az utcán találod." },
   szekreny: { kepernyo: "kepernyo-odu", ragyog: ["#odu-szekreny"],
-              mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" }
+              mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" },
+  /* 🚪 újonc (tervlap 4.③): az első végigjátszott pálya után az utca felragyog, az utcán a Bolt — a ✨ így kap értelmet */
+  ujoncBolt: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="utca"] .hb'], feltetel: ujoncElsoBolt,
+               mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+  ujoncBoltUtca: { kepernyo: "kepernyo-utca", ragyog: ["#utca-bolt"], feltetel: ujoncElsoBolt,
+                   mondat: "Itt a Csillagbolt! Koppints rá!" }
 };
+/* az újonc már végigvitt egy pályát, és van ✨-je (nyitas.js) */
+function ujoncElsoBolt() {
+  var m = nyitasMenet(); if (!m || !(P().csillampor >= 15)) return false;
+  var pk = P().palyak || {};
+  return Object.keys(pk).some(function (id) { return pk[id] && pk[id].kesz; });
+}
 function bemutat(kulcs) {
   var b = BEMUTATAS[kulcs], leny = mentes.leny;
-  if (!b || P().bemutatva[kulcs]) return;
+  if (!b || P().bemutatva[kulcs] || (b.feltetel && !b.feltetel())) return;
   setTimeout(function () {   /* előbb rendeződjön be a kép (és elhallgasson a belépő mondat) */
     if (!$(b.kepernyo).classList.contains("aktiv") || mentes.leny !== leny || P().bemutatva[kulcs]) return;
+    if (b.feltetel && !b.feltetel()) return;
     if (kulcs === "terkep" && FOMENU_LIGET) return;   /* a liget belsejében nem — majd a térképen */
     P().bemutatva[kulcs] = 1; ment();
     b.ragyog.forEach(function (sel) {

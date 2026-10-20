@@ -79,6 +79,7 @@ MODULES = [
 
     # ── Képernyők ──
     "ui.js",              # 7) mutat(), renderProfil, renderFomenu
+    "nyitokep.js",        # 7b) 🚪 nyitókép (alvó unikornis + fatábla, felébresztés = belépés) + az újonc első perce (választás, név-felhők, osztály-lufik)
 
     # ── Motor (2/2) ──
     "engine-logic.js",    # 8) játékmenet: pontok, állomások, kapu

@@ -797,7 +797,7 @@ function boltSzinterSVG() {
   s += '<path d="M484 66 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fdf0d0"/>';
   s += '<text x="440" y="71" font-size="17" font-weight="700" fill="#fdf0d0" text-anchor="middle">Csillagbolt</text>';
   /* fülek: lógó fatáblák (7 fül → kicsit keskenyebbek, hogy a cédula előtt elférjenek) */
-  BOLT_FULEK.forEach(function (f, i) {
+  boltFulek().forEach(function (f, i) {
     var akt = (f.id === ODU_FUL), fx = 58 + i * 74;
     s += '<g class="bolt-ful-jel"' + (akt ? "" : ' opacity="0.62"') + '>' +
       '<path d="M' + (fx + 33) + ' 118 v10" stroke="#8f6a3e" stroke-width="2"/>' +
@@ -852,7 +852,7 @@ function boltSzinterSVG() {
     s += '<rect class="bolt-fogo" x="' + (h.x - 48) + '" y="' + (h.y - 92) + '" width="96" height="140" fill="transparent"' +
       ' data-mit="valaszt" data-g="' + e.cs.kulcs + '" data-id="' + e.t.id + '"/>';
   });
-  BOLT_FULEK.forEach(function (f, i) {
+  boltFulek().forEach(function (f, i) {
     s += '<rect class="bolt-fogo" x="' + (58 + i * 74) + '" y="118" width="66" height="40" fill="transparent" data-mit="ful" data-ful="' + f.id + '"/>';
   });
   if (oldalak.length > 1) {
@@ -1057,9 +1057,16 @@ var BOLT_FULEK = [
   { id: "butorok", nev: "Bútorok" }, { id: "diszek", nev: "Díszek" }, { id: "ido", nev: "Időjárás" },
   { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }
 ];
+/* 🚪 az újoncnál a bolt kevesebb füllel nyit (nyitas.js nyitasBoltFulek): az első napokban csak a ruhák polca */
+function boltFulek() {
+  var l = nyitasBoltFulek();
+  return l ? BOLT_FULEK.filter(function (f) { return l.indexOf(f.id) >= 0; }) : BOLT_FULEK;
+}
 function renderOduPanel() {
   var host = $("odu-bolt-szinter");
   if (!host) return;
+  var fl = boltFulek();
+  if (!fl.some(function (f) { return f.id === ODU_FUL; })) ODU_FUL = fl[0].id;
   host.innerHTML = boltSzinterSVG();
   var svg = host.querySelector("svg");
   if (!svg) return;
@@ -1112,8 +1119,14 @@ function boltTetelId(gk, id) {
 /* ── a bolt polcos böngészője (Holmik / Időjárás) ── */
 /* egy fül tétel-csoportjai: [{ kulcs, nev, fajta, tetelek:[...] }] */
 function boltCsoportok() {
-  if (ODU_FUL === "holmik")
-    return RUHA_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "ruha", tetelek: RUHAK[h.kulcs] || [] }; });
+  if (ODU_FUL === "holmik") {
+    var cs = RUHA_HELY.map(function (h) { return { kulcs: h.kulcs, nev: h.nev, fajta: "ruha", tetelek: RUHAK[h.kulcs] || [] }; });
+    if (!nyitasBoltFulek()) return cs;
+    /* 🚪 újonc: egy polc — fej + nyak (azonnal látszik az unikornison), mindkettőből a két legolcsóbb (az egyikre már van elég) */
+    return cs.filter(function (c) { return c.kulcs === "fej" || c.kulcs === "nyak"; }).map(function (c) {
+      c.tetelek = c.tetelek.filter(function (t) { return !t.emlek; }).slice(0, 2); return c;
+    });
+  }
   if (ODU_FUL === "ido")
     return [
       { kulcs: "napszak", nev: "Napszak", fajta: "ido", tetelek: ODU_KAT.napszak },

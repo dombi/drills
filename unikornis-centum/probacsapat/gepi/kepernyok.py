@@ -17,7 +17,7 @@ A pályák indítását nem itt soroljuk: azokat az őr a UC.PALYAK-ból veszi (
 NYIT_SZALON = "js:(function(){ var p=UC.mentes.profilok[UC.mentes.leny]; (p.szalon||(p.szalon={})).nyitva=true; })()"
 
 KEPERNYOK = [
-    ("Profilválasztó",     [],                                              "kepernyo-profil", None),   # az első kép, üres mentéssel
+    ("Első perc",          [],                                              "kepernyo-elsoperc", ".ny-mozgo"),   # 🚪 az első kép, üres mentéssel: az újonc első perce
     ("Térkép",             [],                                              "kepernyo-fomenu", ".terkep-hely"),
     ("Összeadó liget",     ["hely:osszeado"],                               "kepernyo-fomenu", ".palya-kartya, #palya-racs"),
     ("Szorzós liget",      ["hely:szorzo"],                                 "kepernyo-fomenu", "#palya-racs"),
@@ -42,6 +42,8 @@ KEPERNYOK = [
     ("Utca: pad (cica)",   ["hely:utca", "katt:#utca-pad"],                 "kepernyo-utca", None),
     ("Fodrászat",          [NYIT_SZALON, "hely:utca", "katt:#utca-fodrasz"], "kepernyo-szalon", None),
     ("Tündérbank",         ["hely:utca", "katt:#utca-bank"],                "kepernyo-bank", None),
+    ("Profilválasztó",     ["katt:#fomenu-vissza"],                         "kepernyo-profil", "#profil-lista .profil-kartya"),   # a térkép „🦄 Váltás” gombja
+    ("Nyitókép",           ["js:UC.nyitoRajzol('sajat')"],                  "kepernyo-nyito", "#nyito-szin .ny-alvo"),   # 🚪 minden indulás kapuja (alvó unikornis + fatábla)
     ("Szülői rész",        ["nyom:#fomenu-szuloi"],                         "kepernyo-szuloi", None),
 ]
 

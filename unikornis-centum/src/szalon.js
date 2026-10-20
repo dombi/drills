@@ -232,6 +232,7 @@ function utcaNyit() {
   mutat("kepernyo-utca");
   renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
+  bemutat("ujoncBoltUtca");   /* 🚪 újonc: a Bolt felragyog (ui.js) */
 }
 function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
 function renderUtca() {
