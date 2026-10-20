@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Újonc-bevezetés</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --card:#fffaf2; --sky:#dff1fb; --fog:#d9d4e2; --glow:#ffe27a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --sky:#1d3040; --fog:#4a4458; --glow:#b8962a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --sky:#1d3040; --fog:#4a4458; --glow:#b8962a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--blue) 50%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(41,163,221,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🌱";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+  .zold{color:var(--green);font-weight:700} .sarga{color:var(--warn);font-weight:700} .piros{color:var(--pink);font-weight:700}
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  .nap td:first-child{white-space:nowrap;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Újonc-bevezetés</h1>
+  <div class="sub">Hogyan érkezzen meg egy új gyerek a játékba úgy, hogy ne vesszen el benne, és másnap is visszajöjjön. Az első változat Andorra és Petrára készül, de minden új játékosra érvényes.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-10-20</span>
+    <span class="chip">Nagyság: NAGY (4 kód-kör)</span>
+  </div>
+</header>
+
+<h2>1. A lényeg egy bekezdésben</h2>
+<div class="panel">
+  <p>Ma egy új gyerek belépéskor rögtön az <b>egész</b> játékot kapja: 5 unikornis, 9 hely a térképen, 4 ház az utcán, kert, bolt, harmat, sárkány. Ez Lilinek és Fanninak jó, mert ők lépésenként kapták meg. Egy újoncnak sok.</p>
+  <p>Az új menetben az újonc <b>kevés világító hellyel indul</b> (osztálytól függően 1, 2 vagy 3), és <b>gyakorlós naponként legfeljebb egy új dolog</b> nyílik. Minden nyílás egyben bemutatás is: az unikornis odasétál, egy mondatot mond, a hely felragyog. A <b>tanuló helyeket a tudás</b> nyitja (ha valami „megy”, nyílik a következő; ha elakad, oldalra nyílik valami), a <b>játékhelyeket</b> (utca, kert, fodrász, bank) a gyakorlós napok.</p>
+  <p class="lead" style="margin-bottom:0">Lili és Fanni ebből semmit nem lát: náluk minden nyitva marad.</p>
+</div>
+
+<h2>2. Ami már eldőlt</h2>
+<div class="panel">
+  <ul>
+    <li><span class="ok">✅</span> Andor és Petra már az új menetbe érkezzen. Először egy karcsú változat készül, a finomítások rájuk figyelve jönnek.</li>
+    <li><span class="ok">✅</span> Az elején <b>meg kell kérdezni, hányadikos</b>. Ettől függ, mit lát; a nagyobb több helyet lát, különben azt gondolja, „ez nem az én szintem”.</li>
+    <li><span class="ok">✅</span> Világító helyek: <b>1–2. o.: 1 · 3–4. o.: 2 · 5–6. o.: 3</b>.</li>
+    <li><span class="ok">✅</span> A bevezetést <b>az unikornis</b> tartja (nem egy lakó).</li>
+    <li><span class="ok">✅</span> 5–6. osztályban a harmadik hely a <b>Bagolykönyvtár Nyomozótáblája</b> (igazságtábla).</li>
+    <li><span class="ok">✅</span> Az idő mértéke a <b>gyakorlós nap</b> (legalább 1 végigjátszott pálya), nem a naptár. Aki 3 napot kihagy, ott folytatja, ahol abbahagyta.</li>
+    <li><span class="ok">✅</span> Naponta <b>legfeljebb 1 új dolog</b>. A tojás az <b>1. nap végén</b> jön. A <b>bank</b> nyílik utoljára.</li>
+    <li><span class="ok">✅</span> Ha elakad, <b>oldalra</b> nyílik valami (más téma, ugyanazon a szinten). Felfelé ingyen soha.</li>
+    <li><span class="ok">✅</span> <b>💧 Rejtett zseb:</b> az újonc harmatja az 1. naptól gyűlik, de nem látszik. A 7. gyakorlós napon meglepetésként előkerül: <span class="say">„Nézd, mennyi harmatot gyűjtöttél!”</span> A heti kártya harmatja is ide megy.</li>
+  </ul>
+</div>
+
+<h2>3. Ami a kódban már megvan (erre építünk)</h2>
+<div class="panel tblwrap">
+<table>
+  <tr><th>Darab</th><th>Hol van</th><th>Mit kezdünk vele</th></tr>
+  <tr><td>Gyakorlós nap számlálója</td><td><code>gyakNap()</code>, gondozas.js</td><td class="zold">Ez lesz a menet órája. Megvan, csak rá kell kötni.</td></tr>
+  <tr><td>Egyszeri bemutató mondat + felragyogás</td><td><code>bemutat()</code> + <code>BEMUTATAS</code>, ui.js; <code>P().bemutatva</code></td><td class="zold">Erre épül minden „Kinyílt a …!”. Új nyílás = egy sor a táblában.</td></tr>
+  <tr><td>Alvó pálya + alvó liget a térképen</td><td><code>palyaZarva()</code>, engine-logic.js; <code>j.alszik</code>, terkep.js</td><td class="sarga">Megvan a kinézet és a mondat, de ma csak a kulcs-kapu altat. Bővül: az újonc-menet is altathat.</td></tr>
+  <tr><td>Rejtett pálya / hely</td><td><code>palyaRejtve()</code>, config.js</td><td class="zold">A pult továbbra is felülírhat mindent.</td></tr>
+  <tr><td>Tojás a patakparton</td><td><code>lenyPalyaVege()</code>, leny.js</td><td class="zold">Már most az első végigjátszott pálya végén jön, és gyakorlós napokra kel ki (3 nap tojás, 2 nap fióka). Ez szinte pontosan illik a menetbe.</td></tr>
+  <tr><td>Heti kártya</td><td>het.js, gondozas.js</td><td class="sarga">Megvan; az újoncnál a 4. napig nem mutatjuk, a harmatja a rejtett zsebbe megy.</td></tr>
+  <tr><td>Unikornis-választó</td><td><code>renderProfil()</code>, ui.js</td><td class="sarga">Ma 5 kártya számokkal (✨, 🌟). Az újoncnál ez lesz az „első perc” színpada (lásd 4.①).</td></tr>
+  <tr><td>Becenév</td><td><code>P().becenev</code> (Tüneménykert)</td><td class="zold">Az első percben adott név ide kerül.</td></tr>
+  <tr><td>Utca 4 háza, kert, bolt, 💧 kijelzések</td><td>szalon.js, kert.js, odu.js, bank.js</td><td class="piros">Ma mind mindig nyitva, és mindenhol látszik a 💧. Ezekhez kell az „alszik” állapot.</td></tr>
+  <tr><td>Hányadikos</td><td>—</td><td class="piros">Nincs ilyen adat. Új.</td></tr>
+  <tr><td>Újonc-jel</td><td>—</td><td class="piros">Nincs. Új.</td></tr>
+</table>
+</div>
+
+<h2>4. A menet</h2>
+
+<h3>⓪ A nyitókép: minden indulás egy kapun át (új, a producer felvetése)</h3>
+<div class="panel">
+  <p><b>Ma:</b> saját gépen a kódot csak egyszer kell beírni, utána a játék rögtön a profilképernyővel indul. Közös gépen névkártyák jönnek, és ott mindig kell a kód. A játéknak tehát nincs „bejárata”, ezért kevésbé hat játéknak.</p>
+  <p><span class="prop">Javaslat</span> Legyen <b>mindenhol egy nyitókép</b>, mint a nagy játékoknál: a játék neve, az odú reggeli fényben, és a gyerek <b>névkártyája az unikornisával</b>. Az unikornis alszik; amikor a gyerek a kártyára koppint, felébred, nyújtózik, és köszön: <span class="say">„Jó reggelt, Petra!”</span> Ez a belépés.</p>
+  <ul>
+    <li><b>A kódot csak ott kell beírni, ahol tényleg kell:</b> az első belépéskor (ezzel kezdődik az újonc első perce) és közös gépen. Ha a saját gépén is minden alkalommal be kellene írnia, az egy kisgyereknek (Petra még bizonytalanul olvas) minden nap egy akadályt jelentene, és ott lépne ki, mielőtt a játék egyáltalán elkezdődne.</li>
+    <li>A beírás helyett a <b>koppintás az unikornis felébresztésére</b> adja meg a „belépek” érzést: ez a mozdulat ugyanaz, mint egy kapun átlépni, de nem kell hozzá olvasni.</li>
+    <li>Közös gépen a mai névkártyák ugyanígy néznek ki, csak a koppintás után a kód is kell (ahogy most).</li>
+    <li>Lili és Fanni is ezt kapja: ez nem újonc-dolog, hanem a játék új bejárata.</li>
+  </ul>
+</div>
+
+<h3>① Az első perc: választás, név, osztály</h3>
+<div class="panel">
+  <p>Nincs menü, nincs szöveg-fal. Három koppintás, mindegyik a képen történik:</p>
+  <ol>
+    <li><b>Választás.</b> A profilképernyőn az unikornisok legelnek; az újoncnál nincsenek rajtuk számok. Hang: <span class="say">„Szia! Melyikünk legyen a barátod?”</span> Amelyikre koppint, odaszalad, felágaskodik, és a többiek visszahúzódnak.</li>
+    <li><b>Név.</b> Az unikornis feje fölött 3 felhő, mindegyikben egy név; koppintásra felolvassa. Egy negyedik felhő: <span class="say">„Saját nevet adok”</span> (billentyűzet). Ha választott: <span class="say">„Szuper, mostantól Pötty vagyok!”</span> Petra miatt a 3 felolvasott név az alap.</li>
+    <li><b>Osztály.</b> 6 lufi számokkal (1–6). <span class="say">„Hányadikos vagy?”</span> Koppintásra a lufi felszáll, és már látszik a térkép, ahol annyi hely gyullad ki, amennyit az osztály ad. <b>A kép rögtön megmutatja a döntés következményét.</b></li>
+  </ol>
+  <p class="lead">Az osztály a gyerekhez tartozik, nem az unikornishoz; a pulton felülírható.</p>
+</div>
+
+<h3>② Az első pálya: az unikornis segítséget kér</h3>
+<div class="panel">
+  <p>A térképen az unikornis a világító helyhez sétál: <span class="say">„Segítesz nekem? Egyedül nem jutok át az ösvényen!”</span> Ezzel indul az első pálya. Ez rövid, és <b>kicsit a szint alatt</b> van, hogy biztosan sikerüljön.</p>
+  <div class="tblwrap">
+  <table>
+    <tr><th>Osztály</th><th>Világító hely(ek)</th><th>Első pálya</th></tr>
+    <tr><td>1.</td><td>🌳 Összeadó liget</td><td>Összeadás-kivonás 10-ig</td></tr>
+    <tr><td>2.</td><td>🌳 Összeadó liget</td><td>Összeadás-kivonás 20-ig</td></tr>
+    <tr><td>3.</td><td>🌳 Összeadó liget · 🌙 Szorzós liget</td><td>Tízesek ösvénye</td></tr>
+    <tr><td>4.</td><td>🌙 Szorzós liget · 🧺 Tündérvásár</td><td>Szorzódallam</td></tr>
+    <tr><td>5–6.</td><td>🌙 Szorzós liget · 🧺 Tündérvásár · 📚 Nyomozótábla</td><td>Reggeli vásár (3. o.-s szint)</td></tr>
+  </table>
+  </div>
+  <p><span class="prop">Javaslat</span> 5–6. osztálytól a 🏔️ Fejtörő-hegy a kezdettől <b>látszik</b> a távolban, ködben, mint cél: <span class="say">„Egyszer oda is felmegyünk!”</span> Nyílni csak a tudástól nyílik.</p>
+  <p><span class="prop">Javaslat</span> Az első pálya csak <b>2 szakasz (10 feladat)</b> a szokásos 4 helyett. Egyszer, csak az első alkalommal.</p>
+</div>
+
+<div class="vazlatok" style="margin-top:14px">
+<figure>
+<svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Vázlat: újonc térképe, egy világító liget">
+  <rect x="0" y="0" width="400" height="90" fill="var(--sky)"/>
+  <path d="M250 90 L310 28 L370 90 Z" fill="var(--fog)" opacity=".8"/>
+  <text x="286" y="80" font-size="11">hegy: ködben</text>
+  <path d="M60 220 C120 200, 160 170, 200 150 S 300 120, 340 110" fill="none" stroke="var(--fog)" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+  <path d="M60 220 C100 206, 120 196, 140 186" fill="none" stroke="#e8c98a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="60" cy="222" r="20" fill="var(--card)" stroke="#c9a46a" stroke-width="2"/><text x="47" y="227" font-size="14">🏠</text>
+  <text x="38" y="254" font-size="11">Odú</text>
+  <circle cx="150" cy="180" r="34" fill="var(--glow)" opacity=".45"/>
+  <circle cx="150" cy="180" r="22" fill="var(--card)" stroke="var(--gold)" stroke-width="3"/><text x="138" y="186" font-size="16">🌳</text>
+  <text x="112" y="226" font-size="11" font-weight="700">Összeadó liget</text>
+  <circle cx="225" cy="146" r="18" fill="var(--fog)"/><text x="214" y="151" font-size="13" opacity=".45">🌙</text>
+  <circle cx="295" cy="122" r="18" fill="var(--fog)"/><text x="284" y="127" font-size="13" opacity=".45">🧵</text>
+  <circle cx="345" cy="160" r="18" fill="var(--fog)"/><text x="334" y="165" font-size="13" opacity=".45">📚</text>
+  <text x="250" y="200" font-size="11">a többi alszik (halvány)</text>
+  <text x="128" y="138" font-size="20">🦄</text>
+</svg>
+<figcaption>2. osztályos újonc az 1. napon: egy hely világít, a hegy cél</figcaption>
+</figure>
+<figure>
+<svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Vázlat: utca egy világító házzal">
+  <rect x="0" y="0" width="400" height="150" fill="var(--sky)"/>
+  <rect x="0" y="150" width="400" height="110" fill="#e9dcc6" opacity=".6"/>
+  <g opacity=".5"><rect x="22" y="70" width="70" height="80" fill="var(--fog)"/><path d="M16 72 L57 40 L98 72 Z" fill="var(--fog)"/><text x="34" y="112" font-size="11">Fodrász</text><text x="30" y="128" font-size="10">💤 zárt spaletta</text></g>
+  <g><circle cx="157" cy="110" r="52" fill="var(--glow)" opacity=".35"/><rect x="122" y="70" width="70" height="80" fill="var(--card)" stroke="var(--gold)" stroke-width="3"/><path d="M116 72 L157 40 L198 72 Z" fill="var(--pink-soft)"/><text x="143" y="114" font-size="12" font-weight="700">Bolt</text></g>
+  <g opacity=".5"><rect x="222" y="70" width="70" height="80" fill="var(--fog)"/><path d="M216 72 L257 40 L298 72 Z" fill="var(--fog)"/><text x="240" y="112" font-size="11">Bank</text></g>
+  <g opacity=".5"><rect x="318" y="70" width="70" height="80" fill="var(--fog)"/><path d="M312 72 L353 40 L394 72 Z" fill="var(--fog)"/><text x="324" y="112" font-size="11">Felhőkert</text></g>
+  <circle cx="200" cy="205" r="22" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/><text x="186" y="243" font-size="11">kút</text>
+  <text x="150" y="214" font-size="22">🦄</text>
+</svg>
+<figcaption>Az utca az 1. napon: csak a Bolt világít</figcaption>
+</figure>
+</div>
+
+<h3>③ Az első jutalom azonnal elköltve</h3>
+<div class="panel">
+  <p>Az első pálya után a térképen az utca felragyog: <span class="say">„Gyere, vegyünk valamit a csillagporodból!”</span> Az utcán csak a <b>Bolt</b> világít, benne csak <b>egy polc</b>, 1–2 olyan holmival, amire már van elég ✨. Koppint, és a holmi <b>rögtön rajta van az unikornison</b>. Ennél a lépésnél dől el, hogy a ✨ értelmet kap.</p>
+  <p><span class="prop">Javaslat</span> Ez az első polc a <b>ruhák</b> polca legyen (sál, kalap), mert az azonnal látszik az unikornison. A bútor csak az odúban látszana.</p>
+</div>
+
+<h3>④ Az első alkalom vége: a tojás</h3>
+<div class="panel">
+  <p>A következő végigjátszott pálya végén (ez ma is így működik) a patakparton ott a tojás. Koppint rá, az unikornis hazaviszi az odúba: <span class="say">„Vajon mi lehet benne? Holnap megnézzük!”</span> Ez a „holnapra” szóló kíváncsiság, sürgetés nélkül: a tojás nem romlik, nem hűl ki, akkor kel ki, amikor a gyerek legközelebb gyakorol.</p>
+</div>
+
+<h3>⑤ Az első két hét: gyakorlós naponként egy új dolog</h3>
+<div class="panel tblwrap">
+<table class="nap">
+  <tr><th>Gyakorlós nap</th><th>Ami nyílik (játékhely)</th><th>Mi van már a kódban</th></tr>
+  <tr><td>1.</td><td>Odú + utca/Bolt (1 polc) + tojás a végén</td><td>tojás ✓, bolt ✓; az 1 polc új</td></tr>
+  <tr><td>2.</td><td>Kert + ételek</td><td>✓, altatás új</td></tr>
+  <tr><td>3.</td><td>A tojás kikel</td><td>✓ (most a 4. napon kel ki → igazítani kell)</td></tr>
+  <tr><td>4.</td><td>A heti kártya megmutatva</td><td>✓, altatás új</td></tr>
+  <tr><td>5.</td><td>A fióka elröppen + kalandtérkép</td><td>✓, a napja igazítandó</td></tr>
+  <tr><td>6.</td><td>Fodrász (csak forma)</td><td>✓, altatás új</td></tr>
+  <tr><td>7.</td><td>💧 előkerül a rejtett zsebből + kerti trükkök</td><td>a zseb új</td></tr>
+  <tr><td>8.</td><td>Tüneménykert / felhőkert</td><td>✓, altatás új</td></tr>
+  <tr><td>~9–10.</td><td>Kölyök az ösvényen</td><td>✓</td></tr>
+  <tr><td>~10+</td><td>Bank (csak ha ✨ és 💧 is gyűlik)</td><td>✓ (élesben még zárva, ár nélkül)</td></tr>
+  <tr><td>3. héttől</td><td>Frissítések: patalakk, szőrfestés, új polcok</td><td>✓</td></tr>
+</table>
+<p class="lead">Ha egy napon tanuló hely is nyílna (lásd 5.), az elsőbbséget kap, a játékhely egy nappal később jön. Sárkány-esemény napján (kikelés, elröppenés) más nem nyílik.</p>
+</div>
+
+<h2>5. A tanuló helyek nyílása: a tudás nyitja</h2>
+<div class="cards">
+  <div class="dec"><div class="num">A</div><h3>Ligeten belül sorban</h3>
+    <p>Az újoncnál a ligetben a pályák egymás után ébrednek: a következő akkor világít, ha az előzőt egyszer végigvitte. A „Szorzós liget” 6 pályájából tehát nem 6 kártya fogadja, hanem 1 világító és 5 alvó. (Ugyanaz a logika, mint a Bagolykönyvtár szárnyaiban; abból vesszük át.)</p></div>
+  <div class="dec"><div class="num">B</div><h3>Új liget, ha az első „megy”</h3>
+    <p><span class="prop">Javaslat</span> Egy liget akkor „megy”, ha benne <b>legalább 3 különböző pályát</b> végigvitt <b>kerülő nélkül</b>, <b>legalább 2 különböző gyakorlós napon</b>. A két nap azért kell, mert egyszeri siker még nem tudás.</p>
+    <p>Ekkor a következő liget felébred (a felfelé vezető úton): <span class="say">„Nézd, felébredt a Szorzós liget!”</span></p></div>
+  <div class="dec"><div class="num">C</div><h3>Elakadásnál oldalra</h3>
+    <p>Elakadás = ugyanazon a pályán <b>két egymás utáni alkalommal</b> kerülő vagy félbehagyás. Ekkor a következő gyakorlós napon egy <b>ugyanolyan szintű, más témájú</b> hely ébred (pl. 2. osztályban a 🧵 Szabóműhely). A gyerek így nem fal előtt áll, hanem van más út is.</p>
+    <p>Kiskapu-védelem: ez is a napi egy új dolog közül való, tehát a szándékos hibázással nem nyílik gyorsabban semmi, és felfelé sosem nyit.</p></div>
+  <div class="dec"><div class="num">D</div><h3>Csendes szintigazítás</h3>
+    <p>Ha a nagyobbnak nem megy a saját szintje, a játék csendben könnyebb pályát ébreszt, „gyakorlóhelynek” nevezve. Sosem mondja ki, hogy „ez kisebbeknek való”. Ha túl könnyű (minden kerülő nélkül, gyorsan), a következő ébredés egy lépéssel feljebb ugrik. Az 1. változatban ez egyszerű; a finomítás később jön.</p></div>
+</div>
+
+<h2>6. Ki az újonc, és mit lát a pult?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Újonc-jel:</b> az a gyerek, akinek a belépéskor <b>egyetlen unikornisánál sincs végigjátszott pálya</b>. Lili és Fanni így sosem kapja meg, és Andor meg Petra automatikusan megkapja.</li>
+    <li><b>A többi unikornis:</b> minden unikornisnak saját odúja és csillagpora van. Ha az újonc az első héten átvált egy másikra, elölről kezd, ami zavaró. <span class="prop">Javaslat</span> Az első két hétben a többi unikornis a profilképernyőn <b>„alszik”</b>; utána nyílnak, mint egy új hely: <span class="say">„Felébredtek a barátaim, velük is játszhatsz!”</span></li>
+    <li><b>Pult (a gyereklapon egy kártya):</b> újonc-menet be/ki · osztály (felülírható) · „hányadik gyakorlós nap, mi nyílt eddig” · <b>„Minden nyitva”</b> gomb (vészkijárat). Gyerekre és csoportra is, a megszokott rendben (alap &lt; csoport &lt; egyéni).</li>
+    <li>A pult régi beállításai (rejtett pálya, kulcs-pálya) <b>erősebbek</b> a menetnél: amit a pult elrejt, az az újoncnál is rejtve marad.</li>
+  </ul>
+</div>
+
+<h2>7. Mit CSINÁL a gyerek a képen?</h2>
+<div class="elv">
+  <div><b>Választás</b>Koppint egy unikornisra → az odaszalad és felágaskodik.</div>
+  <div><b>Név</b>Koppint egy felhőre → az unikornis kimondja a nevét, és onnantól így szól magáról.</div>
+  <div><b>Osztály</b>Koppint egy lufira → a térképen kigyulladnak a helyei. A döntés látható.</div>
+  <div><b>Nyílás</b>Felragyog egy hely → koppint → az unikornis odasétál. 10–20 mp szabad ismerkedés, kérdés nélkül (Dienes 1. lépcsője).</div>
+  <div><b>Bolt</b>Koppint egy holmira → rögtön az unikornison van.</div>
+  <div><b>Tojás</b>Koppint a tojásra → az unikornis hazaviszi.</div>
+</div>
+<p class="lead">Sehol nincs olyan pont, ahol csak nézni kell. Az egyetlen olvasnivaló a buborék, és azt is felolvassa a játék.</p>
+
+<h2>8. Mi NEM fér az első változatba</h2>
+<div class="panel">
+  <ul>
+    <li>Finom szintigazítás a pályán belül (most csak az, hogy melyik pálya ébred).</li>
+    <li>Újonc-napló a pulton („mi hajtja”, hol habozott); a megfigyelés-modul később kapja meg.</li>
+    <li>Elakadás-súgás (összevissza kattintás, 3 mp-en belüli kilépés).</li>
+    <li>A régi játékosok bemutatják a játékot (levél Lilitől/Fannitól az újonc odújába).</li>
+    <li>A falu: amikor elkészül, ugyanazt a nyitás-táblát örökli. Nem kell rá várni.</li>
+  </ul>
+</div>
+
+<h2>9. Hogyan épül (a kód körei)</h2>
+<div class="panel tblwrap">
+<table>
+  <tr><th>Kör</th><th>Tartalom</th><th>Nagyság</th></tr>
+  <tr><td>0.</td><td><b>Kis rajzterv:</b> alvó/ködös liget a térképen, alvó ház az utcán (zárt spaletta), lufik, név-felhők. Összehasonlító lap, ahogy szoktuk.</td><td>kicsi</td></tr>
+  <tr><td>1.</td><td><b>Közös alap:</b> új modul <code>src/nyitas.js</code>: egy tábla arról, hogy mi mikor ébred, és egy kérdés, amit minden hely feltesz („ébren vagyok?”). Újonc-jel, osztály, mentés. A térkép és a liget-belső ebből altat. Pult-kártya.</td><td>közepes</td></tr>
+  <tr><td>2.</td><td><b>Nyitókép + első perc + első pálya:</b> névkártya, alvó unikornis felébresztése, választás a képen, név-felhők, osztály-lufik, segítségkérő mondat, rövid első pálya, Bolt 1 polccal.</td><td>közepes</td></tr>
+  <tr><td>3.</td><td><b>A két hét:</b> utca/kert/fodrász/felhőkert/bank/heti kártya altatása, „Kinyílt a …!” mondatok, 💧 rejtett zseb + 7. napi meglepetés, a sárkány napjainak igazítása, a többi unikornis ébredése.</td><td>közepes</td></tr>
+  <tr><td>4.</td><td><b>Próba:</b> gépi próba 14 szimulált gyakorlós nappal (minden osztályra), lektor a mondatokra, ördögügyvéd a kiskapukra. Utána: Andor és Petra.</td><td>kicsi–közepes</td></tr>
+</table>
+<p class="lead" style="margin-bottom:0">Lili és Fanni játékát egyik kör sem változtatja meg; ezt a gépi próba külön ellenőrzi.</p>
+</div>
+
+<h2>10. Kérdések a producerhez</h2>
+<div class="q"><b class="t">1. Melyik hely világítson osztályonként?</b>A 4.② táblázat a javaslatom. Petra (2. o.) így csak az Összeadó ligettel indul; a mérés-ligetek oldalra nyílnak, ha elakad, vagy következőként, ha megy. Andor (5. o.) a Szorzós ligettel, a Tündérvásárral és a Nyomozótáblával indul, a hegy pedig látszik.</div>
+<div class="q"><b class="t">2. Mikor „megy” egy liget?</b>Javaslat: 3 különböző pálya kerülő nélkül, legalább 2 különböző gyakorlós napon.</div>
+<div class="q"><b class="t">3. Az első pálya rövidebb legyen?</b>Javaslat: igen, egyszer, 2 szakasz (10 feladat).</div>
+<div class="q"><b class="t">4. A többi unikornis az első két hétben aludjon?</b>Javaslat: igen, a 15. gyakorlós napon ébrednek.</div>
+<div class="q"><b class="t">5. Az első polc a Boltban?</b>Javaslat: ruhák (azonnal látszik az unikornison).</div>
+<div class="q"><b class="t">6. Kell a kis rajzterv (0. kör), vagy mehet egyből a kód?</b>Javaslat: kell, mert az alvó helyek és a lufik új rajzok, és a gyerekek azonnal észreveszik, ha valami csúnya vagy mozdulatlan.</div>
+
+<div class="q"><b class="t">7. Nyitókép: kód mindenhol, vagy csak koppintás?</b>Javaslat: nyitókép mindenhol (névkártya + alvó unikornis felébresztése), de a kódot csak az első belépéskor és közös gépen kell beírni.</div>
+
+<p class="lead" style="margin-top:30px;text-align:center">Unikornis Centum · terv/ujonc-bevezetes-rendszerterv.html</p>
+</div>
+</body>
+</html>
