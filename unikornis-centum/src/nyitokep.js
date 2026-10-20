@@ -112,7 +112,7 @@ function nyitoRajzol(mod) {
     s += nyTabla(tx, 414, g.nev) + nyAlvoUni(i, ux, 426, sc, g);
   });
   if (mod === "kozos") s += '<g class="ny-uj" transform="translate(728 300) scale(.62)">' + nyTabla(0, 0, "✏️ Új vagyok") + '<rect x="-80" y="-110" width="160" height="116" fill="transparent"/></g>';
-  host.innerHTML = s + '</svg>';
+  host.innerHTML = nySajatId(s + '</svg>');
   host.querySelectorAll(".ny-alvo").forEach(function (h) {
     uniElalszik(h.querySelector(".uni-alvas"), true);
     h.addEventListener("click", function () { nyitoEbreszt(h, gy[+h.dataset.i]); });
@@ -192,10 +192,13 @@ function elsoPercIndit() {
   epLepes(1);
 }
 function epHost() { return $("elsoperc-szin"); }
+/* a térkép színátmenetei (LT_DEFS: lt-gFa, lt-gTorzs…) saját néven: ha a rejtett nyitókép a térképével azonos id-ket
+   hordozna, a böngésző a térképen is a rejtett példányt keresné, és a térkép rajzai átlátszóak maradnának */
+function nySajatId(s) { return s.replace(/id="lt-/g, 'id="nyk-').replace(/#lt-/g, "#nyk-"); }
 function epVaz(belso) {
-  return '<svg viewBox="0 0 800 460" class="uni-terep" xmlns="http://www.w3.org/2000/svg">' + nyDefs() + nyRetHatter(800, 460, 150) +
+  return nySajatId('<svg viewBox="0 0 800 460" class="uni-terep" xmlns="http://www.w3.org/2000/svg">' + nyDefs() + nyRetHatter(800, 460, 150) +
     [nyFu(60, 446), nyFu(330, 452), nyFu(470, 440), nyFu(760, 448), nyViragok([[40, 430], [190, 448], [300, 432], [610, 452], [660, 430], [770, 440]])].join("") +
-    belso + '</svg><div class="ny-atfed"></div>';
+    belso + '</svg>') + '<div class="ny-atfed"></div>';
 }
 /* unikornis egy mozgatható keretben: kulso (hely, méret) > irany (--dir) > rajz */
 function epUni(id, leny, x, y, s, dir, extra) {
