@@ -105,6 +105,7 @@ MODULES = [
     "auth.js",            # 12b) belépés kóddal, belépő képernyő
     "db.js",              # 12c) Firestore betöltés, első feltöltés, élő figyelés
     "sync.js",            # 12d) delta-küldés + 3-utas összefésülés
+    "hatizsak.js",        # 12d2) 📴 közös gép net nélkül: hátizsák gyerekenként, net nélküli belépés, csendes visszalépés
     "analytics.js",       # 12e) eseménynapló (events)
     "config.js",          # 12f) producer-felülírások + csoportok (4. fázis)
     "tunemenykert.js",    # 12g) Égi Tüneménykert: RTDB jelenlét + közös tér (5. fázis)

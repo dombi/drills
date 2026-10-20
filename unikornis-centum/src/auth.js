@@ -6,35 +6,56 @@
      • a belépő névkártyákat mutat (név + a gyerek unikornisa), a kártya után a kódot be kell írni;
      • a belépés csak a böngésző bezárásáig él (SESSION), utána újra a belépő jön;
      • a 👋 Kilépek után a helyi mentés kiürül (a hang/válaszmód gép-beállítás marad).
-   „most felhő nélkül játszom” csak olyan gépen van, ahol még senki nem lépett be kóddal. */
+   „most felhő nélkül játszom” csak olyan gépen van, ahol még senki nem lépett be kóddal.
+   📴 NET NÉLKÜL (offline 3. kör, hatizsak.js): a névkártyás gyerek net nélkül is belép a kódjával; a mentése a
+     hátizsákjából jön, és a háttérben felmegy, ha lesz net. Kilépéskor a mentés a hátizsákba kerül. */
 function felhoIndit() {
   if (!felhoBekapcsolva()) return;
   FELHO.be = true;
   felulirCacheBetolt();   /* a producer-felülírások offline is élnek (az utolsó ismert állapot) */
-  if (kozosGep()) belepoMutat();   /* közös gépen azonnal a belépő — amíg a felhő tölt, senki ne játsszon a másik nevében */
+  if (felhoOfflineVissza()) felhoCsendesBelep();   /* 📴 net nélkül belépett gyerek, újratöltés után: bent marad */
+  else if (kozosGep()) belepoMutat();   /* közös gépen azonnal a belépő — amíg a felhő tölt, senki ne játsszon a másik nevében */
+  felhoSdkIndit();
+}
+/* az SDK betöltése + a belépés figyelése; ha net nélkül nem jött le, a csendes visszalépés később újrahívja */
+var FELHO_SDK_ALLAPOT = 0;   /* 0 = nincs, 1 = tölt, 2 = kész */
+function felhoSdkIndit() {
+  if (FELHO_SDK_ALLAPOT) return;
+  FELHO_SDK_ALLAPOT = 1;
   sdkBetolt(["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"], function (ok) {
-    if (!ok || !window.firebase) { console.warn("[felhő] az SDK nem töltődött be (nincs net?) — helyi mentéssel megyünk tovább"); belepoHiba("Nincs internet. Próbáld újra később!"); return; }
+    if (!ok || !window.firebase) {
+      FELHO_SDK_ALLAPOT = 0;
+      console.warn("[felhő] az SDK nem töltődött be (nincs net?) — helyi mentéssel megyünk tovább");
+      if (!gepJatekosok().some(felhoOfflineBelephet)) belepoHiba("Nincs internet. Próbáld újra később!");   /* 📴 névkártyás gyerek net nélkül is beléphet */
+      return;
+    }
     try {
-      firebase.initializeApp(FIREBASE_CONFIG);
+      if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
       FELHO.auth = firebase.auth();
       FELHO.db = firebase.firestore();
       FELHO.db.enablePersistence({ synchronizeTabs: true }).catch(function (e) { FELHO.memoriaTar = true; console.warn("[felhő] offline tár nem elérhető:", e.code); });
       if (kozosGep()) belepesCsakMost();
     } catch (e) { console.warn("[felhő] indítási hiba:", e); return; }
+    FELHO_SDK_ALLAPOT = 2;
     FELHO.auth.onAuthStateChanged(function (u) {
-      if (u) { belepoRejt(); felhoBelepve(u); }
-      else belepoMutat();
+      if (u && FELHO.offline && FELHO.offline.uid !== u.uid) { FELHO.auth.signOut(); return; }   /* 📴 egy korábbi gyerek belépése maradt meg — a net nélkül belépett gyerek játszik */
+      if (u) { felhoOfflineVege(); belepoRejt(); felhoBelepve(u); }
+      else if (!FELHO.offline) belepoMutat();
     });
+    if (FELHO.offline) felhoCsendesBelep();
   });
 }
+var SDK_BETOLTVE = {};   /* fájlnév → 1: újrapróbánál csak a hiányzók töltődnek (a kétszer betöltött SDK összeakadna) */
 function sdkBetolt(fajlok, kesz) {
   var i = 0;
   (function kov() {
     if (i >= fajlok.length) { kesz(true); return; }
+    var f = fajlok[i++];
+    if (SDK_BETOLTVE[f]) { kov(); return; }
     var s = document.createElement("script");
-    s.src = FIREBASE_SDK + fajlok[i++];
-    s.onload = kov;
-    s.onerror = function () { kesz(false); };
+    s.src = FIREBASE_SDK + f;
+    s.onload = function () { SDK_BETOLTVE[f] = 1; kov(); };
+    s.onerror = function () { s.remove(); kesz(false); };
     document.head.appendChild(s);
   })();
 }
@@ -50,19 +71,25 @@ function kodBelep(kod) {
 function belepesCsakMost() {
   if (FELHO.auth) FELHO.auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(function (e) { console.warn("[felhő] session-belépés hiba:", e.code || e); });
 }
+/* kilépés: a mentés a gyerek hátizsákjába kerül (📴 a még fel nem ment játékkal együtt), a helyi mentés kiürül —
+   a következő gyerek ne a kilépő unikornisait lássa; a kilépő legközelebb (net nélkül is) a hátizsákjából folytatja */
 function felhoKilep() {
+  var uid = FELHO.aktiv ? FELHO.uid : FELHO.offline && FELHO.offline.uid, online = FELHO.aktiv;
   gepJatekosJegyez();
   felhoKuld();
-  var kozos = kozosGep();
   FELHO.aktiv = false; FELHO.kesz = false;
-  felhoAlapTorol(FELHO.uid);   /* 📴 kilépés után a helyi mentés már nem a felhő tükre (közös gépen ki is ürül) → nincs mire összefésülni */
   if (FELHO.leiratkozas) FELHO.leiratkozas();
-  felulirLeiratkozik(); felulirCacheTorol(); fejtoroLeiratkozik();
-  if (kozos) {   /* a következő gyerek ne a kilépő unikornisait lássa a belépő mögött */
-    var ures = alapMentes(); ures.hang = mentes.hang; ures.valaszmod = mentes.valaszmod;
-    try { localStorage.setItem(KULCS, JSON.stringify(ures)); } catch (e) {}
-  }
-  FELHO.auth.signOut().then(function () { location.reload(); });
+  felulirLeiratkozik(); fejtoroLeiratkozik();
+  if (uid && felhoGazda() === uid) hatizsakBe(uid);
+  felulirCacheTorol();
+  try {
+    localStorage.setItem(KULCS, JSON.stringify(uresMentes()));
+    localStorage.removeItem(FELHO_GAZDA);       /* az üres mentés senkié — a következő belépő nem teheti a kilépő hátizsákjába */
+    localStorage.removeItem(FELHO_KULDETLEN);   /* (az eltett felhő-alap gyerekenként marad: a hátizsákkal együtt kell) */
+  } catch (e) {}
+  felhoOfflineVege();
+  if (online && FELHO.auth) { FELHO.auth.signOut().then(function () { location.reload(); }); return; }
+  betolt(); renderProfil(); mutat("kepernyo-profil"); belepoMutat();   /* 📴 net nélkül újratöltés nélkül (most lehet, hogy be sem töltene) */
 }
 
 /* ── a gép játékosai (névkártyákhoz) ── */
@@ -72,10 +99,11 @@ function gepJatekosok() {
 function kozosGep() { return gepJatekosok().length >= 2; }
 /* belépés után / kilépéskor: a gyerek kódja + az aktív unikornisa kinézete (a névkártyára) */
 function gepJatekosJegyez() {
-  if (!FELHO.kod || !FELHO.kesz) return;
+  var kod = FELHO.kesz ? FELHO.kod : FELHO.offline && FELHO.offline.kod, uid = FELHO.kesz ? FELHO.uid : FELHO.offline && FELHO.offline.uid;
+  if (!kod || !uid) return;
   var p = mentes.profilok[mentes.leny] || {};
-  var l = gepJatekosok().filter(function (x) { return x && x.kod !== FELHO.kod; });
-  l.push({ kod: FELHO.kod, leny: mentes.leny, oltozet: p.oltozet || null, kinezet: p.kinezet || null });
+  var l = gepJatekosok().filter(function (x) { return x && x.kod !== kod; });
+  l.push({ kod: kod, uid: uid, leny: mentes.leny, oltozet: p.oltozet || null, kinezet: p.kinezet || null });   /* uid: 📴 a net nélküli belépéshez (hátizsák) */
   try { localStorage.setItem(FELHO_GEP_JATEKOSOK, JSON.stringify(l)); } catch (e) {}
   if (l.length >= 2) belepesCsakMost();
 }
@@ -106,13 +134,17 @@ function belepoMutat() {
     var mezo = $("felho-kod"), gomb = $("felho-belep"), hiba = $("felho-hiba");
     function probal() {
       hiba.textContent = "";
-      if (BELEPO_VALASZTOTT && kodNormal(mezo.value) !== BELEPO_VALASZTOTT) {
+      var kod = kodNormal(mezo.value), j = gepJatekos(kod);
+      if (BELEPO_VALASZTOTT && kod !== BELEPO_VALASZTOTT) {
         hiba.textContent = "Ez nem " + jatekosNev(BELEPO_VALASZTOTT) + " kódja. Nézd meg még egyszer!";
         return;
       }
+      var offline = felhoOfflineBelephet(j);   /* 📴 a gép ismeri ezt a gyereket → net nélkül is beléphet */
+      if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
       gomb.disabled = true; gomb.textContent = "Egy pillanat…";
-      kodBelep(mezo.value).catch(function (e) {
+      kodBelep(kod).catch(function (e) {
         var c = (e && e.code) || "";
+        if (c === "auth/network-request-failed" && offline) { felhoOfflineBelep(j, kod); return; }
         hiba.textContent = c === "auth/network-request-failed" ? "Nincs internet. Próbáld újra később!"
           : c === "auth/too-many-requests" ? "Túl sok próbálkozás. Várj egy kicsit!"
           : "Ez a kód nem jó. Nézd meg még egyszer!";
@@ -124,6 +156,8 @@ function belepoMutat() {
     $("felho-kesobb").addEventListener("click", belepoRejt);
   }
   BELEPO_VALASZTOTT = null;
+  var gb = $("felho-belep"); gb.disabled = false; gb.textContent = "Belépek";
+  $("felho-kod").value = ""; $("felho-hiba").textContent = "";
   belepoJatekosok();
   $("felho-kesobb").hidden = gepJatekosok().length > 0;   /* ahol már léptek be kóddal, a felhő nélküli játék csak elveszne (net nélkül a belépő meg sem jelenik) */
   d.hidden = false;
@@ -164,6 +198,7 @@ function kilepGombFrissit() {
     g.addEventListener("click", function () { hangGomb(); felhoKilep(); });
     hely.appendChild(g);
   }
-  g.hidden = !FELHO.aktiv;
-  if (FELHO.aktiv) g.textContent = "👋 " + jatekosNev(FELHO.kod) + ", kilépek";
+  var kod = FELHO.aktiv ? FELHO.kod : FELHO.offline && FELHO.offline.kod;   /* 📴 net nélkül belépve is */
+  g.hidden = !kod;
+  if (kod) g.textContent = "👋 " + jatekosNev(kod) + ", kilépek";
 }

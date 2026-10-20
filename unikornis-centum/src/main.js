@@ -47,7 +47,8 @@ window.UC = {
   ekAllapot: ekAllapot, ekMesterAllapot: ekMesterAllapot, ekMesterKatt: ekMesterKatt, ekKockaLista: ekKockaLista, ekKockavarNagySVG: ekKockavarNagySVG,
   ekStabil: ekStabil, EK_MOZGO: EK_MOZGO, EK_KOCKA_DEF: EK_KOCKA_DEF, ekElottKell: ekElottKell, ekValaszMondat: ekValaszMondat, felulirSzamol: felulirSzamol,   /* 🏅 MESTERPRÓBA (5b) */
   get TK() { return TK; }, tkKapu: tkKapu, tkBelep: tkBelep, tkKilep: tkKilep, tkNap: tkNap,   /* ÉGI TÜNEMÉNYKERT */
-  get FELHO() { return FELHO; }, tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
+  get FELHO() { return FELHO; }, ment: ment, felhoKilep: felhoKilep, hatizsakOlvas: hatizsakOlvas, felhoCsendesBelep: felhoCsendesBelep,   /* 📴 offline 3. kör */
+  tkGesztusIndit: tkGesztusIndit, tkGesztusJott: tkGesztusJott, tkPacsiIndit: tkPacsiIndit, tkMasikJott: tkMasikJott, tkGesztussor: tkGesztussor,
   tkDiszLerak: tkDiszLerak, tkTalcaValt: tkTalcaValt, tkDiszKintSajat: tkDiszKintSajat, tkDiszZsak: tkDiszZsak, tkValtozott: tkValtozott, tkVisszaJott: tkVisszaJott,
   get J() { return J; }, get mentes() { return mentes; },
   ertekel: ertekel, felmondErtekel: felmondErtekel, bontasFelmondOk: bontasFelmondOk,

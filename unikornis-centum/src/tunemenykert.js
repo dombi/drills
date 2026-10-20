@@ -91,7 +91,7 @@ function tkNyitvatartas(b) {
   return { nyitva: false, szoveg: "A felhőkert most zárva. Egy másik napon újra jöhetsz!", rovid: "zárva" };
 }
 function tkKapu() {
-  if (!FELHO.aktiv) return null;
+  if (!FELHO.aktiv) return FELHO.offline && tkJogEmlek(FELHO.offline.uid) ? { nyitva: false, alszik: true, szoveg: TK_ALVO_SZOVEG, rovid: "alszik" } : null;   /* 📴 net nélkül belépve */
   if (tkAlszik()) return tkJogEmlek(FELHO.uid) ? { nyitva: false, alszik: true, szoveg: TK_ALVO_SZOVEG, rovid: "alszik" } : null;
   if (!TK.kesz || !TK.jog || !TK.jog.szoba) return null;
   if (!P().tkNyitva) return { nyitva: false, zar: true, szoveg: "A felhőkert " + TK_FELOLDAS_AR + " tündérharmatért nyílik meg.", rovid: TK_FELOLDAS_AR + " 💧" };

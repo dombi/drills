@@ -86,7 +86,7 @@
   <div class="meta">
     <span class="chip">2026-10-20</span>
     <span class="chip">Nagyságrend: NAGY (3 kör)</span>
-    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 · 🛟 1. kör kész · 📦 2. kör kész (2026-10-20) → 3. kör jön</span>
+    <span class="chip">Állapot: ✅ jóváhagyva 2026-10-20 · 🛟 1. kör kész · 📦 2. kör kész · 👫 3. kör kész (2026-10-20) → a producer élő próbája</span>
   </div>
 </header>
 
@@ -270,6 +270,20 @@
     <li><b>Net nélküli belépés:</b> a belépő a névkártyákat mutatja; kód → ujjlenyomat-egyezés → a hátizsák lesz a <code>mentes</code>, <code>uc_kuldetlen</code> jelzővel. (1B esetén kód nélkül.)</li>
     <li><b>Csendes visszalépés:</b> a beírt kód a munkamenet memóriájában marad; <code>online</code> eseménykor <code>signInWithEmailAndPassword</code> a háttérben → <code>felhoElsoAllapot</code> → 1. kör összefésülése. A gyerek ebből semmit nem lát.</li>
     <li>Kilépés net nélkül: hátizsákba ment, nincs <code>signOut</code>-hiba.</li>
+  </ul>
+
+  <h3>✅ 3. kör — így készült el (2026-10-20)</h3>
+  <ul>
+    <li><b>Új modul:</b> <code>src/hatizsak.js</code> (a <code>sync.js</code> után). A belépés (<code>auth.js</code>), a felhő-indulás (<code>db.js felhoBelepve</code>) és a kilépés hívja.</li>
+    <li><b>Hátizsák:</b> <code>uc_hatizsak_&lt;uid&gt;</code> = { mentés, küldetlen (volt-e még fel nem ment játék), a pult-beállítások gyorsítótára, idő }. <b>Eltérés a tervtől:</b> uid szerint (nem kód szerint), mert a helyi mentés gazdáját is uid-dal jegyezzük; az eltett felhő-alap (<code>uc_felho_alap_&lt;uid&gt;</code>) eleve gyerekenként van, ezért nem kell a hátizsákba tenni — csak már nem töröljük kilépéskor és gazdacserénél.</li>
+    <li><b>Mikor telik meg / ürül ki:</b> amikor a helyi mentés gazdát cserél (kilépés; másik gyerek belépése nettel vagy net nélkül; akkor is, ha valaki csak bezárta a böngészőt), a régi gazda mentése a hátizsákjába kerül. Belépéskor a gyerek hátizsákja lesz a helyi mentés, és a hátizsák <b>kiürül</b> (áthelyezés, nem másolat) — így ugyanaz a net nélküli különbség nem mehet fel kétszer. A hang és a válaszmód gép-beállítás: az marad.</li>
+    <li><b>Kilépés mindenhol</b> (nem csak közös gépen): hátizsákba ment, a helyi mentés kiürül, és <b>gazdátlan</b> lesz (különben a következő belépő az üres mentést tenné a kilépő hátizsákjába). Net nélkül újratöltés nélkül megy vissza a belépőre.</li>
+    <li><b>Net nélküli belépés — eltérés a tervtől: nincs ujjlenyomat.</b> A gép a névkártyához ma is a kódot jegyzi meg (a kód = a belépő e-mail eleje, ebből tudjuk a nevet), így a net nélküli ellenőrzés ugyanaz, mint a mai kártyás: a beírt kód = a kártya kódja. A hash nem védene meg semmit, amit a kártya már ma is elárul. Net nélkül csak az léphet be, akinek a mentése a gépen van (ő a gazda, vagy van hátizsákja); új gyerek első belépése netet kér („Nincs internet. Próbáld újra később!”). A névkártya mostantól az uid-ot is tartalmazza — régi kártyával a következő netes belépés után megy net nélkül.</li>
+    <li><b>Mikor megy net nélkül:</b> ha a böngésző szerint nincs net, vagy az SDK nem jött le, azonnal; különben előbb nettel próbál, és hálózati hibánál vált.</li>
+    <li><b>Csendes visszalépés:</b> a kód a böngésző-munkamenetben marad (<code>sessionStorage uc_offline_belepes</code> — ugyanott, ahol a Firebase is tartja a közös gépes belépést; a böngésző bezárásakor törlődik), így egy újratöltés után is bent marad a gyerek. Visszalépés: <code>online</code> eseménykor, 30 mp-enként, és amikor a gyerek a profilválasztóra vagy a térképre ér — <b>pálya közben soha</b> (a felhő-állapot ráírása ott elkapna egy épp használt profilt). Ha az SDK net nélkül le sem jött, ekkor tölti le. Ha a kód már nem jó (pl. törölt fiók), nem próbálgatja tovább; a haladás a gépen marad.</li>
+    <li><b>Ha közben más belépése maradt meg:</b> ha a Firebase egy korábbi gyerek élő belépését hozná, miközben a net nélkül belépett gyerek játszik, azt csendben kilépteti — a gyerek választása nyer.</li>
+    <li><b>Ami net nélkül belépve nincs:</b> a Fejtörő-hegy (a versenyfeladatok csak a felhőből jönnek) — a csendes visszalépés után megjelenik. A Tüneménykertnél az alvó felhő látszik (ha volt lépcsője).</li>
+    <li><b>Próba</b> (hamis felhővel, a valódi kóddal): Andor + Petra; net nélküli belépés kártyával; újratöltés után bent marad; gyerekcsere net nélkül; visszajön a net → Petra háttérben belép, a +20 ✨ felmegy, a pulton 📴 jel; Andor nettel → a hátizsák +50-je egyszer megy fel; újratöltés és ki-be lépés → nincs duplázás (kiskapu ✅); közben „tableten” is játszott → 250 + 10 + 30 = 290, mindkét ruha megvan; az SDK sem jött le → belépés így is megy, a háttérben letölti; pálya közben nem lép vissza, a térképen igen; új gyerek net nélkül → „Nincs internet”; rossz kód a kártyához → „Ez nem Andor kódja”. Konzolhiba nincs.</li>
   </ul>
 
   <h3>Rendszerterv-frissítés</h3>

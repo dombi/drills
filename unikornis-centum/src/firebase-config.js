@@ -35,7 +35,8 @@ var FELHO = {
   idozito: null, leiratkozas: null,
   be: false,          /* felhő-mód ezen a gépen (felhoIndit) — a ment() ebből tudja, hogy a net nélküli játékot jelölnie kell */
   memoriaTar: false,  /* a Firestore offline tára nem elérhető (privát ablak…) → az írás csak a szerver nyugtája után számít elküldöttnek */
-  kuldSzam: 0, nyugtazott: 0   /* memoriaTar esetén: hány küldés ment el, és hányat nyugtázott a szerver */
+  kuldSzam: 0, nyugtazott: 0,  /* memoriaTar esetén: hány küldés ment el, és hányat nyugtázott a szerver */
+  offline: null       /* 📴 net nélkül belépett gyerek { uid, kod, k } (hatizsak.js) — amíg a felhő nem él */
 };
 
 function felhoBekapcsolva() {

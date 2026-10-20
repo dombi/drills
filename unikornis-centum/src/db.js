@@ -7,6 +7,7 @@ function felhoLenyRef(k) { return felhoUserRef().collection("unicorns").doc(k); 
 function felhoGazda() { try { return localStorage.getItem(FELHO_GAZDA); } catch (e) { return null; } }
 
 function felhoBelepve(u) {
+  hatizsakCsere(u.uid);   /* 📴 más volt a helyi mentés gazdája → az ő hátizsákjába; ennek a gyereknek a hátizsákja lesz a helyi mentés */
   FELHO.uid = u.uid;
   FELHO.kod = (u.email || "").split("@")[0].toUpperCase();
   FELHO.aktiv = true;
@@ -25,7 +26,7 @@ function felhoBelepve(u) {
 function felhoElsoAllapot(snap) {
   if (snap.empty && snap.metadata.fromCache) return;       /* még nem tudjuk, üres-e a szerveren — várjuk a szervert */
   var gazda = felhoGazda(), sajat = (gazda === FELHO.uid);
-  if (!sajat) { felhoBiztonsagiMasolat(); if (gazda) felhoAlapTorol(gazda); }   /* a helyi mentés mostantól nem a régi gazdáé */
+  if (!sajat) felhoBiztonsagiMasolat();   /* a helyi mentés mostantól nem a régi gazdáé (az ő mentése már a hátizsákjában, az eltett alapja vele marad — hatizsak.js) */
   var migralt = false, offline = null;
   if (snap.empty) {
     /* üres fiók: ha a helyi mentés még senkié → felköltözik (migráció); ha másé → új, üres kezdés */
@@ -137,7 +138,7 @@ function renderFelhoAllapot() {
   var blokk = document.querySelector(".szuloi-blokk.beallitasok"); if (!blokk) return;
   var s = $("felho-allapot");
   if (!s) { s = el("p", "felho-allapot"); s.id = "felho-allapot"; blokk.appendChild(s); }
-  if (!FELHO.aktiv) { s.innerHTML = "☁️ Felhő: nincs belépve"; return; }
+  if (!FELHO.aktiv) { s.innerHTML = FELHO.offline ? "☁️ Felhő: <b>" + kiiras(FELHO.offline.kod) + "</b> — net nélkül; ha lesz net, a játék felmegy" : "☁️ Felhő: nincs belépve"; return; }
   s.innerHTML = "☁️ Felhő: belépve — <b>" + kiiras(FELHO.kod) + "</b>" + (FELHO.kesz ? "" : " (szinkron indul…)") +
     ' <button id="felho-kilep" class="kis-gomb">Kilépés</button>';
   $("felho-kilep").onclick = felhoKilep;
