@@ -21,7 +21,7 @@ GEN.szerszam = function (cfg) {
   if (SZ_SAJAT[cfg.sz]) return SZ_SAJAT[cfg.sz](cfg);
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
-  var f = cfg.fok === "mester" ? T.mester(szMesterValaszt(cfg.sz, T.mesterLista())) : T.general(cfg.fok, J.feladatKesz);
+  var f = cfg.fok === "mester" ? T.mester(szMesterKiv(T.mesterLista()).fid) : T.general(cfg.fok, J.feladatKesz);
   var F = szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
   if (cfg.fok === "mester") { F.op.mester = true; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester; }   /* 🏅 arany szegélyű pult (rajzterv 4. pont) */
   return F;
@@ -47,7 +47,14 @@ function szFeladatKesz(f, sz, szerep, nagy) {
   if (szerep === "nagy") J.sz.L = liftUj({ sz: sz, palya: J.palya.id, fok: f.fok, fid: f.fid });
   return f;
 }
-function szMesterValaszt(sz, lista) { return szerszamMesterKov(sz, lista) || lista[veletlen(0, lista.length - 1)]; }   /* elfogyott: újra egy régi */
+/* 🏅 melyik Mesterpróba, eredetiben vagy számváltozatban — a közös szabály (mester-valtozat.js): előbb a még nem látottak sorban,
+   utána a legrégebben látott változatban; ha esedékes egy visszatérő ebből a listából, az jön. Pályánként egyszer választ. */
+function szMesterKiv(lista) {
+  if (J.sz.mv) return J.sz.mv;
+  var V = mvValaszt(lista) || { fid: lista[0], F: null, valt: null, vissza: false };
+  J.sz.mv = V; mvLatta(V);
+  return V;
+}
 function szKicsi(nagy) {
   var k = SZ_TARTALOM[nagy.sz].kicsi(nagy, J.sz.L ? J.sz.L.kicsi : 0);
   if (nagy.tabla && k.dob) k.tabla = { auto: true };           /* 📋 kicsiben is tábla (a két sávos táblánál is), a bagoly segít kihúzni */
@@ -237,6 +244,27 @@ function szPalyaVege() {
   var mester = E.some(function (x) { return x && x.mester; }), lada = E.some(function (x) { return x && x.ladaba; });
   var fok = J.palya.fok, d = SZERSZAMOK.filter(function (s) { return s.id === sz; })[0] || { ikon: "🧰", nev: "" }, sorok = [];   /* a közös végképernyőnek (bktVege) */
   var cim = fok === "mester" ? (mester ? "🏅 Mesterpróba kész!" : "🏅 Ügyes munka!") : { mese: "📖 Kész a mesekönyv!", tekercs: "📜 Kész a varázstekercs!", tabla: "📋 Kész a nyomozótábla!", gomb: "🔮 Kész a kristálygömb!" }[fok] || "🧰 Kész!";
+  var V = fok === "mester" && J.sz ? J.sz.mv : null, x0 = E[0] || null, onallo = !!(x0 && x0.e === "o"), visszaJo = false, fenyes = null, plusz = 0;
+  if (V && V.fid) {                                          /* 🏅 a közös szabály naplója (mester-valtozat.js) */
+    if (V.vissza && onallo && !mester) {
+      /* visszatérő, önállóan: fél jutalom, és ha van saját kockája, az kifényesedik (✦) — mint az olvasó-polcon */
+      var fv = mvEredmeny(V.fid, true, true);
+      visszaJo = true; fenyes = d.vkocka != null && ekKockaLista().indexOf(d.vkocka) >= 0 ? d.vkocka : null;   /* csak a már megszerzett kocka fényesedhet */
+      P().csillampor += MV_VISSZA_CSILLA; J.futoCsilla += MV_VISSZA_CSILLA;
+      P().tunderharmat = (P().tunderharmat || 0) + MV_VISSZA_HARMAT; plusz = MV_VISSZA_HARMAT;
+      cim = "🏅 Emlékeztél a trükkre!";
+      var tobbszor = fv > 10 ? " Már sokszor sikerült!" : fv > 1 ? " Már " + szorSzo(fv) + "." : "";
+      sorok.push((fenyes != null ? "✦ A kockád kifényesedett a Kockavárban!" : szerszamT(sz).m ? "✦ A mester-szalagod kifényesedett!" : "✦ Ügyes! Ezt már tudod.") + tobbszor);
+      html += '<br><span class="ek-vege">🏅 Emlékeztél a trükkre! +' + MV_VISSZA_CSILLA + ' ✨ · 💧 +' + MV_VISSZA_HARMAT + '</span>';
+      mondat += " Emlékeztél a trükkre!";
+    } else if (V.vissza) {
+      mvEredmeny(V.fid, onallo, true);
+      if (!mester) {
+        cim = "🏅 Együtt sikerült!";
+        sorok.push(d.vkocka != null && ekKockaLista().indexOf(d.vkocka) >= 0 ? "A kockád megmaradt a Kockavárban. Legközelebb újra visszajön." : "Legközelebb újra visszajön.");
+      }
+    } else mvEredmeny(V.fid, onallo);
+  }
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
@@ -256,7 +284,9 @@ function szPalyaVege() {
   }
   if (!sorok.length && fok !== "mester") sorok.push(d.ikon + " " + (/^[aeiouáéíóöőúüű]/i.test(d.nev) ? "Az" : "A") + " „" + d.nev + "” tábla fényesebb lett.");   /* „Az „Előbb az egész”” */
   ment();
-  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester, harmat: mester ? EK_MESTER_HARMAT : 0, kocka: !!ujKocka, varKocka: mester && d.vkocka != null, adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0 } };
+  return { html: html, mondat: mondat, cim: cim, sorok: sorok, mesterKesz: mester || visszaJo, harmat: mester ? EK_MESTER_HARMAT : plusz, kocka: !!ujKocka, fenyes: fenyes,
+    varKocka: d.vkocka != null && (mester || fenyes != null), adat: { sz: sz, fok: J.palya.fok, eredm: E.map(function (x) { return x ? x.e : ""; }).join(""), mester: mester ? 1 : 0, lada: lada ? 1 : 0,
+    fid: V ? V.fid : "", valtozat: V && V.valt ? V.valt.id : "", vissza: V && V.vissza ? 1 : 0 } };
 }
 /* a vége-képernyő „következő” gombja: 📖 → 📜 → 📋 → 🔮 → 🏅 (a rejtett fokot átugorja), a Mesterpróba után vissza a szekrényhez */
 var SZ_FOK_SOR = ["mese", "tekercs", "tabla", "gomb", "mester"];

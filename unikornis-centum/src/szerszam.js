@@ -20,8 +20,9 @@
      A–E-s Mesterpróba csak elsőre jó válasszal önálló, és egymagában sosem tesz ládába: az ablakban legfeljebb
      EGY A–E-s önálló számít. Nincs nap-feltétel. A ládából nem lehet kiesni. A gyerek a számlálót nem látja,
      csak a szerszám ikonja fényesedik (szerszamFeny 0–1).
-   🏅 Mesterpróba: minden befejezett feladat elhasználódik (szerszamMesterKov a következő még nem látottat adja;
-     lifttel / végigvezetéssel oldott → legközelebb másikat); elsőre jó, önálló → „mester” szalag (st.m = nap).
+   🏅 Mesterpróba: melyik jön → a közös szabály (mester-valtozat.js, 2026-10-20 óta a szerszámokon is): előbb a még nem
+     látottak, utána a legrégebben látott számváltozatban, és a kiállt Mesterpróba időnként visszatér; a mh itt csak napló
+     (a pultnak). Elsőre jó, önálló → „mester” szalag (st.m = nap).
 
    Állapot: P().szerszam = {
      t: { KOTOTT: { h: [ {e, ae?, d} … az utolsó 8 nagy ], l: láda napja | "", m: mester-szalag napja | "",
@@ -174,7 +175,7 @@ function szerszamNaplo(r) {
 /* a Mesekönyv és a lift kicsijei csak a naplóba mennek, a ládába nem */
 function szerszamKicsiJegyez(sz, palya, fok, fid, jo) { szerszamNaplo({ sz: sz, palya: palya, fok: fok, fid: fid, e: jo ? "o" : "r" }); }
 
-/* ── 🏅 Mesterpróba-készlet ── */
+/* ── 🏅 Mesterpróba-készlet ── (a játék már a közös szabállyal választ: szerszam-palya.js szMesterKiv; ez a régi, csak a UC-fogantyúnak) */
 function szerszamMesterKov(sz, lista) {
   var mh = szerszamT(sz).mh;
   for (var i = 0; i < (lista || []).length; i++) if (!mh[lista[i]]) return lista[i];

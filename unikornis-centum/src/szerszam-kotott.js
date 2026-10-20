@@ -301,6 +301,13 @@ var SZK_MESTER = [
               { t: "Gábor egy emelettel Csaba alatt lakik: Gábor a legalsó, Csaba a második emeleten.", tesz: [[0, 0, "Gábor"], [1, 0, "úszás"], [0, 1, "Csaba"], [1, 1, "kosárlabda"]] }] }] }
 ];
 function szkMester(id) { for (var i = 0; i < SZK_MESTER.length; i++) if (SZK_MESTER[i].id === id) return SZK_MESTER[i]; return null; }
+/* 🏅 a közös szabály (mester-valtozat.js): előbb a még nem látottak sorban, utána a legrégebben látott; a visszatérő a 📌
+   Mesterpróbán jön, és a 📌 saját kockája fényesedik. Változata még nincs (névcserés változat: következő kör) → eredeti jön. */
+mvForras(function () { return SZK_MESTER.map(function (m) { return m.id; }); }, {
+  helyi: true,
+  palya: function () { return "sz-kotott-mester"; },
+  hely: function () { var d = SZERSZAMOK.filter(function (s) { return s.id === "KOTOTT"; })[0]; return d && d.vkocka != null ? d.vkocka : null; }
+});
 
 /* egy kézzel írt feladat (Mesterpróba vagy testvére) → mondatok, dobogó, ellenőrzők */
 function szkKezi(M, szulo) {

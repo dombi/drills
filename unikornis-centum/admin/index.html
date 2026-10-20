@@ -3005,8 +3005,11 @@ function ftBetolt() {
   });
 }
 function ftValtDb() { var n = 0; for (var k in A.ft.valt) n += A.ft.valt[k].length; return n; }
+/* a játékba írt (nem felhőből jövő) szerszám-Mesterpróbák neve — src/szerszam-egesz-mester.js SEG_MESTER, src/szerszam-kotott.js SZK_MESTER */
+var MV_HELYI_CIM = { "zrinyi-2024-3-M-12": "🧺 Vakond Vendel kertjei", "zrinyi-2020-3-M-20": "🧺 A bűvös tábla", "kalmar-2023-3-O1-2": "🧺 A három teve",
+  "zrinyi-2024-3-M-16": "📌 Az öt kutya vacsorája", "kalmar-2013-3-O2-1": "📌 Az agárverseny", "kalmar-2023-3-M-5": "📌 Szendvics a túrán", "kalmar-2016-3-O2-1": "📌 Négy barát a négyemeletes házban" };
 function ftFeladatNev(id) {
-  var f = A.ft.feladatok[id];
+  var f = A.ft.feladatok[id] || (MV_HELYI_CIM[id] ? { cim: MV_HELYI_CIM[id] } : null);
   var m = /^([a-z]+)-(\d{4})-(\d+)-([A-Z]+)-(\d+)$/.exec(id || "");
   var rov = m ? m[2] + " " + m[4] + m[5] : (id || "–");
   return f && f.cim ? rov + " " + f.cim : rov;

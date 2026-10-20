@@ -93,6 +93,151 @@ var SEG_MESTER = [
 ];
 function segMesterAdat(id) { for (var i = 0; i < SEG_MESTER.length; i++) if (SEG_MESTER[i].id === id) return SEG_MESTER[i]; return null; }
 
+/* ═════════════════ 🏅 SZÁMVÁLTOZATOK (Mesterpróba-változatok: a szerszám-Mesterpróbák bekötése, 2026-10-20) ═════════════════
+   Terv: Matekos\mesterproba-valtozatok-terv.html (✅). A gyerek emlékszik a már megoldott Mesterpróba válaszára, ezért a
+   második találkozástól számváltozat jön (a közös szabály: mester-valtozat.js). A három 🧺 Mesterpróba a játékba van írva,
+   ezért a változatok is itt készülnek, recept szerint. Az első kéréskor a játék maga ellenőrzi őket (segValtJo): ami nem
+   stimmel, az kimarad. A versenyfeladat mondatai ugyanazok, csak a számok mások. A bagoly-tudás (lépcsőfok, csapda,
+   végigvezetés, tipp) a változat számaiból készül. A kicsi testvérek az eredetiek, kivéve a bűvös tábla „Ugyanez a tábla”
+   kicsijét: az a változat tábláját mutatja.
+     · kerítés: egyenlő szárú háromszög [a, a, b]; a kerület osztható 4-gyel, és legfeljebb 100 m (fejben számolható);
+     · bűvös tábla: a 3×3-as bűvös négyzet egyik tükörképe vagy elforgatása, minden számhoz + k, és két szám egy sorban
+       vagy egy oszlopban helyet cserél; a megadott számhoz pontosan egy jó csere van;
+     · tevék: más alap-csomagok és hat egymás utáni szám, pontosan két jó elosztással; Fuvinak két lehetősége van. */
+var SEG_VALT_KERITES = [[20, 24], [30, 36], [15, 18], [28, 32], [22, 28], [25, 30]];          /* [a, b]: a háromszög szára és alapja */
+var SEG_VALT_TABLA = [   /* [tükörkép / forgatás 0–7, + k, egyik hely, másik hely, melyik a megadott (0 | 1)] */
+  [1, 1, [0, 0], [0, 2], 0], [2, 2, [0, 1], [2, 1], 1], [3, 3, [1, 0], [1, 2], 0],
+  [4, 0, [0, 2], [2, 2], 0], [5, 4, [2, 0], [2, 1], 1], [6, 2, [0, 0], [1, 0], 1]];
+var SEG_VALT_TEVE = [[[2, 3, 4], 5], [[2, 3, 1], 6], [[1, 3, 5], 7], [[2, 1, 3], 5], [[3, 4, 5], 6], [[3, 5, 1], 7]];   /* [alap-csomagok, a legkisebb új csomag] */
+var SEG_LOSHU = [[4, 9, 2], [3, 5, 7], [8, 1, 6]];
+var SEG_VALT = null;                                       /* { alapId: [változat…] } — az első kéréskor készül */
+
+function segMesterValt(fid) { if (!SEG_VALT) SEG_VALT = segValtKeszit(); return SEG_VALT[fid] || []; }
+function segValtKeszit() {
+  var V = {};
+  SEG_MESTER.forEach(function (D) {
+    var L = [], R = D.id === "zrinyi-2024-3-M-12" ? SEG_VALT_KERITES.map(segValtKerites) : D.id === "zrinyi-2020-3-M-20" ? SEG_VALT_TABLA.map(segValtTabla)
+      : D.id === "kalmar-2023-3-O1-2" ? SEG_VALT_TEVE.map(segValtTeve) : [];
+    R.forEach(function (x, i) {
+      if (!x) return;
+      var v = {}, k; for (k in D) v[k] = D[k]; for (k in x) v[k] = x[k];
+      v.id = D.id + "-v" + (i < 9 ? "0" : "") + (i + 1); v.alapId = D.id;
+      var hiba = segValtJo(v, D);
+      if (hiba) { if (typeof console !== "undefined") console.warn("🏅 kimaradt változat " + v.id + ": " + hiba); return; }
+      L.push(v);
+    });
+    V[D.id] = L;
+  });
+  return V;
+}
+
+/* kerítés: [a, a, b] → a kerület, és ennek a negyede */
+function segValtKerites(ab) {
+  var a = ab[0], b = ab[1], P = 2 * a + b, s = P / 4;
+  if (P % 4 || P > 100) return null;
+  var csap = {}, koz = {}, cm = function (n) { return "A " + n + " a háromszög egy oldala. A négyzet kerítése az egész háromszög kerítésével egyforma: előbb azt számold ki!"; };
+  csap[a] = cm(a); csap[b] = cm(b);
+  koz[P] = "Ez egy lépcsőfok volt: ennyi a teljes kerítés körben. De a négyzet egy oldalát kérdezték!";
+  return { abra: { t: "kerites", tri: [a, a, b], sq: "?" }, v: s, oe: { koztes: koz, csap: csap },
+    lep: [{ k: "Milyen hosszú a virágos kert kerítése körben?", v: P, m: a + " + " + a + " + " + b + " = " + P }, { k: "Hány méter a veteményes kert egy oldala?", v: s, m: P + " : 4 = " + s }],
+    segit: "Előbb a teljes kerítés: " + a + " + " + a + " + " + b + ". Ezt kell négy egyforma oldalra szétosztani.",
+    uto: "Igen! A teljes kerítés " + P + " méter, és ez négy egyforma oldalra " + s + " méter." };
+}
+
+/* bűvös tábla */
+function segTablaSzim(i) {                                 /* a 8 tükörkép / elforgatás: páros = forgatás, páratlan = ugyanez tükrözve */
+  var m = SEG_LOSHU, rot = function (q) { return q[0].map(function (_, j) { return q.map(function (r) { return r[j]; }).reverse(); }); };
+  var tr = function (q) { return q[0].map(function (_, j) { return q.map(function (r) { return r[j]; }); }); };
+  for (var k = 0; k < Math.floor(i / 2); k++) m = rot(m);
+  return i % 2 ? tr(m) : m;
+}
+function segTablaCsere(S, a, b) { S = S.map(function (r) { return r.slice(); }); var t = S[a[0]][a[1]]; S[a[0]][a[1]] = S[b[0]][b[1]]; S[b[0]][b[1]] = t; return S; }
+function segTablaBuvos(S) {
+  var E = S.reduce(function (o, r) { return o + segSum(r); }, 0) / S.length;
+  return S.every(function (r) { return segSum(r) === E; }) && S[0].every(function (_, j) { return S.reduce(function (o, r) { return o + r[j]; }, 0) === E; });
+}
+var SEG_OSZLOP_NEV = [["a bal szélső", "a bal szélsőben"], ["a középső", "a középsőben"], ["a jobb szélső", "a jobb szélsőben"]];
+var SEG_SOR_NEV = [["a felső", "a felsőben"], ["a középső", "a középsőben"], ["az alsó", "az alsóban"]];
+function segValtTabla(p) {
+  var k = p[1], M = segTablaSzim(p[0]).map(function (r) { return r.map(function (x) { return x + k; }); });
+  var B = segTablaCsere(M, p[2], p[3]), ad = p[4] ? p[3] : p[2], ma = p[4] ? p[2] : p[3], g = B[ad[0]][ad[1]], x = B[ma[0]][ma[1]];
+  var sorban = p[2][0] === p[3][0];                        /* egy sorban cserélnek → az oszlopok romlottak el (mint az eredetiben) */
+  var S = B.reduce(function (o, r) { return o + segSum(r); }, 0), E = S / 3, szk = sorban ? "oszlopban" : "sorban";
+  var N = sorban ? SEG_OSZLOP_NEV : SEG_SOR_NEV, ket = sorban ? [p[2][1], p[3][1]] : [p[2][0], p[3][0]];
+  ket.sort(function (a, b) { return a - b; });
+  var ossz = function (h) { return sorban ? B.reduce(function (o, r) { return o + r[h]; }, 0) : segSum(B[h]); };
+  var hol = N[ket[0]][0] + " " + szk + " " + ossz(ket[0]) + ", " + N[ket[1]][1] + " " + ossz(ket[1]) + " van";   /* „a középső oszlopban 8, a jobb szélsőben 22 van” */
+  var koz = {}, kk = {};
+  koz[S] = "Ez egy lépcsőfok volt: ennyi mind a kilenc szám együtt. De egy számot kérdeztek!";
+  koz[E] = "Ez egy lépcsőfok volt: ennyi kell legyen minden sorban és oszlopban. De melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val") + "?";
+  var K = segMesterAdat("zrinyi-2020-3-M-20").kicsi;
+  kk[S] = "Ez egy lépcsőfok volt: ennyi mind a kilenc szám. Mennyi jut egy sorra?";
+  return { abra: { t: "tabla", sor: B, csere: [ad, ma], kopp: { adott: ad, kiemel: false } },
+    mon: ["Az ábrán két számot megcserélünk úgy, hogy minden oszlopban és minden sorban ugyanannyi legyen a számok összege.", "A két szám közül az egyik " + ekA(g) + "."],
+    v: x, oe: { koztes: koz },
+    lep: [{ k: "Mennyi mind a kilenc szám összege?", v: S, m: B.map(function (r) { return r.join(" + "); }).join(" + ") + " = " + S }, { k: "Mennyi kell legyen egy sorban?", v: E, m: S + " : 3 = " + E },
+          { k: "Melyik a másik szám?", v: x, m: hol + ": " + ekA(g) + " és " + ekA(x) + " helyet cserél, és mindkettőben " + E + " lesz" }],
+    mit: ["melyik szám cserél helyet " + mAz(g) + " " + ekRag(g, "val"), "mennyi a kilenc szám összege", "mennyi jut egy sorra"],
+    elso: "Add össze mind a kilenc számot, és oszd el a három sor között! Ennyi kell legyen minden sorban és minden oszlopban. Most nézd meg: melyik " + szk + " kevés, és melyikben sok?",
+    segit: "Előbb mind a kilenc szám összege, aztán egy sorra ennek a harmada. Most nézd " + (sorban ? "az oszlopokat" : "a sorokat") + ": melyikben kevés, és melyikben sok?",   /* 🖊️ lektorra */
+    uto: "Igen! A kilenc szám összesen " + S + ", egy sorra " + E + " jut. " + ekA(g, true) + " és " + ekA(x) + " helyet cserél, és minden " + szk + " " + E + " lesz.",
+    kicsi: [{ mon: K[0].mon, kerdes: K[0].kerdes, v: E, abra: { t: "tabla", sor: B, kopp: { nem: true } }, oe: { koztes: kk } }, K[1]] };
+}
+
+/* tevék: minden jó elosztás (tevénként per darab, egyforma teherrel) */
+function segRakMegoldasok(fix, uj, per) {
+  var T = fix.length, E = (segSum(fix) + segSum(uj)) / T, ki = [];
+  if (E % 1) return ki;
+  (function lep(t, mar, eddig) {
+    if (t === T) { if (!mar.length) ki.push(eddig); return; }
+    (function valaszt(tol, vett, sum) {
+      if (vett.length === per) { if (sum === E - fix[t]) lep(t + 1, mar.filter(function (x) { return vett.indexOf(x) < 0; }), eddig.concat([vett])); return; }
+      for (var i = tol; i < mar.length; i++) valaszt(i + 1, vett.concat([mar[i]]), sum + mar[i]);
+    })(0, [], 0);
+  })(0, uj.slice(), []);
+  return ki;
+}
+function segValtTeve(p) {
+  var fix = p[0], uj = [0, 1, 2, 3, 4, 5].map(function (i) { return p[1] + i; }), m = segRakMegoldasok(fix, uj, 2);
+  if (m.length !== 2 || m[0][0].join() === m[1][0].join()) return null;
+  var O = segSum(fix) + segSum(uj), E = O / 3;
+  return { R: { tevek: ["Fuvi", "Nuvi", "Tuvi"], fix: fix.map(function (x) { return [x]; }), uj: uj, per: 2, megold: m },
+    mon: ["Három teve, Fuvi, Nuvi és Tuvi csomagokat szállít az oázisba.",
+          "Fuvi hátán már van egy " + fix[0] + " kilogrammos csomag, Nuvi hátán egy " + fix[1] + " kilogrammos, Tuvi hátán pedig egy " + fix[2] + " kilogrammos csomag.",
+          "Még 6 csomagot kell felpakolni, " + uj.slice(0, 5).map(function (x) { return "egy " + x; }).join(", ") + " és egy " + uj[5] + " kilogrammos csomagot.",
+          "Mindegyik teve három csomagot fog szállítani, melyek teljes tömege mindhárom tevén ugyanakkora kell legyen."],
+    indok: "Mindkettőt megtaláltad! Összesen " + O + " kiló, egy tevére " + E + " jut. Fuvinak még " + (E - fix[0]) + " kell: ez csak " + m[0][0].join(" + ") + " vagy " + m[1][0].join(" + ") + " lehet." };
+}
+
+/* önellenőrzés: a változat válasza más, mint az eredetié, és a bagoly-tudás a változat számaira illik. Visszaad: a hiba | "" */
+function segValtJo(v, D) {
+  if (v.forma === "rakodas") {
+    var R = v.R;
+    if (segRakMegoldasok(R.fix.map(function (x) { return x[0]; }), R.uj, R.per).length !== 2) return "nem két megoldás";
+    if (rakMegoldKulcs(R.megold[0]) === rakMegoldKulcs(D.R.megold[0])) return "ugyanaz, mint az eredeti";
+    if (R.uj.some(function (x) { return R.fix.some(function (f) { return f[0] === x; }); })) return "alap- és új csomag egyforma";
+    return "";
+  }
+  if (v.v === D.v) return "a válasz ugyanaz, mint az eredetiben";
+  if (v.lep[v.lep.length - 1].v !== v.v) return "a végigvezetés nem a válasznál ér véget";
+  if (v.abra.t === "kerites") {
+    var t = v.abra.tri;
+    if (segSum(t) !== 4 * v.v || t[0] * 2 <= t[2]) return "rossz kerítés";
+    return v.oe.csap[v.v] ? "a válasz csapda is" : "";
+  }
+  var B = v.abra.sor, ad = v.abra.kopp.adott, n = 0, L = [], i, j;
+  for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) if (!(i === ad[0] && j === ad[1]) && segTablaBuvos(segTablaCsere(B, ad, [i, j]))) { n++; if (B[i][j] !== v.v) return "más csere is jó"; }
+  if (n !== 1) return "nem egy jó csere";
+  if (segTablaBuvos(B)) return "a tábla már bűvös";
+  B.forEach(function (r) { L = L.concat(r); });
+  if (L.some(function (x, k) { return L.indexOf(x) !== k; })) return "ismétlődő szám";
+  return "";
+}
+mvForras(function () { return SEG_MESTER.map(function (m) { return m.id; }); }, {
+  helyi: true, valt: segMesterValt,
+  palya: function () { return "sz-egesz-mester"; }, hely: function () { return null; }   /* a 🧺-nak nincs saját kockája: a mester-szalag fényesedik */
+});
+
 /* ═════════════════ 🐪 RAKODÁS a szerszám-pályán ═════════════════ */
 function segRakMasol(R) { var x = JSON.parse(JSON.stringify(R)); x.sulyLat = false; return x; }
 function segCsomagot(kg) { return mAz(kg) + " " + ekRag(kg, "os") + "t"; }     /* „az 5-öst”, „a 3-ast” */
@@ -192,16 +337,18 @@ function segRakSegit(f) {
 
 /* ═════════════════ 🏅 MESTERPRÓBA ═════════════════ */
 function segMester() {
-  var fid = szMesterValaszt("EGESZ", SEG_MESTER.map(function (m) { return m.id; })), D = segMesterAdat(fid) || SEG_MESTER[0];
+  /* a közös szabály (szerszam-palya.js szMesterKiv → mester-valtozat.js): eredeti, vagy a második találkozástól számváltozat.
+     A nyomon követés (lift, napló, Kockavár) mindig az eredeti azonosítójával megy (fid), a számok a változatéi (D). */
+  var V = szMesterKiv(SEG_MESTER.map(function (m) { return m.id; })), fid = segMesterAdat(V.fid) ? V.fid : SEG_MESTER[0].id, D = V.valt || segMesterAdat(fid);
   var F;
   if (D.forma === "rakodas") {
-    F = segRakNagy(segRakFeladat(segRakMasol(D.R), { fok: "mester", fid: D.id, mon: D.mon, kerdes: D.kerdes, tobb: D.tobb, vissza: D.vissza, indok: D.indok }), 2);
+    F = segRakNagy(segRakFeladat(segRakMasol(D.R), { fok: "mester", fid: fid, mon: D.mon, kerdes: D.kerdes, tobb: D.tobb, vissza: D.vissza, indok: D.indok }), 2);
   } else {
     var oe = { szo: D.szo, koztes: {}, masik: {}, csap: {} }, n;
     for (n in D.oe.koztes || {}) oe.koztes[n] = { m: D.oe.koztes[n] };
     for (n in D.oe.csap || {}) oe.csap[n] = { m: D.oe.csap[n] };
-    var M = { keret: "mester", mondatok: D.mon, kerdes: D.kerdes, helyes: D.v, oe: oe, lep: D.lep, mit: D.mit, rajz: '<div class="eg-abra"></div>', fid: D.id };
-    var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: "mester", fid: D.id });
+    var M = { keret: "mester", mondatok: D.mon, kerdes: D.kerdes, helyes: D.v, oe: oe, lep: D.lep, mit: D.mit, rajz: '<div class="eg-abra"></div>', fid: fid };
+    var L = liftUj({ sz: "EGESZ", palya: J.palya.id, fok: "mester", fid: fid });
     L.nagy = true; L.kicsiJoKell = 2; J.polc.L = L; J.polc.kicsiHiba = 0; J.sz.L = L;
     F = polcNagy(M, "EGESZ", "mester", L);
     F.mester = { kicsi: D.kicsi, elso: D.elso, vissza: D.vissza }; F.kicsiGen = segMesterKicsi; F.egAbra = segAbraUj(D.abra, D.segit);
@@ -209,7 +356,8 @@ function segMester() {
     F.utoMondat = D.uto; F.naplo.tipus = "sz-egesz-mester";
   }
   F.op.mester = true; F.op.segit = !F.rakodas; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester;
-  J.polc.mesterFid = D.id;
+  J.polc.mesterFid = fid;
+  if (V.valt && F.naplo) F.naplo.valtozat = V.valt.id;
   return F;
 }
 /* 🛗 a beírásos Mesterpróba kicsi testvérei (olvaso-polc.js polcKicsiFeladat → N.kicsiGen) */

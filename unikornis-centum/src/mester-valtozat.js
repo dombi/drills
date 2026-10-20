@@ -1,7 +1,8 @@
 /* ============ 3f2) 🏅 MESTERPRÓBA-VÁLTOZATOK — a közös szabály: eredeti vagy számváltozat, visszatérés ============
    Terv: Matekos\mesterproba-valtozatok-terv.html (✅ 2026-10-17). A változatok előre gyártva (versenyfeladatok\polc_mester_valtozatok.py
    → fejtoro-mesterproba-polc-valtozatok.json, a pult 🏔️ Fejtörő fülén): a felhőben versenyFeladatok/{alapId}-vNN → FT.valt[alapId].
-   EGY szabály minden Mesterpróbának (most az 📚 olvasó-polc köti be; később a 🧺 szerszám- és a 📌 kötött Mesterpróba is):
+   EGY szabály minden Mesterpróbának: az 📚 olvasó-polc (felhőből), a 🧺 „Előbb az egész” és a 📌 kötött létra (a játékba írva,
+   mvForras helyi: true — a 🧺 számváltozatait a szerszam-egesz-mester.js gyártja, a 📌-nak még nincs változata → eredeti jön):
      · amíg van még nem látott Mesterpróba a listában → az jön, EREDETIBEN (a lista sorrendjében);
      · ha mindet látta → a legrégebben látott jön, SZÁMVÁLTOZATBAN (a változatok sorban, a végén elölről — ugyanazt csak
        akkor kapja újra, ha már mindet látta); ha nincs (alkalmas) változat → marad az eredeti;
@@ -25,9 +26,17 @@ var MV_ALAP = 10;                 /* hány végigjárt pályánként jön vissza
 var MV_VISSZA_CSILLA = 5;         /* jól megoldott visszatérő: a Mesterpróba-jutalom fele (EK_MESTER_CSILLA 10, EK_MESTER_HARMAT 2) */
 var MV_VISSZA_HARMAT = 1;
 /* a bekötött Mesterpróba-listák: lista() → [alapId…] (a visszatérés ezekből választ) · o.palya(fid) → melyik pálya indítja ·
-   o.hely(fid) → a kocka helye a Kockavárban (EK_KOCKAK index) — a meghívás és a pislogó / fényes kocka ezekből tudja, hová nyúljon */
+   o.hely(fid) → a kocka helye a Kockavárban (EK_KOCKAK index) — a meghívás és a pislogó / fényes kocka ezekből tudja, hová nyúljon ·
+   o.helyi: a feladatok a játékba vannak írva (nem a felhőből, FT.feladatok) · o.valt(fid) → a helyi számváltozatok listája */
 var MV_FORRAS = [];
-function mvForras(fn, o) { MV_FORRAS.push({ lista: fn, palya: (o && o.palya) || null, hely: (o && o.hely) || null }); }
+function mvForras(fn, o) { o = o || {}; MV_FORRAS.push({ lista: fn, palya: o.palya || null, hely: o.hely || null, helyi: !!o.helyi, valt: o.valt || null }); }
+function mvForrasa(fid) { for (var i = 0; i < MV_FORRAS.length; i++) if ((MV_FORRAS[i].lista() || []).indexOf(fid) >= 0) return MV_FORRAS[i]; return null; }
+/* elérhető-e a Mesterpróba: a felhőből betöltve, vagy egy helyi lista része */
+function mvVan(fid) {
+  if (!fid) return false;
+  if (typeof FT !== "undefined" && FT.feladatok && FT.feladatok[fid]) return true;
+  var F = mvForrasa(fid); return !!(F && F.helyi);
+}
 function mvForrasBol(fid, mit) {
   for (var i = 0; i < MV_FORRAS.length; i++) { var F = MV_FORRAS[i]; if (F[mit] && (F.lista() || []).indexOf(fid) >= 0) return F[mit](fid); }
   return null;
@@ -51,14 +60,17 @@ function mvHatarAlap() { var n = typeof szerszamBeall === "function" ? +szerszam
 function mvUjHatar() { var n = mvHatarAlap(); return veletlen(Math.max(2, n - 2), n + 2); }
 
 /* alkalmas változatok: van felhőben, és (ha a hívó kéri) megfelel a jo(v) feltételnek — pl. a polcon csak „polc” mezős */
-function mvValtozatok(fid, jo) { return ((typeof FT !== "undefined" && FT.valt && FT.valt[fid]) || []).filter(function (v) { return !jo || jo(v); }); }
+function mvValtozatok(fid, jo) {
+  var F = mvForrasa(fid), L = F && F.valt ? F.valt(fid) : (typeof FT !== "undefined" && FT.valt && FT.valt[fid]);
+  return (L || []).filter(function (v) { return !jo || jo(v); });
+}
 
 /* ── melyik jöjjön, és milyen formában ──
    lista: [alapId…] (csak a betöltöttek számítanak) · o.jo: változat-szűrő · o.vissza: a visszatérő is ebből a listából jöhet (alap: igen)
-   → { fid, F: a feladat (eredeti vagy változat), valt: a változat | null, vissza: visszatérő-e } | null */
+   → { fid, F: a feladat (eredeti vagy változat; helyi eredetinél null), valt: a változat | null, vissza: visszatérő-e } | null */
 function mvValaszt(lista, o) {
   o = o || {};
-  var L = (lista || []).filter(function (id) { return !!(FT.feladatok && FT.feladatok[id]); });
+  var L = (lista || []).filter(mvVan);
   if (!L.length) return null;
   var m = mvAll(), fid = null, vissza = false;
   if (o.vissza !== false && m.e && L.indexOf(m.e) >= 0) { fid = m.e; vissza = true; }
@@ -70,7 +82,7 @@ function mvValaszt(lista, o) {
     var V = mvValtozatok(fid, o.jo);
     if (V.length) valt = V[(r.v || 0) % V.length];
   }
-  return { fid: fid, F: valt || FT.feladatok[fid], valt: valt, vissza: vissza };
+  return { fid: fid, F: valt || (FT.feladatok && FT.feladatok[fid]) || null, valt: valt, vissza: vissza };
 }
 /* a Mesterpróba elindult (a választás után azonnal): látottnak jegyzi, lépteti a változatot, a visszatérést lezárja */
 function mvLatta(v) {
@@ -103,7 +115,7 @@ function mvEredmeny(fid, jo, vissza) {
 /* kiállt (legalább egyszer önállóan sikerült) Mesterpróbák a bekötött listákból, a legrégebben látott elöl */
 function mvKiallt() {
   var m = mvAll(), L = [];
-  MV_FORRAS.forEach(function (F) { (F.lista() || []).forEach(function (id) { if (L.indexOf(id) < 0 && m.f[id] && m.f[id].ok > 0 && FT.feladatok[id]) L.push(id); }); });
+  MV_FORRAS.forEach(function (F) { (F.lista() || []).forEach(function (id) { if (L.indexOf(id) < 0 && m.f[id] && m.f[id].ok > 0 && mvVan(id)) L.push(id); }); });
   return L.sort(function (a, b) { return m.f[a].l - m.f[b].l; });
 }
 /* egy végigjárt Bagolykönyvtár-pálya (palyaVege hívja; a Mesterpróbát nem) → számláló; határnál esedékes a legrégebbi kiállt */
@@ -117,7 +129,7 @@ function mvJatekVege() {
   if (m.j >= m.h) m.e = K[0];
 }
 /* ami most vár (a meghívás és a pislogó kocka ezt olvassa) */
-function mvEsedekes() { var m = mvAll(); return m.e && FT.feladatok && FT.feladatok[m.e] ? m.e : ""; }
+function mvEsedekes() { var m = mvAll(); return m.e && mvVan(m.e) ? m.e : ""; }
 
 /* ── 3. kód-kör: a meghívás ── az esedékes visszatérő pályája (ha látszik) — a végképernyő és a Kockavár gombja ezt indítja */
 function mvMeghivas() {
