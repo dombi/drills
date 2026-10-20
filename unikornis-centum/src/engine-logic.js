@@ -20,7 +20,8 @@ function kapuVan() { return kapuKulcsok().length > 0; }
 function kapuMs() { var o = +FELULIR.kapuOrak; return (o >= 1 && o <= 168 ? o : KAPU_ALAP_ORAK) * 3600 * 1000; }
 function kapuKulcsPalya(id) { return kapuKulcsok().indexOf(id) >= 0; }
 function kapuNyitva() { var k = P().kapu; return !!(k && k.nyitvaEddig > Date.now()); }
-function palyaZarva(pa) { if (pa.szerszam || pa.polc) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
+function palyaZarva(pa) { if (nyitasPalyaAlszik(pa)) return true;   /* 🚪 újonc-menet: alvó liget, ill. a világító ligetben még nem ő jön (nyitas.js) */
+  if (pa.szerszam || pa.polc) return false;   /* 🧰 szerszám-létra: lakat nélkül, a kapu sem zárja */
   if (pa.konyvtar) return !!ekLakat(pa);   /* 📚 Bagolykönyvtár: szárnyon belül sorban nyílnak, a 12 órás kapu nem zárja */
   return !pa.hamarosan && (!pa.egyeni || pa.teny) && kapuVan() && !kapuKulcsPalya(pa.id) && !kapuNyitva(); }   /* nem-kulcs egyéni pálya (4b): mindig nyitva — a 🌸 Neked szóló ösvényt viszont a kapu is zárja */
 function kapuAllapot() { var k = P().kapu || {}; return { van: kapuVan(), kulcsok: kapuKulcsok(), orak: kapuMs() / 3600000, nyitva: kapuNyitva(), nyitvaEddig: k.nyitvaEddig || 0, kulcsKesz: k.kulcsKesz || {}, darab: korlatSzamlalo() }; }

@@ -100,6 +100,9 @@ window.UC = {
   napiKiemeltId: napiKiemeltId, napiKiemeltTeljesitve: napiKiemeltTeljesitve,
   /* producer-felülírások (4. fázis) — teszthez felhő nélkül is beállítható */
   get FELULIR() { return FELULIR; }, felulirOsszevon: felulirOsszevon,
+  nyitasMenet: nyitasMenet, nyitasNap: nyitasNap, nyitasLiget: nyitasLiget, nyitasFrissit: nyitasFrissit, nyitasPalyaAlszik: nyitasPalyaAlszik, nyitasPalyaVilagit: nyitasPalyaVilagit,
+  nyitasEbren: nyitasEbren, nyitasEsemeny: nyitasEsemeny, nyitasPultAllapot: nyitasPultAllapot, NYITAS_OSZTALY: NYITAS_OSZTALY, NYITAS_NAPOK: NYITAS_NAPOK,   /* 🚪 ÚJONC-MENET (nyitas.js) */
+  ligetOsszegzo: ligetOsszegzo, fomenuLigetek: fomenuLigetek,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

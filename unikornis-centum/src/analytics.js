@@ -5,6 +5,7 @@
 var ESEMENY_HIBA_DB = 0;
 function esemeny(tipus, adat) {
   megfEsemeny(tipus, adat);   /* 🔍 megfigyelő napló (megf-naplo.js): felhő nélkül is gyűlik, a mentéssel megy fel */
+  nyitasEsemeny(tipus, adat); /* 🚪 újonc-menet: elakadás-jel (nyitas.js) */
   if (!FELHO.aktiv || !FELHO.db) { esemenySorba(tipus, adat); return; }
   try {
     FELHO.db.collection("events").add({

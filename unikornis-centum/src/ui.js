@@ -181,10 +181,11 @@ function renderFomenu() {
     var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
     var mat = PALYA_MAT[pa.id] || pa.palcim;
     var zarva = palyaZarva(pa);
+    var alszikNy = zarva && nyitasPalyaAlszik(pa);   /* 🚪 újonc-menet: sorban ébrednek (nyitas.js) — 💤, nem lakat */
     var elfogyott = !zarva && palyaElfogyott(pa);   /* darabkorlát (pult): erre a szakaszra elég volt */
     var napiEz = (pa.id === _napiId);
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (elfogyott ? " elfogyott" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
-      + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : ""));
+    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (alszikNy ? " ny-alszik" : "") + (elfogyott ? " elfogyott" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
+      + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : "") + (!zarva && nyitasPalyaVilagit(pa) ? " ny-vilagit" : ""));
     var napiBadge = napiEz
       ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
       : "";
@@ -193,7 +194,7 @@ function renderFomenu() {
     var bankos = !pa.hamarosan && bankPalyaNyit(pa.id);   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
-      '<div class="allapot">' + (zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
+      '<div class="allapot">' + (alszikNy ? "💤" : zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
       napiBadge +
       (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
       kuldKartyaJel(pa) +   /* 🐉 pikkely: ezt kéri a kis sárkány (sarkany-holmi.js) */
@@ -206,7 +207,7 @@ function renderFomenu() {
     kart.addEventListener("click", function () {
       hangGomb();
       if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
-      if (zarva) { mondd(pa.konyvtar ? ekLakatMondat(pa) : zarvaMondat()); return; }
+      if (zarva) { mondd(alszikNy ? NYITAS_MONDAT.palyaAlszik : pa.konyvtar ? ekLakatMondat(pa) : zarvaMondat()); return; }
       if (elfogyott) { mondd(elfogyottMondat()); return; }
       ligetUget(kart, function () { palyaInditas(pa.id); });   /* odaüget a kártyához, aztán indul */
     });

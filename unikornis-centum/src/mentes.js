@@ -94,6 +94,7 @@ function profilNormal(p, k) {
   visszaTar(p);
   tudasTar(p); kuldTar(p); megfTar(p);   /* 🔍 P().mf: napi megfigyelő napló (megf-naplo.js) */                      /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
+  nyitasNormal(p);                                 /* 🚪 újonc-menet (nyitas.js): P().uj, ha ezzel az unikornissal kezdett */
   if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
   return p;
 }

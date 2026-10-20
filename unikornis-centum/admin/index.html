@@ -309,6 +309,7 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/tudas.js?v=20261020-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
 <script src="../src/kuldetes.js?v=20261020-2"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
+<script src="../src/nyitas.js?v=20261020-1"></script><!-- 🚪 újonc-menet: a beállítás összevonása (nyitasBeallOsszevon) + a gyerek állapota (nyitasPultAllapot) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
 <script>
@@ -1121,6 +1122,9 @@ function gyerekBeallitasSorok(uid) {
   var lh = lenyBeall(lenyBeallOsszevon(cfg.leny || {}, cs.map(function (g) { return g.leny || {}; }))), la = lenyBeall({});
   sor("🐉", "Kis sárkány", (lh.kiser ? "elkíséri az ösvényeken" : "nem kíséri el az ösvényeken") + ", küldetés: " + kuldHatasSzoveg(lh),
     lh.kiser === la.kiser && lh.kuld === la.kuld && lh.kuldLiget === la.kuldLiget && !lh.kuldPalyak, cel("beallitasok", kartyaKeres("🐉")));
+  /* 🚪 újonc-menet */
+  var nb = nyitasHatas(uid);
+  sor("🚪", "Újonc-menet", nyitasHatasSzoveg(uid), nb.menet === null && !nb.osztaly, cel("beallitasok", kartyaKeres("🚪")));
   /* 🧰 Bagolykönyvtár: láda, létrák, lift, 🏅 visszatérés */
   var sb = szerszamHatas(uid), sa = szerszamBeall({});
   var szAlap = sb.k === sa.k && sb.n === sa.n && sb.liftKer === sa.liftKer && sb.tabla === sa.tabla && sb.kep === sa.kep && sb.mv === sa.mv &&
@@ -1784,7 +1788,7 @@ function beallitasokFigyel() {
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {}, leny: x.leny || {} }); });
+      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {}, leny: x.leny || {}, nyitas: x.nyitas || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
       A.groups = l;
       egyeniNevekFrissit();
@@ -1806,6 +1810,27 @@ function jatekosCsoportjai(uid) { return A.groups.filter(function (g) { return g
 /* ══════════ 🐉 sárkány-küldetés: a pult nézete (4. kör, 2026-10-18; terv/sarkany-kuldetesek-rendszerterv.html 7. szakasz) ══════════
    A gyerek mentéséből (u.unicorns[leny].kuld, .tud) olvas; írni csak a producerConfig/{uid}.leny ágba ír (kuldPalyak,
    kuldLiget, megsem) — a gyerek mentéséhez nem nyúl, a „mégsem megy”-et a játék veszi át (tudas.js tudasPultVissza). */
+/* 🚪 újonc-menet: a gyerekre ható beállítás + amit a mentéséből látunk (src/nyitas.js nyitasPultAllapot) */
+function nyitasHatas(uid) { return nyitasBeall(nyitasBeallOsszevon((A.cfg[uid] || {}).nyitas || {}, jatekosCsoportjai(uid).map(function (g) { return g.nyitas || {}; }))); }
+function nyitasHatasSzoveg(uid) {
+  var u = userById(uid), b = nyitasHatas(uid);
+  if (!u) return "—";
+  var a = nyitasPultAllapot(u.unicorns || {}, b);
+  if (!a.menet) return {
+    ki: "<b>ki</b> — minden nyitva",
+    regi: "nem újonc (már játszott) — minden nyitva, mint eddig",
+    osztaly: "<b>vár</b>: újonc, de nincs megadva az osztálya — addig minden nyitva",
+    indul: "<b>indul</b>, amint legközelebb a térképre lép (" + b.osztaly + ". osztály)"
+  }[a.ok] || "—";
+  function lista(all) {
+    var l = Object.keys(a.all).filter(function (id) { return a.all[id] === all; }).map(function (id) { return esc(LIGET_CIM[id] || NYITAS_NEV[id] || id); });
+    return l.length ? l.join(", ") : "–";
+  }
+  var nyilt = Object.keys(a.napok).sort(function (x, y) { return x - y; }).map(function (n) { var id = a.napok[n]; return n + ". nap: " + esc(NYITAS_NEV[id] || LIGET_CIM[id] || id); });
+  return "<b>fut</b> (" + esc(lenyNev(a.k)) + ") · " + a.o + ". osztály · <b>" + a.nap + ". gyakorlós nap</b><br>✨ világít: " + lista("vil") + " · nyitva: " + lista("nyitva") +
+    " · 💤 alszik: " + lista("alszik") + "<br>eddig nyílt: " + (nyilt.length ? nyilt.join(" · ") : "–") +
+    (a.elakad != null ? " · ⚠️ elakadt — a következő gyakorlós napon oldalra nyílik valami" : "") + (a.fv ? " · ⬆️ felfelé vár " + a.fv + " liget (szabad napra)" : "");
+}
 function kuldHatasSzoveg(lh) {
   if (!lh.kuld) return "nincs";
   return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : kuldLigetNev(lh.kuldLiget));
@@ -2099,6 +2124,27 @@ function rajzBeallitasok(t) {
     "Minden változás csak a <b>következő</b> küldetésre hat, a futó nem változik. " +
     "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer, a liget az első csoporté, a kézi listák összeadódnak.</p></div>";
 
+  /* ── 🚪 Újonc-menet (2026-10-20, terv/ujonc-bevezetes-rendszerterv.html 6.; a játék: src/nyitas.js) ── */
+  var sajatNy = (egyeni ? (A.cfg[id] || {}).nyitas : csoportById(id).nyitas) || {};
+  var nyUres = egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— automatikus") : "— nincs (automatikus)";
+  h += '<div class="kartya" style="margin-top:10px"><h3>🚪 Újonc-menet</h3><div class="kapu-sor"><span>Menet:</span>' +
+    '<select id="nyitas-menet"' + (typeof sajatNy.menet === "boolean" ? ' class="beallitva"' : "") + ">" +
+    [["", nyUres], ["true", "✅ be (akkor is, ha már játszott)"], ["false", "🚫 ki — minden nyitva"]].map(function (o) {
+      return '<option value="' + o[0] + '"' + ((typeof sajatNy.menet === "boolean" ? String(sajatNy.menet) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("") + "</select><span>Osztály:</span>" +
+    '<select id="nyitas-osztaly"' + (sajatNy.osztaly >= 1 ? ' class="beallitva"' : "") + ">" +
+    [["", egyeni && jatekosCsoportjai(id).length ? "— csoport szerint" : "— a gyerek választja"]].concat([1, 2, 3, 4, 5, 6].map(function (n) { return [String(n), n + ". osztály"]; })).map(function (o) {
+      return '<option value="' + o[0] + '"' + (String(sajatNy.osztaly || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("") + "</select></div>";
+  if (egyeni) h += '<div class="kicsi">Most ennél a gyereknél: ' + nyitasHatasSzoveg(id) + "</div>";
+  h += '<p class="kicsi halvany" style="margin-top:8px">Újonc = akinek egyik unikornisánál sincs még végigjátszott pálya (Lili és Fanni így nem kapja meg). ' +
+    "Az újonc az osztálya szerint 1, 2 vagy 3 világító ligettel indul, a többi ködben alszik; a nagyobbnak (4. osztálytól) a könnyebb ligetek is nyitva vannak, csak nem világítanak. " +
+    "A világító ligetben a pályák sorban ébrednek. Gyakorlós naponként legfeljebb egy új dolog nyílik: ha egy liget „megy” (3 különböző pálya kerülő nélkül, legalább 2 napon), a következő liget ébred felfelé; " +
+    "ha ugyanazon a pályán kétszer egymás után elakad, a következő gyakorlós napon oldalra nyílik valami (felfelé soha). " +
+    "<b>Osztály nélkül nincs menet</b> (minden nyitva): amíg a játék maga nem kérdezi meg (2. kör), itt add meg. " +
+    "🚫 Ki = vészkijárat: azonnal minden nyitva. ✅ Be = a menet akkor is indul, ha a gyerek már játszott (próbához). " +
+    "A rejtett pályák rejtve maradnak. Sorrend: alap → csoport → egyéni; több csoportnál a „ki” nyer, az osztály az első csoporté.</p></div>";
+
   h += "<h3>" + cim + '</h3><div class="tabla-keret"><table><tr><th>Pálya</th><th>Láthatóság</th><th>Ajánlott 💖</th><th>Extra ✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th>' +
     "<th>Kulcs 🔑</th><th>Hányszor 🔁</th>" + (egyeni ? "<th>Ezt kapja a gyerek</th>" : "") + "</tr>";
   var effKulcs = egyeni ? kapuHatas(id).kulcs : [];
@@ -2187,6 +2233,13 @@ function rajzBeallitasok(t) {
   };
   $("leny-kuld").onchange = function () {
     ment(docRef.set({ leny: { kuld: this.value === "" ? FV.delete() : this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
+  /* 🚪 újonc-menet: a nyitas-ágon belül mezőnként (menet, osztaly) */
+  $("nyitas-menet").onchange = function () {
+    ment(docRef.set({ nyitas: { menet: this.value === "" ? FV.delete() : this.value === "true" }, updatedAt: FV.serverTimestamp() }, { merge: true }));
+  };
+  $("nyitas-osztaly").onchange = function () {
+    ment(docRef.set({ nyitas: { osztaly: this.value === "" ? FV.delete() : +this.value }, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
   /* 🐉 sárkány-küldetés (4. kör): liget, kézi pályalista, „mégsem megy” */
   $("leny-kuld-liget").onchange = function () {

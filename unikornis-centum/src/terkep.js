@@ -85,15 +85,16 @@ function terkepRajzol(host, T, o) {
     return '<g transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + k + ')">' + ltBokor(-14, 2, 1.5, "#a8dc9c", "#6fae74") + ltKisfa(12, 0, 1.4, "#9fd49a", "#6fae74") + '</g>';
   }).join("");
   var helyek = liget.map(function (id) {
-    var p = T.helyek[id][mod], j = jel[id] || {};
-    return '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + '" data-id="' + id + '" role="button" tabindex="0" aria-label="' + htmlVed(o.nev(id)) + '">' +
+    var p = T.helyek[id][mod], j = jel[id] || {}, m = T.helyek[id].magas;
+    return '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + (j.ny === "alszik" ? " ny-kod" : "") + '" data-id="' + id + '" role="button" tabindex="0" aria-label="' + htmlVed(o.nev(id)) + '">' +
       '<g transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + k + ')">' +
-      '<rect x="-56" y="' + (-T.helyek[id].magas - 6) + '" width="112" height="' + (T.helyek[id].magas + 38) + '" fill="transparent"/>' +
-      '<g class="hb">' + T.jelkep[id]() + '</g></g></g>';
+      '<rect x="-56" y="' + (-m - 6) + '" width="112" height="' + (m + 38) + '" fill="transparent"/>' +
+      (j.ny === "vil" ? ltNyHalo(m) : "") +
+      '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '">' + T.jelkep[id]() + '</g>' + (j.ny === "alszik" ? ltNyKod(m) : "") + '</g></g>';
   }).join("");
   var cimkek = liget.map(function (id) {
-    var p = T.helyek[id][mod];
-    return '<g class="terkep-hely" data-id="' + id + '" aria-hidden="true">' + ltCimke(p[0], p[1], o.nev(id), k) + '</g>' + ltJelzesRajz(T, id, p[0], p[1], k, o.nev(id), jel[id], L, mod);
+    var p = T.helyek[id][mod], j = jel[id] || {};
+    return '<g class="terkep-hely' + (j.ny === "alszik" ? " ny-kod-cimke" : "") + '" data-id="' + id + '" aria-hidden="true">' + ltCimke(p[0], p[1], o.nev(id), k) + '</g>' + ltJelzesRajz(T, id, p[0], p[1], k, o.nev(id), jel[id], L, mod);
   }).join("");
   var a = terkepAllas(T, o.all, mod);
   host.innerHTML =
@@ -339,8 +340,42 @@ function ltCimke(x, y, nev, k) {
   return '<g transform="translate(' + x + ' ' + y + ') scale(' + k + ')"><rect x="' + ltF(-sz / 2) + '" y="7" width="' + ltF(sz) + '" height="22" rx="11" fill="#ffffff" opacity=".94" stroke="#e6d8f0"/>' +
          '<text y="23" text-anchor="middle" font-size="13.5" font-weight="700" fill="#2a2140">' + htmlVed(nev) + '</text></g>';
 }
+/* 🚪 újonc-menet (nyitas.js; rajzterv 3., ✅ B: köd): a világító hely fénykörrel + csillámmal, az alvó köd alatt.
+   m = a jelkép magassága (a hely saját egységeiben); a színátmenetek az LT_DEFS-ben (lt-gNyHalo, lt-gNyKod). */
+function ltNyHalo(m) {
+  return '<g class="ny-halo" pointer-events="none"><ellipse cx="0" cy="' + ltF(-m * .42) + '" rx="' + ltF(m * .95) + '" ry="' + ltF(m * .8) + '" fill="url(#lt-gNyHalo)"/>' +
+    ltCsillam(Math.round(-m * 5.5) / 10, Math.round(-m * 8) / 10, 5, "#fff6c4", "2.2s", 0) + ltCsillam(Math.round(m * 6) / 10, Math.round(-m * 5.5) / 10, 4, "#ffe08a", "2.6s", .8) +
+    ltCsillam(Math.round(m) / 10, Math.round(-m * 10.8) / 10, 4.5, "#ffffff", "2s", 1.4) + '</g>';   /* számmal (a ltCsillam összead) */
+}
+function ltNyKod(m) {
+  return '<g class="ny-kodfelho" pointer-events="none">' +
+    '<ellipse cx="-14" cy="' + ltF(-m * .22) + '" rx="' + ltF(m * .62) + '" ry="' + ltF(m * .22) + '" fill="url(#lt-gNyKod)"/>' +
+    '<ellipse cx="16" cy="' + ltF(-m * .5) + '" rx="' + ltF(m * .55) + '" ry="' + ltF(m * .2) + '" fill="url(#lt-gNyKod)"/>' +
+    '<ellipse cx="0" cy="' + ltF(-m * .02) + '" rx="' + ltF(m * .72) + '" ry="' + ltF(m * .16) + '" fill="url(#lt-gNyKod)"/></g>';
+}
+/* a hely felébred: a köd felszáll, kigyúl a fény, csillagok pattannak szét, az unikornis odasétál és szól */
+function ltNyEbreszt(M, id, kesz) {
+  var g = M.svg.querySelectorAll('.terkep-hely[data-id="' + id + '"]'), ikon = g[0], cimke = g[1];
+  if (!ikon) return;
+  var T = M.T, p = T.helyek[id][M.mod], L = T.elr[M.mod], m = T.helyek[id].magas, kod = ikon.querySelector(".ny-kodfelho");
+  if (kod) kod.classList.add("felszall");
+  ikon.classList.remove("ny-kod"); if (cimke) cimke.classList.remove("ny-kod-cimke");
+  setTimeout(function () {
+    if (!M.svg.isConnected) return;
+    var tr = ikon.firstElementChild, hb = tr.querySelector(".hb"), tmp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    tmp.innerHTML = ltNyHalo(m); tr.insertBefore(tmp.firstChild, hb); hb.classList.add("ny-vilagit");
+    if (kod) kod.parentNode.removeChild(kod);
+    var r = document.createElementNS("http://www.w3.org/2000/svg", "g"); r.setAttribute("pointer-events", "none");
+    r.innerHTML = '<g transform="translate(' + p[0] + ' ' + ltF(p[1] - m * L.jk * .5) + ')"><g class="ny-robban">' +
+      [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { var a = i * Math.PI / 4; return csillagSVG(Math.cos(a) * 46, Math.sin(a) * 40, 6, i % 2 ? "#ffd24d" : "#ffffff"); }).join("") + '</g></g>';
+    M.svg.appendChild(r); setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 1200);
+    var nev = ltNev(id);
+    mondd("Nézd, felébredt " + nevelo(nev) + " " + nev + "!");
+    terkepSetal(M, id, kesz);
+  }, nyugiMod() ? 0 : 900);
+}
 function ltJelzesRajz(T, id, x, y, k, nev, j, L, mod) {
-  if (!j) return "";
+  if (!j || j.ny === "alszik") return "";   /* a ködben nincs ⭐-tábla, se jelzés */
   var s = "", sz = nev.length * 7.2 + 22, magas = T.helyek[id].magas;
   if (j.ossz) {
     var tele = j.kesz >= j.ossz, cx = x + (sz / 2 + 4) * k, cy = y + 7 * k, le = y + 56 * k <= L.h;
@@ -379,7 +414,9 @@ var LT_DEFS = '<defs>' +
   '<linearGradient id="lt-gHegy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4c8ec"/><stop offset="1" stop-color="#9483c2"/></linearGradient>' +
   '<radialGradient id="lt-gAblak" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#fff6c4"/><stop offset="1" stop-color="#ffbe55"/></radialGradient>' +
   '<radialGradient id="lt-gHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe3a0" stop-opacity=".55"/><stop offset="1" stop-color="#ffe3a0" stop-opacity="0"/></radialGradient>' +
-  '<radialGradient id="lt-gNap" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff7cc"/><stop offset=".55" stop-color="#ffeaa0" stop-opacity=".7"/><stop offset="1" stop-color="#ffeaa0" stop-opacity="0"/></radialGradient>' +
+  '<radialGradient id="lt-gNyHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0b0" stop-opacity=".95"/><stop offset=".55" stop-color="#ffe08a" stop-opacity=".55"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient>' +
+  '<radialGradient id="lt-gNyKod" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fbf8ff" stop-opacity=".95"/><stop offset=".6" stop-color="#efe8fb" stop-opacity=".8"/><stop offset="1" stop-color="#efe8fb" stop-opacity="0"/></radialGradient>' +
+  '<radialGradient id="lt-gNap"cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff7cc"/><stop offset=".55" stop-color="#ffeaa0" stop-opacity=".7"/><stop offset="1" stop-color="#ffeaa0" stop-opacity="0"/></radialGradient>' +
   '<linearGradient id="lt-gUtca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12194f"/><stop offset=".6" stop-color="#2b2f78"/><stop offset="1" stop-color="#5a4a9a"/></linearGradient>' +
   '<linearGradient id="lt-gEgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8e3f7"/><stop offset="1" stop-color="#eef6ee"/></linearGradient>' +
   '<linearGradient id="lt-gRetA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4f0c8"/><stop offset="1" stop-color="#b3dea4"/></linearGradient>' +
@@ -429,22 +466,35 @@ function renderLigetTerkep(racs, L) {
   var host = el("div", "terkep-host uni-terep");
   racs.appendChild(host);
   var lathato = { odu: true, utca: true, kert: true }, jel = {}, mod = utcaMod(host.clientWidth, host.clientHeight);
+  var ebred = nyitasFrissit(L.regiok).filter(function (r) { return L.regiok[r] && LIGET_TERKEP.helyek[r]; });   /* 🚪 ma felébredt, még be nem mutatott liget (nyitas.js) */
   L.sorrend.forEach(function (r) { if (LIGET_TERKEP.helyek[r]) { lathato[r] = true; jel[r] = ligetOsszegzo(r, L.regiok[r]); } });
   Object.keys(jel).forEach(function (r) { jel[r].jelzes = kuldLigetJel(r).concat(jel[r].jelzes || []).slice(0, 2); });   /* 🐉 innen kért a kölyök (kuldetes.js; a pult kézi listájával bármelyik ligetből) */
+  Object.keys(jel).forEach(function (r) {   /* 🚪 újonc-menet: világít / nyitva / alszik (köd) — az alvónál nincs ⭐, jelzés, hold */
+    var ny = nyitasLiget(r); if (!ny) return;
+    if (ebred.indexOf(r) >= 0) ny = "alszik";   /* előbb ködben, aztán felébred (ltNyEbreszt) */
+    jel[r] = ny === "alszik" ? { ny: ny } : (jel[r].ny = ny, jel[r]);
+  });
   jel.kert = { jelzes: (tenyKertVar() ? ["🦋"] : []).concat(lenyKertJel()).concat(kuldKertJel()).slice(0, 2) };   /* + 🌈 a nagy sárkány vár a kertben (leny.js, 5. kör) + 🐉 a kisház darabja vár (kuldetes.js) */   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
   jel.odu = { jelzes: lenyTerkepJel() };                 /* 🥚 / 🦋 / ☁️ a kis lény vár az odúban (kaland.js, visszahívás 4. kör) */
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
   var hol = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget;
-  if (!lathato[hol]) hol = "odu";
+  if (!lathato[hol] || (jel[hol] && jel[hol].ny === "alszik")) hol = "odu";
   LIGET_M = terkepRajzol(host, LIGET_TERKEP, { mod: mod, all: hol, halo: halo, nev: ltNev, jelzes: jel, koppint: ligetTerkepKoppint });
   LIGET_M.jel = jel;
   bemutat("terkep");   /* egyszer: „a kertünk mostantól itt van…” (ui.js) */
+  if (ebred.length) {   /* napi legfeljebb egy — ha mégis több lenne (pult-váltás), az elsőt mutatjuk, a többi csendben ébred */
+    var M = LIGET_M, id = ebred[0];
+    ebred.forEach(function (r) { nyitasLatta(r); if (r !== id) jel[r].ny = nyitasLiget(r); });
+    jel[id].ny = nyitasLiget(id);
+    setTimeout(function () { if (LIGET_M === M && M.svg.isConnected) ltNyEbreszt(M, id); }, 700);
+  }
 }
 function ligetTerkepKoppint(id) {
   var M = LIGET_M; if (!M || !M.svg.isConnected) return;
   if (M.fut) { terkepSetal(M, id); return; }   /* második koppintás séta közben: azonnal ott van */
   hangGomb();
   var j = M.jel[id];
+  if (j && j.ny === "alszik") { mondd(NYITAS_MONDAT.alszik); return; }   /* 🚪 ködben alszik: nem lehet bemenni (nyitas.js) */
   mondd(id === "utca" ? "Irány az utca!" : id === "odu" ? "Haza, az odúba!" : id === "kert" ? "Irány a kert!" : (j && j.alszik ? zarvaMondat() : ltNev(id) + "!"));
   terkepSetal(M, id, function () {
     TERKEP_HOL = { leny: mentes.leny, id: id };
