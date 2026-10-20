@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offline játék</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --track:#f6e2b8; --track-d:#d9b979; --card:#fffaf2; --sky:#dff1fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --track:#5a4a2e; --track-d:#8a7448; --sky:#1d3040;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#29a3dd 0%,var(--violet) 60%,var(--pink) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(224,65,122,.25);position:relative;overflow:hidden}
+  header.top::after{content:"📴";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  .chip a{color:#fff}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+  svg.vazlat .palya{fill:none;stroke:var(--track);stroke-width:22}
+  svg.vazlat .palya-sz{fill:none;stroke:var(--track-d);stroke-width:2;stroke-dasharray:4 8}
+  svg.vazlat .eg{fill:var(--sky)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+</style>
+<style>
+  .allapot td:first-child{white-space:nowrap}
+  .piros{color:var(--pink);font-weight:700} .zold{color:var(--green);font-weight:700} .sarga{color:var(--warn);font-weight:700}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:12px}
+  details summary{cursor:pointer;font-weight:700}
+  .reteg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .reteg div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .reteg .ikon{font-size:30px;line-height:1}
+  .reteg b{display:block;margin:4px 0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Offline játék mindenkinek</h1>
+  <div class="sub">Tervlap jóváhagyásra: a játék net nélkül is induljon el, és amit a gyerek net nélkül játszik, az <b>soha ne vesszen el</b>, a felhő ne írja felül.</div>
+  <div class="meta">
+    <span class="chip">2026-10-20</span>
+    <span class="chip">Nagyságrend: NAGY (3 kör)</span>
+    <span class="chip">Állapot: tervlap, jóváhagyásra vár</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p>Ma, ha nincs net, a játék <b>valószínűleg el sem indul</b>. Ha mégis elindul (pl. a Firebase-rész nem tölt be), a gyerek játszhat, de amikor visszajön a net, <b>a felhő csendben felülírja</b>, amit addig gyűjtött. Ez a legrosszabb fajta hiba, mert senki nem veszi észre.</p>
+  <p>A terv három rétegből áll:</p>
+  <div class="reteg">
+    <div><span class="ikon">🛟</span><b>1. Semmi nem vész el</b>A játék megjegyzi, mi volt a felhőben legutóbb. Ha net nélkül történt valami, visszatéréskor <i>hozzáadja</i> a felhőhöz, nem felülírja. <span class="sarga">Ez jön először.</span></div>
+    <div><span class="ikon">📦</span><b>2. Net nélkül is elindul</b>A böngésző eltesz egy példányt a játékból (ún. service worker), és net nélkül abból indít. Amikor van net, mindig a legfrissebb változat jön.</div>
+    <div><span class="ikon">👫</span><b>3. Közös gépen is megy</b>Andor és Petra laptopján net nélkül is lehessen a névkártyára kattintani és játszani; a haladás a gyereknél marad, a felhőbe később kerül fel.</div>
+  </div>
+  <p class="lead" style="margin-top:12px">Miért ebben a sorrendben? Ha előbb a 2. réteg jönne, a játék sokkal gyakrabban indulna net nélkül, és a mai csendes felülírás <b>gyakori</b> hibává válna. Előbb a háló, utána a trapéz.</p>
+</div>
+
+<h2>Mit CSINÁL a gyerek? (vezérelv)</h2>
+<div class="panel">
+  <p><b>Semmi újat.</b> Ugyanúgy megnyitja a játékot, ugyanúgy játszik. A net hiánya <b>nem az ő dolga</b>: nem kap figyelmeztetést, nem kell gombot nyomnia, nem kell várnia. Közös gépen ugyanúgy a nevére kattint és beírja a kódját, mint eddig.</p>
+  <p>Amit a gyerek <b>észrevehet</b> (és ez jó így):</p>
+  <ul>
+    <li>Az <b>Égi Tüneménykert</b> (ahol a többiekkel találkozik) net nélkül nem nyílik; ott egy alvó felhő látszik: <span class="say">„A felhőkert most alszik. Ha lesz net, újra nyílik.”</span></li>
+    <li>Új gyerek <b>első belépése</b> net nélkül nem megy (a kódot egyszer a felhőnek kell igazolnia).</li>
+  </ul>
+</div>
+
+<h2>Mi van ma? (a kódból kiolvasva)</h2>
+<div class="panel tblwrap">
+  <table class="allapot">
+    <tr><th>Helyzet</th><th>Ma</th><th>Mi történik</th></tr>
+    <tr><td>Játék közben elmegy a net</td><td class="zold">✅ jó</td><td>A Firebase saját gyorsítótárba ír, és visszatéréskor felküld. Nincs teendő.</td></tr>
+    <tr><td>Net nélkül indítás</td><td class="piros">❌</td><td>Nincs service worker → a böngésző a „nincs internet” lapot mutatja, a játék el sem indul.</td></tr>
+    <tr><td>Elindul, de a Firebase-rész nem tölt be</td><td class="piros">🔴 adatvesztés</td><td>A gyerek a helyi mentésbe játszik. Következő indításkor a felhő „az az igazság” → a net nélküli haladás <b>csendben eltűnik</b>. (A régi „eltűnt minden” panaszokhoz hasonló kép.)</td></tr>
+    <tr><td>Elindul, a Firebase is betölt (böngésző-gyorsítótárból)</td><td class="sarga">🟡 többnyire jó</td><td>A belépés megmarad, a Firebase a saját offline tárából dolgozik és később felküld. Ha viszont ez a tár nem elérhető (pl. privát ablak, egyes tabletek), ugyanaz a csendes felülírás jöhet.</td></tr>
+    <tr><td>Közös gép (Andor + Petra)</td><td class="piros">❌</td><td>Ott a belépés csak a böngésző bezárásáig él, utána kód kell, a kódot pedig csak a felhő tudja ellenőrizni → net nélkül senki nem tud belépni. Kilépéskor a helyi mentés kiürül.</td></tr>
+    <tr><td>Felhő nélküli gép (nincs <code>?felho</code>)</td><td class="sarga">🟡</td><td>Adat nem vész (minden helyben van), csak el sem indul net nélkül. A 2. réteg ezt is megoldja.</td></tr>
+  </table>
+</div>
+
+<h2>Mi megy majd net nélkül, mi nem?</h2>
+<div class="panel tblwrap">
+  <table>
+    <tr><th>Rész</th><th>Net nélkül</th><th>Megjegyzés</th></tr>
+    <tr><td>Minden pálya, liget, ösvény, Bagolykönyvtár, Tény-kert</td><td class="zold">✅</td><td>Minden a gépen fut.</td></tr>
+    <tr><td>Odú, kert, utca, bolt, fodrászat, sárkány</td><td class="zold">✅</td><td>✨ 💧 gyűlik és költhető; később összeadódik a felhővel.</td></tr>
+    <tr><td>A pult beállításai (rejtés, ajánlás, egyéni pályák, nehézség)</td><td class="zold">✅</td><td>Az utoljára letöltött állapot él (ez ma is így van). Új pult-beállítás csak a net visszatérte után érkezik meg.</td></tr>
+    <tr><td>Fejtörő-hegy versenyfeladatai</td><td class="zold">✅*</td><td>*Ha a gépen egyszer már letöltődtek.</td></tr>
+    <tr><td>Felolvasó hang</td><td class="zold">✅*</td><td>*Laptopon a Windows Szabolcs-hangja helyben van. Tableten/telefonon a gép hangjától függ; erre a 2. körben gépi próbát teszek.</td></tr>
+    <tr><td>Fredoka betű</td><td class="zold">✅</td><td>A 2. réteg ezt is elteszi; ha mégsem, a játék a gép saját betűjével megy.</td></tr>
+    <tr><td>Égi Tüneménykert (közös tér)</td><td class="piros">❌</td><td>Valós idejű, másokkal → csak nettel. Alvó felhő + egy mondat.</td></tr>
+    <tr><td>Új gyerek első belépése</td><td class="piros">❌</td><td>A kódot egyszer a felhőnek kell igazolnia.</td></tr>
+    <tr><td>A producer-pult</td><td class="sarga">késve</td><td>A net nélküli játék akkor látszik a pulton, amikor a gép újra netre kerül. A pult egy jelet is kap: <span class="say">„📴 net nélkül játszott: 25 perc, 3 pálya”</span> (lásd 3. döntés).</td></tr>
+  </table>
+</div>
+
+<h2>Döntések</h2>
+<div class="cards">
+
+  <div class="dec"><span class="num">1</span>
+    <h3>Közös gépen, net nélkül: hogyan lép be a gyerek?</h3>
+    <p><b>A)</b> Ugyanúgy, mint nettel: névkártya + kód. A játék a legutóbbi netes belépéskor eltesz egy „ujjlenyomatot” a kódról (nem magát a kódot), és net nélkül ehhez hasonlítja. A gyerek szokása nem változik, Petra nem játszhat Andor nevében.</p>
+    <p><b>B)</b> Net nélkül elég a névkártya, kód nélkül. Egyszerűbb, de a testvérek könnyen egymás unikornisával játszhatnak (és az a felhőbe is felmegy).</p>
+    <p class="lead">Őszintén: a kódok rövidek (ANDOR-1), az „ujjlenyomat” nem bankszéf, de testvérek között bőven elég, és ma sem erősebb a védelem.</p>
+    <span class="prop">Javaslat: A</span>
+  </div>
+
+  <div class="dec"><span class="num">2</span>
+    <h3>Lássa-e a gyerek, hogy nincs net?</h3>
+    <p><b>A)</b> Nem. Csak a Tüneménykertnél (ahol tényleg számít) van alvó felhő. A gyerek ne aggódjon az unikornisa miatt.</p>
+    <p><b>B)</b> Egy apró szürke 📴 felhő a profilválasztón, szöveg nélkül.</p>
+    <p><b>C)</b> Egy mondat: „Most net nélkül játszol — minden megmarad.”</p>
+    <span class="prop">Javaslat: A</span> (a gyerek egyedül használja; ami neki nem cselekvés, az zaj)
+  </div>
+
+  <div class="dec"><span class="num">3</span>
+    <h3>A pult lássa-e a net nélküli játékot részletesen?</h3>
+    <p>A <b>haladás</b> (✨, pályák, jelvények) és a <b>megfigyelő-napló</b> (amiből a jellemzés készül) mindenképp felmegy, mert a mentéssel utazik. Ami ma elvész: a pult <b>„utolsó 80 válasz”</b> listája és a napi naptár, mert az eseménynapló csak belépve íródik.</p>
+    <p><b>A)</b> Az eseményeket net nélkül is gyűjtjük a gépen (legfeljebb 500 db, a legrégebbi esik ki), és visszatéréskor felküldjük az eredeti időponttal. Plusz egy „📴 net nélkül játszott” jel a pultra.</p>
+    <p><b>B)</b> Csak a „📴 net nélkül játszott” jel; a részletes válaszok elmaradnak.</p>
+    <span class="prop">Javaslat: A</span> (a naptár és a hiba-oka felismerés is ezekből dolgozik)
+  </div>
+
+  <div class="dec"><span class="num">4</span>
+    <h3>Ha ugyanaz a gyerek közben MÁSIK gépen is játszott?</h3>
+    <p>Pl. Lili net nélkül játszik a laptopon, közben a tableten nettel. Visszatéréskor a játék összefésül, ugyanúgy, ahogy ma két gép között:</p>
+    <ul>
+      <li>✨ 💧 játékidő: <b>összeadódik</b> (egyik sem vész el);</li>
+      <li>ruhák, jelvények, pályák, gyűjtemény: <b>mindkettő megmarad</b>;</li>
+      <li>ami csak egy lehet (épp felvett ruha, aktív unikornis): a később szinkronizált gép nyer.</li>
+    </ul>
+    <span class="ok">Ez nem kérdés, csak tájékoztatás — a mai szabályt viszi tovább.</span>
+  </div>
+
+  <div class="dec"><span class="num">5</span>
+    <h3>Sorrend és körök</h3>
+    <table>
+      <tr><th>Kör</th><th>Mi</th><th>Méret</th></tr>
+      <tr><td>1. 🛟</td><td>Semmi nem vész el: utolsó ismert felhő-állapot eltevése + összefésülés indításkor; eseménynapló-pótlás (ha a 3. döntés A); „📴” jel a pultra.</td><td>közepes</td></tr>
+      <tr><td>2. 📦</td><td>Net nélküli indulás (service worker), Tüneménykert alvó felhője, gépi próba net nélkül.</td><td>közepes</td></tr>
+      <tr><td>3. 👫</td><td>Közös gép: gyerekenkénti „hátizsák” a gépen, net nélküli belépés, csendes visszalépés a felhőbe, amikor jön a net.</td><td>közepes–nagy</td></tr>
+    </table>
+    <span class="prop">Javaslat: ebben a sorrendben, külön beszélgetésekben</span> Az 1. kör önmagában is kijavít egy ma élő adatvesztést.
+  </div>
+
+</div>
+
+<h2>Hogyan próbáljuk ki?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Gépi próba, új „📴 net nélkül” rész:</b> a próba-böngésző net nélkülire kapcsol → játék indul → 2 pálya + 1 vásárlás → net vissza → ellenőrzi, hogy a felhőben (a teszt-fiókon) <b>több</b> ✨ van, és megvan az új pálya és a tárgy. Ugyanez közös gépre két teszt-fiókkal.</li>
+    <li><b>Mentés-őr:</b> a 6 kitalált teli mentéssel is lefut (semmi nem tűnhet el).</li>
+    <li><b>Kiskapu-őr:</b> ne lehessen ✨-ot duplázni azzal, hogy a gyerek ki-be kapcsolja a netet (ugyanaz a vásárlás vagy jutalom ne számítson kétszer). 🔴 szintű, ha mégis.</li>
+    <li><b>Élő próba:</b> a producer a saját laptopján (TESZT-1): Wi-Fi ki → játék → Wi-Fi be → a pulton látszik.</li>
+  </ul>
+</div>
+
+<h2>Kockázatok, őszintén</h2>
+<div class="panel">
+  <ul>
+    <li><b>Régi változatban ragadás</b> (2. kör): a service worker hibásan beállítva régi játékot adhat. Védekezés: nettel mindig a frissebb jön (a játékfájl mindig a hálózatról, csak ha nincs net, akkor a tárolt), és van egy „vészfék” (<code>?friss</code> mindent kiürít és újratölt).</li>
+    <li><b>Felhő nélküli gépek</b> (nincs <code>?felho</code>): náluk az 1. és 3. kör nem változtat semmit, csak a 2. kör (elindul net nélkül).</li>
+    <li><b>Privát ablak / tele tár:</b> ha a böngésző nem enged eltenni semmit, a játék úgy fut, mint ma — de a felülírás akkor sem jöhet vissza, mert az 1. kör a helyi mentés mellé teszi az „utolsó felhő-állapotot”.</li>
+    <li><b>Hosszú net nélküli időszak egy közös gépen</b>, ahol a gyerek soha többé nem lép be: a haladás a gépen vár, a pulton nem látszik. Ritka; a gépen nem vész el.</li>
+  </ul>
+</div>
+
+<details>
+  <summary>Technikai részletek (fejlesztőknek)</summary>
+
+  <h3>1. kör — összefésülés indításkor (src/db.js, src/sync.js, src/mentes.js)</h3>
+  <ul>
+    <li><b>Új kulcs</b> <code>uc_felho_alap_&lt;uid&gt;</code> (localStorage): a <code>FELHO.alap</code> + <code>alapUser</code> tükre. Írás: <code>felhoElsoAllapot</code> végén, <code>felhoKuld</code> és <code>felhoTavoliValtozas</code> után (a mentések ~40 KB-osak, bőven elfér).</li>
+    <li><b>Új jelző</b> <code>uc_kuldetlen</code> = uid: a <code>ment()</code> beállítja, ha a felhő be van kapcsolva, a gazda ez az uid, de <code>!FELHO.kesz</code> (azaz a mentés nem jutott el a Firestore-ig). A <code>felhoElsoAllapot</code> után törlődik.</li>
+    <li><b>felhoElsoAllapot, „van felhő-adat” ág:</b> ha <code>sajat &amp;&amp; uc_kuldetlen === uid &amp;&amp; van eltett alap</code> → a helyi mentés félretéve; a felhő-állapotot vesszük alapnak, és rávezetjük a <code>(helyi − eltett alap)</code> különbséget a meglévő <code>felhoOsszefesul(felhoAllapot, eltettAlap, helyi, true)</code>-del (számlálók összeadódnak, térképek levélszinten, LWW a többin). A <code>FELHO.alap</code> marad a felhő-állapot → a következő <code>felhoKuld</code> felküldi a különbséget, az ✨ <code>increment</code>-tel.</li>
+    <li>Ha nincs eltett alap (régi gép, első futás): a mai viselkedés, de előtte a helyi mentés biztonsági másolatba kerül (<code>unikornis_centum_v1_offline_elott_&lt;dátum&gt;</code>, max. 3 db), hogy kézzel visszaállítható legyen (<code>helyreallitas.html</code>).</li>
+    <li><b>fromCache-eset:</b> a Firestore offline tárából jövő első pillanatkép a még el nem küldött írásokat is tartalmazza → ott nincs teendő; a jelző csak a „Firestore nélkül játszott” időszakot jelöli.</li>
+    <li><b>Eseménynapló-pótlás (3A):</b> <code>esemeny()</code> belépés nélkül, de felhő-módban <code>uc_esemeny_sor</code>-ba ír (max. 500, <code>tsKliens</code> mezővel); <code>felhoElsoAllapot</code> után batch-ben felmegy. A pult a <code>tsKliens</code>-t használja, ha van. Rules: a mai „events: csak create, saját uid” elég, ha a <code>tsKliens</code> szám.</li>
+    <li><b>Kiskapu:</b> az összefésülés idempotens legyen — az eltett alapot a sikeres összefésülés után azonnal felülírjuk, így egy újratöltés nem vezeti rá kétszer ugyanazt a különbséget.</li>
+  </ul>
+
+  <h3>2. kör — service worker (új: <code>sw.js</code> a játék mappájában)</h3>
+  <ul>
+    <li>Regisztráció csak <code>https:</code>-on (file://-on nincs). Hatókör: <code>/drills/unikornis-centum/</code>; az <code>admin/</code> kérései átmennek érintetlenül.</li>
+    <li><b>Hálózat először, tár tartalékként:</b> <code>index.html</code>, <code>game.js</code>, <code>style.css</code>, <code>kert-hangok.js</code>, <code>tk-diszek.js</code> (a <code>?v=</code> miatt a régi változatok kipucolódnak).</li>
+    <li><b>Tár először:</b> a Firebase SDK (gstatic, rögzített 10.14.1 → nem változik) + Fredoka (fonts.googleapis/gstatic).</li>
+    <li>Telepítéskor előre letöltjük a teljes listát (≈3 MB), hogy az első netes indítás után már offline is menjen.</li>
+    <li><code>?friss</code> = <code>caches</code> törlése + SW leiratkozás + újratöltés (a mai cache-tipp kiterjesztése).</li>
+    <li>Tüneménykert: <code>navigator.onLine</code> + RTDB <code>.info/connected</code> → alvó felhő.</li>
+    <li>Offline indulásnál a Firebase Auth a tárolt belépést adja (LOCAL perzisztencia), a Firestore az offline tárából → az írások sorba állnak. Ahol az offline tár nem elérhető, az 1. kör hálója fog.</li>
+  </ul>
+
+  <h3>3. kör — közös gép</h3>
+  <ul>
+    <li><b>Hátizsák gyerekenként:</b> <code>uc_hatizsak_&lt;KOD&gt;</code> = { mentés, eltett felhő-alap, kód-ujjlenyomat (SHA-256, só = uid), idő }. Kilépéskor a mai „üres mentés” előtt ide kerül; belépéskor (nettel) frissül.</li>
+    <li><b>Net nélküli belépés:</b> a belépő a névkártyákat mutatja; kód → ujjlenyomat-egyezés → a hátizsák lesz a <code>mentes</code>, <code>uc_kuldetlen</code> jelzővel. (1B esetén kód nélkül.)</li>
+    <li><b>Csendes visszalépés:</b> a beírt kód a munkamenet memóriájában marad; <code>online</code> eseménykor <code>signInWithEmailAndPassword</code> a háttérben → <code>felhoElsoAllapot</code> → 1. kör összefésülése. A gyerek ebből semmit nem lát.</li>
+    <li>Kilépés net nélkül: hátizsákba ment, nincs <code>signOut</code>-hiba.</li>
+  </ul>
+
+  <h3>Rendszerterv-frissítés</h3>
+  <p>Minden körben: <code>Matekos\backend-rendszerterv.html</code> + <code>-dev.html</code> „Offline” fejezete és ez a tervlap.</p>
+</details>
+
+</div>
+</body>
+</html>
