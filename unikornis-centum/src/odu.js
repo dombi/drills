@@ -688,7 +688,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   /* JELVÉNYTÁBLA a falon (odú D2, 2. lépés) — a régi szivárványos falikép helyén, ugyanakkora keretben,
      hogy ne lógjon az ablakra, a lámpára és a vitrinre; a függő kristály-dísz ezért jobbra költözött */
   s += '<g id="odu-t-jelveny" class="odu-targy">' + jelvenyTablaSVG() + '</g>';
-  if (tag) s += hetOduKartya();   /* 📅 a heti kártya fakeretben, a jelvénytábla alatt (het.js, visszahívás 5. kör) */
+  if (tag && nyitasEbren("het")) s += hetOduKartya();   /* 📅 a heti kártya fakeretben, a jelvénytábla alatt (het.js, visszahívás 5. kör); újoncnál a 4. naptól */
 
   /* mennyezeti csillag-lámpa */
   s += '<line x1="345" y1="112" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
@@ -1058,7 +1058,7 @@ function oduNyit(honnan) {
   mutat("kepernyo-odu");                    /* előbb látható legyen, hogy a szoba-terület mérhető legyen */
   kertKulcsRendez();                        /* a kert ingyenes: a régi kulcs árát egyszer visszaadjuk (kert.js) */
   renderOdu();
-  bemutat("szekreny");   /* egyszer: „Itt vannak a holmijaid…” (ui.js) */
+  if (!nyitasJelenet("odu", "kepernyo-odu")) bemutat("szekreny");   /* 🚪 újonc: ma nyílt a heti kártya (ui.js) — különben egyszer: „Itt vannak a holmijaid…” */
   lenyOduNyit();         /* 🥚 ami vár: a patakparti lelet, a kikelés (leny.js) */
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */

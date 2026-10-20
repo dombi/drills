@@ -102,7 +102,7 @@ window.UC = {
   nyitasMenet: nyitasMenet, nyitasNap: nyitasNap, nyitasLiget: nyitasLiget, nyitasFrissit: nyitasFrissit, nyitasPalyaAlszik: nyitasPalyaAlszik, nyitasPalyaVilagit: nyitasPalyaVilagit,
   nyitasIndit: nyitasIndit, nyitasRovidElso: nyitasRovidElso, nyitasBoltFulek: nyitasBoltFulek, NYITAS_ELSO_LIGET: NYITAS_ELSO_LIGET,
   NYITO: NYITO, EP: function () { return EP; }, nyitoIndul: nyitoIndul, nyitoRajzol: nyitoRajzol, nyitoFrissit: nyitoFrissit, elsoPercKell: elsoPercKell, elsoPercIndit: elsoPercIndit, epNevTisztit: epNevTisztit, boltFulek: boltFulek, boltCsoportok: boltCsoportok, belepoMutat: belepoMutat,   /* 🚪 nyitókép + első perc (nyitokep.js) */
-  nyitasEbren: nyitasEbren, nyitasEsemeny: nyitasEsemeny, nyitasPultAllapot: nyitasPultAllapot, NYITAS_OSZTALY: NYITAS_OSZTALY, NYITAS_NAPOK: NYITAS_NAPOK,   /* 🚪 ÚJONC-MENET (nyitas.js) */
+  nyitasEbren: nyitasEbren, nyitasHely: nyitasHely, nyitasHarmatRejtett: nyitasHarmatRejtett, nyitasSarkanyNap: nyitasSarkanyNap, nyitasBemutatKell: nyitasBemutatKell, nyitasEsemeny: nyitasEsemeny, nyitasPultAllapot: nyitasPultAllapot, NYITAS_OSZTALY: NYITAS_OSZTALY, NYITAS_NAPOK: NYITAS_NAPOK,   /* 🚪 ÚJONC-MENET (nyitas.js) */
   ligetOsszegzo: ligetOsszegzo, fomenuLigetek: fomenuLigetek,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,

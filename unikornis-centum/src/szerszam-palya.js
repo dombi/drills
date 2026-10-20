@@ -257,7 +257,7 @@ function szPalyaVege() {
       cim = "🏅 Emlékeztél a trükkre!";
       var tobbszor = fv > 10 ? " Már sokszor sikerült!" : fv > 1 ? " Már " + szorSzo(fv) + "." : "";
       sorok.push((fenyes != null ? "✦ A kockád kifényesedett a Kockavárban!" : szerszamT(sz).m ? "✦ A mester-szalagod kifényesedett!" : "✦ Ügyes! Ezt már tudod.") + tobbszor);
-      html += '<br><span class="ek-vege">🏅 Emlékeztél a trükkre! +' + MV_VISSZA_CSILLA + ' ✨ · 💧 +' + MV_VISSZA_HARMAT + '</span>';
+      html += '<br><span class="ek-vege">🏅 Emlékeztél a trükkre! +' + MV_VISSZA_CSILLA + ' ✨<span class="harmat-jel"> · 💧 +' + MV_VISSZA_HARMAT + '</span></span>';
       mondat += " Emlékeztél a trükkre!";
     } else if (V.vissza) {
       mvEredmeny(V.fid, onallo, true);
@@ -270,7 +270,7 @@ function szPalyaVege() {
   if (mester) {
     P().csillampor += EK_MESTER_CSILLA; J.futoCsilla += EK_MESTER_CSILLA;
     P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT;
-    html += '<br><span class="ek-vege">🏅 Mesterpróba elsőre! A szerszámod mester-szalagot kapott. +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
+    html += '<br><span class="ek-vege">🏅 Mesterpróba elsőre! A szerszámod mester-szalagot kapott. +' + EK_MESTER_CSILLA + ' ✨<span class="harmat-jel"> · 💧 +' + EK_MESTER_HARMAT + '</span></span>';
     mondat += " Mesterpróba elsőre! A szerszámod mester-szalagot kapott.";
     sorok.push("🎀 A szerszámod mester-szalagot kapott.");
     if (d.vkocka != null) {                                  /* a szerszám saját kockája a Kockavárba (producer, 2026-10-10) */

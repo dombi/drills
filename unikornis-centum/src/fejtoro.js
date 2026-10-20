@@ -467,8 +467,8 @@ function ftVege() {
     "Célba értél: <b>" + kiiras(FTJ.pa.nev || "Fejtörő-ösvény") + "</b>!<br>" +
     "<b>" + FTJ.osszes + "</b> fejtörőből <b>" + FTJ.elsore + "</b> sikerült elsőre, segítség nélkül.<br>" +
     "Gyűjtöttél: <b>" + FTJ.csilla + " ✨</b> csillámport." +
-    (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>' : '') +
-    '<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>' + (kertV ? kertV.html : "");
+    (ajanlottExtra ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya!<span class="harmat-jel"> +' + ajanlottExtra + ' 💧</span></span>' : '') +
+    '<span class="harmat-jel"><br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span></span>' + (kertV ? kertV.html : "");
   hetVegeMutat();   /* 📅 heti kártya (het.js) */
   $("vege-kovetkezo").style.display = "none";
   konfettiSzor(); hangVege();

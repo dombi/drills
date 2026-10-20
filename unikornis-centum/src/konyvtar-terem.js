@@ -134,7 +134,7 @@ function bktVege(V, o) {
   else kep = '<div class="bkt-pottyok' + (mester ? " mester" : "") + '" aria-hidden="true">' + pottyok.map(function (x) { return '<i class="' + (x ? "o" : "s") + '"></i>'; }).join("") + '</div>';
   document.querySelector("#kepernyo-vege h2").textContent = V.cim || "Kész!";
   $("vege-szoveg").innerHTML = kep + sorok.map(function (s) { return '<span class="bkt-sor">' + s + '</span>'; }).join("") +
-    '<span class="bkt-jut">+ ' + o.csilla + ' ✨ · + ' + o.harmat + ' 💧</span>';
+    '<span class="bkt-jut">+ ' + o.csilla + ' ✨<span class="harmat-jel"> · + ' + o.harmat + ' 💧</span></span>';
   var meg = $("vege-meg");
   if (var_) { meg.textContent = "🏰 Megnézem a várat"; meg.onclick = function () { hangGomb(); bktVarNagy(); }; }
   else { meg.textContent = BKT_GOMB[pa.fok] || "📖 Még egyet"; meg.onclick = function () { hangGomb(); if (mester) bktMesterKapu(function () { palyaInditas(pa.id); }); else palyaInditas(pa.id); }; }

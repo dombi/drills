@@ -1,8 +1,9 @@
 /* ============ 3c2b) 🚪 NYITÁS — az újonc-menet közös alapja (Újonc-bevezetés 1. kör, 2026-10-20) ============
    Terv: terv/ujonc-bevezetes-rendszerterv.html (✅ jóváhagyva 2026-10-20) + terv/ujonc-bevezetes-rajzterv.html (✅ B: köd).
    Egy tábla arról, MI MIKOR ÉBRED, és egy kérdés, amit minden hely feltesz: „ébren vagyok?”. Ma a ligettérkép és a
-   liget-belső kérdezi (terkep.js, ui.js, engine-logic.js palyaZarva); a 3. körben az utca, a kert, a fodrász, a felhőkert,
-   a bank és a heti kártya is (nyitasEbren). A falu, ha elkészül, ugyanezt a táblát örökli.
+   liget-belső kérdezi (terkep.js, ui.js, engine-logic.js palyaZarva); a 3. körtől (2026-10-20) a játékhelyek is
+   (nyitasHely / nyitasEbren: utca, kert, heti kártya, fodrász, felhőkert, bank, kölyök, a többi unikornis, frissítések).
+   A falu, ha elkészül, ugyanezt a táblát örökli.
      • Újonc = akinek egyetlen unikornisánál sincs végigjátszott pálya (Lili és Fanni így sosem kapja meg). A jel a
        P().uj ágban él (annál az unikornisnál, akivel kezdett — „kezdő profil”); a menet a gyerekhez tartozik, nem az
        unikornishoz, ezért bármelyik unikornisnál ugyanazt a rekordot olvassuk. A jel csak akkor születik, ha a gyerek
@@ -12,7 +13,7 @@
      • Idő: a gyakorlós nap (gondozas.js gyakNap). A menet napja = hányadik gyakorlós napnál tart (a mai, még gyakorlás
        nélküli nap már a következő). Aki 3 napot kihagy, ott folytatja.
      • Naponta legfeljebb 1 új dolog (P().uj.napok[nap] = id). Elsőbbség: tudás nyit felfelé → elakadás nyit oldalra →
-       a játékhelyek naptára. Sárkány-esemény napján (NYITAS_SARKANY_NAP) más nem nyílik.
+       a játékhelyek naptára. Sárkány-esemény napján (nyitasSarkanyNap: a tojás kikel, a fióka elröppen) más nem nyílik.
      • Liget-állapot: "vil" (ébren, ide hív az unikornis: világít) · "nyitva" (ébren, nem hív: a nagyobbnak a könnyebb
        ligetek, ill. ami már „megy”) · "alszik" (köd) · null = a menet nem érinti (odú, utca, kert — a 3. körig).
      • A világító ligetben a pályák SORBAN ébrednek: az első még végig nem vitt pálya világít, a többi alszik.
@@ -56,18 +57,40 @@ var NYITAS_VERS = [
 ];
 var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni"];
 /* a játékhelyek naptára (tervlap 4.⑤): [id, legkorábbi gyakorlós nap] — sorban nyílnak, ha egy nap foglalt, eltolódnak.
-   Az 1. körben csak a napokat foglalják (a napi egy szabály miatt); az altatásuk a 3. kör (nyitasEbren). */
+   Amíg ki nem nyílt, alszik (3. kör): az utca és a kert a térképen ködben, a fodrász és a bank az utcán zárt spalettával,
+   a felhőkert lépcsője nincs ott, a heti kártya nem látszik, a kölyök nem kísér, a többi unikornis alszik, a Bolt egy polcos,
+   a szalonban csak a kefék élnek. Az utca az 1. napon csak az első végigjátszott pálya után nyílik (előbb a pálya). */
 var NYITAS_NAPOK = [["utca", 1], ["kert", 2], ["het", 4], ["fodrasz", 6], ["harmat", 7], ["felhokert", 8], ["kolyok", 9],
                     ["bank", 10], ["unikornisok", 15], ["frissites", 16]];
-var NYITAS_SARKANY_NAP = { 3: "kikel", 5: "elropul" };   /* a sárkány napja: más nem nyílik */
 var NYITAS_NEV = { utca: "🏘️ utca (Bolt)", kert: "🌿 kert", het: "📅 heti kártya", fodrasz: "💇 fodrász", harmat: "💧 harmat", felhokert: "☁️ felhőkert",
-                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy" };   /* a pultnak */
+                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy",
+                   sarkany: "🐉 sárkány-nap (más nem nyílt)" };   /* a pultnak */
 var NYITAS_MEGY = { palya: 3, nap: 2 };
 var NYITAS_ELAKAD = 2;
 var NYITAS_MONDAT = {
   alszik: "Ez még alszik. Majd felébresztjük!",
-  palyaAlszik: "Ez az ösvény még alszik. Előbb az előzőt járjuk végig!"
+  palyaAlszik: "Ez az ösvény még alszik. Előbb az előzőt járjuk végig!",
+  fodrasz: "A fodrászat még alszik. Majd felébresztjük!",
+  bank: "A tündérbank még alszik. Majd felébresztjük!",
+  barat: "A barátaim még alszanak. Majd felébresztjük őket!",
+  szalon: "Ez még alszik. Most a kefékkel játsszunk!"
 };
+/* a nyílás mondatai: hol hangzik el (térkép / odú / utca), mi ragyog fel közben. Ha az utcán nyílt valami, a térkép előbb
+   oda hív (utcaHiv), és az utca világít; az utcán a ház spalettája nyílik ki (szalon.js). Az utca és a kert a térképen
+   a köd felszállásával ébred (terkep.js). A kölyöknek nincs mondata: ő magától jön, amikor megkerül. */
+var NYITAS_BEMUTAT = {
+  utca:        { hol: "terkep", mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+  kert:        { hol: "terkep", mondat: "Kinyílt a kert! Nézzük meg!" },
+  het:         { hol: "odu", ragyog: ["#het-odu"], mondat: "Nézd, a falon ott a heti kártyád! Minden gyakorlós napon kap egy pecsétet." },
+  harmat:      { hol: "terkep", ragyog: ['.terkep-hely[data-id="utca"] .hb'],
+                 mondat: function (p) { return "Nézd, mennyi harmatot gyűjtöttél: " + (p.tunderharmat || 0) + " cseppet! Ezt a kitartásodért kaptad. A boltban kerti trükköket vehetünk érte!"; } },
+  unikornisok: { hol: "terkep", ragyog: ["#fomenu-vissza"], mondat: "Felébredtek a barátaim! Velük is játszhatsz: koppints a Váltás gombra!" },
+  fodrasz:     { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a fodrászat!" },
+  felhokert:   { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a felhőkert!" },
+  bank:        { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a tündérbank!" },
+  frissites:   { hol: "utca", utcaHiv: 1, ragyog: ["#utca-bolt"], mondat: "Új polcok vannak a Csillagboltban! Nézzük meg!" }
+};
+var NYITAS_UTCA_HIV = "Nézd, valami kinyílt az utcán!";
 
 /* ── pult-beállítás: { menet: true (be) | false (ki: minden nyitva) | — (automatikus), osztaly: 1–6 } ── */
 function nyitasBeallOsszevon(egyeni, csoportok) {
@@ -95,6 +118,7 @@ function nyitasNormal(p) {
   ["nyilt", "napok", "lat", "sor", "hiv", "hivM"].forEach(function (k) { if (!r[k] || typeof r[k] !== "object" || Array.isArray(r[k])) r[k] = {}; });
   if (!Array.isArray(r.fel)) r.fel = [];
   if (typeof r.fv !== "number") r.fv = 0;
+  if (typeof r.tv !== "number") r.tv = 0;   /* hány pályavégét látta már tojás nélkül (nyitasTojasVar) */
   if (typeof r.elakad !== "number") r.elakad = null;
 }
 function nyitasRekordKeres(profilok) {
@@ -199,6 +223,60 @@ function nyitasLiget(id) {
 }
 /* egy játékhely ébren van-e (3. kör: utca, kert, fodrász…) — menet nélkül mindig */
 function nyitasEbren(id) { var m = nyitasMenet(); return !m || m.r.nyilt[id] != null; }
+/* egy játékhely állapota: "alszik" (még nem nyílt ki) · "ebred" (kinyílt, de a gyerek még nem látta a nyílását) · null (ébren) */
+function nyitasHely(id) {
+  var m = nyitasMenet(); if (!m) return null;
+  if (m.r.nyilt[id] == null) return "alszik";
+  return m.r.lat[id] ? null : "ebred";
+}
+function nyitasHelyLatta(id) { var m = nyitasMenet(); if (m && m.r.nyilt[id] != null && !m.r.lat[id]) { m.r.lat[id] = 1; ment(); } }
+/* 💧 rejtett zseb (tervlap 2.): az újonc harmatja az 1. naptól gyűlik, de a „harmat” napjáig sehol nem látszik */
+function nyitasHarmatRejtett() { var m = nyitasMenet(); return !!m && m.r.nyilt.harmat == null; }
+/* a nyílás mondata ezen a képernyőn (hol: "terkep" | "odu" | "utca"): { id, b } vagy null. A térképen az utcára hívás
+   ({ id, b, hiv: 1 }) csak egyszer szól (lat["t:" + id]); maga a ház az utcán ébred. */
+function nyitasBemutatKell(hol) {
+  var m = nyitasMenet(); if (!m) return null;
+  var r = m.r, ki = null;
+  Object.keys(NYITAS_BEMUTAT).forEach(function (id) {
+    var b = NYITAS_BEMUTAT[id];
+    if (ki || r.nyilt[id] == null || r.lat[id] || id === "utca" || id === "kert") return;
+    if (b.hol === hol) ki = { id: id, b: b };
+    else if (hol === "terkep" && b.utcaHiv && !r.lat["t:" + id]) ki = { id: id, b: { ragyog: ['.terkep-hely[data-id="utca"] .hb'], mondat: NYITAS_UTCA_HIV }, hiv: 1 };
+  });
+  return ki;
+}
+function nyitasBemutatLatta(k) {
+  var m = nyitasMenet(); if (!m || !k) return;
+  m.r.lat[k.hiv ? "t:" + k.id : k.id] = 1; ment();
+}
+/* a térkép: van-e még meg nem nézett nyílás az utcán (addig az utca világít) */
+function nyitasUtcaVar() {
+  var m = nyitasMenet(); if (!m) return false;
+  return Object.keys(NYITAS_BEMUTAT).some(function (id) { return NYITAS_BEMUTAT[id].utcaHiv && m.r.nyilt[id] != null && !m.r.lat[id]; });
+}
+/* 🥚 az újoncnál a tojás nem az első, hanem a második végigjátszott pálya végén kerül elő (tervlap 4.④): az első után a Bolt jön.
+   leny.js lenyPalyaVege hívja, amíg még nincs lény; igaz = még várjon. */
+function nyitasTojasVar() {
+  var m = nyitasMenet(); if (!m) return false;
+  m.r.tv++;
+  return m.r.tv < 2;
+}
+/* 🐉 a sárkány napja (a tojás kikel, a fióka elröppen): ezen a napon más nem nyílik. Nem fix nap, hanem a lény állapota szerint:
+   ha a tojás egy nappal később került elő, vele tolódik minden. Az egyszer sárkány-napnak ítélt nap az is marad
+   (r.napok[nap] = "sarkany"), különben a kikelés után még aznap nyílna valami. */
+function nyitasSarkanyNap(m, nap) {
+  if (typeof lenyTar !== "function") return false;
+  var l = lenyTar(m.p), gy = m.r.g0 + nap;
+  if (l.fazis === "tojas") return gy - (l.t || 0) >= LENY_NAP.tojas - 1;
+  if (l.fazis === "fioka") return gy === l.t || gy - l.t >= LENY_NAP.fioka;
+  if (l.fazis === "kaland") return gy === l.t;
+  return false;
+}
+/* a napi kiemelt pálya (mentes.js) az újoncnál egy világító helyről legyen, ne csalogasson a nyitva hagyott könnyebbekre */
+function nyitasNapiJelolt(pa) {
+  var m = nyitasMenet(); if (!m) return true;
+  return !nyitasPalyaAlszik(pa) && nyitasLiget(palyaLiget(pa)) === "vil";
+}
 
 /* a liget számolós pályái sorban (a vers-pályák nélkül — azok nem részei a sornak); a sorrend a PALYAK-é, mint a kártyáké */
 function nyitasLigetPalyai(lg, o) {
@@ -275,6 +353,7 @@ function nyitasKovetkezo(m, nap, van) {
     var id = NYITAS_NAPOK[i][0];
     if (r.nyilt[id] != null) continue;
     if (id === "bank" && !(m.p.csillampor > 0 && m.p.tunderharmat > 0)) continue;   /* csak ha ✨ és 💧 is gyűlik */
+    if (id === "utca" && !(gyakNap(m.p) > r.g0)) return null;   /* az 1. napon előbb az első pálya, utána nyílik az utca */
     return NYITAS_NAPOK[i][1] <= nap ? id : null;
   }
   return null;
@@ -287,9 +366,12 @@ function nyitasFrissit(van) {
   NYITAS_TANULO.forEach(function (id) {
     if (r.fel.indexOf(id) < 0 && nyitasLigetAllapot(r, m.sor, id, eg) === "vil" && nyitasLigetMegy(m.p, id, m.o)) { r.fel.push(id); r.fv++; valt = true; }
   });
-  if (r.napok[nap] == null && !NYITAS_SARKANY_NAP[nap]) {
-    var id = nyitasKovetkezo(m, nap, van || {});
-    if (id) { r.napok[nap] = id; r.nyilt[id] = nap; valt = true; }
+  if (r.napok[nap] == null) {
+    if (nyitasSarkanyNap(m, nap)) { r.napok[nap] = "sarkany"; valt = true; }
+    else {
+      var id = nyitasKovetkezo(m, nap, van || {});
+      if (id) { r.napok[nap] = id; r.nyilt[id] = nap; valt = true; }
+    }
   }
   if (valt) ment();
   return NYITAS_TANULO.filter(function (id) {

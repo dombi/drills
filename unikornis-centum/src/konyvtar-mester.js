@@ -74,7 +74,7 @@ function ekMesterVege(tek, jo, fid, idoMp) {
     var lista = ekKockaLista(), uj = lista.length > elotte.length;
     $("vege-szoveg").innerHTML = '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, uj ? lista.length - 1 : -1) + '</div>' +
       '<b>🏅 Mesterpróba kész!</b> Ez a kocka a tiéd: <b>' + tek.kockaIkon + " " + kiiras(tek.kockaNev) + '</b><br>' +
-      '<b>+' + cs + ' ✨</b> csillámpor · <span style="color:#2f7fb0;font-weight:800">💧 +' + h + ' tündérharmat</span><br>' +
+      '<b>+' + cs + ' ✨</b> csillámpor<span class="harmat-jel"> · <span style="color:#2f7fb0;font-weight:800">💧 +' + h + ' tündérharmat</span></span><br>' +
       '<span class="ek-vege">🏰 ' + (lista.length >= EK_KOCKAK.length ? "Kész a Kockavár!" : lista.length + " kocka a várban") + '</span>';
     konfettiSzor(); hangVege();
     mutat("kepernyo-vege");

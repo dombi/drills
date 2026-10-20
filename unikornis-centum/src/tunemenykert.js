@@ -110,7 +110,7 @@ function tkKapu() {
 
 /* ── felhőlépcső az utca-hubon (jobb fönt, a hold túloldalán) ── */
 function tkLepcsoSVG() {
-  var k = tkKapu(); if (!k) return "";
+  var k = tkKapu(); if (!k || nyitasHely("felhokert") === "alszik") return "";   /* 🚪 újonc: a felhőkert a 8. naptól (nyitas.js) */
   var g = '<g id="utca-felhokert" class="utca-epulet tk-lepcso' + (k.nyitva ? "" : " alszik") + '">';
   g += '<rect x="300" y="36" width="100" height="214" fill="transparent"/>';
   /* lépcsőfokok: kis felhők a földtől a szigetig */

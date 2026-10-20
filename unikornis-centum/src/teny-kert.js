@@ -733,6 +733,7 @@ function tvkSzomjasE() { return tvkSzomj() > 0 && tvkVanVirag(); }
 /* ── locsolás (a közeli kép alján) ── */
 function tvkLocsolGomb() {
   if (!TVK.kTovek.length) return "";
+  if (nyitasHarmatRejtett()) return "";   /* 🚪 újonc: a harmat még a rejtett zsebben van (nyitas.js) */
   if (tenyKertTar().loc === tenyNap()) return '<span class="tvk-locsol-kesz">Ma már jóllaktak. Holnap újra örülnek a harmatnak! 💚</span>';
   if ((P().tunderharmat || 0) < TVK_LOCSOL_AR) return '<span class="tvk-locsol-kesz">Egy ösvény után lesz harmatod, és akkor locsolhatunk! 💧</span>';
   return '<button type="button" id="tvk-locsol" class="tvk-locsol">💧 Locsolás</button>';

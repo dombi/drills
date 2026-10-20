@@ -182,9 +182,9 @@ function hetDb(p, k) { var v = visszaTar(p).het[k == null ? hetAzon() : k]; retu
 /* a hír-sor forrása: a ma ütött pecsét egyszer szól */
 function hetHirek() {
   var u = HET_UJ;
-  if (!u || u.mondva || u.nap !== tenyNap()) return [];
+  if (!u || u.mondva || u.nap !== tenyNap() || !nyitasEbren("het")) return [];   /* 🚪 újonc: a heti kártya a 4. naptól látszik */
   u.mondva = 1;
-  if (u.teljes) return [{ t: "🌟 Teljes hét a heti kártyán! +" + HET_TELJES_HARMAT + " 💧", szin: "#b0417a" }];
+  if (u.teljes) return [{ t: "🌟 Teljes hét a heti kártyán!" + (nyitasHarmatRejtett() ? "" : " +" + HET_TELJES_HARMAT + " 💧"), szin: "#b0417a" }];
   return [{ t: u.n > HET_TELJES ? "🌈 Ráadás-pecsét a heti kártyán!" : "🐾 Új pecsét a heti kártyán!", szin: "#b0417a" }];
 }
 

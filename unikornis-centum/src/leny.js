@@ -71,6 +71,7 @@ function lenyTojasAll(l) { return erik(l, LENY_TOJAS_LEPCSO.slice(0, LENY_NAP.to
 function lenyPalyaVege(ujNap) {
   var l = lenyTar(), ma = tenyNap();
   if (!l.fazis) {
+    if (nyitasTojasVar()) return;   /* 🚪 újonc: a tojás a második végigjátszott pálya végén kerül elő, előbb a Bolt (nyitas.js) */
     l.fazis = "tojas"; l.faj = "sarkany"; l.t = gyakNap(); l.lelet = 0;
     l.hir = { nap: ma, tip: "lelet" };
     return;

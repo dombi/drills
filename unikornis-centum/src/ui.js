@@ -3,6 +3,7 @@ function mutat(id) {
   var volt = document.querySelector(".kepernyo.aktiv");
   if (volt) volt.classList.remove("aktiv");
   $(id).classList.add("aktiv");
+  document.body.classList.toggle("harmat-rejtett", nyitasHarmatRejtett());   /* 💧 újonc: a harmat a „harmat” napjáig nem látszik (nyitas.js) */
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
   if (id === "kepernyo-vege") vegeGombok();
   megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
@@ -10,8 +11,17 @@ function mutat(id) {
 }
 function renderProfil() {
   var lista = $("profil-lista"); lista.innerHTML = "";
+  var ny = nyitasMenet(), alszik = ny && nyitasHely("unikornisok") === "alszik";   /* 🚪 újonc: a többi unikornis az első két hétben alszik */
   LENY_SORREND.forEach(function (k) {
     var c = LENYEK[k], p = mentes.profilok[k];
+    if (alszik && k !== ny.k) {
+      var ak = el("div", "profil-kartya ny-alvo-barat");
+      ak.innerHTML = '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' + unikornisSVG("p" + k, c, 0.9, p.oltozet, p.kinezet || null) + '</svg>' +
+        '<div class="nev">' + c.nev + '</div><div class="adat">💤</div>';
+      ak.addEventListener("click", function () { hangGomb(); mondd(NYITAS_MONDAT.barat); });
+      lista.appendChild(ak);
+      return;
+    }
     var keszDb = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x) && p.palyak[x.id] && p.palyak[x.id].kesz; }).length;
     var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x); }).length;
     var jelvDb = Object.keys(p.jelvenyek || {}).length;
@@ -101,8 +111,26 @@ function bemutat(kulcs) {
         e.classList.add("bemutat-ragyog"); setTimeout(function () { e.classList.remove("bemutat-ragyog"); }, 6500);
       });
     });
-    mondd(b.mondat);
+    mondd(typeof b.mondat === "function" ? b.mondat(P()) : b.mondat);
   }, 900);
+}
+/* 🚪 újonc-menet: ha ezen a képernyőn ma kinyílt valami, az unikornis egyszer elmondja, és a hely felragyog (nyitas.js NYITAS_BEMUTAT).
+   hol: "terkep" | "odu" | "utca". Igaz, ha szólt (akkor más bemutatás ne szóljon egyszerre). */
+function nyitasJelenet(hol, kepernyo) {
+  var k = nyitasBemutatKell(hol); if (!k) return false;
+  var leny = mentes.leny;
+  nyitasBemutatLatta(k);
+  setTimeout(function () {
+    if (!$(kepernyo).classList.contains("aktiv") || mentes.leny !== leny) return;
+    (k.b.ragyog || []).forEach(function (sel) {
+      Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) {
+        e.classList.add("bemutat-ragyog"); setTimeout(function () { e.classList.remove("bemutat-ragyog"); }, 6500);
+      });
+    });
+    mondd(typeof k.b.mondat === "function" ? k.b.mondat(P()) : k.b.mondat);
+    if (k.id === "harmat") document.body.classList.remove("harmat-rejtett");   /* most bukkan elő a zsebből */
+  }, 900);
+  return true;
 }
 /* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
 function vegeGombok() {
@@ -159,7 +187,7 @@ function ligetOsszegzo(r, lista) {
     if (bankPalyaNyit(pa.id)) j.bank = true;
   });
   var jelzes = [];   /* fontossági sorrend (tervlap 2.): 💧 napi → 💖 ajánlott → 🏦 bank → 💖 egyéni */
-  if (j.napi) jelzes.push("💧");
+  if (j.napi && !nyitasHarmatRejtett()) jelzes.push("💧");
   if (j.ajanlott) jelzes.push("💖");
   if (j.bank) jelzes.push("🏦");
   if (r === "egyeni" && jelzes.indexOf("💖") < 0) jelzes.push("💖");
@@ -199,7 +227,7 @@ function renderFomenu() {
     var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (alszikNy ? " ny-alszik" : "") + (elfogyott ? " elfogyott" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
       + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : "") + (!zarva && nyitasPalyaVilagit(pa) ? " ny-vilagit" : ""));
     var napiBadge = napiEz
-      ? '<div class="napi-badge">' + (_napiKesz ? "✓" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
+      ? '<div class="napi-badge">' + (_napiKesz ? "✓" : nyitasHarmatRejtett() ? "⭐" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
       : "";
     var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
     if (ajanlott) kart.classList.add("ajanlott");
@@ -228,11 +256,12 @@ function renderFomenu() {
       e.stopPropagation(); hangGomb();
       var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
         " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
-      if (ajanlott) mondat += " Ezt most neked ajánlom! Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.";
+      var rejt = nyitasHarmatRejtett();   /* 💧 újonc: a harmatot még nem emlegetjük */
+      if (ajanlott) mondat += " Ezt most neked ajánlom!" + (rejt ? "" : " Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.");
       if (pa.teny) mondat += " Ezt az ösvényt a tündérek mindig a te feladataidból rakják össze, minden alkalommal újat!";
       else if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
       if (bankos) mondat += " Ha végigviszed, a Tündérbankban válthatsz!";
-      if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya! Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.";
+      if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya!" + (rejt ? "" : " Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.");
       if (kuldKertPalya(pa.id)) mondat += " Ezt kéri a kis sárkány!";
       mondd(mondat);
     });

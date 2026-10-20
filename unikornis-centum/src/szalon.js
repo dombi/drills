@@ -199,7 +199,7 @@ function utcaSVG(mod) {
   L.lampak.forEach(function (p) { s += utcaLampa(p[0], p[1]); });
   /* a házak hátulról előre (az álló elrendezésben az első sor takarja a hátsót) */
   var H = L.hazak, sor = [
-    [H.fodrasz, utcaHely("utca-fodrasz", H.fodrasz, 54, utcaFodraszRajz(!P().szalon.nyitva, uni), "fodrász")],
+    [H.fodrasz, utcaHely("utca-fodrasz", H.fodrasz, 54, utcaFodraszRajz(!P().szalon.nyitva && nyitasHely("fodrasz") !== "alszik", uni), "fodrász")],
     [H.bolt, utcaHely("utca-bolt", H.bolt, 150, utcaBoltRajz(), "csillagbolt")],
     [H.kut, utcaKutRajz(H.kut[0], H.kut[1], H.kut[2])],
     [H.pad, utcaPadRajz(H.pad[0], H.pad[1], H.pad[2])],
@@ -232,7 +232,70 @@ function utcaNyit() {
   mutat("kepernyo-utca");
   renderUtca();   /* a képernyő már látszik: a mérete dönti el az elrendezést */
   tkElokeszit();   /* első alkalommal betölti a felhőkert beállításait (utána magától újrarajzol) */
-  bemutat("ujoncBoltUtca");   /* 🚪 újonc: a Bolt felragyog (ui.js) */
+  if (!utcaNyitasJelenet()) bemutat("ujoncBoltUtca");   /* 🚪 újonc: ma nyílt itt valami — különben az első napon a Bolt felragyog (ui.js) */
+}
+/* ── 🚪 ÚJONC-MENET (Újonc-bevezetés 3. kör, rajzterv 4.): az alvó ház sötét, zárt fa spalettával, rajta alvó hold-tábla;
+   amikor sorra kerül (nyitas.js), a spaletta kinyílik, felgyullad a fény, csillagok pattannak: „Kinyílt a fodrászat!” ── */
+var UTCA_ALVO = { fodrasz: ["52", "58"], bank: ["68", "70"] };   /* a ház ablakainak mérete a régi rajzon — ezekre kerül spaletta */
+function utcaSpalettaSVG(x, y, w, h) {   /* két fa spalettaszárny egy ablakra (a ház saját egységeiben), szívvel */
+  var f = w / 2 + 1, sw = Math.max(.8, w * .03), lec = function (x0) {
+    var s = "";
+    for (var i = 1; i < 5; i++) s += '<path d="M' + (x0 + 2) + ' ' + (y + h * i / 5) + 'h' + (f - 4) + '" stroke="#c99f72" stroke-width="' + sw + '"/>';
+    return s;
+  }, sziv = function (cx) { var r = w * .07; return '<path d="M' + cx + ' ' + (y + h * .32) + 'c' + (-r) + ' ' + (-r * 1.3) + ' ' + (-r * 2.4) + ' ' + (r * .2) + ' 0 ' + (r * 1.9) + 'c' + (r * 2.4) + ' ' + (-r * 1.7) + ' ' + r + ' ' + (-r * 3.2) + ' 0 ' + (-r * 1.9) + 'z" fill="#7a5638" opacity=".55"/>'; };
+  return '<g class="u-spaletta">' +
+    '<g class="spal bal"><rect x="' + (x - 1) + '" y="' + y + '" width="' + f + '" height="' + h + '" rx="2" fill="#efd2aa" stroke="#8a6248" stroke-width="' + sw * 1.4 + '"/>' + lec(x - 1) + sziv(x - 1 + f / 2) + '</g>' +
+    '<g class="spal jobb"><rect x="' + (x + w / 2) + '" y="' + y + '" width="' + f + '" height="' + h + '" rx="2" fill="#efd2aa" stroke="#8a6248" stroke-width="' + sw * 1.4 + '"/>' + lec(x + w / 2) + sziv(x + w / 2 + f / 2) + '</g></g>';
+}
+function utcaHoldTabla(cx, y) {   /* kis alvó hold-tábla a ház elején (utca-koordinátában) */
+  return '<g class="u-holdtabla" transform="translate(' + cx + ' ' + y + ')" pointer-events="none">' +
+    '<path d="M-10 -20L0 -30L10 -20" fill="none" stroke="#e6dcf5" stroke-width="1.8"/><circle cy="-30" r="2" fill="#e6dcf5"/>' +
+    '<circle r="15" cy="-6" fill="#f6f0ff" stroke="#b9a3e3" stroke-width="2.4"/>' +
+    '<path transform="translate(1 -6) scale(.78)" d="M-8 -10A11 11 0 1 0 4 8A8 8 0 1 1 -8 -10Z" fill="#9a7fd6"/>' +
+    '<text x="14" y="-18" font-size="11" font-weight="700" fill="#cfd6ff">z' + ltAnim("opacity", "0;1;0", "2.4s") + '</text>' +
+    '<text x="21" y="-27" font-size="9" font-weight="700" fill="#cfd6ff">z' + ltAnim("opacity", "0;1;0", "2.4s", ' begin=".6s"') + '</text></g>';
+}
+function utcaAlszik(svg, id) {
+  var haz = svg.querySelector("#utca-" + id); if (!haz) return;
+  haz.classList.add("u-alszik");
+  haz.querySelectorAll('rect[width="' + UTCA_ALVO[id][0] + '"][height="' + UTCA_ALVO[id][1] + '"]').forEach(function (r) {
+    if (r.closest("clipPath")) return;
+    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.innerHTML = utcaSpalettaSVG(+r.getAttribute("x"), +r.getAttribute("y"), +r.getAttribute("width"), +r.getAttribute("height"));
+    r.parentNode.insertBefore(g.firstChild, r.nextSibling);
+  });
+  var H = (UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles).hazak[id], t = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  t.innerHTML = utcaHoldTabla(H[0] + 26 * H[2], H[1] - 30 * H[2]);   /* a ház elején, az ablak alatt */
+  t.firstChild.setAttribute("data-haz", id);
+  haz.parentNode.insertBefore(t.firstChild, haz.nextSibling);   /* a ház mellé, hogy a sötétítés ne hasson rá */
+}
+function utcaEbred(svg, id, mondat) {
+  var haz = svg.querySelector("#utca-" + id); if (!haz || !haz.classList.contains("u-alszik")) return;
+  var H = (UTCA_ELR[UTCA_ELR_MOST] || UTCA_ELR.szeles).hazak[id];
+  haz.classList.add("u-ebred"); haz.classList.remove("u-alszik");
+  haz.querySelectorAll(".spal").forEach(function (s) { s.classList.add("nyit"); });
+  var tb = svg.querySelector('.u-holdtabla[data-haz="' + id + '"]'); if (tb) tb.style.opacity = 0;
+  setTimeout(function () {
+    if (!svg.isConnected) return;
+    haz.classList.add("u-vil");
+    var r = document.createElementNS("http://www.w3.org/2000/svg", "g"); r.setAttribute("pointer-events", "none");
+    r.innerHTML = '<g transform="translate(' + H[0] + ' ' + (H[1] - 90 * H[2]) + ')"><g class="ny-robban">' +
+      [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { var a = i * Math.PI / 4; return csillagSVG(Math.cos(a) * 52, Math.sin(a) * 48, 6, i % 2 ? "#ffd24d" : "#ffffff"); }).join("") + '</g></g>';
+    svg.appendChild(r); setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 1200);
+    hangCsilla(); mondd(mondat);
+  }, nyugiMod() ? 0 : 900);
+}
+/* az utcán ma nyílt dolog: a ház spalettája kinyílik / a felhőkert-lépcső, a Bolt felragyog. Igaz, ha szólt. */
+function utcaNyitasJelenet() {
+  var k = nyitasBemutatKell("utca"); if (!k) return false;
+  if (UTCA_ALVO[k.id]) {
+    var svg = document.querySelector("#utca-szinter svg"); if (!svg) return false;
+    nyitasHelyLatta(k.id);
+    setTimeout(function () { if ($("kepernyo-utca").classList.contains("aktiv")) utcaEbred(svg, k.id, k.b.mondat); }, 500);
+    return true;
+  }
+  if (k.id === "felhokert" && !$("utca-felhokert")) { nyitasHelyLatta(k.id); return false; }   /* a felhőkertet a pult nem kapcsolta be: csendben */
+  return nyitasJelenet("utca", "kepernyo-utca");
 }
 function utcaKot(id, fn) { var g = document.getElementById(id); if (g) { g.style.cursor = "pointer"; g.addEventListener("click", fn); } }
 function renderUtca() {
@@ -241,6 +304,8 @@ function renderUtca() {
   var host = $("utca-szinter"); if (!host) return;
   UTCA_ELR_MOST = utcaMod(host.clientWidth, host.clientHeight);
   host.innerHTML = utcaSVG(UTCA_ELR_MOST);
+  var usvg = host.querySelector("svg");   /* 🚪 újonc: ami még nem nyílt ki (vagy most nyílik), zárt spalettával alszik */
+  Object.keys(UTCA_ALVO).forEach(function (id) { if (nyitasHely(id)) utcaAlszik(usvg, id); });
   utcaKot("utca-fodrasz", utcaFodraszKoppint);
   utcaKot("utca-bolt", function () { hangGomb(); utcaBoltNyit(); });
   utcaKot("utca-kut", function () {   /* ⛲ csak egy kedves apróság: magasabbra szökik a víz */
@@ -255,7 +320,7 @@ function renderUtca() {
     a.style.display = "none"; e.style.display = "";
     clearTimeout(renderUtca._cica); renderUtca._cica = setTimeout(function () { a.style.display = ""; e.style.display = "none"; }, 2600);
   });
-  utcaKot("utca-bank", function () { hangGomb(); bankNyit(); });
+  utcaKot("utca-bank", function () { hangGomb(); if (nyitasHely("bank") === "alszik") { mondd(NYITAS_MONDAT.bank); return; } bankNyit(); });
   utcaKot("utca-felhokert", tkLepcsoKoppint);
   utcaKot("utca-portal", utcaTavozik);
   utcaKot("utca-portal-terkep", utcaTavozik);
@@ -312,6 +377,7 @@ function utcaBoltNyit() {
 }
 function utcaFodraszKoppint() {
   hangGomb();
+  if (nyitasHely("fodrasz") === "alszik") { mondd(NYITAS_MONDAT.fodrasz); return; }   /* 🚪 újonc: zárt spaletta (nyitas.js) */
   if (P().szalon.nyitva) { szalonNyit(); return; }
   if (P().csillampor < SZALON_BELEPO_AR) { mondd("A szalon belépő 150 csillagpor. Gyűjts még matekozással!"); return; }
   UTCA_MOD = "megerosit-belepo"; renderUtca();
@@ -373,7 +439,8 @@ function szalonKefeSVG(id, x, jel, megvan, aktiv) {
   g += '<rect x="' + (x - 16.5) + '" y="60" width="33" height="46" fill="transparent"/>';   /* koppintó-felület */
   g += '<rect x="' + (x - 15) + '" y="66" width="30" height="30" rx="8" fill="' + (aktiv ? "#fff6a8" : "#ffffff") + '" stroke="' + (aktiv ? "#2f8f57" : "#8a4fd0") + '" stroke-width="' + (aktiv ? 2.4 : 1.5) + '"/>';
   g += jel.charAt(0) === "<" ? jel : '<text x="' + x + '" y="87" text-anchor="middle" font-size="15">' + jel + '</text>';
-  if (!megvan) g += '<rect x="' + (x - 15) + '" y="96" width="30" height="11" rx="5.5" fill="#1a2340" opacity="0.85"/><text x="' + x + '" y="104.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#7fd6ec">12 💧</text>';
+  if (!megvan) g += '<rect x="' + (x - 15) + '" y="96" width="30" height="11" rx="5.5" fill="#1a2340" opacity="0.85"/><text x="' + x + '" y="104.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#7fd6ec">' +
+    (nyitasHarmatRejtett() ? (P().szalon.kefeAjandek ? "💤" : "🎁") : "12 💧") + '</text>';   /* 🚪 újonc: a harmat még rejtett → az első kefe ajándék */
   return g + '</g>';
 }
 /* kis ikon a rész-gombon: a rész formája a jelenlegi festékkel (festetlenül a saját alapszínével) */
@@ -544,6 +611,11 @@ function szalonSVG() {
     '<circle cx="33" cy="277" r="2" fill="#e6c23a"/><circle cx="45" cy="283" r="2.4" fill="#e6c23a"/><circle cx="48" cy="275" r="1.5" fill="#e6c23a"/>' +
     '<text x="62" y="284" font-size="8.5" font-weight="800" fill="#5a3a90">lemosó</text></g>';
 
+  /* 🚪 újonc (tervlap 4.⑤): a fodrász nyílásakor csak a forma (kefék) él; a festék a harmattal, a lakk és a szőrfesték
+     a frissítések napján ébred — addig zárt spaletta van előttük (nyitas.js) */
+  if (nyitasHarmatRejtett()) s += szalonAlvo(8, 48, 100, 214);
+  if (nyitasHely("frissites") === "alszik") s += szalonAlvo(114, 2, 184, 58) + szalonAlvo(301, 2, 97, 58);
+
   /* kefék a pulton (1. fázis) */
   s += '<rect x="292" y="108" width="104" height="7" rx="2" fill="#b06fd0"/>';
   s += szalonKefeSVG("szalon-kefe-gondor", 311, "🌀", szalonKefeVan("gondor"), most === "gondor");
@@ -576,6 +648,11 @@ function szalonSVG() {
   s += '</svg>';
   return s;
 }
+function szalonAlvo(x, y, w, h) {   /* zárt spaletta egy polc / szekrény előtt, rajta kis alvó hold (koppintásra: „Ez még alszik…”) */
+  return '<g class="szalon-alvo">' + utcaSpalettaSVG(x, y, w, h) +
+    '<g transform="translate(' + (x + w / 2) + ' ' + (y + Math.min(h / 2, 40)) + ') scale(.7)"><circle r="13" fill="#f6f0ff" stroke="#b9a3e3" stroke-width="2.4"/>' +
+    '<path transform="translate(1 0) scale(.7)" d="M-8 -10A11 11 0 1 0 4 8A8 8 0 1 1 -8 -10Z" fill="#9a7fd6"/></g></g>';
+}
 /* vásárlás-ablak: festékfolt / lakkos pata + „Megveszed?” (vagy kedves mondat, ha kevés a 💧) */
 function szalonDlgHTML() {
   var lakk = SZALON_DLG_T === "lakk", szor = SZALON_DLG_T === "szor", f = szor ? SZOR_BY[SZALON_DLG] : lakk ? LAKK_BY[SZALON_DLG] : FESTEK_BY[SZALON_DLG]; if (!f) return "";
@@ -601,7 +678,7 @@ function szalonNyit() {
   try { speechSynthesis.cancel(); } catch (e) {}
   figyelStop();
   szalonProbaVege(); SZALON_SOPRES = null; SZALON_ZAR = false;
-  SZALON_ECSET = null; SZALON_LAKK = null; SZALON_SZOR = null; SZALON_DLG = null; SZALON_SZOVEG = "Válassz festéket, lakkot vagy szőrfestéket!";
+  SZALON_ECSET = null; SZALON_LAKK = null; SZALON_SZOR = null; SZALON_DLG = null; SZALON_SZOVEG = nyitasHarmatRejtett() ? "Válassz egy kefét!" : "Válassz festéket, lakkot vagy szőrfestéket!";
   renderSzalon();
   mutat("kepernyo-szalon");
 }
@@ -621,6 +698,7 @@ function renderSzalon() {
   var hp = $("szalon-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("szalon-szinter"); if (!host) return;
   host.innerHTML = szalonSVG() + szalonDlgHTML();
+  host.querySelectorAll(".szalon-alvo").forEach(function (el) { szalonKot(el, function (e) { e.stopPropagation(); hangGomb(); szalonMond(NYITAS_MONDAT.szalon); }); });
   var kg = document.getElementById("szalon-kefe-gondor"); if (kg) szalonKot(kg, function () { szalonKefe("gondor"); });
   var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) szalonKot(ke, function () { szalonKefe("egyenes"); });
   var kt = document.getElementById("szalon-kefe-tarej"); if (kt) szalonKot(kt, function () { szalonKefe("tarej"); });
@@ -649,7 +727,7 @@ function renderSzalon() {
   var igen = $("szalon-dlg-igen"); if (igen) igen.addEventListener("click", szalonFestekVesz);
   var nem = $("szalon-dlg-nem"); if (nem) nem.addEventListener("click", function () { hangGomb(); SZALON_DLG = null; szalonProbaVege(); renderSzalon(); });
   var sugo = $("szalon-sugo");
-  if (sugo) sugo.textContent = SZALON_SZOR ? "Koppints az unikornis testére! 🖌️" : SZALON_LAKK ? "Koppints egy patára! 💅" : SZALON_ECSET === "szivacs" ? "Koppints arra, amit lemosnál! 🧽" : SZALON_ECSET ? "Koppints a sörényre, a farokra vagy a tincsre! 🖌️" : "Koppints egy festékre, egy lakkra, egy szőrfestékre vagy egy kefére! 🎨";
+  if (sugo) sugo.textContent = SZALON_SZOR ? "Koppints az unikornis testére! 🖌️" : SZALON_LAKK ? "Koppints egy patára! 💅" : SZALON_ECSET === "szivacs" ? "Koppints arra, amit lemosnál! 🧽" : SZALON_ECSET ? "Koppints a sörényre, a farokra vagy a tincsre! 🖌️" : nyitasHarmatRejtett() ? "Koppints egy kefére! 👆" : "Koppints egy festékre, egy lakkra, egy szőrfestékre vagy egy kefére! 🎨";
 }
 function szalonMond(t) { SZALON_SZOVEG = t; mondd(t); }
 function szalonTegely(fid) {
@@ -806,6 +884,11 @@ var SZALON_KEFE_SZOVEG = {   /* [már ilyen, buborék, kimondva] */
 function szalonKefe(cel) {
   var most = P().kinezet.frizura || "egyenes", sz = SZALON_KEFE_SZOVEG[cel];
   if (most === cel) { hangGomb(); mondd(sz[0]); return; }
+  if (!szalonKefeVan(cel) && nyitasHarmatRejtett()) {   /* 🚪 újonc: amíg a harmat a rejtett zsebben van, egy kefe ajándék (nyitas.js) */
+    if (P().szalon.kefeAjandek) { hangGomb(); mondd("A többi kefe még alszik. Majd felébresztjük!"); return; }
+    P().szalon.kefeAjandek = 1; P().szalon.kefek[cel] = 1;
+    sz = [sz[0], sz[1], "Ezt a kefét ajándékba kapod! " + sz[2]];
+  }
   if (!szalonKefeVan(cel)) {
     if ((P().tunderharmat || 0) < KEFE_AR) { hangGomb(); mondd("Ehhez a keféhez 12 tündérharmat kell. Gyűjts még kitartással!"); return; }
     P().tunderharmat -= KEFE_AR; vasarlasNaplo("kefe-" + cel, KEFE_AR, "tunderharmat");

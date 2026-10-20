@@ -56,7 +56,7 @@ function hetMost() { return (visszaTar().het[hetAzon()] || []).slice(); }
 function hetVegeMutat() {
   var regi = document.querySelector("#kepernyo-vege .het-vege"); if (regi) regi.parentNode.removeChild(regi);
   var u = HET_UJ, sz = $("vege-szoveg");
-  if (!u || u.nap !== tenyNap() || u.lattaVege || !sz) return;
+  if (!u || u.nap !== tenyNap() || u.lattaVege || !sz || !nyitasEbren("het")) return;   /* 🚪 újonc: a pecsét gyűlik, de a kártya a 4. naptól látszik */
   u.lattaVege = 1;
   var d = document.createElement("div");
   d.className = "het-vege";

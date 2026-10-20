@@ -73,7 +73,7 @@ function kuldTar(p) {
 /* van-e küldetés ennél a gyereknél (hazatért kölyök + pult) */
 function kuldVan() {
   if (typeof P !== "function" || !P()) return false;
-  return lenyTar().fazis === "kolyok" && lenyBeall().kuld;
+  return lenyTar().fazis === "kolyok" && lenyBeall().kuld && nyitasEbren("kolyok");   /* 🚪 újonc: a küldetések is a kölyök napjától */
 }
 
 /* ── a liget fajtái a gyereknél: látszik, nyitva van, nem „hamarosan”, nem kimaradó ── */

@@ -818,13 +818,14 @@ function palyaVege() {
     ? '<br><span style="color:#8a6a1e;font-weight:800">🌟 Teljes ösvény! +' + teljesExtra + ' ✨' + (egyeniP ? '' : ', arany szilánk az égedre') + '</span>'
     : "";
   var napiSor = napiExtra
-    ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya! +' + napiExtra + ' 💧</span>'
+    ? '<br><span style="color:#6a3bc0;font-weight:800">🌟 Napi kiemelt pálya!<span class="harmat-jel"> +' + napiExtra + ' 💧</span></span>'
     : "";
   var ajanlottSor = ajanlottExtra
-    ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya! +' + ajanlottExtra + ' 💧</span>'
+    ? '<br><span style="color:#c0447e;font-weight:800">💖 Neked ajánlott pálya!<span class="harmat-jel"> +' + ajanlottExtra + ' 💧</span></span>'
     : "";
-  var harmatSor ='<br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
-    + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>');
+  /* 💧 class="harmat-jel": az újoncnál a „harmat” napjáig rejtve (style.css body.harmat-rejtett, nyitas.js) */
+  var harmatSor ='<span class="harmat-jel"><br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
+    + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>') + '</span>';
   var kapuSor = kapuMostNyilt
     ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
     : "";
@@ -860,10 +861,11 @@ function palyaVege() {
   if (ekV && ekV.kocka) ekKockaBerepul();           /* 📚 olvasó-polc Mesterpróba: a kocka berepül a Kockavárba */
   if (ekV && ekV.fenyes != null) hangCsilla();      /* 🏅 visszatérő jól: a kocka kifényesedik */
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
-  var buzd = mvMeg ? " " + MV_MEGHIV_MONDAT : kov ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
+  var rejt = nyitasHarmatRejtett();   /* 💧 újonc: a harmatot még nem emlegetjük (nyitas.js) */
+  var buzd = mvMeg ? " " + MV_MEGHIV_MONDAT : kov && !rejt ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
   if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
-  var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya, kaptál plusz " + napiExtra + " tündérharmatot!" : "";
-  var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam, kaptál plusz " + ajanlottExtra + " tündérharmatot!" : "";
+  var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya" + (rejt ? "!" : ", kaptál plusz " + napiExtra + " tündérharmatot!") : "";
+  var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam" + (rejt ? "!" : ", kaptál plusz " + ajanlottExtra + " tündérharmatot!") : "";
   if (bankJegy) ajanlottSzov += " A Tündérbankban most válthatsz!";
   mondd("Megérkeztünk! " + J.futoOssz + " feladatot oldottál meg." + (ekV ? ekV.mondat : "") + napiSzov + ajanlottSzov + (kertV ? kertV.mondat : "") + buzd);
 }

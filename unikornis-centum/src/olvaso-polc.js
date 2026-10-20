@@ -545,7 +545,7 @@ function polcPalyaVege() {
       mesterKocka = true; ujKocka = ekKockaBe(d.kocka); fenyes = kdef ? kdef.var : null;
       P().csillampor += MV_VISSZA_CSILLA; J.futoCsilla += MV_VISSZA_CSILLA;
       P().tunderharmat = (P().tunderharmat || 0) + MV_VISSZA_HARMAT; plusz = MV_VISSZA_HARMAT;
-      html += '<span class="ek-vege">🏅 Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban. ✦' + (fv > 1 ? " " + fv : "") + ' +' + MV_VISSZA_CSILLA + ' ✨ · 💧 +' + MV_VISSZA_HARMAT + '</span>';
+      html += '<span class="ek-vege">🏅 Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban. ✦' + (fv > 1 ? " " + fv : "") + ' +' + MV_VISSZA_CSILLA + ' ✨<span class="harmat-jel"> · 💧 +' + MV_VISSZA_HARMAT + '</span></span>';
       mondat += " Emlékeztél a trükkre! A kockád kifényesedett a Kockavárban.";
       cim = "🏅 Emlékeztél a trükkre!"; sorok.push("✦ A kockád kifényesedett a Kockavárban!" + (fv > 10 ? " Már sokszor sikerült!" : fv > 1 ? " Már " + szorSzo(fv) + "." : ""));
     } else if (vissza) {
@@ -561,7 +561,7 @@ function polcPalyaVege() {
       P().tunderharmat = (P().tunderharmat || 0) + EK_MESTER_HARMAT; plusz = EK_MESTER_HARMAT;
       var lista = ekKockaLista();
       html += '<div class="ek-var-nagy">' + ekKockavarNagySVG(lista, ujKocka ? lista.length - 1 : -1) + '</div>' +
-        '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨ · 💧 +' + EK_MESTER_HARMAT + '</span>';
+        '<span class="ek-vege">🏅 Mesterpróba kész!' + (ujKocka ? " Új kocka repült a Kockavárba!" : " A kockád ott ragyog a Kockavárban.") + ' +' + EK_MESTER_CSILLA + ' ✨<span class="harmat-jel"> · 💧 +' + EK_MESTER_HARMAT + '</span></span>';
       mondat += " Mesterpróba kész!" + (ujKocka ? " Új kocka repült a Kockavárba!" : "");
       cim = "🏅 Mesterpróba kész!"; sorok.push(ujKocka ? "Új kocka repült a Kockavárba!" : "A kockád ott ragyog a Kockavárban.");
     } else if (J.polc && J.polc.nincsMester) {

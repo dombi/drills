@@ -60,7 +60,7 @@ var _ks = null;   /* a futó kíséret: { x, y, nez, oduba, t, el } */
 function lenyKiserVan() {
   if (typeof P !== "function" || !P()) return false;
   var l = lenyTar();
-  return l.fazis === "kolyok" && lenyBeall().kiser;
+  return l.fazis === "kolyok" && lenyBeall().kiser && nyitasEbren("kolyok");   /* 🚪 újonc: a kölyök a menet napján kezd kísérni (nyitas.js) */
 }
 /* az osvenyVaz rajzolja, közvetlenül az unikornis ELÉ a rétegsorban (így az unikornis takarja, ha összeérnek) */
 function lenyKiserSVG(x, y) {

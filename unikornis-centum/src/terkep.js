@@ -354,7 +354,7 @@ function ltNyKod(m) {
     '<ellipse cx="0" cy="' + ltF(-m * .02) + '" rx="' + ltF(m * .72) + '" ry="' + ltF(m * .16) + '" fill="url(#lt-gNyKod)"/></g>';
 }
 /* a hely felébred: a köd felszáll, kigyúl a fény, csillagok pattannak szét, az unikornis odasétál és szól */
-function ltNyEbreszt(M, id, kesz) {
+function ltNyEbreszt(M, id, kesz, mondat) {
   var g = M.svg.querySelectorAll('.terkep-hely[data-id="' + id + '"]'), ikon = g[0], cimke = g[1];
   if (!ikon) return;
   var T = M.T, p = T.helyek[id][M.mod], L = T.elr[M.mod], m = T.helyek[id].magas, kod = ikon.querySelector(".ny-kodfelho");
@@ -370,7 +370,7 @@ function ltNyEbreszt(M, id, kesz) {
       [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { var a = i * Math.PI / 4; return csillagSVG(Math.cos(a) * 46, Math.sin(a) * 40, 6, i % 2 ? "#ffd24d" : "#ffffff"); }).join("") + '</g></g>';
     M.svg.appendChild(r); setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 1200);
     var nev = ltNev(id);
-    mondd("Nézd, felébredt " + nevelo(nev) + " " + nev + "!");
+    mondd(mondat || "Nézd, felébredt " + nevelo(nev) + " " + nev + "!");
     terkepSetal(M, id, kesz);
   }, nyugiMod() ? 0 : 900);
 }
@@ -476,6 +476,15 @@ function renderLigetTerkep(racs, L) {
   });
   jel.kert = { jelzes: (tenyKertVar() ? ["🦋"] : []).concat(lenyKertJel()).concat(kuldKertJel()).slice(0, 2) };   /* + 🌈 a nagy sárkány vár a kertben (leny.js, 5. kör) + 🐉 a kisház darabja vár (kuldetes.js) */   /* 🦋 a kertben új dolog vár (meglepetés, kinyílt virág) — csak egy kedves jel (teny-kert.js) */
   jel.odu = { jelzes: lenyTerkepJel() };                 /* 🥚 / 🦋 / ☁️ a kis lény vár az odúban (kaland.js, visszahívás 4. kör) */
+  /* 🚪 újonc-menet (3. kör): az utca és a kert ködben alszik, amíg ki nem nyílik; ma nyílt → előbb ködben, aztán felébred.
+     Az utca világít, amíg benne valami új vár (fodrász, bank, felhőkert, új polcok). */
+  var hEbred = null;
+  ["utca", "kert"].forEach(function (h) {
+    var a = nyitasHely(h); if (!a) return;
+    if (a === "ebred" && !hEbred) hEbred = h;
+    jel[h] = { ny: "alszik" };
+  });
+  if (!jel.utca && nyitasUtcaVar()) jel.utca = { ny: "vil" };
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
   var hol = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget;
   if (!lathato[hol] || (jel[hol] && jel[hol].ny === "alszik")) hol = "odu";
@@ -483,7 +492,14 @@ function renderLigetTerkep(racs, L) {
   LIGET_M.jel = jel;
   bemutat("terkep");   /* egyszer: „a kertünk mostantól itt van…” (ui.js) */
   if (NYITO.seta) nyitoSeta(LIGET_M);   /* 🚪 az első perc vége: az unikornis a világító helyhez sétál, és segítséget kér (nyitokep.js) */
-  else bemutat("ujoncBolt");            /* 🚪 az újonc első pályája után: „Gyere, vegyünk valamit…” (ui.js) */
+  else if (hEbred) {                    /* 🚪 ma nyílt az utca / a kert: a köd felszáll, az unikornis odasétál */
+    var Mh = LIGET_M;
+    nyitasHelyLatta(hEbred);
+    if (hEbred === "utca") { P().bemutatva.ujoncBolt = 1; ment(); }   /* a „Gyere, vegyünk valamit…” most hangzik el */
+    jel[hEbred] = {};
+    setTimeout(function () { if (LIGET_M === Mh && Mh.svg.isConnected) ltNyEbreszt(Mh, hEbred, null, NYITAS_BEMUTAT[hEbred].mondat); }, 700);
+  }
+  else if (!ebred.length && !nyitasJelenet("terkep", "kepernyo-fomenu")) bemutat("ujoncBolt");   /* 🚪 ma nyílt valami (harmat, barátok, az utcán…) — különben „Gyere, vegyünk valamit…” (ui.js) */
   if (ebred.length) {   /* napi legfeljebb egy — ha mégis több lenne (pult-váltás), az elsőt mutatjuk, a többi csendben ébred */
     var M = LIGET_M, id = ebred[0];
     ebred.forEach(function (r) { nyitasLatta(r); if (r !== id) jel[r].ny = nyitasLiget(r); });
