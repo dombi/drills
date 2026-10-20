@@ -25,6 +25,10 @@
        mérhető pályái, a „megy” is (te választottad), legalább 1 fajta, fajtánként 1–2 hely (kuldUjHelyek) — ekkor
        akt.liget = "kezi", és a 🐉 minden olyan ligeten látszik, ahol kért pálya van (kuldLigetJel). A pult-változás csak a
        következő küldetésre hat; a futót csak az elrejtett pálya igazítja (mint eddig).
+     • 5. kör (2026-10-20): EMLÉK-PRÓBÁK. Ha egy már „menő” pályánál esedékes az emlék-próba (tudas.js tudasEsedekes),
+       a következő küldetésbe csendben visszakerül pontosan 1 helyre (nem kap 2. helyet, nem előz; a 10-es plafonnál egy
+       2. hely helyére jön). Fajtának számít (a ≤ 2 szabálynál is). A próba eredményét a tudás-napló intézi
+       (tudasPalyaVege): a gyerek csak annyit lát, hogy kitöltött egy helyet. A kézi listán a „megy” amúgy is bent van.
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
                         rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
@@ -67,7 +71,7 @@ function kuldFajtak(liget, p) {
   var L = KULD_LIGET[liget]; if (!L) return [];
   return PALYAK.filter(function (pa) {
     return pa.regio === liget && !pa.hamarosan && L.kimarad.indexOf(pa.id) < 0 && !palyaRejtve(pa) && !palyaZarva(pa);
-  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p), esed: tudasEsedekes(pa.id, p) }; });
 }
 /* kimaradó (nem mérhető / nem kötelező) pálya-e bármelyik ligetben — a kézi listából is kimarad */
 function kuldKimarad(id) {
@@ -77,7 +81,7 @@ function kuldKimarad(id) {
 function kuldKeziFajtak(ids, p) {
   return PALYAK.filter(function (pa) {
     return ids.indexOf(pa.id) >= 0 && !pa.hamarosan && !kuldKimarad(pa.id) && !palyaRejtve(pa) && !palyaZarva(pa);
-  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p), esed: tudasEsedekes(pa.id, p) }; });
 }
 /* honnan kér segítséget (a kérés-mondat): a liget neve; a kézi listánál a közös liget, ha mind egyből van */
 function kuldHonnan(a) {
@@ -93,18 +97,20 @@ function kuldUjHelyek() {
   var a = kuldOsszeallit(kuldFajtak(b.kuldLiget));
   return a ? { liget: b.kuldLiget, helyek: a } : null;
 }
-/* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy }] a liget sorrendjében.
+/* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy, esed }] a liget sorrendjében.
    Visszaad: [{ p, resz }] (a fajták sorrendjében, fajtánként egymás után), vagy null (≤ 2 fajta: a liget kész).
    Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés).
+   Emlék-próba (5. kör): a „megy”, de esedékes fajta pontosan 1 helyet kap, az elsőbbségi sor végén.
    kezi (a pult listája): a „megy” is bent marad, és 1 fajta is elég. ── */
 function kuldOsszeallit(fajtak, kezi) {
-  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy; });
+  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy || f.esed; });
   if (L.length <= (kezi ? 0 : 2)) return null;
+  var proba = function (f) { return !kezi && f.megy ? 1 : 0; };
   var elso = L.map(function (f, i) { return { f: f, i: i }; }).sort(function (a, b) {
-    return (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
+    return (proba(a.f) - proba(b.f)) || (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
   }).map(function (x) { return x.f.id; });
   if (elso.length > KULD_MAX_HELY) { var bent = elso.slice(0, KULD_MAX_HELY); L = L.filter(function (f) { return bent.indexOf(f.id) >= 0; }); elso = bent; }
-  var db = {}, helyDb = Math.min(KULD_MAX_HELY, 2 * L.length);
+  var prDb = L.filter(proba).length, db = {}, helyDb = Math.min(KULD_MAX_HELY, 2 * L.length - prDb);
   L.forEach(function (f) { db[f.id] = 1; });
   for (var j = 0; j < helyDb - L.length; j++) db[elso[j]] = 2;
   var helyek = [];

@@ -2589,15 +2589,19 @@ function visszaAllapot(p) {
    Terv: terv/sarkany-kuldetesek-rendszerterv.html, 5. szakasz (✅ jóváhagyva 2026-10-17). Sárkány-küldetések 1. kör.
    A játék pályánként feljegyzi, melyik NAPOKON volt tiszta (kerülő nélküli) végigjátszás. Ebből:
      • megy = TUDAS.megyNap (3) KÜLÖNBÖZŐ napon tiszta végigjátszás (egy napon háromszor nem számít háromnak);
-     • fok, esed: az emlék-próbák helye (1 hét → 3 hét → 2 hónap, utána ≈ 4 havonta) — az 5. kód-körben élesedik,
-       addig a „megy” pálya egyszerűen kimarad a küldetésből.
+     • fok, esed: az emlék-próbák (5. kód-kör, 2026-10-20): a „megy” után TUDAS.probaNap (1 hét → 3 hét → 2 hónap), a 3.
+       sikeres próba után „nagyon megy” (fok 3), és TUDAS.nagyonNap (≈ 4 hónap) múlva még visszajön. Esedékességkor az
+       első végigjátszás a próba — akár a küldetés helyén (kuldetes.js visszateszi 1 helyre), akár magától játssza:
+       tiszta → sikerült (fok + 1, új esed); kerülős → a „megy” csendben visszavonódik, és TUDAS.visszaNap új tiszta
+       nap kell (s.vm = "proba"; a pultról jövő visszavonásnál s.vm = "pult"). A gyerek ebből semmit nem lát.
    A gyerek ebből SEMMIT nem lát (nincs szám, nincs minősítés); a küldetés-motor (kuldetes.js), később az intelligens
    pult, a játékadatok és a Neked szóló ösvény olvassa. Mentés: P().tud[palyaId] = { n: [tenyNap…], megy: nap|null,
-   fok: 0..3, esed: nap|null, ut: utolsó végigjátszás napja }.
+   fok: 0..3, esed: nap|null, ut: utolsó végigjátszás napja, pr: az utolsó sikeres emlék-próba napja,
+   vissza / vm: a visszavonás napja és oka }.
    A pult is betöltheti: itt csak függvény-definíció van, a P()-t használók saját tárat is kaphatnak.
    4. kör (2026-10-18): a pult „mégsem megy” gombja (FELULIR.leny.megsem["leny|palyaId"] = időbélyeg) → tudasPultVissza:
    a „megy” csendben visszavonódik, és a kattintás napja UTÁN TUDAS.visszaNap (2) újabb tiszta nap kell (s.vissza = az a
-   nap, s.vk = az átvett időbélyeg, így egy kattintás csak egyszer hat). Ugyanezt használja majd a kerülős emlék-próba. */
+   nap, s.vk = az átvett időbélyeg, így egy kattintás csak egyszer hat). Ugyanezt használja a kerülős emlék-próba (5. kör). */
 
 var TUDAS = { megyNap: 3, visszaNap: 2, probaNap: [7, 21, 60], nagyonNap: 120 };   /* a számok később a pultról állíthatók */
 
@@ -2625,26 +2629,35 @@ function tudasPultVissza(id, p) {
   if (ts <= (s.vk || 0)) return;
   s.vk = ts;
   if (s.megy == null) return;
-  s.megy = null; s.fok = 0; s.esed = null; s.vissza = tenyNap(ts);
+  tudasVisszavon(s, tenyNap(ts), "pult");
 }
+/* a „megy” csendben visszavonódik: a nap UTÁN TUDAS.visszaNap új tiszta nap kell */
+function tudasVisszavon(s, nap, ok) { s.megy = null; s.fok = 0; s.esed = null; s.vissza = nap; s.vm = ok; }
+/* a következő emlék-próba napja a fok-adik sikeres próba után */
+function tudasKovProba(fok, nap) { return nap + (fok < TUDAS.probaNap.length ? TUDAS.probaNap[fok] : TUDAS.nagyonNap); }
 /* hány tiszta nap számít a „megy”-hez: visszavonás után csak az azutáni napok */
 function tudasTisztaNapok(s) { return s.vissza == null ? s.n.length : s.n.filter(function (d) { return d > s.vissza; }).length; }
-/* a palyaVege hívja: teljes = kerülő nélkül ért végig. A nap egyszer számít; a 3. tiszta napon „megy”. */
+/* a palyaVege hívja: teljes = kerülő nélkül ért végig. A nap egyszer számít; a 3. tiszta napon „megy”.
+   Esedékes emlék-próbánál ez a végigjátszás a próba: tiszta → a következő próba később; kerülős → visszavonás. */
 function tudasPalyaVege(id, teljes, p) {
   if (!id) return null;
   tudasPultVissza(id, p);
   var s = tudasSor(id, p), ma = tenyNap();
   s.ut = ma;
+  if (s.megy != null && s.esed != null && s.esed <= ma) {
+    if (teljes) { s.fok = Math.min(s.fok + 1, TUDAS.probaNap.length); s.esed = tudasKovProba(s.fok, ma); s.pr = ma; }
+    else tudasVisszavon(s, ma, "proba");
+  }
   if (!teljes) return s;
   if (s.n.indexOf(ma) < 0) { s.n.push(ma); if (s.n.length > 40) s.n.shift(); }
-  if (s.megy == null && tudasTisztaNapok(s) >= (s.vissza == null ? TUDAS.megyNap : TUDAS.visszaNap)) { s.megy = ma; s.fok = 0; s.esed = ma + TUDAS.probaNap[0]; }
+  if (s.megy == null && tudasTisztaNapok(s) >= (s.vissza == null ? TUDAS.megyNap : TUDAS.visszaNap)) { s.megy = ma; s.fok = 0; s.esed = tudasKovProba(0, ma); }
   return s;
 }
 function tudasMegy(id, p) { tudasPultVissza(id, p); var s = tudasTar(p)[id]; return !!(s && typeof s.megy === "number"); }
 function tudasNapok(id, p) { var s = tudasTar(p)[id]; return s && Array.isArray(s.n) ? s.n.length : 0; }
 function tudasUtolso(id, p) { var s = tudasTar(p)[id]; return s && typeof s.ut === "number" ? s.ut : -1; }
-/* esedékes-e emlék-próba (az 5. kód-körben a küldetés-motor ebből tesz vissza 1 helyet) */
-function tudasEsedekes(id, p) { var s = tudasTar(p)[id]; return !!(s && s.megy != null && typeof s.esed === "number" && s.esed <= tenyNap()); }
+/* esedékes-e emlék-próba (a küldetés-motor ebből tesz vissza 1 helyet) */
+function tudasEsedekes(id, p) { tudasPultVissza(id, p); var s = tudasTar(p)[id]; return !!(s && s.megy != null && typeof s.esed === "number" && s.esed <= tenyNap()); }
 /* ============ 3c4) 🔍 MEGFIGYELŐ NAPLÓ — napi összesítő a pultnak és a jellemzésnek (LÁTHATATLAN) ============
    Terv: Matekos\pult-atrendezes-terv.html 4c. pont (✅ jóváhagyva 2026-10-18; Pult-átrendezés 2a. kör).
    A játék naponta feljegyzi, mit indított a gyerek, mit vitt végig, honnan lépett ki, mennyit játszott, és HOVÁ MENT
@@ -3055,6 +3068,10 @@ function megfigyelesJatek(most) {
        mérhető pályái, a „megy” is (te választottad), legalább 1 fajta, fajtánként 1–2 hely (kuldUjHelyek) — ekkor
        akt.liget = "kezi", és a 🐉 minden olyan ligeten látszik, ahol kért pálya van (kuldLigetJel). A pult-változás csak a
        következő küldetésre hat; a futót csak az elrejtett pálya igazítja (mint eddig).
+     • 5. kör (2026-10-20): EMLÉK-PRÓBÁK. Ha egy már „menő” pályánál esedékes az emlék-próba (tudas.js tudasEsedekes),
+       a következő küldetésbe csendben visszakerül pontosan 1 helyre (nem kap 2. helyet, nem előz; a 10-es plafonnál egy
+       2. hely helyére jön). Fajtának számít (a ≤ 2 szabálynál is). A próba eredményét a tudás-napló intézi
+       (tudasPalyaVege): a gyerek csak annyit lát, hogy kitöltött egy helyet. A kézi listán a „megy” amúgy is bent van.
    Mentés: P().kuld = { akt: { id, tip, liget, helyek: [{ p, resz, kesz, ks }], hozott, felrakva, ks, kezd, hir },
                         kesz: [{ id, nap }], holmi: { agy: [], haz: [], ruha: [] }, kint: { agy, haz },
                         rajta: { nyak, fej, lab, hat }, keres: { op: [id], nap, v } }
@@ -3097,7 +3114,7 @@ function kuldFajtak(liget, p) {
   var L = KULD_LIGET[liget]; if (!L) return [];
   return PALYAK.filter(function (pa) {
     return pa.regio === liget && !pa.hamarosan && L.kimarad.indexOf(pa.id) < 0 && !palyaRejtve(pa) && !palyaZarva(pa);
-  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p), esed: tudasEsedekes(pa.id, p) }; });
 }
 /* kimaradó (nem mérhető / nem kötelező) pálya-e bármelyik ligetben — a kézi listából is kimarad */
 function kuldKimarad(id) {
@@ -3107,7 +3124,7 @@ function kuldKimarad(id) {
 function kuldKeziFajtak(ids, p) {
   return PALYAK.filter(function (pa) {
     return ids.indexOf(pa.id) >= 0 && !pa.hamarosan && !kuldKimarad(pa.id) && !palyaRejtve(pa) && !palyaZarva(pa);
-  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p) }; });
+  }).map(function (pa) { return { id: pa.id, napok: tudasNapok(pa.id, p), ut: tudasUtolso(pa.id, p), megy: tudasMegy(pa.id, p), esed: tudasEsedekes(pa.id, p) }; });
 }
 /* honnan kér segítséget (a kérés-mondat): a liget neve; a kézi listánál a közös liget, ha mind egyből van */
 function kuldHonnan(a) {
@@ -3123,18 +3140,20 @@ function kuldUjHelyek() {
   var a = kuldOsszeallit(kuldFajtak(b.kuldLiget));
   return a ? { liget: b.kuldLiget, helyek: a } : null;
 }
-/* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy }] a liget sorrendjében.
+/* ── A SZABÁLY (tervlap 4. szakasz) — tiszta függvény: fajtak = [{ id, napok, ut, megy, esed }] a liget sorrendjében.
    Visszaad: [{ p, resz }] (a fajták sorrendjében, fajtánként egymás után), vagy null (≤ 2 fajta: a liget kész).
    Elsőbbség (2. hely, több részlet): a legkevesebb tiszta napú, döntetlennél a legrégebben játszott (5. döntés).
+   Emlék-próba (5. kör): a „megy”, de esedékes fajta pontosan 1 helyet kap, az elsőbbségi sor végén.
    kezi (a pult listája): a „megy” is bent marad, és 1 fajta is elég. ── */
 function kuldOsszeallit(fajtak, kezi) {
-  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy; });
+  var L = (fajtak || []).filter(function (f) { return kezi || !f.megy || f.esed; });
   if (L.length <= (kezi ? 0 : 2)) return null;
+  var proba = function (f) { return !kezi && f.megy ? 1 : 0; };
   var elso = L.map(function (f, i) { return { f: f, i: i }; }).sort(function (a, b) {
-    return (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
+    return (proba(a.f) - proba(b.f)) || (a.f.napok - b.f.napok) || (a.f.ut - b.f.ut) || (a.i - b.i);
   }).map(function (x) { return x.f.id; });
   if (elso.length > KULD_MAX_HELY) { var bent = elso.slice(0, KULD_MAX_HELY); L = L.filter(function (f) { return bent.indexOf(f.id) >= 0; }); elso = bent; }
-  var db = {}, helyDb = Math.min(KULD_MAX_HELY, 2 * L.length);
+  var prDb = L.filter(proba).length, db = {}, helyDb = Math.min(KULD_MAX_HELY, 2 * L.length - prDb);
   L.forEach(function (f) { db[f.id] = 1; });
   for (var j = 0; j < helyDb - L.length; j++) db[elso[j]] = 2;
   var helyek = [];

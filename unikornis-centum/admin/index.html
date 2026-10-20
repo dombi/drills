@@ -306,8 +306,8 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/megfigyeles.js?v=20261018-4"></script><!-- 🔍 a gyerek-jellemzés mondatai (🧭 😊 🌳🌿🌱, kártyák, rács-jelek) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/leny-kiser.js?v=20261018-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
-<script src="../src/tudas.js?v=20261018-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
-<script src="../src/kuldetes.js?v=20261018-1"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
+<script src="../src/tudas.js?v=20261020-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
+<script src="../src/kuldetes.js?v=20261020-1"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
@@ -1831,18 +1831,27 @@ function kuldGyerekNezet(uid) {
         var s = tud[pid], n = s.n.slice().sort(function (x, y) { return x - y; }), ts = megsem[k + "|" + pid], var_ = typeof ts === "number" && ts > (s.vk || 0);
         var vissza = typeof s.vissza === "number" ? s.vissza : null;
         var ujN = vissza == null ? n.length : n.filter(function (d) { return d > vissza; }).length;
-        var megy = s.megy != null && !var_ ? '<span class="jo">✅ megy</span> <small class="halvany">' + napDatum(s.megy) + " óta</small>"
+        var fok = typeof s.fok === "number" ? s.fok : 0, nagyon = fok >= TUDAS.probaNap.length;
+        var megy = s.megy != null && !var_ ? '<span class="jo">' + (nagyon ? "🌟 nagyon megy" : "✅ megy") + '</span> <small class="halvany">' + napDatum(s.megy) + " óta</small>"
           : var_ ? "⏳ visszavonva — a játék a következő indításkor átveszi"
-          : vissza != null ? "még nem <small class=\"halvany\">(visszavonva " + napDatum(vissza) + "; " + ujN + "/" + TUDAS.visszaNap + " új tiszta nap)</small>"
+          : vissza != null ? "még nem <small class=\"halvany\">(visszavonva " + napDatum(vissza) + (s.vm === "proba" ? ", emlék-próba kerülővel" : "") + "; " + ujN + "/" + TUDAS.visszaNap + " új tiszta nap)</small>"
           : "még nem <small class=\"halvany\">(" + n.length + "/" + TUDAS.megyNap + " nap)</small>";
         return "<tr><td>" + esc(palyaNev(pid)) + '</td><td class="kicsi">' + (n.length ? n.slice(-6).map(napDatum).join(", ") + (n.length > 6 ? " …" : "") : "–") + "</td><td>" + megy + "</td>" +
-          '<td class="kicsi">' + (s.megy != null && !var_ && typeof s.esed === "number" ? napDatum(s.esed) + ' <small class="halvany">(még nem élesedik)</small>' : "–") + "</td>" +
+          '<td class="kicsi">' + (s.megy != null && !var_ && typeof s.esed === "number" ? emlekProbaSzoveg(s) : "–") + "</td>" +
           "<td>" + (s.megy != null && !var_ ? '<button data-kuld-megsem="' + esc(k + "|" + pid) + '" data-nev="' + esc(lenyNev(k) + " · " + palyaNev(pid)) + '">mégsem megy</button>' : "") + "</td></tr>";
       }).join("") + "</table>";
     }
     h += "</div>";
   });
   return h ? '<div class="kuld-nezet">' + h + "</div>" : '<div class="kicsi halvany">A gyerek tudás-naplója és küldetései még üresek.</div>';
+}
+
+/* a tudás-napló „Emlék-próba” oszlopa: hányadik próba, mikor (tudas.js: fok = a sikeres próbák száma, esed = a következő) */
+function emlekProbaSzoveg(s) {
+  var fok = typeof s.fok === "number" ? s.fok : 0, d = s.esed - tenyNap();
+  var mi = fok >= TUDAS.probaNap.length ? "ismétlő próba" : (fok + 1) + ". próba";
+  var mikor = d <= 0 ? '<b>esedékes</b> <small class="halvany">(a következő küldetésben 1 hely; vagy ha magától játssza)</small>' : napDatum(s.esed) + ' <small class="halvany">(' + d + " nap múlva)</small>";
+  return mi + ": " + mikor + (typeof s.pr === "number" ? '<br><small class="halvany">utolsó sikeres: ' + napDatum(s.pr) + "</small>" : "");
 }
 
 /* a ligetek neve a pálya-táblában (a játék src/ui.js REGIO_CIM-jével egyezik) */
