@@ -11958,10 +11958,109 @@ var SZK_MESTER = [
               { t: "Gábor egy emelettel Csaba alatt lakik: Gábor a legalsó, Csaba a második emeleten.", tesz: [[0, 0, "Gábor"], [1, 0, "úszás"], [0, 1, "Csaba"], [1, 1, "kosárlabda"]] }] }] }
 ];
 function szkMester(id) { for (var i = 0; i < SZK_MESTER.length; i++) if (SZK_MESTER[i].id === id) return SZK_MESTER[i]; return null; }
+/* ═════════════════ 🏅 NÉVCSERÉS VÁLTOZATOK (Mesterpróba-változatok, 2026-10-20) ═════════════════
+   A sorrendes feladatban nincs szám, amit cserélni lehetne: a második találkozástól a NEVEK cserélnek helyet. Ugyanaz a
+   versenyfeladat, ugyanazok a szereplők, de a mondatokban másik név áll a másik helyén → más a jó sorrend, a megjegyzett
+   válasz nem segít. A csere (π) egy „senki sem marad a helyén” keverés: minden szereplő máshová kerül a válaszban.
+     · a mondatok, a végigvezetés, a tipp, az indoklás: minden névalak (Bercit, Tappancsnál, Andrással …) π szerint, ragozva
+       (SZK_NEVALAK); a nagy feladat első mondata (a szereplők felsorolása) marad, hiszen ugyanazok a szereplők;
+     · az ellenőrzők: az eredeti függvény az átfordított nézetet kapja (A.hol(π(név))), így a mondat jelentése nem változik;
+     · a 🛗 kicsi testvérek ugyanazzal a cserével (különben a lift más neveket mondana, mint a nagy feladat);
+     · a gép minden változatot végigpróbál (szkValtJo): minden elrendezés közül pontosan egy jó, az a várt, és a végigvezetés
+       is oda rakja a szereplőket. Ami nem stimmel, kimarad. */
+var SZK_NEVALAK = {   /* t: tárgyeset · e: birtokos -é · nal · rol · nak · val — a feladatokban előforduló ragok */
+  Berci: ["Bercit", "Bercié", "Bercinél", "Berciről", "Bercinek", "Bercivel"], Luna: ["Lunát", "Lunáé", "Lunánál", "Lunáról", "Lunának", "Lunával"],
+  "Néró": ["Nérót", "Néróé", "Nérónál", "Néróról", "Nérónak", "Néróval"], Panka: ["Pankát", "Pankáé", "Pankánál", "Pankáról", "Pankának", "Pankával"],
+  Szellem: ["Szellemet", "Szellemé", "Szellemnél", "Szellemről", "Szellemnek", "Szellemmel"],
+  Bodri: ["Bodrit", "Bodrié", "Bodrinál", "Bodriról", "Bodrinak", "Bodrival"], "Cézár": ["Cézárt", "Cézáré", "Cézárnál", "Cézárról", "Cézárnak", "Cézárral"],
+  Kormos: ["Kormost", "Kormosé", "Kormosnál", "Kormosról", "Kormosnak", "Kormossal"], Foltos: ["Foltost", "Foltosé", "Foltosnál", "Foltosról", "Foltosnak", "Foltossal"],
+  Tappancs: ["Tappancsot", "Tappancsé", "Tappancsnál", "Tappancsról", "Tappancsnak", "Tappanccsal"],
+  Anna: ["Annát", "Annáé", "Annánál", "Annáról", "Annának", "Annával"], Cili: ["Cilit", "Cilié", "Cilinél", "Ciliről", "Cilinek", "Cilivel"],
+  Dani: ["Danit", "Danié", "Daninál", "Daniról", "Daninak", "Danival"],
+  "András": ["Andrást", "Andrásé", "Andrásnál", "Andrásról", "Andrásnak", "Andrással"], "Gábor": ["Gábort", "Gáboré", "Gábornál", "Gáborról", "Gábornak", "Gáborral"],
+  "Dávid": ["Dávidot", "Dávidé", "Dávidnál", "Dávidról", "Dávidnak", "Dáviddal"], Csaba: ["Csabát", "Csabáé", "Csabánál", "Csabáról", "Csabának", "Csabával"]
+};
+var SZK_VALT_DB = 6;                                       /* feladatonként ennyi változat (a lehetséges keverésekből egyenletesen) */
+var SZK_VALT = null;                                       /* { alapId: [változat…] } — az első kéréskor készül */
+function szkMesterValt(fid) { if (!SZK_VALT) SZK_VALT = szkValtKeszit(); return SZK_VALT[fid] || []; }
+function szkValtKeszit() {
+  var V = {};
+  SZK_MESTER.forEach(function (M) {
+    var N = M.nevek, D = szkPermek(N).filter(function (p) { return p.every(function (x, i) { return x !== N[i]; }); }), L = [];
+    var lep = Math.max(1, Math.floor(D.length / SZK_VALT_DB));
+    for (var i = 0; i < D.length && L.length < SZK_VALT_DB; i += lep) {
+      var pi = {}; N.forEach(function (x, j) { pi[x] = D[i][j]; });
+      var v = szkNevcsere(M, pi, true);
+      v.id = M.id + "-v" + (L.length < 9 ? "0" : "") + (L.length + 1); v.alapId = M.id;
+      var hiba = szkValtJo(v) || v.kicsik.map(szkValtJo).filter(Boolean)[0];
+      if (hiba) { if (typeof console !== "undefined") console.warn("🏅 kimaradt változat " + v.id + ": " + hiba); continue; }
+      L.push(v);
+    }
+    V[M.id] = L;
+  });
+  return V;
+}
+/* egy feladat (nagy vagy kicsi) a π névcserével: szöveg ragozva, nevek, végigvezetés, ellenőrzők */
+function szkNevcsere(M, pi, nagy) {
+  var vissza = {}, k; for (k in pi) vissza[pi[k]] = k;
+  var alak = [];                                          /* [szóalak, név, rag-index (-1 = alapalak)] — a hosszabb elöl */
+  for (k in pi) { alak.push([k, k, -1]); (SZK_NEVALAK[k] || []).forEach(function (a, i) { alak.push([a, k, i]); }); }
+  alak.sort(function (a, b) { return b[0].length - a[0].length; });
+  var re = new RegExp("(^|[^A-Za-zÀ-ž])(" + alak.map(function (a) { return a[0]; }).join("|") + ")(?![A-Za-zÀ-ž])", "g");
+  var sz = function (s) {
+    return typeof s !== "string" ? s : s.replace(re, function (t, elo, w) {
+      for (var i = 0; i < alak.length; i++) if (alak[i][0] === w) {
+        var uj = pi[alak[i][1]]; return elo + (alak[i][2] < 0 ? uj : (SZK_NEVALAK[uj] || [])[alak[i][2]] || uj);
+      }
+      return t;
+    });
+  };
+  var nv = function (x) { return pi[x] || x; };
+  var fv = function (f) {                                  /* az eredeti ellenőrző az átfordított nézetet kapja */
+    return f && function (A) {
+      return f({ s: A.s, hol: function (id) { return A.hol(nv(id)); }, attr: function (id) { return A.attr(nv(id)); },
+                 kie: function (a) { var x = A.kie(a); return x != null && vissza[x] ? vissza[x] : x; } });
+    };
+  };
+  var U = {}; for (k in M) U[k] = M[k];
+  U.nevek = M.nevek.map(nv); U.jo = M.jo.map(nv);
+  U.mon = M.mon.map(function (m, i) {
+    var u = {}; for (var j in m) u[j] = m[j];
+    if (!(nagy && i === 0)) u.s = sz(m.s);                 /* a nagy feladat felsorolása marad (ugyanazok a szereplők) */
+    if (m.ki) u.ki = nv(m.ki);
+    if (m.ok1) u.ok1 = fv(m.ok1);
+    if (m.ok) u.ok = m.ok.map(function (o) { return [sz(o[0]), o[1] ? nv(o[1]) : o[1], fv(o[2]), o[3], o[4]]; });
+    return u;
+  });
+  U.lep = M.lep.map(function (l) { return { t: sz(l.t), tesz: l.tesz.map(function (t) { return [t[0], t[1], nv(t[2])]; }) }; });
+  ["vissza", "indok", "kerdes"].forEach(function (x) { if (M[x]) U[x] = sz(M[x]); });
+  if (M.kicsik) U.kicsik = M.kicsik.map(function (c) { return szkNevcsere(c, pi, false); });
+  return U;
+}
+/* 🔎 gépi próba: minden elrendezést végigpróbál — pontosan egy felel meg minden mondatnak, és az a várt; a végigvezetés is oda rak */
+function szkValtJo(M) {
+  var F = [];
+  M.mon.forEach(function (m) { if (m.ok1) F.push(m.ok1); if (m.ok) m.ok.forEach(function (o) { F.push(o[2]); }); });
+  var nezet = function (H) {
+    return { s: H, hol: function (id) { for (var r = 0; r < H.length; r++) { var i = H[r].indexOf(id); if (i >= 0) return i; } return -1; },
+             attr: function (id) { var i = H[0].indexOf(id); return i >= 0 && H[1] ? H[1][i] : null; },
+             kie: function (a) { var i = H[1] ? H[1].indexOf(a) : -1; return i >= 0 ? H[0][i] : null; } };
+  };
+  var O = M.csakAttr ? [M.nevek] : szkPermek(M.nevek), T = M.attr ? szkPermek(M.attr) : [null], jo = [], db = 0;
+  O.forEach(function (o) { T.forEach(function (t) {
+    var H = t ? [o, t] : [o];
+    if (F.every(function (f) { return f(nezet(H)); })) { db++; jo = H; }
+  }); });
+  if (db !== 1) return db + " megoldás";
+  if (jo[0].join() !== M.jo.join() || (M.attr && jo[1].join() !== M.joAttr.join())) return "más a megoldás";
+  var rossz = M.lep.some(function (l) { return l.tesz.some(function (t) { return (t[0] === 0 ? M.jo : M.joAttr)[t[1]] !== t[2]; }); });
+  return rossz ? "a végigvezetés máshová rak" : "";
+}
+
 /* 🏅 a közös szabály (mester-valtozat.js): előbb a még nem látottak sorban, utána a legrégebben látott; a visszatérő a 📌
-   Mesterpróbán jön, és a 📌 saját kockája fényesedik. Változata még nincs (névcserés változat: következő kör) → eredeti jön. */
+   Mesterpróbán jön, és a 📌 saját kockája fényesedik. A második találkozástól névcserés változat jön (szkMesterValt). */
 mvForras(function () { return SZK_MESTER.map(function (m) { return m.id; }); }, {
-  helyi: true,
+  helyi: true, valt: szkMesterValt,
   palya: function () { return "sz-kotott-mester"; },
   hely: function () { var d = SZERSZAMOK.filter(function (s) { return s.id === "KOTOTT"; })[0]; return d && d.vkocka != null ? d.vkocka : null; }
 });
@@ -12169,15 +12268,16 @@ var SZK_TART = {
   /* 🛗 a nagy feladat kicsinyített testvére, ugyanabban a mese-keretben */
   kicsi: function (nagy, k) {
     if (nagy.mester) {
-      var M = szkMester(nagy.fid);
+      var M = nagy.mvM || szkMester(nagy.fid);                 /* névcserés változatnál a kicsik is a változat neveivel */
       if (M && M.kicsik[k]) return szkFeladatKezi(M.kicsik[k], "kicsi", M);
       return szkFeladatGen(szkGeneral({ keret: M ? M.kicsiKeret : "verseny", n: 3 }), "kicsi");
     }
     if (nagy.par) return szkFeladatPar(szkGeneralPar({ keret: nagy.keret, tip: 1, nevek: nagy.nevek }), "kicsi");   /* 🔮: kicsiben = csak a pár */
     return szkFeladatGen(szkGeneral({ keret: nagy.keret, n: 3, nevek: nagy.nevek }), "kicsi");
   },
-  mester: function (id) {
-    var M = szkMester(id), f = M ? szkFeladatKezi(M, "mester") : null;
+  mester: function (id, valt) {
+    var M = valt || szkMester(id), f = M ? szkFeladatKezi(M, "mester") : null;
+    if (f) f.mvM = M;
     if (f && szerszamBeall().tabla) f.tabla = { auto: false };  /* 📋 3. kód-kör: a Mesterpróbán is ott a tábla (öt kutyánál 5 × 5) */
     return f;
   },
@@ -12192,7 +12292,7 @@ function szkFeladatGen(g, fok) {
 }
 function szkFeladatKezi(M, fok, szulo) {
   var k = szkKezi(M, szulo);
-  return { forma: "dobogo", fok: fok, mester: fok === "mester", fid: M.id || (szulo ? szulo.id + "-kicsi" : ""), keret: (szulo || M).hely, nevek: k.nevek,
+  return { forma: "dobogo", fok: fok, mester: fok === "mester", fid: M.alapId || M.id || (szulo ? (szulo.alapId || szulo.id) + "-kicsi" : ""), keret: (szulo || M).hely, nevek: k.nevek,
     tobb: M.tobb, vissza: M.vissza, indok: M.indok || "", mon: k.mon, kerdes: k.kerdes, dob: k.dob, nezet: k.nezet, lep: k.lep, joKiir: k.joKiir,
     mitKerdez: M.attr || (szulo && szulo.attr) ? "Azt kérdezik, ki hol van, és kihez mi tartozik. Tedd mindenkit a helyére!" : "A sorrendet kérdezik. Tedd mindenkit a helyére!" };
 }
@@ -12219,8 +12319,10 @@ GEN.szerszam = function (cfg) {
   if (SZ_SAJAT[cfg.sz]) return SZ_SAJAT[cfg.sz](cfg);
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
-  var f = cfg.fok === "mester" ? T.mester(szMesterKiv(T.mesterLista()).fid) : T.general(cfg.fok, J.feladatKesz);
+  var V = cfg.fok === "mester" ? szMesterKiv(T.mesterLista()) : null;
+  var f = V ? T.mester(V.fid, V.valt) : T.general(cfg.fok, J.feladatKesz);   /* 📌 a második találkozástól névcserés változat */
   var F = szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  if (V && V.valt && F.naplo) F.naplo.valtozat = V.valt.id;
   if (cfg.fok === "mester") { F.op.mester = true; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester; }   /* 🏅 arany szegélyű pult (rajzterv 4. pont) */
   return F;
 };
@@ -29291,7 +29393,7 @@ window.UC = {
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
   tovabbMehetE: tovabbMehetE,
-  szkGeneral: szkGeneral, szkDob: szkDob, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szKesz: szKesz,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
+  szkGeneral: szkGeneral, szkDob: szkDob, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szkMesterValt: szkMesterValt, szkValtJo: szkValtJo, szKesz: szKesz,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
   dobAllas: function () { return DOB && dobAllas(); }, dobogoTesz: dobogoTesz, get DOB() { return DOB; }, get NT() { return NT; }, szMutat: szMutat, ntElohiv: ntElohiv, opLapol: opLapol, opBetuAllit: opBetuAllit, get OP() { return OP; },
   SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */
   szerszamFeny: szerszamFeny, szerszamLadaban: szerszamLadaban, szerszamOnalloDb: szerszamOnalloDb, szerszamMesterKov: szerszamMesterKov, szerszamFeladatFriss: szerszamFeladatFriss,

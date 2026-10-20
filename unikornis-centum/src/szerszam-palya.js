@@ -21,8 +21,10 @@ GEN.szerszam = function (cfg) {
   if (SZ_SAJAT[cfg.sz]) return SZ_SAJAT[cfg.sz](cfg);
   var T = SZ_TARTALOM[cfg.sz];
   if (!J.sz) J.sz = { sz: cfg.sz, eredm: [], L: null };
-  var f = cfg.fok === "mester" ? T.mester(szMesterKiv(T.mesterLista()).fid) : T.general(cfg.fok, J.feladatKesz);
+  var V = cfg.fok === "mester" ? szMesterKiv(T.mesterLista()) : null;
+  var f = V ? T.mester(V.fid, V.valt) : T.general(cfg.fok, J.feladatKesz);   /* 📌 a második találkozástól névcserés változat */
   var F = szFeladatKesz(f, cfg.sz, cfg.fok === "mese" ? "mese" : "nagy", null);
+  if (V && V.valt && F.naplo) F.naplo.valtozat = V.valt.id;
   if (cfg.fok === "mester") { F.op.mester = true; F.kartyaHTML = opKonyv(F.op); F.opElo = POLC_M.mester; }   /* 🏅 arany szegélyű pult (rajzterv 4. pont) */
   return F;
 };
