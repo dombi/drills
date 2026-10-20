@@ -227,6 +227,8 @@ function renderFomenu() {
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
   }
+  var hivMondat = nyitasVersHivas(bent);         /* 🌰🎵 elakadás után: „Mondjuk el együtt a bontásokat!” (nyitas.js) */
+  if (hivMondat) setTimeout(function () { if (FOMENU_LIGET === bent) mondd(hivMondat); }, 900);
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
     $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */

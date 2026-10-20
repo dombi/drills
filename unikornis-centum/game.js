@@ -2715,6 +2715,18 @@ var NYITAS_OSZTALY = {
   5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
   6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
 };
+/* 🌰🎵 VERS-PÁLYÁK (producer, 2026-10-20): a bontás és a szorzótábla felmondása az alap — „nem kiszámolni kell tudni,
+   hanem mint egy verset”; ha nem bombabiztos, abból jönnek a számolási hibák és a látszólagos kedvetlenség. Ezért:
+     • nem részei a sornak, mindig ébren vannak (a gyerek osztályában), és VILÁGÍTANAK, amíg nem mennek versként
+       (tudas.js „megy” = 3 különböző napon tiszta), utána az emlék-próbák napján (1 hét, 3 hét, 2 hónap…) újra;
+     • a ligetük csak akkor „megy” (csak akkor nyit felfelé), ha a vers is megy;
+     • elakadásnál (hiv: ezekben a ligetekben) még aznap felvillan, és az unikornis hívja (mondat);
+     • tol–ig: osztály; feb: ebben az osztályban csak a tanév 2. felétől (február–augusztus) — a szorzótáblát 2. osztály
+       februárja körül kezdik. Ha a ligete addig aludt, „vers-ligetként” ébred: csak a vers van benne ébren. */
+var NYITAS_VERS = [
+  { id: "bontas-felmondas", liget: "osszeado", tol: 1, ig: 4, hiv: ["osszeado"], mondat: "Mondjuk el együtt a bontásokat!" },
+  { id: "szorzo-dallam", liget: "szorzo", tol: 2, ig: 6, feb: 2, hiv: ["szorzo", "vasar"], mondat: "Mondjuk el együtt a szorzótáblát!" }
+];
 var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni"];
 /* a játékhelyek naptára (tervlap 4.⑤): [id, legkorábbi gyakorlós nap] — sorban nyílnak, ha egy nap foglalt, eltolódnak.
    Az 1. körben csak a napokat foglalják (a napi egy szabály miatt); az altatásuk a 3. kör (nyitasEbren). */
@@ -2753,7 +2765,7 @@ function nyitasNormal(p) {
   if (!r || typeof r !== "object") { if (p && p.uj !== undefined) delete p.uj; return; }
   if (!(r.o >= 1 && r.o <= 6)) r.o = null;
   if (typeof r.g0 !== "number") r.g0 = 0;
-  ["nyilt", "napok", "lat", "sor"].forEach(function (k) { if (!r[k] || typeof r[k] !== "object" || Array.isArray(r[k])) r[k] = {}; });
+  ["nyilt", "napok", "lat", "sor", "hiv", "hivM"].forEach(function (k) { if (!r[k] || typeof r[k] !== "object" || Array.isArray(r[k])) r[k] = {}; });
   if (!Array.isArray(r.fel)) r.fel = [];
   if (typeof r.fv !== "number") r.fv = 0;
   if (typeof r.elakad !== "number") r.elakad = null;
@@ -2771,11 +2783,28 @@ function nyitasSzuz(profilok) {
     return !van(p.palyak) && !van(f);
   });
 }
+/* a liget alap-állapota: "vil" / "nyitva" / "vers" (csak a vers-pálya ébren benne) / "alszik" — a versek fénye nélkül */
 function nyitasLigetAllapot(r, sor, id, egyeniVan) {
   if (NYITAS_TANULO.indexOf(id) < 0) return null;
   if (id === "egyeni") return egyeniVan ? "nyitva" : "alszik";   /* a pult saját pályája mindig ott van; a 🌸 ösvény még vár */
   if (sor.vil.indexOf(id) >= 0 || r.nyilt[id] != null) return r.fel.indexOf(id) >= 0 ? "nyitva" : "vil";
-  return sor.nyitva.indexOf(id) >= 0 ? "nyitva" : "alszik";
+  if (sor.nyitva.indexOf(id) >= 0) return "nyitva";
+  return r.nyilt["vers:" + id] != null ? "vers" : "alszik";
+}
+/* 🌰🎵 vers-pályák (tiszta függvények — a pult is hívja) */
+function nyitasVersAktiv(v, o, most) {
+  if (!(o >= v.tol && o <= v.ig)) return false;
+  if (o === v.feb) { var h = (most || new Date()).getMonth(); return h >= 1 && h <= 7; }   /* február–augusztus */
+  return true;
+}
+function nyitasVersek(o) { return NYITAS_VERS.filter(function (v) { return nyitasVersAktiv(v, o); }); }
+function nyitasVersPalya(id, o) { return nyitasVersek(o).filter(function (v) { return v.id === id; })[0] || null; }
+/* világít-e: még nem megy versként, emlék-próba esedékes, vagy ma hívta az unikornis (elakadás) */
+function nyitasVersVilagit(v, r, p, nap) {
+  if (r.hiv[v.id] === nap) return true;
+  var s = tudasTar(p)[v.id];
+  if (!s || typeof s.megy !== "number") return true;
+  return typeof s.esed === "number" && s.esed <= tenyNap();
 }
 /* a menet napja: a mai, még gyakorlás nélküli nap már a következő */
 function nyitasNapja(r, p) { return Math.max(1, gyakNap(p) - r.g0 + (gyakMa(p) ? 0 : 1)); }
@@ -2792,6 +2821,9 @@ function nyitasMenet() {
     var p = P();
     p.uj = { o: null, g0: gyakNap(p) - (gyakMa(p) ? 1 : 0), t: Date.now() };
     nyitasNormal(p);
+    nyitasVersek(b.osztaly).forEach(function (v) {   /* a már esedékes vers az első naptól ott van (nem foglal napot, nincs ébredés) */
+      if (nyitasLigetAllapot(p.uj, NYITAS_OSZTALY[b.osztaly], v.liget, false) === "alszik") { p.uj.nyilt["vers:" + v.liget] = 0; p.uj.lat["vers:" + v.liget] = 1; }
+    });
     p.bemutatva.terkep = 1;   /* a régi „a kertünk mostantól itt van…” mondat a régi játékosoknak szólt */
     ment();
     t = { k: mentes.leny, r: p.uj };
@@ -2805,17 +2837,24 @@ function nyitasEgyeniVan() {
   return typeof egyeniPalyak === "function" && egyeniPalyak().some(function (pa) { return !pa.teny && !palyaRejtve(pa); });
 }
 function nyitasNap() { var m = nyitasMenet(); return m ? nyitasNapja(m.r, m.p) : 0; }
-/* egy liget állapota a térképen ("vil" / "nyitva" / "alszik"), null = nincs menet vagy nem tanuló hely */
-function nyitasLiget(id) { var m = nyitasMenet(); return m ? nyitasLigetAllapot(m.r, m.sor, id, nyitasEgyeniVan()) : null; }
+/* egy liget állapota a térképen ("vil" / "nyitva" / "alszik"), null = nincs menet vagy nem tanuló hely.
+   A nyitott liget (és a vers-liget) világít, ha benne egy vers-pálya világít — oda hív az unikornis. */
+function nyitasLiget(id) {
+  var m = nyitasMenet(); if (!m) return null;
+  var a = nyitasLigetAllapot(m.r, m.sor, id, nyitasEgyeniVan());
+  if (a !== "nyitva" && a !== "vers") return a;
+  var nap = nyitasNapja(m.r, m.p);
+  return nyitasVersek(m.o).some(function (v) { return v.liget === id && nyitasVersVilagit(v, m.r, m.p, nap); }) ? "vil" : "nyitva";
+}
 /* egy játékhely ébren van-e (3. kör: utca, kert, fodrász…) — menet nélkül mindig */
 function nyitasEbren(id) { var m = nyitasMenet(); return !m || m.r.nyilt[id] != null; }
 
-/* a világító liget pályái sorban: az első még végig nem vitt pálya (a sorrend a PALYAK-é, mint a kártyáké) */
-function nyitasLigetPalyai(lg) {
-  return PALYAK.filter(function (pa) { return palyaLiget(pa) === lg && !pa.hamarosan && !palyaRejtve(pa); });
+/* a liget számolós pályái sorban (a vers-pályák nélkül — azok nem részei a sornak); a sorrend a PALYAK-é, mint a kártyáké */
+function nyitasLigetPalyai(lg, o) {
+  return PALYAK.filter(function (pa) { return palyaLiget(pa) === lg && !pa.hamarosan && !palyaRejtve(pa) && !nyitasVersPalya(pa.id, o); });
 }
-function nyitasLigetElso(lg, sor) {
-  var L = nyitasLigetPalyai(lg), k = 0, eid = ((sor && sor.elso) || {})[lg];
+function nyitasLigetElso(lg, sor, o) {
+  var L = nyitasLigetPalyai(lg, o), k = 0, eid = ((sor && sor.elso) || {})[lg];
   if (eid) L.forEach(function (pa, i) { if (pa.id === eid) k = i; });
   for (var i = k; i < L.length; i++) { var pr = P().palyak[L[i].id]; if (!(pr && pr.kesz)) return { pa: L[i], i: i, L: L }; }
   return null;
@@ -2826,27 +2865,43 @@ function nyitasPalyaAlszik(pa) {
   var m = nyitasMenet(); if (!m) return false;
   var lg = palyaLiget(pa), all = nyitasLigetAllapot(m.r, m.sor, lg, nyitasEgyeniVan());
   if (all === "alszik") return true;
+  if (nyitasVersPalya(pa.id, m.o)) return false;   /* 🌰🎵 a vers mindig ébren */
+  if (all === "vers") return true;                  /* vers-liget: csak a vers ébren */
   /* a menetben ébredt ligetben a sor akkor is megmarad, ha a liget már „megy” (csak a fénye alszik ki) — különben felfelé ingyen nyílna */
   var soros = m.sor.vil.indexOf(lg) >= 0 || m.r.nyilt[lg] != null;
   if (!soros || pa.konyvtar || pa.szerszam || pa.polc) return false;
-  var e = nyitasLigetElso(lg, m.sor);
+  var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.L.indexOf(pa) > e.i;
 }
-/* ez a pálya világít-e a liget belsejében (a sorban következő) */
+/* ez a pálya világít-e a liget belsejében: a sorban következő, ill. a vers, amíg nem megy (vagy próba / hívás van) */
 function nyitasPalyaVilagit(pa) {
   var m = nyitasMenet(); if (!m || !pa || pa.konyvtar || pa.szerszam || pa.polc) return false;
-  var lg = palyaLiget(pa);
-  if (nyitasLigetAllapot(m.r, m.sor, lg, nyitasEgyeniVan()) !== "vil") return false;
-  var e = nyitasLigetElso(lg, m.sor);
+  var lg = palyaLiget(pa), all = nyitasLigetAllapot(m.r, m.sor, lg, nyitasEgyeniVan()), v = nyitasVersPalya(pa.id, m.o);
+  if (v) return all !== "alszik" && nyitasVersVilagit(v, m.r, m.p, nyitasNapja(m.r, m.p));
+  if (all !== "vil") return false;
+  var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.pa === pa;
+}
+/* a liget belsejébe lépve: ha ma elakadás miatt egy vers hív, az unikornis egyszer szól (ui.js renderFomenu) */
+function nyitasVersHivas(lg) {
+  var m = nyitasMenet(); if (!m) return "";
+  var r = m.r, nap = nyitasNapja(r, m.p), ki = "";
+  nyitasVersek(m.o).forEach(function (v) {
+    if (ki || r.hiv[v.id] !== nap || r.hivM[v.id] === nap || v.hiv.indexOf(lg) < 0) return;
+    if (nyitasLigetAllapot(r, m.sor, v.liget, nyitasEgyeniVan()) === "alszik") return;
+    r.hivM[v.id] = nap; ment();
+    ki = v.liget === lg ? v.mondat : v.mondat.replace("!", " " + (v.liget === "szorzo" ? "a Szorzós ligetben" : "az Összeadó ligetben") + "!");
+  });
+  return ki;
 }
 
 /* „megy” a liget: legalább NYITAS_MEGY.palya különböző pálya tiszta végigjátszással, legalább NYITAS_MEGY.nap napon */
-function nyitasLigetMegy(p, lg) {
-  var L = nyitasLigetPalyai(lg); if (!L.length) return false;
+function nyitasLigetMegy(p, lg, o) {
+  var L = nyitasLigetPalyai(lg, o); if (!L.length) return false;
   var db = 0, napok = {}, t = tudasTar(p);
   L.forEach(function (pa) { var s = t[pa.id]; if (s && Array.isArray(s.n) && s.n.length) { db++; s.n.forEach(function (d) { napok[d] = 1; }); } });
-  return db >= Math.min(NYITAS_MEGY.palya, L.length) && Object.keys(napok).length >= NYITAS_MEGY.nap;
+  var versMegy = nyitasVersek(o).every(function (v) { var s = t[v.id]; return v.liget !== lg || (s && typeof s.megy === "number"); });   /* felfelé csak biztos alapról */
+  return versMegy && db >= Math.min(NYITAS_MEGY.palya, L.length) && Object.keys(napok).length >= NYITAS_MEGY.nap;
 }
 /* a mai nap nyílása (ha még nincs): felfelé → oldalra → játékhely. van = a térképen létező ligetek (fomenuLigetek().regiok). */
 function nyitasKovetkezo(m, nap, van) {
@@ -2857,6 +2912,9 @@ function nyitasKovetkezo(m, nap, van) {
     if (f) { r.fv--; return f; }
     r.fv = 0;
   }
+  /* 🎵 a vers ideje eljött (2. o. februárja), de a ligete még alszik → vers-ligetként ébred */
+  var vl = nyitasVersek(m.o).filter(function (v) { return van[v.liget] && nyitasLigetAllapot(r, m.sor, v.liget, eg) === "alszik"; })[0];
+  if (vl) return "vers:" + vl.liget;
   if (r.elakad != null && r.elakad < nap) {
     var o = alvo(m.sor.oldal);
     r.elakad = null;
@@ -2876,16 +2934,23 @@ function nyitasFrissit(van) {
   var m = nyitasMenet(); if (!m) return [];
   var r = m.r, nap = nyitasNapja(r, m.p), valt = false, eg = nyitasEgyeniVan();
   NYITAS_TANULO.forEach(function (id) {
-    if (r.fel.indexOf(id) < 0 && nyitasLigetAllapot(r, m.sor, id, eg) === "vil" && nyitasLigetMegy(m.p, id)) { r.fel.push(id); r.fv++; valt = true; }
+    if (r.fel.indexOf(id) < 0 && nyitasLigetAllapot(r, m.sor, id, eg) === "vil" && nyitasLigetMegy(m.p, id, m.o)) { r.fel.push(id); r.fv++; valt = true; }
   });
   if (r.napok[nap] == null && !NYITAS_SARKANY_NAP[nap]) {
     var id = nyitasKovetkezo(m, nap, van || {});
     if (id) { r.napok[nap] = id; r.nyilt[id] = nap; valt = true; }
   }
   if (valt) ment();
-  return NYITAS_TANULO.filter(function (id) { return r.nyilt[id] != null && !r.lat[id]; });
+  return NYITAS_TANULO.filter(function (id) {
+    return (r.nyilt[id] != null && !r.lat[id]) || (r.nyilt["vers:" + id] != null && !r.lat["vers:" + id]);
+  });
 }
-function nyitasLatta(id) { var m = nyitasMenet(); if (m && !m.r.lat[id]) { m.r.lat[id] = 1; ment(); } }
+function nyitasLatta(id) {
+  var m = nyitasMenet(); if (!m) return;
+  var r = m.r, valt = false;
+  [id, "vers:" + id].forEach(function (k) { if (r.nyilt[k] != null && !r.lat[k]) { r.lat[k] = 1; valt = true; } });
+  if (valt) ment();
+}
 
 /* az esemeny() hívja (analytics.js): elakadás = ugyanazon a pályán egymás után kerülős kör vagy félbehagyás */
 function nyitasEsemeny(tipus, adat) {
@@ -2897,7 +2962,12 @@ function nyitasEsemeny(tipus, adat) {
     var r = m.r;
     if (tipus === "palya_end" && adat.teljes) { if (r.sor[pid]) { delete r.sor[pid]; ment(); } return; }
     r.sor[pid] = (r.sor[pid] || 0) + 1;
-    if (r.sor[pid] >= NYITAS_ELAKAD) { delete r.sor[pid]; if (r.elakad == null) r.elakad = nyitasNapja(r, m.p); }
+    if (r.sor[pid] >= NYITAS_ELAKAD) {
+      var nap = nyitasNapja(r, m.p), lg = palyaLiget(pa);
+      delete r.sor[pid];
+      if (r.elakad == null) r.elakad = nap;   /* holnap oldalra */
+      nyitasVersek(m.o).forEach(function (v) { if (v.id !== pid && v.hiv.indexOf(lg) >= 0) r.hiv[v.id] = nap; });   /* ma: előbb a vers */
+    }
     ment();
   } catch (e) { /* a menet soha ne akassza meg a játékot */ }
 }
@@ -2910,9 +2980,13 @@ function nyitasPultAllapot(profilok, beall) {
   nyitasNormal({ uj: t.r });
   var sor = NYITAS_OSZTALY[o], p = profilok[t.k];
   if (!sor) return { menet: false, ok: "osztaly", k: t.k };
-  var all = {};
+  var all = {}, nap = nyitasNapja(t.r, p);
   NYITAS_TANULO.forEach(function (id) { if (id !== "egyeni") all[id] = nyitasLigetAllapot(t.r, sor, id, false); });
-  return { menet: true, k: t.k, o: o, nap: nyitasNapja(t.r, p), all: all, napok: t.r.napok, elakad: t.r.elakad, fv: t.r.fv };
+  var versek = nyitasVersek(o).map(function (v) {
+    var s = tudasTar(p)[v.id] || {};
+    return { id: v.id, liget: v.liget, megy: typeof s.megy === "number", esed: typeof s.esed === "number" ? s.esed : null, vil: nyitasVersVilagit(v, t.r, p, nap), hiv: t.r.hiv[v.id] === nap };
+  });
+  return { menet: true, k: t.k, o: o, nap: nap, all: all, versek: versek, napok: t.r.napok, elakad: t.r.elakad, fv: t.r.fv };
 }
 /* ============ 3c4) 🔍 MEGFIGYELŐ NAPLÓ — napi összesítő a pultnak és a jellemzésnek (LÁTHATATLAN) ============
    Terv: Matekos\pult-atrendezes-terv.html 4c. pont (✅ jóváhagyva 2026-10-18; Pult-átrendezés 2a. kör).
@@ -20010,6 +20084,8 @@ function renderFomenu() {
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
   }
+  var hivMondat = nyitasVersHivas(bent);         /* 🌰🎵 elakadás után: „Mondjuk el együtt a bontásokat!” (nyitas.js) */
+  if (hivMondat) setTimeout(function () { if (FOMENU_LIGET === bent) mondd(hivMondat); }, 900);
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
     $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */

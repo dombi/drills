@@ -309,7 +309,7 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/tudas.js?v=20261020-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
 <script src="../src/kuldetes.js?v=20261020-2"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
-<script src="../src/nyitas.js?v=20261020-1"></script><!-- 🚪 újonc-menet: a beállítás összevonása (nyitasBeallOsszevon) + a gyerek állapota (nyitasPultAllapot) — ugyanaz a fájl, mint a játékban -->
+<script src="../src/nyitas.js?v=20261020-2"></script><!-- 🚪 újonc-menet: a beállítás összevonása (nyitasBeallOsszevon) + a gyerek állapota (nyitasPultAllapot) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
 <script src="../src/teny-kert.js?v=20261006-3"></script><!-- 🌷 Tény-kert: a virágok kinézete és a tövek helye — a „gyerek kertje” ugyanazt rajzolja, mint a játék -->
 <script>
@@ -1826,9 +1826,17 @@ function nyitasHatasSzoveg(uid) {
     var l = Object.keys(a.all).filter(function (id) { return a.all[id] === all; }).map(function (id) { return esc(LIGET_CIM[id] || NYITAS_NEV[id] || id); });
     return l.length ? l.join(", ") : "–";
   }
-  var nyilt = Object.keys(a.napok).sort(function (x, y) { return x - y; }).map(function (n) { var id = a.napok[n]; return n + ". nap: " + esc(NYITAS_NEV[id] || LIGET_CIM[id] || id); });
+  var nyilt = Object.keys(a.napok).sort(function (x, y) { return x - y; }).map(function (n) {
+    var id = a.napok[n], vl = /^vers:/.test(id) ? id.slice(5) : null;
+    return n + ". nap: " + esc(vl ? (LIGET_CIM[vl] || vl) + " (csak a vers)" : NYITAS_NEV[id] || LIGET_CIM[id] || id);
+  });
+  var versek = (a.versek || []).map(function (v) {
+    return esc(v.id === "bontas-felmondas" ? "🌰 bontás" : "🎵 Szorzódallam") + ": " + (v.megy ? "megy versként" + (v.esed != null ? " (következő emlék-próba: " + napDatum(v.esed) + ")" : "") : "<b>még nem megy</b>") +
+      (v.hiv ? " — ma hívja (elakadás)" : "") + (v.vil ? " ✨" : "");
+  });
   return "<b>fut</b> (" + esc(lenyNev(a.k)) + ") · " + a.o + ". osztály · <b>" + a.nap + ". gyakorlós nap</b><br>✨ világít: " + lista("vil") + " · nyitva: " + lista("nyitva") +
-    " · 💤 alszik: " + lista("alszik") + "<br>eddig nyílt: " + (nyilt.length ? nyilt.join(" · ") : "–") +
+    (lista("vers") !== "–" ? " · csak a vers ébren: " + lista("vers") : "") + " · 💤 alszik: " + lista("alszik") +
+    (versek.length ? "<br>vers-pályák: " + versek.join(" · ") : "") + "<br>eddig nyílt: " + (nyilt.length ? nyilt.join(" · ") : "–") +
     (a.elakad != null ? " · ⚠️ elakadt — a következő gyakorlós napon oldalra nyílik valami" : "") + (a.fv ? " · ⬆️ felfelé vár " + a.fv + " liget (szabad napra)" : "");
 }
 function kuldHatasSzoveg(lh) {
@@ -2139,8 +2147,10 @@ function rajzBeallitasok(t) {
   if (egyeni) h += '<div class="kicsi">Most ennél a gyereknél: ' + nyitasHatasSzoveg(id) + "</div>";
   h += '<p class="kicsi halvany" style="margin-top:8px">Újonc = akinek egyik unikornisánál sincs még végigjátszott pálya (Lili és Fanni így nem kapja meg). ' +
     "Az újonc az osztálya szerint 1, 2 vagy 3 világító ligettel indul, a többi ködben alszik; a nagyobbnak (4. osztálytól) a könnyebb ligetek is nyitva vannak, csak nem világítanak. " +
-    "A világító ligetben a pályák sorban ébrednek. Gyakorlós naponként legfeljebb egy új dolog nyílik: ha egy liget „megy” (3 különböző pálya kerülő nélkül, legalább 2 napon), a következő liget ébred felfelé; " +
-    "ha ugyanazon a pályán kétszer egymás után elakad, a következő gyakorlós napon oldalra nyílik valami (felfelé soha). " +
+    "A világító ligetben a pályák sorban ébrednek. Gyakorlós naponként legfeljebb egy új dolog nyílik: ha egy liget „megy” (3 különböző pálya kerülő nélkül, legalább 2 napon, <b>és a vers-pályája is megy</b>), a következő liget ébred felfelé; " +
+    "ha ugyanazon a pályán kétszer egymás után elakad, még aznap felvillan a vers-pálya („Mondjuk el együtt…”), és a következő gyakorlós napon oldalra nyílik valami (felfelé soha). " +
+    "🌰🎵 Vers-pályák: a bontás (1–4. osztály) és a Szorzódallam (3–6. osztály; 2. osztályban februártól) nem részei a sornak, mindig ébren vannak, és világítanak, amíg nem mennek versként (3 különböző napon hibátlanul), " +
+    "utána az emlék-próbák napján (1 hét, 3 hét, 2 hónap) újra. " +
     "<b>Osztály nélkül nincs menet</b> (minden nyitva): amíg a játék maga nem kérdezi meg (2. kör), itt add meg. " +
     "🚫 Ki = vészkijárat: azonnal minden nyitva. ✅ Be = a menet akkor is indul, ha a gyerek már játszott (próbához). " +
     "A rejtett pályák rejtve maradnak. Sorrend: alap → csoport → egyéni; több csoportnál a „ki” nyer, az osztály az első csoporté.</p></div>";
