@@ -35,11 +35,15 @@
 var NYITAS_MERES = ["szabo", "bajital", "pekseg"];
 /* elso: a ligeten belül ettől a pályától ébrednek sorban (tervlap 4.② „első pálya”); az előttük lévő, könnyebb pályák
    nyitva vannak, csak nem világítanak (mint 5.D a ligeteknél). Ahol nincs megadva, az első pályától. */
+/* fel = a felfelé vezető út, a végén a PLAFON (producer, 2026-10-21): a tudás nyit, de legfeljebb az eggyel magasabb osztály
+   helyeiig (1. o.: a Szorzós ligetig · 2. o.: a Tündérvásárig · 3. o.: a Vásárig · 4. o.: a Bagolykönyvtárig); fölötte csak a
+   pult nyit. A Fejtörő-hegy az 5–6. osztályosoké (a saját szintjük). 1–3. o.-ban a mérés-ligetek a szorzó ELŐTT ébrednek
+   (közelebb vannak a kicsik szintjéhez, és ezek a kedvencek); elakadáskor továbbra is oldalra nyílnak. */
 var NYITAS_OSZTALY = {
-  1: { vil: ["osszeado"], nyitva: [], fel: ["szorzo", "vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
-  2: { vil: ["osszeado"], nyitva: [], fel: ["szorzo", "vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
-  3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: ["vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
-  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar", "fejtoro"], oldal: [] },
+  1: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
+  2: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo", "vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
+  3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: NYITAS_MERES.concat(["vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
+  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
   5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
   6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
 };
@@ -80,7 +84,7 @@ var NYITAS_MONDAT = {
    oda hív (utcaHiv), és az utca világít; az utcán a ház spalettája nyílik ki (szalon.js). Az utca és a kert a térképen
    a köd felszállásával ébred (terkep.js). A kölyöknek nincs mondata: ő magától jön, amikor megkerül. */
 var NYITAS_BEMUTAT = {
-  utca:        { hol: "terkep", mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+  utca:        { hol: "terkep", mondat: "Gyere, vegyünk valamit a csillámporodból!" },
   kert:        { hol: "terkep", mondat: "Kinyílt a kert! Nézzük meg!" },
   het:         { hol: "odu", ragyog: ["#het-odu"], mondat: "Nézd, a falon ott a heti kártyád! Ha játszol, pecsétet kapsz rá." },
   harmat:      { hol: "terkep", ragyog: ['.terkep-hely[data-id="utca"] .hb'],

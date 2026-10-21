@@ -88,7 +88,7 @@ var BEMUTATAS = {
               mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" },
   /* 🚪 újonc (tervlap 4.③): az első végigjátszott pálya után az utca felragyog, az utcán a Bolt — a ✨ így kap értelmet */
   ujoncBolt: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="utca"] .hb'], feltetel: ujoncElsoBolt,
-               mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+               mondat: "Gyere, vegyünk valamit a csillámporodból!" },
   ujoncBoltUtca: { kepernyo: "kepernyo-utca", ragyog: ["#utca-bolt"], feltetel: ujoncElsoBolt,
                    mondat: "Itt a Csillagbolt! Koppints rá!" }
 };

@@ -6,7 +6,7 @@
      A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
    - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Három kefe egyszeri képesség 12-12 💧
      (P().szalon.kefek.gondor / .egyenes / .tarej); ha megvan, ingyen váltasz vele. */
-var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
+var SZALON_BELEPO_AR = 150;   /* ✨ csillámpor, egyszeri (Kertkapu mintára) */
 var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
 
 /* ── UTCA-HUB ─────────────────────────────────────────────────────────────
@@ -379,7 +379,7 @@ function utcaFodraszKoppint() {
   hangGomb();
   if (nyitasHely("fodrasz") === "alszik") { mondd(NYITAS_MONDAT.fodrasz); return; }   /* 🚪 újonc: zárt spaletta (nyitas.js) */
   if (P().szalon.nyitva) { szalonNyit(); return; }
-  if (P().csillampor < SZALON_BELEPO_AR) { mondd("A szalon belépő 150 csillagpor. Gyűjts még matekozással!"); return; }
+  if (P().csillampor < SZALON_BELEPO_AR) { mondd("A fodrászat belépője 150 csillámpor. Gyűjts még matekozással!"); return; }
   UTCA_MOD = "megerosit-belepo"; renderUtca();
 }
 function utcaBelepoVesz() {
@@ -389,7 +389,7 @@ function utcaBelepoVesz() {
   P().szalon.nyitva = 1;
   UTCA_MOD = "nez";
   hangCsilla(); hangJo(); ment();
-  mondd("Kinyílt a szépségszalon! Milyen frizurát kérsz?");
+  mondd("Kinyílt a fodrászat! Milyen frizurát kérsz?");
   szalonNyit();
 }
 

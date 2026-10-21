@@ -2708,11 +2708,15 @@ function tudasEsedekes(id, p) { tudasPultVissza(id, p); var s = tudasTar(p)[id];
 var NYITAS_MERES = ["szabo", "bajital", "pekseg"];
 /* elso: a ligeten belül ettől a pályától ébrednek sorban (tervlap 4.② „első pálya”); az előttük lévő, könnyebb pályák
    nyitva vannak, csak nem világítanak (mint 5.D a ligeteknél). Ahol nincs megadva, az első pályától. */
+/* fel = a felfelé vezető út, a végén a PLAFON (producer, 2026-10-21): a tudás nyit, de legfeljebb az eggyel magasabb osztály
+   helyeiig (1. o.: a Szorzós ligetig · 2. o.: a Tündérvásárig · 3. o.: a Vásárig · 4. o.: a Bagolykönyvtárig); fölötte csak a
+   pult nyit. A Fejtörő-hegy az 5–6. osztályosoké (a saját szintjük). 1–3. o.-ban a mérés-ligetek a szorzó ELŐTT ébrednek
+   (közelebb vannak a kicsik szintjéhez, és ezek a kedvencek); elakadáskor továbbra is oldalra nyílnak. */
 var NYITAS_OSZTALY = {
-  1: { vil: ["osszeado"], nyitva: [], fel: ["szorzo", "vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
-  2: { vil: ["osszeado"], nyitva: [], fel: ["szorzo", "vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
-  3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: ["vasar", "konyvtar", "fejtoro"], oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
-  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar", "fejtoro"], oldal: [] },
+  1: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
+  2: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo", "vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
+  3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: NYITAS_MERES.concat(["vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
+  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
   5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
   6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
 };
@@ -2753,7 +2757,7 @@ var NYITAS_MONDAT = {
    oda hív (utcaHiv), és az utca világít; az utcán a ház spalettája nyílik ki (szalon.js). Az utca és a kert a térképen
    a köd felszállásával ébred (terkep.js). A kölyöknek nincs mondata: ő magától jön, amikor megkerül. */
 var NYITAS_BEMUTAT = {
-  utca:        { hol: "terkep", mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+  utca:        { hol: "terkep", mondat: "Gyere, vegyünk valamit a csillámporodból!" },
   kert:        { hol: "terkep", mondat: "Kinyílt a kert! Nézzük meg!" },
   het:         { hol: "odu", ragyog: ["#het-odu"], mondat: "Nézd, a falon ott a heti kártyád! Ha játszol, pecsétet kapsz rá." },
   harmat:      { hol: "terkep", ragyog: ['.terkep-hely[data-id="utca"] .hb'],
@@ -20108,7 +20112,7 @@ var BEMUTATAS = {
               mondat: "Itt vannak a holmijaid. Vásárolni az utcai boltban lehet!" },
   /* 🚪 újonc (tervlap 4.③): az első végigjátszott pálya után az utca felragyog, az utcán a Bolt — a ✨ így kap értelmet */
   ujoncBolt: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="utca"] .hb'], feltetel: ujoncElsoBolt,
-               mondat: "Gyere, vegyünk valamit a csillagporodból!" },
+               mondat: "Gyere, vegyünk valamit a csillámporodból!" },
   ujoncBoltUtca: { kepernyo: "kepernyo-utca", ragyog: ["#utca-bolt"], feltetel: ujoncElsoBolt,
                    mondat: "Itt a Csillagbolt! Koppints rá!" }
 };
@@ -26423,7 +26427,7 @@ function oduBeallit(kat, id) {
      A göndör-formát a fenti frizuraGondorArt() adja; a közös unikornisSVG rajzolja mindenhol.
    - Belépő: 150 ✨ egyszeri (P().szalon.nyitva). Három kefe egyszeri képesség 12-12 💧
      (P().szalon.kefek.gondor / .egyenes / .tarej); ha megvan, ingyen váltasz vele. */
-var SZALON_BELEPO_AR = 150;   /* ✨ csillagpor, egyszeri (Kertkapu mintára) */
+var SZALON_BELEPO_AR = 150;   /* ✨ csillámpor, egyszeri (Kertkapu mintára) */
 var KEFE_AR = 12;             /* 💧 tündérharmat / kefe, egyszeri képesség */
 
 /* ── UTCA-HUB ─────────────────────────────────────────────────────────────
@@ -26796,7 +26800,7 @@ function utcaFodraszKoppint() {
   hangGomb();
   if (nyitasHely("fodrasz") === "alszik") { mondd(NYITAS_MONDAT.fodrasz); return; }   /* 🚪 újonc: zárt spaletta (nyitas.js) */
   if (P().szalon.nyitva) { szalonNyit(); return; }
-  if (P().csillampor < SZALON_BELEPO_AR) { mondd("A szalon belépő 150 csillagpor. Gyűjts még matekozással!"); return; }
+  if (P().csillampor < SZALON_BELEPO_AR) { mondd("A fodrászat belépője 150 csillámpor. Gyűjts még matekozással!"); return; }
   UTCA_MOD = "megerosit-belepo"; renderUtca();
 }
 function utcaBelepoVesz() {
@@ -26806,7 +26810,7 @@ function utcaBelepoVesz() {
   P().szalon.nyitva = 1;
   UTCA_MOD = "nez";
   hangCsilla(); hangJo(); ment();
-  mondd("Kinyílt a szépségszalon! Milyen frizurát kérsz?");
+  mondd("Kinyílt a fodrászat! Milyen frizurát kérsz?");
   szalonNyit();
 }
 

@@ -206,7 +206,9 @@ def ellenoriz_este(l, J, nev, n, s, s3, elozo):
         J.hiba(OR, "piros", "ujonc:egynap", "ÚJONC: egy napon több új dolog nyílt", "%s: %s" % (hol, ", ".join(ujak)))
     if s3["napok"].get(str(s3["nap"])) == "sarkany" and ujak:
         J.hiba(OR, "piros", "ujonc:sarkany", "ÚJONC: a sárkány napján más is nyílt", "%s: %s" % (hol, ", ".join(ujak)))
-    fel_ebren = [id for id in s3["sor"]["fel"] if s3["alap"].get(id) not in ("alszik", "vers", None)]
+    # az elakadás miatt OLDALRA nyílt liget (1–3. o.: a mérés-ligetek) nem felfelé-lépés; a valóban magasabb ligetek száma
+    # legfeljebb annyi, ahány liget „megy”
+    fel_ebren = [id for id in s3["sor"]["fel"] if s3["alap"].get(id) not in ("alszik", "vers", None) and id not in s3["sor"]["oldal"]]
     if len(fel_ebren) > len(s3["fel"]):
         J.hiba(OR, "piros", "ujonc:felfele", "ÚJONC KISKAPU: felfelé több liget ébredt, mint ahány „megy”", "%s: ébren %s, megy %s" % (hol, fel_ebren, s3["fel"]))
     if s3["harmat"] < s["harmat"] or s3["csp"] < s["csp"]:
@@ -254,7 +256,9 @@ def regi_jatekos(e, J):
 
 def futtat(e, J):
     szovegek, tabla = [], []
+    csak = [x.strip() for x in os.environ.get("GEPI_UJONC_CSAK", "").split(",") if x.strip()]   # pl. "3. o.,4. o." — csak ezek a menetek
     for nev, o, kezd, extra in menetek():
+        if csak and not any(nev.startswith(c) for c in csak): continue
         try:
             egy_menet(e, J, nev, o, kezd, extra, szovegek, tabla)
         except Exception as h:
