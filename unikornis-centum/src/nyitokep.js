@@ -164,14 +164,15 @@ var EP_X = [100, 250, 400, 550, 700];
 /* a név-felhők: 3 véletlen a listából (koppintásra felolvassa) — rövid, könnyen kimondható, kedves nevek */
 var EP_NEVEK = ["Pötty", "Csillag", "Bogyó", "Mazsola", "Pille", "Szellő", "Bársony", "Szikra", "Málna", "Gyöngy", "Füge", "Hópihe"];
 var EP_LUFI = [[470, 150, "#f6a5c0"], [548, 120, "#fce49a"], [626, 150, "#a7d99a"], [494, 228, "#9ec9f0"], [572, 204, "#c9a8e6"], [650, 232, "#f7c59f"]];
+var EP_OSZTALY_SZO = { 1: "elsős", 2: "másodikos", 3: "harmadikos", 4: "negyedikes", 5: "ötödikes", 6: "hatodikos" };   /* szóval: a felolvasó a mondatkezdő számot félreolvashatja */
 var EP_MONDAT = {
   valaszt: "Szia! Melyikünk legyen a barátod?",
   nev: "Milyen nevet adsz nekem?",
-  sajat: "Írd be a nevemet!",
+  sajat: "Írd be, mi legyen a nevem!",
   nevKesz: "Szuper, mostantól {n} vagyok!",
   osztaly: "Hányadikos vagy?",
-  osztalyKesz: "{o}. osztályos vagy? Gyere, megmutatom!",
-  segits: "Segítesz nekem? Egyedül nem jutok át az ösvényen!"
+  osztalyKesz: "Jó, {o}! Gyere, megmutatom!",
+  segits: "Segítesz nekem? Koppints a világító helyre, és együtt végigmegyünk!"
 };
 
 /* kell-e az első perc: újonc (egyik unikornisánál sincs végigjátszott pálya), még nincs menet-rekord, a pult nem kapcsolta ki,
@@ -314,7 +315,7 @@ function epSajat(kesz, megse) {
   setTimeout(function () { try { m.focus(); } catch (e) {} }, 50);
   d._kesz = function () {
     var n = epNevTisztit(m.value);
-    if (n.length < 2) { $("ep-sajat-hiba").textContent = "Legalább két betű legyen!"; return; }
+    if (n.length < 2) { $("ep-sajat-hiba").textContent = "Írj legalább két betűt!"; return; }
     d.hidden = true; m.blur(); kesz(n);
   };
   d._megse = function () { d.hidden = true; m.blur(); nyBubEl(epHost()); megse(); };
@@ -355,7 +356,7 @@ function epOsztaly(host) {
       host.querySelector('.ny-zsinor[data-i="' + i + '"]').classList.add("el");
       host.querySelectorAll(".ny-lufi").forEach(function (m) { if (m !== g) m.classList.add("halvanyul"); });
       g.classList.add("repul");
-      epSzol(220, 250, EP_MONDAT.osztalyKesz.replace("{o}", o));
+      epSzol(220, 250, EP_MONDAT.osztalyKesz.replace("{o}", EP_OSZTALY_SZO[o] || o + ". osztályos"));
       epKesobb(function () { epVege(o); }, 2400);
     });
   });

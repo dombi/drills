@@ -34,7 +34,7 @@ function gyakMa(p) { return gyakTar(p).nap === tenyNap(); }    /* volt-e ma már
 /* a palyaVege hívja: igaz, ha ez a nap első végigjátszott pályája (új gyakorlós nap kezdődött) */
 function gyakLep(p) {
   var g = gyakTar(p), ma = tenyNap();
-  if (g.nap === ma) return false;
+  if (g.nap != null && ma <= g.nap) return false;   /* csak előre: az óra visszaállításával nem lesz új gyakorlós nap */
   g.db = (g.db || 0) + 1;
   g.nap = ma;
   return true;

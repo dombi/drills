@@ -119,7 +119,7 @@ function fejtoroKartya(pa) {
     '<div class="ikon">' + (pa.ikon || "🏔️") + '</div>' +
     '<div class="pnev">' + kiiras(pa.nev || "Fejtörő-ösvény") + '</div>' +
     '<div class="palcim">' + n + ' fejtörő' + (poz ? ' · ' + poz + '/' + n + ' kész' : '') + '</div>' +
-    '<div class="also"><span class="jutalom">✨ + 💧</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>';
+    '<div class="also"><span class="jutalom">✨<span class="harmat-jel"> + 💧</span></span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>';
   kart.addEventListener("click", function () { hangGomb(); ligetUget(kart, function () { fejtoroInditas(pa.id); }); });
   kart.querySelector(".palya-felolvas").addEventListener("click", function (e) {
     e.stopPropagation(); hangGomb();

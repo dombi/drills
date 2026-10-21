@@ -29,6 +29,9 @@ A siker fő mérője a gyerekek viselkedése (játékadatok + élő próba).
    ✅ 2026-10-20 (offline 2. kör): ⑧ 📴 net nélkül (`gepi/offline.py`, a gyors próbában is, ≈20–50 mp): `?sw`-vel
    betölt, a worker eltesz mindent → a próba-szerver leáll (= nincs net) → elindul-e a tárolt példányból (stílus,
    profilválasztó, első pálya, konzol) → Tüneménykert alvó felhő → `?friss` után üres tár, nincs worker.
+   ✅ 2026-10-21 (Újonc-bevezetés 4. kör): ⑨ újonc-menet (`gepi/ujonc.py`+`.js`, csak `--teljes` / `--csak ujonc`, ≈1 óra): üres mentés →
+   első perc az osztály lufijával → 14 gyakorlós nap (a játék órája napokkal eltolva; 1–6. o. + 2. o. február + elakadás + kihagyás);
+   napi 1 nyílás, sárkány-nap, köd/fény, alvó pálya/liget, felfelé csak „megy” után, 💧 rejtett zseb, pult-nap, régi játékos.
    ⭐ Új kitalált mentést érdemes gyártani, ha a mentés szerkezete változik (új mező a `profilNormal`-ban).
    Ha agent / élő próba olyat talál, amit gép is megfoghatott volna → új szabály az őrbe.
 2. **Lektor** (olcsó, bevált): ha új szöveg született. **Ördögügyvéd**: nagy tervlapnál.

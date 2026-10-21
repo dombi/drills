@@ -791,7 +791,7 @@ function palyaVege() {
   if (!J.rovid) tudasPalyaVege(id, teljes);   /* 📒 tudás-napló: tiszta (kerülő nélküli) nap — láthatatlan (tudas.js) */
   kuldPalyaVege(id);            /* 🐉 sárkány-küldetés: a kért pálya hoz egy darabot (kuldetes.js); a hír a visszaHir-ben */
   var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
-  var bankJegy = bankPalyaKesz(id);   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad) */
+  var bankJegy = nyitasEbren("bank") ? bankPalyaKesz(id) : 0;   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad); az újoncnál csak, ha a bank már ébren (nyitas.js) */
 
   /* ── darabkorlát: ez a végigvitel számít (a kapunyitás előtt, így nyitáskor tiszta lappal indul) ── */
   korlatSzamol(id);
@@ -827,7 +827,7 @@ function palyaVege() {
   var harmatSor ='<span class="harmat-jel"><br><span style="color:#2f7fb0;font-weight:800">💧 +' + harmat + ' tündérharmat</span>'
     + (napiExtra ? '' : '<br><span style="color:#6a8296;font-size:13px">Gyűlik a tündérharmat! Hamarosan különleges tárgyakra költheted.</span>') + '</span>';
   var kapuSor = kapuMostNyilt
-    ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!</span>'
+    ? '<br><span style="color:#5a3d8a;font-weight:800">🗝️ ' + (nyitasMenet() ? 'Kinyílt a kapu!' : 'Kinyílt az egész erdő! Most minden ösvényt bejárhatsz!') + '</span>'
     : "";
   var bankSor = bankJegy
     ? '<br><span style="color:#a24aa3;font-weight:800">🏦 A Tündérbankban most válthatsz ' + bankJegy + ' tündérharmatot!</span>'
@@ -863,7 +863,7 @@ function palyaVege() {
   /* bagoly: a következő pálya szorzóját mondja, hogy a gyerek dönthessen (7.1b) */
   var rejt = nyitasHarmatRejtett();   /* 💧 újonc: a harmatot még nem emlegetjük (nyitas.js) */
   var buzd = mvMeg ? " " + MV_MEGHIV_MONDAT : kov && !rejt ? " Ha most rögtön nekiindulsz egy másik pályának, még több tündérharmatot gyűjtesz!" : "";
-  if (kapuMostNyilt) buzd = " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz." + buzd;
+  if (kapuMostNyilt) buzd = (nyitasMenet() ? " Kinyílt a kapu!" : " Kinyílt az egész erdő! Most minden ösvényt bejárhatsz.") + buzd;   /* 🚪 az újoncnál sok liget még alszik */
   var napiSzov = napiExtra ? " Ez volt a mai kiemelt pálya" + (rejt ? "!" : ", kaptál plusz " + napiExtra + " tündérharmatot!") : "";
   var ajanlottSzov = ajanlottExtra ? " Ezt a pályát neked ajánlottam" + (rejt ? "!" : ", kaptál plusz " + ajanlottExtra + " tündérharmatot!") : "";
   if (bankJegy) ajanlottSzov += " A Tündérbankban most válthatsz!";

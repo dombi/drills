@@ -119,9 +119,9 @@ function bemutat(kulcs) {
 function nyitasJelenet(hol, kepernyo) {
   var k = nyitasBemutatKell(hol); if (!k) return false;
   var leny = mentes.leny;
-  nyitasBemutatLatta(k);
   setTimeout(function () {
     if (!$(kepernyo).classList.contains("aktiv") || mentes.leny !== leny) return;
+    nyitasBemutatLatta(k);   /* csak ha tényleg elhangzik (ha közben elkoppintott, legközelebb újra) */
     (k.b.ragyog || []).forEach(function (sel) {
       Array.prototype.forEach.call(document.querySelectorAll(sel), function (e) {
         e.classList.add("bemutat-ragyog"); setTimeout(function () { e.classList.remove("bemutat-ragyog"); }, 6500);
@@ -184,7 +184,7 @@ function ligetOsszegzo(r, lista) {
     if (!palyaZarva(pa) && !palyaElfogyott(pa)) nyitott++;
     if (pa.id === napiId && !napiKesz) j.napi = true;
     if (palyaAjanlott(pa)) j.ajanlott = true;
-    if (bankPalyaNyit(pa.id)) j.bank = true;
+    if (bankPalyaNyit(pa.id) && nyitasEbren("bank")) j.bank = true;
   });
   var jelzes = [];   /* fontossági sorrend (tervlap 2.): 💧 napi → 💖 ajánlott → 🏦 bank → 💖 egyéni */
   if (j.napi && !nyitasHarmatRejtett()) jelzes.push("💧");
@@ -231,7 +231,7 @@ function renderFomenu() {
       : "";
     var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
     if (ajanlott) kart.classList.add("ajanlott");
-    var bankos = !pa.hamarosan && bankPalyaNyit(pa.id);   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
+    var bankos = !pa.hamarosan && nyitasEbren("bank") && bankPalyaNyit(pa.id);   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
       '<div class="allapot">' + (alszikNy ? "💤" : zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +

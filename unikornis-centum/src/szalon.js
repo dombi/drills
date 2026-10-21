@@ -614,7 +614,7 @@ function szalonSVG() {
   /* 🚪 újonc (tervlap 4.⑤): a fodrász nyílásakor csak a forma (kefék) él; a festék a harmattal, a lakk és a szőrfesték
      a frissítések napján ébred — addig zárt spaletta van előttük (nyitas.js) */
   if (nyitasHarmatRejtett()) s += szalonAlvo(8, 48, 100, 214);
-  if (nyitasHely("frissites") === "alszik") s += szalonAlvo(114, 2, 184, 58) + szalonAlvo(301, 2, 97, 58);
+  if (nyitasHely("frissites") === "alszik") s += szalonAlvo(114, 2, 184, 58, 1) + szalonAlvo(301, 2, 97, 58, 1);
 
   /* kefék a pulton (1. fázis) */
   s += '<rect x="292" y="108" width="104" height="7" rx="2" fill="#b06fd0"/>';
@@ -648,8 +648,8 @@ function szalonSVG() {
   s += '</svg>';
   return s;
 }
-function szalonAlvo(x, y, w, h) {   /* zárt spaletta egy polc / szekrény előtt, rajta kis alvó hold (koppintásra: „Ez még alszik…”) */
-  return '<g class="szalon-alvo">' + utcaSpalettaSVG(x, y, w, h) +
+function szalonAlvo(x, y, w, h, polc) {   /* zárt spaletta egy polc / szekrény előtt, rajta kis alvó hold (koppintásra: „Ez még alszik…”; polc = a frissítések napjáig) */
+  return '<g class="szalon-alvo"' + (polc ? ' data-polc="1"' : '') + '>' + utcaSpalettaSVG(x, y, w, h) +
     '<g transform="translate(' + (x + w / 2) + ' ' + (y + Math.min(h / 2, 40)) + ') scale(.7)"><circle r="13" fill="#f6f0ff" stroke="#b9a3e3" stroke-width="2.4"/>' +
     '<path transform="translate(1 0) scale(.7)" d="M-8 -10A11 11 0 1 0 4 8A8 8 0 1 1 -8 -10Z" fill="#9a7fd6"/></g></g>';
 }
@@ -698,7 +698,7 @@ function renderSzalon() {
   var hp = $("szalon-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("szalon-szinter"); if (!host) return;
   host.innerHTML = szalonSVG() + szalonDlgHTML();
-  host.querySelectorAll(".szalon-alvo").forEach(function (el) { szalonKot(el, function (e) { e.stopPropagation(); hangGomb(); szalonMond(NYITAS_MONDAT.szalon); }); });
+  host.querySelectorAll(".szalon-alvo").forEach(function (el) { szalonKot(el, function (e) { e.stopPropagation(); hangGomb(); szalonMond(el.getAttribute("data-polc") ? NYITAS_MONDAT.szalonPolc : NYITAS_MONDAT.szalon); }); });
   var kg = document.getElementById("szalon-kefe-gondor"); if (kg) szalonKot(kg, function () { szalonKefe("gondor"); });
   var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) szalonKot(ke, function () { szalonKefe("egyenes"); });
   var kt = document.getElementById("szalon-kefe-tarej"); if (kt) szalonKot(kt, function () { szalonKefe("tarej"); });
