@@ -301,11 +301,46 @@ class Lap:
         self.ws.zar()
 
 
+def arvak_takaritasa():
+    """Egy megszakított próba (időkorlát, leállított beszélgetés) Edge-je bent ragad: a `finally` nem fut le,
+    a láthatatlan lapok órákig viszik a gépet (2026-10-21: 6 ragadt bent, 41 folyamat). Induláskor leállítjuk
+    azokat, amelyek indító Pythonja már nem él, és töröljük a gazdátlan uc-gepi-* profilmappákat.
+    Egy épp futó másik próbához nem nyúl (annak él az indítója, a profilja a parancssorában van)."""
+    if os.name != "nt": return
+    ps = ("Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CommandLine,"
+          "@{n='T';e={if($_.CreationDate){$_.CreationDate.ToFileTimeUtc()}else{0}}} | ConvertTo-Json -Compress")
+    try:
+        ki = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                            capture_output=True, timeout=60).stdout.decode("utf-8", "replace")
+        folyamatok = {p["ProcessId"]: p for p in json.loads(ki)}
+    except Exception:
+        return                                   # a takarítás sosem akaszthatja meg a próbát
+    elok, leallitott = [], 0                     # a még élő próbák parancssorai (bennük a profilmappa neve)
+    for p in folyamatok.values():
+        cmd = p.get("CommandLine") or ""
+        if "uc-gepi-" not in cmd or "--headless" not in cmd or "--type=" in cmd: continue
+        szulo = folyamatok.get(p["ParentProcessId"])
+        if szulo and szulo["T"] <= p["T"]:       # él az indítója (és nem egy később kapott, újrahasznált PID)
+            elok.append(cmd); continue
+        subprocess.run(["taskkill", "/PID", str(p["ProcessId"]), "/T", "/F"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        leallitott += 1
+    if leallitott: time.sleep(1)                 # a leállított Edge-ek elengedik a mappáikat
+    tmp = tempfile.gettempdir()
+    for nev in os.listdir(tmp):
+        ut = os.path.join(tmp, nev)
+        if not nev.startswith("uc-gepi-") or not os.path.isdir(ut): continue
+        if any(nev in c for c in elok): continue
+        if time.time() - os.path.getmtime(ut) < 120: continue   # épp most induló másik próbáé lehet
+        shutil.rmtree(ut, ignore_errors=True)
+
+
 class Edge:
     """Láthatatlan Edge üres, ideiglenes profillal; a .lap egy fül, a .uj_lap() újat nyit."""
     def __init__(self):
         exe = next((p for p in EDGE_HELYEK if os.path.isfile(p)), None)
         if not exe: raise RuntimeError("nem találom az Edge-et")
+        arvak_takaritasa()
         self.profil = tempfile.mkdtemp(prefix="uc-gepi-")
         self.proc = subprocess.Popen([exe, "--headless=new", "--remote-debugging-port=0",
                                       "--user-data-dir=" + self.profil, "--no-first-run",
