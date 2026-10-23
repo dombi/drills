@@ -1455,33 +1455,12 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 .szalon-dlg.also{ align-items:flex-end; background:rgba(60,40,90,.12); }
 @media (prefers-reduced-motion:reduce){ .szalon-svg.szorfesto #szalon-uni .uni-szor{ animation:none; filter:drop-shadow(0 0 4px rgba(255,214,0,.9)); } .szalon-razza{ animation:none; } }
 
-/* ── FELHŐ (backend 1. fázis): belépő képernyő + állapotsor ── */
-.felho-belepo { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center;
-  background: rgba(60, 40, 90, 0.45); backdrop-filter: blur(3px); padding: 16px; }
-.felho-belepo[hidden] { display: none; }
-.felho-kartya { background: #fffaf3; border-radius: 24px; padding: 28px 26px 18px; width: min(380px, 100%); text-align: center;
-  box-shadow: 0 12px 40px rgba(60, 30, 90, 0.3); font-family: inherit; }
-.felho-kartya h2 { margin: 6px 0 4px; color: #6a3bc0; }
-.felho-kartya p { margin: 0 0 14px; color: #6a5a7a; }
-.felho-ikon { font-size: 44px; }
+/* ── FELHŐ: állapotsor (a belépő mező a legelőn van: .lg-mezo) ── */
 .felho-mezo { width: 100%; box-sizing: border-box; font: inherit; font-size: 24px; text-align: center; letter-spacing: 2px;
   text-transform: uppercase; padding: 12px; border: 3px solid #d9c8f0; border-radius: 16px; outline: none; }
 .felho-mezo:focus { border-color: #a57ee0; }
 .felho-hiba { min-height: 22px; margin: 8px 0; color: #c0445a; font-weight: 700; }
-.felho-kartya .nagy-gomb { width: 100%; }
-.felho-kartya .tovabb-link { margin-top: 10px; }
 .felho-allapot { margin-top: 12px; color: #5a4a6a; }
-/* közös gép: névkártyák a belépőn + 👋 Kilépek a profilválasztón */
-.felho-kartya.szeles { width: min(560px, 100%); }
-.felho-jatekosok { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 8px 0 12px; }
-.felho-jatekosok:empty { display: none; }
-.felho-nevkartya { font: inherit; background: #fff; border: 3px solid #e6dcf5; border-radius: 18px; padding: 6px 10px 10px;
-  width: 132px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
-.felho-nevkartya svg { width: 110px; height: 104px; }
-.felho-nevkartya .nev { font-size: 20px; font-weight: 800; color: #4a3a6a; }
-.felho-nevkartya:hover { border-color: #c8b0ec; }
-.felho-nevkartya.valasztott { border-color: #a57ee0; background: #f6efff; box-shadow: 0 0 0 3px rgba(165, 126, 224, 0.25); }
-.felho-kartya [hidden] { display: none; }
 .sarok-bal { position: absolute; left: 16px; bottom: 16px; }
 
 /* ============================================================================
@@ -3066,7 +3045,6 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .ny-bub.lat{ opacity:1; transform:translate(-50%,-100%) scale(1); }
 .ny-koppints{ transform-box:fill-box; transform-origin:50% 50%; animation:ny-koppints 1.8s ease-out infinite; pointer-events:none; }
 @keyframes ny-koppints{ 0%{ transform:scale(.7); opacity:.9; } 100%{ transform:scale(1.35); opacity:0; } }
-.ny-alvo, .ny-uj, .ny-masik{ cursor:pointer; }
 .ny-tabla{ transform-box:fill-box; transform-origin:50% 100%; }
 .ny-tabla.ebred{ animation:ny-tabla-billeg .9s ease-in-out 1; }
 @keyframes ny-tabla-billeg{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-5deg); } 60%{ transform:rotate(4deg); } }
@@ -3116,6 +3094,28 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .lg-paplan.rezzen{ animation:lg-rezzen .6s ease-in-out 1; }
 @keyframes lg-rezzen{ 0%,100%{ transform:rotate(0); } 30%{ transform:rotate(-2deg); } 70%{ transform:rotate(2deg); } }
 .lg-hold{ animation:lg-lebeg 5s ease-in-out infinite; transform-box:fill-box; pointer-events:none; }
+/* 🚪 2. kör: a kis kapu (csak a kilépésé), a csillámfelhő és a belépő mező a tábla fölött */
+.lg-kapu-fog{ cursor:pointer; }
+.lg-ajto{ transform-box:fill-box; transform-origin:100% 50%; transition:transform .9s cubic-bezier(.4,1.3,.6,1); }
+.lg-ajto.nyikordul{ transform:scaleX(.84) skewY(-3deg); }
+.lg-ajto.nyit{ transform:scaleX(.14) skewY(-9deg); }
+.lg-ajto.billeg{ animation:lg-ajto-billeg .5s ease-in-out 1; }
+@keyframes lg-ajto-billeg{ 0%,100%{ transform:scaleX(1); } 40%{ transform:scaleX(.95); } }
+.lg-csf{ pointer-events:none; }
+.lg-csf .cs > *{ transform-box:fill-box; transform-origin:50% 50%; animation:lg-pislog 1.1s ease-in-out infinite; }
+.lg-csf .cs > *:nth-child(2n){ animation-delay:-.4s; } .lg-csf .cs > *:nth-child(3n){ animation-delay:-.8s; }
+@keyframes lg-pislog{ 0%,100%{ opacity:.15; transform:scale(.5); } 50%{ opacity:1; transform:scale(1.1); } }
+.lg-mezo{ position:absolute; left:50%; top:27%; transform:translateX(-50%); z-index:6; background:#fffaf2; border:2px solid #e3d4f5; border-radius:18px; padding:8px 10px;
+  box-shadow:0 8px 22px rgba(60,40,90,.25); display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; width:max-content; max-width:94%; }
+.ny-szin.allo .lg-mezo{ top:21%; }
+.lg-mezo[hidden]{ display:none; }
+.lg-mezo input{ font:inherit; font-size:clamp(16px,2.4vw,20px); font-weight:600; letter-spacing:.06em; text-transform:uppercase; border:2px solid #c9a8e6; border-radius:12px; padding:5px 10px; width:14ch; color:#2a2140; background:#fff; outline:none; }
+.lg-mezo input:focus{ border-color:#8a4fd0; }
+.lg-mezo button{ font:inherit; font-weight:700; font-size:clamp(14px,2.2vw,17px); border:0; border-radius:12px; padding:7px 14px; cursor:pointer; background:#8a4fd0; color:#fff; }
+.lg-mezo button:disabled{ opacity:.6; cursor:default; }
+.lg-mezo button.masod{ background:#ece0fb; color:#5a3f8a; }
+.lg-mezo .lg-kihagy{ flex-basis:100%; background:none; color:#8a7aa8; font-size:13px; font-weight:600; text-decoration:underline; padding:2px; }
+.lg-mezo .lg-kihagy[hidden]{ display:none; }
 @media (prefers-reduced-motion:reduce){
-  .lg-varad, .lg-paplan, .lg-hold{ animation:none; }
+  .lg-varad, .lg-paplan, .lg-hold, .lg-csf .cs > *{ animation:none; }
 }
