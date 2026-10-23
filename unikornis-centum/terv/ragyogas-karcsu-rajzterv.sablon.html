@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ragyogás karcsúbban — rajzterv</title>
+<style>
+  body { margin: 0; background: #fbf5ec; color: #3a2f2a; font: 16px/1.5 system-ui, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  h2 { margin: 36px 0 8px; font-size: 21px; border-bottom: 2px solid #ead9c4; padding-bottom: 4px; }
+  .al { color: #7a6a5e; margin: 0 0 16px; }
+  .sor { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .lap { background: #fffdf9; border: 2px solid #ead9c4; border-radius: 14px; padding: 10px 10px 12px; text-align: center; }
+  .lap.most { border-color: #c9b8a6; }
+  .lap.java { border-color: #e6a92e; box-shadow: 0 0 0 3px #ffe6a0; }
+  .lap svg { width: 100%; height: auto; display: block; background: linear-gradient(#f7efe4 0 78%, #e9dcc6 78%); border-radius: 10px; }
+  .lap b { display: block; margin-top: 6px; font-size: 17px; }
+  .lap small { color: #7a6a5e; }
+  .megj { background: #fff7e0; border-left: 4px solid #e6a92e; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .dontes { background: #fffdf9; border: 2px solid #ead9c4; border-radius: 14px; padding: 6px 18px; }
+  .dontes li { margin: 8px 0; }
+  .jel { display: inline-block; width: 22px; border-top: 2px dashed #e0447a; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ragyogás karcsúbban</h1>
+  <p class="al">Rajzterv, 2026-10-23 · a valódi játékrajzzal készült · csak Ragyogás változik, Tűz és Csillámharmat marad</p>
+
+  <div class="megj"><b>Mi változik:</b> a has feljebb kerül és laposabb lesz, a mellkas eleje (a nyak alja) kicsit beljebb húzódik.
+    <b>Mi marad:</b> a hátvonal, a fej, a sörény, a lábak és a far jele. Így minden takaró, szárny, nyaklánc és lábdísz ugyanott ül.
+    A <span class="jel"></span> szaggatott vonal a mostani alakot mutatja.</div>
+
+  <h2>1. A négy változat egymás mellett</h2>
+  <div class="sor" id="valtozatok"></div>
+
+  <h2>2. Öltözékben — a holmik ráillenek-e?</h2>
+  <p class="al">Mindegyik változat ugyanazokkal a holmikkal: a három hát-takaró, Szív-medál, szárny, patkó.</p>
+  <div id="oltozek"></div>
+
+  <h2>3. Szemből és hátulról (forgáskor, pörgéskor látszik)</h2>
+  <p class="al">Szemből a karcsúság a test szélességén látszik. A lábak miatt itt a has csak kicsit emelkedhet.</p>
+  <div class="sor" id="nezetek"></div>
+
+  <h2>4. A három régi unikornis együtt</h2>
+  <p class="al">Ragyogás a javasolt <b>B</b> változattal, Tűz és Csillámharmat változatlan.</p>
+  <div class="sor" id="harom"></div>
+
+  <h2>5. Döntések</h2>
+  <ol class="dontes">
+    <li><b>Melyik változat?</b> Javaslatom: <b>B</b>. Már jól látszik, hogy karcsúbb, de a takarók szegélye még a testen marad. A C-nél a takarók alja lelóg a hasról.</li>
+    <li><b>A nyak:</b> csak a mellkas eleje húzódik beljebb, a sörény alatti rész. Ennyi elég, vagy legyen több? Ha többet húzunk be, a Szív-medál és a Makk-lánc a levegőben lógna, azokat is igazítani kellene.</li>
+    <li><b>Szemből is legyen keskenyebb?</b> Javaslatom: igen, ugyanazzal a fokozattal, különben forgáskor „meghízna”.</li>
+  </ol>
+</main>
+
+<script>/*__RENDERER__*/</script>
+<script>
+/* ── PROTOTÍPUS: KARCSÚ ALKAT (kódoláskor → renderer.js, UNI_ALKAT tábla rajz szerint) ──
+   h = a has emelése, n = a mellkas eleje beljebb (nyak alja), w = szemből a test keskenyítése.
+   A hátvonal, a fej és a lábak tövei nem mozdulnak → minden holmi ráillik. */
+var ALKAT = {
+  most: null,
+  A: { nev: "A · kicsit karcsúbb", h: 8,  n: 4, w: 8 },
+  B: { nev: "B · karcsúbb",        h: 14, n: 6, w: 14 },
+  C: { nev: "C · nagyon karcsú",   h: 20, n: 9, w: 20 }
+};
+var TEST_D = "M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z";
+var HAS_D = "M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z";
+var NZ_TEST_D = "M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z";
+var NZ_HAS = '<ellipse cx="190" cy="200" rx="52" ry="26"';
+function k1(x) { return +x.toFixed(1); }
+function karcsuTestD(a) {
+  var h = a.h, n = a.n, B = 240 - h;
+  return "M74 172 C74 130 110 106 172 106 C" + k1(236 - n * .5) + " 106 " + (268 - n) + " 132 " + (268 - n) + " 176 C" +
+    (268 - n) + " " + k1(218 - h * .7) + " " + k1(232 - n * .5) + " " + B + " 168 " + B + " C108 " + B + " 74 " + k1(214 - h * .7) + " 74 172 Z";
+}
+function karcsuHasD(a) {
+  var h = a.h, n = a.n, e = k1(198 - h * .55), x0 = k1(92 + h * .1), f = k1(226 - h * .85), g = 234 - h;
+  return "M" + x0 + " " + e + " C112 " + f + " " + (226 - n) + " " + f + " " + (246 - n) + " " + e + " C" + (236 - n) + " " + g + " 104 " + g + " " + x0 + " " + e + " Z";
+}
+function karcsuNezetD(a) {   /* szemből: a has csak max. 6-tal emelkedik (a lábak tövei 220–226-nál vannak) */
+  var w = a.w, h = Math.min(a.h, 6), L = 110 + w * .5, R = 270 - w * .5, B = 236 - h;
+  return "M" + L + " 174 C" + L + " 130 142 118 190 118 C238 118 " + R + " 130 " + R + " 174 C" + R + " " + k1(218 - h * .7) + " " + (242 - w) + " " + B +
+    " 190 " + B + " C" + (138 + w) + " " + B + " " + L + " " + k1(218 - h * .7) + " " + L + " 174 Z";
+}
+function karcsuOldal(art, a) { return a ? art.split(TEST_D).join(karcsuTestD(a)).split(HAS_D).join(karcsuHasD(a)) : art; }
+function karcsuNezet(art, a) {
+  if (!a) return art;
+  var h = Math.min(a.h, 6);
+  return art.split(NZ_TEST_D).join(karcsuNezetD(a))
+            .split(NZ_HAS).join('<ellipse cx="190" cy="' + k1(200 - h * .5) + '" rx="' + (52 - a.w) + '" ry="' + k1(26 - h * .3) + '"');
+}
+/* bekötés: csak a rozsa (Ragyogás) rajza kapja meg */
+var MOST_ALKAT = null;
+var _uniAlapArt = uniAlapArt, _uniNezetArt = unikornisNezetArt;
+uniAlapArt = function (rajz) { var art = _uniAlapArt.apply(null, arguments); return rajz === "rozsa" ? karcsuOldal(art, MOST_ALKAT) : art; };
+unikornisNezetArt = function (nezet, rajz) { var art = _uniNezetArt.apply(null, arguments); return rajz === "rozsa" ? karcsuNezet(art, MOST_ALKAT) : art; };
+
+/* ── a lap ── */
+var KERET = '<g transform="scale(0.5) translate(-190,-272)">';
+function oldalSVG(rajz, kulcs, oltozet, szellem) {
+  MOST_ALKAT = ALKAT[kulcs];
+  var s = '<svg viewBox="-104 -146 208 162">' + unikornisSVG("u" + Math.random().toString(36).slice(2), { rajz: rajz }, 1, oltozet || null, null);
+  if (szellem && MOST_ALKAT) s += KERET + '<path d="' + TEST_D + '" fill="none" stroke="#e0447a" stroke-width="2.4" stroke-dasharray="7 5"/></g>';
+  MOST_ALKAT = null;
+  return s + '</svg>';
+}
+function nezetSVG(nezet, kulcs, szellem) {
+  MOST_ALKAT = ALKAT[kulcs];
+  var s = '<svg viewBox="-80 -146 160 162">' + KERET + unikornisNezetArt(nezet, "rozsa", null, "n" + kulcs) + '</g>';
+  if (szellem && MOST_ALKAT) s += KERET + '<path d="' + NZ_TEST_D + '" fill="none" stroke="#e0447a" stroke-width="2.4" stroke-dasharray="7 5"/></g>';
+  MOST_ALKAT = null;
+  return s + '</svg>';
+}
+function lap(svg, cim, al, osztaly) { return '<div class="lap ' + (osztaly || "") + '">' + svg + '<b>' + cim + '</b>' + (al ? '<small>' + al + '</small>' : '') + '</div>'; }
+
+var SOR = ["most", "A", "B", "C"];
+var CIM = { most: "Most", A: ALKAT.A.nev, B: ALKAT.B.nev, C: ALKAT.C.nev };
+var AL = { most: "a mostani Ragyogás", A: "has 8-cal feljebb, nyak 4-gyel beljebb", B: "has 14-gyel feljebb, nyak 6-tal beljebb", C: "has 20-szal feljebb, nyak 9-cel beljebb" };
+document.getElementById("valtozatok").innerHTML = SOR.map(function (k) {
+  return lap(oldalSVG("rozsa", k, null, true), CIM[k], AL[k], k === "most" ? "most" : k === "B" ? "java" : "");
+}).join("");
+
+var HOLMIK = [
+  { cim: "Pillekönnyű takaró + Szív-medál", o: { hat: "hat-a", nyak: "nyak-k" } },
+  { cim: "Hímzett nyeregtakaró + Makk-lánc", o: { hat: "hat-k", nyak: "nyak-a", lab: "lab-k" } },
+  { cim: "Csillagköpeny + szárny + virágkoszorú", o: { hat: "hat-r", oldal: "oldal-k", fej: "fej-a", farok: "farok-a" } }
+];
+document.getElementById("oltozek").innerHTML = HOLMIK.map(function (hm) {
+  return '<p class="al" style="margin:18px 0 6px"><b>' + hm.cim + '</b></p><div class="sor">' + SOR.map(function (k) {
+    return lap(oldalSVG("rozsa", k, hm.o), CIM[k], "", k === "most" ? "most" : k === "B" ? "java" : "");
+  }).join("") + '</div>';
+}).join("");
+
+document.getElementById("nezetek").innerHTML =
+  lap(nezetSVG("elol", "most"), "Szemből · most", "", "most") +
+  lap(nezetSVG("elol", "B", true), "Szemből · B", "", "java") +
+  lap(nezetSVG("hatul", "most"), "Hátulról · most", "", "most") +
+  lap(nezetSVG("hatul", "B", true), "Hátulról · B", "", "java");
+
+document.getElementById("harom").innerHTML =
+  lap(oldalSVG("rozsa", "B"), "Ragyogás (B)", "", "java") +
+  lap(oldalSVG("korall", "most"), "Tűz", "változatlan") +
+  lap(oldalSVG("kek", "most"), "Csillámharmat", "változatlan");
+</script>
+</body>
+</html>
