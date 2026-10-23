@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Életszerű és 100-as pályák</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#f2fbef; --leaf:#5cb77a; --leaf-d:#3f8f5a; --card:#fffaf2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--leaf-d) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(138,79,208,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🏪";position:absolute;right:18px;top:6px;font-size:100px;opacity:.2;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--leaf-d),var(--violet));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  svg.vazlat .kartya{fill:var(--card);stroke:var(--line);stroke-width:2}
+  .forras{display:inline-block;background:var(--blue-soft);color:var(--ink);border-radius:8px;padding:1px 8px;font-size:12.5px;margin:2px 0}
+  .pedag{display:inline-block;background:var(--violet-soft);color:var(--ink);border-radius:8px;padding:1px 8px;font-size:12.5px;margin:2px 0}
+  .palya{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:14px 0}
+  .palya h3{margin:0 0 6px;font-size:18px}
+  .palya .tag{font-size:13px;color:var(--muted)}
+  .all{border-left:4px solid var(--leaf);padding:6px 0 6px 12px;margin:10px 0}
+  .all b.n{display:block}
+  .kiskapu{border-left:4px solid var(--pink);background:var(--pink-soft);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>🏪 Életszerű feladatok + a 100-as kör új pályái</h1>
+  <div class="sub">Több és változatosabb összeadás-kivonás a 100-as körben, a mai ligetekben. A gyerek <b>boltot visz</b>: kifizet, visszaad, és ellenőrzi a róka blokkját. Mellé jönnek a 100-as kör új pályái, amelyekben egy feladat a következőt hívja elő: rokon-létra, számcsalád, varázsgép.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">2026-10-23</span>
+    <span class="chip">Nagyság: a tervlap közepes, a kód nagy (7 kör, ebből 1 rajzterv)</span>
+    <span class="chip">Teendőlista: 11. pont</span>
+    <span class="chip">Vezérelv: Pósa · Pólya · Varga · Dienes</span>
+  </div>
+</header>
+
+<h2>Röviden</h2>
+<div class="panel">
+  <p><b>Mi ez?</b> Két új pályacsoport a mai 🌳 Összeadó ligetbe. Lili és Fanni a 100-as körben sok gyakorlást kap, de eddig szinte csak „számold ki” formában. Most a gondolkodás <b>irányát</b> változtatjuk: a gyerek fizet, visszaad, ellenőriz, felfedez egy szabályt, és rájön, hogy egy nehéz feladat egy könnyű rokona.</p>
+  <ol>
+    <li><b>🏪 Tüske néni boltja</b> (életszerű, 1 pálya, 4 állomás): Fizesd ki! · Visszajáró · A róka blokkja · Keretből vásárlás.</li>
+    <li><b>A 100-as kör új pályái</b>: 🪜 Rokon-létra (7+5 → 27+5 → 67+5) · 🏡 Számcsalád · ⚙️ Varázsgép · 🧮 Gyöngypálca (ötlet a szorobánból).</li>
+  </ol>
+  <p><b>Javaslatom az első csomagra:</b> a Bolt első három állomása, a Rokon-létra és a Számcsalád. A Keretből vásárlás, a „biztos / lehetséges / lehetetlen” csúcs és a Varázsgép a második csomagba kerül, már a gyerekek visszajelzése szerint.</p>
+  <p class="lead">A feladatgyártók <b>külön modulban</b> készülnek, a képtől függetlenül. Így később átköltözhetnek a falu házaiba (falu: egy pálya = egy ház).</p>
+</div>
+
+<h2>1. Mit találtam a könyvekben?</h2>
+<p class="lead">Átnéztem az OH 2. és 3. osztályos tankönyvet (<code>Matekkönyvek\OH-MAT02TB</code>, <code>…03TB</code>). Az oldalszámok a PDF oldalai. A könyv a kiindulópont, a határt nem ez szabja meg: ahol a könyv csak egy kitöltendő táblázatot ad, ott a játékban a gyerek csinál valamit a képpel.</p>
+<div class="panel tblwrap">
+<table>
+  <tr><th>Feladattípus a könyvben</th><th>Hol</th><th>Mi lesz belőle</th></tr>
+  <tr><td>„Péter 85 Ft-ért ceruzát vett. <i>Ti hogyan tudnátok másképpen kifizetni?</i>”</td><td>3. o. 13. o.</td><td>🪙 Fizesd ki! (sokféle út)</td></tr>
+  <tr><td>Évi és Dóri boltost játszik: 10 forintosokkal fizet, „Dóri 1 forintosokat ad vissza”; „Miket vásároljon, hogy 1 db 1 forintost kapjon vissza?”</td><td>3. o. 12. o.</td><td>💰 Visszajáró + 🧺 Keretből (nyitott feladat)</td></tr>
+  <tr><td>Lívia és Márti boltost játszik: „Mennyi pénze maradt?” (számegyenesen, lépésekben)</td><td>2. o. 61. o.</td><td>💰 Visszajáró a szalagon</td></tr>
+  <tr><td>„Hány forintot kapott vissza, ha egy 1000 forintossal fizetett?” (két lépés: összeg, majd különbség)</td><td>3. o. 111. o.</td><td>💰 Visszajáró, több tárgyas blokkal (2. csomag)</td></tr>
+  <tr><td>„Mennyi pénzt gyűjtsön még?” (pótlás)</td><td>2. o. 47. o.</td><td>💰 felfelé számolás = pótlás</td></tr>
+  <tr><td>„<i>Ha jó a megoldás, pipáld ki! Ha rossz az eredmény, javítsd!</i>”</td><td>2. o. 85. o.</td><td>🦊 A róka blokkja</td></tr>
+  <tr><td>Kerekítés a boltban: „körülbelül mennyit fogunk fizetni. Ez a becslés.”</td><td>3. o. 74. o.</td><td>🦊 előbb „körülbelül stimmel?”, utána pontosan</td></tr>
+  <tr><td>„Biztos, lehetséges, de nem biztos, lehetetlen”: 26 Ft-ot fizettem 2-, 10- és 20-asokkal, visszajáró nélkül</td><td>3. o. 50. o.</td><td>🎲 a Bolt csúcsa (2. csomag)</td></tr>
+  <tr><td>„Vegyél ki mindkét kosárból egy-egy számot! Alkoss összeadásokat, kivonásokat, pótlásokat”</td><td>2. o. 85. o.</td><td>🏡 Számcsalád</td></tr>
+  <tr><td>„Melyik szám lehet a kakukktojás? Miért?”</td><td>2. o. 31. o.; 3. o. 8. o.</td><td>🏡 „ki nem tartozik a családba?”</td></tr>
+  <tr><td>„Mit csinálhat a gép?”, „A varázsgép mindig …-cal kevesebbet dob ki”, „Mi lehet a szabály?”</td><td>2. o. 11., 58., 84. o.</td><td>⚙️ Varázsgép</td></tr>
+  <tr><td>Számpiramis; láncszámolás, amely kódot ad a lakathoz</td><td>2. o. 62., 85. o.</td><td>⚙️ a Varázsgép-pálya későbbi állomásai</td></tr>
+  <tr><td>„Pótolj a középen lévő piros számra!” (pótlás-kerék); számszomszédok, tízes szomszéd</td><td>2. o. 59. o.; 3. o. 74. o.</td><td>🪜 a Rokon-létra első foka (tízes barátok)</td></tr>
+</table>
+</div>
+<p class="lead">A rokon feladatok (7+5 → 27+5) a könyvekben csak elszórtan, egy-egy sorban jelennek meg. Itt a Pósa-féle problémafolyam adja hozzá, hogy egymásra épülő lépcsővé váljanak.</p>
+
+<h2>2. A vezérelv: mit veszünk át a matematikusoktól?</h2>
+<div class="panel">
+  <ul>
+    <li><span class="pedag">Pósa Lajos</span> <b>Problémafolyam:</b> egy kérdés a következőt hívja elő („most kevesebb érmével!”, „és ha 27 + 5?”). <b>„Van még?”</b>: a nyitott feladatoknál a második megoldás is ünnep. <b>A hiba nyom, nem büntetés.</b></li>
+    <li><span class="pedag">Pólya György</span> <b>„Láttál már hasonlót?”</b>: ez maga a Rokon-létra. <b>Nézz vissza!</b>: a róka blokkjánál a gyerek mások munkáját ellenőrzi, és ezzel a sajátját is megtanulja ellenőrizni.</li>
+    <li><span class="pedag">Varga Tamás</span> Tevékenységből lesz a fogalom (érmék a pulton). Biztos / lehetséges / lehetetlen. <b>Rossz válaszra a kép felel:</b> ha kevesebbet ad vissza, a vevő a tenyerére néz, és vár.</li>
+    <li><span class="pedag">Dienes Zoltán</span> <b>Ugyanaz más ruhában:</b> a felfelé számolás egyszer visszajáró, egyszer pótlás, egyszer a Bújócska kérdőjele. <b>A szabályt a gyerek fedezi fel</b> (Varázsgép). Egy rövid szabad játék, mielőtt új szerszám jön.</li>
+    <li><span class="pedag">mellé</span> Konkrét → képi → elvont, és a kép a létra tetején halványul. Elosztott ismétlés a tény-motorral. Hibaelemzés: a róka hibái a gyerekek tipikus hibái.</li>
+  </ul>
+</div>
+
+<h2>3. 🏪 Tüske néni boltja (életszerű)</h2>
+<div class="palya">
+  <h3>🏪 Tüske néni boltja <span class="tag">· Összeadó liget, a 🍂 Százas bújócska után · 100-ig · Rajt → 4 állomás → Odú-küszöb</span></h3>
+  <p>Tüske néni (a sün-árus a Vásárból) elfárad, a gyerek áll be a pult mögé. A pénz neve <b>tallér</b>, nem ✨, így nem keveredik a jutalommal. Kitalált érmék vannak: 1, 2, 5, 10, 20, 50 és egy 100-as. Mindegyik egyszerű, egyforma kis korong, csak a szám és a méret más (a díszes rész a háttér). A vevők a FIGURA-táblából jönnek.</p>
+
+  <div class="all"><b class="n">① 🪙 Fizesd ki!</b>
+    <b>Mit CSINÁL a gyerek a képen?</b> Az ár a cédulán van (pl. 85). A gyerek érméket húz a tálcáról a pultra. A pult <b>nem írja ki az összeget</b>: a gyerek számol, és a „Kész” gombra Tüske néni hangosan, érménként összeszámolja (a kép most mutatja meg). Ha jó, a vevő elviszi az árut.<br>
+    <b>Pósa-folyam:</b> 1. „Fizesd ki!” → 2. „<b>Másképp</b> is ki lehet?” → 3. „Most a <b>legkevesebb</b> érmével!” Ugyanaz az ár, három kérdés.<br>
+    <b>Rossz válaszra a kép:</b> ha kevés, a cédula mellett üres hely marad, és Tüske néni vár. Ha sok, a vevő visszatol egy érmét.
+    <div><span class="forras">3. o. 13. o.</span> <span class="pedag">Varga: tevékenység · Pósa: van más út?</span></div>
+  </div>
+
+  <div class="all"><b class="n">② 💰 Visszajáró</b>
+    <b>Mit CSINÁL a gyerek a képen?</b> A vevő 50-essel fizet egy 37-es áruért. A gyerek érméket húz a vevő tenyerébe, és közben a pult szélén egy <b>egyenes számszalag</b> lép vele: 37 → 40 (+3), → 50 (+10). Ez a felfelé számolás, vagyis a kivonás pótlásként. A szalag csak azt a számot mutatja, ahová a gyerek már eljutott.<br>
+    <b>Fokozatok:</b> kerek tízesre (37 → 40) → kerek tízesből (40 → 50) → teljes (37 → 50) → 100-asból fizet (63 → 100). A létra tetején a szalag elhalványul, és a gyerek egy számot ír be.<br>
+    <b>Rossz válaszra a kép:</b> ha kevés, a vevő a tenyerére néz, és vár. Ha sok, a vevő meglepődik, és visszaad egy érmét: „Ez sok!”.
+    <div><span class="forras">2. o. 47., 61. o.</span> <span class="forras">3. o. 12., 111. o.</span> <span class="pedag">Dienes: ugyanaz más ruhában (= Bújócska ?)</span></div>
+  </div>
+
+  <div class="all"><b class="n">③ 🦊 A róka blokkja</b>
+    <b>Mit CSINÁL a gyerek a képen?</b> Róka Juli összeadja a vásárlást egy blokkon (pl. 38 + 25 = 53). A gyerek <b>pecsétet</b> nyom rá: ✓ vagy ✗. Ha ✗, javítania kell: kihúzza a rossz számot, és beírja a jót. Előtte jöhet egy gyors kérdés: „<b>Körülbelül</b> stimmel?” (kerek tízesekkel: 40 + 30 = 70; az 53 túl kevés). Ez a becslés kifogja a nagy hibákat.<br>
+    <b>A róka hibái a gyerekek tipikus hibái:</b> kimaradt tízes, elfelejtett átvitel (38 + 25 = 53), felcserélt jegyek (36 helyett 63), ±1 a pótlásnál. A róka nagyjából kétszer pontos ötből, különben a gyerek nem ellenőrizne, csak gyanakodna.<br>
+    <b>Rossz válaszra a kép:</b> ha a gyerek egy hibás blokkra ✓-t nyom, a vevő hazaér, kiönti a kosarát, és meglepődik: a kép megmutatja, hogy „hiányzik” (vagy több van) egy tízesnyi áru.
+    <div class="kiskapu">🔒 <b>Kiskapu:</b> ✓/✗ esetén a vaktában találgatás 50%. Ezért a ✗ csak akkor ér, ha a javítás is jó, a ✓ pedig csak akkor, ha a blokk tényleg jó. Az ✨ az állomás végén jár, a helyes pecsétek <i>és</i> javítások után. A „mindig ✗” stratégia javítás nélkül nem visz előre.</div>
+    <div><span class="forras">2. o. 85. o.</span> <span class="forras">3. o. 74. o. (becslés)</span> <span class="pedag">Pólya: nézz vissza · hibaelemzés</span></div>
+    <p><b>Ajándék a tanítónak:</b> ha a gyerek mindig ugyanazt a rókahibát nem veszi észre (pl. az átvitelt), az pontos jel a hiba-oka felismeréshez, és a pult 🦊 sorába kerül.</p>
+  </div>
+
+  <div class="all"><b class="n">④ 🧺 Keretből vásárlás <span class="tag">(2. csomag)</span></b>
+    <b>Mit CSINÁL a gyerek a képen?</b> Egy vevő (Pötyi) pénztárcájában 50 tallér van. A gyerek a polcról a kosárba pakol úgy, hogy teljesüljön a feltétel-kártya: „pontosan 50”, „legyen 1 tallér visszajáró”, „a lehető legtöbb dolog”. A pénztárca érméi <b>átvándorolnak</b> a pultra, tehát a maradék tárgyként látszik, szám nélkül.<br>
+    <b>Pósa: „Van még?”</b> Minden megtalált megoldás felkerül a polcra egy kis cédulán. „Találsz egy harmadikat is?” A második és a harmadik megoldás 💧-t ér: a kitartás jutalma. Alacsony a küszöb (egy megoldás is jó), magas a plafon.
+    <div><span class="forras">3. o. 12. o.</span> <span class="pedag">Pósa: nyitott feladat · Varga: sokféle megoldás</span></div>
+  </div>
+
+  <div class="all"><b class="n">⑤ 🎲 Biztos? Lehet? Lehetetlen? <span class="tag">(2. csomag, a bolt csúcsa)</span></b>
+    „Tüske néni 26 tallért kapott 2-, 10- és 20-asokban, visszajáró nélkül.” Állítás-kártyák: „Volt köztük 2-es”, „Öt érménél kevesebb volt”. A gyerek mindegyiket a három tálca egyikébe húzza: <b>biztos · lehet · lehetetlen</b>. Mellette kirakhatja az érméket, hogy kipróbálja.
+    <div><span class="forras">3. o. 50. o. „Okos(k)odunk”</span> <span class="pedag">Varga Tamás</span></div>
+  </div>
+
+  <p><b>Mi NEM kerül ide:</b> a szorzás-osztás (sor × darab, árcédula). Az a 🧺 Tündérvásárban marad, ott már van Kosárrakó és Árcédula. A határ egyszerű: <b>bolt = + −, vásár = × :</b>.</p>
+</div>
+
+<div class="vazlatok">
+<figure>
+<svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Visszajáró vázlat">
+  <rect x="20" y="150" width="360" height="90" rx="10" class="kartya"/>
+  <text x="34" y="172" font-size="13">tálca:</text>
+  <g font-size="12" text-anchor="middle">
+    <circle cx="90" cy="200" r="13" fill="#ffe3a3"/><text x="90" y="204">1</text>
+    <circle cx="125" cy="200" r="14" fill="#ffe3a3"/><text x="125" y="204">2</text>
+    <circle cx="162" cy="200" r="15" fill="#ffe3a3"/><text x="162" y="204">5</text>
+    <circle cx="202" cy="200" r="17" fill="#d8f0fb"/><text x="202" y="204">10</text>
+    <circle cx="245" cy="200" r="18" fill="#d8f0fb"/><text x="245" y="204">20</text>
+    <circle cx="290" cy="200" r="19" fill="#ece0fb"/><text x="290" y="204">50</text>
+  </g>
+  <rect x="250" y="20" width="120" height="110" rx="14" fill="#fff3dc"/>
+  <text x="310" y="50" font-size="26" text-anchor="middle">🦆</text>
+  <text x="310" y="80" font-size="12" text-anchor="middle">Kata 50-essel fizet</text>
+  <text x="310" y="112" font-size="20" text-anchor="middle">🤲</text>
+  <rect x="30" y="30" width="70" height="40" rx="6" fill="#fff"/><text x="65" y="56" font-size="16" text-anchor="middle">37</text>
+  <text x="65" y="86" font-size="11" text-anchor="middle">árcédula</text>
+  <line x1="30" y1="125" x2="230" y2="125" stroke="#5a4a6e" stroke-width="2"/>
+  <g font-size="11" text-anchor="middle"><text x="40" y="140">37</text><text x="88" y="140">40</text><text x="220" y="140">50</text></g>
+  <path d="M40 120 Q64 100 88 120" fill="none" stroke="#e0417a" stroke-width="2"/><text x="64" y="104" font-size="11" text-anchor="middle">+3</text>
+  <path d="M88 120 Q154 80 220 120" fill="none" stroke="#e0417a" stroke-width="2" stroke-dasharray="4 3"/><text x="154" y="94" font-size="11" text-anchor="middle">+10 ?</text>
+  <path d="M202 182 Q260 140 300 118" fill="none" stroke="#8a4fd0" stroke-width="1.5" stroke-dasharray="3 3" marker-end="none"/>
+</svg>
+<figcaption>② Visszajáró: az érme a tenyérbe megy, a szalag vele lép. Összeget nem ír ki.</figcaption>
+</figure>
+<figure>
+<svg class="vazlat" viewBox="0 0 400 260" role="img" aria-label="Rokon-létra vázlat">
+  <g font-size="15">
+    <rect x="30" y="190" width="150" height="44" rx="10" class="kartya"/><text x="105" y="218" text-anchor="middle">7 + 5 = 12</text>
+    <rect x="125" y="115" width="150" height="44" rx="10" class="kartya"/><text x="200" y="143" text-anchor="middle">27 + 5 = ?</text>
+    <rect x="220" y="40" width="150" height="44" rx="10" class="kartya"/><text x="295" y="68" text-anchor="middle">67 + 5 = ?</text>
+  </g>
+  <path d="M150 190 L185 160" stroke="#3f9e6a" stroke-width="3" fill="none"/>
+  <path d="M245 115 L280 85" stroke="#3f9e6a" stroke-width="3" fill="none"/>
+  <text x="40" y="30" font-size="12">„Láttál már hasonlót?”</text>
+  <text x="40" y="48" font-size="12">Az alsó fok ugrása (+5 a tízesen át)</text>
+  <text x="40" y="64" font-size="12">felcsúszik a következőre.</text>
+</svg>
+<figcaption>🪜 Rokon-létra: ugyanaz az ugrás, csak egy tízessel arrébb.</figcaption>
+</figure>
+</div>
+
+<h2>4. A 100-as kör új pályái</h2>
+<p class="lead">A tény-motor ötletlistájából (B–H) a B) Mi bújt el? kész, az F) Villámkör áll. Ezekből a három illik leginkább a Pósa-féle szemlélethez:</p>
+
+<div class="palya">
+  <h3>🪜 Rokon-létra <span class="tag">· (D) · Összeadó liget, a Tízes-átlépő mellett · 1. csomag</span></h3>
+  <p><b>Mit CSINÁL a gyerek a képen?</b> Létrán megy fel. Az alsó fok egy ismert tény (7 + 5). Az ugrása a számvonalon látszik (7 → 10 → 12). A következő fokon (27 + 5) a gyerek az alsó ugrást <b>felhúzza</b> a 27-hez, és látja: ugyanaz az ugrás, csak egy tízessel arrébb. A harmadik fokon (67 + 5) már nem kap ugrást, csak a számot írja be.</p>
+  <p><b>Pósa-folyam, 4 tengelyen nehezedik:</b> 1. a fokok: 7+5 → 27+5 → 67+5; 2. kivonással: 12−5 → 42−5; 3. „Melyik kis feladat segít?”: a gyerek maga választja ki a 3 kártya közül a rokont (pl. a 48 + 7-hez a 8 + 7-et); 4. a csúcs: „Írj te egy rokont!”. Halványítás: ugrás-kép → csak a rokon kártya → semmi.</p>
+  <p><b>Miért ez az első?</b> A 100-as kör hibái (pl. „18 + 23 akasztja”) jellemzően innen jönnek: a gyerek az egyjegyű tényt nem viszi át a tízesek közé. A tény-motor már tudja, melyik tény a rokon (<code>o3_7</code>). Ha a gyerek a 67 + 5-nél elakad, de a 7 + 5 megy, az pontos jel a pultnak.</p>
+  <div class="kiskapu">🔒 A létra fokai nem ismétlik a választ. A 27 + 5 eredménye nem a 12. A felhúzott ugrás csak a lépést mutatja, a végső számot nem.</div>
+  <div><span class="forras">2. o. 59. o. · 3. o. 15. o. (láncszámolás, számszomszéd)</span> <span class="pedag">Pólya: láttál hasonlót? · Pósa: problémafolyam</span></div>
+</div>
+
+<div class="palya">
+  <h3>🏡 Számcsalád <span class="tag">· (C) · Összeadó liget; a × változat később a Szorzós ligetbe · 1. csomag</span></h3>
+  <p><b>Mit CSINÁL a gyerek a képen?</b> Egy háznak négy ablaka van. A gyerek kap három szám-kavicsot (pl. 8, 5, 13), és ezekből rakja be mind a négy ablakba a családot: 8 + 5, 5 + 8, 13 − 5, 13 − 8. Minden jó ablakban felgyullad a fény. Fokozatok: 20-ig → 100-ig (38, 25, 63) → <b>kakukktojás</b>: négy kavics, az egyik nem tartozik a családba („Miért?”), majd a csúcs: a gyerek maga választ két kosárból két számot, és ő építi fel a családot.</p>
+  <div class="kiskapu">🔒 Az ablakba csak a három kavics kerülhet. Ha az összeg rossz helyre kerül (5 − 13), a kép felel: az ablak nem gyullad fel, és a kavics „nem fér be”.</div>
+  <div><span class="forras">2. o. 85. o. (két kosár) · 2. o. 31. o. (kakukktojás)</span> <span class="pedag">Dienes: szerkezet · Varga: „itt nem igaz”</span></div>
+</div>
+
+<div class="palya">
+  <h3>⚙️ Varázsgép <span class="tag">· (G) · Összeadó liget · 2. csomag</span></h3>
+  <p><b>Mit CSINÁL a gyerek a képen?</b> Számot dob a gépbe, és a gép kiad egy másikat (5 → 12, 9 → 16). Két-három próba után a gyerek beállítja a gép tárcsáját (+7). Ha jól tippel, a gép zümmög, és a következő számot már ő jósolja meg. Fordított gép: csak a kimenet látszik, mi ment be? (Ez az inverz, vagyis a kivonás.) Később jön a kétlépéses gép (+10, −1 = +9 trükk) és a számpiramis.</p>
+  <div><span class="forras">2. o. 11., 58., 84., 85. o.</span> <span class="pedag">Dienes: a szabályt a gyerek fedezi fel</span></div>
+</div>
+
+<div class="palya">
+  <h3>🧮 Gyöngypálca (ötlet a szorobánból) <span class="tag">· (új) · Összeadó liget · 2. csomag, vagy saját kis pálya</span></h3>
+  <p><b>Mi a szorobán?</b> A japán golyós számológép. Egy pálcán felül 1 „ötös” gyöngy van, alul 4 „egyes”, és minden pálca egy helyiérték. A számolás <b>két barát-szabályra</b> épül: a kis barátok az 5-öt adják ki (1+4, 2+3), a nagy barátok a 10-et (1+9, 2+8 …). A +7 például így megy: „tegyél fel egy tízest, vegyél le 3-at” (+10 − 3). A tanulás végén a gyerek a gépet <b>fejben látja</b> (anzan): a kép eltűnik, de a mozdulat megmarad.</p>
+  <p><b>Miért illik hozzánk?</b> Ez pontosan a mi alapunk: a <b>bontás 5-re és 10-re</b>, amire a hibák és a kedvetlenség visszavezethető. Itt a bontás nem felmondandó, hanem <b>kéz alatt mozgó gyöngy</b>. A szorobán a vezérelvünk tiszta esete is: a mozdulat maga a matek (a tízes átlépés = egy gyöngy a következő pálcára, és néhány le). A végén van beépített halványítás: gyöngy → árnyék-gyöngy → fejben.</p>
+  <p><b>Mit CSINÁL a gyerek a képen?</b> Két pálcán (tízesek, egyesek) tolja a gyöngyöket. 38 + 7: az egyes pálcán nincs elég hely, ezért a gyerek a tízes pálcán feltol egyet, az egyesen levesz 3-at. A pálca alatt csak a már kirakott szám látszik. Fokozatok: 1. szabad játék (Dienes 1. lépcső: rakd ki a korod, a házszámod); 2. kis barátok (5 körül); 3. nagy barátok (a tízes átlépése); 4. árnyék-pálca (a gyöngyök halványak, csak a mozdulat marad); 5. fejben: a pálca eltűnik, és a gyerek beírja az eredményt.</p>
+  <p><b>Kapcsolat a többihez:</b> a nagy barátok = a Bújócska tízes barátai = a Visszajáró felfelé számolása (Dienes: ugyanaz más ruhában). A Bolt tallérjai (1, 2, 5, 10, 20, 50) ugyanazt az 1–5–10 szerkezetet követik. A Rokon-létra ugrásai a pálcán is látszanak: 7 + 5 és 27 + 5 ugyanaz a mozdulat az egyes pálcán.</p>
+  <div class="kiskapu">⚠️ <b>Vigyázat:</b> a szorobán önálló „számológép-tanfolyam” is lehet, amitől a gyerek gépiesen tologat. Nálunk csak a <b>két barát-szabály láthatóvá tétele</b> a cél, rövid pályán, és a végén a fejben számolás. Az 5-ös gyöngy újdonság, ezért az 1. foknál tíz egyforma gyöngyös változat (mint a Bontás-kirakó) is szóba jöhet. Ezt a rajztervben próbáljuk ki.</div>
+  <div><span class="pedag">Dienes: sokféle megtestesülés · CPA-halványítás · bontás = vers</span></div>
+</div>
+
+<p class="lead"><b>Későbbre</b> (nem ebben a tervlapban): E) Okos trükkök (inkább a Bagolykönyvtár szerszám-polcára illik); H) Nagy vegyes ösvény; a láncszámolás lakatkóddal. Ez utóbbi a Varázsgép-pálya Odú-küszöbe lehet.</p>
+
+<h2>5. Közös alap (ami több helyen kell)</h2>
+<div class="panel">
+  <ul>
+    <li><b>Feladatgyártók a képtől külön:</b> új <code>src/bolt.js</code> (érme-modell: összeg, visszajáró, „másképp”, „legkevesebb érme”; a róka hibagyártója) és <code>src/szamkor100.js</code> (rokon-lánc, számcsalád, gép). Mindegyik tiszta adatot ad vissza, a képet külön függvény rajzolja. Így a falu házaiba is átköltözhetnek.</li>
+    <li><b>Tény-motor:</b> minden feladat a meglévő tény-sorba naplózódik, új forma-betűkkel (javaslat: <code>b</code> bolt, <code>r</code> rokon, <code>c</code> család). A Neked szóló ösvénybe később csempészhetők, mint a „h” forma.</li>
+    <li><b>A róka hibatípusai</b> a tény-motor 100-as típusaihoz kötve (átvitel, tízes, csere). Ebből lesz a pult 🦊 sora.</li>
+    <li><b>Két hiba után</b> (lásd a teendőlista 3. pontját): ezeken a pályákon a második rossz válasz után <b>nem írjuk ki a megoldást</b>. A kép mutatja a következményt, aztán egy lépésenkénti kérdés jön (Bagolykönyvtár-minta), és a gyerek maga mondja ki a számot.</li>
+    <li><b>Pult:</b> egy pálya-sor, és a Bolt kártyáján a róka pontossága. Az egységes irányítás szerint (alap < csoport < egyéni).</li>
+  </ul>
+</div>
+
+<h2>6. Ellenőrző kérdések (a pedagógia-lap 4.C pontja)</h2>
+<div class="panel tblwrap">
+<table>
+  <tr><th>Kérdés</th><th>Bolt</th><th>Rokon-létra</th><th>Számcsalád</th></tr>
+  <tr><td>Mit csinál a gyerek a képen?</td><td>érmét húz, pecsétel</td><td>ugrást húz fel</td><td>kavicsot rak ablakba</td></tr>
+  <tr><td>A mozdulat maga a matek?</td><td>igen: érme = érték</td><td>igen: ugyanaz az ugrás</td><td>igen: a szerkezet</td></tr>
+  <tr><td>Egyszerű, egyforma a megfogott tárgy?</td><td>korongok, csak szám/méret</td><td>kártya + ív</td><td>egyforma kavics</td></tr>
+  <tr><td>Kép és szám egyszerre változik?</td><td>csak a már kimondott szám</td><td>igen</td><td>igen</td></tr>
+  <tr><td>Hány kereten jelenik meg, van-e „itt nem igaz”?</td><td>vásár · Bújócska · szalag; ✗ blokk</td><td>+ és −; rossz rokon-kártya</td><td>kakukktojás</td></tr>
+  <tr><td>Hogyan halványul a létra tetejéig?</td><td>szalag → szám</td><td>ugrás → kártya → semmi</td><td>kavics → beírás</td></tr>
+  <tr><td>Mit mutat a kép rossz válaszra?</td><td>vevő vár / visszatol / kiönti a kosarat</td><td>az ugrás nem ér célba</td><td>az ablak sötét marad</td></tr>
+</table>
+</div>
+
+<h2>7. Körök</h2>
+<div class="panel">
+  <ol>
+    <li><b>Rajzterv:</b> a bolt pultja, az érmék, a vevő tenyere, a szalag, a róka blokkja; a létra és a ház.</li>
+    <li><b>Közös alap láthatatlanul:</b> <code>bolt.js</code>, <code>szamkor100.js</code>, napló-formák, sok ezer generált feladat próbája.</li>
+    <li><b>🏪 Bolt élesben</b>, 1–3. állomás: Fizesd ki!, Visszajáró, A róka blokkja.</li>
+    <li><b>🪜 Rokon-létra + 🏡 Számcsalád</b> élesben.</li>
+    <li><b>Pult</b> (pálya-sorok, 🦊 sor, róka-pontosság) + jelvény + gépi próba → élő próba Lilivel és Fannival.</li>
+    <li><i>2. csomag:</i> 🧺 Keretből + 🎲 Biztos/lehet/lehetetlen.</li>
+    <li><i>2. csomag:</i> ⚙️ Varázsgép (+ számpiramis, lakatkód) és 🧮 Gyöngypálca, ha bekerül.</li>
+  </ol>
+</div>
+
+<h2>8. Döntések</h2>
+<div class="cards">
+  <div class="dec"><div class="num">1</div><h3>Mi legyen az első csomag?</h3>A Bolt 1–3. állomása, a Rokon-létra és a Számcsalád. A többi a gyerekek visszajelzése után jön.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">2</div><h3>Hol legyenek?</h3>Az Összeadó ligetben. A Bolt a 🍂 Százas bújócska után, a Rokon-létra a Tízes-átlépő mellett, a Számcsalád a 20-ig után (100-as fokkal).<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">3</div><h3>Ki a boltos?</h3>Tüske néni boltja, a gyerek beáll a pult mögé. A blokkot Róka Juli írja.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">4</div><h3>Mi legyen a pénz?</h3>Tallér, kitalált érmékkel (1, 2, 5, 10, 20, 50, 100). Nem ✨, és nem forint, mert a forintban nincs 1-es és 2-es, a könyv viszont ezekkel dolgozik.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">5</div><h3>A róka blokkja</h3>A róka 5-ből kb. 2-szer pontos. A ✗ csak javítással ér. Előtte jöhet a „körülbelül stimmel?” lépés.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">6</div><h3>A határ a Tündérvásárral</h3>Bolt = + −, Vásár = × :. A standberendezés (sor × darab) nem kell, mert a Vásár Kosárrakója már ezt csinálja.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">7</div><h3>„Van még?” jutalma</h3>A nyitott feladatoknál a második és a harmadik megoldás 💧-t ér (kitartás), ✨-ot nem.<br><span class="prop">Javaslat</span></div>
+  <div class="dec"><div class="num">8</div><h3>🧮 Gyöngypálca (szorobán)</h3>Bekerüljön-e? Javaslat: igen, de a 2. csomagba, rövid pályaként. A rajztervben eldöntjük, hogy 5-ös gyönggyel vagy tíz egyformával induljon.<br><span class="prop">Javaslat</span></div>
+</div>
+
+<h2>Kapcsolódik</h2>
+<div class="panel">
+  <ul>
+    <li><code>teny-motor-rendszerterv.html</code>: a tény-motor, a B–H ötletlista, a 100-as típusok.</li>
+    <li><code>mi-bujt-el-terv.html</code>: a „h” forma és a becsempészés mintája.</li>
+    <li>Tündérvásár: <code>Matekos\szoveges-szorzas-osztas-rendszerterv.html</code>.</li>
+    <li>Falu + dombság: a gyártók később a falu házaiba költöznek.</li>
+    <li><code>Matekos\pedagogia-cselekvo-tanulas.html</code>: a 7 ellenőrző kérdés és a források.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
