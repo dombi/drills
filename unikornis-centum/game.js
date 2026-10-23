@@ -4648,6 +4648,33 @@ function uniLabSVG(i, sz, labDisz) {
     '</g>';
 }
 var UNI_SABLON = '<g stroke="#222222" stroke-linejoin="round" stroke-linecap="round"> {farokBe}<g class="ucg"><path d="M96 148 Q56 148 40 188 Q54 182 64 190 Q48 206 40 234 Q60 216 72 220 Q58 244 46 270 Q40 284 44 290 Q80 252 92 218 Q96 182 96 148 Z" fill="{s0}" stroke="none"/> <path d="M92 156 Q64 160 52 196 Q66 190 74 198 Q62 220 54 246 Q50 264 52 274 Q78 238 86 206 Q90 180 92 156 Z" fill="{s1}" stroke="none"/> <path d="M94 158 Q62 176 46 224" fill="none" stroke="{s2}" stroke-width="6"/> <path d="M96 176 Q70 206 54 264" fill="none" stroke="{s2}" stroke-width="5"/> <path d="M92 150 Q78 172 82 214" fill="none" stroke="{s0}" stroke-width="5"/> <path d="M90 190 Q66 234 58 278" fill="none" stroke="{s1}" stroke-width="5"/> </g>{farokKi}{lab0} {lab1} {lab2} {lab3} <path d="M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z" class="uni-szor" fill="{test}" stroke-width="5"/> <path d="M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z" fill="{has}" stroke="none"/> {nyakBe}<g class="ucg"><path d="M252 76 Q214 92 194 132 Q176 168 170 200 Q164 218 162 232 Q182 200 200 186 Q192 214 186 234 Q210 198 224 160 Q238 120 246 90 Z" fill="{s0}" stroke="none"/> <path d="M248 90 Q242 70 244 52 Q252 74 254 88 Z" fill="{s0}" stroke="none"/> <path d="M240 96 Q236 78 234 62 Q244 82 246 96 Z" fill="{s0}" stroke="none"/> <path d="M248 80 Q214 114 198 172" fill="none" stroke="{s1}" stroke-width="8"/> <path d="M254 86 Q226 126 210 186" fill="none" stroke="{s1}" stroke-width="7"/> <path d="M242 94 Q220 138 208 196" fill="none" stroke="{s0}" stroke-width="6"/> <path d="M238 100 Q214 150 202 208" fill="none" stroke="{s1}" stroke-width="5"/> <path d="M250 82 Q224 108 208 158" fill="none" stroke="{s2}" stroke-width="4"/> </g>{nyakKi}{fejBe}<path d="M229 120 C229 92 256 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C251 170 229 150 229 120 Z" class="uni-szor" fill="{test}" stroke="none"/> <path d="M232 117.5 C233.6 90.8 259 72 292 72 C328 72 344 96 344 122 C344 152 322 170 288 170 C280 170 273.6 169.1 267.5 167.5" fill="none" stroke-width="5"/> <ellipse cx="337" cy="133" rx="4" ry="5" fill="#222222" opacity="{orr}" stroke="none"/>{szemArt} <g class="uni-asit" opacity="0" stroke="#222" stroke-width="2.2"> <ellipse cx="322" cy="154" rx="8" ry="10" fill="#7a2f52"/> <ellipse cx="322" cy="159.5" rx="5" ry="3.6" fill="#f48fb1" stroke="none"/> </g> <g class="ucg"><path d="M270 78 Q258 106 264 138 Q272 118 282 130 Q290 100 292 78 Q280 86 270 78 Z" fill="{s0}" stroke="none"/> <path d="M272 82 Q264 108 268 136" fill="none" stroke="{s1}" stroke-width="6"/> <path d="M288 84 Q284 104 286 120" fill="none" stroke="{s2}" stroke-width="4"/> </g><path d="M250 92 L266 92 L258 58 Z" class="uni-szor" fill="{test}" stroke-width="4"/> <path d="M268 92 L285 84 L306 24 Z" fill="{szarv}" stroke-width="4"/> <path d="M270 84 L285 79" stroke="{szarvCs}" stroke-width="3"/> <path d="M275 68 L291 62" stroke="{szarvCs}" stroke-width="3"/> <path d="M281 50 L296 44" stroke="{szarvCs}" stroke-width="3"/> <path d="M287 36 L300 31" stroke="{szarvCs}" stroke-width="3"/>{fejKi}{jel}{fejBe}<g stroke="none"> <path d="M312 42 l2.5 7 l7 2.5 l-7 2.5 l-2.5 7 l-2.5 -7 l-7 -2.5 l7 -2.5 Z" fill="{k0}"/> <path d="M300 20 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="{k1}"/> <path d="M324 64 l1.6 3.6 l3.6 1.6 l-3.6 1.6 l-1.6 3.6 l-1.6 -3.6 l-3.6 -1.6 l3.6 -1.6 Z" fill="{k2}"/> </g>{fejKi} </g>';
+/* ── ALKAT (terv/ragyogas-karcsu-rajzterv.html, C változat, jóváhagyva 2026-10-23): rajz szerint más test-forma.
+   h = a has emelése, n = a mellkas eleje beljebb (a nyak alja), w = szemből/hátulról a test keskenyítése.
+   A hátvonal, a fej, a sörény és a lábak tövei NEM mozdulnak → minden holmi ráillik (a takaró alja lelóghat).
+   Szemből a has legfeljebb 6-tal emelkedik (a lábak tövei 220–226-nál vannak). Hiányzó rajz = a régi test. */
+var UNI_ALKAT = { rozsa: { h: 20, n: 9, w: 20 } };
+var UNI_TEST_D = "M74 172 C74 130 110 106 172 106 C236 106 268 132 268 176 C268 218 232 240 168 240 C108 240 74 214 74 172 Z";
+var UNI_HAS_D = "M92 198 C112 226 226 226 246 198 C236 234 104 234 92 198 Z";
+var NEZET_TEST_D = "M110 174 C110 130 142 118 190 118 C238 118 270 130 270 174 C270 218 242 236 190 236 C138 236 110 218 110 174 Z";
+var NEZET_HAS = '<ellipse cx="190" cy="200" rx="52" ry="26"';
+function alkatOldal(art, rajz) {
+  var a = UNI_ALKAT[rajz];
+  if (!a) return art;
+  var h = a.h, n = a.n, B = 240 - h, e = uniK(198 - h * .55), x0 = uniK(92 + h * .1), f = uniK(226 - h * .85), g = 234 - h;
+  var test = "M74 172 C74 130 110 106 172 106 C" + uniK(236 - n * .5) + " 106 " + (268 - n) + " 132 " + (268 - n) + " 176 C" +
+    (268 - n) + " " + uniK(218 - h * .7) + " " + uniK(232 - n * .5) + " " + B + " 168 " + B + " C108 " + B + " 74 " + uniK(214 - h * .7) + " 74 172 Z";
+  var has = "M" + x0 + " " + e + " C112 " + f + " " + (226 - n) + " " + f + " " + (246 - n) + " " + e + " C" + (236 - n) + " " + g + " 104 " + g + " " + x0 + " " + e + " Z";
+  return art.split(UNI_TEST_D).join(test).split(UNI_HAS_D).join(has);
+}
+function alkatNezet(art, rajz) {
+  var a = UNI_ALKAT[rajz];
+  if (!a) return art;
+  var w = a.w, h = Math.min(a.h, 6), L = 110 + w * .5, R = 270 - w * .5, B = 236 - h;
+  var test = "M" + L + " 174 C" + L + " 130 142 118 190 118 C238 118 " + R + " 130 " + R + " 174 C" + R + " " + uniK(218 - h * .7) + " " + (242 - w) + " " + B +
+    " 190 " + B + " C" + (138 + w) + " " + B + " " + L + " " + uniK(218 - h * .7) + " " + L + " 174 Z";
+  return art.split(NEZET_TEST_D).join(test)
+            .split(NEZET_HAS).join('<ellipse cx="190" cy="' + uniK(200 - h * .5) + '" rx="' + (52 - w) + '" ry="' + uniK(26 - h * .3) + '"');
+}
 /* szor = a szőrfesték (SZORFESTEKEK sora) vagy semmi: a test, a has és a láb színe cserélődik, a jel szükség
    esetén matrica-szegélyt kap (jelKozel); a minta kitöltése url(#SZORMINTA), amit a példány cserél (szorPeldany).
    A test, a fej és a fül class="uni-szor" (a szalonban erre lehet koppintani). */
@@ -4658,7 +4685,7 @@ function uniOldalArt(rajz, labDisz, szor, szemForma) {
   var ertek = { s0: sz.s[0], s1: sz.s[1], s2: sz.s[2], k0: sz.szikra[0], k1: sz.szikra[1], k2: sz.szikra[2], jel: jel, szemArt: szemArt };
   for (var i = 0; i < 4; i++) ertek["lab" + i] = uniLabSVG(i, sz, labDisz);
   ["fej", "nyak", "farok"].forEach(function (n) { var z = UNI_TEST_IZ[n]; ertek[n + "Be"] = izNyit(z.cls, z.pont); ertek[n + "Ki"] = izZar(z.cls); });
-  return UNI_SABLON.replace(/\{(\w+)\}/g, function (m, k) { return k in ertek ? ertek[k] : sz[k]; });
+  return alkatOldal(UNI_SABLON.replace(/\{(\w+)\}/g, function (m, k) { return k in ertek ? ertek[k] : sz[k]; }), rajz);
 }
 var UNI_RAJZ = {};   /* minden rajz a saját (LENYEK szerinti) szemével */
 Object.keys(UNI_SZIN).forEach(function (r) { UNI_RAJZ[r] = uniOldalArt(r); });
@@ -5736,7 +5763,7 @@ function forgatoSzinek(rajz, kinezet) {
 function unikornisNezetArt(nezet, rajz, kinezet, pfx, oltozet) {
   var sz = forgatoSzinek(rajz, kinezet), forma = uniForma(rajz, kinezet);
   var r = nezetDiszRetegek(nezet === "hatul" ? "hatul" : "elol", oltozet);
-  var art = nezet === "hatul" ? unikornisBackArt(sz, forma, r) : unikornisFrontArt(sz, forma, r);
+  var art = alkatNezet(nezet === "hatul" ? unikornisBackArt(sz, forma, r) : unikornisFrontArt(sz, forma, r), rajz);
   art = nyakAlattBe(art, oltozet && NYAK_ALATT[oltozet.nyak], nezet === "hatul" ? "hatul" : "elol");   /* a sál a fej ALÁ */
   art = festekAlkalmaz(art, kinezet && kinezet.festek, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol", sz.s3);
   art = lakkAlkalmaz(art, kinezet && kinezet.lakk, (pfx || "nz") + nezet, nezet === "hatul" ? "hatul" : "elol");
