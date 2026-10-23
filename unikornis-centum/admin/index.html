@@ -1896,6 +1896,35 @@ function kuldHatasSzoveg(lh) {
   if (!lh.kuld) return "nincs";
   return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : kuldLigetNev(lh.kuldLiget));
 }
+/* ⚠️ jön-e most küldetés a beállított ligetből (2026-10-23: MRZS-nél Bájitalkonyha, 1 játszott pálya → csendben nem kért).
+   A játék szabályát (kuldetes.js kuldFajtak + kuldOsszeallit + kuldGepiLiget) követi a mentésből; a pulton elrejtett/zárt
+   pályákat nem nézi, ezért csak közelítés. Csak azoknál az unikornisoknál, ahol a kölyök már hazatért. */
+function kuldLigetDb(l, p) {
+  var L = KULD_LIGET[l], pp = p.palyak || {}, tud = p.tud || {}, ma = tenyNap(), uj = 0, jatszott = 0;
+  var f = PALYA_SORREND.filter(function (pid) {
+    if (palyaRegio(pid) !== l || L.kimarad.indexOf(pid) >= 0) return false;
+    var volt = !!pp[pid] || !!(tud[pid] && typeof tud[pid].ut === "number");
+    if (volt) jatszott++;
+    return !L.lepcsos || volt || !uj++;
+  });
+  var db = f.filter(function (pid) { var s = tud[pid]; return !(s && typeof s.megy === "number") || (typeof s.esed === "number" && s.esed <= ma); }).length;
+  return { db: db, jatszott: jatszott };
+}
+function kuldFigyelmeztetes(uid, lh) {
+  var u = userById(uid); if (!u || !lh.kuld || lh.kuldPalyak) return "";
+  var h = "";
+  Object.keys(u.unicorns).forEach(function (k) {
+    var p = u.unicorns[k] || {};
+    if (!p.leny2 || p.leny2.fazis !== "kolyok" || (p.kuld && p.kuld.akt)) return;
+    var ok;
+    if (lh.kuldLiget === KULD_GEPI) ok = Object.keys(KULD_LIGET).some(function (l) { var x = kuldLigetDb(l, p); return x.jatszott && x.db > 2; });
+    else ok = !KULD_LIGET[lh.kuldLiget] || kuldLigetDb(lh.kuldLiget, p).db > 2;
+    if (!ok) h += '<div class="kicsi" style="background:#fff3d6;border-radius:8px;padding:6px 8px;margin:6px 0">⚠️ <b>' + esc(lenyNev(k)) + "</b>: most nem jön küldetés — " +
+      (lh.kuldLiget === KULD_GEPI ? "egyik ligetben sincs elég (legalább 3) még nem menő, már elkezdett pálya."
+        : "a(z) " + esc(kuldLigetNev(lh.kuldLiget)) + " ligetből legfeljebb 2 pálya jöhetne szóba (lépcsős ligetben csak a játszottak + a következő egy). Válts ligetet, vagy állítsd „🤖 a játék választ”-ra.") + "</div>";
+  });
+  return h;
+}
 function napDatum(n) { if (typeof n !== "number") return "–"; var d = new Date(n * NAP); return (d.getUTCMonth() + 1) + ". " + d.getUTCDate() + "."; }
 function kuldGyerekNezet(uid) {
   var u = userById(uid); if (!u) return "";
@@ -2174,6 +2203,7 @@ function rajzBeallitasok(t) {
   if (egyeni) {
     var lh = lenyBeall(lenyBeallOsszevon((A.cfg[id] || {}).leny || {}, jatekosCsoportjai(id).map(function (g) { return g.leny || {}; })));
     h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, küldetés: <b>" + kuldHatasSzoveg(lh) + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+    h += kuldFigyelmeztetes(id, lh);
     h += kuldGyerekNezet(id);
   }
   h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
