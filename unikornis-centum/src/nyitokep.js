@@ -7,7 +7,7 @@
      • SAJÁT GÉP: a kódot csak az első belépéskor kell beírni (a belépő kártya, auth.js) — aki most írta be, annak nem kell
        még egyszer ébresztenie (NYITO.belepett).
      • KÖZÖS GÉP (auth.js kozosGep): a jelenetben a gép összes gyereke alszik, mindegyik a saját táblájával; koppintásra
-       felébred és köszön, utána jön a kód (belepoMutat(kod)). „✏️ Új vagyok” tábla: kód névkártya nélkül.
+       felébred és köszön, utána jön a kód (belepoMutat(kod)). „✏️ Másik gyerek” tábla: kód névkártya nélkül (bármelyik kód beléphet).
    AZ ELSŐ PERC (újonc: nyitas.js nyitasSzuz, még nincs P().uj rekord, a pult nem kapcsolta ki) — három koppintás a képen:
      ① választás: az 5 unikornis legel (számok nélkül), a koppintott odaüget és ugrik, a többi visszahúzódik;
      ② név: 3 felhő 3 névvel (koppintásra felolvassa) + „✏️ Saját nevet adok” (mező) → P().becenev;
@@ -111,7 +111,7 @@ function nyitoRajzol(mod) {
     var ux = x0 + i * lep, tx = ux + (k === 1 ? 210 : 112 * sc / .82);
     s += nyTabla(tx, 414, g.nev) + nyAlvoUni(i, ux, 426, sc, g);
   });
-  if (mod === "kozos") s += '<g class="ny-uj" transform="translate(728 300) scale(.62)">' + nyTabla(0, 0, "✏️ Új vagyok") + '<rect x="-80" y="-110" width="160" height="116" fill="transparent"/></g>';
+  if (mod === "kozos") s += '<g class="ny-uj" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "✏️ Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
   else s += '<g class="ny-masik" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "👋 Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
   host.innerHTML = nySajatId(s + '</svg>');
   host.querySelectorAll(".ny-alvo").forEach(function (h) {

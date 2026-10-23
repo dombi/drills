@@ -117,8 +117,7 @@ function jatekosNev(kod) {
 /* ── belépő képernyő (rátét a nyitókép fölé) ──
    🚪 Újonc-bevezetés 2. kör: ahol a gépen már léptek be kóddal, a belépő maga a nyitókép (nyitokep.js): a gyerekek
    unikornisai alszanak a fűben, a gyerek a sajátját ébreszti fel, és UTÁNA kéri a kódot ez a kártya — belepoMutat(kod).
-   belepoMutat(null) = „✏️ Új vagyok” (kód névkártya nélkül); belepoMutat() = a gép állapota dönt. */
-var BELEPO_VALASZTOTT = null;   /* a kiválasztott gyerek kódja (közös gépen) */
+   belepoMutat(null) = „✏️ Másik gyerek” (kód névkártya nélkül; bármelyik kód beléphet, a névkártyáról is); belepoMutat() = a gép állapota dönt. */
 function belepoMutat(kod) {
   if (kod === undefined && gepJatekosok().length) {
     if (NYITO.mod === "kozos" && $("kepernyo-nyito").classList.contains("aktiv")) return;   /* már ott alszanak (vagy épp a kódját írja valaki) */
@@ -142,11 +141,7 @@ function belepoMutat(kod) {
     var mezo = $("felho-kod"), gomb = $("felho-belep"), hiba = $("felho-hiba");
     function probal() {
       hiba.textContent = "";
-      var kod = kodNormal(mezo.value), j = gepJatekos(kod);
-      if (BELEPO_VALASZTOTT && kod !== BELEPO_VALASZTOTT) {
-        hiba.textContent = "Ez nem " + jatekosNev(BELEPO_VALASZTOTT) + " kódja. Nézd meg még egyszer!";
-        return;
-      }
+      var kod = kodNormal(mezo.value), j = gepJatekos(kod);   /* bármelyik kód beléphet, nem csak a felébresztett gyereké (a producer kérése, 2026-10-23) */
       var offline = felhoOfflineBelephet(j);   /* 📴 a gép ismeri ezt a gyereket → net nélkül is beléphet */
       NYITO.belepett = true;   /* most írta be a kódot: a nyitóképen nem kell még egyszer ébresztenie (nyitokep.js) */
       if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
@@ -166,11 +161,10 @@ function belepoMutat(kod) {
     $("felho-kesobb").addEventListener("click", belepoRejt);
     $("felho-vissza").addEventListener("click", function () { hangGomb(); belepoRejt(); nyitoKozosVissza(); });
   }
-  BELEPO_VALASZTOTT = kod || null;
   var gb = $("felho-belep"); gb.disabled = false; gb.textContent = "Belépek";
   $("felho-kod").value = ""; $("felho-hiba").textContent = "";
   var van = gepJatekosok().length > 0;
-  $("felho-cim").textContent = kod ? jatekosNev(kod) : (van ? "Új vagy?" : "Belépés");
+  $("felho-cim").textContent = kod ? jatekosNev(kod) : (van ? "Ki vagy?" : "Belépés");
   $("felho-kerdes").textContent = kod ? NYITO_KOD_KER.replace("{n}", jatekosNev(kod)) : "Írd be a belépőkódodat!";
   $("felho-kesobb").hidden = van;   /* ahol már léptek be kóddal, a felhő nélküli játék csak elveszne (net nélkül a belépő meg sem jelenik) */
   $("felho-vissza").hidden = !van;  /* vissza a nyitóképre (a gyerekek újra alszanak) */
