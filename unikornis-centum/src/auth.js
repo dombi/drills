@@ -75,11 +75,13 @@ function belepesCsakMost() {
 /* kilépés: a mentés a gyerek hátizsákjába kerül (📴 a még fel nem ment játékkal együtt), a helyi mentés kiürül —
    a következő gyerek ne a kilépő unikornisait lássa; a kilépő legközelebb (net nélkül is) a hátizsákjából folytatja */
 function felhoKilep() {
-  var uid = FELHO.aktiv ? FELHO.uid : FELHO.offline && FELHO.offline.uid, online = FELHO.aktiv;
+  var uid = FELHO.aktiv ? FELHO.uid : FELHO.offline ? FELHO.offline.uid : felhoGazda(), online = FELHO.aktiv || !!(FELHO.auth && FELHO.auth.currentUser);   /* (🔒 a lakat Mégse-je a felhő előtt is jöhet) */
   gepJatekosJegyez();
   felhoKuld();
   FELHO.aktiv = false; FELHO.kesz = false;
   if (FELHO.leiratkozas) FELHO.leiratkozas();
+  if (FELHO.userLeir) { FELHO.userLeir(); FELHO.userLeir = null; }
+  LAKAT.nyitva = null; LAKAT.tudjuk = null; LAKAT.pultLe = null;
   felulirLeiratkozik(); fejtoroLeiratkozik();
   if (uid && felhoGazda() === uid) hatizsakBe(uid);
   felulirCacheTorol();
@@ -120,6 +122,7 @@ function belepoMutat() { legeloBelepo(); }
 /* hiba(szoveg): nem sikerült (a tábla mondja el); siker esetén a felhő / 📴 a hátizsák viszi tovább (nyitoFrissit → csillámfelhő) */
 function belepoProbal(szoveg, hiba) {
   var kod = kodNormal(szoveg), j = gepJatekos(kod);
+  LAKAT.friss = true; LAKAT.nyitva = null;   /* 🔒 beírt kóddal lép be → ha van titkos kódja, a lakat kérdez (lakat.js) */
   var offline = felhoOfflineBelephet(j);   /* 📴 a gép ismeri ezt a gyereket → net nélkül is beléphet */
   if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
   kodBelep(kod).then(function (c) {

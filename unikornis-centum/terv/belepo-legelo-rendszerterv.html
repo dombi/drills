@@ -209,6 +209,7 @@
 <div class="panel">
   <ul>
     <li>A gyereklapon egy új sor: <b>🔒 Titkos kód:</b> „nincs” / „van (beállítva 10-23)”. Mellette <b>Levesz</b> gomb (megerősítéssel). A képeket a pult sem látja.</li>
+    <li>➕ <b>Figyelmeztetés</b> (a producer kérése, 10-23): ha egy gyerek <b>utolsó belépési próbája</b> az volt, hogy a lakat nem nyílt ki (5 rossz próba után pihen, „Elfelejtetted?”, Mégse, vagy bezárta a játékot a lakatnál), és azóta nem játszott, a pult szól: az Áttekintés figyelmeztetései között piros sorban, a gyerek kártyáján és a gyereklap 🔒 sorában. Levétel után eltűnik.</li>
     <li>Csoportra ennek nincs értelme (gyerekenként szól). Egyetlen csoport-szintű kapcsoló lehet: „titkos kód lehetősége be/ki” (alap: be), ha egyszer egy csoportnál nem akarnád. Ezt nem kell most megcsinálni.</li>
   </ul>
 </div>
@@ -228,7 +229,7 @@
     <tr><td>0. kör</td><td><b>Rajzterv</b> (a valódi rajzolóval): a legelő 5 unikornissal (alszik / legel / sétál), csillámfelhő, „vár rád” jel, mély alvás (újonc), kis kapu + lakat, a 9 kép, telefonos elrendezés.</td></tr>
     <tr><td>1. kör</td><td><b>A legelő mint választó</b>: közös rajzoló, véletlen állapotok, saját kinézetek, koppintás → odaüget → térkép. A 🦄 Váltás ide visz, a kártyás választó megszűnik. Az első perc ① erre épül. <span class="ok">✅ kész 2026-10-23</span> (<code>src/legelo.js</code>; addig a „👋 Másik gyerek” tábla a kijárat)</td></tr>
     <tr><td>2. kör</td><td><b>Belépés és kilépés a legelőn</b>: alap kinézet + üres tábla + belépő mező, csillámfelhő a belépéskor, a kis kapu kilépéssel. Közös gép és hátizsák végigpróbálva. <b>✅ kész 2026-10-23</b> (src/legelo.js: legeloBelepo, legeloFelho, legeloKapu; a régi belépő kártya, a közös gép alvó névtáblás gyerekei és a „👋 Másik gyerek” tábla megszűnt)</td></tr>
-    <tr><td>3. kör</td><td><b>Lakat + pult</b>: beállítás / csere / levétel a kapun, belépéskor a lakat, „belépve, de zárva”, hátizsák, pult-sor + Levesz gomb. Gépi próba, aztán élő próba.</td></tr>
+    <tr><td>3. kör</td><td><b>Lakat + pult</b>: beállítás / csere / levétel a tábla oszlopán, belépéskor a lakat, „belépve, de zárva”, hátizsák, pult-sor + Levesz gomb + „nem tudott belépni” figyelmeztetés. Gépi próba, aztán élő próba. ✅ kész 2026-10-23 (<code>src/lakat.js</code>; a lenyomat a gépen gyerekenként is megmarad, így net nélkül is kér)</td></tr>
   </table></div>
 </div>
 
@@ -255,7 +256,7 @@
     <span class="ok">✅ Jóváhagyva (10-23): A, és élő próbán figyeljük, keresik-e</span></div>
 </div>
 
-<p class="lead" style="margin-top:28px">✅ Minden kérdés eldőlt (2026-10-23). ✅ 0. kör (rajzterv), ✅ 1. kör (a legelő mint választó) és ✅ 2. kör (belépés üres táblával, csillámfelhő, kis kapu) kész. Most: élő megnézés. Utána: <b>3. kör</b> — a titkos képes lakat + a pult. Nyitómondat: „Belépő legelő: 3. kör.”</p>
+<p class="lead" style="margin-top:28px">✅ Minden kérdés eldőlt (2026-10-23). ✅ 0. kör (rajzterv), ✅ 1. kör (a legelő mint választó) ✅ 2. kör (belépés üres táblával, csillámfelhő, kis kapu) és ✅ 3. kör (titkos képes lakat + pult + „nem tudott belépni” figyelmeztetés) kész. Most: élő próba (egy gyerek beállít magának egy titkos kódot, kilép, újra belép; a pulton Levesz).</p>
 
 </div>
 </body>

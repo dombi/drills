@@ -76,6 +76,7 @@ function felulirFigyel() {
     FELULIR.egyeniSzer = (d.exists && d.data().szerszam) || {};
     FELULIR.egyeniLeny = (d.exists && d.data().leny) || {};
     FELULIR.egyeniNyit = (d.exists && d.data().nyitas) || {};
+    lakatPultLe(d.exists ? d.data().lakatLe : null);   /* 🔒 a pult levette a titkos kódot (lakat.js) */
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {

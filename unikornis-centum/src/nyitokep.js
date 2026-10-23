@@ -80,6 +80,7 @@ function nyitoFrissit() {
   if (NYITO.tovabb || LEGELO.felho || LEGELO.valaszt && LEGELO.host === $("nyito-szin")) return;   /* választás közben nem rajzoljuk újra (a végén úgyis megvárja) */
   if (NYITO.mod === "belepo") {
     if (!(FELHO.kesz || FELHO.offline)) return;   /* üres tábla, amíg valaki be nem lép */
+    if (lakatKapu()) return;   /* 🔒 van titkos kódja: előbb a lakat (lakat.js) */
     if (elsoPercKell()) { belepoRejt(); elsoPercIndit(); return; }   /* az újoncnak nincs mit felvenni: egyből az első perc */
     legeloFelho(); return;   /* most lépett be: csillámfelhő, mindenki felveszi a kinézetét */
   }

@@ -15,6 +15,12 @@ function felhoBelepve(u) {
     if (!FELHO.kesz) felhoElsoAllapot(snap);
     else felhoTavoliValtozas(snap);
   }, function (e) { console.warn("[felhő] figyelés hiba:", e.code || e); });
+  LAKAT.tudjuk = null;
+  if (FELHO.userLeir) FELHO.userLeir();
+  FELHO.userLeir = felhoUserRef().onSnapshot(function (d) {   /* 🔒 a titkos kód (lakat.js) — másik gépen beállítva is ideér */
+    if (!d.exists && d.metadata.fromCache) return;   /* még nem tudjuk — várjuk a szervert */
+    lakatFelhobol(u.uid, d.exists ? d.data().lakat || null : null);
+  }, function (e) { console.warn("[felhő] users-figyelés hiba:", e.code || e); LAKAT.tudjuk = u.uid; lakatValtozott(); });
   felulirFigyel();   /* producer-felülírások + csoportok (4. fázis) */
   fejtoroFigyel();   /* Fejtörő-hegy: versenyfeladatok (csak belépve olvashatók) */
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") felhoKuld(); });

@@ -21,7 +21,9 @@
      • A kis kapu a rét jobb szélén, mögötte ösvény ki a képből: csak a kilépésé. Belépés előtt csak megbillen; belépve az első
        koppintás kérdez („Tényleg kilépsz, Petra?”), a második kinyitja és kilép (felhoKilep → üres tábla).
        Felhő nélkül játszva (a „felhő nélkül játszom” után) a kapu a belépő legelőre visz.
-   A következő kör: 3. a titkos képes lakat a tábla oszlopán + a pult. */
+   🔒 A TITKOS KÓD (3. kör, 2026-10-23, lakat.js): belépve a tábla oszlopán kis lakat lóg (nyitott = nincs, zárt = van);
+     koppintásra a lakat-panel. A belépő mezőbe beírt kód után, ha van lakatja, a nagy lakat jön a csillámfelhő előtt
+     (nyitoFrissit → lakatKapu); „belépve, de zárva” újraindítás után is a lakatot hozza (legeloNyit). */
 
 var LEGELO = { host: null, mod: null, elr: null, svg: null, tok: 0, valaszt: false, kesz: null, sor: null, allapot: null, legelT: null, nogatT: null, kapuT: null, kapuKerd: false, felho: false };
 /* elrendezések a kép egységeiben — hely: [x, y (a pata), méret, irány]; az első kettő elöl áll */
@@ -50,6 +52,7 @@ var LEGELO_MONDAT = {
 /* ── nyitás: a nyitókép és a 🦄 Váltás (megtart: ugyanaz a kép marad, csak a felhő adatai frissültek) ── */
 function legeloNyit(megtart) {
   var host = $("nyito-szin");
+  if (lakatZarvaUid() && lakatZarvaUid() === (lakatUid() || felhoGazda()) && lakatKapu()) return;   /* 🔒 belépve, de zárva: a lakat jön, nem a választó */
   NYITO.mod = "sajat"; NYITO.tovabb = false; NYITO.varKezd = 0;
   clearTimeout(NYITO.varT);
   belepoRejt();
@@ -82,9 +85,10 @@ function legeloRajzol(host, mod, kesz, megtart) {
   if (mod !== "ujonc") tetel.push([E.kapu[2] - 1, legeloKapuG(E)]);
   tetel.sort(function (a, b) { return a[0] - b[0]; });
   s += tetel.map(function (t) { return t[1]; }).join("");
-  var mezo = host.querySelector(".lg-mezo");   /* a belépő mező túléli az újrarajzolást (telefon elfordítása gépelés közben) */
+  var mezo = host.querySelector(".lg-mezo"), panel = host.querySelector(".lg-panel");   /* a belépő mező és a 🔒 lakat-panel túléli az újrarajzolást (telefon elfordítása, felhő-frissítés) */
   host.innerHTML = nySajatId(s + '<g class="lg-felso"></g></svg>') + '<div class="ny-atfed"></div>';
   if (mezo && mod === "belepo") host.appendChild(mezo);
+  if (panel) host.appendChild(panel);
   L.svg = host.querySelector("svg");
   L.svg.querySelectorAll(".lg-uni").forEach(function (g) {
     legeloNezoAdat(g);
@@ -92,7 +96,10 @@ function legeloRajzol(host, mod, kesz, megtart) {
     g.addEventListener("click", function () { legeloKopp(g); });
   });
   var t = L.svg.querySelector(".lg-tabla-g");
-  if (t) t.addEventListener("click", function () { hangGomb(); if (L.mod === "belepo") legeloBelepoKer(); else legeloBillent(t); });
+  if (t) t.addEventListener("click", function (e) {
+    if (e.target.closest(".lg-kislakat-fog")) { lakatKisKopp(); return; }   /* 🔒 a lakat a tábla oszlopán */
+    hangGomb(); if (L.mod === "belepo") legeloBelepoKer(); else legeloBillent(t);
+  });
   var k = L.svg.querySelector(".lg-kapu-fog");
   if (k) k.addEventListener("click", legeloKapu);
   if (mod !== "belepo") legeloKesobb(function () { legeloKerdez(); }, 700);
@@ -159,10 +166,10 @@ function legeloNezoAdat(g) {   /* a fordulás szemből-képéhez (a hívó adja 
   var l = g.dataset.l, k = legeloKinezet(l);
   uniNezoAdat(g.querySelector(".irany"), { rajz: LENYEK[l].rajz, kinezet: k.kinezet, oltozet: k.oltozet });
 }
-/* a tábla: a játszó gyerek neve; belépés előtt üres, és a fehér gyűrű hívja (ide kell koppintani) */
+/* a tábla: a játszó gyerek neve; belépés előtt üres, és a fehér gyűrű hívja (ide kell koppintani); belépve az oszlopán a 🔒 lakat */
 function legeloTablaBelso(nev) {
   return nyTabla(0, 0, nev) + (LEGELO.mod === "belepo" ? '<ellipse class="ny-koppints" cx="0" cy="-79" rx="72" ry="38" fill="none" stroke="#ffffff" stroke-width="4"/>' : "") +
-    '<rect x="-70" y="-110" width="140" height="116" fill="transparent"/>';
+    '<rect x="-70" y="-110" width="140" height="116" fill="transparent"/>' + (LEGELO.mod === "valaszt" ? lakatKisG() : "");
 }
 /* a kis kapu a rét jobb szélén (K: [bal oszlop x, jobb oszlop x, talaj y]); mögötte ösvény vezet ki a képből */
 function legeloKapuG(E) {
@@ -411,7 +418,7 @@ function legeloRobban(x, y) {
    belépő legelőre visz. ── */
 function legeloKapu() {
   var L = LEGELO;
-  if (L.valaszt || L.felho) return;
+  if (L.valaszt || L.felho || LAKAT.S) return;
   hangGomb();
   var a = L.svg.querySelector(".lg-ajto"), K = L.elr.kapu, kod = FELHO.aktiv ? FELHO.kod : FELHO.offline && FELHO.offline.kod;
   if (L.mod === "belepo" || !kod && !FELHO.be) { a.classList.remove("billeg"); void a.getBoundingClientRect(); a.classList.add("billeg"); return; }

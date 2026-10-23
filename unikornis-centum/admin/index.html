@@ -408,6 +408,51 @@ function jNev(uid) {
 }
 function userById(uid) { for (var i = 0; i < A.users.length; i++) if (A.users[i].uid === uid) return A.users[i]; return null; }
 
+/* ══════════ 🔒 titkos kód (Belépő legelő 3. kör; a játékban src/lakat.js) ══════════
+   users/{uid}.lakat = { h, ido } — a gyerek írja (h = null: levéve); a képeket a pult sem látja, csak a lenyomatot.
+   Levesz: producerConfig/{uid}.lakatLe = { ido: a lakat ideje, mikor, ts } — a játék a következő netes belépéskor leveszi
+   (a gyerek órájának idejét hasonlítja a sajátjához, így a gépek órájának eltérése nem zavar).
+   Figyelmeztetés: ha a gyerek utolsó belépési próbája az volt, hogy a lakat nem nyílt ki (lakat_nemnyilt), és azóta
+   nem játszott, és nem vetted le. */
+var LAKAT_OK = { pihen: "5× rossz képeket koppintott, a lakat pihen", elfelejt: "az „Elfelejtetted?”-et nyomta", megse: "feladta (Mégse)", bezart: "bezárta a játékot a lakatnál" };
+var LAKAT_NEM_BELEPES = { login: 1, lakat_nemnyilt: 1, offline: 1, error: 1 };   /* ezek nem jelentik, hogy bejutott */
+function lakatAllapot(uid) {
+  var u = userById(uid), l = u && u.doc.lakat, le = (A.cfg[uid] || {}).lakatLe;
+  if (!l || !l.h) return { van: false };
+  return { van: true, ido: l.ido, levetve: !!(le && typeof le.ido === "number" && le.ido >= l.ido) };
+}
+/* a legutóbbi „nem nyílt ki” — ha azóta nem jutott be, és a pult sem vette le; különben null */
+function lakatGond(uid) {
+  var le = (A.cfg[uid] || {}).lakatLe, leMikor = le && (tsDate(le.ts) || (le.mikor ? new Date(le.mikor) : null));
+  for (var i = 0; i < A.events.length; i++) {
+    var e = A.events[i];
+    if (e.uid !== uid) continue;
+    if (e.type === "lakat_nemnyilt") return leMikor && leMikor > e.ts ? null : e;
+    if (!LAKAT_NEM_BELEPES[e.type]) return null;   /* utána játszott (vagy kinyitotta) */
+  }
+  return null;
+}
+function lakatGondSzoveg(e) { return "nem tudott belépni: nem nyílt ki a titkos kódja (" + idoKi(e.ts) + ", " + (LAKAT_OK[e.data.ok] || "nem nyílt ki") + (e.data.proba && e.data.ok !== "pihen" ? ", " + e.data.proba + " rossz próba" : "") + ")"; }
+function lakatRovat(uid) {
+  var a = lakatAllapot(uid), g = lakatGond(uid), h = '<div class="rovat"><b class="r">🔒 Titkos kód</b>';
+  if (!a.van) h += '<span class="halvany">nincs — a gyerek a legelőn, a tábla oszlopán lógó lakattal állíthat magának</span>';
+  else if (a.levetve) h += "levetted — a játék a következő netes belépésnél leveszi";
+  else h += "van (beállítva " + idoKi(new Date(a.ido)) + ") — a képeket a pult sem látja";
+  if (g) h += '<div class="jel s">⚠️ ' + esc(lakatGondSzoveg(g)) + ". Ha elfelejtette, vedd le a lakatot.</div>";
+  if ((a.van && !a.levetve) || g) h += ' <button class="gomb-kicsi" id="gy-lakat-le">🔓 Levesz</button>';
+  return h + "</div>";
+}
+/* friss olvasás (a lap az induláskor töltötte be a gyerekeket — azóta állíthatott új lakatot) */
+function lakatLevesz(uid) {
+  db.collection("users").doc(uid).get().then(function (d) {
+    var l = d.exists && d.data().lakat, u = userById(uid);
+    if (u) u.doc.lakat = l || null;
+    if (!l || !l.h) { alert(gyNev(uid) + ": most nincs titkos kódja (talán már levette). Beléphet a belépőjével."); rajzol(); return; }
+    if (!confirm("Leveszed " + gyNev(uid) + " titkos kódját?\n\nLegközelebb a képek nélkül, csak a belépőjével lép be. Ha akar, utána új kódot állíthat magának.")) return;
+    ment(db.collection("producerConfig").doc(uid).set({ lakatLe: { ido: l.ido, mikor: Date.now(), ts: firebase.firestore.FieldValue.serverTimestamp() }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }));
+  }, function (e) { alert("Nem sikerült elérni a gyerek adatait: " + ((e && e.code) || e)); });
+}
+
 /* ══════════ pálya-nevek a játék forrásából ══════════ */
 function palyakBetolt() {
   return fetch("../src/constants.js", { cache: "no-cache" }).then(function (r) { return r.text(); }).then(function (t) {
@@ -665,6 +710,7 @@ function gyakorisagSzo(k) {
 }
 function kartyaJelek(k) {
   var j = [];
+  if (lakatGond(k.u.uid)) j.push(["s", "🔒 Nem tudott belépni: nem nyílt ki a titkos kódja."]);
   if (k.pihen != null && k.pihen >= PIHENO_NAP) j.push(["p", "💤 " + k.pihen + " napja nem játszott."]);
   return j.concat(k.M.kartya.jelek.map(function (x) { return [x[0], esc(x[1])]; })).slice(0, 2);
 }
@@ -749,7 +795,7 @@ function rajzGyereklap(t, u) {
 
   /* 🗺️ Pályái + 🎛️ Beállításai (1b. kör): mit kap a gyerek — ugyanitt állítható */
   /* 🗺️ Pályái (1c: menük) + 🎛️ Beállításai: mit kap a gyerek — ugyanitt állítható */
-  h += gyerekBeallitasai(uid) + palyaiLista({ tipus: "u", id: uid });   /* a rövid Beállításai előbb: így a bank és a kapu is szem előtt van */
+  h += gyerekBeallitasai(uid) + lakatRovat(uid) + palyaiLista({ tipus: "u", id: uid });   /* a rövid Beállításai előbb: így a bank és a kapu is szem előtt van */
 
   /* részletek: a régi nézetek a Műhelyben, erre a gyerekre állítva */
   h += '<div class="rovat"><b class="r">Részletek ▸</b><span class="gyl-ugrik">' +
@@ -762,6 +808,7 @@ function rajzGyereklap(t, u) {
   t.innerHTML = h;
   window.scrollTo(0, gorget);
   $("gy-vissza").onclick = function () { A.gyerek = null; rajzol(); };
+  if ($("gy-lakat-le")) $("gy-lakat-le").onclick = function () { lakatLevesz(uid); };
   palyaiKezelok(t, { tipus: "u", id: uid });
   var celok = A.ugroCelok;
   Array.prototype.forEach.call(t.querySelectorAll("[data-modosit]"), function (b) {
@@ -1199,6 +1246,10 @@ function figyelmeztetesek() {
         l.push(["", "🚪 <b>" + nev + "</b> gyakran félbehagyja: " + esc(palyaNev(pid)) + " (" + p.kilep + "× kilépett, " + p.end + "× végigment)."]);
     }
   });
+  A.users.forEach(function (u) {   /* 🔒 az utolsó belépési próbája: nem nyílt ki a lakat */
+    var g = lakatGond(u.uid);
+    if (g) l.unshift(["piros", "🔒 <b>" + esc(gyNev(u.uid)) + "</b> " + esc(lakatGondSzoveg(g)) + ". Talán elfelejtette — a gyereklapján a 🔒 Titkos kód sorban leveheted."]);
+  });
   var hiba24 = A.events.filter(function (e) { return e.type === "error" && e.ts > new Date(most - NAP); }).length;
   if (hiba24) l.push(["piros", "🐞 Az elmúlt 24 órában <b>" + hiba24 + "</b> programhiba jött a játékból — lásd a Hibák fület."]);
   if (!l.length) l.push(["zold", "✅ Minden rendben — nincs figyelmeztetés."]);
@@ -1249,6 +1300,8 @@ function esemenyLeiras(e) {
     case "palya_start": return "▶️ elindította: " + esc(palyaNev(d.palyaId));
     case "fejtoro_valasz": return "🏔️ " + esc(ftFeladatNev(d.feladatId)) + ": " + ftEredmeny(d) + " · " + percKi(d.idoMp) + (d.vissza ? " · 🔁 visszatérő" : "");
     case "vasarlas": return "🛍️ vásárolt: " + esc(d.targyId) + " (" + (d.ar || 0) + (d.valuta === "tunderharmat" ? "💧" : "✨") + ")";
+    case "lakat_nyit": return "🔓 kinyitotta a titkos kódját" + (d.pult ? " (te vetted le)" : d.proba ? " (" + d.proba + " rossz próba után)" : "");
+    case "lakat_nemnyilt": return '<span class="rossz-sz">🔒 nem nyílt ki a titkos kódja</span> — ' + esc(LAKAT_OK[d.ok] || "") + (d.proba && d.ok !== "pihen" ? ", " + d.proba + " rossz próba" : "");
     case "login": return "🔑 belépett — " + esc(d.device || "") + (d.migrated ? " · helyi mentés felköltöztetve" : "");
     case "offline": return "📴 net nélkül játszott: " + percKi(d.mp) + (d.palya ? ", " + d.palya + " pálya" : "") + " — most felment a felhőbe" +
       (!d.alap ? ' · <span class="halvany">(régebbi gép: nem volt mihez hozzáadni, a helyi mentésről másolat készült)</span>' : "") +

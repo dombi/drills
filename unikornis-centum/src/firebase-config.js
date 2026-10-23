@@ -32,7 +32,7 @@ var FELHO = {
   auth: null, db: null,
   alap: {},           /* profilonként az utolsó ismert felhő-állapot (a 3-utas összefésülés alapja) */
   alapUser: null,
-  idozito: null, leiratkozas: null,
+  idozito: null, leiratkozas: null, userLeir: null,
   be: false,          /* felhő-mód ezen a gépen (felhoIndit) — a ment() ebből tudja, hogy a net nélküli játékot jelölnie kell */
   memoriaTar: false,  /* a Firestore offline tára nem elérhető (privát ablak…) → az írás csak a szerver nyugtája után számít elküldöttnek */
   kuldSzam: 0, nyugtazott: 0,  /* memoriaTar esetén: hány küldés ment el, és hányat nyugtázott a szerver */
