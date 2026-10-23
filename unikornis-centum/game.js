@@ -5080,7 +5080,9 @@ function uniAll(el) {
    Unikornis-elem (el) = amelyiken a --dir ül (1 jobbra, -1 balra), és amelyikben a unikornisSVG() rajza van
    (kert: a doboz, felhőkert: a .tk-uni, odú: #odu-uni-flip). A köztes nézet (szemből/hátulról) RÁKERÜL az
    oldalrajzra (azt csak elrejti), így a póz, a lebegés és a rajz nem épül újra. A nézet-képhez kell a lény
-   adata: uniNezoAdat(el, {rajz, kinezet, oltozet}) — minden rajzoláskor. */
+   adata: uniNezoAdat(el, {rajz, kinezet, oltozet}) — minden rajzoláskor. 2026-10-23: a rajz maga is megjegyzi
+   (UNI_RAJZ_ADAT, unikornisSVG), és ha egy hívó elfelejti az uniNezoAdat-ot, a nézet ezt használja — így nem
+   kap más lény (a régi alap: korall = Tűz) színeit (a Belépő legelő rajztervén a szürke Vihar így kapott Tűz-hasat). */
 var UNI_FORDUL = {
   ido: .34,      /* mp: ennyi ideig látszik a köztes nézet fordulás közben */
   nezet: "elol", /* felénk fordul — producer döntése (2026-10-04) */
@@ -5088,6 +5090,7 @@ var UNI_FORDUL = {
   simit: .22     /* mp: megálláskor ennyi idő alatt simulnak a lábak álló helyzetbe */
 };
 var _uniNezoSzam = 0;
+var UNI_RAJZ_ADAT = {};   /* rajz-id → {rajz, kinezet, oltozet}: minden unikornisSVG beírja ide, kit rajzolt */
 function uniNezoAdat(el, adat) { if (el) { el._uniNezo = adat; el._uniNezoPfx = "nz" + (++_uniNezoSzam); } }
 function uniIrany(el) { return el && +el.style.getPropertyValue("--dir") < 0 ? -1 : 1; }
 /* a köztes nézet (elol/hatul) rárakása az oldalrajzra; null → vissza az oldalrajzra */
@@ -5095,8 +5098,9 @@ function uniNezetMutat(el, nezet) {
   var reteg = el.querySelector(".uni-nezet-reteg");
   if (reteg) reteg.parentNode.removeChild(reteg);
   el.classList.toggle("uni-nezetben", !!nezet);
-  var magas = el.querySelector(".uni-magas"), a = el._uniNezo || {};
+  var magas = el.querySelector(".uni-magas");
   if (!nezet || !magas) return;
+  var gy = magas.closest("g[id]"), a = el._uniNezo || (gy && UNI_RAJZ_ADAT[gy.id]) || {};
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("class", "uni-magas uni-nezet-reteg");
   g.innerHTML = '<g class="uni-elo">' + unikornisNezetArt(nezet, a.rajz || "korall", a.kinezet || null, el._uniNezoPfx, a.oltozet || null) + '</g>';
@@ -5736,6 +5740,7 @@ function unikornisSVG(id, c, meret, oltozet, kinezet) {
     if (h === "hat") { var sor = art.match(/<g class="ucg uni-soreny">[\s\S]*?<\/g>/); if (sor) ruha += uniIzKeret("nyak", sor[0]); }
   });
   art = nyakAlattBe(art, oltozet && NYAK_ALATT[oltozet.nyak], "oldal");   /* a sál a fej ALÁ (sal-rajzterv) */
+  UNI_RAJZ_ADAT[id] = { rajz: rajz, kinezet: kinezet || null, oltozet: oltozet || null };   /* a fordulás szemből-képéhez (uniNezetMutat) */
   return '<g id="' + id + '" transform="scale(' + s + ')">' +
     '<g transform="scale(0.5) translate(-190,-272)">' +
       UNI_ARNYEK +
