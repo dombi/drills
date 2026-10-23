@@ -20403,7 +20403,7 @@ function nyitoIndul() {
 /* a felhő megjött / változott (db.js felhoKepernyoFrissit), miközben a nyitókép látszik */
 function nyitoFrissit() {
   if (NYITO.tovabb || LEGELO.valaszt && LEGELO.host === $("nyito-szin")) return;   /* választás közben nem rajzoljuk újra (a végén úgyis megvárja) */
-  if (NYITO.mod === "kozos" && !(NYITO.belepett && (FELHO.kesz || FELHO.offline))) return;   /* a gép gyerekei alszanak, amíg valaki be nem lép */
+  if (NYITO.mod === "kozos" && !(FELHO.kesz || FELHO.offline)) return;   /* a gép gyerekei alszanak, amíg valaki be nem lép (aki ebben a böngésző-munkamenetben már belépett, az újratöltés után is bent van: neki a legelő jön) */
   var friss = NYITO.belepett; NYITO.belepett = false;
   if (elsoPercKell()) { elsoPercIndit(); return; }
   legeloNyit(!friss && NYITO.mod === "sajat");   /* ugyanaz a kép marad, csak a kinézetek frissülnek (most belépve: új kép) */
@@ -28496,7 +28496,10 @@ function belepoMutat(kod) {
       NYITO.belepett = true;   /* most írta be a kódot: a nyitóképen nem kell még egyszer ébresztenie (nyitokep.js) */
       if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
       gomb.disabled = true; gomb.textContent = "Egy pillanat…";
-      kodBelep(kod).catch(function (e) {
+      kodBelep(kod).then(function (c) {
+        /* ugyanaz a gyerek lépett be újra, aki már bent volt: a Firebase nem jelez változást (onAuthStateChanged nem fut) → magunk megyünk tovább */
+        if (c && c.user && FELHO.kesz && c.user.uid === FELHO.uid) { belepoRejt(); nyitoFrissit(); }
+      }).catch(function (e) {
         var c = (e && e.code) || "";
         if (c === "auth/network-request-failed" && offline) { felhoOfflineBelep(j, kod); return; }
         NYITO.belepett = false;

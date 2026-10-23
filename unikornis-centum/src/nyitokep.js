@@ -84,7 +84,7 @@ function nyitoIndul() {
 /* a felhő megjött / változott (db.js felhoKepernyoFrissit), miközben a nyitókép látszik */
 function nyitoFrissit() {
   if (NYITO.tovabb || LEGELO.valaszt && LEGELO.host === $("nyito-szin")) return;   /* választás közben nem rajzoljuk újra (a végén úgyis megvárja) */
-  if (NYITO.mod === "kozos" && !(NYITO.belepett && (FELHO.kesz || FELHO.offline))) return;   /* a gép gyerekei alszanak, amíg valaki be nem lép */
+  if (NYITO.mod === "kozos" && !(FELHO.kesz || FELHO.offline)) return;   /* a gép gyerekei alszanak, amíg valaki be nem lép (aki ebben a böngésző-munkamenetben már belépett, az újratöltés után is bent van: neki a legelő jön) */
   var friss = NYITO.belepett; NYITO.belepett = false;
   if (elsoPercKell()) { elsoPercIndit(); return; }
   legeloNyit(!friss && NYITO.mod === "sajat");   /* ugyanaz a kép marad, csak a kinézetek frissülnek (most belépve: új kép) */

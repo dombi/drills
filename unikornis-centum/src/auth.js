@@ -146,7 +146,10 @@ function belepoMutat(kod) {
       NYITO.belepett = true;   /* most írta be a kódot: a nyitóképen nem kell még egyszer ébresztenie (nyitokep.js) */
       if (offline && (!FELHO.auth || navigator.onLine === false)) { felhoOfflineBelep(j, kod); return; }
       gomb.disabled = true; gomb.textContent = "Egy pillanat…";
-      kodBelep(kod).catch(function (e) {
+      kodBelep(kod).then(function (c) {
+        /* ugyanaz a gyerek lépett be újra, aki már bent volt: a Firebase nem jelez változást (onAuthStateChanged nem fut) → magunk megyünk tovább */
+        if (c && c.user && FELHO.kesz && c.user.uid === FELHO.uid) { belepoRejt(); nyitoFrissit(); }
+      }).catch(function (e) {
         var c = (e && e.code) || "";
         if (c === "auth/network-request-failed" && offline) { felhoOfflineBelep(j, kod); return; }
         NYITO.belepett = false;
