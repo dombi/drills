@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belépő legelő</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --blue:#29a3dd; --blue-soft:#d8f0fb; --gold:#f0a800; --gold-soft:#fff1c7; --green:#3f9e6a; --green-soft:#dff3e7;
+    --line:#f1e6dc; --warn:#b86a00; --warn-soft:#fff3dc;
+    --sketch-ink:#5a4a6e; --sketch-bg:#eef8ec; --card:#fffaf2; --sky:#dff1fb; --fog:#d9d4e2; --glow:#ffe27a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+      --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --sky:#1d3040; --fog:#4a4458; --glow:#b8962a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --blue-soft:#1d3a4a; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --gold-soft:#3d3214;
+    --sketch-ink:#e6dcf5; --sketch-bg:#22332a; --card:#2f2840; --sky:#1d3040; --fog:#4a4458; --glow:#b8962a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--green) 0%,var(--blue) 50%,var(--violet) 100%);color:#fff;border-radius:22px;padding:28px 28px 24px;box-shadow:0 12px 30px rgba(41,163,221,.25);position:relative;overflow:hidden}
+  header.top::after{content:"🦄";position:absolute;right:18px;top:4px;font-size:100px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:28px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:4px 13px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:34px 0 12px;padding-left:12px;border-left:6px solid var(--gold)}
+  h3{font-size:16px;margin:18px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .cards{display:grid;gap:16px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;position:relative}
+  .dec .num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dec h3{margin:2px 0 6px 24px;font-size:17px}
+  .prop{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .ok{display:inline-block;background:var(--green-soft);color:var(--green);font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px;margin-top:6px}
+  .q{border-left:5px solid var(--gold);background:var(--warn-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .q b.t{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .tblwrap{overflow-x:auto}
+  .say{font-style:italic;color:var(--violet)}
+  .elv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .elv div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .elv b{display:block;margin-bottom:2px}
+  .zold{color:var(--green);font-weight:700} .sarga{color:var(--warn);font-weight:700} .piros{color:var(--pink);font-weight:700}
+  figure{margin:0} figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+  svg.vazlat{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);background:var(--sketch-bg)}
+  svg.vazlat text{fill:var(--sketch-ink);font-family:"Segoe UI",system-ui,sans-serif}
+  .vazlatok{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media (max-width:640px){ .vazlatok{grid-template-columns:1fr} }
+  .nap td:first-child{white-space:nowrap;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Belépő legelő</h1>
+  <div class="sub">A játék kapuja: egy legelő, rajta mind az öt unikornis. A gyerek itt lép be, itt választja ki, melyik unikornissal játszik, ide jön vissza unikornist váltani, és itt lép ki. Aki akar, saját titkos kódot is tehet a belépésére.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-10-23</span>
+    <span class="chip">Nagyság: KÖZEPES (rajzterv + 3 kód-kör)</span>
+  </div>
+</header>
+
+<h2>1. A lényeg egy bekezdésben</h2>
+<div class="panel">
+  <p>Ma három külön hely van: a <b>nyitókép</b> (alvó unikornis + fatábla), a <b>belépő kártya</b> (kódbeírás) és az <b>unikornis-választó</b> (öt kártya számokkal). A kilépés a választó bal alsó sarkában bújik meg, ott sem mindig látszik.</p>
+  <p>Az új menetben ez <b>egyetlen hely: a legelő</b>. Belépés előtt az öt unikornis az alap kinézetében van a réten. Belépés után egy csillámfelhőben mindegyik felveszi a gyerek által beállított kinézetét, és a gyerek <b>megkoppintja</b> azt, amelyikkel játszani akar. A 🦄 Váltás ide hoz vissza, kód nélkül. Kódot csak a <b>kis kapun</b> át történő kilépés után kell újra beírni.</p>
+  <p class="lead" style="margin-bottom:0">A mai belépőkód lesz a <b>belépőnév</b>, ezt senkinek nem kell átállítani. Aki akar, mellé tehet egy <b>titkos képes kódot</b>, ez egy lakat a játékban. Ha elfelejti, a pulton egy gombbal leveszed.</p>
+</div>
+
+<h2>2. Amit a beszélgetésben mondtál, és ami tetszett</h2>
+<div class="panel">
+  <ul>
+    <li><span class="ok">✅ te mondtad</span> A belépőn az összes unikornis alap változata ott van. A gyerek belép, és <b>belépés után</b> itt választ unikornist.</li>
+    <li><span class="ok">✅ te mondtad</span> Az unikornis-váltás <b>ugyanide</b> visz vissza, kód nélkül. Kódot csak kilépés után kell újra beírni, ezért kell egy <b>kilépő gomb</b>. Ha egy gépet egy gyerek használ, ő tipikusan belépve marad, és csak választ.</li>
+    <li><span class="ok">✅ te mondtad</span> Ha nem nagy plusz munka: belépés után mindegyik unikornis úgy néz ki, <b>ahogy a gyerek beállította</b>. Hogy melyik alszik, melyik sétál, az <b>véletlen</b>.</li>
+    <li><span class="ok">✅ te mondtad</span> A mai kód legyen a <b>felhasználónév</b>, és lehessen mellé <b>saját kódot</b> adni, amit te a pulton törölni tudsz.</li>
+    <li><span class="ok">✅ tetszett</span> A titkos kód <b>nem kötelező</b>, csak ha a gyerek akar magának.</li>
+    <li><span class="ok">✅ választottad</span> A titkos kód <b>lakat a játékban</b> (nem valódi Firebase-jelszó). Ingyenes, a pultról levehető. Ha egyszer sok idegen gyerek jön, át lehet állni valódi jelszóra.</li>
+    <li><span class="ok">✅ tetszett</span> Belépéskor <b>csillámfelhő</b>, utána állnak a saját kinézetükben. A még nem játszott unikornison apró <b>„vár rád” jel</b>. A kilépés egy <b>kis kapu</b> a kép szélén, és megkérdezi: <span class="say">„Tényleg kilépsz?”</span> A titkos kód a belépés lépésében jön. <b>Egyszerre csak 1–2 unikornis mozog.</b></li>
+    <li><span class="ok">⛔ marad</span> Fiú/lány választás nincs, rejtetten sem.</li>
+  </ul>
+</div>
+
+<h2>3. Ami a kódban már megvan (erre építünk)</h2>
+<div class="panel">
+  <div class="tblwrap"><table>
+    <tr><th>Mi</th><th>Hol</th><th>Mit kezdünk vele</th></tr>
+    <tr><td>Nyitókép: rét, cím, odú, alvó unikornis + fatábla, ébredés, köszönés</td><td><code>src/nyitokep.js</code></td><td>Ebből lesz a legelő (a rét, a fatábla és az ébredés marad).</td></tr>
+    <tr><td>Az első perc ① lépése: az 5 unikornis legel, a koppintott odaüget és ugrik</td><td><code>epValaszt</code> (nyitokep.js)</td><td><b>Ez lesz a választó közös alapja</b>. Az újonc is ezt kapja, nem egy külön másolatot.</td></tr>
+    <tr><td>Unikornis-választó kártyákkal (✨, 🌟, 🏅 számok), újoncnál 💤 alvó barátok</td><td><code>renderProfil</code> (ui.js), <code>kepernyo-profil</code></td><td>Kiváltja a legelő. A „💤 még alszik” mondat (<code>NYITAS_MONDAT.barat</code>) átkerül.</td></tr>
+    <tr><td>Belépés: a kód egyben név és jelszó (<code>CSILLAG-42 → csillag-42@… / CSILLAG-42</code>)</td><td><code>src/auth.js</code> <code>kodBelep</code></td><td>Marad, ahogy van. A kód innentől a „belépőnév”, a lakat erre épül rá.</td></tr>
+    <tr><td>Közös gép felismerése (2+ kód a gépen), belépés csak a böngésző bezárásáig</td><td><code>kozosGep</code>, <code>belepesCsakMost</code></td><td>Marad.</td></tr>
+    <tr><td>Kilépés: mentés a hátizsákba, a helyi mentés kiürül</td><td><code>felhoKilep</code></td><td>Marad, csak a kapu hívja.</td></tr>
+    <tr><td>„👋/✏️ Másik gyerek” tábla, két koppintásos kilépés (az átmeneti megoldás)</td><td><code>nyitoMasikGyerek</code></td><td>Ebből lesz a kis kapu.</td></tr>
+    <tr><td>Net nélküli belépés kóddal (hátizsák)</td><td><code>src/hatizsak.js</code></td><td>A lakat ide is bekerül (lásd 6.).</td></tr>
+    <tr><td>Firebase-szabályok: a gyerek a saját adatait írja, a pult a <code>producerConfig</code>-ot</td><td><code>firestore.rules</code></td><td><b>Nem kell hozzányúlni.</b> A lakat a gyerek saját adataiban van, a levétel a pult saját helyén.</td></tr>
+  </table></div>
+</div>
+
+<h2>4. A menet</h2>
+
+<h3>A) Senki nincs belépve (első indítás, vagy kilépés után)</h3>
+<div class="panel">
+  <ul>
+    <li>A legelőn mind az <b>öt unikornis alap kinézetben</b>. Véletlen, ki mit csinál: az egyik a fűben alszik, a másik legel, a harmadik lassan sétál. Egyszerre legfeljebb 1–2 mozog.</li>
+    <li>Középen a fatábla: <span class="say">„Ki jött ma?”</span> Koppintásra megjelenik a mező: <span class="say">„Írd be a belépődet!”</span>, ez a mai kód, pl. <code>CSILLAG-42</code>.</li>
+    <li>A rét szélén a kis kapu (ilyenkor csukva, nem csinál semmit).</li>
+    <li>Rossz belépő: <span class="say">„Ezt nem ismerem. Nézd meg még egyszer!”</span>, ahogy ma.</li>
+    <li>Ha a gyereknek van titkos kódja, a belépő után <b>a lakat</b> jön (C).</li>
+  </ul>
+</div>
+
+<h3>B) Belépve: a választás</h3>
+<div class="panel">
+  <ul>
+    <li><b>Csillámfelhő</b> száll végig a réten, utána mindegyik unikornis a <b>saját kinézetében</b> áll (ruha, sörény, festés, ahogy a gyerek beállította). A fatáblán a gyerek neve. A felhő utáni állapot is véletlen: ki alszik, ki legel.</li>
+    <li>A legutóbb használt unikornis kicsit elöl áll, de nincs kiemelve. Nem akarjuk megmondani, kit válasszon.</li>
+    <li>Amelyikkel még <b>sosem játszott</b>, azon apró „vár rád” jel (pl. kis szív-buborék a feje fölött; a rajzterv dönti el).</li>
+    <li><b>Koppintás</b> egy unikornisra: ha alszik, felébred és nyújtózik; ha legel, felkapja a fejét. Odaüget a kép közepére, köszön (<span class="say">„Szia, Petra! Már vártalak!”</span>), aztán indul a térkép.</li>
+    <li>Ha a <b>gépen egy gyerek</b> játszik, minden indításkor ez a kép jön, kód nélkül. Ez a mai nyitókép helyére lép.</li>
+  </ul>
+</div>
+
+<h3>C) A lakat (csak akinek van)</h3>
+<div class="panel">
+  <ul>
+    <li>A belépő után a kapu oszlopán lógó <b>lakat</b> kerül előre, alatta <b>9 kép</b> (pl. csillag, alma, hold, gomba, virág, szív, felhő, csepp, levél). A gyerek sorban <b>megkoppint hármat</b>. Jó sorrendre a lakat kattan és kinyílik, és jön a csillámfelhő (B).</li>
+    <li>Rossz sorrendre a lakat megrázkódik, a képek visszaállnak. 5 rossz próba után egy percig pihen: <span class="say">„Pihenjünk egy kicsit, aztán próbáld újra!”</span></li>
+    <li>Ha elfelejtette: <span class="say">„Ha elfelejtetted, szólj annak, akitől a belépődet kaptad.”</span> Te a pulton leveszed a lakatot.</li>
+    <li>A lakat <b>csak a belépéskor</b> kell. Aki belépve maradt (saját gép), annak nem kell minden indításkor kinyitnia.</li>
+  </ul>
+</div>
+
+<h3>D) Titkos kód beállítása, cseréje, levétele (a gyerek maga)</h3>
+<div class="panel">
+  <ul>
+    <li>Belépve a kapu oszlopán egy <b>nyitott lakat</b> lóg. Koppintásra: <span class="say">„Szeretnél titkos kódot? Akkor csak te tudsz belépni!”</span></li>
+    <li>Kiválaszt 3 képet, aztán <b>még egyszer</b> ugyanazt (hogy biztosan emlékezzen). A lakat bezárul, és az unikornis mondja: <span class="say">„Jegyezd meg jól a képeidet!”</span></li>
+    <li>Akinek már van, a lakatra koppintva <b>cserélheti vagy leveheti</b>, ha előbb kinyitja a mostanival.</li>
+    <li>Senki nem kéri, nem is emlegeti. Aki nem akar, az sosem találkozik vele, csak a lakat lóg ott a kapun.</li>
+  </ul>
+</div>
+
+<h3>E) Unikornis-váltás és kilépés</h3>
+<div class="panel">
+  <ul>
+    <li>A térkép <b>🦄 Váltás</b> gombja a legelőre visz (B), <b>kód nélkül</b>. A régi kártyás választó megszűnik.</li>
+    <li>A <b>kis kapu</b> a kép szélén: az első koppintásra a kapu megnyikordul, és megkérdezi: <span class="say">„Tényleg kilépsz, Petra?”</span>. A második koppintás kilép (mentés a hátizsákba, ahogy ma), és jön az A) állapot. Így egy kisebb gyerek nem lép ki véletlenül.</li>
+    <li>A <b>👪 Szülőknek</b> gomb (hosszú nyomás) a legelő sarkába kerül, ugyanúgy, ahogy ma a választón.</li>
+  </ul>
+</div>
+
+<h3>F) Az újonc</h3>
+<div class="panel">
+  <ul>
+    <li>Belépés után (vagy az első indításkor felhő nélkül) az első perc jön, ahogy most: ① választás → ② név-felhők → ③ lufik. Az ① <b>maga a legelő választója</b>, csak alap kinézettel (még nincs mit felvenni), és itt még nincs „vár rád” jel.</li>
+    <li>Az első két hétben a többi unikornis <b>mélyen alszik</b>: a fűben fekszik, fölötte kis felhő-paplan és hold. Koppintásra: <span class="say">„Ő még alszik. Hamarosan felébred!”</span>, ahogy ma a választón. Ez másképp néz ki, mint a véletlen szunyókálás, hogy a gyerek lássa: őt most nem lehet felébreszteni.</li>
+  </ul>
+</div>
+
+<h3>G) Közös gép és net nélkül</h3>
+<div class="panel">
+  <ul>
+    <li><b>Közös gépen</b> a belépés továbbra is csak a böngésző bezárásáig él. Ma itt a gép gyerekeinek unikornisai alszanak névtáblával. Az új menetben helyettük az öt alap unikornis van (A). A gép gyerekeinek nevei nem jelennek meg, lásd a 3. kérdést.</li>
+    <li><b>Net nélkül</b> (hátizsák) a belépés kóddal ma is megy. A lakat is ott van a hátizsákban, ezért net nélkül is kéri. A pultról levett lakat csak akkor tűnik el, amikor a gép legközelebb netet kap.</li>
+  </ul>
+</div>
+
+<h2>5. Mit CSINÁL a gyerek a képen?</h2>
+<div class="elv">
+  <div><b>Választ: koppint az unikornisra</b>A választás maga a mozdulat. A kép rögtön válaszol: felébred, odaüget, köszön. Nincs kártya, nincs felirat.</div>
+  <div><b>Kinyitja a lakatot</b>A képeket koppintja sorban, a lakat kattan vagy megrázkódik. A siker a lakaton látszik, nem egy szövegben.</div>
+  <div><b>Kilép: a kapun át</b>A kapu megnyikordul és kérdez, a második koppintásra kinyílik. A „ki” és a „be” ugyanazon a kapun át történik.</div>
+  <div><b>Látja, hogy ismerik</b>A csillámfelhő után a saját, felöltöztetett unikornisai állnak a réten. Ez a „megismert a játék” pillanat (Fanni: gyűjtemény; Lili: siker).</div>
+</div>
+
+<h2>6. Belül, röviden (a kódhoz)</h2>
+<div class="panel">
+  <ul>
+    <li><b>Közös modul:</b> a legelő egy rajzoló (pl. <code>legeloRajzol(mod)</code>: <code>"belepo"</code> / <code>"valaszt"</code> / <code>"ujonc"</code>), ezt használja a nyitókép, az első perc ① lépése és a 🦄 Váltás. A <code>renderProfil</code> kártyái megszűnnek; ahol ma a <code>kepernyo-profil</code>-ra mennek (térkép, Szülőknek ← vissza, gépi próba), ott a legelő jön.</li>
+    <li><b>Véletlen állapot:</b> mindegyik unikornis kap egyet (alszik / legel / sétál). Egyszerre legfeljebb 2 mozog; nyugi módban (<code>nyugiMod</code>) senki.</li>
+    <li><b>Lakat:</b> a gyerek saját adataiban (<code>users/{uid}</code>) a 3 kép <b>lenyomata</b> (nem maguk a képek) + a beállítás ideje. A pult a <code>producerConfig/{uid}</code>-ba írja: „lakat levéve ekkor”. Belépéskor, ha a levétel újabb a beállításnál, a játék törli a lakatot. Szabály-módosítás nem kell.</li>
+    <li><b>Belépve, de zárva:</b> a lakat a Firebase-belépés <i>után</i> kérdez (hiszen onnan jön a lenyomat). Ha a gyerek ilyenkor bezárja a böngészőt, a gép „belépve, de zárva” állapotot jegyez, és legközelebb újra a lakat jön, nem a választó.</li>
+    <li><b>Hátizsák:</b> a lakat lenyomata a hátizsákba is bekerül, így net nélkül is kér.</li>
+    <li><b>Sebesség:</b> 5 felöltözött unikornis egyszerre. A rajzolás egyszer történik; a mozgás csak 1–2-n fut. Telefonon kettő-három elöl, a többi hátrébb, kisebben a dombon.</li>
+  </ul>
+</div>
+
+<h2>7. A pult</h2>
+<div class="panel">
+  <ul>
+    <li>A gyereklapon egy új sor: <b>🔒 Titkos kód:</b> „nincs” / „van (beállítva 10-23)”. Mellette <b>Levesz</b> gomb (megerősítéssel). A képeket a pult sem látja.</li>
+    <li>Csoportra ennek nincs értelme (gyerekenként szól). Egyetlen csoport-szintű kapcsoló lehet: „titkos kód lehetősége be/ki” (alap: be), ha egyszer egy csoportnál nem akarnád. Ezt nem kell most megcsinálni.</li>
+  </ul>
+</div>
+
+<h2>8. Mi NEM fér az első változatba</h2>
+<div class="panel">
+  <ul>
+    <li>Valódi Firebase-jelszó (a B út). Később, ha sok idegen gyerek jön.</li>
+    <li>Az unikornisok számai a réten (✨, 🌟, 🏅). Ezek a választó kártyáin voltak; a legelőn nincsenek. Ha hiányoznak, lásd a 6. kérdést.</li>
+    <li>Az unikornisok egymással játszanak, kergetőznek a réten. Szép lenne, de a sebesség miatt később.</li>
+  </ul>
+</div>
+
+<h2>9. Hogyan épül</h2>
+<div class="panel">
+  <div class="tblwrap"><table class="nap">
+    <tr><td>0. kör</td><td><b>Rajzterv</b> (a valódi rajzolóval): a legelő 5 unikornissal (alszik / legel / sétál), csillámfelhő, „vár rád” jel, mély alvás (újonc), kis kapu + lakat, a 9 kép, telefonos elrendezés.</td></tr>
+    <tr><td>1. kör</td><td><b>A legelő mint választó</b>: közös rajzoló, véletlen állapotok, saját kinézetek, koppintás → odaüget → térkép. A 🦄 Váltás ide visz, a kártyás választó megszűnik. Az első perc ① erre épül.</td></tr>
+    <tr><td>2. kör</td><td><b>Belépés és kilépés a legelőn</b>: alap kinézet + „Ki jött ma?” tábla + belépő mező, csillámfelhő a belépéskor, a kis kapu kilépéssel. Közös gép és hátizsák végigpróbálva.</td></tr>
+    <tr><td>3. kör</td><td><b>Lakat + pult</b>: beállítás / csere / levétel a kapun, belépéskor a lakat, „belépve, de zárva”, hátizsák, pult-sor + Levesz gomb. Gépi próba, aztán élő próba.</td></tr>
+  </table></div>
+</div>
+
+<h2>10. Kérdések hozzád</h2>
+<div class="cards">
+  <div class="dec"><div class="num">1</div><h3>Milyen legyen a titkos kód?</h3>
+    <p><b>A) 3 kép 9-ből</b>, sorban koppintva. Egy másodikos is megjegyzi, és illik a játékhoz. <b>B)</b> 4 szám. <b>C)</b> szó betűkkel.</p>
+    <span class="prop">Javaslat: A</span></div>
+  <div class="dec"><div class="num">2</div><h3>Hol fedezi fel a gyerek, hogy adhat titkos kódot?</h3>
+    <p><b>A) A kapu oszlopán lógó lakat</b> a legelőn: a ki- és belépés helye, ott keresi az ember. <b>B)</b> Egy lakatos ládika az odúban.</p>
+    <span class="prop">Javaslat: A</span></div>
+  <div class="dec"><div class="num">3</div><h3>Közös gépen lássák-e a gép gyerekeinek nevét?</h3>
+    <p>Ma a közös gépen a gyerekek unikornisai névtáblával alszanak. A név megkoppintásával nem kellene gépelni. Csakhogy akinek nincs lakatja, azt így bárki elérné egy koppintással; ma legalább a kódját tudni kell.</p>
+    <p><b>A) Nem</b>, mindenki beírja a belépőjét (ahogy ma). <b>B) Igen</b>, névtáblák a réten, de csak annál, akinek van lakatja.</p>
+    <span class="prop">Javaslat: A</span></div>
+  <div class="dec"><div class="num">4</div><h3>Mit mondjon a választott unikornis?</h3>
+    <p><b>A) Köszön, és azt is mondja, hol jártak legutóbb</b>: <span class="say">„Szia, Petra! Megyünk vissza a Szorzós ligetbe?”</span> (a játék ma is tudja, hol állt utoljára). <b>B)</b> Csak köszön, ahogy ma.</p>
+    <span class="prop">Javaslat: A</span></div>
+  <div class="dec"><div class="num">5</div><h3>A régi kártyás választó teljesen megszűnjön?</h3>
+    <p><b>A) Igen</b>, minden választás a legelőn. <b>B)</b> Maradjon meg tartaléknak egy kis gombbal a legelőn (pl. lassú gépre).</p>
+    <span class="prop">Javaslat: A</span></div>
+  <div class="dec"><div class="num">6</div><h3>Hiányoznak-e majd a kártyák számai?</h3>
+    <p>A választó kártyáin látszott az unikornis csillámpora, a kész pályák és a jelvények száma. <b>A) Nem kell a legelőre</b>, a gyerek a játékban úgyis látja. <b>B)</b> Ha a gyerek egy unikornist hosszan nyom, egy kis buborék mutatja.</p>
+    <span class="prop">Javaslat: A, és élő próbán figyeljük, keresik-e</span></div>
+</div>
+
+<p class="lead" style="margin-top:28px">Ha a kérdésekre megvan a válasz: <b>0. kör = rajzterv</b>. Nyitómondat: „Belépő legelő: rajzterv.”</p>
+
+</div>
+</body>
+</html>
