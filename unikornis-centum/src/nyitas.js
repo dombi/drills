@@ -43,10 +43,15 @@ var NYITAS_OSZTALY = {
   1: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
   2: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo", "vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
   3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: NYITAS_MERES.concat(["vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
-  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
-  5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
-  6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
+  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
+  5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
+  6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
 };
+/* 🏪 PÁLYA UTÁN NYÍLÓ HELY (Piactér 3. kör, terv/piacter-rajzterv.html 8. pont): nem a sor végén, hanem ahol a matektanulás
+   szerint logikus — a Piactér a Tízesek ösvénye után (tízesek és egyesek, kerek tízesek 100-ig). Az első tiszta végigjátszás
+   után ébred, felfelé nyitásként, ha a napi egy nyílás még szabad (különben a következő gyakorlós napon). 1. o.: a plafon fölött van (csak a pult nyit),
+   4. o.-tól nyitva. A bolton belül az állomások is az előtudással ébrednek (bolt-kep.js bkAllomasok, bkVisszaFok, bkBlokkGen). */
+var NYITAS_PALYA_UTAN = [{ id: "piac", utan: "tizesek", osztaly: [2, 3] }];
 /* 🌰🎵 VERS-PÁLYÁK (producer, 2026-10-20): a bontás és a szorzótábla felmondása az alap — „nem kiszámolni kell tudni,
    hanem mint egy verset”; ha nem bombabiztos, abból jönnek a számolási hibák és a látszólagos kedvetlenség. Ezért:
      • nem részei a sornak, mindig ébren vannak (a gyerek osztályában), és VILÁGÍTANAK, amíg nem mennek versként
@@ -59,7 +64,7 @@ var NYITAS_VERS = [
   { id: "bontas-felmondas", liget: "osszeado", tol: 1, ig: 4, hiv: ["osszeado"], mondat: "Mondjuk el együtt a bontásokat!" },
   { id: "szorzo-dallam", liget: "szorzo", tol: 2, ig: 6, feb: 2, hiv: ["szorzo", "vasar"], mondat: "Mondjuk el együtt a szorzótáblát!" }
 ];
-var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni"];
+var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni", "piac"];
 /* a játékhelyek naptára (tervlap 4.⑤): [id, legkorábbi gyakorlós nap] — sorban nyílnak, ha egy nap foglalt, eltolódnak.
    Amíg ki nem nyílt, alszik (3. kör): az utca és a kert a térképen ködben, a fodrász és a bank az utcán zárt spalettával,
    a felhőkert lépcsője nincs ott, a heti kártya nem látszik, a kölyök nem kísér, a többi unikornis alszik, a Bolt egy polcos,
@@ -370,6 +375,9 @@ function nyitasLigetMegy(p, lg, o, sor) {
 function nyitasKovetkezo(m, nap, van) {
   var r = m.r, eg = nyitasEgyeniVan();
   function alvo(lista) { return lista.filter(function (id) { return van[id] && nyitasLigetAllapot(r, m.sor, id, eg) === "alszik"; })[0]; }
+  /* 🏪 egy pálya után nyíló hely (a Piactér a Tízesek ösvénye után): a tudás nyit felfelé, ez az első */
+  var pu = NYITAS_PALYA_UTAN.filter(function (u) { return u.osztaly.indexOf(m.o) >= 0 && alvo([u.id]) && nyitasTudasN(u.utan).length > 0; })[0];
+  if (pu) return pu.id;
   if (r.fv > 0) {
     var f = alvo(m.sor.fel);
     if (f) { r.fv--; return f; }

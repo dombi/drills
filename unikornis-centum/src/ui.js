@@ -17,7 +17,8 @@ function mutat(id) {
    után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
 var FOMENU_LIGET = null;
 var LIGET_NEV = { egyeni: ["💖", "Neked készült"], fejtoro: ["🏔️", "Fejtörő-hegy"], osszeado: ["🌳", "Összeadó liget"], szorzo: ["🌙", "Szorzós liget"],
-                  szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"] };
+                  szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"],
+                  piac: ["🏪", "Piactér"] };   /* a falu csírája (piac.js) */
 function palyaLiget(pa) { return pa.egyeni ? "egyeni" : (pa.regio || "osszeado"); }
 function ligetJegyez(r) {
   FOMENU_LIGET = r; TERKEP_HOL = { leny: mentes.leny, id: r };   /* a térképen is itt áll majd */
@@ -254,6 +255,11 @@ function renderFomenu() {
       szek.appendChild(bktTerem());
       racs.appendChild(szek);
       setTimeout(ligetUniAlap, 0);                   /* az unikornis az olvasópult mellé áll (terkep.js) */
+      return;
+    }
+    if (regio === "piac") {                        /* 🏪 a kis falutérkép: a bolt háza = a pálya, az unikornis odasétál (piac.js) */
+      szek.appendChild(piacTer(regiok.piac));
+      racs.appendChild(szek);
       return;
     }
     var grid = el("div", "palya-regio-grid");

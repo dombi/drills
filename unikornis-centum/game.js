@@ -324,6 +324,23 @@ PALYAK.push(
   /* 🌇 Alkonyi vásár (5. o.) · 🏮 Lámpás vásár (6. o.) — a producer döntéséig NINCS itt (a tervük: tunderevasar-tartalom.html 5–6. o.) */
 );
 
+/* ══ 🏪 PIACTÉR — Tüske néni boltja (src/bolt.js + src/bolt-kep.js, a hely: src/piac.js) — terv/eletszeru-100-as-palyak-terv.html 3. pont ══
+   A falu csírája: a bolt a Piactér első háza (a Piactér a térképen a Bájitalkonyha és a Vásár között, átmenetileg).
+   Rajt → 🪙 Fizesd ki! → 💰 Visszajáró → 🦊 A róka blokkja → Odú-küszöb (vegyesen) — állomásonként 4 = 16 feladat.
+   A bolt = + −, a Vásár = × : (a határ a tervlapon). Az ösvény képe a vásártér (vasarJelenetSVG), saját sátor-színekkel. */
+PALYAK.push({
+  id: "tuske-bolt", nev: "Tüske néni boltja", ikon: "🏪", regio: "piac", piac: true, szint: 6, osztaly: 2,
+  palcim: "100-ig · fizetés, visszajáró, ellenőrzés",
+  alap: { tipus: "bolt" },
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Fizesd ki!", allomas: "fizet", stand: "fizet", darab: 4 },
+    { nev: "Visszajáró", allomas: "vissza", stand: "vissza", darab: 4 },
+    { nev: "A róka blokkja", allomas: "blokk", stand: "blokk", darab: 4 },
+    { nev: "Odú-küszöb", allomas: "vegyes", stand: "odu", darab: 4, cel: true }
+  ]
+});
+
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).
@@ -3077,10 +3094,15 @@ var NYITAS_OSZTALY = {
   1: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-10" } },
   2: { vil: ["osszeado"], nyitva: [], fel: NYITAS_MERES.concat(["szorzo", "vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "oszkiv-20" } },
   3: { vil: ["osszeado", "szorzo"], nyitva: [], fel: NYITAS_MERES.concat(["vasar"]), oldal: NYITAS_MERES, elso: { osszeado: "tizesek" } },
-  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
-  5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
-  6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
+  4: { vil: ["szorzo", "vasar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["konyvtar"], oldal: [] },
+  5: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] },
+  6: { vil: ["szorzo", "vasar", "konyvtar"], nyitva: ["osszeado", "piac"].concat(NYITAS_MERES), fel: ["fejtoro"], oldal: [] }
 };
+/* 🏪 PÁLYA UTÁN NYÍLÓ HELY (Piactér 3. kör, terv/piacter-rajzterv.html 8. pont): nem a sor végén, hanem ahol a matektanulás
+   szerint logikus — a Piactér a Tízesek ösvénye után (tízesek és egyesek, kerek tízesek 100-ig). Az első tiszta végigjátszás
+   után ébred, felfelé nyitásként, ha a napi egy nyílás még szabad (különben a következő gyakorlós napon). 1. o.: a plafon fölött van (csak a pult nyit),
+   4. o.-tól nyitva. A bolton belül az állomások is az előtudással ébrednek (bolt-kep.js bkAllomasok, bkVisszaFok, bkBlokkGen). */
+var NYITAS_PALYA_UTAN = [{ id: "piac", utan: "tizesek", osztaly: [2, 3] }];
 /* 🌰🎵 VERS-PÁLYÁK (producer, 2026-10-20): a bontás és a szorzótábla felmondása az alap — „nem kiszámolni kell tudni,
    hanem mint egy verset”; ha nem bombabiztos, abból jönnek a számolási hibák és a látszólagos kedvetlenség. Ezért:
      • nem részei a sornak, mindig ébren vannak (a gyerek osztályában), és VILÁGÍTANAK, amíg nem mennek versként
@@ -3093,7 +3115,7 @@ var NYITAS_VERS = [
   { id: "bontas-felmondas", liget: "osszeado", tol: 1, ig: 4, hiv: ["osszeado"], mondat: "Mondjuk el együtt a bontásokat!" },
   { id: "szorzo-dallam", liget: "szorzo", tol: 2, ig: 6, feb: 2, hiv: ["szorzo", "vasar"], mondat: "Mondjuk el együtt a szorzótáblát!" }
 ];
-var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni"];
+var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar", "konyvtar", "fejtoro", "egyeni", "piac"];
 /* a játékhelyek naptára (tervlap 4.⑤): [id, legkorábbi gyakorlós nap] — sorban nyílnak, ha egy nap foglalt, eltolódnak.
    Amíg ki nem nyílt, alszik (3. kör): az utca és a kert a térképen ködben, a fodrász és a bank az utcán zárt spalettával,
    a felhőkert lépcsője nincs ott, a heti kártya nem látszik, a kölyök nem kísér, a többi unikornis alszik, a Bolt egy polcos,
@@ -3404,6 +3426,9 @@ function nyitasLigetMegy(p, lg, o, sor) {
 function nyitasKovetkezo(m, nap, van) {
   var r = m.r, eg = nyitasEgyeniVan();
   function alvo(lista) { return lista.filter(function (id) { return van[id] && nyitasLigetAllapot(r, m.sor, id, eg) === "alszik"; })[0]; }
+  /* 🏪 egy pálya után nyíló hely (a Piactér a Tízesek ösvénye után): a tudás nyit felfelé, ez az első */
+  var pu = NYITAS_PALYA_UTAN.filter(function (u) { return u.osztaly.indexOf(m.o) >= 0 && alvo([u.id]) && nyitasTudasN(u.utan).length > 0; })[0];
+  if (pu) return pu.id;
   if (r.fv > 0) {
     var f = alvo(m.sor.fel);
     if (f) { r.fv--; return f; }
@@ -5078,7 +5103,13 @@ var UNI_POZ = {
   alszik:  { h: [-85, 165], e: [95, -175], test: [3, 0, 46], fej: 36, farok: 34, osztaly: [".uni-alszik"] },  /* alvás (uniElalszik): a fej a mellkasra hajlik */
   nyujt:   { h: [-26, 6],   e: [-90, 90],  test: [20, 0, 27], fej: -24, farok: -40 },   /* nyújtózás (felkeléskor): mellkas le, mellső lábak előre, far és farok fel, fej fel (ásít) */
   guggol:  { h: [50, -100], e: [-50, 100], test: "talaj",     fej: 8,  farok: -10, szarny: -14 },   /* elöl a térd előre, hátul a csánk hátra */
-  hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 }    /* evés, szagolás: az elülső térd rogy, a fej lehajol */
+  hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 },   /* evés, szagolás: az elülső térd rogy, a fej lehajol */
+  /* 🏪 a pult mögött (terv/piacter-rajzterv.html „Az unikornis mozdulatai”): csak a fej és a nyak mozdul, a lábat a pult takarja */
+  figyel:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: 12 },    /* a fej kicsit lehajol, a pultra néz — az alap, amíg a gyerek gondolkodik */
+  szarvvar:{ h: [0, 0], e: [0, 0], test: [0, 0, -2], fej: 4 },     /* a szarva ragyog (varázslás közben; a fényt a szarv-varazs.js adja) */
+  orul:    { h: [0, 0], e: [0, 0], test: [0, 0, -4], fej: -12, farok: -16 },
+  tenyer:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: 24 },    /* a vevő tenyerére néz */
+  gondol:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: -9 }     /* rossz válaszra: nem szomorú, elgondolkodik */
 };
 var UNI_MOZDULAT = {
   ugras:   { poz: "guggol", ido: 1.1,  kulcs: [[0, 0], [14, 1], [26, 0], [50, .8], [62, 0], [74, .4], [100, 0]], osztaly: [".trukk-ugras", ".g-ugras"] },
@@ -6873,7 +6904,7 @@ function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
-  if (palya.vasar) return vasarJelenetSVG(palya, c);         /* 🧺 Tündérvásár: sátrak a vásártéren (vasar.js) */
+  if (palya.vasar || palya.piac) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
   return osvenyVaz(palya, c, {
     hatter: erdoHatterSVG(),
     ut: function (d) {   /* az út: árnyék + test + világos szegély */
@@ -7362,6 +7393,414 @@ var BAGOLY = {
   }
 };
 function bagolyRajz(fajta) { return BAGOLY[fajta].apply(null, Array.prototype.slice.call(arguments, 1)); }
+/* ============ 6a3) 🦔🦊 LAKÓK — a falu kidolgozott szereplői (Piactér 3. kör, 2026-10-23) ============
+   Rajz: terv/piacter-rajzterv.html 3. pont (✅ jóváhagyva 2026-10-23) — a csontváz és a pózok onnan jöttek át, változatlanul.
+   A lakó NEM érem-figura (az a figurak.js-ben marad a feladatkártyákhoz): egész alak a ház terében, ≥ 6 póz átmenettel,
+   élet a házban (pislog, polcot igazgat, töröl, dúdol), arc-elemek külön (szem, szemöldök, száj, pír).
+   CSONTVÁZ: a kéz helyét a póz adja (lx,ly / rx,ry), a könyököt a gép számolja ki (két kör metszéspontja: lkIk).
+   Új póz = egy sor a LK_POZ-ban; új lakó = egy LK_RIG sor + rajz-függvény (a falu későbbi lakói is erre épülnek).
+   Használat: var L = new Lako(gElem, "tuske", { poz: "var", elet: true }); L.poz("orul"); L.sorLe([["szamol", 1300], ["var", 0]]);
+   A rajz 240 × 300-as keretben van (talppont: 120, 288). Mozgáscsökkentésnél csak pislognak, a pózváltás azonnali.
+   Egy közös képkocka-hurok fut, és magától leáll, ha egyetlen lakó sincs a lapon. */
+
+function lkF(n) { return (+n).toFixed(1); }
+var LK_MQ = null;
+function lkCsokkent() {
+  try {
+    if (LK_MQ === null) LK_MQ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : false;
+    return !!(LK_MQ && LK_MQ.matches) || !!window.__UC_GYORS;
+  } catch (e) { return false; }
+}
+function lkTuskek(cx, cy, r1, r2, a0, a1, n, fill, d, w) {
+  var p = [], st = (a1 - a0) / (2 * n);
+  for (var i = 0; i <= 2 * n; i++) { var a = (a0 + i * st) * Math.PI / 180, r = i % 2 ? r2 : r1; p.push(lkF(cx + r * Math.cos(a)) + "," + lkF(cy + r * Math.sin(a))); }
+  return '<polygon points="' + p.join(" ") + '" fill="' + fill + '" stroke="' + d + '" stroke-width="' + (w || 2) + '" stroke-linejoin="round"/>';
+}
+function lkKv(d, w) { return ' stroke="' + d + '" stroke-width="' + (w || 2.2) + '" stroke-linejoin="round" stroke-linecap="round"'; }
+/* felkar (ujj = a ruha ujja), alkar + kéz; a csoportok: .j-?sh (váll körül forog), benne .j-?el (könyök körül) */
+function lkKar(S, E, H, ujj, kez, R, kellek) {
+  return '<path d="M' + S + 'L' + E + '" stroke="' + R.d + '" stroke-width="15" stroke-linecap="round"/><path d="M' + S + 'L' + E + '" stroke="' + ujj + '" stroke-width="11.5" stroke-linecap="round"/>' +
+    '<g class="EL"><path d="M' + E + 'L' + H + '" stroke="' + R.d + '" stroke-width="12" stroke-linecap="round"/><path d="M' + E + 'L' + H + '" stroke="' + R.b + '" stroke-width="8.6" stroke-linecap="round"/>' +
+    '<circle cx="' + E[0] + '" cy="' + E[1] + '" r="5.6" fill="' + ujj + '"/>' + (kellek || "") +
+    '<circle cx="' + H[0] + '" cy="' + H[1] + '" r="7.6" fill="' + kez + '"' + lkKv(R.d, 2) + '/></g>';
+}
+/* a közös arc-elemek osztályokkal: szemek, boldog szem, kacsintás, szemöldök, négy száj, pír */
+function lkArc(R, o) {
+  var s = "", e = o.szem, ink = "#3b2f4a";
+  s += '<g class="pir">' + e.map(function (p, i) { return '<ellipse cx="' + (p[0] + (i ? 13 : -13)) + '" cy="' + (p[1] + 14) + '" rx="6.5" ry="4" fill="#f59bb0"/>'; }).join("") + '</g>';
+  e.forEach(function (p, i) {
+    s += '<g class="e-' + (i ? "r" : "l") + '"><ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="5" ry="6.4" fill="' + ink + '"/><circle cx="' + (p[0] + 1.9) + '" cy="' + (p[1] - 2.4) + '" r="2" fill="#fff"/><circle cx="' + (p[0] - 1.6) + '" cy="' + (p[1] + 2.4) + '" r=".9" fill="#fff" opacity=".8"/></g>';
+    s += '<path class="e-boldog-' + (i ? "r" : "l") + '" d="M' + (p[0] - 5.5) + ',' + (p[1] + 1.5) + ' Q' + p[0] + ',' + (p[1] - 5.5) + ' ' + (p[0] + 5.5) + ',' + (p[1] + 1.5) + '" fill="none" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round"/>';
+  });
+  var w = e[1];
+  s += '<path class="e-kacs" d="M' + (w[0] - 6) + ',' + (w[1] + .5) + ' Q' + w[0] + ',' + (w[1] + 4.5) + ' ' + (w[0] + 6) + ',' + (w[1] - .5) + '" fill="none" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round"/>';
+  e.forEach(function (p, i) {
+    var x = p[0], y = o.szemoY;
+    s += '<path class="b-' + (i ? "r" : "l") + '" d="M' + (x - 6) + ',' + (y + (i ? 1 : 0)) + ' Q' + x + ',' + (y - 3) + ' ' + (x + 6) + ',' + (y + (i ? 0 : 1)) + '" fill="none" stroke="' + o.szemoSzin + '" stroke-width="3" stroke-linecap="round"/>';
+  });
+  var m = o.szaj, hw = o.hw || 7.5;
+  s += '<path class="m-mos" d="M' + (m[0] - hw) + ',' + m[1] + ' Q' + m[0] + ',' + (m[1] + 7) + ' ' + (m[0] + hw) + ',' + m[1] + '" fill="none" stroke="' + ink + '" stroke-width="2.6" stroke-linecap="round"/>';
+  s += '<g class="m-nyit"><path d="M' + (m[0] - hw - 1.5) + ',' + (m[1] - 1) + ' Q' + m[0] + ',' + (m[1] + 14) + ' ' + (m[0] + hw + 1.5) + ',' + (m[1] - 1) + ' Z" fill="#b8475f"' + lkKv(ink, 2) + '/><ellipse cx="' + m[0] + '" cy="' + (m[1] + 6.5) + '" rx="4" ry="2.6" fill="#f59bb0"/></g>';
+  s += '<ellipse class="m-o" cx="' + m[0] + '" cy="' + (m[1] + 3) + '" rx="4.4" ry="5.6" fill="#b8475f"' + lkKv(ink, 2) + '/>';
+  s += '<path class="m-lapos" d="M' + (m[0] - hw * .6) + ',' + (m[1] + 2) + ' Q' + (m[0] + 1) + ',' + (m[1] + 4) + ' ' + (m[0] + hw * .8) + ',' + (m[1] + .5) + '" fill="none" stroke="' + ink + '" stroke-width="2.6" stroke-linecap="round"/>';
+  return s;
+}
+
+var LK_RIG = {
+  tuske: {
+    b: "#ecd0ad", d: "#6d5446", l: "#fbeede", tu: "#a8988e", tu2: "#c4b6ac", ruha: "#9ec9f0", ruhaD: "#5f84b0",
+    S: { l: [98, 180], r: [142, 180] }, E: { l: [86, 210], r: [154, 210] }, H: { l: [90, 240], r: [150, 240] },
+    nyak: [120, 166], talp: [120, 288], tuK: [120, 212], kozep: 120,
+    szem: [[106.4, 129.5], [133.6, 129.5]], fejK: [120, 132]
+  },
+  juli: {
+    b: "#f4a15e", d: "#b35f28", l: "#fff4e8", ruha: "#f4a15e",
+    S: { l: [101, 160], r: [139, 160] }, E: { l: [92, 190], r: [148, 190] }, H: { l: [95, 220], r: [145, 220] },
+    nyak: [120, 140], talp: [120, 288], tuK: [146, 252], kozep: 120,
+    szem: [[107.4, 103.7], [132.6, 103.7]], fejK: [120, 106]
+  }
+};
+
+/* Tüske néni: kötény (csipkés szegély, zseb zsebkendővel, masni), kendő pöttyökkel, szemüveg, ceruza a tüskék közt */
+LK_RIG.tuske.rajz = function () {
+  var R = this, s = "";
+  s += '<ellipse cx="120" cy="290" rx="58" ry="7" fill="#3c2a50" opacity=".14"/>';
+  s += '<g class="j-all">';
+  s += '<g class="j-tu">' + lkTuskek(120, 212, 46, 72, 148, 392, 13, "#8f7f76", R.d) + lkTuskek(120, 212, 42, 60, 154, 386, 12, R.tu, R.tu) + '</g>';
+  s += '<path d="M104,262 V282 M136,262 V282" stroke="' + R.d + '" stroke-width="13" stroke-linecap="round"/><path d="M104,262 V282 M136,262 V282" stroke="' + R.b + '" stroke-width="9.5" stroke-linecap="round"/>';
+  s += '<ellipse cx="100" cy="286" rx="15" ry="6.5" fill="#f6a5c0"' + lkKv("#b5607e") + '/><ellipse cx="140" cy="286" rx="15" ry="6.5" fill="#f6a5c0"' + lkKv("#b5607e") + '/><circle cx="92" cy="283" r="3.4" fill="#fff"/><circle cx="148" cy="283" r="3.4" fill="#fff"/>';
+  s += '<path d="M120,158 C96,158 78,186 75,220 C72,254 90,274 120,274 C150,274 168,254 165,220 C162,186 144,158 120,158 Z" fill="' + R.ruha + '"' + lkKv(R.d, 2.4) + '/>';
+  s += [[86, 222], [94, 252], [152, 230], [146, 258], [158, 206], [84, 198]].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.3" fill="#fff" opacity=".9"/>'; }).join("");
+  s += '<path d="M97,178 Q120,173 143,178 L152,258 Q120,270 88,258 Z" fill="#fff"' + lkKv("#e38aa6", 2.2) + '/>';
+  s += '<path d="M90,258' + [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { var x = 90 + (i + 1) * 7.75; return ' Q' + lkF(x - 3.9) + ',' + (i % 2 ? 268 : 266) + ' ' + lkF(x) + ',' + (258 + Math.sin((i + 1) / 8 * Math.PI) * 9); }).join("") + '" fill="none" stroke="#f6a5c0" stroke-width="2"/>';
+  s += '<rect x="108" y="222" width="24" height="18" rx="5" fill="#fff4f8"' + lkKv("#e38aa6", 1.8) + '/><path d="M114,222 l4,-7 l5,5 l4,-5 l2,7" fill="#c9aee6"' + lkKv("#7a5ca8", 1.2) + '/>';
+  s += '<path d="M85,206 q-11,-8 -13,2 q4,6 13,-2 q-8,10 -4,15 M85,206 q-4,9 2,14" fill="#fff"' + lkKv("#e38aa6", 1.6) + '/>';
+  s += '<g class="j-fej">';
+  s += lkTuskek(120, 132, 31, 52, 160, 380, 12, "#8f7f76", R.d) + lkTuskek(120, 132, 29, 44, 166, 374, 11, R.tu, R.tu);
+  s += '<g class="p-ceruT"><path d="M152,116 L170,94" stroke="#6d5446" stroke-width="7" stroke-linecap="round"/><path d="M152,116 L170,94" stroke="#fcd66a" stroke-width="4.6" stroke-linecap="butt"/><path d="M170,94 l3,-4" stroke="#f2a3b8" stroke-width="4.6" stroke-linecap="round"/><path d="M152,116 l-3,4" stroke="#3b2f4a" stroke-width="2.6" stroke-linecap="round"/></g>';
+  s += '<ellipse cx="120" cy="132" rx="37" ry="33.3" fill="' + R.b + '"' + lkKv(R.d, 2.4) + '/>';
+  s += '<ellipse cx="120" cy="147" rx="17" ry="12" fill="' + R.l + '"/>';
+  s += lkArc(R, { szem: R.szem, szemoY: 116.5, szemoSzin: "#8a6650", szaj: [120, 150.5], hw: 7.4 });
+  s += '<circle cx="120" cy="141.5" r="4.6" fill="#4a3a3a"/><circle cx="118.6" cy="140" r="1.4" fill="#fff" opacity=".7"/>';
+  s += '<g class="j-uveg"><circle cx="106.4" cy="129.5" r="9.6" fill="#fff" fill-opacity=".14" stroke="#7a5ca8" stroke-width="2.2"/><circle cx="133.6" cy="129.5" r="9.6" fill="#fff" fill-opacity=".14" stroke="#7a5ca8" stroke-width="2.2"/><path d="M116,128.5 Q120,125.5 124,128.5" fill="none" stroke="#7a5ca8" stroke-width="2.2"/><path d="M98,124 l3,-1.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/></g>';
+  s += '<path d="M78,136 Q72,81 120,80 Q168,81 162,136 Q141,111 120,111 Q99,111 78,136 Z" fill="#c9aee6"' + lkKv("#7a5ca8", 2.2) + '/>';
+  s += [[100.3, 96.2], [120, 88.8], [139.7, 96.2], [111.4, 106], [128.6, 106], [88, 112], [152, 112]].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.1" fill="#fff"/>'; }).join("");
+  s += '<ellipse cx="160" cy="134" rx="5.4" ry="4" fill="#c9aee6"' + lkKv("#7a5ca8", 1.8) + '/><path d="M161,137 L166,148 L159,145 Z M158,137 L157,149 L153,144 Z" fill="#c9aee6"' + lkKv("#7a5ca8", 1.5) + '/>';
+  s += '</g>';
+  /* karok — a fej előtt, hogy a kéz az arcához érhessen; a jobb kézben: tallér / rongy / ceruza (a póz kapcsolja) */
+  var ermeKez = '<g class="p-erme" transform="translate(' + (R.H.r[0] + 2) + ' ' + (R.H.r[1] - 8) + ')">' + tallerBelso(10, .7) + '</g>';
+  var ceruKez = '<g class="p-ceruK"><path d="M' + (R.H.r[0] - 2) + ',' + (R.H.r[1] + 4) + ' l14,-22" stroke="#6d5446" stroke-width="7" stroke-linecap="round"/><path d="M' + (R.H.r[0] - 2) + ',' + (R.H.r[1] + 4) + ' l14,-22" stroke="#fcd66a" stroke-width="4.6"/></g>';
+  var rongy = '<path class="p-rongy" d="M' + (R.H.r[0] - 10) + ',' + (R.H.r[1] + 2) + ' q8,-6 18,0 q2,8 -4,12 q-8,2 -14,-4 z" fill="#9ec9f0"' + lkKv(R.ruhaD, 1.5) + '/>';
+  s += '<g class="j-lsh">' + lkKar(R.S.l, R.E.l, R.H.l, R.ruha, R.b, R).replace('class="EL"', 'class="j-lel"') + '</g>';
+  s += '<g class="j-rsh">' + lkKar(R.S.r, R.E.r, R.H.r, R.ruha, R.b, R, ermeKez + rongy + ceruKez).replace('class="EL"', 'class="j-rel"') + '</g>';
+  s += '</g>';
+  return s;
+};
+
+/* Róka Juli: bozontos farok, pénztáros-táska, zöld sál, blokkfüzet a bal kézben, ceruza a füle mögött */
+LK_RIG.juli.rajz = function () {
+  var R = this, s = "", sotet = "#5a3a2a";
+  s += '<ellipse cx="120" cy="290" rx="50" ry="7" fill="#3c2a50" opacity=".14"/>';
+  s += '<g class="j-all">';
+  s += '<g class="j-farok"><g class="j-tu"><path d="M136,258 C178,266 220,240 214,196 C211,174 198,164 186,168 C198,186 196,214 178,228 C164,238 150,242 136,242 Z" fill="' + R.b + '"' + lkKv(R.d, 2.4) + '/>' +
+    '<path d="M186,168 C198,163 211,174 214,196 C207,190 199,185 192,183 C190,178 188,173 186,168 Z" fill="#fff"' + lkKv(R.d, 2) + '/>' +
+    '<path d="M150,248 C172,248 192,234 200,212" fill="none" stroke="#f8c08e" stroke-width="5" stroke-linecap="round" opacity=".8"/></g></g>';
+  s += '<path d="M108,258 V282 M132,258 V282" stroke="' + R.d + '" stroke-width="12" stroke-linecap="round"/><path d="M108,258 V270 M132,258 V270" stroke="' + R.b + '" stroke-width="8.6" stroke-linecap="round"/><path d="M108,270 V282 M132,270 V282" stroke="' + sotet + '" stroke-width="8.6" stroke-linecap="round"/>';
+  s += '<ellipse cx="105" cy="286" rx="12" ry="5.5" fill="' + sotet + '"/><ellipse cx="135" cy="286" rx="12" ry="5.5" fill="' + sotet + '"/>';
+  s += '<path d="M120,140 C100,140 88,166 86,200 C84,238 96,264 120,264 C144,264 156,238 154,200 C152,166 140,140 120,140 Z" fill="' + R.b + '"' + lkKv(R.d, 2.4) + '/>';
+  s += '<path d="M120,156 C106,156 100,180 100,206 C100,236 108,254 120,254 C132,254 140,236 140,206 C140,180 134,156 120,156 Z" fill="' + R.l + '"/>';
+  s += '<path d="M104,150 L150,226" stroke="#7a5ca8" stroke-width="3.4" stroke-linecap="round"/><rect x="140" y="220" width="24" height="20" rx="5" fill="#c9aee6"' + lkKv("#7a5ca8", 2) + '/><path d="M140,228 H164" stroke="#7a5ca8" stroke-width="1.6"/><circle cx="152" cy="232" r="2.4" fill="#fce49a"' + lkKv("#d1a23a", 1) + '/>';
+  s += '<g class="j-fej">';
+  s += '<g class="j-ful-l"><path d="M92.4,92.2 L85.5,55.4 L115.4,78.4 Z" fill="' + R.b + '"' + lkKv(R.d, 2.2) + '/><path d="M94.7,85.3 L91.3,65.8 L107.4,78.4 Z" fill="' + R.l + '"/><path d="M85.5,55.4 L87.8,66.9 L97,62.3 Z" fill="' + sotet + '"/></g>';
+  s += '<g class="j-ful-r"><path d="M147.6,92.2 L154.5,55.4 L124.6,78.4 Z" fill="' + R.b + '"' + lkKv(R.d, 2.2) + '/><path d="M145.3,85.3 L148.7,65.8 L132.6,78.4 Z" fill="' + R.l + '"/><path d="M154.5,55.4 L152.2,66.9 L143,62.3 Z" fill="' + sotet + '"/>' +
+    '<g class="p-ceruF"><path d="M136,86 L166,66" stroke="#6d5446" stroke-width="7" stroke-linecap="round"/><path d="M136,86 L166,66" stroke="#fcd66a" stroke-width="4.6"/><path d="M166,66 l4,-2.6" stroke="#f2a3b8" stroke-width="4.6" stroke-linecap="round"/></g></g>';
+  s += '<ellipse cx="120" cy="106" rx="34.5" ry="31" fill="' + R.b + '"' + lkKv(R.d, 2.4) + '/>';
+  s += '<path d="M86.6,110.6 Q103.9,106 120,119.8 Q136.1,106 153.4,110.6 Q145.3,137 120,137 Q94.7,137 86.6,110.6 Z" fill="' + R.l + '"/>';
+  s += '<path d="M104,80 Q112,74 120,80 Q128,74 136,80" fill="none" stroke="' + R.d + '" stroke-width="1.6" opacity=".5"/>';
+  s += lkArc(R, { szem: R.szem, szemoY: 92, szemoSzin: R.d, szaj: [120, 125], hw: 7 });
+  s += '<ellipse cx="120" cy="117.5" rx="4.6" ry="3.6" fill="#3a2a2a"/><circle cx="118.6" cy="116.4" r="1.2" fill="#fff" opacity=".7"/>';
+  s += '</g>';
+  s += '<path d="M96,138 Q120,150 144,138 L145,148 Q120,160 95,148 Z" fill="#8fd18a"' + lkKv("#4f8f42", 2) + '/><path d="M132,148 L138,182 L147,179 L141,146 Z" fill="#8fd18a"' + lkKv("#4f8f42", 2) + '/><path d="M135,165 h8 M136.6,172 h8" stroke="#d9f5cf" stroke-width="2"/>';
+  var H = R.H.l, blokk = '<g class="p-blokk" transform="translate(' + (H[0] + 6) + ' ' + (H[1] - 4) + ')"><g class="p-blokkN"><rect x="-15" y="-20" width="30" height="38" rx="3" fill="#fffef6"' + lkKv("#8a7a6e", 1.8) + '/><rect x="-15" y="-20" width="30" height="7" rx="2" fill="#f6a5c0"/>' +
+    '<path d="M-10,-6 h20 M-10,0 h20 M-10,6 h14 M-10,12 h20" stroke="#9ec9f0" stroke-width="1.4"/><path d="M-8,-23 v5 M0,-23 v5 M8,-23 v5" stroke="#8a7a6e" stroke-width="2" stroke-linecap="round"/></g></g>';
+  var Hr = R.H.r, ceruKez = '<g class="p-ceruK"><path d="M' + (Hr[0] + 2) + ',' + (Hr[1] + 6) + ' l-12,-20" stroke="#6d5446" stroke-width="7" stroke-linecap="round"/><path d="M' + (Hr[0] + 2) + ',' + (Hr[1] + 6) + ' l-12,-20" stroke="#fcd66a" stroke-width="4.6"/></g>';
+  s += '<g class="j-lsh">' + lkKar(R.S.l, R.E.l, R.H.l, R.b, sotet, R, "").replace('class="EL"', 'class="j-lel"').replace(/<\/g>$/, blokk + '</g>') + '</g>';
+  s += '<g class="j-rsh">' + lkKar(R.S.r, R.E.r, R.H.r, R.b, sotet, R, ceruKez).replace('class="EL"', 'class="j-rel"') + '</g>';
+  s += '</g>';
+  return s;
+};
+
+/* alap-értékek és pózok (a hiányzó kulcs = alap) */
+var LK_ALAP = {
+  tuske: { lean: 0, bob: 0, tu: 1, hr: 0, hdx: 0, hdy: 0, lx: 111, ly: 228, rx: 129, ry: 228, open: 1, wide: 0, edx: 0, edy: 0, happy: 0, wink: 0, browY: 0, browR: 0,
+           mos: 1, nyit: 0, o: 0, lapos: 0, pir: .45, erme: 0, ceruK: 0, ceruT: 1, rongy: 0, uveg: 0, farok: 0, ful: 0, blokkFel: 0, ceruF: 1 },
+  juli:  { lean: 0, bob: 0, tu: 1, hr: 0, hdx: 0, hdy: 0, lx: 108, ly: 194, rx: 152, ry: 212, open: 1, wide: 0, edx: 0, edy: 0, happy: 0, wink: 0, browY: 0, browR: 0,
+           mos: 1, nyit: 0, o: 0, lapos: 0, pir: .4, erme: 0, ceruK: 0, ceruT: 0, rongy: 0, uveg: 0, farok: 0, ful: 0, blokkFel: 0, ceruF: 1 }
+};
+var LK_OLDAL = { "tuske.gondol": { r: "be" }, "juli.gondol": { r: "be" }, "juli.szamol": { r: "ki" } };   /* póz → könyök-oldal */
+var LK_POZ = {
+  tuske: {
+    var:     { },
+    koszon:  { rx: 176, ry: 150, nyit: .7, mos: .3, hr: -4, browY: -2, pir: .7 },
+    szamol:  { lx: 104, ly: 234, rx: 136, ry: 238, edy: 3, hdy: 3, browY: -1, erme: 1, mos: .4, nyit: .3 },
+    orul:    { lx: 62, ly: 128, rx: 178, ry: 128, happy: 1, nyit: 1, mos: 0, pir: 1, browY: -3 },
+    meglep:  { lx: 84, ly: 154, rx: 156, ry: 154, wide: 1, browY: -6, o: 1, mos: 0, tu: 1.1, lean: -3, edy: -1 },
+    integet: { rx: 174, ry: 116, mos: .6, nyit: .4, hr: 4, pir: .7 },
+    gondol:  { rx: 129, ry: 164, lx: 100, ly: 238, edx: 2, edy: -3, mos: 0, lapos: 1, browR: 8, hr: -5 },
+    ceruza:  { rx: 164, ry: 120, ceruK: 1, ceruT: 0, hr: 6, edx: 3, edy: -2 },
+    ceruza2: { rx: 164, ry: 120, ceruK: 0, ceruT: 1, hr: 6, edx: 3, edy: -2, mos: 1 },
+    iras:    { rx: 132, ry: 236, lx: 108, ly: 238, ceruK: 1, ceruT: 0, edy: 3, hdy: 3, lapos: .6, mos: .4 },
+    uveg:    { rx: 124, ry: 143, uveg: 0, edy: -1, mos: .5, lapos: .5 },
+    polc:    { lx: 52, ly: 152, hr: -8, edx: -3, edy: -2, lean: -2 },
+    torol:   { rx: 150, ry: 252, rongy: 1, edy: 3, hdy: 2, mos: .6 },
+    mutat:   { rx: 190, ry: 134, edx: 2, edy: -2, hr: 4, mos: .7 },
+    dudol:   { o: .5, mos: .3, happy: .6 }
+  },
+  juli: {
+    var:     { },
+    koszon:  { rx: 172, ry: 126, nyit: .7, mos: .3, hr: 4, browY: -2, ful: 6 },
+    szamol:  { lx: 110, ly: 196, rx: 114, ry: 194, ceruK: 1, ceruF: 0, edy: 3, hdy: 2, browY: -1, mos: .5, nyit: .2 },
+    orul:    { lx: 66, ly: 104, rx: 174, ry: 104, happy: 1, nyit: 1, mos: 0, pir: .9, browY: -3, ful: 8 },
+    meglep:  { lx: 88, ly: 134, rx: 152, ry: 134, wide: 1, browY: -6, o: 1, mos: 0, tu: 1.15, lean: -3, ful: -12 },
+    integet: { rx: 170, ry: 98, mos: .6, nyit: .4, hr: 4 },
+    gondol:  { rx: 126, ry: 140, lx: 100, ly: 200, edx: 2, edy: -3, mos: 0, lapos: 1, browR: 8, hr: -5 },
+    kacsint: { wink: 1, mos: 1, browR: -9, browY: -1, hr: 7, lean: 2, rx: 154, ry: 210, pir: .8 },
+    mutat:   { lx: 120, ly: 166, blokkFel: 1, mos: .8, nyit: .3, hr: -3, edy: 2 },
+    fulrez:  { ful: 10 }
+  }
+};
+/* pózon belüli mozgás: (v, t mp a póz óta) */
+var LK_HUROK = {
+  tuske: {
+    koszon: function (v, t) { if (t < 1.6) { v.rx += 7 * Math.sin(t * 9); v.hr += -4 * Math.sin(t * 5); } v.nyit += t < 1.2 ? .25 * Math.sin(t * 14) : 0; },
+    szamol: function (v, t) { v.ry -= 5 * Math.abs(Math.sin(t * 5)); v.nyit = .15 + .35 * Math.abs(Math.sin(t * 8)); },
+    orul: function (v, t) { if (t < 1.8) v.bob -= 7 * Math.abs(Math.sin(t * 6)); },
+    integet: function (v, t) { v.rx += 12 * Math.sin(t * 9); },
+    meglep: function (v, t) { v.tu += .03 * Math.sin(t * 40) * Math.max(0, 1 - t); },
+    torol: function (v, t) { v.rx += 24 * Math.sin(t * 4); },
+    iras: function (v, t) { v.rx += 3 * Math.sin(t * 18); v.ry += 2 * Math.sin(t * 11); },
+    dudol: function (v, t) { v.hr += 5 * Math.sin(t * 3); v.o = .35 + .25 * Math.sin(t * 6); v.bob += 1.2 * Math.sin(t * 6); },
+    mutat: function (v, t) { v.rx += 2.5 * Math.sin(t * 11); v.ry -= 2.5 * Math.abs(Math.sin(t * 11)); }
+  },
+  juli: {
+    koszon: function (v, t) { if (t < 1.6) v.rx += 7 * Math.sin(t * 9); v.nyit += t < 1.2 ? .25 * Math.sin(t * 14) : 0; },
+    szamol: function (v, t) { v.rx += 4 * Math.sin(t * 22); v.ry += 2 * Math.sin(t * 13); v.nyit = .1 + .3 * Math.abs(Math.sin(t * 9)); },
+    orul: function (v, t) { if (t < 1.8) v.bob -= 8 * Math.abs(Math.sin(t * 6)); v.farok += 10 * Math.sin(t * 10); },
+    integet: function (v, t) { v.rx += 12 * Math.sin(t * 9); v.farok += 6 * Math.sin(t * 9); },
+    meglep: function (v, t) { v.ful += 3 * Math.sin(t * 30) * Math.max(0, 1 - t); },
+    kacsint: function (v, t) { v.farok += 8 * Math.sin(t * 7); },
+    fulrez: function (v, t) { v.ful = 10 * Math.sin(t * 25) * Math.max(0, 1 - t * 1.5); }
+  }
+};
+var LK_ALAPHUROK = { tuske: function () {}, juli: function (v, now) { v.farok += 4 * Math.sin(now / 1000 * 1.8); } };
+/* élet a házban: amíg a gyerek gondolkodik, apróságok (nem vonhatja el a figyelmet: lassú, ritka, csendes) */
+var LK_ELET = {
+  tuske: [["polc", 1700], ["torol", 2400], ["uvegsor"], ["dudol", 2200], ["ceruzasor"], ["var", 1200]],
+  juli: [["szamol", 1600], ["kacsint", 1300], ["fulrez", 900], ["mutat", 1500], ["var", 1200]]
+};
+var LK_SOROK = {
+  tuske: { ceruzasor: [["iras", 1100], ["ceruza", 650], ["ceruza2", 450], ["var", 0]], uvegsor: [["uveg", 900], ["var", 0]] },
+  juli: {}
+};
+/* a lakók szavajárása (rajzterv „szavajárás-tábla”; becézés nélkül — lakok-normalisan-beszeljenek) */
+var LK_MONDAT = {
+  tuske: { koszon: "Szia! Beállsz ma a pult mögé?", var: "Ráérünk, nem sietünk.", orul: "Na, ez aztán szép munka volt!",
+           meglep: "Jaj, a tüskéim! Ez nem jön ki…", integet: "Gyere máskor is!", gondol: "Hmm. Nézzük csak meg még egyszer, együtt." },
+  juli: { koszon: "Szia! Villámgyorsan összeadok mindent!", var: "Na, mehet a pecsét, főnök?", szamol: "Ez meg ez… kész is! Gyors voltam, mi?", orul: "Pecsét rajta! Ma senki nem jár rosszul!",
+          meglep: "Hoppá! Hát ez hogy csúszott be?", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!" }
+};
+
+/* két kör metszéspontja: a könyök → [vállszög, könyökszög] */
+function lkIk(S, E0, H0, T, oldal, kozep) {
+  var L1 = Math.hypot(E0[0] - S[0], E0[1] - S[1]), L2 = Math.hypot(H0[0] - E0[0], H0[1] - E0[1]);
+  var dx = T[0] - S[0], dy = T[1] - S[1], d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+  d = Math.max(Math.abs(L1 - L2) + .01, Math.min(L1 + L2 - .01, d));
+  var a = (L1 * L1 - L2 * L2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+  var px = S[0] + ux * a, py = S[1] + uy * a;
+  var c1 = [px - uy * h, py + ux * h], c2 = [px + uy * h, py - ux * h];
+  var ki1 = Math.abs(c1[0] - kozep) > Math.abs(c2[0] - kozep);
+  var E = (oldal === "be") ? (ki1 ? c2 : c1) : (ki1 ? c1 : c2);
+  var Tx = S[0] + ux * d, Ty = S[1] + uy * d;
+  var a1 = Math.atan2(E0[1] - S[1], E0[0] - S[0]), a2 = Math.atan2(H0[1] - E0[1], H0[0] - E0[0]);
+  var sh = Math.atan2(E[1] - S[1], E[0] - S[0]) - a1, el = Math.atan2(Ty - E[1], Tx - E[0]) - a2 - sh;
+  function n(x) { x = x * 180 / Math.PI; while (x > 180) x -= 360; while (x <= -180) x += 360; return x; }
+  return [n(sh), n(el)];
+}
+
+var LAKOK = [], LK_FUT = false;
+var LK_ELEMEK = ["j-all", "j-tu", "j-fej", "j-lsh", "j-lel", "j-rsh", "j-rel", "e-l", "e-r", "e-boldog-l", "e-boldog-r", "e-kacs", "b-l", "b-r", "m-mos", "m-nyit", "m-o", "m-lapos", "pir",
+                 "p-erme", "p-ceruK", "p-ceruT", "p-rongy", "j-uveg", "j-farok", "j-ful-l", "j-ful-r", "p-blokkN", "p-ceruF"];
+function Lako(root, k, o) {
+  o = o || {};
+  this.root = root; this.k = k; this.R = LK_RIG[k];
+  root.innerHTML = this.R.rajz();
+  var el = this.el = {};
+  LK_ELEMEK.forEach(function (c) { el[c] = root.querySelector("." + c); });
+  var cur = this.cur = {}, a; for (a in LK_ALAP[k]) cur[a] = LK_ALAP[k][a];
+  this.oldal = { l: "ki", r: "ki" };
+  this.elet = !!o.elet;
+  var most = lkMost();
+  this.kovPislog = most + 1500 + Math.random() * 2500; this.pislogIg = 0;
+  this.kovElet = most + 3000 + Math.random() * 3000; this.sor = null; this.uvegCsuszik = 0;
+  this.poz(o.poz || "var", true);
+  LAKOK = LAKOK.filter(function (L) { return L.root.isConnected; });   /* a régi (eltűnt) jelenetek lakói ne fussanak tovább */
+  LAKOK.push(this);
+  lkInditas();
+}
+function lkMost() { return typeof performance !== "undefined" ? performance.now() : Date.now(); }
+Lako.prototype.poz = function (nev, azonnal, dur) {
+  var k = this.k;
+  if (LK_SOROK[k][nev]) return this.sorLe(LK_SOROK[k][nev]);
+  var cel = {}, a, p = LK_POZ[k][nev] || {};
+  for (a in LK_ALAP[k]) cel[a] = LK_ALAP[k][a];
+  for (a in p) cel[a] = p[a];
+  var from = {}; for (a in this.cur) from[a] = this.cur[a];
+  this.from = from; this.to = cel;
+  this.t0 = lkMost(); this.dur = (azonnal || lkCsokkent()) ? 0 : (dur || 430);
+  this.pozNev = nev; this.pozT = this.t0;
+  var ol = LK_OLDAL[k + "." + nev] || {}; this.oldal = { l: ol.l || "ki", r: ol.r || "ki" };
+};
+/* mozdulatsor: [[póz, ms], …]; a végén kesz() */
+Lako.prototype.sorLe = function (lista, kesz) {
+  var self = this, i = 0;
+  clearTimeout(this.sorT);
+  (function lep() {
+    if (i >= lista.length) { self.sor = null; if (kesz) kesz(); return; }
+    var p = lista[i++]; self.poz(p[0]); self.sor = true;
+    self.sorT = setTimeout(lep, p[1] || 0);
+  })();
+};
+/* a játék szól közbe (a gyerek csinált valamit): az élet egy időre elhallgat */
+Lako.prototype.megszakit = function () { clearTimeout(this.sorT); this.sor = null; this.kovElet = lkMost() + 6000; };
+/* egy póz egy ideig, aztán vissza a várakozáshoz */
+Lako.prototype.pozIdeig = function (nev, ms) {
+  var self = this; this.megszakit(); this.poz(nev);
+  this.sorT = setTimeout(function () { self.poz("var"); self.kovElet = lkMost() + 5000; }, ms || 2200);
+};
+Lako.prototype.keret = function (now) {
+  var p = this.dur ? Math.min(1, (now - this.t0) / this.dur) : 1, e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, v = {}, a, k = this.k, cs = lkCsokkent();
+  for (a in this.to) { var f = this.from[a], t = this.to[a]; v[a] = this.cur[a] = f + (t - f) * e; }
+  var tp = (now - this.pozT) / 1000;
+  if (!cs) {
+    v.bob += .9 * Math.sin(now / 1000 * 2.1);
+    if (LK_HUROK[k][this.pozNev]) LK_HUROK[k][this.pozNev](v, tp);
+    LK_ALAPHUROK[k](v, now);
+  }
+  /* Tüske néni szemüvege lassan lecsúszik, a „szemüveg” mozdulat visszatolja */
+  if (k === "tuske") {
+    if (this.pozNev === "uveg" && tp > .35) this.uvegCsuszik = Math.max(0, this.uvegCsuszik - .2);
+    else if (!cs) this.uvegCsuszik = Math.min(4, this.uvegCsuszik + .0025);
+    v.uveg += this.uvegCsuszik;
+  }
+  if (now > this.kovPislog) { this.pislogIg = now + 130; this.kovPislog = now + 2600 + Math.random() * 3200; if (Math.random() < .2) this.kovPislog = now + 260; }
+  var pis = now < this.pislogIg ? .1 : 1;
+  if (this.elet && !this.sor && this.pozNev === "var" && now > this.kovElet && !cs) {
+    var lista = LK_ELET[k], m = lista[Math.floor(Math.random() * lista.length)];
+    this.kovElet = now + 4200 + Math.random() * 3500;
+    if (LK_SOROK[k][m[0]]) this.sorLe(LK_SOROK[k][m[0]]); else this.sorLe([[m[0], m[1]], ["var", 0]]);
+  }
+  this.alkalmaz(v, pis);
+};
+Lako.prototype.alkalmaz = function (v, pis) {
+  var R = this.R, el = this.el;
+  el["j-all"].setAttribute("transform", "translate(0 " + lkF(v.bob) + ") rotate(" + lkF(v.lean) + " " + R.talp + ")");
+  el["j-tu"].setAttribute("transform", "translate(" + R.tuK + ") scale(" + v.tu.toFixed(3) + ") translate(" + (-R.tuK[0]) + " " + (-R.tuK[1]) + ")");
+  el["j-fej"].setAttribute("transform", "translate(" + lkF(v.hdx) + " " + lkF(v.hdy) + ") rotate(" + lkF(v.hr) + " " + R.nyak + ")");
+  var L = lkIk(R.S.l, R.E.l, R.H.l, [v.lx, v.ly], this.oldal.l, R.kozep), Rr = lkIk(R.S.r, R.E.r, R.H.r, [v.rx, v.ry], this.oldal.r, R.kozep);
+  el["j-lsh"].setAttribute("transform", "rotate(" + lkF(L[0]) + " " + R.S.l + ")"); el["j-lel"].setAttribute("transform", "rotate(" + lkF(L[1]) + " " + R.E.l + ")");
+  el["j-rsh"].setAttribute("transform", "rotate(" + lkF(Rr[0]) + " " + R.S.r + ")"); el["j-rel"].setAttribute("transform", "rotate(" + lkF(Rr[1]) + " " + R.E.r + ")");
+  var sz = R.szem, sx = 1 + v.wide * .18, sy = Math.max(.08, v.open * (1 + v.wide * .25) * pis);
+  [["e-l", sz[0], 1], ["e-r", sz[1], 1 - v.wink]].forEach(function (q) {
+    el[q[0]].setAttribute("transform", "translate(" + lkF(q[1][0] + v.edx) + " " + lkF(q[1][1] + v.edy) + ") scale(" + sx.toFixed(3) + " " + Math.max(.06, sy * q[2]).toFixed(3) + ") translate(" + (-q[1][0]) + " " + (-q[1][1]) + ")");
+  });
+  el["e-l"].setAttribute("opacity", lkF(1 - v.happy)); el["e-r"].setAttribute("opacity", lkF((1 - v.happy) * (v.wink > .5 ? 0 : 1)));
+  el["e-boldog-l"].setAttribute("opacity", lkF(v.happy)); el["e-boldog-r"].setAttribute("opacity", lkF(v.happy * (1 - v.wink)));
+  el["e-kacs"].setAttribute("opacity", lkF(v.wink));
+  el["b-l"].setAttribute("transform", "translate(0 " + lkF(v.browY - v.wide * 1) + ") rotate(" + lkF(-v.browR * .4) + " " + sz[0] + ")");
+  el["b-r"].setAttribute("transform", "translate(0 " + lkF(v.browY + (v.browR < 0 ? v.browR * .5 : 0)) + ") rotate(" + lkF(v.browR) + " " + sz[1] + ")");
+  var ossz = v.mos + v.nyit + v.o + v.lapos || 1;
+  el["m-mos"].setAttribute("opacity", (v.mos / ossz).toFixed(2)); el["m-nyit"].setAttribute("opacity", (v.nyit / ossz).toFixed(2));
+  el["m-o"].setAttribute("opacity", (v.o / ossz).toFixed(2)); el["m-lapos"].setAttribute("opacity", (v.lapos / ossz).toFixed(2));
+  el["pir"].setAttribute("opacity", (v.pir * .7).toFixed(2));
+  function op(c, x) { if (el[c]) el[c].setAttribute("opacity", Math.max(0, Math.min(1, x)).toFixed(2)); }
+  op("p-erme", v.erme); op("p-ceruK", v.ceruK); op("p-ceruT", v.ceruT); op("p-rongy", v.rongy); op("p-ceruF", v.ceruF);
+  if (el["j-uveg"]) el["j-uveg"].setAttribute("transform", "translate(0 " + lkF(v.uveg) + ")");
+  if (el["j-farok"]) el["j-farok"].setAttribute("transform", "rotate(" + lkF(v.farok) + " 140 250)");
+  if (el["j-ful-l"]) { el["j-ful-l"].setAttribute("transform", "rotate(" + lkF(-v.ful) + " 104 84)"); el["j-ful-r"].setAttribute("transform", "rotate(" + lkF(v.ful) + " 136 84)"); }
+  if (el["p-blokkN"]) el["p-blokkN"].setAttribute("transform", "scale(" + (1 + v.blokkFel * .7).toFixed(2) + ")");
+};
+/* a közös képkocka-hurok: csak addig fut, amíg van lakó a lapon */
+function lkInditas() {
+  if (LK_FUT || typeof requestAnimationFrame === "undefined") return;
+  LK_FUT = true;
+  requestAnimationFrame(function lkKeret(now) {
+    LAKOK = LAKOK.filter(function (L) { return L.root.isConnected; });
+    if (!LAKOK.length) { LK_FUT = false; return; }
+    LAKOK.forEach(function (L) { try { L.keret(now); } catch (e) {} });
+    requestAnimationFrame(lkKeret);
+  });
+}
+/* ============ 6a4) ✨ SZARVVARÁZS — a gyerek unikornisa cselekszik (Piactér 3. kör, 2026-10-23) ============
+   Rajz: terv/piacter-rajzterv.html 4. pont + „Az unikornis mozdulatai” (✅ jóváhagyva 2026-10-23).
+   VEZÉRELV (vezerelv-a-kep-a-gondolkodas-helye): a házakban a gyerek UNIKORNISA mozgatja a tárgyakat — az érme, a pecsét,
+   később a kavics, a létrafok a szarvától ívben átlebeg, szikra-nyomot húz, közben az unikornis odanéz, és a szarva ragyog.
+     szarvVarazs(el, x0, y0, x1, y1, o) — egy SVG-elem átlebegtetése (o.emel: az ív magassága, o.ido ms, o.nyom: szikra-réteg)
+     uniPult(g, o) — a gyerek saját, öltöztetett unikornisa oldalnézetben (renderer.js unikornisSVG), a pult mögött:
+       U.poz("figyel" | "szarvvar" | "orul" | "tenyer" | "gondol", ms) — a pózok a renderer.js UNI_POZ táblájában vannak,
+       ms után vissza az alaphoz (U.alap). A szarv fénye a „szarvvar” pózhoz tartozik (a fej keretében, vele együtt mozdul).
+   Mozgáscsökkentésnél a tárgy ív és szikra nélkül kerül a helyére, a póz azonnal vált (renderer.js). */
+var SZV_NS = "http://www.w3.org/2000/svg";
+var SZV_DEFS = '<radialGradient id="szvHalo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff4b0" stop-opacity=".9"/><stop offset="1" stop-color="#fff4b0" stop-opacity="0"/></radialGradient>';
+function szvF(n) { return (+n).toFixed(1); }
+function szvIvPont(x0, y0, cx, cy, x1, y1, t) { var u = 1 - t; return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1]; }
+function szvCsillag(x, y, s) {
+  return "M" + szvF(x) + " " + szvF(y - s) + "L" + szvF(x + s * .3) + " " + szvF(y - s * .3) + "L" + szvF(x + s) + " " + szvF(y) + "L" + szvF(x + s * .3) + " " + szvF(y + s * .3) +
+    "L" + szvF(x) + " " + szvF(y + s) + "L" + szvF(x - s * .3) + " " + szvF(y + s * .3) + "L" + szvF(x - s) + " " + szvF(y) + "L" + szvF(x - s * .3) + " " + szvF(y - s * .3) + "Z";
+}
+/* az elem a (x1, y1) pontra kerül (CSS translate az SVG saját egységében); közben ívben lebeg */
+function szarvVarazs(el, x0, y0, x1, y1, o) {
+  o = o || {};
+  el.style.transform = "translate(" + szvF(x1) + "px," + szvF(y1) + "px)";
+  if (lkCsokkent() || !el.animate) return;
+  var emel = o.emel || Math.min(80, 16 + Math.hypot(x1 - x0, y1 - y0) * .3), pk = Math.min(y0, y1) - emel;
+  var cx = (x0 + x1) / 2, cy = 2 * pk - (y0 + y1) / 2, kf = [], i, dur = o.ido || 750;
+  for (i = 0; i <= 10; i++) { var p = szvIvPont(x0, y0, cx, cy, x1, y1, i / 10); kf.push({ transform: "translate(" + szvF(p[0]) + "px," + szvF(p[1]) + "px)" }); }
+  el.animate(kf, { duration: dur, easing: "ease-in-out" });
+  el.classList.add("lebeg"); setTimeout(function () { el.classList.remove("lebeg"); }, dur);
+  if (o.nyom) for (i = 1; i < 8; i++) (function (i) {
+    var p = szvIvPont(x0, y0, cx, cy, x1, y1, i / 8), sz = document.createElementNS(SZV_NS, "path");
+    sz.setAttribute("d", szvCsillag(p[0], p[1], 3 + (i % 3)));
+    sz.setAttribute("fill", i % 2 ? "#fff3a8" : "#ffffff"); sz.setAttribute("opacity", "0"); sz.setAttribute("pointer-events", "none");
+    o.nyom.appendChild(sz);
+    sz.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: 700, delay: Math.max(0, dur * i / 8 - 120) });
+    setTimeout(function () { sz.remove(); }, dur * i / 8 + 700);
+  })(i);
+}
+
+/* ── az unikornis a pult mögött ── g: egy üres <g>, amit a hívó már a helyére tett (translate); o.meret, o.alap */
+function uniPult(g, o) {
+  o = o || {};
+  var id = "szv-uni-" + (++uniPult.n);
+  g.innerHTML = '<g class="szv-uni uni-poz-' + (o.alap || "figyel") + '">' + unikornisSVG(id, LENYEK[mentes.leny], o.meret || 1, P().oltozet) + '</g>';
+  var w = g.firstChild;
+  /* a szarv fénye a fej keretébe (a fej forgásával együtt mozdul): a fej rajza a renderer.js UNI_TEST_IZ.fej keretében van */
+  var fej = w.querySelector(".uni-fej"), belso = fej && fej.firstElementChild;
+  if (belso) {
+    var s = '<g class="szv-feny" opacity="0" pointer-events="none"><circle cx="294" cy="44" r="54" fill="url(#szvHalo)"/>';
+    [[318, 30, 7, "#fff3a8"], [270, 34, 5, "#ffffff"], [300, 4, 6, "#fce49a"], [328, 58, 4, "#ffffff"]].forEach(function (c) { s += '<path d="' + szvCsillag(c[0], c[1], c[2]) + '" fill="' + c[3] + '"/>'; });
+    belso.insertAdjacentHTML("afterbegin", s + '</g>');
+  }
+  var U = { g: g, w: w, alap: o.alap || "figyel", nev: o.alap || "figyel", t: null, feny: w.querySelector(".szv-feny") };
+  U.poz = function (nev, ms) {
+    clearTimeout(U.t);
+    U.w.setAttribute("class", "szv-uni uni-poz-" + nev + (nev === "orul" && !lkCsokkent() ? " uni-mozd-ugras" : ""));
+    U.nev = nev;
+    if (U.feny) U.feny.setAttribute("class", "szv-feny" + (nev === "szarvvar" ? " ragyog" : ""));
+    if (ms) U.t = setTimeout(function () { if (U.w.isConnected) U.poz(U.alap); }, ms);
+  };
+  return U;
+}
+uniPult.n = 0;
 /* ============ 6b) MÉRÉS-LIGETEK — 🧵 Szabóműhely · 🧪 Bájitalkonyha · 🧁 Mézes pékség ============
    Rendszerterv: Matekos\meres-palyacsoport-rendszerterv.html · rajzterv: meres-palyacsoport-rajzterv.html (1. kör:
    hátterek + mozgóképek) és meres-palyacsoport-rajzterv-2.html (2. kör: feladat-képernyők + kártyák).
@@ -17417,6 +17856,619 @@ var VSM_DOBOZ = {
   }
 };
 var VSM = { arcedula: VSM_ARCEDULA, tobbszor: VSM_TOBBSZOR, doboz: VSM_DOBOZ };
+/* ============ 6h2) 🏪 TÜSKE NÉNI BOLTJA — a bolt képe és játékmenete (Piactér 3. kör, 2026-10-23) ============
+   Terv: terv/eletszeru-100-as-palyak-terv.html 3. pont · rajz: terv/piacter-rajzterv.html 4–6. pont (✅ mind jóváhagyva 2026-10-23).
+   A feladatot a bolt.js gyártja és ellenőrzi (kép nélkül); itt csak a kép és a kezelés van. Egy pálya (constants.js):
+     Rajt → 🪙 Fizesd ki! → 💰 Visszajáró → 🦊 A róka blokkja → Odú-küszöb (vegyesen).
+   MIT CSINÁL A GYEREK A KÉPEN?
+     ① Fizesd ki! — a vevő erszényéből érmét koppint: az unikornisa szarvával átlebegteti a pultra (a pult NEM írja ki az
+        összeget). „Kész” → Tüske néni érménként, hangosan összeszámolja. Pósa-folyam ugyanarra az árra: fizesd ki ·
+        másképp is · a legkevesebb érmével; aztán egy új ár, rögtön a legkevesebbel. Kevés: üres hely a cédula mellett,
+        Tüske néni vár. Sok: a vevő visszatol egy érmét.
+     ② Visszajáró — a vevő nagyobbal fizet; a gyerek a kasszából a vevő tenyerébe lebegtet, és a szalag vele lép
+        (37 → 40 → 50). Fokok: tízesre · tízesből · teljes · százból. Kevés: a vevő a tenyerére néz, és vár. Sok: „Ez sok!”, visszaad egyet.
+     ③ A róka blokkja — Juli felírja, a gyerek előbb becsül („körülbelül stimmel?”), aztán az unikornis szarva pecsétet üt
+        rá: ✓ vagy ✗. 🔒 A ✗ csak jó javítással ér, a ✓ csak pontos blokkon. Hibás blokkra ✓: a vevő hazaér, és a tízes
+        rudakon látszik, mi hiányzik — a szám nem.
+   2 hiba után sincs kiírt megoldás: a kép segít tovább (① a pulton megjelenik az eddigi összeg, ② a szalagon a cél
+   zászlója, ③ a két szám tízes rudakban).
+   A motorral a mérés koppintós kártyáinak útján beszél: rossz → rosszValaszKonyvel, jó → ertekel(f.helyes) (engine-logic.js).
+   A kép a buborékban van (#bk-panel); a pálya ösvénye az állomások között látszik. */
+
+var BK_ARUK = [["🍎", "alma"], ["🧀", "sajt"], ["🍯", "méz"], ["🥕", "répa"], ["🍞", "kenyér"], ["🍐", "körte"], ["🧈", "vaj"], ["🍓", "eper"], ["🥛", "tej"], ["🍪", "keksz"]];
+var BK_VEVOK = ["brumi", "mia", "cincin", "brekus", "kata", "potyi", "tas", "kitti"];
+var BK_ER = { 1: 14, 2: 15, 5: 16.5, 10: 18.5, 20: 20, 50: 22, 100: 24 };   /* az érme sugara: a nagyobb érték nagyobb korong */
+var BK_KASSZA = [1, 2, 5, 10, 20, 50];
+var BK_TB = [118, 46], BK_VB = [656, 54];   /* Tüske néni és a vevő buborékjának helye */
+var BK_TARGY = [452, 318], BK_TENYER = [652, 300];
+var BK_BLOKK_X = 296, BK_PECSET_Y = 372;
+var BK_DEFS = '<linearGradient id="bkFa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9c193"/><stop offset="1" stop-color="#d6a46f"/></linearGradient>';
+var BK_F = 'font-family="Fredoka,Segoe UI,sans-serif"';
+var BK = null;   /* a kirakott kép állapota: { J, forma, svg, tuske, uni, juli, f, ermek, lezart, … } */
+/* az ösvény sátrai (a pálya-kép a vásártér: vasar.js vasarJelenetSVG) */
+VS_SZIN.fizet = { teto: "#fce49a", csik: "#fff", sotet: "#c9953a", cimer: "🪙" };
+VS_SZIN.vissza = { teto: "#a7d99a", csik: "#fff", sotet: "#5e9a52", cimer: "💰" };
+VS_SZIN.blokk = { teto: "#f7b98a", csik: "#fff", sotet: "#b35f28", cimer: "🦊" };
+
+/* ── a tallér: arany korong, rajta a helyi érték színe (HE_SZIN: egyes rózsaszín, tízes kék, a százas arany marad) ── */
+function tallerBelso(v, k) {
+  var r = BK_ER[v] * (k || 1), arany = HE_SZIN[100], c = HE_SZIN[heHely(v)], sajat = heHely(v) !== 100;
+  return '<circle r="' + r.toFixed(1) + '" fill="url(#' + arany.g + ')" stroke="' + arany.k + '" stroke-width="2.2"/>' +
+    (sajat ? '<circle r="' + r.toFixed(1) + '" fill="url(#' + c.g + ')" stroke="' + c.k + '" stroke-width="2.2"/>' : '') +
+    '<circle r="' + (r - 4).toFixed(1) + '" fill="none" stroke="#fff8dc" stroke-width="1.2" stroke-dasharray="2 2.4" opacity=".9"/>' +
+    '<text y="' + (r * .34).toFixed(1) + '" text-anchor="middle" font-size="' + (r * (v >= 100 ? .78 : v >= 10 ? .95 : 1.1)).toFixed(1) + '" ' + BK_F + ' font-weight="600" fill="' + c.sz + '">' + v + '</text>';
+}
+
+/* ═════════════════ FELADAT (GEN.bolt) — állomásonként a bolt.js gyártójából ═════════════════
+   cfg.allomas: "fizet" | "vissza" | "blokk" | "vegyes" (Odú-küszöb: fizet · vissza · blokk · blokk).
+   Az állomás közös állapota J.bolt-ban (a Pósa-folyam ugyanarra az árra, a róka-sor, a vevő). */
+function bkAllapot() {
+  if (!J.bolt || J.bolt.all !== J.allomasIdx) J.bolt = { all: J.allomasIdx, megold: [], bi: 0, sor: null };
+  return J.bolt;
+}
+/* újoncnak a bolt az előtudás szerint ébred (rajzterv 8. pont); Lilinek, Fanninak (menet nélkül) minden nyitva */
+function bkTud(id) { return typeof nyitasMenet !== "function" || !nyitasMenet() || nyitasTudasN(id).length > 0; }
+function bkAllomasok(lista) {
+  if (bkTud("erdo-melye")) return lista;
+  return lista.filter(function (a) { return a.allomas !== "blokk"; }).map(function (a) {   /* a róka blokkja kétjegyű + kétjegyű: még alszik */
+    if (a.allomas !== "vegyes") return a;
+    var o = {}, k; for (k in a) o[k] = a[k]; o.nelkulBlokk = true; return o;
+  });
+}
+function bkVisszaFok(i) {
+  var fok = VISSZA_FOK[i % 4];
+  if (fok === "szazbol" && !bkTud("szazas-bujocska")) fok = "teljes";   /* 63 → 100: a Százas bújócska után */
+  return fok;
+}
+/* a vevő erszénye: a legkevesebb érme + a két legkisebb felváltva, hogy legyen „másképp” is (legfeljebb 11 érme) */
+var BK_FELVALT = { 50: [20, 20, 10], 20: [10, 10], 10: [5, 5], 5: [2, 2, 1], 2: [1, 1], 1: [] };
+function bkTarca(legk) {
+  var W = legk.slice(), kicsik = legk.slice().sort(function (a, b) { return a - b; }), db = 0;
+  for (var i = 0; i < kicsik.length && db < 2; i++) {
+    var f = BK_FELVALT[kicsik[i]];
+    if (!f.length || W.length + f.length > 11) continue;
+    W = W.concat(f); db++;
+  }
+  return W.sort(function (a, b) { return b - a; });
+}
+function bkFizet(st, i, kuszob) {
+  /* négyesével: ugyanaz az ár három kérdéssel (fizesd ki · másképp · a legkevesebbel), aztán egy új ár rögtön a legkevesebbel */
+  var r = i % 4, lepes = kuszob || r === 3 ? 3 : r + 1, g;
+  if (kuszob || r === 0 || r === 3 || !st.g) {
+    g = !kuszob && r === 0 ? boltFizetKerek(veletlenElem([30, 40, 60, 70, 80, 90])) : boltFizet({ min: 21, max: 99 });   /* az első ár kerek tízes */
+    st.g = g; st.tarca = bkTarca(g.legkevesebb); st.megold = []; st.vevo = veletlenElem(BK_VEVOK);
+  }
+  g = st.g;
+  var kerd = lepes === 1 ? "Fizesd ki!" : lepes === 2 ? "Másképp is ki lehet?" : "Most a legkevesebb érmével!";
+  return { forma: "fizet", g: g, ar: g.ar, lepes: lepes, tarca: st.tarca, elozo: lepes === 2 ? st.megold[0] || null : null, vevo: st.vevo, kerd: kerd,
+    naplo: { tipus: "bolt", kerdes: "fizet " + g.ar + " (" + lepes + ")", forma: "b", helyes: g.ar }, helyes: g.ar };
+}
+function boltFizetKerek(ar) {
+  var legk = tallerLegkevesebb(ar, [1, 2, 5, 10, 20, 50]);
+  return { forma: "fizet", ar: ar, talca: [1, 2, 5, 10, 20, 50], legkevesebb: legk, minDarab: legk.length, naplo: { tipus: "bolt", kerdes: "fizet " + ar, forma: "b" } };
+}
+function bkBlokkGen(st, db) {
+  var tud = bkTud("erdo-szive"), B = boltBeall(), pontos;
+  if (!st.sor) st.sor = rokaSor(Math.max(2, db), B);
+  pontos = st.sor[st.bi % st.sor.length]; st.bi++;
+  for (var p = 0; p < 60; p++) {   /* az Erdő szíve előtt átvitel nélküli blokkok (rajzterv 8. pont) */
+    var b = rokaBlokk(pontos, { tetelek: B.tetelek, hibak: tud ? null : ["tizes", "csere", "egy"] });
+    var egyes = 0; b.tetelek.forEach(function (v) { egyes += v % 10; });
+    if (tud || egyes < 10) break;
+  }
+  var aruk = mKever(BK_ARUK).slice(0, b.tetelek.length);
+  return { forma: "blokk", b: b, aruk: aruk, vevo: veletlenElem(BK_VEVOK), helyes: b.helyes,
+    naplo: { tipus: b.naplo.tipus, kerdes: b.naplo.kerdes, forma: "b", helyes: b.helyes } };
+}
+GEN.bolt = function (cfg) {
+  var st = bkAllapot(), i = J.feladatKesz, all = cfg.allomas, kuszob = all === "vegyes", x;
+  if (kuszob) all = (cfg.nelkulBlokk ? ["fizet", "vissza", "vissza", "fizet"] : ["fizet", "vissza", "blokk", "blokk"])[i % 4];
+  if (all === "fizet") x = bkFizet(st, i, kuszob);
+  else if (all === "vissza") {
+    var v = boltVissza(kuszob ? "teljes" : bkVisszaFok(i));
+    x = { forma: "vissza", v: v, vevo: veletlenElem(BK_VEVOK), helyes: v.vissza,
+      naplo: { tipus: "kivonas", kerdes: v.naplo.kerdes, forma: "b", helyes: v.vissza } };
+  } else x = bkBlokkGen(st, kuszob ? 2 : J.feladatDb);
+  var vn = FIGURA[x.vevo].n, kerdes, felolvas;
+  if (x.forma === "fizet") { kerdes = x.kerd; felolvas = x.lepes === 1 ? vn + " " + szo(x.ar) + " tallért fizet. Segíts neki kifizetni!" : x.kerd; }
+  else if (x.forma === "vissza") { kerdes = "Mennyi jár vissza?"; felolvas = vn + " " + szo(x.v.fizet) + " tallérral fizet egy " + szo(x.v.ar) + " tallérosért. Add vissza a különbséget!"; }
+  else { kerdes = "Jó a róka blokkja?"; felolvas = "Juli felírta: " + x.b.tetelek.map(szo).join(" meg ") + ", összesen " + szo(x.b.irt) + ". Körülbelül stimmel?"; }
+  return { csalad: "bolt", bolt: x, kartyaHTML: '<span class="bk-kerdes">' + kerdes + '</span>', szoveg: kerdes, felolvas: felolvas,
+    helyes: x.helyes, keplet: kerdes, tipp: "", naplo: x.naplo };
+};
+
+/* ═════════════════ A PANEL (a buborékban) ═════════════════ */
+function bkPanel() {
+  var p = $("bk-panel");
+  if (!p) {
+    p = el("div", "bk-panel"); p.id = "bk-panel";
+    p.innerHTML = '<svg id="bk-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" aria-hidden="true"></svg><div id="bk-gombok" class="bk-gombok"></div>';
+    var bb = $("bagoly-buborek"); bb.insertBefore(p, $("halld-ujra"));
+    p.querySelector("svg").addEventListener("click", bkKatt);
+    $("bk-gombok").addEventListener("click", bkGombKatt);
+  }
+  return p;
+}
+function bkRejt() {
+  var p = $("bk-panel"); if (p) p.hidden = true;
+  var k = $("kepernyo-jatek"); if (k) k.classList.remove("bk-be");
+  document.removeEventListener("keydown", bkBillentyu);
+}
+function bkMutat(f) {
+  var p = bkPanel(), x = f.bolt, forma = x.forma === "blokk" ? "blokk" : "bolt";
+  p.hidden = false; $("kepernyo-jatek").classList.add("bk-be");
+  $("valasz-egyenkent").classList.add("koppint");
+  $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
+  var svg = $("bk-svg");
+  if (!BK || BK.J !== J || BK.forma !== forma || !svg.isConnected || !svg.firstChild) {
+    BK = { J: J, forma: forma, svg: svg };
+    svg.setAttribute("viewBox", forma === "blokk" ? "0 0 800 400" : "0 0 800 460");
+    if (forma === "blokk") bkRokaAlap(); else bkBoltAlap();
+  }
+  BK.f = f; BK.lezart = false; BK.ermek = []; BK.szam = 0; BK.fazis = null; BK.rajz = {}; BK.jegyzett = false;
+  document.removeEventListener("keydown", bkBillentyu); document.addEventListener("keydown", bkBillentyu);
+  if (forma === "blokk") bkRokaIndit(f); else bkBoltIndit(f);
+}
+function bkQ(s) { return BK.svg.querySelector(s); }
+function bkGombok(h) { $("bk-gombok").innerHTML = h || ""; }
+/* buborék a képen: ki = "tuske" | "vevo" | "juli"; üres szöveg = eltűnik */
+function bkBub(x, y, szoveg, ki) {
+  var g = bkQ(".bk-bub"); if (!g) return;
+  var r = g.querySelector('[data-ki="' + ki + '"]'); if (r) r.remove();
+  if (!szoveg) return;
+  var w = Math.max(60, szoveg.length * 8.2 + 24);
+  x = Math.max(w / 2 + 6, Math.min(800 - w / 2 - 6, x));
+  g.insertAdjacentHTML("beforeend", '<g data-ki="' + ki + '" transform="translate(' + x + ' ' + y + ')"><rect x="' + (-w / 2) + '" y="-18" width="' + w + '" height="32" rx="14" fill="#fff" stroke="#c9b6dc" stroke-width="1.6"/><path d="M-6 13L0 24L6 13Z" fill="#fff" stroke="#c9b6dc" stroke-width="1.6"/><path d="M-5 12.5H5" stroke="#fff" stroke-width="3"/>' +
+    '<text y="4" text-anchor="middle" font-size="15" ' + BK_F + ' font-weight="500" fill="#2a2140">' + szoveg + '</text></g>');
+  var uj = g.lastChild;
+  setTimeout(function () { if (uj.parentNode) uj.remove(); }, Math.max(2600, szoveg.length * 90));   /* a buborék nem marad a képen (ne takarjon) */
+}
+/* rossz válasz: a motor könyvelése (mint a mérés koppintós kártyáinál), a kép felel, a sor csak röviden */
+function bkRossz(f, cimke, szoveg, kimond) {
+  rosszValaszKonyvel(f, cimke);
+  var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.textContent = szoveg;
+  if (kimond) mondd(kimond);
+  ment();
+}
+function bkJo(f, kes, joKiir) {
+  BK.lezart = true; f.joKiir = joKiir;
+  setTimeout(function () { if (J && J.feladat === f) ertekel(f.helyes); }, kes || 0);
+}
+function bkVevoRajz(arc) {
+  var g = bkQ(".bk-vevo"); if (!g || !BK.f) return;
+  var F = {}, k, src = FIG_RAJZ[BK.f.bolt.vevo] || FIG_RAJZ.brumi; for (k in src) F[k] = src[k]; F.tart = null;   /* a boltban üres kézzel jön */
+  g.innerHTML = fgAlak(F, arc || "vidam");
+}
+
+/* ═════════════════ ① ② A BOLT ═════════════════ */
+function bkPult(y0, y1, alj) {
+  var s = '<path d="M0 ' + y0 + 'H800V' + y1 + 'H0Z" fill="url(#bkFa)"/><path d="M0 ' + y0 + 'H800" stroke="#a87a4e" stroke-width="4"/><path d="M0 ' + (y0 + 5) + 'H800" stroke="#f3d6ac" stroke-width="2" opacity=".8"/>';
+  for (var x = 70; x < 800; x += 140) s += '<path d="M' + x + ' ' + (y0 + 10) + ' Q' + (x + 30) + ' ' + ((y0 + y1) / 2) + ' ' + (x - 10) + ' ' + y1 + '" stroke="#c99a6a" stroke-width="1.2" fill="none" opacity=".6"/>';
+  return s + '<path d="M0 ' + y1 + 'H800V' + alj + 'H0Z" fill="#b07a4c"/><path d="M0 ' + y1 + 'H800" stroke="#7a4f2c" stroke-width="3"/>';
+}
+function bkFal(h) {
+  var s = '<rect width="800" height="' + h + '" fill="#f8ecd9"/>';
+  for (var x = 0; x < 800; x += 26) s += '<rect x="' + x + '" y="0" width="13" height="262" fill="#f3e2c6" opacity=".55"/>';
+  return s;
+}
+function bkBoltAlap() {
+  var s = '<defs>' + HE_DEFS + SZV_DEFS + BK_DEFS + '</defs>' + bkFal(460);
+  /* polc a falon, Tüske néni mögött */
+  s += '<g transform="translate(14 36)">' + [0, 76, 152].map(function (y) { return '<rect x="0" y="' + (y + 54) + '" width="250" height="10" rx="3" fill="#e9c193" stroke="#a87a4e" stroke-width="2"/>'; }).join("") +
+       '<text font-size="28" y="50" x="12">🍯🍎🧀🥕🍐</text><text font-size="28" y="126" x="16">🍞🥛🍪🧈</text><text font-size="28" y="202" x="12">🍓🥕🍯🍎</text>' +
+       '<rect x="0" y="0" width="8" height="250" fill="#d6a46f"/><rect x="242" y="0" width="8" height="250" fill="#d6a46f"/></g>';
+  /* ablak a térre, a kúttal */
+  s += '<g transform="translate(392 34)"><rect width="150" height="132" rx="10" fill="#cfe6fb" stroke="#b08a68" stroke-width="6"/><path d="M0 96Q40 80 75 92T150 86V132H0Z" fill="#c4e6bc"/><ellipse cx="75" cy="124" rx="62" ry="11" fill="#efe0c4"/>' +
+       '<path d="M71 120V100H79V120Z" fill="#d9cbb4"/><path class="bk-viz" d="M75 100Q66 90 61 116M75 100Q84 90 89 116" fill="none" stroke="#9ec9f0" stroke-width="2" stroke-dasharray="4 3"/>' +
+       '<path d="M75 0V132M0 66H150" stroke="#b08a68" stroke-width="4"/><path d="M-8 -6H158" stroke="#f6a5c0" stroke-width="12" stroke-linecap="round"/></g>';
+  s += '<g transform="translate(770 10)"><path d="M0 0V14" stroke="#6e4a36" stroke-width="2"/><path d="M-10 28Q-10 14 0 14Q10 14 10 28Z" fill="#fce49a" stroke="#d1a23a" stroke-width="1.6"/><circle cx="0" cy="30" r="2.6" fill="#d1a23a"/></g>';
+  s += '<g class="bk-tuske" transform="translate(-34 58) scale(.82)"></g>';
+  s += '<g class="bk-uni" transform="translate(252 322)"></g>';
+  s += '<g transform="translate(560 84) scale(1.6)"><g class="bk-vevo"></g></g>';
+  s += bkPult(262, 440, 460);
+  s += '<g class="bk-kassza"></g><g class="bk-szalag"></g><g class="bk-targy"></g><g class="bk-tenyer"></g><g class="bk-ermek"></g><g class="bk-szikra" pointer-events="none"></g><g class="bk-bub" pointer-events="none"></g>';
+  BK.svg.innerHTML = s;
+  BK.tuske = new Lako(bkQ(".bk-tuske"), "tuske", { poz: "koszon", elet: true });
+  BK.uni = uniPult(bkQ(".bk-uni"), { meret: 1.64, alap: "figyel" });
+}
+function bkTarcaX(i, n) { return Math.round(540 - (n - 1) * 22 + i * 44); }
+function bkErmeUj(v, x, y, hol) { var e = { id: "bke" + (BK.szam++), v: v, x: x, y: y, hol: hol }; BK.ermek.push(e); return e; }
+/* az érmék kirakása: ami máshová került, a szarvától ívben átlebeg */
+function bkErmekRajz() {
+  var g = bkQ(".bk-ermek"), mozgott = false;
+  BK.ermek.forEach(function (e) {
+    var el = g.querySelector('[data-id="' + e.id + '"]');
+    if (!el) {
+      g.insertAdjacentHTML("beforeend", '<g class="bk-erme' + (e.hol === "fizetett" ? " all" : "") + '" data-id="' + e.id + '" data-v="' + e.v + '" data-hol="' + e.hol + '" data-x="' + e.x + '" data-y="' + e.y + '" style="transform:translate(' + e.x + 'px,' + e.y + 'px)">' +
+        '<circle r="' + (BK_ER[e.v] + 8) + '" fill="transparent"/>' + tallerBelso(e.v) + '</g>');   /* a láthatatlan nagyobb kör: könnyebb eltalálni */
+    } else if (+el.getAttribute("data-x") !== e.x || +el.getAttribute("data-y") !== e.y) {
+      el.setAttribute("data-hol", e.hol);   /* hol van most (a gépi próba is ebből keresi) */
+      szarvVarazs(el, +el.getAttribute("data-x"), +el.getAttribute("data-y"), e.x, e.y, { nyom: bkQ(".bk-szikra") });
+      el.setAttribute("data-x", e.x); el.setAttribute("data-y", e.y); mozgott = true;
+    }
+  });
+  Array.prototype.slice.call(g.children).forEach(function (el) { if (!BK.ermek.some(function (e) { return e.id === el.getAttribute("data-id"); })) el.remove(); });
+  if (mozgott && !BK.lezart) BK.uni.poz("szarvvar", 800);
+}
+function bkTargyRajz(ar) {
+  bkQ(".bk-targy").innerHTML = '<g transform="translate(' + BK_TARGY[0] + ' ' + BK_TARGY[1] + ')"><g class="bk-aru"><g transform="translate(0 30) scale(1.2) translate(0 -30)"><path d="M-18 30V4Q-18 -4 -12 -6H12Q18 -4 18 4V30Q0 36 -18 30Z" fill="#f5b942" stroke="#a8741c" stroke-width="2"/><rect x="-16" y="-14" width="32" height="10" rx="3" fill="#e0a13a" stroke="#a8741c" stroke-width="1.6"/><ellipse cx="0" cy="14" rx="10" ry="7" fill="#fff6d8"/><text y="18" text-anchor="middle" font-size="9" ' + BK_F + ' font-weight="600" fill="#a8741c">méz</text></g></g>' +
+    '<path d="M20 -8Q28 -6 34 2" fill="none" stroke="#8a6a52" stroke-width="1.4"/><g transform="translate(48 10) rotate(8)"><path d="M-16 -14H16V14H-16Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/><circle cx="-11" cy="-9" r="2" fill="none" stroke="#8a6a52" stroke-width="1.2"/>' +
+    '<text y="7" text-anchor="middle" font-size="18" ' + BK_F + ' font-weight="700" fill="#4a3b7a">' + ar + '</text></g><g class="bk-ures"></g><g class="bk-eddig"></g></g>';
+}
+function bkTenyerRajz(lathato) {
+  bkQ(".bk-tenyer").innerHTML = lathato ? '<g transform="translate(' + BK_TENYER[0] + ' ' + BK_TENYER[1] + ')"><path d="M60 -40Q70 -10 58 6" fill="none" stroke="#6e472c" stroke-width="20" stroke-linecap="round"/><path d="M60 -40Q70 -10 58 6" fill="none" stroke="#bd8759" stroke-width="15" stroke-linecap="round"/>' +
+    '<ellipse rx="58" ry="22" fill="#bd8759" stroke="#6e472c" stroke-width="2.4"/><ellipse cx="0" cy="2" rx="44" ry="14" fill="#efd3ae"/>' +
+    [-38, -13, 13, 38].map(function (x) { return '<ellipse cx="' + x + '" cy="-20" rx="9" ry="6" fill="#bd8759" stroke="#6e472c" stroke-width="2"/><ellipse cx="' + x + '" cy="-19" rx="5" ry="3.2" fill="#efd3ae"/>'; }).join("") + '</g>' : "";
+}
+function bkKasszaRajz(mod) {
+  var vn = FIGURA[BK.f.bolt.vevo].n;
+  bkQ(".bk-kassza").innerHTML = mod === "vissza"
+    ? '<rect x="22" y="388" width="290" height="50" rx="10" fill="#b07a4c" stroke="#7a4f2c" stroke-width="3"/><rect x="30" y="394" width="274" height="38" rx="7" fill="#c9915e"/><text x="166" y="383" text-anchor="middle" font-size="12" ' + BK_F + ' fill="#7a4f2c">kassza</text>'
+    : '<path d="M268 392Q520 384 790 392L786 438Q520 444 272 438Z" fill="#a7c9e8" stroke="#5f84b0" stroke-width="2.4"/><path d="M280 398Q520 391 778 398" fill="none" stroke="#cfe5fa" stroke-width="2" stroke-dasharray="6 5"/>' +
+      '<text x="540" y="385" text-anchor="middle" font-size="12" ' + BK_F + ' fill="#5f84b0">' + vn + ' erszénye</text>';
+}
+function bkSzalagRajz() {
+  var g = bkQ(".bk-szalag"), x = BK.f.bolt; if (x.forma !== "vissza") { g.innerHTML = ""; return; }
+  var V = x.v, lo = V.ar - 2, hi = Math.min(105, V.fizet + 5), x0 = 336, x1 = 770, Y = 414;
+  function X(n) { return x0 + (n - lo) / (hi - lo) * (x1 - x0); }
+  var s = '<rect x="' + (x0 - 14) + '" y="' + (Y - 16) + '" width="' + (x1 - x0 + 28) + '" height="30" rx="6" fill="#fffaf0" stroke="#c9b6dc" stroke-width="1.6"/>';
+  s += '<path d="M' + x0 + ' ' + Y + 'H' + x1 + '" stroke="#4a3b7a" stroke-width="2"/>';
+  for (var n = lo; n <= hi; n++) s += '<path d="M' + X(n).toFixed(1) + ' ' + (Y - (n % 10 ? 4 : 8)) + 'V' + (Y + (n % 10 ? 4 : 8)) + '" stroke="#4a3b7a" stroke-width="' + (n % 10 ? 1 : 2) + '"/>';
+  if (J.probak >= 2) {   /* 2 hiba után: a cél zászlója (ide kell érni) — a szám nem, csak a hely */
+    var c = X(V.fizet).toFixed(1);
+    s += '<path d="M' + c + ' ' + (Y - 8) + 'V' + (Y - 40) + '" stroke="#3f9e6a" stroke-width="2.4"/><path d="M' + c + ' ' + (Y - 40) + 'l18 6l-18 6z" fill="#7fd19a" stroke="#3f9e6a" stroke-width="1.4"/>';
+  }
+  var most = V.ar, adott = BK.ermek.filter(function (e) { return e.hol === "tenyer"; });
+  s += '<circle cx="' + X(most).toFixed(1) + '" cy="' + Y + '" r="4.4" fill="#e0417a"/><text x="' + X(most).toFixed(1) + '" y="' + (Y - 18) + '" text-anchor="middle" font-size="12" ' + BK_F + ' font-weight="700" fill="#e0417a">' + most + '</text>';
+  adott.forEach(function (e) {
+    var a = X(most), b = X(Math.min(hi, most + e.v)), m = (a + b) / 2, hgt = Math.min(30, 10 + (b - a) * .35);
+    s += '<path d="M' + a.toFixed(1) + ' ' + (Y - 2) + 'Q' + m.toFixed(1) + ' ' + (Y - 2 - hgt).toFixed(1) + ' ' + b.toFixed(1) + ' ' + (Y - 2) + '" fill="none" stroke="#8a4fd0" stroke-width="2.4"/>' +
+      (b - a < 16 ? '' : '<text x="' + m.toFixed(1) + '" y="' + (Y - 6 - hgt * .55).toFixed(1) + '" text-anchor="middle" font-size="11" ' + BK_F + ' font-weight="600" fill="#8a4fd0">+' + e.v + '</text>');
+    most += e.v;
+    s += '<circle cx="' + b.toFixed(1) + '" cy="' + Y + '" r="4" fill="#8a4fd0"/><text x="' + b.toFixed(1) + '" y="' + (Y + 24) + '" text-anchor="middle" font-size="11" ' + BK_F + ' font-weight="700" fill="#4a3b7a">' + most + '</text>';
+  });
+  g.innerHTML = s;
+}
+function bkKeszGomb() { bkGombok('<button class="nagy-gomb bk-kesz" data-g="kesz">Kész ✓</button>'); }
+function bkBoltIndit(f) {
+  var x = f.bolt;
+  bkQ(".bk-bub").innerHTML = ""; bkQ(".bk-ermek").innerHTML = "";
+  BK.tuske.megszakit(); BK.uni.alap = "figyel"; BK.uni.poz("figyel");
+  if (J.bkKoszont) BK.tuske.poz("var");
+  else { J.bkKoszont = true; BK.tuske.sorLe([["koszon", 1700], ["var", 0]]); bkBub(BK_TB[0], BK_TB[1], LK_MONDAT.tuske.koszon, "tuske"); }   /* a pálya első feladatánál köszön */
+  bkVevoRajz("vidam"); bkKasszaRajz(x.forma);
+  if (x.forma === "fizet") {
+    bkTargyRajz(x.ar); bkTenyerRajz(false);
+    x.tarca.forEach(function (v, i) { bkErmeUj(v, bkTarcaX(i, x.tarca.length), 415, "tarca").hely = i; });
+    bkBub(BK_VB[0], BK_VB[1], x.lepes === 1 ? "Segítesz kifizetni?" : x.kerd, "vevo");
+  } else {
+    var V = x.v;
+    bkTargyRajz(V.ar); bkTenyerRajz(true);
+    V.fizetErmek.forEach(function (v, i) { bkErmeUj(v, 372 + i * 46, 360, "fizetett"); });
+    BK_KASSZA.forEach(function (v, i) { bkErmeUj(v, 52 + i * 46, 413, "kassza"); });
+    bkBub(BK_VB[0], BK_VB[1], V.fizetErmek.length > 1 ? "Itt van " + V.fizet + "!" : "Tessék, egy " + V.fizet + "-es!", "vevo");
+  }
+  bkSzalagRajz(); bkErmekRajz(); bkKeszGomb(); bkOsszegRajz();
+}
+/* 2 hiba után (① Fizesd ki!): a pult széle megmutatja, mennyi van már kint — a választ nem */
+function bkOsszegRajz() {
+  var u = bkQ(".bk-eddig"); if (!u) return;
+  var x = BK.f.bolt, s = "";
+  if (x.forma === "fizet" && J.probak >= 2) {
+    var o = 0; BK.ermek.forEach(function (e) { if (e.hol === "pult") o += e.v; });
+    s = '<g transform="translate(-342 -18)"><rect x="-34" y="-14" width="68" height="24" rx="8" fill="#fff3dc" stroke="#d1a23a" stroke-width="1.4"/><text y="4" text-anchor="middle" font-size="13" ' + BK_F + ' font-weight="600" fill="#8a5a1a">eddig: ' + o + '</text></g>';
+  }
+  u.innerHTML = s;
+}
+function bkPultraHelyez() {
+  var p = BK.ermek.filter(function (e) { return e.hol === "pult"; });
+  p.forEach(function (e, i) { e.x = i < 6 ? 396 - i * 42 : 375 - (i - 6) * 42; e.y = i < 6 ? 364 : 330; });
+  var t = BK.ermek.filter(function (e) { return e.hol === "tarca"; }), n = BK.f.bolt.tarca.length;
+  t.forEach(function (e) { e.x = bkTarcaX(e.hely, n); e.y = 415; });   /* minden érme a saját helyére megy vissza */
+}
+function bkTenyerbeHelyez() {
+  BK.ermek.filter(function (e) { return e.hol === "tenyer"; }).forEach(function (e, i) { e.x = BK_TENYER[0] - 33 + (i % 4) * 22; e.y = BK_TENYER[1] - 2 - Math.floor(i / 4) * 8 - (i % 2) * 4; });
+}
+function bkErmeKatt(id) {
+  var e = BK.ermek.filter(function (x) { return x.id === id; })[0], x = BK.f.bolt; if (!e) return;
+  bkBub(0, 0, "", "tuske");
+  if (x.forma === "fizet") {
+    if (e.hol === "tarca") { e.hol = "pult"; e.t = ++BK.szam; } else if (e.hol === "pult") e.hol = "tarca"; else return;   /* e.t: mikor tette le */
+    hangGomb(); bkPultraHelyez(); bkOsszegRajz();
+    var u = bkQ(".bk-ureshely"); if (u) u.remove();   /* a „még hiányzik” jele, amíg nem nyom újra Kész-t */
+  } else {
+    if (e.hol === "kassza") { bkErmeUj(e.v, e.x, e.y, "kassza"); e.hol = "tenyer"; BK.ermek.push(BK.ermek.splice(BK.ermek.indexOf(e), 1)[0]); }
+    else if (e.hol === "tenyer") BK.ermek.splice(BK.ermek.indexOf(e), 1);
+    else return;
+    hangGomb(); bkTenyerbeHelyez(); bkSzalagRajz();
+  }
+  bkErmekRajz();
+}
+function bkFizetKesz() {
+  var f = BK.f, x = f.bolt, p = BK.ermek.filter(function (e) { return e.hol === "pult"; }).sort(function (a, b) { return b.v - a.v; });
+  if (!p.length) { bkBub(BK_TB[0], BK_TB[1], "Tegyél egy érmét a pultra!", "tuske"); mondd("Tegyél egy érmét a pultra!"); return; }
+  BK.lezart = true; bkGombok(""); BK.tuske.megszakit(); BK.tuske.poz("szamol"); BK.uni.poz("figyel");
+  var ossz = 0, sor = [], lep = lkCsokkent() ? 120 : 700;
+  p.forEach(function (e) { ossz += e.v; sor.push(ossz); });
+  mondd(sor.map(szo).join(", "));   /* Tüske néni hangosan számol, érménként */
+  ossz = 0;
+  p.forEach(function (e, i) {
+    setTimeout(function () {
+      if (!BK || BK.f !== f) return;
+      ossz += e.v;
+      var g = bkQ('[data-id="' + e.id + '"]');
+      if (g && g.animate && !lkCsokkent()) g.animate([{ transform: "translate(" + e.x + "px," + e.y + "px)" }, { transform: "translate(" + e.x + "px," + (e.y - 10) + "px)" }, { transform: "translate(" + e.x + "px," + e.y + "px)" }], { duration: 380 });
+      bkBub(BK_TB[0], BK_TB[1], ossz + "…", "tuske");
+      if (i === p.length - 1) setTimeout(function () { if (BK && BK.f === f) bkFizetVege(f, p.map(function (q) { return q.v; }), p); }, lep + 50);
+    }, lep * i + 300);
+  });
+}
+function bkFizetVege(f, l, p) {
+  var x = f.bolt, ell = boltFizetEll(x.g, l, x.lepes, x.elozo), vn = FIGURA[x.vevo].n;
+  if (ell.jo) {
+    bkAllapot().megold.push(l.slice());
+    BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul"); bkVevoRajz("ujjong");
+    bkBub(BK_TB[0], BK_TB[1], "Pont " + x.ar + "! Szép munka!", "tuske"); bkBub(BK_VB[0], BK_VB[1], "Köszönöm!", "vevo");
+    var aru = bkQ(".bk-aru"); if (aru) szarvVarazs(aru, 0, 0, 238, -82, { emel: 60, ido: 900, nyom: bkQ(".bk-szikra") });   /* az áru átlebeg a vevőhöz */
+    bkJo(f, 1100, l.join(" + ") + " = " + x.ar);
+    return;
+  }
+  BK.lezart = false; bkKeszGomb();
+  if (ell.ok === "ugyanaz") {
+    BK.tuske.pozIdeig("gondol", 2200); BK.uni.poz("gondol", 2000);
+    bkBub(BK_TB[0], BK_TB[1], "Ez ugyanaz, mint az előbb. Van más út is?", "tuske");
+    bkRossz(f, "ugyanaz", "Ez ugyanaz, mint az előbb. Másképp is ki lehet?", "Ez ugyanaz, mint az előbb. Van más út is?");
+  } else if (ell.ok === "tobb-erme") {
+    BK.tuske.pozIdeig("gondol", 2200); BK.uni.poz("gondol", 2000);
+    bkBub(BK_TB[0], BK_TB[1], "Kifizetted! De kevesebb érmével is lehet.", "tuske");
+    bkRossz(f, l.length + " érme", "Kifizetted! De kevesebb érmével is lehet.", "Kifizetted! De kevesebb érmével is lehet.");
+  } else if (ell.ok === "keves") {
+    BK.tuske.pozIdeig("gondol", 2200); BK.uni.poz("gondol", 2200);
+    bkBub(BK_TB[0], BK_TB[1], "Hmm, még nem fizettünk ki mindent.", "tuske");
+    var u = bkQ(".bk-ures"); if (u) u.insertAdjacentHTML("beforeend", '<circle class="bk-ureshely" cx="90" cy="14" r="16" fill="none" stroke="#e0417a" stroke-width="2.4" stroke-dasharray="5 4"/>');
+    bkRossz(f, "kevés", "Még nem fizettünk ki mindent.", "Hmm, még nem fizettünk ki mindent.");
+  } else {
+    BK.tuske.pozIdeig("meglep", 1800); bkVevoRajz("gondol"); bkBub(BK_VB[0], BK_VB[1], "Ez sok lesz!", "vevo"); bkBub(0, 0, "", "tuske");
+    /* 🔒 a vevő az UTOLJÁRA letett érmét tolja vissza (nem a „pont jót”: különben a Kész nyomkodása magától kihozná a megoldást) */
+    var utso = p.slice().sort(function (a, b) { return (b.t || 0) - (a.t || 0); })[0];
+    utso.hol = "tarca"; bkPultraHelyez(); bkErmekRajz(); BK.uni.poz("gondol", 1800);
+    setTimeout(function () { if (BK && BK.f === f) bkVevoRajz("vidam"); }, 1800);
+    bkRossz(f, "sok", vn + " visszatolt egy érmét.", "Ez sok lesz!");
+  }
+  bkOsszegRajz();
+}
+function bkVisszaKesz() {
+  var f = BK.f, x = f.bolt, adott = BK.ermek.filter(function (e) { return e.hol === "tenyer"; }), vn = FIGURA[x.vevo].n;
+  if (!adott.length) { bkBub(BK_TB[0], BK_TB[1], "Tegyél érmét a tenyerébe!", "tuske"); mondd("Tegyél érmét a tenyerébe!"); return; }
+  var ell = boltVisszaEll(x.v, adott.map(function (e) { return e.v; }));
+  BK.lezart = true; bkGombok(""); BK.uni.poz("tenyer");
+  setTimeout(function () {
+    if (!BK || BK.f !== f) return;
+    if (ell.jo) {
+      bkVevoRajz("ujjong"); BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul");
+      bkBub(BK_VB[0], BK_VB[1], "Köszönöm szépen!", "vevo"); bkBub(BK_TB[0], BK_TB[1], "Pont annyi, ügyes vagy!", "tuske");
+      bkJo(f, 900, x.v.ar + " → " + x.v.fizet + ": " + x.v.vissza + " tallér");
+      return;
+    }
+    BK.lezart = false; bkKeszGomb();
+    if (ell.ok === "keves") {
+      bkVevoRajz("gondol"); bkBub(BK_VB[0], BK_VB[1], "…", "vevo"); BK.tuske.pozIdeig("gondol", 2200); BK.uni.poz("gondol", 2200);
+      bkRossz(f, "kevés", vn + " a tenyerére néz, és vár.", vn + " még vár.");
+    } else {
+      bkVevoRajz("gondol"); bkBub(BK_VB[0], BK_VB[1], "Ez sok!", "vevo"); BK.tuske.pozIdeig("meglep", 1800); BK.uni.poz("gondol", 1800);
+      var utso = adott[adott.length - 1]; BK.ermek.splice(BK.ermek.indexOf(utso), 1); bkTenyerbeHelyez(); bkErmekRajz();
+      bkRossz(f, "sok", vn + " visszaadott egy érmét: ez sok volt.", "Ez sok!");
+    }
+    bkSzalagRajz();
+  }, lkCsokkent() ? 0 : 900);
+}
+
+/* ═════════════════ ③ A RÓKA BLOKKJA ═════════════════ */
+function bkRokaAlap() {
+  var s = '<defs>' + HE_DEFS + SZV_DEFS + BK_DEFS + '</defs>' + bkFal(400);
+  s += '<g class="bk-uni" transform="translate(164 327)"></g>';
+  s += '<g transform="translate(806 40) scale(-1.05 1.05)"><g class="bk-juli"></g></g>';
+  s += bkPult(262, 380, 400);
+  s += '<g class="bk-blokk"></g><g class="bk-pecsetek"></g><g class="bk-szikra" pointer-events="none"></g><g class="bk-bub" pointer-events="none"></g><g class="bk-otthon"></g>';
+  BK.svg.innerHTML = s;
+  BK.uni = uniPult(bkQ(".bk-uni"), { meret: 1.58, alap: "figyel" });
+  BK.juli = new Lako(bkQ(".bk-juli"), "juli", { poz: "koszon", elet: true });
+  var p = "";
+  [["ok", "✓", "#3f9e6a", "#dff3e7", 112, "jó"], ["x", "✗", "#e0417a", "#ffd6ea", 196, "hibás"]].forEach(function (b) {
+    p += '<g class="bk-pecset" data-v="' + b[0] + '" transform="translate(' + b[4] + ' ' + BK_PECSET_Y + ')"><rect x="-38" y="-96" width="76" height="120" fill="transparent"/><g class="bk-pecset-mozog"><rect x="-10" y="-74" width="20" height="40" rx="8" fill="#c99272" stroke="#8a5a3a" stroke-width="2"/><ellipse cx="0" cy="-76" rx="16" ry="9" fill="#d9a873" stroke="#8a5a3a" stroke-width="2"/>' +
+      '<rect x="-30" y="-36" width="60" height="16" rx="4" fill="#b07a4c" stroke="#7a4f2c" stroke-width="2"/><rect x="-28" y="-20" width="56" height="20" rx="4" fill="' + b[3] + '" stroke="' + b[2] + '" stroke-width="2.4"/>' +
+      '<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="' + b[2] + '">' + b[1] + '</text></g><text y="20" text-anchor="middle" font-size="13" ' + BK_F + ' font-weight="600" fill="#fffaf0">' + b[5] + '</text></g>';
+  });
+  bkQ(".bk-pecsetek").innerHTML = p;
+}
+function bkBlokkRajz() {
+  var o = BK.rajz, x = BK.f.bolt, b = x.b, s = "", n = b.tetelek.length, dy = n > 2 ? 34 : 44;
+  s += '<g transform="translate(' + BK_BLOKK_X + ' 24)"><path d="M0 0H240V250' + Array.apply(null, { length: 12 }).map(function (_, i) { return "L" + (240 - (i * 20 + 10)) + " " + (i % 2 ? 250 : 260) + "L" + (240 - (i + 1) * 20) + " 250"; }).join("") + 'Z" fill="#fffef6" stroke="#c9b6dc" stroke-width="1.8"/>';
+  s += '<text x="120" y="28" text-anchor="middle" font-size="14" ' + BK_F + ' font-weight="600" fill="#8a7a9e">Tüske néni boltja · blokk</text><path d="M20 40H220" stroke="#e7dcef" stroke-width="1.6"/>';
+  b.tetelek.forEach(function (v, i) {
+    var y = 76 + i * dy, a = x.aruk[i];
+    s += '<text x="22" y="' + y + '" font-size="20">' + a[0] + '</text><text x="52" y="' + y + '" font-size="19" ' + BK_F + ' fill="#3b4a8a">' + a[1] + '</text>';
+    s += '<path d="M118 ' + (y - 6) + 'H170" stroke="#c9b6dc" stroke-width="2" stroke-dasharray="2 4"/><text x="212" y="' + y + '" text-anchor="end" font-size="26" ' + BK_F + ' font-weight="600" fill="#3b4a8a">' + v + '</text>';
+  });
+  var yv = 76 + (n - 1) * dy + 22;
+  s += '<path d="M150 ' + yv + 'H222" stroke="#3b4a8a" stroke-width="2.2"/><text x="22" y="' + (yv + 36) + '" font-size="19" ' + BK_F + ' fill="#3b4a8a">összesen:</text>';
+  s += '<text x="212" y="' + (yv + 38) + '" text-anchor="end" font-size="34" ' + BK_F + ' font-weight="700" fill="#3b4a8a">' + b.irt + '</text>';
+  if (o.kihuz) s += '<path d="M160 ' + (yv + 28) + 'L216 ' + (yv + 20) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
+  if (o.javit != null) s += '<text x="212" y="' + (yv + 74) + '" text-anchor="end" font-size="30" ' + BK_F + ' font-weight="700" fill="#7a5ca8">' + o.javit + '</text>';
+  if (o.becsles) s += '<g transform="translate(16 ' + (yv + 56) + ')"><rect width="118" height="24" rx="6" fill="#fff3dc" stroke="#d1a23a" stroke-width="1.2" transform="rotate(-3)"/><text x="59" y="16" text-anchor="middle" font-size="13" ' + BK_F + ' fill="#8a5a1a" transform="rotate(-3)">' + o.becsles + '</text></g>';
+  if (o.pecset) s += '<g transform="translate(176 52) rotate(-14) scale(.8)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>';
+  s += '</g>';
+  if (o.rudak) {   /* 2 hiba után: a tételek tízes rudakban és egyes kockákban, kirakva a pultra (a blokk mellett) — az összeg nem */
+    var rw = n > 2 ? 82 : 118;
+    s += '<g transform="translate(' + (n > 2 ? 548 : 556) + ' 296)">';
+    b.tetelek.forEach(function (v, i) {
+      s += '<g transform="translate(' + (i * rw) + ' 0)"><rect x="-6" y="-4" width="' + (rw - 8) + '" height="76" rx="8" fill="#fffaf0" stroke="#c9b6dc" stroke-width="1.4" opacity=".92"/>' +
+        '<text x="0" y="10" font-size="12" ' + BK_F + ' fill="#6b6280">' + x.aruk[i][0] + ' ' + v + '</text>' + bkRudak(v, 0, 14, n > 2 ? .62 : .72) + '</g>';
+    });
+    s += '</g>';
+  }
+  bkQ(".bk-blokk").innerHTML = s;
+}
+/* tízes rudak (kék) + egyes kockák (rózsaszín): a közös helyiérték-színekkel (HE_SZIN) */
+function bkRudak(n, x, y, k) {
+  k = k || 1;
+  var s = "", t = Math.floor(n / 10), e = n % 10, i, j, T = HE_SZIN[10], E = HE_SZIN[1], w = 11 * k, h = 7 * k;
+  for (i = 0; i < t; i++) { s += '<g transform="translate(' + (x + i * 15 * k).toFixed(1) + ' ' + y + ')">'; for (j = 0; j < 10; j++) s += '<rect x="0" y="' + (j * h).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" fill="' + T.l + '" stroke="' + T.k + '" stroke-width=".8"/>'; s += '</g>'; }
+  for (i = 0; i < e; i++) s += '<rect x="' + (x + t * 15 * k + 4 + (i % 3) * 9 * k).toFixed(1) + '" y="' + (y + 7 * h - Math.floor(i / 3) * 9 * k).toFixed(1) + '" width="' + h.toFixed(1) + '" height="' + h.toFixed(1) + '" fill="' + E.l + '" stroke="' + E.k + '" stroke-width=".8"/>';
+  return s;
+}
+function bkRokaIndit(f) {
+  BK.fazis = "becsles"; BK.rajz = {};
+  bkQ(".bk-otthon").innerHTML = ""; bkQ(".bk-bub").innerHTML = "";
+  bkBlokkRajz(); BK.juli.megszakit(); BK.juli.sorLe([["szamol", 1300], ["mutat", 1400], ["var", 0]]);
+  BK.uni.alap = "figyel"; BK.uni.poz("figyel");
+  bkBecslesGombok();
+}
+function bkBecslesGombok() {
+  bkGombok('<span class="bk-kerd">Körülbelül stimmel?</span><button class="kis-gomb bk-g" data-g="keves">Túl kevés</button><button class="kis-gomb bk-g" data-g="jo">Stimmelhet</button><button class="kis-gomb bk-g" data-g="sok">Túl sok</button>');
+}
+function bkBecsles(v) {
+  var b = BK.f.bolt.b, kerek = b.tetelek.map(kerekTizes), k = 0; kerek.forEach(function (q) { k += q; });
+  var elter = b.irt - k, val = elter < -5 * b.tetelek.length ? "keves" : elter > 5 * b.tetelek.length ? "sok" : "jo";
+  BK.rajz.becsles = "kb. " + kerek.join(" + ") + " = " + k;
+  bkBlokkRajz();
+  BK.fazis = "pecset";
+  var jo = v === val;
+  BK.uni.poz(jo ? "orul" : "gondol", 1400);
+  var m = (jo ? "Jó becslés! " : "Nézd a kerek számokat a cetlin! ") + "Most nyomj pecsétet: jó vagy hibás?";
+  $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = m; mondd(m);   /* a becslés nem hiba és nem jutalom: csak a gondolkodás iránya */
+  bkGombok('<span class="bk-kerd">Koppints a pecsétre: ✓ jó · ✗ hibás</span>');
+}
+/* a pecsétet az unikornis szarva emeli fel, átviszi a blokkra, ráüti, és visszateszi */
+function bkPecsetRepul(p, kesz) {
+  var m = p.querySelector(".bk-pecset-mozog"), px = +p.getAttribute("transform").match(/translate\(([-\d.]+)/)[1];
+  var dx = BK_BLOKK_X + 176 - px, dy = 24 + 86 - BK_PECSET_Y;
+  function T(x, y) { return { transform: "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)" }; }
+  BK.uni.poz("szarvvar");
+  if (lkCsokkent() || !m.animate) { kesz(); BK.uni.poz(BK.uni.alap); return; }
+  BK.mozog = true;
+  m.animate([T(0, 0), T(dx * .25, dy * .55), T(dx * .6, dy - 70), T(dx, dy - 36), T(dx, dy), T(dx, dy - 30), T(dx * .6, dy - 70), T(dx * .25, dy * .55), T(0, 0)], { duration: 1700, easing: "ease-in-out" });
+  szarvVarazs(document.createElementNS(SZV_NS, "g"), px, BK_PECSET_Y - 40, px + dx, BK_PECSET_Y + dy - 40, { emel: 70, ido: 800, nyom: bkQ(".bk-szikra") });
+  setTimeout(kesz, 850);
+  setTimeout(function () { BK.mozog = false; if (BK.uni.nev === "szarvvar") BK.uni.poz(BK.uni.alap); }, 1700);
+}
+function bkJegyez(ell) { if (!BK.jegyzett) { BK.jegyzett = true; rokaJegyez(BK.f.bolt.b, ell); } }   /* 🦊 napló: csak az első ítélet számít */
+function bkPecsetKatt(v) {
+  var f = BK.f, b = f.bolt.b;
+  if (BK.fazis === "becsles") BK.fazis = "pecset";
+  if (BK.fazis !== "pecset" || BK.mozog) return;
+  hangGomb(); bkGombok("");
+  bkPecsetRepul(bkQ('.bk-pecset[data-v="' + v + '"]'), function () {
+    if (!BK || BK.f !== f) return;
+    BK.rajz.pecset = v; bkBlokkRajz();
+    if (v === "ok" && b.pontos) {
+      BK.fazis = "kesz"; bkJegyez({ jo: true, ok: "jo" });
+      BK.juli.megszakit(); BK.juli.poz("orul"); BK.uni.alap = "orul"; setTimeout(function () { if (BK && BK.f === f) BK.uni.poz("orul"); }, 900);
+      bkBub(640, 40, LK_MONDAT.juli.orul, "juli");
+      bkJo(f, 1500, "✓ a blokk jó: " + b.tetelek.join(" + ") + " = " + b.helyes);
+    } else if (v === "x" && !b.pontos) {
+      BK.fazis = "javit"; BK.rajz.kihuz = true; bkBlokkRajz();
+      BK.juli.megszakit(); BK.juli.poz("meglep"); bkBub(640, 40, LK_MONDAT.juli.meglep, "juli");
+      BK.javit = ""; bkJavitGombok();
+      var m = "Kihúztad a rossz számot. Írd be a helyeset!"; $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = m; mondd(m);
+    } else if (v === "x") {   /* gyanakodott: a blokk jó volt */
+      bkJegyez({ jo: false, ok: "gyanu" });
+      BK.juli.pozIdeig("gondol", 2200); setTimeout(function () { if (BK && BK.f === f) BK.uni.poz("gondol", 2000); }, 900);
+      setTimeout(function () { if (BK && BK.f === f) { BK.rajz.pecset = null; bkBlokkRajz(); bkGombok('<span class="bk-kerd">Koppints a pecsétre: ✓ jó · ✗ hibás</span>'); } }, 1300);
+      bkBub(640, 40, "Biztos? Számold csak meg még egyszer!", "juli");
+      bkRossz(f, "✗", "Juli: „Biztos? Számold csak meg még egyszer!”", "Biztos? Számold csak meg még egyszer!");
+    } else {   /* hibás blokkra ✓: a vevő hazaér, kirakja a kosarát */
+      bkJegyez({ jo: false, ok: "nem-vette-eszre" });
+      BK.fazis = "otthon";
+      bkRossz(f, "✓", FIGURA[f.bolt.vevo].n + " hazaért… Nézd meg, mi történt!", null);
+      setTimeout(function () { if (BK && BK.f === f) bkOtthonRajz(); }, 1000);
+    }
+  });
+}
+function bkJavitGombok() {
+  var gombok = "";
+  for (var d = 1; d <= 9; d++) gombok += '<button class="bk-szam" data-g="d' + d + '">' + d + '</button>';
+  gombok += '<button class="bk-szam" data-g="d0">0</button><button class="bk-szam" data-g="del">⌫</button>';
+  bkGombok('<span class="bk-kerd">Írd be a jót:</span><span class="bk-beiras" id="bk-beiras">' + (BK.javit || "&nbsp;") + '</span><span class="bk-billentyu">' + gombok + '</span><button class="nagy-gomb bk-kesz" data-g="javok">OK</button>');
+}
+function bkJavitBe(jel) {
+  if (BK.fazis !== "javit" || BK.lezart) return;
+  if (jel === "del") BK.javit = BK.javit.slice(0, -1);
+  else if (BK.javit.length < 3) BK.javit += jel;
+  var b = $("bk-beiras"); if (b) b.innerHTML = BK.javit || "&nbsp;";
+}
+function bkJavitOk() {
+  var f = BK.f, b = f.bolt.b; if (BK.fazis !== "javit" || BK.lezart || !BK.javit) return;
+  var be = parseInt(BK.javit, 10), ell = rokaPecsetEll(b, "x", be);
+  bkJegyez(ell);
+  if (ell.jo) {
+    BK.rajz.javit = be; bkBlokkRajz(); BK.fazis = "kesz"; bkGombok("");
+    BK.juli.megszakit(); BK.juli.sorLe([["kacsint", 1500], ["orul", 1600], ["var", 0]]); bkBub(640, 40, LK_MONDAT.juli.kacsint, "juli");
+    BK.uni.alap = "orul"; BK.uni.poz("orul");
+    bkJo(f, 1300, b.irt + " helyett " + b.helyes);
+    return;
+  }
+  BK.juli.pozIdeig("gondol", 2000); BK.uni.poz("gondol", 2000);
+  BK.javit = "";
+  if (J.probak >= 1) BK.rajz.rudak = true;   /* a 2. hibától a kép segít: a tételek rudakban (a motor itt még 1-nél tart) */
+  bkBlokkRajz(); bkJavitGombok();
+  bkRossz(f, String(be), "Még nem jó. Számold össze újra: előbb a tízeseket, aztán az egyeseket!", "Még nem jó. Előbb a tízeseket, aztán az egyeseket!");
+}
+function bkOtthonRajz() {
+  var f = BK.f, x = f.bolt, b = x.b, jo = b.helyes, s = "", vn = FIGURA[x.vevo].n, F = {}, k, src = FIG_RAJZ[x.vevo] || FIG_RAJZ.brumi;
+  for (k in src) F[k] = src[k]; F.tart = null;
+  s += '<rect x="0" y="0" width="800" height="400" fill="#fdf0d0"/><rect x="0" y="0" width="800" height="400" fill="none" stroke="#e0c9a0" stroke-width="8"/>';
+  s += '<text x="400" y="34" text-anchor="middle" font-size="18" ' + BK_F + ' font-weight="600" fill="#4a3b7a">' + vn + ' hazaért, és kirakta a kosarát…</text>';
+  s += '<g transform="translate(30 70) scale(1.5)">' + fgAlak(F, "gondol") + '</g>';
+  s += '<rect x="230" y="300" width="540" height="14" rx="4" fill="#d6a46f"/>';
+  s += '<text x="240" y="76" font-size="14" ' + BK_F + ' fill="#6b6280">Amit hazavitt (' + x.aruk.map(function (a) { return a[0]; }).join(" + ") + '):</text>' + bkRudak(jo, 240, 88);
+  s += '<text x="240" y="196" font-size="14" ' + BK_F + ' fill="#6b6280">Amit a blokk szerint fizetett:</text>' + bkRudak(b.irt, 240, 208);
+  var tj = Math.floor(jo / 10), tb = Math.floor(b.irt / 10), uz;
+  if (tj !== tb) {
+    var kev = Math.min(tj, tb), tob = Math.max(tj, tb), yy = tb < tj ? 208 : 88;
+    for (var i = kev; i < tob; i++) s += '<rect class="bk-villog" x="' + (240 + i * 15 - 2) + '" y="' + (yy - 2) + '" width="15" height="74" rx="3" fill="none" stroke="#e0417a" stroke-width="2.4" stroke-dasharray="4 3"/>';
+    uz = tb < tj ? ((tj - tb === 1 ? "Egy tízes" : (tj - tb) + " tízes") + " lemaradt a blokkról!") : ("A blokk " + (tb - tj === 1 ? "egy" : tb - tj) + " tízessel többet kért!");
+  } else uz = "Az egyesek nem stimmelnek!";
+  s += '<text x="560" y="150" font-size="16" ' + BK_F + ' font-weight="600" fill="#e0417a">' + uz + '</text>';
+  bkQ(".bk-otthon").innerHTML = s;
+  BK.uni.poz("gondol");
+  bkGombok('<button class="nagy-gomb bk-kesz" data-g="vissza">← Vissza a blokkhoz</button>');
+  mondd(vn + " hazaért, és kirakta a kosarát. " + uz);
+}
+function bkVisszaBlokk() {
+  bkQ(".bk-otthon").innerHTML = ""; BK.fazis = "pecset"; BK.rajz.pecset = null; bkBlokkRajz(); BK.uni.poz("figyel");
+  bkGombok('<span class="bk-kerd">Koppints a pecsétre: ✓ jó · ✗ hibás</span>');
+  var m = "Vissza a blokkhoz: nyomj új pecsétet!"; $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = m; mondd(m);
+}
+
+/* ═════════════════ KEZELÉS ═════════════════ */
+function bkAktiv() { return BK && J && J.feladat === BK.f && BK.f && BK.f.bolt && J.joVolt !== BK.f; }
+function bkKatt(ev) {
+  if (!bkAktiv()) return;
+  var t = ev.target;
+  var er = t.closest ? t.closest(".bk-erme") : null;
+  if (er && !BK.lezart && !er.classList.contains("all")) { bkErmeKatt(er.getAttribute("data-id")); return; }
+  var pe = t.closest ? t.closest(".bk-pecset") : null;
+  if (pe && !BK.lezart) bkPecsetKatt(pe.getAttribute("data-v"));
+}
+function bkGombKatt(ev) {
+  var b = ev.target.closest ? ev.target.closest("[data-g]") : null;
+  if (!b || !bkAktiv()) return;
+  var g = b.getAttribute("data-g"), x = BK.f.bolt;
+  if (g === "kesz" && !BK.lezart) { hangGomb(); if (x.forma === "fizet") bkFizetKesz(); else bkVisszaKesz(); }
+  else if ((g === "keves" || g === "jo" || g === "sok") && BK.fazis === "becsles") { hangGomb(); bkBecsles(g); }
+  else if (g.charAt(0) === "d" && g.length === 2) { hangGomb(); bkJavitBe(g.charAt(1)); }
+  else if (g === "del") { hangGomb(); bkJavitBe("del"); }
+  else if (g === "javok") { hangGomb(); bkJavitOk(); }
+  else if (g === "vissza" && BK.fazis === "otthon") { hangGomb(); bkVisszaBlokk(); }
+}
+function bkBillentyu(e) {
+  if (!bkAktiv() || BK.fazis !== "javit") return;
+  var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */
+  if (d !== null) { e.preventDefault(); bkJavitBe(d); }
+  else if (e.key === "Backspace") { e.preventDefault(); bkJavitBe("del"); }
+  else if (e.key === "Enter") { e.preventDefault(); bkJavitOk(); }
+}
 /* ============ 6k) 🐣 A KIS LÉNY — varázstojás → fióka (→ kalandtérkép → kölyök → nagy) ============
    Terv: terv/visszahivas-rendszerterv.html (3. elem) + terv/visszahivas-rajzterv.html (A rész, jóváhagyva).
    Visszahívás 3. kör (2026-10-06): tojás és fióka.
@@ -19807,7 +20859,7 @@ function ligetUniReteg() {
   var k = $("kepernyo-fomenu"), regi = $("liget-uni-reteg");
   if (regi) regi.parentNode.removeChild(regi);
   LIGET_UNI = null;
-  if (!FOMENU_LIGET) return;
+  if (!FOMENU_LIGET || FOMENU_LIGET === "piac") return;   /* 🏪 a Piactéren a saját képében sétál (piac.js) */
   var r = el("div", "liget-uni-reteg uni-terep");
   r.id = "liget-uni-reteg"; r.setAttribute("aria-hidden", "true");
   r.innerHTML = '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g class="liget-uni-hely"><g class="liget-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' +
@@ -19842,6 +20894,286 @@ function ligetUget(kart, indit) {
   uniUtvonal({ el: U.el, allit: ligetUniAllit, egyseg: function () { return 1; } },
     uniGorbePontok(uniSimaGorbe([[U.x, U.y], [(U.x + tx) / 2, (U.y + ty) / 2 + 24], [tx, ty]])), { ido: 1 },
     function () { if (U.fut !== tok) return; U.fut = null; setTimeout(function () { if (U.reteg.isConnected) indit(); }, 120); });
+}
+/* ============ 6j2) 🏪 PIACTÉR — a falu csírája a térképen + a kis falutérkép (Piactér 3. kör, 2026-10-23) ============
+   Terv: terv/eletszeru-100-as-palyak-terv.html 0. pont · rajz: terv/piacter-rajzterv.html 1–2. pont (✅ jóváhagyva 2026-10-23).
+   A NAGY TÉRKÉPEN: új hely („piac”) a Bájitalkonyha és a Tündérvásár között (az A hely, átmeneti: ha a szorzás-osztás is
+   beköltözik, a Piactér arrébb mehet). Rajzoltan, a térkép saját készletéből (hullámos fal, lt-firka, LT_DEFS), és látszóan
+   más, mint az Utca: a Piactér a tanulás helye, az Utca a költésé.
+   BELÜL: a kis falutérkép — patak + híd, ködös ösvény a dombra (☀️ Déli vásár, a Fejtörő-hegy körvonala), a tér közepén kút,
+   🏪 Tüske néni boltja (a pálya = a ház), üres telek („Hamarosan…”), az épülő Összeadó utca (🪜 Rokon-létra, 🏡 Számcsalád:
+   még épülnek), balra a 🎵 Dallam-tér helye („hamarosan”). Újoncnak a domb ködben, és csak a bolt világít.
+   A HÁZ ÁLLAPOTA (építés, nem értékelés; sosem romlik vissza — P().piac.haz[id] a legmagasabb elért lépés):
+     2 épül (még nem vitte végig) · 3 tető (végigvitte) · 4 ajtó + előtető (egy tiszta nap) · 5 kész: lámpa, cégtábla
+     (két tiszta nap) · 6 virágos (megy: tudas.js). A számok a tudás-naplóból jönnek, a gyerek számot nem lát. */
+
+/* ── a nagy térkép: hely, utak, jelkép ── */
+LIGET_TERKEP.helyek.piac = { szeles: [590, 314], allo: [338, 224], magas: 56, szel: 58 };
+LIGET_TERKEP.utak.szeles.push(["bajital", "piac", -12], ["piac", "vasar", 10]);
+LIGET_TERKEP.utak.allo.push(["vasar", "piac", 14]);   /* álló képen a Vásár fölött (ott van hely) */
+function pcF(n) { return (+n).toFixed(1); }
+/* kézzel hullámosított fal (ltFalHaz módján): szélesség ±sz, magasság m, talppont 0 */
+function pcFal(sz, m) {
+  return 'M' + pcF(-sz) + ' 1Q' + pcF(-sz + .8) + ' ' + pcF(-m / 2) + ' ' + pcF(-sz + .6) + ' ' + pcF(-m) + 'Q0 ' + pcF(-m - 2) + ' ' + pcF(sz - .6) + ' ' + pcF(-m) + 'Q' + pcF(sz + .8) + ' ' + pcF(-m / 2) + ' ' + pcF(sz) + ' 1Q0 3 ' + pcF(-sz) + ' 1Z';
+}
+/* csíkos, csipkés előtető: x0..x1, y felső él, mely: a csipke mélysége */
+function pcEloteto(x0, x1, y, mely, db) {
+  var w = (x1 - x0) / db, s = '', i;
+  var d = 'M' + pcF(x0 - 2) + ' ' + pcF(y + .8) + 'Q' + pcF((x0 + x1) / 2) + ' ' + pcF(y - 1.6) + ' ' + pcF(x1 + 2) + ' ' + pcF(y + .8) + 'L' + pcF(x1) + ' ' + pcF(y + mely * .6);
+  for (i = db; i > 0; i--) d += 'Q' + pcF(x0 + (i - .5) * w) + ' ' + pcF(y + mely * 1.5) + ' ' + pcF(x0 + (i - 1) * w) + ' ' + pcF(y + mely * .6);
+  s += '<path d="' + d + 'Z" fill="#f6a5c0" stroke="#b5607e" stroke-width="1.6" stroke-linejoin="round"/>';
+  for (i = 0; i < db; i += 2) s += '<path d="M' + pcF(x0 + i * w + w * .1) + ' ' + pcF(y + .4) + 'L' + pcF(x0 + (i + 1) * w - w * .1) + ' ' + pcF(y + .4) + 'L' + pcF(x0 + (i + 1) * w - w * .05) + ' ' + pcF(y + mely * .9) + 'Q' + pcF(x0 + (i + .5) * w) + ' ' + pcF(y + mely * 1.3) + ' ' + pcF(x0 + i * w + w * .05) + ' ' + pcF(y + mely * .9) + 'Z" fill="#fff8f2"/>';
+  return s;
+}
+LT_JELKEP.piac = function () {
+  var s = ltArnyek(50), i;
+  s += '<g transform="scale(1.02)">';
+  s += '<g filter="url(#lt-firka)"><path d="M-50 -1Q-48 -12 0 -12Q48 -12 50 -1Q48 10 0 10Q-48 10 -50 -1Z" fill="#efe0c4" stroke="#b59a7a" stroke-width="1.6"/></g>';
+  for (i = 0; i < 14; i++) { var a = i / 14 * Math.PI * 2; s += '<ellipse cx="' + pcF(Math.cos(a) * 34) + '" cy="' + pcF(-1 + Math.sin(a) * 6.5) + '" rx="4" ry="1.8" fill="#e2cfaa"/>'; }
+  /* az épülő ház (az Összeadó utca) a háttérben, állvánnyal */
+  s += '<g transform="translate(30 -8) scale(.62)" filter="url(#lt-firka)"><path d="' + pcFal(22, 26) + '" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2"/>' +
+       '<path d="M-24 -26L0 -48L24 -26" fill="none" stroke="#b08a68" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+       '<path d="M-30 2V-40M30 2V-40M-34 -20H34" stroke="#b08a68" stroke-width="2.6" stroke-linecap="round"/><path d="M-18 -8H18M-18 -16H18" stroke="#e3cfae" stroke-width="1.4"/></g>';
+  /* Tüske néni háza (kicsiben), a cégtáblán a sün */
+  s += '<g transform="translate(-22 -6)"><g filter="url(#lt-firka)">' +
+       '<rect x="10" y="-50" width="7" height="13" rx="1" fill="#c99a8a" stroke="#7a5a6e" stroke-width="1.3"/>' +
+       '<path d="' + pcFal(20, 30) + '" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="1.8"/>' +
+       '<path d="M-26 -27Q-12 -44 0 -52Q12 -44 26 -27Q0 -31 -26 -27Z" fill="url(#lt-gTetoR)" stroke="#b5607e" stroke-width="1.8" stroke-linejoin="round"/>' +
+       '<path d="M-6 -44Q2 -48 9 -44" stroke="#fff" stroke-width="2" opacity=".45" fill="none" stroke-linecap="round"/>' +
+       pcEloteto(-22, 22, -18, 6, 8) +
+       '<path d="M-16 4V-6Q-16 -9 -10 -9Q-4 -9 -4 -6V4Z" fill="url(#lt-gAblak)" stroke="#8a6a7e" stroke-width="1.2"/>' +
+       '<path d="M4 4V-5Q4 -10 9 -10Q14 -10 14 -5V4Z" fill="#c99272" stroke="#8a6a7e" stroke-width="1.2"/></g>' +
+       '<path d="M-20 -22H-27" stroke="#6e4a36" stroke-width="1.4"/><circle cx="-27" cy="-17" r="5" fill="#fbeede" stroke="#6d5446" stroke-width="1.2"/>' + lkTuskek(-27, -17, 4, 7, 160, 380, 7, "#a8988e", "#6d5446", 1) + '<circle cx="-27" cy="-16" r="3.4" fill="#ecd0ad"/><circle cx="-27" cy="-15" r=".9" fill="#4a3a3a"/></g>';
+  /* kút */
+  s += '<g transform="translate(12 -2)"><g filter="url(#lt-firka)"><ellipse cx="0" cy="0" rx="11" ry="3.6" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.4"/><path d="M-11 0V3Q0 7 11 3V0" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="1.2"/>' +
+       '<path d="M-1.5 0V-11H1.5V0Z" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="1"/></g><path d="M0 -12Q-6 -18 -8 -3M0 -12Q6 -18 8 -3" fill="none" stroke="#9ec9f0" stroke-width="1.6" stroke-linecap="round">' + ltAnim("opacity", ".5;1;.5", "1.4s") + '</path></g>';
+  /* zászlófüzér */
+  s += '<path d="M-48 -2V-40M48 -2V-40" stroke="#6e4a36" stroke-width="1.8" stroke-linecap="round"/><path d="M-48 -38Q0 -24 48 -38" fill="none" stroke="#6e4a36" stroke-width="1"/>';
+  var szin = ["#f6a5c0", "#fce49a", "#9ec9f0", "#a7d99a", "#c9a8e6"];
+  for (i = 0; i < 9; i++) { var x = -40 + i * 10, y = -38 + 14 * (1 - Math.pow((x / 48), 2)) * .9 + .5; s += '<path d="M' + pcF(x - 3.5) + ' ' + pcF(y) + 'L' + pcF(x + 3.5) + ' ' + pcF(y) + 'L' + pcF(x) + ' ' + pcF(y + 7) + 'Z" fill="' + szin[i % 5] + '"/>'; }
+  return s + '</g>';
+};
+
+/* ── a ház állapota (lépés 0–6) ── */
+var PIAC_HAZ_TETO = { bolt: ["url(#lt-gTetoR)", "#b5607e"], letra: ["url(#lt-gTetoT)", "#3f8a85"], csalad: ["url(#lt-gTetoM)", "#c9862a"] };
+function piacTar(p) { p = p || P(); if (!p.piac || typeof p.piac !== "object") p.piac = {}; if (!p.piac.haz || typeof p.piac.haz !== "object") p.piac.haz = {}; return p.piac; }
+function piacHazLepes(id) {
+  var pr = P().palyak[id], n = tudasNapok(id), l = 2;
+  if (pr && pr.kesz) l = 3;
+  if (n >= 1) l = 4;
+  if (n >= 2) l = 5;
+  if (tudasMegy(id)) l = 6;
+  var t = piacTar(), v = Math.max(l, t.haz[id] || 0);
+  if (v !== t.haz[id]) { t.haz[id] = v; ment(); }   /* sosem romlik vissza */
+  return v;
+}
+function pcAblakSzin(alszik, eg) { return alszik ? "#7d7896" : eg ? "url(#lt-gAblak)" : "#cfe2f2"; }
+function pcAblak(x, y, w, h, fill) {
+  return '<path d="M' + pcF(x) + ' ' + pcF(y + h) + 'Q' + pcF(x - .6) + ' ' + pcF(y + h / 2) + ' ' + pcF(x + .4) + ' ' + pcF(y + 3) + 'Q' + pcF(x + w / 2) + ' ' + pcF(y - 1.2) + ' ' + pcF(x + w - .4) + ' ' + pcF(y + 3) + 'Q' + pcF(x + w + .6) + ' ' + pcF(y + h / 2) + ' ' + pcF(x + w) + ' ' + pcF(y + h) + 'Q' + pcF(x + w / 2) + ' ' + pcF(y + h + 1.2) + ' ' + pcF(x) + ' ' + pcF(y + h) + 'Z" fill="' + fill + '" stroke="#8a6a7e" stroke-width="2"/>' +
+    '<path d="M' + pcF(x + w / 2) + ' ' + pcF(y + 1) + 'V' + pcF(y + h) + 'M' + pcF(x + 1) + ' ' + pcF(y + h * .52) + 'H' + pcF(x + w - 1) + '" stroke="#8a6a7e" stroke-width="1.3" opacity=".7"/>';
+}
+/* egy ház a térkép rajzkészletéből: tipus bolt / letra / csalad, lepes 0–6, alszik (újonc: sötét, csukott) */
+function piacHaz(tipus, lepes, alszik) {
+  var cs = lkCsokkent(), szel = tipus === "letra" ? 52 : 70, mag = tipus === "letra" ? 92 : 62, teto = PIAC_HAZ_TETO[tipus], tetoMag = tipus === "letra" ? 50 : 40;
+  var ar = "", kint = "", elol = "", y, i;   /* ar: a firka-szűrős épület · kint: füst, szereplők · elol: a szűrő fölött */
+  kint += '<ellipse cx="0" cy="3" rx="' + (szel + 14) + '" ry="9" fill="#3c2a50" opacity=".14"/>';
+  if (lepes >= 6 && !alszik) kint += '<ellipse cx="0" cy="-' + (mag / 2) + '" rx="' + (szel + 40) + '" ry="' + (mag + 20) + '" fill="url(#lt-gHalo)" opacity=".5"/>';
+  if (lepes >= 3) ar += '<path d="M' + pcF(szel * .42) + ' ' + pcF(-mag - tetoMag * .5) + 'Q' + pcF(szel * .42 - .6) + ' ' + pcF(-mag - tetoMag * .75) + ' ' + pcF(szel * .43) + ' ' + pcF(-mag - tetoMag * .95) + 'Q' + pcF(szel * .42 + 6) + ' ' + pcF(-mag - tetoMag * .98) + ' ' + pcF(szel * .42 + 12) + ' ' + pcF(-mag - tetoMag * .95) + 'Q' + pcF(szel * .42 + 12.6) + ' ' + pcF(-mag - tetoMag * .7) + ' ' + pcF(szel * .42 + 12) + ' ' + pcF(-mag - tetoMag * .3) + 'Z" fill="#c99a8a" stroke="#7a5a6e" stroke-width="1.8"/>';
+  var falMag = lepes >= 1 ? mag : mag * .45;
+  if (lepes >= 1) ar += '<path d="' + pcFal(szel, falMag) + '" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2.2" stroke-linejoin="round"/>';
+  else ar += '<path d="M' + (-szel) + ' 1Q' + pcF(-szel + .8) + ' ' + pcF(-falMag / 2) + ' ' + (-szel) + ' ' + pcF(-falMag) + 'L' + pcF(-szel / 3) + ' ' + pcF(-falMag - 6) + 'L' + pcF(szel / 4) + ' ' + pcF(-falMag + 4) + 'L' + szel + ' ' + pcF(-falMag - 3) + 'Q' + pcF(szel + .8) + ' ' + pcF(-falMag / 2) + ' ' + szel + ' 1Q0 3 ' + (-szel) + ' 1Z" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2.2" stroke-linejoin="round"/>';
+  if (lepes < 3) for (y = -10; y > -falMag + 2; y -= 10) ar += '<path d="M' + (-szel + 3) + ' ' + y + 'Q0 ' + (y - 1.5) + ' ' + (szel - 3) + ' ' + (y + .5) + '" stroke="#e3cfae" stroke-width="1.3" fill="none"/>';
+  if (lepes >= 3) {
+    var tx = szel + 10, ty = -mag + 2, csucs = -mag - tetoMag;
+    if (tipus === "csalad") {   /* mézsárga, csipkés alsó él (mint a Pékség) */
+      var d = 'M' + (-tx) + ' ' + ty + 'Q' + pcF(-tx * .9) + ' ' + pcF(csucs + 10) + ' 0 ' + csucs + 'Q' + pcF(tx * .9) + ' ' + pcF(csucs + 10) + ' ' + tx + ' ' + ty;
+      for (i = 6; i > 0; i--) d += 'Q' + pcF(-tx + (i - .5) * tx / 3) + ' ' + pcF(ty + 7) + ' ' + pcF(-tx + (i - 1) * tx / 3) + ' ' + ty;
+      ar += '<path d="' + d + 'Z" fill="' + teto[0] + '" stroke="' + teto[1] + '" stroke-width="2.2" stroke-linejoin="round"/>';
+    } else if (tipus === "letra") {   /* türkiz, magas, csúcsos */
+      ar += '<path d="M' + (-tx) + ' ' + ty + 'Q' + pcF(-tx * .5) + ' ' + pcF(csucs + 22) + ' 0 ' + csucs + 'Q' + pcF(tx * .5) + ' ' + pcF(csucs + 22) + ' ' + tx + ' ' + ty + 'Q0 ' + (ty - 5) + ' ' + (-tx) + ' ' + ty + 'Z" fill="' + teto[0] + '" stroke="' + teto[1] + '" stroke-width="2.2" stroke-linejoin="round"/>';
+    } else {   /* rózsaszín, ívelt (mint a Szabóműhely) */
+      ar += '<path d="M' + (-tx) + ' ' + ty + 'Q' + pcF(-tx * .42) + ' ' + pcF(csucs + 14) + ' 0 ' + csucs + 'Q' + pcF(tx * .42) + ' ' + pcF(csucs + 14) + ' ' + tx + ' ' + ty + 'Q0 ' + (ty - 6) + ' ' + (-tx) + ' ' + ty + 'Z" fill="' + teto[0] + '" stroke="' + teto[1] + '" stroke-width="2.2" stroke-linejoin="round"/>';
+    }
+    ar += '<path d="M' + pcF(-szel * .3) + ' ' + pcF(csucs + tetoMag * .45) + 'Q' + pcF(-szel * .12) + ' ' + pcF(csucs + tetoMag * .22) + ' ' + pcF(szel * .1) + ' ' + pcF(csucs + tetoMag * .2) + '" stroke="#fff" stroke-width="3" opacity=".45" fill="none" stroke-linecap="round"/>';
+    if (lepes >= 5 && !alszik && !cs) [0, 1.3].forEach(function (k) { var fx = szel * .42 + 6, fy = -mag - tetoMag; kint += '<circle cx="' + pcF(fx) + '" cy="' + pcF(fy) + '" r="5" fill="#fff" opacity="0">' + ltAnim("cy", pcF(fy) + ";" + pcF(fy - 32), "2.6s", ' begin="' + k + 's"') + ltAnim("r", "4;9", "2.6s", ' begin="' + k + 's"') + ltAnim("opacity", "0;.75;0", "2.6s", ' begin="' + k + 's"') + '</circle>'; });
+  } else if (lepes >= 2) {   /* tetőgerendák */
+    ar += '<path d="M' + (-szel - 6) + ' ' + (-mag) + 'Q' + pcF(-szel * .45) + ' ' + pcF(-mag - tetoMag * .62) + ' 0 ' + (-mag - tetoMag + 4) + 'Q' + pcF(szel * .45) + ' ' + pcF(-mag - tetoMag * .62) + ' ' + (szel + 6) + ' ' + (-mag) + 'M' + pcF(-szel / 2) + ' ' + pcF(-mag - tetoMag * .45) + 'Q0 ' + pcF(-mag - tetoMag * .5) + ' ' + pcF(szel / 2) + ' ' + pcF(-mag - tetoMag * .44) + '" fill="none" stroke="#b08a68" stroke-width="3" stroke-linecap="round"/>';
+  }
+  if (lepes < 3) ar += '<path d="M' + (-szel - 12) + ' 2Q' + (-szel - 13) + ' ' + pcF(-mag / 2) + ' ' + (-szel - 11) + ' ' + (-mag - 10) + 'M' + (szel + 12) + ' 2Q' + (szel + 13) + ' ' + pcF(-mag / 2) + ' ' + (szel + 11) + ' ' + (-mag - 10) + 'M' + (-szel - 16) + ' ' + pcF(-mag * .5) + 'Q0 ' + pcF(-mag * .5 - 2) + ' ' + (szel + 16) + ' ' + pcF(-mag * .5) + 'M' + (-szel - 12) + ' -4L' + (-szel + 12) + ' ' + pcF(-mag * .5) + '" stroke="#b08a68" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+    '<g transform="translate(' + (szel + 22) + ' 0)"><rect x="-10" y="-8" width="9" height="6" rx="1" fill="#e8a77a" stroke="#a5623a" stroke-width="1"/><rect x="0" y="-8" width="9" height="6" rx="1" fill="#e8a77a" stroke="#a5623a" stroke-width="1"/><rect x="-5" y="-14" width="9" height="6" rx="1" fill="#e8a77a" stroke="#a5623a" stroke-width="1"/></g>';
+  var ajtoKeret = function (x0, x1, h, fill) { var m = (x0 + x1) / 2; return '<path d="M' + x0 + ' 1.5V' + pcF(-h + 8) + 'Q' + x0 + ' ' + (-h) + ' ' + m + ' ' + (-h) + 'Q' + x1 + ' ' + (-h) + ' ' + x1 + ' ' + pcF(-h + 8) + 'V1.5Z" fill="' + fill + '" stroke="#8a6a7e" stroke-width="2"/>'; };
+  if (tipus === "bolt") {
+    if (lepes >= 2) ar += pcAblak(-50, -46, 42, 30, pcAblakSzin(alszik, lepes >= 5));
+    if (lepes >= 4 && !alszik) ar += '<path d="M-48 -20Q-29 -23 -10 -20V-17H-48Z" fill="#c99272" stroke="#8a5a3a" stroke-width="1.2"/><circle cx="-41" cy="-23" r="4" fill="#e8505b" stroke="#a83a44" stroke-width="1"/><circle cx="-32" cy="-23" r="4" fill="#a7d99a" stroke="#5f8e6a" stroke-width="1"/><path d="M-24 -19h9l-1.5 -7h-6z" fill="#f5b942" stroke="#a8741c" stroke-width="1"/>';
+    if (lepes >= 4) ar += pcEloteto(-56, -2, -54, 7, 8);
+    if (lepes >= 4) {
+      ar += ajtoKeret(8, 36, 42, alszik ? "#c99272" : "#6e4a6e");
+      if (!alszik) elol += '<path class="pc-ajto" d="M8 1.5V-34Q8 -42 15 -42V5Z" fill="#c99272" stroke="#8a6a7e" stroke-width="1.6"/>';
+      else ar += '<circle cx="31" cy="-16" r="2" fill="#6e4a36"/>';
+    } else ar += '<path d="M8 1.5V-34H36V1.5Z" fill="#4a3b5a" opacity=".45"/>';
+    if (lepes >= 5) kint += '<g transform="translate(' + (-szel - 4) + ' -60)"><path d="M0 -4H-14" stroke="#6e4a36" stroke-width="2"/><path d="M-14 -4V2" stroke="#6e4a36" stroke-width="1.4"/><g transform="translate(-30 2) scale(.32)">' + fgFej(FIG_RAJZ.tuske, "vidam") + '</g></g>';
+    if (lepes >= 6) {
+      ar += '<g transform="translate(-29 -12)"><path d="M-22 0Q0 -1.5 22 0L21 8Q0 9 -21 8Z" fill="#c99272" stroke="#8a5a3a" stroke-width="1.4"/></g>';
+      elol += '<g transform="translate(-29 -12)">' + [-15, -5, 5, 15].map(function (x, i) { return ltRozsa(x, -2, 4.2, ["#f2708f", "#fce49a", "#c9a8e6", "#f6a5c0"][i]); }).join("") + '</g>';
+      kint += '<g transform="translate(46 -6) scale(.36)"><g transform="translate(-60 -150)">' + fgAlak(FIG_RAJZ.tuske, "ujjong") + '</g></g>';
+    }
+  } else if (tipus === "letra") {
+    if (lepes >= 2) ar += pcAblak(-14, -84, 28, 22, pcAblakSzin(alszik, lepes >= 5)) + pcAblak(-14, -54, 28, 22, pcAblakSzin(alszik, lepes >= 5));
+    ar += '<path d="M' + (szel + 4) + ' 2Q' + (szel - 1) + ' ' + pcF(-mag / 2) + ' ' + (szel - 6) + ' ' + (-mag - 6) + 'M' + (szel + 16) + ' 2Q' + (szel + 11) + ' ' + pcF(-mag / 2) + ' ' + (szel + 6) + ' ' + (-mag - 6) + '" stroke="#b08a68" stroke-width="3" stroke-linecap="round" fill="none"/>';
+    for (var r = 0; r < 7; r++) { var yy = -6 - r * 14; ar += '<path d="M' + pcF(szel + 4 - r * 1.4) + ' ' + yy + 'H' + pcF(szel + 16 - r * 1.4) + '" stroke="#b08a68" stroke-width="2.4" stroke-linecap="round"/>'; }
+    ar += ajtoKeret(-10, 10, 28, alszik ? "#c99272" : "#9a7bc0");
+  } else {
+    if (lepes >= 2) [[-44, -50], [-12, -50], [-44, -24], [-12, -24]].forEach(function (p, i) { ar += pcAblak(p[0], p[1], 24, 18, pcAblakSzin(alszik, lepes >= 5 || i < lepes - 1)); });
+    ar += ajtoKeret(20, 48, 38, alszik ? "#c99272" : "#7fb2e8");
+    elol += '<g transform="translate(-18 8)">' + [["8", -14], ["5", 0], ["13", 15]].map(function (k) { return '<g transform="translate(' + k[1] + ' 0)"><ellipse rx="7" ry="5" fill="#d9cbe6" stroke="#7a5ea8" stroke-width="1.2"/><text y="3" text-anchor="middle" font-size="7" font-family="Fredoka" font-weight="600" fill="#4a3b7a">' + k[0] + '</text></g>'; }).join("") + '</g>';
+  }
+  return '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + kint + '<g filter="url(#lt-firka)">' + ar + '</g>' + elol + '</g>';
+}
+
+/* ── a kis falutérkép ── */
+var PIAC_HAZAK = {
+  dallam: { x: 92, y: 266, nev: "Dallam-tér" },
+  telek:  { x: 548, y: 262 },
+  csalad: { x: 740, y: 230, nev: "Számcsalád", tipus: "csalad", k: .6 },
+  letra:  { x: 672, y: 272, nev: "Rokon-létra", tipus: "letra", k: .62 },
+  bolt:   { x: 258, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt" }
+};
+var PIAC = null;   /* a kirakott falutérkép: { svg, uni: { hely, el, x, y }, fut } */
+function pcKod(x, y, rx, ry, kesl) {
+  return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + ry + '" fill="url(#lt-gNyKod)">' + (lkCsokkent() ? '' : ltAnim("opacity", ".75;1;.75", (5 + kesl) + "s") + '<animateTransform attributeName="transform" type="translate" values="0 0;' + (8 + kesl * 2) + ' 0;0 0" dur="' + (11 + kesl * 3) + 's" repeatCount="indefinite"/>') + '</ellipse>';
+}
+function pcCimke(x, y, t, kiemel) {
+  var w = t.length * 6.6 + 16;
+  return '<g transform="translate(' + x + ' ' + (y + 22) + ')"><rect x="' + (-w / 2) + '" y="-9" width="' + w + '" height="17" rx="8.5" fill="' + (kiemel ? "#e0417a" : "#fffaf2") + '" stroke="' + (kiemel ? "#b02d60" : "#c9b6dc") + '" stroke-width="1.2" opacity=".95"/>' +
+    '<text y="3.6" text-anchor="middle" font-size="11" font-family="Fredoka,sans-serif" font-weight="600" fill="' + (kiemel ? "#fff" : "#4a3b7a") + '">' + t + '</text></g>';
+}
+function pcHatter(uj) {
+  var cs = lkCsokkent(), s = "";
+  s += '<rect width="800" height="460" fill="url(#lt-gEgA)"/><circle cx="70" cy="50" r="56" fill="url(#lt-gNap)"/><circle cx="70" cy="50" r="21" fill="#fff4c2"/>';
+  s += '<g opacity=".85" transform="translate(0 16)"><path d="M520 120Q580 92 620 64Q648 42 676 18Q694 34 708 50Q722 40 734 52Q770 84 800 100V140H520Z" fill="url(#lt-gHegy)" stroke="#6f5a9e" stroke-width="2" stroke-linejoin="round" filter="url(#lt-firka)"/>' +
+       '<path d="M660 34Q668 26 676 18Q686 28 694 38Q688 42 684 38Q678 46 672 38Q666 42 660 34Z" fill="#fff" stroke="#c9bde6" stroke-width="1.2"/>' +
+       '<path d="M676 18V-2" stroke="#6e4a36" stroke-width="2"/><path d="M676 -2Q686 -4 694 1Q686 5 676 6Z" fill="#f6a5c0" stroke="#b5607e" stroke-width="1">' + (cs ? '' : ltAnim("d", "M676 -2Q686 -4 694 1Q686 5 676 6Z;M676 -2Q686 1 694 -1Q686 7 676 6Z;M676 -2Q686 -4 694 1Q686 5 676 6Z", "1.4s")) + '</path></g>';
+  s += '<path d="M0 132Q70 96 150 112Q230 70 330 100Q420 78 500 108Q600 92 680 118Q740 104 800 116V460H0Z" fill="#d6cdee"/>';
+  s += '<path d="M0 160Q90 122 190 142Q262 104 340 120Q410 132 470 146Q560 120 650 150Q730 134 800 148V460H0Z" fill="#c4e6bc" stroke="#9fcf98" stroke-width="1.6"/>';
+  s += '<path d="M220 150Q300 116 380 136" fill="none" stroke="#e3f4dc" stroke-width="3" opacity=".7" stroke-linecap="round"/>';
+  /* a Déli vásár a domb tetején (napos sátor) */
+  s += '<g transform="translate(330 120)">' + (uj ? '' : '<ellipse cx="0" cy="-16" rx="36" ry="30" fill="url(#lt-gHalo)"/>') + '<g transform="scale(.52)">' + LT_JELKEP.vasar() + '</g>' +
+       '<g transform="translate(16 -44)"><circle r="6" fill="#ffe08a" stroke="#d1a23a" stroke-width="1.2"/>' + [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { return '<path d="M0 -8.5V-11" stroke="#d1a23a" stroke-width="1.4" stroke-linecap="round" transform="rotate(' + a + ')"/>'; }).join("") + '</g></g>';
+  s += '<path d="M444 196Q420 182 404 172Q380 160 396 150Q414 140 384 134Q356 130 346 124M400 152Q440 142 470 136Q520 126 560 112Q600 100 630 84" fill="none" stroke="#f3e2c2" stroke-width="3.6" stroke-linecap="round" stroke-dasharray="1 6"/>';
+  s += pcKod(520, 122, 70, 20, 0) + pcKod(620, 92, 60, 18, 2) + pcKod(150, 128, 80, 18, 1) + pcKod(440, 104, 54, 14, 3);
+  if (uj) s += pcKod(330, 112, 70, 34, 1) + pcKod(380, 150, 60, 18, 2);
+  /* patak a falu és a dombság között, rajta a híd */
+  s += '<path d="M0 196Q120 184 240 194T470 190T680 184T800 178V196Q690 202 580 200T360 206T140 208T0 212Z" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.6"/>';
+  s += '<path d="M60 202h22M190 199h16M300 202h20M560 194h18M700 190h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".8">' + (cs ? '' : ltAnim("opacity", ".3;.9;.3", "2.6s")) + '</path>';
+  s += '<path d="M0 210Q140 202 300 210T560 204T800 196V460H0Z" fill="url(#lt-gRetA)"/>';
+  s += '<g transform="translate(444 196)" filter="url(#lt-firka)"><path d="M-30 8Q0 -14 30 8" fill="none" stroke="#b08a68" stroke-width="7" stroke-linecap="round"/><path d="M-30 8Q0 -14 30 8" fill="none" stroke="#e9c193" stroke-width="3.6" stroke-linecap="round"/>' +
+       '<path d="M-24 2V-10M-8 -4V-16M8 -4V-16M24 2V-10" stroke="#8a6a52" stroke-width="2.2" stroke-linecap="round"/><path d="M-26 -8Q0 -24 26 -8" fill="none" stroke="#8a6a52" stroke-width="2"/></g>';
+  s += '<g transform="translate(374 236)"><path d="M0 4V-26" stroke="#8a6a52" stroke-width="3"/><path d="M-4 -34H44L52 -27L44 -20H-4Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="1.8"/><text x="24" y="-23.5" text-anchor="middle" font-size="9.5" font-family="Fredoka" font-weight="600" fill="#6e4a36">100 fölött ↑</text></g>';
+  s += ltKisfa(22, 236, 1.3, "#a8dc9c", "#5f9e6a") + ltKisfa(784, 300, 1.4, "#a8dc9c", "#5f9e6a") + ltKisfa(360, 232, 1, "#c7ecb8", "#5f9e6a") + ltBokor(170, 240, 1.2, "#a8dc9c", "#5f9e6a") + ltBokor(620, 226, 1, "#c7ecb8", "#5f9e6a") + ltBokor(740, 420, 1.4, "#a8dc9c", "#5f9e6a");
+  if (!cs) s += ltFelho(80, 60, 1.2, 70, 10, "#fff", 800) + ltFelho(400, 40, .9, 90, 50, "#fdfdfd", 800) + ltLepke(140, 380, 9, "#f6a5c0");
+  return s;
+}
+function pcDallam(alszik) {
+  var s = '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '><g filter="url(#lt-firka)"><path d="M-64 0Q-62 -14 0 -16Q62 -14 64 0Q62 14 0 16Q-62 14 -64 0Z" fill="#e8dcc0" stroke="#c9ad85" stroke-width="2"/>';
+  [-56, -40, -22, 22, 40, 56].forEach(function (x) { var y = -Math.sqrt(Math.max(0, 1 - x * x / 4200)) * 13; s += '<path d="M' + x + ' ' + pcF(y + 4) + 'V' + pcF(y - 14) + '" stroke="#c9a77a" stroke-width="3.4" stroke-linecap="round"/>'; });
+  s += '<path d="M-58 -10Q-40 -24 -20 -24M20 -24Q40 -24 58 -10" fill="none" stroke="#c9a77a" stroke-width="2.2"/>';
+  s += '<path d="M0 6V-30M-8 6L0 -6L8 6" stroke="#8a6a52" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M-16 -50L16 -50L14 -30L-14 -30Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="1.8"/></g>';
+  s += '<path d="M-11 -44H11M-11 -40H11M-11 -36H11" stroke="#c9b6dc" stroke-width=".8"/><circle cx="-5" cy="-37" r="2" fill="#7a5ea8"/><path d="M-3 -37V-46" stroke="#7a5ea8" stroke-width="1.2"/><circle cx="5" cy="-41" r="2" fill="#7a5ea8"/><path d="M7 -41V-49" stroke="#7a5ea8" stroke-width="1.2"/>';
+  if (!alszik && !lkCsokkent()) s += '<text x="22" y="-46" font-size="14" fill="#c9a8e6">♪' + ltAnim("y", "-46;-60;-46", "3s") + ltAnim("opacity", ".2;1;.2", "3s") + '</text><text x="-30" y="-40" font-size="12" fill="#f6a5c0">♫' + ltAnim("y", "-40;-56;-40", "3.6s") + ltAnim("opacity", "1;.2;1", "3.6s") + '</text>';
+  s += '<rect x="-34" y="-74" width="68" height="16" rx="4" fill="#fce49a" stroke="#d1a23a" stroke-width="1.2" transform="rotate(-4)"/><text x="0" y="-62.5" text-anchor="middle" font-size="9" font-family="Fredoka" font-weight="600" fill="#8a5a1a" transform="rotate(-4)">hamarosan</text></g>';
+  return s;
+}
+function pcGalamb(x, y) {
+  return '<g transform="translate(' + x + ' ' + y + ')"><g>' + (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="rotate" values="0 0 0;0 0 0;24 4 0;0 0 0;0 0 0" dur="' + (1.6 + x / 30) + 's" repeatCount="indefinite"/>') +
+    '<ellipse cx="0" cy="-5" rx="8" ry="5" fill="#d9d4e6" stroke="#8d93a5" stroke-width="1.2"/><circle cx="7" cy="-9" r="3.4" fill="#d9d4e6" stroke="#8d93a5" stroke-width="1.2"/><path d="M10 -9l3 1l-3 1z" fill="#f5a54a"/><circle cx="7.8" cy="-9.6" r=".8" fill="#2a2140"/></g>' +
+    '<path d="M-2 0v3M2 0v3" stroke="#f2708f" stroke-width="1.2"/></g>';
+}
+/* a Piactér belseje (ui.js renderFomenu hívja a liget helyett); lista = a liget pályái (fomenuLigetek) */
+function piacTer(lista) {
+  var host = el("div", "piac-ter uni-terep"), cs = lkCsokkent();
+  var bolt = (lista.filter(function (r) { return r.pa.id === PIAC_HAZAK.bolt.palya; })[0] || {}).pa;
+  var m = typeof nyitasMenet === "function" ? nyitasMenet() : null, uj = !!m, H = PIAC_HAZAK, i;
+  var s = '<svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' + LT_DEFS +
+    '<defs><filter id="pc-alszik"><feColorMatrix type="saturate" values=".35"/></filter></defs>' + pcHatter(uj);
+  /* utak: ki a nagy térképre (bal-lent), az épülő utca (jobbra fel), a híd (hátra), a Dallam-tér felé */
+  s += '<g filter="url(#lt-firka)"><path d="M390 380 Q240 430 40 452" fill="none" stroke="#efe0c4" stroke-width="22" stroke-linecap="round"/>' +
+       '<path d="M600 330 Q660 296 700 270 T770 236" fill="none" stroke="#efe0c4" stroke-width="16" stroke-linecap="round"/>' +
+       '<path d="M440 290 Q436 250 444 212" fill="none" stroke="#efe0c4" stroke-width="14" stroke-linecap="round"/>' +
+       '<path d="M260 330 Q190 300 120 278" fill="none" stroke="#efe0c4" stroke-width="12" stroke-linecap="round"/></g>';
+  s += '<g filter="url(#lt-firka)"><ellipse cx="440" cy="342" rx="232" ry="60" fill="#efe0c4" stroke="#c9ad85" stroke-width="2.4"/></g>';
+  var r = ltVeletlen(11);
+  for (i = 0; i < 70; i++) { var a = r() * Math.PI * 2, d = Math.sqrt(r()), x = 440 + Math.cos(a) * d * 217, y = 342 + Math.sin(a) * d * 54; s += '<ellipse cx="' + pcF(x) + '" cy="' + pcF(y) + '" rx="' + pcF(5 + r() * 4) + '" ry="' + pcF(2.2 + r() * 1.4) + '" fill="#e2cfaa"/>'; }
+  s += '<path d="M352 300Q351 260 353 214M620 296Q621 256 619 210" stroke="#6e4a36" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M353 218Q486 268 619 214" fill="none" stroke="#6e4a36" stroke-width="1.4"/>';
+  var szin = ["#f6a5c0", "#fce49a", "#9ec9f0", "#a7d99a", "#c9a8e6"];
+  for (i = 0; i < 14; i++) { var t = (i + .5) / 14, bx = (1 - t) * (1 - t) * 353 + 2 * (1 - t) * t * 486 + t * t * 619, by = (1 - t) * (1 - t) * 218 + 2 * (1 - t) * t * 268 + t * t * 214; s += '<path d="M' + pcF(bx - 7) + ' ' + pcF(by) + 'L' + pcF(bx + 7) + ' ' + pcF(by) + 'L' + pcF(bx) + ' ' + pcF(by + 13) + 'Z" fill="' + szin[i % 5] + '"/>'; }
+  s += '<g class="pc-hely" data-id="dallam" transform="translate(' + H.dallam.x + ' ' + H.dallam.y + ')"><rect x="-66" y="-80" width="132" height="100" fill="transparent"/>' + pcDallam(uj) + '</g>';
+  s += '<g class="pc-hely" data-id="telek" transform="translate(' + H.telek.x + ' ' + H.telek.y + ')"><ellipse cx="0" cy="0" rx="58" ry="11" fill="#b9e3a8"/><g filter="url(#lt-firka)">' + [-50, -33, -16, 0, 16, 33, 50].map(function (x) { return '<path d="M' + x + ' 4V-16" stroke="#c9a77a" stroke-width="4" stroke-linecap="round"/>'; }).join("") +
+       '<path d="M-52 -10Q0 -12 52 -9M-52 -2Q0 -4 52 -1" stroke="#c9a77a" stroke-width="2.6" fill="none"/><path d="M-6 -2V-40" stroke="#8a6a52" stroke-width="3"/><rect x="-34" y="-62" width="56" height="24" rx="4" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/></g>' +
+       '<text x="-6" y="-46" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="600" fill="#6e4a36">Hamarosan…</text>' +
+       '<g><circle cx="30" cy="-20" r="5" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1.2"/><circle cx="34" cy="-24" r="3.4" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1.2"/><path d="M37 -24l3 1l-3 1z" fill="#f5a54a"/><circle cx="34.6" cy="-25" r=".9" fill="#2a2140"/>' + (cs ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -5;0 0;0 0" dur="2.4s" repeatCount="indefinite"/>') + '</g></g>';
+  s += '<g transform="translate(440 338)"><g filter="url(#lt-firka)"><ellipse rx="40" ry="11" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="2"/><path d="M-40 0V10Q0 24 40 10V0" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="2"/>' +
+       '<path d="M-5 0V-36H5V0Z" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="1.8"/><ellipse cx="0" cy="-36" rx="14" ry="4" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.6"/></g>' +
+       '<path d="M0 -40Q-16 -58 -26 -4M0 -40Q16 -58 26 -4M0 -40Q-6 -60 -12 -4M0 -40Q6 -60 12 -4" fill="none" stroke="#9ec9f0" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="5 4">' + (cs ? '' : '<animate attributeName="stroke-dashoffset" values="0;-18" dur=".9s" repeatCount="indefinite"/>') + '</path></g>';
+  s += '<g transform="translate(600 352)"><path d="M0 4V-40" stroke="#8a6a52" stroke-width="3.4"/><path d="M-4 -44H66L76 -36L66 -28H-4Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/><text x="34" y="-32" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="600" fill="#6e4a36">Összeadó utca</text>' +
+       '<rect x="4" y="-24" width="44" height="13" rx="3" fill="#fce49a" stroke="#d1a23a" stroke-width="1.4" transform="rotate(-6 26 -18)"/><text x="26" y="-14.5" text-anchor="middle" font-size="9" font-family="Fredoka" font-weight="600" fill="#8a5a1a" transform="rotate(-6 26 -18)">épül!</text></g>';
+  s += '<g class="pc-hely" data-id="terkep" transform="translate(78 440)"><rect x="-76" y="-46" width="84" height="54" fill="transparent"/><path d="M0 4V-34" stroke="#8a6a52" stroke-width="3.4"/><path d="M4 -40H-62L-72 -32L-62 -24H4Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/><text x="-32" y="-28" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="600" fill="#6e4a36">Térkép</text></g>';
+  /* házak hátulról előre; a bolt állapota a gyerek haladásából, a két épülő ház egyelőre épül */
+  var boltLepes = bolt ? piacHazLepes(bolt.id) : 2, boltAlszik = !!bolt && palyaZarva(bolt) && nyitasPalyaAlszik(bolt), vil = !!bolt && !boltAlszik && nyitasPalyaVilagit(bolt);
+  ["csalad", "letra", "bolt"].forEach(function (id) {
+    var h = H[id], alszik = id === "bolt" ? boltAlszik : uj, belso = piacHaz(h.tipus, id === "bolt" ? boltLepes : (uj ? 3 : 4), alszik);
+    s += '<g class="pc-hely pc-haz" data-id="' + id + '" transform="translate(' + h.x + ' ' + h.y + ') scale(' + (h.k || 1) + ')"><g class="pc-rezeg">' +
+      (vil && id === "bolt" ? '<ellipse cx="0" cy="-40" rx="110" ry="90" fill="url(#lt-gNyHalo)">' + (cs ? '' : ltAnim("opacity", ".55;1;.55", "2.4s")) + '</ellipse>' : '') +
+      '<rect x="-86" y="-120" width="172" height="140" fill="transparent"/>' + belso + '</g></g>';
+  });
+  s += '<g transform="translate(330 384)">' + pcGalamb(0, 0) + pcGalamb(22, 6) + '</g><g transform="translate(540 388)">' + pcGalamb(0, 0) + '</g>';
+  ["dallam", "csalad", "letra", "bolt"].forEach(function (id) { var h = H[id]; s += pcCimke(h.x, h.y + (id === "dallam" ? 14 : 0), h.nev, false); });
+  s += '<g transform="translate(330 120)">' + pcCimke(0, -2, "☀️ Déli vásár", false).replace('opacity=".95"', 'opacity="' + (uj ? .55 : .95) + '"') + '</g>';
+  /* a bolt jelei a cégtábla fölött: ⭐ végigvitte · 💧 a mai kiemelt · 💖 ajánlott (mint a kártyákon) */
+  if (bolt) {
+    var pr = P().palyak[bolt.id], jel = [];
+    if (bolt.id === napiKiemeltId() && !napiKiemeltTeljesitve()) jel.push(nyitasHarmatRejtett() ? "⭐" : "💧");
+    if (palyaAjanlott(bolt)) jel.push("💖");
+    var all = boltAlszik ? "💤" : palyaZarva(bolt) ? "🔒" : palyaElfogyott(bolt) ? "🌙" : pr && pr.arany ? "🌟" : pr && pr.kesz ? "⭐" : "";
+    if (all) jel.unshift(all);
+    if (jel.length) s += '<g transform="translate(' + (H.bolt.x - 4) + ' ' + (H.bolt.y - 150) + ')" pointer-events="none"><rect x="' + (-jel.length * 14 - 4) + '" y="-15" width="' + (jel.length * 28 + 8) + '" height="28" rx="14" fill="#fffaf0" stroke="#e6d8f0" stroke-width="1.4" opacity=".95"/><text y="6" text-anchor="middle" font-size="17">' + jel.join(" ") + '</text></g>';
+  }
+  s += '<g class="pc-uni" pointer-events="none"><g class="pc-uni-irany" style="--dir:-1;transform:scale(var(--dir,1),1)">' + unikornisSVG("pc-uni", LENYEK[mentes.leny], .42, P().oltozet) + '</g></g>';
+  host.innerHTML = s + '</svg>';
+  var svg = host.querySelector("svg");
+  PIAC = { svg: svg, hely: svg.querySelector(".pc-uni"), el: svg.querySelector(".pc-uni-irany"), x: 440, y: 404, fut: null, bolt: bolt };
+  uniNezoAdat(PIAC.el, { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });
+  pcUniAllit(440, 404);
+  svg.addEventListener("click", function (e) { var g = e.target.closest(".pc-hely"); if (g) piacKoppint(g.getAttribute("data-id"), g); });
+  if (vil && !lkCsokkent()) setTimeout(function () { if (PIAC && PIAC.svg === svg && svg.isConnected && !PIAC.fut) mondd("Gyere, Tüske néni vár a boltban!"); }, 700);
+  return host;
+}
+function pcUniAllit(x, y) { PIAC.x = x; PIAC.y = y; PIAC.hely.setAttribute("transform", "translate(" + pcF(x) + " " + pcF(y) + ")"); }
+function pcRezeg(g) {
+  var rz = g && g.querySelector(".pc-rezeg"); if (!rz || !rz.animate || lkCsokkent()) return;
+  rz.animate([{ transform: "translateX(0)" }, { transform: "translateX(4px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(0)" }], { duration: 260, iterations: 2 });
+}
+function piacKoppint(id, g) {
+  if (!PIAC || !PIAC.svg.isConnected) return;
+  hangGomb();
+  if (id === "terkep") { FOMENU_LIGET = null; renderFomenu(); fomenuFelulre(); return; }
+  if (id === "dallam") { mondd("Itt lesz a Dallam-tér. Hamarosan megépül!"); return; }
+  if (id === "telek") { mondd("Ide is épül majd valami. Hamarosan!"); return; }
+  if (id === "letra" || id === "csalad") { pcRezeg(g); mondd("Ez a ház még épül. Hamarosan kinyílik!"); return; }
+  var pa = PIAC.bolt; if (!pa) return;
+  if (palyaZarva(pa)) { pcRezeg(g); mondd(nyitasPalyaAlszik(pa) ? NYITAS_MONDAT.palyaAlszik : zarvaMondat()); return; }
+  if (palyaElfogyott(pa)) { mondd(elfogyottMondat()); return; }
+  if (PIAC.fut) { PIAC.fut = null; uniUtvonalAll(PIAC.el); palyaInditas(pa.id); return; }   /* második koppintás: azonnal indul */
+  var cel = [PIAC_HAZAK.bolt.x + 100, PIAC_HAZAK.bolt.y + 24], tok = PIAC.fut = {};
+  mondd("Tüske néni boltja!");
+  uniUtvonal({ el: PIAC.el, allit: pcUniAllit, egyseg: function () { var m = PIAC.svg.getScreenCTM && PIAC.svg.getScreenCTM(); return m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1; } },
+    uniGorbePontok(uniSimaGorbe([[PIAC.x, PIAC.y], [(PIAC.x + cel[0]) / 2, (PIAC.y + cel[1]) / 2 + 14], cel])), { ido: 1.2 },
+    function () {
+      if (PIAC.fut !== tok) return;
+      PIAC.fut = null;
+      var ajto = PIAC.svg.querySelector('[data-id="bolt"] .pc-ajto');
+      if (ajto && ajto.animate && !lkCsokkent()) ajto.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(.2)" }], { duration: 450, fill: "forwards" });
+      setTimeout(function () { if ($("kepernyo-fomenu").classList.contains("aktiv") && FOMENU_LIGET === "piac") palyaInditas(pa.id); }, lkCsokkent() ? 0 : 480);
+    });
 }
 /* ============ 6m) 📅 HETI KÁRTYA — 4 pecsét = teljes hét (visszahívás 5. kör, 2026-10-07) ============
    Terv: terv/visszahivas-rendszerterv.html (4. elem) + terv/visszahivas-rajzterv.html (B rész, „Heti kártya”, jóváhagyva).
@@ -20433,7 +21765,8 @@ function mutat(id) {
    után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
 var FOMENU_LIGET = null;
 var LIGET_NEV = { egyeni: ["💖", "Neked készült"], fejtoro: ["🏔️", "Fejtörő-hegy"], osszeado: ["🌳", "Összeadó liget"], szorzo: ["🌙", "Szorzós liget"],
-                  szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"] };
+                  szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"],
+                  piac: ["🏪", "Piactér"] };   /* a falu csírája (piac.js) */
 function palyaLiget(pa) { return pa.egyeni ? "egyeni" : (pa.regio || "osszeado"); }
 function ligetJegyez(r) {
   FOMENU_LIGET = r; TERKEP_HOL = { leny: mentes.leny, id: r };   /* a térképen is itt áll majd */
@@ -20670,6 +22003,11 @@ function renderFomenu() {
       szek.appendChild(bktTerem());
       racs.appendChild(szek);
       setTimeout(ligetUniAlap, 0);                   /* az unikornis az olvasópult mellé áll (terkep.js) */
+      return;
+    }
+    if (regio === "piac") {                        /* 🏪 a kis falutérkép: a bolt háza = a pálya, az unikornis odasétál (piac.js) */
+      szek.appendChild(piacTer(regiok.piac));
+      racs.appendChild(szek);
       return;
     }
     var grid = el("div", "palya-regio-grid");
@@ -21508,6 +22846,7 @@ function palyaInditas(id) {
     for (k in a) o[k] = a[k]; return o;
   });
   allomasok = nehezsegAlkalmaz(pa, allomasok);     /* producer nehézség-állítása (config.js) */
+  if (pa.piac) allomasok = bkAllomasok(allomasok);  /* 🏪 újoncnak a róka blokkja az Erdő mélye után ébred (bolt-kep.js) */
   /* ── sorozat erre a futásra (7.2): a ✨-szorzó megszűnt; a sorozat már csak a tündérharmat +1-hez számít ── */
   var s = P().sorozat || (P().sorozat = { hossz: 0, utolsoPalya: null });
   if (id === s.utolsoPalya) { s.hossz = 0; s.utolsoPalya = null; }   /* farmolás-védelem: ugyanaz a pálya nem viszi tovább */
@@ -21519,6 +22858,7 @@ function palyaInditas(id) {
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
+  $("kepernyo-jatek").classList.toggle("bk-mod", !!pa.piac);   /* 🏪 Tüske néni boltja: a bolt képe a buborékban (bolt-kep.js) */
   opMod(!!pa.szerszam || !!pa.polc);               /* 🧰 szerszám-létra + 📚 olvasó-polc: olvasópult-mód (szerszam-palya.js) */
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
@@ -21526,7 +22866,7 @@ function palyaInditas(id) {
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : pa.vasar ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
+    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
   osvenyIndul();                                    /* az unikornis a Rajtnál (osveny.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
@@ -21582,6 +22922,7 @@ function feladatMutat(f) {
   if (!f.ek && $("ek-fuzet")) $("ek-fuzet").hidden = true;   /* 📓 a régi könyvtári pálya füzete ne maradjon a következő pálya kérdésén (2026-10-10) */
   tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
+  bkRejt();                                  /* 🏪 a bolt képe is (bolt-kep.js) */
   dobogoRejt();                              /* 🏆 a dobogó is (dobogo.js) */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
@@ -21619,6 +22960,7 @@ function feladatMutat(f) {
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
     if (f.polc) { figyelStop(); polcMutat(f); return; }                                         /* 📚 olvasó-polc: olvasópult + beírás / kártyák (olvaso-polc.js) */
+    if (f.bolt) { figyelStop(); bkMutat(f); mondd(f.felolvas); return; }                       /* 🏪 Tüske néni boltja: érmék, szalag, pecsét a képen (bolt-kep.js) */
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();
@@ -31475,6 +32817,10 @@ window.UC = {
   ROKA_HIBA: ROKA_HIBA, rokaBlokk: rokaBlokk, rokaSor: rokaSor, rokaPecsetEll: rokaPecsetEll, rokaJegyez: rokaJegyez, kerekTizes: kerekTizes,
   rokonLetra: rokonLetra, rokonSegit: rokonSegit, szamCsalad: szamCsalad, csaladokSzama: csaladokSzama, csaladAblakEll: csaladAblakEll, varazsGep: varazsGep,
   HE_SZIN: HE_SZIN, heHely: heHely,
+  /* 🏪 Piactér 3. kör: a bolt képe, a Piactér, a lakók (a gépi próba és a böngészős teszt ezekkel hajt) */
+  bk: function () { return BK; }, bkKatt: bkKatt, bkGombKatt: bkGombKatt, bkTarca: bkTarca, bkAllomasok: bkAllomasok, piacTer: piacTer, piacHazLepes: piacHazLepes,
+  piac: function () { return PIAC; }, piacKoppint: piacKoppint, Lako: Lako, LAKOK: function () { return LAKOK; }, uniPult: uniPult, szarvVarazs: szarvVarazs, tallerBelso: tallerBelso,
+  NYITAS_PALYA_UTAN: NYITAS_PALYA_UTAN,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

@@ -318,6 +318,23 @@ PALYAK.push(
   /* 🌇 Alkonyi vásár (5. o.) · 🏮 Lámpás vásár (6. o.) — a producer döntéséig NINCS itt (a tervük: tunderevasar-tartalom.html 5–6. o.) */
 );
 
+/* ══ 🏪 PIACTÉR — Tüske néni boltja (src/bolt.js + src/bolt-kep.js, a hely: src/piac.js) — terv/eletszeru-100-as-palyak-terv.html 3. pont ══
+   A falu csírája: a bolt a Piactér első háza (a Piactér a térképen a Bájitalkonyha és a Vásár között, átmenetileg).
+   Rajt → 🪙 Fizesd ki! → 💰 Visszajáró → 🦊 A róka blokkja → Odú-küszöb (vegyesen) — állomásonként 4 = 16 feladat.
+   A bolt = + −, a Vásár = × : (a határ a tervlapon). Az ösvény képe a vásártér (vasarJelenetSVG), saját sátor-színekkel. */
+PALYAK.push({
+  id: "tuske-bolt", nev: "Tüske néni boltja", ikon: "🏪", regio: "piac", piac: true, szint: 6, osztaly: 2,
+  palcim: "100-ig · fizetés, visszajáró, ellenőrzés",
+  alap: { tipus: "bolt" },
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Fizesd ki!", allomas: "fizet", stand: "fizet", darab: 4 },
+    { nev: "Visszajáró", allomas: "vissza", stand: "vissza", darab: 4 },
+    { nev: "A róka blokkja", allomas: "blokk", stand: "blokk", darab: 4 },
+    { nev: "Odú-küszöb", allomas: "vegyes", stand: "odu", darab: 4, cel: true }
+  ]
+});
+
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).

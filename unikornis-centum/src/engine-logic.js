@@ -73,6 +73,7 @@ function palyaInditas(id) {
     for (k in a) o[k] = a[k]; return o;
   });
   allomasok = nehezsegAlkalmaz(pa, allomasok);     /* producer nehézség-állítása (config.js) */
+  if (pa.piac) allomasok = bkAllomasok(allomasok);  /* 🏪 újoncnak a róka blokkja az Erdő mélye után ébred (bolt-kep.js) */
   /* ── sorozat erre a futásra (7.2): a ✨-szorzó megszűnt; a sorozat már csak a tündérharmat +1-hez számít ── */
   var s = P().sorozat || (P().sorozat = { hossz: 0, utolsoPalya: null });
   if (id === s.utolsoPalya) { s.hossz = 0; s.utolsoPalya = null; }   /* farmolás-védelem: ugyanaz a pálya nem viszi tovább */
@@ -84,6 +85,7 @@ function palyaInditas(id) {
   if (pa.konyvtar) ekIndit();                       /* 📚 Bagolykönyvtár: pötty- és csapda-számlálók (konyvtar.js) */
   if (pa.vasar) vsIndit();                          /* 🧺 Tündérvásár: csapda-számláló, üres füzet (vasar.js) */
   $("kepernyo-jatek").classList.toggle("vs-mod", !!pa.vasar);
+  $("kepernyo-jatek").classList.toggle("bk-mod", !!pa.piac);   /* 🏪 Tüske néni boltja: a bolt képe a buborékban (bolt-kep.js) */
   opMod(!!pa.szerszam || !!pa.polc);               /* 🧰 szerszám-létra + 📚 olvasó-polc: olvasópult-mód (szerszam-palya.js) */
   esemeny("palya_start", { palyaId: id });
   $("jatek-palyanev").textContent = pa.nev;
@@ -91,7 +93,7 @@ function palyaInditas(id) {
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : pa.vasar ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
+    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
   osvenyIndul();                                    /* az unikornis a Rajtnál (osveny.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
@@ -147,6 +149,7 @@ function feladatMutat(f) {
   if (!f.ek && $("ek-fuzet")) $("ek-fuzet").hidden = true;   /* 📓 a régi könyvtári pálya füzete ne maradjon a következő pálya kérdésén (2026-10-10) */
   tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
+  bkRejt();                                  /* 🏪 a bolt képe is (bolt-kep.js) */
   dobogoRejt();                              /* 🏆 a dobogó is (dobogo.js) */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
@@ -184,6 +187,7 @@ function feladatMutat(f) {
     $("valasz-egyenkent").hidden = false;
     renderPottyok(); beiroReset();
     if (f.polc) { figyelStop(); polcMutat(f); return; }                                         /* 📚 olvasó-polc: olvasópult + beírás / kártyák (olvaso-polc.js) */
+    if (f.bolt) { figyelStop(); bkMutat(f); mondd(f.felolvas); return; }                       /* 🏪 Tüske néni boltja: érmék, szalag, pecsét a képen (bolt-kep.js) */
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */
     var bmz = $("beiro-mezo"); if (bmz) bmz.maxLength = beirMax();

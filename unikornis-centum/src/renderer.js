@@ -186,7 +186,13 @@ var UNI_POZ = {
   alszik:  { h: [-85, 165], e: [95, -175], test: [3, 0, 46], fej: 36, farok: 34, osztaly: [".uni-alszik"] },  /* alvás (uniElalszik): a fej a mellkasra hajlik */
   nyujt:   { h: [-26, 6],   e: [-90, 90],  test: [20, 0, 27], fej: -24, farok: -40 },   /* nyújtózás (felkeléskor): mellkas le, mellső lábak előre, far és farok fel, fej fel (ásít) */
   guggol:  { h: [50, -100], e: [-50, 100], test: "talaj",     fej: 8,  farok: -10, szarny: -14 },   /* elöl a térd előre, hátul a csánk hátra */
-  hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 }    /* evés, szagolás: az elülső térd rogy, a fej lehajol */
+  hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 },   /* evés, szagolás: az elülső térd rogy, a fej lehajol */
+  /* 🏪 a pult mögött (terv/piacter-rajzterv.html „Az unikornis mozdulatai”): csak a fej és a nyak mozdul, a lábat a pult takarja */
+  figyel:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: 12 },    /* a fej kicsit lehajol, a pultra néz — az alap, amíg a gyerek gondolkodik */
+  szarvvar:{ h: [0, 0], e: [0, 0], test: [0, 0, -2], fej: 4 },     /* a szarva ragyog (varázslás közben; a fényt a szarv-varazs.js adja) */
+  orul:    { h: [0, 0], e: [0, 0], test: [0, 0, -4], fej: -12, farok: -16 },
+  tenyer:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: 24 },    /* a vevő tenyerére néz */
+  gondol:  { h: [0, 0], e: [0, 0], test: [0, 0, 0],  fej: -9 }     /* rossz válaszra: nem szomorú, elgondolkodik */
 };
 var UNI_MOZDULAT = {
   ugras:   { poz: "guggol", ido: 1.1,  kulcs: [[0, 0], [14, 1], [26, 0], [50, .8], [62, 0], [74, .4], [100, 0]], osztaly: [".trukk-ugras", ".g-ugras"] },
@@ -1981,7 +1987,7 @@ function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
-  if (palya.vasar) return vasarJelenetSVG(palya, c);         /* 🧺 Tündérvásár: sátrak a vásártéren (vasar.js) */
+  if (palya.vasar || palya.piac) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
   return osvenyVaz(palya, c, {
     hatter: erdoHatterSVG(),
     ut: function (d) {   /* az út: árnyék + test + világos szegély */

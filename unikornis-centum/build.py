@@ -49,6 +49,8 @@ MODULES = [
     "osveny.js",          # 6-) a pálya-kép közös váza (út, Cél-odú, pipák) + az unikornis útja rajta (séta, kerülő, odúba)
     "figurak.js",         # 6a) 🎨 az állandó szereplők rajza (FIGURA.e → SVG fej-érem), 3 arc: vidám / gondol / ujjong
     "bagoly.js",          # 6a2) 🦉 a négy bagoly (kabala, könyvtáros, bankár, boltos) egy közös rajzolóval
+    "lakok.js",           # 6a3) 🦔🦊 lakók: Tüske néni + Róka Juli egész alakban — csontváz (kéz-célpont + könyök), pózok átmenettel, élet a házban
+    "szarv-varazs.js",    # 6a4) ✨ szarvvarázs: a tárgy ívben lebeg a szarvtól (szikra-nyom) + a gyerek unikornisa a pult mögött (uniPult, pózok)
     "meres.js",           # 6b) mérés-ligetek: mértékegység-motor, generátorok, műhely-jelenet, liget-hátterek
     "meres-mozgo.js",     # 6c) mérés-mozgóképek: bájital / szabó / pékség / lépcső + csoportos (rossz válasz után)
     "konyvtar.js",        # 6d) 📚 Bagolykönyvtár: Zrínyi építőkocka-pályák (sablonok, csapdák, végigvezetés, liget, jelenet)
@@ -72,10 +74,12 @@ MODULES = [
     "konyvtar-fuzet.js",  # 6g) 📓 végigvezetés-füzet: több lépéses pöttynél a lépések beíródnak (csendes írás + ceruza-sercegés)
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
+    "bolt-kep.js",        # 6h2) 🏪 Tüske néni boltja: a bolt képe és játékmenete (① Fizesd ki ② Visszajáró ③ 🦊 Róka blokkja), GEN.bolt, tallér-rajz
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
     "sarkany-holmi.js",   # 6k3) 🐉 sárkány-holmi: 12 holmi × 10 részlet, kívánság-tábla, odú-réteg (ágy, kupac, felrakás), kérés
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
+    "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör
 

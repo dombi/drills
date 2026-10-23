@@ -110,6 +110,10 @@ window.UC = {
   ROKA_HIBA: ROKA_HIBA, rokaBlokk: rokaBlokk, rokaSor: rokaSor, rokaPecsetEll: rokaPecsetEll, rokaJegyez: rokaJegyez, kerekTizes: kerekTizes,
   rokonLetra: rokonLetra, rokonSegit: rokonSegit, szamCsalad: szamCsalad, csaladokSzama: csaladokSzama, csaladAblakEll: csaladAblakEll, varazsGep: varazsGep,
   HE_SZIN: HE_SZIN, heHely: heHely,
+  /* 🏪 Piactér 3. kör: a bolt képe, a Piactér, a lakók (a gépi próba és a böngészős teszt ezekkel hajt) */
+  bk: function () { return BK; }, bkKatt: bkKatt, bkGombKatt: bkGombKatt, bkTarca: bkTarca, bkAllomasok: bkAllomasok, piacTer: piacTer, piacHazLepes: piacHazLepes,
+  piac: function () { return PIAC; }, piacKoppint: piacKoppint, Lako: Lako, LAKOK: function () { return LAKOK; }, uniPult: uniPult, szarvVarazs: szarvVarazs, tallerBelso: tallerBelso,
+  NYITAS_PALYA_UTAN: NYITAS_PALYA_UTAN,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

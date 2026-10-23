@@ -15,6 +15,10 @@ window.__KK = (function () {
     if (f.csalad === "maradekos") return lat("#mar-h");
     if (f.csalad === "koppint") return !!(J.kopp && !J.kopp.kesz) && lat("#valasz-kartyak [data-i]");
     if (f.csalad === "dobogo") return !!G("DOB && !DOB.zar && DOB.f === J.feladat") && lat('#dobogo-panel [data-g="kesz"]');
+    if (f.csalad === "bolt") {   /* 🏪 Tüske néni boltja (bolt-kep.js): a kép vár, ha nincs lezárva, és van mit koppintani */
+      var B = UC.bk && UC.bk(); if (!B || B.f !== f || B.lezart || B.mozog || B.fazis === "otthon") return false;
+      return B.forma === "blokk" ? (B.fazis === "javit" ? lat('#bk-gombok [data-g="javok"]') : lat("#bk-svg .bk-pecset")) : lat('#bk-gombok [data-g="kesz"]');
+    }
     if (f.kartyak) return lat("#valasz-kartyak .ek-tk");   /* 📚 olvasó-polc: „Kiről kérdeznek?” kártyák */
     if (f.polc && G("oeKeresFut() && OE.keres && !OE.keres.o.lagy")) return false;   /* a 🔎 kérdés-keret vár (a polcZar-t NEM hívjuk: beszél és keretet nyit) */
     if (document.querySelector("#buborek-feladat .eg-kartya.szabad")) return lat("#buborek-feladat .eg-kartya.szabad");   /* 👆 🧺 csere koppintással */
@@ -66,6 +70,25 @@ window.__KK = (function () {
       }); });
       return { mod: "dobogo", lep: lep, kesz: '#dobogo-panel [data-g="kesz"]', ujra: '#dobogo-panel [data-g="ujra"]', rossz: cs ? fel : null };
     }
+    if (f.csalad === "bolt") {   /* 🏪 érmék a tárcából / kasszából (a legkevesebb), aztán Kész · a róka blokkja: pecsét, ✗ után a javítás */
+      var x = f.bolt, B = UC.bk(), kesz = '#bk-gombok [data-g="kesz"]', es = function (hol, v) { return '#bk-svg .bk-erme[data-hol="' + hol + '"][data-v="' + v + '"]'; };
+      var legk = function (n) { var l = []; [50, 20, 10, 5, 2, 1].forEach(function (v) { while (n >= v) { l.push(v); n -= v; } }); return l; };
+      var le = function (hol) { return B.ermek.filter(function (e) { return e.hol === hol; }).map(function () { return '#bk-svg .bk-erme[data-hol="' + hol + '"]'; }); };   /* előbb vissza, ami kint maradt */
+      if (x.forma === "fizet") {
+        var cel = legk(x.ar);
+        if (x.lepes === 2 && x.elozo) {   /* „másképp”: az erszényből egy másik összeállítás (mélységi keresés) */
+          var W = x.tarca.slice().sort(function (a, b) { return b - a; }), kulcs = x.elozo.slice().sort().join(","), talalt = null;
+          (function rek(i, o, l) { if (talalt || o > x.ar) return; if (o === x.ar) { if (l.slice().sort().join(",") !== kulcs) talalt = l.slice(); return; }
+            for (var j = i; j < W.length; j++) { if (j > i && W[j] === W[j - 1]) continue; l.push(W[j]); rek(j + 1, o + W[j], l); l.pop(); } })(0, 0, []);
+          if (talalt) cel = talalt;
+        }
+        return { mod: "katt", sel: le("pult").concat(cel.map(function (v) { return es("tarca", v); })).concat([kesz]), rossz: kesz };   /* rossz: üres pult + Kész */
+      }
+      if (x.forma === "vissza") return { mod: "katt", sel: le("tenyer").concat(legk(x.v.vissza).map(function (v) { return es("kassza", v); })).concat([kesz]), rossz: kesz };
+      var ps = function (v) { return '#bk-svg .bk-pecset[data-v="' + v + '"] rect'; };
+      if (B.fazis === "javit") return { mod: "katt", sel: String(x.b.helyes).split("").map(function (d) { return '#bk-gombok [data-g="d' + d + '"]'; }).concat(['#bk-gombok [data-g="javok"]']), rossz: null };
+      return { mod: "katt", sel: [ps(x.b.pontos ? "ok" : "x")], rossz: ps(x.b.pontos ? "x" : "ok") };
+    }
     if (f.kartyak) {
       var jk = String(f.kartyak.map(function (k) { return !!k.jo; }).indexOf(true)), sk = function (i) { return '#valasz-kartyak .ek-tk[data-i="' + i + '"]'; };
       var mk = [].map.call(document.querySelectorAll("#valasz-kartyak .ek-tk"), function (e) { return e.getAttribute("data-i"); }).filter(function (x) { return x !== jk; });
@@ -83,7 +106,7 @@ window.__KK = (function () {
   /* ami a válasz előtt koppintást kér: a 🔎 kérdés-keret (olvasó-polc), a vásár „Tovább ▶” gombja,
      a mozgókép (mérés / könyvtár bemutató, hiba utáni magyarázat) „Tovább” gombja, a kész felmondás gombja */
   function akadaly() {
-    var l = ["#mk-reteg .mk-tovabb", "#buborek-feladat .oe-keret", "#vs-tovabb", "#bontas-kesz-gomb"];
+    var l = ["#mk-reteg .mk-tovabb", "#buborek-feladat .oe-keret", "#vs-tovabb", "#bontas-kesz-gomb", '#bk-gombok [data-g="vissza"]'];   /* 🏪 hibás ✓ után: „Vissza a blokkhoz” */
     for (var i = 0; i < l.length; i++) { var e = document.querySelector(l[i]); if (e && !e.hidden && e.getClientRects().length) return l[i]; }
     return null;
   }

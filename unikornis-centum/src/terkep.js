@@ -538,7 +538,7 @@ function ligetUniReteg() {
   var k = $("kepernyo-fomenu"), regi = $("liget-uni-reteg");
   if (regi) regi.parentNode.removeChild(regi);
   LIGET_UNI = null;
-  if (!FOMENU_LIGET) return;
+  if (!FOMENU_LIGET || FOMENU_LIGET === "piac") return;   /* 🏪 a Piactéren a saját képében sétál (piac.js) */
   var r = el("div", "liget-uni-reteg uni-terep");
   r.id = "liget-uni-reteg"; r.setAttribute("aria-hidden", "true");
   r.innerHTML = '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g class="liget-uni-hely"><g class="liget-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' +
