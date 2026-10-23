@@ -484,3 +484,21 @@ var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRa
 /* Szorzós liget alkonyi/aranyóra háttér (grafikai session, producer-jóváhagyott 2026-09-11) */
 var SZORZOS_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="szg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#f7e2c6"/><stop offset="0.45" stop-color="#f0e4d6"/> <stop offset="1" stop-color="#e6ecd2"/> </linearGradient> <radialGradient id="szn" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#ffdf9e" stop-opacity="0.95"/><stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#szg)"/> <!-- nagyobb, mélyebben ülő aranyóra-nap --> <circle cx="560" cy="150" r="150" fill="url(#szn)"/> <circle cx="560" cy="150" r="46" fill="#ffcf6e" opacity="0.75"/> <!-- lila-arany távoli dombsor (mélyebb, varázslatosabb) --> <path d="M0 320 Q170 286 340 314 Q510 340 680 308 Q850 278 1010 314 Q1070 328 1120 316 L1120 760 L0 760 Z" fill="#d9c6e0" opacity="0.7"/> <path d="M0 380 Q200 352 400 378 Q600 402 800 374 Q1000 348 1120 378 L1120 760 L0 760 Z" fill="#c9d8b0" opacity="0.75"/> <!-- fa-sziluettek a peremen, melegebb árnyalatban --> <g opacity="0.72"><g fill="#9a8f6a"> <path d="M60 320 l26 66 l-52 0 Z"/><path d="M60 356 l32 78 l-64 0 Z"/><rect x="54" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M150 360 l22 56 l-44 0 Z"/><path d="M150 392 l27 66 l-54 0 Z"/><rect x="145" y="454" width="10" height="22" fill="#8a6a3e"/> <path d="M1060 320 l26 66 l-52 0 Z"/><path d="M1060 356 l32 78 l-64 0 Z"/><rect x="1054" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M968 364 l22 56 l-44 0 Z"/><path d="M968 396 l27 66 l-54 0 Z"/><rect x="963" y="458" width="10" height="22" fill="#8a6a3e"/> </g></g> <!-- talaj --> <path d="M0 710 Q280 686 560 710 Q840 734 1120 708 L1120 760 L0 760 Z" fill="#cdd9a0" opacity="0.9"/> <!-- szentjánosbogarak / varázs-szikrák (a dallam + bűvkör téma) --> <g fill="#fff2b8"> <circle cx="230" cy="210" r="3.4" opacity="0.9"/><circle cx="360" cy="150" r="2.4" opacity="0.8"/> <circle cx="470" cy="250" r="2.8" opacity="0.85"/><circle cx="720" cy="180" r="2.6" opacity="0.8"/> <circle cx="840" cy="240" r="3.2" opacity="0.9"/><circle cx="930" cy="180" r="2.2" opacity="0.75"/> <circle cx="300" cy="300" r="2.2" opacity="0.7"/><circle cx="640" cy="300" r="2.4" opacity="0.7"/> </g> <!-- pár lebegő hangjegy-pötty a Szorzódallam témára --> <g fill="#c9a8e6" opacity="0.55"> <circle cx="410" cy="120" r="5"/><rect x="414" y="104" width="2" height="18"/> <circle cx="690" cy="130" r="5"/><rect x="694" y="114" width="2" height="18"/> </g> </svg>';
 
+
+/* 🎨 Közös helyiérték-színek (terv/piacter-rajzterv.html 5. pont, ✅ a producer döntése 2026-10-23):
+   egyes-család rózsaszín, tízes-család kék, százas arany — ugyanaz a színkód minden helyiérték-képen
+   (tallér, Dienes kocka/rúd/lap, számszalag, írásbeli füzet Sz/T/E oszlopa). A szám marad a nagy jel,
+   a szín csak a HELYET mutatja, és halványul, ahogy a gyerek biztosabb (HE_HALV: erős / közepes / halvány).
+   Mezők: g = a színátmenet id-je (HE_DEFS, egyszer kell a lap <defs>-ébe), k = kontúr, sz = a szám színe, l = lapos szín. */
+var HE_SZIN = {
+  1:   { g: "heEgyes", k: "#c0567f", sz: "#7a2f4c", l: "#f6a5c0" },
+  10:  { g: "heTizes", k: "#5f84b0", sz: "#2f4f7a", l: "#9ec9f0" },
+  100: { g: "heSzazas", k: "#b5842c", sz: "#7a5420", l: "#f5cf6a" }
+};
+var HE_HALV = [1, 0.55, 0.22];
+var HE_DEFS =
+  '<radialGradient id="heEgyes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffe9f0"/><stop offset=".55" stop-color="#f8b4cb"/><stop offset="1" stop-color="#e98aa8"/></radialGradient>' +
+  '<radialGradient id="heTizes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#eef7fe"/><stop offset=".55" stop-color="#a9d0f2"/><stop offset="1" stop-color="#78acd8"/></radialGradient>' +
+  '<radialGradient id="heSzazas" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff3c4"/><stop offset=".55" stop-color="#f7d57a"/><stop offset="1" stop-color="#e9b84e"/></radialGradient>';
+/* melyik helyiérték-családba tartozik egy érték (1, 2, 5 → 1 · 10, 20, 50 → 10 · 100 → 100) */
+function heHely(v) { return v >= 100 ? 100 : v >= 10 ? 10 : 1; }

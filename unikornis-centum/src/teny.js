@@ -30,7 +30,9 @@
 
    Egy tény sora (P().tenyek[kulcs], a P().tenyTipus is ugyanilyen):
      { d: doboz 0–5, e: esedékes nap, n: próbák, h: utolsó 6 eredmény, m: utolsó idő (tized mp),
-       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el, „v” = Villámkör), ln: utolsó feljebb lépés napja,
+       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el, „v” = Villámkör; 🏪 Piactér 2. kör, 2026-10-23:
+           „b” = Tüske néni boltja, „r” = Rokon-létra, „c” = Számcsalád, „g” = Varázsgép — src/bolt.js, src/szamkor100.js),
+       ln: utolsó feljebb lépés napja,
        hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít),
        vh: a Villámkör utolsó 6 eredménye (csak ha volt ilyen; a h-ba is beleszámít, a botlása szelíd) }
    Eredmény-betűk: V villám · J jó, de lassú · S jó, de 20 mp fölött (szünet) · H botlás.

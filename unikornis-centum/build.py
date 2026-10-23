@@ -25,6 +25,8 @@ MODULES = [
     "engine-gen.js",      # 3) feladatgenerátor
     "teny.js",            # 3b) 🌸 tény-motor: tény-kulcsok, rejtett óra, doboz-szabály, választó, kert-összegzés
     "bujocska.js",        # 3d) 🌿 Mi bújt el?: a bújócska-pályák generátora (GEN.hianyzo) — a feladat-alak a feladatHianyzo (engine-gen.js)
+    "bolt.js",            # 3h) 🏪 Tüske néni boltja: tallér-modell, ① Fizesd ki ② Visszajáró ③ 🦊 Róka blokkja — feladatgyártó + ellenőrző, kép nélkül (P().roka)
+    "szamkor100.js",      # 3i) 🪜🏡⚙️ a 100-as kör új pályái: Rokon-létra, „melyik segít?”, Számcsalád (+ kakukktojás), Varázsgép — kép nélkül
     "villam.js",          # 3e) ⚡ Villámkör: halmazok + kinyílás, a kör sorrendje (első 3 villám), rekord + árnyék, P().villam, villamAllapot
     "szerszam.js",        # 3f) 🧰 szerszám-létrák közös alapja: 🛗 lift, 🧰 láda (5-ből 4), napló, pult-beállítás (P().szerszam)
     "mester-valtozat.js", # 3f2) 🏅 Mesterpróba-változatok közös szabálya: eredeti / számváltozat, visszatérés-számláló, melyik jön vissza (P().mv)

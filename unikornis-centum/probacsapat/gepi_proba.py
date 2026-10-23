@@ -4,7 +4,7 @@ Használat (a drills mappából):
     py -3 unikornis-centum\\probacsapat\\gepi_proba.py            gyors próba (minden kód-kör után, commit előtt)
     py -3 unikornis-centum\\probacsapat\\gepi_proba.py --teljes   teljes próba (élesítés előtt)
     … --n 50          kevesebb feladat-minta pályánként (alap: 300)
-    … --csak matek,szoveg   csak a megnevezett őrök (verzio, indulas, matek, szoveg, kiskapu, vegig, meret, mentes, ujonc, offline)
+    … --csak matek,szoveg   csak a megnevezett őrök (verzio, indulas, matek, piac, szoveg, kiskapu, vegig, meret, mentes, ujonc, offline)
     … --hol odu,vasar       a gyors próba ② méret-, ⑤ kiskapu- és ⑥ végigjátszás-őre ezeket is nézi (az épp módosított
                             képernyő neve / pálya-id / pályatípus egy darabja, kisbetűvel is jó)
 
@@ -20,7 +20,8 @@ Kilépési kód: 1, ha van új 🔴 hiba (a gepi\\ismert.txt-ben nem szereplő).
 
 Az őrök: ① indulás · ② méret · ③ matek · ④ szöveg · ⑤ kiskapu · ⑥ mentés + végigjátszás · ⑦ verzió (1–3. kód-kör, KÉSZ)
 · ⑧ 📴 net nélkül (offline 2. kör: service worker, alvó felhőkert, ?friss)
-· ⑨ újonc-menet (Újonc-bevezetés 4. kör: 14 szimulált gyakorlós nap minden osztállyal — csak --teljes / --csak ujonc).
+· ⑨ újonc-menet (Újonc-bevezetés 4. kör: 14 szimulált gyakorlós nap minden osztállyal — csak --teljes / --csak ujonc)
+· ⑩ piac (🏪 Piactér 2. kör: a bolt.js és a szamkor100.js gyártói, gyártónként n × 10 feladat, minden próbában).
 Új kitalált mentés egy régi változatból: gepi\\mentes_gyarto.py (lásd ott).
 """
 import argparse, os, sys, time
@@ -30,7 +31,7 @@ GEPI = os.path.join(ITT, "gepi")
 sys.path.insert(0, GEPI)
 import motor, indulas, szoveg, verzio, kiskapu, meret, mentes, vegig, offline, ujonc   # noqa: E402
 
-OROK = ["verzio", "indulas", "matek", "szoveg", "kiskapu", "vegig", "meret", "mentes", "ujonc", "offline"]
+OROK = ["verzio", "indulas", "matek", "piac", "szoveg", "kiskapu", "vegig", "meret", "mentes", "ujonc", "offline"]
 TIPUS_JS = open(os.path.join(GEPI, "tipus.js"), encoding="utf-8").read()
 
 
@@ -55,7 +56,7 @@ def main():
     if "verzio" in csak:
         t = time.time(); verzio.futtat(motor.UC, J); J.naplo.append("verzió-őr: %.0f mp" % (time.time() - t))
 
-    if csak & {"indulas", "matek", "szoveg", "kiskapu", "vegig", "meret", "mentes", "ujonc", "offline"}:
+    if csak & {"indulas", "matek", "piac", "szoveg", "kiskapu", "vegig", "meret", "mentes", "ujonc", "offline"}:
         k = motor.Kiszolgalo(); e = None
         try:
             e = motor.Edge(); l = e.uj_lap(); l.meret(1366, 768)
@@ -76,6 +77,14 @@ def main():
                            "Konzolhiba — %s: %s" % (h["hol"], h["szoveg"][:140]), h.get("verem", h["szoveg"])[:600])
                 szovegek += r["szovegek"]; tipusok = r.get("tipusok")
                 J.naplo.append("matek-őr: %d pálya, %d feladat, %.0f mp" % (len(r["stat"]), sum(r["stat"].values()), time.time() - t))
+            if "piac" in csak:   # ⑩ a Piactér láthatatlan gyártói (bolt.js, szamkor100.js): gyártónként n × 10 feladat
+                t = time.time()
+                if not l.js("!!(window.UC && UC.PALYAK)"): l.betolt(k.cim())
+                r = l.js(open(os.path.join(GEPI, "piac.js"), encoding="utf-8").read().replace("PIAC_N", str(a.n * 10)))
+                for h in r["hibak"]:
+                    J.hiba("piac", h["suly"], h["kulcs"], h["szoveg"], h["pelda"])
+                J.naplo.append("⑩ piac-őr: %d feladat (%s), %.0f mp" % (sum(r["stat"].values()),
+                               ", ".join("%s %d" % (g, d) for g, d in r["stat"].items()), time.time() - t))
             if csak & {"kiskapu", "vegig", "meret"} and not tipusok:
                 if not l.js("!!(window.UC && UC.PALYAK)"): l.betolt(k.cim())
                 tipusok = l.js(TIPUS_JS + "\ntipusokGyujt()")

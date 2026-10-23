@@ -332,7 +332,16 @@
 <div class="panel">
   <ol>
     <li><b>Rajzterv:</b> először a 🏪 Piactér jele a térképen és a kis falutérkép (Tüske néni háza, üres telek, épülő utca; ház-állapotok). Utána <b>a lakók egész alakos, kidolgozott rajza</b> (Tüske néni, Róka Juli): legalább 6 póz, átmenetek, élet a házban, arckifejezések, összehasonlítva a mai érem-figurával. Végül a bolt pultja, az érmék, a vevő tenyere, a szalag, a róka blokkja; a létra és a számcsalád-ház.</li>
-    <li><b>Közös alap láthatatlanul:</b> <code>bolt.js</code>, <code>szamkor100.js</code>, napló-formák, sok ezer generált feladat próbája.</li>
+    <li><b>Közös alap láthatatlanul:</b> <code>bolt.js</code>, <code>szamkor100.js</code>, napló-formák, sok ezer generált feladat próbája.
+      <br><b>✅ Kész (2026-10-23).</b> A gyerek semmit nem lát belőle, a játék még nem hívja.
+      <ul>
+        <li><code>src/bolt.js</code>: a tallér (1, 2, 5, 10, 20, 50, 100), a legkevesebb érme, a beváltás és a felváltás. ① Fizesd ki!: a 3 Pósa-kérdés ellenőrzője (ugyanaz / több érme / kevés / sok, és melyik érmét tolja vissza a vevő). ② Visszajáró 4 fokkal (tízesre, tízesből, teljes, százból) és a szalag megállóival. ③ A róka blokkja: 4 hibafajta (elfelejtett átvitel, kimaradt tízes, felcserélt jegyek, eggyel elszámolta), a „körülbelül stimmel?” becslés, a pecsét-ellenőrző a 🔒 kiskapu-szabállyal, a róka-sor (5-ből 2 pontos, összekeverve) és a 🦊 napló (<code>P().roka</code>, a 100-as típussal együtt).</li>
+        <li><code>src/szamkor100.js</code>: 🪜 Rokon-létra (+ és −, átlépéssel és anélkül, a számvonal-ugrással). „Melyik kis feladat segít?”: a rokon ugyanaz, amit a tény-motor rokonnak tart. 🏡 Számcsalád 20-ig és 100-ig, kakukktojással is, és mindig csak egy család. ⚙️ Varázsgép a 2. csomaghoz, fordított géppel.</li>
+        <li><code>HE_SZIN</code> a <code>constants.js</code>-ben: a közös helyiérték-színek, a halványulás 3 foka és a színátmenetek.</li>
+        <li>Tény-motor: az új forma-betűk <code>b</code> bolt, <code>r</code> rokon, <code>c</code> család, <code>g</code> gép. A 3 tételes blokk nem egy tény, ezért csak a naplóba kerül.</li>
+        <li>Gépi próba: új ⑩ piac-őr (<code>probacsapat/gepi/piac.js</code>), minden próbában fut. Gyártónként 3000 feladatot kér (összesen kb. 66 000-et), és mindegyiket ellenőrzi. Az első futás 4 hibát fogott, mind javítva.</li>
+        <li>A lakók rajza (<code>src/lakok.js</code>) és a szarvvarázs (<code>src/szarv-varazs.js</code>) a 3. körbe került. Ezek rajzok, ezért ott ellenőrizhetők, ahol a bolt képe is megszületik.</li>
+      </ul></li>
     <li><b>🏪 Piactér + Bolt élesben</b>: a Piactér a térképen (ház-belépés, lakó, ház-állapotok), és benne a bolt 1–3. állomása: Fizesd ki!, Visszajáró, A róka blokkja.</li>
     <li><b>🪜 Rokon-létra + 🏡 Számcsalád</b> élesben, az „épülő utca” első két házában.</li>
     <li><b>Pult</b> (pálya-sorok, 🦊 sor, róka-pontosság) + jelvény + gépi próba → élő próba Lilivel és Fannival.</li>

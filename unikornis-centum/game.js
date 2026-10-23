@@ -490,6 +490,24 @@ var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRa
 /* Szorzós liget alkonyi/aranyóra háttér (grafikai session, producer-jóváhagyott 2026-09-11) */
 var SZORZOS_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="szg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#f7e2c6"/><stop offset="0.45" stop-color="#f0e4d6"/> <stop offset="1" stop-color="#e6ecd2"/> </linearGradient> <radialGradient id="szn" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#ffdf9e" stop-opacity="0.95"/><stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#szg)"/> <!-- nagyobb, mélyebben ülő aranyóra-nap --> <circle cx="560" cy="150" r="150" fill="url(#szn)"/> <circle cx="560" cy="150" r="46" fill="#ffcf6e" opacity="0.75"/> <!-- lila-arany távoli dombsor (mélyebb, varázslatosabb) --> <path d="M0 320 Q170 286 340 314 Q510 340 680 308 Q850 278 1010 314 Q1070 328 1120 316 L1120 760 L0 760 Z" fill="#d9c6e0" opacity="0.7"/> <path d="M0 380 Q200 352 400 378 Q600 402 800 374 Q1000 348 1120 378 L1120 760 L0 760 Z" fill="#c9d8b0" opacity="0.75"/> <!-- fa-sziluettek a peremen, melegebb árnyalatban --> <g opacity="0.72"><g fill="#9a8f6a"> <path d="M60 320 l26 66 l-52 0 Z"/><path d="M60 356 l32 78 l-64 0 Z"/><rect x="54" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M150 360 l22 56 l-44 0 Z"/><path d="M150 392 l27 66 l-54 0 Z"/><rect x="145" y="454" width="10" height="22" fill="#8a6a3e"/> <path d="M1060 320 l26 66 l-52 0 Z"/><path d="M1060 356 l32 78 l-64 0 Z"/><rect x="1054" y="430" width="12" height="26" fill="#8a6a3e"/> <path d="M968 364 l22 56 l-44 0 Z"/><path d="M968 396 l27 66 l-54 0 Z"/><rect x="963" y="458" width="10" height="22" fill="#8a6a3e"/> </g></g> <!-- talaj --> <path d="M0 710 Q280 686 560 710 Q840 734 1120 708 L1120 760 L0 760 Z" fill="#cdd9a0" opacity="0.9"/> <!-- szentjánosbogarak / varázs-szikrák (a dallam + bűvkör téma) --> <g fill="#fff2b8"> <circle cx="230" cy="210" r="3.4" opacity="0.9"/><circle cx="360" cy="150" r="2.4" opacity="0.8"/> <circle cx="470" cy="250" r="2.8" opacity="0.85"/><circle cx="720" cy="180" r="2.6" opacity="0.8"/> <circle cx="840" cy="240" r="3.2" opacity="0.9"/><circle cx="930" cy="180" r="2.2" opacity="0.75"/> <circle cx="300" cy="300" r="2.2" opacity="0.7"/><circle cx="640" cy="300" r="2.4" opacity="0.7"/> </g> <!-- pár lebegő hangjegy-pötty a Szorzódallam témára --> <g fill="#c9a8e6" opacity="0.55"> <circle cx="410" cy="120" r="5"/><rect x="414" y="104" width="2" height="18"/> <circle cx="690" cy="130" r="5"/><rect x="694" y="114" width="2" height="18"/> </g> </svg>';
 
+
+/* 🎨 Közös helyiérték-színek (terv/piacter-rajzterv.html 5. pont, ✅ a producer döntése 2026-10-23):
+   egyes-család rózsaszín, tízes-család kék, százas arany — ugyanaz a színkód minden helyiérték-képen
+   (tallér, Dienes kocka/rúd/lap, számszalag, írásbeli füzet Sz/T/E oszlopa). A szám marad a nagy jel,
+   a szín csak a HELYET mutatja, és halványul, ahogy a gyerek biztosabb (HE_HALV: erős / közepes / halvány).
+   Mezők: g = a színátmenet id-je (HE_DEFS, egyszer kell a lap <defs>-ébe), k = kontúr, sz = a szám színe, l = lapos szín. */
+var HE_SZIN = {
+  1:   { g: "heEgyes", k: "#c0567f", sz: "#7a2f4c", l: "#f6a5c0" },
+  10:  { g: "heTizes", k: "#5f84b0", sz: "#2f4f7a", l: "#9ec9f0" },
+  100: { g: "heSzazas", k: "#b5842c", sz: "#7a5420", l: "#f5cf6a" }
+};
+var HE_HALV = [1, 0.55, 0.22];
+var HE_DEFS =
+  '<radialGradient id="heEgyes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffe9f0"/><stop offset=".55" stop-color="#f8b4cb"/><stop offset="1" stop-color="#e98aa8"/></radialGradient>' +
+  '<radialGradient id="heTizes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#eef7fe"/><stop offset=".55" stop-color="#a9d0f2"/><stop offset="1" stop-color="#78acd8"/></radialGradient>' +
+  '<radialGradient id="heSzazas" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff3c4"/><stop offset=".55" stop-color="#f7d57a"/><stop offset="1" stop-color="#e9b84e"/></radialGradient>';
+/* melyik helyiérték-családba tartozik egy érték (1, 2, 5 → 1 · 10, 20, 50 → 10 · 100 → 100) */
+function heHely(v) { return v >= 100 ? 100 : v >= 10 ? 10 : 1; }
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -864,7 +882,9 @@ var GEN = {
 
    Egy tény sora (P().tenyek[kulcs], a P().tenyTipus is ugyanilyen):
      { d: doboz 0–5, e: esedékes nap, n: próbák, h: utolsó 6 eredmény, m: utolsó idő (tized mp),
-       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el, „v” = Villámkör), ln: utolsó feljebb lépés napja,
+       fl: forma-jelek („e” = mennyi az eredmény, „h” = mi bújt el, „v” = Villámkör; 🏪 Piactér 2. kör, 2026-10-23:
+           „b” = Tüske néni boltja, „r” = Rokon-létra, „c” = Számcsalád, „g” = Varázsgép — src/bolt.js, src/szamkor100.js),
+       ln: utolsó feljebb lépés napja,
        hh: a „mi bújt el” forma utolsó 6 eredménye (csak ha volt ilyen; a h-ba és a dobozba is beleszámít),
        vh: a Villámkör utolsó 6 eredménye (csak ha volt ilyen; a h-ba is beleszámít, a botlása szelíd) }
    Eredmény-betűk: V villám · J jó, de lassú · S jó, de 20 mp fölött (szünet) · H botlás.
@@ -1706,6 +1726,347 @@ function hiNekedForma(f) {
   if (!m) return f;
   var op = m[2], hol = (op === "+" || op === "×") ? (Math.random() < 0.5 ? "a" : "b") : "b";
   return hiBemutat(feladatHianyzo(f, hol, (op === "×" || op === "÷") ? "felho" : "level"));
+}
+/* ============ 3h) 🏪 TÜSKE NÉNI BOLTJA — feladatgyártó (terv/eletszeru-100-as-palyak-terv.html 3. + 5. pont) ============
+   2. kör (2026-10-23): LÁTHATATLAN közös alap. Semmi nem hívja még a játékban; a gépi próba ⑩ piac-őre gyárt belőle
+   ezreket. Tiszta adat, kép nélkül: a bolt képe (3. kör) és később a falu háza ugyanezt kapja.
+
+   A pénz a tallér (nem ✨, nem forint): 1, 2, 5, 10, 20, 50, 100. Egy érme-lista = számok tömbje, pl. [50, 20, 10, 5].
+   A színük a helyi érték (HE_SZIN, constants.js). Beváltás: 10 egyes → 1 tízes, 10 tízes → 1 százas (és vissza).
+
+   Három állomás (1. csomag):
+     ① fizet    „Fizesd ki!” — Pósa-folyam ugyanarra az árra: 1. fizesd ki · 2. másképp · 3. a legkevesebb érmével
+     ② vissza   Visszajáró — a vevő nagyobbal fizet, a gyerek a tenyérbe számol felfelé (37 → 40 → 50)
+     ③ blokk    🦊 Róka Juli blokkja — ✓ / ✗ pecsét; a ✗ csak jó javítással ér (🔒 kiskapu: a vaktában ✗ nem visz előre)
+   Minden feladat ad egy naplo-mezőt { tipus, kerdes, forma: "b" }: a tény-motor ebből könyvel (teny.js).
+
+   A róka hibái a gyerekek tipikus hibái (ROKA_HIBA), és a tény-motor 100-as típusához kötve kerülnek a
+   P().roka naplóba: így látszik majd a pulton (🦊 sor), ha a gyerek mindig ugyanazt a hibát nem veszi észre. */
+
+var TALLER = [1, 2, 5, 10, 20, 50, 100];
+var BOLT_ALAP = { rokaPontos: 2, tetelek: 2 };   /* rokaPontos: 5 blokkból ennyi pontos (0–5) · tetelek: tétel a blokkon (2–3) */
+function boltBeall(f) {
+  f = f || (typeof FELULIR !== "undefined" && FELULIR.bolt) || {};
+  var b = {}, k;
+  for (k in BOLT_ALAP) b[k] = BOLT_ALAP[k];
+  if (+f.rokaPontos >= 0 && +f.rokaPontos <= 5 && f.rokaPontos % 1 === 0) b.rokaPontos = +f.rokaPontos;
+  if (f.tetelek === 2 || f.tetelek === 3) b.tetelek = f.tetelek;
+  return b;
+}
+
+/* ── érme-modell ─────────────────────────────────────────────────────────── */
+function tallerOsszeg(l) { var s = 0; (l || []).forEach(function (v) { s += v; }); return s; }
+/* a legkevesebb érme (a tallér-sor „kanonikus”: a mohó választás mindig a legkevesebb — a gépi próba DP-vel ellenőrzi) */
+function tallerLegkevesebb(n, talca) {
+  var t = (talca || TALLER).slice().sort(function (a, b) { return b - a; }), ki = [];
+  t.forEach(function (v) { while (n >= v) { ki.push(v); n -= v; } });
+  return n === 0 ? ki : null;
+}
+/* két érme-lista ugyanaz-e (a sorrend nem számít) */
+function tallerUgyanaz(a, b) {
+  if ((a || []).length !== (b || []).length) return false;
+  var x = a.slice().sort(function (p, q) { return p - q; }), y = b.slice().sort(function (p, q) { return p - q; });
+  return x.every(function (v, i) { return v === y[i]; });
+}
+/* beváltás a kasszában: 10 db egyforma `hely` értékű érme (1 vagy 10) → egy 10 × hely; ha nincs 10, null */
+function tallerBevalt(l, hely) {
+  var db = l.filter(function (v) { return v === hely; }).length;
+  if ((hely !== 1 && hely !== 10) || db < 10) return null;
+  var ki = l.slice(), n = 10;
+  for (var i = ki.length - 1; i >= 0 && n; i--) if (ki[i] === hely) { ki.splice(i, 1); n--; }
+  ki.push(hely * 10);
+  return ki;
+}
+/* felváltás (Tüske néni kéri): egy 10-es → tíz 1-es, egy 100-as → tíz 10-es; ha nincs ilyen érme, null */
+function tallerFelvalt(l, ertek) {
+  var i = l.indexOf(ertek);
+  if ((ertek !== 10 && ertek !== 100) || i < 0) return null;
+  var ki = l.slice(); ki.splice(i, 1);
+  for (var j = 0; j < 10; j++) ki.push(ertek / 10);
+  return ki;
+}
+
+/* ── ① Fizesd ki! ─────────────────────────────────────────────────────────────
+   cfg: { min, max (az ár határai, alap 3–99), talca (a tálca érméi, alap: mind, a 100-as nélkül) }.
+   Az ár legalább 3: az 1-et és a 2-t nem lehet „másképp” is kifizetni úgy, hogy a 3. kérdésnek legyen értelme. */
+function boltFizet(cfg) {
+  cfg = cfg || {};
+  var talca = cfg.talca || [1, 2, 5, 10, 20, 50], ar, min, legk;
+  for (var p = 0; p < 50; p++) {
+    ar = veletlen(Math.max(3, cfg.min || 3), Math.min(100, cfg.max || 99));
+    legk = tallerLegkevesebb(ar, talca);
+    if (legk && legk.length >= 2) break;   /* egyetlen érmés ár (pl. 20) után a „legkevesebb” kérdés üres volna */
+  }
+  min = legk.length;
+  return {
+    forma: "fizet", ar: ar, talca: talca, legkevesebb: legk, minDarab: min,
+    naplo: { tipus: "bolt", kerdes: "fizet " + ar, forma: "b" }
+  };
+}
+/* a gyerek fizetése: lepes 1 = fizesd ki · 2 = másképp (elozo: az előző fizetés) · 3 = a legkevesebb érmével
+   Vissza: { jo, elteres (összeg − ár), visszatol (ha sok: a vevő ezt az érmét tolja vissza, ha egy is elég), ok } */
+function boltFizetEll(f, l, lepes, elozo) {
+  var s = tallerOsszeg(l), el = s - f.ar, ki = { jo: false, elteres: el, visszatol: null, ok: "" };
+  if (el < 0) { ki.ok = "keves"; return ki; }
+  if (el > 0) {
+    ki.ok = "sok";
+    l.slice().sort(function (a, b) { return a - b; }).some(function (v) { if (v <= el) { ki.visszatol = v; } return v > el; });
+    return ki;
+  }
+  if (lepes === 2 && elozo && tallerUgyanaz(l, elozo)) { ki.ok = "ugyanaz"; return ki; }
+  if (lepes === 3 && l.length > f.minDarab) { ki.ok = "tobb-erme"; return ki; }
+  ki.jo = true; ki.ok = "jo";
+  return ki;
+}
+
+/* ── ② Visszajáró ─────────────────────────────────────────────────────────────
+   fok: "tizesre"  37 → 40   (a vevő a következő kerek tízessel fizet)
+        "tizesbol" 40 → 50   (kerek ár, kerek fizetés)
+        "teljes"   37 → 50   (a felfelé számolás két lépésben: +3, +10)
+        "szazbol"  63 → 100  (100-assal fizet)
+   A lepesek a szalag megállói: [[37, 40], [40, 50]] — a szalag csak azt mutatja, ahová a gyerek már eljutott. */
+var VISSZA_FOK = ["tizesre", "tizesbol", "teljes", "szazbol"];
+function boltVissza(fok) {
+  fok = fok || "teljes";
+  var ar, fizet;
+  if (fok === "tizesre") { ar = veletlen(11, 89); if (ar % 10 === 0) ar += veletlen(1, 9); fizet = Math.ceil(ar / 10) * 10; }
+  else if (fok === "tizesbol") { ar = veletlen(1, 8) * 10; fizet = veletlenElem([20, 50, 100].filter(function (v) { return v > ar; })); }
+  else if (fok === "szazbol") { ar = veletlen(51, 89); if (ar % 10 === 0) ar -= veletlen(1, 9); fizet = 100; }   /* 89-ig: a 97 → 100 csak egy lépés volna */
+  else { ar = veletlen(11, 89); if (ar % 10 === 0) ar += veletlen(1, 9);
+    fizet = veletlenElem([20, 50, 100].filter(function (v) { return v - ar > 10 - ar % 10; })); }
+  var lepesek = [], x = ar, t = Math.ceil(ar / 10) * 10;
+  if (t > x && t <= fizet) { lepesek.push([x, t]); x = t; }
+  if (fizet > x) lepesek.push([x, fizet]);
+  return {
+    forma: "vissza", fok: fok, ar: ar, fizet: fizet, fizetErmek: tallerLegkevesebb(fizet), vissza: fizet - ar, lepesek: lepesek,
+    naplo: { tipus: "kivonas", kerdes: fizet + " − " + ar, forma: "b" }
+  };
+}
+/* a tenyérbe számolt érmék: { jo, elteres, ok: "jo" | "keves" (a vevő a tenyerére néz, vár) | "sok" (visszaad egyet: „Ez sok!”) } */
+function boltVisszaEll(f, l) {
+  var el = tallerOsszeg(l) - f.vissza;
+  return { jo: el === 0, elteres: el, ok: el === 0 ? "jo" : el < 0 ? "keves" : "sok" };
+}
+
+/* ── ③ 🦊 Róka Juli blokkja ────────────────────────────────────────────────────
+   Juli kapkodó, nem csaló: a hibái a gyerekek tipikus hibái. Mindegyik a tény-motor 100-as típusához kötve
+   (a blokk saját típusa a tenyKulcs-ból jön: e1a, k2a…), így a pulton a hiba és a típus együtt látszik. */
+var ROKA_HIBA = {
+  atvitel: { nev: "elfelejtett átvitel", pl: "38 + 25 = 53" },   /* csak átlépéses összeadásnál: − 10 */
+  tizes:   { nev: "kimaradt tízes",      pl: "38 + 25 = 43" },   /* az egyik tag tízesei (legalább 20) kimaradnak */
+  csere:   { nev: "felcserélt jegyek",   pl: "36 helyett 63" },
+  egy:     { nev: "eggyel elszámolta",   pl: "38 + 25 = 62" }
+};
+/* egy hibás eredmény a megadott típussal, vagy null, ha erre a blokkra nem illik */
+function rokaHibaz(tetelek, tipus) {
+  var h = tallerOsszeg(tetelek), r = null;
+  if (tipus === "atvitel") {
+    var egyesek = 0; tetelek.forEach(function (v) { egyesek += v % 10; });
+    if (egyesek >= 10) r = h - 10 * Math.floor(egyesek / 10);
+  } else if (tipus === "tizes") {
+    var t = tetelek.filter(function (v) { return v >= 20 && v % 10 !== 0; });
+    if (t.length) r = h - Math.floor(veletlenElem(t) / 10) * 10;
+  } else if (tipus === "csere") {
+    if (h >= 12 && h <= 98 && h % 10 !== 0 && h % 10 !== Math.floor(h / 10)) r = (h % 10) * 10 + Math.floor(h / 10);
+  } else if (tipus === "egy") r = h + (Math.random() < 0.5 ? 1 : -1);
+  return r != null && r > 0 && r <= 100 && r !== h ? r : null;
+}
+/* kerekítés tízesre (5 felfelé) — a „körülbelül stimmel?” lépés */
+function kerekTizes(v) { return Math.floor((v + 5) / 10) * 10; }
+/* egy blokk. pontos: true/false (a sorrendet a rokaSor adja). Vissza: { tetelek, irt (amit Juli írt), helyes, pontos,
+   hiba (ROKA_HIBA kulcsa vagy null), becsles, kbStimmel (a becslés kifogja-e: |írt − becslés| ≤ 5 × tételszám),
+   tenyTipus (a tény-motor 100-as típusa, két tételnél), naplo } */
+function rokaBlokk(pontos, cfg) {
+  cfg = cfg || {};
+  var n = cfg.tetelek || boltBeall().tetelek, tet, h, hiba = null, irt;
+  for (var p = 0; p < 200; p++) {
+    tet = [];
+    for (var i = 0; i < n; i++) tet.push(veletlen(n === 2 ? 11 : 6, n === 2 ? 69 : 39));
+    h = tallerOsszeg(tet);
+    if (h > 100 || tet.some(function (v) { return v % 10 === 0; })) continue;
+    if (pontos) { irt = h; break; }
+    hiba = veletlenElem(cfg.hibak || Object.keys(ROKA_HIBA));
+    irt = rokaHibaz(tet, hiba);
+    if (irt != null) break;
+  }
+  if (irt == null) { pontos = true; hiba = null; irt = h; }   /* (200 próbából sosem marad üres; a gépi próba figyeli) */
+  var becs = 0; tet.forEach(function (v) { becs += kerekTizes(v); });
+  var kerdes = tet.join(" + "), tk = n === 2 && typeof tenyKulcs === "function" ? tenyKulcs({ tipus: "osszeadas", kerdes: kerdes }) : null;
+  return {
+    forma: "blokk", tetelek: tet, irt: irt, helyes: h, pontos: !!pontos, hiba: pontos ? null : hiba,
+    becsles: becs, kbStimmel: Math.abs(irt - becs) <= 5 * n, tenyTipus: tk && tk.tipus ? tk.kulcs : null,
+    naplo: n === 2 ? { tipus: "osszeadas", kerdes: kerdes, forma: "b" } : { tipus: "bolt", kerdes: kerdes, forma: "b" }   /* 3 tétel: nem egy tény */
+  };
+}
+/* egy állomás blokkjainak sorrendje: db blokkból a beállított arányban pontos (5-ből 2), összekeverve,
+   hogy ne legyen kiszámítható; legalább egy pontos és egy hibás, ha db ≥ 2 */
+function rokaSor(db, B) {
+  B = B || boltBeall();
+  var p = Math.round(db * B.rokaPontos / 5);
+  if (db >= 2) p = Math.min(db - 1, Math.max(1, p));
+  var sor = [];
+  for (var i = 0; i < db; i++) sor.push(i < p);
+  return keverTomb(sor);
+}
+function keverTomb(t) { for (var i = t.length - 1; i > 0; i--) { var j = veletlen(0, i), x = t[i]; t[i] = t[j]; t[j] = x; } return t; }
+/* a pecsét: "ok" (✓) vagy "x" (✗); javitas: a beírt szám (✗ után kötelező).
+   🔒 A ✓ csak pontos blokkon ér, a ✗ csak hibás blokkon ÉS jó javítással.
+   Vissza: { jo, ok: "jo" | "nem-vette-eszre" (✓ hibásra) | "rossz-javitas" | "gyanu" (✗ pontosra) } */
+function rokaPecsetEll(b, pecset, javitas) {
+  if (b.pontos) return pecset === "ok" ? { jo: true, ok: "jo" } : { jo: false, ok: "gyanu" };
+  if (pecset !== "x") return { jo: false, ok: "nem-vette-eszre" };
+  return +javitas === b.helyes ? { jo: true, ok: "jo" } : { jo: false, ok: "rossz-javitas" };
+}
+/* a 🦊 napló (a pult 🦊 sorához): P().roka = { atvitel: "EENE", …, pontos: "OOG" } — az utolsó 8 eset betűje:
+   E észrevette és javította · R észrevette, de rosszul javított · N nem vette észre · O pontosra ✓ · G pontosra ✗ (gyanakodott).
+   Minden hibás blokknál a 100-as típus is (t: { k2a: "EN" }), hogy a hiba-oka felismerés lássa, hol csúszik. */
+function rokaJegyez(b, ell) {
+  var p = P(), r = p.roka || (p.roka = {}), kulcs = b.pontos ? "pontos" : b.hiba, betu;
+  if (b.pontos) betu = ell.jo ? "O" : "G";
+  else betu = ell.jo ? "E" : ell.ok === "rossz-javitas" ? "R" : "N";
+  r[kulcs] = ((r[kulcs] || "") + betu).slice(-8);
+  if (!b.pontos && b.tenyTipus) { var t = r.t || (r.t = {}); t[b.tenyTipus] = ((t[b.tenyTipus] || "") + betu).slice(-8); }
+  return betu;
+}
+/* ============ 3i) 🪜🏡⚙️ A 100-AS KÖR ÚJ PÁLYÁI — feladatgyártó (terv/eletszeru-100-as-palyak-terv.html 4. + 5. pont) ============
+   2. kör (2026-10-23): LÁTHATATLAN közös alap, mint a bolt.js: tiszta adat, kép nélkül; a gépi próba ⑩ piac-őre gyárt
+   belőle ezreket. A 3–4. kör rajzolja („épülő utca”: Rokon-létra ház, Számcsalád ház), később a falu házai is ezt kapják.
+
+     🪜 rokon     Rokon-létra: 7 + 5 → 27 + 5 → 67 + 5 (ugyanaz az ugrás, csak egy tízessel arrébb); kivonással 12 − 5 → 42 − 5
+     🪜 segit     „Melyik kis feladat segít?”: 48 + 7 mellé 3 kártya, egy a rokon (8 + 7)
+     🏡 csalad    Számcsalád: 3 kavics (8, 5, 13) → 4 ablak (8 + 5, 5 + 8, 13 − 5, 13 − 8); kakukktojás: 4 kavicsból 1 kilóg
+     ⚙️ gep       Varázsgép (2. csomag): 5 → 12, 9 → 16 … a gyerek beállítja a tárcsát (+7); fordított gép: mi ment be?
+   Naplo-formák a tény-motorban: „r” = rokon-létra / segít, „c” = számcsalád, „g” = varázsgép (teny.js fejléce).
+   🔒 A létra fokai nem ismétlik a választ (a 27 + 5 eredménye nem a 12); a felhúzott ugrás csak a lépést mutatja. */
+
+function sk100Naplo(a, op, b, forma) {
+  return { tipus: op === "+" ? "osszeadas" : "kivonas", kerdes: a + (op === "+" ? " + " : " − ") + b, forma: forma };
+}
+/* a számvonal-ugrás a tízesen át: 7 + 5 → [7, 10, 12] és a lépések [3, 2]; 42 − 5 → [42, 40, 37] és [2, 3].
+   Ha nem lép át tízest, csak [kezdet, cél] és egy lépés. */
+function sk100Ugras(a, op, b) {
+  var c = op === "+" ? a + b : a - b, t = op === "+" ? Math.ceil(a / 10) * 10 : Math.floor(a / 10) * 10;
+  if (t === a || (op === "+" ? t >= c : t <= c)) return { pontok: [a, c], lepesek: [b] };
+  return { pontok: [a, t, c], lepesek: [Math.abs(t - a), Math.abs(c - t)] };
+}
+
+/* ── 🪜 Rokon-létra ───────────────────────────────────────────────────────────
+   cfg: { op: "+" | "-" (alap "+"), fokok (alap 3), atlepes: true (alap: az alsó fok átlépi a tízest) }
+   Az alsó fok egyjegyű tény (7 + 5 / 12 − 5); a többi fok ugyanaz egy-egy (növekvő) tízessel arrébb. */
+function rokonLetra(cfg) {
+  cfg = cfg || {};
+  var op = cfg.op || "+", db = cfg.fokok || 3, at = cfg.atlepes !== false, a, b;
+  for (var p = 0; p < 100; p++) {
+    if (op === "+") { a = veletlen(2, 9); b = veletlen(2, 9); if (at ? a + b > 10 : a + b < 10) break; }
+    else if (at) { a = veletlen(11, 18); b = veletlen(2, 9); if (a - b < 10) break; }   /* 12 − 5 → 42 − 5 */
+    else { a = veletlen(3, 9); b = veletlen(2, a - 1); break; }                          /* átlépés nélkül: 8 − 3 → 38 − 3 */
+  }
+  /* a tízesek: növekvő, különböző eltolások úgy, hogy a felső fok is 100-ban maradjon */
+  var maxT = Math.floor((100 - (op === "+" ? a + b : a)) / 10), lehet = [];
+  for (var t = 1; t <= maxT; t++) lehet.push(t * 10);
+  keverTomb(lehet);
+  var tolas = [0].concat(lehet.slice(0, db - 1).sort(function (x, y) { return x - y; }));
+  var fokok = tolas.map(function (d) {
+    var x = a + d, c = op === "+" ? x + b : x - b;
+    return { a: x, b: b, op: op, c: c, ugras: sk100Ugras(x, op, b), naplo: sk100Naplo(x, op, b, "r") };
+  });
+  return { forma: "rokon", op: op, fokok: fokok };
+}
+
+/* ── 🪜 „Melyik kis feladat segít?” ───────────────────────────────────────────
+   Egy 100-as feladat (kétjegyű ± egyjegyű, átlépéssel) és 3 kártya: a rokon + 2 csali.
+   A rokon pontosan az, amit a tény-motor is rokonnak tart (tenyKulcs(...).rokon — a gépi próba összeveti).
+   Csalik: a tízes jegye a tag helyén (48 + 7 → 4 + 7), a szomszéd tény (8 + 6), vagy a tízesek (40 + 7). */
+function rokonSegit(cfg) {
+  cfg = cfg || {};
+  var op = cfg.op || (Math.random() < 0.5 ? "+" : "-"), a, b, c;
+  for (var p = 0; p < 100; p++) {
+    a = veletlen(21, 89); b = veletlen(3, 9);
+    if (a % 10 === 0 || !atlepesE(a, b, op)) continue;
+    c = op === "+" ? a + b : a - b;
+    if (c <= 100 && c >= 10) break;
+  }
+  var e = a % 10, ra = op === "+" ? e : 10 + e;              /* 48 + 7 → 8 + 7 · 42 − 5 → 12 − 5 */
+  var rokon = { a: ra, b: b, op: op };
+  var jelolt = [
+    { a: Math.floor(a / 10), b: b, op: op },                  /* a tízes jegye a tag helyén */
+    { a: ra, b: b + (b < 9 ? 1 : -1), op: op },               /* a szomszéd tény */
+    { a: ra, b: b - 1, op: op },
+    { a: Math.floor(a / 10) * 10, b: b, op: op }              /* csak a tízesek */
+  ].filter(function (k) {
+    var v = k.op === "+" ? k.a + k.b : k.a - k.b;
+    return k.b >= 1 && v >= 0 && !(k.a === rokon.a && k.b === rokon.b);
+  }).filter(function (k, i, t) { return !t.slice(0, i).some(function (m) { return m.a === k.a && m.b === k.b; }); });   /* két egyforma csali se legyen */
+  keverTomb(jelolt);
+  var kartyak = keverTomb([rokon, jelolt[0], jelolt[1]]).map(function (k) { return { a: k.a, b: k.b, op: k.op, szoveg: k.a + (k.op === "+" ? " + " : " − ") + k.b }; });
+  var jo = -1;
+  kartyak.forEach(function (k, i) { if (k.a === rokon.a && k.b === rokon.b) jo = i; });
+  return { forma: "segit", a: a, b: b, op: op, c: c, kartyak: kartyak, jo: jo, naplo: sk100Naplo(a, op, b, "r") };
+}
+
+/* ── 🏡 Számcsalád ────────────────────────────────────────────────────────────
+   cfg: { max: 20 | 100 (alap 20), kakukk: true (4. kavics, ami nem tartozik a családba) }
+   x + y = z, x ≠ y (különben csak 2 ablak volna). Az ablakok: x + y, y + x, z − x, z − y.
+   A kakukktojás közeli szám (z ± 1, z ± 10, x + 1 …), de úgy, hogy a 4 kavicsból SEMMI más hármas ne alkosson családot. */
+function szamCsalad(cfg) {
+  cfg = cfg || {};
+  var max = cfg.max || 20, x, y, z;
+  for (var p = 0; p < 100; p++) {
+    if (max <= 20) { x = veletlen(2, 9); y = veletlen(2, 9); }
+    else { x = veletlen(11, 69); y = veletlen(6, 49); }
+    z = x + y;
+    if (x !== y && z <= max && (max <= 20 ? z > 10 : z > 20)) break;
+  }
+  var kavicsok = [x, y, z], kakukk = null;
+  if (cfg.kakukk) {
+    var jel = [z + 1, z - 1, z + 10, z - 10, x + 1, y - 1, x + 10].filter(function (k) {
+      return k > 0 && k <= max && kavicsok.indexOf(k) < 0 && csaladokSzama(kavicsok.concat([k])) === 1;
+    });
+    kakukk = jel.length ? veletlenElem(jel) : null;
+    if (kakukk != null) kavicsok = keverTomb(kavicsok.concat([kakukk]));
+  }
+  return {
+    forma: "csalad", max: max, x: x, y: y, z: z, kavicsok: kavicsok, kakukk: kakukk,
+    ablakok: [[x, "+", y, z], [y, "+", x, z], [z, "−", x, y], [z, "−", y, x]],
+    naplo: sk100Naplo(x, "+", y, "c")
+  };
+}
+/* hány különböző családot (p + q = r hármast) alkot egy kavics-sor — a kakukktojás egyértelműségéhez */
+function csaladokSzama(l) {
+  var db = 0;
+  for (var i = 0; i < l.length; i++) for (var j = i + 1; j < l.length; j++) for (var k = 0; k < l.length; k++)
+    if (k !== i && k !== j && l[i] + l[j] === l[k] && l[i] !== l[j]) db++;
+  return db;
+}
+/* egy ablak: a gyerek 3 kavicsot rakott be (p op q = r). Vissza: { jo, ok: "jo" | "nem-csalad" (más kavics) | "nem-igaz" (5 − 13) | "megvan" (ez az ablak-alak már kész) }.
+   A „+” két sorrendje külön ablak (8 + 5 és 5 + 8), a „−” is (13 − 5 és 13 − 8). keszek: a már kigyúlt ablakok [[p, op, q, r], …] */
+function csaladAblakEll(cs, p, op, q, r, keszek) {
+  var t = [cs.x, cs.y, cs.z];
+  if (!tallerUgyanaz([p, q, r], t)) return { jo: false, ok: "nem-csalad" };
+  var igaz = op === "+" ? p + q === r : p - q === r;
+  if (!igaz) return { jo: false, ok: "nem-igaz" };
+  if ((keszek || []).some(function (w) { return w[0] === p && w[1] === op && w[2] === q; })) return { jo: false, ok: "megvan" };
+  return { jo: true, ok: "jo" };
+}
+
+/* ── ⚙️ Varázsgép (2. csomag) ──────────────────────────────────────────────────
+   cfg: { op: "+" | "-", k: a szabály (alap: 2–9), probak (alap 3), forditott: true (csak a kimenet látszik) }
+   Minden be- és kimenet 0–100 között; a próbák különbözők és nem egymás után sorban (a gyerek ne a sorozatot olvassa). */
+function varazsGep(cfg) {
+  cfg = cfg || {};
+  var op = cfg.op || (Math.random() < 0.6 ? "+" : "-"), k = cfg.k || veletlen(2, 9), db = cfg.probak || 3, max = cfg.max || 100;
+  var lo = op === "+" ? 1 : k + 1, hi = op === "+" ? max - k : max, be = [];   /* a 0 se be, se ki (a tény-motor nem méri) */
+  for (var p = 0; be.length < db + 1 && p < 500; p++) {
+    var v = veletlen(lo, Math.min(hi, max <= 20 ? 20 : 99));
+    if (be.indexOf(v) < 0 && be.indexOf(v - 1) < 0 && be.indexOf(v + 1) < 0) be.push(v);
+  }
+  function ki(v) { return op === "+" ? v + k : v - k; }
+  var probak = be.slice(0, db).map(function (v) { return [v, ki(v)]; }), kerdes = be[db];
+  return {
+    forma: "gep", szabaly: { op: op, k: k }, probak: probak, forditott: !!cfg.forditott,
+    kerdes: cfg.forditott ? ki(kerdes) : kerdes, valasz: cfg.forditott ? kerdes : ki(kerdes),
+    naplo: cfg.forditott ? sk100Naplo(ki(kerdes), op === "+" ? "-" : "+", k, "g") : sk100Naplo(kerdes, op, k, "g")
+  };
 }
 /* ============ 3e) ⚡ VILLÁMKÖR — a sprint közös alapja (terv/villamkor-terv.html, terv/villamkor-rajzterv.html) ============
    Egy perc futás: csak a gyerek által már TUDOTT tények (doboz ≥ 3), felolvasás nélkül, saját rekord ellen.
@@ -31108,6 +31469,12 @@ window.UC = {
   NYITO: NYITO, EP: function () { return EP; }, nyitoIndul: nyitoIndul, nyitoRajzol: nyitoRajzol, legeloNyit: legeloNyit, legeloBelepo: legeloBelepo, legeloFelho: legeloFelho, LEGELO: LEGELO, FELHO: FELHO, nyitoFrissit: nyitoFrissit, elsoPercKell: elsoPercKell, elsoPercIndit: elsoPercIndit, epNevTisztit: epNevTisztit, boltFulek: boltFulek, boltCsoportok: boltCsoportok, belepoMutat: belepoMutat,   /* 🚪 nyitókép + első perc (nyitokep.js) */
   nyitasEbren: nyitasEbren, nyitasHely: nyitasHely, nyitasHarmatRejtett: nyitasHarmatRejtett, nyitasSarkanyNap: nyitasSarkanyNap, nyitasBemutatKell: nyitasBemutatKell, nyitasEsemeny: nyitasEsemeny, nyitasPultAllapot: nyitasPultAllapot, NYITAS_OSZTALY: NYITAS_OSZTALY, NYITAS_NAPOK: NYITAS_NAPOK,   /* 🚪 ÚJONC-MENET (nyitas.js) */
   ligetOsszegzo: ligetOsszegzo, fomenuLigetek: fomenuLigetek,
+  /* 🏪 Piactér 2. kör (láthatatlan közös alap): a gépi próba ⑩ piac-őre ezekkel gyárt és ellenőriz */
+  TALLER: TALLER, boltBeall: boltBeall, tallerOsszeg: tallerOsszeg, tallerLegkevesebb: tallerLegkevesebb, tallerUgyanaz: tallerUgyanaz, tallerBevalt: tallerBevalt, tallerFelvalt: tallerFelvalt,
+  boltFizet: boltFizet, boltFizetEll: boltFizetEll, VISSZA_FOK: VISSZA_FOK, boltVissza: boltVissza, boltVisszaEll: boltVisszaEll,
+  ROKA_HIBA: ROKA_HIBA, rokaBlokk: rokaBlokk, rokaSor: rokaSor, rokaPecsetEll: rokaPecsetEll, rokaJegyez: rokaJegyez, kerekTizes: kerekTizes,
+  rokonLetra: rokonLetra, rokonSegit: rokonSegit, szamCsalad: szamCsalad, csaladokSzama: csaladokSzama, csaladAblakEll: csaladAblakEll, varazsGep: varazsGep,
+  HE_SZIN: HE_SZIN, heHely: heHely,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

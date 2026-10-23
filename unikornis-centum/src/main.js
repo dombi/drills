@@ -104,6 +104,12 @@ window.UC = {
   NYITO: NYITO, EP: function () { return EP; }, nyitoIndul: nyitoIndul, nyitoRajzol: nyitoRajzol, legeloNyit: legeloNyit, legeloBelepo: legeloBelepo, legeloFelho: legeloFelho, LEGELO: LEGELO, FELHO: FELHO, nyitoFrissit: nyitoFrissit, elsoPercKell: elsoPercKell, elsoPercIndit: elsoPercIndit, epNevTisztit: epNevTisztit, boltFulek: boltFulek, boltCsoportok: boltCsoportok, belepoMutat: belepoMutat,   /* 🚪 nyitókép + első perc (nyitokep.js) */
   nyitasEbren: nyitasEbren, nyitasHely: nyitasHely, nyitasHarmatRejtett: nyitasHarmatRejtett, nyitasSarkanyNap: nyitasSarkanyNap, nyitasBemutatKell: nyitasBemutatKell, nyitasEsemeny: nyitasEsemeny, nyitasPultAllapot: nyitasPultAllapot, NYITAS_OSZTALY: NYITAS_OSZTALY, NYITAS_NAPOK: NYITAS_NAPOK,   /* 🚪 ÚJONC-MENET (nyitas.js) */
   ligetOsszegzo: ligetOsszegzo, fomenuLigetek: fomenuLigetek,
+  /* 🏪 Piactér 2. kör (láthatatlan közös alap): a gépi próba ⑩ piac-őre ezekkel gyárt és ellenőriz */
+  TALLER: TALLER, boltBeall: boltBeall, tallerOsszeg: tallerOsszeg, tallerLegkevesebb: tallerLegkevesebb, tallerUgyanaz: tallerUgyanaz, tallerBevalt: tallerBevalt, tallerFelvalt: tallerFelvalt,
+  boltFizet: boltFizet, boltFizetEll: boltFizetEll, VISSZA_FOK: VISSZA_FOK, boltVissza: boltVissza, boltVisszaEll: boltVisszaEll,
+  ROKA_HIBA: ROKA_HIBA, rokaBlokk: rokaBlokk, rokaSor: rokaSor, rokaPecsetEll: rokaPecsetEll, rokaJegyez: rokaJegyez, kerekTizes: kerekTizes,
+  rokonLetra: rokonLetra, rokonSegit: rokonSegit, szamCsalad: szamCsalad, csaladokSzama: csaladokSzama, csaladAblakEll: csaladAblakEll, varazsGep: varazsGep,
+  HE_SZIN: HE_SZIN, heHely: heHely,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,
