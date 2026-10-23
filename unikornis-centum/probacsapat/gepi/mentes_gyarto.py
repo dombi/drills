@@ -48,7 +48,7 @@ def gyart(mi):
         mappa = kicsomagol(commit, tmp)
         k = motor.Kiszolgalo(mappa); e = motor.Edge(); l = e.uj_lap(); l.meret(1366, 768)
         l.betolt(k.cim(), "window.__GEPI_EVAL && __GEPI_EVAL('typeof mentes') === 'object'"); l.pihen(0.5)
-        l.katt("#profil-lista .profil-kartya", 1.0)          # a régi változatban is létrehozza a mentést
+        l.katt("#profil-lista .profil-kartya", 1.0) or l.katt("#nyito-szin .lg-uni.valaszthato", 1.0)   # a régi változatban is létrehozza a mentést
         tolto = open(os.path.join(ITT, "mentes_tolto.js"), encoding="utf-8").read()
         szoveg = l.belul(tolto)
         if not szoveg: raise SystemExit("a régi játék nem írt mentést")

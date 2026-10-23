@@ -1,15 +1,14 @@
 /* ============ 7b) 🚪 NYITÓKÉP + AZ ELSŐ PERC (Újonc-bevezetés 2. kör, 2026-10-20) ============
    Terv: terv/ujonc-bevezetes-rendszerterv.html 4.⓪–② (✅) + terv/ujonc-bevezetes-rajzterv.html 1–2. (✅ A · Jelenet).
    NYITÓKÉP — minden indulás ezen a kapun át (Lili és Fanni is ezt kapja, nem újonc-dolog):
-     • a rét, a cím, az odú, és a gyerek unikornisa szunyókál a fűben, mellette fatábla a gyerek nevével;
-     • koppintásra felébred (uniFelebred), nyújtózik (uniNyujtozik), köszön („Szia, Petra! Már vártalak!” — napszak nélkül),
-       aztán a térkép jön (az újoncnál az első perc). Ez a belépés: nem kell hozzá olvasni.
-     • SAJÁT GÉP: a kódot csak az első belépéskor kell beírni (a belépő kártya, auth.js) — aki most írta be, annak nem kell
-       még egyszer ébresztenie (NYITO.belepett).
-     • KÖZÖS GÉP (auth.js kozosGep): a jelenetben a gép összes gyereke alszik, mindegyik a saját táblájával; koppintásra
-       felébred és köszön, utána jön a kód (belepoMutat(kod)). „✏️ Másik gyerek” tábla: kód névkártya nélkül (bármelyik kód beléphet).
+     • 🦄 BELÉPŐ LEGELŐ (1. kör, 2026-10-23, legelo.js): belépve (vagy felhő nélkül) a nyitókép maga a legelő — mind az öt
+       unikornis a réten, a gyerek azt koppintja meg, amelyikkel játszani akar; a 🦄 Váltás is ide hoz vissza.
+       A kódot csak az első belépéskor kell beírni (a belépő kártya, auth.js).
+     • KÖZÖS GÉP (auth.js kozosGep), még belépés előtt: a jelenetben a gép összes gyereke alszik, mindegyik a saját táblájával;
+       koppintásra felébred és köszön, utána jön a kód (belepoMutat(kod)), a belépés után a legelő (NYITO.belepett).
+       „✏️ Másik gyerek” tábla: kód névkártya nélkül (bármelyik kód beléphet). (A legelő 2. köre ezt is kiváltja.)
    AZ ELSŐ PERC (újonc: nyitas.js nyitasSzuz, még nincs P().uj rekord, a pult nem kapcsolta ki) — három koppintás a képen:
-     ① választás: az 5 unikornis legel (számok nélkül), a koppintott odaüget és ugrik, a többi visszahúzódik;
+     ① választás: a legelő (legelo.js, mod "ujonc"): mindenki ébren, a koppintott odaüget és ugrik, a többi elhalványul;
      ② név: 3 felhő 3 névvel (koppintásra felolvassa) + „✏️ Saját nevet adok” (mező) → P().becenev;
      ③ osztály: 6 lufi egy cölöphöz kötve → a koppintott elszáll → nyitasIndit(o) (a pult osztálya esetén ez a lépés kimarad).
      Utána a térkép: az unikornis a világító helyhez sétál, és segítséget kér (NYITAS_ELSO_LIGET, terkep.js). */
@@ -78,31 +77,27 @@ function nyitoNev() {
 
 /* ── indítás (main.js): közös gépen a belépő már a jelenetet mutatja; az újonc egyből az első perccel kezd ── */
 function nyitoIndul() {
-  renderProfil();
   if (NYITO.mod === "kozos") return;
   if (elsoPercKell()) { elsoPercIndit(); return; }
-  nyitoRajzol("sajat");
+  legeloNyit();
 }
 /* a felhő megjött / változott (db.js felhoKepernyoFrissit), miközben a nyitókép látszik */
 function nyitoFrissit() {
-  if (NYITO.tovabb) return;
-  if (NYITO.belepett && (FELHO.kesz || FELHO.offline)) { nyitoTovabb(); return; }   /* most írta be a kódot: nem kell még egyszer ébreszteni */
-  if (NYITO.ebren || NYITO.mod === "kozos") return;                               /* ébredés közben nem rajzoljuk újra (a végén úgyis megvárja) */
+  if (NYITO.tovabb || LEGELO.valaszt && LEGELO.host === $("nyito-szin")) return;   /* választás közben nem rajzoljuk újra (a végén úgyis megvárja) */
+  if (NYITO.mod === "kozos" && !(NYITO.belepett && (FELHO.kesz || FELHO.offline))) return;   /* a gép gyerekei alszanak, amíg valaki be nem lép */
+  var friss = NYITO.belepett; NYITO.belepett = false;
   if (elsoPercKell()) { elsoPercIndit(); return; }
-  nyitoRajzol("sajat");
+  legeloNyit(!friss && NYITO.mod === "sajat");   /* ugyanaz a kép marad, csak a kinézetek frissülnek (most belépve: új kép) */
 }
-/* mod: "sajat" (egy gyerek: az aktív unikornis) | "kozos" (a gép gyerekei, gepJatekosok) */
+/* mod: "sajat" (belépve / egy gép egy gyereke: a legelő, legelo.js) | "kozos" (a gép gyerekei alszanak, gepJatekosok) */
 function nyitoRajzol(mod) {
+  if (mod !== "kozos") { legeloNyit(); return; }
   NYITO.mod = mod; NYITO.ebren = false; NYITO.tovabb = false;
   clearTimeout(NYITO.varT);
-  var gy;
-  if (mod === "kozos") {
-    gy = gepJatekosok().slice().reverse().slice(0, 4).map(function (j) { return { nev: jatekosNev(j.kod), kod: j.kod, leny: j.leny, oltozet: j.oltozet, kinezet: j.kinezet }; });
-  } else {
-    var p = P(), n = nyitoNev();
-    gy = [{ nev: n || p.becenev || LENYEK[mentes.leny].nev, cimzett: n, leny: mentes.leny, oltozet: p.oltozet, kinezet: p.kinezet }];
-  }
+  $("nyito-szuloi").hidden = true;
+  var gy = gepJatekosok().slice().reverse().slice(0, 4).map(function (j) { return { nev: jatekosNev(j.kod), kod: j.kod, leny: j.leny, oltozet: j.oltozet, kinezet: j.kinezet }; });
   var host = $("nyito-szin"), k = gy.length, s = '<svg viewBox="0 0 800 460" class="uni-terep" xmlns="http://www.w3.org/2000/svg">' + nyDefs() + nyRetHatter(800, 460, 150);
+  host.classList.remove("allo");
   s += nyCim(78, k > 2 ? 44 : 50);
   s += '<g transform="translate(' + (k === 1 ? 150 : 70) + ' 432) scale(' + (k === 1 ? 2.5 : 1.8) + ')">' + LT_JELKEP.odu() + '</g>';
   s += [nyFu(300, 440), nyFu(740, 446), nyFu(520, 452), nyViragok([[280, 420], [560, 436], [700, 430], [380, 450], [620, 452]])].join("");
@@ -111,33 +106,16 @@ function nyitoRajzol(mod) {
     var ux = x0 + i * lep, tx = ux + (k === 1 ? 210 : 112 * sc / .82);
     s += nyTabla(tx, 414, g.nev) + nyAlvoUni(i, ux, 426, sc, g);
   });
-  if (mod === "kozos") s += '<g class="ny-uj" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "✏️ Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
-  else s += '<g class="ny-masik" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "👋 Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
+  s += '<g class="ny-uj" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "✏️ Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
   host.innerHTML = nySajatId(s + '</svg>');
   host.querySelectorAll(".ny-alvo").forEach(function (h) {
     uniElalszik(h.querySelector(".uni-alvas"), true);
     h.addEventListener("click", function () { nyitoEbreszt(h, gy[+h.dataset.i]); });
   });
-  var uj = host.querySelector(".ny-uj");
-  if (uj) uj.addEventListener("click", function () { hangGomb(); nyBubEl(host); belepoMutat(null); });
-  var masik = host.querySelector(".ny-masik");
-  if (masik) masik.addEventListener("click", function () { nyitoMasikGyerek(host, gy[0]); });
+  host.querySelector(".ny-uj").addEventListener("click", function () { hangGomb(); nyBubEl(host); belepoMutat(null); });
   mutat("kepernyo-nyito");
 }
-/* „👋 Másik gyerek” (2026-10-23, a producer kérése: a belépés/kilépés a nyitóképen legyen):
-   belépve két koppintás — az első csak kérdez (a gyerek véletlenül ne lépjen ki), a második kilép (felhoKilep → belépő);
-   kód nélkül egyből a belépő kártya jön */
-function nyitoMasikGyerek(host, gy) {
-  if (NYITO.ebren) return;
-  hangGomb();
-  var kod = FELHO.aktiv ? FELHO.kod : FELHO.offline && FELHO.offline.kod;
-  if (!kod) { nyBubEl(host); belepoMutat(null); return; }
-  if (NYITO.masikT) { clearTimeout(NYITO.masikT); NYITO.masikT = null; nyBubEl(host); felhoKilep(); return; }
-  var mondat = "Kilépsz, " + (gy.cimzett || jatekosNev(kod)) + "? Koppints még egyszer!";
-  nyBuborek(host, 700, 200, mondat, 5);
-  mondd(mondat);
-  NYITO.masikT = setTimeout(function () { NYITO.masikT = null; }, 5000);
-}
+/* közös gép: a felébresztett gyerek köszön, és kéri a kódját */
 function nyitoEbreszt(h, gy) {
   if (NYITO.ebren) return;
   NYITO.ebren = true; hangGomb();
@@ -146,38 +124,36 @@ function nyitoEbreszt(h, gy) {
   uniFelebred(u);
   var tabla = h.previousElementSibling;
   if (tabla && tabla.classList.contains("ny-tabla")) tabla.classList.add("ebred");
-  var x = +h.dataset.x, y = +h.dataset.y - 150 * +h.dataset.s, kozos = NYITO.mod === "kozos";
-  var mondat = kozos ? NYITO_KOD_KER.replace("{n}", gy.nev)
-    : (gy.cimzett ? veletlenElem(NYITO_KOSZON).replace("{n}", gy.cimzett) : veletlenElem(NYITO_KOSZON_N));
+  var x = +h.dataset.x, y = +h.dataset.y - 150 * +h.dataset.s, mondat = NYITO_KOD_KER.replace("{n}", gy.nev);
   setTimeout(function () {
     if (!h.isConnected) return;
     uniNyujtozik(u, function () {
       if (!h.isConnected) return;
       nyBuborek(host, x, y, mondat);
       mondd(mondat);
-      if (kozos) { setTimeout(function () { if (h.isConnected) belepoMutat(gy.kod); }, 900); return; }
-      setTimeout(nyitoTovabb, 1500);
+      setTimeout(function () { if (h.isConnected) belepoMutat(gy.kod); }, 900);
     });
   }, 500);
 }
 /* a közös gép kártyájáról visszalépett („← Vissza”): a gyerekek újra alszanak */
 function nyitoKozosVissza() { if (NYITO.mod === "kozos" && !NYITO.tovabb) nyitoRajzol("kozos"); }
-/* tovább a térképre (az újoncnál az első percre) — ha a felhő-mentés még úton van, egy kicsit megvárjuk */
-function nyitoTovabb() {
+/* a legelőn választott unikornissal tovább a térképre (az újoncnál az első percre) — ha a felhő-mentés még úton van,
+   egy kicsit megvárjuk; ha közben megjött, a választás marad (a felhő a régi aktív unikornist hozná) */
+function nyitoTovabb(leny) {
   if (NYITO.tovabb) return;
   if (FELHO.be && !FELHO.kesz && !FELHO.offline) {
     if (!NYITO.varKezd) NYITO.varKezd = Date.now();
-    if (Date.now() - NYITO.varKezd < NYITO_VAR_MS) { clearTimeout(NYITO.varT); NYITO.varT = setTimeout(nyitoTovabb, 250); return; }
+    if (Date.now() - NYITO.varKezd < NYITO_VAR_MS) { clearTimeout(NYITO.varT); NYITO.varT = setTimeout(function () { nyitoTovabb(leny); }, 250); return; }
   }
   if (!$("kepernyo-nyito").classList.contains("aktiv")) return;   /* közben máshová ment (pl. a felhő az első percre vitte) */
   NYITO.tovabb = true;
   nyBubEl($("nyito-szin"));
+  if (leny && mentes.profilok[leny] && mentes.leny !== leny) { mentes.leny = leny; ment(); }
   if (elsoPercKell()) elsoPercIndit(); else terkepNyit();
 }
 
 /* ════════════ AZ ELSŐ PERC ════════════ */
-var EP = { lepes: 0, tok: 0, leny: null, nev: "", legel: null };
-var EP_X = [100, 250, 400, 550, 700];
+var EP = { lepes: 0, tok: 0, leny: null, nev: "" };
 /* a név-felhők: 3 véletlen a listából (koppintásra felolvassa) — rövid, könnyen kimondható, kedves nevek */
 var EP_NEVEK = ["Pötty", "Csillag", "Bogyó", "Mazsola", "Pille", "Szellő", "Bársony", "Szikra", "Málna", "Gyöngy", "Füge", "Hópihe"];
 var EP_LUFI = [[470, 150, "#f6a5c0"], [548, 120, "#fce49a"], [626, 150, "#a7d99a"], [494, 228, "#9ec9f0"], [572, 204, "#c9a8e6"], [650, 232, "#f7c59f"]];
@@ -202,7 +178,7 @@ function elsoPercKell() {
   return nyitasMentesKesz();
 }
 function elsoPercIndit() {
-  EP = { lepes: 0, tok: 0, leny: null, nev: "", legel: null };
+  EP = { lepes: 0, tok: 0, leny: null, nev: "" };
   NYITO.tovabb = true;
   esemeny("elso_perc", { lepes: "indul" });
   epSajatKot();
@@ -224,13 +200,6 @@ function epUni(id, leny, x, y, s, dir, extra) {
   return '<g class="ny-mozgo ' + (extra || "") + '" data-leny="' + leny + '" style="transform:translate(' + x + 'px,' + y + 'px) scale(' + s + ')">' +
     '<g class="irany" style="--dir:' + (dir || 1) + ';transform:scale(var(--dir,1),1)">' + unikornisSVG(id, LENYEK[leny], 1, p.oltozet || null, p.kinezet || null) + '</g></g>';
 }
-function epHelyez(g, x, y, s) { g.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")"; }
-function epUget(g, x, y, s, kesz) {
-  var ir = g.querySelector(".irany"), tok = EP.tok;
-  if (!nyugiMod()) uniJar(ir, { mod: "uget", tempo: 1.2 });
-  epHelyez(g, x, y, s);
-  setTimeout(function () { uniAll(ir); if (kesz && tok === EP.tok) kesz(); }, nyugiMod() || window.__UC_GYORS ? 0 : 1100);
-}
 function epUgrik(g) {
   var ir = g && g.querySelector(".irany"); if (!ir || nyugiMod()) return;
   ir.classList.remove("uni-mozd-ugras", "ny-ugrik"); void ir.getBoundingClientRect();
@@ -239,8 +208,9 @@ function epUgrik(g) {
 }
 function epKesobb(fn, ms) { var tok = EP.tok; setTimeout(function () { if (tok === EP.tok && $("kepernyo-elsoperc").classList.contains("aktiv")) fn(); }, window.__UC_GYORS ? 0 : ms); }
 function epLepes(n) {
-  EP.lepes = n; EP.tok++; clearInterval(EP.legel);
+  EP.lepes = n; EP.tok++;
   var host = epHost(); nyBubEl(host);
+  if (n > 1) host.classList.remove("allo");   /* a ① legelő állva is lehet; a név-felhők és a lufik fekvő képek */
   $("ep-sajat").hidden = true;
   ({ 1: epValaszt, 2: epNev, 3: epOsztaly })[n](host);
 }
@@ -251,31 +221,10 @@ function epAtvalt(n) {   /* lágy áttűnés a következő lépésre */
 }
 function epSzol(x, y, mondat, mp) { nyBuborek(epHost(), x, y, mondat, mp); mondd(mondat); }
 
-/* ① választás: az unikornisok legelnek; a koppintott odaüget, ugrik, a többi visszahúzódik */
+/* ① választás: a legelő (legelo.js, mod "ujonc") — mindenki ébren; a koppintott odaüget, ugrik, a többi elhalványul */
 function epValaszt(host) {
-  var s = "";
-  LENY_SORREND.forEach(function (l, i) { s += epUni("ep-u" + i, l, EP_X[i % 5], 412, .84, i % 2 ? -1 : 1, "ny-kattinthato"); });
-  host.innerHTML = epVaz(s);
-  epKesobb(function () { epSzol(400, 236, EP_MONDAT.valaszt); }, 300);
-  var gk = host.querySelectorAll(".ny-mozgo"), valasztva = false;
-  if (!nyugiMod()) EP.legel = setInterval(function () {   /* legelés: egyikük lehajol a fűhöz (a játék „eszik” mozdulata) */
-    var g = gk[Math.floor(Math.random() * gk.length)].querySelector(".irany");
-    if (valasztva || g.classList.contains("uni-mozd-eszik")) return;
-    g.classList.add("uni-mozd-eszik"); setTimeout(function () { g.classList.remove("uni-mozd-eszik"); }, 1700);
-  }, 1300);
-  gk.forEach(function (g) {
-    g.addEventListener("click", function () {
-      if (valasztva) return; valasztva = true;
-      clearInterval(EP.legel); nyBubEl(host); hangGomb();
-      EP.leny = g.getAttribute("data-leny");
-      mentes.leny = EP.leny; ment();
-      gk.forEach(function (m) { if (m !== g) m.classList.add("hatra"); });
-      var ir = g.querySelector(".irany"), x = +((g.style.transform.match(/translate\(([-\d.]+)/) || [0, 400])[1]);
-      ir.classList.remove("uni-mozd-eszik");
-      ir.style.setProperty("--dir", x <= 400 ? 1 : -1);   /* a kép közepe felé néz */
-      epUget(g, 400, 418, 1.15, function () { epUgrik(g); epKesobb(function () { epAtvalt(2); }, 1500); });
-    });
-  });
+  var tok = EP.tok;
+  legeloRajzol(host, "ujonc", function (l) { if (tok !== EP.tok) return; EP.leny = l; epAtvalt(2); });
 }
 
 /* ② név: 3 felhő (koppintásra felolvassa) + „✏️ Saját nevet adok” */

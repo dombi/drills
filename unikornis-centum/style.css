@@ -56,20 +56,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .csilla-szamlalo.harmat{ background:#cfeaf7; }
 .csilla-ikon{ filter:drop-shadow(0 0 3px #ffe08a); }
 
-#kepernyo-profil{ justify-content:flex-start; overflow-y:auto; padding:30px 12px 40px; background:linear-gradient(#dcecff,#ece0f3 60%,#f5e6f2); }
-.jatekcim{ font-size:32px; color:var(--lila-sotet); text-shadow:0 2px 0 #fff; letter-spacing:1px; margin-top:auto; }
-.alcim{ font-size:19px; color:var(--halvany); margin:6px 0 22px; }
-.profil-lista{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:auto; }   /* 5 unikornis: laptopon egy sorban */
-.profil-kartya{
-  width:186px; background:var(--felho); border-radius:24px; padding:12px 12px 14px;
-  box-shadow:0 8px 22px rgba(74,59,122,.18); text-align:center; border:3px solid transparent;
-  transition:transform .12s, border-color .12s;
-}
-.profil-kartya:active{ transform:scale(.97); }
-.profil-kartya:hover{ border-color:var(--levendula); }
-.profil-kartya .nev{ font-size:20px; font-weight:800; margin-top:4px; }
-.profil-kartya .adat{ font-size:14px; color:var(--halvany); margin-top:3px; }
-.profil-kartya svg{ width:158px; max-width:100%; height:150px; }
 .szuloi-gomb{ font-size:14px; padding:8px 14px; border-radius:12px; background:var(--uveg); color:var(--halvany); }
 .sarok{ position:absolute; right:16px; bottom:16px; }
 [data-hosszu].nyomva{ background:var(--sarga-mely); }
@@ -185,8 +171,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 .ny-kodfelho.felszall{ opacity:0; transform:translateY(-34px); }
 /* 🚪 újonc-menet, 3. kör (nyitas.js): 💧 rejtett zseb · alvó barátok a profilválasztón · alvó ház az utcán (rajzterv 4.: zárt spaletta) */
 body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ display:none !important; }
-.profil-kartya.ny-alvo-barat{ opacity:.55; filter:saturate(.4); }
-.profil-kartya.ny-alvo-barat .adat{ font-size:20px; }
 .u-alszik > g{ filter:brightness(.72) saturate(.55); transition:filter 1.4s; }
 .u-alszik .u-feny{ animation:none !important; opacity:0 !important; }
 .u-ebred > g{ transition:filter 1.4s; }
@@ -435,11 +419,6 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 @media (max-width:560px){
   .bagoly-buborek{ max-width:88vw; left:6vw; transform:none; }   /* a középre toló eltolás nélkül (különben balra kilógott) */
   .kerulo-gomb{ font-size:13px; padding:10px 8px; }
-  .profil-lista{ gap:10px; }
-  .profil-kartya{ width:calc(50% - 5px); max-width:180px; padding:10px 6px 12px; }   /* telefonon kettesével */
-  .profil-kartya svg{ height:auto; aspect-ratio:158/150; }
-  .profil-kartya .nev{ font-size:17px; }
-  #profil-szuloi{ position:static; margin-top:18px; flex-shrink:0; }   /* 5 kártya alatt: a sarokban rálógna az utolsóra */
 }
 
 .kaszino-vissza{ position:absolute; left:14px; top:12px; font-size:24px; text-decoration:none; opacity:.65; z-index:10; }
@@ -1504,7 +1483,6 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 .felho-nevkartya.valasztott { border-color: #a57ee0; background: #f6efff; box-shadow: 0 0 0 3px rgba(165, 126, 224, 0.25); }
 .felho-kartya [hidden] { display: none; }
 .sarok-bal { position: absolute; left: 16px; bottom: 16px; }
-#profil-kilep[hidden] { display: none; }
 
 /* ============================================================================
    ÉGI TÜNEMÉNYKERT (5. fázis) — közös felhőkert, egymás unikornisai
@@ -3094,7 +3072,6 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes ny-tabla-billeg{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-5deg); } 60%{ transform:rotate(4deg); } }
 .ny-mozgo{ transition:transform 1.1s ease-in-out, opacity .8s; }
 .ny-mozgo.hatra{ opacity:0; }
-.ny-kattinthato{ cursor:pointer; }
 .ny-ugrik .uni-magas{ animation:ny-ugrik 1.1s ease-in-out 1; }
 @keyframes ny-ugrik{ 0%,14%{ transform:translateY(0); } 30%{ transform:translateY(-56px); } 50%{ transform:translateY(0); } 64%{ transform:translateY(-18px); } 78%,100%{ transform:translateY(0); } }
 .ny-felho{ transform-box:fill-box; transform-origin:50% 50%; animation:ny-felho-leng 4s ease-in-out infinite; cursor:pointer; }
@@ -3121,4 +3098,24 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @media (prefers-reduced-motion:reduce){
   .ny-koppints, .ny-felho, .ny-lufi{ animation:none; }
   #utca-bolt.bemutat-ragyog{ animation:none; filter:drop-shadow(0 0 8px rgba(255,220,120,1)); }
+}
+
+/* ═══ 🦄 BELÉPŐ LEGELŐ (1. kör; rajzok: terv/belepo-legelo-rajzterv.html, src/legelo.js) ═══ */
+.ny-szin.allo{ width:min(100vw, calc(100vh * 400 / 760)); aspect-ratio:400/760; }   /* telefon állva: a legelő álló elrendezése */
+.lg-uni{ cursor:pointer; }
+.lg-uni.halvany{ opacity:.45; transition:opacity .8s; }
+.lg-tabla-g{ cursor:pointer; }
+.ny-szuloi{ position:absolute; left:56px; top:14px; z-index:10; font-size:13px; padding:4px 10px; opacity:.7; }
+.ny-szuloi[hidden]{ display:none; }
+/* „vár rád”: szív-buborék a feje fölött (akivel még sosem játszott) */
+.lg-varad{ transform-box:fill-box; transform-origin:50% 100%; animation:lg-lebeg 2.8s ease-in-out infinite; pointer-events:none; }
+@keyframes lg-lebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
+/* mély alvás (az újonc első két hetében a többiek): felhő-paplan + hold */
+.lg-paplan{ transform-box:fill-box; transform-origin:50% 100%; animation:lg-paplan 4.2s ease-in-out infinite; pointer-events:none; }
+@keyframes lg-paplan{ 0%,100%{ transform:scale(1,1); } 45%{ transform:scale(1.01,1.04); } }
+.lg-paplan.rezzen{ animation:lg-rezzen .6s ease-in-out 1; }
+@keyframes lg-rezzen{ 0%,100%{ transform:rotate(0); } 30%{ transform:rotate(-2deg); } 70%{ transform:rotate(2deg); } }
+.lg-hold{ animation:lg-lebeg 5s ease-in-out infinite; transform-box:fill-box; pointer-events:none; }
+@media (prefers-reduced-motion:reduce){
+  .lg-varad, .lg-paplan, .lg-hold{ animation:none; }
 }

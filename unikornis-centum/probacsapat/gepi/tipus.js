@@ -11,7 +11,7 @@ function TIPUS_KULCS(pa, f) {
 async function tipusokGyujt() {
   var ki = {};
   function pihen(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-  var pf = document.querySelector("#profil-lista .profil-kartya"); if (pf && document.querySelector("#kepernyo-profil.aktiv")) { pf.click(); await pihen(300); }
+  if (document.querySelector("#kepernyo-nyito.aktiv")) { UC.terkepNyit(); await pihen(300); }   /* a legelőről egyenesen a térképre */
   var palyak = UC.PALYAK.filter(function (p) { return !p.hamarosan; });
   for (var i = 0; i < palyak.length; i++) {
     try { UC.palyaInditas(palyak[i].id); } catch (e) { continue; }

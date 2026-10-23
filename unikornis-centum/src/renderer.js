@@ -1426,8 +1426,7 @@ function anchorViz(on) {
   window.__UC_ANCHOR = (on !== false);
   var aktiv = (document.querySelector(".kepernyo.aktiv") || {}).id;
   try {
-    if (aktiv === "kepernyo-profil") renderProfil();
-    else if (aktiv === "kepernyo-odu") renderOdu();
+    if (aktiv === "kepernyo-odu") renderOdu();
     else if (aktiv === "kepernyo-fomenu") renderFomenu();
     var op = $("odu-panel"); if (op && !op.hidden) renderOduPanel();
   } catch (e) {}

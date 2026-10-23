@@ -42,8 +42,8 @@ KEPERNYOK = [
     ("Utca: pad (cica)",   ["hely:utca", "katt:#utca-pad"],                 "kepernyo-utca", None),
     ("Fodrászat",          [NYIT_SZALON, "hely:utca", "katt:#utca-fodrasz"], "kepernyo-szalon", None),
     ("Tündérbank",         ["hely:utca", "katt:#utca-bank"],                "kepernyo-bank", None),
-    ("Profilválasztó",     ["katt:#fomenu-vissza"],                         "kepernyo-profil", "#profil-lista .profil-kartya"),   # a térkép „🦄 Váltás” gombja
-    ("Nyitókép",           ["js:UC.nyitoRajzol('sajat')"],                  "kepernyo-nyito", "#nyito-szin .ny-alvo"),   # 🚪 minden indulás kapuja (alvó unikornis + fatábla)
+    ("Legelő (🦄 Váltás)",  ["katt:#fomenu-vissza"],                         "kepernyo-nyito", "#nyito-szin .lg-uni"),   # a térkép „🦄 Váltás” gombja: a Belépő legelő (legelo.js)
+    ("Nyitókép",           ["js:UC.nyitoRajzol('sajat')"],                  "kepernyo-nyito", "#nyito-szin .lg-uni"),   # 🚪 minden indulás kapuja: a legelő, mind az öt unikornis
     ("Szülői rész",        ["nyom:#fomenu-szuloi"],                         "kepernyo-szuloi", None),
 ]
 

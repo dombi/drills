@@ -165,11 +165,11 @@ function esemenyek() {
   visszaFeliratok();   /* a közös „Vissza” tábla feliratai (ui.js) */
   billentyuzetEpit();
   bekotUresNegyzet();
-  hosszuNyomas($("profil-szuloi"), belepSzuloi);
+  hosszuNyomas($("nyito-szuloi"), belepSzuloi);
   hosszuNyomas($("fomenu-szuloi"), belepSzuloi);
-  $("fomenu-vissza").addEventListener("click", function () {   /* a liget belsejéből a választóra, onnan a profilokhoz */
+  $("fomenu-vissza").addEventListener("click", function () {   /* a liget belsejéből a térképre, onnan a legelőre (🦄 Váltás) */
     if (FOMENU_LIGET) { hangGomb(); FOMENU_LIGET = null; renderFomenu(); fomenuFelulre(); return; }
-    hangGomb(); sorozatMegtor(); renderProfil(); mutat("kepernyo-profil"); });
+    hangGomb(); sorozatMegtor(); legeloNyit(); });
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();
     if (J && J.palya) esemeny("palya_kilep", { palyaId: J.palya.id, allomas: J.allomasIdx, feladat: J.futoOssz, idoMp: Math.round((Date.now() - (J.indultMs || Date.now())) / 1000) });
     sorozatMegtor(); try { speechSynthesis.cancel(); } catch (e) {} visszaUgrik("palya"); });
@@ -240,7 +240,7 @@ function esemenyek() {
   $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
   $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább a ligetben */
   $("vege-terkep").addEventListener("click", function () { hangGomb(); terkepNyit(FOMENU_LIGET); });   /* a liget mellett áll majd */
-  $("szuloi-vissza").addEventListener("click", function () { hangGomb(); renderProfil(); mutat("kepernyo-profil"); });
+  $("szuloi-vissza").addEventListener("click", function () { hangGomb(); legeloNyit(); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });
   $("beall-valaszmod").addEventListener("change", function () { mentes.valaszmod = $("beall-valaszmod").value; ment(); });
   $("beall-becenev").addEventListener("input", function () { mentes.profilok[szuloiFul].becenev = $("beall-becenev").value.trim(); ment(); });

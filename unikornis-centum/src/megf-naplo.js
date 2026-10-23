@@ -81,7 +81,7 @@ function megfKepernyo(id) {
     if (!_megfUtan || typeof P !== "function" || !P()) return;
     var cel = MEGF_KEPERNYO[id];
     if (cel) megfUtanJegyez(megfMa(), cel);
-    else if (id === "kepernyo-profil") _megfUtan = null;   /* unikornis-váltás: ez már nem a pálya „utána” */
+    else if (id === "kepernyo-nyito") _megfUtan = null;   /* unikornis-váltás (a legelő): ez már nem a pálya „utána” */
   } catch (e) {}
 }
 /* az idomeroInd hívja másodpercenként (a jatekMp mellett) */

@@ -209,8 +209,7 @@ function felulirSzamol() {
   FELULIR.kesz = uj; FELULIR.palyak = ujP; FELULIR.kapuOrak = ujO; FELULIR.ekStabil = ujS; FELULIR.bank = ujB; FELULIR.teny = ujT; FELULIR.szerszam = ujSz; FELULIR.leny = ujL; FELULIR.nyitas = ujN;
   try { localStorage.setItem(FELULIR_KULCS, JSON.stringify({ uid: FELULIR.uid, kesz: uj, palyak: ujP, kapuOrak: ujO, ekStabil: ujS, bank: ujB, teny: ujT, szerszam: ujSz, leny: ujL, nyitas: ujN })); } catch (e) {}
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
-  if (id === "kepernyo-profil") renderProfil();
-  else if (id === "kepernyo-fomenu") renderFomenu();
+  if (id === "kepernyo-fomenu") renderFomenu();
   else if (id === "kepernyo-utca") renderUtca();     /* 🏦 a bank zárva/nyitva címkéje */
   else if (id === "kepernyo-bank") bankFrissit();
 }

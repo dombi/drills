@@ -51,7 +51,7 @@ def belep(l, o, elso):
     else:
         if not l.varj("document.querySelector('#kepernyo-nyito.aktiv, #kepernyo-fomenu.aktiv')", 8): return "nem a nyitókép jött (%s)" % l.aktiv()
         if l.aktiv() == "kepernyo-nyito":
-            l.katt("#nyito-szin .ny-alvo", 0.3)
+            l.legelo_valaszt()
     if not l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 12): return "nem jutott a térképre (%s)" % l.aktiv()
     l.pihen(1.6)   # séta, köd felszáll, bemutató mondat
     return ""
@@ -238,9 +238,8 @@ def regi_jatekos(e, J):
         cim = k.cim()
         m = json.load(open(L[-1], encoding="utf-8"))
         mentes.betolt_mentessel(l, cim, m)
-        if l.aktiv() == "kepernyo-nyito": l.katt("#nyito-szin .ny-alvo", 0.3)
-        elif l.aktiv() == "kepernyo-profil": l.katt("#profil-lista .profil-kartya", 1.0)
-        l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 10); l.pihen(1.5)
+        if l.aktiv() == "kepernyo-nyito": l.legelo_valaszt()
+        l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 12); l.pihen(1.5)
         r = l.belul("[!!nyitasMenet(), document.body.classList.contains('harmat-rejtett'), document.querySelectorAll('#kepernyo-fomenu .terkep-hely.ny-kod').length,"
                     " nyitasRekordKeres(mentes.profilok) ? 1 : 0]")
         if any(r):

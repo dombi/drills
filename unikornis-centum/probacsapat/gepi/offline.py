@@ -51,12 +51,12 @@ def futtat(e, J):
         allapot = l.js("""(function(){
           var st = Array.prototype.some.call(document.styleSheets, function(s){
             try { return /style\\.css/.test(s.href || '') && s.cssRules.length > 100; } catch(e) { return false; } });
-          var pr = document.querySelector('#kepernyo-profil.aktiv, #kepernyo-nyito.aktiv, #kepernyo-elsoperc.aktiv');   /* 🚪 a nyitókép / az újonc első perce */
-          var lista = document.querySelectorAll('#profil-lista > *').length;
+          var pr = document.querySelector('#kepernyo-nyito.aktiv, #kepernyo-elsoperc.aktiv');   /* 🚪 a legelő / az újonc első perce */
+          var lista = document.querySelectorAll('#nyito-szin .lg-uni, #nyito-szin .ny-alvo, #elsoperc-szin .lg-uni').length;
           return { stilus: st, profil: !!pr, lista: lista, kezelt: !!navigator.serviceWorker.controller };
         })()""")
         if not (allapot["stilus"] and allapot["profil"] and allapot["lista"] > 0):
-            J.hiba(OR, "piros", "offline:hianyos", "Net nélkül elindult, de hiányos (stílus / nyitókép / profilválasztó).", json.dumps(allapot))
+            J.hiba(OR, "piros", "offline:hianyos", "Net nélkül elindult, de hiányos (stílus / nyitókép / legelő).", json.dumps(allapot))
         # pálya-indítás net nélkül: a liget, majd az első pálya
         palya = l.js("""(function(){ try { UC.mentes.valaszmod = 'beiras'; UC.palyaInditas(UC.PALYAK[0].id);
                           return !!document.querySelector('#kepernyo-jatek.aktiv'); } catch(e) { return String(e); } })()""")

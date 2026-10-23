@@ -78,8 +78,9 @@ MODULES = [
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör
 
     # ── Képernyők ──
-    "ui.js",              # 7) mutat(), renderProfil, renderFomenu
-    "nyitokep.js",        # 7b) 🚪 nyitókép (alvó unikornis + fatábla, felébresztés = belépés) + az újonc első perce (választás, név-felhők, osztály-lufik)
+    "ui.js",              # 7) mutat(), renderFomenu
+    "nyitokep.js",        # 7b) 🚪 nyitókép (közös gépen az alvó gyerekek + fatábla) + az újonc első perce (választás, név-felhők, osztály-lufik)
+    "legelo.js",          # 7c) 🦄 Belépő legelő: a választó (mind az öt unikornis a réten; nyitókép, 🦄 Váltás, az első perc ①)
 
     # ── Motor (2/2) ──
     "engine-logic.js",    # 8) játékmenet: pontok, állomások, kapu
@@ -114,7 +115,7 @@ MODULES = [
     "fejtoro.js",         # 12h) Fejtörő-hegy: versenyfeladat-állomások (Zrínyi, felhőből)
 
     # ── Indítás ──
-    "main.js",            # 11) betolt(), esemenyek(), renderProfil(), window.UC
+    "main.js",            # 11) betolt(), esemenyek(), nyitoIndul(), window.UC
 ]
 
 HEADER = '/* AmbitusNumerorum: Unicornis Centum — MVP-A. Vanilla JS, függőség nélkül, file:// alól fut. */\n'

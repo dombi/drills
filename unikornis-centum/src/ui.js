@@ -9,33 +9,7 @@ function mutat(id) {
   megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
   if (FELHO.offline && HATIZSAK_BIZTOS[id]) felhoCsendesBelep();   /* 📴 net nélkül belépve: a térképen / profilválasztón próbál visszalépni a felhőbe */
 }
-function renderProfil() {
-  var lista = $("profil-lista"); lista.innerHTML = "";
-  var ny = nyitasMenet(), alszik = ny && nyitasHely("unikornisok") === "alszik";   /* 🚪 újonc: a többi unikornis az első két hétben alszik */
-  LENY_SORREND.forEach(function (k) {
-    var c = LENYEK[k], p = mentes.profilok[k];
-    if (alszik && k !== ny.k) {
-      var ak = el("div", "profil-kartya ny-alvo-barat");
-      ak.innerHTML = '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' + unikornisSVG("p" + k, c, 0.9, p.oltozet, p.kinezet || null) + '</svg>' +
-        '<div class="nev">' + c.nev + '</div><div class="adat">💤</div>';
-      ak.addEventListener("click", function () { hangGomb(); mondd(NYITAS_MONDAT.barat); });
-      lista.appendChild(ak);
-      return;
-    }
-    var keszDb = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x) && p.palyak[x.id] && p.palyak[x.id].kesz; }).length;
-    var palyaOssz = PALYAK.filter(function (x) { return !x.hamarosan && !palyaRejtve(x); }).length;
-    var jelvDb = Object.keys(p.jelvenyek || {}).length;
-    var kart = el("div", "profil-kartya");
-    kart.innerHTML =
-      '<svg viewBox="-78 -132 156 150" xmlns="http://www.w3.org/2000/svg">' +
-      unikornisSVG("p" + k, c, 0.9, p.oltozet, p.kinezet || null) + '</svg>' +
-      '<div class="nev">' + (p.becenev ? kiiras(p.becenev) + " · " : "") + c.nev + '</div>' +
-      '<div class="adat">✨ ' + p.csillampor + ' &nbsp;·&nbsp; 🌟 ' + keszDb + '/' + palyaOssz +
-      (jelvDb ? ' &nbsp;·&nbsp; 🏅 ' + jelvDb : '') + '</div>';
-    kart.addEventListener("click", function () { hangGomb(); mentes.leny = k; ment(); terkepNyit(); });
-    lista.appendChild(kart);
-  });
-}
+/* (a kártyás unikornis-választó — renderProfil — 2026-10-23-án megszűnt: a választó a Belépő legelő, legelo.js) */
 /* ── Ligetválasztó: a főképernyő két szintje ──
    FOMENU_LIGET = null → a festett ligettérkép (src/terkep.js: renderLigetTerkep — az unikornis odasétál a ligethez);
    különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / „← Liget” / Fejtörő után

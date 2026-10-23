@@ -197,7 +197,7 @@
     return f;
   }
 
-  document.querySelector("#profil-lista .profil-kartya") && document.querySelector("#profil-lista .profil-kartya").click();
+  if (document.querySelector("#kepernyo-nyito.aktiv")) UC.terkepNyit();   /* a legelőről (a választó) egyenesen a térképre */
   await pihen(300);
   var palyak = UC.PALYAK.filter(function (p) { return !p.hamarosan; });
   for (var pi = 0; pi < palyak.length; pi++) {

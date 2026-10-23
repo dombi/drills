@@ -122,8 +122,7 @@ function felhoEszkoz() {
 /* távoli változás után a látható számlálók/listák frissítése — játék közben a jelenetet nem bántjuk */
 function felhoKepernyoFrissit() {
   var akt = document.querySelector(".kepernyo.aktiv"), id = akt ? akt.id : "";
-  if (id === "kepernyo-profil") renderProfil();
-  else if (id === "kepernyo-nyito") nyitoFrissit();   /* 🚪 a név, az unikornis — vagy az újoncnál az első perc (nyitokep.js) */
+  if (id === "kepernyo-nyito") nyitoFrissit();   /* 🚪 a név, az unikornis — vagy az újoncnál az első perc (nyitokep.js) */
   else if (id === "kepernyo-fomenu") renderFomenu();
   var p = P(); if (!p) return;
   ["fomenu", "jatek", "odu", "kert", "utca", "szalon", "tk"].forEach(function (h) {
@@ -135,7 +134,6 @@ function felhoKepernyoFrissit() {
 
 /* Szülőknek → Beállítások: felhő-állapot sor + kilépés */
 function renderFelhoAllapot() {
-  kilepGombFrissit();
   var blokk = document.querySelector(".szuloi-blokk.beallitasok"); if (!blokk) return;
   var s = $("felho-allapot");
   if (!s) { s = el("p", "felho-allapot"); s.id = "felho-allapot"; blokk.appendChild(s); }

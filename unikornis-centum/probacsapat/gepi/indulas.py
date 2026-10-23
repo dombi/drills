@@ -47,7 +47,7 @@ def terkepre(l):
 # 🚪 az első perc után a menet kikapcsolva (osztály nélkül nincs menet, nyitas.js): a próba minden helyet bejárhasson, mint eddig
 MENET_KI = ("(function(){ var m = UC.mentes; Object.keys(m.profilok).forEach(function(k){ var p = m.profilok[k];"
             " if (p.uj && p.uj.o != null) { p.uj.o = null; UC.ment(); } }); })()")
-BELEPO = ("kepernyo-nyito", "kepernyo-elsoperc", "kepernyo-profil")
+BELEPO = ("kepernyo-nyito", "kepernyo-elsoperc")
 
 
 def elso_perc(l):
@@ -61,17 +61,14 @@ def elso_perc(l):
 
 
 def profil_valaszt(l):
-    """Be a térképre: a nyitóképen az unikornis felébresztése, az újoncnál az első percen át, vagy a profilválasztóról."""
+    """Be a térképre: a legelőn egy unikornis megkoppintása (közös gépen az alvó gyerek), az újoncnál az első percen át."""
     for _ in range(3):
         a = l.aktiv()
         if a == "kepernyo-fomenu": break
         if a == "kepernyo-elsoperc": elso_perc(l)
         elif a == "kepernyo-nyito":
-            l.katt("#nyito-szin .ny-alvo", 0.3)
-            l.varj("document.querySelector('#kepernyo-fomenu.aktiv, #kepernyo-elsoperc.aktiv')", 10)
-        else:
-            l.katt("#profil-lista .profil-kartya", 1.0)
-            l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 5)
+            l.legelo_valaszt()
+            l.varj("document.querySelector('#kepernyo-fomenu.aktiv, #kepernyo-elsoperc.aktiv')", 12)
     ok = l.varj("document.querySelector('#kepernyo-fomenu.aktiv')", 5)
     if ok: l.js(MENET_KI); l.js("UC.renderFomenu()")
     return ok

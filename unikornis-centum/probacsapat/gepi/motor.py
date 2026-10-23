@@ -245,6 +245,13 @@ class Lap:
         if mp: self.pihen(mp)
         return True
 
+    def legelo_valaszt(self, mp=0.3):
+        """🦄 A Belépő legelőn a gyerek a saját (aktív) unikornisát koppintja meg, ahogy eddig is azzal folytatta;
+        ha az nem választható, az első választhatót."""
+        sel = self.js("(function(){ var l = window.UC && UC.mentes && UC.mentes.leny, s = '#nyito-szin .lg-uni.valaszthato[data-l=\"' + l + '\"]';"
+                      " return document.querySelector(s) ? s : '#nyito-szin .lg-uni.valaszthato'; })()")
+        return self.katt(sel, mp)
+
     def duplakatt(self, selector, mp=0):
         """Két gyors kattintás ugyanoda (kapkodó gyerek / dupla koppintás); a második a böngészőnek dupla katt."""
         r = self.js("(function(){ var e=document.querySelector(%s); if(!e || !e.getClientRects().length) return null;"

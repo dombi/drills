@@ -90,7 +90,7 @@ function felhoKilep() {
   felhoOfflineVege();
   if (online && FELHO.auth) { FELHO.auth.signOut().then(function () { location.reload(); }); return; }
   NYITO.belepett = false;
-  betolt(); renderProfil(); belepoMutat();   /* 📴 net nélkül újratöltés nélkül (most lehet, hogy be sem töltene): a nyitókép alvó gyerekei */
+  betolt(); belepoMutat();   /* 📴 net nélkül újratöltés nélkül (most lehet, hogy be sem töltene): a nyitókép alvó gyerekei */
 }
 
 /* ── a gép játékosai (névkártyákhoz) ── */
@@ -174,16 +174,3 @@ function belepoMutat(kod) {
 function belepoHiba(szoveg) { var h = $("felho-hiba"); if (h && !$("felho-belepo").hidden) h.textContent = szoveg; }
 function belepoRejt() { var d = $("felho-belepo"); if (d) d.hidden = true; }
 
-/* 👋 Kilépek — a profilválasztó bal alsó sarkában, ha be van lépve (főleg közös gépre) */
-function kilepGombFrissit() {
-  var hely = $("kepernyo-profil"); if (!hely) return;
-  var g = $("profil-kilep");
-  if (!g) {
-    g = el("button", "szuloi-gomb sarok-bal"); g.id = "profil-kilep";
-    g.addEventListener("click", function () { hangGomb(); felhoKilep(); });
-    hely.appendChild(g);
-  }
-  var kod = FELHO.aktiv ? FELHO.kod : FELHO.offline && FELHO.offline.kod;   /* 📴 net nélkül belépve is */
-  g.hidden = !kod;
-  if (kod) g.textContent = "👋 " + jatekosNev(kod) + ", kilépek";
-}

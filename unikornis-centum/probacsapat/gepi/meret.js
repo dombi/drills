@@ -11,7 +11,7 @@ function meretVizsgal(kivetel) {
   var KIV = (kivetel || []).join(", ");
   function kivett(e) { try { return !!(KIV && e && e.closest && e.closest(KIV)); } catch (x) { return false; } }
   var W = innerWidth, H = innerHeight, ki = [];
-  var FONTOS = "button, input:not([type=hidden]), select, textarea, .terkep-hely, #buborek-feladat, #beiro-doboz, #valasz-kartyak, .profil-kartya, .palya-kartya, [role=button]";
+  var FONTOS = "button, input:not([type=hidden]), select, textarea, .terkep-hely, #buborek-feladat, #beiro-doboz, #valasz-kartyak, .lg-uni, .palya-kartya, [role=button]";
   var FEDO = '[id$="-fedo"], #odu-lap, #odu-panel, #het-fuzet, .bank-ablak, #kert-feszer';
   var de = document.documentElement;
   if (de.scrollWidth > W + 2) ki.push({ f: "gorget", e: "az egész oldal", d: de.scrollWidth + " px széles (képernyő: " + W + " px)" });
