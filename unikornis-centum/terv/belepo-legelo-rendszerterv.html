@@ -94,6 +94,7 @@
     <li><span class="ok">✅ tetszett</span> A titkos kód <b>nem kötelező</b>, csak ha a gyerek akar magának.</li>
     <li><span class="ok">✅ választottad</span> A titkos kód <b>lakat a játékban</b> (nem valódi Firebase-jelszó). Ingyenes, a pultról levehető. Ha egyszer sok idegen gyerek jön, át lehet állni valódi jelszóra.</li>
     <li><span class="ok">✅ tetszett</span> Belépéskor <b>csillámfelhő</b>, utána állnak a saját kinézetükben. A még nem játszott unikornison apró <b>„vár rád” jel</b>. A kilépés egy <b>kis kapu</b> a kép szélén, és megkérdezi: <span class="say">„Tényleg kilépsz?”</span> A titkos kód a belépés lépésében jön. <b>Egyszerre csak 1–2 unikornis mozog.</b></li>
+    <li><span class="ok">✅ te mondtad</span> <b>Nincsenek névtáblák</b> a gép gyerekeinek. A fatáblán mindig csak annak a gyereknek a neve áll, <b>aki most játszik</b>. Ha kilép, a tábla <b>üres</b>.</li>
     <li><span class="ok">⛔ marad</span> Fiú/lány választás nincs, rejtetten sem.</li>
   </ul>
 </div>
@@ -120,7 +121,7 @@
 <div class="panel">
   <ul>
     <li>A legelőn mind az <b>öt unikornis alap kinézetben</b>. Véletlen, ki mit csinál: az egyik a fűben alszik, a másik legel, a harmadik lassan sétál. Egyszerre legfeljebb 1–2 mozog.</li>
-    <li>Középen a fatábla: <span class="say">„Ki jött ma?”</span> Koppintásra megjelenik a mező: <span class="say">„Írd be a belépődet!”</span>, ez a mai kód, pl. <code>CSILLAG-42</code>.</li>
+    <li>Középen egy <b>üres fatábla</b>, nincs rajta név. Koppintásra megjelenik a mező: <span class="say">„Írd be a belépődet!”</span>, ez a mai kód, pl. <code>CSILLAG-42</code>.</li>
     <li>A rét szélén a kis kapu (ilyenkor csukva, nem csinál semmit).</li>
     <li>Rossz belépő: <span class="say">„Ezt nem ismerem. Nézd meg még egyszer!”</span>, ahogy ma.</li>
     <li>Ha a gyereknek van titkos kódja, a belépő után <b>a lakat</b> jön (C).</li>
@@ -178,7 +179,7 @@
 <h3>G) Közös gép és net nélkül</h3>
 <div class="panel">
   <ul>
-    <li><b>Közös gépen</b> a belépés továbbra is csak a böngésző bezárásáig él. Ma itt a gép gyerekeinek unikornisai alszanak névtáblával. Az új menetben helyettük az öt alap unikornis van (A). A gép gyerekeinek nevei nem jelennek meg, lásd a 3. kérdést.</li>
+    <li><b>Közös gépen</b> a belépés továbbra is csak a böngésző bezárásáig él. Ma itt a gép gyerekeinek unikornisai alszanak névtáblával. Az új menetben helyettük az öt alap unikornis van (A), és <b>üres tábla</b>. A gép többi gyerekének neve sehol nem jelenik meg.</li>
     <li><b>Net nélkül</b> (hátizsák) a belépés kóddal ma is megy. A lakat is ott van a hátizsákban, ezért net nélkül is kéri. A pultról levett lakat csak akkor tűnik el, amikor a gép legközelebb netet kap.</li>
   </ul>
 </div>
@@ -225,7 +226,7 @@
   <div class="tblwrap"><table class="nap">
     <tr><td>0. kör</td><td><b>Rajzterv</b> (a valódi rajzolóval): a legelő 5 unikornissal (alszik / legel / sétál), csillámfelhő, „vár rád” jel, mély alvás (újonc), kis kapu + lakat, a 9 kép, telefonos elrendezés.</td></tr>
     <tr><td>1. kör</td><td><b>A legelő mint választó</b>: közös rajzoló, véletlen állapotok, saját kinézetek, koppintás → odaüget → térkép. A 🦄 Váltás ide visz, a kártyás választó megszűnik. Az első perc ① erre épül.</td></tr>
-    <tr><td>2. kör</td><td><b>Belépés és kilépés a legelőn</b>: alap kinézet + „Ki jött ma?” tábla + belépő mező, csillámfelhő a belépéskor, a kis kapu kilépéssel. Közös gép és hátizsák végigpróbálva.</td></tr>
+    <tr><td>2. kör</td><td><b>Belépés és kilépés a legelőn</b>: alap kinézet + üres tábla + belépő mező, csillámfelhő a belépéskor, a kis kapu kilépéssel. Közös gép és hátizsák végigpróbálva.</td></tr>
     <tr><td>3. kör</td><td><b>Lakat + pult</b>: beállítás / csere / levétel a kapun, belépéskor a lakat, „belépve, de zárva”, hátizsák, pult-sor + Levesz gomb. Gépi próba, aztán élő próba.</td></tr>
   </table></div>
 </div>
@@ -241,7 +242,7 @@
   <div class="dec"><div class="num">3</div><h3>Közös gépen lássák-e a gép gyerekeinek nevét?</h3>
     <p>Ma a közös gépen a gyerekek unikornisai névtáblával alszanak. A név megkoppintásával nem kellene gépelni. Csakhogy akinek nincs lakatja, azt így bárki elérné egy koppintással; ma legalább a kódját tudni kell.</p>
     <p><b>A) Nem</b>, mindenki beírja a belépőjét (ahogy ma). <b>B) Igen</b>, névtáblák a réten, de csak annál, akinek van lakatja.</p>
-    <span class="prop">Javaslat: A</span></div>
+    <span class="ok">✅ Eldöntötted (10-23): nincsenek névtáblák. A táblán csak annak a neve áll, aki most játszik, kilépés után üres.</span></div>
   <div class="dec"><div class="num">4</div><h3>Mit mondjon a választott unikornis?</h3>
     <p><b>A) Köszön, és azt is mondja, hol jártak legutóbb</b>: <span class="say">„Szia, Petra! Megyünk vissza a Szorzós ligetbe?”</span> (a játék ma is tudja, hol állt utoljára). <b>B)</b> Csak köszön, ahogy ma.</p>
     <span class="prop">Javaslat: A</span></div>
