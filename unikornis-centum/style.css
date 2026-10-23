@@ -3088,7 +3088,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .ny-bub.lat{ opacity:1; transform:translate(-50%,-100%) scale(1); }
 .ny-koppints{ transform-box:fill-box; transform-origin:50% 50%; animation:ny-koppints 1.8s ease-out infinite; pointer-events:none; }
 @keyframes ny-koppints{ 0%{ transform:scale(.7); opacity:.9; } 100%{ transform:scale(1.35); opacity:0; } }
-.ny-alvo, .ny-uj{ cursor:pointer; }
+.ny-alvo, .ny-uj, .ny-masik{ cursor:pointer; }
 .ny-tabla{ transform-box:fill-box; transform-origin:50% 100%; }
 .ny-tabla.ebred{ animation:ny-tabla-billeg .9s ease-in-out 1; }
 @keyframes ny-tabla-billeg{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-5deg); } 60%{ transform:rotate(4deg); } }

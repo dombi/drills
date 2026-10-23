@@ -112,6 +112,7 @@ function nyitoRajzol(mod) {
     s += nyTabla(tx, 414, g.nev) + nyAlvoUni(i, ux, 426, sc, g);
   });
   if (mod === "kozos") s += '<g class="ny-uj" transform="translate(728 300) scale(.62)">' + nyTabla(0, 0, "✏️ Új vagyok") + '<rect x="-80" y="-110" width="160" height="116" fill="transparent"/></g>';
+  else s += '<g class="ny-masik" transform="translate(700 290) scale(.55)">' + nyTabla(0, 0, "👋 Másik gyerek") + '<rect x="-140" y="-110" width="280" height="116" fill="transparent"/></g>';
   host.innerHTML = nySajatId(s + '</svg>');
   host.querySelectorAll(".ny-alvo").forEach(function (h) {
     uniElalszik(h.querySelector(".uni-alvas"), true);
@@ -119,7 +120,23 @@ function nyitoRajzol(mod) {
   });
   var uj = host.querySelector(".ny-uj");
   if (uj) uj.addEventListener("click", function () { hangGomb(); nyBubEl(host); belepoMutat(null); });
+  var masik = host.querySelector(".ny-masik");
+  if (masik) masik.addEventListener("click", function () { nyitoMasikGyerek(host, gy[0]); });
   mutat("kepernyo-nyito");
+}
+/* „👋 Másik gyerek” (2026-10-23, a producer kérése: a belépés/kilépés a nyitóképen legyen):
+   belépve két koppintás — az első csak kérdez (a gyerek véletlenül ne lépjen ki), a második kilép (felhoKilep → belépő);
+   kód nélkül egyből a belépő kártya jön */
+function nyitoMasikGyerek(host, gy) {
+  if (NYITO.ebren) return;
+  hangGomb();
+  var kod = FELHO.aktiv ? FELHO.kod : FELHO.offline && FELHO.offline.kod;
+  if (!kod) { nyBubEl(host); belepoMutat(null); return; }
+  if (NYITO.masikT) { clearTimeout(NYITO.masikT); NYITO.masikT = null; nyBubEl(host); felhoKilep(); return; }
+  var mondat = "Kilépsz, " + (gy.cimzett || jatekosNev(kod)) + "? Koppints még egyszer!";
+  nyBuborek(host, 700, 200, mondat, 5);
+  mondd(mondat);
+  NYITO.masikT = setTimeout(function () { NYITO.masikT = null; }, 5000);
 }
 function nyitoEbreszt(h, gy) {
   if (NYITO.ebren) return;
