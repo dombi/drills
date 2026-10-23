@@ -81,6 +81,8 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" id="kozos-defs">
   <defs>
+    <radialGradient id="gEgyes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffe9f0"/><stop offset=".55" stop-color="#f8b4cb"/><stop offset="1" stop-color="#e98aa8"/></radialGradient>
+    <radialGradient id="gTizes" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#eef7fe"/><stop offset=".55" stop-color="#a9d0f2"/><stop offset="1" stop-color="#78acd8"/></radialGradient>
     <radialGradient id="gErme" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff3c4"/><stop offset=".55" stop-color="#f7d57a"/><stop offset="1" stop-color="#e9b84e"/></radialGradient>
     <linearGradient id="gFa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9c193"/><stop offset="1" stop-color="#d6a46f"/></linearGradient>
     <linearGradient id="gFal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf3e2"/><stop offset="1" stop-color="#f3e2c6"/></linearGradient>
@@ -118,7 +120,7 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
   <h1>🏪 Piactér és Tüske néni boltja — rajzterv, 2. változat</h1>
   <div class="sub">A falu első darabja: a Piactér jele a térképen, a kis falutérkép a házakkal és a dombokkal, a két lakó (Tüske néni és Róka Juli) egész alakban, és a bolt pultja, ahol <b>a gyerek unikornisa</b> fizet, visszaad és pecsétel. Minden kép élőben kipróbálható.</div>
   <div class="meta">
-    <span class="chip">Rajzterv · 2. változat · JÓVÁHAGYÁSRA VÁR</span>
+    <span class="chip">Rajzterv · 2. változat · ✅ jóváhagyva, nyitott: a tallérok színe</span>
     <span class="chip">2026-10-23</span>
     <span class="chip">Nagyság: nagy (a 7 körből az 1.)</span>
     <span class="chip">Tervlap: eletszeru-100-as-palyak-terv.html ✅</span>
@@ -206,13 +208,13 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
   <h3>Hang és mondatok</h3>
   <table>
     <tr><th>Helyzet</th><th>🦔 Tüske néni</th><th>🦊 Róka Juli</th></tr>
-    <tr><td>Köszön</td><td>„Szervusz, lelkecském! Beállsz ma a pult mögé?”</td><td>„Szia! Villámgyorsan összeadok mindent!”</td></tr>
-    <tr><td>Vár</td><td>„Ráérünk, lelkem.”</td><td>„Na, mehet a pecsét, főnök?”</td></tr>
+    <tr><td>Köszön</td><td>„Szia! Beállsz ma a pult mögé?”</td><td>„Szia! Villámgyorsan összeadok mindent!”</td></tr>
+    <tr><td>Vár</td><td>„Ráérünk, nem sietünk.”</td><td>„Na, mehet a pecsét, főnök?”</td></tr>
     <tr><td>Jó válasz</td><td>„Na, ez aztán szép munka volt!”</td><td>„Pecsét rajta! Ma senki nem jár rosszul!”</td></tr>
     <tr><td>Rossz válasz</td><td>„Hmm. Nézzük csak meg még egyszer, együtt.”</td><td>„Hoppá! Hol hagytam el azt a tízest?”</td></tr>
     <tr><td>Elkapott hiba</td><td>—</td><td>(kacsint) „Ezt most jól elkaptad!”</td></tr>
     <tr><td>Mi hiányzik a házból?</td><td>„A felső polcom még üres. Ha holnap is segítesz, megtöltjük!”</td><td>„A pénztárfiókom nyikorog. Még pár blokk, és megolajozom!”</td></tr>
-    <tr><td>Búcsú</td><td>„Gyere máskor is, lelkecském!”</td><td>„Pá! Holnap is ellenőrzöl?”</td></tr>
+    <tr><td>Búcsú</td><td>„Gyere máskor is!”</td><td>„Pá! Holnap is ellenőrzöl?”</td></tr>
   </table>
   <div class="figy"><b>Róka Juli nem csaló, hanem kapkodó.</b> A hibái a gyerekek saját tipikus hibái (elfelejtett átvitel, felcserélt jegyek). Ha Juli „becsapós róka” lenne, a gyerek a saját hibáját is csalásnak érezné. Így viszont a hiba nyom, nem bűn: Juli nevet, megköszöni, és legközelebb jobban figyel. (8. döntés.)</div>
 </div>
@@ -244,14 +246,37 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
 
 <!-- ═════════ 5. TALLÉROK ═════════ -->
 <div class="panel">
-  <h2>5. A tallérok</h2>
-  <p>Hét egyforma, egyszerű korong: csak a szám és a méret más. A díszes rész a bolt maga, nem az érme (a megfogott „matek-tárgy” legyen egyszerű). A tallér nem ✨, és nem forint.</p>
-  <div class="kepdoboz"><svg id="tallerok" viewBox="0 0 800 150"></svg></div>
-  <div class="gombok" id="taller-szin">
-    <button class="g on" data-v="egy">Egyszínű (javaslatom)</button>
-    <button class="g" data-v="harom">Három fém: réz · ezüst · arany</button>
+  <h2>5. A tallérok: egyszínű, vagy a helyi érték színeivel?</h2>
+  <p>A kérdésed nyomán újragondoltam. Fent a régi javaslat: hét egyforma arany korong. Lent az új: <b>a szín a helyi értéket jelöli</b>, nem a pontos értéket. Az <b>egyes-család</b> (1, 2, 5) rózsaszín, a <b>tízes-család</b> (10, 20, 50) kék, a <b>százas</b> arany. A 20 azért kék, mert két tízesből áll, az 50 öt tízesből: a szín azt mondja, „ez tízesekből van”, és ez igaz. A szám mindig nagy és jól olvasható marad, a méret is nő.</p>
+  <div class="kepdoboz"><svg id="tallerok" viewBox="0 0 800 270"></svg></div>
+  <div class="gombok" id="taller-halv">
+    <span class="muted" style="align-self:center">A színek halványulása (ahogy a gyerek egyre biztosabb):</span>
+    <button class="g on" data-h="0">erős</button>
+    <button class="g" data-h="1">közepes</button>
+    <button class="g" data-h="2">halvány</button>
   </div>
-  <p class="muted">A három fémes változat segít ránézésre szétválasztani az egyeseket és a tízeseket. Csakhogy akkor a szín is számot jelent, és a gyerek a színre figyel a szám helyett. Ezért az egyszínűt javaslom. (5. döntés.)</p>
+  <div class="gombok" id="taller-szin">
+    <span class="muted" style="align-self:center">A bolt képén (4. pont):</span>
+    <button class="g" data-v="egy">egyszínű</button>
+    <button class="g on" data-v="hely">helyi érték szerint (új javaslatom)</button>
+  </div>
+
+  <h3>Egy színkód mindenhol</h3>
+  <p class="muted">A szín csak akkor tanít, ha <b>mindenhol ugyanazt jelenti</b>. A játékban ma még nincs közös helyiérték-szín, ezért ezt javaslom alapnak: rózsaszín = egyes, kék = tízes, arany = százas. Ugyanez kerül a tallérra, a Dienes-elemekre (a róka blokkjánál a rudak már most ilyenek), a számszalagra és később az írásbeli füzet oszlopaira.</p>
+  <div class="kepdoboz"><svg id="kozos-kod" viewBox="0 0 800 170"></svg></div>
+
+  <h3>Beváltás: amitől a szín értelmet kap</h3>
+  <p>A szín magától nem tanítja meg, hogy <b>a tízes tíz egyes</b>. Ezt egy cselekvés tanítja meg: a beváltás. Tüske néninek elfogyott a tízese, és felváltást kér. A gyerek a pulton álló <b>tízes-keretbe</b> rak érméket (a keret 10 helyes, mint egy tízes rúd): az 1-es egy helyet foglal, a 2-es kettőt, az 5-ös ötöt. Amikor a keret pontosan megtelik, a rózsaszín érmék <b>összeolvadnak egy kék tízessé</b>. Visszafelé is megy: egy tízes szétpattan tíz egyessé. A második fokon ugyanez egy szinttel feljebb: tíz tízes = egy százas.</p>
+  <div class="gombok" id="bv-mod">
+    <button class="g on" data-v="tizes">Egyesekből tízes</button>
+    <button class="g" data-v="szazas">Tízesekből százas</button>
+    <button class="g" data-v="felvalt">Felváltás: tízesből egyesek</button>
+  </div>
+  <div class="kepdoboz"><svg id="bevaltas" viewBox="0 0 800 400"></svg></div>
+  <div class="gombok"><button class="g" id="bv-ujra">↺ Újra</button></div>
+  <div class="allapot" id="bv-allapot"></div>
+  <div class="mit"><b>Mit CSINÁL a gyerek a képen?</b> Az unikornisa a szarvával érméket lebegtet a kasszából a tízes-keretbe, amíg az pontosan meg nem telik. Kattintással vissza is veheti őket. <b>Mit mutat a kép?</b> A keret helyei kigyulladnak, így látszik, mennyi hiányzik még, szám nélkül. Ha egy érme nem fér be, visszapattan. Ha a keret megtelik, a tíz kis érme összeolvad egy nagy, más színű érmévé, Tüske néni és az unikornis örül, és az új érme a tízesek közé lebeg.</div>
+  <div class="figy"><b>Hol jelenik meg a beváltás a játékban?</b> Nem külön pályaként, hanem a boltban: ha a kasszában elfogy a tízes vagy az egyes, Tüske néni felváltást kér, és a Visszajárónál a gyerek maga is felválthat egy tízest, ha nincs elég apró. Így a beváltásnak oka van, nem gyakorlat a gyakorlatért. (7. döntés.)</div>
 </div>
 
 <!-- ═════════ 6. A RÓKA BLOKKJA ═════════ -->
@@ -314,6 +339,7 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
     <li><b>Az unikornis a pult mögött:</b> a játék mai unikornis-rajzolója (<code>renderer.js</code>, oldalnézet) rajzolja, a gyerek saját kinézetével. A mai ízületek elegendők: a nyak és a fej forog (<code>UNI_TEST_IZ</code>, forgáspont 252, 142). Új pózok a <code>UNI_POZ</code> mellé: <code>figyel</code>, <code>szarv</code>, <code>orul</code>, <code>tenyer</code>, <code>gondol</code> (nyak- és fejszög, szemirány), és egy új rajzelem, a szarv fénye.</li>
     <li><b>Új közös modul: <code>src/szarv-varazs.js</code>.</b> Ívben átlebegtet egy tárgyat (érme, pecsét, kavics, létrafok), szikra-nyomot húz, közben az unikornis odanéz, és a szarva ragyog. Minden ház ezt használja, ahol a gyerek a képen tárgyat mozgat. Ez a vezérelv kódbeli helye: <b>a gyerek unikornisa cselekszik</b>.</li>
     <li>A házak a térkép közös rajzkészletéből készülnek (<code>LT_DEFS</code> színátmenetek, <code>lt-firka</code> szűrő, <code>ltFalHaz</code>-féle hullámos falak). A szereplők (Tüske néni a cégtáblán, a lakók) a szűrőn kívül maradnak, hogy az arcuk tiszta legyen.</li>
+    <li><b>Közös helyiérték-színek:</b> új tábla, <code>HE_SZIN</code> a <code>constants.js</code>-ben (egyes rózsaszín, tízes kék, százas arany). Ebből rajzol a tallér, a Dienes-elemek, a számszalag és az írásbeli füzet. A halványulás foka a gyerek biztonságából jön (a <code>megfigyeles.js</code> jelei szerint), és a pultról felülírható.</li>
     <li>Mozgáscsökkentés (rendszerbeállítás): a lakók csak pislognak, a pózváltás azonnali, és a tárgyak ív és szikra nélkül kerülnek a helyükre.</li>
   </ul>
 </div>
@@ -321,13 +347,14 @@ code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13p
 <!-- ═════════ 10. DÖNTÉSEK ═════════ -->
 <div class="panel">
   <h2>Döntések</h2>
-  <p class="muted">Ami az 1. változatból már jóvá van hagyva, és ebben a változatban nem változott: Tüske néni és Juli rajza és pózai, Juli jelleme (kapkodó, nem csaló), az egyszínű tallér, a ház állapotai és az építés-sor, a nyitás állomásonként (8. pont), és a Piactér helye (A, átmeneti). Ezek ✅. Az új kérdések:</p>
+  <p class="muted">✅ Jóváhagyva (2026-10-23): az alábbi 1–6. döntés a javaslat szerint, és az 1. változatból Tüske néni és Juli rajza és pózai, Juli jelleme (kapkodó, nem csaló), a ház állapotai és az építés-sor, a nyitás állomásonként (8. pont), a Piactér helye (A, átmeneti). Tüske néni normálisan beszél, becézés („lelkem”) nélkül. <b>Nyitott egyedül a 7.: a tallérok színe.</b></p>
   <div class="dontes"><div class="n">1</div><div><b>Rajzoltabb házak</b> (hullámos falak és tetők, firka-szűrő, a térkép színei; a bolt rózsaszín, a Rokon-létra türkiz, a Számcsalád mézsárga tetővel).<br><b class="j">Javaslat: így.</b> A mai Szabóműhely és Pékség mellett is otthon vannak.</div></div>
   <div class="dontes"><div class="n">2</div><div><b>Az unikornis a cselekvő</b> (oldalnézet, balra a pult mögött; az érme szikrázó ívben lebeg át, a pecsétet a szarva emeli).<br><b class="j">Javaslat: így.</b> A lebegés lassú (háromnegyed másodperc), hogy a gyerek lássa, honnan hová ment az érme.</div></div>
   <div class="dontes"><div class="n">3</div><div><b>A felsőtest-mozdulatok:</b> figyel, a szarva ragyog, örül, a tenyérre néz, gondolkodik.<br><b class="j">Javaslat: így, ez elég az első körre.</b> Szomorú póz nincs, rossz válaszra az unikornis is elgondolkodik.</div></div>
   <div class="dontes"><div class="n">4</div><div><b>Tüske néni helye:</b> az unikornis mellett, kicsit mögötte balra, gazdaként. Biztat, és a „Kész” után hangosan összeszámolja az érméket, de helyette nem számol.<br><b class="j">Javaslat: így.</b></div></div>
   <div class="dontes"><div class="n">5</div><div><b>A falutérkép háttere:</b> patak és híd, ködös ösvény a dombra, a domb tetején a Déli vásár, messze a Fejtörő-hegy. Újoncnak a domb ködben van.<br><b class="j">Javaslat: így.</b> Lilinek és Fanninak a Déli vásár tisztán látszik (náluk már nyitva van).</div></div>
   <div class="dontes"><div class="n">6</div><div><b>A Dallam-tér helye:</b> a tér bal oldalán, a bolttól balra, kerítéssel és kottás táblával („hamarosan”).<br><b class="j">Javaslat: így.</b> A rajzterve akkor készül, amikor a szorzás-osztás költözése sorra kerül.</div></div>
+  <div class="dontes"><div class="n">7</div><div><b>A tallérok színe</b> (újra nyitva, 5. pont): egyszínű, vagy a helyi érték színeivel?<br><b class="j">Új javaslat: a helyi érték színeivel</b> (egyes-család rózsaszín, tízes-család kék, százas arany), ugyanazzal a színkóddal mindenhol a játékban, a szín halványulásával, ahogy a gyerek biztosabb, és a beváltással a boltban (Tüske néni felváltást kér). A régi aggodalom (a gyerek a színt nézi a szám helyett) ellen: a szám nagy marad, és a szín a helyet jelöli, nem a pontos értéket.</div></div>
   <p class="muted" style="margin-top:14px">Következő lépés a jóváhagyás után: 2. kör, a közös alap láthatatlanul (<code>bolt.js</code>, <code>szamkor100.js</code>, <code>lakok.js</code>, <code>szarv-varazs.js</code>, sok ezer generált feladat próbája).</p>
 </div>
 </div>
@@ -699,18 +726,18 @@ document.getElementById("lt-defs-hely").innerHTML = LT_DEFS.replace(/^<defs>|<\/
 
 /* ─────────── TALLÉR ─────────── */
 var ER = { 1: 14, 2: 15, 5: 16.5, 10: 18.5, 20: 20, 50: 22, 100: 24 };
-var ERME_SZIN = "egy";
-function ermeFem(v) {
-  if (ERME_SZIN !== "harom") return ["url(#gErme)", "#b5842c", "#7a5420"];
-  if (v < 10) return ["#e8a77a", "#a5623a", "#6e3a1e"];
-  if (v < 100) return ["#e4e6ee", "#8d93a5", "#4a4f60"];
-  return ["url(#gErme)", "#b5842c", "#7a5420"];
-}
-function ermeBelso(v, k) {
-  var r = ER[v] * (k || 1), c = ermeFem(v);
-  return '<circle r="' + f1(r) + '" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.2"/>' +
+var ERME_SZIN = "hely";
+/* közös helyiérték-színek (a játékban: HE_SZIN a constants.js-ben): kitöltés, kontúr, szám, lapos szín */
+var HE_SZIN = { 1: ["url(#gEgyes)", "#c0567f", "#7a2f4c", "#f6a5c0"], 10: ["url(#gTizes)", "#5f84b0", "#2f4f7a", "#9ec9f0"], 100: ["url(#gErme)", "#b5842c", "#7a5420", "#f5cf6a"] };
+var HALV = 0, HALV_OP = [1, .55, .22];   /* a szín halványulása: erős / közepes / halvány */
+function helyiErtek(v) { return v >= 100 ? 100 : v >= 10 ? 10 : 1; }
+function ermeBelso(v, k, mod) {
+  var r = ER[v] * (k || 1), arany = HE_SZIN[100], c = HE_SZIN[helyiErtek(v)];
+  var op = (mod || ERME_SZIN) === "hely" && helyiErtek(v) !== 100 ? HALV_OP[HALV] : 0;
+  return '<circle r="' + f1(r) + '" fill="' + arany[0] + '" stroke="' + arany[1] + '" stroke-width="2.2"/>' +
+    (op ? '<circle r="' + f1(r) + '" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.2" opacity="' + op + '"/>' : '') +
     '<circle r="' + f1(r - 4) + '" fill="none" stroke="#fff8dc" stroke-width="1.2" stroke-dasharray="2 2.4" opacity=".9"/>' +
-    '<text y="' + f1(r * .34) + '" text-anchor="middle" font-size="' + f1(r * (v >= 100 ? .78 : v >= 10 ? .95 : 1.1)) + '" font-family="Fredoka,sans-serif" font-weight="600" fill="' + c[2] + '">' + v + '</text>';
+    '<text y="' + f1(r * .34) + '" text-anchor="middle" font-size="' + f1(r * (v >= 100 ? .78 : v >= 10 ? .95 : 1.1)) + '" font-family="Fredoka,sans-serif" font-weight="600" fill="' + (op > .4 ? c[2] : arany[2]) + '">' + v + '</text>';
 }
 
 /* ─────────── LAKÓ-CSONTVÁZ ─────────── */
@@ -923,8 +950,8 @@ var SOROK = {
   juli: {}
 };
 var MONDAT = {
-  tuske: { koszon: "Szervusz, lelkecském! Beállsz ma a pult mögé?", var: "Ráérünk, lelkem.", szamol: "Tíz… húsz… harminc…", orul: "Na, ez aztán szép munka volt!",
-           meglep: "Jaj, a tüskéim! Ez nem jön ki…", integet: "Gyere máskor is, lelkecském!", gondol: "Hmm. Nézzük csak meg még egyszer, együtt.", dudol: "♪ Hm-hm-hm… ♪" },
+  tuske: { koszon: "Szia! Beállsz ma a pult mögé?", var: "Ráérünk, nem sietünk.", szamol: "Tíz… húsz… harminc…", orul: "Na, ez aztán szép munka volt!",
+           meglep: "Jaj, a tüskéim! Ez nem jön ki…", integet: "Gyere máskor is!", gondol: "Hmm. Nézzük csak meg még egyszer, együtt.", dudol: "♪ Hm-hm-hm… ♪" },
   juli: { koszon: "Szia! Villámgyorsan összeadok mindent!", var: "Na, mehet a pecsét, főnök?", szamol: "Ez meg ez… kész is! Gyors voltam, mi?", orul: "Pecsét rajta! Ma senki nem jár rosszul!",
           meglep: "Hoppá! Hát ez hogy csúszott be?", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!" }
 };
@@ -1486,8 +1513,8 @@ function boltAlap() {
 }
 var BRUMI = Object.assign({}, FIG_RAJZ.brumi, { tart: null });   /* a boltban üres kézzel jön */
 function vevoArc(arc) { $("bolt-vevo").innerHTML = '<g transform="translate(0 0)">' + fgAlak(BRUMI, arc) + '</g>'; }
-function buborek(x, y, szoveg, ki) {
-  var g = $("bolt-bub"); if (!szoveg) { g.querySelector('[data-ki="' + ki + '"]') && g.querySelector('[data-ki="' + ki + '"]').remove(); return; }
+function buborek(x, y, szoveg, ki, hova) {
+  var g = hova || $("bolt-bub"); if (!szoveg) { g.querySelector('[data-ki="' + ki + '"]') && g.querySelector('[data-ki="' + ki + '"]').remove(); return; }
   var w = Math.max(60, szoveg.length * 8.2 + 24), r = g.querySelector('[data-ki="' + ki + '"]');
   if (r) r.remove();
   x = Math.max(w / 2 + 6, Math.min(800 - w / 2 - 6, x));
@@ -1627,7 +1654,7 @@ $("bolt-kesz").addEventListener("click", function () {
     BOLT.lezart = true; BOLT.uni.poz("tenyer");
     setTimeout(function () {
       if (osszeg === cel) {
-        vevoArc("ujjong"); tuskeBolt.poz("orul"); BOLT.uni.poz("orul"); buborek(VB[0], VB[1], "Köszönöm szépen!", "vevo"); buborek(TB[0], TB[1], "Pont annyi, lelkem!", "tuske");
+        vevoArc("ujjong"); tuskeBolt.poz("orul"); BOLT.uni.poz("orul"); buborek(VB[0], VB[1], "Köszönöm szépen!", "vevo"); buborek(TB[0], TB[1], "Pont annyi, ügyes vagy!", "tuske");
         $("bolt-allapot").textContent = "Jó! A szalag a fizetett összegnél ért véget. Brumi bezárja a tenyerét, az unikornis örül.";
         tovabbGomb("Következő fok →", function () { BOLT.fok = (BOLT.fok + 1) % VISSZA_FOK.length; boltIndit(); });
         return;
@@ -1696,11 +1723,171 @@ var UPOZ_MAGYAR = {
 
 /* ─────────── 5. TALLÉROK ─────────── */
 function tallerRajz() {
-  var s = '<rect width="800" height="150" fill="#f8ecd9"/>', x = 70;
-  [1, 2, 5, 10, 20, 50, 100].forEach(function (v) { s += '<g transform="translate(' + x + ' 70) scale(1.8)">' + ermeBelso(v) + '</g><text x="' + x + '" y="132" text-anchor="middle" font-size="12" font-family="Fredoka" fill="#8a7a9e">' + v + ' tallér</text>'; x += 108; });
+  var s = '<rect width="800" height="270" fill="#f8ecd9"/>', x;
+  [["egy", 70, "egyszínű (a régi javaslat)"], ["hely", 190, "helyi érték szerint (új javaslat)"]].forEach(function (sor) {
+    s += '<text x="20" y="' + (sor[1] - 46) + '" font-size="13" font-family="Fredoka" font-weight="600" fill="#6b6280">' + sor[2] + '</text>';
+    x = 70;
+    [1, 2, 5, 10, 20, 50, 100].forEach(function (v) { s += '<g transform="translate(' + x + ' ' + sor[1] + ') scale(1.6)">' + ermeBelso(v, 1, sor[0]) + '</g>'; x += 108; });
+  });
+  /* családok zárójele az alsó sor alatt */
+  [[70, 286, "egyesek", 1], [394, 610, "tízesek", 10], [718, 718, "százas", 100]].forEach(function (c) {
+    var col = HE_SZIN[c[3]][1];
+    s += '<path d="M' + (c[0] - 26) + ' 236q0 8 8 8H' + (c[1] + 18) + 'q8 0 8 -8" fill="none" stroke="' + col + '" stroke-width="2" opacity="' + (HALV_OP[HALV] * .8 + .2) + '"/>' +
+      '<text x="' + ((c[0] + c[1]) / 2) + '" y="262" text-anchor="middle" font-size="12.5" font-family="Fredoka" font-weight="600" fill="' + col + '">' + c[2] + '</text>';
+  });
   $("tallerok").innerHTML = s;
 }
-$("taller-szin").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.children, function (x) { x.classList.toggle("on", x === b); }); ERME_SZIN = b.dataset.v; tallerRajz(); boltIndit(); });
+$("taller-szin").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); }); ERME_SZIN = b.dataset.v; boltIndit(); bvIndit(); });
+$("taller-halv").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); }); HALV = +b.dataset.h; tallerRajz(); kozosKod(); boltIndit(); bvIndit(); });
+
+/* egy színkód mindenhol: tallér · Dienes-elemek · számszalag · írásbeli füzet */
+function kozosKod() {
+  var s = '<rect width="800" height="170" fill="#f8ecd9"/>', E = HE_SZIN[1][3], T = HE_SZIN[10][3], Sz = HE_SZIN[100][3], i, j;
+  var cim = function (x, t) { return '<text x="' + x + '" y="158" text-anchor="middle" font-size="12" font-family="Fredoka" font-weight="600" fill="#6b6280">' + t + '</text>'; };
+  /* 1. tallér */
+  s += '<g transform="translate(40 80)">' + ermeBelso(1, 1, "hely") + '</g><g transform="translate(90 80)">' + ermeBelso(10, 1, "hely") + '</g><g transform="translate(148 80)">' + ermeBelso(100, 1, "hely") + '</g>' + cim(95, "tallér");
+  /* 2. Dienes: kocka, rúd, lap */
+  s += '<rect x="214" y="104" width="9" height="9" fill="' + E + '" stroke="#c0567f" stroke-width=".8"/>';
+  for (i = 0; i < 10; i++) s += '<rect x="236" y="' + (24 + i * 9) + '" width="9" height="9" fill="' + T + '" stroke="#5f84b0" stroke-width=".8"/>';
+  for (i = 0; i < 10; i++) for (j = 0; j < 10; j++) s += '<rect x="' + (260 + i * 9) + '" y="' + (24 + j * 9) + '" width="9" height="9" fill="' + Sz + '" stroke="#b5842c" stroke-width=".6"/>';
+  s += cim(282, "kocka · rúd · lap");
+  /* 3. számszalag: a tízesek kékek, az egyesek rózsaszínek */
+  s += '<path d="M380 80H580" stroke="#4a3b7a" stroke-width="2"/>';
+  for (i = 0; i <= 20; i++) { var x = 380 + i * 10, t = i % 10 === 0; s += '<path d="M' + x + ' ' + (t ? 66 : 74) + 'V' + (t ? 94 : 86) + '" stroke="' + (t ? "#5f84b0" : "#e98aa8") + '" stroke-width="' + (t ? 3 : 1.6) + '"/>'; if (t) s += '<text x="' + x + '" y="112" text-anchor="middle" font-size="13" font-family="Fredoka" font-weight="700" fill="#2f4f7a">' + (30 + i) + '</text>'; }
+  s += '<circle cx="450" cy="80" r="4.5" fill="#e0417a"/><text x="450" y="58" text-anchor="middle" font-size="12" font-family="Fredoka" font-weight="700" fill="#e0417a">37</text>' + cim(480, "számszalag");
+  /* 4. írásbeli füzet: oszlopfejek színe */
+  [["Sz", Sz, "#7a5420", "3"], ["T", T, "#2f4f7a", "4"], ["E", E, "#7a2f4c", "7"]].forEach(function (o, k) {
+    var x = 640 + k * 40;
+    s += '<rect x="' + x + '" y="30" width="40" height="22" fill="' + o[1] + '" opacity=".75"/><text x="' + (x + 20) + '" y="46" text-anchor="middle" font-size="13" font-family="Fredoka" font-weight="700" fill="' + o[2] + '">' + o[0] + '</text>' +
+      '<rect x="' + x + '" y="52" width="40" height="70" fill="' + o[1] + '" opacity=".18"/><text x="' + (x + 20) + '" y="96" text-anchor="middle" font-size="30" font-family="Caveat,cursive" font-weight="700" fill="#3b4a8a">' + o[3] + '</text>';
+  });
+  s += '<path d="M640 30H760V122H640Z M680 30V122M720 30V122" fill="none" stroke="#c9b6dc" stroke-width="1.4"/>' + cim(700, "írásbeli füzet");
+  $("kozos-kod").innerHTML = s;
+}
+
+/* ─────────── BEVÁLTÁS ─────────── */
+var BV = { mod: "tizes", ermek: [], zar: false, uni: null, tuske: null, szam: 0 };
+var BV_K = { x0: 250, y0: 286, cw: 30, ch: 46 };   /* a tízes-keret: 10 hely egy sorban, mint egy tízes rúd */
+var BV_KOZEP = [400, 309];
+function bvU() { return BV.mod === "szazas" ? 10 : 1; }
+function bvCella(i) { return [BV_K.x0 + i * BV_K.cw + BV_K.cw / 2, BV_K.y0 + BV_K.ch / 2]; }
+function bvKasszaHely(i) { return [44 + (i % 4) * 56, 304 + Math.floor(i / 4) * 50]; }
+function bvHalomHely(i) { return [640 + (i % 3) * 52, 312 - Math.floor(i / 3) * 10]; }
+function bvAlap() {
+  var s = '<rect width="800" height="400" fill="#f8ecd9"/>';
+  for (var x = 0; x < 800; x += 26) s += '<rect x="' + x + '" y="0" width="13" height="250" fill="#f3e2c6" opacity=".55"/>';
+  s += '<g id="bv-uni" transform="translate(-24 126) scale(.7)"></g>';
+  s += '<g transform="translate(822 22) scale(-.8 .8)"><g id="bv-tuske"></g></g>';
+  s += pultRajz(250, 380, 400);
+  s += '<g filter="url(#lt-firka)"><rect x="14" y="272" width="232" height="104" rx="12" fill="#b07a4c" stroke="#7a4f2c" stroke-width="3"/><rect x="22" y="278" width="216" height="92" rx="9" fill="#c9915e"/>' +
+       '<rect x="590" y="272" width="196" height="76" rx="12" fill="#b07a4c" stroke="#7a4f2c" stroke-width="3"/><rect x="598" y="278" width="180" height="64" rx="9" fill="#c9915e"/></g>';
+  s += '<text x="130" y="268" text-anchor="middle" font-size="11" font-family="Fredoka" fill="#7a4f2c">kassza</text><text id="bv-halom-cim" x="688" y="268" text-anchor="middle" font-size="11" font-family="Fredoka" fill="#7a4f2c"></text>';
+  s += '<g id="bv-keret"></g><g id="bv-ermek"></g><g id="bv-szikra"></g><g id="bv-bub"></g>';
+  $("bevaltas").innerHTML = s;
+  BV.uni = new Uni($("bv-uni"), "figyel");
+  BV.tuske = new Lako($("bv-tuske"), "tuske", { poz: "var", elet: true });
+}
+function bvTele() { return BV.ermek.filter(function (e) { return e.hol === "keret"; }).reduce(function (a, e) { return a + e.v / bvU(); }, 0); }
+function bvKeretRajz(villan) {
+  var u = bvU(), tele = BV.mod === "felvalt" ? BV.szam : bvTele(), szin = HE_SZIN[u][3], s = "";
+  s += '<rect x="' + (BV_K.x0 - 6) + '" y="' + (BV_K.y0 - 6) + '" width="' + (BV_K.cw * 10 + 12) + '" height="' + (BV_K.ch + 12) + '" rx="8" fill="#fffaf0" stroke="#8a6a52" stroke-width="2.4"/>';
+  for (var i = 0; i < 10; i++) s += '<rect x="' + (BV_K.x0 + i * BV_K.cw + 2) + '" y="' + (BV_K.y0 + 2) + '" width="' + (BV_K.cw - 4) + '" height="' + (BV_K.ch - 4) + '" rx="5" fill="' + (i < tele ? szin : "#f3ead8") + '" opacity="' + (i < tele ? .75 : 1) + '" stroke="' + (i === 4 ? "#b08a68" : "#e3d4ba") + '" stroke-width="1.2"/>';
+  s += '<path d="M' + (BV_K.x0 + 5 * BV_K.cw) + ' ' + (BV_K.y0 - 2) + 'V' + (BV_K.y0 + BV_K.ch + 2) + '" stroke="#b08a68" stroke-width="2" stroke-dasharray="3 3"/>';
+  s += '<text x="400" y="358" text-anchor="middle" font-size="11.5" font-family="Fredoka" fill="#fffaf0">' + (u === 1 ? "tízes-keret: 10 egyesnyi hely" : "százas-keret: 10 tízesnyi hely") + '</text>';
+  if (villan) s += '<circle cx="' + BV_KOZEP[0] + '" cy="' + BV_KOZEP[1] + '" r="10" fill="url(#gHalo)"><animate attributeName="r" values="10;120" dur=".7s" fill="freeze"/><animate attributeName="opacity" values="1;0" dur=".7s" fill="freeze"/></circle>';
+  $("bv-keret").innerHTML = s;
+}
+function bvErmekRajz() {
+  var g = $("bv-ermek"), mozgott = false;
+  BV.ermek.forEach(function (e) {
+    var el = g.querySelector("#" + e.id);
+    if (!el) g.insertAdjacentHTML("beforeend", '<g class="erme" id="' + e.id + '" data-x="' + e.x + '" data-y="' + e.y + '" style="transform:translate(' + e.x + 'px,' + e.y + 'px)">' + ermeBelso(e.v) + '</g>');
+    else if (+el.dataset.x !== e.x || +el.dataset.y !== e.y) { szarvVarazs(el, +el.dataset.x, +el.dataset.y, e.x, e.y, { nyom: $("bv-szikra") }); el.dataset.x = e.x; el.dataset.y = e.y; mozgott = true; }
+  });
+  [].slice.call(g.children).forEach(function (el) { if (!BV.ermek.some(function (e) { return e.id === el.id; })) el.remove(); });
+  if (mozgott && !BV.zar) BV.uni.poz("szarv", 800);
+}
+function bvUj(v, xy, hol, hely) { var e = { id: "bv" + (BV.szam2 = (BV.szam2 || 0) + 1), v: v, x: xy[0], y: xy[1], hol: hol, hely: hely }; BV.ermek.push(e); return e; }
+/* a keretben levő érmék sorban foglalják a helyeket; mindegyik a saját helyei közepén ül */
+function bvElrendez() {
+  var u = bvU(), i = 0;
+  BV.ermek.forEach(function (e) {
+    if (e.hol === "keret") { var n = e.v / u, a = bvCella(i), b = bvCella(i + n - 1); e.x = (a[0] + b[0]) / 2; e.y = a[1]; i += n; }
+    else if (e.hol === "kassza") { var k = bvKasszaHely(e.hely); e.x = k[0]; e.y = k[1]; }
+  });
+  bvKeretRajz(); bvErmekRajz();
+}
+var BV_KASSZA = { tizes: [1, 2, 1, 5, 1, 2, 1, 2], szazas: [10, 20, 10, 50, 10, 20, 10, 20] };
+function bvIndit() {
+  BV.ermek = []; BV.zar = false; BV.szam = 0;
+  $("bv-ermek").innerHTML = ""; $("bv-bub").innerHTML = "";
+  BV.tuske.megszakit(); BV.tuske.poz("var"); BV.uni.alap = "figyel"; BV.uni.poz("figyel");
+  $("bv-halom-cim").textContent = BV.mod === "szazas" ? "százasok" : "tízesek";
+  if (BV.mod === "felvalt") {
+    bvUj(10, bvHalomHely(0), "halom");
+    buborek(690, 34, "Kéne egy kis apró. Felváltod a tízest?", "tuske", $("bv-bub"));
+    $("bv-allapot").textContent = "Kattints a kék tízesre: az unikornis a keretbe lebegteti, és ott szétpattan.";
+  } else {
+    BV_KASSZA[BV.mod].forEach(function (v, i) { bvUj(v, bvKasszaHely(i), "kassza", i); });
+    buborek(690, 34, BV.mod === "tizes" ? "Elfogyott a tízesem! Felváltasz?" : "Kéne egy százas! Összeraksz egyet?", "tuske", $("bv-bub"));
+    $("bv-allapot").textContent = BV.mod === "tizes" ? "Tegyél a keretbe pont tíz egyesnyi érmét: az 1-es egy helyet foglal, a 2-es kettőt, az 5-ös ötöt." : "Ugyanez egy szinttel feljebb: a keret most 10 tízesnyi. A 10-es egy helyet foglal, a 20-as kettőt, az 50-es ötöt.";
+  }
+  bvElrendez();
+}
+function bvOsszeolvad() {
+  var u = bvU(), benn = BV.ermek.filter(function (e) { return e.hol === "keret"; });
+  BV.zar = true;
+  setTimeout(function () {
+    benn.forEach(function (e) { var el = $(e.id); if (el && !CSOKKENT) el.animate([{ transform: "translate(" + e.x + "px," + e.y + "px) scale(1)", opacity: 1 }, { transform: "translate(" + BV_KOZEP[0] + "px," + BV_KOZEP[1] + "px) scale(.3)", opacity: 0 }], { duration: 650, easing: "ease-in", fill: "forwards" }); });
+    setTimeout(function () {
+      BV.ermek = BV.ermek.filter(function (e) { return e.hol !== "keret"; });
+      var db = BV.ermek.filter(function (e) { return e.hol === "halom"; }).length, uj = bvUj(10 * u, BV_KOZEP, "uj");
+      bvKeretRajz(true); bvErmekRajz();
+      var el = $(uj.id); if (el && !CSOKKENT) el.animate([{ transform: "translate(" + BV_KOZEP[0] + "px," + BV_KOZEP[1] + "px) scale(.2)" }, { transform: "translate(" + BV_KOZEP[0] + "px," + BV_KOZEP[1] + "px) scale(1.25)" }, { transform: "translate(" + BV_KOZEP[0] + "px," + BV_KOZEP[1] + "px) scale(1)" }], { duration: 550 });
+      BV.tuske.megszakit(); BV.tuske.poz("orul"); BV.uni.poz("orul", 1800);
+      buborek(690, 34, u === 1 ? "Tíz egyes = egy tízes! Köszönöm!" : "Tíz tízes = egy százas! Köszönöm!", "tuske", $("bv-bub"));
+      setTimeout(function () {
+        uj.hol = "halom"; var h = bvHalomHely(db); uj.x = h[0]; uj.y = h[1]; BV.zar = false; bvErmekRajz(); BV.uni.poz("szarv", 800);
+        var marad = BV.ermek.filter(function (e) { return e.hol === "kassza"; }).reduce(function (a, e) { return a + e.v; }, 0);
+        $("bv-allapot").textContent = (u === 1 ? "A tíz rózsaszín érme egy kék tízessé olvadt." : "A tíz tízesnyi kék érme egy arany százassá olvadt.") + (marad < 10 * u ? " A kasszában maradt érmék már nem elegek egy újabbhoz." : " Rakhatsz még egyet!");
+        setTimeout(function () { BV.tuske.poz("var"); }, 1400);
+      }, 1100);
+    }, CSOKKENT ? 0 : 680);
+  }, CSOKKENT ? 0 : 750);
+}
+function bvSzetpattan(e) {
+  BV.zar = true; e.hol = "keret"; e.x = BV_KOZEP[0]; e.y = BV_KOZEP[1]; bvErmekRajz();
+  setTimeout(function () {
+    BV.ermek.splice(BV.ermek.indexOf(e), 1);
+    var ujak = [];
+    for (var i = 0; i < 10; i++) ujak.push(bvUj(1, BV_KOZEP, "keret"));
+    bvKeretRajz(true); bvErmekRajz();
+    ujak.forEach(function (u, i) { setTimeout(function () { var c = bvCella(i); u.x = c[0]; u.y = c[1]; BV.szam = i + 1; bvKeretRajz(); bvErmekRajz(); }, CSOKKENT ? 0 : 120 * i); });
+    setTimeout(function () {
+      BV.tuske.megszakit(); BV.tuske.poz("orul"); BV.uni.poz("orul", 1800);
+      buborek(690, 34, "Egy tízes = tíz egyes! Köszönöm!", "tuske", $("bv-bub"));
+      $("bv-allapot").textContent = "A kék tízes tíz rózsaszín egyessé pattant szét, és pont kitöltötte a keretet.";
+    }, CSOKKENT ? 0 : 1500);
+  }, CSOKKENT ? 0 : 800);
+}
+$("bevaltas").addEventListener("click", function (ev) {
+  var g = ev.target.closest(".erme"); if (!g || BV.zar) return;
+  var e = BV.ermek.filter(function (x) { return x.id === g.id; })[0]; if (!e) return;
+  if (BV.mod === "felvalt") { if (e.hol === "halom") bvSzetpattan(e); return; }
+  if (e.hol === "keret") { e.hol = "kassza"; bvElrendez(); return; }
+  if (e.hol !== "kassza") return;
+  if (bvTele() + e.v / bvU() > 10) {
+    if (!CSOKKENT) g.animate([{ transform: "translate(" + e.x + "px," + e.y + "px)" }, { transform: "translate(" + (e.x + 6) + "px," + (e.y - 8) + "px)" }, { transform: "translate(" + (e.x - 5) + "px," + e.y + "px)" }, { transform: "translate(" + e.x + "px," + e.y + "px)" }], { duration: 380 });
+    BV.uni.poz("gondol", 1600); buborek(690, 34, "Ez már nem fér bele.", "tuske", $("bv-bub"));
+    return;
+  }
+  e.hol = "keret"; BV.ermek.push(BV.ermek.splice(BV.ermek.indexOf(e), 1)[0]);   /* a keretben a sorrend a berakás sorrendje */
+  buborek(0, 0, "", "tuske", $("bv-bub"));
+  bvElrendez();
+  if (bvTele() === 10) bvOsszeolvad();
+});
+$("bv-mod").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.children, function (x) { x.classList.toggle("on", x === b); }); BV.mod = b.dataset.v; bvIndit(); });
+$("bv-ujra").addEventListener("click", bvIndit);
 
 /* ─────────── 6. A RÓKA BLOKKJA ─────────── */
 var BLOKKOK = [
@@ -1854,7 +2041,7 @@ function otthonRajz() {
 })();
 
 /* ─────────── indulás ─────────── */
-nagyTerkep(); faluRajz(); tallerRajz(); boltAlap(); boltIndit(); rokaAlap(); rokaIndit();
+nagyTerkep(); faluRajz(); tallerRajz(); kozosKod(); boltAlap(); boltIndit(); bvAlap(); bvIndit(); rokaAlap(); rokaIndit();
 </script>
 </body>
 </html>
