@@ -86,7 +86,7 @@ window.__KK = (function () {
       }
       if (x.forma === "vissza") return { mod: "katt", sel: le("tenyer").concat(legk(x.v.vissza).map(function (v) { return es("kassza", v); })).concat([kesz]), rossz: kesz };
       var ps = function (v) { return '#bk-svg .bk-pecset[data-v="' + v + '"] rect'; };
-      if (B.fazis === "javit") return { mod: "katt", sel: String(x.b.helyes).split("").map(function (d) { return '#bk-gombok [data-g="d' + d + '"]'; }).concat(['#bk-gombok [data-g="javok"]']), rossz: null };
+      if (B.fazis === "javit") return { mod: "gepel", sor: jegyek(x.b.helyes), szam: x.b.helyes, max: 3 };   /* a javítás billentyűzetről */
       return { mod: "katt", sel: [ps(x.b.pontos ? "ok" : "x")], rossz: ps(x.b.pontos ? "x" : "ok") };
     }
     if (f.kartyak) {

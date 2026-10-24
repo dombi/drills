@@ -18161,8 +18161,9 @@ function bkOsszegRajz() {
   u.innerHTML = s;
 }
 function bkPultraHelyez() {
-  var p = BK.ermek.filter(function (e) { return e.hol === "pult"; });
-  p.forEach(function (e, i) { e.x = i < 6 ? 396 - i * 42 : 375 - (i - 6) * 42; e.y = i < 6 ? 364 : 330; });
+  /* a pulton is úgy sorakoznak, mint az erszényben: balra a legnagyobb, jobbra csökken (élő próba, 2026-10-24) */
+  var p = BK.ermek.filter(function (e) { return e.hol === "pult"; }).sort(function (a, b) { return b.v - a.v || (a.t || 0) - (b.t || 0); });
+  p.forEach(function (e, i) { e.x = i < 6 ? 186 + i * 42 : 207 + (i - 6) * 42; e.y = i < 6 ? 364 : 330; });
   var t = BK.ermek.filter(function (e) { return e.hol === "tarca"; }), n = BK.f.bolt.tarca.length;
   t.forEach(function (e) { e.x = bkTarcaX(e.hely, n); e.y = 415; });   /* minden érme a saját helyére megy vissza */
 }
@@ -18385,17 +18386,19 @@ function bkPecsetKatt(v) {
     }
   });
 }
+/* a javítás a BILLENTYŰZETRŐL jön (élő próba, 2026-10-24): nincs képernyős számsor. A mező valódi beviteli mező
+   (tableten a rendszer számbillentyűzete jön fel), de a gép billentyűzete akkor is ide ír, ha a fókusz máshol van. */
 function bkJavitGombok() {
-  var gombok = "";
-  for (var d = 1; d <= 9; d++) gombok += '<button class="bk-szam" data-g="d' + d + '">' + d + '</button>';
-  gombok += '<button class="bk-szam" data-g="d0">0</button><button class="bk-szam" data-g="del">⌫</button>';
-  bkGombok('<span class="bk-kerd">Írd be a jót:</span><span class="bk-beiras" id="bk-beiras">' + (BK.javit || "&nbsp;") + '</span><span class="bk-billentyu">' + gombok + '</span><button class="nagy-gomb bk-kesz" data-g="javok">OK</button>');
+  bkGombok('<span class="bk-kerd">Írd be a jót a billentyűzeten:</span><input id="bk-beiras" class="bk-beiras" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="a javított összeg" value="' + (BK.javit || "") + '"><button class="nagy-gomb bk-kesz" data-g="javok">OK</button>');
+  var be = $("bk-beiras");
+  be.addEventListener("input", function () { BK.javit = be.value.replace(/[^0-9]/g, "").slice(0, 3); be.value = BK.javit; });
+  try { if (!(window.matchMedia && matchMedia("(pointer: coarse)").matches)) be.focus(); } catch (e) {}
 }
 function bkJavitBe(jel) {
   if (BK.fazis !== "javit" || BK.lezart) return;
   if (jel === "del") BK.javit = BK.javit.slice(0, -1);
   else if (BK.javit.length < 3) BK.javit += jel;
-  var b = $("bk-beiras"); if (b) b.innerHTML = BK.javit || "&nbsp;";
+  var b = $("bk-beiras"); if (b) b.value = BK.javit;
 }
 function bkJavitOk() {
   var f = BK.f, b = f.bolt.b; if (BK.fazis !== "javit" || BK.lezart || !BK.javit) return;
@@ -18464,6 +18467,7 @@ function bkGombKatt(ev) {
 }
 function bkBillentyu(e) {
   if (!bkAktiv() || BK.fazis !== "javit") return;
+  if (document.activeElement === $("bk-beiras")) { if (e.key === "Enter") { e.preventDefault(); bkJavitOk(); } return; }   /* a mező maga kezeli a számjegyeket */
   var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */
   if (d !== null) { e.preventDefault(); bkJavitBe(d); }
   else if (e.key === "Backspace") { e.preventDefault(); bkJavitBe("del"); }
