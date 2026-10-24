@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pálya-hely és tárgy-keret</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --wood:#e9c193; --wood-d:#a87a4e; --sketch:#fbf3e6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --sketch:#f7efe2;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --sketch:#f7efe2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#c98a4e 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:26px 26px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🛖";position:absolute;right:18px;top:4px;font-size:96px;opacity:.22;transform:rotate(8deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:16px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .card h3{margin-top:0}
+  .tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;background:var(--violet-soft);color:var(--violet)}
+  .ok{background:var(--green-soft);border-color:transparent}
+  .warn{background:var(--warn-soft);border-color:transparent}
+  .sketch{background:var(--sketch);border-radius:14px;padding:8px;margin:10px 0}
+  .sketch svg{width:100%;height:auto;display:block}
+  .tbl{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  .dont{background:var(--panel);border:2px solid var(--violet-soft);border-radius:14px;padding:12px 16px;margin:10px 0}
+  .dont b.n{color:var(--violet)}
+  .jav{color:var(--green);font-weight:700}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Pálya-hely és tárgy-keret</h1>
+  <div class="sub">Eltűnnek a téglalapok. A pálya egy hely a képben (bódé, ház, tönk), a feladat pedig egy tárgyon él (létrafok, ablak, tábla). Mindkettő egy közös készletből jön, ezért a régi pályák egyetlen adatsorral átállíthatók. Az első két új pálya, a 🪜 Rokon-létra és a 🏡 Számcsalád, már így születik.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-10-24</span>
+    <span class="chip">Nagyság: tervlap közepes · kód: rajzterv + 3 kör</span>
+    <span class="chip">Visszatérési pont: v2.0-stabil</span>
+  </div>
+</header>
+
+<h2>1. Mi ez, és miért?</h2>
+<div class="panel">
+  <p>A producer kérése (2026-10-24): <b>a pályák hagyják el a téglalap kinézetet</b>. Az új helyek már eszerint készüljenek, és olyan megoldással, amit a régi pályák átírásánál nem kell újra kitalálni.</p>
+  <p>Ma a liget belsejében a pályák fehér, kerekített kártyák a háttér előtt. A kártya iskolai feladatlapra emlékeztet: a háttér előtt lebeg, nem a világ része. Ez ütközik a vezérelvünkkel: <i>a kép a gondolkodás helye</i>. A Piactéren már elindult a jobb irány, mert Tüske néni boltja egy ház, amelyhez az unikornis odasétál. Ezt tesszük általánossá.</p>
+  <p><b>Két közös darab készül:</b></p>
+  <ul>
+    <li><b>🛖 Pálya-hely</b> (a választóban): a pálya egy hely a liget képében. A piacon bódé, az utcán ház, az erdőben tönk vagy gombaház.</li>
+    <li><b>🪧 Tárgy-keret</b> (a pályán belül): a feladat egy odaillő tárgyon jelenik meg, például létrafokon, ablakban, krétatáblán vagy cetlin.</li>
+  </ul>
+  <p class="lead">Egy liget csak megnevezi, milyen helyet kér, egy pálya pedig azt, milyen keretet. Ez egy sor az adataik között, nem új rajz.</p>
+</div>
+
+<h2>2. Mi van ma? (a kód átnézése)</h2>
+<div class="grid">
+  <div class="card">
+    <h3>A pálya-kártya 12 jele</h3>
+    <p>A <code>keszitKartya</code> (ui.js) ennyi mindent tesz egy dobozba: sorszám · állapot (⭐ 🌟 🔒 💤 🌙 🔜) · 💧 a mai kiemelt · 💖 ajánlott · 🐉 a sárkány kéri · ikon · név · „100-ig · ×, :” · 🏦 bankot nyit · ≈ ✨ · 🔊 felolvasás, és a kártya fénye (újonc-menet).</p>
+  </div>
+  <div class="card warn">
+    <h3>⚠️ Már most háromszor másolva</h3>
+    <p>A Piactér a boltnál, a Tündérvásár sátránál és a Déli vásárnál <b>háromszor</b>, külön-külön számolja ki ugyanezeket a jeleket (piac.js). Ha jön egy új jel, három helyen kellene átírni. Ez a legjobb bizonyíték arra, hogy kell egy közös modul.</p>
+  </div>
+</div>
+
+<h2>3. Mit CSINÁL a gyerek a képen?</h2>
+<div class="panel">
+  <p>Bejön a ligetbe, és <b>helyeket lát</b>, nem kártyákat. A helyek maguk mutatják, mi a helyzet: a kész bódén zászló leng, a zárton lakat lóg, az alvó ködös. Koppint egy helyre, az unikornis odasétál, kinyílik az ajtó, és indul a pálya. Ugyanígy működik, mint ma a bolt a Piactéren.</p>
+  <div class="sketch">
+    <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,system-ui,sans-serif">
+      <text x="120" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#6b6280">MA: kártya</text>
+      <rect x="40" y="36" width="160" height="190" rx="16" fill="#fff" stroke="#f5c84a" stroke-width="4"/>
+      <text x="52" y="56" font-size="11" fill="#9a8fb0">19</text>
+      <text x="120" y="98" text-anchor="middle" font-size="34">📦</text>
+      <text x="120" y="130" text-anchor="middle" font-size="15" font-weight="700" fill="#2a2140">Dobozoló-nap</text>
+      <text x="120" y="148" text-anchor="middle" font-size="11" fill="#6b6280">maradékos osztás</text>
+      <rect x="62" y="160" width="116" height="20" rx="10" fill="#ece0fb"/><text x="120" y="174" text-anchor="middle" font-size="11" fill="#8a4fd0">🏦 bankot nyit</text>
+      <rect x="66" y="190" width="64" height="22" rx="11" fill="#fff3c4"/><text x="98" y="205" text-anchor="middle" font-size="11">≈ 70 ✨</text>
+      <circle cx="156" cy="201" r="12" fill="#ece0fb"/><text x="156" y="206" text-anchor="middle" font-size="11">🔊</text>
+      <text x="290" y="135" font-size="34" fill="#a87a4e">→</text>
+      <text x="530" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#6b6280">ÚJ: bódé a sátorban</text>
+      <ellipse cx="530" cy="232" rx="150" ry="10" fill="#e2cfaa"/>
+      <path d="M430 110 L630 110 L612 80 L448 80 Z" fill="#f6a5c0" stroke="#a87a4e" stroke-width="2.5"/>
+      <path d="M448 80 l20 30 M488 80 l10 30 M528 80 v30 M568 80 l-10 30 M608 80 l-20 30" stroke="#fff" stroke-width="7" opacity=".7"/>
+      <path d="M430 110 q12 14 25 0 q12 14 25 0 q12 14 25 0 q12 14 25 0 q12 14 25 0 q12 14 25 0 q12 14 25 0 q12 14 25 0" fill="#f6a5c0" stroke="#a87a4e" stroke-width="2"/>
+      <path d="M444 118 V228 M616 118 V228" stroke="#a87a4e" stroke-width="5"/>
+      <rect x="436" y="180" width="188" height="48" rx="4" fill="#e9c193" stroke="#a87a4e" stroke-width="2.5"/>
+      <text x="508" y="178" text-anchor="middle" font-size="30">📦📦</text>
+      <path d="M612 80 V44" stroke="#a87a4e" stroke-width="3"/><path d="M612 44 l28 8 l-28 8z" fill="#f5c84a"/>
+      <path d="M470 60 V80 M590 60 V80" stroke="#a87a4e" stroke-width="2"/>
+      <path d="M458 38 h144 l6 11 l-6 11 h-144 l-6 -11 z" fill="#fffaf0" stroke="#a87a4e" stroke-width="2.5"/>
+      <text x="530" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#6e4a36">Dobozoló-nap</text>
+      <circle cx="452" cy="150" r="12" fill="#fffaf0" stroke="#a87a4e" stroke-width="2"/><text x="452" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#6e4a36">19</text>
+      <rect x="566" y="134" width="52" height="22" rx="3" fill="#fffdf6" stroke="#c9ad85" transform="rotate(5 592 145)"/><text x="592" y="150" text-anchor="middle" font-size="11" transform="rotate(5 592 145)">≈70 ✨</text>
+      <path d="M602 60 v14" stroke="#8a6a52" stroke-width="1.5"/><text x="602" y="88" text-anchor="middle" font-size="14">🗝️</text>
+      <text x="470" y="88" text-anchor="middle" font-size="13">🔔</text>
+      <text x="680" y="70" font-size="11" fill="#6b6280">zászló = kész</text>
+      <text x="680" y="150" font-size="11" fill="#6b6280">cetli = ≈ ✨</text>
+      <text x="680" y="100" font-size="11" fill="#6b6280">kulcs = bank</text>
+      <text x="680" y="200" font-size="11" fill="#6b6280">pult = az áru</text>
+    </svg>
+  </div>
+  <p class="lead">Ez csak gondolatvázlat. A valódi kinézet a rajztervben születik, a térkép saját rajzkészletével (hullámos szél, pasztell).</p>
+</div>
+
+<h2>4. Hová kerül a kártya 12 jele?</h2>
+<div class="panel tbl">
+  <table>
+    <tr><th>Ma a kártyán</th><th>A pálya-helyen</th><th>Miért így</th></tr>
+    <tr><td>név</td><td>fa <b>cégér</b> a hely fölött</td><td>nagy betű, mindig ugyanott</td></tr>
+    <tr><td>ikon</td><td>az <b>áru</b> a pulton vagy a ház előtt (a mai <code>PALYA_IKON</code> rajz, nagyobban)</td><td>nincs új rajz, a meglévő ikonok átjönnek</td></tr>
+    <tr><td>sorszám</td><td>kerek <b>házszám</b>-tábla</td><td>a sorrend látszik, de nem tolakszik előre</td></tr>
+    <tr><td>⭐ kész / 🌟 arany</td><td><b>zászló</b> a tetőn (aranyra arany zászló)</td><td>messziről látszik, mennyi kész</td></tr>
+    <tr><td>🔒 zárva</td><td><b>lakat</b> az ajtón vagy leeresztett ponyva</td><td>a kép mondja, nem a felirat</td></tr>
+    <tr><td>💤 alszik (újonc)</td><td>ködös, fakóbb hely (mint ma a Piactéren)</td><td>a mai újonc-köd folytatása</td></tr>
+    <tr><td>🌙 elfogyott</td><td>becsukott spaletta, rajta hold</td><td>„mára elég volt”, de nem büntetés</td></tr>
+    <tr><td>🔜 hamarosan</td><td><b>állvány</b>, „épül!” tábla (mint az épülő utca)</td><td>a falu építés-gondolata</td></tr>
+    <tr><td>💧 napi · 💖 ajánlott · 🐉 sárkány</td><td>kis <b>jel-tábla</b> a cégér alatt, legfeljebb 2 (a mai sorrend szerint)</td><td>a mai fontossági szabály marad</td></tr>
+    <tr><td>🏦 bankot nyit</td><td>kis <b>kulcs</b> lóg a cégérről</td><td>kép, nem felirat</td></tr>
+    <tr><td>≈ ✨ jutalom</td><td>a cégérre tűzött kis <b>cetli</b></td><td>Fanni a gyűjtést szereti, maradjon látható</td></tr>
+    <tr><td>„100-ig · ×, :”</td><td><b>eltűnik</b> a helyről (a felolvasás elmondja, a pult látja)</td><td>ez a felnőttnek szól, nem a gyereknek</td></tr>
+    <tr><td>🔊 felolvasás</td><td>kis <b>csengő</b> a cégér sarkán</td><td>Petrának fontos, aki még bizonytalanul olvas</td></tr>
+    <tr><td>a kártya fénye</td><td>a hely mögötti fényudvar (mint ma a boltnál)</td><td>már megvan a Piactéren</td></tr>
+  </table>
+</div>
+
+<h2>5. A hely-fajták (a közös készlet)</h2>
+<div class="panel">
+  <p>Minden hely-fajtának ugyanazok a <b>csatlakozó pontjai</b> vannak: cégér, zászló, ajtó, áru, házszám, és az, hogy hol áll meg az unikornis. Ezért a jelek (4. pont) mindenhol egyformán ülnek fel, csak maga a hely rajza más. Az építés három foka (telek → állvány → kész ház) a Piactér mai <code>piacHazLepes</code> szabályát követi.</p>
+  <div class="tbl"><table>
+    <tr><th>Hely-fajta</th><th>Hol</th><th>Mikor</th></tr>
+    <tr><td>🛖 <b>bódé</b></td><td>a Tündérvásár sátra a Piactéren (Reggeli vásár, Dobozoló-nap)</td><td>A kör (első használó)</td></tr>
+    <tr><td>🏠 <b>ház</b></td><td>az épülő Összeadó utca: 🪜 Rokon-létra, 🏡 Számcsalád; később a régi 100-as összeadók</td><td>B–C kör</td></tr>
+    <tr><td>🍄 <b>tönk / gombaház</b></td><td>az erdő (20-as kör: bontás, 10-ig, 20-ig, Bújócska-rét)</td><td>később, hullámban</td></tr>
+    <tr><td>🧵 <b>munkaasztal</b></td><td>a mérés-ligetek műhelyei (Szabóműhely, Bájitalkonyha, Mézes pékség)</td><td>később</td></tr>
+    <tr><td>🎵 <b>pavilon</b></td><td>a Dallam-tér (a Szorzós liget pályái)</td><td>a Dallam-térrel együtt</td></tr>
+  </table></div>
+  <p><b>Kimarad:</b> a 🏔️ Fejtörő-hegy és a 📚 Bagolykönyvtár, mert ezeknek már saját világuk van (hegy, terem). A 💖 „Neked készült” ligetnek a rajzterv dönti el, mi legyen (javaslat: postaláda vagy ajándékcsomag).</p>
+  <p><b>Biztonsági háló:</b> az a liget, amelyiknek még nincs hely-fajtája, a régi kártyát kapja. Így semmi nem törik el, és a ligetek egyenként állhatnak át.</p>
+</div>
+
+<h2>6. Elrendezés: ne zsúfolódjon</h2>
+<div class="grid">
+  <div class="card">
+    <h3>Kevés pálya (2–4): sor</h3>
+    <p>A helyek egymás mellett állnak, mint egy utca vagy egy piaci sor. Ilyen a Tündérvásár sátra (2 bódé) és az épülő utca (2 ház).</p>
+  </div>
+  <div class="card">
+    <h3>Sok pálya (5–8): kanyargó ösvény</h3>
+    <p>A helyek egy kanyargó ösvény mentén állnak, hátul kisebbek, elöl nagyobbak. Ilyen lesz az erdő (7–8 pálya). Telefonon, álló képen az ösvény lefelé kanyarog, és görgetni lehet.</p>
+  </div>
+</div>
+<div class="panel warn" style="margin-top:12px">
+  <b>Olvashatóság és koppintás:</b> a cégér betűje legalább akkora, mint ma a kártya címe. Egy hely koppintható része telefonon is legalább 64 px. A helyek ne fedjék egymást, a jel-táblák pedig ne lógjanak rá a szomszédra. A gépi próba méret-őre minden körben ellenőrzi.
+</div>
+
+<h2>7. A tárgy-keret (a pályán belül)</h2>
+<div class="panel">
+  <p>Ugyanaz az elv a feladat szintjén: a feladat egy tárgyon jelenik meg, a válasz helye pedig egy pályán belül <b>mindig ugyanott</b> van. Egy közös hívás rajzolja meg (fajta + tartalom + válaszhely). Most csak azokat a kereteket készítjük el, amelyekre a két új pályának szüksége van:</p>
+  <div class="tbl"><table>
+    <tr><th>Keret</th><th>Mire való</th><th>Első használó</th></tr>
+    <tr><td>🪜 <b>fok</b></td><td>egy létrafok, rajta a feladat (27 + 5)</td><td>Rokon-létra</td></tr>
+    <tr><td>🪟 <b>ablak</b></td><td>egy ház ablaka, benne egy művelet, amely jó válaszra felgyullad</td><td>Számcsalád</td></tr>
+    <tr><td>🪨 <b>kavics</b></td><td>húzható szám (mindig egyforma, csak a szám más)</td><td>Számcsalád</td></tr>
+    <tr><td>🖍️ <b>tábla</b></td><td>a válasz helye: krétatábla, erre írja a gyerek a számot</td><td>mindkettő</td></tr>
+    <tr><td>🧾 <b>cetli</b></td><td>papírcetli (a róka blokkja már ilyen), átvesszük a közös készletbe</td><td>a bolt (később)</td></tr>
+  </table></div>
+  <p class="lead">A régi pályák belső feladatkártyáinak átállása nem része ennek a tervlapnak. A készlet viszont úgy épül, hogy később ezek is egy-egy adatsorral átállhassanak.</p>
+</div>
+
+<h2>8. A két új pálya: 🪜 Rokon-létra és 🏡 Számcsalád</h2>
+<p class="lead">A tartalom a jóváhagyott tervlapból jön (<code>eletszeru-100-as-palyak-terv.html</code>, 4. pont), a könyv-átnézés már megvolt hozzá. Itt csak az állomások rendje és a kinézet új. A feladatgyártó már kész (<code>src/szamkor100.js</code>, a gépi próba ⑩ piac-őre ellenőrzi).</p>
+<div class="grid">
+  <div class="card">
+    <h3>🪜 Rokon-létra · ház az épülő utcában</h3>
+    <p><b>Mit csinál a gyerek a képen?</b> A ház oldalán létra áll. Fokról fokra lép fel. Az alsó fokon az ugrás a számvonalon látszik (7 → 10 → 12). A következő fokra ezt az ugrást ő húzza fel a 27-hez, és látja, hogy ugyanaz az ugrás, csak egy tízessel arrébb.</p>
+    <p><b>Rajt → 4 állomás → Odú-küszöb</b>, állomásonként 4 feladat:</p>
+    <ol>
+      <li>Az alsó fok (+): az ugrás képe látszik</li>
+      <li>A felhúzott ugrás (+): 3 fok, a harmadikon már nincs ugrás</li>
+      <li>Kivonás-létra: 12 − 5 → 42 − 5</li>
+      <li>Melyik kis feladat segít? 3 kártyából a rokon</li>
+    </ol>
+    <p>Odú-küszöb: vegyesen, a végén a csúcs: „Írj te egy rokont!”</p>
+    <p>🔒 A fokok nem ismétlik a választ: a felhúzott ugrás csak a lépést mutatja, a végső számot nem.</p>
+  </div>
+  <div class="card">
+    <h3>🏡 Számcsalád · ház az épülő utcában</h3>
+    <p><b>Mit csinál a gyerek a képen?</b> A háznak négy ablaka van. A gyerek kap három kavicsot (8, 5, 13), és ezekből rakja be mind a négy ablakba a családot: 8 + 5, 5 + 8, 13 − 5, 13 − 8. Minden jó ablakban felgyullad a fény.</p>
+    <p><b>Rajt → 4 állomás → Odú-küszöb</b>, állomásonként 4 feladat:</p>
+    <ol>
+      <li>Család 20-ig</li>
+      <li>Család 100-ig (38, 25, 63)</li>
+      <li>Kakukktojás: 4 kavicsból 1 nem fér be. Miért?</li>
+      <li>Két kosárból ő maga választ, és ő építi fel a családot</li>
+    </ol>
+    <p>Odú-küszöb: vegyesen.</p>
+    <p>🔒 Az ablakba csak a kavicsok kerülhetnek. A rossz sorrend (5 − 13) nem gyullad fel, a kavics „nem fér be”.</p>
+  </div>
+</div>
+<div class="panel" style="margin-top:12px">
+  <p><b>Két hiba után</b> (a jóváhagyott tervlap szerint): nem írjuk ki a megoldást. A kép mutatja a következményt (az ugrás nem ér célba, az ablak sötét marad), aztán jön egy lépésenkénti kérdés, és a gyerek maga mondja ki a számot.</p>
+  <p><b>Halványítás:</b> Rokon-létra: ugrás-kép → csak a rokon kártya → semmi. Számcsalád: kavics → beírás.</p>
+  <p><b>🧭 Húzószó-csíra</b> (belső iránytű, a játék nem mondja ki): a Rokon-létrában <i>ami nem változik</i> (az egyesek ugrása ugyanaz), a Számcsaládban <i>előbb az egész</i> (a 13 az egész, a 8 és az 5 a részei).</p>
+  <p><b>Napló:</b> a tény-motor „r” és „c” formája (már előkészítve). Ha a gyerek a 67 + 5-nél elakad, de a 7 + 5 megy, az pontos jel a pultnak.</p>
+</div>
+
+<h2>9. Hogyan áll át egy régi liget?</h2>
+<div class="panel">
+  <ol>
+    <li>A kártya ma két dolgot csinál egyszerre: kiszámolja a jeleket, és meg is rajzolja őket. Ezt kettéválasztjuk. A <b>jelek kiszámítása</b> egy közös függvény lesz (<code>palyaJelek</code>), ezt használja a kártya, a pálya-hely és a Piactér is. Ezzel megszűnik a háromszoros másolás.</li>
+    <li>Egy táblázat mondja meg, melyik liget milyen helyet kér, ugyanúgy, ahogy a <code>TERKEP_GAZDA</code> megmondja, ki hol lakik: <code>LIGET_HELY = { vasar: "bode", utca: "haz", … }</code>.</li>
+    <li>Egy liget átállítása = egy új sor ebben a táblázatban, plusz a helyek elrendezése a liget képén. A pályák, a mentés, a csillagok és a pult beállításai nem változnak.</li>
+  </ol>
+  <p><b>Hullámok:</b> ① Tündérvásár sátra → ② épülő utca (a két új pálya) → ③ az erdő, amikor a régi 100-as összeadók az utcába költöznek → ④ mérés-ligetek → ⑤ Dallam-tér.</p>
+</div>
+
+<h2>10. Körök</h2>
+<div class="panel">
+  <ol>
+    <li><b>🎨 Rajzterv</b> (közepes): a bódé (a Tündérvásár sátra a mai kártyák mellett), a ház (az épülő utca két háza), kitekintésnek egy tönk. A jelek a helyeken (zászló, lakat, kulcs, cetli, csengő, jel-tábla). A két elrendezés telefonon is. A pályán belül: fok, ablak, kavics, tábla.</li>
+    <li><b>A kör</b> (közepes): <code>src/palyahely.js</code> + a közös <code>palyaJelek</code>, a 🛖 bódé, a Tündérvásár sátra átáll. A Piactér három másolata a közös függvényre vált. Gépi próba (méret-őr telefonon).</li>
+    <li><b>B kör</b> (közepes): a 🏠 ház + <code>src/keret.js</code> (fok, tábla), a 🪜 Rokon-létra élesben, az épülő utca első házában.</li>
+    <li><b>C kör</b> (közepes): ablak + kavics, a 🏡 Számcsalád élesben.</li>
+    <li><b>Élő próba</b>, utána a régi ligetek hullámokban (egy liget = egy kis kör).</li>
+  </ol>
+  <p class="lead">A kódköröket egyenként, külön beszélgetésben javaslom, mindegyik végén a producer jóváhagyásával.</p>
+</div>
+
+<h2>11. Döntések</h2>
+<div class="dont"><b class="n">1. A „100-ig · ×, :” felirat.</b> Javaslat: eltűnik a helyről, a felolvasás elmondja, a pult látja. <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">2. Koppintás.</b> <b>A) (javaslat)</b> Egy koppintás, és indul, mint ma; a felolvasás a cégér kis csengőjén. <b>B)</b> Az első koppintásra az unikornis odasétál, kinyílik az ajtó, és elmondja, mi ez; a második koppintásra indul. A kevesebb változás miatt az A-t javaslom, a gyerekek ezt szokták meg. <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">3. A ≈ ✨ jutalom.</b> Javaslat: látható marad, egy cetlin a cégéren (Fanninak fontos). <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">4. Sorrend.</b> Javaslat: az A kör a Tündérvásár sátrával kezd. Meglévő pályákon a legkisebb a kockázat, és rögtön látszik a különbség. Utána jön a két új pálya. <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">5. Mikor nyílnak az újonc-menetben?</b> Javaslat: 2–3. o.-ban a 🪜 Rokon-létra a Piactérrel együtt ébred (a Tízesek ösvénye után), a 🏡 Számcsalád a Rokon-létra első végigvitele után. 1. o.-ban a plafon fölött van, 4. o.-tól nyitva. Lilinek és Fanninak minden nyitva. <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">6. A Fejtörő-hegy és a Bagolykönyvtár kimarad</b> (saját világuk van). <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">7. A hely-fajták listája</b> (5. pont): bódé, ház, tönk/gombaház, munkaasztal, pavilon. <span class="tag">jóváhagyásra vár</span></div>
+
+<h2>12. Kapcsolódó lapok</h2>
+<div class="panel">
+  <ul>
+    <li>Életszerű feladatok + a 100-as kör új pályái: <code>terv/eletszeru-100-as-palyak-terv.html</code></li>
+    <li>A Piactér rajzterve (a ház és a falutérkép rajzkészlete): <code>terv/piacter-rajzterv.html</code></li>
+    <li>Térkép mint központ (az unikornis odasétál): <code>terv/terkep-kozpont-rendszerterv.html</code></li>
+    <li>Kód ma: <code>src/ui.js</code> (<code>keszitKartya</code>), <code>src/piac.js</code> (<code>piacTer</code>, <code>piacHaz</code>), <code>src/szamkor100.js</code></li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
