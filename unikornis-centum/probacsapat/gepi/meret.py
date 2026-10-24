@@ -16,7 +16,7 @@ MERETEK = [("kis laptop", 1280, 720, False), ("laptop", 1366, 768, False),
            ("tablet", 768, 1024, True), ("telefon", 375, 812, True)]
 ALAP = (1366, 768)
 KEP_MAX = 40          # ennyi képnél többet egy futás nem készít
-FAJTA = {"kilog": "kilóg a képernyőből", "levagva": "le van vágva", "takarja": "eltakarja valami", "gorget": "oldalra görgethető"}
+FAJTA = {"kilog": "kilóg a képernyőből", "levagva": "le van vágva", "takarja": "eltakarja valami", "gorget": "oldalra görgethető", "kicsi": "túl kicsi a koppintáshoz"}
 
 
 def _fajlnev(s):

@@ -81,6 +81,7 @@ MODULES = [
     "kolyok-mozdul.js",   # 6k4) 🐉 kölyök-mozdulatok: a kölyök egész alakban (KolyokFig — pózok, bolti mancs, séta, pislogás); először a boltban
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
     "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
+    "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör
 

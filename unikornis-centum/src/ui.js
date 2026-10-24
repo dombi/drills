@@ -198,58 +198,37 @@ function renderFomenu() {
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
   ligetUniReteg();                               /* bent: az unikornis a kártyák alatt (terkep.js); a térképen nincs réteg */
   if (!bent) { renderLigetTerkep(racs, L); return; }
-  var _napiId = napiKiemeltId(), _napiKesz = napiKiemeltTeljesitve();
-  function keszitKartya(pa, idx) {
-    var prc = P().palyak[pa.id];
-    var kesz = prc && prc.kesz, arany = prc && prc.arany;
-    var bontas = (pa.id === "bontas-felmondas");
-    var feladatErtek = bontas ? jutalom("felmondas", pa) : jutalom("feladat", pa);
-    var vegig = pa.hamarosan ? 0 : palyaBecsultErtek(pa);
+  function keszitKartya(pa, idx) {   /* a régi kártya (amelyik ligetnek még nincs pálya-helye: LIGET_HELY, palyahely.js) */
+    var J = palyaJelek(pa), zarva = J.zarva, alszikNy = J.alszik;   /* 🚪 újonc-menet: sorban ébrednek (nyitas.js) — 💤, nem lakat */
     var mat = PALYA_MAT[pa.id] || pa.palcim;
-    var zarva = palyaZarva(pa);
-    var alszikNy = zarva && nyitasPalyaAlszik(pa);   /* 🚪 újonc-menet: sorban ébrednek (nyitas.js) — 💤, nem lakat */
-    var elfogyott = !zarva && palyaElfogyott(pa);   /* darabkorlát (pult): erre a szakaszra elég volt */
-    var napiEz = (pa.id === _napiId);
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (alszikNy ? " ny-alszik" : "") + (elfogyott ? " elfogyott" : "") + (arany ? " arany" : (kesz ? " kesz" : ""))
-      + (napiEz ? (_napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : "") + (!zarva && nyitasPalyaVilagit(pa) ? " ny-vilagit" : ""));
-    var napiBadge = napiEz
-      ? '<div class="napi-badge">' + (_napiKesz ? "✓" : nyitasHarmatRejtett() ? "⭐" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
+    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (alszikNy ? " ny-alszik" : "") + (J.elfogyott ? " elfogyott" : "") + (J.arany ? " arany" : (J.kesz ? " kesz" : ""))
+      + (J.napi ? (J.napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : "") + (J.vil ? " ny-vilagit" : ""));
+    var napiBadge = J.napi
+      ? '<div class="napi-badge">' + (J.napiKesz ? "✓" : nyitasHarmatRejtett() ? "⭐" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
       : "";
-    var ajanlott = !pa.hamarosan && palyaAjanlott(pa);   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
-    if (ajanlott) kart.classList.add("ajanlott");
-    var bankos = !pa.hamarosan && nyitasEbren("bank") && bankPalyaNyit(pa.id);   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
+    if (J.ajanlott) kart.classList.add("ajanlott");   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
     kart.innerHTML =
       (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
-      '<div class="allapot">' + (alszikNy ? "💤" : zarva ? "🔒" : elfogyott ? "🌙" : (arany ? "🌟" : (kesz ? "⭐" : (pa.hamarosan ? "🔜" : "")))) + '</div>' +
+      '<div class="allapot">' + ({ alszik: "💤", zarva: "🔒", elfogyott: "🌙", arany: "🌟", kesz: "⭐", hamarosan: "🔜" }[J.all] || "") + '</div>' +
       napiBadge +
-      (ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
+      (J.ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
       kuldKartyaJel(pa) +   /* 🐉 pikkely: ezt kéri a kis sárkány (sarkany-holmi.js) */
       '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
       '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
       '<div class="palcim">' + kiiras(mat) + '</div>' +
-      (bankos ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +
+      (J.bank ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
       (pa.hamarosan ? "" :
-        '<div class="also"><span class="jutalom">≈ ' + vegig + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
+        '<div class="also"><span class="jutalom">≈ ' + J.ertek + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
     kart.addEventListener("click", function () {
       hangGomb();
-      if (pa.hamarosan) { mondd("Ez az ösvény hamarosan nyílik meg!"); return; }
-      if (zarva) { mondd(alszikNy ? NYITAS_MONDAT.palyaAlszik : pa.konyvtar ? ekLakatMondat(pa) : zarvaMondat()); return; }
-      if (elfogyott) { mondd(elfogyottMondat()); return; }
+      var nem = palyaNemIndulMondat(pa, J);
+      if (nem) { mondd(nem); return; }
       ligetUget(kart, function () { palyaInditas(pa.id); });   /* odaüget a kártyához, aztán indul */
     });
     var fbtn = kart.querySelector(".palya-felolvas");
     if (fbtn) fbtn.addEventListener("click", function (e) {
       e.stopPropagation(); hangGomb();
-      var mondat = kiiras(pa.nev) + ". " + mat + ". Az egész pálya körülbelül " + vegig + " csillámpor." +
-        " Ha egy állomást sem hagysz ki, arany csillagszilánk jár és dupla záró-jutalom.";
-      var rejt = nyitasHarmatRejtett();   /* 💧 újonc: a harmatot még nem emlegetjük */
-      if (ajanlott) mondat += " Ezt most neked ajánlom!" + (rejt ? "" : " Plusz " + AJANLOTT_HARMAT + " tündérharmat jár érte.");
-      if (pa.teny) mondat += " Ezt az ösvényt a tündérek mindig a te feladataidból rakják össze, minden alkalommal újat!";
-      else if (pa.egyeni) mondat += " Ezt az ösvényt csak neked készítették!";
-      if (bankos) mondat += " Ha végigviszed, a Tündérbankban válthatsz!";
-      if (napiEz && !_napiKesz) mondat += " Ez a mai kiemelt pálya!" + (rejt ? "" : " Plusz " + NAPI_KIEMELT_HARMAT + " tündérharmat jár érte.");
-      if (kuldKertPalya(pa.id)) mondat += " Ezt kéri a kis sárkány!";
-      mondd(mondat);
+      mondd(palyaFelolvasMondat(pa, J));
     });
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
@@ -259,7 +238,7 @@ function renderFomenu() {
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
     $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
-    if (REGIO_HATTER[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
+    if (REGIO_HATTER[regio] && !LIGET_HELY[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
     szek.appendChild(el("div", "palya-regio-cim", (LIGET_NEV[regio] || ["", ""]).join(" ").trim()));
     if (regio === "konyvtar") {                    /* 📚 egy terem: olvasó-polc · ablak + Kockavár + olvasópult · szekrény + láda · Csillagtorony-ajtó (konyvtar-terem.js) */
       szek.querySelector(".palya-regio-cim").textContent = "📚 Bagolykönyvtár · 🌙 Holdfény-terem";
@@ -270,6 +249,11 @@ function renderFomenu() {
     }
     if (regio === "piac") {                        /* 🏪 a kis falutérkép: a bolt háza = a pálya, az unikornis odasétál (piac.js) */
       szek.appendChild(piacTer(regiok.piac || [], regiok.vasar || null));
+      racs.appendChild(szek);
+      return;
+    }
+    if (LIGET_HELY[regio]) {                       /* 🛖 pálya-hely: a pályák helyek a liget képében, nem kártyák (palyahely.js) */
+      szek.appendChild(palyaHelySor(regio, regiok[regio].filter(function (rec) { return !rec.pa.piacHely; })));
       racs.appendChild(szek);
       return;
     }

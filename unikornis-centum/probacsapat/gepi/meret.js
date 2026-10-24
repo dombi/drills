@@ -4,6 +4,7 @@
      levagva  — egy szülője (overflow: hidden) levágja egy darabját;
      takarja  — a közepére koppintva nem ő kapja a koppintást, hanem valami más;
      gorget   — az egész oldal oldalra görgethető.
+     kicsi    — 🛖 egy pálya-hely koppintható része 64 px-nél, a csengője 36 px-nél kisebb (palyahely.js; rajzterv 5. pont).
    kivetel: CSS-szelektorok (kepernyok.py MERET_KIVETEL) — ami ezekre illik, azt szándékosan nem nézzük
             (se mint fontos elemet, se mint takarót: pl. a kalandtérkép felhői szándékosan takarják a helyeket).
    Vissza: [{f, e, d}] — fajta, elem leírása, részlet. */
@@ -42,6 +43,13 @@ function meretVizsgal(kivetel) {
     return false;   /* oldalra görgetni úgysem kéne */
   }
 
+  [].forEach.call(akt.querySelectorAll(".ph-hely"), function (g) {   /* 🛖 a pálya-helyek: telefonon is jól koppinthatók? */
+    var k = g.querySelector(".ph-kopp"), c = g.querySelector(".ph-csengo circle"), nev = "pálya-hely „" + g.getAttribute("data-id") + "”";
+    if (!k || !k.getClientRects().length) return;
+    var r = k.getBoundingClientRect(), rc = c && c.getBoundingClientRect();
+    if (Math.min(r.width, r.height) < 64) ki.push({ f: "kicsi", e: nev, d: Math.round(r.width) + "×" + Math.round(r.height) + " px (legalább 64)" });
+    if (rc && rc.width < 36) ki.push({ f: "kicsi", e: nev + " csengője", d: Math.round(rc.width) + " px (legalább 36)" });
+  });
   var fedok = [].filter.call(document.querySelectorAll(FEDO), lathato);
   var gyokerek = fedok.length ? fedok : [akt];   /* ha egy lap nyitva van, csak azt nézzük: ami alatta van, szándékosan takart */
   var elemek = [];

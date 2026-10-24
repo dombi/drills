@@ -1923,7 +1923,7 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 @media (prefers-reduced-motion:reduce){ .ekf-sor.uj{ animation:none; } }
 
 /* ═══ 🧺 TÜNDÉRVÁSÁR (src/vasar.js) — rajzterv: Matekos/tunderevasar-rajzterv.html ═══ */
-.palya-regio.r-vasar{ padding-top:44px; }
+.palya-regio.r-vasar{ padding-top:44px; background:linear-gradient(180deg,#f9dcc0 0%,#f3e3d3 60%,#ece6cf 100%); }   /* 🛖 a bódék képe alatt (a régi VASAR_HATTER helyett) */
 .palya-regio.r-vasar .palya-regio-cim{ position:relative; z-index:1; }
 .palya-regio.r-vasar .palya-kartya{ border-color:#f6c9a8; }
 .palya-regio.r-vasar .ikon{ font-size:34px; line-height:46px; text-align:center; }
@@ -3153,6 +3153,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .piac-ter .pc-hely{ cursor:pointer; }
 .piac-ter .pc-haz:hover .pc-rezeg{ filter:brightness(1.05); }
 .piac-ter .pc-ajto{ transform-box:fill-box; transform-origin:0 50%; }
+/* 🛖 pálya-hely (palyahely.js): a liget pályái helyek a képben (most: bódék a Tündérvásár sátrában) */
+.ph-ter{ position:relative; z-index:1; width:min(100%,760px); margin:0 auto; }
+.ph-ter svg{ width:100%; height:auto; max-height:calc(100vh - 262px); display:block; overflow:hidden; border-radius:18px; box-shadow:0 8px 22px rgba(74,59,122,.14); }
+.ph-ter .ph-hely, .ph-ter .ph-csengo{ cursor:pointer; }
+.ph-ter .ph-hely:hover .pc-rezeg{ filter:brightness(1.05); }
 /* a bolt képe a buborékban: a buborék panellé nő, alatta a pöttyök és a visszajelzés; az állomások között az ösvény látszik */
 #kepernyo-jatek.bk-be .bagoly-buborek{ width:min(98vw,920px); max-height:none; top:4px; padding:6px 10px 6px; overflow:visible; }
 #kepernyo-jatek.bk-be .buborek-feladat{ font-size:clamp(16px,2.4vw,22px); margin-bottom:4px; }

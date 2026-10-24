@@ -22,7 +22,7 @@ KEPERNYOK = [
     ("Összeadó liget",     ["hely:osszeado"],                               "kepernyo-fomenu", ".palya-kartya, #palya-racs"),
     ("Szorzós liget",      ["hely:szorzo"],                                 "kepernyo-fomenu", "#palya-racs"),
     ("Piactér",            ["hely:piac"],                                   "kepernyo-fomenu", ".piac-ter"),
-    ("Tündérvásár",        ["hely:piac", "katt:.pc-hely[data-id='vasar'] rect"], "kepernyo-fomenu", ".palya-kartya"),   # 🧺 2026-10-24 óta a Piactér sátrában
+    ("Tündérvásár",        ["hely:piac", "katt:.pc-hely[data-id='vasar'] rect"], "kepernyo-fomenu", ".ph-hely"),   # 🧺 2026-10-24 óta a Piactér sátrában; 🛖 a pályák bódék (palyahely.js)
     ("Szabóműhely",        ["hely:szabo"],                                  "kepernyo-fomenu", "#palya-racs"),
     ("Bájitalkonyha",      ["hely:bajital"],                                "kepernyo-fomenu", "#palya-racs"),
     ("Mézes pékség",       ["hely:pekseg"],                                 "kepernyo-fomenu", "#palya-racs"),

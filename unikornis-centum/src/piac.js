@@ -284,26 +284,26 @@ function piacTer(lista, vasarLista) {
   s += '<g transform="translate(330 120)">' + pcCimke(0, -2, "☀️ Déli vásár", false).replace('opacity=".95"', 'opacity="' + (uj ? .55 : .95) + '"') + '</g>';
   /* ☀️ a Déli vásár bejárata a domb tetején (10 000-ig — a producer, 2026-10-24): koppintásra az unikornis a hídig sétál, onnan indul */
   if (deli) {
-    var dAlszik = palyaZarva(deli) && nyitasPalyaAlszik(deli), dVil = !palyaZarva(deli) && nyitasPalyaVilagit(deli), dpr = P().palyak[deli.id], dj = [];
+    var dAlszik = palyaZarva(deli) && nyitasPalyaAlszik(deli), dVil = !palyaZarva(deli) && nyitasPalyaVilagit(deli), dj = [];
     s += '<g class="pc-hely" data-id="deli" transform="translate(330 120)">' +
       (dVil ? '<ellipse cx="0" cy="-16" rx="46" ry="38" fill="url(#lt-gNyHalo)">' + (cs ? '' : ltAnim("opacity", ".55;1;.55", "2.4s")) + '</ellipse>' : '') +
       '<rect x="-44" y="-60" width="88" height="96" fill="transparent"/></g>';
-    if (!dAlszik) {   /* a jelei a neve mellett: ⭐/🌟 · 💧 a mai kiemelt · 💖 ajánlott · 🐉 · 🔒/🌙 */
-      var dAll = palyaZarva(deli) ? "🔒" : palyaElfogyott(deli) ? "🌙" : dpr && dpr.arany ? "🌟" : dpr && dpr.kesz ? "⭐" : "";
+    if (!dAlszik) {   /* a jelei a neve mellett: ⭐/🌟 · 💧 a mai kiemelt · 💖 ajánlott · 🐉 · 🔒/🌙 (a közös palyaJelek — palyahely.js) */
+      var dJ = palyaJelek(deli), dAll = { zarva: "🔒", elfogyott: "🌙", arany: "🌟", kesz: "⭐" }[dJ.all] || "";
       if (dAll) dj.push(dAll);
-      if (deli.id === napiKiemeltId() && !napiKiemeltTeljesitve()) dj.push(nyitasHarmatRejtett() ? "⭐" : "💧");
-      if (palyaAjanlott(deli)) dj.push("💖");
-      if (kuldKertPalya(deli.id)) dj.push("🐉");
+      if (dJ.napiAktiv) dj.push(palyaNapiJel());
+      if (dJ.ajanlott) dj.push("💖");
+      if (dJ.sarkany) dj.push("🐉");
       if (dj.length) { var dw = dj.length * 18 + 10, dx = ("☀️ Déli vásár".length * 6.6 + 16) / 2 + 4 + dw / 2;
         s += '<g transform="translate(' + pcF(330 + dx) + ' 140)" pointer-events="none"><rect x="' + pcF(-dw / 2) + '" y="-9" width="' + dw + '" height="17" rx="8.5" fill="#fffaf2" stroke="#e6d8f0" stroke-width="1.2" opacity=".95"/><text y="4" text-anchor="middle" font-size="11">' + dj.join(" ") + '</text></g>'; }
     }
   }
   /* a bolt jelei a cégtábla fölött: ⭐ végigvitte · 💧 a mai kiemelt · 💖 ajánlott (mint a kártyákon) */
-  if (bolt) {
-    var pr = P().palyak[bolt.id], jel = [];
-    if (bolt.id === napiKiemeltId() && !napiKiemeltTeljesitve()) jel.push(nyitasHarmatRejtett() ? "⭐" : "💧");
-    if (palyaAjanlott(bolt)) jel.push("💖");
-    var all = boltAlszik ? "💤" : palyaZarva(bolt) ? "🔒" : palyaElfogyott(bolt) ? "🌙" : pr && pr.arany ? "🌟" : pr && pr.kesz ? "⭐" : "";
+  if (bolt) {   /* (a közös palyaJelek — palyahely.js; a B körben a ház is cégért kap) */
+    var bJ = palyaJelek(bolt), jel = [];
+    if (bJ.napiAktiv) jel.push(palyaNapiJel());
+    if (bJ.ajanlott) jel.push("💖");
+    var all = { alszik: "💤", zarva: "🔒", elfogyott: "🌙", arany: "🌟", kesz: "⭐" }[bJ.all] || "";
     if (all) jel.unshift(all);
     if (jel.length) s += '<g transform="translate(' + (H.bolt.x - 4) + ' ' + (H.bolt.y - 150) + ')" pointer-events="none"><rect x="' + (-jel.length * 14 - 4) + '" y="-15" width="' + (jel.length * 28 + 8) + '" height="28" rx="14" fill="#fffaf0" stroke="#e6d8f0" stroke-width="1.4" opacity=".95"/><text y="6" text-anchor="middle" font-size="17">' + jel.join(" ") + '</text></g>';
   }
