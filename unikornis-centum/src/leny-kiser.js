@@ -100,7 +100,7 @@ function lenyKiserLep(ks, most) {
   ks.x = Math.max(36, Math.min(1164, ks.x)); ks.y = Math.max(64, ks.y);
   /* merre néz: amerre repül; ha már a helyén van, amerre az unikornis */
   var dx = tx - ks.x, nez = Math.abs(dx) > KISER.halo ? (dx < 0 ? -1 : 1) : dir;
-  if (nez !== ks.nez) { ks.nez = nez; var fl = ks.el.querySelector("#kiser-flip"); if (fl) fl.style.transform = "scale(" + nez + ",1)"; }
+  if (nez !== ks.nez) { ks.nez = nez; lenyFordul(ks.el.querySelector("#kiser-flip"), nez); }   /* felénk fordul, nem lapul össze */
   ks.el.setAttribute("transform", "translate(" + ks.x.toFixed(1) + "," + ks.y.toFixed(1) + ")" + (sk < 1 ? " scale(" + sk.toFixed(3) + ")" : ""));
   if (ks.oduba) ks.el.setAttribute("opacity", op.toFixed(3));
 }

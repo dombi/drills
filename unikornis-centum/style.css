@@ -2790,7 +2790,6 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 
 /* ── 🐉 KÖLYÖK AZ ÖSVÉNYEN (leny-kiser.js, terv/kolyok-osveny-terv.html): lebeg, puhán csapkod, jó válasznál röppen ── */
 #kiser-hely{ cursor:pointer; }
-#kiser-flip{ transition:transform .28s ease-in-out; }
 .kiser-lebeg{ animation:kiserLebeg 2.6s ease-in-out infinite; }
 @keyframes kiserLebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-9px); } }
 .sarkany.kiser .sz-szarny{ animation:szCsap .62s ease-in-out infinite; }
@@ -2800,7 +2799,6 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes kiserRebben{ 0%,100%{ transform:translateY(0); } 35%{ transform:translateY(-24px); } 65%{ transform:translateY(-6px); } }
 @media (prefers-reduced-motion:reduce){
   .kiser-lebeg, #kiser-rebben.ki, .sarkany.kiser .sz-szarny, .sarkany.kiser .sz-farok, .sarkany.kiser .sz-fej{ animation:none; }
-  #kiser-flip{ transition:none; }
 }
 
 /* ═════════ 🧺 KÖZÖS KOSÁR (kosar.js) — a jelenet + a kérdés-létra + az „A” elrendezés — Matekos\szerszam-letrak-egesz-grafika.html ✅ 2026-10-16 ═════════ */
@@ -3010,8 +3008,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes ajanlott-pikk{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
 @media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny,.kuld-pikkely{ animation:none!important; } }
 /* 👕 a ruha és a ruhaláda az odúban (sarkany-holmi.js, 3. kör): felvételkor megpördül; a láda fedele hátrabillen */
-@keyframes hrPorog{ 0%{ transform:scaleX(1); } 25%{ transform:scaleX(.05); } 50%{ transform:scaleX(-1); } 75%{ transform:scaleX(.05); } 100%{ transform:scaleX(1); } }
-.hr-porog{ transform-box:fill-box; transform-origin:50% 100%; animation:hrPorog .9s ease-in-out 1; }
+/* a kölyök pörgése 4 nézettel: leny.js lenyPorog (a régi scaleX-es hr-porog megszűnt, 2026-10-24) */
 #sh-lada{ cursor:pointer; }
 .hr-lada-fedel{ transition:transform .5s cubic-bezier(.3,.7,.3,1.3); transform-box:fill-box; transform-origin:0% 100%; }
 .hr-lada-nyit .hr-lada-fedel{ transform:rotate(-112deg); }
@@ -3024,7 +3021,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .kuld-ruha.rajta{ background:#fff6d6; border-color:#e0a800; box-shadow:0 0 0 3px #ffe9a8; }
 .kuld-ruha svg{ width:72%; height:auto; }
 .kuld-ruha span{ font-size:clamp(13px,2.8vw,16px); font-weight:800; color:#4a3b7a; }
-@media (prefers-reduced-motion:reduce){ .hr-porog{ animation:none!important; } .hr-lada-fedel,.hr-lada-belso{ transition:none!important; } }
+@media (prefers-reduced-motion:reduce){ .hr-lada-fedel,.hr-lada-belso{ transition:none!important; } }
 /* 🏡 a kisház a kertben (sarkany-holmi.js, 2. kör): a réteg átengedi a kattintást, csak a ház, a tábla és a kupac fog */
 .sh-kert-kopp{ pointer-events:auto; cursor:pointer; }
 .kert-szinter.rak .sh-kert-kopp, .kert-szinter.pakol .sh-kert-kopp{ pointer-events:none; }

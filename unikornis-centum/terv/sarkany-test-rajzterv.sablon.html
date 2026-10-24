@@ -31,7 +31,16 @@ code{ background:#f6efff; border-radius:5px; padding:0 4px; font-size:13px; }
 <style>/*__LENY_CSS__*/</style>
 </head><body><main>
 <h1>🐉 A kissárkány teste — szemből és hátulról</h1>
-<p>Rajzterv jóváhagyásra (2026-10-24). Nagyság: <b>nagy</b> (3 kód-kör). Az oldalnézet a játék <b>valódi</b> rajza (src/leny.js, src/sarkany-holmi.js); a szemből- és hátulról-nézet, a horgonypontok és a fordulás ezen a lapon még <b>prototípus</b>.</p>
+<div class="doboz terv" style="border-color:#9fd89a">
+<p><b>✅ JÓVÁHAGYVA (2026-10-24): 1A felénk fordul, 2A a szárnyak a váll mögül; a csizma a láb körvonalát követi.</b></p>
+<p><b>✅ 1. kód-kör KÉSZ (2026-10-24, <i>?v=20261024-2</i>):</b></p>
+<ul>
+<li><b>leny.js:</b> LENY_HORGONY, lenyNezetRajz (szemből/hátulról, fióka-alak, a szikra és a buborék az orr-horgonyon), LENY_FORDUL, lenyFordul, lenyFelenk, lenyPorog, lenyNezetMutat; a lenyRajz data-alak-ot kap. Odú: totyogás előtt megfordul, koppintásra felénk néz és úgy tüsszent; a pillangós jelenet is lenyFordul.</li>
+<li><b>sarkany-holmi.js:</b> SH_NEZET (a 4 ruha szemből és hátulról, egészben), shNezetRes, shNezetRuhak; az új csizma oldalról is (shCsizmaOldal). Öltöző és ruha-felvétel: lenyPorog (4 nézet); felrakáskor és ágyba ugráskor lenyFordul; kert: kiszalad, felénk fordulva köszön, visszafordul a házhoz.</li>
+<li><b>leny-kiser.js + style.css:</b> az ösvényen lenyFordul; a „papírlap” (#kiser-flip átmenet) és a scaleX-es hr-porog megszűnt.</li>
+<li>Hátra: <b>2. kör</b> — a ruhák nézetei részletenként (a készülő ruha most csak oldalról látszik); <b>3. kör</b> — póz-próbapad sárkány-sora + gépi próba; élő megnézés.</li>
+</ul></div>
+<p>Rajzterv (2026-10-24). Nagyság: <b>nagy</b> (3 kód-kör). Az oldalnézet a játék <b>valódi</b> rajza (src/leny.js, src/sarkany-holmi.js); a szemből- és hátulról-nézet, a horgonypontok és a fordulás ezen a lapon még <b>prototípus</b>.</p>
 
 <div class="doboz terv">
 <p><b>Mi a baj ma</b></p>
