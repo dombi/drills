@@ -5,7 +5,9 @@
    a mai rövid kar helyett hosszabb BOLTI MANCS kerül a ruhák fölé (a sál eltakarta volna).
      var K = new KolyokFig(gElem, { x, y, s, dir, poz });   — x, y: talppont az SVG-ben; dir: 1 jobbra, -1 balra néz
      K.poz("orul", ms) — ms után vissza az alaphoz (K.alap) · K.setal(x1, ms, kesz) — besétál, billegve
-   Pózok: var · koszon · orul · gondol · mancs · visszatol (új póz = egy sor a KM_POZ-ban). Minden pózváltás átmenettel megy.
+   Pózok: var · koszon · orul · gondol · mancs · visszatol · fuj (új póz = egy sor a KM_POZ-ban). Minden pózváltás átmenettel megy.
+   Tűz és füst (beváltás, terv/bevaltas-sarkanytuz-terv.html): kmTuz(g, x0, y0, x1, y1, szinek) — szikrázó lángnyelvek egyik pontból
+   a másikba (az unikornis szarvához más színekkel); kmPoff(g, x, y) — kis füstfelhő. Mozgáscsökkentésnél egyik sem fut.
    ARÁNY (producer, 2026-10-24): a kölyök mindig kisebb az unikornisnál, az odú arányában — KM_ARANY × az unikornis mérete.
    Mozgáscsökkentésnél (lkCsokkent) a póz azonnal vált, nincs ugrálás, nincs séta; a pislogás marad.
    🔒 A kölyök soha nem súg: a hívó csak a gyerek lépése UTÁN vált pózt (amíg a gyerek számol: „var”). */
@@ -17,7 +19,8 @@ var KM_POZ = {
   orul:      { fej: -14, szarny: -26, farok: 12, kar: -100, lean: -4, ugrik: 1, rebben: 1 },
   gondol:    { fej: 20,  szarny: 0,   farok: -4, kar: -112, lean: 3 },
   mancs:     { fej: 12,  szarny: -4,  farok: 4,  kar: -22,  lean: -7 },
-  visszatol: { fej: 6,   szarny: 0,   farok: 0,  kar: -8,   lean: -9, tol: 1 }
+  visszatol: { fej: 6,   szarny: 0,   farok: 0,  kar: -8,   lean: -9, tol: 1 },
+  fuj:       { fej: 26,  szarny: -10, farok: 8,  kar: 20,   lean: -12 }   /* ráhajol (a beváltás kerete fölé) */
 };
 var KM_PIVOT = { fej: [8, -42], szarny: [-4, -40], farok: [-20, -16], kar: [12, -30] };   /* a fióka-alak ízületei (LENY_RAJZ.fioka) */
 var KM_NS = "http://www.w3.org/2000/svg";
@@ -93,6 +96,37 @@ KolyokFig.prototype.lep = function (most, dt) {
   }
   this.kirak();
 };
+/* a kölyök orra az SVG-ben (a fióka orr-horgonya: LENY_HORGONY.oldal.orr), hogy a tűz onnan induljon */
+KolyokFig.prototype.orr = function () { return [this.x + 53 * this.s * this.dir, this.y - 54 * this.s]; };
+var KM_TUZ_SZIN = ["#ffd24d", "#ffb347", "#ff8a3d", "#fff3a8"];
+function kmTuz(g, x0, y0, x1, y1, szinek) {
+  if (!g || lkCsokkent()) return;
+  szinek = szinek || KM_TUZ_SZIN;
+  for (var i = 0; i < 18; i++) (function (i) {
+    setTimeout(function () {
+      if (!g.isConnected) return;
+      var p = document.createElementNS(KM_NS, "path"), dx = (Math.random() - .5) * 60;
+      p.setAttribute("d", "M0 -15Q10 -3 0 15Q-10 -3 0 -15Z"); p.setAttribute("fill", szinek[i % szinek.length]); p.setAttribute("opacity", ".95");
+      g.appendChild(p);
+      var a = p.animate([
+        { transform: "translate(" + x0 + "px," + y0 + "px) scale(.4)", opacity: 1 },
+        { transform: "translate(" + ((x0 + x1) / 2 + dx / 2) + "px," + ((y0 + y1) / 2) + "px) scale(1.1) rotate(" + (dx * 2) + "deg)", opacity: 1 },
+        { transform: "translate(" + (x1 + dx) + "px," + y1 + "px) scale(.6)", opacity: 0 }], { duration: 650, easing: "ease-out" });
+      a.onfinish = function () { p.remove(); };
+    }, i * 45);
+  })(i);
+}
+function kmPoff(g, x, y) {
+  if (!g || lkCsokkent()) return;
+  [[0, 0, 15], [16, -9, 11], [-14, -8, 10], [6, -22, 8]].forEach(function (c, i) {
+    var k = document.createElementNS(KM_NS, "circle");
+    k.setAttribute("r", c[2]); k.setAttribute("fill", "#e9e2f0"); k.setAttribute("stroke", "#c9b6dc"); k.setAttribute("stroke-width", "1.4");
+    g.appendChild(k);
+    var a = k.animate([{ transform: "translate(" + x + "px," + y + "px) scale(.3)", opacity: .9 },
+      { transform: "translate(" + (x + c[0] - 8) + "px," + (y + c[1] - 26) + "px) scale(1.2)", opacity: 0 }], { duration: 900, delay: i * 60, easing: "ease-out", fill: "backwards" });
+    a.onfinish = function () { k.remove(); };
+  });
+}
 /* egy közös képkocka-hurok; magától leáll, ha egyetlen kölyök sincs a lapon (mint a lakók hurka) */
 function kmIndit() {
   if (_kmFut) return; _kmFut = true; _kmUtso = performance.now();

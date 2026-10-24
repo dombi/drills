@@ -17,6 +17,7 @@ window.__KK = (function () {
     if (f.csalad === "dobogo") return !!G("DOB && !DOB.zar && DOB.f === J.feladat") && lat('#dobogo-panel [data-g="kesz"]');
     if (f.csalad === "bolt") {   /* 🏪 Tüske néni boltja (bolt-kep.js): a kép vár, ha nincs lezárva, és van mit koppintani */
       var B = UC.bk && UC.bk(); if (!B || B.f !== f || B.lezart || B.mozog || B.fazis === "otthon") return false;
+      if (B.fazis === "bevalt") return lat("#bk-svg .bk-kopp");   /* 🔥 beváltás: a keret és a koppintható kölyök / unikornis */
       return B.forma === "blokk" ? (B.fazis === "javit" ? lat('#bk-gombok [data-g="javok"]') : lat("#bk-svg .bk-pecset")) : lat('#bk-gombok [data-g="kesz"]');
     }
     if (f.kartyak) return lat("#valasz-kartyak .ek-tk");   /* 📚 olvasó-polc: „Kiről kérdeznek?” kártyák */
@@ -83,6 +84,10 @@ window.__KK = (function () {
           if (talalt) cel = talalt;
         }
         return { mod: "katt", sel: le("pult").concat(cel.map(function (v) { return es("tarca", v); })).concat([kesz]), rossz: kesz };   /* rossz: üres pult + Kész */
+      }
+      if (B.fazis === "bevalt") {   /* 🔥 a keret megtöltése (1. fok: tíz egyes, 2. fok: két ötös), aztán koppintás · rossz: koppintás üres kerettel */
+        var kt = (B.bevFok === 1 ? [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] : [5, 5]).map(function (v) { return es("kassza", v); });
+        return { mod: "katt", sel: le("keret").concat(kt).concat(["#bk-svg .bk-kopp"]), rossz: "#bk-svg .bk-kopp" };
       }
       if (x.forma === "vissza") return { mod: "katt", sel: le("tenyer").concat(legk(x.v.vissza).map(function (v) { return es("kassza", v); })).concat([kesz]), rossz: kesz };
       var ps = function (v) { return '#bk-svg .bk-pecset[data-v="' + v + '"] rect'; };

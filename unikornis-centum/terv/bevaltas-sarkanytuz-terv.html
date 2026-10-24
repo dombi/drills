@@ -47,12 +47,21 @@
   <h1>Beváltás sárkánytűzzel</h1>
   <div class="sub">Tüske néni boltjában elfogy a tízes. A gyerek tíz helyet tölt meg tallérokkal, a kölyök ráfúj, és a tíz egyes egyetlen tízessé olvad össze.</div>
   <div class="meta">
-    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">Tervlap · ✅ jóváhagyva · kód kész</span>
     <span class="chip">2026-10-24</span>
     <span class="chip">Közepes · 1 kód-kör</span>
     <span class="chip">Rajzterv: bevaltas-rajzterv.html</span>
   </div>
 </header>
+
+<div class="panel ok" style="margin-top:18px">
+  <b>✅ Jóváhagyva (2026-10-24, minden döntés a javaslat szerint) · ✅ 1. kód-kör kész</b>
+  <ul>
+    <li><code>src/bolt-kep.js</code>: a visszajáró „tízesből” fokánál (nem az Odú-küszöbön) <code>bkBevaltIndit</code> → tízes-keret a szalag helyén (<code>BK_KR</code>), a tárgy és a tálka addig nincs kint; tallér a keretbe annyi helyre, amennyit ér, ami nem fér, visszapattan; <code>bkOlvaszt</code>: a kölyökre / unikornisra koppintva (<code>.bk-kopp</code>) tele keretnél tűz, izzás, egy tízes a kassza üres helyére; félig töltöttnél pöff. A pálya első két beváltása csak egyesekkel (<code>J.bkBevDb</code>), utána vegyes. Jutalom nincs érte.</li>
+    <li><code>src/kolyok-mozdul.js</code>: <b>fuj</b> mozdulat, <code>kmTuz</code> (az unikornisnál pasztell szikrákkal), <code>kmPoff</code>, <code>KolyokFig.orr()</code>.</li>
+    <li>Gépi próba: a kiskapu-próba megtölti a keretet és koppint; az üres keretre koppintás a „rossz” próba.</li>
+  </ul>
+</div>
 
 <h2>0. Miért, és mi a könyv-alap</h2>
 <div class="panel">

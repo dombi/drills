@@ -3173,4 +3173,9 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes bk-viz{ to{ stroke-dashoffset:-14; } }
 .bk-villog{ animation:bk-villog 1.2s ease-in-out infinite; }
 @keyframes bk-villog{ 50%{ opacity:.3; } }
+/* 🔥 beváltás (bolt-kep.js): a keretbe rakott tallérok felizzanak, mielőtt egy tízessé olvadnak; a nem beváltható tallér halvány */
+.bk-izzik{ animation:bk-izzik .5s ease-in-out 2; }
+@keyframes bk-izzik{ 0%,100%{ filter:none; } 50%{ filter:brightness(1.35) drop-shadow(0 0 6px #ffd27a); } }
+.bk-panel .bk-erme[data-hol="zar"]{ opacity:.35; cursor:default; }
+.bk-panel .bk-kopp{ cursor:pointer; }
 @media (prefers-reduced-motion:reduce){ .bk-viz, .bk-villog, .szv-feny{ animation:none; transition:none; } }
