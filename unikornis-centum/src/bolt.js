@@ -8,7 +8,7 @@
    Három állomás (1. csomag):
      ① fizet    „Fizesd ki!” — Pósa-folyam ugyanarra az árra: 1. fizesd ki · 2. másképp · 3. a legkevesebb érmével
      ② vissza   Visszajáró — a vevő nagyobbal fizet, a gyerek a tenyérbe számol felfelé (37 → 40 → 50)
-     ③ blokk    🦊 Róka Juli blokkja — ✓ / ✗ pecsét; a ✗ csak jó javítással ér (🔒 kiskapu: a vaktában ✗ nem visz előre)
+     ③ blokk    🦊 Zsivány (a róka) blokkja — ✓ / ✗ pecsét; a ✗ csak jó javítással ér (🔒 kiskapu: a vaktában ✗ nem visz előre)
    Minden feladat ad egy naplo-mezőt { tipus, kerdes, forma: "b" }: a tény-motor ebből könyvel (teny.js).
 
    A róka hibái a gyerekek tipikus hibái (ROKA_HIBA), és a tény-motor 100-as típusához kötve kerülnek a
@@ -119,8 +119,8 @@ function boltVisszaEll(f, l) {
   return { jo: el === 0, elteres: el, ok: el === 0 ? "jo" : el < 0 ? "keves" : "sok" };
 }
 
-/* ── ③ 🦊 Róka Juli blokkja ────────────────────────────────────────────────────
-   Juli kapkodó, nem csaló: a hibái a gyerekek tipikus hibái. Mindegyik a tény-motor 100-as típusához kötve
+/* ── ③ 🦊 Zsivány (a róka) blokkja ────────────────────────────────────────────────────
+   Zsivány (régen Juli) kapkodó, nem csaló: a hibái a gyerekek tipikus hibái. Mindegyik a tény-motor 100-as típusához kötve
    (a blokk saját típusa a tenyKulcs-ból jön: e1a, k2a…), így a pulton a hiba és a típus együtt látszik. */
 var ROKA_HIBA = {
   atvitel: { nev: "elfelejtett átvitel", pl: "38 + 25 = 53" },   /* csak átlépéses összeadásnál: − 10 */
@@ -144,7 +144,7 @@ function rokaHibaz(tetelek, tipus) {
 }
 /* kerekítés tízesre (5 felfelé) — a „körülbelül stimmel?” lépés */
 function kerekTizes(v) { return Math.floor((v + 5) / 10) * 10; }
-/* egy blokk. pontos: true/false (a sorrendet a rokaSor adja). Vissza: { tetelek, irt (amit Juli írt), helyes, pontos,
+/* egy blokk. pontos: true/false (a sorrendet a rokaSor adja). Vissza: { tetelek, irt (amit Zsivány írt), helyes, pontos,
    hiba (ROKA_HIBA kulcsa vagy null), becsles, kbStimmel (a becslés kifogja-e: |írt − becslés| ≤ 5 × tételszám),
    tenyTipus (a tény-motor 100-as típusa, két tételnél), naplo } */
 function rokaBlokk(pontos, cfg) {

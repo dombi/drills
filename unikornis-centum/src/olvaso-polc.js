@@ -224,11 +224,11 @@ function polcOpFuzet(N, M, fuzet, lepcso) {
   if (!fuzet) return { mondatok: M.mondatok, kerdes: M.kerdes, rajz: M.rajz, lepcso: lepcso };
   return { mondatok: N.op.mondatok, kerdes: N.op.kerdes, rajz: M.rajz || N.op.rajz, fuzet: { mondatok: M.mondatok, kerdes: M.kerdes, lepcso: lepcso } };
 }
-/* 🐰🦊 Kinek van igaza? — Pali és Juli a rajz-lapon; kb. minden negyedikben senkinek */
+/* 🐰🦊 Kinek van igaza? — Pali és Zsivány a rajz-lapon; kb. minden negyedikben senkinek */
 function polcKinek(N, M) {
   var kz = Object.keys(M.oe.koztes).map(Number), cs = Object.keys(M.oe.csap).map(Number);
   if (!kz.length) return N;
-  var mod = ekR(0, 3) === 0 && kz.length + cs.length >= 2 ? 2 : ekR(0, 1), mond = [], NEV = ["Pali", "Juli"], EM = [FIGURA.pali.e, FIGURA.juli.e];
+  var mod = ekR(0, 3) === 0 && kz.length + cs.length >= 2 ? 2 : ekR(0, 1), mond = [], NEV = [FIGURA.pali.n, FIGURA.juli.n], EM = [FIGURA.pali.e, FIGURA.juli.e];
   function jel(v) { var k = M.oe.koztes[v]; if (k) return typeof k === "string" ? k : ekSima(k.m).replace(/^Ez egy lépcsőfok volt: /, "").replace(/\..*$/, ""); var c = M.oe.csap[v]; return c ? "tévedés" : ""; }
   if (mod === 2) { var a = kz[0], b = kz[1] != null ? kz[1] : cs[0]; mond = mKever([a, b]); }
   else { mond[mod] = M.helyes; mond[1 - mod] = ekE(kz); }

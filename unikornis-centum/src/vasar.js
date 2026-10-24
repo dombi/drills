@@ -53,7 +53,7 @@ var VS_TARTO = {
 for (var vsTk in VS_TARTO) VS_TARTO[vsTk].cls = vsTk;
 /* áru + tartó párok (Kosárrakó, Dobozoló) */
 var VS_PAROK = [["alma", "kosar"], ["tojas", "talca"], ["eper", "tal"], ["dio", "zacsko"], ["gomb", "csomag"], ["korte", "lada"], ["suti", "doboz"], ["sajt", "doboz"], ["cukor", "zacsko"]];
-var VS_VEVOK = ["mia", "brumi", "cincin", "brekus", "kata", "potyi", "tas", "kitti"];   /* Sün Samu, Pali, Juli nem vásárol (tartalom-lap) */
+var VS_VEVOK = ["mia", "brumi", "cincin", "brekus", "kata", "potyi", "tas", "kitti"];   /* Sün Samu, Pali, Zsivány nem vásárol (tartalom-lap) */
 var VS_SZOROS = { 2: "kétszerese", 3: "háromszorosa", 4: "négyszerese", 5: "ötszöröse", 6: "hatszorosa", 7: "hétszerese", 8: "nyolcszorosa", 9: "kilencszerese" };
 var VS_RESZE = { 2: "fele", 3: "harmada", 4: "negyede" };
 var VS_F = 'font-family="Fredoka,Segoe UI,sans-serif"';

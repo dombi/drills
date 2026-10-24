@@ -781,7 +781,7 @@ function ekKinekSpec(cfg) {
 }
 function ekKinek(cfg) {
   var sp = ekKinekSpec(cfg); if (!sp || sp.cs[0].v === sp.cs[1].v || sp.cs[0].v === sp.jo || sp.cs[1].v === sp.jo) return null;
-  var mod = ekR(0, 3) === 0 ? 2 : ekR(0, 1), NEV = ["Pali", "Juli"], EM = [FIGURA.pali.e, FIGURA.juli.e], mond = [], csap = [];
+  var mod = ekR(0, 3) === 0 ? 2 : ekR(0, 1), NEV = [FIGURA.pali.n, FIGURA.juli.n], EM = [FIGURA.pali.e, FIGURA.juli.e], mond = [], csap = [];
   if (mod === 2) { mond = mKever([sp.cs[0], sp.cs[1]]); }
   else { mond[mod] = { v: sp.jo }; mond[1 - mod] = ekE(sp.cs); }
   var K = [0, 1].map(function (i) {
@@ -942,7 +942,7 @@ var EK_GEN = { nagyito: ekNagyito, kirol: ekKirol, mit: ekMit, lanc: ekLanc, nyo
   aeK1: ekAeK1, aeK2: ekAeK2, aeK3: ekAeK3 };
 var EK_INTRO = { nagyito: "Keresd meg a kérdést!", kirol: "Kiről kérdez?", mit: "Mit kell megszámolni?", lanc: "Figyelj, a második kérdés más!", nyomoz: "Nyomozzunk!",
   iker: "Két kérdés — keresd a különbséget!", nem: "Figyelj a NEM szóra!", legalabb: "Legalább, legfeljebb — benne van-e a határ?", par: "Rejtett számok a szavakban!", mindketto: "Mindkettő, csak az egyik, egyik sem!",
-  lepcso: "Lépésről lépésre, a tetejéig!", kinek: "Pali és Juli megint vitatkozik!", felut: "Ne állj meg félúton!", hanylepes: "Hány lépés kell?", kakas: "Mi van a kettő között?",
+  lepcso: "Lépésről lépésre, a tetejéig!", kinek: "Pali és Zsivány megint vitatkozik!", felut: "Ne állj meg félúton!", hanylepes: "Hány lépés kell?", kakas: "Mi van a kettő között?",
   odu: "Az Odú-küszöbön vegyesen jönnek — a végén egy igazi versenyfeladat!" };
 var EK_DICSER = { K1: ["Pontosan ezt kérdezték!", "Jó nyomozó vagy!", "Megtaláltad, kiről szól!"], K2: ["Ügyes, észrevetted a kis szót!", "Pontosan! A kis szó mindent eldönt.", "Szemfüles vagy!"],
   K3: ["Felértél a lépcső tetejére!", "Nem álltál meg félúton — ügyes!", "Ez már tényleg a válasz!"] };

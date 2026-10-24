@@ -102,7 +102,7 @@ LK_RIG.tuske.rajz = function () {
   return s;
 };
 
-/* Róka Juli: bozontos farok, pénztáros-táska, zöld sál, blokkfüzet a bal kézben, ceruza a füle mögött */
+/* Zsivány (a róka): bozontos farok, pénztáros-táska, zöld sál, blokkfüzet a bal kézben, ceruza a füle mögött */
 LK_RIG.juli.rajz = function () {
   var R = this, s = "", sotet = "#5a3a2a";
   s += '<ellipse cx="120" cy="290" rx="50" ry="7" fill="#3c2a50" opacity=".14"/>';
@@ -212,7 +212,7 @@ var LK_MONDAT = {
   tuske: { koszon: "Szia! Beállsz ma a pult mögé?", var: "Ráérünk, nem sietünk.", orul: "Na, ez aztán szép munka volt!",
            meglep: "Jaj, a tüskéim! Ez nem jön ki…", integet: "Gyere máskor is!", gondol: "Hmm. Nézzük csak meg még egyszer, együtt." },
   juli: { koszon: "Szia! Villámgyorsan összeadok mindent!", var: "Na, mehet a pecsét, főnök?", szamol: "Ez meg ez… kész is! Gyors voltam, mi?", orul: "Pecsét rajta! Ma senki nem jár rosszul!",
-          meglep: "Hoppá! Hát ez hogy csúszott be?", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!" }
+          meglep: "Hoppá, elkapkodtam!", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!" }
 };
 
 /* két kör metszéspontja: a könyök → [vállszög, könyökszög] */

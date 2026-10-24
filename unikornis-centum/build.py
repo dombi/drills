@@ -78,6 +78,7 @@ MODULES = [
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
     "sarkany-holmi.js",   # 6k3) 🐉 sárkány-holmi: 12 holmi × 10 részlet, kívánság-tábla, odú-réteg (ágy, kupac, felrakás), kérés
+    "kolyok-mozdul.js",   # 6k4) 🐉 kölyök-mozdulatok: a kölyök egész alakban (KolyokFig — pózok, bolti mancs, séta, pislogás); először a boltban
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
     "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
