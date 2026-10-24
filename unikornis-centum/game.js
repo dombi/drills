@@ -18757,7 +18757,7 @@ function lnNzFej(p, nezet, R, fejRuha) {
     s += lnPar('<ellipse cx="-17" cy="6" rx="4.6" ry="3" fill="#f59bb0" opacity=".5"/>');
     s += '<g class="sz-szem">' + lnNzSzem(-10, 1) + lnNzSzem(10, -1) + "</g>";
     s += '<path d="M-5 13.5q5 4.5 10 0" fill="none" stroke="' + LENY_INK + '" stroke-width="1.9" stroke-linecap="round"/>';
-  } else if (!fejRuha) {   /* hátulról: a tarkó tüskesora (a sapka eltakarja) */
+  } else if (!fejRuha || fejRuha.indexOf("data-takar") < 0) {   /* hátulról: a tarkó tüskesora (a kész sapka-tető eltakarja) */
     s += lnNzKozepTuske(p, -19, 8) + lnNzKozepTuske(p, -9, 8) + lnNzKozepTuske(p, 1, 7);
   }
   return s + (fejRuha || "") + "</g></g>";
@@ -18804,7 +18804,7 @@ function lnNzOrr() {
   for (var j = 0; j < 3; j++) s += '<circle class="ln-buborek" data-bub="' + j + '" cx="' + o[0] + '" cy="' + (o[1] + 6) + '" r="' + (4 + j * 1.5) + '" fill="#e8f6ff" fill-opacity=".55" stroke="#9ec9f0" stroke-width="1.2"/>';
   return s;
 }
-/* EGY RAJZOLÓ: nezet = elol | hatul (az oldalnézet a lenyRajz). opt: ruhak (a kész ruhák id-i), cls.
+/* EGY RAJZOLÓ: nezet = elol | hatul (az oldalnézet a lenyRajz). opt: ruhak (shNezetRuhak: id + kész részletek; vagy csak id = kész), cls.
    A rétegsor nézetenként rögzített; a ruha a saját réseibe kerül (sarkany-holmi.js shNezetRes). */
 function lenyNezetRajz(nezet, p, opt) {
   opt = opt || {};
@@ -18818,7 +18818,7 @@ function lenyNezetRajz(nezet, p, opt) {
 /* ── FORDULÁS ÉS PÖRGÉS: EGY KÖZÖS KÓD (a UNI_FORDUL mintájára) ──────────────────────────────────────────
    Néző-elem (el) = a tükröző csoport (style="transform:scale(±1,1)": #ln-fioka-flip, #kiser-flip, #sh-kflip, az öltöző).
    A köztes nézet RÁKERÜL az oldalrajzra (azt csak elrejti), a tükrözés a takarásában történik → nem látszik.
-   A nézet a saját kölyköt rajzolja: lenyPal(), a rajta lévő kész ruhák (shNezetRuhak), az oldalrajz osztályai (kiser, repul). */
+   A nézet a saját kölyköt rajzolja: lenyPal(), ami oldalról rajta látszik, a készülő ruha is (shNezetRuhak), az oldalrajz osztályai (kiser, repul). */
 var LENY_FORDUL = {
   ido: .34,      /* mp: ennyi ideig látszik a köztes nézet fordulás közben */
   nezet: "elol", /* felénk fordul — producer döntése (2026-10-24, 1A) */
@@ -18840,7 +18840,7 @@ function lenyNezetMutat(el, nezet) {
   Array.prototype.forEach.call(sa.classList, function (c) { if (c !== "sarkany") cls.push(c); });
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("class", "ln-nezet-reteg");
-  g.innerHTML = lenyNezetRajz(nezet, lenyPal(), { ruhak: typeof shNezetRuhak === "function" ? shNezetRuhak() : [], cls: cls.join(" ") });
+  g.innerHTML = lenyNezetRajz(nezet, lenyPal(), { ruhak: typeof shNezetRuhak === "function" ? shNezetRuhak(o) : [], cls: cls.join(" ") });
   o.parentNode.insertBefore(g, o.nextSibling);
   o.style.visibility = "hidden";
 }
@@ -19818,51 +19818,105 @@ var SH_HOLMI = [
 var SH_HOLMI_BY = {}; SH_HOLMI.forEach(function (h) { SH_HOLMI_BY[h.id] = h; });
 
 /* ════════════ A RUHÁK SZEMBŐL ÉS HÁTULRÓL (terv/sarkany-test-rajzterv.html, jóváhagyva 2026-10-24) ════════════
-   SH_NEZET[id][nezet][rés] = rajz (vagy függvény (p, R)); rések: hatso | test | nyak | fej (a fej csoportjában) | elol.
-   Kódkör 1: a kész ruha egészben; 2. kör: részletenként (épülés közben is). A ruha a testrész alakját követi, nem doboz. */
-function shSalCsik(d, w) { return '<path d="' + d + '" fill="none"' + shSk("#3f7f86", w + 4) + '/><path d="' + d + '" fill="none"' + shSk("#ffd86b", w) + '/><path d="' + d + '" fill="none"' + shSk("#7fd0c8", w) + ' stroke-dasharray="6 7" stroke-linecap="butt"/>'; }
-function shCsizmaSzem(x, csat) {   /* szemből / hátulról: a talp lekerekített, a szár a láb két oldalát követi */
-  return '<path d="M' + shF(x - 6.6) + " .3H" + shF(x + 6.6) + '" fill="none"' + shSk("#6a4f9e", 3.4) + "/>" +
-    '<path d="M' + shF(x - 7.6) + " -11V-4Q" + shF(x - 7.6) + " .6 " + shF(x - 3.2) + " .6H" + shF(x + 3.2) + "Q" + shF(x + 7.6) + " .6 " + shF(x + 7.6) + ' -4V-11Z" fill="#8fc8f0"' + shSk("#3f6f9e", 2) + "/>" +
-    '<rect x="' + shF(x - 8.6) + '" y="-14" width="17.2" height="4.6" rx="2.3" fill="#fff"' + shSk("#3f6f9e", 1.6) + "/>" +
-    '<circle cx="' + shF(x - 3.6) + '" cy="-6.5" r="1.5" fill="#fff"/><circle cx="' + shF(x + 3.8) + '" cy="-3.2" r="1.5" fill="#fff"/><circle cx="' + shF(x + 3.4) + '" cy="-8.6" r="1.3" fill="#fff"/><circle cx="' + shF(x - 3) + '" cy="-2" r="1.3" fill="#fff"/>' +
-    (csat ? '<rect x="' + shF(x - 2.6) + '" y="-7.4" width="5.2" height="3.6" rx="1" fill="#ffd86b"' + shSk("#c99a3a", 1.1) + "/>" : "");
+   SH_NEZET[id][nezet] = a részletek rajzolási sorrendben: [r, rés, rajz, takar]. r = az oldalrajz részletének sorszáma (h.r indexe;
+   tömb = több részlet együtt: akkor kész, ha mind kész); amelyik részlet abból a nézetből nem látszik, annak nincs sora.
+   rés: hatso | test | nyak | fej (a fej csoportjában) | elol; rajz: szöveg vagy függvény (p, R); takar: készen eltakarja a tarkó tüskéit.
+   2. kódkör (2026-10-24): részletenként → a készülő ruha szemből és hátulról ugyanannyira kész, mint oldalról. A ruha a testrész alakját követi. */
+function shQ(A, C, B, t) { var u = 1 - t; return [u * u * A[0] + 2 * u * t * C[0] + t * t * B[0], u * u * A[1] + 2 * u * t * C[1] + t * t * B[1]]; }
+function shQResz(A, C, B, t0, t1) {   /* a másodfokú görbe [t0, t1] szakasza, pontosan */
+  var a = shQ(A, C, B, t0), b = shQ(A, C, B, t1), m = [(1 - t0) * (1 - t1), (1 - t0) * t1 + t0 * (1 - t1), t0 * t1];
+  return "M" + shF(a[0]) + " " + shF(a[1]) + "Q" + shF(m[0] * A[0] + m[1] * C[0] + m[2] * B[0]) + " " + shF(m[0] * A[1] + m[1] * C[1] + m[2] * B[1]) + " " + shF(b[0]) + " " + shF(b[1]);
 }
-function shCsizmaNezet(nezet) { return LENY_HORGONY[nezet].lab.map(function (q) { return shCsizmaSzem(q[0], nezet === "elol"); }).join(""); }
-function shSapkaNezet(p, R, nezet) {
-  var s = lnPar('<path d="M-24 -9Q-30 3 -23 12Q-17 3 -17 -9Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + '/><path d="M-23 11v6" fill="none"' + shSk("#8a3a5e", 1.8) + '/><circle cx="-23" cy="19" r="3.4" fill="#ffd86b"' + shSk("#c99a3a", 1.4) + "/>");
-  s += '<circle cx="0" cy="-40" r="7" fill="#ffd86b"' + shSk("#c99a3a", 2) + '/><path d="M-5 -42l3 2M1 -46l1 3M4 -40l-3 1" fill="none"' + shSk("#fff3b0", 1.6) + "/>";
-  s += '<path d="M-23 -14Q-23 -35 0 -36Q23 -35 23 -14Q0 -9 -23 -14Z" fill="#f6a5c0"' + shSk("#8a3a5e", 2.2) + "/>";
-  s += '<path d="M-20 -24Q0 -19 20 -24M-15 -30Q0 -26 15 -30" fill="none"' + shSk("#e07aa3", 2) + "/>";
-  s += nezet === "elol" ? '<path d="M-25 -14Q0 -9 25 -14L24 -19Q0 -14 -24 -19Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + "/>" : '<path d="M-25 -13Q0 -6 25 -13L24 -19Q0 -12 -24 -19Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + "/>";
-  s += '<path d="M-13 -21l3 -3l3 3l3 -3l3 3l3 -3l3 3l3 -3l3 3" fill="none"' + shSk("#fff", 1.5) + "/>";
-  if (nezet === "elol") s += '<path d="M0 -26c-3 -4 -8 0 0 5c8 -5 3 -9 0 -5Z" fill="#fff"' + shSk("#c95f86", 1.4) + "/>";
-  return s + lnNzSzarvak(p, R, -9);   /* a szarvak két lyukon át kibújnak */
+function shSalDarab(d, w, c) { return '<path d="' + d + '" fill="none"' + shSk("#3f7f86", w + 4) + '/><path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round"/>'; }
+/* a sál: 5 kötött csík a nyakon, 3 darab sálvég, rojt, csillag — a csíkok színe váltakozik, mint oldalról */
+function shSalNezet(nyak, veg, rojt, csillag) {
+  var szin = ["#7fd0c8", "#ffd86b"], o = [], i;
+  for (i = 0; i < 5; i++) o.push([i, "nyak", shSalDarab(shQResz(nyak[0], nyak[1], nyak[2], i / 5, (i + 1) / 5), 7.5, szin[i % 2])]);
+  for (i = 0; i < 3; i++) o.push([5 + i, "nyak", shSalDarab("M" + veg[i].join(" ") + "L" + veg[i + 1].join(" "), 7, szin[(i + 1) % 2])]);
+  o.push([8, "nyak", '<path d="' + rojt + '" fill="none"' + shSk("#e0a800", 2) + "/>"]);
+  if (csillag) o.push([9, "nyak", csillag]);
+  return o;
+}
+function shCsizmaSzem(x, csat) {   /* szemből / hátulról: [talp, szár, perem, pöttyök, csat] — a talp lekerekített, a szár a láb két oldalát követi */
+  return ['<path d="M' + shF(x - 6.6) + " .3H" + shF(x + 6.6) + '" fill="none"' + shSk("#6a4f9e", 3.4) + "/>",
+    '<path d="M' + shF(x - 7.6) + " -11V-4Q" + shF(x - 7.6) + " .6 " + shF(x - 3.2) + " .6H" + shF(x + 3.2) + "Q" + shF(x + 7.6) + " .6 " + shF(x + 7.6) + ' -4V-11Z" fill="#8fc8f0"' + shSk("#3f6f9e", 2) + "/>",
+    '<rect x="' + shF(x - 8.6) + '" y="-14" width="17.2" height="4.6" rx="2.3" fill="#fff"' + shSk("#3f6f9e", 1.6) + "/>",
+    '<circle cx="' + shF(x - 3.6) + '" cy="-6.5" r="1.5" fill="#fff"/><circle cx="' + shF(x + 3.8) + '" cy="-3.2" r="1.5" fill="#fff"/><circle cx="' + shF(x + 3.4) + '" cy="-8.6" r="1.3" fill="#fff"/><circle cx="' + shF(x - 3) + '" cy="-2" r="1.3" fill="#fff"/>',
+    csat ? '<rect x="' + shF(x - 2.6) + '" y="-7.4" width="5.2" height="3.6" rx="1" fill="#ffd86b"' + shSk("#c99a3a", 1.1) + "/>" : ""];
+}
+function shCsizmaNezet(nezet) {   /* a két láb ugyanabban a sorrendben, mint oldalról (r = láb × 5 + részlet); hátulról a csat nem látszik */
+  var o = [];
+  LENY_HORGONY[nezet].lab.forEach(function (q, k) { shCsizmaSzem(q[0], nezet === "elol").forEach(function (d, i) { if (d) o.push([k * 5 + i, nezet === "elol" ? "elol" : "hatso", d]); }); });
+  return o;
+}
+function shSapkaNezet(nezet) {
+  var o = [
+    [6, "fej", lnPar('<path d="M-24 -9Q-30 3 -23 12Q-17 3 -17 -9Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + "/>")],
+    [7, "fej", lnPar('<path d="M-23 11v6" fill="none"' + shSk("#8a3a5e", 1.8) + '/><circle cx="-23" cy="19" r="3.4" fill="#ffd86b"' + shSk("#c99a3a", 1.4) + "/>")],
+    [8, "fej", '<circle cx="0" cy="-40" r="7" fill="#ffd86b"' + shSk("#c99a3a", 2) + '/><path d="M-5 -42l3 2M1 -46l1 3M4 -40l-3 1" fill="none"' + shSk("#fff3b0", 1.6) + "/>"],
+    [1, "fej", '<path d="M-23 -14Q-23 -35 0 -36Q23 -35 23 -14Q0 -9 -23 -14Z" fill="#f6a5c0"' + shSk("#8a3a5e", 2.2) + "/>", 1],
+    [2, "fej", '<path d="M-20 -24Q0 -19 20 -24" fill="none"' + shSk("#e07aa3", 2) + "/>"],
+    [3, "fej", '<path d="M-15 -30Q0 -26 15 -30" fill="none"' + shSk("#e07aa3", 2) + "/>"],
+    [4, "fej", '<path d="M-10 -33Q0 -31 10 -33" fill="none"' + shSk("#e07aa3", 2) + "/>"],
+    [0, "fej", nezet === "elol" ? '<path d="M-25 -14Q0 -9 25 -14L24 -19Q0 -14 -24 -19Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + "/>" : '<path d="M-25 -13Q0 -6 25 -13L24 -19Q0 -12 -24 -19Z" fill="#c95f86"' + shSk("#8a3a5e", 2) + "/>"],
+    [5, "fej", '<path d="M-13 -21l3 -3l3 3l3 -3l3 3l3 -3l3 3l3 -3l3 3" fill="none"' + shSk("#fff", 1.5) + "/>"]
+  ];
+  if (nezet === "elol") o.push([9, "fej", '<path d="M0 -26c-3 -4 -8 0 0 5c8 -5 3 -9 0 -5Z" fill="#fff"' + shSk("#c95f86", 1.4) + "/>"]);
+  o.push([1, "fej", function (p, R) { return lnNzSzarvak(p, R, -9); }]);   /* a sapka-tető része: a szarvak két lyukon át kibújnak */
+  return o;
+}
+function shKopenyElol() {   /* szemből a köpeny két széle a váll mögül (a középső csík a test mögött: mindkét szélhez tartozik) */
+  var szel = '<path d="M-12 -44Q-34 -32 -33 -2Q-28 2 -21 -2Q-24 -24 -6 -42Z" fill="#e3646f"' + shSk("#9b3a55", 2) + "/>";
+  return [[[1, 2, 3], "hatso", szel], [[3, 4, 5], "hatso", '<g transform="scale(-1 1)">' + szel + "</g>"], [7, "hatso", lnPar(shCsillag(-27, -14, 4, "#fff6c0"))],
+    [8, "nyak", '<path d="M-15 -41Q0 -34 15 -41" fill="none"' + shSk("#9b3a55", 7) + '/><path d="M-15 -41Q0 -34 15 -41" fill="none"' + shSk("#e3646f", 4) + "/>"],
+    [9, "nyak", shCsillag(0, -37, 5.5, "#ffd24d").replace("/>", ' stroke="#c99a3a" stroke-width="1.2"/>')]];
+}
+function shKopenyHatul() {   /* hátulról a köpeny öt csíkja (váltakozó szín, mint oldalról), a két szélen a köpeny íve */
+  var T = function (t) { return shQ([-13, -46], [0, -41], [13, -46], t); },
+    B = function (u) { return u < 0.5 ? shQ([-31, -9], [-16, -4], [0, -7], u * 2) : shQ([0, -7], [16, -4], [31, -9], u * 2 - 1); },
+    szin = ["#e3646f", "#ef7f86"], o = [];
+  function pt(q) { return shF(q[0]) + " " + shF(q[1]); }
+  function ut(f, a, b) { var s = ""; for (var j = 1; j <= 4; j++) s += "L" + pt(f(a + (b - a) * j / 4)); return s; }
+  for (var k = 0; k < 5; k++) {
+    var a = k / 5, b = (k + 1) / 5, d = "M" + pt(T(a)) + ut(T, a, b) + (k === 4 ? "Q36 -28 31 -9" : "L" + pt(B(b))) + ut(B, b, a) + (k === 0 ? "Q-36 -28 -13 -46Z" : "Z");
+    o.push([k + 1, "test", '<path d="' + d + '" fill="' + szin[k % 2] + '"' + shSk("#9b3a55", 2) + "/>"]);
+  }
+  o.push([6, "test", shCsillag(-12, -24, 6, "#ffd24d")], [7, "test", shCsillag(14, -16, 4, "#fff6c0") + shCsillag(12, -34, 3.5, "#fff6c0")],
+    [8, "test", '<path d="M-14 -45Q0 -50 14 -45" fill="none"' + shSk("#9b3a55", 7) + '/><path d="M-14 -45Q0 -50 14 -45" fill="none"' + shSk("#e3646f", 4) + "/>"]);
+  return o;
 }
 var SH_NEZET = {
   sal: {
-    elol: { nyak: shSalCsik("M-19 -42Q0 -32 19 -42", 7.5) + shSalCsik("M-9 -37L-11 -28L-13 -20", 7) +
-      '<path d="M-17 -15l-1 5M-13 -14l0 6M-9 -15l1 5" fill="none"' + shSk("#e0a800", 2) + "/>" + shCsillag(-11, -27, 5, "#fff6c0") },
-    hatul: { nyak: shSalCsik("M-20 -39Q0 -44 20 -39", 7.5) + shSalCsik("M5 -40L8 -32L10 -24", 7) + '<path d="M6 -19l-1 5M10 -18l0 6M14 -19l1 5" fill="none"' + shSk("#e0a800", 2) + "/>" }
+    elol: shSalNezet([[-19, -42], [0, -32], [19, -42]], [[-9, -37], [-10.3, -31], [-11.7, -25.5], [-13, -20]], "M-17 -15l-1 5M-13 -14l0 6M-9 -15l1 5", shCsillag(-11, -27, 5, "#fff6c0")),
+    hatul: shSalNezet([[-20, -39], [0, -44], [20, -39]], [[5, -40], [6.7, -34.7], [8.4, -29.3], [10, -24]], "M6 -19l-1 5M10 -18l0 6M14 -19l1 5", null)
   },
-  sapka: { elol: { fej: function (p, R) { return shSapkaNezet(p, R, "elol"); } }, hatul: { fej: function (p, R) { return shSapkaNezet(p, R, "hatul"); } } },
-  csizma: { elol: { elol: shCsizmaNezet("elol") }, hatul: { hatso: shCsizmaNezet("hatul") } },
-  kopeny: {
-    elol: { hatso: lnPar('<path d="M-12 -44Q-34 -32 -33 -2Q-28 2 -21 -2Q-24 -24 -6 -42Z" fill="#e3646f"' + shSk("#9b3a55", 2) + "/>" + shCsillag(-27, -14, 4, "#fff6c0")),
-            nyak: '<path d="M-15 -41Q0 -34 15 -41" fill="none"' + shSk("#9b3a55", 7) + '/><path d="M-15 -41Q0 -34 15 -41" fill="none"' + shSk("#e3646f", 4) + "/>" + shCsillag(0, -37, 5.5, "#ffd24d").replace("/>", ' stroke="#c99a3a" stroke-width="1.2"/>') },
-    hatul: { test: '<path d="M-13 -46Q-36 -28 -31 -9Q-16 -4 0 -7Q16 -4 31 -9Q36 -28 13 -46Q0 -41 -13 -46Z" fill="#e3646f"' + shSk("#9b3a55", 2) + "/>" +
-      '<path d="M-15 -32Q-19 -20 -20 -9M0 -40V-8M15 -32Q19 -20 20 -9" fill="none"' + shSk("#c94f5c", 2) + ' opacity=".45"/>' + shCsillag(-12, -24, 6, "#ffd24d") + shCsillag(14, -16, 4, "#fff6c0") + shCsillag(12, -34, 3.5, "#fff6c0") +
-      '<path d="M-14 -45Q0 -50 14 -45" fill="none"' + shSk("#9b3a55", 7) + '/><path d="M-14 -45Q0 -50 14 -45" fill="none"' + shSk("#e3646f", 4) + "/>" }
-  }
+  sapka: { elol: shSapkaNezet("elol"), hatul: shSapkaNezet("hatul") },
+  csizma: { elol: shCsizmaNezet("elol"), hatul: shCsizmaNezet("hatul") },
+  kopeny: { elol: shKopenyElol(), hatul: shKopenyHatul() }
 };
-/* a nézet-rajzoló (leny.js lenyNezetRajz) hívja: a ruhák rajza egy rés számára */
+/* a nézet-rajzoló (leny.js lenyNezetRajz) hívja: a ruhák rajza egy rés számára. ruhak: [{ id, kesz: {r: 1}, uj }] (shNezetRuhak) vagy csak id (= kész) */
 function shNezetRes(ruhak, nezet, res, p, R) {
-  return ruhak.map(function (id) { var r = SH_NEZET[id] && SH_NEZET[id][nezet] && SH_NEZET[id][nezet][res]; return typeof r === "function" ? r(p, R) : (r || ""); }).join("");
+  return ruhak.map(function (t) {
+    if (typeof t === "string") t = { id: t };
+    var l = SH_NEZET[t.id] && SH_NEZET[t.id][nezet];
+    return (l || []).filter(function (e) { return e[1] === res; }).map(function (e) {
+      var ri = [].concat(e[0]), kesz = !t.kesz || ri.every(function (i) { return t.kesz[i]; }), uj = t.uj != null && ri.indexOf(t.uj) >= 0;
+      return '<g class="' + (kesz ? "hr-kesz" : "hr-halv") + (uj ? " hr-uj" : "") + '"' + (kesz && e[3] ? ' data-takar="1"' : "") + ">" + (typeof e[2] === "function" ? e[2](p, R) : e[2]) + "</g>";
+    }).join("");
+  }).join("");
 }
-/* ami most a kölyökön van, készen (a nézetekhez; a készülő ruha az 1. kódkörben csak oldalról látszik) */
-function shNezetRuhak() {
-  if (typeof kuldRajta !== "function") return [];
-  return kuldRajta(false).filter(function (t) { return t.n >= KULD_RESZ; }).map(function (t) { return t.h.id; });
+/* ami most a kölyökön látszik, az oldalrajzról (o) olvasva: a nézet pontosan azt mutatja, amit oldalról látunk —
+   az odúban a készülő ruhát is, részletenként (a kész részletek telten, a hiányzók halványan) */
+function shNezetRuhak(o) {
+  var m = {}, l = [];
+  if (o) Array.prototype.forEach.call(o.querySelectorAll(".hr[data-h]"), function (g) {
+    var id = g.getAttribute("data-h"), i = +g.getAttribute("data-r");
+    if (!SH_HOLMI_BY[id] || SH_HOLMI_BY[id].tip !== "ruha") return;
+    if (!m[id]) l.push(m[id] = { id: id, kesz: {}, uj: null });
+    if (g.classList.contains("hr-kesz")) m[id].kesz[i] = 1;
+    if (g.classList.contains("hr-uj")) m[id].uj = i;
+  });
+  return l.sort(function (x, y) { return SH_RUHA_REND.indexOf(SH_HOLMI_BY[x.id].hely) - SH_RUHA_REND.indexOf(SH_HOLMI_BY[y.id].hely); });
 }
 var SH_TIP_NEV = { agy: "ágya", haz: "kisháza", ruha: "ruhája" };
 var SH_TIP_HOZ = { agy: "ágyához", haz: "kisházához", ruha: "ruhájához" };

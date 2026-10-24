@@ -282,7 +282,7 @@ function lnNzFej(p, nezet, R, fejRuha) {
     s += lnPar('<ellipse cx="-17" cy="6" rx="4.6" ry="3" fill="#f59bb0" opacity=".5"/>');
     s += '<g class="sz-szem">' + lnNzSzem(-10, 1) + lnNzSzem(10, -1) + "</g>";
     s += '<path d="M-5 13.5q5 4.5 10 0" fill="none" stroke="' + LENY_INK + '" stroke-width="1.9" stroke-linecap="round"/>';
-  } else if (!fejRuha) {   /* hátulról: a tarkó tüskesora (a sapka eltakarja) */
+  } else if (!fejRuha || fejRuha.indexOf("data-takar") < 0) {   /* hátulról: a tarkó tüskesora (a kész sapka-tető eltakarja) */
     s += lnNzKozepTuske(p, -19, 8) + lnNzKozepTuske(p, -9, 8) + lnNzKozepTuske(p, 1, 7);
   }
   return s + (fejRuha || "") + "</g></g>";
@@ -329,7 +329,7 @@ function lnNzOrr() {
   for (var j = 0; j < 3; j++) s += '<circle class="ln-buborek" data-bub="' + j + '" cx="' + o[0] + '" cy="' + (o[1] + 6) + '" r="' + (4 + j * 1.5) + '" fill="#e8f6ff" fill-opacity=".55" stroke="#9ec9f0" stroke-width="1.2"/>';
   return s;
 }
-/* EGY RAJZOLÓ: nezet = elol | hatul (az oldalnézet a lenyRajz). opt: ruhak (a kész ruhák id-i), cls.
+/* EGY RAJZOLÓ: nezet = elol | hatul (az oldalnézet a lenyRajz). opt: ruhak (shNezetRuhak: id + kész részletek; vagy csak id = kész), cls.
    A rétegsor nézetenként rögzített; a ruha a saját réseibe kerül (sarkany-holmi.js shNezetRes). */
 function lenyNezetRajz(nezet, p, opt) {
   opt = opt || {};
@@ -343,7 +343,7 @@ function lenyNezetRajz(nezet, p, opt) {
 /* ── FORDULÁS ÉS PÖRGÉS: EGY KÖZÖS KÓD (a UNI_FORDUL mintájára) ──────────────────────────────────────────
    Néző-elem (el) = a tükröző csoport (style="transform:scale(±1,1)": #ln-fioka-flip, #kiser-flip, #sh-kflip, az öltöző).
    A köztes nézet RÁKERÜL az oldalrajzra (azt csak elrejti), a tükrözés a takarásában történik → nem látszik.
-   A nézet a saját kölyköt rajzolja: lenyPal(), a rajta lévő kész ruhák (shNezetRuhak), az oldalrajz osztályai (kiser, repul). */
+   A nézet a saját kölyköt rajzolja: lenyPal(), ami oldalról rajta látszik, a készülő ruha is (shNezetRuhak), az oldalrajz osztályai (kiser, repul). */
 var LENY_FORDUL = {
   ido: .34,      /* mp: ennyi ideig látszik a köztes nézet fordulás közben */
   nezet: "elol", /* felénk fordul — producer döntése (2026-10-24, 1A) */
@@ -365,7 +365,7 @@ function lenyNezetMutat(el, nezet) {
   Array.prototype.forEach.call(sa.classList, function (c) { if (c !== "sarkany") cls.push(c); });
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("class", "ln-nezet-reteg");
-  g.innerHTML = lenyNezetRajz(nezet, lenyPal(), { ruhak: typeof shNezetRuhak === "function" ? shNezetRuhak() : [], cls: cls.join(" ") });
+  g.innerHTML = lenyNezetRajz(nezet, lenyPal(), { ruhak: typeof shNezetRuhak === "function" ? shNezetRuhak(o) : [], cls: cls.join(" ") });
   o.parentNode.insertBefore(g, o.nextSibling);
   o.style.visibility = "hidden";
 }
