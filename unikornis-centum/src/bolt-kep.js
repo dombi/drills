@@ -10,7 +10,7 @@
      ② Visszajáró — a vevő nagyobbal fizet; a gyerek a kasszából a vevő tenyerébe lebegtet, és a szalag vele lép
         (37 → 40 → 50). Fokok: tízesre · tízesből · teljes · százból. Kevés: a vevő a tenyerére néz, és vár. Sok: „Ez sok!”, visszaad egyet.
      ③ A róka blokkja — Juli felírja, a gyerek előbb becsül („körülbelül stimmel?”), aztán az unikornis szarva pecsétet üt
-        rá: ✓ vagy ✗. 🔒 A ✗ csak jó javítással ér, a ✓ csak pontos blokkon. Hibás blokkra ✓: a vevő hazaér, és a tízes
+        az eredményre: ✓ vagy ✗. 🔒 A ✗ csak jó javítással ér, a ✓ csak pontos blokkon. Hibás blokkra ✓: a vevő hazaér, és a tízes
         rudakon látszik, mi hiányzik — a szám nem.
    2 hiba után sincs kiírt megoldás: a kép segít tovább (① a pulton megjelenik az eddigi összeg, ② a szalagon a cél
    zászlója, ③ a két szám tízes rudakban).
@@ -425,6 +425,8 @@ function bkRokaAlap() {
   });
   bkQ(".bk-pecsetek").innerHTML = p;
 }
+/* a pecsét helye a blokkon: az eredmény sorában, az „összesen:” és a szám között (ott a ✓/✗ jól látszik) — élő próba, producer 2026-10-24 */
+function bkEredmenyHely(n) { return [141, 76 + (n - 1) * (n > 2 ? 34 : 44) + 22 + 26]; }
 function bkBlokkRajz() {
   var o = BK.rajz, x = BK.f.bolt, b = x.b, s = "", n = b.tetelek.length, dy = n > 2 ? 34 : 44;
   s += '<g transform="translate(' + BK_BLOKK_X + ' 24)"><path d="M0 0H240V250' + Array.apply(null, { length: 12 }).map(function (_, i) { return "L" + (240 - (i * 20 + 10)) + " " + (i % 2 ? 250 : 260) + "L" + (240 - (i + 1) * 20) + " 250"; }).join("") + 'Z" fill="#fffef6" stroke="#c9b6dc" stroke-width="1.8"/>';
@@ -440,7 +442,8 @@ function bkBlokkRajz() {
   if (o.kihuz) s += '<path d="M160 ' + (yv + 28) + 'L216 ' + (yv + 20) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
   if (o.javit != null) s += '<text x="212" y="' + (yv + 74) + '" text-anchor="end" font-size="30" ' + BK_F + ' font-weight="700" fill="#7a5ca8">' + o.javit + '</text>';
   if (o.becsles) s += '<g transform="translate(16 ' + (yv + 56) + ')"><rect width="118" height="24" rx="6" fill="#fff3dc" stroke="#d1a23a" stroke-width="1.2" transform="rotate(-3)"/><text x="59" y="16" text-anchor="middle" font-size="13" ' + BK_F + ' fill="#8a5a1a" transform="rotate(-3)">' + o.becsles + '</text></g>';
-  if (o.pecset) s += '<g transform="translate(176 52) rotate(-14) scale(.8)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>';
+  var ph = bkEredmenyHely(n);
+  if (o.pecset) s += '<g transform="translate(' + ph[0] + ' ' + ph[1] + ') rotate(-10) scale(.68)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + (o.pecset === "ok" ? "#3f9e6a" : "#e0417a") + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>';
   s += '</g>';
   if (o.rudak) {   /* 2 hiba után: a tételek tízes rudakban és egyes kockákban, kirakva a pultra (a blokk mellett) — az összeg nem */
     var rw = n > 2 ? 82 : 118;
@@ -486,7 +489,7 @@ function bkBecsles(v) {
 /* a pecsétet az unikornis szarva emeli fel, átviszi a blokkra, ráüti, és visszateszi */
 function bkPecsetRepul(p, kesz) {
   var m = p.querySelector(".bk-pecset-mozog"), px = +p.getAttribute("transform").match(/translate\(([-\d.]+)/)[1];
-  var dx = BK_BLOKK_X + 176 - px, dy = 24 + 86 - BK_PECSET_Y;
+  var ph = bkEredmenyHely(BK.f.bolt.b.tetelek.length), dx = BK_BLOKK_X + ph[0] - px, dy = 24 + ph[1] + 34 - BK_PECSET_Y;
   function T(x, y) { return { transform: "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)" }; }
   BK.uni.poz("szarvvar");
   if (lkCsokkent() || !m.animate) { kesz(); BK.uni.poz(BK.uni.alap); return; }
