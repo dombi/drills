@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kissárkány a boltban — rajzterv</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>/*__STYLE__*/</style>
+<style>
+  /* a rajzterv saját stílusa (a játék style.css-e fölött; minden osztály rt- előtaggal, hogy ne ütközzön) */
+  :root{ --rt-bg:#fdf4fb; --rt-panel:#fff; --rt-ink:#2a2140; --rt-muted:#6b6280; --rt-violet:#8a4fd0; --rt-violet-soft:#ece0fb;
+         --rt-green:#3f9e6a; --rt-green-soft:#dff3e7; --rt-line:#efe4f4; --rt-warn-soft:#fff3dc; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --rt-bg:#1d1828; --rt-panel:#27203a; --rt-ink:#f1ebfb; --rt-muted:#b8aecb; --rt-line:#3a3150;
+      --rt-violet-soft:#35264f; --rt-green-soft:#1f3a2b; --rt-warn-soft:#3d2f14; }
+  }
+  :root[data-theme="dark"]{ --rt-bg:#1d1828; --rt-panel:#27203a; --rt-ink:#f1ebfb; --rt-muted:#b8aecb; --rt-line:#3a3150;
+      --rt-violet-soft:#35264f; --rt-green-soft:#1f3a2b; --rt-warn-soft:#3d2f14; }
+  html, body{ height:auto!important; overflow:auto!important; position:static!important; }
+  body{ margin:0!important; padding:28px 16px 70px!important; background:var(--rt-bg)!important; color:var(--rt-ink)!important;
+        font-family:"Segoe UI",system-ui,sans-serif!important; line-height:1.55; display:block!important; user-select:auto!important; }
+  .rt-wrap{ max-width:900px; margin:0 auto; }
+  .rt-top{ background:linear-gradient(120deg,#3f8f72 0%,#8a4fd0 100%); color:#fff; border-radius:22px; padding:24px 26px 20px; position:relative; overflow:hidden; }
+  .rt-top::after{ content:"🐉"; position:absolute; right:18px; top:2px; font-size:92px; opacity:.22; transform:rotate(10deg); }
+  .rt-top h1{ margin:0 0 6px; font-size:26px; color:#fff; }
+  .rt-top p{ margin:0; max-width:620px; opacity:.95; }
+  .rt-chips{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .rt-chip{ background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:3px 12px; font-size:13px; font-weight:600; }
+  .rt-wrap h2{ font-size:20px; margin:32px 0 10px; padding-left:12px; border-left:6px solid var(--rt-violet); color:var(--rt-ink); }
+  .rt-wrap h3{ font-size:16px; margin:14px 0 6px; color:var(--rt-ink); }
+  .rt-panel{ background:var(--rt-panel); border:1px solid var(--rt-line); border-radius:16px; padding:14px 18px; }
+  .rt-lead{ color:var(--rt-muted); }
+  .rt-szin{ border-radius:14px; overflow:hidden; border:1px solid var(--rt-line); background:#f8ecd9; }
+  .rt-szin svg{ width:100%; height:auto; display:block; }
+  .rt-gombok{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; }
+  .rt-gombok button, .rt-kapcs button{ font:600 14px "Segoe UI",system-ui,sans-serif; border:2px solid #c9a8e6; background:#fff; color:#4a3b7a;
+        border-radius:999px; padding:6px 14px; cursor:pointer; min-height:36px; }
+  .rt-gombok button:hover, .rt-kapcs button:hover{ background:#f4ecfd; }
+  .rt-kapcs{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0; font-size:14px; color:var(--rt-muted); }
+  .rt-kapcs button.be{ background:#8a4fd0; color:#fff; border-color:#8a4fd0; }
+  .rt-mozd{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .rt-kartya{ background:#f8ecd9; border:1px solid var(--rt-line); border-radius:14px; text-align:center; padding:6px 6px 8px; font-size:13px; color:#2a2140; }
+  .rt-kartya svg{ width:100%; height:auto; display:block; }
+  .rt-kartya b{ font-size:14px; }
+  .rt-dont{ background:var(--rt-panel); border:2px solid var(--rt-violet-soft); border-radius:14px; padding:10px 16px; margin:10px 0; }
+  .rt-dont b.n{ color:var(--rt-violet); }
+  .rt-jav{ color:var(--rt-green); font-weight:700; }
+  .rt-ok{ background:var(--rt-green-soft); border-color:transparent; }
+  .rt-warn{ background:var(--rt-warn-soft); border-color:transparent; }
+  .rt-telefon{ width:360px; max-width:100%; margin:0 auto; border:10px solid #2a2140; border-radius:28px; padding:8px 4px; background:#fdf4fb; }
+  .rt-meretek{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; }
+  .rt-wrap ul{ margin:.4em 0; padding-left:22px; } .rt-wrap li{ margin:.3em 0; }
+  .rt-wrap table{ border-collapse:collapse; width:100%; font-size:14px; }
+  .rt-wrap th, .rt-wrap td{ border-bottom:1px solid var(--rt-line); padding:6px 8px; text-align:left; vertical-align:top; }
+</style>
+</head>
+<body>
+<div class="rt-wrap">
+
+<header class="rt-top">
+  <h1>Kissárkány a boltban — rajzterv</h1>
+  <p>A gyerek saját kölyke Tüske néni boltjában: vevő az első két állomáson, a róka blokkját ő hozza. A bolt, Tüske néni, a róka, az unikornis és a kölyök a játék valódi rajzolójával készült; a kölyök bolti mozdulatai még próba-változatok.</p>
+  <div class="rt-chips"><span class="rt-chip">Rajzterv · jóváhagyásra vár</span><span class="rt-chip">2026-10-24</span><span class="rt-chip">Tervlap: kissarkany-a-boltban-terv.html ✅</span></div>
+</header>
+
+<h2>Beállítás a kipróbáláshoz</h2>
+<div class="rt-panel">
+  <div class="rt-kapcs" id="k-szin">Szín: <button data-v="menta" class="be">menta (Ragyogás)</button><button data-v="barack">barack (Tűz)</button><button data-v="levendula">levendula (Csillámharmat)</button></div>
+  <div class="rt-kapcs" id="k-ruha">Ruha: <button data-v="">nincs</button><button data-v="sal,sapka" class="be">sál + sapka</button><button data-v="sal,sapka,csizma,kopeny">mind a négy</button></div>
+  <div class="rt-kapcs" id="k-lassu">Sebesség: <button data-v="1" class="be">rendes</button><button data-v="3">lassítva (×3)</button></div>
+  <p class="rt-lead" style="margin:4px 0 0">A beállítás minden képre vonatkozik. A kölyök neve itt „Parázs” (a játékban a gyerek adta név).</p>
+</div>
+
+<h2>1. 🪙 Fizesd ki! — a kölyök a vevő</h2>
+<p class="rt-lead">Az unikornis és Tüske néni a pult mögött, a kölyök a vevő helyén. Előtte a saját kis erszénye: a gyerek innen koppint (próbáld ki: koppints egy érmére, az unikornisod a pultra lebegteti).</p>
+<div class="rt-szin"><svg id="sz-fizet" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok" id="g-fizet">
+  <button data-a="be">▶ A kölyök bejön</button><button data-a="pont">✓ Pont annyi</button><button data-a="keves">… Kevés</button><button data-a="sok">↩ Sok (visszatol)</button><button data-a="uj">↺ Érmék vissza</button>
+</div>
+
+<h2>2. 💰 Visszajáró — a kölyök a mancsát tartja</h2>
+<p class="rt-lead">A mai nagy tenyér helyett a kölyök két mancsa a pult szélén, kis tálként. Ide lebeg a visszajáró (koppints a kassza érméire).</p>
+<div class="rt-szin"><svg id="sz-vissza" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok" id="g-vissza">
+  <button data-a="be">▶ A kölyök fizet (50-essel)</button><button data-a="pont">✓ Pont annyi</button><button data-a="keves">… Kevés</button><button data-a="sok">↩ Ez sok!</button><button data-a="uj">↺ Újra</button>
+</div>
+
+<h2>3. 🦊 A róka blokkja — a kölyök hozza</h2>
+<p class="rt-lead">A kölyök Zsiványnál vásárolt. Besétál a blokkal, leteszi a pultra: „Megnézed, jó-e?” A pult előtt áll a jobb sarokban (a vevő oldalán), Zsivány mögötte a pultnál, az arca szabadon marad. A mai Juli-rajz marad, csak a neve Zsivány (tervlap 3A).</p>
+<div class="rt-szin"><svg id="sz-blokk" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok" id="g-blokk">
+  <button data-a="be">▶ A kölyök hozza a blokkot</button><button data-a="jo">✓ Jó blokk, jó pecsét</button><button data-a="elkap">✗ Hibát talált, javította</button><button data-a="atcsuszott">Hibás blokkra ✓ (otthon)</button>
+</div>
+
+<h2>4. A kölyök hat bolti mozdulata</h2>
+<p class="rt-lead">Mindegyik átmenettel indul és tér vissza (nincs ugrás pózból pózba). A fej, a szárny, a farok és a mancs külön mozdul; a ruhák a testrésszel együtt mennek (a sapka a fejjel).</p>
+<div class="rt-mozd" id="mozdulatok"></div>
+<div class="rt-panel" style="margin-top:10px">
+  <table>
+    <tr><th>Mozdulat</th><th>Mikor jön</th><th>Mi mozdul</th></tr>
+    <tr><td>vár</td><td>alapállás</td><td>pislog, a farka lassan leng, a szárnya néha megrezzen</td></tr>
+    <tr><td>köszön</td><td>érkezéskor</td><td>mancs fel, fejbiccentés</td></tr>
+    <tr><td>örül</td><td>pont annyi · jó pecsét · Zsivány lebukott</td><td>szárnyrebbenés, kis ugrások, fej fel, farok-csóválás</td></tr>
+    <tr><td>gondol</td><td>kevés · hibás blokk otthon</td><td>fej lebillen, mancs az állához</td></tr>
+    <tr><td>mancs előre</td><td>visszajáró · blokk átadása</td><td>előre dől, mancs a pult fölé, lenéz</td></tr>
+    <tr><td>visszatol</td><td>sok</td><td>előre dől, a mancsa kétszer előre tol</td></tr>
+  </table>
+</div>
+
+<h2>5. Mekkora legyen a kölyök a boltban?</h2>
+<p class="rt-lead">A kölyök a játékban mindenhol kicsi (fióka-méret), ezért itt is maradhat kicsi, de a pult fölött jól kell látszania, mert most ő a főszereplő.</p>
+<div class="rt-meretek" id="meretek"></div>
+<div class="rt-dont">
+  <b class="n">4. döntés — a kölyök mérete a boltban</b>
+  <ul>
+    <li><span class="rt-jav">B) javaslat:</span> közepes: nagyjából akkora, mint Tüske néni, a feje és az egész felsőteste a pult fölött, de kisebb az unikornisnál. Így látszik, hogy ő a kicsi, akinek segítünk.</li>
+    <li>A) kicsi: a feje és a válla látszik a pult fölött.</li>
+    <li>C) nagy: a pult fölé magasodik, nagyobb Tüske néninél.</li>
+  </ul>
+</div>
+
+<h2>6. Telefonon</h2>
+<p class="rt-lead">Ugyanaz a kép keskeny kijelzőn (360 képpont). Az érmék és a kölyök nem takarják egymást, a mancs-tál a pult szélén marad.</p>
+<div class="rt-telefon"><div class="rt-szin"><svg id="sz-telefon" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg"></svg></div></div>
+
+<h2>7. Mire figyelek a kódban</h2>
+<div class="rt-panel rt-warn">
+  <ul>
+    <li><b>A kölyök soha nem súg:</b> minden mozdulata a gyerek lépése után jön. Amíg a gyerek számol, csak „vár” (pislog, leng a farka).</li>
+    <li><b>Egy rajzoló:</b> a kölyök a meglévő ruhás kölyök-rajz (odú, kert, ösvény ugyanezt használja); a bolti mozdulatok új sorok egy póz-táblában, a testrészek a már meglévő csoportjaikkal mozognak (fej, szárny, farok, mancs).</li>
+    <li><b>Mozgáscsökkentésnél</b> a pózváltás azonnali, nincs ugrálás; pislogás marad.</li>
+  </ul>
+</div>
+
+<h2>8. Döntések</h2>
+<div class="rt-panel rt-ok">
+  <ol>
+    <li value="4"><b>A kölyök mérete:</b> B) közepes <i>(javaslat)</i>.</li>
+    <li><b>Visszajáró:</b> a kölyök két mancsa kis tálként a pult szélén <i>(javaslat)</i> — vagy marad a mai nagy tenyér, csak sárkány-színben.</li>
+    <li><b>A blokknál:</b> a kölyök a pult előtt, a vevő oldalán áll, Zsivány mögötte <i>(javaslat)</i>. Ha 2 hiba után a rudak megjelennek a pulton, a kölyök egy lépést hátrébb lép, hogy ne takarja őket.</li>
+    <li><b>A hat mozdulat</b> így mehet (vagy mondd, melyiken változtassak).</li>
+  </ol>
+  <p style="margin:6px 0 0">Jóváhagyás után, a Vásár-költözés commitja után: <b>„Kissárkány a boltban: 1. kör.”</b></p>
+</div>
+
+</div>
+
+<script>
+/* a játék moduljainak minimális környezete (nincs mentés, nincs hang) */
+window.P = function () { return { oltozet: {}, kuld: { rajta: {} }, leny2: { fazis: "kolyok", nev: "Parázs" } }; };
+var mentes = { leny: "ragyogas" }, J = null, GEN = {}, VS_SZIN = {}, KULD_RESZ = 10, SH_RUHA_REND = ["hat", "lab", "nyak", "fej"];
+window.nyugiMod = function () { return false; };
+</script>
+<script>/*__MODULOK__*/</script>
+<script>
+/* ════════ PROTOTÍPUS: a kölyök bolti mozdulatai (az 1. kód-körben a src/-be kerül) ════════ */
+var NS = "http://www.w3.org/2000/svg", BEALL = { pal: "menta", ruhak: ["sal", "sapka"], lassu: 1 };
+function uj(t, a) { var e = document.createElementNS(NS, t); for (var k in a || {}) e.setAttribute(k, a[k]); return e; }
+function kolyokSVG() {
+  var lista = BEALL.ruhak.map(function (id) { return { h: SH_HOLMI_BY[id], n: KULD_RESZ }; }).filter(function (x) { return x.h; });
+  return shKolyokRajz(LENY_PAL[BEALL.pal], { lista: lista });
+}
+/* póz-tábla: szögek fokban (a figura jobbra néz; negatív = felfelé/hátra), dy = emelés, lean = dőlés a talppont körül */
+var KP = {
+  "var":     { fej: 0,   szarny: 0,   farok: 0,  kar: 30,   dy: 0,  lean: 0 },
+  koszon:    { fej: -8,  szarny: -6,  farok: 6,  kar: -115, dy: 0,  lean: -2, integet: 1 },
+  orul:      { fej: -14, szarny: -26, farok: 12, kar: -100, dy: 0,  lean: -4, ugrik: 1, rebben: 1 },
+  gondol:    { fej: 20,  szarny: 0,   farok: -4, kar: -112, dy: 0,  lean: 3 },
+  mancs:     { fej: 12,  szarny: -4,  farok: 4,  kar: -22,  dy: 0,  lean: -7 },
+  visszatol: { fej: 6,   szarny: 0,   farok: 0,  kar: -8,   dy: 0,  lean: -9, tol: 1 }
+};
+var PIVOT = { fej: [8, -42], szarny: [-4, -40], farok: [-20, -16], kar: [12, -30] };
+var KF = [];
+function Kolyok(szulo, o) {
+  this.o = o; this.x = o.x; this.y = o.y; this.s = o.s; this.dir = o.dir || -1;
+  this.g = uj("g", { "class": "rt-kolyok" }); szulo.appendChild(this.g);
+  this.nev = o.poz || "var"; this.v = {}; for (var k in KP["var"]) this.v[k] = KP["var"][k];
+  this.alap = o.poz || "var"; this.t0 = performance.now(); this.pislog = this.t0 + 1500; this.setaV = 0;
+  this.rajzol(); KF.push(this); kfIndit();
+}
+Kolyok.prototype.rajzol = function () {
+  this.g.innerHTML = ""; this.test = uj("g"); this.g.appendChild(this.test);
+  this.test.innerHTML = kolyokSVG();
+  var self = this; this.r = {};
+  function fog(el, nev) { if (!el) return; var w = uj("g", { "class": "rt-" + nev }); el.parentNode.insertBefore(w, el); w.appendChild(el); self.r[nev] = w; }
+  fog(this.test.querySelector(".sz-fej"), "fej");
+  fog(this.test.querySelector(".sz-szarny"), "szarny");
+  fog(this.test.querySelector(".sz-farok"), "farok");
+  /* a bolti mancs: a mai rövid kar helyett hosszabb, mancsos kar a ruhák FÖLÖTT (a sál nem takarja) — a kódban: lenyRajz „bolti kar” */
+  Array.prototype.forEach.call(this.test.querySelectorAll("path"), function (p) { if (/^M14 -28q/.test(p.getAttribute("d") || "")) p.setAttribute("display", "none"); });
+  var P = LENY_PAL[BEALL.pal], w = uj("g", { "class": "rt-kar" }), kd = "M12 -30q9 6 19 5";
+  w.innerHTML = '<path d="' + kd + '" fill="none" stroke="' + P.d + '" stroke-width="12.8" stroke-linecap="round"/><path d="' + kd + '" fill="none" stroke="' + P.b + '" stroke-width="8" stroke-linecap="round"/>' +
+    '<circle cx="31" cy="-25" r="6.2" fill="' + P.b + '" stroke="' + P.d + '" stroke-width="2.2"/>' +
+    [[35.5, -28.5], [37, -24.5], [35.5, -20.5]].map(function (t) { return '<circle cx="' + t[0] + '" cy="' + t[1] + '" r="2" fill="' + P.has + '" stroke="' + P.d + '" stroke-width="1.2"/>'; }).join("");
+  (this.test.querySelector(".sh-kolyok") || this.test).appendChild(w); this.r.kar = w;
+  this.szemek = Array.prototype.slice.call(this.test.querySelectorAll(".sz-szem"));
+  this.kirak();
+};
+Kolyok.prototype.poz = function (nev, ms) {
+  var self = this; clearTimeout(this.vt); this.nev = nev; this.pt = performance.now();
+  if (ms) this.vt = setTimeout(function () { self.nev = self.alap; }, ms * BEALL.lassu);
+};
+Kolyok.prototype.setal = function (x1, ms, kesz) { this.seta = { x0: this.x, x1: x1, t0: performance.now(), ms: ms * BEALL.lassu, kesz: kesz }; };
+Kolyok.prototype.kirak = function () {
+  var v = this.v, R = this.r, ugr = 0;
+  this.g.setAttribute("transform", "translate(" + this.x.toFixed(1) + " " + this.y.toFixed(1) + ") scale(" + (this.s * this.dir).toFixed(3) + " " + this.s.toFixed(3) + ")");
+  this.test.setAttribute("transform", "translate(0 " + (v.dy + this.setaV).toFixed(2) + ") rotate(" + v.lean.toFixed(2) + " 0 0)");
+  ["fej", "szarny", "farok", "kar"].forEach(function (n) { if (R[n]) R[n].setAttribute("transform", "rotate(" + v[n].toFixed(2) + " " + PIVOT[n][0] + " " + PIVOT[n][1] + ")"); });
+};
+Kolyok.prototype.lep = function (most, dt) {
+  var c = KP[this.nev] || KP["var"], v = this.v, k = Math.min(1, dt * 7 / BEALL.lassu), t = (most - this.t0) / 1000 / BEALL.lassu, pt = (most - (this.pt || 0)) / 1000 / BEALL.lassu;
+  for (var n in KP["var"]) v[n] += (c[n] - v[n]) * k;
+  v.farok += 5 * Math.sin(t * 1.8) * k;                                     /* a farok mindig lassan leng */
+  if (c.rebben) v.szarny += 16 * Math.sin(t * 16) * k;                       /* szárnyrebbenés */
+  else v.szarny += 2.5 * Math.sin(t * 2.3) * k;
+  v.dy = c.ugrik && pt < 1.6 ? -9 * Math.abs(Math.sin(pt * 7)) : v.dy;     /* kis ugrások, aztán áll */
+  if (c.tol) v.kar += (pt < 1.4 ? 14 * Math.sin(pt * 9) : 0) * k;            /* kétszer előretol */
+  if (c.integet) v.kar += (pt < 1.6 ? 22 * Math.sin(pt * 11) : 0) * k;       /* integet */
+  if (this.seta) {                                                          /* besétál: a test billeg, a lépésekre bólint */
+    var S = this.seta, u = Math.min(1, (most - S.t0) / S.ms);
+    this.x = S.x0 + (S.x1 - S.x0) * (u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);
+    this.setaV = -4 * Math.abs(Math.sin(u * Math.PI * 6)); v.lean = 3 * Math.sin(u * Math.PI * 6);
+    if (u >= 1) { this.seta = null; this.setaV = 0; if (S.kesz) S.kesz(); }
+  }
+  if (most > this.pislog && this.szemek.length) {                           /* pislogás */
+    var sz = this.szemek; sz.forEach(function (e) { var b = e.getBBox(); e.setAttribute("transform", "translate(0 " + (b.y + b.height / 2).toFixed(1) + ") scale(1 .12) translate(0 " + (-(b.y + b.height / 2)).toFixed(1) + ")"); });
+    setTimeout(function () { sz.forEach(function (e) { e.removeAttribute("transform"); }); }, 130);
+    this.pislog = most + 2400 + Math.random() * 2600;
+  }
+  this.kirak();
+};
+var _kfFut = false, _kfUtso = 0;
+function kfIndit() {
+  if (_kfFut) return; _kfFut = true; _kfUtso = performance.now();
+  requestAnimationFrame(function lep(most) {
+    var dt = Math.min(.05, (most - _kfUtso) / 1000); _kfUtso = most;
+    KF = KF.filter(function (k) { return k.g.isConnected; }); KF.forEach(function (k) { k.lep(most, dt); });
+    requestAnimationFrame(lep);
+  });
+}
+
+/* ════════ a bolt jelenete a valódi bolt-kep.js rajzával ════════ */
+var MERET = { A: 1.85, B: 2.25, C: 2.7 }, M_MOST = MERET.B;
+function jelenet(svgId, forma) {
+  var svg = document.getElementById(svgId), S = { svg: svg, forma: forma };
+  BK = { svg: svg, forma: forma }; if (forma === "blokk") bkRokaAlap(); else bkBoltAlap();
+  S.BK = BK; S.tuske = BK.tuske; S.uni = BK.uni; S.roka = BK.juli;
+  var r = svg.querySelector(".bk-vevo"); if (r) r.parentNode.parentNode.removeChild(r.parentNode);   /* a mai vevő helyén a kölyök */
+  S.kGy = uj("g"); var bub = svg.querySelector(".bk-bub"); svg.insertBefore(S.kGy, forma === "blokk" ? svg.querySelector(".bk-blokk") : svg.querySelector('path[d^="M0 262H800"]'));
+  if (forma === "blokk") { svg.insertBefore(S.kGy, bub); }   /* a blokknál a kölyök a pult ELŐTT áll */
+  return S;
+}
+function bub(S, x, y, t, ki) { var o = BK; BK = S.BK; bkBub(x, y, t, ki); BK = o; }
+function erme(S, v, x, y, cls) {
+  var g = uj("g", { "class": "bk-erme " + (cls || ""), "data-v": v, style: "transform:translate(" + x + "px," + y + "px)" });
+  g.innerHTML = '<circle r="' + (BK_ER[v] + 8) + '" fill="transparent"/>' + tallerBelso(v); g._x = x; g._y = y;
+  S.svg.querySelector(".bk-ermek").appendChild(g); return g;
+}
+function lebeg(S, g, x, y) {
+  S.uni.poz("szarvvar", 900);
+  szarvVarazs(g, g._x, g._y, x, y, { nyom: S.svg.querySelector(".bk-szikra"), ido: 750 * BEALL.lassu }); g._x = x; g._y = y;
+}
+/* a kölyök erszénye: kis bőr erszény a pult szélén, a kölyök előtt (a mai „tárca-sor” helye) */
+function erszenySVG(x, y) {
+  return '<g transform="translate(' + x + ' ' + y + ')"><path d="M-74 -14Q-80 26 -60 30H60Q80 26 74 -14Z" fill="#c98a5a" stroke="#6e472c" stroke-width="2.4"/>' +
+    '<path d="M-74 -14Q0 -2 74 -14" fill="none" stroke="#6e472c" stroke-width="2.4"/><path d="M-60 -10Q-66 -46 -40 -50" fill="none" stroke="#6e472c" stroke-width="3"/>' +
+    '<circle cx="0" cy="16" r="5" fill="#f5c84b" stroke="#a87a1e" stroke-width="1.6"/><path d="M-50 22Q0 30 50 22" fill="none" stroke="#e7b48a" stroke-width="2" stroke-dasharray="3 4"/></g>';
+}
+/* a kölyök két mancsa kis tálként (a visszajárónál), a kölyök színében */
+function mancsTalSVG(p, x, y) {
+  var s = '<g class="rt-mancstal" transform="translate(' + x + ' ' + y + ') scale(1.4)">';
+  s += '<path d="M-46 -6Q-50 22 -20 26Q0 30 20 26Q50 22 46 -6Q20 6 0 4Q-20 6 -46 -6Z" fill="' + p.b + '" stroke="' + p.d + '" stroke-width="2.4" stroke-linejoin="round"/>';
+  s += '<path d="M-36 0Q0 12 36 0Q20 18 0 18Q-20 18 -36 0Z" fill="' + p.has + '" opacity=".9"/>';
+  [-40, -26, 26, 40].forEach(function (cx) { s += '<ellipse cx="' + cx + '" cy="-8" rx="7" ry="6" fill="' + p.b + '" stroke="' + p.d + '" stroke-width="2"/><path d="M' + (cx - 2) + ' -13l2 -5l2 5" fill="#fff8e8" stroke="' + p.d + '" stroke-width="1.2"/>'; });
+  return s + '</g>';
+}
+
+/* ── ① Fizesd ki! ── */
+var F1 = null, AR1 = 37, TARCA1 = [20, 10, 5, 2, 1, 1];
+function fizetEpit(id, csendes) {
+  var S = jelenet(id, "fizet");
+  S.svg.querySelector(".bk-targy").innerHTML = '<g transform="translate(' + BK_TARGY[0] + ' ' + (BK_TARGY[1] - 70) + ')"><text font-size="44" text-anchor="middle">🍯</text>' +
+    '<g transform="translate(36 -40)"><rect x="-26" y="-16" width="52" height="30" rx="7" fill="#fffef6" stroke="#c9b6dc" stroke-width="2"/><text y="6" text-anchor="middle" font-size="19" ' + BK_F + ' font-weight="700" fill="#3b4a8a">' + AR1 + '</text></g></g>';
+  S.svg.querySelector(".bk-kassza").insertAdjacentHTML("beforeend", erszenySVG(540, 418));
+  S.k = new Kolyok(S.kGy, { x: 650, y: 300, s: M_MOST, dir: -1 });
+  S.ermek = TARCA1.map(function (v, i) { var g = erme(S, v, bkTarcaX(i, TARCA1.length), 408); g._hely = [g._x, g._y]; return g; });
+  S.pult = [];
+  S.svg.addEventListener("click", function (e) {
+    var g = e.target.closest && e.target.closest(".bk-erme"); if (!g || S.ermek.indexOf(g) < 0) return;
+    var i = S.pult.indexOf(g);
+    if (i < 0) { S.pult.push(g); lebeg(S, g, 186 + (S.pult.length - 1) * 42, 364); }
+    else { S.pult.splice(i, 1); lebeg(S, g, g._hely[0], g._hely[1]); S.pult.forEach(function (q, j) { lebeg(S, q, 186 + j * 42, 364); }); }
+  });
+  if (!csendes) S.tuske.poz("var");
+  return S;
+}
+function fizetGomb(a) {
+  var S = F1;
+  if (a === "be") {
+    S.k.x = 900; S.k.poz("var"); S.k.setal(650, 1500, function () {
+      S.k.poz("koszon", 1300); S.tuske.pozIdeig("koszon", 1500);
+      bub(S, BK_TB[0], BK_TB[1], "Szia, Parázs! Mit adhatok?", "tuske");
+      setTimeout(function () { bub(S, BK_VB[0], BK_VB[1], "Segítesz kifizetni?", "vevo"); }, 1300 * BEALL.lassu);
+    });
+  } else if (a === "pont") {
+    S.k.poz("orul", 2000); S.tuske.pozIdeig("orul", 1800); S.uni.poz("orul", 1800);
+    bub(S, BK_TB[0], BK_TB[1], "Pont " + AR1 + "! Szép munka!", "tuske"); bub(S, BK_VB[0], BK_VB[1], "Köszönöm!", "vevo");
+  } else if (a === "keves") {
+    S.k.poz("gondol", 2200); S.tuske.pozIdeig("gondol", 2200); bub(S, BK_VB[0], BK_VB[1], "…", "vevo");
+  } else if (a === "sok") {
+    S.k.poz("visszatol", 1800); S.tuske.pozIdeig("meglep", 1600); bub(S, BK_VB[0], BK_VB[1], "Ez sok lesz!", "vevo");
+    var u = S.pult.pop(); if (u) setTimeout(function () { lebeg(S, u, u._hely[0], u._hely[1]); }, 500 * BEALL.lassu);
+  } else if (a === "uj") {
+    S.pult.slice().forEach(function (g) { lebeg(S, g, g._hely[0], g._hely[1]); }); S.pult = [];
+  }
+}
+
+/* ── ② Visszajáró ── */
+var F2 = null, AR2 = 37;
+function visszaEpit() {
+  var S = jelenet("sz-vissza", "vissza");
+  S.svg.querySelector(".bk-targy").innerHTML = '<g transform="translate(' + BK_TARGY[0] + ' ' + (BK_TARGY[1] - 70) + ')"><text font-size="44" text-anchor="middle">🧀</text>' +
+    '<g transform="translate(36 -40)"><rect x="-26" y="-16" width="52" height="30" rx="7" fill="#fffef6" stroke="#c9b6dc" stroke-width="2"/><text y="6" text-anchor="middle" font-size="19" ' + BK_F + ' font-weight="700" fill="#3b4a8a">' + AR2 + '</text></g></g>';
+  S.k = new Kolyok(S.kGy, { x: 650, y: 300, s: M_MOST, dir: -1 });
+  S.talG = uj("g"); S.svg.querySelector(".bk-tenyer").appendChild(S.talG);
+  S.kassza = BK_KASSZA.map(function (v, i) { var g = erme(S, v, 52 + i * 46, 413); g._hely = [g._x, g._y]; return g; });
+  S.adott = [];
+  S.svg.addEventListener("click", function (e) {
+    var g = e.target.closest && e.target.closest(".bk-erme"); if (!g || S.kassza.indexOf(g) < 0 || !S.nyitva) return;
+    var m = erme(S, +g.getAttribute("data-v"), g._x, g._y); m._hely = [g._x, g._y]; S.adott.push(m);
+    var i = S.adott.length - 1; lebeg(S, m, S.tal[0] - 39 + (i % 4) * 26, S.tal[1] - 4 - Math.floor(i / 4) * 10);
+  });
+  return S;
+}
+function visszaGomb(a) {
+  var S = F2, p = LENY_PAL[BEALL.pal];
+  if (a === "be" || a === "uj") {
+    S.adott.forEach(function (m) { m.remove(); }); S.adott = []; S.nyitva = false; S.talG.innerHTML = "";
+    var fiz = S.svg.querySelector(".rt-fizetett"); if (fiz) fiz.remove();
+    if (a === "uj") { S.k.poz("var"); return; }
+    S.k.poz("mancs", 1200);
+    var f = erme(S, 50, 600, 300, "rt-fizetett"); f._x = 600; f._y = 300; setTimeout(function () { lebeg(S, f, 420, 364); }, 300 * BEALL.lassu);
+    bub(S, BK_VB[0], BK_VB[1], "Tessék, egy 50-es!", "vevo");
+    setTimeout(function () {
+      S.tal = [570, 292]; S.talG.innerHTML = mancsTalSVG(p, S.tal[0], S.tal[1]); S.nyitva = true; S.k.alap = "mancs"; S.k.poz("mancs");
+      bub(S, BK_TB[0], BK_TB[1], "Mennyi jár vissza?", "tuske");
+    }, 1400 * BEALL.lassu);
+  } else if (a === "pont") {
+    S.k.alap = "var"; S.k.poz("orul", 2200); S.tuske.pozIdeig("orul", 1800); S.uni.poz("orul", 1800);
+    bub(S, BK_VB[0], BK_VB[1], "Köszönöm szépen!", "vevo"); bub(S, BK_TB[0], BK_TB[1], "Pont annyi, ügyes vagy!", "tuske");
+  } else if (a === "keves") {
+    S.k.poz("gondol", 2200); S.uni.poz("gondol", 2200); bub(S, BK_VB[0], BK_VB[1], "…", "vevo");
+    setTimeout(function () { S.k.poz("mancs"); }, 2300 * BEALL.lassu);
+  } else if (a === "sok") {
+    S.k.poz("visszatol", 1800); bub(S, BK_VB[0], BK_VB[1], "Ez sok!", "vevo"); S.tuske.pozIdeig("meglep", 1600);
+    var u = S.adott.pop(); if (u) setTimeout(function () { lebeg(S, u, u._hely[0], u._hely[1]); setTimeout(function () { u.remove(); }, 800 * BEALL.lassu); }, 400 * BEALL.lassu);
+  }
+}
+
+/* ── ③ A róka blokkja ── */
+var F3 = null, BLOKK = { tetelek: [24, 18], irt: 32, helyes: 42 };
+function blokkEpit() {
+  var S = jelenet("sz-blokk", "blokk");
+  S.k = new Kolyok(S.kGy, { x: 900, y: 398, s: M_MOST * .78, dir: -1 });
+  S.svg.querySelector(".bk-blokk").setAttribute("opacity", "0");
+  return S;
+}
+function blokkRajz(S, o) { var b = BK; BK = S.BK; BK.f = { bolt: { b: BLOKK, aruk: [["🍎", "alma"], ["🍯", "méz"]] } }; BK.rajz = o || {}; bkBlokkRajz(); BK = b; }
+function blokkGomb(a) {
+  var S = F3, bl = S.svg.querySelector(".bk-blokk");
+  if (a === "be") {
+    blokkRajz(S, {}); bl.setAttribute("opacity", "0"); S.k.x = 900; S.k.poz("var");
+    S.k.setal(690, 1600, function () {
+      S.k.poz("mancs", 1400); bl.style.transition = "opacity .6s"; bl.setAttribute("opacity", "1");
+      bub(S, 575, 312, "Megnézed, jó-e?", "vevo"); S.roka.pozIdeig("mutat", 1400);
+    });
+  } else if (a === "jo") {
+    blokkRajz(S, { pecset: "ok" }); bl.setAttribute("opacity", "1");
+    S.uni.poz("orul", 1800); S.k.poz("orul", 2200); bub(S, 575, 312, "Hurrá, minden stimmel!", "vevo");
+  } else if (a === "elkap") {
+    blokkRajz(S, { pecset: "x", kihuz: true, javit: BLOKK.helyes }); bl.setAttribute("opacity", "1");
+    S.roka.pozIdeig("meglep", 1600); bub(S, 700, 40, "Hoppá, elkapkodtam!", "juli");
+    setTimeout(function () { S.k.poz("orul", 2200); S.uni.poz("orul", 1800); bub(S, 575, 312, "Ezt jól észrevetted!", "vevo"); }, 1300 * BEALL.lassu);
+  } else if (a === "atcsuszott") {
+    blokkRajz(S, { pecset: "ok", rudak: true }); bl.setAttribute("opacity", "1");
+    S.k.setal(790, 700, function () { S.k.poz("gondol", 2600); bub(S, 600, 312, "Hm… valami hiányzik?", "vevo"); });
+  }
+}
+
+/* ── a hat mozdulat kártyái ── */
+var MOZD = [["var", "vár"], ["koszon", "köszön"], ["orul", "örül"], ["gondol", "gondol"], ["mancs", "mancs előre"], ["visszatol", "visszatol"]];
+var KARTYAK = [];
+function mozdEpit() {
+  var h = document.getElementById("mozdulatok"); h.innerHTML = ""; KARTYAK = [];
+  MOZD.forEach(function (m) {
+    var d = document.createElement("div"); d.className = "rt-kartya";
+    d.innerHTML = '<svg viewBox="-80 -112 160 124"><ellipse cx="0" cy="2" rx="40" ry="6" fill="#000" opacity=".08"/></svg><b>' + m[1] + '</b>';
+    h.appendChild(d);
+    var k = new Kolyok(d.querySelector("svg"), { x: 0, y: 0, s: 1, dir: 1 }); k.mozd = m[0]; KARTYAK.push(k);
+  });
+}
+setInterval(function () { KARTYAK.forEach(function (k) { if (k.mozd !== "var") { k.poz(k.mozd, 1700); } }); }, 3200);
+
+/* ── méret-összevetés ── */
+function meretEpit() {
+  var h = document.getElementById("meretek"); h.innerHTML = "";
+  [["A", "kicsi"], ["B", "közepes (javaslat)"], ["C", "nagy"]].forEach(function (m) {
+    var d = document.createElement("div"); d.className = "rt-kartya";
+    d.innerHTML = '<svg viewBox="0 0 800 330"></svg><b>' + m[0] + ')</b> ' + m[1]; h.appendChild(d);
+    var svg = d.querySelector("svg"), o = BK; BK = { svg: svg, forma: "fizet" }; bkBoltAlap(); BK = o;
+    var r = svg.querySelector(".bk-vevo"); if (r) r.parentNode.parentNode.removeChild(r.parentNode);
+    var g = uj("g"); svg.insertBefore(g, svg.querySelector('path[d^="M0 262H800"]'));
+    new Kolyok(g, { x: 650, y: 300, s: MERET[m[0]], dir: -1 });
+  });
+}
+
+/* ── telefon ── */
+var F4 = null;
+function mindEpit() {
+  KF.forEach(function (k) { k.g.remove(); }); KF = [];
+  F1 = fizetEpit("sz-fizet"); F2 = visszaEpit(); F3 = blokkEpit(); mozdEpit(); meretEpit();
+  F4 = fizetEpit("sz-telefon", true);
+  F4.pult = F4.ermek.slice(0, 3); F4.pult.forEach(function (g, j) { lebeg(F4, g, 186 + j * 42, 364); });
+}
+document.getElementById("g-fizet").addEventListener("click", function (e) { var a = e.target.getAttribute("data-a"); if (a) fizetGomb(a); });
+document.getElementById("g-vissza").addEventListener("click", function (e) { var a = e.target.getAttribute("data-a"); if (a) visszaGomb(a); });
+document.getElementById("g-blokk").addEventListener("click", function (e) { var a = e.target.getAttribute("data-a"); if (a) blokkGomb(a); });
+function kapcs(id, f) {
+  document.getElementById(id).addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) { x.classList.toggle("be", x === b); });
+    f(b.getAttribute("data-v"));
+  });
+}
+kapcs("k-szin", function (v) { BEALL.pal = v; mindEpit(); });
+kapcs("k-ruha", function (v) { BEALL.ruhak = v ? v.split(",") : []; mindEpit(); });
+kapcs("k-lassu", function (v) { BEALL.lassu = +v; });
+mindEpit();
+</script>
+</body>
+</html>
