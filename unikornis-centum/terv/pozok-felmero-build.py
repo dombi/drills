@@ -195,7 +195,8 @@ PAD = r"""<style>
       UC.shKolyokRajz(UC.lenyPal(), { lista: lista, cls: cls || "", uj: uj }) + '</g></g>' + lnHorgonyok(nezet) + '</svg></div>';
   }
   function lnSor(s) {
-    return '<div class="fm-ln-sor" data-fazis="' + s[5] + '"><div class="fm-ln-cim"><b>' + s[0] + '</b>' + s[1] + '</div>' +
+    var kopeny = s[2].some(function (r) { return r[0] === "kopeny"; }) ? ' data-kopeny="1"' : "";
+    return '<div class="fm-ln-sor" data-fazis="' + s[5] + '"' + kopeny + '><div class="fm-ln-cim"><b>' + s[0] + '</b>' + s[1] + '</div>' +
       LN_NEZETEK.map(function (nz) { return '<figure>' + lnKep(nz, s[2], s[3], s[4]) + '<figcaption><b>' + LN_NEV[nz] + '</b><span class="fm-meres"></span></figcaption></figure>'; }).join("") + '</div>';
   }
   function lnSzakasz() {
@@ -229,9 +230,10 @@ PAD = r"""<style>
     Array.prototype.forEach.call(rejt, function (e) { e.style.display = ""; });
     var al = b.y + b.height, baj = [];
     if (b.x < LN_VB[0] || b.y < LN_VB[1] || b.x + b.width > LN_VB[0] + LN_VB[2] || al > LN_VB[1] + LN_VB[3]) baj.push("kilóg a képből");
-    if (Math.abs(al) > 2.5) baj.push("a talp " + al.toFixed(1) + "-en, nem a földön");
+    var uszaly = el.getAttribute("data-nezet") === "oldal" && fig.closest("[data-kopeny]") && al > 2.5 && al <= 6.5;   /* a köpeny uszályként söpri a földet (producer, 2026-10-24) */
+    if (Math.abs(al) > 2.5 && !uszaly) baj.push("a talp " + al.toFixed(1) + "-en, nem a földön");
     if (el.getAttribute("data-nezet") !== "oldal" && !el.querySelector(".ln-nezet-reteg")) baj.push("nincs nézet-réteg");
-    lnCimke(fig, baj.length ? (baj[0] === "kilóg a képből" ? "hiba" : "gyanu") : "ok", baj.join(", "));
+    lnCimke(fig, baj.length ? (baj[0] === "kilóg a képből" ? "hiba" : "gyanu") : "ok", baj.length ? baj.join(", ") : uszaly ? "a köpeny uszályként söpri a földet (így jó)" : "");
   }
   function lnBeallit(fm) {
     var k = fm.querySelector("#fm-hg-kapcs");
