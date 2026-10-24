@@ -379,11 +379,12 @@ function shHolmiSVG(h, n, opt) {
   return s;
 }
 /* 👕 a kölyök (fióka-alak) azzal, ami most rajta van (kuldetes.js kuldRajta). opt: epul (az odúban a készülő ruha is,
-   halvány körvonallal), uj (a készülő ruha épp felrakott részlete), cls. Az odú, a kert és a kísérő ezt rajzolja. */
+   halvány körvonallal), uj (a készülő ruha épp felrakott részlete), cls; lista = [{ h, n }] a mentés helyett (póz-próbapad).
+   Az odú, a kert és a kísérő ezt rajzolja. */
 function shKolyokRajz(p, opt) {
   opt = opt || {}; p = p || lenyPal();
-  var R = { h: "", e: "", f: "" };
-  kuldRajta(opt.epul).forEach(function (t) {
+  var R = { h: "", e: "", f: "" }, l = opt.lista ? opt.lista.slice().sort(function (x, y) { return SH_RUHA_REND.indexOf(x.h.hely) - SH_RUHA_REND.indexOf(y.h.hely); }) : kuldRajta(opt.epul);
+  l.forEach(function (t) {
     var r = shReszek(t.h, t.n, t.n < KULD_RESZ ? opt.uj : null, p);
     R.h += r.h; R.e += r.e; R.f += r.f;
   });

@@ -12,6 +12,11 @@ Kimenet:    C:\\Users\\Dombi-NyárádiGabriel\\Matekos\\uc-felmero-pozok.html  (
 Biztonság: a próbapad semmit nem ment (a localStorage-írás ki van kapcsolva), néma (a felolvasás
 és a hangfelismerés ál-objektum), felhőhöz nem csatlakozik. A játék mentéseit nem érinti.
 Későbbi lépésekben (1–9.) ugyanez a próbapad mutatja az előtte/utána állapotot.
+
+5. sor — 🐉 a kissárkány (kissárkány teste, 3. kör): oldalról / szemből / hátulról × a 4 ruha (kész és készülő)
+× a mozdulatok (lélegzés, totyogás, kísérő-lebegés, repülés), a horgonypontokkal; a valódi lenyFordul és lenyPorog
+lefényképezve. Minden új sárkány-képesség előtte/utána képe itt készül (terv/sarkany-test-rajzterv.html).
+A gép méri: kilóg-e a rajz a képből, a talp a földön van-e (y = 0), fordulás után nem marad-e nézet-réteg.
 """
 import os, re
 
@@ -52,6 +57,15 @@ PAD = r"""<style>
 #fm .fm-odu{ width:470px !important; }
 #fm .fm-odu .fm-szin{ width:470px !important; height:260px !important; }
 #fm .fm-odu svg{ width:100%; height:100%; }
+#fm .fm-ln-sor{ display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; margin-bottom:10px; }
+#fm .fm-ln-cim{ width:150px; font-size:14px; line-height:1.35; align-self:center; }
+#fm .fm-ln-cim b{ display:block; font-size:15px; }
+#fm .fm-ln-sor figure{ width:170px; }
+#fm .fm-lnszin{ width:170px; height:132px; background:linear-gradient(#fff6e8,#f6ead6 78%,#e9d6b8); }
+#fm .fm-lnszin svg{ width:100%; height:100%; display:block; }
+#fm .fm-hg{ display:none; } #fm.horgony .fm-hg{ display:inline; }
+#fm .fm-kapcs{ font-size:14px; margin:4px 0 10px; display:block; }
+#fm h3{ margin:18px 0 8px; font-size:16px; color:#8a4fd0; }
 </style>
 <script>
 (function () {
@@ -121,6 +135,7 @@ PAD = r"""<style>
       kartya('<div class="fm-szin"><svg viewBox="-80 -110 160 130" width="230" height="200">' + UC.unikornisSVG(uid(), lenyC(), 0.62, UC.mentes.profilok[UC.mentes.leny].oltozet) + '</svg></div>',
         "Pályán (ösvényen)", "Nincs séta: a figura merev, kis pattogással „csúszik” állomásról állomásra. Nem fordul, a lába nem mozog.", "hiba") +
       '</div>';
+    h += lnSzakasz();
     var fm = document.getElementById("fm");
     fm.innerHTML = h + '<div class="fm-lap">' + (window.__FM_LAP || "") + '</div>';
     fm.querySelectorAll(".fm-lenyek button").forEach(function (b) {
@@ -135,6 +150,151 @@ PAD = r"""<style>
     if (odu) odu.classList.add("uni-jar-seta");
     fagyaszt(fm.querySelector("#fm-tobbi"), 0.5);
     porgesFelvesz();
+    lnBeallit(fm);
+  }
+
+  /* ════ 5. 🐉 KISSÁRKÁNY — a valódi shKolyokRajz + lenyNezetMutat + lenyFordul + lenyPorog (kissárkány teste, 3. kör) ════ */
+  var LN_VB = [-80, -112, 160, 124];   /* fióka-egység: talp y = 0, közép x = 0 (mint a ruha-kártyákon) */
+  var LN_RUHAK = ["sal", "sapka", "csizma", "kopeny"];
+  var LN_NEZETEK = ["oldal", "elol", "hatul"], LN_NEV = { oldal: "oldalról", elol: "szemből", hatul: "hátulról" };
+  function lnMind(n) { return LN_RUHAK.map(function (r) { return [r, n]; }); }
+  var LN_SOROK = [   /* [cím, megj., ruhák [[id, felrakott részlet]], a sarkany osztálya, a burok osztálya, fázis] */
+    ["Csupasz", "", [], "", "", 0],
+    ["Csillagos sál", "", [["sal", 10]], "", "", 0],
+    ["Bojtos sapka", "Hátulról a sapka eltakarja a tarkó tüskéit.", [["sapka", 10]], "", "", 0],
+    ["Pöttyös csizma", "A láb körvonalát követi, hátulról is látszik.", [["csizma", 10]], "", "", 0],
+    ["Hőscsillag-köpeny", "Hátulról öt csík, mint oldalról.", [["kopeny", 10]], "", "", 0],
+    ["Mind a négy", "", lnMind(10), "", "", 0],
+    ["Készülőben 3/10", "Mint az odúban: a kész részletek telten, a hiányzók halványan — a nézet is ezt mutatja.", lnMind(3), "", "", 0],
+    ["Készülőben 6/10", "", lnMind(6), "", "", 0]
+  ];
+  var LN_MOZDULAT = [
+    ["Lélegzik, rebben", "Az élet-animáció félúton: a testrész-csoportok (sz-test, sz-szarny, sz-farok, sz-fej) mindhárom nézetben ugyanazok.", [], "", "", 0.5],
+    ["Totyog (odú)", "ln-hop a burkon: a kis ugrás.", [], "", "ln-hop", 0.5],
+    ["Kísérő (ösvény)", "kiser: gyors szárnycsapás, lebegés.", [["sal", 10]], "kiser", "kiser-lebeg", 0.4],
+    ["Repül", "repul: szárnycsapás, a test nem lélegzik.", [], "repul", "", 0.3]
+  ];
+  function lnHorgonyok(nezet) {
+    var H = UC.LENY_HORGONY[nezet], s = "";
+    Object.keys(H).forEach(function (k) {
+      if (!H[k]) return;
+      (typeof H[k][0] === "number" ? [H[k]] : H[k]).forEach(function (q) {
+        s += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="2.6" fill="#e0306a" stroke="#fff" stroke-width="1"/>' +
+          '<text x="' + (q[0] + 3.5) + '" y="' + (q[1] - 3) + '" font-size="7" font-weight="700" fill="#b0263e">' + k + '</text>';
+      });
+    });
+    return '<g class="fm-hg">' + s + '</g>';
+  }
+  function lnKep(nezet, ruhak, cls, burok) {
+    var lista = ruhak.map(function (r) { return { h: UC.SH_HOLMI_BY[r[0]], n: r[1] }; });
+    var uj = ruhak.length && ruhak[0][1] < UC.KULD_RESZ ? ruhak[0][1] - 1 : null;   /* a legutóbb felrakott részlet felvillan */
+    return '<div class="fm-lnszin"><svg viewBox="' + LN_VB.join(" ") + '" xmlns="http://www.w3.org/2000/svg">' +
+      '<line x1="-80" y1="0" x2="80" y2="0" stroke="#c9a77a" stroke-width="1" stroke-dasharray="3 3"/>' +
+      '<ellipse cx="0" cy="2" rx="30" ry="6" fill="#3c2a50" opacity=".14"/>' +
+      '<g class="fm-ln-flip" data-nezet="' + nezet + '" style="transform:scale(1,1)"><g class="' + (burok || "") + '">' +
+      UC.shKolyokRajz(UC.lenyPal(), { lista: lista, cls: cls || "", uj: uj }) + '</g></g>' + lnHorgonyok(nezet) + '</svg></div>';
+  }
+  function lnSor(s) {
+    return '<div class="fm-ln-sor" data-fazis="' + s[5] + '"><div class="fm-ln-cim"><b>' + s[0] + '</b>' + s[1] + '</div>' +
+      LN_NEZETEK.map(function (nz) { return '<figure>' + lnKep(nz, s[2], s[3], s[4]) + '<figcaption><b>' + LN_NEV[nz] + '</b><span class="fm-meres"></span></figcaption></figure>'; }).join("") + '</div>';
+  }
+  function lnSzakasz() {
+    return '<h2>5. 🐉 Kissárkány — nézetek, ruhák, mozdulatok</h2>' +
+      '<div>A valódi játékkódból: oldalról a <code>lenyRajz</code> + ruhák, szemből és hátulról a <code>lenyNezetMutat</code> rakja rá a nézetet, ' +
+      'ugyanúgy, mint fordulásnál. A színt a fenti unikornis-gomb adja (menta / levendula / barack). A gép méri: kilóg-e a rajz, a talp a földön van-e.</div>' +
+      '<label class="fm-kapcs"><input type="checkbox" id="fm-hg-kapcs"> horgonypontok mutatása (LENY_HORGONY — ruha, kellék, új képesség csak ezekhez kapaszkodik)</label>' +
+      '<h3>Ruhák</h3><div id="fm-ln">' + LN_SOROK.map(lnSor).join("") +
+      '<h3>Mozdulatok</h3>' + LN_MOZDULAT.map(lnSor).join("") + '</div>' +
+      '<h3>Fordulás és pörgés (a valódi lenyFordul / lenyPorog, sapkában és köpenyben)</h3>' +
+      '<div class="fm-ln-sor" id="fm-ln-fordul"><figure><div class="fm-lnszin"></div><figcaption>fordulás készül…</figcaption></figure></div>' +
+      '<div class="fm-ln-sor" id="fm-ln-porog"><figure><div class="fm-lnszin"></div><figcaption>pörgés készül…</figcaption></figure></div>';
+  }
+  /* a sárkány minden animációja megáll a megadott fázisban (a pislogás nyitott szemmel) */
+  function lnFagyaszt(root, frac) {
+    root.getAnimations({ subtree: true }).forEach(function (a) {
+      var t = a.effect.getTiming(), d = typeof t.duration === "number" ? t.duration : 0;
+      a.pause(); a.currentTime = a.animationName === "szPislog" ? 0 : d * frac;
+    });
+  }
+  function lnCimke(fig, allapot, szoveg) {
+    fig.className = allapot === "ok" ? "" : allapot;
+    fig.querySelector(".fm-meres").innerHTML = (szoveg ? '<br>' + szoveg : "") + '<br><span class="cimke ' + allapot + '">' + ({ hiba: "HIBA", gyanu: "FURCSA", ok: "rendben" })[allapot] + '</span>';
+  }
+  /* mérés: a látható rajz (nézet-réteg, ill. oldalrajz) befoglaló doboza — a tüsszentés-szikra és a buborék nélkül */
+  function lnMer(fig) {
+    var el = fig.querySelector(".fm-ln-flip"), g = el.querySelector(".ln-nezet-reteg") || el.querySelector(".sh-kolyok");
+    var rejt = g.querySelectorAll("[data-szikra], .ln-buborek");
+    Array.prototype.forEach.call(rejt, function (e) { e.style.display = "none"; });
+    var b = g.getBBox();
+    Array.prototype.forEach.call(rejt, function (e) { e.style.display = ""; });
+    var al = b.y + b.height, baj = [];
+    if (b.x < LN_VB[0] || b.y < LN_VB[1] || b.x + b.width > LN_VB[0] + LN_VB[2] || al > LN_VB[1] + LN_VB[3]) baj.push("kilóg a képből");
+    if (Math.abs(al) > 2.5) baj.push("a talp " + al.toFixed(1) + "-en, nem a földön");
+    if (el.getAttribute("data-nezet") !== "oldal" && !el.querySelector(".ln-nezet-reteg")) baj.push("nincs nézet-réteg");
+    lnCimke(fig, baj.length ? (baj[0] === "kilóg a képből" ? "hiba" : "gyanu") : "ok", baj.join(", "));
+  }
+  function lnBeallit(fm) {
+    var k = fm.querySelector("#fm-hg-kapcs");
+    k.checked = fm.classList.contains("horgony");
+    k.onchange = function () { fm.classList.toggle("horgony", k.checked); };
+    Array.prototype.forEach.call(fm.querySelectorAll("#fm-ln .fm-ln-sor"), function (sor) {
+      Array.prototype.forEach.call(sor.querySelectorAll(".fm-ln-flip"), function (el) {
+        var nz = el.getAttribute("data-nezet");
+        if (nz !== "oldal") UC.lenyNezetMutat(el, nz);
+      });
+      lnFagyaszt(sor, +sor.getAttribute("data-fazis"));
+      Array.prototype.forEach.call(sor.querySelectorAll("figure"), lnMer);
+    });
+    lnFordulFelvesz();
+    lnPorogFelvesz();
+  }
+  function lnKartya(html, cim, allapot, szoveg) {
+    return '<figure class="' + (allapot === "ok" ? "" : allapot) + '">' + html + '<figcaption><b>' + cim + '</b>' + (szoveg ? '<br>' + szoveg : "") +
+      '<br><span class="cimke ' + allapot + '">' + ({ hiba: "HIBA", gyanu: "FURCSA", ok: "rendben" })[allapot] + '</span></figcaption></figure>';
+  }
+  function lnVan(el) { return { reteg: el.querySelector(".ln-nezet-reteg"), oldalLatszik: el.querySelector(".sh-kolyok").style.visibility !== "hidden", dir: /scale\(\s*-1/.test(el.style.transform) ? -1 : 1 }; }
+  var LN_FELVETEL = [["sapka", 10], ["kopeny", 10]];
+  /* FORDULÁS jobbról balra: közben felénk néz (1A), utána balra néz, és nem marad nézet-réteg */
+  function lnFordulFelvesz() {
+    var hely = document.getElementById("fm-ln-fordul"), gy = hely.querySelector(".fm-lnszin");
+    gy.outerHTML = lnKep("oldal", LN_FELVETEL, "", "");
+    gy = hely.querySelector(".fm-lnszin");
+    var el = gy.querySelector(".fm-ln-flip"), kozben = null;
+    var ms = UC.lenyFordul(el, -1, function () {
+      var v = lnVan(el), jo = !v.reteg && v.oldalLatszik && v.dir === -1;
+      var out = (kozben ? lnKartya(kozben.html, "Fordulás közben", kozben.nezet === UC.LENY_FORDUL.nezet ? "ok" : "hiba", "felénk néz (" + LN_NEV[kozben.nezet] + "), " + ms + " ms") : "") +
+        lnKartya(gy.outerHTML, "Fordulás után", jo ? "ok" : "hiba", jo ? "balra néz, a nézet-réteg eltűnt" : "maradt nézet-réteg, rejtett oldalrajz vagy rossz irány");
+      if (!ms) out = lnKartya(gy.outerHTML, "Fordulás", "gyanu", "a gépen be van kapcsolva a mozgás-csökkentés: rögtön tükröz (ez így helyes)");
+      hely.innerHTML = out;
+      lnFagyaszt(hely, 0);
+    });
+    var r = el.querySelector(".ln-nezet-reteg .sarkany");
+    if (r) kozben = { nezet: r.getAttribute("data-nezet"), html: gy.outerHTML };
+  }
+  /* PÖRGÉS: a 4 nézet lefényképezve (oldal → szemből → a másik oldal → hátulról), a végén vissza az eredeti irányba */
+  function lnPorogFelvesz() {
+    var hely = document.getElementById("fm-ln-porog"), gy = hely.querySelector(".fm-lnszin");
+    gy.outerHTML = lnKep("oldal", LN_FELVETEL, "", "");
+    gy = hely.querySelector(".fm-lnszin");
+    var el = gy.querySelector(".fm-ln-flip"), keretek = [], utolso = "";
+    var mo = new MutationObserver(function () {
+      var v = lnVan(el), nz = v.reteg ? v.reteg.querySelector(".sarkany").getAttribute("data-nezet") : "oldal", kulcs = nz + v.dir;
+      if (kulcs !== utolso && keretek.length < 4) { keretek.push({ nz: nz, dir: v.dir, html: gy.outerHTML }); utolso = kulcs; }
+    });
+    mo.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+    UC.lenyPorog(el, 800, function () {
+      mo.disconnect();
+      var vart = ["oldal1", "elol1", "oldal-1", "hatul1"], v = lnVan(el), out = "";
+      keretek.forEach(function (k, i) {
+        var jo = k.nz + k.dir === vart[i];
+        out += lnKartya(k.html, "Pörgés " + (i + 1) + ".", jo ? "ok" : "hiba", LN_NEV[k.nz] + (k.nz === "oldal" ? (k.dir < 0 ? " (balra)" : " (jobbra)") : ""));
+      });
+      if (!keretek.length) out = lnKartya(gy.outerHTML, "Pörgés", "gyanu", "nem pörgött (mozgás-csökkentés a gépen?)");
+      var jo = !v.reteg && v.oldalLatszik && v.dir === 1;
+      out += lnKartya(gy.outerHTML, "Pörgés után", jo ? "ok" : "hiba", jo ? "jobbra néz, mint előtte; nem maradt nézet-réteg" : "maradt nézet-réteg vagy rossz irány");
+      hely.innerHTML = out;
+      lnFagyaszt(hely, 0);
+    });
   }
   /* a VALÓDI közös pörgés-függvényt (uniPorog) futtatjuk egy rejtett figurán, és lefényképezzük a 4 nézetét */
   function porgesFelvesz() {
