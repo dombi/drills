@@ -166,9 +166,10 @@ function bkBub(x, y, szoveg, ki) {
   setTimeout(function () { if (uj.parentNode) uj.remove(); }, Math.max(2600, szoveg.length * 90));   /* a buborék nem marad a képen (ne takarjon) */
 }
 /* rossz válasz: a motor könyvelése (mint a mérés koppintós kártyáinál), a kép felel, a sor csak röviden */
+/* szoveg = "": nincs kiírás — amit a kép mutat (a vevő visszatol, a tenyerére néz, hazaér), azt nem meséljük el (producer, 2026-10-24) */
 function bkRossz(f, cimke, szoveg, kimond) {
   rosszValaszKonyvel(f, cimke);
-  var v = $("visszajelzes"); v.className = "visszajelzes rossz"; v.textContent = szoveg;
+  var v = $("visszajelzes"); v.className = "visszajelzes" + (szoveg ? " rossz" : ""); v.textContent = szoveg;
   if (kimond) mondd(kimond);
   ment();
 }
@@ -376,7 +377,7 @@ function bkFizetVege(f, l, p) {
     var utso = p.slice().sort(function (a, b) { return (b.t || 0) - (a.t || 0); })[0];
     utso.hol = "tarca"; bkPultraHelyez(); bkErmekRajz(); BK.uni.poz("gondol", 1800);
     setTimeout(function () { if (BK && BK.f === f) bkVevoRajz("vidam"); }, 1800);
-    bkRossz(f, "sok", vn + " visszatolt egy érmét.", "Ez sok lesz!");
+    bkRossz(f, "sok", "", "Ez sok lesz!");
   }
   bkOsszegRajz();
 }
@@ -396,11 +397,11 @@ function bkVisszaKesz() {
     BK.lezart = false; bkKeszGomb();
     if (ell.ok === "keves") {
       bkVevoRajz("gondol"); bkBub(BK_VB[0], BK_VB[1], "…", "vevo"); BK.tuske.pozIdeig("gondol", 2200); BK.uni.poz("gondol", 2200);
-      bkRossz(f, "kevés", vn + " a tenyerére néz, és vár.", vn + " még vár.");
+      bkRossz(f, "kevés", "", null);
     } else {
       bkVevoRajz("gondol"); bkBub(BK_VB[0], BK_VB[1], "Ez sok!", "vevo"); BK.tuske.pozIdeig("meglep", 1800); BK.uni.poz("gondol", 1800);
       var utso = adott[adott.length - 1]; BK.ermek.splice(BK.ermek.indexOf(utso), 1); bkTenyerbeHelyez(); bkErmekRajz();
-      bkRossz(f, "sok", vn + " visszaadott egy érmét: ez sok volt.", "Ez sok!");
+      bkRossz(f, "sok", "", "Ez sok!");
     }
     bkSzalagRajz();
   }, lkCsokkent() ? 0 : 900);
@@ -523,7 +524,7 @@ function bkPecsetKatt(v) {
     } else {   /* hibás blokkra ✓: a vevő hazaér, kirakja a kosarát */
       bkJegyez({ jo: false, ok: "nem-vette-eszre" });
       BK.fazis = "otthon";
-      bkRossz(f, "✓", FIGURA[f.bolt.vevo].n + " hazaért… Nézd meg, mi történt!", null);
+      bkRossz(f, "✓", "", null);
       setTimeout(function () { if (BK && BK.f === f) bkOtthonRajz(); }, 1000);
     }
   });
