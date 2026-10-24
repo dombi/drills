@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beváltás sárkánytűzzel — rajzterv</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>/*__STYLE__*/</style>
+<style>
+  :root{ --rt-bg:#fdf4fb; --rt-panel:#fff; --rt-ink:#2a2140; --rt-muted:#6b6280; --rt-violet:#8a4fd0; --rt-violet-soft:#ece0fb;
+         --rt-green:#3f9e6a; --rt-green-soft:#dff3e7; --rt-line:#efe4f4; --rt-warn-soft:#fff3dc; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --rt-bg:#1d1828; --rt-panel:#27203a; --rt-ink:#f1ebfb; --rt-muted:#b8aecb; --rt-line:#3a3150;
+      --rt-violet-soft:#35264f; --rt-green-soft:#1f3a2b; --rt-warn-soft:#3d2f14; }
+  }
+  :root[data-theme="dark"]{ --rt-bg:#1d1828; --rt-panel:#27203a; --rt-ink:#f1ebfb; --rt-muted:#b8aecb; --rt-line:#3a3150;
+      --rt-violet-soft:#35264f; --rt-green-soft:#1f3a2b; --rt-warn-soft:#3d2f14; }
+  html, body{ height:auto!important; overflow:auto!important; position:static!important; }
+  body{ margin:0!important; padding:28px 16px 70px!important; background:var(--rt-bg)!important; color:var(--rt-ink)!important;
+        font-family:"Segoe UI",system-ui,sans-serif!important; line-height:1.55; display:block!important; user-select:auto!important; }
+  .rt-wrap{ max-width:900px; margin:0 auto; }
+  .rt-top{ background:linear-gradient(120deg,#e08a3a 0%,#8a4fd0 100%); color:#fff; border-radius:22px; padding:24px 26px 20px; position:relative; overflow:hidden; }
+  .rt-top::after{ content:"🔥"; position:absolute; right:18px; top:2px; font-size:92px; opacity:.22; transform:rotate(10deg); }
+  .rt-top h1{ margin:0 0 6px; font-size:26px; color:#fff; }
+  .rt-top p{ margin:0; max-width:640px; opacity:.95; }
+  .rt-chips{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .rt-chip{ background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:3px 12px; font-size:13px; font-weight:600; }
+  .rt-wrap h2{ font-size:20px; margin:32px 0 10px; padding-left:12px; border-left:6px solid var(--rt-violet); color:var(--rt-ink); }
+  .rt-panel{ background:var(--rt-panel); border:1px solid var(--rt-line); border-radius:16px; padding:14px 18px; }
+  .rt-lead{ color:var(--rt-muted); }
+  .rt-szin{ border-radius:14px; overflow:hidden; border:1px solid var(--rt-line); background:#f8ecd9; }
+  .rt-szin svg{ width:100%; height:auto; display:block; }
+  .rt-szin svg .bk-erme, .rt-szin svg .rt-kopp{ cursor:pointer; }
+  .rt-gombok, .rt-kapcs{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; align-items:center; font-size:14px; color:var(--rt-muted); }
+  .rt-gombok button, .rt-kapcs button{ font:600 14px "Segoe UI",system-ui,sans-serif; border:2px solid #c9a8e6; background:#fff; color:#4a3b7a;
+        border-radius:999px; padding:6px 14px; cursor:pointer; min-height:36px; }
+  .rt-kapcs button.be{ background:#8a4fd0; color:#fff; border-color:#8a4fd0; }
+  .rt-dont{ background:var(--rt-panel); border:2px solid var(--rt-violet-soft); border-radius:14px; padding:10px 16px; margin:10px 0; }
+  .rt-ok{ background:var(--rt-green-soft); border-color:transparent; }
+  .rt-warn{ background:var(--rt-warn-soft); border-color:transparent; }
+  .rt-wrap ul, .rt-wrap ol{ margin:.4em 0; padding-left:22px; } .rt-wrap li{ margin:.3em 0; }
+  .rt-ket{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+  @keyframes rtIzzik { 0%,100% { filter:none; } 50% { filter:brightness(1.35) drop-shadow(0 0 6px #ffd27a); } }
+  .rt-izzik{ animation:rtIzzik .5s ease-in-out 2; }
+</style>
+</head>
+<body>
+<div class="rt-wrap">
+
+<header class="rt-top">
+  <h1>Beváltás sárkánytűzzel — rajzterv</h1>
+  <p>Elfogy a tízes: a gyerek megtölti a tízes-keretet, megkoppintja a kölyköt, és a tallérok egyetlen tízessé olvadnak. A bolt, Tüske néni, az unikornis és a kölyök a játék valódi rajzolójával; a keret, a tűz és a „fuj” mozdulat próba-változat.</p>
+  <div class="rt-chips"><span class="rt-chip">Rajzterv · jóváhagyásra vár</span><span class="rt-chip">2026-10-24</span><span class="rt-chip">Tervlap: bevaltas-sarkanytuz-terv.html</span></div>
+</header>
+
+<h2>1. Próbáld ki: „Elfogyott a tízesem!”</h2>
+<p class="rt-lead">Koppints a kassza talléraira: átlebegnek a keretbe, és annyi helyet foglalnak, amennyit érnek. Ami nem fér be, visszapattan. Ha tele a keret, koppints a kölyökre (félig töltött keretnél csak pöfög egyet).</p>
+<div class="rt-kapcs" id="k-fok">Fok: <button data-v="1" class="be">1. tíz egyes</button><button data-v="2">2. vegyes (1, 2, 5)</button></div>
+<div class="rt-szin"><svg id="sz-bev" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok"><button id="b-ujra">↺ Újra</button><button id="b-lassu">Lassítva (×3)</button></div>
+
+<h2>2. Kölyök nélkül: az unikornis szarva</h2>
+<p class="rt-lead">Ha még nincs hazatért kölyök, a gyerek a saját unikornisát koppintja meg: a szarva szikrázva olvasztja össze a tele keretet, tűz nélkül.</p>
+<div class="rt-szin"><svg id="sz-uni" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok"><button id="b-uni">▶ Tele keret, koppintás az unikornisra</button></div>
+
+<h2>3. A keret szabályai</h2>
+<div class="rt-panel">
+  <ul>
+    <li><b>10 hely, egy sorban</b>, a tízes színével keretezve (ugyanaz a kék, mint a tízes rúd és a tízes tallér); a beváltott tallérok helyei az egyes rózsaszínjében.</li>
+    <li><b>Minden tallér annyi helyet foglal, amennyit ér</b>: az 5-ös öt helyet, a 2-es kettőt. A tallér a helyei közepén ül, alatta a helyek színesek.</li>
+    <li><b>Visszaveheti:</b> a keretben lévő tallérra koppintva visszamegy a kasszába (mint a pultnál).</li>
+    <li><b>Nem fér be</b> → visszapattan, Tüske néni: „Ez már nem fér be.” Nem hiba, nem könyvelődik.</li>
+    <li><b>Félig töltött keret + koppintás</b> → kis füstfelhő, a keret marad. Nem hiba.</li>
+    <li><b>Tele + koppintás</b> → a kölyök ráhajol („fuj”), szikrázó tűz, a tallérok felizzanak, középre csúsznak, egy tízessé olvadnak, az új tízes a kassza üres helyére lebeg. Tüske néni: „Most már van tízesünk!” Utána a megszokott visszajáró jön.</li>
+  </ul>
+</div>
+
+<h2>4. Döntések</h2>
+<div class="rt-panel rt-ok">
+  <ol>
+    <li value="4"><b>A keret helye:</b> a pulton, a kölyök előtt, a szalag helyén (a beváltás alatt a szalag és a tálka nem látszik) <i>(javaslat)</i>.</li>
+    <li><b>A tallér helyfoglalása:</b> annyi hely, amennyit ér (a bontás így látszik) <i>(javaslat)</i> — vagy minden tallér egy hely, és csak egyes mehet.</li>
+    <li><b>A tűz és a pöff</b> így mehet (vagy mondd, mit változtassak).</li>
+  </ol>
+  <p style="margin:6px 0 0">Jóváhagyás után (a tervlap 1–3. döntésével együtt): <b>„Beváltás sárkánytűzzel: 1. kör.”</b></p>
+</div>
+
+</div>
+
+<script>
+/* a játék moduljainak minimális környezete (nincs mentés, nincs hang) */
+window.P = function () { return { oltozet: {}, kuld: { rajta: {} }, leny2: { fazis: "kolyok", nev: "Parázs" } }; };
+var mentes = { leny: "ragyogas" }, J = null, GEN = {}, VS_SZIN = {}, KULD_RESZ = 10, SH_RUHA_REND = ["hat", "lab", "nyak", "fej"];
+window.nyugiMod = function () { return false; };
+function visszaTar() { return P(); }
+function kuldRajta() { return ["sal", "sapka"].map(function (id) { return { h: SH_HOLMI_BY[id], n: 10 }; }); }
+</script>
+<script>/*__MODULOK__*/</script>
+<script>
+/* ════════ PROTOTÍPUS: tízes-keret, fuj-mozdulat, tűz, pöff (a kód-körben: bolt-kep.js + kolyok-mozdul.js) ════════ */
+var NS = "http://www.w3.org/2000/svg", LASSU = 1;
+KM_POZ.fuj = { fej: 26, szarny: -10, farok: 8, kar: 20, lean: -12 };   /* ráhajol a keretre */
+var KR = { x0: 432, y: 322, w: 32, k: 2, h: 40 };   /* a keret: 10 hely, egy-egy 32 széles, 2 köz */
+function krX(i) { return KR.x0 + i * (KR.w + KR.k); }
+function uj(t, a) { var e = document.createElementNS(NS, t); for (var k in a || {}) e.setAttribute(k, a[k]); return e; }
+function keretSVG() {
+  var T = HE_SZIN[10], s = '<g class="rt-keret"><rect x="' + (KR.x0 - 8) + '" y="' + (KR.y - 8) + '" width="' + (10 * (KR.w + KR.k) + 14) + '" height="' + (KR.h + 16) + '" rx="10" fill="#fffaf0" stroke="' + T.k + '" stroke-width="2.6"/>';
+  for (var i = 0; i < 10; i++) s += '<rect class="rt-hely" data-i="' + i + '" x="' + krX(i) + '" y="' + KR.y + '" width="' + KR.w + '" height="' + KR.h + '" rx="6" fill="none" stroke="#c9b6dc" stroke-width="1.6" stroke-dasharray="4 4"/>';
+  s += '<text x="' + (KR.x0 + 170) + '" y="' + (KR.y + KR.h + 26) + '" text-anchor="middle" font-size="13" font-family="Fredoka,sans-serif" fill="' + T.k + '">tízes-keret</text>';
+  return s + '<g class="rt-csempek"></g></g>';
+}
+function jelenet(svgId, kolyok) {
+  var svg = document.getElementById(svgId), S = { svg: svg, kolyok: kolyok, bent: [], fok: 1 };
+  BK = { svg: svg, forma: "vissza" }; bkBoltAlap(); S.BK = BK; S.tuske = BK.tuske; S.uni = BK.uni;
+  var r = svg.querySelector(".bk-vevo"); if (r) r.innerHTML = "";
+  if (kolyok) { S.k = new KolyokFig(svg.querySelector(".bk-kolyok"), { x: 650, y: 268, s: 1.64 * KM_ARANY, dir: -1, poz: "var" }); }
+  BK.f = { bolt: { vevo: kolyok ? "kolyok" : "brumi", forma: "vissza" } }; bkKasszaRajz("vissza");
+  svg.querySelector(".bk-szalag").innerHTML = keretSVG();
+  S.csempe = svg.querySelector(".rt-csempek");
+  /* a koppintható kölyök / unikornis: átlátszó célterület */
+  var kopp = uj("rect", { "class": "rt-kopp", x: kolyok ? 590 : 230, y: kolyok ? 160 : 230, width: kolyok ? 120 : 200, height: kolyok ? 110 : 100, fill: "transparent" });
+  svg.appendChild(kopp); kopp.addEventListener("click", function () { olvaszt(S); });
+  svg.addEventListener("click", function (e) {
+    var g = e.target.closest && e.target.closest(".bk-erme"); if (!g || S.olvad) return;
+    if (g._kassza) betesz(S, +g.getAttribute("data-v"), g);
+    else if (g._bent) kivesz(S, g);
+  });
+  kasszaRak(S);
+  return S;
+}
+function bub(S, x, y, t, ki) { var o = BK; BK = S.BK; bkBub(x, y, t, ki); BK = o; }
+function erme(S, v, x, y) {
+  var g = uj("g", { "class": "bk-erme", "data-v": v, style: "transform:translate(" + x + "px," + y + "px)" });
+  g.innerHTML = '<circle r="' + (BK_ER[v] + 8) + '" fill="transparent"/>' + tallerBelso(v); g._x = x; g._y = y;
+  S.svg.querySelector(".bk-ermek").appendChild(g); return g;
+}
+function lebeg(S, g, x, y, ido) { szarvVarazs(g, g._x, g._y, x, y, { nyom: S.svg.querySelector(".bk-szikra"), ido: (ido || 650) * LASSU }); g._x = x; g._y = y; }
+function kasszaRak(S) {
+  Array.prototype.forEach.call(S.svg.querySelectorAll(".bk-erme"), function (g) { g.remove(); });
+  S.bent = []; S.csempe.innerHTML = ""; S.olvad = false;
+  var ures = S.svg.querySelector(".rt-ures"); if (ures) ures.remove();
+  BK_KASSZA.forEach(function (v, i) {
+    var x = 52 + i * 46, y = 413;
+    if (v === 10) {   /* elfogyott: üres hely */
+      S.svg.querySelector(".bk-ermek").insertAdjacentHTML("beforebegin", '<circle class="rt-ures" cx="' + x + '" cy="' + y + '" r="' + BK_ER[10] + '" fill="none" stroke="' + HE_SZIN[10].k + '" stroke-width="2" stroke-dasharray="4 4"/>');
+      return;
+    }
+    var g = erme(S, v, x, y); g._kassza = true;
+    if (v > 5 || (S.fok === 1 && v !== 1)) { g.setAttribute("opacity", ".35"); g._kassza = false; }   /* 1. fokon csak egyes van */
+  });
+}
+function foglalt(S) { var n = 0; S.bent.forEach(function (b) { n += b.v; }); return n; }
+function csempeRajz(S) {
+  var s = "", i = 0, E = HE_SZIN[1];
+  S.bent.forEach(function (b) {
+    s += '<rect x="' + krX(i) + '" y="' + KR.y + '" width="' + (b.v * (KR.w + KR.k) - KR.k) + '" height="' + KR.h + '" rx="6" fill="' + E.l + '" stroke="' + E.k + '" stroke-width="1.6"/>';
+    b.cx = krX(i) + (b.v * (KR.w + KR.k) - KR.k) / 2; i += b.v;
+  });
+  S.csempe.innerHTML = s;
+  S.bent.forEach(function (b) { if (b.g._x !== b.cx || b.g._y !== KR.y + KR.h / 2) lebeg(S, b.g, b.cx, KR.y + KR.h / 2, 420); });   /* csak ami arrébb kerül */
+}
+function betesz(S, v, forras) {
+  var szabad = 10 - foglalt(S), g = erme(S, v, forras._x, forras._y);
+  if (v > szabad) {   /* nem fér be: odalebeg, visszapattan */
+    lebeg(S, g, krX(9 - szabad + 1) + 10, KR.y - 10, 500);
+    setTimeout(function () { lebeg(S, g, forras._x, forras._y, 500); setTimeout(function () { g.remove(); }, 520 * LASSU); }, 520 * LASSU);
+    bub(S, BK_TB[0], BK_TB[1], "Ez már nem fér be.", "tuske"); S.tuske.pozIdeig("gondol", 1600); return;
+  }
+  S.uni.poz("szarvvar", 800);
+  g._bent = true; S.bent.push({ v: v, g: g }); csempeRajz(S);
+}
+function kivesz(S, g) {
+  var i = -1; S.bent.forEach(function (b, j) { if (b.g === g) i = j; }); if (i < 0) return;
+  S.bent.splice(i, 1); var x0 = 52 + BK_KASSZA.indexOf(+g.getAttribute("data-v")) * 46;
+  lebeg(S, g, x0, 413, 500); setTimeout(function () { g.remove(); }, 520 * LASSU); csempeRajz(S);
+}
+/* a tűz: szikrázó lángnyelvek a kölyök orrától a keretig */
+function tuz(S, x0, y0, x1, y1) {
+  var g = S.svg.querySelector(".bk-szikra");
+  for (var i = 0; i < 18; i++) (function (i) {
+    setTimeout(function () {
+      var p = uj("path", { d: "M0 -15Q10 -3 0 15Q-10 -3 0 -15Z", fill: ["#ffd24d", "#ffb347", "#ff8a3d", "#fff3a8"][i % 4], opacity: ".95" });
+      g.appendChild(p);
+      var dx = (Math.random() - .5) * 60, a = p.animate([
+        { transform: "translate(" + x0 + "px," + y0 + "px) scale(.4)", opacity: 1 },
+        { transform: "translate(" + ((x0 + x1) / 2 + dx / 2) + "px," + ((y0 + y1) / 2) + "px) scale(1.1) rotate(" + (dx * 2) + "deg)", opacity: 1 },
+        { transform: "translate(" + (x1 + dx) + "px," + y1 + "px) scale(.6)", opacity: 0 }], { duration: 650 * LASSU, easing: "ease-out" });
+      a.onfinish = function () { p.remove(); };
+    }, i * 45 * LASSU);
+  })(i);
+}
+function poff(S, x, y) {   /* kis füstfelhő */
+  var g = S.svg.querySelector(".bk-szikra");
+  [[0, 0, 15], [16, -9, 11], [-14, -8, 10], [6, -22, 8]].forEach(function (c, i) {
+    var k = uj("circle", { r: c[2], fill: "#e9e2f0", stroke: "#c9b6dc", "stroke-width": "1.4" }); g.appendChild(k);
+    var a = k.animate([{ transform: "translate(" + x + "px," + y + "px) scale(.3)", opacity: .9 },
+      { transform: "translate(" + (x + c[0] - 8) + "px," + (y + c[1] - 26) + "px) scale(1.2)", opacity: 0 }], { duration: 900 * LASSU, delay: i * 60 * LASSU, easing: "ease-out" });
+    a.onfinish = function () { k.remove(); };
+  });
+}
+function olvaszt(S) {
+  if (S.olvad) return;
+  var orr = S.kolyok ? [650 - 53 * 1.64 * KM_ARANY, 268 - 54 * 1.64 * KM_ARANY] : [380, 250], kozep = [KR.x0 + 170, KR.y + KR.h / 2];
+  if (foglalt(S) < 10) {   /* félig töltött: pöff, semmi más */
+    if (S.kolyok) { S.k.poz("fuj", 700); setTimeout(function () { poff(S, orr[0] - 6, orr[1] + 6); }, 250 * LASSU); }
+    else { S.uni.poz("szarvvar", 600); poff(S, 360, 230); }
+    return;
+  }
+  S.olvad = true;
+  if (S.kolyok) { S.k.poz("fuj", 1500 * LASSU); setTimeout(function () { tuz(S, orr[0] - 6, orr[1] + 8, kozep[0], kozep[1]); }, 300 * LASSU); }
+  else { S.uni.poz("szarvvar", 1500 * LASSU); setTimeout(function () { tuz(S, 360, 230, kozep[0], kozep[1]); }, 300 * LASSU); }
+  setTimeout(function () {   /* felizzanak, középre csúsznak, eltűnnek */
+    S.bent.forEach(function (b) { b.g.classList.add("rt-izzik"); });
+    setTimeout(function () {
+      S.bent.forEach(function (b) {
+        var a = b.g.animate([{ transform: "translate(" + b.g._x + "px," + b.g._y + "px) scale(1)" }, { transform: "translate(" + kozep[0] + "px," + kozep[1] + "px) scale(.2)", opacity: .2 }], { duration: 450 * LASSU, easing: "ease-in", fill: "forwards" });
+        a.onfinish = function () { b.g.remove(); };
+      });
+      S.csempe.innerHTML = "";
+      setTimeout(function () {   /* az új tízes: felpattan, aztán a kassza üres helyére lebeg */
+        var t = erme(S, 10, kozep[0], kozep[1]);
+        t.animate([{ transform: "translate(" + kozep[0] + "px," + kozep[1] + "px) scale(.2)" }, { transform: "translate(" + kozep[0] + "px," + (kozep[1] - 14) + "px) scale(1.35)" }, { transform: "translate(" + kozep[0] + "px," + kozep[1] + "px) scale(1)" }], { duration: 520 * LASSU });
+        S.tuske.pozIdeig("orul", 1800); S.uni.poz("orul", 1800); if (S.kolyok) S.k.poz("orul", 2000);
+        bub(S, BK_TB[0], BK_TB[1], "Most már van tízesünk!", "tuske");
+        setTimeout(function () { lebeg(S, t, 52 + 3 * 46, 413, 800); var u = S.svg.querySelector(".rt-ures"); if (u) setTimeout(function () { u.remove(); }, 800 * LASSU); }, 800 * LASSU);
+      }, 470 * LASSU);
+    }, 900 * LASSU);
+  }, 950 * LASSU);
+}
+
+var S1 = jelenet("sz-bev", true), S2 = jelenet("sz-uni", false);
+setTimeout(function () { bub(S1, BK_TB[0], BK_TB[1], "Elfogyott a tízesem! Váltsunk be egyet?", "tuske"); }, 600);
+document.getElementById("b-ujra").addEventListener("click", function () { kasszaRak(S1); S1.k.poz("var"); bub(S1, BK_TB[0], BK_TB[1], "Elfogyott a tízesem! Váltsunk be egyet?", "tuske"); });
+document.getElementById("b-lassu").addEventListener("click", function () { LASSU = LASSU === 1 ? 3 : 1; this.textContent = LASSU === 1 ? "Lassítva (×3)" : "Rendes sebesség"; });
+document.getElementById("k-fok").addEventListener("click", function (e) {
+  var b = e.target.closest("button"); if (!b) return;
+  Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) { x.classList.toggle("be", x === b); });
+  S1.fok = +b.getAttribute("data-v"); kasszaRak(S1);
+});
+document.getElementById("b-uni").addEventListener("click", function () {
+  kasszaRak(S2); S2.fok = 2;
+  [5, 2, 2, 1].forEach(function (v, i) { setTimeout(function () { var f = { _x: 52 + BK_KASSZA.indexOf(v) * 46, _y: 413 }; betesz(S2, v, f); }, i * 350); });
+  setTimeout(function () { olvaszt(S2); }, 2000);
+});
+</script>
+</body>
+</html>

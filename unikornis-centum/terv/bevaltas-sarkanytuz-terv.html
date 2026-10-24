@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beváltás sárkánytűzzel</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn-soft:#fff3dc;
+    --egyes:#f7b6cf; --egyes-d:#d0517f; --tizes:#a9cdf0; --tizes-d:#4f86c2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; }
+  }
+  :root[data-theme="dark"]{ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#e08a3a 0%,#8a4fd0 100%);color:#fff;border-radius:22px;padding:26px 26px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🔥";position:absolute;right:18px;top:4px;font-size:92px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .ok{background:var(--green-soft);border-color:transparent}
+  .warn{background:var(--warn-soft);border-color:transparent}
+  .dont{background:var(--panel);border:2px solid var(--violet-soft);border-radius:14px;padding:12px 16px;margin:10px 0}
+  .dont b.n{color:var(--violet)}
+  .jav{color:var(--green);font-weight:700}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .sketch{background:#f8ecd9;border-radius:14px;padding:8px;margin:10px 0}
+  .sketch svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Beváltás sárkánytűzzel</h1>
+  <div class="sub">Tüske néni boltjában elfogy a tízes. A gyerek tíz helyet tölt meg tallérokkal, a kölyök ráfúj, és a tíz egyes egyetlen tízessé olvad össze.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-10-24</span>
+    <span class="chip">Közepes · 1 kód-kör</span>
+    <span class="chip">Rajzterv: bevaltas-rajzterv.html</span>
+  </div>
+</header>
+
+<h2>0. Miért, és mi a könyv-alap</h2>
+<div class="panel">
+  <ul>
+    <li><b>A helyi érték alapja:</b> 10 egyes = 1 tízes. A jóváhagyott életszerű tervlap könyv-átnézése (OH 2–3. o., pénzes feladatok, tízes átlépés) erre épít; Dienes szerint a beváltást a gyerek <b>kézzel csinálja</b>, és akkor érti, ha szükség van rá.</li>
+    <li><b>Már jóváhagyott irány:</b> a tallér-rajzterv (piacter-rajzterv.html, 5. pont) a beváltást a boltba tette („Tüske néni felváltást kér”), a tízes-kerettel egy sorban; a kép eddig hiányzott.</li>
+    <li><b>Bontás, mint a vers:</b> a keret 10 helyét nemcsak egyesekkel lehet kitölteni, hanem 5 + 2 + 2 + 1-gyel is. Ez a tízes bontása, a játék egyik alapja.</li>
+    <li><b>Nem új pálya:</b> a ② Visszajáró egy közjátéka; a pálya hossza, a jutalom és a nyitás nem változik. Húzószó-csíra: nincs új.</li>
+  </ul>
+</div>
+
+<h2>1. Mit csinál a gyerek a képen?</h2>
+<div class="sketch">
+<svg viewBox="0 0 800 300" role="img" aria-label="Vázlat: balra a kassza egyesekkel, jobbra a pulton a tízes-keret 10 hellyel, fölötte a kölyök">
+  <rect x="20" y="210" width="280" height="56" rx="10" fill="#b07a4c" stroke="#7a4f2c" stroke-width="3"/>
+  <circle cx="60" cy="238" r="15" fill="#f7b6cf" stroke="#d0517f" stroke-width="2"/><text x="60" y="243" text-anchor="middle" font-size="13" fill="#7a2a4a">1</text>
+  <circle cx="104" cy="238" r="16" fill="#f7b6cf" stroke="#d0517f" stroke-width="2"/><text x="104" y="243" text-anchor="middle" font-size="13" fill="#7a2a4a">2</text>
+  <circle cx="150" cy="238" r="17" fill="#f7b6cf" stroke="#d0517f" stroke-width="2"/><text x="150" y="243" text-anchor="middle" font-size="13" fill="#7a2a4a">5</text>
+  <circle cx="198" cy="238" r="18" fill="none" stroke="#4f86c2" stroke-width="2" stroke-dasharray="4 4"/><text x="198" y="243" text-anchor="middle" font-size="12" fill="#4f86c2">10?</text>
+  <text x="160" y="200" text-anchor="middle" font-size="13" fill="#7a4f2c">kassza — elfogyott a tízes</text>
+  <rect x="380" y="150" width="400" height="56" rx="10" fill="#fffaf0" stroke="#4f86c2" stroke-width="2.4"/>
+  <rect x="388" y="158" width="190" height="40" rx="6" fill="#f7b6cf" stroke="#d0517f" stroke-width="1.6"/><text x="483" y="184" text-anchor="middle" font-size="16" fill="#7a2a4a">5</text>
+  <rect x="582" y="158" width="74" height="40" rx="6" fill="#f7b6cf" stroke="#d0517f" stroke-width="1.6"/><text x="619" y="184" text-anchor="middle" font-size="16" fill="#7a2a4a">2</text>
+  <g fill="none" stroke="#c9b6dc" stroke-width="1.6" stroke-dasharray="4 4"><rect x="660" y="158" width="36" height="40" rx="6"/><rect x="700" y="158" width="36" height="40" rx="6"/><rect x="740" y="158" width="36" height="40" rx="6"/></g>
+  <text x="580" y="226" text-anchor="middle" font-size="13" fill="#6b6280">tízes-keret: minden tallér annyi helyet foglal, amennyit ér — még 3 hely üres</text>
+  <ellipse cx="700" cy="88" rx="40" ry="30" fill="#cfb6ee" stroke="#6a4f9e" stroke-width="2"/><text x="700" y="94" text-anchor="middle" font-size="13" fill="#2a2140">kölyök</text>
+  <path d="M664 104 Q640 130 600 140" fill="none" stroke="#f0a24b" stroke-width="3" stroke-dasharray="3 5"/>
+  <text x="570" y="118" font-size="12" fill="#b0602a">tűz csak ha tele</text>
+</svg>
+</div>
+<div class="panel">
+  <ol>
+    <li><b>Elfogy a tízes.</b> Kb. minden negyedik visszajárónál (a „tízesből” foknál, ahol tízesekkel kell visszaadni) a kasszában a tízes helye üres. Tüske néni: „Elfogyott a tízesem! Váltsunk be egyet?” A pulton megjelenik a <b>tízes-keret</b>: egy sorban 10 hely, a tízes színével keretezve.</li>
+    <li><b>A gyerek megtölti a keretet.</b> A kassza 1-es, 2-es, 5-ös talléraira koppint; a tallér az unikornis szarvával átlebeg, és <b>annyi helyet foglal el a keretben, amennyit ér</b> (az 5-ös öt helyet). Így látszik, hogy 5 + 2 + 2 + 1 is kitölti a tízet, nem csak tíz egyes.</li>
+    <li><b>Ha nem fér be</b> (pl. 3 üres helyre egy 5-öst tenne), a tallér visszapattan, és Tüske néni: „Ez már nem fér be.” Ez nem hiba, nem könyvelődik: csak a kép mutatja.</li>
+    <li><b>Olvasztás.</b> A gyerek <b>megkoppintja a kölyköt</b>. Ha a keret tele van, a kölyök ráhajol, és apró, szikrázó tüzet fúj rá: a tallérok felizzanak, középre csúsznak, és egyetlen tízessé olvadnak; az új tízes a szarvvarázzsal a kassza üres helyére lebeg. Ha a keret még nincs tele, a kölyök csak egy kis <b>füstfelhőt pöffent</b>, és semmi nem történik.</li>
+    <li><b>Folytatódik a visszajáró</b>, ugyanúgy, mint eddig (tálka, szalag, Kész).</li>
+  </ol>
+  <p class="lead">Kölyök nélkül (még nincs hazatért kölyök) a gyerek a saját unikornisát koppintja meg: a szarva szikrákkal olvasztja össze a tele keretet, tűz nélkül; ha nincs tele, a szarva csak felvillan.</p>
+</div>
+
+<div class="panel warn" style="margin-top:12px">
+  <b>🔒 Kiskapu-védelem:</b> a beváltás nem ad jutalmat, és nem helyettesíti a visszajárót; ✨ csak a jó visszajáró után jár. A tűz csak pontosan 10-nél olvaszt; a keret túltölteni nem lehet (ami nem fér, visszapattan). A kölyök nem súg: amíg a gyerek rakja a keretet, csak vár.
+</div>
+
+<h2>2. Fokok</h2>
+<div class="panel">
+  <table>
+    <tr><th>Fok</th><th>Mi van a kasszában</th><th>Mit tanul</th></tr>
+    <tr><td>1. tíz egyes</td><td>csak egyesek</td><td>10 egyes = 1 tízes (számolás a kereten)</td></tr>
+    <tr><td>2. vegyes</td><td>1, 2, 5 — de egyesből kevés van</td><td>a tízes bontása: 5 + 5, 5 + 2 + 2 + 1…</td></tr>
+    <tr><td>3. tíz tízes <i>(később)</i></td><td>tízesek, százas nincs</td><td>10 tízes = 1 százas (a Százas bújócska után, a „százból” foknál)</td></tr>
+  </table>
+</div>
+
+<div class="dont">
+  <b class="n">1. döntés — mikor jöjjön a 2. fok?</b>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> a beváltás első két alkalmával az 1. fok (tíz egyes), utána a 2. fok (vegyes). Így előbb a kép ül meg, aztán jön a bontás.</li>
+    <li>B) Mindig vegyes.</li>
+  </ul>
+</div>
+<div class="dont">
+  <b class="n">2. döntés — a 3. fok (tíz tízes = egy százas)</b>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> most ne; az élő próba után, külön kis körben.</li>
+    <li>B) Már ebben a körben.</li>
+  </ul>
+</div>
+<div class="dont">
+  <b class="n">3. döntés — ki indítja az olvasztást?</b>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> a gyerek koppintja meg a kölyköt (kölyök nélkül az unikornisát); ő dönti el, hogy tele van-e; ha nem, füstpöff.</li>
+    <li>B) Magától olvad, amint megtelt.</li>
+  </ul>
+</div>
+
+<h2>3. Mi változik a kódban (tájékoztatásul)</h2>
+<div class="panel">
+  <ul>
+    <li><code>src/bolt-kep.js</code>: a visszajáró „tízesből” fokánál beváltás-közjáték (keret, tallérok a keretbe, visszapattanás, koppintás, olvadás, új tízes a kasszába); a feladat ellenőrzése nem változik.</li>
+    <li><code>src/kolyok-mozdul.js</code>: új mozdulat <b>fuj</b> (ráhajol a keretre) + a tűz és a füstpöff rajza; a többi helyszín is használhatja.</li>
+    <li>A tízes-keret a közös helyiérték-színekből (<code>HE_SZIN</code>) rajzol, mint a tallérok és a tízes rudak.</li>
+    <li>Gépi próba: a kiskapu-próba megtanulja a keretet (megtölti, megkoppintja a kölyköt), és ellenőrzi, hogy félig töltött keretnél nincs olvadás.</li>
+  </ul>
+</div>
+
+<h2>4. Döntések összefoglalva</h2>
+<div class="panel ok">
+  <ol>
+    <li>Fokok: <b>A)</b> két alkalom tíz egyessel, utána vegyes.</li>
+    <li>Tíz tízes = egy százas: <b>A)</b> később, külön körben.</li>
+    <li>Olvasztás: <b>A)</b> a gyerek koppintja meg a kölyköt; ha nincs tele, füstpöff.</li>
+  </ol>
+  <p>Jóváhagyás után (a rajztervvel együtt): <b>„Beváltás sárkánytűzzel: 1. kör.”</b></p>
+</div>
+
+</div>
+</body>
+</html>
