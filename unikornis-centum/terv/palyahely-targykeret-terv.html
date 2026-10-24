@@ -60,7 +60,7 @@
   <h1>Pálya-hely és tárgy-keret</h1>
   <div class="sub">Eltűnnek a téglalapok. A pálya egy hely a képben (bódé, ház, tönk), a feladat pedig egy tárgyon él (létrafok, ablak, tábla). Mindkettő egy közös készletből jön, ezért a régi pályák egyetlen adatsorral átállíthatók. Az első két új pálya, a 🪜 Rokon-létra és a 🏡 Számcsalád, már így születik.</div>
   <div class="meta">
-    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">Tervlap · ✅ jóváhagyva 2026-10-24</span>
     <span class="chip">2026-10-24</span>
     <span class="chip">Nagyság: tervlap közepes · kód: rajzterv + 3 kör</span>
     <span class="chip">Visszatérési pont: v2.0-stabil</span>
@@ -118,7 +118,7 @@
       <path d="M470 60 V80 M590 60 V80" stroke="#a87a4e" stroke-width="2"/>
       <path d="M458 38 h144 l6 11 l-6 11 h-144 l-6 -11 z" fill="#fffaf0" stroke="#a87a4e" stroke-width="2.5"/>
       <text x="530" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#6e4a36">Dobozoló-nap</text>
-      <circle cx="452" cy="150" r="12" fill="#fffaf0" stroke="#a87a4e" stroke-width="2"/><text x="452" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#6e4a36">19</text>
+      
       <rect x="566" y="134" width="52" height="22" rx="3" fill="#fffdf6" stroke="#c9ad85" transform="rotate(5 592 145)"/><text x="592" y="150" text-anchor="middle" font-size="11" transform="rotate(5 592 145)">≈70 ✨</text>
       <path d="M602 60 v14" stroke="#8a6a52" stroke-width="1.5"/><text x="602" y="88" text-anchor="middle" font-size="14">🗝️</text>
       <text x="470" y="88" text-anchor="middle" font-size="13">🔔</text>
@@ -137,7 +137,7 @@
     <tr><th>Ma a kártyán</th><th>A pálya-helyen</th><th>Miért így</th></tr>
     <tr><td>név</td><td>fa <b>cégér</b> a hely fölött</td><td>nagy betű, mindig ugyanott</td></tr>
     <tr><td>ikon</td><td>az <b>áru</b> a pulton vagy a ház előtt (a mai <code>PALYA_IKON</code> rajz, nagyobban)</td><td>nincs új rajz, a meglévő ikonok átjönnek</td></tr>
-    <tr><td>sorszám</td><td>kerek <b>házszám</b>-tábla</td><td>a sorrend látszik, de nem tolakszik előre</td></tr>
+    <tr><td>sorszám</td><td><b>eltűnik</b></td><td>a producer döntése (2026-10-24): nem fontos, nem kell kiírni</td></tr>
     <tr><td>⭐ kész / 🌟 arany</td><td><b>zászló</b> a tetőn (aranyra arany zászló)</td><td>messziről látszik, mennyi kész</td></tr>
     <tr><td>🔒 zárva</td><td><b>lakat</b> az ajtón vagy leeresztett ponyva</td><td>a kép mondja, nem a felirat</td></tr>
     <tr><td>💤 alszik (újonc)</td><td>ködös, fakóbb hely (mint ma a Piactéren)</td><td>a mai újonc-köd folytatása</td></tr>
@@ -154,7 +154,7 @@
 
 <h2>5. A hely-fajták (a közös készlet)</h2>
 <div class="panel">
-  <p>Minden hely-fajtának ugyanazok a <b>csatlakozó pontjai</b> vannak: cégér, zászló, ajtó, áru, házszám, és az, hogy hol áll meg az unikornis. Ezért a jelek (4. pont) mindenhol egyformán ülnek fel, csak maga a hely rajza más. Az építés három foka (telek → állvány → kész ház) a Piactér mai <code>piacHazLepes</code> szabályát követi.</p>
+  <p>Minden hely-fajtának ugyanazok a <b>csatlakozó pontjai</b> vannak: cégér, zászló, ajtó, áru, és az, hogy hol áll meg az unikornis. Ezért a jelek (4. pont) mindenhol egyformán ülnek fel, csak maga a hely rajza más. Az építés három foka (telek → állvány → kész ház) a Piactér mai <code>piacHazLepes</code> szabályát követi.</p>
   <div class="tbl"><table>
     <tr><th>Hely-fajta</th><th>Hol</th><th>Mikor</th></tr>
     <tr><td>🛖 <b>bódé</b></td><td>a Tündérvásár sátra a Piactéren (Reggeli vásár, Dobozoló-nap)</td><td>A kör (első használó)</td></tr>
@@ -256,13 +256,14 @@
 </div>
 
 <h2>11. Döntések</h2>
-<div class="dont"><b class="n">1. A „100-ig · ×, :” felirat.</b> Javaslat: eltűnik a helyről, a felolvasás elmondja, a pult látja. <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">2. Koppintás.</b> <b>A) (javaslat)</b> Egy koppintás, és indul, mint ma; a felolvasás a cégér kis csengőjén. <b>B)</b> Az első koppintásra az unikornis odasétál, kinyílik az ajtó, és elmondja, mi ez; a második koppintásra indul. A kevesebb változás miatt az A-t javaslom, a gyerekek ezt szokták meg. <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">3. A ≈ ✨ jutalom.</b> Javaslat: látható marad, egy cetlin a cégéren (Fanninak fontos). <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">4. Sorrend.</b> Javaslat: az A kör a Tündérvásár sátrával kezd. Meglévő pályákon a legkisebb a kockázat, és rögtön látszik a különbség. Utána jön a két új pálya. <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">5. Mikor nyílnak az újonc-menetben?</b> Javaslat: 2–3. o.-ban a 🪜 Rokon-létra a Piactérrel együtt ébred (a Tízesek ösvénye után), a 🏡 Számcsalád a Rokon-létra első végigvitele után. 1. o.-ban a plafon fölött van, 4. o.-tól nyitva. Lilinek és Fanninak minden nyitva. <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">6. A Fejtörő-hegy és a Bagolykönyvtár kimarad</b> (saját világuk van). <span class="tag">jóváhagyásra vár</span></div>
-<div class="dont"><b class="n">7. A hely-fajták listája</b> (5. pont): bódé, ház, tönk/gombaház, munkaasztal, pavilon. <span class="tag">jóváhagyásra vár</span></div>
+<div class="dont"><b class="n">0. A pálya sorszáma</b> (a producer, 2026-10-24): nem fontos, nem kell kiírni; a helyen nincs házszám. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ eldöntve</span></div>
+<div class="dont"><b class="n">1. A „100-ig · ×, :” felirat.</b> Javaslat: eltűnik a helyről, a felolvasás elmondja, a pult látja. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">2. Koppintás.</b> <b>A) (javaslat)</b> Egy koppintás, és indul, mint ma; a felolvasás a cégér kis csengőjén. <b>B)</b> Az első koppintásra az unikornis odasétál, kinyílik az ajtó, és elmondja, mi ez; a második koppintásra indul. A kevesebb változás miatt az A-t javaslom, a gyerekek ezt szokták meg. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">3. A ≈ ✨ jutalom.</b> Javaslat: látható marad, egy cetlin a cégéren (Fanninak fontos). <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">4. Sorrend.</b> Javaslat: az A kör a Tündérvásár sátrával kezd. Meglévő pályákon a legkisebb a kockázat, és rögtön látszik a különbség. Utána jön a két új pálya. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">5. Mikor nyílnak az újonc-menetben?</b> Javaslat: 2–3. o.-ban a 🪜 Rokon-létra a Piactérrel együtt ébred (a Tízesek ösvénye után), a 🏡 Számcsalád a Rokon-létra első végigvitele után. 1. o.-ban a plafon fölött van, 4. o.-tól nyitva. Lilinek és Fanninak minden nyitva. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">6. A Fejtörő-hegy és a Bagolykönyvtár kimarad</b> (saját világuk van). <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
+<div class="dont"><b class="n">7. A hely-fajták listája</b> (5. pont): bódé, ház, tönk/gombaház, munkaasztal, pavilon. <span class="tag" style="background:var(--green-soft);color:var(--green)">✅ jóváhagyva 2026-10-24</span></div>
 
 <h2>12. Kapcsolódó lapok</h2>
 <div class="panel">
