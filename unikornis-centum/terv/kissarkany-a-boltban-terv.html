@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kissárkány a boltban</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --pink:#e0417a; --pink-soft:#ffd6ea; --violet:#8a4fd0; --violet-soft:#ece0fb;
+    --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn:#b86a00; --warn-soft:#fff3dc;
+    --fox:#f4a15e; --fox-d:#b35f28; --mint:#7fd1b0; --mint-d:#3f8f72; --wood:#e9c193; --wood-d:#a87a4e; --sketch:#f2fbef;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+      --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --sketch:#22332a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150;
+    --pink-soft:#4a2338; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; --sketch:#22332a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,var(--mint-d) 0%,var(--violet) 100%);color:#fff;border-radius:22px;padding:26px 26px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"🐉";position:absolute;right:18px;top:4px;font-size:96px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:600px}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  h3{font-size:16px;margin:16px 0 6px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .card h3{margin-top:0}
+  .tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;background:var(--violet-soft);color:var(--violet)}
+  .ok{background:var(--green-soft);border-color:transparent}
+  .warn{background:var(--warn-soft);border-color:transparent}
+  .sketch{background:var(--sketch);border-radius:14px;padding:8px;margin:10px 0}
+  .sketch svg{width:100%;height:auto;display:block}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  .dont{background:var(--panel);border:2px solid var(--violet-soft);border-radius:14px;padding:12px 16px;margin:10px 0}
+  .dont b.n{color:var(--violet)}
+  .jav{color:var(--green);font-weight:700}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Kissárkány a boltban — 1. kör</h1>
+  <div class="sub">A gyerek saját kölyke vevőként jön Tüske néni boltjába, és ő hozza haza a róka blokkját. A róka mindenhol Zsivány lesz.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-10-24</span>
+    <span class="chip">Közepes · 1 kód-kör</span>
+    <span class="chip">Kód: a Vásár-költözés után</span>
+  </div>
+</header>
+
+<h2>0. Miért és mi a határ</h2>
+<div class="panel">
+  <p>A producer kérése: <b>a kissárkány mihamarabb kerüljön be a pályákba</b>, az unikornis <b>mellett</b> legyen aktív, ne helyette. A boltban most egy idegen vevő jön, fizet és elmegy. Ha a gyerek <b>saját</b> kölyke jön (a saját nevével, a küldetésekben megszerzett ruháiban), akkor a feladat a gyerek ügye lesz: a barátjának segít.</p>
+  <ul>
+    <li><b>Ebben a körben:</b> Tüske néni mostani boltja, mind a 3 állomás (Fizesd ki! · Visszajáró · A róka blokkja), és a róka átnevezése mindenhol Zsiványra.</li>
+    <li><b>Nem ebben a körben:</b> sárkánytűzes beváltás, a nehezebb bolt, a kölyök a Tündérvásárban, szerepcsere (a kölyök a pult mögött).</li>
+    <li><b>Nem új pálya, nincs új tananyag:</b> a feladatok, a fokok, az ellenőrzés és a jutalom ugyanaz. Ezért könyv-átnézés nem kell, és a pálya nyitása az újonc-menetben sem változik. Húzószó-csíra: nincs új.</li>
+  </ul>
+</div>
+
+<h2>1. Mit csinál a gyerek a képen?</h2>
+<p class="lead">A gyerek mozdulata nem változik: érmét koppint, az unikornisa szarvval lebegteti, pecsétet üt. A különbség az, <b>kinek</b> segít, és mit csinál közben a kölyök.</p>
+
+<div class="sketch">
+<svg viewBox="0 0 820 300" role="img" aria-label="Vázlat: balra Tüske néni és az unikornis a pult mögött, jobbra a kölyök vevőként, a blokk-állomáson Zsivány a jobb szélen">
+  <rect x="0" y="0" width="820" height="300" rx="12" fill="none"/>
+  <rect x="20" y="190" width="520" height="22" rx="6" fill="var(--wood)" stroke="var(--wood-d)" stroke-width="2"/>
+  <rect x="20" y="212" width="520" height="70" fill="var(--wood)" opacity=".55"/>
+  <circle cx="80" cy="120" r="34" fill="#c9a07a" opacity=".8"/><text x="80" y="125" text-anchor="middle" font-size="13" fill="#2a2140">Tüske néni</text>
+  <ellipse cx="220" cy="140" rx="64" ry="40" fill="#f6d9f0" stroke="#c48ab8" stroke-width="2"/><text x="220" y="145" text-anchor="middle" font-size="13" fill="#2a2140">a gyerek unikornisa</text>
+  <path d="M262 110 Q 330 40 400 175" fill="none" stroke="#e0b52a" stroke-width="2.5" stroke-dasharray="5 5"/>
+  <circle cx="400" cy="178" r="11" fill="#f5c84b" stroke="#a87a1e" stroke-width="2"/>
+  <text x="330" y="60" font-size="12" fill="var(--muted)">szarvvarázs: érme a pultra</text>
+  <ellipse cx="600" cy="200" rx="52" ry="36" fill="var(--mint)" stroke="var(--mint-d)" stroke-width="2"/>
+  <circle cx="640" cy="150" r="22" fill="var(--mint)" stroke="var(--mint-d)" stroke-width="2"/>
+  <path d="M620 128 l6 -14 l6 14 M642 126 l6 -14 l6 14" fill="#fff4c2" stroke="var(--mint-d)" stroke-width="1.6"/>
+  <rect x="570" y="170" width="34" height="14" rx="4" fill="#e0417a" opacity=".85"/><text x="586" y="181" text-anchor="middle" font-size="9" fill="#fff">sál</text>
+  <text x="600" y="258" text-anchor="middle" font-size="13" fill="var(--ink)">a kölyök (Parázs) erszénnyel</text>
+  <rect x="540" y="214" width="44" height="26" rx="8" fill="#b97a4a" stroke="#6e472c" stroke-width="2"/>
+  <ellipse cx="760" cy="150" rx="34" ry="48" fill="var(--fox)" stroke="var(--fox-d)" stroke-width="2" opacity=".55"/>
+  <text x="760" y="214" text-anchor="middle" font-size="12" fill="var(--muted)">③-nál: Zsivány</text>
+</svg>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h3>🪙 ① Fizesd ki!</h3>
+    <ul>
+      <li>A kölyök a vevő, előtte a <b>saját kis erszénye</b>. A gyerek innen koppint, az unikornis a pultra lebegteti.</li>
+      <li>Tüske néni a nevén szólítja: „Szia, Parázs! Mit adhatok?” A kölyök: „Segítesz kifizetni?”</li>
+      <li><b>Pont annyi:</b> a kölyök szárnyat rebbent, kicsit felugrik.</li>
+      <li><b>Kevés:</b> fejét billenti, a pultra néz (a mostani „vár”).</li>
+      <li><b>Sok:</b> a mancsával tolja vissza az utoljára letett érmét (ma is ezt csinálja a vevő).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>💰 ② Visszajáró</h3>
+    <ul>
+      <li>A kölyök fizet nagyobbal, és <b>a mancsát</b> tartja oda (a mostani tenyér helyett); a gyerek oda lebegteti a visszajárót, a szalag ugyanúgy lép.</li>
+      <li><b>Pont annyi:</b> marokra fogja, a szíve fölé teszi, ujjong.</li>
+      <li><b>Kevés:</b> a mancsára néz, és vár. <b>Sok:</b> „Ez sok!”, egyet visszanyújt.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>🦊 ③ A róka blokkja</h3>
+    <ul>
+      <li><b>Zsivány</b> standjánál a kölyök vásárolt, Zsivány felírta a blokkot. A kölyök a blokkot <b>odahozza a gyereknek</b>: „Megnézed, jó-e?”</li>
+      <li>A gyerek ugyanúgy becsül, aztán pecsétel (✓ / ✗), ✗-nél javít.</li>
+      <li><b>Hibát talált:</b> Zsivány a fejéhez kap: „Hoppá, elkapkodtam!”, a kölyök büszkén visszakapja a különbözetet.</li>
+      <li><b>Hibás blokkra ✓:</b> a kölyök hazaér, és a tízes rudakon látszik, mi hiányzik (mint ma). A kölyök <b>nem szomorú</b>, csak vakarja a fejét.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="panel warn" style="margin-top:12px">
+  <b>⚠️ A kölyök soha nem súg.</b> Nem szimatol, nem húzza össze a szemét, ha a blokk hibás, és nem néz rá a jó érmére. Minden reakciója <b>a gyerek lépése után</b> jön. Különben a gyerek a kölyköt figyelné, nem számolna (kiskapu).
+</div>
+
+<h2>2. Ki jön vásárolni?</h2>
+<div class="panel">
+  <ul>
+    <li><b>Ha van hazatért kölyök</b> (a kölyök-fázisban van): a kölyök átveszi <b>Brekus (béka) és Kata (katica)</b> helyét a vevők között, és <b>a róka blokkját mindig ő hozza</b>. A többi vevő (Brumi, Mia, Cincin, Pötyi, Tas, Kitti) marad.</li>
+    <li><b>Ha még nincs</b> (tojás, fióka, kalandon van): a mostani vevők jönnek, Brekus és Kata is. Semmi nem hiányzik a pályából.</li>
+    <li>A kölyök <b>a ruháiban</b> jön (sál, sapka, csizma, köpeny: ami rajta van az öltözőben), a saját színével és nevével.</li>
+  </ul>
+</div>
+
+<div class="dont">
+  <b class="n">1. döntés — milyen gyakran jöjjön a kölyök ①-nél és ②-nél?</b>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> kb. minden második vevő a kölyök (ő elég sokszor jön ahhoz, hogy „ő boltja” legyen, de marad változatosság), a ③-at mindig ő hozza.</li>
+    <li>B) Pontosan Brekus és Kata helyén: a 8 vevőből 2, kb. minden negyedik.</li>
+    <li>C) Mindig a kölyök.</li>
+  </ul>
+</div>
+
+<h2>3. A kölyök mozdulatai a boltban</h2>
+<div class="panel">
+  <p>Oldalnézet, a pult előtt jobbra, balra néz (tükrözve). A test a meglévő rajzból jön (a ruhás kölyök-rajz, amit az odú és a kert is használ), a horgonyokkal együtt, hogy a ruhák rajta maradjanak.</p>
+  <table>
+    <tr><th>Mozdulat</th><th>Mikor</th><th>Hogyan</th></tr>
+    <tr><td>vár</td><td>alapállás</td><td>pislog, a farka lassan leng, a szárnya néha megrezzen</td></tr>
+    <tr><td>köszön</td><td>érkezéskor</td><td>felemeli a mancsát, fejbiccentés</td></tr>
+    <tr><td>örül</td><td>pont annyi / jó pecsét</td><td>szárnyrebbenés + kis ugrás, csillogó szem</td></tr>
+    <tr><td>gondol</td><td>kevés, „…”</td><td>fejét billenti, a pultra néz</td></tr>
+    <tr><td>mancs előre</td><td>visszajáró, blokk átadása</td><td>mancs a pult fölé (ide érkezik a visszajáró)</td></tr>
+    <tr><td>visszatol</td><td>sok</td><td>a mancsával visszatolja az érmét</td></tr>
+  </table>
+  <p class="lead">A gyerekek a mozdulatlan figurát kinevetik, ezért mind a hat mozdulatnak átmenete van, nem ugrik egyik pózból a másikba.</p>
+</div>
+
+<h2>4. A róka mindenhol Zsivány</h2>
+<div class="panel">
+  <ul>
+    <li>Róka Juli megszűnik, egy róka van: <b>Zsivány</b>. Minden helyen így hívják: a boltban, a Bagolykönyvtár „Kinek van igaza? Pali és Zsivány” feladataiban, az olvasópolcon és a szerszám-pályák szöveges feladataiban.</li>
+    <li><b>Jelleme:</b> huncut, nem gonosz. A mostani boltban kapkodva hibázik („Hoppá, elkapkodtam!”), a nehezebb boltban majd ravaszabb. Ha lebuktatják, nevet, nem haragszik.</li>
+    <li><b>Ragozva:</b> Zsivány · Zsiványt · Zsiványnak · Zsiványnál · Zsiványé.</li>
+    <li><b>Felolvasás:</b> megnézem, hogy Szabolcs hangja jól mondja-e; ha nem, a kiejtés-táblába kerül.</li>
+    <li>A régi mentésekben semmi nem vész el: a belső kulcs ugyanaz marad, csak a megjelenő név változik.</li>
+  </ul>
+</div>
+
+<div class="dont">
+  <b class="n">2. döntés — hogy szólítsák a teljes nevén?</b>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> „Zsivány, a róka” az első találkozáskor, utána csak „Zsivány”.</li>
+    <li>B) „Róka Zsivány” (mint eddig „Róka Juli”).</li>
+  </ul>
+</div>
+
+<div class="dont">
+  <b class="n">3. döntés — változzon-e a rajza?</b>
+  <p>Most: bozontos farok, pénztáros táska, zöld sál, blokkfüzet, ceruza a füle mögött, kacsint.</p>
+  <ul>
+    <li><span class="jav">A) javaslat:</span> most marad a rajz (a sál, a blokkfüzet és a kacsintás illik egy huncut rókához is), csak a név változik. Ha a nehezebb boltban ravaszabb lesz, ott kaphat egy jelet (pl. kis kalap).</li>
+    <li>B) Már most kapjon egy új jegyet (kalap vagy mellény).</li>
+  </ul>
+</div>
+
+<h2>5. Őrök és próba</h2>
+<div class="panel">
+  <ul>
+    <li><b>Gépi próba:</b> a bolt végigjátszása kölyökkel és kölyök nélkül (✨ = terv), kiskapu-próba (félbehagyott pálya semmit nem ad, a kölyök reakciója sosem előzi meg a gyerek lépését), újonc-őr.</li>
+    <li><b>Telefon:</b> a kölyök és a ruhái ne lógjanak a pult elé, az érmék és a pecsét-gombok ne takaródjanak.</li>
+    <li>Utána <b>élő próba</b> Lilivel és Fannival: felismerik-e a saját kölyküket, és tetszik-e nekik, hogy ő vásárol.</li>
+  </ul>
+</div>
+
+<h2>6. Mi változik a kódban (tájékoztatásul)</h2>
+<div class="panel">
+  <ul>
+    <li><code>bolt-kep.js</code>: a vevő kiválasztása (kölyök, ha hazatért), a kölyök kirajzolása a vevő helyén, a ③ jelenet (a kölyök hozza a blokkot), új buborék-szövegek.</li>
+    <li>A kölyök bolti mozdulatai: a meglévő ruhás kölyök-rajzra építve (<code>sarkany-holmi.js</code> / <code>leny.js</code>), nem új figura.</li>
+    <li><code>constants.js</code>: a róka megjelenő neve és ragozott alakjai; a beégetett „Juli” szövegek a boltban, a lakóknál, a Bagolykönyvtárban, az olvasópolcon; a tervlapok szövege.</li>
+    <li>Gépi próba: a bolt-végigjátszás kölyökkel is.</li>
+  </ul>
+  <p class="lead">⏰ A kód <b>a Tündérvásár költözésének commitja után</b> indul, mert a költözés ugyanazokban a fájlokban dolgozik.</p>
+</div>
+
+<h2>7. Döntések összefoglalva</h2>
+<div class="panel ok">
+  <ol>
+    <li>A kölyök gyakorisága ①–②-nél: <b>A) kb. minden második vevő</b>, a ③-at mindig ő hozza.</li>
+    <li>Zsivány neve: <b>A) „Zsivány, a róka”</b> az első találkozáskor, utána „Zsivány”.</li>
+    <li>Zsivány rajza: <b>A) most marad</b>, csak a név változik.</li>
+  </ol>
+  <p>Jóváhagyás után a nyitómondat: <b>„Kissárkány a boltban: 1. kör.”</b></p>
+</div>
+
+</div>
+</body>
+</html>
