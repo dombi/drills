@@ -74,7 +74,7 @@
 <header class="rt-top">
   <h1>Pálya-hely — rajzterv</h1>
   <p>A téglalap kártyák helyett a pálya egy hely a képben: a vásárban bódé, az utcában ház, az erdőben gombaház. A jelek a helyen ülnek (cégér, zászló, lakat, cetli, csengő), mindegyik hely-fajtán ugyanott. A ház, az unikornis, a sátor és a háttér a játék valódi rajzolójával készült; a bódé, a gombaház, a jelek és a pályán belüli tárgyak még prototípusok.</p>
-  <div class="rt-chips"><span class="rt-chip">Rajzterv · jóváhagyásra vár</span><span class="rt-chip">2026-10-24</span><span class="rt-chip">Tervlap: palyahely-targykeret-terv.html ✅</span></div>
+  <div class="rt-chips"><span class="rt-chip">Rajzterv · ✅ jóváhagyva 2026-10-24</span><span class="rt-chip">2026-10-24</span><span class="rt-chip">Tervlap: palyahely-targykeret-terv.html ✅</span></div>
 </header>
 
 <h2>1. A Tündérvásár sátra: ma és újonnan</h2>
@@ -161,14 +161,14 @@
 <div class="rt-szin"><svg id="sz-letra" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <div class="rt-gombok" id="g-letra"><button data-a="jo">✓ Jó válasz</button><button data-a="rossz">✗ Rossz válasz</button><button data-a="kov">⤴ Következő fok</button><button data-a="uj">↺ Elölről</button></div>
 <h3>🏡 Számcsalád: ablak + kavics</h3>
-<p class="rt-lead">A háznak négy ablaka van. Húzd a kavicsokat az ablakokba (a kupacból mindig jön új). Ha egy ablakban jó a család, felgyullad. A rossz sorrend (például 5 − 13) nem gyullad fel: a kavicsok kigurulnak.</p>
+<p class="rt-lead">A háznak négy ablaka van. <b>Nem kell húzni:</b> koppints egy kavicsra, és az felemelkedik, majd jön a touchpad / az egér után. Koppints még egyszer egy körre, és a kavics oda kerül. Ha nem körre koppintasz, visszamegy oda, ahonnan jött. Ablakban ülő kavicsot is fel lehet venni, így lehet javítani. Telefonon: koppints a kavicsra, aztán a körre. (A kupacból mindig jön új kavics.) Ha egy ablakban jó a család, felgyullad. A rossz sorrend (például 5 − 13) nem gyullad fel: a kavicsok megrázkódnak és kigurulnak.</p>
 <div class="rt-szin"><svg id="sz-csalad" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg" style="touch-action:none"></svg></div>
 <div class="rt-gombok" id="g-csalad"><button data-a="uj">↺ Elölről</button><button data-a="mutat">✓ Mutasd kitöltve</button></div>
 <div class="rt-panel" style="margin-top:12px">
   <ul>
     <li><b>fok:</b> fa létrafok, rajta a feladat nagy betűvel; jó válasznál a fok kivilágosodik, csillagot kap, és az unikornis feljebb lép.</li>
     <li><b>ablak:</b> fakeretes ablak három kavics-hellyel és a műveleti jellel; jó családnál meleg fény gyullad benne.</li>
-    <li><b>kavics:</b> mindig egyforma, kerek kő, rajta a szám; húzható, ujjal is.</li>
+    <li><b>kavics:</b> mindig egyforma, kerek kő, rajta a szám. <b>Felvesz–visz–letesz</b> koppintással, húzás nélkül (a producer, 2026-10-24: a gyerekek touchpadot használnak, nem egeret). Ezt minden húzható tárgy megkapja a közös modulban.</li>
     <li><b>tábla:</b> a válasz helye, pályánként mindig ugyanott.</li>
     <li><b>cetli:</b> ugyanaz a papír, mint a cégér ≈ ✨ cetlije és a róka blokkja; a bolt később ezt veszi át.</li>
   </ul>
@@ -184,7 +184,7 @@
 <div class="rt-dont"><b class="n">5. A csengő.</b> <b>A) (javaslat)</b> mindig látszik a cégér bal végén, külön koppintható. <b>B)</b> csak akkor jelenik meg, amikor az unikornis a hely előtt áll (kevesebb jel, de egy koppintással több).</div>
 <div class="rt-dont"><b class="n">6. A Piactér névcímkéi.</b> Javaslat: a fehér névcímkék a Piactér minden helyéről eltűnnek, mindenhol cégér lesz (3. pont).</div>
 <div class="rt-dont"><b class="n">7. Rajzolt áru a két vásári bódén.</b> Javaslat: a kosár tojással és a dobozok bekerülnek az A körbe (két kis rajz), mert az emoji a bódé pultján idegen. Később minden emoji-ikonú pálya kap ilyen kis rajzot, amikor a liget átáll.</div>
-<p class="rt-lead">Ha mind a hét javaslat jó, elég annyi: „mehet”. Utána a következő beszélgetés: <b>„Pálya-hely: A kör.”</b> (a közös <code>palyaJelek</code> + <code>src/palyahely.js</code> + a bódé, a Tündérvásár sátra átáll).</p>
+<p class="rt-lead">✅ <b>Mind a hét javaslat jóváhagyva (2026-10-24)</b>, a Számcsalád is. Módosítás: a kavics nem húzható, hanem koppintással felvehető és letehető (6. pont). A 🪜 Rokon-létra fokairól még beszélünk, mielőtt átrajzolom. Következő beszélgetés: <b>„Pálya-hely: A kör.”</b> (a közös <code>palyaJelek</code> + <code>src/palyahely.js</code> + a bódé, a Tündérvásár sátra átáll).</p>
 
 </div>
 
@@ -651,10 +651,10 @@ function letraGomb(a) {
 var CSALAD = { ablak: [["+", null, null, null], ["+", null, null, null], ["−", null, null, null], ["−", null, null, null]] };
 var KAVICS = [8, 5, 13];
 var ABLAK_HELY = [[165, 158], [445, 158], [165, 272], [445, 272]];
-function kfKavics(x, y, n, cls) {
-  return '<g class="' + (cls || "") + '" data-n="' + n + '" transform="translate(' + F(x) + ' ' + F(y) + ')"><ellipse cx="0" cy="14" rx="22" ry="5" fill="#3c2a50" opacity=".12"/>' +
+function kfKavics(x, y, n, cls, extra) {
+  return '<g class="' + (cls || "") + '" data-n="' + n + '"' + (extra || "") + ' transform="translate(' + F(x) + ' ' + F(y) + ')"><g class="kf-ic"><ellipse cx="0" cy="14" rx="22" ry="5" fill="#3c2a50" opacity=".12"/>' +
     '<path d="M-22 0Q-23 -17 -2 -18Q22 -19 22 -2Q23 15 0 16Q-21 17 -22 0Z" fill="#d9cbe6" stroke="#7a5ea8" stroke-width="2"/><path d="M-12 -10Q-4 -14 6 -13" stroke="#fff" stroke-width="2.4" opacity=".6" fill="none" stroke-linecap="round"/>' +
-    '<text y="7" text-anchor="middle" font-size="19" ' + FR + ' fill="#4a3b7a">' + n + '</text></g>';
+    '<text y="7" text-anchor="middle" font-size="19" ' + FR + ' fill="#4a3b7a">' + n + '</text></g></g>';
 }
 function ablakJo(a) {   /* null: még nincs tele · true: jó család · false: nem fér be */
   if (a[1] == null || a[2] == null || a[3] == null) return null;
@@ -667,7 +667,7 @@ function kfAblak(i, x, y, a) {   /* fakeretes ablak, benne a művelet három kav
        '<path d="' + phLap(-128, 42, 128, 52, 3) + '" fill="#c99272" stroke="#8a5a3a" stroke-width="1.8"/></g>';
   [-76, 0, 78].forEach(function (hx, j) {
     s += '<g class="kf-hely" data-ablak="' + i + '" data-hely="' + (j + 1) + '" transform="translate(' + hx + ' 0)"><path d="M-24 0Q-25 -18 0 -19Q25 -19 24 0Q25 18 0 19Q-24 19 -24 0Z" fill="#fff" fill-opacity=".55" stroke="#9a8fb0" stroke-width="1.6" stroke-dasharray="4 3"/></g>';
-    if (a[j + 1] != null) s += kfKavics(hx, 0, a[j + 1], "kf-bent");
+    if (a[j + 1] != null) s += kfKavics(hx, 0, a[j + 1], "kf-bent", ' data-ablak="' + i + '" data-hely="' + (j + 1) + '"');
   });
   s += '<text x="-38" y="9" text-anchor="middle" font-size="26" ' + FR + ' fill="#4a3b7a">' + a[0] + '</text><text x="39" y="9" text-anchor="middle" font-size="26" ' + FR + ' fill="#4a3b7a">=</text>';
   return s + '</g>';
@@ -684,40 +684,65 @@ function rajzCsalad() {
   s += '</g>';
   svg.innerHTML = s;
 }
-function kavicsHuzas(svg) {
-  var huz = null;
+/* 🪨 kavics: FELVESZ – VISZ – LETESZ (a producer, 2026-10-24: a gyerekek nem használnak egeret, a húzás nehéz nekik).
+   Egy koppintás felveszi (a kő megemelkedik, és jön az ujj / a touchpad után), a második koppintás leteszi: a legközelebbi körbe,
+   vagy ha nincs kör a közelben, oda, ahonnan felvette (kupacból felvett kő a kupacba, ablakból felvett az ablakba).
+   Ablakban ülő követ is fel lehet venni (úgy lehet javítani). Érintőképernyőn nincs „lebegés”: ott a kő a kupac fölött vár, és a köre koppintására odarepül. */
+function kavicsFogas(svg) {
+  var fog = null;
   function pont(e) { var p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
-  svg.addEventListener("pointerdown", function (e) {
-    var k = e.target.closest(".kf-kavics"); if (!k) return;
-    e.preventDefault();
-    var n = +k.getAttribute("data-n"), p = pont(e), g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    g.innerHTML = kfKavics(0, 0, n, ""); g.setAttribute("transform", "translate(" + F(p.x) + " " + F(p.y) + ")"); g.style.pointerEvents = "none";
-    svg.appendChild(g); huz = { g: g, n: n };
-    if (svg.setPointerCapture) svg.setPointerCapture(e.pointerId);
-  });
-  svg.addEventListener("pointermove", function (e) { if (!huz) return; var p = pont(e); huz.g.setAttribute("transform", "translate(" + F(p.x) + " " + F(p.y) + ")"); });
-  svg.addEventListener("pointerup", function (e) {
-    if (!huz) return;
-    var h = huz; huz = null; h.g.remove();
-    var p = pont(e), cel = null, legjobb = 40;
-    svg.querySelectorAll(".kf-hely").forEach(function (hl) {
-      var ai = +hl.getAttribute("data-ablak"), hi = +hl.getAttribute("data-hely");
-      var x = ABLAK_HELY[ai][0] + [-76, 0, 78][hi - 1], y = ABLAK_HELY[ai][1], d = Math.hypot(x - p.x, y - p.y);
-      if (d < legjobb) { legjobb = d; cel = [ai, hi]; }
-    });
+  function helyXY(c) { return [ABLAK_HELY[c[0]][0] + [-76, 0, 78][c[1] - 1], ABLAK_HELY[c[0]][1]]; }
+  function legkozelebbi(p) {
+    var cel = null, legjobb = 46;
+    CSALAD.ablak.forEach(function (a, ai) { [1, 2, 3].forEach(function (hi) { var q = helyXY([ai, hi]), d = Math.hypot(q[0] - p.x, q[1] - p.y); if (d < legjobb) { legjobb = d; cel = [ai, hi]; } }); });
+    return cel;
+  }
+  function jeloles(cel) {   /* a kör, ahova most esne, kiemelődik */
+    svg.querySelectorAll(".kf-hely path").forEach(function (pt) { pt.setAttribute("stroke", "#9a8fb0"); pt.setAttribute("stroke-dasharray", "4 3"); pt.setAttribute("stroke-width", "1.6"); });
     if (!cel) return;
+    var h = svg.querySelector('.kf-hely[data-ablak="' + cel[0] + '"][data-hely="' + cel[1] + '"] path');
+    if (h) { h.setAttribute("stroke", "#e0417a"); h.removeAttribute("stroke-dasharray"); h.setAttribute("stroke-width", "3"); }
+  }
+  function lebeg(x, y) { fog.x = x; fog.y = y; fog.g.setAttribute("transform", "translate(" + F(x) + " " + F(y - 6) + ") scale(1.15)"); }
+  function felvesz(n, honnan, x, y) {
+    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.style.pointerEvents = "none";
+    g.innerHTML = '<ellipse cx="0" cy="22" rx="20" ry="5" fill="#3c2a50" opacity=".2"/>' + kfKavics(0, 0, n, "");
+    svg.appendChild(g);
+    fog = { g: g, n: n, honnan: honnan };
+    lebeg(x, y);
+    if (g.animate && !lkCsokkent()) g.firstChild.animate([{ opacity: .1 }, { opacity: .3 }, { opacity: .1 }], { duration: 900, iterations: Infinity });
+  }
+  function letesz(cel) {
+    var f = fog; fog = null; f.g.remove(); jeloles(null);
+    if (!cel) cel = f.honnan;   /* nincs kör a közelben → vissza oda, ahonnan jött */
+    if (!cel) return;           /* a kupacból jött → vissza a kupacba */
     var a = CSALAD.ablak[cel[0]];
-    a[cel[1]] = h.n;
+    a[cel[1]] = f.n;
     rajzCsalad();
+    ellenoriz(cel);
+  }
+  svg.addEventListener("click", function (e) {
+    var p = pont(e);
+    if (fog) { letesz(legkozelebbi(p)); return; }
+    var k = e.target.closest(".kf-kavics"), b = e.target.closest(".kf-bent");
+    if (k) { var kx = 710, ky = 186 + KAVICS.indexOf(+k.getAttribute("data-n")) * 56; felvesz(+k.getAttribute("data-n"), null, e.pointerType === "touch" ? kx - 60 : p.x, e.pointerType === "touch" ? ky : p.y); return; }
+    if (b) {
+      var c = [+b.getAttribute("data-ablak"), +b.getAttribute("data-hely")], n = CSALAD.ablak[c[0]][c[1]];
+      CSALAD.ablak[c[0]][c[1]] = null; rajzCsalad(); felvesz(n, c, p.x, p.y);
+    }
+  });
+  svg.addEventListener("pointermove", function (e) { if (!fog || e.pointerType === "touch") return; var p = pont(e); lebeg(p.x, p.y); jeloles(legkozelebbi(p)); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && fog) letesz(null); });   /* Esc: vissza oda, ahonnan jött */
+  function ellenoriz(cel) {
+    var a = CSALAD.ablak[cel[0]];
     if (ablakJo(a) === false) {   /* nem fér be: a kavicsok megrázkódnak, és kigurulnak */
-      svg.querySelectorAll('.kf-bent').forEach(function (x) {
-        var t = x.getAttribute("transform");
-        if (x.parentNode.getAttribute("transform") === "translate(" + ABLAK_HELY[cel[0]][0] + " " + ABLAK_HELY[cel[0]][1] + ")" && x.animate)
-          x.animate([{ transform: t.replace("translate(", "translate(").replace(/\)$/, ")") }, { transform: t.replace(/translate\(([-\d.]+) /, function (m, v) { return "translate(" + (+v + 6) + " "; }) }, { transform: t }], { duration: 260, iterations: 2 });
+      svg.querySelectorAll('.kf-bent[data-ablak="' + cel[0] + '"] .kf-ic').forEach(function (x) {
+        if (x.animate) x.animate([{ transform: "translateX(0)" }, { transform: "translateX(6px)" }, { transform: "translateX(-6px)" }, { transform: "translateX(0)" }], { duration: 260, iterations: 2 });
       });
       setTimeout(function () { a[1] = a[2] = a[3] = null; rajzCsalad(); }, 620);
     }
-  });
+  }
 }
 
 /* ═════════ kapcsolók ═════════ */
@@ -746,7 +771,7 @@ document.getElementById("g-csalad").addEventListener("click", function (e) {
   rajzCsalad();
 });
 
-maKartyak(); ujVasar(); rajzJelek(); galeria(); rajzUtca(); rajzGomba(); osvenyek(); rajzLetra(); rajzCsalad(); kavicsHuzas(document.getElementById("sz-csalad"));
+maKartyak(); ujVasar(); rajzJelek(); galeria(); rajzUtca(); rajzGomba(); osvenyek(); rajzLetra(); rajzCsalad(); kavicsFogas(document.getElementById("sz-csalad"));
 </script>
 </body>
 </html>
