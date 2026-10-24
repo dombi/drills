@@ -287,15 +287,12 @@ function bkTargyRajz(ar) {
     '<path d="M20 -8Q28 -6 34 2" fill="none" stroke="#8a6a52" stroke-width="1.4"/><g transform="translate(48 10) rotate(8)"><path d="M-16 -14H16V14H-16Z" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/><circle cx="-11" cy="-9" r="2" fill="none" stroke="#8a6a52" stroke-width="1.2"/>' +
     '<text y="7" text-anchor="middle" font-size="18" ' + BK_F + ' font-weight="700" fill="#4a3b7a">' + ar + '</text></g><g class="bk-ures"></g><g class="bk-eddig"></g></g>';
 }
-/* ② a kölyök kis fatála: a mancsai a peremén, a kölyök méretében (a mancsa kisebb az érménél, ezért kell a tál) */
+/* ② a kölyök kis fatála, a kölyök méretében (a mancsa kisebb az érménél, ezért kell a tál); mancs nincs a peremén —
+   a pult mögül a karjától elválva furcsán lebegett (a producer, 2026-10-24) */
 function bkTalSVG() {
-  var p = lenyPal(), m = (1.64 * KM_ARANY).toFixed(2), s = '<g transform="translate(' + BK_TAL[0] + ' ' + BK_TAL[1] + ')">';
+  var s = '<g transform="translate(' + BK_TAL[0] + ' ' + BK_TAL[1] + ')">';
   s += '<path d="M-58 -8Q-54 22 -24 26H24Q54 22 58 -8Z" fill="#d9a46c" stroke="#7a4f2c" stroke-width="2.4" stroke-linejoin="round"/>';
   s += '<ellipse cx="0" cy="-8" rx="58" ry="9" fill="#b9814f" stroke="#7a4f2c" stroke-width="2.4"/><ellipse cx="0" cy="-7" rx="50" ry="5.5" fill="#a06d40"/><path d="M-44 8Q0 18 44 8" fill="none" stroke="#f0c896" stroke-width="2" opacity=".7"/>';
-  [-30, 30].forEach(function (cx) {
-    s += '<g transform="translate(' + cx + ' -12) scale(' + m + ')"><circle r="6.2" fill="' + p.b + '" stroke="' + p.d + '" stroke-width="2"/>' +
-      [[-3.5, 3.5], [0, 4.8], [3.5, 3.5]].map(function (t) { return '<circle cx="' + t[0] + '" cy="' + t[1] + '" r="1.9" fill="' + p.has + '" stroke="' + p.d + '" stroke-width="1.1"/>'; }).join("") + '</g>';
-  });
   return s + '</g>';
 }
 function bkTenyerRajz(lathato) {
