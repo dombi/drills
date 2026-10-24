@@ -157,16 +157,28 @@
 <p class="rt-lead">Ugyanez az elv a feladat szintjén: a feladat egy tárgyon van a képben, a válasz helye pedig egy pályán belül mindig ugyanott. Ezek a két új pálya keretei.</p>
 <div class="rt-kapcs" id="k-tabla" style="margin-bottom:6px">A válasz helye: <button data-v="A" class="be">A) világos tábla, fa kerettel</button><button data-v="B">B) zöld krétatábla</button></div>
 <h3>🪜 Rokon-létra: fok + tábla</h3>
-<p class="rt-lead">A ház oldalán a létra. Az alsó fokon az ugrás látszik a számvonalon (7 → 10 → 12). A következő fokon ugyanez az ugrás áll, egy tízessel arrébb, a végső szám nélkül (halványan alatta az előző fok ugrása). A harmadik fokon már nincs ugrás. A válasz a jobb oldali táblára kerül, mindig ugyanoda. Próbáld ki a gombokkal.</p>
-<div class="rt-szin"><svg id="sz-letra" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg"></svg></div>
-<div class="rt-gombok" id="g-letra"><button data-a="jo">✓ Jó válasz</button><button data-a="rossz">✗ Rossz válasz</button><button data-a="kov">⤴ Következő fok</button><button data-a="uj">↺ Elölről</button></div>
+<p class="rt-lead"><b>Mit tanít?</b> Hogy a 100-as körben nem kell elölről számolni: ha a 7 + 5 = 12 megvan, a 27 + 5 és a 67 + 5 ugyanaz, az egyesek ugyanúgy ugranak, a tízes csak „utazik”. Még az átlépés is öröklődik (67 + 5 = 72, nem 62). A létra a százas tábla egy oszlopa: <b>egy fok = egy tízes</b>, és messziről látszik, hogy mind ugyanaz. Annyi fokos, ahány tízes belefér a 100-ba (7 + 5-nél 9 fok, a legfelső a 87 + 5).</p>
+<div class="rt-panel" style="margin-bottom:10px">
+  <b>Egy létra menete</b> (a producer döntése, 2026-10-24: ne kelljen mind a kilencet beírni):
+  <ol style="margin-bottom:0">
+    <li>Megmondja az alapot: <b>7 + 5</b>, mellette az ugrás képe (7 → 10 → 12).</li>
+    <li>Megmondja egy <b>távoli rokont</b>: <b>47 + 5</b> (nem a szomszédot, hogy az elején látszódjon: bármelyik tízesre igaz). Az ugrás alakja felkerül a fokra.</li>
+    <li>A létra <b>magától kitölt</b> néhány fokot, egyenként: 22, 42, 62, 72… Mind …2-re végződik, ezt a kép mondja ki, nem mi.</li>
+    <li>Beírja a <b>2–3 hiányzót, nem sorban</b>. Legalább egy olyan, amelynek a szomszédja is üres (itt a 87 + 5 a tetején), így ott nem a mintából, hanem a 7 + 5-ből kell kitalálnia.</li>
+    <li>Kész: a létra végigvilágít, az unikornis felmászik a tetejére.</li>
+  </ol>
+  <p class="rt-lead" style="margin:6px 0 0">Ez öt válasz, tehát egy létra egy állomás. Minden létrának más alapja van (8 + 6, 9 + 4…), és lesz kivonás-létra is (12 − 5 → 42 − 5). Rossz válasznál a kérdezett fok mellett megjelenik az ugrás képe segítségnek. A második hiba után sem írjuk ki a választ: az ugrás lépésenként mutatja meg, hová ér, és a számot a gyerek mondja ki.</p>
+</div>
+<div class="rt-kapcs" id="k-halv">Halványítás: <button data-v="kep" class="be">első létrák: ugrás-képpel</button><button data-v="nincs">később: csak a számok</button></div>
+<div class="rt-szin"><svg id="sz-letra" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="rt-gombok" id="g-letra"><button data-a="jo">✓ Jó válasz</button><button data-a="rossz">✗ Rossz válasz</button><button data-a="uj">↺ Elölről</button></div>
 <h3>🏡 Számcsalád: ablak + kavics</h3>
 <p class="rt-lead">A háznak négy ablaka van. <b>Nem kell húzni:</b> koppints egy kavicsra, és az felemelkedik, majd jön a touchpad / az egér után. Koppints még egyszer egy körre, és a kavics oda kerül. Ha nem körre koppintasz, visszamegy oda, ahonnan jött. Ablakban ülő kavicsot is fel lehet venni, így lehet javítani. Telefonon: koppints a kavicsra, aztán a körre. (A kupacból mindig jön új kavics.) Ha egy ablakban jó a család, felgyullad. A rossz sorrend (például 5 − 13) nem gyullad fel: a kavicsok megrázkódnak és kigurulnak.</p>
 <div class="rt-szin"><svg id="sz-csalad" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg" style="touch-action:none"></svg></div>
 <div class="rt-gombok" id="g-csalad"><button data-a="uj">↺ Elölről</button><button data-a="mutat">✓ Mutasd kitöltve</button></div>
 <div class="rt-panel" style="margin-top:12px">
   <ul>
-    <li><b>fok:</b> fa létrafok, rajta a feladat nagy betűvel; jó válasznál a fok kivilágosodik, csillagot kap, és az unikornis feljebb lép.</li>
+    <li><b>fok:</b> fa létrafok, rajta a feladat és a válasz helye; a kérdezett fok rózsaszín keretet kap, a megoldott csillagot, a magától kitöltött halványabb számot.</li>
     <li><b>ablak:</b> fakeretes ablak három kavics-hellyel és a műveleti jellel; jó családnál meleg fény gyullad benne.</li>
     <li><b>kavics:</b> mindig egyforma, kerek kő, rajta a szám. <b>Felvesz–visz–letesz</b> koppintással, húzás nélkül (a producer, 2026-10-24: a gyerekek touchpadot használnak, nem egeret). Ezt minden húzható tárgy megkapja a közös modulban.</li>
     <li><b>tábla:</b> a válasz helye, pályánként mindig ugyanott.</li>
@@ -184,7 +196,7 @@
 <div class="rt-dont"><b class="n">5. A csengő.</b> <b>A) (javaslat)</b> mindig látszik a cégér bal végén, külön koppintható. <b>B)</b> csak akkor jelenik meg, amikor az unikornis a hely előtt áll (kevesebb jel, de egy koppintással több).</div>
 <div class="rt-dont"><b class="n">6. A Piactér névcímkéi.</b> Javaslat: a fehér névcímkék a Piactér minden helyéről eltűnnek, mindenhol cégér lesz (3. pont).</div>
 <div class="rt-dont"><b class="n">7. Rajzolt áru a két vásári bódén.</b> Javaslat: a kosár tojással és a dobozok bekerülnek az A körbe (két kis rajz), mert az emoji a bódé pultján idegen. Később minden emoji-ikonú pálya kap ilyen kis rajzot, amikor a liget átáll.</div>
-<p class="rt-lead">✅ <b>Mind a hét javaslat jóváhagyva (2026-10-24)</b>, a Számcsalád is. Módosítás: a kavics nem húzható, hanem koppintással felvehető és letehető (6. pont). A 🪜 Rokon-létra fokairól még beszélünk, mielőtt átrajzolom. Következő beszélgetés: <b>„Pálya-hely: A kör.”</b> (a közös <code>palyaJelek</code> + <code>src/palyahely.js</code> + a bódé, a Tündérvásár sátra átáll).</p>
+<p class="rt-lead">✅ <b>Mind a hét javaslat jóváhagyva (2026-10-24)</b>, a Számcsalád is. Módosítás: a kavics nem húzható, hanem koppintással felvehető és letehető (6. pont). A 🪜 Rokon-létra: egy fok = egy tízes, 2 kötelező fok + kitöltődés + 2–3 hiányzó (megbeszélve, átrajzolva). Következő beszélgetés: <b>„Pálya-hely: A kör.”</b> (a közös <code>palyaJelek</code> + <code>src/palyahely.js</code> + a bódé, a Tündérvásár sátra átáll).</p>
 
 </div>
 
@@ -588,13 +600,15 @@ function kfTabla(x, y, w, h, tartalom, allapot) {   /* a válasz helye; allapot:
   s += '<path d="M' + F(w / 2 - 34) + ' ' + F(h / 2 + 4) + 'h22" stroke="' + (sotet ? "#f4f1e6" : "#f6a5c0") + '" stroke-width="5" stroke-linecap="round"/>';   /* kréta / filc */
   return s + '</g>';
 }
-function kfFok(x, y, w, felirat, allapot) {   /* egy létrafok: fa deszka, rajta a feladat; allapot: kesz | most | var */
-  var s = '<g transform="translate(' + F(x) + ' ' + F(y) + ')">';
-  if (allapot === "kesz") s += '<ellipse cx="0" cy="0" rx="' + F(w * .7) + '" ry="28" fill="url(#lt-gHalo)" opacity=".7"/>';
-  s += '<g filter="url(#lt-firka)"><path d="' + phLap(-w / 2, -17, w / 2, 17, 7) + '" fill="' + (allapot === "kesz" ? "#fbe7c2" : allapot === "most" ? "#f6dcb2" : "#ecd8bb") + '" stroke="#8a6a52" stroke-width="' + (allapot === "most" ? 3.2 : 2.2) + '"/>' +
-       '<path d="M' + F(-w / 2 + 8) + ' -11Q0 -13 ' + F(w / 2 - 8) + ' -10.5" stroke="#fff6e2" stroke-width="2" fill="none" opacity=".8"/></g>';
-  s += '<text y="8" text-anchor="middle" font-size="23" ' + FR + ' fill="' + (allapot === "var" ? "#a89a8a" : "#6e4a36") + '">' + felirat + '</text>';
-  if (allapot === "kesz") s += '<text x="' + F(w / 2 + 12) + '" y="8" font-size="18">⭐</text>';
+function kfFok(x, y, w, a, b, valasz, allapot) {   /* egy létrafok: fa deszka, rajta a feladat és a válasz helye; allapot: ures | kerdez | kesz | magatol | rossz | fenyes */
+  var s = '<g transform="translate(' + F(x) + ' ' + F(y) + ')">', kerdez = allapot === "kerdez" || allapot === "rossz";
+  if (allapot === "kesz" || allapot === "fenyes") s += '<ellipse cx="0" cy="0" rx="' + F(w * .66) + '" ry="24" fill="url(#lt-gHalo)" opacity="' + (allapot === "fenyes" ? .95 : .55) + '"/>';
+  s += '<g filter="url(#lt-firka)"><path d="' + phLap(-w / 2, -16, w / 2, 16, 7) + '" fill="' + (allapot === "fenyes" ? "#fff1c8" : kerdez ? "#fbe7c2" : allapot === "ures" ? "#ead9c0" : "#f6dcb2") + '" stroke="' + (kerdez ? "#e0417a" : "#8a6a52") + '" stroke-width="' + (kerdez ? 3.2 : 2.2) + '"/>' +
+       '<path d="M' + F(-w / 2 + 8) + ' -10Q0 -12 ' + F(w / 2 - 8) + ' -9.5" stroke="#fff6e2" stroke-width="2" fill="none" opacity=".8"/></g>';
+  var szin = allapot === "ures" ? "#b3a492" : "#6e4a36", vSzin = allapot === "magatol" ? "#9a8fb0" : allapot === "rossz" ? "#b3a492" : "#4a3b7a";
+  s += '<text x="-8" y="7" text-anchor="end" font-size="19" ' + FR + ' fill="' + szin + '">' + a + ' + ' + (b - a) + ' =</text>';
+  s += '<text x="22" y="7" text-anchor="middle" font-size="19" ' + FR + ' fill="' + (kerdez && !valasz ? "#e0417a" : vSzin) + '">' + (valasz || (kerdez ? "?" : allapot === "ures" ? "…" : "")) + '</text>';
+  if (allapot === "kesz") s += '<text x="' + F(w / 2 + 6) + '" y="7" font-size="15">⭐</text>';
   return s + '</g>';
 }
 function kfUgras(x0, y, egys, a, b, vegSzam, rossz) {   /* számvonal-darab az ugrással: a → kerek tízes → b */
@@ -602,50 +616,78 @@ function kfUgras(x0, y, egys, a, b, vegSzam, rossz) {   /* számvonal-darab az u
   s += '<path d="M' + F(px(a - 2)) + ' ' + y + 'H' + F(px(b + 2)) + '" stroke="#8a6a7e" stroke-width="2" stroke-linecap="round"/>';
   for (i = a - 1; i <= b + 1; i++) s += '<path d="M' + F(px(i)) + ' ' + F(y - (i % 10 === 0 ? 7 : 4)) + 'V' + F(y + (i % 10 === 0 ? 7 : 4)) + '" stroke="#8a6a7e" stroke-width="' + (i % 10 === 0 ? 2 : 1.2) + '"/>';
   [[a, t, "#f2708f"], [t, b, "#5f92d0"]].forEach(function (u, j) {
-    var x1 = px(u[0]), x2 = px(u[1]), cy = y - 20 - (u[1] - u[0]) * egys * .22, hiany = rossz && j === 1;
+    var x1 = px(u[0]), x2 = px(u[1]), cy = y - 18 - (u[1] - u[0]) * egys * .2, hiany = rossz && j === 1;
     var vege = hiany ? x1 + (x2 - x1) * .72 : x2;
     s += '<path d="M' + F(x1) + ' ' + F(y - 3) + 'Q' + F((x1 + x2) / 2) + ' ' + F(cy) + ' ' + F(vege) + ' ' + F(hiany ? y - 10 : y - 3) + '" fill="none" stroke="' + u[2] + '" stroke-width="3" stroke-linecap="round"' + (hiany ? ' stroke-dasharray="5 4" opacity=".7"' : '') + '/>';
-    s += '<text x="' + F((x1 + x2) / 2) + '" y="' + F(cy + 5) + '" text-anchor="middle" font-size="12" ' + FR + ' fill="' + u[2] + '">+' + (u[1] - u[0]) + '</text>';
+    s += '<text x="' + F((x1 + x2) / 2) + '" y="' + F(cy + 4) + '" text-anchor="middle" font-size="11" ' + FR + ' fill="' + u[2] + '">+' + (u[1] - u[0]) + '</text>';
   });
-  s += '<text x="' + F(px(a)) + '" y="' + F(y + 22) + '" text-anchor="middle" font-size="14" ' + FR + ' fill="#4a3b7a">' + a + '</text>';
-  s += '<text x="' + F(px(t)) + '" y="' + F(y + 22) + '" text-anchor="middle" font-size="14" ' + FR + ' fill="#4a3b7a">' + t + '</text>';
-  if (vegSzam) s += '<text x="' + F(px(b)) + '" y="' + F(y + 22) + '" text-anchor="middle" font-size="14" ' + FR + ' fill="#4a3b7a">' + b + '</text>';
+  s += '<text x="' + F(px(a)) + '" y="' + F(y + 19) + '" text-anchor="middle" font-size="12.5" ' + FR + ' fill="#4a3b7a">' + a + '</text>';
+  s += '<text x="' + F(px(t)) + '" y="' + F(y + 19) + '" text-anchor="middle" font-size="12.5" ' + FR + ' fill="#4a3b7a">' + t + '</text>';
+  if (vegSzam) s += '<text x="' + F(px(b)) + '" y="' + F(y + 19) + '" text-anchor="middle" font-size="12.5" ' + FR + ' fill="#4a3b7a">' + b + '</text>';
   return s + '</g>';
 }
-var LETRA = { fok: 1, valasz: "", all: "" };
-var LETRA_FOKOK = [["7 + 5", 7, 12], ["27 + 5", 27, 32], ["67 + 5", 67, 72]];
-var LETRA_Y = [300, 208, 116];
+/* 🪜 Rokon-létra (a producer döntése, 2026-10-24): egy fok = egy tízes (7 + 5 … 87 + 5, ami belefér a 100-ba).
+   KERDES: a gyerek ezeket mondja meg, ebben a sorrendben — az alap, egy távoli rokon, aztán (a kitöltődés után) a hiányzók nem sorban;
+   a 87 + 5 szomszédja (77 + 5) is üres, ott nem a mintából, hanem az alapból kell kitalálni. MAGATOL: ezek töltődnek ki maguktól. */
+var LETRA_ALAP = [7, 5], LETRA_N = 9, LETRA_KERDES = [0, 4, 8, 2, 7], LETRA_MAGATOL = [1, 3, 5, 6];
+var LETRA = { lep: 0, valasz: "", all: "", kitolt: 0, kesz: {}, vege: false, halv: "kep", fut: false };
+function letraY(i) { return 446 - i * 48; }
+function letraErtek(i) { return [LETRA_ALAP[0] + 10 * i, LETRA_ALAP[0] + LETRA_ALAP[1] + 10 * i]; }
 function rajzLetra() {
-  var svg = document.getElementById("sz-letra"), L = LETRA, s = DEFS;
-  s += '<rect width="800" height="430" fill="url(#lt-gEgA)"/><path d="M0 340Q400 312 800 340V430H0Z" fill="#c4e6bc" stroke="#9fcf98" stroke-width="1.6"/>';
-  /* a ház oldala (a Rokon-létra türkiz tetős háza, közelről) */
-  s += '<g transform="translate(120 346)" filter="url(#lt-firka)"><path d="' + pcFal(76, 250) + '" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2.4"/></g>' +
-       '<g filter="url(#lt-firka)"><path d="M24 100Q78 34 120 8Q162 34 216 100Q120 92 24 100Z" fill="url(#lt-gTetoT)" stroke="#3f8a85" stroke-width="2.4" stroke-linejoin="round"/></g>';
-  s += pcAblak(94, 140, 52, 40, "url(#lt-gAblak)") + pcAblak(94, 222, 52, 40, "#cfe2f2");
-  /* a létra két szára; a fok a feladat */
-  s += '<g filter="url(#lt-firka)"><path d="M218 350Q234 200 248 60M396 350Q382 200 368 60" stroke="#b08a68" stroke-width="8" stroke-linecap="round" fill="none"/></g>';
-  LETRA_FOKOK.forEach(function (f, i) {
-    var allapot = i < L.fok - 1 ? "kesz" : i === L.fok - 1 ? (L.all === "jo" ? "kesz" : "most") : "var";
-    s += kfFok(308, LETRA_Y[i], 158 - i * 10, f[0], allapot);
-  });
-  /* a számvonal az aktuális fok mellett: az alsón teljes ugrás, a felhúzotton a végső szám nélkül, a harmadikon semmi */
-  var f = LETRA_FOKOK[L.fok - 1], dy = LETRA_Y[L.fok - 1] - 300;
-  if (L.fok === 2) s += '<g opacity=".3">' + kfUgras(408, 300, 16, 7, 12, true, false) + '</g>';
-  if (L.fok < 3) s += '<g transform="translate(0 ' + dy + ')">' + kfUgras(408, 300, 16, f[1], f[2], L.fok === 1 || L.all === "jo", L.all === "rossz") + '</g>';
-  s += kfTabla(690, 196, 122, 78, L.valasz || "?", L.all);
-  s += '<text x="690" y="268" text-anchor="middle" font-size="13" ' + FR + ' fill="#6b6280">a válasz helye</text>';
+  var svg = document.getElementById("sz-letra"), L = LETRA, s = DEFS, i;
+  s += '<rect width="800" height="520" fill="url(#lt-gEgA)"/><path d="M0 478Q400 452 800 478V520H0Z" fill="#c4e6bc" stroke="#9fcf98" stroke-width="1.6"/>';
+  /* a ház oldala (a Rokon-létra türkiz tetős, magas háza, közelről) */
+  s += '<g transform="translate(120 486)" filter="url(#lt-firka)"><path d="' + pcFal(76, 404) + '" fill="url(#lt-gFal)" stroke="#8a6a7e" stroke-width="2.4"/></g>' +
+       '<g filter="url(#lt-firka)"><path d="M24 86Q78 44 120 18Q162 44 216 86Q120 78 24 86Z" fill="url(#lt-gTetoT)" stroke="#3f8a85" stroke-width="2.4" stroke-linejoin="round"/></g>';
+  s += pcAblak(94, 130, 52, 40, "url(#lt-gAblak)") + pcAblak(94, 236, 52, 40, "#cfe2f2") + pcAblak(94, 342, 52, 40, "url(#lt-gAblak)");
+  /* a létra két szára */
+  s += '<g filter="url(#lt-firka)"><path d="M222 492Q236 270 250 38M408 492Q394 270 380 38" stroke="#b08a68" stroke-width="8" stroke-linecap="round" fill="none"/></g>';
+  var most = L.vege ? -1 : LETRA_KERDES[L.lep], latszik = L.lep >= 2 ? LETRA_MAGATOL.slice(0, L.kitolt) : [];
+  for (i = 0; i < LETRA_N; i++) {
+    var e = letraErtek(i), all = "ures", v = "";
+    if (L.kesz[i]) { all = L.vege ? "fenyes" : "kesz"; v = e[1]; }
+    else if (latszik.indexOf(i) >= 0) { all = L.vege ? "fenyes" : "magatol"; v = e[1]; }
+    if (i === most && !L.fut) { all = L.all === "rossz" ? "rossz" : "kerdez"; v = L.all === "rossz" ? L.valasz : ""; }
+    s += kfFok(315, letraY(i), 168 - i * 2, e[0], e[1], v, all);
+  }
+  /* az ugrás képe: az alapnál teljes; a távoli rokonnál az alakja (végső szám nélkül), halványan alatta az alapé;
+     később csak rossz válasz után, segítségnek. „Később: csak a számok” → az első kettőnél sincs (csak hibánál). */
+  if (!L.vege && !L.fut) {
+    var kep = L.halv === "kep", e2 = letraErtek(most);
+    if (L.lep === 1 && kep) s += '<g opacity=".3">' + kfUgras(426, letraY(0), 14, e2[0] - 40, e2[1] - 40, true, false) + '</g>';
+    if ((L.lep <= 1 && kep) || L.all === "rossz") s += kfUgras(426, letraY(most), 14, e2[0], e2[1], L.lep === 0, L.all === "rossz");
+  }
+  s += kfTabla(690, 250, 122, 78, L.vege ? "★" : L.all === "rossz" ? L.valasz : "?", L.all);
+  s += '<text x="690" y="322" text-anchor="middle" font-size="13" ' + FR + ' fill="#6b6280">a válasz helye</text>';
+  if (L.vege) s += '<g transform="translate(600 120)"><path d="' + phLap(-80, -20, 80, 20, 8) + '" fill="#fffaf0" stroke="#c9ad85" stroke-width="2"/><text y="6" text-anchor="middle" font-size="16" ' + FR + ' fill="#6e4a36">Kész a létra!</text></g>';
   svg.innerHTML = s;
-  /* az unikornis a legfelső megoldott fok bal végén áll (a feladatot nem takarja); amíg nincs megoldott fok, a létra lábánál */
-  var megoldott = L.fok - 2 + (L.all === "jo" ? 1 : 0);
-  LETRA.U = megoldott < 0 ? phUni(svg, 450, 372, .3) : phUni(svg, 250, LETRA_Y[megoldott] - 15, .26);
+  LETRA.U = phUni(svg, 600, 494, .3);
+}
+function letraFelmaszik() {   /* a végén az unikornis fokról fokra felmászik a tetejére */
+  var U = LETRA.U, i = -1;
+  (function lep() {
+    if (!U.svg.isConnected) return;
+    if (i < 0) U.allit(318, 494); else U.allit(318, letraY(i) - 15);
+    if (++i < LETRA_N) setTimeout(lep, lkCsokkent() ? 0 : 170);
+  })();
 }
 function letraGomb(a) {
   var L = LETRA;
-  if (a === "uj") { L.fok = 1; L.valasz = ""; L.all = ""; }
-  else if (a === "jo") { L.valasz = String(LETRA_FOKOK[L.fok - 1][2]); L.all = "jo"; }
-  else if (a === "rossz") { L.valasz = String(LETRA_FOKOK[L.fok - 1][2] - 1); L.all = "rossz"; }
-  else if (a === "kov") { if (L.fok < 3) L.fok++; L.valasz = ""; L.all = ""; }
-  rajzLetra();
+  if (a === "uj") { L.lep = 0; L.valasz = ""; L.all = ""; L.kitolt = 0; L.kesz = {}; L.vege = false; L.fut = false; rajzLetra(); return; }
+  if (L.vege || L.fut) return;
+  var most = LETRA_KERDES[L.lep], e = letraErtek(most);
+  if (a === "rossz") { L.all = "rossz"; L.valasz = String(L.lep === 0 ? e[1] - 1 : e[1] - 10); rajzLetra(); return; }   /* tipikus hibák: elszámolás (11), és a tízes nem lép (62 a 72 helyett) */
+  L.kesz[most] = true; L.all = ""; L.valasz = "";
+  if (L.lep === 1) {   /* a távoli rokon után: a létra magától kitölt néhány fokot, egyenként */
+    L.lep = 2; L.kitolt = 0; L.fut = true;
+    (function tolt() {
+      rajzLetra();
+      if (L.kitolt < LETRA_MAGATOL.length) { L.kitolt++; setTimeout(tolt, lkCsokkent() ? 0 : 320); } else { L.fut = false; rajzLetra(); }
+    })();
+    return;
+  }
+  if (L.lep >= LETRA_KERDES.length - 1) { L.vege = true; rajzLetra(); letraFelmaszik(); return; }
+  L.lep++; rajzLetra();
 }
 /* Számcsalád: 4 ablak, 3 kavics-kupac; egy ablak: [op, a, b, c] → a op b = c */
 var CSALAD = { ablak: [["+", null, null, null], ["+", null, null, null], ["−", null, null, null], ["−", null, null, null]] };
@@ -763,6 +805,7 @@ kapcs("k-ceger", function (v) { CEGER_MOD = v; mindRajz(); });
 kapcs("k-elr", function (v) { document.getElementById("elr-laptop").style.display = v === "laptop" ? "" : "none"; document.getElementById("elr-telefon").style.display = v === "telefon" ? "" : "none"; if (v === "telefon") meres(); });
 kapcs("k-kopp", function (v) { KOPP = v === "1"; document.querySelectorAll(".ph-kopp").forEach(function (r) { r.setAttribute("stroke-opacity", KOPP ? .8 : 0); }); });
 kapcs("k-tabla", function (v) { TABLA_MOD = v; rajzLetra(); });
+kapcs("k-halv", function (v) { LETRA.halv = v; rajzLetra(); });
 document.getElementById("g-letra").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) letraGomb(b.getAttribute("data-a")); });
 document.getElementById("g-csalad").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return;
