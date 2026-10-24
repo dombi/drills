@@ -122,6 +122,7 @@ code{ background:#f6efff; border-radius:5px; padding:0 4px; font-size:13px; }
 
 <h2>4. A ruhái mindhárom nézetből</h2>
 <p>Az oldalnézet a játékban ma látható ruha (sarkany-holmi.js). Szemből és hátulról: új rajz, ugyanabból a 10 részletből (a 2. kód-körben részletenként is).</p>
+<p><b>👢 A csizma új (2026-10-24, a producer kérésére):</b> a láb saját körvonalát követi, csak egy hajszállal vastagabb — nem doboz a lábon; oldalról az orra előre néz, mint a talpa; a perem a láb tetejénél lejjebb ül. Hátulról is látszik (a farok feljebb kanyarodik). Az oldalnézeti csizma is erre cserélődik a játékban (2. kód-kör).</p>
 <div class="racs" id="r-ruhak"></div>
 
 <h2>5. Horgonypontok és rétegek</h2>
@@ -1961,7 +1962,7 @@ function nzSzarnyak(p, nezet) {
   return par(lnSzarny(p, o, sz, false));
 }
 function nzFarok(p, nezet) {
-  var P = nezet === "elol" ? [[4, -10], [28, -4], [42, -18], [38, -36]] : [[0, -14], [3, -1], [22, 3], [31, -14]];
+  var P = nezet === "elol" ? [[4, -10], [28, -4], [42, -18], [38, -36]] : [[2, -16], [10, -8], [27, -7], [32, -21]];
   var w = nezet === "elol" ? [12, 4] : [13, 4], fc = lnCso(P, w[0], w[1]);
   return '<g class="sz-farok">' + [0.4, 0.7].map(function (t) { return lnTuskeCson(p, fc, t, w[0] * 0.32 * (1.1 - t * 0.5), nezet === "elol" ? -1 : 1, p.tuske); }).join("") +
     '<path d="' + fc.d + '" fill="' + p.b + '"' + lnSk(p) + "/>" + lnFarokSziv(p, fc, 6, p.tuske) + "</g>";
@@ -1970,13 +1971,36 @@ function nzFarok(p, nezet) {
 /* ── a ruhák szemből és hátulról: rés → rajz (rések: hatso, test, nyak, fej, elol) ── */
 function rSk(c, w) { return ' stroke="' + c + '" stroke-width="' + (w || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"'; }
 function salCsik(d, w) { return '<path d="' + d + '" fill="none"' + rSk("#3f7f86", w + 4) + '/><path d="' + d + '" fill="none"' + rSk("#ffd86b", w) + '/><path d="' + d + '" fill="none"' + rSk("#7fd0c8", w) + ' stroke-dasharray="6 7" stroke-linecap="butt"/>'; }
-function csizma(x, csat) {
-  return '<path d="M' + (x - 8.5) + " -1H" + (x + 8.5) + "Q" + (x + 10) + " 2 " + (x + 7.5) + " 3H" + (x - 7.5) + "Q" + (x - 10) + " 2 " + (x - 8.5) + ' -1Z" fill="#6a4f9e"' + rSk("#3b2f66", 1.6) + "/>" +
-    '<path d="M' + (x - 7.5) + " -15V-2Q" + (x - 7.5) + " 0 " + (x - 4) + " 0H" + (x + 4) + "Q" + (x + 7.5) + " 0 " + (x + 7.5) + " -2V-15Z" + '" fill="#8fc8f0"' + rSk("#3f6f9e", 2) + "/>" +
-    '<rect x="' + (x - 9) + '" y="-19" width="18" height="6" rx="3" fill="#fff"' + rSk("#3f6f9e", 1.8) + "/>" +
-    '<circle cx="' + (x - 4) + '" cy="-9" r="1.8" fill="#fff"/><circle cx="' + (x + 4) + '" cy="-5" r="1.8" fill="#fff"/><circle cx="' + (x - 3) + '" cy="-3.5" r="1.5" fill="#fff"/><circle cx="' + (x + 4) + '" cy="-11" r="1.5" fill="#fff"/>' +
-    (csat ? '<rect x="' + (x - 3) + '" y="-10" width="6" height="4" rx="1" fill="#ffd86b"' + rSk("#c99a3a", 1.2) + "/>" : "");
+/* 👢 a csizma a LÁB SAJÁT KÖRVONALÁT követi (a láb-horgonyhoz és a láb alakjához igazodik), csak egy hajszállal
+   vastagabb: nem doboz a lábon. Részletenként ugyanaz az 5 darab, mint ma: talp, szár, perem, pöttyök, csat. */
+function csizmaSzemReszek(x, csat) {   /* szemből / hátulról: a talp lekerekített, a szár a láb két oldalát követi */
+  return [
+    '<path d="M' + lnF(x - 6.6) + " .3H" + lnF(x + 6.6) + '" fill="none"' + rSk("#6a4f9e", 3.4) + "/>",
+    '<path d="M' + lnF(x - 7.6) + " -11V-4Q" + lnF(x - 7.6) + " .6 " + lnF(x - 3.2) + " .6H" + lnF(x + 3.2) + "Q" + lnF(x + 7.6) + " .6 " + lnF(x + 7.6) + ' -4V-11Z" fill="#8fc8f0"' + rSk("#3f6f9e", 2) + "/>",
+    '<rect x="' + lnF(x - 8.6) + '" y="-14" width="17.2" height="4.6" rx="2.3" fill="#fff"' + rSk("#3f6f9e", 1.6) + "/>",
+    '<circle cx="' + lnF(x - 3.6) + '" cy="-6.5" r="1.5" fill="#fff"/><circle cx="' + lnF(x + 3.8) + '" cy="-3.2" r="1.5" fill="#fff"/><circle cx="' + lnF(x + 3.4) + '" cy="-8.6" r="1.3" fill="#fff"/><circle cx="' + lnF(x - 3) + '" cy="-2" r="1.3" fill="#fff"/>',
+    csat ? '<rect x="' + lnF(x - 2.6) + '" y="-7.4" width="5.2" height="3.6" rx="1" fill="#ffd86b"' + rSk("#c99a3a", 1.1) + "/>" : ""];
 }
+function csizma(x, csat) { return csizmaSzemReszek(x, csat).join(""); }
+function csizmaOldalReszek(x) {   /* oldalról: a lnLab körvonala (w = 12, előre néző orral), a perem a láb tetejénél lejjebb */
+  var w = 12, t = 0.8;
+  return [
+    '<path d="M' + lnF(x - w / 2) + " .4H" + lnF(x + w * 0.55) + "Q" + lnF(x + w * 0.82 + t) + " .4 " + lnF(x + w * 0.62 + t) + " " + lnF(-w * 0.36) + '" fill="none"' + rSk("#6a4f9e", 3.4) + "/>",
+    '<path d="M' + lnF(x - w / 2 - t) + " -11V" + lnF(-w * 0.3) + "Q" + lnF(x - w / 2 - t) + " " + t + " " + lnF(x - w / 4) + " " + t + "H" + lnF(x + w * 0.55) + "Q" + lnF(x + w * 0.82 + t) + " " + t + " " + lnF(x + w * 0.62 + t) + " " + lnF(-w * 0.36) +
+      "Q" + lnF(x + w / 2 + t) + " " + lnF(-w * 0.46) + " " + lnF(x + w / 2 + t) + " " + lnF(-w * 0.6) + 'V-11Z" fill="#8fc8f0"' + rSk("#3f6f9e", 2) + "/>",
+    '<rect x="' + lnF(x - w / 2 - 1.8) + '" y="-14" width="' + lnF(w + 3.6) + '" height="4.6" rx="2.3" fill="#fff"' + rSk("#3f6f9e", 1.6) + "/>",
+    '<circle cx="' + lnF(x - 2.6) + '" cy="-6.5" r="1.5" fill="#fff"/><circle cx="' + lnF(x + 3.4) + '" cy="-8.4" r="1.3" fill="#fff"/><circle cx="' + lnF(x + 6) + '" cy="-2.6" r="1.4" fill="#fff"/><circle cx="' + lnF(x - 1.6) + '" cy="-2.2" r="1.3" fill="#fff"/>',
+    '<rect x="' + lnF(x + 0.8) + '" y="-6.6" width="5" height="3.4" rx="1" fill="#ffd86b"' + rSk("#c99a3a", 1.1) + "/>"];
+}
+/* a játék oldalnézeti csizmája (sarkany-holmi.js) itt az új rajzra cserélve — a 2. kód-körben kerül a játékba */
+(function () {
+  var h = SH_HOLMI.filter(function (x) { return x.id === "csizma"; })[0], r = [];
+  [[-9, "egy csizma "], [13, "a másik csizma "]].forEach(function (l) {
+    var d = csizmaOldalReszek(l[0]);
+    ["talpát", "szárát", "peremét", "pöttyeit", "csatját"].forEach(function (n, i) { r.push(["e", d[i], l[1] + n]); });
+  });
+  h.r = r;
+})();
 function sapka(p, R, nezet) {
   var s = par('<path d="M-24 -9Q-30 3 -23 12Q-17 3 -17 -9Z" fill="#c95f86"' + rSk("#8a3a5e", 2) + '/><path d="M-23 11v6" fill="none"' + rSk("#8a3a5e", 1.8) + '/><circle cx="-23" cy="19" r="3.4" fill="#ffd86b"' + rSk("#c99a3a", 1.4) + "/>");
   s += '<circle cx="0" cy="-40" r="7" fill="#ffd86b"' + rSk("#c99a3a", 2) + '/><path d="M-5 -42l3 2M1 -46l1 3M4 -40l-3 1" fill="none"' + rSk("#fff3b0", 1.6) + "/>";
