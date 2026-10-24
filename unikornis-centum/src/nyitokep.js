@@ -292,8 +292,8 @@ function nyitoSeta(M) {
   if (!NYITO.seta || NYITO.seta !== mentes.leny || !M) return;
   NYITO.seta = null;
   var m = nyitasMenet(); if (!m) return;
-  var id = NYITAS_ELSO_LIGET[m.o];
-  if (!M.halo.lathato[id] || (M.jel[id] || {}).ny !== "vil") id = m.sor.vil.filter(function (r) { return M.halo.lathato[r] && (M.jel[r] || {}).ny === "vil"; })[0];
+  var id = terkepGazda(NYITAS_ELSO_LIGET[m.o]);   /* 🧺 a beköltözött liget a gazdája helyén (piac.js) */
+  if (!M.halo.lathato[id] || (M.jel[id] || {}).ny !== "vil") id = m.sor.vil.map(terkepGazda).filter(function (r) { return M.halo.lathato[r] && (M.jel[r] || {}).ny === "vil"; })[0];
   if (!id) return;
   setTimeout(function () {
     if (LIGET_M !== M || !M.svg.isConnected) return;

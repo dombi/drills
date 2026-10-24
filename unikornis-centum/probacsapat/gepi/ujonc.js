@@ -10,6 +10,8 @@
       if (!m) return { menet: false };
       var r = m.r, lig = {}, alap = {}, hely = {}, dom = {}, van = [];
       LIGETEK.forEach(function (id) { lig[id] = nyitasLiget(id); alap[id] = nyitasLigetAllapot(r, m.sor, id, nyitasEgyeniVan()); });
+      var ligT = {}, reg = fomenuLigetek().regiok;   /* 🧺 a térkép-hely fénye: a benne lakó ligetekkel együtt (TERKEP_GAZDA, piac.js) */
+      LIGETEK.forEach(function (id) { if (terkepGazda(id) === id) ligT[id] = terkepNyitas(id, reg); });
       NYITAS_NAPOK.forEach(function (x) { hely[x[0]] = nyitasHely(x[0]); });
       [].forEach.call(document.querySelectorAll("#kepernyo-fomenu .terkep-hely[data-id]"), function (e) {
         var id = e.getAttribute("data-id"); if (van.indexOf(id) < 0) van.push(id);
@@ -17,7 +19,7 @@
         else if (e.querySelector(".hb.ny-vilagit")) dom[id] = "vil";
       });
       return { menet: true, o: m.o, nap: nyitasNapja(r, m.p), napok: r.napok, nyilt: r.nyilt, fel: r.fel, fv: r.fv, elakad: r.elakad,
-               lig: lig, alap: alap, hely: hely, dom: dom, van: van, terkep: !!document.querySelector("#kepernyo-fomenu.aktiv") && !!document.querySelector("#kepernyo-fomenu .terkep-hely"),
+               lig: lig, ligT: ligT, alap: alap, hely: hely, dom: dom, van: van, terkep: !!document.querySelector("#kepernyo-fomenu.aktiv") && !!document.querySelector("#kepernyo-fomenu .terkep-hely"),
                rejtett: document.body.classList.contains("harmat-rejtett"), harmatLatszik: lathato(".harmat-jel, .csilla-szamlalo.harmat"),
                csp: m.p.csillampor || 0, harmat: m.p.tunderharmat || 0, leny: typeof lenyTar === "function" ? lenyTar(m.p).fazis || null : null,
                boltFulek: nyitasBoltFulek(), sor: NYITAS_OSZTALY[m.o], gy: gyakNap(m.p),

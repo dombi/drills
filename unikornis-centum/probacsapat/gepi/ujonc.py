@@ -159,7 +159,7 @@ def egy_menet(e, J, nev, o, kezd, extra, szovegek, tabla):
 def ellenoriz_reggel(l, J, nev, n, o, s):
     hol = l.hol
     # térkép rajza = menet
-    for id, a in s["lig"].items():
+    for id, a in s.get("ligT", s["lig"]).items():   # 🧺 a hely fénye a benne lakó ligetekkel együtt (a Vásár a Piactéren)
         d = s["dom"].get(id)
         if id not in s["van"]:   # a térképen nincs ilyen hely (a Fejtörő-hegy a liget-belsőből nyílik) → nem nézzük
             continue

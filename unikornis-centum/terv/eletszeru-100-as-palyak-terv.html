@@ -138,7 +138,7 @@
   <table>
     <tr><th>Hullám</th><th>Mi költözik / épül</th><th>Hová</th></tr>
     <tr><td>①</td><td>🏪 Tüske néni boltja (új)</td><td>Piactér</td></tr>
-    <tr><td>②</td><td>🧺 Tündérvásár (Reggeli vásár, Dobozoló-nap)</td><td>Piactér, a bolt mellé</td></tr>
+    <tr><td>②</td><td>🧺 Tündérvásár (Reggeli vásár, Dobozoló-nap) — ✅ beköltözött 2026-10-24 (a ☀️ Déli vásár bejárata a dombon)</td><td>Piactér, a bolt mellé (sátor, balra elöl)</td></tr>
     <tr><td>③</td><td>Az új 100-as pályák (🪜 Rokon-létra, 🏡 Számcsalád, később ⚙️ Varázsgép, 🧮 Gyöngypálca), utánuk a régi 100-as Összeadó-pályák (Tízesek ösvénye, Aprók, Lépegető, Átlépő, Százas bújócska, Erdő mélye, Erdő szíve)</td><td>Összeadó utca</td></tr>
     <tr><td>④</td><td>A Szorzós liget (Szorzódallam, Egy szám bűvköre, Osztogató, Holdfény-bújócska, Mi maradt?, Szám-rengeteg)</td><td>Dallam-tér</td></tr>
   </table>
@@ -345,7 +345,7 @@
     <li><b>🏪 Piactér + Bolt élesben</b>: a Piactér a térképen (ház-belépés, lakó, ház-állapotok), és benne a bolt 1–3. állomása: Fizesd ki!, Visszajáró, A róka blokkja.
       <br><b>✅ Kód kész (2026-10-23) → élő próba.</b> A gyerek mostantól látja és játssza.
       <ul>
-        <li><b>A nagy térképen</b> új hely, a 🏪 Piactér (<code>src/piac.js</code>): fekvő képen a Bájitalkonyha és a Vásár között (az A hely), álló képen a Vásár fölött (ott fért el felirattal együtt). Rajzoltan, a térkép saját készletéből; útja a Bájitalkonyhához és a Vásárhoz vezet.</li>
+        <li><b>A nagy térképen</b> új hely, a 🏪 Piactér (<code>src/piac.js</code>): fekvő képen a Bájitalkonyha és a Vásár között (az A hely), álló képen a Vásár fölött (ott fért el felirattal együtt) — <i>2026-10-24 óta a Vásár régi helyén, lásd a következő pontot</i>. Rajzoltan, a térkép saját készletéből; útja a Bájitalkonyhához és a Vásárhoz vezet.</li>
         <li><b>Belül a kis falutérkép</b>: patak és híd, ködös ösvény a dombra (☀️ Déli vásár, a Fejtörő-hegy körvonala), kút, zászlófüzér, galambok, üres telek („Hamarosan…”), az épülő Összeadó utca (🪜 Rokon-létra, 🏡 Számcsalád: még épülnek, koppintásra megrezzennek), balra a 🎵 Dallam-tér helye („hamarosan”), és a „Térkép” tábla. A bolt házára koppintva a gyerek unikornisa odasétál, kinyílik az ajtó, és indul a pálya.</li>
         <li><b>A bolt háza épül</b> a gyerek haladásával, és sosem romlik vissza (<code>P().piac.haz</code>): épül (még nem vitte végig) → tető (végigvitte) → ajtó, előtető, áru az ablakban (egy tiszta nap) → kész: cégtábla Tüske nénivel, füst a kéményből (két tiszta nap) → virágos, Tüske néni kint integet („megy”). A ház fölött a kártyák jelei: ⭐/🌟, 💧 a mai kiemelt, 💖 ajánlott, 💤/🔒/🌙.</li>
         <li><b>A pálya</b> (<code>tuske-bolt</code>, a Piactér ligetben): Rajt → 🪙 Fizesd ki! → 💰 Visszajáró → 🦊 A róka blokkja → Odú-küszöb (vegyesen), állomásonként 4, összesen 16 feladat. Az ösvény képe a vásártér, saját sátor-színekkel.</li>
@@ -356,6 +356,15 @@
         <li><b>2 hiba után sincs kiírt megoldás</b>, a kép segít: ① „eddig: …” a pulton, ② zászló a szalagon a cél helyén, ③ a tételek tízes rudakban a pultra kirakva.</li>
         <li><b>Nyitás az újonc-menetben</b> (<code>nyitas.js</code> NYITAS_PALYA_UTAN): 2–3. o.-ban a Piactér a Tízesek ösvénye első tiszta végigjátszása után ébred (felfelé nyitás, a napi egy közül), 1. o.-ban a plafon fölött van, 4. o.-tól nyitva; Lilinek és Fanninak minden nyitva. A bolton belül: a róka blokkja csak az Erdő mélye után van a pályán (addig a küszöb is fizet + visszajáró), az átviteles blokkok az Erdő szíve után, a „százból” fok a Százas bújócska után.</li>
         <li>⏳ <b>Hátra / későbbre:</b> a halványulás foka (most mindig erős szín); a beváltás jelenete a boltban; telefonon álló elrendezés (most a kép kicsi, de kezelhető); a pult 🦊 sora és a jelvény (a 4–5. kör).</li>
+      </ul></li>
+    <li><b>🧺 A Tündérvásár beköltözik a Piactérre</b> (2. hullám; a producer jóváhagyta 2026-10-24, a bolt élő próbája után).
+      <br><b>✅ Kód kész (2026-10-24) → élő próba.</b>
+      <ul>
+        <li><b>A nagy térképen</b> a Vásár jele eltűnt, a helyére (fekvő: a Mézes pékség és a Bagolykönyvtár között, álló: ugyanott) a 🏪 Piactér lépett, kicsit nagyobb jellel, a Vásár útjaival. A Piactér összesítője a két liget együtt: ⭐ kész/összes, 💧 💖 🐉, az újonc-fény (amelyik ébrebb). <code>TERKEP_GAZDA = { vasar: "piac" }</code> a <code>piac.js</code>-ben: melyik liget melyik térkép-hely belsejében lakik — újabb költözés = egy sor.</li>
+        <li><b>Egyszer szól</b> annak, aki eddig a térképen látta a Vásárt: „Nézd! A Tündérvásár beköltözött a Piactérre. Ott találod a sátrát!”, közben a Piactér felragyog (<code>BEMUTATAS.vasarKoltozott</code>). Újoncnak nem szól (ő már így ismeri meg).</li>
+        <li><b>A falutérképen</b> a Vásár sátra balra elöl, a szorzás-osztás oldalán, a Dallam-tér helye előtt (az kicsit hátrébb és kisebb lett). A neve mellett ⭐ kész/összes + 🐉 💧 💖. Koppintásra az unikornis odasétál, és belép: bent a 100-as vásárok kártyái (Reggeli vásár, Dobozoló-nap), a gomb „← Piactér”, visszafelé az unikornis a sátor előtt áll. Újonc-ködben alszik, a pult teljes zárásánál „zárva” mondat.</li>
+        <li><b>Semmi nem változott a Vásár belsejében</b>: a liget id-je (<code>vasar</code>), a pályák, a mentés, a csillagok, a pult beállításai, a sárkány-küldetés ligete, az újonc-menet (<code>NYITAS_OSZTALY</code>) ugyanaz. Az első perc végén (5–6. o.) az unikornis a Piactérhez sétál.</li>
+        <li><b>☀️ A Déli vásár (4. o., 10 000-ig) NEM a sátorban van</b> (a producer, 2026-10-24): a bejárata a domb tetején, a ködös domb-ösvény végén. Koppintásra az unikornis a hídig sétál, és indul a pálya; utána a Piactérre tér vissza, a híd lábához. A neve mellett a jelei (⭐/🌟, 💧, 💖, 🐉, 🔒/🌙); ha világítania kell, fénykör a domb tetején. A kódban: <code>piacHely: "domb"</code> a pályán (constants.js) — az ilyen pálya kimarad a sátor kártyái közül, és a pálya után a Piactérre jön vissza. A liget továbbra is a <code>vasar</code> (mentés, pult, sárkány, újonc-menet nem változik).</li>
       </ul></li>
     <li><b>🪜 Rokon-létra + 🏡 Számcsalád</b> élesben, az „épülő utca” első két házában.</li>
     <li><b>Pult</b> (pálya-sorok, 🦊 sor, róka-pontosság) + jelvény + gépi próba → élő próba Lilivel és Fannival.</li>

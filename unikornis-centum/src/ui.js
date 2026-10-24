@@ -27,6 +27,7 @@ function ligetJegyez(r) {
 /* a térkép; ha hol adott (odu / utca / kert / egy liget), az unikornis ott áll majd — onnan jött ki (TERKEP_HOL) */
 function terkepNyit(hol) {
   if (hol) TERKEP_HOL = { leny: mentes.leny, id: hol };
+  PIAC_HONNAN = null;   /* 🏪 a térképről érkezve a Piactér közepén áll (piac.js) */
   FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu");
 }
 /* ── KÖZÖS „VISSZA” SZABÁLY (Térkép mint központ, 1. kör): minden helynek egy sor — ki a szülője, és mi a
@@ -65,7 +66,11 @@ var BEMUTATAS = {
   ujoncBolt: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="utca"] .hb'], feltetel: ujoncElsoBolt,
                mondat: "Gyere, vegyünk valamit a csillámporodból!" },
   ujoncBoltUtca: { kepernyo: "kepernyo-utca", ragyog: ["#utca-bolt"], feltetel: ujoncElsoBolt,
-                   mondat: "Itt a Csillagbolt! Koppints rá!" }
+                   mondat: "Itt a Csillagbolt! Koppints rá!" },
+  /* 🧺 2026-10-24: a Tündérvásár a Piactérre költözött (piac.js) — annak szól, aki eddig a térképen látta (újoncnak nem) */
+  vasarKoltozott: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="piac"] .hb'],
+                    feltetel: function () { return !nyitasMenet() && !!fomenuLigetek().regiok.vasar; },
+                    mondat: "Nézd! A Tündérvásár beköltözött a Piactérre. Ott találod a sátrát!" }
 };
 /* az újonc már végigvitt egy pályát, és van ✨-je (nyitas.js) */
 function ujoncElsoBolt() {
@@ -168,6 +173,12 @@ function ligetOsszegzo(r, lista) {
   if (r === "egyeni" && jelzes.indexOf("💖") < 0) jelzes.push("💖");
   return { kesz: kesz, ossz: ossz, alszik: ossz > 0 && nyitott === 0, jelzes: jelzes.slice(0, 2) };
 }
+/* 🧺 két liget összesítője egy térkép-helyen (a beköltözött liget a gazdájánál, TERKEP_GAZDA — piac.js) */
+function ligetOsszegzoOssze(a, b) {
+  if (!a) return b;
+  var jelzes = a.jelzes.concat(b.jelzes).filter(function (j, i, t) { return t.indexOf(j) === i; });
+  return { kesz: a.kesz + b.kesz, ossz: a.ossz + b.ossz, alszik: (a.alszik || !a.ossz) && (b.alszik || !b.ossz) && a.ossz + b.ossz > 0, jelzes: jelzes.slice(0, 2) };
+}
 function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
@@ -175,12 +186,12 @@ function renderFomenu() {
   var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER,
                       szabo: MERES_HATTER.szabo, bajital: MERES_HATTER.bajital, pekseg: MERES_HATTER.pekseg, vasar: VASAR_HATTER };   /* mérés-ligetek: réteges műhely-háttér (meres.js) */   /* mindkét liget saját jelenetet kap */
   var L = fomenuLigetek(), regiok = L.regiok;
-  if (FOMENU_LIGET && !regiok[FOMENU_LIGET]) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a választóra */
-  var bent = FOMENU_LIGET;
+  if (FOMENU_LIGET && !terkepLakok(FOMENU_LIGET).some(function (r) { return regiok[r]; })) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a választóra (a Piactér a Vásárral együtt él) */
+  var bent = FOMENU_LIGET, gazda = bent && TERKEP_GAZDA[bent];   /* 🧺 a beköltözött liget szülője a gazdája (a Vásáré a Piactér) */
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
   if (!bent) $("kepernyo-fomenu").classList.remove("bkt-mod");
-  $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
+  $("fomenu-vissza").textContent = gazda ? "← " + LIGET_NEV[gazda][1] : bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
@@ -258,12 +269,14 @@ function renderFomenu() {
       return;
     }
     if (regio === "piac") {                        /* 🏪 a kis falutérkép: a bolt háza = a pálya, az unikornis odasétál (piac.js) */
-      szek.appendChild(piacTer(regiok.piac));
+      szek.appendChild(piacTer(regiok.piac || [], regiok.vasar || null));
       racs.appendChild(szek);
       return;
     }
     var grid = el("div", "palya-regio-grid");
-    regiok[regio].forEach(function (rec) { grid.appendChild(regio === "fejtoro" ? fejtoroKartya(rec.pa) : keszitKartya(rec.pa, rec.idx)); });
+    regiok[regio].forEach(function (rec) {
+      if (rec.pa.piacHely) return;   /* 🏪 a Piactér falutérképén saját bejárata van (a Déli vásár a dombon — piac.js) */
+      grid.appendChild(regio === "fejtoro" ? fejtoroKartya(rec.pa) : keszitKartya(rec.pa, rec.idx)); });
     szek.appendChild(grid);
     racs.appendChild(szek);
   })(bent);

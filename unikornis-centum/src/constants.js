@@ -307,14 +307,15 @@ function vsPalya(o) {
 /* 3. o.: a maradékos osztás még nehéz → a Reggeli vásárban NINCS Dobozoló (14 feladat); a maradék a saját
    📦 Dobozoló-nap ösvényen jön, lépcsőzetesen: TELI → MARAD → KELL → egy történet, három kérdés (producer, 2026-09-30) */
 PALYAK.push(
-  vsPalya({ id: "vasar-3", nev: "Reggeli vásár", ikon: "🌅", g: 3, szint: 4, palcim: "100-ig · ×, : — 3. o.", alap: { tipus: "vasar" }, nelkul: ["doboz"] }),
-  vsPalya({ id: "vasar-3d", nev: "Dobozoló-nap", ikon: "📦", g: 3, szint: 4, palcim: "maradékos osztás — 3. o.", alap: { tipus: "vasar" }, allomasok: [
+  vsPalya({ id: "vasar-3", nev: "Reggeli vásár", ikon: "🌅", g: 3, szint: 4, palcim: "100-ig · ×, :", alap: { tipus: "vasar" }, nelkul: ["doboz"] }),
+  vsPalya({ id: "vasar-3d", nev: "Dobozoló-nap", ikon: "📦", g: 3, szint: 4, palcim: "maradékos osztás", alap: { tipus: "vasar" }, allomasok: [
     { nev: "Teli dobozok", stand: "doboz", sor: ["D1"], ujTort: true, szin: "kosar", intro: "Hány doboz lesz tele? Ezt keressük.", darab: 3 },
     { nev: "Mi marad ki?", stand: "doboz", sor: ["D2"], ujTort: true, szin: "doboz", intro: "Most azt figyeld, mi marad ki!", darab: 3 },
     { nev: "Kell még egy?", stand: "doboz", sor: ["D3"], ujTort: true, szin: "arcedula", intro: "Hová kerül a maradék? Kell még egy doboz!", darab: 3 },
     { nev: "Három kérdés", stand: "doboz", sor: ["D1", "D2", "D3"], keverd: true, szin: "hasonlito", intro: "Ugyanaz a történet, de figyeld, mit kérdezek!", darab: 3 },
     { nev: "Odú-küszöb", stand: "odu", sor: ["D1", "D2", "D3"], keverd: true, ujTort: true, szin: "nagy", intro: "Utolsó próba az odú előtt!", darab: 3 }] }),
-  vsPalya({ id: "vasar-4", nev: "Déli vásár", ikon: "☀️", g: 4, szint: 5, palcim: "10 000-ig · írásbeli — 4. o.", alap: { tipus: "vasar" } })
+  /* piacHely: a Piactér falutérképén saját bejárata van (nem a sátorban) — a producer, 2026-10-24: a 10 000-ig a dombra (piac.js) */
+  vsPalya({ id: "vasar-4", nev: "Déli vásár", ikon: "☀️", g: 4, szint: 5, palcim: "10 000-ig · írásbeli",   /* a gyerek ne lássa, hányadik osztály (a producer, 2026-10-24) */ alap: { tipus: "vasar" }, piacHely: "domb" })
   /* 🌇 Alkonyi vásár (5. o.) · 🏮 Lámpás vásár (6. o.) — a producer döntéséig NINCS itt (a tervük: tunderevasar-tartalom.html 5–6. o.) */
 );
 
@@ -363,18 +364,18 @@ function meresPalya(id, nev, ikon, liga, menny, osztaly, szint, palcim) {
   };
 }
 PALYAK.push(
-  meresPalya("meres-szabo-1", "Első öltések", "📏", "szabo", "hossz", 1, 2, "Méter, deciméter, centiméter — 1–2. osztály"),
-  meresPalya("meres-szabo-2", "Tűhegyes milliméter", "🪡", "szabo", "hossz", 3, 4, "Jön a milliméter és a kilométer — 3. osztály"),
-  meresPalya("meres-szabo-3", "Hosszú vég szövet", "🧶", "szabo", "hossz", 4, 5, "Vegyesen, tízezerig — 4. osztály"),
-  meresPalya("meres-szabo-4", "Kilométeres szalag", "🛣️", "szabo", "hossz", 5, 6, "Nagy ugrások — 5. osztály"),
-  meresPalya("meres-bajital-1", "Liter és deci", "🥛", "bajital", "ur", 1, 2, "Liter, deciliter, centiliter — 1–2. osztály"),
-  meresPalya("meres-bajital-2", "Cseppenként", "💧", "bajital", "ur", 3, 4, "Jön a milliliter — 3. osztály"),
-  meresPalya("meres-bajital-3", "A nagy üst", "🫕", "bajital", "ur", 4, 5, "Vegyesen, tízezerig — 4. osztály"),
-  meresPalya("meres-bajital-4", "Hektoliteres hordók", "🛢️", "bajital", "ur", 5, 6, "Jön a hektoliter — 5. osztály"),
-  meresPalya("meres-pekseg-1", "Kiló és deka", "⚖️", "pekseg", "tomeg", 1, 2, "Kilogramm és dekagramm — 1–2. osztály"),
-  meresPalya("meres-pekseg-2", "Csipetnyi gramm", "🧂", "pekseg", "tomeg", 3, 4, "Jön a gramm — 3. osztály"),
-  meresPalya("meres-pekseg-3", "Mézes mérleg", "🍯", "pekseg", "tomeg", 4, 5, "Vegyesen, tízezerig — 4. osztály"),
-  meresPalya("meres-pekseg-4", "Mázsa és tonna", "🌾", "pekseg", "tomeg", 5, 6, "Jön a mázsa és a tonna — 5. osztály")
+  meresPalya("meres-szabo-1", "Első öltések", "📏", "szabo", "hossz", 1, 2, "Méter, deciméter, centiméter"),
+  meresPalya("meres-szabo-2", "Tűhegyes milliméter", "🪡", "szabo", "hossz", 3, 4, "Jön a milliméter és a kilométer"),
+  meresPalya("meres-szabo-3", "Hosszú vég szövet", "🧶", "szabo", "hossz", 4, 5, "Vegyesen, tízezerig"),
+  meresPalya("meres-szabo-4", "Kilométeres szalag", "🛣️", "szabo", "hossz", 5, 6, "Nagy ugrások"),
+  meresPalya("meres-bajital-1", "Liter és deci", "🥛", "bajital", "ur", 1, 2, "Liter, deciliter, centiliter"),
+  meresPalya("meres-bajital-2", "Cseppenként", "💧", "bajital", "ur", 3, 4, "Jön a milliliter"),
+  meresPalya("meres-bajital-3", "A nagy üst", "🫕", "bajital", "ur", 4, 5, "Vegyesen, tízezerig"),
+  meresPalya("meres-bajital-4", "Hektoliteres hordók", "🛢️", "bajital", "ur", 5, 6, "Jön a hektoliter"),
+  meresPalya("meres-pekseg-1", "Kiló és deka", "⚖️", "pekseg", "tomeg", 1, 2, "Kilogramm és dekagramm"),
+  meresPalya("meres-pekseg-2", "Csipetnyi gramm", "🧂", "pekseg", "tomeg", 3, 4, "Jön a gramm"),
+  meresPalya("meres-pekseg-3", "Mézes mérleg", "🍯", "pekseg", "tomeg", 4, 5, "Vegyesen, tízezerig"),
+  meresPalya("meres-pekseg-4", "Mázsa és tonna", "🌾", "pekseg", "tomeg", 5, 6, "Jön a mázsa és a tonna")
 );
 
 /* ══ 📚 BAGOLYKÖNYVTÁR — Zrínyi építőkocka-pályák (src/konyvtar.js) — Matekos\epitokocka-palyak-terv.html ══
@@ -493,9 +494,9 @@ var PALYA_MAT = {
   "holdfeny-bujocska": "? × 6 = 42 · 42 ÷ ? = 6",
   "mi-maradt": "osztás maradékkal",
   "vegyes-szorzo": "× és ÷ keverve, 100-ig",
-  "meres-szabo-1": "m · dm · cm — 1–2. o.", "meres-szabo-2": "+ mm, km — 3. o.", "meres-szabo-3": "vegyesen, 10 000-ig — 4. o.", "meres-szabo-4": "nagy ugrások — 5. o.",
-  "meres-bajital-1": "l · dl · cl — 1–2. o.", "meres-bajital-2": "+ ml — 3. o.", "meres-bajital-3": "vegyesen, 10 000-ig — 4. o.", "meres-bajital-4": "+ hl — 5. o.",
-  "meres-pekseg-1": "kg · dkg — 1–2. o.", "meres-pekseg-2": "+ g — 3. o.", "meres-pekseg-3": "vegyesen, 10 000-ig — 4. o.", "meres-pekseg-4": "+ q, t — 5. o.",
+  "meres-szabo-1": "m · dm · cm", "meres-szabo-2": "+ mm, km", "meres-szabo-3": "vegyesen, 10 000-ig", "meres-szabo-4": "nagy ugrások",
+  "meres-bajital-1": "l · dl · cl", "meres-bajital-2": "+ ml", "meres-bajital-3": "vegyesen, 10 000-ig", "meres-bajital-4": "+ hl",
+  "meres-pekseg-1": "kg · dkg", "meres-pekseg-2": "+ g", "meres-pekseg-3": "vegyesen, 10 000-ig", "meres-pekseg-4": "+ q, t",
 };
 var FOMENU_HATTER = '<svg class="hatter" viewBox="0 0 1120 760" preserveAspectRatio="none" aria-hidden="true"> <defs> <linearGradient id="eg2" x1="0" y1="0" x2="0" y2="1"> <stop offset="0" stop-color="#d8ecf8"/><stop offset="0.45" stop-color="#e6f2ea"/> <stop offset="1" stop-color="#eaf4e2"/> </linearGradient> <radialGradient id="nap2" cx="0.5" cy="0.5" r="0.5"> <stop offset="0" stop-color="#fff6d0" stop-opacity="0.85"/> <stop offset="1" stop-color="#fff6d0" stop-opacity="0"/> </radialGradient> </defs> <rect x="0" y="0" width="1120" height="760" fill="url(#eg2)"/> <circle cx="985" cy="80" r="90" fill="url(#nap2)"/> <circle cx="985" cy="80" r="30" fill="#fff2b8" opacity="0.7"/> <g fill="#ffffff" opacity="0.5"> <ellipse cx="210" cy="70" rx="52" ry="17"/><ellipse cx="250" cy="61" rx="34" ry="14"/> <ellipse cx="640" cy="46" rx="42" ry="15"/><ellipse cx="672" cy="55" rx="26" ry="11"/> </g> <!-- távoli dombsor --> <path d="M0 300 Q160 268 320 296 Q480 322 640 292 Q800 262 960 296 Q1060 316 1120 298 L1120 760 L0 760 Z" fill="#cfe8c2" opacity="0.8"/> <!-- fa-sziluettek: csak a peremen, hogy a kártyák tiszták maradjanak --> <g opacity="0.72"> <g fill="#8fbf7a"> <path d="M60 300 l26 66 l-52 0 Z"/><path d="M60 336 l32 78 l-64 0 Z"/><rect x="54" y="410" width="12" height="26" fill="#a9814e"/> <path d="M150 340 l22 56 l-44 0 Z"/><path d="M150 372 l27 66 l-54 0 Z"/><rect x="145" y="434" width="10" height="22" fill="#a9814e"/> <path d="M1060 300 l26 66 l-52 0 Z"/><path d="M1060 336 l32 78 l-64 0 Z"/><rect x="1054" y="410" width="12" height="26" fill="#a9814e"/> <path d="M968 344 l22 56 l-44 0 Z"/><path d="M968 376 l27 66 l-54 0 Z"/><rect x="963" y="438" width="10" height="22" fill="#a9814e"/> </g> <g fill="#7fae5f"> <ellipse cx="330" cy="322" rx="30" ry="22"/><ellipse cx="470" cy="312" rx="24" ry="18"/> <ellipse cx="700" cy="316" rx="28" ry="20"/><ellipse cx="840" cy="326" rx="22" ry="16"/> </g> </g> <!-- talaj --> <path d="M0 700 Q280 676 560 700 Q840 724 1120 698 L1120 760 L0 760 Z" fill="#bfe3a0" opacity="0.9"/> <g fill="#fff6c4" opacity="0.7"> <circle cx="120" cy="180" r="3"/><circle cx="420" cy="150" r="2.4"/><circle cx="760" cy="170" r="2.6"/> <circle cx="900" cy="230" r="2.2"/><circle cx="270" cy="250" r="2.2"/> </g> </svg>';
 /* Szorzós liget alkonyi/aranyóra háttér (grafikai session, producer-jóváhagyott 2026-09-11) */

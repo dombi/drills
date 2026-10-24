@@ -61,7 +61,7 @@ function palyaInditas(id) {
   var pa = palyaKeres(id);                          /* beépített vagy egyéni (4b) */
   if (!pa || pa.hamarosan) return;
   if (palyaZarva(pa) || palyaElfogyott(pa)) return;   /* zárt kapu (csak a kulcsok játszhatók) / elfogyott darabkorlát */
-  ligetJegyez(palyaLiget(pa));                     /* pálya után ebbe a ligetbe tér vissza (ui.js) */
+  ligetJegyez(pa.piacHely ? "piac" : palyaLiget(pa));   /* pálya után ebbe a ligetbe tér vissza (ui.js); 🏪 saját bejáratú pálya: a Piactérre */
   var rovid = nyitasRovidElso(pa);                 /* 🚪 az újonc első pályája rövidebb: Rajt → 2 szakasz → küszöb (nyitas.js) */
   if (rovid) { var ra = pa.allomasok, rp = {}, rk; for (rk in pa) rp[rk] = pa[rk]; rp.allomasok = [ra[0], ra[1], ra[2], ra[ra.length - 1]]; pa = rp; }
   var maJelv = new Date().toISOString().slice(0, 10);   /* jelvény: Visszatérő – hány külön napon játszott */

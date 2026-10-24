@@ -466,11 +466,16 @@ function renderLigetTerkep(racs, L) {
   var host = el("div", "terkep-host uni-terep");
   racs.appendChild(host);
   var lathato = { odu: true, utca: true, kert: true }, jel = {}, mod = utcaMod(host.clientWidth, host.clientHeight);
-  var ebred = nyitasFrissit(L.regiok).filter(function (r) { return L.regiok[r] && LIGET_TERKEP.helyek[r]; });   /* 🚪 ma felébredt, még be nem mutatott liget (nyitas.js) */
-  L.sorrend.forEach(function (r) { if (LIGET_TERKEP.helyek[r]) { lathato[r] = true; jel[r] = ligetOsszegzo(r, L.regiok[r]); } });
-  Object.keys(jel).forEach(function (r) { jel[r].jelzes = kuldLigetJel(r).concat(jel[r].jelzes || []).slice(0, 2); });   /* 🐉 innen kért a kölyök (kuldetes.js; a pult kézi listájával bármelyik ligetből) */
+  /* 🧺 a beköltözött liget (TERKEP_GAZDA, piac.js) a gazdája helyén látszik: a jelei, a fénye, az ébredése is ott */
+  var ebredR = nyitasFrissit(L.regiok).filter(function (r) { return L.regiok[r] && LIGET_TERKEP.helyek[terkepGazda(r)]; });   /* 🚪 ma felébredt, még be nem mutatott liget (nyitas.js) */
+  var ebred = ebredR.map(terkepGazda).filter(function (g, i, a) { return a.indexOf(g) === i; });
+  L.sorrend.forEach(function (r) { var g = terkepGazda(r); if (LIGET_TERKEP.helyek[g]) { lathato[g] = true; jel[g] = ligetOsszegzoOssze(jel[g], ligetOsszegzo(r, L.regiok[r])); } });
+  Object.keys(jel).forEach(function (g) {   /* 🐉 innen kért a kölyök (kuldetes.js; a pult kézi listájával bármelyik ligetből) */
+    var kj = terkepLakok(g).some(function (r) { return kuldLigetJel(r).length; }) ? ["🐉"] : [];
+    jel[g].jelzes = kj.concat(jel[g].jelzes || []).slice(0, 2);
+  });
   Object.keys(jel).forEach(function (r) {   /* 🚪 újonc-menet: világít / nyitva / alszik (köd) — az alvónál nincs ⭐, jelzés, hold */
-    var ny = nyitasLiget(r); if (!ny) return;
+    var ny = terkepNyitas(r, L.regiok); if (!ny) return;
     if (ebred.indexOf(r) >= 0) ny = "alszik";   /* előbb ködben, aztán felébred (ltNyEbreszt) */
     jel[r] = ny === "alszik" ? { ny: ny } : (jel[r].ny = ny, jel[r]);
   });
@@ -486,11 +491,12 @@ function renderLigetTerkep(racs, L) {
   });
   if (!jel.utca && nyitasUtcaVar()) jel.utca = { ny: "vil" };
   var halo = terkepHalo(LIGET_TERKEP, lathato, mod);
-  var hol = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget;
+  var hol = terkepGazda(TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL.id : P().utolsoLiget);
   if (!lathato[hol] || (jel[hol] && jel[hol].ny === "alszik")) hol = "odu";
   LIGET_M = terkepRajzol(host, LIGET_TERKEP, { mod: mod, all: hol, halo: halo, nev: ltNev, jelzes: jel, koppint: ligetTerkepKoppint });
   LIGET_M.jel = jel;
   bemutat("terkep");   /* egyszer: „a kertünk mostantól itt van…” (ui.js) */
+  if (P().bemutatva.terkep && !NYITO.seta) bemutat("vasarKoltozott");   /* 🧺 egyszer: „A Tündérvásár beköltözött a Piactérre!” (ui.js) */
   if (NYITO.seta) nyitoSeta(LIGET_M);   /* 🚪 az első perc vége: az unikornis a világító helyhez sétál, és segítséget kér (nyitokep.js) */
   else if (hEbred) {                    /* 🚪 ma nyílt az utca / a kert: a köd felszáll, az unikornis odasétál */
     var Mh = LIGET_M;
@@ -501,10 +507,12 @@ function renderLigetTerkep(racs, L) {
   }
   else if (!ebred.length && !nyitasJelenet("terkep", "kepernyo-fomenu")) bemutat("ujoncBolt");   /* 🚪 ma nyílt valami (harmat, barátok, az utcán…) — különben „Gyere, vegyünk valamit…” (ui.js) */
   if (ebred.length) {   /* napi legfeljebb egy — ha mégis több lenne (pult-váltás), az elsőt mutatjuk, a többi csendben ébred */
-    var M = LIGET_M, id = ebred[0];
-    ebred.forEach(function (r) { nyitasLatta(r); if (r !== id) jel[r].ny = nyitasLiget(r); });
-    jel[id].ny = nyitasLiget(id);
-    setTimeout(function () { if (LIGET_M === M && M.svg.isConnected) ltNyEbreszt(M, id); }, 700);
+    var M = LIGET_M, id = ebred[0], lako = ebredR.filter(function (r) { return r !== id && terkepGazda(r) === id; })[0];
+    ebredR.forEach(nyitasLatta);
+    ebred.forEach(function (g) { if (g !== id) jel[g].ny = terkepNyitas(g, L.regiok); });
+    jel[id].ny = terkepNyitas(id, L.regiok);
+    var ebMondat = lako ? "Nézd, felébredt " + nevelo(ltNev(lako)) + " " + ltNev(lako) + " " + TERKEP_GAZDA_BENT[id] + "!" : null;   /* 🧺 a beköltözött liget ébredt */
+    setTimeout(function () { if (LIGET_M === M && M.svg.isConnected) ltNyEbreszt(M, id, null, ebMondat); }, 700);
   }
 }
 function ligetTerkepKoppint(id) {
