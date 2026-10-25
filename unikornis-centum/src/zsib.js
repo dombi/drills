@@ -38,6 +38,7 @@ function zsKet(n) { return n === 2 ? "két" : szo(n); }   /* főnév előtt: „
 function zsAz(n) { return (/^[aeiouáéíóöőúüű]/i.test(szo(n)) ? "az " : "a ") + szo(n); }
 /* „-ból/-ből” a szám szavához: az utolsó magánhangzó dönt (az i, í semleges: harmincból, tízből, huszonegyből) */
 function zsBol(n) { var w = szo(n), m = w.replace(/[ií]/g, "").match(/[aáoóuúeéöőüű](?=[^aáoóuúeéöőüű]*$)/); return w + (m && /[aáoóuú]/.test(m[0]) ? "ból" : "ből"); }
+function zsBolSzam(n) { return n + "-" + zsBol(n).slice(-3); }   /* számjeggyel: 100-ból, 50-ből */
 
 /* ═════════════════ FELADATGYÁRTÓK (tiszta adat — a piac-őr ezeket ellenőrzi) ═════════════════ */
 /* a becslés ellenőrzője: v a gyerek kerekítése. hiba: szomszed (a távolabbi tízes) · otos (5-re végződőt lefelé) · kerek (kerek tízest elmozdított) · tav */
@@ -152,8 +153,9 @@ GEN.zsib = function (cfg) {
 /* a lépés kérdése: [felirat, felolvasás] */
 function zsKerdes(x) {
   var d = x.d, L = x.lep;
-  if (L === "rak") return ["Tedd vissza az érméket a szalagra!", "Zsivány cédulája elmaszatolódott. " + szo(d.fiz) + " tallérral fizettünk, ennyit adott vissza. Tedd vissza az érméket a szalagra, egyenként!"];
-  if (L === "ar") return ["Mennyi volt az ár?", x.halvany ? szo(d.fiz) + " tallérral fizettünk, ennyit kaptunk vissza. Mennyi volt az ár?" : "Mennyi volt az ár? Írd a cédulára!"];
+  var fz = zsBolSzam(d.fiz) + " ennyit adott vissza.";   /* a fizetett összeg a feliratban is (a producer, 10-25) */
+  if (L === "rak") return [fz + " Tedd vissza az érméket a szalagra!", "Zsivány cédulája elmaszatolódott. " + szo(d.fiz) + " tallérral fizettünk, ennyit adott vissza. Tedd vissza az érméket a szalagra, egyenként!"];
+  if (L === "ar") return [fz + " Mennyi volt az ár?", x.halvany ? szo(d.fiz) + " tallérral fizettünk, ennyit kaptunk vissza. Mennyi volt az ár?" : "Mennyi volt az ár? Írd a cédulára!"];
   if (L === "valaszt") return ["Válassz két dolgot: együtt ≈ " + d.cel, "Válassz két dolgot, amelyek együtt körülbelül " + szo(d.cel) + " tallérba kerülnek!"];
   if (L === "kerek") { var v = x.lista[x.i]; return [v + " ≈ ?", x.halvany ? "Kerekítsd tízesre: " + szo(v) + ". Írd a cetlire!" : (x.i ? "" : (d.forma === "blokk" ? "Előbb becsüljük meg, mennyi lesz! " : "Előbb körülbelül! ")) + szo(v) + ": melyik kerek tízes van közelebb?"]; }
   if (L === "becs") return ["≈ " + x.kerek.join(" + ") + " = ?", "Add össze a kerekített számokat!"];
@@ -415,9 +417,8 @@ function zsMaszatRajz(JL) {
   var x = JL.f.zs, d = x.d, s = '', i;
   s += zsKacat(d.aru[0], 56, 92, 0) + '<path d="M72 70Q100 40 104 54" fill="none" stroke="#8a7a6e" stroke-width="1.4"/>';
   if (x.lep === "rak") s += '<path d="M120 58Q150 44 178 62T200 84Q170 96 140 88T120 58Z" fill="#b9a6c9" opacity=".5"/>';
-  s += zsSzoveg(150, 128, x.halvany ? "fizettünk: " + d.fiz : "", 16, "#6e4a36", "middle");
   /* Zsivány tálja: a visszajáró érmék (felvehetők, amíg a szalagra kerülnek) */
-  s += '<g filter="url(#lt-firka)"><ellipse cx="145" cy="372" rx="118" ry="26" fill="#e6f4f1" stroke="#3f7f75" stroke-width="2.2"/></g>' + zsSzoveg(145, 420, "ennyit adott vissza", 14, "#3f7f75", "middle");
+  s += '<g filter="url(#lt-firka)"><ellipse cx="145" cy="372" rx="118" ry="26" fill="#e6f4f1" stroke="#3f7f75" stroke-width="2.2"/></g>' + zsSzoveg(145, 422, zsBolSzam(d.fiz) + " ennyit adott vissza", 16, "#3f7f75", "middle");
   d.ermek.forEach(function (v, j) {
     if (x.rakott && x.rakott.indexOf(j) >= 0 || x.fog === j) return;
     var cx = 145 + (j - (d.ermek.length - 1) / 2) * 58;
