@@ -76,6 +76,7 @@ MODULES = [
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
     "bolt-kep.js",        # 6h2) 🏪 Tüske néni boltja: a bolt képe és játékmenete (① Fizesd ki ② Visszajáró ③ 🦊 Róka blokkja), GEN.bolt, tallér-rajz
+    "felvesz.js",         # 6h3b) 🪨 felvesz – letesz: a közös számolás (fvPont, fvLegkozelebbi) — a jelenet-motor és a 📸 album is ezt használja
     "jelenet.js",         # 6h4) 🎬 jelenet-motor: a kép-panel közös váza (tábla + beírás, billentyűzet, 🪨 felvesz–letesz, unikornis, jó/rossz) — JELENETEK
     "csalad.js",          # 6h5) 🏡 Számcsalád: a ház képe és menete (4 ablak, kavicsok, kakukktojás, két kosár, beírás), GEN.csalad
     "letra.js",           # 6h3) 🪜 Rokon-létra: a létra képe és játékmenete (egy fok = egy tízes; alap · távoli rokon · magától · hiányzók · felmászik), GEN.letra
@@ -88,6 +89,7 @@ MODULES = [
     "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
     "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
     "keret.js",           # 6j4) 🪧 tárgy-keret: a feladat egy tárgyon a képben (🪜 fok, 🖍️ tábla, ↷ ugrás) — közös készlet, a pálya csak megnevezi
+    "album-elemek.js",    # 6j5) 📸 album-elemek: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör
 
@@ -112,6 +114,8 @@ MODULES = [
     "teny-kert.js",       # 10c3) 🌷 Tény-kert: virág-modul (12 forma), tövek a spirálon, belesétálás + ráközelítés, közeli kép, hír
     "kert.js",            # 10d) kert/udvar (séta, trükkök, berendezés, ételek)
     "szalon.js",          # 10e) fodrászat/szépségszalon + utca-hub
+    "foto.js",            # 10g) 📸 fotógép: Bolt „Fotó” fül, 📷 gomb a helyeken, kereső, pillanatkép + matrica, film, képtár (IndexedDB + felhő)
+    "album.js",           # 10g2) 📸 Fotóalbum: borító + lapok, tálca 7 füllel, felvesz–letesz, gombsor, felirat, PNG-letöltés
     "bank.js",            # 10f) 🏦 Tündérbank: ✨→💧 váltás (VALUTAK/VALTASOK tábla, pályás nyitás)
 
     # ── Gyűjtemény ──

@@ -698,6 +698,7 @@ function renderSzalon() {
   var hp = $("szalon-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("szalon-szinter"); if (!host) return;
   host.innerHTML = szalonSVG() + szalonDlgHTML();
+  fotoGombTesz("szalon");   /* 📷 a fodrász tükrénél (foto.js) */
   host.querySelectorAll(".szalon-alvo").forEach(function (el) { szalonKot(el, function (e) { e.stopPropagation(); hangGomb(); szalonMond(el.getAttribute("data-polc") ? NYITAS_MONDAT.szalonPolc : NYITAS_MONDAT.szalon); }); });
   var kg = document.getElementById("szalon-kefe-gondor"); if (kg) szalonKot(kg, function () { szalonKefe("gondor"); });
   var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) szalonKot(ke, function () { szalonKefe("egyenes"); });

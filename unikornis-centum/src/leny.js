@@ -531,7 +531,7 @@ function lenyTekercs(x, y) {
 function lenyAlbumKonyv(l) {
   if (!(l.kepeslap && l.kepeslap.length) && !(l.pikkely && l.pikkely.length)) return "";
   var a = LENY_ODU.album;
-  return '<g id="ln-album" transform="translate(' + a[0] + " " + a[1] + ') rotate(-7)" role="button" aria-label="Album">' +
+  return '<g id="ln-album" transform="translate(' + a[0] + " " + a[1] + ') rotate(-7)" role="button" aria-label="Képeslapok">' +
     '<ellipse cx="0" cy="3" rx="22" ry="4" fill="#3b2f66" opacity=".14"/><rect x="-18" y="-26" width="36" height="28" rx="3" fill="#f7b8d0" stroke="#c0567f" stroke-width="2"/>' +
     '<rect x="-18" y="-26" width="6" height="28" rx="2" fill="#e99bb9"/><rect x="-6" y="-20" width="18" height="13" rx="2" fill="#fffaf0" stroke="#c0567f" stroke-width="1"/>' +
     '<path d="M3 -10.5c-4 -2.6 -4 -6 -1.5 -6c1 0 1.5 1 1.5 1.4c0 -.4 .5 -1.4 1.5 -1.4c2.5 0 2.5 3.4 -1.5 6z" fill="#e0417a"/>' +

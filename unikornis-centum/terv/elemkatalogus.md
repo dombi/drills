@@ -38,6 +38,16 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 · `katt` · `bekuld` · `tablaAll` · `gepi` (a kiskapu-őrnek). A motor adja: panel, tábla + beírás, billentyűzet, Kész,
 unikornis (`jlUniSetal`), `jlJo(joKiir, naplo, ünneplés)`, `jlRossz(cimke, naplo)` + `JL.seg` (hiba-lépcső), `jlSzol`, állapot: `jlAllapot()`.
 
+🪨 A felvesz–letesz közös számolása (`fvPont`, `fvLegkozelebbi`) a `src/felvesz.js`-ben él: a jelenet-motor és a 📸 album is ezt használja.
+
+## 📸 Album-elemek (`src/album-elemek.js`) — a Fotóalbum rajzkészlete
+- **Lap-hátterek** (`ALBUM_HATTER`): menta pöttyös · krém kockás · égkék felhős — **Borító-vásznak** (`ALBUM_VASZON`): menta, rózsa, levendula, égkék, méz
+- **Fotó-keretek** (`ALBUM_KERET`): polaroid · ragasztószalag · keret nélkül
+- **Díszek** (`ALBUM_DISZ`, `<use href="#ae-…">`): csillag, virág, szív, levél, pillangó, szivárvány, felhő, 📅 dátum-bélyegző (a letevés napja)
+- **Felirat**: 6 szín (`ALBUM_FELIRAT_SZIN`), 3 méret (`ALBUM_FELIRAT_MERET`)
+- **Gép, film, könyv**: `FOTO_GEP_SVG` (levendula azonnali gép), `FOTO_FILM_SVG`, `fotoKonyvSVG` (a könyv az odúban, a borító kicsiben)
+- A 💧-ért vehető extrák (csipke, szív, bélyeg keret; háttér- és díszcsomagok) a 2. kód-körben jönnek ide.
+
 ## 🪜 Segítség-lépcsők (a recept `segit` mezője)
 - **kep** — 1. hiba: a kép mutat (ugrás alakja a „?” céllal · az egész felfénylik)
 - **lepesenkent** — 2. hibától: a hang mondja a lépéseket (`rlLepesMondat`), a számot / utolsó kavicsot a gyerek adja

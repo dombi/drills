@@ -3205,3 +3205,64 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .jl-beiras{ position:absolute; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
 .jl-panel .jl-fog, .jl-panel .cs-valaszt, .jl-panel .jl-hely{ cursor:pointer; }
 .jl-panel .jl-hely.jl-cel path{ stroke:#e0417a; stroke-width:3; stroke-dasharray:none; }
+
+/* ═══════ 📸 FOTÓGÉP + FOTÓALBUM (foto.js, album.js) ═══════ */
+.foto-gomb-hely{ position:absolute; right:12px; bottom:12px; z-index:30; display:flex; align-items:center; gap:8px; pointer-events:none; }
+.foto-gomb{ pointer-events:auto; position:relative; width:52px; height:52px; border-radius:50%; background:#fffaf0; border:3px solid #a8794c; font-size:24px; line-height:1; cursor:pointer; box-shadow:0 3px 8px rgba(59,47,102,.25); padding:0; }
+.foto-gomb.ures{ background:#e8e2ef; border-color:#b8aecb; filter:grayscale(1); opacity:.85; }
+.foto-db{ position:absolute; right:-6px; top:-6px; min-width:22px; height:22px; border-radius:11px; background:#e0417a; color:#fff; font:600 13px/22px Fredoka,sans-serif; text-align:center; padding:0 4px; }
+.foto-film-jel{ pointer-events:auto; background:#fff; border:2px solid #e8b04a; border-radius:14px; padding:3px 10px; font:600 14px Fredoka,sans-serif; color:#8a5a00; }
+.foto-uj-film{ position:absolute; right:0; bottom:62px; background:#fff; border:2px solid #e8b04a; border-radius:16px; padding:4px 12px 4px 6px; font:600 15px Fredoka,sans-serif; color:#8a5a00; white-space:nowrap; display:flex; align-items:center; gap:4px; box-shadow:0 4px 10px rgba(59,47,102,.2); animation:fotoBe .4s ease-out; transition:opacity .5s; }
+.foto-uj-film.el{ opacity:0; }
+@keyframes fotoBe{ from{ transform:translateY(12px) scale(.8); opacity:0; } to{ transform:none; opacity:1; } }
+.foto-kereso{ position:fixed; inset:0; z-index:9000; }
+.foto-kereso > svg{ position:absolute; inset:0; }
+.foto-kattan{ position:absolute; width:54px; height:54px; border-radius:50%; background:#fff; border:5px solid #e0417a; cursor:pointer; padding:0; box-shadow:0 3px 10px rgba(0,0,0,.25); }
+.foto-kattan span{ display:block; width:26px; height:26px; margin:auto; border-radius:50%; background:#f7b8d0; }
+.foto-kattan:active span{ background:#e0417a; }
+.foto-zar{ position:absolute; width:38px; height:38px; border-radius:50%; background:#fff; border:none; font-size:18px; color:#5a4b80; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+.foto-kereso-db{ position:absolute; width:54px; text-align:center; font:600 15px Fredoka,sans-serif; color:#fff; }
+.foto-villanas{ position:fixed; inset:0; z-index:9001; background:#fff; pointer-events:none; animation:fotoVillan .45s ease-out forwards; }
+@keyframes fotoVillan{ from{ opacity:.9; } to{ opacity:0; } }
+.foto-repulo{ position:fixed; z-index:9002; background:#fff; padding:6px 6px 18px; box-shadow:0 4px 12px rgba(59,47,102,.3); transform:rotate(-6deg); transition:transform .8s cubic-bezier(.5,-.2,.6,1), opacity .8s; pointer-events:none; }
+.foto-repulo img{ display:block; width:100%; }
+#foto-konyv{ cursor:pointer; }
+
+.album-fedo{ position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; background:rgba(42,33,64,.55); padding:10px; }
+.album-fedo[hidden]{ display:none; }
+.alb-ablak{ width:min(1180px,100%); height:100%; max-height:820px; display:flex; flex-direction:column; gap:8px; background:#fdf3dc; border-radius:22px; padding:10px; box-shadow:0 12px 30px rgba(42,33,64,.35); }
+.alb-fej{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.alb-cim{ font:600 20px Fredoka,sans-serif; color:#3f8a68; }
+.alb-lapozo{ display:flex; align-items:center; gap:6px; margin-left:auto; font:600 15px Fredoka,sans-serif; color:#5a4b80; }
+.alb-lapozo #alb-lapszam{ min-width:96px; text-align:center; }
+.alb-fej-jobb{ display:flex; gap:6px; margin-left:auto; }
+.alb-fej-jobb .biztos{ background:#ffe1ea; border-color:#e0417a; color:#b0204f; }
+.alb-test{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:10px; }
+.alb-lap-hely{ position:relative; min-height:0; display:flex; align-items:center; justify-content:center; }
+.alb-lap{ width:100%; height:100%; max-height:100%; cursor:pointer; filter:drop-shadow(0 4px 10px rgba(59,47,102,.18)); touch-action:manipulation; }
+.alb-gombsor{ position:absolute; display:flex; gap:2px; background:#fff; border:2px solid #c9a8e6; border-radius:18px; padding:3px 5px; box-shadow:0 3px 10px rgba(59,47,102,.2); z-index:2; }
+.alb-gombsor[hidden]{ display:none; }
+.alb-gombsor button{ width:36px; height:32px; border:none; background:none; font-size:18px; cursor:pointer; border-radius:10px; color:#4a3d78; }
+.alb-gombsor button:hover{ background:#f3ecfb; }
+.alb-talca{ min-height:0; display:flex; flex-direction:column; background:#fff; border-radius:16px; border:2px solid #eadfc4; overflow:hidden; }
+.alb-fulek{ display:flex; flex-wrap:wrap; gap:4px; padding:6px; border-bottom:2px solid #f3ead2; }
+.alb-ful{ font:600 13px Fredoka,sans-serif; padding:5px 8px; border-radius:12px; border:none; background:#f6f1e6; color:#5a4b80; cursor:pointer; }
+.alb-ful.aktiv{ background:#fcd38b; color:#6e4a00; }
+.alb-racs{ flex:1; overflow-y:auto; padding:8px; display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; align-content:start; }
+.alb-tetel{ border:2px solid #eadfc4; background:#fffaf0; border-radius:12px; padding:4px; cursor:pointer; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+.alb-tetel img, .alb-tetel svg{ max-width:100%; max-height:84px; display:block; }
+.alb-tetel small{ font:500 11px Fredoka,sans-serif; color:#7a6a8a; }
+.alb-tetel.fogva, .alb-tetel.aktiv{ border-color:#8a4fd0; background:#f3ecfb; box-shadow:0 0 0 2px #c9a8e6; }
+.alb-tolt{ color:#b8aecb; font-size:20px; }
+.alb-ures{ grid-column:1/-1; font:500 15px Fredoka,sans-serif; color:#7a6a8a; text-align:center; margin:18px 6px; }
+.alb-felirat{ grid-column:1/-1; display:flex; flex-direction:column; gap:10px; align-items:stretch; }
+.alb-felirat input{ font:500 18px Fredoka,sans-serif; padding:8px 12px; border-radius:12px; border:2px solid #eadfc4; color:#3f8a68; }
+.alb-szinek, .alb-meretek{ display:flex; gap:8px; flex-wrap:wrap; }
+.alb-szin{ width:30px; height:30px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 2px #eadfc4; cursor:pointer; }
+.alb-szin.aktiv{ box-shadow:0 0 0 3px #2a2140; }
+.alb-meret{ min-width:56px; height:40px; border-radius:10px; border:2px solid transparent; background:#f6f1e6; font-family:Fredoka,sans-serif; font-weight:600; color:#5a4b80; cursor:pointer; }
+.alb-meret.aktiv{ background:#fcd38b; border-color:#e0a800; }
+@media (max-width:760px), (orientation:portrait) and (max-width:1000px){
+  .alb-test{ grid-template-columns:1fr; grid-template-rows:minmax(0,1.1fr) minmax(0,1fr); }
+  .alb-cim{ display:none; }
+}

@@ -70,9 +70,9 @@ var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar"
    a felhőkert lépcsője nincs ott, a heti kártya nem látszik, a kölyök nem kísér, a többi unikornis alszik, a Bolt egy polcos,
    a szalonban csak a kefék élnek. Az utca az 1. napon csak az első végigjátszott pálya után nyílik (előbb a pálya). */
 var NYITAS_NAPOK = [["utca", 1], ["kert", 2], ["het", 4], ["fodrasz", 6], ["harmat", 7], ["felhokert", 8], ["kolyok", 9],
-                    ["bank", 10], ["unikornisok", 15], ["frissites", 16]];
+                    ["bank", 10], ["foto", 12], ["unikornisok", 15], ["frissites", 16]];
 var NYITAS_NEV = { utca: "🏘️ utca (Bolt)", kert: "🌿 kert", het: "📅 heti kártya", fodrasz: "💇 fodrász", harmat: "💧 harmat", felhokert: "☁️ felhőkert",
-                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy",
+                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", foto: "📷 fotógép", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy",
                    sarkany: "🐉 sárkány-nap (más nem nyílt)" };   /* a pultnak */
 var NYITAS_MEGY = { palya: 3, nap: 2 };
 var NYITAS_ELAKAD = 2;
@@ -98,6 +98,7 @@ var NYITAS_BEMUTAT = {
   fodrasz:     { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a fodrászat!" },
   felhokert:   { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a felhőkert!" },
   bank:        { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a Tündérbank!" },
+  foto:        { hol: "utca", utcaHiv: 1, ragyog: ["#utca-bolt"], mondat: "Fotógép érkezett a Csillagboltba! Nézzük meg!" },
   frissites:   { hol: "utca", utcaHiv: 1, ragyog: ["#utca-bolt"], mondat: "Új polcok vannak a Csillagboltban! Nézzük meg!" }
 };
 var NYITAS_UTCA_HIV = "Nézd, valami kinyílt az utcán!";
@@ -222,7 +223,9 @@ var NYITAS_ELSO_LIGET = { 1: "osszeado", 2: "osszeado", 3: "osszeado", 4: "szorz
 /* 🛍️ a Bolt az újoncnál: 1 polc (ruhák), a 💧 kerti trükkök a harmattal, minden más a frissítések napjától (tervlap 4.③, 4.⑤) */
 function nyitasBoltFulek() {
   var m = nyitasMenet(); if (!m || m.r.nyilt.frissites != null) return null;
-  return m.r.nyilt.harmat != null ? ["holmik", "kert"] : ["holmik"];
+  var l = m.r.nyilt.harmat != null ? ["holmik", "kert"] : ["holmik"];
+  if (m.r.nyilt.foto != null) l.push("foto");   /* 📷 a 12. naptól a gép (foto.js) */
+  return l;
 }
 /* az újonc rövidebb első pályája (tervlap 4.②): amíg egyik unikornisnál sincs végigjátszott pálya */
 function nyitasRovidElso(pa) {

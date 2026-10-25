@@ -75,6 +75,7 @@ function renderKert() {
   kertTajMozgasIndit();                  /* hal + szitakötő */
   tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
   lenyKertRajzol();                      /* 🌈 a nagy sárkány a napozó sziklán (leny.js, visszahívás 5. kör) */
+  fotoGombTesz("kert");                  /* 📷 (foto.js) */
 }
 /* ha a színtér aránya átbillen (telefon elforgatása), csak a háttér cserélődik a másik elrendezésre */
 window.addEventListener("resize", function () {
@@ -681,6 +682,7 @@ function boltBagolySzoveg(k) {
   if (!k) return "Nézz csak körül nyugodtan!";
   var cs = k.cs, t = k.t, p = P().csillampor;
   var kint = (cs.fajta === "ruha" || cs.fajta === "kinezet");
+  if (cs.fajta === "foto") return fotoBoltSzoveg(k);
   if (cs.fajta === "kertdisz") {
     var pk = P().tunderharmat || 0, meglevo = (P().kert.keszlet[t.id] || 0) + kertElemDb(t.id);
     if (pk < t.ar) return "Még " + (t.ar - pk) + " 💧 kell hozzá — gyűjts egy kicsit!";
@@ -703,7 +705,7 @@ function boltGombAllapot(cs, t, birt, aktiv, eleg) {
       ? { szoveg: "Leveszem", szin: "le", mit: function () { oduRuhaVisel(cs.kulcs, null); } }
       : { szoveg: "Felveszem", szin: "fel", mit: function () { oduRuhaVisel(cs.kulcs, t.id); } };
     if (cs.fajta === "vitrin") return { szoveg: "✓ a vitrinben", szin: "kesz", mit: null };
-    if (cs.fajta === "kert") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
+    if (cs.fajta === "kert" || cs.fajta === "foto") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
     if (aktiv && cs.fajta === "disz") return { szoveg: "Leszedem", szin: "le", mit: function () { oduDiszBeallit(cs.kulcs, "nincs"); } };
     if (aktiv) return { szoveg: (cs.fajta === "kinezet") ? "✓ ez van rajta" : "✓ ez van kint", szin: "kesz", mit: null };
     if (cs.fajta === "butor") return { szoveg: "Berendezem", szin: "fel", mit: function () { oduButorBeallit(cs.kulcs, t.id); } };
@@ -889,7 +891,7 @@ function boltTablaKulcs(cs) {
   if (cs.fajta === "disz" && BOLT_ODU_FOLT["d:" + cs.kulcs]) return "d:" + cs.kulcs;
   if (cs.fajta === "ruha" && BOLT_UNI_FOLT[cs.kulcs]) return "u:" + cs.kulcs;
   /* a Kert fülön a hely helyett a PÉNZ a különbség: ✨ vagy 💧 tábla */
-  if ((cs.fajta === "kert" || cs.fajta === "kertdisz") && cs.tetelek[0]) return "v:" + boltValuta(cs, cs.tetelek[0]);
+  if ((cs.fajta === "kert" || cs.fajta === "kertdisz" || cs.fajta === "foto") && cs.tetelek[0]) return "v:" + boltValuta(cs, cs.tetelek[0]);
   return null;
 }
 /* a rajz elhalványítva, csak a folt világít + arany gyűrű */
@@ -955,7 +957,7 @@ function boltCedulaSVG(k) {
   }
   var cs = k.cs, t = k.t, birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), eleg = boltPenz(cs, t) >= t.ar;
   var rangos = cs.tetelek.filter(function (x) { return !x.emlek; }).length;   /* az emlék-tétel nem rangsorolt */
-  var rang = t.emlek ? 3 : (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz") ? 0 : (k.rang >= rangos - 1 ? 2 : 1);
+  var rang = t.emlek ? 3 : (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz" || cs.fajta === "foto") ? 0 : (k.rang >= rangos - 1 ? 2 : 1);
   if (rang > 0) s += '<g><rect x="646" y="180" width="120" height="20" rx="10" fill="' + (rang === 3 ? "#f6c3d8" : rang === 2 ? "#ffd24d" : "#f0c869") + '"/>' +
     '<text x="706" y="194" font-size="11" font-weight="800" fill="#7a5a1e" text-anchor="middle">' + (rang === 3 ? "♥ EMLÉK" : rang === 2 ? "★ RITKA" : "✦ KÜLÖNLEGES") + '</text></g>';
   s += '<text x="706" y="' + (rang > 0 ? 222 : 210) + '" font-size="15.5" font-weight="800" fill="#7a5a2a" text-anchor="middle">' + kiiras(t.nev) + '</text>';
@@ -970,6 +972,7 @@ function boltCedulaSVG(k) {
             : (cs.fajta === "ido" ? "ilyen lesz az ég"
             : (cs.fajta === "kert" ? (t.id === "eves" ? "új képesség" : "trükk a kertben")
             : (cs.fajta === "kertdisz" ? "így néz ki a kertben"
+            : cs.fajta === "foto" ? FOTO_INDULO + " kocka film és album jár hozzá"
             : "így néz ki a szobád")));
   s += '<text x="706" y="398" font-size="11" fill="#a08a6a" text-anchor="middle">' + cimke + '</text>';
   /* ár */
@@ -1014,6 +1017,7 @@ function boltElonezetBelso(cs, t) {
   else if (cs.fajta === "kinezet") h = unikornisSVG("bkp", LENYEK[mentes.leny], 1, P().oltozet, kinezetPreview(cs.kulcs, t.id));
   else if (cs.fajta === "kert") return t.svg;   /* a kert-tétel (kulcs) ikonja, mint előnézet */
   else if (cs.fajta === "kertdisz") return kertTargyBelso(t.id);   /* a berendezési tárgy rajza (talajpont-origó, a fit középre igazít) */
+  else if (cs.fajta === "foto") return FOTO_GEP_SVG + '<g transform="translate(132 112) scale(.9)">' + FOTO_FILM_SVG + "</g>";   /* 📷 a gép + a filmtekercs */
   else {
     var o2 = P().odu;
     h = (cs.kulcs === "napszak" ? oduEgSVG(t.id, 144, 96) : oduEgSVG(o2.napszak, 144, 96) + oduIdoSVG(t.id, 144, 96, 10));
@@ -1055,12 +1059,12 @@ function boltIgazit(gyoker) {
 var BOLT_FULEK = [
   { id: "holmik", nev: "Holmik" }, { id: "kinezet", nev: "Kinézet" },
   { id: "butorok", nev: "Bútorok" }, { id: "diszek", nev: "Díszek" }, { id: "ido", nev: "Időjárás" },
-  { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }
+  { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }, { id: "foto", nev: "Fotó" }
 ];
 /* 🚪 az újoncnál a bolt kevesebb füllel nyit (nyitas.js nyitasBoltFulek): az első napokban csak a ruhák polca */
 function boltFulek() {
   var l = nyitasBoltFulek();
-  return l ? BOLT_FULEK.filter(function (f) { return l.indexOf(f.id) >= 0; }) : BOLT_FULEK;
+  return BOLT_FULEK.filter(function (f) { return (!l || l.indexOf(f.id) >= 0) && (f.id !== "foto" || fotoNyitva()); });   /* 📷 a gép a 12. naptól (foto.js) */
 }
 function renderOduPanel() {
   var host = $("odu-bolt-szinter");
@@ -1144,6 +1148,7 @@ function boltCsoportok() {
     /* a kert ingyenes (nincs kulcs): a séta-trükkök (💧) egy polcon, utánuk a berendezési tárgyak (darabra, 💧-ért) */
     return [{ kulcs: "kert", nev: "Kert", fajta: "kert", tetelek: KERT_BOLT }].concat(kertTargyBoltCsoportok());
   }
+  if (ODU_FUL === "foto") return fotoBoltCsoportok();   /* 📷 a fotógép, 💧-ért (foto.js) */
   if (ODU_FUL === "kinezet") {
     var rajz = LENYEK[mentes.leny].rajz;
     return [
@@ -1160,6 +1165,7 @@ function boltBirt(cs, t) {
   if (cs.fajta === "kinezet") { var v = cs.kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem; return t.id === 0 || !!(v && v[t.id]); }
   if (cs.fajta === "vitrin") return !!P().odu.vitrin[t.id];
   if (cs.fajta === "kert") return !!P().kert.trukkok[t.id];
+  if (cs.fajta === "foto") return !!(P().foto && P().foto.gep);
   if (cs.fajta === "kertdisz") return false;   /* darabra vehető: sosem „megvan" állapot, mindig újra vehető */
   return !!P().odu.van[cs.kulcs][t.id];
 }
@@ -1174,6 +1180,7 @@ function boltAktiv(cs, t) {
   if (cs.fajta === "vitrin") return false;         /* nincs „kint/rajta" állapot: ha megvan, a vitrinben áll */
   if (cs.fajta === "kert") return false;           /* nincs „kint/rajta" állapot */
   if (cs.fajta === "kertdisz") return false;       /* a lerakás a kertben történik, nem a boltban */
+  if (cs.fajta === "foto") return false;
   return P().odu[cs.kulcs] === t.id;
 }
 /* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
@@ -1291,6 +1298,7 @@ function boltThumb(cs, t) {
   if (cs.fajta === "vitrin") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kristály-dísz ikonja */
   if (cs.fajta === "kert") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kert-tétel ikonja (kulcs) */
   if (cs.fajta === "kertdisz") return kertTargyIkon(t.id);   /* berendezési tárgy: maga a kertbeli rajz kicsiben */
+  if (cs.fajta === "foto") return fotoGepIkon();   /* 📷 a levendula azonnali gép (album-elemek.js) */
   var o = P().odu;
   return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
     (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
@@ -1334,6 +1342,7 @@ function boltVegrehajt(cs, t) {
   else if (cs.fajta === "vitrin") oduVitrinVesz(t);
   else if (cs.fajta === "kert") oduKertVesz(t);
   else if (cs.fajta === "kertdisz") kertTargyVesz(t);
+  else if (cs.fajta === "foto") fotoGepVesz(t);
   else oduVesz(cs.kulcs, t);
   jelvenyEllenoriz();                          /* bolti jelvények azonnal (Első vásárlás, Otthonteremtő, Gyűjtő) */
 }

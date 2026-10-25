@@ -473,7 +473,7 @@ function oduVitrinVesz(t) {
    💧 (tunderharmat, kitartás-valuta). Ez a három segéd dönti el, melyik a tétel valutája. */
 function kertTrukkTetel(cs, t) { return !!(cs && cs.fajta === "kert" && t); }
 /* 💧-s tétel: a séta-trükkök ÉS a berendezési tárgyak (kertdisz) is tündérharmatért mennek */
-function harmatTetel(cs, t) { return kertTrukkTetel(cs, t) || !!(cs && cs.fajta === "kertdisz"); }
+function harmatTetel(cs, t) { return kertTrukkTetel(cs, t) || !!(cs && (cs.fajta === "kertdisz" || cs.fajta === "foto")); }   /* 📷 a gép is 💧 */
 function boltValuta(cs, t) { return harmatTetel(cs, t) ? "💧" : "✨"; }
 function boltPenz(cs, t) { return harmatTetel(cs, t) ? (P().tunderharmat || 0) : P().csillampor; }
 /* Kert-tétel vétele: a „kulcs" (✨) kinyitja a kertkaput; a séta-trükkök (💧) a kertben játszhatók. */
@@ -1088,6 +1088,8 @@ function renderOdu() {
   if (ODU_FEKSZIK) oduFekszik(true);         /* újrarajzolás (ablakméret) alvás közben: rögtön újra az ágyban alszik */
   lenyOduKot($("odu-szoba").querySelector("svg"));   /* 🥚 tojás-koppintás, 🐣 a fióka totyogása (leny.js) */
   hetOduKot($("odu-szoba").querySelector("svg"));    /* 📅 a heti kártya koppintásra nagyban (het.js) */
+  fotoOduKonyv($("odu-szoba").querySelector("svg")); /* 📸 a Fotóalbum könyve, rajta a gyerek borítója (album.js) */
+  fotoGombTesz("odu");                               /* 📷 a gomb a sarokban (foto.js) */
 }
 /* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
 var _oduMeretIdo = null;

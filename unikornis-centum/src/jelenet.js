@@ -113,16 +113,9 @@ function jlUniSetal(x, y, kesz) {
 }
 
 /* ═════════════════ 🪨 FELVESZ – LETESZ ═════════════════ */
-function jlPont(e) { var p = JL.svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(JL.svg.getScreenCTM().inverse()); }
-/* a legközelebbi letehető hely a mutató alatt (képernyő-px-ben: a hely köre és még egy fél kör) */
-function jlLegkozelebbi(e) {
-  var cel = null, legjobb = Infinity;
-  [].forEach.call(JL.svg.querySelectorAll(".jl-hely"), function (h) {
-    var r = h.getBoundingClientRect(), d = Math.hypot(r.left + r.width / 2 - e.clientX, r.top + r.height / 2 - e.clientY);
-    if (d < Math.max(r.width, r.height) * .85 && d < legjobb) { legjobb = d; cel = h.getAttribute("data-hely"); }
-  });
-  return cel;
-}
+/* a közös számolás a felvesz.js-ben (a 📸 album is azt használja) */
+function jlPont(e) { return fvPont(JL.svg, e); }
+function jlLegkozelebbi(e) { return fvLegkozelebbi(JL.svg, ".jl-hely", "data-hely", e); }   /* a hely köre és még egy fél kör */
 function jlJeloles(cel) {   /* a kör, ahova most esne, kiemelődik */
   [].forEach.call(JL.svg.querySelectorAll(".jl-hely"), function (h) { h.classList.toggle("jl-cel", h.getAttribute("data-hely") === cel); });
 }

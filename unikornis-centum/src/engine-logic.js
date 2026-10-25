@@ -795,6 +795,7 @@ function palyaVege() {
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
   if (!J.rovid) tudasPalyaVege(id, teljes);   /* 📒 tudás-napló: tiszta (kerülő nélküli) nap — láthatatlan (tudas.js) */
+  fotoPalyaVege();              /* 🎞️ film-küldetés: 3 végigjárt pálya → 6 kocka (foto.js) */
   kuldPalyaVege(id);            /* 🐉 sárkány-küldetés: a kért pálya hoz egy darabot (kuldetes.js); a hír a visszaHir-ben */
   var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
   var bankJegy = nyitasEbren("bank") ? bankPalyaKesz(id) : 0;   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad); az újoncnál csak, ha a bank már ébren (nyitas.js) */

@@ -200,7 +200,7 @@ function kalandNyit() {
   var l = lenyTar(), T = kalandTar(l);
   _ktIdo.forEach(clearTimeout); _ktIdo = [];
   var d = ktFedo("kaland-fedo", '<div class="kt-ablak"><div class="kt-fej"><button class="kt-gomb" id="kt-vissza">← Odú</button>' +
-    '<div class="kt-cim">A kissárkány nyomában</div><button class="kt-gomb" id="kt-album-gomb">📒 Album</button></div>' +
+    '<div class="kt-cim">A kissárkány nyomában</div><button class="kt-gomb" id="kt-album-gomb">📒 Képeslapok</button></div>' +
     '<div class="kt-terkep uni-terep" id="kt-terkep"></div>' +
     '<div class="kt-lab"><span class="kt-jel" id="kt-jel"></span><p class="kt-szoveg" id="kt-szoveg"></p></div></div>');
   d.querySelector("#kt-vissza").addEventListener("click", function () { hangGomb(); kalandZar(); });
@@ -255,6 +255,7 @@ function ktRajzol() {
   M.svg.addEventListener("click", function (e) { var g = e.target.closest(".kt-felho"); if (g) ktFelhoKatt(g.getAttribute("data-id")); });
   KT = { M: M, mod: mod, fut: false, host: host };
   ktAllapot();
+  fotoGombTesz("kaland");   /* 📷 (foto.js) */
 }
 /* a fénylő (elfújható) felhők, a barlang kilógó farka, a számláló */
 function ktAllapot() {
@@ -415,7 +416,7 @@ function kalandLapMondat(id) { return KALAND_LAP[id].sor.join(" ").replace(/\s+/
 function kalandLapMutat(id, uj) {
   if (!KALAND_LAP[id]) return;
   var d = ktFedo("kaland-lap", '<div class="kt-lap-kartya">' + (uj ? '<div class="kt-lap-cim">📮 Képeslapot küldött ' + htmlVed(lenyTar().nev) + "!</div>" : "") +
-    '<div class="kt-lap-nagy">' + kalandLapSVG(id) + '</div><button class="nagy-gomb kiemelt" id="kt-lap-ok">' + (uj ? "📒 Az albumba!" : "Rendben") + "</button></div>");
+    '<div class="kt-lap-nagy">' + kalandLapSVG(id) + '</div><button class="nagy-gomb kiemelt" id="kt-lap-ok">' + (uj ? "📒 A képeslapok közé!" : "Rendben") + "</button></div>");
   mondd(kalandLapMondat(id));
   d.querySelector("#kt-lap-ok").addEventListener("click", function () { hangGomb(); ktFedoZar("kaland-lap"); ktAllapot(); });
 }
@@ -427,7 +428,7 @@ function kalandAlbum() {
     "<span>Fényes pikkely " + l.pikkely.length + "/" + osszPik + " · a Kincsvitrinen is ragyog</span></div>" : "";
   var d = ktFedo("kaland-lap", '<div class="kt-album"><div class="kt-album-fej"><b>📒 ' + htmlVed(l.nev || "A kissárkány") + " képeslapjai</b><span>" + lapok.length + "/" + osszLap + '</span><button class="kt-gomb" id="kt-album-zar">✕</button></div>' +
     pik + '<div class="kt-album-racs">' + (lapok.length ? lapok.map(function (id) { return '<button class="kt-album-lap" data-id="' + id + '">' + kalandLapSVG(id) + "</button>"; }).join("") : '<p class="kt-album-ures">Még nem jött képeslap. Kövessétek a nyomokat a kalandtérképen!</p>') + "</div></div>");
-  mondd(lapok.length ? "Az album. Koppints egy képeslapra, és felolvasom!" : "Még nem jött képeslap.");
+  mondd(lapok.length ? "A képeslapok. Koppints egy képeslapra, és felolvasom!" : "Még nem jött képeslap.");
   d.querySelector("#kt-album-zar").addEventListener("click", function () { hangGomb(); ktFedoZar("kaland-lap"); try { speechSynthesis.cancel(); } catch (e) {} });
   Array.prototype.forEach.call(d.querySelectorAll(".kt-album-lap"), function (b) { b.addEventListener("click", function () { hangGomb(); mondd(kalandLapMondat(b.getAttribute("data-id"))); }); });
 }

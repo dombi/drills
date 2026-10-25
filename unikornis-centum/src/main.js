@@ -12,6 +12,8 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  fotoTar: fotoTar, fotoGepVesz: fotoGepVesz, fotoGombTesz: fotoGombTesz, fotoKereso: fotoKereso, fotoKattan: fotoKattan, fotoLefotoz: fotoLefotoz, fotoPalyaVege: fotoPalyaVege, fotoKepKer: fotoKepKer,
+  albumNyit: albumNyit, albumZar: albumZar, albumFelvesz: albumFelvesz, albumGomb: albumGomb, albumLetolt: albumLetolt, get ALB() { return ALB; }, get FOTO_KERESO() { return FOTO_KERESO; },   /* 📸 fotógép + album */
   villamHalmazok: villamHalmazok, villamNyitva: villamNyitva, villamTudott: villamTudott, villamKorEpit: villamKorEpit, villamKov: villamKov, villamRossz: villamRossz,
   villamFeladat: villamFeladat, villamArnyek: villamArnyek, villamKorZar: villamKorZar, villamAllapot: villamAllapot, villamTar: villamTar, villamBeall: villamBeall,   /* ⚡ VILLÁMKÖR (2. kör) */
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */

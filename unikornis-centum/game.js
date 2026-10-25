@@ -3264,9 +3264,9 @@ var NYITAS_TANULO = ["osszeado", "szorzo", "szabo", "bajital", "pekseg", "vasar"
    a felhőkert lépcsője nincs ott, a heti kártya nem látszik, a kölyök nem kísér, a többi unikornis alszik, a Bolt egy polcos,
    a szalonban csak a kefék élnek. Az utca az 1. napon csak az első végigjátszott pálya után nyílik (előbb a pálya). */
 var NYITAS_NAPOK = [["utca", 1], ["kert", 2], ["het", 4], ["fodrasz", 6], ["harmat", 7], ["felhokert", 8], ["kolyok", 9],
-                    ["bank", 10], ["unikornisok", 15], ["frissites", 16]];
+                    ["bank", 10], ["foto", 12], ["unikornisok", 15], ["frissites", 16]];
 var NYITAS_NEV = { utca: "🏘️ utca (Bolt)", kert: "🌿 kert", het: "📅 heti kártya", fodrasz: "💇 fodrász", harmat: "💧 harmat", felhokert: "☁️ felhőkert",
-                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy",
+                   kolyok: "🐉 kölyök az ösvényen", bank: "🏦 bank", foto: "📷 fotógép", unikornisok: "🦄 a többi unikornis", frissites: "✨ frissítések", fejtoro: "🏔️ Fejtörő-hegy",
                    sarkany: "🐉 sárkány-nap (más nem nyílt)" };   /* a pultnak */
 var NYITAS_MEGY = { palya: 3, nap: 2 };
 var NYITAS_ELAKAD = 2;
@@ -3292,6 +3292,7 @@ var NYITAS_BEMUTAT = {
   fodrasz:     { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a fodrászat!" },
   felhokert:   { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a felhőkert!" },
   bank:        { hol: "utca", utcaHiv: 1, mondat: "Kinyílt a Tündérbank!" },
+  foto:        { hol: "utca", utcaHiv: 1, ragyog: ["#utca-bolt"], mondat: "Fotógép érkezett a Csillagboltba! Nézzük meg!" },
   frissites:   { hol: "utca", utcaHiv: 1, ragyog: ["#utca-bolt"], mondat: "Új polcok vannak a Csillagboltban! Nézzük meg!" }
 };
 var NYITAS_UTCA_HIV = "Nézd, valami kinyílt az utcán!";
@@ -3416,7 +3417,9 @@ var NYITAS_ELSO_LIGET = { 1: "osszeado", 2: "osszeado", 3: "osszeado", 4: "szorz
 /* 🛍️ a Bolt az újoncnál: 1 polc (ruhák), a 💧 kerti trükkök a harmattal, minden más a frissítések napjától (tervlap 4.③, 4.⑤) */
 function nyitasBoltFulek() {
   var m = nyitasMenet(); if (!m || m.r.nyilt.frissites != null) return null;
-  return m.r.nyilt.harmat != null ? ["holmik", "kert"] : ["holmik"];
+  var l = m.r.nyilt.harmat != null ? ["holmik", "kert"] : ["holmik"];
+  if (m.r.nyilt.foto != null) l.push("foto");   /* 📷 a 12. naptól a gép (foto.js) */
+  return l;
 }
 /* az újonc rövidebb első pályája (tervlap 4.②): amíg egyik unikornisnál sincs végigjátszott pálya */
 function nyitasRovidElso(pa) {
@@ -4479,7 +4482,7 @@ function profilNormal(p, k) {
   szerszamTar(p);                                  /* 🧰 szerszám-létrák (szerszam.js): P().szerszam = { t: sz → { h, l, m, mh }, n: napló, li: lift-napló } */
   gyakTar(p);                                      /* 🌱 gondozas.js: P().gyak = { db: gyakorlós napok, nap: az utolsó } */
   visszaTar(p);
-  tudasTar(p); kuldTar(p); megfTar(p);   /* 🔍 P().mf: napi megfigyelő napló (megf-naplo.js) */                      /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
+  tudasTar(p); kuldTar(p); megfTar(p); fotoTar(p);   /* 📸 P().foto (foto.js) */   /* 🔍 P().mf: napi megfigyelő napló (megf-naplo.js) */                      /* 📒 tudás-napló (tudas.js) + 🐉 sárkány-küldetés (kuldetes.js): P().tud, P().kuld */                                    /* 💌🦄🥚📅 visszahívás (gondozas.js): P().posta, .uni, .leny2, .het */
   if (!p.napiKiemelt) p.napiKiemelt = { datum: "", teljesitve: false };
   nyitasNormal(p);                                 /* 🚪 újonc-menet (nyitas.js): P().uj, ha ezzel az unikornissal kezdett */
   if (!p.bemutatva || typeof p.bemutatva !== "object") p.bemutatva = {};   /* egyszeri bemutató mondatok (ui.js BEMUTATAS): kulcs → 1, ha már elhangzott */
@@ -18819,6 +18822,21 @@ function bkBillentyu(e) {
   else if (e.key === "Backspace") { e.preventDefault(); bkJavitBe("del"); }
   else if (e.key === "Enter") { e.preventDefault(); bkJavitOk(); }
 }
+/* ============ 6h3b) 🪨 FELVESZ – LETESZ: a közös rész (a jelenet-motor és a 📸 Fotóalbum is ezt használja) ============
+   Húzás sehol nincs (touchpad): az első koppintás felveszi, a második leteszi. Ez a modul csak a közös számolást adja:
+     • fvPont(svg, e)  — a mutató helye az SVG saját koordinátáiban (a viewBox szerint, CSS-transzformokkal együtt)
+     • fvLegkozelebbi(svg, sel, attr, e) — a mutató alatti legközelebbi letehető hely (a jelenet-motor köreihez:
+       a hely köre és még egy fél kör számít), visszaadja a hely `attr` attribútumát, vagy null
+   A „szabad helyre tevés” (album) nem keres helyet: oda kerül, ahová a gyerek koppint (fvPont). */
+function fvPont(svg, e) { var p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function fvLegkozelebbi(svg, sel, attr, e) {
+  var cel = null, legjobb = Infinity;
+  [].forEach.call(svg.querySelectorAll(sel), function (h) {
+    var r = h.getBoundingClientRect(), d = Math.hypot(r.left + r.width / 2 - e.clientX, r.top + r.height / 2 - e.clientY);
+    if (d < Math.max(r.width, r.height) * .85 && d < legjobb) { legjobb = d; cel = h.getAttribute(attr); }
+  });
+  return cel;
+}
 /* ============ 6h4) 🎬 JELENET-MOTOR — a kép-panel közös váza (Pálya-recept C kör 1. menet, 2026-10-25) ============
    Terv: terv/palya-recept-terv.html 4. + 7. pont (✅ a stúdió döntése). A bolt (bolt-kep.js) és a Rokon-létra (letra.js) képe
    ugyanezt a vázat külön írta meg; az új képek már erre épülnek: 🏡 Számcsalád (csalad.js, 1. menet) · 🪜 Rokon-létra (letra.js, 2. menet).
@@ -18934,16 +18952,9 @@ function jlUniSetal(x, y, kesz) {
 }
 
 /* ═════════════════ 🪨 FELVESZ – LETESZ ═════════════════ */
-function jlPont(e) { var p = JL.svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(JL.svg.getScreenCTM().inverse()); }
-/* a legközelebbi letehető hely a mutató alatt (képernyő-px-ben: a hely köre és még egy fél kör) */
-function jlLegkozelebbi(e) {
-  var cel = null, legjobb = Infinity;
-  [].forEach.call(JL.svg.querySelectorAll(".jl-hely"), function (h) {
-    var r = h.getBoundingClientRect(), d = Math.hypot(r.left + r.width / 2 - e.clientX, r.top + r.height / 2 - e.clientY);
-    if (d < Math.max(r.width, r.height) * .85 && d < legjobb) { legjobb = d; cel = h.getAttribute("data-hely"); }
-  });
-  return cel;
-}
+/* a közös számolás a felvesz.js-ben (a 📸 album is azt használja) */
+function jlPont(e) { return fvPont(JL.svg, e); }
+function jlLegkozelebbi(e) { return fvLegkozelebbi(JL.svg, ".jl-hely", "data-hely", e); }   /* a hely köre és még egy fél kör */
 function jlJeloles(cel) {   /* a kör, ahova most esne, kiemelődik */
   [].forEach.call(JL.svg.querySelectorAll(".jl-hely"), function (h) { h.classList.toggle("jl-cel", h.getAttribute("data-hely") === cel); });
 }
@@ -20577,7 +20588,7 @@ function lenyTekercs(x, y) {
 function lenyAlbumKonyv(l) {
   if (!(l.kepeslap && l.kepeslap.length) && !(l.pikkely && l.pikkely.length)) return "";
   var a = LENY_ODU.album;
-  return '<g id="ln-album" transform="translate(' + a[0] + " " + a[1] + ') rotate(-7)" role="button" aria-label="Album">' +
+  return '<g id="ln-album" transform="translate(' + a[0] + " " + a[1] + ') rotate(-7)" role="button" aria-label="Képeslapok">' +
     '<ellipse cx="0" cy="3" rx="22" ry="4" fill="#3b2f66" opacity=".14"/><rect x="-18" y="-26" width="36" height="28" rx="3" fill="#f7b8d0" stroke="#c0567f" stroke-width="2"/>' +
     '<rect x="-18" y="-26" width="6" height="28" rx="2" fill="#e99bb9"/><rect x="-6" y="-20" width="18" height="13" rx="2" fill="#fffaf0" stroke="#c0567f" stroke-width="1"/>' +
     '<path d="M3 -10.5c-4 -2.6 -4 -6 -1.5 -6c1 0 1.5 1 1.5 1.4c0 -.4 .5 -1.4 1.5 -1.4c2.5 0 2.5 3.4 -1.5 6z" fill="#e0417a"/>' +
@@ -23730,6 +23741,120 @@ function kfErszeny(x, y, m, osszeg) {
     '<path d="M-26 -40Q0 -56 26 -40" fill="none" stroke="#7a5ca8" stroke-width="2.6"/><circle cx="-6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/><circle cx="6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/></g>' +
     '<text y="-14" text-anchor="middle" font-size="17" ' + KF_FR + ' fill="#4a3b7a">' + osszeg + '</text></g>';
 }
+/* ============ 6j5) 📸 ALBUM-ELEMEK: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv) ============
+   Forrás: Matekos/fotogep-album-rajzterv.html (✅ 2026-10-25) közös <defs>-e. Minden rajz EGY helyen él, a foto.js és az
+   album.js csak megnevezi (mint a keret.js-nél). Új dísz/háttér/keret = egy sor ide + egy sor a terv/elemkatalogus.md-be.
+   Az azonosítók „ae-” előtaggal: a játék többi rajzával nem ütköznek. A lap 420 × 315 (laptopon és telefonon ugyanaz). */
+var ALBUM_W = 420, ALBUM_H = 315;
+
+/* a lap közös defs-e: matrica-szegély (fehér, mint egy igazi matrica), árnyék, hátterek mintái, díszek */
+var ALBUM_DEFS =
+  '<filter id="ae-matrica" x="-30%" y="-30%" width="160%" height="160%">' +
+    '<feMorphology in="SourceAlpha" operator="dilate" radius="2.6" result="v"/><feFlood flood-color="#fff"/><feComposite in2="v" operator="in" result="feher"/>' +
+    '<feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#3b2f66" flood-opacity=".25"/>' +
+    '<feMerge><feMergeNode/><feMergeNode in="feher"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+  '<filter id="ae-arnyek" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="1" dy="2.5" stdDeviation="2" flood-color="#3b2f66" flood-opacity=".22"/></filter>' +
+  '<pattern id="ae-potty" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#c8ecd9"/><circle cx="9" cy="9" r="2.4" fill="#fff" opacity=".7"/></pattern>' +
+  '<pattern id="ae-kocka" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#fdf3dc"/><path d="M16 0H0V16" fill="none" stroke="#f0d9a8" stroke-width="1"/></pattern>' +
+  '<linearGradient id="ae-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f7"/><stop offset="1" stop-color="#eaf5fd"/></linearGradient>' +
+  '<pattern id="ae-vaszon" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 6L6 0" stroke="#fff" stroke-width="1" opacity=".22"/></pattern>' +
+  '<polygon id="ae-csillag" points="0,-11 2.7,-3.72 10.46,-3.4 4.37,1.42 6.47,8.9 0,4.6 -6.47,8.9 -4.37,1.42 -10.46,-3.4 -2.7,-3.72" fill="#fcd34d" stroke="#e0a800" stroke-width="1.4" stroke-linejoin="round"/>' +
+  '<g id="ae-virag"><g fill="#f7a3b8" stroke="#e07aa3" stroke-width="1"><circle cy="-6" r="5"/><circle cx="5.7" cy="-1.9" r="5"/><circle cx="3.5" cy="4.9" r="5"/><circle cx="-3.5" cy="4.9" r="5"/><circle cx="-5.7" cy="-1.9" r="5"/></g><circle r="3.6" fill="#fcd34d"/></g>' +
+  '<path id="ae-sziv" d="M0 9C-14 0-10-10-4-10C-1.5-10 0-7.5 0-6C0-7.5 1.5-10 4-10C10-10 14 0 0 9z" fill="#f27aa0" stroke="#d1507e" stroke-width="1.2"/>' +
+  '<g id="ae-level"><path d="M-10 9C-10-6 0-11 11-11C11 2 4 10-10 9z" fill="#8fd19e" stroke="#5fae7a" stroke-width="1.3"/><path d="M-10 9L6-6" stroke="#5fae7a" stroke-width="1.2"/></g>' +
+  '<g id="ae-pillango"><ellipse cx="-6" cy="-4" rx="6" ry="7" fill="#c9a8e6" stroke="#8a6cc0" stroke-width="1"/><ellipse cx="6" cy="-4" rx="6" ry="7" fill="#9ec9f0" stroke="#5f93c7" stroke-width="1"/><ellipse cx="-4.5" cy="6" rx="4" ry="4.5" fill="#f7a3b8"/><ellipse cx="4.5" cy="6" rx="4" ry="4.5" fill="#fcd38b"/><path d="M0-8v18M0-8l-3-4M0-8l3-4" stroke="#4a3d78" stroke-width="1.6" stroke-linecap="round"/></g>' +
+  '<g id="ae-szivarvany" fill="none" stroke-width="3" stroke-linecap="round"><path d="M-12 6a12 12 0 0 1 24 0" stroke="#f7a3b8"/><path d="M-9 6a9 9 0 0 1 18 0" stroke="#fcd38b"/><path d="M-6 6a6 6 0 0 1 12 0" stroke="#a8dcb0"/><path d="M-3 6a3 3 0 0 1 6 0" stroke="#9ec9f0"/></g>' +
+  '<g id="ae-felho"><g fill="#fff" stroke="#b9d4ee" stroke-width="1.3"><circle cx="-6" cy="2" r="6"/><circle cx="1" cy="-3" r="7.5"/><circle cx="7" cy="3" r="5.5"/></g><rect x="-11" y="2" width="22" height="6" fill="#fff"/></g>';
+
+/* 3 lap-háttér (alapkészlet) + 5 borító-vászon (a borítót a gyerek tervezi) */
+var ALBUM_HATTER = [
+  { id: "potty", nev: "menta pöttyös", rajz: function (w, h) { return '<rect width="' + w + '" height="' + h + '" rx="6" fill="url(#ae-potty)"/>'; } },
+  { id: "kocka", nev: "krém kockás", rajz: function (w, h) { return '<rect width="' + w + '" height="' + h + '" rx="6" fill="url(#ae-kocka)"/>'; } },
+  { id: "eg", nev: "égkék felhős", rajz: function (w, h) {
+      return '<rect width="' + w + '" height="' + h + '" rx="6" fill="url(#ae-eg)"/><use href="#ae-felho" transform="translate(' + w * .18 + ' ' + h * .2 + ') scale(2.2)"/>' +
+        '<use href="#ae-felho" transform="translate(' + w * .78 + ' ' + h * .32 + ') scale(1.6)"/><use href="#ae-felho" transform="translate(' + w * .5 + ' ' + h * .86 + ') scale(1.3)"/>'; } }
+];
+var ALBUM_VASZON = [
+  { id: "menta", nev: "menta", szin: "#a8dcb0", gerinc: "#8fd1b0", szel: "#3f8a68" },
+  { id: "rozsa", nev: "rózsa", szin: "#f7b8d0", gerinc: "#e99bb9", szel: "#c0567f" },
+  { id: "levendula", nev: "levendula", szin: "#d9c4f0", gerinc: "#c9a8e6", szel: "#7d5bb5" },
+  { id: "egkek", nev: "égkék", szin: "#b9dcf5", gerinc: "#9ec9f0", szel: "#3f7fb0" },
+  { id: "mez", nev: "méz", szin: "#f6d48a", gerinc: "#ecc067", szel: "#b8862c" }
+];
+function albumVaszon(id) { return ALBUM_VASZON.filter(function (v) { return v.id === id; })[0] || ALBUM_VASZON[0]; }
+function albumHatter(id) { return ALBUM_HATTER.filter(function (v) { return v.id === id; })[0] || ALBUM_HATTER[0]; }
+/* a lap alja: borítónál vászon + gerinc, máskor a választott háttér */
+function albumHatterRajz(lap) {
+  if (!lap.borito) return albumHatter(lap.hatter).rajz(ALBUM_W, ALBUM_H);
+  var v = albumVaszon(lap.hatter);
+  return '<rect width="' + ALBUM_W + '" height="' + ALBUM_H + '" rx="14" fill="' + v.szin + '" stroke="' + v.szel + '" stroke-width="4"/>' +
+    '<rect width="' + ALBUM_W + '" height="' + ALBUM_H + '" rx="14" fill="url(#ae-vaszon)"/>' +
+    '<rect x="2" y="2" width="40" height="' + (ALBUM_H - 4) + '" rx="12" fill="' + v.gerinc + '"/><path d="M42 6V' + (ALBUM_H - 6) + '" stroke="' + v.szel + '" stroke-width="2" opacity=".5"/>';
+}
+
+/* 2 ingyenes fotó-keret (polaroid + ragasztószalag) + a keret nélküli. A fotó 4:3, alapméretben 140 × 105.
+   keretRajz(kep, w, h): a kép (egy <image>) köré rajzol, a közép a (0, 0) */
+var ALBUM_KERET = [
+  { id: "polaroid", nev: "polaroid", rajz: function (kep, w, h) {
+      var m = 8, alul = 26;
+      return '<g filter="url(#ae-arnyek)"><rect x="' + (-w / 2 - m) + '" y="' + (-h / 2 - m) + '" width="' + (w + 2 * m) + '" height="' + (h + m + alul) + '" rx="2" fill="#fff"/>' + kep + '</g>'; } },
+  { id: "szalag", nev: "ragasztószalag", rajz: function (kep, w, h) {
+      var m = 4;
+      return '<g filter="url(#ae-arnyek)"><rect x="' + (-w / 2 - m) + '" y="' + (-h / 2 - m) + '" width="' + (w + 2 * m) + '" height="' + (h + 2 * m) + '" fill="#fff"/>' + kep + '</g>' +
+        '<rect x="' + (-w / 2 - 16) + '" y="' + (-h / 2 - 2) + '" width="38" height="13" fill="#fcd38b" opacity=".75" transform="rotate(-35 ' + (-w / 2) + ' ' + (-h / 2) + ')"/>' +
+        '<rect x="' + (w / 2 - 22) + '" y="' + (h / 2 - 11) + '" width="38" height="13" fill="#fcd38b" opacity=".75" transform="rotate(-35 ' + (w / 2) + ' ' + (h / 2) + ')"/>'; } },
+  { id: "nincs", nev: "keret nélkül", rajz: function (kep) { return '<g filter="url(#ae-arnyek)">' + kep + '</g>'; } }
+];
+function albumKeret(id) { return ALBUM_KERET.filter(function (v) { return v.id === id; })[0] || ALBUM_KERET[0]; }
+
+/* 8 dísz (alapkészlet); a 📅 dátum-bélyegző a letevés napját kapja (a gyerek maga teszi fel, nem a játék írja rá) */
+var ALBUM_DISZ = ["csillag", "virag", "sziv", "level", "pillango", "szivarvany", "felho", "datum"];
+var HONAP_ROVID = ["jan.", "febr.", "márc.", "ápr.", "máj.", "jún.", "júl.", "aug.", "szept.", "okt.", "nov.", "dec."];
+function albumMaiDatum() { var d = new Date(); return HONAP_ROVID[d.getMonth()] + " " + d.getDate() + "."; }
+function albumDiszRajz(id, szoveg) {
+  if (id === "datum") return '<rect x="-24" y="-10" width="48" height="20" rx="3" fill="#fff5f8" stroke="#e0417a" stroke-width="1.4" stroke-dasharray="3 2"/>' +
+    '<text y="4.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="12" font-weight="600" fill="#e0417a">' + kiiras(szoveg || albumMaiDatum()) + '</text>';
+  return '<use href="#ae-' + id + '"/>';
+}
+
+/* a felirat 6 színe és 3 mérete (rajzterv: „Aa” panel) */
+var ALBUM_FELIRAT_SZIN = ["#3f8a68", "#e0417a", "#8a4fd0", "#29a3dd", "#e8b04a", "#5a4b80"];
+var ALBUM_FELIRAT_MERET = [{ id: 1, px: 16 }, { id: 2, px: 24 }, { id: 3, px: 34 }];
+
+/* 📷 a gép: B) levendula „azonnali gép” (✅) — alul kibújik a kép. Bolti bélyegképnek és a szerkesztő fejlécének. */
+var FOTO_GEP_SVG =
+  '<ellipse cx="80" cy="122" rx="58" ry="6" fill="#3b2f66" opacity=".12"/>' +
+  '<rect x="50" y="104" width="60" height="20" fill="#fff" stroke="#d6cce6" stroke-width="1.5"/><rect x="54" y="107" width="52" height="13" fill="#bfe6d0"/>' +
+  '<rect x="20" y="28" width="120" height="80" rx="16" fill="#e2d2f6" stroke="#7d5bb5" stroke-width="3"/>' +
+  '<path d="M21.5 44a14.5 14.5 0 0 1 14.5-14.5h88a14.5 14.5 0 0 1 14.5 14.5v8h-117z" fill="#c9a8e6"/>' +
+  '<rect x="32" y="54" width="6" height="52" fill="#f7a3b8"/><rect x="38" y="54" width="6" height="52" fill="#fcd38b"/><rect x="44" y="54" width="6" height="52" fill="#a8dcb0"/><rect x="50" y="54" width="6" height="52" fill="#9ec9f0"/>' +
+  '<rect x="120" y="21" width="15" height="9" rx="3" fill="#e0417a"/>' +
+  '<rect x="30" y="34" width="17" height="11" rx="3" fill="#4a3d78"/><rect x="110" y="34" width="22" height="12" rx="3" fill="#fff7d6" stroke="#7d5bb5" stroke-width="2"/>' +
+  '<circle cx="96" cy="76" r="26" fill="#fffaf0" stroke="#7d5bb5" stroke-width="3"/><circle cx="96" cy="76" r="17" fill="#4a3d78"/><circle cx="96" cy="76" r="9" fill="#6b5fa8"/><circle cx="90" cy="70" r="4" fill="#fff" opacity=".85"/>' +
+  '<rect x="36" y="106" width="88" height="5" rx="2" fill="#7d5bb5"/>';
+/* 🎞️ filmtekercs (a „8 kocka jár hozzá” és az „Új film!” pillanat) — a közép (0, 0) */
+var FOTO_FILM_SVG =
+  '<path d="M8-6h26v12H8z" fill="#e8b04a"/><g fill="#fdf0d0"><rect x="11" y="-4.5" width="3" height="2.4" rx=".6"/><rect x="18" y="-4.5" width="3" height="2.4" rx=".6"/><rect x="25" y="-4.5" width="3" height="2.4" rx=".6"/>' +
+  '<rect x="11" y="2.1" width="3" height="2.4" rx=".6"/><rect x="18" y="2.1" width="3" height="2.4" rx=".6"/><rect x="25" y="2.1" width="3" height="2.4" rx=".6"/></g>' +
+  '<rect x="-12" y="-13" width="22" height="26" rx="4" fill="#6b5fa8" stroke="#4a3d78" stroke-width="2"/><rect x="-14" y="-15" width="26" height="5" rx="2" fill="#4a3d78"/><rect x="-14" y="10" width="26" height="5" rx="2" fill="#4a3d78"/><rect x="-7" y="-6" width="12" height="9" rx="2" fill="#fcd38b"/>';
+/* a bolti bélyegkép: a gép, a sarkában a filmtekercs */
+function fotoGepIkon() {
+  return '<svg viewBox="0 0 160 134" xmlns="http://www.w3.org/2000/svg">' + FOTO_GEP_SVG + '<g transform="translate(132 112) scale(.9)">' + FOTO_FILM_SVG + '</g></svg>';
+}
+
+/* 📸 a könyv az odúban: menta vászonkönyv, a borítóján a gyerek borítója kicsiben (boritoKep = a borító SVG belseje 420×315-ben).
+   Odú-koordinátában (x, y) a talppont. A képeslap-albumnál (36 × 28) nagyobb: 56 × 44. */
+function fotoKonyvSVG(x, y, v, boritoBelso, ures) {
+  /* az alap-borító (még üres): egy fehér fotó-hely és egy csillag, mint a rajzterven — hogy könyvnek látsszon, ne doboznak */
+  var alap = ures ? '<g transform="translate(-10 -36) rotate(-6)"><rect width="28" height="30" fill="#fff" stroke="#cfd8d0" stroke-width=".8"/><rect x="3" y="3" width="22" height="18" fill="#bfe0f7"/></g>' +
+    '<g transform="translate(20 -8) scale(.55)"><polygon points="0,-11 2.7,-3.72 10.46,-3.4 4.37,1.42 6.47,8.9 0,4.6 -6.47,8.9 -4.37,1.42 -10.46,-3.4 -2.7,-3.72" fill="#fcd34d" stroke="#e0a800" stroke-width="1.4"/></g>' : "";
+  return '<g id="foto-konyv" transform="translate(' + x + ' ' + y + ') rotate(4)" role="button" aria-label="Fotóalbum">' +
+    '<ellipse cx="0" cy="3" rx="32" ry="5" fill="#3b2f66" opacity=".14"/>' +
+    '<rect x="-28" y="-42" width="56" height="44" rx="4" fill="' + v.szin + '" stroke="' + v.szel + '" stroke-width="2.2"/>' +
+    '<svg x="-28" y="-42" width="56" height="44" viewBox="0 0 ' + ALBUM_W + ' ' + ALBUM_H + '" preserveAspectRatio="none">' + boritoBelso + '</svg>' +
+    '<rect x="-28" y="-42" width="56" height="44" rx="4" fill="none" stroke="' + v.szel + '" stroke-width="2.2"/>' + alap +
+    '<rect x="-34" y="-50" width="68" height="58" fill="transparent"/></g>';
+}
 /* ============ 6m) 📅 HETI KÁRTYA — 4 pecsét = teljes hét (visszahívás 5. kör, 2026-10-07) ============
    Terv: terv/visszahivas-rendszerterv.html (4. elem) + terv/visszahivas-rajzterv.html (B rész, „Heti kártya”, jóváhagyva).
      • Gyakorlós naponként egy pecsét (gondozas.js: hetPecset, a gyakPalyaVege hívja): az unikornis patkója az unikornis
@@ -24038,7 +24163,7 @@ function kalandNyit() {
   var l = lenyTar(), T = kalandTar(l);
   _ktIdo.forEach(clearTimeout); _ktIdo = [];
   var d = ktFedo("kaland-fedo", '<div class="kt-ablak"><div class="kt-fej"><button class="kt-gomb" id="kt-vissza">← Odú</button>' +
-    '<div class="kt-cim">A kissárkány nyomában</div><button class="kt-gomb" id="kt-album-gomb">📒 Album</button></div>' +
+    '<div class="kt-cim">A kissárkány nyomában</div><button class="kt-gomb" id="kt-album-gomb">📒 Képeslapok</button></div>' +
     '<div class="kt-terkep uni-terep" id="kt-terkep"></div>' +
     '<div class="kt-lab"><span class="kt-jel" id="kt-jel"></span><p class="kt-szoveg" id="kt-szoveg"></p></div></div>');
   d.querySelector("#kt-vissza").addEventListener("click", function () { hangGomb(); kalandZar(); });
@@ -24093,6 +24218,7 @@ function ktRajzol() {
   M.svg.addEventListener("click", function (e) { var g = e.target.closest(".kt-felho"); if (g) ktFelhoKatt(g.getAttribute("data-id")); });
   KT = { M: M, mod: mod, fut: false, host: host };
   ktAllapot();
+  fotoGombTesz("kaland");   /* 📷 (foto.js) */
 }
 /* a fénylő (elfújható) felhők, a barlang kilógó farka, a számláló */
 function ktAllapot() {
@@ -24253,7 +24379,7 @@ function kalandLapMondat(id) { return KALAND_LAP[id].sor.join(" ").replace(/\s+/
 function kalandLapMutat(id, uj) {
   if (!KALAND_LAP[id]) return;
   var d = ktFedo("kaland-lap", '<div class="kt-lap-kartya">' + (uj ? '<div class="kt-lap-cim">📮 Képeslapot küldött ' + htmlVed(lenyTar().nev) + "!</div>" : "") +
-    '<div class="kt-lap-nagy">' + kalandLapSVG(id) + '</div><button class="nagy-gomb kiemelt" id="kt-lap-ok">' + (uj ? "📒 Az albumba!" : "Rendben") + "</button></div>");
+    '<div class="kt-lap-nagy">' + kalandLapSVG(id) + '</div><button class="nagy-gomb kiemelt" id="kt-lap-ok">' + (uj ? "📒 A képeslapok közé!" : "Rendben") + "</button></div>");
   mondd(kalandLapMondat(id));
   d.querySelector("#kt-lap-ok").addEventListener("click", function () { hangGomb(); ktFedoZar("kaland-lap"); ktAllapot(); });
 }
@@ -24265,7 +24391,7 @@ function kalandAlbum() {
     "<span>Fényes pikkely " + l.pikkely.length + "/" + osszPik + " · a Kincsvitrinen is ragyog</span></div>" : "";
   var d = ktFedo("kaland-lap", '<div class="kt-album"><div class="kt-album-fej"><b>📒 ' + htmlVed(l.nev || "A kissárkány") + " képeslapjai</b><span>" + lapok.length + "/" + osszLap + '</span><button class="kt-gomb" id="kt-album-zar">✕</button></div>' +
     pik + '<div class="kt-album-racs">' + (lapok.length ? lapok.map(function (id) { return '<button class="kt-album-lap" data-id="' + id + '">' + kalandLapSVG(id) + "</button>"; }).join("") : '<p class="kt-album-ures">Még nem jött képeslap. Kövessétek a nyomokat a kalandtérképen!</p>') + "</div></div>");
-  mondd(lapok.length ? "Az album. Koppints egy képeslapra, és felolvasom!" : "Még nem jött képeslap.");
+  mondd(lapok.length ? "A képeslapok. Koppints egy képeslapra, és felolvasom!" : "Még nem jött képeslap.");
   d.querySelector("#kt-album-zar").addEventListener("click", function () { hangGomb(); ktFedoZar("kaland-lap"); try { speechSynthesis.cancel(); } catch (e) {} });
   Array.prototype.forEach.call(d.querySelectorAll(".kt-album-lap"), function (b) { b.addEventListener("click", function () { hangGomb(); mondd(kalandLapMondat(b.getAttribute("data-id"))); }); });
 }
@@ -26120,6 +26246,7 @@ function palyaVege() {
   tkNapPalya();   /* Égi Tüneménykert: napi ösvény-számláló (belépési feltétel) */
   gyakPalyaVege();   /* 🌱 gyakorlós nap (gondozas.js): a nap első végigjátszott pályája után kinyílnak a bimbók */
   if (!J.rovid) tudasPalyaVege(id, teljes);   /* 📒 tudás-napló: tiszta (kerülő nélküli) nap — láthatatlan (tudas.js) */
+  fotoPalyaVege();              /* 🎞️ film-küldetés: 3 végigjárt pálya → 6 kocka (foto.js) */
   kuldPalyaVege(id);            /* 🐉 sárkány-küldetés: a kért pálya hoz egy darabot (kuldetes.js); a hír a visszaHir-ben */
   var kertV = visszaHir({ hajt: J.tvHajt || 0 });   /* 🌱 közös hír-sor (gondozas.js): „🌸 Két új virág nyílt a kertedben!”, később tojás, felhő, levél */
   var bankJegy = nyitasEbren("bank") ? bankPalyaKesz(id) : 0;   /* 🏦 Tündérbank: kijelölt pálya → +1 váltás (megmarad); az újoncnál csak, ha a bank már ébren (nyitas.js) */
@@ -27028,7 +27155,7 @@ function oduVitrinVesz(t) {
    💧 (tunderharmat, kitartás-valuta). Ez a három segéd dönti el, melyik a tétel valutája. */
 function kertTrukkTetel(cs, t) { return !!(cs && cs.fajta === "kert" && t); }
 /* 💧-s tétel: a séta-trükkök ÉS a berendezési tárgyak (kertdisz) is tündérharmatért mennek */
-function harmatTetel(cs, t) { return kertTrukkTetel(cs, t) || !!(cs && cs.fajta === "kertdisz"); }
+function harmatTetel(cs, t) { return kertTrukkTetel(cs, t) || !!(cs && (cs.fajta === "kertdisz" || cs.fajta === "foto")); }   /* 📷 a gép is 💧 */
 function boltValuta(cs, t) { return harmatTetel(cs, t) ? "💧" : "✨"; }
 function boltPenz(cs, t) { return harmatTetel(cs, t) ? (P().tunderharmat || 0) : P().csillampor; }
 /* Kert-tétel vétele: a „kulcs" (✨) kinyitja a kertkaput; a séta-trükkök (💧) a kertben játszhatók. */
@@ -27643,6 +27770,8 @@ function renderOdu() {
   if (ODU_FEKSZIK) oduFekszik(true);         /* újrarajzolás (ablakméret) alvás közben: rögtön újra az ágyban alszik */
   lenyOduKot($("odu-szoba").querySelector("svg"));   /* 🥚 tojás-koppintás, 🐣 a fióka totyogása (leny.js) */
   hetOduKot($("odu-szoba").querySelector("svg"));    /* 📅 a heti kártya koppintásra nagyban (het.js) */
+  fotoOduKonyv($("odu-szoba").querySelector("svg")); /* 📸 a Fotóalbum könyve, rajta a gyerek borítója (album.js) */
+  fotoGombTesz("odu");                               /* 📷 a gomb a sarokban (foto.js) */
 }
 /* ablakméret-váltáskor (laptop-ablak átméretezés, tablet elforgatás) a szoba újra igazodik */
 var _oduMeretIdo = null;
@@ -29721,6 +29850,7 @@ function renderKert() {
   kertTajMozgasIndit();                  /* hal + szitakötő */
   tenyKertTavol();                       /* 🌷 a virágok a túlparti ágyásokban (teny-kert.js) */
   lenyKertRajzol();                      /* 🌈 a nagy sárkány a napozó sziklán (leny.js, visszahívás 5. kör) */
+  fotoGombTesz("kert");                  /* 📷 (foto.js) */
 }
 /* ha a színtér aránya átbillen (telefon elforgatása), csak a háttér cserélődik a másik elrendezésre */
 window.addEventListener("resize", function () {
@@ -30327,6 +30457,7 @@ function boltBagolySzoveg(k) {
   if (!k) return "Nézz csak körül nyugodtan!";
   var cs = k.cs, t = k.t, p = P().csillampor;
   var kint = (cs.fajta === "ruha" || cs.fajta === "kinezet");
+  if (cs.fajta === "foto") return fotoBoltSzoveg(k);
   if (cs.fajta === "kertdisz") {
     var pk = P().tunderharmat || 0, meglevo = (P().kert.keszlet[t.id] || 0) + kertElemDb(t.id);
     if (pk < t.ar) return "Még " + (t.ar - pk) + " 💧 kell hozzá — gyűjts egy kicsit!";
@@ -30349,7 +30480,7 @@ function boltGombAllapot(cs, t, birt, aktiv, eleg) {
       ? { szoveg: "Leveszem", szin: "le", mit: function () { oduRuhaVisel(cs.kulcs, null); } }
       : { szoveg: "Felveszem", szin: "fel", mit: function () { oduRuhaVisel(cs.kulcs, t.id); } };
     if (cs.fajta === "vitrin") return { szoveg: "✓ a vitrinben", szin: "kesz", mit: null };
-    if (cs.fajta === "kert") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
+    if (cs.fajta === "kert" || cs.fajta === "foto") return { szoveg: "✓ megvan", szin: "kesz", mit: null };
     if (aktiv && cs.fajta === "disz") return { szoveg: "Leszedem", szin: "le", mit: function () { oduDiszBeallit(cs.kulcs, "nincs"); } };
     if (aktiv) return { szoveg: (cs.fajta === "kinezet") ? "✓ ez van rajta" : "✓ ez van kint", szin: "kesz", mit: null };
     if (cs.fajta === "butor") return { szoveg: "Berendezem", szin: "fel", mit: function () { oduButorBeallit(cs.kulcs, t.id); } };
@@ -30535,7 +30666,7 @@ function boltTablaKulcs(cs) {
   if (cs.fajta === "disz" && BOLT_ODU_FOLT["d:" + cs.kulcs]) return "d:" + cs.kulcs;
   if (cs.fajta === "ruha" && BOLT_UNI_FOLT[cs.kulcs]) return "u:" + cs.kulcs;
   /* a Kert fülön a hely helyett a PÉNZ a különbség: ✨ vagy 💧 tábla */
-  if ((cs.fajta === "kert" || cs.fajta === "kertdisz") && cs.tetelek[0]) return "v:" + boltValuta(cs, cs.tetelek[0]);
+  if ((cs.fajta === "kert" || cs.fajta === "kertdisz" || cs.fajta === "foto") && cs.tetelek[0]) return "v:" + boltValuta(cs, cs.tetelek[0]);
   return null;
 }
 /* a rajz elhalványítva, csak a folt világít + arany gyűrű */
@@ -30601,7 +30732,7 @@ function boltCedulaSVG(k) {
   }
   var cs = k.cs, t = k.t, birt = boltBirt(cs, t), aktiv = boltAktiv(cs, t), eleg = boltPenz(cs, t) >= t.ar;
   var rangos = cs.tetelek.filter(function (x) { return !x.emlek; }).length;   /* az emlék-tétel nem rangsorolt */
-  var rang = t.emlek ? 3 : (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz") ? 0 : (k.rang >= rangos - 1 ? 2 : 1);
+  var rang = t.emlek ? 3 : (t.ar === 0 || cs.fajta === "kert" || cs.fajta === "kertdisz" || cs.fajta === "foto") ? 0 : (k.rang >= rangos - 1 ? 2 : 1);
   if (rang > 0) s += '<g><rect x="646" y="180" width="120" height="20" rx="10" fill="' + (rang === 3 ? "#f6c3d8" : rang === 2 ? "#ffd24d" : "#f0c869") + '"/>' +
     '<text x="706" y="194" font-size="11" font-weight="800" fill="#7a5a1e" text-anchor="middle">' + (rang === 3 ? "♥ EMLÉK" : rang === 2 ? "★ RITKA" : "✦ KÜLÖNLEGES") + '</text></g>';
   s += '<text x="706" y="' + (rang > 0 ? 222 : 210) + '" font-size="15.5" font-weight="800" fill="#7a5a2a" text-anchor="middle">' + kiiras(t.nev) + '</text>';
@@ -30616,6 +30747,7 @@ function boltCedulaSVG(k) {
             : (cs.fajta === "ido" ? "ilyen lesz az ég"
             : (cs.fajta === "kert" ? (t.id === "eves" ? "új képesség" : "trükk a kertben")
             : (cs.fajta === "kertdisz" ? "így néz ki a kertben"
+            : cs.fajta === "foto" ? FOTO_INDULO + " kocka film és album jár hozzá"
             : "így néz ki a szobád")));
   s += '<text x="706" y="398" font-size="11" fill="#a08a6a" text-anchor="middle">' + cimke + '</text>';
   /* ár */
@@ -30660,6 +30792,7 @@ function boltElonezetBelso(cs, t) {
   else if (cs.fajta === "kinezet") h = unikornisSVG("bkp", LENYEK[mentes.leny], 1, P().oltozet, kinezetPreview(cs.kulcs, t.id));
   else if (cs.fajta === "kert") return t.svg;   /* a kert-tétel (kulcs) ikonja, mint előnézet */
   else if (cs.fajta === "kertdisz") return kertTargyBelso(t.id);   /* a berendezési tárgy rajza (talajpont-origó, a fit középre igazít) */
+  else if (cs.fajta === "foto") return FOTO_GEP_SVG + '<g transform="translate(132 112) scale(.9)">' + FOTO_FILM_SVG + "</g>";   /* 📷 a gép + a filmtekercs */
   else {
     var o2 = P().odu;
     h = (cs.kulcs === "napszak" ? oduEgSVG(t.id, 144, 96) : oduEgSVG(o2.napszak, 144, 96) + oduIdoSVG(t.id, 144, 96, 10));
@@ -30701,12 +30834,12 @@ function boltIgazit(gyoker) {
 var BOLT_FULEK = [
   { id: "holmik", nev: "Holmik" }, { id: "kinezet", nev: "Kinézet" },
   { id: "butorok", nev: "Bútorok" }, { id: "diszek", nev: "Díszek" }, { id: "ido", nev: "Időjárás" },
-  { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }
+  { id: "kristaly", nev: "Kristály" }, { id: "kert", nev: "Kert" }, { id: "foto", nev: "Fotó" }
 ];
 /* 🚪 az újoncnál a bolt kevesebb füllel nyit (nyitas.js nyitasBoltFulek): az első napokban csak a ruhák polca */
 function boltFulek() {
   var l = nyitasBoltFulek();
-  return l ? BOLT_FULEK.filter(function (f) { return l.indexOf(f.id) >= 0; }) : BOLT_FULEK;
+  return BOLT_FULEK.filter(function (f) { return (!l || l.indexOf(f.id) >= 0) && (f.id !== "foto" || fotoNyitva()); });   /* 📷 a gép a 12. naptól (foto.js) */
 }
 function renderOduPanel() {
   var host = $("odu-bolt-szinter");
@@ -30790,6 +30923,7 @@ function boltCsoportok() {
     /* a kert ingyenes (nincs kulcs): a séta-trükkök (💧) egy polcon, utánuk a berendezési tárgyak (darabra, 💧-ért) */
     return [{ kulcs: "kert", nev: "Kert", fajta: "kert", tetelek: KERT_BOLT }].concat(kertTargyBoltCsoportok());
   }
+  if (ODU_FUL === "foto") return fotoBoltCsoportok();   /* 📷 a fotógép, 💧-ért (foto.js) */
   if (ODU_FUL === "kinezet") {
     var rajz = LENYEK[mentes.leny].rajz;
     return [
@@ -30806,6 +30940,7 @@ function boltBirt(cs, t) {
   if (cs.fajta === "kinezet") { var v = cs.kulcs === "soreny" ? P().kinezet.vanSoreny : P().kinezet.vanSzem; return t.id === 0 || !!(v && v[t.id]); }
   if (cs.fajta === "vitrin") return !!P().odu.vitrin[t.id];
   if (cs.fajta === "kert") return !!P().kert.trukkok[t.id];
+  if (cs.fajta === "foto") return !!(P().foto && P().foto.gep);
   if (cs.fajta === "kertdisz") return false;   /* darabra vehető: sosem „megvan" állapot, mindig újra vehető */
   return !!P().odu.van[cs.kulcs][t.id];
 }
@@ -30820,6 +30955,7 @@ function boltAktiv(cs, t) {
   if (cs.fajta === "vitrin") return false;         /* nincs „kint/rajta" állapot: ha megvan, a vitrinben áll */
   if (cs.fajta === "kert") return false;           /* nincs „kint/rajta" állapot */
   if (cs.fajta === "kertdisz") return false;       /* a lerakás a kertben történik, nem a boltban */
+  if (cs.fajta === "foto") return false;
   return P().odu[cs.kulcs] === t.id;
 }
 /* a kiválasztott tétel érvényesítése / alapértelmezése az aktív fülön */
@@ -30937,6 +31073,7 @@ function boltThumb(cs, t) {
   if (cs.fajta === "vitrin") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kristály-dísz ikonja */
   if (cs.fajta === "kert") return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' + t.svg + '</svg>';   /* a kert-tétel ikonja (kulcs) */
   if (cs.fajta === "kertdisz") return kertTargyIkon(t.id);   /* berendezési tárgy: maga a kertbeli rajz kicsiben */
+  if (cs.fajta === "foto") return fotoGepIkon();   /* 📷 a levendula azonnali gép (album-elemek.js) */
   var o = P().odu;
   return '<svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">' +
     (cs.kulcs === "napszak" ? oduEgSVG(t.id, 120, 64) : oduEgSVG(o.napszak, 120, 64) + oduIdoSVG(t.id, 120, 64, 9)) + '</svg>';
@@ -30980,6 +31117,7 @@ function boltVegrehajt(cs, t) {
   else if (cs.fajta === "vitrin") oduVitrinVesz(t);
   else if (cs.fajta === "kert") oduKertVesz(t);
   else if (cs.fajta === "kertdisz") kertTargyVesz(t);
+  else if (cs.fajta === "foto") fotoGepVesz(t);
   else oduVesz(cs.kulcs, t);
   jelvenyEllenoriz();                          /* bolti jelvények azonnal (Első vásárlás, Otthonteremtő, Gyűjtő) */
 }
@@ -31750,6 +31888,7 @@ function renderSzalon() {
   var hp = $("szalon-harmat"); if (hp) hp.textContent = (P().tunderharmat || 0);
   var host = $("szalon-szinter"); if (!host) return;
   host.innerHTML = szalonSVG() + szalonDlgHTML();
+  fotoGombTesz("szalon");   /* 📷 a fodrász tükrénél (foto.js) */
   host.querySelectorAll(".szalon-alvo").forEach(function (el) { szalonKot(el, function (e) { e.stopPropagation(); hangGomb(); szalonMond(el.getAttribute("data-polc") ? NYITAS_MONDAT.szalonPolc : NYITAS_MONDAT.szalon); }); });
   var kg = document.getElementById("szalon-kefe-gondor"); if (kg) szalonKot(kg, function () { szalonKefe("gondor"); });
   var ke = document.getElementById("szalon-kefe-egyenes"); if (ke) szalonKot(ke, function () { szalonKefe("egyenes"); });
@@ -31951,6 +32090,709 @@ function szalonKefe(cel) {
   hangCsilla(); hangJo(); ment();
   mondd(sz[2]);
   renderSzalon();
+}
+/* ============ 10g) 📸 FOTÓGÉP: gép a Boltban, 📷 gomb a fotózható helyeken, kereső, pillanatkép, film, képtár ============
+   Tervlap: Matekos/fotogep-album-terv.html (✅ 2026-10-25), rajzterv: fotogep-album-rajzterv.html (✅). Az album: album.js.
+   • A gép a Bolt „Fotó” fülén, 💧-ért (FOTO_AR). Vele jár az induló film (FOTO_INDULO kocka) és egy üres album (borító + 1 lap).
+   • Fotózni csak a játék világában lehet (FOTO_HELYEK: odú, kert, kalandtérkép, fodrász), feladat közben nem.
+     📷 → fix kereső-keret → kattan → villanás + a kép berepül a gombba = 1 kocka. A ✕ bezárja, ilyenkor nem fogy film.
+   • A fotó a kép PILLANATKÉPE (nem képernyőkép): a hely minden SVG-rétege egy vászonra, a CSS-ből számolt színekkel,
+     megállított mozgással (fotoLefotoz). Ha az unikornis vagy a kissárkány a keretben van, magától matrica is lesz belőle
+     (a figura kivágva, átlátszó háttérrel), külön kocka nélkül.
+   • Film: CSAK küldetésből (💧-ért nem). 1. kód-kör: minden VÉGIGJÁRT pálya számít (palyaVege → fotoPalyaVege),
+     3 pálya → 6 kocka (FOTO_KULD), mindig fut egy. A pult kézi listája, az ajánlott pályák és a 🎞️ térkép-jel: 2. kód-kör.
+   • 0 film nem büntetés: az album mindig szerkeszthető. A film nem jár le. Nincs „Lefotózod?” ajánlat.
+   • Tárolás: a képek NEM a fő mentésben vannak (az nagyra nőne): helyben IndexedDB („uc_album”), felhőben a
+     users/{uid}/albumKep/{lény_id} dokumentumok (firestore.rules!). A P().foto csak kicsi adatot tart:
+     { gep, film, kuld: { kesz, uj }, kepek: [{ id, tip: "foto"|"matrica", hely, d, w, h }], lapok: [...] (album.js) } */
+var FOTO_AR = 20, FOTO_INDULO = 8, FOTO_KULD = { palyak: 3, kocka: 6 };
+var FOTO_KEP_W = 640, FOTO_KEP_H = 480;   /* a fotó 4:3, JPEG (egy kép ~40–90 kB) */
+/* a fotózható helyek: a kép tartója + a matricává váló figurák (ha a keretben vannak) + (fokusz) ha a kereső ne az egész
+   helyet fogja, hanem egy részét (a fodrásznál a tükör előtti unikornist, a festékpolc nélkül). Új hely = egy sor ide
+   + egy fotoGombTesz("id") hívás a hely rajzolása után. */
+var FOTO_HELYEK = {
+  odu:    { host: "odu-szoba",      matrica: { uni: "#odu-uni-flip", sarkany: "#ln-fioka-flip" } },
+  kert:   { host: "kert-szinter",   matrica: { uni: ".kert-uni-svg", sarkany: "#ln-kert-tanc" } },
+  kaland: { host: "kt-terkep",      matrica: {} },
+  szalon: { host: "szalon-szinter", matrica: { uni: "#szalon-uni-forg" }, fokusz: "#szalon-uni-forg" }
+};
+var FOTO_HELY_NEV = { odu: "az odú", kert: "a kert", kaland: "a kalandtérkép", szalon: "a fodrász" };
+
+function fotoTar(p) {
+  p = p || P();
+  if (!p.foto || typeof p.foto !== "object") p.foto = {};
+  var f = p.foto;
+  if (typeof f.gep !== "number") f.gep = 0;
+  if (typeof f.film !== "number") f.film = 0;
+  if (!f.kuld || typeof f.kuld !== "object") f.kuld = { kesz: 0, uj: 0 };
+  if (!Array.isArray(f.kepek)) f.kepek = [];
+  if (!Array.isArray(f.lapok)) f.lapok = [];
+  return f;
+}
+/* a gép a Boltban: ébren van-e már (újoncnál a 12. naptól, nyitas.js) */
+function fotoNyitva() { return nyitasHely("foto") !== "alszik"; }
+
+/* ═════════════════ 🏪 A BOLT „Fotó” FÜLE (kert.js hívja: boltCsoportok, boltBirt, boltVegrehajt…) ═════════════════ */
+var FOTO_BOLT = [{ id: "fotogep", nev: "Fotógép", ar: FOTO_AR }];
+function fotoBoltCsoportok() { return [{ kulcs: "foto", nev: "Fotó", fajta: "foto", tetelek: FOTO_BOLT }]; }
+function fotoGepVesz(t) {
+  if ((P().tunderharmat || 0) < t.ar) { renderOduPanel(); return; }
+  P().tunderharmat -= t.ar; vasarlasNaplo(t.id, t.ar, "tunderharmat");
+  var f = fotoTar();
+  f.gep = 1; f.film += FOTO_INDULO;
+  albumAlap(f);   /* üres album: borító + egy lap (album.js) */
+  hangCsilla(); hangJo(); ment();
+  renderOduPanel();
+}
+function fotoBoltSzoveg(k) {
+  if (P().foto && P().foto.gep) return "Ez már a tiéd! Az odúban, a kertben, a fodrásznál és a kalandtérképen fotózhatsz vele.";
+  var pk = P().tunderharmat || 0;
+  if (pk < FOTO_AR) return "Még " + (FOTO_AR - pk) + " 💧 kell hozzá — gyűjts egy kicsit!";
+  return "Fotógép, " + FOTO_INDULO + " kocka film és egy album jár hozzá!";
+}
+
+/* ═════════════════ 🎞️ FILM-KÜLDETÉS (1. kód-kör: minden végigjárt pálya számít) ═════════════════ */
+function fotoPalyaVege() {
+  var f = P().foto;
+  if (!f || !f.gep) return;
+  f.kuld.kesz++;
+  if (f.kuld.kesz >= FOTO_KULD.palyak) { f.kuld.kesz = 0; f.film += FOTO_KULD.kocka; f.kuld.uj = 1; }   /* a buborék a 📷 gombnál jön */
+}
+
+/* ═════════════════ 📷 A GOMB (a hely jobb alsó sarkában) ═════════════════ */
+function fotoGombTesz(helyId) {
+  var H = FOTO_HELYEK[helyId], host = H && document.getElementById(H.host);
+  if (!host) return;
+  var regi = host.querySelector(".foto-gomb-hely"); if (regi) regi.remove();
+  var f = P().foto;
+  if (!f || !f.gep) return;
+  if (getComputedStyle(host).position === "static") host.style.position = "relative";
+  var d = document.createElement("div");
+  d.className = "foto-gomb-hely";
+  var nincs = f.film <= 0;
+  d.innerHTML = (nincs ? '<span class="foto-film-jel">🎞️ ' + f.kuld.kesz + "/" + FOTO_KULD.palyak + "</span>" : "") +
+    '<button class="foto-gomb' + (nincs ? " ures" : "") + '" aria-label="Fotó">📷' + (nincs ? "" : '<b class="foto-db">' + f.film + "</b>") + "</button>";
+  host.appendChild(d);
+  d.querySelector(".foto-gomb").addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (P().foto.film <= 0) { hangGomb(); mondd("Elfogyott a film. Három végigjárt ösvény után új filmet kapsz!"); return; }
+    hangGomb(); fotoKereso(helyId);
+  });
+  if (f.kuld.uj) {   /* „Új film: 6 kocka!” — a filmtekercs a gomb fölött, csilingelés */
+    f.kuld.uj = 0; ment();
+    var b = document.createElement("div");
+    b.className = "foto-uj-film";
+    b.innerHTML = '<svg viewBox="-16 -16 52 32" width="40" height="25">' + FOTO_FILM_SVG + "</svg> Új film: " + FOTO_KULD.kocka + " kocka!";
+    d.appendChild(b);
+    setTimeout(function () { hangCsilla(); }, 300);
+    setTimeout(function () { b.classList.add("el"); }, 3800);
+    setTimeout(function () { b.remove(); }, 4400);
+  }
+}
+
+/* ═════════════════ 🔲 A KERESŐ (egy fix keret, egy kattintás) ═════════════════ */
+var FOTO_KERESO = null;
+function fotoKeresoKeret(r, f) {   /* 4:3 keret a hely közepén, a kép ~82%-át fogja; fokusznál a figura köré (1,2-szeres), a helyen belül */
+  var w = r.width * .82, h = w * 3 / 4, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  if (f && f.width) { w = Math.max(f.width * 1.2, f.height * 1.2 * 4 / 3); h = w * 3 / 4; cx = f.left + f.width / 2; cy = f.top + f.height / 2; }
+  if (w > r.width * .96) { w = r.width * .96; h = w * 3 / 4; }
+  if (h > r.height * .96) { h = r.height * .96; w = h * 4 / 3; }
+  var x = Math.max(r.left, Math.min(r.right - w, cx - w / 2)), y = Math.max(r.top, Math.min(r.bottom - h, cy - h / 2));
+  return { left: x, top: y, width: w, height: h };
+}
+function fotoKereso(helyId) {
+  var H = FOTO_HELYEK[helyId], host = document.getElementById(H.host);
+  if (!host || FOTO_KERESO) return;
+  var fe = H.fokusz && host.querySelector(H.fokusz);
+  var r = host.getBoundingClientRect(), k = fotoKeresoKeret(r, fe && fe.getBoundingClientRect()), W = window.innerWidth, Hh = window.innerHeight;
+  if (r.width < 40 || r.height < 40) return;   /* a hely most nem látszik (másik képernyő) */
+  var d = document.createElement("div");   /* az egész képernyőt fedi: közben máshová nem lehet koppintani */
+  d.className = "foto-kereso";
+  var x = k.left, y = k.top, w = k.width, h = k.height, s = Math.min(26, w * .12);
+  d.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 ' + W + " " + Hh + '">' +
+    '<path d="M0 0H' + W + "V" + Hh + "H0z M" + x + " " + y + "V" + (y + h) + "H" + (x + w) + "V" + y + 'z" fill="#2a2140" opacity=".45" fill-rule="evenodd"/>' +
+    '<path d="M' + x + " " + (y + s) + "V" + y + "h" + s + "M" + (x + w - s) + " " + y + "h" + s + "v" + s + "M" + (x + w) + " " + (y + h - s) + "v" + s + "h" + (-s) +
+    "M" + (x + s) + " " + (y + h) + "H" + x + "v" + (-s) + '" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>' +
+    '<button class="foto-zar" aria-label="Mégse">✕</button>' +
+    '<button class="foto-kattan" aria-label="Kattintás"><span></span></button><b class="foto-kereso-db">' + P().foto.film + "</b>";
+  document.body.appendChild(d);
+  /* a kattintó gomb a keret jobb oldalán (ha nincs hely, a keret jobb szélén belül), a ✕ a jobb felső sarkánál */
+  var kx = Math.min(x + w + 14, W - 64), kt = d.querySelector(".foto-kattan"), zr = d.querySelector(".foto-zar"), db = d.querySelector(".foto-kereso-db");
+  kt.style.left = kx + "px"; kt.style.top = (y + h / 2 - 27) + "px";
+  db.style.left = kx + "px"; db.style.top = (y + h / 2 + 32) + "px";
+  zr.style.left = Math.min(x + w - 10, W - 50) + "px"; zr.style.top = Math.max(4, y - 18) + "px";
+  FOTO_KERESO = { d: d, hely: helyId };
+  d.querySelector(".foto-zar").addEventListener("click", function () { hangGomb(); fotoKeresoZar(); });
+  d.querySelector(".foto-kattan").addEventListener("click", function () { fotoKattan(helyId, k); });
+}
+function fotoKeresoZar() { if (FOTO_KERESO) { FOTO_KERESO.d.remove(); FOTO_KERESO = null; } }
+
+/* kattanás: villanás + hang, a pillanatkép elkészül, a kép berepül a 📷 gombba (5 → 4) */
+function fotoKattan(helyId, keret) {
+  var K = FOTO_KERESO; if (!K || K.fut) return;
+  K.fut = 1;
+  K.d.style.visibility = "hidden";   /* a kereső ne kerüljön a képre (külön réteg, de biztos, ami biztos) */
+  beep(2200, .03, "square", 0, .05); beep(700, .06, "triangle", .04, .08);
+  fotoLefotoz(helyId, keret, function (kep, matricak) {
+    fotoKeresoZar();
+    var vill = document.createElement("div"); vill.className = "foto-villanas"; document.body.appendChild(vill);
+    setTimeout(function () { vill.remove(); }, 450);
+    if (!kep) { mondd("Most nem sikerült a kép. Próbáld újra!"); return; }
+    var f = fotoTar(), most = Date.now(), id = "f" + most.toString(36);
+    f.film = Math.max(0, f.film - 1);
+    f.kepek.push({ id: id, tip: "foto", hely: helyId, d: most, w: FOTO_KEP_W, h: FOTO_KEP_H });
+    fotoKepMent(id, kep);
+    matricak.forEach(function (m, i) {
+      var mid = id + "m" + i;
+      f.kepek.push({ id: mid, tip: "matrica", hely: helyId, alak: m.alak, d: most, w: m.w, h: m.h, szulo: id });
+      fotoKepMent(mid, m.kep);
+    });
+    ment();
+    fotoBerepul(helyId, keret, kep);
+  });
+}
+function fotoBerepul(helyId, keret, kep) {
+  var H = FOTO_HELYEK[helyId], host = document.getElementById(H.host), g = host && host.querySelector(".foto-gomb");
+  var p = document.createElement("div");
+  p.className = "foto-repulo";
+  var w = Math.min(160, keret.width * .4);
+  p.style.cssText = "left:" + (keret.left + keret.width / 2 - w / 2) + "px;top:" + (keret.top + keret.height / 2 - w / 2) + "px;width:" + w + "px";
+  p.innerHTML = '<img alt="" src="' + kep + '">';
+  document.body.appendChild(p);
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      var gr = g ? g.getBoundingClientRect() : { left: keret.left + keret.width, top: keret.top + keret.height, width: 0, height: 0 };
+      p.style.transform = "translate(" + (gr.left + gr.width / 2 - (keret.left + keret.width / 2)) + "px," + (gr.top + gr.height / 2 - (keret.top + keret.height / 2)) + "px) rotate(-14deg) scale(.18)";
+      p.style.opacity = ".2";
+    });
+  });
+  setTimeout(function () { p.remove(); fotoGombTesz(helyId); }, 900);
+}
+
+/* ═════════════════ 📸 A PILLANATKÉP ═════════════════
+   A hely minden legfelső <svg>-je (DOM-sorrendben) egy vászonra kerül, a saját képernyő-transzformációjával
+   (getScreenCTM: a CSS-tükrözés és -nagyítás is benne van). A klónba beíródnak a CSS-ből számolt színek, és a
+   máshonnan (pl. index.html) hivatkozott defs-ek; a mozgás megáll (a klón CSS nélkül, nyugalmi pózban rajzolódik). */
+var FOTO_STILUS = ["fill", "stroke", "opacity", "fill-opacity", "stroke-opacity", "stroke-width", "visibility", "font-family", "font-size", "font-weight"];
+var FOTO_DEFS_TAG = { defs: 1, clippath: 1, mask: 1, pattern: 1, symbol: 1, marker: 1, filter: 1, lineargradient: 1, radialgradient: 1 };
+function fotoKlon(svg, jelolt) {
+  var klon = svg.cloneNode(true), eredeti = svg.querySelectorAll("*"), masolt = klon.querySelectorAll("*"), torol = [];
+  for (var i = 0; i < eredeti.length; i++) {
+    var e = eredeti[i], m = masolt[i];
+    if (e.closest && e.parentNode && fotoDefsben(e, svg)) continue;
+    var cs = getComputedStyle(e);
+    if (cs.display === "none") { torol.push(m); continue; }
+    var st = "";
+    for (var j = 0; j < FOTO_STILUS.length; j++) { var v = cs.getPropertyValue(FOTO_STILUS[j]); if (v) st += FOTO_STILUS[j] + ":" + v + ";"; }
+    m.setAttribute("style", (m.getAttribute("style") || "").replace(/animation[^;]*;?/g, "") + ";" + st);
+    if (jelolt && e === jelolt) m.setAttribute("data-foto-jel", "1");
+  }
+  torol.forEach(function (m) { if (m.parentNode) m.parentNode.removeChild(m); });
+  /* a hivatkozott, de a klónban nem lévő defs-ek (url(#…), href="#…") átmásolása — láncban is */
+  var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"), volt = {}, kor = 0, uj = true;
+  klon.insertBefore(defs, klon.firstChild);
+  while (uj && kor++ < 6) {
+    uj = false;
+    var str = new XMLSerializer().serializeToString(klon), re = /url\(\s*["']?#([^"')\s]+)["']?\s*\)|href="#([^"]+)"/g, t;
+    while ((t = re.exec(str))) {
+      var idd = t[1] || t[2];
+      if (volt[idd]) continue;
+      volt[idd] = 1;
+      var bent = false; try { bent = !!klon.querySelector("#" + CSS.escape(idd)); } catch (e) { bent = true; }
+      if (bent) continue;
+      var kint = document.getElementById(idd);
+      if (kint) { defs.appendChild(kint.cloneNode(true)); uj = true; }
+    }
+  }
+  return klon;
+}
+function fotoDefsben(e, gyoker) {
+  for (var p = e; p && p !== gyoker; p = p.parentNode) if (p.tagName && FOTO_DEFS_TAG[p.tagName.toLowerCase()]) return true;
+  return false;
+}
+/* egy SVG-réteg képe: { img, ctm, vb } — q-szoros felbontással rajzolva */
+function fotoReteg(svg, klon, q, kesz) {
+  var vb = svg.viewBox && svg.viewBox.baseVal, ctm = svg.getScreenCTM();
+  if (!ctm) { kesz(null); return; }
+  var x = 0, y = 0, w = svg.clientWidth || svg.getBoundingClientRect().width, h = svg.clientHeight || svg.getBoundingClientRect().height;
+  if (vb && vb.width) { x = vb.x; y = vb.y; w = vb.width; h = vb.height; }
+  else klon.setAttribute("viewBox", "0 0 " + w + " " + h);
+  var pix = Math.max(w, h) * q; if (pix > 2400) q = q * 2400 / pix;   /* a nagy viewBox-ot se rajzoljuk óriásira */
+  klon.setAttribute("width", w * q); klon.setAttribute("height", h * q);
+  klon.setAttribute("preserveAspectRatio", "none");
+  klon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  klon.removeAttribute("class"); klon.style.removeProperty && klon.style.removeProperty("transform");
+  var img = new Image();
+  img.onload = function () { kesz({ img: img, ctm: ctm, x: x, y: y, q: q }); };
+  img.onerror = function () { kesz(null); };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(klon));
+}
+function fotoRajzol(ctx, R, k, ox, oy) {   /* képernyő → vászon: k-szoros nagyítás, (ox, oy) a keret bal felső sarka */
+  var m = R.ctm;
+  ctx.setTransform(k, 0, 0, k, -ox * k, -oy * k);
+  ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+  ctx.translate(R.x, R.y); ctx.scale(1 / R.q, 1 / R.q);
+  ctx.drawImage(R.img, 0, 0);
+}
+function fotoLathato(e, host) {
+  var a = 1;
+  for (var p = e; p && p !== document.body; p = p.parentElement) {
+    var cs = getComputedStyle(p);
+    if (cs.display === "none" || cs.visibility === "hidden") return 0;
+    a *= +cs.opacity;
+    if (p === host) break;
+  }
+  return a;
+}
+function fotoLefotoz(helyId, keret, kesz) {
+  var H = FOTO_HELYEK[helyId], host = document.getElementById(H.host);
+  var retegek = [].filter.call(host.querySelectorAll("svg"), function (s) {
+    if (s.parentElement && s.parentElement.closest("svg")) return false;   /* csak a legfelsők (a beágyazottak velük jönnek) */
+    if (s.closest(".foto-gomb-hely")) return false;
+    var r = s.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.right > keret.left && r.left < keret.left + keret.width && r.bottom > keret.top && r.top < keret.top + keret.height;
+  });
+  var vaszon = document.createElement("canvas"); vaszon.width = FOTO_KEP_W; vaszon.height = FOTO_KEP_H;
+  var ctx = vaszon.getContext("2d"), k = FOTO_KEP_W / keret.width;
+  var hatter = getComputedStyle(host).backgroundColor;
+  ctx.fillStyle = (!hatter || hatter === "rgba(0, 0, 0, 0)" || hatter === "transparent") ? "#fdf0d0" : hatter;
+  ctx.fillRect(0, 0, FOTO_KEP_W, FOTO_KEP_H);
+  var kepek = new Array(retegek.length), hatra = retegek.length, alfa = retegek.map(function (s) { return fotoLathato(s, host); });
+  /* a matrica-figurák: ami a keretben van és látszik */
+  var figurak = [];
+  Object.keys(H.matrica).forEach(function (alak) {
+    var e = host.querySelector(H.matrica[alak]); if (!e) return;
+    var r = e.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8 || !fotoLathato(e, host)) return;
+    var bx = Math.max(r.left, keret.left), by = Math.max(r.top, keret.top), jx = Math.min(r.right, keret.left + keret.width), jy = Math.min(r.bottom, keret.top + keret.height);
+    if ((jx - bx) * (jy - by) < r.width * r.height * .5) return;   /* legalább a fele a keretben legyen */
+    figurak.push({ alak: alak, e: e, r: r });
+  });
+  if (!hatra) { kesz(vaszon.toDataURL("image/jpeg", .85), []); return; }
+  retegek.forEach(function (s, i) {
+    fotoReteg(s, fotoKlon(s), 2 * Math.max(1, k), function (R) {
+      kepek[i] = R;
+      if (--hatra) return;
+      kepek.forEach(function (R2, j) { if (R2 && alfa[j] > 0) { ctx.globalAlpha = alfa[j]; fotoRajzol(ctx, R2, k, keret.left, keret.top); } });
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+      var kep = null; try { kep = vaszon.toDataURL("image/jpeg", .85); } catch (e) {}
+      fotoMatricak(figurak, function (m) { kesz(kep, m); });
+    });
+  });
+}
+/* matrica: a figura saját rétegéből CSAK a figura (minden más elem visibility:hidden, a figura ősei nem rajzolnak maguk) */
+function fotoMatricak(figurak, kesz) {
+  var ki = [], hatra = figurak.length;
+  if (!hatra) { kesz(ki); return; }
+  figurak.forEach(function (F) {
+    var svg = F.e.tagName.toLowerCase() === "svg" ? F.e : F.e.ownerSVGElement;
+    while (svg && svg.parentElement && svg.parentElement.closest("svg")) svg = svg.parentElement.closest("svg");
+    var klon = fotoKlon(svg, F.e === svg ? null : F.e), jel = klon.querySelector('[data-foto-jel="1"]');
+    if (jel) [].forEach.call(klon.querySelectorAll("*"), function (m) {   /* a figurán kívül minden rejtve (a defs-ek maradnak) */
+      if (m !== jel && !jel.contains(m) && !m.contains(jel) && !fotoDefsben(m, klon)) m.style.visibility = "hidden";
+    });
+    var pad = 4, max = 360, sk = Math.min(3, max / Math.max(F.r.width, F.r.height));
+    var w = Math.round((F.r.width + 2 * pad) * sk), h = Math.round((F.r.height + 2 * pad) * sk);
+    fotoReteg(svg, klon, 2 * sk, function (R) {
+      if (R) {
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        fotoRajzol(c.getContext("2d"), R, sk, F.r.left - pad, F.r.top - pad);
+        try { ki.push({ alak: F.alak, w: w, h: h, kep: c.toDataURL("image/png") }); } catch (e) {}
+      }
+      if (!--hatra) kesz(ki);
+    });
+  });
+}
+
+/* ═════════════════ 🗄️ KÉPTÁR: IndexedDB helyben + felhő (users/{uid}/albumKep) ═════════════════ */
+var FOTO_CACHE = {}, _fotoDb = null, _fotoDbVar = [];
+function fotoKulcs(id) { return (FELHO.uid || (FELHO.offline && FELHO.offline.uid) || "helyi") + "/" + mentes.leny + "/" + id; }
+function fotoIdb(cb) {
+  if (_fotoDb) { cb(_fotoDb); return; }
+  _fotoDbVar.push(cb);
+  if (_fotoDbVar.length > 1) return;
+  var kesz = function (db) { _fotoDb = db; var v = _fotoDbVar; _fotoDbVar = []; v.forEach(function (f) { f(db); }); };
+  try {
+    var r = indexedDB.open("uc_album", 1);
+    r.onupgradeneeded = function () { r.result.createObjectStore("kep"); };
+    r.onsuccess = function () { kesz(r.result); };
+    r.onerror = function () { kesz(null); };
+  } catch (e) { kesz(null); }
+}
+function fotoKepMent(id, data) {
+  var kulcs = fotoKulcs(id);
+  FOTO_CACHE[kulcs] = data;
+  fotoIdb(function (db) { if (!db) return; try { db.transaction("kep", "readwrite").objectStore("kep").put(data, kulcs); } catch (e) {} });
+  if (FELHO.aktiv && FELHO.db && FELHO.uid) {
+    try { felhoUserRef().collection("albumKep").doc(mentes.leny + "_" + id).set({ d: data, t: Date.now() }).catch(function () {}); } catch (e) {}
+  }
+}
+function fotoKepKer(id, cb) {
+  var kulcs = fotoKulcs(id);
+  if (FOTO_CACHE[kulcs]) { cb(FOTO_CACHE[kulcs]); return; }
+  fotoIdb(function (db) {
+    var felhobol = function () {
+      if (!(FELHO.aktiv && FELHO.db && FELHO.uid)) { cb(null); return; }
+      try {
+        felhoUserRef().collection("albumKep").doc(mentes.leny + "_" + id).get().then(function (d) {
+          var v = d.exists ? d.data().d : null;
+          if (v) { FOTO_CACHE[kulcs] = v; if (db) try { db.transaction("kep", "readwrite").objectStore("kep").put(v, kulcs); } catch (e) {} }
+          cb(v);
+        }).catch(function () { cb(null); });
+      } catch (e) { cb(null); }
+    };
+    if (!db) { felhobol(); return; }
+    try {
+      var r = db.transaction("kep").objectStore("kep").get(kulcs);
+      r.onsuccess = function () { if (r.result) { FOTO_CACHE[kulcs] = r.result; cb(r.result); } else felhobol(); };
+      r.onerror = felhobol;
+    } catch (e) { felhobol(); }
+  });
+}
+/* több kép egyszerre: cb({ id: data }) — a hiányzó képek kimaradnak */
+function fotoKepekKer(idk, cb) {
+  var ki = {}, hatra = idk.length;
+  if (!hatra) { cb(ki); return; }
+  idk.forEach(function (id) { fotoKepKer(id, function (v) { if (v) ki[id] = v; if (!--hatra) cb(ki); }); });
+}
+function fotoKepVan(id) { return !!FOTO_CACHE[fotoKulcs(id)]; }
+function fotoKepCache(id) { return FOTO_CACHE[fotoKulcs(id)] || null; }
+/* ============ 10g2) 📸 FOTÓALBUM: a gyerek saját albuma (borító + lapok), szabad elrendezés felvesz–letesz módon ============
+   Tervlap 3.d + rajzterv 4–6 (✅ 2026-10-25). Az odúban a polcon a könyv (fotoOduKonyv), rajta a gyerek borítója kicsiben.
+   • Az album a GYEREKÉ, magának csinálja: nincs automatikus felirat, nincs értékelés, osztály/szint/eredmény sehol.
+   • A lap 420 × 315; az első lap a „Borító” (5 vászonszín), utána a lapok (3 háttér). Új lap bármikor, ingyen.
+   • Tálca 7 füllel: 🖼️ Fotóim · 🐉 Matricák · 🃏 Kártyáim · 💌 Képeslapok · ⭐ Díszek · Aa Felirat · 🎨 Háttér.
+     Koppint a tálcán → az elem a mutatóhoz tapad (felvesz.js fvPont) → koppint a lapon → ott marad. Húzni nem kell.
+   • A lapon lévő elemre koppintva gombsor: ↻ forgat · ＋/－ méret · ⬆ előre · ✋ áthelyez · ↩ vissza a tálcára (+ fotónál 🖼️ keret).
+   • A kártyák és képeslapok másolatként kerülnek a lapra (az eredeti helyükről nem tűnnek el).
+   • ⬇️ Letöltés: a lap PNG-képként (beágyazott Fredoka betűvel, ha elérhető). 🗑️ lap törlése: „Biztos?”.
+   Adat: P().foto.lapok = [{ borito?: 1, hatter, elemek: [{ tip, ref, x, y, rot, m, keret?, szoveg?, szin?, meret? }] }]
+   (a rajzolás sorrendje = a tömb sorrendje; ⬆ a végére teszi). */
+var ALB = null;   /* a nyitott album: { lap, ful, fog: { elem, i? }, kival, fedo, svg, mut: {x,y} } */
+var ALB_FULEK = [
+  { id: "foto", nev: "🖼️ Fotóim" }, { id: "matrica", nev: "🐉 Matricák" }, { id: "kartya", nev: "🃏 Kártyáim" }, { id: "lap", nev: "💌 Képeslapok" },
+  { id: "disz", nev: "⭐ Díszek" }, { id: "felirat", nev: "Aa Felirat" }, { id: "hatter", nev: "🎨 Háttér" }
+];
+var ALB_FELIRAT = { szoveg: "", szin: ALBUM_FELIRAT_SZIN[0], meret: 2 };
+var ALB_KONYV = [316, 536];   /* a könyv helye az odúban (talppont): a 📒 Képeslapok (LENY_ODU.album, x 262) jobbján, mint a rajzterven */
+
+function albumAlap(f) {
+  if (!f.lapok.length) f.lapok = [{ borito: 1, hatter: "menta", elemek: [] }, { hatter: "potty", elemek: [] }];
+}
+
+/* ═════════════════ RAJZ ═════════════════ */
+/* az azonosítók egyedivé tétele egy beágyazott rajzban (a kártyák/képeslapok saját defs-ei ne ütközzenek) */
+function albumIdEgyedi(s, elo) {
+  var idk = {};
+  s.replace(/\sid="([^"]+)"/g, function (m, x) { idk[x] = 1; return m; });
+  return s.replace(/(id="|#)([A-Za-z_][\w.:-]*)/g, function (m, p, x) { return idk[x] ? p + elo + x : m; });
+}
+function albumKartyak() {   /* a gyerek megszerzett kártyái: holmik, kristályok, jelvények */
+  var p = P(), ki = [];
+  RUHA_HELY.forEach(function (h) { (RUHAK[h.kulcs] || []).forEach(function (t) { if (p.oltozet.van[t.id]) ki.push({ ref: "r:" + h.kulcs + ":" + t.id, nev: t.nev }); }); });
+  KRISTALY.forEach(function (t) { if (p.odu.vitrin[t.id]) ki.push({ ref: "k:" + t.id, nev: t.nev }); });
+  JELVENYEK.forEach(function (j) { if (p.jelvenyek[j.id]) ki.push({ ref: "j:" + j.id, nev: j.nev }); });
+  return ki;
+}
+function albumKartyaRajz(ref) {
+  var r = String(ref).split(":"), kep = "", nev = "";
+  if (r[0] === "r") {
+    var t = (RUHAK[r[1]] || []).filter(function (x) { return String(x.id) === r[2]; })[0];
+    if (t) { kep = boltThumb({ fajta: "ruha", kulcs: r[1] }, t); nev = t.nev; }
+  } else if (r[0] === "k") {
+    var k = KRISTALY.filter(function (x) { return String(x.id) === r[1]; })[0];
+    if (k) { kep = boltThumb({ fajta: "vitrin" }, k); nev = k.nev; }
+  } else if (r[0] === "j") {
+    var j = JELVENYEK.filter(function (x) { return x.id === r[1]; })[0];
+    if (j) { kep = jelvenyMedalSVG(j, true); nev = j.nev; }
+  }
+  kep = kep.replace(/^\s*<svg/, '<svg x="-25" y="-35" width="50" height="50"');
+  return '<g filter="url(#ae-arnyek)"><rect x="-30" y="-40" width="60" height="80" rx="6" fill="#fff3c4" stroke="#e0a800" stroke-width="1.6"/></g>' + kep +
+    '<text y="29" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="7.5" font-weight="600" fill="#8a6a00">' + kiiras(String(nev).slice(0, 18)) + '</text>';
+}
+/* egy elem belseje (a közép a 0,0); kep = { id: dataURL } */
+function albumElemBelso(e, kep) {
+  if (e.tip === "foto") {
+    var d = kep[e.ref], w = 140, h = 105;
+    var img = d ? '<image href="' + d + '" x="' + (-w / 2) + '" y="' + (-h / 2) + '" width="' + w + '" height="' + h + '" preserveAspectRatio="xMidYMid slice"/>'
+                : '<rect x="' + (-w / 2) + '" y="' + (-h / 2) + '" width="' + w + '" height="' + h + '" fill="#efe8f6"/>';
+    return albumKeret(e.keret || "polaroid").rajz(img, w, h);
+  }
+  if (e.tip === "matrica") {
+    var m = albumMatricaMeret(e.ref), dm = kep[e.ref];
+    return dm ? '<image href="' + dm + '" x="' + (-m.w / 2) + '" y="' + (-m.h / 2) + '" width="' + m.w + '" height="' + m.h + '" filter="url(#ae-matrica)"/>'
+              : '<rect x="' + (-m.w / 2) + '" y="' + (-m.h / 2) + '" width="' + m.w + '" height="' + m.h + '" rx="10" fill="#efe8f6"/>';
+  }
+  if (e.tip === "kartya") return albumKartyaRajz(e.ref);
+  if (e.tip === "lap") return '<g filter="url(#ae-arnyek)">' + kalandLapSVG(e.ref).replace(/^\s*<svg/, '<svg x="-64" y="-42" width="128" height="84"') + '</g>';
+  if (e.tip === "disz") return '<g transform="scale(1.7)">' + albumDiszRajz(e.ref, e.szoveg) + '</g>';
+  if (e.tip === "felirat") {
+    var px = (ALBUM_FELIRAT_MERET.filter(function (x) { return x.id === e.meret; })[0] || ALBUM_FELIRAT_MERET[1]).px;
+    return '<text y="' + (px * .35) + '" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="' + px + '" font-weight="600" fill="' + (e.szin || "#3f8a68") + '">' + kiiras(e.szoveg || "") + '</text>';
+  }
+  return "";
+}
+function albumMatricaMeret(id) {
+  var k = (P().foto.kepek || []).filter(function (x) { return x.id === id; })[0] || { w: 100, h: 100 }, s = 110 / Math.max(k.w, k.h);
+  return { w: k.w * s, h: k.h * s };
+}
+function albumElemG(e, i, kep, extra) {
+  return '<g class="alb-elem" data-i="' + i + '" transform="translate(' + pcF(e.x) + ' ' + pcF(e.y) + ') rotate(' + pcF(e.rot || 0) + ') scale(' + pcF(e.m || 1) + ')"' + (extra || "") + '>' +
+    albumIdEgyedi(albumElemBelso(e, kep), "a" + i + "-") + '</g>';
+}
+/* a lap teljes belseje (defs + háttér + elemek) — a szerkesztő, a könyv és a letöltés is ezt rajzolja */
+function albumLapBelso(lap, kep, rejt) {
+  var s = '<defs>' + ALBUM_DEFS + '</defs>' + albumHatterRajz(lap);
+  lap.elemek.forEach(function (e, i) { if (i !== rejt) s += albumElemG(e, i, kep); });
+  return s;
+}
+function albumLapKepIdk(lap) { return lap.elemek.filter(function (e) { return e.tip === "foto" || e.tip === "matrica"; }).map(function (e) { return e.ref; }); }
+
+/* ═════════════════ 📖 A KÖNYV AZ ODÚBAN ═════════════════ */
+function fotoOduKonyv(svg) {
+  var f = P().foto;
+  if (!svg || !f || !f.gep) return;
+  albumAlap(f);
+  var b = f.lapok[0], kep = {}, hiany = [];
+  albumLapKepIdk(b).forEach(function (id) { var d = fotoKepCache(id); if (d) kep[id] = d; else hiany.push(id); });
+  var regi = svg.querySelector("#foto-konyv"); if (regi) regi.remove();
+  svg.insertAdjacentHTML("beforeend", fotoKonyvSVG(ALB_KONYV[0], ALB_KONYV[1], albumVaszon(b.hatter), albumIdEgyedi(albumLapBelso(b, kep), "ok-"), !b.elemek.length));
+  svg.querySelector("#foto-konyv").addEventListener("click", function (e) { e.stopPropagation(); hangGomb(); albumNyit(); });
+  if (hiany.length) fotoKepekKer(hiany, function (m) { if (Object.keys(m).length && svg.isConnected) fotoOduKonyv(svg); });
+}
+
+/* ═════════════════ A SZERKESZTŐ ═════════════════ */
+function albumNyit() {
+  var f = fotoTar(); if (!f.gep) return;
+  albumAlap(f);
+  var d = document.getElementById("album-fedo");
+  if (!d) { d = document.createElement("div"); d.id = "album-fedo"; document.body.appendChild(d); }
+  d.className = "album-fedo"; d.hidden = false;
+  d.innerHTML = '<div class="alb-ablak"><div class="alb-fej">' +
+    '<button class="kt-gomb" id="alb-zar">← Odú</button><b class="alb-cim">📸 Fotóalbum</b>' +
+    '<span class="alb-lapozo"><button class="kt-gomb" id="alb-elo" aria-label="Előző lap">◀</button><span id="alb-lapszam"></span><button class="kt-gomb" id="alb-kov" aria-label="Következő lap">▶</button></span>' +
+    '<span class="alb-fej-jobb"><button class="kt-gomb" id="alb-uj">＋ Új lap</button><button class="kt-gomb" id="alb-le" aria-label="Letöltés">⬇️</button><button class="kt-gomb" id="alb-torol" aria-label="Lap törlése">🗑️</button></span></div>' +
+    '<div class="alb-test"><div class="alb-lap-hely" id="alb-lap-hely"><svg id="alb-lap" class="alb-lap" viewBox="0 0 ' + ALBUM_W + ' ' + ALBUM_H + '" xmlns="http://www.w3.org/2000/svg"></svg>' +
+    '<div class="alb-gombsor" id="alb-gombsor" hidden></div></div>' +
+    '<div class="alb-talca"><div class="alb-fulek" id="alb-fulek"></div><div class="alb-racs" id="alb-racs"></div></div></div></div>';
+  ALB = { lap: 0, ful: "foto", fog: null, kival: null, fedo: d, svg: d.querySelector("#alb-lap"), kep: {} };
+  d.querySelector("#alb-zar").addEventListener("click", function () { hangGomb(); albumZar(); });
+  d.querySelector("#alb-elo").addEventListener("click", function () { albumLapoz(-1); });
+  d.querySelector("#alb-kov").addEventListener("click", function () { albumLapoz(1); });
+  d.querySelector("#alb-uj").addEventListener("click", function () {
+    hangGomb(); f.lapok.push({ hatter: "potty", elemek: [] }); ment(); ALB.lap = f.lapok.length - 1; albumMegse(); albumRajz(); albumTalca();
+  });
+  d.querySelector("#alb-le").addEventListener("click", function () { hangGomb(); albumLetolt(); });
+  d.querySelector("#alb-torol").addEventListener("click", albumTorolKatt);
+  ALB.svg.addEventListener("click", albumLapKatt);
+  ALB.svg.addEventListener("pointermove", albumMozog);
+  /* minden kép betöltése (a tálca és a lapok is ebből rajzol) */
+  fotoKepekKer(f.kepek.map(function (k) { return k.id; }), function (m) { if (!ALB) return; ALB.kep = m; albumRajz(); albumTalca(); });
+  albumRajz(); albumTalca();
+}
+function albumZar() {
+  var d = document.getElementById("album-fedo"); if (d) { d.hidden = true; d.innerHTML = ""; }
+  ALB = null;
+  if (oduAktiv()) fotoOduKonyv($("odu-szoba").querySelector("svg"));   /* a polcon az új borító */
+}
+function albumAktLap() { return P().foto.lapok[ALB.lap]; }
+function albumLapoz(ir) {
+  var n = P().foto.lapok.length; hangGomb();
+  ALB.lap = (ALB.lap + ir + n) % n; albumMegse(); albumRajz(); albumTalca();
+}
+function albumMegse() { ALB.fog = null; ALB.kival = null; }
+function albumRajz() {
+  if (!ALB) return;
+  var lap = albumAktLap(), n = P().foto.lapok.length;
+  ALB.svg.innerHTML = albumLapBelso(lap, ALB.kep, ALB.fog && ALB.fog.i != null ? ALB.fog.i : -1) + '<g id="alb-fog-reteg" pointer-events="none"></g>';
+  if (ALB.kival != null) {
+    var g = ALB.svg.querySelector('.alb-elem[data-i="' + ALB.kival + '"]');
+    if (g) { var b = g.getBBox(); g.insertAdjacentHTML("beforeend", '<rect x="' + (b.x - 6) + '" y="' + (b.y - 6) + '" width="' + (b.width + 12) + '" height="' + (b.height + 12) + '" rx="10" fill="none" stroke="#8a4fd0" stroke-width="' + pcF(2 / ((lap.elemek[ALB.kival] || {}).m || 1)) + '" stroke-dasharray="6 4" pointer-events="none"/>'); }
+  }
+  $("alb-lapszam").textContent = lap.borito ? "Borító" : ALB.lap + ". lap / " + (n - 1);
+  $("alb-torol").hidden = !!lap.borito;
+  albumFogRajz(); albumGombsor();
+}
+function albumFogRajz() {
+  var g = ALB && ALB.svg.querySelector("#alb-fog-reteg"); if (!g) return;
+  if (!ALB.fog) { g.innerHTML = ""; return; }
+  var p = ALB.mut || { x: ALBUM_W / 2, y: ALBUM_H / 2 }, e = ALB.fog.elem, k = {}; for (var x in e) k[x] = e[x];
+  k.x = p.x; k.y = p.y;
+  g.innerHTML = '<g opacity=".85">' + albumElemG(k, "fog", ALB.kep) + '</g><text x="' + pcF(p.x + 8) + '" y="' + pcF(p.y + 30) + '" font-size="20">👆</text>';
+}
+function albumMozog(ev) {
+  if (!ALB || !ALB.fog || ev.pointerType === "touch") return;
+  ALB.mut = fvPont(ALB.svg, ev); albumFogRajz();
+}
+function albumLapKatt(ev) {
+  var lap = albumAktLap();
+  if (ALB.fog) {   /* a második koppintás leteszi, oda, ahová koppint (szabad helyre tevés) */
+    var p = fvPont(ALB.svg, ev), e = ALB.fog.elem;
+    e.x = Math.max(0, Math.min(ALBUM_W, p.x)); e.y = Math.max(0, Math.min(ALBUM_H, p.y));
+    if (ALB.fog.i != null) lap.elemek[ALB.fog.i] = e; else lap.elemek.push(e);
+    ALB.kival = ALB.fog.i != null ? ALB.fog.i : lap.elemek.length - 1;
+    ALB.fog = null; ALB.mut = null;
+    beep(520, .05, "sine", 0, .07); ment(); albumRajz(); albumTalca();
+    return;
+  }
+  var g = ev.target.closest && ev.target.closest(".alb-elem");
+  ALB.kival = g ? +g.getAttribute("data-i") : null;
+  if (g) hangGomb();
+  albumRajz();
+}
+/* a kijelölt elem fölötti gombsor (HTML, hogy telefonon is nagy maradjon) */
+function albumGombsor() {
+  var gs = $("alb-gombsor"); if (!gs) return;
+  var lap = albumAktLap(), e = ALB.kival != null && lap.elemek[ALB.kival];
+  if (!e || ALB.fog) { gs.hidden = true; return; }
+  var g = ALB.svg.querySelector('.alb-elem[data-i="' + ALB.kival + '"]'), hely = $("alb-lap-hely");
+  if (!g) { gs.hidden = true; return; }
+  var r = g.getBoundingClientRect(), h = hely.getBoundingClientRect();
+  gs.innerHTML = [["forgat", "↻"], ["nagyobb", "＋"], ["kisebb", "－"], ["elore", "⬆"], ["athelyez", "✋"], ["vissza", "↩"]]
+    .concat(e.tip === "foto" ? [["keret", "🖼️"]] : [])
+    .map(function (b) { return '<button data-mit="' + b[0] + '">' + b[1] + "</button>"; }).join("");
+  gs.hidden = false;
+  var gw = gs.offsetWidth, x = Math.max(4, Math.min(h.width - gw - 4, r.left - h.left + r.width / 2 - gw / 2)), y = r.top - h.top - gs.offsetHeight - 6;
+  if (y < 2) y = Math.min(h.height - gs.offsetHeight - 2, r.bottom - h.top + 6);
+  gs.style.left = x + "px"; gs.style.top = y + "px";
+  [].forEach.call(gs.querySelectorAll("button"), function (b) { b.addEventListener("click", function (ev) { ev.stopPropagation(); albumGomb(b.getAttribute("data-mit")); }); });
+}
+function albumGomb(mit) {
+  var lap = albumAktLap(), i = ALB.kival, e = lap.elemek[i]; if (!e) return;
+  hangGomb();
+  if (mit === "forgat") e.rot = ((e.rot || 0) + 15) % 360;
+  else if (mit === "nagyobb") e.m = Math.min(3, (e.m || 1) * 1.15);
+  else if (mit === "kisebb") e.m = Math.max(.4, (e.m || 1) / 1.15);
+  else if (mit === "elore") { lap.elemek.splice(i, 1); lap.elemek.push(e); ALB.kival = lap.elemek.length - 1; }
+  else if (mit === "athelyez") { ALB.fog = { elem: e, i: i }; ALB.kival = null; }
+  else if (mit === "vissza") { lap.elemek.splice(i, 1); ALB.kival = null; }
+  else if (mit === "keret") { var ks = ALBUM_KERET.map(function (k) { return k.id; }); e.keret = ks[(ks.indexOf(e.keret || "polaroid") + 1) % ks.length]; }
+  ment(); albumRajz();
+}
+/* 🗑️ lap törlése — kétlépéses: „Biztos?” (3 mp-ig) */
+function albumTorolKatt() {
+  var b = $("alb-torol"), f = P().foto;
+  if (!b.classList.contains("biztos")) {
+    hangGomb(); b.classList.add("biztos"); b.textContent = "Biztos? 🗑️";
+    setTimeout(function () { if (b.isConnected) { b.classList.remove("biztos"); b.textContent = "🗑️"; } }, 3000);
+    return;
+  }
+  if (albumAktLap().borito) return;
+  f.lapok.splice(ALB.lap, 1);
+  if (f.lapok.length < 2) f.lapok.push({ hatter: "potty", elemek: [] });
+  ALB.lap = Math.min(ALB.lap, f.lapok.length - 1);
+  b.classList.remove("biztos"); b.textContent = "🗑️";
+  beep(300, .08, "sine", 0, .07); ment(); albumMegse(); albumRajz(); albumTalca();
+}
+
+/* ═════════════════ A TÁLCA ═════════════════ */
+function albumTalca() {
+  if (!ALB) return;
+  var fl = $("alb-fulek"), r = $("alb-racs"), f = P().foto, lap = albumAktLap();
+  fl.innerHTML = ALB_FULEK.map(function (u) { return '<button class="alb-ful' + (u.id === ALB.ful ? " aktiv" : "") + '" data-ful="' + u.id + '">' + u.nev + "</button>"; }).join("");
+  [].forEach.call(fl.querySelectorAll(".alb-ful"), function (b) { b.addEventListener("click", function () { hangGomb(); ALB.ful = b.getAttribute("data-ful"); albumTalca(); }); });
+  var s = "", ures = "";
+  var fogRef = ALB.fog && ALB.fog.i == null ? ALB.fog.elem.tip + ":" + ALB.fog.elem.ref : "";
+  function tetel(tip, ref, belso, cim) {
+    return '<button class="alb-tetel' + (fogRef === tip + ":" + ref ? " fogva" : "") + '" data-tip="' + tip + '" data-ref="' + htmlVed(ref) + '"' + (cim ? ' title="' + htmlVed(cim) + '"' : "") + ">" + belso + "</button>";
+  }
+  if (ALB.ful === "foto" || ALB.ful === "matrica") {
+    f.kepek.filter(function (k) { return k.tip === ALB.ful; }).slice().reverse().forEach(function (k) {
+      var d = ALB.kep[k.id];
+      s += tetel(k.tip, k.id, d ? '<img alt="" src="' + d + '">' : '<span class="alb-tolt">…</span>');
+    });
+    ures = ALB.ful === "foto" ? "Még nincs fotód. Az odúban, a kertben, a fodrásznál és a kalandtérképen a 📷 gombbal fotózhatsz."
+                              : "Ha az unikornisod vagy a kissárkány is rajta van a fotón, itt matrica lesz belőle.";
+  } else if (ALB.ful === "kartya") {
+    albumKartyak().forEach(function (k) { s += tetel("kartya", k.ref, '<svg viewBox="-32 -42 64 84">' + albumIdEgyedi(albumKartyaRajz(k.ref), "t" + k.ref.replace(/\W/g, "") + "-") + "</svg>", k.nev); });
+    ures = "Itt lesznek a kártyáid: a holmik, a kristályok és a jelvények, amiket már megszereztél.";
+  } else if (ALB.ful === "lap") {
+    (lenyTar().kepeslap || []).forEach(function (id) { s += tetel("lap", id, kalandLapSVG(id)); });
+    ures = "Még nincs képeslapod. A kissárkány nyomában találsz majd.";
+  } else if (ALB.ful === "disz") {
+    ALBUM_DISZ.forEach(function (id) { s += tetel("disz", id, '<svg viewBox="-26 -18 52 36"><defs>' + ALBUM_DEFS + "</defs>" + albumDiszRajz(id) + "</svg>"); });
+  } else if (ALB.ful === "hatter") {
+    if (lap.borito) ALBUM_VASZON.forEach(function (v) {
+      s += '<button class="alb-tetel alb-hatter' + (lap.hatter === v.id ? " aktiv" : "") + '" data-hatter="' + v.id + '"><svg viewBox="0 0 84 63"><rect width="84" height="63" rx="5" fill="' + v.szin + '" stroke="' + v.szel + '" stroke-width="2"/><rect x="1" y="1" width="9" height="61" rx="4" fill="' + v.gerinc + '"/></svg><small>' + v.nev + "</small></button>";
+    });
+    else ALBUM_HATTER.forEach(function (h) {
+      s += '<button class="alb-tetel alb-hatter' + (lap.hatter === h.id ? " aktiv" : "") + '" data-hatter="' + h.id + '"><svg viewBox="0 0 84 63"><defs>' + ALBUM_DEFS + "</defs>" + h.rajz(84, 63) + "</svg><small>" + h.nev + "</small></button>";
+    });
+  } else if (ALB.ful === "felirat") {
+    r.innerHTML = '<div class="alb-felirat"><input id="alb-felirat-be" maxlength="40" placeholder="Írd ide…" value="' + htmlVed(ALB_FELIRAT.szoveg) + '">' +
+      '<div class="alb-szinek">' + ALBUM_FELIRAT_SZIN.map(function (c) { return '<button class="alb-szin' + (c === ALB_FELIRAT.szin ? " aktiv" : "") + '" data-szin="' + c + '" style="background:' + c + '" aria-label="szín"></button>'; }).join("") + "</div>" +
+      '<div class="alb-meretek">' + ALBUM_FELIRAT_MERET.map(function (m) { return '<button class="alb-meret' + (m.id === ALB_FELIRAT.meret ? " aktiv" : "") + '" data-meret="' + m.id + '" style="font-size:' + (10 + m.id * 5) + 'px">Aa</button>'; }).join("") + "</div>" +
+      '<button class="nagy-gomb kiemelt" id="alb-felirat-fel">Felveszem ✋</button></div>';
+    var be = $("alb-felirat-be");
+    be.addEventListener("input", function () { ALB_FELIRAT.szoveg = be.value; });
+    be.addEventListener("keydown", function (e) { e.stopPropagation(); if (e.key === "Enter") $("alb-felirat-fel").click(); });
+    [].forEach.call(r.querySelectorAll(".alb-szin"), function (b) { b.addEventListener("click", function () { hangGomb(); ALB_FELIRAT.szin = b.getAttribute("data-szin"); albumTalca(); $("alb-felirat-be").focus(); }); });
+    [].forEach.call(r.querySelectorAll(".alb-meret"), function (b) { b.addEventListener("click", function () { hangGomb(); ALB_FELIRAT.meret = +b.getAttribute("data-meret"); albumTalca(); }); });
+    $("alb-felirat-fel").addEventListener("click", function () {
+      var t = ALB_FELIRAT.szoveg.trim(); if (!t) { be.focus(); return; }
+      hangGomb(); ALB.fog = { elem: { tip: "felirat", ref: "", szoveg: t, szin: ALB_FELIRAT.szin, meret: ALB_FELIRAT.meret, rot: 0, m: 1 } };
+      ALB_FELIRAT.szoveg = ""; ALB.kival = null; albumRajz(); albumTalca();
+    });
+    return;
+  }
+  r.innerHTML = s || '<p class="alb-ures">' + ures + "</p>";
+  [].forEach.call(r.querySelectorAll(".alb-tetel[data-tip]"), function (b) {
+    b.addEventListener("click", function () { albumFelvesz(b.getAttribute("data-tip"), b.getAttribute("data-ref")); });
+  });
+  [].forEach.call(r.querySelectorAll(".alb-tetel[data-hatter]"), function (b) {
+    b.addEventListener("click", function () { hangGomb(); albumAktLap().hatter = b.getAttribute("data-hatter"); ment(); albumRajz(); albumTalca(); });
+  });
+}
+/* koppintás a tálcán: az elem a mutatóhoz tapad (újra koppintva ugyanarra: elengedi) */
+function albumFelvesz(tip, ref) {
+  hangGomb();
+  if (ALB.fog && ALB.fog.i == null && ALB.fog.elem.tip === tip && ALB.fog.elem.ref === ref) { ALB.fog = null; albumRajz(); albumTalca(); return; }
+  var e = { tip: tip, ref: ref, rot: Math.round(Math.random() * 12 - 6), m: 1 };
+  if (tip === "foto") e.keret = "polaroid";
+  if (tip === "disz" && ref === "datum") e.szoveg = albumMaiDatum();   /* a letevés napja: a gyerek teszi fel, ha akarja */
+  ALB.fog = { elem: e }; ALB.kival = null;
+  albumRajz(); albumTalca();
+}
+
+/* ═════════════════ ⬇️ LETÖLTÉS (PNG) ═════════════════ */
+var _albumBetu = null;   /* a Fredoka beágyazva (@font-face base64) — egyszer töltjük le */
+function albumBetuKer(cb) {
+  if (_albumBetu !== null) { cb(_albumBetu); return; }
+  var kesz = false, vege = function (v) { if (kesz) return; kesz = true; _albumBetu = v || null; cb(v); };   /* ha nem jött le, legközelebb újra próbálja */
+  setTimeout(function () { vege(""); }, 6000);
+  try {
+    /* a Google a betűt nyelvi darabokra (unicode-range) bontja: mindegyik darab beágyazva, különben az ő/ű hiányozna */
+    fetch("https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap").then(function (r) { return r.text(); }).then(function (css) {
+      var urlek = css.match(/https:[^)]+\.woff2/g) || []; if (!urlek.length) { vege(""); return; }
+      return Promise.all(urlek.map(function (u) {
+        return fetch(u).then(function (r) { return r.blob(); }).then(function (b) {
+          return new Promise(function (ok) { var fr = new FileReader(); fr.onload = function () { ok([u, fr.result]); }; fr.onerror = function () { ok([u, ""]); }; fr.readAsDataURL(b); });
+        });
+      })).then(function (parok) { parok.forEach(function (p) { if (p[1]) css = css.split(p[0]).join(p[1]); }); vege(css); });
+    }).catch(function () { vege(""); });
+  } catch (e) { vege(""); }
+}
+function albumLetolt() {
+  var lap = albumAktLap(), sz = 3, idx = ALB.lap;
+  albumBetuKer(function (betu) {
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + ALBUM_W * sz + '" height="' + ALBUM_H * sz + '" viewBox="0 0 ' + ALBUM_W + " " + ALBUM_H + '">' +
+      (betu ? "<style>" + betu + "</style>" : "") + albumLapBelso(lap, ALB ? ALB.kep : {}) + "</svg>";
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement("canvas"); c.width = ALBUM_W * sz; c.height = ALBUM_H * sz;
+      var ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0);
+      c.toBlob(function (b) {
+        if (!b) return;
+        var a = document.createElement("a"); a.href = URL.createObjectURL(b);
+        a.download = "fotoalbum-" + (lap.borito ? "borito" : idx + "-lap") + ".png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        hangCsilla();
+      }, "image/png");
+    };
+    img.onerror = function () { mondd("Most nem sikerült a letöltés."); };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
 }
 /* ============ 10f) 🏦 TÜNDÉRBANK — ✨ → 💧 váltás az utcán ============
    Terv: terv/bank-rendszerterv.html (jóváhagyva 2026-09-30, bővítve 2026-10-01), terv/bank-rajzterv.html
@@ -35274,6 +36116,8 @@ document.addEventListener("pointerdown", function egyszer() {
 
 /* fejlesztői teszt-fogantyú (éles használatot nem zavar) */
 window.UC = {
+  fotoTar: fotoTar, fotoGepVesz: fotoGepVesz, fotoGombTesz: fotoGombTesz, fotoKereso: fotoKereso, fotoKattan: fotoKattan, fotoLefotoz: fotoLefotoz, fotoPalyaVege: fotoPalyaVege, fotoKepKer: fotoKepKer,
+  albumNyit: albumNyit, albumZar: albumZar, albumFelvesz: albumFelvesz, albumGomb: albumGomb, albumLetolt: albumLetolt, get ALB() { return ALB; }, get FOTO_KERESO() { return FOTO_KERESO; },   /* 📸 fotógép + album */
   villamHalmazok: villamHalmazok, villamNyitva: villamNyitva, villamTudott: villamTudott, villamKorEpit: villamKorEpit, villamKov: villamKov, villamRossz: villamRossz,
   villamFeladat: villamFeladat, villamArnyek: villamArnyek, villamKorZar: villamKorZar, villamAllapot: villamAllapot, villamTar: villamTar, villamBeall: villamBeall,   /* ⚡ VILLÁMKÖR (2. kör) */
   tenyKulcs: tenyKulcs, tenyJegyez: tenyJegyez, tenyLepcso: tenyLepcso, tenyEsedekes: tenyEsedekes, tenyValaszt: tenyValaszt,   /* 🌸 TÉNY-MOTOR */

@@ -12,6 +12,11 @@ service cloud.firestore {
         allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
         allow write: if signedIn() && request.auth.uid == uid;
       }
+      // 📸 Fotóalbum képei (foto.js): egy dokumentum = egy fotó vagy matrica ({ d: dataURL, t }), a fő mentésen kívül
+      match /albumKep/{kepId} {
+        allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow write: if signedIn() && request.auth.uid == uid;
+      }
     }
 
     // Eseménynapló: mindenki csak a saját nevében írhat bele, olvasni csak az admin
