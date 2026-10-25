@@ -59,7 +59,7 @@
 <header class="top">
   <h1>Pálya-recept</h1>
   <div class="sub">A pálya ne kódból, hanem egy rövid receptből épüljön. A recept megnevezi a helyet, a képet, a feladatgyártót és az állomásokat. Tervlap, rajz és kód csak akkor kell, ha a recepthez egy elem még hiányzik. Az első receptes pálya a 🏡 Számcsalád.</div>
-  <div class="meta"><span class="chip">tervlap · jóváhagyásra vár</span><span class="chip">2026-10-25</span><span class="chip">C kör: nagy (két menet)</span></div>
+  <div class="meta"><span class="chip">tervlap · döntések: a stúdió (2026-10-25)</span><span class="chip">2026-10-25</span><span class="chip">C kör: nagy (két menet)</span></div>
 </header>
 
 <h2>1. Miért kell?</h2>
@@ -84,17 +84,18 @@
 <div class="panel" style="margin-top:10px">
   <b>Becslés:</b> a Rokon-létra kódjának kb. 35%-a recept vagy közös elem, a többi kézzel készült.
   <div class="bar"><i style="width:35%"></i></div>
-  <p style="margin:6px 0 0">A recepthez <b>egy hiányzó darab</b> kell: egy közös <b>jelenet-motor</b>, amely a „kép-panel” egészét egyszer tudja (lásd 4. pont). Ezzel a Rokon-létra kb. 85%-ban recept lesz, és a következő pálya kódja a saját képére zsugorodik.</p>
+  <p style="margin:6px 0 0">A recepthez <b>egy hiányzó darab</b> kell: egy közös <b>jelenet-motor</b>, amely a „kép-panel” közös részét egyszer tudja (lásd 4. pont).</p>
+  <p style="margin:6px 0 0"><b>⚠️ Javított becslés</b> (az alapos átnézés után, a bolt képével összevetve): a közös rész kisebb, mint elsőre írtam. A <code>letra.js</code>-ből kb. 85 sor emelhető ki (panel, tábla + beírás, billentyűzet, beküldés, a hiba-lépcső váza, unikornis, jó/rossz), a <code>bolt-kep.js</code> 809 sorából csak kb. 100, mert a bolt nagy része valóban saját (érmék, szalag, blokk, pecsét, beváltás). <b>Tehát:</b> egy új pálya <b>meglévő képpel</b> tényleg kb. 20 sor (recept), egy pálya <b>új képpel</b> kb. 150 sor (nem 80), és a bekötés 5–6 fájl helyett 1 lesz. Ez így is a fele-harmada a mostaninak, de nem „csak adat”.</p>
 </div>
 
 <h2>3. A recept formája</h2>
-<p class="lead">Egy pálya = egy adatsor a kódban (<code>src/receptek.js</code>). Ma a <code>constants.js</code> pálya-sora ennek a fele; a recept kiegészíti a hellyel, a képpel és a segítséggel.</p>
+<p class="lead"><b>⚠️ Javítva:</b> a recept <b>nem új, párhuzamos adatforma</b>, hanem a meglévő pálya-sor (<code>PALYAK</code>) kibővítése. A <code>PALYAK</code>-ot ma 19 modul olvassa (mentés, pult, nyitás, jelvények, sárkány, megfigyelés…), és a motor már most úgy működik, hogy a pálya <code>alap.tipus</code>-a választja a gyártót, az állomás sora pedig a beállítás. Egy külön recept-forma mellett minden modulnak két helyről kellene olvasnia. A <code>RECEPT()</code> csak egy kis segéd: kitölti az alapértékeket, ellenőrzi a mezőket (van-e ilyen kép, gyártó, segítség a katalógusban), és beteszi a sort a <code>PALYAK</code>-ba. Az új pályák receptjei a <code>src/receptek.js</code>-ben laknak, a régiek maradnak, ahol vannak.</p>
 <pre>RECEPT({
   id: "szamcsalad", nev: "Számcsalád", ikon: "🏡",
-  hely:  { regio: "piac", haz: "csalad" },             <span style="color:var(--muted)">// katalógus: helyek</span>
-  nyit:  { utan: "rokon-letra", osztaly: 2 },          <span style="color:var(--muted)">// 4. o.-tól nyitva; Lilinek, Fanninak minden</span>
-  jelenet: "csalad",                                   <span style="color:var(--muted)">// katalógus: képek (a ház 4 ablakkal)</span>
-  gyarto:  "szamCsalad",                               <span style="color:var(--muted)">// katalógus: feladatgyártók</span>
+  regio: "piac", hely: "csalad",                       <span style="color:var(--muted)">// katalógus: helyek (a ház helye a falutérképen a piac.js-ben marad: az a kép dolga)</span>
+  nyit:  { utan: "rokon-letra", osztaly: [2, 3] },     <span style="color:var(--muted)">// 4. o.-tól nyitva; Lilinek, Fanninak minden</span>
+  alap:  { tipus: "csalad" },                          <span style="color:var(--muted)">// = a kép + a gyártó (ma is így megy: GEN[tipus])</span>
+  darabFix: true,                                      <span style="color:var(--muted)">// 1 ház = 4 ablak: a pult feladatszáma nem írhatja felül (lásd 9. pont)</span>
   segit:   ["kep", "lepesenkent"],                     <span style="color:var(--muted)">// 1. hiba · 2. hibától (katalógus: segítség-lépcsők)</span>
   allomasok: [
     { nev: "Rajt" },
@@ -113,7 +114,7 @@
   <div class="card"><h3>📍 Helyek</h3>bódé (Vásár-sátor) · ház: bolt, létra, ✳️ család · később tönk, gombaház, pavilon</div>
   <div class="card"><h3>🪧 Tárgyak (keret.js)</h3>fok · tábla · ugrás · ✳️ ablak · ✳️ kavics · később cetli (a róka blokkja)</div>
   <div class="card"><h3>⚙️ Feladatgyártók</h3>rokon-lánc · melyik segít? · ✳️ számcsalád (már kész, csak bekötni) · bolt (fizetés, visszajáró, blokk) · varázsgép (kész, vár)</div>
-  <div class="card"><h3>🖼️ Képek (jelenetek)</h3>bolt pultja · létra · ✳️ család-ház. Ez az egyetlen pályánként saját rész: rajz + „jó-e?” + ünneplés, kb. 80 sor.</div>
+  <div class="card"><h3>🖼️ Képek (jelenetek)</h3>bolt pultja · létra · ✳️ család-ház. Ez az egyetlen pályánként saját rész: rajz + „jó-e?” + ünneplés, kb. 150 sor.</div>
   <div class="card"><h3>🪜 Segítség-lépcsők</h3>kép (ugrás alakja, a cél „?”) · lépésenként (a hang mondja a lépéseket, a számot a gyerek mondja ki) · ✳️ „melyik az egész?” · halványítás: kép → semmi, ✳️ kavics → beírás</div>
   <div class="card"><h3>🎬 ✳️ Jelenet-motor</h3>A közös váz: panel a buborékban, tábla + beírás, billentyűzet, ✳️ felvesz–letesz koppintással, hiba-lépcső, felolvasás, unikornis a képen, jó/rossz a motornak. <b>Egy</b> horog a motorban minden képhez.</div>
 </div>
@@ -124,7 +125,7 @@
   <tr><th>Eset</th><th>Mi kell</th><th>Ma</th><th>Recepttel</th></tr>
   <tr><td>① csak hangolás (számok, állomások, darab)</td><td>a recept átírása</td><td>kód-olvasás + build</td><td>1 adatsor, később a pultról</td></tr>
   <tr><td>② új pálya meglévő elemekből</td><td>recept-lap (1 képernyő) + jóváhagyás, utána 1 adatsor</td><td>tervlap + rajzterv + 500–1000 sor</td><td>recept-lap + kb. 20 sor</td></tr>
-  <tr><td>③ új elem kell (új kép, tárgy, gyártó, lakó)</td><td>kis elem-lap + rajz <b>csak az elemhez</b> + kód; az elem a katalógusba kerül</td><td>mindent együtt</td><td>csak az új elemet</td></tr>
+  <tr><td>③ új elem kell (új kép, tárgy, gyártó, lakó)</td><td>kis elem-lap + rajz <b>csak az elemhez</b> + kód; az elem a katalógusba kerül</td><td>mindent együtt</td><td>csak az új elemet (új kép: kb. 150 sor)</td></tr>
 </table></div>
 <div class="panel" style="margin-top:10px">
   <b>A recept-lap</b> (a mostani tervlap helyett, egy képernyő): ① mit CSINÁL a gyerek a képen? · ② könyv (oldalszám) · ③ húzószó-csíra · ④ a 7 kérdés röviden · ⑤ kiskapu: hol lehetne megoldás nélkül jutalmat kapni? · ⑥ a recept maga · ⑦ hiányzó elem: nincs / ez.<br>
@@ -158,18 +159,30 @@
 </div>
 
 <h2>7. A C kör, két menetben</h2>
+<p class="lead"><b>⚠️ Javított sorrend:</b> a Rokon-létrát most élőben nézed meg (teendőlista 1.). Ha a motor kiemelése közben átírnánk a <code>letra.js</code>-t, az élő megnézésed egy félig átírt pályán futna, és nem tudnánk, mi okozza, amit látsz. Ezért a <b>Számcsalád épül először</b> az új motorra (nem nyúl semmihez, ami most próbán van), a Rokon-létra pedig <b>az élő megnézésed után</b> áll át.</p>
 <ol>
-  <li><b>1. menet: a jelenet-motor</b> (közepes). <code>src/jelenet.js</code> kiemelése a <code>letra.js</code>-ből; a Rokon-létra átáll rá (ezzel bizonyítjuk, hogy működik, és a játékos semmi különbséget nem lát). <code>src/receptek.js</code>: a Rokon-létra sora receptté alakul, a motor egyetlen horga, a gépi próba a receptből olvas. Stabil tag előtte (<code>v…-stabil</code>).</li>
-  <li><b>2. menet: Számcsalád</b> (közepes). <code>keret.js</code>: ablak + kavics; a jelenet-motor: felvesz–letesz; <code>src/csalad.js</code>: a ház képe, „jó-e?” (<code>csaladAblakEll</code>, már kész), ünneplés (mind a 4 ablak kigyúl, az unikornis bekopog); a recept egy sor. 📱 telefonon a 4 ablak egymás alatt, a kavics legalább 44 px (méret-őr).</li>
+  <li><b>1. menet: jelenet-motor + Számcsalád</b> (közepes–nagy). Stabil tag előtte. <code>src/jelenet.js</code>: a közös váz (a <code>letra.js</code> és a <code>bolt-kep.js</code> mintájára, de azokhoz még nem nyúl); egyetlen horog a motorban (<code>if (f.jelenet)</code>) és egyetlen elrejtés. <code>keret.js</code>: ablak + kavics; a motorban: felvesz–letesz. <code>src/csalad.js</code>: a ház képe, „jó-e?” (<code>csaladAblakEll</code>, már kész), ünneplés (mind a 4 ablak kigyúl, az unikornis bekopog). <code>src/receptek.js</code> + <code>RECEPT()</code>: a Számcsalád sora. A gyártóba két kiegészítés kell: <b>két kosár</b> (két számsor, bármely pár összege 100 alatt, és a két szám különbözik) és a kakukktojás biztosítása (9. pont). A nyitás „a Rokon-létra első végigvitele után” pálya-szintű: a <code>NYITAS_PALYA_UTAN</code> ma ligetre szól, ezt kell kiterjeszteni. 📱 telefonon a 4 ablak egymás alatt, a kavics legalább 44 px. Gépi próba: piac-őr + méret-őr + kiskapu-őr.</li>
+  <li><b>2. menet: a Rokon-létra átáll</b> (közepes, az élő megnézésed után). A <code>letra.js</code> közös része a motorba költözik, a sora receptté válik, a két saját horog megszűnik. A játékos semmi különbséget nem láthat: ezt a gépi próba ellenőrzi. Ebben a menetben javítjuk a 9. pontban talált hibát is, ha addig nem kell sürgősen.</li>
 </ol>
 <p class="lead">A bolt képe (<code>bolt-kep.js</code>) most nem áll át: akkor kerül a jelenet-motorra, amikor a „nehezebb bolt” miatt úgyis hozzányúlunk. A régi pályák ugyanígy, hullámokban.</p>
 
-<h2>8. Döntések</h2>
-<div class="dont"><b class="n">1. Hol éljen a recept?</b> <span class="jav">A) (javaslat)</span> adatsor a kódban (<code>src/receptek.js</code>): azonnal megy, és a gépi próba ellenőrzi. B) külön JSON-fájl most: a pulthoz kell majd, de ma csak plusz munka. (A JSON később egy lépésben jöhet az A-ból.)</div>
-<div class="dont"><b class="n">2. A jelenet-motor.</b> <span class="jav">A) (javaslat)</span> kiemeljük, és a Rokon-létra rögtön átáll rá (1. menet). Ez egy menettel több, de a Számcsalád már kész vázra épül, és minden következő pálya is. B) a Számcsalád a Rokon-létrát másolja, a motor később: gyorsabb ma, de harmadszor is ugyanazt írnánk meg.</div>
-<div class="dont"><b class="n">3. A recept-lap.</b> <span class="jav">A) (javaslat)</span> egy képernyős lap a 6. pont mintájára; ② esetben csak ez + a jóváhagyás. B) marad a mostani hosszú tervlap.</div>
-<div class="dont"><b class="n">4. Kakukktojás.</b> <span class="jav">A) (javaslat)</span> előbb a gyerek félreteszi a kavicsot, amelyik nem lakik itt (koppintás), utána tölti ki az ablakokat. B) mind a 4 kavics a kupacban marad, és a próbálgatásból derül ki, melyik nem fér be (kevésbé gondolkodtat).</div>
-<div class="dont"><b class="n">5. Odú-küszöb halványítás.</b> <span class="jav">A) (javaslat)</span> az ablakokból egy-egy szám hiányzik, a gyerek a táblára írja (kavics → beírás). B) a küszöbön is kavics marad.</div>
+<h2>8. Döntések (a stúdió döntötte el, 2026-10-25)</h2>
+<p class="lead">A producer kérése: ezek műszaki kérdések, a stúdió vizsgálja meg és döntsön. A 4. és az 5. a gyerek élményét is érinti, ott a vétó a produceré.</p>
+<div class="dont"><b class="n">1. Hol éljen a recept? → a meglévő pálya-sorban (PALYAK), egy <code>RECEPT()</code> segéddel, a <code>src/receptek.js</code>-ben.</b> Indok: a <code>PALYAK</code>-ot 19 modul olvassa, egy párhuzamos forma mindegyiket érintené. JSON most nem kell: a pult már ma is felülírja a pálya beállításait (alap &lt; csoport &lt; egyéni), ehhez nem kell külön fájl. Szabály: a recept <b>csak adat</b> (nincs benne függvény), így később egy lépésben JSON-ná alakítható, ha a pult szerkeszteni akarja.</div>
+<div class="dont"><b class="n">2. A jelenet-motor → most készül, a Számcsaláddal együtt; a Rokon-létra az élő megnézésed után áll át.</b> Indok: a Számcsalád a harmadik kép (bolt, létra, család), a közös rész most már három példából látszik, nem egyből találgatjuk. A sorrend azért fordult meg, hogy ne nyúljunk ahhoz, amit éppen élőben próbálsz (7. pont). A bolt képe később áll át, a „nehezebb bolt” idején.</div>
+<div class="dont"><b class="n">3. A recept-lap → egy képernyő, és lesz hozzá sablon.</b> A sablonfájl (<code>terv/recept-lap-sablon.html</code>) kész stílussal és a 7 ponttal: másolom és kitöltöm, nem írom újra a lapot minden pályánál. Ez a token-megtakarítás egy része. Mellé jön az elemkatalógus (<code>terv/elemkatalogus.md</code>), elemenként egy sor.</div>
+<div class="dont"><b class="n">4. Kakukktojás → előbb félreteszi, utána tölti ki az ablakokat.</b> Indok: ha a kakukk a kupacban marad, a gyerek egyszerűen nem nyúl hozzá, kitölti az ablakokat a másik hárommal, és a „miért nem lakik itt?” gondolat elmarad. Kiskapu: a félretevésért nem jár jutalom, a rossz választás hibának számít a pult naplójában, de a tény-motorba nem kerül (mint a Rokon-létra „melyik segít?” választásánál). Rossz választásnál a kép felel: a félretett kavics megmutatja, hova való (az ablakban halványan kigyúl a családja), és visszagurul.</div>
+<div class="dont"><b class="n">5. Odú-küszöb → kavics helyett beírás.</b> Ablakonként egy szám hiányzik, felváltva hol az egész, hol egy rész, és a gyerek a táblára írja. A tábla és a beírás már kész elem, új munka alig kell.</div>
+
+<h2>9. Észrevételek a B körből (a <code>src/</code>-hez ebben a beszélgetésben nem nyúltam)</h2>
+<div class="dont warn"><b class="n">🟡 A pult feladatszáma szétszedheti a Rokon-létrát.</b> A pult „feladatszám” beállítása (<code>config.js</code> → <code>nehezsegAlkalmaz</code>, 1–12) a Rokon-létra állomásaira is ráíródik, pedig ott a darabszámot a kép szabja meg (5 válasz = 1 létra). Mi történik:
+  <ul>
+    <li><b>Kisebb szám (pl. 3):</b> az állomás az alap, a távoli rokon és egy hiányzó fok után véget ér. A létra félkész marad, nem világít végig, az unikornis nem mászik fel. 1-nél csak az alap jön, így éppen az analógia marad ki, amiért a pálya van.</li>
+    <li><b>Nagyobb szám (pl. 8):</b> a kész létra után a játék újra és újra az utolsó fokot kérdezi. A gyerek ugyanazt a számot írja be, amit az előbb, és megint jutalmat kap érte. Ez nem megoldás nélküli jutalom, de ismétlés jutalomért.</li>
+  </ul>
+  A bolt ezt jól kezeli (ott minden feladat önálló), a Tündérvásárnál pedig már van rá kivétel. <b>Javítás:</b> a recept <code>darabFix: true</code> mezője (a Rokon-létrán és a Számcsaládon), amelyet a <code>nehezsegAlkalmaz</code> tiszteletben tart. Kb. 3 sor. <b>Kérdés hozzád:</b> állítottál-e feladatszámot a pulton Lilinek, Fanninak vagy a csoportnak? Ha igen, az élő megnézésnél ezt fogod látni, és akkor a javítás ne várjon a 2. menetig.</div>
+<div class="dont warn"><b class="n">🟡 A kakukktojás csendben elmaradhat.</b> A <code>szamCsalad({ kakukk: true })</code> néha nem talál kakukktojást (ritkán, a gépi próba 2% fölött jelez), és ilyenkor szó nélkül 3 kavicsot ad. A Kakukktojás-állomáson ez egy sima családot jelentene. Ma még nem élő hiba, mert a Számcsalád nincs bekötve. <b>Javítás az 1. menetben:</b> a feladat addig sorsol újra, amíg van kakukk.</div>
+<p class="lead">A Rokon-létra többi részében (a menet, a kiskapuk, a „saját rokon” ellenőrzése, a hiba-lépcső) nem találtam hibát.</p>
 
 </div>
 </body>
