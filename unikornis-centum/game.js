@@ -32522,6 +32522,8 @@ function fotoKepCache(id) { return FOTO_CACHE[fotoKulcs(id)] || null; }
      Koppint a tálcán → az elem a mutatóhoz tapad (felvesz.js fvPont) → koppint a lapon → ott marad. Húzni nem kell.
    • A lapon lévő elemre koppintva gombsor: ↻ forgat · ＋/－ méret · ⬆ előre · ✋ áthelyez · ↩ vissza a tálcára (+ fotónál 🖼️ keret).
    • A kártyák és képeslapok másolatként kerülnek a lapra (az eredeti helyükről nem tűnnek el).
+   • A FOTÓ viszont, mint egy igazi kép, elfogy: ami már valamelyik lapon van, az nem látszik a Fotóim között; ↩-val
+     (vagy a lap törlésével) visszakerül (producer, 10-25). Ezt nem tároljuk külön, a lapokból számoljuk (albumFotoBent).
    • ⬇️ Letöltés: a lap PNG-képként (beágyazott Fredoka betűvel, ha elérhető). 🗑️ lap törlése: „Biztos?”.
    Adat: P().foto.lapok = [{ borito?: 1, hatter, elemek: [{ tip, ref, x, y, rot, m, keret?, szoveg?, szin?, meret? }] }]
    (a rajzolás sorrendje = a tömb sorrendje; ⬆ a végére teszi). */
@@ -32602,6 +32604,11 @@ function albumLapBelso(lap, kep, rejt) {
   var s = '<defs>' + ALBUM_DEFS + '</defs>' + albumHatterRajz(lap);
   lap.elemek.forEach(function (e, i) { if (i !== rejt) s += albumElemG(e, i, kep); });
   return s;
+}
+function albumFotoBent() {   /* a lapokon már bent lévő fotók: { id: 1 } */
+  var bent = {};
+  P().foto.lapok.forEach(function (l) { l.elemek.forEach(function (e) { if (e.tip === "foto") bent[e.ref] = 1; }); });
+  return bent;
 }
 function albumLapKepIdk(lap) { return lap.elemek.filter(function (e) { return e.tip === "foto" || e.tip === "matrica"; }).map(function (e) { return e.ref; }); }
 
@@ -32722,7 +32729,7 @@ function albumGomb(mit) {
   else if (mit === "kisebb") e.m = Math.max(.4, (e.m || 1) / 1.15);
   else if (mit === "elore") { lap.elemek.splice(i, 1); lap.elemek.push(e); ALB.kival = lap.elemek.length - 1; }
   else if (mit === "athelyez") { ALB.fog = { elem: e, i: i }; ALB.kival = null; }
-  else if (mit === "vissza") { lap.elemek.splice(i, 1); ALB.kival = null; }
+  else if (mit === "vissza") { lap.elemek.splice(i, 1); ALB.kival = null; if (e.tip === "foto") albumTalca(); }   /* a fotó visszakerül a Fotóim közé */
   else if (mit === "keret") { var ks = ALBUM_KERET.map(function (k) { return k.id; }); e.keret = ks[(ks.indexOf(e.keret || "polaroid") + 1) % ks.length]; }
   ment(); albumRajz();
 }
@@ -32754,11 +32761,13 @@ function albumTalca() {
     return '<button class="alb-tetel' + (fogRef === tip + ":" + ref ? " fogva" : "") + '" data-tip="' + tip + '" data-ref="' + htmlVed(ref) + '"' + (cim ? ' title="' + htmlVed(cim) + '"' : "") + ">" + belso + "</button>";
   }
   if (ALB.ful === "foto" || ALB.ful === "matrica") {
-    f.kepek.filter(function (k) { return k.tip === ALB.ful; }).slice().reverse().forEach(function (k) {
+    var bent = ALB.ful === "foto" ? albumFotoBent() : {}, mind = f.kepek.filter(function (k) { return k.tip === ALB.ful; });
+    mind.filter(function (k) { return !bent[k.id]; }).slice().reverse().forEach(function (k) {
       var d = ALB.kep[k.id];
       s += tetel(k.tip, k.id, d ? '<img alt="" src="' + d + '">' : '<span class="alb-tolt">…</span>');
     });
-    ures = ALB.ful === "foto" ? "Még nincs fotód. Az odúban, a kertben, a fodrásznál és a kalandtérképen a 📷 gombbal fotózhatsz."
+    ures = ALB.ful === "foto" && mind.length ? "Minden fotód bent van az albumban. Ha egyet visszaveszel (↩), újra itt lesz."
+         : ALB.ful === "foto" ? "Még nincs fotód. Az odúban, a kertben, a fodrásznál és a kalandtérképen a 📷 gombbal fotózhatsz."
                               : "Ha az unikornisod vagy a kissárkány is rajta van a fotón, itt matrica lesz belőle.";
   } else if (ALB.ful === "kartya") {
     albumKartyak().forEach(function (k) { s += tetel("kartya", k.ref, '<svg viewBox="-32 -42 64 84">' + albumIdEgyedi(albumKartyaRajz(k.ref), "t" + k.ref.replace(/\W/g, "") + "-") + "</svg>", k.nev); });
