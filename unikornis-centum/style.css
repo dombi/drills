@@ -3217,6 +3217,14 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes fotoBe{ from{ transform:translateY(12px) scale(.8); opacity:0; } to{ transform:none; opacity:1; } }
 .foto-kereso{ position:fixed; inset:0; z-index:9000; }
 .foto-kereso > svg{ position:absolute; inset:0; }
+.foto-sav{ position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; background:rgba(255,250,240,.94); border-radius:40px; padding:6px 12px; box-shadow:0 4px 14px rgba(0,0,0,.25); white-space:nowrap; }
+.foto-sav-koz{ width:6px; }
+.foto-kozel, .foto-zoom{ width:46px; height:46px; border-radius:50%; background:#fff; border:3px solid #c9b6e4; font-size:22px; line-height:1; cursor:pointer; padding:0; color:#5a4b80; }
+.foto-zoom{ font:700 24px Fredoka,sans-serif; }
+.foto-zoom:disabled{ opacity:.35; cursor:default; }
+.foto-sav .foto-kattan{ position:relative; }
+.foto-sav .foto-kereso-db{ position:static; width:auto; color:#e0417a; }
+@media (max-width:520px){ .foto-sav{ gap:5px; padding:5px 8px; } .foto-kozel, .foto-zoom{ width:40px; height:40px; font-size:19px; } .foto-sav-koz{ width:2px; } }
 .foto-kattan{ position:absolute; width:54px; height:54px; border-radius:50%; background:#fff; border:5px solid #e0417a; cursor:pointer; padding:0; box-shadow:0 3px 10px rgba(0,0,0,.25); }
 .foto-kattan span{ display:block; width:26px; height:26px; margin:auto; border-radius:50%; background:#f7b8d0; }
 .foto-kattan:active span{ background:#e0417a; }

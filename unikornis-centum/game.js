@@ -32095,7 +32095,7 @@ function szalonKefe(cel) {
    Tervlap: Matekos/fotogep-album-terv.html (✅ 2026-10-25), rajzterv: fotogep-album-rajzterv.html (✅). Az album: album.js.
    • A gép a Bolt „Fotó” fülén, 💧-ért (FOTO_AR). Vele jár az induló film (FOTO_INDULO kocka) és egy üres album (borító + 1 lap).
    • Fotózni csak a játék világában lehet (FOTO_HELYEK: odú, kert, kalandtérkép, fodrász), feladat közben nem.
-     📷 → fix kereső-keret → kattan → villanás + a kép berepül a gombba = 1 kocka. A ✕ bezárja, ilyenkor nem fogy film.
+     📷 → kereső (koppintós célzás, ＋/－, 🦄/🐉/🏠 közelkép) → kattan → villanás + a kép berepül a gombba = 1 kocka. A ✕ bezárja, ilyenkor nem fogy film.
    • A fotó a kép PILLANATKÉPE (nem képernyőkép): a hely minden SVG-rétege egy vászonra, a CSS-ből számolt színekkel,
      megállított mozgással (fotoLefotoz). Ha az unikornis vagy a kissárkány a keretben van, magától matrica is lesz belőle
      (a figura kivágva, átlátszó háttérrel), külön kocka nélkül.
@@ -32190,40 +32190,97 @@ function fotoGombTesz(helyId) {
   }
 }
 
-/* ═════════════════ 🔲 A KERESŐ (egy fix keret, egy kattintás) ═════════════════ */
+/* ═════════════════ 🔲 A KERESŐ (koppintós célzás + 3 méret + közelkép-gombok, egy kattintás) ═════════════════
+   • Koppintás bárhová a képen → oda ugrik a keret (a hely szélein belül marad).
+   • ＋ közelebb (kisebb keret), － messzebb: 3 méret (FOTO_MERET, a hely szélességének arányában).
+   • Közelkép-gombok: 🦄 / 🐉 a figurára áll (ha látszik a helyen), 🏠 az egész kép. A fodrásznál a 🦄 az induló állás.
+   • A gombok egy fix sávban, a képernyő alján: a keret mozog, a kattintó gomb nem ugrál. */
 var FOTO_KERESO = null;
-function fotoKeresoKeret(r, f) {   /* 4:3 keret a hely közepén, a kép ~82%-át fogja; fokusznál a figura köré (1,2-szeres), a helyen belül */
-  var w = r.width * .82, h = w * 3 / 4, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-  if (f && f.width) { w = Math.max(f.width * 1.2, f.height * 1.2 * 4 / 3); h = w * 3 / 4; cx = f.left + f.width / 2; cy = f.top + f.height / 2; }
+var FOTO_MERET = [.42, .62, .86];
+var FOTO_KOZEL = [{ alak: "uni", jel: "🦄", nev: "Az unikornis" }, { alak: "sarkany", jel: "🐉", nev: "A kissárkány" }];
+function fotoKeresoKeret(r, f, cx, cy, w) {   /* 4:3 keret: w szélesség, (cx, cy) közép; f: figura köré (1,35-szörös, hogy a szarv is beférjen); a helyen belül */
+  if (!w) w = r.width * FOTO_MERET[2];
+  if (cx == null) { cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+  if (f && f.width) { w = Math.max(f.width * 1.35, f.height * 1.35 * 4 / 3); cx = f.left + f.width / 2; cy = f.top + f.height / 2; }
+  var h = w * 3 / 4;
   if (w > r.width * .96) { w = r.width * .96; h = w * 3 / 4; }
   if (h > r.height * .96) { h = r.height * .96; w = h * 4 / 3; }
   var x = Math.max(r.left, Math.min(r.right - w, cx - w / 2)), y = Math.max(r.top, Math.min(r.bottom - h, cy - h / 2));
   return { left: x, top: y, width: w, height: h };
 }
+function fotoFigura(H, host, alak) {   /* a figura képernyő-téglalapja, ha látszik a helyen (különben null) */
+  var sel = H.matrica && H.matrica[alak], e = sel && host.querySelector(sel);
+  if (!e || !fotoLathato(e, host)) return null;
+  var f = e.getBoundingClientRect();
+  return f.width >= 8 && f.height >= 8 ? f : null;
+}
+function fotoMeretek(r) { return FOTO_MERET.map(function (m) { return fotoKeresoKeret(r, null, 0, 0, r.width * m).width; }); }   /* a 3 méret valódi szélessége */
 function fotoKereso(helyId) {
   var H = FOTO_HELYEK[helyId], host = document.getElementById(H.host);
   if (!host || FOTO_KERESO) return;
-  var fe = H.fokusz && host.querySelector(H.fokusz);
-  var r = host.getBoundingClientRect(), k = fotoKeresoKeret(r, fe && fe.getBoundingClientRect()), W = window.innerWidth, Hh = window.innerHeight;
+  var r = host.getBoundingClientRect();
   if (r.width < 40 || r.height < 40) return;   /* a hely most nem látszik (másik képernyő) */
+  var kozel = FOTO_KOZEL.filter(function (z) { return fotoFigura(H, host, z.alak); });
   var d = document.createElement("div");   /* az egész képernyőt fedi: közben máshová nem lehet koppintani */
   d.className = "foto-kereso";
-  var x = k.left, y = k.top, w = k.width, h = k.height, s = Math.min(26, w * .12);
-  d.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 ' + W + " " + Hh + '">' +
-    '<path d="M0 0H' + W + "V" + Hh + "H0z M" + x + " " + y + "V" + (y + h) + "H" + (x + w) + "V" + y + 'z" fill="#2a2140" opacity=".45" fill-rule="evenodd"/>' +
-    '<path d="M' + x + " " + (y + s) + "V" + y + "h" + s + "M" + (x + w - s) + " " + y + "h" + s + "v" + s + "M" + (x + w) + " " + (y + h - s) + "v" + s + "h" + (-s) +
-    "M" + (x + s) + " " + (y + h) + "H" + x + "v" + (-s) + '" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>' +
+  d.innerHTML = '<svg width="100%" height="100%"></svg>' +
     '<button class="foto-zar" aria-label="Mégse">✕</button>' +
-    '<button class="foto-kattan" aria-label="Kattintás"><span></span></button><b class="foto-kereso-db">' + P().foto.film + "</b>";
+    '<div class="foto-sav">' +
+      kozel.map(function (z) { return '<button class="foto-kozel" data-alak="' + z.alak + '" aria-label="' + z.nev + '">' + z.jel + "</button>"; }).join("") +
+      '<button class="foto-kozel" data-alak="egesz" aria-label="Az egész kép">🏠</button>' +
+      '<span class="foto-sav-koz"></span>' +
+      '<button class="foto-zoom" data-z="-1" aria-label="Messzebb">－</button><button class="foto-zoom" data-z="1" aria-label="Közelebb">＋</button>' +
+      '<span class="foto-sav-koz"></span>' +
+      '<button class="foto-kattan" aria-label="Kattintás"><span></span></button><b class="foto-kereso-db">' + P().foto.film + "</b>" +
+    "</div>";
   document.body.appendChild(d);
-  /* a kattintó gomb a keret jobb oldalán (ha nincs hely, a keret jobb szélén belül), a ✕ a jobb felső sarkánál */
-  var kx = Math.min(x + w + 14, W - 64), kt = d.querySelector(".foto-kattan"), zr = d.querySelector(".foto-zar"), db = d.querySelector(".foto-kereso-db");
-  kt.style.left = kx + "px"; kt.style.top = (y + h / 2 - 27) + "px";
-  db.style.left = kx + "px"; db.style.top = (y + h / 2 + 32) + "px";
+  var K = FOTO_KERESO = { d: d, hely: helyId, r: r, k: null };
+  var fok = H.fokusz && host.querySelector(H.fokusz);
+  fotoKeresoAll(fotoKeresoKeret(r, fok && fok.getBoundingClientRect()));
+  d.querySelector(".foto-zar").addEventListener("click", function (e) { e.stopPropagation(); hangGomb(); fotoKeresoZar(); });
+  d.querySelector(".foto-kattan").addEventListener("click", function (e) { e.stopPropagation(); fotoKattan(helyId, K.k); });
+  d.querySelector(".foto-sav").addEventListener("click", function (e) { e.stopPropagation(); });   /* a sávra koppintás ne mozdítsa a keretet */
+  [].forEach.call(d.querySelectorAll(".foto-kozel"), function (b) {
+    b.addEventListener("click", function () {
+      if (K.fut) return;
+      hangGomb();
+      var a = b.getAttribute("data-alak");
+      fotoKeresoAll(fotoKeresoKeret(K.r, a === "egesz" ? null : fotoFigura(H, host, a)));
+    });
+  });
+  [].forEach.call(d.querySelectorAll(".foto-zoom"), function (b) {
+    b.addEventListener("click", function () { if (!K.fut) fotoKeresoZoom(+b.getAttribute("data-z")); });
+  });
+  d.addEventListener("click", function (e) {   /* koppintás a képen: oda ugrik a keret, a mérete marad */
+    if (K.fut) return;
+    beep(900, .03, "sine", 0, .04);
+    fotoKeresoAll(fotoKeresoKeret(K.r, null, e.clientX, e.clientY, K.k.width));
+  });
+}
+/* a 3 méret közül a következő (z = 1: közelebb = kisebb keret; -1: messzebb); a figura-közelkép után is a legközelebbire lép */
+function fotoKeresoZoom(z) {
+  var K = FOTO_KERESO, w = K.k.width, l = fotoMeretek(K.r), uj = null;
+  if (z > 0) { for (var i = l.length - 1; i >= 0; i--) if (l[i] < w * .97) { uj = l[i]; break; } }
+  else { for (var j = 0; j < l.length; j++) if (l[j] > w * 1.03) { uj = l[j]; break; } }
+  if (uj == null) return;
+  hangGomb();
+  fotoKeresoAll(fotoKeresoKeret(K.r, null, K.k.left + K.k.width / 2, K.k.top + K.k.height / 2, uj));
+}
+/* a keret kirajzolása: sötét fátyol a kereten kívül + fehér sarkok; a ✕ a keret jobb felső sarkánál; a ＋/－ szürke, ha arra nincs több méret */
+function fotoKeresoAll(k) {
+  var K = FOTO_KERESO, d = K.d, W = window.innerWidth, Hh = window.innerHeight;
+  K.k = k;
+  var x = k.left, y = k.top, w = k.width, h = k.height, s = Math.min(26, w * .12);
+  var svg = d.querySelector("svg");
+  svg.setAttribute("viewBox", "0 0 " + W + " " + Hh);
+  svg.innerHTML = '<path d="M0 0H' + W + "V" + Hh + "H0z M" + x + " " + y + "V" + (y + h) + "H" + (x + w) + "V" + y + 'z" fill="#2a2140" opacity=".45" fill-rule="evenodd"/>' +
+    '<path d="M' + x + " " + (y + s) + "V" + y + "h" + s + "M" + (x + w - s) + " " + y + "h" + s + "v" + s + "M" + (x + w) + " " + (y + h - s) + "v" + s + "h" + (-s) +
+    "M" + (x + s) + " " + (y + h) + "H" + x + "v" + (-s) + '" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>';
+  var zr = d.querySelector(".foto-zar");
   zr.style.left = Math.min(x + w - 10, W - 50) + "px"; zr.style.top = Math.max(4, y - 18) + "px";
-  FOTO_KERESO = { d: d, hely: helyId };
-  d.querySelector(".foto-zar").addEventListener("click", function () { hangGomb(); fotoKeresoZar(); });
-  d.querySelector(".foto-kattan").addEventListener("click", function () { fotoKattan(helyId, k); });
+  var l = fotoMeretek(K.r);
+  d.querySelector('.foto-zoom[data-z="1"]').disabled = w <= l[0] * 1.03;
+  d.querySelector('.foto-zoom[data-z="-1"]').disabled = w >= l[2] * .97;
 }
 function fotoKeresoZar() { if (FOTO_KERESO) { FOTO_KERESO.d.remove(); FOTO_KERESO = null; } }
 
