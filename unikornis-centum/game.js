@@ -18728,7 +18728,9 @@ function bkBillentyu(e) {
    ③ a létra magától kitölt néhány fokot, egyenként · ④ 2–3 hiányzó, nem sorban (egynek a szomszédja is üres) · ⑤ végigvilágít,
    az unikornis felmászik. 5 válasz = 1 állomás (a gyerekek hamar elunják a 9 beírást). A válasz helye a tábla a létra mellett.
    Állomások (constants.js): Összeadás-létra (ugrás képével) · Más alappal (az ugrás csak hibánál) · Kivonás-létra (12 − 5 → 42 − 5)
-   · Melyik segít? (3 fokból a rokon, aztán a nagy feladat) · Odú-küszöb (rövid létra · melyik segít · a csúcs: „Írj te egy rokont!”).
+   · Melyik segít? (3 fokból a rokon, aztán a nagy feladat) · Odú-küszöb (rövid létra · melyik segít · a csúcs: „Válassz te egy rokont!”:
+   a gyerek egy üres fokra koppint — az lesz az ő rokona —, a fok kigyullad (39 + 6 = ?), és az eredményt írja a táblára; a producer
+   döntése 2026-10-25: a beírós változat nem volt érthető, a gyerek az eredményt írta a fok eleje helyett).
    HIBÁNÁL a megoldást nem írjuk ki: 1. hiba → a fok mellett az ugrás alakja (a kerek tízes látszik, a cél „?”), és az alap fok
    felfénylik · 2. hibától → lépésenként: az első ugrás megérkezik, a második halad, a hang elmondja a lépéseket, a számot a gyerek mondja ki.
    🔒 Kiskapu: a fokok nem ismétlik a választ; a magától kitöltött fokért nem jár semmi; a választásért (melyik segít?) sem, csak a
@@ -18774,12 +18776,12 @@ GEN.letra = function (cfg) {
     return rlFeladat(x, { a: s.a, b: s.b, op: s.op, c: s.c, ugras: sk100Ugras(s.a, s.op, s.b), naplo: s.naplo },
       "Melyik kis feladat segít?", "Melyik kis feladat segít kiszámolni: " + szo(s.a) + rlOpSzo(s.op) + szo(s.b) + "?");
   }
-  /* ✍️ saját rokon: egy új, üres létra, csak az alja van kint; a helyes szám a választott fokból jön (rlSajatFok) — addig egy
-     mintaérték áll ott (a 3. fok), hogy a feladatnak mindig legyen száma (gépi matek-őr); az 1. lépés úgyis a fokot kéri */
+  /* ✍️ saját rokon: egy új, üres létra, csak az alja van kint; a gyerek egy üres fokra koppint (rlSajatValaszt), a helyes szám a
+     választott fokból jön — addig egy mintaérték áll ott (a 3. fok), hogy a feladatnak mindig legyen száma (gépi matek-őr) */
   M = st.sajat = rokonLetraMenet({ op: op, hiany: 0 });
   fk = M.fokok[0];
   x = { forma: "sajat", alap: fk, valasztott: null };
-  return rlFeladat(x, { naplo: rlValasztNaplo("rokon: " + kfMuv(fk.a, fk.op, fk.b)).naplo, c: M.fokok[3].c }, "Írj te egy rokont!", "Itt a " + szo(fk.a) + rlOpSzo(fk.op) + szo(fk.b) + ". Írj te egy rokont! Melyik fokra mész?");
+  return rlFeladat(x, { naplo: rlValasztNaplo("rokon: " + kfMuv(fk.a, fk.op, fk.b)).naplo, c: M.fokok[3].c }, "Válassz te egy rokont a létrán!", "Itt a " + szo(fk.a) + rlOpSzo(fk.op) + szo(fk.b) + ". Koppints egy üres fokra: az lesz a te rokonod!");
 };
 function rlFeladat(x, fk, kerdes, felolvas) {
   if (fk.ugras) { x.a = fk.a; x.b = fk.b; x.op = fk.op; x.c = fk.c; x.ugras = fk.ugras; }
@@ -18865,7 +18867,7 @@ function rlRajz() {
 function rlUniAllit(x, y) { RL.ux = x; RL.uy = y; if (RL.uni) RL.uni.setAttribute("transform", "translate(" + pcF(x) + " " + pcF(y) + ")"); }
 function rlTablaRajz() {
   var g = RL.svg.querySelector(".rl-tabla-hely"); if (!g) return;
-  var T = RL_TABLA, f = RL.f, x = f.rl, var_ = x.forma === "segit" && !x.valasztva;   /* „melyik segít?”: előbb választ, a tábla addig pihen */
+  var T = RL_TABLA, f = RL.f, x = f.rl, var_ = (x.forma === "segit" && !x.valasztva) || (x.forma === "sajat" && x.valasztott == null);   /* előbb választ (kis fok / saját fok), a tábla addig pihen */
   g.innerHTML = kfTabla(T[0], T[1], T[2], T[3], RL.rossz != null && !RL.beirt ? RL.rossz : RL.beirt, RL.joMost ? "jo" : RL.rossz != null && !RL.beirt ? "rossz" : var_ ? "var" : "");
 }
 /* egy fok állapota a létra-képen */
@@ -18886,9 +18888,12 @@ function rlLetraRajz(f) {
   var x = f.rl, st = RL.st, M = x.forma === "sajat" ? st.sajat : st.menet, s = '', i;
   for (i = 0; i < M.fokok.length; i++) {
     var e = M.fokok[i], all = rlFokAll(i, f), bal;
-    if (x.forma === "sajat" && i === x.valasztott) bal = kfMuv(e.a, e.op, e.b) + " =";
-    else if (x.forma === "sajat" && i > 0) bal = "? " + (e.op === "-" ? "−" : "+") + " " + e.b + " =";   /* a gyerek választja ki, melyik fok */
-    else bal = kfMuv(e.a, e.op, e.b) + " =";
+    if (x.forma === "sajat" && i > 0 && i !== x.valasztott) {   /* üres fok: koppintásra ez lesz a gyerek rokona; amíg nem választott, halkan hív */
+      s += '<g class="rl-fok' + (x.valasztott == null ? ' rl-hiv' : '') + '" data-i="' + i + '"><rect x="' + (RL_FOK_X - 90) + '" y="' + (rlY(i) - 22) + '" width="180" height="44" fill="transparent"/>' +
+        kfFok(RL_FOK_X, rlY(i), rlFokSzel(i), "…", null, "ures") + '</g>';
+      continue;
+    }
+    bal = kfMuv(e.a, e.op, e.b) + " =";
     s += kfFok(RL_FOK_X, rlY(i), rlFokSzel(i), bal, String(all[1] === "" ? "" : all[1]), all[0]);
   }
   if (RL.vege || RL.lezart) return s;
@@ -18923,6 +18928,8 @@ function rlKatt(ev) {
   var t = ev.target, x = RL.f.rl;
   var k = t.closest ? t.closest(".rl-kartya") : null;
   if (k && x.forma === "segit" && !x.valasztva) { hangGomb(); rlValaszt(+k.getAttribute("data-i"), k); return; }
+  var fo = t.closest ? t.closest(".rl-fok") : null;
+  if (fo && x.forma === "sajat" && x.valasztott == null) { hangGomb(); rlSajatValaszt(+fo.getAttribute("data-i")); return; }
   rlFokusz();
 }
 function rlBillentyu(e) {
@@ -18946,10 +18953,10 @@ function rlValaszt(i, g) {
 function rlBekuld() {
   var f = RL.f, x = f.rl, st = RL.st;
   if (x.forma === "segit" && !x.valasztva) { mondd("Előbb koppints a kis feladatra, amelyik segít!"); return; }
+  if (x.forma === "sajat" && x.valasztott == null) { RL.beirt = ""; $("rl-beiras").value = ""; rlTablaRajz(); mondd("Előbb koppints egy üres fokra a létrán!"); return; }
   if (RL.beirt === "") { rlFokusz(); return; }
   var v = parseInt(RL.beirt, 10);
   RL.beirt = ""; $("rl-beiras").value = "";
-  if (x.forma === "sajat" && x.valasztott == null) { rlSajatFok(v); return; }
   if (v === f.helyes) { rlJo(v); return; }
   RL.rossz = String(v);
   rosszValaszKonyvel(f, v);
@@ -18966,24 +18973,16 @@ function rlLepesMondat(x) {
   if (p.length === 2) return szo(p[0]) + ", és még " + irany + szo(l[0]) + ". Hová érsz?";
   return szo(p[0]) + ", " + szo(p[1]) + ": ez " + szo(l[0]) + " lépés. Onnan még " + irany + szo(l[1]) + ". Hová érsz?";
 }
-function rlSajatFok(v) {   /* ✍️ „Írj te egy rokont!” 1. lépése: melyik fokra megy? */
-  var f = RL.f, x = f.rl, a = x.alap, ell = rokonSajatEll(a, v), st = RL.st;
-  if (ell.jo) {
-    x.valasztott = (v - a.a) / 10;
-    var fk = st.sajat.fokok[x.valasztott];
-    f.helyes = fk.c; f.naplo = fk.naplo; x.a = fk.a; x.b = fk.b; x.op = fk.op; x.c = fk.c; x.ugras = fk.ugras;
-    RL.rossz = null; st.seg = 0; J.probak = 0;   /* új lépés: a választás hibája nem öröklődik a számolásra (a tény-motor az első számolást nézi; a pötty lila marad) */
-    hangCsilla(); rlRajz();
-    var vj = $("visszajelzes"); vj.className = "visszajelzes"; vj.textContent = "";
-    mondd("Mennyi " + szo(fk.a) + rlOpSzo(fk.op) + szo(fk.b) + "?"); rlFokusz();
-    return;
-  }
-  RL.rossz = String(v); st.seg = 1;
-  rosszValaszKonyvel(f, "fok " + v);   /* f.naplo itt még a „rokon” választás-napló (rlValasztNaplo) */
-  rlRajz();
-  var t = v === a.a ? "Ez maga az alap. Menj feljebb a létrán!" : "Ez nem rokona. Nézd meg az alját!";
-  var vj2 = $("visszajelzes"); vj2.className = "visszajelzes rossz"; vj2.textContent = t;
-  mondd(t); rlFokusz(); ment();
+function rlSajatValaszt(i) {   /* ✍️ „Válassz te egy rokont!”: a koppintott fok lesz a gyerek rokona, kigyullad, és jön a számolás */
+  var f = RL.f, x = f.rl, st = RL.st, fk = st.sajat.fokok[i];
+  if (!fk || i < 1) return;
+  x.valasztott = i;
+  f.helyes = fk.c; f.naplo = fk.naplo; x.a = fk.a; x.b = fk.b; x.op = fk.op; x.c = fk.c; x.ugras = fk.ugras;
+  RL.rossz = null; RL.beirt = ""; st.seg = 0;
+  f.szoveg = f.keplet = "Mennyi " + kfMuv(fk.a, fk.op, fk.b) + "?";
+  $("buborek-feladat").innerHTML = '<span class="bk-kerdes">' + kiiras(f.szoveg) + '</span>';   /* a felirat is a választott fokot kérdezi */
+  hangCsilla(); rlRajz();
+  mondd("Mennyi " + szo(fk.a) + rlOpSzo(fk.op) + szo(fk.b) + "?"); rlFokusz();
 }
 function rlJo(v) {
   var f = RL.f, x = f.rl, st = RL.st;

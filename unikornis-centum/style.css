@@ -3196,4 +3196,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @media (max-width:600px){ #kepernyo-jatek.bk-be .bagoly-buborek{ padding:4px 4px 6px; } .rl-kep{ width:100%; } }
 .rl-panel .rl-kep svg{ max-height:none; }
 .rl-beiras{ position:absolute; left:77.5%; top:38.8%; width:17.5%; height:18.5%; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
-.rl-panel .rl-kartya{ cursor:pointer; }
+.rl-panel .rl-kartya, .rl-panel .rl-fok{ cursor:pointer; }
+.rl-panel .rl-hiv{ animation:rl-hiv 1.6s ease-in-out infinite; }   /* „Válassz te egy rokont!”: az üres fokok halkan hívnak */
+@keyframes rl-hiv{ 50%{ opacity:.6; } }
+@media (prefers-reduced-motion:reduce){ .rl-panel .rl-hiv{ animation:none; } }

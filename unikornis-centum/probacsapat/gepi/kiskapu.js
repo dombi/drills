@@ -22,6 +22,7 @@ window.__KK = (function () {
     }
     if (f.csalad === "letra") {   /* 🪜 Rokon-létra (letra.js): amíg a létra magától tölt / felmászik, nem vár */
       var R = UC.rl && UC.rl(); if (!R || R.f !== f || R.lezart) return false;
+      if (f.rl.forma === "sajat" && f.rl.valasztott == null) return lat("#rl-svg .rl-fok");
       return f.rl.forma === "segit" && !f.rl.valasztva ? lat("#rl-svg .rl-kartya") : lat('#rl-gombok [data-g="kesz"]');
     }
     if (f.kartyak) return lat("#valasz-kartyak .ek-tk");   /* 📚 olvasó-polc: „Kiről kérdeznek?” kártyák */
@@ -98,10 +99,10 @@ window.__KK = (function () {
       if (B.fazis === "javit") return { mod: "gepel", sor: jegyek(x.b.helyes), szam: x.b.helyes, max: 3 };   /* a javítás billentyűzetről */
       return { mod: "katt", sel: [ps(x.b.pontos ? "ok" : "x")], rossz: ps(x.b.pontos ? "x" : "ok") };
     }
-    if (f.csalad === "letra") {   /* 🪜 „melyik segít?”: a rokon kis fok · „írj te egy rokont”: a 3. fok (alap + 30) · különben a szám a táblára */
+    if (f.csalad === "letra") {   /* 🪜 „melyik segít?”: a rokon kis fok · „válassz te egy rokont”: koppintás a 3. fokra · különben a szám a táblára */
       var x = f.rl, ks = function (i) { return '#rl-svg .rl-kartya[data-i="' + i + '"] rect'; };
       if (x.forma === "segit" && !x.valasztva) return { mod: "katt", sel: [ks(x.s.jo)], rossz: ks((x.s.jo + 1) % 3) };
-      if (x.forma === "sajat" && x.valasztott == null) return { mod: "gepel", sor: jegyek(x.alap.a + 30), szam: x.alap.a + 30, max: 3 };
+      if (x.forma === "sajat" && x.valasztott == null) return { mod: "katt", sel: ['#rl-svg .rl-fok[data-i="3"] rect'], rossz: null };
       return { mod: "gepel", sor: jegyek(f.helyes), szam: f.helyes, max: 3 };
     }
     if (f.kartyak) {
