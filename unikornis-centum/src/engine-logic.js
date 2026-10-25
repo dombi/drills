@@ -93,7 +93,7 @@ function palyaInditas(id) {
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.letra) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
+    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.letra || pa.jelenet) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
   osvenyIndul();                                    /* az unikornis a Rajtnál (osveny.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
@@ -151,6 +151,7 @@ function feladatMutat(f) {
   mKoppRejt(); J.kopp = null;                /* mérés: a koppintós kártya-panel csak a saját feladatánál látszik */
   bkRejt();                                  /* 🏪 a bolt képe is (bolt-kep.js) */
   rlRejt();                                  /* 🪜 a Rokon-létra képe is (letra.js) */
+  jlRejt();                                  /* 🎬 a jelenet-motor képe is (jelenet.js — 🏡 Számcsalád) */
   dobogoRejt();                              /* 🏆 a dobogó is (dobogo.js) */
   $("bagoly-buborek").hidden = false;
   $("buborek-cim").hidden = true;
@@ -189,6 +190,7 @@ function feladatMutat(f) {
     renderPottyok(); beiroReset();
     if (f.polc) { figyelStop(); polcMutat(f); return; }                                         /* 📚 olvasó-polc: olvasópult + beírás / kártyák (olvaso-polc.js) */
     if (f.bolt) { figyelStop(); bkMutat(f); mondd(f.felolvas); return; }                       /* 🏪 Tüske néni boltja: érmék, szalag, pecsét a képen (bolt-kep.js) */
+    if (f.jelenet) { figyelStop(); jelenetMutat(f); return; }                                  /* 🎬 receptes pálya képe (jelenet.js; a felolvasást ő indítja) */
     if (f.rl) { figyelStop(); rlMutat(f); return; }                                            /* 🪜 Rokon-létra: fokok + tábla a képen (letra.js; a felolvasást ő indítja) */
     if (f.csalad === "koppint") { figyelStop(); mKoppMutat(f); mondd(f.felolvas); return; }   /* mérés: koppintós kártyák (meres.js) */
     if (f.csalad === "dobogo") { figyelStop(); szMutat(f); return; }                           /* 🧰 szerszám-létra: olvasópult + 🏆 dobogó */

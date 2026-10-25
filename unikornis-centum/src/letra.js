@@ -139,7 +139,7 @@ function rlRajz() {
   else s += rlSzarak() + rlLetraRajz(f);
   s += '<g class="rl-tabla-hely"></g>';
   s += '<g class="pc-uni" pointer-events="none"><g class="pc-uni-irany" style="--dir:-1;transform:scale(var(--dir,1),1)">' + unikornisSVG("rl-uni", LENYEK[mentes.leny], .4, P().oltozet) + '</g></g>';
-  RL.svg.innerHTML = s;
+  RL.svg.innerHTML = kfSajatId(s, "rl");   /* a rejtett Piactér azonos id-jei miatt (keret.js) */
   RL.uni = RL.svg.querySelector(".pc-uni"); rlUniAllit(RL.ux, RL.uy);
   uniNezoAdat(RL.svg.querySelector(".pc-uni-irany"), { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });
   rlTablaRajz();
@@ -148,7 +148,7 @@ function rlUniAllit(x, y) { RL.ux = x; RL.uy = y; if (RL.uni) RL.uni.setAttribut
 function rlTablaRajz() {
   var g = RL.svg.querySelector(".rl-tabla-hely"); if (!g) return;
   var T = RL_TABLA, f = RL.f, x = f.rl, var_ = (x.forma === "segit" && !x.valasztva) || (x.forma === "sajat" && x.valasztott == null);   /* előbb választ (kis fok / saját fok), a tábla addig pihen */
-  g.innerHTML = kfTabla(T[0], T[1], T[2], T[3], RL.rossz != null && !RL.beirt ? RL.rossz : RL.beirt, RL.joMost ? "jo" : RL.rossz != null && !RL.beirt ? "rossz" : var_ ? "var" : "");
+  g.innerHTML = kfSajatId(kfTabla(T[0], T[1], T[2], T[3], RL.rossz != null && !RL.beirt ? RL.rossz : RL.beirt, RL.joMost ? "jo" : RL.rossz != null && !RL.beirt ? "rossz" : var_ ? "var" : ""), "rl");
 }
 /* egy fok állapota a létra-képen */
 function rlFokAll(i, f) {

@@ -229,7 +229,7 @@
           lanc.forEach(function (g, gi) { ellenoriz(g, eff, pid, a.nev + (gi ? " (lánc " + gi + ")" : ""), gi > 0); });
           db++;
           var sig = f && (String(f.kartyaHTML || f.keplet || "") + "|" + String(f.felolvas || f.szoveg || "") + "|" + JSON.stringify(f.helyes));
-          if (elozo && sig === elozo && f.csalad !== "felmondas") { dupla++;
+          if (elozo && sig === elozo && f.csalad !== "felmondas" && f.csalad !== "jelenet") { dupla++;
             hiba("sarga", "matek:dupla:" + pid, "Ugyanaz a feladat kétszer egymás után — " + pid, a.nev + ": " + String(f.keplet || f.szoveg).slice(0, 80)); }
           elozo = sig;
         }

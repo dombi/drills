@@ -4,9 +4,13 @@
      kfFok    🪜 létrafok: fa deszka, rajta a feladat és a válasz helye (Rokon-létra)
      kfTabla  🖍️ a válasz helye: tábla fa kerettel, rá írja a gyerek a számot (egy pályán belül mindig ugyanott)
      kfUgras  ↷ számvonal-darab az ugrással a kerek tízesen át (7 → 10 → 12); a végét a gyerek mondja ki, a kép nem írja ki
-   A C kör hozza: 🪟 ablak + 🪨 kavics (Számcsalád); később 🧾 cetli (a róka blokkja). A régi pályák belső kártyái is ide állnak át. */
+     kfAblak  🪟 ablak három kavics-hellyel és a jellel (Számcsalád; C kör) · kfKavics 🪨 kerek kő a számmal · kfKosar 🧺 fonott kosár
+   Később 🧾 cetli (a róka blokkja). A régi pályák belső kártyái is ide állnak át. */
 
 var KF_FR = 'font-family="Fredoka,sans-serif" font-weight="600"';
+/* a térkép színátmenetei (LT_DEFS: lt-gFal, lt-gTetoM…) a képen saját néven: ha a rejtett Piactér ugyanazokat az id-ket hordozza,
+   a böngésző a rejtett példányt keresi, és a ház fala, teteje, az ég átlátszó marad (mint a nyitókép nySajatId-je) */
+function kfSajatId(s, elotag) { return s.replace(/id="lt-/g, 'id="' + elotag + '-lt-').replace(/#lt-/g, "#" + elotag + "-lt-"); }
 function kfMuv(a, op, b) { return a + (op === "-" ? " − " : " + ") + b; }
 
 /* 🖍️ tábla: (x, y) a közepe, w × h a belseje; tartalom: a beírt szám ("" = üres, villogó kurzor); allapot: "" | "jo" | "rossz" | "var" (halvány, még nem ide írunk) */
@@ -58,4 +62,44 @@ function kfUgras(ug, op, x0, y, egys, mod) {
     s += '<text x="' + F(px(p[i])) + '" y="' + F(y + 22) + '" text-anchor="middle" font-size="15" ' + KF_FR + ' fill="' + (vege ? "#e0417a" : "#4a3b7a") + '">' + (vege ? "?" : p[i]) + '</text>';
   }
   return { svg: s + '</g>', w: (hi - lo) * egys };
+}
+
+/* 🪨 kavics: mindig egyforma kerek kő, rajta a szám (rajzterv 6. pont). (x, y) a közepe, m = nagyság (1 = 44 px átmérő a 800-as képen;
+   telefonon nagyobb, hogy ujjnyi legyen). attr: a kezelő adatai (pl. a jelenet-motor felvehető jele). allapot: "" | "fenyes" | "halvany" */
+function kfKavics(x, y, n, m, attr, allapot) {
+  var F = pcF;
+  return '<g' + (attr || '') + ' transform="translate(' + F(x) + ' ' + F(y) + ') scale(' + (m || 1) + ')"' + (allapot === "halvany" ? ' opacity=".35"' : '') + '><g class="kf-ic">' +
+    (allapot === "fenyes" ? '<ellipse rx="34" ry="30" fill="url(#lt-gHalo)" opacity=".95"/>' : '') +
+    '<ellipse cx="0" cy="14" rx="22" ry="5" fill="#3c2a50" opacity=".12"/>' +
+    '<path d="M-22 0Q-23 -17 -2 -18Q22 -19 22 -2Q23 15 0 16Q-21 17 -22 0Z" fill="#d9cbe6" stroke="' + (allapot === "fenyes" ? "#e3a92a" : "#7a5ea8") + '" stroke-width="' + (allapot === "fenyes" ? 3 : 2) + '"/>' +
+    '<path d="M-12 -10Q-4 -14 6 -13" stroke="#fff" stroke-width="2.4" opacity=".6" fill="none" stroke-linecap="round"/>' +
+    '<text y="7" text-anchor="middle" font-size="19" ' + KF_FR + ' fill="#4a3b7a">' + n + '</text></g></g>';
+}
+/* 🪟 ablak: fakeretes ablak, benne a művelet három kavics-hellyel (p op q = r). (x, y) a közepe, m = nagyság.
+   tart: a három hely tartalma — szám (kavics ül benne) · null (üres kör) · "?" (ide írunk: a tábla felel érte);
+   allapot: "" · "jo" (meleg fény) · "csalad" (halvány fény: a kakukk-tippnél „itt lakik a családja”) · "most" (ezt kérdezzük);
+   helyAttr(j) / kavicsAttr(j): a kezelő adatai a j. helyhez és a benne ülő kavicshoz */
+function kfAblak(x, y, m, op, tart, allapot, helyAttr, kavicsAttr) {
+  var F = pcF, s = '<g class="kf-ablak" transform="translate(' + F(x) + ' ' + F(y) + ') scale(' + m + ')">', jo = allapot === "jo";
+  if (jo || allapot === "csalad") s += '<ellipse rx="150" ry="66" fill="url(#lt-gHalo)" opacity="' + (jo ? .55 : .35) + '" pointer-events="none"/>';
+  s += '<g filter="url(#lt-firka)"><path d="' + phLap(-120, -42, 120, 42, 10) + '" fill="' + (jo ? "url(#kf-ablakfeny)" : allapot === "csalad" ? "#f6ecc4" : "#cfe2f2") + '" stroke="' + (allapot === "most" ? "#e0417a" : "#8a6a7e") + '" stroke-width="' + (allapot === "most" ? 4 : 3) + '"/>' +
+       '<path d="' + phLap(-128, 42, 128, 52, 3) + '" fill="#c99272" stroke="#8a5a3a" stroke-width="1.8"/></g>';
+  [-76, 0, 78].forEach(function (hx, j) {
+    var v = tart[j];
+    s += '<g' + (helyAttr ? helyAttr(j) : '') + ' transform="translate(' + hx + ' 0)"><path d="M-24 0Q-25 -18 0 -19Q25 -19 24 0Q25 18 0 19Q-24 19 -24 0Z" fill="#fff" fill-opacity="' + (v === "?" ? .9 : .55) + '" stroke="' + (v === "?" ? "#e0417a" : "#9a8fb0") + '" stroke-width="' + (v === "?" ? 2.6 : 1.6) + '"' + (v === "?" ? '' : ' stroke-dasharray="4 3"') + '/>' +
+      (v === "?" ? '<text y="8" text-anchor="middle" font-size="22" ' + KF_FR + ' fill="#e0417a">?</text>' : '') + '</g>';
+    if (typeof v === "number") s += kfKavics(hx, 0, v, 1, kavicsAttr ? kavicsAttr(j) : '');
+  });
+  s += '<text x="-38" y="9" text-anchor="middle" font-size="26" ' + KF_FR + ' fill="#4a3b7a">' + op + '</text><text x="39" y="9" text-anchor="middle" font-size="26" ' + KF_FR + ' fill="#4a3b7a">=</text>';
+  return s + '</g>';
+}
+var KF_DEFS = '<defs><radialGradient id="kf-ablakfeny" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#fff2b8"/><stop offset="1" stop-color="#ffd26e"/></radialGradient></defs>';
+/* 🧺 fonott kosár (a kakukktojás félretevő helye, a „Két kosár” számsorai): (x, y) az alja közepe, w a szélessége; felirat a kosár előtt */
+function kfKosar(x, y, w, felirat, attr) {
+  var F = pcF, h = w * .42, s = '<g' + (attr || '') + '><g class="kf-kosar" transform="translate(' + F(x) + ' ' + F(y) + ')">';
+  s += '<rect x="' + F(-w / 2 - 6) + '" y="' + F(-h - 30) + '" width="' + F(w + 12) + '" height="' + F(h + 40) + '" fill="transparent"/>';
+  s += '<g filter="url(#lt-firka)"><path d="M' + F(-w / 2) + ' ' + F(-h) + 'Q0 ' + F(-h - 16) + ' ' + F(w / 2) + ' ' + F(-h) + 'L' + F(w / 2 - 10) + ' 0Q0 8 ' + F(-w / 2 + 10) + ' 0Z" fill="#e3b77e" stroke="#8a5a3a" stroke-width="2.2"/>' +
+       '<path d="M' + F(-w / 2 + 6) + ' ' + F(-h * .5) + 'Q0 ' + F(-h * .5 + 8) + ' ' + F(w / 2 - 6) + ' ' + F(-h * .5) + 'M' + F(-w / 4) + ' ' + F(-h - 6) + 'L' + F(-w / 4 + 4) + ' 2M' + F(w / 4) + ' ' + F(-h - 6) + 'L' + F(w / 4 - 4) + ' 2" stroke="#b5804a" stroke-width="1.6" fill="none"/></g>';
+  if (felirat) s += '<text y="' + F(22) + '" text-anchor="middle" font-size="14" ' + KF_FR + ' fill="#6e4a36">' + felirat + '</text>';
+  return s + '</g></g>';
 }

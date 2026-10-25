@@ -1987,7 +1987,7 @@ function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
-  if (palya.vasar || palya.piac || palya.letra) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
+  if (palya.vasar || palya.piac || palya.letra || palya.jelenet) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
   return osvenyVaz(palya, c, {
     hatter: erdoHatterSVG(),
     ut: function (d) {   /* az út: árnyék + test + világos szegély */

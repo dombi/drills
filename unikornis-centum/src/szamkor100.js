@@ -114,26 +114,40 @@ function rokonSegit(cfg) {
    A kakukktojás közeli szám (z ± 1, z ± 10, x + 1 …), de úgy, hogy a 4 kavicsból SEMMI más hármas ne alkosson családot. */
 function szamCsalad(cfg) {
   cfg = cfg || {};
-  var max = cfg.max || 20, x, y, z;
-  for (var p = 0; p < 100; p++) {
-    if (max <= 20) { x = veletlen(2, 9); y = veletlen(2, 9); }
-    else { x = veletlen(11, 69); y = veletlen(6, 49); }
-    z = x + y;
-    if (x !== y && z <= max && (max <= 20 ? z > 10 : z > 20)) break;
-  }
-  var kavicsok = [x, y, z], kakukk = null;
-  if (cfg.kakukk) {
-    var jel = [z + 1, z - 1, z + 10, z - 10, x + 1, y - 1, x + 10].filter(function (k) {
-      return k > 0 && k <= max && kavicsok.indexOf(k) < 0 && csaladokSzama(kavicsok.concat([k])) === 1;
+  var max = cfg.max || 20, x, y, z, kakukk = null;
+  /* a kakukktojás-állomáson NEM maradhat el (C kör 1. menet): ha egy családhoz nincs egyértelmű kakukk, új családot sorsol */
+  for (var k = 0; k < 50; k++) {
+    for (var p = 0; p < 100; p++) {
+      if (max <= 20) { x = veletlen(2, 9); y = veletlen(2, 9); }
+      else { x = veletlen(11, 69); y = veletlen(6, 49); }
+      z = x + y;
+      if (x !== y && z <= max && (max <= 20 ? z > 10 : z > 20)) break;
+    }
+    if (!cfg.kakukk) break;
+    var jel = [z + 1, z - 1, z + 10, z - 10, x + 1, y - 1, x + 10].filter(function (n) {
+      return n > 0 && n <= max && [x, y, z].indexOf(n) < 0 && csaladokSzama([x, y, z, n]) === 1;
     });
-    kakukk = jel.length ? veletlenElem(jel) : null;
-    if (kakukk != null) kavicsok = keverTomb(kavicsok.concat([kakukk]));
+    if (jel.length) { kakukk = veletlenElem(jel); break; }
   }
+  return csaladBol(x, y, max, kakukk);
+}
+/* egy család a három számból (x + y = z); kakukk: a 4. kavics (vagy null) */
+function csaladBol(x, y, max, kakukk) {
+  var z = x + y, kavicsok = kakukk != null ? keverTomb([x, y, z, kakukk]) : [x, y, z];
   return {
-    forma: "csalad", max: max, x: x, y: y, z: z, kavicsok: kavicsok, kakukk: kakukk,
+    forma: "csalad", max: max, x: x, y: y, z: z, kavicsok: kavicsok, kakukk: kakukk == null ? null : kakukk,
     ablakok: [[x, "+", y, z], [y, "+", x, z], [z, "−", x, y], [z, "−", y, x]],
     naplo: sk100Naplo(x, "+", y, "c")
   };
+}
+/* 🧺🧺 Két kosár (a Számcsalád 4. állomása, OH 2. o. 85. o.): két számsor, a gyerek mindkettőből választ egyet, és a táblára
+   írja az egészet. Bármely pár összege 100 alatt van, és a hat szám mind különbözik (x ≠ y, így 4 ablak lesz). */
+function csaladKosarak() {
+  for (var p = 0; p < 100; p++) {
+    var a = [veletlen(11, 59), veletlen(11, 59), veletlen(11, 59)], b = [veletlen(6, 39), veletlen(6, 39), veletlen(6, 39)], mind = a.concat(b);
+    if (mind.every(function (n, i) { return mind.indexOf(n) === i; })) return { a: a, b: b };
+  }
+  return { a: [23, 38, 46], b: [15, 27, 9] };
 }
 /* hány különböző családot (p + q = r hármast) alkot egy kavics-sor — a kakukktojás egyértelműségéhez */
 function csaladokSzama(l) {

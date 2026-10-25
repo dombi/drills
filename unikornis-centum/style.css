@@ -3200,3 +3200,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .rl-panel .rl-hiv{ animation:rl-hiv 1.6s ease-in-out infinite; }   /* „Válassz te egy rokont!”: az üres fokok halkan hívnak */
 @keyframes rl-hiv{ 50%{ opacity:.6; } }
 @media (prefers-reduced-motion:reduce){ .rl-panel .rl-hiv{ animation:none; } }
+/* 🎬 jelenet-motor (jelenet.js; 🏡 Számcsalád): a kép a bolt paneljében; a tábla fölött átlátszó beíró mező (a helyét a kép adja).
+   A kép mindig a teljes szélességet kapja (--jl-arany: a viewBox aránya), így a mező pontosan a táblán ül. 📱 telefonon magas elrendezés. */
+.jl-kep{ position:relative; width:min(100%, calc((100vh - 300px) * var(--jl-arany, 1.86))); margin:0 auto; }
+@media (max-width:600px){ .jl-kep{ width:100%; } }
+.jl-panel .jl-kep svg{ max-height:none; }
+.jl-beiras{ position:absolute; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
+.jl-panel .jl-fog, .jl-panel .cs-valaszt, .jl-panel .jl-hely{ cursor:pointer; }
+.jl-panel .jl-hely.jl-cel path{ stroke:#e0417a; stroke-width:3; stroke-dasharray:none; }

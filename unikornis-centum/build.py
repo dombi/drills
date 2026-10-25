@@ -17,6 +17,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "game.js")
 MODULES = [
     # ── Adatok ──
     "constants.js",       # 1) PALYAK, LENYEK, paletta, ikon SVG-k
+    "receptek.js",        # 1b) 🧱 pálya-receptek: RECEPT() → a PALYAK-ba (az új pályák egy rövid adatsorból; első: 🏡 Számcsalád)
 
     # ── Segédek ──
     "helpers.js",         # 2) $, el, veletlen, szo(), szamokKinyer()
@@ -75,6 +76,8 @@ MODULES = [
     "vasar.js",           # 6h) 🧺 Tündérvásár: szöveges ×/÷ (sablonok, részeredmény, csapdák, végigvezetés, füzet + Tovább, sátrak)
     "vasar-mozgo.js",     # 6i) 🧺 a 3 vásár-mozgókép (🏷️ árcédula · 🔀 több vagy -szor · 📦 az utolsó doboz)
     "bolt-kep.js",        # 6h2) 🏪 Tüske néni boltja: a bolt képe és játékmenete (① Fizesd ki ② Visszajáró ③ 🦊 Róka blokkja), GEN.bolt, tallér-rajz
+    "jelenet.js",         # 6h4) 🎬 jelenet-motor: a kép-panel közös váza (tábla + beírás, billentyűzet, 🪨 felvesz–letesz, unikornis, jó/rossz) — JELENETEK
+    "csalad.js",          # 6h5) 🏡 Számcsalád: a ház képe és menete (4 ablak, kavicsok, kakukktojás, két kosár, beírás), GEN.csalad
     "letra.js",           # 6h3) 🪜 Rokon-létra: a létra képe és játékmenete (egy fok = egy tízes; alap · távoli rokon · magától · hiányzók · felmászik), GEN.letra
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló

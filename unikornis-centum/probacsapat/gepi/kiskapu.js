@@ -20,6 +20,9 @@ window.__KK = (function () {
       if (B.fazis === "bevalt") return lat("#bk-svg .bk-kopp");   /* 🔥 beváltás: a keret és a koppintható kölyök / unikornis */
       return B.forma === "blokk" ? (B.fazis === "javit" ? lat('#bk-gombok [data-g="javok"]') : lat("#bk-svg .bk-pecset")) : lat('#bk-gombok [data-g="kesz"]');
     }
+    if (f.csalad === "jelenet") {   /* 🎬 receptes pálya képe (jelenet.js): amíg a kép lezár (ünnepel, kigurul), nem vár */
+      var JLx = UC.jl && UC.jl(); return !!(JLx && JLx.f === f && !JLx.lezart) && lat("#jl-svg");
+    }
     if (f.csalad === "letra") {   /* 🪜 Rokon-létra (letra.js): amíg a létra magától tölt / felmászik, nem vár */
       var R = UC.rl && UC.rl(); if (!R || R.f !== f || R.lezart) return false;
       if (f.rl.forma === "sajat" && f.rl.valasztott == null) return lat("#rl-svg .rl-fok");
@@ -98,6 +101,10 @@ window.__KK = (function () {
       var ps = function (v) { return '#bk-svg .bk-pecset[data-v="' + v + '"] rect'; };
       if (B.fazis === "javit") return { mod: "gepel", sor: jegyek(x.b.helyes), szam: x.b.helyes, max: 3 };   /* a javítás billentyűzetről */
       return { mod: "katt", sel: [ps(x.b.pontos ? "ok" : "x")], rossz: ps(x.b.pontos ? "x" : "ok") };
+    }
+    if (f.csalad === "jelenet") {   /* 🎬 a kép mondja meg (JELENETEK[…].gepi): koppintások sorban, vagy a szám a táblára */
+      var JLg = UC.jl(), g = JLg.def.gepi(JLg);
+      return g.katt ? { mod: "katt", sel: g.katt, rossz: null } : { mod: "gepel", sor: jegyek(g.gepel), szam: g.gepel, max: 3 };
     }
     if (f.csalad === "letra") {   /* 🪜 „melyik segít?”: a rokon kis fok · „válassz te egy rokont”: koppintás a 3. fokra · különben a szám a táblára */
       var x = f.rl, ks = function (i) { return '#rl-svg .rl-kartya[data-i="' + i + '"] rect'; };

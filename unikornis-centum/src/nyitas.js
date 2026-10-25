@@ -321,6 +321,7 @@ function nyitasPalyaAlszik(pa) {
   var m = nyitasMenet(); if (!m) return false;
   var lg = palyaLiget(pa), all = nyitasLigetAllapot(m.r, m.sor, lg, nyitasEgyeniVan());
   if (all === "alszik") return true;
+  if (pa.nyit && pa.nyit.osztaly.indexOf(m.o) >= 0 && !nyitasPalyaVolt(pa.nyit.utan)) return true;   /* 🧱 receptes pálya: egy másik pálya első végigvitele után ébred (receptek.js) */
   if (nyitasVersPalya(pa.id, m.o)) return false;   /* 🌰🎵 a vers mindig ébren */
   if (all === "vers") return true;                  /* vers-liget: csak a vers ébren */
   /* a menetben ébredt ligetben a sor akkor is megmarad, ha a liget már „megy” (csak a fénye alszik ki) — különben felfelé ingyen nyílna */
@@ -328,6 +329,10 @@ function nyitasPalyaAlszik(pa) {
   if (!soros || pa.konyvtar || pa.szerszam || pa.polc || pa.egyutt) return false;   /* 🪜 egyutt: a ligettel együtt ébred, nem sorban (constants.js) */
   var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.L.indexOf(pa) > e.i;
+}
+/* végigvitte-e már valamelyik unikornisa (a tiszta végigjátszás is elég) */
+function nyitasPalyaVolt(id) {
+  return nyitasTudasN(id).length > 0 || Object.keys(mentes.profilok || {}).some(function (k) { var pr = (mentes.profilok[k].palyak || {})[id]; return !!(pr && pr.kesz); });
 }
 /* ez a pálya világít-e a liget belsejében: a sorban következő, ill. a vers, amíg nem megy (vagy próba / hívás van) */
 function nyitasPalyaVilagit(pa) {

@@ -223,7 +223,18 @@
         naploEll("csalad", c, "c"); db("🏡 család");
       }
     });
-    if (nincsKakukk > N / 50) hiba("sarga", "csalad:nincskakukk", "Sokszor nem talált kakukktojást (" + nincsKakukk + ")", "");
+    if (nincsKakukk) hiba("piros", "csalad:nincskakukk", "A Kakukktojás-állomáson elmaradt a kakukktojás (" + nincsKakukk + "×) — a C kör óta újrasorsol", "");
+    /* 🧺🧺 Két kosár (C kör 1. menet): 3 + 3 szám, mind különböző, bármely pár összege 100 alatt; a párból 4 ablakos család lesz */
+    for (var k = 0; k < N; k++) {
+      var K = UC.csaladKosarak(), m = K.a.concat(K.b);
+      if (K.a.length !== 3 || K.b.length !== 3 || m.some(function (n, i) { return m.indexOf(n) !== i || n < 1; })) hiba("piros", "csalad:kosar", "A két kosár számai nem 3 + 3 különböző szám", J(K));
+      K.a.forEach(function (a) { K.b.forEach(function (b) {
+        if (a + b >= 100) hiba("piros", "csalad:kosar100", "Egy pár összege nem fér a 100 alá", J(K));
+        var c = UC.csaladBol(a, b, 100, null);
+        if (c.ablakok.length !== 4 || UC.csaladokSzama(c.kavicsok) !== 1) hiba("piros", "csalad:kosarcsalad", "A választott párból nem 4 ablakos család lesz", J(c));
+      }); });
+      db("🧺 két kosár");
+    }
   });
 
   /* ── ⚙️ Varázsgép ── */

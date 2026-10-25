@@ -272,7 +272,7 @@ function nehezsegAlkalmaz(pa, allomasok) {
         o.tablak = metszet(o.tablak);
       }
     }
-    if (!felmondos && darab >= 1 && darab <= 12) o.darab = darab;
+    if (!felmondos && !pa.darabFix && darab >= 1 && darab <= 12) o.darab = darab;   /* 🧱 darabFix: a kép szabja (1 ház = 4 ablak — receptek.js) */
     return o;
   });
 }
