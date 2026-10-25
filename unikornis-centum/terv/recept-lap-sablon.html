@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 🧱 RECEPT-LAP SABLON (terv/palya-recept-terv.html 5. pont, 3. döntés). Használat: másold le terv/<palya>-recept-lap.html néven,
+     és csak a ⟪…⟫ helyeket töltsd ki; a stílushoz és a szerkezethez ne nyúlj. Egy képernyő a cél: ami a beszélgetésben eldőlt,
+     az egy sor, nem bekezdés. Az elemek nevei az elemkatalógusból (terv/elemkatalogus.md) jönnek. -->
+<title>⟪Pálya neve⟫ — recept-lap</title>
+<style>
+  :root{--bg:#fdf4fb;--panel:#fff;--ink:#2a2140;--muted:#6b6280;--violet:#8a4fd0;--violet-soft:#ece0fb;--green:#3f9e6a;--green-soft:#dff3e7;--line:#efe4f4;--warn:#b86a00;--warn-soft:#fff3dc}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}}
+  :root[data-theme="dark"]{--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:22px 16px 60px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{background:linear-gradient(120deg,#c9862a,var(--violet));color:#fff;border-radius:20px;padding:20px 22px}
+  header h1{margin:0 0 4px;font-size:25px} header .sub{opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600;margin:8px 6px 0 0}
+  h2{font-size:18px;margin:24px 0 8px;padding-left:10px;border-left:5px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+  .ok{background:var(--green-soft);border-color:transparent} .warn{background:var(--warn-soft);border-color:transparent}
+  ul,ol{margin:.3em 0;padding-left:22px} li{margin:.25em 0}
+  table{border-collapse:collapse;width:100%;font-size:14px} .tbl{overflow-x:auto}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top} th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:13px}
+  .dont{border:2px solid var(--violet-soft);border-radius:12px;padding:8px 14px;margin:8px 0;background:var(--panel)}
+  .jav{color:var(--green);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+  <h1>⟪ikon⟫ ⟪Pálya neve⟫</h1>
+  <div class="sub">⟪egy mondat: mit tanul a gyerek, és min⟫</div>
+  <span class="chip">⟪hely: Piactér / liget⟫</span><span class="chip">⟪számkör⟫</span><span class="chip">⟪eset: ② meglévő elemekből / ③ új elem kell⟫</span><span class="chip">⟪dátum⟫ · jóváhagyásra vár</span>
+</header>
+
+<h2>① Mit CSINÁL a gyerek a képen, és mit mutat erre a kép?</h2>
+<div class="panel">⟪1–3 mondat. Ha a válasz „nézi”, a lap még nem kész.⟫</div>
+
+<h2>② Könyv és munkafüzet</h2>
+<div class="panel"><div class="tbl"><table>
+  <tr><th>Mit vettünk át (típus, nem konkrét feladat)</th><th>Forrás (könyv, oldal)</th><th>Hova</th></tr>
+  <tr><td>⟪…⟫</td><td>⟪OH 3. o. 74. o. / 3. MF 48. o.⟫</td><td>⟪állomás⟫</td></tr>
+</table></div>
+<p><b>Tananyag-szabály, amit követünk</b> (amit a dolgozat is kér): ⟪…⟫<br>
+<b>Kihagytuk, mert pedagógiailag gyanús:</b> ⟪típus — miért⟫<br>
+<b>Módszertani hozzáadás</b> (Pósa · Pólya · Varga · Dienes): ⟪…⟫</p></div>
+
+<h2>③ Húzószó-csíra</h2>
+<div class="panel">⟪egy sor; a játék NEM mondja ki⟫</div>
+
+<h2>④ A 7 kérdés röviden</h2>
+<div class="panel"><ol>
+  <li><b>A mozdulat maga a matek?</b> ⟪…⟫</li>
+  <li><b>A megfogott tárgy egyszerű és egyforma?</b> ⟪…⟫</li>
+  <li><b>Kép és szám együtt változik?</b> (csak a gyerek által már kimondott szám) ⟪…⟫</li>
+  <li><b>Hány kereten, és van-e „itt nem igaz”?</b> ⟪…⟫</li>
+  <li><b>Hogyan halványul a létra tetejéig?</b> ⟪…⟫</li>
+  <li><b>Mit mutat a kép rossz válaszra?</b> (2 hiba után sincs kiírt megoldás) ⟪…⟫</li>
+  <li><b>Ki cselekszik?</b> (a gyerek saját unikornisa; a kölyök mellette) ⟪…⟫</li>
+</ol></div>
+
+<h2>⑤ Kiskapu: hol lehetne megoldás nélkül jutalmat kapni?</h2>
+<div class="panel warn">⟪minden tippelhető pont (2 gomb, ✓/✗, „mindent letol”) és a zárja⟫</div>
+
+<h2>⑥ A recept</h2>
+<pre>⟪RECEPT({ id, nev, ikon, regio, hely, palcim, nyit, alap, darabFix, segit, allomasok })⟫</pre>
+
+<h2>⑦ Hiányzó elem</h2>
+<div class="panel">⟪nincs — vagy: elem · mekkora · rajz kell-e (csak az új elemhez)⟫</div>
+
+<h2>Döntések</h2>
+<div class="dont"><b>1.</b> ⟪kérdés⟫ — <span class="jav">javaslat: A</span> ⟪…⟫ · B ⟪…⟫</div>
+
+<h2>Kód-körök</h2>
+<div class="panel">⟪kör · mi · méret (apró / közepes / nagy) · nyitómondat⟫</div>
+
+</div></body>
+</html>
