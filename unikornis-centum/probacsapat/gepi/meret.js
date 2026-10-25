@@ -43,7 +43,7 @@ function meretVizsgal(kivetel) {
     return false;   /* oldalra görgetni úgysem kéne */
   }
 
-  [].forEach.call(akt.querySelectorAll(".ph-hely"), function (g) {   /* 🛖 a pálya-helyek: telefonon is jól koppinthatók? */
+  [].forEach.call(akt.querySelectorAll(".ph-hely:not(.ph-hamar)"), function (g) {   /* 🛖 a pálya-helyek: telefonon is jól koppinthatók? (az épülő hely nem pálya: csak mondatot ad) */
     var k = g.querySelector(".ph-kopp"), c = g.querySelector(".ph-csengo circle"), nev = "pálya-hely „" + g.getAttribute("data-id") + "”";
     if (!k || !k.getClientRects().length) return;
     var r = k.getBoundingClientRect(), rc = c && c.getBoundingClientRect();

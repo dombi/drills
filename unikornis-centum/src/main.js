@@ -115,6 +115,8 @@ window.UC = {
   bk: function () { return BK; }, bkKatt: bkKatt, bkGombKatt: bkGombKatt, bkTarca: bkTarca, bkAllomasok: bkAllomasok, piacTer: piacTer, piacHazLepes: piacHazLepes,
   piac: function () { return PIAC; }, piacKoppint: piacKoppint, Lako: Lako, LAKOK: function () { return LAKOK; }, uniPult: uniPult, szarvVarazs: szarvVarazs, tallerBelso: tallerBelso,
   NYITAS_PALYA_UTAN: NYITAS_PALYA_UTAN,
+  /* 🪜 Pálya-hely B kör: a Rokon-létra képe és gyártója (a gépi próba és a böngészős teszt ezekkel hajt) */
+  rl: function () { return RL; }, rlBekuld: rlBekuld, rlValaszt: rlValaszt, rokonLetraMenet: rokonLetraMenet, rokonSajatEll: rokonSajatEll, PIAC_HAZAK: PIAC_HAZAK,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

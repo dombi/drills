@@ -3153,6 +3153,12 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .piac-ter .pc-hely{ cursor:pointer; }
 .piac-ter .pc-haz:hover .pc-rezeg{ filter:brightness(1.05); }
 .piac-ter .pc-ajto{ transform-box:fill-box; transform-origin:0 50%; }
+/* 📱 telefonon (álló) a falutérkép kétszer akkora, és oldalra húzható (Pálya-hely B kör): a cégérek olvashatók, a házak és a
+   csengők jól koppinthatók (méret-őr: hely ≥ 64 px, csengő ≥ 36 px) — a kép az unikornisnál nyílik (piac.js) */
+@media (max-width:600px){
+  .piac-ter{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:18px; }
+  .piac-ter svg{ width:680px; max-width:none; max-height:none; }
+}
 /* 🛖 pálya-hely (palyahely.js): a liget pályái helyek a képben (most: bódék a Tündérvásár sátrában) */
 .ph-ter{ position:relative; z-index:1; width:min(100%,760px); margin:0 auto; }
 .ph-ter svg{ width:100%; height:auto; max-height:calc(100vh - 262px); display:block; overflow:hidden; border-radius:18px; box-shadow:0 8px 22px rgba(74,59,122,.14); }
@@ -3184,3 +3190,10 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .bk-panel .bk-erme[data-hol="zar"]{ opacity:.35; cursor:default; }
 .bk-panel .bk-kopp{ cursor:pointer; }
 @media (prefers-reduced-motion:reduce){ .bk-viz, .bk-villog, .szv-feny{ animation:none; transition:none; } }
+/* 🪜 Rokon-létra (letra.js): a kép a bolt paneljében; a tábla fölött egy átlátszó beíró mező (tableten feljön a rendszer számbillentyűzete,
+   gépen a fizikai billentyűzet a táblára ír). A kép mindig a teljes szélességet kapja, így a mező pontosan a táblán ül. */
+.rl-kep{ position:relative; width:min(100%, calc((100vh - 300px) * 1.538)); margin:0 auto; }
+@media (max-width:600px){ #kepernyo-jatek.bk-be .bagoly-buborek{ padding:4px 4px 6px; } .rl-kep{ width:100%; } }
+.rl-panel .rl-kep svg{ max-height:none; }
+.rl-beiras{ position:absolute; left:77.5%; top:38.8%; width:17.5%; height:18.5%; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
+.rl-panel .rl-kartya{ cursor:pointer; }

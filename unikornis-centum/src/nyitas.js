@@ -307,7 +307,7 @@ function nyitasNapiJelolt(pa) {
 
 /* a liget számolós pályái sorban (a vers-pályák nélkül — azok nem részei a sornak); a sorrend a PALYAK-é, mint a kártyáké */
 function nyitasLigetPalyai(lg, o) {
-  return PALYAK.filter(function (pa) { return palyaLiget(pa) === lg && !pa.hamarosan && !palyaRejtve(pa) && !nyitasVersPalya(pa.id, o); });
+  return PALYAK.filter(function (pa) { return palyaLiget(pa) === lg && !pa.hamarosan && !pa.egyutt && !palyaRejtve(pa) && !nyitasVersPalya(pa.id, o); });
 }
 function nyitasLigetElso(lg, sor, o) {
   var L = nyitasLigetPalyai(lg, o), k = 0, eid = ((sor && sor.elso) || {})[lg];
@@ -325,7 +325,7 @@ function nyitasPalyaAlszik(pa) {
   if (all === "vers") return true;                  /* vers-liget: csak a vers ébren */
   /* a menetben ébredt ligetben a sor akkor is megmarad, ha a liget már „megy” (csak a fénye alszik ki) — különben felfelé ingyen nyílna */
   var soros = m.sor.vil.indexOf(lg) >= 0 || m.r.nyilt[lg] != null;
-  if (!soros || pa.konyvtar || pa.szerszam || pa.polc) return false;
+  if (!soros || pa.konyvtar || pa.szerszam || pa.polc || pa.egyutt) return false;   /* 🪜 egyutt: a ligettel együtt ébred, nem sorban (constants.js) */
   var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.L.indexOf(pa) > e.i;
 }

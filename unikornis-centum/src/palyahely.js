@@ -90,9 +90,12 @@ function phCeger(nev, cx, cy, J, id) {
        '<path d="M' + F(-W / 2 + 6) + ' ' + F(-H / 2 + 5) + 'Q0 ' + F(-H / 2 + 3) + ' ' + F(W / 2 - 6) + ' ' + F(-H / 2 + 5.5) + '" stroke="#fff6e2" stroke-width="2" fill="none" opacity=".8"/></g>';
   m.s.forEach(function (sor, i) { s += '<text y="' + F((m.s.length > 1 ? (i ? 15.5 : -3.5) : 5.4)) + '" text-anchor="middle" font-size="15" ' + PH_FR + ' fill="#6e4a36">' + kiiras(sor) + '</text>'; });
   if (hamar) s += '<g transform="translate(' + F(W / 2 - 16) + ' ' + F(H / 2 + 4) + ') rotate(-6)"><rect x="-22" y="-8" width="44" height="16" rx="3" fill="#fce49a" stroke="#d1a23a" stroke-width="1.4"/><text y="4.2" text-anchor="middle" font-size="10.5" ' + PH_FR + ' fill="#8a5a1a">épül!</text></g>';
-  else {
-    s += '<g transform="translate(' + F(W / 2 - 6) + ' ' + F(H / 2 + 5) + ') rotate(6)"><path d="M-23 -9L23 -9L22 9L-22 10Z" fill="#fffdf6" stroke="#c9ad85" stroke-width="1.3"/><circle cx="0" cy="-8" r="2" fill="#e0417a"/>' +
-         '<text y="5" text-anchor="middle" font-size="11" ' + PH_FR + ' fill="#8a6a1e">≈' + J.ertek + ' ✨</text></g>';
+  else if (!J.nincsCetli) {   /* nincsCetli: egy még épülő / alvó hely cégérén nincs jutalom-cetli */
+    var cetli = J.cetli || "≈" + J.ertek + " ✨", cw = Math.max(46, cetli.length * 6.4 + 12);   /* egy ligetnél (Piactér: Tündérvásár) a cetlin a ⭐ kész/összes */
+    s += '<g transform="translate(' + F(W / 2 - 6) + ' ' + F(H / 2 + 5) + ') rotate(6)"><path d="M' + F(-cw / 2) + ' -9L' + F(cw / 2) + ' -9L' + F(cw / 2 - 1) + ' 9L' + F(-cw / 2 + 1) + ' 10Z" fill="#fffdf6" stroke="#c9ad85" stroke-width="1.3"/><circle cx="0" cy="-8" r="2" fill="#e0417a"/>' +
+         '<text y="5" text-anchor="middle" font-size="11" ' + PH_FR + ' fill="#8a6a1e">' + kiiras(cetli) + '</text></g>';
+  }
+  if (!hamar && id) {   /* a csengő a pálya mondatát olvassa fel (egy liget cégérén nincs: id = null) */
     s += '<g class="ph-csengo" data-id="' + kiiras(id) + '" transform="translate(' + F(-W / 2 - 13) + ' -2)"><circle cx="-6" r="30" fill="transparent"/><g class="ph-csengo-test" transform="scale(1.2)">' +
          '<path d="M0 -12V-8" stroke="#8a6a52" stroke-width="1.6"/><path d="M-7 4Q-8 -8 0 -8Q8 -8 7 4L9 6H-9Z" fill="#ffd24d" stroke="#a8741c" stroke-width="1.5" stroke-linejoin="round"/><circle cy="8" r="2.4" fill="#a8741c"/>' +
          '<path d="M-3 -4Q-4 0 -4 3" stroke="#fff6c8" stroke-width="1.4" fill="none" stroke-linecap="round"/></g></g>';
@@ -131,7 +134,7 @@ function phBurok(id, nev, J, rajz, k) {
   var alszik = J.all === "alszik", m = rajz.magas, cm = phCegerMeret(nev);
   var felsoKeret = rajz.felso - 20 - cm.H - (J.all === "kesz" || J.all === "arany" ? 48 : 30);
   var balKeret = Math.min(rajz.bal, -cm.W / 2 - 30), jobbKeret = Math.max(rajz.jobb, cm.W / 2 + 14);
-  var s = '<g class="ph-hely" data-id="' + kiiras(id) + '" transform="translate(' + pcF(k.x) + ' ' + pcF(k.y) + ') scale(' + (k.k || 1) + ')"><g class="pc-rezeg">';
+  var s = '<g class="ph-hely' + (J.all === "hamarosan" ? ' ph-hamar' : '') + '" data-id="' + kiiras(id) + '" transform="translate(' + pcF(k.x) + ' ' + pcF(k.y) + ') scale(' + (k.k || 1) + ')"><g class="pc-rezeg">';
   s += '<rect class="ph-kopp" x="' + pcF(balKeret) + '" y="' + pcF(felsoKeret) + '" width="' + pcF(jobbKeret - balKeret) + '" height="' + pcF(14 - felsoKeret) + '" rx="10" fill="transparent"/>';
   if (J.vil && !alszik && J.all !== "hamarosan") s += phHalo(m);
   s += '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + phCegerLab(nev, rajz.felso) + rajz.svg + phCeger(nev, 0, rajz.felso - 20 - cm.H / 2, J, id) + '</g>';
@@ -194,6 +197,19 @@ function phBode(sz, aru, J) {
   return { svg: s, felso: -138, bal: -80, jobb: 80, magas: 140 };
 }
 
+/* ── 🏠 ház (Pálya-hely B kör, 2026-10-25): a Piactér mai házrajza (piac.js piacHaz, az építési fokokkal), rajta a közös jelek ──
+   tipus: bolt | letra | csalad · lepes 0–6 (piacHazLepes) · zárva: lakat az ajtón · mára elég: hold · épül: csak a váz (2. fok) */
+var PH_HAZ = { letra: { felso: -142, szel: 52, ajto: [0, -12] }, csalad: { felso: -102, szel: 70, ajto: [34, -18] }, bolt: { felso: -102, szel: 70, ajto: [22, -20] } };
+function phHaz(tipus, lepes, J) {
+  var g = PH_HAZ[tipus], hamar = J.all === "hamarosan";
+  var s = piacHaz(tipus, hamar ? 2 : lepes, false);
+  if (J.all === "zarva") s += phLakat(g.ajto[0], g.ajto[1]);
+  if (J.all === "elfogyott") s += phHold(g.ajto[0], g.ajto[1] - 4, .9);
+  return { svg: s, felso: hamar ? g.felso + 6 : g.felso, bal: -g.szel - 14, jobb: g.szel + (tipus === "letra" ? 20 : 14), magas: -g.felso };
+}
+/* cégér a lábaival egy olyan helyre, amelyik nem pálya-hely (a Piactéren a Dallam-tér és a Tündérvásár sátra): felso = a teteje */
+function phCegerAllo(nev, felso, J, id) { return phCegerLab(nev, felso) + phCeger(nev, 0, felso - 20 - phCegerMeret(nev).H / 2, J, id); }
+
 /* ═════════ a hely-fajták: egy liget képe (háttér) + egy hely rajza ═════════
    rajz(pa, J, i) → a hely saját rajza (phBode…) · hatter(W, H) → a kép háttere · y, k, koz: a sor talpvonala, mérete, lépésköze */
 var BODE_ARU = { "vasar-3": ["kosar", "kosar"], "vasar-3d": ["doboz", "doboz"] };   /* pálya → [áru, VS_SZIN-sor]; a többi a mai ikonját kapja */
@@ -247,8 +263,8 @@ function phCsengo(cs) {
   hangGomb();
   var t = cs.querySelector(".ph-csengo-test");
   if (t && t.animate && !lkCsokkent()) { t.style.transformBox = "fill-box"; t.style.transformOrigin = "50% 0%"; t.animate([{ transform: "rotate(-22deg)" }, { transform: "rotate(22deg)" }, { transform: "rotate(-12deg)" }, { transform: "rotate(0)" }], { duration: 520 }); }
-  var i = PH.lista.map(function (r) { return r.pa.id; }).indexOf(cs.getAttribute("data-id"));
-  if (i >= 0) mondd(palyaFelolvasMondat(PH.lista[i].pa, PH.jelek[i]));
+  var pa = palyaKeres(cs.getAttribute("data-id"));   /* a liget helyein és a Piactér házain is (piac.js) */
+  if (pa) mondd(palyaFelolvasMondat(pa, palyaJelek(pa)));
 }
 function phKoppint(g) {
   if (!PH || !PH.svg.isConnected) return;

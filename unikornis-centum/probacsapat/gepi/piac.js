@@ -177,6 +177,29 @@
     }
   });
 
+  /* ── 🪜 Rokon-létra: egy létra menete (Pálya-hely B kör, letra.js) — 9 fok, alap · távoli · hiányzók nem sorban, egynek a szomszédja üres ── */
+  nyomoz("letramenet", function () {
+    [{ op: "+" }, { op: "-" }, { op: "+", hiany: 1 }, { op: "-", hiany: 1 }].forEach(function (cfg) {
+      for (var i = 0; i < N; i++) {
+        var m = UC.rokonLetraMenet(cfg), F = m.fokok, K = m.kerdes, H = K.slice(2), hiany = cfg.hiany == null ? 3 : cfg.hiany;
+        if (F.length !== 9) hiba("piros", "letramenet:fokszam", "Nem 9 fokos a létra (egy fok = egy tízes, ami belefér a 100-ba)", J(m.alap));
+        if (K[0] !== 0 || K[1] < 3 || K.length !== 2 + hiany) hiba("piros", "letramenet:rend", "A kérdések rendje nem: alap · távoli rokon (3. foktól) · hiányzók", J(K));
+        if (F[F.length - 1].c > 100 || F.some(function (f) { return f.c < 0 || f.c !== (f.op === "+" ? f.a + f.b : f.a - f.b) || J(f.ugras.lepesek) !== J(F[0].ugras.lepesek); })) hiba("piros", "letramenet:szam", "Rossz szám vagy nem ugyanaz az ugrás a létrán", J(F));
+        var mind = {}; K.concat(m.magatol).forEach(function (k) { mind[k] = (mind[k] || 0) + 1; });
+        if (Object.keys(mind).length !== 9 || Object.keys(mind).some(function (k) { return mind[k] !== 1; })) hiba("piros", "letramenet:fedes", "A kérdezett + magától kitöltött fokok nem fedik pontosan a létrát", J(m));
+        if (hiany >= 2) {
+          if (H.every(function (k, j) { return !j || k > H[j - 1]; })) hiba("piros", "letramenet:sorban", "A hiányzókat alulról fölfelé, sorban kérdezi", J(K));
+          var ures = H.some(function (k, j) { var kesz = {}; K.slice(0, 2 + j).concat(m.magatol).forEach(function (q) { kesz[q] = 1; }); return (k > 0 && !kesz[k - 1]) || (k < 8 && !kesz[k + 1]); });
+          if (!ures) hiba("piros", "letramenet:szomszed", "🔒 Kiskapu: minden hiányzónak mindkét szomszédja kész (a mintából kiolvasható)", J(m));
+        }
+        var s = UC.rokonSajatEll(F[0], F[0].a + 30), s2 = UC.rokonSajatEll(F[0], F[0].a + 31), s3 = UC.rokonSajatEll(F[0], F[0].a);
+        if (!s.jo || s.c !== F[3].c || s2.jo || s3.jo) hiba("piros", "letramenet:sajat", "Az „Írj te egy rokont!” ellenőrzője rosszul dönt", J([F[0], s, s2, s3]));
+        F.forEach(function (f) { naploEll("letramenet", f, "r"); });
+        db("🪜 létra-menet");
+      }
+    });
+  });
+
   /* ── 🏡 Számcsalád ── */
   nyomoz("csalad", function () {
     var nincsKakukk = 0;
