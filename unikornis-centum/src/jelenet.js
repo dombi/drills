@@ -1,9 +1,11 @@
 /* ============ 6h4) 🎬 JELENET-MOTOR — a kép-panel közös váza (Pálya-recept C kör 1. menet, 2026-10-25) ============
    Terv: terv/palya-recept-terv.html 4. + 7. pont (✅ a stúdió döntése). A bolt (bolt-kep.js) és a Rokon-létra (letra.js) képe
-   ugyanezt a vázat külön írta meg; az új képek már erre épülnek (az első: 🏡 Számcsalád, csalad.js), a Rokon-létra a 2. menetben áll át.
+   ugyanezt a vázat külön írta meg; az új képek már erre épülnek: 🏡 Számcsalád (csalad.js, 1. menet) · 🪜 Rokon-létra (letra.js, 2. menet).
    EGY KÉP ennyit ad (JELENETEK[név], a feladaton f.jelenet = név):
-     kep(JL)          → { vb: "0 0 800 430", tabla: [x, y, w, h] | null, uni: [x, y, nagyság] } — az elrendezés (JL.keskeny: telefon, álló)
-     indit(JL)        — a feladat kezdete (a felolvasást a motor mondja: f.felolvas)
+     kep(JL)          → { vb: "0 0 800 430", tabla: [x, y, w, h] | null, uni: [x, y, nagyság, irány?] } — az elrendezés (JL.keskeny: telefon,
+                        álló; irány −1: balra néz)
+     indit(JL)        — a feladat kezdete (a felolvasást a motor mondja: f.felolvas); ha true-t ad, a kezdést a kép maga rajzolja és
+                        mondja el (a létra előbb magától kitölt)
      rajz(JL)         → SVG: a kép saját része (a táblát, az unikornist és a kézben lévő követ a motor rajzolja)
      felvesz(JL, id)  → szám | null — a .jl-fog[data-fog=id] felvehető-e (ha igen, a kép kiveszi a helyéről)
      letesz(JL, id, n, hova) — a kő letétele: hova = a legközelebbi .jl-hely data-hely-je, vagy null (vissza, ahonnan jött)
@@ -14,10 +16,10 @@
    felveszi, egérrel/touchpaddal a kő követi a mutatót, érintésnél a helye fölött vár; a második koppintás a legközelebbi körbe teszi,
    ha nincs kör a közelben, oda, ahonnan jött (Esc ugyanígy) · unikornis a képen (jlUniSetal) · jó/rossz a motornak:
    jlJo → ertekel(f.helyes), jlRossz → rosszValaszKonyvel, és JL.seg a hiba-lépcső (1. hiba · 2. hibától) · állomásonként megmaradó
-   állapot (jlAllapot: J.jl). */
+   állapot (jlAllapot: J.jl) · JL.vege = a kép végigért (a következő feladatnál az unikornis újra a kezdő helyén áll). */
 
 var JELENETEK = {};
-var JL = null;   /* a kirakott kép: { J, all, f, def, svg, st, keskeny, beirt, rossz, joMost, lezart, seg, fog, ux, uy } */
+var JL = null;   /* a kirakott kép: { J, all, f, def, svg, st, keskeny, beirt, rossz, joMost, lezart, vege, seg, fog, ux, uy } */
 
 function jlAllapot() {
   if (!J.jl || J.jl.all !== J.allomasIdx) J.jl = { all: J.allomasIdx };
@@ -54,12 +56,12 @@ function jelenetMutat(f) {
   p.hidden = false; $("kepernyo-jatek").classList.add("bk-be");
   $("valasz-egyenkent").classList.add("koppint");
   $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
-  var marad = JL && JL.J === J && JL.all === J.allomasIdx;   /* az állomáson belül az unikornis ott marad, ahol volt */
+  var marad = JL && JL.J === J && JL.all === J.allomasIdx && !JL.vege;   /* az állomáson belül az unikornis ott marad, ahol volt */
   JL = { J: J, all: J.allomasIdx, f: f, def: def, svg: $("jl-svg"), st: jlAllapot(), beirt: "", rossz: null, joMost: false, lezart: false, seg: 0, fog: null,
          ux: marad ? JL.ux : null, uy: marad ? JL.uy : null };
   $("jl-beiras").value = "";
   document.removeEventListener("keydown", jlBillentyu); document.addEventListener("keydown", jlBillentyu);
-  if (def.indit) def.indit(JL);
+  if (def.indit && def.indit(JL)) return;
   jlRajz(); mondd(f.felolvas); jlFokusz();
 }
 function jlFokusz() { try { if (jlTablaNyitva() && !(window.matchMedia && matchMedia("(pointer: coarse)").matches)) $("jl-beiras").focus({ preventScroll: true }); } catch (e) {} }
@@ -74,7 +76,7 @@ function jlRajz() {
   JL.svg.parentNode.style.setProperty("--jl-arany", (vb[2] / vb[3]).toFixed(3));
   var s = LT_DEFS + KF_DEFS + JL.def.rajz(JL) + '<g class="jl-tabla-hely"></g>';
   if (JL.ux == null) { JL.ux = k.uni[0]; JL.uy = k.uni[1]; }
-  s += '<g class="pc-uni" pointer-events="none"><g class="pc-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' + unikornisSVG("jl-uni", LENYEK[mentes.leny], k.uni[2], P().oltozet) + '</g></g>';
+  s += '<g class="pc-uni" pointer-events="none"><g class="pc-uni-irany" style="--dir:' + (k.uni[3] || 1) + ';transform:scale(var(--dir,1),1)">' + unikornisSVG("jl-uni", LENYEK[mentes.leny], k.uni[2], P().oltozet) + '</g></g>';
   s += '<g class="jl-fog-reteg" pointer-events="none"></g>';
   JL.svg.innerHTML = kfSajatId(s, "jl");
   JL.uni = JL.svg.querySelector(".pc-uni"); jlUniAllit(JL.ux, JL.uy);

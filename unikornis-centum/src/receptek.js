@@ -38,6 +38,25 @@ function receptBekot() {
   });
 }
 
+/* ══ 🪜 ROKON-LÉTRA — receptre állt (C kör 2. menet; kép: letra.js · feladat: szamkor100.js rokonLetraMenet) ══
+   A gyerek a képen: a ház oldalán álló létra fokait tölti ki (egy fok = egy tízes: 7 + 5 → 47 + 5); 5 válasz = 1 létra.
+   A Piactérrel együtt ébred (2–3. o.), a bolt mellett. Az ösvény sátrai a saját türkiz színek (rl1–rl4, letra.js). */
+RECEPT({
+  id: "rokon-letra", nev: "Rokon-létra", ikon: "🪜", regio: "piac", hely: "letra", osztaly: 2,
+  palcim: "100-ig · ugyanaz az ugrás, egy tízessel arrébb",
+  alap: { tipus: "letra" },
+  darabFix: true,
+  segit: ["ugras", "lepesenkent"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Összeadás-létra", stand: "rl1", forma: "letra", op: "+", kep: true, darab: 5 },
+    { nev: "Más alappal", stand: "rl2", forma: "letra", op: "+", darab: 5 },
+    { nev: "Kivonás-létra", stand: "rl3", forma: "letra", op: "-", kep: true, darab: 5 },
+    { nev: "Melyik segít?", stand: "rl4", forma: "segit", op: "vegyes", darab: 4 },
+    { nev: "Odú-küszöb", stand: "odu", forma: "vegyes", op: "vegyes", darab: 5, cel: true }
+  ]
+});
+
 /* ══ 🏡 SZÁMCSALÁD — az első receptes pálya (kép: csalad.js · feladat: szamkor100.js) ══
    A gyerek a képen: a háznak 4 ablaka van (+, +, −, −), mindegyikben 3 kavics-hely; koppint egy kavicsra, aztán egy helyre. 1 ház = 4 ablak.
    Könyv: OH 2. o. 85. o. (két kosár), 31. o. (kakukktojás) · húzószó-csíra: előbb az egész. A Rokon-létra első végigvitele után ébred

@@ -455,7 +455,9 @@ function lakatLevesz(uid) {
 
 /* ══════════ pálya-nevek a játék forrásából ══════════ */
 function palyakBetolt() {
-  return fetch("../src/constants.js", { cache: "no-cache" }).then(function (r) { return r.text(); }).then(function (t) {
+  var szoveg = function (f) { return fetch("../src/" + f, { cache: "no-cache" }).then(function (r) { return r.text(); }).catch(function () { return ""; }); };
+  /* 🧱 a receptes pályák (src/receptek.js RECEPT: 🪜 Rokon-létra, 🏡 Számcsalád) ugyanolyan sorok, mint a constants.js-ben — a kettő együtt */
+  return Promise.all([szoveg("constants.js"), szoveg("receptek.js")]).then(function (tt) { var t = tt[0] + "\n" + tt[1];
     var re = /id:\s*"([^"]+)",\s*nev:\s*"([^"]+)",\s*ikon:\s*"([^"]+)"/g, m, i = 0;
     var szA = t.indexOf("var SZARNYAK"), szB = szA >= 0 ? t.indexOf("];", szA) : -1;   /* a könyvtár-szárnyak nem pályák */
     while ((m = re.exec(t))) {
@@ -476,6 +478,9 @@ function palyakBetolt() {
     while ((m = rkm.exec(t))) EK_MESTER_ALAP[m[1]] = (m[2].match(/"[^"]+"/g) || []).map(function (x) { return x.slice(1, -1); });
     var rt = /id:\s*"([^"]+)"[\s\S]*?alap:\s*\{\s*tipus:\s*"([^"]+)"/g;   /* a nehézség-oszlopokhoz */
     while ((m = rt.exec(t))) if (PALYA[m[1]]) PALYA[m[1]].tipus = m[2];
+    var rd = /id:\s*"([^"]+)"/g, ids = [];   /* 🧱 darabFix: a kép szabja a feladatszámot (1 ház = 4 ablak, 1 létra = 5 válasz) — a pult nem kínál választót */
+    while ((m = rd.exec(t))) ids.push([m[1], m.index]);
+    ids.forEach(function (x, j) { if (PALYA[x[0]] && /darabFix:\s*true/.test(t.slice(x[1], j + 1 < ids.length ? ids[j + 1][1] : t.length))) PALYA[x[0]].darabFix = true; });
     var rl = /(\w+):\s*\{\s*nev:\s*"([^"]+)"/g;
     while ((m = rl.exec(t))) if (!PALYA[m[1]] && m[1].length < 20) LENY_NEV[m[1]] = m[2];
   }).catch(function () { /* nélküle is megy: az azonosítók látszanak */ });
@@ -1716,7 +1721,7 @@ function nehezLehet(pid) {
     tablak: t === "szorzotabla-felmondas" || t === "szorzasosztas" || t === "osztas" || (t === "hianyzo" && (PALYA[pid] || {}).regio === "szorzo") ? [2, 3, 4, 5, 6, 7, 8, 9, 10]
           : t === "maradekos_osztas" ? [2, 3, 4, 5, 6, 7, 8, 9] : null,
     tablaSzo: t === "osztas" || t === "maradekos_osztas" ? "osztó" : "tábla",
-    darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas" && t !== "szerszam"
+    darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas" && t !== "szerszam" && !(PALYA[pid] || {}).darabFix
   };
 }
 function felulirOsszevon(egyeni, csoportLista) {

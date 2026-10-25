@@ -118,7 +118,7 @@ window.UC = {
   NYITAS_PALYA_UTAN: NYITAS_PALYA_UTAN,
   /* 🪜 Pálya-hely B kör: a Rokon-létra képe és gyártója (a gépi próba és a böngészős teszt ezekkel hajt) */
   jl: function () { return JL; }, JELENETEK: JELENETEK, RECEPTEK: RECEPTEK, csaladKosarak: csaladKosarak, csaladBol: csaladBol,   /* 🎬 jelenet-motor + 🏡 Számcsalád */
-  rl: function () { return RL; }, rlBekuld: rlBekuld, rlValaszt: rlValaszt, rokonLetraMenet: rokonLetraMenet, rokonSajatEll: rokonSajatEll, PIAC_HAZAK: PIAC_HAZAK,
+  rokonLetraMenet: rokonLetraMenet, rokonSajatEll: rokonSajatEll, PIAC_HAZAK: PIAC_HAZAK,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,
   palyaRejtve: palyaRejtve, palyaAjanlott: palyaAjanlott, palyaSzorzo: palyaSzorzo,

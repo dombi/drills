@@ -3192,14 +3192,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @media (prefers-reduced-motion:reduce){ .bk-viz, .bk-villog, .szv-feny{ animation:none; transition:none; } }
 /* 🪜 Rokon-létra (letra.js): a kép a bolt paneljében; a tábla fölött egy átlátszó beíró mező (tableten feljön a rendszer számbillentyűzete,
    gépen a fizikai billentyűzet a táblára ír). A kép mindig a teljes szélességet kapja, így a mező pontosan a táblán ül. */
-.rl-kep{ position:relative; width:min(100%, calc((100vh - 300px) * 1.538)); margin:0 auto; }
-@media (max-width:600px){ #kepernyo-jatek.bk-be .bagoly-buborek{ padding:4px 4px 6px; } .rl-kep{ width:100%; } }
-.rl-panel .rl-kep svg{ max-height:none; }
-.rl-beiras{ position:absolute; left:77.5%; top:38.8%; width:17.5%; height:18.5%; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
-.rl-panel .rl-kartya, .rl-panel .rl-fok{ cursor:pointer; }
-.rl-panel .rl-hiv{ animation:rl-hiv 1.6s ease-in-out infinite; }   /* „Válassz te egy rokont!”: az üres fokok halkan hívnak */
+@media (max-width:600px){ #kepernyo-jatek.bk-be .bagoly-buborek{ padding:4px 4px 6px; } }
+.jl-panel .rl-kartya, .jl-panel .rl-fok{ cursor:pointer; }
+.jl-panel .rl-hiv{ animation:rl-hiv 1.6s ease-in-out infinite; }   /* „Válassz te egy rokont!”: az üres fokok halkan hívnak */
 @keyframes rl-hiv{ 50%{ opacity:.6; } }
-@media (prefers-reduced-motion:reduce){ .rl-panel .rl-hiv{ animation:none; } }
+@media (prefers-reduced-motion:reduce){ .jl-panel .rl-hiv{ animation:none; } }
 /* 🎬 jelenet-motor (jelenet.js; 🏡 Számcsalád): a kép a bolt paneljében; a tábla fölött átlátszó beíró mező (a helyét a kép adja).
    A kép mindig a teljes szélességet kapja (--jl-arany: a viewBox aránya), így a mező pontosan a táblán ül. 📱 telefonon magas elrendezés. */
 .jl-kep{ position:relative; width:min(100%, calc((100vh - 300px) * var(--jl-arany, 1.86))); margin:0 auto; }

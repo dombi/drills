@@ -25,10 +25,11 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 
 ## 🖼️ Képek (`JELENETEK[név]`, a jelenet-motoron) — ez az egyetlen pályánként saját rész (~150–250 sor)
 - **csalad** (`src/csalad.js`) — ház 4 ablakkal; módok: rak (kavicsok) · kakukk · kosar · beir · két elrendezés (teljes / keskeny)
-- (2. menet) **letra** — ma még saját váz (`letra.js`) · később **bolt** (`bolt-kep.js`) a nehezebb bolttal
+- **letra** (`src/letra.js`) — a létra fokai (egy fok = egy tízes) + tábla; formák: letra (magától kitölt az `indit`-ben, felmászik) · segit (3 kis fok, választás) · sajat (üres fokra koppint) · két elrendezés
+- később **bolt** (`bolt-kep.js`) a nehezebb bolttal
 
 ## 🎬 Jelenet-motor (`src/jelenet.js`) — a kép csak ezeket adja
-`kep` (viewBox, tábla, unikornis) · `rajz` · `indit` · `felvesz` / `letesz` (🪨 felvesz–letesz: `.jl-fog[data-fog]` → `.jl-hely[data-hely]`)
+`kep` (viewBox, tábla, unikornis [x, y, nagyság, irány]) · `rajz` · `indit` (true = a kezdést a kép maga rajzolja és mondja el) · `felvesz` / `letesz` (🪨 felvesz–letesz: `.jl-fog[data-fog]` → `.jl-hely[data-hely]`)
 · `katt` · `bekuld` · `tablaAll` · `gepi` (a kiskapu-őrnek). A motor adja: panel, tábla + beírás, billentyűzet, Kész,
 unikornis (`jlUniSetal`), `jlJo(joKiir, naplo, ünneplés)`, `jlRossz(cimke, naplo)` + `JL.seg` (hiba-lépcső), `jlSzol`, állapot: `jlAllapot()`.
 

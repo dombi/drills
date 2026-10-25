@@ -336,24 +336,6 @@ PALYAK.push({
   ]
 });
 
-/* ══ 🪜 PIACTÉR — Rokon-létra (src/letra.js, a feladat: src/szamkor100.js, a keretek: src/keret.js) — Pálya-hely B kör, 2026-10-25 ══
-   Az épülő Összeadó utca első háza a Piactéren (piac.js). Egy állomás = egy létra (5 válasz; egy fok = egy tízes).
-   egyutt: a liget ébredésével EGYÜTT ébred, nem a liget sorában (nyitas.js) — a producer döntése (tervlap 11. pont 5.):
-   2–3. o.-ban a Piactérrel együtt, a bolt mellett. Az ösvény képe a vásártér (vasarJelenetSVG), saját sátor-színekkel (letra.js). */
-PALYAK.push({
-  id: "rokon-letra", nev: "Rokon-létra", ikon: "🪜", regio: "piac", letra: true, egyutt: true, szint: 6, osztaly: 2,
-  palcim: "100-ig · ugyanaz az ugrás, egy tízessel arrébb",
-  alap: { tipus: "letra" },
-  allomasok: [
-    { nev: "Rajt" },
-    { nev: "Összeadás-létra", stand: "rl1", forma: "letra", op: "+", kep: true, darab: 5 },
-    { nev: "Más alappal", stand: "rl2", forma: "letra", op: "+", darab: 5 },
-    { nev: "Kivonás-létra", stand: "rl3", forma: "letra", op: "-", kep: true, darab: 5 },
-    { nev: "Melyik segít?", stand: "rl4", forma: "segit", op: "vegyes", darab: 4 },
-    { nev: "Odú-küszöb", stand: "odu", forma: "vegyes", op: "vegyes", darab: 5, cel: true }
-  ]
-});
-
 /* ══ MÉRÉS-LIGETEK (hosszúság · űrmérték · tömeg) — Matekos\meres-palyacsoport-rendszerterv.html ══
    3 liget × 4 pálya osztály szerint (1–2. · 3. · 4. · 5.). Egy pálya: Rajt → 5 munkapad → Odú-küszöb.
    Az állomás cfg: feladatok = a feladattípusok (src/meres.js GEN.meres), g = osztály (1–5).
