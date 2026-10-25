@@ -19055,7 +19055,7 @@ GEN.csalad = function (cfg) {
   if (!st.cs) {   /* 🧺🧺 Két kosár: előbb a pár és az egész */
     var K = st.kosar, a = K.a[K.va == null ? 0 : K.va], b = K.b[K.vb == null ? 0 : K.vb];
     x.mod = "kosar";
-    return csFeladat(x, a + b, csNaplo(a, "+", b), "Válassz egy kavicsot mindkét kosárból!", "Válassz egy kavicsot mindkét kosárból! Mennyi a kettő együtt?");
+    return csFeladat(x, a + b, csNaplo(a, "+", b), "Válassz egyet mindkét kosárból! Bármelyik jó.", "Válassz egy kavicsot mindkét kosárból, amelyik tetszik! Bármelyik jó.");   /* a producer élő megnézése (10-25): nincs „jó számhármas”, ezt ki kell mondani */
   }
   if (st.beir) {   /* ✍️ Odú-küszöb: ablakonként a hiányzó szám a táblára */
     x.mod = "beir"; x.ablak = st.kesz.indexOf(false);
@@ -19099,7 +19099,7 @@ JELENETEK.csalad = {
     return { vb: K.vb, tabla: T, uni: K.uni };
   },
   tablaAll: function (JL) { var k = JL.st.kosar; return JL.f.cs.mod === "kosar" && (k.va == null || k.vb == null) ? "var" : ""; },
-  tablaVarMondat: function () { return "Előbb válassz egy kavicsot mindkét kosárból!"; },
+  tablaVarMondat: function () { return "Előbb válassz egy kavicsot mindkét kosárból! Bármelyik jó."; },
   rajz: function (JL) { return csHazRajz(JL) + csAblakokRajz(JL) + csKupacRajz(JL); },
   felvesz: function (JL, id) {
     var st = JL.st, p = id.split("-");
@@ -19133,7 +19133,11 @@ JELENETEK.csalad = {
     hangGomb();
     if (v.getAttribute("data-k") === "a") K.va = +v.getAttribute("data-i"); else K.vb = +v.getAttribute("data-i");
     JL.rossz = null;
-    if (K.va == null || K.vb == null) { jlRajz(); return; }
+    if (K.va == null || K.vb == null) {   /* az első választás megnyugtat: nem lehet rosszul választani */
+      jlRajz();
+      if (!K.szolt) { K.szolt = true; mondd("Jó választás! Most a másik kosárból."); }
+      return;
+    }
     var a = K.a[K.va], b = K.b[K.vb], f = JL.f;
     f.helyes = a + b; f.naplo = csNaplo(a, "+", b);
     csFelirat("Mennyi " + a + " + " + b + "?");
