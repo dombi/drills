@@ -2072,10 +2072,10 @@ function rokonLetra(cfg) {
 
 /* ── 🪜 Rokon-létra: EGY LÉTRA MENETE (Pálya-hely B kör, 2026-10-25 · a producer döntése 2026-10-24, rajzterv 6. pont) ──
    Egy fok = egy tízes: 7 + 5, 17 + 5 … 87 + 5, ameddig belefér a 100-ba (mint a százas tábla egy oszlopa) — mindig 9 fok.
-   A gyerek ezeket mondja meg, ebben a sorrendben (kerdes): ① az alap (0. fok) · ② egy TÁVOLI rokon (3–6. fok, nem a szomszéd)
-   · ③ a létra magától kitölti a „magatol” fokokat, egyenként, alulról · ④ „hiany” db hiányzó, nem alulról fölfelé sorban.
-   Kiskapu ellen: a hiányzók között van két szomszédos fok, így amelyiket előbb kérdezzük, annak a szomszédja is üres —
-   ott nem a mintából, hanem az alapból kell kitalálni. cfg: { op: "+" | "-", hiany: 3 (alap; az Odú-küszöbön 1), alap: [a, b] } */
+   A gyerek ezeket mondja meg, ebben a sorrendben (kerdes): ① az alap (0. fok) · ② egy TÁVOLI rokon (3–4. fok, nem a szomszéd)
+   · ③ a létra magától kitölti a „magatol” fokokat, egyenként, alulról · ④ „hiany” db hiányzó a távoli rokon FÖLÖTT, alulról felfelé.
+   ⬆️ Csak felfelé (a producer élő próbája, 2026-10-25): a lefelé ugrálás közben a gyerek azt kereste, hol tart. A „tízzel több,
+   mint az alatta lévő” nem kiskapu: ez maga a tanulság (a tízes utazik); az alapból gondolkodást a távoli rokon kéri. cfg: { op: "+" | "-", hiany: 3 (alap; az Odú-küszöbön 1), alap: [a, b] } */
 function rokonLetraMenet(cfg) {
   cfg = cfg || {};
   var op = cfg.op === "-" ? "-" : "+", hiany = cfg.hiany == null ? 3 : cfg.hiany, a, b, i;
@@ -2086,14 +2086,11 @@ function rokonLetraMenet(cfg) {
   if (cfg.alap) { a = cfg.alap[0]; b = cfg.alap[1]; }
   var n = Math.floor((100 - (op === "+" ? a + b : a)) / 10) + 1, fokok = [];
   for (i = 0; i < n; i++) { var x = a + 10 * i; fokok.push({ a: x, b: b, op: op, c: op === "+" ? x + b : x - b, ugras: sk100Ugras(x, op, b), naplo: sk100Naplo(x, op, b, "r") }); }
-  var tavoli = veletlen(3, Math.min(6, n - 1)), szabad = [];
-  for (i = 1; i < n; i++) if (i !== tavoli) szabad.push(i);
-  var H = [];
-  if (hiany >= 2) { var parok = szabad.filter(function (k) { return szabad.indexOf(k + 1) >= 0; }), pp = veletlenElem(parok); H = [pp, pp + 1]; }
-  keverTomb(szabad.filter(function (k) { return H.indexOf(k) < 0; })).forEach(function (k) { if (H.length < hiany) H.push(k); });
-  for (p = 0; p < 20 && H.length > 1; p++) { keverTomb(H); if (H.some(function (k, j) { return j && k < H[j - 1]; })) break; }   /* nem sorban */
-  return { forma: "letra", op: op, alap: [a, b], fokok: fokok, kerdes: [0, tavoli].concat(H),
-    magatol: szabad.filter(function (k) { return H.indexOf(k) < 0; }) };
+  var tavoli = veletlen(3, Math.min(4, n - 2)), fent = [], szabad = [];
+  for (i = tavoli + 1; i < n; i++) fent.push(i);
+  var H = keverTomb(fent).slice(0, hiany).sort(function (x, y) { return x - y; });   /* a távoli fölött, alulról felfelé */
+  for (i = 1; i < n; i++) if (i !== tavoli && H.indexOf(i) < 0) szabad.push(i);
+  return { forma: "letra", op: op, alap: [a, b], fokok: fokok, kerdes: [0, tavoli].concat(H), magatol: szabad };
 }
 /* 🪜 „Írj te egy rokont!” (az Odú-küszöb csúcsa): a gyerek maga választ fokot az alaphoz (6 + 7 → 46 + 7).
    Jó rokon: egész tízessel arrébb (ugyanaz az egyes, nem maga az alap), és a 100-ban marad. Vissza: { jo, c } */
@@ -19313,7 +19310,8 @@ function csUnnep(tovabb) {
    MIT TANÍT? A 100-as körben nem kell elölről számolni: ha a 7 + 5 = 12 megvan, a 47 + 5 ugyanaz az ugrás, a tízes csak „utazik”,
    még az átlépés is öröklődik (67 + 5 = 72, nem 62). A létra a százas tábla egy oszlopa: egy fok = egy tízes.
    MIT CSINÁL A GYEREK A KÉPEN? A ház oldalán álló létra fokait tölti ki: ① az alap (7 + 5) · ② egy távoli rokon (47 + 5) ·
-   ③ a létra magától kitölt néhány fokot, egyenként · ④ 2–3 hiányzó, nem sorban (egynek a szomszédja is üres) · ⑤ végigvilágít,
+   ③ a létra magától kitölt néhány fokot, egyenként · ④ 3 hiányzó a távoli fölött, alulról felfelé (⬆️ csak felfelé — a producer,
+   2026-10-25) · minden jó fok után az unikornis fellép oda · ⑤ végigvilágít,
    az unikornis felmászik. 5 válasz = 1 állomás (a gyerekek hamar elunják a 9 beírást). A válasz helye a tábla a létra mellett.
    Állomások (constants.js): Összeadás-létra (ugrás képével) · Más alappal (az ugrás csak hibánál) · Kivonás-létra (12 − 5 → 42 − 5)
    · Melyik segít? (3 fokból a rokon, aztán a nagy feladat) · Odú-küszöb (rövid létra · melyik segít · a csúcs: „Válassz te egy rokont!”:
@@ -19332,7 +19330,7 @@ VS_SZIN.rl2 = { teto: "#a7d99a", csik: "#fff", sotet: "#5e9a52", cimer: "🪜" }
 VS_SZIN.rl3 = { teto: "#c9a8e6", csik: "#fff", sotet: "#7a5ea8", cimer: "🪜" };
 VS_SZIN.rl4 = { teto: "#fce49a", csik: "#fff", sotet: "#c9953a", cimer: "💡" };
 
-var RL_FOK_X = 315, RL_TABLA = [690, 250, 122, 78];
+var RL_FOK_X = 315, RL_UNI_X = 432, RL_UGRAS_X = 472, RL_TABLA = [690, 250, 122, 78];   /* az unikornis a jobb szár mellett mászik, az ugrás ezért jobbrább */
 function rlY(i) { return 446 - i * 48; }
 /* az állomás állapota a motor jlAllapot()-jában (J.jl): a létra menete, a kész fokok, a magától kitöltés */
 function rlAllapot() {
@@ -19386,6 +19384,8 @@ JELENETEK.letra = {
   /* ③ a távoli rokon után: a létra magától kitölt, egyenként — a kezdést (rajz + felolvasás) a kép maga végzi */
   indit: function (L) {
     var f = L.f, x = f.rl, st = L.st, M = st.menet;
+    if (x.forma === "segit") { L.ux = 664; L.uy = 496; }   /* a polcnál nincs létra: az unikornis a tábla alatt */
+    else if (x.forma === "sajat") { L.ux = RL_UNI_X; L.uy = rlY(0) - 14; }   /* új létra: az alján áll, a kész alapon */
     if (!(x.forma === "letra" && x.lep >= 2 && st.kitolt < 0 && M.magatol.length)) return false;
     L.lezart = true; st.kitolt = 0;
     (function tolt() {
@@ -19409,9 +19409,11 @@ JELENETEK.letra = {
   bekuld: function (L, v) {
     var f = L.f, x = f.rl, st = L.st;
     if (v === f.helyes) {
+      var fok = x.forma === "letra" ? x.fok : x.forma === "sajat" ? x.valasztott : null;
       if (x.forma === "letra") st.kesz[x.fok] = true;
-      if (x.forma === "letra" && x.utolso) { L.vege = true; jlJo(null, null, function (tovabb) { rlFelmaszik(L, st.menet.fokok.length, tovabb); }); return; }
-      jlJo();
+      if (x.forma === "letra" && x.utolso) { L.vege = true; jlJo(null, null, function (tovabb) { rlFelmaszik(L, fok, st.menet.fokok.length, tovabb); }); return; }
+      if (fok != null) jlJo(null, null, function (tovabb) { jlUniSetal(RL_UNI_X, rlY(fok) - 14, tovabb); });   /* ⬆️ a jó fok mellé fellép (a létra jobb szárán: a fokok felirata látszik) */
+      else jlJo();
       return;
     }
     L.rossz = String(v);
@@ -19472,8 +19474,8 @@ function rlLetraRajz(L) {
   var most = x.forma === "sajat" ? x.valasztott : x.fok;
   if (most == null) return s;
   var e2 = M.fokok[most], mod = L.seg >= 2 ? "lepes" : "alak";
-  if (x.kep && x.lep === 1 && L.seg < 1) s += '<g opacity=".32">' + kfUgras(M.fokok[0].ugras, M.fokok[0].op, 428, rlY(0) + 2, 14, "alak").svg + '</g>';   /* halványan az alapé is */
-  if (x.kep || L.seg >= 1) s += kfUgras(e2.ugras, e2.op, 428, rlY(most) + 2, 14, mod).svg;
+  if (x.kep && x.lep === 1 && L.seg < 1) s += '<g opacity=".32">' + kfUgras(M.fokok[0].ugras, M.fokok[0].op, RL_UGRAS_X, rlY(0) + 2, 14, "alak").svg + '</g>';   /* halványan az alapé is */
+  if (x.kep || L.seg >= 1) s += kfUgras(e2.ugras, e2.op, RL_UGRAS_X, rlY(most) + 2, 14, mod).svg;
   return s;
 }
 function rlSegitRajz(L) {
@@ -19521,12 +19523,12 @@ function rlSajatValaszt(i) {   /* ✍️ „Válassz te egy rokont!”: a koppin
   hangCsilla(); jlRajz();
   mondd("Mennyi " + szo(fk.a) + rlOpSzo(fk.op) + szo(fk.b) + "?"); jlFokusz();
 }
-function rlFelmaszik(L, n, kesz) {   /* ⑤ kész a létra: végigvilágít, az unikornis fokról fokra felmászik */
-  var i = -1;
+function rlFelmaszik(L, tol, n, kesz) {   /* ⑤ kész a létra: végigvilágít, az unikornis az utolsó jó foktól fokról fokra a tetejéig mászik */
+  var i = tol;
   hangCsilla();
   (function lep() {
     if (JL !== L || !L.svg.isConnected) return;
-    if (i < 0) jlUniAllit(RL_FOK_X + 4, 494); else jlUniAllit(RL_FOK_X + 4, rlY(i) - 14);
+    jlUniAllit(RL_FOK_X + 4, rlY(i) - 14);
     if (++i < n) setTimeout(lep, lkCsokkent() || window.__UC_GYORS ? 0 : 120);
     else setTimeout(kesz, lkCsokkent() || window.__UC_GYORS ? 0 : 450);
   })();

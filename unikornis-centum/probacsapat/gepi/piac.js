@@ -177,7 +177,7 @@
     }
   });
 
-  /* ── 🪜 Rokon-létra: egy létra menete (Pálya-hely B kör, letra.js) — 9 fok, alap · távoli · hiányzók nem sorban, egynek a szomszédja üres ── */
+  /* ── 🪜 Rokon-létra: egy létra menete (Pálya-hely B kör, letra.js) — 9 fok, alap · távoli (3–4.) · hiányzók a távoli fölött, alulról felfelé ── */
   nyomoz("letramenet", function () {
     [{ op: "+" }, { op: "-" }, { op: "+", hiany: 1 }, { op: "-", hiany: 1 }].forEach(function (cfg) {
       for (var i = 0; i < N; i++) {
@@ -187,11 +187,7 @@
         if (F[F.length - 1].c > 100 || F.some(function (f) { return f.c < 0 || f.c !== (f.op === "+" ? f.a + f.b : f.a - f.b) || J(f.ugras.lepesek) !== J(F[0].ugras.lepesek); })) hiba("piros", "letramenet:szam", "Rossz szám vagy nem ugyanaz az ugrás a létrán", J(F));
         var mind = {}; K.concat(m.magatol).forEach(function (k) { mind[k] = (mind[k] || 0) + 1; });
         if (Object.keys(mind).length !== 9 || Object.keys(mind).some(function (k) { return mind[k] !== 1; })) hiba("piros", "letramenet:fedes", "A kérdezett + magától kitöltött fokok nem fedik pontosan a létrát", J(m));
-        if (hiany >= 2) {
-          if (H.every(function (k, j) { return !j || k > H[j - 1]; })) hiba("piros", "letramenet:sorban", "A hiányzókat alulról fölfelé, sorban kérdezi", J(K));
-          var ures = H.some(function (k, j) { var kesz = {}; K.slice(0, 2 + j).concat(m.magatol).forEach(function (q) { kesz[q] = 1; }); return (k > 0 && !kesz[k - 1]) || (k < 8 && !kesz[k + 1]); });
-          if (!ures) hiba("piros", "letramenet:szomszed", "🔒 Kiskapu: minden hiányzónak mindkét szomszédja kész (a mintából kiolvasható)", J(m));
-        }
+        if (K[1] > 4 || H.some(function (k, j) { return k <= K[1] || (j && k <= H[j - 1]); })) hiba("piros", "letramenet:felfele", "⬆️ Nem csak felfelé: a távoli rokon nem a 3–4. fok, vagy a hiányzók nem a fölötte, alulról felfelé jönnek", J(K));
         var s = UC.rokonSajatEll(F[0], F[0].a + 30), s2 = UC.rokonSajatEll(F[0], F[0].a + 31), s3 = UC.rokonSajatEll(F[0], F[0].a);
         if (!s.jo || s.c !== F[3].c || s2.jo || s3.jo) hiba("piros", "letramenet:sajat", "Az „Írj te egy rokont!” ellenőrzője rosszul dönt", J([F[0], s, s2, s3]));
         F.forEach(function (f) { naploEll("letramenet", f, "r"); });

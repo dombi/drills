@@ -45,10 +45,10 @@ function rokonLetra(cfg) {
 
 /* ── 🪜 Rokon-létra: EGY LÉTRA MENETE (Pálya-hely B kör, 2026-10-25 · a producer döntése 2026-10-24, rajzterv 6. pont) ──
    Egy fok = egy tízes: 7 + 5, 17 + 5 … 87 + 5, ameddig belefér a 100-ba (mint a százas tábla egy oszlopa) — mindig 9 fok.
-   A gyerek ezeket mondja meg, ebben a sorrendben (kerdes): ① az alap (0. fok) · ② egy TÁVOLI rokon (3–6. fok, nem a szomszéd)
-   · ③ a létra magától kitölti a „magatol” fokokat, egyenként, alulról · ④ „hiany” db hiányzó, nem alulról fölfelé sorban.
-   Kiskapu ellen: a hiányzók között van két szomszédos fok, így amelyiket előbb kérdezzük, annak a szomszédja is üres —
-   ott nem a mintából, hanem az alapból kell kitalálni. cfg: { op: "+" | "-", hiany: 3 (alap; az Odú-küszöbön 1), alap: [a, b] } */
+   A gyerek ezeket mondja meg, ebben a sorrendben (kerdes): ① az alap (0. fok) · ② egy TÁVOLI rokon (3–4. fok, nem a szomszéd)
+   · ③ a létra magától kitölti a „magatol” fokokat, egyenként, alulról · ④ „hiany” db hiányzó a távoli rokon FÖLÖTT, alulról felfelé.
+   ⬆️ Csak felfelé (a producer élő próbája, 2026-10-25): a lefelé ugrálás közben a gyerek azt kereste, hol tart. A „tízzel több,
+   mint az alatta lévő” nem kiskapu: ez maga a tanulság (a tízes utazik); az alapból gondolkodást a távoli rokon kéri. cfg: { op: "+" | "-", hiany: 3 (alap; az Odú-küszöbön 1), alap: [a, b] } */
 function rokonLetraMenet(cfg) {
   cfg = cfg || {};
   var op = cfg.op === "-" ? "-" : "+", hiany = cfg.hiany == null ? 3 : cfg.hiany, a, b, i;
@@ -59,14 +59,11 @@ function rokonLetraMenet(cfg) {
   if (cfg.alap) { a = cfg.alap[0]; b = cfg.alap[1]; }
   var n = Math.floor((100 - (op === "+" ? a + b : a)) / 10) + 1, fokok = [];
   for (i = 0; i < n; i++) { var x = a + 10 * i; fokok.push({ a: x, b: b, op: op, c: op === "+" ? x + b : x - b, ugras: sk100Ugras(x, op, b), naplo: sk100Naplo(x, op, b, "r") }); }
-  var tavoli = veletlen(3, Math.min(6, n - 1)), szabad = [];
-  for (i = 1; i < n; i++) if (i !== tavoli) szabad.push(i);
-  var H = [];
-  if (hiany >= 2) { var parok = szabad.filter(function (k) { return szabad.indexOf(k + 1) >= 0; }), pp = veletlenElem(parok); H = [pp, pp + 1]; }
-  keverTomb(szabad.filter(function (k) { return H.indexOf(k) < 0; })).forEach(function (k) { if (H.length < hiany) H.push(k); });
-  for (p = 0; p < 20 && H.length > 1; p++) { keverTomb(H); if (H.some(function (k, j) { return j && k < H[j - 1]; })) break; }   /* nem sorban */
-  return { forma: "letra", op: op, alap: [a, b], fokok: fokok, kerdes: [0, tavoli].concat(H),
-    magatol: szabad.filter(function (k) { return H.indexOf(k) < 0; }) };
+  var tavoli = veletlen(3, Math.min(4, n - 2)), fent = [], szabad = [];
+  for (i = tavoli + 1; i < n; i++) fent.push(i);
+  var H = keverTomb(fent).slice(0, hiany).sort(function (x, y) { return x - y; });   /* a távoli fölött, alulról felfelé */
+  for (i = 1; i < n; i++) if (i !== tavoli && H.indexOf(i) < 0) szabad.push(i);
+  return { forma: "letra", op: op, alap: [a, b], fokok: fokok, kerdes: [0, tavoli].concat(H), magatol: szabad };
 }
 /* 🪜 „Írj te egy rokont!” (az Odú-küszöb csúcsa): a gyerek maga választ fokot az alaphoz (6 + 7 → 46 + 7).
    Jó rokon: egész tízessel arrébb (ugyanaz az egyes, nem maga az alap), és a 100-ban marad. Vissza: { jo, c } */
