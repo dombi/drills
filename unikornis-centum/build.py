@@ -79,6 +79,7 @@ MODULES = [
     "jelenet.js",         # 6h4) 🎬 jelenet-motor: a kép-panel közös váza (tábla + beírás, billentyűzet, 🪨 felvesz–letesz, unikornis, jó/rossz) — JELENETEK
     "csalad.js",          # 6h5) 🏡 Számcsalád: a ház képe és menete (4 ablak, kavicsok, kakukktojás, két kosár, beírás), GEN.csalad
     "letra.js",           # 6h3) 🪜 Rokon-létra: a létra képe és játékmenete (egy fok = egy tízes; alap · távoli rokon · magától · hiányzók · felmászik), GEN.letra
+    "zsib.js",            # 6h6) 🦊 Zsivány zsibvására: a nehezebb bolt (szekér-stand, ≈ becslés a könyv szabálya szerint, maszatos ár, elég lesz?, ravasz blokk), GEN.zsib
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
     "sarkany-holmi.js",   # 6k3) 🐉 sárkány-holmi: 12 holmi × 10 részlet, kívánság-tábla, odú-réteg (ágy, kupac, felrakás), kérés

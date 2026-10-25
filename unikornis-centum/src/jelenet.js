@@ -80,6 +80,7 @@ function jlRajz() {
   s += '<g class="jl-fog-reteg" pointer-events="none"></g>';
   JL.svg.innerHTML = kfSajatId(s, "jl");
   JL.uni = JL.svg.querySelector(".pc-uni"); jlUniAllit(JL.ux, JL.uy);
+  if (JL.def.utan) JL.def.utan(JL);   /* a kép élő szereplői (pl. Zsivány) a rajz után a helyükre kerülnek, és mozognak tovább */
   uniNezoAdat(JL.svg.querySelector(".pc-uni-irany"), { rajz: LENYEK[mentes.leny].rajz, kinezet: P().kinezet || null, oltozet: P().oltozet });
   /* a beíró mező a táblán ül (a tábla helye a viewBox %-ában); ha nincs tábla, vagy még nem ide írunk, a mező nincs útban */
   var be = $("jl-beiras"), T = k.tabla;
@@ -127,6 +128,7 @@ function jlJeloles(cel) {   /* a kör, ahova most esne, kiemelődik */
 }
 function jlFogRajz() {
   var g = JL.svg.querySelector(".jl-fog-reteg"), F = JL.fog; if (!g) return;
+  if (JL.def.fogRajz) { g.innerHTML = JL.def.fogRajz(JL, F); return; }   /* a kép maga rajzolja a kézben lévőt (pl. tallér) */
   g.innerHTML = kfSajatId('<g transform="translate(' + pcF(F.x) + ' ' + pcF(F.y - 6) + ') scale(1.15)"><ellipse cx="0" cy="' + pcF(22 * F.m) + '" rx="' + pcF(20 * F.m) + '" ry="5" fill="#3c2a50" opacity=".2"/>' + kfKavics(0, 0, F.n, F.m, '', '') + '</g>', "jl");
 }
 function jlKatt(ev) {

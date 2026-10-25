@@ -171,7 +171,10 @@ var LK_POZ = {
     gondol:  { rx: 126, ry: 140, lx: 100, ly: 200, edx: 2, edy: -3, mos: 0, lapos: 1, browR: 8, hr: -5 },
     kacsint: { wink: 1, mos: 1, browR: -9, browY: -1, hr: 7, lean: 2, rx: 154, ry: 210, pir: .8 },
     mutat:   { lx: 120, ly: 166, blokkFel: 1, mos: .8, nyit: .3, hr: -3, edy: 2 },
-    fulrez:  { ful: 10 }
+    fulrez:  { ful: 10 },
+    /* 🦊 Zsivány zsibvására (rajzterv ✅ A): lebukik = vakarja a pofáját, lekonyul a füle · vállat von = két tenyér széttárva */
+    lebukik:   { rx: 156, ry: 106, hr: -7, lapos: 1, mos: 0, nyit: 0, browY: 2, browR: -7, ful: -14, edx: -3, edy: 1, pir: 1, lean: -2 },
+    vallatvon: { lx: 62, ly: 176, rx: 178, ry: 176, hr: 8, browY: -4, browR: 5, mos: .45, lapos: .55, ful: -5 }
   }
 };
 /* pózon belüli mozgás: (v, t mp a póz óta) */
@@ -194,7 +197,9 @@ var LK_HUROK = {
     integet: function (v, t) { v.rx += 12 * Math.sin(t * 9); v.farok += 6 * Math.sin(t * 9); },
     meglep: function (v, t) { v.ful += 3 * Math.sin(t * 30) * Math.max(0, 1 - t); },
     kacsint: function (v, t) { v.farok += 8 * Math.sin(t * 7); },
-    fulrez: function (v, t) { v.ful = 10 * Math.sin(t * 25) * Math.max(0, 1 - t * 1.5); }
+    fulrez: function (v, t) { v.ful = 10 * Math.sin(t * 25) * Math.max(0, 1 - t * 1.5); },
+    lebukik: function (v, t) { if (t < 1.6) v.ry += 4 * Math.sin(t * 16); v.farok -= 14 * Math.min(1, t * 2); v.ful -= 2 * Math.sin(t * 3); },
+    vallatvon: function (v, t) { if (t < 1.8) { var r = Math.max(0, Math.sin(t * 7)); v.bob -= 7 * r; v.hdy += 3 * r; v.ly -= 6 * r; v.ry -= 6 * r; } }
   }
 };
 var LK_ALAPHUROK = { tuske: function () {}, juli: function (v, now) { v.farok += 4 * Math.sin(now / 1000 * 1.8); } };
@@ -212,7 +217,8 @@ var LK_MONDAT = {
   tuske: { koszon: "Szia! Beállsz ma a pult mögé?", var: "Ráérünk, nem sietünk.", orul: "Na, ez aztán szép munka volt!",
            meglep: "Jaj, a tüskéim! Ez nem jön ki…", integet: "Gyere máskor is!", gondol: "Hmm. Nézzük csak meg még egyszer, együtt." },
   juli: { koszon: "Szia! Villámgyorsan összeadok mindent!", var: "Na, mehet a pecsét, főnök?", szamol: "Ez meg ez… kész is! Gyors voltam, mi?", orul: "Pecsét rajta! Ma senki nem jár rosszul!",
-          meglep: "Hoppá, elkapkodtam!", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!" }
+          meglep: "Hoppá, elkapkodtam!", integet: "Pá! Holnap is ellenőrzöl?", gondol: "Hmm… hol hagytam el azt a tízest?", kacsint: "Ezt most jól elkaptad!", mutat: "Nézd csak meg te is!",
+          lebukik: "Jó, jó, lebuktam. Számoljuk újra.", vallatvon: "Nincs aprópénzem. Így nem tudok visszaadni." }
 };
 
 /* két kör metszéspontja: a könyök → [vállszög, könyökszög] */

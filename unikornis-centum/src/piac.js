@@ -156,7 +156,7 @@ function piacHaz(tipus, lepes, alszik) {
 var PIAC_HAZAK = {
   dallam: { x: 62, y: 246, nev: "Dallam-tér", k: .8 },
   vasar:  { x: 136, y: 352, nev: "Tündérvásár", k: 1.15, liget: "vasar" },   /* 🧺 beköltözött (2026-10-24): a sátorban a Vásár pályái (kártyák) */
-  telek:  { x: 548, y: 262 },
+  zsib:   { x: 548, y: 262, nev: "Zsivány zsibvására", tipus: "zsib", k: 1 },   /* 🦊 a volt üres telken (zsib.js; recept-lap 1A) */
   csalad: { x: 748, y: 238, nev: "Számcsalád", tipus: "csalad", k: .66 },   /* 🏡 a C körben nyílik (még épül) */
   letra:  { x: 640, y: 300, nev: "Rokon-létra", tipus: "letra", k: .8, palya: "rokon-letra" },   /* 🪜 Pálya-hely B kör (letra.js) */
   bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt" }   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
@@ -244,10 +244,6 @@ function piacTer(lista, vasarLista) {
   var szin = ["#f6a5c0", "#fce49a", "#9ec9f0", "#a7d99a", "#c9a8e6"];
   for (i = 0; i < 14; i++) { var t = (i + .5) / 14, bx = (1 - t) * (1 - t) * 353 + 2 * (1 - t) * t * 486 + t * t * 619, by = (1 - t) * (1 - t) * 218 + 2 * (1 - t) * t * 268 + t * t * 214; s += '<path d="M' + pcF(bx - 7) + ' ' + pcF(by) + 'L' + pcF(bx + 7) + ' ' + pcF(by) + 'L' + pcF(bx) + ' ' + pcF(by + 13) + 'Z" fill="' + szin[i % 5] + '"/>'; }
   s += '<g class="pc-hely" data-id="dallam" transform="translate(' + H.dallam.x + ' ' + H.dallam.y + ') scale(' + (H.dallam.k || 1) + ')"><rect x="-66" y="-80" width="132" height="100" fill="transparent"/>' + pcDallam(uj) + '</g>';
-  s += '<g class="pc-hely" data-id="telek" transform="translate(' + H.telek.x + ' ' + H.telek.y + ')"><ellipse cx="0" cy="0" rx="58" ry="11" fill="#b9e3a8"/><g filter="url(#lt-firka)">' + [-50, -33, -16, 0, 16, 33, 50].map(function (x) { return '<path d="M' + x + ' 4V-16" stroke="#c9a77a" stroke-width="4" stroke-linecap="round"/>'; }).join("") +
-       '<path d="M-52 -10Q0 -12 52 -9M-52 -2Q0 -4 52 -1" stroke="#c9a77a" stroke-width="2.6" fill="none"/><path d="M-6 -2V-40" stroke="#8a6a52" stroke-width="3"/><rect x="-34" y="-62" width="56" height="24" rx="4" fill="#fffaf0" stroke="#8a6a52" stroke-width="2"/></g>' +
-       '<text x="-6" y="-46" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="600" fill="#6e4a36">Hamarosan…</text>' +
-       '<g><circle cx="30" cy="-20" r="5" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1.2"/><circle cx="34" cy="-24" r="3.4" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1.2"/><path d="M37 -24l3 1l-3 1z" fill="#f5a54a"/><circle cx="34.6" cy="-25" r=".9" fill="#2a2140"/>' + (cs ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -5;0 0;0 0" dur="2.4s" repeatCount="indefinite"/>') + '</g></g>';
   s += '<g transform="translate(440 338)"><g filter="url(#lt-firka)"><ellipse rx="40" ry="11" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="2"/><path d="M-40 0V10Q0 24 40 10V0" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="2"/>' +
        '<path d="M-5 0V-36H5V0Z" fill="#d9cbb4" stroke="#8a7a6e" stroke-width="1.8"/><ellipse cx="0" cy="-36" rx="14" ry="4" fill="#a9d6ef" stroke="#7fb8d8" stroke-width="1.6"/></g>' +
        '<path d="M0 -40Q-16 -58 -26 -4M0 -40Q16 -58 26 -4M0 -40Q-6 -60 -12 -4M0 -40Q6 -60 12 -4" fill="none" stroke="#9ec9f0" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="5 4">' + (cs ? '' : '<animate attributeName="stroke-dashoffset" values="0;-18" dur=".9s" repeatCount="indefinite"/>') + '</path></g>';
@@ -257,7 +253,7 @@ function piacTer(lista, vasarLista) {
   /* házak hátulról előre (Pálya-hely B kör, 2026-10-25): a ház = a pálya, cégérrel és a közös jelekkel (palyahely.js phBurok + phHaz);
      a ház állapota a gyerek haladásából (piacHazLepes); amelyik háznak még nincs pályája, az épül (🔜 váz + „épül!”) */
   var hazPa = {}, hazJ = {};
-  ["csalad", "letra", "bolt"].forEach(function (id) {
+  ["csalad", "zsib", "letra", "bolt"].forEach(function (id) {
     var h = H[id], pa = h.palya ? (lista.filter(function (r) { return r.pa.id === h.palya; })[0] || {}).pa : null;
     var J = pa ? palyaJelek(pa) : { all: uj ? "alszik" : "hamarosan", ertek: 0, nincsCetli: true };
     hazPa[id] = pa || null; hazJ[id] = J;
@@ -322,7 +318,6 @@ function piacKoppint(id, g) {
   hangGomb();
   if (id === "terkep") { FOMENU_LIGET = null; renderFomenu(); fomenuFelulre(); return; }
   if (id === "dallam") { mondd("Itt lesz a Dallam-tér. Hamarosan megépül!"); return; }
-  if (id === "telek") { mondd("Ide is épül majd valami. Hamarosan!"); return; }
   if (id === "vasar") { piacVasarba(g); return; }
   if (id === "deli") { piacDelibe(); return; }
   var pa = PIAC.haz[id];
@@ -345,7 +340,7 @@ function piacKoppint(id, g) {
     });
 }
 /* hová sétál az unikornis egy házhoz: a ház jobb oldala elé (a létra-háznál a létra mellé) */
-function pcHazCel(id) { var h = PIAC_HAZAK[id], g = PH_HAZ[h.tipus]; return [h.x + (g.szel + (h.tipus === "letra" ? 42 : 30)) * h.k, h.y + 22]; }
+function pcHazCel(id) { var h = PIAC_HAZAK[id], g = PH_HAZ[h.tipus]; if (g.cel) return [h.x + g.cel[0] * h.k, h.y + g.cel[1] * h.k]; return [h.x + (g.szel + (h.tipus === "letra" ? 42 : 30)) * h.k, h.y + 22]; }
 /* ☀️ a Déli vásár (a domb tetején): a hídig sétál, és indul a pálya; utána a Piactérre jön vissza (engine-logic.js: piacHely) */
 var PIAC_HID = [440, 238];
 function piacDelibe() {

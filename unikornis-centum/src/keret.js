@@ -5,7 +5,9 @@
      kfTabla  🖍️ a válasz helye: tábla fa kerettel, rá írja a gyerek a számot (egy pályán belül mindig ugyanott)
      kfUgras  ↷ számvonal-darab az ugrással a kerek tízesen át (7 → 10 → 12); a végét a gyerek mondja ki, a kép nem írja ki
      kfAblak  🪟 ablak három kavics-hellyel és a jellel (Számcsalád; C kör) · kfKavics 🪨 kerek kő a számmal · kfKosar 🧺 fonott kosár
-   Később 🧾 cetli (a róka blokkja). A régi pályák belső kártyái is ide állnak át. */
+     🦊 Zsivány zsibvására (2026-10-25, rajz: Matekos/zsibvasar-rajzterv.html ✅): kfTaller 🪙 tallér · kfBecsles ≈ cetli a kis szalaggal ·
+     kfCedula 🏷️ árcédula (maszatos is) · kfBlokk 🧾 blokk · kfErszeny 👛 erszény. A Tüske-bolt is ezekre állhat át (recept-lap 3. kör).
+   A régi pályák belső kártyái is ide állnak át. */
 
 var KF_FR = 'font-family="Fredoka,sans-serif" font-weight="600"';
 /* a térkép színátmenetei (LT_DEFS: lt-gFal, lt-gTetoM…) a képen saját néven: ha a rejtett Piactér ugyanazokat az id-ket hordozza,
@@ -102,4 +104,68 @@ function kfKosar(x, y, w, felirat, attr) {
        '<path d="M' + F(-w / 2 + 6) + ' ' + F(-h * .5) + 'Q0 ' + F(-h * .5 + 8) + ' ' + F(w / 2 - 6) + ' ' + F(-h * .5) + 'M' + F(-w / 4) + ' ' + F(-h - 6) + 'L' + F(-w / 4 + 4) + ' 2M' + F(w / 4) + ' ' + F(-h - 6) + 'L' + F(w / 4 - 4) + ' 2" stroke="#b5804a" stroke-width="1.6" fill="none"/></g>';
   if (felirat) s += '<text y="' + F(22) + '" text-anchor="middle" font-size="14" ' + KF_FR + ' fill="#6e4a36">' + felirat + '</text>';
   return s + '</g></g>';
+}
+
+/* 🪙 tallér (a bolt-kép tallerBelso rajza): (x, y) a közepe, k = nagyság, attr: a kezelő adatai */
+function kfTaller(x, y, v, k, attr) { return '<g' + (attr || '') + ' transform="translate(' + pcF(x) + ' ' + pcF(y) + ')"><g class="kf-ic">' + tallerBelso(v, k) + '</g></g>'; }
+/* 🏷️ árcédula madzagon: (x, y) a madzag teteje; maszat: az ár elmaszatolódott (ha nincs ár, csak a maszat látszik) */
+function kfCedula(x, y, ar, m, maszat) {
+  var s = '<g class="kf-cedula" transform="translate(' + pcF(x) + ' ' + pcF(y) + ') scale(' + (m || 1) + ') rotate(4)">';
+  s += '<path d="M0 0V10" stroke="#8a7a6e" stroke-width="1.4"/><rect x="-26" y="10" width="52" height="30" rx="4" fill="#fffef6" stroke="#8a7a6e" stroke-width="1.6"/><circle cy="15" r="2" fill="#8a7a6e"/>';
+  if (maszat) s += '<path d="M-20 22Q-8 14 4 22T22 26Q14 36 0 32T-20 30Z" fill="#b9a6c9" opacity=".55"/>';
+  if (ar !== "" && ar != null) s += '<text y="33" text-anchor="middle" font-size="17" ' + KF_FR + ' fill="#4a3b7a">' + kiiras(ar) + '</text>';
+  return s + '</g>';
+}
+/* ≈ cetli a kis szalaggal (rajzterv 4. pont): (x, y) a bal felső sarka, m = nagyság (a cetli 300 × 150).
+   all: "ures" (a gyerek koppint) · "jo" (a jó tízes kivilágít, beirt = a kerekített) · "hiba" (két ív + lépés-pöttyök; 5-re végződőnél zöld nyíl
+   felfelé) · "halvany" (Odú-küszöb: nincs szalag, a gyerek írja). A két tízes koppintható: .kf-veg[data-v] (ha koppint igaz).
+   A szalag megállóinál nincs szám, csak a két szomszéd kerek tízes; kerek tízes árnál a jel magán a tízesen áll (maga marad). */
+function kfBecsles(x, y, m, ar, all, beirt, koppint) {
+  var F = pcF, also = ar % 10 === 0 ? ar : Math.floor(ar / 10) * 10, felso = also + 10, X0 = 40, X1 = 260, px = X0 + (ar - also) / 10 * (X1 - X0), y0 = 104, i;
+  var jo = kerekTizes(ar), van = beirt !== "" && beirt != null, s = '<g class="kf-becsles" transform="translate(' + F(x) + ' ' + F(y) + ') scale(' + m + ')">';
+  s += '<g filter="url(#lt-firka)"><path d="M18 14H282V140H18Z" fill="#fffdf3" stroke="#c9b48a" stroke-width="1.8" transform="rotate(-1.2 150 77)"/></g><circle cx="150" cy="18" r="5" fill="#e8505b" stroke="#a83a44" stroke-width="1.4"/>';
+  s += '<text x="118" y="62" text-anchor="end" font-size="30" ' + KF_FR + ' fill="#4a3b7a">' + ar + '</text><text x="138" y="62" text-anchor="middle" font-size="30" ' + KF_FR + ' fill="#8a4fd0">≈</text>';
+  s += '<rect x="156" y="34" width="62" height="38" rx="7" fill="#fff" stroke="' + (all === "jo" ? "#3f9e6a" : "#b9a6d6") + '" stroke-width="2" stroke-dasharray="' + (van ? "0" : "5 4") + '"/>';
+  if (van) s += '<text x="187" y="63" text-anchor="middle" font-size="26" ' + KF_FR + ' fill="' + (all === "jo" ? "#3f9e6a" : "#4a3b7a") + '">' + beirt + '</text>';
+  if (all === "halvany") return s + '</g>';
+  s += '<path d="M' + X0 + ' ' + y0 + 'H' + X1 + '" stroke="#c9b48a" stroke-width="4" stroke-linecap="round"/>';
+  for (i = 1; i < 10; i++) { var tx = X0 + i * (X1 - X0) / 10; s += '<path d="M' + F(tx) + ' ' + (y0 - (i === 5 ? 7 : 4)) + 'V' + (y0 + (i === 5 ? 7 : 4)) + '" stroke="#c9b48a" stroke-width="' + (i === 5 ? 2 : 1.4) + '"/>'; }
+  if (all === "hiba" && ar % 10) {   /* a két távolság: ív és lépés-pöttyök a jeltől mindkét tízesig (szám nincs kiírva) */
+    var st = (X1 - X0) / 10, nl = ar - also;
+    [X0, X1].forEach(function (b) { s += '<path d="M' + F(px) + ' ' + (y0 - 8) + 'Q' + F((px + b) / 2) + ' ' + F(y0 - 20 - Math.abs(b - px) * .12) + ' ' + b + ' ' + (y0 - 8) + '" fill="none" stroke="#5f84b0" stroke-width="2" stroke-dasharray="4 3"/>'; });
+    for (i = 0; i < 10; i++) s += '<circle cx="' + F(i < nl ? px - st * (i + .5) : px + st * (i - nl + .5)) + '" cy="' + (y0 + 16) + '" r="4" fill="#f6a5c0" stroke="#c0567f" stroke-width="1"/>';
+    if (nl === 5) s += '<path d="M' + (X1 - 30) + ' ' + (y0 - 34) + 'l14 0m-5 -5l5 5l-5 5" fill="none" stroke="#3f9e6a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  [[also, X0], [felso, X1]].forEach(function (t) {
+    if (all === "jo" && t[0] === jo) s += '<circle cx="' + t[1] + '" cy="' + y0 + '" r="26" fill="#fff3a0" opacity=".85"/>';
+    s += '<g' + (koppint ? ' class="kf-veg" data-v="' + t[0] + '" style="cursor:pointer"' : '') + '><circle cx="' + t[1] + '" cy="' + y0 + '" r="' + (koppint ? 22 : 17) + '" fill="url(#heTizes)" stroke="' + HE_SZIN[10].k + '" stroke-width="2.2"/>' +
+      '<text x="' + t[1] + '" y="' + (y0 + 6) + '" text-anchor="middle" font-size="16" ' + KF_FR + ' fill="' + HE_SZIN[10].sz + '">' + t[0] + '</text></g>';
+  });
+  return s + '<path d="M' + F(px) + ' ' + (y0 - 6) + 'l-7 -12h14Z" fill="#c0567f" stroke="#7a2f4c" stroke-width="1.2"/></g>';
+}
+/* 🧾 blokk: (x, y) a bal felső sarka, w a szélessége; sorok: [[ikon-SVG, ár]], irt: az „összesen” (amit a boltos írt);
+   o: { cim, pecset: "ok" | "x", kihuz } */
+function kfBlokk(x, y, w, sorok, irt, o) {
+  var F = pcF, n = sorok.length, dy = n > 3 ? 30 : 36, h = 62 + n * dy + 50, s = '<g class="kf-blokk" transform="translate(' + F(x) + ' ' + F(y) + ')">', i, cik = "";
+  o = o || {};
+  for (i = 0; i < Math.round(w / 20); i++) cik += "L" + F(w - (i * 20 + 10)) + " " + (i % 2 ? h : h + 9) + "L" + F(Math.max(0, w - (i + 1) * 20)) + " " + h;
+  s += '<path d="M0 0H' + w + 'V' + h + cik + 'Z" fill="#fffef6" stroke="#c9b6dc" stroke-width="1.8"/>';
+  s += '<text x="' + F(w / 2) + '" y="22" text-anchor="middle" font-size="12" ' + KF_FR + ' fill="#8a7a9e">' + (o.cim || "blokk") + '</text><path d="M12 32H' + (w - 12) + '" stroke="#e7dcef" stroke-width="1.6"/>';
+  sorok.forEach(function (r, i) {
+    var yy = 58 + i * dy;
+    s += '<g transform="translate(26 ' + (yy + 2) + ') scale(.62)">' + r[0] + '</g><path d="M50 ' + (yy - 6) + 'H' + (w - 64) + '" stroke="#c9b6dc" stroke-width="2" stroke-dasharray="2 4"/>' +
+      '<text x="' + (w - 16) + '" y="' + yy + '" text-anchor="end" font-size="22" ' + KF_FR + ' fill="#3b4a8a">' + r[1] + '</text>';
+  });
+  var yv = 58 + (n - 1) * dy + 16;
+  s += '<path d="M' + (w - 76) + ' ' + yv + 'H' + (w - 12) + '" stroke="#3b4a8a" stroke-width="2.2"/><text x="14" y="' + (yv + 30) + '" font-size="16" ' + KF_FR + ' fill="#3b4a8a">összesen:</text>' +
+       '<text x="' + (w - 16) + '" y="' + (yv + 32) + '" text-anchor="end" font-size="28" ' + KF_FR + ' fill="#3b4a8a">' + irt + '</text>';
+  if (o.kihuz) s += '<path d="M' + (w - 66) + ' ' + (yv + 24) + 'L' + (w - 14) + ' ' + (yv + 16) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
+  if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(' + F(w * .42) + ' ' + (yv + 22) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
+  return s + '</g>';
+}
+/* 👛 erszény: (x, y) az alja közepe, m = nagyság; osszeg: a felirata (ennyi van benne — ez adott, nem a gyerek mondja ki) */
+function kfErszeny(x, y, m, osszeg) {
+  return '<g class="kf-erszeny" transform="translate(' + pcF(x) + ' ' + pcF(y) + ') scale(' + (m || 1) + ')"><g filter="url(#lt-firka)"><path d="M-30 -40Q-36 -2 0 0Q36 -2 30 -40Z" fill="#c9aee6" stroke="#7a5ca8" stroke-width="2.2"/>' +
+    '<path d="M-26 -40Q0 -56 26 -40" fill="none" stroke="#7a5ca8" stroke-width="2.6"/><circle cx="-6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/><circle cx="6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/></g>' +
+    '<text y="-14" text-anchor="middle" font-size="17" ' + KF_FR + ' fill="#4a3b7a">' + osszeg + '</text></g>';
 }

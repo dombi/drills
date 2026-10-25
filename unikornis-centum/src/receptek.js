@@ -57,6 +57,24 @@ RECEPT({
   ]
 });
 
+/* ══ 🦊 ZSIVÁNY ZSIBVÁSÁRA — a nehezebb bolt, a 2. receptes pálya (kép + feladat: zsib.js · recept-lap: terv/zsibvasar-recept-lap.html) ══
+   A gyerek a képen: Zsivány árul, az unikornis vásárol; előbb körülbelül (≈ cetli: a közelebbi tízesre koppint), aztán pontosan.
+   Tüske néni boltjának első végigvitele után ébred (2–3. o.), 4. o.-tól nyitva. 1. kör: 🫧 🎒 🧾 + Odú-küszöb; a 🪙 Nincs aprópénz a 2. körben jön. */
+RECEPT({
+  id: "zsibvasar", nev: "Zsivány zsibvására", ikon: "🦊", regio: "piac", hely: "zsib",
+  palcim: "100-ig · előbb körülbelül, aztán pontosan",
+  nyit: { utan: "tuske-bolt", osztaly: [2, 3] },
+  alap: { tipus: "zsib" },
+  segit: ["kep", "lepesenkent"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Maszatos ár", stand: "zsib1", forma: "maszat", darab: 4 },
+    { nev: "Elég lesz?", stand: "zsib2", forma: "eleg", darab: 4, hatar: 1 },
+    { nev: "Ravasz blokk", stand: "zsib3", forma: "blokk", darab: 5 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 5, cel: true, halvany: true }
+  ]
+});
+
 /* ══ 🏡 SZÁMCSALÁD — az első receptes pálya (kép: csalad.js · feladat: szamkor100.js) ══
    A gyerek a képen: a háznak 4 ablaka van (+, +, −, −), mindegyikben 3 kavics-hely; koppint egy kavicsra, aztán egy helyre. 1 ház = 4 ablak.
    Könyv: OH 2. o. 85. o. (két kosár), 31. o. (kakukktojás) · húzószó-csíra: előbb az egész. A Rokon-létra első végigvitele után ébred

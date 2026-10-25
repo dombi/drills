@@ -253,5 +253,53 @@
     });
   });
 
+  /* ── 🦊 Zsivány zsibvására (zsib.js): a becslés a könyv szabálya szerint, a gyártók ígéretei ── */
+  nyomoz("zsib", function () {
+    var v, b, o, i, k;
+    for (v = 1; v <= 99; v++) {   /* tízesre: a közelebbi, az 5-re végződő felfelé, a kerek tízes marad */
+      var jo = v % 10 === 0 ? v : v % 10 >= 5 ? Math.ceil(v / 10) * 10 : Math.floor(v / 10) * 10;
+      if (!UC.becslesEll(v, jo).jo || UC.kerekTizes(v) !== jo) hiba("piros", "zsib:szabaly", "A kerekítés nem a könyv szabálya (5-re végződő felfelé, kerek marad)", v);
+      [jo - 10, jo + 10].forEach(function (r) { if (r >= 0 && UC.becslesEll(v, r).jo) hiba("piros", "zsib:tures", "A becslés tűr egy rossz tízest", v + " ≈ " + r); });
+      if (v % 10 === 5 && UC.becslesEll(v, v - 5).hiba !== "otos") hiba("piros", "zsib:otos", "Az 5-re végződő lefelé kerekítését nem ismeri fel", v);
+      if (v % 10 === 0 && UC.becslesEll(v, v + 10).hiba !== "kerek") hiba("piros", "zsib:kerek", "A kerek tízes elmozdítását nem ismeri fel", v);
+    }
+    [2, 3].forEach(function (o) {
+      for (i = 0; i < N; i++) {
+        [2, 3].forEach(function (n) {
+          var l = UC.zsArak(n, o);
+          if (l.length !== n || UC.tallerOsszeg(l) > 100 || UC.becslesOsszeg(l) > 100 || l.some(function (x, j) { return l.indexOf(x) !== j || x < 1; })) hiba("piros", "zsib:arak", "Rossz árak (összeg/becslés 100 fölött, ismétlődő)", J(l));
+          if (o < 3 && l.some(function (x) { return x % 10 === 0 || x % 10 === 5; })) hiba("piros", "zsib:arak2", "2. o.-ban kerek vagy 5-re végződő ár", J(l));
+        });
+        var m = UC.zsMaszat(o);
+        if (m.fiz - m.vissza !== m.ar || UC.tallerOsszeg(m.ermek) !== m.vissza || m.fiz % 10 || m.fiz > 100 || m.ermek.length !== UC.tallerLegkevesebb(m.vissza, [1, 2, 5, 10, 20, 50]).length) hiba("piros", "zsib:maszat", "A maszatos ár számai nem egyeznek (fizetett − visszajáró = ár, legkevesebb érme)", J(m));
+        naploEll("zsib:maszat", m, "z");
+        [true, false].forEach(function (h) {
+          var e = UC.zsEleg(o, h);
+          if (e.erszeny % 10 || e.erszeny < 10 || e.erszeny > 100 || e.osszeg !== UC.tallerOsszeg(e.tetelek) || e.becsles !== UC.becslesOsszeg(e.tetelek)) hiba("piros", "zsib:eleg", "Elég lesz?: rossz erszény / összeg / becslés", J(e));
+          if (h && !(e.becsles <= e.erszeny && e.erszeny < e.osszeg)) hiba("piros", "zsib:hatar", "A határeset nem az (a becslés szerint elég, pontosan nem)", J(e));
+          if (!h && e.eleg !== e.becsEleg) hiba("piros", "zsib:nemhatar", "Nem határesetnél a becslés félrevezet", J(e));
+          naploEll("zsib:eleg", e, "z");
+        });
+        var s = UC.zsValassz(o), van = false;
+        for (k = 0; k < 4; k++) for (var j = k + 1; j < 4; j++) if (UC.kerekTizes(s.polc[k]) + UC.kerekTizes(s.polc[j]) === s.cel) van = true;
+        if (!van || s.cel > 100) hiba("piros", "zsib:valassz", "A „válassz te” célját egy pár sem adja ki", J(s));
+        [null].concat(UC.ZS_TRUKK).forEach(function (tr) {
+          var bl = UC.zsBlokk(o, !tr, tr), osz = 0;
+          bl.sorok.forEach(function (r) { osz += r.ar; });
+          if (bl.osszeg !== UC.tallerOsszeg(bl.tetelek) || bl.irt < 1 || bl.irt > 100) hiba("piros", "zsib:blokk", "Blokk: rossz összeg vagy 100 fölött", J(bl));
+          if (!tr && (bl.irt !== bl.osszeg || !bl.pontos)) hiba("piros", "zsib:pontos", "A pontos blokk nem pontos", J(bl));
+          if (tr && bl.pontos) return;   /* (400 próbából sosem marad üres — ha mégis, pontos lesz; a fenti sor nem jelez) */
+          if (tr && bl.irt === bl.osszeg) hiba("piros", "zsib:trukk", "A hibás blokk összege mégis jó", J(bl));
+          if (tr === "egy" && Math.abs(bl.irt - bl.osszeg) !== 1) hiba("piros", "zsib:egy", "A ±1-es trükk nem 1-gyel tér el", J(bl));
+          if ((tr === "polcar" || tr === "dupla") && osz !== bl.irt) hiba("piros", "zsib:sorok", "Polcár / dupla: a blokk sorai nem adják ki az összesent", J(bl));
+          if (tr === "dupla" && bl.sorok.length !== bl.tetelek.length + 1) hiba("piros", "zsib:dupla", "A dupla tételnél nincs plusz sor", J(bl));
+          if (tr === "polcar" && bl.sorok.filter(function (r) { return r.ar !== bl.tetelek[r.i]; }).length !== 1) hiba("piros", "zsib:polcar", "A polcár-trükknél nem pontosan egy ár tér el", J(bl));
+          naploEll("zsib:blokk", bl, "z");
+        });
+        db("🦊 zsibvásár");
+      }
+    });
+  });
+
   return { hibak: hibak, stat: stat };
 })();
