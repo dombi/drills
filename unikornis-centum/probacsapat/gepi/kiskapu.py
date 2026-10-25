@@ -197,11 +197,15 @@ def ujratoltes(l, cim, pid, J, naplo):
     if not indit(l, pid): naplo.append("kiskapu: az újratöltés-próba kimaradt (%s nem indult)" % pid); return
     h = l.js("__KK.helyes()")
     if h: bevisz(l, h); l.pihen(1.5)
+    leny = l.js("UC.mentes.leny")
     elotte = l.belul("[P().csillampor||0, P().tunderharmat||0]")
     l.betolt(cim); telepit(l)
+    # ugyanannak az unikornisnak a mentését nézzük, akivel előtte játszott — a belépés előtt (2026-10-25: a próba eleje kikapcsolja
+    # az újonc-menetet; ha a futásban még nincs végigvitt pálya, újratöltés után az „első perc” jön, és a belépés EGY MÁSIK unikornist
+    # kap 0 ✨-tal — ez a próba műterméke volt, nem pénzvesztés; valódi gyereknél az első perc osztályt ad, így nem ismétlődik)
+    utana = l.js("(function(p){ return p ? [p.csillampor||0, p.tunderharmat||0] : null; })(UC.mentes.profilok[%s])" % json.dumps(leny))
     if not indulas.profil_valaszt(l):
         J.hiba(OR, "piros", "kiskapu:ujratolt", "Pálya közbeni újratöltés után nem lehet profilt választani", ""); return
-    utana = l.belul("[P().csillampor||0, P().tunderharmat||0]")
     if utana != elotte:
         J.hiba(OR, "piros", "kiskapu:ujratolt:penz", "KISKAPU: pálya közbeni újratöltés után megváltozott a ✨/💧 (előtte %s, utána %s)" % (elotte, utana), pid)
     if not indit(l, pid):
