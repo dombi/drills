@@ -1447,7 +1447,7 @@ function tenyProfil(u) {
   var v = (A.tenyLeny || {})[u.uid];
   if (l.indexOf(v) < 0) v = l.slice().sort(function (a, b) { return tenyProbak(u.unicorns[b]) - tenyProbak(u.unicorns[a]); })[0];
   var p = u.unicorns[v];
-  return { leny: v, tar: p.tenyek || {}, tipus: p.tenyTipus || {}, kert: p.tenyKert || null };
+  return { leny: v, tar: p.tenyek || {}, tipus: p.tenyTipus || {}, kert: p.tenyKert || null, zsib: p.zsib || null };
 }
 /* az érvényes beállítás egy gyereknél (alap < csoport < egyéni) — ugyanaz a tenyOsszevon, mint a játékban */
 function tenyHatas(uid) {
@@ -1620,7 +1620,26 @@ function rajzTenyGyerek(u) {
     '<p class="kicsi halvany" style="margin-top:6px">A 100-as körben nem minden feladat külön tény, hanem a típusát mérjük. A rokon tény a diagnózis: ha a 67 + 5 lassú, de a 7 + 5 már megy, ' +
     "akkor a típus (a tízes-átlépés) a gyenge, nem a tény; ha a 7 + 5 sem megy, előbb azt kell gyakorolni. " +
     "🌿 = a „mi bújt el” forma (45 + ? = 52, 37 + ? = 100) előzménye a Százas bújócskából; a 🌿 a típus neve mellett: ebben a formában botlik.</p>";
+  h += zsBecsSor(pr.zsib);
   return h;
+}
+/* ≈ Becslés (🦊 Zsivány zsibvására, 2. kör): a játék P().zsib.becs naplója — az utolsó 16 kerekítés / becslés első próbája egy-egy betű
+   (src/zsib.js zsBecsJegyez). Itt a sor (régebbi → újabb) és a hibafajták darabszáma; ami legalább 3-szor előjön, az a jellemző hibája. */
+var ZS_BECS_BETU = { J: ["jó", "#3f9e6a"], S: ["a távolabbi tízesre kerekített", "#e0417a"], O: ["az 5-re végződőt lefelé kerekítette", "#e07a2a"],
+  K: ["a kerek tízest elmozdította (pedig maga marad)", "#b35fc0"], T: ["nem is szomszédos tízest mondott", "#8a7a6e"],
+  "Ö": ["a kerekítettek összegét elszámolta", "#5f84b0"], P: ["a pontos összeget kerekítette a tagok helyett", "#c0567f"] };
+function zsBecsSor(z) {
+  var b = (z && z.becs) || "", h = '<h3>≈ Becslés <small class="halvany">(🦊 Zsivány zsibvására — az utolsó 16 kerekítés / becslés, első próba)</small></h3>';
+  if (!b) return h + '<div class="ures">Még nem becsült a Zsibvásáron.</div>';
+  var db = {}, l = b.split("");
+  l.forEach(function (c) { db[c] = (db[c] || 0) + 1; });
+  h += '<div class="kartya"><div style="font-size:18px;letter-spacing:2px">' + l.map(function (c) { var t = ZS_BECS_BETU[c] || [c, "#888"]; return '<span title="' + esc(t[0]) + '" style="color:' + t[1] + ';font-weight:700">' + (c === "J" ? "●" : esc(c)) + "</span>"; }).join("") + "</div>";
+  h += "<div>jó: <b>" + (db.J || 0) + "</b> / " + l.length + "</div>";
+  Object.keys(db).filter(function (c) { return c !== "J"; }).sort(function (a, c) { return db[c] - db[a]; }).forEach(function (c) {
+    var t = ZS_BECS_BETU[c] || [c, "#888"];
+    h += '<div><span style="color:' + t[1] + ';font-weight:700">' + esc(c) + "</span> " + esc(t[0]) + ": <b>" + db[c] + "</b>" + (db[c] >= 3 ? " ← <b>a jellemző hibája</b>" : "") + "</div>";
+  });
+  return h + '<div class="kicsi halvany" style="margin-top:4px">● jó · a betűk: S távolabbi tízes · O 5-re végződő lefelé · K kerek tízes elmozdítva · T nem szomszéd · Ö a kerekítettek összege · P a pontos összeget kerekítette. A könyv szabálya: a közelebbi tízes, az 5-re végződő felfelé, a kerek tízes marad; összegnél előbb minden tagot kerekítünk.</div></div>';
 }
 /* 🌷 a gyerek kertje (Tamagocsi-kert 4. kör): amit a gyerek a Tény-kertben lát — ugyanaz a rajz (src/teny-kert.js), szám nélkül.
    A pedagógus itt látja, melyik tő melyik család (az egér a tő fölött), és hol tart a kert. */

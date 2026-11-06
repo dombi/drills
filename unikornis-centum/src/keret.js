@@ -144,10 +144,10 @@ function kfBecsles(x, y, m, ar, all, beirt, koppint) {
   return s + '<path d="M' + F(px) + ' ' + (y0 - 6) + 'l-7 -12h14Z" fill="#c0567f" stroke="#7a2f4c" stroke-width="1.2"/></g>';
 }
 /* 🧾 blokk: (x, y) a bal felső sarka, w a szélessége; sorok: [[ikon-SVG, ár]], irt: az „összesen” (amit a boltos írt);
-   o: { cim, pecset: "ok" | "x", kihuz } */
+   o: { cim, pecset: "ok" | "x", kihuz, fiz, vissza, kihuzV } — fiz: alul a „fizetve” és a „vissza” sor is (a visszajárót is a boltos írta) */
 function kfBlokk(x, y, w, sorok, irt, o) {
-  var F = pcF, n = sorok.length, dy = n > 3 ? 30 : 36, h = 62 + n * dy + 50, s = '<g class="kf-blokk" transform="translate(' + F(x) + ' ' + F(y) + ')">', i, cik = "";
   o = o || {};
+  var F = pcF, n = sorok.length, fz = o.fiz != null, dy = fz ? 28 : n > 3 ? 30 : 36, h = 62 + n * dy + 50 + (fz ? 44 : 0), s = '<g class="kf-blokk" transform="translate(' + F(x) + ' ' + F(y) + ')">', i, cik = "";
   for (i = 0; i < Math.round(w / 20); i++) cik += "L" + F(w - (i * 20 + 10)) + " " + (i % 2 ? h : h + 9) + "L" + F(Math.max(0, w - (i + 1) * 20)) + " " + h;
   s += '<path d="M0 0H' + w + 'V' + h + cik + 'Z" fill="#fffef6" stroke="#c9b6dc" stroke-width="1.8"/>';
   s += '<text x="' + F(w / 2) + '" y="22" text-anchor="middle" font-size="12" ' + KF_FR + ' fill="#8a7a9e">' + (o.cim || "blokk") + '</text><path d="M12 32H' + (w - 12) + '" stroke="#e7dcef" stroke-width="1.6"/>';
@@ -160,6 +160,11 @@ function kfBlokk(x, y, w, sorok, irt, o) {
   s += '<path d="M' + (w - 76) + ' ' + yv + 'H' + (w - 12) + '" stroke="#3b4a8a" stroke-width="2.2"/><text x="14" y="' + (yv + 30) + '" font-size="16" ' + KF_FR + ' fill="#3b4a8a">összesen:</text>' +
        '<text x="' + (w - 16) + '" y="' + (yv + 32) + '" text-anchor="end" font-size="28" ' + KF_FR + ' fill="#3b4a8a">' + irt + '</text>';
   if (o.kihuz) s += '<path d="M' + (w - 66) + ' ' + (yv + 24) + 'L' + (w - 14) + ' ' + (yv + 16) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
+  if (fz) {
+    s += '<text x="14" y="' + (yv + 56) + '" font-size="14" ' + KF_FR + ' fill="#8a7a9e">fizetve:</text><text x="' + (w - 16) + '" y="' + (yv + 56) + '" text-anchor="end" font-size="20" ' + KF_FR + ' fill="#3b4a8a">' + o.fiz + '</text>' +
+         '<text x="14" y="' + (yv + 78) + '" font-size="14" ' + KF_FR + ' fill="#8a7a9e">vissza:</text><text x="' + (w - 16) + '" y="' + (yv + 78) + '" text-anchor="end" font-size="20" ' + KF_FR + ' fill="#3b4a8a">' + o.vissza + '</text>';
+    if (o.kihuzV) s += '<path d="M' + (w - 56) + ' ' + (yv + 74) + 'L' + (w - 14) + ' ' + (yv + 66) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
+  }
   if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(' + F(w * .42) + ' ' + (yv + 22) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
   return s + '</g>';
 }
@@ -168,4 +173,26 @@ function kfErszeny(x, y, m, osszeg) {
   return '<g class="kf-erszeny" transform="translate(' + pcF(x) + ' ' + pcF(y) + ') scale(' + (m || 1) + ')"><g filter="url(#lt-firka)"><path d="M-30 -40Q-36 -2 0 0Q36 -2 30 -40Z" fill="#c9aee6" stroke="#7a5ca8" stroke-width="2.2"/>' +
     '<path d="M-26 -40Q0 -56 26 -40" fill="none" stroke="#7a5ca8" stroke-width="2.6"/><circle cx="-6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/><circle cx="6" cy="-46" r="3" fill="#f7d57a" stroke="#b5842c"/></g>' +
     '<text y="-14" text-anchor="middle" font-size="17" ' + KF_FR + ' fill="#4a3b7a">' + osszeg + '</text></g>';
+}
+/* 🧰 kassza (rajzterv 5. pont, Zsivány zsibvására 2. kör): horpadt pléhdoboz nyitott fedéllel, címletenként egy rekesz. (x, y) a rekeszsor
+   közepe, m = nagyság, db: { címlet: darab } (0 = üres rekesz, szaggatott hely) · vilagit: a kivilágító (üres) rekeszek címletei */
+var KF_KASSZA_CIM = [1, 2, 5, 10, 20, 50];
+function kfKassza(x, y, m, db, vilagit) {
+  var s = '<g class="kf-kassza" transform="translate(' + pcF(x) + ' ' + pcF(y) + ') scale(' + (m || 1) + ')">';
+  s += '<g filter="url(#lt-firka)"><path d="M-112 -6L-104 -52L104 -52L112 -6Z" fill="#b9e0d8" stroke="#3f7f75" stroke-width="2.4"/>' +
+       '<path d="M-96 -44L96 -44L102 -14L-102 -14Z" fill="none" stroke="#7fbcb1" stroke-width="1.6"/>' +
+       '<g transform="translate(64 -30)"><circle r="10" fill="#f4a15e" stroke="#b35f28" stroke-width="1.6"/><path d="M-8 -5L-6 -14L-1 -8M8 -5L6 -14L1 -8" fill="#f4a15e" stroke="#b35f28" stroke-width="1.4"/><circle cx="-3" cy="-1" r="1.4" fill="#3a2a2a"/><circle cx="3" cy="-1" r="1.4" fill="#3a2a2a"/><ellipse cy="4" rx="2" ry="1.4" fill="#3a2a2a"/></g>' +
+       '<path d="M-40 -46q6 4 2 10" stroke="#7fbcb1" stroke-width="1.6" fill="none"/></g>';
+  s += '<g filter="url(#lt-firka)"><path d="M-116 -6H116L112 38Q0 44 -112 38Z" fill="#9fd3c7" stroke="#3f7f75" stroke-width="2.6"/>' +
+       '<path d="M-116 -6H116" stroke="#3f7f75" stroke-width="4"/><path d="M70 2q8 6 2 14" stroke="#7fbcb1" stroke-width="1.8" fill="none"/>' +
+       '<path d="M-6 26h12v10h-12Z" fill="#f7d57a" stroke="#b5842c" stroke-width="1.4"/></g>';
+  KF_KASSZA_CIM.forEach(function (v, i) {
+    var cx = -95 + i * 38, n = db[v] || 0, j;
+    s += '<rect x="' + (cx - 17) + '" y="-4" width="34" height="26" rx="5" fill="#e6f4f1" stroke="#3f7f75" stroke-width="1.4"/>';
+    if ((vilagit || []).indexOf(v) >= 0) s += '<circle cx="' + cx + '" cy="6" r="17" fill="#fff3a0" opacity=".9"><animate attributeName="opacity" values=".35;1;.35" dur="1.4s" repeatCount="indefinite"/></circle>';
+    if (!n) s += '<circle cx="' + cx + '" cy="6" r="' + pcF(BK_ER[v] * .62) + '" fill="none" stroke="' + HE_SZIN[heHely(v)].k + '" stroke-width="1.8" stroke-dasharray="3 3"/>';
+    for (j = 0; j < n; j++) s += '<g transform="translate(' + cx + ' ' + pcF(10 - j * 3.2) + ')"><g transform="scale(1 .5)">' + tallerBelso(v, .62).replace(/<text[^>]*>[^<]*<\/text>/, "") + '</g></g>';
+    if (n) s += '<g transform="translate(' + cx + ' ' + pcF(8 - n * 3.2) + ')">' + tallerBelso(v, .62) + '</g>';
+  });
+  return s + '</g>';
 }

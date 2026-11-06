@@ -283,12 +283,23 @@
         var s = UC.zsValassz(o), van = false;
         for (k = 0; k < 4; k++) for (var j = k + 1; j < 4; j++) if (UC.kerekTizes(s.polc[k]) + UC.kerekTizes(s.polc[j]) === s.cel) van = true;
         if (!van || s.cel > 100) hiba("piros", "zsib:valassz", "A „válassz te” célját egy pár sem adja ki", J(s));
+        /* 🪙 nincs aprópénz (2. kör): van jó fizetés · mindent letolva nem tud visszaadni · vaktában legfeljebb minden második jó · a visszajáró a kasszából kijön */
+        var ap = UC.zsApro(o), fz = UC.zsFizetesek(ap), apJo = fz.filter(function (x) { return x.jo; }), S = UC.tallerOsszeg(ap.erszeny);
+        if (!apJo.length || apJo.length * 2 > fz.length || apJo.length !== ap.jok) hiba("piros", "zsib:apro", "Nincs aprópénz: nincs jó fizetés, vagy vaktában is könnyen megy", J(ap));
+        if (S > 100 || S < ap.ar || ap.ar % 10 === 0 || UC.zsKasszaAd(S - ap.ar, ap.kassza)) hiba("piros", "zsib:letol", "Nincs aprópénz: ha mindent letol, Zsivány vissza tud adni (kiskapu)", J(ap));
+        apJo.forEach(function (x) { var v = UC.zsKasszaAd(x.osszeg - ap.ar, ap.kassza), db = {}; if (!v || UC.tallerOsszeg(v) !== x.osszeg - ap.ar) hiba("piros", "zsib:kiad", "A visszajáró nem jön ki a kasszából", J(ap)); (v || []).forEach(function (c) { db[c] = (db[c] || 0) + 1; if (db[c] > (ap.kassza[c] || 0)) hiba("piros", "zsib:kassza", "Többet ad vissza egy címletből, mint ami a kasszában van", J(ap)); }); });
+        naploEll("zsib:apro", ap, "z");
         [null].concat(UC.ZS_TRUKK).forEach(function (tr) {
           var bl = UC.zsBlokk(o, !tr, tr), osz = 0;
           bl.sorok.forEach(function (r) { osz += r.ar; });
           if (bl.osszeg !== UC.tallerOsszeg(bl.tetelek) || bl.irt < 1 || bl.irt > 100) hiba("piros", "zsib:blokk", "Blokk: rossz összeg vagy 100 fölött", J(bl));
           if (!tr && (bl.irt !== bl.osszeg || !bl.pontos)) hiba("piros", "zsib:pontos", "A pontos blokk nem pontos", J(bl));
           if (tr && bl.pontos) return;   /* (400 próbából sosem marad üres — ha mégis, pontos lesz; a fenti sor nem jelez) */
+          if (tr === "vissza") {   /* 2. kör: az összesen jó, a visszajáró nem */
+            if (bl.irt !== bl.osszeg || bl.fiz == null || bl.fiz % 50 || bl.fiz < bl.osszeg || bl.vissza === bl.fiz - bl.osszeg || bl.vissza < 0 || bl.vissza >= bl.fiz) hiba("piros", "zsib:vissza", "A vissza-trükk blokkja hibás (összesen / fizetve / vissza)", J(bl));
+            naploEll("zsib:vissza", bl, "z");
+            return;
+          }
           if (tr && bl.irt === bl.osszeg) hiba("piros", "zsib:trukk", "A hibás blokk összege mégis jó", J(bl));
           if (tr === "egy" && Math.abs(bl.irt - bl.osszeg) !== 1) hiba("piros", "zsib:egy", "A ±1-es trükk nem 1-gyel tér el", J(bl));
           if ((tr === "polcar" || tr === "dupla") && osz !== bl.irt) hiba("piros", "zsib:sorok", "Polcár / dupla: a blokk sorai nem adják ki az összesent", J(bl));

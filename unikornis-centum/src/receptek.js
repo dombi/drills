@@ -59,7 +59,8 @@ RECEPT({
 
 /* ══ 🦊 ZSIVÁNY ZSIBVÁSÁRA — a nehezebb bolt, a 2. receptes pálya (kép + feladat: zsib.js · recept-lap: terv/zsibvasar-recept-lap.html) ══
    A gyerek a képen: Zsivány árul, az unikornis vásárol; előbb körülbelül (≈ cetli: a közelebbi tízesre koppint), aztán pontosan.
-   Tüske néni boltjának első végigvitele után ébred (2–3. o.), 4. o.-tól nyitva. 1. kör: 🫧 🎒 🧾 + Odú-küszöb; a 🪙 Nincs aprópénz a 2. körben jön. */
+   Tüske néni boltjának első végigvitele után ébred (2–3. o.), 4. o.-tól nyitva. 1. kör: 🫧 🎒 🧾 + Odú-küszöb · 2. kör: 🪙 Nincs aprópénz.
+   Hossz: Rajt → 4 szakasz → Odú-küszöb, mind 4 feladat (ösvényhossz-szabály: 20). */
 RECEPT({
   id: "zsibvasar", nev: "Zsivány zsibvására", ikon: "🦊", regio: "piac", hely: "zsib",
   palcim: "100-ig · előbb körülbelül, aztán pontosan",
@@ -70,8 +71,9 @@ RECEPT({
     { nev: "Rajt" },
     { nev: "Maszatos ár", stand: "zsib1", forma: "maszat", darab: 4 },
     { nev: "Elég lesz?", stand: "zsib2", forma: "eleg", darab: 4, hatar: 1 },
-    { nev: "Ravasz blokk", stand: "zsib3", forma: "blokk", darab: 5 },
-    { nev: "Odú-küszöb", forma: "vegyes", darab: 5, cel: true, halvany: true }
+    { nev: "Nincs aprópénz", stand: "zsib4", forma: "apro", darab: 4 },
+    { nev: "Ravasz blokk", stand: "zsib3", forma: "blokk", darab: 4 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
   ]
 });
 

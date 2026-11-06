@@ -17,7 +17,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - `kfKosar(x, y, w, felirat, attr)` — fonott kosár (félretevő hely, számsor)
 - `kfTaller(x, y, v, k, attr)` — tallér (helyiérték-színben, a bolt rajza); felvehető, ha attr `.jl-fog` · a tallér-színek a képen saját néven (zsib.js `zsHe`)
 - `kfBecsles(x, y, m, ar, all, beirt, koppint)` — ≈ cetli a kis szalaggal; a két szomszéd tízes koppintható (`.kf-veg[data-v]`) · ures · jo · hiba (ív + pöttyök, 5-ös végnél nyíl fel) · halvany (nincs szalag, a gyerek írja)
-- `kfCedula(x, y, ar, m, maszat)` — árcédula madzagon · `kfBlokk(x, y, w, sorok, irt, o)` — blokk (o: cim, pecset ok|x, kihuz) · `kfErszeny(x, y, m, osszeg)` — erszény a felirattal
+- `kfCedula(x, y, ar, m, maszat)` — árcédula madzagon · `kfBlokk(x, y, w, sorok, irt, o)` — blokk (o: cim, pecset ok|x, kihuz; fiz + vissza + kihuzV: alul „fizetve / vissza”) · `kfErszeny(x, y, m, osszeg)` — erszény a felirattal · `kfKassza(x, y, m, db, vilagit)` — 🧰 pléhkassza címletenként rekesszel (db: {címlet: darab}, 0 = üres rekesz szaggatottan; vilagit: kivilágító üres rekeszek) — Zsivány zsibvására 2. kör
 - `kfSajatId(svg, elotag)` — KÖTELEZŐ minden pálya-képen: a térkép-id-k saját néven (különben a rejtett Piactér miatt átlátszó a kép)
 
 ## ⚙️ Feladatgyártók (tiszta adat, kép nélkül)
