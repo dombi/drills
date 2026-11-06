@@ -284,11 +284,15 @@
         for (k = 0; k < 4; k++) for (var j = k + 1; j < 4; j++) if (UC.kerekTizes(s.polc[k]) + UC.kerekTizes(s.polc[j]) === s.cel) van = true;
         if (!van || s.cel > 100) hiba("piros", "zsib:valassz", "A „válassz te” célját egy pár sem adja ki", J(s));
         /* 🪙 nincs aprópénz (2. kör): van jó fizetés · mindent letolva nem tud visszaadni · vaktában legfeljebb minden második jó · a visszajáró a kasszából kijön */
-        var ap = UC.zsApro(o), fz = UC.zsFizetesek(ap), apJo = fz.filter(function (x) { return x.jo; }), S = UC.tallerOsszeg(ap.erszeny);
+        ["pontos", "tizes", "egy"].forEach(function (sz) {
+        var ap = UC.zsApro(o, sz), fz = UC.zsFizetesek(ap), apJo = fz.filter(function (x) { return x.jo; }), S = UC.tallerOsszeg(ap.erszeny);
+        if (sz === "pontos" && apJo.some(function (x) { return x.osszeg !== ap.ar; })) hiba("piros", "zsib:pontos", "Üres kasszánál csak a pontos fizetés lehet jó", J(ap));
+        if (sz === "tizes" && apJo.some(function (x) { return (x.osszeg - ap.ar) % 10; })) hiba("piros", "zsib:tizes", "„Csak tízest” kasszánál nem kerek tízes a visszajáró", J(ap));
         if (!apJo.length || apJo.length * 2 > fz.length || apJo.length !== ap.jok) hiba("piros", "zsib:apro", "Nincs aprópénz: nincs jó fizetés, vagy vaktában is könnyen megy", J(ap));
         if (S > 100 || S < ap.ar || ap.ar % 10 === 0 || UC.zsKasszaAd(S - ap.ar, ap.kassza)) hiba("piros", "zsib:letol", "Nincs aprópénz: ha mindent letol, Zsivány vissza tud adni (kiskapu)", J(ap));
         apJo.forEach(function (x) { var v = UC.zsKasszaAd(x.osszeg - ap.ar, ap.kassza), db = {}; if (!v || UC.tallerOsszeg(v) !== x.osszeg - ap.ar) hiba("piros", "zsib:kiad", "A visszajáró nem jön ki a kasszából", J(ap)); (v || []).forEach(function (c) { db[c] = (db[c] || 0) + 1; if (db[c] > (ap.kassza[c] || 0)) hiba("piros", "zsib:kassza", "Többet ad vissza egy címletből, mint ami a kasszában van", J(ap)); }); });
         naploEll("zsib:apro", ap, "z");
+        });
         [null].concat(UC.ZS_TRUKK).forEach(function (tr) {
           var bl = UC.zsBlokk(o, !tr, tr), osz = 0;
           bl.sorok.forEach(function (r) { osz += r.ar; });

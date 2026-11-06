@@ -165,7 +165,8 @@ function kfBlokk(x, y, w, sorok, irt, o) {
          '<text x="14" y="' + (yv + 78) + '" font-size="14" ' + KF_FR + ' fill="#8a7a9e">vissza:</text><text x="' + (w - 16) + '" y="' + (yv + 78) + '" text-anchor="end" font-size="20" ' + KF_FR + ' fill="#3b4a8a">' + o.vissza + '</text>';
     if (o.kihuzV) s += '<path d="M' + (w - 56) + ' ' + (yv + 74) + 'L' + (w - 14) + ' ' + (yv + 66) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
   }
-  if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(' + F(w * .42) + ' ' + (yv + 22) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
+  /* a pecsét a blokk bal szélén, félig rajta: nem takarja az „összesen” szót és a számot (a producer, 11-06) */
+  if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(-4 ' + (yv + 14) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
   return s + '</g>';
 }
 /* 👛 erszény: (x, y) az alja közepe, m = nagyság; osszeg: a felirata (ennyi van benne — ez adott, nem a gyerek mondja ki) */

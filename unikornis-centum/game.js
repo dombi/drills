@@ -19715,10 +19715,34 @@ function zsBlokk(o, pontos, trukk) {
   }
   return zsBlokk(o, true);
 }
-/* 🪙 nincs aprópénz. A kassza: a nagyokból (10, 20, 50) bőven, az aprókból (1, 2, 5) csak egy címletből 1–2 db. Jó fizetés: a pultra tett
-   érmék együtt legalább az ár, és a különbséget Zsivány ki tudja adni a kasszából. A piac-őr ellenőrzi: van jó fizetés · ha mindent letol,
-   nem tud visszaadni · az elég nagy fizetéseknek legfeljebb a fele jó (vaktában nem megy). */
-function zsKassza() { var k = { 1: 0, 2: 0, 5: 0, 10: 4, 20: 3, 50: 2 }; k[veletlenElem([1, 2, 5])] = veletlen(1, 2); return k; }
+/* 🪙 nincs aprópénz. Jó fizetés: a pultra tett érmék együtt legalább az ár, és a különbséget Zsivány ki tudja adni a kasszából.
+   A SZABÁLY AZ ELSŐ MOZDULAT ELŐTT LÁTSZIK (a producer, 11-06: „37 azt jelenti, hogy annyit kell fizetni, de ha kirakod az 50-est, kiderül,
+   más a feladat”): Zsivány kimondja, és a kasszán tábla áll. Három fok az állomáson belül (ZS_APRO_SZINT):
+     pontos — üres a kassza: pontosan kell fizetni · tizes — aprópénz nincs, csak kerek tízest ad vissza ·
+     egy — az aprókból (1, 2, 5) csak egy címletből van 1–2 db (2. o.-ban ez is „tizes”).
+   A piac-őr ellenőrzi: van jó fizetés · ha mindent letol, nem tud visszaadni · az elég nagy fizetéseknek legfeljebb a fele jó. */
+var ZS_APRO_SZINT = ["pontos", "tizes", "egy", "egy"];
+var ZS_ESEM = { 1: "1-esem", 2: "2-esem", 5: "5-ösöm" };
+function zsKassza(szint) {
+  if (szint === "pontos") return { 1: 0, 2: 0, 5: 0, 10: 0, 20: 0, 50: 0 };
+  var k = { 1: 0, 2: 0, 5: 0, 10: 4, 20: 3, 50: 2 };
+  if (szint === "egy") k[veletlenElem([1, 2, 5])] = veletlen(1, 2);
+  return k;
+}
+/* Zsivány táblája a kasszán: [1. sor, 2. sor] */
+function zsAproTabla(d) {
+  if (d.szint === "pontos") return ["Üres a kasszám!", "Pontosan fizess!"];
+  if (d.szint === "tizes") return ["Nincs aprópénzem!", "Csak tízest adok vissza."];
+  var van = [1, 2, 5].filter(function (v) { return d.kassza[v]; })[0], nincs = [1, 2, 5].filter(function (v) { return !d.kassza[v]; });
+  return ["Nincs " + nincs.map(function (v) { return ZS_ESEM[v]; }).join(" és ") + "!", "Csak " + zsKet(d.kassza[van]) + " " + ZS_ESEM[van] + " van."];
+}
+/* a visszajáró végén álló számjegyek, amiket ki tud adni (az aprókból kirakható összegek egyesei) */
+function zsAproVegek(k) {
+  var l = [0], v, j, n;
+  [1, 2, 5].forEach(function (c) { var uj = []; l.forEach(function (a) { for (j = 1; j <= (k[c] || 0); j++) uj.push(a + j * c); }); l = l.concat(uj); });
+  n = []; l.forEach(function (a) { v = a % 10; if (n.indexOf(v) < 0) n.push(v); });
+  return n.sort(function (a, b) { return a - b; });
+}
 /* a visszajáró a kasszából (nagyobb címletekkel kezdve), vagy null, ha nem lehet */
 function zsKasszaAd(n, k) {
   var c = [50, 20, 10, 5, 2, 1];
@@ -19743,21 +19767,25 @@ function zsFizetesek(d) {
   }
   return Object.keys(l).map(function (k) { return l[k]; });
 }
-function zsApro(o) {
+function zsApro(o, szint) {
+  szint = szint || "egy"; if (o < 3 && szint === "egy") szint = "tizes";
   var cim = o < 3 ? [1, 2, 5, 10, 10, 20] : [1, 2, 5, 10, 20, 20, 50];
-  for (var p = 0; p < 600; p++) {
-    var ar = o < 3 ? veletlen(12, 48) : veletlen(16, 78), k = zsKassza(), e = [], db = veletlen(4, o < 3 ? 5 : 6), i;
+  for (var p = 0; p < 900; p++) {
+    var ar = o < 3 ? veletlen(12, 48) : veletlen(16, 78), k = zsKassza(szint), e = [], db = veletlen(4, o < 3 ? 5 : 6), i;
     if (ar % 10 === 0) continue;
     for (i = 0; i < db; i++) e.push(veletlenElem(cim));
     var S = tallerOsszeg(e);
     if (S < ar + 3 || S > 100 || zsKasszaAd(S - ar, k)) continue;   /* ha mindent letol, Zsivány nem tud visszaadni */
     e.sort(function (a, b) { return b - a; });
-    var d = { forma: "apro", ar: ar, kassza: k, erszeny: e, aru: zsAruk(1)[0] }, f = zsFizetesek(d), jo = f.filter(function (x) { return x.jo; });
+    var d = { forma: "apro", szint: szint, ar: ar, kassza: k, erszeny: e, aru: zsAruk(1)[0] }, f = zsFizetesek(d), jo = f.filter(function (x) { return x.jo; });
     if (!jo.length || jo.length * 2 > f.length) continue;
+    if (szint !== "pontos" && !jo.some(function (x) { return x.osszeg > ar; }) && p < 700) continue;   /* legyen visszajárós jó út is */
     d.jok = jo.length; d.naplo = { tipus: "bolt", kerdes: "fizet " + ar, forma: "z" };
     return d;
   }
-  return { forma: "apro", ar: 37, kassza: { 1: 0, 2: 1, 5: 0, 10: 4, 20: 3, 50: 2 }, erszeny: [20, 20, 5, 2, 1], aru: ZS_ARU[0], jok: 1, naplo: { tipus: "bolt", kerdes: "fizet 37", forma: "z" } };
+  var t = { pontos: [{ 1: 0, 2: 0, 5: 0, 10: 0, 20: 0, 50: 0 }, [20, 10, 5, 2, 1], 1], tizes: [{ 1: 0, 2: 0, 5: 0, 10: 4, 20: 3, 50: 2 }, [20, 20, 5, 2, 1], 1],
+            egy: [{ 1: 0, 2: 1, 5: 0, 10: 4, 20: 3, 50: 2 }, [20, 20, 5, 2, 1], 1] }[szint];
+  return { forma: "apro", szint: szint, ar: 37, kassza: t[0], erszeny: t[1], aru: ZS_ARU[0], jok: t[2], naplo: { tipus: "bolt", kerdes: "fizet 37", forma: "z" } };
 }
 
 /* ═════════════════ FELADAT (GEN.zsib) ═════════════════
@@ -19767,7 +19795,7 @@ GEN.zsib = function (cfg) {
   var st = jlAllapot(), i = J.feladatKesz, o = zsOsztaly(), forma = cfg.forma, halvany = !!cfg.halvany, d, x;
   if (forma === "vegyes") forma = ZS_ODU[i % ZS_ODU.length];
   if (forma === "maszat") d = zsMaszat(o);
-  else if (forma === "apro") d = zsApro(o);
+  else if (forma === "apro") d = zsApro(o, halvany ? "egy" : ZS_APRO_SZINT[Math.min(i, ZS_APRO_SZINT.length - 1)]);
   else if (forma === "eleg") {
     if (st.hatarI == null) st.hatarI = cfg.hatar ? veletlen(0, Math.max(0, (cfg.darab || 4) - 2)) : -1;
     d = !halvany && cfg.forma === "eleg" && i === (cfg.darab || 4) - 1 ? zsValassz(o) : zsEleg(o, i === st.hatarI);
@@ -19797,14 +19825,20 @@ function zsKerdes(x) {
   if (L === "dont") return ["Elég lesz?", "Az erszényben " + szo(d.erszeny) + " tallér van. A becslés szerint elég lesz?"];
   if (L === "pontos") return ["Pontosan: " + x.lista.join(" + ") + " = ?", "Most pontosan: mennyi " + x.lista.map(szo).join(" meg ") + "?"];
   if (L === "pecset") return ["Jó a blokk?", "Zsivány " + szo(d.irt) + " tallért írt" + (d.fiz ? ", és " + szo(d.vissza) + " tallért adott vissza" : "") + ". Jó a blokk? Nyomj pecsétet!"];
-  if (L === "fizet") return ["Fizess úgy, hogy vissza tudjon adni!", "Ez " + szo(d.ar) + " tallérba kerül. Zsiványnál alig van aprópénz. Tegyél érméket a pultra úgy, hogy vissza tudjon adni!"];
+  if (L === "fizet") {   /* a szabály az első mozdulat ELŐTT elhangzik, és a kasszán is ott áll (zsAproTabla) — a producer, 11-06 */
+    var tb = zsAproTabla(d), ar = "Ez " + szo(d.ar) + " tallérba kerül. ";
+    if (d.szint === "pontos") return ["Fizess pontosan!", ar + "Üres a kasszám, nem tudok visszaadni. Pontosan fizess!"];
+    if (d.szint === "tizes") return ["Kerek tízes legyen a visszajáró!", ar + "Nincs aprópénzem, csak tízest tudok visszaadni. Fizess úgy, hogy kerek tízes legyen a visszajáró!"];
+    return ["Fizess úgy, hogy vissza tudjon adni!", ar + tb[0] + " " + tb[1] + " Fizess úgy, hogy vissza tudjak adni!"];
+  }
   if (L === "visszaad") return ["Mennyit ad vissza?", "Mennyit ad vissza Zsivány?"];
   if (L === "mas") return ["Van más út? Fizess másképp!", "Van más út? Ha más érmékkel is ki tudod fizetni, kapsz egy csepp tündérharmatot!"];
   if (L === "javit" && zsVisszaTrukk(d)) return ["Mennyi a jó visszajáró?", "Számold ki: mennyit kellett volna visszaadnia?"];
   return ["Mennyi pontosan?", "Számold ki pontosan: mennyi az összesen?"];
 }
-function zsLep(x, lep, csendben) {
-  x.lep = lep; x.hib = 0; JL.seg = 0; JL.rossz = null;
+function zsLep(x, lep, csendben, hibMarad) {   /* hibMarad: vissza ugyanabba a lépésbe (a hiba-lépcső foka megmarad) */
+  x.lep = lep; JL.rossz = null;
+  if (!hibMarad) { x.hib = 0; JL.seg = 0; }
   var k = zsKerdes(x), f = JL.f;
   f.szoveg = f.keplet = k[0]; $("buborek-feladat").innerHTML = '<span class="bk-kerdes">' + kiiras(k[0]) + '</span>';
   if (!csendben) { var vj = $("visszajelzes"); vj.className = "visszajelzes"; vj.textContent = ""; }   /* az előző lépés hibaüzenete ne maradjon kint */
@@ -19822,7 +19856,7 @@ function zsZsivany(poz, mondat, ms) { if (ZS && ZS.lako) ZS.lako.pozIdeig(poz, m
 JELENETEK.zsib = {
   kep: function (JL) {
     var K = zsK(), x = JL.f.zs, L = x.lep, T = null, bl = x.d.forma === "blokk";
-    if (L === "rak" || L === "ar") T = zsT(150, 70, 96, 52);
+    if (L === "ar") T = zsT(150, 70, 96, 52);   /* az érmék közben a maszatos cédula látszik, tábla nélkül */
     else if (L === "kerek" && x.halvany) T = zsT(10 + 187 * .9, (bl ? 240 : 158) + 53 * .9, 62 * .9, 38 * .9);
     else if (L === "becs") T = zsT(244, bl ? 262 : 250, 72, 44);
     else if (L === "pontos" || L === "javit") T = zsT(244, bl ? 326 : 310, 72, 44);
@@ -19860,7 +19894,12 @@ JELENETEK.zsib = {
       if (hova === "pult") { if (k < 0) x.pult.push(i); } else if (k >= 0) x.pult.splice(k, 1);
       hangGomb(); jlRajz(); return;
     }
-    if (hova === "szalag" && x.rakott.indexOf(i) < 0) { x.rakott.push(i); hangGomb(); }
+    if (hova === "szalag" && x.rakott.indexOf(i) < 0) {
+      /* előbb a nagyobb érme (a producer, 11-06): így az első ugrás kerek tízesre visz, onnan rövid a többi lépés. Nem hiba, csak visszaugrik. */
+      var nagy = Math.max.apply(null, x.d.ermek.filter(function (v, j) { return x.rakott.indexOf(j) < 0; }));
+      if (x.d.ermek[i] < nagy) { jlRajz(); zsZsivany("mutat", "Előbb a nagyobbat!", 1500); return; }
+      x.rakott.push(i); hangGomb();
+    }
     if (x.rakott.length === x.d.ermek.length) { zsLep(x, "ar"); return; }
     jlRajz();
   },
@@ -19883,7 +19922,7 @@ JELENETEK.zsib = {
       return;
     }
     if (L === "visszaad") {
-      if (v === x.fizetve - d.ar) { zsAproJo(x); return; }
+      if (v === x.fizetve - d.ar) { zsVisszaadJo(x); return; }
       zsRossz(x, String(v), sk100Naplo(x.fizetve, "-", d.ar, "z"), zsVisszaLepesek(d.ar, x.fizetve, x.hib));
       return;
     }
@@ -19899,7 +19938,11 @@ JELENETEK.zsib = {
   },
   gepi: function (JL) {   /* a gépi próba (kiskapu-őr) helyes bevitele lépésenként */
     var x = JL.f.zs, d = x.d, L = x.lep, q = function (s) { return "#jl-svg " + s; };
-    if (L === "rak") { var sel = []; d.ermek.forEach(function (v, i) { if (x.rakott.indexOf(i) < 0) sel.push(q('.jl-fog[data-fog="e-' + i + '"]'), q('.jl-hely[data-hely="szalag"]')); }); return { katt: sel }; }
+    if (L === "rak") {   /* a nagyobbtól a kisebbig (a kisebb előbb visszaugrik) */
+      var sel = [], sor = d.ermek.map(function (v, i) { return i; }).sort(function (a, b) { return d.ermek[b] - d.ermek[a]; });
+      sor.forEach(function (i) { if (x.rakott.indexOf(i) < 0) sel.push(q('.jl-fog[data-fog="e-' + i + '"]'), q('.jl-hely[data-hely="szalag"]')); });
+      return { katt: sel };
+    }
     if (L === "ar") return { gepel: d.ar };
     if (L === "kerek") { var ar = x.lista[x.i], jo = kerekTizes(ar), mas = ar % 10 === 0 ? ar + 10 : jo === Math.floor(ar / 10) * 10 ? jo + 10 : jo - 10; return x.halvany ? { gepel: jo } : { katt: [q('.kf-veg[data-v="' + jo + '"]')], rossz: q('.kf-veg[data-v="' + mas + '"]') }; }
     if (L === "becs") return { gepel: becslesOsszeg(x.lista) };
@@ -20003,23 +20046,42 @@ function zsFizet(x) {
     return;
   }
   var C = s - d.ar, vissza = zsKasszaAd(C, d.kassza), kulcs = t.join("+");
-  if (!vissza) {
-    x.vilagit = x.halvany && !x.hib && !mas ? [] : KF_KASSZA_CIM.filter(function (v) { return v <= C % 10 && !d.kassza[v]; });
-    x.lebeg = x.pult.slice(); x.pult = [];
-    zsZsivany("vallatvon", null, 2600);
-    if (mas) { jlRajz(); jlSzol(LK_MONDAT.juli.vallatvon, true); return; }
-    zsRossz(x, "nincs apró", d.naplo, x.hib === 0 ? LK_MONDAT.juli.vallatvon : zsCap(zsBol(s)) + " " + szo(d.ar) + ": " + szo(C) + " lenne a visszajáró. Ehhez nincs elég apró a kasszában. Próbáld másképp!");
-    return;
-  }
   if (mas) {
+    if (!vissza) { zsNemTud(x, C, true); return; }
     if (kulcs === x.elso) { x.lebeg = x.pult.slice(); x.pult = []; jlRajz(); mondd("Így már fizettél. Más érmékkel is megy?"); return; }
     P().tunderharmat = (P().tunderharmat || 0) + ZS_MAS_HARMAT; ment();
     x.kiadva = vissza; zsAproVege(x, "Így is jó! Ezért egy csepp tündérharmat jár.");
     return;
   }
-  x.elso = kulcs; x.fizetve = s; x.vissza = vissza;
-  if (!C) { zsAproJo(x); return; }
-  zsLep(x, "visszaad");
+  x.elso = kulcs; x.fizetve = s;
+  if (!C) { x.vissza = []; zsAproJo(x); return; }
+  if (d.szint === "pontos") { zsNemTud(x, C); return; }   /* üres kassza: nincs mit kiszámolni, a tábla előre megmondta */
+  zsLep(x, "visszaad");   /* a gyerek előbb kiszámolja a visszajárót, aztán Zsivány megpróbálja kiadni (zsVisszaadJo) */
+}
+/* a visszajáró jó: Zsivány kiszedi a kasszából — ha megvan, kész; ha nincs meg, a hiányzó rekesz világít (a fizetés volt rossz) */
+function zsVisszaadJo(x) {
+  var d = x.d, C = x.fizetve - d.ar, v = zsKasszaAd(C, d.kassza);
+  hangCsilla();
+  if (v) { x.vissza = v; zsAproJo(x); return; }
+  zsNemTud(x, C);
+}
+/* nem tud visszaadni: amit tud, kirakja a tálba, a hiányzó címlet üres rekesze világít, vállat von; utána az érmék visszalebegnek az erszénybe.
+   A „van más út?” körben nem hiba (mas). A 2. ilyen hibától a mondat a szabályt a visszajáró végére fordítja le („a végén 7 vagy 9 legyen”). */
+function zsNemTud(x, C, mas) {
+  var d = x.d, k = d.kassza, c = [50, 20, 10, 5, 2, 1], ki = [], m = C, vegek = zsAproVegek(k), mondat;
+  c.forEach(function (v) { for (var j = 0; j < (k[v] || 0) && m >= v; j++) { ki.push(v); m -= v; } });
+  x.kiadva = ki; x.vilagit = KF_KASSZA_CIM.filter(function (v) { return v <= (m % 10 || m) && !k[v]; });
+  x.fh = (x.fh || 0) + (mas ? 0 : 1);
+  var hiany = KF_KASSZA_CIM.filter(function (v) { return v <= m && !k[v]; })[0];
+  if (d.szint === "pontos") mondat = x.fh < 2 || mas ? "Üres a kasszám, nem tudok visszaadni. Pontosan fizess!" : "Pontosan " + szo(d.ar) + " tallért rakj a pultra.";
+  else if (x.fh < 2 || mas) mondat = d.szint === "tizes" ? "Ez nem kerek tízes. Csak tízest tudok visszaadni!" : "Nincs " + (ZS_ESEM[hiany] || "aprópénzem") + "!";
+  else mondat = "Nézd az ár végét: " + szo(d.ar % 10) + ". Akkor tudok visszaadni, ha amit kifizetsz, annak a végén " +
+    vegek.map(function (e) { return szo((d.ar + e) % 10); }).join(" vagy ") + " van.";
+  x.lep = "kesz";
+  zsZsivany("vallatvon", null, 2600);
+  if (mas) { jlRajz(); jlSzol(mondat, true); }
+  else zsRossz(x, "nem tud", d.naplo, mondat);
+  zsVar(function () { x.lebeg = x.pult.slice(); x.pult = []; x.kiadva = null; zsLep(x, mas ? "mas" : "fizet", true, true); }, 2400);
 }
 /* 🪙 az első jó fizetés megvan: Zsivány kiadja a visszajárót; ha több jó út is van, jön a „van más út?” (csak 💧-ért, kihagyható) */
 function zsAproJo(x) {
@@ -20152,8 +20214,9 @@ function zsCetli(JL, x, y0) {
 function zsSorok(x, yb, yp) {
   var s = "", L = x.lep;
   if (L === "becs" || x.becsles != null) s += zsSzoveg(14, yb + 8, "≈ " + x.kerek.join(" + ") + " =" + (x.becsles != null ? " " + x.becsles : ""), 20);
-  if (L === "javit" && zsVisszaTrukk(x.d)) s += zsSzoveg(14, yp + 8, "vissza: " + x.d.fiz + " − " + x.d.osszeg + " =", 20);
-  else if (L === "pontos" || L === "javit") s += zsSzoveg(14, yp + 8, (L === "javit" ? "pontosan: " : "") + x.lista.join(" + ") + " =", 20);
+  /* a „pontosan:” / „vissza:” külön sorban fölötte: a számsor így nem csúszik a táblára (a producer, 11-06) */
+  if (L === "javit" && zsVisszaTrukk(x.d)) s += zsSzoveg(14, yp - 16, "vissza:", 15, "#8a7a9e") + zsSzoveg(14, yp + 8, x.d.fiz + " − " + x.d.osszeg + " =", 20);
+  else if (L === "pontos" || L === "javit") s += (L === "javit" ? zsSzoveg(14, yp - 16, "pontosan:", 15, "#8a7a9e") : "") + zsSzoveg(14, yp + 8, x.lista.join(" + ") + " =", 20);
   return s;
 }
 
@@ -20161,20 +20224,25 @@ function zsSorok(x, yb, yp) {
 function zsMaszatRajz(JL) {
   var x = JL.f.zs, d = x.d, s = '', i;
   s += zsKacat(d.aru[0], 56, 92, 0) + '<path d="M72 70Q100 40 104 54" fill="none" stroke="#8a7a6e" stroke-width="1.4"/>';
-  if (x.lep === "rak") s += '<path d="M120 58Q150 44 178 62T200 84Q170 96 140 88T120 58Z" fill="#b9a6c9" opacity=".5"/>';
-  /* Zsivány tálja: a visszajáró érmék (felvehetők, amíg a szalagra kerülnek) */
-  s += '<g filter="url(#lt-firka)"><ellipse cx="145" cy="372" rx="118" ry="26" fill="#e6f4f1" stroke="#3f7f75" stroke-width="2.2"/></g>' + zsSzoveg(145, 422, zsBolSzam(d.fiz) + " ennyit adott vissza", 16, "#3f7f75", "middle");
+  /* a maszatos cédula (a producer, 11-06: ne tűnjön el): az érmék alatt nagyban, maszattal; amikor az árat írjuk, a tábla kerül rá, és a maszat
+     a széleinél kilátszik — így látszik, hogy a táblára az elmaszatolódott szám kerül */
+  if (x.lep === "ar") s += '<path d="M90 52Q128 24 178 36T214 74Q204 110 150 106T90 52Z" fill="#b9a6c9" opacity=".45"/>';
+  else s += kfCedula(150, 26, "", 1.7, true);
+  /* Zsivány tálja: a visszajáró érmék (felvehetők, amíg a szalagra kerülnek); a felirat, amíg van benne érme */
+  s += '<g filter="url(#lt-firka)"><ellipse cx="145" cy="372" rx="118" ry="26" fill="#e6f4f1" stroke="#3f7f75" stroke-width="2.2"/></g>';
+  if (x.halvany || x.rakott.length < d.ermek.length) s += zsSzoveg(145, 422, zsBolSzam(d.fiz) + " ennyit adott vissza", 16, "#3f7f75", "middle");
   d.ermek.forEach(function (v, j) {
     if (x.rakott && x.rakott.indexOf(j) >= 0 || x.fog === j) return;
     var cx = 145 + (j - (d.ermek.length - 1) / 2) * 58;
     s += kfTaller(cx, 364, v, 1, x.lep === "rak" && !JL.lezart ? ' class="jl-fog" data-fog="e-' + j + '" data-m="1"' : '');
   });
   if (x.halvany) return s;
-  /* a számszalag: a fizetett összegtől visszafelé; szám csak a fizetett összegnél (és 1. hiba után a kerek tízeseknél) */
+  /* a számszalag: a fizetett összegtől visszafelé; szám a fizetett összegnél és a kerek tízeseknél (a producer, 11-06: mérőszalag legyen),
+     a megállónál soha (az ár sosem kerek tízes) */
   var hi = d.fiz, lo = Math.max(0, d.fiz - d.vissza - 4), x0 = 14, x1 = 276, e = (x1 - x0) / (hi - lo), Y = 252, px = function (n) { return x0 + (n - lo) * e; };
   s += '<rect class="jl-hely" data-hely="szalag" x="6" y="150" width="278" height="130" rx="14" fill="#fff" fill-opacity="' + (x.lep === "rak" ? .35 : 0) + '" stroke="' + (x.lep === "rak" ? "#c9b6dc" : "none") + '" stroke-dasharray="6 5"/>';
   s += '<path d="M' + x0 + ' ' + Y + 'H' + x1 + '" stroke="#c9b48a" stroke-width="5" stroke-linecap="round"/>';
-  for (i = lo + 1; i <= hi; i++) { var t = i % 10 === 0; if (e >= 3.5 || t) s += '<path d="M' + pcF(px(i)) + ' ' + (Y - (t ? 9 : 4)) + 'V' + (Y + (t ? 9 : 4)) + '" stroke="#a8936a" stroke-width="' + (t ? 2.2 : 1.2) + '"/>'; if (t && JL.seg >= 1 && i !== hi) s += zsSzoveg(pcF(px(i)), Y + 28, String(i), 13, "#5f84b0", "middle"); }
+  for (i = lo + 1; i <= hi; i++) { var t = i % 10 === 0; if (e >= 3.5 || t) s += '<path d="M' + pcF(px(i)) + ' ' + (Y - (t ? 9 : 4)) + 'V' + (Y + (t ? 9 : 4)) + '" stroke="#a8936a" stroke-width="' + (t ? 2.2 : 1.2) + '"/>'; if (t && i !== hi) s += zsSzoveg(pcF(px(i)), Y + 28, String(i), 13, "#5f84b0", "middle"); }
   s += zsSzoveg(pcF(px(hi)), Y + 28, String(hi), 16, "#4a3b7a", "middle");
   var p = hi;
   (x.rakott || []).forEach(function (j, k) {   /* az érmék visszaugranak: ív a régi helytől az újig, az érme az ív tetején */
@@ -20197,7 +20265,15 @@ function zsAproRajz(JL) {
   var x = JL.f.zs, d = x.d, s = '', aktiv = (x.lep === "fizet" || x.lep === "mas") && !JL.lezart;
   s += zsKacat(d.aru[0], 44, 80, 0) + kfCedula(104, 18, d.ar, 1.15);
   s += kfKassza(145, 150, 1.12, d.kassza, x.vilagit);
-  s += '<g filter="url(#lt-firka)"><rect class="jl-hely" data-hely="pult" x="6" y="212" width="196" height="100" rx="12" fill="#e0ad78" fill-opacity=".35" stroke="' + (aktiv ? "#b07a4c" : "none") + '" stroke-width="2" stroke-dasharray="6 5"/></g>';
+  /* Zsivány táblája a kassza fedelén: a szabály az első mozdulat előtt látszik (a producer, 11-06) */
+  var tb = zsAproTabla(d);
+  s += '<g transform="translate(110 116) rotate(-2)"><g filter="url(#lt-firka)"><rect x="-86" y="-20" width="172" height="40" rx="5" fill="#fffaf0" stroke="#b5804a" stroke-width="1.8"/></g>' +
+       '<circle cx="-78" cy="-13" r="2" fill="#b5804a"/><circle cx="78" cy="-13" r="2" fill="#b5804a"/>' +
+       zsSzoveg(0, -3, tb[0], 14, "#b35f28", "middle") + zsSzoveg(0, 14, tb[1], 13, "#4a3b7a", "middle") + '</g>';
+  /* a pult: kockás terítő (ide kerülnek az érmék) */
+  s += '<rect class="jl-hely" data-hely="pult" x="6" y="212" width="196" height="100" rx="12" fill="#fdeeee" stroke="' + (aktiv ? "#d98c8c" : "#efc9c9") + '" stroke-width="2"' + (aktiv ? ' stroke-dasharray="6 5"' : '') + '/>';
+  for (var cx = 26; cx < 200; cx += 26) s += '<path d="M' + cx + ' 214V310" stroke="#f6c9c9" stroke-width="9" opacity=".55" pointer-events="none"/>';
+  for (var cy = 230; cy < 310; cy += 26) s += '<path d="M8 ' + cy + 'H200" stroke="#f6c9c9" stroke-width="9" opacity=".55" pointer-events="none"/>';
   x.pult.forEach(function (j, k) {
     if (x.fog === j) return;
     var P = ZS_PULT(k);
@@ -23944,7 +24020,8 @@ function kfBlokk(x, y, w, sorok, irt, o) {
          '<text x="14" y="' + (yv + 78) + '" font-size="14" ' + KF_FR + ' fill="#8a7a9e">vissza:</text><text x="' + (w - 16) + '" y="' + (yv + 78) + '" text-anchor="end" font-size="20" ' + KF_FR + ' fill="#3b4a8a">' + o.vissza + '</text>';
     if (o.kihuzV) s += '<path d="M' + (w - 56) + ' ' + (yv + 74) + 'L' + (w - 14) + ' ' + (yv + 66) + '" stroke="#e0417a" stroke-width="3.4" stroke-linecap="round"/>';
   }
-  if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(' + F(w * .42) + ' ' + (yv + 22) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
+  /* a pecsét a blokk bal szélén, félig rajta: nem takarja az „összesen” szót és a számot (a producer, 11-06) */
+  if (o.pecset) { var c = o.pecset === "ok" ? "#3f9e6a" : "#e0417a"; s += '<g transform="translate(-4 ' + (yv + 14) + ') rotate(-10) scale(.6)" opacity=".85"><rect x="-36" y="-22" width="72" height="44" rx="8" fill="none" stroke="' + c + '" stroke-width="4"/><text y="13" text-anchor="middle" font-size="34" font-weight="700" fill="' + c + '">' + (o.pecset === "ok" ? "✓" : "✗") + '</text></g>'; }
   return s + '</g>';
 }
 /* 👛 erszény: (x, y) az alja közepe, m = nagyság; osszeg: a felirata (ennyi van benne — ez adott, nem a gyerek mondja ki) */
