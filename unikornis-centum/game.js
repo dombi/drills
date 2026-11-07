@@ -20238,8 +20238,9 @@ function zsMaszatRajz(JL) {
   });
   if (x.halvany) return s;
   /* a számszalag: a fizetett összegtől visszafelé; szám a fizetett összegnél és a kerek tízeseknél (a producer, 11-06: mérőszalag legyen),
-     a megállónál soha (az ár sosem kerek tízes) */
-  var hi = d.fiz, lo = Math.max(0, d.fiz - d.vissza - 4), x0 = 14, x1 = 276, e = (x1 - x0) / (hi - lo), Y = 252, px = function (n) { return x0 + (n - lo) * e; };
+     a megállónál soha (az ár sosem kerek tízes). A bal vége a megálló alatti kerek tízes előtt: mindkét szomszéd tízes látsszon, így
+     leolvasható (a producer, 11-07) */
+  var hi = d.fiz, lo = Math.max(0, Math.floor(d.ar / 10) * 10 - 3), x0 = 14, x1 = 276, e = (x1 - x0) / (hi - lo), Y = 252, px = function (n) { return x0 + (n - lo) * e; };
   s += '<rect class="jl-hely" data-hely="szalag" x="6" y="150" width="278" height="130" rx="14" fill="#fff" fill-opacity="' + (x.lep === "rak" ? .35 : 0) + '" stroke="' + (x.lep === "rak" ? "#c9b6dc" : "none") + '" stroke-dasharray="6 5"/>';
   s += '<path d="M' + x0 + ' ' + Y + 'H' + x1 + '" stroke="#c9b48a" stroke-width="5" stroke-linecap="round"/>';
   for (i = lo + 1; i <= hi; i++) { var t = i % 10 === 0; if (e >= 3.5 || t) s += '<path d="M' + pcF(px(i)) + ' ' + (Y - (t ? 9 : 4)) + 'V' + (Y + (t ? 9 : 4)) + '" stroke="#a8936a" stroke-width="' + (t ? 2.2 : 1.2) + '"/>'; if (t && i !== hi) s += zsSzoveg(pcF(px(i)), Y + 28, String(i), 13, "#5f84b0", "middle"); }
