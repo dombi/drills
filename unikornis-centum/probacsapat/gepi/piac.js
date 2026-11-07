@@ -312,6 +312,24 @@
           naploEll("zsib:blokk", bl, "z");
         });
         db("🦊 zsibvásár");
+        /* 💰 Fizess pontosan (2. kör): ③ a „nem lehet” tényleg nem fizethető ki, és mindig PONTOSAN egy okkártya igaz (különben kiskapu
+           vagy félrevezet) · ④ ennyi érmével: van n érmés pontos fizetés és más érmeszámú is · B/L/N: 2–4 pontos fizetés, 3 állítás,
+           a tálak nem mind ugyanazok, a besorolás egyezik az újraszámolttal · mindenütt: mindent letolva sosem pont az ár */
+        [true, false].forEach(function (nem) {
+          var l = UC.fpLehet(o, nem), S = UC.tallerOsszeg(l.erszeny), jo = UC.fpJok(l.erszeny, l.ar);
+          if (nem && (jo.length || UC.FP_OKOK.filter(function (k) { return UC.fpOkIgaz(l, k); }).length !== 1)) hiba("piros", "fizess:okk", "③ Lehet egyáltalán?: kifizethető, vagy nem pontosan egy okkártya igaz", J(l));
+          if (!nem && !jo.length) hiba("piros", "fizess:lehet", "③ Lehet egyáltalán?: a „lehet” feladat nem fizethető ki", J(l));
+          if (S === l.ar || l.ar > (o <= 1 ? 20 : 100)) hiba("piros", "fizess:letol", "③: mindent letolva pont az ár, vagy számkörön kívül", J(l));
+        });
+        var en = UC.fpEnnyi(o), enJ = UC.fpJok(en.erszeny, en.ar);
+        if (!enJ.some(function (j) { return j.split("+").length === en.n; }) || !enJ.some(function (j) { return j.split("+").length !== en.n; }) || UC.tallerOsszeg(en.erszeny) === en.ar) hiba("piros", "fizess:ennyi", "④ Ennyi érmével: nincs n érmés pontos fizetés, nincs más érmeszámú, vagy mindent letolva jó", J(en));
+        if (o >= 3) {
+          var bl = UC.fpBln(o), P = UC.fpJok(bl.erszeny, bl.ar).map(function (j) { return j.split("+").map(Number); });
+          if (P.length < 2 || P.length > 4 || bl.allit.length !== 3 || UC.tallerOsszeg(bl.erszeny) === bl.ar) hiba("piros", "fizess:bln", "④ B/L/N: nem 2–4 pontos fizetés vagy nem 3 állítás", J(bl));
+          bl.allit.forEach(function (a) { if (UC.fpAllitErt(a, P) !== a.ert) hiba("piros", "fizess:ert", "④ B/L/N: az állítás besorolása rossz", J(a)); });
+          if (bl.allit[0].ert === bl.allit[1].ert && bl.allit[1].ert === bl.allit[2].ert) hiba("piros", "fizess:egyforma", "④ B/L/N: mind a 3 állítás ugyanabba a tálba megy (vaktában is jó)", J(bl));
+        }
+        db("💰 fizess pontosan");
       }
     });
   });

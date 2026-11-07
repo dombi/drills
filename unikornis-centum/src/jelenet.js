@@ -70,7 +70,10 @@ function jlFokusz() { try { if (jlTablaNyitva() && !(window.matchMedia && matchM
 function jlKep() { return JL.def.kep(JL); }
 function jlRajz() {
   if (!JL) return;
-  JL.keskeny = !!(JL.svg.parentNode.clientWidth && JL.svg.parentNode.clientWidth < 520);   /* 📱 telefon, álló: a kép saját, magas elrendezése */
+  /* 📱 telefon, álló: a kép saját, magas elrendezése. A PANEL szélessége dönt, nem a képé: a kép szélességét alacsony ablakban a magasság
+     is szűkíti (style.css .jl-kep), és nagyított böngészőben (Fanni, 11-07) ettől széles képernyőn is álló lett, ami még keskenyebb képet adott */
+  var pw = JL.svg.parentNode.parentNode.clientWidth;
+  JL.keskeny = !!(pw && pw < 520);
   var k = jlKep(), vb = k.vb.split(" ").map(Number);
   JL.svg.setAttribute("viewBox", k.vb);
   JL.svg.parentNode.style.setProperty("--jl-arany", (vb[2] / vb[3]).toFixed(3));

@@ -80,8 +80,8 @@ RECEPT({
 /* ══ 💰 FIZESS PONTOSAN — Zsivány standján a 2. kártya (kép + feladat: fizess.js · recept-lap: terv/fizess-pontosan-recept-lap.html, ✅ mind A) ══
    A gyerek a képen: reggel üres a kassza, a korlátos erszényéből pontosan kirakja az árat, vagy a cédulát a „Nem lehet” tálba teszi, és
    megmutatja, miért. A Tüske-bolt első végigvitele után ébred, a Zsibvásárral egyszerre (1–3. o.; 4. o.-tól nyitva). Számkör osztály szerint.
-   1. kör: ① Csupa egyforma + ② Pontosan, másképp is + Odú-küszöb (most 12 feladat) · 2. kör: ③ Lehet egyáltalán? + ④ (B/L/N · 2. o.: Ennyi érmével)
-   → akkor lesz meg a 20 (ösvényhossz-szabály). */
+   1. kör: ① Csupa egyforma + ② Pontosan, másképp is + Odú-küszöb · 2. kör (11-07): ③ Lehet egyáltalán? + ④ (B/L/N · 1–2. o.: Ennyi érmével)
+   → 20 feladat (ösvényhossz-szabály). */
 RECEPT({
   id: "fizess-pontosan", nev: "Fizess pontosan", ikon: "💰", regio: "piac", hely: "zsib",
   palcim: "üres a kassza · pontosan, vagy bizonyítsd, hogy nem lehet",
@@ -92,6 +92,8 @@ RECEPT({
     { nev: "Rajt" },
     { nev: "Csupa egyforma", stand: "fizess1", forma: "egyforma", darab: 4 },
     { nev: "Pontosan, másképp is", stand: "fizess2", forma: "pontos", darab: 4 },
+    { nev: "Lehet egyáltalán?", stand: "fizess3", forma: "lehet", darab: 4 },        /* a fele nem lehet · okkártya */
+    { nev: "Biztos, lehet, lehetetlen", stand: "fizess4", forma: "bln", darab: 4 },  /* 1–2. o.-ban: „Ennyi érmével” (a GEN cseréli) */
     { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
   ]
 });

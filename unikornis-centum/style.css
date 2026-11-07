@@ -3199,7 +3199,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @media (prefers-reduced-motion:reduce){ .jl-panel .rl-hiv{ animation:none; } }
 /* 🎬 jelenet-motor (jelenet.js; 🏡 Számcsalád): a kép a bolt paneljében; a tábla fölött átlátszó beíró mező (a helyét a kép adja).
    A kép mindig a teljes szélességet kapja (--jl-arany: a viewBox aránya), így a mező pontosan a táblán ül. 📱 telefonon magas elrendezés. */
-.jl-kep{ position:relative; width:min(100%, calc((100vh - 300px) * var(--jl-arany, 1.86))); margin:0 auto; }
+.jl-kep{ position:relative; width:min(100%, max(600px, calc((100vh - 300px) * var(--jl-arany, 1.86)))); margin:0 auto; }   /* alacsony ablakban (nagyított böngésző) se legyen apró: inkább görgessen egy kicsit */
 @media (max-width:600px){ .jl-kep{ width:100%; } }
 .jl-panel .jl-kep svg{ max-height:none; }
 .jl-beiras{ position:absolute; opacity:0; border:0; padding:0; margin:0; font-size:16px; background:transparent; color:transparent; caret-color:transparent; cursor:text; }
