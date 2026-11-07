@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fizess pontosan — recept-lap</title>
+<style>
+  :root{--bg:#fdf4fb;--panel:#fff;--ink:#2a2140;--muted:#6b6280;--violet:#8a4fd0;--violet-soft:#ece0fb;--green:#3f9e6a;--green-soft:#dff3e7;--line:#efe4f4;--warn:#b86a00;--warn-soft:#fff3dc}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}}
+  :root[data-theme="dark"]{--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:22px 16px 60px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{background:linear-gradient(120deg,#c9862a,var(--violet));color:#fff;border-radius:20px;padding:20px 22px}
+  header h1{margin:0 0 4px;font-size:25px} header .sub{opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600;margin:8px 6px 0 0}
+  h2{font-size:18px;margin:24px 0 8px;padding-left:10px;border-left:5px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+  .ok{background:var(--green-soft);border-color:transparent} .warn{background:var(--warn-soft);border-color:transparent}
+  ul,ol{margin:.3em 0;padding-left:22px} li{margin:.25em 0}
+  table{border-collapse:collapse;width:100%;font-size:14px} .tbl{overflow-x:auto}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top} th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:13px}
+  .dont{border:2px solid var(--violet-soft);border-radius:12px;padding:8px 14px;margin:8px 0;background:var(--panel)}
+  .jav{color:var(--green);font-weight:700}
+</head>
+<body><div class="wrap">
+
+<header>
+  <h1>💰 Fizess pontosan</h1>
+  <div class="sub">Reggel még üres Zsivány kasszája, nem tud visszaadni. A gyerek a saját erszényéből pontosan kirakja az árat, vagy bebizonyítja, hogy nem lehet.</div>
+  <span class="chip">hely: Piactér, Zsivány standja (2. kártya)</span><span class="chip">20-ig / 100-ig</span><span class="chip">eset: ② meglévő elemekből + 1 apró új</span><span class="chip">2026-11-07 · jóváhagyásra vár</span>
+</header>
+
+<h2>① Mit CSINÁL a gyerek a képen, és mit mutat erre a kép?</h2>
+<div class="panel">Az erszényéből (korlátos, látszik minden érme) koppintással felveszi az érmét, és a pultra teszi. Az unikornisa szarvával átlebegteti. „Fizetek” után Zsivány érménként, hangosan összeszámolja. Ha <b>pont annyi</b>, elteszi az árut. Ha <b>sok</b>, az üres kasszára mutat, és az érmék visszalebegnek. Ha <b>kevés</b>, üres hely marad a cédula mellett. Ha szerinte nem lehet, a gyerek a cédulát a <b>„Nem lehet” tálba</b> teszi, és meg kell mutatnia, miért (lásd ⑤). A szabály az első mozdulat előtt látszik: a kasszán ott a tábla, „Üres a kasszám! Pontosan fizess!”.</div>
+
+<h2>② Könyv és munkafüzet</h2>
+<div class="panel"><div class="tbl"><table>
+  <tr><th>Mit vettünk át (típus, nem konkrét feladat)</th><th>Forrás (könyv, oldal)</th><th>Hova</th></tr>
+  <tr><td>Csupa egyforma érmével: mit lehet kifizetni, és mit nem?</td><td>1. MF 108. o. 5. (kétpetákos) · 2. MF 40. o. 15. (ötforintos) · 3. TC 40. o. 37.</td><td>① Csupa egyforma</td></tr>
+  <tr><td>Meseország boltja: csak 2-es és 5-ös van, pontos ár. Mit lehet megvenni, és mit nem?</td><td>1. TC 213. o. (társasjáték, kirakat 1–21 peták)</td><td>① és ③ (2 + 5: a „nem lehet” 1 és 3)</td></tr>
+  <tr><td>Az erszényben levő érmékkel pontosan, többféleképpen, a legkevesebb érmével</td><td>2. MF 62. o. 2. (47 Ft sokféleképpen + legkevesebb) · 3. MB 15. o. 4. (60 és 90 Ft, táblázat) · 3. TB 11–13. o. · 1. TC 128. o. (15 peták mindig másképp)</td><td>② Pontosan, másképp is</td></tr>
+  <tr><td>Megkötés: minden érméből legfeljebb 2 (Hármasország)</td><td>2. MF 60–61. o. 11–12.</td><td>② erszény-építés (a korlát a képen: 2 db címletenként)</td></tr>
+  <tr><td>Pontosan N érmével („100 Ft 1, 2, … 10 érmével”)</td><td>3. TC 23. o.</td><td>④ (2. o.) Ennyi érmével</td></tr>
+  <tr><td>Fizetés visszajáró nélkül → biztos / lehetséges / lehetetlen állítások („adtam 2-est is”, „páratlan számú érmével”)</td><td>3. TB 50. o. 1. (26 Ft, csak 2, 10, 20)</td><td>④ (3. o.-tól) Biztos, lehet, lehetetlen</td></tr>
+</table></div>
+<p><b>Tananyag-szabály, amit követünk</b>: az összeget a játék nem írja ki. A gyerek „először a tízeseket” számolja (1. MF 129. o.), Zsivány is így számol, nagyobb érmével kezdve. A „nem lehet” mindig ok-kal jár, ahogy a könyv kéri („mik azok, amiket nem?”). A Ft helyett tallér, a címletek a játék tallérjai (1, 2, 5, 10, 20, 50).<br>
+<b>Kihagytuk, mert pedagógiailag gyanús:</b> az idegen ország érméit kitaláló feladat (3. MF 66. o.): itt nem fizetés, hanem egyenlet, és összezavarná a tallérokat. A Hármas- és Négyesország-féle beváltás (2. MF, 4. MB 21. o.) helyiérték-tananyag, nem ide való. A „csak tízessel fizethetsz” (2. MF 144. o.) visszajárós feladat, az már a Zsibvásárban van.<br>
+<b>Módszertani hozzáadás</b>: <b>Pósa</b>: problémafolyam ugyanarra az árra: fizesd ki → van más út? → a legkevesebbel (a Tüske-bolt mintája, de itt elfogyhat az érme, és ettől más a feladat). <b>Varga</b>: biztos / lehetséges / lehetetlen, valamint a „nem lehet” mint teljes értékű válasz. <b>Dienes</b>: kontraszt, vagyis minden szakaszban van „itt nem igaz” ár. <b>Pólya</b>: a ③-ban előbb nézd meg az erszényt (mi van benne, mire végződhet?), csak utána rakj.</p></div>
+
+<h2>③ Húzószó-csíra</h2>
+<div class="panel">„pontosan” · „csak … érmével” · „nem kell visszaadni” · „többféleképpen” · „a legkevesebb” · „lehetetlen”. A paritás- és végződés-érv (csupa páros érme → páros összeg) a későbbi „Mire végződhet?” szerszám csírája.</div>
+
+<h2>④ A 7 kérdés röviden</h2>
+<div class="panel"><ol>
+  <li><b>A mozdulat maga a matek?</b> Igen: a felvett érme maga a tag. Az összerakás az összeadás, a „nem fér ki” a különbség.</li>
+  <li><b>A megfogott tárgy egyszerű és egyforma?</b> Igen: a meglévő tallérok (<code>kfTaller</code>). A díszlet Zsivány és a stand.</li>
+  <li><b>Kép és szám együtt változik?</b> A pult NEM írja ki az összeget. Az ① szakaszban a kis ugró-szalag minden lerakott érménél ugrik egyet (5, 10, 15 …). Ez a gyerek saját számolása, nem a válasz: a kérdés az, hogy az árnál megáll-e a szalag.</li>
+  <li><b>Hány kereten, és van-e „itt nem igaz”?</b> Két keret: erszény → pult és cédula → „Nem lehet” tál. Minden szakaszban van legalább egy nem kifizethető ár (kb. minden negyedik).</li>
+  <li><b>Hogyan halványul a létra tetejéig?</b> ① a szalag végig látszik · ② a szalag csak 2 hiba után jelenik meg · ③ nincs szalag, előbb dönteni kell (fizet / nem lehet) · Odú-küszöb: az erszény felirata (összeg) is eltűnik, csak az érmék látszanak.</li>
+  <li><b>Mit mutat a kép rossz válaszra?</b> Sok: Zsivány az üres kasszára mutat (vállat von), az érmék visszalebegnek. Kevés: üres hely a cédula mellett. Rossz „Nem lehet”: Zsivány „Szerintem lehet” mondattal visszaadja a cédulát. Megoldást nem mutat, de 2 hiba után a pult széle megmutatja, mennyi van már kint (mint a Tüske-boltban). ④-ben rossz tálnál a pulton megjelenik egy <i>ellenpélda</i>-fizetés (pl. „biztos, hogy adtam 2-est?” → egy fizetés 2-es nélkül), ez a kép következménye, nem a válasz.</li>
+  <li><b>Ki cselekszik?</b> A gyerek unikornisa fizet (szarvvarázs). Zsivány az eladó. A kölyök a kísérő: jó fizetés után örül, ③-ban ő „gyanakszik” a cédulára (csak pózzal).</li>
+</ol></div>
+
+<h2>⑤ Kiskapu: hol lehetne megoldás nélkül jutalmat kapni?</h2>
+<div class="panel warn"><ul>
+  <li><b>„Nem lehet” tál</b> (2 lehetőség, 50%): a „nem lehet” csak indoklással ér. ① a szalagon a gyerek a két szomszéd megállóra koppint (pl. 20 és 25, a 23 kimarad). ③ okkártya, a gép csak az igazat fogadja el: <i>kevés az egész</i> · <i>csak páros érmém van</i> · <i>ilyen végződés nem jön ki</i>. 🔒 Rossz ok = hiba; a cédula visszajön.</li>
+  <li><b>„Mindent letol”</b>: az erszény úgy készül, hogy az egész SOHA ne legyen pont az ár (a <code>zsApro</code> már így gyárt). Ha minden érme kint van, Zsivány nem tud visszaadni.</li>
+  <li><b>Próbálgatás</b> (sok kombináció egymás után): minden rossz „Fizetek” hibának számít; a 3. után jön a segítség, de a jutalom csökken (a motor szokásos könyvelése). A ③-ban az erszény legfeljebb 6 érme, így a vak próbálgatás hosszabb, mint a gondolkodás.</li>
+  <li><b>④ három tál</b> (biztos / lehet / lehetetlen, 33%): egy feladat 3 állítás, mindhárom jó kell. Rossz tál → ellenpélda, és a kártya visszajön. Csak a hibátlan sor ad ✨-t, a javított kevesebbet.</li>
+  <li>„Van más út?” kihagyható: ha kihagyja, nincs érte 💧. Ha a gyerek ugyanazt rakja ki még egyszer, nem fogadjuk el.</li>
+</ul>Élőben kipróbálandó: a gépi kiskapu-próba ennél a pályánál fusson le (a Zsibvásárnál kimaradt).</div>
+
+<h2>⑥ A recept</h2>
+<pre>RECEPT({
+  id: "fizess-pontosan", nev: "Fizess pontosan", ikon: "💰", regio: "piac", hely: "zsib",
+  palcim: "üres a kassza · pontosan, vagy bizonyítsd, hogy nem lehet",
+  nyit: { utan: "tuske-bolt", osztaly: [1, 2, 3] },   /* 4. o.-tól nyitva · Lili/Fanni: minden nyitva */
+  alap: { tipus: "pontos" },
+  segit: ["kep", "szalag", "pult-szel"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Csupa egyforma",       forma: "egyforma", darab: 4 },   /* egy címlet sok darabban · 1 nem kifizethető ár · szalag látszik */
+    { nev: "Pontosan, másképp is", forma: "pontos",   darab: 4 },   /* zsApro(o, "pontos") · Pósa: fizesd ki → más út → legkevesebb */
+    { nev: "Lehet egyáltalán?",    forma: "lehet",    darab: 4 },   /* kb. a fele nem lehet · okkártya */
+    { nev: "Biztos, lehet, lehetetlen", forma: "bln", darab: 4 },   /* 2. o.: helyette „Ennyi érmével” (pontosan N érme) */
+    { nev: "Odú-küszöb",           forma: "vegyes",   darab: 4, cel: true, halvany: true }
+  ]
+});
+/* számkör: 1. o. 20-ig (1, 2, 5, 10; Meseország: 2 + 5) · 2. o. 100-ig, 3–5 érme · 3. o.-tól 100-ig, 4–6 érme, 50-es is.
+   Ösvényhossz-szabály: Rajt → 4 szakasz → Odú-küszöb, mind 4 = 20. */</pre>
+
+<h2>⑦ Hiányzó elem</h2>
+<div class="panel"><ul>
+  <li><b>Kártyaválasztó Zsivány standján</b> (Zsibvásár / Fizess pontosan), a Tündérvásár sátrának mintájára (a piac.js <code>liget</code>-útja). Kód, rajz nem kell. Közepes.</li>
+  <li><b>„Reggeli” stand</b>: ugyanaz a szekér, a kasszán a meglévő tábla, a ponyva félig felhúzva. Ez a meglévő rajz változata, apró.</li>
+  <li><b>Kis tál a pulton</b> („Nem lehet”, illetve ④-ben három tál felirattal) és <b>okkártya</b> (3 kis kártya rajzocskával). Apró új elem, rajzterv nem kell, egy megálló a játékban, az első kép után.</li>
+  <li>Ugró-szalag: a Maszatos ár meglévő szalagja (megállók csak a lerakott érménél).</li>
+</ul></div>
+
+<h2>Döntések</h2>
+<div class="dont"><b>1. Hol lakik a pálya?</b> — <span class="jav">javaslat: A</span> Zsivány standján, 2. kártyaként („reggel még üres a kasszám”), mert a történet magától adódik, és nem kell új hely · B új kis taliga a tér szélén: új kép, és a Piactér már tele van.</div>
+<div class="dont"><b>2. Hány ösvény?</b> — <span class="jav">javaslat: A</span> egy pálya, 4 szakasz, osztály szerint számkör (1. o. 20-ig · 2. o. 100-ig, kevesebb érme · 3. o.-tól több érme, 50-es is). Ez a lépcső · B két pálya (20-as „Meseország boltja” + 100-as) · C három pálya, szakaszonként külön (hosszabb, de lassabb a haladás).</div>
+<div class="dont"><b>3. Mikor nyílik az újonc-menetben?</b> — <span class="jav">javaslat: A</span> a Tüske-bolt első végigvitele után, a Zsibvásárral <i>egyszerre</i>, nem utána (a ①–② könnyebb a Zsibvásárnál, a pénzszámolás az előtudás) · B a Zsibvásár után (akkor az egész pálya „nehéz” címkét kap).</div>
+<div class="dont"><b>4. A ④ szakasz 2. osztályban</b> — <span class="jav">javaslat: A</span> „Ennyi érmével”: pontosan 3 (vagy N) érmével fizesd ki. Ez a 3. o.-os könyvből jön, de 2. o.-ban is megy. A „biztos / lehet / lehetetlen” 3. o.-tól · B 2. o.-ban is B/L/N, egyszerűbb állításokkal.</div>
+<div class="dont"><b>5. A ③ „nem lehet” indoklása</b> — <span class="jav">javaslat: A</span> okkártya (3 ok, egy az igaz). Gyors, és tanítja az érvet · B a gyerek kirakja a „legközelebbit” (mennyi hiányzik / mennyi a sok): ez erősebb bizonyíték, de kétszer olyan hosszú feladat.</div>
+
+<h2>Kód-körök</h2>
+<div class="panel"><ol>
+  <li><b>1. kör</b> · kártyaválasztó a standon + pálya-váz + ① Csupa egyforma + ② Pontosan, másképp is + Odú-küszöb; a meglévő <code>zsApro(o, "pontos")</code> generátor, kassza, erszény, szalag újrahasznosítva; „Nem lehet” tál. · <b>közepes–nagy</b> · megálló: az első kép a játékban · „Fizess pontosan: 1. kör.”</li>
+  <li><b>2. kör</b> · ③ Lehet egyáltalán? (okkártyák, a „lehetetlen” erszények gyártója: paritás · végződés · kevés) + ④ B/L/N / Ennyi érmével (ellenpélda-kereső) + pult ≈ napló + gépi kiskapu-próba · <b>közepes</b> · „Fizess pontosan: 2. kör.”</li>
+</ol></div>
+
+</div></body>
+</html>
