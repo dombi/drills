@@ -31,7 +31,7 @@ function receptBekot() {
     var h = [];
     if (!GEN[pa.alap.tipus]) h.push("nincs gyártó: GEN." + pa.alap.tipus);
     if (!JELENETEK[pa.jelenet]) h.push("nincs kép: JELENETEK." + pa.jelenet);
-    if (pa.regio === "piac") { var hz = PIAC_HAZAK[pa.hely]; if (hz) hz.palya = pa.id; else h.push("nincs ilyen ház a Piactéren: " + pa.hely); }
+    if (pa.regio === "piac") { var hz = PIAC_HAZAK[pa.hely]; if (hz) { hz.palyak = (hz.palyak || []).concat(pa.id); if (!hz.palya) hz.palya = pa.id; } else h.push("nincs ilyen ház a Piactéren: " + pa.hely); }
     if (pa.nyit && !PALYAK.some(function (p) { return p.id === pa.nyit.utan; })) h.push("nincs ilyen pálya a nyitáshoz: " + pa.nyit.utan);
     pa.allomasok.forEach(function (o) { if (o.stand && o.stand !== "odu" && !VS_SZIN[o.stand]) h.push("nincs sátor-szín: " + o.stand); });
     if (h.length && window.console) console.warn("🧱 recept " + pa.id + ": " + h.join(" · "));
@@ -73,6 +73,25 @@ RECEPT({
     { nev: "Elég lesz?", stand: "zsib2", forma: "eleg", darab: 4, hatar: 1 },
     { nev: "Nincs aprópénz", stand: "zsib4", forma: "apro", darab: 4 },
     { nev: "Ravasz blokk", stand: "zsib3", forma: "blokk", darab: 4 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
+  ]
+});
+
+/* ══ 💰 FIZESS PONTOSAN — Zsivány standján a 2. kártya (kép + feladat: fizess.js · recept-lap: terv/fizess-pontosan-recept-lap.html, ✅ mind A) ══
+   A gyerek a képen: reggel üres a kassza, a korlátos erszényéből pontosan kirakja az árat, vagy a cédulát a „Nem lehet” tálba teszi, és
+   megmutatja, miért. A Tüske-bolt első végigvitele után ébred, a Zsibvásárral egyszerre (1–3. o.; 4. o.-tól nyitva). Számkör osztály szerint.
+   1. kör: ① Csupa egyforma + ② Pontosan, másképp is + Odú-küszöb (most 12 feladat) · 2. kör: ③ Lehet egyáltalán? + ④ (B/L/N · 2. o.: Ennyi érmével)
+   → akkor lesz meg a 20 (ösvényhossz-szabály). */
+RECEPT({
+  id: "fizess-pontosan", nev: "Fizess pontosan", ikon: "💰", regio: "piac", hely: "zsib",
+  palcim: "üres a kassza · pontosan, vagy bizonyítsd, hogy nem lehet",
+  nyit: { utan: "tuske-bolt", osztaly: [1, 2, 3] },
+  alap: { tipus: "fizess" },
+  segit: ["kep", "szalag", "pult-szel"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Csupa egyforma", stand: "fizess1", forma: "egyforma", darab: 4 },
+    { nev: "Pontosan, másképp is", stand: "fizess2", forma: "pontos", darab: 4 },
     { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
   ]
 });
