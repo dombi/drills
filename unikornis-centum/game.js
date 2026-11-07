@@ -19721,7 +19721,7 @@ function zsBlokk(o, pontos, trukk) {
      pontos — üres a kassza: pontosan kell fizetni · tizes — aprópénz nincs, csak kerek tízest ad vissza ·
      egy — az aprókból (1, 2, 5) csak egy címletből van 1–2 db (2. o.-ban ez is „tizes”).
    A piac-őr ellenőrzi: van jó fizetés · ha mindent letol, nem tud visszaadni · az elég nagy fizetéseknek legfeljebb a fele jó. */
-var ZS_APRO_SZINT = ["pontos", "tizes", "egy", "egy"];
+var ZS_APRO_SZINT = ["tizes", "tizes", "egy", "egy"];   /* a „pontos” fok kikerült: túl nehéz ide, önálló pálya lesz belőle (a producer, 11-07) */
 var ZS_ESEM = { 1: "1-esem", 2: "2-esem", 5: "5-ösöm" };
 function zsKassza(szint) {
   if (szint === "pontos") return { 1: 0, 2: 0, 5: 0, 10: 0, 20: 0, 50: 0 };
