@@ -140,7 +140,7 @@ function ujFeladat() {
   /* mérés: az egységpár első előfordulásakor előbb a szemléltető mozgókép (meres-mozgo.js), utána a feladat;
      📚 könyvtár: a kocka első feladata előtt gyerekenként egyszer a bemutató (konyvtar-mozgo.js) */
   var tovabbF = function () { if (J && J.feladat === f) feladatMutat(f); };
-  if (mkElottKell(f, tovabbF) || ekElottKell(f, tovabbF)) { $("bagoly-buborek").hidden = true; return; }
+  if (mkElottKell(f, tovabbF) || ekElottKell(f, tovabbF) || fpmElottKell(f, tovabbF)) { $("bagoly-buborek").hidden = true; return; }
   feladatMutat(f);
 }
 function feladatMutat(f) {

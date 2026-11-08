@@ -256,7 +256,7 @@ function piacTer(lista, vasarLista) {
   ["csalad", "zsib", "letra", "bolt"].forEach(function (id) {
     var h = H[id], tobb = (h.palyak || (h.palya ? [h.palya] : [])).map(function (pid) { return (lista.filter(function (r) { return r.pa.id === pid; })[0] || {}).pa; }).filter(Boolean);
     var pa = tobb[0] || null, J = tobb.length > 1 ? pcTobbJel(tobb) : pa ? palyaJelek(pa) : { all: uj ? "alszik" : "hamarosan", ertek: 0, nincsCetli: true };
-    hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra kártyaválasztó */
+    hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra a közelkép, a tárgy a bejárat (pcValaszto) */
     s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k }) + '</g>';
   });
   var vil = !!bolt && hazJ.bolt.vil && hazJ.bolt.all !== "alszik";
@@ -303,7 +303,7 @@ function piacTer(lista, vasarLista) {
     if (cs) { e.stopPropagation(); phCsengo(cs); return; }   /* 🔔 a cégér csengője felolvassa a pályát */
     var vk = e.target.closest(".pc-valaszt-cs") || e.target.closest(".pc-valaszt");
     if (vk) { pcValasztKopp(vk); return; }
-    if (PIAC.valaszto) { pcValasztoZar(); return; }   /* a választó mellé koppintás: becsukja */
+    if (PIAC.valaszto) { if (e.target.closest(".pc-valaszto") && !e.target.closest(".pc-valaszt-zar")) return; hangGomb(); pcValasztoZar(); return; }   /* a közelkép ✕-e, vagy mellé koppintás: becsukja */
     var g = e.target.closest(".pc-hely"); if (g) piacKoppint(g.getAttribute("data-id"), g);
   });
   setTimeout(function () { if (host.scrollWidth > host.clientWidth + 4) host.scrollLeft = PIAC.x / 800 * host.scrollWidth - host.clientWidth / 2; }, 0);   /* 📱 telefonon az unikornisnál nyílik */
@@ -384,26 +384,42 @@ function pcTobbJel(lista) {
   J.cetli = "⭐ " + Js.filter(function (j) { return j.kesz; }).length + "/" + Js.length;
   return J;
 }
+/* 🔍 több pálya egy helyen (Zsivány standja): NEM kártyák (a producer, 11-08: „ne kártya legyen a pályaválasztó”), hanem a hely
+   KÖZELKÉPE, és a tárgy maga a bejárat — a kacatpolc = Zsibvásár, a kassza = Fizess pontosan. Bővítés: egy új sor a PC_TARGY-ban
+   (a tárgy helye a hely saját rajzán + a cégér helye és nagysága + a kimondott szó); amelyik pályának nincs sora, annak a cégére a kép alján áll.
+   kep(): a hely nagy rajza a saját koordinátáiban; k, tx, ty: hová kerül a közelképen (800 × 460). */
+var PC_TARGY = {
+  zsib: {
+    kep: function () { return zsStand(false, true); }, k: .8, tx: -24, ty: 44,
+    t: { "zsibvasar":       { hely: [414, 150, 280, 72], ceger: [614, 176, .78], szo: "a kacatokat" },
+         "fizess-pontosan": { hely: [474, 246, 172, 92], ceger: [560, 352, .95], szo: "a kasszát" } }
+  }
+};
 function pcValaszto(id) {
   pcValasztoZar();
-  var lista = PIAC.haz[id], h = PIAC_HAZAK[id], n = lista.length, W = 150, Hk = 104, gap = 14, x0 = Math.max(10, Math.min(790 - n * W - (n - 1) * gap, h.x - (n * W + (n - 1) * gap) / 2)), y0 = Math.max(8, h.y - 210);
-  var s = '<rect x="0" y="0" width="800" height="460" fill="#3c2a50" opacity=".18"/>';
-  lista.forEach(function (pa, i) {
-    var J = palyaJelek(pa), x = x0 + i * (W + gap), all = { alszik: "💤", zarva: "🔒", elfogyott: "🌙", arany: "🌟", kesz: "⭐" }[J.all] || "", hal = J.alszik || J.zarva;
-    s += '<g class="pc-valaszt" data-pa="' + pa.id + '" style="cursor:pointer" transform="translate(' + pcF(x) + ' ' + pcF(y0) + ')"' + (hal ? ' opacity=".6"' : '') + '>' +
-      (J.vil ? '<ellipse cx="' + W / 2 + '" cy="' + Hk / 2 + '" rx="' + (W * .62) + '" ry="' + (Hk * .7) + '" fill="url(#lt-gNyHalo)"/>' : '') +
-      '<g filter="url(#lt-firka)"><path d="' + phLap(0, 0, W, Hk, 12) + '" fill="#fffaf0" stroke="' + (J.ajanlott ? "#e0417a" : "#b35f28") + '" stroke-width="2.6"/></g>' +
-      '<text x="' + W / 2 + '" y="42" text-anchor="middle" font-size="30">' + pa.ikon + '</text>' +
-      '<text x="' + W / 2 + '" y="72" text-anchor="middle" font-size="14" ' + PH_FR + ' fill="#4a3b7a">' + kiiras(pa.nev) + '</text>' +
-      (all ? '<text x="' + (W - 16) + '" y="24" text-anchor="middle" font-size="17">' + all + '</text>' : '') +
-      (J.napiAktiv ? '<text x="16" y="24" text-anchor="middle" font-size="15">' + palyaNapiJel() + '</text>' : J.sarkany ? '<text x="16" y="24" text-anchor="middle" font-size="15">🐉</text>' : '') +
-      '<g class="pc-valaszt-cs" data-pa="' + pa.id + '" transform="translate(' + W / 2 + ' 90)"><circle r="10" fill="#fce49a" stroke="#d1a23a" stroke-width="1.4"/><text y="4.5" text-anchor="middle" font-size="11">🔔</text></g></g>';
+  var lista = PIAC.haz[id], D = PC_TARGY[id] || { kep: function () { return ""; }, k: 1, tx: 0, ty: 0, t: {} }, F = pcF, cs = lkCsokkent(), szavak = [], tobbi = 0;
+  var s = '<rect x="0" y="0" width="800" height="460" fill="#3c2a50" opacity=".28"/>';
+  s += '<g filter="url(#lt-firka)"><rect x="30" y="14" width="740" height="432" rx="22" fill="#fff6e6" stroke="#c9ad85" stroke-width="3"/></g>';
+  s += '<g transform="translate(' + D.tx + ' ' + D.ty + ') scale(' + D.k + ')">' + D.kep();
+  lista.forEach(function (pa) {
+    var T = D.t[pa.id], J = palyaJelek(pa), hal = J.alszik || J.zarva;
+    if (!T) { T = { hely: [300 + tobbi * 150, 392, 140, 30], ceger: [370 + tobbi * 150, 410] }; tobbi++; }
+    if (T.szo) szavak.push(T.szo);
+    var h = T.hely, cx = h[0] + h[2] / 2, cy = h[1] + h[3] / 2;
+    s += '<g class="pc-valaszt" data-pa="' + pa.id + '" style="cursor:pointer">';
+    if (J.vil) s += '<ellipse cx="' + F(cx) + '" cy="' + F(cy) + '" rx="' + F(h[2] * .62) + '" ry="' + F(h[3] * .8) + '" fill="url(#lt-gNyHalo)">' + (cs ? '' : ltAnim("opacity", ".55;1;.55", "2.4s")) + '</ellipse>';
+    s += '<rect x="' + h[0] + '" y="' + h[1] + '" width="' + h[2] + '" height="' + h[3] + '" rx="14" fill="#fff" fill-opacity=".001" stroke="' + (J.ajanlott ? "#e0417a" : "#b35f28") + '" stroke-width="2.6" stroke-dasharray="7 6" opacity="' + (hal ? .35 : .8) + '"/>';
+    s += '<g transform="translate(' + T.ceger[0] + ' ' + T.ceger[1] + ') scale(' + (T.ceger[2] || .95) + ')"' + (hal ? ' opacity=".6"' : '') + '>' + phCeger(pa.nev, 0, 0, J, pa.id) +
+         (J.all === "zarva" || J.alszik ? phLakat(0, -32) : J.all === "elfogyott" ? phHold(0, -36, .8) : '') + '</g></g>';
   });
+  s += '</g>';
+  /* bezárás: ✕ a jobb felső sarokban (mellé koppintás is becsukja) */
+  s += '<g class="pc-valaszt-zar" style="cursor:pointer" transform="translate(742 42)"><circle r="18" fill="#fffaf0" stroke="#c9ad85" stroke-width="2.2"/><path d="M-6 -6L6 6M6 -6L-6 6" stroke="#8a6a52" stroke-width="3" stroke-linecap="round"/></g>';
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("class", "pc-valaszto"); g.innerHTML = s;
   PIAC.svg.appendChild(g); PIAC.valaszto = { g: g, id: id };
-  if (!lkCsokkent() && g.animate) g.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
-  mondd(lista.length === 2 ? "Melyiket választod? " + kiiras(lista[0].nev) + ", vagy " + kiiras(lista[1].nev) + "?" : "Melyiket választod?");
+  if (!cs && g.animate) g.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
+  mondd(szavak.length === 2 ? "Mit választasz? " + zsCap(szavak[0]) + ", vagy " + szavak[1] + "?" : "Mit választasz?");
 }
 function pcValasztoZar() { if (PIAC && PIAC.valaszto) { var g = PIAC.valaszto.g; if (g.parentNode) g.parentNode.removeChild(g); PIAC.valaszto = null; } }
 function pcValasztKopp(vk) {
@@ -411,7 +427,6 @@ function pcValasztKopp(vk) {
   var pa = PIAC.haz[V.id].filter(function (p) { return p.id === vk.getAttribute("data-pa"); })[0]; if (!pa) return;
   hangGomb();
   var J = palyaJelek(pa);
-  if (vk.classList.contains("pc-valaszt-cs")) { mondd(palyaFelolvasMondat(pa, J)); return; }   /* 🔔 felolvassa */
   var nem = palyaNemIndulMondat(pa, J);
   if (nem) { mondd(nem); return; }
   var id = V.id; pcValasztoZar();

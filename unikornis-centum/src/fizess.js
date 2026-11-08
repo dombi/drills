@@ -1,6 +1,6 @@
 /* ============ 6h7) 💰 FIZESS PONTOSAN — üres a kassza (3. receptes pálya a Piactéren, 1. kör, 2026-11-07) ============
    Recept-lap: terv/fizess-pontosan-recept-lap.html (✅ mind az 5 döntés A). A sora a receptek.js-ben, a kép a jelenet-motoron (jelenet.js),
-   Zsivány standján lakik (2. kártya: piac.js kártyaválasztó). A Zsibvásár (zsib.js) rajzkészletét és Zsivány-rigjét használja.
+   Zsivány standján lakik (a stand közelképén a kassza a bejárata: piac.js pcValaszto). A Zsibvásár (zsib.js) rajzkészletét és Zsivány-rigjét használja.
    MIT CSINÁL A GYEREK A KÉPEN? Reggel még üres Zsivány kasszája, nem tud visszaadni. A gyerek a korlátos erszényéből a pultra rakja az
    érméket (felvesz–letesz), és „Fizetek”. Zsivány nagyobb érmével kezdve hangosan összeszámolja. Pont annyi → elteszi az árut. Sok → vállat von,
    a kassza üres rekeszei világítanak, az érmék visszalebegnek. Kevés → a szalagon üres hely marad a cédula előtt. Ha szerinte nem lehet, a
@@ -14,8 +14,8 @@
         Rossz kártya = hiba, a kártya áthúzva marad, Zsivány megmondja, miért nem igaz (van páratlan / nem ötös érméd).
      ④ Biztos, lehet, lehetetlen (3. o.-tól, 3. TB 50/1) — „Egy vevő pontosan kifizette ezt ebből az erszényből.” 3 állítás egymás után,
         mindegyik a három tál egyikébe (koppintás a tálra, vagy felvesz–letesz). A pulton ki is próbálhatja (Számold: Zsivány összeszámolja,
-        hibát nem könyvel). Rossz tál → ellenpélda a pulton (egy pontos fizetés, ahol nem / ahol igen igaz), „lehet”-nél az összes pontos
-        fizetés ✓/✗-tel. Az állítások tálai nem mindig különbözők (különben az utolsó ingyen menne).
+        hibát nem könyvel). Rossz tál → a B/L/N mozgókép a feladat számaival (fizess-mozgo.js: az összes pontos fizetés
+        a füzetben, soronként ✓/✗, a kártya a jó tálba), utána ugyanaz az állítás újra. Az első ④ előtt egyszer a bemutató. Az állítások tálai nem mindig különbözők (különben az utolsó ingyen menne).
      ④ Ennyi érmével (1–2. o., 3. TC 23.) — „Fizess pontosan, N érmével!” Van pontos fizetés más érmeszámmal is (Dienes: itt nem igaz).
      🏠 Odú-küszöb — ① ② ③ ④ vegyesen, szalag nélkül (a „nem lehet” indoklásánál a szalag előjön: az a bizonyíték).
    Számkör (2A): 1. o. 20-ig (1, 2, 5, 10) · 2. o. 100-ig, 3–5 érme · 3. o.-tól 100-ig, 4–6 érme, 50-es is.
@@ -305,9 +305,9 @@ function fpOkk(x, ok) {
   zsRossz(x, "ok: " + ok, d.naplo, ok === "keves" ? "Nem kevés: minden érméd együtt " + szo(S) + " tallér, az több, mint " + szo(d.ar) + "." :
     ok === "paros" ? "Nem csupa páros: van " + FP_ED[ptl] + " is." : "Nem csak ötösével megy: van " + FP_ED[nem5] + " is.");
 }
-/* ④ az állítás a tálba: jó → a következő; rossz → ellenpélda a pulton (vagy „lehet”-nél az összes pontos fizetés ✓/✗), a kártya visszajön */
+/* ④ az állítás a tálba: jó → a következő; rossz → a B/L/N mozgókép a feladat számaival, utána ugyanaz az állítás újra */
 function fpBlnTesz(x, tal) {
-  var d = x.d, a = d.allit[x.ai], P = d.fiz, f, mondat;
+  var a = x.d.allit[x.ai];
   hangGomb(); x.mutat = null;
   if (tal === a.ert) {
     hangCsilla(); x.betett.push(tal); x.ai++; x.pult = [];
@@ -316,16 +316,7 @@ function fpBlnTesz(x, tal) {
     jlJo("", null, function (tov) { zsZsivany("orul", "Mind a három a helyén van. Köszönöm!", 2200); zsKolyokPoz("orul"); zsVar(tov, 2600); });
     return;
   }
-  if (tal === "l") {
-    x.pult = []; x.mutat = P.map(function (g) { return { f: g, j: fpAllitIgaz(a, g) }; });
-    mondat = a.ert === "b" ? "Nézd meg az összes pontos fizetést! Mindegyikben igaz." : "Nézd meg az összes pontos fizetést! Egyikben sem igaz.";
-  } else {
-    f = P.filter(function (g) { return fpAllitIgaz(a, g) !== (tal === "b"); })[0];
-    var hasz = []; f.forEach(function (v) { for (var i = 0; i < d.erszeny.length; i++) if (d.erszeny[i] === v && hasz.indexOf(i) < 0) { hasz.push(i); return; } });
-    x.pult = hasz;
-    mondat = fpSzamol(f.slice()) + " Ez is pontos fizetés, és itt " + (tal === "b" ? "nem igaz." : "igaz.");
-  }
-  zsRossz(x, { b: "biztos", l: "lehet", n: "lehetetlen" }[tal], d.naplo, mondat);
+  fpmHiba(x, tal);   /* rossz tál: a mozgókép a feladat számaival (fizess-mozgo.js) — ez váltja a régi ellenpéldát / ✓✗-listát */
 }
 
 /* ═════════════════ A KÉP (JELENETEK.fizess) ═════════════════ */

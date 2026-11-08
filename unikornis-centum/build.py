@@ -82,6 +82,7 @@ MODULES = [
     "letra.js",           # 6h3) 🪜 Rokon-létra: a létra képe és játékmenete (egy fok = egy tízes; alap · távoli rokon · magától · hiányzók · felmászik), GEN.letra
     "zsib.js",            # 6h6) 🦊 Zsivány zsibvására: a nehezebb bolt (szekér-stand, ≈ becslés a könyv szabálya szerint, maszatos ár, elég lesz?, ravasz blokk), GEN.zsib
     "fizess.js",          # 6h7) 💰 Fizess pontosan: üres a kassza — korlátos erszényből pontosan, vagy bizonyítsd, hogy nem lehet (Zsivány standján, 2. kártya), GEN.fizess
+    "fizess-mozgo.js",    # 6h8) 💰 a ④ „Biztos, lehet, lehetetlen” mozgóképe: bemutató (egyszer) + rossz tál után a feladat számaival
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
     "sarkany-holmi.js",   # 6k3) 🐉 sárkány-holmi: 12 holmi × 10 részlet, kívánság-tábla, odú-réteg (ágy, kupac, felrakás), kérés
