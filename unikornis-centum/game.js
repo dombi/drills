@@ -20310,7 +20310,7 @@ function zsAproRajz(JL) {
     s += '<g filter="url(#lt-firka)"><ellipse cx="248" cy="276" rx="40" ry="12" fill="#e6f4f1" stroke="#3f7f75" stroke-width="2"/></g>';
     x.kiadva.forEach(function (v, k) { var cx = 248 + (k - (x.kiadva.length - 1) / 2) * 20, cy = 264; s += zsLebeg(145 - cx, 160 - cy, kfTaller(cx, cy, v, .7, '')); });
   }
-  s += '<rect class="zs-erszeny-hely" x="64" y="322" width="160" height="104" fill="transparent"/>' + kfErszeny(34, 424, .85, "");
+  s += '<rect class="jl-hely zs-erszeny-hely" data-hely="erszeny" x="6" y="322" width="218" height="104" fill="transparent"/>' + kfErszeny(34, 424, .85, "");
   d.erszeny.forEach(function (v, j) {
     if (x.pult.indexOf(j) >= 0 || x.fog === j) return;
     var E = ZS_ERSZ(j), k = x.lebeg ? x.lebeg.indexOf(j) : -1, c = kfTaller(E[0], E[1], v, .9, aktiv ? ' class="jl-fog" data-fog="p-' + j + '" data-m=".9"' : '');
@@ -20813,7 +20813,7 @@ function fpRajz(JL) {
 }
 /* az erszény: minden érme látszik, a helyük állandó (index szerint), a visszalebegők a pultról jönnek */
 function fpErszenyRajz(x, aktiv) {
-  var d = x.d, s = '<rect class="zs-erszeny-hely" x="60" y="338" width="170" height="92" fill="transparent"/>' + kfErszeny(34, 428, .8, "");
+  var d = x.d, s = '<rect class="jl-hely zs-erszeny-hely" data-hely="erszeny" x="6" y="338" width="230" height="92" fill="transparent"/>' + kfErszeny(34, 428, .8, "");
   d.erszeny.forEach(function (v, j) {
     if (x.pult.indexOf(j) >= 0 || x.fog === j) return;
     var E = FP_ERSZ(j), k = x.lebeg ? x.lebeg.indexOf(j) : -1, c = kfTaller(E[0], E[1], v, .85, aktiv ? ' class="jl-fog" data-fog="p-' + j + '" data-m=".85"' : '');

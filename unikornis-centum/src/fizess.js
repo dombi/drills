@@ -447,7 +447,7 @@ function fpRajz(JL) {
 }
 /* az erszény: minden érme látszik, a helyük állandó (index szerint), a visszalebegők a pultról jönnek */
 function fpErszenyRajz(x, aktiv) {
-  var d = x.d, s = '<rect class="zs-erszeny-hely" x="60" y="338" width="170" height="92" fill="transparent"/>' + kfErszeny(34, 428, .8, "");
+  var d = x.d, s = '<rect class="jl-hely zs-erszeny-hely" data-hely="erszeny" x="6" y="338" width="230" height="92" fill="transparent"/>' + kfErszeny(34, 428, .8, "");
   d.erszeny.forEach(function (v, j) {
     if (x.pult.indexOf(j) >= 0 || x.fog === j) return;
     var E = FP_ERSZ(j), k = x.lebeg ? x.lebeg.indexOf(j) : -1, c = kfTaller(E[0], E[1], v, .85, aktiv ? ' class="jl-fog" data-fog="p-' + j + '" data-m=".85"' : '');
