@@ -154,7 +154,7 @@ function rokaBlokk(pontos, cfg) {
     tet = [];
     for (var i = 0; i < n; i++) tet.push(veletlen(n === 2 ? 11 : 6, n === 2 ? 69 : 39));
     h = tallerOsszeg(tet);
-    if (h > 100 || tet.some(function (v) { return v % 10 === 0; })) continue;
+    if (h > 100 || tet.some(function (v) { return v % 10 === 0 || (cfg.nincsOtos && v % 10 === 5); })) continue;   /* nincsOtos: 2. o. (recept-lap 1A) */
     if (pontos) { irt = h; break; }
     hiba = veletlenElem(cfg.hibak || Object.keys(ROKA_HIBA));
     irt = rokaHibaz(tet, hiba);

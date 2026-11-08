@@ -117,6 +117,8 @@
           if (!ok) hiba("piros", "blokk:hiba:" + b.hiba, "A róka hibája nem az, aminek a gyártó mondja (" + b.hiba + ")", J(b));
         }
         if (b.pontos && !b.kbStimmel) hiba("piros", "blokk:becsles", "Pontos blokkra a becslés azt mondaná: nem stimmel", J(b));
+        var b2 = UC.rokaBlokk(b.pontos, { tetelek: n, nincsOtos: true });   /* 2. o.: nincs 5-re végződő ár (zsibvasar-recept-lap 1A, 3. kör) */
+        if (b2.tetelek.some(function (v) { return v % 10 === 5; })) hiba("piros", "blokk:otos2", "2. o.-ban 5-re végződő ár került a blokkra", J(b2));
         if (n === 2 && !b.tenyTipus) hiba("piros", "blokk:tipus", "A két tételes blokknak nincs 100-as típusa (tény-motor)", J(b));
         /* 🔒 kiskapu: a vaktában stratégiák */
         if (UC.rokaPecsetEll(b, "x").jo) mindigX++;

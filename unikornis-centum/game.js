@@ -2021,7 +2021,7 @@ function rokaBlokk(pontos, cfg) {
     tet = [];
     for (var i = 0; i < n; i++) tet.push(veletlen(n === 2 ? 11 : 6, n === 2 ? 69 : 39));
     h = tallerOsszeg(tet);
-    if (h > 100 || tet.some(function (v) { return v % 10 === 0; })) continue;
+    if (h > 100 || tet.some(function (v) { return v % 10 === 0 || (cfg.nincsOtos && v % 10 === 5); })) continue;   /* nincsOtos: 2. o. (recept-lap 1A) */
     if (pontos) { irt = h; break; }
     hiba = veletlenElem(cfg.hibak || Object.keys(ROKA_HIBA));
     irt = rokaHibaz(tet, hiba);
@@ -18048,7 +18048,10 @@ var VSM = { arcedula: VSM_ARCEDULA, tobbszor: VSM_TOBBSZOR, doboz: VSM_DOBOZ };
         Tüske néni vár. Sok: a vevő visszatol egy érmét.
      ② Visszajáró — a vevő nagyobbal fizet; a gyerek a kasszából a vevő tenyerébe lebegtet, és a szalag vele lép
         (37 → 40 → 50). Fokok: tízesre · tízesből · teljes · százból. Kevés: a vevő a tenyerére néz, és vár. Sok: „Ez sok!”, visszaad egyet.
-     ③ A róka blokkja — Zsivány felírja, a gyerek előbb becsül („körülbelül stimmel?”), aztán az unikornis szarva pecsétet üt
+     ③ A róka blokkja — Zsivány felírja, a gyerek előbb becsül a könyv szabálya szerint, a Zsibvásár ≈ cetlijével (keret.js kfBecsles,
+        zsibvasar-recept-lap 3. kör): tételenként a közelebbi kerek tízesre koppint, aztán beírja a kerekítettek összegét (≈ 40 + 30 = 70);
+        rossz koppintás / rossz összeg = a feladat hibája; 2. o.-ban nincs 5-re végződő ár; a küszöbön halványítva (nincs szalag, beírja).
+        Csak ezután jön a pecsét: az unikornis szarva pecsétet üt
         az eredményre: ✓ vagy ✗. 🔒 A ✗ csak jó javítással ér, a ✓ csak pontos blokkon. Hibás blokkra ✓: a vevő hazaér, és a tízes
         rudakon látszik, mi hiányzik — a szám nem.
    2 hiba után sincs kiírt megoldás: a kép segít tovább (① a pulton megjelenik az eddigi összeg, ② a szalagon a cél
@@ -18145,12 +18148,12 @@ function bkBlokkGen(st, db) {
   if (!st.sor) st.sor = rokaSor(Math.max(2, db), B);
   pontos = st.sor[st.bi % st.sor.length]; st.bi++;
   for (var p = 0; p < 60; p++) {   /* az Erdő szíve előtt átvitel nélküli blokkok (rajzterv 8. pont) */
-    var b = rokaBlokk(pontos, { tetelek: B.tetelek, hibak: tud ? null : ["tizes", "csere", "egy"] });
+    var b = rokaBlokk(pontos, { tetelek: B.tetelek, hibak: tud ? null : ["tizes", "csere", "egy"], nincsOtos: zsOsztaly() < 3 });
     var egyes = 0; b.tetelek.forEach(function (v) { egyes += v % 10; });
     if (tud || egyes < 10) break;
   }
   var aruk = mKever(BK_ARUK).slice(0, b.tetelek.length);
-  return { forma: "blokk", b: b, aruk: aruk, vevo: bkVevoValaszt("blokk"), helyes: b.helyes,
+  return { forma: "blokk", b: b, aruk: aruk, vevo: bkVevoValaszt("blokk"), helyes: b.helyes, halvany: !!st.halvany,
     naplo: { tipus: b.naplo.tipus, kerdes: b.naplo.kerdes, forma: "b", helyes: b.helyes } };
 }
 GEN.bolt = function (cfg) {
@@ -18161,13 +18164,13 @@ GEN.bolt = function (cfg) {
     var v = boltVissza(kuszob ? "teljes" : bkVisszaFok(i));
     x = { forma: "vissza", v: v, vevo: bkVevoValaszt("vissza"), helyes: v.vissza, bevalt: !kuszob && v.fok === "tizesbol",   /* 🔥 előbb beváltás */
       naplo: { tipus: "kivonas", kerdes: v.naplo.kerdes, forma: "b", helyes: v.vissza } };
-  } else x = bkBlokkGen(st, kuszob ? 2 : J.feladatDb);
+  } else { st.halvany = kuszob; x = bkBlokkGen(st, kuszob ? 2 : J.feladatDb); }
   var vn = bkVevoNev(x.vevo), kerdes, felolvas;
   if (x.forma === "fizet") { kerdes = x.kerd; felolvas = x.lepes === 1 ? vn + " " + szo(x.ar) + " tallért fizet. Segíts neki kifizetni!" : x.kerd; }
   else if (x.forma === "vissza") { kerdes = "Mennyi jár vissza?"; felolvas = vn + " " + szo(x.v.fizet) + " tallérral fizet egy " + szo(x.v.ar) + " tallérosért. Add vissza a különbséget!"; }
   else {   /* tervlap 2A: az első találkozáskor „Zsivány, a róka”, utána csak „Zsivány” */
     var elso = !J.bkRokaLatta; J.bkRokaLatta = true;
-    kerdes = "Jó a róka blokkja?"; felolvas = FIGURA.juli.n + (elso ? ", a róka felírta: " : " felírta: ") + x.b.tetelek.map(szo).join(" meg ") + ", összesen " + szo(x.b.irt) + ". Körülbelül stimmel?";
+    kerdes = "Jó a róka blokkja?"; felolvas = FIGURA.juli.n + (elso ? ", a róka felírta: " : " felírta: ") + x.b.tetelek.map(szo).join(" meg ") + ", összesen " + szo(x.b.irt) + ". Előbb becsüljük meg!";
   }
   return { csalad: "bolt", bolt: x, kartyaHTML: '<span class="bk-kerdes">' + kerdes + '</span>', szoveg: kerdes, felolvas: felolvas,
     helyes: x.helyes, keplet: kerdes, tipp: "", naplo: x.naplo };
@@ -18528,7 +18531,7 @@ function bkRokaAlap() {
   s += '<g class="bk-uni" transform="translate(164 327)"></g>';
   s += '<g transform="translate(806 40) scale(-1.05 1.05)"><g class="bk-juli"></g></g>';
   s += bkPult(262, 380, 400);
-  s += '<g class="bk-blokk"></g><g class="bk-pecsetek"></g><g class="bk-kolyok"></g><g class="bk-szikra" pointer-events="none"></g><g class="bk-bub" pointer-events="none"></g><g class="bk-otthon"></g><g class="bk-vevo"></g>';
+  s += '<g class="bk-blokk"></g><g class="bk-becsles"></g><g class="bk-pecsetek"></g><g class="bk-kolyok"></g><g class="bk-szikra" pointer-events="none"></g><g class="bk-bub" pointer-events="none"></g><g class="bk-otthon"></g><g class="bk-vevo"></g>';
   BK.svg.innerHTML = s;
   BK.uni = uniPult(bkQ(".bk-uni"), { meret: 1.58, alap: "figyel" });
   BK.juli = new Lako(bkQ(".bk-juli"), "juli", { poz: "koszon", elet: true });
@@ -18548,6 +18551,7 @@ function bkBlokkRajz() {
   s += '<text x="120" y="28" text-anchor="middle" font-size="14" ' + BK_F + ' font-weight="600" fill="#8a7a9e">Tüske néni boltja · blokk</text><path d="M20 40H220" stroke="#e7dcef" stroke-width="1.6"/>';
   b.tetelek.forEach(function (v, i) {
     var y = 76 + i * dy, a = x.aruk[i];
+    if (BK.fazis === "kerek" && i === BK.bi) s += '<rect x="12" y="' + (y - 26) + '" width="216" height="36" rx="8" fill="#fff3a0" opacity=".7"/>';   /* ≈ ezt a tételt kerekíti most */
     s += '<text x="22" y="' + y + '" font-size="20">' + a[0] + '</text><text x="52" y="' + y + '" font-size="19" ' + BK_F + ' fill="#3b4a8a">' + a[1] + '</text>';
     s += '<path d="M118 ' + (y - 6) + 'H170" stroke="#c9b6dc" stroke-width="2" stroke-dasharray="2 4"/><text x="212" y="' + y + '" text-anchor="end" font-size="26" ' + BK_F + ' font-weight="600" fill="#3b4a8a">' + v + '</text>';
   });
@@ -18580,7 +18584,7 @@ function bkRudak(n, x, y, k) {
   return s;
 }
 function bkRokaIndit(f) {
-  BK.fazis = "becsles"; BK.rajz = {};
+  BK.fazis = "kerek"; BK.rajz = {}; BK.bi = 0; BK.kerek = []; BK.hib = 0; BK.javit = "";
   bkQ(".bk-otthon").innerHTML = ""; bkQ(".bk-bub").innerHTML = "";
   bkBlokkRajz(); BK.juli.megszakit(); BK.juli.sorLe([["szamol", 1300], ["mutat", 1400], ["var", 0]]);
   if (f.bolt.vevo === "kolyok") {   /* a kölyök hozza a blokkot: besétál (az első blokknál), odanyújtja, és kérdez */
@@ -18588,21 +18592,62 @@ function bkRokaIndit(f) {
     if (be !== false) BK.kolyok.setal(be, 1400, kerd); else { BK.kolyok.setal(BK_K_BLOKK[0], 500); kerd(); }
   } else bkKolyokEl();
   BK.uni.alap = "figyel"; BK.uni.poz("figyel");
-  bkBecslesGombok();
+  bkBecslesRajz();
 }
-function bkBecslesGombok() {
-  bkGombok('<span class="bk-kerd">Körülbelül stimmel?</span><button class="kis-gomb bk-g" data-g="keves">Túl kevés</button><button class="kis-gomb bk-g" data-g="jo">Stimmelhet</button><button class="kis-gomb bk-g" data-g="sok">Túl sok</button>');
+/* ≈ a becslés (zsibvasar-recept-lap 3. kör, a könyv szabálya: előbb minden tagot kerekítünk, aztán a kerekítetteket adjuk össze):
+   „kerek” — a soron lévő tétel ≈ cetlije a pulton, a blokk alatt (koppintás a közelebbi tízesre; halványítva a gyerek írja) ·
+   „becs” — a kerekítettek összege, a gyerek írja. A pecsét addig nem nyomható (halvány). csakKep: a gombsort (a beíró mezőt) nem rajzolja újra. */
+var BK_CETLI = [270, 282, .78];
+function bkBecslesRajz(csakKep) {
+  var x = BK.f.bolt, g = bkQ(".bk-becsles"), s = "", pe = bkQ(".bk-pecsetek"), ar = x.b.tetelek[BK.bi];
+  if (BK.fazis === "kerek") {
+    var all = x.halvany ? "halvany" : BK.hib >= 1 ? "hiba" : "ures";
+    s = kfBecsles(BK_CETLI[0], BK_CETLI[1], BK_CETLI[2], ar, all, x.halvany ? BK.javit : "", !x.halvany && !BK.lezart);
+  } else if (BK.fazis === "becs") {
+    s = '<g transform="translate(' + BK_CETLI[0] + ' ' + (BK_CETLI[1] + 20) + ')"><path d="M12 6H222V82H12Z" fill="#fffdf3" stroke="#c9b48a" stroke-width="1.8" transform="rotate(-1.2 117 44)"/><circle cx="117" cy="10" r="4" fill="#e8505b" stroke="#a83a44" stroke-width="1.2"/>' +
+      '<text x="117" y="56" text-anchor="middle" font-size="24" ' + BK_F + ' font-weight="600" fill="#4a3b7a">≈ ' + BK.kerek.join(" + ") + ' = ' + (BK.javit || "?") + '</text></g>';
+  }
+  g.innerHTML = s;
+  if (pe) pe.style.opacity = BK.fazis === "kerek" || BK.fazis === "becs" ? ".4" : "";
+  if (csakKep) return;
+  if (BK.fazis === "kerek") {
+    if (x.halvany) bkSzamGombok("Kerekítsd tízesre: " + ar + " ≈ ?", "a kerekített szám");
+    else bkGombok('<span class="bk-kerd">' + ar + ' ≈ ? Koppints a közelebbi kerek tízesre!</span>');
+  } else if (BK.fazis === "becs") bkSzamGombok("Add össze a kerekítetteket:", "a kerekítettek összege");
 }
-function bkBecsles(v) {
-  var b = BK.f.bolt.b, kerek = b.tetelek.map(kerekTizes), k = 0; kerek.forEach(function (q) { k += q; });
-  var elter = b.irt - k, val = elter < -5 * b.tetelek.length ? "keves" : elter > 5 * b.tetelek.length ? "sok" : "jo";
-  BK.rajz.becsles = "kb. " + kerek.join(" + ") + " = " + k;
-  bkBlokkRajz();
-  BK.fazis = "pecset";
-  var jo = v === val;
-  BK.uni.poz(jo ? "orul" : "gondol", 1400);
-  var m = (jo ? "Jó becslés! " : "Nézd a kerek számokat a cetlin! ") + "Most nyomj pecsétet: jó vagy hibás?";
-  $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = m; mondd(m);   /* a becslés nem hiba és nem jutalom: csak a gondolkodás iránya */
+/* egy tétel kerekítése: v a koppintott (vagy beírt) tízes */
+function bkKerekit(v) {
+  var f = BK.f, x = f.bolt, ar = x.b.tetelek[BK.bi], e = becslesEll(ar, v);
+  if (!BK.hib) zsBecsJegyez(becslesBetu(e));
+  BK.javit = "";
+  if (!e.jo) {
+    var m = becslesKerekSzoveg(ar, e, BK.hib, x.halvany);
+    BK.hib++; BK.uni.poz("gondol", 1600); bkBecslesRajz();
+    bkRossz(f, "≈ " + v, m, m);
+    return;
+  }
+  hangCsilla(); BK.kerek.push(v); BK.bi++; BK.hib = 0;
+  if (BK.bi >= x.b.tetelek.length) BK.fazis = "becs";
+  $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = "";
+  bkBlokkRajz(); bkBecslesRajz();
+  if (BK.fazis === "becs") mondd("Add össze a kerekített számokat!");
+}
+/* a kerekítettek összege; utána a blokkon a ≈ sor, és jöhet a pecsét */
+function bkBecsOk(v) {
+  var f = BK.f, x = f.bolt, b = becslesOsszeg(x.b.tetelek);
+  BK.javit = "";
+  if (v !== b) {
+    if (!BK.hib) zsBecsJegyez(v === kerekTizes(tallerOsszeg(x.b.tetelek)) ? "P" : "Ö");
+    var m = becslesOsszegSzoveg(x.b.tetelek, BK.kerek, v, BK.hib);
+    BK.hib++; BK.uni.poz("gondol", 1600); bkBecslesRajz();
+    bkRossz(f, "≈ " + v, m, m);
+    return;
+  }
+  hangCsilla(); BK.hib = 0;
+  BK.rajz.becsles = "≈ " + BK.kerek.join(" + ") + " = " + b;
+  BK.fazis = "pecset"; bkBlokkRajz(); bkBecslesRajz();
+  BK.uni.poz("orul", 1200);
+  var m2 = "Most nyomj pecsétet: jó vagy hibás?"; $("visszajelzes").className = "visszajelzes"; $("visszajelzes").textContent = m2; mondd(m2);
   bkGombok('<span class="bk-kerd">Koppints a pecsétre: ✓ jó · ✗ hibás</span>');
 }
 /* a pecsétet az unikornis szarva emeli fel, átviszi a blokkra, ráüti, és visszateszi */
@@ -18621,8 +18666,7 @@ function bkPecsetRepul(p, kesz) {
 function bkJegyez(ell) { if (!BK.jegyzett) { BK.jegyzett = true; rokaJegyez(BK.f.bolt.b, ell); } }   /* 🦊 napló: csak az első ítélet számít */
 function bkPecsetKatt(v) {
   var f = BK.f, b = f.bolt.b;
-  if (BK.fazis === "becsles") BK.fazis = "pecset";
-  if (BK.fazis !== "pecset" || BK.mozog) return;
+  if (BK.fazis !== "pecset" || BK.mozog) return;   /* előbb a becslés (a pecsét addig halvány) */
   hangGomb(); bkGombok("");
   bkPecsetRepul(bkQ('.bk-pecset[data-v="' + v + '"]'), function () {
     if (!BK || BK.f !== f) return;
@@ -18653,20 +18697,28 @@ function bkPecsetKatt(v) {
 }
 /* a javítás a BILLENTYŰZETRŐL jön (élő próba, 2026-10-24): nincs képernyős számsor. A mező valódi beviteli mező
    (tableten a rendszer számbillentyűzete jön fel), de a gép billentyűzete akkor is ide ír, ha a fókusz máshol van. */
-function bkJavitGombok() {
-  bkGombok('<span class="bk-kerd">Írd be a jót a billentyűzeten:</span><input id="bk-beiras" class="bk-beiras" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="a javított összeg" value="' + (BK.javit || "") + '"><button class="nagy-gomb bk-kesz" data-g="javok">OK</button>');
+function bkJavitGombok() { bkSzamGombok("Írd be a jót a billentyűzeten:", "a javított összeg"); }
+function bkSzamGombok(kerd, cimke) {
+  bkGombok('<span class="bk-kerd">' + kerd + '</span><input id="bk-beiras" class="bk-beiras" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="' + cimke + '" value="' + (BK.javit || "") + '"><button class="nagy-gomb bk-kesz" data-g="javok">OK</button>');
   var be = $("bk-beiras");
-  be.addEventListener("input", function () { BK.javit = be.value.replace(/[^0-9]/g, "").slice(0, 3); be.value = BK.javit; });
+  be.addEventListener("input", function () { BK.javit = be.value.replace(/[^0-9]/g, "").slice(0, 3); be.value = BK.javit; bkBeirasKep(); });
   try { if (!(window.matchMedia && matchMedia("(pointer: coarse)").matches)) be.focus(); } catch (e) {}
 }
+/* ≈ a beírt szám a képen is (a cetlin / a ≈ sorban); a mező marad, a fókusz nem vész el */
+function bkBeirasKep() { if (BK.fazis === "becs" || BK.fazis === "kerek") bkBecslesRajz(true); }
+function bkSzamFazis() { return BK.fazis === "javit" || BK.fazis === "becs" || (BK.fazis === "kerek" && !!BK.f && BK.f.bolt.halvany); }
 function bkJavitBe(jel) {
-  if (BK.fazis !== "javit" || BK.lezart) return;
+  if (!bkSzamFazis() || BK.lezart) return;
   if (jel === "del") BK.javit = BK.javit.slice(0, -1);
   else if (BK.javit.length < 3) BK.javit += jel;
   var b = $("bk-beiras"); if (b) b.value = BK.javit;
+  bkBeirasKep();
 }
 function bkJavitOk() {
-  var f = BK.f, b = f.bolt.b; if (BK.fazis !== "javit" || BK.lezart || !BK.javit) return;
+  if (BK.lezart || !BK.javit) return;
+  if (BK.fazis === "kerek" && BK.f.bolt.halvany) { bkKerekit(parseInt(BK.javit, 10)); return; }
+  if (BK.fazis === "becs") { bkBecsOk(parseInt(BK.javit, 10)); return; }
+  var f = BK.f, b = f.bolt.b; if (BK.fazis !== "javit") return;
   var be = parseInt(BK.javit, 10), ell = rokaPecsetEll(b, "x", be);
   bkJegyez(ell);
   if (ell.jo) {
@@ -18825,6 +18877,8 @@ function bkKatt(ev) {
   if (er && !BK.lezart && !er.classList.contains("all")) { bkErmeKatt(er.getAttribute("data-id")); return; }
   var pe = t.closest ? t.closest(".bk-pecset") : null;
   if (pe && !BK.lezart) bkPecsetKatt(pe.getAttribute("data-v"));
+  var kv = t.closest ? t.closest(".kf-veg") : null;
+  if (kv && !BK.lezart && BK.fazis === "kerek" && !BK.f.bolt.halvany) { hangGomb(); bkKerekit(+kv.getAttribute("data-v")); }
   if (BK.fazis === "bevalt" && !BK.lezart && t.closest && t.closest(".bk-kopp")) bkOlvaszt();
 }
 function bkGombKatt(ev) {
@@ -18832,14 +18886,13 @@ function bkGombKatt(ev) {
   if (!b || !bkAktiv()) return;
   var g = b.getAttribute("data-g"), x = BK.f.bolt;
   if (g === "kesz" && !BK.lezart) { hangGomb(); if (x.forma === "fizet") bkFizetKesz(); else bkVisszaKesz(); }
-  else if ((g === "keves" || g === "jo" || g === "sok") && BK.fazis === "becsles") { hangGomb(); bkBecsles(g); }
   else if (g.charAt(0) === "d" && g.length === 2) { hangGomb(); bkJavitBe(g.charAt(1)); }
   else if (g === "del") { hangGomb(); bkJavitBe("del"); }
   else if (g === "javok") { hangGomb(); bkJavitOk(); }
   else if (g === "vissza" && BK.fazis === "otthon") { hangGomb(); bkVisszaBlokk(); }
 }
 function bkBillentyu(e) {
-  if (!bkAktiv() || BK.fazis !== "javit") return;
+  if (!bkAktiv() || !bkSzamFazis()) return;
   if (document.activeElement === $("bk-beiras")) { if (e.key === "Enter") { e.preventDefault(); bkJavitOk(); } return; }   /* a mező maga kezeli a számjegyeket */
   var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */
   if (d !== null) { e.preventDefault(); bkJavitBe(d); }
@@ -19871,6 +19924,20 @@ function zsLep(x, lep, csendben, hibMarad) {   /* hibMarad: vissza ugyanabba a l
 }
 /* a becslési hibák naplója (a pult ≈ sora, 2. kör): J jó · S távolabbi szomszéd · O 5-re végződőt lefelé · K kerek tízest elmozdított ·
    T nem szomszéd · Ö a kerekítettek összege rossz · P a pontos összeget kerekítette a tagok helyett */
+/* ≈ közös a Tüske-bolttal (bolt-kep.js, recept-lap 3. kör): a napló betűje és a hiba-lépcső mondatai — egy helyen, hogy mindkét bolt ugyanazt mondja.
+   hib: ennyi hiba volt eddig ebben a lépésben (0 → a kép mutat, 1-től lépésenként) */
+function becslesBetu(e) { return e.jo ? "J" : { szomszed: "S", otos: "O", kerek: "K", tav: "T" }[e.hiba]; }
+function becslesKerekSzoveg(ar, e, hib, halvany) {
+  var also = Math.floor(ar / 10) * 10;
+  return e.hiba === "kerek" ? szo(ar) + ": ez már kerek tízes. Maga marad." :
+    e.hiba === "otos" ? "Pont középen van. Ilyenkor felfelé kerekítünk." :
+    hib === 0 && !halvany ? "Melyik tízes van közelebb? Számold meg a lépéseket!" :
+    zsCap(szo(ar)) + " " + zsAz(also) + " és " + zsAz(also + 10) + " között van. " + zsCap(zsAz(also)) + "ig " + zsKet(ar - also) + " lépés, " + zsAz(also + 10) + "ig " + zsKet(also + 10 - ar) + ". Melyik van közelebb?";
+}
+function becslesOsszegSzoveg(lista, kerek, v, hib) {
+  return v === kerekTizes(tallerOsszeg(lista)) ? "Előbb minden tagot kerekítünk, aztán a kerekítetteket adjuk össze." :
+    hib === 0 ? "Add össze a kerekített számokat: " + kerek.map(szo).join(" meg ") + "." : zsOsszegLepesek(kerek);
+}
 function zsBecsJegyez(betu) { var p = P(), z = p.zsib || (p.zsib = {}); z.becs = ((z.becs || "") + betu).slice(-16); ment(); }
 
 /* ═════════════════ ZSIVÁNY (a lakok.js rigje; a kép újrarajzolása után ugyanaz a figura kerül vissza, és mozog tovább) ═════════════════ */
@@ -20001,16 +20068,8 @@ function zsBecsNaplo(mit) { return { tipus: "becsles", kerdes: "≈ " + mit, for
 /* ≈ egy tétel kerekítése (koppintás a cetli tízesére, vagy halványítva beírás) */
 function zsKerekit(x, v) {
   var ar = x.lista[x.i], e = becslesEll(ar, v);
-  if (!x.hib) zsBecsJegyez(e.jo ? "J" : { szomszed: "S", otos: "O", kerek: "K", tav: "T" }[e.hiba]);
-  if (!e.jo) {
-    var also = Math.floor(ar / 10) * 10;
-    zsRossz(x, "≈ " + v, zsBecsNaplo(ar),
-      e.hiba === "kerek" ? szo(ar) + ": ez már kerek tízes. Maga marad." :
-      e.hiba === "otos" ? "Pont középen van. Ilyenkor felfelé kerekítünk." :
-      x.hib === 0 && !x.halvany ? "Melyik tízes van közelebb? Számold meg a lépéseket!" :
-      zsCap(szo(ar)) + " " + zsAz(also) + " és " + zsAz(also + 10) + " között van. " + zsCap(zsAz(also)) + "ig " + zsKet(ar - also) + " lépés, " + zsAz(also + 10) + "ig " + zsKet(also + 10 - ar) + ". Melyik van közelebb?");
-    return;
-  }
+  if (!x.hib) zsBecsJegyez(becslesBetu(e));
+  if (!e.jo) { zsRossz(x, "≈ " + v, zsBecsNaplo(ar), becslesKerekSzoveg(ar, e, x.hib, x.halvany)); return; }
   hangCsilla(); x.kerek.push(v); x.i++;
   if (x.i < x.lista.length) { zsLep(x, "kerek"); return; }
   zsLep(x, "becs");
@@ -20021,8 +20080,7 @@ function zsBecs(x, v) {
   if (v !== b) {
     var p = v === kerekTizes(tallerOsszeg(x.lista));
     if (!x.hib) zsBecsJegyez(p ? "P" : "Ö");
-    zsRossz(x, "≈ " + v, zsBecsNaplo(x.kerek.join(" + ")), p ? "Előbb minden tagot kerekítünk, aztán a kerekítetteket adjuk össze." :
-      x.hib === 0 ? "Add össze a kerekített számokat: " + x.kerek.map(szo).join(" meg ") + "." : zsOsszegLepesek(x.kerek));
+    zsRossz(x, "≈ " + v, zsBecsNaplo(x.kerek.join(" + ")), becslesOsszegSzoveg(x.lista, x.kerek, v, x.hib));
     return;
   }
   hangCsilla(); x.becsles = v;

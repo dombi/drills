@@ -18,7 +18,8 @@ window.__KK = (function () {
     if (f.csalad === "bolt") {   /* 🏪 Tüske néni boltja (bolt-kep.js): a kép vár, ha nincs lezárva, és van mit koppintani */
       var B = UC.bk && UC.bk(); if (!B || B.f !== f || B.lezart || B.mozog || B.fazis === "otthon") return false;
       if (B.fazis === "bevalt") return lat("#bk-svg .bk-kopp");   /* 🔥 beváltás: a keret és a koppintható kölyök / unikornis */
-      return B.forma === "blokk" ? (B.fazis === "javit" ? lat('#bk-gombok [data-g="javok"]') : lat("#bk-svg .bk-pecset")) : lat('#bk-gombok [data-g="kesz"]');
+      if (B.forma === "blokk" && B.fazis === "kerek" && !f.bolt.halvany) return lat("#bk-svg .kf-veg");   /* ≈ cetli (zsibvasar-recept-lap 3. kör) */
+      return B.forma === "blokk" ? (B.fazis === "javit" || B.fazis === "becs" || B.fazis === "kerek" ? lat('#bk-gombok [data-g="javok"]') : lat("#bk-svg .bk-pecset")) : lat('#bk-gombok [data-g="kesz"]');
     }
     if (f.csalad === "jelenet") {   /* 🎬 receptes pálya képe (jelenet.js): amíg a kép lezár (ünnepel, kigurul), nem vár */
       var JLx = UC.jl && UC.jl(); return !!(JLx && JLx.f === f && !JLx.lezart) && lat("#jl-svg");
@@ -95,6 +96,12 @@ window.__KK = (function () {
       if (x.forma === "vissza") return { mod: "katt", sel: le("tenyer").concat(legk(x.v.vissza).map(function (v) { return es("kassza", v); })).concat([kesz]), rossz: kesz };
       var ps = function (v) { return '#bk-svg .bk-pecset[data-v="' + v + '"] rect'; };
       if (B.fazis === "javit") return { mod: "gepel", sor: jegyek(x.b.helyes), szam: x.b.helyes, max: 3 };   /* a javítás billentyűzetről */
+      if (B.fazis === "kerek") {   /* ≈ tételenként a közelebbi tízes (koppintás; a küszöbön beírás) · rossz: a másik szomszéd */
+        var ar = x.b.tetelek[B.bi], jt = UC.kerekTizes(ar), mt = jt === Math.floor(ar / 10) * 10 ? jt + 10 : jt - 10;
+        if (x.halvany) return { mod: "gepel", sor: jegyek(jt), szam: jt, max: 3 };
+        return { mod: "katt", sel: ['#bk-svg .kf-veg[data-v="' + jt + '"] circle'], rossz: '#bk-svg .kf-veg[data-v="' + mt + '"] circle' };
+      }
+      if (B.fazis === "becs") { var bs = UC.becslesOsszeg(x.b.tetelek); return { mod: "gepel", sor: jegyek(bs), szam: bs, max: 3 }; }   /* ≈ a kerekítettek összege */
       return { mod: "katt", sel: [ps(x.b.pontos ? "ok" : "x")], rossz: ps(x.b.pontos ? "x" : "ok") };
     }
     if (f.csalad === "jelenet") {   /* 🎬 a kép mondja meg (JELENETEK[…].gepi): koppintások sorban (+ egy rossz koppintás, ha van), vagy a szám a táblára — 🏡 🪜 */

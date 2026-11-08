@@ -272,6 +272,20 @@ function zsLep(x, lep, csendben, hibMarad) {   /* hibMarad: vissza ugyanabba a l
 }
 /* a becslési hibák naplója (a pult ≈ sora, 2. kör): J jó · S távolabbi szomszéd · O 5-re végződőt lefelé · K kerek tízest elmozdított ·
    T nem szomszéd · Ö a kerekítettek összege rossz · P a pontos összeget kerekítette a tagok helyett */
+/* ≈ közös a Tüske-bolttal (bolt-kep.js, recept-lap 3. kör): a napló betűje és a hiba-lépcső mondatai — egy helyen, hogy mindkét bolt ugyanazt mondja.
+   hib: ennyi hiba volt eddig ebben a lépésben (0 → a kép mutat, 1-től lépésenként) */
+function becslesBetu(e) { return e.jo ? "J" : { szomszed: "S", otos: "O", kerek: "K", tav: "T" }[e.hiba]; }
+function becslesKerekSzoveg(ar, e, hib, halvany) {
+  var also = Math.floor(ar / 10) * 10;
+  return e.hiba === "kerek" ? szo(ar) + ": ez már kerek tízes. Maga marad." :
+    e.hiba === "otos" ? "Pont középen van. Ilyenkor felfelé kerekítünk." :
+    hib === 0 && !halvany ? "Melyik tízes van közelebb? Számold meg a lépéseket!" :
+    zsCap(szo(ar)) + " " + zsAz(also) + " és " + zsAz(also + 10) + " között van. " + zsCap(zsAz(also)) + "ig " + zsKet(ar - also) + " lépés, " + zsAz(also + 10) + "ig " + zsKet(also + 10 - ar) + ". Melyik van közelebb?";
+}
+function becslesOsszegSzoveg(lista, kerek, v, hib) {
+  return v === kerekTizes(tallerOsszeg(lista)) ? "Előbb minden tagot kerekítünk, aztán a kerekítetteket adjuk össze." :
+    hib === 0 ? "Add össze a kerekített számokat: " + kerek.map(szo).join(" meg ") + "." : zsOsszegLepesek(kerek);
+}
 function zsBecsJegyez(betu) { var p = P(), z = p.zsib || (p.zsib = {}); z.becs = ((z.becs || "") + betu).slice(-16); ment(); }
 
 /* ═════════════════ ZSIVÁNY (a lakok.js rigje; a kép újrarajzolása után ugyanaz a figura kerül vissza, és mozog tovább) ═════════════════ */
@@ -402,16 +416,8 @@ function zsBecsNaplo(mit) { return { tipus: "becsles", kerdes: "≈ " + mit, for
 /* ≈ egy tétel kerekítése (koppintás a cetli tízesére, vagy halványítva beírás) */
 function zsKerekit(x, v) {
   var ar = x.lista[x.i], e = becslesEll(ar, v);
-  if (!x.hib) zsBecsJegyez(e.jo ? "J" : { szomszed: "S", otos: "O", kerek: "K", tav: "T" }[e.hiba]);
-  if (!e.jo) {
-    var also = Math.floor(ar / 10) * 10;
-    zsRossz(x, "≈ " + v, zsBecsNaplo(ar),
-      e.hiba === "kerek" ? szo(ar) + ": ez már kerek tízes. Maga marad." :
-      e.hiba === "otos" ? "Pont középen van. Ilyenkor felfelé kerekítünk." :
-      x.hib === 0 && !x.halvany ? "Melyik tízes van közelebb? Számold meg a lépéseket!" :
-      zsCap(szo(ar)) + " " + zsAz(also) + " és " + zsAz(also + 10) + " között van. " + zsCap(zsAz(also)) + "ig " + zsKet(ar - also) + " lépés, " + zsAz(also + 10) + "ig " + zsKet(also + 10 - ar) + ". Melyik van közelebb?");
-    return;
-  }
+  if (!x.hib) zsBecsJegyez(becslesBetu(e));
+  if (!e.jo) { zsRossz(x, "≈ " + v, zsBecsNaplo(ar), becslesKerekSzoveg(ar, e, x.hib, x.halvany)); return; }
   hangCsilla(); x.kerek.push(v); x.i++;
   if (x.i < x.lista.length) { zsLep(x, "kerek"); return; }
   zsLep(x, "becs");
@@ -422,8 +428,7 @@ function zsBecs(x, v) {
   if (v !== b) {
     var p = v === kerekTizes(tallerOsszeg(x.lista));
     if (!x.hib) zsBecsJegyez(p ? "P" : "Ö");
-    zsRossz(x, "≈ " + v, zsBecsNaplo(x.kerek.join(" + ")), p ? "Előbb minden tagot kerekítünk, aztán a kerekítetteket adjuk össze." :
-      x.hib === 0 ? "Add össze a kerekített számokat: " + x.kerek.map(szo).join(" meg ") + "." : zsOsszegLepesek(x.kerek));
+    zsRossz(x, "≈ " + v, zsBecsNaplo(x.kerek.join(" + ")), becslesOsszegSzoveg(x.lista, x.kerek, v, x.hib));
     return;
   }
   hangCsilla(); x.becsles = v;
