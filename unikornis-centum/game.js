@@ -4434,6 +4434,7 @@ function profilNormal(p, k) {
   var alapL = (k && LENYEK[k]) || {};
   if (typeof p.csillampor !== "number") p.csillampor = 0;
   if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
+  if (p.csillampor < 0) p.csillampor = 0; if (p.tunderharmat < 0) p.tunderharmat = 0;   /* a már mínuszba csúszott pénz (két helyen költött ✨) javítása betöltéskor */
   if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
   if (typeof p.jatekMp !== "number") p.jatekMp = 0;
   if (!p.odu) p.odu = alapOdu();
@@ -34523,7 +34524,8 @@ var FELHO_KAPCS = "uc_felho";               /* localStorage: "1" = felhő-mód b
 var FELHO_GAZDA = "uc_felho_gazda";         /* localStorage: melyik fiók (uid) adatai vannak a helyi mentésben */
 var FELHO_GEP_JATEKOSOK = "uc_gep_jatekosok";   /* localStorage: kik léptek be ezen a gépen (névkártyához: kód + unikornis-kinézet); 2+ = közös gép */
 var FELHO_MENTES_ELOTTE = "unikornis_centum_v1_felho_elott";   /* biztonsági másolat az első felhő-felülírás előtt */
-var FELHO_SZAMLALOK = { csillampor: 1, tunderharmat: 1, jatekMp: 1 };   /* ezek delta-alapon (increment) szinkronizálnak */
+var FELHO_SZAMLALOK = { csillampor: 1, tunderharmat: 1, jatekMp: 1 };
+var FELHO_PENZ = { csillampor: 1, tunderharmat: 1 };   /* a számlálók közül ezek pénzek: sosem mehetnek 0 alá (sync.js, mentes.js) */   /* ezek delta-alapon (increment) szinkronizálnak */
 /* 📴 Offline 1. kör — „semmi nem vész el" (terv/offline-jatek-rendszerterv.html) */
 var FELHO_ALAP_ELOTAG = "uc_felho_alap_";   /* + uid: az utolsó, a felhőbe biztosan eljutott állapot (FELHO.alap tükre) — az offline összefésülés alapja */
 var FELHO_KULDETLEN = "uc_kuldetlen";       /* uid: a helyi mentésben van olyan, ami még nem jutott el a felhőbe (net nélkül játszott) */
@@ -34989,6 +34991,9 @@ function felhoOsszefesul(helyi, alap, tavoli, felso) {
       if (felhoOsszefesul(helyi[k], a, t, false)) volt = true;
     } else if (felso && FELHO_SZAMLALOK[k] && typeof a === "number" && typeof t === "number" && typeof helyi[k] === "number") {
       helyi[k] += (t - a); volt = true;
+      /* 💰 a pénz sosem negatív: ha két helyen (két fül, két gép, net nélkül) ugyanazt költötte el, a különbségek összege mínuszba vinné
+         (Fanni: ✨ −71, 2026-11-07). A hiányt elengedjük; a következő mentés a felhőt is 0-ra húzza (increment a különbséggel). */
+      if (FELHO_PENZ[k] && helyi[k] < 0) helyi[k] = 0;
     } else if (t === undefined) {
       if (k in helyi) { delete helyi[k]; volt = true; }
     } else if (!felhoEgyenlo(helyi[k], t)) {

@@ -21,6 +21,7 @@ function profilNormal(p, k) {
   var alapL = (k && LENYEK[k]) || {};
   if (typeof p.csillampor !== "number") p.csillampor = 0;
   if (typeof p.tunderharmat !== "number") p.tunderharmat = 0;   /* kitartás-valuta (7.2) — új mentésekhez 0-ról */
+  if (p.csillampor < 0) p.csillampor = 0; if (p.tunderharmat < 0) p.tunderharmat = 0;   /* a már mínuszba csúszott pénz (két helyen költött ✨) javítása betöltéskor */
   if (!p.palyak) p.palyak = {}; if (!p.naplo) p.naplo = [];
   if (typeof p.jatekMp !== "number") p.jatekMp = 0;
   if (!p.odu) p.odu = alapOdu();

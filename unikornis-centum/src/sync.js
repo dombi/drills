@@ -142,6 +142,9 @@ function felhoOsszefesul(helyi, alap, tavoli, felso) {
       if (felhoOsszefesul(helyi[k], a, t, false)) volt = true;
     } else if (felso && FELHO_SZAMLALOK[k] && typeof a === "number" && typeof t === "number" && typeof helyi[k] === "number") {
       helyi[k] += (t - a); volt = true;
+      /* 💰 a pénz sosem negatív: ha két helyen (két fül, két gép, net nélkül) ugyanazt költötte el, a különbségek összege mínuszba vinné
+         (Fanni: ✨ −71, 2026-11-07). A hiányt elengedjük; a következő mentés a felhőt is 0-ra húzza (increment a különbséggel). */
+      if (FELHO_PENZ[k] && helyi[k] < 0) helyi[k] = 0;
     } else if (t === undefined) {
       if (k in helyi) { delete helyi[k]; volt = true; }
     } else if (!felhoEgyenlo(helyi[k], t)) {
