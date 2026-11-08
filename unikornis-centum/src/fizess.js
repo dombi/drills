@@ -326,7 +326,7 @@ JELENETEK.fizess = {
   kep: function () { var K = zsK(); return { vb: K.vb, tabla: null, uni: K.uni }; },
   rajz: function (JL) {
     var K = zsK(), s = '<defs>' + HE_DEFS + '</defs>' + zsHatter(JL);
-    s += '<g transform="' + K.stand + '">' + zsStand(true, false) + '</g>';   /* a kassza nagyban, a munka-részben (üres) */
+    s += '<g transform="' + K.stand + '">' + zsStand(true, false, true) + '</g>';   /* reggeli stand: a ponyva félig feltekerve */   /* a kassza nagyban, a munka-részben (üres) */
     s += '<g class="zs-kolyok-hely"></g>';
     s += '<g transform="translate(' + K.m[0] + ' ' + K.m[1] + ') scale(' + K.m[2] + ')">' + fpRajz(JL) + '</g>';
     return zsHe(s);

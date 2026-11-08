@@ -20251,8 +20251,9 @@ function zsKacat(tipus, x, y, ar) {
   return s + '</g>';
 }
 /* a szekér-stand (rajzterv 1. pont, oldalnézet): hátfal + polc + kacatok, Zsivány helye, ponyva + cégér, elöl a pult és a kerék.
-   zsivany: a figura helye (a pályán él; a térképen nincs) · kassza: a pulton a kassza (rendes nap, minden rekeszben van) */
-function zsStand(zsivany, kassza) {
+   zsivany: a figura helye (a pályán él; a térképen nincs) · kassza: a pulton a kassza (rendes nap, minden rekeszben van) ·
+   reggel: 💰 Fizess pontosan („reggel még üres a kassza”, recept-lap 7. pont): a ponyva félig fel van tekerve, a tekercset két szíj tartja */
+function zsStand(zsivany, kassza, reggel) {
   var s = '<g filter="url(#lt-firka)"><rect x="408" y="140" width="292" height="170" fill="#e9c193" stroke="#8a5a3a" stroke-width="2.4"/>', i;
   for (i = 0; i < 7; i++) s += '<path d="M' + (450 + i * 42) + ' 140V310" stroke="#d6a46f" stroke-width="1.6"/>';
   s += '<rect x="414" y="214" width="280" height="8" rx="2" fill="#b07a4c" stroke="#7a4f2c" stroke-width="1.6"/>' +
@@ -20260,10 +20261,19 @@ function zsStand(zsivany, kassza) {
   s += zsKacat("teafozo", 438, 212) + zsKacat("ora", 490, 212) + zsKacat("lampas", 540, 212) + zsKacat("konyvek", 678, 212) + zsKacat("csizma", 436, 300) + zsKacat("kalap", 668, 300);
   if (zsivany) s += '<g transform="translate(752 62) scale(-1.1 1.1)"><g class="zs-juli-hely"></g></g>';
   /* ponyva: zöld–krém csíkok, cakkos szél (Zsivány füle elé kerül) */
-  s += '<g transform="translate(0 -26)"><g filter="url(#lt-firka)"><path d="M380 104L728 104L742 132L366 132Z" fill="#fffaf0" stroke="#4f8f42" stroke-width="2.4"/>';
-  for (i = 0; i < 9; i++) { var x0 = 380 + i * 38.7, x1 = x0 + 19.3; s += '<path d="M' + pcF(x0) + ' 104L' + pcF(x1) + ' 104L' + pcF(x1 - 7 + i * 1.7) + ' 132L' + pcF(x0 - 14 + i * 1.7) + ' 132Z" fill="#8fd18a"/>'; }
-  var cakk = "M366 132"; for (i = 0; i < 12; i++) { var a = 366 + i * 31.3; cakk += "Q" + pcF(a + 15.6) + " 150 " + pcF(a + 31.3) + " 132"; }
-  s += '<path d="' + cakk + 'Z" fill="#8fd18a" stroke="#4f8f42" stroke-width="2.2"/><path d="M380 104Q554 76 728 104" fill="#a7d99a" stroke="#4f8f42" stroke-width="2.2"/></g></g>';
+  var py = reggel ? 116 : 132, dx = reggel ? 6 : 14;   /* reggel: rövidebb ponyva, alul a tekercs */
+  s += '<g transform="translate(0 -26)"><g filter="url(#lt-firka)"><path d="M380 104L728 104L' + (728 + dx) + ' ' + py + 'L' + (380 - dx) + ' ' + py + 'Z" fill="#fffaf0" stroke="#4f8f42" stroke-width="2.4"/>';
+  for (i = 0; i < 9; i++) { var x0 = 380 + i * 38.7, x1 = x0 + 19.3, k = reggel ? .5 : 1; s += '<path d="M' + pcF(x0) + ' 104L' + pcF(x1) + ' 104L' + pcF(x1 + (-7 + i * 1.7) * k) + ' ' + py + 'L' + pcF(x0 + (-14 + i * 1.7) * k) + ' ' + py + 'Z" fill="#8fd18a"/>'; }
+  if (reggel) {   /* a feltekert ponyva: csíkos henger, csiga-végek, két szíj */
+    s += '<rect x="368" y="110" width="372" height="18" rx="9" fill="#fffaf0" stroke="#4f8f42" stroke-width="2.2"/>';
+    for (i = 0; i < 14; i++) s += '<path d="M' + pcF(380 + i * 26) + ' 111L' + pcF(392 + i * 26) + ' 127" stroke="#8fd18a" stroke-width="7"/>';
+    [372, 736].forEach(function (cx) { s += '<circle cx="' + cx + '" cy="119" r="9" fill="#a7d99a" stroke="#4f8f42" stroke-width="2"/><path d="M' + cx + ' 119m-4 0a4 4 0 1 1 4 4a2.4 2.4 0 1 1 -2.4 -2.4" fill="none" stroke="#4f8f42" stroke-width="1.4"/>'; });
+    [452, 656].forEach(function (sx) { s += '<path d="M' + sx + ' 106V131" stroke="#8a5a3a" stroke-width="5" stroke-linecap="round"/><rect x="' + (sx - 4) + '" y="124" width="8" height="6" rx="1.5" fill="#fce49a" stroke="#8a5a3a" stroke-width="1.2"/>'; });
+  } else {
+    var cakk = "M366 132"; for (i = 0; i < 12; i++) { var a = 366 + i * 31.3; cakk += "Q" + pcF(a + 15.6) + " 150 " + pcF(a + 31.3) + " 132"; }
+    s += '<path d="' + cakk + 'Z" fill="#8fd18a" stroke="#4f8f42" stroke-width="2.2"/>';
+  }
+  s += '<path d="M380 104Q554 76 728 104" fill="#a7d99a" stroke="#4f8f42" stroke-width="2.2"/></g></g>';
   s += '<g filter="url(#lt-firka)"><path d="M404 74H300" stroke="#7a4f2c" stroke-width="5" stroke-linecap="round"/><path d="M318 76V86M386 76V86" stroke="#7a4f2c" stroke-width="2"/>' +
        '<rect x="292" y="86" width="118" height="48" rx="10" fill="#fff4e8" stroke="#b35f28" stroke-width="2.6"/>' +
        '<path d="M298 128C320 140 360 140 378 126C366 128 350 126 340 122" fill="#f4a15e" stroke="#b35f28" stroke-width="1.6"/><path d="M372 126C378 124 384 120 386 116C382 124 378 128 372 130Z" fill="#fff"/></g>' +
@@ -20749,7 +20759,7 @@ JELENETEK.fizess = {
   kep: function () { var K = zsK(); return { vb: K.vb, tabla: null, uni: K.uni }; },
   rajz: function (JL) {
     var K = zsK(), s = '<defs>' + HE_DEFS + '</defs>' + zsHatter(JL);
-    s += '<g transform="' + K.stand + '">' + zsStand(true, false) + '</g>';   /* a kassza nagyban, a munka-részben (üres) */
+    s += '<g transform="' + K.stand + '">' + zsStand(true, false, true) + '</g>';   /* reggeli stand: a ponyva félig feltekerve */   /* a kassza nagyban, a munka-részben (üres) */
     s += '<g class="zs-kolyok-hely"></g>';
     s += '<g transform="translate(' + K.m[0] + ' ' + K.m[1] + ') scale(' + K.m[2] + ')">' + fpRajz(JL) + '</g>';
     return zsHe(s);
