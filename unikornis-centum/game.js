@@ -20401,7 +20401,7 @@ var FP_OKOK = ["keves", "paros", "otos"];
 function fpOdu(o) { return ["pontos", "lehet", "egyforma", o >= 3 ? "bln" : "ennyi"]; }   /* Odú-küszöb: a 4 szakasz sorban (az egyforma a 3., itt a „nem lehet”) */
 function fpNaplo(k) { return { tipus: "bolt", kerdes: k, forma: "z" }; }
 function fpCsokk(a, b) { return b - a; }
-PALYA_MAT["fizess-pontosan"] = "Üres a kassza. Fizess pontosan, vagy mutasd meg, hogy nem lehet";   /* a csengő ezt olvassa fel (a palcim „·” jele helyett) */
+PALYA_MAT["fizess-pontosan"] = "Üres a kassza. Fizess pontosan, vagy mutasd meg, hogy nem lehet. Hanggal játszd: Zsivány mondja el a feladatot!";   /* a producer, 11-08: hang nélkül a ④ érthetetlen volt */   /* a csengő ezt olvassa fel (a palcim „·” jele helyett) */
 
 /* ═════════════════ FELADATGYÁRTÓK (tiszta adat) ═════════════════ */
 /* a pontos fizetések (érme-multihalmazok, csökkenő sorrendben): ["20+5+2", …] */
@@ -20731,7 +20731,8 @@ JELENETEK.fizess = {
   },
   katt: function (JL, t) {
     var x = JL.f.zs, g = t.closest ? t.closest(".zs-gomb") : null, m = t.closest ? t.closest(".fp-megallo") : null, tal = t.closest ? t.closest(".fp-tal") : null;
-    var okk = t.closest ? t.closest(".fp-okk") : null, bt = t.closest ? t.closest(".fp-btal") : null;
+    var okk = t.closest ? t.closest(".fp-okk") : null, bt = t.closest ? t.closest(".fp-btal") : null, hg = t.closest ? t.closest(".fp-hang") : null;
+    if (hg) { hangGomb(); mondd(fpKerdes(x)[1]); return; }
     if (okk && x.lep === "okk") { fpOkk(x, okk.getAttribute("data-ok")); return; }
     if (bt && x.lep === "bln") { fpBlnTesz(x, bt.getAttribute("data-t")); return; }   /* a tálra koppintás is beteszi a soron lévő állítást */
     if (g && x.lep === "bln" && g.getAttribute("data-g") === "szamol") {   /* próba a pulton: Zsivány összeszámol, hibát nem könyvel */
@@ -20779,6 +20780,7 @@ function fpRajz(JL) {
   s += zsKacat(d.aru[0], 36, 76, 0);
   if (!x.tal && x.fog !== "ced") s += '<g' + (tv && x.lep === "fizet" && !JL.lezart ? ' class="jl-fog" data-fog="ced" data-m="1" style="cursor:pointer"' : '') + '>' + kfCedula(96, 14, d.ar, 1.15) + '</g>';
   /* a „Nem lehet” tál (jobbra fent) · ④-ben a tábla és a három tál */
+  s += fpHangGomb();
   if (bln) s += fpBlnRajz(JL, x);
   else if (tv) s += '<g class="fp-tal" style="cursor:pointer"><rect class="jl-hely" data-hely="tal" x="186" y="26" width="98" height="78" rx="12" fill="#fff" fill-opacity="' + (x.lep === "fizet" && !JL.lezart ? .3 : 0) + '" stroke="' + (x.lep === "fizet" && !JL.lezart ? "#e6b3c4" : "none") + '" stroke-dasharray="6 5"/>' +
        '<g filter="url(#lt-firka)"><path d="M190 62Q235 96 280 62Z" fill="#f6d3df" stroke="#b5607e" stroke-width="2"/><ellipse cx="235" cy="62" rx="45" ry="9" fill="#fbe7ee" stroke="#b5607e" stroke-width="2"/></g>' +
@@ -20810,6 +20812,11 @@ function fpRajz(JL) {
   s += fpErszenyRajz(x, aktiv);
   if (x.lep === "mas" && !JL.lezart) s += zsGomb(256, 404, 62, "tovabb", "Tovább", "#7a5ca8");
   return s;
+}
+/* 🔊 a pálya hanggal megy (Zsivány mondja el a feladatot): a hangszóró mindig ott van, koppintásra újra elmondja (a producer, 11-08) */
+function fpHangGomb() {
+  return '<g class="fp-hang" style="cursor:pointer" transform="translate(166 96)"><circle r="14" fill="#fffaf0" stroke="#7a5ca8" stroke-width="2.2"/>' +
+    '<path d="M-7 -3H-3L3 -8V8L-3 3H-7Z" fill="#7a5ca8"/><path d="M6 -5Q10 0 6 5" fill="none" stroke="#7a5ca8" stroke-width="1.8" stroke-linecap="round"/></g>';
 }
 /* az erszény: minden érme látszik, a helyük állandó (index szerint), a visszalebegők a pultról jönnek */
 function fpErszenyRajz(x, aktiv) {
