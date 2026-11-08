@@ -19,6 +19,8 @@
      ④ Ennyi érmével (1–2. o., 3. TC 23.) — „Fizess pontosan, N érmével!” Van pontos fizetés más érmeszámmal is (Dienes: itt nem igaz).
      🏠 Odú-küszöb — ① ② ③ ④ vegyesen, szalag nélkül (a „nem lehet” indoklásánál a szalag előjön: az a bizonyíték).
    Számkör (2A): 1. o. 20-ig (1, 2, 5, 10) · 2. o. 100-ig, 3–5 érme · 3. o.-tól 100-ig, 4–6 érme, 50-es is.
+   Jó válasz után NINCS magyarázat (a producer, 11-08: „cserébe kevesebbet magyarázzon”, a magyarázat a B/L/N animációé): csak „Pont annyi.
+   Köszönöm!” / „Igaz!”, a visszajelzés-sor csak „Ez az!”. Hibánál marad a magyarázat (a kép következménye + Zsivány mondata).
    Napló (a pult ezt látja): szakaszonként más kérdés-alak — „csak 5-ös, 23” · „pontos 37” · „lehet? 41” · „pontos 26, 3 érme” · „B/L/N 26”. */
 
 VS_SZIN.fizess1 = { teto: "#f7d57a", csik: "#fffaf0", sotet: "#b5842c", cimer: "🪙" };
@@ -241,18 +243,18 @@ function fpFizet(x) {
   if (mas) {
     if (kulcs === x.elso) { x.lebeg = x.pult.slice(); x.pult = []; jlRajz(); mondd(szamol + " Így már fizettél. Más érmékkel is megy?"); return; }
     P().tunderharmat = (P().tunderharmat || 0) + ZS_MAS_HARMAT; ment();
-    x.masik = kulcs; fpVege(x, szamol + " Így is jó! Ezért egy csepp tündérharmat jár.");
+    x.masik = kulcs; fpVege(x, "Így is jó! Ezért egy csepp tündérharmat jár.");
     return;
   }
   x.elso = kulcs;
   var harmatRejt = typeof nyitasHarmatRejtett === "function" && nyitasHarmatRejtett();
   if (d.forma === "pontos" && d.jok > 1 && !x.halvany && !harmatRejt) {   /* Pósa: ugyanarra az árra van más út is? (csak 💧-ért, kihagyható) */
     x.lep = "var"; hangCsilla(); zsKolyokPoz("orul"); jlRajz();
-    zsZsivany("orul", szamol + " Pont annyi. Köszönöm!", 1800);
+    zsZsivany("orul", "Pont annyi. Köszönöm!", 1800);
     zsVar(function () { x.lebeg = x.pult.slice(); x.pult = []; fpLep(x, "mas"); }, 2200);
     return;
   }
-  fpVege(x, szamol + " Pont annyi. Köszönöm!");
+  fpVege(x, "Pont annyi. Köszönöm!");
 }
 /* a 2. hibától: a kép felel (① a szalagra mutat, ② a pult széle mutatja, mennyi van kint) — a megoldást nem mondjuk ki */
 function fpTipp(x, s) {
@@ -262,7 +264,7 @@ function fpTipp(x, s) {
 function fpVege(x, mondat) {
   var d = x.d, f = JL.f, k = (x.masik || x.elso).split("+");
   x.lep = "kesz"; f.helyes = d.ar;
-  jlJo(k.join(" + ") + " = " + d.ar, null, function (tov) { hangCsilla(); zsZsivany("orul", mondat, 2200); zsKolyokPoz("orul"); zsVar(tov, 2600); });
+  jlJo("", null, function (tov) { hangCsilla(); zsZsivany("orul", mondat, 2200); zsKolyokPoz("orul"); zsVar(tov, 2600); });
 }
 /* a cédula a „Nem lehet” tálban: ha tényleg nem lehet, jön az indoklás (a szalagon a két szomszéd megálló); ha lehet, Zsivány visszaadja */
 function fpNemLehet(x) {
@@ -280,7 +282,7 @@ function fpOk(x, v) {
   var a = Math.min(x.okVal[0], x.okVal[1]), b = Math.max(x.okVal[0], x.okVal[1]);
   if (a === lo && b === lo + c) {
     x.lep = "kesz";
-    jlJo(lo + " < " + d.ar + " < " + (lo + c), null, function (tov) { zsZsivany("orul", "Igaz! " + zsCap(FP_ESSEL[c]) + " " + szo(lo) + ", aztán " + szo(lo + c) + ". " + zsCap(szo(d.ar)) + " kimarad. Ezt most nem tudod pontosan kifizetni.", 3000); zsKolyokPoz("orul"); zsVar(tov, 3400); });
+    jlJo("", null, function (tov) { zsZsivany("orul", "Igaz!", 1800); zsKolyokPoz("orul"); zsVar(tov, 2200); });
     return;
   }
   x.okVal = [];
@@ -294,11 +296,8 @@ function fpOkk(x, ok) {
   hangGomb();
   if (x.okRossz.indexOf(ok) >= 0) return;
   if (fpOkIgaz(d, ok)) {
-    var m = ok === "keves" ? "Igaz! Minden érméd együtt csak " + szo(S) + " tallér. Az ár " + szo(d.ar) + "." :
-      ok === "paros" ? "Igaz! Páros érmékből mindig páros szám jön ki. " + ar + " páratlan." :
-      "Igaz! Ötösökből és tízesekből mindig nullára vagy ötre végződő szám jön ki. " + ar + " nem ilyen.";
     x.lep = "kesz";
-    jlJo(ok === "keves" ? S + " < " + d.ar : ok === "paros" ? d.ar + " páratlan" : d.ar + ": nem ötösével", null, function (tov) { zsZsivany("orul", m, 3200); zsKolyokPoz("orul"); zsVar(tov, 3600); });
+    jlJo("", null, function (tov) { zsZsivany("orul", "Igaz!", 1800); zsKolyokPoz("orul"); zsVar(tov, 2200); });
     return;
   }
   x.okRossz.push(ok);
@@ -314,7 +313,7 @@ function fpBlnTesz(x, tal) {
     hangCsilla(); x.betett.push(tal); x.ai++; x.pult = [];
     if (x.ai < 3) { fpLep(x, "bln"); return; }
     x.lep = "kesz";
-    jlJo(d.allit.map(function (b) { return { b: "biztos", l: "lehet", n: "lehetetlen" }[b.ert]; }).join(" · "), null, function (tov) { zsZsivany("orul", "Mind a három a helyén van. Köszönöm!", 2200); zsKolyokPoz("orul"); zsVar(tov, 2600); });
+    jlJo("", null, function (tov) { zsZsivany("orul", "Mind a három a helyén van. Köszönöm!", 2200); zsKolyokPoz("orul"); zsVar(tov, 2600); });
     return;
   }
   if (tal === "l") {
