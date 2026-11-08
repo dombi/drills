@@ -342,7 +342,7 @@ JELENETEK.zsib = {
     if (L === "kerek") { zsKerekit(x, v); return; }
     if (L === "becs") { zsBecs(x, v); return; }
     if (L === "ar") {
-      if (v === d.ar) { jlJo(d.fiz + " − " + d.vissza + " = " + d.ar, null, function (k) { zsZsivany("orul", "Pontosan ennyi volt! Köszönöm, hogy kisilabizáltad."); zsVar(k, 1500); }); return; }
+      if (v === d.ar) { jlJo("", null, function (k) { zsZsivany("orul", "Pontosan ennyi volt. Köszönöm!"); zsVar(k, 1500); });   /* jó válasznál nincs magyarázat (a producer, 11-08) */ return; }
       zsRossz(x, String(v), d.naplo, x.hib === 0 ? (x.halvany ? "Ennyivel fizettünk: " + szo(d.fiz) + ". Ennyit kaptunk vissza: " + szo(d.vissza) + ". Mennyi maradt Zsiványnál?" : "Nézd meg a szalagot: hol álltak meg az érmék?") :
         zsMaszatLepesek(x));
       return;
@@ -524,7 +524,7 @@ function zsAproVege(x, mondat) {
   var d = x.d, C = x.fizetve - d.ar, f = JL.f;
   f.helyes = C || d.ar;
   x.lep = "kesz";
-  jlJo(C ? x.fizetve + " − " + d.ar + " = " + C : x.elso.split("+").join(" + ") + " = " + d.ar, C ? sk100Naplo(x.fizetve, "-", d.ar, "z") : zsNaplo(x.elso.split("+").map(Number)),
+  jlJo("", C ? sk100Naplo(x.fizetve, "-", d.ar, "z") : zsNaplo(x.elso.split("+").map(Number)),
     function (k) { if (mondat) zsZsivany("orul", mondat, 2200); zsKolyokPoz("orul"); zsVar(k, mondat ? 2400 : 900); });
 }
 /* a visszajáró hiba-lépcsője (🪙 és a blokk vissza-trükkje): 1. hiba → mennyi kell az ár mellé · 2. hibától → lépésenként, a kerek tízesen át */
@@ -551,12 +551,11 @@ function zsKolyokPoz(p) { if (ZSK && ZSK.fig) ZSK.fig.poz(p, 1800); }
 
 /* a feladat vége: jó pontos összeg (vagy válassz-te: jó becslés) → jutalom; Zsivány reagál, határesetnél visszanézés */
 function zsVege(x) {
-  var d = x.d, sz = x.lista.join(" + ") + " = " + tallerOsszeg(x.lista), mondat = null, poz = "orul";
+  var d = x.d, sz = "", mondat = null, poz = "orul";   /* jó válasznál nincs magyarázat, a visszajelzés-sorban sincs képlet (a producer, 11-08) */
   zsKolyokPoz("orul");
-  if (zsVisszaTrukk(d)) sz = d.fiz + " − " + d.osszeg + " = " + (d.fiz - d.osszeg);
-  if (d.forma === "valassz") { sz = "≈ " + x.kerek.join(" + ") + " = " + d.cel; mondat = "Igen, ez körülbelül " + szo(d.cel) + "!"; }
+  if (d.forma === "valassz") mondat = "Igen, ez az!";
   else if (d.forma === "eleg") {
-    mondat = d.eleg !== d.becsEleg ? "A becslés szerint elég volt, pontosan mégsem! Közel volt a határhoz: ilyenkor számolj pontosan." : d.eleg ? "Elég lesz. Megvesszük!" : "Ez most nem elég. Majd legközelebb!";
+    mondat = d.eleg !== d.becsEleg ? "Mégsem elég. Jól számoltál!" : d.eleg ? "Elég lesz. Megvesszük!" : "Ez most nem elég. Majd legközelebb!";
     if (d.eleg !== d.becsEleg) poz = "kacsint";
   } else if (!d.pontos) { poz = "lebukik"; mondat = LK_MONDAT.juli.lebukik; }
   else mondat = LK_MONDAT.juli.orul;

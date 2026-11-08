@@ -427,10 +427,10 @@ function bkFizetVege(f, l, p) {
   if (ell.jo) {
     bkAllapot().megold.push(l.slice());
     BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul"); bkVevoRajz("ujjong");
-    bkBub(BK_TB[0], BK_TB[1], "Pont " + x.ar + "! Szép munka!", "tuske"); bkVevoBub("Köszönöm!");
+    bkBub(BK_TB[0], BK_TB[1], "Pont annyi. Szép munka!", "tuske"); bkVevoBub("Köszönöm!");
     var aru = bkQ(".bk-aru"), ak = bkKolyok();
     if (aru) szarvVarazs(aru, 0, 0, ak ? 160 : 238, ak ? -60 : -82, { emel: 60, ido: 900, nyom: bkQ(".bk-szikra") });   /* az áru átlebeg a vevőhöz */
-    bkJo(f, 1100, l.join(" + ") + " = " + x.ar);
+    bkJo(f, 1100, "");   /* jó válasznál nincs magyarázat, képlet sem (a producer, 11-08) */
     return;
   }
   BK.lezart = false; bkKeszGomb();
@@ -467,7 +467,7 @@ function bkVisszaKesz() {
     if (ell.jo) {
       bkVevoRajz("ujjong"); BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul");
       bkVevoBub("Köszönöm szépen!"); bkBub(BK_TB[0], BK_TB[1], "Pont annyi, ügyes vagy!", "tuske");
-      bkJo(f, 900, x.v.ar + " → " + x.v.fizet + ": " + x.v.vissza + " tallér");
+      bkJo(f, 900, "");
       return;
     }
     BK.lezart = false; bkKeszGomb();
@@ -592,7 +592,7 @@ function bkPecsetKatt(v) {
       BK.fazis = "kesz"; bkJegyez({ jo: true, ok: "jo" });
       BK.juli.megszakit(); BK.juli.poz("orul"); BK.uni.alap = "orul"; setTimeout(function () { if (BK && BK.f === f) BK.uni.poz("orul"); }, 900);
       bkBub(640, 40, LK_MONDAT.juli.orul, "juli"); bkVevoRajz("ujjong");
-      bkJo(f, 1500, "✓ a blokk jó: " + b.tetelek.join(" + ") + " = " + b.helyes);
+      bkJo(f, 1500, "");
     } else if (v === "x" && !b.pontos) {
       BK.fazis = "javit"; BK.rajz.kihuz = true; bkBlokkRajz();
       BK.juli.megszakit(); BK.juli.poz("meglep"); bkBub(640, 40, LK_MONDAT.juli.meglep, "juli");
@@ -634,7 +634,7 @@ function bkJavitOk() {
     BK.rajz.javit = be; bkBlokkRajz(); BK.fazis = "kesz"; bkGombok("");
     BK.juli.megszakit(); BK.juli.sorLe([["kacsint", 1500], ["orul", 1600], ["var", 0]]); bkBub(640, 40, LK_MONDAT.juli.kacsint, "juli");
     BK.uni.alap = "orul"; BK.uni.poz("orul"); bkVevoRajz("ujjong");
-    bkJo(f, 1300, b.irt + " helyett " + b.helyes);
+    bkJo(f, 1300, "");
     return;
   }
   BK.juli.pozIdeig("gondol", 2000); BK.uni.poz("gondol", 2000);

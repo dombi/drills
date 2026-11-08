@@ -18466,10 +18466,10 @@ function bkFizetVege(f, l, p) {
   if (ell.jo) {
     bkAllapot().megold.push(l.slice());
     BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul"); bkVevoRajz("ujjong");
-    bkBub(BK_TB[0], BK_TB[1], "Pont " + x.ar + "! Szép munka!", "tuske"); bkVevoBub("Köszönöm!");
+    bkBub(BK_TB[0], BK_TB[1], "Pont annyi. Szép munka!", "tuske"); bkVevoBub("Köszönöm!");
     var aru = bkQ(".bk-aru"), ak = bkKolyok();
     if (aru) szarvVarazs(aru, 0, 0, ak ? 160 : 238, ak ? -60 : -82, { emel: 60, ido: 900, nyom: bkQ(".bk-szikra") });   /* az áru átlebeg a vevőhöz */
-    bkJo(f, 1100, l.join(" + ") + " = " + x.ar);
+    bkJo(f, 1100, "");   /* jó válasznál nincs magyarázat, képlet sem (a producer, 11-08) */
     return;
   }
   BK.lezart = false; bkKeszGomb();
@@ -18506,7 +18506,7 @@ function bkVisszaKesz() {
     if (ell.jo) {
       bkVevoRajz("ujjong"); BK.tuske.poz("orul"); BK.uni.alap = "orul"; BK.uni.poz("orul");
       bkVevoBub("Köszönöm szépen!"); bkBub(BK_TB[0], BK_TB[1], "Pont annyi, ügyes vagy!", "tuske");
-      bkJo(f, 900, x.v.ar + " → " + x.v.fizet + ": " + x.v.vissza + " tallér");
+      bkJo(f, 900, "");
       return;
     }
     BK.lezart = false; bkKeszGomb();
@@ -18631,7 +18631,7 @@ function bkPecsetKatt(v) {
       BK.fazis = "kesz"; bkJegyez({ jo: true, ok: "jo" });
       BK.juli.megszakit(); BK.juli.poz("orul"); BK.uni.alap = "orul"; setTimeout(function () { if (BK && BK.f === f) BK.uni.poz("orul"); }, 900);
       bkBub(640, 40, LK_MONDAT.juli.orul, "juli"); bkVevoRajz("ujjong");
-      bkJo(f, 1500, "✓ a blokk jó: " + b.tetelek.join(" + ") + " = " + b.helyes);
+      bkJo(f, 1500, "");
     } else if (v === "x" && !b.pontos) {
       BK.fazis = "javit"; BK.rajz.kihuz = true; bkBlokkRajz();
       BK.juli.megszakit(); BK.juli.poz("meglep"); bkBub(640, 40, LK_MONDAT.juli.meglep, "juli");
@@ -18673,7 +18673,7 @@ function bkJavitOk() {
     BK.rajz.javit = be; bkBlokkRajz(); BK.fazis = "kesz"; bkGombok("");
     BK.juli.megszakit(); BK.juli.sorLe([["kacsint", 1500], ["orul", 1600], ["var", 0]]); bkBub(640, 40, LK_MONDAT.juli.kacsint, "juli");
     BK.uni.alap = "orul"; BK.uni.poz("orul"); bkVevoRajz("ujjong");
-    bkJo(f, 1300, b.irt + " helyett " + b.helyes);
+    bkJo(f, 1300, "");
     return;
   }
   BK.juli.pozIdeig("gondol", 2000); BK.uni.poz("gondol", 2000);
@@ -19941,7 +19941,7 @@ JELENETEK.zsib = {
     if (L === "kerek") { zsKerekit(x, v); return; }
     if (L === "becs") { zsBecs(x, v); return; }
     if (L === "ar") {
-      if (v === d.ar) { jlJo(d.fiz + " − " + d.vissza + " = " + d.ar, null, function (k) { zsZsivany("orul", "Pontosan ennyi volt! Köszönöm, hogy kisilabizáltad."); zsVar(k, 1500); }); return; }
+      if (v === d.ar) { jlJo("", null, function (k) { zsZsivany("orul", "Pontosan ennyi volt. Köszönöm!"); zsVar(k, 1500); });   /* jó válasznál nincs magyarázat (a producer, 11-08) */ return; }
       zsRossz(x, String(v), d.naplo, x.hib === 0 ? (x.halvany ? "Ennyivel fizettünk: " + szo(d.fiz) + ". Ennyit kaptunk vissza: " + szo(d.vissza) + ". Mennyi maradt Zsiványnál?" : "Nézd meg a szalagot: hol álltak meg az érmék?") :
         zsMaszatLepesek(x));
       return;
@@ -20123,7 +20123,7 @@ function zsAproVege(x, mondat) {
   var d = x.d, C = x.fizetve - d.ar, f = JL.f;
   f.helyes = C || d.ar;
   x.lep = "kesz";
-  jlJo(C ? x.fizetve + " − " + d.ar + " = " + C : x.elso.split("+").join(" + ") + " = " + d.ar, C ? sk100Naplo(x.fizetve, "-", d.ar, "z") : zsNaplo(x.elso.split("+").map(Number)),
+  jlJo("", C ? sk100Naplo(x.fizetve, "-", d.ar, "z") : zsNaplo(x.elso.split("+").map(Number)),
     function (k) { if (mondat) zsZsivany("orul", mondat, 2200); zsKolyokPoz("orul"); zsVar(k, mondat ? 2400 : 900); });
 }
 /* a visszajáró hiba-lépcsője (🪙 és a blokk vissza-trükkje): 1. hiba → mennyi kell az ár mellé · 2. hibától → lépésenként, a kerek tízesen át */
@@ -20150,12 +20150,11 @@ function zsKolyokPoz(p) { if (ZSK && ZSK.fig) ZSK.fig.poz(p, 1800); }
 
 /* a feladat vége: jó pontos összeg (vagy válassz-te: jó becslés) → jutalom; Zsivány reagál, határesetnél visszanézés */
 function zsVege(x) {
-  var d = x.d, sz = x.lista.join(" + ") + " = " + tallerOsszeg(x.lista), mondat = null, poz = "orul";
+  var d = x.d, sz = "", mondat = null, poz = "orul";   /* jó válasznál nincs magyarázat, a visszajelzés-sorban sincs képlet (a producer, 11-08) */
   zsKolyokPoz("orul");
-  if (zsVisszaTrukk(d)) sz = d.fiz + " − " + d.osszeg + " = " + (d.fiz - d.osszeg);
-  if (d.forma === "valassz") { sz = "≈ " + x.kerek.join(" + ") + " = " + d.cel; mondat = "Igen, ez körülbelül " + szo(d.cel) + "!"; }
+  if (d.forma === "valassz") mondat = "Igen, ez az!";
   else if (d.forma === "eleg") {
-    mondat = d.eleg !== d.becsEleg ? "A becslés szerint elég volt, pontosan mégsem! Közel volt a határhoz: ilyenkor számolj pontosan." : d.eleg ? "Elég lesz. Megvesszük!" : "Ez most nem elég. Majd legközelebb!";
+    mondat = d.eleg !== d.becsEleg ? "Mégsem elég. Jól számoltál!" : d.eleg ? "Elég lesz. Megvesszük!" : "Ez most nem elég. Majd legközelebb!";
     if (d.eleg !== d.becsEleg) poz = "kacsint";
   } else if (!d.pontos) { poz = "lebukik"; mondat = LK_MONDAT.juli.lebukik; }
   else mondat = LK_MONDAT.juli.orul;
