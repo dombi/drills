@@ -621,7 +621,7 @@ RECEPT({
     { nev: "Csupa egyforma", stand: "fizess1", forma: "egyforma", darab: 4 },
     { nev: "Pontosan, másképp is", stand: "fizess2", forma: "pontos", darab: 4 },
     { nev: "Lehet egyáltalán?", stand: "fizess3", forma: "lehet", darab: 4 },        /* a fele nem lehet · okkártya */
-    { nev: "Biztos, lehet, lehetetlen", stand: "fizess4", forma: "bln", darab: 4 },  /* 1–2. o.-ban: „Ennyi érmével” (a GEN cseréli) */
+    { nev: "Biztos, lehetséges, lehetetlen", stand: "fizess4", forma: "bln", darab: 4 },  /* 1–2. o.-ban: „Ennyi érmével” (a GEN cseréli) */
     { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
   ]
 });
@@ -20377,7 +20377,7 @@ function zsBlokkRajz(JL) {
      ③ Lehet egyáltalán? (2. kör) — vegyes erszény, szalag nélkül, a fele nem fizethető ki. Pólya: előbb nézd az erszényt. A „nem lehet”
         után okkártya (3 kártya, mindig pontosan egy igaz): kevés az egész · csupa páros érme (páratlan ár) · csak ötösével (az ár nem 0/5-re végződik).
         Rossz kártya = hiba, a kártya áthúzva marad, Zsivány megmondja, miért nem igaz (van páratlan / nem ötös érméd).
-     ④ Biztos, lehet, lehetetlen (3. o.-tól, 3. TB 50/1) — „Egy vevő pontosan kifizette ezt ebből az erszényből.” 3 állítás egymás után,
+     ④ Biztos, lehetséges, lehetetlen (3. o.-tól, 3. TB 50/1) — „Egy vevő pontosan kifizette ezt ebből az erszényből.” 3 állítás egymás után,
         mindegyik a három tál egyikébe (koppintás a tálra, vagy felvesz–letesz). A pulton ki is próbálhatja (Számold: Zsivány összeszámolja,
         hibát nem könyvel). Rossz tál → a B/L/N mozgókép a feladat számaival (fizess-mozgo.js: az összes pontos fizetés
         a füzetben, soronként ✓/✗, a kártya a jó tálba), utána ugyanaz az állítás újra. Az első ④ előtt egyszer a bemutató. Az állítások tálai nem mindig különbözők (különben az utolsó ingyen menne).
@@ -20559,8 +20559,8 @@ function fpKerdes(x) {
   if (L === "okk") return ["Miért nem lehet? Válaszd ki!", "Miért nem lehet pontosan kifizetni? Nézd meg az erszényedet, és koppints arra a kártyára, amelyik igaz!"];
   if (d.forma === "bln") {
     var a = d.allit[Math.min(x.ai, 2)];
-    return ["Biztos, lehet, vagy lehetetlen?", (x.ai === 0 ? "Egy vevő pontosan kifizette ezt ebből az erszényből. Nem kellett visszaadni. " : "") + a.szoveg +
-      " Biztos, lehet, vagy lehetetlen? Tedd a tálba!" + (x.ai === 0 ? " A pulton ki is próbálhatod." : "")];
+    return ["Biztos, lehetséges, vagy lehetetlen?", (x.ai === 0 ? "Egy vevő pontosan kifizette ezt ebből az erszényből. Nem kellett visszaadni. " : "") + a.szoveg +
+      " Biztos, lehetséges, vagy lehetetlen? Tedd a tálba!" + (x.ai === 0 ? " A pulton ki is próbálhatod." : "")];
   }
   if (d.forma === "ennyi") return ["Fizess pontosan, " + d.n + " érmével!", ar + "Üres a kasszám. Pontosan " + szo(d.n) + " érmével fizess, se többel, se kevesebbel!"];
   if (d.forma === "lehet" && L === "fizet") return ["Fizess pontosan! Vagy nem lehet?", ar + "Üres a kasszám, nem tudok visszaadni. Előbb nézd meg az erszényedet! Ha pontosan ki tudod fizetni, fizess. Ha nem lehet, tedd a cédulát a tálba!"];
@@ -20841,7 +20841,7 @@ function fpAllitKartya(x, X, Y) {
 }
 /* ④ a tábla (jobbra fent), az állítás, a három tál a betett kártyácskákkal */
 function fpBlnRajz(JL, x) {
-  var s = '', T = [["b", "Biztos", "#3f9e6a"], ["l", "Lehet", "#5f84b0"], ["n", "Lehetetlen", "#b5607e"]];
+  var s = '', T = [["b", "Biztos", "#3f9e6a"], ["l", "Lehetséges", "#5f84b0"], ["n", "Lehetetlen", "#b5607e"]];
   s += '<g transform="translate(232 54) rotate(2)"><g filter="url(#lt-firka)"><rect x="-54" y="-30" width="108" height="60" rx="6" fill="#fffaf0" stroke="#b5804a" stroke-width="1.8"/></g>' +
        zsSzoveg(0, -8, "Pontosan", 14, "#b35f28", "middle") + zsSzoveg(0, 10, "fizették,", 14, "#b35f28", "middle") + zsSzoveg(0, 26, "nincs vissza.", 12, "#4a3b7a", "middle") + '</g>';
   s += zsSzoveg(270, 106, Math.min(x.ai + 1, 3) + " / 3", 13, "#8a7a9e", "end");
@@ -20890,7 +20890,7 @@ function fpSzalag(JL, x) {
   if (t.length) s += '<path d="M' + pcF(px(p)) + ' ' + (Y + 4) + 'l-6 11h12Z" fill="#7a5ca8"/>';   /* ide ért a szalag (szám nélkül) */
   return s;
 }
-/* ============ 6h8) 💰 FIZESS PONTOSAN — a ④ „Biztos, lehet, lehetetlen” elmagyarázó mozgóképe (2026-11-08) ============
+/* ============ 6h8) 💰 FIZESS PONTOSAN — a ④ „Biztos, lehetséges, lehetetlen” elmagyarázó mozgóképe (2026-11-08) ============
    Recept-lap: terv/fizess-pontosan-recept-lap.html (a forgatókönyv és a döntések ✅ a producertől, 11-08). Motor: meres-mozgo.js (mkTw,
    mkLejatszik: 800×420-as színpad, koppintásra a végére ugrik, a végén magától továbbmegy). Zsivány a saját rigjével (lakok.js „juli”),
    a gyerek saját unikornisa a bal sarokban: a szarva világít végig Zsivány füzetének sorain.
@@ -20903,7 +20903,7 @@ function fpSzalag(JL, x) {
      ❌ rossz tál után — a feladat saját számaival (erszény, ár, az összes pontos fizetés, a soron lévő állítás), zárókép nélkül; utána a
         gyerek ugyanazt az állítást újra a tálba teszi. Ez VÁLTJA a régi ellenpéldát / ✓✗-listát a pulton (fpBlnTesz). */
 
-var FPM_TAL = [["b", "Biztos", "#3f9e6a", "#e3f4e8"], ["l", "Lehet", "#5f84b0", "#e4edf8"], ["n", "Lehetetlen", "#b5607e", "#f8e3ea"]];
+var FPM_TAL = [["b", "Biztos", "#3f9e6a", "#e3f4e8"], ["l", "Lehetséges", "#5f84b0", "#e4edf8"], ["n", "Lehetetlen", "#b5607e", "#f8e3ea"]];
 var FPM_BX = { b: 312, l: 430, n: 548 }, FPM_TY = 350;          /* a tálak közepe, pereme */
 var FPM_U = { x: 100, y: 402, s: 1 };                            /* a gyerek unikornisa (lábpont) */
 var FPM_SZ = 'font-family="Fredoka,Segoe UI,sans-serif" font-weight="700"';
@@ -21047,10 +21047,10 @@ var FPM_BLN = {
       var zr = mkQ(svg, ".fpm-zaro");
       fpmZs(svg, "orul");
       await mkTw(ctx, 500, function (p) { mkAttr(zr, { opacity: p }); });
-      var zm = "Biztos: minden sorban igaz. Lehet: van, ahol igaz, és van, ahol nem. Lehetetlen: egyikben sem igaz.";
+      var zm = "Biztos: minden sorban igaz. Lehetséges: van, ahol igaz, és van, ahol nem. Lehetetlen: egyikben sem igaz.";
       mkSzikra(ctx, svg, 422, 150, 10, ["#ffe27a", "#f6a5c0", "#9ec9f0", "#fff"]);
-      if (ctx.skip) { fel("Biztos: minden sorban ✓ · Lehet: van ✓ és van ✗ · Lehetetlen: egyikben sincs ✓"); mkMond(ctx, zm, true); }   /* az átugró gyerek is hallja */
-      else await fpmSzol(ctx, fel, zm, 3000, "Biztos: minden sorban ✓ · Lehet: van ✓ és van ✗ · Lehetetlen: egyikben sincs ✓");
+      if (ctx.skip) { fel("Biztos: minden sorban ✓ · Lehetséges: van ✓ és van ✗ · Lehetetlen: egyikben sincs ✓"); mkMond(ctx, zm, true); }   /* az átugró gyerek is hallja */
+      else await fpmSzol(ctx, fel, zm, 3000, "Biztos: minden sorban ✓ · Lehetséges: van ✓ és van ✗ · Lehetetlen: egyikben sincs ✓");
       await mkVar(ctx, 800);
     }
   }
@@ -21097,7 +21097,7 @@ async function fpmAllitas(ctx, svg, fel, o, k, card) {
     mkAttr(tb, { transform: "translate(" + bx + " " + FPM_TY + ") scale(" + s.toFixed(3) + ")" }); mkAttr(tf, { opacity: p < .9 ? .95 : 0 });
   }, mkLin).catch(function () {});
   if (nagy) mkSzikra(ctx, svg, bx, FPM_TY - 20, 10, ["#f6a5c0", "#b5607e", "#fff"]);
-  var mondat = o.bem ? FPM_SZABALY[a.ert] : { b: "Minden sorban igaz. Ez biztos.", l: "Van, ahol igaz, és van, ahol nem. Ez lehet.", n: "Egyikben sem igaz. Ez lehetetlen." }[a.ert];
+  var mondat = o.bem ? FPM_SZABALY[a.ert] : { b: "Minden sorban igaz. Ez biztos.", l: "Van, ahol igaz, és van, ahol nem. Ez lehetséges.", n: "Egyikben sem igaz. Ez lehetetlen." }[a.ert];
   await fpmSzol(ctx, fel, mondat, nagy ? 1400 : 700, mondat);
   mkAttr(tf, { opacity: 0 });
   await mkVar(ctx, nagy ? 500 : 250);
@@ -21109,7 +21109,7 @@ function fpmElottKell(f, tovabb) {
   var p = P(); p.mkLatott = p.mkLatott || {};
   if (p.mkLatott["fizess-bln"]) return false;
   p.mkLatott["fizess-bln"] = 1; ment();
-  mkLejatszik({ klip: FPM_BLN, o: fpmBemutatoAdat() }, "Biztos, lehet, vagy lehetetlen?", tovabb);
+  mkLejatszik({ klip: FPM_BLN, o: fpmBemutatoAdat() }, "Biztos, lehetséges, vagy lehetetlen?", tovabb);
   return true;
 }
 /* ❌ rossz tál után: a hiba könyvelve, aztán a mozgókép a feladat számaival; utána ugyanaz az állítás újra a tálba */

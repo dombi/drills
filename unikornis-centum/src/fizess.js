@@ -12,7 +12,7 @@
      ③ Lehet egyáltalán? (2. kör) — vegyes erszény, szalag nélkül, a fele nem fizethető ki. Pólya: előbb nézd az erszényt. A „nem lehet”
         után okkártya (3 kártya, mindig pontosan egy igaz): kevés az egész · csupa páros érme (páratlan ár) · csak ötösével (az ár nem 0/5-re végződik).
         Rossz kártya = hiba, a kártya áthúzva marad, Zsivány megmondja, miért nem igaz (van páratlan / nem ötös érméd).
-     ④ Biztos, lehet, lehetetlen (3. o.-tól, 3. TB 50/1) — „Egy vevő pontosan kifizette ezt ebből az erszényből.” 3 állítás egymás után,
+     ④ Biztos, lehetséges, lehetetlen (3. o.-tól, 3. TB 50/1) — „Egy vevő pontosan kifizette ezt ebből az erszényből.” 3 állítás egymás után,
         mindegyik a három tál egyikébe (koppintás a tálra, vagy felvesz–letesz). A pulton ki is próbálhatja (Számold: Zsivány összeszámolja,
         hibát nem könyvel). Rossz tál → a B/L/N mozgókép a feladat számaival (fizess-mozgo.js: az összes pontos fizetés
         a füzetben, soronként ✓/✗, a kártya a jó tálba), utána ugyanaz az állítás újra. Az első ④ előtt egyszer a bemutató. Az állítások tálai nem mindig különbözők (különben az utolsó ingyen menne).
@@ -194,8 +194,8 @@ function fpKerdes(x) {
   if (L === "okk") return ["Miért nem lehet? Válaszd ki!", "Miért nem lehet pontosan kifizetni? Nézd meg az erszényedet, és koppints arra a kártyára, amelyik igaz!"];
   if (d.forma === "bln") {
     var a = d.allit[Math.min(x.ai, 2)];
-    return ["Biztos, lehet, vagy lehetetlen?", (x.ai === 0 ? "Egy vevő pontosan kifizette ezt ebből az erszényből. Nem kellett visszaadni. " : "") + a.szoveg +
-      " Biztos, lehet, vagy lehetetlen? Tedd a tálba!" + (x.ai === 0 ? " A pulton ki is próbálhatod." : "")];
+    return ["Biztos, lehetséges, vagy lehetetlen?", (x.ai === 0 ? "Egy vevő pontosan kifizette ezt ebből az erszényből. Nem kellett visszaadni. " : "") + a.szoveg +
+      " Biztos, lehetséges, vagy lehetetlen? Tedd a tálba!" + (x.ai === 0 ? " A pulton ki is próbálhatod." : "")];
   }
   if (d.forma === "ennyi") return ["Fizess pontosan, " + d.n + " érmével!", ar + "Üres a kasszám. Pontosan " + szo(d.n) + " érmével fizess, se többel, se kevesebbel!"];
   if (d.forma === "lehet" && L === "fizet") return ["Fizess pontosan! Vagy nem lehet?", ar + "Üres a kasszám, nem tudok visszaadni. Előbb nézd meg az erszényedet! Ha pontosan ki tudod fizetni, fizess. Ha nem lehet, tedd a cédulát a tálba!"];
@@ -476,7 +476,7 @@ function fpAllitKartya(x, X, Y) {
 }
 /* ④ a tábla (jobbra fent), az állítás, a három tál a betett kártyácskákkal */
 function fpBlnRajz(JL, x) {
-  var s = '', T = [["b", "Biztos", "#3f9e6a"], ["l", "Lehet", "#5f84b0"], ["n", "Lehetetlen", "#b5607e"]];
+  var s = '', T = [["b", "Biztos", "#3f9e6a"], ["l", "Lehetséges", "#5f84b0"], ["n", "Lehetetlen", "#b5607e"]];
   s += '<g transform="translate(232 54) rotate(2)"><g filter="url(#lt-firka)"><rect x="-54" y="-30" width="108" height="60" rx="6" fill="#fffaf0" stroke="#b5804a" stroke-width="1.8"/></g>' +
        zsSzoveg(0, -8, "Pontosan", 14, "#b35f28", "middle") + zsSzoveg(0, 10, "fizették,", 14, "#b35f28", "middle") + zsSzoveg(0, 26, "nincs vissza.", 12, "#4a3b7a", "middle") + '</g>';
   s += zsSzoveg(270, 106, Math.min(x.ai + 1, 3) + " / 3", 13, "#8a7a9e", "end");
