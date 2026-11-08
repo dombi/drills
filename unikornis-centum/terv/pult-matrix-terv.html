@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pult-mátrix tervlap</title>
+<style>
+:root{--bg:#fbf6ee;--lap:#fffdf8;--szoveg:#3b2f2a;--halv:#8a7a70;--vonal:#e6d9c8;--sarga:#fff3b8;--orok:#f1ece4;--zold:#2f7d4a;--lila:#7a4fa0;--kek:#2f5f8a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#231d1a;--lap:#2d2622;--szoveg:#f1e8de;--halv:#b3a294;--vonal:#4a3f38;--sarga:#5a4b1c;--orok:#38302b;--zold:#7fcf98;--lila:#c9a6ea;--kek:#9cc4ea}}
+:root[data-theme="dark"]{--bg:#231d1a;--lap:#2d2622;--szoveg:#f1e8de;--halv:#b3a294;--vonal:#4a3f38;--sarga:#5a4b1c;--orok:#38302b;--zold:#7fcf98;--lila:#c9a6ea;--kek:#9cc4ea}
+body{background:var(--bg);color:var(--szoveg);font:16px/1.55 system-ui,"Segoe UI",sans-serif;margin:0;padding:24px 16px}
+main{max-width:980px;margin:0 auto}
+h1{font-size:1.6em;margin:0 0 4px}h2{margin-top:2em;border-bottom:2px solid var(--vonal);padding-bottom:4px}
+.al{color:var(--halv)}
+.kartya{background:var(--lap);border:1px solid var(--vonal);border-radius:12px;padding:14px 18px;margin:14px 0}
+.dontes{border-left:5px solid var(--lila)}
+.dontes h3{margin:0 0 6px}
+.opc{margin:4px 0}.opc b{color:var(--zold)}
+.tabla-keret{overflow-x:auto;border:1px solid var(--vonal);border-radius:10px;background:var(--lap)}
+table{border-collapse:collapse;font-size:.86em;min-width:860px;width:100%}
+th,td{border-bottom:1px solid var(--vonal);padding:5px 7px;text-align:left;white-space:nowrap}
+th{background:var(--orok);font-weight:600}
+tr.liget td{background:var(--orok);font-weight:600}
+.sajat{background:var(--sarga);border-radius:5px;padding:1px 6px}
+.orokolt{color:var(--halv);font-style:italic}
+.nincs{color:var(--halv)}
+code{background:var(--orok);padding:0 4px;border-radius:4px}
+ul{padding-left:1.2em}
+.telefon{width:300px;max-width:100%;border:2px solid var(--vonal);border-radius:22px;padding:12px;background:var(--lap);font-size:.88em}
+.telefon .sor{border-bottom:1px solid var(--vonal);padding:6px 0}
+.telefon .nyit{background:var(--orok);border-radius:8px;padding:8px;margin:6px 0}
+.ketto{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.ketto>div{flex:1;min-width:260px}
+</style></head><body><main>
+
+<h1>🎛️ Pult-mátrix — tervlap</h1>
+<p class="al">2026-11-08 · jóváhagyásra · alap: <code>Matekos\palyak-kepessegei.xlsx</code> · nagyságrend: <b>nagy</b> (2 kód-kör, egy közepes–nagy + egy közepes)</p>
+
+<div class="kartya">
+<b>Egy mondatban:</b> a pulton egy gyerek összes pályája <b>egyetlen táblázatban</b> áll, ahogy az Excelben: soronként a pálya (ligetenként csoportosítva), oszloponként a 10 beállítás legördülővel. Ugyanezt a táblázatot kapja a csoport és az „alap” (mindenki), és később az automatizmus is ugyanezeket a cellákat állítja.
+</div>
+
+<h2>1. Mi van ma, és mi változik</h2>
+<p>A legtöbb oszlop <b>már létezik</b>, csak szét van szórva: a Műhely → Beállítások táblájában (láthatóság, 💖, ✨, művelet, táblák, feladatszám, 🔑, 🔁), a gyereklap 🗺️ Pályái menüjében (normál / 💖 / 🚫 / 🏦) és a 🐉 pult-kártyán (liget-választó + kézi lista). Az új a mátrixban:</p>
+<ul>
+<li><b>Egy hely:</b> a gyereklapon a 🗺️ Pályái helyét veszi át (elv: a gyereklap az egyetlen hely egy gyerekről).</li>
+<li><b>🐉 oszlop pályánként:</b> nem · a játék dönti · 1× · 2× · 3×. <b>Szorzó nincs benne</b> — az a ✨ oszlop.</li>
+<li><b>Minden pálya lehet küldetés-tag:</b> 🛒 Piactér, 📚 Bagolykönyvtár, 🧺 Mi maradt? (rendes tag, nem ráadás), és minden jövőbeli liget magától.</li>
+<li><b>💖 és ✨ külön</b>: ma a 💖 csendben ×1,5 ✨-ot is ad; a mátrixban két független oszlop (lásd 3. döntés).</li>
+<li><b>Feladatszám:</b> alap · 3 · 4 · 5 · 6 · 8 (ma csak 3 vagy 8). A játék bármilyen számot elbír, ez csak a pult.</li>
+<li><b>🏦 oszlop:</b> igen/nem — ugyanaz, mint ma a 🏦 a menüben (a bank a kijelölt pályák után nyílik).</li>
+</ul>
+
+<h2>2. Így néz ki (laptop)</h2>
+<p class="al">Sárga = ennél a gyereknél te állítottad. Dőlt, halvány = örökölt (alap vagy csoport), mellette honnan. „—” = erre a pályára nem vonatkozik. A liget-sor legördülője az egész ligetet állítja egyszerre; ha a pályák nem egyformák, „egyenként állítva” látszik.</p>
+<div class="tabla-keret"><table>
+<tr><th>Pálya</th><th>🔑 Kulcs</th><th>👁 Látszik</th><th>🏦 Bank</th><th>🐉 Küldetés</th><th>💖</th><th>✨</th><th>Művelet</th><th>Táblák / osztók</th><th>Feladat / állomás</th><th>🔁 Naponta</th></tr>
+<tr class="liget"><td>▾ 🌙 Szorzós liget</td><td>nem ▾</td><td>igen ▾</td><td>nem ▾</td><td>egyenként ▾</td><td>egyenként ▾</td><td>alap ▾</td><td>—</td><td>egyenként ▾</td><td>alap ▾</td><td>nincs ▾</td></tr>
+<tr><td>🎵 Szorzódallam</td><td>nem</td><td>igen</td><td>nem</td><td class="nincs">nem</td><td>alap</td><td>×1</td><td class="nincs">—</td><td><span class="sajat">6, 7, 8, 9</span></td><td class="nincs">—</td><td>nincs</td></tr>
+<tr><td>🔮 Egy szám bűvköre</td><td>nem</td><td>igen</td><td>nem</td><td><span class="sajat">2×</span></td><td><span class="sajat">💖</span></td><td>×1</td><td>vegyes</td><td class="orokolt">2, 5, 10 (csoport)</td><td>alap</td><td>nincs</td></tr>
+<tr><td>➗ Osztogató tisztás</td><td>nem</td><td>igen</td><td>nem</td><td>a játék dönti</td><td>alap</td><td><span class="sajat">×1,5</span></td><td class="nincs">—</td><td>mind (2–9)</td><td><span class="sajat">4</span></td><td>nincs</td></tr>
+<tr><td>🧺 Mi maradt?</td><td>nem</td><td>igen</td><td>nem</td><td>a játék dönti</td><td>alap</td><td>×1</td><td class="nincs">—</td><td>mind (2–9)</td><td>alap</td><td>nincs</td></tr>
+<tr class="liget"><td>▸ 🛒 Piactér <span class="al">(5 pálya, 1 beállítva)</span></td><td colspan="10" class="al">összecsukva — koppints a nyitáshoz</td></tr>
+<tr class="liget"><td>▸ 📚 Bagolykönyvtár <span class="al">(14 pálya)</span></td><td colspan="10" class="al">összecsukva</td></tr>
+</table></div>
+<p class="al">A tetején egy sor mondatban: „Ennél a gyereknél 4 dolog tér el az alaptól” + ↺ <i>mind vissza csoport szerint</i>. A táblázat alatt marad a „🎛️ Beállításai” mondat-összefoglaló (bank, kapu-óraszám, tény-motor stb. — ami nem pályánkénti).</p>
+
+<h2>3. A 🐉 oszlop — hogyan rakja össze a játék a küldetést</h2>
+<div class="kartya">
+<ul>
+<li><b>nem</b> — ez a pálya soha nem kerül küldetésbe, a játék sem teszi bele.</li>
+<li><b>a játék dönti</b> (alap) — ahogy ma: a játék abból a ligetből kér, ahol a legtöbb „még nem megy” pálya van; fajtánként 1–2 hely, az emlék-próbák is. Új: a ligetek listája nem kézzel írt — <b>minden liget számít</b>, ami a játékban van (Piactér, Bagolykönyvtár, és ami ezután jön).</li>
+<li><b>1× / 2× / 3×</b> — rögzítve: a következő küldetésben ez a pálya pontosan ennyi helyet kap, akkor is, ha már „megy”. A 10 részlet ugyanúgy oszlik el.</li>
+<li>Felmondós pálya (🌰 bontás, 🎵 Szorzódallam): alapja <b>nem</b> (a játék nem tudja mérni, „megy”-e), de 1–3× rögzíthető — ilyenkor a végigmondás hoz darabot.</li>
+<li>🧺 Mi maradt?: rendes tag, a „ráadás” szabály megszűnik.</li>
+<li>Lépcsős ligetekben (ahol osztályról osztályra nehezedik: Összeadó, Tündérvásár, a 3 mérés-liget, <b>Bagolykönyvtár</b>) a „játék dönti” továbbra is csak a már játszott + a következő egy pályából választ. A Piactér nem lépcsős. Rögzített pályára ez nem vonatkozik — azt te választottad.</li>
+<li>A futó küldetés nem változik; a beállítás a következőre hat (ahogy ma). Rejtett vagy zárt pálya helye csendben eltűnik.</li>
+</ul>
+</div>
+
+<h2>4. Telefonon</h2>
+<div class="ketto">
+<div class="telefon">
+<b>🗺️ Fanni pályái</b>
+<div class="sor">▾ 🌙 Szorzós liget <span class="al">· 3 beállítva</span></div>
+<div class="sor">🔮 Egy szám bűvköre <span class="sajat">💖 · 🐉2×</span></div>
+<div class="nyit">
+🔑 Kulcs: nem ▾<br>👁 Látszik: igen ▾<br>🏦 Bank: nem ▾<br>🐉 Küldetés: <span class="sajat">2× ▾</span><br>💖: <span class="sajat">igen ▾</span> · ✨: ×1 ▾<br>Művelet: vegyes ▾<br>Táblák: <span class="orokolt">2, 5, 10 (csoport)</span> ▾<br>Feladat: alap ▾ · 🔁 nincs ▾
+</div>
+<div class="sor">➗ Osztogató tisztás <span class="sajat">✨×1,5 · 4 fel.</span></div>
+<div class="sor">▸ 🛒 Piactér</div>
+</div>
+<div><p>A sorban csak az látszik, ami eltér (rövid jelekkel); koppintásra lenyílik a 10 legördülő egymás alatt. A liget-sorra koppintva ugyanez az egész ligetre.</p></div>
+</div>
+
+<h2>5. Eldöntendő (mindegyiknél az A a javaslatom)</h2>
+
+<div class="kartya dontes"><h3>1. Hol él a mátrix?</h3>
+<div class="opc"><b>A</b> — a gyereklapon (a 🗺️ Pályái helyén), a 👥 csoport-lapon és egy „mindenki (alap)” lapon ugyanez. A Műhely régi Beállítások-táblája megszűnik (a nem pályánkénti kártyák — kapu-óraszám, tény-motor, menet, bank ára — maradnak a Műhelyben).</div>
+<div class="opc">B — a Műhely Beállítások-táblája bővül az új oszlopokkal, a gyereklapon marad a mostani menü.</div>
+<p class="al">Miért A: egy hely egy gyerekről — eddig is ez volt a fő panasz („kiesik a gyerek nézet alól”).</p></div>
+
+<div class="kartya dontes"><h3>2. Ha van rögzített (1–3×) pálya, mi kerül még a küldetésbe?</h3>
+<div class="opc"><b>A</b> — csak a rögzítettek (mint ma a kézi lista). Kiszámítható: amit beállítasz, pontosan az lesz.</div>
+<div class="opc">B — a rögzítettek mellé a játék is tesz „a játék dönti” pályákat, legfeljebb 10 helyig.</div>
+<p class="al">Miért A: B-nél egy 3×-os pálya mellé 7 másik is bekerülhet, a küldetés hosszú és kiszámíthatatlan lesz. Ha egy rögzített sincs, minden a régi módon megy.</p></div>
+
+<div class="kartya dontes"><h3>3. 💖 és ✨ szétválik?</h3>
+<div class="opc"><b>A</b> — igen: a 💖 szívecske + 2 💧, a ✨ szorzó csak akkor, ha a ✨ oszlopban állítod. Az Összehasonlítás-rács koppintása is így működik. A mostani 💖 pályák ×1,5-je <b>megmarad</b> (átíródik a ✨ oszlopba, semmi nem lesz kevesebb).</div>
+<div class="opc">B — a 💖 továbbra is ×1,5 ✨-ot is ad automatikusan.</div></div>
+
+<div class="kartya dontes"><h3>4. A 🐉 pult-kártya liget-választója és kézi listája</h3>
+<div class="opc"><b>A</b> — megszűnik, a mátrix veszi át. Ami most be van állítva, egyszer átíródik: a kézi lista pályái → 1×; egy kiválasztott liget → a többi liget „nem”. A kártyán marad: be/ki, és mondatban, hogy mi lesz a következő küldetés.</div>
+<div class="opc">B — marad a mátrix mellett is (két hely ugyanarra).</div></div>
+
+<div class="kartya dontes"><h3>5. Telefon</h3>
+<div class="opc"><b>A</b> — lenyíló kártyák (4. pont vázlata), minden állítható.</div>
+<div class="opc">B — telefonon csak olvasható, állítani laptopon.</div></div>
+
+<h2>6. Kód-körök</h2>
+<div class="kartya">
+<p><b>1. kör — a mátrix (csak pult, közepes–nagy).</b> Közös mátrix-elem a gyerek-, csoport- és alap-lapra; minden meglévő mező az új oszlopokban; 🏦 oszlop a bank pálya-listájára; 💖/✨ szétválasztás (+ a régi ×1,5 átírása); feladatszám 3–8; táblák: legördülő az Excel összeállításaival + „✏️ más…” a pipákhoz; liget-sor legördülők; telefonos lenyitás. A játék ebben a körben nem változik. Hamis Firebase-szel tesztelve, asztal + telefon.</p>
+<p><b>2. kör — 🐉 pályánként (játék + pult, közepes).</b> Új mező: <code>overrides[pálya].kuld</code> = 0 (nem) / 1–3 (rögzítve) / nincs (a játék dönti). <code>kuldetes.js</code>: a ligetlista a játék pályáiból jön (Piactér, Bagolykönyvtár, jövőbeli is), a ráadás-szabály megszűnik, a rögzített pályák a 2. döntés szerint; a régi beállítások átírása (4. döntés). Csoportok közt: aki számot mond, az nyer, közülük a nagyobb; egyéni mindent felülír. Gépi próba + rendszerterv frissítés.</p>
+<p><b>Utána:</b> élő megnézés veled, valódi adattal.</p>
+</div>
+
+<h2>7. Előre gondolva — az automatizmus</h2>
+<div class="kartya">
+<p>A cellák pontosan azok a mezők, amiket később a játék maga is állít (intelligens pult). Sorrend akkor: alap → csoport → <b>a játék javaslata</b> → amit te állítottál. A te sárga cellád mindig nyer; a játék által állított cella más színnel látszik majd („🤖 a játék állította, mert…”). Ehhez most semmit nem kell építeni, csak az 1. körben úgy rakom össze, hogy egy réteg később beférjen.</p>
+<p class="al">Az Excelből még hiányzik: 💰 Fizess pontosan (11-07, Piactér) — a mátrixban automatikusan ott lesz, mert a sorok a játék pályalistájából jönnek, nem kézzel írt listából.</p>
+</div>
+
+</main></body></html>
