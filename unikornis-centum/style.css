@@ -3306,7 +3306,13 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .eg-vandor{ animation:eg-sodrodik 20s ease-in-out infinite; }
 @keyframes eg-sodrodik{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(9px,-6px); } }
 .eg-szarv{ animation:eg-pislog 2.6s ease-in-out infinite; }
-.eg-cimke{ animation:eg-be .25s ease-out; }
+.eg-cimke{ position:absolute; left:12px; bottom:12px; max-width:min(46vw,420px); background:#fffaf0; color:#5a3f8a; border:2px solid #a88fce; border-radius:16px; padding:8px 16px; font-family:"Fredoka","Segoe UI",system-ui,sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; animation:eg-cimke-be .3s ease-out; }
+@keyframes eg-cimke-be{ from{ opacity:0; } to{ opacity:1; } }
+.eg-cimke.arany{ border:3px solid #e0a92e; }
+.eg-cimke-fo{ font-weight:800; font-size:18px; line-height:1.25; }
+.eg-cimke-al{ font-weight:700; font-size:15px; color:#7a62a8; margin-top:2px; }
+.eg-cimke.arany .eg-cimke-al{ color:#b07a10; }
+@media (max-width:520px){ .eg-cimke{ max-width:calc(100vw - 24px); font-size:16px; } .eg-cimke-fo{ font-size:16px; } }
 /* a csillagkép egyszer megmozdul (koppintásra, teljes képen) */
 .eg-kep.mozdul .eg-kep-belso{ animation:eg-m-pulzal 1.4s ease-in-out; }
 .eg-kep.mozdul.eg-m-szarny .eg-kep-belso, .eg-kep.mozdul.eg-m-csattan .eg-kep-belso{ animation:eg-m-szarny 1.4s ease-in-out; }

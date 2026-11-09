@@ -29306,7 +29306,6 @@ function egRajz(src, mod) {
   s += '<g class="eg-szarv" pointer-events="none"><circle cx="' + K[0] + '" cy="' + (kAlj - 22) + '" r="44" fill="url(#eg-szarv-fu)"/>';
   s += '<path d="M' + (K[0] - 9) + ' ' + (kAlj + 12) + ' L' + K[0] + ' ' + (kAlj - 34) + ' L' + (K[0] + 9) + ' ' + (kAlj + 12) + ' Z" fill="#fff1c4" stroke="#e8c46a" stroke-width="1.6" stroke-linejoin="round"/>';
   s += '<g stroke="#e8c46a" stroke-width="1.3" opacity="0.8"><line x1="' + (K[0] - 6) + '" y1="' + (kAlj - 2) + '" x2="' + (K[0] + 6) + '" y2="' + (kAlj - 8) + '"/><line x1="' + (K[0] - 4) + '" y1="' + (kAlj - 14) + '" x2="' + (K[0] + 4) + '" y2="' + (kAlj - 19) + '"/></g></g>';
-  s += '<g class="eg-cimke-hely" pointer-events="none"></g>';
   s += '</svg>';
   return { svg: s, kepek: kepek, ujDb: ujDb };
 }
@@ -29384,23 +29383,22 @@ function egCsillagKoppint(id) {
   }
   var el = N.host.querySelector('.eg-cs[data-id="' + id.replace(/"/g, '\\"') + '"]');
   if (el) {
-    var bb = el.getBBox();
-    egCimke({ x: bb.x + bb.width / 2, y: bb.y, szoveg: (c.pa.ikon ? c.pa.ikon + " " : "") + c.pa.nev, arany: c.arany,
+    egCimke({ szoveg: (c.pa.ikon ? c.pa.ikon + " " : "") + c.pa.nev, arany: c.arany,
       alcim: ka && ka.rajzolt ? ka.kep.nev + " · " + ka.kep.hu : null });
     el.classList.remove("fenylik"); void el.getBBox(); el.classList.add("fenylik");
   }
-  hangCsilla(); mondd(c.pa.nev + (ka && ka.rajzolt ? ". " + ka.kep.nev + ", " + ka.kep.hu : ""));
+  hangCsilla();   /* beszéd nincs (producer, 11-09): csak a felirat a képernyő szélén */
 }
+/* a felirat a képernyő bal alsó szélén, a tetőablak keretén (producer, 11-09: ne takarja ki a csillagképet) */
 function egCimke(o) {
   var N = EG_NYITVA; if (!N) return;
-  var hely = N.host.querySelector(".eg-cimke-hely"); if (!hely) return;
-  if (!o) { hely.innerHTML = ""; return; }
-  var M = EG_MOD[N.mod], fs = 18, fs2 = 15, w = Math.max(Array.from(o.szoveg).length * fs, o.alcim ? Array.from(o.alcim).length * fs2 : 0) * 0.56 + 30, h = fs + 16 + (o.alcim ? fs2 + 4 : 0);
-  var x = Math.max(8, Math.min(M.W - w - 8, o.x - w / 2)), y = o.y - h - 12;
-  if (y < 8) y = o.y + 36;
-  hely.innerHTML = '<g class="eg-cimke"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h + '" rx="' + (h / 2) + '" fill="#fffaf0" stroke="' + (o.arany ? "#e0a92e" : "#a88fce") + '" stroke-width="' + (o.arany ? 3 : 2) + '"/>' +
-    '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + (o.alcim ? fs + 6 : h / 2 + fs * 0.36)).toFixed(1) + '" font-size="' + fs + '" font-weight="800" fill="#5a3f8a" text-anchor="middle">' + egEsc(o.szoveg) + '</text>' +
-    (o.alcim ? '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + fs + 6 + fs2 + 4).toFixed(1) + '" font-size="' + fs2 + '" font-weight="700" fill="' + (o.arany ? "#b07a10" : "#7a62a8") + '" text-anchor="middle">' + egEsc(o.alcim) + '</text>' : "") + '</g>';
+  var d = N.host.querySelector(".eg-cimke");
+  if (!o) { if (d) d.parentNode.removeChild(d); return; }
+  if (d) d.parentNode.removeChild(d);
+  d = document.createElement("div");
+  d.className = "eg-cimke" + (o.arany ? " arany" : "");
+  d.innerHTML = '<div class="eg-cimke-fo">' + egEsc(o.szoveg) + '</div>' + (o.alcim ? '<div class="eg-cimke-al">' + egEsc(o.alcim) + '</div>' : "");
+  N.host.appendChild(d);
 }
 
 /* ── ⏪ „Hogyan gyúlt ki az egem?”: az ég elsötétül, a csillagok a mentett sorrendben egyenként kigyúlnak (elején lassan,
