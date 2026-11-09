@@ -7,6 +7,7 @@
      kfAblak  🪟 ablak három kavics-hellyel és a jellel (Számcsalád; C kör) · kfKavics 🪨 kerek kő a számmal · kfKosar 🧺 fonott kosár
      🦊 Zsivány zsibvására (2026-10-25, rajz: Matekos/zsibvasar-rajzterv.html ✅): kfTaller 🪙 tallér · kfBecsles ≈ cetli a kis szalaggal ·
      kfCedula 🏷️ árcédula (maszatos is) · kfBlokk 🧾 blokk · kfErszeny 👛 erszény. A Tüske-bolt is ezekre állhat át (recept-lap 3. kör).
+     ✍️ Garas tornya (2026-11-09): kfTalca 🪙 tallér-tálca — rekeszek helyiérték szerint, 10-es kötegek (a mozgatást a fuzet.js intézi).
    A régi pályák belső kártyái is ide állnak át. */
 
 var KF_FR = 'font-family="Fredoka,sans-serif" font-weight="600"';
@@ -195,5 +196,43 @@ function kfKassza(x, y, m, db, vilagit) {
     for (j = 0; j < n; j++) s += '<g transform="translate(' + cx + ' ' + pcF(10 - j * 3.2) + ')"><g transform="scale(1 .5)">' + tallerBelso(v, .62).replace(/<text[^>]*>[^<]*<\/text>/, "") + '</g></g>';
     if (n) s += '<g transform="translate(' + cx + ' ' + pcF(8 - n * 3.2) + ')">' + tallerBelso(v, .62) + '</g>';
   });
+  return s + '</g>';
+}
+
+/* 🪙 TALLÉR-TÁLCA (Garas tornya, terv/irasbeli-haz-recept-lap.html ⑦): n rekesz, balra a nagyobb helyiérték (… sz · t · e).
+   db = { 0: egyesek, 1: tízesek, … } — a tallérok 10-es oszlopokban; a teli oszlop papírszalagos KÖTEG.
+   o.fog = { t: "koteg" | "egy", p } — a kézben lévő köteg / tallér felemelve, a letehető szomszéd rekesz kivilágít · o.villog = p.
+   A rekesz egésze a koppintás célja (data-rek = p); a kezelés a fuzet.js-ben (fzTalcaKatt). */
+var KF_TALCA_ERT = ["1", "10", "100", "1000", "10e", "100e"], KF_TALCA_G = ["heEgyes", "heTizes", "heSzazas", "heSzazas", "heSzazas", "heSzazas"];
+function kfTalca(x, y, n, db, o) {
+  o = o || {};
+  var s = '<g class="kf-talca" transform="translate(' + x + ' ' + y + ')">', fog = o.fog;
+  for (var i = 0; i < n; i++) {
+    var p = n - 1 - i, x0 = i * 116, h = FZ_HE[p] || FZ_HE[0], N = Math.max(0, db[p] || 0), cel = fog && ((fog.t === "koteg" && p === fog.p + 1) || (fog.t === "egy" && p === fog.p - 1));
+    s += '<g data-rek="' + p + '" style="cursor:pointer"><rect x="' + (x0 + 2) + '" y="2" width="110" height="196" rx="14" fill="#f6e7cc" stroke="#b98d5a" stroke-width="2.4"/>' +
+      '<rect x="' + (x0 + 10) + '" y="34" width="94" height="146" rx="9" fill="#ead2aa" stroke="#c9a476" stroke-width="1.4"/>' +
+      '<rect x="' + (x0 + 33) + '" y="8" width="48" height="22" rx="11" fill="' + h.l + '" stroke="' + h.k + '" stroke-width="1.6"/>' +
+      '<text x="' + (x0 + 57) + '" y="25" text-anchor="middle" font-size="16" font-weight="600" fill="' + h.sz + '" ' + KF_FR + '>' + h.j + '</text>' +
+      '<text x="' + (x0 + 57) + '" y="191" text-anchor="middle" font-size="15" font-weight="600" fill="#7a5a36" ' + KF_FR + '>' + N + '</text>';
+    if (cel) s += '<rect x="' + (x0 + 6) + '" y="6" width="102" height="188" rx="12" fill="#fff6b0" opacity=".55" stroke="#e0b52e" stroke-width="2.6" stroke-dasharray="7 5"/>';
+    if (o.villog === p) s += '<rect x="' + (x0 + 4) + '" y="4" width="106" height="192" rx="13" fill="none" stroke="#f0b400" stroke-width="4"><animate attributeName="opacity" values=".25;1;.25" dur="1.1s" repeatCount="indefinite"/></rect>';
+    s += '</g><g pointer-events="none">';
+    var oszl = Math.ceil(N / 10), sp = Math.min(31, 66 / Math.max(1, oszl - 1)), fel = fog && fog.p === p;
+    for (var j = 0; j < oszl; j++) {
+      var db_ = Math.min(10, N - j * 10), cx = x0 + 57 + (oszl > 1 ? (j - (oszl - 1) / 2) * sp : 0), teli = db_ === 10;
+      var emel = fel && j === oszl - 1 && (fog.t === "koteg" ? teli : true) ? -16 : 0;
+      s += '<g transform="translate(' + pcF(cx) + ' ' + emel + ')">';
+      for (var k = 0; k < db_; k++) {
+        var cy = 160 - k * 12.4, felso = k === db_ - 1, egyFel = emel && fog.t === "egy" && felso ? -10 : 0;
+        s += '<g transform="translate(0 ' + pcF(cy + egyFel) + ')"><ellipse rx="14.5" ry="6.6" cy="3" fill="' + h.k + '" opacity=".55"/>' +
+          '<ellipse rx="14.5" ry="6.6" fill="url(#' + KF_TALCA_G[p] + ')" stroke="' + h.k + '" stroke-width="1.2"/>' +
+          (felso ? '<text y="2.6" text-anchor="middle" font-size="' + (p >= 2 ? 8 : 9.5) + '" font-weight="600" fill="' + h.sz + '" ' + KF_FR + '>' + KF_TALCA_ERT[p] + '</text>' : '') + '</g>';
+      }
+      if (teli) s += '<rect x="-16" y="' + (160 - 5 * 12.4 - 6) + '" width="32" height="13" rx="2" fill="#fffbe6" stroke="#c9a35a" stroke-width="1.2" opacity=".95"/>';
+      if (emel) s += '<ellipse cy="' + (160 - (db_ - 1) * 6.2) + '" rx="20" ry="' + (db_ * 6.6 + 8) + '" fill="#fff3a0" opacity=".35"/>';
+      s += '</g>';
+    }
+    s += '</g>';
+  }
   return s + '</g>';
 }

@@ -5,6 +5,7 @@ felhoIndit();   /* felhő (1. fázis): csak ?felho kapcsolóval él */
 document.querySelector(".jatekter").insertAdjacentHTML("beforeend", bagolyRajz("kabala"));
 esemenyek();
 nyitoIndul();   /* 🚪 nyitókép: az unikornis alszik, a gyerek felébreszti (az újonc az első perccel kezd) — nyitokep.js */
+if (FZ_PROBA) fzProbaNyit();   /* 🧪 ?fuzetproba: a közös füzet próbalapja a játék fölött (fuzet.js) */
 document.addEventListener("pointerdown", function egyszer() {
   var c = ac(); if (c && c.state === "suspended") c.resume();
   document.removeEventListener("pointerdown", egyszer);

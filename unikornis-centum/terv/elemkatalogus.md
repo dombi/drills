@@ -18,6 +18,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - `kfTaller(x, y, v, k, attr)` — tallér (helyiérték-színben, a bolt rajza); felvehető, ha attr `.jl-fog` · a tallér-színek a képen saját néven (zsib.js `zsHe`)
 - `kfBecsles(x, y, m, ar, all, beirt, koppint)` — ≈ cetli a kis szalaggal; a két szomszéd tízes koppintható (`.kf-veg[data-v]`) · ures · jo · hiba (ív + pöttyök, 5-ös végnél nyíl fel) · halvany (nincs szalag, a gyerek írja)
 - `kfCedula(x, y, ar, m, maszat)` — árcédula madzagon · `kfBlokk(x, y, w, sorok, irt, o)` — blokk (o: cim, pecset ok|x, kihuz; fiz + vissza + kihuzV: alul „fizetve / vissza”) · `kfErszeny(x, y, m, osszeg)` — erszény a felirattal · `kfKassza(x, y, m, db, vilagit)` — 🧰 pléhkassza címletenként rekesszel (db: {címlet: darab}, 0 = üres rekesz szaggatottan; vilagit: kivilágító üres rekeszek) — Zsivány zsibvására 2. kör
+- `kfTalca(x, y, n, db, o)` — 🪙 tallér-tálca: n rekesz helyiérték szerint (balra a nagyobb), 10-es oszlopok, a teli oszlop papírszalagos köteg; o.fog {t: koteg|egy, p} felemelve + a letehető szomszéd kivilágít · o.villog p. A koppintást a `fuzet.js` kezeli (köteg balra = átvitel, 1 tallér jobbra = felváltás) — Garas tornya 1. kör
 - `kfSajatId(svg, elotag)` — KÖTELEZŐ minden pálya-képen: a térkép-id-k saját néven (különben a rejtett Piactér miatt átlátszó a kép)
 
 ## ⚙️ Feladatgyártók (tiszta adat, kép nélkül)
@@ -26,6 +27,11 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - `becslesEll(ar, v)` (hiba: szomszed · otos · kerek · tav), `becslesOsszeg(l)` — a könyv szabálya: 5-ös vég felfelé, kerek marad, előbb tagonként · `zsMaszat`, `zsEleg(o, hatar)`, `zsValassz`, `zsBlokk(o, pontos, trukk)` (osszeg · egy · polcar · dupla) — `zsib.js`
 - `varazsGep` — Varázsgép (kész, vár) · bolt: fizetés, visszajáró, blokk (`bolt.js`)
 - `sk100Ugras(a, op, b)`, `sk100Naplo(a, op, b, forma)` — közös: ugrás-pontok, tény-napló
+
+## 📓 A közös füzet (`src/fuzet.js`) + az írásbeli lap-gyártó (`src/irasbeli-gen.js`) — Garas tornya 1. kör (2026-11-09)
+- `irGyart("szor" | "oszt", a, b, o)` → a füzetlap terve: kiosztás (sor, osz, E sz t e fejléc), a gép előre írt része, a gyerek céljai (jegy a helyén · pont · felső vessző · vonal; kell / opc), a tankönyvi lépések mondókával (m: lapra, h: kimondva) és tálca-mozdulatokkal. Szorzás: becslés → részletszorzatok (az egyesekkel; a 0 szabad; a sorrend szabad = csere-csoport) → összeg → ellenőrzés (felcserélve / ≤ 4-es szorzónál összeadással). Osztás: becslés (alsó < hányados < felső) → pontozás → felső vessző → hosszú forma (a 0 maradék szabad) → ellenőrzés (q · b + m). ⏭️ rövid forma, mellékszámítás, hiányos szorzás, hibakereső: 2–3. kör.
+- `fzLap(hova, T, o)` → F — a füzet bárhová: o.mod gyerek | gep · o.ell lepes | vegen (előbb a számolás, aztán az ellenőrzés; a hibás OSZLOP gyullad ki) · o.jelol · o.talca · o.mondoka mindig | hiba | nincs · onKesz / onHiba / onLepes. F.lejatsz(kesz) a gép végigírja (sercegés + mondóka + tálca). Ceruza / radír felvesz–letesz; a becslés zár (rossz becsléssel nem indul a számolás); csak a jegyek számítanak, a forma hiánya a végén halványan.
+- 🧪 Próbalap: `index.html?fuzetproba` (156·4, 42·92, 756:3, 1771:7, 618:3, 1942:34 · gép ír / én írok · lépésenként / a végén · jelöl · tálca · hang)
 
 ## 🖼️ Képek (`JELENETEK[név]`, a jelenet-motoron) — ez az egyetlen pályánként saját rész (~150–250 sor)
 - **csalad** (`src/csalad.js`) — ház 4 ablakkal; módok: rak (kavicsok) · kakukk · kosar · beir · két elrendezés (teljes / keskeny)

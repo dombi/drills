@@ -90,6 +90,8 @@ MODULES = [
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
     "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
     "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
+    "irasbeli-gen.js",    # 6j4b) ✍️ írásbeli műveletek: a mondóka-gyártó (irGyart → a füzetlap: kiosztás, célok, tankönyvi lépések + tálca-mozdulatok)
+    "fuzet.js",           # 6j4c) 📓 a közös füzet-modul: kockás lap, ceruza (jegy · pont · vessző · vonal), radír, ellenőrzés, gép ír, ?fuzetproba
     "keret.js",           # 6j4) 🪧 tárgy-keret: a feladat egy tárgyon a képben (🪜 fok, 🖍️ tábla, ↷ ugrás) — közös készlet, a pálya csak megnevezi
     "album-elemek.js",    # 6j5) 📸 album-elemek: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
