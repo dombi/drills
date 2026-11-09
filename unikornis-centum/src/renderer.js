@@ -184,6 +184,7 @@ var UNI_POZ = {
   ul:      { h: [-50, 120], e: [26, 0],    test: [-26, 0, 6], fej: 16, farok: 40, osztaly: [".ules-all"] },   /* A: „kutyás ülés”; a farok a földre simul */
   fekszik: { h: [-85, 165], e: [95, -175], test: [0, 0, 46], fej: 4,  farok: 34, osztaly: [".fekszik-all"] }, /* 8. lépés: a lábak a test alá, a has a matracon, a farok a test mellett */
   alszik:  { h: [-85, 165], e: [95, -175], test: [3, 0, 46], fej: 36, farok: 34, osztaly: [".uni-alszik"] },  /* alvás (uniElalszik): a fej a mellkasra hajlik */
+  felnez:  { h: [-85, 165], e: [95, -175], test: [-3, 0, 46], fej: -34, farok: 30, osztaly: [".felnez-all"] }, /* 🌌 odú-ég: fekve felnéz a tetőablakra (a fekvés, de a fej fölfelé) */
   nyujt:   { h: [-26, 6],   e: [-90, 90],  test: [20, 0, 27], fej: -24, farok: -40 },   /* nyújtózás (felkeléskor): mellkas le, mellső lábak előre, far és farok fel, fej fel (ásít) */
   guggol:  { h: [50, -100], e: [-50, 100], test: "talaj",     fej: 8,  farok: -10, szarny: -14 },   /* elöl a térd előre, hátul a csánk hátra */
   hajol:   { h: [0, 0],     e: [-18, 36],  test: "talaj",     fej: 30, farok: -6 },   /* evés, szagolás: az elülső térd rogy, a fej lehajol */

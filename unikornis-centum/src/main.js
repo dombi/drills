@@ -60,7 +60,8 @@ window.UC = {
   kapuAllapot: kapuAllapot, kapuNyitva: kapuNyitva, kapuKulcsTeljesult: kapuKulcsTeljesult,
   kapuKulcsok: kapuKulcsok, palyaZarva: palyaZarva, palyaElfogyott: palyaElfogyott, palyaVege: palyaVege,
   GEN: GEN, szamokKinyer: szamokKinyer, szo: szo,
-  oduNyit: oduNyit, ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
+  oduNyit: oduNyit, egNyit: egNyit, egZar: egZar, egFelnez: egFelnez, egAtkoltozes: egAtkoltozes, egAllapot: egAllapot, egHozasIndul: egHozasIndul, egVanUj: egVanUj, get EG_NYITVA() { return EG_NYITVA; },   /* 🌌 odú-ég */
+  ODU_KAT: ODU_KAT, unikornisSVG: unikornisSVG, LENYEK: LENYEK,
   oduVesz: function (kat, id) { var t = null; ODU_KAT[kat].forEach(function (x) { if (x.id === id) t = x; }); if (t) oduVesz(kat, t); },
   oduBeallit: oduBeallit, RUHAK: RUHAK,
   oduRuhaVesz: function (kulcs, id) { var t = null; (RUHAK[kulcs] || []).forEach(function (x) { if (x.id === id) t = x; }); if (t) oduRuhaVesz({ kulcs: kulcs }, t); },

@@ -218,7 +218,9 @@ function oduVillany(svg, este, regiBogarak) {
   var maszk = el("mask", { id: "vo-maszk", maskUnits: "userSpaceOnUse", x: VB.x, y: VB.y, width: VB.w, height: VB.h }, defs);
   el("rect", { x: VB.x, y: VB.y, width: VB.w, height: VB.h, fill: "#fff" }, maszk);
   var lyukak = {};
-  [["tuz", 548, 425, 165, 130], ["ablak", 190, 180, 95, 95], ["befott", 460, 378, 60, 55], ["kijarat", -40, 392, 75, 85], ["szarv", -999, -999, 75, 75]].forEach(function (l) {
+  var lyukLista = [["tuz", 548, 425, 165, 130], ["ablak", 190, 180, 95, 95], ["befott", 460, 378, 60, 55], ["kijarat", -40, 392, 75, 85], ["szarv", -999, -999, 75, 75]];
+  if (q("#odu-t-teto")) lyukLista.push(["teto", EG_TETO.x, EG_TETO.y, 92, 40]);   /* 🌌 a tetőablak sötétben is dereng (odu-eg.js) */
+  lyukLista.forEach(function (l) {
     lyukak[l[0]] = el("ellipse", { cx: l[1], cy: l[2], rx: l[3], ry: l[4], fill: "url(#vo-lyuk)" }, maszk);
   });
 

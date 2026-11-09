@@ -3326,7 +3326,40 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 #eg-kep.eg-vj .eg-cs, #eg-kep.eg-vj .eg-vonal{ opacity:0; animation:none; transition:opacity .6s; }
 #eg-kep.eg-vj .eg-cs.eg-ego{ opacity:1; animation:eg-gyul 1s ease-out both; }
 #eg-kep.eg-vj .eg-gomb{ opacity:.35; }
+/* ── B lépés: a hazahozott csillagok a szarv körül, repülés, kiteljesedés, a kölyök a keret szélén ── */
+.eg-cs.eg-var{ opacity:0; pointer-events:none; }
+.eg-hoz-lebeg{ animation:eg-lebeg 2.4s ease-in-out infinite; }
+@keyframes eg-lebeg{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+.eg-hozott .eg-hoz-cs .eg-mag{ animation:eg-pislog 1.6s ease-in-out infinite; }
+#eg-kep.eg-hoz-var .eg-szarv{ animation:eg-szarv-var 1.5s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 80%; }
+@keyframes eg-szarv-var{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.18); opacity:.85; } }
+.eg-cs.eg-felvillan{ animation:eg-gyul 1.4s ease-out both, eg-felvillan 1.6s ease-out; }
+@keyframes eg-felvillan{ 0%{ filter:none; } 40%{ filter:drop-shadow(0 0 9px #ffe07a) brightness(1.6); } 100%{ filter:none; } }
+.eg-kep.kiteljes .eg-vonal{ opacity:.95; stroke-dasharray:1 1; stroke-dashoffset:1; animation:eg-rajzol .9s ease-out forwards; transition:opacity .3s; }
+.eg-kep.kiteljes .eg-vonal.teljes{ stroke-width:2.4; }
+@keyframes eg-rajzol{ to{ stroke-dashoffset:0; } }
+#eg-kep.eg-ragyog .eg-keret-gyuru{ animation:eg-gyuru 2.4s ease-in-out 2; }
+@keyframes eg-gyuru{ 0%,100%{ stroke:#b79fd4; filter:none; } 45%{ stroke:#fff3b0; filter:drop-shadow(0 0 14px #ffe07a); } }
+#eg-kep.eg-ragyog .eg-szarv{ animation:eg-szarv-fel 1.6s ease-in-out 3; transform-box:fill-box; transform-origin:50% 80%; }
+@keyframes eg-szarv-fel{ 0%,100%{ transform:scale(1); filter:none; } 50%{ transform:scale(1.35); filter:brightness(1.4) drop-shadow(0 0 10px #fff3b0); } }
+.eg-kolyok-hop{ transform-box:fill-box; transform-origin:50% 100%; }
+.eg-kolyok-hop.ugral{ animation:eg-ugral .6s ease-in-out 4; }
+@keyframes eg-ugral{ 0%,100%{ transform:translateY(0) scale(1,1); } 15%{ transform:translateY(0) scale(1.08,.9); } 50%{ transform:translateY(-16px) scale(.96,1.05); } 85%{ transform:translateY(0) scale(1.05,.94); } }
+/* az odúban: fekve felnéz, a lámpa lehalkul, a szarv ragyog, a kölyök párája az üvegen, az átköltözés */
+#odu-szoba svg.eg-felnez .e-lampa-feny{ opacity:.1 !important; transition:opacity .8s; }
+#odu-szoba svg.eg-felnez .e-lampa polygon{ filter:brightness(.8); transition:filter .8s; }
+#eg-szarvfeny{ animation:eg-szf-be .7s ease-out; }
+#eg-szarvfeny .eg-szf-sugar{ transform-box:fill-box; transform-origin:center; animation:eg-szarv-var 1.8s ease-in-out infinite; }
+@keyframes eg-szf-be{ from{ opacity:0; } to{ opacity:1; } }
+.eg-para{ opacity:0; transform-box:fill-box; transform-origin:center; animation:eg-para 2.8s ease-out forwards; }
+@keyframes eg-para{ 0%{ opacity:0; transform:scale(.3); } 22%{ opacity:.72; transform:scale(1); } 100%{ opacity:0; transform:scale(1.45); } }
+.eg-koltozo use{ transform-box:fill-box; transform-origin:center; animation:eg-koltoz 2.8s ease-in-out both; }
+@keyframes eg-koltoz{ 0%{ opacity:0; transform:translate(0,0) scale(1); } 12%{ opacity:1; transform:translate(0,0) scale(1.15); }
+  55%{ opacity:1; transform:translate(calc(var(--dx) * .45 - 26px), calc(var(--dy) * .6)) scale(1); } 88%{ opacity:1; } 100%{ opacity:0; transform:translate(var(--dx), var(--dy)) scale(.55); } }
+#odu-t-teto.eg-teto-felvillan{ animation:eg-teto-fv 1.8s ease-out; }
+@keyframes eg-teto-fv{ 0%{ filter:none; } 30%{ filter:brightness(1.7) drop-shadow(0 0 12px #fff3b0); } 100%{ filter:none; } }
 @media (prefers-reduced-motion:reduce){
-  #eg-kep, .eg-cs.eg-uj, .eg-mag, .eg-vandor, .eg-szarv, .eg-teto-ragyog, .eg-teto-csillam circle, .eg-kep.mozdul .eg-kep-belso, .eg-cs.fenylik, #eg-kep.eg-vj .eg-cs.eg-ego{ animation:none !important; }
+  #eg-kep, .eg-cs.eg-uj, .eg-cs.eg-felvillan, .eg-hoz-lebeg, #eg-kep.eg-hoz-var .eg-szarv, #eg-kep.eg-ragyog .eg-keret-gyuru, #eg-kep.eg-ragyog .eg-szarv, .eg-kolyok-hop.ugral, #eg-szarvfeny, #eg-szarvfeny .eg-szf-sugar, .eg-para, #odu-t-teto.eg-teto-felvillan, .eg-mag, .eg-vandor, .eg-szarv, .eg-teto-ragyog, .eg-teto-csillam circle, .eg-kep.mozdul .eg-kep-belso, .eg-cs.fenylik, #eg-kep.eg-vj .eg-cs.eg-ego{ animation:none !important; }
   .eg-teto-ragyog{ opacity:.4; }
+  .eg-kep.kiteljes .eg-vonal{ animation:none; stroke-dasharray:none; }
 }

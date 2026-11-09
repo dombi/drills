@@ -518,22 +518,27 @@ function vitrinReteg(o) {
    a maradék egy belső körre kerül. Odú-koordináta (680×540), a hívó klippeli az ablakra.
    Csak a szoba-ablakban jelenik meg (a napszak-bélyegképek NEM hívják). --- */
 function oduSzilankReteg() {
+  return oduSzilankPozok().map(function (p) {
+    return p.arany ? '<g class="odu-szilank-arany"><use href="#sz-arany" x="' + p.x + '" y="' + p.y + '"/></g>' : '<use href="#sz-ezust" x="' + p.x + '" y="' + p.y + '"/>';
+  }).join("");
+}
+/* a kész pályák szilánkjainak helye a fali ablakban ({x, y, arany}); az 🌌 átköltözés is innen indítja őket (odu-eg.js) */
+function oduSzilankPozok() {
   var POZ = [[166, 154], [188, 145], [210, 142], [228, 172], [230, 192], [216, 210], [198, 220], [182, 222], [152, 196], [146, 186], [150, 162], [184, 188], [196, 196],
     /* 13 új hely (2026-09-27): a Szám-rengeteg (eddig tartalék-körön) + a 12 mérés-pálya — a meglévők közé,
        az ablakkereszttől, az esti holdtól és a felhőtől távol */
     [198, 172], [172, 172], [164, 218], [212, 188], [172, 138], [168, 192], [182, 160], [158, 172], [154, 150], [202, 208], [228, 206], [210, 222], [144, 172],
     /* 6 új hely (2026-09-29): a 📚 Bagolykönyvtár 6 pályája (32 szilánk) */
     [220, 156], [156, 208], [190, 208], [238, 182], [176, 150], [206, 160]];
-  var s = "";
+  var l = [];
   for (var i = 0; i < PALYAK.length; i++) {
     var pr = P().palyak[PALYAK[i].id];
     if (!pr || !pr.kesz) continue;                 /* üres hely NEM látszik */
     var p = POZ[i];
     if (!p) { var a = Math.PI * 2 * (i - POZ.length) / Math.max(1, PALYAK.length - POZ.length); p = [190 + Math.cos(a) * 30, 180 + Math.sin(a) * 30]; }
-    if (pr.arany) s += '<g class="odu-szilank-arany"><use href="#sz-arany" x="' + p[0] + '" y="' + p[1] + '"/></g>';
-    else s += '<use href="#sz-ezust" x="' + p[0] + '" y="' + p[1] + '"/>';
+    l.push({ x: p[0], y: p[1], arany: !!pr.arany });
   }
-  return s;
+  return l;
 }
 /* --- az ablakon át látszó ég egy W×H dobozban (bal-felső sarok = 0,0) --- */
 function oduEgSVG(napszak, W, H) {
@@ -885,7 +890,7 @@ var ODU_CELOK = [
 var ODU_CEL_RAJZ = { tetoablak: "odu-t-teto", agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", szekreny: "odu-szekreny" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
-  tetoablak: { szo: function () { return "Égbolt"; }, nyit: function () { egNyit(); } },
+  tetoablak: { szo: function () { return "Égbolt"; }, nyit: function () { egFelnez(); } },   /* lefekszik, felnéz, a kölyök rálehel az üvegre, aztán nyílik az ég (odu-eg.js) */
   osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
@@ -1067,6 +1072,7 @@ function oduNyit(honnan) {
   renderOdu();
   if (!nyitasJelenet("odu", "kepernyo-odu")) bemutat("szekreny");   /* 🚪 újonc: ma nyílt a heti kártya (ui.js) — különben egyszer: „Itt vannak a holmijaid…” */
   lenyOduNyit();         /* 🥚 ami vár: a patakparti lelet, a kikelés (leny.js) */
+  egAtkoltozes();        /* 🌌 egyszer: a fali ablak szilánkjai felúsznak a tetőablakba (odu-eg.js) */
 }
 /* a szoba-terület szélesség/magasság aránya (a rugalmas szobához); rejtett képernyőn becslés */
 function oduTeruletArany() {
