@@ -458,7 +458,7 @@ function ertekel(valasz) {
     jelvenyEllenoriz();
     ment();
     var Jmost = J;
-    var tovabb = function () { if (!J || J !== Jmost || J.feladat !== f) return; if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };   /* közben kilépett / új pályát indított: a késleltetett lépés ne fusson az új pályán */
+    var tovabb = function () { if (!J || J !== Jmost || J.feladat !== f || f.tovabbMent) return; f.tovabbMent = true; if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };   /* közben kilépett / új pályát indított: a késleltetett lépés ne fusson az új pályán */
     if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
@@ -728,6 +728,8 @@ function felmondHangVissza() {
 function allomasKesz() {
   var a = J.allomasok[J.allomasIdx];
   var pipa = $("pipa-" + J.allomasIdx); if (pipa) pipa.setAttribute("opacity", "1");
+  if (J.feladat) J.feladat.tovabbMent = true;   /* a feladat lezárva: egy függőben lévő Tovább (pl. a vásár füzetéé) ne léptessen még egy állomást */
+  if (J.palya && J.palya.vasar) { vsTovabbRejt(); var vf = $("ek-fuzet"); if (vf) vf.hidden = true; }   /* 🧺 vásár: az állomás végén a füzet + a Tovább ▶ eltűnik (vasar.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";

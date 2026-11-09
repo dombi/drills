@@ -157,6 +157,8 @@ function tovabbMehetE() {
 function tovabbMegoldasNelkul() {
   if (!J || !tovabbMehetE()) return;
   hangGomb(); figyelStop();
+  if (J.feladat) J.feladat.tovabbMent = true;   /* a jó válasz utáni, még függő továbblépés (🧺 vásár füzet-Tovább ▶) ne léptessen még egyet */
+  if (J.palya && J.palya.vasar) vsTovabbRejt();
   if (J.feladat && J.feladat.csalad === "felmondas") { $("bontas-lepes").hidden = true; J.feladatKesz++; allomasKesz(); return; }
   J.feladatKesz++; J.lancKov = null;         /* mérés: a kérdés-lánc maradéka is kimarad */
   if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat();
