@@ -763,6 +763,7 @@ function palyaVege() {
   var id = J.palya.id;
   if (!P().palyak[id]) P().palyak[id] = { kesz: false, rekordElsore: 0 };
   var pr = P().palyak[id];
+  if (!pr.kesz && !pr.keszIdo) pr.keszIdo = Date.now();   /* 🌌 az első kész időpontja (odú-ég visszajátszás); a régi, már kész pályáknál üres marad */
   pr.kesz = true;
   var ujRekord = J.futoElsore > (pr.rekordElsore || 0);
   if (ujRekord) pr.rekordElsore = J.futoElsore;
@@ -773,6 +774,7 @@ function palyaVege() {
   var teljesExtra = teljes ? zaroBonusz : 0;        /* a záró bónusz kétszerezése */
   var zaroOssz = zaroBonusz + teljesExtra;
   P().csillampor += zaroOssz; J.futoCsilla += zaroOssz;
+  if (teljes && !pr.arany) pr.aranyIdo = Date.now();   /* 🌌 mikor lett arany (a visszajátszásban ekkor vált színt) */
   if (teljes) pr.arany = true;                      /* ami egyszer arany, az arany marad */
 
   /* ── tündérharmat (kitartás-valuta, 7.2): 1 minden befejezett pályáért, +1 ha sorozatban VAGY teljes ösvényen ── */

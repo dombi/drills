@@ -678,6 +678,10 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += '</g>';
   s += '<g class="odu-feny-hely"></g>';          /* ide kerülnek az élő szoba fénytócsái (odu-elet.js) — fal és padló fölé, bútor alá */
 
+  /* 🌌 TETŐABLAK a plafon közepén (odu-eg.js): koppintásra kinyílik a teljes ég; a csillaglámpa a keresztjéről lóg */
+  var egOn = tag && !elonezet && egAktiv();
+  if (egOn) s += '<g id="odu-t-teto" class="odu-targy">' + tetoablakSVG(o.napszak, egVanUj()) + '</g>';
+
   /* zászlófüzér */
   s += '<path d="M100 112 Q340 150 580 112" stroke="#8f7ab8" stroke-width="2" fill="none"/>';
   var zsz = ["#f6a5c0", "#a7d99a", "#fce49a", "#c3a5e0", "#9ec9f0", "#f6a5c0", "#a7d99a"];
@@ -691,7 +695,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   if (tag && nyitasEbren("het")) s += hetOduKartya();   /* 📅 a heti kártya fakeretben, a jelvénytábla alatt (het.js, visszahívás 5. kör); újoncnál a 4. naptól */
 
   /* mennyezeti csillag-lámpa */
-  s += '<line x1="345" y1="112" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
+  s += '<line x1="345" y1="' + (egOn ? EG_TETO.y : 112) + '" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/><circle cx="345" cy="150" r="4" fill="none" stroke="#8f7ab8" stroke-width="3"/>';
   s += '<ellipse cx="345" cy="178" rx="40" ry="36" fill="#ffe9ad" opacity="0.16"/><ellipse cx="345" cy="178" rx="22" ry="20" fill="#ffe9ad" opacity="0.22"/>';
   s += '<polygon points="345,154 350,169 366,169 354,179 358,194 345,185 332,194 336,179 324,169 340,169" fill="#ffd878" stroke="#a88fce" stroke-width="3" stroke-linejoin="round"/>';
 
@@ -709,7 +713,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
   s += oduEgSVG(o.napszak, 120, 120);
   s += oduIdoSVG(o.ido, 120, 120, 7);
   s += '</g>';
-  s += '<g pointer-events="none">' + oduSzilankReteg() + '</g>';   /* a gyűjtött csillagszilánkok az égen (7.1c/3.3b), odú-koordinátában, a hold/felhő ALATT */
+  if (!egAktiv()) s += '<g pointer-events="none">' + oduSzilankReteg() + '</g>';   /* 🌌 az odú-ég óta a csillagok a tetőablakon át látszanak (odu-eg.js); addig a gyűjtött csillagszilánkok az égen (7.1c/3.3b), odú-koordinátában, a hold/felhő ALATT */
   s += '</g>';
   s += '<ellipse cx="168" cy="206" rx="16" ry="7" fill="#cbb6e6"/><circle cx="160" cy="204" r="6" fill="#cbb6e6"/><circle cx="176" cy="203" r="7" fill="#cbb6e6"/>';
   s += '<line x1="190" y1="126" x2="190" y2="234" stroke="#a88fce" stroke-width="6"/><line x1="136" y1="180" x2="244" y2="180" stroke="#a88fce" stroke-width="6"/>';
@@ -807,6 +811,7 @@ function oduSVG(lenyKulcs, o, elonezet, arany) {
     s += '<g class="odu-celok">';
     ODU_CELOK.forEach(function (t) {
       if (t.csakTag && !tag) return;
+      if (t.csakEg && !(tag && egAktiv())) return;
       var h = t.hit, fw = t.felirat.length * 10 + 26, fx = t.fx - fw / 2;
       s += '<g class="odu-cel" data-cel="' + t.id + '" role="button" aria-label="' + t.felirat + '">';
       s += '<rect x="' + h[0] + '" y="' + h[1] + '" width="' + h[2] + '" height="' + h[3] + '" rx="10" fill="transparent"/>';
@@ -869,6 +874,7 @@ function meseKonyvSVG() {
 /* a koppintható helyek: hit = [x,y,szél,mag] odú-koordinátában, fx/fy = a névfelirat helye, cx = ahova az
    unikornis odasétál. A sorrend a rétegsorrend (a későbbi van felül). */
 var ODU_CELOK = [
+  { id: "tetoablak", felirat: "Égbolt", csakEg: true, hit: [279, 84, 132, 40], fx: 345, fy: 146, cx: 345 },   /* 🌌 a tetőablak (odu-eg.js): odasétál alá, és kinyílik az ég */
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
   { id: "osveny", felirat: "Térkép", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
@@ -876,9 +882,10 @@ var ODU_CELOK = [
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "szekreny", felirat: "Szekrény", hit: [508, 424, 96, 106], fx: 556, fy: 426, cx: 472 }
 ];
-var ODU_CEL_RAJZ = { agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", szekreny: "odu-szekreny" };
+var ODU_CEL_RAJZ = { tetoablak: "odu-t-teto", agy: "odu-t-agy", lampa: "", osveny: "odu-t-ablak", jelveny: "odu-t-jelveny", gyujt: "odu-t-gyujt", szekreny: "odu-szekreny" };
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
+  tetoablak: { szo: function () { return "Égbolt"; }, nyit: function () { egNyit(); } },
   osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },

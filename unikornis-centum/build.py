@@ -111,6 +111,7 @@ MODULES = [
 
     # ── Helyszínek ──
     "odu.js",             # 10b) odú + bolt (napszak, időjárás, bútorok, díszek, ruhák, kristályok)
+    "odu-eg.js",          # 10b1) 🌌 odú-ég: tetőablak + nyitott ég + csillagkép-motor (EG_KEPEK, ?egproba)
     "odu-elet.js",        # 10b2) élet az odúban: élénk szoba (A), élő polc (B), kis élet (F)
     "kert-tajkep.js",     # 10c2) 🌿 a patakparti C2 kert képe (fekvő/álló), hal + szitakötő — a Tény-kert is erre épül
     "teny-kert.js",       # 10c3) 🌷 Tény-kert: virág-modul (12 forma), tövek a spirálon, belesétálás + ráközelítés, közeli kép, hír

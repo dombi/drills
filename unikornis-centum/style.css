@@ -3274,3 +3274,53 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
   .alb-test{ grid-template-columns:1fr; grid-template-rows:minmax(0,1.1fr) minmax(0,1fr); }
   .alb-cim{ display:none; }
 }
+
+/* ══ 🌌 Odú-ég: tetőablak + nyitott ég (odu-eg.js) ══ */
+.eg-teto-ragyog{ animation:eg-teto-lukt 2.8s ease-in-out infinite; opacity:.15; }
+.eg-teto-belso{ animation-delay:-.4s; }
+@keyframes eg-teto-lukt{ 0%,100%{ opacity:.08; } 50%{ opacity:.55; } }
+.eg-teto-csillam circle{ animation:eg-pislog 3.4s ease-in-out infinite; }
+.eg-teto-csillam circle:nth-child(2n){ animation-delay:-1.6s; }
+#eg-kep{ position:fixed; inset:0; z-index:950; background:linear-gradient(#121842,#232c63 70%,#36407e); animation:eg-be .7s ease-out; overflow:hidden; }
+#eg-kep > svg{ width:100%; height:100%; display:block; }
+@keyframes eg-be{ from{ opacity:0; transform:translateY(60px); } to{ opacity:1; transform:none; } }
+.eg-gomb{ position:absolute; top:12px; font:800 18px "Fredoka","Segoe UI",system-ui,sans-serif; background:#fffaf0; color:#5a3f8a; border:2px solid #a88fce; border-radius:999px; padding:8px 18px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+.eg-gomb:hover{ background:#fff3d6; }
+.eg-vissza{ left:12px; }
+.eg-vj-gomb{ right:12px; font-size:20px; padding:6px 14px; }
+.eg-proba{ left:50%; transform:translateX(-50%); top:64px; font-size:15px; background:#f3ecff; }
+.eg-cs, .eg-kep-hit, .eg-keret{ cursor:pointer; }
+.eg-cs, .eg-kep-belso, .eg-mag{ transform-box:fill-box; transform-origin:center; }
+.eg-mag{ animation:eg-pislog 3.2s ease-in-out infinite; }
+.eg-cs.arany .eg-korong{ animation:eg-pislog 4.5s ease-in-out infinite; }
+@keyframes eg-pislog{ 0%,100%{ opacity:1; } 50%{ opacity:.68; } }
+.eg-cs.eg-uj{ animation:eg-gyul 1.2s ease-out both; }
+@keyframes eg-gyul{ 0%{ opacity:0; transform:scale(.2); } 55%{ opacity:1; transform:scale(1.9); } 100%{ opacity:1; transform:scale(1); } }
+.eg-cs.fenylik{ animation:eg-fenylik 1.2s ease-out; }
+@keyframes eg-fenylik{ 0%{ transform:scale(1); filter:none; } 35%{ transform:scale(1.7); filter:drop-shadow(0 0 6px #fff6c8); } 100%{ transform:scale(1); filter:none; } }
+.eg-vonal{ stroke:#9fb0e8; stroke-width:1.4; opacity:.32; stroke-linecap:round; transition:opacity .5s, stroke-width .5s; }
+.eg-vonal.teljes{ opacity:.7; stroke-width:1.9; }
+.eg-kep.arany .eg-vonal{ stroke:#ffd878; }
+.eg-kep.fenylik .eg-vonal{ opacity:1; stroke-width:2.6; }
+.eg-vandor{ animation:eg-sodrodik 20s ease-in-out infinite; }
+@keyframes eg-sodrodik{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(9px,-6px); } }
+.eg-szarv{ animation:eg-pislog 2.6s ease-in-out infinite; }
+.eg-cimke{ animation:eg-be .25s ease-out; }
+/* a csillagkép egyszer megmozdul (koppintásra, teljes képen) */
+.eg-kep.mozdul .eg-kep-belso{ animation:eg-m-pulzal 1.4s ease-in-out; }
+.eg-kep.mozdul.eg-m-szarny .eg-kep-belso, .eg-kep.mozdul.eg-m-csattan .eg-kep-belso{ animation:eg-m-szarny 1.4s ease-in-out; }
+.eg-kep.mozdul.eg-m-billen .eg-kep-belso, .eg-kep.mozdul.eg-m-lebben .eg-kep-belso, .eg-kep.mozdul.eg-m-bolint .eg-kep-belso{ animation:eg-m-billen 1.4s ease-in-out; }
+.eg-kep.mozdul.eg-m-bugyog .eg-kep-belso, .eg-kep.mozdul.eg-m-peng .eg-kep-belso{ animation:eg-m-ugrik 1.4s ease-in-out; }
+@keyframes eg-m-szarny{ 0%,100%{ transform:scaleX(1); } 30%{ transform:scaleX(1.18); } 60%{ transform:scaleX(.94); } }
+@keyframes eg-m-billen{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-7deg); } 60%{ transform:rotate(5deg); } }
+@keyframes eg-m-ugrik{ 0%,100%{ transform:translateY(0); } 30%{ transform:translateY(-10px); } 55%{ transform:translateY(2px); } 75%{ transform:translateY(-4px); } }
+@keyframes eg-m-pulzal{ 0%,100%{ transform:scale(1); } 30%{ transform:scale(1.12); } 60%{ transform:scale(.97); } }
+/* ⏪ visszajátszás: minden elsötétül, és egyenként kigyúl */
+#eg-kep.eg-vj .eg-cs, #eg-kep.eg-vj .eg-vonal{ opacity:0; animation:none; transition:opacity .6s; }
+#eg-kep.eg-vj .eg-cs.eg-ego{ opacity:1; animation:eg-gyul 1s ease-out both; }
+#eg-kep.eg-vj .eg-vonal.eg-ego{ opacity:.7; }
+#eg-kep.eg-vj .eg-gomb{ opacity:.35; }
+@media (prefers-reduced-motion:reduce){
+  #eg-kep, .eg-cs.eg-uj, .eg-mag, .eg-vandor, .eg-szarv, .eg-teto-ragyog, .eg-teto-csillam circle, .eg-kep.mozdul .eg-kep-belso, .eg-cs.fenylik, #eg-kep.eg-vj .eg-cs.eg-ego{ animation:none !important; }
+  .eg-teto-ragyog{ opacity:.4; }
+}

@@ -51,7 +51,7 @@
 <div class="wrap">
 
 <h1>🌌 Odú-ég: tetőablak és csillagképek</h1>
-<p class="sub">Tervlap · ✅ JÓVÁHAGYVA 2026-11-09 · Unikornis Centum · kód még nincs (következik: A lépés)</p>
+<p class="sub">Tervlap · ✅ JÓVÁHAGYVA 2026-11-09 · Unikornis Centum · ✅ A lépés kész (2026-11-09) · ⏸️ megálló: nézd meg a játékban, <code>?egproba</code></p>
 
 <div class="box vez">
   <b>Egy mondatban:</b> az odú plafonján kerek tetőablak nyílik. Ha a gyerek megkoppintja, az unikornisa lefekszik alá és felnéz, a kép pedig kinyílik a teljes esti égre. Ott minden kész pálya egy csillag, és a helyszínek csillagai lassan csillagképpé állnak össze. A fali ablak marad a kinti világ (időjárás, napszak, kijárat).
@@ -198,11 +198,19 @@
 <p><b>Nagyságrend: NAGY.</b> Új helyszín-szerű kép (a nyitott ég) és egy új motor, de nincs új figura. Ezért nem lesz külön rajzterv, hanem <b>egy megálló</b> a játékban.</p>
 <table>
   <tr><th>lépés</th><th>tartalom</th></tr>
-  <tr><td><b>A</b></td><td>Új közös modul: <code>src/odu-eg.js</code> (a csillagkép-táblázat, az elrendezés, a nyitott ég rajza, a koppintások, a visszajátszás). <code>odu.js</code>: tetőablak + új cél, és a szilánkok le a fali ablakról. <code>engine-logic.js</code>: <code>keszIdo</code>/<code>aranyIdo</code>. Próbanézet: <code>?egproba</code> kitalált adatokkal (minden kép félig, egészen, aranyban, 3 és 20 csillaggal).</td></tr>
+  <tr><td><b>A</b> ✅</td><td>Új közös modul: <code>src/odu-eg.js</code> (a csillagkép-táblázat, az elrendezés, a nyitott ég rajza, a koppintások, a visszajátszás). <code>odu.js</code>: tetőablak + új cél, és a szilánkok le a fali ablakról. <code>engine-logic.js</code>: <code>keszIdo</code>/<code>aranyIdo</code>. Próbanézet: <code>?egproba</code> kitalált adatokkal (minden kép félig, egészen, aranyban, 3 és 20 csillaggal).</td></tr>
   <tr><td>⏸️ <b>megálló</b></td><td>A producer a játékban megnézi a tetőablakot és a nyitott eget a 10 csillagképpel. Itt lehet szólni a formákról, a nevekről és a színekről.</td></tr>
   <tr><td><b>B</b></td><td>Egyben: az unikornis fekve felnéz (<code>renderer.js</code>: a fekvő póz egy „felnéz” változata), a kissárkány párája (<code>sarkany-holmi.js</code>), a csillagok repülése, a kiteljesedés, az átköltözés, a villanyoltás összehangolása, a hangok, a kímélő mód. Gépi próba Lili- és Fanni-szerű mentéssel, utána tervlap-frissítés és feltöltés.</td></tr>
 </table>
 
+<div class="box ok"><b>✅ A lépés kész (2026-11-09) — ami az építésnél dőlt el:</b>
+<ul>
+  <li><b>Élesben még nem látszik</b> (<code>EG_ELES = false</code>): a gyerekeknél marad a régi fali-ablak ég, hogy a tetőablakkal az első találkozás már a B lépés (fekvés, csillagrepülés, átköltözés) élménye legyen. A <code>keszIdo</code>/<code>aranyIdo</code> mentése viszont már él, így a visszajátszás a mai naptól pontos.</li>
+  <li><b>Próbanézet:</b> a játék címe után <code>?egproba</code>. A tetőablak megjelenik, a nyitott égen a „🧪 … ▸” gomb lapozza a próbákat: <i>Vegyes</i> (a valódi pályákkal, 4 hazahozott csillaggal, 2 vándorcsillaggal), <i>3 csillag</i>, <i>20 csillag</i>, <i>Félkész</i>, <i>Saját ég</i> (a saját mentés másolata). A valódi mentés egyikben sem változik.</li>
+  <li>A <b>tetőablak</b> (345, 104), 116 × 30 egység; a lámpa zsinórja a keresztjéről lóg. A nyitott ég fekvő képernyőn 1000 × 640, álló képernyőn 600 × 1000 egység, a kép alján a tetőablak kerete és a szarvhegy.</li>
+  <li>A <b>Piactér</b> (Libra) a térképen nem külön hely, ezért a Tündérvásár mellé került (<code>EG_IGAZIT</code>). A <b>Bagolykönyvtár</b> 15 pályája egyetlen kép (Noctua); a kettéosztás határa kb. 14, ezt a megállónál érdemes eldönteni. A Fejtörő-hegynek (Mensa) és a „Neked készült”-nek (Cor) ma nincs pályája a listában, ezért élesben még üresek.</li>
+  <li>A hazahozott csillagok az A lépésben még csak a helyükön gyúlnak ki (felvillanva, egymás után); a szarv körüli várakozás és a repülés a B lépés.</li>
+</ul></div>
 <h2>8. Későbbre (most nem)</h2>
 <ul>
   <li>Eső- és hócseppek a tetőablak üvegén díszként (a fali ablakon már van időjárás).</li>
