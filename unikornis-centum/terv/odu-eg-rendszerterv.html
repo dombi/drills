@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odú-ég tervlap</title>
+<style>
+  :root{
+    --bg:#f7f4fb; --panel:#ffffff; --ink:#2a2638; --muted:#6a6478; --line:#ebe4f3;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --gold:#e0a000; --green:#3f9e6a; --green-soft:#dff3e7;
+    --warn:#b86a00; --warn-soft:#fff3dc; --night:#1f2350; --night2:#343a7a; --star:#eef3ff; --starline:#9fb0e8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1722; --panel:#252030; --ink:#f0ecf7; --muted:#b3abc2; --line:#3a3348;
+      --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1722; --panel:#252030; --ink:#f0ecf7; --muted:#b3abc2; --line:#3a3348;
+    --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:1.7rem;margin:0 0 4px}
+  h2{font-size:1.2rem;margin:34px 0 10px;padding-bottom:4px;border-bottom:2px solid var(--line)}
+  h3{font-size:1.02rem;margin:20px 0 6px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:12px 0}
+  .ok{background:var(--green-soft);border-color:transparent}
+  .kerdes{background:var(--warn-soft);border-color:transparent}
+  .vez{background:var(--violet-soft);border-color:transparent}
+  table{border-collapse:collapse;width:100%;font-size:.94rem}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);padding:0 4px;border-radius:4px;font-size:.88em}
+  .tag{display:inline-block;font-size:.78rem;padding:1px 8px;border-radius:10px;background:var(--green-soft);color:var(--green);font-weight:600}
+  .tag.uj{background:var(--violet-soft);color:var(--violet)}
+  .kepek{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .kep{background:var(--night);border-radius:10px;padding:6px 6px 8px;color:#e8ecff;text-align:center;font-size:.85rem}
+  .kep svg{width:100%;height:auto;display:block}
+  .kep b{display:block;font-size:.92rem}
+  .vazlat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px}
+  .vazlat svg{width:100%;height:auto;display:block}
+  ol li,ul li{margin:4px 0}
+  .kicsi{font-size:.88rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🌌 Odú-ég: tetőablak és csillagképek</h1>
+<p class="sub">Tervlap jóváhagyásra · 2026-11-09 · Unikornis Centum · kód még nincs</p>
+
+<div class="box vez">
+  <b>Egy mondatban:</b> az odú plafonján kerek tetőablak nyílik. Ha a gyerek megkoppintja, az unikornisa lefekszik alá és felnéz, a kép pedig kinyílik a teljes esti égre. Ott minden kész pálya egy csillag, és a helyszínek csillagai lassan csillagképpé állnak össze. A fali ablak marad a kinti világ (időjárás, napszak, kijárat).
+</div>
+
+<h2>1. Ami már eldőlt (a beszélgetésekből, 10-24 és 10-25)</h2>
+<div class="box ok">
+<ul>
+  <li><b>Kerek tetőablak</b> a plafonon. A gyerek ezt koppintja meg, és kinyílik a teljes ég. A <b>fali ablak</b> marad kijárat, és ott látszik az időjárás és a napszak.</li>
+  <li>Koppintásra az <b>unikornis lefekszik</b> a tetőablak alá: a meglévő fekvő póz, felemelt fejjel és felfelé ragyogó szarvval. Ha van <b>kissárkánya</b>, az felrepül vagy felágaskodik az üveghez, és rálehel (párakör).</li>
+  <li>Kinyitva <b>mindig esti ég</b> van. A villanyoltás unikornisfeje <b>marad a falon</b>.</li>
+  <li><b>Minden pálya egy csillag.</b> Az arany (teljes ösvény) csillag más színű, mint a sima kész csillag.</li>
+  <li><b>Meglepetés:</b> a hiányzó csillagok helye nem látszik, az új pályáé sem, még halványan sem.</li>
+  <li>A csillagkép kevés és sok csillaggal is jól mutasson, és kövesse az új pályákat, a költözést és az átalakulást. Latinos, valódi csillagképeket idéző nevek; a forma csak sejtesse a tárgyat.</li>
+  <li>A csillagkép a <b>kis egységhez</b> tartozik (liget, műhely, negyed), nem a nagy világhoz. Költözéskor a csillagaival együtt vándorol. A csillag helye a <b>pálya azonosítójához</b> kötődik, nem a sorszámhoz.</li>
+  <li>Az új csillag <b>nem a pálya végén</b> kerül az égre, hanem amikor a gyerek legközelebb kinyitja a tetőablakot. Az addig szerzett csillagok (akár több is) <b>együtt repülnek</b> a helyükre.</li>
+  <li><b>Kiteljesedés:</b> a tetőablak erősebben felragyog, a vonalak lassan kirajzolódnak, a csillagkép egyszer megmozdul (a bagoly kitárja a szárnyát), a sárkány ugrál, és felragyog a szarv. Új csillagnál a tetőablak finoman felragyog, ez jelzi, hogy érdemes felnézni.</li>
+  <li><b>Visszajátszás:</b> a gyerek bármikor visszanézheti, hogyan gyúlt ki az ege. A már meglévő csillagok véletlenszerű sorrendben gyúlnak ki. Ezt a sorrendet <b>egyszer sorsoljuk ki és elmentjük</b>, így minden visszanézéskor ugyanaz. A dátumot (<code>keszIdo</code>) ezzel a körrel együtt kezdjük menteni.</li>
+</ul>
+</div>
+
+<div class="box vez">
+  <b>Mit CSINÁL a gyerek a képen, és mit mutat neki erre a kép?</b><br>
+  Felnyitja az eget (koppint a tetőablakra), és a saját unikornisa lefekszik alá. <span class="tag uj">javaslat</span> A hazahozott csillagok a szarv körül várnak, és <b>a gyerek koppintására</b> szállnak a helyükre. Ő engedi el őket, nem maguktól mennek. Utána a csillagokra és a csillagképekre koppintva megmutatják, honnan jöttek. Ez nem matek-pálya, hanem a gyűjtemény helye. A vezérelv itt annyit jelent, hogy a gyerek ne csak nézze az eget: ő nyitja ki, ő engedi el a csillagokat, ő kérdez rá.
+</div>
+
+<h2>2. Az odú: hová kerül a tetőablak</h2>
+<p>Az odú boltíves tetejének közepén, a mostani csillaglámpa fölött (a lámpa x = 345-nél lóg). <span class="tag uj">javaslat</span> <b>A lámpa a tetőablak keresztjéről lóg le.</b> Így nem kell máshová tenni, és a két „ég” egy helyen van: a lámpa a sajátja, a tetőablak az igazi. Elölnézetből a kerek ablak lapított ellipszisnek látszik (kb. 125 × 36 egység), a fa kérgébe vágva. A zászlófüzér alatta marad.</p>
+<div class="vazlat">
+<svg viewBox="60 40 560 260" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="11">
+  <path d="M30 540 L30 230 Q30 80 340 60 Q650 80 650 230 L650 540 Z" fill="#b79fd4"/>
+  <path d="M75 540 L75 245 Q75 110 340 92 Q605 110 605 245 L605 540 Z" fill="#cbb6e6"/>
+  <ellipse cx="345" cy="96" rx="66" ry="22" fill="#8a6fb8"/>
+  <ellipse cx="345" cy="96" rx="58" ry="17" fill="#2b2f6a"/>
+  <g fill="#fff6d0"><circle cx="318" cy="92" r="1.6"/><circle cx="360" cy="88" r="2.2"/><circle cx="378" cy="100" r="1.4"/><circle cx="332" cy="104" r="1.2"/></g>
+  <line x1="287" y1="96" x2="403" y2="96" stroke="#8a6fb8" stroke-width="3"/><line x1="345" y1="79" x2="345" y2="113" stroke="#8a6fb8" stroke-width="3"/>
+  <line x1="345" y1="113" x2="345" y2="154" stroke="#8f7ab8" stroke-width="3"/>
+  <polygon points="345,154 350,169 366,169 354,179 358,194 345,185 332,194 336,179 324,169 340,169" fill="#ffd878" stroke="#a88fce" stroke-width="3"/>
+  <path d="M100 112 Q340 150 580 112" stroke="#8f7ab8" stroke-width="2" fill="none"/>
+  <circle cx="190" cy="180" r="64" fill="#a9d4f2"/><circle cx="190" cy="180" r="64" fill="none" stroke="#c9a8e6" stroke-width="8"/>
+  <path d="M190 116 V244 M126 180 H254" stroke="#c9a8e6" stroke-width="5"/>
+  <rect x="262" y="148" width="60" height="50" rx="5" fill="#b98a55"/>
+  <text x="420" y="78" fill="#3d3a4a">← tetőablak (koppintható)</text>
+  <text x="370" y="176" fill="#3d3a4a">csillaglámpa a keresztjéről lóg</text>
+  <text x="118" y="270" fill="#3d3a4a">fali ablak: időjárás + napszak + kijárat</text>
+  <text x="250" y="140" fill="#3d3a4a" font-size="9">jelvénytábla</text>
+</svg>
+</div>
+<p class="kicsi">Vázlat, nem rajzterv. A pontos méret és vastagság az építésnél, a játékban dől el (lásd 7. pont, megálló).</p>
+
+<h3>A tetőablak csukva (az odúban)</h3>
+<ul>
+  <li>Az üvegen át egy szelet ég látszik az <b>aktuális napszak</b> színében, néhány apró fénypöttyel. Ezek csak csillámok, nem a gyerek csillagai, így semmit nem árulnak el.</li>
+  <li><b>Ha van még nem látott csillag:</b> az üveg lassan, finoman lüktetve felragyog (ez a „nézz fel!” nyom). Nincs rajta szám és nincs felirat.</li>
+  <li><b>Villanyoltáskor</b> a tetőablak egy kicsit világosabb lesz, a csillámai pislognak (a fátyol maszkjában lyukat kap, mint a fali ablak).</li>
+  <li><b>A fali ablakról eltűnnek a szilánkok.</b> Ott ezentúl csak az időjárás, a hold és a felhő látszik. Ezzel megoldódik a régi gond is: a 33. pályától a szilánkok a holdra és az ablakkeresztre estek.</li>
+</ul>
+
+<h3>Első alkalom: átköltözés <span class="tag uj">javaslat</span></h3>
+<p>Lili és Fanni ege ma a fali ablakban van. A frissítés utáni első odú-látogatáskor a szilánkok egyszer, lassan <b>felúsznak a fali ablakból a tetőablakba</b>, és a tetőablak felragyog. Így a gyerek látja, hová lett az ege, és miért érdemes felnézni. Ezek a csillagok utána már „látottnak” számítanak, de a teljes égen az első nyitáskor még egyszer, egyben felgyúlnak a helyükön (ez lesz az „első ég”).</p>
+
+<h2>3. A kinyitás menete</h2>
+<ol>
+  <li><b>Koppintás a tetőablakra</b> (új <code>ODU_CELOK</code> elem: „tetoablak”). Az unikornis a tetőablak alá sétál, lefekszik, felemeli a fejét, és a szarva felfelé ragyog. A lámpa magától lehalkul.</li>
+  <li><b>A kissárkány</b> (ha van) odarepül az üveghez, és rálehel: párakör jelenik meg, majd elhalványul. Ha épp alszik az ágyában, alszik tovább, nem ébresztjük fel.</li>
+  <li><b>A kép kinyílik:</b> a nézet felúszik a tetőablakon át, és az esti ég kitölti a képernyőt. A kép alján a tetőablak kerek kerete marad, a keret szélénél pedig az unikornis ragyogó szarvhegye látszik. Így érződik, hogy ő néz fel.</li>
+  <li><b>Hazahozott csillagok</b> (ha vannak): a szarv körül körben lebegnek. <span class="tag uj">javaslat</span> A gyerek egy koppintására együtt felszállnak, mindegyik a saját helyére (a megszerzés sorrendjében, egymás után kis késéssel). Ha a gyerek 6 mp-ig nem koppint, maguktól indulnak. Az arany csillag nagyobb ívben repül, és a végén felvillan.</li>
+  <li><b>Ha ettől egy csillagkép teljes lesz:</b> jön a kiteljesedés-pillanat (lásd 1. pont).</li>
+  <li><b>Nézelődés:</b> koppintás egy csillagra, egy csillagképre, vagy a ⏪ gombra (lásd 5. pont).</li>
+  <li><b>Vissza:</b> a „Vissza az odúba” gomb, vagy koppintás a tetőablak keretére a kép alján. A nézet visszaúszik, az unikornis feláll, a lámpa visszakapcsol (a villanyoltás előtti állapotára).</li>
+</ol>
+<p class="kicsi">Kímélő mód (<code>prefers-reduced-motion</code>): nincs úszás és repülés, csak áttűnés. A csillagok egyszerre jelennek meg, a kiteljesedés egy felragyogás.</p>
+
+<h2>4. A csillagkép-motor</h2>
+
+<h3>4.1 Melyik pálya melyik csillagképbe tartozik</h3>
+<p>Egy kis táblázat (<code>EG_KEPEK</code>) mondja meg, hogy melyik egység (liget vagy műhely) melyik csillagkép. Ma a pályák <code>regio</code> mezője adja az egységet (<code>palyaLiget()</code>). Ha a térkép átrendeződik, csak ezt a táblázatot kell átírni, és a csillagok a pályájukkal együtt költöznek.</p>
+<ul>
+  <li><b>Minden pálya pontosan egy csillag</b>, és pontosan egy képhez tartozik.</li>
+  <li>Ha egy egységbe sok pálya kerül (kb. 14 fölött), a táblázatban kettéosztjuk, és két csillagkép lesz belőle (például az Összeadó liget alapjai és a 100-as kör).</li>
+  <li><b>Vándorcsillag:</b> egy kész pálya, amelynek még nincs képe (új egység, amit a táblázat nem ismer), nem vész el. Lassan sodródik a Tejút sávjában, amíg a táblázat be nem sorolja. Ezt csak kész pályára alkalmazzuk.</li>
+</ul>
+
+<h3>4.2 Hogyan áll össze a forma, ha 3 vagy 20 csillaga van</h3>
+<ul>
+  <li>Minden csillagképnek van egy <b>váza</b>: 4–8 fő pont, vonalakkal összekötve (a rajzok lent). A fő pontoknak van <b>fontossági sorrendje</b> (a bagolynál például előbb a két szem és a két fül), így néhány csillagból is sejthető a forma.</li>
+  <li>A kép csillagainak száma = az egység pályáinak száma. Ha kevesebb a csillag, mint a fő pont, csak a legfontosabb fő pontok kellenek. Ha több, a többletet <b>kitöltő csillagként a vonalak mentén</b>, egyenletesen osztjuk szét.</li>
+  <li><b>Melyik pálya melyik csillag:</b> a pályák az egységen belüli tanulási sorrendben (a <code>PALYAK</code> sorrendjében) kapják a helyeket. Az első pályák lesznek a fő pontok, vagyis a váz az alapokból épül, a kitöltők a későbbi pályákból. A csillag a pálya azonosítójához tartozik: a színe, a megszerzés ideje és a „látta-e” jel mind azonosító szerint van mentve.</li>
+  <li><b>Új pálya érkezik az egységbe:</b> a kép csillagai a következő nyitáskor finoman átrendeződnek a vonalak mentén (lassú csúszás), és egy új, láthatatlan hely születik. Egyik csillag sem tűnik el, és egyik sem cserél gazdát.</li>
+  <li><b>Ami egyszer kirajzolódott, nem tűnik el.</b> Ha egy teljes képhez később új pálya jön, a vonalai megmaradnak. Az új csillag, ha kész lesz, a vonalra ül, és a vonal kicsit meghosszabbodik. Elvenni egy kiérdemelt képet nem szabad.</li>
+  <li><b>Vonalak, amíg nem teljes a kép</b> <span class="tag uj">javaslat</span>: két szomszédos, már kész csillag között halvány vonaldarab látszik, a többi vonal nem. Így „összeérnek” a vonalak, ahogy a producer leírta, de a hiányzó csillagok helyét semmi sem árulja el. Teljes képnél minden vonal kirajzolódik, erősebb színnel.</li>
+  <li><b>Teljes a kép</b>, ha az egység minden, <b>a gyereknek elérhető</b> pályája kész. A pultról elrejtett pálya nem számít bele, hogy Lili képe ne maradjon örökre befejezetlen egy neki kikapcsolt pálya miatt. Ha később bekapcsolják, az előző pont szabálya érvényes: a kép marad, egy csillag hozzájön.</li>
+</ul>
+
+<h3>4.3 Csillagszínek</h3>
+<table>
+  <tr><th>állapot</th><th>a csillag</th></tr>
+  <tr><td>kész pálya</td><td>hideg fehér-ezüst, kicsi, pislákol</td></tr>
+  <tr><td>arany (teljes ösvény)</td><td>meleg aranysárga, nagyobb, lassú fénykorong körülötte. Ha egy kész pálya később arannyá válik, a következő nyitáskor a csillag „átvált” (felvillan és aranyra színeződik). Ez is új dolognak számít, ezért ragyog a tetőablak.</td></tr>
+  <tr><td>a kép minden csillaga arany</td><td><span class="tag uj">javaslat</span> a teljes kép vonalai is aranyba fordulnak: ez az „aranyló csillagkép”. Fanninak gyűjteni való, és a pultra sem kell semmi új.</td></tr>
+</table>
+
+<h3>4.4 Hol vannak a képek az égen</h3>
+<p>Az ég térképe <b>a világ térképét tükrözi</b>: a csillagkép helyét a ligettérkép (<code>LIGET_TERKEP</code>) koordinátáiból számoljuk. A Fejtörő-hegy képe fent, jobbra van, a Bagolykönyvtáré mellette, az odú közelében pedig alul, balra a saját képe. Ha a térkép változik, az ég magától követi. Egy kis igazító táblázat kézzel arrébb tolhat egy képet, ha kettő túl közel kerülne. Az ég fekvő képernyőn széles, álló képernyőn (telefonon) a térkép álló elrendezését követi.</p>
+
+<h3>4.5 A csillagképek (javasolt nevek és vázak)</h3>
+<p>A forma csak sejtesse a tárgyat. A latin név nagy betűvel, alatta magyarul: „Noctua · a Bagoly”.</p>
+<div class="kepek">
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="30,14 26,36 30,70 50,88 70,70 74,36 70,14"/><line x1="26" y1="36" x2="74" y2="36"/></g><g fill="#eef3ff"><circle cx="30" cy="14" r="2.6"/><circle cx="70" cy="14" r="2.6"/><circle cx="41" cy="44" r="3.4"/><circle cx="59" cy="44" r="3.4"/><circle cx="26" cy="36" r="2"/><circle cx="74" cy="36" r="2"/><circle cx="30" cy="70" r="2"/><circle cx="70" cy="70" r="2"/><circle cx="50" cy="88" r="2.4"/></g></svg><b>Noctua</b>a Bagoly · Bagolykönyvtár</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="10,82 50,16 90,82"/><line x1="10" y1="82" x2="90" y2="82"/><polyline points="42,82 50,58 58,82"/><line x1="50" y1="16" x2="50" y2="4"/><line x1="50" y1="4" x2="62" y2="9"/></g><g fill="#eef3ff"><circle cx="50" cy="16" r="3.2"/><circle cx="10" cy="82" r="2.6"/><circle cx="90" cy="82" r="2.6"/><circle cx="50" cy="58" r="2"/><circle cx="62" cy="9" r="2"/><circle cx="30" cy="49" r="1.8"/><circle cx="70" cy="49" r="1.8"/></g></svg><b>Tabernaculum</b>a Sátor · Tündérvásár</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><line x1="50" y1="14" x2="50" y2="86"/><line x1="14" y1="32" x2="86" y2="32"/><polyline points="14,32 4,58 24,58 14,32"/><polyline points="86,32 76,58 96,58 86,32"/><line x1="36" y1="86" x2="64" y2="86"/></g><g fill="#eef3ff"><circle cx="50" cy="14" r="3"/><circle cx="14" cy="32" r="2.4"/><circle cx="86" cy="32" r="2.4"/><circle cx="4" cy="58" r="2"/><circle cx="24" cy="58" r="2"/><circle cx="76" cy="58" r="2"/><circle cx="96" cy="58" r="2"/><circle cx="50" cy="86" r="2.6"/></g></svg><b>Libra</b>a Mérleg · Piactér</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="26,12 18,46 34,76 50,86 66,76 82,46 74,12"/><line x1="26" y1="26" x2="74" y2="26"/><line x1="42" y1="26" x2="44" y2="80"/><line x1="58" y1="26" x2="56" y2="80"/></g><g fill="#eef3ff"><circle cx="26" cy="12" r="2.6"/><circle cx="74" cy="12" r="2.6"/><circle cx="18" cy="46" r="2"/><circle cx="82" cy="46" r="2"/><circle cx="50" cy="86" r="3"/><circle cx="34" cy="76" r="1.8"/><circle cx="66" cy="76" r="1.8"/></g></svg><b>Lyra</b>a Lant · Szorzós liget</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><circle cx="24" cy="78" r="12"/><circle cx="76" cy="78" r="12"/><line x1="32" y1="69" x2="80" y2="10"/><line x1="68" y1="69" x2="20" y2="10"/></g><g fill="#eef3ff"><circle cx="80" cy="10" r="2.6"/><circle cx="20" cy="10" r="2.6"/><circle cx="50" cy="46" r="3"/><circle cx="24" cy="66" r="2"/><circle cx="76" cy="66" r="2"/><circle cx="12" cy="80" r="1.8"/><circle cx="88" cy="80" r="1.8"/></g></svg><b>Forfex</b>az Olló · Szabóműhely</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="40,10 40,38 14,84 86,84 60,38 60,10"/><line x1="36" y1="10" x2="64" y2="10"/><line x1="24" y1="66" x2="76" y2="66"/></g><g fill="#eef3ff"><circle cx="40" cy="10" r="2.4"/><circle cx="60" cy="10" r="2.4"/><circle cx="40" cy="38" r="2"/><circle cx="60" cy="38" r="2"/><circle cx="14" cy="84" r="2.8"/><circle cx="86" cy="84" r="2.8"/><circle cx="50" cy="74" r="2"/></g></svg><b>Ampulla</b>a Lombik · Bájitalkonyha</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="12,82 18,46 50,22 82,46 88,82"/><line x1="12" y1="82" x2="88" y2="82"/><polyline points="36,82 36,62 64,62 64,82"/><line x1="72" y1="36" x2="72" y2="10"/></g><g fill="#eef3ff"><circle cx="50" cy="22" r="3"/><circle cx="12" cy="82" r="2.4"/><circle cx="88" cy="82" r="2.4"/><circle cx="18" cy="46" r="2"/><circle cx="82" cy="46" r="2"/><circle cx="72" cy="10" r="2"/><circle cx="50" cy="62" r="1.8"/></g></svg><b>Fornax</b>a Kemence · Mézes pékség</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="90,6 66,30 56,22 50,40 30,52 20,58 28,66 52,60 44,92"/><line x1="66" y1="30" x2="72" y2="52"/><line x1="52" y1="60" x2="72" y2="52"/></g><g fill="#eef3ff"><circle cx="90" cy="6" r="3.2"/><circle cx="66" cy="30" r="2.4"/><circle cx="20" cy="58" r="2.4"/><circle cx="56" cy="22" r="2"/><circle cx="72" cy="52" r="2"/><circle cx="44" cy="92" r="2.2"/><circle cx="34" cy="56" r="1.6"/></g></svg><b>Monoceros</b>az Egyszarvú · Összeadó liget</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="4,86 22,40 38,32 46,14 56,32 78,34 96,86"/><line x1="4" y1="86" x2="96" y2="86"/></g><g fill="#eef3ff"><circle cx="46" cy="14" r="3.2"/><circle cx="4" cy="86" r="2.4"/><circle cx="96" cy="86" r="2.4"/><circle cx="22" cy="40" r="2"/><circle cx="78" cy="34" r="2"/><circle cx="38" cy="32" r="1.8"/><circle cx="56" cy="32" r="1.8"/></g></svg><b>Mensa</b>az Asztalhegy · Fejtörő-hegy</div>
+  <div class="kep"><svg viewBox="0 0 100 100"><g stroke="#9fb0e8" stroke-width="1.4" fill="none" opacity=".8"><polyline points="50,88 12,48 18,22 36,16 50,32 64,16 82,22 88,48 50,88"/></g><g fill="#eef3ff"><circle cx="50" cy="88" r="3"/><circle cx="50" cy="32" r="2.6"/><circle cx="12" cy="48" r="2"/><circle cx="88" cy="48" r="2"/><circle cx="36" cy="16" r="2"/><circle cx="64" cy="16" r="2"/><circle cx="18" cy="22" r="1.6"/><circle cx="82" cy="22" r="1.6"/></g></svg><b>Cor</b>a Szív · Neked készült</div>
+</div>
+<p class="kicsi">Fenntartva: <b>Draco</b> (a Sárkány) a kissárkánynak, ha egyszer saját pályái lesznek; <b>Corona</b> (a Korona) a Mesterpróbának, ha önálló egység lesz. Ha az Összeadó liget kettéválik, a 100-as kör képe javaslatom szerint <b>Scala</b> (a Létra).</p>
+
+<h2>5. Nézelődés az égen</h2>
+<table>
+  <tr><th>a gyerek koppint…</th><th>az ég válasza</th></tr>
+  <tr><td>egy csillagra</td><td>a csillag felfénylik, mellette kis címke a pálya ikonjával és nevével (például „🧺 Előbb az egész”), amit a hang felolvas. Arany csillagnál a címke szélén kis arany szegély. <span class="kicsi">⚠️ Osztályt és szintet nem ír ki.</span></td></tr>
+  <tr><td>egy teljes csillagképre</td><td>a vonalai felfénylenek, megjelenik a neve („Noctua · a Bagoly”), a hang kimondja, és a kép egyszer megmozdul (a bagoly kitárja a szárnyát, a sátor zászlaja meglebben, a mérleg billen egyet).</td></tr>
+  <tr><td>egy félkész csillagképre</td><td><span class="tag uj">javaslat</span> a meglévő vonaldarabok felfénylenek, de a név nem jelenik meg. A név a kiteljesedés jutalma, és a forma is csak akkor derül ki.</td></tr>
+  <tr><td>a ⏪ gombra („Hogyan gyúlt ki az egem?”)</td><td>visszajátszás: az ég elsötétül, és a csillagok a megszerzés sorrendjében egyenként kigyúlnak. A régiek elöl vannak, a kisorsolt, mentett sorrendben. Mindig kb. 12–15 mp, bármennyi csillag van: az elején lassú, aztán gyorsul. A képek ott rajzolódnak ki, ahol a sorrendben teljessé váltak. Koppintásra a végére ugrik.</td></tr>
+</table>
+
+<h2>6. Mentés (a felhőmentésbe is)</h2>
+<table>
+  <tr><th>mező</th><th>mi ez</th></tr>
+  <tr><td><code>palyak[id].keszIdo</code></td><td>az első kész időpontja. A <code>palyaVege()</code> csak akkor írja, ha még nincs. A már kész, régi pályáknál üres marad.</td></tr>
+  <tr><td><code>palyak[id].aranyIdo</code></td><td>mikor lett arany (a visszajátszásban ekkor vált színt).</td></tr>
+  <tr><td><code>eg.sorrend</code></td><td>a csillagok kigyúlási sorrendje (pálya-azonosítók listája). Az első induláskor a régi, dátum nélküli csillagokat <b>egyszer véletlen sorrendbe</b> tesszük, utána a <code>keszIdo</code> szerint bővül.</td></tr>
+  <tr><td><code>eg.latott</code></td><td>melyik csillagot (és melyik arany-váltást) látta már a gyerek az égen. Ami nincs benne, az „hazahozott” csillag, és ettől ragyog a tetőablak.</td></tr>
+  <tr><td><code>eg.teljes</code></td><td>melyik csillagkép rajzolódott már ki (ez marad akkor is, ha új pálya jön).</td></tr>
+  <tr><td><code>eg.atkoltozve</code></td><td>lement-e már az átköltözés (2. pont).</td></tr>
+</table>
+<p class="kicsi">Minden új mező a gyerek mentésének része, így a felhőmentés és a hátizsák (offline) is viszi. Építéskor ellenőrzöm, hogy a szinkron az új al-objektumot is összefésüli-e.</p>
+
+<h2>7. Építés (stúdió-mód light)</h2>
+<p><b>Nagyságrend: NAGY.</b> Új helyszín-szerű kép (a nyitott ég) és egy új motor, de nincs új figura. Ezért nem lesz külön rajzterv, hanem <b>egy megálló</b> a játékban.</p>
+<table>
+  <tr><th>lépés</th><th>tartalom</th></tr>
+  <tr><td><b>A</b></td><td>Új közös modul: <code>src/odu-eg.js</code> (a csillagkép-táblázat, az elrendezés, a nyitott ég rajza, a koppintások, a visszajátszás). <code>odu.js</code>: tetőablak + új cél, és a szilánkok le a fali ablakról. <code>engine-logic.js</code>: <code>keszIdo</code>/<code>aranyIdo</code>. Próbanézet: <code>?egproba</code> kitalált adatokkal (minden kép félig, egészen, aranyban, 3 és 20 csillaggal).</td></tr>
+  <tr><td>⏸️ <b>megálló</b></td><td>A producer a játékban megnézi a tetőablakot és a nyitott eget a 10 csillagképpel. Itt lehet szólni a formákról, a nevekről és a színekről.</td></tr>
+  <tr><td><b>B</b></td><td>Egyben: az unikornis fekve felnéz (<code>renderer.js</code>: a fekvő póz egy „felnéz” változata), a kissárkány párája (<code>sarkany-holmi.js</code>), a csillagok repülése, a kiteljesedés, az átköltözés, a villanyoltás összehangolása, a hangok, a kímélő mód. Gépi próba Lili- és Fanni-szerű mentéssel, utána tervlap-frissítés és feltöltés.</td></tr>
+</table>
+
+<h2>8. Későbbre (most nem)</h2>
+<ul>
+  <li>Eső- és hócseppek a tetőablak üvegén díszként (a fali ablakon már van időjárás).</li>
+  <li>„Csillagnéző” jelvény; a tetőablak kerete mint bolti bútor-szint (a fali ablakhoz hasonlóan).</li>
+  <li>Az unikornis ásít, „Jó éjt!”; hullócsillag ritkán, kívánsággal.</li>
+  <li>A Draco csillagkép a sárkány-küldetésekhez.</li>
+</ul>
+
+<h2>9. Eldöntendő (a javaslatom áll elöl)</h2>
+<div class="box kerdes">
+<ol>
+  <li><b>A lámpa a tetőablak keresztjéről lóg</b> (javaslat) — vagy a tetőablak a lámpától oldalra kerül, és a lámpa marad, ahol van.</li>
+  <li><b>A hazahozott csillagokat a gyerek engedi el egy koppintással</b> (javaslat; 6 mp után maguktól mennek) — vagy a nyitás után rögtön maguktól repülnek.</li>
+  <li><b>A félkész kép neve rejtve marad</b>, csak a teljesnél derül ki (javaslat) — vagy a név mindig látszik.</li>
+  <li><b>Csillagra koppintva látszik a pálya neve és ikonja</b> (javaslat) — vagy a csillag csak felfénylik.</li>
+  <li><b>Aranyló csillagkép</b>, ha a kép minden csillaga arany (javaslat: igen).</li>
+  <li><b>Átköltözés</b>: a szilánkok egyszer felúsznak a fali ablakból a tetőablakba (javaslat: igen).</li>
+  <li><b>A nevek</b> (4.5): maradhatnak így, vagy cserélnél valamelyiket?</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>
