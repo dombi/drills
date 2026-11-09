@@ -83,23 +83,6 @@ function cso(p,w,col){ /* hajlékony végtag: váll → könyök → mancs, egy 
   const [sx,sy,ex,ey,hx,hy]=p, cx=2*ex-(sx+hx)/2, cy=2*ey-(sy+hy)/2, d=`M${sx} ${sy}Q${cx} ${cy} ${hx} ${hy}`;
   return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w+6}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
 }
-let KAR_ID=0;
-function kar(p,w0,w1,ruha){ /* vállnál vastag, mancsnál vékony; a bundából nő ki (ruhában: a karkivágásból), nincs kör a vállon */
-  const [sx,sy,ex,ey,hx,hy]=p, cx=2*ex-(sx+hx)/2, cy=2*ey-(sy+hy)/2, id='kar'+(KAR_ID++), f=v=>v.toFixed(1);
-  const B=t=>[(1-t)*(1-t)*sx+2*(1-t)*t*cx+t*t*hx,(1-t)*(1-t)*sy+2*(1-t)*t*cy+t*t*hy],
-        D=t=>[2*(1-t)*(cx-sx)+2*t*(hx-cx),2*(1-t)*(cy-sy)+2*t*(hy-cy)];
-  let t0=0,L=0,el=B(0); for(let t=.01;t<=.6;t+=.01){ const q=B(t); L+=Math.hypot(q[0]-el[0],q[1]-el[1]); el=q; if(L>=8){t0=t;break;} }
-  const N=26, ts=ruha?t0:0, Lp=[], Rp=[], T=[];
-  for(let i=0;i<=N;i++){ const t=ts+(1-ts)*i/N, q=B(t), d=D(t), n=Math.hypot(d[0],d[1])||1, w=(w0+(w1-w0)*t)/2;
-    T.push(t); Lp.push([q[0]-d[1]/n*w,q[1]+d[0]/n*w]); Rp.push([q[0]+d[1]/n*w,q[1]-d[0]/n*w]); }
-  const r=f(w1/2), pts=a=>a.map(q=>f(q[0])+' '+f(q[1])).join('L'), k=T.findIndex(t=>t>=t0);
-  const A=`A${r} ${r} 0 0 0 ${f(Rp[N][0])} ${f(Rp[N][1])}`;
-  let s=`<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${sx}" y1="${sy}" x2="${hx}" y2="${hy}"><stop offset="0" stop-color="${FUR}"/><stop offset=".5" stop-color="${FURD}"/></linearGradient></defs>`;
-  s+=`<path d="M${pts(Lp)}${A}L${pts(Rp.slice().reverse())}Z" fill="url(#${id})"/>`;
-  s+=`<path d="M${pts(Lp.slice(k))}${A}L${pts(Rp.slice(k).reverse())}" fill="none" stroke="${INK}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  if(ruha){ const q=B(t0), d=D(t0), n=Math.hypot(d[0],d[1]); s+=`<path d="M${f(Lp[0][0])} ${f(Lp[0][1])}Q${f(q[0]-d[0]/n*5)} ${f(q[1]-d[1]/n*5)} ${f(Rp[0][0])} ${f(Rp[0][1])}" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`; }
-  return s;
-}
 function taller(x,y,r,v){ const c=HE[v||100]; return `<g><circle cx="${x}" cy="${y}" r="${r}" fill="${c[0]}" stroke="${c[1]}" stroke-width="${r>8?2:1.4}"/><circle cx="${x}" cy="${y}" r="${r*.64}" fill="none" stroke="${c[1]}" stroke-width="1" opacity=".7"/><path d="M${x-r*.3} ${y-r*.28}H${x+r*.3}M${x} ${y-r*.28}V${y+r*.36}" stroke="${c[1]}" stroke-width="${r>8?1.8:1.2}" stroke-linecap="round"/></g>`; }
 function ceruza(x,y,a,len){ return `<g transform="translate(${x} ${y}) rotate(${a})"><rect x="${-9-len}" y="-4" width="${len}" height="8" fill="#ffd166" stroke="${INK}" stroke-width="1.8"/><path d="M0 0L-9 -4V4Z" fill="#f3d2a2" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/><path d="M-3 -1.3V1.3L0 0Z" fill="${INK}"/><rect x="${-16-len}" y="-4" width="7" height="8" rx="2" fill="#f4a6b8" stroke="${INK}" stroke-width="1.6"/></g>`; }
 function szikra(x,y,r){ return `<path d="M${x} ${y-r}Q${x} ${y} ${x+r} ${y}Q${x} ${y} ${x} ${y+r}Q${x} ${y} ${x-r} ${y}Q${x} ${y} ${x} ${y-r}Z" fill="#ffe08a" stroke="#d1a23a" stroke-width="1.2"/>`; }
@@ -151,8 +134,7 @@ function garas(o){
   const ujjak=(h,n)=>{ let u=''; for(let i=0;i<n;i++){ const x=h[4]-(n-1)*3.6+i*7.2; u+=cso([x,h[5]-3,x+(i-(n-1)/2)*1.5,h[5]-10,x+(i-(n-1)/2)*3,h[5]-19],5.5,FURD);} return u; };
   if(o.ujj) s+=ujjak(aR,o.ujj);
   if(o.mutat){ const h=aR; s+=cso([h[4],h[5],(h[4]+o.mutat[0])/2,(h[5]+o.mutat[1])/2,o.mutat[0],o.mutat[1]],5.5,FURD); }
-  const ruha=o.mellény!==false;
-  s+=kar(aL,18,13,ruha)+(o.kozte||'')+kar(aR,18,13,ruha);
+  s+=cso(aL,14,FURD)+(o.kozte||'')+cso(aR,14,FURD);
   /* fej */
   s+=`<g transform="rotate(${o.head||0} 120 128)">`;
   s+=`<path d="M86 72C70 64 74 40 93 44C101 46 105 51 107 57Z" fill="${FUR}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M89 65C80 59 82 49 92 50C97 51 100 54 101 58Z" fill="${EAR}"/>`;
