@@ -1318,7 +1318,9 @@ function mxKezelok(t, cel) {
       if (v === "mas") { (A.mxPipa || (A.mxPipa = {}))[cel.tipus + ":" + cel.id + ":" + k] = true; rajzol(); return; }
       if (k.charAt(0) === "@" && m === "enabled" && v === "false" && !confirm("Elrejted az egész ligetet (" + htmlNelkul(LIGET_CIM[k.slice(1)] || k.slice(1)) + ")?")) { rajzol(); return; }
       if (m === "tablak" && A.mxPipa) delete A.mxPipa[cel.tipus + ":" + cel.id + ":" + k];
+      var tul = m === "kuld" && v !== "" && +v >= 1 ? mxKuldTul(cel, k, +v) : null;
       mxIr(cel, k, m, v);
+      if (tul && confirm(tul.kerdes)) mxKuldTobbiVissza(cel, tul);
     };
   });
   Array.prototype.forEach.call(t.querySelectorAll("[data-mxpipa]"), function (c) {
@@ -1345,6 +1347,30 @@ function mxKezelok(t, cel) {
     if (cel.tipus === "u") muhelyUgrik(cel.id, { ful: "beallitasok", keres: kartyaKeres("🏦") });
     else { A.bCel = "g:" + cel.id; A.fo = "muhely"; A.fulek = "beallitasok"; A.ugrik = { keres: kartyaKeres("🏦"), ig: Date.now() + 4000 }; window.scrollTo(0, 0); rajzol(); }
   };
+}
+/* 🐉 10 fölött (producer, 2026-11-09: „ne a játék döntsön”): ha egy rögzítés után a rögzített pályák együtt több mint
+   10 helyet kérnek, a pult rákérdez, hogy a többi rögzített pálya visszaálljon-e. A saját cella törlődik („a játék dönti” —
+   amíg van rögzített, az nem jön); a gyereknél a csoporttól / alap-laptól örökölt rögzítés helyére „nem” kerül. */
+function mxKuldHatas(cel) {
+  return cel.tipus === "u" ? kuldHatasOv(cel.id) : cel.tipus === "g" ? felulirOsszevon({}, [mxOv(cel)], alapOv()) : felulirOsszevon(mxOv(cel), [], {});
+}
+function mxKuldTul(cel, k, v) {
+  var L = mxLigetek(cel), uj = (k.charAt(0) === "@" ? L.pl[k.slice(1)] : [k]).filter(function (pid) { return mxVan(pid, "kuld") && !mxSpec(pid); });
+  var eff = mxKuldHatas(cel), ossz = uj.length * v, tobbi = [];
+  PALYA_SORREND.forEach(function (pid) {
+    var o = eff[pid] || {};
+    if (uj.indexOf(pid) >= 0 || o.enabled === false || !(o.kuld >= 1)) return;
+    ossz += o.kuld; tobbi.push({ pid: pid, db: o.kuld, sajat: mxSajat(cel, pid, "kuld") != null });
+  });
+  if (ossz <= KULD_MAX_HELY || !tobbi.length) return null;
+  return { tobbi: tobbi, kerdes: "Így a rögzített pályák együtt " + ossz + " helyet kérnek, de egy küldetésbe " + KULD_MAX_HELY + " fér.\n\n" +
+    "A többi rögzített pálya kerüljön ki a küldetésből?\n" + tobbi.map(function (x) { return "  • " + htmlNelkul(palyaNev(x.pid)) + " " + x.db + "×" + (x.sajat ? "" : " (örökölt → itt „nem” lesz)"); }).join("\n") +
+    "\n\nOK = igen, a küldetés csak abból áll, amit most állítottál · Mégse = maradnak (akkor nem fér el minden)" };
+}
+function mxKuldTobbiVissza(cel, tul) {
+  var FV = firebase.firestore.FieldValue, o = {};
+  tul.tobbi.forEach(function (x) { var ok = mxOrokolt(cel, x.pid, "kuld"); o[x.pid] = { kuld: ok && ok.v >= 1 ? 0 : FV.delete() }; });   /* örökölt rögzítés → itt „nem”, különben vissza alapra */
+  ment(mxRef(cel).set({ overrides: o, updatedAt: FV.serverTimestamp() }, { merge: true }));
 }
 /* laptop ↔ telefon szélesség váltáskor újrarajzol */
 if (window.matchMedia) { var mxMq = window.matchMedia("(max-width:700px)"); (mxMq.addEventListener ? mxMq.addEventListener.bind(mxMq, "change") : mxMq.addListener.bind(mxMq))(function () { if (A.fo === "gyerekek") rajzol(); }); }
