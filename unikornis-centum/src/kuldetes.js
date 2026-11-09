@@ -37,7 +37,7 @@
    Tiltólista: nincs határidő, nincs kudarc, nincs szám a gyerek tudásáról; a hozott és a felrakott darab soha nem vész el. */
 
 /* ── PULT-MÁTRIX 2. KÖR (2026-11-08, terv/pult-matrix-terv.html 3. szakasz): 🐉 PÁLYÁNKÉNT ──
-   A pult a mátrix 🐉 oszlopában pályánként állítja: overrides[pid].kuld = 0 (nem) · 1–3 (rögzítve) · nincs (a játék dönti).
+   A pult a mátrix 🐉 oszlopában pályánként állítja: overrides[pid].kuld = 0 (nem) · 1–10 (rögzítve; 10× = az egész küldetés egy pálya, producer 11-09) · nincs (a játék dönti).
    • Ha van rögzített pálya (a gyereknek látszó, nyitott): a küldetés CSAK ezekből áll (2. döntés A), pályánként pontosan
      annyi hellyel, akkor is, ha már „megy”; felmondós pálya is rögzíthető. Legfeljebb 10 hely, mindig 10 részlet.
    • Ha nincs: a játék dönti, ahogy eddig (kuldGepiLiget) — de a ligetek listája már a játék pályáiból jön (kuldLigetek):
@@ -88,10 +88,10 @@ function kuldVan() {
   return lenyTar().fazis === "kolyok" && lenyBeall().kuld && nyitasEbren("kolyok");   /* 🚪 újonc: a küldetések is a kölyök napjától */
 }
 
-/* a pálya 🐉 beállítása: 0 = nem · 1–3 = rögzítve · null = a játék dönti */
+/* a pálya 🐉 beállítása: 0 = nem · 1–10 = rögzítve · null = a játék dönti */
 function kuldPalyaBeall(id) {
   var v = typeof palyaFelulir === "function" ? palyaFelulir(id).kuld : null;
-  return typeof v === "number" && v >= 0 && v <= 3 ? Math.round(v) : null;
+  return typeof v === "number" && v >= 0 && v <= KULD_MAX_HELY ? Math.round(v) : null;
 }
 function kuldFelmondos(id) { return KULD_FELMONDOS.indexOf(id) >= 0; }
 /* a ligetek sorrendje: előbb a KULD_LIGET sorai, aztán bármi új, ami a PALYAK-ban van */
@@ -112,7 +112,7 @@ function kuldFajtak(liget, p) {
     return !uj++;   /* lépcsős liget: a még nem játszottak közül csak az első */
   }).map(function (pa) { return kuldFajta(pa, p); });
 }
-/* ── a rögzített pályák: [{ f: fajta, db: 1–3 }] a PALYAK sorrendjében (a régi kézi lista: 1×) ── */
+/* ── a rögzített pályák: [{ f: fajta, db: 1–10 }] a PALYAK sorrendjében (a régi kézi lista: 1×) ── */
 function kuldRogzitett(p) {
   var regi = lenyBeall().kuldPalyak, l = [];
   PALYAK.forEach(function (pa) {

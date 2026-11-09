@@ -107,7 +107,7 @@ function felulirLeiratkozik() {
   FELULIR.leir = [];
 }
 
-var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat", "kuld"];   /* kuld: 🐉 0 = nem · 1–3 = rögzítve (Pult-mátrix 2. kör) */
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat", "kuld"];   /* kuld: 🐉 0 = nem · 1–10 = rögzítve (Pult-mátrix 2. kör) */
 var KONNYU_MUVELET = ["osszeadas", "szorzas"];   /* két csoport ütközésénél ez a könnyebb */
 
 /* a pult ugyanezt a szabályt használja (admin/index.html felulirOsszevon) — együtt változtasd! */
