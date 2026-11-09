@@ -12,9 +12,10 @@
      o.hang     a mondókát a felolvasóhang is mondja (alap: mentes.hang)
      o.tempo    a gépi írás sebessége (1 = rendes)
      o.onKesz(F) · o.onHiba(F, {cel, n, oszlopok}) → true: a pálya intézi a segítséget · o.onLepes(F, k)
-   Eszközök (FELVESZ–LETESZ, nincs húzás): ✏️ ceruza (koppintás a kockára = oda ír; a jegyet a számbillentyű / a billentyűzet adja),
+   Eszközök (FELVESZ–LETESZ, nincs húzás): ✏️ ceruza (koppintás a kockára = oda ír, a hegye abba a kockába mutat; a jegyet — mint a
+   játék többi részén — a gép billentyűzete adja, érintőn a rendszer számbillentyűzete; képernyős számgomb nincs),
    a ceruza a jegyen kívül: · pont (a hányados helye) · ' felső vessző · ▁ vonal (▁, aztán koppintás a vonal végére) · 🧽 radír
-   (koppintás a kockára: mindent töröl, ami ott van — utána a ceruza ugyanoda ír). Billentyűzet: 0–9 · . · ' · _ · ⌫ · nyilak · Esc · Enter.
+   (koppintás a kockára: mindent töröl, ami ott van — utána a ceruza ugyanoda ír). Billentyűzet: 0–9 · . · ' · _ · ⌫ (az utoljára írt jegy) · Del · nyilak · Esc · Enter.
    Csak a JEGYEK számítanak a jó/rossz-ba; a pont, a vessző és a vonal a lap formája (a végén halványan megmutatja, ami hiányzik). */
 
 var FZ_S = 40, FZ_M = 8;   /* kocka-méret és lapszél (SVG-egység) */
@@ -65,14 +66,28 @@ function fzDoboz(F, hova) {
     '<div class="fz-alul"><div class="fz-eszk">' +
       '<button type="button" class="fz-eszkoz" data-eszk="ceruza" aria-label="ceruza">' + fzCeruzaSVG() + '</button>' +
       '<button type="button" class="fz-eszkoz" data-eszk="radir" aria-label="radír">' + fzRadirSVG() + '</button></div>' +
-    '<div class="fz-bill">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(function (n) { return '<button type="button" data-b="' + n + '">' + n + '</button>'; }).join("") +
+    '<div class="fz-bill">' +
       '<button type="button" class="fz-jelgomb" data-b="pont" aria-label="pont">·</button><button type="button" class="fz-jelgomb" data-b="vesszo" aria-label="felső vessző">\'</button>' +
       '<button type="button" class="fz-jelgomb" data-b="vonal" aria-label="vonal">▁</button></div>' +
-    (F.o.ell === "vegen" ? '<button type="button" class="nagy-gomb fz-kesz">Kész ✓</button>' : '') + '</div>');
+    (F.o.ell === "vegen" ? '<button type="button" class="nagy-gomb fz-kesz">Kész ✓</button>' : '') + '</div>' +
+    '<input class="fz-be" inputmode="numeric" enterkeyhint="done" autocomplete="off" tabindex="-1" aria-label="a számjegy">');
   hova.appendChild(d);
   F.gyoker = d; F.svg = d.querySelector(".fz-lap"); F.tsvg = d.querySelector(".fz-talca");
   F.svg.addEventListener("click", function (e) { fzKatt(F, e); });
   F.svg.addEventListener("pointermove", function (e) { if (e.pointerType === "mouse") { F.mut = fvPont(F.svg, e); fzKurzor(F); } });
+  /* a számjegy úgy jön, mint a játék többi részén (events.js, üres négyzet): egéren a gép billentyűzete (fzBill, e.code — magyar
+     kiosztáson is), érintőn a kockára koppintva a rendszer számbillentyűzete ebbe a rejtett mezőbe ír; képernyős számgomb nincs */
+  F.be = d.querySelector(".fz-be");
+  if (F.be) {
+    F.be.addEventListener("input", function () {
+      var v = F.be.value.replace(/[^0-9]/g, ""); F.be.value = "";
+      v.split("").forEach(function (ch) { fzJegy(F, ch); });
+    });
+    F.be.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); if (F.o.ell === "vegen") fzVegenEll(F); }
+      else if (e.key === "Backspace" && !F.be.value) { e.preventDefault(); fzVissza(F); }
+    });
+  }
   F.svg.addEventListener("pointerleave", function () { F.mut = null; fzKurzor(F); });
   if (F.tsvg) F.tsvg.addEventListener("click", function (e) { var t = e.target.closest && e.target.closest("[data-rek]"); if (t) fzTalcaKatt(F, Number(t.getAttribute("data-rek"))); });
   var alul = d.querySelector(".fz-alul");
@@ -165,15 +180,26 @@ function fzVonalSVG(r, c0, c1, szin, uj) {
   return '<path d="M' + x0 + ' ' + y + 'Q' + ((x0 + x1) / 2) + ' ' + (y + 1.2) + ' ' + x1 + ' ' + (y - .4) + '" stroke="' + szin + '" stroke-width="2.6" stroke-linecap="round" fill="none"' +
     (uj ? ' class="fz-vonal-uj" style="--h:' + (x1 - x0 + 4) + '"' : '') + '/>';
 }
-/* a kézben lévő eszköz a lapon: egérrel a mutatót követi, érintésnél az aktív kocka fölött vár */
+/* a kézben lévő eszköz a lapon. A CERUZA HEGYE abban a kockában áll, ahová a következő jegy kerül (a producer, 11-09);
+   ha még nincs kiválasztott kocka, a hegy az egeret követi. A radír az egér alatt (azt a kockát radírozza), különben az aktív kockán. */
+function fzCeruzaHegySVG() {   /* a hegy a (0, 0) pontban, a test jobbra nyúlik */
+  return '<path d="M12 -6L0 0L12 6Z" fill="#f1d6ae" stroke="#a87a1e" stroke-width="1.4" stroke-linejoin="round"/><path d="M4.6 -2.3L0 0L4.6 2.3Z" fill="#3b3f52"/>' +
+    '<path d="M12 -6H52V6H12Z" fill="#f7cf4f" stroke="#a87a1e" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 -2H52M12 2H52" stroke="#e0ad2e" stroke-width="1"/>' +
+    '<path d="M52 -6h7v12h-7Z" fill="#c9c3d6" stroke="#7d7591" stroke-width="1.4"/><path d="M59 -6h5a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-5Z" fill="#f6b3c6" stroke="#b4587a" stroke-width="1.4"/>';
+}
 function fzKurzor(F) {
   var g = F.svg && F.svg.querySelector(".fz-kurzor"); if (!g) return;
   if (!F.eszkoz || F.kesz || F.o.mod === "gep") { g.innerHTML = ""; return; }
   var x, y;
-  if (F.mut) { x = F.mut.x; y = F.mut.y; } else if (F.akt) { x = fzX(F.akt.c) + FZ_S - 4; y = fzY(F.akt.r) + 6; } else { g.innerHTML = ""; return; }
-  var rajz = F.eszkoz === "radir" ? fzRadirSVG() : fzCeruzaSVG();
-  rajz = rajz.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
-  g.innerHTML = '<g transform="translate(' + (x + (F.eszkoz === "radir" ? 14 : 22)) + ' ' + (y - 10) + ') rotate(' + (F.eszkoz === "radir" ? 0 : -40) + ')" opacity=".92">' + rajz + '</g>';
+  if (F.eszkoz === "radir") {
+    if (F.mut) { x = F.mut.x; y = F.mut.y; } else if (F.akt) { x = fzX(F.akt.c) + FZ_S / 2; y = fzY(F.akt.r) + FZ_S / 2; } else { g.innerHTML = ""; return; }
+    g.innerHTML = '<g transform="translate(' + x + ' ' + y + ') scale(.9)" opacity=".92">' + fzRadirSVG().replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "") + '</g>';
+    return;
+  }
+  if (F.akt) { x = fzX(F.akt.c) + FZ_S * .8; y = fzY(F.akt.r) + FZ_S * .82; }   /* a hegy a kocka jobb alsó részén, a jegy helyét nem takarja */
+  else if (F.mut) { x = F.mut.x; y = F.mut.y; }
+  else { g.innerHTML = ""; return; }
+  g.innerHTML = '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(-38)">' + fzCeruzaHegySVG() + '</g>';
 }
 
 /* ═════════════════ ÍRÁS (a gyerek) ═════════════════ */
@@ -186,6 +212,15 @@ function fzKatt(F, e) {
   if (F.eszkoz === "radir") { fzRadiroz(F, r, c); return; }
   F.eszkoz = "ceruza"; F.akt = { r: r, c: c };
   fzRajz(F);
+  if (F.be && fzErinto()) { try { F.be.focus({ preventScroll: true }); } catch (x) { F.be.focus(); } }   /* érintőn: feljön a rendszer számbillentyűzete */
+}
+function fzErinto() { try { return window.matchMedia && window.matchMedia("(pointer: coarse)").matches; } catch (e) { return false; } }
+/* Backspace (mint a játék üres négyzeténél): ha az aktív kockában van valami, azt törli; ha üres, az utoljára írt jegyet, és oda áll vissza */
+function fzVissza(F) {
+  if (!F.akt || F.kesz) return;
+  var kv = fzKulcs(F.akt.r, F.akt.c), x = F.k[kv];
+  if (x && (x.v || x.pont || x.vesszo)) { fzRadiroz(F, F.akt.r, F.akt.c); return; }
+  if (F.utolso && F.k[fzKulcs(F.utolso.r, F.utolso.c)]) fzRadiroz(F, F.utolso.r, F.utolso.c);
 }
 function fzEszkoz(F, mi) {
   F.vonalKezd = null;
@@ -213,6 +248,7 @@ function fzJegy(F, d) {
   delete F.hibas[kv]; delete F.hibaOszl[F.akt.c];
   ceruzaSerceg(.3);
   var r = F.akt.r, c = F.akt.c, jo = true;
+  F.utolso = { r: r, c: c };
   if (F.mezoK[kv]) jo = fzMezoEll(F, F.mezoK[kv], true);   /* a becslést mindig azonnal nézi: rossz becsléssel nem indul a számolás (kiskapu) */
   else if (F.o.ell === "lepes") jo = fzLepesEll(F, kv);
   else if (F.vart[kv] && F.vart[kv].v === x.v && F.vart[kv].lepes > F.lepesKesz) F.lepesKesz = F.vart[kv].lepes;
@@ -250,7 +286,8 @@ function fzVonalVeg(F, r, c) {
 function fzRazkod(F) { beep(180, .12, "triangle", 0, .05); var a = F.svg.querySelector(".fz-akt"); if (a) { a.classList.remove("fz-razkod"); void a.getBBox(); a.classList.add("fz-razkod"); } }
 function fzBill(e) {
   var F = FZ_AKT; if (!F || F.kesz || F.o.mod === "gep" || !F.gyoker || !document.body.contains(F.gyoker) || !F.gyoker.offsetParent) return;
-  var t = e.target && e.target.tagName; if (t === "INPUT" || t === "TEXTAREA") return;
+  var t = e.target && e.target.tagName; if ((t === "INPUT" || t === "TEXTAREA") && e.target !== F.be) return;
+  if (e.target === F.be && (/^\d$/.test(e.key) || e.key === "Backspace" || e.key === "Enter")) return;   /* ezt a rejtett mező maga kezeli */
   var d = null;
   if (!e.shiftKey && /^(Digit|Numpad)\d$/.test(e.code || "")) d = e.code.slice(-1);
   else if (/^\d$/.test(e.key)) d = e.key;
@@ -258,7 +295,8 @@ function fzBill(e) {
   if (e.key === "." || e.key === "," || e.key === "*") { e.preventDefault(); fzJel(F, "pont"); return; }
   if (e.key === "'" || e.key === "`") { e.preventDefault(); fzJel(F, "vesszo"); return; }
   if (e.key === "_" || e.key === "-") { e.preventDefault(); fzVonalIndit(F); return; }
-  if ((e.key === "Backspace" || e.key === "Delete") && F.akt) { e.preventDefault(); fzRadiroz(F, F.akt.r, F.akt.c); return; }
+  if (e.key === "Backspace" && F.akt) { e.preventDefault(); fzVissza(F); return; }
+  if (e.key === "Delete" && F.akt) { e.preventDefault(); fzRadiroz(F, F.akt.r, F.akt.c); return; }
   if (e.key === "Escape") { F.vonalKezd = null; F.eszkoz = "ceruza"; fzFelirat(F, ""); fzRajz(F); return; }
   if (e.key === "Enter" && F.o.ell === "vegen") { e.preventDefault(); fzVegenEll(F); return; }
   var ny = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0] }[e.key];

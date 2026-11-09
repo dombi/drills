@@ -3396,6 +3396,8 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .fz-bill button:active{ transform:translateY(2px); box-shadow:0 1px 0 #cdbfe4; }
 .fz-bill .fz-jelgomb{ background:#fbf6ff; color:#6a3f9a; font-size:24px; }
 .fz-kesz{ margin-left:6px; }
+.fz{ position:relative; }
+.fz-be{ position:absolute; left:0; bottom:0; width:1px; height:1px; opacity:0; border:0; padding:0; pointer-events:none; font-size:16px; }
 @media (max-width:600px){
   .fz-bill button{ min-width:38px; height:42px; font-size:19px; }
   .fz-eszkoz{ width:62px; height:46px; }
