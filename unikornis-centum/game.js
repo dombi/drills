@@ -29281,7 +29281,6 @@ function egRajz(src, mod) {
     var xs = ka.kesz.map(function (c) { return c.x; }), ys = ka.kesz.map(function (c) { return c.y; });
     var bx0 = Math.min.apply(null, xs) - 14, bx1 = Math.max.apply(null, xs) + 14, by0 = Math.min.apply(null, ys) - 14, by1 = Math.max.apply(null, ys) + 14;
     s += '<g class="eg-kep' + (ka.rajzolt ? " teljes" : "") + (ka.arany ? " arany" : "") + ' eg-m-' + ka.kep.mozdul + '" data-kep="' + ka.kep.id + '">';
-    s += '<rect class="eg-kep-hit" x="' + bx0.toFixed(1) + '" y="' + by0.toFixed(1) + '" width="' + (bx1 - bx0).toFixed(1) + '" height="' + (by1 - by0).toFixed(1) + '" fill="transparent"/>';
     s += '<g class="eg-kep-belso">';
     ka.vonalak.forEach(function (vn) {
       var a = ka.cs[vn[0]], b = ka.cs[vn[1]];
@@ -29359,54 +29358,49 @@ function egKot(host) {
     if (host.classList.contains("eg-vj")) { egVjVege(); return; }   /* visszajátszás közben: a végére ugrik */
     var cs = e.target.closest && e.target.closest(".eg-cs");
     if (cs) { egCsillagKoppint(cs.getAttribute("data-id")); return; }
-    var kp = e.target.closest && e.target.closest(".eg-kep");
-    if (kp) { egKepKoppint(kp.getAttribute("data-kep")); return; }
     if (e.target.closest && e.target.closest(".eg-keret")) { egZar(); return; }
     egCimke(null);
   });
 }
 
-/* csillagra koppintva: felfénylik, mellette a pálya ikonja + neve (a hang is mondja). Osztályt, szintet NEM ír ki. */
+/* csillagra koppintva: felfénylik, mellette a pálya ikonja + neve (a hang is mondja). Osztályt, szintet NEM ír ki.
+   A csillagkép vonalai CSAK ilyenkor látszanak, pár másodpercig (producer, 2026-11-09: alapból nincs csík a csillagok között).
+   Teljes képnél a címke alatt a kép neve is, és a kép egyszer megmozdul; félkésznél a név rejtve marad (a kiteljesedés jutalma). */
+var _egVonalIdo = null;
 function egCsillagKoppint(id) {
   var N = EG_NYITVA; if (!N) return;
-  var c = null;
-  N.kepek.forEach(function (ka) { ka.cs.forEach(function (x) { if (x.id === id) c = x; }); });
+  var c = null, ka = null;
+  N.kepek.forEach(function (k) { k.cs.forEach(function (x) { if (x.id === id) { c = x; ka = k; } }); });
   if (!c) N.src.vandorok().forEach(function (pa) { if (pa.id === id) c = { id: id, pa: pa, arany: !!(N.src.allapot(id) || {}).arany }; });
   if (!c) return;
+  Array.prototype.forEach.call(N.host.querySelectorAll(".eg-kep.fenylik, .eg-kep.mozdul"), function (g) { g.classList.remove("fenylik", "mozdul"); });
+  clearTimeout(_egVonalIdo);
+  var g = ka && N.host.querySelector('.eg-kep[data-kep="' + ka.kep.id + '"]');
+  if (g) {
+    void g.getBBox();
+    g.classList.add("fenylik");
+    if (ka.rajzolt) g.classList.add("mozdul");
+    _egVonalIdo = setTimeout(function () { g.classList.remove("fenylik", "mozdul"); }, 3500);
+  }
   var el = N.host.querySelector('.eg-cs[data-id="' + id.replace(/"/g, '\\"') + '"]');
   if (el) {
     var bb = el.getBBox();
-    egCimke({ x: bb.x + bb.width / 2, y: bb.y, szoveg: (c.pa.ikon ? c.pa.ikon + " " : "") + c.pa.nev, arany: c.arany });
+    egCimke({ x: bb.x + bb.width / 2, y: bb.y, szoveg: (c.pa.ikon ? c.pa.ikon + " " : "") + c.pa.nev, arany: c.arany,
+      alcim: ka && ka.rajzolt ? ka.kep.nev + " · " + ka.kep.hu : null });
     el.classList.remove("fenylik"); void el.getBBox(); el.classList.add("fenylik");
   }
-  hangCsilla(); mondd(c.pa.nev);
-}
-/* csillagképre koppintva: teljesnél a neve + egy mozdulat; félkésznél csak a meglévő vonaldarabok fénylenek (a név a kiteljesedés jutalma) */
-function egKepKoppint(kepId) {
-  var N = EG_NYITVA; if (!N) return;
-  var ka = null; N.kepek.forEach(function (k) { if (k.kep.id === kepId) ka = k; });
-  var g = N.host.querySelector('.eg-kep[data-kep="' + kepId + '"]');
-  if (!ka || !g) return;
-  g.classList.remove("fenylik", "mozdul"); void g.getBBox();
-  g.classList.add("fenylik");
-  setTimeout(function () { g.classList.remove("fenylik"); }, 2200);
-  if (ka.rajzolt) {
-    g.classList.add("mozdul");
-    setTimeout(function () { g.classList.remove("mozdul"); }, 1600);
-    var bb = g.querySelector(".eg-kep-belso").getBBox();
-    egCimke({ x: bb.x + bb.width / 2, y: bb.y - 4, szoveg: ka.kep.nev + " · " + ka.kep.hu, nagy: true, arany: ka.arany });
-    hangCsilla(); mondd(ka.kep.nev + ", " + ka.kep.hu);
-  } else { egCimke(null); hangGomb(); }
+  hangCsilla(); mondd(c.pa.nev + (ka && ka.rajzolt ? ". " + ka.kep.nev + ", " + ka.kep.hu : ""));
 }
 function egCimke(o) {
   var N = EG_NYITVA; if (!N) return;
   var hely = N.host.querySelector(".eg-cimke-hely"); if (!hely) return;
   if (!o) { hely.innerHTML = ""; return; }
-  var M = EG_MOD[N.mod], fs = o.nagy ? 22 : 18, w = Array.from(o.szoveg).length * fs * 0.56 + 30, h = fs + 16;
+  var M = EG_MOD[N.mod], fs = 18, fs2 = 15, w = Math.max(Array.from(o.szoveg).length * fs, o.alcim ? Array.from(o.alcim).length * fs2 : 0) * 0.56 + 30, h = fs + 16 + (o.alcim ? fs2 + 4 : 0);
   var x = Math.max(8, Math.min(M.W - w - 8, o.x - w / 2)), y = o.y - h - 12;
   if (y < 8) y = o.y + 36;
   hely.innerHTML = '<g class="eg-cimke"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h + '" rx="' + (h / 2) + '" fill="#fffaf0" stroke="' + (o.arany ? "#e0a92e" : "#a88fce") + '" stroke-width="' + (o.arany ? 3 : 2) + '"/>' +
-    '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + h / 2 + fs * 0.36).toFixed(1) + '" font-size="' + fs + '" font-weight="800" fill="#5a3f8a" text-anchor="middle">' + egEsc(o.szoveg) + '</text></g>';
+    '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + (o.alcim ? fs + 6 : h / 2 + fs * 0.36)).toFixed(1) + '" font-size="' + fs + '" font-weight="800" fill="#5a3f8a" text-anchor="middle">' + egEsc(o.szoveg) + '</text>' +
+    (o.alcim ? '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + fs + 6 + fs2 + 4).toFixed(1) + '" font-size="' + fs2 + '" font-weight="700" fill="' + (o.arany ? "#b07a10" : "#7a62a8") + '" text-anchor="middle">' + egEsc(o.alcim) + '</text>' : "") + '</g>';
 }
 
 /* ── ⏪ „Hogyan gyúlt ki az egem?”: az ég elsötétül, a csillagok a mentett sorrendben egyenként kigyúlnak (elején lassan,

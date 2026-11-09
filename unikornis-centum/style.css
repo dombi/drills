@@ -3298,10 +3298,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes eg-gyul{ 0%{ opacity:0; transform:scale(.2); } 55%{ opacity:1; transform:scale(1.9); } 100%{ opacity:1; transform:scale(1); } }
 .eg-cs.fenylik{ animation:eg-fenylik 1.2s ease-out; }
 @keyframes eg-fenylik{ 0%{ transform:scale(1); filter:none; } 35%{ transform:scale(1.7); filter:drop-shadow(0 0 6px #fff6c8); } 100%{ transform:scale(1); filter:none; } }
-.eg-vonal{ stroke:#9fb0e8; stroke-width:1.4; opacity:.32; stroke-linecap:round; transition:opacity .5s, stroke-width .5s; }
-.eg-vonal.teljes{ opacity:.7; stroke-width:1.9; }
+.eg-vonal{ stroke:#9fb0e8; stroke-width:1.4; opacity:0; stroke-linecap:round; transition:opacity 1.2s, stroke-width .5s; }   /* alapból NINCS csík: csak csillag-koppintásra, pár mp-ig */
+.eg-vonal.teljes{ stroke-width:1.9; }
 .eg-kep.arany .eg-vonal{ stroke:#ffd878; }
-.eg-kep.fenylik .eg-vonal{ opacity:1; stroke-width:2.6; }
+.eg-kep.fenylik .eg-vonal{ opacity:.45; transition:opacity .4s; }
+.eg-kep.fenylik .eg-vonal.teljes{ opacity:.9; stroke-width:2.4; }
 .eg-vandor{ animation:eg-sodrodik 20s ease-in-out infinite; }
 @keyframes eg-sodrodik{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(9px,-6px); } }
 .eg-szarv{ animation:eg-pislog 2.6s ease-in-out infinite; }
