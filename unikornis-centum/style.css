@@ -3319,7 +3319,6 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 /* ⏪ visszajátszás: minden elsötétül, és egyenként kigyúl */
 #eg-kep.eg-vj .eg-cs, #eg-kep.eg-vj .eg-vonal{ opacity:0; animation:none; transition:opacity .6s; }
 #eg-kep.eg-vj .eg-cs.eg-ego{ opacity:1; animation:eg-gyul 1s ease-out both; }
-#eg-kep.eg-vj .eg-vonal.eg-ego{ opacity:.7; }
 #eg-kep.eg-vj .eg-gomb{ opacity:.35; }
 @media (prefers-reduced-motion:reduce){
   #eg-kep, .eg-cs.eg-uj, .eg-mag, .eg-vandor, .eg-szarv, .eg-teto-ragyog, .eg-teto-csillam circle, .eg-kep.mozdul .eg-kep-belso, .eg-cs.fenylik, #eg-kep.eg-vj .eg-cs.eg-ego{ animation:none !important; }

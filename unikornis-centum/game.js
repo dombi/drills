@@ -29404,7 +29404,7 @@ function egCimke(o) {
 }
 
 /* ── ⏪ „Hogyan gyúlt ki az egem?”: az ég elsötétül, a csillagok a mentett sorrendben egyenként kigyúlnak (elején lassan,
-   aztán gyorsulva, összesen legfeljebb ~13 mp); egy vonal akkor jelenik meg, amikor minden csillaga ég. Koppintás → vége. ── */
+   aztán gyorsulva, összesen legfeljebb ~13 mp); vonal nincs. Koppintás → vége. ── */
 var _egVjIdo = [];
 function egVisszajatszas() {
   var N = EG_NYITVA; if (!N) return;
@@ -29425,11 +29425,7 @@ function egVisszajatszas() {
     var k = hely[e.getAttribute("data-id")];
     _egVjIdo.push(setTimeout(function () { e.classList.add("eg-ego"); if (k % 3 === 0) hangCsilla(); }, ido[k] * 1000));
   });
-  vEl.forEach(function (e) {
-    var kell = e.getAttribute("data-kell").split(" "), max = 0;
-    kell.forEach(function (id) { if (hely[id] !== undefined) max = Math.max(max, hely[id]); });
-    _egVjIdo.push(setTimeout(function () { e.classList.add("eg-ego"); }, ido[max] * 1000 + 250));
-  });
+  /* a vonalak a visszajátszásban sem látszanak (producer, 11-09: csík csak csillag-koppintásra) */
   _egVjIdo.push(setTimeout(egVjVege, (ido[n - 1] + 1.6) * 1000));
 }
 function egVjVege() {
