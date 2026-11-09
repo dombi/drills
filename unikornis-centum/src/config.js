@@ -8,6 +8,7 @@
      producerConfig/{uid}.teny = { hatar, hatarTipus, ujKor, becsempesz, osveny, tablak } (🌸 tény-motor, teny.js — tenyOsszevon)
      producerConfig/{uid}.szerszam = { k, n, latszik, liftKer } (🧰 szerszám-létrák, szerszam.js — szerszamOsszevon)
      groups/{gid} = { name, members: [uid], overrides: {…ugyanígy}, kapuOrak?, ekStabil?, bank?, teny?, szerszam? }  — csoportos
+   groups/_alap = { overrides } — a „mindenki (alap)” lap (Pult-mátrix 2. kör): a legalsó réteg, csak a pályánkénti mezőkre.
    Sorrend: alap < csoport(ok) < egyéni (az egyéni a legerősebb). Több csoportnál: rejtve, ha BÁRMELYIK
    elrejti; ajánlott, ha bármelyik ajánlja; a szorzó a legnagyobb; a nehézségnél a KÖNNYEBB nyer
    (összeadás/szorzás a kivonás/osztás előtt, a táblák metszete, a kisebb feladatszám); kulcs-pálya, ha bármelyik
@@ -21,6 +22,7 @@ var FELULIR = {
   uid: null,
   egyeni: null,       /* producerConfig/{uid}.overrides — null, amíg nem jött meg */
   csoportok: null,    /* { gid: overrides } — null, amíg nem jött meg */
+  alap: {},           /* groups/_alap.overrides — a „mindenki (alap)” lap (Pult-mátrix 2. kör) */
   kesz: {},           /* összevont eredmény: palyaId → { enabled, recommended, extraReward, …, kulcs, korlat } */
   egyeniOrak: null,   /* producerConfig/{uid}.kapuOrak */
   csoportOrak: {},    /* gid → kapuOrak */
@@ -79,6 +81,10 @@ function felulirFigyel() {
     lakatPultLe(d.exists ? d.data().lakatLe : null);   /* 🔒 a pult levette a titkos kódot (lakat.js) */
     felulirSzamol();
   }, function (e) { console.warn("[felhő] producer-beállítás hiba:", e.code || e); }));
+  FELULIR.leir.push(db.collection("groups").doc(ALAP_DOK).onSnapshot(function (d) {
+    FELULIR.alap = (d.exists && d.data().overrides) || {};
+    felulirSzamol();
+  }, function (e) { console.warn("[felhő] alap-beállítás hiba:", e.code || e); }));
   FELULIR.leir.push(db.collection("groups").where("members", "array-contains", FELHO.uid).onSnapshot(function (snap) {
     var cs = {}, cp = {}, co = {}, cst = {}, cb = {}, ct = {}, csz = {}, cl = {}, cn = {};
     snap.forEach(function (d) {
@@ -101,11 +107,11 @@ function felulirLeiratkozik() {
   FELULIR.leir = [];
 }
 
-var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat"];
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat", "kuld"];   /* kuld: 🐉 0 = nem · 1–3 = rögzítve (Pult-mátrix 2. kör) */
 var KONNYU_MUVELET = ["osszeadas", "szorzas"];   /* két csoport ütközésénél ez a könnyebb */
 
 /* a pult ugyanezt a szabályt használja (admin/index.html felulirOsszevon) — együtt változtasd! */
-function felulirOsszevon(egyeni, csoportLista) {
+function felulirOsszevon(egyeni, csoportLista, alap) {
   var ki = {};
   function mezo(id) { return ki[id] || (ki[id] = {}); }
   csoportLista.forEach(function (ov) {
@@ -125,14 +131,21 @@ function felulirOsszevon(egyeni, csoportLista) {
       if (typeof o.darab === "number") k.darab = Math.min(k.darab || 99, o.darab);
       if (o.kulcs === true) k.kulcs = true;
       if (typeof o.korlat === "number") k.korlat = Math.max(k.korlat || 0, o.korlat);
+      if (typeof o.kuld === "number") k.kuld = Math.max(k.kuld == null ? 0 : k.kuld, o.kuld);   /* 🐉 aki számot mond, az nyer; közülük a nagyobb */
     });
   });
   Object.keys(egyeni || {}).forEach(function (id) {
     var o = egyeni[id] || {}, k = mezo(id);
     NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
   });
+  /* 🌐 „mindenki (alap)” lap (groups/_alap, Pult-mátrix 2. kör): a legalsó réteg — csak ott él, ahol se csoport, se egyéni nem mond semmit */
+  Object.keys(alap || {}).forEach(function (id) {
+    var o = alap[id] || {}, k = mezo(id);
+    NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null && k[m] == null) k[m] = o[m]; });
+  });
   return ki;
 }
+var ALAP_DOK = "_alap";   /* groups/_alap: a „mindenki (alap)” lap — tagja nincs, a játék közvetlenül olvassa */
 /* a kapu óraszáma: az egyéni nyer; különben a csoportok közül a hosszabb; semmi → null (alap 12) */
 function kapuOrakOsszevon(egyeni, csoportOrak) {
   if (typeof egyeni === "number") return egyeni;
@@ -192,7 +205,7 @@ function bankOsszevon(egyeni, csoportok) {
 function felulirSzamol() {
   if (FELULIR.egyeni === null || FELULIR.csoportok === null) return;   /* várjuk mindkét forrást — addig a gyorsítótár él */
   var cs = FELULIR.csoportok, lista = Object.keys(cs).sort().map(function (g) { return cs[g]; });
-  var uj = felulirOsszevon(FELULIR.egyeni, lista), ujP = {}, k;
+  var uj = felulirOsszevon(FELULIR.egyeni, lista, FELULIR.alap), ujP = {}, k;
   var ujO = kapuOrakOsszevon(FELULIR.egyeniOrak, Object.keys(FELULIR.csoportOrak || {}).map(function (g) { return FELULIR.csoportOrak[g]; }));
   [FELULIR.csoportP || {}, FELULIR.egyeniP || {}].forEach(function (l) {
     for (k in l) if (l[k] && l[k].aktiv !== false) ujP[k] = l[k];

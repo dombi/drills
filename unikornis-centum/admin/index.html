@@ -331,7 +331,7 @@ details.racs-stat{ margin-top:16px; } details.racs-stat summary{ cursor:pointer;
 <script src="../src/szerszam.js?v=20261017-7"></script><!-- 🧰 szerszám-létrák: láda-szabály, beállítás-összevonás (szerszamOsszevon, szerszamOsszegzes) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/leny-kiser.js?v=20261020-1"></script><!-- 🐉 kölyök az ösvényen: a kapcsoló összevonása (lenyBeallOsszevon) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/tudas.js?v=20261020-1"></script><!-- 📒 tudás-napló: TUDAS (megy / visszavonás számai), tudasTisztaNapok — ugyanaz a fájl, mint a játékban -->
-<script src="../src/kuldetes.js?v=20261020-2"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetek, kimaradók), kuldKimarad — ugyanaz a fájl, mint a játékban -->
+<script src="../src/kuldetes.js?v=20261108-1"></script><!-- 🐉 sárkány-küldetés: KULD_LIGET (ligetnevek, lépcsős), kuldFelmondos, KULD_NEM_LIGET — ugyanaz a fájl, mint a játékban -->
 <script src="../src/gondozas.js?v=20261006-4"></script><!-- 🌱 gondozás: gyakorlós nap, igény (szomjúság) — a „gyerek kertje” nézethez, ugyanaz a fájl, mint a játékban -->
 <script src="../src/nyitas.js?v=20261020-2"></script><!-- 🚪 újonc-menet: a beállítás összevonása (nyitasBeallOsszevon) + a gyerek állapota (nyitasPultAllapot) — ugyanaz a fájl, mint a játékban -->
 <script src="../src/kert-tajkep.js?v=20261006-1"></script><!-- 🌿 a kert rajz-segédei (ktR, ktHash, ktP) a virágokhoz -->
@@ -653,12 +653,12 @@ function rajzol() {
     return '<button data-fo="' + f[0] + '" class="fo-ful' + (A.fo === f[0] ? " aktiv" : "") + '">' + f[1] + "</button>";
   }).join("");
   Array.prototype.forEach.call($("fulek").children, function (b) {
-    b.onclick = function () { if (b.dataset.fo === "gyerekek" && A.fo === "gyerekek") { A.gyerek = null; A.csoportLap = null; } A.fo = b.dataset.fo; rajzol(); };
+    b.onclick = function () { if (b.dataset.fo === "gyerekek" && A.fo === "gyerekek") { A.gyerek = null; A.csoportLap = null; A.alapLap = false; } A.fo = b.dataset.fo; rajzol(); };
   });
   $("idoszak-cimke").hidden = A.fo === "gyerekek";   /* az időszak-választó a Műhely régi nézeteire (és a rács alatti statisztikára) hat */
   var t = $("tartalom");
   if (!A.users.length) { t.innerHTML = '<div class="ures">Még nincs egyetlen felhős játékos sem.</div>'; return; }
-  if (A.fo === "gyerekek") return A.csoportLap && csoportById(A.csoportLap) ? rajzCsoportlap(t, csoportById(A.csoportLap)) : A.gyerek && userById(A.gyerek) ? rajzGyereklap(t, userById(A.gyerek)) : rajzGyerekek(t);
+  if (A.fo === "gyerekek") return A.alapLap ? rajzAlaplap(t) : A.csoportLap && csoportById(A.csoportLap) ? rajzCsoportlap(t, csoportById(A.csoportLap)) : A.gyerek && userById(A.gyerek) ? rajzGyereklap(t, userById(A.gyerek)) : rajzGyerekek(t);
   if (A.fo === "palyak") return rajzRacs(t);
   t.innerHTML = '<div class="alful">' + FULEK.map(function (f) {
     return (f[0] === "jatekos" ? '<span class="alful-cim">régi gyerek-nézetek:</span>' : "") + '<button data-ful="' + f[0] + '" class="' + (A.fulek === f[0] ? "aktiv" : "") + '">' + f[1] + "</button>";
@@ -760,7 +760,7 @@ function rajzGyerekek(t) {
   var gy = szurtGyerekek().map(gyerekKep);
   /* aki mostanában játszott, elöl; a sokáig pihenők a végén */
   gy.sort(function (a, b) { return (b.ut || 0) - (a.ut || 0); });
-  var h = csoportSzuro() + (A.groups.length ? '<div class="celsor"><span class="cimke">Csoport-lapok:</span>' + A.groups.map(function (g) { return '<button data-csoportlap="' + esc(g.id) + '">👥 ' + esc(g.name) + " lapja →</button>"; }).join("") + "</div>" : "") + '<div class="gyk-racs">';
+  var h = csoportSzuro() + '<div class="celsor"><span class="cimke">Lapok:</span><button id="alaplap-gomb">🌐 Mindenki (alap) lapja →</button>' + A.groups.map(function (g) { return '<button data-csoportlap="' + esc(g.id) + '">👥 ' + esc(g.name) + " lapja →</button>"; }).join("") + "</div>" + '<div class="gyk-racs">';
   gy.forEach(function (k) {
     var most = k.ut && Date.now() - k.ut < 10 * 60000;
     h += '<button class="gyk' + (k.pihen != null && k.pihen >= PIHENO_NAP ? " piheno" : "") + '" data-gy="' + esc(k.u.uid) + '">' +
@@ -776,6 +776,7 @@ function rajzGyerekek(t) {
   csoportSzuroKezel(t);
   Array.prototype.forEach.call(t.querySelectorAll("[data-gy]"), function (b) { b.onclick = function () { A.gyerek = b.dataset.gy; rajzol(); window.scrollTo(0, 0); }; });
   Array.prototype.forEach.call(t.querySelectorAll("[data-csoportlap]"), function (b) { b.onclick = function () { A.csoportLap = b.dataset.csoportlap; rajzol(); window.scrollTo(0, 0); }; });
+  $("alaplap-gomb").onclick = function () { A.alapLap = true; rajzol(); window.scrollTo(0, 0); };
 }
 
 function miertDoboz(kulcs, tartalom) {
@@ -823,7 +824,7 @@ function rajzGyereklap(t, u) {
     '<textarea id="gy-jegyzet" placeholder="pl. Az összeadásnál látszik az arcán, hogy unja.">' + esc(jegyz) + "</textarea></div>";
 
   /* 🎛️ Beállításai + 🗺️ Pályái (Pult-mátrix 1. kör, 2026-11-08: a régi menü helyén a mátrix): mit kap a gyerek — ugyanitt állítható */
-  h += gyerekBeallitasai(uid) + lakatRovat(uid) + mxLista({ tipus: "u", id: uid });   /* a rövid Beállításai előbb: így a bank és a kapu is szem előtt van */
+  h += lakatRovat(uid) + mxLista({ tipus: "u", id: uid }) + gyerekBeallitasai(uid);   /* 2. kör: a táblázat elöl, alatta a rövid, nem pályánkénti Beállításai */
 
   /* részletek: a régi nézetek a Műhelyben, erre a gyerekre állítva */
   h += '<div class="rovat"><b class="r">Részletek ▸</b><span class="gyl-ugrik">' +
@@ -883,8 +884,8 @@ function allapotBol(v) {
   if (v.recommended === true) return "kiemelt";
   return "normal";
 }
-function csoportAllapot(uid, pid) { return allapotBol(felulirOsszevon({}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }))[pid]); }
-function gyerekAllapot(uid, pid) { return allapotBol(felulirOsszevon((A.cfg[uid] || {}).overrides || {}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }))[pid]); }
+function csoportAllapot(uid, pid) { return allapotBol(felulirOsszevon({}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }), alapOv())[pid]); }
+function gyerekAllapot(uid, pid) { return allapotBol(felulirOsszevon((A.cfg[uid] || {}).overrides || {}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }), alapOv())[pid]); }
 function sajatVan(ov, pid) { var o = (ov || {})[pid] || {}; return RACS_MEZOK.some(function (m) { return o[m] != null; }); }
 /* a cél-állapothoz írandó mezők (FV.delete() = törlés) */
 function racsMezok(cel, orokolt, sajat) {
@@ -1042,6 +1043,7 @@ var MX_OSZLOP = [
   { m: "kulcs", ikon: "🔑", cim: "Kulcs" },
   { m: "enabled", ikon: "👁", cim: "Látszik" },
   { m: "bank", ikon: "🏦", cim: "Bank" },
+  { m: "kuld", ikon: "🐉", cim: "Küldetés" },
   { m: "recommended", ikon: "💖", cim: "Szívecske" },
   { m: "extraReward", ikon: "✨", cim: "Csillámpor" },
   { m: "muvelet", ikon: "➕", cim: "Művelet" },
@@ -1049,8 +1051,8 @@ var MX_OSZLOP = [
   { m: "darab", ikon: "📋", cim: "Feladat / állomás" },
   { m: "korlat", ikon: "🔁", cim: "Hányszor" }
 ];
-var MX_MEZOK = ["kulcs", "enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "korlat"];   /* a bank külön (a bank-listában él) */
-var MX_ALAP = { kulcs: "nem", enabled: "igen", bank: "nem", recommended: "nem", extraReward: "×1", muvelet: "alap", tablak: "alap", darab: "alap", korlat: "nincs" };
+var MX_MEZOK = ["kulcs", "enabled", "kuld", "recommended", "extraReward", "muvelet", "tablak", "darab", "korlat"];   /* a bank külön (a bank-listában él) */
+var MX_ALAP = { kulcs: "nem", enabled: "igen", bank: "nem", kuld: "a játék dönti", recommended: "nem", extraReward: "×1", muvelet: "alap", tablak: "alap", darab: "alap", korlat: "nincs" };
 var MX_EGYENI = "egyeni";
 function mxTelefon() { return !!(window.matchMedia && window.matchMedia("(max-width:700px)").matches); }
 function mxSpec(pid) { return pid === TENY_OSVENY_ID || !PALYA[pid]; }   /* 🌸 Neked szóló ösvény vagy egyéni pálya */
@@ -1058,6 +1060,7 @@ function mxRegio(pid) { return mxSpec(pid) ? MX_EGYENI : palyaRegio(pid); }
 /* vonatkozik-e az oszlop a pályára */
 function mxVan(pid, m) {
   if (mxSpec(pid)) return m === "kulcs" || m === "korlat" || (m === "bank" && pid !== TENY_OSVENY_ID);
+  if (m === "kuld") return true;
   var le = nehezLehet(pid);
   if (m === "muvelet") return !!le.muvelet;
   if (m === "tablak") return !!le.tablak;
@@ -1070,7 +1073,8 @@ function mxEloreTablak(pid) {
 }
 /* a legördülő opciói (az üres „öröklött / alap” opció nélkül) */
 function mxOpc(cel, pid, m) {
-  var u = cel.tipus === "u", le = mxSpec(pid) ? {} : nehezLehet(pid);
+  var u = cel.tipus !== "g", le = mxSpec(pid) ? {} : nehezLehet(pid);   /* a gyerek és az alap-lap mindent felülírhat; a csoport csak „erősebbet” */
+  if (m === "kuld") return [["0", "nem"], ["1", "🐉 1×"], ["2", "🐉 2×"], ["3", "🐉 3×"]];
   if (m === "kulcs") return u ? [["true", "🔑 igen"], ["false", "nem"]] : [["true", "🔑 igen"]];
   if (m === "enabled") return u ? [["true", "igen"], ["false", "🚫 nem"]] : [["false", "🚫 nem"]];
   if (m === "bank") return [["1", "🏦 igen"], ["0", "nem"]];
@@ -1093,16 +1097,18 @@ function mxCimke(m, v) {
   if (m === "tablak") return v.join(", ");
   if (m === "darab") return v ? String(v) : "alap";
   if (m === "korlat") return v ? v + "×" : "korlátlan";
+  if (m === "kuld") return v ? "🐉 " + v + "×" : "nem";
   return String(v);
 }
 function mxKulcsErtek(m, v) { return v == null ? "" : m === "tablak" ? v.join(",") : String(v); }
-function mxOv(cel) { return cel.tipus === "u" ? ((A.cfg[cel.id] || {}).overrides || {}) : ((csoportById(cel.id) || {}).overrides || {}); }
-/* a gyereknél a csoportjaitól örökölt érték és a csoportok neve (null = nincs: az alap él) */
+function mxOv(cel) { return cel.tipus === "u" ? ((A.cfg[cel.id] || {}).overrides || {}) : cel.tipus === "a" ? alapOv() : ((csoportById(cel.id) || {}).overrides || {}); }
+/* az örökölt érték: a gyereknél a csoportjaitól + a „mindenki (alap)” laptól, a csoportnál az alap-laptól (null = nincs: a játék alapja él) */
 function mxOrokolt(cel, pid, m) {
-  if (cel.tipus !== "u") return null;
-  var cs = jatekosCsoportjai(cel.id), v = (felulirOsszevon({}, cs.map(function (g) { return g.overrides; }))[pid] || {})[m];
+  if (cel.tipus === "a") return null;
+  var cs = cel.tipus === "u" ? jatekosCsoportjai(cel.id) : [], v = (felulirOsszevon({}, cs.map(function (g) { return g.overrides; }), alapOv())[pid] || {})[m];
   if (v == null) return null;
-  return { v: v, nevek: cs.filter(function (g) { return ((g.overrides || {})[pid] || {})[m] != null; }).map(function (g) { return g.name; }) };
+  var nevek = cs.filter(function (g) { return ((g.overrides || {})[pid] || {})[m] != null; }).map(function (g) { return g.name; });
+  return { v: v, nevek: nevek, alap: !nevek.length };
 }
 function mxSajat(cel, pid, m) { var o = mxOv(cel)[pid]; return o && o[m] != null ? o[m] : null; }
 function mxErvenyes(cel, pid, m) { var s = mxSajat(cel, pid, m); if (s != null) return s; var o = mxOrokolt(cel, pid, m); return o ? o.v : null; }
@@ -1115,7 +1121,7 @@ function mxBankAll(cel, pid, cb) {
 }
 /* egy pálya-cella legördülője */
 function mxSelect(cel, pid, m, cb) {
-  if (!mxVan(pid, m)) return '<span class="halvany">—</span>';
+  if (!mxVan(pid, m) || (m === "bank" && cel.tipus === "a")) return '<span class="halvany">—</span>';
   var attr = ' data-mxk="' + esc(pid) + '" data-mxm="' + m + '"';
   if (m === "bank") {
     var b = mxBankAll(cel, pid, cb);
@@ -1124,8 +1130,9 @@ function mxSelect(cel, pid, m, cb) {
   }
   var s = mxSajat(cel, pid, m), orok = mxOrokolt(cel, pid, m), opc = mxOpc(cel, pid, m), ert = mxKulcsErtek(m, s);
   if (m === "tablak" && s && !opc.some(function (o) { return o[0] === ert; })) opc.splice(opc.length - 1, 0, [ert, "✏️ " + s.join(", ")]);
-  var ures = orok ? "↳ " + mxCimke(m, orok.v) : MX_ALAP[m];
-  var cim = s != null ? "itt állítottad" : orok ? "örökli: " + orok.nevek.join(", ") + " csoport" : "alap — a játék beállítás nélkül így csinálja";
+  var ures = orok ? "↳ " + mxCimke(m, orok.v) : m === "kuld" && kuldFelmondos(pid) ? "nem (felmondós)" : MX_ALAP[m];
+  var cim = s != null ? "itt állítottad" : orok ? (orok.alap ? "örökli: 🌐 mindenki (alap) lap" : "örökli: " + orok.nevek.join(", ") + " csoport") :
+    m === "kuld" && kuldFelmondos(pid) ? "felmondós pálya: a játék nem tudja mérni, megy-e, ezért alapból nem kér belőle — rögzíteni lehet" : "alap — a játék beállítás nélkül így csinálja";
   var h = '<select class="mx-sel' + (s != null ? " beallitva" : " orok") + '"' + attr + ' title="' + esc(cim) + '"><option value=""' + (s == null ? " selected" : "") + ">" + esc(ures) + "</option>" +
     opc.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (s != null && o[0] === ert ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>";
   if (m === "tablak" && (A.mxPipa || {})[cel.tipus + ":" + cel.id + ":" + pid]) {
@@ -1138,7 +1145,7 @@ function mxSelect(cel, pid, m, cb) {
 }
 /* a liget-sor legördülője egy oszlopban: a liget alkalmas pályáira egyszerre */
 function mxLigSelect(cel, r, pl, m, cb) {
-  var P = pl.filter(function (pid) { return mxVan(pid, m); });
+  var P = pl.filter(function (pid) { return mxVan(pid, m) && !(m === "bank" && cel.tipus === "a"); });
   if (!P.length) return '<span class="halvany">—</span>';
   var attr = ' data-mxk="@' + esc(r) + '" data-mxm="' + m + '"';
   if (m === "bank") {
@@ -1153,7 +1160,7 @@ function mxLigSelect(cel, r, pl, m, cb) {
   var opc = Object.keys(egyOpc).length === 1 ? mxOpc(cel, P[0], m).filter(function (o) { return o[0] !== "mas"; }) : [];   /* ha a pályák mást tudnak (pl. tábla és osztó), csak a visszaállítás */
   if (kozos && kozos !== "" && !opc.some(function (o) { return o[0] === kozos; })) kozos = null;
   var h = '<select class="mx-sel mx-lsel' + (kozos ? " beallitva" : "") + '"' + attr + ">" + (kozos == null ? '<option value="egyen" selected disabled>egyenként</option>' : "") +
-    '<option value=""' + (kozos === "" ? " selected" : "") + ">" + (cel.tipus === "u" && jatekosCsoportjai(cel.id).length ? "↺ csoport szerint" : "↺ alap") + "</option>";
+    '<option value=""' + (kozos === "" ? " selected" : "") + ">" + (cel.tipus === "u" && jatekosCsoportjai(cel.id).length ? "↺ csoport szerint" : cel.tipus === "a" ? "↺ a játék alapja" : "↺ alap") + "</option>";
   return h + opc.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (kozos === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>";
 }
 /* a mátrix ligetei: a játék pályalistájából (racsLigetek), a végén a 💖 Neked készült (🌸 ösvény + egyéni pályák) */
@@ -1172,7 +1179,7 @@ function mxSajatDb(cel, pids, cb) {
   var ov = mxOv(cel), n = 0;
   pids.forEach(function (pid) {
     MX_MEZOK.forEach(function (m) { if (mxVan(pid, m) && ov[pid] && ov[pid][m] != null) n++; });
-    if (mxVan(pid, "bank") && mxBankAll(cel, pid, cb).sajat) n++;
+    if (cel.tipus !== "a" && mxVan(pid, "bank") && mxBankAll(cel, pid, cb).sajat) n++;
   });
   return n;
 }
@@ -1181,7 +1188,8 @@ function mxJelek(cel, pid, cb) {
   var j = [], e = function (m) { return mxVan(pid, m) ? mxErvenyes(cel, pid, m) : null; };
   if (e("enabled") === false) j.push("🚫");
   if (e("kulcs") === true) j.push("🔑");
-  if (mxVan(pid, "bank") && mxBankAll(cel, pid, cb).hat) j.push("🏦");
+  if (cel.tipus !== "a" && mxVan(pid, "bank") && mxBankAll(cel, pid, cb).hat) j.push("🏦");
+  var kd = e("kuld"); if (kd != null) j.push(kd ? "🐉" + kd + "×" : "🐉 nem");
   if (e("recommended") === true) j.push("💖");
   var x = e("extraReward"); if (typeof x === "number" && x !== 1) j.push("✨" + mxCimke("extraReward", x));
   var mv = e("muvelet"); if (mv) j.push(mxCimke("muvelet", mv));
@@ -1193,17 +1201,19 @@ function mxJelek(cel, pid, cb) {
 function mxLista(cel) {
   var L = mxLigetek(cel), cb = celBank(cel), uid = cel.tipus === "u" ? cel.id : null, u = uid && userById(uid);
   var all = uid ? megfigyGyerek(u).palya : {}, tel = mxTelefon(), vanCs = uid && jatekosCsoportjai(uid).length > 0;
+  var kinel = uid ? "Ennél a gyereknél " : cel.tipus === "a" ? "Mindenkinél " : "Ennél a csoportnál ";
   var friss = null, frissT = 0;   /* alapból az a liget nyitva, ahol a gyerek legutóbb játszott */
   if (uid) A.events.forEach(function (e) { if (e.uid === uid && e.ts > frissT && e.data && PALYA[e.data.palyaId]) { frissT = e.ts; friss = palyaRegio(e.data.palyaId); } });
   var minden = []; L.sor.forEach(function (r) { minden = minden.concat(L.pl[r]); });
   var db = mxSajatDb(cel, minden, cb);
   var h = '<div class="rovat mx"><b class="r">🗺️ Pályái</b><span class="kicsi halvany">soronként a pálya, oszloponként a beállítás — a liget sorában az egész ligetre</span>' +
-    '<div class="mx-fej">' + (db ? (uid ? "Ennél a gyereknél " : "Ennél a csoportnál ") + "<b>" + db + "</b> beállítás tér el " + (vanCs ? "a csoporttól / az alaptól" : "az alaptól") + " (sárga)." +
+    '<div class="mx-fej">' + (db ? kinel + "<b>" + db + "</b> beállítás tér el " + (vanCs ? "a csoporttól / az alaptól" : cel.tipus === "a" ? "a játék alapjától" : "az alaptól") + " (sárga)." +
       ' <button class="gomb-kicsi" id="mx-vissza">↺ mind vissza ' + (vanCs ? "csoport szerint" : "alapra") + "</button>"
-      : (uid ? "Ennél a gyereknél " : "Ennél a csoportnál ") + "minden " + (vanCs ? "a csoport és az alap" : "az alap") + " szerint megy.") + "</div>" +
-    '<div class="kicsi halvany mx-jelm">Sárga = itt állítottad · <i>dőlt, halvány</i> = örökölt (' + (uid ? "↳ a csoporttól, vagy " : "") + "az alap; az egér megmutatja, honnan) · — = erre a pályára nem vonatkozik. " +
+      : kinel + "minden " + (vanCs ? "a csoport és az alap" : "az alap") + " szerint megy.") + "</div>" +
+    '<div class="kicsi halvany mx-jelm">Sárga = itt állítottad · <i>dőlt, halvány</i> = örökölt (' + (uid ? "↳ a csoporttól, vagy " : "") + (cel.tipus === "a" ? "" : "a 🌐 mindenki (alap) laptól, vagy ") + "a játék alapja; az egér megmutatja, honnan) · — = erre a pályára nem vonatkozik. " +
     "💖 szívecske dobog rajta, minden végigvitelért +2 💧 · ✨ a csillámpor szorzója · 🏦 a végigvitele 1 Tündérbank-váltást ér · 🔑 kapu-kulcs · 🔁 hányszor viheti végig (naponta, kapuval kapunyitásonként). " +
-    "🐉 A sárkány-küldetés oszlop a következő körben jön.</div>";
+    "🐉 sárkány-küldetés: <i>a játék dönti</i> (alap: abból a ligetből kér, ahol a legtöbb még nem megy) · <b>nem</b> = soha nem kér belőle · <b>1–3×</b> = rögzítve: " +
+    "ha van rögzített pálya, a következő küldetés <b>csak</b> a rögzítettekből áll, pályánként ennyi hellyel (a „megy” is). A futó küldetés nem változik.</div>";
   function nyKulcs(r) { return cel.tipus + ":" + cel.id + ":" + r; }
   function nyitva(r) { var k = nyKulcs(r); return (A.ligNyitva || {}).hasOwnProperty(k) ? A.ligNyitva[k] : r === friss; }
   function ligOssz(r) { var n = mxSajatDb(cel, L.pl[r], cb); return L.pl[r].length + " pálya" + (n ? " · " + n + " beállítva" : ""); }
@@ -1249,10 +1259,10 @@ function mxLista(cel) {
 /* telefonon: a legördülők egymás alatt, felirattal (csak ami vonatkozik valamelyik pályára) */
 function mxMezok(sel, pids) {
   return '<div class="mx-m-mezok">' + MX_OSZLOP.filter(function (o) { return pids.some(function (pid) { return mxVan(pid, o.m); }); }).map(function (o) {
-    return "<label><span>" + o.ikon + " " + o.cim + "</span>" + sel(o.m) + "</label>";
+    var x = sel(o.m); return x.indexOf("<select") < 0 ? "" : "<label><span>" + o.ikon + " " + o.cim + "</span>" + x + "</label>";   /* „—” (pl. 🏦 az alap-lapon): nincs sor */
   }).join("") + "</div>";
 }
-function mxRef(cel) { return cel.tipus === "u" ? db.collection("producerConfig").doc(cel.id) : db.collection("groups").doc(cel.id); }
+function mxRef(cel) { return cel.tipus === "u" ? db.collection("producerConfig").doc(cel.id) : db.collection("groups").doc(cel.tipus === "a" ? ALAP_DOK : cel.id); }
 /* 🏦 a bank-lista új alakja (null = nem változik): pids a liget összes pályája (r = liget) vagy egy pálya */
 function mxBankPatch(cel, pids, r, akar) {
   var D = firebase.firestore.FieldValue.delete(), cb = celBank(cel);
@@ -1277,7 +1287,7 @@ function mxBankPatch(cel, pids, r, akar) {
 function mxErtekBol(pid, m, v) {
   if (v === "") return null;
   if (m === "kulcs" || m === "enabled" || m === "recommended") return v === "true";
-  if (m === "extraReward" || m === "darab" || m === "korlat") return +v;
+  if (m === "extraReward" || m === "darab" || m === "korlat" || m === "kuld") return +v;
   if (m === "tablak") return v.split(",").map(Number);
   return v;
 }
@@ -1321,12 +1331,12 @@ function mxKezelok(t, cel) {
   });
   var vb = $("mx-vissza");
   if (vb) vb.onclick = function () {
-    var nev = cel.tipus === "u" ? gyNev(cel.id) : "a(z) „" + csoportById(cel.id).name + "” csoport";
+    var nev = cel.tipus === "u" ? gyNev(cel.id) : cel.tipus === "a" ? "🌐 mindenki (alap) lap" : "a(z) „" + csoportById(cel.id).name + "” csoport";
     if (!confirm("Minden pálya-beállítást visszaállítasz (" + nev + ")?\n\nA sárga cellák törlődnek, utána " + (cel.tipus === "u" && jatekosCsoportjai(cel.id).length ? "a csoport és " : "") + "az alap szerint megy.")) return;
     var D = FV.delete(), ov = mxOv(cel), o = {}, ki = { updatedAt: FV.serverTimestamp() };
     Object.keys(ov).forEach(function (pid) { var f = {}, van = false; MX_MEZOK.forEach(function (m) { if (ov[pid] && ov[pid][m] != null) { f[m] = D; van = true; } }); if (van) o[pid] = f; });
     ki.overrides = o;
-    var s = celBank(cel).sajat;
+    var s = cel.tipus === "a" ? {} : celBank(cel).sajat;
     if (Array.isArray(s.palyak)) { var bm = { palyak: D, modElotte: D }; if (s.mod === "palya") bm.mod = s.modElotte ? s.modElotte : D; ki.bank = {}; ki.bank[celBankBV().id] = bm; }
     ment(mxRef(cel).set(ki, { merge: true }));
   };
@@ -1365,18 +1375,16 @@ function gyerekBeallitasSorok(uid) {
   /* 👥 csoport */
   sor("👥", "Csoport", cs.length ? "<b>" + esc(cs.map(function (g) { return g.name; }).join(", ")) + "</b> — ami ott be van állítva, az rá is érvényes" : "nincs csoportban",
     !cs.length, cel("beallitasok", function (root) { var x = root.querySelector("[data-tag]"); return x ? x.closest(".kartya") : kartyaKeres("🦄")(root); }));
-  /* 💖 ajánlott pályák (szívecske + harmat) — a Pályái rovatban állítható, ugyanezen a lapon */
-  var aj = PALYA_SORREND.filter(function (pid) { return gyerekAllapot(uid, pid) === "kiemelt"; });
-  sor("💖", "Ajánlott pályák", aj.length ? nevLista(aj.map(function (x) { return esc(palyaNev(x)); })) + " — mindegyik végigviteléért <b>+2 💧</b>"
-    : "nincs — a lenti 🗺️ Pályái táblázatban állíthatod (szívecske dobog rajta, minden végigvitelért +2 💧)", !aj.length, { itt: ".mx" });
-  /* 🏦 Tündérbank */
+  /* Pult-mátrix 2. kör (2026-11-08, producer: „minek a pultra?”): csak a NEM pályánkénti beállítások — ami pályánként
+     állítható (💖, ✨, 🏦 pályái, 🔑 pályái, nehézség, 🔁, 🐉), az a fenti 🗺️ Pályái táblázatban látszik, itt nem ismételjük. */
+  /* 🏦 Tündérbank: ár + korlát (a banknyitó pályák a táblázat 🏦 oszlopában) */
   BANK_VALTASOK.forEach(function (bv) {
     var b = bankOsszevon(cfg.bank || {}, cs.map(function (g) { return g.bank || {}; }))[bv.id] || {};
-    sor("🏦", "Tündérbank", bankHatasSzoveg(uid, bv) + (b.ar >= 1 ? "" : " — a nyitáshoz adj meg árat"), !(b.ar >= 1), cel("beallitasok", kartyaKeres("🏦")), b.ar >= 1 ? null : "kinyitom");
+    sor("🏦", "Tündérbank", bankHatasSzoveg(uid, bv, true) + (b.ar >= 1 ? "" : " — a nyitáshoz adj meg árat"), !(b.ar >= 1), cel("beallitasok", kartyaKeres("🏦")), b.ar >= 1 ? null : "kinyitom");
   });
-  /* 🔑 kapu */
+  /* 🔑 kapu: az óraszám (a kulcs-pályák a táblázat 🔑 oszlopában) */
   var kh = kapuHatas(uid);
-  sor("🔑", "Kapu", kh.kulcs.length ? "kulcs: " + nevLista(kh.kulcs.map(function (x) { return esc(palyaNev(x)); })) + "; ha mindet végigviszi, <b>" + kh.orak + " órára</b> minden nyitva"
+  sor("🔑", "Kapu", kh.kulcs.length ? kh.kulcs.length + " kulcs-pálya (🔑 a táblázatban); ha mindet végigviszi, <b>" + kh.orak + " órára</b> minden nyitva"
     : "nincs kapu — minden pálya nyitva", !kh.kulcs.length, cel("beallitasok", kartyaKeres("🗝️ Kapu")));
   if (kh.rejtett.length) sor("⚠️", "Kapu", '<span class="rossz-sz">kulcsnak jelölted, de rejtve van, ezért nem számít: ' + kh.rejtett.map(function (x) { return esc(palyaNev(x)); }).join(", ") + "</span>", false, cel("beallitasok", kartyaKeres("🗝️ Kapu")));
   /* 🌸 tény-motor */
@@ -1384,8 +1392,8 @@ function gyerekBeallitasSorok(uid) {
   sor("🌸", "Tény-kert", tenyHatasSzoveg(uid), !(vanMezo(cfg.teny) || cs.some(function (g) { return vanMezo(g.teny); })), cel("beallitasok", kartyaKeres("🌸 Tény-motor")));
   /* 🐉 kis sárkány */
   var lh = lenyBeall(lenyBeallOsszevon(cfg.leny || {}, cs.map(function (g) { return g.leny || {}; }))), la = lenyBeall({});
-  sor("🐉", "Kis sárkány", (lh.kiser ? "elkíséri az ösvényeken" : "nem kíséri el az ösvényeken") + ", küldetés: " + kuldHatasSzoveg(lh),
-    lh.kiser === la.kiser && lh.kuld === la.kuld && lh.kuldLiget === la.kuldLiget && !lh.kuldPalyak, cel("beallitasok", kartyaKeres("🐉")));
+  sor("🐉", "Kis sárkány", (lh.kiser ? "elkíséri az ösvényeken" : "nem kíséri el az ösvényeken") + ", küldetés: " + kuldHatasSzoveg(lh, uid),
+    lh.kiser === la.kiser && lh.kuld === la.kuld && !kuldRogzitettPult(uid).length, cel("beallitasok", kartyaKeres("🐉")));
   /* 🚪 újonc-menet */
   var nb = nyitasHatas(uid);
   sor("🚪", "Újonc-menet", nyitasHatasSzoveg(uid), nb.menet === null && !nb.osztaly, cel("beallitasok", kartyaKeres("🚪")));
@@ -1395,21 +1403,6 @@ function gyerekBeallitasSorok(uid) {
     SZERSZAMOK.every(function (s) { return sb.latszik[s.id] === sa.latszik[s.id]; });
   sor("🧰", "Bagolykönyvtár", "láda: " + sb.k + " önálló az utolsó " + sb.n + "-ből · látszik: " + (SZERSZAMOK.filter(function (s) { return sb.latszik[s.id]; }).map(function (s) { return s.ikon; }).join(" ") || "semmi") +
     " · lift " + (sb.liftKer ? "kérhető" : "nem kérhető") + " · 🏅 kb. minden " + sb.mv + ". pálya után jön vissza", szAlap, cel("epitokocka", kartyaKeres("🧰 Láda")));
-  /* 💖 egyéni pályák */
-  var egy = celEgyeniPalyak("u", uid);
-  if (egy.length) sor("✏️", "Egyéni pályák", egy.map(function (x) { return esc((x.r.ikon || "💖") + " " + (x.r.nev || "Egyéni pálya")); }).join(", "), false, cel("egyeni", null));
-  /* pályánként: darabkorlát, nehézség, ✨ szorzó — csak ahol van (a 🗺️ Pályái táblázatba ugrik) */
-  var v = felulirOsszevon(cfg.overrides || {}, cs.map(function (g) { return g.overrides; }));
-  PALYA_SORREND.concat([TENY_OSVENY_ID]).forEach(function (pid) {
-    var x = v[pid]; if (!x || x.enabled === false) return;
-    var le = nehezLehet(pid), r = [];
-    if (x.korlat) r.push("legfeljebb " + x.korlat + "× " + (kh.kulcs.length ? "kapunyitásonként" : "naponta"));
-    if (x.muvelet && le.muvelet && le.muvelet.indexOf(x.muvelet) >= 0) r.push(MUVELET_NEV[x.muvelet].replace(/^\S+ /, ""));
-    if (x.tablak && x.tablak.length && le.tablak) r.push("csak a(z) " + x.tablak.join(", ") + " " + le.tablaSzo);
-    if (x.darab && le.darab) r.push(x.darab + " feladat / állomás");
-    if (typeof x.extraReward === "number" && x.extraReward !== 1) r.push("×" + String(x.extraReward).replace(".", ",") + " ✨");
-    if (r.length) sor("🎚️", esc(pid === TENY_OSVENY_ID ? "🌸 Neked szóló ösvény" : palyaNev(pid)), r.join(", "), false, { itt: ".mx" });
-  });
   return l;
 }
 function gyerekBeallitasai(uid) {
@@ -1421,6 +1414,19 @@ function gyerekBeallitasai(uid) {
         '<button class="gomb-kicsi" data-modosit="' + i + '">' + (x.gomb || (x.cel.itt ? "beállítom ↓" : "beállítom")) + "</button></div>";
     }).join("") +
     '</div><div class="kicsi" style="margin-top:6px"><button class="gomb-kicsi" data-modosit="mind">🎛️ Minden beállítása a Műhelyben</button></div></div>';
+}
+/* ── 🌐 „mindenki (alap)” lap (Pult-mátrix 2. kör): ugyanez a táblázat minden gyerekre — groups/_alap.overrides; a legalsó réteg ── */
+function rajzAlaplap(t) {
+  var cel = { tipus: "a", id: ALAP_DOK };
+  var h = '<div class="eszkozsor"><button id="gy-vissza">← Gyerekek</button></div>' +
+    '<div class="gyl"><div class="gyl-fej"><h2>🌐 Mindenki <small class="halvany">alap</small></h2>' +
+    '<span class="kicsi halvany">Amit itt állítasz, minden gyerekre érvényes, akkor is, ha nincs csoportban. A csoport és a gyerek saját beállítása erősebb. ' +
+    "A 🏦 bank pályái itt nem állíthatók (a csoport- vagy a gyereklapon).</span></div>" + mxLista(cel) + "</div>";
+  var gorget = window.scrollY;
+  t.innerHTML = h;
+  window.scrollTo(0, gorget);
+  $("gy-vissza").onclick = function () { A.alapLap = false; rajzol(); };
+  mxKezelok(t, cel);
 }
 /* a Műhely egy lapja erre a gyerekre állítva, a keresett részhez görgetve és felvillantva */
 function muhelyUgrik(uid, cel) {
@@ -1941,7 +1947,9 @@ function rajzPalyak(t) {
    Nehézség (2026-09-24): { muvelet?: "osszeadas"|"kivonas"|"szorzas"|"osztas", tablak?: [2..10], darab?: 3|8 }.
    Kapu + darabkorlát (2026-09-27): { kulcs?: true|false, korlat?: N (0 = korlátlan) } + a dokumentumon kapuOrak?: N.
    Sorrend: alap < csoport(ok) < egyéni. A játék src/config.js felulirOsszevon-ja UGYANEZ — együtt változtasd! */
-var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat"];
+var NEHEZ_MEZOK = ["enabled", "recommended", "extraReward", "muvelet", "tablak", "darab", "kulcs", "korlat", "kuld"];   /* kuld: 🐉 0 = nem · 1–3 = rögzítve */
+var ALAP_DOK = "_alap";   /* groups/_alap: a 🌐 „mindenki (alap)” lap (nem csoport: tagja nincs, a csoport-listákban nem látszik) */
+function alapOv() { return (A.alap || {}).overrides || {}; }
 var KONNYU_MUVELET = ["osszeadas", "szorzas"];
 var MUVELET_NEV = { osszeadas: "➕ csak összeadás", kivonas: "➖ csak kivonás", szorzas: "✖️ csak szorzás", osztas: "➗ csak osztás" };
 /* pálya-típusonként mi állítható (a játék config.js nehezsegAlkalmaz-ával összhangban) */
@@ -1955,7 +1963,7 @@ function nehezLehet(pid) {
     darab: !!t && t !== "szambontas" && t !== "szorzotabla-felmondas" && t !== "szerszam" && !(PALYA[pid] || {}).darabFix
   };
 }
-function felulirOsszevon(egyeni, csoportLista) {
+function felulirOsszevon(egyeni, csoportLista, alap) {
   var ki = {};
   function mezo(id) { return ki[id] || (ki[id] = {}); }
   csoportLista.forEach(function (ov) {
@@ -1975,11 +1983,16 @@ function felulirOsszevon(egyeni, csoportLista) {
       if (typeof o.darab === "number") k.darab = Math.min(k.darab || 99, o.darab);
       if (o.kulcs === true) k.kulcs = true;
       if (typeof o.korlat === "number") k.korlat = Math.max(k.korlat || 0, o.korlat);
+      if (typeof o.kuld === "number") k.kuld = Math.max(k.kuld == null ? 0 : k.kuld, o.kuld);   /* 🐉 aki számot mond, az nyer; közülük a nagyobb */
     });
   });
   Object.keys(egyeni || {}).forEach(function (id) {
     var o = egyeni[id] || {}, k = mezo(id);
     NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null) k[m] = o[m]; });
+  });
+  Object.keys(alap || {}).forEach(function (id) {   /* 🌐 alap-lap: csak ahol se csoport, se egyéni nem mond semmit */
+    var o = alap[id] || {}, k = mezo(id);
+    NEHEZ_MEZOK.forEach(function (m) { if (o[m] != null && k[m] == null) k[m] = o[m]; });
   });
   return ki;
 }
@@ -2025,12 +2038,13 @@ function bankOsszevon(egyeni, csoportok) {
   return ki;
 }
 /* a gyerek szemével: mit lát a bankban (egy váltásnál) */
-function bankHatasSzoveg(uid, bv) {
+function bankHatasSzoveg(uid, bv, rovid) {
   var b = bankOsszevon((A.cfg[uid] || {}).bank || {}, jatekosCsoportjai(uid).map(function (g) { return g.bank || {}; }))[bv.id] || {};
   if (!(b.ar >= 1)) return "🌙 <b>zárva</b> — még nincs ár (a gyerek a „Hamarosan nyitunk” táblát látja)";
   if (b.ki === true) return "⏸️ <b>zárva</b> — kikapcsolva";
   var t = "🔓 <b>nyitva</b>: " + b.ar + " " + bv.adIkon + " = 1 " + bv.kapIkon;
-  if (b.mod === "palya") {
+  if (b.mod === "palya" && rovid) t += " · 🏁 csak a táblázatban 🏦-nek jelölt pályák után (pályánként 1 váltás)" + ((b.palyak || []).length ? "" : ' — <span class="rossz-sz">⚠️ nincs jelölt pálya, így nem tud váltani</span>');
+  else if (b.mod === "palya") {
     var nevek = (b.palyak || []).map(function (x) {
       if (x.charAt(0) === "@") return esc((x === "@egyeni" ? "💖 Egyéni pályák" : (LIGET_CIM[x.slice(1)] || x.slice(1))) + " (egész liget)");
       return esc(palyaNevBank(x));
@@ -2057,7 +2071,7 @@ function celEgyeniPalyak(tipus, id) {
 /* a gyerek szemével: melyik kulcs-pálya él, hány órára nyílik a kapu (a játék kapuKulcsok()-jával összhangban) */
 function kapuHatas(uid) {
   var cs = jatekosCsoportjai(uid), cfg = A.cfg[uid] || {};
-  var v = felulirOsszevon(cfg.overrides || {}, cs.map(function (g) { return g.overrides; }));
+  var v = felulirOsszevon(cfg.overrides || {}, cs.map(function (g) { return g.overrides; }), alapOv());
   var ids = PALYA_SORREND.concat([TENY_OSVENY_ID], celEgyeniPalyak("u", uid).map(function (x) { return x.id; }));
   var kulcs = [], rejtett = [];
   ids.forEach(function (pid) {
@@ -2071,15 +2085,16 @@ function beallitasokFigyel() {
   A.beallLeir.forEach(function (f) { f(); });
   A.beallLeir = [
     db.collection("producerConfig").onSnapshot(function (snap) {
-      var c = {}; snap.forEach(function (d) { c[d.id] = d.data(); }); A.cfg = c;
+      var c = {}; snap.forEach(function (d) { c[d.id] = d.data(); }); A.cfg = c; A.cfgKesz = true; kuldRegiAtir();
       egyeniNevekFrissit();
       if (A.fo !== "muhely" || A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
     }, function (e) { console.warn("[pult] producerConfig:", e); }),
     db.collection("groups").onSnapshot(function (snap) {
       var l = [];
-      snap.forEach(function (d) { var x = d.data(); l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {}, leny: x.leny || {}, nyitas: x.nyitas || {} }); });
+      var alap = null;
+      snap.forEach(function (d) { var x = d.data(); if (d.id === ALAP_DOK) { alap = { overrides: x.overrides || {} }; return; } l.push({ id: d.id, name: x.name || "névtelen", members: x.members || [], overrides: x.overrides || {}, customLevels: x.customLevels || {}, kapuOrak: typeof x.kapuOrak === "number" ? x.kapuOrak : null, ekStabil: x.ekStabil || null, bank: x.bank || {}, teny: x.teny || {}, szerszam: x.szerszam || {}, leny: x.leny || {}, nyitas: x.nyitas || {} }); });
       l.sort(function (a, b) { return a.name.localeCompare(b.name, "hu"); });
-      A.groups = l;
+      A.groups = l; A.alap = alap || { overrides: {} }; A.groupsKesz = true; kuldRegiAtir();
       egyeniNevekFrissit();
       if (A.fo !== "muhely" || A.fulek === "beallitasok" || A.fulek === "egyeni" || A.fulek === "epitokocka") rajzol();
     }, function (e) { console.warn("[pult] groups:", e); })
@@ -2128,17 +2143,50 @@ function nyitasHatasSzoveg(uid) {
     (versek.length ? "<br>vers-pályák: " + versek.join(" · ") : "") + "<br>eddig nyílt: " + (nyilt.length ? nyilt.join(" · ") : "–") +
     (a.elakad != null ? " · ⚠️ elakadt — a következő gyakorlós napon oldalra nyílik valami" : "") + (a.fv ? " · ⬆️ felfelé vár " + a.fv + " liget (szabad napra)" : "");
 }
-function kuldHatasSzoveg(lh) {
+/* a gyerekre ható 🐉 pályánkénti beállítás (alap-lap < csoport < egyéni) */
+function kuldHatasOv(uid) { return felulirOsszevon((A.cfg[uid] || {}).overrides || {}, jatekosCsoportjai(uid).map(function (g) { return g.overrides; }), alapOv()); }
+function kuldRogzitettPult(uid) {
+  var v = kuldHatasOv(uid);
+  return PALYA_SORREND.filter(function (pid) { return v[pid] && v[pid].kuld >= 1 && v[pid].enabled !== false; }).map(function (pid) { return { pid: pid, db: v[pid].kuld }; });
+}
+function kuldHatasSzoveg(lh, uid) {
   if (!lh.kuld) return "nincs";
-  return "van, " + (lh.kuldPalyak ? "a kézi listából (" + lh.kuldPalyak.length + " pálya)" : kuldLigetNev(lh.kuldLiget));
+  var r = uid ? kuldRogzitettPult(uid) : [];
+  var ossz = r.reduce(function (a, x) { return a + x.db; }, 0);
+  return r.length ? "van, csak a rögzített pályákból: " + r.map(function (x) { return esc(palyaNev(x.pid)) + " " + x.db + "×"; }).join(", ") +
+    (ossz > KULD_MAX_HELY ? ' <span class="rossz-sz">⚠️ ez ' + ossz + " hely, de csak " + KULD_MAX_HELY + " fér el — a játék a még nem menőket hagyja meg</span>" : "") : "van, 🤖 a játék dönti, honnan";
+}
+/* Pult-mátrix 2. kör, 4. döntés A: a régi 🐉 mezők (leny.kuldPalyak, leny.kuldLiget) EGYSZER átíródnak a mátrixba:
+   a kézi lista pályái → 🐉 1× · egy kiválasztott liget → a többi liget pályái „nem”. Ami a mátrixban már állítva van, marad. */
+function kuldRegiAtir() {
+  if (A.kuldAtirva || !A.cfgKesz || !A.groupsKesz) return;
+  A.kuldAtirva = true;
+  var FV = firebase.firestore.FieldValue, D = FV.delete(), L = racsLigetek();
+  function szabad(ov, pid) { return PALYA[pid] && pid !== TENY_OSVENY_ID && !((ov || {})[pid] && ov[pid].kuld != null); }
+  function atir(ref, leny, ov) {
+    leny = leny || {};
+    var kp = Array.isArray(leny.kuldPalyak) ? leny.kuldPalyak : null, kl = typeof leny.kuldLiget === "string" ? leny.kuldLiget : null, o = {};
+    if (!kp && kl == null) return;
+    if (kp && kp.length) kp.forEach(function (pid) { if (szabad(ov, pid)) o[pid] = { kuld: 1 }; });
+    else if (kl && kl !== KULD_GEPI && L.pl[kl]) L.sor.forEach(function (r) {
+      if (r === kl || KULD_NEM_LIGET.indexOf(r) >= 0) return;
+      L.pl[r].forEach(function (pid) { if (szabad(ov, pid)) o[pid] = { kuld: 0 }; });
+    });
+    var ki = { leny: { kuldPalyak: D, kuldLiget: D }, updatedAt: FV.serverTimestamp() };
+    if (Object.keys(o).length) ki.overrides = o;
+    ment(ref.set(ki, { merge: true }));
+  }
+  Object.keys(A.cfg).forEach(function (uid) { atir(db.collection("producerConfig").doc(uid), A.cfg[uid].leny, A.cfg[uid].overrides); });
+  A.groups.forEach(function (g) { atir(db.collection("groups").doc(g.id), g.leny, g.overrides); });
 }
 /* ⚠️ jön-e most küldetés a beállított ligetből (2026-10-23: MRZS-nél Bájitalkonyha, 1 játszott pálya → csendben nem kért).
    A játék szabályát (kuldetes.js kuldFajtak + kuldOsszeallit + kuldGepiLiget) követi a mentésből; a pulton elrejtett/zárt
    pályákat nem nézi, ezért csak közelítés. Csak azoknál az unikornisoknál, ahol a kölyök már hazatért. */
-function kuldLigetDb(l, p) {
-  var L = KULD_LIGET[l], pp = p.palyak || {}, tud = p.tud || {}, ma = tenyNap(), uj = 0, jatszott = 0;
+function kuldLigetDb(l, p, v) {
+  var L = KULD_LIGET[l] || {}, pp = p.palyak || {}, tud = p.tud || {}, ma = tenyNap(), uj = 0, jatszott = 0;
   var f = PALYA_SORREND.filter(function (pid) {
-    if (palyaRegio(pid) !== l || L.kimarad.indexOf(pid) >= 0) return false;
+    var o = v[pid] || {};
+    if (palyaRegio(pid) !== l || kuldFelmondos(pid) || o.kuld === 0 || o.enabled === false) return false;
     var volt = !!pp[pid] || !!(tud[pid] && typeof tud[pid].ut === "number");
     if (volt) jatszott++;
     return !L.lepcsos || volt || !uj++;
@@ -2147,17 +2195,15 @@ function kuldLigetDb(l, p) {
   return { db: db, jatszott: jatszott };
 }
 function kuldFigyelmeztetes(uid, lh) {
-  var u = userById(uid); if (!u || !lh.kuld || lh.kuldPalyak) return "";
-  var h = "";
+  var u = userById(uid); if (!u || !lh.kuld || kuldRogzitettPult(uid).length) return "";
+  var h = "", v = kuldHatasOv(uid), ligetek = racsLigetek().sor.filter(function (r) { return KULD_NEM_LIGET.indexOf(r) < 0; });
   Object.keys(u.unicorns).forEach(function (k) {
     var p = u.unicorns[k] || {};
     if (!p.leny2 || p.leny2.fazis !== "kolyok" || (p.kuld && p.kuld.akt)) return;
     var ok;
-    if (lh.kuldLiget === KULD_GEPI) ok = Object.keys(KULD_LIGET).some(function (l) { var x = kuldLigetDb(l, p); return x.jatszott && x.db > 2; });
-    else ok = !KULD_LIGET[lh.kuldLiget] || kuldLigetDb(lh.kuldLiget, p).db > 2;
+    ok = ligetek.some(function (l) { var x = kuldLigetDb(l, p, v); return x.jatszott && x.db > 2; });
     if (!ok) h += '<div class="kicsi" style="background:#fff3d6;border-radius:8px;padding:6px 8px;margin:6px 0">⚠️ <b>' + esc(lenyNev(k)) + "</b>: most nem jön küldetés — " +
-      (lh.kuldLiget === KULD_GEPI ? "egyik ligetben sincs elég (legalább 3) még nem menő, már elkezdett pálya."
-        : "a(z) " + esc(kuldLigetNev(lh.kuldLiget)) + " ligetből legfeljebb 2 pálya jöhetne szóba (lépcsős ligetben csak a játszottak + a következő egy). Válts ligetet, vagy állítsd „🤖 a játék választ”-ra.") + "</div>";
+      "egyik ligetben sincs elég (legalább 3) még nem menő, már elkezdett pálya. Ha most is kérjen, rögzíts pályát a 🗺️ Pályái táblázat 🐉 oszlopában.</div>";
   });
   return h;
 }
@@ -2173,7 +2219,7 @@ function kuldGyerekNezet(uid) {
     /* futó küldetés */
     if (a && Array.isArray(a.helyek)) {
       var hn = HOLMI_NEV[a.id] || { nev: a.id };
-      h += '<div class="kicsi">Épül: <b>' + esc(hn.nev) + "</b> · " + (a.liget === KULD_KEZI ? "kézi lista" : esc((KULD_LIGET[a.liget] || {}).nev || a.liget)) +
+      h += '<div class="kicsi">Épül: <b>' + esc(hn.nev) + "</b> · " + (a.liget === KULD_KEZI ? "rögzített pályák" : esc((KULD_LIGET[a.liget] || {}).nev || a.liget)) +
         " · kezdte " + napDatum(a.kezd) + " · hozott " + (a.hozott || 0) + "/" + KULD_RESZ + " részlet, felrakott " + (a.felrakva || 0) + "</div>" +
         '<div class="kuld-helyek">' + a.helyek.map(function (x) {
           return '<span class="' + (x.kesz ? "kesz" : "") + '">' + (x.kesz ? "✅" : "⬜") + " " + esc(palyaNev(x.p)) + (x.raad ? " (ráadás)" : "") + ' <small class="halvany">' + x.resz + " r.</small></span>";
@@ -2217,7 +2263,7 @@ var LIGET_CIM = { osszeado: "🌳 Összeadó liget", szorzo: "🌙 Szorzós lige
 /* a gyerek szemével: mit kap egy pályánál, és honnan jön (egyéni / melyik csoport) */
 function hatasLeiras(uid, pid) {
   var cs = jatekosCsoportjai(uid), egy = (A.cfg[uid] || {}).overrides || {};
-  var v = felulirOsszevon(egy, cs.map(function (g) { return g.overrides; }))[pid] || {};
+  var v = felulirOsszevon(egy, cs.map(function (g) { return g.overrides; }), alapOv())[pid] || {};
   var e = egy[pid] || {};
   function honnan(mezo) {
     if (e[mezo] != null) return "";
@@ -2389,42 +2435,24 @@ function rajzBeallitasok(t) {
     '<select id="leny-kuld"' + (typeof sajatLeny.kuld === "boolean" ? ' class="beallitva"' : "") + ">" +
     [["", lUres.replace("igen", "van küldetés")], ["true", "✅ van küldetés"], ["false", "🚫 nincs küldetés"]].map(function (o) {
       return '<option value="' + o[0] + '"' + ((typeof sajatLeny.kuld === "boolean" ? String(sajatLeny.kuld) : "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
-    }).join("") + "</select>" +
-    "<span>Liget:</span>" + '<select id="leny-kuld-liget"' + (typeof sajatLeny.kuldLiget === "string" ? ' class="beallitva"' : "") + ">" +
-    [["", (egyeni ? (jatekosCsoportjai(id).length ? "— csoport szerint" : "— alap") : "— nincs (alap)") + " (" + kuldLigetNev(LENY_KULD_LIGET_ALAP) + ")"]].concat(
-      [KULD_GEPI].concat(Object.keys(KULD_LIGET)).map(function (l) { return [l, kuldLigetNev(l)]; })).map(function (o) {
-      return '<option value="' + o[0] + '"' + ((sajatLeny.kuldLiget || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
     }).join("") + "</select></div>";
-  /* kézi pályalista: ligetenként, a kimaradók (🎵 nem mérhető, 🧺 nem kötelező) nélkül */
-  var kLista = Array.isArray(sajatLeny.kuldPalyak) ? sajatLeny.kuldPalyak : null, kLig = {}, kLigSor = [];
-  PALYA_SORREND.forEach(function (pid) {
-    if (kuldKimarad(pid)) return;
-    var rg = palyaRegio(pid); if (!kLig[rg]) { kLig[rg] = []; kLigSor.push(rg); } kLig[rg].push(pid);
-  });
-  var kNyit = (A.kuldNyitva || {}).hasOwnProperty(id) ? A.kuldNyitva[id] : !!kLista;
-  h += '<details class="bank-palyak' + (kLista ? " beallitva" : "") + '" data-kuld-nyit="' + esc(id) + '"' + (kNyit ? " open" : "") + "><summary>🏁 Kézi pályalista " +
-    (kLista ? "(itt kijelölve: " + kLista.length + " pálya — a következő küldetés ezekből áll)" : egyeni && jatekosCsoportjai(id).length ? "(nincs — a csoporté vagy a liget szerint, a játék rakja össze)" : "(nincs — a játék rakja össze a ligetből)") + "</summary>";
-  kLigSor.forEach(function (rg) {
-    h += '<div class="liget">' + esc(LIGET_CIM[rg] || rg) + '</div><div class="pl">' + kLig[rg].map(function (pid) {
-      return '<label><input type="checkbox" data-kuld-palya value="' + esc(pid) + '"' + (kLista && kLista.indexOf(pid) >= 0 ? " checked" : "") + "> " + esc(palyaNev(pid)) + "</label>";
-    }).join("") + "</div>";
-  });
-  if (kLista) h += '<div style="margin-top:6px"><button id="kuld-palya-torol">↺ ' + (egyeni && jatekosCsoportjai(id).length ? "Lista törlése (csoport szerint)" : "Lista törlése (a játék rakja össze)") + "</button></div>";
-  h += "</details>";
+  h += '<div class="kicsi">Honnan kér: a 🗺️ Pályái táblázat <b>🐉 oszlopában</b>, pályánként (a játék dönti · nem · 1–3× rögzítve) — ' +
+    (egyeni ? "a gyereklapon" : "a csoport lapján") + ', vagy mindenkinek a 🌐 Mindenki (alap) lapon.</div>';
   if (egyeni) {
     var lh = lenyBeall(lenyBeallOsszevon((A.cfg[id] || {}).leny || {}, jatekosCsoportjai(id).map(function (g) { return g.leny || {}; })));
-    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, küldetés: <b>" + kuldHatasSzoveg(lh) + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
+    h += '<div class="kicsi">Most ennél a gyereknél: <b>' + (lh.kiser ? "kíséri" : "nem kíséri") + "</b>, küldetés: <b>" + kuldHatasSzoveg(lh, id) + "</b> (csak akkor látszik, ha a kalandtérképen már megtalálta a kölyköt).</div>";
     h += kuldFigyelmeztetes(id, lh);
     h += kuldGyerekNezet(id);
   }
   h += '<p class="kicsi halvany" style="margin-top:8px">A kölyök az unikornis mögött repül, és jó válasznál szikrát tüsszent; a rossz válaszra nem reagál. ' +
     "Küldetés: a kölyök 3 holmi közül választat (ágy, kisház, ruha), és 10 helyet kér a liget azon pályáiból, amelyek a gyereknek még nem mennek " +
     "(megy = 3 különböző napon tiszta végigjátszás); ha 2 vagy kevesebb ilyen marad, a liget kész, és nem kér. " +
-    "🤖 A játék választ (alap): abból a ligetből kér, ahol a legtöbb még nem megy — csak olyan ligetből, ahol a gyerek már végigjátszott egy pályát; ha egy liget kész, máshonnan kér. " +
-    "Az Összeadó ligetben, a Tündérvásárban és a mérés-ligetekben csak a már játszott pályák + a következő egy számít (így nem kap az osztályánál nehezebbet). " +
-    "Kézi pályalista: ha bepipálsz pályákat (bármelyik ligetből), a te listád számít — a „megy” pályák is, pályánként 1–2 hely; ami a gyereknek rejtve vagy zárva van, kimarad. " +
+    "🤖 A játék dönti (alap): abból a ligetből kér, ahol a legtöbb még nem megy — csak olyan ligetből, ahol a gyerek már végigjátszott egy pályát; ha egy liget kész, máshonnan kér. " +
+    "Minden liget számít (a Piactér és a Bagolykönyvtár is). Az Összeadó ligetben, a Tündérvásárban, a mérés-ligetekben és a Bagolykönyvtárban csak a már játszott pályák + a következő egy számít. " +
+    "A felmondós pályák (🌰, 🎵) alapból kimaradnak, mert a játék nem tudja mérni, mennek-e. " +
+    "Rögzített pálya (🐉 1–3× a táblázatban): ha van ilyen, a küldetés csak ezekből áll, pályánként ennyi hellyel — a „megy” és a felmondós is; ami a gyereknek rejtve vagy zárva van, kimarad. " +
     "Minden változás csak a <b>következő</b> küldetésre hat, a futó nem változik. " +
-    "Sorrend: alap → csoport → egyéni. Több csoportnál a bekapcsolt nyer, a liget az első csoporté, a kézi listák összeadódnak.</p></div>";
+    "Sorrend: 🌐 alap-lap → csoport → egyéni. Több csoportnál a bekapcsolt nyer; a 🐉 oszlopban az nyer, aki számot mond, közülük a nagyobb.</p></div>";
 
   /* ── 🚪 Újonc-menet (2026-10-20, terv/ujonc-bevezetes-rendszerterv.html 6.; a játék: src/nyitas.js) ── */
   var sajatNy = (egyeni ? (A.cfg[id] || {}).nyitas : csoportById(id).nyitas) || {};
@@ -2476,20 +2504,7 @@ function rajzBeallitasok(t) {
   $("nyitas-osztaly").onchange = function () {
     ment(docRef.set({ nyitas: { osztaly: this.value === "" ? FV.delete() : +this.value }, updatedAt: FV.serverTimestamp() }, { merge: true }));
   };
-  /* 🐉 sárkány-küldetés (4. kör): liget, kézi pályalista, „mégsem megy” */
-  $("leny-kuld-liget").onchange = function () {
-    ment(docRef.set({ leny: { kuldLiget: this.value === "" ? FV.delete() : this.value }, updatedAt: FV.serverTimestamp() }, { merge: true }));
-  };
-  function kuldListaIr(torol) {
-    var l = [];
-    if (!torol) Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-palya]"), function (x) { if (x.checked) l.push(x.value); });
-    ment(docRef.set({ leny: { kuldPalyak: l.length ? l : FV.delete() }, updatedAt: FV.serverTimestamp() }, { merge: true }));
-  }
-  Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-palya]"), function (c) { c.onchange = function () { kuldListaIr(false); }; });
-  if ($("kuld-palya-torol")) $("kuld-palya-torol").onclick = function () { kuldListaIr(true); };
-  Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-nyit]"), function (d) {
-    d.addEventListener("toggle", function () { (A.kuldNyitva || (A.kuldNyitva = {}))[d.dataset.kuldNyit] = d.open; });
-  });
+  /* 🐉 sárkány-küldetés: a „mégsem megy” (a liget és a kézi lista 2026-11-08 óta a mátrix 🐉 oszlopában) */
   Array.prototype.forEach.call(t.querySelectorAll("[data-kuld-megsem]"), function (b) {
     b.onclick = function () {
       if (!confirm("Biztos? " + b.dataset.nev + "\n\nA „megy” visszavonódik, és " + TUDAS.visszaNap + " új, tiszta nap kell, hogy újra menjen. A gyerek ebből semmit nem lát.")) return;
