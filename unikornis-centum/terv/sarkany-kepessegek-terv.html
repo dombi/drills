@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sárkány-képességek</title>
+<style>
+  :root{
+    --bg:#fdf4fb; --panel:#ffffff; --ink:#2a2140; --muted:#6b6280;
+    --violet:#8a4fd0; --violet-soft:#ece0fb; --green:#3f9e6a; --green-soft:#dff3e7; --line:#efe4f4; --warn-soft:#fff3dc;
+    --egyes:#f7b6cf; --egyes-d:#d0517f; --tizes:#a9cdf0; --tizes-d:#4f86c2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; }
+  }
+  :root[data-theme="dark"]{ --bg:#1d1828; --panel:#27203a; --ink:#f1ebfb; --muted:#b8aecb; --line:#3a3150; --violet-soft:#35264f; --green-soft:#1f3a2b; --warn-soft:#3d2f14; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:28px 16px 70px}
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{background:linear-gradient(120deg,#e08a3a 0%,#8a4fd0 100%);color:#fff;border-radius:22px;padding:26px 26px 22px;position:relative;overflow:hidden}
+  header.top::after{content:"✨";position:absolute;right:18px;top:4px;font-size:92px;opacity:.22;transform:rotate(10deg)}
+  header.top h1{margin:0 0 6px;font-size:27px}
+  header.top .sub{font-size:15px;opacity:.95;max-width:620px}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+  h2{font-size:20px;margin:32px 0 12px;padding-left:12px;border-left:6px solid var(--violet)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .lead{color:var(--muted)}
+  ul,ol{margin:.4em 0;padding-left:22px} li{margin:.3em 0}
+  .ok{background:var(--green-soft);border-color:transparent}
+  .warn{background:var(--warn-soft);border-color:transparent}
+  .dont{background:var(--panel);border:2px solid var(--violet-soft);border-radius:14px;padding:12px 16px;margin:10px 0}
+  .dont b.n{color:var(--violet)}
+  .jav{color:var(--green);font-weight:700}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  .sketch{background:#f8ecd9;border-radius:14px;padding:8px;margin:10px 0}
+  .sketch svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Sárkány-képességek + felturbózott csillámszórás</h1>
+  <div class="sub">A kissárkány trükköket tanul, ahogy az unikornis: kedvesen fúj tüzet, és saját hangja van. Közben az unikornis csillámszórása is igazi látványosság lesz.</div>
+  <div class="meta">
+    <span class="chip">Tervlap · jóváhagyásra vár</span>
+    <span class="chip">2026-11-09</span>
+    <span class="chip">Közepes · 2 kód-kör (+ később egy 3.)</span>
+    <span class="chip">Rajzterv: nem kell külön (nincs új figura), helyette 1 megálló</span>
+  </div>
+</header>
+
+<h2>1. Amit a producer kért</h2>
+<div class="panel">
+  <ul>
+    <li>A gyerekek szeretik a sárkányt, ezért legyenek <b>képességei, kb. mint az unikornisnak</b>. Ő tüzet okád, de <b>kedvesen</b>.</li>
+    <li>A sárkánynak legyen <b>hangja</b>.</li>
+    <li>Az unikornis <b>csillámszórása gyenge, ezt mindenképp fel kell turbózni</b>. Ugyanerre a tervlapra kerül, és ez az 1. pont.</li>
+  </ul>
+</div>
+
+<h2>2. Mi van ma a játékban</h2>
+<div class="panel">
+  <table>
+    <tr><th>Mi</th><th>Ma</th></tr>
+    <tr><td>✨ Csillámszórás (kert, felhőkert)</td><td>Guggolás, 5 szikra és 6 konfetti-pötty, 1,8 másodpercig. A hang ugyanaz a két rövid csippanás, mint mindenhol (<code>hangCsilla</code>). A felhőkert külön másolatot használ (<code>tunemenykert.js</code>).</td></tr>
+    <tr><td>🦄 Unikornis-trükkök</td><td>Táblázatban vannak (<code>KERT_BOLT</code>, odu.js): ülés 3 💧, ugrás / pörgés / csillám 12 💧. Gomb van hozzájuk a kertben.</td></tr>
+    <tr><td>🐣 Fióka (odú)</td><td>Ha megkoppintják, felénk fordul és szikrát tüsszent („Hapci!”). Néha magától is tüsszent.</td></tr>
+    <tr><td>🐉 Kölyök (odú, ösvény, bolt)</td><td>Ha megkoppintják, röppen egyet és buborékot fúj. A boltban <b>tűzzel olvaszt</b> (<code>KM_POZ.fuj</code>, <code>kmTuz</code>, <code>kmPoff</code>).</td></tr>
+    <tr><td>🌈 Nagy sárkány</td><td>Szünetel, a sárkány nem nő meg. Ezért a közös tűzijáték egyelőre kölyökkel lenne.</td></tr>
+  </table>
+</div>
+
+<h2>3. Mit CSINÁL a gyerek a képen?</h2>
+<div class="panel ok">
+  <p><b>Ő mondja meg, HOVA menjen a varázslat.</b> Megnyomja a trükk gombját, aztán <b>rákoppint egy pontra</b> (a fűre, a polcra, a padlóra). Az unikornis vagy a kölyök odanéz, és oda szór csillámot vagy fúj tüzet. Ott marad utána egy kis nyom: csillogó fű vagy egy kinyílt virág.</p>
+  <p class="lead">Ha a gyerek 3 másodpercig nem koppint, a trükk maga elé szór, és nem vár tovább.</p>
+</div>
+
+<h2>4. ✨ A felturbózott csillámszórás (unikornis)</h2>
+<div class="panel">
+  <ol>
+    <li><b>Felizzik a szarv</b> (0–0,5 mp). A meglévő „szarvvar” pózzal ragyog, és apró fénypontok gyűlnek köré, ahogy a Piactéren.</li>
+    <li><b>Csillám-spirál</b> (0,5–1,3 mp). A szarvból csavarodó csillagcsík száll a kiválasztott pont fölé.</li>
+    <li><b>Szétpattan</b> (1,3 mp). Kb. 35 szikra és kis csillag robban szét, <b>a gyerek saját unikornisának színeiben</b> (szőr, sörény, szarv). Így mindenkinek másmilyen lesz.</li>
+    <li><b>Csillageső</b> (1,3–3 mp). A csillagok lassan, pörögve hullanak le.</li>
+    <li><b>Nyom</b> (még 3–4 mp). Ahol a csillagok leértek, ott csillog a fű, és a virágok egy pillanatra fénylenek.</li>
+    <li>Közben az unikornis <b>örül</b>: felkapja a fejét és a farka meglibben (meglévő póz).</li>
+  </ol>
+  <p><b>Hang:</b> egy öt hangból álló, felfelé futó csengő a spirál alatt, egy puha „pukk”, amikor szétpattan, és halk csilingelés a hullás alatt.</p>
+  <p><b>Mozgáskímélő mód:</b> kevesebb szikra, nincs repülő spirál, csak egy halvány fényfelhő a kiválasztott pontnál.</p>
+  <p class="lead">A kertben és a felhőkertben ugyanez fut, egy közös helyről (lásd a 7. pontot).</p>
+</div>
+
+<h2>5. 🐉 A sárkány trükkjei</h2>
+<div class="panel">
+  <p class="lead">A trükkök a sárkány korához kötődnek. A fióka csak tüsszenteni tud, a kölyök már tüzet is fúj. Így a sárkány érezhetően fejlődik, a lassú, szerves fejlődés szerint.</p>
+  <table>
+    <tr><th>Trükk</th><th>Ki tudja</th><th>Mit lát a gyerek</th><th>Hang</th><th>Ár</th></tr>
+    <tr><td>🤧 Tüsszentés (felturbózva)</td><td>fióka, kölyök</td><td>Felénk fordul, megrándul az orra, és színes szikrák pattannak ki belőle. Utána megrázza a fejét.</td><td>„hap… hap… CSI!” (vékony, kis hang)</td><td>ingyen (ma is van)</td></tr>
+    <tr><td>🌸 Virágláng</td><td>kölyök</td><td>A kiválasztott pontra fúj egy kis, meleg lángot. A láng összegömbölyödik, és <b>virág nyílik belőle</b>. Néhány másodpercig ott marad, aztán szirmokká hull szét.</td><td>mély szívás, puha „fúúú”, a végén „pling”</td><td>12 💧</td></tr>
+    <tr><td>💨 Füstkarika</td><td>kölyök</td><td>3 karikát fúj egymás után. A karikák felfelé szállnak és egymásba bújnak. Ha a gyerek megkoppint egyet, kipukkan.</td><td>„pöff-pöff-pöff”, kipukkanáskor kis „pukk”</td><td>12 💧</td></tr>
+  </table>
+  <p style="margin-top:12px"><b>Később, a 3. kódkörben:</b> 🍡 pillecukor-sütés (a megsütött falat a kerti ételek közé kerül), 🏮 lámpás-gyújtás villanyoltáskor az odúban, 🎆 közös tűzijáték (az unikornis csillámot szór, a kölyök közé fúj).</p>
+</div>
+
+<h2>6. 🔊 A sárkány hangja</h2>
+<div class="panel">
+  <ul>
+    <li><b>Nem beszél, csak hangokat ad ki:</b> „hüp”, pöffenés, sercegés, dorombolásszerű brummogás, tüsszentés. A hangja kicsi és vékony. <b>Üvöltés nincs.</b></li>
+    <li>A hangokat a játék maga állítja elő hangfájl nélkül, ahogy a mostani csippanásokat (<code>audio.js</code>). Így nincs licenckérdés.</li>
+    <li>A meglévő koppintásra adott mozdulatok is hangot kapnak: a röppenés „hüp”, a buborék kis „blup”.</li>
+    <li><b>A felolvasó nem meséli el, mi történik.</b> Ma ezt mondja: „Hapci! X szikrát tüsszentett!”. Ez kimarad, mert a kép és a hang elmondja.</li>
+  </ul>
+</div>
+
+<h2>7. Közös modul</h2>
+<div class="panel">
+  <p>Egy új, közös fájl lesz: <code>src/effekt.js</code>. Ez rajzolja a szikrát, a csillagot, a lángot, a füstöt, a virágot és a csillogó nyomot. Ezt használja:</p>
+  <ul>
+    <li>az unikornis csillámszórása a kertben és a felhőkertben (a felhőkerti másolat megszűnik),</li>
+    <li>a sárkány összes trükkje,</li>
+    <li>a boltbeli sárkánytűz (<code>kmTuz</code>/<code>kmPoff</code> ide költözik, kívülről nem változik),</li>
+    <li>később a pillecukor, a lámpás és a tűzijáték is.</li>
+  </ul>
+  <p>Egy új trükk továbbra is <b>egy sor a táblázatban</b>, plusz egy rövid mozdulat-leírás.</p>
+</div>
+
+<h2>8. Szabályok</h2>
+<div class="panel warn">
+  <ul>
+    <li>A tűz <b>soha nem éget, nem rombol és nem ijeszt</b>. Mindig virág, pillangó, fény vagy finomság lesz belőle. Semmi nem kap lángra, ami nem lámpás.</li>
+    <li>A pályákban a tűz csak eszköz (beváltás), és <b>soha nem súg</b>.</li>
+    <li>A trükkök nem jutalmaznak: nem adnak se ✨-ot, se 💧-t, csak örömet. Így nincs bennük kiskapu.</li>
+    <li>Nincs nyomás és nincs „gyakorolni kell a sárkánnyal”. A trükk akkor van, amikor a gyerek akarja.</li>
+    <li>Ha még nincs kikelt sárkánya a gyereknek, a sárkány-sor nem látszik a boltban.</li>
+  </ul>
+</div>
+
+<h2>9. Döntések</h2>
+<div class="dont"><b class="n">1.</b> Hang: <span class="jav">A (javasolt)</span> csak hangok, nincs beszéd · B néha egy-két saját szó is.</div>
+<div class="dont"><b class="n">2.</b> Bolt: <span class="jav">A (javasolt)</span> a 💧-polc „Kert” fülén egy külön „🐉 Sárkány-trükkök” sor, 12 💧-ért · B más jutalomért (pl. sárkány-küldetésért) jár.</div>
+<div class="dont"><b class="n">3.</b> Hol mutatja meg: <span class="jav">A (javasolt)</span> az odúban, ahol lakik. A sárkány alatt kis gombsor jelenik meg, ahogy a kertben az unikornisnál. · B a kölyök kijön a kertbe is (ez nagyobb munka, új helyre kell rajzolni).</div>
+<div class="dont"><b class="n">4.</b> Életkorhoz kötött trükkök: <span class="jav">A (javasolt)</span> a fióka tüsszent, a kölyök tüzet fúj · B minden trükk rögtön kikeléskor elérhető.</div>
+<div class="dont"><b class="n">5.</b> A gyerek mondja meg, hova: <span class="jav">A (javasolt)</span> igen, egy koppintással · B a trükk mindig maga elé szór vagy fúj.</div>
+<div class="dont"><b class="n">6.</b> Első csomag: <span class="jav">A (javasolt)</span> csillám-turbó, tüsszentés, virágláng, füstkarika · B ugyanez, plusz a pillecukor már most.</div>
+
+<h2>10. Kód-körök</h2>
+<div class="panel">
+  <ol>
+    <li><b>1. kör: csillám-turbó és hangok.</b> Elkészül az <code>effekt.js</code>, és rá kerül a felturbózott csillámszórás (kert és felhőkert, a gyerek koppint, hova szórjon), a <code>kmTuz</code>/<code>kmPoff</code> átköltözik, és megszületnek a sárkány-hangok. <b>Megálló:</b> egy próbalapon élőben megnézed a csillámot és a sárkány három trükkjét, mielőtt bekötöm őket.</li>
+    <li><b>2. kör: sárkány-trükkök.</b> Bolt-sor, gombsor az odúban, tüsszentés-turbó, virágláng, füstkarika, a felolvasó mesélése kimarad, aztán gépi próba.</li>
+    <li><b>3. kör (később):</b> pillecukor, lámpás, közös tűzijáték.</li>
+  </ol>
+  <p class="lead">Húzószó-csíra: nincs, mert ez nem matekpálya, hanem kötődés és öröm. A sárkány tüze a pályákban marad eszköz, ahogy a beváltásnál.</p>
+</div>
+
+<h2>11. Nyitómondat jóváhagyás után</h2>
+<div class="panel">„Sárkány-képességek: 1. kör.”</div>
+
+</div>
+</body>
+</html>
