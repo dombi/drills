@@ -36,7 +36,7 @@ window.UC = {
   tenyKertPultSVG: tenyKertPultSVG, TVK: TVK, tvkSzagol: tvkSzagol, tvkKozelZar: tvkKozelZar, tvkMasikAgy: tvkMasikAgy, viragKinezet: viragKinezet, VIRAG_FORMAK: VIRAG_FORMAK,   /* 🌷 Tény-kert (4. kör) */
   tenyKertAllapot: tenyKertAllapot, tenyMind: tenyMind, tenyNap: tenyNap, tenyOraMs: tenyOraMs, TO: TO, tenyBeall: tenyBeall, tenyOsszevon: tenyOsszevon, tenyTabla: tenyTabla,
   tenyPalya: tenyPalya, tenyTablakAktiv: tenyTablakAktiv, tenyHalmaz: tenyHalmaz, tenyKorEpit: tenyKorEpit, tenyFeladat: tenyFeladat, tenyKeretben: tenyKeretben, tenyNehez: tenyNehez,
-  tovabbMehetE: tovabbMehetE,
+  tovabbMehetE: tovabbMehetE, irOsztas: irOsztas, irSzorzas: irSzorzas, irOszSzamok: irOszSzamok, irOszInfo: irOszInfo, irOszHibakeres: irOszHibakeres, irTovabbLink: irTovabbLink,   /* ✍️ Garas tornya (gépi próba) */
   szkGeneral: szkGeneral, szkDob: szkDob, szkMegoldasDb: szkMegoldasDb, szkIgaz: szkIgaz, SZK_MESTER: SZK_MESTER, SZK_TART: SZK_TART, szkMesterValt: szkMesterValt, szkValtJo: szkValtJo, szKesz: szKesz,   /* 🧰 SZERSZÁM-LÉTRÁK (2. kör: 📌 KOTOTT) */
   dobAllas: function () { return DOB && dobAllas(); }, dobogoTesz: dobogoTesz, get DOB() { return DOB; }, get NT() { return NT; }, szMutat: szMutat, ntElohiv: ntElohiv, opLapol: opLapol, opBetuAllit: opBetuAllit, get OP() { return OP; },
   SZERSZAMOK: SZERSZAMOK, szerszamTar: szerszamTar, szerszamT: szerszamT, szerszamBeall: szerszamBeall, szerszamOsszevon: szerszamOsszevon, szerszamLatszik: szerszamLatszik,   /* 🧰 SZERSZÁM-LÉTRÁK (1. kör) */

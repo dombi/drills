@@ -1,4 +1,4 @@
-/* ============ 6j4e) ✍️ GARAS TORNYA — ✖️ írásbeli szorzás (2. kör: 2026-11-09) ============
+/* ============ 6j4e) ✍️ GARAS TORNYA — ✖️ írásbeli szorzás (2. kör: 2026-11-09) + ➗ osztás (3. kör: 2026-11-10) ============
    Terv: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅) · recept: receptek.js „irasbeli-szorzas”.
    A gyerek a képen: Garas pultja előtt ül a füzete fölött (fuzet.js), ceruzával ír a helyiérték szerinti kockákba; az első asztaloknál
    a tallér-tálcán ő viszi át a 10-es köteget (a mozdulat maga az átvitel). A lap és a tankönyvi lépések: irasbeli-gen.js.
@@ -13,6 +13,8 @@ VS_SZIN.irszor3 = { teto: "#f5cf6a", csik: "#fffaf0", sotet: "#b5842c", cimer: "
 VS_SZIN.irszor4 = { teto: "#a7d99a", csik: "#fffaf0", sotet: "#5e9a52", cimer: "✖️" };
 VS_SZIN.irszor5 = { teto: "#c9b6e8", csik: "#fffaf0", sotet: "#7a5ca8", cimer: "✖️" };
 VS_SZIN.irszor6 = { teto: "#f7b98a", csik: "#fffaf0", sotet: "#b35f28", cimer: "✖️" };
+["#f6a5c0", "#9ec9f0", "#f5cf6a", "#a7d99a", "#c9b6e8", "#f7b98a", "#9fd8d0", "#f2b3d6", "#d9c27a"].forEach(function (t, i) { VS_SZIN["irosz" + (i + 1)] = { teto: t, csik: "#fffaf0", sotet: "#7a5ca8", cimer: "➗" }; });   /* ➗ 3. kör */
+function irJelenetE(j) { return j === "irszor" || j === "irosz"; }
 
 /* ═════════════════ SZÁMOK: állomásonként a tankönyvi lépcső (OH-MAT03TB 157–161, 04TB 76–81) ═════════════════ */
 function irNincs0(n) { return String(n).indexOf("0") < 0; }
@@ -51,6 +53,7 @@ function irHianyos(a, b) {
 function irHibakeres(a, b) {
   var T = irSzorzas(a, b, { becsles: false, ellenoriz: false, talca: false }), elotolt = {}, jelolt = [];
   T.celok.forEach(function (c) { if (c.tip === "szam") { elotolt[c.r + "," + c.c] = c.v; if (c.c < T.U && c.r > T.muvSor) jelolt.push(c); } });
+  irKeszLap(T);
   var rossz = jelolt[veletlen(0, jelolt.length - 1)] || T.celok.filter(function (c) { return c.tip === "szam"; })[0];
   var v = (+rossz.v + 9) % 10; if (v === 0 && rossz.c === Math.min.apply(null, jelolt.map(function (c) { return c.c; }))) v = (+rossz.v + 1) % 10;
   elotolt[rossz.r + "," + rossz.c] = String(v);
@@ -136,7 +139,7 @@ function irFuzetIndit(JL) {
   d.innerHTML = "";
   var vez = !!cfg.jelol, kulon = x.valt === "hianyos" || x.valt === "hibakeres";
   var F = fzLap(d, x.T, {
-    mod: "gyerek", oldalt: true, ell: vez || kulon ? "lepes" : "vegen", jelol: vez, talca: !!cfg.talca && !kulon, mondoka: vez ? "mindig" : "hiba",
+    mod: "gyerek", oldalt: true, ell: vez || kulon ? "lepes" : "vegen", jelol: vez, talca: !!cfg.talca && !kulon, mondoka: vez ? (J.feladatKesz < (cfg.teljes || 0) ? "mindig" : "kerdes") : "hiba",
     elotolt: x.elotolt, hibakeres: x.hk, csendesHiba: true,
     onHiba: function (F, info) {
       if (!JL || JL.f !== f) return true;
@@ -148,17 +151,21 @@ function irFuzetIndit(JL) {
     },
     onLepes: function (F, k) {
       if (!JL || JL.f !== f || F.kesz) return;
-      var L = x.T.lepesek[k], db = L && L.talca ? L.talca.muv.filter(function (m) { return m.t === "koteg"; }).length : 0;
+      var L = x.T.lepesek[k], db = L && L.talca ? L.talca.muv.filter(function (m) { return m.t === "koteg" || m.t === "felvalt"; }).length : 0;
       if (db && vez) irPoz(JL, "ujj", { ujj: Math.min(4, db) }); else if (x.poz === "ujj") irPoz(JL, "var");
     },
     onKesz: function () {
       if (!JL || JL.f !== f) return;
       irPoz(JL, "orul");
-      jlJo(x.a + " · " + x.b + " = " + x.T.ered, null, function (tovabb) { setTimeout(tovabb, lkCsokkent() ? 300 : 1400); });
+      jlJo(irKepletKesz(x), null, function (tovabb) { setTimeout(tovabb, lkCsokkent() ? 300 : 1400); });
     }
   });
-  d._F = F; irKepAt(F); jlRajz();
-  if (x.valt === "hibakeres") F.felirat("Garas elrontott egy jegyet. Számold újra oszloponként, és radírozd ki a rosszat!", "kerd");
+  d._F = F; irKepAt(F); irTovabbLink(F, d); jlRajz();
+  var osz = x.T.muv === "oszt";
+  if (x.valt === "hibakeres") F.felirat("Garas elrontott egy jegyet. Számold újra " + (osz ? "lépésenként" : "oszloponként") + ", és radírozd ki a rosszat!", "kerd");
+  else if (osz && x.T.rovid) F.felirat("Most röviden: a szorzást és a kivonást fejben végzed, csak a maradékot írod le. Előbb becsülj!");
+  else if (osz && x.T.mellek) F.felirat("Előbb becsülj! A „mellék:” alá kipróbálhatod, melyik szorzat fér még bele.");
+  else if (osz && !vez) F.felirat("Előbb becsülj: a B: sorba írd, mettől meddig lehet a hányados!");
   else if (x.valt === "hianyos") F.felirat("Melyik jegy bújt el? Koppints az üres kockára, és írd be!", "kerd");
   else if (!vez) F.felirat("Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
 }
@@ -166,10 +173,11 @@ function irFuzetIndit(JL) {
 function irBemutat(JL) {
   var x = JL.f.ir, f = JL.f, d = irFuzetDoboz(false);
   d.innerHTML = '<div class="ir-gombok"><button type="button" class="nagy-gomb ir-at">Most én! ▶</button></div>';
-  $("buborek-feladat").innerHTML = '<span class="bk-kerdes">Nézd, Garas hogyan szoroz!</span>';
+  var osz = f.jelenet === "irosz";
+  $("buborek-feladat").innerHTML = '<span class="bk-kerdes">Nézd, Garas hogyan ' + (osz ? "oszt" : "szoroz") + '!</span>';
   irPoz(JL, "ir");
   jlRajz(); irPoz(JL, "ir");
-  var F = fzLap(d, irSzorzas(213, 3, { talca: true }), { mod: "gep", talca: true, oldalt: true });
+  var F = fzLap(d, osz ? irOsztas(639, 3, { talca: true }) : irSzorzas(213, 3, { talca: true }), { mod: "gep", talca: true, oldalt: true });   /* ➗ TB 100.: 639 : 3 */
   d._F = F; irKepAt(F); jlRajz(); irPoz(JL, "ir");
   function tovabb() {
     if (!JL || JL.f !== f) return;
@@ -180,7 +188,7 @@ function irBemutat(JL) {
     irFuzetIndit(JL); mondd(f.felolvas);
   }
   d.querySelector(".ir-at").addEventListener("click", function () { hangGomb(); F.allj(); tovabb(); });
-  mondd("Nézd, így szorzok írásban!", function () {
+  mondd(osz ? "Nézd, így osztok írásban!" : "Nézd, így szorzok írásban!", function () {
     if (!JL || JL.f !== f || !F.gyoker.isConnected) return;
     F.lejatsz(function () { if (JL && JL.f === f) { irPoz(JL, "orul"); var b = d.querySelector(".ir-at"); if (b) b.textContent = "Most te jössz! ▶"; } });
   });
@@ -224,4 +232,71 @@ function irTerkepTorony(lepes, J) {
   var all = J.all === "alszik" || J.all === "zarva" ? "zart" : J.vil ? "uj" : J.all === "kesz" || lepes >= 6 ? "kesz" : "folyik";
   var eg = all === "kesz" ? 8 : all === "folyik" ? Math.max(1, Math.min(7, Math.round((lepes - 1) * 8 / 6))) : 0;
   return '<defs>' + GA_DEFS + '</defs><g transform="translate(' + (-100 * IR_TORONY_K) + ' ' + (-362 * IR_TORONY_K) + ') scale(' + IR_TORONY_K + ')"' + (all === "zart" ? ' style="filter:saturate(.55)"' : '') + '>' + gaTorony(all, eg) + '</g>';
+}
+
+/* ═════════════════ ➗ ÍRÁSBELI OSZTÁS (3. kör, 2026-11-10) — a számok a tankönyvi lépcsőn (04TB 100–104, 04TA, 04TC, 05TB 34–35) ═════════════════ */
+/* egy osztás jellemzői: két jegyből indul? · van közben maradék? · 0 a hányadosban? · végső maradék */
+function irOszInfo(a, b) {
+  var D = irJegyek(a), k = 1, cur = D[0], koz = false;
+  while (cur < b && k < D.length) { cur = cur * 10 + D[k]; k++; }
+  for (var di = k - 1; di < D.length - 1; di++) { var r = cur % b; if (r) koz = true; cur = r * 10 + D[di + 1]; }
+  return { ketbol: k > 1, kozmar: koz, nulla: !irNincs0(Math.floor(a / b)), mar: a % b };
+}
+function irOszSzamok(forma, o, i) {
+  if (o < 5 && forma === "tizes") forma = "vegmar";   /* a kerek tízes és a kétjegyű osztó 5. o. (5TB); 4. o.-ban ezen az asztalon egyjegyű jön */
+  if (o < 5 && forma === "ket") forma = "rovid";
+  var negy = o >= 4 && i === 2, I;   /* a harmadik feladat négyjegyű */
+  function ker(aMin, aMax, bMin, bMax, jo) { return irKeres(function () { return [veletlen(aMin, aMax), veletlen(bMin, bMax)]; }, function (a, b) { I = irOszInfo(a, b); return jo(I, a, b); }); }
+  if (forma === "egy") return ker(222, 999, 2, i ? 4 : 3, function (I) { return !I.ketbol && !I.kozmar && !I.nulla && !I.mar; });          /* 639 : 3, 848 : 4 */
+  if (forma === "kozmar") return ker(negy ? 1000 : 200, negy ? 9999 : 999, 2, 6, function (I) { return !I.ketbol && I.kozmar && !I.nulla && !I.mar; });   /* 756 : 3 */
+  if (forma === "ketbol") return ker(negy ? 1000 : 100, negy ? 5999 : 899, 3, 9, function (I) { return I.ketbol && !I.nulla && !I.mar; });   /* 1572 : 6 */
+  if (forma === "nulla") return ker(negy ? 1000 : 200, negy ? 9999 : 999, 2, 9, function (I) { return I.nulla && !I.mar; });   /* 618 : 3 = 206 */
+  if (forma === "vegmar") return ker(negy ? 1000 : 100, negy ? 9999 : 999, 3, 9, function (I) { return I.mar > 0 && !I.nulla; });   /* 163 : 7 = 23, marad 2 */
+  if (forma === "rovid") return ker(negy ? 1000 : 200, negy ? 9999 : 999, 3, 9, function (I) { return I.kozmar; });
+  if (forma === "tizes") return irKeres(function () { return [veletlen(i ? 1000 : 200, i ? 9999 : 999), veletlen(2, 9) * 10]; }, function (a, b) { return a >= b * 10; });
+  /* kétjegyű osztó (5TB: 1942 : 34): kétjegyű hányados */
+  return irKeres(function () { return [veletlen(i ? 1000 : 200, i ? 9999 : 999), veletlen(12, 98)]; }, function (a, b) { var q = Math.floor(a / b); return b % 10 && q >= 10 && q < 100 && !irOszInfo(a, b).nulla; });
+}
+/* hibakereső (4MB: „Helyesek-e az állítások? Számítással ellenőrizd!” — 5963 : 7 = 851, marad 5): Garas teleírta, egy jegyet elrontott */
+function irOszHibakeres(a, b) {
+  var T = irOsztas(a, b, { becsles: false, ellenoriz: false, talca: false, pontoz: false }), elotolt = {}, jelolt = [];
+  T.celok.forEach(function (c) { if (c.tip === "szam") { elotolt[c.r + "," + c.c] = c.v; if (!c.opc) jelolt.push(c); } });
+  irKeszLap(T);
+  var rossz = jelolt[veletlen(0, jelolt.length - 1)], v = +rossz.v === 9 ? 8 : +rossz.v + 1;
+  elotolt[rossz.r + "," + rossz.c] = String(v);
+  return { T: T, elotolt: elotolt, hk: rossz.r + "," + rossz.c };
+}
+GEN.irosz = function (cfg) {
+  var st = jlAllapot(), i = J.feladatKesz, o = zsOsztaly(), forma = cfg.forma || "egy", valt = null, ab, T, x = { cfg: cfg, konyvelt: {}, poz: "var" };
+  if (forma === "vegyes") {   /* Odú-küszöb: a 3-ból 1 hibakereső, a többi a lépcső nehezebb fokairól (hosszú forma) */
+    if (st.valtI == null) st.valtI = veletlen(0, 2);
+    if (i % 3 === st.valtI) valt = "hibakeres";
+    forma = valt ? "vegmar" : (i % 2 ? (o >= 5 ? "ket" : "nulla") : "vegmar");
+  }
+  ab = irOszSzamok(forma, o, i);
+  if (valt) { var H = irOszHibakeres(ab[0], ab[1]); T = H.T; x.elotolt = H.elotolt; x.hk = H.hk; }
+  else T = irOsztas(ab[0], ab[1], { talca: !!cfg.talca, rovid: forma === "rovid", mellek: !!cfg.mellek && ab[1] >= 10 });
+  x.T = T; x.valt = valt; x.a = ab[0]; x.b = ab[1];
+  x.bemutat = !!cfg.bemutat && i === 0;
+  var k = valt ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
+          ["Ossz írásban: " + ab[0] + " : " + ab[1], "Osszuk el írásban: " + szo(ab[0]) + " osztva " + szo(ab[1]) + "! Előbb becsülj."];
+  return { csalad: "jelenet", jelenet: "irosz", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
+    helyes: T.ered, keplet: ab[0] + " : " + ab[1], tipp: "", naplo: { tipus: "irosz", kerdes: ab[0] + ":" + ab[1], helyes: T.ered, mar: T.mar, forma: valt || forma } };
+};
+JELENETEK.irosz = JELENETEK.irszor;   /* ugyanaz a kép: Garas pultja + a füzet */
+function irKepletKesz(x) { return x.T.muv === "oszt" ? x.a + " : " + x.b + " = " + x.T.ered + (x.T.mar ? ", marad " + x.T.mar : "") : x.a + " · " + x.b + " = " + x.T.ered; }
+/* „tovább megoldás nélkül” (csak MRZS — events.js tovabbMehetE): a toronyban a füzet tölti ki a képernyőt, a válaszsáv linkje nem látszik,
+   ezért a füzet jobb oszlopába kerül (a producer, 11-10) */
+function irTovabbLink(F, d) {
+  if (typeof tovabbMehetE !== "function" || !tovabbMehetE()) return;
+  var b = el("button", "tovabb-link ir-tovabb"); b.type = "button"; b.textContent = "tovább megoldás nélkül →";
+  b.addEventListener("click", function () { F.allj(); tovabbMegoldasNelkul(); });
+  (F.oldal || d).appendChild(b);
+}
+/* Garas teleírt lapja (hibakereső): a vonalakat ő húzta meg, a pont / vessző nem kérhető számon — a „halvány jelek” üzenet ne jöjjön */
+function irKeszLap(T) {
+  T.celok.forEach(function (c) {
+    if (c.tip === "vonal") T.gep.push({ r: c.r, c: c.c, c1: c.c1, tip: "vonal" });
+    if (c.tip === "vonal" || c.tip === "pont" || c.tip === "vesszo") { c.tip = "kesz"; c.kell = false; }
+  });
 }

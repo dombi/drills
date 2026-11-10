@@ -53,8 +53,8 @@ function jlRejt() {
 }
 function jelenetMutat(f) {
   var def = JELENETEK[f.jelenet], p = jlPanel();
-  var irD = $("ir-fuzet-doboz"); if (irD && f.jelenet !== "irszor") { irKepVissza(); if (irD._F) irD._F.torol(); irD.parentNode.removeChild(irD); }
-  p.classList.toggle("ir-be", f.jelenet === "irszor");   /* ✍️ a füzet csak Garas tornyában (irasbeli.js) */
+  var irD = $("ir-fuzet-doboz"); if (irD && !irJelenetE(f.jelenet)) { irKepVissza(); if (irD._F) irD._F.torol(); irD.parentNode.removeChild(irD); }
+  p.classList.toggle("ir-be", irJelenetE(f.jelenet));   /* ✍️ a füzet csak Garas tornyában (irasbeli.js) */
   p.hidden = false; $("kepernyo-jatek").classList.add("bk-be");
   $("valasz-egyenkent").classList.add("koppint");
   $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;

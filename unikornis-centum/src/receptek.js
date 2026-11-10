@@ -134,11 +134,37 @@ RECEPT({
   segit: ["kep", "tallertalca", "mondoka"],
   allomasok: [
     { nev: "Rajt" },
-    { nev: "Átvitel nélkül", forma: "egy", atvitel: 0, darab: 3, talca: true, jelol: true, bemutat: true },
+    { nev: "Átvitel nélkül", forma: "egy", atvitel: 0, darab: 3, talca: true, jelol: true, bemutat: true, teljes: 2 },
     { nev: "Átvitellel", forma: "egy", atvitel: 1, darab: 3, talca: true, jelol: true },
     { nev: "Több helyen átvitel", forma: "tobb", darab: 3 },
     { nev: "Nullák", forma: "nulla", darab: 3 },
     { nev: "Kétjegyű szorzó", forma: "ket", darab: 3 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 3, cel: true, halvany: true }
+  ]
+});
+
+/* ══ ✍️ GARAS TORNYA — ➗ ÍRÁSBELI OSZTÁS (3. kör, 2026-11-10; kép + feladat: irasbeli.js GEN.irosz · lap: irasbeli-gen.js irOsztas) ══
+   A gyerek a képen: ugyanaz a pult és füzet; becsül (mettől meddig), kipontozza a hányados helyét, vesszőt tesz, hosszú formában oszt,
+   felváltja a megmaradt tallért; a „Röviden” asztalon csak a maradékot írja; a kétjegyű osztónál a lap szélén a mellékszámítás szabad.
+   Az írásbeli szorzás első végigvitele után ébred (4. o.), 5. o.-tól nyitva. Rajt: Garas végigírja a 639 : 3-at (TB 100.).
+   A kerek tízes és a kétjegyű osztó 5. o. (5TB): 4. o.-ban ezeken az asztalokon is egyjegyű osztó jön (irOszSzamok). */
+RECEPT({
+  id: "irasbeli-osztas", nev: "Írásbeli osztás", ikon: "➗", regio: "piac", hely: "irasbeli",
+  palcim: "becsülj · pontozz · ellenőrizz",
+  nyit: { utan: "irasbeli-szorzas", osztaly: [4] },
+  alap: { tipus: "irosz" },
+  darabFix: true,
+  segit: ["kep", "tallertalca", "mondoka"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Maradék nélkül", forma: "egy", darab: 3, talca: true, jelol: true, bemutat: true, teljes: 2 },
+    { nev: "Közben marad", forma: "kozmar", darab: 3, talca: true, jelol: true },
+    { nev: "Két jegyből", forma: "ketbol", darab: 3 },
+    { nev: "Nulla a hányadosban", forma: "nulla", darab: 3 },
+    { nev: "Végén is marad", forma: "vegmar", darab: 3 },
+    { nev: "Röviden", forma: "rovid", darab: 3 },
+    { nev: "Kerek tízes osztó", forma: "tizes", darab: 3 },
+    { nev: "Kétjegyű osztó", forma: "ket", darab: 3, mellek: true },
     { nev: "Odú-küszöb", forma: "vegyes", darab: 3, cel: true, halvany: true }
   ]
 });

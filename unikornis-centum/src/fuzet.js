@@ -8,7 +8,7 @@
      o.ell      "lepes" (rossz jegynél azonnal jelez) | "vegen" (Kész gomb → a hibás OSZLOPOK gyulladnak ki)
      o.jelol    true: a kocka, ahová most írni kell, halványan jelöl (1–2. asztal)
      o.talca    true: a tallér-tálca a füzet mellett (kfTalca, keret.js) — a 10-es köteg átvitele / a felváltás kézzel
-     o.mondoka  "mindig" (minden lépésnél kiírja + mondja) | "hiba" (alap: a 2. hibától) | "nincs"
+     o.mondoka  "mindig" (minden lépésnél kiírja + mondja, a megoldással) | "kerdes" (minden lépésnél, de csak a kérdés-alak: „… = ?”) | "hiba" (alap: a 2. hibától) | "nincs"
      o.hang     a mondókát a felolvasóhang is mondja (alap: mentes.hang)
      o.tempo    a gépi írás sebessége (1 = rendes)
      o.onKesz(F) · o.onHiba(F, {cel, n, oszlopok}) → true: a pálya intézi a segítséget · o.onLepes(F, k)
@@ -49,6 +49,7 @@ function fzLap(hova, T, o) {
     if (c.tip === "jel" && c.auto) F.jelK[fzKulcs(c.r, c.c)] = c;
   });
   T.mezok.forEach(function (m) { for (var c = m.c0; c <= m.c1; c++) F.mezoK[fzKulcs(m.r, c)] = m; });
+  F.szabadK = {}; (T.szabad || []).forEach(function (z) { for (var r = z.r0; r <= z.r1; r++) for (var c = z.c0; c <= z.c1; c++) F.szabadK[fzKulcs(r, c)] = true; });   /* mellékszámítás: ide szabadon ír, a füzet nem nézi */
   fzDoboz(F, hova);
   F.render = function () { fzRajz(F); };
   F.lejatsz = function (kesz) { fzLejatsz(F, kesz); };
@@ -261,6 +262,7 @@ function fzJegy(F, d) {
   ceruzaSerceg(.3);
   var r = F.akt.r, c = F.akt.c, jo = true;
   F.utolso = { r: r, c: c };
+  if (F.szabadK[kv]) { if (c + 1 < F.T.osz && F.szabadK[fzKulcs(r, c + 1)]) F.akt = { r: r, c: c + 1 }; fzRajz(F); return; }   /* mellékszámítás: nincs jó/rossz */
   if (F.mezoK[kv]) jo = fzMezoEll(F, F.mezoK[kv], true);   /* a becslést mindig azonnal nézi: rossz becsléssel nem indul a számolás (kiskapu) */
   else if (F.o.ell === "lepes") jo = fzLepesEll(F, kv);
   else if (F.vart[kv] && F.vart[kv].v === x.v && F.vart[kv].lepes > F.lepesKesz) F.lepesKesz = F.vart[kv].lepes;
@@ -355,7 +357,7 @@ function fzHiba(F, info) {
   info.n = F.hibaDb[id] = (F.hibaDb[id] || 0) + 1;
   if (!F.o.csendesHiba) beep(220, .14, "triangle", 0, .05);
   if (F.o.onHiba && F.o.onHiba(F, info) === true) return;
-  if (info.hk) { fzFelirat(F, "Ez jó volt, visszaírtam. Keresd tovább: számold újra oszloponként!", "kerd"); return; }
+  if (info.hk) { fzFelirat(F, "Ez jó volt, visszaírtam. Keresd tovább: számold újra " + (F.T.muv === "oszt" ? "lépésenként" : "oszloponként") + "!", "kerd"); return; }
   if (info.oszlopok) { fzFelirat(F, "Nézd meg még egyszer a kiszínezett oszlopokat! Radírozd ki, ami nem jó, és javítsd.", "kerd"); return; }
   var L = info.cel ? F.T.lepesek[info.cel.lepes] : null;
   if (!info.cel) { fzFelirat(F, "Ebbe a kockába most nem kell írni.", "kerd"); return; }
@@ -365,10 +367,11 @@ function fzHiba(F, info) {
     if (L && L.talca && F.talca) { F.talcaVillog = L.talca.muv.length ? L.talca.muv[0].p : null; fzTalcaRajz(F); }
   }
 }
-function fzMondoka(F, k) {
+function fzMondoka(F, k, kerd) {   /* kerd: csak a kérdés-alak (a lépés elején), a megoldás nélkül — a teljes mondóka a 2. hibától */
   var L = F.T.lepesek[k]; if (!L) return;
-  fzFelirat(F, L.m, "mondoka");
-  if (F.o.hang !== false && typeof mondd === "function") mondd(L.h);
+  var m = kerd && L.k ? L.k : L.m;
+  fzFelirat(F, m, "mondoka");
+  if (F.o.hang !== false && typeof mondd === "function") mondd(kerd && L.k ? irKimond(L.k) : L.h);
 }
 /* a végén: minden jegy a helyén? (a részletszorzatok sorrendje szabad: csere-csoport) — a hibás OSZLOPOK gyulladnak ki */
 function fzVegenEll(F) {
@@ -396,7 +399,7 @@ function fzVegenEll(F) {
   if (rossz) { fzHiba(F, { oszlopok: Object.keys(hibak).map(Number) }); fzRajz(F); return false; }
   if (!F.ellFazis) {
     F.ellFazis = true; F.akt = { r: Math.min(T.sor - 1, F.ellSor + 2), c: T.U || 1 }; F.eszkoz = "ceruza";
-    fzFelirat(F, "Jó! Most ellenőrizd: " + (T.lepesek[F.ellKezd] ? T.lepesek[F.ellKezd].m.replace(/^Ellenőrzés:?\s*/, "") : ""), "jo");
+    fzFelirat(F, "Jó! Most ellenőrizd: " + (T.lepesek[F.ellKezd] ? (T.lepesek[F.ellKezd].k || T.lepesek[F.ellKezd].m).replace(/^Ellenőrzés:?\s*/, "") : ""), "jo");
     fzRajz(F); return false;
   }
   fzKesz(F); return true;
@@ -406,6 +409,7 @@ function fzSorHiba(F, r, rv) {
   var T = F.T, ki = [], c, cel, x;
   for (c = 0; c < T.osz; c++) {
     if (F.mezoK[fzKulcs(r, c)] || F.mezoK[fzKulcs(rv, c)]) continue;
+    if (F.szabadK[fzKulcs(r, c)] || F.szabadK[fzKulcs(rv, c)]) continue;
     cel = F.vart[fzKulcs(rv, c)]; x = F.k[fzKulcs(r, c)];
     var v = x && x.v ? x.v : null;
     if (cel) { if (cel.opc ? (v != null && v !== cel.v) : v !== cel.v) ki.push(c); }
@@ -473,7 +477,7 @@ function fzLepesFrissit(F) {
   }
   if (k === F.lepesMost) return;
   F.lepesMost = k;
-  if (F.o.mondoka === "mindig" && F.T.lepesek[k] && kov && kov.tip === "szam") fzMondoka(F, k);
+  if ((F.o.mondoka === "mindig" || F.o.mondoka === "kerdes") && F.T.lepesek[k] && kov && kov.tip === "szam") fzMondoka(F, k, F.o.mondoka === "kerdes");
   if (F.o.talca) {   /* a lépés elején a tálcán ott a kupac (a szorzat / a maradék); a köteg-átvitel és a felváltás a gyereké */
     var L = null; for (var i = k; i >= 0; i--) if (F.T.lepesek[i] && F.T.lepesek[i].talca) { L = F.T.lepesek[i]; break; }
     if (L) {

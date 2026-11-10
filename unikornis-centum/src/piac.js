@@ -394,6 +394,11 @@ var PC_TARGY = {
     kep: function () { return zsStand(false, true); }, k: .8, tx: -24, ty: 44,
     t: { "zsibvasar":       { hely: [414, 150, 280, 72], ceger: [614, 176, .78], szo: "a kacatokat" },
          "fizess-pontosan": { hely: [474, 246, 172, 92], ceger: [560, 352, .95], szo: "a kasszát" } }
+  },
+  irasbeli: {   /* ✍️ Garas tornya: lent (kő) a szorzás, fent (fa) az osztás — recept-lap 2. döntés A */
+    kep: function () { return '<defs>' + GA_DEFS + '</defs>' + gaTorony("folyik", 5); }, k: 1.05, tx: 295, ty: 46,
+    t: { "irasbeli-szorzas": { hely: [42, 228, 116, 136], ceger: [-70, 270, .95], szo: "a szorzást lent" },
+         "irasbeli-osztas":  { hely: [52, 118, 96, 104], ceger: [260, 165, .95], szo: "az osztást fent" } }
   }
 };
 function pcValaszto(id) {
