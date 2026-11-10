@@ -646,6 +646,30 @@ RECEPT({
     { nev: "Odú-küszöb", max: 100, beir: true, darab: 4, cel: true }
   ]
 });
+
+/* ══ ✍️ GARAS TORNYA — ✖️ ÍRÁSBELI SZORZÁS (2. kör, 2026-11-09; kép + feladat: irasbeli.js · füzet: fuzet.js · lap: irasbeli-gen.js) ══
+   Recept-lap: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅).
+   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (becsül → számol → ellenőriz); az 1–2. asztalnál a tallér-tálcán
+   viszi át a 10-es köteget. A torony a Piactér szélén, a domboldalon (a Déli vásár mellett). A Szorzódallam első végigvitele után ébred
+   (3. o.-tól), 5. o.-tól nyitva. Rajt: Garas egyszer végigírja a 213 · 3-at (átugorható). 3 feladat / asztal (5. döntés A).
+   A kétjegyű szorzó 4. o.-tól: 3. o.-ban ezen az asztalon is egyjegyű szorzó jön (irSzamok). */
+RECEPT({
+  id: "irasbeli-szorzas", nev: "Írásbeli szorzás", ikon: "✖️", regio: "piac", hely: "irasbeli",
+  palcim: "becsülj · számolj · ellenőrizz",
+  nyit: { utan: "szorzo-dallam", osztaly: [3, 4] },
+  alap: { tipus: "irszor" },
+  darabFix: true,
+  segit: ["kep", "tallertalca", "mondoka"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Átvitel nélkül", forma: "egy", atvitel: 0, darab: 3, talca: true, jelol: true, bemutat: true },
+    { nev: "Átvitellel", forma: "egy", atvitel: 1, darab: 3, talca: true, jelol: true },
+    { nev: "Több helyen átvitel", forma: "tobb", darab: 3 },
+    { nev: "Nullák", forma: "nulla", darab: 3 },
+    { nev: "Kétjegyű szorzó", forma: "ket", darab: 3 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 3, cel: true, halvany: true }
+  ]
+});
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -7112,6 +7136,7 @@ function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
+  if (palya.hely === "irasbeli") return irLepcsoJelenetSVG(palya, c);   /* ✍️ Garas tornya: a torony belseje, csigalépcső asztalokkal (irasbeli.js) */
   if (palya.vasar || palya.piac || palya.jelenet) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
   return osvenyVaz(palya, c, {
     hatter: erdoHatterSVG(),
@@ -19002,6 +19027,8 @@ function jlRejt() {
 }
 function jelenetMutat(f) {
   var def = JELENETEK[f.jelenet], p = jlPanel();
+  var irD = $("ir-fuzet-doboz"); if (irD && f.jelenet !== "irszor") { irKepVissza(); if (irD._F) irD._F.torol(); irD.parentNode.removeChild(irD); }
+  p.classList.toggle("ir-be", f.jelenet === "irszor");   /* ✍️ a füzet csak Garas tornyában (irasbeli.js) */
   p.hidden = false; $("kepernyo-jatek").classList.add("bk-be");
   $("valasz-egyenkent").classList.add("koppint");
   $("beiro-doboz").hidden = true; $("szambillentyuzet").hidden = true; $("hallgat-e").hidden = true;
@@ -24239,7 +24266,8 @@ var PIAC_HAZAK = {
   zsib:   { x: 548, y: 262, nev: "Zsivány zsibvására", tipus: "zsib", k: 1 },   /* 🦊 a volt üres telken (zsib.js; recept-lap 1A) */
   csalad: { x: 748, y: 238, nev: "Számcsalád", tipus: "csalad", k: .66 },   /* 🏡 a C körben nyílik (még épül) */
   letra:  { x: 640, y: 300, nev: "Rokon-létra", tipus: "letra", k: .8, palya: "rokon-letra" },   /* 🪜 Pálya-hely B kör (letra.js) */
-  bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt" }   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
+  bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt", ceger: .7 },   /* a cégér kisebb (11-10): ne takarja a dombon Garas tornyát */   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
+  irasbeli: { x: 238, y: 134, nev: "Garas tornya", tipus: "irasbeli", k: .5 }   /* ✍️ a domboldalon, a Déli vásár mellett (irasbeli.js; recept-lap 7. döntés A) — a dombság csírája */
 };
 var PIAC = null;   /* a kirakott falutérkép: { svg, uni: { hely, el, x, y }, fut } */
 var PIAC_HONNAN = null;   /* a Vásárból jött vissza („← Piactér”): az unikornis a sátor előtt áll */
@@ -24333,11 +24361,11 @@ function piacTer(lista, vasarLista) {
   /* házak hátulról előre (Pálya-hely B kör, 2026-10-25): a ház = a pálya, cégérrel és a közös jelekkel (palyahely.js phBurok + phHaz);
      a ház állapota a gyerek haladásából (piacHazLepes); amelyik háznak még nincs pályája, az épül (🔜 váz + „épül!”) */
   var hazPa = {}, hazJ = {};
-  ["csalad", "zsib", "letra", "bolt"].forEach(function (id) {
+  ["irasbeli", "csalad", "zsib", "letra", "bolt"].forEach(function (id) {   /* hátulról előre: a torony a dombon áll */
     var h = H[id], tobb = (h.palyak || (h.palya ? [h.palya] : [])).map(function (pid) { return (lista.filter(function (r) { return r.pa.id === pid; })[0] || {}).pa; }).filter(Boolean);
     var pa = tobb[0] || null, J = tobb.length > 1 ? pcTobbJel(tobb) : pa ? palyaJelek(pa) : { all: uj ? "alszik" : "hamarosan", ertek: 0, nincsCetli: true };
     hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra a közelkép, a tárgy a bejárat (pcValaszto) */
-    s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k }) + '</g>';
+    s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k, ceger: h.ceger }) + '</g>';
   });
   var vil = !!bolt && hazJ.bolt.vil && hazJ.bolt.all !== "alszik";
   /* 🧺 a Tündérvásár sátra (beköltözött): újonc-köd → alszik; a pult mindet lezárta → zárva; világít, ha oda hív az unikornis */
@@ -24643,15 +24671,17 @@ function phHalo(m) {   /* ✨ újonc-fény: ide hív az unikornis */
   return '<ellipse cx="0" cy="' + pcF(-m * .55) + '" rx="' + pcF(m * .95) + '" ry="' + pcF(m * .85) + '" fill="url(#lt-gNyHalo)" pointer-events="none">' + (lkCsokkent() ? '' : ltAnim("opacity", ".55;1;.55", "2.4s")) + '</ellipse>';
 }
 /* a hely közös burka (minden hely-fajta ezt kapja): fény, alvás + köd, koppintható keret, cégér a tetőn
-   rajz = { svg, felso, bal, jobb, magas } a hely saját rajza (talppont 0,0); k = { x, y, k } a helye a képen */
+   rajz = { svg, felso, bal, jobb, magas } a hely saját rajza (talppont 0,0); k = { x, y, k, ceger } a helye a képen
+   (ceger: a cégér saját nagysága a házhoz képest, pl. .75 — ha a felirat másba lógna; a ház mérete nem változik) */
 function phBurok(id, nev, J, rajz, k) {
-  var alszik = J.all === "alszik", m = rajz.magas, cm = phCegerMeret(nev);
+  var alszik = J.all === "alszik", m = rajz.magas, cm = phCegerMeret(nev), ck = k.ceger || 1;
+  var cgSz = function (svg) { return ck === 1 ? svg : '<g transform="translate(0 ' + pcF(rajz.felso) + ') scale(' + ck + ') translate(0 ' + pcF(-rajz.felso) + ')">' + svg + '</g>'; };
   var felsoKeret = rajz.felso - 20 - cm.H - (J.all === "kesz" || J.all === "arany" ? 48 : 30);
   var balKeret = Math.min(rajz.bal, -cm.W / 2 - 30), jobbKeret = Math.max(rajz.jobb, cm.W / 2 + 14);
   var s = '<g class="ph-hely' + (J.all === "hamarosan" ? ' ph-hamar' : '') + '" data-id="' + kiiras(id) + '" transform="translate(' + pcF(k.x) + ' ' + pcF(k.y) + ') scale(' + (k.k || 1) + ')"><g class="pc-rezeg">';
   s += '<rect class="ph-kopp" x="' + pcF(balKeret) + '" y="' + pcF(felsoKeret) + '" width="' + pcF(jobbKeret - balKeret) + '" height="' + pcF(14 - felsoKeret) + '" rx="10" fill="transparent"/>';
   if (J.vil && !alszik && J.all !== "hamarosan") s += phHalo(m);
-  s += '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + phCegerLab(nev, rajz.felso) + rajz.svg + phCeger(nev, 0, rajz.felso - 20 - cm.H / 2, J, id) + '</g>';
+  s += '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + cgSz(phCegerLab(nev, rajz.felso)) + rajz.svg + cgSz(phCeger(nev, 0, rajz.felso - 20 - cm.H / 2, J, id)) + '</g>';
   if (alszik) s += phKod(m);
   return s + '</g></g>';
 }
@@ -24714,10 +24744,11 @@ function phBode(sz, aru, J) {
 /* ── 🏠 ház (Pálya-hely B kör, 2026-10-25): a Piactér mai házrajza (piac.js piacHaz, az építési fokokkal), rajta a közös jelek ──
    tipus: bolt | letra | csalad · lepes 0–6 (piacHazLepes) · zárva: lakat az ajtón · mára elég: hold · épül: csak a váz (2. fok) */
 var PH_HAZ = { letra: { felso: -142, szel: 52, ajto: [0, -12] }, csalad: { felso: -102, szel: 70, ajto: [34, -18] }, bolt: { felso: -102, szel: 70, ajto: [22, -20] },
-  zsib: { felso: -112, szel: 66, ajto: [-6, -34], cel: [-86, 20] } };   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
+  zsib: { felso: -112, szel: 66, ajto: [-6, -34], cel: [-86, 20] },
+  irasbeli: { felso: -158, szel: 30, ajto: [0, -14], cel: [44, 8] } };   /* ✍️ Garas tornya (irasbeli.js irTerkepTorony) */   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
 function phHaz(tipus, lepes, J) {
   var g = PH_HAZ[tipus], hamar = J.all === "hamarosan";
-  var s = tipus === "zsib" ? zsTerkepStand() : piacHaz(tipus, hamar ? 2 : lepes, false);
+  var s = tipus === "zsib" ? zsTerkepStand() : tipus === "irasbeli" ? irTerkepTorony(lepes, J) : piacHaz(tipus, hamar ? 2 : lepes, false);
   if (J.all === "zarva") s += phLakat(g.ajto[0], g.ajto[1]);
   if (J.all === "elfogyott") s += phHold(g.ajto[0], g.ajto[1] - 4, .9);
   return { svg: s, felso: hamar ? g.felso + 6 : g.felso, bal: -g.szel - 14, jobb: g.szel + (tipus === "letra" ? 20 : 14), magas: -g.felso };
@@ -25133,6 +25164,12 @@ function irGyart(muv, a, b, o) { return muv === "oszt" ? irOsztas(a, b, o) : irS
      o.hang     a mondókát a felolvasóhang is mondja (alap: mentes.hang)
      o.tempo    a gépi írás sebessége (1 = rendes)
      o.onKesz(F) · o.onHiba(F, {cel, n, oszlopok}) → true: a pálya intézi a segítséget · o.onLepes(F, k)
+     o.elotolt  { "r,c": jegy } — a lap már teleírva (Garas írása), a gyerek ezeket is radírozhatja és átírhatja
+     o.hibakeres "r,c" — HIBAKERESŐ (Odú-küszöb): Garas egy jegyet elrontott; előbb azt kell kiradírozni (más jegy radírozása = hiba,
+                visszakerül), aztán jól beírni. Így a „melyik oszlop rossz?” nem tippelhető ki koppintgatással (recept-lap ⑤ kiskapu)
+     o.csendesHiba  a hiba-pittyenés a pályáé (a motor hangHiba-ja szól), a füzet nem pittyen rá
+     o.oldalt   széles képernyőn: a lap balra, a képernyő magasságában; jobbra egymás alatt a .fz-oldal (a pálya ide teheti a képét és a
+                gombjait: F.oldal), a felirat, a tálca, az eszközök — így egy képernyőn elfér, nincs görgetés (a producer, 11-10)
    Eszközök (FELVESZ–LETESZ, nincs húzás): ✏️ ceruza (koppintás a kockára = oda ír, a hegye abba a kockába mutat; a jegyet — mint a
    játék többi részén — a gép billentyűzete adja, érintőn a rendszer számbillentyűzete; képernyős számgomb nincs),
    a ceruza a jegyen kívül: · pont (a hányados helye) · ' felső vessző · ▁ vonal (▁, aztán koppintás a vonal végére) · 🧽 radír
@@ -25172,6 +25209,7 @@ function fzLap(hova, T, o) {
   F.ellenoriz = function () { return fzVegenEll(F); };
   F.mondoka = function (k) { fzMondoka(F, k); };
   F.felirat = function (s, cls) { fzFelirat(F, s, cls); };
+  if (o.elotolt) for (var ek in o.elotolt) F.k[ek] = { v: String(o.elotolt[ek]), ki: "gep" };
   if (o.mod !== "gep") { F.eszkoz = "ceruza"; FZ_AKT = F; fzLepesFrissit(F); }
   fzRajz(F);
   return F;
@@ -25179,8 +25217,8 @@ function fzLap(hova, T, o) {
 
 /* ═════════════════ A DOBOZ: felirat · lap (+ tálca) · eszközök + számbillentyű ═════════════════ */
 function fzDoboz(F, hova) {
-  var d = el("div", "fz" + (F.o.mod === "gep" ? " fz-gep" : ""));
-  d.innerHTML = '<div class="fz-felirat" aria-live="polite"></div>' +
+  var d = el("div", "fz" + (F.o.mod === "gep" ? " fz-gep" : "") + (F.o.oldalt ? " fz-oldalt" : ""));
+  d.innerHTML = (F.o.oldalt ? '<div class="fz-oldal"></div>' : '') + '<div class="fz-felirat" aria-live="polite"></div>' +
     '<div class="fz-asztal"><div class="fz-lapdoboz"><svg class="fz-lap" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="füzetlap"></svg></div>' +
     (F.o.talca ? '<div class="fz-talcadoboz"><svg class="fz-talca" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="tallér-tálca"></svg></div>' : '') + '</div>' +
     (F.o.mod === "gep" ? '' :
@@ -25193,7 +25231,7 @@ function fzDoboz(F, hova) {
     (F.o.ell === "vegen" ? '<button type="button" class="nagy-gomb fz-kesz">Kész ✓</button>' : '') + '</div>' +
     '<input class="fz-be" inputmode="numeric" enterkeyhint="done" autocomplete="off" tabindex="-1" aria-label="a számjegy">');
   hova.appendChild(d);
-  F.gyoker = d; F.svg = d.querySelector(".fz-lap"); F.tsvg = d.querySelector(".fz-talca");
+  F.gyoker = d; F.svg = d.querySelector(".fz-lap"); F.tsvg = d.querySelector(".fz-talca"); F.oldal = d.querySelector(".fz-oldal");
   F.svg.addEventListener("click", function (e) { fzKatt(F, e); });
   F.svg.addEventListener("pointermove", function (e) { if (e.pointerType === "mouse") { F.mut = fvPont(F.svg, e); fzKurzor(F); } });
   /* a számjegy úgy jön, mint a játék többi részén (events.js, üres négyzet): egéren a gép billentyűzete (fzBill, e.code — magyar
@@ -25351,12 +25389,16 @@ function fzEszkoz(F, mi) {
 }
 function fzRadiroz(F, r, c) {
   var kv = fzKulcs(r, c), volt = !!F.k[kv];
+  if (F.o.hibakeres && !F.hkMegvan && F.k[kv] && F.k[kv].v) {   /* hibakereső: csak a rossz jegyet lehet kiradírozni */
+    if (kv !== F.o.hibakeres) { F.hibas[kv] = true; fzRajz(F); fzHiba(F, { hk: true }); F.ido = setTimeout(function () { delete F.hibas[kv]; fzRajz(F); }, 900); F.eszkoz = "ceruza"; return; }
+    F.hkMegvan = true; fzFelirat(F, "Megvan! Írd be jól.", "jo");
+  }
   delete F.k[kv]; delete F.hibas[kv]; delete F.hibaOszl[c];
   var n0 = F.vonalak.length;
   F.vonalak = F.vonalak.filter(function (v) { return !(v.r === r && c >= v.c0 && c <= v.c1); });
   if (volt || F.vonalak.length !== n0) { ceruzaSerceg(.25); fzMezoUjra(F, r, c); }
   F.eszkoz = "ceruza"; F.akt = { r: r, c: c };   /* kiradíroz és javít — nem kezd elölről */
-  fzFelirat(F, "");
+  if (!(F.o.hibakeres && kv === F.o.hibakeres)) fzFelirat(F, "");
   fzLepesFrissit(F); fzRajz(F);
 }
 function fzGepTartalom(F, kv) { var g = F.gepK[kv]; return g && g.tip !== "vonal"; }
@@ -25364,6 +25406,7 @@ function fzJegy(F, d) {
   if (!F.akt || F.kesz) return;
   var kv = fzKulcs(F.akt.r, F.akt.c);
   if (fzGepTartalom(F, kv) || F.jelK[kv]) { fzRazkod(F); return; }
+  if (F.o.hibakeres && !F.hkMegvan) { fzFelirat(F, "Előbb keresd meg, melyik jegy rossz, és radírozd ki!", "kerd"); fzRazkod(F); return; }
   if (!F.becsOk && !F.mezoK[kv]) { fzFelirat(F, F.T.muv === "oszt" ? "Előbb becsülj: írd a B: sorba, mettől meddig lehet a hányados!" : "Előbb becsülj: írd a B: sorba, mennyi lesz körülbelül!", "kerd"); fzRazkod(F); return; }
   var x = F.k[kv] || {}; x.v = String(d); x.ki = "gyerek"; F.k[kv] = x; F.uj[kv] = true;
   delete F.hibas[kv]; delete F.hibaOszl[F.akt.c];
@@ -25373,11 +25416,14 @@ function fzJegy(F, d) {
   if (F.mezoK[kv]) jo = fzMezoEll(F, F.mezoK[kv], true);   /* a becslést mindig azonnal nézi: rossz becsléssel nem indul a számolás (kiskapu) */
   else if (F.o.ell === "lepes") jo = fzLepesEll(F, kv);
   else if (F.vart[kv] && F.vart[kv].v === x.v && F.vart[kv].lepes > F.lepesKesz) F.lepesKesz = F.vart[kv].lepes;
-  /* tovább: jelölésnél a következő helyre, különben a szorzás balra, az osztás jobbra lép */
+  /* tovább MAGÁTÓL a következő kockába (a producer, 11-10): a becslés-sorban mindig jobbra, amíg a szám tart (akárhol kezdte);
+     jelölésnél a következő kijelölt helyre; különben a szorzás balra, az osztás jobbra lép. Rossz jegy után helyben marad (ott javít). */
   if (jo) {
-    var kov = F.o.jelol ? fzKovetkezo(F) : null;
-    if (kov && kov.tip === "szam") F.akt = { r: kov.r, c: kov.c };
-    else if (!F.o.jelol) { var nc = c + (F.mezoK[kv] ? 1 : F.T.lep); if (nc >= 0 && nc < F.T.osz && !fzGepTartalom(F, fzKulcs(r, nc))) F.akt = { r: r, c: nc }; }
+    var m = F.mezoK[kv], mKesz = m && fzMezoSzam(F, m).length >= m.v.length;
+    var kov = F.o.jelol && (!m || mKesz) ? fzKovetkezo(F) : null;
+    if (m && !mKesz) { if (c + 1 <= m.c1 && !fzGepTartalom(F, fzKulcs(r, c + 1))) F.akt = { r: r, c: c + 1 }; }
+    else if (kov && kov.tip === "szam") F.akt = { r: kov.r, c: kov.c };
+    else if (!F.o.jelol || m) { var nc = c + (m ? 1 : F.T.lep); if (nc >= 0 && nc < F.T.osz && !fzGepTartalom(F, fzKulcs(r, nc)) && !F.mezoK[fzKulcs(r, nc)] === !m) F.akt = { r: r, c: nc }; }
   }
   fzLepesFrissit(F);
   fzRajz(F);
@@ -25459,8 +25505,9 @@ function fzLepesEll(F, kv) {
 function fzHiba(F, info) {
   var id = info.cel ? info.cel.id : "x" + (info.oszlopok ? "o" : "");
   info.n = F.hibaDb[id] = (F.hibaDb[id] || 0) + 1;
-  beep(220, .14, "triangle", 0, .05);
+  if (!F.o.csendesHiba) beep(220, .14, "triangle", 0, .05);
   if (F.o.onHiba && F.o.onHiba(F, info) === true) return;
+  if (info.hk) { fzFelirat(F, "Ez jó volt, visszaírtam. Keresd tovább: számold újra oszloponként!", "kerd"); return; }
   if (info.oszlopok) { fzFelirat(F, "Nézd meg még egyszer a kiszínezett oszlopokat! Radírozd ki, ami nem jó, és javítsd.", "kerd"); return; }
   var L = info.cel ? F.T.lepesek[info.cel.lepes] : null;
   if (!info.cel) { fzFelirat(F, "Ebbe a kockába most nem kell írni.", "kerd"); return; }
@@ -25550,7 +25597,13 @@ function fzKovetkezo(F) {
   var T = F.T;
   for (var i = 0; i < T.celok.length; i++) {
     var c = T.celok[i], x = F.k[fzKulcs(c.r, c.c)];
-    if (c.tip === "szam") { if (!F.becsOk && c.mezo == null) continue; if (!(x && x.v === c.v) && !(c.opc && F.lepesKesz > c.lepes)) return c; }
+    if (c.tip === "szam" && c.mezo != null) {   /* a becslés: szabad helyű szám — ha már egyezik, kész; ha félig írta, az utolsó jegye utáni kocka */
+      var m = T.mezok[c.mezo], ms = fzMezoSzam(F, m);
+      if (ms === m.v) continue;
+      if (ms.length && ms.length < m.v.length) { for (var cc = m.c1; cc >= m.c0; cc--) { var y = F.k[fzKulcs(m.r, cc)]; if (y && y.v) return { r: m.r, c: Math.min(m.c1, cc + 1), tip: "szam", lepes: c.lepes, mezo: c.mezo }; } }
+      return c;
+    }
+    if (c.tip === "szam") { if (!F.becsOk) continue; if (!(x && x.v === c.v) && !(c.opc && F.lepesKesz > c.lepes)) return c; }
     else if (c.lepes >= F.lepesKesz) {   /* a már lezárt lépések jelei nem tartják fel (nem kötelezők) */
       if (c.tip === "pont" && !(x && (x.pont || x.v))) return c;
       if (c.tip === "vesszo" && !(x && x.vesszo)) return c;
@@ -25689,6 +25742,151 @@ function fzProbaNyit() {
     try { speechSynthesis.cancel(); } catch (x) {}
     fzProbaNyit();
   };
+}
+/* ============ 6j4d) 🐾 GARAS, A NYEST + 🗼 GARAS TORNYA (Garas tornya, 2. kör: 2026-11-09) ============
+   Rajz: terv/irasbeli-haz-rajzterv.html (✅ 11-09, mind A) — innen átvéve, ugyanazzal a rajzzal.
+   Képregényes, NEM papírmasé (uj-figura-kepregenyes-nem-papirmase): a végtag egy hajlékony vonal a vállától a mancsáig (gaCso), kör nélkül.
+   Monokli + lila mellény + ceruza a fül mögött; meleg gesztenyebarna bunda, krém előke.
+   garasSVG(o) → a figura egy 240 × 300-as dobozban (talppont: 120, 286). GARAS_POZ[név] = a rajzterv 7 póza.
+   gaTorony(all, eg) → a torony kívülről (200 széles, a talppont 100, 380): all zart | uj | folyik | kesz · eg = hány ablak ég.
+   GA_DEFS: a színátmenetek (ga-…), minden kép <defs>-ébe. */
+var GA_INK = "#3a2418", GA_FUR = "#a2683f", GA_FURD = "#6e4329", GA_BIB = "#fbeedd", GA_MUZ = "#f3dcc2", GA_EAR = "#eab3a3", GA_NOSE = "#b56a6a",
+    GA_VEST = "#b79fd4", GA_GOLD = "#f2c94c", GA_GOLDD = "#a87a1c";
+var GA_HE = { 1: ["#f6a5c0", "#c0567f", "#ffe3ee"], 10: ["#9ec9f0", "#5f84b0", "#e3f0fc"], 100: ["#f5cf6a", "#b5842c", "#fdf1cf"] };
+var GA_DEFS =
+  '<linearGradient id="ga-ko" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9beb2"/><stop offset=".45" stop-color="#e6ded4"/><stop offset="1" stop-color="#bfb3a6"/></linearGradient>' +
+  '<linearGradient id="ga-fa" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dcb98c"/><stop offset=".45" stop-color="#f3dbb4"/><stop offset="1" stop-color="#d4ae80"/></linearGradient>' +
+  '<linearGradient id="ga-teto" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f78c2"/><stop offset=".45" stop-color="#b7a2e0"/><stop offset="1" stop-color="#8670b8"/></linearGradient>' +
+  '<linearGradient id="ga-fal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e2d2b8"/><stop offset=".5" stop-color="#f8ecd9"/><stop offset="1" stop-color="#dccab0"/></linearGradient>' +
+  '<radialGradient id="ga-feny"><stop offset="0" stop-color="#ffe9a0" stop-opacity=".9"/><stop offset="1" stop-color="#ffe9a0" stop-opacity="0"/></radialGradient>' +
+  '<pattern id="ga-kocka" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#fffef8"/><path d="M16 0V16H0" fill="none" stroke="#bdd3ec" stroke-width="1"/></pattern>';
+
+/* ── közös kis elemek ── */
+function gaCso(p, w, col) {   /* hajlékony végtag: váll → könyök → mancs, egy vonal, kör nélkül */
+  var cx = 2 * p[2] - (p[0] + p[4]) / 2, cy = 2 * p[3] - (p[1] + p[5]) / 2, d = "M" + p[0] + " " + p[1] + "Q" + cx + " " + cy + " " + p[4] + " " + p[5];
+  return '<path d="' + d + '" fill="none" stroke="' + GA_INK + '" stroke-width="' + (w + 6) + '" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round"/>';
+}
+function gaTaller(x, y, r, v) {
+  var c = GA_HE[v || 100];
+  return '<g><circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="' + (r > 8 ? 2 : 1.4) + '"/><circle cx="' + x + '" cy="' + y + '" r="' + (r * .64) + '" fill="none" stroke="' + c[1] + '" stroke-width="1" opacity=".7"/>' +
+    '<path d="M' + (x - r * .3) + ' ' + (y - r * .28) + 'H' + (x + r * .3) + 'M' + x + ' ' + (y - r * .28) + 'V' + (y + r * .36) + '" stroke="' + c[1] + '" stroke-width="' + (r > 8 ? 1.8 : 1.2) + '" stroke-linecap="round"/></g>';
+}
+function gaCeruza(x, y, a, len) {
+  return '<g transform="translate(' + x + ' ' + y + ') rotate(' + a + ')"><rect x="' + (-9 - len) + '" y="-4" width="' + len + '" height="8" fill="#ffd166" stroke="' + GA_INK + '" stroke-width="1.8"/>' +
+    '<path d="M0 0L-9 -4V4Z" fill="#f3d2a2" stroke="' + GA_INK + '" stroke-width="1.6" stroke-linejoin="round"/><path d="M-3 -1.3V1.3L0 0Z" fill="' + GA_INK + '"/>' +
+    '<rect x="' + (-16 - len) + '" y="-4" width="7" height="8" rx="2" fill="#f4a6b8" stroke="' + GA_INK + '" stroke-width="1.6"/></g>';
+}
+function gaSzikra(x, y, r) { return '<path d="M' + x + ' ' + (y - r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x - r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - r) + 'Z" fill="#ffe08a" stroke="#d1a23a" stroke-width="1.2"/>'; }
+
+/* ── Garas ── */
+function gaSzem(t) {
+  var Y = 88;
+  function nyit(x) { return '<ellipse cx="' + x + '" cy="' + Y + '" rx="7.5" ry="10" fill="' + GA_INK + '"/><circle cx="' + (x + 2.6) + '" cy="' + (Y - 4) + '" r="2.8" fill="#fff"/>'; }
+  function zar(x) { return '<path d="M' + (x - 8) + ' ' + (Y + 2) + 'Q' + x + ' ' + (Y - 8) + ' ' + (x + 8) + ' ' + (Y + 2) + '" fill="none" stroke="' + GA_INK + '" stroke-width="3.4" stroke-linecap="round"/>'; }
+  function le(x) { return '<ellipse cx="' + x + '" cy="' + (Y + 3) + '" rx="7" ry="6.5" fill="' + GA_INK + '"/><path d="M' + (x - 9) + ' ' + (Y - 1) + 'Q' + x + ' ' + (Y - 5) + ' ' + (x + 9) + ' ' + (Y - 1) + '" fill="none" stroke="' + GA_INK + '" stroke-width="3" stroke-linecap="round"/>'; }
+  function fel(x) { return '<ellipse cx="' + x + '" cy="' + (Y + 1) + '" rx="7.5" ry="8.5" fill="' + GA_INK + '"/><circle cx="' + (x + 2) + '" cy="' + (Y + 3) + '" r="2.2" fill="#fff"/><path d="M' + (x - 10) + ' ' + (Y - 10) + 'H' + (x + 10) + 'V' + (Y - 1) + 'H' + (x - 10) + 'Z" fill="' + GA_FUR + '"/><path d="M' + (x - 10) + ' ' + (Y - 1) + 'H' + (x + 10) + '" stroke="' + GA_INK + '" stroke-width="3.2" stroke-linecap="round"/>'; }
+  if (t === "le") return le(103) + le(137);
+  if (t === "felig") return fel(103) + fel(137);
+  if (t === "zart") return zar(103) + zar(137);
+  if (t === "kacsint") return nyit(103) + zar(137);
+  var pislog = lkCsokkent() ? "" : '<g opacity="0"><ellipse cx="103" cy="' + Y + '" rx="9.5" ry="12" fill="' + GA_FUR + '"/><ellipse cx="137" cy="' + Y + '" rx="9.5" ry="12" fill="' + GA_FUR + '"/>' + zar(103) + zar(137) +
+    '<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;.93;.965;1" dur="4.6s" repeatCount="indefinite"/></g>';
+  return nyit(103) + nyit(137) + pislog;
+}
+var GA_SZEMOLD = { semleges: ["M95 74Q103 70 111 73", "M129 73Q137 70 145 74"], fel: ["M95 69Q103 62 111 67", "M129 67Q137 62 145 69"],
+  hm: ["M95 68Q103 62 111 66", "M129 76L146 74"], ravasz: ["M96 75Q104 78 111 77", "M129 70Q138 63 146 67"] };
+var GA_SZAJ = {
+  mosoly: '<path d="M110 111Q115 117 120 111Q125 117 130 111" fill="none" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+  nagy: '<path d="M106 110Q120 133 134 110Z" fill="#7a2f35" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/><path d="M112 121Q120 115 128 121Q125 127 120 127Q115 127 112 121Z" fill="#e88a8f"/>',
+  hm: '<path d="M111 115Q116 112 121 115T131 113" fill="none" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linecap="round"/>',
+  nyelv: '<path d="M124 113Q131 123 135 115" fill="#e88a8f" stroke="' + GA_INK + '" stroke-width="2"/><path d="M110 111Q115 117 120 111Q125 117 130 111" fill="none" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linecap="round"/>',
+  ravasz: '<path d="M107 113Q122 122 135 107" fill="none" stroke="' + GA_INK + '" stroke-width="2.8" stroke-linecap="round"/><path d="M127 116L129 121L131 114" fill="#fff" stroke="' + GA_INK + '" stroke-width="1.4" stroke-linejoin="round"/>'
+};
+function gaLab(p, ir) { var x = p[4], y = p[5]; return gaCso(p, 17, GA_FURD) + '<path d="M' + (x - 14 + ir * 4) + ' ' + (y + 8) + 'C' + (x - 15 + ir * 4) + ' ' + (y - 5) + ' ' + (x + 12 + ir * 4) + ' ' + (y - 7) + ' ' + (x + 15 + ir * 4) + ' ' + (y + 8) + 'Z" fill="' + GA_FURD + '" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/>'; }
+function garasSVG(o) {
+  o = o || {};
+  var aL = o.armL || [106, 148, 90, 182, 100, 206], aR = o.armR || [134, 148, 150, 182, 140, 206],
+      lL = o.legL || [110, 224, 106, 254, 104, 280], lR = o.legR || [130, 224, 134, 254, 136, 280], j = o.jump || 0, cs = lkCsokkent();
+  var s = '<ellipse cx="120" cy="291" rx="' + (j ? 30 : 46) + '" ry="7" fill="#000" opacity=".13"/>';
+  s += '<g transform="translate(0 ' + (-j) + ') rotate(' + (o.lean || 0) + ' 120 286)">';
+  s += '<g transform="rotate(' + (o.tail || 0) + ' 138 222)"><g>' + (cs ? '' : '<animateTransform attributeName="transform" type="rotate" values="-4 138 222;5 138 222;-4 138 222" dur="3.4s" repeatCount="indefinite"/>') +
+    '<path d="M136 226C178 238 218 212 211 166C206 136 186 116 169 125C159 131 161 144 170 152C183 168 182 192 168 205C158 214 148 216 136 212Z" fill="' + GA_FURD + '" stroke="' + GA_INK + '" stroke-width="3.2" stroke-linejoin="round"/>' +
+    '<path d="M197 150C202 170 197 190 185 203M187 137C193 146 195 156 193 166" fill="none" stroke="#8d5a37" stroke-width="2.4" stroke-linecap="round"/></g></g>';
+  s += gaLab(lL, -1) + gaLab(lR, 1) + (o.hatul || "");
+  s += '<path d="M96 228C88 196 92 158 106 136C112 128 128 128 134 136C148 158 152 196 144 228C136 245 104 245 96 228Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="3.4" stroke-linejoin="round"/>';
+  s += '<path d="M140 152C150 182 150 212 140 233C134 238 129 238 127 236C137 214 141 184 140 152Z" fill="#000" opacity=".09"/>';
+  s += '<path d="M108 136C114 131 126 131 132 136C134 158 130 176 127 190L120 178L113 190C110 176 106 158 108 136Z" fill="' + GA_BIB + '" stroke="' + GA_INK + '" stroke-width="2" stroke-linejoin="round"/>';
+  s += '<path d="M96 228C88 196 92 158 106 136L111 139C106 162 106 200 113 238C104 238 99 234 96 228Z" fill="' + GA_VEST + '" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/>';
+  s += '<path d="M144 228C152 196 148 158 134 136L129 139C134 162 134 200 127 238C136 238 141 234 144 228Z" fill="' + GA_VEST + '" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/>';
+  s += '<g transform="rotate(-12 102 198)">' + gaTaller(102, 192, 7, 100) + '</g><path d="M93 196Q101 200 110 197L110 210Q101 213 94 209Z" fill="#a58bc9" stroke="' + GA_INK + '" stroke-width="2"/>';
+  [170, 190, 210].forEach(function (y) { s += '<circle cx="' + (131 + (y - 170) * .03) + '" cy="' + y + '" r="3" fill="' + GA_GOLD + '" stroke="' + GA_GOLDD + '" stroke-width="1.2"/>'; });
+  if (o.ujj) {   /* a mancsán felemelt ujjak: a továbbvitt szám (3TC: az ujjunkon is tarthatjuk) */
+    for (var i = 0; i < o.ujj; i++) { var x = aR[4] - (o.ujj - 1) * 3.6 + i * 7.2; s += gaCso([x, aR[5] - 3, x + (i - (o.ujj - 1) / 2) * 1.5, aR[5] - 10, x + (i - (o.ujj - 1) / 2) * 3, aR[5] - 19], 5.5, GA_FURD); }
+  }
+  if (o.mutat) s += gaCso([aR[4], aR[5], (aR[4] + o.mutat[0]) / 2, (aR[5] + o.mutat[1]) / 2, o.mutat[0], o.mutat[1]], 5.5, GA_FURD);
+  s += gaCso(aL, 14, GA_FURD) + (o.kozte || "") + gaCso(aR, 14, GA_FURD);
+  s += '<g transform="rotate(' + (o.head || 0) + ' 120 128)">';
+  s += '<path d="M86 72C70 64 74 40 93 44C101 46 105 51 107 57Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/><path d="M89 65C80 59 82 49 92 50C97 51 100 54 101 58Z" fill="' + GA_EAR + '"/>';
+  s += '<path d="M154 72C170 64 166 40 147 44C139 46 135 51 133 57Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/><path d="M151 65C160 59 158 49 148 50C143 51 140 54 139 58Z" fill="' + GA_EAR + '"/>';
+  if (o.ceruzaFul !== false) s += '<g transform="rotate(-38 152 58)">' + gaCeruza(178, 58, 0, 26) + '</g>';
+  s += '<path d="M85 102L71 115L93 117Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/><path d="M155 102L169 115L147 117Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/>';
+  s += '<path d="M78 88C76 64 96 52 120 52C144 52 164 64 162 88C160 104 146 118 134 126C128 131 112 131 106 126C94 118 80 104 78 88Z" fill="' + GA_FUR + '" stroke="' + GA_INK + '" stroke-width="3.4" stroke-linejoin="round"/>';
+  s += '<path d="M150 68C161 84 158 106 140 121C151 104 153 86 150 68Z" fill="#000" opacity=".08"/>';
+  s += '<path d="M105 102C105 93 135 93 135 102C135 116 128 127 120 127C112 127 105 116 105 102Z" fill="' + GA_MUZ + '"/>';
+  s += gaSzem(o.eyes);
+  var b = GA_SZEMOLD[o.brow || "semleges"]; s += '<path d="' + b[0] + "M" + b[1].slice(1) + '" fill="none" stroke="' + GA_INK + '" stroke-width="3.6" stroke-linecap="round"/>';
+  s += '<path d="M113 99C113 95 127 95 127 99C127 103 122 106 120 106C118 106 113 103 113 99Z" fill="' + GA_NOSE + '" stroke="' + GA_INK + '" stroke-width="2" stroke-linejoin="round"/><path d="M120 106V110" stroke="' + GA_INK + '" stroke-width="2"/>';
+  s += GA_SZAJ[o.mouth || "mosoly"];
+  s += '<path d="M101 106L85 102M101 110L85 113M139 106L155 102M139 110L155 113" stroke="' + GA_INK + '" stroke-width="1.5" opacity=".6" stroke-linecap="round"/>';
+  s += '<circle cx="137" cy="88" r="13" fill="#e9f6ff" opacity=".35" stroke="' + GA_GOLD + '" stroke-width="3"/><circle cx="137" cy="88" r="13" fill="none" stroke="' + GA_GOLDD + '" stroke-width="1"/><path d="M148 95Q162 118 146 138" fill="none" stroke="' + GA_GOLDD + '" stroke-width="1.6" stroke-dasharray="2 3"/>';
+  s += '</g>' + (o.elol || "") + '</g>';
+  return s;
+}
+var GA_CSIPO = [106, 148, 82, 178, 98, 202];
+/* a rajzterv 7 póza (+ „vár”: semleges, mancs a csípőn) */
+var GARAS_POZ = {
+  var: { armL: GA_CSIPO, brow: "semleges" },
+  valt: { head: 10, eyes: "le", armL: [106, 148, 90, 188, 104, 212], armR: [134, 148, 152, 186, 140, 210] },
+  ujj: { lean: -3, head: -6, brow: "fel", armL: GA_CSIPO, armR: [134, 148, 166, 140, 168, 108], ujj: 2 },
+  ir: { head: 12, eyes: "le", mouth: "nyelv", armL: [106, 148, 92, 184, 110, 200], armR: [134, 148, 158, 180, 136, 190],
+        kozte: '<g transform="rotate(-8 120 200)"><rect x="96" y="184" width="50" height="34" rx="3" fill="url(#ga-kocka)" stroke="' + GA_INK + '" stroke-width="2.4"/></g>', elol: gaCeruza(121, 201, 135, 24) },
+  hm: { head: 14, eyes: "felig", brow: "hm", mouth: "hm", tail: 10, armL: [106, 148, 104, 192, 140, 184], armR: [134, 148, 162, 162, 128, 130] },
+  orul: { jump: 22, head: -4, eyes: "zart", brow: "fel", mouth: "nagy", tail: -14, armL: [106, 146, 80, 120, 74, 86], armR: [134, 146, 160, 120, 166, 86],
+          legL: [110, 224, 94, 244, 100, 262], legR: [130, 224, 146, 244, 140, 262], elol: gaSzikra(50, 70, 9) + gaSzikra(196, 58, 11) + gaSzikra(184, 120, 7) },
+  mutat: { lean: 5, head: 6, armL: GA_CSIPO, armR: [134, 148, 168, 158, 196, 160], mutat: [214, 158] },
+  csibesz: { lean: -4, head: -8, eyes: "kacsint", brow: "ravasz", mouth: "ravasz", tail: 8, armL: GA_CSIPO, armR: [134, 148, 168, 170, 160, 140],
+    elol: '<path d="M162 132Q170 104 172 76" fill="none" stroke="#d1a23a" stroke-width="1.6" stroke-dasharray="3 5"/><g><animateTransform attributeName="transform" type="translate" values="0 12;0 -10;0 12" dur="1.4s" repeatCount="indefinite"/><g transform="translate(172 64)"><g><animateTransform attributeName="transform" type="scale" values="1 1;.15 1;1 1" dur=".5s" repeatCount="indefinite"/>' + gaTaller(0, 0, 11, 100) + '</g></g></g>' }
+};
+function garasPoz(nev, extra) { var o = {}, k, p = GARAS_POZ[nev] || GARAS_POZ["var"]; for (k in p) o[k] = p[k]; for (k in (extra || {})) o[k] = extra[k]; return garasSVG(o); }
+
+/* ── a torony kívülről (rajzterv 2.): kő lent, fa fent, lila tető, tallér-szélkakas, ablakok spirálban ── */
+function gaTorony(all, eg) {
+  var ABL = [[72, 338], [100, 316], [128, 294], [100, 272], [72, 250], [100, 196], [128, 174], [100, 152]], cs = lkCsokkent();
+  if (eg == null) eg = all === "kesz" ? 8 : all === "folyik" ? 3 : 0;
+  var s = '<ellipse cx="100" cy="362" rx="84" ry="10" fill="#000" opacity=".12"/>';
+  s += '<path d="M48 360C49 316 50 270 52 228H148C150 270 151 316 152 360Z" fill="url(#ga-ko)" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/>';
+  s += '<path d="M52 256H80M96 256H148M50 286H66M84 286H148M49 316H58M114 316H151M51 344H90M108 344H150M72 242V256M120 256V286M94 300V316M70 330V344" stroke="#9f9284" stroke-width="1.6" fill="none"/>';
+  s += '<path d="M58 218C57 186 57 152 58 128H142C143 152 143 186 142 218Z" fill="url(#ga-fa)" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/>';
+  s += '<path d="M72 130V216M86 128V218M114 128V218M128 130V216" stroke="#c19a6b" stroke-width="1.4"/>';
+  s += '<path d="M42 230C70 226 130 226 158 230V218C130 214 70 214 42 218Z" fill="#b9a99a" stroke="' + GA_INK + '" stroke-width="2.6" stroke-linejoin="round"/>';
+  s += '<path d="M38 130H162V120H38Z" fill="#c99668" stroke="' + GA_INK + '" stroke-width="2.6"/><path d="M44 120V96M66 120V96M100 120V96M134 120V96M156 120V96" stroke="' + GA_INK + '" stroke-width="3"/><path d="M40 108H160" stroke="' + GA_INK + '" stroke-width="2.4"/>';
+  s += '<path d="M34 98C60 74 82 40 100 12C118 40 140 74 166 98C130 104 70 104 34 98Z" fill="url(#ga-teto)" stroke="' + GA_INK + '" stroke-width="3" stroke-linejoin="round"/>';
+  s += '<path d="M58 80Q66 84 74 80Q82 84 90 80Q98 84 106 80Q114 84 122 80Q130 84 138 80Q146 84 148 80M74 58Q82 62 90 58Q98 62 106 58Q114 62 122 58Q128 61 128 58M88 38Q96 41 104 38Q110 41 112 38" fill="none" stroke="#6f5aa6" stroke-width="1.5"/>';
+  s += '<path d="M100 12V-8" stroke="' + GA_INK + '" stroke-width="2.4"/>' + gaTaller(100, -12, 8, 100);
+  if (all === "kesz") s += '<path d="M100 2L122 6L100 11Z" fill="#f4a6b8" stroke="' + GA_INK + '" stroke-width="1.6">' + (cs ? '' : '<animate attributeName="d" values="M100 2L122 6L100 11Z;M100 2L120 8L100 11Z;M100 2L122 6L100 11Z" dur="1.6s" repeatCount="indefinite"/>') + '</path>';
+  ABL.forEach(function (a, i) {
+    var x = a[0], y = a[1], w = x === 100 ? 7 : 4.5, eg_ = i < eg;
+    if (eg_) s += '<circle cx="' + x + '" cy="' + y + '" r="18" fill="url(#ga-feny)"/>';
+    s += '<path d="M' + (x - w) + ' ' + (y + 9) + 'V' + (y - 3) + 'Q' + x + ' ' + (y - 13) + ' ' + (x + w) + ' ' + (y - 3) + 'V' + (y + 9) + 'Z" fill="' + (eg_ ? "#ffe08a" : "#7d7896") + '" stroke="' + GA_INK + '" stroke-width="2"/>';
+  });
+  var nyit = all !== "zart";
+  if (all === "uj") s += '<circle cx="100" cy="346" r="34" fill="url(#ga-feny)">' + (cs ? '' : '<animate attributeName="r" values="28;38;28" dur="2.2s" repeatCount="indefinite"/>') + '</circle>';
+  s += '<path class="pc-ajto" style="transform-origin:82px 360px" d="M82 360V334Q100 312 118 334V360Z" fill="' + (nyit ? "#ffe9a8" : "#a0714a") + '" stroke="' + GA_INK + '" stroke-width="2.6"/>';
+  if (!nyit) s += '<path d="M91 330V360M100 324V360M109 330V360" stroke="#7a5233" stroke-width="1.6"/><circle cx="112" cy="346" r="2" fill="' + GA_INK + '"/>';
+  s += '<path d="M148 296H176" stroke="' + GA_INK + '" stroke-width="3"/><path d="M168 296V302M178 296V302" stroke="' + GA_INK + '" stroke-width="1.4"/><g>' +
+    (cs ? '' : '<animateTransform attributeName="transform" type="rotate" values="-3 173 302;3 173 302;-3 173 302" dur="3s" repeatCount="indefinite"/>') + gaTaller(173, 318, 14, 100) + '</g>';
+  if (all === "uj") s += gaSzikra(60, 330, 7) + gaSzikra(146, 350, 6);
+  return s;
 }
 /* ============ 6j4) 🪧 TÁRGY-KERET — a feladat egy tárgyon él a képben, nem téglalap kártyán (Pálya-hely B kör, 2026-10-25) ============
    Terv: terv/palyahely-targykeret-terv.html 7. pont · rajz: terv/palyahely-rajzterv.html 6. pont (✅ jóváhagyva; A: világos, fa-keretes tábla).
@@ -25927,6 +26125,233 @@ function kfTalca(x, y, n, db, o) {
     s += '</g>';
   }
   return s + '</g>';
+}
+/* ============ 6j4e) ✍️ GARAS TORNYA — ✖️ írásbeli szorzás (2. kör: 2026-11-09) ============
+   Terv: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅) · recept: receptek.js „irasbeli-szorzas”.
+   A gyerek a képen: Garas pultja előtt ül a füzete fölött (fuzet.js), ceruzával ír a helyiérték szerinti kockákba; az első asztaloknál
+   a tallér-tálcán ő viszi át a 10-es köteget (a mozdulat maga az átvitel). A lap és a tankönyvi lépések: irasbeli-gen.js.
+   Halványulás (3. döntés A): 1–2. asztal lépésenként + jelölés + tálca + mondóka minden lépésnél · 3. asztaltól a végén, oszloponként,
+   mondóka csak a 2. hibától · Odú-küszöb: üres lap, a végén, + 1 munkafüzet-változat (6. döntés A: hiányos szorzás / hibakeresés).
+   Rajt: Garas egyszer végigírja a 213 · 3-at (a „gép ír” mód); átugorható.
+   A pálya-kép: a torony belseje, csigalépcső asztalokkal (irLepcsoJelenetSVG, az ösvény-vázon) · a Piactéren: a torony (irTerkepTorony). */
+
+VS_SZIN.irszor1 = { teto: "#f6a5c0", csik: "#fffaf0", sotet: "#c0567f", cimer: "✖️" };
+VS_SZIN.irszor2 = { teto: "#9ec9f0", csik: "#fffaf0", sotet: "#5f84b0", cimer: "✖️" };
+VS_SZIN.irszor3 = { teto: "#f5cf6a", csik: "#fffaf0", sotet: "#b5842c", cimer: "✖️" };
+VS_SZIN.irszor4 = { teto: "#a7d99a", csik: "#fffaf0", sotet: "#5e9a52", cimer: "✖️" };
+VS_SZIN.irszor5 = { teto: "#c9b6e8", csik: "#fffaf0", sotet: "#7a5ca8", cimer: "✖️" };
+VS_SZIN.irszor6 = { teto: "#f7b98a", csik: "#fffaf0", sotet: "#b35f28", cimer: "✖️" };
+
+/* ═════════════════ SZÁMOK: állomásonként a tankönyvi lépcső (OH-MAT03TB 157–161, 04TB 76–81) ═════════════════ */
+function irNincs0(n) { return String(n).indexOf("0") < 0; }
+/* hány helyen van továbbvitel (a szorzandó nem utolsó jegyeinél) */
+function irAtvitelDb(a, b) {
+  var d = irJegyek(a).reverse(), atv = 0, db = 0;
+  for (var i = 0; i < d.length - 1; i++) { atv = Math.floor((d[i] * b + atv) / 10); if (atv) db++; }
+  return db;
+}
+function irKeres(gyart, jo) { for (var t = 0; t < 600; t++) { var x = gyart(); if (jo(x[0], x[1])) return x; } return gyart(); }
+function irSzamok(forma, cfg, o, i) {
+  if (forma === "ket" && o < 4) forma = "tobb";   /* a kétjegyű szorzó 4. o.-tól (recept: osztaly [4, 5, 6]) */
+  if (forma === "egy" && cfg.atvitel === 0) return irKeres(function () { return [veletlen(111, 444), veletlen(2, 3)]; }, function (a, b) { return irNincs0(a) && irAtvitelDb(a, b) === 0 && a * b < 1000 && irNincs0(a * b); });
+  if (forma === "egy" && cfg.atvitel === 1) return irKeres(function () { return [veletlen(112, 489), veletlen(2, 5)]; }, function (a, b) { return irNincs0(a) && irAtvitelDb(a, b) === 1 && a * b < 1000 && irNincs0(a * b); });   /* 3TB: egy helyen lép át, háromjegyű szorzat */
+  if (forma === "nulla") return i % 2 === 0
+    ? irKeres(function () { return [veletlen(1, 9) * 100 + veletlen(1, 9), veletlen(2, 9)]; }, function (a, b) { return a * b < 10000; })                       /* 0 a szorzandóban: 208 · 4 */
+    : irKeres(function () { return [veletlen(112, 899), veletlen(2, 9)]; }, function (a, b) { return irNincs0(a) && !irNincs0(a * b) && a * b < 10000; });   /* 0 a szorzatban: 125 · 2 */
+  if (forma === "ket") return irKeres(function () { return [i === 0 ? veletlen(12, 98) : veletlen(112, 399), veletlen(12, 98)]; }, function (a, b) { return irNincs0(a) && irNincs0(b) && a * b < 10000; });
+  /* több helyen átvitel (és a többi): 3–9-es szorzó, legalább két helyen */
+  return irKeres(function () { return [o >= 4 && i === 2 ? veletlen(1112, 2499) : veletlen(123, 989), veletlen(3, 9)]; }, function (a, b) { return irNincs0(a) && irAtvitelDb(a, b) >= 2 && a * b < 10000; });
+}
+
+/* ── munkafüzet-változatok (Odú-küszöb) ── */
+/* hiányos szorzás (3MB, 4MC): a szorzat ott van, a szorzandó egy jegye hiányzik. A szorzó 3, 7 vagy 9: így a jegy egyértelmű */
+function irHianyos(a, b) {
+  var T = irSzorzas(a, b, { becsles: false, ellenoriz: false, talca: false }), ad = String(a), hi = veletlen(0, ad.length - 1), col = T.U - (ad.length - 1 - hi);
+  T.celok.forEach(function (c) { if (c.tip === "szam" && !c.opc) T.gep.push({ r: c.r, c: c.c, v: c.v, tip: "szam" }); });
+  T.gep = T.gep.filter(function (g) { return !(g.r === T.muvSor && g.c === col && g.tip === "szam"); });
+  T.celok = []; T.lepesek = []; T.csere = [];
+  T.lepes("Melyik jegy bújt el? A szorzatból számolj vissza, az egyesekkel kezdd: " + b + "-szer mennyi ad ennyit a végén?", "szamol");
+  T.cel(T.muvSor, col, ad[hi]);
+  T.hianyos = true;
+  return T;
+}
+/* hibakereső (4MB: „Helyesek-e? Számítással ellenőrizd!”): Garas teleírta a lapot, egy jegyet elrontott (elfelejtette a továbbvitelt) */
+function irHibakeres(a, b) {
+  var T = irSzorzas(a, b, { becsles: false, ellenoriz: false, talca: false }), elotolt = {}, jelolt = [];
+  T.celok.forEach(function (c) { if (c.tip === "szam") { elotolt[c.r + "," + c.c] = c.v; if (c.c < T.U && c.r > T.muvSor) jelolt.push(c); } });
+  var rossz = jelolt[veletlen(0, jelolt.length - 1)] || T.celok.filter(function (c) { return c.tip === "szam"; })[0];
+  var v = (+rossz.v + 9) % 10; if (v === 0 && rossz.c === Math.min.apply(null, jelolt.map(function (c) { return c.c; }))) v = (+rossz.v + 1) % 10;
+  elotolt[rossz.r + "," + rossz.c] = String(v);
+  return { T: T, elotolt: elotolt, hk: rossz.r + "," + rossz.c };
+}
+
+/* ═════════════════ FELADAT (GEN.irszor) ═════════════════ */
+GEN.irszor = function (cfg) {
+  var st = jlAllapot(), i = J.feladatKesz, o = zsOsztaly(), forma = cfg.forma || "egy", valt = null, ab, T, x = { cfg: cfg, konyvelt: {}, poz: "var" };
+  if (forma === "vegyes") {   /* Odú-küszöb: a 3-ból 1 munkafüzet-változat, a többi a lépcső nehezebb fokairól */
+    if (st.valtI == null) st.valtI = veletlen(0, 2);
+    if (i % 3 === st.valtI) valt = Math.random() < .5 ? "hianyos" : "hibakeres";
+    forma = valt ? "tobb" : (i % 2 ? (o >= 4 ? "ket" : "nulla") : "tobb");
+  }
+  if (valt === "hianyos") { ab = [irKeres(function () { return veletlen(123, 989); }, function (a) { return irNincs0(a); }), [3, 7, 9][veletlen(0, 2)]]; T = irHianyos(ab[0], ab[1]); }
+  else if (valt === "hibakeres") { ab = irSzamok("tobb", cfg, o, i); var H = irHibakeres(ab[0], ab[1]); T = H.T; x.elotolt = H.elotolt; x.hk = H.hk; }
+  else { ab = irSzamok(forma, cfg, o, i); T = irSzorzas(ab[0], ab[1], { talca: !!cfg.talca }); }
+  x.T = T; x.valt = valt; x.a = ab[0]; x.b = ab[1];
+  x.bemutat = !!cfg.bemutat && i === 0;
+  var k = valt === "hianyos" ? ["Melyik jegy bújt el?", "Garas lemásolta ezt a szorzást, de egy jegy kimaradt. Melyik szám bújt el?"] :
+          valt === "hibakeres" ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
+          ["Szorozz írásban: " + ab[0] + " · " + ab[1], "Szorozzuk össze írásban: " + szo(ab[0]) + "-szor " + szo(ab[1]) + "! Előbb becsülj."];
+  return { csalad: "jelenet", jelenet: "irszor", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
+    helyes: T.ered, keplet: ab[0] + " · " + ab[1], tipp: "", naplo: { tipus: "irszor", kerdes: ab[0] + "×" + ab[1], helyes: T.ered, forma: valt || forma } };
+};
+
+/* ═════════════════ A KÉP: Garas pultja + a füzet alatta ═════════════════ */
+JELENETEK.irszor = {
+  kep: function (JL) { return JL.keskeny || irOldalt() ? { vb: "0 0 420 200", tabla: null, uni: [64, 190, .4, 1] } : { vb: "0 0 800 200", tabla: null, uni: [118, 192, .46, 1] }; },
+  rajz: function (JL) {
+    var nk = JL.keskeny || irOldalt(), W = nk ? 420 : 800, x = JL.f.ir, gx = nk ? 268 : 590, s = '<defs>' + GA_DEFS + HE_DEFS + '</defs>';
+    s += '<rect width="' + W + '" height="200" fill="url(#ga-fal)"/><path d="M0 46H' + W + 'M0 112H' + W + '" stroke="#e6d6bb" stroke-width="2"/>';
+    s += '<path d="M' + (W * .42) + ' 104V44Q' + (W * .42 + 22) + ' 16 ' + (W * .42 + 44) + ' 44V104Z" fill="#cfe3f7" stroke="' + GA_INK + '" stroke-width="2.4"/><path d="M' + (W * .42 + 22) + ' 26V104M' + (W * .42) + ' 70H' + (W * .42 + 44) + '" stroke="#9fb9d6" stroke-width="2"/>';
+    /* polc a kész füzetekkel (ahány asztal kész ezen a menetben) */
+    var px = W * .42 - 120, kesz = Math.max(0, J.allomasIdx - 1);
+    s += '<path d="M' + (px - 6) + ' 66H' + (px + 96) + '" stroke="' + GA_INK + '" stroke-width="6"/><path d="M' + (px - 6) + ' 66H' + (px + 96) + '" stroke="#c99668" stroke-width="3"/>';
+    for (var i = 0; i < Math.min(6, kesz); i++) s += '<rect x="' + (px + i * 15) + '" y="38" width="12" height="28" rx="1.5" fill="' + ["#f6a5c0", "#9ec9f0", "#f5cf6a", "#a7d99a", "#c9b6e8", "#f7b98a"][i] + '" stroke="' + GA_INK + '" stroke-width="1.6"/>';   /* a kész asztalok füzetei a polcon */
+    /* Garas a pult mögött */
+    s += '<g class="ir-garas" transform="translate(' + gx + ' 10) scale(.6)">' + garasPoz(x.poz, x.pozExtra) + '</g>';
+    s += '<path d="M' + (gx - 30) + ' 150H' + (gx + 176) + 'V200H' + (gx - 30) + 'Z" fill="#c9905c" stroke="' + GA_INK + '" stroke-width="2.6"/><path d="M' + (gx - 36) + ' 144H' + (gx + 182) + 'V154H' + (gx - 36) + 'Z" fill="#e2b27c" stroke="' + GA_INK + '" stroke-width="2.4"/>';
+    s += '<g transform="translate(' + (gx + 22) + ' 140)">' + gaTaller(0, 0, 8, 100) + gaTaller(4, -5, 8, 100) + gaTaller(22, 0, 7, 10) + gaTaller(38, 1, 6, 1) + '</g>';
+    s += '<path d="M0 186H' + W + 'V200H0Z" fill="#e3c29a"/>';
+    return s;
+  },
+  indit: function (JL) {
+    var x = JL.f.ir;
+    irFuzetDoboz(true);
+    if (x.bemutat) { irBemutat(JL); return true; }
+    irFuzetIndit(JL);
+    return false;
+  },
+  felvesz: function () { return null; }, letesz: function () {},
+  katt: function (JL, t) { if (t.closest && t.closest(".ir-garas") && JL.f.ir.poz === "var") { irPoz(JL, "csibesz"); setTimeout(function () { if (JL && JL.f.ir.poz === "csibesz") irPoz(JL, "var"); }, 1800); } },
+  bekuld: function () {},
+  gepi: function () { return { katt: [] }; }
+};
+/* széles képernyőn a füzet OLDALT-elrendezése (a lap balra, a kép + a felirat + a tálca jobbra): egy képernyőn elfér (a producer, 11-10) */
+function irOldalt() { return window.innerWidth >= 900; }
+function irKepAt(F) {   /* a kép (és a gombok) a füzet jobb oszlopába */
+  if (!F || !F.oldal) return;
+  var k = $("jl-svg") && $("jl-svg").parentNode; if (k) F.oldal.appendChild(k);
+  var g = $("ir-fuzet-doboz") && $("ir-fuzet-doboz").querySelector(":scope > .ir-gombok"); if (g) F.oldal.appendChild(g);
+}
+function irKepVissza() {   /* a kép vissza a panel elejére (más kép előtt, vagy mielőtt a füzet eltűnik) */
+  var p = $("jl-panel"), k = $("jl-svg") && $("jl-svg").parentNode;
+  if (p && k && k.parentNode !== p) p.insertBefore(k, p.firstChild);
+}
+function irPoz(JL, poz, extra) { var x = JL.f.ir; x.poz = poz; x.pozExtra = extra || null; var g = JL.svg.querySelector(".ir-garas"); if (g) g.innerHTML = garasPoz(poz, extra); }
+/* a füzet doboza a kép alatt (a jl-panelben; más kép előtt a jelenet-motor kiveszi) */
+function irFuzetDoboz(uj) {
+  var d = $("ir-fuzet-doboz");
+  if (d && uj) { irKepVissza(); if (d._F) d._F.torol(); d.parentNode.removeChild(d); d = null; }
+  if (!d) {
+    d = el("div", "ir-fuzet-doboz"); d.id = "ir-fuzet-doboz";
+    var p = $("jl-panel"); p.insertBefore(d, $("jl-gombok"));
+  }
+  return d;
+}
+function irFuzetIndit(JL) {
+  var x = JL.f.ir, cfg = x.cfg, d = irFuzetDoboz(false), f = JL.f;
+  irKepVissza();
+  if (d._F) d._F.torol();
+  d.innerHTML = "";
+  var vez = !!cfg.jelol, kulon = x.valt === "hianyos" || x.valt === "hibakeres";
+  var F = fzLap(d, x.T, {
+    mod: "gyerek", oldalt: true, ell: vez || kulon ? "lepes" : "vegen", jelol: vez, talca: !!cfg.talca && !kulon, mondoka: vez ? "mindig" : "hiba",
+    elotolt: x.elotolt, hibakeres: x.hk, csendesHiba: true,
+    onHiba: function (F, info) {
+      if (!JL || JL.f !== f) return true;
+      var kulcs = info.oszlopok ? "o" + (x.okDb = (x.okDb || 0) + 1) : info.cel ? "c" + info.cel.id : info.hk ? "hk" + Math.random() : "x";
+      if (!x.konyvelt[kulcs]) { x.konyvelt[kulcs] = 1; jlRossz("füzet", f.naplo); }   /* egy elrontott jegy egyszer számít */
+      irPoz(JL, "mutat");
+      clearTimeout(x.pozIdo); x.pozIdo = setTimeout(function () { if (JL && JL.f === f && !F.kesz) irPoz(JL, "hm"); }, 1600);
+      return false;
+    },
+    onLepes: function (F, k) {
+      if (!JL || JL.f !== f || F.kesz) return;
+      var L = x.T.lepesek[k], db = L && L.talca ? L.talca.muv.filter(function (m) { return m.t === "koteg"; }).length : 0;
+      if (db && vez) irPoz(JL, "ujj", { ujj: Math.min(4, db) }); else if (x.poz === "ujj") irPoz(JL, "var");
+    },
+    onKesz: function () {
+      if (!JL || JL.f !== f) return;
+      irPoz(JL, "orul");
+      jlJo(x.a + " · " + x.b + " = " + x.T.ered, null, function (tovabb) { setTimeout(tovabb, lkCsokkent() ? 300 : 1400); });
+    }
+  });
+  d._F = F; irKepAt(F); jlRajz();
+  if (x.valt === "hibakeres") F.felirat("Garas elrontott egy jegyet. Számold újra oszloponként, és radírozd ki a rosszat!", "kerd");
+  else if (x.valt === "hianyos") F.felirat("Melyik jegy bújt el? Koppints az üres kockára, és írd be!", "kerd");
+  else if (!vez) F.felirat("Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
+}
+/* Rajt: Garas egyszer végigírja a 213 · 3-at (recept ⑥), a gyerek átugorhatja */
+function irBemutat(JL) {
+  var x = JL.f.ir, f = JL.f, d = irFuzetDoboz(false);
+  d.innerHTML = '<div class="ir-gombok"><button type="button" class="nagy-gomb ir-at">Most én! ▶</button></div>';
+  $("buborek-feladat").innerHTML = '<span class="bk-kerdes">Nézd, Garas hogyan szoroz!</span>';
+  irPoz(JL, "ir");
+  jlRajz(); irPoz(JL, "ir");
+  var F = fzLap(d, irSzorzas(213, 3, { talca: true }), { mod: "gep", talca: true, oldalt: true });
+  d._F = F; irKepAt(F); jlRajz(); irPoz(JL, "ir");
+  function tovabb() {
+    if (!JL || JL.f !== f) return;
+    irKepVissza(); F.torol(); d.innerHTML = ""; d._F = null;
+    try { speechSynthesis.cancel(); } catch (e) {}
+    irPoz(JL, "var");
+    $("buborek-feladat").innerHTML = f.kartyaHTML;
+    irFuzetIndit(JL); mondd(f.felolvas);
+  }
+  d.querySelector(".ir-at").addEventListener("click", function () { hangGomb(); F.allj(); tovabb(); });
+  mondd("Nézd, így szorzok írásban!", function () {
+    if (!JL || JL.f !== f || !F.gyoker.isConnected) return;
+    F.lejatsz(function () { if (JL && JL.f === f) { irPoz(JL, "orul"); var b = d.querySelector(".ir-at"); if (b) b.textContent = "Most te jössz! ▶"; } });
+  });
+}
+
+/* ═════════════════ A PÁLYA-KÉP: a torony belseje, csigalépcső, asztalok (rajzterv 3.) ═════════════════ */
+function irAsztalSVG(x, y, nev) {
+  var w = nev.length * 8.2 + 26;
+  return '<g transform="translate(' + pcF(x) + ' ' + pcF(y) + ')"><path d="M-38 0V34M38 0V34" stroke="' + GA_INK + '" stroke-width="6"/><path d="M-38 0V34M38 0V34" stroke="#b07a4c" stroke-width="3"/>' +
+    '<rect x="-46" y="-8" width="92" height="11" rx="3" fill="#c99668" stroke="' + GA_INK + '" stroke-width="2.4"/>' +
+    '<g transform="translate(-26 -20) rotate(-3)"><path d="M0 12L22 9L44 12V0L22 -3L0 0Z" fill="url(#ga-kocka)" stroke="' + GA_INK + '" stroke-width="1.8"/><path d="M22 -3V9" stroke="#bfae9a" stroke-width="1.6"/></g>' +
+    '<path d="M32 -8V-26" stroke="' + GA_INK + '" stroke-width="2"/><path d="M25 -26H39L35 -37H29Z" fill="#ffe08a" stroke="' + GA_INK + '" stroke-width="1.8"/>' +
+    '<g transform="translate(0 52)"><rect x="' + (-w / 2) + '" y="-12" width="' + w + '" height="24" rx="10" fill="#fff" stroke="#c9a476" stroke-width="2"/><text y="5" font-size="13" ' + VS_F + ' fill="#5a3f2a" text-anchor="middle" font-weight="600">' + kiiras(nev) + '</text></g></g>';
+}
+function irLepcsoJelenetSVG(palya, c) {
+  var n = palya.allomasok.length;
+  return osvenyVaz(palya, c, {
+    hatter: '<defs>' + GA_DEFS + '</defs><rect width="1200" height="560" fill="url(#ga-fal)"/>' +
+      '<path d="M0 80H1200M0 170H1200M0 260H1200M0 350H1200M0 440H1200M140 0V80M520 80V170M300 170V260M760 260V350M420 350V440M900 0V80M980 170V260M120 260V350M1060 350V440" stroke="#dccbb0" stroke-width="2"/>' +
+      '<g>' + [[200, 120], [1010, 210], [620, 70]].map(function (a) { return '<path d="M' + (a[0] - 16) + ' ' + (a[1] + 30) + 'V' + (a[1] - 8) + 'Q' + a[0] + ' ' + (a[1] - 32) + ' ' + (a[0] + 16) + ' ' + (a[1] - 8) + 'V' + (a[1] + 30) + 'Z" fill="#cfe3f7" stroke="' + GA_INK + '" stroke-width="2.6"/><path d="M' + (a[0] - 16) + ' ' + (a[1] + 30) + 'H' + (a[0] + 16) + '" stroke="#b9a99a" stroke-width="6"/>'; }).join("") + '</g>' +
+      '<path d="M0 520H1200V560H0Z" fill="#e3c29a"/><path d="M0 520H1200" stroke="' + GA_INK + '" stroke-width="2.4"/>',
+    ut: function (d) {   /* a csigalépcső: fa sáv, fokokkal */
+      return '<path d="' + d + '" transform="translate(4 12)" fill="none" stroke="#6e4329" stroke-width="50" stroke-linecap="round" opacity=".18"/>' +
+        '<path d="' + d + '" fill="none" stroke="' + GA_INK + '" stroke-width="50" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="#d9a874" stroke-width="44" stroke-linecap="round"/>' +
+        '<path d="' + d + '" fill="none" stroke="#b07a4c" stroke-width="44" stroke-dasharray="3 17"/>';
+    },
+    elotte: function (px, py) {
+      var s = '<g transform="translate(' + px[0] + ',' + (py[0] + 34) + ')"><rect x="-34" y="-15" width="68" height="30" rx="12" fill="#fff" stroke="#c9a476" stroke-width="2.5"/><text y="5" font-size="14" ' + VS_F + ' fill="#5a3f2a" text-anchor="middle">Rajt</text></g>';
+      for (var a = 1; a < n - 1; a++) s += irAsztalSVG(px[a] + 70, py[a] - 30, palya.allomasok[a].nev);
+      s += '<g transform="translate(' + (px[0] + 70) + ' ' + (py[0] - 150) + ') scale(.42)">' + garasPoz("mutat") + '</g>';
+      return s;
+    },
+    odu: { felirat: { font: VS_F } },
+    pipa: function (b, px, py) { return b > 0 && b < n - 1 ? [px[b] + 70, py[b] - 92] : [px[b], py[b]]; }
+  });
+}
+
+/* ═════════════════ A PIACTÉREN: a torony (rajzterv 2.: zárva · hív · folyik · kész) ═════════════════ */
+var IR_TORONY_K = .42;
+function irTerkepTorony(lepes, J) {
+  var all = J.all === "alszik" || J.all === "zarva" ? "zart" : J.vil ? "uj" : J.all === "kesz" || lepes >= 6 ? "kesz" : "folyik";
+  var eg = all === "kesz" ? 8 : all === "folyik" ? Math.max(1, Math.min(7, Math.round((lepes - 1) * 8 / 6))) : 0;
+  return '<defs>' + GA_DEFS + '</defs><g transform="translate(' + (-100 * IR_TORONY_K) + ' ' + (-362 * IR_TORONY_K) + ') scale(' + IR_TORONY_K + ')"' + (all === "zart" ? ' style="filter:saturate(.55)"' : '') + '>' + gaTorony(all, eg) + '</g>';
 }
 /* ============ 6j5) 📸 ALBUM-ELEMEK: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv) ============
    Forrás: Matekos/fotogep-album-rajzterv.html (✅ 2026-10-25) közös <defs>-e. Minden rajz EGY helyen él, a foto.js és az

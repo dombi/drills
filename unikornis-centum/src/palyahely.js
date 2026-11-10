@@ -129,15 +129,17 @@ function phHalo(m) {   /* ✨ újonc-fény: ide hív az unikornis */
   return '<ellipse cx="0" cy="' + pcF(-m * .55) + '" rx="' + pcF(m * .95) + '" ry="' + pcF(m * .85) + '" fill="url(#lt-gNyHalo)" pointer-events="none">' + (lkCsokkent() ? '' : ltAnim("opacity", ".55;1;.55", "2.4s")) + '</ellipse>';
 }
 /* a hely közös burka (minden hely-fajta ezt kapja): fény, alvás + köd, koppintható keret, cégér a tetőn
-   rajz = { svg, felso, bal, jobb, magas } a hely saját rajza (talppont 0,0); k = { x, y, k } a helye a képen */
+   rajz = { svg, felso, bal, jobb, magas } a hely saját rajza (talppont 0,0); k = { x, y, k, ceger } a helye a képen
+   (ceger: a cégér saját nagysága a házhoz képest, pl. .75 — ha a felirat másba lógna; a ház mérete nem változik) */
 function phBurok(id, nev, J, rajz, k) {
-  var alszik = J.all === "alszik", m = rajz.magas, cm = phCegerMeret(nev);
+  var alszik = J.all === "alszik", m = rajz.magas, cm = phCegerMeret(nev), ck = k.ceger || 1;
+  var cgSz = function (svg) { return ck === 1 ? svg : '<g transform="translate(0 ' + pcF(rajz.felso) + ') scale(' + ck + ') translate(0 ' + pcF(-rajz.felso) + ')">' + svg + '</g>'; };
   var felsoKeret = rajz.felso - 20 - cm.H - (J.all === "kesz" || J.all === "arany" ? 48 : 30);
   var balKeret = Math.min(rajz.bal, -cm.W / 2 - 30), jobbKeret = Math.max(rajz.jobb, cm.W / 2 + 14);
   var s = '<g class="ph-hely' + (J.all === "hamarosan" ? ' ph-hamar' : '') + '" data-id="' + kiiras(id) + '" transform="translate(' + pcF(k.x) + ' ' + pcF(k.y) + ') scale(' + (k.k || 1) + ')"><g class="pc-rezeg">';
   s += '<rect class="ph-kopp" x="' + pcF(balKeret) + '" y="' + pcF(felsoKeret) + '" width="' + pcF(jobbKeret - balKeret) + '" height="' + pcF(14 - felsoKeret) + '" rx="10" fill="transparent"/>';
   if (J.vil && !alszik && J.all !== "hamarosan") s += phHalo(m);
-  s += '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + phCegerLab(nev, rajz.felso) + rajz.svg + phCeger(nev, 0, rajz.felso - 20 - cm.H / 2, J, id) + '</g>';
+  s += '<g' + (alszik ? ' filter="url(#pc-alszik)" opacity=".72"' : '') + '>' + cgSz(phCegerLab(nev, rajz.felso)) + rajz.svg + cgSz(phCeger(nev, 0, rajz.felso - 20 - cm.H / 2, J, id)) + '</g>';
   if (alszik) s += phKod(m);
   return s + '</g></g>';
 }
@@ -200,10 +202,11 @@ function phBode(sz, aru, J) {
 /* ── 🏠 ház (Pálya-hely B kör, 2026-10-25): a Piactér mai házrajza (piac.js piacHaz, az építési fokokkal), rajta a közös jelek ──
    tipus: bolt | letra | csalad · lepes 0–6 (piacHazLepes) · zárva: lakat az ajtón · mára elég: hold · épül: csak a váz (2. fok) */
 var PH_HAZ = { letra: { felso: -142, szel: 52, ajto: [0, -12] }, csalad: { felso: -102, szel: 70, ajto: [34, -18] }, bolt: { felso: -102, szel: 70, ajto: [22, -20] },
-  zsib: { felso: -112, szel: 66, ajto: [-6, -34], cel: [-86, 20] } };   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
+  zsib: { felso: -112, szel: 66, ajto: [-6, -34], cel: [-86, 20] },
+  irasbeli: { felso: -158, szel: 30, ajto: [0, -14], cel: [44, 8] } };   /* ✍️ Garas tornya (irasbeli.js irTerkepTorony) */   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
 function phHaz(tipus, lepes, J) {
   var g = PH_HAZ[tipus], hamar = J.all === "hamarosan";
-  var s = tipus === "zsib" ? zsTerkepStand() : piacHaz(tipus, hamar ? 2 : lepes, false);
+  var s = tipus === "zsib" ? zsTerkepStand() : tipus === "irasbeli" ? irTerkepTorony(lepes, J) : piacHaz(tipus, hamar ? 2 : lepes, false);
   if (J.all === "zarva") s += phLakat(g.ajto[0], g.ajto[1]);
   if (J.all === "elfogyott") s += phHold(g.ajto[0], g.ajto[1] - 4, .9);
   return { svg: s, felso: hamar ? g.felso + 6 : g.felso, bal: -g.szel - 14, jobb: g.szel + (tipus === "letra" ? 20 : 14), magas: -g.felso };

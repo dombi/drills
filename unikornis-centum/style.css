@@ -3413,3 +3413,31 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .fzp-g.akt{ background:#8a4fd0; border-color:#8a4fd0; color:#fff; }
 .fzp-v{ color:#cbbfe0; }
 .fzp-lap{ max-width:1100px; margin:10px auto 0; }
+
+/* ✍️ Garas tornya (irasbeli.js): a füzet a kép alatt */
+.ir-fuzet-doboz{ margin:6px auto 0; max-width:1000px; }
+.ir-gombok{ display:flex; justify-content:center; margin-bottom:6px; }
+.jl-panel .ir-garas{ cursor:pointer; }
+.jl-panel.ir-be .jl-kep{ width:min(100%, 660px); }   /* a toronyban a füzet a fő: a kép csak egy sáv fölötte */
+
+/* 📓 a füzet OLDALT-elrendezése (fuzet.js o.oldalt): széles képernyőn egy képernyőn elfér, görgetés nélkül (a producer, 11-10: 1280 × 720) */
+@media (min-width:900px){
+  .fz.fz-oldalt{ display:grid; grid-template-columns:auto minmax(300px, 1fr); grid-template-rows:auto auto auto 1fr;
+    grid-template-areas:"lap oldal" "lap felirat" "lap talca" "lap alul"; column-gap:14px; row-gap:8px; align-items:start; }
+  .fz-oldalt .fz-asztal{ display:contents; }
+  .fz-oldalt .fz-lapdoboz{ grid-area:lap; }
+  .fz-oldalt .fz-lap{ height:var(--fz-mag, calc(100vh - 150px)); width:auto; max-width:min(56vw, 640px); max-height:none; }
+  .fz-oldalt .fz-oldal{ grid-area:oldal; }
+  .fz-oldalt .fz-felirat{ grid-area:felirat; min-height:0; font-size:16px; }
+  .fz-oldalt .fz-talcadoboz{ grid-area:talca; min-width:0; }
+  .fz-oldalt .fz-talca{ max-height:30vh; width:auto; max-width:100%; margin:0 auto; }
+  .fz-oldalt .fz-alul{ grid-area:alul; justify-content:flex-start; }
+  .fz-oldalt .fz-oldal .jl-kep{ width:100%; max-width:440px; margin:0; }
+  .fz-oldalt .fz-oldal .jl-kep svg{ max-height:22vh; width:100%; }
+  .fz-oldalt .fz-oldal .ir-gombok{ justify-content:flex-start; margin:6px 0 0; }
+  .fz-oldalt .fz-oldal .ir-gombok .nagy-gomb{ padding:8px 18px; font-size:18px; }
+  /* a toronyban a buborék szélesebb és alacsonyabb: a lap a képernyő magasságát kapja */
+  #kepernyo-jatek.bk-be .bagoly-buborek:has(.jl-panel.ir-be){ width:min(98vw, 1240px); }
+  .bagoly-buborek:has(.jl-panel.ir-be) .buborek-feladat{ margin-bottom:2px; }
+  .bagoly-buborek:has(.jl-panel.ir-be) #halld-ujra{ display:none; }
+}

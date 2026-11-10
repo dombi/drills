@@ -1988,6 +1988,7 @@ function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
+  if (palya.hely === "irasbeli") return irLepcsoJelenetSVG(palya, c);   /* ✍️ Garas tornya: a torony belseje, csigalépcső asztalokkal (irasbeli.js) */
   if (palya.vasar || palya.piac || palya.jelenet) return vasarJelenetSVG(palya, c);   /* 🧺 Tündérvásár + 🏪 a bolt: sátrak a vásártéren (vasar.js; a bolt színei: bolt-kep.js) */
   return osvenyVaz(palya, c, {
     hatter: erdoHatterSVG(),

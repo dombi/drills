@@ -159,7 +159,8 @@ var PIAC_HAZAK = {
   zsib:   { x: 548, y: 262, nev: "Zsivány zsibvására", tipus: "zsib", k: 1 },   /* 🦊 a volt üres telken (zsib.js; recept-lap 1A) */
   csalad: { x: 748, y: 238, nev: "Számcsalád", tipus: "csalad", k: .66 },   /* 🏡 a C körben nyílik (még épül) */
   letra:  { x: 640, y: 300, nev: "Rokon-létra", tipus: "letra", k: .8, palya: "rokon-letra" },   /* 🪜 Pálya-hely B kör (letra.js) */
-  bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt" }   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
+  bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt", ceger: .7 },   /* a cégér kisebb (11-10): ne takarja a dombon Garas tornyát */   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
+  irasbeli: { x: 238, y: 134, nev: "Garas tornya", tipus: "irasbeli", k: .5 }   /* ✍️ a domboldalon, a Déli vásár mellett (irasbeli.js; recept-lap 7. döntés A) — a dombság csírája */
 };
 var PIAC = null;   /* a kirakott falutérkép: { svg, uni: { hely, el, x, y }, fut } */
 var PIAC_HONNAN = null;   /* a Vásárból jött vissza („← Piactér”): az unikornis a sátor előtt áll */
@@ -253,11 +254,11 @@ function piacTer(lista, vasarLista) {
   /* házak hátulról előre (Pálya-hely B kör, 2026-10-25): a ház = a pálya, cégérrel és a közös jelekkel (palyahely.js phBurok + phHaz);
      a ház állapota a gyerek haladásából (piacHazLepes); amelyik háznak még nincs pályája, az épül (🔜 váz + „épül!”) */
   var hazPa = {}, hazJ = {};
-  ["csalad", "zsib", "letra", "bolt"].forEach(function (id) {
+  ["irasbeli", "csalad", "zsib", "letra", "bolt"].forEach(function (id) {   /* hátulról előre: a torony a dombon áll */
     var h = H[id], tobb = (h.palyak || (h.palya ? [h.palya] : [])).map(function (pid) { return (lista.filter(function (r) { return r.pa.id === pid; })[0] || {}).pa; }).filter(Boolean);
     var pa = tobb[0] || null, J = tobb.length > 1 ? pcTobbJel(tobb) : pa ? palyaJelek(pa) : { all: uj ? "alszik" : "hamarosan", ertek: 0, nincsCetli: true };
     hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra a közelkép, a tárgy a bejárat (pcValaszto) */
-    s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k }) + '</g>';
+    s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k, ceger: h.ceger }) + '</g>';
   });
   var vil = !!bolt && hazJ.bolt.vil && hazJ.bolt.all !== "alszik";
   /* 🧺 a Tündérvásár sátra (beköltözött): újonc-köd → alszik; a pult mindet lezárta → zárva; világít, ha oda hív az unikornis */

@@ -92,7 +92,9 @@ MODULES = [
     "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
     "irasbeli-gen.js",    # 6j4b) ✍️ írásbeli műveletek: a mondóka-gyártó (irGyart → a füzetlap: kiosztás, célok, tankönyvi lépések + tálca-mozdulatok)
     "fuzet.js",           # 6j4c) 📓 a közös füzet-modul: kockás lap, ceruza (jegy · pont · vessző · vonal), radír, ellenőrzés, gép ír, ?fuzetproba
+    "garas.js",           # 6j4d) 🐾 Garas, a nyest (képregényes, 7 póz) + a torony kívülről — rajzterv: terv/irasbeli-haz-rajzterv.html
     "keret.js",           # 6j4) 🪧 tárgy-keret: a feladat egy tárgyon a képben (🪜 fok, 🖍️ tábla, ↷ ugrás) — közös készlet, a pálya csak megnevezi
+    "irasbeli.js",        # 6j4e) ✍️ Garas tornya: ✖️ írásbeli szorzás (GEN.irszor, JELENETEK.irszor, csigalépcső-kép, a torony a Piactéren)
     "album-elemek.js",    # 6j5) 📸 album-elemek: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör
     "kaland.js",          # 6l) 🗺️ kalandtérkép: a kissárkány nyomában (12 táj, felhőfújás, nyomok, képeslap-album, bagoly) — visszahívás 4. kör

@@ -118,3 +118,27 @@ RECEPT({
     { nev: "Odú-küszöb", max: 100, beir: true, darab: 4, cel: true }
   ]
 });
+
+/* ══ ✍️ GARAS TORNYA — ✖️ ÍRÁSBELI SZORZÁS (2. kör, 2026-11-09; kép + feladat: irasbeli.js · füzet: fuzet.js · lap: irasbeli-gen.js) ══
+   Recept-lap: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅).
+   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (becsül → számol → ellenőriz); az 1–2. asztalnál a tallér-tálcán
+   viszi át a 10-es köteget. A torony a Piactér szélén, a domboldalon (a Déli vásár mellett). A Szorzódallam első végigvitele után ébred
+   (3. o.-tól), 5. o.-tól nyitva. Rajt: Garas egyszer végigírja a 213 · 3-at (átugorható). 3 feladat / asztal (5. döntés A).
+   A kétjegyű szorzó 4. o.-tól: 3. o.-ban ezen az asztalon is egyjegyű szorzó jön (irSzamok). */
+RECEPT({
+  id: "irasbeli-szorzas", nev: "Írásbeli szorzás", ikon: "✖️", regio: "piac", hely: "irasbeli",
+  palcim: "becsülj · számolj · ellenőrizz",
+  nyit: { utan: "szorzo-dallam", osztaly: [3, 4] },
+  alap: { tipus: "irszor" },
+  darabFix: true,
+  segit: ["kep", "tallertalca", "mondoka"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Átvitel nélkül", forma: "egy", atvitel: 0, darab: 3, talca: true, jelol: true, bemutat: true },
+    { nev: "Átvitellel", forma: "egy", atvitel: 1, darab: 3, talca: true, jelol: true },
+    { nev: "Több helyen átvitel", forma: "tobb", darab: 3 },
+    { nev: "Nullák", forma: "nulla", darab: 3 },
+    { nev: "Kétjegyű szorzó", forma: "ket", darab: 3 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 3, cel: true, halvany: true }
+  ]
+});
