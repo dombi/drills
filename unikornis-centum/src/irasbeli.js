@@ -188,6 +188,7 @@ function irBemutat(JL) {
     irFuzetIndit(JL); mondd(f.felolvas);
   }
   d.querySelector(".ir-at").addEventListener("click", function () { hangGomb(); F.allj(); tovabb(); });
+  irTovabbLink(F, d);   /* MRZS: a bemutatónál is (a producer, 11-10) */
   mondd(osz ? "Nézd, így osztok írásban!" : "Nézd, így szorzok írásban!", function () {
     if (!JL || JL.f !== f || !F.gyoker.isConnected) return;
     F.lejatsz(function () { if (JL && JL.f === f) { irPoz(JL, "orul"); var b = d.querySelector(".ir-at"); if (b) b.textContent = "Most te jössz! ▶"; } });
