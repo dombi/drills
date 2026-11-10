@@ -24393,6 +24393,8 @@ function piacTer(lista, vasarLista) {
     hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra a közelkép, a tárgy a bejárat (pcValaszto) */
     s += '<g class="pc-hely pc-haz" data-id="' + id + '">' + phBurok(pa ? pa.id : id, h.nev, J, phHaz(h.tipus, pa ? piacHazLepes(pa.id) : 2, J), { x: h.x, y: h.y, k: h.k, ceger: h.ceger }) + '</g>';
   });
+  /* ✍️ a torony a bolt MÖGÖTT áll, de a bolt koppintó-kerete felér a torony aljáig: a torony fölé egy saját, átlátszó koppintó-réteg (a producer, 11-10) */
+  s += '<g class="pc-hely" data-id="irasbeli" style="cursor:pointer"><rect x="' + (H.irasbeli.x - 20) + '" y="' + (H.irasbeli.y - 96) + '" width="44" height="104" fill="transparent"/></g>';
   var vil = !!bolt && hazJ.bolt.vil && hazJ.bolt.all !== "alszik";
   /* 🧺 a Tündérvásár sátra (beköltözött): újonc-köd → alszik; a pult mindet lezárta → zárva; világít, ha oda hív az unikornis */
   /* a saját bejáratú pályák (piacHely, pl. a ☀️ Déli vásár a dombon) nem a sátorban vannak */
