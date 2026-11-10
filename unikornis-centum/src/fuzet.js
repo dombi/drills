@@ -274,6 +274,7 @@ function fzJegy(F, d) {
     if (m && !mKesz) { if (c + 1 <= m.c1 && !fzGepTartalom(F, fzKulcs(r, c + 1))) F.akt = { r: r, c: c + 1 }; }
     else if (kov && kov.tip === "szam") F.akt = { r: kov.r, c: kov.c };
     else if (!F.o.jelol || m) { var nc = c + (m ? 1 : F.T.lep); if (nc >= 0 && nc < F.T.osz && !fzGepTartalom(F, fzKulcs(r, nc)) && !F.mezoK[fzKulcs(r, nc)] === !m) F.akt = { r: r, c: nc }; }
+    if (!m && !(F.o.jelol && kov)) fzCsoportLep(F, r, c);   /* többjegyű szám (pl. 4-szer 6, meg 2 = 26): az elejére, onnan jobbra (a producer, 11-10) */
   }
   fzLepesFrissit(F);
   fzRajz(F);
@@ -594,4 +595,19 @@ function fzProbaNyit() {
     try { speechSynthesis.cancel(); } catch (x) {}
     fzProbaNyit();
   };
+}
+/* a ceruza a többjegyű számon (irasbeli-gen.js celSzam: grp): ha a most írt jegy egy szám közepén van, a következő jegye jobbra jön;
+   ha a ceruza egy többjegyű szám (pl. az utolsó részletszorzat „26”-ja) valamelyik kockájára lépne, a szám ELEJÉRE ugrik — ahogy kézzel írjuk */
+function fzCsoportLep(F, r, c) {
+  var most = F.vart[fzKulcs(r, c)];
+  function csop(g) { return F.T.celok.filter(function (x) { return x.grp === g && x.tip === "szam"; }).sort(function (a, b) { return a.c - b.c; }); }
+  if (most && most.grp != null) {
+    var g = csop(most.grp), i = g.indexOf(most);
+    if (i >= 0 && i < g.length - 1) { F.akt = { r: g[i + 1].r, c: g[i + 1].c }; return; }
+  }
+  var cel = F.akt && F.vart[fzKulcs(F.akt.r, F.akt.c)];
+  if (cel && cel.grp != null && cel !== most && !(most && most.grp === cel.grp)) {
+    var g2 = csop(cel.grp), elso = g2.filter(function (x) { var y = F.k[fzKulcs(x.r, x.c)]; return !(y && y.v); })[0] || g2[0];
+    if (elso.c < cel.c) F.akt = { r: elso.r, c: elso.c };
+  }
 }

@@ -71,7 +71,8 @@ IrTerv.prototype.cel = function (r, c, v, tip, o) {
 /* egy szám jegyei balról jobbra (ahogy kézzel leírjuk), a végük a cVeg oszlopban */
 IrTerv.prototype.celSzam = function (r, cVeg, n, o) {
   var s = String(n), T = this;
-  s.split("").forEach(function (ch, i) { T.cel(r, cVeg - s.length + 1 + i, ch, "szam", o); });
+  var g = s.length > 1 ? (T.grpN = (T.grpN || 0) + 1) : null;   /* többjegyű szám: a ceruza az elejére ugrik, onnan jobbra (fuzet.js) */
+  s.split("").forEach(function (ch, i) { var x = T.cel(r, cVeg - s.length + 1 + i, ch, "szam", o); if (g) x.grp = g; });
 };
 /* szabad helyű szám (becslés): a span bármely kockáiba írhatja, egybeolvasva kell egyezzen; a célok a javasolt helyek */
 IrTerv.prototype.mezo = function (r, c0, c1, n, cVeg) {
