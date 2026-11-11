@@ -12,12 +12,12 @@
    ⏭️ Később (2–3. kör): rövid forma, mellékszámítás (34·5 / 34·6), hiányos szorzás, hibakereső változat. */
 
 var IR_HELY = [   /* helyiérték: rövid jel (a fejléc) · név · tárgyeset · „-ban/-ben” · „-sal/-sel” · többes szám (a mondóka teljes névvel szól) */
-  { j: "e", n: "egyes", t: "egyest", ban: "egyesben", sal: "egyessel", ek: "egyesek" },
-  { j: "t", n: "tízes", t: "tízest", ban: "tízesben", sal: "tízessel", ek: "tízesek" },
-  { j: "sz", n: "százas", t: "százast", ban: "százasban", sal: "százassal", ek: "százasok" },
-  { j: "E", n: "ezres", t: "ezrest", ban: "ezresben", sal: "ezressel", ek: "ezresek" },
-  { j: "tE", n: "tízezres", t: "tízezrest", ban: "tízezresben", sal: "tízezressel", ek: "tízezresek" },
-  { j: "szE", n: "százezres", t: "százezrest", ban: "százezresben", sal: "százezressel", ek: "százezresek" }
+  { j: "e", n: "egyes", t: "egyest", ban: "egyesben", sal: "egyessel", ek: "egyesek", hoz: "egyesekhez", hoz1: "egyeshez" },
+  { j: "t", n: "tízes", t: "tízest", ban: "tízesben", sal: "tízessel", ek: "tízesek", hoz: "tízesekhez", hoz1: "tízeshez" },
+  { j: "sz", n: "százas", t: "százast", ban: "százasban", sal: "százassal", ek: "százasok", hoz: "százasokhoz", hoz1: "százashoz" },
+  { j: "E", n: "ezres", t: "ezrest", ban: "ezresben", sal: "ezressel", ek: "ezresek", hoz: "ezresekhez", hoz1: "ezreshez" },
+  { j: "tE", n: "tízezres", t: "tízezrest", ban: "tízezresben", sal: "tízezressel", ek: "tízezresek", hoz: "tízezresekhez", hoz1: "tízezreshez" },
+  { j: "szE", n: "százezres", t: "százezrest", ban: "százezresben", sal: "százezressel", ek: "százezresek", hoz: "százezresekhez", hoz1: "százezreshez" }
 ];
 /* névelő a szám elé, a kiejtés szerint: az 1, 5, 50, 500, 1000 („egy”, „öt”, „ötven”, „ezer”) — a 10, 100 elé „a” */
 function irAz(n) { var s = String(n); return (s[0] === "5" || (s[0] === "1" && (s.length === 1 || s.length === 4 || s.length === 7))) ? "az" : "a"; }
@@ -340,5 +340,111 @@ function irFelvaltSor(fent, elo) {
   return muv;
 }
 
-/* egy helyen hívható gyártó: muv "szor" | "oszt" */
-function irGyart(muv, a, b, o) { return muv === "oszt" ? irOsztas(a, b, o) : irSzorzas(a, b, o); }
+/* ═════════════════ ➕➖ ÍRÁSBELI ÖSSZEADÁS ÉS KIVONÁS (Déli vásár, 1. kör: 2026-11-11) ═════════════════
+   Terv: terv/deli-vasar-fuzet-tervlap.html (② könyvek, ⑦ hiányzó elem; döntések: 1A pótlás, 2A a gyerek ír alá, 3A terv-sor).
+   A lap sorai: [terv-sor] · [B: becslés] · E sz t e fejléc · a tagok (a GYEREK írja egymás alá: „ala” lépés tagonként) · vonal · eredmény.
+   o: { terv (true: üres terv-sor, a füzet másolja bele a gyerek írását · szöveg: a gép írja, pl. bemutatásnál),
+        becsles (alap: igen — százasra, 100 alatt tízesre: 4TA/4TC), talca (összeadásnál a köteg-átvitel; alap: igen) }
+   Kivonás: PÓTLÁSSAL (3TB, 4TB, 4TC, 4TA Manó): „8 egyeshez, hogy 15 egyes legyen, kell 7 egyes…” — az elvétel jegyei ugyanazok,
+   a segédjegyek (fuzet.js ¹) nem számítanak, így azt is elfogadja. A szám elején a 0-t nem írjuk ki (3TB: 1000 − 925 = 75). */
+function irNev(s) { return (/^[aeiouáéíóöőúüű]/i.test(s) ? "az " : "a ") + s; }
+function irLapFej(T, tagok, jel, o) {   /* terv-sor, becslés, fejléc, alá-írás; vissza: az eredmény sora */
+  var U = T.U, W = T.W, r = 0;
+  if (o.terv) { T.terv = { r: 0 }; if (typeof o.terv === "string") T.gepIr(0, 1, o.terv); r++; }
+  if (o.becsles !== false) {
+    var max = Math.max.apply(null, tagok), h = max < 100 ? 10 : 100, kt = tagok.map(function (n) { return Math.round(n / h) * h; });
+    var bec = kt.slice(1).reduce(function (s, x) { return jel === "+" ? s + x : s - x; }, kt[0]), bs = String(bec).length, hn = h === 10 ? "tízesre" : "százasra";
+    T.gepIr(r, 0, "B:", "szoveg");
+    T.lepes("Becslés " + hn + ": " + tagok.map(function (n, i) { return n + " ≈ " + kt[i]; }).join(", ") + ". " + kt.join(" " + jel + " ") + " = " + bec + ". Leírom: " + bec + ".", "becsles", null,
+      "Becslés: kerekítsd a számokat " + hn + ", és " + (jel === "+" ? "add össze" : "vond ki") + "! Írd a B: sorba.");
+    T.mezo(r, 1, Math.max(U, bs) + 1, bec, Math.max(U, bs));
+    T.becsles = bec; r++;
+  }
+  T.fejlec(r, U, W); r++;
+  T.alaSorok = [];
+  tagok.forEach(function (n, i) {
+    var s = String(n), nev = irJegyek(n).map(function (d, j) { return d + " " + IR_HELY[s.length - 1 - j].n; }).join(", ");
+    T.lepes("Leírom: " + n + ". " + nev + " — mindegyik a maga oszlopába, az egyesek az egyesek alá.", "ala", null,
+      "Írd le a " + (i ? "következő " : "") + "számot: " + n + ". Az egyesek az egyesek alá!");
+    T.celSzam(r, U, n);
+    T.alaSorok.push(r);
+    if (i === tagok.length - 1) { T.cel(r, 0, jel, "jel", { auto: true, kell: false }); T.cel(r, 1, null, "vonal", { c1: U, kell: false }); }
+    r++;
+  });
+  return r;
+}
+function irOsszeadasLap(tagok, o) {
+  o = o || {};
+  var T = new IrTerv("ossz", tagok[0], tagok[1]), ered = tagok.reduce(function (s, x) { return s + x; }, 0);
+  T.tagok = tagok.slice(); T.ered = ered; T.W = String(Math.max(ered, Math.max.apply(null, tagok))).length; T.U = T.W;
+  var r = irLapFej(T, tagok, "+", o), U = T.U, atv = 0, tal = o.talca !== false ? {} : null;
+  for (var p = 0; p < T.W; p++) {
+    var jegyek = tagok.filter(function (x) { return x >= Math.pow(10, p); }).map(function (x) { return Math.floor(x / Math.pow(10, p)) % 10; });
+    var sum = jegyek.reduce(function (s, d) { return s + d; }, 0), x = sum + atv, H = IR_HELY[p], Hk = IR_HELY[p + 1] || H, utolso = Math.pow(10, p + 1) > ered;
+    var tag = jegyek.join(" + ") + (atv ? " + " + atv : ""), tiz = Math.floor(x / 10), egy = x % 10, db = jegyek.length + (atv ? 1 : 0), mm, kk;
+    if (db <= 1) { mm = "Leírom " + irAz(x) + " " + x + " " + H.t + "."; kk = irNagy(H.ek) + ": " + (jegyek.length ? "itt csak egy jegy van. Mi kerül alá?" : "csak a továbbvitt szám. Mi kerül alá?"); }
+    else {
+      mm = tag + " = " + x + " " + H.n + (x >= 10 ? " = " + tiz + " " + Hk.n + " + " + egy + " " + H.n : "") + ".";
+      if (utolso && x >= 10) mm += " Leírom: " + tiz + " " + Hk.n + " és " + egy + " " + H.n + ".";
+      else if (x >= 10) mm += " Leírom " + irAz(egy) + " " + egy + " " + H.t + ", " + irAz(tiz) + " " + tiz + " " + Hk.t + " továbbviszem " + irNev(Hk.hoz) + ".";
+      else mm += " Leírom.";
+      kk = irNagy(H.ek) + ": " + tag + " = ?";
+    }
+    T.lepes(mm, "szamol", null, kk);
+    if (utolso) T.celSzam(r, U - p, x); else T.cel(r, U - p, egy);
+    if (tal) { var muv = [{ t: "hozzaad", p: p, n: sum }]; for (var k = 0; k < tiz && !utolso; k++) muv.push({ t: "koteg", p: p }); tal = T.talca(tal, muv); }
+    atv = tiz;
+    if (utolso) break;
+  }
+  T.lepes("Kész: " + tagok.join(" + ") + " = " + ered + ".", "szamol");
+  T.hely(r, 0);
+  return T;
+}
+function irKivonasLap(a, b, o) {
+  o = o || {};
+  var T = new IrTerv("kiv", a, b), ered = a - b;
+  T.tagok = [a, b]; T.ered = ered; T.W = String(a).length; T.U = T.W;
+  var r = irLapFej(T, [a, b], "−", o), U = T.U, atv = 0;
+  for (var p = 0; p < T.W; p++) {
+    var ap = Math.floor(a / Math.pow(10, p)) % 10, bp = b >= Math.pow(10, p) ? Math.floor(b / Math.pow(10, p)) % 10 : null;
+    var H = IR_HELY[p], Hk = IR_HELY[p + 1] || H, L = (bp || 0) + atv, d, mm, kk, eleje = p > 0 && Math.pow(10, p) > ered;
+    var lki = bp != null && atv ? bp + " + " + atv : String(L);
+    if (bp == null && !atv) {
+      d = ap; mm = "Itt alul nincs semmi: leírom " + irAz(ap) + " " + ap + " " + H.t + ".";
+      kk = irNagy(H.ek) + ": alul nincs semmi. Mi kerül alá?";
+    } else {
+      var cel = L <= ap ? ap : ap + 10; d = cel - L;
+      mm = (bp != null && atv ? bp + " + " + atv + " = " + L + " " + H.n + ". " : "") + L + " " + H.hoz1 + ", hogy " + cel + " " + H.n + " legyen, kell " + d + " " + H.n + ".";
+      mm += eleje && d === 0 ? " A szám elejére 0-t nem írunk." : " Leírom " + irAz(d) + " " + d + " " + H.t + (cel > 9 ? "," : ".");
+      if (cel > 9) mm += (eleje && d === 0 ? " Az" : " az") + " 1 " + Hk.t + " hozzáadom a kivonandóban " + irNev(Hk.hoz) + ".";
+      kk = irNagy(H.ek) + ": alul " + lki + ", fent " + ap + ". Mennyi kell még?";
+      atv = cel > 9 ? 1 : 0;
+    }
+    T.lepes(mm, "szamol", null, kk);
+    if (eleje && d === 0) T.cel(r, U - p, "0", "szam", { opc: true });
+    else T.cel(r, U - p, d);
+  }
+  T.lepes("Kész: " + a + " − " + b + " = " + ered + ".", "szamol");
+  T.hely(r, 0);
+  return T;
+}
+/* a TERV-SOR (fuzet.js): üres sor, a gyerek írja a tervet jellel (3845 + 2850 =); o.ered: fejben számolt lépés — az eredmény az = után */
+function irTervLap(o) {
+  o = o || {};
+  var T = new IrTerv("terv", 0, 0);
+  T.terv = { r: 0, nyitott: o.ered == null }; T.lep = 1;
+  T.hely(0, (o.osz || 16) - 1);
+  if (o.ered != null) {
+    T.ered = o.ered; T.tervEredCel = true;
+    T.lepes("Fejben: " + o.ered + ".", "szamol", null, "Számold ki fejben, és írd az = után!");
+    T.celSzam(0, o.eredC + String(o.ered).length - 1, o.ered);
+  }
+  return T;
+}
+
+/* egy helyen hívható gyártó: muv "szor" | "oszt" (a, b) · "ossz" (a: a tagok listája) · "kiv" (a, b) */
+function irGyart(muv, a, b, o) {
+  if (muv === "ossz") return irOsszeadasLap(a, o);
+  if (muv === "kiv") return irKivonasLap(a, b, o);
+  return muv === "oszt" ? irOsztas(a, b, o) : irSzorzas(a, b, o);
+}
