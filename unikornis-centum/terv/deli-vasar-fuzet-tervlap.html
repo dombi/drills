@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Tervlap (stúdió-mód light): részletes lap, rajzterv nincs (új figura és új helyszín nincs). A Garas tornya recept-lapjára épül: terv/irasbeli-haz-recept-lap.html -->
+<title>Déli vásár füzettel</title>
+<style>
+  :root{--bg:#fdf4fb;--panel:#fff;--ink:#2a2140;--muted:#6b6280;--violet:#8a4fd0;--violet-soft:#ece0fb;--green:#3f9e6a;--green-soft:#dff3e7;--line:#efe4f4;--warn:#b86a00;--warn-soft:#fff3dc}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}}
+  :root[data-theme="dark"]{--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:22px 16px 60px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{background:linear-gradient(120deg,#e0a23a,var(--violet));color:#fff;border-radius:20px;padding:20px 22px}
+  header h1{margin:0 0 4px;font-size:25px} header .sub{opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600;margin:8px 6px 0 0}
+  h2{font-size:18px;margin:24px 0 8px;padding-left:10px;border-left:5px solid var(--violet)}
+  h3{font-size:15px;margin:14px 0 4px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+  .ok{background:var(--green-soft);border-color:transparent} .warn{background:var(--warn-soft);border-color:transparent}
+  ul,ol{margin:.3em 0;padding-left:22px} li{margin:.25em 0}
+  table{border-collapse:collapse;width:100%;font-size:14px} .tbl{overflow-x:auto}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top} th{color:var(--muted);font-weight:600}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:13px;line-height:1.35}
+  .dont{border:2px solid var(--violet-soft);border-radius:12px;padding:8px 14px;margin:8px 0;background:var(--panel)}
+  .jav{color:var(--green);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+  <h1>☀️ Déli vásár — írásbeli füzettel</h1>
+  <div class="sub">A Déli vásár szöveges feladataiban a gyerek maga írja a füzetbe a tervet és az írásbeli műveletet, mind a négyet: + − · :. A füzet ugyanaz, mint Garas tornyában (<code>src/fuzet.js</code>). Az összeadás és a kivonás lapja most készül el.</div>
+  <span class="chip">pálya: <code>vasar-4</code> (a dombon)</span><span class="chip">10 000-ig</span><span class="chip">új figura / helyszín nincs → rajzterv sincs</span><span class="chip">nagyság: NAGY (3 kör)</span>
+</header>
+
+<h2>0. Mi van ma, és mi változik?</h2>
+<div class="panel">
+<ul>
+  <li><b>Ma:</b> 6 stand (Kosárrakó · Dobozoló · Árcédula · Hasonlító pult · Nagy vásár · Odú-küszöb), 17 feladat. A gyerek a végeredményt írja be. A füzetbe a <b>gép</b> írja a sorokat (<code>konyvtar-fuzet.js</code>, „Nézd, így kell leírni”). Részeredményre „jó lépés”, rossz tervre csapda-mondat, 2. hibától végigvezetés (<code>vasar.js</code>).</li>
+  <li><b>Új:</b> a füzetet a <b>gyerek</b> írja: ① a terv-sort (melyik szám, melyik művelet), ② ha a lépés „írásbeli méretű”, az írásbeli műveletet is, a tankönyv szerint. A végeredmény a füzetből jön, nincs külön válaszmező.</li>
+  <li><b>Ma is van + és − a Déli vásárban</b>, csak a gép számolja: Nagy vásár (N4p: <code>e + kk</code>), Hasonlító pult („-val több”), Odú-küszöb (U1: <code>x + y</code>, U3: <code>Pz − fizet</code>). Ezek most írásbelivé válnak, és két új stand kifejezetten a + és − műveleté lesz (6. döntés).</li>
+  <li>A csapda-mondatok, a „jó lépés” és a végigvezetés <b>megmaradnak</b>, de a terv-sorhoz kötődnek. Így a játék szét tudja választani: <i>nem értette a szöveget</i> (rossz terv) vagy <i>elszámolta</i> (jó terv, rossz oszlop). Ez az első valódi jel a hiba-oka felismeréshez.</li>
+</ul>
+</div>
+
+<h2>① Mit CSINÁL a gyerek a képen, és mit mutat erre a kép?</h2>
+<div class="panel">
+A gyerek unikornisa a vásári pultnál ül, előtte a füzet (balra, a képernyő teljes magasságában). Jobbra a vevő, a történet, a kép (kosár, cédula, pénz) és az eszközök. A gyerek:
+<ol>
+  <li><b>leírja a tervet</b> a füzet első sorába: <code>5488 − 2826 =</code>. A számokat a történetből veszi, a jelet a ceruzával választja (új: + − · : =). Ha a terv rossz, a <b>kép</b> felel: például „mennyivel több” kérdésnél, ha összeadott, a két kupac egymás mellé áll, és látszik, hogy a különbséget kérdeztük. A vevő csak a csapda-mondatot mondja.</li>
+  <li><b>egymás alá írja</b> a számokat (+ −) az <code>E sz t e</code> fejléc alá. Ez maga is tudás (4TC: „Írd egymás alá helyi értékük szerint”). Ha elcsúszik, az a szám pirosan rezzen.</li>
+  <li><b>kiszámolja</b> jobbról balra, a továbbvitelt kis számmal jelölheti (3TC Edit: „pici szám a tízesek fölé”). × és : esetén a torony lapja jön: a művelet egy sor, a gyerek ír alá.</li>
+  <li>Kész → a végeredmény a terv-sor végére kerül (<code>= 2662</code>), és <b>a kép mozdul</b>: a pénz átmegy a vevőhöz, a kosár megtelik, a cédula kiírja az árat.</li>
+</ol>
+</div>
+
+<h2>② Könyv és munkafüzet: írásbeli összeadás és kivonás</h2>
+<div class="panel">
+<p>Kiolvasva (11-11, pdftotext): OH-MAT03TB, 03TC, 04TA, 04TB, 04TC + 3–4. o. munkafüzetek. A szorzásról és az osztásról szóló rész már a torony lapján van; itt csak a + és a −.</p>
+<div class="tbl"><table>
+<tr><th>Könyv</th><th>Hol</th><th>Mit tanít</th></tr>
+<tr><td>3TB</td><td>93–113. o.</td><td>Írásbeli összeadás 1000-ig: becslés tízesre/százasra → „először az egyeseket” → ellenőrzés a tagok felcserélésével. Lépcső: <b>váltás nélkül → az egyeseknél → a tízeseknél → több helyen</b>; kivonásnál ugyanez + <b>nulla a kivonásban</b> (1000 − 925, „a legnagyobb helyi értéken a 0-t nem írjuk ki”). <b>Mondóka (+):</b> „6 e + 8 e = 14 e = 1 t + 4 e, leírjuk a négyest, az 1 tízest a tízesek összegéhez adjuk.” <b>Kivonás = pótlás:</b> „3 e-hez, hogy 5 e legyen, 2 e-t kell adni. Leírjuk a 2-t.” Váltásnál: „Tegyünk 1 tízest az egyesekhez … A különbség nem változhat, ezért tegyünk 1 tízest a kivonandóhoz is!” Ellenőrzés összeadással és kivonással.</td></tr>
+<tr><td>3TC</td><td>≈190., 203–206. o.</td><td><b>Három tag</b> (179 + 288 + 376). <b>Janka balról kezdett</b>, és sokat radírozott: a könyv maga mutatja meg, miért jobbról kezdünk. Továbbvitel: „leírom a 3-at, és továbbviszem a 2-t”, ujjon vagy pici számmal. <b>Kivonás először elvétellel + felváltással</b> (játékpénz: 634 − 257, <b>403 − 168</b>: százast is fel kell váltani), utána <b>pótlás</b> („a kivonásra gondolhatsz úgy, mint egy hiányos összeadásra”: „A 7 + 5 a 12, leírtam a 2-t, továbbviszem az 1-et”).</td></tr>
+<tr><td>4TA</td><td>14–15., 71–72. o.</td><td>Felidézés, majd 10 000-ig. Becslés százasra ÉS ezresre. Összeadás: „16 sz = 1 E + 6 sz, a százast leírjuk, az ezrest az ezresekhez adjuk”. Kivonás <b>kétféle út egymás mellett: Mona felvált</b> (1 ezrest százasokra), <b>Manó pótol</b> (+10 százas fent, +1 ezres a kivonandóhoz). Ellenőrzéskor játékpénz is.</td></tr>
+<tr><td>4TB</td><td>16., 56–57. o.</td><td><b>Pótlásos mondóka:</b> „8 egyeshez, hogy 15 egyes legyen, kell 7 egyes. Leírom a 7-et az egyesek alá, az 1 tízest hozzáadom a kivonandóban a tízesekhez.” 10 000-ig ugyanígy (5488 − 2826). Ellenőrzés összeadással. ⚠️ A 16. oldalon sajtóhiba: a számolás 419, a válasz 429 kg. Mi a számolást követjük.</td></tr>
+<tr><td>4TC</td><td>158–160. o.</td><td>„Mindig a számoknak csak egy kis szeletével kell foglalkozni.” A tagok <b>különböző hosszúak</b> (3208 + 375 + 88), a gyerek írja egymás alá. Becslés ezresre és százasra + „mennyivel tér el?”. Hiányzó tag. <b>Dobókocka-játék:</b> 8 dobás, hová írod a jegyet, hogy az összeg minél nagyobb legyen, vagy 5000 és 7000 közé essen. A kivonás itt is hiányos összeadásként jön.</td></tr>
+<tr><td>Munkafüzetek</td><td>3MB, 3MC, 4MB, 4MC</td><td>Hiányzó számjegy (<code>4_7 + 2_6 = 673</code>); betű-rejtvény (eredmény → betű); számkártyákból összeg/különbség feltétellel; legkisebb/legnagyobb összeg; „Húzd alá a hibát, javítsd ki!”; „Melyik a hibás eredmény?”.</td></tr>
+</table></div>
+<h3>Közös mag (mind az 5 könyvben)</h3>
+<ul>
+  <li>Helyi érték szerint egymás alá, <code>E sz t e</code> fejléc · a legkisebb helyi értéken kezdünk · becslés előtte · ellenőrzés utána (+: a tagok felcserélése; −: összeadás).</li>
+  <li>Összeadás: a 10-nél több <b>beváltás</b>, a beváltott a következő helyi értékhez megy.</li>
+  <li>Kivonás: <b>5 könyvből 3 elsőként a pótlást tanítja</b> (3TB, 4TB, 4TC). A 4TA a kettőt egymás mellett mutatja, a 3TC elvétellel kezd. Az eredmény jegyei mindkét úton ugyanazok, csak a segédjegyek mások.</li>
+</ul>
+<h3>Módszertani hozzáadás (nem a könyvből, hanem mellé)</h3>
+<ul>
+  <li><b>Pólya, értsd meg → tervezz:</b> a terv-sort a gyerek írja. A gép nem árulja el, melyik művelet kell. A szöveges feladat lényege a terv.</li>
+  <li><b>Hibaelemzés (Janka, 3TC):</b> az Odú-küszöbön Zsivány „összeadta a kasszát”, és egy oszlopban elrontotta (a torony hibakeresője, változatlanul).</li>
+  <li><b>Varga Tamás, „mennyi kell még?” = pótlás:</b> a Visszajáró standon a pótlás nem trükk. Az eladó tényleg így számol: „925-höz, hogy 1000 legyen, kell 75”. A kérdés szövege és az eljárás ugyanaz.</li>
+  <li><b>A becslés mint józan ész</b> (Pólya, nézz vissza): ha az eredmény messze van a becsléstől, a vevő csodálkozik: „Ennyi? Pedig kb. 7000-re számítottam.”</li>
+  <li>Később, ötletként: a 4TC dobókocka-játéka saját standként (helyi érték + stratégia, Pósa-féle „van-e jobb?”).</li>
+</ul>
+</div>
+
+<h2>③ Húzószó-csíra</h2>
+<div class="panel">„összesen, együtt” → + · „marad, visszajár, mennyivel több/kevesebb” → − · „mennyit kell még?” → <b>pótlás</b> (a kivonás magyar eljárása szó szerint ez a kérdés). A játék a szavakat nem nevezi meg, csak a feladatok erre épülnek.</div>
+
+<h2>④ A 7 kérdés röviden</h2>
+<div class="panel"><ol>
+  <li><b>A mozdulat maga a matek?</b> Igen. A terv-sorban a jel kiválasztása a döntés. Az egymás alá írásnál a hely a tudás. A számolásnál jegyenként, helyi érték szerint ír.</li>
+  <li><b>A megfogott tárgy egyszerű és egyforma?</b> Ugyanaz a ceruza és radír, mint a toronyban. Új csak az 5 jel (+ − · : =).</li>
+  <li><b>Kép és szám együtt változik?</b> A kép csak a már leírt eredményre mozdul (a pénz átmegy, a kosár megtelik). Előtte a kép nem írja ki a kiszámolandó számot (10-17-i szabály).</li>
+  <li><b>„Itt nem igaz” van?</b> Van: rossz tervre a kép megmutatja a következményt, a becslés-csodálkozás, és a hibakereső az Odú-küszöbön.</li>
+  <li><b>Halványul?</b> Az új standokon (Kassza, Visszajáró) az 1. feladatnál a kocka jelöl, és a kérdés-alakú mondóka szól. Utána üres lap, a mondóka csak a 2. hibától. A többi standon az elejétől nincs jelölés (a torony után jön).</li>
+  <li><b>Rossz válaszra mit mutat a kép?</b> Rossz terv: a csapda-mondat + a kép következménye. Rossz számolás: a hibás oszlop gyullad, a 2. hibától a tálca és a mondóka segít. Megoldás kiírása sosem.</li>
+  <li><b>Ki cselekszik?</b> A gyerek unikornisa ír a pultnál, a vevő (a vásári figurák) kérdez és fizet. Garas nincs itt, ő a toronyban tanít.</li>
+</ol></div>
+
+<h2>⑤ Kiskapu: hol lehetne megoldás nélkül jutalmat kapni?</h2>
+<div class="panel warn"><ul>
+  <li><b>A jelek próbálgatása a terv-sorban</b> (4 jel × sorrend): 2 rossz terv után végigvezetés jön, és a feladat nem számít „elsőre jónak” (mint ma a csapdánál). A jel cseréje radírozással jár, és hibának számít.</li>
+  <li><b>Fejben-tipp a terv-sor végén:</b> csak egyszer. Ha rossz, kötelező írásban, második fejben-tipp nincs.</li>
+  <li><b>A hibás oszlop kikoppintgatása:</b> a torony szabálya marad: minden rossz jegy hiba, a 2. hibától mondóka, a megoldást nem írja ki.</li>
+  <li><b>Alá-írás:</b> amíg a tagok nincsenek jó helyen, nem lehet számolni, így elcsúszott tagokkal nem jöhet ki véletlenül jó eredmény.</li>
+  <li>MRZS „tovább megoldás nélkül”: a füzet jobb oszlopában, mint a toronyban.</li>
+</ul></div>
+
+<h2>⑥ Hogyan néz ki egy feladat (Visszajáró, 2 lépés)</h2>
+<pre>Mia: „Vettem kenyeret 310-ért, tejet 375-ért, vajat 240-ért. 1000-essel fizetek.”
+Hány forint jár vissza?                                       (3TB 111. o. mintájára)
+
+ 1. lap   terv:  310 + 375 + 240 =            ← a gyerek írja (jel: +)
+                 E sz t e
+                   3 1 0                      ← a gyerek írja egymás alá
+                   3 7 5
+                 + 2 4 0
+                 ───────                      ← ▁ vonal
+                   9 2 5                      → „jó lépés! Ez az ár. De mennyi jár vissza?”
+ 2. lap   terv:  1000 − 925 =                 (az 1. lap eredménye fent, jegyzetként)
+                 1 0 0 0
+               −   9 2 5
+                 ───────
+                     7 5                      → a pénz átmegy Miához ✓</pre>
+<p>Egy lépés = egy lap. Az előző lap terv-sora és eredménye fent, a jobb oszlopban, jegyzetként látszik. Így minden lap elfér az 1280 × 630-as képernyőn, görgetés nélkül.</p>
+
+<h2>⑦ Hiányzó elemek (kód)</h2>
+<div class="panel"><ul>
+  <li><code>irasbeli-gen.js</code>: <b>összeadás-lap</b> (2–3 tag, különböző hosszúak) és <b>kivonás-lap</b> (pótlásos lépések, nullák). Mondóka helyiérték-névvel (ugyanaz a döntés, mint a toronyban, 11-08), kérdés-alak („8 egyeshez, hogy 15 egyes legyen, kell ? egyes”), tálca-lépések (beváltás; pótlásnál a 3TC Julcsi-képe: a kisebb kupacot pótoljuk). <code>irGyart("ossz" | "kiv", …)</code>.</li>
+  <li><code>fuzet.js</code>: ① <b>jelek</b> a ceruzán: + − · : = (billentyűn is: + - * : =) · ② <b>terv-sor</b>: szabad sor, a pálya mondja meg, mely tervek jók (a + és a · sorrendje szabad), és visszahív (<code>onTerv</code> → jó / csapda) · ③ <b>alá-írás</b>: a tagokat a gyerek írja a fejléc alá, a füzet ellenőrzi a helyüket · ④ <b>segédjegy-sor</b>: apró szám a továbbvitelhez / pótláshoz, nem számít · ⑤ <b>lapozás</b> több lépésnél. Mind a közös modulban, bárhová átvehető.</li>
+  <li><code>vasar.js</code>: a 4. o. sablonok kapnak egy szerkezetes <code>lepesek: [{a, m, b, h}]</code> listát (a mai <code>sorok</code> / <code>vezet</code> mellé). <code>GEN.vasar</code> g ≥ 4 esetén a füzetre köt. A csapdák a terv-sorra kerülnek. 2 új stand + feladat-sor. A sátrak a meglévő sátor-rajzból, új színnel.</li>
+  <li>Szabály: <b>„írásbeli méretű” lépés</b> (4. döntés A): + / −: van átvitel vagy pótlás, és legalább az egyik tag háromjegyű vagy nagyobb · ×: a szorzandó legalább kétjegyű, és nem kerek · :: az osztandó legalább 100. A többi fejben megy, az eredmény a terv-sor végére kerül.</li>
+</ul></div>
+
+<h2>Döntések <span style="font-weight:400;color:var(--muted)">(a javaslat mind A)</span></h2>
+<div class="dont"><b>1. A kivonás eljárása</b><br>
+<span class="jav">A)</span> <b>pótlás</b> a mondókában és az animációban (3TB, 4TB, 4TC, 4TA Manó). A füzet az elvételt is elfogadja, mert az eredmény jegyei ugyanazok, a segédjegyek nem számítanak · B) elvétel + felváltás (3TC, 4TA Mona) · C) a gyerek választ az első kivonásnál, és onnantól úgy mondja.</div>
+<div class="dont"><b>2. Ki írja egymás alá a számokat (+ −)?</b><br>
+<span class="jav">A)</span> <b>a gyerek</b>, a terv-sor után, a fejléc alá (a 10-18-i döntés: „az alá írás maga is tudás”) · B) a gép írja, a gyerek csak számol. (× és : esetén a művelet egy sor, a lapot a gép rendezi, mint a toronyban.)</div>
+<div class="dont"><b>3. A terv</b><br>
+<span class="jav">A)</span> <b>terv-sor a füzetben, a gyerek írja</b>, jellel · B) a játék kérdezi, 4 gombból választ (+ − · :), a számokat a gép írja · C) nincs terv, mint ma.</div>
+<div class="dont"><b>4. Fejben vagy írásban?</b><br>
+<span class="jav">A)</span> <b>szabály szerint</b>: az „írásbeli méretű” lépés kötelezően írásban, a többi fejben (az eredmény a terv-sor végére) · B) mindig a gyerek választ (egy fejben-tipp, ha rossz, írásban) · C) mindig írásban.</div>
+<div class="dont"><b>5. Becslés és ellenőrzés</b><br>
+<span class="jav">A)</span> <b>feladatonként EGY becslés</b> a terv után (a végeredményre). Külön ellenőrző sor nincs, azt a toronyban gyakorolja. Ha az eredmény nagyon messze van, a vevő csodálkozik · B) egyik sincs · C) mindkettő minden lépésnél, mint a toronyban.</div>
+<div class="dont"><b>6. Új standok a + és a − műveletnek</b><br>
+<span class="jav">A)</span> <b>🧾 Kassza</b> (+: a nap bevétele 2–3 standról, különböző hosszú számok; a végén „hiányzó tag”) és <b>🪙 Visszajáró</b> (−: 1000 / 2000 / 5000 / 10 000-esből, nullák; 2. feladattól két lépés: ár összeadva → visszajáró) <b>az ösvény elején</b>, 2–2 feladattal. A Kosárrakó és a Dobozoló 3 → 2 feladat, így összesen 19 feladat (≤ 20, ösvényhossz-szabály) · B) nincs új stand, csak a meglévő + és − lépések lesznek írásbeliek · C) új standok 3–3 feladattal (23 feladat).</div>
+<div class="dont"><b>7. Hol TANULJA a gyerek a + − eljárást?</b> (a Déli vásár a használat helye, mint a ×-nál és a :-nál)<br>
+<span class="jav">A)</span> <b>Garas tornya földszintje</b>: két asztal-sor (összeadás 4 asztal: váltás nélkül → egyeseknél → több helyen → három tag; kivonás 5 asztal: … → nulla a kivonásban), recept-alapon, a 3. kör után, külön körben. A könyvek sorrendje is ez: + − (3. o. eleje) → × → : · B) csak a Déli vásár, az új standok 1. feladata bemutató · C) most ne döntsük el.</div>
+<div class="dont"><b>8. Reggeli vásár és Dobozoló-nap (100-ig)</b><br>
+<span class="jav">A)</span> <b>maradnak a mai füzetnél</b> („a gép ír”), mert ott fejszámolás folyik. Később átköltöznek, és akkor tűnhet el a <code>konyvtar-fuzet.js</code> · B) most ők is átállnak (terv-sor, fejben).</div>
+
+<h2>Kód-körök</h2>
+<div class="panel"><ol>
+  <li><b>1. kör: füzet + gyártó.</b> Összeadás- és kivonás-lap, jelek, terv-sor, alá-írás, segédjegy-sor, lapozás. Próbalap: <code>index.html?fuzetproba</code> kiegészítve (3845 + 2850, 179 + 288 + 376, 3208 + 375 + 88, 5488 − 2826, 403 − 168, 1000 − 925).</li>
+  <li><b>2. kör: a Déli vásár a füzeten.</b> A mai standok átkötése (× : és a többlépéses feladatok), terv-ellenőrzés + csapdák, fejben/írásban szabály, becslés, egy képernyő. <b>Megálló:</b> az első kép a játékban (füzet a vásárban), utána egyben tovább.</li>
+  <li><b>3. kör: 🧾 Kassza + 🪙 Visszajáró</b>, az Odú-küszöb vegyesen (+ hibakereső Zsivány-kassza), élesítés.</li>
+  <li>(Ha 7A:) <b>4. kör: Garas tornya földszint</b>, + − asztalok, recept.</li>
+</ol></div>
+
+<p style="color:var(--muted);font-size:13px;margin-top:26px">Tervlap: 2026-11-11 · előzmény: terv/irasbeli-haz-recept-lap.html · Garas tornya élőben rendben (a producer, 11-11).</p>
+</div></body></html>
