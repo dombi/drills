@@ -3450,3 +3450,27 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
   .bagoly-buborek:has(.jl-panel.ir-be) .buborek-feladat{ margin-bottom:2px; }
   .bagoly-buborek:has(.jl-panel.ir-be) #halld-ujra{ display:none; }
 }
+
+/* ☀️ Déli vásár a füzeten (src/vasar-fuzet.js, 2. kör 2026-11-12): balra a lap, jobbra a pult-sáv + Tüske néni története + a kérdés */
+.ir-fuzet-doboz.vs-fz .fz-oldal .jl-kep svg{ max-height:11vh; }
+.vs-fz-bub{ margin-top:4px; }
+.vs-fz-bub .vs-bub{ text-align:left; }
+.vs-fz-bub .vs-kep .vs-svg{ height:clamp(60px,15vh,130px); }
+.vs-fz-bub .vs-tort{ font-size:clamp(14px,2.2vh,17px); line-height:1.35; }
+.vs-fz-bub .vs-arus, .vs-fz-bub .vs-arus svg.fg{ width:42px; height:52px; }
+.vs-fz-bub .vs-kk{ margin-top:10px; font-size:clamp(16px,2.5vh,20px); padding:9px 10px 6px; }
+.vs-fz-kesz{ animation:vsFzKesz 1.2s ease-out; }
+@keyframes vsFzKesz{ 0%{ filter:brightness(1); } 35%{ filter:brightness(1.12) drop-shadow(0 0 8px rgba(255,207,110,.9)); } 100%{ filter:none; } }
+.vs-fz-gombok{ justify-content:flex-start; margin:8px 0 0; }
+.vs-fz-tovabb{ background:#7bbf6a; box-shadow:0 4px 0 #5e9a52; color:#fff; animation:vsTovabb 1.4s ease-in-out infinite; }
+.ir-fuzet-doboz.vs-fz .fz-felirat.jo{ color:#2e7d4f; }
+@media (prefers-reduced-motion:reduce){ .vs-fz-kesz,.vs-fz-tovabb{ animation:none; } }
+.ir-fuzet-doboz.vs-fz{ max-width:1240px; }
+#kepernyo-jatek.bk-be .bagoly-buborek:has(.jl-panel:not([hidden]) .ir-fuzet-doboz.vs-fz) .buborek-feladat{ display:none; }   /* a kérdés a jobb oszlopban van, a fenti sor itt csak hely */
+.ir-fuzet-doboz.vs-fz .fz-oldalt .fz-lap{ height:var(--fz-mag, calc(100vh - 116px)); }
+/* a .bk-panel svg (a jelenet képe) szabálya ne nyúljon a vásár képeihez és érmeihez */
+.bk-panel .vs-fz-bub svg{ width:auto; height:auto; max-height:none; display:inline-block; border-radius:0; background:none; }
+.vs-fz-bub .ek-erem svg.fg{ width:1.3em; height:1.3em; }
+.vs-fz-bub .vs-kep .vs-svg{ height:clamp(56px,14vh,120px); width:auto; max-width:100%; }
+.vs-fz-bub .vs-kep .vs-svg.szeles{ height:auto; width:auto; max-width:100%; }
+.vs-fz-bub .vs-arus svg.fg{ width:42px; height:52px; }

@@ -459,7 +459,8 @@ function ertekel(valasz) {
     ment();
     var Jmost = J;
     var tovabb = function () { if (!J || J !== Jmost || J.feladat !== f || f.tovabbMent) return; f.tovabbMent = true; if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };   /* közben kilépett / új pályát indított: a késleltetett lépés ne fusson az új pályán */
-    if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
+    if (f.vs && vsJoTovabb(f, tovabb)) return;
+    if (f.vsF && vsFzJoTovabb(f, tovabb)) return;   /* ☀️ Déli vásár a füzeten: a lap a „Tovább ▶” gombig marad (vasar-fuzet.js) */   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
     else setTimeout(tovabb, Math.max(f.hianyzo ? 1300 : 900, fv));   /* 🐭 bújós feladatnál a mozdulat végigér */

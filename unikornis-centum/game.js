@@ -17725,15 +17725,17 @@ GEN.vasar = function (cfg, kerultMar) {
     var intro = cfg.intro || VS_INTRO[cfg.stand];
     f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat(intro, FIGURA.tuske.e); }, 50);
   }
-  return f;
+  return g >= 4 && !cfg.regiFuzet ? vsFzAtalakit(f) : f;   /* ☀️ Déli vásár: a gyerek írja a füzetet (vasar-fuzet.js, 2. kör) */
 };
 
 /* ═════════════════ MOTOR-KAPCSOLÓK (engine-logic hívja) ═════════════════ */
 function vsIndit() { J.vsCsapda = {}; J.vsResz = 0; J.vsStand = null; J.vsFuzetMondva = false; ekFuzetTorol(); vsTovabbRejt(); }
 function vsCsapdaSzamol(t) { if (J && J.vsCsapda && t) J.vsCsapda[t] = (J.vsCsapda[t] || 0) + 1; }
 function vsDicser(f, elsore) { if (f.vezet) return "Most már megvan!"; if (!elsore) return "Így már jó!"; return vsE(VS_DICSER); }
+/* a feladat buborékja: ☀️ a füzetes vásárban a füzet jobb oszlopában (vasar-fuzet.js), különben a fenti buborék */
+function vsBubEl() { var b = document.querySelector(".vs-fz-bub"); return b && b.offsetParent ? b : document.getElementById("buborek-feladat"); }
 function vsVillant() {
-  var kk = document.querySelector("#buborek-feladat .vs-kk"); if (!kk) return;
+  var kk = vsBubEl() && vsBubEl().querySelector(".vs-kk"); if (!kk) return;
   kk.classList.remove("villan"); void kk.offsetWidth; kk.classList.add("villan");
 }
 /* 👉 Tüske néni rámutat (figurák 2. kör): felemeli a kezét a kép felé; ha van `ki`, a kérdezett szereplő érme lüktet,
@@ -17742,18 +17744,18 @@ function vsVillant() {
 function vsMutat(ki) {
   clearTimeout(vsMutat._t); clearTimeout(vsMutat._v);
   vsMutat._t = setTimeout(function () {
-    var bub = document.getElementById("buborek-feladat"); if (!bub) return;
+    var bub = vsBubEl(); if (!bub) return;
     var t = ki && bub.querySelector('.vs-erem[data-ki="' + ki + '"]'), kep = bub.querySelector(".vs-kep"), cel = t || kep;
     if (cel) { cel.classList.remove(t ? "vs-mutat" : "vs-kep-mutat"); void cel.offsetWidth; cel.classList.add(t ? "vs-mutat" : "vs-kep-mutat"); }
     var a = bub.querySelector('.vs-arus svg[data-fig]');
     if (a) a.outerHTML = figuraSVG(a.getAttribute("data-fig"), "mutat", "alak", a.getAttribute("data-alap") || "gondol");
     vsMutat._v = setTimeout(function () {
-      var b = document.querySelector('#buborek-feladat .vs-arus svg[data-arc="mutat"]');
+      var b = vsBubEl() && vsBubEl().querySelector('.vs-arus svg[data-arc="mutat"]');
       if (b) b.outerHTML = figuraSVG(b.getAttribute("data-fig"), b.getAttribute("data-alap") || "gondol", "alak");
     }, 2600);
   }, 60);
 }
-function vsKepCsere(html) { var k = document.querySelector("#buborek-feladat .vs-kep"); if (k && html) k.innerHTML = vsKepBelso(html); }
+function vsKepCsere(html) { var k = vsBubEl() && vsBubEl().querySelector(".vs-kep"); if (k && html) k.innerHTML = vsKepBelso(html); }
 
 /* ── 📓 füzet: a ❓ sor + a műveleti sorok idx-ig (a már beírtat nem írja újra) ── */
 function vsFuzetIgIr(V, idx, valasz) {
@@ -24983,6 +24985,7 @@ function irSzorzas(a, b, o) {
   var T = new IrTerv("szor", a, b), bd = irJegyek(b), m = bd.length, ered = a * b, W = String(ered).length, U = W;   /* U: az egyesek oszlopa */
   T.ered = ered; T.U = U;
   var r = 0;
+  if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején (fuzet.js fzLapCsere másolja bele) */
   if (o.becsles !== false) {
     var ra = irKerekit(a), rb = m > 1 ? irKerekit(b) : b, bec = ra * rb, bh = String(bec).length;
     T.gepIr(r, 0, "B:", "szoveg");
@@ -25103,6 +25106,7 @@ function irOsztas(a, b, o) {
   T.ered = q; T.mar = mar; T.rovid = !!o.rovid;
   var cA = 1, cB = n + 2, cQ = n + 3 + bs.length;   /* az osztandó első jegye · az osztó · a hányados első jegye */
   var r = 0;
+  if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején */
   if (o.becsles !== false) {
     var d1 = Number(qs[0]), h = Math.pow(10, qn - 1), also = d1 * h, felso = (d1 + 1) * h, ah = String(also).length, fh = String(felso).length;
     var kisebb = q === also ? "≤" : "<";
@@ -25309,9 +25313,10 @@ function irTervLap(o) {
   o = o || {};
   var T = new IrTerv("terv", 0, 0);
   T.terv = { r: 0, nyitott: o.ered == null }; T.lep = 1;
-  T.hely(0, (o.osz || 16) - 1);
+  T.hely((o.sor || 1) - 1, (o.osz || 16) - 1);   /* o.sor: üres sorok alatta (☀️ a vásárban a lap füzetlapnak látszik) */
   if (o.ered != null) {
     T.ered = o.ered; T.tervEredCel = true;
+    if (o.elotag) { T.gepIr(0, 1, o.elotag, "szoveg"); T.terv.cimke = o.cimke || ""; }   /* ☀️ „Válasz:” sor (Dobozoló: a hányados vagy a maradék?) */
     T.lepes("Fejben: " + o.ered + ".", "szamol", null, "Számold ki fejben, és írd az = után!");
     T.celSzam(0, o.eredC + String(o.ered).length - 1, o.ered);
   }
@@ -25402,9 +25407,11 @@ function fzKezdoHely(F) {
   var T = F.T;
   if (T.terv && T.terv.nyitott) return { r: T.terv.r, c: 1 };
   if (T.tervEredCel) { var e = T.celok.filter(function (c) { return c.tip === "szam"; })[0]; return e ? { r: e.r, c: e.c } : null; }
-  if (!T.alaSorok) return null;   /* a torony lapjain marad a régi: a ceruza az egeret követi, amíg nem koppint */
+  if (!T.alaSorok && !T.terv) return null;   /* a torony lapjain marad a régi: a ceruza az egeret követi, amíg nem koppint */
   if (T.mezok.length) return { r: T.mezok[0].r, c: T.mezok[0].c0 };
-  return { r: T.alaSorok[0], c: 1 };
+  if (T.alaSorok) return { r: T.alaSorok[0], c: 1 };
+  var e1 = T.celok.filter(function (c) { return c.tip === "szam"; })[0];   /* ☀️ vásár, × : lap terv-sorral, becslés nélkül: az első jegy helye */
+  return e1 ? { r: e1.r, c: e1.c } : null;
 }
 
 /* ═════════════════ A DOBOZ: felirat · lap (+ tálca) · eszközök + számbillentyű ═════════════════ */
@@ -25491,7 +25498,7 @@ function fzRajz(F) {
   });
   if (T.terv) {   /* a terv-sor: halvány sáv + „terv” a margón */
     if (T.terv.nyitott) s += '<rect x="' + (fzX(1) + 1) + '" y="' + (fzY(T.terv.r) + 1) + '" width="' + (W - FZ_M - fzX(1) - 2) + '" height="' + (S - 2) + '" fill="#f3ecfb" opacity=".8"/>';
-    s += '<text x="' + (fzX(0) + S / 2) + '" y="' + (fzY(T.terv.r) + 25) + '" text-anchor="middle" font-size="12" fill="#9a86b8" class="fz-t">terv</text>';
+    s += '<text x="' + (fzX(0) + S / 2) + '" y="' + (fzY(T.terv.r) + 25) + '" text-anchor="middle" font-size="12" fill="#9a86b8" class="fz-t">' + (T.terv.cimke != null ? T.terv.cimke : "terv") + '</text>';
   }
   /* kiemelések: a gép épp ezt a lépést írja · a hibás oszlop · a jelölt kocka */
   for (c in F.hibaOszl) s += '<rect x="' + (fzX(+c) + 2) + '" y="' + (FZ_M + 2) + '" width="' + (S - 4) + '" height="' + (H - 2 * FZ_M - 4) + '" rx="6" fill="#ffd6d6" opacity=".7"/>';
@@ -25697,7 +25704,7 @@ function fzTervEll(F) {
   }
   var v = F.o.onTerv ? F.o.onTerv(F, t) : null;
   if (v && v.lap) { fzLapCsere(F, v.lap, { tervTok: t }); return true; }
-  if (v && v.fejben != null) { fzLapCsere(F, irTervLap({ osz: F.T.osz, ered: v.fejben, eredC: t.eqC + 1 }), { tervTok: t }); return true; }
+  if (v && v.fejben != null) { fzLapCsere(F, irTervLap({ osz: F.T.osz, sor: F.T.sor, ered: v.fejben, eredC: t.eqC + 1 }), { tervTok: t }); return true; }
   fzTervHiba(F, v && v.hiba ? v.hiba : "Nézd meg még egyszer: ez a terv nem a kérdésre felel.", v && v.csendes);
   return false;
 }
@@ -26505,7 +26512,7 @@ VS_SZIN.irszor4 = { teto: "#a7d99a", csik: "#fffaf0", sotet: "#5e9a52", cimer: "
 VS_SZIN.irszor5 = { teto: "#c9b6e8", csik: "#fffaf0", sotet: "#7a5ca8", cimer: "✖️" };
 VS_SZIN.irszor6 = { teto: "#f7b98a", csik: "#fffaf0", sotet: "#b35f28", cimer: "✖️" };
 ["#f6a5c0", "#9ec9f0", "#f5cf6a", "#a7d99a", "#c9b6e8", "#f7b98a", "#9fd8d0", "#f2b3d6", "#d9c27a"].forEach(function (t, i) { VS_SZIN["irosz" + (i + 1)] = { teto: t, csik: "#fffaf0", sotet: "#7a5ca8", cimer: "➗" }; });   /* ➗ 3. kör */
-function irJelenetE(j) { return j === "irszor" || j === "irosz"; }
+function irJelenetE(j) { return j === "irszor" || j === "irosz" || j === "vsfuzet"; }   /* ☀️ a Déli vásár is a füzettel jön (vasar-fuzet.js) */
 
 /* ═════════════════ SZÁMOK: állomásonként a tankönyvi lépcső (OH-MAT03TB 157–161, 04TB 76–81) ═════════════════ */
 function irNincs0(n) { return String(n).indexOf("0") < 0; }
@@ -26791,6 +26798,257 @@ function irKeszLap(T) {
     if (c.tip === "vonal") T.gep.push({ r: c.r, c: c.c, c1: c.c1, tip: "vonal" });
     if (c.tip === "vonal" || c.tip === "pont" || c.tip === "vesszo") { c.tip = "kesz"; c.kell = false; }
   });
+}
+/* ============ 6j4f) ☀️ DÉLI VÁSÁR A FÜZETEN (2. kör: 2026-11-12) ============
+   Terv: terv/deli-vasar-fuzet-tervlap.html (✅ mind a 8 döntés A) · a füzet: fuzet.js · a lapok: irasbeli-gen.js · a feladatok: vasar.js.
+   A 4. o. vásár-feladatot (GEN.vasar, g ≥ 4) a végén ide fordítjuk: f.csalad = "jelenet", f.jelenet = "vsfuzet", a vásár adatai f.vsF-ben
+   (nem f.vs-ben, hogy a régi „gép ír” füzet ne lépjen közbe). A 🌅 Reggeli vásár és a 📦 Dobozoló-nap marad a régi úton (8. döntés A).
+   A gyerek a képen: balra a füzet (a képernyő magasságában), jobbra a pult-sáv az unikornissal, Tüske néni története, a kép és a kérdés.
+     ① TERV-SOR: a gyerek írja (számok, jel, =). A lépések a feladat füzet-soraiból jönnek (vsFzLepesek: „840 Ft : 7 = 120 Ft” → 840 : 7).
+        Jó terv: + és · sorrendje szabad; − és : sorrendje kötött; más alakú, de jó értékű terv is jó, ha csak a történet számait és a
+        már kiszámolt részeredményeket használja (kiskapu: a „2662 + 0” nem megy). Rossz terv: az ÉRTÉKE szerint a régi csapda-mondat
+        (Összeadtad… / Elvettél…), részeredmény-mondat, „fordítva írtad”, vagy általános mondat; a 2. rossz tervtől a végigvezetés kérdése.
+        Minden rossz terv egy hiba (a feladat nem „elsőre jó”).
+     ② FEJBEN vagy ÍRÁSBAN (4. döntés A, vsFzIrasban): + −: van átvitel / pótlás, és egy tag ≥ 100 · ×: a nagyobb tényező legalább kétjegyű,
+        nem kerek (és a kisebb sem kerek tízes) · :: az osztandó ≥ 100, vagy van maradék (a maradékot a Dobozoló kérdezheti: azt le kell írni).
+        Írásban: a közös lap (+ −: a gyerek írja egymás alá), a végén ellenőriz (Kész / Enter); fejben: az = után írja az eredményt.
+     ③ BECSLÉS (5. döntés A): feladatonként egy, az utolsó írásbeli lépés lapján. Ellenőrző sor nincs (azt a toronyban gyakorolja).
+     ④ LAPOZÁS: egy lépés = egy lap; az előző lap terv-sora és eredménye a jegyzetbe kerül. Részeredmény után Tüske néni „jó lépés” mondata.
+     ⑤ VÁLASZ-SOR: ha az utolsó lépés maradékos osztás (Dobozoló: TELI? MARAD?), a végén „Válasz:” sor — a gyerek dönti el, melyik szám felel
+        a kérdésre (a „mit kérdeznek?” tudás megmarad); rossz számra a régi csapda-mondat.
+     ⑥ A VÉGÉN a kép mozdul (a „? Ft” / „= ?” helyére az eredmény), a válasz-mondat a felirat, és a „Tovább ▶” gombig (Enter) marad. */
+
+var VS_FZ_SOR = 7;   /* a terv-lap (és a válasz-lap) sorai: üres füzetlap, nem egy csík */
+
+/* ── a füzet-sorokból a lépések: { tagok, jel, h, mar } ── */
+function vsFzLepesek(V) {
+  var ki = [];
+  for (var i = 0; i < V.sorok.length; i++) {
+    var t = ekSima(V.sorok[i].h), m = t.match(/((?:\d+(?: [a-zA-Z]+)? [·:+−] )+\d+)(?: [a-zA-Z]+)? = (\d+)(?:, maradék (\d+))?/);
+    if (!m) return null;
+    var tok = m[1].replace(/ [a-zA-Z]+(?= [·:+−])/g, "").split(" "), tagok = [], jel = tok[1];
+    for (var k = 0; k < tok.length; k++) { if (k % 2 === 0) tagok.push(Number(tok[k])); else if (tok[k] !== jel) return null; }
+    ki.push({ tagok: tagok, jel: jel, h: Number(m[2]), mar: m[3] != null ? Number(m[3]) : null });
+  }
+  return ki;
+}
+function vsFzJegy(n, p) { return Math.floor(n / Math.pow(10, p)) % 10; }
+function vsFzIrasban(L) {
+  var t = L.tagok, a = t[0], b = t[1], p, max = Math.max.apply(null, t), min = Math.min.apply(null, t);
+  if (L.jel === "+") {
+    if (max < 100) return false;
+    for (p = 0; p < String(max).length; p++) { var s = 0; t.forEach(function (x) { s += vsFzJegy(x, p); }); if (s >= 10) return true; }
+    return false;
+  }
+  if (L.jel === "−") { if (max < 100) return false; for (p = 0; p < String(a).length; p++) if (vsFzJegy(a, p) < vsFzJegy(b, p)) return true; return false; }
+  if (L.jel === "·") return max >= 10 && max % 10 !== 0 && !(min >= 10 && min % 10 === 0);
+  return a >= 100 || !!L.mar;
+}
+/* a gyerek tervének értéke (· : előbb) */
+function vsFzErtek(t) {
+  var sz = [t.tagok[0]], j = [];
+  for (var i = 0; i < t.jelek.length; i++) {
+    var op = t.jelek[i], v = t.tagok[i + 1];
+    if (op === "·") sz[sz.length - 1] *= v; else if (op === ":") sz[sz.length - 1] /= v; else { j.push(op); sz.push(v); }
+  }
+  var e = sz[0]; j.forEach(function (op, k) { e = op === "+" ? e + sz[k + 1] : e - sz[k + 1]; });
+  return e;
+}
+function vsFzRendez(a) { return a.slice().sort(function (x, y) { return x - y; }).join(","); }
+function vsFzEgyezik(L, t) {
+  if (t.tagok.length !== L.tagok.length || !t.jelek.every(function (j) { return j === L.jel; })) return false;
+  return L.jel === "+" || L.jel === "·" ? vsFzRendez(t.tagok) === vsFzRendez(L.tagok) : t.tagok.join() === L.tagok.join();
+}
+function vsFzSzamokOk(V, t) {   /* a terv csak a történet számait és a már kiszámolt részeredményeket használja */
+  var van = {};
+  (ekSima(V.bub.tort.join(" ") + " " + V.bub.kerdes).match(/\d+/g) || []).forEach(function (d) { van[+d] = 1; });
+  V.eredmenyek.forEach(function (x) { van[x] = 1; });
+  return t.tagok.every(function (x) { return van[x]; });
+}
+
+/* ── a GEN.vasar végén: a 4. o. feladat a füzetre ── */
+function vsFzAtalakit(f) {
+  var V = f.vs, L = vsFzLepesek(V);
+  if (!L || !L.length) return f;                   /* nem olvasható sor → marad a régi út (nem fordulhat elő, de ne törjön el) */
+  var ut = L[L.length - 1];
+  V.lepesek = L; V.becsI = -1;
+  L.forEach(function (l, i) { l.iras = vsFzIrasban(l); if (l.iras) V.becsI = i; });
+  V.valaszSor = ut.h !== f.helyes || ut.mar != null;
+  f.vsF = V; f.vs = null;
+  f.csalad = "jelenet"; f.jelenet = "vsfuzet"; f.kartyaHTML = "";
+  return f;
+}
+
+/* ═════════════════ A KÉP: a pult-sáv (sátor + az unikornis a pultnál) ═════════════════ */
+JELENETEK.vsfuzet = {
+  kep: function () { return { vb: "0 0 420 120", tabla: null, uni: [96, 117, .3, 1] }; },
+  rajz: function (JL) {
+    var st = JL.f.vsF && JL.f.vsF.stand, sz = VS_SZIN[st] || VS_SZIN.nagy;
+    return '<defs><linearGradient id="vsfz-eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dcc0"/><stop offset="1" stop-color="#f3e8d6"/></linearGradient></defs>' +
+      '<rect width="420" height="120" fill="url(#vsfz-eg)"/>' + vsFuzer(6, 420, 9) + vsLampion(40, 34, .7, 0) + vsLampion(380, 30, .7, 2) +
+      '<path d="M0 108H420V120H0Z" fill="#e2cfae"/>' + vsSator(262, 114, sz, .78, st === "nagy");
+  },
+  indit: function (JL) { vsFzIndit(JL); return false; },
+  felvesz: function () { return null; }, letesz: function () {}, katt: function () {}, bekuld: function () {},
+  gepi: function () { return { katt: [] }; }
+};
+
+/* ═════════════════ A FÜZET INDÍTÁSA ═════════════════ */
+function vsFzEl(JL, f) { return JL && JL.f === f && J && J.feladat === f; }
+function vsFzIndit(JL) {
+  var f = JL.f, V = f.vsF, d = irFuzetDoboz(true);
+  d.classList.add("vs-fz");
+  V.i = 0; V.tervHiba = 0; V.lapHiba = 0; V.konyvelt = {}; V.eredmenyek = []; V.valaszMost = false; V.mozgoVolt = false;
+  var F = fzLap(d, irTervLap({ sor: VS_FZ_SOR }), {
+    mod: "gyerek", oldalt: true, ell: "vegen", jelol: false, talca: false, mondoka: "hiba", jelek: true, csendesHiba: true,
+    onTerv: function (F, t) { return vsFzTerv(JL, f, F, t); },
+    onHiba: function (F, info) { return vsFzHiba(JL, f, F, info); },
+    onLap: function (F, T) { vsFzLapFelirat(f, F, T); },
+    onKesz: function (F) { if (vsFzEl(JL, f)) vsFzLapKesz(JL, f, F); }
+  });
+  d._F = F; V.F = F; F.svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
+  irKepAt(F);
+  var b = el("div", "vs-fz-bub"); b.innerHTML = vsBub(V.bub); F.oldal.appendChild(b);
+  irTovabbLink(F, d);
+  jlRajz();
+  F.felirat(J.feladatKesz === 0 && J.allomasIdx <= 1 ? "Írd fel a tervet: számok, jel, a végén = (billentyűn: + - * : =)" : "Írd fel a tervet!");
+}
+/* a lap elején a felirat: mit kér most a füzet */
+function vsFzLapFelirat(f, F, T) {
+  var V = f.vsF;
+  F.svg.setAttribute("preserveAspectRatio", "xMidYMin meet");   /* a rövid lap is a tetején kezdődik (nem csúszik középre) */
+  if (V.valaszMost) { F.felirat("Mi a válasz a kérdésre? " + ekSima(V.bub.kerdes) + " Írd a Válasz: után, aztán Kész (Enter).", "kerd"); return; }
+  if (T.tervEredCel) { F.felirat("Ezt fejben is ki tudod számolni: írd az = után, aztán Kész (Enter)."); return; }
+  if (T.terv && T.terv.nyitott) return;
+  if (T.mezok.length) F.felirat("Ezt írásban számold ki! Előbb becsülj: a B: sorba írd, " + (T.muv === "oszt" ? "mettől meddig lehet a hányados." : "mennyi lesz körülbelül."));
+  else if (T.alaSorok) F.felirat("Ezt írásban számold ki! Írd egymás alá a számokat a fejléc alá, aztán számolj. A végén Kész (Enter).");
+  else F.felirat("Ezt írásban számold ki! A végén Kész (Enter).");
+}
+
+/* ═════════════════ ① A TERV ═════════════════ */
+function vsFzTerv(JL, f, F, t) {
+  if (!vsFzEl(JL, f)) return { hiba: "", csendes: true };
+  var V = f.vsF, L = V.lepesek[V.i], ert = vsFzErtek(t);
+  if (vsFzEgyezik(L, t) || (ert === L.h && vsFzSzamokOk(V, t))) {
+    V.tervHiba = 0; V.lapHiba = 0;
+    if (!L.iras) return { fejben: L.h };
+    var o = { terv: true, becsles: V.i === V.becsI, ellenoriz: false, talca: false };
+    if (L.jel === "+") return { lap: irGyart("ossz", vsFzEgyezik(L, t) ? t.tagok : L.tagok, null, o) };   /* egymás alá abban a sorrendben, ahogy felírta */
+    if (L.jel === "−") return { lap: irGyart("kiv", L.tagok[0], L.tagok[1], o) };
+    if (L.jel === "·") return { lap: irGyart("szor", Math.max(L.tagok[0], L.tagok[1]), Math.min(L.tagok[0], L.tagok[1]), o) };   /* a gép rendezi: a szorzandó elöl */
+    return { lap: irGyart("oszt", L.tagok[0], L.tagok[1], o) };
+  }
+  /* rossz terv: egy hiba; a mondat az értékéhez illik */
+  V.tervHiba++;
+  jlRossz("terv", f.naplo);
+  var m, c = V.csap[ert], r = V.resz[ert];
+  if ((L.jel === "−" || L.jel === ":") && t.tagok.length === 2 && vsFzRendez(t.tagok) === vsFzRendez(L.tagok) && t.jelek[0] === L.jel)
+    m = L.jel === "−" ? "Fordítva írtad: előbb az a szám jön, amiből elveszünk." : "Fordítva írtad: előbb az a szám jön, amit elosztunk.";
+  else if (c) {
+    m = "🦔 " + c.m; vsCsapdaSzamol(c.t);
+    if (c.kep) vsKepCsere(c.kep);
+    vsMutat(c.mutat);
+  } else if (r && V.eredmenyek.indexOf(ert) >= 0) m = "Ezt már kiszámoltad! Most mi a következő lépés?";
+  else if (r) m = "✋ " + r.m;
+  else { m = "Ez a terv nem erre a kérdésre felel. Nézd meg a képet, és olvasd el újra a kérdést!"; vsVillant(); vsMutat(); }
+  var seg = V.tervHiba >= 2 ? vsFzSegit(V) : "";
+  if (seg) m += " Segítek: " + seg;
+  if (c && c.mozgo && V.mozgo && !V.mozgoVolt && V.tervHiba === 1) mondd(vsKiejt(c.m), function () { vsFzMozgo(f, function () { mondd(vsKiejt(V.bub.kerdes)); }); });
+  else mondd(vsKiejt(m));
+  return { hiba: m, csendes: true };
+}
+/* a végigvezetés kérdései az aktuális lépésig (a vezet: [kérdés, helyes, füzet-sor]) — a terv irányát mutatja, a számolást nem */
+function vsFzSegit(V) {
+  if (!V.vezet) return "";
+  var ki = [];
+  for (var i = 0; i < V.vezet.length; i++) {
+    var v = V.vezet[i];
+    if (v[2] != null && v[2] < V.i) continue;   /* a már kész lépések kérdése nem kell */
+    ki.push(v[0]);
+    if (v[2] === V.i) break;
+  }
+  return ki.join(" ");
+}
+function vsFzMozgo(f, kesz) {
+  var V = f.vsF, M = V.mozgo, K = VSM[M && M.klip];
+  if (!K) { kesz(); return; }
+  V.mozgoVolt = true;
+  mkLejatszik({ klip: K, o: M.o }, K.cim(M.o), function () { if (J && J.feladat === f) kesz(); });
+}
+
+/* ═════════════════ HIBA A LAPON ═════════════════ */
+function vsFzSorSzam(F) {   /* a fejben / válasz sorba írt szám */
+  var s = ""; for (var c = 0; c < F.T.osz; c++) { var x = F.k[fzKulcs(0, c)]; if (x && x.v && /^\d$/.test(x.v)) s += x.v; }
+  return s ? Number(s) : null;
+}
+function vsFzHiba(JL, f, F, info) {
+  if (!vsFzEl(JL, f)) return true;
+  if (info.terv) return false;                      /* a terv mondata már kész (vsFzTerv) */
+  var V = f.vsF, kulcs = info.oszlopok ? "o" + V.i + ":" + Object.keys(F.k).sort().map(function (k) { return k + "=" + (F.k[k].v || ""); }).join("|")   /* Kész újra, javítás nélkül: nem új hiba */
+    : info.cel ? "c" + V.i + "-" + info.cel.id : "x" + V.i;
+  if (!V.konyvelt[kulcs]) { V.konyvelt[kulcs] = 1; jlRossz("füzet", f.naplo); }   /* egy elrontott jegy egyszer számít */
+  if (!F.T.tervEredCel || !info.oszlopok) return false;   /* írásbeli lap: a füzet mondja (oszlopok; a 2. hibától a mondóka) */
+  V.lapHiba++;
+  var n = vsFzSorSzam(F), m, c = V.valaszMost && n != null ? V.csap[n] : null;
+  if (V.valaszMost) {
+    if (c) { m = "🦔 " + c.m; vsCsapdaSzamol(c.t); if (c.kep) vsKepCsere(c.kep); vsMutat(c.mutat); }
+    else { m = "Nézd meg még egyszer, mit kérdeztünk!"; vsVillant(); }
+  } else m = "Nem talált. Számold ki újra fejben!";
+  if (V.lapHiba >= 2 && !c) { var seg = vsFzSegit(V); if (seg) m += " Segítek: " + seg; }
+  F.felirat(m + " Radírozd ki, és írd be újra.", "kerd");
+  mondd(vsKiejt(m));
+  return true;
+}
+
+/* ═════════════════ KÉSZ EGY LAP → a következő lépés / válasz / vége ═════════════════ */
+function vsFzLapKesz(JL, f, F) {
+  var V = f.vsF;
+  if (V.valaszMost) { vsFzVege(JL, f, F); return; }
+  var L = V.lepesek[V.i], gyors = window.__UC_GYORS ? 60 : 1500;
+  V.eredmenyek.push(L.h); if (L.mar != null) V.eredmenyek.push(L.mar);
+  var jegyzet = (F.T.tervSzoveg || "") + " " + L.h + (L.mar ? ", maradék " + L.mar : "");
+  V.i++; V.tervHiba = 0; V.lapHiba = 0;
+  if (V.i < V.lepesek.length) {                     /* részeredmény: „jó lépés”, aztán új lap a következő tervnek */
+    var r = V.resz[L.h], m = r ? r.m : "Jó lépés! Mi a következő?";
+    J.vsResz = (J.vsResz || 0) + 1; hangCsilla();
+    F.felirat("✋ " + m, "jo"); if (r) vsMutat(r.mutat);
+    mondd(vsKiejt(m));
+    setTimeout(function () { if (!vsFzEl(JL, f)) return; F.ujLap(irTervLap({ sor: VS_FZ_SOR }), { jegyzet: jegyzet }); F.felirat("✋ " + m + " Írd fel a következő tervet!", "jo"); }, gyors);
+    return;
+  }
+  if (V.valaszSor) {                                /* maradékos osztás a végén: melyik szám felel a kérdésre? */
+    V.valaszMost = true;
+    setTimeout(function () { if (!vsFzEl(JL, f)) return; F.ujLap(irTervLap({ ered: f.helyes, eredC: 4, elotag: "Válasz:", cimke: "", sor: VS_FZ_SOR }), { jegyzet: jegyzet }); mondd(vsKiejt(V.bub.kerdes)); }, gyors);
+    return;
+  }
+  vsFzVege(JL, f, F);
+}
+function vsFzVege(JL, f, F) {
+  var V = f.vsF;
+  F.felirat(ekSima(V.valasz), "jo");
+  vsFzKepKesz(f.helyes);
+  jlJo(String(f.helyes));
+}
+/* a kép mozdul: a kérdőjel helyére az eredmény (a cédula kiírja az árat, a szalag végére kerül) */
+function vsFzKepKesz(h) {
+  var k = document.querySelector(".vs-fz-bub .vs-kep"); if (!k) return;
+  var s = k.innerHTML, n = (s.match(/>\? Ft</g) || []).length;
+  if (/>= \?</.test(s)) s = s.replace(/>= \?</g, '>= ' + h + '<');
+  else if (n === 1) s = s.replace(/>\? Ft</, '>' + h + ' Ft<');
+  else return;
+  k.innerHTML = s; k.classList.add("vs-fz-kesz");
+}
+/* jó válasz után (engine-logic ertekel): a füzet a „Tovább ▶” gombig (vagy Enterig) marad — a gyerek megnézheti, mit írt */
+function vsFzJoTovabb(f, tovabb) {
+  var V = f.vsF, F = V && V.F;
+  if (!F || !F.oldal) return false;
+  f.vsKesz = true;
+  var g = el("div", "ir-gombok vs-fz-gombok"), b = el("button", "nagy-gomb vs-fz-tovabb", "Tovább ▶");
+  b.type = "button"; g.appendChild(b); F.oldal.appendChild(g);
+  function nyom() { if (g.parentNode) g.parentNode.removeChild(g); J.vsTovabbFn = null; tovabb(); }
+  b.addEventListener("click", function () { hangGomb(); nyom(); });
+  setTimeout(function () { if (J && J.feladat === f && g.parentNode) { J.vsTovabbFn = nyom; mondd(vsKiejt(V.valasz)); } }, 300);
+  return true;
 }
 /* ============ 6j5) 📸 ALBUM-ELEMEK: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv) ============
    Forrás: Matekos/fotogep-album-rajzterv.html (✅ 2026-10-25) közös <defs>-e. Minden rajz EGY helyen él, a foto.js és az
@@ -28961,7 +29219,8 @@ function ertekel(valasz) {
     ment();
     var Jmost = J;
     var tovabb = function () { if (!J || J !== Jmost || J.feladat !== f || f.tovabbMent) return; f.tovabbMent = true; if (J.feladatKesz >= J.feladatDb) allomasKesz(); else ujFeladat(); };   /* közben kilépett / új pályát indított: a késleltetett lépés ne fusson az új pályán */
-    if (f.vs && vsJoTovabb(f, tovabb)) return;   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
+    if (f.vs && vsJoTovabb(f, tovabb)) return;
+    if (f.vsF && vsFzJoTovabb(f, tovabb)) return;   /* ☀️ Déli vásár a füzeten: a lap a „Tovább ▶” gombig marad (vasar-fuzet.js) */   /* 🧺 vásár: a megoldás a füzetbe, és a füzet a „Tovább ▶” gombig marad (vasar.js) */
     var fv = f.fuzetVar || 0; f.fuzetVar = 0;   /* 📓 könyvtár: a füzet kész lapja beíródik, mielőtt továbblépünk (konyvtar-fuzet.js) */
     if (f.utoMondat) { var um = f.utoMondat; f.utoMondat = null; figyelStop(); setTimeout(function () { mondd(ekKiejt(um), fv ? function () { setTimeout(tovabb, EKF_NEZI); } : tovabb); }, Math.max(500, fv)); }   /* 📚 könyvtár: magyarázó mondat a jó válasz után */
     else setTimeout(tovabb, Math.max(f.hianyzo ? 1300 : 900, fv));   /* 🐭 bújós feladatnál a mozdulat végigér */

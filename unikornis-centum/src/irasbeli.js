@@ -14,7 +14,7 @@ VS_SZIN.irszor4 = { teto: "#a7d99a", csik: "#fffaf0", sotet: "#5e9a52", cimer: "
 VS_SZIN.irszor5 = { teto: "#c9b6e8", csik: "#fffaf0", sotet: "#7a5ca8", cimer: "✖️" };
 VS_SZIN.irszor6 = { teto: "#f7b98a", csik: "#fffaf0", sotet: "#b35f28", cimer: "✖️" };
 ["#f6a5c0", "#9ec9f0", "#f5cf6a", "#a7d99a", "#c9b6e8", "#f7b98a", "#9fd8d0", "#f2b3d6", "#d9c27a"].forEach(function (t, i) { VS_SZIN["irosz" + (i + 1)] = { teto: t, csik: "#fffaf0", sotet: "#7a5ca8", cimer: "➗" }; });   /* ➗ 3. kör */
-function irJelenetE(j) { return j === "irszor" || j === "irosz"; }
+function irJelenetE(j) { return j === "irszor" || j === "irosz" || j === "vsfuzet"; }   /* ☀️ a Déli vásár is a füzettel jön (vasar-fuzet.js) */
 
 /* ═════════════════ SZÁMOK: állomásonként a tankönyvi lépcső (OH-MAT03TB 157–161, 04TB 76–81) ═════════════════ */
 function irNincs0(n) { return String(n).indexOf("0") < 0; }

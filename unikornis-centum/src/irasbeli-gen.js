@@ -107,6 +107,7 @@ function irSzorzas(a, b, o) {
   var T = new IrTerv("szor", a, b), bd = irJegyek(b), m = bd.length, ered = a * b, W = String(ered).length, U = W;   /* U: az egyesek oszlopa */
   T.ered = ered; T.U = U;
   var r = 0;
+  if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején (fuzet.js fzLapCsere másolja bele) */
   if (o.becsles !== false) {
     var ra = irKerekit(a), rb = m > 1 ? irKerekit(b) : b, bec = ra * rb, bh = String(bec).length;
     T.gepIr(r, 0, "B:", "szoveg");
@@ -227,6 +228,7 @@ function irOsztas(a, b, o) {
   T.ered = q; T.mar = mar; T.rovid = !!o.rovid;
   var cA = 1, cB = n + 2, cQ = n + 3 + bs.length;   /* az osztandó első jegye · az osztó · a hányados első jegye */
   var r = 0;
+  if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején */
   if (o.becsles !== false) {
     var d1 = Number(qs[0]), h = Math.pow(10, qn - 1), also = d1 * h, felso = (d1 + 1) * h, ah = String(also).length, fh = String(felso).length;
     var kisebb = q === also ? "≤" : "<";
@@ -433,9 +435,10 @@ function irTervLap(o) {
   o = o || {};
   var T = new IrTerv("terv", 0, 0);
   T.terv = { r: 0, nyitott: o.ered == null }; T.lep = 1;
-  T.hely(0, (o.osz || 16) - 1);
+  T.hely((o.sor || 1) - 1, (o.osz || 16) - 1);   /* o.sor: üres sorok alatta (☀️ a vásárban a lap füzetlapnak látszik) */
   if (o.ered != null) {
     T.ered = o.ered; T.tervEredCel = true;
+    if (o.elotag) { T.gepIr(0, 1, o.elotag, "szoveg"); T.terv.cimke = o.cimke || ""; }   /* ☀️ „Válasz:” sor (Dobozoló: a hányados vagy a maradék?) */
     T.lepes("Fejben: " + o.ered + ".", "szamol", null, "Számold ki fejben, és írd az = után!");
     T.celSzam(0, o.eredC + String(o.ered).length - 1, o.ered);
   }

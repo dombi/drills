@@ -676,15 +676,17 @@ GEN.vasar = function (cfg, kerultMar) {
     var intro = cfg.intro || VS_INTRO[cfg.stand];
     f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat(intro, FIGURA.tuske.e); }, 50);
   }
-  return f;
+  return g >= 4 && !cfg.regiFuzet ? vsFzAtalakit(f) : f;   /* ☀️ Déli vásár: a gyerek írja a füzetet (vasar-fuzet.js, 2. kör) */
 };
 
 /* ═════════════════ MOTOR-KAPCSOLÓK (engine-logic hívja) ═════════════════ */
 function vsIndit() { J.vsCsapda = {}; J.vsResz = 0; J.vsStand = null; J.vsFuzetMondva = false; ekFuzetTorol(); vsTovabbRejt(); }
 function vsCsapdaSzamol(t) { if (J && J.vsCsapda && t) J.vsCsapda[t] = (J.vsCsapda[t] || 0) + 1; }
 function vsDicser(f, elsore) { if (f.vezet) return "Most már megvan!"; if (!elsore) return "Így már jó!"; return vsE(VS_DICSER); }
+/* a feladat buborékja: ☀️ a füzetes vásárban a füzet jobb oszlopában (vasar-fuzet.js), különben a fenti buborék */
+function vsBubEl() { var b = document.querySelector(".vs-fz-bub"); return b && b.offsetParent ? b : document.getElementById("buborek-feladat"); }
 function vsVillant() {
-  var kk = document.querySelector("#buborek-feladat .vs-kk"); if (!kk) return;
+  var kk = vsBubEl() && vsBubEl().querySelector(".vs-kk"); if (!kk) return;
   kk.classList.remove("villan"); void kk.offsetWidth; kk.classList.add("villan");
 }
 /* 👉 Tüske néni rámutat (figurák 2. kör): felemeli a kezét a kép felé; ha van `ki`, a kérdezett szereplő érme lüktet,
@@ -693,18 +695,18 @@ function vsVillant() {
 function vsMutat(ki) {
   clearTimeout(vsMutat._t); clearTimeout(vsMutat._v);
   vsMutat._t = setTimeout(function () {
-    var bub = document.getElementById("buborek-feladat"); if (!bub) return;
+    var bub = vsBubEl(); if (!bub) return;
     var t = ki && bub.querySelector('.vs-erem[data-ki="' + ki + '"]'), kep = bub.querySelector(".vs-kep"), cel = t || kep;
     if (cel) { cel.classList.remove(t ? "vs-mutat" : "vs-kep-mutat"); void cel.offsetWidth; cel.classList.add(t ? "vs-mutat" : "vs-kep-mutat"); }
     var a = bub.querySelector('.vs-arus svg[data-fig]');
     if (a) a.outerHTML = figuraSVG(a.getAttribute("data-fig"), "mutat", "alak", a.getAttribute("data-alap") || "gondol");
     vsMutat._v = setTimeout(function () {
-      var b = document.querySelector('#buborek-feladat .vs-arus svg[data-arc="mutat"]');
+      var b = vsBubEl() && vsBubEl().querySelector('.vs-arus svg[data-arc="mutat"]');
       if (b) b.outerHTML = figuraSVG(b.getAttribute("data-fig"), b.getAttribute("data-alap") || "gondol", "alak");
     }, 2600);
   }, 60);
 }
-function vsKepCsere(html) { var k = document.querySelector("#buborek-feladat .vs-kep"); if (k && html) k.innerHTML = vsKepBelso(html); }
+function vsKepCsere(html) { var k = vsBubEl() && vsBubEl().querySelector(".vs-kep"); if (k && html) k.innerHTML = vsKepBelso(html); }
 
 /* ── 📓 füzet: a ❓ sor + a műveleti sorok idx-ig (a már beírtat nem írja újra) ── */
 function vsFuzetIgIr(V, idx, valasz) {

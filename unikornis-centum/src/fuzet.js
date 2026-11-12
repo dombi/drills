@@ -76,9 +76,11 @@ function fzKezdoHely(F) {
   var T = F.T;
   if (T.terv && T.terv.nyitott) return { r: T.terv.r, c: 1 };
   if (T.tervEredCel) { var e = T.celok.filter(function (c) { return c.tip === "szam"; })[0]; return e ? { r: e.r, c: e.c } : null; }
-  if (!T.alaSorok) return null;   /* a torony lapjain marad a régi: a ceruza az egeret követi, amíg nem koppint */
+  if (!T.alaSorok && !T.terv) return null;   /* a torony lapjain marad a régi: a ceruza az egeret követi, amíg nem koppint */
   if (T.mezok.length) return { r: T.mezok[0].r, c: T.mezok[0].c0 };
-  return { r: T.alaSorok[0], c: 1 };
+  if (T.alaSorok) return { r: T.alaSorok[0], c: 1 };
+  var e1 = T.celok.filter(function (c) { return c.tip === "szam"; })[0];   /* ☀️ vásár, × : lap terv-sorral, becslés nélkül: az első jegy helye */
+  return e1 ? { r: e1.r, c: e1.c } : null;
 }
 
 /* ═════════════════ A DOBOZ: felirat · lap (+ tálca) · eszközök + számbillentyű ═════════════════ */
@@ -165,7 +167,7 @@ function fzRajz(F) {
   });
   if (T.terv) {   /* a terv-sor: halvány sáv + „terv” a margón */
     if (T.terv.nyitott) s += '<rect x="' + (fzX(1) + 1) + '" y="' + (fzY(T.terv.r) + 1) + '" width="' + (W - FZ_M - fzX(1) - 2) + '" height="' + (S - 2) + '" fill="#f3ecfb" opacity=".8"/>';
-    s += '<text x="' + (fzX(0) + S / 2) + '" y="' + (fzY(T.terv.r) + 25) + '" text-anchor="middle" font-size="12" fill="#9a86b8" class="fz-t">terv</text>';
+    s += '<text x="' + (fzX(0) + S / 2) + '" y="' + (fzY(T.terv.r) + 25) + '" text-anchor="middle" font-size="12" fill="#9a86b8" class="fz-t">' + (T.terv.cimke != null ? T.terv.cimke : "terv") + '</text>';
   }
   /* kiemelések: a gép épp ezt a lépést írja · a hibás oszlop · a jelölt kocka */
   for (c in F.hibaOszl) s += '<rect x="' + (fzX(+c) + 2) + '" y="' + (FZ_M + 2) + '" width="' + (S - 4) + '" height="' + (H - 2 * FZ_M - 4) + '" rx="6" fill="#ffd6d6" opacity=".7"/>';
@@ -371,7 +373,7 @@ function fzTervEll(F) {
   }
   var v = F.o.onTerv ? F.o.onTerv(F, t) : null;
   if (v && v.lap) { fzLapCsere(F, v.lap, { tervTok: t }); return true; }
-  if (v && v.fejben != null) { fzLapCsere(F, irTervLap({ osz: F.T.osz, ered: v.fejben, eredC: t.eqC + 1 }), { tervTok: t }); return true; }
+  if (v && v.fejben != null) { fzLapCsere(F, irTervLap({ osz: F.T.osz, sor: F.T.sor, ered: v.fejben, eredC: t.eqC + 1 }), { tervTok: t }); return true; }
   fzTervHiba(F, v && v.hiba ? v.hiba : "Nézd meg még egyszer: ez a terv nem a kérdésre felel.", v && v.csendes);
   return false;
 }
