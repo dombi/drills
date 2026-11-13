@@ -26912,7 +26912,7 @@ GEN.josda = function (cfg) {
   var kesz = cfg.keszits && i === (cfg.darab || 3) - 1;
   if (kesz) {
     var C = veletlenElem([10, 15, 20, 25]);
-    x = { forma: "meres", keszits: true, C: C, fazis: "vag", vag: null };
+    x = { forma: "meres", keszits: true, C: C, fazis: "vag", vag: null, minta: true };   /* „készíts kb. ennyit”: a 10 cm-es minta végig látszik (mihez mérje?) */
     return jsFeladat(x, C, "Vágj körülbelül " + C + " cm-es szalagot! Koppints a vonalzóra!", "Vágj körülbelül " + szo(C) + " centis szalagot! Koppints a vonalzóra, ahol elvágod!", jsNaplo("készíts " + C + " cm"));
   }
   var L = veletlen(6, 28);
@@ -27415,6 +27415,13 @@ function jsMeresRajz(JL, x, K) {
     s += '<g pointer-events="none"><g>' + (x.fedoAnim && !fedve && !lkCsokkent() ? '<animateTransform attributeName="transform" type="translate" values="0 0;' + (w + 60) + ' 0" dur=".7s" fill="freeze"/>' : '') +
          (x.fedoAnim && !fedve && lkCsokkent() ? '' : '<rect x="' + (V.x0 - 14) + '" y="' + (V.y - 4) + '" width="' + (w + 28) + '" height="46" rx="8" fill="#c9b6dc" stroke="#7a5ea8" stroke-width="2"/>' +
          '<path d="M' + (V.x0 - 6) + ' ' + (V.y + 2) + 'H' + (V.x0 + w + 6) + 'M' + (V.x0 - 6) + ' ' + (V.y + 34) + 'H' + (V.x0 + w + 6) + '" stroke="#fff" stroke-width="1.6" stroke-dasharray="5 5"/>') + '</g></g>';
+    /* a takarón látszanak a tízesek (mint a lámpások az ösvényen), csak a centik vannak letakarva: a becslés így „melyik két tízes
+       között, melyikhez közelebb?” — nem találgatás (a producer, 11-13). A vágásnál nem: ott a 10 cm-es minta a mérce. */
+    if (fedve && !x.keszits) [0, 10, 20, 30].forEach(function (c) {
+      var tx = F(jsCmX(c));
+      s += '<path d="M' + tx + ' ' + (V.y - 4) + 'v16" stroke="#fff" stroke-width="3" stroke-linecap="round"/><g transform="translate(' + tx + ' ' + (V.y + 26) + ')"><rect x="-15" y="-10" width="30" height="19" rx="6" fill="#fffaf0" stroke="#7a5ea8" stroke-width="1.4"/>' +
+           '<text y="4.6" text-anchor="middle" font-size="13"' + JS_FR + ' fill="#4a3b7a">' + c + '</text></g>';
+    });
     if (!fedve) x.fedoAnim = false;
   }
   /* szalag */
