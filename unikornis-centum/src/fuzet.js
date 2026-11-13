@@ -755,7 +755,7 @@ function fzProbaNyit() {
   if (FZ_PR.mod === "gep") FZ_PR.F.lejatsz();
   else if (uj) FZ_PR.F.felirat(P0[0] === "ket" ? "Mia: kenyér 310, tej 375, vaj 240 tallér. 1000-essel fizet. Mennyi jár vissza? Írd fel a tervet: számok, jel, a végére =." :
     "Írd fel a tervet: " + fzProbaCim(P0).replace(" (fejben)", "") + " — a végére = jel (billentyűn: + - * : =).");
-  else FZ_PR.F.felirat(T.muv === "oszt" ? "Előbb becsülj: a B: sorba írd, mettől meddig lehet a hányados!" : "Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
+  else FZ_PR.F.felirat(T.muv === "oszt" ? "Pontozd ki a hányados helyét, aztán oszd el!" : "Szorozz!");
   d.onclick = function (e) {
     var b = e.target.closest && e.target.closest(".fzp-g"); if (!b) return;
     var cs = b.dataset.cs, v = b.dataset.e; hangGomb();

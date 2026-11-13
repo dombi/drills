@@ -100,7 +100,7 @@ function irTalcaLep(t, muv) {
 }
 
 /* ═════════════════ ✖️ ÍRÁSBELI SZORZÁS ═════════════════
-   o: { becsles (alap: igen), ellenoriz (alap: igen — kétjegyű szorzónál a tényezők felcserélésével, egyjegyűnél ≤ 4-ig
+   o: { becsles (alap: NEM, 11-13 óta; true: B: sor), ellenoriz (alap: igen — kétjegyű szorzónál a tényezők felcserélésével, egyjegyűnél ≤ 4-ig
    összeadással), talca (alap: egyjegyű szorzónál igen) } */
 function irSzorzas(a, b, o) {
   o = o || {};
@@ -108,7 +108,7 @@ function irSzorzas(a, b, o) {
   T.ered = ered; T.U = U;
   var r = 0;
   if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején (fuzet.js fzLapCsere másolja bele) */
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var ra = irKerekit(a), rb = m > 1 ? irKerekit(b) : b, bec = ra * rb, bh = String(bec).length;
     T.gepIr(r, 0, "B:", "szoveg");
     T.lepes("Becslés: " + a + " ≈ " + ra + (m > 1 ? ", " + b + " ≈ " + rb : "") + ", " + ra + " · " + rb + " = " + bec + ". Leírom: " + bec + ".", "becsles", null,
@@ -220,7 +220,7 @@ function irOsszeadas(T, tagok, r, U, ell) {
 }
 
 /* ═════════════════ ➗ ÍRÁSBELI OSZTÁS (hosszú forma; o.rovid: „Röviden:”, a kivonás fejben) ═════════════════
-   o: { becsles (alap: igen), pontoz (alap: igen), ellenoriz (alap: igen), talca (alap: egyjegyű osztónál igen),
+   o: { becsles (alap: NEM, 11-13 óta), pontoz (alap: igen), ellenoriz (alap: igen), talca (alap: egyjegyű osztónál igen),
         rovid (TA, TB „Röviden:”: a szorzat nem kerül le, csak a maradék), mellek (5TB: a lap jobb szélén szabad hely a 34 · 5 / 34 · 6-nak) } */
 function irOsztas(a, b, o) {
   o = o || {};
@@ -229,7 +229,7 @@ function irOsztas(a, b, o) {
   var cA = 1, cB = n + 2, cQ = n + 3 + bs.length;   /* az osztandó első jegye · az osztó · a hányados első jegye */
   var r = 0;
   if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején */
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var d1 = Number(qs[0]), h = Math.pow(10, qn - 1), also = d1 * h, felso = (d1 + 1) * h, ah = String(also).length, fh = String(felso).length;
     var kisebb = q === also ? "≤" : "<";
     T.gepIr(r, 0, "B:", "szoveg");
@@ -346,14 +346,14 @@ function irFelvaltSor(fent, elo) {
    Terv: terv/deli-vasar-fuzet-tervlap.html (② könyvek, ⑦ hiányzó elem; döntések: 1A pótlás, 2A a gyerek ír alá, 3A terv-sor).
    A lap sorai: [terv-sor] · [B: becslés] · E sz t e fejléc · a tagok (a GYEREK írja egymás alá: „ala” lépés tagonként) · vonal · eredmény.
    o: { terv (true: üres terv-sor, a füzet másolja bele a gyerek írását · szöveg: a gép írja, pl. bemutatásnál),
-        becsles (alap: igen — százasra, 100 alatt tízesre: 4TA/4TC), talca (összeadásnál a köteg-átvitel; alap: igen) }
+        becsles (alap: NEM, 11-13 óta; true: százasra, 100 alatt tízesre: 4TA/4TC), talca (összeadásnál a köteg-átvitel; alap: igen) }
    Kivonás: PÓTLÁSSAL (3TB, 4TB, 4TC, 4TA Manó): „8 egyeshez, hogy 15 egyes legyen, kell 7 egyes…” — az elvétel jegyei ugyanazok,
    a segédjegyek (fuzet.js ¹) nem számítanak, így azt is elfogadja. A szám elején a 0-t nem írjuk ki (3TB: 1000 − 925 = 75). */
 function irNev(s) { return (/^[aeiouáéíóöőúüű]/i.test(s) ? "az " : "a ") + s; }
 function irLapFej(T, tagok, jel, o) {   /* terv-sor, becslés, fejléc, alá-írás; vissza: az eredmény sora */
   var U = T.U, W = T.W, r = 0;
   if (o.terv) { T.terv = { r: 0 }; if (typeof o.terv === "string") T.gepIr(0, 1, o.terv); r++; }
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var max = Math.max.apply(null, tagok), h = max < 100 ? 10 : 100, kt = tagok.map(function (n) { return Math.round(n / h) * h; });
     var bec = kt.slice(1).reduce(function (s, x) { return jel === "+" ? s + x : s - x; }, kt[0]), bs = String(bec).length, hn = h === 10 ? "tízesre" : "százasra";
     T.gepIr(r, 0, "B:", "szoveg");

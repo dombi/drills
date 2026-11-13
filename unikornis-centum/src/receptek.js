@@ -121,13 +121,13 @@ RECEPT({
 
 /* ══ ✍️ GARAS TORNYA — ✖️ ÍRÁSBELI SZORZÁS (2. kör, 2026-11-09; kép + feladat: irasbeli.js · füzet: fuzet.js · lap: irasbeli-gen.js) ══
    Recept-lap: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅).
-   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (becsül → számol → ellenőriz); az 1–2. asztalnál a tallér-tálcán
+   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (számol → ellenőriz; a becslés 11-13 óta nincs: 🔮 Jósda); az 1–2. asztalnál a tallér-tálcán
    viszi át a 10-es köteget. A torony a Piactér szélén, a domboldalon (a Déli vásár mellett). A Szorzódallam első végigvitele után ébred
    (3. o.-tól), 5. o.-tól nyitva. Rajt: Garas egyszer végigírja a 213 · 3-at (átugorható). 3 feladat / asztal (5. döntés A).
    A kétjegyű szorzó 4. o.-tól: 3. o.-ban ezen az asztalon is egyjegyű szorzó jön (irSzamok). */
 RECEPT({
   id: "irasbeli-szorzas", nev: "Írásbeli szorzás", ikon: "✖️", regio: "piac", hely: "irasbeli",
-  palcim: "becsülj · számolj · ellenőrizz",
+  palcim: "számolj · ellenőrizz",
   nyit: { utan: "szorzo-dallam", osztaly: [3, 4] },
   alap: { tipus: "irszor" },
   darabFix: true,
@@ -144,13 +144,13 @@ RECEPT({
 });
 
 /* ══ ✍️ GARAS TORNYA — ➗ ÍRÁSBELI OSZTÁS (3. kör, 2026-11-10; kép + feladat: irasbeli.js GEN.irosz · lap: irasbeli-gen.js irOsztas) ══
-   A gyerek a képen: ugyanaz a pult és füzet; becsül (mettől meddig), kipontozza a hányados helyét, vesszőt tesz, hosszú formában oszt,
+   A gyerek a képen: ugyanaz a pult és füzet; kipontozza a hányados helyét, vesszőt tesz, hosszú formában oszt,
    felváltja a megmaradt tallért; a „Röviden” asztalon csak a maradékot írja; a kétjegyű osztónál a lap szélén a mellékszámítás szabad.
    Az írásbeli szorzás első végigvitele után ébred (4. o.), 5. o.-tól nyitva. Rajt: Garas végigírja a 639 : 3-at (TB 100.).
    A kerek tízes és a kétjegyű osztó 5. o. (5TB): 4. o.-ban ezeken az asztalokon is egyjegyű osztó jön (irOszSzamok). */
 RECEPT({
   id: "irasbeli-osztas", nev: "Írásbeli osztás", ikon: "➗", regio: "piac", hely: "irasbeli",
-  palcim: "becsülj · pontozz · ellenőrizz",
+  palcim: "pontozz · ossz · ellenőrizz",
   nyit: { utan: "irasbeli-szorzas", osztaly: [4] },
   alap: { tipus: "irosz" },
   darabFix: true,

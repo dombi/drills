@@ -649,13 +649,13 @@ RECEPT({
 
 /* ══ ✍️ GARAS TORNYA — ✖️ ÍRÁSBELI SZORZÁS (2. kör, 2026-11-09; kép + feladat: irasbeli.js · füzet: fuzet.js · lap: irasbeli-gen.js) ══
    Recept-lap: terv/irasbeli-haz-recept-lap.html (✅ mind A) · rajz: terv/irasbeli-haz-rajzterv.html (✅).
-   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (becsül → számol → ellenőriz); az 1–2. asztalnál a tallér-tálcán
+   A gyerek a képen: Garas pultja előtt a saját füzetébe ír ceruzával (számol → ellenőriz; a becslés 11-13 óta nincs: 🔮 Jósda); az 1–2. asztalnál a tallér-tálcán
    viszi át a 10-es köteget. A torony a Piactér szélén, a domboldalon (a Déli vásár mellett). A Szorzódallam első végigvitele után ébred
    (3. o.-tól), 5. o.-tól nyitva. Rajt: Garas egyszer végigírja a 213 · 3-at (átugorható). 3 feladat / asztal (5. döntés A).
    A kétjegyű szorzó 4. o.-tól: 3. o.-ban ezen az asztalon is egyjegyű szorzó jön (irSzamok). */
 RECEPT({
   id: "irasbeli-szorzas", nev: "Írásbeli szorzás", ikon: "✖️", regio: "piac", hely: "irasbeli",
-  palcim: "becsülj · számolj · ellenőrizz",
+  palcim: "számolj · ellenőrizz",
   nyit: { utan: "szorzo-dallam", osztaly: [3, 4] },
   alap: { tipus: "irszor" },
   darabFix: true,
@@ -672,13 +672,13 @@ RECEPT({
 });
 
 /* ══ ✍️ GARAS TORNYA — ➗ ÍRÁSBELI OSZTÁS (3. kör, 2026-11-10; kép + feladat: irasbeli.js GEN.irosz · lap: irasbeli-gen.js irOsztas) ══
-   A gyerek a képen: ugyanaz a pult és füzet; becsül (mettől meddig), kipontozza a hányados helyét, vesszőt tesz, hosszú formában oszt,
+   A gyerek a képen: ugyanaz a pult és füzet; kipontozza a hányados helyét, vesszőt tesz, hosszú formában oszt,
    felváltja a megmaradt tallért; a „Röviden” asztalon csak a maradékot írja; a kétjegyű osztónál a lap szélén a mellékszámítás szabad.
    Az írásbeli szorzás első végigvitele után ébred (4. o.), 5. o.-tól nyitva. Rajt: Garas végigírja a 639 : 3-at (TB 100.).
    A kerek tízes és a kétjegyű osztó 5. o. (5TB): 4. o.-ban ezeken az asztalokon is egyjegyű osztó jön (irOszSzamok). */
 RECEPT({
   id: "irasbeli-osztas", nev: "Írásbeli osztás", ikon: "➗", regio: "piac", hely: "irasbeli",
-  palcim: "becsülj · pontozz · ellenőrizz",
+  palcim: "pontozz · ossz · ellenőrizz",
   nyit: { utan: "irasbeli-szorzas", osztaly: [4] },
   alap: { tipus: "irosz" },
   darabFix: true,
@@ -24978,7 +24978,7 @@ function irTalcaLep(t, muv) {
 }
 
 /* ═════════════════ ✖️ ÍRÁSBELI SZORZÁS ═════════════════
-   o: { becsles (alap: igen), ellenoriz (alap: igen — kétjegyű szorzónál a tényezők felcserélésével, egyjegyűnél ≤ 4-ig
+   o: { becsles (alap: NEM, 11-13 óta; true: B: sor), ellenoriz (alap: igen — kétjegyű szorzónál a tényezők felcserélésével, egyjegyűnél ≤ 4-ig
    összeadással), talca (alap: egyjegyű szorzónál igen) } */
 function irSzorzas(a, b, o) {
   o = o || {};
@@ -24986,7 +24986,7 @@ function irSzorzas(a, b, o) {
   T.ered = ered; T.U = U;
   var r = 0;
   if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején (fuzet.js fzLapCsere másolja bele) */
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var ra = irKerekit(a), rb = m > 1 ? irKerekit(b) : b, bec = ra * rb, bh = String(bec).length;
     T.gepIr(r, 0, "B:", "szoveg");
     T.lepes("Becslés: " + a + " ≈ " + ra + (m > 1 ? ", " + b + " ≈ " + rb : "") + ", " + ra + " · " + rb + " = " + bec + ". Leírom: " + bec + ".", "becsles", null,
@@ -25098,7 +25098,7 @@ function irOsszeadas(T, tagok, r, U, ell) {
 }
 
 /* ═════════════════ ➗ ÍRÁSBELI OSZTÁS (hosszú forma; o.rovid: „Röviden:”, a kivonás fejben) ═════════════════
-   o: { becsles (alap: igen), pontoz (alap: igen), ellenoriz (alap: igen), talca (alap: egyjegyű osztónál igen),
+   o: { becsles (alap: NEM, 11-13 óta), pontoz (alap: igen), ellenoriz (alap: igen), talca (alap: egyjegyű osztónál igen),
         rovid (TA, TB „Röviden:”: a szorzat nem kerül le, csak a maradék), mellek (5TB: a lap jobb szélén szabad hely a 34 · 5 / 34 · 6-nak) } */
 function irOsztas(a, b, o) {
   o = o || {};
@@ -25107,7 +25107,7 @@ function irOsztas(a, b, o) {
   var cA = 1, cB = n + 2, cQ = n + 3 + bs.length;   /* az osztandó első jegye · az osztó · a hányados első jegye */
   var r = 0;
   if (o.terv) { T.terv = { r: 0 }; r++; }   /* ☀️ Déli vásár: a gyerek terv-sora a lap tetején */
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var d1 = Number(qs[0]), h = Math.pow(10, qn - 1), also = d1 * h, felso = (d1 + 1) * h, ah = String(also).length, fh = String(felso).length;
     var kisebb = q === also ? "≤" : "<";
     T.gepIr(r, 0, "B:", "szoveg");
@@ -25224,14 +25224,14 @@ function irFelvaltSor(fent, elo) {
    Terv: terv/deli-vasar-fuzet-tervlap.html (② könyvek, ⑦ hiányzó elem; döntések: 1A pótlás, 2A a gyerek ír alá, 3A terv-sor).
    A lap sorai: [terv-sor] · [B: becslés] · E sz t e fejléc · a tagok (a GYEREK írja egymás alá: „ala” lépés tagonként) · vonal · eredmény.
    o: { terv (true: üres terv-sor, a füzet másolja bele a gyerek írását · szöveg: a gép írja, pl. bemutatásnál),
-        becsles (alap: igen — százasra, 100 alatt tízesre: 4TA/4TC), talca (összeadásnál a köteg-átvitel; alap: igen) }
+        becsles (alap: NEM, 11-13 óta; true: százasra, 100 alatt tízesre: 4TA/4TC), talca (összeadásnál a köteg-átvitel; alap: igen) }
    Kivonás: PÓTLÁSSAL (3TB, 4TB, 4TC, 4TA Manó): „8 egyeshez, hogy 15 egyes legyen, kell 7 egyes…” — az elvétel jegyei ugyanazok,
    a segédjegyek (fuzet.js ¹) nem számítanak, így azt is elfogadja. A szám elején a 0-t nem írjuk ki (3TB: 1000 − 925 = 75). */
 function irNev(s) { return (/^[aeiouáéíóöőúüű]/i.test(s) ? "az " : "a ") + s; }
 function irLapFej(T, tagok, jel, o) {   /* terv-sor, becslés, fejléc, alá-írás; vissza: az eredmény sora */
   var U = T.U, W = T.W, r = 0;
   if (o.terv) { T.terv = { r: 0 }; if (typeof o.terv === "string") T.gepIr(0, 1, o.terv); r++; }
-  if (o.becsles !== false) {
+  if (o.becsles === true) {   /* 2026-11-13: a becslés kikerült a füzetből (ötödikes: „nem kell, nem értem”) — a 🔮 Jósda lesz a helye; a kód marad */
     var max = Math.max.apply(null, tagok), h = max < 100 ? 10 : 100, kt = tagok.map(function (n) { return Math.round(n / h) * h; });
     var bec = kt.slice(1).reduce(function (s, x) { return jel === "+" ? s + x : s - x; }, kt[0]), bs = String(bec).length, hn = h === 10 ? "tízesre" : "százasra";
     T.gepIr(r, 0, "B:", "szoveg");
@@ -26086,7 +26086,7 @@ function fzProbaNyit() {
   if (FZ_PR.mod === "gep") FZ_PR.F.lejatsz();
   else if (uj) FZ_PR.F.felirat(P0[0] === "ket" ? "Mia: kenyér 310, tej 375, vaj 240 tallér. 1000-essel fizet. Mennyi jár vissza? Írd fel a tervet: számok, jel, a végére =." :
     "Írd fel a tervet: " + fzProbaCim(P0).replace(" (fejben)", "") + " — a végére = jel (billentyűn: + - * : =).");
-  else FZ_PR.F.felirat(T.muv === "oszt" ? "Előbb becsülj: a B: sorba írd, mettől meddig lehet a hányados!" : "Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
+  else FZ_PR.F.felirat(T.muv === "oszt" ? "Pontozd ki a hányados helyét, aztán oszd el!" : "Szorozz!");
   d.onclick = function (e) {
     var b = e.target.closest && e.target.closest(".fzp-g"); if (!b) return;
     var cs = b.dataset.cs, v = b.dataset.e; hangGomb();
@@ -26573,7 +26573,7 @@ GEN.irszor = function (cfg) {
   x.bemutat = !!cfg.bemutat && i === 0;
   var k = valt === "hianyos" ? ["Melyik jegy bújt el?", "Garas lemásolta ezt a szorzást, de egy jegy kimaradt. Melyik szám bújt el?"] :
           valt === "hibakeres" ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
-          ["Szorozz írásban: " + ab[0] + " · " + ab[1], "Szorozzuk össze írásban: " + szo(ab[0]) + "-szor " + szo(ab[1]) + "! Előbb becsülj."];
+          ["Szorozz írásban: " + ab[0] + " · " + ab[1], "Szorozzuk össze írásban: " + szo(ab[0]) + "-szor " + szo(ab[1]) + "!"];
   return { csalad: "jelenet", jelenet: "irszor", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
     helyes: T.ered, keplet: ab[0] + " · " + ab[1], tipp: "", naplo: { tipus: "irszor", kerdes: ab[0] + "×" + ab[1], helyes: T.ered, forma: valt || forma } };
 };
@@ -26661,11 +26661,11 @@ function irFuzetIndit(JL) {
   d._F = F; irKepAt(F); irTovabbLink(F, d); jlRajz();
   var osz = x.T.muv === "oszt";
   if (x.valt === "hibakeres") F.felirat("Garas elrontott egy jegyet. Számold újra " + (osz ? "lépésenként" : "oszloponként") + ", és radírozd ki a rosszat!", "kerd");
-  else if (osz && x.T.rovid) F.felirat("Most röviden: a szorzást és a kivonást fejben végzed, csak a maradékot írod le. Előbb becsülj!");
-  else if (osz && x.T.mellek) F.felirat("Előbb becsülj! A „mellék:” alá kipróbálhatod, melyik szorzat fér még bele.");
-  else if (osz && !vez) F.felirat("Előbb becsülj: a B: sorba írd, mettől meddig lehet a hányados!");
+  else if (osz && x.T.rovid) F.felirat("Most röviden: a szorzást és a kivonást fejben végzed, csak a maradékot írod le.");
+  else if (osz && x.T.mellek) F.felirat("A „mellék:” alá kipróbálhatod, melyik szorzat fér még bele.");
+  else if (osz && !vez) F.felirat("Pontozd ki a hányados helyét, aztán oszd el! A végén Kész.");
   else if (x.valt === "hianyos") F.felirat("Melyik jegy bújt el? Koppints az üres kockára, és írd be!", "kerd");
-  else if (!vez) F.felirat("Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
+  else if (!vez) F.felirat("Szorozz! A végén Kész.");
 }
 /* Rajt: Garas egyszer végigírja a 213 · 3-at (recept ⑥), a gyerek átugorhatja */
 function irBemutat(JL) {
@@ -26778,7 +26778,7 @@ GEN.irosz = function (cfg) {
   x.T = T; x.valt = valt; x.a = ab[0]; x.b = ab[1];
   x.bemutat = !!cfg.bemutat && i === 0;
   var k = valt ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
-          ["Ossz írásban: " + ab[0] + " : " + ab[1], "Osszuk el írásban: " + szo(ab[0]) + " osztva " + szo(ab[1]) + "! Előbb becsülj."];
+          ["Ossz írásban: " + ab[0] + " : " + ab[1], "Osszuk el írásban: " + szo(ab[0]) + " osztva " + szo(ab[1]) + "!"];
   return { csalad: "jelenet", jelenet: "irosz", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
     helyes: T.ered, keplet: ab[0] + " : " + ab[1], tipp: "", naplo: { tipus: "irosz", kerdes: ab[0] + ":" + ab[1], helyes: T.ered, mar: T.mar, forma: valt || forma } };
 };
@@ -26812,7 +26812,7 @@ function irKeszLap(T) {
      ② FEJBEN vagy ÍRÁSBAN (4. döntés A, vsFzIrasban): + −: van átvitel / pótlás, és egy tag ≥ 100 · ×: a nagyobb tényező legalább kétjegyű,
         nem kerek (és a kisebb sem kerek tízes) · :: az osztandó ≥ 100, vagy van maradék (a maradékot a Dobozoló kérdezheti: azt le kell írni).
         Írásban: a közös lap (+ −: a gyerek írja egymás alá), a végén ellenőriz (Kész / Enter); fejben: az = után írja az eredményt.
-     ③ BECSLÉS (5. döntés A): feladatonként egy, az utolsó írásbeli lépés lapján. Ellenőrző sor nincs (azt a toronyban gyakorolja).
+     ③ BECSLÉS: 2026-11-13 óta NINCS (az ötödikes: „nem kell, nem értem”; a producer: a becslés önálló hely lesz, 🔮 Jósda). Ellenőrző sor sincs.
      ④ LAPOZÁS: egy lépés = egy lap; az előző lap terv-sora és eredménye a jegyzetbe kerül. Részeredmény után Tüske néni „jó lépés” mondata.
      ⑤ VÁLASZ-SOR: ha az utolsó lépés maradékos osztás (Dobozoló: TELI? MARAD?), a végén „Válasz:” sor — a gyerek dönti el, melyik szám felel
         a kérdésre (a „mit kérdeznek?” tudás megmarad); rossz számra a régi csapda-mondat.
@@ -26871,8 +26871,8 @@ function vsFzAtalakit(f) {
   var V = f.vs, L = vsFzLepesek(V);
   if (!L || !L.length) return f;                   /* nem olvasható sor → marad a régi út (nem fordulhat elő, de ne törjön el) */
   var ut = L[L.length - 1];
-  V.lepesek = L; V.becsI = -1;
-  L.forEach(function (l, i) { l.iras = vsFzIrasban(l); if (l.iras) V.becsI = i; });
+  V.lepesek = L;
+  L.forEach(function (l) { l.iras = vsFzIrasban(l); });
   V.valaszSor = ut.h !== f.helyes || ut.mar != null;
   f.vsF = V; f.vs = null;
   f.csalad = "jelenet"; f.jelenet = "vsfuzet"; f.kartyaHTML = "";
@@ -26920,8 +26920,7 @@ function vsFzLapFelirat(f, F, T) {
   if (V.valaszMost) { F.felirat("Mi a válasz a kérdésre? " + ekSima(V.bub.kerdes) + " Írd a Válasz: után, aztán Kész (Enter).", "kerd"); return; }
   if (T.tervEredCel) { F.felirat("Ezt fejben is ki tudod számolni: írd az = után, aztán Kész (Enter)."); return; }
   if (T.terv && T.terv.nyitott) return;
-  if (T.mezok.length) F.felirat("Ezt írásban számold ki! Előbb becsülj: a B: sorba írd, " + (T.muv === "oszt" ? "mettől meddig lehet a hányados." : "mennyi lesz körülbelül."));
-  else if (T.alaSorok) F.felirat("Ezt írásban számold ki! Írd egymás alá a számokat a fejléc alá, aztán számolj. A végén Kész (Enter).");
+  if (T.alaSorok) F.felirat("Ezt írásban számold ki! Írd egymás alá a számokat a fejléc alá, aztán számolj. A végén Kész (Enter).");
   else F.felirat("Ezt írásban számold ki! A végén Kész (Enter).");
 }
 
@@ -26932,7 +26931,7 @@ function vsFzTerv(JL, f, F, t) {
   if (vsFzEgyezik(L, t) || (ert === L.h && vsFzSzamokOk(V, t))) {
     V.tervHiba = 0; V.lapHiba = 0;
     if (!L.iras) return { fejben: L.h };
-    var o = { terv: true, becsles: V.i === V.becsI, ellenoriz: false, talca: false };
+    var o = { terv: true, ellenoriz: false, talca: false };   /* becslés nincs (11-13: a 🔮 Jósda lesz a helye) */
     if (L.jel === "+") return { lap: irGyart("ossz", vsFzEgyezik(L, t) ? t.tagok : L.tagok, null, o) };   /* egymás alá abban a sorrendben, ahogy felírta */
     if (L.jel === "−") return { lap: irGyart("kiv", L.tagok[0], L.tagok[1], o) };
     if (L.jel === "·") return { lap: irGyart("szor", Math.max(L.tagok[0], L.tagok[1]), Math.min(L.tagok[0], L.tagok[1]), o) };   /* a gép rendezi: a szorzandó elöl */

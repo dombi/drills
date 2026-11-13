@@ -75,7 +75,7 @@ GEN.irszor = function (cfg) {
   x.bemutat = !!cfg.bemutat && i === 0;
   var k = valt === "hianyos" ? ["Melyik jegy bújt el?", "Garas lemásolta ezt a szorzást, de egy jegy kimaradt. Melyik szám bújt el?"] :
           valt === "hibakeres" ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
-          ["Szorozz írásban: " + ab[0] + " · " + ab[1], "Szorozzuk össze írásban: " + szo(ab[0]) + "-szor " + szo(ab[1]) + "! Előbb becsülj."];
+          ["Szorozz írásban: " + ab[0] + " · " + ab[1], "Szorozzuk össze írásban: " + szo(ab[0]) + "-szor " + szo(ab[1]) + "!"];
   return { csalad: "jelenet", jelenet: "irszor", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
     helyes: T.ered, keplet: ab[0] + " · " + ab[1], tipp: "", naplo: { tipus: "irszor", kerdes: ab[0] + "×" + ab[1], helyes: T.ered, forma: valt || forma } };
 };
@@ -163,11 +163,11 @@ function irFuzetIndit(JL) {
   d._F = F; irKepAt(F); irTovabbLink(F, d); jlRajz();
   var osz = x.T.muv === "oszt";
   if (x.valt === "hibakeres") F.felirat("Garas elrontott egy jegyet. Számold újra " + (osz ? "lépésenként" : "oszloponként") + ", és radírozd ki a rosszat!", "kerd");
-  else if (osz && x.T.rovid) F.felirat("Most röviden: a szorzást és a kivonást fejben végzed, csak a maradékot írod le. Előbb becsülj!");
-  else if (osz && x.T.mellek) F.felirat("Előbb becsülj! A „mellék:” alá kipróbálhatod, melyik szorzat fér még bele.");
-  else if (osz && !vez) F.felirat("Előbb becsülj: a B: sorba írd, mettől meddig lehet a hányados!");
+  else if (osz && x.T.rovid) F.felirat("Most röviden: a szorzást és a kivonást fejben végzed, csak a maradékot írod le.");
+  else if (osz && x.T.mellek) F.felirat("A „mellék:” alá kipróbálhatod, melyik szorzat fér még bele.");
+  else if (osz && !vez) F.felirat("Pontozd ki a hányados helyét, aztán oszd el! A végén Kész.");
   else if (x.valt === "hianyos") F.felirat("Melyik jegy bújt el? Koppints az üres kockára, és írd be!", "kerd");
-  else if (!vez) F.felirat("Előbb becsülj: a B: sorba írd, mennyi lesz körülbelül!");
+  else if (!vez) F.felirat("Szorozz! A végén Kész.");
 }
 /* Rajt: Garas egyszer végigírja a 213 · 3-at (recept ⑥), a gyerek átugorhatja */
 function irBemutat(JL) {
@@ -280,7 +280,7 @@ GEN.irosz = function (cfg) {
   x.T = T; x.valt = valt; x.a = ab[0]; x.b = ab[1];
   x.bemutat = !!cfg.bemutat && i === 0;
   var k = valt ? ["Garas elrontott egy jegyet. Keresd meg!", "Garas kiszámolta, de egy jegyet elrontott. Keresd meg, radírozd ki, és írd be jól!"] :
-          ["Ossz írásban: " + ab[0] + " : " + ab[1], "Osszuk el írásban: " + szo(ab[0]) + " osztva " + szo(ab[1]) + "! Előbb becsülj."];
+          ["Ossz írásban: " + ab[0] + " : " + ab[1], "Osszuk el írásban: " + szo(ab[0]) + " osztva " + szo(ab[1]) + "!"];
   return { csalad: "jelenet", jelenet: "irosz", ir: x, kartyaHTML: '<span class="bk-kerdes">' + k[0] + '</span>', szoveg: k[0], felolvas: k[1],
     helyes: T.ered, keplet: ab[0] + " : " + ab[1], tipp: "", naplo: { tipus: "irosz", kerdes: ab[0] + ":" + ab[1], helyes: T.ered, mar: T.mar, forma: valt || forma } };
 };
