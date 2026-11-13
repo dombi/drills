@@ -203,10 +203,11 @@ function phBode(sz, aru, J) {
    tipus: bolt | letra | csalad · lepes 0–6 (piacHazLepes) · zárva: lakat az ajtón · mára elég: hold · épül: csak a váz (2. fok) */
 var PH_HAZ = { letra: { felso: -142, szel: 52, ajto: [0, -12] }, csalad: { felso: -102, szel: 70, ajto: [34, -18] }, bolt: { felso: -102, szel: 70, ajto: [22, -20] },
   zsib: { felso: -112, szel: 66, ajto: [-6, -34], cel: [-86, 20] },
-  irasbeli: { felso: -158, szel: 30, ajto: [0, -14], cel: [44, 8] } };   /* ✍️ Garas tornya (irasbeli.js irTerkepTorony) */   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
+  irasbeli: { felso: -158, szel: 30, ajto: [0, -14], cel: [44, 8] },
+  josda: { felso: -160, szel: 54, ajto: [0, -14], cel: [-74, 10] } };   /* 🔭 a Jósda (josda.js jsTerkepHaz); az unikornis a ház bal oldalára, a híd felé áll */   /* ✍️ Garas tornya (irasbeli.js irTerkepTorony) */   /* 🦊 a szekér-stand (zsib.js zsTerkepStand); az unikornis a vevő oldalára, balra áll */
 function phHaz(tipus, lepes, J) {
   var g = PH_HAZ[tipus], hamar = J.all === "hamarosan";
-  var s = tipus === "zsib" ? zsTerkepStand() : tipus === "irasbeli" ? irTerkepTorony(lepes, J) : piacHaz(tipus, hamar ? 2 : lepes, false);
+  var s = tipus === "zsib" ? zsTerkepStand() : tipus === "irasbeli" ? irTerkepTorony(lepes, J) : tipus === "josda" ? jsTerkepHaz(lepes, J) : piacHaz(tipus, hamar ? 2 : lepes, false);
   if (J.all === "zarva") s += phLakat(g.ajto[0], g.ajto[1]);
   if (J.all === "elfogyott") s += phHold(g.ajto[0], g.ajto[1] - 4, .9);
   return { svg: s, felso: hamar ? g.felso + 6 : g.felso, bal: -g.szel - 14, jobb: g.szel + (tipus === "letra" ? 20 : 14), magas: -g.felso };

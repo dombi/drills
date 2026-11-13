@@ -50,13 +50,7 @@ function zsBolSzam(n) { return n + "-" + zsBol(n).slice(-3); }   /* számjeggyel
 
 /* ═════════════════ FELADATGYÁRTÓK (tiszta adat — a piac-őr ezeket ellenőrzi) ═════════════════ */
 /* a becslés ellenőrzője: v a gyerek kerekítése. hiba: szomszed (a távolabbi tízes) · otos (5-re végződőt lefelé) · kerek (kerek tízest elmozdított) · tav */
-function becslesEll(ar, v) {
-  var jo = kerekTizes(ar), also = Math.floor(ar / 10) * 10;
-  if (v === jo) return { jo: true };
-  if (ar % 10 === 0) return { jo: false, hiba: "kerek" };
-  if (ar % 10 === 5 && v === also) return { jo: false, hiba: "otos" };
-  return { jo: false, hiba: v === also || v === also + 10 ? "szomszed" : "tav" };
-}
+function becslesEll(ar, v) { return kerekEll(ar, 10, v); }   /* 🔭 a közös szabály a josda.js-ben (Jósda tervlap 10. döntés A) */
 function becslesOsszeg(l) { var s = 0; l.forEach(function (v) { s += kerekTizes(v); }); return s; }
 function zsAr(o, lo, hi) {
   for (var p = 0; p < 100; p++) {

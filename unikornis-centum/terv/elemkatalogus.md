@@ -5,7 +5,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 
 ## 📍 Helyek (a pálya háza / bódéja)
 - **bódé** (Vásár-sátor) — `palyahely.js` `phBode`, `LIGET_HELY.vasar` · a ligetben sorban
-- **ház** a Piactéren — `piac.js` `PIAC_HAZAK[hely]` (bolt · letra · csalad · zsib = szekér-stand, `PH_HAZ.zsib.cel`: hová sétál az unikornis) + `palyahely.js` `phHaz` · recept: `regio: "piac", hely: "<kulcs>"`
+- **ház** a Piactéren — `piac.js` `PIAC_HAZAK[hely]` (bolt · letra · csalad · zsib = szekér-stand · irasbeli = Garas tornya · josda = 🔭 kupolás kőház (`jsTerkepHaz`), `PH_HAZ.zsib.cel`: hová sétál az unikornis) + `palyahely.js` `phHaz` · recept: `regio: "piac", hely: "<kulcs>"`
 - később: tönk, gombaház, pavilon (rajzterv kész: `terv/palyahely-rajzterv.html`)
 
 ## 🪧 Tárgyak (`src/keret.js`, mind SVG-szöveget ad)
@@ -21,10 +21,14 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - `kfTalca(x, y, n, db, o)` — 🪙 tallér-tálca: n rekesz helyiérték szerint (balra a nagyobb), 10-es oszlopok, a teli oszlop papírszalagos köteg; o.fog {t: koteg|egy, p} felemelve + a letehető szomszéd kivilágít · o.villog p. A koppintást a `fuzet.js` kezeli (köteg balra = átvitel, 1 tallér jobbra = felváltás) — Garas tornya 1. kör
 - `kfSajatId(svg, elotag)` — KÖTELEZŐ minden pálya-képen: a térkép-id-k saját néven (különben a rejtett Piactér miatt átlátszó a kép)
 
+- 🔭 Jósda (`src/josda.js`, 1. kör 2026-11-13): `jsLampas(x, y, h, eg, cimke, attr)` lámpás (eg: "" · eg · lobban; a tábláján a szám) · `jsKo(x, y, t, m, attr, all)` ✨ csillagkő · `jsPotty` lépés-pötty (eg · halvany) · `jsUt` az egyenes ösvény · `jsCetli` cetli (+ „= eredmény”) · a távcső-lencse pára + gyöngy-gyűrűk (`jsDarabRajz`) · cm-vonalzó takaróval (`jsMeresRajz`) — még a josda.js-ben; ha más pálya is kéri, a keret.js-be költözik
+- 🐢 `tikiSVG({poz})` — Tiki, az idős teknős (var · mutat · cetli · orul), 200 × 240-es doboz, talp (100, 232) · `jsTiki(x, y, k, poz)`
+
 ## ⚙️ Feladatgyártók (tiszta adat, kép nélkül)
 - `rokonLetraMenet`, `rokonSegit`, `rokonSajatEll` — Rokon-létra (`szamkor100.js`)
 - `szamCsalad({max, kakukk})`, `csaladBol(x, y, max, kakukk)`, `csaladKosarak()`, `csaladAblakEll` — Számcsalád
-- `becslesEll(ar, v)` (hiba: szomszed · otos · kerek · tav), `becslesOsszeg(l)` — a könyv szabálya: 5-ös vég felfelé, kerek marad, előbb tagonként · `zsMaszat`, `zsEleg(o, hatar)`, `zsValassz`, `zsBlokk(o, pontos, trukk)` (osszeg · egy · polcar · dupla) — `zsib.js`
+- 🔭 `kerekit(n, hely)`, `kerekEll(n, hely, v)` (hiba: kerek · otos · szomszed · tav) — a közös kerekítés-szabály (`josda.js`); `jsMuv()` művelet a cetlire, `jsSzemek(n)`
+- `becslesEll(ar, v)` (= `kerekEll(ar, 10, v)`) (hiba: szomszed · otos · kerek · tav), `becslesOsszeg(l)` — a könyv szabálya: 5-ös vég felfelé, kerek marad, előbb tagonként · `zsMaszat`, `zsEleg(o, hatar)`, `zsValassz`, `zsBlokk(o, pontos, trukk)` (osszeg · egy · polcar · dupla) — `zsib.js`
 - `varazsGep` — Varázsgép (kész, vár) · bolt: fizetés, visszajáró, blokk (`bolt.js`)
 - `sk100Ugras(a, op, b)`, `sk100Naplo(a, op, b, forma)` — közös: ugrás-pontok, tény-napló
 
@@ -40,6 +44,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - **csalad** (`src/csalad.js`) — ház 4 ablakkal; módok: rak (kavicsok) · kakukk · kosar · beir · két elrendezés (teljes / keskeny)
 - **letra** (`src/letra.js`) — a létra fokai (egy fok = egy tízes) + tábla; formák: letra (magától kitölt az `indit`-ben, felmászik) · segit (3 kis fok, választás) · sajat (üres fokra koppint) · két elrendezés
 - **zsib** (`src/zsib.js`) — Zsivány szekér-standja (Zsivány él: `utan`), munka-doboz balra (telefonon alul); formák: maszat (érmék a szalagra) · eleg (+ valassz) · blokk (✓/✗ + javítás) · halvany
+- **josda** (`src/josda.js`) — 🔭 Lámpás-utca; formák: kozel (lépegetés → kő a közelebbi lámpáshoz) · koze (kő a két lámpás közé; szám vagy művelet a cetlin) · darab (lencse, pára, kártya / becslés, fűzés tízesével, „Megszámoltam”) · meres (becsül → takaró le → mér · „vágj kb. 20 cm-t”) · vegyes; ⚠️ a recept-állomáson a fajta a `forma`, a `cel` az Odú-küszöb jele
 - később **bolt** (`bolt-kep.js`) a közös ≈ cetlire
 
 ## 🎬 Jelenet-motor (`src/jelenet.js`) — a kép csak ezeket adja

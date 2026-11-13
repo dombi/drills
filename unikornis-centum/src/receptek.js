@@ -168,3 +168,25 @@ RECEPT({
     { nev: "Odú-küszöb", forma: "vegyes", darab: 3, cel: true, halvany: true }
   ]
 });
+
+/* ══ 🔭 JÓSDA · ELŐSZOBA — „Lámpás-utca” (1. kör, 2026-11-13; kép + feladat: josda.js · tervlap: terv/josda-tervlap.html, ✅ mind A) ══
+   A gyerek a képen: a csillagkövet a közelebbi lámpáshoz viszi (előbb lépegetve), a cetli számát / művelet eredményét a jó két
+   lámpás közé teszi, gyöngyszemeket becsül és tízesével fűz, szalagot becsül és mér. A Rokon-létra első végigvitele után ébred
+   (2. o.), feljebb nyitva (9. döntés A). Hossz: 5 + 5 + 3 + 3 + Odú-küszöb 4 = 20 (ösvényhossz-szabály).
+   ⚠️ az állomás fajtája a „forma” mezőben van: a „cel” a receptben az Odú-küszöb jele. */
+RECEPT({
+  id: "josda-eloszoba", nev: "Lámpás-utca", ikon: "🔭", regio: "piac", hely: "josda",
+  palcim: "100-ig · melyik lámpás van közelebb?",
+  nyit: { utan: "rokon-letra", osztaly: [2] },
+  alap: { tipus: "josda" },
+  darabFix: true,
+  segit: ["kep", "lepesenkent"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Melyik van közelebb?", stand: "josda1", forma: "kozel", darab: 5, lepeget: 2 },
+    { nev: "Melyik kettő között?", stand: "josda2", forma: "koze", darab: 5 },
+    { nev: "Hány szem van?", stand: "josda3", forma: "darab", darab: 3 },
+    { nev: "Milyen hosszú?", stand: "josda4", forma: "meres", darab: 3, keszits: true },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
+  ]
+});
