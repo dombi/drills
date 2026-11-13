@@ -95,6 +95,7 @@ MODULES = [
     "garas.js",           # 6j4d) 🐾 Garas, a nyest (képregényes, 7 póz) + a torony kívülről — rajzterv: terv/irasbeli-haz-rajzterv.html
     "keret.js",           # 6j4) 🪧 tárgy-keret: a feladat egy tárgyon a képben (🪜 fok, 🖍️ tábla, ↷ ugrás) — közös készlet, a pálya csak megnevezi
     "irasbeli.js",        # 6j4e) ✍️ Garas tornya: ✖️ írásbeli szorzás (GEN.irszor, JELENETEK.irszor, csigalépcső-kép, a torony a Piactéren)
+    "szalag.js",          # 6j4h) 🎀 Szalagműhely: az egyenlet előszobája (szlFeladat, a hód mester, a ház, a mérőléc), GEN.szalag, JELENETEK.szalag
     "josda.js",           # 6j4g) 🔭 Jósda: kerekítés + becslés (kerekit, kerekEll, Tiki a teknős, a ház, a Lámpás-ösvény), GEN.josda, JELENETEK.josda
     "vasar-fuzet.js",     # 6j4f) ☀️ Déli vásár a füzeten: a 4. o. vásár-feladat terv-sorral, fejben/írásban szabály, becslés, lapozás, válasz-sor (2. kör)
     "album-elemek.js",    # 6j5) 📸 album-elemek: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv)

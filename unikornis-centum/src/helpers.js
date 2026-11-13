@@ -22,6 +22,7 @@ var TIZ_ELOTAG = { 10: "tizen", 20: "huszon", 30: "harminc", 40: "negyven", 50: 
 function szo(n) {
   n = Math.round(n);
   if (n === 100) return "száz";
+  if (n > 100) return szamSzoval(n);   /* ✍️ Garas tornya, Jósda: 100 fölött (régen „undefinedkettő” lett belőle) */
   if (n < 10) return EGYES[n];
   if (n === 10) return "tíz";
   var t = Math.floor(n / 10) * 10, e = n % 10;

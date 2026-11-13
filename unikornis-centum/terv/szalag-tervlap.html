@@ -32,7 +32,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <header>
   <h1>🎀 Szalagműhely — az egyenlet előszobája, 4 szint</h1>
   <div class="sub">A gyerek a szöveg mondatait szalagdarabokként rakja ki egy mérőlécen, aztán a szalagon dolgozik: levág, félbehajt, kiszínezi, amit kérdeznek. A szám csak a végén jön. A tetején ugyanez □-es mondattal, visszafelé, mérlegen és törtrészekkel.</div>
-  <span class="chip">hely: a Piactér (falu), lépcső a domb felé</span><span class="chip">100-ig → 10 000-ig, törtrészek</span><span class="chip">eset ③: új hely + (javaslat) új lakó</span><span class="chip">2026-11-13 · könyvekkel + felvételi-címkékkel ellenőrizve · jóváhagyásra vár</span>
+  <span class="chip">hely: a Piactér (falu), lépcső a domb felé</span><span class="chip">100-ig → 10 000-ig, törtrészek</span><span class="chip">eset ③: új hely + (javaslat) új lakó</span><span class="chip">2026-11-13 · könyvekkel + felvételi-címkékkel ellenőrizve · ✅ jóváhagyva (mind A), a lakó: hód mester (a nevét a producer adja)</span>
 </header>
 
 <h2>0. Honnan jövünk, mit old meg</h2>
@@ -222,7 +222,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 /* a többi három ugyanígy: szalag-1em (1000), szalag-2em (10 000, tobbszoros), szalag-kupola */</pre>
 </div>
 
-<h2>⑨ Döntések — javaslat: mind az A</h2>
+<h2>⑨ Döntések — ✅ jóváhagyva 2026-11-13: mind a 13 az A</h2>
 
 <div class="dont"><b>1. Név és ikon</b><br>
 <span class="jav">A)</span> <b>Szalagműhely</b> 🎀 (a szalag már ismerős a Nagy vásárból). · B) <b>Rőfös</b> (régi szó a méteráru-boltosra; mesés, de magyarázni kell). · C) Más (írd meg).</div>
@@ -266,7 +266,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <h2>⑩ Kódkörök és nagyságrend</h2>
 <div class="panel">
   <ul>
-    <li><b>1. kör:</b> a ház a falutérképen + a lakó + az előszoba teljesen (<code>kfSin</code>, <code>kfSzalag</code> alap: kirakás, kendő, vágás; <code>szalag.js</code> az egylépéses típusokkal) → 🛑 <b>megálló:</b> élőben megnézed a házat, a lakót és az első két állomást.</li>
+    <li><b>1. kör:</b> a ház a falutérképen + a lakó + az előszoba teljesen (<code>kfSin</code>, <code>kfSzalag</code> alap: kirakás, kendő, vágás; <code>szalag.js</code> az egylépéses típusokkal) → 🛑 <b>megálló:</b> élőben megnézed a házat, a lakót és az első két állomást. <b>✅ KÉSZ (2026-11-13):</b> <code>src/szalag.js</code>. Eltérések a tervtől: a tárgyak egyelőre a szalag.js-ben vannak (<code>szlDarab</code>, <code>szlKapocs</code>…), nem a keret.js-ben; a kendő és a toldás rudjai egymás alatt, igazi hosszukban (a polcon nem fértek el); a ④ utolsó, nyitott feladata (számpárok) a 2. körre maradt; a hossz 3 + 4 + 5 + 4 + 2 + 2 = 20; a ház a Piactér közepén fent, a Déli vásár és Zsivány standja között.</li>
     <li><b>2. kör:</b> 1. emelet (érték-darab, kapocs, levágás + félbehajtás, párosítás, visszafelé, 🦊 rajz-javítás).</li>
     <li><b>3. kör:</b> 2. emelet + kupola (egység-darabok, életkor, átadás, mondat-kirakó, törtrész-hajtás, kapuk, mérleg, deszka, Mesterpróba).</li>
     <li>Minden kör végén gépi próba (némítva, háttérben) + a pult-mátrixba a négy pálya.</li>

@@ -190,3 +190,25 @@ RECEPT({
     { nev: "Odú-küszöb", forma: "vegyes", darab: 4, cel: true, halvany: true }
   ]
 });
+
+/* ══ 🎀 SZALAGMŰHELY · ELŐSZOBA — „Rudak a sínen” (1. kör, 2026-11-13; kép + feladat: szalag.js · tervlap: terv/szalag-tervlap.html, ✅ mind A) ══
+   A gyerek a képen: két szalagot egyformává told / vág (szám nélkül), rudat tesz a kendő alá, a történet mondatait tekercsként /
+   kapocsként rakja ki a mérőlécen, kiszínezi, amit kérdeznek, és csak aztán ír számot; a postakocsit visszafelé viszi a megállókon.
+   A Rokon-létra első végigvitele után ébred (2. o.), feljebb nyitva (11. döntés A). Hossz: 3 + 4 + 5 + 4 + 2 + Odú-küszöb 2 = 20. */
+RECEPT({
+  id: "szalag-eloszoba", nev: "Rudak a sínen", ikon: "🎀", regio: "piac", hely: "szalag",
+  palcim: "100-ig · rakd ki, amit mond!",
+  nyit: { utan: "rokon-letra", osztaly: [2] },
+  alap: { tipus: "szalag" },
+  darabFix: true,
+  segit: ["kep", "lepesenkent"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Legyenek egyformák!", stand: "szalag1", forma: "egyforma", darab: 3 },
+    { nev: "Mi van a kendő alatt?", stand: "szalag2", forma: "kendo", darab: 4 },
+    { nev: "Rakd ki, amit mond!", stand: "szalag3", forma: "kirak", darab: 5 },
+    { nev: "Melyik a hosszabb?", stand: "szalag4", forma: "hossz", darab: 4 },
+    { nev: "Hányan ültek fel?", stand: "szalag5", forma: "busz", darab: 2 },
+    { nev: "Odú-küszöb", forma: "vegyes", darab: 2, cel: true, halvany: true }
+  ]
+});

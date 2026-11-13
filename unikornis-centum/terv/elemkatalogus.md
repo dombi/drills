@@ -5,7 +5,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 
 ## 📍 Helyek (a pálya háza / bódéja)
 - **bódé** (Vásár-sátor) — `palyahely.js` `phBode`, `LIGET_HELY.vasar` · a ligetben sorban
-- **ház** a Piactéren — `piac.js` `PIAC_HAZAK[hely]` (bolt · letra · csalad · zsib = szekér-stand · irasbeli = Garas tornya · josda = 🔭 kupolás kőház (`jsTerkepHaz`), `PH_HAZ.zsib.cel`: hová sétál az unikornis) + `palyahely.js` `phHaz` · recept: `regio: "piac", hely: "<kulcs>"`
+- **ház** a Piactéren — `piac.js` `PIAC_HAZAK[hely]` (bolt · letra · csalad · zsib = szekér-stand · irasbeli = Garas tornya · josda = 🔭 kupolás kőház (`jsTerkepHaz`), szalag = 🎀 fa műhely orsó-cégérrel (`szlTerkepHaz`), `PH_HAZ.zsib.cel`: hová sétál az unikornis) + `palyahely.js` `phHaz` · recept: `regio: "piac", hely: "<kulcs>"`
 - később: tönk, gombaház, pavilon (rajzterv kész: `terv/palyahely-rajzterv.html`)
 
 ## 🪧 Tárgyak (`src/keret.js`, mind SVG-szöveget ad)
@@ -22,6 +22,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - `kfSajatId(svg, elotag)` — KÖTELEZŐ minden pálya-képen: a térkép-id-k saját néven (különben a rejtett Piactér miatt átlátszó a kép)
 
 - 🔭 Jósda (`src/josda.js`, 1. kör 2026-11-13): `jsLampas(x, y, h, eg, cimke, attr)` lámpás (eg: "" · eg · lobban; a tábláján a szám) · `jsKo(x, y, t, m, attr, all)` ✨ csillagkő · `jsPotty` lépés-pötty (eg · halvany) · `jsUt` az egyenes ösvény · `jsCetli` cetli (+ „= eredmény”) · a távcső-lencse pára + gyöngy-gyűrűk (`jsDarabRajz`) · cm-vonalzó takaróval (`jsMeresRajz`) — még a josda.js-ben; ha más pálya is kéri, a keret.js-be költözik
+- 🎀 Szalagműhely (`src/szalag.js`, 1. kör 2026-11-13): `szlDarab(x, y, w, szin, c, o)` szalagdarab (o: sz szaggatott · ism ? · rov rovátkák · jelolt kiszínezve · hiba · n felirat alatta · attr) · `szlKapocs(x0, x1, y, c, o)` kapcsos zárójel számmal · `szlTekercs` / `szlKapocsKartya` a polc tárgyai (darab · egész) · `szlRudTarto` rovátkás rudak egymás alatt · `szlSin` mérőléc · `szlNev` a sor neve (koppintható) · `szlKocsi` postakocsi · `hodSVG(o)` 🦫 a hód mester (var · mutat · orul) — még a szalag.js-ben; a tervlap szerinti kfSin / kfSzalag nevekkel a keret.js-be költözik, ha más pálya is kéri
 - 🐢 `tikiSVG({poz})` — Tiki, az idős teknős (var · mutat · cetli · orul), 200 × 240-es doboz, talp (100, 232) · `jsTiki(x, y, k, poz)`
 
 ## ⚙️ Feladatgyártók (tiszta adat, kép nélkül)
@@ -44,6 +45,7 @@ A recept a `src/receptek.js`-ben él (`RECEPT({...})`, csak adat). Új elem → 
 - **csalad** (`src/csalad.js`) — ház 4 ablakkal; módok: rak (kavicsok) · kakukk · kosar · beir · két elrendezés (teljes / keskeny)
 - **letra** (`src/letra.js`) — a létra fokai (egy fok = egy tízes) + tábla; formák: letra (magától kitölt az `indit`-ben, felmászik) · segit (3 kis fok, választás) · sajat (üres fokra koppint) · két elrendezés
 - **zsib** (`src/zsib.js`) — Zsivány szekér-standja (Zsivány él: `utan`), munka-doboz balra (telefonon alul); formák: maszat (érmék a szalagra) · eleg (+ valassz) · blokk (✓/✗ + javítás) · halvany
+- **szalag** (`src/szalag.js`) — 🎀 Rudak a sínen; formák: egyforma (toldás vagy vágás, szám nélkül) · kendo (rúd a kendő alá → beírás; később csak beírás) · kirak (mondatonként tekercs / kapocs a sorba → kiszínezi a kérdezett részt → beírja; `szlFeladat(tipus)`: valt-ered · valt-valt · valt-kiind · resz-ered · resz-resz · ossz-ered · ossz-kul · vonat-tobb · vonat-keves) · hossz (előbb „kinek van több?”, aztán kirak, fordított szöveg) · busz (visszafelé a megállókon) · vegyes
 - **josda** (`src/josda.js`) — 🔭 Lámpás-utca; formák: kozel (lépegetés → kő a közelebbi lámpáshoz) · koze (kő a két lámpás közé; szám vagy művelet a cetlin) · darab (lencse, pára, kártya / becslés, fűzés tízesével, „Megszámoltam”) · meres (becsül → takaró le → mér · „vágj kb. 20 cm-t”) · vegyes; ⚠️ a recept-állomáson a fajta a `forma`, a `cel` az Odú-küszöb jele
 - később **bolt** (`bolt-kep.js`) a közös ≈ cetlire
 

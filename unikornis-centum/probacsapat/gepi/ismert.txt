@@ -6,3 +6,5 @@ vegig:csilla:meres-bajital-1   # producer, 2026-10-18: a lánc-kérdések közb�
 vegig:csilla:meres-pekseg-1   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
 vegig:csilla:meres-szabo-1   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
 vegig:csilla:polc-keres-mese   # producer, 2026-10-18: a lánc-kérdések közbülső lépéseiért is jár ✨ (pár ✨-tel több a tervnél) — maradjon így
+matek:100:irasbeli-szorzas   # Claude, 2026-11-13: írásbeli szorzás (4–5. o., 10 000-ig) — a 100 fölötti eredmény a tananyag, nem hiba
+matek:keplet:irasbeli-osztas   # Claude, 2026-11-13: maradékos osztás („végén is marad”) — a válasz az egész hányados, a maradék külön sor

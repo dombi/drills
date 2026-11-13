@@ -161,6 +161,7 @@ var PIAC_HAZAK = {
   letra:  { x: 640, y: 300, nev: "Rokon-létra", tipus: "letra", k: .8, palya: "rokon-letra" },   /* 🪜 Pálya-hely B kör (letra.js) */
   bolt:   { x: 290, y: 322, nev: "Tüske néni boltja", tipus: "bolt", k: 1.1, palya: "tuske-bolt", ceger: .7 },   /* a cégér kisebb (11-10): ne takarja a dombon Garas tornyát */   /* a cégér óta kicsit jobbra (a sátor cégére ne lógjon rá) */
   irasbeli: { x: 238, y: 134, nev: "Garas tornya", tipus: "irasbeli", k: .5 },   /* ✍️ a domboldalon, a Déli vásár mellett (irasbeli.js; recept-lap 7. döntés A) — a dombság csírája */
+  szalag: { x: 408, y: 152, nev: "Szalagműhely", tipus: "szalag", k: .5 },   /* 🎀 a Piactér közepén fent, a domb lábánál (szalag.js; tervlap 3. döntés A) */
   josda: { x: 694, y: 110, nev: "Jósda", tipus: "josda", k: .42 }   /* 🔭 a dombra vivő ösvény elején, Garas tornyával szemben (josda.js; tervlap 2. döntés A) */
 };
 var PIAC = null;   /* a kirakott falutérkép: { svg, uni: { hely, el, x, y }, fut } */
@@ -255,7 +256,7 @@ function piacTer(lista, vasarLista) {
   /* házak hátulról előre (Pálya-hely B kör, 2026-10-25): a ház = a pálya, cégérrel és a közös jelekkel (palyahely.js phBurok + phHaz);
      a ház állapota a gyerek haladásából (piacHazLepes); amelyik háznak még nincs pályája, az épül (🔜 váz + „épül!”) */
   var hazPa = {}, hazJ = {};
-  ["irasbeli", "josda", "csalad", "zsib", "letra", "bolt"].forEach(function (id) {   /* hátulról előre: a torony a dombon áll */
+  ["irasbeli", "josda", "szalag", "csalad", "zsib", "letra", "bolt"].forEach(function (id) {   /* hátulról előre: a torony a dombon áll */
     var h = H[id], tobb = (h.palyak || (h.palya ? [h.palya] : [])).map(function (pid) { return (lista.filter(function (r) { return r.pa.id === pid; })[0] || {}).pa; }).filter(Boolean);
     var pa = tobb[0] || null, J = tobb.length > 1 ? pcTobbJel(tobb) : pa ? palyaJelek(pa) : { all: uj ? "alszik" : "hamarosan", ertek: 0, nincsCetli: true };
     hazPa[id] = tobb.length > 1 ? tobb : pa; hazJ[id] = J;   /* 💰 több pálya egy helyen (Zsivány standja): koppintásra a közelkép, a tárgy a bejárat (pcValaszto) */

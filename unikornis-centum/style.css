@@ -3211,6 +3211,11 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 @keyframes js-lukt{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.12) translateY(-3px); filter:drop-shadow(0 0 8px #ffd84d) } }
 @keyframes js-razkod{ 0%,100%{ transform:translateX(0) } 33%{ transform:translateX(6px) } 66%{ transform:translateX(-6px) } }
 @media (prefers-reduced-motion: reduce){ .jl-panel .js-razkod .kf-ic, .jl-panel .js-lukt .kf-ic{ animation:none; } }
+/* 🎀 Szalagműhely: a történet mondatai a buborékban (a mostani kiemelve), alatta a mozdulat */
+.szl-tortenet .szl-most{ background:#ffe3ee; border-radius:6px; padding:0 4px; box-shadow:0 0 0 2px #f6a5c0; }
+.szl-tortenet .szl-volt{ color:inherit; }
+.szl-tortenet .szl-majd{ opacity:.35; }
+.szl-utasitas{ display:block; margin-top:6px; font-size:.82em; color:#6b6280; }
 
 /* ═══════ 📸 FOTÓGÉP + FOTÓALBUM (foto.js, album.js) ═══════ */
 .foto-gomb-hely{ position:absolute; right:12px; bottom:12px; z-index:30; display:flex; align-items:center; gap:8px; pointer-events:none; }
