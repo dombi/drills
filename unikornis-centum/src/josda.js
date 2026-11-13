@@ -398,7 +398,7 @@ function jsKozelRajz(JL, x, K) {
   }
   if (JL.fog) return s;
   var kx = x.hol == null ? jsKozX(x, x.n) : jsKozX(x, x.hol === "b" ? T : T + 10) + (x.hol === "b" ? 18 : -18);
-  s += jsKo(kx, y - 4, x.n, JL.keskeny ? .9 : 1, x.irany || x.hol != null || JL.lezart ? '' : ' class="jl-fog js-lukt" data-fog="ko"', x.hol === jo ? "fenyes" : "");
+  s += jsKo(kx, y - 4, x.n, JL.keskeny ? .9 : 1, x.irany || x.hol != null || JL.lezart ? '' : ' class="jl-fog js-lukt" data-fog="ko"', x.hol === jo || (!x.irany && x.hol == null && !JL.lezart) ? "fenyes" : "");   /* a felvehető kő izzik + lüktet (a producer, 11-13) */
   return s;
 }
 function jsLep(JL, x) {
@@ -457,7 +457,7 @@ function jsKozeRajz(JL, x, K) {
   if (JL.fog) return s;
   var kp = x.kesz ? [jsSorX(m.ertek), y - 4] : x.rossz != null ? [jsSorX(x.rossz * 10 + 5), y - 4] : K.koStart;
   var t = m.muv && !x.kesz ? "?" : m.ertek;
-  s += '<g' + (x.rossz != null && !lkCsokkent() ? ' class="js-razkod"' : '') + '>' + jsKo(kp[0], kp[1], t, JL.keskeny ? .85 : 1, tesz && x.rossz == null ? ' class="jl-fog js-lukt" data-fog="ko"' : '', x.kesz ? "fenyes" : "") + '</g>';
+  s += '<g' + (x.rossz != null && !lkCsokkent() ? ' class="js-razkod"' : '') + '>' + jsKo(kp[0], kp[1], t, JL.keskeny ? .85 : 1, tesz && x.rossz == null ? ' class="jl-fog js-lukt" data-fog="ko"' : '', x.kesz || (tesz && x.rossz == null) ? "fenyes" : "") + '</g>';
   return s;
 }
 function jsKozeTesz(JL, x, k) {
