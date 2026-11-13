@@ -73,7 +73,7 @@ GEN.josda = function (cfg) {
     var T = veletlen(1, 8) * 10, e = st.sor[i % st.sor.length] ? veletlen(6, 9) : veletlen(1, 4), n = T + e;
     var lep = !h && (i < (cfg.lepeget || 0) || (st.lepKell > 0 && st.lepKell-- > 0));
     x = { forma: "kozel", n: n, T: T, lep: lep, L: 0, R: 0, irany: lep ? "b" : null, feny: {}, hol: null };
-    return jsFeladat(x, kerekit(n, 10), "Melyik lámpás van közelebb a kőhöz?",
+    return jsFeladat(x, kerekit(n, 10), lep ? "Lépegess a kisebb lámpásig! Koppints a villogó karikára!" : "Vidd a követ a közelebbi lámpáshoz!",
       lep ? "Melyik lámpás van közelebb a kőhöz? Előbb lépegess: koppints a lépésekre, egészen a kisebb lámpásig!" : "Melyik lámpás van közelebb a kőhöz? Vidd oda a követ!", jsNaplo("közelebb " + n));
   }
   if (forma === "koze") {
@@ -81,7 +81,7 @@ GEN.josda = function (cfg) {
     if (muv) m = jsMuv();
     else { var v = veletlen(1, 99); while (v % 10 === 0) v = veletlen(1, 99); m = { szoveg: String(v), ertek: v, beszed: szo(v), muv: false }; }
     x = { forma: "koze", m: m, jel: !h && (i < 2 || i === 3), hol: null, kesz: false };
-    return jsFeladat(x, Math.floor(m.ertek / 10) * 10, "Melyik két lámpás közé esik?",
+    return jsFeladat(x, Math.floor(m.ertek / 10) * 10, "Melyik két lámpás közé esik? Vidd oda a követ!",
       muv ? "Körülbelül hova esik az eredmény? Ne számold ki pontosan! Vidd a követ a két lámpás közé!" : "Melyik két lámpás közé esik a cetli száma? Vidd oda a követ!", jsNaplo("között " + m.szoveg));
   }
   if (forma === "darab") {
@@ -94,11 +94,11 @@ GEN.josda = function (cfg) {
   if (kesz) {
     var C = veletlenElem([10, 15, 20, 25]);
     x = { forma: "meres", keszits: true, C: C, fazis: "vag", vag: null };
-    return jsFeladat(x, C, "Vágj körülbelül " + C + " cm-es szalagot!", "Vágj körülbelül " + szo(C) + " centis szalagot! Koppints a vonalzóra, ahol elvágod!", jsNaplo("készíts " + C + " cm"));
+    return jsFeladat(x, C, "Vágj körülbelül " + C + " cm-es szalagot! Koppints a vonalzóra!", "Vágj körülbelül " + szo(C) + " centis szalagot! Koppints a vonalzóra, ahol elvágod!", jsNaplo("készíts " + C + " cm"));
   }
   var L = veletlen(6, 28);
   x = { forma: "meres", L: L, minta: i === 0, fazis: "becs", becs: null };
-  return jsFeladat(x, L, "Milyen hosszú a szalag? Becsüld meg!", (i === 0 ? "A kis szalag tíz centi. " : "") + "Milyen hosszú a nagy szalag? Becsüld meg, és írd a táblára!", jsNaplo("mérés " + L));
+  return jsFeladat(x, L, "Milyen hosszú a szalag? Becsüld meg, és írd a táblára!", (i === 0 ? "A kis szalag tíz centi. " : "") + "Milyen hosszú a nagy szalag? Becsüld meg, és írd a táblára!", jsNaplo("mérés " + L));
 };
 function jsFeladat(x, helyes, kerdes, felolvas, naplo) {
   return { csalad: "jelenet", jelenet: "josda", js: x, kartyaHTML: '<span class="bk-kerdes">' + kiiras(kerdes) + '</span>', szoveg: kerdes, felolvas: felolvas,
@@ -337,7 +337,7 @@ JELENETEK.josda = {
       jlFokusz(); return;
     }
     if (x.forma === "meres") {
-      if (x.fazis === "becs") { x.becs = v; x.fazis = "mer"; x.fedoAnim = true; jsFelirat("Most mérd meg! Hány cm?"); jlRajz(); mondd("Most mérd meg! Hány centi?"); jlFokusz(); return; }
+      if (x.fazis === "becs") { x.becs = v; x.fazis = "mer"; x.fedoAnim = true; jsFelirat("Most mérd meg! Hány cm? Írd a táblára!"); jlRajz(); mondd("Most mérd meg! Hány centi?"); jlFokusz(); return; }
       if (v === x.L) { x.fazis = "kesz"; x.tiki = "orul"; hangCsilla(); jlJo(v + " cm", null, jsMutatEltart); return; }
       JL.rossz = String(v); jlRossz(String(v) + " cm"); jlRajz();
       jlSzol(JL.seg >= 2 ? "A szalag a nullánál kezdődik. Nézd meg, melyik számnál van a vége!" : "Nézd meg, hol ér véget a szalag a vonalzón!", true);
@@ -398,7 +398,7 @@ function jsKozelRajz(JL, x, K) {
   }
   if (JL.fog) return s;
   var kx = x.hol == null ? jsKozX(x, x.n) : jsKozX(x, x.hol === "b" ? T : T + 10) + (x.hol === "b" ? 18 : -18);
-  s += jsKo(kx, y - 4, x.n, JL.keskeny ? .9 : 1, x.irany || x.hol != null || JL.lezart ? '' : ' class="jl-fog" data-fog="ko"', x.hol === jo ? "fenyes" : "");
+  s += jsKo(kx, y - 4, x.n, JL.keskeny ? .9 : 1, x.irany || x.hol != null || JL.lezart ? '' : ' class="jl-fog js-lukt" data-fog="ko"', x.hol === jo ? "fenyes" : "");
   return s;
 }
 function jsLep(JL, x) {
@@ -406,12 +406,12 @@ function jsLep(JL, x) {
   if (x.irany === "b") x.L++; else x.R++;
   var v = x.irany === "b" ? x.n - x.L : x.n + x.R, f = JL.f;
   if (x.irany === "b" && v === x.T) {   /* elérte a kisebb lámpást: az kigyúl, vissza a kőhöz, aztán a nagyobbig */
-    x.feny.b = "eg"; x.irany = "j"; hangCsilla(); jsFelirat("Most lépegess a nagyobb lámpásig!");
+    x.feny.b = "eg"; x.irany = "j"; hangCsilla(); jsFelirat("Most lépegess a nagyobb lámpásig! Koppints a villogó karikára!");
     jlRajz(); jsSetal(jsKozX(x, v), jsK().uy, function () { setTimeout(function () { if (JL && JL.f === f) jsSetal(jsKozX(x, x.n), jsK().uy, null, 10); }, 250); });
     return;
   }
   if (x.irany === "j" && v === x.T + 10) {
-    x.feny.j = "eg"; x.irany = null; hangCsilla(); jsFelirat("Melyik lámpás van közelebb a kőhöz?");
+    x.feny.j = "eg"; x.irany = null; hangCsilla(); jsFelirat("Melyik lámpás van közelebb? Vidd oda a követ!");
     jlRajz(); jsSetal(jsKozX(x, v), jsK().uy, function () { setTimeout(function () { if (JL && JL.f === f) jsSetal(jsKozX(x, x.n), jsK().uy, null, 10); }, 250); });
     mondd("Melyik lámpás van közelebb? Vidd oda a követ!");
     return;
@@ -435,7 +435,7 @@ function jsKozelTesz(JL, x, hova) {
     setTimeout(function () {
       if (!JL || JL.f !== f) return;
       x.hol = null; x.villan = null; x.lep = true; x.L = x.R = 0; x.irany = "b"; x.feny = {}; JL.lezart = false;
-      jsFelirat("Lépegess el a kisebb lámpásig!");
+      jsFelirat("Lépegess a kisebb lámpásig! Koppints a villogó karikára!");
       jlRajz(); jsSetal(jsKozX(x, x.n), K.uy, null, 10);
       jlSzol(JL.seg >= 2 ? "Számold meg a lépéseket! Előbb a kisebb lámpásig, aztán a nagyobbig. Merre kevesebb?" : "Hm. Lépegess, és nézd meg, merre rövidebb az út!", true);
     }, lkCsokkent() || window.__UC_GYORS ? 0 : 700);
@@ -457,7 +457,7 @@ function jsKozeRajz(JL, x, K) {
   if (JL.fog) return s;
   var kp = x.kesz ? [jsSorX(m.ertek), y - 4] : x.rossz != null ? [jsSorX(x.rossz * 10 + 5), y - 4] : K.koStart;
   var t = m.muv && !x.kesz ? "?" : m.ertek;
-  s += '<g' + (x.rossz != null && !lkCsokkent() ? ' class="js-razkod"' : '') + '>' + jsKo(kp[0], kp[1], t, JL.keskeny ? .85 : 1, tesz && x.rossz == null ? ' class="jl-fog" data-fog="ko"' : '', x.kesz ? "fenyes" : "") + '</g>';
+  s += '<g' + (x.rossz != null && !lkCsokkent() ? ' class="js-razkod"' : '') + '>' + jsKo(kp[0], kp[1], t, JL.keskeny ? .85 : 1, tesz && x.rossz == null ? ' class="jl-fog js-lukt" data-fog="ko"' : '', x.kesz ? "fenyes" : "") + '</g>';
   return s;
 }
 function jsKozeTesz(JL, x, k) {
@@ -494,7 +494,7 @@ function jsNez(JL) {
 }
 function jsFuzIndit(JL, x) {
   x.fazis = "fuz";
-  jsFelirat("Fűzd fel a szemeket tízesével!");
+  jsFelirat("Koppints a szemekre: fűzd fel őket tízesével!");
   jlRajz(); mondd("Most fűzd fel a szemeket! Koppints rájuk egyenként. Tíz szem egy gyűrű.");
 }
 function jsFuz(JL, x, i) {
@@ -518,7 +518,7 @@ function jsAutoFuz(JL, x) {
   })();
 }
 function jsSzamolIndit(JL, x) {
-  x.fazis = "szamol"; jsFelirat("Megszámoltam: hány szem van?");
+  x.fazis = "szamol"; jsFelirat("Hány szem van? Írd a táblára!");
   jlRajz(); jlFokusz(); mondd("Hány szem van? Írd a táblára!");
 }
 function jsDarabRajz(JL, x, K) {
@@ -618,7 +618,7 @@ function jsVag(JL, x, c) {
   hangGomb();
   if (x.fazis === "vag") {
     x.vag = c; x.fazis = "igazit"; x.fedoAnim = true;
-    jsFelirat("Most pontosan " + x.C + " cm legyen!");
+    jsFelirat("Most pontosan " + x.C + " cm legyen! Koppints oda, ahol elvágod!");
     jlRajz(); mondd("Most mérd meg! Legyen pontosan " + szo(x.C) + " centi: koppints oda, ahol elvágod!");
     return;
   }

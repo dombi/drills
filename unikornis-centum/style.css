@@ -3207,8 +3207,10 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .jl-panel .jl-hely.jl-cel path{ stroke:#e0417a; stroke-width:3; stroke-dasharray:none; }
 .jl-panel rect.jl-hely.jl-cel{ fill:#ffe3ee; fill-opacity:.6; }   /* 🔭 Jósda: a két lámpás közti szakasz, ahová esne */
 .jl-panel .js-razkod .kf-ic{ animation:js-razkod .26s 2; }
+.jl-panel .js-lukt .kf-ic{ animation:js-lukt 1.3s ease-in-out infinite; transform-box:fill-box; transform-origin:center; cursor:pointer; }   /* 🔭 a felvehető kő: „vegyél fel!” — hang nélkül is látszik */
+@keyframes js-lukt{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.12) translateY(-3px) } }
 @keyframes js-razkod{ 0%,100%{ transform:translateX(0) } 33%{ transform:translateX(6px) } 66%{ transform:translateX(-6px) } }
-@media (prefers-reduced-motion: reduce){ .jl-panel .js-razkod .kf-ic{ animation:none; } }
+@media (prefers-reduced-motion: reduce){ .jl-panel .js-razkod .kf-ic, .jl-panel .js-lukt .kf-ic{ animation:none; } }
 
 /* ═══════ 📸 FOTÓGÉP + FOTÓALBUM (foto.js, album.js) ═══════ */
 .foto-gomb-hely{ position:absolute; right:12px; bottom:12px; z-index:30; display:flex; align-items:center; gap:8px; pointer-events:none; }
