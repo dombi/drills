@@ -33,7 +33,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <header>
   <h1>🔭 Jósda — kerekítés és becslés, 4 pálya</h1>
   <div class="sub">A gyerek egy egyenes, lámpásokkal kirakott ösvényen dönti el, hova esik egy szám „messziről nézve”: a közelebbi kerek számhoz viszi. Erre épül a becslés: előbb jósol a kerek számokkal, aztán a kép „beteljesíti”, és látszik, milyen közel járt.</div>
-  <span class="chip">hely: a Piactér felső széle, a dombra vivő ösvény eleje</span><span class="chip">100-ig → 10 000 fölé</span><span class="chip">eset ③: új hely + új lakó</span><span class="chip">2026-11-13 · jóváhagyásra vár</span>
+  <span class="chip">hely: a Piactér felső széle, a dombra vivő ösvény eleje</span><span class="chip">100-ig → 10 000 fölé</span><span class="chip">eset ③: új hely + új lakó</span><span class="chip">2026-11-13 · könyvekkel ellenőrizve · jóváhagyásra vár</span>
 </header>
 
 <h2>0. Honnan jövünk, mit old meg</h2>
@@ -41,7 +41,20 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
   <ul>
     <li>Az írásbeli füzetből kivettük a becslést (<code>e881453</code>), mert ott a gyerek szemében <b>rejtett szabály</b> volt (nem mondta ki, mire kerekítünk) és <b>nem volt haszna</b> (rossz eredmény úgysem jöhetett ki). A Jósdában mindkettő fordítva van: <b>a feladat mindig kimondja, mire kerekítünk</b>, és van olyan állomás, ahol <b>a becslés lebuktat egy rossz eredményt</b>.</li>
     <li>A producer szabálya: a <b>kerekítés</b> egyetlen jó választ ad, a tankönyv szabálya szerint; a <b>becslés</b> a kerekített számokkal számolt közelítés (szintén egy jó válasz). Távolság-sávos „jóslat” <b>csak</b> ott van, ahol a könyv is ránézéses becslést kér (darabszám, mérés).</li>
-    <li>Könyv-átnézés: kész (2026-11-13), a forrás-oldalak a 2. pontban.</li>
+    <li>Könyv-átnézés: kész (2026-11-13), a forrás-oldalak a 2. pontban. <b>Ellenőrizve a könyvek szövegén (2026-11-13, 2. kör):</b> minden állomás mellett ott a pontos hely; ami a saját hozzátételünk, azt ✚ jelöli.</li>
+  </ul>
+</div>
+
+<h2>0b. Hogyan becsül a könyv, és mit nem csinálunk</h2>
+<div class="panel ok">
+  <p><b>A könyvek becslés-köre (2–5. o., mindenhol ugyanez):</b> <b>becslés → ellenőrzés</b> (számlálás, mérés, számolás) → <b>az eltérés</b> leírása („Becslés · Mérés · Különbség”: 2MB; „Becslés · Mérés · Eltérés”: 3TB; „Írd le azt is, mennyit tévedtél!”: 5TB) → <b>visszatekintés</b> („Hogyan sikerült a becslés? Mennyire volt pontos? Mennyire volt gyors?”: 3TC; „Melyik becslés sikerült a legjobban?”: 3TC; „Karikázd be, ahol túl nagynak gondolod az eltérést!”: 3TC) → <b>javított becslés</b> („oszd részekre, számold meg egy részét, és úgy mondj újabb becslést”: 3MC 52. o.; „Pontosítsátok a becslést!”: 3TC). A gyakorlás <b>ismétlés</b>: „Végezzetek becsléseket óráról órára!” (2TC 12.).</p>
+  <p><b>A könyv sehol nem jutalmazza a telitalálatot.</b> Az eltérés a becslés természetes része, nem hiba. Ezért a Jósdában:</p>
+  <ul>
+    <li><b>Nincs telitalálat-bónusz és nincs pontozott „közel / messze” sáv</b> (ez volt az első változatban, kivettem): a szerencsét jutalmazná, és arra tanítana, hogy a jó becslés = eltalált szám. Ez a tévhit félrevinné a számfogalmat.</li>
+    <li><b>Ránézéses becslésnél (darab, hossz) a jóslatért nem jár sem ✨, sem hiba.</b> A feladat az ellenőrzéssel lesz kész (tízesével számlál, mér). Az eltérés látszik a képen (a két kő között a lépés-pöttyök), a lakó nem minősíti.</li>
+    <li><b>Kerekítés és a kerekített számokkal végzett becslés: egy jó válasz</b>, a könyv szabálya szerint, és a feladat mindig kimondja, mire kerekítünk. Itt van jó és rossz (ezt kérte a producer).</li>
+    <li><b>A becslés mindig a számolás ELŐTT</b> jön. A pontos eredmény csak utána jelenik meg (beteljesülés).</li>
+    <li><b>Ránézéses becslésnél nem lehet egyesével megszámolni</b>: a könyv is kérdezi, „mennyire volt gyors?”. A kép pár másodpercig látszik, aztán a távcső bepárásodik (11. döntés). A válaszra nincs időkorlát.</li>
   </ul>
 </div>
 
@@ -57,27 +70,30 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <div class="panel tbl">
 <table>
 <tr><th>Mit vettünk át (típus)</th><th>Forrás</th><th>Hova</th></tr>
-<tr><td>Melyik kerek tízeshez van közelebb? (mesebeli utca, toronyházak = kerek tízesek); hány lépés a kisebb / nagyobb tízesig</td><td>2TC 33., 35–36. o.</td><td>Előszoba 1.</td></tr>
-<tr><td>A számhoz legközelebbi két kerek tízes; melyik két tízes között a helye</td><td>2TB 1128; 2MC 12.</td><td>Előszoba 2.</td></tr>
-<tr><td>Darabbecslés: „becslésem / megszámoltam”, „több mint 10? 20 és 30 között?”, markolj ki kb. 30-at</td><td>2MC 3.; 2TC 7., 12.</td><td>Előszoba 3.</td></tr>
-<tr><td>Mérés előtt becsülj (cm, dm, m)</td><td>2. o. mérés-fejezetek</td><td>Előszoba 4. (6. döntés)</td></tr>
+<tr><td>Melyik toronyházhoz vannak legközelebb a házak? (mesebeli utca, a toronyházak házszáma kerek tízes); „a 28 a kisebbik kerek tízes szomszédjától 8 lépésre van, a nagyobbiktól csak 2 lépésnyire”</td><td>2TC 33. f. (102. o.); 2TC 35–36. f.</td><td>Előszoba 1.</td></tr>
+<tr><td>Melyik két kerek tízes között van a helye? Húzd oda! — számoknál ÉS műveletek eredményénél (4 · 6, 86 − 79, 25 + 23, 100 − 5, 17 + 78)</td><td>2TB (számszomszédok: „a számhoz legközelebb álló két tízes”); 2MC 10. f.; 2MC 12. f. (műveletek)</td><td>Előszoba 2.</td></tr>
+<tr><td>Darabbecslés: „Becslésem / Megszámoltam” (gyöngyláncok); „Több, mint 10? 20 és 30 között?”; golyós számoló: becsülj, aztán „hány golyó van egy sorban?”</td><td>2MC 3. f.; 2TC 12. f.; 2MB „Százig számolunk”</td><td>Előszoba 3.</td></tr>
+<tr><td>Mérés előtt becsülj (cm, dm, m): „Becslés · Mérés”; „Tépj körülbelül ilyen hosszú papírcsíkot! Méréssel ellenőrizd! Értékeld a becslésedet!”; „Markolj ki körülbelül 30 rudat! Számlálj ki pontosan 30-at (pótold vagy tedd vissza)!”</td><td>2TB (mérés: „Becsüld meg a grafitceruzád hosszát! (Kerekíts!)”); 2TC 20. f., 7. f.; 2MB „Becslés · Mérés · Különbség”</td><td>Előszoba 4. (6. döntés)</td></tr>
 <tr><td>Kerekítés tízesre, százasra; döntetlennél felfelé; ≈ jel; kerek szám önmaga</td><td>3TB 73–75. o.</td><td>1. emelet 1–2.</td></tr>
 <tr><td>Visszafelé: mely számok kerekítése 400? (a legkisebb és a legnagyobb is)</td><td>3TB 73–75. (8–10. f.)</td><td>1. emelet 3.</td></tr>
-<tr><td>Becslés összeadás / kivonás előtt tízesre és százasra; mikor melyik a jobb?</td><td>3TB 93. o.</td><td>1. emelet 4.</td></tr>
-<tr><td>Hibakeresés: „hibátlannak találták — egyetértesz?”</td><td>3TC 16.</td><td>🦊 állomás minden emeleten</td></tr>
-<tr><td>Szorzat becslése (háromjegyű · egyjegyű, 122 ≈ 100); a szorzat helye a számegyenesen „becslés szerint”</td><td>3TB 122.; 3TC 19–20.</td><td>1. emelet 5.</td></tr>
-<tr><td>Darabbecslés kupacolással / részekre osztással → javított becslés</td><td>3TC 18–19.; 3MC</td><td>1. emelet 6.</td></tr>
-<tr><td>Kerekítés ezresre; 5-re végződő → nagyobb tízes, 50-re → nagyobb százas; a kerekített érték attól függ, mire kerekítünk</td><td>4TB 1821</td><td>2. emelet 1–2.</td></tr>
+<tr><td>Becslés összeadás / kivonás előtt tízesre és százasra; „Melyik becslés van közelebb? Mikor érdemes százasra, mikor tízesre kerekíteni?”; „mi az előnye és a hátránya… Biztos, hogy annyira nehéz kerek tízesekkel számolni?”</td><td>3TB 93. o.; 3TC 34. f.</td><td>1. emelet 4.</td></tr>
+<tr><td>Becsléssel dönteni: „Elég lesz a pénzed, hogy mindent megvegyél? Százasokra kerekített értékekkel becsülj!”; „Melyik nagyobb? Kerekített értékekkel közelíts!”; Zsolti és Laci jól becsült, a pénztárgép mégis többet mutatott: „Tévedett a pénztárgép?”</td><td>3TC „Összeadás, kivonás százasokra kerekített értékekkel”; 3MC 6. f.; 3TC (Zsolti–Laci)</td><td>1. emelet 5. (új)</td></tr>
+<tr><td>Hibakeresés becsléssel: „Péter így számolt: 342 + 236 = …” — „Végezz becslést, az alapján ellenőrizd, hogy jól számoltál-e!”; „hibátlannak találták — egyetértesz?”</td><td>3TB 93. o. (Péter); 3TB 94. o.; 3TC 16.</td><td>🦊 állomás minden emeleten</td></tr>
+<tr><td>Szorzat becslése (háromjegyű · egyjegyű): „Becsülj százasokra kerekített értékkel! Számolj!” (122 ≈ 100, 100 · 4 = 400); a szorzat helye a számegyenesen „becslés szerint”</td><td>3TB (a szorzás-leckék 2. feladatai); 3TC 19–20.</td><td>1. emelet 6.</td></tr>
+<tr><td>Darabbecslés részekre osztással: „Becslés után számláld meg, mennyi van egy nagyobb négyzetben, mennyi az egész rajzban!”; „oszd részekre… Javított becslés”; „Becslésed alapján húzd alá a legjobb választ! 100-nál kevesebb · 100-nál több, de 3-szor 100-nál kevesebb …”</td><td>3TC (74. o. körül); 3MC 52. o.; 3TC (73. o. körül)</td><td>1. emelet 7.</td></tr>
+<tr><td>Kerekítés ezresre; 5-re végződő → nagyobb tízes, 50-re → nagyobb százas; a kerekített érték attól függ, mire kerekítünk</td><td>4TB, 4TA (számszomszédok, kerekítés)</td><td>2. emelet 1–2.</td></tr>
 <tr><td>Visszafelé: „4000 — ha ezresre / százasra / tízesre kerekített?”; „hány lakója lehet, ha 8000?”</td><td>4TB 13–15.</td><td>2. emelet 2–3.</td></tr>
-<tr><td>Kétjegyű szorzó: mindkét tényező tízesre + irány („biztosan több, mert mindkettőt lefelé kerekítettük”)</td><td>4TA 6009</td><td>2. emelet 4.</td></tr>
-<tr><td>Osztás: „1000 &lt; hányados &lt; 2000”</td><td>4TA 4397</td><td>2. emelet 5.</td></tr>
-<tr><td>Kerekítés pontossága (10 … 10 000); a kerekítés intervallum: 3550 benne, 3650 nem</td><td>5TB 20. o.</td><td>Kupola 1–2.</td></tr>
-<tr><td>„Legkevesebb / legfeljebb mennyi lehetett?”; 5-ösre kerekítés készpénznél</td><td>5TB</td><td>Kupola 3. (7. döntés)</td></tr>
-<tr><td>Pontos vagy kerekített adat? (3 testvér · 50 000 Ft)</td><td>5TB</td><td>Kupola 4.</td></tr>
-<tr><td>Osztás becslése: osztandó ezresre, osztó tízesre (1942 : 34)</td><td>5TB</td><td>Kupola 5.</td></tr>
+<tr><td>A számegyenesen a kerekítés határa: „Az üres karika azt jelenti, hogy a jelölt számtól indulunk, de a szám nem tartozik a lefelé kerekített értékek közé”</td><td>4TB (10. f., számszomszédok, kerekítés)</td><td>2. emelet 2. (csak a kép)</td></tr>
+<tr><td>Kétjegyű szorzó: mindkét tényező tízesre: „12 ≈ 10, 14 ≈ 10, 10 · 10 = 100. A szorzat biztosan nagyobb lesz 100-nál, mivel mindkét szorzótényezőt lefelé kerekítettük.” — a vegyes irányú példánál (26 ≈ 30, 24 ≈ 20) a könyv már nem mond irányt</td><td>4TA (kétjegyű szorzó, két példa)</td><td>2. emelet 4. ✚ a „nem tudjuk biztosan” a mi kiterjesztésünk</td></tr>
+<tr><td>Osztás: „Becslés: Megállapítjuk, hány jegyű lesz a hányados. 1000 &lt; a hányados &lt; 2000” (az első osztási lépésből); „300 &lt; a hányados &lt; 400”</td><td>4TA (írásbeli osztás)</td><td>2. emelet 5.</td></tr>
+<tr><td>Pontos-e az adat, vagy kerekített érték? Miért?</td><td>4TA (számszomszédok, kerekítés); 5TB 1. f. („Jánosnak 3 testvére van”)</td><td>Kupola 4.</td></tr>
+<tr><td>Kerekítés pontossága (10, 100, 1000, 10 000); a kerekítés intervallum: „a végpontjai 3550 és 3650”</td><td>5TB 20. o.</td><td>Kupola 1–2.</td></tr>
+<tr><td>„kg-ra kerekítve 6 kg cukrot használ fel. Mennyi cukrot jelenthet ez?”; legkisebb / legnagyobb szám adott kerekített értékkel (már 4TA, 4TB 16. f.)</td><td>5TB 9. f.; 4TA; 4TB</td><td>Kupola 3.</td></tr>
+<tr><td>5-ösre kerekítés készpénznél („Ha a valódi ár 8-ra, 9-re, 0-ra, 1-re vagy 2-re végződik…”)</td><td>5TB 20–21. o., 3. f.</td><td>Kupola 3. (7. döntés)</td></tr>
+<tr><td>Osztás becslése: „kerekítsük az osztandót ezresekre, az osztót tízesekre… körülbelül annyi, mint a 2000 : 30 osztásé, tehát körülbelül 60”</td><td>5TB (írásbeli osztás kétjegyű osztóval)</td><td>Kupola 5.</td></tr>
 </table>
 <p><b>Tananyag-szabály, amit követünk:</b> a közelebbi kerek szám; pont középen felfelé (475 ≈ 480, 450 ≈ 500); kerek szám kerekítve önmaga; a kerekítés helyét a feladat mindig kimondja; becslésnél előbb tagonként kerekítünk, aztán a kerekítettekkel számolunk (ez a <code>becslesOsszeg</code> szabálya is); 5. o.: a kerekítés intervallum, az alsó vége benne van, a felső nem. A „kerekítés” szó és a ≈ jel a 2. o.-os előszobában még nincs, és ott a pont-középen eset (25) nem fordul elő.</p>
-<p><b>Kihagytuk, mert pedagógiailag gyanús:</b> „Számolj! Becsülj!” sorrend (3TB 7507: a pontos számolás után becsülni álbecslés); a gépies „ne feledkezz meg a becslésről” sorminta; az „ügyes kerekítés” szabad változata pontozott feladatként (két jó választ adna, ez a rejtett szabály hibája lenne újra — csak a lakó mondja el ötletként a kupolában).</p>
+<p><b>Kihagytuk, mert pedagógiailag gyanús:</b> „Számolj! Becsülj!” sorrend (3TB, az első szorzás-lecke: ott a könyv is csak bevezetésnek használja, „Mit tapasztalsz?”, a következő leckéktől már „Becsülj! Számolj!”); a gépies „Ne feledkezz meg a becslésről!” sorminta (4TA, sok helyen); az „ügyes kerekítés” (5TB (Ügyes kerekítéssel becsüld meg…): van ilyen feladat, de több jó választ ad, ezért pontozott feladatnak nem jó — csak a lakó mondja el ötletként a kupolában); telitalálat-jutalom (a könyvben nincs, lásd 0b).</p>
 <p><b>Módszertani hozzáadás:</b> (Siegler–Ramani) egyenes, egyforma lépésű ösvény, mert ez építi a szám-nagyság érzékét; (Dienes) ugyanaz a gondolat három megtestesülésben: ösvény, fény-sáv, téglalap-ágyás, és van „itt nem igaz” (vegyes irányú kerekítésnél nem tudjuk biztosan); (Varga) rossz válaszra a kép a következményt mutatja (hosszú séta, kilógó ágyás); (Pólya) a becslés <b>előre</b> jön, és egyszer valóban megment valamit (🦊 állomás).</p>
 </div>
 
@@ -91,9 +107,9 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <div class="panel tbl"><table>
 <tr><th>Állomás</th><th>Mit csinál a gyerek</th><th>Halványítás</th></tr>
 <tr><td>1. Melyik lámpás van közelebb?</td><td>A kő a két tízes-lámpás között. Kezdetben <b>lépeget</b>: koppintásonként lép egyet balra a lámpásig, aztán jobbra; a lépések megmaradnak pöttyként. Utána leteszi a követ a közelebbi lámpáshoz.</td><td>1–2. feladat lépegetve → utána csak a letevés; hibánál visszajön a lépegetés.</td></tr>
-<tr><td>2. Melyik két lámpás között?</td><td>A szám a lakó kezében (cetli), az ösvényen csak a lámpások. A gyerek a követ a jó <b>két lámpás közé</b> teszi; ott a két lámpás fellobban, és a kő a pontos helyére gördül.</td><td>Előbb 10-es szakaszonként jelölt ösvény → utána a szakaszok jelölése nélkül.</td></tr>
-<tr><td>3. Hány szem van? (darab-jóslat)</td><td>Szétszórt gyöngyszemek (20–60). A gyerek <b>3 kártyából</b> jósol („20-nál kevesebb” · „20 és 40 között” · „40-nél több”), később számot ír a ≈ nélküli cetlire. Aztán <b>fűzi</b>: koppintásonként egy szem a fűzérre; 10 szemnél a fűzér gyűrűvé zárul. Az első gyűrű után új jóslat jöhet („javított”), a többit a kölyök fűzi fel, a gyerek a gyűrűket és a maradékot összeszámolja.</td><td>Kártya → saját szám. A fűzés mindig a gyereké (első gyűrű).</td></tr>
-<tr><td>4. Milyen hosszú? (mérés-jóslat) <i>(6. döntés)</i></td><td>Egy szalag a cm-es vonalzó-ösvény fölött, de a vonalzó letakarva. A gyerek jósol (beír), a takaró lehúzódik, és a szalag vége mutatja a valódi hosszt; a jóslat csillagköve is ott van.</td><td>Előbb látszik 1-2 cm-es minta, később nem.</td></tr>
+<tr><td>2. Melyik két lámpás között?</td><td>A szám a lakó kezében (cetli), az ösvényen csak a lámpások. A gyerek a követ a jó <b>két lámpás közé</b> teszi; ott a két lámpás fellobban, és a kő a pontos helyére gördül. Később a cetlin <b>művelet</b> áll (86 − 79, 17 + 78, 4 · 6): a gyerek kiszámolás nélkül dönti el, hova esik az eredmény, aztán a lakó kiszámolja, és a kő odagurul (2MC 12. f.). Ez az első igazi becslés.</td><td>Előbb 10-es szakaszonként jelölt ösvény → utána a szakaszok jelölése nélkül. Előbb számok → aztán műveletek.</td></tr>
+<tr><td>3. Hány szem van? (darab-becslés)</td><td>Szétszórt gyöngyszemek (20–60), pár másodpercig láthatók, aztán bepárásodik a távcső (11. döntés). A gyerek a könyv kérdéseivel becsül: <b>3 kártya</b> („20-nál kevesebb” · „20 és 40 között” · „40-nél több”, 2TC 12. f.), később számot ír („Becslésem”). Aztán <b>ellenőriz</b> (a pára eltűnik): a szemeket tízesével <b>fűzi</b> (koppintásonként egy szem; 10 szemnél gyűrűvé zárul), és beírja: „Megszámoltam”. A kép a két szám kövét egymás mellé teszi az ösvényen, köztük az eltérés pöttyei. Nincs érte se ✨, se hiba.</td><td>Kártya → saját szám. Az első gyűrűt mindig a gyerek fűzi, a többit idővel a kölyök (a gyerek a gyűrűket és a maradékot számolja).</td></tr>
+<tr><td>4. Milyen hosszú? (mérés-becslés) <i>(6. döntés)</i></td><td>a) <b>Becsülj, aztán mérj</b> (2TB): egy szalag a letakart cm-es vonalzó fölött; a gyerek beírja a becslését, a takaró lehúzódik, és a gyerek <b>maga olvassa le</b> a mérést. A kép a két követ mutatja, köztük az eltérést. b) <b>Készíts körülbelül ennyit</b> (2TC 20. f., 7. f.): „Vágj körülbelül 20 cm-es szalagot!” — a gyerek a letakart vonalzón koppint, hol vágja el; aztán lemér, és pontosan 20-ra pótolja / levágja.</td><td>Előbb látszik egy 10 cm-es minta, később nem.</td></tr>
 </table></div>
 
 <h3>🪜 2. pálya — 1. emelet (1000-ig) · „Lámpás-ösvény”</h3>
@@ -102,20 +118,21 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <tr><td>1. Kerekítsd tízesre / százasra!</td><td>A lakó beállítja a lencsét, a gyerek leteszi a követ a közelebbi lámpáshoz. Közé kerülnek csapdák: 5-ös / 50-es vég (felfelé), kerek szám (helyben marad, nem kell vinni: a kő alatt már ég a lámpás).</td><td>Lépés-pöttyök → csak lámpások → csak a ≈ cetli (a gyerek a cetlire koppint, mint a Zsibvásárban).</td></tr>
 <tr><td>2. ≈ a cetlin</td><td>Ugyanez jelképesen: a ≈ cetlire írja a kerekített számot; az ösvény csak hiba után jelenik meg.</td><td>— (ez a létra teteje)</td></tr>
 <tr><td>3. Kik kerekednek 400-ra?</td><td>A 400-as lámpás fénykört vet az ösvényre, de a széle homályos. A gyerek <b>kijelöli a fény két szélét</b>: koppint a legkisebb és a legnagyobb kő helyére (350 és 449). A fény odáig ér, ahová jelölt; ha túl szélesre vette, a kilógó részen álló kő a <i>másik</i> lámpás felé fordul.</td><td>Előbb a tízes-lámpások is látszanak → utána csak a százasok.</td></tr>
-<tr><td>4. Jósolj, mielőtt összeadsz!</td><td>Két szám (pl. 386 + 247). A gyerek mindkettő kövét a lámpásához viszi (a feladat mondja: tízesre vagy százasra), aztán a ≈ cetlire írja a kerek számok összegét. Beteljesülés: megjelenik a pontos összeg köve, látszik a távolság. Fordulónként egyszer: „Melyik lencsével jósolunk pontosabban?” — a gyerek választ, aztán mindkettő jóslat kövei kint vannak.</td><td>A tagok kövei → a tagok csak a cetlin.</td></tr>
-<tr><td>5. Hova esik a szorzat?</td><td>122 · 4: a szorzandó kövét a százas lámpáshoz viszi, a cetlire írja: 100 · 4 = 400; aztán a szorzat kövét az ösvényre teszi „a becslés szerint” (a 400-as lámpás közelébe). Beteljesülés: a valódi 488 helye.</td><td>Mint fent.</td></tr>
-<tr><td>6. Hány csillag van az égen?</td><td>A távcsőben egy égdarab, 10 egyforma szeletre osztva. A gyerek előbb jósol (3 kártya: kb. 100 · kb. 300 · kb. 500), aztán <b>egy szeletben megszámolja</b> a csillagokat (koppintás = pötty a csillagon), és beírja: „egy szeletben 27 → az egészben kb. 270”. Beteljesülés: a lakó mondja a pontos számot, a kép mutatja, melyik szelet volt sűrűbb.</td><td>Kártya → saját szám.</td></tr>
-<tr><td>🦊 7. Zsivány kiszámolta</td><td>Zsivány 4 cetlin hoz eredményt (összeadás / kivonás), egy-kettő nagyon rossz (pl. helyiérték-csúszás: 312 + 489 = 7101). A gyerek <b>előbb a ≈ cetlire írja a becslést</b>, csak utána pecsétel: ✓ „lehet” / ✗ „ez nem lehet”. A rossz cetlit Zsivány visszaveszi és vakarja a fejét.</td><td>—</td></tr>
+<tr><td>4. Jósolj, mielőtt összeadsz!</td><td>Két szám (pl. 386 + 247). A gyerek mindkettő kövét a lámpásához viszi (a feladat mondja: tízesre vagy százasra), aztán a ≈ cetlire írja a kerek számok összegét (egy jó válasz). Beteljesülés: megjelenik a pontos összeg köve, látszik a távolság. Fordulónként egyszer ugyanaz a feladat mindkét lencsével, és a lakó megkérdezi a könyv kérdését: „Melyikkel volt könnyebb? Melyik lett közelebb?” (3TB 93., 3TC 34. f.). Erre nem jár ✨, csak a két kő látszik egymás mellett.</td><td>A tagok kövei → a tagok csak a cetlin.</td></tr>
+<tr><td>5. Elég lesz? (becsléssel dönteni)</td><td>Tüske néni boltjában 3 dolog (pl. 226 + 389 + 172), a gyerek erszényében 900 tallér. „Elég lesz? Százasra kerekítve becsülj!” A gyerek a ≈ cetlire írja a becslést, aztán dönt: <b>elég · nem elég · ebből nem tudom biztosan</b>. Ha a becslés közel van a pénzhez, a jó válasz a „nem tudom biztosan”, és ilyenkor a kassza kiszámolja (Zsolti és Laci esete: jól becsültek, a pénztárgép mégis többet mutatott — „Tévedett a pénztárgép?”). Változat: „Melyik nagyobb?” két összeg között (3MC 6. f.).</td><td>—</td></tr>
+<tr><td>6. Hova esik a szorzat?</td><td>122 · 4: a szorzandó kövét a százas lámpáshoz viszi, a cetlire írja: 100 · 4 = 400; aztán a szorzat kövét az ösvényre teszi „a becslés szerint” (a 400-as lámpás közelébe). Beteljesülés: a valódi 488 helye.</td><td>Mint fent.</td></tr>
+<tr><td>7. Hány csillag van az égen?</td><td>A távcsőben egy égdarab, 10 egyforma szeletre osztva, pár másodpercig látszik (11. döntés). A gyerek előbb becsül a könyv kártyáival („100-nál kevesebb” · „100-nál több, de 3-szor 100-nál kevesebb” · „3-szor 100-nál több”: 3TC), aztán <b>egy szeletben megszámolja</b> a csillagokat (koppintás = pötty a csillagon), és beírja a <b>javított becslést</b>: „egy szeletben 27 → az egészben kb. 270” (3MC 52. o.). Ez a második szám egy jó választ ad (a szelet · 10), ez számít. Beteljesülés: a lakó mondja a pontos számot, a kép mutatja, melyik szelet volt sűrűbb, mint a megszámolt.</td><td>Kártya → saját szám.</td></tr>
+<tr><td>🦊 8. Zsivány kiszámolta</td><td>Zsivány 4 cetlin hoz eredményt (összeadás / kivonás), egy-kettő nagyon rossz (pl. helyiérték-csúszás: 312 + 489 = 7101). A gyerek <b>előbb a ≈ cetlire írja a becslést</b>, csak utána pecsétel: ✓ „lehet” / ✗ „ez nem lehet”. A rossz cetlit Zsivány visszaveszi és vakarja a fejét.</td><td>—</td></tr>
 </table></div>
 
 <h3>🔭 3. pálya — 2. emelet (10 000-ig) · „Három lencse”</h3>
 <div class="panel tbl"><table>
 <tr><th>Állomás</th><th>Mit csinál a gyerek</th><th>Halványítás</th></tr>
 <tr><td>1. Ezresre is</td><td>Mint az 1. emeleten, ezres lámpatornyokkal; csapdák: 5-ös, 50-es, 500-as vég; kerek szám.</td><td>Ösvény → cetli.</td></tr>
-<tr><td>2. Forgasd a lencsét!</td><td>Ugyanaz a szám (pl. 3 476), a gyerek <b>maga forgatja</b> a lencsét: tízes → százas → ezres, és mindháromnál leteszi a követ. A három kerekített érték a lámpások alatt marad. Visszafelé: „4000 — ha ezresre / százasra / tízesre kerekítettük, hol lehetett?” → a fény-sáv a három lencsénél egyre keskenyebb (a gyerek jelöli a széleit).</td><td>Előbb a sáv két szélének helye halványan pöttyözve → utána nem.</td></tr>
+<tr><td>2. Forgasd a lencsét!</td><td>Ugyanaz a szám (pl. 3 476), a gyerek <b>maga forgatja</b> a lencsét: tízes → százas → ezres, és mindháromnál leteszi a követ. A három kerekített érték a lámpások alatt marad („A kerekített érték mindig attól függ, hogy tízesre vagy százasra kerekítünk”: 4TB). Visszafelé: „4000 — ha ezresre / százasra / tízesre kerekítettük, hol lehetett?” → a fény-sáv a három lencsénél egyre keskenyebb (a gyerek jelöli a széleit; a sáv felső végén a könyv jele: üres karika, 4TB).</td><td>Előbb a sáv két szélének helye halványan pöttyözve → utána nem.</td></tr>
 <tr><td>3. Hányan lakhatnak ott?</td><td>Szöveges visszafelé: „A falu lakóinak száma ezresre kerekítve 8000. Legalább hányan? Legfeljebb hányan?” A gyerek a fény-sáv két szélét jelöli, aztán beírja a két számot.</td><td>—</td></tr>
 <tr><td>4. A virágágyás (kétjegyű szorzás iránnyal)</td><td>Egy 26 × 24-es kockás ágyás. A gyerek <b>mindkét oldalt kerekíti</b> (koppint a két szomszéd tízes egyikére), a kerekített ágyás vonala rárajzolódik a valódira. Aztán 3 kártya: „biztosan több” · „biztosan kevesebb” · „nem tudjuk biztosan”. Ha mindkét oldal lefelé ment, a kerek ágyás <b>belül</b> van (a valódi biztosan több); ha mindkettő felfelé, kilóg; ha vegyes, egyik helyen kilóg, másikon belül van → „nem tudjuk biztosan”. (Ez a Dienes-féle „itt nem igaz”.)</td><td>Előbb a vonal a kártya ELŐTT látszik → később csak UTÁNA (a gyerek fejben látja meg).</td></tr>
-<tr><td>5. A hányados két lámpás között</td><td>8 645 : 7 — a gyerek a hányados kövét a jó két ezres lámpás közé teszi (1000 és 2000 közé). Beteljesülés: a lakó „visszaszoroz”: 1000 · 7 = 7000 és 2000 · 7 = 14 000 kapuja között ott a 8 645.</td><td>Előbb a kapuk a letevés előtt → utána csak utána.</td></tr>
+<tr><td>5. A hányados két lámpás között</td><td>8 645 : 7 — a könyv módja: <b>„megállapítjuk, hány jegyű lesz a hányados”</b> az első lépésből (8 ezres : 7 = 1 ezres, tehát ezres a legnagyobb helyiérték, és 1 a jegye). A gyerek ezt a lépést mondja ki (beírja: 1 ezres), aztán a hányados kövét a jó két ezres lámpás közé teszi: 1000 &lt; hányados &lt; 2000. Beteljesülés: a lakó „visszaszoroz”: 1000 · 7 = 7000 és 2000 · 7 = 14 000 kapuja között ott a 8 645, és megjelenik a valódi hányados köve.</td><td>Előbb a kapuk a letevés előtt → utána csak utána.</td></tr>
 <tr><td>🦊 6. Zsivány kiszámolta</td><td>Mint az 1. emeleten, szorzással és osztással (egy jegy kimaradt, elcsúszott a részletszorzat).</td><td>—</td></tr>
 </table></div>
 
@@ -126,7 +143,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <tr><td>2. Hol kezdődik, hol végződik?</td><td>„Kerekítve 3600 (százasra).” A gyerek a fény-sáv két végét jelöli, ÉS mindkét végre kiválaszt egy karikát: <b>tele</b> (benne van) vagy <b>üres</b> (nincs benne). 3550 tele, 3650 üres; a 3650-es kő, ha benne hagyja, átgurul a 3700-as lámpáshoz.</td><td>—</td></tr>
 <tr><td>3. Legkevesebb, legfeljebb</td><td>Szöveges: „Kb. 2 500 néző volt (százasra kerekítve). Legalább hányan, legfeljebb hányan?” <i>(7. döntés: + 5-ösre kerekítés a kasszánál)</i></td><td>—</td></tr>
 <tr><td>4. Pontos vagy kerek?</td><td>Kártyák (pl. „3 testvér”, „kb. 50 000 tallér a kincsesládában”, „a csillagvizsgáló 2 400 m magasan”) — a gyerek két kosárba rakja: <b>pontos</b> · <b>kerekített</b>. Egy forduló = 5 kártya, mind jónak kell lennie; a rossz kártya visszarepül.</td><td>—</td></tr>
-<tr><td>5. Osztás becsléssel</td><td>1 942 : 34 — a gyerek az osztandót ezresre, az osztót tízesre kerekíti (köveket visz), a hányados kövét a két jó tízes-lámpás közé teszi. Beteljesülés: a pontos hányados helye.</td><td>Mint a 2. emeleten.</td></tr>
+<tr><td>5. Osztás becsléssel</td><td>1 942 : 34 — a könyv módja (5TB): az osztandót ezresre, az osztót tízesre kerekíti (köveket visz: 2000, 30), aztán a ≈ cetlire írja: <b>2000 : 30 ≈ 60</b> (a hányados első jegye és a helyiértéke: 200 tízes : 3 → 6 tízes). Beteljesülés: a pontos hányados (57) köve a 60-as lámpás mellett.</td><td>Mint a 2. emeleten.</td></tr>
 <tr><td>🦊 6. Zsivány kiszámolta — és ahol a becslés sem segít</td><td>Mint fent, de egy cetli csak kicsit rossz (pl. 10-zel). A becslés „lehet”-et mond, a gyerek ✓-t pecsétel — aztán beteljesülés: a pontos érték kicsit odébb. Ez nem hiba a gyereknek (nem veszít semmit), a lakó: „A becslés a nagy hibát fogja meg, a kicsit nem. Arra való az ellenőrzés.”</td><td>—</td></tr>
 </table></div>
 
@@ -146,7 +163,8 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <ul>
   <li><b>Közelebbi lámpás (2 lehetőség = 50% tipp):</b> egy állomáson a második rossz letevés után az állomás <b>visszaáll a lépegetős formára</b> (a következő feladatokban újra lépegetni kell), és a ✨ csak a lépegetés utáni jó letevésért jár. Így a tippelés lassabb, mint a gondolkodás.</li>
   <li><b>„Mindig felfelé” stratégia:</b> a gyártó úgy keveri a számokat, hogy a lefelé és felfelé kerekítés aránya kb. fele-fele, és a középső eset (5-ös vég) legfeljebb minden ötödik feladat.</li>
-  <li><b>Darab-jóslat, mérés-jóslat:</b> a jóslat sávja (telitalálat / közel / messze) csak egy kis csillag-bónuszt ad; a feladat attól lesz kész, hogy a gyerek a fűzést / a szelet-számolást elvégezte. Egy „mindig 30” tipp így semmit nem nyer.</li>
+  <li><b>Darab- és mérés-becslés:</b> a becslés maga nem ad semmit (se ✨, se hibát), a feladat az ellenőrzéssel lesz kész (fűzés tízesével, mérés leolvasása, javított becslés egy szeletből — ezek egy jó választ adnak). Egy „mindig 30” tipp így semmit nem nyer, és nincs miért tippelni. Egyesével számolni nem lehet, mert a kép bepárásodik (11. döntés).</li>
+  <li><b>„Elég lesz?” (3 válasz):</b> csak jó becslés után választható; a „nem tudom biztosan” csak akkor jó, ha a becslés tényleg közel van a pénzhez (a gyártó állítja be a határt: a kerekítés legnagyobb lehetséges hibája).</li>
   <li><b>3 kártya (ágyás irány, 1. emelet „melyik lencse”):</b> az ágyásnál a kártya csak a két oldal kerekítése után választható (a kerekítés maga is ellenőrzött); a „melyik lencse” kérdés ✨-t nem ad.</li>
   <li><b>🦊 ✓/✗ pecsét (50%):</b> pecsételni csak jó becslés után lehet (a becslés a szabály szerint ellenőrzött, nem „elég közel”).</li>
   <li><b>Pontos / kerek válogatás:</b> a forduló csak akkor kész, ha mind az 5 kártya a jó kosárban van; rossz kártyánál a kártya visszarepül, és a forduló ✨-ja feleződik.</li>
@@ -169,8 +187,8 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
   allomasok: [
     { nev: "Melyik van közelebb?", darab: 6, cel: "kozel", max: 100, lepeget: 2 },
     { nev: "Melyik kettő között?",  darab: 5, cel: "koze",  max: 100 },
-    { nev: "Hány szem van?",        darab: 3, cel: "darab", tol: 20, ig: 60 },
-    { nev: "Milyen hosszú?",        darab: 3, cel: "meres", egyseg: "cm" } ] })
+    { nev: "Hány szem van?",        darab: 3, cel: "darab", tol: 20, ig: 60, para: 4 },
+    { nev: "Milyen hosszú?",        darab: 3, cel: "meres", egyseg: "cm", keszits: true } ] })
 /* a többi három ugyanígy: josda-1em (1000, tizes/szazas), josda-2em (10 000, + ezres), josda-kupola */</pre>
 </div>
 
@@ -183,8 +201,8 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <span class="jav">A)</span> <b>Új lakó: egy idős teknős</b> szemüveggel, a távcső mellett. Lassú és nyugodt, ezzel a kép is mondja: itt nincs sietés. A nevét te adod. · B) Garas, a nyest viszi ezt is (nincs új figura, olcsóbb, de összemosódik a pontos írásbelivel). · C) Bagoly (ütközne a Bagolykönyvtárral).</div>
 <div class="dont"><b>4. Rajz</b> (új hely + új lakó)<br>
 <span class="jav">A)</span> Nincs külön rajzterv: az 1. kódkörben a ház és a lakó egyből a játékba kerül, és ott <b>egy megálló</b> (megnézed, mondod, mi legyen más), utána egyben épül tovább. · B) Előbb külön rajzterv 2–3 változattal.</div>
-<div class="dont"><b>5. Darab-jóslat mércéje</b><br>
-<span class="jav">A)</span> Három sáv: telitalálat (±10%) · közel (±25%) · messze; csak egy kis csillag-bónusz, a feladat a fűzéssel / a szelet-számolással lesz kész. · B) A jóslat nem kap semmit, csak a beteljesülés látszik.</div>
+<div class="dont"><b>5. Darab- és mérés-becslés mércéje</b> (módosítva a könyv-ellenőrzés után, a producer kérdésére)<br>
+<span class="jav">A)</span> Ahogy a könyv: a becslésért nem jár sem jutalom, sem hiba; ellenőrzés (számlálás tízesével / mérés), és az eltérés látszik a képen. Ahol a könyv kéri, jön a javított becslés (egy részből), és az egy jó választ ad. · B) Mint A, és a lakó az állomás végén egy mondatban visszanéz („Ma a csillagoknál közelebb jártál, mint a gyöngyöknél.”) — a könyv „Hogyan sikerült a becslés?” kérdése, de a gyerek helyett a lakó mondja. · <s>Telitalálat-bónusz, pontozott sávok</s> — kivéve (0b).</div>
 <div class="dont"><b>6. Mérés-jóslat az előszobában</b><br>
 <span class="jav">A)</span> Igen, egy állomás: cm-szalag a letakart vonalzó-ösvényen (a vonalzó maga is ösvény, így ugyanaz a kép). · B) Később, a mérés-pályákba.</div>
 <div class="dont"><b>7. 5-ösre kerekítés készpénznél (5. o.)</b><br>
@@ -195,6 +213,9 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padd
 <span class="jav">A)</span> Az előszoba a Rokon-létra után ébred (ott már biztos a 100-as kör és a kerek tízesek); az 1. emelet a pult szerinti 3. o.-tól, a 2. emelet 4. o.-tól, a kupola 5. o.-tól; Lilinek és Fanninak minden szint nyitva. · B) Az egész Jósda csak a Garas tornya után.</div>
 <div class="dont"><b>10. A meglévő becslések</b><br>
 <span class="jav">A)</span> A Zsibvásár ≈ cetlije és a Déli vásár „fejben / írásban” maradnak, ahol vannak; a kódban a közös <code>kerekEll</code>-re állnak (egy szabály, egy helyen). Az írásbeli füzet becslés-sora (<code>o.becsles</code>) kikapcsolva marad. · B) A Zsibvásár becslése is a Jósdába költözik.</div>
+
+<div class="dont"><b>11. Ránézéses becslésnél: meddig látszik a kép?</b> (új, a könyv „Mennyire volt gyors?” kérdése alapján)<br>
+<span class="jav">A)</span> Pár másodperc (a mennyiséghez szabva, kb. 3–5 mp), aztán a távcső bepárásodik; a becslés beírására nincs időkorlát, és a pára az ellenőrzésnél eltűnik. Így nem lehet egyesével megszámolni, és a gyerek valóban becsül. · B) A kép végig látszik, de a szemek lassan mozognak (nehéz egyesével számolni). · C) Végig látszik, semmi akadály (ilyenkor sok gyerek egyesével számol, és ez már nem becslés).</div>
 
 <h2>⑨ Kódkörök és nagyságrend</h2>
 <div class="panel">
