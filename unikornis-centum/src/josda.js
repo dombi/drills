@@ -542,12 +542,12 @@ function jsDarabRajz(JL, x, K) {
   var G = K.gyuru, gy = Math.floor(x.fuz / 10), mar = x.fuz % 10, gr = JL.keskeny ? 22 : 26;
   for (i = 0; i <= gy && i < 7; i++) {
     var db = i < gy ? 10 : mar; if (!db) continue;
-    var gx = G[0] + i * G[2], zart = i < gy;
+    var gx = G[0] + i * G[2], zart = i < gy, lk = JL.keskeny ? 13 : 18;
     if (zart) s += '<circle cx="' + gx + '" cy="' + G[1] + '" r="' + gr + '" fill="none" stroke="#b08a68" stroke-width="1.6"/>';
-    else s += '<path d="M' + (gx - gr) + ' ' + G[1] + 'H' + (gx - gr + 10 * 6) + '" stroke="#b08a68" stroke-width="1.6"/>';
+    else s += '<path d="M' + (gx - gr) + ' ' + G[1] + 'H' + F(gx - gr + 10 * lk) + '" stroke="#b08a68" stroke-width="1.6"/>';   /* a maradék: nyitott szál, a szemek külön-külön, megszámolhatóan (a producer, 11-13) */
     for (var j = 0; j < db; j++) {
-      var a = -Math.PI / 2 + j * Math.PI / 5, bx = zart ? gx + Math.cos(a) * gr : gx - gr + j * 6 + 3, by = zart ? G[1] + Math.sin(a) * gr : G[1];
-      s += '<circle cx="' + F(bx) + '" cy="' + F(by) + '" r="' + (zart ? 6.4 : 5.6) + '" fill="' + JS_SZEM_SZIN[j % 5][0] + '" stroke="' + JS_SZEM_SZIN[j % 5][1] + '" stroke-width="1.2"/>';
+      var a = -Math.PI / 2 + j * Math.PI / 5, bx = zart ? gx + Math.cos(a) * gr : gx - gr + j * lk + lk / 2, by = zart ? G[1] + Math.sin(a) * gr : G[1];
+      s += '<circle cx="' + F(bx) + '" cy="' + F(by) + '" r="' + (zart ? 6.4 : 7) + '" fill="' + JS_SZEM_SZIN[j % 5][0] + '" stroke="' + JS_SZEM_SZIN[j % 5][1] + '" stroke-width="1.2"/>';
     }
   }
   /* kártyák (az első feladat becslése, 2TC 12. f.) */
