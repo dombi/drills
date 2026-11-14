@@ -71,8 +71,10 @@ GEN.josda = function (cfg) {
   if (forma === "kozel") {
     if (!st.sor) st.sor = keverTomb([0, 1, 0, 1, 1, 0]);   /* 🔒 felfelé és lefelé fele-fele: a „mindig felfelé” nem nyer */
     var T = veletlen(1, 8) * 10, e = st.sor[i % st.sor.length] ? veletlen(6, 9) : veletlen(1, 4), n = T + e;
-    var lep = !h && (i < (cfg.lepeget || 0) || (st.lepKell > 0 && st.lepKell-- > 0));
-    x = { forma: "kozel", n: n, T: T, lep: lep, L: 0, R: 0, irany: lep ? "b" : null, feny: {}, hol: null };
+    var bem = !P().bemutatva.josdaLep || st.lepBemut;   /* a bevezető lépegetés játékosonként EGYSZER (a producer, 11-14); a rossz letevés utáni lépegetés marad */
+    var lepBe = !h && i < (cfg.lepeget || 0) && bem; if (lepBe) st.lepBemut = true;
+    var lep = lepBe || (!h && st.lepKell > 0 && st.lepKell-- > 0);
+    x = { forma: "kozel", n: n, T: T, lep: lep, lepBe: lepBe, L: 0, R: 0, irany: lep ? "b" : null, feny: {}, hol: null };
     return jsFeladat(x, kerekit(n, 10), lep ? "Lépegess a kisebb lámpásig! Koppints a villogó karikára!" : "Vidd a követ a közelebbi lámpáshoz!",
       lep ? "Melyik lámpás van közelebb a kőhöz? Előbb lépegess: koppints a lépésekre, egészen a kisebb lámpásig!" : "Melyik lámpás van közelebb a kőhöz? Vidd oda a követ!", jsNaplo("közelebb " + n));
   }
@@ -86,7 +88,7 @@ GEN.josda = function (cfg) {
   }
   if (forma === "darab") {
     var nd = i === 0 ? veletlen(21, 34) : veletlen(26, 59);
-    x = { forma: "darab", n: nd, kartya: i === 0, auto: i > 0, fazis: "nez", szemek: jsSzemek(nd), fuz: 0, becs: null, becsK: null };
+    x = { forma: "darab", n: nd, kartya: i === 0, auto: i > 0 || !!P().bemutatva.josdaFuz, fazis: "nez", szemek: jsSzemek(nd), fuz: 0, becs: null, becsK: null };
     return jsFeladat(x, nd, "Nézd meg jól!", "Nézd meg jól, aztán mondd meg, körülbelül hány szem van!", jsNaplo("darab " + nd));
   }
   /* meres */
@@ -412,6 +414,7 @@ function jsLep(JL, x) {
   }
   if (x.irany === "j" && v === x.T + 10) {
     x.feny.j = "eg"; x.irany = null; hangCsilla(); jsFelirat("Melyik lámpás van közelebb? Vidd oda a követ!");
+    if (x.lepBe && !P().bemutatva.josdaLep) { P().bemutatva.josdaLep = 1; ment(); }   /* végiglépegette egyszer: legközelebb már nem kell */
     jlRajz(); jsSetal(jsKozX(x, v), jsK().uy, function () { setTimeout(function () { if (JL && JL.f === f) jsSetal(jsKozX(x, x.n), jsK().uy, null, 10); }, 250); });
     mondd("Melyik lámpás van közelebb? Vidd oda a követ!");
     return;
@@ -502,7 +505,7 @@ function jsFuz(JL, x, i) {
   sz.fuzve = true; x.fuz++; hangGomb();
   if (x.fuz % 10 === 0) hangCsilla();
   if (x.auto && x.fuz === 10) { jsAutoFuz(JL, x); return; }   /* az első gyűrűt ő fűzi, a többi magától fűződik */
-  if (x.fuz === x.n) { jsSzamolIndit(JL, x); return; }
+  if (x.fuz === x.n) { if (!x.auto && !P().bemutatva.josdaFuz) { P().bemutatva.josdaFuz = 1; ment(); } jsSzamolIndit(JL, x); return; }   /* egyszer kézzel végigfűzte: legközelebb az első gyűrű után magától fűződik */
   jlRajz();
 }
 function jsAutoFuz(JL, x) {
