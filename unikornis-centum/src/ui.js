@@ -218,7 +218,7 @@ function renderFomenu() {
       '<div class="palcim">' + kiiras(mat) + '</div>' +
       (J.bank ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
       (pa.hamarosan ? "" :
-        '<div class="also"><span class="jutalom">≈ ' + J.ertek + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
+        '<div class="also"><span></span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
     kart.addEventListener("click", function () {
       hangGomb();
       var nem = palyaNemIndulMondat(pa, J);
