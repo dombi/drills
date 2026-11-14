@@ -24708,8 +24708,8 @@ function phCeger(nev, cx, cy, J, id) {
        '<path d="M' + F(-W / 2 + 6) + ' ' + F(-H / 2 + 5) + 'Q0 ' + F(-H / 2 + 3) + ' ' + F(W / 2 - 6) + ' ' + F(-H / 2 + 5.5) + '" stroke="#fff6e2" stroke-width="2" fill="none" opacity=".8"/></g>';
   m.s.forEach(function (sor, i) { s += '<text y="' + F((m.s.length > 1 ? (i ? 15.5 : -3.5) : 5.4)) + '" text-anchor="middle" font-size="15" ' + PH_FR + ' fill="#6e4a36">' + kiiras(sor) + '</text>'; });
   if (hamar) s += '<g transform="translate(' + F(W / 2 - 16) + ' ' + F(H / 2 + 4) + ') rotate(-6)"><rect x="-22" y="-8" width="44" height="16" rx="3" fill="#fce49a" stroke="#d1a23a" stroke-width="1.4"/><text y="4.2" text-anchor="middle" font-size="10.5" ' + PH_FR + ' fill="#8a5a1a">épül!</text></g>';
-  else if (!J.nincsCetli) {   /* nincsCetli: egy még épülő / alvó hely cégérén nincs jutalom-cetli */
-    var cetli = J.cetli || "≈" + J.ertek + " ✨", cw = Math.max(46, cetli.length * 6.4 + 12);   /* egy ligetnél (Piactér: Tündérvásár) a cetlin a ⭐ kész/összes */
+  else if (!J.nincsCetli && J.cetli) {   /* nincsCetli: alvó hely. A „≈ N ✨” jutalom-cetli 2026-11-14 óta nincs kint: árcédulának nézték („fizetni kell érte?”); csak a liget ⭐ kész/összes cetlije marad */
+    var cetli = J.cetli, cw = Math.max(46, cetli.length * 6.4 + 12);   /* egy ligetnél (Piactér: Tündérvásár) a cetlin a ⭐ kész/összes */
     s += '<g transform="translate(' + F(W / 2 - 6) + ' ' + F(H / 2 + 5) + ') rotate(6)"><path d="M' + F(-cw / 2) + ' -9L' + F(cw / 2) + ' -9L' + F(cw / 2 - 1) + ' 9L' + F(-cw / 2 + 1) + ' 10Z" fill="#fffdf6" stroke="#c9ad85" stroke-width="1.3"/><circle cx="0" cy="-8" r="2" fill="#e0417a"/>' +
          '<text y="5" text-anchor="middle" font-size="11" ' + PH_FR + ' fill="#8a6a1e">' + kiiras(cetli) + '</text></g>';
   }
@@ -29396,7 +29396,7 @@ function renderFomenu() {
       '<div class="palcim">' + kiiras(mat) + '</div>' +
       (J.bank ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
       (pa.hamarosan ? "" :
-        '<div class="also"><span class="jutalom">≈ ' + J.ertek + ' ✨</span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
+        '<div class="also"><span></span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
     kart.addEventListener("click", function () {
       hangGomb();
       var nem = palyaNemIndulMondat(pa, J);
