@@ -3216,6 +3216,8 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .szl-tortenet .szl-volt{ color:inherit; }
 .szl-tortenet .szl-majd{ opacity:.35; }
 .szl-utasitas{ display:block; margin-top:6px; font-size:.82em; color:#6b6280; }
+.jl-panel .szl-elo{ opacity:0; transition:opacity .15s; }   /* a kézben tartott tárgy előképe: csak a kijelölt hely mögött */
+.jl-panel .jl-hely.jl-cel + .szl-elo{ opacity:.5; }
 
 /* ═══════ 📸 FOTÓGÉP + FOTÓALBUM (foto.js, album.js) ═══════ */
 .foto-gomb-hely{ position:absolute; right:12px; bottom:12px; z-index:30; display:flex; align-items:center; gap:8px; pointer-events:none; }

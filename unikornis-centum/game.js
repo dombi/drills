@@ -26889,9 +26889,9 @@ function szlVal(n) {
 }
 /* szereplők (a játékosok nevét kerüljük); nak: részeshatározó, e: birtokos („Annáé”) */
 var SZL_NEVEK = [
-  { n: "Anna", nak: "Annának", e: "Annáé" }, { n: "Bence", nak: "Bencének", e: "Bencéé" }, { n: "Réka", nak: "Rékának", e: "Rékáé" },
-  { n: "Dani", nak: "Daninak", e: "Danié" }, { n: "Kata", nak: "Katának", e: "Katáé" }, { n: "Zoli", nak: "Zolinak", e: "Zolié" },
-  { n: "Bori", nak: "Borinak", e: "Borié" }, { n: "Máté", nak: "Máténak", e: "Mátéé" } ];
+  { n: "Anna", nak: "Annának", e: "Annáé", hoz: "Annához" }, { n: "Bence", nak: "Bencének", e: "Bencéé", hoz: "Bencéhez" }, { n: "Réka", nak: "Rékának", e: "Rékáé", hoz: "Rékához" },
+  { n: "Dani", nak: "Daninak", e: "Danié", hoz: "Danihoz" }, { n: "Kata", nak: "Katának", e: "Katáé", hoz: "Katához" }, { n: "Zoli", nak: "Zolinak", e: "Zolié", hoz: "Zolihoz" },
+  { n: "Bori", nak: "Borinak", e: "Borié", hoz: "Borihoz" }, { n: "Máté", nak: "Máténak", e: "Mátéé", hoz: "Mátéhoz" } ];
 /* tárgyak: b = birtokos („matricája”), t = tárgyeset */
 var SZL_DOLGOK = [
   { b: "matricája", t: "matricát" }, { b: "bélyege", t: "bélyeget" }, { b: "golyója", t: "golyót" },
@@ -26908,6 +26908,8 @@ function szlSeg(id, v, c, o) { o = o || {}; return { id: id, v: v, c: c == null 
 function szlKap(id, v, c, ism) { return { id: id, v: v, c: c == null ? String(v) : c, ism: !!ism }; }
 function szlLep(mondat, t, v, hova, all) { return { mondat: mondat, targy: { t: t, v: v }, hova: hova, all: all }; }
 function szlKet(a, b) { return [a, b]; }
+function szlRes(id, v0, v, ism) { return { id: id, v0: v0, v: v, c: ism ? "?" : String(v), ism: !!ism }; }
+function szlIsm(l, csali) { l.ismeretlen = true; l.csali = csali; if (!l.ut) l.ut = "Ezt még nem tudjuk, mennyi. Melyik tekercs kell?"; return l; }
 var SZL_TIPUSOK = ["valt-ered", "valt-valt", "valt-kiind", "resz-ered", "resz-resz", "ossz-ered", "ossz-kul"];
 function szlFeladat(tipus) {
   var N = keverTomb(SZL_NEVEK.slice()), A = N[0], B = N[1], D = veletlenElem(SZL_DOLGOK), a, b, c, d, L, Q, so, K;
@@ -26923,16 +26925,18 @@ function szlFeladat(tipus) {
     a = veletlen(11, 58); b = veletlen(5, Math.min(40, 96 - a)); c = a + b;
     so = [{ nev: A.n }];
     L = [szlLep(A.nak + " " + a + " " + D.b + " volt.", "d", a, "r0", [{ s: [szlSeg("a", a)] }]),
-         szlLep("Kapott még valahányat, így " + c + " lett.", "k", c, "k0", [{ s: [szlSeg("a", a), szlSeg("x", b, "?", { ism: true })], k: szlKap("K", c) }])];
-    Q = { mondat: "Hányat kapott?", cel: "x", all: L[1].all };
+         szlIsm(szlLep("Kapott még valahányat.", "d", b, "r0", [{ s: [szlSeg("a", a), szlSeg("x", b, "?", { ism: true })] }]), a),
+         szlLep("Így " + c + " lett.", "k", c, "k0", [{ s: [szlSeg("a", a), szlSeg("x", b, "?", { ism: true })], k: szlKap("K", c) }])];
+    Q = { mondat: "Hányat kapott?", cel: "x", all: L[2].all };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: b };
   }
   if (tipus === "valt-kiind") {
     a = veletlen(8, 55); b = veletlen(5, Math.min(40, 96 - a)); c = a + b;
     so = [{ nev: A.n }];
-    L = [szlLep(A.nak + " volt néhány " + D.b + ". Kapott még " + szlT(b) + ".", "d", b, "r0", [{ s: [szlSeg("x", a, "?", { ism: true }), szlSeg("b", b)] }]),
+    L = [szlIsm(szlLep(A.nak + " volt néhány " + D.b + ".", "d", a, "r0", [{ s: [szlSeg("x", a, "?", { ism: true })] }]), b),
+         szlLep("Kapott még " + szlT(b) + ".", "d", b, "r0", [{ s: [szlSeg("x", a, "?", { ism: true }), szlSeg("b", b)] }]),
          szlLep("Így " + c + " lett.", "k", c, "k0", [{ s: [szlSeg("x", a, "?", { ism: true }), szlSeg("b", b)], k: szlKap("K", c) }])];
-    Q = { mondat: "Hány " + D.b + " volt előtte?", cel: "x", all: L[1].all };
+    Q = { mondat: "Hány " + D.b + " volt előtte?", cel: "x", all: L[2].all };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a };
   }
   if (tipus === "resz-ered" || tipus === "resz-resz") {
@@ -26944,19 +26948,25 @@ function szlFeladat(tipus) {
       Q = { mondat: "Hány " + K[2] + " van összesen?", cel: "K", all: [{ s: L[1].all[0].s, k: szlKap("K", c, "?", true) }] };
       return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: c };
     }
-    L = [szlLep(K[3] + " " + a + " " + K[0] + " van, a többi " + K[1] + ".", "d", a, "r0", [{ s: [szlSeg("a", a, null, { n: K[0] }), szlSeg("x", b, "?", { ism: true, n: K[1] })] }]),
+    var mr = K[3] + " " + a + " " + K[0] + " van, a többi " + K[1] + ".";
+    L = [szlLep(mr, "d", a, "r0", [{ s: [szlSeg("a", a, null, { n: K[0] })] }]),
+         szlIsm(szlLep(mr, "d", b, "r0", [{ s: [szlSeg("a", a, null, { n: K[0] }), szlSeg("x", b, "?", { ism: true, n: K[1] })] }]), c),
          szlLep("Összesen " + c + " " + K[2] + " van.", "k", c, "k0", [{ s: [szlSeg("a", a, null, { n: K[0] }), szlSeg("x", b, "?", { ism: true, n: K[1] })], k: szlKap("K", c) }])];
-    Q = { mondat: "Hány " + K[1] + " van?", cel: "x", all: L[1].all };
+    L[1].folyt = true; L[1].ut = "És a többi " + K[1] + "? Azt nem tudjuk, mennyi. Tedd a végére!";
+    Q = { mondat: "Hány " + K[1] + " van?", cel: "x", all: L[2].all };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: b };
   }
   if (tipus === "ossz-ered") {
     a = veletlen(10, 55); d = veletlen(4, Math.min(30, 96 - a)); c = a + d;
     so = [{ nev: A.n }, { nev: B.n }];
+    var m1 = B.nak + " " + szlVal(d) + " több van, mint " + A.nak + ".";
     L = [szlLep(A.nak + " " + a + " " + D.b + " van.", "d", a, "r0", [{ s: [szlSeg("a", a)] }, { s: [] }]),
-         szlLep(B.nak + " " + szlVal(d) + " több van, mint " + A.nak + ".", "d", d, "r1",
-           [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, "", { sz: true }), szlSeg("d", d)] }])];
-    Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, "", { sz: true }), szlSeg("d", d)], k: szlKap("K", c, "?", true) }] };
-    return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: c };
+         szlLep(m1, "d", a, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, null, { sz: true })] }]),
+         szlLep(m1, "kul", d, "kul", [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")] }])];
+    L[1].ut = B.nak + " annyi van, mint " + A.nak + ", és még " + d + ". Előbb tedd " + B.hoz + " ugyanannyit, mint " + A.e + "!"; L[1].masolat = true;
+    L[2].folyt = true; L[2].ut = B.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+    Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")], k: szlKap("K", c, "?", true) }] };
+    return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: c, mond: A.nak + " " + szlVal(d) + " kevesebb van, vagyis " + B.nak + " " + szlVal(d) + " több." };
   }
   if (tipus === "ossz-kul") {
     a = veletlen(10, 55); d = veletlen(4, Math.min(30, 96 - a)); c = a + d;
@@ -26964,27 +26974,33 @@ function szlFeladat(tipus) {
     L = [szlLep(A.nak + " " + a + " " + D.b + " van.", "d", a, "r0", [{ s: [szlSeg("a", a)] }, { s: [] }]),
          szlLep(B.nak + " " + c + " van.", "d", c, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("b", c)] }])];
     Q = { mondat: "Mennyivel több " + D.b + " van " + B.nak + ", mint " + A.nak + "?", cel: "x",
-          all: [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, "", { sz: true }), szlSeg("x", d, "?", { ism: true })], k: szlKap("K", c) }] };
+          all: [{ s: [szlSeg("a", a)], res: szlRes("x", a, d, true) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")], k: szlKap("K", c) }] };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: d };
   }
   /* ④ fordított szöveg: a „több / kevesebb” a vonatkoztatott szereplőről szól. ki = kinek a sora a hosszabb */
   a = veletlen(14, 60); d = veletlen(3, Math.min(20, a - 6));
   if (tipus === "vonat-tobb") {   /* „Daninak 38. Ez 5-tel több, mint Rékáé.” → Réka = 33 */
     so = [{ nev: A.n }, { nev: B.n }];
+    var m3 = "Ez " + szlVal(d) + " több, mint " + B.e + ".";
     L = [szlLep(A.nak + " " + a + " " + D.b + " van.", "d", a, "r0", [{ s: [szlSeg("a", a)] }, { s: [] }]),
-         szlLep("Ez " + szlVal(d) + " több, mint " + B.e + ".", "d", d, "r0",
-           [{ s: [szlSeg("c", a - d, "", { sz: true }), szlSeg("d", d)], k: szlKap("A", a) }, { s: [szlSeg("x", a - d, "?", { ism: true })] }])];
-    Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "x", all: L[1].all };
-    return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a - d, ki: 0 };
+         szlIsm(szlLep(m3, "d", a - d, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("x", a - d, "?", { ism: true })] }]), d),
+         szlLep(m3, "kul", d, "kul", [{ s: [szlSeg("c", a - d, "", { sz: true }), szlSeg("d", d, "")], k: szlKap("A", a) }, { s: [szlSeg("x", a - d, "?", { ism: true })], res: szlRes("D", a - d, d) }])];
+    L[1].ut = "Azt még nem tudjuk, mennyi van " + B.nak + ". Tedd ki " + B.n + " szalagját!";
+    L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+    Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "x", all: L[2].all };
+    return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a - d, ki: 0, mond: A.nak + " " + szlVal(d) + " több van, vagyis " + B.nak + " " + szlVal(d) + " kevesebb." };
   }
   /* vonat-keves: „Rékának 30. Ez 5-tel kevesebb, mint Daninak.” → Dani = 35 (a kulcsszó-módszert lebuktatja) */
   a = veletlen(10, 70); d = veletlen(3, Math.min(20, 96 - a));
   so = [{ nev: A.n }, { nev: B.n }];
+  var m2 = "Ez " + szlVal(d) + " kevesebb, mint amennyi " + B.nak + " van.";
   L = [szlLep(A.nak + " " + a + " " + D.b + " van.", "d", a, "r0", [{ s: [szlSeg("a", a)] }, { s: [] }]),
-       szlLep("Ez " + szlVal(d) + " kevesebb, mint amennyi " + B.nak + " van.", "d", d, "r1",
-         [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, "", { sz: true }), szlSeg("d", d)] }])];
-  Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, "", { sz: true }), szlSeg("d", d)], k: szlKap("K", a + d, "?", true) }] };
-  return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a + d, ki: 1 };
+       szlLep(m2, "d", a, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, null, { sz: true })] }]),
+       szlLep(m2, "kul", d, "kul", [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")] }])];
+  L[1].ut = B.nak + " több van. Előbb tedd " + B.hoz + " ugyanannyit, mint " + A.e + "!"; L[1].masolat = true;
+  L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " kevesebb van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+  Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")], k: szlKap("K", a + d, "?", true) }] };
+  return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a + d, ki: 1, mond: A.nak + " " + szlVal(d) + " kevesebb van, vagyis " + B.nak + " " + szlVal(d) + " több." };
 }
 /* ⑤ a postakocsi: induláskor s, 3 megálló (+ felszáll / − leszáll), a végén v; 0 ≤ utasok ≤ 20 */
 function szlBusz() {
@@ -27020,8 +27036,9 @@ GEN.szalag = function (cfg) {
     var rudak = keverTomb([H, H + veletlenElem([1, 2]), Math.max(1, H - veletlenElem([1, 2]))].filter(function (v, k, t) { return t.indexOf(v) === k; }));
     while (rudak.length < 3) rudak.push(H + rudak.length + 1);
     x = { forma: "kendo", E: E, V: V, H: H, rak: rak, rudak: rudak, fazis: rak ? "rak" : "ir", hely: null, emel: false };
-    return szlFeladatKi(x, H, rak ? "Melyik rúd fér a kendő alá? Vidd oda!" : "Mennyi van a kendő alatt? Írd a táblára!",
-      "Az egész rúd " + szo(E) + ". Ennyi látszik: " + szo(V) + ". " + (rak ? "Melyik rúd fér a kendő alá? Vidd oda!" : "Mennyi van a kendő alatt? Írd a táblára!"), szlNaplo("kendő " + E + "−" + V));
+    var kap = i === 0 && !h ? "A kapocs mutatja, mekkora az egész rúd. " : "";   /* előkészíti a „Rakd ki” kapcsát (a producer, 11-13) */
+    return szlFeladatKi(x, H, kap + (rak ? "Melyik rúd fér a kendő alá? Vidd oda!" : "Mennyi van a kendő alatt? Írd a táblára!"),
+      kap + "Az egész rúd " + szo(E) + ". Ennyi látszik: " + szo(V) + ". " + (rak ? "Melyik rúd fér a kendő alá? Vidd oda!" : "Mennyi van a kendő alatt? Írd a táblára!"), szlNaplo("kendő " + E + "−" + V));
   }
   if (forma === "busz") {
     var b = szlBusz();
@@ -27033,7 +27050,7 @@ GEN.szalag = function (cfg) {
   var tip;
   if (forma === "hossz") { if (!st.hsor) st.hsor = keverTomb(["vonat-tobb", "vonat-keves", "vonat-tobb", "vonat-keves"]); tip = st.hsor[i % 4]; }
   else if (forma === "vegyes") tip = veletlenElem(SZL_TIPUSOK.concat(["vonat-tobb", "vonat-keves"]));
-  else { if (!st.ksor) st.ksor = ["valt-ered", "resz-ered", "ossz-ered"].concat(keverTomb(["valt-valt", "valt-kiind", "resz-resz", "ossz-kul"]).slice(0, 2)); tip = st.ksor[i % st.ksor.length]; }
+  else { if (!st.ksor) st.ksor = ["valt-ered", "resz-ered"].concat(keverTomb(["valt-valt", "valt-kiind", "resz-resz"]).slice(0, 2), [veletlenElem(["ossz-ered", "ossz-kul"])]); tip = st.ksor[i % st.ksor.length]; }
   var F = szlFeladat(tip), kiKell = forma === "hossz" && !h && !((st.kiJo || 0) >= 3);
   x = { forma: "kirak", f: F, lep: 0, fazis: kiKell ? "ki" : "kirak", kiszin: false, felul: null, polc: null, halvany: h, hossz: forma === "hossz" };
   szlPolc(x);
@@ -27047,20 +27064,22 @@ function szlFeladatKi(x, helyes, kerdes, felolvas, naplo) {
 function szlKartya(x, utasitas) {
   if (x.forma !== "kirak") return '<span class="bk-kerdes">' + kiiras(utasitas) + '</span>';
   var F = x.f, most = x.fazis === "kirak" ? x.lep : x.fazis === "ki" ? -1 : F.lepesek.length, ki = x.fazis === "ki", s = '<span class="bk-kerdes szl-tortenet">';
-  F.lepesek.forEach(function (l, k) { s += '<span class="' + (ki ? "szl-volt" : k === most ? "szl-most" : k < most ? "szl-volt" : "szl-majd") + '">' + kiiras(l.mondat) + '</span> '; });
+  while (most > 0 && most < F.lepesek.length && F.lepesek[most].folyt) most--;   /* ugyanaz a mondat két mozdulattal */
+  F.lepesek.forEach(function (l, k) { if (l.folyt) return; s += '<span class="' + (ki ? "szl-volt" : k === most ? "szl-most" : k < most ? "szl-volt" : "szl-majd") + '">' + kiiras(l.mondat) + '</span> '; });
   s += '<span class="' + (ki ? "szl-volt" : most >= F.lepesek.length ? "szl-most" : "szl-majd") + '">' + kiiras(F.kerdes.mondat) + '</span></span>';
   return s + '<span class="szl-utasitas">' + kiiras(utasitas) + '</span>';
 }
 function szlUtasitas(x) {
   if (x.fazis === "ki") return "Kinek van több? Koppints a nevére!";
-  if (x.fazis === "kirak") return "Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!";
-  if (x.fazis === "kerdez") return "Mit kérdez? Koppints arra a részre a szalagon!";
+  if (x.fazis === "kirak") { var l = x.f.lepesek[x.lep]; return l && l.ut && !x.halvany ? l.ut : "Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!"; }
+  if (x.fazis === "kerdez") return (x.f.mond && !x.halvany ? x.f.mond + " " : "") + "Mit kérdez? Koppints a kérdőjelre!";
   return "Írd a táblára a számot!";
 }
 function szlFelolvas(x) {
   var F = x.f;
-  if (x.fazis === "ki") return F.lepesek.map(function (l) { return l.mondat; }).join(" ") + " " + F.kerdes.mondat + " Kinek van több? Koppints a nevére!";
-  return F.lepesek.map(function (l) { return l.mondat; }).join(" ") + " " + F.kerdes.mondat + " Rakd ki mondatonként! Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!";
+  var tort = F.lepesek.filter(function (l) { return !l.folyt; }).map(function (l) { return l.mondat; }).join(" ") + " " + F.kerdes.mondat;
+  if (x.fazis === "ki") return tort + " Kinek van több? Koppints a nevére!";
+  return tort + " Rakd ki mondatonként! Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!";
 }
 function szlFelirat(x, utasitas) {
   JL.f.szoveg = JL.f.keplet = utasitas;
@@ -27070,6 +27089,8 @@ function szlFelirat(x, utasitas) {
 function szlPolc(x) {
   if (x.forma !== "kirak" || x.lep >= x.f.lepesek.length) { x.polc = null; return; }
   var l = x.f.lepesek[x.lep], t = l.targy;
+  if (l.ismeretlen) { x.polc = keverTomb([{ t: "d", v: "?", len: t.v, jo: true, ism: true }, { t: "d", v: l.csali, jo: false }]); return; }
+  if (l.masolat) { x.polc = keverTomb([{ t: "d", v: t.v, jo: true, sz: true }, { t: "d", v: x.f.lepesek[x.lep + 1].targy.v, jo: false }]); return; }
   x.polc = keverTomb([{ t: t.t, v: t.v, jo: true }, { t: t.t === "d" ? "k" : "d", v: t.v, jo: false }]);
 }
 
@@ -27093,7 +27114,7 @@ function szlDarab(x, y, w, szin, c, o) {
   if (o.jelolt) s += '<rect x="' + F(x + 3) + '" y="' + F(y - h / 2 + 2) + '" width="' + F(Math.max(w - 6, 2)) + '" height="' + (h - 4) + '" rx="4" fill="url(#szl-csik)" opacity=".55"/>';
   if (o.rov) for (var k = 1; k < o.rov; k++) s += '<path d="M' + F(x + w * k / o.rov) + ' ' + F(y - h / 2 + 4) + 'V' + F(y + h / 2 - 4) + '" stroke="' + szin[1] + '" stroke-width="1.4" opacity=".7"/>';
   if (c) s += '<text x="' + F(x + w / 2) + '" y="' + F(y + 6) + '" text-anchor="middle" font-size="' + (w < 30 ? 13 : 17) + '"' + SZL_FR + ' fill="' + (o.ism ? "#e0417a" : "#3c2a50") + '">' + kiiras(c) + '</text>';
-  if (o.n) s += '<text x="' + F(x + w / 2) + '" y="' + F(y + h / 2 + 15) + '" text-anchor="middle" font-size="12"' + SZL_FR + ' fill="#6b6280">' + kiiras(o.n) + '</text>';
+  if (o.n) s += '<text x="' + F(x + w / 2) + '" y="' + F(y + h / 2 + 30) + '" text-anchor="middle" font-size="12"' + SZL_FR + ' fill="#6b6280">' + kiiras(o.n) + '</text>';
   return s + '</g>';
 }
 /* kapocs (kapcsos zárójel) a sor fölött x0 → x1, y a sor közepe */
@@ -27108,12 +27129,21 @@ function szlKapocs(x0, x1, y, c, o) {
   return s + '</g>';
 }
 /* a polc tárgyai: tekercs (darab) · kapocs-kártya (egész). (x, y) a közepe */
-function szlTekercs(x, y, v, attr) {
+function szlTekercs(x, y, v, attr, sz) {   /* sz: a másik szalag mása (szaggatott, „ugyanannyi”) */
   var F = pcF;
   return '<g' + (attr || '') + ' transform="translate(' + F(x) + ' ' + F(y) + ')"><g class="kf-ic"><rect x="-44" y="-30" width="88" height="56" fill="transparent"/>' +
     '<path d="M6 4Q30 0 40 14L36 22Q26 10 6 14Z" fill="#fce49a" stroke="#c9962a" stroke-width="1.8"/>' +
-    '<ellipse cx="-6" cy="0" rx="24" ry="22" fill="#fce49a" stroke="#c9962a" stroke-width="2.2"/><ellipse cx="-6" cy="0" rx="15" ry="14" fill="none" stroke="#e8c46a" stroke-width="1.4"/>' +
+    '<ellipse cx="-6" cy="0" rx="24" ry="22" fill="' + (sz ? "#fffaf4" : "#fce49a") + '" stroke="#c9962a" stroke-width="2.2"' + (sz ? ' stroke-dasharray="5 4"' : '') + '/><ellipse cx="-6" cy="0" rx="15" ry="14" fill="none" stroke="#e8c46a" stroke-width="1.4"/>' +
     '<text x="-6" y="6" text-anchor="middle" font-size="17"' + SZL_FR + ' fill="#6e4a1a">' + v + '</text></g></g>';
+}
+/* különbség-kapocs: két szalag, a rövidebb vége és a hosszabb vége közti rés, rajta a szám */
+function szlKulKartya(x, y, v, attr) {
+  var F = pcF;
+  return '<g' + (attr || '') + ' transform="translate(' + F(x) + ' ' + F(y) + ')"><g class="kf-ic"><rect x="-46" y="-30" width="92" height="58" fill="transparent"/>' +
+    '<rect x="-42" y="-26" width="84" height="52" rx="8" fill="#fffaf0" stroke="#c9962a" stroke-width="1.8"/>' +
+    '<rect x="-34" y="-2" width="34" height="8" rx="2" fill="#f6a5c0" stroke="#c0567f" stroke-width="1.2"/><rect x="-34" y="12" width="66" height="8" rx="2" fill="#9ec9f0" stroke="#5f84b0" stroke-width="1.2"/>' +
+    '<rect x="0" y="-4" width="32" height="12" fill="#fff1a8" stroke="#c9962a" stroke-width="1.4" stroke-dasharray="3 2"/>' +
+    '<text x="16" y="-9" text-anchor="middle" font-size="16"' + SZL_FR + ' fill="#8a5a1a">' + v + '</text></g></g>';
 }
 function szlKapocsKartya(x, y, v, attr) {
   var F = pcF;
@@ -27122,7 +27152,7 @@ function szlKapocsKartya(x, y, v, attr) {
     '<path d="M-30 14Q-30 8 -24 8H-6Q0 8 0 2Q0 8 6 8H24Q30 8 30 14" fill="none" stroke="#6e4a36" stroke-width="2.4" stroke-linecap="round"/>' +
     '<text x="0" y="-4" text-anchor="middle" font-size="17"' + SZL_FR + ' fill="#3c2a50">' + v + '</text></g></g>';
 }
-function szlTargy(x, y, T, attr) { return T.t === "k" ? szlKapocsKartya(x, y, T.v, attr) : szlTekercs(x, y, T.v, attr); }
+function szlTargy(x, y, T, attr) { return T.t === "kul" ? szlKulKartya(x, y, T.v, attr) : T.t === "k" ? szlKapocsKartya(x, y, T.v, attr) : szlTekercs(x, y, T.v, attr, T.sz || T.ism); }
 function szlPolcRajz(K, n) {
   var F = pcF, y = K.polcY + 20, xa = K.polcX[0] - 60, xb = K.polcX[n - 1] + 60;
   return '<g filter="url(#lt-firka)"><path d="M' + F(xa) + ' ' + y + 'H' + F(xb) + 'V' + (y + 9) + 'H' + F(xa) + 'Z" fill="#c99a6a" stroke="#8a5a3a" stroke-width="2"/>' +
@@ -27267,7 +27297,7 @@ JELENETEK.szalag = {
     var x = JL.f.szl;
     if (x.forma === "kendo") return "Vidd a rudat a kendő alá!";
     if (x.forma === "busz") return "Koppints a villogó megállóra!";
-    if (x.forma === "kirak") return x.fazis === "kerdez" ? "Előbb koppints arra a részre, amit kérdeznek!" : x.fazis === "ki" ? "Kinek van több? Koppints a nevére!" : "Előbb rakd ki a szalagot!";
+    if (x.forma === "kirak") return x.fazis === "kerdez" ? "Előbb koppints a kérdőjelre!" : x.fazis === "ki" ? "Kinek van több? Koppints a nevére!" : "Előbb rakd ki a szalagot!";
     return "Vidd a toldást a rövidebb szalaghoz!";
   },
   rajz: function (JL) {
@@ -27317,6 +27347,7 @@ JELENETEK.szalag = {
     if (x.forma === "egyforma") return { katt: [fog(x.polc.indexOf(Math.abs(x.h[0] - x.h[1]))), hely("t")] };
     if (x.forma === "kendo") return x.fazis === "rak" ? { katt: [fog(x.rudak.indexOf(x.H)), hely("kendo")] } : { gepel: x.H };
     if (x.forma === "busz") return x.fazis === "valaszt" ? { katt: ['#jl-svg .szl-megallo[data-i="' + (x.hol - 1) + '"]'] } : { gepel: szlBuszElotte(x, x.hol) };
+    if (x.bemutat) return { katt: [] };
     if (x.fazis === "ki") return { katt: ['#jl-svg .szl-nev[data-i="' + x.f.ki + '"]'] };
     if (x.fazis === "kirak") { var l = x.f.lepesek[x.lep]; return { katt: [fog(x.polc.map(function (p) { return p.jo; }).indexOf(true)), hely(l.hova)] }; }
     if (x.fazis === "kerdez") return { katt: ['#jl-svg .szl-resz[data-id="' + x.f.kerdes.cel + '"]'] };
@@ -27449,27 +27480,51 @@ function szlKirakRajz(JL, x, K) {
   F.kerdes.all.forEach(function (r) { var t = 0; r.s.forEach(function (g) { t += g.v; }); max = Math.max(max, t, r.k ? r.k.v : 0); });
   var u = Math.min(14, (K.x1 - K.x0) / max);
   var ys = ket ? K.ry : [Math.round((K.ry[0] + K.ry[1]) / 2)];
+  var kulFog = !!(JL.fog && x.polc && (x.polc[+JL.fog.id.slice(1)] || {}).t === "kul");
+  if (ket) A.forEach(function (r) {   /* 🟨 a különbség: sáv a rövidebb vége és a hosszabb vége között, mindkét szalagon át */
+    if (!r.res) return;
+    var rv = x.felul && x.felul.id === r.res.id ? x.felul.v : r.res.v;
+    s += '<rect x="' + P(K.x0 + r.res.v0 * u) + '" y="' + (ys[0] - 22) + '" width="' + P(rv * u) + '" height="' + (ys[1] - ys[0] + 44) + '" rx="6" fill="#fff1a8" opacity=".55" stroke="#e3c46a" stroke-dasharray="5 4"/>';
+  });
   F.sorok.forEach(function (so, i) {
     var y = ys[i], r = A[i] || { s: [] }, xx = K.x0, katt = x.fazis === "kerdez" && !JL.lezart;
     s += szlSin(K, y);
     s += szlNev(K, y, so.nev, i, x.fazis === "ki" && !JL.lezart ? ' class="szl-nev" data-i="' + i + '" style="cursor:pointer"' : '', x.kiJel === i);
     r.s.forEach(function (g) {
       var v = x.felul && x.felul.id === g.id ? x.felul.v : g.v, c = g.ism && kesz ? String(F.helyes) : x.felul && x.felul.id === g.id ? String(x.felul.v) : g.c;
-      s += szlDarab(xx, y, v * u, SZL_SZIN[i], c, { sz: g.sz, ism: g.ism && !kesz, n: g.n, jelolt: x.kiszin && F.kerdes.cel === g.id, hiba: x.felul && x.felul.id === g.id,
+      var dg = szlDarab(xx, y, v * u, SZL_SZIN[i], c, { sz: g.sz, ism: g.ism && !kesz, n: g.n, jelolt: x.kiszin && F.kerdes.cel === g.id, hiba: x.felul && x.felul.id === g.id,
         attr: katt ? ' class="szl-resz" data-id="' + g.id + '" style="cursor:pointer"' : '' });
+      s += katt && g.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + dg + '</g></g>' : dg;   /* a ? lüktet: ide koppints (a producer, 11-13) */
       xx += v * u;
     });
     if (r.k) {
       var kv = x.felul && x.felul.id === r.k.id ? x.felul.v : r.k.v, kc = r.k.ism && kesz ? String(F.helyes) : x.felul && x.felul.id === r.k.id ? String(x.felul.v) : r.k.c;
-      s += szlKapocs(K.x0, K.x0 + kv * u, y, kc, { ism: r.k.ism && !kesz, jelolt: x.kiszin && F.kerdes.cel === r.k.id, hiba: x.felul && x.felul.id === r.k.id,
+      var kg = szlKapocs(K.x0, K.x0 + kv * u, y, kc, { ism: r.k.ism && !kesz, jelolt: x.kiszin && F.kerdes.cel === r.k.id, hiba: x.felul && x.felul.id === r.k.id,
         attr: katt ? ' class="szl-resz" data-id="' + r.k.id + '" style="cursor:pointer"' : '' });
+      s += katt && r.k.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + kg + '</g></g>' : kg;
     }
-    /* a letevés helyei: a sor (tekercs) és a sor fölötte (kapocs) */
-    if (x.fazis === "kirak" && !JL.lezart) {
-      s += '<rect class="jl-hely" data-hely="r' + i + '" x="' + P(K.x0) + '" y="' + (y - 20) + '" width="' + P(K.x1 - K.x0) + '" height="40" rx="10" fill="transparent"/>';
-      s += '<rect class="jl-hely" data-hely="k' + i + '" x="' + P(K.x0) + '" y="' + (y - 62) + '" width="' + P(K.x1 - K.x0) + '" height="38" rx="10" fill="transparent"/>';
+    if (r.res) {   /* a rés a rövidebb sorban: szaggatott sárga doboz a számmal (vagy ?) */
+      var rv2 = x.felul && x.felul.id === r.res.id ? x.felul.v : r.res.v, rc = r.res.ism && kesz ? String(F.helyes) : x.felul && x.felul.id === r.res.id ? String(x.felul.v) : r.res.c;
+      var rg = szlDarab(K.x0 + r.res.v0 * u, y, rv2 * u, ["#fff1a8", "#c9962a"], rc, { sz: true, jelolt: x.kiszin && F.kerdes.cel === r.res.id, hiba: x.felul && x.felul.id === r.res.id,
+        attr: katt ? ' class="szl-resz" data-id="' + r.res.id + '" style="cursor:pointer"' : '' });
+      s += katt && r.res.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + rg + '</g></g>' : rg;
+    }
+    /* a letevés helyei: a sor (tekercs) és a sor fölötte (kapocs); a különbség-kapocsnak a két sor közötti sáv */
+    if (x.fazis === "kirak" && !JL.lezart && !kulFog) {
+      var elo = szlElokep(JL, x, K, i, y, xx, u);   /* a kézben tartott tárgy halvány előképe: hova kerülne (a producer, 11-13) */
+      s += '<rect class="jl-hely" data-hely="r' + i + '" x="' + P(K.x0) + '" y="' + (y - 20) + '" width="' + P(K.x1 - K.x0) + '" height="40" rx="10" fill="transparent"/>' + elo;
+      s += '<rect class="jl-hely" data-hely="k' + i + '" x="' + P(K.x0) + '" y="' + (y - 62) + '" width="' + P(K.x1 - K.x0) + '" height="38" rx="10" fill="transparent"/>' + elo;
+    }
+    if (x.bemutat && +x.f.lepesek[x.lep].hova.charAt(1) === i) {   /* 🦫 bemutató: a kapocs halványan a helyén */
+      var bv = x.f.lepesek[x.lep].targy.v;
+      s += '<g opacity=".6">' + szlKapocs(K.x0, K.x0 + bv * u, y, String(bv), { jelolt: true }) + '</g>';
     }
   });
+  if (ket && kulFog && x.fazis === "kirak" && !JL.lezart) s += '<rect class="jl-hely" data-hely="kul" x="' + P(K.x0) + '" y="' + (ys[0] + 20) + '" width="' + P(K.x1 - K.x0) + '" height="' + (ys[1] - ys[0] - 40) + '" rx="10" fill="#fff1a8" opacity=".35"/>';
+  if (x.bemutat) {   /* a bemutatón csak a kapocs a polcon, világít */
+    var bt = x.polc.filter(function (T) { return T.t === "k"; })[0];
+    s += szlPolcRajz(K, 2) + '<ellipse cx="' + P(K.polcX[0]) + '" cy="' + K.polcY + '" rx="58" ry="40" fill="url(#lt-gNyHalo)"/>' + szlTargy(K.polcX[0], K.polcY, bt, '');
+  }
   /* a polc: tekercs + kapocs */
   if (x.fazis === "kirak" && x.polc && !JL.lezart) {
     s += szlPolcRajz(K, 2);
@@ -27480,12 +27535,36 @@ function szlKirakRajz(JL, x, K) {
   }
   return s;
 }
+/* előkép: ha a gyerek fog egy tárgyat, minden letevő-hely mögött ott a halvány képe (a CSS csak a kijelölt hely mögöttit mutatja) */
+function szlElokep(JL, x, K, i, y, xx, u) {
+  if (!JL.fog || !x.polc) return '';
+  var T = x.polc[+JL.fog.id.slice(1)]; if (!T || T.t === "kul") return '';
+  var g = T.t === "k" ? szlKapocs(K.x0, K.x0 + T.v * u, y, String(T.v)) : szlDarab(xx, y, (T.len || T.v) * u, SZL_SZIN[i], String(T.v), { sz: !!T.sz, ism: !!T.ism });
+  return '<g class="szl-elo" pointer-events="none">' + g + '</g>';
+}
+/* egy kirakós lépés kezdete: polc, felirat, hang — az állomás első kapcsos lépését a hód mutatja meg */
+function szlLepesKezd(JL, x, mondat) {
+  var l = x.f.lepesek[x.lep];
+  szlPolc(x);
+  if (l.targy.t === "k" && !x.halvany && (!JL.st.kapLatta || x.bemutatKell)) { szlBemutat(JL, x); return; }
+  szlFelirat(x, szlUtasitas(x)); jlRajz(); mondd(l.folyt || l.masolat ? szlUtasitas(x) : l.ismeretlen ? mondat + " " + szlUtasitas(x) : mondat);
+}
+function szlBemutat(JL, x) {
+  var l = x.f.lepesek[x.lep], f = JL.f, m = "Nézd! Ez a mondat azt mondja meg, mennyi van együtt. Az egészet a kapocs fogja át.";
+  JL.st.kapLatta = true; x.bemutatKell = false; x.bemutat = true; x.hod = "mutat"; JL.lezart = true;
+  szlFelirat(x, m); jlRajz(); mondd(l.mondat + " " + m);
+  szlVar(f, 3600, function () { x.bemutat = false; x.hod = null; JL.lezart = false; hangCsilla(); x.lep++; szlTovabb(JL, x); });
+}
+function szlTovabb(JL, x) {
+  if (x.lep < x.f.lepesek.length) { szlLepesKezd(JL, x, x.f.lepesek[x.lep].mondat); return; }
+  x.fazis = "kerdez"; x.polc = null; szlFelirat(x, szlUtasitas(x)); jlRajz(); mondd(x.f.kerdes.mondat + " Koppints a kérdőjelre!");
+}
 function szlKi(JL, x, i) {
   var f = JL.f;
   hangGomb();
   if (i === x.f.ki) {
-    JL.st.kiJo = (JL.st.kiJo || 0) + 1; x.kiJel = i; x.fazis = "kirak"; szlPolc(x);
-    hangCsilla(); szlFelirat(x, szlUtasitas(x)); jlRajz(); mondd(x.f.lepesek[0].mondat + " Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!");
+    JL.st.kiJo = (JL.st.kiJo || 0) + 1; x.kiJel = i; x.fazis = "kirak";
+    hangCsilla(); szlLepesKezd(JL, x, x.f.lepesek[0].mondat + " Vedd fel a tekercset vagy a kapcsot, és tedd a szalaghoz!");
     return;
   }
   /* a „kinek van több?” magában nem ad ✨-t, de a hiba visszahozza a következő feladatokra */
@@ -27495,22 +27574,21 @@ function szlKi(JL, x, i) {
 }
 function szlKirakTesz(JL, x, i, hova) {
   var l = x.f.lepesek[x.lep], T = x.polc[i], f = JL.f;
-  if (T.t === l.targy.t && hova === l.hova) {
-    hangCsilla(); x.lep++;
-    if (x.lep < x.f.lepesek.length) {
-      szlPolc(x); szlFelirat(x, szlUtasitas(x)); jlRajz(); mondd(x.f.lepesek[x.lep].mondat);
-      return;
-    }
-    x.fazis = "kerdez"; x.polc = null; szlFelirat(x, szlUtasitas(x)); jlRajz(); mondd(x.f.kerdes.mondat + " Koppints arra a részre!");
+  if ((l.masolat || l.ismeretlen ? T.jo : T.t === l.targy.t) && hova === l.hova) {
+    hangCsilla(); x.lep++; szlTovabb(JL, x);
     return;
   }
   /* rossz letevés: hibának számít (különben a 2 tárgy és a 2 sor tippelhető volna) */
-  jlRossz(T.t === "k" ? "kapocs" : "tekercs", szlNaplo("kirak " + x.f.tipus));
+  jlRossz(T.t === "k" ? "kapocs" : T.t === "kul" ? "különbség" : "tekercs", szlNaplo("kirak " + x.f.tipus));
   var sorJo = hova.charAt(1) === l.hova.charAt(1), fajtaJo = T.t === l.targy.t && hova.charAt(0) === l.hova.charAt(0), m;
   if (!sorJo && x.f.sorok.length > 1) m = "Kiről szól ez a mondat? Az ő szalagjához tedd!";
   else if (l.targy.t === "k") m = T.t === "k" ? "A kapocs a szalag fölé kerül." : "Ez a szám az egészet mondja meg. Az egész a kapocs, a szalag fölé kerül.";
   else m = T.t === "d" ? "A tekercs a szalag végére kerül." : "Ez a szám egy darab, ami hozzájön: a tekercs a szalag végére kerül.";
+  if (l.targy.t === "kul") m = T.t === "kul" ? "A különbség-kapocs a két szalag közé kerül." : "Ez a szám nem egy darab, hanem a különbség: ennyivel hosszabb az egyik szalag. A különbség-kapocs kell, a két szalag közé!";
+  if (l.ismeretlen && sorJo) m = T.jo ? "A tekercs a szalag végére kerül." : "Ezt a számot még nem tudjuk. Ami még ismeretlen, az a kérdőjeles tekercs!";
+  if (l.masolat && T.t === "d" && sorJo) m = "Előbb ugyanannyit tegyél, mint a másiké: annyit, amennyi a felső szalag!";
   jlRajz(); jlSzol(m, true);
+  if (JL.seg >= 2 && l.targy.t === "k") { x.bemutatKell = true; szlVar(f, 1800, function () { if (!x.bemutat) szlBemutat(JL, x); }); }   /* 2. hibától a hód újra megmutatja */
 }
 function szlKerdezKatt(JL, x, id) {
   var f = JL.f;
@@ -27520,7 +27598,7 @@ function szlKerdezKatt(JL, x, id) {
     return;
   }
   /* a kiszínezés maga nem ad semmit: rossz koppintásra csak a mondatot mondja újra */
-  jlSzol("Hm. Olvasd el a kérdést: " + x.f.kerdes.mondat, true);
+  jlSzol("Hm. Koppints a kérdőjelre! " + x.f.kerdes.mondat, true);
 }
 function szlFelel(JL, x, v) {
   var F = x.f, f = JL.f;
@@ -27676,8 +27754,10 @@ GEN.josda = function (cfg) {
   if (forma === "kozel") {
     if (!st.sor) st.sor = keverTomb([0, 1, 0, 1, 1, 0]);   /* 🔒 felfelé és lefelé fele-fele: a „mindig felfelé” nem nyer */
     var T = veletlen(1, 8) * 10, e = st.sor[i % st.sor.length] ? veletlen(6, 9) : veletlen(1, 4), n = T + e;
-    var lep = !h && (i < (cfg.lepeget || 0) || (st.lepKell > 0 && st.lepKell-- > 0));
-    x = { forma: "kozel", n: n, T: T, lep: lep, L: 0, R: 0, irany: lep ? "b" : null, feny: {}, hol: null };
+    var bem = !P().bemutatva.josdaLep || st.lepBemut;   /* a bevezető lépegetés játékosonként EGYSZER (a producer, 11-14); a rossz letevés utáni lépegetés marad */
+    var lepBe = !h && i < (cfg.lepeget || 0) && bem; if (lepBe) st.lepBemut = true;
+    var lep = lepBe || (!h && st.lepKell > 0 && st.lepKell-- > 0);
+    x = { forma: "kozel", n: n, T: T, lep: lep, lepBe: lepBe, L: 0, R: 0, irany: lep ? "b" : null, feny: {}, hol: null };
     return jsFeladat(x, kerekit(n, 10), lep ? "Lépegess a kisebb lámpásig! Koppints a villogó karikára!" : "Vidd a követ a közelebbi lámpáshoz!",
       lep ? "Melyik lámpás van közelebb a kőhöz? Előbb lépegess: koppints a lépésekre, egészen a kisebb lámpásig!" : "Melyik lámpás van közelebb a kőhöz? Vidd oda a követ!", jsNaplo("közelebb " + n));
   }
@@ -27691,7 +27771,7 @@ GEN.josda = function (cfg) {
   }
   if (forma === "darab") {
     var nd = i === 0 ? veletlen(21, 34) : veletlen(26, 59);
-    x = { forma: "darab", n: nd, kartya: i === 0, auto: i > 0, fazis: "nez", szemek: jsSzemek(nd), fuz: 0, becs: null, becsK: null };
+    x = { forma: "darab", n: nd, kartya: i === 0, auto: i > 0 || !!P().bemutatva.josdaFuz, fazis: "nez", szemek: jsSzemek(nd), fuz: 0, becs: null, becsK: null };
     return jsFeladat(x, nd, "Nézd meg jól!", "Nézd meg jól, aztán mondd meg, körülbelül hány szem van!", jsNaplo("darab " + nd));
   }
   /* meres */
@@ -28017,6 +28097,7 @@ function jsLep(JL, x) {
   }
   if (x.irany === "j" && v === x.T + 10) {
     x.feny.j = "eg"; x.irany = null; hangCsilla(); jsFelirat("Melyik lámpás van közelebb? Vidd oda a követ!");
+    if (x.lepBe && !P().bemutatva.josdaLep) { P().bemutatva.josdaLep = 1; ment(); }   /* végiglépegette egyszer: legközelebb már nem kell */
     jlRajz(); jsSetal(jsKozX(x, v), jsK().uy, function () { setTimeout(function () { if (JL && JL.f === f) jsSetal(jsKozX(x, x.n), jsK().uy, null, 10); }, 250); });
     mondd("Melyik lámpás van közelebb? Vidd oda a követ!");
     return;
@@ -28107,7 +28188,7 @@ function jsFuz(JL, x, i) {
   sz.fuzve = true; x.fuz++; hangGomb();
   if (x.fuz % 10 === 0) hangCsilla();
   if (x.auto && x.fuz === 10) { jsAutoFuz(JL, x); return; }   /* az első gyűrűt ő fűzi, a többi magától fűződik */
-  if (x.fuz === x.n) { jsSzamolIndit(JL, x); return; }
+  if (x.fuz === x.n) { if (!x.auto && !P().bemutatva.josdaFuz) { P().bemutatva.josdaFuz = 1; ment(); } jsSzamolIndit(JL, x); return; }   /* egyszer kézzel végigfűzte: legközelebb az első gyűrű után magától fűződik */
   jlRajz();
 }
 function jsAutoFuz(JL, x) {
