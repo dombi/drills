@@ -27042,9 +27042,12 @@ GEN.szalag = function (cfg) {
   }
   if (forma === "busz") {
     var b = szlBusz();
-    x = { forma: "busz", b: b, k: 3, ertek: [null, null, null, b.v], figurak: !h && i === 0, fazis: "valaszt", hol: 3 };
-    return szlFeladatKi(x, b.s, "Most " + b.v + " utas ül a kocsiban. Hányan ültek benne induláskor? Koppints a villogó megállóra!",
-      "A postakocsiban most " + szo(b.v) + " utas ül. Hányan ültek benne induláskor? Menj visszafelé! Koppints a villogó megállóra!", szlNaplo("busz " + b.v));
+    var film = !P().bemutatva.szlBusz;   /* a film előre játékosonként egyszer magától (a producer, 11-15); utána ▶ gombbal, vagy 2 hiba után */
+    x = { forma: "busz", b: b, ertek: [null, null, null, b.v], fazis: film ? "elore" : "valaszt", hol: 3, utas: b.v, allo: 0, mozgat: 0, elo: { i: -1, kesz: false } };
+    if (film) return szlFeladatKi(x, b.s, "Figyeld a postakocsit! Hányan ültek benne induláskor? Ezt nem látjuk.",
+      "Figyeld a postakocsit! Hányan ültek benne induláskor? Ezt nem látjuk.", szlNaplo("busz " + b.v));
+    return szlFeladatKi(x, b.s, "Most " + b.v + " utas ül a kocsiban. Hányan ültek benne induláskor? Nézzük meg visszafelé! Koppints a villogó megállóra!",
+      "Most " + szo(b.v) + " utas ül a kocsiban. Hányan ültek benne induláskor? Nézzük meg visszafelé! Koppints a villogó megállóra!", szlNaplo("busz " + b.v));
   }
   /* kirak · hossz · vegyes */
   var tip;
@@ -27097,9 +27100,9 @@ function szlPolc(x) {
 /* ═════════════════ ELRENDEZÉS (laptop + 📱 telefon, álló) ═════════════════ */
 var SZL_KEP = {
   teljes: { vb: "0 0 800 430", W: 800, H: 430, hod: [80, 318, .6], tabla: [700, 70, 112, 62], x0: 210, x1: 690, ry: [170, 262], nevX: 200,
-            polcY: 352, polcX: [330, 470, 610], uni: [756, 412, .26], busz: { y: 300, start: 200, m: [330, 460, 590], veg: 720 } },
+            polcY: 352, polcX: [330, 470, 610], uni: [756, 412, .26], busz: { y: 300, start: 210, m: [320, 470, 620], veg: 720, k: .8 } },
   keskeny: { vb: "0 0 400 680", W: 400, H: 680, hod: [62, 196, .42], tabla: [300, 74, 112, 62], x0: 64, x1: 372, ry: [300, 400], nevX: 60,
-            polcY: 548, polcX: [90, 200, 310], uni: [356, 652, .22], busz: { y: 430, start: 40, m: [120, 210, 300], veg: 368 } }
+            polcY: 548, polcX: [90, 200, 310], uni: [356, 652, .22], busz: { y: 430, start: 60, m: [110, 205, 300], veg: 352, k: .5 } }
 };
 function szlK() { return SZL_KEP[JL && JL.keskeny ? "keskeny" : "teljes"]; }
 var SZL_FR = ' font-family="Fredoka,sans-serif" font-weight="600"';
@@ -27285,7 +27288,12 @@ JELENETEK.szalag = {
     var K = szlK(), x = JL.f.szl, T = x.forma === "egyforma" ? null : K.tabla;
     return { vb: "0 0 " + K.W + " " + K.H, tabla: T, uni: [K.uni[0], K.uni[1], K.uni[2], -1] };
   },
-  indit: function (JL) { szlKeskenyNez(JL); return false; },
+  indit: function (JL) {
+    szlKeskenyNez(JL);
+    var x = JL.f.szl;
+    if (x.forma === "busz" && x.fazis === "elore") { JL.lezart = true; var f = JL.f; setTimeout(function () { if (JL && JL.f === f) szlBuszElore(JL, x); }, 0); }
+    return false;
+  },
   tablaAll: function (JL) {
     var x = JL.f.szl;
     if (x.forma === "kendo") return x.fazis === "ir" ? "" : "var";
@@ -27296,7 +27304,7 @@ JELENETEK.szalag = {
   tablaVarMondat: function (JL) {
     var x = JL.f.szl;
     if (x.forma === "kendo") return "Vidd a rudat a kendő alá!";
-    if (x.forma === "busz") return "Koppints a villogó megállóra!";
+    if (x.forma === "busz") return x.fazis === "jatssz" ? "Előbb játszd vissza, mi történt a megállóban!" : "Koppints a villogó megállóra!";
     if (x.forma === "kirak") return x.fazis === "kerdez" ? "Előbb koppints a kérdőjelre!" : x.fazis === "ki" ? "Kinek van több? Koppints a nevére!" : "Előbb rakd ki a szalagot!";
     return "Vidd a toldást a rövidebb szalaghoz!";
   },
@@ -27334,7 +27342,9 @@ JELENETEK.szalag = {
     if (x.forma === "egyforma" && (e = t.closest(".szl-vag"))) { szlVag(JL, x, +e.getAttribute("data-k")); return; }
     if (x.forma === "kirak" && x.fazis === "ki" && (e = t.closest(".szl-nev"))) { szlKi(JL, x, +e.getAttribute("data-i")); return; }
     if (x.forma === "kirak" && x.fazis === "kerdez" && (e = t.closest(".szl-resz"))) { szlKerdezKatt(JL, x, e.getAttribute("data-id")); return; }
+    if (x.forma === "busz" && (x.fazis === "valaszt" || x.fazis === "ir") && (e = t.closest(".szl-film"))) { szlFilm(JL, x); return; }
     if (x.forma === "busz" && x.fazis === "valaszt" && (e = t.closest(".szl-megallo"))) { szlMegallo(JL, x, +e.getAttribute("data-i")); return; }
+    if (x.forma === "busz" && x.fazis === "jatssz" && (e = t.closest(".szl-utas, .szl-allo"))) { szlUtasKatt(JL, x, e.classList.contains("szl-utas") ? "utas" : "allo"); return; }
   },
   bekuld: function (JL, v) {
     var x = JL.f.szl;
@@ -27346,7 +27356,12 @@ JELENETEK.szalag = {
     var x = JL.f.szl, fog = function (i) { return '#jl-svg .jl-fog[data-fog="p' + i + '"]'; }, hely = function (h) { return '#jl-svg .jl-hely[data-hely="' + h + '"]'; };
     if (x.forma === "egyforma") return { katt: [fog(x.polc.indexOf(Math.abs(x.h[0] - x.h[1]))), hely("t")] };
     if (x.forma === "kendo") return x.fazis === "rak" ? { katt: [fog(x.rudak.indexOf(x.H)), hely("kendo")] } : { gepel: x.H };
-    if (x.forma === "busz") return x.fazis === "valaszt" ? { katt: ['#jl-svg .szl-megallo[data-i="' + (x.hol - 1) + '"]'] } : { gepel: szlBuszElotte(x, x.hol) };
+    if (x.forma === "busz") {
+      if (x.fazis === "elore") return { katt: [] };
+      if (x.fazis === "valaszt") return { katt: ['#jl-svg .szl-megallo[data-i="' + (x.hol - 1) + '"]'] };
+      if (x.fazis === "jatssz") { var bd = x.b.m[x.hol - 1], bs = []; for (var bk = x.mozgat; bk < Math.abs(bd); bk++) bs.push(bd > 0 ? '#jl-svg .szl-utas' : '#jl-svg .szl-allo'); return { katt: bs }; }
+      return { gepel: szlBuszElotte(x, x.hol) };
+    }
     if (x.bemutat) return { katt: [] };
     if (x.fazis === "ki") return { katt: ['#jl-svg .szl-nev[data-i="' + x.f.ki + '"]'] };
     if (x.fazis === "kirak") { var l = x.f.lepesek[x.lep]; return { katt: [fog(x.polc.map(function (p) { return p.jo; }).indexOf(true)), hely(l.hova)] }; }
@@ -27619,66 +27634,149 @@ function szlLepesSeg(F) {
   return "A kapocs az egész. Ha elveszed belőle az ismert darabot, mennyi marad?";
 }
 
-/* ═════════════════ ⑤ HÁNYAN ÜLTEK FEL? (Autóbusz) ═════════════════ */
-/* hol: a kocsi melyik megálló UTÁN van (3 = a végén); ertek[hol] = ennyien ülnek ott (a gyerek mondta, vagy a végén adott) */
+/* ═════════════════ ⑤ HÁNYAN ÜLTEK FEL? (Autóbusz) ═════════════════
+   VEZÉRELV (a producer, 11-15): a gondolkodás a képen történik. A kocsi ablakaiban ülnek az utasok. Visszafelé haladva a gyerek minden
+   megállóban VISSZAJÁTSSZA, ami ott történt: ahol felszálltak, ott leszállítja őket (koppint az utasokra), ahol leszálltak, ott
+   visszaülteti őket (koppint a megállóban állókra) — ez maga a fordított művelet. Utána beírja, hányan ültek, mielőtt a kocsi ideért.
+   hol: a kocsi hányadik megálló UTÁN van (3 = a végén); ertek[hol] = ennyien ülnek ott (a gyerek mondta, vagy a végén adott);
+   utas: most ennyien ülnek a kocsiban; allo: ennyien állnak a mostani megállóban; mozgat: ennyit játszott már vissza. */
 function szlBuszElotte(x, hol) { return x.ertek[hol] - x.b.m[hol - 1]; }   /* a hol-adik megálló előtt ennyien ültek */
+var SZL_BORSZIN = ["#f3d2b0", "#e8b98f", "#c98f62", "#f6dcc4", "#a8724a"], SZL_RUHA = ["#a7d99a", "#f6a5c0", "#9ec9f0", "#fce49a", "#c9a8e6"];
 function szlBuszRajz(JL, x, K) {
-  var B = K.busz, y = B.y, F = pcF, s = '', b = x.b;
+  var B = K.busz, y = B.y, F = pcF, s = '', b = x.b, i = x.hol - 1, jat = x.fazis === "jatssz" && !JL.lezart;
   s += szlHod(K.hod[0], K.hod[1] - 40, K.hod[2], x.hod || "var");
   /* az út */
-  s += '<g filter="url(#lt-firka)"><path d="M' + (B.start - 40) + ' ' + (y + 20) + 'H' + (B.veg + 40) + 'V' + (y + 46) + 'H' + (B.start - 40) + 'Z" fill="#e6d7b8" stroke="#c9ad85" stroke-width="2"/></g>';
+  s += '<g filter="url(#lt-firka)"><path d="M' + (B.start - 60) + ' ' + (y + 20) + 'H' + (B.veg + 60) + 'V' + (y + 46) + 'H' + (B.start - 60) + 'Z" fill="#e6d7b8" stroke="#c9ad85" stroke-width="2"/></g>';
   s += '<text x="' + B.start + '" y="' + (y + 68) + '" text-anchor="middle" font-size="13"' + SZL_FR + ' fill="#6b6280">indulás</text>';
-  /* a megállók: tábla (+3 / −5) és a fel- / leszálló figurák */
-  b.m.forEach(function (d, i) {
-    var mx = B.m[i], aktiv = x.fazis === "valaszt" && i === x.hol - 1 && !JL.lezart, kesz = i >= x.hol;
-    s += '<g class="szl-megallo" data-i="' + i + '"' + (aktiv ? ' style="cursor:pointer"' : '') + '><rect x="' + (mx - 34) + '" y="' + (y - 120) + '" width="68" height="150" fill="transparent"/>' +
+  var elo = x.fazis === "elore", ax = (B.m[0] + B.m[2]) / 2, aw = 34 * B.k + 18;   /* merre megyünk: a film alatt előre, utána visszafelé */
+  s += '<g opacity=".85"><path d="M' + F(ax + (elo ? -aw : aw)) + ' ' + (y + 33) + 'H' + F(ax + (elo ? aw : -aw)) + 'M' + F(ax + (elo ? aw - 9 : -aw + 9)) + ' ' + (y + 26) + 'L' + F(ax + (elo ? aw : -aw)) + ' ' + (y + 33) + 'L' + F(ax + (elo ? aw - 9 : -aw + 9)) + ' ' + (y + 40) + '" fill="none" stroke="' + (elo ? "#3f9e6a" : "#e0417a") + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+       '<text x="' + F(ax) + '" y="' + (y + 64) + '" text-anchor="middle" font-size="14"' + SZL_FR + ' fill="' + (elo ? "#3f9e6a" : "#e0417a") + '">' + (elo ? "előre" : "visszafelé") + '</text></g>';
+  /* a megállók: oszlop + tábla (+3 / −5) */
+  b.m.forEach(function (d, j) {
+    var mx = B.m[j], aktiv = x.fazis === "valaszt" && j === i && !JL.lezart;
+    s += '<g class="szl-megallo" data-i="' + j + '"' + (aktiv ? ' style="cursor:pointer"' : '') + '><rect x="' + (mx - 34) + '" y="' + (y - 120) + '" width="68" height="70" fill="transparent"/>' +
       '<path d="M' + mx + ' ' + (y + 20) + 'V' + (y - 74) + '" stroke="#6e4a36" stroke-width="3"/>' +
       '<rect x="' + (mx - 26) + '" y="' + (y - 104) + '" width="52" height="32" rx="7" fill="' + (d > 0 ? "#dff3e7" : "#ffe3ee") + '" stroke="' + (aktiv ? "#e0417a" : "#8a6a52") + '" stroke-width="' + (aktiv ? 3.4 : 1.8) + '"/>' +
       '<text x="' + mx + '" y="' + (y - 81) + '" text-anchor="middle" font-size="18"' + SZL_FR + ' fill="#3c2a50">' + (d > 0 ? "+" + d : "−" + (-d)) + '</text>';
     if (aktiv && !lkCsokkent()) s += '<circle cx="' + mx + '" cy="' + (y - 88) + '" r="32" fill="none" stroke="#e0417a" stroke-width="2.4"><animate attributeName="r" values="28;38;28" dur="1.2s" repeatCount="indefinite"/></circle>';
-    if (x.figurak) {   /* kis figurák a tábla mellett: nyíl fel (felszáll) / le (leszáll) */
-      for (var k = 0; k < Math.abs(d); k++) {
-        var fx = mx - 22 + (k % 3) * 14, fy = y - 44 - Math.floor(k / 3) * 22;
-        s += '<circle cx="' + fx + '" cy="' + (fy - 6) + '" r="5" fill="#f3d2b0" stroke="#8a6a52" stroke-width="1.2"/><path d="M' + (fx - 5) + ' ' + (fy + 8) + 'Q' + fx + ' ' + (fy - 4) + ' ' + (fx + 5) + ' ' + (fy + 8) + 'Z" fill="' + (d > 0 ? "#a7d99a" : "#f6a5c0") + '" stroke="#8a6a52" stroke-width="1.2"/>';
-      }
-      s += '<path d="M' + (mx + 26) + ' ' + (y - (d > 0 ? 30 : 56)) + 'V' + (y - (d > 0 ? 56 : 30)) + 'M' + (mx + 21) + ' ' + (y - (d > 0 ? 50 : 36)) + 'L' + (mx + 26) + ' ' + (y - (d > 0 ? 57 : 29)) + 'L' + (mx + 31) + ' ' + (y - (d > 0 ? 50 : 36)) + '" fill="none" stroke="' + (d > 0 ? "#3f9e6a" : "#c0567f") + '" stroke-width="2.4" stroke-linecap="round"/>';
-    }
-    if (kesz && x.ertek[i + 1] != null && i + 1 < 3) s += '<text x="' + (mx + 64) + '" y="' + (y + 68) + '" text-anchor="middle" font-size="13"' + SZL_FR + ' fill="#6b6280">' + x.ertek[i + 1] + ' utas</text>';
     s += '</g>';
   });
-  /* a postakocsi */
-  var kx = x.fazis === "ir" ? B.m[x.hol - 1] : x.hol === 3 ? B.veg : x.hol === 0 ? B.start : (B.m[x.hol - 1] + B.m[x.hol]) / 2;
-  var n = x.fazis === "ir" ? null : x.ertek[x.hol];
-  s += szlKocsi(kx, y + 16, n);
+  /* a kocsi: menet közben a két megálló között; a megállóban (visszajátszás, beírás) közvetlenül a tábla után áll, az ajtaja a megálló felé */
+  if (x.fazis === "elore") {   /* 🎬 a film előre: függöny az ablakon, a megállóban fel- és leszállók */
+    var E = x.elo, ex = E.i < 0 ? B.start : E.i > 2 ? B.veg : B.m[E.i] + 90 * B.k, ed = E.i >= 0 && E.i <= 2 ? b.m[E.i] : 0;
+    var ea = ed > 0 ? (E.kesz ? 0 : ed) : ed < 0 ? (E.kesz ? -ed : 0) : 0;
+    s += szlKocsi(ex, y + 16, x.utas, E.i > 2 ? x.ertek[3] : null, B.k, false, E.i <= 2);
+    for (var ej = 0; ej < ea; ej++) s += szlAllo(B.m[E.i] - (14 + (ej % 5) * 14) * B.k, y + 18 - Math.floor(ej / 5) * 18 * B.k, ej, B.k, false);
+    return s;
+  }
+  if ((x.fazis === "valaszt" || x.fazis === "ir") && !JL.lezart) {   /* ▶ „előre”: a film újra */
+    var gx = B.start, gy = y - 98;
+    s += '<g class="szl-film" style="cursor:pointer"><rect x="' + F(gx - 40) + '" y="' + F(gy - 16) + '" width="80" height="32" rx="12" fill="#dff3e7" stroke="#3f9e6a" stroke-width="2"/>' +
+         '<path d="M' + F(gx - 26) + ' ' + F(gy - 8) + 'L' + F(gx - 12) + ' ' + F(gy) + 'L' + F(gx - 26) + ' ' + F(gy + 8) + 'Z" fill="#3f9e6a"/>' +
+         '<text x="' + F(gx + 8) + '" y="' + F(gy + 5) + '" text-anchor="middle" font-size="14"' + SZL_FR + ' fill="#2f6e4a">előre</text></g>';
+  }
+  var bal = x.fazis === "jatssz" || x.fazis === "ir", kx = bal ? B.m[i] + 90 * B.k : x.hol === 3 ? B.veg : x.hol === 0 ? B.start : (B.m[x.hol - 1] + B.m[x.hol]) / 2;
+  var n = x.fazis === "jatssz" || x.fazis === "ir" ? null : x.ertek[x.hol];
+  var d0 = bal ? b.m[i] : 0;
+  s += szlKocsi(kx, y + 16, x.utas, n, B.k, jat && d0 > 0);
+  /* a megállóban állók (a leszállók, vagy akiket a gyerek leszállított) */
+  if (bal) for (var j = 0; j < x.allo; j++) s += szlAllo(B.m[i] - (14 + (j % 5) * 14) * B.k, y + 18 - Math.floor(j / 5) * 18 * B.k, j, B.k, jat && d0 < 0);
   return s;
 }
-function szlKocsi(x, y, n) {
+/* egy álló utas a megállóban: (x, y) a talpa */
+function szlAllo(x, y, j, k, katt) {
   var F = pcF;
-  return '<g transform="translate(' + F(x) + ' ' + F(y) + ')"><g filter="url(#lt-firka)"><path d="M-40 -10V-54Q-40 -62 -30 -62H34Q42 -62 42 -54V-10Z" fill="#f6c4d2" stroke="#b5607e" stroke-width="2.4"/>' +
-    '<rect x="-32" y="-54" width="20" height="16" rx="3" fill="#eaf6ff" stroke="#b5607e" stroke-width="1.6"/><rect x="-6" y="-54" width="20" height="16" rx="3" fill="#eaf6ff" stroke="#b5607e" stroke-width="1.6"/>' +
-    '<path d="M-46 -62H48" stroke="#8a5a3a" stroke-width="4" stroke-linecap="round"/></g>' +
-    '<circle cx="-24" cy="-6" r="10" fill="#8a6a52" stroke="#4a3624" stroke-width="2"/><circle cx="26" cy="-6" r="10" fill="#8a6a52" stroke="#4a3624" stroke-width="2"/>' +
-    (n != null ? '<rect x="18" y="-56" width="34" height="24" rx="7" fill="#fffaf0" stroke="#8a6a52" stroke-width="1.6"/><text x="35" y="-38.5" text-anchor="middle" font-size="16"' + SZL_FR + ' fill="#3c2a50">' + n + '</text>' :
-      '<rect x="18" y="-56" width="34" height="24" rx="7" fill="#fffaf0" stroke="#e0417a" stroke-width="2"/><text x="35" y="-38.5" text-anchor="middle" font-size="16"' + SZL_FR + ' fill="#e0417a">?</text>') + '</g>';
+  return '<g' + (katt ? ' class="szl-allo" style="cursor:pointer"' : '') + ' transform="translate(' + F(x) + ' ' + F(y) + ') scale(' + k + ')"><g' + (katt ? ' class="kf-ic js-lukt-kis"' : '') + '>' +
+    '<rect x="-9" y="-30" width="18" height="32" fill="transparent"/>' +
+    '<path d="M-6 0Q-7 -14 0 -15Q7 -14 6 0Z" fill="' + SZL_RUHA[j % 5] + '" stroke="#8a6a52" stroke-width="1.3"/>' +
+    '<circle cx="0" cy="-20" r="5.6" fill="' + SZL_BORSZIN[j % 5] + '" stroke="#8a6a52" stroke-width="1.3"/></g></g>';
+}
+/* a postakocsi: (x, y) az alja közepe; utas: hányan ülnek (fejek az ablakokban, 2 × 10 hely); n: a szám a tetőn (null: ?); katt: az utasok koppinthatók */
+function szlKocsi(x, y, utas, n, k, katt, fuggony) {
+  var F = pcF, s = '<g transform="translate(' + F(x) + ' ' + F(y) + ') scale(' + k + ')"><g filter="url(#lt-firka)">' +
+    '<path d="M-84 -10V-70Q-84 -80 -72 -80H74Q86 -80 92 -62L98 -34V-10Z" fill="#f6c4d2" stroke="#b5607e" stroke-width="2.4"/>' +   /* eleje jobbra: lejtős orr */
+    '<rect x="-76" y="-72" width="136" height="50" rx="5" fill="#eaf6ff" stroke="#b5607e" stroke-width="1.6"/>' +
+    '<path d="M66 -72H78Q86 -72 90 -58L94 -40H66Z" fill="#cfe8fb" stroke="#b5607e" stroke-width="1.6"/>' +   /* szélvédő */
+    '<rect x="64" y="-36" width="22" height="24" rx="2" fill="#f9d7e2" stroke="#b5607e" stroke-width="1.4"/><path d="M75 -36V-12" stroke="#b5607e" stroke-width="1"/>' +   /* ajtó elöl */
+    '<circle cx="95" cy="-20" r="4.5" fill="#ffe08a" stroke="#c9962a" stroke-width="1.2"/>' +   /* fényszóró */
+    '<rect x="-88" y="-34" width="5" height="12" rx="1.5" fill="#e0526a" stroke="#a83a4c" stroke-width="1"/>' +   /* hátsó lámpa */
+    '<path d="M-88 -80H86" stroke="#8a5a3a" stroke-width="4" stroke-linecap="round"/></g>';
+  for (var j = 0; j < utas; j++) {
+    var sor = Math.floor(j / 10), oszl = j % 10, hx = -68 + oszl * 13.5, hy = sor ? -32 : -56;
+    s += '<g' + (katt ? ' class="szl-utas" style="cursor:pointer"' : '') + '><g' + (katt ? ' class="kf-ic js-lukt-kis"' : '') + '>' +
+      (katt ? '<rect x="' + (hx - 7) + '" y="' + (hy - 9) + '" width="14" height="22" fill="transparent"/>' : '') +
+      '<path d="M' + (hx - 6) + ' ' + (hy + 12) + 'Q' + hx + ' ' + (hy + 2) + ' ' + (hx + 6) + ' ' + (hy + 12) + 'Z" fill="' + SZL_RUHA[j % 5] + '" stroke="#8a6a52" stroke-width="1.1"/>' +
+      '<circle cx="' + hx + '" cy="' + hy + '" r="5.4" fill="' + SZL_BORSZIN[j % 5] + '" stroke="#8a6a52" stroke-width="1.2"/></g></g>';
+  }
+  if (fuggony) s += '<path d="M-76 -72H60V-22H-76Z" fill="#c9a8e6" stroke="#7a5ea8" stroke-width="1.6"/><path d="M-50 -72Q-46 -46 -50 -22M-24 -72Q-20 -46 -24 -22M2 -72Q6 -46 2 -22M28 -72Q32 -46 28 -22" fill="none" stroke="#a88ad0" stroke-width="1.6"/>' +
+    '<text x="-8" y="-40" text-anchor="middle" font-size="22"' + SZL_FR + ' fill="#fff">?</text>';   /* függöny: induláskor nem látjuk, hányan ülnek */
+  s += '<circle cx="-54" cy="-6" r="11" fill="#8a6a52" stroke="#4a3624" stroke-width="2"/><circle cx="54" cy="-6" r="11" fill="#8a6a52" stroke="#4a3624" stroke-width="2"/>';
+  s += '<rect x="30" y="-104" width="40" height="24" rx="7" fill="#fffaf0" stroke="' + (n == null ? "#e0417a" : "#8a6a52") + '" stroke-width="' + (n == null ? 2 : 1.6) + '"/>' +
+       '<text x="50" y="-86.5" text-anchor="middle" font-size="16"' + SZL_FR + ' fill="' + (n == null ? "#e0417a" : "#3c2a50") + '">' + (n == null ? "?" : n) + '</text>';
+  return s + '</g>';
+}
+/* 🎬 előre: indulás → megállónként (várnak / felszállnak · leszállnak) → a végén széthúzódik a függöny; aztán „Nézzük meg visszafelé!” */
+function szlBuszElore(JL, x, vissza) {
+  var f = JL.f, B = szlK().busz, lep = function (i) {
+    if (i > 2) {
+      x.elo = { i: 3, kesz: true }; jlRajz();
+      szlVar(f, 900, function () {
+        if (!P().bemutatva.szlBusz) { P().bemutatva.szlBusz = 1; ment(); }
+        if (vissza) { vissza(); return; }
+        x.fazis = "valaszt"; JL.lezart = false;
+        var m = "Most " + x.b.v + " utas ül a kocsiban. Nézzük meg visszafelé! Koppints a villogó megállóra!";
+        szlFelirat(x, m); jlRajz(); mondd("Most " + szo(x.b.v) + " utas ül a kocsiban. Nézzük meg visszafelé! Koppints a villogó megállóra!");
+      });
+      return;
+    }
+    var d = x.b.m[i];
+    x.elo = { i: i, kesz: false }; jlRajz();
+    mondd(d > 0 ? szo(d) + " utas felszáll." : szo(-d) + " utas leszáll.");
+    szlVar(f, 1100, function () { x.elo.kesz = true; hangGomb(); jlRajz(); szlVar(f, 1000, function () { lep(i + 1); }); });
+  };
+  szlVar(f, 1200, function () { lep(0); });
+}
+/* ▶ a film újra (gombbal, vagy 2 hiba után): utána ott folytatódik, ahol abbamaradt */
+function szlFilm(JL, x) {
+  var f = JL.f, menta = { fazis: x.fazis, utas: x.utas, allo: x.allo, mozgat: x.mozgat, hol: x.hol }, fel = JL.f.szoveg;
+  hangGomb(); x.filmVolt = true; JL.lezart = true;
+  x.fazis = "elore"; x.utas = x.b.v; x.allo = 0; x.elo = { i: -1, kesz: false };
+  szlFelirat(x, "Figyeld a postakocsit! Hányan ültek benne induláskor? Ezt nem látjuk."); jlRajz(); mondd("Figyeld a postakocsit!");
+  szlBuszElore(JL, x, function () {
+    for (var k in menta) x[k] = menta[k];
+    JL.lezart = false; szlFelirat(x, fel); jlRajz(); mondd("Most nézzük meg visszafelé!"); if (x.fazis === "ir") jlFokusz();
+  });
 }
 function szlMegallo(JL, x, i) {
   if (i !== x.hol - 1) { jlSzol("Visszafelé megyünk: a villogó megálló jön!", false); return; }
-  hangGomb(); x.fazis = "ir"; x.hol = i + 1;   /* a kocsi a megálló előtt áll, és azt kérdezzük: hányan ültek, mielőtt ide ért? */
-  var d = x.b.m[i], m = "Hányan ültek a kocsiban, mielőtt ide ért? Itt " + (d > 0 ? szo(d) + " utas felszállt." : szo(-d) + " utas leszállt.");
-  szlFelirat(x, "Hányan ültek, mielőtt ide ért? Írd a táblára!"); jlRajz(); mondd(m); jlFokusz();
+  hangGomb();
+  var d = x.b.m[i], m;
+  x.fazis = "jatssz"; x.mozgat = 0; x.allo = d < 0 ? -d : 0; x.utas = x.ertek[x.hol];
+  m = d > 0 ? "Itt " + d + " utas szállt fel. Visszafelé megyünk: szállítsd le őket! Koppints az utasokra a kocsiban!"
+            : "Itt " + (-d) + " utas szállt le. Visszafelé megyünk: ültesd vissza őket! Koppints a megállóban állókra!";
+  szlFelirat(x, m); jlRajz(); mondd(m);
+}
+function szlUtasKatt(JL, x, mit) {
+  var d = x.b.m[x.hol - 1], kell = Math.abs(d);
+  if (d > 0 && mit === "utas") { x.utas--; x.allo++; x.mozgat++; hangGomb(); }
+  else if (d < 0 && mit === "allo") { x.allo--; x.utas++; x.mozgat++; hangGomb(); }
+  else { jlSzol(d > 0 ? "Ők most szálltak le. Itt felszálltak: visszafelé menet a kocsiból kell leszállniuk!" : "Itt leszálltak. Visszafelé menet visszaülnek: koppints a megállóban állókra!", true); return; }
+  if (x.mozgat < kell) { jlRajz(); return; }
+  hangCsilla(); x.fazis = "ir";
+  szlFelirat(x, "Hányan ültek a kocsiban, mielőtt ideért? Írd a táblára!"); jlRajz(); mondd("Hányan ültek a kocsiban, mielőtt ideért?"); jlFokusz();
 }
 function szlBuszIr(JL, x, v) {
-  var kell = szlBuszElotte(x, x.hol), f = JL.f, d = x.b.m[x.hol - 1];
+  var kell = szlBuszElotte(x, x.hol);
   if (v === kell) {
-    hangCsilla(); x.ertek[x.hol - 1] = v; x.hol--;
+    hangCsilla(); x.ertek[x.hol - 1] = v; x.hol--; x.allo = 0;
     if (x.hol === 0) { x.fazis = "kesz"; x.hod = "orul"; jlJo("Induláskor " + v + " utas", null, szlEltart); return; }
     x.fazis = "valaszt"; szlFelirat(x, "Ott " + v + " utas ült. Koppints a következő villogó megállóra!"); jlRajz(); mondd("Igaz! Koppints a következő megállóra!");
     return;
   }
   JL.rossz = String(v); jlRossz(String(v), szlNaplo("busz " + x.b.v));
   jlRajz();
-  jlSzol(JL.seg >= 2 ? (d > 0 ? "Itt felszálltak, tehát előtte kevesebben ültek: " + szlVal(d) + " kevesebben." : "Itt leszálltak, tehát előtte többen ültek: " + szlVal(-d) + " többen.") :
-    (d > 0 ? "Hm. Itt felszálltak. Előtte többen vagy kevesebben ültek?" : "Hm. Itt leszálltak. Előtte többen vagy kevesebben ültek?"), true);
+  jlSzol(JL.seg >= 2 ? "Számold meg a fejeket az ablakokban: tízesével vannak egy sorban!" : "Hm. Számold meg, hányan ülnek most a kocsiban!", true);
+  if (JL.seg >= 2 && !x.filmVolt) { var f2 = JL.f; szlVar(f2, 1600, function () { if (x.fazis === "ir") szlFilm(JL, x); }); return; }   /* 2 hiba után: nézzük meg még egyszer előre */
   jlFokusz();
 }
 /* ============ 6j4g) 🔭 JÓSDA — kerekítés és becslés (1. kör: a ház + Tiki + az előszoba, 2026-11-13) ============

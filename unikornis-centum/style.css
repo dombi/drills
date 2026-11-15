@@ -3218,6 +3218,9 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .szl-utasitas{ display:block; margin-top:6px; font-size:.82em; color:#6b6280; }
 .jl-panel .szl-elo{ opacity:0; transition:opacity .15s; }   /* a kézben tartott tárgy előképe: csak a kijelölt hely mögött */
 .jl-panel .jl-hely.jl-cel + .szl-elo{ opacity:.5; }
+.jl-panel .js-lukt-kis{ animation:szl-lukt-kis 1.3s ease-in-out infinite; transform-box:fill-box; transform-origin:center bottom; }   /* 🚌 a koppintható utasok */
+@keyframes szl-lukt-kis{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-3px) } }
+@media (prefers-reduced-motion: reduce){ .jl-panel .js-lukt-kis{ animation:none; } }
 
 /* ═══════ 📸 FOTÓGÉP + FOTÓALBUM (foto.js, album.js) ═══════ */
 .foto-gomb-hely{ position:absolute; right:12px; bottom:12px; z-index:30; display:flex; align-items:center; gap:8px; pointer-events:none; }
