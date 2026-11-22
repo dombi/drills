@@ -26964,7 +26964,7 @@ function szlFeladat(tipus) {
          szlLep(m1, "d", a, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, null, { sz: true })] }]),
          szlLep(m1, "kul", d, "kul", [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")] }])];
     L[1].ut = B.nak + " annyi van, mint " + A.nak + ", és még " + d + ". Előbb tedd " + B.hoz + " ugyanannyit, mint " + A.e + "!"; L[1].masolat = true;
-    L[2].folyt = true; L[2].ut = B.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+    L[2].folyt = true; L[2].ut = B.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a hosszabb szalag végére!";
     Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")], k: szlKap("K", c, "?", true) }] };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: c, mond: A.nak + " " + szlVal(d) + " kevesebb van, vagyis " + B.nak + " " + szlVal(d) + " több." };
   }
@@ -26986,7 +26986,7 @@ function szlFeladat(tipus) {
          szlIsm(szlLep(m3, "d", a - d, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("x", a - d, "?", { ism: true })] }]), d),
          szlLep(m3, "kul", d, "kul", [{ s: [szlSeg("c", a - d, "", { sz: true }), szlSeg("d", d, "")], k: szlKap("A", a) }, { s: [szlSeg("x", a - d, "?", { ism: true })], res: szlRes("D", a - d, d) }])];
     L[1].ut = "Azt még nem tudjuk, mennyi van " + B.nak + ". Tedd ki " + B.n + " szalagját!";
-    L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+    L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " több van:" + " ennyi a különbség. Tedd a különbség-kapcsot a hosszabb szalag végére!";
     Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "x", all: L[2].all };
     return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a - d, ki: 0, mond: A.nak + " " + szlVal(d) + " több van, vagyis " + B.nak + " " + szlVal(d) + " kevesebb." };
   }
@@ -26998,7 +26998,7 @@ function szlFeladat(tipus) {
        szlLep(m2, "d", a, "r1", [{ s: [szlSeg("a", a)] }, { s: [szlSeg("c", a, null, { sz: true })] }]),
        szlLep(m2, "kul", d, "kul", [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")] }])];
   L[1].ut = B.nak + " több van. Előbb tedd " + B.hoz + " ugyanannyit, mint " + A.e + "!"; L[1].masolat = true;
-  L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " kevesebb van:" + " ennyi a különbség. Tedd a különbség-kapcsot a két szalag közé!";
+  L[2].folyt = true; L[2].ut = A.nak + " " + szlVal(d) + " kevesebb van:" + " ennyi a különbség. Tedd a különbség-kapcsot a hosszabb szalag végére!";
   Q = { mondat: "Hány " + D.b + " van " + B.nak + "?", cel: "K", all: [{ s: [szlSeg("a", a)], res: szlRes("D", a, d) }, { s: [szlSeg("c", a, null, { sz: true }), szlSeg("d", d, "")], k: szlKap("K", a + d, "?", true) }] };
   return { tipus: tipus, sorok: so, lepesek: L, kerdes: Q, helyes: a + d, ki: 1, mond: A.nak + " " + szlVal(d) + " kevesebb van, vagyis " + B.nak + " " + szlVal(d) + " több." };
 }
@@ -27112,8 +27112,8 @@ var SZL_FR = ' font-family="Fredoka,sans-serif" font-weight="600"';
 function szlDarab(x, y, w, szin, c, o) {
   o = o || {}; var F = pcF, h = o.h || 30, s = '<g' + (o.attr || '') + '>';
   if (o.attr) s += '<rect x="' + F(x) + '" y="' + F(y - h / 2 - 8) + '" width="' + F(Math.max(w, 24)) + '" height="' + (h + 16) + '" fill="transparent"/>';
-  var fill = o.sz ? "#fffaf4" : o.ism ? "#fff" : szin[0], str = o.jelolt ? "#e0417a" : szin[1];
-  s += '<rect x="' + F(x + 1) + '" y="' + F(y - h / 2) + '" width="' + F(Math.max(w - 2, 4)) + '" height="' + h + '" rx="5" fill="' + fill + '" stroke="' + str + '" stroke-width="' + (o.jelolt ? 3.4 : 2.2) + '"' + (o.sz || o.ism ? ' stroke-dasharray="6 4"' : '') + (o.hiba ? ' opacity=".55"' : '') + '/>';
+  var fill = o.kulonb ? szin[0] : o.sz ? "#fffaf4" : o.ism ? "#fff" : szin[0], str = o.jelolt ? "#e0417a" : szin[1];   /* kulonb: a különbség — a szalag színe, sárga szaggatott keret */
+  s += '<rect x="' + F(x + 1) + '" y="' + F(y - h / 2) + '" width="' + F(Math.max(w - 2, 4)) + '" height="' + h + '" rx="5" fill="' + fill + '" stroke="' + str + '" stroke-width="' + (o.jelolt ? 3.4 : 2.2) + '"' + (o.sz || o.ism || o.kulonb ? ' stroke-dasharray="6 4"' : '') + (o.hiba ? ' opacity=".55"' : '') + '/>';
   if (o.jelolt) s += '<rect x="' + F(x + 3) + '" y="' + F(y - h / 2 + 2) + '" width="' + F(Math.max(w - 6, 2)) + '" height="' + (h - 4) + '" rx="4" fill="url(#szl-csik)" opacity=".55"/>';
   if (o.rov) for (var k = 1; k < o.rov; k++) s += '<path d="M' + F(x + w * k / o.rov) + ' ' + F(y - h / 2 + 4) + 'V' + F(y + h / 2 - 4) + '" stroke="' + szin[1] + '" stroke-width="1.4" opacity=".7"/>';
   if (c) s += '<text x="' + F(x + w / 2) + '" y="' + F(y + 6) + '" text-anchor="middle" font-size="' + (w < 30 ? 13 : 17) + '"' + SZL_FR + ' fill="' + (o.ism ? "#e0417a" : "#3c2a50") + '">' + kiiras(c) + '</text>';
@@ -27496,10 +27496,10 @@ function szlKirakRajz(JL, x, K) {
   var u = Math.min(14, (K.x1 - K.x0) / max);
   var ys = ket ? K.ry : [Math.round((K.ry[0] + K.ry[1]) / 2)];
   var kulFog = !!(JL.fog && x.polc && (x.polc[+JL.fog.id.slice(1)] || {}).t === "kul");
-  if (ket) A.forEach(function (r) {   /* 🟨 a különbség: sáv a rövidebb vége és a hosszabb vége között, mindkét szalagon át */
+  if (ket) A.forEach(function (r) {   /* a rövidebb szalag vége: szaggatott vonal le / fel a hosszabbikig — eddig egyformák */
     if (!r.res) return;
-    var rv = x.felul && x.felul.id === r.res.id ? x.felul.v : r.res.v;
-    s += '<rect x="' + P(K.x0 + r.res.v0 * u) + '" y="' + (ys[0] - 22) + '" width="' + P(rv * u) + '" height="' + (ys[1] - ys[0] + 44) + '" rx="6" fill="#fff1a8" opacity=".55" stroke="#e3c46a" stroke-dasharray="5 4"/>';
+    var gx = K.x0 + r.res.v0 * u;
+    s += '<path d="M' + P(gx) + ' ' + (ys[0] - 20) + 'V' + (ys[1] + 20) + '" stroke="#c9962a" stroke-width="2" stroke-dasharray="5 4" opacity=".8"/>';
   });
   F.sorok.forEach(function (so, i) {
     var y = ys[i], r = A[i] || { s: [] }, xx = K.x0, katt = x.fazis === "kerdez" && !JL.lezart;
@@ -27518,12 +27518,6 @@ function szlKirakRajz(JL, x, K) {
         attr: katt ? ' class="szl-resz" data-id="' + r.k.id + '" style="cursor:pointer"' : '' });
       s += katt && r.k.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + kg + '</g></g>' : kg;
     }
-    if (r.res) {   /* a rés a rövidebb sorban: szaggatott sárga doboz a számmal (vagy ?) */
-      var rv2 = x.felul && x.felul.id === r.res.id ? x.felul.v : r.res.v, rc = r.res.ism && kesz ? String(F.helyes) : x.felul && x.felul.id === r.res.id ? String(x.felul.v) : r.res.c;
-      var rg = szlDarab(K.x0 + r.res.v0 * u, y, rv2 * u, ["#fff1a8", "#c9962a"], rc, { sz: true, jelolt: x.kiszin && F.kerdes.cel === r.res.id, hiba: x.felul && x.felul.id === r.res.id,
-        attr: katt ? ' class="szl-resz" data-id="' + r.res.id + '" style="cursor:pointer"' : '' });
-      s += katt && r.res.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + rg + '</g></g>' : rg;
-    }
     /* a letevés helyei: a sor (tekercs) és a sor fölötte (kapocs); a különbség-kapocsnak a két sor közötti sáv */
     if (x.fazis === "kirak" && !JL.lezart && !kulFog) {
       var elo = szlElokep(JL, x, K, i, y, xx, u);   /* a kézben tartott tárgy halvány előképe: hova kerülne (a producer, 11-13) */
@@ -27535,7 +27529,18 @@ function szlKirakRajz(JL, x, K) {
       s += '<g opacity=".6">' + szlKapocs(K.x0, K.x0 + bv * u, y, String(bv), { jelolt: true }) + '</g>';
     }
   });
-  if (ket && kulFog && x.fazis === "kirak" && !JL.lezart) s += '<rect class="jl-hely" data-hely="kul" x="' + P(K.x0) + '" y="' + (ys[0] + 20) + '" width="' + P(K.x1 - K.x0) + '" height="' + (ys[1] - ys[0] - 40) + '" rx="10" fill="#fff1a8" opacity=".35"/>';
+  if (ket) A.forEach(function (r, i) {   /* 🟨 a különbség a HOSSZABB szalag vége: ott van valóban (a producer, 11-22) — a szín a hosszabbiké, sárga szaggatott kerettel, rajta a szám vagy ? */
+    if (!r.res) return;
+    var o = 1 - i, katt = x.fazis === "kerdez" && !JL.lezart;
+    var rv2 = x.felul && x.felul.id === r.res.id ? x.felul.v : r.res.v, rc = r.res.ism && kesz ? String(F.helyes) : x.felul && x.felul.id === r.res.id ? String(x.felul.v) : r.res.c;
+    var rg = szlDarab(K.x0 + r.res.v0 * u, ys[o], rv2 * u, [SZL_SZIN[o][0], "#c9962a"], rc, { kulonb: true, ism: r.res.ism && !kesz, jelolt: x.kiszin && F.kerdes.cel === r.res.id, hiba: x.felul && x.felul.id === r.res.id,
+      attr: katt ? ' class="szl-resz" data-id="' + r.res.id + '" style="cursor:pointer"' : '' });
+    s += katt && r.res.ism ? '<g class="js-lukt szl-lukt"><g class="kf-ic">' + rg + '</g></g>' : rg;
+  });
+  if (ket && kulFog && x.fazis === "kirak" && !JL.lezart) {   /* a különbség-kapocs helye: a hosszabb szalag sora (amelyiknek a következő rajzon a vége kilóg) */
+    var cel = x.f.lepesek[x.lep].all, hi = cel[0] && cel[0].res ? 1 : 0;
+    s += '<rect class="jl-hely" data-hely="kul" x="' + P(K.x0) + '" y="' + (ys[hi] - 24) + '" width="' + P(K.x1 - K.x0) + '" height="48" rx="10" fill="#fff1a8" opacity=".35"/>';
+  }
   if (x.bemutat) {   /* a bemutatón csak a kapocs a polcon, világít */
     var bt = x.polc.filter(function (T) { return T.t === "k"; })[0];
     s += szlPolcRajz(K, 2) + '<ellipse cx="' + P(K.polcX[0]) + '" cy="' + K.polcY + '" rx="58" ry="40" fill="url(#lt-gNyHalo)"/>' + szlTargy(K.polcX[0], K.polcY, bt, '');
@@ -27599,7 +27604,7 @@ function szlKirakTesz(JL, x, i, hova) {
   if (!sorJo && x.f.sorok.length > 1) m = "Kiről szól ez a mondat? Az ő szalagjához tedd!";
   else if (l.targy.t === "k") m = T.t === "k" ? "A kapocs a szalag fölé kerül." : "Ez a szám az egészet mondja meg. Az egész a kapocs, a szalag fölé kerül.";
   else m = T.t === "d" ? "A tekercs a szalag végére kerül." : "Ez a szám egy darab, ami hozzájön: a tekercs a szalag végére kerül.";
-  if (l.targy.t === "kul") m = T.t === "kul" ? "A különbség-kapocs a két szalag közé kerül." : "Ez a szám nem egy darab, hanem a különbség: ennyivel hosszabb az egyik szalag. A különbség-kapocs kell, a két szalag közé!";
+  if (l.targy.t === "kul") m = T.t === "kul" ? "A különbség-kapocs a hosszabb szalag végére kerül." : "Ez a szám nem egy darab, hanem a különbség: ennyivel hosszabb az egyik szalag. A különbség-kapocs kell, a hosszabb szalag végére!";
   if (l.ismeretlen && sorJo) m = T.jo ? "A tekercs a szalag végére kerül." : "Ezt a számot még nem tudjuk. Ami még ismeretlen, az a kérdőjeles tekercs!";
   if (l.masolat && T.t === "d" && sorJo) m = "Előbb ugyanannyit tegyél, mint a másiké: annyit, amennyi a felső szalag!";
   jlRajz(); jlSzol(m, true);
