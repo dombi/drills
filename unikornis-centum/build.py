@@ -97,6 +97,7 @@ MODULES = [
     "irasbeli.js",        # 6j4e) ✍️ Garas tornya: ✖️ írásbeli szorzás (GEN.irszor, JELENETEK.irszor, csigalépcső-kép, a torony a Piactéren)
     "szalag.js",          # 6j4h) 🎀 Szalagműhely: az egyenlet előszobája (szlFeladat, a hód mester, a ház, a mérőléc), GEN.szalag, JELENETEK.szalag
     "josda.js",           # 6j4g) 🔭 Jósda: kerekítés + becslés (kerekit, kerekEll, Tiki a teknős, a ház, a Lámpás-ösvény), GEN.josda, JELENETEK.josda
+    "josda-emelet.js",    # 6j4g2) 🔭 Jósda · 1. emelet (1000-ig): kerekítés tízesre/százasra, ≈ cetli, fény-sáv, jóslat összeadás előtt, Elég lesz?, szorzat, csillagok, 🦊 pecsét
     "vasar-fuzet.js",     # 6j4f) ☀️ Déli vásár a füzeten: a 4. o. vásár-feladat terv-sorral, fejben/írásban szabály, becslés, lapozás, válasz-sor (2. kör)
     "album-elemek.js",    # 6j5) 📸 album-elemek: a Fotóalbum rajzkészlete (keretek, hátterek, borító-vásznak, díszek, gép, film, könyv)
     "het.js",             # 6m) 📅 heti kártya: patkó-pecsétek, az ösvény végén és az odú falán, füzet — visszahívás 5. kör

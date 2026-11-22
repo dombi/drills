@@ -106,7 +106,7 @@ window.__KK = (function () {
     }
     if (f.csalad === "jelenet") {   /* 🎬 a kép mondja meg (JELENETEK[…].gepi): koppintások sorban (+ egy rossz koppintás, ha van), vagy a szám a táblára — 🏡 🪜 */
       var JLg = UC.jl(), g = JLg.def.gepi(JLg);
-      return g.katt ? { mod: "katt", sel: g.katt, rossz: g.rossz || null } : { mod: "gepel", sor: jegyek(g.gepel), szam: g.gepel, max: 3 };
+      return g.katt ? { mod: "katt", sel: g.katt, rossz: g.rossz || null } : { mod: "gepel", sor: jegyek(g.gepel), szam: g.gepel, max: JLg.def.jegyek ? JLg.def.jegyek(JLg) || 3 : 3 };
     }
     if (f.kartyak) {
       var jk = String(f.kartyak.map(function (k) { return !!k.jo; }).indexOf(true)), sk = function (i) { return '#valasz-kartyak .ek-tk[data-i="' + i + '"]'; };

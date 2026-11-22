@@ -191,6 +191,32 @@ RECEPT({
   ]
 });
 
+/* ══ 🔭 JÓSDA · 1. EMELET — „Lámpás-ösvény” (2. kör, 2026-11-22; kép + feladat: josda-emelet.js · tervlap: terv/josda-tervlap.html ④ 2. pálya) ══
+   A gyerek a képen: a lencse (tízes / százas) szerint a követ a közelebbi lámpáshoz viszi, a ≈ cetlire írja a kerekített számot,
+   kijelöli a 400 fényének két szélét, összeadás és szorzás előtt jósol (a pontos érték köve utána jelenik meg), Tüske néni pultjánál
+   eldönti, elég-e a pénze, egy égszeletben megszámolja a csillagokat (× 10), és Zsivány cetlijét becslés után pecsételi.
+   Az előszoba első végigvitele után ébred (3. o.), feljebb nyitva (9. döntés A). Hossz: 5 + 2 + 2 + 2 + 2 + 2 + 1 + 2 + Odú-küszöb 3 = 21. */
+RECEPT({
+  id: "josda-1em", nev: "Lámpás-ösvény", ikon: "🔭", regio: "piac", hely: "josda",
+  palcim: "1000-ig · kerekíts, jósolj!",
+  nyit: { utan: "josda-eloszoba", osztaly: [3] },
+  alap: { tipus: "josda" },
+  darabFix: true,
+  segit: ["kep", "lepesenkent"],
+  allomasok: [
+    { nev: "Rajt" },
+    { nev: "Kerekítsd!", stand: "josda1", forma: "kerek", darab: 5 },
+    { nev: "≈ a cetlin", stand: "josda2", forma: "cetli", darab: 2 },
+    { nev: "Kik kerekednek 400-ra?", stand: "josda1", forma: "sav", darab: 2 },
+    { nev: "Jósolj, mielőtt összeadsz!", stand: "josda2", forma: "jos", darab: 2 },
+    { nev: "Elég lesz?", stand: "josda4", forma: "eleg", darab: 2 },
+    { nev: "Hova esik a szorzat?", stand: "josda1", forma: "szor", darab: 2 },
+    { nev: "Hány csillag van az égen?", stand: "josda3", forma: "eg", darab: 1 },
+    { nev: "Zsivány kiszámolta", stand: "josda2", forma: "zsiv", darab: 2 },
+    { nev: "Odú-küszöb", forma: "vegyes1", darab: 3, cel: true, halvany: true }
+  ]
+});
+
 /* ══ 🎀 SZALAGMŰHELY · ELŐSZOBA — „Rudak a sínen” (1. kör, 2026-11-13; kép + feladat: szalag.js · tervlap: terv/szalag-tervlap.html, ✅ mind A) ══
    A gyerek a képen: két szalagot egyformává told / vág (szám nélkül), rudat tesz a kendő alá, a történet mondatait tekercsként /
    kapocsként rakja ki a mérőlécen, kiszínezi, amit kérdeznek, és csak aztán ír számot; a postakocsit visszafelé viszi a megállókon.

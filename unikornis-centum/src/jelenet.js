@@ -40,7 +40,7 @@ function jlPanel() {
     svg.addEventListener("pointermove", jlMozog);
     $("jl-gombok").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-g]"); if (b && jlAktiv()) { hangGomb(); jlBekuld(); } });
     var be = $("jl-beiras");
-    be.addEventListener("input", function () { if (!jlAktiv() || !jlTablaNyitva()) { be.value = ""; return; } JL.beirt = be.value.replace(/[^0-9]/g, "").slice(0, 3); be.value = JL.beirt; JL.rossz = null; jlTablaRajz(); });
+    be.addEventListener("input", function () { if (!jlAktiv() || !jlTablaNyitva()) { be.value = ""; return; } JL.beirt = be.value.replace(/[^0-9]/g, "").slice(0, jlJegyek()); be.value = JL.beirt; JL.rossz = null; jlTablaRajz(); });
     be.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (jlAktiv()) jlBekuld(); } });
   }
   return p;
@@ -61,11 +61,13 @@ function jelenetMutat(f) {
   var marad = JL && JL.J === J && JL.all === J.allomasIdx && !JL.vege;   /* az állomáson belül az unikornis ott marad, ahol volt */
   JL = { J: J, all: J.allomasIdx, f: f, def: def, svg: $("jl-svg"), st: jlAllapot(), beirt: "", rossz: null, joMost: false, lezart: false, seg: 0, fog: null,
          ux: marad ? JL.ux : null, uy: marad ? JL.uy : null };
-  $("jl-beiras").value = "";
+  $("jl-beiras").value = ""; $("jl-beiras").maxLength = jlJegyek();
   document.removeEventListener("keydown", jlBillentyu); document.addEventListener("keydown", jlBillentyu);
   if (def.indit && def.indit(JL)) return;
   jlRajz(); mondd(f.felolvas); jlFokusz();
 }
+/* hány jegy fér a táblára (alap 3; a kép kérhet többet: 🔭 Jósda 1. emelet, 1000-ig) */
+function jlJegyek() { return (JL && JL.def.jegyek && JL.def.jegyek(JL)) || 3; }
 function jlFokusz() { try { if (jlTablaNyitva() && !(window.matchMedia && matchMedia("(pointer: coarse)").matches)) $("jl-beiras").focus({ preventScroll: true }); } catch (e) {} }
 
 /* ═════════════════ RAJZ ═════════════════ */
@@ -165,7 +167,7 @@ function jlBillentyu(e) {
   if (e.key === "Escape" && JL.fog) { e.preventDefault(); var F = JL.fog; JL.fog = null; jlJeloles(null); JL.def.letesz(JL, F.id, F.n, null); jlRajz(); return; }
   if (!jlTablaNyitva() || document.activeElement === $("jl-beiras")) return;   /* a mező maga kezeli a számjegyeket */
   var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */
-  if (d !== null) { e.preventDefault(); if (JL.beirt.length < 3) { JL.beirt += d; JL.rossz = null; hangGomb(); jlTablaRajz(); } }
+  if (d !== null) { e.preventDefault(); if (JL.beirt.length < jlJegyek()) { JL.beirt += d; JL.rossz = null; hangGomb(); jlTablaRajz(); } }
   else if (e.key === "Backspace") { e.preventDefault(); JL.beirt = JL.beirt.slice(0, -1); jlTablaRajz(); }
   else if (e.key === "Enter") { e.preventDefault(); jlBekuld(); }
 }
