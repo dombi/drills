@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Világkép rendszerterv</title>
+<style>
+:root{--ink:#3c2f5e;--muted:#7a6f93;--paper:#fffaf2;--line:#d9cfe8;--accent:#e0417a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Fredoka,system-ui,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:28px;margin:0 0 4px;font-weight:600}
+h2{font-size:21px;margin:40px 0 8px;font-weight:600}
+h3{font-size:17px;margin:22px 0 6px;font-weight:600}
+p,li{max-width:80ch}
+.lead{color:var(--muted)}
+.kep{background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;margin:12px 0}
+.kep svg{width:100%;height:auto;display:block;border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f4eefb;font-weight:600}
+.jegy{background:#fff4d6;border:1px solid #efd28a;border-radius:10px;padding:10px 14px;margin:12px 0}
+.dont{background:#fdeef4;border:1px solid #f3bfd3;border-radius:10px;padding:10px 14px;margin:10px 0}
+.dont b.jav{color:var(--accent)}
+code,pre{font-size:13px;background:#f4eefb;border-radius:4px;padding:0 4px}
+pre{padding:10px 12px;overflow-x:auto;line-height:1.45}
+.meret{display:inline-block;border-radius:6px;padding:0 7px;font-size:13px;background:#e8f4ea;color:#2d5a35}
+.meret.k{background:#fff0d6;color:#7a5410}.meret.n{background:#fde2e2;color:#8a2a2a}
+</style>
+</head>
+<body>
+<main>
+<h1>Világkép: rendszerterv</h1>
+<p class="lead">Thinking horses · tervlap jóváhagyásra · 2026-11-23 · alapja: <code>Matekos\telekterv-vilagkep.html</code> (2. vázlat, ✅ jóváhagyva 2026-11-23). Ez a lap azt írja le, <b>hogyan épül meg</b> a táj a játékban: a közös keret, a gombok, az adat-tábla, a rajzfájlok, és melyik pálya hová költözik, milyen sorrendben. Kód még nincs.</p>
+
+<div class="jegy"><b>Röviden a gyereknek mi változik:</b> a játék egy nagy, teljes képernyős tájjal nyílik (Thinking horses). Nincs felső sáv. Egy helyre koppint, az unikornisa odasétál, a kép rárepül a helyre (közelkép), ott a ház vagy a tárgy a pálya. Bal felső sarokban a saját unikornisa (váltás), közelképben ugyanott a „←”. Jobb felső sarokban az erszény és a hangszóró. Minden pálya, csillag, mentés megmarad.</div>
+
+<h2>1. A közös hely-keret (egy modul, minden képhez)</h2>
+<p>Új közös modul: <code>src/hely.js</code>. <b>Ugyanez</b> rajzolja a világképet és mind a 7 közelképet, később az ígéret-kapuk mögötti világokat is (vízi világ, barlang). Egy kép = egy adat-tábla + rajzfájlok, kód nem kell hozzá. A mai közös térkép-modulból (<code>terkep.js</code>: <code>terkepRajzol</code>, <code>terkepSetal</code>, az unikornis járása) a séta és az unikornis marad, a rajz helyére a fájlokból betöltött rétegek kerülnek. A pálya jeleit (⭐, 💧, 🐉, újonc-fény) továbbra is a <code>palyaJelek</code> (<code>palyahely.js</code>) számolja, egy helyen.</p>
+<ul>
+<li><b>Teljes képernyő.</b> A kép kitölti az ablakot („cover”): ha az ablak aránya más, a <b>szélek</b> vágódnak le, a biztonsági zóna sosem. A zóna a 1600×900-as vázlaton x 80–1520, y 45–855, vagyis arányban <code>[0.05, 0.05, 0.90, 0.90]</code>. Minden koppintható hely ezen belül van, ezért 16:9, 16:10 és tablet (4:3) is jó.</li>
+<li><b>Ráközelítés.</b> Koppintás → az unikornis odasétál (mint ma), közben a hely neve kis fatáblán megjelenik és felolvasódik → a kép a hely téglalapjára nagyít (kb. 0,6 mp, lágy indulás és megállás), és átúszik a közelképbe. A „←” ugyanezt visszafelé játssza. Séta közben egy második koppintás = azonnal indul (ahogy ma a pálya-helyeknél). Ha a gép „kevesebb mozgás” beállítást kér, csak áttűnés van.</li>
+<li><b>Éles nagyítás.</b> A világkép 2× felbontásban készül (3200×1800), így az animáció végén sem homályos.</li>
+<li><b>Nincs szabad nagyítás.</b> Két ujjas nagyítás és görgős nagyítás a tájon ki van kapcsolva (gyereknek elveszős). Telefonon később görgetés lesz, nagyítás nem.</li>
+<li><b>Élet.</b> A mozgó rétegek (malomkerék, füst, víz, madarak) lassúak; mindig a „következő” hely mozog a legjobban (az újonc-fény helye, <code>nyitas.js</code>).</li>
+<li><b>Biztonsági háló.</b> Amíg egy csoport nem költözött be, a helye a mai ligetébe vagy a Piactérre visz. Semmi nem tűnik el átmenetileg.</li>
+</ul>
+
+<h2>2. A sarok-gombok (a fejléc-sáv megszűnik)</h2>
+<div class="kep"><svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" font-family="Fredoka,sans-serif">
+<rect width="800" height="300" fill="#dff0f7"/><path d="M0 210 Q200 170 400 200 T800 190 V300 H0Z" fill="#cfe8c4"/><path d="M0 250 Q300 230 800 255 V300 H0Z" fill="#b9dcae"/>
+<rect x="40" y="15" width="720" height="270" fill="none" stroke="#7a6f93" stroke-dasharray="8 6" opacity=".5"/>
+<circle cx="44" cy="44" r="30" fill="#fff" stroke="#8a5a3a" stroke-width="4"/><text x="44" y="54" text-anchor="middle" font-size="28">🦄</text>
+<text x="86" y="40" font-size="13" fill="#3c2f5e">bal felső: a saját unikornisa</text><text x="86" y="57" font-size="12" fill="#7a6f93">koppint = váltás (legelő, ott a Kilépés) · 2 mp nyomva = 👪</text><text x="86" y="73" font-size="12" fill="#7a6f93">közelképben itt áll a „←”</text>
+<rect x="608" y="18" width="110" height="46" rx="23" fill="#fff" stroke="#8a5a3a" stroke-width="3"/><text x="663" y="47" text-anchor="middle" font-size="15" fill="#3c2f5e">✨ 12 · 💧 4</text>
+<circle cx="752" cy="41" r="23" fill="#fff" stroke="#8a5a3a" stroke-width="3"/><text x="752" y="49" text-anchor="middle" font-size="20">🔊</text>
+<text x="740" y="88" text-anchor="end" font-size="13" fill="#3c2f5e">jobb felső: erszény + hangszóró</text>
+<rect x="320" y="120" width="160" height="30" rx="6" fill="#f5e6c8" stroke="#7a4e2e" stroke-width="2"/><text x="400" y="140" text-anchor="middle" font-size="14" fill="#4a3010">Thinking horses</text>
+<text x="400" y="180" text-anchor="middle" font-size="12" fill="#7a6f93">a középen csak a táj; a sarkokon kívül semmi nem takar</text>
+</svg></div>
+<table>
+<tr><th>Hely</th><th>A tájon</th><th>Közelképben</th><th>Ma hol van</th></tr>
+<tr><td>bal felső</td><td>a gyerek saját, öltöztetett unikornisának portréja (kerek, fa keret). Koppintás → legelő (váltás, ott a Kilépés). <b>2 mp nyomva tartás → 👪 Szülőknek</b> (rejtett, mint ma).</td><td>„←” vissza a tájra (ugyanakkora kerek gomb)</td><td><code>index.html</code> <code>fomenu-vissza</code> „🦄 Váltás”, <code>fomenu-szuloi</code> 👪</td></tr>
+<tr><td>jobb felső</td><td>erszény: ✨ és 💧 (koppintásra felolvassa) + kis hangszóró (hang ki/be)</td><td>ugyanez</td><td>✨ a fejlécben; hang ki/be a Szülőknek oldalon</td></tr>
+<tr><td>—</td><td colspan="2">a „Kihagyás nélkül” szabály-szöveg és a cím kikerül a tájról</td><td>fejléc-sáv</td></tr>
+</table>
+<p>A gombok a rajz stílusában (fa keret, krém alap), legalább 44 képpont, a biztonsági zónán kívül, a sarokban. A fejléc-sáv csak a tájon és a közelképeken szűnik meg; a pályák belsejének saját fejléce ebben a munkában nem változik (lásd 8/7. döntés).</p>
+
+<h2>3. A hely-tábla (hotspot-tábla) adatformátuma</h2>
+<p>A kód <b>csak ezt a táblát</b> olvassa. Rajz-csere = új képfájlok + legfeljebb a koordináták igazítása. Minden szám arány (0–1) a kép szélességéhez és magasságához, így a felbontás nem számít. Fájl: <code>src/helyek.js</code> (a build ugyanúgy beemeli, mint a többit).</p>
+<pre>HELYEK.vilag = {
+  nev: "Thinking horses",
+  kep:   { w: 3200, h: 1800, zona: [0.05, 0.05, 0.90, 0.90], mappa: "kepek/vilag/" },
+  retegek: ["eg", "tavoli", "kozep", "eloter"],          // alulról felfelé
+  mozgo:   [{ id: "malomkerek", x: 0.24, y: 0.66, fajta: "forog" }, { id: "patak", fajta: "csorog" }],
+  utak:    [["odu", "erdoszel", [0.12, 0.85]], ...],       // ösvény-töréspontok, ezen sétál az unikornis
+  helyek: [
+    { id: "ter",                         // állandó azonosító (a név változhat, ez nem)
+      x: 0.50, y: 0.78,                  // a hely talppontja (itt áll a ház alja)
+      w: 0.12, h: 0.14,                  // a koppintható téglalap mérete = a ráközelítés célja is
+      all: [0.56, 0.80],                 // ide sétál az unikornis
+      jel: [0.50, 0.66],                 // állapotjel-horgony (⭐, 🐉…), mindig a tetőn
+      kep: "ter",                        // képfájl: ter-epul / ter-kesz / ter-viragos
+      cel: { kozelkep: "ter" },          // vagy { regio: "konyvtar" } / { kepernyo: "odu" } / { kapu: "vizi" }
+      palyak: ["tuske-bolt", "zsibvasar", ...],   // a jel-összegzéshez (közelképnél a közelkép táblájából számolja)
+      telefon: { x: 0.40, y: 0.62 } }     // 2. elrendezés (álló telefon), később tölti ki a rajz
+  ]
+};
+HELYEK.ter = { kep: {...}, vissza: "vilag", helyek: [
+  { id: "zsivany", x: .., y: .., w: .., h: .., jel: [..], kep: "zsivany-stand",
+    targyak: [ { palya: "zsibvasar", x: .., y: .., w: .., h: .. }, { palya: "fizess-pontosan", ... } ] },
+  { id: "ures-1", ures: true, x: .., y: .. }      // üres telek: díszlet, nem koppintható
+]};</pre>
+<ul>
+<li><b>Határok a kódban is:</b> a táj legfeljebb 14 hely, közelkép legfeljebb 8, épület legfeljebb 4 tárgy. Ha valaki többet ír a táblába, a próba-lap (<code>_teszt</code>) pirosan jelez.</li>
+<li><b>Állapot:</b> a hely képe a benne lakó pályák állapotából jön: <code>epul</code> (még alszik / köd) → <code>kesz</code> (nyitva) → <code>viragos</code> (minden pálya csillagos). A Felvételi-csúcsnak <code>kod</code> változata is van.</li>
+<li><b>Nevek:</b> a tábla <code>id</code>-jéhez a nevet a mai <code>LIGET_NEV</code> mintájára egy név-lista adja, így átnevezés = egy sor.</li>
+</ul>
+<h3>A táj 13 helye, kezdő koordinátákkal (a telekterv vázlatából; a végleges rajz után igazítjuk)</h3>
+<table>
+<tr><th>id</th><th>Hely</th><th>x, y</th><th>Hová visz</th></tr>
+<tr><td>odu</td><td>Odú</td><td>0.11, 0.92</td><td>a mai odú-képernyő</td></tr>
+<tr><td>kert</td><td>Kert</td><td>0.21, 0.92</td><td>a mai kert (Tény-kerttel)</td></tr>
+<tr><td>postafa</td><td>Postafa</td><td>0.29, 0.92</td><td>közelkép: levelek az ágakon (Neked készült)</td></tr>
+<tr><td>erdoszel</td><td>Erdőszél</td><td>0.12, 0.78</td><td>közelkép: tisztás</td></tr>
+<tr><td>utca</td><td>Utca</td><td>0.35, 0.78</td><td>a mai Utca (fodrász, bolt, bank, Felhőkert)</td></tr>
+<tr><td>ter</td><td>a tér (név: 8/3)</td><td>0.50, 0.78</td><td>közelkép: kerek tér</td></tr>
+<tr><td>osszeado-utca</td><td>Összeadó utca</td><td>0.69, 0.72</td><td>közelkép: kanyargó utca</td></tr>
+<tr><td>dallam-ter</td><td>Dallam-tér</td><td>0.85, 0.72</td><td>közelkép: harangláb-tér</td></tr>
+<tr><td>kezmuvesek</td><td>Kézművesek</td><td>0.25, 0.66</td><td>közelkép: műhelyudvar a malommal</td></tr>
+<tr><td>domboldal</td><td>Domboldal</td><td>0.39, 0.44</td><td>közelkép: szerpentin (Déli vásár, Garas, Jósda)</td></tr>
+<tr><td>konyvtar</td><td>Bagolykönyvtár</td><td>0.70, 0.38</td><td>a mai könyvtár</td></tr>
+<tr><td>fejtoro</td><td>Fejtörő-hegy</td><td>0.78, 0.22</td><td>a mai Fejtörő-hegy</td></tr>
+<tr><td>felveteli</td><td>Felvételi-csúcs</td><td>0.91, 0.14</td><td>közelkép: 2 menedékház + jelzőtűz (amíg zárva: köd, nem nyílik)</td></tr>
+</table>
+<p>Díszlet, nem hely: a „Thinking horses” fatábla (koppintásra felolvassa a nevet), a híd (kapu a nagyobb számokhoz), stég + csónak, barlangszáj (ígéret-kapuk, később).</p>
+
+<h2>4. Rétegfájlok és rajzolói csomag (kép ≠ kód)</h2>
+<p>Ma a jelek JavaScriptben rajzolódnak: <code>LT_JELKEP</code> és <code>LIGET_TERKEP</code> (<code>terkep.js</code>), a Piactér képe (<code>piac.js</code>, <code>PC_TARGY</code>), a Jósda háza (<code>josda-emelet.js</code>). Ezt váltják ki a fájlok. A régi rajz-kód csak akkor törlődik, amikor a helye beköltözött (8. hullám).</p>
+<h3>Mappa és elnevezés</h3>
+<pre>kepek/
+  vilag/  eg.svg  tavoli.svg  kozep.svg  eloter.svg
+          ter-epul.svg  ter-kesz.svg  ter-viragos.svg   … (13 hely × 3 állapot)
+          felveteli-kod.svg   malomkerek.svg  fust.svg  patak.svg
+  ter/    eg.svg … eloter.svg   tuske-bolt.svg  vasar-sator.svg  zsivany-stand.svg  …
+  osszeado-utca/ … kezmuvesek/ … dallam-ter/ … erdoszel/ … domboldal/ … felveteli/ … postafa/ …</pre>
+<p>Kisbetű, ékezet nélkül, kötőjel; a fájlnév = a tábla <code>kep</code> mezője + állapot. Az új fájlokat a <code>sw.js</code> gyorsítótár-listájába is fel kell venni, és a frissítés-jelet (<code>?v=</code>) emelni.</p>
+<h3>A rajzolói csomag (melléklet a rajzolónak, ember vagy Recraft)</h3>
+<table>
+<tr><th>Mit</th><th>Szabály</th></tr>
+<tr><td>Méret</td><td>világkép 3200×1800; közelkép 3200×1800; minden koppintható a biztonsági zónán belül (5% szél körben)</td></tr>
+<tr><td>Formátum</td><td>SVG az alap (a mai firkás vonal); WebP/PNG is elfogadott, 2× méretben. Egy réteg ≤ 400 KB.</td></tr>
+<tr><td>Rétegek</td><td>ég · távoli · közép · előtér, átlátszó háttérrel; a helyek külön fájl állapotonként; mozgó részek külön</td></tr>
+<tr><td>Szín</td><td>csoportonként egy jel-szín (tér: piros-fehér ponyva · Kézművesek: fa + malom · Dallam-tér: lila-arany · Összeadó utca: egy család színes házai · domb: meleg sárga · hegy: hideg lila-fehér · Felvételi: fenyőzöld + tűz). Távolabb világosabb és hűvösebb.</td></tr>
+<tr><td>Forma</td><td>minden csoport más sziluett, ugyanaz az épület-alak kétszer nem lehet a tájon; ≈60 px-en is felismerhető</td></tr>
+<tr><td>Vonal</td><td>a bejáratok sötétebb körvonalat és meleg színfoltot kapnak, a díszlet halványabb</td></tr>
+<tr><td>Tilos</td><td>látható szám, matekjel, felirat a házakon (kivétel: „Thinking horses” fatábla); osztály sehol</td></tr>
+<tr><td>Átvétel</td><td>a 6 próba a telekterv lapjáról: sziluett, szürke, hunyorítás, bélyegméret, ujj (≥44 px), kivágás (16:9 / 4:3)</td></tr>
+</table>
+
+<h2>5. Beköltözési táblázat (pálya-azonosítókkal, a kódból)</h2>
+<p>Az azonosító, a haladás, a csillagok és a pult-beállítások <b>nem változnak</b>. A „mai régió” a pálya <code>regio</code> mezője (<code>constants.js</code>); a beköltözés a hely-táblában történik, a pályához nem kell nyúlni.</p>
+<table>
+<tr><th>Új hely (közelkép → épület)</th><th>Pálya-azonosítók</th><th>Mai régió</th></tr>
+<tr><td>Erdőszél → öreg tölgy / kis gombaház / nagy gombaház / rét</td><td>bontas-felmondas · oszkiv-10 · oszkiv-20 · bujocska-ret</td><td>osszeado</td></tr>
+<tr><td>Összeadó utca → 8 ház</td><td>rokon-letra · szamcsalad</td><td>piac</td></tr>
+<tr><td>Összeadó utca (folyt.)</td><td>tizesek · aprok · lepegeto · atlepo · szazas-bujocska · erdo-melye + erdo-szive (a nagy ház 2 emelete)</td><td>osszeado</td></tr>
+<tr><td>A tér → Tüske néni boltja · Zsivány standja (2 tárgy) · Szalagműhely</td><td>tuske-bolt · zsibvasar · fizess-pontosan · szalag-eloszoba</td><td>piac</td></tr>
+<tr><td>A tér → Tündérvásár sátra (kosár, dobozok)</td><td>vasar-3 · vasar-3d</td><td>vasar</td></tr>
+<tr><td>Domboldal → Déli vásár</td><td>vasar-4</td><td>vasar</td></tr>
+<tr><td>Domboldal → Garas tornya</td><td>irasbeli-szorzas · irasbeli-osztas</td><td>piac</td></tr>
+<tr><td>Domboldal → Jósda (emeletek)</td><td>josda-eloszoba · josda-1em (+ a következő emeletek)</td><td>piac</td></tr>
+<tr><td>Dallam-tér → harangláb + 5 ház</td><td>szorzo-dallam · egy-szam · osztas-100 · holdfeny-bujocska · mi-maradt · vegyes-szorzo</td><td>szorzo</td></tr>
+<tr><td>Kézművesek → Szabóműhely (4 tárgy)</td><td>meres-szabo-1 … meres-szabo-4</td><td>szabo</td></tr>
+<tr><td>Kézművesek → Bájitalkonyha (4)</td><td>meres-bajital-1 … meres-bajital-4</td><td>bajital</td></tr>
+<tr><td>Kézművesek → Mézes pékség (4)</td><td>meres-pekseg-1 … meres-pekseg-4</td><td>pekseg</td></tr>
+<tr><td>Postafa → levelek</td><td>teny-neked (Neked szóló ösvény) és a „Neked készült” pályák</td><td>egyeni</td></tr>
+<tr><td>Bagolykönyvtár / Fejtörő-hegy</td><td>a mai belsejük marad (könyvtár- és fejtörő-pályák)</td><td>konyvtar / fejtoro</td></tr>
+<tr><td>Felvételi-csúcs → alsó ház / felső ház</td><td>új pályák (M4 / M6), a címkézés és a típustérkép után</td><td>— (még nincs)</td></tr>
+</table>
+<h3>Az automatizmus-pályák (tény-motor B–H): mit találtam a kódban</h3>
+<table>
+<tr><th>Csomag</th><th>Állapot a kódban</th><th>Hová</th></tr>
+<tr><td>B) Mi bújt el?</td><td>✅ élesben: bujocska-ret, szazas-bujocska, holdfeny-bujocska</td><td>már a táblában: Erdőszél (rét), Összeadó utca (bokros kert), Dallam-tér</td></tr>
+<tr><td>C) számcsalád · D) rokon feladatok</td><td>✅ élesben: szamcsalad, rokon-letra</td><td>Összeadó utca</td></tr>
+<tr><td>Neked szóló ösvény</td><td>✅ élesben: teny-neked</td><td>Postafa (levél)</td></tr>
+<tr><td>Tény-kert</td><td>✅ élesben, a Kertben</td><td>marad a Kertben</td></tr>
+<tr><td>F) Villámkör</td><td>⏸️ az alap kész (<code>villam.js</code>), kártya és képernyő még nincs</td><td>javaslat: Postafa (8/1)</td></tr>
+<tr><td>E) Okos trükkök · G) varázsgép / számpiramis · H) Nagy vegyes</td><td>nincs kód</td><td>javaslat: üres telkekre (8/1)</td></tr>
+</table>
+
+<h2>6. Beköltözési hullámok, méretbecsléssel</h2>
+<p>Minden hullám után a játék működik, és a gyerekek ki is próbálhatják. 🎨 = rajz-megálló (rajzterv a producernek, jóváhagyás, csak utána kód). Nagy átírás előtt stabil visszatérési pont (git-tag).</p>
+<table>
+<tr><th>#</th><th>Kör</th><th>Mit kap a gyerek</th><th>Méret</th></tr>
+<tr><td>1</td><td><b>Közös hely-keret</b>: <code>hely.js</code> + <code>helyek.js</code>, teljes képernyő, sarok-gombok, fejléc-sáv ki a tájról, ráközelítés, a mai térkép-jelek ideiglenesen képként a 13 helyre. A játékbeli „Térkép” felirat → „Thinking horses” (<code>ui.js</code> „← Térkép”, <code>odu.js</code>, <code>kert.js</code>, <code>piac.js</code>, a felolvasásnál is).</td><td>új keret, a régi rajzzal</td><td><span class="meret k">közepes–nagy</span></td></tr>
+<tr><td>2</td><td>🎨 <b>A világkép megrajzolása</b>: rétegek + 13 hely × 3 állapot + mozgó részek; a helyek a MAI ligetekbe / Piactérre visznek</td><td>az egész szép táj</td><td><span class="meret n">nagy</span> (1 rajz-megálló)</td></tr>
+<tr><td>3</td><td>🎨 <b>A tér + Domboldal</b> közelkép: a mai Piactér kettéválik; Garas tornya, Jósda, Déli vásár fel a dombra</td><td>2 közelkép</td><td><span class="meret k">közepes–nagy</span></td></tr>
+<tr><td>4</td><td>🎨 <b>Kézművesek</b> mini utca (3 műhely × 4 tárgy, malom)</td><td>1 közelkép</td><td><span class="meret k">közepes</span></td></tr>
+<tr><td>5</td><td>🎨 <b>Erdőszél + Összeadó utca</b>: az Összeadó liget kettéválik; az élő utca lakókkal</td><td>2 közelkép</td><td><span class="meret n">nagy</span></td></tr>
+<tr><td>6</td><td>🎨 <b>Dallam-tér</b> (harangláb + 5 ház), a 2 új név</td><td>1 közelkép</td><td><span class="meret k">közepes</span></td></tr>
+<tr><td>7</td><td><b>Postafa</b> (levelek) + ígéret-kapuk (stég, barlang, díszlet) + Felvételi-csúcs ködben</td><td>apróságok</td><td><span class="meret">kicsi–közepes</span></td></tr>
+<tr><td>8</td><td><b>Takarítás</b>: <code>LIGET_TERKEP</code>, <code>LT_JELKEP</code>, a Piactér rajza, a felesleges fejléc-sávok ki; <code>odu-eg.js</code> (az ég a térkép-helyekből számol) átáll a táblára</td><td>—</td><td><span class="meret">kicsi–közepes</span></td></tr>
+<tr><td>később</td><td>telefon-elrendezés (a tábla <code>telefon</code> mezői) · Felvételi-csúcs belseje</td><td></td><td></td></tr>
+</table>
+<p>Összesen kb. 8 kör, ebből 5 rajz-megállóval. Az 1–2. kör után már az egész kép egyben van; a 3–7. sorrendje cserélhető.</p>
+
+<h2>7. Amit a terv nem változtat</h2>
+<ul>
+<li>pálya-azonosítók, mentés, felhő, pult, jelvények, csillagok;</li>
+<li>a pályák belseje és saját fejlécük;</li>
+<li>Odú, Kert, Utca, Bagolykönyvtár, Fejtörő-hegy belseje;</li>
+<li>a kissárkány-térkép (<code>kaland.js</code>) a régi térkép-modult használja tovább, amíg külön nem döntünk róla.</li>
+</ul>
+
+<h2>8. Döntési pontok (a javasolt elöl)</h2>
+<div class="dont"><b>1. Az automatizmus-pályák helye.</b><br>
+<b class="jav">A (javasolt):</b> ami kész, a helyén marad (lásd 5. pont). A Villámkör a Postafa mellé kerül (a „Neked készült” részeként, ahogy a Villámkör-terv is mondta). A jövőbeli pályák üres telekre: E) Okos trükkök → Erdőszél üres telke (+ −) és Dallam-tér üres telke (× ÷); G) varázsgép / számpiramis → a Kézművesek üres műhelye (gépész-műhely); H) Nagy vegyes → a tér egyik üres telke (ott fut össze minden ösvény).<br>
+B: mind a Postafára, egy helyre. Egyszerűbb, de a Postafa levelei betelnek.</div>
+<div class="dont"><b>2. Új nevek (a beköltözéskor).</b><br>
+<b class="jav">Javaslat:</b> a nagy ház két emelete: Erdő mélye → <b>Pince</b>, Erdő szíve → <b>Padlás</b> (az állomásnevek „Homályösvény”, „Vaksötét” a padláshoz illenek). Dallam-tér: Osztogató tisztás → <b>Osztogató kút</b>, Szám-rengeteg → <b>Kerge harangjáték</b>. Más ötlet is jó; az azonosító marad.</div>
+<div class="dont"><b>3. A központ (a tér) neve.</b> <b class="jav">Javaslat:</b> <b>Nagyfa tér</b> (középen a nagy fa). Az azonosító <code>ter</code> marad, a név bármikor cserélhető.</div>
+<div class="dont"><b>4. A két menedékház neve</b> (osztály nem látszhat). <b class="jav">Javaslat:</b> <b>Bükkös ház</b> (alsó) és <b>Fenyves ház</b> (felső): a hegyen fölfelé a bükköt a fenyő váltja, a név így a magasságot mondja, nem az évfolyamot.</div>
+<div class="dont"><b>5. A játék neve is „Thinking horses” legyen-e?</b><br>
+<b class="jav">A (javasolt):</b> igen, a gyerek ezt látja: nyitókép, böngészőfül, a táj fatáblája. Belül (mappa, kód) marad <code>unikornis-centum</code>. Figyelni kell: a felolvasó hang (Szabolcs) magyarul olvassa, ezért a <code>KIEJTES</code> táblába kiejtés kell; és a gyerekek nem mind olvasnak angolul.<br>
+B: a játék neve később, a táj neve most Thinking horses.</div>
+<div class="dont"><b>6. Ki rajzolja a tájat (2. kör)?</b> <b class="jav">Javaslat:</b> én, SVG-ben, a mai firkás stílusban; a rajzolói csomag miatt később bármikor cserélhető külsős rajzolóra vagy Recraftra, a kódhoz nyúlás nélkül.</div>
+<div class="dont"><b>7. A fejléc-sáv a pályák belsejében.</b> <b class="jav">Javaslat:</b> most csak a tájról és a közelképekről tűnik el; a pályák belsejét külön, később nézzük meg (ott a „← vissza” és a csillagok kellenek).</div>
+<div class="dont"><b>8. Az első koppintás.</b> <b class="jav">Javaslat:</b> egy koppintás elég: az unikornis odasétál, a név felolvasódik, és a kép ráközelít (séta közben egy második koppintás = azonnal). Nem kell külön „biztos?” koppintás.</div>
+
+<p class="lead">Ha ez rendben, a következő lépés az 1. kör (közös hely-keret), a mai rajzokkal.</p>
+</main>
+</body>
+</html>
