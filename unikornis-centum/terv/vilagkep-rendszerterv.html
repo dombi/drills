@@ -174,6 +174,15 @@ HELYEK.ter = { kep: {...}, vissza: "vilag", helyek: [
 </table>
 
 <h2>6. Beköltözési hullámok, méretbecsléssel</h2>
+<div class="dont"><b>✅ 1. KÖR KÉSZ (2026-11-23)</b> — kód: <code>src/helyek.js</code> (a tábla) + <code>src/hely.js</code> (a keret, <code>renderVilag</code>); visszatérési pont előtte: <code>v4.0-stabil</code>. <b>Eltérések a tervtől:</b>
+<ul>
+<li>A tábla két új mezőt kapott: <code>pontok</code> (útkereszteződések: híd, tisztás, kút — nem koppinthatók, az utak ezeken is átmennek) és <code>patak</code> (a patak vonala: a séta sosem vág át rajta, csak a hídon; az ideiglenes rajz is ebből készül). Az <code>o</code> (melyik oldalon áll) nem kell: az <code>all</code> helyzetéből jön.</li>
+<li>Néhány kezdő koordináta kicsit arrébb került, hogy a mai jelképek ne lógjanak egymásra és a patak a hazai part (Odú, Kert, Postafa, Erdőszél) és a falu közé essen (pl. Postafa 0.28/0.93, Erdőszél 0.10/0.76, Utca 0.37/0.78, Nagyfa tér 0.52/0.80, Kézművesek 0.27/0.64, Domboldal 0.40/0.46, Bagolykönyvtár 0.63/0.40, Fejtörő-hegy 0.78/0.26, Felvételi-csúcs 0.91/0.20). A 2. kör rajza után úgyis igazítjuk.</li>
+<li>Biztonsági háló: Erdőszél és Összeadó utca → a mai Összeadó liget; Nagyfa tér és Domboldal → a mai Piactér; Postafa → Neked készült; Dallam-tér → Szorzós liget. A ⭐ a hely saját <code>palyak</code> listájából számol (így a két hely nem duplázza a csillagot), az újonc-fény csak az első helyen ég.</li>
+<li><b>Kézművesek</b>: már az 1. körben ideiglenes közelkép (<code>HELYEK.kezmuvesek</code>, a három mai műhely jelével) — így a közelkép-keret („←”, kinagyítás) is ki van próbálva. A 4. kör ezt rajzolja újra.</li>
+<li>A <code>sw.js</code>-hez nem kellett nyúlni: az új modulok a <code>game.js</code>-be épülnek, új fájl (kép) még nincs. A frissítés-jel emelve (<code>?v=20261123-1</code>). A böngészőfül címe is „Thinking horses”; kiejtés: <code>KIEJTES</code> → „Szinking horszisz”.</li>
+<li>A régi térkép-kód (<code>renderLigetTerkep</code>, <code>LIGET_TERKEP</code>) érintetlen és használaton kívül — a 8. hullám törli.</li>
+</ul></div>
 <p>Minden hullám után a játék működik, és a gyerekek ki is próbálhatják. 🎨 = rajz-megálló (rajzterv a producernek, jóváhagyás, csak utána kód). Nagy átírás előtt stabil visszatérési pont (git-tag).</p>
 <table>
 <tr><th>#</th><th>Kör</th><th>Mit kap a gyerek</th><th>Méret</th></tr>

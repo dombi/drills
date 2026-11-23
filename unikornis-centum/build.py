@@ -17,7 +17,8 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "game.js")
 MODULES = [
     # ── Adatok ──
     "constants.js",       # 1) PALYAK, LENYEK, paletta, ikon SVG-k
-    "receptek.js",        # 1b) 🧱 pálya-receptek: RECEPT() → a PALYAK-ba (az új pályák egy rövid adatsorból; első: 🏡 Számcsalád)
+    "receptek.js",
+    "helyek.js",          # 1c) 🐴 hely-táblák: a világkép (Thinking horses) 13 helye + a közelképek (csak adat; hely.js olvassa)        # 1b) 🧱 pálya-receptek: RECEPT() → a PALYAK-ba (az új pályák egy rövid adatsorból; első: 🏡 Számcsalád)
 
     # ── Segédek ──
     "helpers.js",         # 2) $, el, veletlen, szo(), szamokKinyer()
@@ -89,6 +90,7 @@ MODULES = [
     "kolyok-mozdul.js",   # 6k4) 🐉 kölyök-mozdulatok: a kölyök egész alakban (KolyokFig — pózok, bolti mancs, séta, pislogás); először a boltban
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben
     "piac.js",            # 6j2) 🏪 Piactér: a hely a nagy térképen + a kis falutérkép (bolt-ház állapotai, épülő utca, Dallam-tér helye)
+    "hely.js",            # 6j0) 🐴 hely-keret: teljes képernyős táj, „cover” + zóna, ráközelítés, szabad séta, sarok-gombok (renderVilag)
     "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
     "irasbeli-gen.js",    # 6j4b) ✍️ írásbeli műveletek: a mondóka-gyártó (irGyart → a füzetlap: kiosztás, célok, tankönyvi lépések + tálca-mozdulatok)
     "fuzet.js",           # 6j4c) 📓 a közös füzet-modul: kockás lap, ceruza (jegy · pont · vessző · vonal), radír, ellenőrzés, gép ír, ?fuzetproba

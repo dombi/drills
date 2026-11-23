@@ -127,6 +127,7 @@ if (window.speechSynthesis) { hangokBetolt(); speechSynthesis.onvoiceschanged = 
 var KIEJTES = [[/([Dd])eciliter/g, "$1eci-líter"],   /* 2026-09-27; a ragos alakokra is: deciliterrel, decilitert… */
   [/([Dd])eci(?![-lm])/g, "$1e-ci"],
   [/\bSamu/g, "Sa-mu"],
+  [/Thinking horses/g, "Szinking horszisz"],               /* 2026-11-23: a játék és a táj neve (Világkép 1. kör) — a Szabolcs-hang magyarul olvasná */
   [/([Mm])atricá/g, "$1a-tri-cá"]];                     /* 2026-10-17: „matricát” ne „matrikát” legyen (próbalap H); a sima „matrica” jól szól, az marad */                                 /* 2026-10-17: „Szamu” helyett; a ragos alakokra is (Samut, Samunak…); a producer a próbalapon a B-t választotta */                    /* a magában álló „deci” is („Hány centi egy deci?”) → de-ci; a deciméter és a deci-líter marad */
 /* Mondatvégi szám (2026-10-17): a Szabolcs-hang a „…összesen 100.” végét „századik”-nak olvassa (a pont miatt
    sorszámnak hiszi). Ha a szám+pont után a szöveg vége vagy nagybetűs új mondat jön, a számot betűvel adjuk át

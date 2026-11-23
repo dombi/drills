@@ -292,12 +292,13 @@ function nyitoSeta(M) {
   if (!NYITO.seta || NYITO.seta !== mentes.leny || !M) return;
   NYITO.seta = null;
   var m = nyitasMenet(); if (!m) return;
-  var id = terkepGazda(NYITAS_ELSO_LIGET[m.o]);   /* 🧺 a beköltözött liget a gazdája helyén (piac.js) */
-  if (!M.halo.lathato[id] || (M.jel[id] || {}).ny !== "vil") id = m.sor.vil.map(terkepGazda).filter(function (r) { return M.halo.lathato[r] && (M.jel[r] || {}).ny === "vil"; })[0];
+  var gz = M.helyId || terkepGazda;   /* 🐴 a világképen a liget → a hely (hely.js) */
+  var id = gz(NYITAS_ELSO_LIGET[m.o]);   /* 🧺 a beköltözött liget a gazdája helyén (piac.js) */
+  if (!M.halo.lathato[id] || (M.jel[id] || {}).ny !== "vil") id = m.sor.vil.map(gz).filter(function (r) { return M.halo.lathato[r] && (M.jel[r] || {}).ny === "vil"; })[0];
   if (!id) return;
   setTimeout(function () {
     if (LIGET_M !== M || !M.svg.isConnected) return;
-    terkepSetal(M, id, function () {
+    (M.setal || terkepSetal)(M, id, function () {
       TERKEP_HOL = { leny: mentes.leny, id: id };
       if (LIGET_M === M) mondd(EP_MONDAT.segits);
     });

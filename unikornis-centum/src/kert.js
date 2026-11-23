@@ -397,13 +397,13 @@ function terkepJelSVG() {
     '<path d="M-30 -40Q-24 -60 -6 -58Q10 -56 12 -70Q16 -78 26 -74" stroke="#c9862a" stroke-width="2" fill="none" stroke-dasharray="1.5 4" stroke-linecap="round"/>' +
     '<path d="M-31 -72l-3 6h6z M-22 -76l-3 6h6z" fill="#8fc98a"/><path d="M28 -54h6v-5l-3 -3l-3 3z" fill="#f6a5c0" stroke="#b5607e" stroke-width=".8"/>' +
     '<path d="M26 -74q0 -9 0 0" /><circle cx="26" cy="-78" r="4.6" fill="#e0417a" stroke="#fff" stroke-width="1.4"/><path d="M26 -74v7" stroke="#e0417a" stroke-width="2" stroke-linecap="round"/>' +
-    '<rect x="-30" y="-24" width="60" height="18" rx="9" fill="#ffffff" stroke="#e6d8f0"/><text y="-11" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2a2140" font-family="Fredoka,sans-serif">Térkép</text>' +
+    '<rect x="-46" y="-24" width="92" height="18" rx="9" fill="#ffffff" stroke="#e6d8f0"/><text y="-11" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2a2140" font-family="Fredoka,sans-serif">' + htmlVed(VILAG_NEV) + '</text>' +
     '</svg>';
 }
 function kertTerkepJel(kam) {
   if (!kam) return;
   var d = el("div", "kert-terkep-jel");
-  d.setAttribute("role", "button"); d.setAttribute("tabindex", "0"); d.setAttribute("aria-label", "Térkép");
+  d.setAttribute("role", "button"); d.setAttribute("tabindex", "0"); d.setAttribute("aria-label", VILAG_NEV);
   d.innerHTML = terkepJelSVG();
   d.addEventListener("click", function (e) { e.stopPropagation(); kertKilep(); });
   d.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kertKilep(); } });
@@ -411,7 +411,7 @@ function kertTerkepJel(kam) {
 }
 function kertKilep() {
   if (KERT_TRUKK_FUT) return;   /* trükk közben nem indulunk el */
-  hangGomb(); mondd("Térkép!");
+  hangGomb(); mondd(VILAG_NEV + "!");
   kertSetalIde(7, function () {
     if (!$("kepernyo-kert").classList.contains("aktiv")) return;   /* közben máshová ment */
     kertLepesHang(false); kertTajMozgasStop(); visszaUgrik("kert");

@@ -27,6 +27,7 @@ function ligetJegyez(r) {
 /* a térkép; ha hol adott (odu / utca / kert / egy liget), az unikornis ott áll majd — onnan jött ki (TERKEP_HOL) */
 function terkepNyit(hol) {
   if (hol) TERKEP_HOL = { leny: mentes.leny, id: hol };
+  VILAG_KIZOOM = hol || null;   /* 🐴 a táj onnan nagyít ki (hely.js) */
   PIAC_HONNAN = null;   /* 🏪 a térképről érkezve a Piactér közepén áll (piac.js) */
   FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu");
 }
@@ -34,18 +35,19 @@ function terkepNyit(hol) {
    gomb felirata. A „Vissza” mindig egy szinttel feljebb visz, a felirat a célt mondja. Új helynél ide kerül egy sor.
    (A kivonulás-animációk — odú: szivárványhíd, utca: szivárványkapu, felhőkert: kilépés — a végén visszaUgrik-ot hívnak.) */
 var VISSZA = {
-  liget:   { szulo: "terkep", felirat: "← Térkép", gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
+  liget:   { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
   palya:   { szulo: "liget",  felirat: "← Liget",  gomb: "jatek-haza" },
   fejtoro: { szulo: "liget",  felirat: "← Liget",  gomb: "ft-haza" },
-  odu:     { szulo: "terkep", felirat: "← Térkép", gomb: "odu-vissza" },
-  kert:    { szulo: "terkep", felirat: "← Térkép", gomb: "kert-vissza" },
-  utca:    { szulo: "terkep", felirat: "← Térkép", gomb: "utca-vissza" },
+  odu:     { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "odu-vissza" },
+  kert:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "kert-vissza" },
+  utca:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "utca-vissza" },
   szalon:  { szulo: "utca",   felirat: "← Utca",   gomb: "szalon-vissza" },
   bank:    { szulo: "utca",   felirat: "← Utca",   gomb: "bank-vissza" },
   tunemenykert: { szulo: "utca", felirat: "← Utca", gomb: "tk-vissza" }
 };
 function visszaFeliratok() {   /* indításkor: minden vissza-gomb a táblából kapja a feliratát */
   Object.keys(VISSZA).forEach(function (h) { var g = $(VISSZA[h].gomb); if (g && h !== "liget") g.textContent = VISSZA[h].felirat; });
+  if ($("vege-terkep")) $("vege-terkep").textContent = "🐴 " + VILAG_NEV;   /* a pálya végén (Világkép 1. kör) */
 }
 /* egy szinttel feljebb a helyről: a térképen a hely mellett áll az unikornis, a ligetbe / utcára / odúba vissza */
 function visszaUgrik(hely) {
@@ -68,7 +70,7 @@ var BEMUTATAS = {
   ujoncBoltUtca: { kepernyo: "kepernyo-utca", ragyog: ["#utca-bolt"], feltetel: ujoncElsoBolt,
                    mondat: "Itt a Csillagbolt! Koppints rá!" },
   /* 🧺 2026-10-24: a Tündérvásár a Piactérre költözött (piac.js) — annak szól, aki eddig a térképen látta (újoncnak nem) */
-  vasarKoltozott: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="piac"] .hb'],
+  vasarKoltozott: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="ter"] .hb'],
                     feltetel: function () { return !nyitasMenet() && !!fomenuLigetek().regiok.vasar; },
                     mondat: "Nézd! A Tündérvásár beköltözött a Piactérre. Ott találod a sátrát!" }
 };
@@ -197,7 +199,7 @@ function renderFomenu() {
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
   ligetUniReteg();                               /* bent: az unikornis a kártyák alatt (terkep.js); a térképen nincs réteg */
-  if (!bent) { renderLigetTerkep(racs, L); return; }
+  if (!bent) { renderVilag(racs, L); return; }   /* 🐴 a világkép (hely.js; a régi renderLigetTerkep a 8. hullámban törlődik) */
   function keszitKartya(pa, idx) {   /* a régi kártya (amelyik ligetnek még nincs pálya-helye: LIGET_HELY, palyahely.js) */
     var J = palyaJelek(pa), zarva = J.zarva, alszikNy = J.alszik;   /* 🚪 újonc-menet: sorban ébrednek (nyitas.js) — 💤, nem lakat */
     var mat = PALYA_MAT[pa.id] || pa.palcim;

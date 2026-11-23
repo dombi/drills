@@ -148,6 +148,31 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   background:linear-gradient(#c8e3f7 0%, #e4f1ec 26%, #c4e6bc 34%, #b3dea4 100%); }
 .terkep-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; transition:transform .45s ease-in, opacity .45s ease-in; }
 .terkep-svg.belep{ transform:scale(2.4); opacity:0; }
+/* ── 🐴 Világkép (hely.js, 1. kör): teljes képernyő, nincs fejléc-sáv; sarok-gombok; fatábla a hely nevével ── */
+#kepernyo-fomenu.terkep-mod .fejlec{ display:none; }
+#kepernyo-fomenu.terkep-mod .palya-racs{ display:flex; flex-direction:column; flex:1 1 auto; height:100%; }
+.hely-host{ touch-action:none; -webkit-user-select:none; user-select:none; background:#cfe6f7; }
+.hely-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.hely-diszlet{ cursor:pointer; }
+.hely-diszlet.el{ animation:hely-diszlet-el .8s ease-in-out; transform-box:fill-box; transform-origin:50% 100%; }
+@keyframes hely-diszlet-el{ 0%,100%{ transform:none; } 25%{ transform:translateY(-10px) rotate(-3deg); } 60%{ transform:translateY(-4px) rotate(2deg); } }
+.terkep-hely.rejtett .hb{ opacity:.45; filter:saturate(.25); }
+.hely-nevtabla{ position:absolute; left:50%; top:14px; transform:translate(-50%,-70px); padding:8px 22px; border-radius:12px;
+  background:#e8cfa4; border:3px solid #8a6a52; color:#5a3a26; font:700 22px/1.1 Fredoka,system-ui,sans-serif; box-shadow:0 4px 10px rgba(60,40,20,.25);
+  pointer-events:none; opacity:0; transition:transform .35s ease, opacity .35s ease; white-space:nowrap; z-index:3; }
+.hely-nevtabla.lat{ transform:translate(-50%,0); opacity:1; }
+.hely-sarok{ position:absolute; top:10px; z-index:4; display:flex; gap:8px; align-items:center; }
+.hely-bal{ left:10px; } .hely-jobb{ right:10px; }
+.hely-gomb{ min-width:48px; height:48px; border-radius:24px; border:3px solid #8a6a52; background:#fffaf0; color:#5a3a26; cursor:pointer;
+  font:700 18px/1 Fredoka,system-ui,sans-serif; box-shadow:0 3px 8px rgba(60,40,20,.22); padding:0 12px; display:flex; align-items:center; gap:6px; }
+.hely-gomb:active{ transform:scale(.95); }
+.hely-portre, .hely-vissza{ width:58px; height:58px; border-radius:50%; padding:0; justify-content:center; overflow:hidden; background:#f4ead8; }
+.hely-vissza{ font-size:28px; }
+.hely-portre.nyomva{ background:var(--sarga-mely); }
+.hely-portre-svg{ width:100%; height:100%; display:block; pointer-events:none; }
+.hely-hang{ width:48px; padding:0; justify-content:center; font-size:20px; }
+.hely-hang.ki{ opacity:.7; }
+@media (max-width:600px){ .hely-gomb{ height:44px; min-width:44px; font-size:15px; } .hely-portre, .hely-vissza{ width:50px; height:50px; } .hely-nevtabla{ font-size:17px; } }
 .terkep-hely{ cursor:pointer; outline:none; }
 .terkep-hely .hb{ transition:transform .2s ease, filter .2s ease; transform-box:fill-box; transform-origin:50% 100%; }
 @media (hover:hover){

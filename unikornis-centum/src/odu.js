@@ -882,7 +882,7 @@ var ODU_CELOK = [
   { id: "tetoablak", felirat: "Égbolt", csakEg: true, hit: [279, 84, 132, 40], fx: 345, fy: 146, cx: 345 },   /* 🌌 a tetőablak (odu-eg.js): odasétál alá, és kinyílik az ég */
   { id: "lampa", felirat: "Villany", helyben: true, hit: [330, 150, 42, 90], fx: 345, fy: 260, cx: 345 },   /* csillaglámpa + húzózsinór: villanyoltás (odu-elet.js), nem kell odasétálni */
   { id: "agy", felirat: "Ágy", helyben: true, hit: [40, 336, 236, 116], fx: 155, fy: 332, cx: 158 },   /* befekvés / felkelés (9. lépés); a sétát az oduBefekszik intézi */
-  { id: "osveny", felirat: "Térkép", hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
+  { id: "osveny", felirat: VILAG_NEV, hit: [126, 116, 128, 128], fx: 190, fy: 268, cx: 60 },   /* az ablak: szivárványhíd (6. lépés) */
   { id: "jelveny", felirat: "Jelvények", hit: [256, 140, 72, 62], fx: 292, fy: 136, cx: 300 },
   { id: "gyujt", felirat: "Gyűjtemény", csakTag: true, hit: [406, 238, 40, 62], fx: 428, fy: 232, cx: 420 },
   { id: "szekreny", felirat: "Szekrény", hit: [508, 424, 96, 106], fx: 556, fy: 426, cx: 472 }
@@ -891,7 +891,7 @@ var ODU_CEL_RAJZ = { tetoablak: "odu-t-teto", agy: "odu-t-agy", lampa: "", osven
 /* mit mond és mit nyit a koppintás (a régi gombsor gombjainak viselkedése) */
 var ODU_CEL_TETT = {
   tetoablak: { szo: function () { return "Égbolt"; }, nyit: function () { egFelnez(); } },   /* lefekszik, felnéz, a kölyök rálehel az üvegre, aztán nyílik az ég (odu-eg.js) */
-  osveny: { szo: function () { return "Térkép"; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
+  osveny: { szo: function () { return VILAG_NEV; }, nyit: function () { oduTavozasVege(); } },   /* a szivárványhídon át: oduTavozik */
   jelveny: { szo: function () { return "Jelvények"; }, nyit: function () { renderJelveny(); $("odu-lap").hidden = false; } },
   gyujt: { szo: function () { return "Gyűjtemény"; }, nyit: function () { renderGyujtemeny(); $("odu-lap").hidden = false; } },
   szekreny: { szo: function () { return "Szekrény"; }, nyit: function () { renderSzekreny(); $("odu-lap").hidden = false; } },   /* badges.js */
@@ -1035,7 +1035,7 @@ var _oduTavozas = null;
 function oduTavozik() {
   if (_oduTavozas) { oduTavozasVege(); return; }   /* türelmetlen második koppintás */
   if (ODU_FEKSZIK) { oduFelkel(false, oduTavozik); return; }   /* a „← Térkép” gomb alvás közben: előbb felkel */
-  hangGomb(); mondd("Térkép");
+  hangGomb(); mondd(VILAG_NEV);
   var tok = _oduTavozas = { hid: false, ott: false };
   clearTimeout(_oduSetaIdo); _oduSetaCel = null;
   oduPanelZar();
