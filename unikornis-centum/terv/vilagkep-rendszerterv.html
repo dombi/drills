@@ -33,6 +33,7 @@ pre{padding:10px 12px;overflow-x:auto;line-height:1.45}
 <h1>Világkép: rendszerterv</h1>
 <p class="lead">Thinking horses · tervlap jóváhagyásra · 2026-11-23 · alapja: <code>Matekos\telekterv-vilagkep.html</code> (2. vázlat, ✅ jóváhagyva 2026-11-23). Ez a lap azt írja le, <b>hogyan épül meg</b> a táj a játékban: a közös keret, a gombok, az adat-tábla, a rajzfájlok, és melyik pálya hová költözik, milyen sorrendben. Kód még nincs.</p>
 
+<div class="dont"><b>✅ JÓVÁHAGYVA (a producer, 2026-11-23):</b> mind a 8 döntés a javaslat szerint. Kiegészítés: <b>a ló a tájon is szabadon sétálhat</b>, mint a kertben, ne csak egy helyre érkezhessen (1. pont, „Szabad séta”).</div>
 <div class="jegy"><b>Röviden a gyereknek mi változik:</b> a játék egy nagy, teljes képernyős tájjal nyílik (Thinking horses). Nincs felső sáv. Egy helyre koppint, az unikornisa odasétál, a kép rárepül a helyre (közelkép), ott a ház vagy a tárgy a pálya. Bal felső sarokban a saját unikornisa (váltás), közelképben ugyanott a „←”. Jobb felső sarokban az erszény és a hangszóró. Minden pálya, csillag, mentés megmarad.</div>
 
 <h2>1. A közös hely-keret (egy modul, minden képhez)</h2>
@@ -40,6 +41,7 @@ pre{padding:10px 12px;overflow-x:auto;line-height:1.45}
 <ul>
 <li><b>Teljes képernyő.</b> A kép kitölti az ablakot („cover”): ha az ablak aránya más, a <b>szélek</b> vágódnak le, a biztonsági zóna sosem. A zóna a 1600×900-as vázlaton x 80–1520, y 45–855, vagyis arányban <code>[0.05, 0.05, 0.90, 0.90]</code>. Minden koppintható hely ezen belül van, ezért 16:9, 16:10 és tablet (4:3) is jó.</li>
 <li><b>Ráközelítés.</b> Koppintás → az unikornis odasétál (mint ma), közben a hely neve kis fatáblán megjelenik és felolvasódik → a kép a hely téglalapjára nagyít (kb. 0,6 mp, lágy indulás és megállás), és átúszik a közelképbe. A „←” ugyanezt visszafelé játssza. Séta közben egy második koppintás = azonnal indul (ahogy ma a pálya-helyeknél). Ha a gép „kevesebb mozgás” beállítást kér, csak áttűnés van.</li>
+<li><b>🐴 Szabad séta (új, a producer kérése).</b> Mint a kertben (<code>kertSetal</code>): a gyerek a <b>járható földre</b> koppint (ösvény, rét, tér, híd), és az unikornis oda sétál, ott megáll, körülnéz. Ha messze van, az ösvényeken át megy (nem vág át házon, patakon, csak a hídon). A járható részt a tábla <code>jarhato</code> sokszögei adják (rajz-csere = új sokszögek, kód nem kell). A nem járható részre (patak, ház fala, ég, hegyoldal) koppintva a legközelebbi járható pontig megy. Ha egy hely mellett áll meg, a hely neve kiírva és felolvasva; ráközelítés csak a hely koppintására. Ugyanez a közelképekben is működik (ugyanaz a modul). A táj apró díszletei koppintásra élnek (madarak felrebbennek, a malomkerék gyorsul, a lakó int) — csak díszlet, jutalom nélkül. Ahol a ló legutóbb állt, oda tér vissza a gyerek (ma: <code>TERKEP_HOL</code>).</li>
 <li><b>Éles nagyítás.</b> A világkép 2× felbontásban készül (3200×1800), így az animáció végén sem homályos.</li>
 <li><b>Nincs szabad nagyítás.</b> Két ujjas nagyítás és görgős nagyítás a tájon ki van kapcsolva (gyereknek elveszős). Telefonon később görgetés lesz, nagyítás nem.</li>
 <li><b>Élet.</b> A mozgó rétegek (malomkerék, füst, víz, madarak) lassúak; mindig a „következő” hely mozog a legjobban (az újonc-fény helye, <code>nyitas.js</code>).</li>
@@ -74,6 +76,8 @@ pre{padding:10px 12px;overflow-x:auto;line-height:1.45}
   retegek: ["eg", "tavoli", "kozep", "eloter"],          // alulról felfelé
   mozgo:   [{ id: "malomkerek", x: 0.24, y: 0.66, fajta: "forog" }, { id: "patak", fajta: "csorog" }],
   utak:    [["odu", "erdoszel", [0.12, 0.85]], ...],       // ösvény-töréspontok, ezen sétál az unikornis
+  jarhato: [[[0.05,0.95],[0.40,0.80], ...], ...],          // szabad séta: ahová koppintva odamegy (sokszögek)
+  diszlet: [{ id: "madarak", x: .., y: .., w: .., h: .., mozdul: "rebben" }, ...],  // koppintható apróság, jutalom nélkül
   helyek: [
     { id: "ter",                         // állandó azonosító (a név változhat, ez nem)
       x: 0.50, y: 0.78,                  // a hely talppontja (itt áll a ház alja)
@@ -173,7 +177,7 @@ HELYEK.ter = { kep: {...}, vissza: "vilag", helyek: [
 <p>Minden hullám után a játék működik, és a gyerekek ki is próbálhatják. 🎨 = rajz-megálló (rajzterv a producernek, jóváhagyás, csak utána kód). Nagy átírás előtt stabil visszatérési pont (git-tag).</p>
 <table>
 <tr><th>#</th><th>Kör</th><th>Mit kap a gyerek</th><th>Méret</th></tr>
-<tr><td>1</td><td><b>Közös hely-keret</b>: <code>hely.js</code> + <code>helyek.js</code>, teljes képernyő, sarok-gombok, fejléc-sáv ki a tájról, ráközelítés, a mai térkép-jelek ideiglenesen képként a 13 helyre. A játékbeli „Térkép” felirat → „Thinking horses” (<code>ui.js</code> „← Térkép”, <code>odu.js</code>, <code>kert.js</code>, <code>piac.js</code>, a felolvasásnál is).</td><td>új keret, a régi rajzzal</td><td><span class="meret k">közepes–nagy</span></td></tr>
+<tr><td>1</td><td><b>Közös hely-keret</b>: <code>hely.js</code> + <code>helyek.js</code>, teljes képernyő, sarok-gombok, fejléc-sáv ki a tájról, ráközelítés, szabad séta (járható terület), a mai térkép-jelek ideiglenesen képként a 13 helyre. A játékbeli „Térkép” felirat → „Thinking horses” (<code>ui.js</code> „← Térkép”, <code>odu.js</code>, <code>kert.js</code>, <code>piac.js</code>, a felolvasásnál is).</td><td>új keret, a régi rajzzal</td><td><span class="meret k">közepes–nagy</span></td></tr>
 <tr><td>2</td><td>🎨 <b>A világkép megrajzolása</b>: rétegek + 13 hely × 3 állapot + mozgó részek; a helyek a MAI ligetekbe / Piactérre visznek</td><td>az egész szép táj</td><td><span class="meret n">nagy</span> (1 rajz-megálló)</td></tr>
 <tr><td>3</td><td>🎨 <b>A tér + Domboldal</b> közelkép: a mai Piactér kettéválik; Garas tornya, Jósda, Déli vásár fel a dombra</td><td>2 közelkép</td><td><span class="meret k">közepes–nagy</span></td></tr>
 <tr><td>4</td><td>🎨 <b>Kézművesek</b> mini utca (3 műhely × 4 tárgy, malom)</td><td>1 közelkép</td><td><span class="meret k">közepes</span></td></tr>
@@ -193,7 +197,7 @@ HELYEK.ter = { kep: {...}, vissza: "vilag", helyek: [
 <li>a kissárkány-térkép (<code>kaland.js</code>) a régi térkép-modult használja tovább, amíg külön nem döntünk róla.</li>
 </ul>
 
-<h2>8. Döntési pontok (a javasolt elöl)</h2>
+<h2>8. Döntési pontok — ✅ mind a javaslat szerint (2026-11-23)</h2>
 <div class="dont"><b>1. Az automatizmus-pályák helye.</b><br>
 <b class="jav">A (javasolt):</b> ami kész, a helyén marad (lásd 5. pont). A Villámkör a Postafa mellé kerül (a „Neked készült” részeként, ahogy a Villámkör-terv is mondta). A jövőbeli pályák üres telekre: E) Okos trükkök → Erdőszél üres telke (+ −) és Dallam-tér üres telke (× ÷); G) varázsgép / számpiramis → a Kézművesek üres műhelye (gépész-műhely); H) Nagy vegyes → a tér egyik üres telke (ott fut össze minden ösvény).<br>
 B: mind a Postafára, egy helyre. Egyszerűbb, de a Postafa levelei betelnek.</div>
