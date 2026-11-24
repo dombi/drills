@@ -67,20 +67,34 @@ HELYEK.vilag = {
     { id: "madarak", x: 0.55, y: 0.16, w: 0.12, h: 0.08, mozdul: "rebben", mondat: "Csip-csirip!" }
   ]
 };
-/* 🧵🧪🧁 Kézművesek — ideiglenes közelkép a mai három műhellyel (a 4. körben a rajz: mini utca a malommal) */
+/* 🧵🧪🧁 Kézművesek — 4. kör (terv: Matekos\vilagkep-4-kor-kezmuvesek.html, ✅ 2026-11-24): mini utca a patak partján.
+   Balra a patakon a malom (díszlet), mellette a Mézes pékség, középen hátul (a legmagasabb) a Bájitalkonyha, jobbra a Szabóműhely,
+   a szélén üres telek. A ház = a műhely, a TÁRGY a bejárat (PC_TARGY.szabo / bajital / pekseg, piac.js): 4 tárgy a helyén a műhelyben.
+   1. kódkör: ideiglenes JS-rajz (helyHatter: HELY_HATTER_IDEIGLENES.kezmuvesek; a ház: helyIdeiglenesHaz, 5 állapot).
+   2. kódkör: a rajz fájlokba kerül (kepek/kezmuvesek/, exportáló: terv/kozelkep-export.py) — a koordináták maradnak. A patak nem járható. */
 HELYEK.kezmuvesek = {
   nev: "Kézművesek", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "kezmuvesek" },
-  uni: 1.1, jk: 2.6,
-  pontok: { kapu: [0.50, 0.93] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", kifestve: [-560, -160, 2720, 1220] },
+  uni: 1.0, jk: 2.4,
+  pontok: { kapu: [0.705, 0.965], sarok: [0.735, 0.875], kozep: [0.58, 0.79], malomelo: [0.30, 0.735] },
   helyek: [
-    { id: "szabo",   x: 0.22, y: 0.70, w: 0.16, h: 0.30, all: [0.31, 0.75], jel: [0.22, 0.34], kep: "szabo",   cel: { regio: "szabo" } },
-    { id: "bajital", x: 0.50, y: 0.60, w: 0.16, h: 0.32, all: [0.59, 0.65], jel: [0.50, 0.22], kep: "bajital", cel: { regio: "bajital" } },
-    { id: "pekseg",  x: 0.78, y: 0.70, w: 0.16, h: 0.30, all: [0.70, 0.75], jel: [0.78, 0.34], kep: "pekseg", cel: { regio: "pekseg" } }
+    { id: "pekseg",  x: 0.409, y: 0.667, w: 0.17, h: 0.27, all: [0.462, 0.745], jel: [0.409, 0.395], kep: "pekseg",  rk: 3.3,
+      cel: { palyak: ["meres-pekseg-1", "meres-pekseg-2", "meres-pekseg-3", "meres-pekseg-4"] } },
+    { id: "bajital", x: 0.603, y: 0.578, w: 0.13, h: 0.39, all: [0.648, 0.665], jel: [0.603, 0.175], kep: "bajital", rk: 3.6,
+      cel: { palyak: ["meres-bajital-1", "meres-bajital-2", "meres-bajital-3", "meres-bajital-4"] } },
+    { id: "szabo",   x: 0.806, y: 0.711, w: 0.17, h: 0.25, all: [0.752, 0.80], jel: [0.806, 0.455], kep: "szabo",   rk: 3.2,
+      cel: { palyak: ["meres-szabo-1", "meres-szabo-2", "meres-szabo-3", "meres-szabo-4"] } }
   ],
-  utak: [["kapu", "szabo", [[0.40, 0.82]]], ["kapu", "bajital", [[0.52, 0.80]]], ["kapu", "pekseg", [[0.62, 0.82]]]],
-  jarhato: [[[0.04, 0.66], [0.96, 0.66], [0.96, 0.98], [0.04, 0.98]]],
-  diszlet: []
+  utak: [["kapu", "sarok", []], ["sarok", "szabo", []], ["sarok", "kozep", [[0.66, 0.835]]], ["kozep", "bajital", [[0.62, 0.72]]],
+         ["kozep", "pekseg", [[0.50, 0.762]]], ["pekseg", "malomelo", [[0.37, 0.73]]]],
+  jarhato: [[[0.19, 0.74], [0.24, 0.70], [0.33, 0.69], [0.45, 0.70], [0.53, 0.66], [0.60, 0.63], [0.68, 0.62], [0.72, 0.70], [0.74, 0.76],
+             [0.86, 0.80], [0.99, 0.83], [0.99, 0.99], [0.10, 0.99], [0.15, 0.83]]],
+  diszlet: [
+    { id: "malom", x: 0.228, y: 0.756, w: 0.18, h: 0.37, mozdul: "kelepel", mondat: "Kelepel a malom. Lisztet őröl a pékségnek!" },
+    { id: "telek", x: 0.9375, y: 0.667, w: 0.11, h: 0.145, mondat: "Ez még üres műhely. Egyszer ide is beköltözik valaki!" },
+    { id: "kotel", x: 0.80, y: 0.44, w: 0.15, h: 0.09 },   /* csak meglebben */
+    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, mondat: "Miau!" }
+  ]
 };
 /* 🌳 Nagyfa tér — 3. kör (terv: Matekos\vilagkep-3-kor-ter-domboldal.html, ✅ 2026-11-24). 2. kódkör: a rajz fájlokban (kepek/ter/,
    exportáló: terv/kozelkep-export.py). Telkek: hátul bolt + sátor, elöl Zsivány standja + Szalagműhely, a két szélen 2 üres telek (díszlet).

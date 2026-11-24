@@ -835,20 +835,34 @@ HELYEK.vilag = {
     { id: "madarak", x: 0.55, y: 0.16, w: 0.12, h: 0.08, mozdul: "rebben", mondat: "Csip-csirip!" }
   ]
 };
-/* 🧵🧪🧁 Kézművesek — ideiglenes közelkép a mai három műhellyel (a 4. körben a rajz: mini utca a malommal) */
+/* 🧵🧪🧁 Kézművesek — 4. kör (terv: Matekos\vilagkep-4-kor-kezmuvesek.html, ✅ 2026-11-24): mini utca a patak partján.
+   Balra a patakon a malom (díszlet), mellette a Mézes pékség, középen hátul (a legmagasabb) a Bájitalkonyha, jobbra a Szabóműhely,
+   a szélén üres telek. A ház = a műhely, a TÁRGY a bejárat (PC_TARGY.szabo / bajital / pekseg, piac.js): 4 tárgy a helyén a műhelyben.
+   1. kódkör: ideiglenes JS-rajz (helyHatter: HELY_HATTER_IDEIGLENES.kezmuvesek; a ház: helyIdeiglenesHaz, 5 állapot).
+   2. kódkör: a rajz fájlokba kerül (kepek/kezmuvesek/, exportáló: terv/kozelkep-export.py) — a koordináták maradnak. A patak nem járható. */
 HELYEK.kezmuvesek = {
   nev: "Kézművesek", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "kezmuvesek" },
-  uni: 1.1, jk: 2.6,
-  pontok: { kapu: [0.50, 0.93] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", kifestve: [-560, -160, 2720, 1220] },
+  uni: 1.0, jk: 2.4,
+  pontok: { kapu: [0.705, 0.965], sarok: [0.735, 0.875], kozep: [0.58, 0.79], malomelo: [0.30, 0.735] },
   helyek: [
-    { id: "szabo",   x: 0.22, y: 0.70, w: 0.16, h: 0.30, all: [0.31, 0.75], jel: [0.22, 0.34], kep: "szabo",   cel: { regio: "szabo" } },
-    { id: "bajital", x: 0.50, y: 0.60, w: 0.16, h: 0.32, all: [0.59, 0.65], jel: [0.50, 0.22], kep: "bajital", cel: { regio: "bajital" } },
-    { id: "pekseg",  x: 0.78, y: 0.70, w: 0.16, h: 0.30, all: [0.70, 0.75], jel: [0.78, 0.34], kep: "pekseg", cel: { regio: "pekseg" } }
+    { id: "pekseg",  x: 0.409, y: 0.667, w: 0.17, h: 0.27, all: [0.462, 0.745], jel: [0.409, 0.395], kep: "pekseg",  rk: 3.3,
+      cel: { palyak: ["meres-pekseg-1", "meres-pekseg-2", "meres-pekseg-3", "meres-pekseg-4"] } },
+    { id: "bajital", x: 0.603, y: 0.578, w: 0.13, h: 0.39, all: [0.648, 0.665], jel: [0.603, 0.175], kep: "bajital", rk: 3.6,
+      cel: { palyak: ["meres-bajital-1", "meres-bajital-2", "meres-bajital-3", "meres-bajital-4"] } },
+    { id: "szabo",   x: 0.806, y: 0.711, w: 0.17, h: 0.25, all: [0.752, 0.80], jel: [0.806, 0.455], kep: "szabo",   rk: 3.2,
+      cel: { palyak: ["meres-szabo-1", "meres-szabo-2", "meres-szabo-3", "meres-szabo-4"] } }
   ],
-  utak: [["kapu", "szabo", [[0.40, 0.82]]], ["kapu", "bajital", [[0.52, 0.80]]], ["kapu", "pekseg", [[0.62, 0.82]]]],
-  jarhato: [[[0.04, 0.66], [0.96, 0.66], [0.96, 0.98], [0.04, 0.98]]],
-  diszlet: []
+  utak: [["kapu", "sarok", []], ["sarok", "szabo", []], ["sarok", "kozep", [[0.66, 0.835]]], ["kozep", "bajital", [[0.62, 0.72]]],
+         ["kozep", "pekseg", [[0.50, 0.762]]], ["pekseg", "malomelo", [[0.37, 0.73]]]],
+  jarhato: [[[0.19, 0.74], [0.24, 0.70], [0.33, 0.69], [0.45, 0.70], [0.53, 0.66], [0.60, 0.63], [0.68, 0.62], [0.72, 0.70], [0.74, 0.76],
+             [0.86, 0.80], [0.99, 0.83], [0.99, 0.99], [0.10, 0.99], [0.15, 0.83]]],
+  diszlet: [
+    { id: "malom", x: 0.228, y: 0.756, w: 0.18, h: 0.37, mozdul: "kelepel", mondat: "Kelepel a malom. Lisztet őröl a pékségnek!" },
+    { id: "telek", x: 0.9375, y: 0.667, w: 0.11, h: 0.145, mondat: "Ez még üres műhely. Egyszer ide is beköltözik valaki!" },
+    { id: "kotel", x: 0.80, y: 0.44, w: 0.15, h: 0.09 },   /* csak meglebben */
+    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, mondat: "Miau!" }
+  ]
 };
 /* 🌳 Nagyfa tér — 3. kör (terv: Matekos\vilagkep-3-kor-ter-domboldal.html, ✅ 2026-11-24). 2. kódkör: a rajz fájlokban (kepek/ter/,
    exportáló: terv/kozelkep-export.py). Telkek: hátul bolt + sátor, elöl Zsivány standja + Szalagműhely, a két szélen 2 üres telek (díszlet).
@@ -9877,13 +9891,15 @@ function mkUni(x, y, s, tukor) {
 }
 
 /* ── közös műhely-belső (800×420) + pult + beszédbuborék ── */
+/* a műhelyek fal- és padlószíne — a Kézművesek tárgy-nézete is ezt veszi át (piac.js PC_TARGY), így a belépés folytonos */
+var MK_FAL = {
+  szabo:   { fal1: "#fdeef4", fal2: "#f6e0ea", csik: "rgba(236,180,206,.28)", padlo: "#ead0b8", padlo2: "#dcbc9c" },
+  bajital: { fal1: "#eee8f8", fal2: "#e2eef2", csik: "rgba(170,150,210,.18)", padlo: "#d6cfe4", padlo2: "#c5bcd8" },
+  pekseg:  { fal1: "#fff4de", fal2: "#fbe6c4", csik: "rgba(230,180,110,.16)", padlo: "#efc9a3", padlo2: "#e2b58a" },
+  lepcso:  { fal1: "#eef3fd", fal2: "#f3ecfb", csik: "rgba(180,170,230,.14)", padlo: "#dfe8d0", padlo2: "#cfdcbd" }
+};
 function mkBelso(tipus) {
-  var T = {
-    szabo:   { fal1: "#fdeef4", fal2: "#f6e0ea", csik: "rgba(236,180,206,.28)", padlo: "#ead0b8", padlo2: "#dcbc9c" },
-    bajital: { fal1: "#eee8f8", fal2: "#e2eef2", csik: "rgba(170,150,210,.18)", padlo: "#d6cfe4", padlo2: "#c5bcd8" },
-    pekseg:  { fal1: "#fff4de", fal2: "#fbe6c4", csik: "rgba(230,180,110,.16)", padlo: "#efc9a3", padlo2: "#e2b58a" },
-    lepcso:  { fal1: "#eef3fd", fal2: "#f3ecfb", csik: "rgba(180,170,230,.14)", padlo: "#dfe8d0", padlo2: "#cfdcbd" }
-  }[tipus];
+  var T = MK_FAL[tipus];
   var cs = ""; for (var x = 20; x < 800; x += 44) cs += '<rect x="' + x + '" y="0" width="5" height="360" fill="' + T.csik + '"/>';
   return '<defs><linearGradient id="mk-fal-' + tipus + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + T.fal1 + '"/><stop offset="1" stop-color="' + T.fal2 + '"/></linearGradient></defs>' +
     '<rect width="800" height="420" fill="url(#mk-fal-' + tipus + ')"/>' + cs +
@@ -24773,6 +24789,95 @@ var PC_TARGY = {
          "irasbeli-osztas":  { hely: [52, 118, 96, 104], ceger: [260, 165, .95], szo: "az osztást fent" } }
   }
 };
+/* ═════════ 🧵🧪🧁 A Kézművesek műhelyei (4. kör, terv: Matekos\vilagkep-4-kor-kezmuvesek.html 2. pont, ✅ 2026-11-24) ═════════
+   A műhely belseje, a tárgyak NEM sorban, hanem a helyükön (asztal, polc, tűzhely, föld): a kicsi az asztalon, a legnagyobb a földön.
+   A fal és a padló a pálya belsejének színe (MK_FAL, meres-mozgo.js), így a belépés folytonos. A cégér 4 tárgynál kisebb (.8). */
+function pcMuhelyFal(tipus) {   /* a kártya (30,14 – 770,446) kitöltve a műhely falával, csíkokkal és padlóval */
+  var T = MK_FAL[tipus], cs = "", x;
+  for (x = 52; x < 770; x += 44) cs += '<rect x="' + x + '" y="16" width="5" height="364" fill="' + T.csik + '"/>';
+  return '<defs><linearGradient id="pc-fal-' + tipus + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + T.fal1 + '"/><stop offset="1" stop-color="' + T.fal2 + '"/></linearGradient></defs>' +
+    '<rect x="30" y="14" width="740" height="432" rx="22" fill="url(#pc-fal-' + tipus + ')"/>' + cs +
+    '<path d="M30 380H770V424Q770 446 748 446H52Q30 446 30 424Z" fill="' + T.padlo + '"/><path d="M30 380H770" stroke="' + T.padlo2 + '" stroke-width="4"/>' +
+    '<rect x="30" y="14" width="740" height="432" rx="22" fill="none" stroke="#c9ad85" stroke-width="3"/>';
+}
+function pcMeh(x, y, utvonal, dur) {   /* repkedő méh (a mézesbödön körül) */
+  return '<g transform="translate(' + x + ' ' + y + ')"><g><animateTransform attributeName="transform" type="translate" values="' + utvonal + '" dur="' + dur + '" repeatCount="indefinite"/>' +
+    '<ellipse rx="8" ry="6" fill="#f2c14e" stroke="#5a4a7a" stroke-width="1.5"/><path d="M-2 -5v10M3 -5v10" stroke="#5a4a7a" stroke-width="1.5"/><ellipse cy="-8" rx="6" ry="4" fill="#fff" opacity=".8"/></g></g>';
+}
+PC_TARGY.szabo = {   /* ✂️ Szabóműhely: mérőszalag + tűpárna az asztalon, szövetvég a polcon, a nagy orsó a földön (a szalag végigfut a padlón) */
+  kep: function () {
+    return pcMuhelyFal("szabo") + '<g stroke="#5a4a7a" stroke-width="2.5" stroke-linejoin="round" filter="url(#lt-firka)">' +
+      /* díszlet: ablak, próbababa */
+      '<rect x="420" y="50" width="130" height="110" rx="8" fill="#e9f4fb"/><path d="M485 50V160M420 105H550" stroke-width="2"/>' +
+      '<g transform="translate(110 400)"><path d="M0 0V-40M-16 0H16" stroke="#8a6a4a" stroke-width="4"/><path d="M-26 -40Q-34 -110 -20 -130Q0 -142 20 -130Q34 -110 26 -40Z" fill="#f4a6c8"/><path d="M-20 -100Q0 -92 20 -100" stroke="#fff" stroke-width="3" fill="none"/><circle cy="-146" r="12" fill="#d8b48a"/></g>' +
+      /* fali polc: a szövetvég (3) */
+      '<path d="M180 190H420" stroke="#8a6a4a" stroke-width="8"/><path d="M200 190l14 22M400 190l-14 22" stroke="#8a6a4a" stroke-width="5"/>' +
+      '<g transform="translate(300 158)"><ellipse cx="-90" rx="12" ry="30" fill="#c9a8e6"/><path d="M-90 -30H90V30H-90" fill="#c9a8e6"/><ellipse cx="90" rx="12" ry="30" fill="#b593d8"/><ellipse cx="90" rx="4" ry="9" fill="#8a6a4a"/><path d="M-76 -14H80M-76 0H80M-76 14H80" stroke="#fff" stroke-width="3" opacity=".6"/>' +
+      '<path d="M-90 30Q-104 60 -96 90" stroke="#c9a8e6" stroke-width="14" fill="none">' + ltAnim("d", "M-90 30Q-104 60 -96 90;M-90 30Q-96 62 -106 88;M-90 30Q-104 60 -96 90", "3.4s") + '</path></g>' +
+      /* szabóasztal: elöl balra a mérőszalag (1), hátul jobbra a tűpárna (2) */
+      '<path d="M230 282H620V298H230Z" fill="#c99a6a"/><path d="M250 298V380M600 298V380" stroke="#8a6a4a" stroke-width="10"/><path d="M230 298H620V330H230Z" fill="#d8b48a"/>' +
+      '<g transform="translate(300 274)"><circle r="20" fill="#fce49a"/><circle r="7" fill="#d1a23a"/><path d="M16 8Q50 14 74 6" stroke="#fce49a" stroke-width="10" fill="none" stroke-linecap="round">' + ltAnim("d", "M16 8Q50 14 74 6;M16 8Q46 4 74 10;M16 8Q50 14 74 6", "2.6s") + '</path></g>' +
+      '<g transform="translate(540 270)"><path d="M-30 0Q-36 -38 0 -40Q36 -38 30 0Z" fill="#e8505b"/><path d="M0 -40V0M-17 -35Q-22 -16 -17 0M17 -35Q22 -16 17 0" stroke="#a83a44" stroke-width="2" fill="none"/><g stroke="#8a8aa6" stroke-width="2.5"><path d="M-8 -40l-8 -24M6 -40l6 -26M18 -34l16 -18"/></g><g fill="#fce49a" stroke-width="1.5"><circle cx="-16" cy="-66" r="5"/><circle cx="12" cy="-68" r="5"/><circle cx="34" cy="-54" r="5"/></g></g>' +
+      /* a földön: a nagy szalagorsó (4), a szalag végigfut a padlón */
+      '<g transform="translate(700 410)"><rect x="-46" y="-196" width="92" height="18" rx="6" fill="#c99a6a"/><rect x="-46" y="-12" width="92" height="18" rx="6" fill="#c99a6a"/><rect x="-32" y="-178" width="64" height="166" fill="#f4a6c8"/><path d="M-32 -148H32M-32 -118H32M-32 -88H32M-32 -58H32M-32 -28H32" stroke="#fff" stroke-width="3" opacity=".6"/></g>' +
+      '<path d="M668 400Q600 430 520 414Q440 400 380 424" stroke="#f4a6c8" stroke-width="14" fill="none" stroke-linecap="round">' + ltAnim("d", "M668 400Q600 430 520 414Q440 400 380 424;M668 400Q600 420 520 424Q440 410 380 420;M668 400Q600 430 520 414Q440 400 380 424", "3s") + '</path></g>';
+  }, k: 1, tx: 0, ty: 0,
+  t: { "meres-szabo-1": { hely: [266, 244, 114, 50],  ceger: [320, 318, .8], szo: "a mérőszalagot" },
+       "meres-szabo-2": { hely: [500, 196, 90, 80],   ceger: [530, 318, .8], szo: "a tűpárnát" },
+       "meres-szabo-3": { hely: [196, 118, 218, 84],  ceger: [300, 226, .8], szo: "a szövetet" },
+       "meres-szabo-4": { hely: [644, 206, 112, 216], ceger: [680, 188, .8], szo: "az orsót" } }
+};
+PC_TARGY.bajital = {   /* 🧪 Bájitalkonyha: mérőpohár a munkaasztalon, cseppentős üvegcse a polcon, üst a tűzhelyen, hordó a sarokban */
+  kep: function () {
+    var bub = function (cx, r, kesl) { return '<circle cx="' + cx + '" cy="-94" r="' + r + '">' + ltAnim("cy", "-88;-130", "2s", ' begin="' + kesl + 's"') + ltAnim("opacity", "1;0", "2s", ' begin="' + kesl + 's"') + '</circle>'; };
+    return pcMuhelyFal("bajital") + '<g stroke="#5a4a7a" stroke-width="2.5" stroke-linejoin="round" filter="url(#lt-firka)">' +
+      /* fali polc üvegekkel: köztük a cseppentős üvegcse (2) */
+      '<path d="M70 150H320" stroke="#8a6a4a" stroke-width="8"/><path d="M90 150l14 22M300 150l-14 22" stroke="#8a6a4a" stroke-width="5"/>' +
+      '<path d="M96 146v-34h18v34z" fill="#a7d99a" opacity=".8"/><path d="M130 146q-10 -24 6 -30v-10h8v10q16 6 6 30z" fill="#f6a5c0" opacity=".8"/>' +
+      '<g transform="translate(250 146)"><path d="M-22 0Q-30 -36 -6 -44V-62H6V-44Q30 -36 22 0Z" fill="#c9a8e6"/><path d="M-10 -62h20v-10q-10 -12 -20 0z" fill="#e8505b"/><path d="M-20 -14Q0 -6 20 -14L22 0H-22Z" fill="#7a5cd6" stroke="none"/></g>' +
+      '<g transform="translate(286 170)"><path d="M0 0q-6 10 0 13q6 -3 0 -13z" fill="#8fd3e0" stroke-width="1.5"><animateTransform attributeName="transform" type="translate" values="0 -10;0 40" dur="1.6s" repeatCount="indefinite"/>' + ltAnim("opacity", "1;1;0", "1.6s") + '</path></g>' +
+      /* munkaasztal: a mérőpohár (1) és egy mozsár */
+      '<path d="M70 290H330V304H70Z" fill="#c99a6a"/><path d="M86 304V380M314 304V380" stroke="#8a6a4a" stroke-width="10"/>' +
+      '<g transform="translate(140 290)"><path d="M-22 0h44l6 -64h-56z" fill="#e8f6fa"/><path d="M-24 -26h48l-2 26h-44z" fill="#8fd3e0" stroke="none"/><path d="M-22 0h44l6 -64h-56z" fill="none"/><path d="M12 -50h10M14 -36h8M14 -22h8" stroke-width="2"/></g>' +
+      '<g transform="translate(260 290)"><path d="M-22 0Q-26 -30 0 -30Q26 -30 22 0Z" fill="#b9b0c8"/><path d="M6 -26l20 -26" stroke="#8a6a4a" stroke-width="6" stroke-linecap="round"/></g>' +
+      /* a tűzhely: a láng fölött lóg az üst (3) */
+      '<path d="M400 380V150Q400 100 450 100H580Q630 100 630 150V380" fill="#d9cbb4"/><path d="M430 380V210Q430 180 460 180H570Q600 180 600 210V380" fill="#4a3a4e"/>' +
+      '<path d="M515 100V40M490 40H540" stroke="#6e5a4a" stroke-width="6"/><path d="M515 180V236" stroke="#5a4a7a" stroke-width="3"/>' +
+      '<g transform="translate(515 320)"><path d="M-60 -10Q-70 -84 0 -84Q70 -84 60 -10Z" fill="#5a5a6e"/><ellipse cy="-82" rx="56" ry="12" fill="#8fd3e0"/>' +
+      '<path d="M-30 50q10 -26 20 0q10 -26 20 0q10 -26 20 0" fill="#f2a24e" stroke="#c96a2a">' + ltAnim("opacity", "1;.75;1", ".9s") + '</path><g fill="#bfeaf0" stroke-width="1.5">' + bub(-18, 7, 0) + bub(14, 5, .9) + bub(-2, 4, 1.5) + '</g></g>' +
+      /* a sarokban a földön: a nagy hordó (4) csappal */
+      '<g transform="translate(704 410)"><path d="M-52 0Q-66 -90 -52 -180H52Q66 -90 52 0Z" fill="#c99a6a"/><path d="M-58 -36H58M-62 -90H62M-58 -144H58" stroke="#6e4a36" stroke-width="6"/><rect x="-62" y="-60" width="16" height="10" fill="#8a6a4a"/></g></g>';
+  }, k: 1, tx: 0, ty: 0,
+  t: { "meres-bajital-1": { hely: [104, 216, 76, 80],   ceger: [200, 326, .8], szo: "a mérőpoharat" },
+       "meres-bajital-2": { hely: [218, 64, 70, 90],    ceger: [200, 194, .8], szo: "az üvegcsét" },
+       "meres-bajital-3": { hely: [444, 214, 142, 160], ceger: [515, 410, .8], szo: "az üstöt" },
+       "meres-bajital-4": { hely: [636, 222, 132, 196], ceger: [690, 196, .8], szo: "a hordót" } }
+};
+PC_TARGY.pekseg = {   /* 🍯 Mézes pékség: mérleg + sótartó a pulton, mézesbödön a polcon, liszteszsákok a földön, az ajtó mellett (a malom felől) */
+  kep: function () {
+    var pereg = function (cx, r, kesl) { return '<circle cx="' + cx + '" cy="-20" r="' + r + '">' + ltAnim("cy", "-30;-2", "1.8s", ' begin="' + kesl + 's"') + '</circle>'; };
+    return pcMuhelyFal("pekseg") + '<g stroke="#5a4a7a" stroke-width="2.5" stroke-linejoin="round" filter="url(#lt-firka)">' +
+      /* díszlet: ablak, ajtó a malom felé */
+      '<rect x="300" y="50" width="140" height="110" rx="8" fill="#e9f4fb"/><path d="M370 50V160M300 105H440" stroke-width="2"/>' +
+      '<path d="M50 380V140Q50 110 80 110H150Q180 110 180 140V380" fill="#a8764f" opacity=".55"/>' +
+      /* az ajtó mellett a földön: liszteszsákok a malomból (4) */
+      '<g transform="translate(150 410)"><path d="M-100 0Q-108 -84 -72 -98Q-48 -106 -32 -90Q-16 -64 -20 0Z" fill="#f4ecdc"/><path d="M-16 0Q-22 -90 18 -102Q50 -108 62 -88Q78 -56 72 0Z" fill="#efe3cc"/><path d="M-70 -92Q-66 -180 -22 -190Q18 -198 28 -176Q44 -134 32 -96Q-12 -84 -70 -92Z" fill="#f7efe0"/><path d="M-36 -186q4 -14 14 -12M18 -100q6 -12 16 -8" stroke-width="2" fill="none"/><g fill="#fff" stroke="none" opacity=".7"><circle cx="-50" cy="-40" r="3"/><circle cx="20" cy="-50" r="3"/><circle cx="-10" cy="-140" r="3"/></g></g>' +
+      /* a pult: balra a mérleg a cipóval (1), jobbra hátrébb a sótartó (2) a tészta mellett */
+      '<path d="M250 270H600V380H250Z" fill="#d8b48a"/><path d="M240 262H610V276H240Z" fill="#c99a6a"/><path d="M250 320H600" stroke="#b5804a" stroke-width="2"/>' +
+      '<g transform="translate(330 262)"><path d="M-36 0h72l-10 -20h-52z" fill="#e9c9a0"/><path d="M0 -20V-50" stroke-width="4"/><path d="M-48 -50H48" stroke-width="4"/><path d="M-60 -50q14 18 28 0M32 -50q14 18 28 0" fill="#f2d5ae"/><ellipse cx="-46" cy="-58" rx="15" ry="9" fill="#e0a85e"/></g>' +
+      '<g transform="translate(470 258)"><ellipse cx="40" cy="-4" rx="40" ry="12" fill="#f7efe0"/><ellipse cx="40" cy="-12" rx="30" ry="12" fill="#f4e4c4"/></g>' +
+      '<g transform="translate(468 252)"><rect x="-14" y="-40" width="28" height="40" rx="8" fill="#fffaf0"/><path d="M-14 -40Q0 -58 14 -40" fill="#e9e3f3"/><g fill="#fff" stroke="#c9c3d8" stroke-width="1">' + pereg(24, 2.5, 0) + pereg(30, 2, .6) + pereg(20, 2, 1.2) + '</g></g>' +
+      /* fali polc jobbra fent: a mézesbödön (3) befőttesüvegek közt, méhek */
+      '<path d="M520 180H750" stroke="#8a6a4a" stroke-width="8"/><path d="M540 180l14 22M730 180l-14 22" stroke="#8a6a4a" stroke-width="5"/>' +
+      '<path d="M690 176v-34q0 -6 6 -6h28q6 0 6 6v34z" fill="#f6a5c0" opacity=".75"/><path d="M540 176v-26q0 -5 5 -5h22q5 0 5 5v26z" fill="#a7d99a" opacity=".75"/>' +
+      '<g transform="translate(630 176)"><path d="M-44 0Q-54 -74 0 -78Q54 -74 44 0Z" fill="#f2c14e"/><path d="M-36 -64H36" stroke="#9a6a3a" stroke-width="7"/><path d="M-30 -76Q-22 -54 -16 -66Q-10 -48 -4 -70" fill="#f7d47a" stroke="#c99a2a" stroke-width="2"/><path d="M-16 -34h32v20h-32z" fill="#fffaf0" stroke-width="2"/></g></g>' +
+      pcMeh(570, 86, "0 0;16 -10;30 0;16 10;0 0", "3s") + pcMeh(680, 92, "0 0;-12 -12;-20 4;0 0", "2.6s");
+  }, k: 1, tx: 0, ty: 0,
+  t: { "meres-pekseg-1": { hely: [262, 194, 136, 74],  ceger: [330, 300, .8], szo: "a mérleget" },
+       "meres-pekseg-2": { hely: [444, 196, 60, 62],   ceger: [500, 350, .8], szo: "a sótartót" },
+       "meres-pekseg-3": { hely: [574, 86, 112, 96],   ceger: [630, 222, .8], szo: "a mézesbödönt" },
+       "meres-pekseg-4": { hely: [44, 214, 180, 200],  ceger: [120, 426, .8], szo: "a zsákokat" } }
+};
 /* a tárgy-nézet rajza (800 × 460): a Piactér (pcValaszto) és a 3. kör közelképei (hely.js helyTargyNezet) közösen használják */
 function pcValasztoSvg(id, lista) {
   var D = PC_TARGY[id] || { kep: function () { return ""; }, k: 1, tx: 0, ty: 0, t: {} }, F = pcF, cs = lkCsokkent(), szavak = [], tobbi = 0;
@@ -25112,14 +25217,28 @@ function helyNevEger(M) {
 }
 
 /* ── RAJZ ── */
-function helyKepRajz(kep, hh, j) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) */
+function helyKepRajz(kep, hh, j, all) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) · all: a ház állapota (helyKepAllapot) */
   if (Array.isArray(kep)) return kep.map(function (k, i) { return '<g transform="translate(' + ((i - (kep.length - 1) / 2) * 52) + ' ' + (i === 1 ? -6 : 0) + ') scale(.66)">' + helyKepRajz(k) + '</g>'; }).join("");
   if (/^ph:/.test(kep)) {   /* 3. kör, ideiglenes (ma csak az Összeadó utca két háza): a mai Piactér háza, a gyerek haladása szerinti építési lépéssel (piacHazLepes) */
     var pa0 = hh && hh.cel.palyak && hh.cel.palyak[0];
     return phHaz(kep.slice(3), pa0 ? piacHazLepes(pa0) : 5, { all: (j && j.all) || "" }).svg;
   }
   if (HELY_KEP_IDEIGLENES[kep]) return HELY_KEP_IDEIGLENES[kep]();
+  if (hh && hh.cel.palyak && all && LT_JELKEP[kep]) return helyIdeiglenesHaz(kep, all);
   return LT_JELKEP[kep] ? LT_JELKEP[kep]() : "";
+}
+/* 4. kör, 1. kódkör: a Kézművesek műhelyei ideiglenesen a mai jelképből, az 5 állapottal (épül → tető → ajtó → kész → virágos).
+   A 2. kódkörben fájl lesz (<kep>-epul … -viragos), mint a téren. */
+function helyIdeiglenesHaz(kep, all) {
+  var s = LT_JELKEP[kep](), allvany = '<g stroke="#b5804a" stroke-width="2.6" stroke-linecap="round" opacity=".85"><path d="M-34 2V-62M34 2V-62M-38 -40H38M-38 -14H38M-34 -40L34 -14"/></g>';
+  var deszka = '<g stroke="#8a6a4a" stroke-width="3" stroke-linecap="round"><path d="M-10 -19L10 -5M-10 -5L10 -19"/></g>';
+  var virag = [-30, -20, 20, 30].map(function (x, i) { return ltRozsa(x, -3 - (i % 2) * 3, 3.4, ["#f7b8d0", "#fce49a", "#c9a8e6", "#f7b8d0"][i]); }).join("") +
+              '<path d="M-36 1Q-25 -6 -14 1M14 1Q25 -6 36 1" stroke="#6fae74" stroke-width="2.4" fill="none"/>';
+  if (all === "epul") return ltArnyek(40) + '<g opacity=".3">' + s + '</g>' + allvany;
+  if (all === "teto") return '<g opacity=".8">' + s + '</g>' + deszka + allvany;
+  if (all === "ajto") return s + '<path d="M30 2L40 -44M38 2L48 -44M32 -8L41 -8M34 -20L43 -20M37 -32L46 -32" stroke="#b5804a" stroke-width="2.4" stroke-linecap="round"/>';   /* még ott a létra */
+  if (all === "viragos") return s + virag;
+  return s;
 }
 var HELY_KEP_IDEIGLENES = {   /* a két új hely, amelynek ma nincs saját jelképe (a 2. körben mind fájl lesz) */
   osszeadoUtca: function () {
@@ -25256,11 +25375,55 @@ function helyHatter(M) {
 }
 /* IDEIGLENES hátterek (ma csak az Összeadó utca közelképe; a Nagyfa tér és a Domboldal 2026-11-24 óta fájl: kepek/ter/, kepek/domboldal/) */
 var HELY_HATTER_IDEIGLENES = {
+  kezmuvesek: function (w, h) {   /* 4. kör, 1. kódkör: a tervlap vázlata (nap, hegy, Domboldal Garas tornyával, Erdőszél, patak, macskaköves utca) */
+    var s = '', fenyo = function (x, y) { return '<path transform="translate(' + x + ' ' + y + ')" d="M0 0L-24 0L-7 -28L-19 -28L0 -64L19 -28L7 -28L24 0Z" fill="#6fa883" stroke="#4a6a5a" stroke-width="2"/>'; };
+    var bokor = function (x, y) { return '<g transform="translate(' + x + ' ' + y + ')"><ellipse cy="-14" rx="30" ry="20" fill="#8cc47f" stroke="#5a4a7a" stroke-width="2"/><ellipse cx="-12" cy="-22" rx="13" ry="9" fill="#a9db9b"/></g>'; };
+    s += '<rect x="-600" y="-200" width="2800" height="600" fill="#fdf1e2"/><rect x="-600" y="-200" width="2800" height="300" fill="#cde6f6"/><rect x="-600" y="0" width="2800" height="' + (h * .45) + '" fill="url(#lt-gEgA)" opacity=".6"/>';
+    s += '<circle cx="170" cy="90" r="150" fill="url(#lt-gNap)"/><circle cx="170" cy="90" r="42" fill="#fff3c4"/>';
+    s += '<g fill="#fff" opacity=".9"><ellipse cx="520" cy="80" rx="100" ry="26"><animateTransform attributeName="transform" type="translate" values="0 0;70 0;0 0" dur="62s" repeatCount="indefinite"/></ellipse>' +
+         '<ellipse cx="1240" cy="60" rx="120" ry="28"><animateTransform attributeName="transform" type="translate" values="0 0;-60 0;0 0" dur="75s" repeatCount="indefinite"/></ellipse></g>';
+    s += '<path d="M1060 300L1250 110L1340 180L1460 60L1700 200L2200 260V380H1060Z" fill="#ddd6ee" stroke="#bdb3d8" stroke-width="2"/><path d="M1432 88L1460 60L1490 92L1472 86L1460 98L1446 86Z" fill="#fff"/>';
+    s += '<path d="M760 370Q960 240 1180 220Q1400 200 1640 150Q1900 120 2200 160V390H760Z" fill="#f4e4a8" stroke="#d6bd6a" stroke-width="2" opacity=".9"/>';
+    s += '<g opacity=".8" transform="translate(1290 212)"><rect x="-9" y="-46" width="18" height="46" fill="#e2d6c2" stroke="#6e5a4a" stroke-width="2"/><path d="M-14 -46L0 -70L14 -46Z" fill="#c96a4a"/></g>';
+    s += '<path d="M-600 330Q-300 300 0 340V400H-600Z" fill="#d8eec8"/>' + [[-420, 390], [-300, 370], [-180, 400], [-60, 380], [40, 400], [95, 380], [150, 410], [20, 460]].map(function (q) { return fenyo(q[0], q[1]); }).join("");
+    s += '<rect x="-600" y="360" width="2800" height="900" fill="#cfe9c2"/>';
+    /* a patak: hátul balról jön, elöl balra kifolyik (nem járható) */
+    s += '<path d="M345 352Q318 440 292 520Q262 620 205 720Q150 820 96 920L60 1100L-120 1100L-60 920Q20 810 92 712Q160 610 196 520Q226 440 262 352Z" fill="#a9d6ef" stroke="#7fb3d6" stroke-width="3"/>';
+    s += '<g stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"><path d="M286 430q-8 30 -18 50" stroke-dasharray="14 40">' + ltAnim("stroke-dashoffset", "0;-108", "2.4s") + '</path>' +
+         '<path d="M180 700q-20 40 -44 70" stroke-dasharray="16 44">' + ltAnim("stroke-dashoffset", "0;-120", "2.2s") + '</path><path d="M110 820q-16 30 -34 54" stroke-dasharray="12 40">' + ltAnim("stroke-dashoffset", "0;-104", "2s") + '</path></g>';
+    /* macskaköves utca: jobbról (az Utca, a Nagyfa tér felől) a malomig, a kapu lent */
+    s += '<g stroke-linecap="round" fill="none" filter="url(#lt-firka)"><path d="M2200 900Q1640 870 1360 840Q1180 790 960 720Q780 690 600 664Q470 650 470 650" stroke="#efe0c4" stroke-width="96"/><path d="M1120 1100Q1150 860 1180 790" stroke="#efe0c4" stroke-width="70"/></g>';
+    s += '<g fill="#e2cfaa" opacity=".85">' + [[560, 650], [700, 690], [860, 700], [1010, 740], [1160, 800], [1330, 840], [1480, 860], [640, 680], [1150, 900]].map(function (q) { return '<ellipse cx="' + q[0] + '" cy="' + q[1] + '" rx="12" ry="5"/>'; }).join("") + '</g>';
+    s += [[470, 760], [1570, 880], [800, 890], [1130, 640], [800, 610], [1750, 760], [-200, 800]].map(function (q) { return bokor(q[0], q[1]); }).join("");
+    return s;
+  },
   utca: function (w, h) {
     var s = '', F = function (n) { return n.toFixed(1); };
     s += '<path d="M' + F(-w) + ' ' + F(h * .58) + 'Q' + F(w * .5) + ' ' + F(h * .50) + ' ' + F(w * 2) + ' ' + F(h * .58) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
     [[.08, "#d99a8a"], [.40, "#e3b48c"], [.66, "#c9a8e6"], [.94, "#f5c4b3"]].forEach(function (q) { var x = w * q[0], y = h * .56; s += '<path d="M' + F(x - 60) + ' ' + F(y) + 'L' + F(x) + ' ' + F(y - 50) + 'L' + F(x + 60) + ' ' + F(y) + 'Z" fill="' + q[1] + '" stroke="#9a7a6a" stroke-width="2" opacity=".7"/>'; });
     return s;
+  }
+};
+/* 4. kör (Kézművesek), ideiglenes díszlet-rajzok — talppont 0,0 (a tábla x, y); a 2. kódkörben fájl */
+var HELY_DISZLET_IDEIGLENES = {
+  malom: function () {   /* a kerék a patakban forog (koppintásra gyorsabban: style.css .hely-malomkerek) */
+    return '<g transform="translate(35 -70)" filter="url(#lt-firka)"><ellipse cx="20" cy="6" rx="110" ry="14" fill="#3c2a50" opacity=".12"/>' +
+      '<path d="M-90 0V-110H90V0Z" fill="#e6dccb" stroke="#5a4a7a" stroke-width="2.5"/><path d="M-90 -36H90M-90 -72H90M-40 0V-36M30 -36V-72M-10 -72V-110" stroke="#b5a68e" stroke-width="2"/>' +
+      '<path d="M-80 -110V-180H80V-110Z" fill="#e9c9a0" stroke="#5a4a7a" stroke-width="2.5"/><path d="M-50 -110V-180M-20 -110V-180M10 -110V-180M40 -110V-180" stroke="#b88a5a" stroke-width="2"/>' +
+      '<path d="M-100 -176L0 -250L100 -176Z" fill="#c98b5e" stroke="#5a4a7a" stroke-width="2.5"/><rect x="-18" y="-60" width="36" height="60" rx="16" fill="#8a5a3a" stroke="#5a4a7a" stroke-width="2"/>' +
+      '<rect x="30" y="-160" width="30" height="30" fill="#e9f4fb" stroke="#5a4a7a" stroke-width="2"/><path d="M-6 -232h12v-14h-12z" fill="#fffaf0" stroke="#5a4a7a" stroke-width="1.5"/></g>' +
+      '<g transform="translate(-65 -90)"><g class="hely-malomkerek"><circle r="66" fill="none" stroke="#8a6a4a" stroke-width="7"/><circle r="50" fill="none" stroke="#b98a64" stroke-width="3"/>' +
+      '<path d="M-66 0H66M0 -66V66M-47 -47L47 47M-47 47L47 -47" stroke="#8a6a4a" stroke-width="4"/><g fill="#b98a64" stroke="#8a6a4a" stroke-width="2"><rect x="58" y="-8" width="16" height="16"/><rect x="-74" y="-8" width="16" height="16"/><rect x="-8" y="58" width="16" height="16"/><rect x="-8" y="-74" width="16" height="16"/></g><circle r="9" fill="#b98a64"/></g></g>' +
+      '<g fill="#fff" opacity=".85"><circle cx="-103" cy="-28" r="6">' + ltAnim("opacity", "0;1;0", "1.6s") + '</circle><circle cx="-75" cy="-20" r="5">' + ltAnim("opacity", "1;0;1", "1.3s") + '</circle><circle cx="-120" cy="-12" r="4">' + ltAnim("opacity", "0;1;0", "1.9s") + '</circle></g>';
+  },
+  macska: function () {
+    return '<path d="M-10 0Q-12 -14 0 -14Q12 -14 10 0Z" fill="#9a8ab0" stroke="#5a4a7a" stroke-width="1.5"/><path d="M-6 -14l-2 -6l5 3M6 -14l2 -6l-5 3" fill="#9a8ab0" stroke="#5a4a7a" stroke-width="1.5"/>' +
+      '<path d="M10 -2q12 0 10 12" stroke="#9a8ab0" stroke-width="3" fill="none">' + ltAnim("d", "M10 -2q12 0 10 12;M10 -2q14 -6 14 8;M10 -2q12 0 10 12", "2.2s") + '</path>';
+  },
+  kotel: function () {   /* ruhaszárító kötél a szabóműhely mögött; az anyagok lengenek */
+    var lap = function (x, y, w, h, c, v, dur) { return '<path d="M' + x + ' ' + y + 'h' + w + 'v' + h + 'h' + (-w) + 'z" fill="' + c + '" stroke="#5a4a7a" stroke-width="1.5"><animateTransform attributeName="transform" type="skewX" values="' + v + '" dur="' + dur + '" repeatCount="indefinite"/></path>'; };
+    return '<path d="M-110 -74V130M126 -76V130" stroke="#8a6a4a" stroke-width="6"/><path d="M-110 -72Q10 -42 126 -72" stroke="#6e4a36" stroke-width="1.8" fill="none"/>' +
+      lap(-74, -62, 34, 40, "#8fd3e0", "0;6;0;-4;0", "4s") + lap(-6, -52, 30, 46, "#fce49a", "0;-5;0;5;0", "4.6s") + lap(60, -58, 26, 34, "#c9a8e6", "0;5;0;-5;0", "3.8s");
   }
 };
 function helyUtakRajz(M) {
@@ -25270,7 +25433,7 @@ function helyUtakRajz(M) {
 }
 function helyDiszletRajz(M, elol) {
   var H = M.H, w = H.kep.w, h = H.kep.h, fajl = !!H.kep.mappa;
-  return (H.diszlet || []).filter(function (d) { return !fajl || !d.elol === !elol; }).map(function (d) {
+  return (H.diszlet || []).filter(function (d) { return !d.elol === !elol; }).map(function (d) {   /* elol: az unikornis és a házak fölött (a pékség párkányán ülő macska) */
     var x = d.x * w, y = d.y * h, b = '';
     if (fajl) {   /* a rajz a rétegekben / saját fájlban van; itt csak a felirat (betű) és a mozduló rész */
       if (d.kep) b = '<g transform="translate(' + (-x).toFixed(1) + ' ' + (-y).toFixed(1) + ')">' + helyKepElem(H, d.kep, d.doboz) + '</g>';
@@ -25285,6 +25448,7 @@ function helyDiszletRajz(M, elol) {
                                '<path d="M-52 0V-80M52 0V-80M-52 -52H52M-52 -24L52 -80" stroke="#b5804a" stroke-width="5" opacity=".6"/><ellipse cy="-40" rx="80" ry="26" fill="#fff" opacity=".45"/>';
     else if (d.id === "kecske") b = '<g class="hely-madarak"><ellipse cy="-18" rx="24" ry="14" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/><circle cx="24" cy="-28" r="9" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/>' +
                                 '<path d="M-14 -6v12M12 -6v12M22 -36l-4 -8M28 -36l3 -8" stroke="#8a7a6e" stroke-width="3" stroke-linecap="round"/></g>';
+    else if (HELY_DISZLET_IDEIGLENES[d.id]) b = HELY_DISZLET_IDEIGLENES[d.id]();
     else if (d.id === "madarak") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 9) + ' ' + q[1] + 'q5 -6 9 0q4 -6 9 0" fill="none" stroke="#6b6280" stroke-width="2.4" stroke-linecap="round"/>'; }).join("") + '</g>';
     return '<g class="hely-diszlet" data-id="' + d.id + '" transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
            '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g>';
@@ -25314,7 +25478,7 @@ function helyRajzol(host, o) {
       '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + rk + ')">' +
       '<rect x="' + (-bw / 2).toFixed(1) + '" y="' + (-bh).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (bh + 10).toFixed(1) + '" fill="transparent"/>' +
       (j.ny === "vil" ? ltNyHalo(HELY_MAGAS) : "") +
-      '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '">' + helyKepRajz(hh.kep, hh, j) + '</g>' + (kod ? ltNyKod(HELY_MAGAS) : "") + '</g></g>';
+      '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '">' + helyKepRajz(hh.kep, hh, j, helyKepAllapot(hh, j, rejt)) + '</g>' + (kod ? ltNyKod(HELY_MAGAS) : "") + '</g></g>';
   }).join("");
   var jelek = sor.map(function (hh) { return helyJelRajz(M.jel[hh.id], hh.jel[0] * w, hh.jel[1] * h, k * .9); }).join("");
   host.innerHTML =
@@ -25325,7 +25489,7 @@ function helyRajzol(host, o) {
       helyDiszletRajz(M) + helyek + (fajl ? '<g class="hely-mozgo-felso"></g>' : jelek) +
       '<g class="terkep-uni" pointer-events="none"><g class="terkep-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' +
         unikornisSVG("hl-uni", LENYEK[mentes.leny], H.uni, P().oltozet) + '</g></g>' +
-      (fajl ? (H.eloter ? helyKepElem(H, H.eloter, helyKifestve(H), "hely-reteg") : "") + helyDiszletRajz(M, true) + jelek : '') +
+      (fajl ? (H.eloter ? helyKepElem(H, H.eloter, helyKifestve(H), "hely-reteg") : "") + helyDiszletRajz(M, true) + jelek : helyDiszletRajz(M, true)) +
     '</svg>' +
     '<div class="hely-nevtabla" aria-live="polite"></div>' +
     '<div class="hely-sarok hely-bal"></div>' +

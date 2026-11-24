@@ -69,13 +69,15 @@ function mkUni(x, y, s, tukor) {
 }
 
 /* ── közös műhely-belső (800×420) + pult + beszédbuborék ── */
+/* a műhelyek fal- és padlószíne — a Kézművesek tárgy-nézete is ezt veszi át (piac.js PC_TARGY), így a belépés folytonos */
+var MK_FAL = {
+  szabo:   { fal1: "#fdeef4", fal2: "#f6e0ea", csik: "rgba(236,180,206,.28)", padlo: "#ead0b8", padlo2: "#dcbc9c" },
+  bajital: { fal1: "#eee8f8", fal2: "#e2eef2", csik: "rgba(170,150,210,.18)", padlo: "#d6cfe4", padlo2: "#c5bcd8" },
+  pekseg:  { fal1: "#fff4de", fal2: "#fbe6c4", csik: "rgba(230,180,110,.16)", padlo: "#efc9a3", padlo2: "#e2b58a" },
+  lepcso:  { fal1: "#eef3fd", fal2: "#f3ecfb", csik: "rgba(180,170,230,.14)", padlo: "#dfe8d0", padlo2: "#cfdcbd" }
+};
 function mkBelso(tipus) {
-  var T = {
-    szabo:   { fal1: "#fdeef4", fal2: "#f6e0ea", csik: "rgba(236,180,206,.28)", padlo: "#ead0b8", padlo2: "#dcbc9c" },
-    bajital: { fal1: "#eee8f8", fal2: "#e2eef2", csik: "rgba(170,150,210,.18)", padlo: "#d6cfe4", padlo2: "#c5bcd8" },
-    pekseg:  { fal1: "#fff4de", fal2: "#fbe6c4", csik: "rgba(230,180,110,.16)", padlo: "#efc9a3", padlo2: "#e2b58a" },
-    lepcso:  { fal1: "#eef3fd", fal2: "#f3ecfb", csik: "rgba(180,170,230,.14)", padlo: "#dfe8d0", padlo2: "#cfdcbd" }
-  }[tipus];
+  var T = MK_FAL[tipus];
   var cs = ""; for (var x = 20; x < 800; x += 44) cs += '<rect x="' + x + '" y="0" width="5" height="360" fill="' + T.csik + '"/>';
   return '<defs><linearGradient id="mk-fal-' + tipus + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + T.fal1 + '"/><stop offset="1" stop-color="' + T.fal2 + '"/></linearGradient></defs>' +
     '<rect width="800" height="420" fill="url(#mk-fal-' + tipus + ')"/>' + cs +
