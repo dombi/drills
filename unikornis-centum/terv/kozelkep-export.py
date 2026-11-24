@@ -1311,10 +1311,254 @@ def taj_kezmuvesek():
     return {"kezmuvesek (táj)": vb}
 
 
+# ══════════════════ A NAGYFA TÉR ÉS A DOMBOLDAL TÁJ-KÉPE (a világtérképen; 3. kör kiegészítés, 2026-11-24) ══════════════════
+# Mint a Kézműveseké: a közelkép kicsinyített, felismerhető mása a táj 1600×900-as rendszerében, ugyanazokkal a színekkel.
+# Helyi koordináták: 0,0 = a ház talppontja; a vonalvastagság a táj mértéke (nem kicsinyítjük a közelkép vonalát).
+def fodor(x0, x1, y, n, fill, stroke, sw=.8, mely=.55):
+    """lefelé ívelő fodor (előtető-szél): n ív x0..x1 között"""
+    lep = (x1 - x0) / n
+    return '<path d="M%s,%s %s Z" fill="%s" stroke="%s" stroke-width="%s"/>' % (
+        f(x0), f(y), " ".join("q%s,%s %s,0" % (f(lep / 2), f(lep * mely * 2), f(lep)) for _ in range(n)), fill, stroke, sw)
+
+def taj_allv(r):
+    x0, y0, x1, y1 = r
+    return ('<g filter="url(#firka)" stroke="#7a5a3e" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M%s,%s V%s M%s,%s V%s"/>'
+            '<path d="M%s,%s H%s M%s,%s H%s" stroke="#c9a27a" stroke-width="3.4"/></g>') % (
+        f(x0 - 2), f(y1), f(y0 - 4), f(x1 + 2), f(y1), f(y0 - 4), f(x0 - 5), f(y1 - (y1 - y0) * .35), f(x1 + 5), f(x0 - 5), f(y1 - (y1 - y0) * .7), f(x1 + 5))
+
+def taj_csillam(pontok):
+    return "".join(('<path transform="translate(%s,%s)" d="M0,-5 L1.2,-1.2 L5,0 L1.2,1.2 L0,5 L-1.2,1.2 L-5,0 L-1.2,-1.2Z" fill="#fff6c2" stroke="#e3a92a" stroke-width=".8" opacity="0">'
+                     '<animate attributeName="opacity" values="0;1;0" dur="%ss" begin="%ss" repeatCount="indefinite"/></path>') % (f(x), f(y), f(2.6 + i * .7), f(i * .9))
+                    for i, (x, y) in enumerate(pontok))
+
+def taj_viragsor(rnd, x0, x1, y, lep=6):
+    s, x = "", x0
+    while x < x1:
+        s += '<circle cx="%s" cy="%s" r="%s" fill="%s" stroke="none"/>' % (f(x + rnd() * 3), f(y + rnd() * 3), f(1.8 + rnd() * 1.2), VSZ[int(rnd() * 5)])
+        x += lep
+    return s
+
+def rk(x, y, s):
+    return '<g transform="translate(%s %s)">%s</g>' % (f(x), f(y), s)
+
+def lengo(s, x, y, fok_, dur):   # ide-oda billen a (x, y) pont körül
+    return '<g>%s<animateTransform attributeName="transform" type="rotate" values="%s %s %s;%s %s %s;%s %s %s" dur="%ss" repeatCount="indefinite"/></g>' % (
+        s, -fok_, f(x), f(y), fok_, f(x), f(y), -fok_, f(x), f(y), dur)
+
+def zaszlo(x, y, h, w, dur, c="#fce49a", cs="#d1a23a"):
+    return ('<g transform="translate(%s %s)"><path d="M0,0 V%s" stroke="#6e4a36" stroke-width="1.2"/><path d="M0,%s l%s,%s l%s,%s Z" fill="%s" stroke="%s" stroke-width=".8">'
+            '<animateTransform attributeName="transform" type="skewY" values="0;-7;0" dur="%ss" repeatCount="indefinite"/></path></g>') % (
+        f(x), f(y - h), f(h), f(0), f(w), f(w * .24), f(-w), f(w * .32), c, cs, dur)
+
+
+# ── Nagyfa tér ──
+def t_bolt():   # 🦔 Tüske néni boltja: sárga fal, terrakotta tető, piros-fehér csíkos előtető, cégér, almás láda
+    ab = lambda x: ('<rect x="%s" y="-17" width="2" height="7.5" rx=".6" fill="#8fc0a8" stroke-width=".6"/><rect x="%s" y="-17" width="8" height="7" fill="#cfe2f2" stroke-width=".9"/>'
+                    '<rect x="%s" y="-17" width="2" height="7.5" rx=".6" fill="#8fc0a8" stroke-width=".6"/>') % (f(x - 2.4), f(x), f(x + 8.4))
+    return ('<path d="M11,-30 V-41 H16 V-33" fill="#c98f6e"/><path d="M10,-42.5 h7 v2 h-7 z" fill="#a8705a" stroke-width=".8"/>'
+            '<path d="M-20,0 V-24 H20 V0 Z" fill="url(#falTb)"/><path d="M9,-24 H20 V0 H9 Z" fill="#3c2f5e" opacity=".07" stroke="none"/>'
+            '<path d="M-24.5,-23 L0,-40.5 L24.5,-23 Q0,-21.4 -24.5,-23 Z" fill="#d27a5a"/><path d="M-13,-29.5 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0" fill="none" stroke="#a8503a" stroke-width=".7"/>'
+            '<path d="M-21.5,-38 L0,-39.5 L-3,-34 L-18.5,-24 Z" fill="#fff" opacity=".18" stroke="none"/>'
+            '<rect x="-8.5" y="-34" width="17" height="5.4" rx="1.2" fill="#fffaf0" stroke-width=".8"/><g stroke="none"><circle cx="-4.6" cy="-31.3" r="1.3" fill="#e8505b"/><circle cx="0" cy="-31.3" r="1.2" fill="#f6a5c0"/><circle cx="4.6" cy="-31.3" r="1.3" fill="#a7d99a"/></g>'
+            '<path d="M-21.5,-23 H21.5 L20,-20 H-20 Z" fill="url(#csikT)" stroke-width=".9"/>' + fodor(-20, 20, -20, 10, "#fff6ee", "#a83a44", .7, .45) +
+            '<path d="M-5.2,0 V-10 Q0,-14 5.2,-10 V0 Z" fill="#b07a52" stroke-width="1"/><circle cx="3" cy="-6" r=".8" fill="#f2c14e" stroke="none"/>' + ab(-15.6) + ab(7.6) +
+            '<path d="M-27.5,0 Q-28.2,-4 -27,-6.5 H-21.6 Q-20.8,-4 -21.6,0 Z" fill="#c99a6a" stroke-width=".9"/>'
+            '<g stroke="none"><circle cx="-26" cy="-7.6" r="1.6" fill="#e8505b"/><circle cx="-23" cy="-7.8" r="1.6" fill="#f4a38c"/><circle cx="-24.4" cy="-9.4" r="1.4" fill="#e8505b"/></g>')
+
+def t_sator():   # 🧺 a Tündérvásár piros-fehér csúcsos sátra: kosár és dobozok előtte
+    return ('<path d="M-23,0 V-21 M23,0 V-21" stroke="#8a5a3a" stroke-width="1.6"/>'
+            '<path d="M-24,0 L-22,-22 L0,-38 L22,-22 L24,0 Q0,1 -24,0 Z" fill="url(#csikT)"/>'
+            '<path d="M0,-38 L22,-22 L24,0 Q14,.6 8,0 Z" fill="#3c2f5e" opacity=".08" stroke="none"/><path d="M-20.5,-22.6 L0,-37 L-6,-30 L-19,-22 Z" fill="#fff" opacity=".2" stroke="none"/>'
+            + fodor(-22, 22, -22, 10, "#fff6ee", "#a83a44", .7, .5) +
+            '<path d="M-9,0 Q-8.4,-14 0,-20.4 Q8.4,-14 9,0 Z" fill="#6e4458"/>'
+            '<rect x="-6.4" y="-5.6" width="12.8" height="5.6" fill="#e9c9a0" stroke-width=".8"/><g stroke="none"><circle cx="-3.2" cy="-6.6" r="1.1" fill="#fce49a"/><circle cx="-.8" cy="-6.8" r="1.1" fill="#f6a5c0"/><circle cx="2" cy="-6.6" r="1.1" fill="#9ec9f0"/></g>'
+            '<path d="M-9,0 Q-8.4,-14 0,-20.4 Q-4.4,-12.4 -6,0 Z M9,0 Q8.4,-14 0,-20.4 Q4.4,-12.4 6,0 Z" fill="url(#csikT)" stroke-width=".7"/>'
+            '<circle cx="0" cy="-38.6" r="1.3" fill="#fce49a" stroke-width=".7"/>'
+            '<path d="M-31,0 Q-32,-6.6 -26,-7 Q-20,-6.6 -21,0 Z" fill="#e8b27a" stroke-width=".9"/><path d="M-30.6,-2.6 H-21.4" stroke="#b5804a" stroke-width=".6"/>'
+            '<g stroke="none"><circle cx="-28.2" cy="-7.8" r="1.7" fill="#e8505b"/><circle cx="-25" cy="-8.4" r="1.7" fill="#fce49a"/><circle cx="-22.4" cy="-7.4" r="1.5" fill="#a7d99a"/></g>'
+            '<rect x="22.6" y="-6" width="7" height="6" fill="#e9c9a0" stroke-width=".9"/><rect x="24.4" y="-11.2" width="6.4" height="5.2" fill="#f2d5ae" stroke-width=".9"/><path d="M27.6,-11.2 v5.2" stroke="#e8505b" stroke-width=".9"/>')
+
+def t_zsib():   # 🦊 Zsivány standja: piros ponyva, kacatpolc, kassza, róka-cégér (a farok az élő rétegben)
+    return ('<path d="M-23,0 V-26 H23 V0 Z" fill="#e8cfa6"/><path d="M-15,-26 V0 M-7,-26 V0 M1,-26 V0 M9,-26 V0 M17,-26 V0" stroke="#cdae84" stroke-width=".8"/>'
+            '<path d="M-24,0 V-27 M24,0 V-27" stroke="#8a5a3a" stroke-width="2"/>'
+            '<rect x="-20" y="-19" width="22" height="18" fill="#d8b48a" stroke-width=".9"/><path d="M-20,-13 H2 M-20,-7 H2" stroke-width=".8"/>'
+            '<g stroke-width=".6"><circle cx="-16" cy="-15.6" r="1.8" fill="#9ec9f0"/><path d="M-11.4,-13.4 l2,-3.6 l2,3.6z" fill="#fce49a"/><rect x="-4.4" y="-17.2" width="4" height="3.6" fill="#c9a8e6"/>'
+            '<circle cx="-14" cy="-9.4" r="1.7" fill="#f6a5c0"/><rect x="-7" y="-10.6" width="3.4" height="3.4" rx=".6" fill="#a7d99a"/><circle cx="-11" cy="-3.6" r="1.5" fill="#f4a38c"/><path d="M-5,-1.6 l1.6,-3.2 l1.6,3.2z" fill="#9ec9f0"/></g>'
+            '<rect x="6" y="-10" width="15" height="10" rx="1" fill="#c99a6a" stroke-width=".9"/><rect x="8" y="-15.4" width="10.4" height="5.4" rx="1" fill="#fffaf0" stroke-width=".8"/>'
+            '<circle cx="11" cy="-12.7" r=".9" fill="#c9862a" stroke="none"/><circle cx="14" cy="-12.7" r=".9" fill="#c9862a" stroke="none"/><circle cx="17.4" cy="-9.2" r="1.5" fill="#fce49a" stroke="#d1a23a" stroke-width=".6"/>'
+            '<path d="M-28.4,-26 L-22,-34.4 H22 L28.4,-26 Z" fill="#e8505b"/>'
+            '<path d="M-22,-34.4 L-24.8,-26 M-13.2,-34.4 L-14.8,-26 M-4.4,-34.4 L-4.8,-26 M4.4,-34.4 L4.8,-26 M13.2,-34.4 L14.8,-26 M22,-34.4 L24.8,-26" stroke="#fff6ee" stroke-width="1.5" opacity=".85"/>'
+            + fodor(-28.4, 28.4, -26, 14, "#fff6ee", "#a83a44", .7, .45) +
+            '<rect x="-7" y="-41.4" width="14" height="6" rx="1.4" fill="#fffaf0" stroke-width=".8"/>'
+            '<path d="M-2.4,-36.4 L-3.2,-39.8 L-1.2,-38.6 L0,-39.4 L1.2,-38.6 L3.2,-39.8 L2.4,-36.4 Q0,-35 -2.4,-36.4 Z" fill="#e8913a" stroke-width=".5"/>')
+
+def t_szalag():   # 🎀 Szalagműhely: égszínkék ház, kerek ablak, masni, orsós oszlop (a szalagok az élő rétegben)
+    ab = lambda x: '<rect x="%s" y="-17.4" width="8" height="6" fill="#d6e6f6" stroke-width=".9"/><path d="M%s,-11.4 h9.2 v-1.1 h-9.2 z" fill="#b8c6e0" stroke-width=".5"/>' % (f(x), f(x - .6))
+    return ('<path d="M-19,0 V-24 H19 V0 Z" fill="url(#falTsz)"/><path d="M9,-24 H19 V0 H9 Z" fill="#3c2f5e" opacity=".07" stroke="none"/>'
+            '<path d="M-23,-23 L0,-39.6 L23,-23 Q0,-21.4 -23,-23 Z" fill="#9fb8e0"/><path d="M-11,-29.6 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0 q1.4,1 2.8,0" fill="none" stroke="#6f86b8" stroke-width=".7"/>'
+            '<circle cx="0" cy="-31" r="3" fill="#d6e6f6" stroke-width=".8"/><path d="M0,-34 V-28 M-3,-31 H3" stroke-width=".5"/>'
+            '<path d="M-4.6,0 V-10 Q0,-14 4.6,-10 V0 Z" fill="#a8764f" stroke-width="1"/>' + ab(-15.6) + ab(7.6) +
+            '<path d="M-19,-21 Q-9.6,-18.2 0,-21 Q9.6,-18.2 19,-21" fill="none" stroke="#8a6a52" stroke-width=".7"/>'
+            '<path transform="translate(0 -17.4)" d="M0,0 Q-3,-2.2 -3.4,0 Q-3,2.2 0,0 Q3,-2.2 3.4,0 Q3,2.2 0,0 Z" fill="#f6a5c0" stroke="#e0417a" stroke-width=".6"/>'
+            '<rect x="22.6" y="-12" width="2.6" height="12" fill="#d8b48a" stroke-width=".7"/><ellipse cx="23.9" cy="-12.6" rx="4" ry="1.7" fill="#f6a5c0" stroke-width=".7"/>')
+
+def t_szalagok(x, y):   # a homlokzaton lengő szalagok (élő)
+    s = ""
+    for dx, L, c, dur, k in ((-14, 7, "#f6a5c0", 2.4, 1.4), (-9.4, 9, "#fce49a", 3.1, -1.2), (-4.6, 6, "#9ec9f0", 2.7, 1.2),
+                             (5, 6.6, "#c9a8e6", 2.9, -1.2), (9.6, 8.6, "#a7d99a", 2.5, 1.4), (14, 7, "#f4a38c", 2.8, -1.4)):
+        x0, y0 = x + dx, y - 19.6 + abs(dx) * .03
+        s += ('<path d="M%s,%s v%s" stroke="%s" stroke-width="1.5" stroke-linecap="round" fill="none"><animate attributeName="d" values="M%s,%s v%s;M%s,%s q%s,%s 0,%s;M%s,%s v%s" dur="%ss" repeatCount="indefinite"/></path>') % (
+            f(x0), f(y0), f(L), c, f(x0), f(y0), f(L), f(x0), f(y0), f(k), f(L / 2), f(L), f(x0), f(y0), f(L), dur)
+    return s
+
+def t_nagyfa(ox, oy, s, rr):
+    """a közelkép nagyfája kicsinyítve (talppont: ox, oy); vissza: (törzs + pad, lombkorona)"""
+    T = lambda x, y: "%s,%s" % (f(ox + (x - 800) * s), f(oy + (y - 630) * s))
+    torzs = ('<path d="M%s Q%s %s L%s Q%s %s Z" fill="#a8764f" stroke-width="1.3"/>' % (T(768, 624), T(780, 520), T(788, 430), T(816, 430), T(824, 520), T(834, 624)) +
+             '<path d="M%s Q%s %s M%s Q%s %s M%s Q%s %s" stroke="#8a5a3a" stroke-width="%s" fill="none"/>' % (
+                 T(800, 480), T(740, 430), T(680, 400), T(806, 460), T(870, 420), T(930, 384), T(796, 450), T(770, 380), T(760, 330), f(13 * s)) +
+             '<path d="M%s Q%s %s" stroke="#7f5a3e" stroke-width=".7" fill="none"/>' % (T(790, 600), T(794, 540), T(796, 470)) +
+             '<path d="M%s h%s v%s h%s z" fill="#c99a6a" stroke-width="1"/><path d="M%s v%s M%s v%s" stroke="#6e4a36" stroke-width="1.3"/>' % (
+                 T(712, 642), f(176 * s), f(12 * s), f(-176 * s), T(722, 654), f(14 * s), T(878, 654), f(14 * s)))
+    TX = lambda x: ox + (x - 800) * s
+    TY = lambda y: oy + (y - 630) * s
+    korona = ""
+    for cx, cy, rx, ry, c in ((690, 350, 130, 96, "#7fb877"), (910, 340, 140, 100, "#7fb877"), (800, 270, 170, 110, "#8cc685"),
+                              (700, 300, 110, 80, "#9fd19a"), (900, 290, 120, 84, "#9fd19a"), (800, 230, 120, 76, "#a7d99a")):
+        korona += '<path d="%s" fill="%s" stroke="#4f8a52" stroke-width="1.3" stroke-linejoin="round"/>' % (pamacs(TX(cx), TY(cy), rx * s, ry * s, 11, rr), c)
+    korona += '<g fill="#c4e7a8" opacity=".75" stroke="none">' + ''.join('<path d="%s"/>' % pamacs(TX(x), TY(y), a * s, b * s, 7, rr, 1.15)
+                                                                       for x, y, a, b in ((740, 208, 34, 16), (870, 250, 30, 14), (640, 300, 24, 12), (950, 300, 22, 11))) + '</g>'
+    korona += ''.join('<circle cx="%s" cy="%s" r="1.5" fill="%s" stroke="#b5607e" stroke-width=".5"/>' % (f(TX(x)), f(TY(y)), c) for x, y, c in (
+        (700, 260, "#f6a5c0"), (760, 320, "#fff"), (860, 220, "#f6a5c0"), (930, 330, "#fff"), (650, 360, "#f6a5c0"), (820, 380, "#fff"), (960, 260, "#f6a5c0"), (740, 190, "#fff")))
+    return torzs, lengo(korona, TX(800), TY(440), 1.2, 7)
+
+TAJ_TER_DOBOZ = (700, 560, 246, 182)
+def taj_ter():
+    rr = Rnd(905)
+    terko = ('<ellipse cx="822" cy="716" rx="112" ry="20" fill="#d9c69e" stroke="none"/><ellipse cx="822" cy="714" rx="109" ry="18" fill="#efe0bd" stroke="#d8bf8e" stroke-width="1.6"/>'
+             '<ellipse cx="808" cy="709" rx="70" ry="9" fill="#fff8e6" opacity=".4" stroke="none"/>')
+    rk_ = Rnd(31)
+    for i in range(26):
+        x, y = 722 + rk_() * 200, 700 + rk_() * 28
+        if ((x - 822) / 104) ** 2 + ((y - 714) / 15) ** 2 < 1:
+            terko += '<ellipse cx="%s" cy="%s" rx="%s" ry="1.2" fill="%s" stroke="#d3bc90" stroke-width=".5"/>' % (f(x), f(y), f(2.4 + rk_() * 1.4), ["#efdfbe", "#e9d6b0", "#f4e7ca"][int(rk_() * 3)])
+    torzs, korona = t_nagyfa(822, 702, .26, rr)
+    HATSO = ((776, 696, t_bolt(), (752, 656, 800, 696)), (870, 696, t_sator(), (846, 658, 894, 696)))
+    ELSO = ((744, 724, t_zsib(), (716, 690, 772, 724)), (902, 724, t_szalag(), (883, 685, 921, 724)))
+    arny = "".join(arnyek(x, y + 1, 26, 3.4, .1) for x, y, _, _ in HATSO + ELSO)
+    g = lambda s: '<g filter="url(#firka)" stroke="%s" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (INK, s)
+    alap = (terko + arny + g("".join(rk(x, y, s) for x, y, s, _ in HATSO)) + arnyek(822, 703, 34, 4, .12) + g(torzs) + g(korona) +
+            g("".join(rk(x, y, s) for x, y, s, _ in ELSO)))
+    farok = ('<g stroke="#a8582a" stroke-width="1" stroke-linejoin="round"><path d="M767.5,716 Q776,711.5 774.5,722 Q772.5,726 768,724 Z" fill="#e8913a"/>'
+             '<path d="M774,718.6 q1,1 .6,2.6 q-1.6,-.4 -1.6,-2 z" fill="#fff6ee" stroke="none"/>'
+             '<animateTransform attributeName="transform" type="rotate" values="0 768 724;10 768 724;0 768 724;0 768 724" dur="3.2s" repeatCount="indefinite"/></g>')
+    elo = (farok + t_szalagok(902, 724) + zaszlo(870, 658, 9, 8, 3) +
+           '<circle cx="790" cy="683" r="4" fill="#fff3b0" opacity=".45" stroke="none"><animate attributeName="opacity" values=".25;.65;.25" dur="3s" repeatCount="indefinite"/></circle>'
+           '<path transform="translate(870,657.4)" d="M0,-2.4 L.6,-.6 L2.4,0 L.6,.6 L0,2.4 L-.6,.6 L-2.4,0 L-.6,-.6Z" fill="#fff" opacity="0" stroke="none"><animate attributeName="opacity" values="0;1;0" dur="2.8s" repeatCount="indefinite"/></path>')
+    elo = '<g stroke="%s">%s</g>' % (INK, elo)
+    virag = taj_viragsor(Rnd(78), 712, 934, 731, 6) + taj_viragsor(Rnd(79), 752, 892, 699, 9) + taj_csillam(((776, 650), (822, 566), (870, 646), (744, 682), (902, 680)))
+    defs = (FIRKA + SZURKE + '<pattern id="csikT" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="2.5" height="5" fill="#e8505b"/><rect x="2.5" width="2.5" height="5" fill="#fff6ee"/></pattern>'
+            '<linearGradient id="falTb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe3b8"/><stop offset="1" stop-color="#f2cd94"/></linearGradient>'
+            '<linearGradient id="falTsz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef4ff"/><stop offset="1" stop-color="#dbe6fb"/></linearGradient>')
+    vb = TAJ_TER_DOBOZ
+    irj("vilag", "ter-kesz", vb, defs, alap + elo)
+    irj("vilag", "ter-viragos", vb, defs, alap + elo + virag)
+    irj("vilag", "ter-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(r) for _, _, _, r in HATSO + ELSO))
+    return {"ter (táj)": vb}
+
+
+# ── Domboldal ──
+def d_torony():   # 🏰 Garas tornya: lent kő, fent fa, piros tető, óra, pénz-cégér (a zászló az élő rétegben)
+    return ('<path d="M-11.2,0 V-30 H11.2 V0 Z" fill="#ddd0ba"/><path d="M-11.2,-10 H11.2 M-11.2,-20 H11.2 M-4.4,0 V-10 M4.8,0 V-10 M0,-10 V-20 M-6.8,-10 V-20 M7.6,-10 V-20 M-2.8,-20 V-30 M5.2,-20 V-30" stroke="#a8977e" stroke-width=".7"/>'
+            '<path d="M-10,-30 V-52.4 H10 V-30 Z" fill="#ecd0a8"/><path d="M-6,-30.4 V-52 M-2,-30.4 V-52 M2,-30.4 V-52 M6,-30.4 V-52" stroke="#c9a27a" stroke-width=".7"/>'
+            '<path d="M4.8,-30 H11.2 V0 H4.8 Z M4.4,-52.4 H10 V-30 H4.4 Z" fill="#3c2f5e" opacity=".08" stroke="none"/>'
+            '<rect x="-12.4" y="-31.6" width="24.8" height="2" rx=".6" fill="#c9a27a" stroke-width=".7"/>'
+            '<path d="M-13.6,-51.6 L0,-68.4 L13.6,-51.6 Q0,-50 -13.6,-51.6 Z" fill="#c96a4a"/><path d="M-6,-58 q1.2,.9 2.4,0 q1.2,.9 2.4,0 q1.2,.9 2.4,0 q1.2,.9 2.4,0 q1.2,.9 2.4,0" fill="none" stroke="#a8503a" stroke-width=".6"/>'
+            '<path d="M-11.2,-52.4 L0,-67.2 L-1.6,-62.4 L-8.8,-52 Z" fill="#fff" opacity=".2" stroke="none"/>'
+            '<circle cx="0" cy="-59.2" r="2.6" fill="#fffaf0" stroke-width=".7"/><path d="M0,-59.2 v-1.8 M0,-59.2 h1.3" stroke="#6e4a36" stroke-width=".5"/>'
+            '<rect x="-3.6" y="-46.4" width="7.2" height="8" fill="#cfe2f2" stroke-width=".8"/><path d="M0,-46.4 V-38.4 M-3.6,-42.4 H3.6" stroke-width=".4"/>'
+            '<path d="M-6.4,-38 H6.4 V-36.8 H-6.4 Z M-5.6,-36.8 V-35.2 M-2.8,-36.8 V-35.2 M0,-36.8 V-35.2 M2.8,-36.8 V-35.2 M5.6,-36.8 V-35.2" fill="#b5804a" stroke-width=".5"/>'
+            '<rect x="-7.6" y="-21.6" width="2" height="4.4" rx="1" fill="#cfe2f2" stroke-width=".6"/><rect x="5.6" y="-21.6" width="2" height="4.4" rx="1" fill="#cfe2f2" stroke-width=".6"/>'
+            '<path d="M-4,0 V-7.6 Q0,-12.4 4,-7.6 V0 Z" fill="#8a5a3a" stroke-width=".9"/>'
+            '<path d="M-11.2,-23.6 h-4 v1.4" fill="none" stroke-width=".7"/><circle cx="-15.2" cy="-19.6" r="2.6" fill="#fce49a" stroke="#d1a23a" stroke-width=".8"/><circle cx="-15.2" cy="-19.6" r="1.3" fill="none" stroke="#d1a23a" stroke-width=".4"/>')
+
+def d_josda():   # 🔭 Jósda: égszínkék ház, kupola, a résben a távcső (az élő rétegben), lámpás
+    return ('<path d="M-21.6,0 L21.6,0 L20.6,-2.4 L-20.6,-2.4 Z" fill="#cfc6dc" stroke-width=".8"/>'
+            '<rect x="-18.2" y="-15.8" width="36.4" height="13.4" fill="url(#falTj)"/><path d="M7.2,-15.8 H18.2 V-2.4 H7.2 Z" fill="#3c2f5e" opacity=".07" stroke="none"/>'
+            '<path d="M-17.8,-16.8 C-17.8,-36.5 17.8,-36.5 17.8,-16.8 Z" fill="url(#kupolaT)"/>'
+            '<path d="M-9,-17.2 C-10,-28 -3,-31.4 0,-31.7 M9,-17.2 C10,-28 3,-31.4 0,-31.7" stroke="#6f86b8" stroke-width=".6" fill="none"/>'
+            '<path d="M-14,-20 C-14.4,-28.8 -7.2,-32.6 -2.4,-32.6 C-8.6,-30.2 -11.5,-26 -11.5,-20 Z" fill="#fff" opacity=".28" stroke="none"/>'
+            '<path d="M1.9,-17.3 L2.9,-31.4 L6.7,-31 L6.2,-17.3 Z" fill="#56699a" stroke="none"/>'
+            '<rect x="-20.2" y="-17.6" width="40.4" height="2" rx=".7" fill="#9fb2d6" stroke-width=".7"/>'
+            '<rect x="-14.4" y="-13" width="6.7" height="5.8" fill="#fce49a" stroke-width=".7"/><rect x="7.7" y="-13" width="6.7" height="5.8" fill="#fce49a" stroke-width=".7"/>'
+            '<path d="M-3.8,-2.4 V-9.6 Q0,-13.4 3.8,-9.6 V-2.4 Z" fill="#6a7fae" stroke-width=".8"/>'
+            '<path d="M-22,-.5 V-12 M-22,-11 h-5.2" fill="none" stroke="#3f5f8f" stroke-width=".9"/><path d="M-28.8,-11 h2.9 l-.5,3.4 h-1.9 z" fill="#fce49a" stroke="#3f5f8f" stroke-width=".6"/>'
+            + csillag4(-9.6, -26, .3) + csillag4(11.5, -24, .26))
+
+def d_deli():   # ☀️ Déli vásár: napsárga-krém csíkos sátorsor (a nap az élő rétegben)
+    def sator(x, y, w, h, pk):
+        return ('<g transform="translate(%s %s)"><path d="M%s,0 V%s M%s,0 V%s" stroke="#8a5a3a" stroke-width="1.4"/>' % (f(x), f(y), f(-w + 2.8), f(-h), f(w - 2.8), f(-h)) +
+                '<path d="M%s,%s L0,%s L%s,%s Q0,%s %s,%s Z" fill="url(#csikTd)"/>' % (f(-w), f(-h), f(-pk), f(w), f(-h), f(-h + 1.6), f(-w), f(-h)) +
+                '<path d="M0,%s L%s,%s Q%s,%s 0,%s Z" fill="#3c2f5e" opacity=".08" stroke="none"/>' % (f(-pk), f(w), f(-h), f(w / 2), f(-h + 1.2), f(-h + 1.2)) +
+                fodor(-w + 1, w - 1, -h, 7, "#f2b54a", "#b5804a", .6, .5) +
+                '<rect x="%s" y="-6.8" width="%s" height="6.8" fill="#e9c9a0" stroke-width=".8"/><path d="M%s,-6.8 H%s L%s,-4.8 H%s Z" fill="#fff6e0" stroke-width=".5"/></g>' % (
+                    f(-w * .72), f(w * 1.44), f(-w * .76), f(w * .76), f(w * .7), f(-w * .7)))
+    return (sator(-22, 0, 16.8, 16, 27.2) + sator(18, -2, 19.2, 19.2, 32) +
+            '<g stroke-width=".6"><circle cx="-28" cy="-8.4" r="1.8" fill="#e8505b"/><circle cx="-23.6" cy="-8.8" r="1.8" fill="#fce49a"/><circle cx="-19.2" cy="-8.4" r="1.8" fill="#a7d99a"/><circle cx="-15.2" cy="-8.2" r="1.4" fill="#f4a38c"/>'
+            '<rect x="10" y="-14.4" width="5.2" height="5.2" fill="#f2d5ae"/><rect x="18" y="-13.6" width="6.8" height="4.4" fill="#f2d5ae"/><path d="M27.2,-9.6 q.4,-2.8 2,-2.8 q1.6,0 2,2.8 z" fill="#c9a8e6"/></g>'
+            '<path d="M18,-34 V-41" stroke="#8a6a52" stroke-width=".9"/>'
+            '<g transform="translate(40.6 0)"><path d="M-2.4,0 L-2.8,-3.2 H2.8 L2.4,0 Z" fill="#c98f6e" stroke-width=".6"/><path d="M0,-3.2 V-10.4" stroke="#6ea96a" stroke-width=".8"/>'
+            '<circle cx="0" cy="-11.2" r="1.8" fill="#fce49a" stroke-width=".5"/><circle cx="0" cy="-11.2" r=".8" fill="#a8764f" stroke="none"/></g>')
+
+def d_nap(x, y):   # a nagyobbik sátor oszlopán a nap: lebeg, a sugarai lassan forognak
+    return ('<g transform="translate(%s %s)"><g><animateTransform attributeName="transform" type="translate" values="0,0;0,-1.2;0,0" dur="3s" repeatCount="indefinite"/>'
+            '<circle r="5.2" fill="#fff6c2" opacity=".55" stroke="none"/>'
+            '<g stroke="#e0a43a" stroke-width="1" stroke-linecap="round"><path d="M0,-4.6v-1.8M0,4.6v1.8M-4.6,0h-1.8M4.6,0h1.8M-3.3,-3.3l-1.3,-1.3M3.3,-3.3l1.3,-1.3M-3.3,3.3l-1.3,1.3M3.3,3.3l1.3,1.3"/>'
+            '<animateTransform attributeName="transform" type="rotate" values="0;45" dur="6s" repeatCount="indefinite"/></g>'
+            '<circle r="3.2" fill="#fce49a" stroke="#e0a43a" stroke-width=".8"/><path d="M-1.3,-.4 q.4,-.6 .8,0 M.5,-.4 q.4,-.6 .8,0 M-1,1 q1,.8 2,0" stroke="#b5804a" stroke-width=".4" fill="none"/></g></g>') % (f(x), f(y))
+
+TAJ_DOMB_DOBOZ = (556, 326, 172, 136)
+def taj_domboldal():
+    szerp = 'M720,453 Q692,453 685,443 Q678,434 700,431 Q719,428 703,417'
+    ut_ = ('<path d="%s" stroke="#d9c79c" stroke-width="8.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+           '<path d="%s" stroke="#f4e6c4" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+           '<path d="%s" stroke="#e2cfa6" stroke-width=".6" stroke-dasharray="1 4" fill="none"/>') % (szerp, szerp, szerp)
+    korlat = '<g stroke="#8a6a52" stroke-width=".9"><path d="M676,441 v-4.4 M679,445 v-4.4 M675.5,438 l4,4"/></g>'
+    TORONY, JOSDA, DELI = (604, 418), (694, 416), (628, 449)
+    HAZAK = ((TORONY[0], TORONY[1], d_torony(), (590, 350, 618, 418)), (JOSDA[0], JOSDA[1], d_josda(), (674, 382, 714, 416)), (DELI[0], DELI[1], d_deli(), (586, 420, 664, 449)))
+    kecske = ('<g transform="translate(578 438)"><path d="M-3.4,0 v2.4 M-1.6,.4 v2.4 M2,.4 v2.4 M3.6,0 v2.4" stroke="#8a7a6e" stroke-width=".8"/>'
+              '<path d="M-5,-1.2 Q-5.4,-4.4 -1.4,-4.8 Q3.4,-5.6 5,-2.8 Q5.6,.6 2,1 Q-2,1.6 -4.6,.6 Z" fill="#fffaf0" stroke-width=".7"/></g>')
+    kecske_fej = ('<g><g stroke="#8a7a6e" stroke-width=".6" stroke-linejoin="round"><path d="M582.6,435.6 Q584.6,432 587,433.2 Q588.2,435.6 586.2,437.2 Q584.2,437.6 583,436.8 Z" fill="#fffaf0"/>'
+                  '<path d="M584.4,432.8 q-.4,-2.4 -2,-2.8 M585.6,432.8 q.4,-2.4 -.8,-3.2" fill="none" stroke="#a8977e" stroke-width=".6"/></g>'
+                  '<animateTransform attributeName="transform" type="rotate" values="0 583 436;0 583 436;30 583 436;30 583 436;0 583 436" keyTimes="0;.35;.45;.8;1" dur="6s" repeatCount="indefinite"/></g>')
+    arny = arnyek(604, 419, 16, 2.6, .12) + arnyek(694, 417, 24, 2.8, .12) + arnyek(630, 450, 42, 3.4, .1)
+    g = lambda s: '<g filter="url(#firka)" stroke="%s" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (INK, s)
+    alap = '<g filter="url(#firka)">' + ut_ + '</g>' + korlat + arny + g(kecske + "".join(rk(x, y, s) for x, y, s, _ in HAZAK))
+    tav = ('<g transform="translate(%s %s)"><g><animateTransform attributeName="transform" type="rotate" values="-14;8;-14" dur="9s" repeatCount="indefinite"/>'
+           '<g transform="rotate(28)" stroke="#3f5f8f" stroke-width=".8" stroke-linejoin="round"><rect x="-1.7" y="-13" width="3.6" height="13.4" rx="1.2" fill="#6a7fae"/>'
+           '<rect x="-2.2" y="-14.6" width="4.6" height="2.2" rx=".8" fill="#9fb8e0"/></g></g></g>') % (f(JOSDA[0] + 4.6), f(JOSDA[1] - 26.9))
+    elo = (tav + zaszlo(TORONY[0], TORONY[1] - 68.4, 9, 8.4, 2.6) + d_nap(DELI[0] + 18, DELI[1] - 45.6) + kecske_fej +
+           '<circle cx="%s" cy="%s" r="3" fill="#fff3b0" opacity=".5" stroke="none"><animate attributeName="opacity" values=".3;.75;.3" dur="2.4s" repeatCount="indefinite"/></circle>' % (f(JOSDA[0] - 27.4), f(JOSDA[1] - 9.4)))
+    elo = '<g stroke="%s">%s</g>' % (INK, elo)
+    virag = (taj_viragsor(Rnd(81), 586, 680, 455, 6) + taj_viragsor(Rnd(82), 590, 620, 423, 5) + taj_viragsor(Rnd(83), 670, 718, 421, 6)
+             + taj_csillam(((604, 362), (694, 376), (628, 422), (576, 424))))
+    defs = (FIRKA + SZURKE + '<pattern id="csikTd" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="2.5" height="5" fill="#f2b54a"/><rect x="2.5" width="2.5" height="5" fill="#fff6e0"/></pattern>'
+            '<linearGradient id="falTj" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2ecfa"/><stop offset="1" stop-color="#cbdcf2"/></linearGradient>'
+            '<linearGradient id="kupolaT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4d4f0"/><stop offset="1" stop-color="#8fa8d8"/></linearGradient>')
+    vb = TAJ_DOMB_DOBOZ
+    irj("vilag", "domboldal-kesz", vb, defs, alap + elo)
+    irj("vilag", "domboldal-viragos", vb, defs, alap + elo + virag)
+    irj("vilag", "domboldal-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(r) for _, _, _, r in HAZAK))
+    return {"domboldal (táj)": vb}
+
+
 if __name__ == "__main__":
     print("kep.kifestve (helyek.js): [%d, %d, %d, %d]" % KIFESTVE)
     vb = taj_kezmuvesek()["kezmuvesek (táj)"]
     print("\nvilag/kezmuvesek — doboz (HELYEK.vilag): [%.4f, %.4f, %.4f, %.4f]" % (vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
+    for fn, nev in ((taj_ter, "ter"), (taj_domboldal, "domboldal")):
+        vb = list(fn().values())[0]
+        print("vilag/%s — doboz (HELYEK.vilag): [%.4f, %.4f, %.4f, %.4f]" % (nev, vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
     for mappa, fn in (("ter", ter), ("domboldal", domboldal), ("kezmuvesek", kezmuvesek)):
         dob = fn()
         print("\n%s — doboz (helyek.js):" % mappa)

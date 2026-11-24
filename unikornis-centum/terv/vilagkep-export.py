@@ -193,7 +193,7 @@ for i in range(1, 10):
         f1(x), f1(y + 3), fz[i % 5], num(round(1.4 + (i % 3) * .5, 2)), num(round(i * .2, 2)))
 
 P = {"hid": [.318, .86], "tisztas": [.20, .82], "kut": [.47, .66], "odu": [.155, .935], "kert": [.255, .94], "postafa": [.25, .955], "erdoszel": [.15, .775], "utca": [.41, .795],
-     "ter": [.585, .815], "osszeado-utca": [.735, .715], "dallam-ter": [.81, .735], "kezmuvesek": [.348, .668], "domboldal": [.445, .475], "konyvtar": [.67, .415]}
+     "ter": [.61, .82], "osszeado-utca": [.735, .715], "dallam-ter": [.81, .735], "kezmuvesek": [.348, .668], "domboldal": [.485, .468], "konyvtar": [.67, .415]}
 U = [["odu", "kert", [[.20, .955]]], ["kert", "postafa", []], ["odu", "erdoszel", [[.12, .86]]], ["erdoszel", "tisztas", [[.17, .80]]], ["kert", "tisztas", [[.24, .87]]], ["postafa", "hid", [[.29, .90]]],
      ["tisztas", "hid", [[.27, .85]]], ["hid", "utca", [[.36, .84]]], ["utca", "ter", [[.47, .83]]], ["utca", "kezmuvesek", [[.37, .70]]], ["ter", "kut", [[.55, .72]]], ["kut", "osszeado-utca", [[.62, .70]]],
      ["osszeado-utca", "dallam-ter", [[.77, .75]]], ["kut", "domboldal", [[.44, .58], [.47, .52]]], ["domboldal", "konyvtar", [[.52, .47], [.60, .44]]]]
@@ -401,9 +401,9 @@ def viragsor(r):
 
 doboz_sorok, fajlok = [], ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo"]
 for i, (box, r, extra) in HT.items():
-    if i == "kezmuvesek":   # 2026-11-24 óta a mini utca kicsinyített mása: terv/kozelkep-export.py taj_kezmuvesek() írja, itt NE írjuk felül
+    if i in ("kezmuvesek", "ter", "domboldal"):   # 2026-11-24 óta a közelkép kicsinyített mása: terv/kozelkep-export.py taj_kezmuvesek() / taj_ter() / taj_domboldal() írja, itt NE írjuk felül
         fajlok += [i + "-epul", i + "-kesz", i + "-viragos"]
-        doboz_sorok.append("kezmuvesek: lásd terv/kozelkep-export.py (TAJ_KEZM_DOBOZ)")
+        doboz_sorok.append("%s: lásd terv/kozelkep-export.py (TAJ_*_DOBOZ)" % i)
         continue
     alap = '<g filter="url(#firka)" %s>%s</g>' % (FOK, hg(i)) if i not in ("fejtoro", "felveteli") else hg(i)
     vb = (box[0], box[1], box[2] - box[0], box[3] - box[1])
