@@ -394,6 +394,17 @@ function pcTobbJel(lista) {
    (a tárgy helye a hely saját rajzán + a cégér helye és nagysága + a kimondott szó); amelyik pályának nincs sora, annak a cégére a kép alján áll.
    kep(): a hely nagy rajza a saját koordinátáiban; k, tx, ty: hová kerül a közelképen (800 × 460). */
 var PC_TARGY = {
+  vasar: {   /* 🧺 a Tündérvásár sátra (3. kör, 4. döntés A): a kosár = Reggeli vásár, a dobozok = Dobozoló-nap — a kártyás belső helyett */
+    kep: function () {
+      return '<g transform="translate(400 330) scale(2.1)">' + pcVasarSator(false, false) + '</g>' +
+        '<g transform="translate(220 360)" filter="url(#lt-firka)"><path d="M-62 0Q-70 -66 0 -70Q70 -66 62 0Z" fill="#e8b27a" stroke="#8a5a3a" stroke-width="4"/><path d="M-52 -58Q0 -140 52 -58" fill="none" stroke="#8a5a3a" stroke-width="6"/>' +
+        '<path d="M-56 -36H56M-60 -16H60" stroke="#b5804a" stroke-width="2.5"/><circle cx="-22" cy="-76" r="15" fill="#e8505b" stroke="#a83a44" stroke-width="2"/><circle cx="10" cy="-80" r="15" fill="#fce49a" stroke="#d1a23a" stroke-width="2"/><circle cx="34" cy="-72" r="13" fill="#a7d99a" stroke="#5f8e6a" stroke-width="2"/></g>' +
+        '<g transform="translate(590 362)" filter="url(#lt-firka)"><rect x="-74" y="-60" width="72" height="60" fill="#e9c9a0" stroke="#8a5a3a" stroke-width="4"/><rect x="4" y="-48" width="64" height="48" fill="#f2d5ae" stroke="#8a5a3a" stroke-width="4"/>' +
+        '<rect x="-48" y="-112" width="66" height="52" fill="#f2d5ae" stroke="#8a5a3a" stroke-width="4"/><path d="M-74 -30H-2M4 -24H68M-48 -86H18" stroke="#b5804a" stroke-width="3"/></g>';
+    }, k: 1, tx: 0, ty: 0,
+    t: { "vasar-3":  { hely: [140, 250, 160, 120], ceger: [220, 410, .95], szo: "a kosarat" },
+         "vasar-3d": { hely: [500, 236, 180, 136], ceger: [590, 410, .95], szo: "a dobozokat" } }
+  },
   zsib: {
     kep: function () { return zsStand(false, true); }, k: .8, tx: -24, ty: 44,
     t: { "zsibvasar":       { hely: [414, 150, 280, 72], ceger: [614, 176, .78], szo: "a kacatokat" },
@@ -405,11 +416,10 @@ var PC_TARGY = {
          "irasbeli-osztas":  { hely: [52, 118, 96, 104], ceger: [260, 165, .95], szo: "az osztást fent" } }
   }
 };
-function pcValaszto(id) {
-  pcValasztoZar();
-  var lista = PIAC.haz[id], D = PC_TARGY[id] || { kep: function () { return ""; }, k: 1, tx: 0, ty: 0, t: {} }, F = pcF, cs = lkCsokkent(), szavak = [], tobbi = 0;
-  var s = '<rect x="0" y="0" width="800" height="460" fill="#3c2a50" opacity=".28"/>';
-  s += '<g filter="url(#lt-firka)"><rect x="30" y="14" width="740" height="432" rx="22" fill="#fff6e6" stroke="#c9ad85" stroke-width="3"/></g>';
+/* a tárgy-nézet rajza (800 × 460): a Piactér (pcValaszto) és a 3. kör közelképei (hely.js helyTargyNezet) közösen használják */
+function pcValasztoSvg(id, lista) {
+  var D = PC_TARGY[id] || { kep: function () { return ""; }, k: 1, tx: 0, ty: 0, t: {} }, F = pcF, cs = lkCsokkent(), szavak = [], tobbi = 0;
+  var s = '<g class="pc-kartya"><g filter="url(#lt-firka)"><rect x="30" y="14" width="740" height="432" rx="22" fill="#fff6e6" stroke="#c9ad85" stroke-width="3"/></g>';
   s += '<g transform="translate(' + D.tx + ' ' + D.ty + ') scale(' + D.k + ')">' + D.kep();
   lista.forEach(function (pa) {
     var T = D.t[pa.id], J = palyaJelek(pa), hal = J.alszik || J.zarva;
@@ -424,12 +434,17 @@ function pcValaszto(id) {
   });
   s += '</g>';
   /* bezárás: ✕ a jobb felső sarokban (mellé koppintás is becsukja) */
-  s += '<g class="pc-valaszt-zar" style="cursor:pointer" transform="translate(742 42)"><circle r="18" fill="#fffaf0" stroke="#c9ad85" stroke-width="2.2"/><path d="M-6 -6L6 6M6 -6L-6 6" stroke="#8a6a52" stroke-width="3" stroke-linecap="round"/></g>';
+  s += '<g class="pc-valaszt-zar" style="cursor:pointer" transform="translate(742 42)"><circle r="18" fill="#fffaf0" stroke="#c9ad85" stroke-width="2.2"/><path d="M-6 -6L6 6M6 -6L-6 6" stroke="#8a6a52" stroke-width="3" stroke-linecap="round"/></g></g>';
+  return { s: s, mondat: szavak.length === 2 ? "Mit választasz? " + zsCap(szavak[0]) + ", vagy " + szavak[1] + "?" : "Mit választasz?" };
+}
+function pcValaszto(id) {
+  pcValasztoZar();
+  var V = pcValasztoSvg(id, PIAC.haz[id]), s = '<rect x="0" y="0" width="800" height="460" fill="#3c2a50" opacity=".28"/>' + V.s;
   var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   g.setAttribute("class", "pc-valaszto"); g.innerHTML = s;
   PIAC.svg.appendChild(g); PIAC.valaszto = { g: g, id: id };
-  if (!cs && g.animate) g.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
-  mondd(szavak.length === 2 ? "Mit választasz? " + zsCap(szavak[0]) + ", vagy " + szavak[1] + "?" : "Mit választasz?");
+  if (!lkCsokkent() && g.animate) g.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
+  mondd(V.mondat);
 }
 function pcValasztoZar() { if (PIAC && PIAC.valaszto) { var g = PIAC.valaszto.g; if (g.parentNode) g.parentNode.removeChild(g); PIAC.valaszto = null; } }
 function pcValasztKopp(vk) {

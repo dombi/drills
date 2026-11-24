@@ -72,7 +72,7 @@ var BEMUTATAS = {
   /* 🧺 2026-10-24: a Tündérvásár a Piactérre költözött (piac.js) — annak szól, aki eddig a térképen látta (újoncnak nem) */
   vasarKoltozott: { kepernyo: "kepernyo-fomenu", ragyog: ['.terkep-hely[data-id="ter"] .hb'],
                     feltetel: function () { return !nyitasMenet() && !!fomenuLigetek().regiok.vasar; },
-                    mondat: "Nézd! A Tündérvásár beköltözött a Piactérre. Ott találod a sátrát!" }
+                    mondat: "Nézd! A Tündérvásár beköltözött a Nagyfa térre. Ott találod a sátrát!" }
 };
 /* az újonc már végigvitt egy pályát, és van ✨-je (nyitas.js) */
 function ujoncElsoBolt() {
@@ -189,6 +189,9 @@ function renderFomenu() {
                       szabo: MERES_HATTER.szabo, bajital: MERES_HATTER.bajital, pekseg: MERES_HATTER.pekseg, vasar: VASAR_HATTER };   /* mérés-ligetek: réteges műhely-háttér (meres.js) */   /* mindkét liget saját jelenetet kap */
   var L = fomenuLigetek(), regiok = L.regiok;
   if (FOMENU_LIGET && !terkepLakok(FOMENU_LIGET).some(function (r) { return regiok[r]; })) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a választóra (a Piactér a Vásárral együtt él) */
+  if (FOMENU_LIGET === "piac" || FOMENU_LIGET === "vasar") {   /* 🐴 3. kör: a régi Piactér / Vásár-belső helyett a Nagyfa tér / Domboldal közelképe (hely.js) */
+    VILAG_KIZOOM = (TERKEP_HOL && TERKEP_HOL.leny === mentes.leny && TERKEP_HOL.id) || FOMENU_LIGET; FOMENU_LIGET = null;
+  }
   var bent = FOMENU_LIGET, gazda = bent && TERKEP_GAZDA[bent];   /* 🧺 a beköltözött liget szülője a gazdája (a Vásáré a Piactér) */
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);

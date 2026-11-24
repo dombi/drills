@@ -13,7 +13,11 @@
      a hely képe az állapota szerint <kep>-epul / -kesz / -viragos (/ -kod), a mozgó réteg (víz, felhők, malom, madarak, fű)
      beágyazva (helyMozgoBetolt), és a leszálló madár mindig a „következő” helyre száll (helyMadar). Tábla kep.mappa nélkül
      (a Kézművesek ideiglenes közelképe): a régi rajz (helyKepRajz, helyHatter) — a 4. körben az is fájl lesz.
-     A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik). */
+     A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik).
+   • 3. kör (Nagyfa tér, Domboldal, ideiglenes Összeadó utca): a közelkép háza maga is pálya lehet (cel.palyak). Egy pálya:
+     odasétál, ráközelít, indul. Több pálya: a ház TÁRGY-NÉZETE nyílik (helyTargyNezet; a rajz PC_TARGY, piac.js), a tárgy a
+     bejárat. A pálya után a közelképbe tér vissza, a ház elé (helyPalyaVissza — palyaInditas hívja). A ház jele, újonc-fénye
+     és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt. */
 
 var VILAG_M = null;        /* a kirajzolt kép (helyRajzol eredménye) */
 var VILAG_KIZOOM = null;   /* visszatérés egy helyről: a kép onnan nagyít ki (terkepNyit állítja) */
@@ -291,8 +295,15 @@ function helyNevEger(M) {
 }
 
 /* ── RAJZ ── */
-function helyKepRajz(kep) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) */
+function helyKepRajz(kep, hh, j) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) */
   if (Array.isArray(kep)) return kep.map(function (k, i) { return '<g transform="translate(' + ((i - (kep.length - 1) / 2) * 52) + ' ' + (i === 1 ? -6 : 0) + ') scale(.66)">' + helyKepRajz(k) + '</g>'; }).join("");
+  if (/^ph:/.test(kep)) {   /* 3. kör, ideiglenes: a mai Piactér háza, a gyerek haladása szerinti építési lépéssel (piacHazLepes) */
+    var pa0 = hh && hh.cel.palyak && hh.cel.palyak[0];
+    return phHaz(kep.slice(3), pa0 ? piacHazLepes(pa0) : 5, { all: (j && j.all) || "" }).svg;
+  }
+  if (kep === "sator") return pcVasarSator(false, false);
+  if (kep === "deli") return '<g transform="scale(1.1)">' + LT_JELKEP.vasar() + '</g><g transform="translate(34 -96)"><circle r="12" fill="#ffe08a" stroke="#d1a23a" stroke-width="2"/>' +
+    [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { return '<path d="M0 -16V-22" stroke="#e0a43a" stroke-width="3" stroke-linecap="round" transform="rotate(' + a + ')"/>'; }).join("") + '</g>';
   if (HELY_KEP_IDEIGLENES[kep]) return HELY_KEP_IDEIGLENES[kep]();
   return LT_JELKEP[kep] ? LT_JELKEP[kep]() : "";
 }
@@ -416,6 +427,8 @@ function helyHatter(M) {
       if (helyHaloraVetit(M.N, [x, y]).d < 28) continue;
       s += r() < .5 ? ltBokor(x, y, sz, "#a8dc9c", "#6fae74") : ltKisfa(x, y, sz, "#9fd49a", "#6fae74");
     }
+  } else if (HELY_HATTER_IDEIGLENES[H.kep.hatter]) {
+    s += HELY_HATTER_IDEIGLENES[H.kep.hatter](w, h);
   } else {   /* közelkép: rét, a háttérben domb és malom */
     s += '<path d="M' + (-w * .1) + ' ' + (h * .66) + 'Q' + (w * .5) + ' ' + (h * .5) + ' ' + (w * 1.1) + ' ' + (h * .64) + 'V' + (h * 2) + 'H' + (-w * .1) + 'Z" fill="url(#lt-gRetA)"/>';
     s += '<g transform="translate(' + (w * .06) + ' ' + (h * .62) + ')"><circle r="60" fill="none" stroke="#9a6f52" stroke-width="8"/>' +
@@ -424,6 +437,48 @@ function helyHatter(M) {
   }
   return s;
 }
+/* 3. kör, IDEIGLENES hátterek (a 2. kódkörben fájl lesz: kepek/ter/, kepek/domboldal/) — a rajzterv kompozíciója egyszerűsítve */
+var HELY_HATTER_IDEIGLENES = {
+  ter: function (w, h) {
+    var s = '', F = function (n) { return n.toFixed(1); };
+    s += '<path d="M' + F(w * .5) + ' ' + F(h * .40) + 'Q' + F(w * .62) + ' ' + F(h * .19) + ' ' + F(w * .75) + ' ' + F(h * .17) + 'Q' + F(w * .87) + ' ' + F(h * .14) + ' ' + F(w * 1.3) + ' ' + F(h * .05) + 'V' + F(h * .45) + 'H' + F(w * .5) + 'Z" fill="#f4e4a8" stroke="#d6bd6a" stroke-width="2"/>';
+    s += '<g opacity=".8" transform="translate(' + F(w * .71) + ' ' + F(h * .25) + ')"><rect x="-8" y="-56" width="16" height="56" fill="#e9c9a0" stroke="#8a5a3a" stroke-width="2"/><path d="M-14 -56L0 -82L14 -56Z" fill="#c96a4a"/></g>';
+    s += '<g opacity=".8" transform="translate(' + F(w * .87) + ' ' + F(h * .12) + ')"><rect x="-20" y="-22" width="40" height="22" fill="#cfe0f5" stroke="#3f5f8f" stroke-width="2"/><path d="M-24 -22Q0 -52 24 -22Z" fill="#9fb8e0" stroke="#3f5f8f" stroke-width="2"/></g>';
+    s += '<path d="M' + F(-w) + ' ' + F(h * .41) + 'Q' + F(w * .5) + ' ' + F(h * .37) + ' ' + F(w * 2) + ' ' + F(h * .41) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
+    s += '<g filter="url(#lt-firka)"><ellipse cx="' + F(w * .5) + '" cy="' + F(h * .73) + '" rx="' + F(w * .36) + '" ry="' + F(h * .25) + '" fill="#f1e2c4" stroke="#d8bf8e" stroke-width="3"/></g>';
+    var r = ltVeletlen(23), i;
+    for (i = 0; i < 60; i++) { var a = r() * Math.PI * 2, d = Math.sqrt(r()); s += '<ellipse cx="' + F(w * .5 + Math.cos(a) * d * w * .33) + '" cy="' + F(h * .73 + Math.sin(a) * d * h * .22) + '" rx="' + F(9 + r() * 6) + '" ry="' + F(3.5 + r() * 2) + '" fill="#e2cfaa"/>'; }
+    /* a nagyfa a tér közepén (koppintható díszlet: helyek.js) */
+    var fx = w * .5, fy = h * .73;
+    s += '<g transform="translate(' + F(fx) + ' ' + F(fy) + ')"><ellipse cy="14" rx="150" ry="28" fill="#3c2a50" opacity=".12"/>' +
+      '<path d="M-26 12Q-20 -90 -10 -150L12 -150Q22 -90 28 12Z" fill="#a8764f" stroke="#6e4a36" stroke-width="3"/>' +
+      '<g class="hely-lomb"><ellipse cx="-95" cy="-210" rx="105" ry="80" fill="#8cc47f" stroke="#4f8a52" stroke-width="3"/><ellipse cx="95" cy="-218" rx="112" ry="84" fill="#8cc47f" stroke="#4f8a52" stroke-width="3"/>' +
+      '<ellipse cy="-282" rx="130" ry="88" fill="#a7d99a" stroke="#4f8a52" stroke-width="3"/><ellipse cx="-50" cy="-300" rx="28" ry="14" fill="#c4e7a8" opacity=".7"/>' +
+      (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="rotate" values="-1 0 -170;1 0 -170;-1 0 -170" dur="7s" repeatCount="indefinite"/>') + '</g>' +
+      '<path d="M-96 24h192v10h-192zM-86 34v14M86 34v14" fill="#c99a6a" stroke="#6e4a36" stroke-width="3"/></g>';
+    [[.30, .50], [.40, .47], [.60, .47], [.70, .50]].forEach(function (q, i) { s += '<circle cx="' + F(w * q[0]) + '" cy="' + F(h * q[1]) + '" r="9" fill="' + ["#fce49a", "#f6a5c0", "#9ec9f0", "#fce49a"][i] + '" stroke="#c9a06a" stroke-width="1.5"/>'; });
+    s += '<path d="M' + F(w * .26) + ' ' + F(h * .44) + 'Q' + F(w * .36) + ' ' + F(h * .52) + ' ' + F(w * .45) + ' ' + F(h * .43) + 'M' + F(w * .55) + ' ' + F(h * .43) + 'Q' + F(w * .64) + ' ' + F(h * .52) + ' ' + F(w * .74) + ' ' + F(h * .44) + '" fill="none" stroke="#6e4a36" stroke-width="1.6"/>';
+    return s;
+  },
+  domboldal: function (w, h) {
+    var s = '', F = function (n) { return n.toFixed(1); };
+    s += '<path d="M' + F(w * .58) + ' ' + F(h * .36) + 'L' + F(w * .74) + ' ' + F(h * .10) + 'L' + F(w * .79) + ' ' + F(h * .18) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * 1.3) + ' ' + F(h * .30) + 'V' + F(h * .5) + 'H' + F(w * .58) + 'Z" fill="#d9d3ea" stroke="#b9b0d4" stroke-width="2"/>';
+    s += '<path d="M' + F(w * .855) + ' ' + F(h * .075) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * .89) + ' ' + F(h * .08) + 'Z" fill="#fff"/>';
+    s += '<path d="M' + F(-w) + ' ' + F(h * 2) + 'L' + F(-w * .02) + ' ' + F(h * 1.0) + 'Q' + F(w * .08) + ' ' + F(h * .58) + ' ' + F(w * .33) + ' ' + F(h * .48) + 'Q' + F(w * .56) + ' ' + F(h * .38) + ' ' + F(w * .75) + ' ' + F(h * .22) + 'Q' + F(w * .86) + ' ' + F(h * .13) + ' ' + F(w * 2) + ' ' + F(h * .13) + 'V' + F(h * 2) + 'Z" fill="#f6e4a2" stroke="#d6bd6a" stroke-width="3"/>';
+    s += '<ellipse cx="' + F(w * .44) + '" cy="' + F(h * .58) + '" rx="220" ry="50" fill="#c9b46a" opacity=".12">' + (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="translate" values="-300 60;500 -80;-300 60" dur="40s" repeatCount="indefinite"/>') + '</ellipse>';
+    s += '<g opacity=".85"><ellipse cx="' + F(w * .10) + '" cy="' + F(h * .90) + '" rx="110" ry="70" fill="#8cc47f" stroke="#5f8e6a" stroke-width="2"/><path d="M' + F(w * .02) + ' ' + F(h * 1.02) + 'l50 -60l50 60zM' + F(w * .13) + ' ' + F(h * 1.02) + 'l60 -70l60 70z" fill="#d99a8a" stroke="#9a7a6a" stroke-width="2"/></g>';
+    [[.94, .34], [.965, .37], [.66, .30], [.21, .71], [.91, .62], [.95, .67], [.05, .74]].forEach(function (q) {
+      s += '<path transform="translate(' + F(w * q[0]) + ' ' + F(h * q[1]) + ')" d="M0 0L-22 0L-6 -26L-18 -26L0 -60L18 -26L6 -26L22 0Z" fill="#7fb58a" stroke="#4f7d5a" stroke-width="2"/>';
+    });
+    return s;
+  },
+  utca: function (w, h) {
+    var s = '', F = function (n) { return n.toFixed(1); };
+    s += '<path d="M' + F(-w) + ' ' + F(h * .58) + 'Q' + F(w * .5) + ' ' + F(h * .50) + ' ' + F(w * 2) + ' ' + F(h * .58) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
+    [[.08, "#d99a8a"], [.40, "#e3b48c"], [.66, "#c9a8e6"], [.94, "#f5c4b3"]].forEach(function (q) { var x = w * q[0], y = h * .56; s += '<path d="M' + F(x - 60) + ' ' + F(y) + 'L' + F(x) + ' ' + F(y - 50) + 'L' + F(x + 60) + ' ' + F(y) + 'Z" fill="' + q[1] + '" stroke="#9a7a6a" stroke-width="2" opacity=".7"/>'; });
+    return s;
+  }
+};
 function helyUtakRajz(M) {
   var d = M.N.el.map(function (e) { var g = e.p.length > 2 ? uniGorbePontok(uniSimaGorbe(e.p)) : e.p; return g.map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join(""); }).join("");
   return '<path d="' + d + '" fill="none" stroke="#d9bf94" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>' +
@@ -442,6 +497,10 @@ function helyDiszletRajz(M, elol) {
                               '<text y="-74" text-anchor="middle" font-size="20" font-weight="700" fill="#6e4a36" font-family="Fredoka,sans-serif">' + htmlVed(VILAG_NEV) + '</text>';
     else if (d.id === "hid") b = '<path d="M-44 -6Q0 -26 44 -6" fill="none" stroke="#9a6f52" stroke-width="12" stroke-linecap="round"/><path d="M-44 -6Q0 -26 44 -6" fill="none" stroke="#c99a6a" stroke-width="7" stroke-linecap="round"/>' +
                              '<path d="M-36 -10V-26M0 -16V-34M36 -10V-26M-36 -26Q0 -44 36 -26" fill="none" stroke="#8a6a52" stroke-width="3"/>';
+    else if (d.id === "telek") b = '<rect x="-70" y="-96" width="140" height="96" rx="10" fill="#f3eefa" stroke="#a79fc0" stroke-width="2" stroke-dasharray="8 6" opacity=".9"/>' +
+                               '<path d="M-52 0V-80M52 0V-80M-52 -52H52M-52 -24L52 -80" stroke="#b5804a" stroke-width="5" opacity=".6"/><ellipse cy="-40" rx="80" ry="26" fill="#fff" opacity=".45"/>';
+    else if (d.id === "kecske") b = '<g class="hely-madarak"><ellipse cy="-18" rx="24" ry="14" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/><circle cx="24" cy="-28" r="9" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/>' +
+                                '<path d="M-14 -6v12M12 -6v12M22 -36l-4 -8M28 -36l3 -8" stroke="#8a7a6e" stroke-width="3" stroke-linecap="round"/></g>';
     else if (d.id === "madarak") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 9) + ' ' + q[1] + 'q5 -6 9 0q4 -6 9 0" fill="none" stroke="#6b6280" stroke-width="2.4" stroke-linecap="round"/>'; }).join("") + '</g>';
     return '<g class="hely-diszlet" data-id="' + d.id + '" transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
            '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g>';
@@ -466,11 +525,12 @@ function helyRajzol(host, o) {
         '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '" data-all="' + all + '">' + helyKepElem(H, hh.kep + "-" + all, hh.doboz) + '</g>' +
         (kod && all !== "kod" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' + ltNyKod(HELY_MAGAS) + '</g>' : "") + '</g>';
     }
+    var rk = hh.rk || k; bw = hh.w * w / rk; bh = hh.h * h / rk;   /* 3. kör: a ház saját nagysága (rk) */
     return fej +
-      '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' +
+      '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + rk + ')">' +
       '<rect x="' + (-bw / 2).toFixed(1) + '" y="' + (-bh).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (bh + 10).toFixed(1) + '" fill="transparent"/>' +
       (j.ny === "vil" ? ltNyHalo(HELY_MAGAS) : "") +
-      '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '">' + helyKepRajz(hh.kep) + '</g>' + (kod ? ltNyKod(HELY_MAGAS) : "") + '</g></g>';
+      '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '">' + helyKepRajz(hh.kep, hh, j) + '</g>' + (kod ? ltNyKod(HELY_MAGAS) : "") + '</g></g>';
   }).join("");
   var jelek = sor.map(function (hh) { return helyJelRajz(M.jel[hh.id], hh.jel[0] * w, hh.jel[1] * h, k * .9); }).join("");
   host.innerHTML =
@@ -590,6 +650,7 @@ function helyKinagyit(M, id) {
 function helyCelRegiok(h) {
   var c = h.cel;
   if (c.regio) return terkepLakok(c.regio);
+  if (c.palyak) return c.palyak.map(palyaKeres).filter(Boolean).map(palyaLiget).filter(function (r, i, a) { return a.indexOf(r) === i; });
   if (c.kozelkep) return [].concat.apply([], HELYEK[c.kozelkep].helyek.map(helyCelRegiok));
   return [];
 }
@@ -598,9 +659,30 @@ function helyRegiobol(r, tabla) {
   var H = HELYEK[tabla || "vilag"], g = terkepGazda(r);
   for (var i = 0; i < H.helyek.length; i++) {
     var c = H.helyek[i].cel;
-    if (c.regio === g || (c.kozelkep && helyRegiobol(r, c.kozelkep))) return H.helyek[i].id;
+    if (c.regio === g || (c.palyak && helyPalyakban(c.palyak, r)) || (c.kozelkep && helyRegiobol(r, c.kozelkep))) return H.helyek[i].id;
   }
   return null;
+}
+/* r egy pálya-id a listában, vagy a lista valamelyik pályájának a ligete (3. kör) */
+function helyPalyakban(lista, r) {
+  return lista.indexOf(r) >= 0 || lista.some(function (id) { var pa = palyaKeres(id); return pa && palyaLiget(pa) === r; });
+}
+/* a pálya háza egy közelképben: { tabla, hely } — vagy null (a pálya nem közelkép-házban lakik) */
+function helyPalyaHol(paId, tabla) {
+  var H = HELYEK[tabla || "vilag"];
+  for (var i = 0; i < H.helyek.length; i++) {
+    var c = H.helyek[i].cel;
+    if (c.palyak && c.palyak.indexOf(paId) >= 0) return { tabla: tabla, hely: H.helyek[i].id };
+    if (c.kozelkep) { var r = helyPalyaHol(paId, c.kozelkep); if (r) return r; }
+  }
+  return null;
+}
+/* palyaInditas hívja: a pálya után a közelképbe, a ház elé jön vissza (nem a régi Piactérre / liget-belsőbe) */
+function helyPalyaVissza(pa) {
+  if (!pa || !helyPalyaHol(pa.id)) return false;
+  FOMENU_LIGET = null; TERKEP_HOL = { leny: mentes.leny, id: pa.id }; VILAG_KIZOOM = pa.id;
+  var r = palyaLiget(pa); if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
+  return true;
 }
 /* a hely id-je (TERKEP_HOL: hely-id vagy liget-id) — ha több hely viszi ugyanazt a ligetet, az, amelyiken át bement */
 function vilagHelyId(id) {
@@ -619,6 +701,17 @@ function helyAllapot(H, L) {
     var c = h.cel;
     if (c.kepernyo) { lathato[h.id] = true; return; }
     if (c.kod) { jel[h.id] = { ny: "alszik" }; return; }
+    if (c.palyak) {   /* 3. kör: a ház = a pálya (vagy 2–4 pálya tárgyakon) — a jel pályánként számol */
+      var pl = minden.filter(function (rec) { return c.palyak.indexOf(rec.pa.id) >= 0; });
+      if (!pl.length) return;   /* a pulton rejtve */
+      lathato[h.id] = true;
+      var pas = pl.map(function (rec) { return rec.pa; }), PJ = pas.length > 1 ? pcTobbJel(pas) : palyaJelek(pas[0]);
+      var jp = ligetOsszegzo(palyaLiget(pas[0]), pl);
+      jp.all = PJ.all; jp.pas = pas;
+      if (pas.some(function (pa) { return kuldKertPalya(pa.id); })) jp.jelzes = ["🐉"].concat(jp.jelzes || []).slice(0, 2);
+      if (PJ.alszik) jp = { ny: "alszik", pas: pas }; else if (PJ.vil) jp.ny = "vil";
+      jel[h.id] = jp; return;
+    }
     var rs = helyCelRegiok(h).filter(function (r) { return L.regiok[r]; });
     if (!rs.length) return;   /* a pulton rejtve: ködben, nem nyílik */
     lathato[h.id] = true;
@@ -633,6 +726,10 @@ function helyAllapot(H, L) {
     rs.forEach(function (r) { var a = nyitasLiget(r); if (a && (!ny || RANG[a] > RANG[ny])) ny = a; });
     var fo = rs.some(function (r) { if (elso[r]) return false; elso[r] = h.id; return true; });
     if (ny && !fo && ny !== "alszik") ny = null;   /* a második hely ugyanarra a ligetre: nem világít */
+    if (c.kozelkep && h.palyak) {   /* 3. kör: a közelkép pályás házai döntik el, alszik-e / világít-e (a Domboldal az újoncnak ködben) */
+      var hp = minden.filter(function (rec) { return h.palyak.indexOf(rec.pa.id) >= 0; }).map(function (rec) { return palyaJelek(rec.pa); });
+      if (hp.length) ny = hp.every(function (J) { return J.alszik; }) ? "alszik" : hp.some(function (J) { return J.vil; }) ? "vil" : null;
+    }
     if (ny) j.ny = ny;
     if (ny === "alszik") j = { ny: "alszik" };
     jel[h.id] = j;
@@ -643,10 +740,15 @@ function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");
   racs.appendChild(host);
   var hol0 = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL : null;
+  if (hol0 && hol0.kozel && HELYEK[hol0.kozel]) { renderKozelkep(host, L, hol0.kozel, hol0.id, true, true); return; }   /* újrarajzolás (ablakméret) közben a közelképben marad */
   /* közelképből jött (pl. a Szabóműhelyből): a közelkép nyílik, ott áll az unikornis */
   var kozel = hol0 && !helyKeres(HELYEK.vilag, hol0.id) && hol0.id && helyRegiobol(hol0.id, "vilag");
+  var U = VILAG_UTOLSO;   /* több hely viszi ugyanazt a ligetet (Erdőszél + Összeadó utca): amelyik közelképen át ment be */
+  if (kozel && U && U.leny === mentes.leny && U.tabla && U.tabla !== "vilag" && U.regio === hol0.id) {
+    var gz = HELYEK.vilag.helyek.filter(function (h) { return h.cel.kozelkep === U.tabla; })[0]; if (gz) kozel = gz.id;
+  }
   var kozelH = kozel && helyKeres(HELYEK.vilag, kozel);
-  if (kozelH && kozelH.cel.kozelkep && VILAG_KIZOOM) { renderKozelkep(host, L, kozelH.cel.kozelkep, helyRegiobol(hol0.id, kozelH.cel.kozelkep), true); return; }
+  if (kozelH && kozelH.cel.kozelkep && (VILAG_KIZOOM || palyaKeres(hol0.id))) { renderKozelkep(host, L, kozelH.cel.kozelkep, helyRegiobol(hol0.id, kozelH.cel.kozelkep), true); return; }
   var A = helyAllapot(HELYEK.vilag, L), jel = A.jel, lathato = A.lathato;
   /* 🚪 ma felébredt liget (nyitas.js): előbb ködben, aztán felébred */
   var ebredR = nyitasFrissit(L.regiok).filter(function (r) { return L.regiok[r] && helyRegiobol(r); });
@@ -733,7 +835,7 @@ function vilagKoppint(id) {
 }
 function helyCel(M, h) {
   var c = h.cel;
-  if (c.regio) VILAG_UTOLSO = { leny: mentes.leny, hely: h.id, regio: c.regio };
+  if (c.regio) VILAG_UTOLSO = { leny: mentes.leny, hely: h.id, regio: c.regio, tabla: M.tabla };
   if (c.kepernyo === "utca") utcaNyit();
   else if (c.kepernyo === "odu") oduNyit("fomenu");
   else if (c.kepernyo === "kert") kertNyit();
@@ -741,8 +843,10 @@ function helyCel(M, h) {
   else if (c.regio) ligetbeLep(c.regio);
 }
 /* ── KÖZELKÉP (1. kör: a Kézművesek ideiglenes képe a három mai műhellyel) ── */
-function renderKozelkep(host, L, tabla, hol, kifele) {
+function renderKozelkep(host, L, tabla, hol, kifele, csendes) {
   var A = helyAllapot(HELYEK[tabla], L), H = HELYEK[tabla];
+  if (hol && !helyKeres(H, hol)) hol = null;
+  TERKEP_HOL = { leny: mentes.leny, id: hol, kozel: tabla };   /* itt áll: egy újrarajzolás is ide hoz vissza */
   var M = LIGET_M = VILAG_M = helyRajzol(host, { tabla: tabla, jel: A.jel, lathato: A.lathato, all: hol || null, pont: hol ? null : H.pontok.kapu, koppint: kozelKoppint,
     vissza: function () {
       var gazda = HELYEK.vilag.helyek.filter(function (h) { return h.cel.kozelkep === tabla; })[0];
@@ -755,7 +859,8 @@ function renderKozelkep(host, L, tabla, hol, kifele) {
   M.mod = utcaMod(host.clientWidth, host.clientHeight);
   M.setal = helySetal; M.helyId = function (r) { return helyRegiobol(r, tabla) || r; };
   if (!kifele) { M.svg.style.opacity = "0"; requestAnimationFrame(function () { M.svg.style.transition = "opacity .35s"; M.svg.style.opacity = "1"; }); }
-  else { VILAG_KIZOOM = null; if (hol) helyKinagyit(M, hol); }
+  else { VILAG_KIZOOM = null; if (hol && !csendes) helyKinagyit(M, hol); }
+  if (csendes) return;
   var nev = HELYEK[tabla].nev; helyNevTabla(M, nev); if (!kifele) mondd(nev + "!");
 }
 function kozelKoppint(id) {
@@ -764,7 +869,8 @@ function kozelKoppint(id) {
   hangGomb();
   var h = helyKeres(M.H, id), j = M.jel[id] || {}, nev = helyNevOf(id);
   helyNevTabla(M, nev);
-  if (!M.halo.lathato[id] || j.ny === "alszik") { mondd(NYITAS_MONDAT.alszik); helySetal(M, id); return; }
+  if (!M.halo.lathato[id] || j.ny === "alszik") { mondd(h.cel.palyak ? NYITAS_MONDAT.palyaAlszik : NYITAS_MONDAT.alszik); helySetal(M, id); return; }
+  if (h.cel.palyak) { helyPalyaKoppint(M, h, j); return; }
   mondd(j.alszik ? zarvaMondat() : nev + "!");
   helySetal(M, id, function () {
     TERKEP_HOL = { leny: mentes.leny, id: h.cel.regio };
@@ -772,6 +878,50 @@ function kozelKoppint(id) {
       if (!$("kepernyo-fomenu").classList.contains("aktiv") || VILAG_M !== M) return;
       helyCel(M, h);
     });
+  });
+}
+/* ── 3. kör: a pályás ház — egy pálya: odasétál, ráközelít, indul · több pálya: a ház tárgy-nézete ── */
+function helyPalyaKoppint(M, h, j) {
+  var pas = j.pas || [], nev = helyNevOf(h.id);
+  if (!pas.length) return;
+  if (pas.length === 1) {
+    var pa = pas[0], nem = palyaNemIndulMondat(pa, palyaJelek(pa));
+    if (nem) { mondd(nem); helySetal(M, h.id); return; }
+    mondd(nev + "!");
+    helySetal(M, h.id, function () {
+      helyBelep(M, h.id, function () {
+        if (!$("kepernyo-fomenu").classList.contains("aktiv") || VILAG_M !== M) return;
+        palyaInditas(pa.id);
+      });
+    });
+    return;
+  }
+  var TJ = pcTobbJel(pas);
+  mondd(TJ.zarva ? zarvaMondat() : nev + "!");
+  helySetal(M, h.id, function () { if (VILAG_M === M && M.svg.isConnected) helyTargyNezet(M, h, pas); });
+}
+function helyTargyZar(M) { if (M && M.targy) { if (M.targy.parentNode) M.targy.parentNode.removeChild(M.targy); M.targy = null; } }
+function helyTargyNezet(M, h, pas) {
+  helyTargyZar(M);
+  var V = pcValasztoSvg(h.id, pas), d = el("div", "hely-targy");
+  d.innerHTML = '<svg viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><rect class="pc-kivul" x="-400" y="-300" width="1600" height="1060" fill="transparent"/>' + V.s + '</svg>';
+  M.host.appendChild(d); M.targy = d;
+  if (!lkCsokkent() && d.animate) d.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
+  if (typeof phLengIndit === "function") phLengIndit(d.querySelector("svg"));
+  mondd(V.mondat);
+  d.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var cs = e.target.closest(".ph-csengo"); if (cs) { phCsengo(cs); return; }
+    var vk = e.target.closest(".pc-valaszt");
+    if (vk) {
+      var pa = pas.filter(function (p) { return p.id === vk.getAttribute("data-pa"); })[0]; if (!pa) return;
+      hangGomb();
+      var nem = palyaNemIndulMondat(pa, palyaJelek(pa)); if (nem) { mondd(nem); return; }
+      helyTargyZar(M);
+      if ($("kepernyo-fomenu").classList.contains("aktiv") && VILAG_M === M) palyaInditas(pa.id);
+      return;
+    }
+    if (e.target.closest(".pc-valaszt-zar") || !e.target.closest(".pc-kartya")) { hangGomb(); helyTargyZar(M); }
   });
 }
 window.addEventListener("resize", function () {   /* az ablak mérete változott: a „cover” nézet újra (a zóna egészen) */
