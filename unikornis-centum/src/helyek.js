@@ -10,7 +10,7 @@
      rk: a ház saját nagysága (a köd és az újonc-fény mérete; az ideiglenes JS-rajzé is), ha eltér a tábla jk-jától
      utak: [A, B, [töréspontok]] — A, B hely-id vagy útkereszteződés (pontok); ezen sétál az unikornis (patakon csak a hídon)
      jarhato: sokszögek — szabad séta: ide koppintva odamegy; máshová koppintva a legközelebbi járható pontig
-     diszlet: koppintható apróság, jutalom nélkül (mozdul + mondat)
+     diszlet: koppintható apróság, jutalom nélkül (mozdul + mondat) · fájlnál: kep + doboz, reszek: [[fájl, doboz, osztály], …] fölé rajzolva
    2. KÖR (2026-11-23): a rajz FÁJLOKBAN él (kep.mappa): rétegek (eg, tavoli, kozep, eloter, mozgo) + helyenként
    <kep>-epul / -kesz / -viragos (+ felveteli-kod). doboz = a hely képének helye [x, y, w, h] (arány). A helyek még a MAI
    ligetekbe / Piactérre visznek (biztonsági háló). Rajz-csere: új fájlok + kep.v emelése (+ sw.js lista, ha új fájlnév).
@@ -70,19 +70,21 @@ HELYEK.vilag = {
 /* 🧵🧪🧁 Kézművesek — 4. kör (terv: Matekos\vilagkep-4-kor-kezmuvesek.html, ✅ 2026-11-24): mini utca a patak partján.
    Balra a patakon a malom (díszlet), mellette a Mézes pékség, középen hátul (a legmagasabb) a Bájitalkonyha, jobbra a Szabóműhely,
    a szélén üres telek. A ház = a műhely, a TÁRGY a bejárat (PC_TARGY.szabo / bajital / pekseg, piac.js): 4 tárgy a helyén a műhelyben.
-   1. kódkör: ideiglenes JS-rajz (helyHatter: HELY_HATTER_IDEIGLENES.kezmuvesek; a ház: helyIdeiglenesHaz, 5 állapot).
-   2. kódkör: a rajz fájlokba kerül (kepek/kezmuvesek/, exportáló: terv/kozelkep-export.py) — a koordináták maradnak. A patak nem járható. */
+   2. kódkör (2026-11-24): a rajz fájlokban (kepek/kezmuvesek/, exportáló: terv/kozelkep-export.py): rétegek + házanként 5 állapot,
+   díszlet-fájlok: malom (+ reszek: malom-kerek — a játék forgatja, koppintásra gyorsabban: style.css .hely-malomkerek —, malom-hab),
+   kotel, macska; az üres telek a közép rétegben. A 12 tárgy kívülről is látszik (kirakat, párkány, a ház előtt). A patak nem járható. */
 HELYEK.kezmuvesek = {
   nev: "Kézművesek", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", mappa: "kepek/kezmuvesek/", v: "20261124-1", kifestve: [-560, -160, 2720, 1220] },
+  retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 1.0, jk: 2.4,
   pontok: { kapu: [0.705, 0.965], sarok: [0.735, 0.875], kozep: [0.58, 0.79], malomelo: [0.30, 0.735] },
   helyek: [
-    { id: "pekseg",  x: 0.409, y: 0.667, w: 0.17, h: 0.27, all: [0.462, 0.745], jel: [0.409, 0.395], kep: "pekseg",  rk: 3.3,
+    { id: "pekseg",  x: 0.409, y: 0.667, w: 0.17, h: 0.27, all: [0.462, 0.745], jel: [0.409, 0.395], kep: "pekseg",  rk: 3.3, doboz: [0.3013, 0.3756, 0.2050, 0.3111],
       cel: { palyak: ["meres-pekseg-1", "meres-pekseg-2", "meres-pekseg-3", "meres-pekseg-4"] } },
-    { id: "bajital", x: 0.603, y: 0.578, w: 0.13, h: 0.39, all: [0.648, 0.665], jel: [0.603, 0.175], kep: "bajital", rk: 3.6,
+    { id: "bajital", x: 0.603, y: 0.578, w: 0.13, h: 0.39, all: [0.648, 0.665], jel: [0.603, 0.175], kep: "bajital", rk: 3.6, doboz: [0.5031, 0.1333, 0.2037, 0.5067],
       cel: { palyak: ["meres-bajital-1", "meres-bajital-2", "meres-bajital-3", "meres-bajital-4"] } },
-    { id: "szabo",   x: 0.806, y: 0.711, w: 0.17, h: 0.25, all: [0.752, 0.80], jel: [0.806, 0.455], kep: "szabo",   rk: 3.2,
+    { id: "szabo",   x: 0.806, y: 0.711, w: 0.17, h: 0.25, all: [0.752, 0.80], jel: [0.806, 0.455], kep: "szabo",   rk: 3.2, doboz: [0.6987, 0.4356, 0.2387, 0.2956],
       cel: { palyak: ["meres-szabo-1", "meres-szabo-2", "meres-szabo-3", "meres-szabo-4"] } }
   ],
   utak: [["kapu", "sarok", []], ["sarok", "szabo", []], ["sarok", "kozep", [[0.66, 0.835]]], ["kozep", "bajital", [[0.62, 0.72]]],
@@ -90,10 +92,11 @@ HELYEK.kezmuvesek = {
   jarhato: [[[0.19, 0.74], [0.24, 0.70], [0.33, 0.69], [0.45, 0.70], [0.53, 0.66], [0.60, 0.63], [0.68, 0.62], [0.72, 0.70], [0.74, 0.76],
              [0.86, 0.80], [0.99, 0.83], [0.99, 0.99], [0.10, 0.99], [0.15, 0.83]]],
   diszlet: [
-    { id: "malom", x: 0.228, y: 0.756, w: 0.18, h: 0.37, mozdul: "kelepel", mondat: "Kelepel a malom. Lisztet őröl a pékségnek!" },
+    { id: "malom", x: 0.228, y: 0.756, w: 0.18, h: 0.37, mozdul: "kelepel", kep: "malom", doboz: [0.1250, 0.3778, 0.2188, 0.3778],
+      reszek: [["malom-kerek", [0.1363, 0.5644, 0.1025, 0.1822], "hely-malomkerek"], ["malom-hab", [0.1225, 0.6889, 0.1313, 0.0822]]], mondat: "Kelepel a malom. Lisztet őröl a pékségnek!" },
     { id: "telek", x: 0.9375, y: 0.667, w: 0.11, h: 0.145, mondat: "Ez még üres műhely. Egyszer ide is beköltözik valaki!" },
-    { id: "kotel", x: 0.80, y: 0.44, w: 0.15, h: 0.09 },   /* csak meglebben */
-    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, mondat: "Miau!" }
+    { id: "kotel", x: 0.80, y: 0.44, w: 0.15, h: 0.09, kep: "kotel", doboz: [0.7188, 0.3333, 0.1750, 0.2556] },   /* csak meglebben */
+    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, kep: "macska", doboz: [0.4175, 0.5467, 0.0387, 0.0622], mondat: "Miau!" }
   ]
 };
 /* 🌳 Nagyfa tér — 3. kör (terv: Matekos\vilagkep-3-kor-ter-domboldal.html, ✅ 2026-11-24). 2. kódkör: a rajz fájlokban (kepek/ter/,
