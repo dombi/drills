@@ -295,6 +295,20 @@ function helyNevEger(M) {
   });
 }
 
+/* 🐱 a házon ülő díszlet (data-haz) és a ház egérre együtt emelkedik: akár a házon, akár a díszleten áll az egér (a producer kérése, 11-24) */
+function helyHazDiszlet(M) {
+  [].forEach.call(M.svg.querySelectorAll(".hely-diszlet[data-haz]"), function (d) {
+    var g = M.svg.querySelector('.terkep-hely[data-id="' + d.getAttribute("data-haz") + '"]'); if (!g) return;
+    var bent = { g: false, d: false };
+    function figyel(el, k) {
+      el.addEventListener("pointerenter", function (e) { if (e.pointerType !== "mouse") return; bent[k] = true; all(); });
+      el.addEventListener("pointerleave", function (e) { if (e.pointerType !== "mouse") return; bent[k] = false; all(); });
+    }
+    function all() { var on = bent.g || bent.d; d.classList.toggle("haz-fent", on); g.classList.toggle("haz-fent", on); }
+    figyel(g, "g"); figyel(d, "d");
+  });
+}
+
 /* ── RAJZ ── */
 function helyKepRajz(kep, hh, j, all) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) · all: a ház állapota (helyKepAllapot) */
   if (Array.isArray(kep)) return kep.map(function (k, i) { return '<g transform="translate(' + ((i - (kep.length - 1) / 2) * 52) + ' ' + (i === 1 ? -6 : 0) + ') scale(.66)">' + helyKepRajz(k) + '</g>'; }).join("");
@@ -459,6 +473,11 @@ function helyDiszletRajz(M, elol) {
     if (fajl) {   /* a rajz a rétegekben / saját fájlban van; itt csak a felirat (betű) és a mozduló rész */
       if (d.kep) b = '<g transform="translate(' + (-x).toFixed(1) + ' ' + (-y).toFixed(1) + ')">' + helyKepElem(H, d.kep, d.doboz) +
                      (d.reszek || []).map(function (r) { return helyKepElem(H, r[0], r[1], r[2]); }).join("") + '</g>';   /* reszek: pl. a malom kereke (CSS forgatja) */
+      var kh = d.haz && d.doboz && helyKeres(H, d.haz);
+      if (kh && b) {   /* 🐱 a házon ülő díszlet (a pékség macskája) a házzal együtt mozdul egérre: ugyanaz a forgáspont (a ház talpának közepe), a saját dobozához mérve */
+        var ox = ((kh.doboz[0] + kh.doboz[2] / 2 - d.doboz[0]) / d.doboz[2] * 100).toFixed(1), oy = ((kh.doboz[1] + kh.doboz[3] - d.doboz[1]) / d.doboz[3] * 100).toFixed(1);
+        b = '<g class="hd-haz" style="transform-origin:' + ox + '% ' + oy + '%">' + b + '</g>';
+      }
       if (d.felirat) b = '<text x="' + d.felirat[0] + '" y="' + d.felirat[1] + '" text-anchor="middle" font-size="12.5" fill="#5a4a7a" font-family="Fredoka,sans-serif" pointer-events="none">' + htmlVed(VILAG_NEV) + '</text>';
       if (d.mozdul === "rebben") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 8) + ' ' + q[1] + 'q4 -5 8 0q4 -5 8 0" fill="none" stroke="#6a5f8a" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>'; }).join("") + '</g>';
     }
@@ -471,7 +490,7 @@ function helyDiszletRajz(M, elol) {
     else if (d.id === "kecske") b = '<g class="hely-madarak"><ellipse cy="-18" rx="24" ry="14" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/><circle cx="24" cy="-28" r="9" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/>' +
                                 '<path d="M-14 -6v12M12 -6v12M22 -36l-4 -8M28 -36l3 -8" stroke="#8a7a6e" stroke-width="3" stroke-linecap="round"/></g>';
     else if (d.id === "madarak") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 9) + ' ' + q[1] + 'q5 -6 9 0q4 -6 9 0" fill="none" stroke="#6b6280" stroke-width="2.4" stroke-linecap="round"/>'; }).join("") + '</g>';
-    return '<g class="hely-diszlet" data-id="' + d.id + '" transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
+    return '<g class="hely-diszlet" data-id="' + d.id + '"' + (d.haz ? ' data-haz="' + d.haz + '"' : '') + ' transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
            '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g>';
   }).join("");
 }
@@ -537,6 +556,7 @@ function helyRajzol(host, o) {
     helySzabadSeta(M, [pt.x, pt.y]);
   });
   helyNevEger(M);
+  helyHazDiszlet(M);
   M.svg.addEventListener("keydown", function (e) {
     if (e.key !== "Enter" && e.key !== " ") return;
     var g = e.target.closest && e.target.closest(".terkep-hely"); if (!g) return;

@@ -96,7 +96,7 @@ HELYEK.kezmuvesek = {
       reszek: [["malom-kerek", [0.1363, 0.5644, 0.1025, 0.1822], "hely-malomkerek"], ["malom-hab", [0.1225, 0.6889, 0.1313, 0.0822]]], mondat: "Kelepel a malom. Lisztet őröl a pékségnek!" },
     { id: "telek", x: 0.9375, y: 0.667, w: 0.11, h: 0.145, mondat: "Ez még üres műhely. Egyszer ide is beköltözik valaki!" },
     { id: "kotel", x: 0.80, y: 0.44, w: 0.15, h: 0.09, kep: "kotel", doboz: [0.7188, 0.3333, 0.1750, 0.2556] },   /* csak meglebben */
-    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, kep: "macska", doboz: [0.4175, 0.5467, 0.0387, 0.0622], mondat: "Miau!" }
+    { id: "macska", x: 0.435, y: 0.59, w: 0.04, h: 0.045, elol: true, haz: "pekseg", kep: "macska", doboz: [0.4175, 0.5467, 0.0387, 0.0622], mondat: "Miau!" }
   ]
 };
 /* 🌳 Nagyfa tér — 3. kör (terv: Matekos\vilagkep-3-kor-ter-domboldal.html, ✅ 2026-11-24). 2. kódkör: a rajz fájlokban (kepek/ter/,

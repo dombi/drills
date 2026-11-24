@@ -183,8 +183,9 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @media (max-width:600px){ .hely-gomb{ height:44px; min-width:44px; font-size:15px; } .hely-portre, .hely-vissza{ width:50px; height:50px; } .hely-nevtabla{ font-size:17px; } }
 .terkep-hely{ cursor:pointer; outline:none; }
 .terkep-hely .hb{ transition:transform .2s ease, filter .2s ease; transform-box:fill-box; transform-origin:50% 100%; }
+.hely-diszlet .hd-haz{ transition:transform .2s ease, filter .2s ease; transform-box:fill-box; }   /* a forgáspont (transform-origin) a hely.js-ből: a ház talpa */
 @media (hover:hover){
-  .terkep-hely:hover .hb{ transform:translateY(-4px) scale(1.05); filter:drop-shadow(0 0 7px rgba(255,236,170,.95)); }
+  .terkep-hely:hover .hb, .terkep-hely.haz-fent .hb, .hely-diszlet.haz-fent .hd-haz{ transform:translateY(-4px) scale(1.05); filter:drop-shadow(0 0 7px rgba(255,236,170,.95)); }
 }
 .terkep-hely:focus-visible .hb{ filter:drop-shadow(0 0 6px #8a4fd0); }
 /* egyszeri bemutatás (ui.js BEMUTATAS): a hely néhányszor felragyog, amíg az unikornis beszél */
