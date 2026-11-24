@@ -264,10 +264,26 @@ function helySetal(M, id, kesz) {
 }
 
 /* ── a fatábla a képernyő tetején (a hely neve) ── */
-function helyNevTabla(M, nev) {
+function helyNevTabla(M, nev, marad) {   /* marad: amíg az egér a helyen áll, nem tűnik el (helyNevEger) */
   var t = M.host.querySelector(".hely-nevtabla"); if (!t) return;
-  t.textContent = nev; t.classList.remove("lat"); void t.offsetWidth; t.classList.add("lat");
-  clearTimeout(M.tablaT); M.tablaT = setTimeout(function () { t.classList.remove("lat"); }, 2600);
+  if (!(marad && t.textContent === nev && t.classList.contains("lat"))) { t.textContent = nev; t.classList.remove("lat"); void t.offsetWidth; t.classList.add("lat"); }
+  clearTimeout(M.tablaT); if (!marad) M.tablaT = setTimeout(function () { t.classList.remove("lat"); }, 2600);
+}
+/* 🖱️ egérrel egy hely fölé állva a neve kiíródik (felolvasás nélkül), és ott marad, amíg az egér ott van — a producer kérése (11-24) */
+function helyNevEger(M) {
+  var most = null;
+  M.svg.addEventListener("pointerover", function (e) {
+    if (e.pointerType !== "mouse") return;
+    var g = e.target.closest && e.target.closest(".terkep-hely"); if (!g || g === most) return;
+    most = g; helyNevTabla(M, helyNevOf(g.getAttribute("data-id")), true);
+  });
+  M.svg.addEventListener("pointerout", function (e) {
+    if (e.pointerType !== "mouse" || !most) return;
+    var ide = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".terkep-hely");
+    if (ide === most) return;
+    most = null; clearTimeout(M.tablaT);
+    M.tablaT = setTimeout(function () { var t = M.host.querySelector(".hely-nevtabla"); if (t) t.classList.remove("lat"); }, 600);
+  });
 }
 
 /* ── RAJZ ── */
@@ -484,6 +500,7 @@ function helyRajzol(host, o) {
     var pt = M.svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; pt = pt.matrixTransform(m.inverse());
     helySzabadSeta(M, [pt.x, pt.y]);
   });
+  helyNevEger(M);
   M.svg.addEventListener("keydown", function (e) {
     if (e.key !== "Enter" && e.key !== " ") return;
     var g = e.target.closest && e.target.closest(".terkep-hely"); if (!g) return;
