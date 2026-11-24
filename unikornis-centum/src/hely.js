@@ -18,7 +18,9 @@
      lehet (cel.palyak); a képe 5 lépésben épül (epul / teto / ajto / kesz / viragos: helyKepAllapot). Egy pálya:
      odasétál, ráközelít, indul. Több pálya: a ház TÁRGY-NÉZETE nyílik (helyTargyNezet; a rajz PC_TARGY, piac.js), a tárgy a
      bejárat. A pálya után a közelképbe tér vissza, a ház elé (helyPalyaVissza — palyaInditas hívja). A ház jele, újonc-fénye
-     és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt. */
+     és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt.
+   • 5. kör (Erdőszél; a 2. kódkörben az Összeadó utca): rejtett sorrend (tábla sorrend: true → helySorrend: mindig csak a
+     következő hely világít) · nem-ház hely (h.lepes === 3): kopar / berendezett / viragos (helyKepAllapot). */
 
 var VILAG_M = null;        /* a kirajzolt kép (helyRajzol eredménye) */
 var VILAG_KIZOOM = null;   /* visszatérés egy helyről: a kép onnan nagyít ki (terkepNyit állítja) */
@@ -364,10 +366,13 @@ function helyKepElem(H, nev, d, osztaly) {   /* d = [x, y, w, h] arányban → <
 /* a hely képének állapota: köd (Felvételi) · épül (alszik / rejtett) · virágos (minden pálya csillagos) · kész.
    3. kör, a közelkép pályás háza (cel.palyak): 5 lépés a gyerek haladásából (piacHazLepes 2–6, sosem romlik vissza; több pálya: a legtovább jutott) */
 var HELY_HAZ_ALLAPOT = { 2: "epul", 3: "teto", 4: "ajto", 5: "kesz", 6: "viragos" };
+/* 5. kör: a nem-ház hely (h.lepes === 3: tölgy, rét; az Összeadó utcán udvar, fa, ér, legelő, kert) 3 lépésben — ugyanabból a haladásból */
+var HELY_HELY_ALLAPOT = { 2: "kopar", 3: "berendezett", 4: "berendezett", 5: "berendezett", 6: "viragos" };
 function helyKepAllapot(h, j, rejt) {
   if (h.cel.kod) return "kod";
-  if (rejt || (j && j.ny === "alszik")) return "epul";
-  if (h.cel.palyak) return HELY_HAZ_ALLAPOT[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || "kesz";
+  var harom = h.lepes === 3;
+  if (rejt || (j && j.ny === "alszik")) return harom ? "kopar" : "epul";
+  if (h.cel.palyak) return (harom ? HELY_HELY_ALLAPOT : HELY_HAZ_ALLAPOT)[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || (harom ? "berendezett" : "kesz");
   if (j && j.ossz && j.kesz >= j.ossz) return "viragos";
   return "kesz";
 }
@@ -723,7 +728,28 @@ function helyAllapot(H, L) {
     if (ny === "alszik") j = { ny: "alszik" };
     jel[h.id] = j;
   });
+  if (H.sorrend) helySorrend(H, jel);
   return { jel: jel, lathato: lathato };
+}
+/* 🔢 REJTETT SORREND (5. kör, 5. döntés A; a tábla sorrend: true-ja — Erdőszél, később az Összeadó utca): a közelképben mindig csak
+   a KÖVETKEZŐ hely világít (újonc-fény, és oda száll a madár). A következő: a pult szerint nyitott (nem zárt, nem alvó), még végig
+   nem vitt pályák közül a legkönnyebb (pa.szint; egyenlőnél a tábla sorrendje). Ha az újonc-menet maga jelöl ki egy pályát
+   (palyaJelek .vil), az elsőbbséget kap. Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
+function helySorrend(H, jel) {
+  var leg = null;
+  H.helyek.forEach(function (h, i) {
+    var j = jel[h.id]; if (!j || !j.pas || j.ny === "alszik") return;
+    j.pas.forEach(function (pa) {
+      var J = palyaJelek(pa); if (J.zarva || pa.hamarosan || (J.kesz && !J.vil)) return;
+      var k = [J.vil ? 0 : 1, pa.szint || 99, i];
+      if (!leg || k[0] < leg.k[0] || (k[0] === leg.k[0] && (k[1] < leg.k[1] || (k[1] === leg.k[1] && k[2] < leg.k[2])))) leg = { id: h.id, k: k };
+    });
+  });
+  H.helyek.forEach(function (h) {
+    var j = jel[h.id]; if (!j || j.ny === "alszik") return;
+    if (leg && h.id === leg.id) j.ny = "vil"; else if (j.ny === "vil") delete j.ny;
+  });
+  return leg ? leg.id : null;
 }
 function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");

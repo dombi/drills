@@ -788,7 +788,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-4",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-5",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -799,7 +799,7 @@ HELYEK.vilag = {
     { id: "odu",           x: 0.11, y: 0.92, w: 0.08, h: 0.15, all: [0.155, 0.935], jel: [0.11, 0.73], kep: "odu", doboz: [0.0575, 0.7222, 0.1050, 0.2200],      cel: { kepernyo: "odu" } },
     { id: "kert",          x: 0.21, y: 0.92, w: 0.09, h: 0.13, all: [0.255, 0.94],  jel: [0.21, 0.84], kep: "kert", doboz: [0.1688, 0.8356, 0.0825, 0.1067],     cel: { kepernyo: "kert" } },
     { id: "postafa",       x: 0.28, y: 0.93, w: 0.07, h: 0.14, all: [0.25, 0.955], jel: [0.28, 0.80], kep: "postafa", doboz: [0.2487, 0.8022, 0.0638, 0.1422], cel: { regio: "egyeni" } },
-    { id: "erdoszel",      x: 0.10, y: 0.76, w: 0.08, h: 0.16, all: [0.15, 0.775], jel: [0.10, 0.665], kep: "erdoszel", doboz: [0.0575, 0.6622, 0.0875, 0.1133], cel: { regio: "osszeado" },
+    { id: "erdoszel",      x: 0.10, y: 0.76, w: 0.08, h: 0.16, all: [0.158, 0.78], jel: [0.10, 0.64], kep: "erdoszel", doboz: [0.0550, 0.6356, 0.1075, 0.1178], cel: { kozelkep: "erdoszel" },   /* 5. kör (2026-11-24): saját közelkép; táj-kép: taj_erdoszel */
       palyak: ["bontas-felmondas", "oszkiv-10", "oszkiv-20", "bujocska-ret"] },
     { id: "utca",          x: 0.37, y: 0.78, w: 0.07, h: 0.15, all: [0.41, 0.795], jel: [0.37, 0.665], kep: "utca", doboz: [0.3250, 0.6622, 0.0988, 0.1333],     cel: { kepernyo: "utca" } },
     { id: "ter",           x: 0.514, y: 0.805, w: 0.14, h: 0.18, all: [0.61, 0.82], jel: [0.514, 0.61], kep: "ter", doboz: [0.4375, 0.6222, 0.1537, 0.2022],    cel: { kozelkep: "ter" },   /* táj-kép 2026-11-24: a Nagyfa tér kicsinyített mása (terv/kozelkep-export.py taj_ter) */
@@ -913,6 +913,43 @@ HELYEK.domboldal = {
     { id: "kecske", x: 0.19, y: 0.855, w: 0.06, h: 0.08, kep: "kecske", doboz: [0.1638, 0.7733, 0.0625, 0.0911], mondat: "Mek-mek!" }
   ]
 };
+/* 🍄 Erdőszél — 5. kör, 1. kódkör (terv: Matekos\vilagkep-5-kor-erdoszel-osszeado-utca.html 5–8. pont, ✅ 2026-11-24, mind A):
+   tisztás a fák között. Lent középen érkezik (az Odú felől), az ösvény a villánál ágazik szét. Elöl balra a kis gombaház (Kitti
+   bogyót tesz a kosárba, aztán kivesz egyet), balra hátul az öreg tölgy (Mia két kupacba rakja a makkot), jobbra hátul az ér mögött,
+   PALLÓN át a nagy gombaház (Brekus átugrik a pallón), elöl jobbra a rét (a nagy levél mögül Cincin kukucskál), hátul középen a
+   mohás tisztás = üres telek. Az ér nem járható (patak + pontok.hid: csak a pallón át). A két gombaházat a méretük különbözteti meg.
+   lepes: 3 — nem ház, hanem hely: kopar → berendezett → viragos (helyKepAllapot); a ház 5 lépésben, mint a 3–4. körben.
+   sorrend: true — rejtett sorrend: mindig csak a következő hely világít (helySorrend, hely.js); szám sehol. Rajz: kepek/erdoszel/
+   (terv/kozelkep-export.py erdoszel(); a lakók a figurak.js mai rajza: terv/figurak-alak.json). */
+HELYEK.erdoszel = {
+  nev: "Erdőszél", vissza: "vilag", sorrend: true,
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "erdoszel", mappa: "kepek/erdoszel/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
+  uni: 0.95, jk: 2.2,
+  pontok: { kapu: [0.485, 0.955], villa: [0.489, 0.82], hid: [0.735, 0.642], tisztas: [0.50, 0.625] },
+  patak: [[0.756, 0.467], [0.72, 0.531], [0.721, 0.589], [0.735, 0.642], [0.746, 0.696], [0.73, 0.758], [0.719, 0.778], [0.666, 0.793], [0.7725, 0.793],
+           [0.7725, 0.7844], [0.8313, 0.7711], [0.9125, 0.7644], [1.0, 0.7511], [1.075, 0.7511]],   /* az ér, a tócsa és a sövény a túlsó part alján: nem járható (csak a pallón át) */
+  helyek: [
+    { id: "kisgomba",  x: 0.3419, y: 0.889, w: 0.16, h: 0.21, all: [0.4375, 0.906], jel: [0.325, 0.66], kep: "kisgomba",  rk: 2.0, doboz: [0.2575, 0.6889, 0.1675, 0.2178], cel: { palyak: ["oszkiv-10"] } },
+    { id: "nagygomba", x: 0.8438, y: 0.622, w: 0.17, h: 0.29,  all: [0.781, 0.649], jel: [0.8438, 0.30], kep: "nagygomba", rk: 2.6, doboz: [0.7550, 0.3267, 0.1800, 0.3133], cel: { palyak: ["oszkiv-20"] } },
+    { id: "ret",       x: 0.8406, y: 0.924, w: 0.235, h: 0.19, all: [0.7125, 0.8956], jel: [0.8406, 0.72], kep: "ret", lepes: 3, rk: 2.0, doboz: [0.7094, 0.7133, 0.2625, 0.2378], cel: { palyak: ["bujocska-ret"] } },
+    { id: "tolgy",     x: 0.2075, y: 0.717, w: 0.28, h: 0.53, all: [0.325, 0.767], jel: [0.2063, 0.19], kep: "tolgy", lepes: 3, rk: 3.4, doboz: [0.0612, 0.1611, 0.2925, 0.5889], cel: { palyak: ["bontas-felmondas"] } }
+  ],
+  utak: [["kapu", "villa", []], ["villa", "kisgomba", [[0.459, 0.878]]], ["villa", "tolgy", [[0.40, 0.795]]], ["villa", "tisztas", [[0.494, 0.70]]],
+         ["villa", "hid", [[0.57, 0.765], [0.65, 0.711], [0.705, 0.665]]], ["hid", "nagygomba", [[0.765, 0.638]]], ["villa", "ret", [[0.58, 0.86], [0.66, 0.88]]]],
+  jarhato: [
+    [[0.019, 0.678], [0.10, 0.622], [0.30, 0.60], [0.4125, 0.556], [0.5875, 0.556], [0.681, 0.556], [0.699, 0.578], [0.705, 0.622], [0.716, 0.662],
+     [0.725, 0.70], [0.7125, 0.747], [0.6625, 0.767], [0.656, 0.828], [0.719, 0.836], [0.781, 0.824], [0.825, 0.791], [0.9875, 0.778], [0.9875, 0.985], [0.019, 0.985]],   /* a tisztás (az ér innenső partja) */
+    [[0.7325, 0.522], [0.9875, 0.50], [0.9875, 0.722], [0.83, 0.742], [0.764, 0.738], [0.76, 0.693], [0.75, 0.644], [0.739, 0.589]],                                         /* az ér túlsó partja (a nagy gombaház) */
+    [[0.7075, 0.622], [0.7638, 0.618], [0.765, 0.667], [0.7088, 0.671]]                                                                                                       /* a palló */
+  ],
+  diszlet: [
+    { id: "telek", x: 0.50, y: 0.606, w: 0.15, h: 0.09, mondat: "Ez a tisztás még üres. Egyszer ide is beköltözik valaki!" },
+    { id: "gombak", x: 0.4594, y: 0.587, w: 0.045, h: 0.06, mondat: "Ezek csak gombák. Itt nem lakik senki." },
+    { id: "tas", x: 0.153, y: 0.958, w: 0.13, h: 0.075, kep: "tas", doboz: [0.0938, 0.8844, 0.1187, 0.0733], mondat: "Lassan járj, tovább érsz!" },
+    { id: "harkaly", x: 0.1875, y: 0.545, w: 0.04, h: 0.07, elol: true, kep: "harkaly", doboz: [0.1750, 0.4822, 0.0275, 0.0600], mondat: "Kop-kop-kop!" }
+  ]
+};
 /* 🏡 Összeadó utca — IDEIGLENES közelkép (2. döntés A, 2026-11-24): a mai Összeadó liget kapuja + a Piactérről átköltözött
    Rokon-létra és Számcsalád. Az 5. hullámban jön a végleges utca (8 ház, a nagy ház emeletei). */
 HELYEK["osszeado-utca"] = {
@@ -935,7 +972,8 @@ var HELY_NEV = {
   "dallam-ter": "Dallam-tér", kezmuvesek: "Kézművesek", domboldal: "Domboldal", konyvtar: "Bagolykönyvtár", fejtoro: "Fejtörő-hegy",
   felveteli: "Felvételi-csúcs", szabo: "Szabóműhely", bajital: "Bájitalkonyha", pekseg: "Mézes pékség",
   bolt: "Tüske néni boltja", vasar: "Tündérvásár", zsib: "Zsivány standja", szalag: "Szalagműhely", deli: "Déli vásár", irasbeli: "Garas tornya", josda: "Jósda",
-  "osszeado-liget": "Összeadó liget", letra: "Rokon-létra", csalad: "Számcsalád"
+  "osszeado-liget": "Összeadó liget", letra: "Rokon-létra", csalad: "Számcsalád",
+  kisgomba: "Kis gombaház", nagygomba: "Nagy gombaház", ret: "Rét", tolgy: "Öreg tölgy"
 };
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
@@ -24942,7 +24980,9 @@ function pcValasztKopp(vk) {
      lehet (cel.palyak); a képe 5 lépésben épül (epul / teto / ajto / kesz / viragos: helyKepAllapot). Egy pálya:
      odasétál, ráközelít, indul. Több pálya: a ház TÁRGY-NÉZETE nyílik (helyTargyNezet; a rajz PC_TARGY, piac.js), a tárgy a
      bejárat. A pálya után a közelképbe tér vissza, a ház elé (helyPalyaVissza — palyaInditas hívja). A ház jele, újonc-fénye
-     és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt. */
+     és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt.
+   • 5. kör (Erdőszél; a 2. kódkörben az Összeadó utca): rejtett sorrend (tábla sorrend: true → helySorrend: mindig csak a
+     következő hely világít) · nem-ház hely (h.lepes === 3): kopar / berendezett / viragos (helyKepAllapot). */
 
 var VILAG_M = null;        /* a kirajzolt kép (helyRajzol eredménye) */
 var VILAG_KIZOOM = null;   /* visszatérés egy helyről: a kép onnan nagyít ki (terkepNyit állítja) */
@@ -25288,10 +25328,13 @@ function helyKepElem(H, nev, d, osztaly) {   /* d = [x, y, w, h] arányban → <
 /* a hely képének állapota: köd (Felvételi) · épül (alszik / rejtett) · virágos (minden pálya csillagos) · kész.
    3. kör, a közelkép pályás háza (cel.palyak): 5 lépés a gyerek haladásából (piacHazLepes 2–6, sosem romlik vissza; több pálya: a legtovább jutott) */
 var HELY_HAZ_ALLAPOT = { 2: "epul", 3: "teto", 4: "ajto", 5: "kesz", 6: "viragos" };
+/* 5. kör: a nem-ház hely (h.lepes === 3: tölgy, rét; az Összeadó utcán udvar, fa, ér, legelő, kert) 3 lépésben — ugyanabból a haladásból */
+var HELY_HELY_ALLAPOT = { 2: "kopar", 3: "berendezett", 4: "berendezett", 5: "berendezett", 6: "viragos" };
 function helyKepAllapot(h, j, rejt) {
   if (h.cel.kod) return "kod";
-  if (rejt || (j && j.ny === "alszik")) return "epul";
-  if (h.cel.palyak) return HELY_HAZ_ALLAPOT[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || "kesz";
+  var harom = h.lepes === 3;
+  if (rejt || (j && j.ny === "alszik")) return harom ? "kopar" : "epul";
+  if (h.cel.palyak) return (harom ? HELY_HELY_ALLAPOT : HELY_HAZ_ALLAPOT)[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || (harom ? "berendezett" : "kesz");
   if (j && j.ossz && j.kesz >= j.ossz) return "viragos";
   return "kesz";
 }
@@ -25647,7 +25690,28 @@ function helyAllapot(H, L) {
     if (ny === "alszik") j = { ny: "alszik" };
     jel[h.id] = j;
   });
+  if (H.sorrend) helySorrend(H, jel);
   return { jel: jel, lathato: lathato };
+}
+/* 🔢 REJTETT SORREND (5. kör, 5. döntés A; a tábla sorrend: true-ja — Erdőszél, később az Összeadó utca): a közelképben mindig csak
+   a KÖVETKEZŐ hely világít (újonc-fény, és oda száll a madár). A következő: a pult szerint nyitott (nem zárt, nem alvó), még végig
+   nem vitt pályák közül a legkönnyebb (pa.szint; egyenlőnél a tábla sorrendje). Ha az újonc-menet maga jelöl ki egy pályát
+   (palyaJelek .vil), az elsőbbséget kap. Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
+function helySorrend(H, jel) {
+  var leg = null;
+  H.helyek.forEach(function (h, i) {
+    var j = jel[h.id]; if (!j || !j.pas || j.ny === "alszik") return;
+    j.pas.forEach(function (pa) {
+      var J = palyaJelek(pa); if (J.zarva || pa.hamarosan || (J.kesz && !J.vil)) return;
+      var k = [J.vil ? 0 : 1, pa.szint || 99, i];
+      if (!leg || k[0] < leg.k[0] || (k[0] === leg.k[0] && (k[1] < leg.k[1] || (k[1] === leg.k[1] && k[2] < leg.k[2])))) leg = { id: h.id, k: k };
+    });
+  });
+  H.helyek.forEach(function (h) {
+    var j = jel[h.id]; if (!j || j.ny === "alszik") return;
+    if (leg && h.id === leg.id) j.ny = "vil"; else if (j.ny === "vil") delete j.ny;
+  });
+  return leg ? leg.id : null;
 }
 function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");
