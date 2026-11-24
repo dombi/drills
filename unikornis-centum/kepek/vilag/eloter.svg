@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+<!-- Thinking horses · eloter · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2">
+    <path d="M1490,900 C1480,860 1510,830 1545,846 C1560,820 1610,824 1610,860 L1610,900 Z" fill="#9fcf8f"/>
+    <path d="M-10,900 C-6,866 30,850 60,868 C70,880 66,894 70,900 Z" fill="#9fcf8f"/>
+  </g>
+  <!-- a táj neve: fatábla az ösvény elején -->
+  <g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2" stroke-linejoin="round">
+    <path d="M70,598 L70,560 M110,598 L110,560" stroke="#8a6a4a" stroke-width="4"/>
+    <rect x="44" y="528" width="94" height="34" rx="5" fill="#f0d9b5"/>
+  </g>
+</svg>

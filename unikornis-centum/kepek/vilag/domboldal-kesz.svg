@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="568 280 174 148" width="174" height="148">
+<!-- Thinking horses · domboldal-kesz · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-domboldal">
+    <path d="M598,414 L600,330 L622,330 L624,414 Z" fill="#fce49a"/>
+    <path d="M594,332 L611,296 L628,332 Z" fill="#e8a85a"/>
+    <rect x="606" y="346" width="10" height="14" rx="5" fill="#ffe08a"/>
+    <path d="M636,414 L636,388 L684,388 L684,414 Z" fill="#fdf0d0"/>
+    <path d="M632,390 Q660,352 688,390 Z" fill="#ffe08a"/>
+    <path d="M660,366 L662,371 L667,371 L663,374 L665,379 L660,376 L655,379 L657,374 L653,371 L658,371 Z" fill="#f2c14e" stroke-width="1"/>
+    <path d="M690,414 L692,398 L712,398 L714,414 Z M688,400 L702,386 L716,400 Z" fill="#f7c59f"/>
+  </g></g>
+</svg>

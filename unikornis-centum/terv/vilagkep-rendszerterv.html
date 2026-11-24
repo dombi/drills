@@ -183,6 +183,18 @@ HELYEK.ter = { kep: {...}, vissza: "vilag", helyek: [
 <li>A <code>sw.js</code>-hez nem kellett nyúlni: az új modulok a <code>game.js</code>-be épülnek, új fájl (kép) még nincs. A frissítés-jel emelve (<code>?v=20261123-1</code>). A böngészőfül címe is „Thinking horses”; kiejtés: <code>KIEJTES</code> → „Szinking horszisz”.</li>
 <li>A régi térkép-kód (<code>renderLigetTerkep</code>, <code>LIGET_TERKEP</code>) érintetlen és használaton kívül — a 8. hullám törli.</li>
 </ul></div>
+<div class="dont"><b>✅ 2. KÖR KÉSZ (2026-11-24)</b> — a jóváhagyott rajzterv (<code>Matekos/vilagkep-rajzterv.html</code>, „Mehet, mind A”) a játékban; visszatérési pont előtte: <code>v4.1-stabil</code>. Eltérések, döntések:
+<ul>
+<li><b>Fájlok</b> (<code>kepek/vilag/</code>, 46 db, összesen ~236 KB, a legnagyobb 52 KB): <code>eg</code>, <code>tavoli</code>, <code>kozep</code> (rét, folyó, utak, stég, kút), <code>eloter</code>, <code>mozgo</code>, <code>hid</code> (külön, mert a víz áramlása alatta folyik), és helyenként <code>&lt;kep&gt;-epul / -kesz / -viragos</code> + <code>felveteli-kod</code>. A lapon JS-sel generált fák, fű, virágok, utak, csillogás, nád statikus SVG lett: <code>terv/vilagkep-export.py</code> (ugyanaz a seedelt véletlen; egyszeri eszköz, utána a rajz a fájlokban él).</li>
+<li><b>Méret</b>: a rajz vektoros, ezért a 1600×900-as egység maradt (a 3200×1800 csak rasztereknél kellene); a koordináták nem változtak, a rajzterv a táblához igazodik.</li>
+<li><b>Új táblamezők</b>: <code>kep.mappa</code>, <code>kep.v</code> (frissítés-jel), <code>retegek</code>, <code>mozgo</code>, <code>eloter</code>; helyenként <code>doboz</code> (a hely képének helye, arány). Díszlet: <code>kep/doboz</code> (híd), <code>felirat</code> + <code>elol</code> (a tábla felirata a kódban, mert képben a betű nem töltődik be), új <code>steg</code> (csónak, „Egyszer majd útra kel!”, nem nyílik).</li>
+<li><b>Állapot</b>: épül = alszik / rejtett (halvány ház + állvány, rajta a mai köd); kész; virágos = minden pálya csillagos (virágsor + csillám). Ébredéskor az állvány eltűnik, a kész ház jön. A Felvételi-csúcs: <code>kod</code>.</li>
+<li><b>Rétegrend</b>: ég · távoli · közép · mozgó (alsó: felhők, vízesés, felhőárnyék, víz, nád, csónak, malomkerék) · díszlet (híd) · helyek · mozgó (felső: madárcsapat, fű) · unikornis · előtér · jelek. A kis élet (füst, zászló, harang, fényfüzér, harangláb-madarak) a hely saját fájljában, épülő házon nincs.</li>
+<li><b>A leszálló madár</b> (döntés A): a „következő” helyre száll (az újonc-fény helye; ha nincs, a tér), és a ⭐-jelvény tetejére ül. A jel-horgonyok (<code>jel</code>) az új rajz tetejére igazítva (Odú, Kert, Postafa, Erdőszél, Utca, tér, Dallam-tér, Domboldal, Fejtörő-hegy).</li>
+<li><b>Teljesítmény</b>: a rétegek <code>&lt;image&gt;</code>-ként egyszer rasztereződnek; a mozgó réteg (szűrő nélkül) a DOM-ba ágyazva. Ráközelítéskor a tágabb nézet rajzolódik ki egyszer, a mozgás alatt csak a kész képet nagyítja (GPU), a végén élesen újrarajzol — így a firka-szűrő nem fut minden képkockán; beégetés nem kellett. Képkocka-mérés rejtett böngészőpanel miatt nem volt: a producer élő megnézésén figyelendő (főleg tableten).</li>
+<li><b>Offline</b>: <code>sw.js</code> előre letölti a 46 fájlt (<code>VILAG_KEPEK</code>, <code>VILAG_V</code> — a <code>kep.v</code>-vel együtt emelendő). Frissítés-jel: <code>?v=20261123-2</code>.</li>
+<li>Napszak: nappal marad (döntés A: a napszak követése későbbi kis kör).</li>
+</ul></div>
 <p>Minden hullám után a játék működik, és a gyerekek ki is próbálhatják. 🎨 = rajz-megálló (rajzterv a producernek, jóváhagyás, csak utána kód). Nagy átírás előtt stabil visszatérési pont (git-tag).</p>
 <table>
 <tr><th>#</th><th>Kör</th><th>Mit kap a gyerek</th><th>Méret</th></tr>

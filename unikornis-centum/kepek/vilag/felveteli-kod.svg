@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1290 20 310 220" width="310" height="220">
+<!-- Thinking horses · felveteli-kod · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter><filter id="kod" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+<g id="h-felveteli" filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.8" stroke-linejoin="round" opacity=".85">
+  <path d="M1416,180 L1416,164 L1430,152 L1444,164 L1444,180 Z" fill="#e7d6bf"/><path d="M1410,166 L1430,148 L1450,166" fill="none" stroke="#5e8a6e" stroke-width="3"/>
+  <path d="M1466,122 L1466,108 L1478,98 L1490,108 L1490,122 Z" fill="#e7d6bf"/><path d="M1461,110 L1478,94 L1495,110" fill="none" stroke="#5e8a6e" stroke-width="3"/>
+  <path d="M1462,54 L1478,54 M1464,50 L1476,58 M1476,50 L1464,58" stroke="#8a6a4a" stroke-width="2.4"/>
+</g><g id="kod-felveteli" filter="url(#kod)" fill="#fff" opacity=".7">
+  <ellipse cx="1450" cy="150" rx="110" ry="26"><animateTransform attributeName="transform" type="translate" values="0,0;28,-4;0,0" dur="22s" repeatCount="indefinite"/></ellipse>
+  <ellipse cx="1500" cy="100" rx="80" ry="20"><animateTransform attributeName="transform" type="translate" values="0,0;-24,3;0,0" dur="17s" repeatCount="indefinite"/></ellipse>
+  <ellipse cx="1420" cy="196" rx="90" ry="18" opacity=".8"><animateTransform attributeName="transform" type="translate" values="0,0;20,2;0,0" dur="26s" repeatCount="indefinite"/></ellipse>
+</g>
+</svg>

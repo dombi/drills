@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="456 740 106 66" width="106" height="66">
+<!-- Thinking horses · hid · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>
+<g id="hid" stroke="#5a4a7a" stroke-width="2" stroke-linejoin="round" filter="url(#firka)">
+  <path d="M466,788 Q509,764 552,788 L552,798 Q509,776 466,798 Z" fill="#c9a27a"/>
+  <path d="M468,776 Q509,750 550,776" fill="none" stroke-width="2.4"/>
+  <path d="M478,786 L478,772 M494,778 L494,764 M509,775 L509,761 M524,778 L524,764 M540,786 L540,772" stroke-width="1.8"/>
+</g>
+</svg>

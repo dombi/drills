@@ -8,8 +8,11 @@
      Hely mellett megállva: a neve kiíródik és felolvasódik. Díszlet: koppintásra él, jutalom nélkül.
    • Nincs szabad nagyítás (két ujj, Ctrl+görgő). Sarok-gombok: bal felső a saját unikornis portréja (koppintás = legelő,
      2 mp nyomva = 👪 Szülőknek) / közelképben „←”; jobb felső erszény ✨💧 + 🔊 hang ki/be.
-   • 1. kör: a helyek képe a MAI jelkép (LT_JELKEP, Piactér), a háttér ideiglenes rajz (helyHatter); a jelek, az újonc-köd,
-     az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik). */
+   • 2. kör: ha a táblának van kep.mappa-ja, a rajz FÁJLOKBÓL jön (helyFajl): rétegek <image>-ként (egyszer rasztereződnek),
+     a hely képe az állapota szerint <kep>-epul / -kesz / -viragos (/ -kod), a mozgó réteg (víz, felhők, malom, madarak, fű)
+     beágyazva (helyMozgoBetolt), és a leszálló madár mindig a „következő” helyre száll (helyMadar). Tábla kep.mappa nélkül
+     (a Kézművesek ideiglenes közelképe): a régi rajz (helyKepRajz, helyHatter) — a 4. körben az is fájl lesz.
+     A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik). */
 
 var VILAG_M = null;        /* a kirajzolt kép (helyRajzol eredménye) */
 var VILAG_KIZOOM = null;   /* visszatérés egy helyről: a kép onnan nagyít ki (terkepNyit állítja) */
@@ -65,6 +68,22 @@ function helyZoom(M, a, b, o, kesz) {
     return;
   }
   var t0 = performance.now(), tok = M.zoomTok = {};
+  if (M.H.kep.mappa && M.svg.clientWidth) {   /* 2. kör: a kép a TÁGABB nézetben rajzolódik ki egyszer, a mozgás alatt csak
+       a kész képet nagyítjuk (GPU-transzformáció) — így a firka-szűrő nem fut minden képkockán; a végén élesen újrarajzol */
+    var alap = a[2] >= b[2] ? a : b, W = M.svg.clientWidth, k0 = W / alap[2], st = M.svg.style;
+    helyViewBox(M, alap); st.transformOrigin = "0 0"; st.willChange = "transform";
+    requestAnimationFrame(function lep2(most) {
+      if (M.zoomTok !== tok || !M.svg.isConnected) { st.transform = ""; st.willChange = ""; return; }
+      var t = Math.min(1, (most - t0) / HELY_ZOOM_MS), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      var v = a.map(function (n, i) { return n + (b[i] - n) * e; }), kv = W / v[2];
+      st.transform = "translate(" + ((alap[0] - v[0]) * kv).toFixed(1) + "px," + ((alap[1] - v[1]) * kv).toFixed(1) + "px) scale(" + (kv / k0).toFixed(4) + ")";
+      if (o.halvanyul) st.opacity = String(t < .6 ? 1 : 1 - (t - .6) / .4);
+      if (o.elotunik) st.opacity = String(Math.min(1, .3 + t));
+      if (t < 1) { requestAnimationFrame(lep2); return; }
+      st.transform = ""; st.willChange = ""; helyViewBox(M, b); kesz();
+    });
+    return;
+  }
   requestAnimationFrame(function lep(most) {
     if (M.zoomTok !== tok || !M.svg.isConnected) return;
     var t = Math.min(1, (most - t0) / HELY_ZOOM_MS), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -290,7 +309,68 @@ function helyJelRajz(j, x, y, k) {   /* ⭐ kész/összes, legfeljebb 2 jelvény
                      '<text x="10" y="-6" font-size="11" font-weight="700" fill="#6b6280">z' + ltAnim("opacity", "0;1;0", "2.4s") + '</text></g>';
   return s + '</g>';
 }
-/* az ideiglenes háttér (a 2. körben rétegfájlok: ég · távoli · közép · előtér) */
+/* ── 2. kör: a rajz fájlokból (kepek/vilag/…) ── */
+function helyFajl(H, nev) { return H.kep.mappa + nev + ".svg" + (H.kep.v ? "?v=" + H.kep.v : ""); }
+function helyKepElem(H, nev, d, osztaly) {   /* d = [x, y, w, h] arányban → <image> a kép egységében; nem koppintható (a téglalap az) */
+  return '<image' + (osztaly ? ' class="' + osztaly + '"' : '') + ' href="' + helyFajl(H, nev) + '" x="' + (d[0] * H.kep.w).toFixed(1) + '" y="' + (d[1] * H.kep.h).toFixed(1) +
+         '" width="' + (d[2] * H.kep.w).toFixed(1) + '" height="' + (d[3] * H.kep.h).toFixed(1) + '" preserveAspectRatio="none" pointer-events="none"/>';
+}
+/* a hely képének állapota: köd (Felvételi) · épül (alszik / rejtett) · virágos (minden pálya csillagos) · kész */
+function helyKepAllapot(h, j, rejt) {
+  if (h.cel.kod) return "kod";
+  if (rejt || (j && j.ny === "alszik")) return "epul";
+  if (j && j.ossz && j.kesz >= j.ossz) return "viragos";
+  return "kesz";
+}
+var HELY_MOZGO = {};   /* fájl → a betöltött mozgó réteg (Document), hogy ne töltse le minden rajzoláskor */
+function helyMozgoBetolt(M) {
+  var H = M.H, u = helyFajl(H, H.mozgo);
+  function beepit(doc) {
+    if (!M.svg.isConnected || !doc) return;
+    var defs = doc.querySelector("defs"), also = doc.getElementById("vm-also"), felso = doc.getElementById("vm-felso");
+    var d0 = M.svg.querySelector("defs");
+    if (defs && d0) Array.prototype.forEach.call(defs.childNodes, function (n) { d0.appendChild(document.importNode(n, true)); });
+    var a = M.svg.querySelector(".hely-mozgo-also"), f = M.svg.querySelector(".hely-mozgo-felso");
+    if (also && a) a.appendChild(document.importNode(also, true));
+    if (felso && f) f.appendChild(document.importNode(felso, true));
+    helyMadar(M);
+    if (nyugiMod() && M.svg.pauseAnimations) M.svg.pauseAnimations();
+  }
+  if (HELY_MOZGO[u]) { beepit(HELY_MOZGO[u]); return; }
+  fetch(u).then(function (v) { return v.ok ? v.text() : ""; }).then(function (s) {
+    if (!s) return;
+    var doc = new DOMParser().parseFromString(s, "image/svg+xml");
+    if (doc.querySelector("parsererror")) return;
+    HELY_MOZGO[u] = doc; beepit(doc);
+  }).catch(function () {});   /* net nélkül, tárban sincs: a táj mozgás nélkül is teljes */
+}
+/* 🐦 a leszálló madár: a „következő” hely (az újonc-fény helye) jel-horgonya mellé száll, megpihen, szökken, továbbrepül.
+   (Döntés 2026-11-23, A.) Ha nincs újonc-fény: a tér (ott fut össze minden ösvény). A rajza a mozgó réteg vm-madar / vm-ulo jele. */
+function helyMadar(M) {
+  var H = M.H, cel = null, f = M.svg.querySelector(".hely-mozgo-felso");
+  if (!f || !M.svg.querySelector("#vm-ulo")) return;
+  H.helyek.forEach(function (h) { var j = M.jel[h.id]; if (!cel && j && j.ny === "vil" && M.halo.lathato[h.id]) cel = h; });
+  if (!cel) cel = helyKeres(H, "ter");
+  if (!cel) return;
+  var j = M.jel[cel.id] || {}, k = H.jk * .9, sz = (j.ossz ? 50 : 0) + Math.min((j.jelzes || []).length, 2) * 28 + (j.alszik ? 28 : 0);
+  var tx = cel.jel[0] * H.kep.w + (sz ? sz / 2 - 12 : 0) * k, ty = cel.jel[1] * H.kep.h - (sz ? 11 * k + 1 : 0);   /* a jelvény tetején ül (jelvény nélkül: a tetőn) */
+  var be = "M-40,260 C300,170 " + (tx - 190).toFixed(0) + "," + (ty - 140).toFixed(0) + " " + tx.toFixed(0) + "," + ty.toFixed(0);
+  var ki = "M" + tx.toFixed(0) + "," + ty.toFixed(0) + " C" + (tx + 107).toFixed(0) + "," + (ty - 104).toFixed(0) + " 1300,380 1720,300";
+  var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("class", "hely-madar"); g.setAttribute("data-hely", cel.id);
+  g.innerHTML =
+    '<g stroke="#6a5f8a" stroke-width="1.8" fill="none" stroke-linecap="round"><g><use href="#vm-madar"/>' +
+      '<animateMotion path="' + be + '" keyPoints="0;1;1" keyTimes="0;.35;1" calcMode="linear" dur="50s" repeatCount="indefinite"/>' +
+      '<animate attributeName="opacity" values="1;0" keyTimes="0;.35" calcMode="discrete" dur="50s" repeatCount="indefinite"/></g>' +
+    '<g opacity="0"><use href="#vm-madar"/>' +
+      '<animateMotion path="' + ki + '" keyPoints="0;0;1" keyTimes="0;.7;1" calcMode="linear" dur="50s" repeatCount="indefinite"/>' +
+      '<animate attributeName="opacity" values="0;1" keyTimes="0;.7" calcMode="discrete" dur="50s" repeatCount="indefinite"/></g></g>' +
+    '<g opacity="0" transform="translate(' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ')"><g><use href="#vm-ulo"/>' +
+      '<animateTransform attributeName="transform" type="translate" values="0,0;0,0;3,-3;0,0;0,0" keyTimes="0;.5;.52;.54;1" dur="50s" repeatCount="indefinite"/></g>' +
+      '<animate attributeName="opacity" values="0;1;0" keyTimes="0;.35;.7" calcMode="discrete" dur="50s" repeatCount="indefinite"/></g>';
+  f.appendChild(g);
+}
+/* az ideiglenes háttér (tábla kep.mappa nélkül: a Kézművesek közelképe a 4. körig) */
 function helyHatter(M) {
   var H = M.H, w = H.kep.w, h = H.kep.h, s = "", i;
   var patak = function (pp) { return uniGorbePontok(uniSimaGorbe(pp.map(function (q) { return helyPx(H, q); }))).map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join(""); };
@@ -326,11 +406,16 @@ function helyUtakRajz(M) {
   return '<path d="' + d + '" fill="none" stroke="#d9bf94" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>' +
          '<path d="' + d + '" fill="none" stroke="#f5e6c6" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>';
 }
-function helyDiszletRajz(M) {
-  var H = M.H, w = H.kep.w, h = H.kep.h;
-  return (H.diszlet || []).map(function (d) {
+function helyDiszletRajz(M, elol) {
+  var H = M.H, w = H.kep.w, h = H.kep.h, fajl = !!H.kep.mappa;
+  return (H.diszlet || []).filter(function (d) { return !fajl || !d.elol === !elol; }).map(function (d) {
     var x = d.x * w, y = d.y * h, b = '';
-    if (d.id === "tabla") b = '<path d="M0 0V-60" stroke="#8a6a52" stroke-width="6"/><rect x="-74" y="-104" width="148" height="46" rx="8" fill="#e8cfa4" stroke="#8a6a52" stroke-width="4"/>' +
+    if (fajl) {   /* a rajz a rétegekben / saját fájlban van; itt csak a felirat (betű) és a mozduló rész */
+      if (d.kep) b = '<g transform="translate(' + (-x).toFixed(1) + ' ' + (-y).toFixed(1) + ')">' + helyKepElem(H, d.kep, d.doboz) + '</g>';
+      if (d.felirat) b = '<text x="' + d.felirat[0] + '" y="' + d.felirat[1] + '" text-anchor="middle" font-size="12.5" fill="#5a4a7a" font-family="Fredoka,sans-serif" pointer-events="none">' + htmlVed(VILAG_NEV) + '</text>';
+      if (d.mozdul === "rebben") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 8) + ' ' + q[1] + 'q4 -5 8 0q4 -5 8 0" fill="none" stroke="#6a5f8a" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>'; }).join("") + '</g>';
+    }
+    else if (d.id === "tabla") b = '<path d="M0 0V-60" stroke="#8a6a52" stroke-width="6"/><rect x="-74" y="-104" width="148" height="46" rx="8" fill="#e8cfa4" stroke="#8a6a52" stroke-width="4"/>' +
                               '<text y="-74" text-anchor="middle" font-size="20" font-weight="700" fill="#6e4a36" font-family="Fredoka,sans-serif">' + htmlVed(VILAG_NEV) + '</text>';
     else if (d.id === "hid") b = '<path d="M-44 -6Q0 -26 44 -6" fill="none" stroke="#9a6f52" stroke-width="12" stroke-linecap="round"/><path d="M-44 -6Q0 -26 44 -6" fill="none" stroke="#c99a6a" stroke-width="7" stroke-linecap="round"/>' +
                              '<path d="M-36 -10V-26M0 -16V-34M36 -10V-26M-36 -26Q0 -44 36 -26" fill="none" stroke="#8a6a52" stroke-width="3"/>';
@@ -341,7 +426,7 @@ function helyDiszletRajz(M) {
 }
 /* o = { tabla (HELYEK kulcsa), jel: {id: {kesz, ossz, alszik, jelzes, ny}}, lathato: {id: true}, all: hely-id | null, pont: [x,y] arány, koppint(id) } */
 function helyRajzol(host, o) {
-  var H = HELYEK[o.tabla], w = H.kep.w, h = H.kep.h, k = H.jk;
+  var H = HELYEK[o.tabla], w = H.kep.w, h = H.kep.h, k = H.jk, fajl = !!H.kep.mappa;
   host.innerHTML = "";
   host.classList.add("hely-host");
   var M = { H: H, tabla: o.tabla, host: host, jel: o.jel || {}, halo: { lathato: o.lathato || {} }, fut: null, all: null, vilag: true };
@@ -350,7 +435,15 @@ function helyRajzol(host, o) {
   var helyek = sor.map(function (hh) {
     var j = M.jel[hh.id] || {}, rejt = !M.halo.lathato[hh.id], px = hh.x * w, py = hh.y * h;
     var bw = hh.w * w / k, bh = hh.h * h / k, kod = j.ny === "alszik" || rejt;
-    return '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + (kod ? " ny-kod" : "") + (rejt ? " rejtett" : "") + '" data-id="' + hh.id + '" role="button" tabindex="0" aria-label="' + htmlVed(helyNevOf(hh.id)) + '">' +
+    var fej = '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + (kod ? " ny-kod" : "") + (rejt ? " rejtett" : "") + '" data-id="' + hh.id + '" role="button" tabindex="0" aria-label="' + htmlVed(helyNevOf(hh.id)) + '">';
+    if (fajl) {   /* 2. kör: a hely képe fájlból, az állapota szerint; a koppintható téglalap a táblából */
+      var all = helyKepAllapot(hh, j, rejt);
+      return fej + '<rect x="' + (px - hh.w * w / 2).toFixed(1) + '" y="' + (py - hh.h * h).toFixed(1) + '" width="' + (hh.w * w).toFixed(1) + '" height="' + (hh.h * h + 12).toFixed(1) + '" fill="transparent"/>' +
+        (j.ny === "vil" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' + ltNyHalo(HELY_MAGAS) + '</g>' : "") +
+        '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '" data-all="' + all + '">' + helyKepElem(H, hh.kep + "-" + all, hh.doboz) + '</g>' +
+        (kod && all !== "kod" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' + ltNyKod(HELY_MAGAS) + '</g>' : "") + '</g>';
+    }
+    return fej +
       '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' +
       '<rect x="' + (-bw / 2).toFixed(1) + '" y="' + (-bh).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (bh + 10).toFixed(1) + '" fill="transparent"/>' +
       (j.ny === "vil" ? ltNyHalo(HELY_MAGAS) : "") +
@@ -359,10 +452,13 @@ function helyRajzol(host, o) {
   var jelek = sor.map(function (hh) { return helyJelRajz(M.jel[hh.id], hh.jel[0] * w, hh.jel[1] * h, k * .9); }).join("");
   host.innerHTML =
     '<svg class="hely-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' + LT_DEFS +
-      '<g class="hely-fold">' + helyHatter(M) + '<g filter="url(#lt-firka)">' + helyUtakRajz(M) + '</g></g>' +
-      helyDiszletRajz(M) + helyek + jelek +
+      (fajl
+        ? '<g class="hely-fold">' + H.retegek.map(function (r) { return helyKepElem(H, r, [0, 0, 1, 1], "hely-reteg"); }).join("") + '</g><g class="hely-mozgo-also"></g>'
+        : '<g class="hely-fold">' + helyHatter(M) + '<g filter="url(#lt-firka)">' + helyUtakRajz(M) + '</g></g>') +
+      helyDiszletRajz(M) + helyek + (fajl ? '<g class="hely-mozgo-felso"></g>' : jelek) +
       '<g class="terkep-uni" pointer-events="none"><g class="terkep-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' +
         unikornisSVG("hl-uni", LENYEK[mentes.leny], H.uni, P().oltozet) + '</g></g>' +
+      (fajl ? (H.eloter ? helyKepElem(H, H.eloter, [0, 0, 1, 1], "hely-reteg") : "") + helyDiszletRajz(M, true) + jelek : '') +
     '</svg>' +
     '<div class="hely-nevtabla" aria-live="polite"></div>' +
     '<div class="hely-sarok hely-bal"></div>' +
@@ -379,6 +475,7 @@ function helyRajzol(host, o) {
   else if (o.pont) { var pp = helyPx(H, o.pont); helyUniAllit(M, pp[0], pp[1]); }
   else { var p0 = helyPx(H, H.helyek[0].all); helyUniAllit(M, p0[0], p0[1]); M.all = H.helyek[0].id; }
   helySarokGombok(M, o);
+  if (fajl && H.mozgo) helyMozgoBetolt(M);
   /* koppintás: hely → o.koppint; díszlet → él; föld → szabad séta */
   M.svg.addEventListener("click", function (e) {
     var g = e.target.closest(".terkep-hely"); if (g) { o.koppint(g.getAttribute("data-id")); return; }
@@ -574,7 +671,15 @@ function helyEbreszt(M, id, mondat) {
   setTimeout(function () {
     if (!M.svg.isConnected) return;
     var tr = g.firstElementChild, hb = tr.querySelector(".hb"), tmp = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    if (j.ny === "vil" || !j.ny) { tmp.innerHTML = ltNyHalo(HELY_MAGAS); tr.insertBefore(tmp.firstChild, hb); hb.classList.add("ny-vilagit"); }
+    if (M.H.kep.mappa) {   /* 2. kör: az állvány eltűnik, kész a ház (a kép a mostani állapota szerint) */
+      var h = helyKeres(M.H, id), uj = helyKepAllapot(h, j, false), im = g.querySelector(".hb image");
+      if (im && uj !== "epul") { im.setAttribute("href", helyFajl(M.H, h.kep + "-" + uj)); im.parentNode.setAttribute("data-all", uj); }
+      if (j.ny === "vil" || !j.ny) {
+        tmp.innerHTML = '<g transform="translate(' + (h.x * M.H.kep.w).toFixed(1) + ' ' + (h.y * M.H.kep.h).toFixed(1) + ') scale(' + M.H.jk + ')">' + ltNyHalo(HELY_MAGAS) + '</g>';
+        var hb2 = g.querySelector(".hb"); g.insertBefore(tmp.firstChild, hb2); hb2.classList.add("ny-vilagit");
+      }
+    }
+    else if (j.ny === "vil" || !j.ny) { tmp.innerHTML = ltNyHalo(HELY_MAGAS); tr.insertBefore(tmp.firstChild, hb); hb.classList.add("ny-vilagit"); }
     if (kod && kod.parentNode) kod.parentNode.removeChild(kod);
     var nev = helyNevOf(id);
     helyNevTabla(M, nev);

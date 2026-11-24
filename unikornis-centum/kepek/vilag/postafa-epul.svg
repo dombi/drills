@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="398 722 102 128" width="102" height="128">
+<!-- Thinking horses · postafa-epul · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g opacity=".5" filter="url(#szurke)"><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-postafa">
+    <path d="M444,837 C446,812 442,795 446,780 L452,780 C454,798 452,818 454,837 Z" fill="#9b7656"/>
+    <circle cx="449" cy="764" r="28" fill="#a7d99a"/>
+    <rect x="452" y="804" width="16" height="12" rx="3" fill="#e8736f"/>
+    <path d="M432,770 L432,780 L444,780 L444,770 Z M456,756 L456,766 L468,766 L468,756 Z" fill="#fff" stroke-width="1.4"/>
+  </g></g></g><g filter="url(#firka)" stroke="#7a5a3e" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M424.0,838.0 L424.0,772.0"/><path d="M480.0,838.0 L480.0,772.0"/><path d="M418.0,814.9 L486.0,814.9" stroke="#c9a27a" stroke-width="5"/><path d="M418.0,817.4 L486.0,817.4" stroke-width="1.2"/><path d="M418.0,792.8 L486.0,792.8" stroke="#c9a27a" stroke-width="5"/><path d="M418.0,795.3 L486.0,795.3" stroke-width="1.2"/><path d="M424.0,837.0 L452.0,814.9 M480.0,814.9 L452.0,792.8" stroke-width="1.6" opacity=".8"/><path d="M488.0,838.0 L492.0,792.8 M497.0,838.0 L501.0,792.8" stroke-width="2"/><path d="M488.8,828.2 L497.8,828.2" stroke-width="1.6"/><path d="M489.6,819.3 L498.6,819.3" stroke-width="1.6"/><path d="M490.4,810.5 L499.4,810.5" stroke-width="1.6"/><path d="M491.2,801.6 L500.2,801.6" stroke-width="1.6"/></g><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round"><path d="M394.0,839.0 l26,0 l0,-4 l-26,0 Z M397.0,835.0 l22,0 l0,-4 l-22,0 Z" fill="#d8b48a"/><path d="M464.0,839.0 l2,-9 l10,0 l2,9 Z" fill="#a7b9c9"/></g>
+</svg>

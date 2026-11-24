@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1318 470 116 192" width="116" height="192">
+<!-- Thinking horses · dallam-ter-epul · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g opacity=".5" filter="url(#szurke)"><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-dallam-ter">
+    <path d="M1360,648 L1362,532 M1392,648 L1390,532 M1361,600 L1391,600 M1362,566 L1390,566 M1361,600 L1390,566" stroke="#9b7fcf" stroke-width="4"/>
+    <path d="M1350,536 L1376,496 L1402,536 Z" fill="#7d63b5"/>
+    <path d="M1376,496 L1376,484" stroke="#f2c14e" stroke-width="3"/>
+    <path d="M1340,648 L1412,648" stroke="#c3a5e0" stroke-width="6"/>
+  </g></g></g><g filter="url(#firka)" stroke="#7a5a3e" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M1338.0,649.0 L1338.0,522.0"/><path d="M1414.0,649.0 L1414.0,522.0"/><path d="M1332.0,605.2 L1420.0,605.2" stroke="#c9a27a" stroke-width="5"/><path d="M1332.0,607.7 L1420.0,607.7" stroke-width="1.2"/><path d="M1332.0,562.3 L1420.0,562.3" stroke="#c9a27a" stroke-width="5"/><path d="M1332.0,564.8 L1420.0,564.8" stroke-width="1.2"/><path d="M1338.0,648.0 L1376.0,605.2 M1414.0,605.2 L1376.0,562.3" stroke-width="1.6" opacity=".8"/><path d="M1422.0,649.0 L1426.0,562.3 M1431.0,649.0 L1435.0,562.3" stroke-width="2"/><path d="M1422.8,630.9 L1431.8,630.9" stroke-width="1.6"/><path d="M1423.6,613.7 L1432.6,613.7" stroke-width="1.6"/><path d="M1424.4,596.6 L1433.4,596.6" stroke-width="1.6"/><path d="M1425.2,579.5 L1434.2,579.5" stroke-width="1.6"/></g><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round"><path d="M1308.0,650.0 l26,0 l0,-4 l-26,0 Z M1311.0,646.0 l22,0 l0,-4 l-22,0 Z" fill="#d8b48a"/><path d="M1398.0,650.0 l2,-9 l10,0 l2,9 Z" fill="#a7b9c9"/></g>
+</svg>

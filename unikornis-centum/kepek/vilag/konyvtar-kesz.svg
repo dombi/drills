@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="950 190 116 182" width="116" height="182">
+<!-- Thinking horses · konyvtar-kesz · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-konyvtar">
+    <path d="M982,360 L984,262 Q1008,246 1032,262 L1034,360 Z" fill="#d8b48a"/>
+    <path d="M976,266 Q1008,206 1040,266 Z" fill="#8d6e9e"/>
+    <path d="M990,236 L984,214 L1000,228 M1026,236 L1032,214 L1016,228" fill="#8d6e9e"/>
+    <circle cx="998" cy="280" r="8" fill="#ffe08a"/><circle cx="1018" cy="280" r="8" fill="#ffe08a"/>
+    <path d="M1004,292 L1008,300 L1012,292" fill="#f2c14e"/>
+    <path d="M990,316 L1026,316 M990,330 L1026,330" stroke="#a07a5a" stroke-width="1.6"/>
+    <path d="M1000,360 L1000,342 Q1008,334 1016,342 L1016,360 Z" fill="#6b4a3a"/>
+  </g></g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="92 650 168 198" width="168" height="198">
+<!-- Thinking horses · odu-epul · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g opacity=".5" filter="url(#szurke)"><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-odu">
+    <path d="M140,828 C144,792 136,762 148,734 L206,734 C214,760 208,796 214,828 Z" fill="#b98a64"/>
+    <path d="M120,744 C100,718 122,690 150,696 C160,672 202,670 210,692 C240,688 252,726 232,742 C218,756 140,758 120,744 Z" fill="#8fc98a"/>
+    <path d="M164,828 L164,800 Q177,786 190,800 L190,828 Z" fill="#6b4a3a"/>
+    <circle cx="196" cy="766" r="7" fill="#ffe08a"/>
+    <path d="M140,828 Q128,830 122,836 M214,828 Q226,830 232,836" fill="none"/>
+  </g></g></g><g filter="url(#firka)" stroke="#7a5a3e" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M142.0,837.0 L142.0,762.0"/><path d="M212.0,837.0 L212.0,762.0"/><path d="M136.0,810.8 L218.0,810.8" stroke="#c9a27a" stroke-width="5"/><path d="M136.0,813.3 L218.0,813.3" stroke-width="1.2"/><path d="M136.0,785.7 L218.0,785.7" stroke="#c9a27a" stroke-width="5"/><path d="M136.0,788.2 L218.0,788.2" stroke-width="1.2"/><path d="M142.0,836.0 L177.0,810.8 M212.0,810.8 L177.0,785.7" stroke-width="1.6" opacity=".8"/><path d="M220.0,837.0 L224.0,785.7 M229.0,837.0 L233.0,785.7" stroke-width="2"/><path d="M220.8,825.9 L229.8,825.9" stroke-width="1.6"/><path d="M221.6,815.9 L230.6,815.9" stroke-width="1.6"/><path d="M222.4,805.8 L231.4,805.8" stroke-width="1.6"/><path d="M223.2,795.7 L232.2,795.7" stroke-width="1.6"/></g><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round"><path d="M112.0,838.0 l26,0 l0,-4 l-26,0 Z M115.0,834.0 l22,0 l0,-4 l-22,0 Z" fill="#d8b48a"/><path d="M196.0,838.0 l2,-9 l10,0 l2,9 Z" fill="#a7b9c9"/></g>
+</svg>

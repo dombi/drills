@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="568 280 174 148" width="174" height="148">
+<!-- Thinking horses · domboldal-epul · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g opacity=".5" filter="url(#szurke)"><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-domboldal">
+    <path d="M598,414 L600,330 L622,330 L624,414 Z" fill="#fce49a"/>
+    <path d="M594,332 L611,296 L628,332 Z" fill="#e8a85a"/>
+    <rect x="606" y="346" width="10" height="14" rx="5" fill="#ffe08a"/>
+    <path d="M636,414 L636,388 L684,388 L684,414 Z" fill="#fdf0d0"/>
+    <path d="M632,390 Q660,352 688,390 Z" fill="#ffe08a"/>
+    <path d="M660,366 L662,371 L667,371 L663,374 L665,379 L660,376 L655,379 L657,374 L653,371 L658,371 Z" fill="#f2c14e" stroke-width="1"/>
+    <path d="M690,414 L692,398 L712,398 L714,414 Z M688,400 L702,386 L716,400 Z" fill="#f7c59f"/>
+  </g></g></g><g filter="url(#firka)" stroke="#7a5a3e" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M588.0,415.0 L588.0,322.0"/><path d="M722.0,415.0 L722.0,322.0"/><path d="M655.0,415.0 L655.0,322.0"/><path d="M582.0,382.7 L728.0,382.7" stroke="#c9a27a" stroke-width="5"/><path d="M582.0,385.2 L728.0,385.2" stroke-width="1.2"/><path d="M582.0,351.4 L728.0,351.4" stroke="#c9a27a" stroke-width="5"/><path d="M582.0,353.9 L728.0,353.9" stroke-width="1.2"/><path d="M588.0,414.0 L655.0,382.7 M722.0,382.7 L655.0,351.4" stroke-width="1.6" opacity=".8"/><path d="M730.0,415.0 L734.0,351.4 M739.0,415.0 L743.0,351.4" stroke-width="2"/><path d="M730.8,401.5 L739.8,401.5" stroke-width="1.6"/><path d="M731.6,389.0 L740.6,389.0" stroke-width="1.6"/><path d="M732.4,376.5 L741.4,376.5" stroke-width="1.6"/><path d="M733.2,364.0 L742.2,364.0" stroke-width="1.6"/></g><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round"><path d="M558.0,416.0 l26,0 l0,-4 l-26,0 Z M561.0,412.0 l22,0 l0,-4 l-22,0 Z" fill="#d8b48a"/><path d="M706.0,416.0 l2,-9 l10,0 l2,9 Z" fill="#a7b9c9"/></g>
+</svg>

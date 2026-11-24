@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="92 650 168 198" width="168" height="198">
+<!-- Thinking horses · odu-kesz · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-odu">
+    <path d="M140,828 C144,792 136,762 148,734 L206,734 C214,760 208,796 214,828 Z" fill="#b98a64"/>
+    <path d="M120,744 C100,718 122,690 150,696 C160,672 202,670 210,692 C240,688 252,726 232,742 C218,756 140,758 120,744 Z" fill="#8fc98a"/>
+    <path d="M164,828 L164,800 Q177,786 190,800 L190,828 Z" fill="#6b4a3a"/>
+    <circle cx="196" cy="766" r="7" fill="#ffe08a"/>
+    <path d="M140,828 Q128,830 122,836 M214,828 Q226,830 232,836" fill="none"/>
+  </g></g>
+</svg>

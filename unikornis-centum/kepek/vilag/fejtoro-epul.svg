@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1196 30 98 218" width="98" height="218">
+<!-- Thinking horses · fejtoro-epul · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g opacity=".5" filter="url(#szurke)"><g id="h-fejtoro" filter="url(#firka)" stroke="#5a4a7a" stroke-width="2" stroke-linejoin="round">
+  <path d="M1222,234 L1222,212 L1240,198 L1258,212 L1258,234 Z" fill="#d9d2e6"/>
+  <path d="M1216,214 L1240,194 L1264,214" fill="none" stroke="#7d63b5" stroke-width="3"/>
+  <rect x="1235" y="218" width="9" height="16" fill="#6b4a3a" stroke="none"/>
+  <path d="M1250,76 L1250,46" stroke-width="2.4"/>
+</g></g><g filter="url(#firka)" stroke="#7a5a3e" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M1210.0,235.0 L1210.0,184.0"/><path d="M1270.0,235.0 L1270.0,184.0"/><path d="M1204.0,217.0 L1276.0,217.0" stroke="#c9a27a" stroke-width="5"/><path d="M1204.0,219.5 L1276.0,219.5" stroke-width="1.2"/><path d="M1204.0,200.0 L1276.0,200.0" stroke="#c9a27a" stroke-width="5"/><path d="M1204.0,202.5 L1276.0,202.5" stroke-width="1.2"/><path d="M1210.0,234.0 L1240.0,217.0 M1270.0,217.0 L1240.0,200.0" stroke-width="1.6" opacity=".8"/><path d="M1278.0,235.0 L1282.0,200.0 M1287.0,235.0 L1291.0,200.0" stroke-width="2"/><path d="M1278.8,227.2 L1287.8,227.2" stroke-width="1.6"/><path d="M1279.6,220.4 L1288.6,220.4" stroke-width="1.6"/><path d="M1280.4,213.6 L1289.4,213.6" stroke-width="1.6"/><path d="M1281.2,206.8 L1290.2,206.8" stroke-width="1.6"/></g><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round"><path d="M1180.0,236.0 l26,0 l0,-4 l-26,0 Z M1183.0,232.0 l22,0 l0,-4 l-22,0 Z" fill="#d8b48a"/><path d="M1254.0,236.0 l2,-9 l10,0 l2,9 Z" fill="#a7b9c9"/></g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1022 506 172 136" width="172" height="136">
+<!-- Thinking horses · osszeado-utca-kesz · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-osszeado-utca">
+    <path d="M1044,628 L1044,600 L1072,600 L1072,628 Z" fill="#f7c59f"/><path d="M1040,602 L1058,584 L1076,602 Z" fill="#d98b6f"/>
+    <path d="M1078,616 L1078,586 L1106,586 L1106,616 Z" fill="#f4a38c"/><path d="M1074,588 L1092,568 L1110,588 Z" fill="#c9785f"/>
+    <path d="M1112,624 L1112,594 L1140,594 L1140,624 Z" fill="#f6a5c0"/><path d="M1108,596 L1126,576 L1144,596 Z" fill="#d98b6f"/>
+    <path d="M1146,612 L1146,584 L1170,584 L1170,612 Z" fill="#fbd38d"/><path d="M1142,586 L1158,568 L1174,586 Z" fill="#c9785f"/>
+    <path d="M1054,628 L1054,614 L1062,614 L1062,628 Z M1088,616 L1088,602 L1096,602 L1096,616 Z M1122,624 L1122,610 L1130,610 L1130,624 Z M1154,612 L1154,598 L1162,598 L1162,612 Z" fill="#6b4a3a" stroke-width="1.4"/>
+    <path d="M1098,576 L1098,566 L1104,566 L1104,582" fill="#b98a64"/>
+  </g></g><g fill="#fff" stroke="none"><circle cx="1101" cy="560" r="5"><animate attributeName="cy" values="560;520" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="5s" repeatCount="indefinite"/><animate attributeName="r" values="4;10" dur="5s" repeatCount="indefinite"/></circle><circle cx="1104" cy="560" r="5"><animate attributeName="cy" values="560;520" dur="5s" begin="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="5s" begin="2.5s" repeatCount="indefinite"/><animate attributeName="r" values="4;10" dur="5s" begin="2.5s" repeatCount="indefinite"/></circle></g>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="398 722 102 128" width="102" height="128">
+<!-- Thinking horses · postafa-kesz · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter><filter id="szurke"><feColorMatrix type="saturate" values=".3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><g id="h-postafa">
+    <path d="M444,837 C446,812 442,795 446,780 L452,780 C454,798 452,818 454,837 Z" fill="#9b7656"/>
+    <circle cx="449" cy="764" r="28" fill="#a7d99a"/>
+    <rect x="452" y="804" width="16" height="12" rx="3" fill="#e8736f"/>
+    <path d="M432,770 L432,780 L444,780 L444,770 Z M456,756 L456,766 L468,766 L468,756 Z" fill="#fff" stroke-width="1.4"/>
+  </g></g>
+</svg>
