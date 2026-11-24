@@ -14,7 +14,8 @@
      beágyazva (helyMozgoBetolt), és a leszálló madár mindig a „következő” helyre száll (helyMadar). Tábla kep.mappa nélkül
      (a Kézművesek ideiglenes közelképe): a régi rajz (helyKepRajz, helyHatter) — a 4. körben az is fájl lesz.
      A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik).
-   • 3. kör (Nagyfa tér, Domboldal, ideiglenes Összeadó utca): a közelkép háza maga is pálya lehet (cel.palyak). Egy pálya:
+   • 3. kör (Nagyfa tér, Domboldal — rajz: kepek/ter/, kepek/domboldal/ —, ideiglenes Összeadó utca): a közelkép háza maga is pálya
+     lehet (cel.palyak); a képe 5 lépésben épül (epul / teto / ajto / kesz / viragos: helyKepAllapot). Egy pálya:
      odasétál, ráközelít, indul. Több pálya: a ház TÁRGY-NÉZETE nyílik (helyTargyNezet; a rajz PC_TARGY, piac.js), a tárgy a
      bejárat. A pálya után a közelképbe tér vissza, a ház elé (helyPalyaVissza — palyaInditas hívja). A ház jele, újonc-fénye
      és köde pályánként számol (palyaJelek), így a Domboldal az újoncnak ködben alszik, amíg egy pályája sem ébredt. */
@@ -297,13 +298,10 @@ function helyNevEger(M) {
 /* ── RAJZ ── */
 function helyKepRajz(kep, hh, j) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) */
   if (Array.isArray(kep)) return kep.map(function (k, i) { return '<g transform="translate(' + ((i - (kep.length - 1) / 2) * 52) + ' ' + (i === 1 ? -6 : 0) + ') scale(.66)">' + helyKepRajz(k) + '</g>'; }).join("");
-  if (/^ph:/.test(kep)) {   /* 3. kör, ideiglenes: a mai Piactér háza, a gyerek haladása szerinti építési lépéssel (piacHazLepes) */
+  if (/^ph:/.test(kep)) {   /* 3. kör, ideiglenes (ma csak az Összeadó utca két háza): a mai Piactér háza, a gyerek haladása szerinti építési lépéssel (piacHazLepes) */
     var pa0 = hh && hh.cel.palyak && hh.cel.palyak[0];
     return phHaz(kep.slice(3), pa0 ? piacHazLepes(pa0) : 5, { all: (j && j.all) || "" }).svg;
   }
-  if (kep === "sator") return pcVasarSator(false, false);
-  if (kep === "deli") return '<g transform="scale(1.1)">' + LT_JELKEP.vasar() + '</g><g transform="translate(34 -96)"><circle r="12" fill="#ffe08a" stroke="#d1a23a" stroke-width="2"/>' +
-    [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { return '<path d="M0 -16V-22" stroke="#e0a43a" stroke-width="3" stroke-linecap="round" transform="rotate(' + a + ')"/>'; }).join("") + '</g>';
   if (HELY_KEP_IDEIGLENES[kep]) return HELY_KEP_IDEIGLENES[kep]();
   return LT_JELKEP[kep] ? LT_JELKEP[kep]() : "";
 }
@@ -349,10 +347,13 @@ function helyKepElem(H, nev, d, osztaly) {   /* d = [x, y, w, h] arányban → <
   return '<image' + (osztaly ? ' class="' + osztaly + '"' : '') + ' href="' + helyFajl(H, nev) + '" x="' + (d[0] * H.kep.w).toFixed(1) + '" y="' + (d[1] * H.kep.h).toFixed(1) +
          '" width="' + (d[2] * H.kep.w).toFixed(1) + '" height="' + (d[3] * H.kep.h).toFixed(1) + '" preserveAspectRatio="none" pointer-events="none"/>';
 }
-/* a hely képének állapota: köd (Felvételi) · épül (alszik / rejtett) · virágos (minden pálya csillagos) · kész */
+/* a hely képének állapota: köd (Felvételi) · épül (alszik / rejtett) · virágos (minden pálya csillagos) · kész.
+   3. kör, a közelkép pályás háza (cel.palyak): 5 lépés a gyerek haladásából (piacHazLepes 2–6, sosem romlik vissza; több pálya: a legtovább jutott) */
+var HELY_HAZ_ALLAPOT = { 2: "epul", 3: "teto", 4: "ajto", 5: "kesz", 6: "viragos" };
 function helyKepAllapot(h, j, rejt) {
   if (h.cel.kod) return "kod";
   if (rejt || (j && j.ny === "alszik")) return "epul";
+  if (h.cel.palyak) return HELY_HAZ_ALLAPOT[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || "kesz";
   if (j && j.ossz && j.kesz >= j.ossz) return "viragos";
   return "kesz";
 }
@@ -437,41 +438,8 @@ function helyHatter(M) {
   }
   return s;
 }
-/* 3. kör, IDEIGLENES hátterek (a 2. kódkörben fájl lesz: kepek/ter/, kepek/domboldal/) — a rajzterv kompozíciója egyszerűsítve */
+/* IDEIGLENES hátterek (ma csak az Összeadó utca közelképe; a Nagyfa tér és a Domboldal 2026-11-24 óta fájl: kepek/ter/, kepek/domboldal/) */
 var HELY_HATTER_IDEIGLENES = {
-  ter: function (w, h) {
-    var s = '', F = function (n) { return n.toFixed(1); };
-    s += '<path d="M' + F(w * .5) + ' ' + F(h * .40) + 'Q' + F(w * .62) + ' ' + F(h * .19) + ' ' + F(w * .75) + ' ' + F(h * .17) + 'Q' + F(w * .87) + ' ' + F(h * .14) + ' ' + F(w * 1.6) + ' ' + F(h * .05) + 'V' + F(h * .45) + 'H' + F(w * .5) + 'Z" fill="#f4e4a8" stroke="#d6bd6a" stroke-width="2"/>';
-    s += '<g opacity=".8" transform="translate(' + F(w * .71) + ' ' + F(h * .25) + ')"><rect x="-8" y="-56" width="16" height="56" fill="#e9c9a0" stroke="#8a5a3a" stroke-width="2"/><path d="M-14 -56L0 -82L14 -56Z" fill="#c96a4a"/></g>';
-    s += '<g opacity=".8" transform="translate(' + F(w * .87) + ' ' + F(h * .12) + ')"><rect x="-20" y="-22" width="40" height="22" fill="#cfe0f5" stroke="#3f5f8f" stroke-width="2"/><path d="M-24 -22Q0 -52 24 -22Z" fill="#9fb8e0" stroke="#3f5f8f" stroke-width="2"/></g>';
-    s += '<path d="M' + F(-w) + ' ' + F(h * .41) + 'Q' + F(w * .5) + ' ' + F(h * .37) + ' ' + F(w * 2) + ' ' + F(h * .41) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
-    s += '<g filter="url(#lt-firka)"><ellipse cx="' + F(w * .5) + '" cy="' + F(h * .73) + '" rx="' + F(w * .36) + '" ry="' + F(h * .25) + '" fill="#f1e2c4" stroke="#d8bf8e" stroke-width="3"/></g>';
-    var r = ltVeletlen(23), i;
-    for (i = 0; i < 60; i++) { var a = r() * Math.PI * 2, d = Math.sqrt(r()); s += '<ellipse cx="' + F(w * .5 + Math.cos(a) * d * w * .33) + '" cy="' + F(h * .73 + Math.sin(a) * d * h * .22) + '" rx="' + F(9 + r() * 6) + '" ry="' + F(3.5 + r() * 2) + '" fill="#e2cfaa"/>'; }
-    /* a nagyfa a tér közepén (koppintható díszlet: helyek.js) */
-    var fx = w * .5, fy = h * .73;
-    s += '<g transform="translate(' + F(fx) + ' ' + F(fy) + ')"><ellipse cy="14" rx="150" ry="28" fill="#3c2a50" opacity=".12"/>' +
-      '<path d="M-26 12Q-20 -90 -10 -150L12 -150Q22 -90 28 12Z" fill="#a8764f" stroke="#6e4a36" stroke-width="3"/>' +
-      '<g class="hely-lomb"><ellipse cx="-95" cy="-210" rx="105" ry="80" fill="#8cc47f" stroke="#4f8a52" stroke-width="3"/><ellipse cx="95" cy="-218" rx="112" ry="84" fill="#8cc47f" stroke="#4f8a52" stroke-width="3"/>' +
-      '<ellipse cy="-282" rx="130" ry="88" fill="#a7d99a" stroke="#4f8a52" stroke-width="3"/><ellipse cx="-50" cy="-300" rx="28" ry="14" fill="#c4e7a8" opacity=".7"/>' +
-      (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="rotate" values="-1 0 -170;1 0 -170;-1 0 -170" dur="7s" repeatCount="indefinite"/>') + '</g>' +
-      '<path d="M-96 24h192v10h-192zM-86 34v14M86 34v14" fill="#c99a6a" stroke="#6e4a36" stroke-width="3"/></g>';
-    [[.30, .50], [.40, .47], [.60, .47], [.70, .50]].forEach(function (q, i) { s += '<circle cx="' + F(w * q[0]) + '" cy="' + F(h * q[1]) + '" r="9" fill="' + ["#fce49a", "#f6a5c0", "#9ec9f0", "#fce49a"][i] + '" stroke="#c9a06a" stroke-width="1.5"/>'; });
-    s += '<path d="M' + F(w * .26) + ' ' + F(h * .44) + 'Q' + F(w * .36) + ' ' + F(h * .52) + ' ' + F(w * .45) + ' ' + F(h * .43) + 'M' + F(w * .55) + ' ' + F(h * .43) + 'Q' + F(w * .64) + ' ' + F(h * .52) + ' ' + F(w * .74) + ' ' + F(h * .44) + '" fill="none" stroke="#6e4a36" stroke-width="1.6"/>';
-    return s;
-  },
-  domboldal: function (w, h) {
-    var s = '', F = function (n) { return n.toFixed(1); };
-    s += '<path d="M' + F(w * .58) + ' ' + F(h * .36) + 'L' + F(w * .74) + ' ' + F(h * .10) + 'L' + F(w * .79) + ' ' + F(h * .18) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * 1.6) + ' ' + F(h * .30) + 'V' + F(h * .5) + 'H' + F(w * .58) + 'Z" fill="#d9d3ea" stroke="#b9b0d4" stroke-width="2"/>';
-    s += '<path d="M' + F(w * .855) + ' ' + F(h * .075) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * .89) + ' ' + F(h * .08) + 'Z" fill="#fff"/>';
-    s += '<path d="M' + F(-w) + ' ' + F(h * 2) + 'L' + F(-w * .02) + ' ' + F(h * 1.0) + 'Q' + F(w * .08) + ' ' + F(h * .58) + ' ' + F(w * .33) + ' ' + F(h * .48) + 'Q' + F(w * .56) + ' ' + F(h * .38) + ' ' + F(w * .75) + ' ' + F(h * .22) + 'Q' + F(w * .86) + ' ' + F(h * .13) + ' ' + F(w * 2) + ' ' + F(h * .13) + 'V' + F(h * 2) + 'Z" fill="#f6e4a2" stroke="#d6bd6a" stroke-width="3"/>';
-    s += '<ellipse cx="' + F(w * .44) + '" cy="' + F(h * .58) + '" rx="220" ry="50" fill="#c9b46a" opacity=".12">' + (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="translate" values="-300 60;500 -80;-300 60" dur="40s" repeatCount="indefinite"/>') + '</ellipse>';
-    s += '<g opacity=".85"><ellipse cx="' + F(w * .10) + '" cy="' + F(h * .90) + '" rx="110" ry="70" fill="#8cc47f" stroke="#5f8e6a" stroke-width="2"/><path d="M' + F(w * .02) + ' ' + F(h * 1.02) + 'l50 -60l50 60zM' + F(w * .13) + ' ' + F(h * 1.02) + 'l60 -70l60 70z" fill="#d99a8a" stroke="#9a7a6a" stroke-width="2"/></g>';
-    [[.94, .34], [.965, .37], [.66, .30], [.21, .71], [.91, .62], [.95, .67], [.05, .74]].forEach(function (q) {
-      s += '<path transform="translate(' + F(w * q[0]) + ' ' + F(h * q[1]) + ')" d="M0 0L-22 0L-6 -26L-18 -26L0 -60L18 -26L6 -26L22 0Z" fill="#7fb58a" stroke="#4f7d5a" stroke-width="2"/>';
-    });
-    return s;
-  },
   utca: function (w, h) {
     var s = '', F = function (n) { return n.toFixed(1); };
     s += '<path d="M' + F(-w) + ' ' + F(h * .58) + 'Q' + F(w * .5) + ' ' + F(h * .50) + ' ' + F(w * 2) + ' ' + F(h * .58) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
@@ -519,11 +487,11 @@ function helyRajzol(host, o) {
     var bw = hh.w * w / k, bh = hh.h * h / k, kod = j.ny === "alszik" || rejt;
     var fej = '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + (kod ? " ny-kod" : "") + (rejt ? " rejtett" : "") + '" data-id="' + hh.id + '" role="button" tabindex="0" aria-label="' + htmlVed(helyNevOf(hh.id)) + '">';
     if (fajl) {   /* 2. kör: a hely képe fájlból, az állapota szerint; a koppintható téglalap a táblából */
-      var all = helyKepAllapot(hh, j, rejt);
+      var all = helyKepAllapot(hh, j, rejt), hk = hh.rk || k;
       return fej + '<rect x="' + (px - hh.w * w / 2).toFixed(1) + '" y="' + (py - hh.h * h).toFixed(1) + '" width="' + (hh.w * w).toFixed(1) + '" height="' + (hh.h * h + 12).toFixed(1) + '" fill="transparent"/>' +
-        (j.ny === "vil" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' + ltNyHalo(HELY_MAGAS) + '</g>' : "") +
+        (j.ny === "vil" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + hk + ')">' + ltNyHalo(HELY_MAGAS) + '</g>' : "") +
         '<g class="hb' + (j.ny === "vil" ? " ny-vilagit" : "") + '" data-all="' + all + '">' + helyKepElem(H, hh.kep + "-" + all, hh.doboz) + '</g>' +
-        (kod && all !== "kod" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + k + ')">' + ltNyKod(HELY_MAGAS) + '</g>' : "") + '</g>';
+        (kod && all !== "kod" ? '<g transform="translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ') scale(' + hk + ')">' + ltNyKod(HELY_MAGAS) + '</g>' : "") + '</g>';
     }
     var rk = hh.rk || k; bw = hh.w * w / rk; bh = hh.h * h / rk;   /* 3. kör: a ház saját nagysága (rk) */
     return fej +
@@ -801,7 +769,7 @@ function helyEbreszt(M, id, mondat) {
       var h = helyKeres(M.H, id), uj = helyKepAllapot(h, j, false), im = g.querySelector(".hb image");
       if (im && uj !== "epul") { im.setAttribute("href", helyFajl(M.H, h.kep + "-" + uj)); im.parentNode.setAttribute("data-all", uj); }
       if (j.ny === "vil" || !j.ny) {
-        tmp.innerHTML = '<g transform="translate(' + (h.x * M.H.kep.w).toFixed(1) + ' ' + (h.y * M.H.kep.h).toFixed(1) + ') scale(' + M.H.jk + ')">' + ltNyHalo(HELY_MAGAS) + '</g>';
+        tmp.innerHTML = '<g transform="translate(' + (h.x * M.H.kep.w).toFixed(1) + ' ' + (h.y * M.H.kep.h).toFixed(1) + ') scale(' + (h.rk || M.H.jk) + ')">' + ltNyHalo(HELY_MAGAS) + '</g>';
         var hb2 = g.querySelector(".hb"); g.insertBefore(tmp.firstChild, hb2); hb2.classList.add("ny-vilagit");
       }
     }

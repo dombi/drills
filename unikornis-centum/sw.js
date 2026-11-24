@@ -17,6 +17,11 @@ var ATMEGY = ["admin/", "helyreallitas.html", "sw.js"];
 /* 🐴 a világkép (Thinking horses) rajzfájljai — a helyek.js kep.v-jével együtt emeld a VILAG_V-t, új fájlnévnél bővítsd a listát */
 var VILAG_V = "20261124-1", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
 ["odu", "kert", "postafa", "erdoszel", "utca", "ter", "osszeado-utca", "dallam-ter", "kezmuvesek", "domboldal", "konyvtar", "fejtoro", "felveteli"].forEach(function (h) { ["epul", "kesz", "viragos"].forEach(function (a) { VILAG_KEPEK.push(h + "-" + a); }); });
+/* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
+var KOZEL_V = "20261124-1", KOZEL_KEPEK = { ter: ["eg", "tavoli", "kozep", "eloter", "mozgo", "nagyfa"], domboldal: ["eg", "tavoli", "kozep", "eloter", "mozgo", "kecske"] };
+[["ter", ["bolt", "vasar", "zsib", "szalag"]], ["domboldal", ["deli", "irasbeli", "josda"]]].forEach(function (m) {
+  m[1].forEach(function (h) { ["epul", "teto", "ajto", "kesz", "viragos"].forEach(function (a) { KOZEL_KEPEK[m[0]].push(h + "-" + a); }); });
+});
 var LEALL = false;   /* ?friss vészfék jött: ez a worker már semmit nem tesz el (az oldal közben üríti a tárat és leiratkoztatja) */
 
 function atmegy(u) { var ut = u.split(/[?#]/)[0]; return ATMEGY.some(function (a) { return ut.indexOf(HATOKOR + a) === 0; }); }
@@ -62,6 +67,7 @@ function eloreLetolt() {
       return m;
     });
     VILAG_KEPEK.forEach(function (f) { sajatok[HATOKOR + "kepek/vilag/" + f + ".svg?v=" + VILAG_V] = 1; });
+    Object.keys(KOZEL_KEPEK).forEach(function (m) { KOZEL_KEPEK[m].forEach(function (f) { sajatok[HATOKOR + "kepek/" + m + "/" + f + ".svg?v=" + KOZEL_V] = 1; }); });
     var egy = Object.keys(sajatok).map(function (u) {
       return fetch(u).then(function (v) { if (v.ok) return tarol(u, v); }).catch(function () {});
     });
