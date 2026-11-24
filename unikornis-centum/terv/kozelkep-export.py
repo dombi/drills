@@ -1250,8 +1250,71 @@ def kezmuvesek():
     return dob
 
 
+# ══════════════════ A KÉZMŰVESEK TÁJ-KÉPE (a világtérképen; 4. kör, 2. kódkör kiegészítés, 2026-11-24) ══════════════════
+# A mini utca kicsinyített, felismerhető mása a táj 1600×900-as rendszerében: a malomház a táj saját forgó kereke (mozgo.svg,
+# vm-malomkerek, 356,574) mellett, aztán a Mézes pékség (kalács-cégér), a Bájitalkonyha (a legmagasabb: ferde türkiz tető, kerek
+# ablak) és a Szabóműhely (manzárdtető, csíkos előtető, olló-cégér). A vilagkep-export.py ezt a három fájlt NEM írja felül.
+TAJ_KEZM_DOBOZ = (338, 478, 210, 120)
+def taj_kezmuvesek():
+    rk = lambda x, y, s: '<g transform="translate(%s %s)">%s</g>' % (f(x), f(y), s)
+    malom = ('<path d="M-14,0 V-17 H14 V0 Z" fill="#e6dccb"/><path d="M-14,-8 H14 M-4,0 V-8 M6,-8 V-17" stroke="#b5a68e" stroke-width="1"/>'
+             '<path d="M-13,-17 V-29 H13 V-17 Z" fill="#e9c9a0"/><path d="M-5,-17 V-29 M4,-17 V-29" stroke="#c49a6a" stroke-width="1"/>'
+             '<path d="M-17,-28 L0,-41 L17,-28 Q0,-27 -17,-28 Z" fill="#c98b5e"/><path d="M-3,0 V-7 Q0,-10 3,-7 V0 Z" fill="#8a5a3a" stroke-width="1"/>'
+             '<rect x="5" y="-26" width="5" height="5" fill="#e9f4fb" stroke-width="1"/>')
+    pekseg = ('<path d="M-17,0 V-21 H17 V0 Z" fill="#f8e0a8"/><path d="M9,-23 V-38 H14 V-27" fill="#c98f6e"/>'
+              '<path d="M-21,-20 L0,-36 L21,-20 Q0,-19 -21,-20 Z" fill="#cf8a5c"/>'
+              '<ellipse cx="0" cy="-26" rx="6.5" ry="4" fill="#fffaf0" stroke-width="1"/><path d="M-4,-25 q0,-3 2,-3 q2,-2 4,0 q2,0 2,3 z" fill="#e0a85e" stroke="#9a6a3a" stroke-width=".8"/>'
+              '<path d="M-16,-17 H-6 L-7,-14 H-15 Z" fill="#f2b54a" stroke-width="1"/><rect x="-15" y="-14" width="8" height="7" fill="#fff1d2" stroke-width="1"/>'
+              '<path d="M-4,0 V-9 Q0,-13 4,-9 V0 Z" fill="#b07a52" stroke-width="1"/><rect x="6" y="-16" width="9" height="6" fill="#dceefa" stroke-width="1"/>'
+              '<circle cx="13" cy="-12" r="1.8" fill="#f2c14e" stroke-width=".8"/><path d="M-24,0 q-1,-7 3,-8 q4,1 3,8 z" fill="#f4ecdc" stroke-width="1"/>')
+    bajital = ('<path d="M-14,0 V-37 H14 V0 Z" fill="#e9e1f7"/><path d="M-14,0 V-6 H14 V0 Z" fill="#cfd5e8" stroke-width="1"/>'
+               '<path d="M-10,-39 V-47 H-6 V-41" fill="#b9a8d8"/>'
+               '<path d="M-18,-36 Q-6,-40 1,-52 Q3,-58 6,-59 Q8,-56 6,-52 Q8,-45 18,-36 Q0,-34 -18,-36 Z" fill="#6aa9b8"/>'
+               '<circle cx="0" cy="-27" r="5" fill="#bfeaf0"/><path d="M0,-32 V-22 M-5,-27 H5" stroke-width=".8"/>'
+               '<path d="M-4,-1 V-11 Q0,-15 4,-11 V-1 Z" fill="#7a5cd6" stroke-width="1"/>'
+               '<rect x="-11" y="-19" width="5" height="5" fill="#fce49a" stroke-width="1"/><rect x="6" y="-19" width="5" height="5" fill="#fce49a" stroke-width="1"/>'
+               '<path d="M8,-63 a3,3 0 1 0 0,5 a2.2,2.2 0 1 1 0,-5 z" fill="#fce49a" stroke="#d1a23a" stroke-width=".8"/>'
+               '<path d="M-23,3 q-1,-6 5,-6 q6,0 5,6 z" fill="#5a5a6e" stroke-width="1"/><path d="M15,3 q-1,-5 0,-9 h6 q1,4 0,9 z" fill="#c99a6a" stroke-width="1"/>')
+    szabo = ('<path d="M-17,0 V-21 H17 V0 Z" fill="#fbe3ee"/><path d="M-20,-21 L-7,-33 H7 L20,-21 Q0,-20 -20,-21 Z" fill="#b97fa0"/>'
+             '<path d="M-3,-24 V-28 Q0,-31 3,-28 V-24 Z" fill="#dceefa" stroke-width=".8"/>'
+             '<path d="M-18,-19 H13 L12,-15 H-17 Z" fill="url(#csikTk)" stroke-width="1"/>'
+             '<rect x="-16" y="-14" width="15" height="9" fill="#eef6fc" stroke-width="1"/><path d="M-10,-6 q-1,-5 1,-6 q2,1 1,6 z" fill="#f4a6c8" stroke-width=".7"/>'
+             '<rect x="4" y="-14" width="8" height="13" rx="1" fill="#a8764f" stroke-width="1"/>'
+             '<path d="M-17,-19 h-5" stroke-width="1"/><circle cx="-22" cy="-13" r="5" fill="#fffaf0" stroke-width="1"/><path d="M-24.5,-17 L-20.5,-12 M-19.5,-17 L-23.5,-12" stroke="#7a7a96" stroke-width="1.1"/><circle cx="-24" cy="-10.8" r="1.4" fill="none" stroke="#e0417a" stroke-width=".9"/><circle cx="-20" cy="-10.8" r="1.4" fill="none" stroke="#e0417a" stroke-width=".9"/>')
+    HAZAK = ((372, 580, malom, (358, 539, 386, 580)), (409, 577, pekseg, (392, 541, 426, 577)),
+             (456, 565, bajital, (442, 506, 470, 565)), (503, 583, szabo, (486, 550, 520, 583)))
+    ut_ = '<path d="M376,586 Q440,582 470,580 Q500,586 548,592" stroke="#e9d9b8" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>'
+    arny = '<ellipse cx="445" cy="584" rx="96" ry="8" fill="#3c2a50" opacity=".1" stroke="none"/>'
+    alap = arny + ut_ + '<g filter="url(#firka)" stroke="%s" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (
+        INK, "".join(rk(x, y, s) for x, y, s, _ in HAZAK))
+    elo = (fust(420, 540, 3, 5, 26) +
+           ''.join(('<circle cx="448" cy="518" r="2" fill="%s" stroke="#fff" stroke-width=".6" opacity="0"><animate attributeName="cy" values="518;488" dur="4s" begin="%ss" repeatCount="indefinite"/>'
+                    '<animate attributeName="opacity" values="0;1;0" dur="4s" begin="%ss" repeatCount="indefinite"/></circle>') % (c, b, b) for c, b in (("#f6a5c0", 0), ("#8fd3e0", 1.3), ("#c9a8e6", 2.6))))
+    def allv(r):
+        x0, y0, x1, y1 = r
+        return ('<g filter="url(#firka)" stroke="#7a5a3e" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M%s,%s V%s M%s,%s V%s"/>'
+                '<path d="M%s,%s H%s M%s,%s H%s" stroke="#c9a27a" stroke-width="3.4"/></g>') % (
+            f(x0 - 2), f(y1), f(y0 - 4), f(x1 + 2), f(y1), f(y0 - 4), f(x0 - 5), f(y1 - (y1 - y0) * .35), f(x1 + 5), f(x0 - 5), f(y1 - (y1 - y0) * .7), f(x1 + 5))
+    defs = FIRKA + SZURKE + '<pattern id="csikTk" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="2" height="4" fill="#f4a6c8"/><rect x="2" width="2" height="4" fill="#fff6f9"/></pattern>'
+    vb = TAJ_KEZM_DOBOZ
+    rnd = Rnd(77)
+    virag = ''
+    for x in range(380, 524, 6):
+        c = VSZ[int(rnd() * 5)]
+        virag += '<circle cx="%s" cy="%s" r="%s" fill="%s" stroke="none"/>' % (f(x + rnd() * 3), f(590 + rnd() * 3), f(1.8 + rnd() * 1.2), c)
+    for i, (cx, cy) in enumerate(((410, 534), (456, 498), (500, 544))):
+        virag += ('<path transform="translate(%s,%s)" d="M0,-5 L1.2,-1.2 L5,0 L1.2,1.2 L0,5 L-1.2,1.2 L-5,0 L-1.2,-1.2Z" fill="#fff6c2" stroke="#e3a92a" stroke-width=".8" opacity="0">'
+                  '<animate attributeName="opacity" values="0;1;0" dur="%ss" begin="%ss" repeatCount="indefinite"/></path>') % (cx, cy, 2.6 + i * .7, i * .9)
+    irj("vilag", "kezmuvesek-kesz", vb, defs, alap + elo)
+    irj("vilag", "kezmuvesek-viragos", vb, defs, alap + elo + virag)
+    irj("vilag", "kezmuvesek-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(allv(r) for _, _, _, r in HAZAK[1:]))
+    return {"kezmuvesek (táj)": vb}
+
+
 if __name__ == "__main__":
     print("kep.kifestve (helyek.js): [%d, %d, %d, %d]" % KIFESTVE)
+    vb = taj_kezmuvesek()["kezmuvesek (táj)"]
+    print("\nvilag/kezmuvesek — doboz (HELYEK.vilag): [%.4f, %.4f, %.4f, %.4f]" % (vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
     for mappa, fn in (("ter", ter), ("domboldal", domboldal), ("kezmuvesek", kezmuvesek)):
         dob = fn()
         print("\n%s — doboz (helyek.js):" % mappa)

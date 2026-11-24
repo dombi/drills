@@ -788,7 +788,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-1",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-2",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -807,7 +807,7 @@ HELYEK.vilag = {
     { id: "osszeado-utca", x: 0.69, y: 0.70, w: 0.08, h: 0.14, all: [0.735, 0.715], jel: [0.69, 0.56], kep: "osszeado-utca", doboz: [0.6388, 0.5622, 0.1075, 0.1511], cel: { kozelkep: "osszeado-utca" },
       palyak: ["rokon-letra", "szamcsalad", "tizesek", "aprok", "lepegeto", "atlepo", "szazas-bujocska", "erdo-melye", "erdo-szive"] },
     { id: "dallam-ter",    x: 0.86, y: 0.72, w: 0.08, h: 0.17, all: [0.81, 0.735], jel: [0.86, 0.52], kep: "dallam-ter", doboz: [0.8237, 0.5222, 0.0725, 0.2133], cel: { regio: "szorzo" } },
-    { id: "kezmuvesek",    x: 0.27, y: 0.64, w: 0.11, h: 0.14, all: [0.33, 0.655], jel: [0.27, 0.50], kep: "kezmuvesek", doboz: [0.2188, 0.4778, 0.1163, 0.1778], cel: { kozelkep: "kezmuvesek" } },
+    { id: "kezmuvesek",    x: 0.28, y: 0.655, w: 0.125, h: 0.11, all: [0.348, 0.668], jel: [0.285, 0.545], kep: "kezmuvesek", doboz: [0.2112, 0.5311, 0.1313, 0.1333], cel: { kozelkep: "kezmuvesek" } },   /* táj-kép 2026-11-24: a mini utca kicsinyített mása (terv/kozelkep-export.py taj_kezmuvesek) */
     { id: "domboldal",     x: 0.40, y: 0.46, w: 0.08, h: 0.13, all: [0.445, 0.475], jel: [0.40, 0.31], kep: "domboldal", doboz: [0.3550, 0.3111, 0.1087, 0.1644],  cel: { kozelkep: "domboldal" },
       palyak: ["vasar-4", "irasbeli-szorzas", "irasbeli-osztas", "josda-eloszoba", "josda-1em"] },
     { id: "konyvtar",      x: 0.63, y: 0.40, w: 0.06, h: 0.17, all: [0.67, 0.415], jel: [0.63, 0.22], kep: "konyvtar", doboz: [0.5938, 0.2111, 0.0725, 0.2022], cel: { regio: "konyvtar" } },
