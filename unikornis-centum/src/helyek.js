@@ -86,9 +86,9 @@ HELYEK.kezmuvesek = {
    2. kódkör: kepek/ter/ fájlok. Telkek: hátul bolt + sátor, elöl Zsivány standja + Szalagműhely, a két szélen 2 üres telek (díszlet). */
 HELYEK.ter = {
   nev: "Nagyfa tér", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "ter" },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "ter", kifestve: [-560, -160, 2720, 1220] },
   uni: 1.0, jk: 2.0,
-  pontok: { kapu: [0.50, 0.95], fa: [0.50, 0.80] },
+  pontok: { kapu: [0.50, 0.91], fa: [0.50, 0.80] },
   helyek: [
     { id: "bolt",   x: 0.27, y: 0.58, w: 0.16, h: 0.26, all: [0.36, 0.62], jel: [0.27, 0.30], kep: "ph:bolt", rk: 2.0,  cel: { palyak: ["tuske-bolt"] } },
     { id: "vasar",  x: 0.73, y: 0.58, w: 0.17, h: 0.27, all: [0.63, 0.62], jel: [0.73, 0.29], kep: "sator",   rk: 2.3,  cel: { palyak: ["vasar-3", "vasar-3d"] } },
@@ -107,9 +107,9 @@ HELYEK.ter = {
 /* ☀️ Domboldal — 3. kör: szerpentin; lent a Déli vásár, félúton Garas tornya, a tetőn a Jósda; 2 üres telek a kanyarokban */
 HELYEK.domboldal = {
   nev: "Domboldal", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "domboldal" },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "domboldal", kifestve: [-560, -160, 2720, 1220] },
   uni: 0.85, jk: 1.6,
-  pontok: { kapu: [0.36, 0.96], kanyar: [0.55, 0.77], kanyar2: [0.52, 0.43] },
+  pontok: { kapu: [0.38, 0.92], kanyar: [0.55, 0.77], kanyar2: [0.52, 0.43] },
   helyek: [
     { id: "deli",     x: 0.70, y: 0.88, w: 0.20, h: 0.22, all: [0.58, 0.90], jel: [0.70, 0.62], kep: "deli",        rk: 2.2, cel: { palyak: ["vasar-4"] } },
     { id: "irasbeli", x: 0.29, y: 0.64, w: 0.10, h: 0.44, all: [0.37, 0.66], jel: [0.29, 0.18], kep: "ph:irasbeli", rk: 2.4, cel: { palyak: ["irasbeli-szorzas", "irasbeli-osztas"] } },
@@ -128,9 +128,9 @@ HELYEK.domboldal = {
    Rokon-létra és Számcsalád. Az 5. hullámban jön a végleges utca (8 ház, a nagy ház emeletei). */
 HELYEK["osszeado-utca"] = {
   nev: "Összeadó utca", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "utca" },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "utca", kifestve: [-560, -160, 2720, 1220] },
   uni: 1.0, jk: 2.4,
-  pontok: { kapu: [0.50, 0.95] },
+  pontok: { kapu: [0.50, 0.91] },
   helyek: [
     { id: "osszeado-liget", x: 0.24, y: 0.72, w: 0.16, h: 0.30, all: [0.33, 0.76], jel: [0.24, 0.38], kep: "osszeado", cel: { regio: "osszeado" } },
     { id: "letra",  x: 0.52, y: 0.66, w: 0.12, h: 0.36, all: [0.60, 0.70], jel: [0.52, 0.24], kep: "ph:letra", rk: 1.9, cel: { palyak: ["rokon-letra"] } },

@@ -441,7 +441,7 @@ function helyHatter(M) {
 var HELY_HATTER_IDEIGLENES = {
   ter: function (w, h) {
     var s = '', F = function (n) { return n.toFixed(1); };
-    s += '<path d="M' + F(w * .5) + ' ' + F(h * .40) + 'Q' + F(w * .62) + ' ' + F(h * .19) + ' ' + F(w * .75) + ' ' + F(h * .17) + 'Q' + F(w * .87) + ' ' + F(h * .14) + ' ' + F(w * 1.3) + ' ' + F(h * .05) + 'V' + F(h * .45) + 'H' + F(w * .5) + 'Z" fill="#f4e4a8" stroke="#d6bd6a" stroke-width="2"/>';
+    s += '<path d="M' + F(w * .5) + ' ' + F(h * .40) + 'Q' + F(w * .62) + ' ' + F(h * .19) + ' ' + F(w * .75) + ' ' + F(h * .17) + 'Q' + F(w * .87) + ' ' + F(h * .14) + ' ' + F(w * 1.6) + ' ' + F(h * .05) + 'V' + F(h * .45) + 'H' + F(w * .5) + 'Z" fill="#f4e4a8" stroke="#d6bd6a" stroke-width="2"/>';
     s += '<g opacity=".8" transform="translate(' + F(w * .71) + ' ' + F(h * .25) + ')"><rect x="-8" y="-56" width="16" height="56" fill="#e9c9a0" stroke="#8a5a3a" stroke-width="2"/><path d="M-14 -56L0 -82L14 -56Z" fill="#c96a4a"/></g>';
     s += '<g opacity=".8" transform="translate(' + F(w * .87) + ' ' + F(h * .12) + ')"><rect x="-20" y="-22" width="40" height="22" fill="#cfe0f5" stroke="#3f5f8f" stroke-width="2"/><path d="M-24 -22Q0 -52 24 -22Z" fill="#9fb8e0" stroke="#3f5f8f" stroke-width="2"/></g>';
     s += '<path d="M' + F(-w) + ' ' + F(h * .41) + 'Q' + F(w * .5) + ' ' + F(h * .37) + ' ' + F(w * 2) + ' ' + F(h * .41) + 'V' + F(h * 2) + 'H' + F(-w) + 'Z" fill="url(#lt-gRetA)"/>';
@@ -462,7 +462,7 @@ var HELY_HATTER_IDEIGLENES = {
   },
   domboldal: function (w, h) {
     var s = '', F = function (n) { return n.toFixed(1); };
-    s += '<path d="M' + F(w * .58) + ' ' + F(h * .36) + 'L' + F(w * .74) + ' ' + F(h * .10) + 'L' + F(w * .79) + ' ' + F(h * .18) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * 1.3) + ' ' + F(h * .30) + 'V' + F(h * .5) + 'H' + F(w * .58) + 'Z" fill="#d9d3ea" stroke="#b9b0d4" stroke-width="2"/>';
+    s += '<path d="M' + F(w * .58) + ' ' + F(h * .36) + 'L' + F(w * .74) + ' ' + F(h * .10) + 'L' + F(w * .79) + ' ' + F(h * .18) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * 1.6) + ' ' + F(h * .30) + 'V' + F(h * .5) + 'H' + F(w * .58) + 'Z" fill="#d9d3ea" stroke="#b9b0d4" stroke-width="2"/>';
     s += '<path d="M' + F(w * .855) + ' ' + F(h * .075) + 'L' + F(w * .87) + ' ' + F(h * .04) + 'L' + F(w * .89) + ' ' + F(h * .08) + 'Z" fill="#fff"/>';
     s += '<path d="M' + F(-w) + ' ' + F(h * 2) + 'L' + F(-w * .02) + ' ' + F(h * 1.0) + 'Q' + F(w * .08) + ' ' + F(h * .58) + ' ' + F(w * .33) + ' ' + F(h * .48) + 'Q' + F(w * .56) + ' ' + F(h * .38) + ' ' + F(w * .75) + ' ' + F(h * .22) + 'Q' + F(w * .86) + ' ' + F(h * .13) + ' ' + F(w * 2) + ' ' + F(h * .13) + 'V' + F(h * 2) + 'Z" fill="#f6e4a2" stroke="#d6bd6a" stroke-width="3"/>';
     s += '<ellipse cx="' + F(w * .44) + '" cy="' + F(h * .58) + '" rx="220" ry="50" fill="#c9b46a" opacity=".12">' + (lkCsokkent() ? '' : '<animateTransform attributeName="transform" type="translate" values="-300 60;500 -80;-300 60" dur="40s" repeatCount="indefinite"/>') + '</ellipse>';
