@@ -778,13 +778,16 @@ RECEPT({
      diszlet: koppintható apróság, jutalom nélkül (mozdul + mondat)
    2. KÖR (2026-11-23): a rajz FÁJLOKBAN él (kep.mappa): rétegek (eg, tavoli, kozep, eloter, mozgo) + helyenként
    <kep>-epul / -kesz / -viragos (+ felveteli-kod). doboz = a hely képének helye [x, y, w, h] (arány). A helyek még a MAI
-   ligetekbe / Piactérre visznek (biztonsági háló). Rajz-csere: új fájlok + kep.v emelése (+ sw.js lista, ha új fájlnév). */
+   ligetekbe / Piactérre visznek (biztonsági háló). Rajz-csere: új fájlok + kep.v emelése (+ sw.js lista, ha új fájlnév).
+   kep.kifestve (px): a rétegfájlok (eg, tavoli, kozep, eloter, mozgo) ennyit fednek; a helyek koordinátái a 0–1 tartományban maradnak. */
 var VILAG_NEV = "Thinking horses";   /* a játék és a táj neve (a gyerek ezt látja; kiejtés: KIEJTES, audio.js) */
 var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblában = a próba-lap pirosan jelez */
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261123-2" },   /* a rajz vektoros: 1600×900 is éles nagyításkor */
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-1",
+         kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
+            (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
   uni: 0.62, jk: 1.25,   /* az unikornis és a (mai) jelképek mérete a kép egységében */
   pontok: { hid: [0.318, 0.86], tisztas: [0.20, 0.82], kut: [0.47, 0.66] },   /* útkereszteződések (nem koppinthatók) */
@@ -806,7 +809,7 @@ HELYEK.vilag = {
       palyak: ["vasar-4", "irasbeli-szorzas", "irasbeli-osztas", "josda-eloszoba", "josda-1em"] },
     { id: "konyvtar",      x: 0.63, y: 0.40, w: 0.06, h: 0.17, all: [0.67, 0.415], jel: [0.63, 0.22], kep: "konyvtar", doboz: [0.5938, 0.2111, 0.0725, 0.2022], cel: { regio: "konyvtar" } },
     { id: "fejtoro",       x: 0.78, y: 0.26, w: 0.12, h: 0.18, all: [0.72, 0.275], jel: [0.775, 0.195], kep: "fejtoro", doboz: [0.7475, 0.0333, 0.0612, 0.2422], cel: { regio: "fejtoro" } },
-    { id: "felveteli",     x: 0.91, y: 0.20, w: 0.08, h: 0.14, all: [0.86, 0.215], jel: [0.91, 0.08], kep: "felveteli", doboz: [0.8063, 0.0222, 0.1938, 0.2444],   cel: { kod: true } }
+    { id: "felveteli",     x: 0.91, y: 0.20, w: 0.08, h: 0.14, all: [0.86, 0.215], jel: [0.91, 0.08], kep: "felveteli", doboz: [0.8063, 0.0222, 0.2562, 0.2444],   cel: { kod: true } }
   ],
   utak: [
     ["odu", "kert", [[0.20, 0.955]]], ["kert", "postafa", []], ["odu", "erdoszel", [[0.12, 0.86]]],
@@ -24732,6 +24735,7 @@ function pcValasztKopp(vk) {
 /* ═════════════════ 6j0) 🐴 HELY-KERET: a világkép (Thinking horses) és a közelképek közös modulja ═════════════════
    Terv: terv/vilagkep-rendszerterv.html 1–3. pont (✅ jóváhagyva 2026-11-23), 1. kör. Egy kép = egy hely-tábla (helyek.js).
    • Teljes képernyő, „cover”: a kép kitölti az ablakot, a biztonsági zóna (kep.zona) sosem vágódik le (helyNezet).
+     A rajz a széleken túl is ki van festve (kep.kifestve): ahol a zóna miatt a nézet nagyobb a képnél, ott is rajz látszik.
    • Koppintás egy helyre → az unikornis odasétál (útkereső az utak hálóján, patakon csak a hídon), a neve fatáblán
      megjelenik és felolvasódik → ráközelítés a hely téglalapjára (~0,6 mp; nyugalmas mód: áttűnés) → a cél (helyCel).
      Séta közben még egy koppintás a helyre = azonnal ott van. A „←” (közelképben) visszafelé játssza.
@@ -24776,9 +24780,12 @@ function helyNezet(H, W, Hh) {
   s = Math.min(s, W / (z[2] * iw), Hh / (z[3] * ih));
   var vw = W / s, vh = Hh / s;
   var cx = (z[0] + z[2] / 2) * iw, cy = (z[1] + z[3] / 2) * ih;
-  var x = Math.max(Math.min(cx - vw / 2, iw - vw), 0), y = Math.max(Math.min(cy - vh / 2, ih - vh), 0);
-  if (vw > iw) x = (iw - vw) / 2;
-  if (vh > ih) y = (ih - vh) / 2;
+  var k = H.kep.kifestve || [0, 0, iw, ih];   /* a kifestett tartomány: a nézet ezen belül marad (a zóna kedvéért nagyobb nézet is rajzot lát) */
+  s = Math.max(s, W / k[2], Hh / k[3]);
+  vw = W / s; vh = Hh / s;
+  var x = Math.max(Math.min(cx - vw / 2, k[0] + k[2] - vw), k[0]), y = Math.max(Math.min(cy - vh / 2, k[1] + k[3] - vh), k[1]);
+  if (vw > k[2]) x = k[0] + (k[2] - vw) / 2;
+  if (vh > k[3]) y = k[1] + (k[3] - vh) / 2;
   return [x, y, vw, vh];
 }
 /* a hely téglalapja (talppont alul középen), a képernyő arányára bővítve, kis ráhagyással */
@@ -25057,6 +25064,9 @@ function helyJelRajz(j, x, y, k) {   /* ⭐ kész/összes, legfeljebb 2 jelvény
   return s + '</g>';
 }
 /* ── 2. kör: a rajz fájlokból (kepek/vilag/…) ── */
+function helyKifestve(H) {   /* a rétegfájlok helye arányban: [0,0,1,1], ha a rajz nincs kifestve */
+  var k = H.kep.kifestve; return k ? [k[0] / H.kep.w, k[1] / H.kep.h, k[2] / H.kep.w, k[3] / H.kep.h] : [0, 0, 1, 1];
+}
 function helyFajl(H, nev) { return H.kep.mappa + nev + ".svg" + (H.kep.v ? "?v=" + H.kep.v : ""); }
 function helyKepElem(H, nev, d, osztaly) {   /* d = [x, y, w, h] arányban → <image> a kép egységében; nem koppintható (a téglalap az) */
   return '<image' + (osztaly ? ' class="' + osztaly + '"' : '') + ' href="' + helyFajl(H, nev) + '" x="' + (d[0] * H.kep.w).toFixed(1) + '" y="' + (d[1] * H.kep.h).toFixed(1) +
@@ -25200,12 +25210,12 @@ function helyRajzol(host, o) {
   host.innerHTML =
     '<svg class="hely-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' + LT_DEFS +
       (fajl
-        ? '<g class="hely-fold">' + H.retegek.map(function (r) { return helyKepElem(H, r, [0, 0, 1, 1], "hely-reteg"); }).join("") + '</g><g class="hely-mozgo-also"></g>'
+        ? '<g class="hely-fold">' + H.retegek.map(function (r) { return helyKepElem(H, r, helyKifestve(H), "hely-reteg"); }).join("") + '</g><g class="hely-mozgo-also"></g>'
         : '<g class="hely-fold">' + helyHatter(M) + '<g filter="url(#lt-firka)">' + helyUtakRajz(M) + '</g></g>') +
       helyDiszletRajz(M) + helyek + (fajl ? '<g class="hely-mozgo-felso"></g>' : jelek) +
       '<g class="terkep-uni" pointer-events="none"><g class="terkep-uni-irany" style="--dir:1;transform:scale(var(--dir,1),1)">' +
         unikornisSVG("hl-uni", LENYEK[mentes.leny], H.uni, P().oltozet) + '</g></g>' +
-      (fajl ? (H.eloter ? helyKepElem(H, H.eloter, [0, 0, 1, 1], "hely-reteg") : "") + helyDiszletRajz(M, true) + jelek : '') +
+      (fajl ? (H.eloter ? helyKepElem(H, H.eloter, helyKifestve(H), "hely-reteg") : "") + helyDiszletRajz(M, true) + jelek : '') +
     '</svg>' +
     '<div class="hely-nevtabla" aria-live="polite"></div>' +
     '<div class="hely-sarok hely-bal"></div>' +

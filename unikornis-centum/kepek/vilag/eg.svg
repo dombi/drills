@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-560 -160 2720 1220" width="2720" height="1220">
 <!-- Thinking horses · eg · a rajzterv (2026-11-23) exportja; koordináták a 1600×900-as táj rendszerében -->
 <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9cdee"/><stop offset=".5" stop-color="#d6e7f7"/><stop offset=".85" stop-color="#fbf0dc"/></linearGradient><radialGradient id="nap" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff8dc"/><stop offset=".35" stop-color="#fff1c2" stop-opacity=".8"/><stop offset="1" stop-color="#fff1c2" stop-opacity="0"/></radialGradient></defs>
-<rect width="1600" height="900" fill="url(#eg)"/>
+<rect x="-560" y="-160" width="2720" height="161" fill="#a9cdee"/><rect x="-560" y="0" width="2720" height="900" fill="url(#eg)"/><rect x="-560" y="900" width="2720" height="160" fill="#fbf0dc"/>
   <circle cx="190" cy="105" r="150" fill="url(#nap)"/>
   <circle cx="190" cy="105" r="34" fill="#fff6d2"/>
 </svg>

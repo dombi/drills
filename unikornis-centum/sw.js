@@ -15,7 +15,7 @@ var SDK_FAJLOK = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase
 var BETU = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 var ATMEGY = ["admin/", "helyreallitas.html", "sw.js"];
 /* 🐴 a világkép (Thinking horses) rajzfájljai — a helyek.js kep.v-jével együtt emeld a VILAG_V-t, új fájlnévnél bővítsd a listát */
-var VILAG_V = "20261123-2", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
+var VILAG_V = "20261124-1", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
 ["odu", "kert", "postafa", "erdoszel", "utca", "ter", "osszeado-utca", "dallam-ter", "kezmuvesek", "domboldal", "konyvtar", "fejtoro", "felveteli"].forEach(function (h) { ["epul", "kesz", "viragos"].forEach(function (a) { VILAG_KEPEK.push(h + "-" + a); }); });
 var LEALL = false;   /* ?friss vészfék jött: ez a worker már semmit nem tesz el (az oldal közben üríti a tárat és leiratkoztatja) */
 

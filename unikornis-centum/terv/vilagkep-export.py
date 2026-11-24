@@ -131,18 +131,21 @@ def lomb(x, y, r, c):
         n(x - r * .5), n(y - r * 1.3), n(r * .72), c, n(x + r * .5), n(y - r * 1.35), n(r * .76), c, n(x), n(y - r * 1.85), n(r * .8), c,
         n(x + r * .35), n(y - r * 1.3), n(r * .55), n(x - r * .3), n(y - r * 2), n(r * .4))
 
-he = ""
-for sr in [[300, 7, "#a9c2bf", 0.55], [340, 9, "#93b8a8", 0.7], [380, 12, "#7fae95", 0.85], [420, 15, "#6c9f86", 1], [455, 18, "#5f9479", 1]]:
-    x = 1050 + rnd() * 14
+HE_SOROK = [[300, 7, "#a9c2bf", 0.55], [340, 9, "#93b8a8", 0.7], [380, 12, "#7fae95", 0.85], [420, 15, "#6c9f86", 1], [455, 18, "#5f9479", 1]]
+he_sor = []   # soronként (a kifestés a sor végére fűzi a folytatást, hogy a hátsó sor ne takarja az elsőt)
+for sr in HE_SOROK:
+    x = 1050 + rnd() * 14; s_ = ""
     while x < 1600:
         y = sr[0] + (rnd() - 0.5) * 14 + (-(x - 1450) * 0.08 if x > 1450 else 0)
         skip = sr[0] <= 340 and rnd() < 0.45
         if not skip and not (abs(x - 1100) < 26 and y < 380):
-            he += '<g opacity="%s">%s</g>' % (num(sr[3]), fenyo(round(x), round(y), sr[1] * 2.4, sr[2]))
+            s_ += '<g opacity="%s">%s</g>' % (num(sr[3]), fenyo(round(x), round(y), sr[1] * 2.4, sr[2]))
         x += sr[1] * 1.1 + rnd() * 8
+    he_sor.append(s_)
+he_domb = ""
 x = 860
 while x < 990:
-    he += fenyo(round(x), round(458 + rnd() * 12), 36, "#6c9f86")
+    he_domb += fenyo(round(x), round(458 + rnd() * 12), 36, "#6c9f86")
     x += 14 + rnd() * 8
 # JS: Math.round(x) — a fél felfelé kerekít; a Python banki kerekítése itt csak tört pixelt jelenthet, látványra mindegy
 
@@ -201,27 +204,108 @@ for u in U:
     ut += '<path d="%s" stroke="#d9c79c" stroke-width="%.1f" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="%s" stroke="#f4e6c4" stroke-width="%.1f" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' % (d, w + 3, d, w)
 ut += '<g stroke="#5a4a7a" stroke-width="1.6"><ellipse cx="752" cy="596" rx="12" ry="6" fill="#cfc6dc"/><path d="M742,594 L742,578 M762,594 L762,578 M738,580 L766,580" fill="none"/></g>'
 
+# ── KIFESTÉS (2026-11-24): a rétegek a 1600×900-on túl is rajzolnak, hogy széles (21:9) és magas (4:3) ablakon se maradjon
+#    üres sáv. A fenti, jóváhagyott rész VÁLTOZATLAN (ugyanaz a véletlen-sor); a folytatás saját véletlennel készül.
+#    Ég + felhők fölül, bal oldalt a hazai erdő, jobbra a hegy lába fenyvessel, alul rét és füves partszél. Hely, jel, felirat nincs.
+BX0, BY0, BX1, BY1 = -560, -160, 2160, 1060
+BLEED = (BX0, BY0, BX1 - BX0, BY1 - BY0)   # helyek.js kep.kifestve
+_b = [4242]
+def brnd():
+    _b[0] = (_b[0] * 16807) % 2147483647
+    return (_b[0] - 1) / 2147483646
+
+# jobbra a hegyi fenyves folytatása (soronként a régi sor után); a hegy lába jobbra lassan ereszkedik
+he = ""
+for sr, s_ in zip(HE_SOROK, he_sor):
+    x = 1600 + brnd() * 10
+    while x < BX1 + 20:
+        y = sr[0] + (brnd() - 0.5) * 14 - (min(x, 1760) - 1450) * 0.08 + max(0, x - 1800) * 0.08
+        if not (sr[0] <= 340 and brnd() < 0.45):
+            s_ += '<g opacity="%s">%s</g>' % (num(sr[3]), fenyo(round(x), round(y), sr[1] * 2.4, sr[2]))
+        x += sr[1] * 1.1 + brnd() * 8
+    he += s_
+he += he_domb
+
+# bal oldalt a hazai erdő (a régi elé rajzolva, hogy a régi szél fái maradjanak elöl)
+ho_bal = ""
+y = 380
+while y <= BY1:
+    x = BX0 - 10
+    while x < -24:
+        yy = y + brnd() * 10; r = min(22, 10 + (yy - 400) / 240 * 10)
+        ho_bal += fenyo(round(x), round(yy), r * 2.8, "#7fae95") if (yy < 470 and brnd() < 0.5) else lomb(round(x), round(yy), r, sz[int(brnd() * 4)])
+        x += 30 + brnd() * 16
+    y += 26
+ho = ho_bal + ho
+# jobbra a réten néhány fa (a hegy lábánál sűrűbb)
+for i in range(14):
+    x = 1630 + brnd() * (BX1 - 1630); y = 500 + brnd() * 520
+    ho += lomb(round(x), round(y), 12 + (y - 500) / 520 * 12, sz[int(brnd() * 4)])
+# virágok a kifestett részen (a patak alsó folytatását kihagyva)
+for i in range(110):
+    x = BX0 + brnd() * (BX1 - BX0); y = 600 + brnd() * (BY1 - 600)
+    if 0 <= x <= 1600 and y < 900:
+        continue
+    if 440 < x < 600 and y > 880:
+        continue
+    vi += '<circle cx="%d" cy="%d" r="%.1f" fill="%s" opacity=".8"/>' % (round(x), round(y), 1.5 + brnd() * 1.6, ["#f6a5c0", "#fce49a", "#fff", "#c9a8e6"][i % 4])
+# fű a széleken túl is
+for xa, xb in ((BX0, 0), (1600, BX1)):
+    x = xa
+    while x < xb:
+        y = 884 + brnd() * 16; h = 10 + brnd() * 14
+        fu += '<path d="M%s,%s q-2,-%s -5,-%s M%s,%s q1,-%s 2,-%s M%s,%s q3,-%s 7,-%s" stroke="#7fae6a" stroke-width="1.8" fill="none" stroke-linecap="round"/>' % (
+            f1(x), f1(y), f1(h * .6), f1(h), f1(x), f1(y), f1(h * .7), f1(h * 1.1), f1(x), f1(y), f1(h * .5), f1(h * .8))
+        x += 12 + brnd() * 14
+# felhők a kifestett égen (lassan úsznak, mint a régiek)
+def felho(x, y, k, dx, dur, op):
+    return ('<g transform="translate(%s,%s) scale(%s)"><path d="M0,34 C-10,12 18,0 36,10 C46,-12 84,-12 92,8 C114,0 134,16 126,34 Z" opacity="%s">'
+            '<animateTransform attributeName="transform" type="translate" values="0,0;%s,0;0,0" dur="%ss" repeatCount="indefinite"/></path></g>') % (x, y, k, op, dx, dur)
+felho_ki = (felho(-420, 110, 1.2, 60, 150, .85) + felho(-260, -70, 1.4, -50, 180, .8) + felho(380, -110, 1.1, 70, 160, .75) +
+            felho(1040, -90, 1.3, -60, 175, .8) + felho(1760, 60, 1.2, -70, 155, .85) + felho(1980, -60, 1.0, 50, 140, .7))
+# a patak alul a kép szélén túl is folyik (a víz alakja meghosszabbítva)
+DEFS["viz"] = DEFS["viz"].replace("Q535,788 545,905 L485,905", "Q535,788 545,905 L556,%d L476,%d L485,905" % (BY1 + 10, BY1 + 10))
+# a hegyek jobbra a szélig: a Felvételi lába ereszkedő gerinccel, a Fejtörő lába lassan a rétig
+FELV_LAB = "L1640,200 L1780,236 L1880,222 L2000,256 L%d,272" % (BX1 + 10)
+FEJT_LAB = "L1640,344 L1800,372 L2000,396 L%d,410" % (BX1 + 10)
+DEFS["m-felv"] = DEFS["m-felv"].replace("L1640,200 L1640,470", "%s L%d,480" % (FELV_LAB, BX1 + 10))
+DEFS["m-fejt"] = DEFS["m-fejt"].replace("L1640,344 L1640,480", "%s L%d,480" % (FEJT_LAB, BX1 + 10))
+
 # ── RÉTEGEK ──
 anim = re.compile(r"<animate")
 eg_g = inner(grab("r-eg"))
 felhok = eg_g[eg_g.index('<g fill="#fdfdfd"'):]
 felhok = felhok[:felhok.index("</g>") + 4]
-svg("eg", (0, 0, W, H), ["eg", "nap"], eg_g.replace(felhok, ""))
+EG_RECT = '<rect width="1600" height="900" fill="url(#eg)"/>'
+assert EG_RECT in eg_g
+eg_g = eg_g.replace(EG_RECT, '<rect x="%d" y="%d" width="%d" height="%d" fill="#a9cdee"/><rect x="%d" y="0" width="%d" height="900" fill="url(#eg)"/>'
+                    '<rect x="%d" y="900" width="%d" height="%d" fill="#fbf0dc"/>' % (BX0, BY0, BX1 - BX0, -BY0 + 1, BX0, BX1 - BX0, BX0, BX1 - BX0, BY1 - 900))
+svg("eg", BLEED, ["eg", "nap"], eg_g.replace(felhok, ""))
 
 tav = inner(grab("r-tavoli"))
 vizeses = re.search(r'<path d="M236,302.*?</path>', tav, re.S).group(0)
 arnyek = re.search(r'<g clip-path="url\(#hegy-clip\)".*?</g>', tav, re.S).group(0)
+for a, b in (("M0,330 Q150,288", "M%d,318 Q-290,292 0,330 Q150,288" % (BX0 - 10)), ("L1290,470 L0,470 Z", "L1290,470 L%d,470 Z" % (BX0 - 10)),
+             ("M0,372 Q90,306", "M%d,352 Q-300,330 0,372 Q90,306" % (BX0 - 10)), ("L640,620 L0,620 Z", "L640,620 L%d,620 Z" % (BX0 - 10)),
+             ("L1640,200 L1640,470 L1520,470", "%s L%d,470 L1520,470" % (FELV_LAB, BX1 + 10)),
+             ("L1640,344 L1640,480 L1336,480", "%s L%d,480 L1336,480" % (FEJT_LAB, BX1 + 10))):
+    assert a in tav, a
+    tav = tav.replace(a, b)
 tav = tav.replace(vizeses, "").replace(arnyek, "").replace('<g id="hegyi-erdo"></g>', '<g filter="url(#firka)">' + he + "</g>")
-svg("tavoli", (0, 0, W, H), ["firka", "hegy-f", "hegy-v", "tavdomb", "m-felv", "m-fejt"], tav)
+svg("tavoli", BLEED, ["firka", "hegy-f", "hegy-v", "tavdomb", "m-felv", "m-fejt"], tav)
 
-koz = inner(grab("r-kozep")).replace('<g id="hazai-erdo"></g>', '<g filter="url(#firka)">' + ho + "</g>").replace('<g id="viragok"></g>', vi)
+koz = inner(grab("r-kozep"))
+for a, b in (("M0,545 Q200,522", "M%d,540 Q-280,528 0,545 Q200,522" % (BX0 - 10)), ("1640,462 L1640,900 L0,900 Z", "1640,462 L%d,470 L%d,%d L%d,%d Z" % (BX1 + 10, BX1 + 10, BY1 + 10, BX0 - 10, BY1 + 10))):
+    assert a in koz, a
+    koz = koz.replace(a, b)
+koz = koz.replace('<g id="hazai-erdo"></g>', '<g filter="url(#firka)">' + ho + "</g>").replace('<g id="viragok"></g>', vi)
 fo = inner(grab("folyo"))
 fo_hasznos = fo[:fo.index('<g clip-path="url(#viz-clip)">')]
 fo_tukor = re.search(r'<!-- tükröződés.*?(?=<g id="aramlas">)', fo, re.S).group(0)
 steg = '<g stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round"><path d="M542,866 L592,872 L592,880 L540,874 Z" fill="#d8b48a"/><path d="M556,880 L556,890 M584,880 L584,892" stroke-width="2.4"/></g>'
 csonak = re.search(r'<path d="M498,872.*?</path>\s*<path d="M530,868[^>]*/>', fo, re.S).group(0)
 koz += fo_hasznos + '<g clip-path="url(#viz-clip)">' + fo_tukor + "</g>" + kovek + steg + "\n<!-- utak (a helyek.js utak-táblájából) -->\n" + ut
-svg("kozep", (0, 0, W, H), ["firka", "domb", "ret", "vizgr", "viz", "viz-clip"], koz)
+svg("kozep", BLEED, ["firka", "domb", "ret", "vizgr", "viz", "viz-clip"], koz)
 
 hid = grab("hid")
 svg("hid", (456, 740, 106, 66), ["firka"], hid)
@@ -229,7 +313,12 @@ svg("hid", (456, 740, 106, 66), ["firka"], hid)
 elo = inner(grab("r-eloter"))
 elo = elo.replace(elo[elo.index('<g id="fu">'):elo.index("</g>", elo.index('<g id="fu">')) + 4], "")
 elo = re.sub(r"<text.*?</text>", "", elo, flags=re.S)   # a tábla felirata a kódban (diszlet „tabla”): betűtípus csak a lapon van
-svg("eloter", (0, 0, W, H), ["firka"], elo)
+# füves partszél elöl (a bokrok talpát takarja; a patak a kettő közt folyik ki a képből)
+elo += ('<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="2" fill="#9fcf8f">'
+        '<path d="M%d,%d L%d,930 Q-300,900 -60,896 Q40,894 120,930 Q300,968 472,962 L478,%d Z"/>'
+        '<path d="M566,%d L568,966 Q800,950 1100,960 Q1350,968 1460,920 Q1520,890 1600,892 Q1700,898 1800,930 Q2000,962 %d,950 L%d,%d Z"/></g>') % (
+    BX0 - 10, BY1 + 10, BX0 - 10, BY1 + 10, BY1 + 10, BX1 + 10, BX1 + 10, BY1 + 10)
+svg("eloter", BLEED, ["firka"], elo)
 
 malom = grab("malomkerek")
 hab = re.search(r'<g fill="#fff" stroke="none" opacity=".85">.*?</g>', taj, re.S).group(0)
@@ -238,12 +327,12 @@ csapat = madarak[madarak.index('<g opacity=".6">'):madarak.index("</g>", madarak
 ULO = '<g id="ulo" fill="#6a5f8a" stroke="none"><path d="M-6,0 Q0,-8 6,-2 L11,-4 L7,1 Q0,6 -6,0 Z"/><circle cx="5" cy="-4" r="2.6"/></g>'
 DEFS["ulo"] = ULO
 mozgo = ('<g id="also" pointer-events="none">\n'
-         '<g fill="#fdfdfd" opacity=".92">' + inner(felhok) + "</g>\n" + vizeses + "\n" + arnyek + "\n"
+         '<g fill="#fdfdfd" opacity=".92">' + inner(felhok) + felho_ki + "</g>\n" + vizeses + "\n" + arnyek + "\n"
          '<g clip-path="url(#viz-clip)">' + aramlas + csillogas + "</g>\n" + fodor + "\n" + nad + "\n"
          '<g stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round">' + csonak + "</g>\n" + malom + "\n" + hab + "\n</g>\n"
          '<g id="felso" pointer-events="none">\n<g stroke="#6a5f8a" stroke-width="1.8" fill="none" stroke-linecap="round">' + csapat + "</g>\n"
          '<g>' + fu + '<animateTransform attributeName="transform" type="skewX" values="0;1.2;0;-0.8;0" dur="7s" repeatCount="indefinite"/></g>\n</g>')
-svg("mozgo", (0, 0, W, H), ["madar", "ulo", "m-felv", "m-fejt", "hegy-clip", "viz", "viz-clip"], mozgo, elotag="vm-")
+svg("mozgo", BLEED, ["madar", "ulo", "m-felv", "m-fejt", "hegy-clip", "viz", "viz-clip"], mozgo, elotag="vm-")
 
 # ── HELYEK: 13 × 3 állapot (épül / kész / virágos) + felveteli-kod ──
 HELYEK_G = grab("helyek")
@@ -270,7 +359,7 @@ HT = {
     "domboldal":     ((568, 280, 742, 428),   (592, 330, 718, 414), ""),
     "konyvtar":      ((950, 190, 1066, 372),  (980, 262, 1036, 360), ""),
     "fejtoro":       ((1196, 30, 1294, 248),  (1214, 192, 1266, 234), zaszlo),
-    "felveteli":     ((1290, 20, 1600, 240),  (1412, 148, 1448, 180), ""),
+    "felveteli":     ((1290, 20, 1700, 240),  (1412, 148, 1448, 180), ""),
 }
 _s[0] = 2026
 def allvany(r):
@@ -324,6 +413,7 @@ for i, (box, r, extra) in HT.items():
         fajlok.append(i + "-kod")
     doboz_sorok.append('%s: [%.4f, %.4f, %.4f, %.4f]' % (i, vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
 
+print("kep.kifestve (helyek.js): [%d, %d, %d, %d]" % BLEED)
 print("doboz (helyek.js):\n  " + "\n  ".join(doboz_sorok))
 print("\nsw.js VILAG_KEPEK:", ", ".join('"%s"' % f for f in fajlok))
 tot = 0
