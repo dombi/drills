@@ -1228,16 +1228,48 @@ def kezmuvesek():
              lap(1294, 346, 34, 40, "url(#csikKo)", "0;4;0;-6;0", 4.2) + lap(1344, 338, 28, 36, "#c9a8e6", "0;5;0;-5;0", 3.8))
     irj(M, "kotel", (1150, 300, 280, 230), FIRKA + '<pattern id="csikKo" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#fff6f9"/><rect width="6" height="12" fill="#f4a6c8"/></pattern>', kotel)
 
-    # a macska a pékség jobb párkányán (a farka jár, néha a füle rebben)
-    macska = ('<g transform="translate(696 532)" stroke="%s" stroke-width="1.6" stroke-linejoin="round">'
-              '<path d="M12,-2 q14,0 12,14" stroke="#a89cc0" stroke-width="4" fill="none" stroke-linecap="round"><animate attributeName="d" values="M12,-2 q14,0 12,14;M12,-2 q18,-8 16,8;M12,-2 q10,4 6,16;M12,-2 q14,0 12,14" dur="2.6s" repeatCount="indefinite"/></path>'
-              '<path d="M-12,0 Q-14,-16 0,-17 Q14,-16 12,0 Z" fill="#a89cc0"/><path d="M-4,-14 q4,3 8,0 M-6,-8 q6,3 12,0" fill="none" stroke="#8a7da6" stroke-width="1.4"/>'
-              '<circle cx="-2" cy="-22" r="8.5" fill="#a89cc0"/>'
-              '<g><path d="M-9,-26 l-1,-9 l6,5 Z" fill="#a89cc0"/><animateTransform attributeName="transform" type="rotate" values="0 -6 -28;0 -6 -28;-14 -6 -28;0 -6 -28" keyTimes="0;.8;.86;.92" dur="5s" repeatCount="indefinite"/></g>'
-              '<path d="M3,-29 l3,-8 l3,8 Z" fill="#a89cc0"/>'
-              '<path d="M-6,-22 q2,2 4,0 M1,-22 q2,2 4,0" fill="none" stroke-width="1.3"/><path d="M-2,-18 l1,1 l1,-1" fill="none" stroke-width="1.1"/>'
-              '<path d="M-14,-18 l-6,-1 M-14,-16 l-6,2 M10,-18 l6,-1 M10,-16 l6,2" stroke-width=".8"/></g>') % INK
-    irj(M, "macska", (668, 492, 62, 56), "", macska)
+    # a macska a pékség jobb párkányán — képregényes rajz (2026-11-24, a producer kérése: „legyen rajzoltabb”): körvonal, fény-árnyék,
+    # fehér pofa + mellény, mancsok, csíkok, csillogó szem (néha pislog), csíkos farok lelóg a párkányról (jár), a füle néha rebben
+    BUN, BUN_S, CSIK, FEH = "url(#macskaB)", "#8f82b3", "#7d6fa3", "#f6f1fb"
+    farok_d = ("M10,-3 C20,-4 25,2 23,14", "M10,-3 C22,-8 28,0 27,10", "M10,-3 C17,0 19,6 16,16", "M10,-3 C20,-4 25,2 23,14")
+    def farok(stroke, w, extra=""):
+        return ('<path d="%s" stroke="%s" stroke-width="%s" fill="none" stroke-linecap="round"%s><animate attributeName="d" values="%s" dur="2.6s" repeatCount="indefinite"/></path>') % (
+            farok_d[0], stroke, w, extra, ";".join(farok_d))
+    szem = lambda x: ('<ellipse cx="%s" cy="-23.6" rx="1.7" ry="2.2" fill="%s"><animate attributeName="ry" values="2.2;2.2;.3;2.2;2.2" keyTimes="0;.9;.93;.96;1" dur="4.2s" repeatCount="indefinite"/></ellipse>'
+                      '<circle cx="%s" cy="-24.4" r=".65" fill="#fff"><animate attributeName="opacity" values="1;1;0;1;1" keyTimes="0;.9;.93;.96;1" dur="4.2s" repeatCount="indefinite"/></circle>') % (f(x), INK, f(x + .6))
+    macska = ('<g transform="translate(696 532)">' + arnyek(1, .6, 15, 2.2, .16) +
+              farok(INK, 6.6) + farok(BUN_S, 4) + farok(CSIK, 4, ' stroke-dasharray="2.4 4.2" stroke-dashoffset="-6"') +
+              '<g filter="url(#firkaM)" stroke="%s" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">' % INK +
+              # test: ülő, kerek hát; hátsó comb; mellény; mancsok; csíkok
+              '<path d="M-12,0 C-15,-9 -12,-17 -3,-18.5 C7,-20 14.5,-11 12.5,0 Z" fill="%s"/>' % BUN +
+              '<path d="M5,-1 C12,-2 12,-11 6,-12" fill="none" stroke="%s" stroke-width="1.1"/>' % CSIK +
+              '<path d="M8.6,-15 q-2.2,2 -1.2,4.4 M11.2,-11.6 q-2,1.6 -1.2,3.8" fill="none" stroke="%s" stroke-width="1.3"/>' % CSIK +
+              '<path d="M-6.4,-1 Q-7.4,-10 -2,-14.6 Q3.4,-10 3,-1 Z" fill="%s" stroke="none"/>' % FEH +
+              '<path d="M-10.5,-4 C-11.5,-10 -8,-15 -4,-16.4 C-8.6,-13 -9.6,-8 -9,-3 Z" fill="#fff" opacity=".35" stroke="none"/>'
+              '<ellipse cx="-5.2" cy="-1.2" rx="3.4" ry="2.1" fill="%s" stroke-width="1.2"/><ellipse cx="2" cy="-1.2" rx="3.4" ry="2.1" fill="%s" stroke-width="1.2"/>' % (FEH, FEH) +
+              '<path d="M-6.2,-1.9 v1.4 M-4.2,-1.9 v1.4 M1,-1.9 v1.4 M3,-1.9 v1.4" stroke-width=".6"/>'
+              # fej: kerek, oldalt pofaszőr-pamacs
+              '<path d="M-11.6,-22.4 Q-12,-31.4 -2,-31.6 Q8,-31.4 7.6,-22.4 Q8.6,-20 6.4,-18.6 Q2,-15.4 -2,-15.4 Q-6,-15.4 -10.4,-18.6 Q-12.6,-20 -11.6,-22.4 Z" fill="%s"/>' % BUN +
+              '<path d="M-3.8,-31.4 v2.6 M-2,-31.6 v3.2 M-.2,-31.4 v2.6" stroke="%s" stroke-width="1"/>' % CSIK +
+              '<path d="M-9.6,-27 Q-8.4,-30 -5,-30.6" fill="none" stroke="#fff" stroke-width="1.2" opacity=".5"/>'
+              '<path d="M3,-30.2 L6.4,-38 L8,-27.6 Z" fill="%s"/><path d="M4.4,-29.6 L6.3,-34.6 L7,-28.6 Z" fill="#f6b8cf" stroke="none"/>' % BUN +
+              '</g>'
+              # a bal fül külön: néha rebben
+              '<g><g filter="url(#firkaM)" stroke="%s" stroke-width="1.5" stroke-linejoin="round"><path d="M-11.2,-27.4 L-11.6,-38 L-4.8,-30.4 Z" fill="%s"/>'
+              '<path d="M-10.2,-29 L-10.5,-34.6 L-6.6,-30.4 Z" fill="#f6b8cf" stroke="none"/></g>'
+              '<animateTransform attributeName="transform" type="rotate" values="0 -8 -29;0 -8 -29;-16 -8 -29;0 -8 -29" keyTimes="0;.8;.86;.92" dur="5s" repeatCount="indefinite"/></g>' % (INK, BUN) +
+              # arc: fehér pofa, szem, orr, száj, pirosság, bajusz
+              '<ellipse cx="-2" cy="-19.4" rx="4.4" ry="2.8" fill="%s"/>' % FEH +
+              '<ellipse cx="-8.8" cy="-20" rx="1.9" ry="1.1" fill="#f6a5c0" opacity=".55"/><ellipse cx="4.8" cy="-20" rx="1.9" ry="1.1" fill="#f6a5c0" opacity=".55"/>' +
+              szem(-6) + szem(2) +
+              '<path d="M-3.2,-21 h2.4 l-1.2,1.4 z" fill="#f08aa8" stroke="%s" stroke-width=".5" stroke-linejoin="round"/>' % INK +
+              '<path d="M-2,-19.6 v.8 M-4.2,-18.6 q1.1,1.3 2.2,0 q1.1,1.3 2.2,0" fill="none" stroke="%s" stroke-width=".9" stroke-linecap="round"/>' % INK +
+              '<path d="M-7,-19.4 l-7,-1.4 M-7,-18.4 l-6.6,1.2 M3,-19.4 l7,-1.4 M3,-18.4 l6.6,1.2" stroke="%s" stroke-width=".6" stroke-linecap="round" opacity=".8"/>' % INK +
+              '</g>')
+    MDEFS = ('<filter id="firkaM" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="1" seed="7"/>'
+             '<feDisplacementMap in="SourceGraphic" scale="1.3"/></filter>'
+             '<linearGradient id="macskaB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdb1de"/><stop offset="1" stop-color="#9d90c2"/></linearGradient>')
+    irj(M, "macska", (668, 492, 62, 56), MDEFS, macska)
 
     dob = {}
     for nev, fn, alap, sd in (("pekseg", h_pekseg, (654, 600), 41), ("bajital", h_bajital, (965, 520), 42), ("szabo", h_szabo, (1290, 640), 43)):

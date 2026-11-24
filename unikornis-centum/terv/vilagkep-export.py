@@ -295,7 +295,8 @@ tav = tav.replace(vizeses, "").replace(arnyek, "").replace('<g id="hegyi-erdo"><
 svg("tavoli", BLEED, ["firka", "hegy-f", "hegy-v", "tavdomb", "m-felv", "m-fejt"], tav)
 
 koz = inner(grab("r-kozep"))
-for a, b in (("M0,545 Q200,522", "M%d,540 Q-280,528 0,545 Q200,522" % (BX0 - 10)), ("1640,462 L1640,900 L0,900 Z", "1640,462 L%d,470 L%d,%d L%d,%d Z" % (BX1 + 10, BX1 + 10, BY1 + 10, BX0 - 10, BY1 + 10))):
+for a, b in (("Q970,452 1030,440 L1060,620", "Q970,452 1010,450 Q1060,452 1100,480 L1110,620"),   # 2026-11-24: a domb jobb vége ne lógjon a levegőben — lefut a rétbe
+             ("M0,545 Q200,522", "M%d,540 Q-280,528 0,545 Q200,522" % (BX0 - 10)), ("1640,462 L1640,900 L0,900 Z", "1640,462 L%d,470 L%d,%d L%d,%d Z" % (BX1 + 10, BX1 + 10, BY1 + 10, BX0 - 10, BY1 + 10))):
     assert a in koz, a
     koz = koz.replace(a, b)
 koz = koz.replace('<g id="hazai-erdo"></g>', '<g filter="url(#firka)">' + ho + "</g>").replace('<g id="viragok"></g>', vi)

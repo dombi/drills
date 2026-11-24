@@ -20,7 +20,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-3",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-4",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -75,7 +75,7 @@ HELYEK.vilag = {
    kotel, macska; az üres telek a közép rétegben. A 12 tárgy kívülről is látszik (kirakat, párkány, a ház előtt). A patak nem járható. */
 HELYEK.kezmuvesek = {
   nev: "Kézművesek", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", mappa: "kepek/kezmuvesek/", v: "20261124-1", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", mappa: "kepek/kezmuvesek/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 1.0, jk: 2.4,
   pontok: { kapu: [0.705, 0.965], sarok: [0.735, 0.875], kozep: [0.58, 0.79], malomelo: [0.30, 0.735] },
@@ -104,7 +104,7 @@ HELYEK.kezmuvesek = {
    A ház képe: <kep>-epul / -teto / -ajto / -kesz / -viragos (helyKepAllapot: a ház pályáinak piacHazLepes-e). rk: a köd és a fénykör nagysága. */
 HELYEK.ter = {
   nev: "Nagyfa tér", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "ter", mappa: "kepek/ter/", v: "20261124-1", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "ter", mappa: "kepek/ter/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 1.0, jk: 2.0,
   pontok: { kapu: [0.50, 0.91], fa: [0.50, 0.80] },
@@ -127,7 +127,7 @@ HELYEK.ter = {
    2. kódkör: a rajz fájlokban (kepek/domboldal/); az utak a rajzolt szerpentint követik (exportáló: SZERP). */
 HELYEK.domboldal = {
   nev: "Domboldal", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "domboldal", mappa: "kepek/domboldal/", v: "20261124-1", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "domboldal", mappa: "kepek/domboldal/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.85, jk: 1.6,
   pontok: { kapu: [0.385, 0.94], kanyar: [0.58, 0.83], kanyar2: [0.369, 0.522] },
