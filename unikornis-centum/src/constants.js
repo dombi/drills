@@ -211,7 +211,7 @@ var PALYAK = [
   {
     id: "osztas-100", nev: "Osztogató kút", ikon: "➗", regio: "szorzo",
     szint: 5,
-    palcim: "Osztás az egész erdőben, százig",
+    palcim: "Osztás egyenlő részekre a kútnál, százig",
     alap: { tipus: "osztas" },
     allomasok: [
       { nev: "Rajt" },
@@ -252,7 +252,7 @@ var PALYAK = [
     ]
   },
   {
-    id: "vegyes-szorzo", nev: "Kerge harangjáték", ikon: "🌲", regio: "szorzo",
+    id: "vegyes-szorzo", nev: "Kerge harangjáték", ikon: "🔔", regio: "szorzo",
     szint: 7,
     palcim: "Szorzás és osztás, keresztül-kasul, százig",
     alap: { tipus: "szorzasosztas" },
