@@ -2442,14 +2442,6 @@ def u_nagyhaz():
     h["defs"] = ""
     return h
 
-def u_hatter_haz(x, y, k, dol, cs, fal, teto, toldas=False):
-    o = {"w": 150, "hB": 92, "hJ": 100, "tH": 56, "cs": cs, "dol": dol, "fal": fal, "teto": teto, "tetoA": "#8a7a8a",
-         "ablak": [(-56, -74, 24, 22), (28, -78, 24, 22)], "ajto": (0, 24, 44, "#b89a86"), "kemeny": (30, 12, 16), "spaletta": "#c9c0d0"}
-    if toldas:
-        o["toldas"] = (75, 112, 52)
-    h = ferde_haz(o)
-    return '<g transform="translate(%s %s) scale(%s)" opacity=".62">%s</g>' % (f(x), f(y), k, h["G"] + fok(h["S"] + h["A"]) + h["KA"])
-
 def u_kut():
     """⛲ a kút a kúttéren: a vödör lemegy és feljön (koppintásra: „Csobb! Friss víz a kútból.”)"""
     x, y = U_KUT
@@ -2558,9 +2550,9 @@ def osszeado_utca():
     for x, y, rr in ((560, 470, 26), (680, 460, 30), (180, 500, 30), (-120, 520, 34), (-380, 500, 36), (1700, 520, 36), (1860, 500, 34), (2060, 540, 38)):
         koz += lomb(x, y, rr, ["#8fc98a", "#9fd19a", "#7fbf86", "#a7d99a"][int(r() * 4)])
     koz += '</g>'
-    # a két halvány díszlet-ház (a lakók otthona, nem koppintható)
-    koz += u_hatter_haz(250, 642, .78, -2, -22, "#e6eedd", "#b88a6a")
-    koz += u_hatter_haz(1004, 488, .62, 2.5, 22, "#e4eefa", "#8aa4c4", toldas=True)
+    # a két halvány díszlet-ház helyén (a producer, 11-25: ne legyenek üres házak) fa és bokor
+    koz += '<g filter="url(#firka)" stroke="%s" stroke-width="2">' % INK + lomb(236, 648, 40, "#94c983") + bokor(300, 652, 1.1) + bokor(186, 656, .9, "#86c07a", "#9fd19a") + '</g>'
+    koz += '<g filter="url(#firka)" stroke="%s" stroke-width="2">' % INK + lomb(1010, 492, 30, "#8cc47f") + bokor(1062, 496, .9) + '</g>'
     # az ér a forrástól a tócsáig (a ház mögül bukkan elő), nád, kő
     tx, ty, trx, tryy = U_TO
     ed = sima(U_ER)
@@ -2626,7 +2618,7 @@ def osszeado_utca():
     csillam += ('<ellipse cx="1176" cy="558" rx="14" ry="3" fill="none" stroke="#fff" stroke-width="2"><animate attributeName="rx" values="4;24" dur="3s" repeatCount="indefinite"/>'
                 '<animate attributeName="opacity" values=".9;0" dur="3s" repeatCount="indefinite"/></ellipse>')
     also = ('<g id="also" pointer-events="none">\n<g>' + uszo_felho(380, 20, 1.0, 80, 120) + uszo_felho(1460, 50, 1.2, -70, 150) + uszo_felho(-260, 60, 1.1, 60, 130) + "</g>\n" + csillam + "\n" +
-            fust(250 + 23, 642 - 136, 3, 5, 40) + fust(1004 + 20, 488 - 112, 3, 5.4, 34) + "\n" +
+            "\n" +
             lepke(560, 640, "#f6a5c0", 14, "0,0;80,-40;160,10;60,30;0,0") + lepke(1500, 640, "#fce49a", 16, "0,0;-70,-20;-110,20;-30,30;0,0") + lepke(380, 700, "#c9a8e6", 13, "0,0;60,-24;100,6;30,20;0,0") + "\n</g>\n")
     levelek = '<g opacity=".9">' + ''.join(('<path d="M%s,%s q3,-4 6,0 q-3,4 -6,0 Z" fill="%s"><animateTransform attributeName="transform" type="translate" values="0,0;%s,%s" dur="%ss" begin="%ss" repeatCount="indefinite"/>'
                                             '<animate attributeName="opacity" values="0;1;1;0" dur="%ss" begin="%ss" repeatCount="indefinite"/></path>') % (
@@ -2701,7 +2693,8 @@ def utca_tabla():
 # ══════════════════ AZ ÖSSZEADÓ UTCA TÁJ-KÉPE (a világtérképen) ══════════════════
 # A kanyargó utca kicsinyített mása: bal lent indul, kanyarog fölfelé jobbra; a létrás ház (türkiz tető), a kacsák sárga háza,
 # a körtefa, a kút, fönt a dombocskán a nagy ház. A megálló (all, a tájon .735/.715) a hely jobb oldalán, a kép jobb alsó sarkánál.
-TAJ_UTCA_DOBOZ = (1022, 506, 172, 136)
+TAJ_UTCA_DOBOZ = (1022, 506, 172, 136)     # a rajz saját kerete (1-szeresen)
+TAJ_UTCA_TALP, TAJ_UTCA_K = (1104, 640), 1.7
 def taj_osszeado_utca():
     r = Rnd(331)
     ut_ = 'M1030,640 Q1060,626 1086,624 Q1110,622 1118,606 Q1126,590 1142,586 Q1160,582 1164,566 Q1168,552 1178,546'
@@ -2717,7 +2710,7 @@ def taj_osszeado_utca():
     letra = haz(10, 18, 7, 1, "#fff1d6", "#5fb3ad", -2, 1) + '<path d="M6,0 L4.6,-16 M8.4,0 L7,-16" stroke="#8a5a3a" stroke-width=".9"/>'
     csalad = haz(22, 12, 7, -4, "#fde9b0", "#c96a4a", 1.5, 4)
     nagy = haz(20, 18, 10, 1, "#f6d6c4", "#9a5a3a", -1, 2) + '<circle cx="1" cy="-23" r="1.6" fill="#e9f4fb" stroke-width=".6"/>'
-    hatter = '<g opacity=".6">' + rk(1052, 610, haz(13, 9, 6, -2, "#e6eedd", "#b88a6a", -2, 2)) + rk(1132, 562, haz(12, 8, 6, 2, "#e4eefa", "#8aa4c4", 2, 2)) + '</g>'
+    hatter = '<path d="%s" fill="#94c983"/>' % pamacs(1052, 602, 8, 6, 6, r)
     korte_ = '<path d="M-1.6,0 V-7 H1.6 V0 Z" fill="#8a5e40"/><path d="%s" fill="#9ccf8c"/>' % pamacs(0, -13, 8, 7, 7, r) + "".join(
         '<circle cx="%s" cy="%s" r="1.1" fill="#e4d65a" stroke="none"/>' % (f(-4 + i * 3), f(-12 - (i % 2) * 3)) for i in range(3))
     kut = '<ellipse cx="0" cy="0" rx="3.6" ry="1.4" fill="#e6dccb"/><path d="M-3.6,0 V-3 H3.6 V0" fill="#e6dccb"/><path d="M-3,-3 V-8 M3,-3 V-8" stroke="#8a5a3a" stroke-width=".8"/><path d="M-5,-7.6 L0,-11 L5,-7.6 Z" fill="#c98b5e"/>'
@@ -2733,10 +2726,14 @@ def taj_osszeado_utca():
                                        '<animateMotion path="M1120,598 Q1126,590 1132,598 Q1138,590 1144,598" keyPoints="0;1;1;0;0" keyTimes="0;.4;.5;.9;1" calcMode="linear" dur="5s" repeatCount="indefinite"/></g>')
     virag = taj_viragsor(Rnd(85), 1036, 1080, 638, 6) + taj_viragsor(Rnd(86), 1130, 1166, 640, 6) + taj_csillam(((1096, 590), (1176, 514), (1146, 610)))
     defs = FIRKA + SZURKE
-    vb = TAJ_UTCA_DOBOZ
-    irj("vilag", "osszeado-utca-kesz", vb, defs, alap + elo)
-    irj("vilag", "osszeado-utca-viragos", vb, defs, alap + elo + virag)
-    irj("vilag", "osszeado-utca-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(rr) for _, _, _, rr in HAZAK))
+    # a producer (11-25): a világtérképen alig látszott → 1,7-szeres, a talppont (TAJ_UTCA_TALP) körül
+    tx, ty = TAJ_UTCA_TALP
+    nagy = lambda s: '<g transform="translate(%s %s) scale(%s) translate(%s %s)">%s</g>' % (tx, ty, TAJ_UTCA_K, -tx, -ty, s)
+    x0, y0, w0, h0 = TAJ_UTCA_DOBOZ
+    vb = (round(tx + (x0 - tx) * TAJ_UTCA_K), round(ty + (y0 - ty) * TAJ_UTCA_K), round(w0 * TAJ_UTCA_K), round(h0 * TAJ_UTCA_K))
+    irj("vilag", "osszeado-utca-kesz", vb, defs, nagy(alap + elo))
+    irj("vilag", "osszeado-utca-viragos", vb, defs, nagy(alap + elo + virag))
+    irj("vilag", "osszeado-utca-epul", vb, defs, nagy('<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(rr) for _, _, _, rr in HAZAK)))
     return {"osszeado-utca (táj)": vb}
 
 

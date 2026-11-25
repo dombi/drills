@@ -788,7 +788,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261124-6",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-2",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -804,7 +804,7 @@ HELYEK.vilag = {
     { id: "utca",          x: 0.37, y: 0.78, w: 0.07, h: 0.15, all: [0.41, 0.795], jel: [0.37, 0.665], kep: "utca", doboz: [0.3250, 0.6622, 0.0988, 0.1333],     cel: { kepernyo: "utca" } },
     { id: "ter",           x: 0.514, y: 0.805, w: 0.14, h: 0.18, all: [0.61, 0.82], jel: [0.514, 0.61], kep: "ter", doboz: [0.4375, 0.6222, 0.1537, 0.2022],    cel: { kozelkep: "ter" },   /* táj-kép 2026-11-24: a Nagyfa tér kicsinyített mása (terv/kozelkep-export.py taj_ter) */
       palyak: ["tuske-bolt", "zsibvasar", "fizess-pontosan", "szalag-eloszoba", "vasar-3", "vasar-3d"] },
-    { id: "osszeado-utca", x: 0.69, y: 0.70, w: 0.08, h: 0.14, all: [0.735, 0.715], jel: [0.69, 0.56], kep: "osszeado-utca", doboz: [0.6388, 0.5622, 0.1075, 0.1511], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca (a megálló a jobb oldalán) */
+    { id: "osszeado-utca", x: 0.70, y: 0.71, w: 0.15, h: 0.23, all: [0.78, 0.725], jel: [0.70, 0.46], kep: "osszeado-utca", doboz: [0.6031, 0.4578, 0.1825, 0.2567], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca, 11-25 óta 1,7-szeres (alig látszott); a megálló a jobb oldalán */
       palyak: ["rokon-letra", "szamcsalad", "tizesek", "aprok", "lepegeto", "atlepo", "szazas-bujocska", "erdo-melye", "erdo-szive"] },
     { id: "dallam-ter",    x: 0.86, y: 0.72, w: 0.08, h: 0.17, all: [0.81, 0.735], jel: [0.86, 0.52], kep: "dallam-ter", doboz: [0.8237, 0.5222, 0.0725, 0.2133], cel: { regio: "szorzo" } },
     { id: "kezmuvesek",    x: 0.28, y: 0.655, w: 0.125, h: 0.11, all: [0.348, 0.668], jel: [0.285, 0.545], kep: "kezmuvesek", doboz: [0.2112, 0.5311, 0.1313, 0.1333], cel: { kozelkep: "kezmuvesek" } },   /* táj-kép 2026-11-24: a mini utca kicsinyített mása (terv/kozelkep-export.py taj_kezmuvesek) */
@@ -952,8 +952,8 @@ HELYEK.erdoszel = {
 };
 /* 🏡 Összeadó utca — 5. kör, 2. kódkör (terv: Matekosilagkep-5-kor-erdoszel-osszeado-utca.html 1., 3., 4., 6–8. pont, ✅ 2026-11-24, mind A):
    kanyargó falusi utca fölfelé. Bal lent érkezik (a Nagyfa tér felől), a kanyarban kúttér, fönt a dombocskán a nagy ház. A házak kicsit
-   össze-vissza állnak (megdőlnek, a gerinc oldalra csúszik). Vegyes utca: 3 ház (5 állapot) + 5 hely (lepes: 3) + 2 halvány díszlet-ház
-   (a közép rétegben, nem koppinthatók). Minden lakó a pálya mozdulatát csinálja, szám és felirat nélkül:
+   össze-vissza állnak (megdőlnek, a gerinc oldalra csúszik). Vegyes utca: 3 ház (5 állapot) + 5 hely (lepes: 3); díszlet-ház nincs
+   (11-25: kivéve, a producer: ne legyenek üres házak; a helyükön fa és bokor). Minden lakó a pálya mozdulatát csinálja, szám és felirat nélkül:
      favago (tizesek): Bence egész rőzsekévéket rak · korte (aprok): Pötyi majszol, a hangyák egyesével hordják a morzsát ·
      letra (rokon-letra): Juli egyforma lépésekkel a létrán · csalad (szamcsalad): az ablakokban sorban kigyullad a fény, Kata + kiskacsák ·
      kovek (lepegeto): Pali nagy, egyforma ugrásokkal a köveken · kerites (atlepo): Samu átmászik a kerítés-lépcsőn, bent a kecske ·
