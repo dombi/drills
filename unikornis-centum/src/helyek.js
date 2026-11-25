@@ -20,7 +20,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-3",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-4",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -36,9 +36,9 @@ HELYEK.vilag = {
     { id: "utca",          x: 0.37, y: 0.78, w: 0.07, h: 0.15, all: [0.41, 0.795], jel: [0.37, 0.665], kep: "utca", doboz: [0.3250, 0.6622, 0.0988, 0.1333],     cel: { kepernyo: "utca" } },
     { id: "ter",           x: 0.514, y: 0.805, w: 0.14, h: 0.18, all: [0.61, 0.82], jel: [0.514, 0.61], kep: "ter", doboz: [0.4375, 0.6222, 0.1537, 0.2022],    cel: { kozelkep: "ter" },   /* táj-kép 2026-11-24: a Nagyfa tér kicsinyített mása (terv/kozelkep-export.py taj_ter) */
       palyak: ["tuske-bolt", "zsibvasar", "fizess-pontosan", "szalag-eloszoba", "vasar-3", "vasar-3d"] },
-    { id: "osszeado-utca", x: 0.70, y: 0.71, w: 0.15, h: 0.23, all: [0.78, 0.725], jel: [0.70, 0.46], kep: "osszeado-utca", doboz: [0.6031, 0.4578, 0.1825, 0.2567], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca, 11-25 óta 1,7-szeres (alig látszott); a megálló a jobb oldalán */
+    { id: "osszeado-utca", x: 0.70, y: 0.71, w: 0.15, h: 0.26, all: [0.78, 0.725], jel: [0.70, 0.42], kep: "osszeado-utca", doboz: [0.6031, 0.4356, 0.1850, 0.2800], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca, 11-25 óta 1,7-szeres (alig látszott), a házai magukban is 1,6-szorosak (még mindig elveszett); a megálló a jobb oldalán */
       palyak: ["rokon-letra", "szamcsalad", "tizesek", "aprok", "lepegeto", "atlepo", "szazas-bujocska", "erdo-melye", "erdo-szive"] },
-    { id: "dallam-ter",    x: 0.863, y: 0.735, w: 0.10, h: 0.22, all: [0.805, 0.745], jel: [0.863, 0.52], kep: "dallam-ter", doboz: [0.8100, 0.5089, 0.1062, 0.2267], cel: { kozelkep: "dallam-ter" },   /* 6. kör (2026-11-25): saját közelkép; táj-kép: taj_dallam_ter (eleve 170×204 px, a harangláb a jel) */
+    { id: "dallam-ter",    x: 0.872, y: 0.765, w: 0.13, h: 0.29, all: [0.795, 0.76], jel: [0.866, 0.49], kep: "dallam-ter", doboz: [0.8025, 0.4778, 0.1388, 0.2933], cel: { kozelkep: "dallam-ter" },   /* 6. kör (2026-11-25): saját közelkép; táj-kép: taj_dallam_ter (222×264 px; 11-25: a házak 1,7-szeresek, a harangláb 1,15-szörös — elveszett a tájon) */
       palyak: ["szorzo-dallam", "egy-szam", "osztas-100", "holdfeny-bujocska", "mi-maradt", "vegyes-szorzo"] },
     { id: "kezmuvesek",    x: 0.28, y: 0.655, w: 0.125, h: 0.11, all: [0.348, 0.668], jel: [0.285, 0.545], kep: "kezmuvesek", doboz: [0.2112, 0.5311, 0.1313, 0.1333], cel: { kozelkep: "kezmuvesek" } },   /* táj-kép 2026-11-24: a mini utca kicsinyített mása (terv/kozelkep-export.py taj_kezmuvesek) */
     { id: "domboldal",     x: 0.40, y: 0.50, w: 0.10, h: 0.13, all: [0.485, 0.468], jel: [0.385, 0.35], kep: "domboldal", doboz: [0.3475, 0.3622, 0.1075, 0.1511],  cel: { kozelkep: "domboldal" },   /* táj-kép 2026-11-24: szerpentin, Garas tornya, Jósda, Déli vásár (taj_domboldal) */

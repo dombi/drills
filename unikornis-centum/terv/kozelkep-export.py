@@ -2718,7 +2718,7 @@ def utca_tabla():
 # ══════════════════ AZ ÖSSZEADÓ UTCA TÁJ-KÉPE (a világtérképen) ══════════════════
 # A kanyargó utca kicsinyített mása: bal lent indul, kanyarog fölfelé jobbra; a létrás ház (türkiz tető), a kacsák sárga háza,
 # a körtefa, a kút, fönt a dombocskán a nagy ház. A megálló (all, a tájon .735/.715) a hely jobb oldalán, a kép jobb alsó sarkánál.
-TAJ_UTCA_DOBOZ = (1022, 506, 172, 136)     # a rajz saját kerete (1-szeresen)
+TAJ_UTCA_DOBOZ = (1022, 494, 174, 148)     # a rajz saját kerete (1-szeresen)
 TAJ_UTCA_TALP, TAJ_UTCA_K = (1104, 640), 1.7
 def taj_osszeado_utca():
     r = Rnd(331)
@@ -2744,12 +2744,15 @@ def taj_osszeado_utca():
     domb = '<path d="M1150,556 Q1170,536 1190,540 Q1200,544 1196,556 Z" fill="#c9e8b4" stroke="#a7cf92" stroke-width="1"/>'
     g = lambda s: '<g filter="url(#firka)" stroke="%s" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (INK, s)
     arny = arnyek(1100, 630, 76, 6, .08)
-    HAZAK = ((1096, 616, letra, (1090, 590, 1102, 616)), (1146, 636, csalad, (1134, 616, 1158, 636)), (1176, 546, nagy, (1166, 516, 1186, 546)))
-    alap = (arny + domb + utca + er + g(kerites) + hatter + g(rk(1060, 630, korte_)) + g(rk(1124, 622, kut)) +
-            g("".join(rk(x, y, s) for x, y, s, _ in HAZAK)))
-    elo = fust(1180, 520, 2, 5, 12) + ('<g><circle cx="0" cy="0" r="1.3" fill="#ece6f0" stroke="#9187a3" stroke-width=".5"/>'
+    # a producer (11-25, 2. kör): még mindig elveszett → a házak, a körtefa és a kút saját magukban is nagyobbak (vastagabb körvonallal)
+    rkk = lambda x, y, s, k: '<g transform="translate(%s %s) scale(%s)">%s</g>' % (f(x), f(y), k, s)
+    K = 1.6
+    HAZAK = ((1096, 616, letra, (1087, 576, 1105, 616)), (1146, 636, csalad, (1128, 602, 1164, 636)), (1176, 546, nagy, (1160, 500, 1192, 546)))
+    alap = (arny + domb + utca + er + g(kerites) + hatter + g(rkk(1060, 630, korte_, 1.5)) + g(rkk(1116, 624, kut, 1.5)) +
+            g("".join(rkk(x, y, s, K) for x, y, s, _ in HAZAK)))
+    elo = fust(1178, 498, 2, 5, 12) + ('<g><circle cx="0" cy="0" r="1.3" fill="#ece6f0" stroke="#9187a3" stroke-width=".5"/>'
                                        '<animateMotion path="M1120,598 Q1126,590 1132,598 Q1138,590 1144,598" keyPoints="0;1;1;0;0" keyTimes="0;.4;.5;.9;1" calcMode="linear" dur="5s" repeatCount="indefinite"/></g>')
-    virag = taj_viragsor(Rnd(85), 1036, 1080, 638, 6) + taj_viragsor(Rnd(86), 1130, 1166, 640, 6) + taj_csillam(((1096, 590), (1176, 514), (1146, 610)))
+    virag = taj_viragsor(Rnd(85), 1036, 1080, 638, 6) + taj_viragsor(Rnd(86), 1130, 1166, 640, 6) + taj_csillam(((1096, 570), (1176, 494), (1146, 598)))
     defs = FIRKA + SZURKE
     # a producer (11-25): a világtérképen alig látszott → 1,7-szeres, a talppont (TAJ_UTCA_TALP) körül
     tx, ty = TAJ_UTCA_TALP
@@ -3195,7 +3198,7 @@ def dallam_tabla():
 # ══════════════════ A DALLAM-TÉR TÁJ-KÉPE (a világtérképen) ══════════════════
 # A tér kicsinyített mása, eleve akkora, mint a régi jel (nem kell utólag nagyítani): középen a magas, áttört harangláb (a tájon az
 # egyetlen ilyen), a lábánál a négy ház lila teteje, elöl a kút. A harang leng, a két madár a tetején ül (a leszálló madár is ide száll).
-TAJ_DALLAM_DOBOZ = (1296, 458, 170, 204)
+TAJ_DALLAM_DOBOZ = (1284, 430, 222, 264)   # 11-25: nagyobb (a házak 1,7-szeresek), lásd taj_dallam_ter
 def taj_dallam_ter():
     r = Rnd(341)
     def haz(w, h, tH, cs, fal, teto, dol, ablak=1, kupola=False):
@@ -3230,17 +3233,24 @@ def taj_dallam_ter():
                                  '<animateTransform attributeName="transform" type="translate" values="0,0;0,0;0,-3;0,0;0,0" keyTimes="0;.6;.66;.72;1" dur="4.6s" begin="%ss" repeatCount="indefinite"/></g>') % (
         f(x), f(y), "-.45" if tk else ".45", b)
     g = lambda s: '<g filter="url(#firka)" stroke="%s" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (INK, s)
-    arny = arnyek(1381, 646, 76, 7, .08)
-    HAZAK = ((1322, 640, kerek, (1312, 616, 1332, 640)), (1347, 606, hold, (1338, 580, 1356, 606)), (1416, 606, kamra, (1405, 584, 1434, 606)), (1446, 644, hj, (1435, 619, 1457, 644)))
-    alap = (arny + ter_ + g(rk(1302, 624, fa_)) + g("".join(rk(x, y, s) for x, y, s, _ in HAZAK[:3])) + g(hl) + g(kis_h) + g(rk(HAZAK[3][0], HAZAK[3][1], HAZAK[3][2])) + g(rk(1398, 660, kut)))
-    elo = g(nagy_h) + madar(1372, 500, False, 0) + madar(1391, 498, True, 1.7) + fust(1414, 588, 2, 5, 12)
-    virag = (taj_viragsor(Rnd(87), 1310, 1340, 646, 5) + taj_viragsor(Rnd(88), 1426, 1462, 650, 5) + taj_viragsor(Rnd(89), 1362, 1402, 544, 6) +
-             taj_csillam(((1381, 474), (1322, 606), (1446, 612), (1416, 576))))
+    # a producer (11-25): a világtérképen elveszett → a házak 1,7-szeresek (vastagabb körvonallal), szorosan a tér körül; a harangláb 1,15-szörös
+    rkk = lambda x, y, s, k: '<g transform="translate(%s %s) scale(%s)">%s</g>' % (f(x), f(y), k, s)
+    HN = lambda s: '<g transform="translate(1381 640) scale(1.15) translate(-1381 -640)">%s</g>' % s
+    arny = arnyek(1390, 656, 108, 10, .1)
+    ter2 = ('<ellipse cx="1390" cy="654" rx="100" ry="20" fill="#ead6ae" stroke="#c9ad7c" stroke-width="1.8"/><ellipse cx="1390" cy="652" rx="78" ry="13" fill="none" stroke="#f4e6c8" stroke-width="2" stroke-dasharray="6 5"/>'
+            '<path d="M1288,680 Q1300,668 1312,664" stroke="#ead6ae" stroke-width="9" fill="none" stroke-linecap="round"/>')
+    K = 1.7
+    HAZAK = ((1318, 664, kerek, (1301, 622, 1335, 664)), (1338, 616, hold, (1323, 570, 1353, 616)), (1446, 616, kamra, (1427, 579, 1468, 616)), (1468, 668, hj, (1449, 625, 1487, 668)))
+    alap = (arny + ter2 + g(rkk(1496, 630, fa_, 1.4)) + g("".join(rkk(x, y, s, K) for x, y, s, _ in HAZAK[:3])) + g(HN(hl)) + g(HN(kis_h)) +
+            g(rkk(HAZAK[3][0], HAZAK[3][1], HAZAK[3][2], K)) + g(rkk(1404, 684, kut, 1.8)))
+    elo = g(HN(nagy_h)) + HN(madar(1372, 500, False, 0) + madar(1391, 498, True, 1.7))
+    virag = (taj_viragsor(Rnd(87), 1300, 1336, 670, 5) + taj_viragsor(Rnd(88), 1450, 1490, 674, 5) + taj_viragsor(Rnd(89), 1366, 1414, 520, 6) +
+             taj_csillam(((1381, 446), (1318, 610), (1468, 614), (1446, 566))))
     defs = FIRKA + SZURKE
     vb = TAJ_DALLAM_DOBOZ
     irj("vilag", "dallam-ter-kesz", vb, defs, alap + elo)
     irj("vilag", "dallam-ter-viragos", vb, defs, alap + elo + virag)
-    irj("vilag", "dallam-ter-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(rr) for _, _, _, rr in HAZAK) + taj_allv((1368, 500, 1394, 640)))
+    irj("vilag", "dallam-ter-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(rr) for _, _, _, rr in HAZAK) + taj_allv((1360, 470, 1404, 640)))
     return {"dallam-ter (táj)": vb}
 
 
