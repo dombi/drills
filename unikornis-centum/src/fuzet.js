@@ -293,7 +293,7 @@ function fzJegy(F, d) {
   }
   if (F.tervK[kv]) { fzTervIr(F, String(d)); return; }
   if (fzGepTartalom(F, kv) || F.jelK[kv]) { fzRazkod(F); return; }
-  if (F.T.alaSorok && !F.alaK[F.akt.r] && !F.mezoK[kv] && !fzAlaKesz(F)) { fzFelirat(F, "Előbb írd egymás alá a számokat, a fejléc alá!", "kerd"); fzRazkod(F); return; }   /* elcsúszott tagokkal nem lehet számolni (kiskapu) */
+  if (F.T.alaSorok && !F.o.kotetlen && !F.alaK[F.akt.r] && !F.mezoK[kv] && !fzAlaKesz(F)) { fzFelirat(F, "Előbb írd egymás alá a számokat, a fejléc alá!", "kerd"); fzRazkod(F); return; }   /* elcsúszott tagokkal nem lehet számolni (kiskapu) */
   if (F.o.hibakeres && !F.hkMegvan) { fzFelirat(F, "Előbb keresd meg, melyik jegy rossz, és radírozd ki!", "kerd"); fzRazkod(F); return; }
   if (!F.becsOk && !F.mezoK[kv]) { fzFelirat(F, F.T.muv === "oszt" ? "Előbb becsülj: írd a B: sorba, mettől meddig lehet a hányados!" : "Előbb becsülj: írd a B: sorba, mennyi lesz körülbelül!", "kerd"); fzRazkod(F); return; }
   var x = F.k[kv] || {}; x.v = String(d); x.ki = "gyerek"; F.k[kv] = x; F.uj[kv] = true;
@@ -493,6 +493,8 @@ function fzHiba(F, info) {
   if (!F.o.csendesHiba) beep(220, .14, "triangle", 0, .05);
   if (F.o.onHiba && F.o.onHiba(F, info) === true) return;
   if (info.hk) { fzFelirat(F, "Ez jó volt, visszaírtam. Keresd tovább: számold újra " + (F.T.muv === "oszt" ? "lépésenként" : "oszloponként") + "!", "kerd"); return; }
+  if (info.kotetlen) { fzFelirat(F, "Az eredmény még nem jó. Számold újra, és írd a helyére!", "kerd"); return; }
+  if (info.oszlopok && info.csakHiany) { fzFelirat(F, "Amit beírtál, az jó! De még hiányzik valami: a kiszínezett oszlopokban üres kockák várnak.", "kerd"); return; }
   if (info.oszlopok) { fzFelirat(F, "Nézd meg még egyszer a kiszínezett oszlopokat! Radírozd ki, ami nem jó, és javítsd.", "kerd"); return; }
   var L = info.cel ? F.T.lepesek[info.cel.lepes] : null;
   if (info.ala && (!info.cel || info.n < 2)) { fzFelirat(F, "Nézd meg a fejlécet: az egyesek az egyesek alá, a tízesek a tízesek alá! Radírozd ki, és írd a helyére.", "kerd"); return; }
@@ -513,10 +515,14 @@ function fzMondoka(F, k, kerd) {   /* kerd: csak a kérdés-alak (a lépés elej
 function fzVegenEll(F) {
   if (F.kesz) return true;
   if (F.T.terv && F.T.terv.nyitott) return fzTervEll(F);
-  var T = F.T, hibak = {}, rossz = false;
+  if (F.o.kotetlen) {   /* ☀️ Déli vásár (11-25): kötetlen füzet — a gyerek azt ír, amit akar, csak az eredmény számít; szabályos írásbeli csak a gyakorlópályán (Garas tornya) */
+    if (fzEredJo(F)) { fzKesz(F); return true; }
+    F.hibaOszl = {}; F.hibas = {}; fzHiba(F, { kotetlen: true }); fzRajz(F); return false;
+  }
+  var T = F.T, hibak = {}, rossz = false, st = { rossz: false };
   if (!T.mezok.every(function (m) { return fzMezoSzam(F, m) === m.v; })) {
     T.mezok.forEach(function (m) { if (fzMezoSzam(F, m) !== m.v) for (var c = m.c0; c <= m.c1; c++) hibak[c] = true; });
-    rossz = true;
+    rossz = true; st.rossz = true;
   }
   /* sor-csere: a csoport soraihoz a legjobban illő sorrend */
   var sorMap = {};
@@ -530,10 +536,10 @@ function fzVegenEll(F) {
   });
   var sorVeg = F.ellFazis ? T.sor : Math.min(T.sor, F.ellSor);   /* előbb csak a számolás, aztán az ellenőrzés */
   for (var r = 0; r < sorVeg; r++) {
-    fzSorHiba(F, r, sorMap[r] != null ? sorMap[r] : r).forEach(function (c) { hibak[c] = true; rossz = true; });
+    fzSorHiba(F, r, sorMap[r] != null ? sorMap[r] : r, st).forEach(function (c) { hibak[c] = true; rossz = true; });
   }
   F.hibaOszl = hibak; F.hibas = {};
-  if (rossz) { fzHiba(F, { oszlopok: Object.keys(hibak).map(Number) }); fzRajz(F); return false; }
+  if (rossz) { fzHiba(F, { oszlopok: Object.keys(hibak).map(Number), csakHiany: !st.rossz }); fzRajz(F); return false; }
   if (!F.ellFazis) {
     F.ellFazis = true; F.akt = { r: Math.min(T.sor - 1, F.ellSor + 2), c: T.U || 1 }; F.eszkoz = "ceruza";
     fzFelirat(F, "Jó! Most ellenőrizd: " + (T.lepesek[F.ellKezd] ? (T.lepesek[F.ellKezd].k || T.lepesek[F.ellKezd].m).replace(/^Ellenőrzés:?\s*/, "") : ""), "jo");
@@ -542,17 +548,30 @@ function fzVegenEll(F) {
   fzKesz(F); return true;
 }
 /* a gyerek r. sora a várt rv. sorhoz mérve: a hibás oszlopok (hiányzó, rossz vagy fölösleges jegy); a becslés-sor külön (mezo) */
-function fzSorHiba(F, r, rv) {
+function fzSorHiba(F, r, rv, st) {   /* st.rossz: volt-e beírt, de rossz/fölösleges jegy (nem csak hiány) */
   var T = F.T, ki = [], c, cel, x;
   for (c = 0; c < T.osz; c++) {
     if (F.mezoK[fzKulcs(r, c)] || F.mezoK[fzKulcs(rv, c)]) continue;
     if (F.szabadK[fzKulcs(r, c)] || F.szabadK[fzKulcs(rv, c)]) continue;
     cel = F.vart[fzKulcs(rv, c)]; x = F.k[fzKulcs(r, c)];
     var v = x && x.v ? x.v : null;
-    if (cel) { if (cel.opc ? (v != null && v !== cel.v) : v !== cel.v) ki.push(c); }
-    else if (v != null) ki.push(c);
+    if (cel) { if (cel.opc ? (v != null && v !== cel.v) : v !== cel.v) { ki.push(c); if (st && v != null) st.rossz = true; } }
+    else if (v != null) { ki.push(c); if (st) st.rossz = true; }
   }
   return ki;
+}
+/* jó-e az eredmény: a terv-sor = utáni szám, vagy a lapon az eredmény-jegyek (osztásnál a hányados a műveletsorban, máskor az utolsó számsor) */
+function fzEredJo(F) {
+  var T = F.T; if (T.ered == null) return false;
+  var e = String(T.ered), c;
+  if (T.terv && T.tervEq >= 0) {
+    var s = ""; for (c = T.tervEq + 1; c < T.osz; c++) { var x = F.k[fzKulcs(T.terv.r, c)]; if (x && x.v) s += x.v; else if (s) break; }
+    if (s === e) return true;
+  }
+  var sz = T.celok.filter(function (k) { return k.tip === "szam" && k.mezo == null; }); if (!sz.length) return false;
+  var r = T.muv === "oszt" ? T.muvSor : Math.max.apply(null, sz.map(function (k) { return k.r; }));
+  var ec = sz.filter(function (k) { return k.r === r; });
+  return ec.length > 0 && ec.every(function (k) { return k.opc ? true : fzCelJo(F, k); });
 }
 function fzPermutaciok(a) {
   if (a.length <= 1) return [a.slice()];

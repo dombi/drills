@@ -99,7 +99,7 @@ function vsFzIndit(JL) {
   d.classList.add("vs-fz");
   V.i = 0; V.tervHiba = 0; V.lapHiba = 0; V.konyvelt = {}; V.eredmenyek = []; V.valaszMost = false; V.mozgoVolt = false;
   var F = fzLap(d, irTervLap({ sor: VS_FZ_SOR }), {
-    mod: "gyerek", oldalt: true, ell: "vegen", jelol: false, talca: false, mondoka: "hiba", jelek: true, csendesHiba: true,
+    mod: "gyerek", oldalt: true, ell: "vegen", jelol: false, talca: false, mondoka: "hiba", jelek: true, csendesHiba: true, kotetlen: true,
     onTerv: function (F, t) { return vsFzTerv(JL, f, F, t); },
     onHiba: function (F, info) { return vsFzHiba(JL, f, F, info); },
     onLap: function (F, T) { vsFzLapFelirat(f, F, T); },
@@ -119,8 +119,7 @@ function vsFzLapFelirat(f, F, T) {
   if (V.valaszMost) { F.felirat("Mi a válasz a kérdésre? " + ekSima(V.bub.kerdes) + " Írd a Válasz: után, aztán Kész (Enter).", "kerd"); return; }
   if (T.tervEredCel) { F.felirat("Ezt fejben is ki tudod számolni: írd az = után, aztán Kész (Enter)."); return; }
   if (T.terv && T.terv.nyitott) return;
-  if (T.alaSorok) F.felirat("Ezt írásban számold ki! Írd egymás alá a számokat a fejléc alá, aztán számolj. A végén Kész (Enter).");
-  else F.felirat("Ezt írásban számold ki! A végén Kész (Enter).");
+  F.felirat("Számold ki! A füzetbe azt írsz, amit akarsz. Az eredményt írd a terv végére, az = után, aztán Kész (Enter).");   /* 11-25: kötetlen füzet */
 }
 
 /* ═════════════════ ① A TERV ═════════════════ */
