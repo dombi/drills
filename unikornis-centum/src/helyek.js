@@ -20,7 +20,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-2",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-3",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -38,7 +38,8 @@ HELYEK.vilag = {
       palyak: ["tuske-bolt", "zsibvasar", "fizess-pontosan", "szalag-eloszoba", "vasar-3", "vasar-3d"] },
     { id: "osszeado-utca", x: 0.70, y: 0.71, w: 0.15, h: 0.23, all: [0.78, 0.725], jel: [0.70, 0.46], kep: "osszeado-utca", doboz: [0.6031, 0.4578, 0.1825, 0.2567], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca, 11-25 óta 1,7-szeres (alig látszott); a megálló a jobb oldalán */
       palyak: ["rokon-letra", "szamcsalad", "tizesek", "aprok", "lepegeto", "atlepo", "szazas-bujocska", "erdo-melye", "erdo-szive"] },
-    { id: "dallam-ter",    x: 0.86, y: 0.72, w: 0.08, h: 0.17, all: [0.81, 0.735], jel: [0.86, 0.52], kep: "dallam-ter", doboz: [0.8237, 0.5222, 0.0725, 0.2133], cel: { regio: "szorzo" } },
+    { id: "dallam-ter",    x: 0.863, y: 0.735, w: 0.10, h: 0.22, all: [0.805, 0.745], jel: [0.863, 0.52], kep: "dallam-ter", doboz: [0.8100, 0.5089, 0.1062, 0.2267], cel: { kozelkep: "dallam-ter" },   /* 6. kör (2026-11-25): saját közelkép; táj-kép: taj_dallam_ter (eleve 170×204 px, a harangláb a jel) */
+      palyak: ["szorzo-dallam", "egy-szam", "osztas-100", "holdfeny-bujocska", "mi-maradt", "vegyes-szorzo"] },
     { id: "kezmuvesek",    x: 0.28, y: 0.655, w: 0.125, h: 0.11, all: [0.348, 0.668], jel: [0.285, 0.545], kep: "kezmuvesek", doboz: [0.2112, 0.5311, 0.1313, 0.1333], cel: { kozelkep: "kezmuvesek" } },   /* táj-kép 2026-11-24: a mini utca kicsinyített mása (terv/kozelkep-export.py taj_kezmuvesek) */
     { id: "domboldal",     x: 0.40, y: 0.50, w: 0.10, h: 0.13, all: [0.485, 0.468], jel: [0.385, 0.35], kep: "domboldal", doboz: [0.3475, 0.3622, 0.1075, 0.1511],  cel: { kozelkep: "domboldal" },   /* táj-kép 2026-11-24: szerpentin, Garas tornya, Jósda, Déli vásár (taj_domboldal) */
       palyak: ["vasar-4", "irasbeli-szorzas", "irasbeli-osztas", "josda-eloszoba", "josda-1em"] },
@@ -236,6 +237,50 @@ HELYEK["osszeado-utca"] = {
     { id: "bogyo", x: 0.5625, y: 0.905, w: 0.05, h: 0.08, kep: "bogyo", doboz: [0.5375, 0.8178, 0.0475, 0.0778], mondat: "Bogyó szundít. Pszt!" }
   ]
 };
+/* 🔔 Dallam-tér — 6. kör, kódkör (terv: Matekosilagkep-6-kor-dallam-ter.html, ✅ 2026-11-25, mind A): kerek, macskaköves tér a harangláb
+   körül. Bal lent érkezik (az Összeadó utca felől), körben ferdén, más-más tetővel a négy ház (5 állapot), elöl a kút, középen a harangláb
+   (mindkettő lepes: 3: kopár → berendezett → virágos). Lila tetők, arany harangok. Minden lakó a pálya mozdulatát csinálja, szám és felirat nélkül:
+     kerekhaz (egy-szam): Kitti három tálba rak bogyót, mindegyikbe ugyanannyit, aztán a kosárba önti · holdfeny (holdfeny-bujocska): a kis felhő
+     mindig egy lámpást takar el, Cincin a felhő-bokor mögül kukucskál · kamra (mi-maradt): Pali körbe osztja a répát három tányérra, egy a kezében
+     marad, megrágcsálja · harangjatek (vegyes-szorzo): Bogyó a tornác korlátján egyforma (háromcsengőnyi) ugrásokkal föl-le, a csengő megszólal ·
+     kut (osztas-100): Brekus sorban tölt a négy kannába, a víz mind a négyben egyformán nő · harang (szorzo-dallam): Mia ütemre húzza a kötelet,
+     a három harang sorban leng, hangjegyek szállnak (Mia minden felmondós pályánál, Cincin minden bújócskánál).
+   Díszlet: madarak a harangláb tetején (a haranglábbal együtt mozdul egérre), szélcsengő a fán, üres pódium (az Okos trükkök helye; ház nem lehet).
+   sorrend: true — rejtett sorrend (helySorrend); az újonc-menetben a harangláb (Szorzódallam) elsőbbséget kap. A talapzat nem járható (gat).
+   Rajz és tábla-számok: terv/kozelkep-export.py dallam_ter() / dallam_tabla(). A régi Szorzós liget a menetből kikerült (8. hullámig háló). */
+HELYEK["dallam-ter"] = {
+  nev: "Dallam-tér", vissza: "vilag", sorrend: true,
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "dallam-ter", mappa: "kepek/dallam-ter/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
+  uni: 0.95, jk: 2.2,
+  pontok: { kapu: [0.150, 0.973], bej: [0.2825, 0.889], rw: [0.359, 0.791], rsw: [0.406, 0.872], rs: [0.500, 0.889], rse: [0.594, 0.872],
+            re: [0.6375, 0.791], rne: [0.600, 0.693], rn: [0.500, 0.671], rnw: [0.400, 0.693] },   /* a bejárat és a harangláb körüli gyűrű */
+  gat: [[[0.550, 0.731], [0.545, 0.743], [0.531, 0.752], [0.511, 0.757], [0.489, 0.757], [0.469, 0.752], [0.455, 0.743], [0.450, 0.731], [0.455, 0.720],
+         [0.469, 0.710], [0.489, 0.705], [0.511, 0.705], [0.531, 0.710], [0.545, 0.720], [0.550, 0.731]]],   /* a harangláb talapzata: körbe kell menni */
+  helyek: [
+    { id: "kerekhaz",    x: 0.1875, y: 0.80,  w: 0.12,  h: 0.27, all: [0.269, 0.833],  jel: [0.1875, 0.50], kep: "kerekhaz", rk: 2.4, doboz: [0.0762, 0.4889, 0.1806, 0.3689], cel: { palyak: ["egy-szam"] } },
+    { id: "holdfeny",    x: 0.366,  y: 0.615, w: 0.10,  h: 0.28, all: [0.383, 0.687],  jel: [0.366, 0.31], kep: "holdfeny", rk: 2.4, doboz: [0.2556, 0.2844, 0.1950, 0.3578], cel: { palyak: ["holdfeny-bujocska"] } },
+    { id: "kamra",       x: 0.68,   y: 0.615, w: 0.14,  h: 0.24, all: [0.625, 0.687],  jel: [0.68, 0.36],  kep: "kamra", rk: 2.4, doboz: [0.5337, 0.3378, 0.2263, 0.3200], cel: { palyak: ["mi-maradt"] } },
+    { id: "harangjatek", x: 0.8125, y: 0.83,  w: 0.12,  h: 0.27, all: [0.7475, 0.831], jel: [0.8125, 0.54], kep: "harangjatek", rk: 2.4, doboz: [0.7288, 0.5156, 0.1575, 0.3422], cel: { palyak: ["vegyes-szorzo"] } },
+    { id: "kut",         x: 0.725,  y: 0.96,  w: 0.15,  h: 0.17, all: [0.631, 0.922],  jel: [0.695, 0.76], kep: "kut", lepes: 3, rk: 2.0, doboz: [0.6550, 0.7444, 0.1650, 0.2400], cel: { palyak: ["osztas-100"] } },
+    { id: "harang",      x: 0.50,   y: 0.745, w: 0.12,  h: 0.50, all: [0.545, 0.791],  jel: [0.50, 0.19],  kep: "harang", lepes: 3, rk: 3.0, doboz: [0.4062, 0.2022, 0.1688, 0.5600], cel: { palyak: ["szorzo-dallam"] } }
+  ],
+  utak: [["kapu", "bej", [[0.2225, 0.928]]], ["bej", "kerekhaz", []], ["bej", "rsw", []], ["kerekhaz", "rw", []],
+         ["rw", "rsw", []], ["rsw", "rs", []], ["rs", "rse", []], ["rse", "re", []], ["re", "rne", []], ["rne", "rn", []], ["rn", "rnw", []], ["rnw", "rw", []],
+         ["rnw", "holdfeny", []], ["rne", "kamra", []], ["re", "harangjatek", []], ["rse", "kut", []], ["rse", "harang", []]],
+  jarhato: [
+    [[0.770, 0.791], [0.763, 0.827], [0.743, 0.861], [0.711, 0.891], [0.668, 0.916], [0.617, 0.935], [0.560, 0.947], [0.500, 0.951], [0.440, 0.947], [0.383, 0.935],
+     [0.332, 0.916], [0.289, 0.891], [0.257, 0.861], [0.237, 0.827], [0.230, 0.791], [0.237, 0.756], [0.257, 0.722], [0.289, 0.691], [0.332, 0.666], [0.383, 0.647],
+     [0.440, 0.635], [0.500, 0.631], [0.560, 0.635], [0.617, 0.647], [0.668, 0.666], [0.711, 0.691], [0.743, 0.722], [0.763, 0.756]],                     /* a kerek tér */
+    [[-0.156, 1.170], [-0.038, 1.122], [0.050, 1.083], [0.108, 1.052], [0.157, 1.021], [0.218, 0.982], [0.292, 0.935], [0.273, 0.843], [0.200, 0.890], [0.139, 0.929],
+     [0.092, 0.959], [0.036, 0.989], [-0.051, 1.027], [-0.169, 1.075]]                                                                                     /* a bejárati út */
+  ],
+  diszlet: [
+    { id: "madarak", x: 0.50, y: 0.33, w: 0.07, h: 0.055, elol: true, haz: "harang", kep: "madarak", doboz: [0.4675, 0.2889, 0.0650, 0.0400], mondat: "Csip-csirip! Mi is énekelünk." },
+    { id: "szelcsengo", x: 0.1475, y: 0.59, w: 0.04, h: 0.10, kep: "szelcsengo", doboz: [0.1325, 0.4956, 0.0300, 0.0956], mondat: "Csilingel a szél." },
+    { id: "podium", x: 0.914, y: 0.72, w: 0.075, h: 0.11, mondat: "Ez a pódium még üres. Egyszer ide is beköltözik valaki!" }
+  ]
+};
 /* a helyek neve (átnevezés = egy sor; a mai LIGET_NEV mintájára) · felveteli: „Doromboló-hegy” (producer, 2026-11-25: lakója majd a pékség macskája) */
 var HELY_NEV = {
   odu: "Odú", kert: "Kert", postafa: "Postafa", erdoszel: "Erdőszél", utca: "Utca", ter: "Nagyfa tér", "osszeado-utca": "Összeadó utca",
@@ -244,5 +289,6 @@ var HELY_NEV = {
   bolt: "Tüske néni boltja", vasar: "Tündérvásár", zsib: "Zsivány standja", szalag: "Szalagműhely", deli: "Déli vásár", irasbeli: "Garas tornya", josda: "Jósda",
   "osszeado-liget": "Összeadó liget", letra: "Rokon-létra", csalad: "Számcsalád", nagyhaz: "A nagy ház", favago: "Favágó-udvar", korte: "Körtefa",
   kovek: "Ugrókövek", kerites: "Kerítés-lépcső", bokroskert: "Bokros kert",
-  kisgomba: "Kis gombaház", nagygomba: "Nagy gombaház", ret: "Rét", tolgy: "Öreg tölgy"
+  kisgomba: "Kis gombaház", nagygomba: "Nagy gombaház", ret: "Rét", tolgy: "Öreg tölgy",
+  kerekhaz: "Kerek ház", holdfeny: "Holdfény-ház", kamra: "Répás kamra", harangjatek: "Harangjátékos ház", kut: "Kút", harang: "Harangláb"
 };

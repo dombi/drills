@@ -209,16 +209,16 @@ var PALYAK = [
     ]
   },
   {
-    id: "osztas-100", nev: "Osztogató tisztás", ikon: "➗", regio: "szorzo",
+    id: "osztas-100", nev: "Osztogató kút", ikon: "➗", regio: "szorzo",
     szint: 5,
     palcim: "Osztás az egész erdőben, százig",
     alap: { tipus: "osztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első lépések", osztok: [2, 5, 10], darab: 4 },
-      { nev: "Gombamező", osztok: [3, 4], darab: 4 },
-      { nev: "Sötét sűrű", osztok: [6, 7], darab: 4 },
-      { nev: "Szikla-hágó", osztok: [8, 9], darab: 4 },
+      { nev: "Első merítés", osztok: [2, 5, 10], darab: 4 },
+      { nev: "Kannasor", osztok: [3, 4], darab: 4 },
+      { nev: "Mély víz", osztok: [6, 7], darab: 4 },
+      { nev: "Kútkerék", osztok: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   },
@@ -252,16 +252,16 @@ var PALYAK = [
     ]
   },
   {
-    id: "vegyes-szorzo", nev: "Szám-rengeteg", ikon: "🌲", regio: "szorzo",
+    id: "vegyes-szorzo", nev: "Kerge harangjáték", ikon: "🌲", regio: "szorzo",
     szint: 7,
     palcim: "Szorzás és osztás, keresztül-kasul, százig",
     alap: { tipus: "szorzasosztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Erdőszél", tablak: [2, 5, 10], darab: 4 },
-      { nev: "Ösvény", tablak: [2, 3, 4, 5, 10], darab: 4 },
-      { nev: "Sűrűsödik", tablak: [6, 7], darab: 4 },
-      { nev: "Mély vadon", tablak: [8, 9], darab: 4 },
+      { nev: "Kis csengők", tablak: [2, 5, 10], darab: 4 },
+      { nev: "Csengősor", tablak: [2, 3, 4, 5, 10], darab: 4 },
+      { nev: "Rézharangok", tablak: [6, 7], darab: 4 },
+      { nev: "Nagy harang", tablak: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   }

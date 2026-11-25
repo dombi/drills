@@ -402,7 +402,7 @@ def viragsor(r):
 
 doboz_sorok, fajlok = [], ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo"]
 for i, (box, r, extra) in HT.items():
-    if i in ("kezmuvesek", "ter", "domboldal"):   # 2026-11-24 óta a közelkép kicsinyített mása: terv/kozelkep-export.py taj_kezmuvesek() / taj_ter() / taj_domboldal() írja, itt NE írjuk felül
+    if i in ("kezmuvesek", "ter", "domboldal", "erdoszel", "osszeado-utca", "dallam-ter"):   # 2026-11-24 óta a közelkép kicsinyített mása: terv/kozelkep-export.py taj_*() írja, itt NE írjuk felül
         fajlok += [i + "-epul", i + "-kesz", i + "-viragos"]
         doboz_sorok.append("%s: lásd terv/kozelkep-export.py (TAJ_*_DOBOZ)" % i)
         continue

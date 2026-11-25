@@ -538,8 +538,9 @@ function helyDiszletRajz(M, elol) {
     else if (d.id === "kecske") b = '<g class="hely-madarak"><ellipse cy="-18" rx="24" ry="14" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/><circle cx="24" cy="-28" r="9" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/>' +
                                 '<path d="M-14 -6v12M12 -6v12M22 -36l-4 -8M28 -36l3 -8" stroke="#8a7a6e" stroke-width="3" stroke-linecap="round"/></g>';
     else if (d.id === "madarak") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 9) + ' ' + q[1] + 'q5 -6 9 0q4 -6 9 0" fill="none" stroke="#6b6280" stroke-width="2.4" stroke-linecap="round"/>'; }).join("") + '</g>';
-    return '<g class="hely-diszlet" data-id="' + d.id + '"' + (d.haz ? ' data-haz="' + d.haz + '"' : '') + ' transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
-           '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g>';
+    /* a koppintás-mozdulat (CSS .el) a belső csoporton fut: a külső transform-attribútumát (a helyét) a CSS-transform felülírná (6. kör) */
+    return '<g class="hely-diszlet" data-id="' + d.id + '"' + (d.haz ? ' data-haz="' + d.haz + '"' : '') + ' transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"><g class="hd-mozog">' +
+           '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g></g>';
   }).join("");
 }
 /* o = { tabla (HELYEK kulcsa), jel: {id: {kesz, ossz, alszik, jelzes, ny}}, lathato: {id: true}, all: hely-id | null, pont: [x,y] arány, koppint(id) } */
@@ -777,15 +778,18 @@ function helyAllapot(H, L) {
 /* 🔢 REJTETT SORREND (5. kör, 5. döntés A; a tábla sorrend: true-ja — Erdőszél, később az Összeadó utca): a közelképben mindig csak
    a KÖVETKEZŐ hely világít (újonc-fény, és oda száll a madár). A következő: a pult szerint nyitott (nem zárt, nem alvó), még végig
    nem vitt pályák közül a legkönnyebb (pa.szint; egyenlőnél a tábla sorrendje). Ha az újonc-menet maga jelöl ki egy pályát
-   (palyaJelek .vil), az elsőbbséget kap. Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
+   (palyaJelek .vil), az elsőbbséget kap; ha többet is jelöl, a vers (felmondás) előbb (6. kör). Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
 function helySorrend(H, jel) {
-  var leg = null;
+  var leg = null, m = nyitasMenet(), o = m && m.o;
   H.helyek.forEach(function (h, i) {
     var j = jel[h.id]; if (!j || !j.pas || j.ny === "alszik") return;
     j.pas.forEach(function (pa) {
       var J = palyaJelek(pa); if (J.zarva || pa.hamarosan || (J.kesz && !J.vil)) return;
-      var k = [J.vil ? 0 : 1, pa.szint || 99, i];
-      if (!leg || k[0] < leg.k[0] || (k[0] === leg.k[0] && (k[1] < leg.k[1] || (k[1] === leg.k[1] && k[2] < leg.k[2])))) leg = { id: h.id, k: k };
+      /* 6. kör (Dallam-tér): ha az újonc-menet többet is kijelöl (a liget első pályája + a vers), a vers (felmondás) az első — az alap */
+      var k = [J.vil ? 0 : 1, J.vil && o && nyitasVersPalya(pa.id, o) ? 0 : 1, pa.szint || 99, i];
+      var kisebb = false;
+      for (var x = 0; leg && x < k.length; x++) if (k[x] !== leg.k[x]) { kisebb = k[x] < leg.k[x]; break; }
+      if (!leg || kisebb) leg = { id: h.id, k: k };
     });
   });
   H.helyek.forEach(function (h) {

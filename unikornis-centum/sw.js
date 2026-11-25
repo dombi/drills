@@ -15,18 +15,19 @@ var SDK_FAJLOK = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase
 var BETU = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 var ATMEGY = ["admin/", "helyreallitas.html", "sw.js"];
 /* 🐴 a világkép (Thinking horses) rajzfájljai — a helyek.js kep.v-jével együtt emeld a VILAG_V-t, új fájlnévnél bővítsd a listát */
-var VILAG_V = "20261125-2", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
+var VILAG_V = "20261125-3", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
 ["odu", "kert", "postafa", "erdoszel", "utca", "ter", "osszeado-utca", "dallam-ter", "kezmuvesek", "domboldal", "konyvtar", "fejtoro", "felveteli"].forEach(function (h) { ["epul", "kesz", "viragos"].forEach(function (a) { VILAG_KEPEK.push(h + "-" + a); }); });
-/* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal; 4. kör: Kézművesek; 5. kör: Erdőszél, Összeadó utca) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
+/* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal; 4. kör: Kézművesek; 5. kör: Erdőszél, Összeadó utca; 6. kör: Dallam-tér) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
 var KOZEL_V = "20261124-2", KOZEL_KEPEK = { ter: ["eg", "tavoli", "kozep", "eloter", "mozgo", "nagyfa"], domboldal: ["eg", "tavoli", "kozep", "eloter", "mozgo", "kecske"],
                                    kezmuvesek: ["eg", "tavoli", "kozep", "eloter", "mozgo", "malom", "malom-kerek", "malom-hab", "kotel", "macska"],
                                    erdoszel: ["eg", "tavoli", "kozep", "eloter", "mozgo", "tas", "harkaly"],
-                                   "osszeado-utca": ["eg", "tavoli", "kozep", "eloter", "mozgo", "kut", "tyuk", "bogyo"] };
+                                   "osszeado-utca": ["eg", "tavoli", "kozep", "eloter", "mozgo", "kut", "tyuk", "bogyo"],
+                                   "dallam-ter": ["eg", "tavoli", "kozep", "eloter", "mozgo", "madarak", "szelcsengo"] };
 [["ter", ["bolt", "vasar", "zsib", "szalag"]], ["domboldal", ["deli", "irasbeli", "josda"]], ["kezmuvesek", ["pekseg", "bajital", "szabo"]], ["erdoszel", ["kisgomba", "nagygomba"]],
- ["osszeado-utca", ["letra", "csalad", "nagyhaz"]]].forEach(function (m) {
+ ["osszeado-utca", ["letra", "csalad", "nagyhaz"]], ["dallam-ter", ["kerekhaz", "holdfeny", "kamra", "harangjatek"]]].forEach(function (m) {
   m[1].forEach(function (h) { ["epul", "teto", "ajto", "kesz", "viragos"].forEach(function (a) { KOZEL_KEPEK[m[0]].push(h + "-" + a); }); });
 });
-[["erdoszel", ["tolgy", "ret"]], ["osszeado-utca", ["favago", "korte", "kovek", "kerites", "bokroskert"]]].forEach(function (m) {   /* 5. kör: a nem-ház helyek 3 állapota */
+[["erdoszel", ["tolgy", "ret"]], ["osszeado-utca", ["favago", "korte", "kovek", "kerites", "bokroskert"]], ["dallam-ter", ["harang", "kut"]]].forEach(function (m) {   /* 5. kör: a nem-ház helyek 3 állapota */
   m[1].forEach(function (h) { ["kopar", "berendezett", "viragos"].forEach(function (a) { KOZEL_KEPEK[m[0]].push(h + "-" + a); }); });
 });
 var LEALL = false;   /* ?friss vészfék jött: ez a worker már semmit nem tesz el (az oldal közben üríti a tárat és leiratkoztatja) */

@@ -215,16 +215,16 @@ var PALYAK = [
     ]
   },
   {
-    id: "osztas-100", nev: "Osztogató tisztás", ikon: "➗", regio: "szorzo",
+    id: "osztas-100", nev: "Osztogató kút", ikon: "➗", regio: "szorzo",
     szint: 5,
     palcim: "Osztás az egész erdőben, százig",
     alap: { tipus: "osztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Első lépések", osztok: [2, 5, 10], darab: 4 },
-      { nev: "Gombamező", osztok: [3, 4], darab: 4 },
-      { nev: "Sötét sűrű", osztok: [6, 7], darab: 4 },
-      { nev: "Szikla-hágó", osztok: [8, 9], darab: 4 },
+      { nev: "Első merítés", osztok: [2, 5, 10], darab: 4 },
+      { nev: "Kannasor", osztok: [3, 4], darab: 4 },
+      { nev: "Mély víz", osztok: [6, 7], darab: 4 },
+      { nev: "Kútkerék", osztok: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", osztok: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   },
@@ -258,16 +258,16 @@ var PALYAK = [
     ]
   },
   {
-    id: "vegyes-szorzo", nev: "Szám-rengeteg", ikon: "🌲", regio: "szorzo",
+    id: "vegyes-szorzo", nev: "Kerge harangjáték", ikon: "🌲", regio: "szorzo",
     szint: 7,
     palcim: "Szorzás és osztás, keresztül-kasul, százig",
     alap: { tipus: "szorzasosztas" },
     allomasok: [
       { nev: "Rajt" },
-      { nev: "Erdőszél", tablak: [2, 5, 10], darab: 4 },
-      { nev: "Ösvény", tablak: [2, 3, 4, 5, 10], darab: 4 },
-      { nev: "Sűrűsödik", tablak: [6, 7], darab: 4 },
-      { nev: "Mély vadon", tablak: [8, 9], darab: 4 },
+      { nev: "Kis csengők", tablak: [2, 5, 10], darab: 4 },
+      { nev: "Csengősor", tablak: [2, 3, 4, 5, 10], darab: 4 },
+      { nev: "Rézharangok", tablak: [6, 7], darab: 4 },
+      { nev: "Nagy harang", tablak: [8, 9], darab: 4 },
       { nev: "Odú-küszöb", tablak: [2, 3, 4, 5, 6, 7, 8, 9, 10], darab: 4, cel: true }   /* 8 → 4+küszöb (2026-10-01, producer) */
     ]
   }
@@ -788,7 +788,7 @@ var HELY_HATAR = { taj: 14, kozelkep: 8, targy: 4 };   /* több hely a táblába
 var HELYEK = {};
 HELYEK.vilag = {
   nev: VILAG_NEV,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-2",
+  kep: { w: 1600, h: 900, zona: [0.05, 0.05, 0.90, 0.90], hatter: "vilag", mappa: "kepek/vilag/", v: "20261125-3",
          kifestve: [-560, -160, 2720, 1220] },   /* a rajz vektoros: 1600×900 is éles nagyításkor · kifestve: a rétegek a széleken túl is rajzolnak
             (px, [x, y, w, h]; 21:9-től 4:3-ig fed) — a nézet ezen belül marad, így nincs üres sáv (2026-11-24) */
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",   /* alulról felfelé: rétegek · mozgó (alsó) · díszlet · helyek · mozgó (felső) · unikornis · előtér */
@@ -806,7 +806,8 @@ HELYEK.vilag = {
       palyak: ["tuske-bolt", "zsibvasar", "fizess-pontosan", "szalag-eloszoba", "vasar-3", "vasar-3d"] },
     { id: "osszeado-utca", x: 0.70, y: 0.71, w: 0.15, h: 0.23, all: [0.78, 0.725], jel: [0.70, 0.46], kep: "osszeado-utca", doboz: [0.6031, 0.4578, 0.1825, 0.2567], cel: { kozelkep: "osszeado-utca" },   /* 5. kör (2026-11-24): végleges közelkép; táj-kép: taj_osszeado_utca, 11-25 óta 1,7-szeres (alig látszott); a megálló a jobb oldalán */
       palyak: ["rokon-letra", "szamcsalad", "tizesek", "aprok", "lepegeto", "atlepo", "szazas-bujocska", "erdo-melye", "erdo-szive"] },
-    { id: "dallam-ter",    x: 0.86, y: 0.72, w: 0.08, h: 0.17, all: [0.81, 0.735], jel: [0.86, 0.52], kep: "dallam-ter", doboz: [0.8237, 0.5222, 0.0725, 0.2133], cel: { regio: "szorzo" } },
+    { id: "dallam-ter",    x: 0.863, y: 0.735, w: 0.10, h: 0.22, all: [0.805, 0.745], jel: [0.863, 0.52], kep: "dallam-ter", doboz: [0.8100, 0.5089, 0.1062, 0.2267], cel: { kozelkep: "dallam-ter" },   /* 6. kör (2026-11-25): saját közelkép; táj-kép: taj_dallam_ter (eleve 170×204 px, a harangláb a jel) */
+      palyak: ["szorzo-dallam", "egy-szam", "osztas-100", "holdfeny-bujocska", "mi-maradt", "vegyes-szorzo"] },
     { id: "kezmuvesek",    x: 0.28, y: 0.655, w: 0.125, h: 0.11, all: [0.348, 0.668], jel: [0.285, 0.545], kep: "kezmuvesek", doboz: [0.2112, 0.5311, 0.1313, 0.1333], cel: { kozelkep: "kezmuvesek" } },   /* táj-kép 2026-11-24: a mini utca kicsinyített mása (terv/kozelkep-export.py taj_kezmuvesek) */
     { id: "domboldal",     x: 0.40, y: 0.50, w: 0.10, h: 0.13, all: [0.485, 0.468], jel: [0.385, 0.35], kep: "domboldal", doboz: [0.3475, 0.3622, 0.1075, 0.1511],  cel: { kozelkep: "domboldal" },   /* táj-kép 2026-11-24: szerpentin, Garas tornya, Jósda, Déli vásár (taj_domboldal) */
       palyak: ["vasar-4", "irasbeli-szorzas", "irasbeli-osztas", "josda-eloszoba", "josda-1em"] },
@@ -1004,6 +1005,50 @@ HELYEK["osszeado-utca"] = {
     { id: "bogyo", x: 0.5625, y: 0.905, w: 0.05, h: 0.08, kep: "bogyo", doboz: [0.5375, 0.8178, 0.0475, 0.0778], mondat: "Bogyó szundít. Pszt!" }
   ]
 };
+/* 🔔 Dallam-tér — 6. kör, kódkör (terv: Matekosilagkep-6-kor-dallam-ter.html, ✅ 2026-11-25, mind A): kerek, macskaköves tér a harangláb
+   körül. Bal lent érkezik (az Összeadó utca felől), körben ferdén, más-más tetővel a négy ház (5 állapot), elöl a kút, középen a harangláb
+   (mindkettő lepes: 3: kopár → berendezett → virágos). Lila tetők, arany harangok. Minden lakó a pálya mozdulatát csinálja, szám és felirat nélkül:
+     kerekhaz (egy-szam): Kitti három tálba rak bogyót, mindegyikbe ugyanannyit, aztán a kosárba önti · holdfeny (holdfeny-bujocska): a kis felhő
+     mindig egy lámpást takar el, Cincin a felhő-bokor mögül kukucskál · kamra (mi-maradt): Pali körbe osztja a répát három tányérra, egy a kezében
+     marad, megrágcsálja · harangjatek (vegyes-szorzo): Bogyó a tornác korlátján egyforma (háromcsengőnyi) ugrásokkal föl-le, a csengő megszólal ·
+     kut (osztas-100): Brekus sorban tölt a négy kannába, a víz mind a négyben egyformán nő · harang (szorzo-dallam): Mia ütemre húzza a kötelet,
+     a három harang sorban leng, hangjegyek szállnak (Mia minden felmondós pályánál, Cincin minden bújócskánál).
+   Díszlet: madarak a harangláb tetején (a haranglábbal együtt mozdul egérre), szélcsengő a fán, üres pódium (az Okos trükkök helye; ház nem lehet).
+   sorrend: true — rejtett sorrend (helySorrend); az újonc-menetben a harangláb (Szorzódallam) elsőbbséget kap. A talapzat nem járható (gat).
+   Rajz és tábla-számok: terv/kozelkep-export.py dallam_ter() / dallam_tabla(). A régi Szorzós liget a menetből kikerült (8. hullámig háló). */
+HELYEK["dallam-ter"] = {
+  nev: "Dallam-tér", vissza: "vilag", sorrend: true,
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "dallam-ter", mappa: "kepek/dallam-ter/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
+  uni: 0.95, jk: 2.2,
+  pontok: { kapu: [0.150, 0.973], bej: [0.2825, 0.889], rw: [0.359, 0.791], rsw: [0.406, 0.872], rs: [0.500, 0.889], rse: [0.594, 0.872],
+            re: [0.6375, 0.791], rne: [0.600, 0.693], rn: [0.500, 0.671], rnw: [0.400, 0.693] },   /* a bejárat és a harangláb körüli gyűrű */
+  gat: [[[0.550, 0.731], [0.545, 0.743], [0.531, 0.752], [0.511, 0.757], [0.489, 0.757], [0.469, 0.752], [0.455, 0.743], [0.450, 0.731], [0.455, 0.720],
+         [0.469, 0.710], [0.489, 0.705], [0.511, 0.705], [0.531, 0.710], [0.545, 0.720], [0.550, 0.731]]],   /* a harangláb talapzata: körbe kell menni */
+  helyek: [
+    { id: "kerekhaz",    x: 0.1875, y: 0.80,  w: 0.12,  h: 0.27, all: [0.269, 0.833],  jel: [0.1875, 0.50], kep: "kerekhaz", rk: 2.4, doboz: [0.0762, 0.4889, 0.1806, 0.3689], cel: { palyak: ["egy-szam"] } },
+    { id: "holdfeny",    x: 0.366,  y: 0.615, w: 0.10,  h: 0.28, all: [0.383, 0.687],  jel: [0.366, 0.31], kep: "holdfeny", rk: 2.4, doboz: [0.2556, 0.2844, 0.1950, 0.3578], cel: { palyak: ["holdfeny-bujocska"] } },
+    { id: "kamra",       x: 0.68,   y: 0.615, w: 0.14,  h: 0.24, all: [0.625, 0.687],  jel: [0.68, 0.36],  kep: "kamra", rk: 2.4, doboz: [0.5337, 0.3378, 0.2263, 0.3200], cel: { palyak: ["mi-maradt"] } },
+    { id: "harangjatek", x: 0.8125, y: 0.83,  w: 0.12,  h: 0.27, all: [0.7475, 0.831], jel: [0.8125, 0.54], kep: "harangjatek", rk: 2.4, doboz: [0.7288, 0.5156, 0.1575, 0.3422], cel: { palyak: ["vegyes-szorzo"] } },
+    { id: "kut",         x: 0.725,  y: 0.96,  w: 0.15,  h: 0.17, all: [0.631, 0.922],  jel: [0.695, 0.76], kep: "kut", lepes: 3, rk: 2.0, doboz: [0.6550, 0.7444, 0.1650, 0.2400], cel: { palyak: ["osztas-100"] } },
+    { id: "harang",      x: 0.50,   y: 0.745, w: 0.12,  h: 0.50, all: [0.545, 0.791],  jel: [0.50, 0.19],  kep: "harang", lepes: 3, rk: 3.0, doboz: [0.4062, 0.2022, 0.1688, 0.5600], cel: { palyak: ["szorzo-dallam"] } }
+  ],
+  utak: [["kapu", "bej", [[0.2225, 0.928]]], ["bej", "kerekhaz", []], ["bej", "rsw", []], ["kerekhaz", "rw", []],
+         ["rw", "rsw", []], ["rsw", "rs", []], ["rs", "rse", []], ["rse", "re", []], ["re", "rne", []], ["rne", "rn", []], ["rn", "rnw", []], ["rnw", "rw", []],
+         ["rnw", "holdfeny", []], ["rne", "kamra", []], ["re", "harangjatek", []], ["rse", "kut", []], ["rse", "harang", []]],
+  jarhato: [
+    [[0.770, 0.791], [0.763, 0.827], [0.743, 0.861], [0.711, 0.891], [0.668, 0.916], [0.617, 0.935], [0.560, 0.947], [0.500, 0.951], [0.440, 0.947], [0.383, 0.935],
+     [0.332, 0.916], [0.289, 0.891], [0.257, 0.861], [0.237, 0.827], [0.230, 0.791], [0.237, 0.756], [0.257, 0.722], [0.289, 0.691], [0.332, 0.666], [0.383, 0.647],
+     [0.440, 0.635], [0.500, 0.631], [0.560, 0.635], [0.617, 0.647], [0.668, 0.666], [0.711, 0.691], [0.743, 0.722], [0.763, 0.756]],                     /* a kerek tér */
+    [[-0.156, 1.170], [-0.038, 1.122], [0.050, 1.083], [0.108, 1.052], [0.157, 1.021], [0.218, 0.982], [0.292, 0.935], [0.273, 0.843], [0.200, 0.890], [0.139, 0.929],
+     [0.092, 0.959], [0.036, 0.989], [-0.051, 1.027], [-0.169, 1.075]]                                                                                     /* a bejárati út */
+  ],
+  diszlet: [
+    { id: "madarak", x: 0.50, y: 0.33, w: 0.07, h: 0.055, elol: true, haz: "harang", kep: "madarak", doboz: [0.4675, 0.2889, 0.0650, 0.0400], mondat: "Csip-csirip! Mi is énekelünk." },
+    { id: "szelcsengo", x: 0.1475, y: 0.59, w: 0.04, h: 0.10, kep: "szelcsengo", doboz: [0.1325, 0.4956, 0.0300, 0.0956], mondat: "Csilingel a szél." },
+    { id: "podium", x: 0.914, y: 0.72, w: 0.075, h: 0.11, mondat: "Ez a pódium még üres. Egyszer ide is beköltözik valaki!" }
+  ]
+};
 /* a helyek neve (átnevezés = egy sor; a mai LIGET_NEV mintájára) · felveteli: „Doromboló-hegy” (producer, 2026-11-25: lakója majd a pékség macskája) */
 var HELY_NEV = {
   odu: "Odú", kert: "Kert", postafa: "Postafa", erdoszel: "Erdőszél", utca: "Utca", ter: "Nagyfa tér", "osszeado-utca": "Összeadó utca",
@@ -1012,7 +1057,8 @@ var HELY_NEV = {
   bolt: "Tüske néni boltja", vasar: "Tündérvásár", zsib: "Zsivány standja", szalag: "Szalagműhely", deli: "Déli vásár", irasbeli: "Garas tornya", josda: "Jósda",
   "osszeado-liget": "Összeadó liget", letra: "Rokon-létra", csalad: "Számcsalád", nagyhaz: "A nagy ház", favago: "Favágó-udvar", korte: "Körtefa",
   kovek: "Ugrókövek", kerites: "Kerítés-lépcső", bokroskert: "Bokros kert",
-  kisgomba: "Kis gombaház", nagygomba: "Nagy gombaház", ret: "Rét", tolgy: "Öreg tölgy"
+  kisgomba: "Kis gombaház", nagygomba: "Nagy gombaház", ret: "Rét", tolgy: "Öreg tölgy",
+  kerekhaz: "Kerek ház", holdfeny: "Holdfény-ház", kamra: "Répás kamra", harangjatek: "Harangjátékos ház", kut: "Kút", harang: "Harangláb"
 };
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
@@ -25539,8 +25585,9 @@ function helyDiszletRajz(M, elol) {
     else if (d.id === "kecske") b = '<g class="hely-madarak"><ellipse cy="-18" rx="24" ry="14" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/><circle cx="24" cy="-28" r="9" fill="#fffaf0" stroke="#8a7a6e" stroke-width="2"/>' +
                                 '<path d="M-14 -6v12M12 -6v12M22 -36l-4 -8M28 -36l3 -8" stroke="#8a7a6e" stroke-width="3" stroke-linecap="round"/></g>';
     else if (d.id === "madarak") b = '<g class="hely-madarak">' + [[-30, -10], [0, -24], [26, -6]].map(function (q) { return '<path d="M' + (q[0] - 9) + ' ' + q[1] + 'q5 -6 9 0q4 -6 9 0" fill="none" stroke="#6b6280" stroke-width="2.4" stroke-linecap="round"/>'; }).join("") + '</g>';
-    return '<g class="hely-diszlet" data-id="' + d.id + '"' + (d.haz ? ' data-haz="' + d.haz + '"' : '') + ' transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' +
-           '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g>';
+    /* a koppintás-mozdulat (CSS .el) a belső csoporton fut: a külső transform-attribútumát (a helyét) a CSS-transform felülírná (6. kör) */
+    return '<g class="hely-diszlet" data-id="' + d.id + '"' + (d.haz ? ' data-haz="' + d.haz + '"' : '') + ' transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"><g class="hd-mozog">' +
+           '<rect x="' + (-d.w * w / 2).toFixed(1) + '" y="' + (-d.h * h).toFixed(1) + '" width="' + (d.w * w).toFixed(1) + '" height="' + (d.h * h).toFixed(1) + '" fill="transparent"/>' + b + '</g></g>';
   }).join("");
 }
 /* o = { tabla (HELYEK kulcsa), jel: {id: {kesz, ossz, alszik, jelzes, ny}}, lathato: {id: true}, all: hely-id | null, pont: [x,y] arány, koppint(id) } */
@@ -25778,15 +25825,18 @@ function helyAllapot(H, L) {
 /* 🔢 REJTETT SORREND (5. kör, 5. döntés A; a tábla sorrend: true-ja — Erdőszél, később az Összeadó utca): a közelképben mindig csak
    a KÖVETKEZŐ hely világít (újonc-fény, és oda száll a madár). A következő: a pult szerint nyitott (nem zárt, nem alvó), még végig
    nem vitt pályák közül a legkönnyebb (pa.szint; egyenlőnél a tábla sorrendje). Ha az újonc-menet maga jelöl ki egy pályát
-   (palyaJelek .vil), az elsőbbséget kap. Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
+   (palyaJelek .vil), az elsőbbséget kap; ha többet is jelöl, a vers (felmondás) előbb (6. kör). Ha minden végigment: semmi nem világít. Semmi nincs lezárva, szám sehol. */
 function helySorrend(H, jel) {
-  var leg = null;
+  var leg = null, m = nyitasMenet(), o = m && m.o;
   H.helyek.forEach(function (h, i) {
     var j = jel[h.id]; if (!j || !j.pas || j.ny === "alszik") return;
     j.pas.forEach(function (pa) {
       var J = palyaJelek(pa); if (J.zarva || pa.hamarosan || (J.kesz && !J.vil)) return;
-      var k = [J.vil ? 0 : 1, pa.szint || 99, i];
-      if (!leg || k[0] < leg.k[0] || (k[0] === leg.k[0] && (k[1] < leg.k[1] || (k[1] === leg.k[1] && k[2] < leg.k[2])))) leg = { id: h.id, k: k };
+      /* 6. kör (Dallam-tér): ha az újonc-menet többet is kijelöl (a liget első pályája + a vers), a vers (felmondás) az első — az alap */
+      var k = [J.vil ? 0 : 1, J.vil && o && nyitasVersPalya(pa.id, o) ? 0 : 1, pa.szint || 99, i];
+      var kisebb = false;
+      for (var x = 0; leg && x < k.length; x++) if (k[x] !== leg.k[x]) { kisebb = k[x] < leg.k[x]; break; }
+      if (!leg || kisebb) leg = { id: h.id, k: k };
     });
   });
   H.helyek.forEach(function (h) {
@@ -27038,7 +27088,7 @@ function fzJegy(F, d) {
   }
   if (F.tervK[kv]) { fzTervIr(F, String(d)); return; }
   if (fzGepTartalom(F, kv) || F.jelK[kv]) { fzRazkod(F); return; }
-  if (F.T.alaSorok && !F.alaK[F.akt.r] && !F.mezoK[kv] && !fzAlaKesz(F)) { fzFelirat(F, "Előbb írd egymás alá a számokat, a fejléc alá!", "kerd"); fzRazkod(F); return; }   /* elcsúszott tagokkal nem lehet számolni (kiskapu) */
+  if (F.T.alaSorok && !F.o.kotetlen && !F.alaK[F.akt.r] && !F.mezoK[kv] && !fzAlaKesz(F)) { fzFelirat(F, "Előbb írd egymás alá a számokat, a fejléc alá!", "kerd"); fzRazkod(F); return; }   /* elcsúszott tagokkal nem lehet számolni (kiskapu) */
   if (F.o.hibakeres && !F.hkMegvan) { fzFelirat(F, "Előbb keresd meg, melyik jegy rossz, és radírozd ki!", "kerd"); fzRazkod(F); return; }
   if (!F.becsOk && !F.mezoK[kv]) { fzFelirat(F, F.T.muv === "oszt" ? "Előbb becsülj: írd a B: sorba, mettől meddig lehet a hányados!" : "Előbb becsülj: írd a B: sorba, mennyi lesz körülbelül!", "kerd"); fzRazkod(F); return; }
   var x = F.k[kv] || {}; x.v = String(d); x.ki = "gyerek"; F.k[kv] = x; F.uj[kv] = true;
@@ -27238,6 +27288,8 @@ function fzHiba(F, info) {
   if (!F.o.csendesHiba) beep(220, .14, "triangle", 0, .05);
   if (F.o.onHiba && F.o.onHiba(F, info) === true) return;
   if (info.hk) { fzFelirat(F, "Ez jó volt, visszaírtam. Keresd tovább: számold újra " + (F.T.muv === "oszt" ? "lépésenként" : "oszloponként") + "!", "kerd"); return; }
+  if (info.kotetlen) { fzFelirat(F, "Az eredmény még nem jó. Számold újra, és írd a helyére!", "kerd"); return; }
+  if (info.oszlopok && info.csakHiany) { fzFelirat(F, "Amit beírtál, az jó! De még hiányzik valami: a kiszínezett oszlopokban üres kockák várnak.", "kerd"); return; }
   if (info.oszlopok) { fzFelirat(F, "Nézd meg még egyszer a kiszínezett oszlopokat! Radírozd ki, ami nem jó, és javítsd.", "kerd"); return; }
   var L = info.cel ? F.T.lepesek[info.cel.lepes] : null;
   if (info.ala && (!info.cel || info.n < 2)) { fzFelirat(F, "Nézd meg a fejlécet: az egyesek az egyesek alá, a tízesek a tízesek alá! Radírozd ki, és írd a helyére.", "kerd"); return; }
@@ -27258,10 +27310,14 @@ function fzMondoka(F, k, kerd) {   /* kerd: csak a kérdés-alak (a lépés elej
 function fzVegenEll(F) {
   if (F.kesz) return true;
   if (F.T.terv && F.T.terv.nyitott) return fzTervEll(F);
-  var T = F.T, hibak = {}, rossz = false;
+  if (F.o.kotetlen) {   /* ☀️ Déli vásár (11-25): kötetlen füzet — a gyerek azt ír, amit akar, csak az eredmény számít; szabályos írásbeli csak a gyakorlópályán (Garas tornya) */
+    if (fzEredJo(F)) { fzKesz(F); return true; }
+    F.hibaOszl = {}; F.hibas = {}; fzHiba(F, { kotetlen: true }); fzRajz(F); return false;
+  }
+  var T = F.T, hibak = {}, rossz = false, st = { rossz: false };
   if (!T.mezok.every(function (m) { return fzMezoSzam(F, m) === m.v; })) {
     T.mezok.forEach(function (m) { if (fzMezoSzam(F, m) !== m.v) for (var c = m.c0; c <= m.c1; c++) hibak[c] = true; });
-    rossz = true;
+    rossz = true; st.rossz = true;
   }
   /* sor-csere: a csoport soraihoz a legjobban illő sorrend */
   var sorMap = {};
@@ -27275,10 +27331,10 @@ function fzVegenEll(F) {
   });
   var sorVeg = F.ellFazis ? T.sor : Math.min(T.sor, F.ellSor);   /* előbb csak a számolás, aztán az ellenőrzés */
   for (var r = 0; r < sorVeg; r++) {
-    fzSorHiba(F, r, sorMap[r] != null ? sorMap[r] : r).forEach(function (c) { hibak[c] = true; rossz = true; });
+    fzSorHiba(F, r, sorMap[r] != null ? sorMap[r] : r, st).forEach(function (c) { hibak[c] = true; rossz = true; });
   }
   F.hibaOszl = hibak; F.hibas = {};
-  if (rossz) { fzHiba(F, { oszlopok: Object.keys(hibak).map(Number) }); fzRajz(F); return false; }
+  if (rossz) { fzHiba(F, { oszlopok: Object.keys(hibak).map(Number), csakHiany: !st.rossz }); fzRajz(F); return false; }
   if (!F.ellFazis) {
     F.ellFazis = true; F.akt = { r: Math.min(T.sor - 1, F.ellSor + 2), c: T.U || 1 }; F.eszkoz = "ceruza";
     fzFelirat(F, "Jó! Most ellenőrizd: " + (T.lepesek[F.ellKezd] ? (T.lepesek[F.ellKezd].k || T.lepesek[F.ellKezd].m).replace(/^Ellenőrzés:?\s*/, "") : ""), "jo");
@@ -27287,17 +27343,30 @@ function fzVegenEll(F) {
   fzKesz(F); return true;
 }
 /* a gyerek r. sora a várt rv. sorhoz mérve: a hibás oszlopok (hiányzó, rossz vagy fölösleges jegy); a becslés-sor külön (mezo) */
-function fzSorHiba(F, r, rv) {
+function fzSorHiba(F, r, rv, st) {   /* st.rossz: volt-e beírt, de rossz/fölösleges jegy (nem csak hiány) */
   var T = F.T, ki = [], c, cel, x;
   for (c = 0; c < T.osz; c++) {
     if (F.mezoK[fzKulcs(r, c)] || F.mezoK[fzKulcs(rv, c)]) continue;
     if (F.szabadK[fzKulcs(r, c)] || F.szabadK[fzKulcs(rv, c)]) continue;
     cel = F.vart[fzKulcs(rv, c)]; x = F.k[fzKulcs(r, c)];
     var v = x && x.v ? x.v : null;
-    if (cel) { if (cel.opc ? (v != null && v !== cel.v) : v !== cel.v) ki.push(c); }
-    else if (v != null) ki.push(c);
+    if (cel) { if (cel.opc ? (v != null && v !== cel.v) : v !== cel.v) { ki.push(c); if (st && v != null) st.rossz = true; } }
+    else if (v != null) { ki.push(c); if (st) st.rossz = true; }
   }
   return ki;
+}
+/* jó-e az eredmény: a terv-sor = utáni szám, vagy a lapon az eredmény-jegyek (osztásnál a hányados a műveletsorban, máskor az utolsó számsor) */
+function fzEredJo(F) {
+  var T = F.T; if (T.ered == null) return false;
+  var e = String(T.ered), c;
+  if (T.terv && T.tervEq >= 0) {
+    var s = ""; for (c = T.tervEq + 1; c < T.osz; c++) { var x = F.k[fzKulcs(T.terv.r, c)]; if (x && x.v) s += x.v; else if (s) break; }
+    if (s === e) return true;
+  }
+  var sz = T.celok.filter(function (k) { return k.tip === "szam" && k.mezo == null; }); if (!sz.length) return false;
+  var r = T.muv === "oszt" ? T.muvSor : Math.max.apply(null, sz.map(function (k) { return k.r; }));
+  var ec = sz.filter(function (k) { return k.r === r; });
+  return ec.length > 0 && ec.every(function (k) { return k.opc ? true : fzCelJo(F, k); });
 }
 function fzPermutaciok(a) {
   if (a.length <= 1) return [a.slice()];
@@ -30702,7 +30771,7 @@ function vsFzIndit(JL) {
   d.classList.add("vs-fz");
   V.i = 0; V.tervHiba = 0; V.lapHiba = 0; V.konyvelt = {}; V.eredmenyek = []; V.valaszMost = false; V.mozgoVolt = false;
   var F = fzLap(d, irTervLap({ sor: VS_FZ_SOR }), {
-    mod: "gyerek", oldalt: true, ell: "vegen", jelol: false, talca: false, mondoka: "hiba", jelek: true, csendesHiba: true,
+    mod: "gyerek", oldalt: true, ell: "vegen", jelol: false, talca: false, mondoka: "hiba", jelek: true, csendesHiba: true, kotetlen: true,
     onTerv: function (F, t) { return vsFzTerv(JL, f, F, t); },
     onHiba: function (F, info) { return vsFzHiba(JL, f, F, info); },
     onLap: function (F, T) { vsFzLapFelirat(f, F, T); },
@@ -30722,8 +30791,7 @@ function vsFzLapFelirat(f, F, T) {
   if (V.valaszMost) { F.felirat("Mi a válasz a kérdésre? " + ekSima(V.bub.kerdes) + " Írd a Válasz: után, aztán Kész (Enter).", "kerd"); return; }
   if (T.tervEredCel) { F.felirat("Ezt fejben is ki tudod számolni: írd az = után, aztán Kész (Enter)."); return; }
   if (T.terv && T.terv.nyitott) return;
-  if (T.alaSorok) F.felirat("Ezt írásban számold ki! Írd egymás alá a számokat a fejléc alá, aztán számolj. A végén Kész (Enter).");
-  else F.felirat("Ezt írásban számold ki! A végén Kész (Enter).");
+  F.felirat("Számold ki! A füzetbe azt írsz, amit akarsz. Az eredményt írd a terv végére, az = után, aztán Kész (Enter).");   /* 11-25: kötetlen füzet */
 }
 
 /* ═════════════════ ① A TERV ═════════════════ */

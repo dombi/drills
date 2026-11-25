@@ -2151,12 +2151,37 @@ def ferde_haz(o):
     S += '<path d="M%s,0 V%s L%s,%s V0 Z" fill="#3c2f5e" opacity=".09" stroke="none"/>' % (f(x1 - w * .22), f(-hJ - (hB - hJ) * .22), f(x1), f(-hJ))
     S += '<path d="M%s,-6 Q%s,%s %s,%s" stroke="#fff" stroke-width="6" fill="none" opacity=".33" stroke-linecap="round"/>' % (f(x0 + 10), f(x0 + 8), f(-hB * .5), f(x0 + 12), f(-hB + 16))
     S += '<path d="M%s,0 H%s V-10 H%s Z" fill="%s" stroke-width="1.4"/>' % (f(x0), f(x1), f(x0), o.get("lab", "#d9cbb4"))
+    if o.get("kupola"):   # 6. kör: kerek ház — kupolatető (a gerinc helyett a kupola teteje), arany gombbal
+        xl, yl, xr, yr = x0 - eB, -hB + 6, x1 + eJ, -hJ + 6
+        S += '<path d="M%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Q%s,%s %s,%s Z" fill="%s"/>' % (
+            f(xl), f(yl), f(xl + 4), f(gy), f(cs), f(gy), f(xr - 4), f(gy), f(xr), f(yr), f(cs), f(min(yl, yr) + 8), f(xl), f(yl), o["teto"])
+        S += '<path d="M%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Z" fill="#3c2f5e" opacity=".1" stroke="none"/>' % (
+            f(cs + 10), f(gy + 2), f(xr - 6), f(gy + 4), f(xr), f(yr), f(cs + 30), f(yr - 4), f(cs + 10), f(gy + 2))
+        S += '<g stroke="%s" fill="none" stroke-width="1.3">%s</g>' % (o.get("tetoA", "#5a4a9a"), "".join(
+            '<path d="M%s,%s Q%s,%s %s,%s"/>' % (f(xl + (cs - xl) * t + 8), f(yl + (gy - yl) * t), f(cs), f(yl + (gy - yl) * t - 10 * (1 - t)), f(xr - (xr - cs) * t - 8), f(yr + (gy - yr) * t))
+            for t in (.3, .6)))
+        S += '<path d="M%s,%s Q%s,%s %s,%s" stroke="#fff" stroke-width="4" opacity=".3" stroke-linecap="round" fill="none"/>' % (f(xl + 12), f(yl - 8), f(xl + 14), f(gy + 16), f(cs - 14), f(gy + 6))
+        S += '<path d="M%s,%s V%s" stroke-width="2"/><circle cx="%s" cy="%s" r="7" fill="#f2c14e"/>' % (f(cs), f(gy), f(gy - 10), f(cs), f(gy - 16))
+        gy -= 24
+    else:
+        S += roof_ferde(o, x0, x1, hB, hJ, eB, eJ, cs, gy, tH)
+    W = A = ""
+    return ferde_haz_vege(o, S, W, A, w, x0, x1, gy)
+
+
+def roof_ferde(o, x0, x1, hB, hJ, eB, eJ, cs, gy, tH):
+    S = ""
     S += '<path d="M%s,%s L%s,%s L%s,%s Q%s,%s %s,%s Z" fill="%s"/>' % (
         f(x0 - eB), f(-hB + 6), f(cs), f(gy), f(x1 + eJ), f(-hJ + 6), f(cs), f(-max(hB, hJ) + 2), f(x0 - eB), f(-hB + 6), o["teto"])
     S += '<path d="M%s,%s L%s,%s L%s,%s Z" fill="#3c2f5e" opacity=".1" stroke="none"/>' % (f(cs), f(gy), f(x1 + eJ), f(-hJ + 6), f(cs + (x1 - cs) * .35), f(-hJ + 2))
     S += '<g stroke="%s" fill="none">%s</g>' % (o.get("tetoA", "#7a4a3a"), tetosor(cs, gy, x0 - eB, x1 + eJ, -max(hB, hJ) + 4, max(2, int(tH / 22)), o.get("tetoA", "#7a4a3a")))
     S += '<path d="M%s,%s L%s,%s" stroke="#fff" stroke-width="4" opacity=".3" stroke-linecap="round"/>' % (f(x0 - eB + 10), f(-hB + 2), f(cs - 6), f(gy + 10))
-    W = A = ""
+    return S
+
+
+def ferde_haz_vege(o, S, W, A, w, x0, x1, gy):
+    eB, eJ = o.get("eB", 12), o.get("eJ", 12)
+    rot = lambda s: '<g transform="rotate(%s)">%s</g>' % (o.get("dol", 0), s)
     for ax, ay, aw, ah in o.get("ablak", []):
         W += '<rect x="%s" y="%s" width="%s" height="%s" fill="#6e5a7e" opacity=".55"/>' % (f(ax), f(ay), f(aw), f(ah))
         A += ('<rect x="%s" y="%s" width="%s" height="%s" rx="2" fill="#e9f4fb"/><path d="M%s,%s V%s M%s,%s H%s" stroke-width="1.4"/>'
@@ -2737,18 +2762,500 @@ def taj_osszeado_utca():
     return {"osszeado-utca (táj)": vb}
 
 
+
+# ══════════════════ DALLAM-TÉR (6. kör, kódkör, 2026-11-25) ══════════════════
+# Terv: Matekos/vilagkep-6-kor-dallam-ter.html (✅ 2026-11-25, mind A). Kerek, macskaköves tér a harangláb körül: bal lent érkezik
+# (az Összeadó utca felől; balra hátul a dombocskán az utca nagy háza), körben ferdén, más-más tetővel a kerek ház (egy-szam),
+# a Holdfény-ház (holdfeny-bujocska), a répás kamra (mi-maradt), a harangjátékos ház (vegyes-szorzo); elöl a kút (osztas-100),
+# középen a harangláb (szorzo-dallam); jobbra hátul az üres pódium. Lila tetők, arany harangok. Minden lakó a pálya mozdulatát
+# csinálja, szám és felirat nélkül. dallam_tabla() kiírja a helyek.js pontjait, útjait, járható részét és gátját.
+D_TER = (800, 712, 440, 150)                # a tér (ellipszis)
+D_TALAP = (800, 652, 80, 24)                # a harangláb talapzata (nem járható)
+D_HARANG, D_KEREK, D_HOLD, D_KAMRA, D_HJ, D_KUT = (800, 652), (300, 714), (585, 548), (1090, 548), (1300, 738), (1112, 846)
+D_PODIUM, D_FA = (1462, 640), (118, 604)
+D_BEJ = [(-260, 1010), (60, 940), (260, 870), (452, 800)]
+D_CSENGO = (236, 452)                       # a szélcsengő akasztója (a fa ága)
+LILA, LILA_A = "#9585e0", "#5e4ea8"
+
+
+def f3(v):
+    return "%.3f" % v
+
+def harang_d(r, c="#f2c14e", cs="#a8782a"):
+    """harang: az akasztó (0,0)-ban, lefelé lóg"""
+    return ('<path d="M0,0 V%s" stroke="#6e5a4a" stroke-width="1.6"/>'
+            '<path d="M%s,%s Q%s,%s %s,%s H%s Q%s,%s %s,%s Q0,%s %s,%s Z" fill="%s" stroke="%s" stroke-width="1.6"/>'
+            '<ellipse cx="0" cy="%s" rx="%s" ry="%s" fill="%s" stroke="%s" stroke-width="1.4"/><circle cx="0" cy="%s" r="%s" fill="#8a6a3a" stroke="none"/>'
+            '<path d="M%s,%s Q%s,%s %s,%s" stroke="#fff" stroke-width="%s" opacity=".55" fill="none" stroke-linecap="round"/>') % (
+        f(r * .3), f(-r * .55), f(r * .35), f(-r * .62), f(r * 1.3), f(-r), f(r * 1.6), f(r), f(r * .62), f(r * 1.3), f(r * .55), f(r * .35), f(-r * .1), f(-r * .55), f(r * .35), c, cs,
+        f(r * 1.6), f(r), f(r * .2), c, cs, f(r * 1.85), f(r * .2), f(-r * .3), f(r * .55), f(-r * .45), f(r * 1.05), f(-r * .62), f(r * 1.38), f(max(1.2, r * .14)))
+
+def leng_ki(s, x, y, fok_, dur, kezdok, hossz):
+    """egyszeri (vagy többszöri) meglendülés a ciklus kezdok-időpontjaiban (arány), egyébként áll"""
+    k, v = [0.0], [0.0]
+    for t in sorted(kezdok):
+        for dt, a in ((0, 0), (.25, fok_), (.5, -fok_ * .7), (.75, fok_ * .35), (1, 0)):
+            tt = min(1.0, t + hossz * dt)
+            if tt < k[-1]: tt = k[-1]
+            k.append(tt); v.append(a)
+    if k[-1] < 1: k.append(1.0); v.append(0)
+    return ('<g>%s<animateTransform attributeName="transform" type="rotate" values="%s" keyTimes="%s" dur="%ss" repeatCount="indefinite"/></g>') % (
+        s, ";".join("%s %s %s" % (f(a), f(x), f(y)) for a in v), ";".join(f3(t) for t in k), dur)
+
+def diszkret(vals, idok, dur, attr, tipus=None):
+    """discrete animáció: vals[i] az idok[i]-től (idok[0] = 0)"""
+    if tipus:
+        return '<animateTransform attributeName="transform" type="%s" calcMode="discrete" values="%s" keyTimes="%s" dur="%ss" repeatCount="indefinite"/>' % (
+            tipus, ";".join(vals), ";".join(f3(t) for t in idok), dur)
+    return '<animate attributeName="%s" calcMode="discrete" values="%s" keyTimes="%s" dur="%ss" repeatCount="indefinite"/>' % (attr, ";".join(vals), ";".join(f3(t) for t in idok), dur)
+
+def hangjegy(c="#6a5f8a"):
+    return ('<g><ellipse cx="0" cy="0" rx="4.6" ry="3.4" transform="rotate(-22)" fill="%s"/><path d="M4,-1 V-17 q7,2 8,9" stroke="%s" stroke-width="2" fill="none" stroke-linecap="round"/></g>') % (c, c)
+
+def fel_szall(s, x0, y0, dx, dy, dur, b):
+    return ('<g opacity="0"><g transform="translate(%s %s)">%s</g><animateTransform attributeName="transform" type="translate" values="0,0;%s,%s" dur="%ss" begin="%ss" repeatCount="indefinite"/>'
+            '<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.7;1" dur="%ss" begin="%ss" repeatCount="indefinite"/></g>') % (f(x0), f(y0), s, f(dx), f(dy), dur, f(b), dur, f(b))
+
+
+# ── a harangláb (szorzo-dallam): Mia ütemre húzza a kötelet, a három harang sorban leng (kicsi, nagy, közepes), hangjegyek szállnak ──
+def d_harang():
+    talap = ('<ellipse cx="0" cy="4" rx="92" ry="24" fill="#3c2a50" opacity=".1" stroke="none"/>' +
+             fok('<path d="M-80,0 V-26 A80 22 0 0 0 80 -26 V0 A80 22 0 0 1 -80 0 Z" fill="#ddd3c4"/><ellipse cx="0" cy="-26" rx="80" ry="22" fill="#eee6da"/>'
+                 '<path d="M-80,-12 Q0,6 80,-12 M-50,-4 V8 M-10,0 V12 M30,-2 V10 M62,-8 V4" stroke-width="1.1" opacity=".5" fill="none"/>', 2))
+    fa = lambda d, w: '<path d="%s" stroke="%s" stroke-width="%s" fill="none" stroke-linecap="round"/><path d="%s" stroke="#b5855a" stroke-width="%s" fill="none" stroke-linecap="round"/>' % (d, INK, w + 4, d, w)
+    lab = fa("M-58,-34 L-46,-266 M58,-34 L46,-266", 7) + fa("M-55,-96 L51,-190 M55,-96 L-51,-190", 4) + fa("M-56,-96 H56 M-51,-190 H51", 4)
+    kamra = fa("M-62,-266 H62", 7) + fa("M-48,-266 V-330 M48,-266 V-330", 5) + fa("M-56,-328 H56", 6)
+    teto = ('<path d="M-78,-330 Q-40,-352 0,-412 Q40,-352 78,-330 Q0,-342 -78,-330 Z" fill="%s"/>'
+            '<path d="M0,-412 Q40,-352 78,-330 Q40,-336 6,-338 Z" fill="#3c2f5e" opacity=".12" stroke="none"/>'
+            '<path d="M-58,-342 Q0,-352 58,-342 M-38,-362 Q0,-370 38,-362 M-20,-384 Q0,-390 20,-384" stroke="%s" stroke-width="1.3" fill="none"/>'
+            '<path d="M-62,-336 Q-34,-356 -6,-398" stroke="#fff" stroke-width="4" opacity=".3" fill="none" stroke-linecap="round"/>'
+            '<path d="M0,-412 V-422" stroke-width="2"/><circle cx="0" cy="-428" r="7" fill="#f2c14e"/>') % (LILA, LILA_A)
+    def alapr(a):
+        return talap + fok(lab + kamra + teto, 2)
+    pad = fok('<path d="M-130,4 V-14 M-92,4 V-14" stroke="#8a5a3a" stroke-width="4"/><path d="M-138,-14 H-84 V-21 H-138 Z" fill="#c99a6a"/>', 1.6)
+    bere = pad + zaszlo(0, -434, 22, 26, 3.2, "#f6a5c0", "#c9607a")
+    rv = Rnd(612)
+    fuzer = '<path d="M-62,-262 Q-31,-246 0,-262 Q31,-246 62,-262" stroke="#7fae6a" stroke-width="2.4" fill="none"/>' + "".join(
+        '<circle cx="%s" cy="%s" r="3.6" fill="%s" stroke="%s" stroke-width=".7"/>' % (f(-56 + i * 14), f(-256 + 6 * (1 - ((i % 4.5) / 2.25 - 1) ** 2)), VSZ[i % 5], INK) for i in range(9))
+    szalag = "".join(lengo('<path d="M%s,-330 q-6,26 2,48 q5,14 -2,30" stroke="%s" stroke-width="3.4" fill="none" stroke-linecap="round"/>' % (f(x), c), x, -330, 6, d)
+                     for x, c, d in ((-76, "#f6a5c0", 2.6), (76, "#c9a8e6", 3.1)))
+    cserep = "".join('<g transform="translate(%s 2)"><path d="M-10,0 L-12,-14 H12 L10,0 Z" fill="#c98b5e" stroke="%s" stroke-width="1.2"/>%s</g>' % (
+        f(x), INK, "".join('<circle cx="%s" cy="-18" r="3" fill="%s" stroke="%s" stroke-width=".6"/>' % (f(-6 + j * 6), VSZ[(j + i) % 5], INK) for j in range(3))) for i, x in enumerate((-70, 70)))
+    virag = fuzer + szalag + cserep + "".join('<circle cx="%s" cy="%s" r="%s" fill="%s" stroke="%s" stroke-width=".6"/>' % (
+        f(-120 + rv() * 240), f(14 + rv() * 10), f(2.2 + rv() * 1.4), VSZ[int(rv() * 5)], INK) for _ in range(18)) + taj_csillam(((-90, -300), (0, -450), (90, -290), (-70, -150)))
+    def lako(a):
+        D = 3.6
+        harangok = [(-30, 9, 0), (0, 15, 1 / 3), (30, 12, 2 / 3)] if a != "kopar" else [(0, 15, None)]
+        hs = ""
+        for x, r, t in harangok:
+            b = '<g transform="translate(%s -326)">%s</g>' % (f(x), harang_d(r))
+            hs += leng_ki(b, x, -326, 16, D, [t] if t is not None else [0, 1 / 3, 2 / 3], .3)
+        # a kötél a kamra padlójától Mia kezéig; húzáskor lejjebb jön
+        kotel = ('<g><path d="M24,-264 Q40,-170 62,-70" stroke="#c9a77e" stroke-width="3" fill="none"/><path d="M24,-264 Q40,-170 62,-70" stroke="#8a6a4a" stroke-width="1" fill="none" stroke-dasharray="3 4"/>'
+                 '<circle cx="62" cy="-68" r="4" fill="#d9434e" stroke="%s" stroke-width="1"/>'
+                 '<animateTransform attributeName="transform" type="translate" values="0,0;0,9;0,0" keyTimes="0;.25;1" dur="%ss" repeatCount="indefinite"/></g>') % (INK, f(D / 3))
+        mia = ('<g>' + figura("mia", 84, 4, .5, tukor=True) +
+               '<animateTransform attributeName="transform" type="translate" values="0,0;-2,7;0,0" keyTimes="0;.25;1" dur="%ss" repeatCount="indefinite"/></g>') % f(D / 3)
+        jegyek = "".join(fel_szall(hangjegy(c), x, -300, dx, -150, D, b) for x, dx, c, b in ((-30, -26, "#6a5f8a", 0), (0, 10, "#9585e0", D / 3), (30, 30, "#c96a9a", 2 * D / 3)))
+        return kotel + mia + hs + jegyek
+    return alapr, bere, virag, lako
+
+
+# ── a kút (osztas-100): Brekus a vödörből sorban tölt a négy kannába; a víz mind a négyben egyformán nő ──
+def d_kut():
+    kut = (arnyek(4, 4, 46, 8) +
+           fok('<ellipse cx="0" cy="0" rx="36" ry="11" fill="#cfc4b4"/><path d="M-36,0 V-34 A36 11 0 0 0 36 -34 V0 A36 11 0 0 1 -36 0 Z" fill="#e6dccb"/>'
+               '<path d="M-36,-12 Q0,-2 36,-12 M-36,-24 Q0,-14 36,-24 M-20,-34 V-22 M12,-30 V-18 M-4,-20 V-8 M24,-20 V-8 M-26,-10 V0" stroke-width="1.1" opacity=".55"/>'
+               '<ellipse cx="0" cy="-34" rx="36" ry="11" fill="#7fb3d6"/><ellipse cx="-6" cy="-36" rx="16" ry="4" fill="#fff" opacity=".4" stroke="none"/>'
+               '<path d="M-31,-34 V-100 M31,-34 V-100" stroke="#8a5a3a" stroke-width="6"/><path d="M-31,-34 V-100 M31,-34 V-100" stroke="#b07a52" stroke-width="3"/>'
+               '<path d="M-52,-94 Q-24,-112 0,-138 Q24,-112 52,-94 Q0,-100 -52,-94 Z" fill="%s"/><path d="M0,-138 Q24,-112 52,-94 Q26,-97 4,-98 Z" fill="#3c2f5e" opacity=".12" stroke="none"/>'
+               '<path d="M-34,-104 Q0,-112 34,-104 M-18,-120 Q0,-125 18,-120" stroke="%s" stroke-width="1.1" fill="none"/>'
+               '<path d="M-31,-84 H31" stroke="#6e5a4a" stroke-width="5"/><path d="M31,-84 h10 v10" stroke="#6e5a4a" stroke-width="3" fill="none"/>'
+               '<path d="M0,-84 V-62" stroke="#6e5a4a" stroke-width="1.5"/><path d="M-9,-62 h18 l-3,14 h-12 z" fill="#b98a64"/>' % (LILA, LILA_A), 2))
+    fold = '<ellipse cx="80" cy="14" rx="130" ry="20" fill="#e8dcc0" stroke="#d2c29c" stroke-width="2"/>'
+    def alapr(a):
+        return fold + kut
+    bere = fok('<g transform="translate(0 -140)"><path d="M0,0 V-8" stroke-width="1.4"/><path d="M-9,-10 Q0,-18 9,-12 L14,-14 L10,-9 Q0,-4 -9,-10 Z" fill="#f2c14e" stroke-width="1.2"/></g>'
+               '<g transform="translate(-50 10)"><path d="M-10,0 L-12,-14 H12 L10,0 Z" fill="#a8c8d8"/><ellipse cy="-14" rx="12" ry="3" fill="#bfe3f3" stroke-width="1"/></g>', 1.4)
+    rv = Rnd(622)
+    virag = ('<g transform="translate(-40 14)"><path d="M-22,-2 h44 l-3,-10 h-38 z" fill="#c99a6a" stroke="%s" stroke-width="1.2"/>' % INK +
+             "".join('<circle cx="%s" cy="-15" r="3.4" fill="%s" stroke="%s" stroke-width=".7"/>' % (f(-17 + i * 7), VSZ[i % 5], INK) for i in range(6)) + '</g>' +
+             '<path d="M-31,-60 q-10,-10 -4,-24 M31,-60 q10,-10 4,-24" stroke="#7fae6a" stroke-width="2" fill="none"/>' +
+             "".join('<circle cx="%s" cy="%s" r="3" fill="%s" stroke="%s" stroke-width=".6"/>' % (f(x), f(y), VSZ[i % 5], INK) for i, (x, y) in enumerate(((-35, -70), (-38, -82), (35, -70), (38, -82))))
+             + "".join('<circle cx="%s" cy="%s" r="%s" fill="%s" stroke="%s" stroke-width=".6"/>' % (f(-50 + rv() * 260), f(24 + rv() * 8), f(2.2 + rv() * 1.4), VSZ[int(rv() * 5)], INK) for _ in range(16))
+             + taj_csillam(((-40, -120), (40, -110), (150, -40))))
+    KX = (62, 96, 130, 164)
+    def kanna(x):
+        return ('<path d="M%s,16 L%s,-8 H%s L%s,16 Z" fill="#8fbfd8"/><path d="M%s,-4 L%s,-16" stroke-width="2.6"/><path d="M%s,-6 q-8,0 -7,9" stroke-width="2" fill="none"/>') % (
+            f(x - 10), f(x - 9), f(x + 9), f(x + 10), f(x + 9), f(x + 18), f(x - 9))
+    def lako(a):
+        ks = [0] if a == "kopar" else [0, 1, 2, 3]
+        N, T, D = 8, 9, 9
+        s = ""
+        for i in ks:   # a kannák, bennük a víz: minden töltéskor egy egyforma lépcsőt nő
+            x = KX[i]; db = [k for k in range(N) if ks[k % len(ks)] == i]; lep = 20.0 / len(db)
+            vals, idok = ["0"], [0.0]
+            for j, k in enumerate(db):
+                vals.append(f(lep * (j + 1))); idok.append((k + .6) / T)
+            vals.append("0"); idok.append(8.6 / T)
+            yv = [f(14 - float(v)) for v in vals]
+            s += fok(kanna(x), 1.4)
+            s += ('<clipPath id="kanna%d"><path d="M%s,14 L%s,-6 H%s L%s,14 Z"/></clipPath><g clip-path="url(#kanna%d)"><rect x="%s" y="14" width="22" height="0" fill="#7fc0e8">%s%s</rect></g>') % (
+                i, f(x - 8), f(x - 7.4), f(x + 7.4), f(x + 8), i, f(x - 11), diszkret(vals, idok, D, "height"), diszkret(yv, idok, D, "y"))
+        # Brekus kannáról kannára lép (8 töltés, aztán újra az elsőnél)
+        hol = [ks[k % len(ks)] for k in range(N)] + [ks[0]]
+        tr = diszkret(["%s,0" % f(KX[h] - KX[0]) for h in hol], [k / T for k in range(T)], D, None, "translate")
+        on, ok = ["0"], [0.0]
+        for k in range(N):
+            on += ["1", "0"]; ok += [(k + .2) / T, (k + .85) / T]
+        dont = ['<animate attributeName="opacity" calcMode="discrete" values="%s" keyTimes="%s" dur="%ss" repeatCount="indefinite"/>' % (";".join(on), ";".join(f3(t) for t in ok), D)]
+        billen = diszkret(["0 %s -30" % f(KX[0] - 14) if v == "0" else "-38 %s -30" % f(KX[0] - 14) for v in on], ok, D, None, "rotate")
+        vodor = '<g>%s%s</g>' % (fok('<path d="M%s,-38 h16 l-3,14 h-10 z" fill="#b98a64"/><path d="M%s,-38 q8,-10 16,0" fill="none" stroke-width="1.2"/>' % (f(KX[0] - 22), f(KX[0] - 22)), 1.4), billen)
+        sugar = '<path d="M%s,-30 Q%s,-28 %s,-6" stroke="#7fc0e8" stroke-width="4" fill="none" stroke-linecap="round" opacity="0">%s</path>' % (f(KX[0] - 8), f(KX[0] - 2), f(KX[0]), dont[0])
+        brekus = '<g>%s%s%s%s</g>' % (figura("brekus", KX[0] - 28, 18, .42), vodor, sugar, tr)
+        return s + brekus
+    return alapr, bere, virag, lako
+
+
+# ── a négy ház (5 állapot); a lakó (L) minden állapotban ott van ──
+def d_kerek():
+    """🔮 a kerek ház (egy-szam): lila kupolatető, két kerek ablak; Kitti három egyforma tálba rak bogyót, mindegyikbe ugyanannyit,
+    aztán mindet a kosárba önti, és kezdi elölről"""
+    h = ferde_haz({"w": 150, "hB": 118, "hJ": 112, "tH": 92, "cs": 4, "eB": 10, "eJ": 10, "dol": -2, "fal": "#fdf3e2", "teto": LILA, "tetoA": LILA_A,
+                   "kerek": [(-40, -78, 15), (40, -74, 15)], "ajto": (0, 30, 58, "#a8764f"), "kupola": True, "spaletta": "#a8c88f"})
+    TAL = (-104, -64, -24)
+    D = 10
+    tal = "".join('<g transform="translate(%s 44)"><path d="M-19,-10 Q0,9 19,-10 Z" fill="#f4ead8"/><path d="M-19,-10 Q0,-5 19,-10" fill="none" stroke-width="1.2"/></g>' % f(x) for x in TAL)
+    kosar = ('<g transform="translate(-148 42)"><path d="M-18,0 L-21,-17 H21 L18,0 Z" fill="#d8b48a"/><path d="M-20,-9 H20" stroke="#b5804a" stroke-width="1.2"/>'
+             '<path d="M-15,-17 Q0,-38 15,-17" stroke="#a8764f" stroke-width="2.6" fill="none"/></g>')
+    bogyok = ""
+    for n in range(9):
+        x = TAL[n % 3] + (-7, 7, 0)[n // 3]; y = 37 - (0, 0, 7)[n // 3]
+        t = .06 + n * .085
+        bogyok += '<g opacity="0">%s<animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;%s;.84" dur="%ss" repeatCount="indefinite"/></g>' % (bogyo(x, y), f3(t), D)
+    kupac = '<g opacity="0">%s<animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;.86;.98" dur="%ss" repeatCount="indefinite"/></g>' % (
+        "".join(bogyo(-148 + dx, 24 + dy) for dx, dy in ((-10, 0), (-2, 0), (6, 0), (12, 0), (-6, -6), (2, -6), (9, -6), (-2, -11), (5, -11))), D)
+    # Kitti a soron következő tál fölé hajol
+    hol = [TAL[n % 3] - TAL[1] for n in range(9)] + [-56]
+    tr = diszkret(["%s,0" % f(x * .5) for x in hol], [0] + [.06 + n * .085 - .03 for n in range(1, 9)] + [.84], D, None, "translate")
+    kitti = '<g>%s%s</g>' % (leleg(figura("kitti", -64, 24, .42), 1, 2.2), tr)
+    h["L"] = kitti + fok(tal + kosar, 1.4) + bogyok + kupac
+    h["ext"] = (-178, h["ext"][1], h["ext"][2], 58)
+    h["defs"] = ""
+    return h
+
+def d_hold():
+    """🌙 a Holdfény-ház (holdfeny-bujocska): kék fal, lila tető, hold-cégér; a lámpásfüzér előtt egy kis felhő úszik, mindig egy
+    lámpást takar el; a ház előtti felhő-bokor mögül Cincin kukucskál ki"""
+    h = ferde_haz({"w": 140, "hB": 150, "hJ": 142, "tH": 82, "cs": 10, "eB": 12, "eJ": 14, "dol": 2.4, "fal": "#d3e4f7", "teto": LILA, "tetoA": LILA_A,
+                   "ablak": [(-50, -124, 26, 28), (22, -128, 26, 28)], "ajto": (-6, 30, 58, "#7a6aa8"), "kemeny": (30, 12, 20), "spaletta": "#f2c14e"})
+    h["K"] += ('<g transform="rotate(2.4)"><g filter="url(#firka)" stroke="%s" stroke-width="1.6"><path d="M70,-112 H98 M78,-112 L70,-100" stroke="#6e5a4a" stroke-width="3" fill="none"/>'
+               '<path d="M94,-112 V-104" stroke-width="1.2"/><path d="M100,-104 A14 14 0 1 0 100,-76 A10 11 0 1 1 100,-104 Z" fill="#fce49a"/></g></g>') % INK
+    # a lámpásfüzér: a ház bal ereszétől egy oszlopig
+    a, c, b = (-156, -126), (-120, -92), (-78, -150)
+    lp = [qpont(a, c, b, t) for t in (.1, .28, .46, .64, .82)]
+    fuz = ('<path d="M-156,4 V-132" stroke="#8a5a3a" stroke-width="5"/><path d="M-162,-132 h12" stroke="#6e5a4a" stroke-width="3"/>'
+           '<path d="M%s,%s Q%s,%s %s,%s" stroke="#6e5a4a" stroke-width="1.4" fill="none"/>') % (f(a[0]), f(a[1]), f(c[0]), f(c[1]), f(b[0]), f(b[1]))
+    lamp = "".join('<path d="M%s,%s v5" stroke-width="1"/><path d="M%s,%s h10 l-1,12 h-8 z" fill="#fff1a8"/><path d="M%s,%s h12" stroke-width="1.6"/>' % (
+        f(x), f(y), f(x - 5), f(y + 5), f(x - 6), f(y + 5)) for x, y in lp)
+    feny = "".join('<circle cx="%s" cy="%s" r="9" fill="#fff3b0" opacity=".45" stroke="none"/>' % (f(x), f(y + 11)) for x, y in lp)
+    # a kis felhő: lámpásról lámpásra úszik, mindig egyet eltakar
+    sor = (2, 0, 3, 1, 4)
+    vals, kt = [], []
+    for i, j in enumerate(sor):
+        x, y = lp[j]
+        for t in (i / 5 + .04, (i + 1) / 5 - .02):
+            vals.append("%s,%s" % (f(x), f(y + 10))); kt.append(t)
+    vals = [vals[-1]] + vals + [vals[-1]]; kt = [0] + kt + [1]
+    rr = Rnd(631)
+    felho_ = ('<g><path d="%s" fill="#fff" stroke="#b8b0d0" stroke-width="1.4"/><animateTransform attributeName="transform" type="translate" values="%s" keyTimes="%s" dur="10s" repeatCount="indefinite"/></g>') % (
+        pamacs(0, 0, 15, 11, 7, rr), ";".join(vals), ";".join(f3(t) for t in kt))
+    # a felhő-bokor, mögüle Cincin kukucskál
+    bokr = '<path d="%s" fill="#d9ecd6"/><path d="%s" fill="#fff" opacity=".4" stroke="none"/>' % (pamacs(96, -16, 34, 20, 9, rr), pamacs(88, -24, 14, 7, 6, rr, 1.2))
+    cin = ('<g><g transform="translate(96 0)">' + figura("cincin", 0, 0, .36) + '</g>'
+           '<animateTransform attributeName="transform" type="translate" values="0,34;0,34;0,-6;0,-6;0,34" keyTimes="0;.4;.5;.8;.9" dur="6.8s" repeatCount="indefinite"/></g>')
+    h["L"] = fok(fuz + lamp, 1.2) + feny + felho_ + cin + fok(bokr, 1.6)
+    h["ext"] = (-176, h["ext"][1], 136, 30)
+    h["defs"] = ""
+    return h
+
+def repa(k=1.0):
+    return ('<g transform="scale(%s)"><path d="M-3,-2 Q0,14 1,16 Q3,10 4,-2 Z" fill="#f08a3a" stroke="#b8602a" stroke-width="1"/>'
+            '<path d="M0,-2 l-4,-8 M1,-2 l1,-9 M2,-2 l5,-7" stroke="#6fae5a" stroke-width="1.8" stroke-linecap="round"/></g>') % k
+
+def d_kamra():
+    """🧺 a répás kamra (mi-maradt): sárga, toldott ház, lila tető; Pali répát oszt három tányérra, körbe, egyesével —
+    a végén egy répa a kezében marad: azt megrágcsálja"""
+    h = ferde_haz({"w": 160, "hB": 112, "hJ": 122, "tH": 64, "cs": -22, "eB": 10, "eJ": 26, "dol": -2.2, "fal": "#fde39a", "teto": LILA, "tetoA": LILA_A,
+                   "ablak": [(-60, -92, 28, 28), (24, -96, 28, 28)], "ajto": (-8, 30, 56, "#a8764f"), "kemeny": (28, 14, 18), "toldas": (80, 134, 70), "spaletta": "#a8c88f"})
+    h["K"] += '<g transform="rotate(-2.2)"><path d="M-74,-112 h40" stroke="#6e5a4a" stroke-width="2"/>%s</g>' % "".join(
+        '<g transform="translate(%s -110) rotate(%s)">%s</g>' % (f(-68 + i * 10), (-8, 4, -2, 6)[i], repa(1.2)) for i in range(4))
+    TAN = (-156, -116, -76)
+    D = 9
+    tany = "".join('<g transform="translate(%s 30)"><ellipse rx="16" ry="5.4" fill="#fff" stroke="#7f9ed6" stroke-width="2"/><ellipse rx="9" ry="2.8" fill="none" stroke="#c8d8f0" stroke-width="1"/></g>' % f(x) for x in TAN)
+    kez = (-182, -40)
+    rk_ = ""
+    for n in range(6):
+        x, y = TAN[n % 3] + (-4, 5)[n // 3], 26 - (0, 3)[n // 3]
+        t = .05 + n * .11
+        rk_ += ('<g opacity="0"><g transform="rotate(-70)">%s</g><animateMotion path="M%s,%s Q%s,%s %s,%s" keyPoints="0;0;1;1" keyTimes="0;%s;%s;1" calcMode="linear" dur="%ss" repeatCount="indefinite"/>'
+                '<animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;%s;.9" dur="%ss" repeatCount="indefinite"/></g>') % (
+            repa(), f(kez[0]), f(kez[1]), f((kez[0] + x) / 2), f(kez[1] - 40), f(x), f(y), f3(t), f3(t + .05), D, f3(t), D)
+    # a hetedik: a kezében marad, megrágcsálja (kisebbedik)
+    rag = ('<g opacity="0"><g transform="translate(%s %s) rotate(-20)"><g>%s<animateTransform attributeName="transform" type="scale" values="1;1;.75;.5;.25;.25" keyTimes="0;.72;.78;.84;.9;1" dur="%ss" repeatCount="indefinite"/></g></g>'
+           '<animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;.7;.92" dur="%ss" repeatCount="indefinite"/></g>') % (f(kez[0]), f(kez[1]), repa(1.1), D, D)
+    pali = leleg(figura("pali", -200, 8, .48), 1.2, 2.4)
+    h["L"] = pali + fok(tany, 1.4) + rk_ + rag
+    h["ext"] = (-236, h["ext"][1], h["ext"][2], 44)
+    h["defs"] = ""
+    return h
+
+def d_harangjatek():
+    """🔔 a harangjátékos ház (vegyes-szorzo): rózsaszín fal, lila tető, tornác csengősorral; Bogyó a korláton ugrál, mindig egyforma
+    nagyot (három csengőnyit) előre, aztán vissza — ahol földet ér, ott megszólal a csengő"""
+    h = ferde_haz({"w": 164, "hB": 138, "hJ": 128, "tH": 76, "cs": 12, "eB": 12, "eJ": 12, "dol": 1.8, "fal": "#f9d6e2", "teto": LILA, "tetoA": LILA_A,
+                   "ablak": [(-62, -118, 28, 28), (32, -114, 28, 28)], "ajto": (-6, 30, 58, "#b07a9a"), "kemeny": (-42, 12, 20), "spaletta": "#9ec9f0", "ladak": 2})
+    D = 6
+    CX = [-84 + i * 28 for i in range(7)]
+    kor = ('<path d="M-96,14 H96 V20 H-96 Z" fill="#d6b48a"/>' + "".join('<path d="M%s,18 V-34" stroke="#a07a54" stroke-width="4.4" stroke-linecap="round"/>' % f(x) for x in (-94, -42, 42, 94)) +
+           '<path d="M-98,-38 H98 V-31 H-98 Z" fill="#c99a6a"/><path d="M-94,-8 H94" stroke="#a07a54" stroke-width="2.4"/>')
+    leng = {0: [0, .95], 3: [.2, .7], 6: [.45]}
+    cs = ""
+    for i, x in enumerate(CX):
+        b = '<g transform="translate(%s -31)">%s</g>' % (f(x), harang_d(5.6, "#f2c14e" if i % 3 == 0 else "#f6dc8a"))
+        cs += leng_ki(b, x, -31, 22, D, leng[i], .16) if i in leng else b
+    # Bogyó: 0 → 3 → 6 → 3 → 0 (egyforma ugrások)
+    p = [(CX[i], -38) for i in (0, 3, 6, 3, 0)]
+    d = "M%s,%s" % (f(p[0][0]), f(p[0][1])) + "".join(" Q%s,%s %s,%s" % (f((p[i][0] + p[i + 1][0]) / 2), f(-96), f(p[i + 1][0]), f(p[i + 1][1])) for i in range(4))
+    bog = ('<g><g>%s</g><animateMotion path="%s" keyPoints="0;.25;.25;.5;.5;.75;.75;1;1" keyTimes="0;.18;.25;.43;.5;.68;.75;.93;1" calcMode="linear" dur="%ss" repeatCount="indefinite"/></g>') % (
+        figura("bogyo", 0, 2, .32), d, D)
+    jegy = "".join(fel_szall(hangjegy("#c96a9a"), CX[i], -10, 8, -60, D, t * D) for i, t in ((3, .2), (6, .45), (3, .7), (0, .95)))
+    h["L"] = fok(kor, 1.4) + cs + bog + jegy
+    h["ext"] = (-110, h["ext"][1] - 10, 110, 34)
+    h["defs"] = ""
+    return h
+
+
+# ── díszlet-fájlok: a madarak a harangláb tetején, a szélcsengő a fán ──
+def d_madarak():
+    x, y = D_HARANG
+    def m(dx, dy, tuk, b):
+        return ('<g><g transform="translate(%s %s) scale(%s,1)"><path d="M-9,0 Q0,-12 9,-3 L16,-6 L10,1 Q0,9 -9,0 Z" fill="#6a5f8a"/><circle cx="7" cy="-6" r="3.8" fill="#6a5f8a"/>'
+                '<path d="M11,-6 l4,1 l-4,1 z" fill="#f2a03a"/><circle cx="8" cy="-7" r="1" fill="#fff"/></g>'
+                '<animateTransform attributeName="transform" type="translate" values="0,0;0,0;0,-7;0,0;0,0" keyTimes="0;.6;.66;.72;1" dur="4.6s" begin="%ss" repeatCount="indefinite"/></g>') % (
+            f(x + dx), f(y + dy), "-1" if tuk else "1", b)
+    s = m(-30, -364, False, 0) + m(28, -366, True, 1.7)
+    return s, (x - 52, y - 392, 104, 36)
+
+def d_szelcsengo():
+    x, y = D_CSENGO
+    cs = ('<path d="M0,0 V14" stroke="#6e5a4a" stroke-width="1.4"/><ellipse cx="0" cy="16" rx="15" ry="4.4" fill="#c99a6a" stroke="%s" stroke-width="1.4"/>' % INK +
+          "".join('<path d="M%s,18 V%s" stroke="#8a7a9a" stroke-width="1"/><rect x="%s" y="%s" width="4.4" height="%s" rx="2" fill="%s" stroke="%s" stroke-width="1"/>' % (
+              f(dx), f(24), f(dx - 2.2), f(24), f(L), c, INK) for dx, L, c in ((-11, 26, "#d9d2ec"), (-5, 34, "#f2dc9a"), (1, 40, "#d9d2ec"), (7, 32, "#f2dc9a"), (12, 24, "#d9d2ec"))) +
+          '<path d="M0,18 V58" stroke="#8a7a9a" stroke-width="1"/><circle cx="0" cy="50" r="3.4" fill="#c99a6a" stroke="%s" stroke-width="1"/><path d="M0,58 q-7,8 0,18 q7,-10 0,-18 Z" fill="#f6a5c0" stroke="%s" stroke-width="1"/>' % (INK, INK))
+    s = '<g transform="translate(%s %s)">%s</g>' % (f(x), f(y), lengo(cs, 0, 0, 5, 3.4))
+    return s, (x - 24, y - 6, 48, 86)
+
+
+def dallam_ter():
+    M = "dallam-ter"
+    r = Rnd(906)
+    tcx, tcy, trx, try_ = D_TER
+    def tereben(x, y, plusz=0):
+        return ((x - tcx) / (trx + plusz)) ** 2 + ((y - tcy) / (try_ + plusz)) ** 2 < 1
+    bq = ivpontok(D_BEJ, 10)
+    HELYEK_ = [(D_KEREK, 260, 40), (D_HOLD, 190, 30), (D_KAMRA, 260, 40), (D_HJ, 130, 40), (D_KUT, 190, 40), (D_PODIUM, 70, 20), (D_FA, 60, 20)]
+    def foglalt(x, y):
+        return (tereben(x, y, 14) or tav_vonal(bq, x, y) < 44 or
+                any(abs(x - hx) < rx and hy - 70 < y < hy + ry for (hx, hy), rx, ry in HELYEK_))
+
+    # ég
+    eg = ('<rect x="%d" y="%d" width="%d" height="%d" fill="url(#eg)"/>'
+          '<circle cx="170" cy="80" r="300" fill="url(#napfeny)"/><circle cx="170" cy="80" r="42" fill="#fff6cf"/>') % (BX0, BY0, BX1 - BX0, BY1 - BY0)
+    eg += '<g opacity=".6">' + felho(560, 50, 1.3, .8) + felho(1180, 20, 1.5, .7) + felho(1840, 60, 1.2, .8) + felho(-280, 40, 1.2, .7) + '</g>'
+    irj(M, "eg", KIFESTVE, '<linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cde6f6"/><stop offset=".55" stop-color="#f3eee2"/><stop offset="1" stop-color="#fdf1e2"/></linearGradient>'
+        '<radialGradient id="napfeny"><stop offset="0" stop-color="#fff8d8" stop-opacity=".95"/><stop offset="1" stop-color="#fff8d8" stop-opacity="0"/></radialGradient>', eg)
+
+    # távoli: a hegység (a Fejtörő-hegy, a Doromboló-hegy), balra hátul a dombocskán az Összeadó utca nagy háza
+    tav = ('<g filter="url(#firka)"><path d="M-560,360 L-300,230 L-120,300 L120,150 L340,290 L560,180 L760,280 L980,120 L1180,260 L1360,170 L1560,290 L1800,200 L2170,320 L2170,430 L-560,430 Z" fill="#ddd6ee" stroke="#bdb2d8" stroke-width="2"/>'
+           '<path d="M94,172 L120,150 L148,176 L132,172 L120,182 L108,172 Z M954,144 L980,120 L1008,146 L992,142 L980,152 L968,142 Z M1338,188 L1360,170 L1382,190 L1368,186 L1360,196 Z" fill="#fff"/>'
+           '<path d="M-560,420 Q-300,330 -40,360 Q200,380 420,350 L620,392 V440 H-560 Z" fill="#e2dcf0" stroke="#c4bade" stroke-width="2"/>'
+           '<path d="M-200,410 Q40,300 300,320 Q440,334 520,410 Z" fill="#c9e8b4" stroke="#a7cf92" stroke-width="2"/></g>')
+    # az Összeadó utca nagy háza a dombocskán (kicsiben)
+    tav += ('<g transform="translate(150 330)" opacity=".9" filter="url(#firka)" stroke="#8a7a9a" stroke-width="1.6"><path d="M-30,0 V-36 L32,-40 V0 Z" fill="#f6d6c4"/>'
+            '<path d="M-36,-34 L2,-66 L38,-38 Z" fill="#9a5a3a"/><rect x="14" y="-62" width="8" height="12" fill="#c98f6e"/><circle cx="2" cy="-46" r="5" fill="#e9f4fb"/>'
+            '<rect x="-20" y="-28" width="9" height="9" fill="#e9f4fb"/><rect x="12" y="-28" width="9" height="9" fill="#e9f4fb"/><path d="M-2,0 V-14 H6 V0" fill="#8a5a3a"/></g>')
+    tav += fust(164, 262, 2, 5, 30)
+    tav += '<g filter="url(#firka)">'
+    for x, y, h in ((380, 410, 80), (430, 416, 66), (640, 412, 74), (1240, 404, 86), (1300, 410, 72), (1700, 410, 90), (1780, 404, 76), (-260, 416, 80), (2040, 412, 86)):
+        tav += fenyo(x, y, h, ["#8fb89a", "#7fae8c", "#9cc4a2"][int(r() * 3)])
+    for x, y, rr in ((560, 420, 26), (760, 418, 24), (900, 420, 28), (1040, 418, 26), (1460, 414, 26), (1900, 424, 30), (-400, 420, 30), (2110, 420, 30)):
+        tav += lomb(x, y, rr, ["#9cc79a", "#8fbf8f", "#a7cfa2"][int(r() * 3)])
+    tav += '</g>'
+    irj(M, "tavoli", KIFESTVE, FIRKA, tav)
+
+    # közép: a rét, a bejárati út, a kerek tér macskakővel, a harangláb körüli világosabb kör, a fa (a szélcsengő ága), az üres pódium,
+    # lámpák, bokrok, virág, fű
+    koz = ('<rect x="%d" y="400" width="%d" height="%d" fill="url(#ret)"/>' % (BX0, BX1 - BX0, BY1 - 400) +
+           '<path d="M%d,414 Q400,394 800,408 T%d,414 V470 H%d Z" fill="#c4e4b4"/>' % (BX0, BX1, BX0))
+    koz += '<g filter="url(#firka)">'
+    for x, y, rr in ((520, 470, 28), (700, 452, 24), (920, 450, 26), (1240, 470, 30), (1660, 500, 34), (1860, 480, 32), (2060, 520, 38), (-140, 500, 34), (-400, 520, 36), (340, 460, 26)):
+        koz += lomb(x, y, rr, ["#8fc98a", "#9fd19a", "#7fbf86", "#a7d99a"][int(r() * 4)])
+    koz += '</g>'
+    koz += ut(D_BEJ, 92)
+    koz += ('<ellipse cx="%d" cy="%d" rx="%d" ry="%d" fill="#d9c79c"/><ellipse cx="%d" cy="%d" rx="%d" ry="%d" fill="#efe0c4"/>' % (tcx, tcy, trx + 8, try_ + 6, tcx, tcy, trx, try_))
+    for _ in range(170):
+        x = tcx + (r() - .5) * 2 * trx; y = tcy + (r() - .5) * 2 * try_
+        if tereben(x, y, -10):
+            koz += '<ellipse cx="%s" cy="%s" rx="%s" ry="%s" fill="#e2cfaa" opacity=".9"/>' % (f(x), f(y), f(7 + r() * 6), f(2.6 + r() * 2))
+    koz += '<ellipse cx="%d" cy="%d" rx="170" ry="54" fill="none" stroke="#e2cfaa" stroke-width="10" opacity=".7"/>' % (D_TALAP[0], D_TALAP[1] + 20)
+    koz += '<ellipse cx="%d" cy="%d" rx="300" ry="100" fill="none" stroke="#e2cfaa" stroke-width="6" opacity=".5" stroke-dasharray="18 14"/>' % (tcx, tcy)
+    # a fa, jobbra nyúló ággal (rajta lóg a szélcsengő)
+    fx, fy = D_FA
+    koz += fok(('<path d="M%s,%s Q%s,%s %s,%s L%s,%s Q%s,%s %s,%s Z" fill="url(#kereg)"/>' % (f(fx - 18), f(fy), f(fx - 10), f(fy - 90), f(fx - 16), f(fy - 170), f(fx + 14), f(fy - 170), f(fx + 8), f(fy - 90), f(fx + 18), f(fy))) +
+               '<path d="M%s,%s Q%s,%s %s,%s" stroke="%s" stroke-width="13" fill="none" stroke-linecap="round"/><path d="M%s,%s Q%s,%s %s,%s" stroke="#8a5e40" stroke-width="8" fill="none" stroke-linecap="round"/>' % (
+                   f(fx + 6), f(fy - 130), f(fx + 70), f(fy - 160), f(D_CSENGO[0] + 18), f(D_CSENGO[1] - 6), INK, f(fx + 6), f(fy - 130), f(fx + 70), f(fy - 160), f(D_CSENGO[0] + 18), f(D_CSENGO[1] - 6)), 2.2)
+    for cx_, cy_, rx_, ry_, c in ((fx - 30, fy - 210, 90, 64, "#94c983"), (fx + 40, fy - 236, 80, 56, "#8cc47f"), (fx, fy - 270, 76, 48, "#9ccf8c")):
+        koz += '<g filter="url(#firka)"><path d="%s" fill="%s" stroke="%s" stroke-width="2.2"/></g>' % (pamacs(cx_, cy_, rx_, ry_, 9, r), c, INK)
+    koz += '<path d="%s" fill="#fff" opacity=".25" stroke="none"/>' % pamacs(fx - 40, fy - 270, 40, 20, 7, r, 1.2)
+    # az üres pódium a kottatartóval
+    px, py = D_PODIUM
+    koz += arnyek(px + 4, py + 4, 58, 9) + fok(
+        '<path d="M%s,%s V%s A54 15 0 0 0 %s %s V%s A54 15 0 0 1 %s %s Z" fill="#c99a6a"/><ellipse cx="%s" cy="%s" rx="54" ry="15" fill="#e2c49a"/>' % (
+            f(px - 54), f(py), f(py - 16), f(px + 54), f(py - 16), f(py), f(px - 54), f(py), f(px), f(py - 16)) +
+        '<path d="M%s,%s A54 15 0 0 0 %s %s" stroke="#f2c14e" stroke-width="3" fill="none"/>' % (f(px - 50), f(py - 10), f(px + 50), f(py - 10)) +
+        '<path d="M%s,%s V%s M%s,%s l-10,8 M%s,%s l10,8" stroke="#6e5a4a" stroke-width="2.6"/><path d="M%s,%s l26,-4 l2,-20 l-26,4 z" fill="#fffaf0"/>' % (
+            f(px + 8), f(py - 18), f(py - 64), f(px + 8), f(py - 18), f(px + 8), f(py - 18), f(px - 6), f(py - 62)) +
+        '<path d="M%s,%s h18 M%s,%s h18 M%s,%s h14" stroke="#b8b0d0" stroke-width="1"/>' % (f(px - 3), f(py - 72), f(px - 3), f(py - 68), f(px - 3), f(py - 64)), 1.8)
+    # lámpák a tér szélén
+    for lx_, ly_ in ((470, 800), (360, 640)):
+        koz += fok('<path d="M%s,%s V%s" stroke="#6e5a4a" stroke-width="4"/><path d="M%s,%s h18 l-3,-16 h-12 z" fill="#fff3c4"/><path d="M%s,%s h22 l-11,-9 z" fill="%s"/>' % (
+            f(lx_), f(ly_), f(ly_ - 74), f(lx_ - 9), f(ly_ - 74), f(lx_ - 11), f(ly_ - 90), LILA), 1.6)
+    koz += '<g filter="url(#firka)" stroke="%s" stroke-width="2">' % INK
+    for x, y, s in ((40, 760, 1.2), (460, 560, .9), (720, 520, .8), (880, 510, .8), (1600, 560, 1.1), (1540, 820, 1.2), (-220, 760, 1.3), (1880, 760, 1.3), (1980, 600, 1.1), (-420, 640, 1.2), (1400, 900, 1.1), (840, 930, 1.0)):
+        if not foglalt(x, y):
+            koz += bokor(x, y, s)
+    koz += '</g>'
+    koz += fucsomok(r, 420, BX0, BX1, 440, BY1, kihagy=foglalt)
+    koz += viragok(r, 150, BX0, BX1, 450, BY1, kihagy=foglalt)
+    irj(M, "kozep", KIFESTVE, FIRKA + '<linearGradient id="ret" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4ecc4"/><stop offset="1" stop-color="#b9dc9c"/></linearGradient>'
+        '<linearGradient id="kereg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b48460"/><stop offset="1" stop-color="#8a5e40"/></linearGradient>', koz)
+
+    # előtér: fű és bokor lent (a bal alsó bejárat szabad), fent a sarkokban lelógó lomb
+    elo = '<g filter="url(#firka)" stroke="%s" stroke-width="2" fill="#a9d79a">' % INK
+    elo += '<path d="M560,%d Q600,948 680,940 Q780,926 880,938 Q960,946 1000,%d Z"/>' % (BY1 + 10, BY1 + 10)
+    elo += '<path d="M1260,%d Q1300,944 1400,936 Q1600,906 1900,926 Q2050,910 %d,918 L%d,%d Z"/></g>' % (BY1 + 10, BX1 + 10, BX1 + 10, BY1 + 10)
+    elo += '<g filter="url(#firka)" stroke="%s" stroke-width="2">' % INK + bokor(1500, 966, 1.6) + bokor(1740, 952, 1.5, "#7fbf86", "#9fd19a") + bokor(780, 968, 1.2) + '</g>'
+    re_ = Rnd(94)
+    for cx_, cy_, k in ((-440, -110, 1), (-240, -120, .9), (-60, -116, .7), (2080, -110, 1), (1900, -120, .8), (1700, -130, .6)):
+        elo += '<g filter="url(#firka)"><path d="%s" fill="%s" stroke="%s" stroke-width="2"/><path d="%s" fill="#fff" opacity=".18" stroke="none"/></g>' % (
+            pamacs(cx_, cy_, 170 * k, 110 * k, 10, re_), ["#7fbf7a", "#86c47c", "#76b672"][int(re_() * 3)], INK, pamacs(cx_ - 30 * k, cy_ - 20 * k, 70 * k, 40 * k, 7, re_, 1.2))
+    elo += fucsomok(Rnd(99), 120, 600, BX1, 922, 962, c="#7fae6a", kihagy=lambda x, y: x < 640)
+    irj(M, "eloter", KIFESTVE, FIRKA, elo)
+
+    # mozgó: felhők, lepkék; fölül madárcsapat (a leszálló madár: MADAR, ULO)
+    also = ('<g id="also" pointer-events="none">\n<g>' + uszo_felho(420, 30, 1.0, 80, 120) + uszo_felho(1500, 60, 1.2, -70, 150) + uszo_felho(-240, 70, 1.1, 60, 130) + "</g>\n" +
+            lepke(560, 860, "#f6a5c0", 14, "0,0;80,-40;160,10;60,30;0,0") + lepke(1520, 700, "#fce49a", 16, "0,0;-70,-20;-110,20;-30,30;0,0") + lepke(200, 700, "#c9a8e6", 13, "0,0;60,-24;100,6;30,20;0,0") + "\n</g>\n")
+    felso = '<g id="felso" pointer-events="none">\n' + csapat(-140, 140, 1, 1900, 52) + "\n</g>"
+    irj(M, "mozgo", KIFESTVE, "".join([MADAR, ULO]), also + felso, elotag="vm-")
+
+    dob = {}
+    for nev, fn in (("madarak", d_madarak), ("szelcsengo", d_szelcsengo)):
+        s, vb = fn()
+        irj(M, nev, vb, FIRKA, s)
+        dob[nev] = vb
+    for nev, fn, alap, sd in (("kerekhaz", d_kerek, D_KEREK, 61), ("holdfeny", d_hold, D_HOLD, 62), ("kamra", d_kamra, D_KAMRA, 63), ("harangjatek", d_harangjatek, D_HJ, 64)):
+        dob[nev] = haz_fajlok(M, nev, alap, fn(), sd)
+    alapr, bere, virag, lako = d_harang()
+    dob["harang"] = hely3_fajlok(M, "harang", D_HARANG, (-150, -470, 120, 34), "", alapr, bere, virag, lako, 65)
+    alapr, bere, virag, lako = d_kut()
+    dob["kut"] = hely3_fajlok(M, "kut", D_KUT, (-64, -176, 200, 40), "", alapr, bere, virag, lako, 66)
+    return dob
+
+
+def dallam_tabla():
+    """a helyek.js HELYEK["dallam-ter"] pontjai, útjai, járható részei és gátja (arányban)"""
+    import math
+    R = lambda p: "[%.3f, %.3f]" % (p[0] / W, p[1] / H)
+    cx, cy, rx, ry = D_TER
+    print("  jarhato (tér): [%s]" % ", ".join(R((cx + math.cos(a / 28 * 2 * math.pi) * (rx - 8), cy + math.sin(a / 28 * 2 * math.pi) * (ry - 6))) for a in range(28)))
+    q = ivpontok(D_BEJ, 3)
+    bal, jobb = [], []
+    for i in range(len(q)):
+        a = q[min(i + 1, len(q) - 1)]; b = q[max(i - 1, 0)]
+        dx, dy = a[0] - b[0], a[1] - b[1]; L = (dx * dx + dy * dy) ** .5 or 1
+        nx, ny = -dy / L, dx / L
+        bal.append((q[i][0] + nx * 44, q[i][1] + ny * 44)); jobb.append((q[i][0] - nx * 44, q[i][1] - ny * 44))
+    print("  jarhato (bejárat): [%s]" % ", ".join(R(p) for p in bal + jobb[::-1]))
+    tx, ty, trx, tryy = D_TALAP
+    print("  gat (talapzat): [%s]" % ", ".join(R((tx + math.cos(a / 14 * 2 * math.pi) * trx, ty + 6 + math.sin(a / 14 * 2 * math.pi) * tryy)) for a in range(15)))
+
+
+
+# ══════════════════ A DALLAM-TÉR TÁJ-KÉPE (a világtérképen) ══════════════════
+# A tér kicsinyített mása, eleve akkora, mint a régi jel (nem kell utólag nagyítani): középen a magas, áttört harangláb (a tájon az
+# egyetlen ilyen), a lábánál a négy ház lila teteje, elöl a kút. A harang leng, a két madár a tetején ül (a leszálló madár is ide száll).
+TAJ_DALLAM_DOBOZ = (1296, 458, 170, 204)
+def taj_dallam_ter():
+    r = Rnd(341)
+    def haz(w, h, tH, cs, fal, teto, dol, ablak=1, kupola=False):
+        if kupola:
+            tet = '<path d="M%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Z" fill="%s"/><circle cx="%s" cy="%s" r="1.3" fill="#f2c14e" stroke-width=".5"/>' % (
+                f(-w / 2 - 1.5), f(-h + 1), f(-w / 2), f(-h - tH), f(cs), f(-h - tH), f(w / 2), f(-h - tH), f(w / 2 + 1.5), f(-h + 1), teto, f(cs), f(-h - tH - 1.6))
+        else:
+            tet = '<path d="M%s,%s L%s,%s L%s,%s Z" fill="%s"/>' % (f(-w / 2 - 2), f(-h + 1), f(cs), f(-h - tH), f(w / 2 + 2), f(-h + 1), teto)
+        s = ('<g transform="rotate(%s)"><path d="M%s,0 V%s H%s V0 Z" fill="%s"/>%s<path d="M-1.6,0 V-4 Q0,-6 1.6,-4 V0 Z" fill="#a8764f" stroke-width=".7"/>') % (
+            dol, f(-w / 2), f(-h), f(w / 2), fal, tet)
+        for i in range(ablak):
+            x = -w / 2 + 2 + i * (w - 7) / max(1, ablak - 1) if ablak > 1 else -w / 2 + 2
+            s += ('<circle cx="%s" cy="%s" r="1.7" fill="#e9f4fb" stroke-width=".6"/>' if kupola else '<rect x="%s" y="%s" width="3.2" height="3" fill="#e9f4fb" stroke-width=".6"/>') % (
+                (f(x + 2), f(-h * .6)) if kupola else (f(x), f(-h * .7)))
+        return s + '</g>'
+    kerek = haz(20, 14, 11, 0, "#fdf3e2", LILA, -2, 2, True)
+    hold = haz(18, 18, 9, 1, "#d3e4f7", LILA, 2.4, 1) + '<path d="M12,-15 A3.4 3.4 0 1 0 12,-8 A2.4 2.6 0 1 1 12,-15 Z" fill="#fce49a" stroke-width=".5"/>'
+    kamra = haz(22, 14, 8, -3, "#fde39a", LILA, -2, 2) + '<path d="M11,0 V-9 H17 V0 Z M10,-9 L17,-14 V-9 Z" fill="#fde39a" stroke-width=".7"/>'
+    hj = haz(22, 16, 9, 1, "#f9d6e2", LILA, 1.8, 2) + '<path d="M-12,1 H12 M-12,-4 H12" stroke="#a07a54" stroke-width=".8"/>' + "".join(
+        '<circle cx="%s" cy="-2.6" r="1" fill="#f2c14e" stroke="none"/>' % f(-10 + i * 4) for i in range(6))
+    kut = ('<ellipse cx="0" cy="0" rx="4" ry="1.4" fill="#e6dccb"/><path d="M-4,0 V-3 H4 V0" fill="#e6dccb"/><path d="M-3.4,-3 V-8 M3.4,-3 V-8" stroke="#8a5a3a" stroke-width=".8"/>'
+           '<path d="M-5.6,-7.6 Q0,-9 0,-12 Q0,-9 5.6,-7.6 Z" fill="%s"/>' % LILA)
+    fa_ = '<path d="M-1.6,0 V-9 H1.6 V0 Z" fill="#8a5e40"/><path d="%s" fill="#94c983"/>' % pamacs(0, -16, 9, 8, 7, r)
+    ter_ = '<ellipse cx="1381" cy="642" rx="70" ry="13" fill="#efe0c4" stroke="#d9c79c" stroke-width="1.2"/><path d="M1300,662 Q1316,652 1330,648" stroke="#efe0c4" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    hl = ('<ellipse cx="1381" cy="640" rx="16" ry="4.4" fill="#e6dccb"/>'
+          '<path d="M1369,639 L1373,540 M1393,639 L1389,540" stroke="#b5855a" stroke-width="3"/><path d="M1370,610 L1392,576 M1392,610 L1370,576 M1370,610 H1392 M1371,576 H1391" stroke="#b5855a" stroke-width="1.6"/>'
+          '<path d="M1368,540 H1394" stroke="#b5855a" stroke-width="3"/><path d="M1370,540 V516 M1392,540 V516 M1368,517 H1394" stroke="#b5855a" stroke-width="2"/>'
+          '<path d="M1360,517 Q1372,510 1381,488 Q1390,510 1402,517 Q1381,513 1360,517 Z" fill="%s"/><circle cx="1381" cy="484" r="2.6" fill="#f2c14e"/>' % LILA)
+    kis_h = '<g transform="translate(1373 519) scale(.22)">%s</g><g transform="translate(1390 519) scale(.26)">%s</g>' % (harang_d(12), harang_d(12))
+    nagy_h = lengo('<g transform="translate(1381 519) scale(.34)">%s</g>' % harang_d(15), 1381, 519, 12, 2.4)
+    madar = lambda x, y, tk, b: ('<g><g transform="translate(%s %s) scale(%s,.45)"><path d="M-9,0 Q0,-12 9,-3 L16,-6 L10,1 Q0,9 -9,0 Z" fill="#6a5f8a" stroke="none"/><circle cx="7" cy="-6" r="3.8" fill="#6a5f8a" stroke="none"/></g>'
+                                 '<animateTransform attributeName="transform" type="translate" values="0,0;0,0;0,-3;0,0;0,0" keyTimes="0;.6;.66;.72;1" dur="4.6s" begin="%ss" repeatCount="indefinite"/></g>') % (
+        f(x), f(y), "-.45" if tk else ".45", b)
+    g = lambda s: '<g filter="url(#firka)" stroke="%s" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">%s</g>' % (INK, s)
+    arny = arnyek(1381, 646, 76, 7, .08)
+    HAZAK = ((1322, 640, kerek, (1312, 616, 1332, 640)), (1347, 606, hold, (1338, 580, 1356, 606)), (1416, 606, kamra, (1405, 584, 1434, 606)), (1446, 644, hj, (1435, 619, 1457, 644)))
+    alap = (arny + ter_ + g(rk(1302, 624, fa_)) + g("".join(rk(x, y, s) for x, y, s, _ in HAZAK[:3])) + g(hl) + g(kis_h) + g(rk(HAZAK[3][0], HAZAK[3][1], HAZAK[3][2])) + g(rk(1398, 660, kut)))
+    elo = g(nagy_h) + madar(1372, 500, False, 0) + madar(1391, 498, True, 1.7) + fust(1414, 588, 2, 5, 12)
+    virag = (taj_viragsor(Rnd(87), 1310, 1340, 646, 5) + taj_viragsor(Rnd(88), 1426, 1462, 650, 5) + taj_viragsor(Rnd(89), 1362, 1402, 544, 6) +
+             taj_csillam(((1381, 474), (1322, 606), (1446, 612), (1416, 576))))
+    defs = FIRKA + SZURKE
+    vb = TAJ_DALLAM_DOBOZ
+    irj("vilag", "dallam-ter-kesz", vb, defs, alap + elo)
+    irj("vilag", "dallam-ter-viragos", vb, defs, alap + elo + virag)
+    irj("vilag", "dallam-ter-epul", vb, defs, '<g opacity=".5" filter="url(#szurke)">' + alap + '</g>' + "".join(taj_allv(rr) for _, _, _, rr in HAZAK) + taj_allv((1368, 500, 1394, 640)))
+    return {"dallam-ter (táj)": vb}
+
+
 if __name__ == "__main__":
     # py terv/kozelkep-export.py            → minden közelkép + a táj-képeik
-    # py terv/kozelkep-export.py erdoszel   → csak a megnevezett(ek) (ter, domboldal, kezmuvesek, erdoszel, osszeado-utca)
+    # py terv/kozelkep-export.py erdoszel   → csak a megnevezett(ek) (ter, domboldal, kezmuvesek, erdoszel, osszeado-utca, dallam-ter)
     CSAK = set(sys.argv[1:])
     kell = lambda n: not CSAK or n in CSAK
     print("kep.kifestve (helyek.js): [%d, %d, %d, %d]" % KIFESTVE)
-    TAJ = (("kezmuvesek", taj_kezmuvesek), ("ter", taj_ter), ("domboldal", taj_domboldal), ("erdoszel", taj_erdoszel), ("osszeado-utca", taj_osszeado_utca))
+    TAJ = (("kezmuvesek", taj_kezmuvesek), ("ter", taj_ter), ("domboldal", taj_domboldal), ("erdoszel", taj_erdoszel), ("osszeado-utca", taj_osszeado_utca), ("dallam-ter", taj_dallam_ter))
     for nev, fn in TAJ:
         if not kell(nev): continue
         vb = list(fn().values())[0]
         print("vilag/%s — doboz (HELYEK.vilag): [%.4f, %.4f, %.4f, %.4f]" % (nev, vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
-    for mappa, fn in (("ter", ter), ("domboldal", domboldal), ("kezmuvesek", kezmuvesek), ("erdoszel", erdoszel), ("osszeado-utca", osszeado_utca)):
+    for mappa, fn in (("ter", ter), ("domboldal", domboldal), ("kezmuvesek", kezmuvesek), ("erdoszel", erdoszel), ("osszeado-utca", osszeado_utca), ("dallam-ter", dallam_ter)):
         if not kell(mappa): continue
         dob = fn()
         print("\n%s — doboz (helyek.js):" % mappa)
@@ -2759,3 +3266,5 @@ if __name__ == "__main__":
         print("  %d fájl, %.0f KB; legnagyobb: %s" % (len(fs), tot / 1024, max((os.path.getsize(os.path.join(d, x)), x) for x in fs)))
         if mappa == "osszeado-utca":
             utca_tabla()
+        if mappa == "dallam-ter":
+            dallam_tabla()
