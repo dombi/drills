@@ -30,7 +30,7 @@ var HELY_ZOOM_MS = 600;
 /* ── segédek: arány → képpont, sokszög, legközelebbi pont ── */
 function helyPx(H, p) { return [p[0] * H.kep.w, p[1] * H.kep.h]; }
 function helyKeres(H, id) { for (var i = 0; i < H.helyek.length; i++) if (H.helyek[i].id === id) return H.helyek[i]; return null; }
-function helyNevOf(id) { return HELY_NEV[id] || (LIGET_NEV[id] || ["", id])[1]; }
+function helyNevOf(id) { return postaNev(id) || HELY_NEV[id] || (LIGET_NEV[id] || ["", id])[1]; }
 function helyBenne(poli, p) {   /* páros-páratlan szabály */
   var be = false;
   for (var i = 0, j = poli.length - 1; i < poli.length; j = i++) {
@@ -424,6 +424,7 @@ var HELY_HAZ_ALLAPOT = { 2: "epul", 3: "teto", 4: "ajto", 5: "kesz", 6: "viragos
 var HELY_HELY_ALLAPOT = { 2: "kopar", 3: "berendezett", 4: "berendezett", 5: "berendezett", 6: "viragos" };
 function helyKepAllapot(h, j, rejt) {
   if (h.cel.kod) return "kod";
+  if (h.posta) return postaAllapot(h);
   var harom = h.lepes === 3;
   if (rejt || (j && j.ny === "alszik")) return harom ? "kopar" : "epul";
   if (h.cel.palyak) return (harom ? HELY_HELY_ALLAPOT : HELY_HAZ_ALLAPOT)[Math.max.apply(null, h.cel.palyak.map(piacHazLepes))] || (harom ? "berendezett" : "kesz");
@@ -550,11 +551,11 @@ function helyRajzol(host, o) {
   host.classList.add("hely-host");
   var M = { H: H, tabla: o.tabla, host: host, jel: o.jel || {}, halo: { lathato: o.lathato || {} }, fut: null, all: null, vilag: true };
   M.N = helyHalo(H);
-  var sor = H.helyek.slice().sort(function (a, b) { return a.y - b.y; });
+  var sor = H.helyek.filter(function (hh) { return !hh.nincs; }).sort(function (a, b) { return a.y - b.y; });   /* nincs: a Postafa üres levél-helye */
   var helyek = sor.map(function (hh) {
     var j = M.jel[hh.id] || {}, rejt = !M.halo.lathato[hh.id], px = hh.x * w, py = hh.y * h;
     var bw = hh.w * w / k, bh = hh.h * h / k, kod = j.ny === "alszik" || rejt;
-    var fej = '<g class="terkep-hely' + (j.alszik ? " alszik" : "") + (kod ? " ny-kod" : "") + (rejt ? " rejtett" : "") + '" data-id="' + hh.id + '" role="button" tabindex="0" aria-label="' + htmlVed(helyNevOf(hh.id)) + '">';
+    var fej = '<g class="terkep-hely' + (hh.posta ? " hely-" + hh.posta : "") + (j.alszik ? " alszik" : "") + (kod ? " ny-kod" : "") + (rejt ? " rejtett" : "") + '" data-id="' + hh.id + '" role="button" tabindex="0" aria-label="' + htmlVed(helyNevOf(hh.id)) + '">';
     if (fajl) {   /* 2. kör: a hely képe fájlból, az állapota szerint; a koppintható téglalap a táblából */
       var all = helyKepAllapot(hh, j, rejt), hk = hh.rk || k;
       return fej + '<rect x="' + (px - hh.w * w / 2).toFixed(1) + '" y="' + (py - hh.h * h).toFixed(1) + '" width="' + (hh.w * w).toFixed(1) + '" height="' + (hh.h * h + 12).toFixed(1) + '" fill="transparent"/>' +
@@ -707,6 +708,7 @@ function helyPalyakban(lista, r) {
 }
 /* a pálya háza egy közelképben: { tabla, hely } — vagy null (a pálya nem közelkép-házban lakik) */
 function helyPalyaHol(paId, tabla) {
+  if (!tabla) postafaKioszt();
   var H = HELYEK[tabla || "vilag"];
   for (var i = 0; i < H.helyek.length; i++) {
     var c = H.helyek[i].cel;
@@ -732,6 +734,7 @@ function vilagHelyId(id) {
 }
 /* a helyek állapota (⭐, jelzések, köd, fény) — a régi renderLigetTerkep szabályai szerint, helyenként */
 function helyAllapot(H, L) {
+  postafaKioszt();
   var jel = {}, lathato = {}, minden = [];
   Object.keys(L.regiok).forEach(function (r) { minden = minden.concat(L.regiok[r]); });
   var elso = {};   /* liget → az első hely, amelyik viszi (az újonc-fény csak ott ég) */
@@ -773,6 +776,8 @@ function helyAllapot(H, L) {
     jel[h.id] = j;
   });
   if (H.sorrend) helySorrend(H, jel);
+  if (H === HELYEK.postafa) postaJelek(H, jel, lathato);
+  if (H === HELYEK.vilag && jel.postafa && jel.postafa.ny !== "alszik" && postaUjLevel()) jel.postafa.ny = "vil";   /* új levél jött: a Postafa világít */
   return { jel: jel, lathato: lathato };
 }
 /* 🔢 REJTETT SORREND (5. kör, 5. döntés A; a tábla sorrend: true-ja — Erdőszél, később az Összeadó utca): a közelképben mindig csak
@@ -786,7 +791,7 @@ function helySorrend(H, jel) {
     j.pas.forEach(function (pa) {
       var J = palyaJelek(pa); if (J.zarva || pa.hamarosan || (J.kesz && !J.vil)) return;
       /* 6. kör (Dallam-tér): ha az újonc-menet többet is kijelöl (a liget első pályája + a vers), a vers (felmondás) az első — az alap */
-      var k = [J.vil ? 0 : 1, J.vil && o && nyitasVersPalya(pa.id, o) ? 0 : 1, pa.szint || 99, i];
+      var k = [J.vil ? 0 : 1, J.vil && o && nyitasVersPalya(pa.id, o) ? 0 : 1, H.sorrend === "tabla" ? 0 : pa.szint || 99, i];   /* "tabla": a Postafa levelei a létrehozás sorrendjében */
       var kisebb = false;
       for (var x = 0; leg && x < k.length; x++) if (k[x] !== leg.k[x]) { kisebb = k[x] < leg.k[x]; break; }
       if (!leg || kisebb) leg = { id: h.id, k: k };
@@ -802,6 +807,7 @@ function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");
   racs.appendChild(host);
   var hol0 = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL : null;
+  postafaKioszt();
   if (hol0 && hol0.kozel && HELYEK[hol0.kozel]) { renderKozelkep(host, L, hol0.kozel, hol0.id, true, true); return; }   /* újrarajzolás (ablakméret) közben a közelképben marad */
   /* közelképből jött (pl. a Szabóműhelyből): a közelkép nyílik, ott áll az unikornis */
   var kozel = hol0 && !helyKeres(HELYEK.vilag, hol0.id) && hol0.id && helyRegiobol(hol0.id, "vilag");
@@ -882,7 +888,9 @@ function vilagKoppint(id) {
   hangGomb();
   var h = helyKeres(M.H, id), j = M.jel[id] || {}, nev = helyNevOf(id);
   helyNevTabla(M, nev);
+  if (id === "postafa" && !M.halo.lathato[id]) { mondd(POSTA_NINCS); helySetal(M, id); return; }   /* 7. kör: még egy levél sincs */
   if (!M.halo.lathato[id] || j.ny === "alszik") {   /* ködben alszik: odasétál, de nem lehet bemenni */
+    if (h.cel.kod) helyKoppant(M, id);   /* 7. kör: a Doromboló-hegy köde elvékonyodik, a tűz felvillan */
     mondd(h.cel.kod ? nev + ". Ez még ködben alszik." : NYITAS_MONDAT.alszik);
     helySetal(M, id); return;
   }
@@ -932,6 +940,7 @@ function kozelKoppint(id) {
   var h = helyKeres(M.H, id), j = M.jel[id] || {}, nev = helyNevOf(id);
   helyNevTabla(M, nev);
   if (!M.halo.lathato[id] || j.ny === "alszik") { mondd(h.cel.palyak ? NYITAS_MONDAT.palyaAlszik : NYITAS_MONDAT.alszik); helySetal(M, id); return; }
+  if (h.posta === "duc" && !h.cel.palyak.length) { mondd(POSTA_NINCS); helySetal(M, id); return; }   /* 7. kör: a galamb a dúcban ül */
   if (h.cel.palyak) { helyPalyaKoppint(M, h, j); return; }
   mondd(j.alszik ? zarvaMondat() : nev + "!");
   helySetal(M, id, function () {
@@ -946,14 +955,16 @@ function kozelKoppint(id) {
 function helyPalyaKoppint(M, h, j) {
   var pas = j.pas || [], nev = helyNevOf(h.id);
   if (!pas.length) return;
-  if (pas.length === 1) {
+  if (pas.length === 1 && h.posta !== "lada") {   /* a láda mindig tárgy-nézet (a levelek legyezőben) */
     var pa = pas[0], nem = palyaNemIndulMondat(pa, palyaJelek(pa));
     if (nem) { mondd(nem); helySetal(M, h.id); return; }
     mondd(nev + "!");
     helySetal(M, h.id, function () {
-      helyBelep(M, h.id, function () {
-        if (!$("kepernyo-fomenu").classList.contains("aktiv") || VILAG_M !== M) return;
-        palyaInditas(pa.id);
+      postaAtad(M, h, function () {   /* 7. kör: a levél lerepül / a galamb hozza — a többi helyen azonnal */
+        helyBelep(M, h.id, function () {
+          if (!$("kepernyo-fomenu").classList.contains("aktiv") || VILAG_M !== M) return;
+          palyaInditas(pa.id);
+        });
       });
     });
     return;
@@ -986,6 +997,115 @@ function helyTargyNezet(M, h, pas) {
     if (e.target.closest(".pc-valaszt-zar") || !e.target.closest(".pc-kartya")) { hangGomb(); helyTargyZar(M); }
   });
 }
+/* ═════ 📮 7. kör: a POSTAFA — változó számú bejárat (terv: Matekos\vilagkep-7-kor-postafa-kapuk-kod.html, ✅ 2026-11-26) ═════
+   A levél-helyeket minden megnyitáskor az egyeniPalyak() (config.js) listája tölti: a Neked szóló ösvény (pa.teny) a dúcé, a többi
+   (a pult egyéni pályái, létrehozás szerint) sorban a fára. Ha 6-nál több van: a legrégebbi virágos (arany) levél a ládába kerül,
+   amíg el nem fér; ha nincs virágos, a 7. várakozik. Elrejtett pálya levele nem lóg. A táj Postafája ugyanebből a listából számol
+   (HELYEK.vilag postafa .palyak). Üres levél-hely / üres láda: nincs (nem rajzolódik). */
+var POSTA_LEVEL_DB = 6;
+var POSTA_NINCS = "Ma még nem jött levél.";
+function postaViragos(pa) { var pr = (P().palyak || {})[pa.id]; return !!(pr && pr.arany); }
+function postafaKioszt() {
+  var H = HELYEK.postafa; if (!H || typeof egyeniPalyak !== "function" || !mentes || !mentes.profilok) return;
+  var lista = egyeniPalyak().filter(function (pa) { return !pa.hamarosan && !palyaRejtve(pa); });
+  var teny = lista.filter(function (pa) { return pa.teny; })[0] || null, fa = lista.filter(function (pa) { return !pa.teny; }), lada = [];
+  while (fa.length > POSTA_LEVEL_DB) {   /* a legrégebbi virágos a ládába */
+    var i = -1; for (var k = 0; k < fa.length; k++) if (postaViragos(fa[k])) { i = k; break; }
+    if (i < 0) break;
+    lada.push(fa.splice(i, 1)[0]);
+  }
+  fa = fa.slice(0, POSTA_LEVEL_DB);   /* ha mind a 6 még nincs kész: a 7. várakozik */
+  var n = 0;
+  H.helyek.forEach(function (h) {
+    if (h.posta === "level") { var pa = fa[n++]; h.cel.palyak = pa ? [pa.id] : []; h.nincs = !pa; }
+    else if (h.posta === "duc") { h.cel.palyak = teny ? [teny.id] : []; h.nincs = false; }
+    else if (h.posta === "lada") { h.cel.palyak = lada.map(function (pa) { return pa.id; }); h.nincs = !lada.length; }
+  });
+  var vh = helyKeres(HELYEK.vilag, "postafa");
+  if (vh) vh.palyak = [].concat.apply([], H.helyek.map(function (h) { return h.cel.palyak; }));
+  PC_TARGY.lada.lista = lada;
+}
+function postaNev(id) {
+  if (!HELYEK.postafa || !/^(level-\d|duc)$/.test(id)) return null;
+  var h = helyKeres(HELYEK.postafa, id), pa = h && h.cel.palyak[0] && palyaKeres(h.cel.palyak[0]);
+  return pa ? pa.nev : null;
+}
+/* a posta-hely képe: levél (lepecsételt → megkezdett (⭐ megvan) → virágos (arany: minden csillag)) · dúc (galamb levéllel / anélkül) · láda */
+function postaAllapot(h) {
+  var id = h.cel.palyak[0];
+  if (h.posta === "duc") return id ? "level" : "ures";
+  if (h.posta === "lada") return "teli";
+  var pr = (P().palyak || {})[id] || {};
+  return pr.arany ? "viragos" : pr.kesz ? "megkezdett" : "lepecsetelt";
+}
+/* a közelkép jelei: a dúc pálya nélkül is ott van (a galamb ül), a levélen nincs 💖 (maga a levél mondja) */
+function postaJelek(H, jel, lathato) {
+  H.helyek.forEach(function (h) {
+    if (h.posta === "duc" && !lathato[h.id]) { lathato[h.id] = true; jel[h.id] = {}; }
+    var j = jel[h.id]; if (j && j.jelzes) j.jelzes = j.jelzes.filter(function (x) { return x !== "💖"; });
+  });
+}
+/* van-e a fán még fel nem bontott (lepecsételt), nyitható levél — akkor a Postafa a tájon világít */
+function postaUjLevel() {
+  var H = HELYEK.postafa; if (!H) return false;
+  return H.helyek.some(function (h) {
+    if (h.posta !== "level" || h.nincs) return false;
+    var pa = palyaKeres(h.cel.palyak[0]); if (!pa || postaAllapot(h) !== "lepecsetelt") return false;
+    var J = palyaJelek(pa); return !J.zarva && !J.alszik && !J.elfogyott;
+  });
+}
+/* a koppintás mozdulata, mielőtt a kép ráközelít: a levél lerepül és kinyílik · a galamb a dúcból az unikornishoz viszi a levelet */
+function postaAtad(M, h, kesz) {
+  if (!h.posta || nyugiMod() || window.__UC_GYORS) { kesz(); return; }
+  var g = M.svg.querySelector('.terkep-hely[data-id="' + h.id + '"]');
+  if (h.posta === "level" && g) { g.classList.add("posta-nyit"); setTimeout(kesz, 560); return; }
+  if (h.posta !== "duc" || !g || !h.galamb) { kesz(); return; }
+  var im = g.querySelector(".hb image"), H = M.H, a = helyPx(H, h.galamb), b = [M.pos[0] + 18, M.pos[1] - 90 * H.uni];
+  if (im) im.setAttribute("href", helyFajl(H, h.kep + "-repul"));
+  var gal = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  gal.setAttribute("class", "posta-galamb"); gal.setAttribute("pointer-events", "none");
+  gal.innerHTML = '<g transform="scale(-1.7,1.7)" stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round"><path d="M-14,0 Q-2,-14 12,-4 L20,-8 L14,2 Q0,10 -14,0 Z" fill="#fffaf4"/>' +
+    '<path d="M-4,-4 Q2,-24 16,-20 Q10,-8 2,-2 Z" fill="#eef0fa"><animateTransform attributeName="transform" type="scale" values="1,1;1,-.4;1,1" dur=".32s" repeatCount="indefinite"/></path>' +
+    '<circle cx="12" cy="-7" r="1.3" fill="#5a4a7a" stroke="none"/><path d="M19,-7 l4,1.4 l-4,1" fill="#f2a03a" stroke-width="1"/>' +
+    '<g transform="translate(22 0) rotate(-8)"><rect x="-1" y="-1" width="16" height="11" rx="1.4" fill="#fff6e6"/><path d="M-1,-1 l8,6 l8,-6" fill="none" stroke-width="1.2"/><circle cx="7" cy="5" r="2" fill="#e8505b" stroke="none"/></g></g>';
+  var fel = M.svg.querySelector(".hely-mozgo-felso") || M.svg; fel.appendChild(gal);
+  var mx = (a[0] + b[0]) / 2, my = Math.min(a[1], b[1]) - 60, T = function (p) { return "translate(" + p[0].toFixed(1) + "px," + p[1].toFixed(1) + "px)"; };
+  gal.style.transform = T(a);
+  var an = gal.animate ? gal.animate([{ transform: T(a) }, { transform: T([mx, my]) }, { transform: T(b) }], { duration: 900, easing: "ease-in-out", fill: "forwards" }) : null;
+  setTimeout(function () { if (gal.parentNode) gal.parentNode.removeChild(gal); kesz(); }, an ? 950 : 0);
+}
+/* a köd-hegy koppintásra: a köd egy pillanatra elvékonyodik, a jelzőtűz felvillan (CSS .koppant) */
+function helyKoppant(M, id) {
+  var g = M.svg.querySelector('.terkep-hely[data-id="' + id + '"]'); if (!g) return;
+  g.classList.remove("koppant"); void g.getBoundingClientRect(); g.classList.add("koppant");
+  setTimeout(function () { g.classList.remove("koppant"); }, 1600);
+}
+/* 📮 a levelesláda tárgy-nézete: nyitott láda, benne a régi (virágos) levelek legyezőben — a levél a bejárat (pcValasztoSvg) */
+PC_TARGY.lada = {
+  lista: [],
+  kep: function () {
+    var L = PC_TARGY.lada, n = L.lista.length, K = "#5a4a7a", s = '<g filter="url(#lt-firka)" stroke="' + K + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">';
+    s += '<path d="M120,446 Q400,420 680,446" fill="#cfe7b8" stroke="none"/>';
+    s += '<path d="M396,446 V392 M404,446 V392" stroke="#8a5a3a" stroke-width="10"/>';   /* a láda lába */
+    s += '<path d="M262,292 L250,222 Q248,210 262,210 H538 Q552,210 550,222 L538,292 Z" fill="#f07078"/><path d="M270,226 H530" stroke="#fff" stroke-width="3" opacity=".35"/>';   /* a hátra csapott fedél */
+    s += '<path d="M246,300 Q246,276 276,276 H524 Q554,276 554,300 Z" fill="#3c2a50"/>';   /* a nyitott száj */
+    s += '<path d="M590,392 V200" stroke="#8a5a3a" stroke-width="5"/><path d="M590,202 l50,12 l-50,14 Z" fill="#f2c14e"/>';   /* a zászló (fent: van levél) */
+    s += '</g>';
+    var elol = '<g filter="url(#lt-firka)" stroke="' + K + '" stroke-width="3" stroke-linejoin="round"><path d="M240,392 V300 Q240,290 250,290 H550 Q560,290 560,300 V392 Z" fill="#e8505b"/>' +
+               '<path d="M252,304 H548" stroke="#b5303e" stroke-width="2" opacity=".6"/><path d="M360,340 H440" stroke="#3c2a50" stroke-width="7" stroke-linecap="round"/>' +
+               '<path d="M240,392 V300 Q240,290 250,290 H270 V392 Z" fill="#3c2f5e" opacity=".08" stroke="none"/></g>';   /* a láda eleje: a levelek alját takarja */
+    L.t = {};
+    L.lista.forEach(function (pa, i) {
+      var c = i - (n - 1) / 2, d = Math.min(130, 300 / Math.max(1, n)), cx = 400 + c * d, cy = 262 - Math.abs(c) * 8, rot = c * 9;
+      s += '<g transform="translate(' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ') rotate(' + rot.toFixed(1) + ')" filter="url(#lt-firka)" stroke="' + K + '" stroke-width="2.6" stroke-linejoin="round">' +
+        '<rect x="-46" y="-32" width="92" height="64" rx="6" fill="#fff6e6"/><path d="M-46,-32 L0,6 L46,-32" fill="none"/>' +
+        '<g transform="translate(0 6)" stroke-width="1.4">' + [0, 72, 144, 216, 288].map(function (a) { return '<ellipse cx="0" cy="-7" rx="5" ry="7.5" fill="#f6a5c0" transform="rotate(' + a + ')"/>'; }).join("") + '<circle r="4.2" fill="#f2c14e"/></g>' +
+        '<path transform="translate(32 -20)" d="M0,-7 L2,-2 L7,-2 L3,1.4 L4.6,7 L0,3.6 L-4.6,7 L-3,1.4 L-7,-2 L-2,-2 Z" fill="#fce49a" stroke="#d1a23a" stroke-width="1.2"/></g>';
+      L.t[pa.id] = { hely: [cx - 50, cy - 38, 100, 66], ceger: [cx, cy - (n > 3 && i % 2 ? 112 : 70), .74] };
+    });
+    return s + elol;
+  }, k: 1, tx: 0, ty: 0, t: {}
+};
 window.addEventListener("resize", function () {   /* az ablak mérete változott: a „cover” nézet újra (a zóna egészen) */
   var M = VILAG_M; if (!M || !M.svg || !M.svg.isConnected || M.fut) return;
   M.nezet = helyNezet(M.H, M.host.clientWidth, M.host.clientHeight); helyViewBox(M, M.nezet);

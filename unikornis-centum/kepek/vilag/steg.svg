@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="590 802 82 36" width="82" height="36">
+<!-- Thinking horses · vilag/steg · terv/kozelkep-export.py (2026-11-24); koordináták a 1600×900-as közelkép rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>
+<g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M666,814 L596,820 L596,826 L666,822 Z" fill="#d8b48a"/><path d="M604,823.8 V834" stroke-width="2.4"/><path d="M630,822.2 V834" stroke-width="2.4"/><path d="M656,820.6 V834" stroke-width="2.4"/><path d="M610,819.5 l2,7" stroke-width="1" opacity=".6"/><path d="M622,818.5 l2,7" stroke-width="1" opacity=".6"/><path d="M634,817.6 l2,7" stroke-width="1" opacity=".6"/><path d="M646,816.6 l2,7" stroke-width="1" opacity=".6"/><path d="M602,820 V810" stroke-width="2"/><circle cx="602" cy="810" r="2.4" fill="#c99a6a"/></g>
+</svg>

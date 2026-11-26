@@ -305,7 +305,10 @@ fo_hasznos = fo[:fo.index('<g clip-path="url(#viz-clip)">')]
 fo_tukor = re.search(r'<!-- tükröződés.*?(?=<g id="aramlas">)', fo, re.S).group(0)
 steg = '<g stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round"><path d="M542,866 L592,872 L592,880 L540,874 Z" fill="#d8b48a"/><path d="M556,880 L556,890 M584,880 L584,892" stroke-width="2.4"/></g>'
 csonak = re.search(r'<path d="M498,872.*?</path>\s*<path d="M530,868[^>]*/>', fo, re.S).group(0)
-koz += fo_hasznos + '<g clip-path="url(#viz-clip)">' + fo_tukor + "</g>" + kovek + steg + "\n<!-- utak (a helyek.js utak-táblájából) -->\n" + ut
+# 7. kör (2026-11-26): a stég és a csónak díszlet-fájl lett (kozelkep-export.py taj_steg), a patak a híd alatt kis tóba fut (taj_to)
+import importlib.util as _iu
+_sp = _iu.spec_from_file_location("kozelkep_export", os.path.join(ITT, "kozelkep-export.py")); KX = _iu.module_from_spec(_sp); _sp.loader.exec_module(KX)
+koz += fo_hasznos + '<g clip-path="url(#viz-clip)">' + fo_tukor + "</g>" + KX.taj_to() + kovek + "\n<!-- utak (a helyek.js utak-táblájából) -->\n" + ut
 svg("kozep", BLEED, ["firka", "domb", "ret", "vizgr", "viz", "viz-clip"], koz)
 
 hid = grab("hid")
@@ -330,7 +333,7 @@ DEFS["ulo"] = ULO
 mozgo = ('<g id="also" pointer-events="none">\n'
          '<g fill="#fdfdfd" opacity=".92">' + inner(felhok) + felho_ki + "</g>\n" + vizeses + "\n" + arnyek + "\n"
          '<g clip-path="url(#viz-clip)">' + aramlas + csillogas + "</g>\n" + fodor + "\n" + nad + "\n"
-         '<g stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round">' + csonak + "</g>\n" + malom + "\n" + hab + "\n</g>\n"
+         + malom + "\n" + hab + "\n</g>\n"
          '<g id="felso" pointer-events="none">\n<g stroke="#6a5f8a" stroke-width="1.8" fill="none" stroke-linecap="round">' + csapat + "</g>\n"
          '<g>' + fu + '<animateTransform attributeName="transform" type="skewX" values="0;1.2;0;-0.8;0" dur="7s" repeatCount="indefinite"/></g>\n</g>')
 svg("mozgo", BLEED, ["madar", "ulo", "m-felv", "m-fejt", "hegy-clip", "viz", "viz-clip"], mozgo, elotag="vm-")
@@ -402,7 +405,7 @@ def viragsor(r):
 
 doboz_sorok, fajlok = [], ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo"]
 for i, (box, r, extra) in HT.items():
-    if i in ("kezmuvesek", "ter", "domboldal", "erdoszel", "osszeado-utca", "dallam-ter"):   # 2026-11-24 óta a közelkép kicsinyített mása: terv/kozelkep-export.py taj_*() írja, itt NE írjuk felül
+    if i in ("kezmuvesek", "ter", "domboldal", "erdoszel", "osszeado-utca", "dallam-ter", "postafa"):   # 2026-11-24 óta a közelkép kicsinyített mása: terv/kozelkep-export.py taj_*() írja, itt NE írjuk felül
         fajlok += [i + "-epul", i + "-kesz", i + "-viragos"]
         doboz_sorok.append("%s: lásd terv/kozelkep-export.py (TAJ_*_DOBOZ)" % i)
         continue
@@ -415,6 +418,7 @@ for i, (box, r, extra) in HT.items():
     fajlok += [i + "-epul", i + "-kesz", i + "-viragos"]
     if i == "felveteli":
         svg(i + "-kod", vb, defs, alap + kod)
+        KX.taj_kod()   # 7. kör: a köd két gomolygó rétege + a jelzőtűz (kozelkep-export.py taj_kod)
         fajlok.append(i + "-kod")
     doboz_sorok.append('%s: [%.4f, %.4f, %.4f, %.4f]' % (i, vb[0] / W, vb[1] / H, vb[2] / W, vb[3] / H))
 

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="672 627 40 70" width="40" height="70">
+<!-- Thinking horses · postafa/lada-zaszlo · terv/kozelkep-export.py (2026-11-24); koordináták a 1600×900-as közelkép rendszerében -->
+<defs><filter id="firka" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></defs>
+<g transform="translate(680 689)"><g filter="url(#firka)" stroke="#5a4a7a" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M-6,0 H2 V-4 H-6 Z" fill="#8a5a3a"/><path d="M0,0 V-56" stroke="#6e4a36" stroke-width="3"/></g><g transform="translate(0 -56)"><path d="M0,0 l26,6 l-26,8 Z" fill="#f2c14e" stroke="#5a4a7a" stroke-width="1.4"><animateTransform attributeName="transform" type="skewY" values="0;-8;0;5;0" dur="2.8s" repeatCount="indefinite"/></path></g></g>
+</svg>

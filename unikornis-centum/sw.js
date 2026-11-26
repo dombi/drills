@@ -15,14 +15,17 @@ var SDK_FAJLOK = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase
 var BETU = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 var ATMEGY = ["admin/", "helyreallitas.html", "sw.js"];
 /* 🐴 a világkép (Thinking horses) rajzfájljai — a helyek.js kep.v-jével együtt emeld a VILAG_V-t, új fájlnévnél bővítsd a listát */
-var VILAG_V = "20261125-4", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod"];
+var VILAG_V = "20261126-2", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "eloter", "mozgo", "felveteli-kod",
+                                    "steg", "steg-csonak", "steg-kacsa", "barlang", "barlang-kristaly", "barlang-hang"];   /* 7. kör: az ígéret-kapuk */
 ["odu", "kert", "postafa", "erdoszel", "utca", "ter", "osszeado-utca", "dallam-ter", "kezmuvesek", "domboldal", "konyvtar", "fejtoro", "felveteli"].forEach(function (h) { ["epul", "kesz", "viragos"].forEach(function (a) { VILAG_KEPEK.push(h + "-" + a); }); });
-/* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal; 4. kör: Kézművesek; 5. kör: Erdőszél, Összeadó utca; 6. kör: Dallam-tér) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
+/* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal; 4. kör: Kézművesek; 5. kör: Erdőszél, Összeadó utca; 6. kör: Dallam-tér; 7. kör: Postafa) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
 var KOZEL_V = "20261124-2", KOZEL_KEPEK = { ter: ["eg", "tavoli", "kozep", "eloter", "mozgo", "nagyfa"], domboldal: ["eg", "tavoli", "kozep", "eloter", "mozgo", "kecske"],
                                    kezmuvesek: ["eg", "tavoli", "kozep", "eloter", "mozgo", "malom", "malom-kerek", "malom-hab", "kotel", "macska"],
                                    erdoszel: ["eg", "tavoli", "kozep", "eloter", "mozgo", "tas", "harkaly"],
                                    "osszeado-utca": ["eg", "tavoli", "kozep", "eloter", "mozgo", "kut", "tyuk", "bogyo"],
-                                   "dallam-ter": ["eg", "tavoli", "kozep", "eloter", "mozgo", "madarak", "szelcsengo"] };
+                                   "dallam-ter": ["eg", "tavoli", "kozep", "eloter", "mozgo", "madarak", "szelcsengo"],
+                                   postafa: ["eg", "tavoli", "kozep", "eloter", "mozgo", "level-lepecsetelt", "level-megkezdett", "level-viragos",
+                                             "duc-level", "duc-ures", "duc-repul", "lada-teli", "lada-zaszlo"] };   /* 7. kör: a Postafa */
 [["ter", ["bolt", "vasar", "zsib", "szalag"]], ["domboldal", ["deli", "irasbeli", "josda"]], ["kezmuvesek", ["pekseg", "bajital", "szabo"]], ["erdoszel", ["kisgomba", "nagygomba"]],
  ["osszeado-utca", ["letra", "csalad", "nagyhaz"]], ["dallam-ter", ["kerekhaz", "holdfeny", "kamra", "harangjatek"]]].forEach(function (m) {
   m[1].forEach(function (h) { ["epul", "teto", "ajto", "kesz", "viragos"].forEach(function (a) { KOZEL_KEPEK[m[0]].push(h + "-" + a); }); });
