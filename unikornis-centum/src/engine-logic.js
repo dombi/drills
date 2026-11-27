@@ -93,7 +93,7 @@ function palyaInditas(id) {
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.belso ? "linear-gradient(#fde6d8 80%, #c99a6a 80%)" : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.jelenet) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
+    : pa.belso ? "linear-gradient(" + ((BELSO[pa.belso] || {}).fal || "#fde6d8") + " 80%, " + ((BELSO[pa.belso] || {}).padlo || "#c99a6a") + " 80%)" : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.jelenet) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
   if (pa.belso) belsoIndul(); else osvenyIndul();   /* az unikornis a Rajtnál (osveny.js) · 🍄 a ház belsejében az ajtó előtt (belso.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";

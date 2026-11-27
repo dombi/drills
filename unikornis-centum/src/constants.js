@@ -47,6 +47,7 @@ var PALYAK = [
     szint: 2,
     palcim: "Húszig — most jön a tízes átlépés",
     alap: { tipus: "osszeadas", eredmeny_max: 20, atlepes: "kell", a_min: 2, a_max: 9, b_min: 2, b_max: 9 },
+    belso: "nagygomba",   /* 🍄 16a: a Nagy gombaház belsejében (belso.js, cserépkályha); ha kiveszed, a régi ösvény jön vissza */
     kez_nelkul: true,
     allomasok: [
       { nev: "Rajt" },
