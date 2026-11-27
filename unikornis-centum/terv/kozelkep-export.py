@@ -3267,7 +3267,7 @@ P_LEVEL = ((440, 560), (575, 505), (700, 575), (905, 575), (1030, 505), (1160, 5
 P_SZAL = 116                                                                          # a zsinór teteje (az ág) a talppont fölött
 P_LADA = (640, 735)
 P_DUC = (1300, 722)
-P_PATAK = [(1540, 250), (1512, 360), (1464, 495), (1437, 630), (1448, 765), (1488, 945), (1510, BY1 + 10)]
+P_PATAK = [(1640, 452), (1590, 488), (1500, 548), (1446, 640), (1448, 765), (1488, 945), (1510, BY1 + 10)]   # 11-27: a rét túlsó szélén ered (a bokrok mögül), lefelé szélesedik
 P_UT = [(40, BY1 + 10), (150, 940), (260, 860), (420, 812), (600, 786), (800, 774)]
 P_UT2 = [(800, 774), (980, 786), (1130, 774), (1236, 754)]
 PIROS, PIROS_S = "#e8505b", "#b5303e"
@@ -3353,26 +3353,33 @@ def p_zaszlo():
 
 
 def p_fa(r):
-    """az öreg fa: gyökerek, törzs, a két lelógó ág (a levelek zsinórjával), a korona"""
+    """az öreg fa: a két lelógó ág (a levelek zsinórjával), a felfelé ágazó vastag ágak, a törzs (takarja az ágak tövét), a korona
+    (11-27, a producer: a korona ne lebegjen a törzs fölött — a törzs felfelé is folytatódik, és a lombba ágazik)"""
     fx, fy = P_FA
     s = arnyek(fx, fy + 6, 270, 30, .12)
-    s += fok('<path d="M%s,%s Q%s,%s %s,%s Q%s,%s %s,%s L%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Z" fill="url(#kereg)"/>' % (
-        f(fx - 70), f(fy + 4), f(fx - 34), f(fy - 20), f(fx - 32), f(fy - 120), f(fx - 30), f(fy - 200), f(fx - 40), f(fy - 236),
-        f(fx + 40), f(fy - 236), f(fx + 30), f(fy - 200), f(fx + 32), f(fy - 120), f(fx + 34), f(fy - 20), f(fx + 74), f(fy + 4)) +
-        '<path d="M%s,%s q20,-24 40,-20 M%s,%s q-18,-26 -44,-18 M%s,%s q-4,-60 6,-110" stroke="#7a4e32" stroke-width="2" fill="none" opacity=".7"/>' % (
-        f(fx - 60), f(fy + 2), f(fx + 64), f(fy + 2), f(fx + 6), f(fy - 30)) +
-        '<ellipse cx="%s" cy="%s" rx="8" ry="11" fill="#6e4a36"/>' % (f(fx - 8), f(fy - 150)), 2.4)
-    # a két ág: a törzstől a levelek zsinórjáig (a zsinór teteje: P_LEVEL - P_SZAL), a végén kis lombpamacs
+    ag = lambda d, w, c="#9b6c4a": ('<path d="%s" stroke="%s" stroke-width="%s" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#firka)"/>'
+                                    '<path d="%s" stroke="%s" stroke-width="%s" fill="none" stroke-linecap="round" stroke-linejoin="round"/>') % (d, INK, f(w + 5), d, c, f(w))
+    # a két lelógó ág: a törzs oldalából, a tövén vastagabb (két szakasz), a végén kis lombpamacs
     for oldal in (-1, 1):
         lv = [l for l in P_LEVEL if (l[0] - fx) * oldal > 0]
         lv.sort(key=lambda l: abs(l[0] - fx))
-        pts = [(fx + oldal * 18, fy - 196)] + [(x, y - P_SZAL) for x, y in lv] + [(lv[-1][0] + oldal * 70, lv[-1][1] - P_SZAL - 22)]
-        d = sima(pts)
-        s += '<path d="%s" stroke="%s" stroke-width="17" fill="none" stroke-linecap="round" filter="url(#firka)"/><path d="%s" stroke="#9b6c4a" stroke-width="12" fill="none" stroke-linecap="round"/>' % (d, INK, d)
+        pts = [(fx + oldal * 4, fy - 305)] + [(x, y - P_SZAL) for x, y in lv] + [(lv[-1][0] + oldal * 70, lv[-1][1] - P_SZAL - 22)]
+        s += ag(sima(pts), 12)
+        s += ag(sima([pts[0], ((pts[0][0] * 2 + pts[1][0]) / 3, (pts[0][1] * 2 + pts[1][1]) / 3 - 6), pts[1]]), 18)
         ex, ey = pts[-1]
-        s += '<g filter="url(#firka)"><path d="%s" fill="#8cc47f" stroke="%s" stroke-width="2"/></g>' % (pamacs(ex, ey - 6, 46, 28, 8, r), INK)
-    for cx_, cy_, rx_, ry_, c in ((fx - 240, fy - 430, 210, 100, "#86c07a"), (fx + 240, fy - 430, 210, 100, "#8cc47f"), (fx, fy - 470, 290, 140, "#94c983"),
-                                  (fx - 120, fy - 570, 200, 100, "#9ccf8c"), (fx + 130, fy - 575, 190, 96, "#94c983")):
+        s += '<g filter="url(#firka)"><path d="%s" fill="#8cc47f" stroke="%s" stroke-width="2"/></g>' % (pamacs(ex, ey - 6, 52, 32, 8, r), INK)
+    # felfelé ágazó vastag ágak a lombba
+    for vx, vy, cx, cy, w in ((-170, -440, -80, -330, 22), (180, -450, 90, -340, 22), (10, -500, -10, -400, 26), (-60, -480, -40, -380, 14), (90, -490, 50, -390, 14)):
+        s += ag("M%s,%s Q%s,%s %s,%s" % (f(fx + vx * .1), f(fy - 290), f(fx + cx), f(fy + cy), f(fx + vx), f(fy + vy)), w)
+    # a törzs: lent a gyökerekkel kiszélesedik, fent a lombig ér
+    s += fok('<path d="M%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Q%s,%s %s,%s L%s,%s Q%s,%s %s,%s Q%s,%s %s,%s Q%s,%s %s,%s Z" fill="url(#kereg)"/>' % (
+        f(fx - 74), f(fy + 4), f(fx - 36), f(fy - 18), f(fx - 34), f(fy - 120), f(fx - 32), f(fy - 220), f(fx - 26), f(fy - 290), f(fx - 30), f(fy - 330), f(fx - 40), f(fy - 350),
+        f(fx + 40), f(fy - 350), f(fx + 30), f(fy - 330), f(fx + 26), f(fy - 290), f(fx + 32), f(fy - 220), f(fx + 34), f(fy - 120), f(fx + 36), f(fy - 18), f(fx + 78), f(fy + 4)) +
+        '<path d="M%s,%s q20,-24 40,-20 M%s,%s q-18,-26 -44,-18 M%s,%s q-4,-60 6,-110 M%s,%s q-6,-40 2,-80" stroke="#7a4e32" stroke-width="2" fill="none" opacity=".7"/>' % (
+        f(fx - 60), f(fy + 2), f(fx + 64), f(fy + 2), f(fx + 6), f(fy - 30), f(fx - 12), f(fy - 200)) +
+        '<ellipse cx="%s" cy="%s" rx="8" ry="11" fill="#6e4a36"/>' % (f(fx - 8), f(fy - 150)), 2.4)
+    for cx_, cy_, rx_, ry_, c in ((fx - 240, fy - 440, 210, 96, "#86c07a"), (fx + 240, fy - 440, 210, 96, "#8cc47f"), (fx, fy - 470, 290, 130, "#94c983"),
+                                  (fx - 120, fy - 570, 200, 100, "#9ccf8c"), (fx + 130, fy - 575, 190, 96, "#94c983"), (fx - 10, fy - 385, 120, 48, "#86c07a")):
         s += '<g filter="url(#firka)"><path d="%s" fill="%s" stroke="%s" stroke-width="2.2"/></g>' % (pamacs(cx_, cy_, rx_, ry_, 11, r), c, INK)
     s += '<path d="%s" fill="#fff" opacity=".22" stroke="none"/>' % pamacs(fx - 150, fy - 590, 90, 40, 8, r, 1.2)
     s += '<path d="%s" fill="#3c2f5e" opacity=".07" stroke="none"/>' % pamacs(fx + 170, fy - 400, 150, 50, 8, r, 1.2)
@@ -3383,11 +3390,25 @@ def p_fa(r):
 
 
 def p_patak():
-    d = sima(P_PATAK)
-    s = '<path d="%s" stroke="#86c0e3" stroke-width="86" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' % d
-    s += '<path d="%s" stroke="url(#vizp)" stroke-width="72" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' % d
-    s += '<path d="%s" stroke="#d4eefa" stroke-width="6" fill="none" stroke-dasharray="40 60" opacity=".7"/>' % d
-    s += '<g filter="url(#firka)">' + "".join('<path d="%s" stroke="#7fb36e" stroke-width="3" fill="none"/>' % sima([(x + dx, y) for x, y in P_PATAK]) for dx in (-46, 46)) + '</g>'
+    """a patak: a rét túlsó szélén, a bokrok mögül ered (vékonyan), és lefelé szélesedik (távlat) — kitöltött sáv, nem kerek végű vonal"""
+    q = ivpontok(P_PATAK, 10)
+    y0, y1 = P_PATAK[0][1], 760
+    def fel(y): return 5 + 31 * max(0, min(1, (y - y0) / (y1 - y0)))   # a fél-szélesség
+    bal, jobb = [], []
+    for i in range(len(q)):
+        a = q[min(i + 1, len(q) - 1)]; b = q[max(i - 1, 0)]
+        dx, dy = a[0] - b[0], a[1] - b[1]; L = (dx * dx + dy * dy) ** .5 or 1
+        nx, ny = -dy / L, dx / L; w = fel(q[i][1])
+        bal.append((q[i][0] + nx * w, q[i][1] + ny * w)); jobb.append((q[i][0] - nx * w, q[i][1] - ny * w))
+    pd = lambda pts: "M" + " L".join("%s,%s" % (f(x), f(y)) for x, y in pts)
+    viz = pd(bal + jobb[::-1]) + " Z"
+    s = '<path d="%s" fill="url(#vizp)" stroke="#86c0e3" stroke-width="7" stroke-linejoin="round"/>' % viz
+    s += '<path d="%s" stroke="#d4eefa" stroke-width="5" fill="none" stroke-dasharray="40 60" opacity=".7"/>' % sima(P_PATAK[2:])
+    s += '<g filter="url(#firka)">' + "".join('<path d="%s" stroke="#7fb36e" stroke-width="3" fill="none"/>' % pd(p_) for p_ in (bal, jobb)) + '</g>'
+    # a forrás: bokrok és egy kis kő takarják az eredetét
+    fx, fy = P_PATAK[0]
+    s += '<g filter="url(#firka)" stroke="%s" stroke-width="2">' % INK + bokor(fx - 30, fy + 10, .9, "#8cc47f", "#a7d99a") + bokor(fx + 26, fy + 6, .8) + '</g>'
+    s += fok('<ellipse cx="%s" cy="%s" rx="13" ry="7" fill="#d8d2e6"/>' % (f(fx - 6), f(fy + 14)), 1.6)
     return s
 
 
@@ -3472,7 +3493,7 @@ def postafa():
 
     # mozgó: felhők, lepkék, a patak csillogása, egy galamb köröz a dúc fölött, a fáról le-lehull egy levél; fölül madárcsapat
     csill = "".join(('<path d="%s" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="14 90" opacity=".8">'
-                     '<animate attributeName="stroke-dashoffset" values="0;-104" dur="%ss" repeatCount="indefinite"/></path>') % (sima([(x + dx, y) for x, y in P_PATAK]), d)
+                     '<animate attributeName="stroke-dashoffset" values="0;-104" dur="%ss" repeatCount="indefinite"/></path>') % (sima([(x + dx * min(1, (y - 520) / 240 + .2), y) for x, y in P_PATAK[2:]]), d)
                     for dx, d in ((-16, 2.6), (14, 3.4)))
     kor = ('<g><g><path d="M10,-2 Q2,-14 -8,-10 Q-14,-6 -12,-2 Q-4,4 10,-2 Z M-2,-8 Q6,-22 14,-16 Q8,-8 2,-6 Z" fill="#fbfaf6" stroke="%s" stroke-width="1.4"/>'
            '<animateTransform attributeName="transform" type="scale" values="1,1;1,.5;1,1" dur=".4s" repeatCount="indefinite"/></g>'

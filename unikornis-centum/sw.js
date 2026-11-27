@@ -19,7 +19,7 @@ var VILAG_V = "20261126-2", VILAG_KEPEK = ["eg", "tavoli", "kozep", "hid", "elot
                                     "steg", "steg-csonak", "steg-kacsa", "barlang", "barlang-kristaly", "barlang-hang"];   /* 7. kör: az ígéret-kapuk */
 ["odu", "kert", "postafa", "erdoszel", "utca", "ter", "osszeado-utca", "dallam-ter", "kezmuvesek", "domboldal", "konyvtar", "fejtoro", "felveteli"].forEach(function (h) { ["epul", "kesz", "viragos"].forEach(function (a) { VILAG_KEPEK.push(h + "-" + a); }); });
 /* 🌳☀️ a közelképek rajzfájljai (3. kör: Nagyfa tér, Domboldal; 4. kör: Kézművesek; 5. kör: Erdőszél, Összeadó utca; 6. kör: Dallam-tér; 7. kör: Postafa) — a helyek.js kep.v-jével együtt emeld a KOZEL_V-t; exportáló: terv/kozelkep-export.py */
-var KOZEL_V = "20261124-2", KOZEL_KEPEK = { ter: ["eg", "tavoli", "kozep", "eloter", "mozgo", "nagyfa"], domboldal: ["eg", "tavoli", "kozep", "eloter", "mozgo", "kecske"],
+var KOZEL_V = "20261127-1", KOZEL_KEPEK = { ter: ["eg", "tavoli", "kozep", "eloter", "mozgo", "nagyfa"], domboldal: ["eg", "tavoli", "kozep", "eloter", "mozgo", "kecske"],
                                    kezmuvesek: ["eg", "tavoli", "kozep", "eloter", "mozgo", "malom", "malom-kerek", "malom-hab", "kotel", "macska"],
                                    erdoszel: ["eg", "tavoli", "kozep", "eloter", "mozgo", "tas", "harkaly"],
                                    "osszeado-utca": ["eg", "tavoli", "kozep", "eloter", "mozgo", "kut", "tyuk", "bogyo"],

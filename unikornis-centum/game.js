@@ -847,7 +847,7 @@ HELYEK.vilag = {
    kotel, macska; az üres telek a közép rétegben. A 12 tárgy kívülről is látszik (kirakat, párkány, a ház előtt). A patak nem járható. */
 HELYEK.kezmuvesek = {
   nev: "Kézművesek", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", mappa: "kepek/kezmuvesek/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "kezmuvesek", mappa: "kepek/kezmuvesek/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 1.0, jk: 2.4,
   pontok: { kapu: [0.705, 0.965], sarok: [0.735, 0.875], kozep: [0.58, 0.79], malomelo: [0.30, 0.735] },
@@ -876,7 +876,7 @@ HELYEK.kezmuvesek = {
    A ház képe: <kep>-epul / -teto / -ajto / -kesz / -viragos (helyKepAllapot: a ház pályáinak piacHazLepes-e). rk: a köd és a fénykör nagysága. */
 HELYEK.ter = {
   nev: "Nagyfa tér", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "ter", mappa: "kepek/ter/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "ter", mappa: "kepek/ter/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 1.0, jk: 2.0,
   pontok: { kapu: [0.50, 0.91], fa: [0.50, 0.80] },
@@ -899,7 +899,7 @@ HELYEK.ter = {
    2. kódkör: a rajz fájlokban (kepek/domboldal/); az utak a rajzolt szerpentint követik (exportáló: SZERP). */
 HELYEK.domboldal = {
   nev: "Domboldal", vissza: "vilag",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "domboldal", mappa: "kepek/domboldal/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "domboldal", mappa: "kepek/domboldal/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.85, jk: 1.6,
   pontok: { kapu: [0.385, 0.94], kanyar: [0.58, 0.83], kanyar2: [0.369, 0.522] },
@@ -927,7 +927,7 @@ HELYEK.domboldal = {
    (terv/kozelkep-export.py erdoszel(); a lakók a figurak.js mai rajza: terv/figurak-alak.json). */
 HELYEK.erdoszel = {
   nev: "Erdőszél", vissza: "vilag", sorrend: true,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "erdoszel", mappa: "kepek/erdoszel/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "erdoszel", mappa: "kepek/erdoszel/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.95, jk: 2.2,
   pontok: { kapu: [0.485, 0.955], villa: [0.489, 0.82], hid: [0.735, 0.642], tisztas: [0.50, 0.625] },
@@ -968,7 +968,7 @@ HELYEK.erdoszel = {
    (utca_tabla() kiírja). A régi Összeadó liget a menetből kikerült (a kódja a 8. hullámig biztonsági háló). */
 HELYEK["osszeado-utca"] = {
   nev: "Összeadó utca", vissza: "vilag", sorrend: true,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "osszeado-utca", mappa: "kepek/osszeado-utca/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "osszeado-utca", mappa: "kepek/osszeado-utca/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.95, jk: 2.2,
   pontok: { kapu: [0.122, 0.976], kanyar: [0.562, 0.824], kutter: [0.619, 0.878], elag: [0.804, 0.634] },
@@ -1021,7 +1021,7 @@ HELYEK["osszeado-utca"] = {
    Rajz és tábla-számok: terv/kozelkep-export.py dallam_ter() / dallam_tabla(). A régi Szorzós liget a menetből kikerült (8. hullámig háló). */
 HELYEK["dallam-ter"] = {
   nev: "Dallam-tér", vissza: "vilag", sorrend: true,
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "dallam-ter", mappa: "kepek/dallam-ter/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "dallam-ter", mappa: "kepek/dallam-ter/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.95, jk: 2.2,
   pontok: { kapu: [0.150, 0.973], bej: [0.2825, 0.889], rw: [0.359, 0.791], rsw: [0.406, 0.872], rs: [0.500, 0.889], rse: [0.594, 0.872],
@@ -1061,11 +1061,11 @@ HELYEK["dallam-ter"] = {
    Rajz: kepek/postafa/ (terv/kozelkep-export.py postafa(); a tábla-számok onnan: postafa_tabla()). */
 HELYEK.postafa = {
   nev: "Postafa", vissza: "vilag", sorrend: "tabla",
-  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "postafa", mappa: "kepek/postafa/", v: "20261124-2", kifestve: [-560, -160, 2720, 1220] },
+  kep: { w: 1600, h: 900, zona: [0.05, 0.04, 0.90, 0.93], hatter: "postafa", mappa: "kepek/postafa/", v: "20261127-1", kifestve: [-560, -160, 2720, 1220] },
   retegek: ["eg", "tavoli", "kozep"], mozgo: "mozgo", eloter: "eloter",
   uni: 0.95, jk: 1.6,
   pontok: { kapu: [0.119, 0.978], fa: [0.50, 0.85] },
-  patak: [[0.945, 0.40], [0.915, 0.55], [0.898, 0.70], [0.905, 0.85], [0.93, 1.05]],
+  patak: [[1.025, 0.502], [0.9375, 0.609], [0.904, 0.711], [0.905, 0.85], [0.93, 1.05]],
   helyek: [
     { id: "level-1", posta: "level", x: 0.275,  y: 0.622, w: 0.05, h: 0.075, all: [0.316, 0.856], jel: [0.275, 0.655],  kep: "level", rk: 0.9, doboz: [0.2500, 0.4933, 0.0500, 0.1333], cel: { palyak: [] } },
     { id: "level-2", posta: "level", x: 0.3594, y: 0.561, w: 0.05, h: 0.075, all: [0.375, 0.828], jel: [0.3594, 0.594], kep: "level", rk: 0.9, doboz: [0.3344, 0.4322, 0.0500, 0.1333], cel: { palyak: [] } },
