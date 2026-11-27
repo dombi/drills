@@ -166,6 +166,10 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 @keyframes hely-kerek{ to{ transform:rotate(-360deg); } }
 /* 6. kör: a Dallam-tér szélcsengője koppintásra meglendül (nem ugrik) */
 .hely-diszlet[data-id="szelcsengo"].el > .hd-mozog{ animation:hely-csengo-leng .9s ease-in-out; transform-origin:50% 0%; }
+/* 8. hullám: a vers hív — a tölgy / harangláb háromszor meglendül (hely.js helyVersMozdul) */
+.terkep-hely.vers-hiv .hb image{ transform-box:fill-box; transform-origin:50% 100%; animation:hely-vers-leng 1.3s ease-in-out 3; }
+@keyframes hely-vers-leng{ 0%,100%{ transform:none; } 25%{ transform:rotate(2.2deg); } 60%{ transform:rotate(-1.8deg); } 85%{ transform:rotate(.8deg); } }
+@media (prefers-reduced-motion:reduce){ .terkep-hely.vers-hiv .hb image{ animation:none; } }
 @keyframes hely-csengo-leng{ 0%,100%{ transform:none; } 25%{ transform:rotate(14deg); } 55%{ transform:rotate(-10deg); } 80%{ transform:rotate(5deg); } }
 /* 7. kör: a Postafa — a levelek lengenek a zsinóron (a forgáspont a csipesz), koppintásra lerepülnek és kinyílnak; a galamb a dúcból hozza */
 .hely-level .hb image{ transform-box:fill-box; transform-origin:50% 2%; animation:posta-leng 3.4s ease-in-out infinite; }

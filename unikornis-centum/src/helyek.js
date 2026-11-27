@@ -329,3 +329,6 @@ var HELY_NEV = {
   kerekhaz: "Kerek ház", holdfeny: "Holdfény-ház", kamra: "Répás kamra", harangjatek: "Harangjátékos ház", kut: "Kút", harang: "Harangláb",
   duc: "Galambdúc", lada: "Levelesláda"   /* a levelek neve: a pálya neve (helyNevOf → postafa) */
 };
+/* „hol?” alak a közelképekhez (8. hullám: a vers-hívás mondja — nyitas.js nyitasVersHivas) */
+var HELY_BEN = { erdoszel: "az Erdőszélen", "osszeado-utca": "az Összeadó utcában", "dallam-ter": "a Dallam-téren", kezmuvesek: "a Kézműveseknél",
+                 domboldal: "a Domboldalon", ter: "a Nagyfa téren", postafa: "a Postafánál" };

@@ -719,10 +719,17 @@ function helyPalyaHol(paId, tabla) {
 }
 /* palyaInditas hívja: a pálya után a közelképbe, a ház elé jön vissza (nem a régi Piactérre / liget-belsőbe) */
 function helyPalyaVissza(pa) {
-  if (!pa || !helyPalyaHol(pa.id)) return false;
+  var hol = pa && helyPalyaHol(pa.id); if (!hol) return false;
   FOMENU_LIGET = null; TERKEP_HOL = { leny: mentes.leny, id: pa.id }; VILAG_KIZOOM = pa.id;
-  var r = palyaLiget(pa); if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
+  var r = helyVilagGazda(hol.tabla) || palyaLiget(pa);   /* 8. hullám: a világkép helye (pl. "erdoszel") — a legelő ezt köszöni (legelo.js LEGELO_HOVA) */
+  if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
   return true;
+}
+/* a közelkép háza a világképen (pl. "erdoszel" → "erdoszel", "ter" → "ter"); tabla nélkül (maga a világkép) null */
+function helyVilagGazda(tabla) {
+  if (!tabla || tabla === "vilag") return null;
+  var g = HELYEK.vilag.helyek.filter(function (h) { return h.cel.kozelkep === tabla; })[0];
+  return g ? g.id : null;
 }
 /* a hely id-je (TERKEP_HOL: hely-id vagy liget-id) — ha több hely viszi ugyanazt a ligetet, az, amelyiken át bement */
 function vilagHelyId(id) {
@@ -803,11 +810,27 @@ function helySorrend(H, jel) {
   });
   return leg ? leg.id : null;
 }
+/* 🛡️ ŐRSZEM (8. hullám, 5. döntés A): unikornisonként egyszer, az első világkép-rajzoláskor a fejlesztői konzolba írja, ha egy
+   látható pálya egyik helyen sem lakik — sem közelkép-házban / levélben (helyPalyaHol), sem a régi belsős helyeken
+   (a világkép cel.regio-i: Bagolykönyvtár, Fejtörő-hegy). A gyerek nem látja. */
+var HELY_ORSZEM = {};
+function helyOrszem() {
+  if (HELY_ORSZEM[mentes.leny]) return; HELY_ORSZEM[mentes.leny] = 1;
+  try {
+    var regiok = HELYEK.vilag.helyek.map(function (h) { return h.cel.regio; }).filter(Boolean);
+    var hiany = egyeniPalyak().concat(PALYAK).filter(function (pa) {
+      if (pa.hamarosan || palyaRejtve(pa) || helyPalyaHol(pa.id)) return false;
+      var r = palyaLiget(pa); return regiok.indexOf(r) < 0 && regiok.indexOf(terkepGazda(r)) < 0;
+    }).map(function (pa) { return pa.id; });
+    if (hiany.length) console.warn("🐴 Őrszem: ezek a látható pályák egyik helyen sem laknak:", hiany.join(", "));
+  } catch (e) { console.warn("🐴 Őrszem: nem sikerült ellenőrizni", e); }
+}
 function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");
   racs.appendChild(host);
   var hol0 = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL : null;
   postafaKioszt();
+  helyOrszem();
   if (hol0 && hol0.kozel && HELYEK[hol0.kozel]) { renderKozelkep(host, L, hol0.kozel, hol0.id, true, true); return; }   /* újrarajzolás (ablakméret) közben a közelképben marad */
   /* közelképből jött (pl. a Szabóműhelyből): a közelkép nyílik, ott áll az unikornis */
   var kozel = hol0 && !helyKeres(HELYEK.vilag, hol0.id) && hol0.id && helyRegiobol(hol0.id, "vilag");
@@ -852,7 +875,7 @@ function renderVilag(racs, L) {
     var id = ebred[0], lako = ebredR.filter(function (r) { return helyRegiobol(r) === id && TERKEP_GAZDA[r]; })[0];
     ebredR.forEach(nyitasLatta);
     ebred.forEach(function (g) { if (jel[g] && jel[g]._j) jel[g] = jel[g]._j; });
-    var ebMondat = lako ? "Nézd, felébredt " + nevelo(LIGET_NEV[lako][1]) + " " + LIGET_NEV[lako][1] + "!" : null;
+    var ebNev = helyNevOf(id), ebMondat = lako ? "Nézd, felébredt " + nevelo(ebNev) + " " + ebNev + "!" : null;   /* 8. hullám: a hely neve (nem a régi „Tündérvásár”) */
     setTimeout(function () { if (VILAG_M === M && M.svg.isConnected) helyEbreszt(M, id, ebMondat); }, 700);
   }
 }
@@ -932,6 +955,17 @@ function renderKozelkep(host, L, tabla, hol, kifele, csendes) {
   else { VILAG_KIZOOM = null; if (hol && !csendes) helyKinagyit(M, hol); }
   if (csendes) return;
   var nev = HELYEK[tabla].nev; helyNevTabla(M, nev); if (!kifele) mondd(nev + "!");
+  var hiv = nyitasVersHivas(tabla);   /* 🌰🎵 8. hullám: elakadás után a vers hív — a tölgy / harangláb megmozdul (nyitas.js) */
+  if (hiv) setTimeout(function () {
+    if (VILAG_M !== M || !M.svg.isConnected || !$("kepernyo-fomenu").classList.contains("aktiv")) return;
+    hiv.latta(); helyVersMozdul(M, hiv.hely); mondd(hiv.mondat);
+  }, kifele ? 900 : 1600);
+}
+/* a vers háza megmozdul (lendül) és felragyog — nyugalmas módban csak ragyog */
+function helyVersMozdul(M, id) {
+  var g = M.svg.querySelector('.terkep-hely[data-id="' + id + '"]'), hb = g && g.querySelector(".hb"); if (!hb) return;
+  if (!nyugiMod()) { g.classList.remove("vers-hiv"); void g.getBoundingClientRect(); g.classList.add("vers-hiv"); setTimeout(function () { g.classList.remove("vers-hiv"); }, 4200); }
+  hb.classList.add("bemutat-ragyog"); setTimeout(function () { hb.classList.remove("bemutat-ragyog"); }, 6500);
 }
 function kozelKoppint(id) {
   var M = VILAG_M; if (!M || !M.svg.isConnected) return;

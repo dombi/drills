@@ -241,7 +241,7 @@ function esemenyek() {
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
   $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
-  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább a ligetben */
+  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább: <helynév> (ui.js vegeGombok) */
   $("vege-terkep").addEventListener("click", function () { hangGomb(); terkepNyit(FOMENU_LIGET); });   /* a liget mellett áll majd */
   $("szuloi-vissza").addEventListener("click", function () { hangGomb(); legeloNyit(); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });

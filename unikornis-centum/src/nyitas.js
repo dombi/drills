@@ -346,15 +346,18 @@ function nyitasPalyaVilagit(pa) {
   var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.pa === pa;
 }
-/* a liget belsejébe lépve: ha ma elakadás miatt egy vers hív, az unikornis egyszer szól (ui.js renderFomenu) */
-function nyitasVersHivas(lg) {
-  var m = nyitasMenet(); if (!m) return "";
-  var r = m.r, nap = nyitasNapja(r, m.p), ki = "";
+/* 8. hullám: a vers közelképébe lépve (Erdőszél: tölgy, Dallam-tér: harangláb — ahol a vers-pálya lakik, hely.js helyPalyaHol):
+   ha ma elakadás miatt a vers hív, az unikornis egyszer szól, a hely nevével („…az Erdőszélen!”), és a tárgy megmozdul (hely.js renderKozelkep).
+   Vissza: { mondat, hely, latta() } — a latta() akkor jegyzi, ha tényleg elhangzott — vagy null. */
+function nyitasVersHivas(tabla) {
+  var m = nyitasMenet(); if (!m) return null;
+  var r = m.r, nap = nyitasNapja(r, m.p), ki = null;
   nyitasVersek(m.o).forEach(function (v) {
-    if (ki || r.hiv[v.id] !== nap || r.hivM[v.id] === nap || v.hiv.indexOf(lg) < 0) return;
+    if (ki || r.hiv[v.id] !== nap || r.hivM[v.id] === nap) return;
+    var hol = helyPalyaHol(v.id); if (!hol || hol.tabla !== tabla) return;
     if (nyitasLigetAllapot(r, m.sor, v.liget, nyitasEgyeniVan()) === "alszik") return;
-    r.hivM[v.id] = nap; ment();
-    ki = v.liget === lg ? v.mondat : v.mondat.replace("!", " " + (v.liget === "szorzo" ? "a Szorzós ligetben" : "az Összeadó ligetben") + "!");
+    ki = { mondat: v.mondat.replace("!", (HELY_BEN[tabla] ? " " + HELY_BEN[tabla] : "") + "!"), hely: hol.hely,
+           latta: function () { r.hivM[v.id] = nap; ment(); } };
   });
   return ki;
 }

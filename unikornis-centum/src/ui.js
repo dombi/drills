@@ -6,6 +6,7 @@ function mutat(id) {
   document.body.classList.toggle("harmat-rejtett", nyitasHarmatRejtett());   /* 💧 újonc: a harmat a „harmat” napjáig nem látszik (nyitas.js) */
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
   if (id === "kepernyo-vege") vegeGombok();
+  if (id === "kepernyo-jatek") $("jatek-haza").textContent = "← " + (visszaCelNev() || "Vissza");   /* 🐴 8. hullám: a hely neve, ahová visszamegy */
   megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
   if (FELHO.offline && HATIZSAK_BIZTOS[id]) felhoCsendesBelep();   /* 📴 net nélkül belépve: a térképen / profilválasztón próbál visszalépni a felhőbe */
 }
@@ -36,8 +37,8 @@ function terkepNyit(hol) {
    (A kivonulás-animációk — odú: szivárványhíd, utca: szivárványkapu, felhőkert: kilépés — a végén visszaUgrik-ot hívnak.) */
 var VISSZA = {
   liget:   { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
-  palya:   { szulo: "liget",  felirat: "← Liget",  gomb: "jatek-haza" },
-  fejtoro: { szulo: "liget",  felirat: "← Liget",  gomb: "ft-haza" },
+  palya:   { szulo: "liget",  felirat: "← Vissza",  gomb: "jatek-haza" },   /* a pálya indulásakor a hely neve kerül rá (visszaCelNev) */
+  fejtoro: { szulo: "liget",  felirat: "← " + LIGET_NEV.fejtoro[1],  gomb: "ft-haza" },
   odu:     { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "odu-vissza" },
   kert:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "kert-vissza" },
   utca:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "utca-vissza" },
@@ -114,15 +115,22 @@ function nyitasJelenet(hol, kepernyo) {
   }, 900);
   return true;
 }
-/* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
+/* 🐴 8. hullám: a hely neve, ahová a pálya után visszamegy — közelkép-ház pályája: a közelkép neve (helyPalyaHol);
+   a régi belsős helyeké (Bagolykönyvtár, Fejtörő-hegy) a LIGET_NEV-ből. Az állapotból számol (palyaInditas / fejtoroInditas jegyzi). */
+function visszaCelNev() {
+  if (FOMENU_LIGET) return (LIGET_NEV[FOMENU_LIGET] || [])[1] || "";
+  var h = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny && palyaKeres(TERKEP_HOL.id) ? helyPalyaHol(TERKEP_HOL.id) : null;
+  return h ? HELYEK[h.tabla || "vilag"].nev : "";
+}
+/* a pálya vége: „Tovább: <helynév>” + „🐴 Thinking horses” */
 function vegeGombok() {
-  var ln = LIGET_NEV[FOMENU_LIGET], bkt = BKT_VEGE;
+  var cel = visszaCelNev(), bkt = BKT_VEGE;
   BKT_VEGE = false;                                /* 📚 a közös könyvtári végképernyő csak arra az egy megjelenésre (bktVege) */
   $("kepernyo-vege").classList.toggle("bkt-vege", bkt);
   $("vege-meg").hidden = !bkt;
   $("vege-terkep").hidden = bkt;
   if (!bkt) document.querySelector("#kepernyo-vege h2").textContent = "Megérkeztél!";
-  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (cel ? "Tovább: " + cel : "Tovább");
 }
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
@@ -238,8 +246,6 @@ function renderFomenu() {
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
   }
-  var hivMondat = nyitasVersHivas(bent);         /* 🌰🎵 elakadás után: „Mondjuk el együtt a bontásokat!” (nyitas.js) */
-  if (hivMondat) setTimeout(function () { if (FOMENU_LIGET === bent) mondd(hivMondat); }, 900);
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
     $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */

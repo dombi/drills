@@ -38,9 +38,13 @@ var LEGELO_ELR = {
     fu: function () { return [nyFu(30, 740), nyFu(200, 752), nyFu(370, 744), nyFu(330, 600), nyViragok([[20, 724], [150, 748], [250, 740], [380, 728], [60, 600], [300, 612]])].join(""); } }
 };
 var LEGELO_ALAP_SOR = ["ragyogas", "vihar", "csillamharmat", "tuz", "ejfeny"];   /* ki melyik helyen áll alapból (a rajzterv szerint) */
-/* hová mennek vissza (P().utolsoLiget → a köszönés vége); ami nincs itt, ott csak köszön */
-var LEGELO_HOVA = { osszeado: "az Összeadó ligetbe", szorzo: "a Szorzós ligetbe", szabo: "a Szabóműhelybe", bajital: "a Bájitalkonyhába",
-                    pekseg: "a Mézes pékségbe", konyvtar: "a Bagolykönyvtárba", vasar: "a Tündérvásárba", fejtoro: "a Fejtörő-hegyre" };
+/* hová mennek vissza (P().utolsoLiget → a köszönés vége); ami nincs itt, ott csak köszön.
+   8. hullám: a világkép helyei (helyek.js) — a pálya után a hely-id mentődik (hely.js helyPalyaVissza) */
+var LEGELO_HOVA = { erdoszel: "az Erdőszélre", "osszeado-utca": "az Összeadó utcába", "dallam-ter": "a Dallam-térre", kezmuvesek: "a Kézművesekhez",
+                    domboldal: "a Domboldalra", ter: "a Nagyfa térre", postafa: "a Postafához", konyvtar: "a Bagolykönyvtárba", fejtoro: "a Fejtörő-hegyre" };
+/* a régi mentések liget-értékei → a mai hely (a mentett mező marad, csak a köszönés fordítja le) */
+var LEGELO_REGI = { osszeado: "erdoszel", szorzo: "dallam-ter", szabo: "kezmuvesek", bajital: "kezmuvesek", pekseg: "kezmuvesek",
+                    piac: "ter", vasar: "ter", egyeni: "postafa" };
 var LEGELO_MONDAT = {
   kerdez: "Kivel játszol ma, {n}?", kerdezN: "Kivel játszol ma?",
   vissza: "Szia, {n}! Megyünk vissza {h}?", visszaN: "Szia! Megyünk vissza {h}?",
@@ -306,7 +310,7 @@ function legeloKopp(g) {
 }
 /* köszönés: hol jártak legutóbb; akivel még sosem játszott, az örül */
 function legeloKoszon(l) {
-  var n = nyitoNev(), p = mentes.profilok[l] || {}, h = LEGELO_HOVA[p.utolsoLiget];
+  var n = nyitoNev(), p = mentes.profilok[l] || {}, h = LEGELO_HOVA[LEGELO_REGI[p.utolsoLiget] || p.utolsoLiget];
   if (h) return (n ? LEGELO_MONDAT.vissza.replace("{n}", n) : LEGELO_MONDAT.visszaN).replace("{h}", h);
   if (legeloSosem(l)) return n ? LEGELO_MONDAT.uj.replace("{n}", n) : LEGELO_MONDAT.ujN;
   return n ? veletlenElem(NYITO_KOSZON).replace("{n}", n) : veletlenElem(NYITO_KOSZON_N);

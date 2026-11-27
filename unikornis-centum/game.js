@@ -1097,6 +1097,9 @@ var HELY_NEV = {
   kerekhaz: "Kerek ház", holdfeny: "Holdfény-ház", kamra: "Répás kamra", harangjatek: "Harangjátékos ház", kut: "Kút", harang: "Harangláb",
   duc: "Galambdúc", lada: "Levelesláda"   /* a levelek neve: a pálya neve (helyNevOf → postafa) */
 };
+/* „hol?” alak a közelképekhez (8. hullám: a vers-hívás mondja — nyitas.js nyitasVersHivas) */
+var HELY_BEN = { erdoszel: "az Erdőszélen", "osszeado-utca": "az Összeadó utcában", "dallam-ter": "a Dallam-téren", kezmuvesek: "a Kézműveseknél",
+                 domboldal: "a Domboldalon", ter: "a Nagyfa téren", postafa: "a Postafánál" };
 /* ============ 2) SEGÉDEK ============ */
 function $(id) { return document.getElementById(id); }
 function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -4015,15 +4018,18 @@ function nyitasPalyaVilagit(pa) {
   var e = nyitasLigetElso(lg, m.sor, m.o);
   return !!e && e.pa === pa;
 }
-/* a liget belsejébe lépve: ha ma elakadás miatt egy vers hív, az unikornis egyszer szól (ui.js renderFomenu) */
-function nyitasVersHivas(lg) {
-  var m = nyitasMenet(); if (!m) return "";
-  var r = m.r, nap = nyitasNapja(r, m.p), ki = "";
+/* 8. hullám: a vers közelképébe lépve (Erdőszél: tölgy, Dallam-tér: harangláb — ahol a vers-pálya lakik, hely.js helyPalyaHol):
+   ha ma elakadás miatt a vers hív, az unikornis egyszer szól, a hely nevével („…az Erdőszélen!”), és a tárgy megmozdul (hely.js renderKozelkep).
+   Vissza: { mondat, hely, latta() } — a latta() akkor jegyzi, ha tényleg elhangzott — vagy null. */
+function nyitasVersHivas(tabla) {
+  var m = nyitasMenet(); if (!m) return null;
+  var r = m.r, nap = nyitasNapja(r, m.p), ki = null;
   nyitasVersek(m.o).forEach(function (v) {
-    if (ki || r.hiv[v.id] !== nap || r.hivM[v.id] === nap || v.hiv.indexOf(lg) < 0) return;
+    if (ki || r.hiv[v.id] !== nap || r.hivM[v.id] === nap) return;
+    var hol = helyPalyaHol(v.id); if (!hol || hol.tabla !== tabla) return;
     if (nyitasLigetAllapot(r, m.sor, v.liget, nyitasEgyeniVan()) === "alszik") return;
-    r.hivM[v.id] = nap; ment();
-    ki = v.liget === lg ? v.mondat : v.mondat.replace("!", " " + (v.liget === "szorzo" ? "a Szorzós ligetben" : "az Összeadó ligetben") + "!");
+    ki = { mondat: v.mondat.replace("!", (HELY_BEN[tabla] ? " " + HELY_BEN[tabla] : "") + "!"), hely: hol.hely,
+           latta: function () { r.hivM[v.id] = nap; ment(); } };
   });
   return ki;
 }
@@ -25803,10 +25809,17 @@ function helyPalyaHol(paId, tabla) {
 }
 /* palyaInditas hívja: a pálya után a közelképbe, a ház elé jön vissza (nem a régi Piactérre / liget-belsőbe) */
 function helyPalyaVissza(pa) {
-  if (!pa || !helyPalyaHol(pa.id)) return false;
+  var hol = pa && helyPalyaHol(pa.id); if (!hol) return false;
   FOMENU_LIGET = null; TERKEP_HOL = { leny: mentes.leny, id: pa.id }; VILAG_KIZOOM = pa.id;
-  var r = palyaLiget(pa); if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
+  var r = helyVilagGazda(hol.tabla) || palyaLiget(pa);   /* 8. hullám: a világkép helye (pl. "erdoszel") — a legelő ezt köszöni (legelo.js LEGELO_HOVA) */
+  if (P().utolsoLiget !== r) { P().utolsoLiget = r; ment(); }
   return true;
+}
+/* a közelkép háza a világképen (pl. "erdoszel" → "erdoszel", "ter" → "ter"); tabla nélkül (maga a világkép) null */
+function helyVilagGazda(tabla) {
+  if (!tabla || tabla === "vilag") return null;
+  var g = HELYEK.vilag.helyek.filter(function (h) { return h.cel.kozelkep === tabla; })[0];
+  return g ? g.id : null;
 }
 /* a hely id-je (TERKEP_HOL: hely-id vagy liget-id) — ha több hely viszi ugyanazt a ligetet, az, amelyiken át bement */
 function vilagHelyId(id) {
@@ -25887,11 +25900,27 @@ function helySorrend(H, jel) {
   });
   return leg ? leg.id : null;
 }
+/* 🛡️ ŐRSZEM (8. hullám, 5. döntés A): unikornisonként egyszer, az első világkép-rajzoláskor a fejlesztői konzolba írja, ha egy
+   látható pálya egyik helyen sem lakik — sem közelkép-házban / levélben (helyPalyaHol), sem a régi belsős helyeken
+   (a világkép cel.regio-i: Bagolykönyvtár, Fejtörő-hegy). A gyerek nem látja. */
+var HELY_ORSZEM = {};
+function helyOrszem() {
+  if (HELY_ORSZEM[mentes.leny]) return; HELY_ORSZEM[mentes.leny] = 1;
+  try {
+    var regiok = HELYEK.vilag.helyek.map(function (h) { return h.cel.regio; }).filter(Boolean);
+    var hiany = egyeniPalyak().concat(PALYAK).filter(function (pa) {
+      if (pa.hamarosan || palyaRejtve(pa) || helyPalyaHol(pa.id)) return false;
+      var r = palyaLiget(pa); return regiok.indexOf(r) < 0 && regiok.indexOf(terkepGazda(r)) < 0;
+    }).map(function (pa) { return pa.id; });
+    if (hiany.length) console.warn("🐴 Őrszem: ezek a látható pályák egyik helyen sem laknak:", hiany.join(", "));
+  } catch (e) { console.warn("🐴 Őrszem: nem sikerült ellenőrizni", e); }
+}
 function renderVilag(racs, L) {
   var host = el("div", "terkep-host hely-host uni-terep");
   racs.appendChild(host);
   var hol0 = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny ? TERKEP_HOL : null;
   postafaKioszt();
+  helyOrszem();
   if (hol0 && hol0.kozel && HELYEK[hol0.kozel]) { renderKozelkep(host, L, hol0.kozel, hol0.id, true, true); return; }   /* újrarajzolás (ablakméret) közben a közelképben marad */
   /* közelképből jött (pl. a Szabóműhelyből): a közelkép nyílik, ott áll az unikornis */
   var kozel = hol0 && !helyKeres(HELYEK.vilag, hol0.id) && hol0.id && helyRegiobol(hol0.id, "vilag");
@@ -25936,7 +25965,7 @@ function renderVilag(racs, L) {
     var id = ebred[0], lako = ebredR.filter(function (r) { return helyRegiobol(r) === id && TERKEP_GAZDA[r]; })[0];
     ebredR.forEach(nyitasLatta);
     ebred.forEach(function (g) { if (jel[g] && jel[g]._j) jel[g] = jel[g]._j; });
-    var ebMondat = lako ? "Nézd, felébredt " + nevelo(LIGET_NEV[lako][1]) + " " + LIGET_NEV[lako][1] + "!" : null;
+    var ebNev = helyNevOf(id), ebMondat = lako ? "Nézd, felébredt " + nevelo(ebNev) + " " + ebNev + "!" : null;   /* 8. hullám: a hely neve (nem a régi „Tündérvásár”) */
     setTimeout(function () { if (VILAG_M === M && M.svg.isConnected) helyEbreszt(M, id, ebMondat); }, 700);
   }
 }
@@ -26016,6 +26045,17 @@ function renderKozelkep(host, L, tabla, hol, kifele, csendes) {
   else { VILAG_KIZOOM = null; if (hol && !csendes) helyKinagyit(M, hol); }
   if (csendes) return;
   var nev = HELYEK[tabla].nev; helyNevTabla(M, nev); if (!kifele) mondd(nev + "!");
+  var hiv = nyitasVersHivas(tabla);   /* 🌰🎵 8. hullám: elakadás után a vers hív — a tölgy / harangláb megmozdul (nyitas.js) */
+  if (hiv) setTimeout(function () {
+    if (VILAG_M !== M || !M.svg.isConnected || !$("kepernyo-fomenu").classList.contains("aktiv")) return;
+    hiv.latta(); helyVersMozdul(M, hiv.hely); mondd(hiv.mondat);
+  }, kifele ? 900 : 1600);
+}
+/* a vers háza megmozdul (lendül) és felragyog — nyugalmas módban csak ragyog */
+function helyVersMozdul(M, id) {
+  var g = M.svg.querySelector('.terkep-hely[data-id="' + id + '"]'), hb = g && g.querySelector(".hb"); if (!hb) return;
+  if (!nyugiMod()) { g.classList.remove("vers-hiv"); void g.getBoundingClientRect(); g.classList.add("vers-hiv"); setTimeout(function () { g.classList.remove("vers-hiv"); }, 4200); }
+  hb.classList.add("bemutat-ragyog"); setTimeout(function () { hb.classList.remove("bemutat-ragyog"); }, 6500);
 }
 function kozelKoppint(id) {
   var M = VILAG_M; if (!M || !M.svg.isConnected) return;
@@ -31770,6 +31810,7 @@ function mutat(id) {
   document.body.classList.toggle("harmat-rejtett", nyitasHarmatRejtett());   /* 💧 újonc: a harmat a „harmat” napjáig nem látszik (nyitas.js) */
   if (id === "kepernyo-jatek" || id === "kepernyo-fejtoro") idomeroInd(); else idomeroAll();
   if (id === "kepernyo-vege") vegeGombok();
+  if (id === "kepernyo-jatek") $("jatek-haza").textContent = "← " + (visszaCelNev() || "Vissza");   /* 🐴 8. hullám: a hely neve, ahová visszamegy */
   megfKepernyo(id);   /* 🔍 pálya után hová ment (megf-naplo.js, láthatatlan) */
   if (FELHO.offline && HATIZSAK_BIZTOS[id]) felhoCsendesBelep();   /* 📴 net nélkül belépve: a térképen / profilválasztón próbál visszalépni a felhőbe */
 }
@@ -31800,8 +31841,8 @@ function terkepNyit(hol) {
    (A kivonulás-animációk — odú: szivárványhíd, utca: szivárványkapu, felhőkert: kilépés — a végén visszaUgrik-ot hívnak.) */
 var VISSZA = {
   liget:   { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "fomenu-vissza" },   /* a liget belseje (a gomb a térképen „🦄 Váltás”) */
-  palya:   { szulo: "liget",  felirat: "← Liget",  gomb: "jatek-haza" },
-  fejtoro: { szulo: "liget",  felirat: "← Liget",  gomb: "ft-haza" },
+  palya:   { szulo: "liget",  felirat: "← Vissza",  gomb: "jatek-haza" },   /* a pálya indulásakor a hely neve kerül rá (visszaCelNev) */
+  fejtoro: { szulo: "liget",  felirat: "← " + LIGET_NEV.fejtoro[1],  gomb: "ft-haza" },
   odu:     { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "odu-vissza" },
   kert:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "kert-vissza" },
   utca:    { szulo: "terkep", felirat: "← " + VILAG_NEV, gomb: "utca-vissza" },
@@ -31878,15 +31919,22 @@ function nyitasJelenet(hol, kepernyo) {
   }, 900);
   return true;
 }
-/* a pálya vége: „Tovább a ligetben” (a liget jelével) + „🗺️ Térkép” */
+/* 🐴 8. hullám: a hely neve, ahová a pálya után visszamegy — közelkép-ház pályája: a közelkép neve (helyPalyaHol);
+   a régi belsős helyeké (Bagolykönyvtár, Fejtörő-hegy) a LIGET_NEV-ből. Az állapotból számol (palyaInditas / fejtoroInditas jegyzi). */
+function visszaCelNev() {
+  if (FOMENU_LIGET) return (LIGET_NEV[FOMENU_LIGET] || [])[1] || "";
+  var h = TERKEP_HOL && TERKEP_HOL.leny === mentes.leny && palyaKeres(TERKEP_HOL.id) ? helyPalyaHol(TERKEP_HOL.id) : null;
+  return h ? HELYEK[h.tabla || "vilag"].nev : "";
+}
+/* a pálya vége: „Tovább: <helynév>” + „🐴 Thinking horses” */
 function vegeGombok() {
-  var ln = LIGET_NEV[FOMENU_LIGET], bkt = BKT_VEGE;
+  var cel = visszaCelNev(), bkt = BKT_VEGE;
   BKT_VEGE = false;                                /* 📚 a közös könyvtári végképernyő csak arra az egy megjelenésre (bktVege) */
   $("kepernyo-vege").classList.toggle("bkt-vege", bkt);
   $("vege-meg").hidden = !bkt;
   $("vege-terkep").hidden = bkt;
   if (!bkt) document.querySelector("#kepernyo-vege h2").textContent = "Megérkeztél!";
-  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (ln ? ln[0] + " " : "") + "Tovább a ligetben";
+  $("vege-fomenu").textContent = bkt ? "📚 Vissza a polchoz" : (cel ? "Tovább: " + cel : "Tovább");
 }
 function ligetbeLep(r) { ligetJegyez(r); renderFomenu(); fomenuFelulre(); }
 function fomenuFelulre() { var r = $("palya-racs"); if (r) r.scrollTop = 0; }
@@ -32002,8 +32050,6 @@ function renderFomenu() {
     if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
     return kart;
   }
-  var hivMondat = nyitasVersHivas(bent);         /* 🌰🎵 elakadás után: „Mondjuk el együtt a bontásokat!” (nyitas.js) */
-  if (hivMondat) setTimeout(function () { if (FOMENU_LIGET === bent) mondd(hivMondat); }, 900);
   (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
     var szek = el("div", "palya-regio r-" + regio);
     $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
@@ -32380,9 +32426,13 @@ var LEGELO_ELR = {
     fu: function () { return [nyFu(30, 740), nyFu(200, 752), nyFu(370, 744), nyFu(330, 600), nyViragok([[20, 724], [150, 748], [250, 740], [380, 728], [60, 600], [300, 612]])].join(""); } }
 };
 var LEGELO_ALAP_SOR = ["ragyogas", "vihar", "csillamharmat", "tuz", "ejfeny"];   /* ki melyik helyen áll alapból (a rajzterv szerint) */
-/* hová mennek vissza (P().utolsoLiget → a köszönés vége); ami nincs itt, ott csak köszön */
-var LEGELO_HOVA = { osszeado: "az Összeadó ligetbe", szorzo: "a Szorzós ligetbe", szabo: "a Szabóműhelybe", bajital: "a Bájitalkonyhába",
-                    pekseg: "a Mézes pékségbe", konyvtar: "a Bagolykönyvtárba", vasar: "a Tündérvásárba", fejtoro: "a Fejtörő-hegyre" };
+/* hová mennek vissza (P().utolsoLiget → a köszönés vége); ami nincs itt, ott csak köszön.
+   8. hullám: a világkép helyei (helyek.js) — a pálya után a hely-id mentődik (hely.js helyPalyaVissza) */
+var LEGELO_HOVA = { erdoszel: "az Erdőszélre", "osszeado-utca": "az Összeadó utcába", "dallam-ter": "a Dallam-térre", kezmuvesek: "a Kézművesekhez",
+                    domboldal: "a Domboldalra", ter: "a Nagyfa térre", postafa: "a Postafához", konyvtar: "a Bagolykönyvtárba", fejtoro: "a Fejtörő-hegyre" };
+/* a régi mentések liget-értékei → a mai hely (a mentett mező marad, csak a köszönés fordítja le) */
+var LEGELO_REGI = { osszeado: "erdoszel", szorzo: "dallam-ter", szabo: "kezmuvesek", bajital: "kezmuvesek", pekseg: "kezmuvesek",
+                    piac: "ter", vasar: "ter", egyeni: "postafa" };
 var LEGELO_MONDAT = {
   kerdez: "Kivel játszol ma, {n}?", kerdezN: "Kivel játszol ma?",
   vissza: "Szia, {n}! Megyünk vissza {h}?", visszaN: "Szia! Megyünk vissza {h}?",
@@ -32648,7 +32698,7 @@ function legeloKopp(g) {
 }
 /* köszönés: hol jártak legutóbb; akivel még sosem játszott, az örül */
 function legeloKoszon(l) {
-  var n = nyitoNev(), p = mentes.profilok[l] || {}, h = LEGELO_HOVA[p.utolsoLiget];
+  var n = nyitoNev(), p = mentes.profilok[l] || {}, h = LEGELO_HOVA[LEGELO_REGI[p.utolsoLiget] || p.utolsoLiget];
   if (h) return (n ? LEGELO_MONDAT.vissza.replace("{n}", n) : LEGELO_MONDAT.visszaN).replace("{h}", h);
   if (legeloSosem(l)) return n ? LEGELO_MONDAT.uj.replace("{n}", n) : LEGELO_MONDAT.ujN;
   return n ? veletlenElem(NYITO_KOSZON).replace("{n}", n) : veletlenElem(NYITO_KOSZON_N);
@@ -34007,7 +34057,7 @@ function esemenyek() {
   $("tovabb-megoldas-nelkul-f").addEventListener("click", tovabbMegoldasNelkul);
   $("kerulo-gomb").addEventListener("click", keruloUt);
   $("ft-haza").addEventListener("click", function () { hangGomb(); fejtoroKilep(); });
-  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább a ligetben */
+  $("vege-fomenu").addEventListener("click", function () { hangGomb(); renderFomenu(); mutat("kepernyo-fomenu"); });   /* Tovább: <helynév> (ui.js vegeGombok) */
   $("vege-terkep").addEventListener("click", function () { hangGomb(); terkepNyit(FOMENU_LIGET); });   /* a liget mellett áll majd */
   $("szuloi-vissza").addEventListener("click", function () { hangGomb(); legeloNyit(); });
   $("beall-hang").addEventListener("change", function () { mentes.hang = $("beall-hang").checked; ment(); });
