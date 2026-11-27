@@ -166,7 +166,7 @@ HELYEK.erdoszel = {
   patak: [[0.756, 0.467], [0.72, 0.531], [0.721, 0.589], [0.735, 0.642], [0.746, 0.696], [0.73, 0.758], [0.719, 0.778], [0.666, 0.793], [0.7725, 0.793],
            [0.7725, 0.7844], [0.8313, 0.7711], [0.9125, 0.7644], [1.0, 0.7511], [1.075, 0.7511]],   /* az ér, a tócsa és a sövény a túlsó part alján: nem járható (csak a pallón át) */
   helyek: [
-    { id: "kisgomba",  x: 0.3419, y: 0.889, w: 0.16, h: 0.21, all: [0.4375, 0.906], jel: [0.325, 0.66], kep: "kisgomba",  rk: 2.0, doboz: [0.2575, 0.6889, 0.1675, 0.2178], cel: { palyak: ["oszkiv-10"] } },
+    { id: "kisgomba",  x: 0.3419, y: 0.889, w: 0.16, h: 0.21, all: [0.4375, 0.906], jel: [0.325, 0.66], kep: "kisgomba",  rk: 2.0, doboz: [0.2575, 0.6889, 0.1675, 0.2178], ajto: [0.31, 0.827], cel: { palyak: ["oszkiv-10"] } },   /* ajto: 🍄 16a belépés (hely.js helyAjtoNezet) */
     { id: "nagygomba", x: 0.8438, y: 0.622, w: 0.17, h: 0.29,  all: [0.781, 0.649], jel: [0.8438, 0.30], kep: "nagygomba", rk: 2.6, doboz: [0.7550, 0.3267, 0.1800, 0.3133], cel: { palyak: ["oszkiv-20"] } },
     { id: "ret",       x: 0.8406, y: 0.924, w: 0.235, h: 0.19, all: [0.7125, 0.8956], jel: [0.8406, 0.72], kep: "ret", lepes: 3, rk: 2.0, doboz: [0.7094, 0.7133, 0.2625, 0.2378], cel: { palyak: ["bujocska-ret"] } },
     { id: "tolgy",     x: 0.2075, y: 0.717, w: 0.28, h: 0.53, all: [0.325, 0.767], jel: [0.2063, 0.19], kep: "tolgy", lepes: 3, rk: 3.4, doboz: [0.0612, 0.1611, 0.2925, 0.5889], cel: { palyak: ["bontas-felmondas"] } }

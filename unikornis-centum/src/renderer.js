@@ -1986,6 +1986,7 @@ function erdoHatterSVG() {
 }
 function jelenetSVG(palya, lenyKulcs) {
   var c = LENYEK[lenyKulcs];
+  if (palya.belso) return belsoSVG(palya, c);                /* 🍄 a ház belseje (belso.js; 16a — csak a kapcsolós pályán) */
   if (palya.muhely) return muhelyJelenetSVG(palya, c);       /* mérés-ligetek: műhely-ösvény (meres.js) */
   if (palya.konyvtar) return konyvtarJelenetSVG(palya, c);   /* 📚 Bagolykönyvtár: olvasóasztalok (konyvtar.js) */
   if (palya.hely === "irasbeli") return irLepcsoJelenetSVG(palya, c);   /* ✍️ Garas tornya: a torony belseje, csigalépcső asztalokkal (irasbeli.js) */

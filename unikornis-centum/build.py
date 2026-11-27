@@ -86,6 +86,7 @@ MODULES = [
     "fizess-mozgo.js",    # 6h8) 💰 a ④ „Biztos, lehet, lehetetlen” mozgóképe: bemutató (egyszer) + rossz tál után a feladat számaival
     "leny.js",            # 6k) 🐣 a kis lény: varázstojás → fióka (rajzoló, odú-fészek, kikelés, névadás) — visszahívás 3. kör
     "leny-kiser.js",      # 6k2) 🐉 kölyök az ösvényen: a megtalált kölyök kíséri az unikornist (osveny.js hívja) + pult-kapcsoló
+    "belso.js",           # 6k2b) 🍄 a ház belseje: a pálya képe a ház szobájában (16a; a pályán belso: "…")
     "sarkany-holmi.js",   # 6k3) 🐉 sárkány-holmi: 12 holmi × 10 részlet, kívánság-tábla, odú-réteg (ágy, kupac, felrakás), kérés
     "kolyok-mozdul.js",   # 6k4) 🐉 kölyök-mozdulatok: a kölyök egész alakban (KolyokFig — pózok, bolti mancs, séta, pislogás); először a boltban
     "terkep.js",          # 6j) 🗺️ közös térkép-modul (helyek, utak, útkereső, séta) + a festett ligettérkép + az unikornis a liget-belsőben

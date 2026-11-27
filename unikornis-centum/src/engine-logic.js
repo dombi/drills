@@ -93,8 +93,8 @@ function palyaInditas(id) {
   $("szinpad").innerHTML = jelenetSVG(pa, mentes.leny);
   var mhT = pa.muhely && MR.LIGA[pa.muhely];   /* mérés-ligetek: a jelenet fölött fal, alatta padló (keskeny/magas kijelzőn) */
   $("szinpad").style.background = mhT ? "linear-gradient(" + mhT.fal1 + " 50%, " + mhT.padlo + " 50%)"
-    : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.jelenet) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
-  osvenyIndul();                                    /* az unikornis a Rajtnál (osveny.js) */
+    : pa.belso ? "linear-gradient(#fde6d8 80%, #c99a6a 80%)" : pa.konyvtar ? "linear-gradient(#f3e3cb 30%, #e3c29a 30%)" : (pa.vasar || pa.piac || pa.jelenet) ? "linear-gradient(#f9dcc0 40%, #eee4c8 40%)" : "";
+  if (pa.belso) belsoIndul(); else osvenyIndul();   /* az unikornis a Rajtnál (osveny.js) · 🍄 a ház belsejében az ajtó előtt (belso.js) */
   $("bagoly-buborek").hidden = true;
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
@@ -110,7 +110,7 @@ function palyaInditas(id) {
 function kovAllomas() {
   J.allomasIdx++;
   var i = J.allomasIdx, a = J.allomasok[i];
-  osvenyAllomasra(i, function () {                 /* az út görbéjén, a közös járással (osveny.js) */
+  (J.palya.belso ? function (i, k) { belsoAllomasra(i, a.darab || 5, k); } : osvenyAllomasra)(i, function () {   /* az út görbéjén, a közös járással (osveny.js) · 🍄 belső: a mostani tárgy mellé (belso.js) */
     J.probak = 0; J.feladatKesz = 0; J.kerultKulcsok = {};
     J.allomasHibatlan = true;                 /* jelvény: „Hibátlan állomás" – egy hibás válasz kikapcsolja */
     var felmondosE = (a.tipus === "szambontas" || a.tipus === "szorzotabla-felmondas");
@@ -236,6 +236,7 @@ function csillagRepul(honnanEl) {
 }
 function renderPottyok() {
   var box = $("haladas-pottyok"); box.innerHTML = "";
+  box.style.display = J.palya.belso ? "none" : "";   /* 🍄 a ház belsejében a szentjánosbogarak mutatják (tervlap 1A) */
   for (var i = 0; i < J.feladatDb; i++)
     box.appendChild(el("span", "potty" + (i < J.feladatKesz ? " kesz" : (i === J.feladatKesz ? " most" : ""))));
 }
@@ -450,6 +451,7 @@ function ertekel(valasz) {
     } else {
       (J.bktP || (J.bktP = [])).push(!(J.pottyHibas || f.vezet || f.vegigVolt)); J.pottyHibas = false;   /* 📚 pöttyönként: önálló (arany) vagy segítséggel (lila) */
       J.feladatKesz++; if (f.ek) ekPottyKesz();
+      if (J.palya.belso) belsoBogar(J.feladatKesz);   /* 🍄 egy szentjánosbogár beröppen (belso.js) */
     }   /* 📚 könyvtár: a pötty kész (elsőre jó-e → kocka-nap) */
     if (P().jelvSzam) {                        /* jelvény-számlálók */
       if (mentes.valaszmod === "beszed") P().jelvSzam.beszedFeladat = (P().jelvSzam.beszedFeladat || 0) + 1;
@@ -740,6 +742,7 @@ function allomasKesz() {
   $("jatek-csillampor").textContent = P().csillampor; ment();
   if (J.allomasHibatlan && P().jelvSzam) P().jelvSzam.hibatlanAllomas = 1;   /* jelvény: minden feladat elsőre jó volt */
   jelvenyEllenoriz();
+  if (J.palya.belso) { belsoKesz(function () { if (a.cel) belsoLefekves(palyaVege); else kovAllomas(); }); return; }   /* 🍄 „Tedd a helyére!”, utána tovább (belso.js) */
   if (a.cel) { osvenyOduba(palyaVege); return; }   /* besétál az odúba, aztán a jutalom */
   mondd("Ügyes! Mehetünk tovább.", function () { kovAllomas(); });
 }
@@ -754,14 +757,16 @@ function keruloUt() {
   var pipa = $("pipa-" + J.allomasIdx);
   if (pipa) { var kr = pipa.querySelector("circle"); if (kr) kr.setAttribute("fill", "#cdbfe0"); pipa.setAttribute("opacity", "1"); }
   mondd("Menjünk a hosszú úton.");
-  osvenyKerulo(J.allomasIdx, function () {          /* kitérő a fűben, a következő állomásnál vissza (osveny.js) */
+  var utan = function () {
     var kd = dropProbal(0.25);           /* kerülőn: állomásonként 25% talált tárgy */
     if (kd && kd.talalt && P().jelvSzam) P().jelvSzam.keruloTargy = (P().jelvSzam.keruloTargy || 0) + 1;
     dropUnnepel(kd);
     jelvenyEllenoriz();
-    if (a.cel) { osvenyOduba(palyaVege); return; }
+    if (a.cel) { if (J.palya.belso) belsoLefekves(palyaVege); else osvenyOduba(palyaVege); return; }
     kovAllomas();
-  });
+  };
+  if (J.palya.belso) belsoKerulo(utan);   /* 🍄 kimegy az ajtón, és a tárgyat lilásan hozza vissza; a gyerek leteszi (belso.js) */
+  else osvenyKerulo(J.allomasIdx, utan);   /* kitérő a fűben, a következő állomásnál vissza (osveny.js) */
 }
 function palyaVege() {
   var id = J.palya.id;

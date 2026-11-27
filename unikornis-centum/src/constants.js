@@ -29,6 +29,7 @@ var PALYAK = [
   {
     id: "oszkiv-10", nev: "Összeadás-kivonás 10-ig", ikon: "➕",
     szint: 1,
+    belso: "kisgomba",   /* 🍄 16a: a pálya a Kis gombaház belsejében (belso.js); ha kiveszed, a régi ösvény jön vissza */
     palcim: "Adj össze és vegyél el — tízig, átlépés nélkül",
     alap: { tipus: "osszeadas", eredmeny_max: 10, atlepes: "nincs", a_min: 1, a_max: 9, b_min: 1, b_max: 9 },
     kez_nelkul: true,

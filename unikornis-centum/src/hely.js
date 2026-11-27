@@ -670,9 +670,14 @@ function helySarokGombok(M, o) {
 }
 
 /* ── RÁKÖZELÍTÉS egy helyre, aztán kesz (a hívó nyitja a célt) ── */
-function helyBelep(M, id, kesz) {
+function helyBelep(M, id, kesz, ajto) {
   var h = helyKeres(M.H, id); if (!h) { kesz(); return; }
-  helyZoom(M, M.vb, helyCelNezet(M, h), { halvanyul: true }, kesz);
+  helyZoom(M, M.vb, ajto ? helyAjtoNezet(M, h) : helyCelNezet(M, h), { halvanyul: true }, kesz);
+}
+/* 🍄 16a: a ház-belsős pályán (belso.js) a kép a ház ajtajára közelít — onnan nyílik a belső */
+function helyAjtoNezet(M, h) {
+  var v = helyCelNezet(M, h), k = 0.42, aj = h.ajto || [h.x, h.y - h.h * 0.22], cx = aj[0] * M.H.kep.w, cy = aj[1] * M.H.kep.h;   /* h.ajto: az ajtó pontja (helyek.js) */
+  return [cx - v[2] * k / 2, cy - v[3] * k / 2, v[2] * k, v[3] * k];
 }
 /* ── KINAGYÍTÁS: a kép a hely közelképéből nyílik ki (visszatérés egy helyről) ── */
 function helyKinagyit(M, id) {
@@ -997,7 +1002,7 @@ function helyPalyaKoppint(M, h, j) {
         helyBelep(M, h.id, function () {
           if (!$("kepernyo-fomenu").classList.contains("aktiv") || VILAG_M !== M) return;
           palyaInditas(pa.id);
-        });
+        }, !!pa.belso);
       });
     });
     return;
