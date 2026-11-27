@@ -334,6 +334,7 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 .potty{ width:15px; height:15px; border-radius:50%; background:var(--uveg); }
 .potty.kesz{ background:var(--menta); }
 .potty.most{ background:var(--sarga-mely); }
+.potty.kesz.lila{ background:#c9a8e6; }   /* a hosszú úttal kihagyott feladat (engine-logic keruloUt) */
 
 .visszajelzes{ font-size:20px; font-weight:800; min-height:26px; text-align:center; }
 .visszajelzes.jo{ color:#4e9a4a; }

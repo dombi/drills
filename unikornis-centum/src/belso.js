@@ -263,7 +263,7 @@ function blLetesz(vitt) {
   };
   if (vitt) blRepit(vitt, hon, [t.x, t.y], 520, vege, [0.38, 1]); else vege();
 }
-/* HOSSZÚ ÚT (keruloUt → keruloBelso): EGY feladatot vált ki (a producer, 11-27 — nem az egész tárgyat): kimegy a kis ajtón,
+/* HOSSZÚ ÚT (engine-logic keruloUt): EGY feladatot vált ki (a producer, 11-27 — nem az egész tárgyat): kimegy a kis ajtón,
    rövid kör odakint, visszajön a tárgy mellé; utána a motor egy LILÁS bogarat tesz a következő helyre (belsoBogar(k, true)). */
 function belsoKerulo(kesz) {
   var H = BL.haz, u = osvenyUni();

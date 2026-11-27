@@ -112,6 +112,8 @@ function osvenyKerulo(i, kesz) {
     setTimeout(function () { el.classList.remove("uni-mozd-szagol"); setTimeout(tovabb, 250); }, UNI_MOZDULAT.szagol.ido * 1000);
   } }, kesz);
 }
+/* KITÉRŐ (a hosszú út EGY feladatért, 11-27): kis kanyar a fűben, és vissza ugyanoda (a kerülő utolsó-állomásos formája) */
+function osvenyKitero(kesz) { osvenyKerulo(SCENE_N - 1, kesz); }
 /* PÁLYA VÉGE: az Odú-küszöbtől az ajtóhoz sétál, hátat fordít (bemegy), és eltűnik az ajtóban */
 function osvenyOduba(kesz) {
   var u = osvenyUni(), n = SCENE_N, ax = allomasX(n - 1) + 62, ay = allomasY(n - 1) + 14;
