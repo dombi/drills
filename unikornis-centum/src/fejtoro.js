@@ -215,6 +215,7 @@ function ftAllomas(tetel) {
   var A = FTJ.a = { f: f, tetel: tetel, segit: 0, lepesDb: 0, lepesHiba: 0, kezd: Date.now(), valaszolt: false, fuggo: false };
   ftKovek(tetel);
   var t = ftTartalom();
+  sfHegyFeladat(FTJ, FTJ.pa.id, tetel.fid);   /* 📓 a saját füzet itt is: állomásonként tiszta lap (sajat-fuzet.js) */
   if (tetel.vissza) t.appendChild(el("div", "ft-vissza-cim", "🔁 Emlékszel erre? Próbáld meg újra!"));
   var fk = el("div", "ft-kartya ft-feladat");
   fk.innerHTML = '<div class="ft-szoveg" id="ft-szoveg">' + htmlVed(f.szoveg) + '</div>';
@@ -338,7 +339,7 @@ function ftLepesKartya(l, li, hova, kesz) {
     mezo.addEventListener("input", function () { mezo.value = mezo.value.replace(/[^0-9]/g, "").slice(0, 4); });
     var ok = el("button", "kis-gomb", "OK");
     function bekuld() { if (!lezart && mezo.value) ellenoriz(parseInt(mezo.value, 10)); }
-    mezo.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); bekuld(); } });
+    mezo.addEventListener("keydown", function (e) { if (BILL_GAZDA === "fuzet") return; if (e.key === "Enter") { e.preventDefault(); bekuld(); } });   /* 📓 a saját füzeté a billentyű (sajat-fuzet.js) */
     ok.addEventListener("click", function () { hangGomb(); bekuld(); });
     vz.appendChild(mezo); vz.appendChild(ok);
   }
@@ -435,7 +436,7 @@ function ftTovabbGomb(k) {
 /* állomás kész: ✨ jár (a munkáért), a haladás mentődik — kilépés után innen folytatja */
 function ftAllomasKesz() {
   var A = FTJ.a, tetel = A.tetel;
-  if (FTJ.mester) {                                    /* 🏅 Mesterpróba: a jutalom és a Kockavár a konyvtar-mester.js-ben */
+  if (FTJ.mester) { sfPalyaVege();                     /* 🏅 Mesterpróba: a jutalom és a Kockavár a konyvtar-mester.js-ben · 📓 a füzet el */
     var tek = FTJ.mester, ido = Math.round((Date.now() - FTJ.indult) / 1000);
     FTJ = null;
     ekMesterVege(tek, A.elsore, tetel.fid, ido);
@@ -451,6 +452,7 @@ function ftAllomasKesz() {
   ftKovetkezo();
 }
 function ftVege() {
+  sfPalyaVege();   /* 📓 az utolsó állomás füzet-jele; a füzet el */
   var pid = FTJ.pa.id, st = ftAllapot().palyak[pid];
   st.poz = 0; st.kesz = (st.kesz || 0) + 1;
   P().csillampor += FT_ZARO_CSILLA; FTJ.csilla += FT_ZARO_CSILLA;
@@ -480,6 +482,7 @@ function fejtoroKilep() {
   figyelStop();
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
   if (FTJ) esemeny("palya_kilep", { palyaId: FTJ.pa.id, fejtoro: true, allomas: FTJ.i });
+  sfPalyaVege();
   FTJ = null;
   visszaUgrik("fejtoro");   /* → a liget (ui.js) */
 }

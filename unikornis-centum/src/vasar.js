@@ -676,15 +676,15 @@ GEN.vasar = function (cfg, kerultMar) {
     var intro = cfg.intro || VS_INTRO[cfg.stand];
     f.felolvas = vsKiejt(intro) + " " + f.felolvas; setTimeout(function () { bagolyMondat(intro, FIGURA.tuske.e); }, 50);
   }
-  return g >= 4 && !cfg.regiFuzet ? vsFzAtalakit(f) : f;   /* ☀️ Déli vásár: a gyerek írja a füzetet (vasar-fuzet.js, 2. kör) */
+  return f;   /* ☀️ Déli vásár is a pulton válaszol (mindenhol-füzet 2. kör, 5. döntés A; a 11-12-i vasar-fuzet.js kikerült, a git őrzi) — a saját füzet nyitva indul (sajat-fuzet.js) */
 };
 
 /* ═════════════════ MOTOR-KAPCSOLÓK (engine-logic hívja) ═════════════════ */
 function vsIndit() { J.vsCsapda = {}; J.vsResz = 0; J.vsStand = null; J.vsFuzetMondva = false; ekFuzetTorol(); vsTovabbRejt(); }
 function vsCsapdaSzamol(t) { if (J && J.vsCsapda && t) J.vsCsapda[t] = (J.vsCsapda[t] || 0) + 1; }
 function vsDicser(f, elsore) { if (f.vezet) return "Most már megvan!"; if (!elsore) return "Így már jó!"; return vsE(VS_DICSER); }
-/* a feladat buborékja: ☀️ a füzetes vásárban a füzet jobb oszlopában (vasar-fuzet.js), különben a fenti buborék */
-function vsBubEl() { var b = document.querySelector(".vs-fz-bub"); return b && b.offsetParent ? b : document.getElementById("buborek-feladat"); }
+/* a feladat buborékja */
+function vsBubEl() { return document.getElementById("buborek-feladat"); }
 function vsVillant() {
   var kk = vsBubEl() && vsBubEl().querySelector(".vs-kk"); if (!kk) return;
   kk.classList.remove("villan"); void kk.offsetWidth; kk.classList.add("villan");
