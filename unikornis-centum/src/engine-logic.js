@@ -113,6 +113,7 @@ function kovAllomas() {
   (J.palya.belso ? function (i, k) { belsoAllomasra(i, a.darab || 5, k); } : osvenyAllomasra)(i, function () {   /* az út görbéjén, a közös járással (osveny.js) · 🍄 belső: a mostani tárgy mellé (belso.js) */
     J.probak = 0; J.feladatKesz = 0; J.kerultKulcsok = {};
     J.allomasHibatlan = true;                 /* jelvény: „Hibátlan állomás" – egy hibás válasz kikapcsolja */
+    J.allomasKerult = false;                  /* 🍄 belső: volt-e hosszú út ezen az állomáson (akkor nincs állomás-jutalom) */
     var felmondosE = (a.tipus === "szambontas" || a.tipus === "szorzotabla-felmondas");
     J.feladatDb = felmondosE ? 1 : (a.darab || 5);
     /* állomás-szintű sorsolás: a „nehéz" állomás egy fókusz-számot kap az egész állomásra */
@@ -738,7 +739,7 @@ function allomasKesz() {
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
   hangAllomas();
-  var allJar = jutalom("allomas"); P().csillampor += allJar; J.futoCsilla += allJar;   /* +3, állandó (7.1a) */
+  var allJar = (J.palya.belso && J.allomasKerult) ? 0 : jutalom("allomas"); P().csillampor += allJar; J.futoCsilla += allJar;   /* +3, állandó (7.1a); 🍄 belső: hosszú úttal nincs (mint az ösvényen a kerülő állomásnál) */
   $("jatek-csillampor").textContent = P().csillampor; ment();
   if (J.allomasHibatlan && P().jelvSzam) P().jelvSzam.hibatlanAllomas = 1;   /* jelvény: minden feladat elsőre jó volt */
   jelvenyEllenoriz();
@@ -754,6 +755,7 @@ function keruloUt() {
   $("valaszter").style.visibility = "hidden";
   $("kerulo-gomb").style.display = "none";
   var a = J.allomasok[J.allomasIdx];
+  if (J.palya.belso) { keruloBelso(); return; }   /* 🍄 a ház belsejében a hosszú út EGY feladatot vált ki (belso.js) */
   var pipa = $("pipa-" + J.allomasIdx);
   if (pipa) { var kr = pipa.querySelector("circle"); if (kr) kr.setAttribute("fill", "#cdbfe0"); pipa.setAttribute("opacity", "1"); }
   mondd("Menjünk a hosszú úton.");
@@ -762,11 +764,32 @@ function keruloUt() {
     if (kd && kd.talalt && P().jelvSzam) P().jelvSzam.keruloTargy = (P().jelvSzam.keruloTargy || 0) + 1;
     dropUnnepel(kd);
     jelvenyEllenoriz();
-    if (a.cel) { if (J.palya.belso) belsoLefekves(palyaVege); else osvenyOduba(palyaVege); return; }
+    if (a.cel) { osvenyOduba(palyaVege); return; }
     kovAllomas();
   };
-  if (J.palya.belso) belsoKerulo(utan);   /* 🍄 kimegy az ajtón, és a tárgyat lilásan hozza vissza; a gyerek leteszi (belso.js) */
-  else osvenyKerulo(J.allomasIdx, utan);   /* kitérő a fűben, a következő állomásnál vissza (osveny.js) */
+  osvenyKerulo(J.allomasIdx, utan);   /* kitérő a fűben, a következő állomásnál vissza (osveny.js) */
+}
+/* 🍄 belső: a hosszú út EGY feladatot vált ki (producer, 11-27). A kihagyott feladat nem jutalmaz, és az állomás +3-a sem jár;
+   a talált tárgy esélye feladatonként a negyede (állomásonként összesen ugyanannyi, mint az ösvényen) — így nem kiskapu. */
+function keruloBelso() {
+  var f = J.feladat; if (f) f.tovabbMent = true;   /* a félbehagyott feladat késleltetett lépése ne fusson */
+  J.allomasKerult = true; J.allomasHibatlan = false;
+  mondd("Menjünk a hosszú úton.");
+  var Jmost = J;
+  belsoKerulo(function () {
+    if (J !== Jmost) return;
+    var kd = dropProbal(0.25 / Math.max(1, J.feladatDb));
+    if (kd && kd.talalt && P().jelvSzam) P().jelvSzam.keruloTargy = (P().jelvSzam.keruloTargy || 0) + 1;
+    dropUnnepel(kd);
+    jelvenyEllenoriz();
+    J.feladatKesz++; belsoBogar(J.feladatKesz, true);   /* lilás bogár a következő helyre */
+    setTimeout(function () {
+      if (J !== Jmost) return;
+      if (J.feladatKesz >= J.feladatDb) { allomasKesz(); return; }
+      $("kerulo-gomb").style.display = "block";
+      ujFeladat();
+    }, 900);
+  });
 }
 function palyaVege() {
   var id = J.palya.id;
