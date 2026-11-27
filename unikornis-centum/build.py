@@ -94,6 +94,7 @@ MODULES = [
     "palyahely.js",       # 6j3) 🛖 pálya-hely: palyaJelek (a pálya jelei EGY helyen) + a hely-készlet (cégér, bódé…) — a liget csak megnevezi (LIGET_HELY)
     "irasbeli-gen.js",    # 6j4b) ✍️ írásbeli műveletek: a mondóka-gyártó (irGyart → a füzetlap: kiosztás, célok, tankönyvi lépések + tálca-mozdulatok)
     "fuzet.js",           # 6j4c) 📓 a közös füzet-modul: kockás lap, ceruza (jegy · pont · vessző · vonal), radír, ellenőrzés, gép ír, ?fuzetproba
+    "sajat-fuzet.js",     # 6j4c2) 📓 a saját füzet: mindenhol elővehető szabad firkalap (fzLap o.szabad), BILL_GAZDA, mérés-jel — sosem válaszhely
     "garas.js",           # 6j4d) 🐾 Garas, a nyest (képregényes, 7 póz) + a torony kívülről — rajzterv: terv/irasbeli-haz-rajzterv.html
     "keret.js",           # 6j4) 🪧 tárgy-keret: a feladat egy tárgyon a képben (🪜 fok, 🖍️ tábla, ↷ ugrás) — közös készlet, a pálya csak megnevezi
     "irasbeli.js",        # 6j4e) ✍️ Garas tornya: ✖️ írásbeli szorzás (GEN.irszor, JELENETEK.irszor, csigalépcső-kép, a torony a Piactéren)

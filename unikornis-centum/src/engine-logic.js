@@ -126,7 +126,7 @@ function kovAllomas() {
 function ujFeladat() {
   var a = J.allomasok[J.allomasIdx];
   J.probak = 0; J.lepesSor = 0; J.lepesMezo = 0; J.lepesAktiv = false;
-  if (J.lancKov) { J.feladat = J.lancKov; J.lancKov = null; }   /* mérés: ugyanannak a feladatnak a következő kérdése */
+  if (J.lancKov) { J.feladat = J.lancKov; J.lancKov = null; J.feladat.sfFolytat = true; }   /* mérés: ugyanannak a feladatnak a következő kérdése (📓 a saját füzet lapja marad) */
   else if (a.tipus === "szambontas") J.feladat = GEN.szambontas(a);
   else if (a.tipus === "szorzotabla-felmondas") J.feladat = GEN["szorzotabla-felmondas"](a);
   else {
@@ -145,6 +145,7 @@ function ujFeladat() {
 }
 function feladatMutat(f) {
   J.parokKesz = 0; J.joVolt = null;
+  sfFeladat(f);                              /* 📓 a saját füzet: új feladatnál tiszta lap; ahol nem kell, a tárgy sincs ott (sajat-fuzet.js) */
   oeTorol();                                 /* 🔎/✋ az előző feladat jelzései le (olvaso-ellenor.js) */
   if (!f.ek && $("ek-fuzet")) $("ek-fuzet").hidden = true;   /* 📓 a régi könyvtári pálya füzete ne maradjon a következő pálya kérdésén (2026-10-10) */
   tenyOraElo(f);                             /* 🌸 a rejtett óra ehhez a feladathoz (teny.js) */
@@ -413,6 +414,7 @@ function rosszValaszKonyvel(f, cimke) {
   streakLep(false);
   naplozz(f.naplo, false, cimke);
   hangHiba();
+  sfRossz(f);                                /* 📓 2 rossz válasz egy írásbeli méretű feladaton: a füzet-tárgy egyszer megbillen */
 }
 function ertekel(valasz) {
   var f = J.feladat;

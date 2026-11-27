@@ -9,6 +9,8 @@
      nu: { palyaId: 1 } — aznap először kipróbált, korábban sosem játszott pálya
      v:  { palyaId: { n: végigvitel, e: elsőre jó, f: feladat, t: teljes ösvény, mp: idő } }
      k:  { palyaId: { "állomás (1-től)": kilépések } }
+     fz: { palyaId: { k: feladat, ahol ott volt a saját füzet, n: ebből elővette, j: írt jegyek } } — 📓 sajat-fuzet.js (11-27);
+         ha egy gyerek egy pályán már nem veszi elő, az a „tud” jele (se jutalom, se büntetés)
    „u” célok (nyersen; a csoportosítás a megfigyeles.js dolga): ujra (ugyanaz a pálya rögtön újra), uj (még sosem
    játszott pálya), masik (másik, már ismert pálya), odu, kert, utca, szalon, bank, tunemenykert.
    Az esemeny() (analytics.js) és a mutat() (ui.js) hívja — felhő nélkül is gyűlik, a felhőbe a többi mentéssel megy. */
@@ -53,17 +55,27 @@ function megfEsemeny(tipus, adat) {
       megfNo(megfAl(d, "i"), pid);
       if (!ismert) megfAl(d, "nu")[pid] = 1;
     } else if (tipus === "palya_end") {
+      if (typeof sfPalyaVege === "function") sfPalyaVege();   /* 📓 az utolsó feladat füzet-jele; a füzet el */
       var d2 = megfMa(), v = megfAl(d2, "v"), s = v[pid] || (v[pid] = {});
       megfNo(s, "n"); megfNo(s, "e", +adat.elsore || 0); megfNo(s, "f", +adat.feladat || 0);
       if (adat.teljes) megfNo(s, "t");
       megfNo(s, "mp", Math.round(+adat.idoMp || 0));
       _megfUtan = { pid: pid, ms: Date.now() };
     } else if (tipus === "palya_kilep") {
+      if (typeof sfPalyaVege === "function") sfPalyaVege();
       var d3 = megfMa(), k = megfAl(d3, "k"), sk = k[pid] || (k[pid] = {});
       megfNo(sk, String((+adat.allomas || 0) + 1));
       _megfUtan = null;
     }
   } catch (e) { /* a megfigyelés soha ne akassza meg a játékot */ }
+}
+/* 📓 a saját füzet feladatonkénti jele (sajat-fuzet.js sfNaploZar hívja) */
+function megfFuzet(pid, elovette, jegy) {
+  try {
+    if (typeof P !== "function" || !P() || !pid) return;
+    var fz = megfAl(megfMa(), "fz"), s = fz[pid] || (fz[pid] = {});
+    megfNo(s, "k"); if (elovette) megfNo(s, "n"); if (jegy) megfNo(s, "j", jegy);
+  } catch (e) {}
 }
 /* volt-e már ez a pálya a naplóban (a P().palyak csak a végigvitt pályákat ismeri) */
 function megfVoltMar(pid) {

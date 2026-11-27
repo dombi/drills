@@ -776,11 +776,14 @@ JE.zsiv = {
 /* ═════════════════ BEKÖTÉS: GEN.josda és JELENETEK.josda a forma szerint ═════════════════ */
 (function () {
   var genAlap = GEN.josda;
+  /* 📓 a becslő feladatokon nincs saját füzet (mindenhol-füzet tervlap, 6. döntés A): ott a pontos kiszámolás maga a kiskapu */
+  var BECSLO = { koze: 1, darab: 1, meres: 1, jos: 1, eleg: 1, szor: 1, eg: 1, zsiv: 1 };
+  function jelol(f) { if (f && f.js && BECSLO[f.js.forma]) f.fuzet = false; return f; }
   GEN.josda = function (cfg) {
-    if (!jeE(cfg.forma)) return genAlap(cfg);
+    if (!jeE(cfg.forma)) return jelol(genAlap(cfg));
     var st = jlAllapot(), i = J.feladatKesz, forma = cfg.forma, h = !!cfg.halvany;
     if (forma === "vegyes1") forma = ["cetli", "jos", "zsiv"][i % 3];
-    return JE[forma].gen(cfg, st, i, h);
+    return jelol(JE[forma].gen(cfg, st, i, h));
   };
   var A = JELENETEK.josda;
   ["kep", "indit", "tablaAll", "tablaVarMondat", "rajz", "felvesz", "letesz", "katt", "bekuld", "gepi", "utan", "jegyek"].forEach(function (m) {

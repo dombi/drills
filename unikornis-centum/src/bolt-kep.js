@@ -853,7 +853,7 @@ function bkGombKatt(ev) {
   else if (g === "vissza" && BK.fazis === "otthon") { hangGomb(); bkVisszaBlokk(); }
 }
 function bkBillentyu(e) {
-  if (!bkAktiv() || !bkSzamFazis()) return;
+  if (!bkAktiv() || !bkSzamFazis() || BILL_GAZDA === "fuzet") return;   /* 📓 a saját füzeté a billentyű (sajat-fuzet.js) */
   if (document.activeElement === $("bk-beiras")) { if (e.key === "Enter") { e.preventDefault(); bkJavitOk(); } return; }   /* a mező maga kezeli a számjegyeket */
   var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */
   if (d !== null) { e.preventDefault(); bkJavitBe(d); }

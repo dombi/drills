@@ -163,7 +163,7 @@ function jlMozog(e) {
 /* ═════════════════ BEÍRÁS + VÁLASZ ═════════════════ */
 function jlAktiv() { return JL && J && J.feladat === JL.f && JL.f && JL.f.jelenet && J.joVolt !== JL.f && !JL.lezart; }
 function jlBillentyu(e) {
-  if (!jlAktiv()) return;
+  if (!jlAktiv() || BILL_GAZDA === "fuzet") return;   /* 📓 a saját füzeté a billentyű (sajat-fuzet.js) */
   if (e.key === "Escape" && JL.fog) { e.preventDefault(); var F = JL.fog; JL.fog = null; jlJeloles(null); JL.def.letesz(JL, F.id, F.n, null); jlRajz(); return; }
   if (!jlTablaNyitva() || document.activeElement === $("jl-beiras")) return;   /* a mező maga kezeli a számjegyeket */
   var d = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5) : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6) : /^[0-9]$/.test(e.key) ? e.key : null;   /* a fizikai hely (magyar kiosztás), mint events.js */

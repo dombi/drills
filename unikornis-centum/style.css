@@ -3525,3 +3525,51 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .vs-fz-bub .vs-kep .vs-svg{ height:clamp(56px,14vh,120px); width:auto; max-width:100%; }
 .vs-fz-bub .vs-kep .vs-svg.szeles{ height:auto; width:auto; max-width:100%; }
 .vs-fz-bub .vs-arus svg.fg{ width:42px; height:52px; }
+
+/* ═══ 📓 A SAJÁT FÜZET (sajat-fuzet.js, 2026-11-27): a tárgy a kép bal alsó sarkában · a csúszó lap · a feladat jobbra húzódik ═══ */
+.sf-targy{ position:absolute; left:8px; bottom:8px; width:78px; height:69px; z-index:8; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transform-origin:30% 95%; transition:transform .18s; filter:drop-shadow(0 2px 2px rgba(80,60,120,.12)); }
+.sf-targy svg, .sf-sarok svg{ width:100%; height:100%; display:block; }
+.sf-targy:hover{ transform:translateY(-3px) rotate(-3deg); }
+.sf-targy[hidden]{ display:none; }
+.sf-targy.sf-billen{ animation:sfBillen 1.1s ease-in-out; }
+@keyframes sfBillen{ 0%,100%{ transform:rotate(0); } 18%{ transform:translateY(-6px) rotate(-11deg); } 38%{ transform:translateY(-2px) rotate(8deg); } 58%{ transform:rotate(-5deg); } 78%{ transform:rotate(2deg); } }
+.sf-panel{ position:absolute; left:0; top:var(--sf-fej, 52px); bottom:0; width:45%; z-index:7; display:flex; flex-direction:column;
+  background:linear-gradient(90deg, #efe6d4, #f7f0e2 8%, #f7f0e2); border-right:3px solid #d9c9a8; box-shadow:6px 0 18px rgba(90,70,40,.16); padding:10px 12px 8px 14px; }
+.sf-panel[hidden]{ display:none; }
+.sf-panel.sf-csuszik{ animation:sfBe .32s ease-out; }
+@keyframes sfBe{ from{ transform:translateX(-100%); } to{ transform:none; } }
+.sf-sarok{ position:absolute; right:6px; top:4px; width:50px; height:44px; cursor:pointer; z-index:2; transform:rotate(6deg); opacity:.95; }
+.sf-sarok:hover{ transform:rotate(0) translateY(-2px); }
+.sf-lap{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.sf-lap .fz{ flex:1; min-height:0; gap:8px; }
+.sf-lap .fz-felirat{ min-height:0; font-size:16px; margin-right:52px; }
+.sf-lap .fz-felirat:empty{ display:none; }
+.sf-lap .fz-jegyzet{ display:none; }
+.sf-lap .fz-asztal{ flex:1; min-height:0; }
+.sf-lap .fz-lapdoboz{ flex:1 1 auto; height:100%; display:flex; align-items:flex-start; justify-content:center; }
+.sf-lap .fz-lap{ width:100%; height:100%; max-height:none; }
+.sf-lap .fz-alul{ gap:8px; }
+.sf-lap .fz-eszkoz{ width:64px; height:46px; }
+.sf-lap .fz-bill button{ min-width:40px; height:42px; }
+/* a ceruza csak ott látszik, ahova a billentyű ír: ha a gyerek a feladatra koppintott, a füzet ceruzája pihen */
+.sf-panel:not(.sf-gazda) .fz-akt{ opacity:0; }
+.sf-panel:not(.sf-gazda) .fz-kurzor{ opacity:.25; }
+#kepernyo-jatek .jatekter.fuzet-nyitva{ align-self:flex-end; width:55%; }
+#kepernyo-jatek .jatekter.fuzet-nyitva .bagoly-buborek{ max-width:calc(100% - 10px); }
+/* 📱 telefon, álló: alulról jön, az alsó fél; a feladat felül */
+#kepernyo-jatek.sf-keskeny .sf-panel{ top:auto; width:100%; height:var(--sf-alj, 50%); border-right:0; border-top:3px solid #d9c9a8; box-shadow:0 -6px 18px rgba(90,70,40,.16); padding:6px 8px 6px; }
+#kepernyo-jatek.sf-keskeny .sf-panel.sf-csuszik{ animation:sfBeAlul .32s ease-out; }
+@keyframes sfBeAlul{ from{ transform:translateY(100%); } to{ transform:none; } }
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva{ align-self:stretch; width:100%; margin-bottom:var(--sf-alj, 50%); }
+#kepernyo-jatek.sf-keskeny .sf-sarok{ width:42px; height:37px; top:2px; right:4px; }
+#kepernyo-jatek.sf-keskeny .sf-lap .fz-eszkoz{ width:52px; height:40px; }
+#kepernyo-jatek.sf-keskeny .sf-lap .fz-bill button{ min-width:34px; height:38px; font-size:18px; }
+@media (max-width:600px){ .sf-targy{ width:62px; height:55px; left:4px; bottom:4px; } }
+/* 📱 nyitott füzet telefonon: a felső félben a kérdés ÉS a válaszhely is látsszon (a buborék alacsonyabb, a mellékes elemek addig elbújnak) */
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva .bagoly-buborek{ max-height:calc(100% - 118px); overflow-y:auto; top:4px; padding:4px 8px 4px; }
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva .valaszter{ max-height:none; padding:4px 10px 6px; gap:3px; }
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva .kerulo-gomb,
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva #beiras-valt,
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva .beiro-cimke,
+#kepernyo-jatek.sf-keskeny .jatekter.fuzet-nyitva .haladas-pottyok{ display:none !important; }

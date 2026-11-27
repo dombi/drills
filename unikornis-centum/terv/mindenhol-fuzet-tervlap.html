@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Tervlap (stúdió-mód light): eszköz, nem pálya. Új figura és új helyszín nincs → rajzterv sincs. A közös füzet-modulra épül: src/fuzet.js · előzmény: terv/deli-vasar-fuzet-tervlap.html -->
+<title>Mindenhol elővehető füzet</title>
+<style>
+  :root{--bg:#fdf4fb;--panel:#fff;--ink:#2a2140;--muted:#6b6280;--violet:#8a4fd0;--violet-soft:#ece0fb;--green:#3f9e6a;--green-soft:#dff3e7;--line:#efe4f4;--warn:#b86a00;--warn-soft:#fff3dc}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}}
+  :root[data-theme="dark"]{--bg:#1d1828;--panel:#27203a;--ink:#f1ebfb;--muted:#b8aecb;--line:#3a3150;--violet-soft:#35264f;--green-soft:#1f3a2b;--warn-soft:#3d2f14}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;padding:22px 16px 60px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{background:linear-gradient(120deg,#5a9fd6,var(--violet));color:#fff;border-radius:20px;padding:20px 22px}
+  header h1{margin:0 0 4px;font-size:25px} header .sub{opacity:.95}
+  .chip{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600;margin:8px 6px 0 0}
+  h2{font-size:18px;margin:24px 0 8px;padding-left:10px;border-left:5px solid var(--violet)}
+  h3{font-size:15px;margin:14px 0 4px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+  .ok{background:var(--green-soft);border-color:transparent} .warn{background:var(--warn-soft);border-color:transparent}
+  ul,ol{margin:.3em 0;padding-left:22px} li{margin:.25em 0}
+  code{background:var(--violet-soft);border-radius:5px;padding:0 5px;font-size:13px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:13px;line-height:1.35}
+  .dont{border:2px solid var(--violet-soft);border-radius:12px;padding:8px 14px;margin:8px 0;background:var(--panel)}
+  .jav{color:var(--green);font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+  <h1>📓 Mindenhol elővehető füzet</h1>
+  <div class="sub">A gyerek saját füzete. Bármelyik pályán elő tudja venni, ha akarja: kockás lap, oda azt ír, amit akar, és semmi nem ellenőrzi. A válasz mindig a pályán marad, ott, ahol a pálya kéri. A szigorú írásbeli gyakorlás egyetlen helye a Garas tornya, ahhoz nem nyúlunk.</div>
+  <span class="chip">eszköz, nem pálya</span><span class="chip">közös modul: <code>src/fuzet.js</code></span><span class="chip">új figura / helyszín nincs → rajzterv sincs</span><span class="chip">nagyság: KÖZEPES (2 kör)</span>
+</header>
+
+<h2>0. Mi van ma, és mi változik?</h2>
+<div class="panel">
+<ul>
+  <li><b>Ma:</b> füzet csak két helyen van. ① <b>Garas tornya</b> (<code>src/irasbeli.js</code>): szigorú írásbeli gyakorlás, a füzet minden jegyet ellenőriz. ② <b>Déli vásár</b> (<code>src/vasar-fuzet.js</code>): a bal oldali füzetbe a gyerek terv-sort ír (<code>5488 − 2826 =</code>), és az eredményt is a füzetbe írja. 11-25 óta kötetlen (<code>kotetlen: true</code>): csak az eredményt nézi. A füzet ott tehát még <b>válaszhely is</b>.</li>
+  <li>A többi pályán (Tündérvásár, mérés, Szalagműhely, Jósda, Fejtörő-hegy…) a gyereknek nincs hova leírnia egy mellékszámítást. Aki fejben nem bírja, annak csak a tipp marad.</li>
+  <li><b>Új:</b> egy <b>füzet-tárgy</b> minden pálya sarkában. Koppintásra kinyílik, a gyerek ír bele, aztán elteszi. A füzet <b>sosem válaszhely</b>, nem számol, nem jelez, nem dicsér. A lap a feladat végéig megmarad, új feladatnál tiszta lap jön (eldöntve, 11-27).</li>
+  <li><b>A Déli vásár is így lesz:</b> eltűnik a terv-sor. A válasz a pályán van (cetli az árus pultján), a füzet ugyanaz a szabad lap, mint bárhol máshol.</li>
+  <li><b>Marad:</b> a Garas tornya szigorú lapja, változatlanul.</li>
+</ul>
+</div>
+
+<h2>① Mit CSINÁL a gyerek a képen, és mit mutat erre a kép?</h2>
+<div class="panel">
+<ol>
+  <li>A feladat-kép bal alsó sarkában egy kis <b>rajzolt füzet</b> fekszik, ceruzával a gerincén. Nem gomb és nem téglalap, hanem tárgy a jelenet szélén, olyan, mint a többi felvehető dolog. Az első feladatnál egyszer finoman megbillen, utána csak ott van.</li>
+  <li>A gyerek <b>rákoppint</b>: a füzet oldalról becsúszik és kinyílik (széles képernyőn a bal félen). A feladat jobbra húzódik, és végig látszik: a kérdés, a kép és a válaszhely.</li>
+  <li>A ceruzával a kockákra ír: számokat és jeleket (+ − · : =, pont, vonal), radírral töröl. Ugyanaz a ceruza és radír, mint a toronyban. A füzet nem jelöl, nem pirosít, nem mond semmit.</li>
+  <li>A válaszhoz a gyerek <b>a pályára koppint</b> (a cetlire, a táblára, a beíró négyzetre), és ott írja be. Ha a füzetre koppint, újra oda ír. A ceruza mindig ott látszik, ahova a billentyű ír.</li>
+  <li><b>Elteszi:</b> újra a füzet-tárgyra koppint (vagy a lap sarkára, vagy Esc). A füzet visszacsúszik a sarokba. Ha újra előveszi, a lapon ott van, amit írt. A feladat végén a lap tiszta lesz.</li>
+</ol>
+<p style="margin:.5em 0 0"><b>Felirat (hang nélkül is érthető):</b> az első kinyitáskor egyszer: „A füzetbe azt írsz, amit akarsz. A választ a feladatnál add meg.” Utána nincs felirat.</p>
+</div>
+
+<h2>② Könyv-átnézés (eszköz, ezért röviden)</h2>
+<div class="panel">A tankönyvek (OH-MAT 3–4.) minden szöveges feladatnál helyet adnak a „számolás” sornak a válasz-mondat előtt, és ez a hely kötetlen. Pólya („tervezz, hajtsd végre”): a mellékszámítás a gyerek gondolkodásának a nyoma, nem a játéké. Ezért nem ellenőrizzük.</div>
+
+<h2>③ Húzószó- és felvételi-csíra</h2>
+<div class="panel">Húzószó: nincs, ez eszköz. Felvételi-csíra: a felvételin a mellékszámítás a lap szélén szabad, csak az eredmény számít. A füzet ugyanezt a szokást építi.</div>
+
+<h2>④ A 7 kérdés röviden</h2>
+<div class="panel"><ol>
+  <li><b>A mozdulat maga a matek?</b> A füzetben a gyerek saját számolása. A matek a gyereké, a füzet csak a hely.</li>
+  <li><b>A megfogott tárgy egyszerű és egyforma?</b> Igen: ugyanaz a ceruza és radír minden pályán.</li>
+  <li><b>Kép és szám együtt változik?</b> A pálya képe nem figyel a füzetre. A kép a pályán adott válaszra mozdul, mint eddig.</li>
+  <li><b>„Itt nem igaz” van?</b> A füzetben szándékosan nincs. A pálya válasza mondja meg.</li>
+  <li><b>Halványul?</b> Nincs mi halványuljon: a gyerek akkor veszi elő, amikor kell neki. Ahogy erősödik, magától kevesebbszer veszi elő. Ez a jel (lásd ⑦, mérés).</li>
+  <li><b>Rossz válaszra mit mutat a kép?</b> Ami a pályán eddig is volt. A füzet ilyenkor sem mutat semmit.</li>
+  <li><b>Ki cselekszik?</b> A gyerek, a saját füzetével. Senki nem szól bele.</li>
+</ol></div>
+
+<h2>⑤ Kiskapu: hol lehetne megoldás nélkül jutalmat kapni?</h2>
+<div class="panel warn"><ul>
+  <li><b>A füzet nem ad jutalmat és nem fogad választ.</b> Ami a füzetbe kerül, az sehová nem jut el, így a füzetből nem lehet „kikoppintani” a jó választ.</li>
+  <li><b>A füzet nem tud számolni:</b> nem írja ki az eredményt, nem húz alá, nem javít. Nem mutatja, hogy amit a gyerek írt, jó-e. (Ha mutatná, a füzetben kipróbálhatná, és csak a jót írná át a pályára.)</li>
+  <li><b>A billentyű nem csúszhat át véletlenül:</b> a számjegy csak oda megy, ahol a ceruza látszik. Így nem kerül a füzetbe szánt szám a válaszba (a „rossz válasz” sem lesz véletlen).</li>
+  <li><b>Becslő feladat (🔮 Jósda):</b> itt a pontos kiszámolás maga a kiskapu (jutalom becslés nélkül). Ott a füzet nem vehető elő (6. döntés).</li>
+  <li><b>Időmérés (tény-motor, Villámkör):</b> a füzet nem állítja meg az órát. Aki füzetben számol, lassabb lesz, és ezt a mérés helyesen mutatja: nem „tudja” még fejből.</li>
+</ul></div>
+
+<h2>⑥ Hogyan néz ki (széles képernyő és telefon)</h2>
+<pre>SZÉLES (laptop, 1280 × 630)                     TELEFON (álló)
+┌───────────────┬──────────────────────┐       ┌────────────────┐
+│ 📓 kockás lap │  kérdés (buborék)    │       │ kérdés, kép    │
+│               │  kép                 │       │ válaszhely     │
+│  ✏️ 🧽        │  válaszhely  [   ]   │       ├────────────────┤
+│               │                      │       │ 📓 kockás lap  │
+│     (≈45 %)   │     (≈55 %)          │       │  (alsó fele)   │
+└───────────────┴──────────────────────┘       └────────────────┘
+ csukva: a füzet-tárgy a kép bal alsó sarkában    csukva: ugyanott</pre>
+
+<h2>⑦ Hiányzó elemek (kód)</h2>
+<div class="panel"><ul>
+  <li><b>Új közös modul: <code>src/sajat-fuzet.js</code></b>. A füzet-tárgy rajza (SVG, a pasztell rajzstílusban), a ki-be csúszás, a lap őrzése a feladat végéig (<code>J.fuzetLap</code>, a feladat váltásakor törlődik), az első kinyitás felirata. A lapot a mai <code>fzLap</code> adja: <code>irTervLap({sor})</code>-szerű üres kockás lap, új opcióval: <code>o.szabad = true</code> (nincs cél, nincs ellenőrzés, nincs Kész gomb, nincs mondóka, nincs hibajelzés).</li>
+  <li><b><code>fuzet.js</code>:</b> ① <code>o.szabad</code>: minden kocka szabad (mint ma a <code>T.szabad</code> mellékszámítás-zóna, csak az egész lapon) · ② a lap állapotának mentése és visszaadása (<code>F.allapot()</code> / <code>o.elotolt</code>, ez utóbbi már létezik) · ③ a jelek a ceruzán minden kockában, nem csak a terv-sorban.</li>
+  <li><b>Billentyű-gazda</b> (4. döntés): egy közös változó, <code>BILL_GAZDA = "palya" | "fuzet"</code>. A <code>fzBill</code> csak akkor ír, ha a gazda a füzet. A pálya beírói (<code>events.js</code> üres négyzet, <code>jelenet.js</code> tábla, <code>bolt-kep.js</code>, <code>fejtoro.js</code>) csak akkor, ha a pálya. Koppintás a füzetre → füzet, koppintás a feladatra → pálya. Elteszi → pálya.</li>
+  <li><b>Elrendezés</b> (2–3. döntés): <code>.jatekter.fuzet-nyitva</code> CSS-osztály. Széles képernyőn a füzet bal 45%, a játéktér jobbra húzódik (a képek SVG-k, maguktól kisebbek lesznek). Keskeny/álló képernyőn a füzet az alsó fél, a feladat felül.</li>
+  <li><b>Hol van ott:</b> a <code>kepernyo-jatek</code> minden feladata (1. kör), a Fejtörő-hegy és a Bagolykönyvtár saját képernyője (2. kör). <b>Nincs ott:</b> Garas tornya (saját szigorú lapja van), a Jósda becslő feladatai, és nem feladat-képernyők (odú, térkép, utca). A pálya ezt egy jelzővel kéri: <code>fuzet: false</code>.</li>
+  <li><b>Déli vásár</b> (5. döntés): a 4. o. vásár-feladat a régi úton megy (a kapcsoló már megvan: <code>cfg.regiFuzet</code>, <code>vasar.js:679</code>). Válasz a pulton, a cetlin. A csapda-mondatok és a „jó lépés” a <b>beírt szám értékéhez</b> kötődnek, mint 11-12 előtt. A füzet nyitva indul. A <code>vasar-fuzet.js</code> kikerül (a git őrzi).</li>
+  <li><b>Mérés</b> (<code>megf-naplo.js</code>): feladatonként egy jel, hogy elővette-e a füzetet (és hány jegyet írt bele). Ez nem jutalom és nem büntetés, csak a pultnak. Ha egy gyerek a 2-jegyű összeadáshoz már nem veszi elő, az a „tud” jele.</li>
+</ul></div>
+
+<h2>Döntések <span style="font-weight:400;color:var(--muted)">(a javaslat mind A)</span></h2>
+<div class="panel ok"><b>Már eldöntve (2026-11-27, mind A):</b> ① a válasz mindig a pályán, a füzet sosem válaszhely · ② a lap a feladat végéig megmarad, új feladatnál tiszta · ③ kockás lap számokkal és jelekkel; szabad rajz (ujjal) külön, későbbi kör, tablethez.</div>
+<div class="panel ok" style="margin-top:8px"><b>✅ JÓVÁHAGYVA (2026-11-27): mind a 7 új döntés A.</b> Következő: 1. kódkör — a füzet minden feladaton.</div>
+
+<div class="dont"><b>1. Hol van a füzet-tárgy?</b><br>
+<span class="jav">A)</span> <b>a feladat-kép bal alsó sarkában, rajzolt füzetként</b> (ceruzával a gerincén). Koppintás: kinyílik, újabb koppintás: elteszi. Ugyanott van minden pályán, így a gyerek egyszer tanulja meg · B) a fejlécben, a „← Vissza” mellett, kis ikonként (gombszerű, ez a „nincs téglalap” elv ellen megy) · C) a gyerek unikornisa mellett, mint a hátizsákja (nem minden pályán van unikornis a képen).</div>
+
+<div class="dont"><b>2. Mekkora részt takar?</b><br>
+<span class="jav">A)</span> <b>oldalról becsúszik, a bal ≈45%</b>, a feladat jobbra húzódik és végig látszik · B) a feladat fölé csúszik, a bal felét takarja (a kép egy része eltűnik) · C) teljes képernyő, a kérdés egy sávban fent.</div>
+
+<div class="dont"><b>3. Telefon (álló képernyő)</b><br>
+<span class="jav">A)</span> <b>alulról jön, az alsó fél</b>, a feladat felül, kisebb kockákkal (a lap 8 oszlop × 5 sor, görgetés nélkül) · B) teljes képernyő, és egy fül a lap tetején visszavisz a feladathoz (a kettő nem látszik egyszerre) · C) telefonon nincs füzet.</div>
+
+<div class="dont"><b>4. A billentyűzet útja (hova megy a számjegy?)</b><br>
+<span class="jav">A)</span> <b>oda, ahova a gyerek utoljára koppintott</b>, és a ceruza ott látszik. Kinyitáskor a füzet kapja, elrakáskor a pálya. A füzetben az Enter új sort kezd (nem ellenőriz), a pályán az Enter beküld, mint eddig · B) amíg nyitva van, minden a füzeté, a válaszhoz el kell tenni (lassú, és a gyerek sokszor nyit-csuk) · C) Tab-bal vált (a gyerekek nem fogják tudni).</div>
+
+<div class="dont"><b>5. Mi lesz a Déli vásár mai füzet-lapjaival?</b> (<code>vasar-fuzet.js</code>: terv-sor, a füzetbe írt eredmény)<br>
+<span class="jav">A)</span> <b>a vásár visszaáll a pulton adott válaszra</b> (a régi út, <code>cfg.regiFuzet</code>). A csapda- és „jó lépés” mondatok a beírt szám értéke szerint szólnak. Maradékos osztásnál a cetli maga a „Válasz”, mert a „melyik szám felel a kérdésre?” tudás így megmarad. A mindenhol-füzet a vásárban <b>nyitva indul</b>, mert ott írásbeli méretű számok vannak. A <code>vasar-fuzet.js</code> kikerül · B) a vásár füzet-képernyője marad (füzet balra, pult jobbra), csak a terv-sor tűnik el, és az eredmény a pult cetlijére kerül (két külön füzet-kód élne tovább) · C) a vásárban nyitva indul és nem csukható.</div>
+
+<div class="dont"><b>6. Hol NEM vehető elő?</b><br>
+<span class="jav">A)</span> <b>Garas tornya</b> (saját szigorú lap) és <b>a Jósda becslő feladatai</b> (ott a pontos kiszámolás a kiskapu). Minden más feladaton ott van, a tény-pályákon és a Villámkörön is (a mérés úgyis mutatja, ha valaki füzetben számol) · B) a tény-pályákon és a Villámkörön sem, mert ott a fejből tudás a cél · C) tényleg mindenhol, a Jósdában is.</div>
+
+<div class="dont"><b>7. Szól-e valaki a füzetről?</b><br>
+<span class="jav">A)</span> <b>senki</b>: az első feladatnál a tárgy egyszer megbillen, az első kinyitáskor egy felirat szól. Ha a gyerek 2× rosszat válaszol egy írásbeli méretű feladatra, a füzet-tárgy egyszer megbillen (nem nyílik ki magától) · B) a lakó szól 2 hiba után: „Ha kell, vedd elő a füzetedet!” (ez szövegesen tanácsol, amit a kép is megmutathat) · C) semmi, a gyerek magától fedezi fel.</div>
+
+<h2>Kód-körök</h2>
+<div class="panel"><ol>
+  <li><b>1. kör: a füzet minden feladaton.</b> A füzet-tárgy rajza, ki-be csúszás (széles + telefon), <code>o.szabad</code> lap, a lap őrzése a feladat végéig, billentyű-gazda (a <code>events.js</code>, <code>jelenet.js</code>, <code>bolt-kep.js</code> beírói), <code>fuzet: false</code> a Garas tornyán és a Jósda becslő feladatain, mérés-jel. Próbalap: <code>index.html?fuzetproba</code> + 4 pálya élőben (Tündérvásár, mérés, Szalagműhely, Jósda): a válasz a pályán megy, a füzet sosem ír a válaszba, és a válasz sem a füzetbe. Tag előtte: <code>v5.4-stabil</code>. <b>Megálló:</b> élő megnézés.</li>
+  <li class="jav">✅ 1. KÉSZ (2026-11-27): új modul <code>src/sajat-fuzet.js</code> — a füzet-tárgy (rajzolt SVG, ceruza a gerincén) a jatékképernyő bal alsó sarkában; koppintásra kicsúszik (<code>#kepernyo-jatek.sf-be</code> + <code>.jatekter.fuzet-nyitva</code>: széles képernyőn bal 45%, a feladat jobbra 55%; telefonon, álló helyzetben az alsó fél), a lap sarkára koppintva vagy Esc-re visszacsúszik. A lap: <code>fzLap(…, { szabad: true })</code> (<code>src/fuzet.js</code>: minden kocka szabad, jelek + − · : = mindenhol, vonal, radír; nincs cél, Kész, mondóka, hibajelzés; az Enter új sort kezd; <code>F.allapot()</code>, <code>F.jegyDb</code>). A lap a feladat végéig marad (<code>J.fuzetLap</code>; a mérés kérdés-láncán is), új feladatnál tiszta. <code>BILL_GAZDA</code>: a <code>fzBill</code>, az <code>events.js</code> üres négyzete, a <code>jelenet.js</code> táblája, a <code>bolt-kep.js</code> és a <code>vasar.js</code> Enter-Továbbja figyel rá. <code>fuzet: false</code>: Garas tornya (<code>GEN.irszor</code>), a Jósda becslő formái (koze, darab, meres, jos, eleg, szor, eg, zsiv — <code>josda-emelet.js</code>); a Déli vásár (<code>vsfuzet</code>) a 2. körig a saját füzetével marad. Billenés: a pálya első feladatánál egyszer + 2 rossz válasz után egy háromjegyű számos feladaton; felirat az első kinyitáskor (gyerekenként egyszer). Mérés: <code>megfFuzet</code> → <code>P().mf[nap].fz[pálya] = { k, n, j }</code>. Csendes gépi próba: ?fuzetproba + Tündérvásár, mérés, Szalagműhely, Jósda, Garas tornya, telefon (telefonon nyitott füzetnél a buborék alacsonyabb, a kerülő út és „Inkább mondom” addig elbújik, hogy a válaszhely látsszon). → 🛑 élő megnézés.</li>
+  <li><b>2. kör: a Déli vásár + a többi képernyő.</b> A vásár a pulti válaszra (5A), nyitva induló füzettel, a <code>vasar-fuzet.js</code> ki. A Fejtörő-hegy és a Bagolykönyvtár saját képernyője is megkapja. Gépi próba: a teljes Déli vásár végig (17 feladat), csapda, részeredmény és maradék ágak, és a Garas tornya változatlan.</li>
+  <li>(Később, külön tervlap:) <b>szabad rajz</b> ujjal/egérrel, tablethez (eldöntve: 3. pont).</li>
+</ol></div>
+
+<p style="color:var(--muted);font-size:13px;margin-top:26px">Tervlap: 2026-11-27 · előzmény: terv/deli-vasar-fuzet-tervlap.html, a 11-25-i kötetlen füzet (<code>528b37a</code>) · memória: „Füzet kötetlen, csak a gyakorlópálya szigorú”.</p>
+</div></body></html>

@@ -205,6 +205,7 @@ function esemenyek() {
   document.addEventListener("keydown", function (e) {
     var kj = $("kepernyo-jatek");
     if (!kj || !kj.classList.contains("aktiv") || !J || !J.feladat) return;
+    if (BILL_GAZDA === "fuzet") return;   /* 📓 a gyerek a saját füzetébe ír (sajat-fuzet.js) — a számjegy, az Enter nem a válaszé */
     /* felmondós lépésenkénti beírás: Enter ellenőrzi az aktív sort (a számjegyeket
        maguk a valódi <input>-mezők kezelik) */
     if (J.lepesAktiv) {

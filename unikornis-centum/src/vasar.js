@@ -739,7 +739,7 @@ function vsTovabbNyom() {
 }
 /* Enter = Tovább (beírós módban is) — a számbillentyű-figyelő ELŐTT fut, hogy az Enter ne küldjön üres választ */
 document.addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && J && J.vsTovabbFn && $("kepernyo-jatek").classList.contains("aktiv")) { e.preventDefault(); e.stopPropagation(); vsTovabbNyom(); }
+  if (e.key === "Enter" && J && J.vsTovabbFn && BILL_GAZDA !== "fuzet" && $("kepernyo-jatek").classList.contains("aktiv")) {   /* 📓 a füzetben az Enter új sor */ e.preventDefault(); e.stopPropagation(); vsTovabbNyom(); }
 }, true);
 
 /* jó válasz után (ertekel): a végigvezetés köztes lépése → a sora beíródik, megy tovább; a végső válasz → a teljes megoldás
