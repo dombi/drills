@@ -15,7 +15,7 @@
    ⏳ A tervlapból a 2. körre maradt: a ④ utolsó, nyitott feladata (számpárok gyűjtése).
    GYÁRTÓ (tiszta adat): szlFeladat(tipus) → { sorok, lepesek[{ mondat, targy, hova, csali, all }], kerdes{ mondat, cel, all }, helyes }.
    A HÓD MESTER (4. döntés A; a nevét a producer adja): hodSVG(o) — képregényes, kötény, nyakában mérőszalag.
-   A HÁZ a Piactér falutérképén: szlTerkepHaz(lepes, J) — fa műhely, tetején szalag-orsó cégér, a kéményről lobogó szalag. */
+   (A régi Piactér falutérképének háza — szlTerkepHaz — a 8. hullámban kikerült.) */
 
 var SZL_LAKO = "a hód mester";   /* ⏳ a név a producertől jön (az 1. kör megállóján) */
 
@@ -395,34 +395,6 @@ function hodSVG(o) {
   return s;
 }
 function szlHod(x, y, k, poz) { return '<g class="szl-hod" transform="translate(' + pcF(x - 100 * k) + ' ' + pcF(y - 232 * k) + ') scale(' + k + ')">' + hodSVG({ poz: poz }) + '</g>'; }
-
-/* ═════════════════ 🏠 A HÁZ a Piactér falutérképén ═════════════════
-   (0, 0) a talpa közepe; ~130 széles, ~140 magas. all: zart · uj · folyik · kesz */
-function szlTerkepHaz(lepes, J) {
-  var all = J.all === "alszik" || J.all === "zarva" ? "zart" : J.vil ? "uj" : J.all === "kesz" || lepes >= 6 ? "kesz" : "folyik";
-  var eg = all === "kesz" ? 2 : all === "folyik" ? 1 : 0, cs = lkCsokkent(), s = '<g' + (all === "zart" ? ' style="filter:saturate(.55)"' : '') + '>';
-  if (all === "uj") s += '<ellipse cx="0" cy="-60" rx="96" ry="80" fill="url(#lt-gNyHalo)">' + (cs ? '' : ltAnim("opacity", ".5;1;.5", "2.4s")) + '</ellipse>';
-  s += '<ellipse cx="0" cy="3" rx="66" ry="9" fill="#3c2a50" opacity=".14"/>';
-  s += '<g filter="url(#lt-firka)">';
-  /* lobogó szalag a kéményről */
-  s += '<path d="M30 -112V-128" stroke="#8a5a3a" stroke-width="2.4"/><path d="M30 -128Q50 -136 62 -126T96 -122" fill="none" stroke="#f17ea6" stroke-width="5" stroke-linecap="round">' + (cs ? '' : '<animate attributeName="d" values="M30 -128Q50 -136 62 -126T96 -122;M30 -128Q50 -120 64 -130T96 -128;M30 -128Q50 -136 62 -126T96 -122" dur="2.6s" repeatCount="indefinite"/>') + '</path>';
-  s += '<rect x="22" y="-118" width="16" height="22" fill="#c99272" stroke="#8a5a3a" stroke-width="2"/>';
-  /* fa ház */
-  s += '<path d="M-52 0V-64H52V0Z" fill="#e7c99a" stroke="#8a5a3a" stroke-width="2.6"/>';
-  s += '<path d="M-52 -48H52M-52 -32H52M-52 -16H52" stroke="#c9a06a" stroke-width="1.4"/>';
-  s += '<path d="M-62 -60L0 -110L62 -60Z" fill="#d9776f" stroke="#8a3a3a" stroke-width="2.6" stroke-linejoin="round"/>';
-  s += '<path d="M-44 -66L0 -100L44 -66" fill="none" stroke="#b85a52" stroke-width="1.6"/>';
-  /* cégér: szalag-orsó */
-  s += '<path d="M-46 -40H-70" stroke="#8a5a3a" stroke-width="2.4"/><path d="M-66 -40V-34M-58 -40V-34" stroke="#8a5a3a" stroke-width="1.4"/>';
-  s += '<g transform="translate(-62 -22)"><rect x="-12" y="-12" width="24" height="24" rx="3" fill="#fce49a" stroke="#c9962a" stroke-width="2"/><path d="M-12 -4H12M-12 4H12" stroke="#f17ea6" stroke-width="4"/><rect x="-15" y="-14" width="30" height="4" rx="2" fill="#c99272" stroke="#8a5a3a" stroke-width="1.2"/><rect x="-15" y="10" width="30" height="4" rx="2" fill="#c99272" stroke="#8a5a3a" stroke-width="1.2"/></g>';
-  s += '</g>';
-  /* ajtó + két ablak */
-  s += '<g class="pc-ajto" style="transform-origin:-13px 0"><path d="M-13 0V-30H13V0Z" fill="#c99272" stroke="#8a5a3a" stroke-width="2.2"/><circle cx="7" cy="-15" r="2" fill="#8a5a3a"/></g>';
-  [-32, 32].forEach(function (wx, i) {
-    s += '<rect x="' + (wx - 9) + '" y="-54" width="18" height="16" rx="2" fill="' + (eg > i ? "#ffe9a0" : "#e8e2ef") + '" stroke="#8a5a3a" stroke-width="1.8"/><path d="M' + wx + ' -54V-38M' + (wx - 9) + ' -46H' + (wx + 9) + '" stroke="#8a5a3a" stroke-width="1.2"/>';
-  });
-  return s + '</g>';
-}
 
 /* ═════════════════ A KÉP (JELENETEK.szalag) ═════════════════ */
 function szlHatter(JL) {

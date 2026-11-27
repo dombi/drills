@@ -169,8 +169,7 @@ function esemenyek() {
   bekotUresNegyzet();
   hosszuNyomas($("nyito-szuloi"), belepSzuloi);
   hosszuNyomas($("fomenu-szuloi"), belepSzuloi);
-  $("fomenu-vissza").addEventListener("click", function () {   /* a liget belsejéből a térképre, onnan a legelőre (🦄 Váltás) */
-    if (FOMENU_LIGET && TERKEP_GAZDA[FOMENU_LIGET]) { hangGomb(); PIAC_HONNAN = FOMENU_LIGET; ligetbeLep(TERKEP_GAZDA[FOMENU_LIGET]); return; }   /* 🧺 a Vásárból a Piactérre (piac.js) */
+  $("fomenu-vissza").addEventListener("click", function () {   /* a régi belsőből (Bagolykönyvtár, Fejtörő-hegy) a világképre, onnan a legelőre (🦄 Váltás) */
     if (FOMENU_LIGET) { hangGomb(); VILAG_KIZOOM = FOMENU_LIGET; FOMENU_LIGET = null; renderFomenu(); fomenuFelulre(); return; }
     hangGomb(); sorozatMegtor(); legeloNyit(); });
   $("jatek-haza").addEventListener("click", function () { hangGomb(); figyelStop();

@@ -19,15 +19,15 @@ NYIT_SZALON = "js:(function(){ var p=UC.mentes.profilok[UC.mentes.leny]; (p.szal
 KEPERNYOK = [
     ("Első perc",          [],                                              "kepernyo-elsoperc", ".ny-mozgo"),   # 🚪 az első kép, üres mentéssel: az újonc első perce
     ("Térkép",             [],                                              "kepernyo-fomenu", ".terkep-hely"),
-    ("Összeadó liget",     ["hely:osszeado"],                               "kepernyo-fomenu", ".palya-kartya, #palya-racs"),
-    ("Szorzós liget",      ["hely:szorzo"],                                 "kepernyo-fomenu", "#palya-racs"),
-    ("Piactér",            ["hely:piac"],                                   "kepernyo-fomenu", ".piac-ter"),
-    ("Tündérvásár",        ["hely:piac", "katt:.pc-hely[data-id='vasar'] rect"], "kepernyo-fomenu", ".ph-hely"),   # 🧺 2026-10-24 óta a Piactér sátrában; 🛖 a pályák bódék (palyahely.js)
-    ("Szabóműhely",        ["hely:szabo"],                                  "kepernyo-fomenu", "#palya-racs"),
-    ("Bájitalkonyha",      ["hely:bajital"],                                "kepernyo-fomenu", "#palya-racs"),
-    ("Mézes pékség",       ["hely:pekseg"],                                 "kepernyo-fomenu", "#palya-racs"),
-    ("Bagolykönyvtár",     ["hely:konyvtar"],                               "kepernyo-fomenu", "#palya-racs"),
-    ("Fejtörő-hegy",       ["js:UC.ligetbeLep('fejtoro')"],                 "kepernyo-fomenu", "#palya-racs"),
+    # 🐴 Világkép (8. hullám, 2. kódkör): a régi liget-belsők, a Piactér és a Vásár bódé-sora kikerült — a közelképek a főképernyőn nyílnak
+    ("Erdőszél",           ["hely:erdoszel"],                               "kepernyo-fomenu", ".hely-svg"),
+    ("Nagyfa tér",         ["hely:ter"],                                    "kepernyo-fomenu", ".hely-svg"),
+    ("Összeadó utca",      ["hely:osszeado-utca"],                          "kepernyo-fomenu", ".hely-svg"),
+    ("Dallam-tér",         ["hely:dallam-ter"],                             "kepernyo-fomenu", ".hely-svg"),
+    ("Kézművesek",         ["hely:kezmuvesek"],                             "kepernyo-fomenu", ".hely-svg"),
+    ("Domboldal",          ["hely:domboldal"],                              "kepernyo-fomenu", ".hely-svg"),
+    ("Bagolykönyvtár",     ["hely:konyvtar"],                               "kepernyo-fomenu", "#palya-racs"),   # a régi belső (marad, amíg közelképet nem kap)
+    ("Fejtörő-hegy",       ["js:UC.ligetbeLep('fejtoro')"],                 "kepernyo-fomenu", "#palya-racs"),   # a régi belső (marad)
     ("Odú",                ["hely:odu"],                                    "kepernyo-odu", None),
     ("Odú: szekrény",      ["hely:odu", "katt:#odu-szekreny"],              "kepernyo-odu", "#odu-lap"),
     ("Odú: jelvények",     ["hely:odu", "katt:#odu-t-jelveny"],             "kepernyo-odu", "#odu-lap"),

@@ -117,13 +117,13 @@ window.UC = {
   rokonLetra: rokonLetra, rokonSegit: rokonSegit, szamCsalad: szamCsalad, csaladokSzama: csaladokSzama, csaladAblakEll: csaladAblakEll, varazsGep: varazsGep,
   HE_SZIN: HE_SZIN, heHely: heHely,
   /* 🏪 Piactér 3. kör: a bolt képe, a Piactér, a lakók (a gépi próba és a böngészős teszt ezekkel hajt) */
-  bk: function () { return BK; }, bkKatt: bkKatt, bkGombKatt: bkGombKatt, bkTarca: bkTarca, bkAllomasok: bkAllomasok, piacTer: piacTer, piacHazLepes: piacHazLepes,
-  piac: function () { return PIAC; }, piacKoppint: piacKoppint, Lako: Lako, LAKOK: function () { return LAKOK; }, uniPult: uniPult, szarvVarazs: szarvVarazs, tallerBelso: tallerBelso,
+  bk: function () { return BK; }, bkKatt: bkKatt, bkGombKatt: bkGombKatt, bkTarca: bkTarca, bkAllomasok: bkAllomasok, piacHazLepes: piacHazLepes,
+  Lako: Lako, LAKOK: function () { return LAKOK; }, uniPult: uniPult, szarvVarazs: szarvVarazs, tallerBelso: tallerBelso,
   NYITAS_PALYA_UTAN: NYITAS_PALYA_UTAN,
   /* 🪜 Pálya-hely B kör: a Rokon-létra képe és gyártója (a gépi próba és a böngészős teszt ezekkel hajt) */
   jl: function () { return JL; }, JELENETEK: JELENETEK, RECEPTEK: RECEPTEK, csaladKosarak: csaladKosarak, csaladBol: csaladBol,   /* 🎬 jelenet-motor + 🏡 Számcsalád */
   becslesEll: becslesEll, becslesOsszeg: becslesOsszeg, zsArak: zsArak, zsMaszat: zsMaszat, zsEleg: zsEleg, zsValassz: zsValassz, zsBlokk: zsBlokk, ZS_TRUKK: ZS_TRUKK, zsApro: zsApro, zsKasszaAd: zsKasszaAd, zsFizetesek: zsFizetesek, rokaHibaz: rokaHibaz,   /* 🦊 Zsivány zsibvására (zsib.js) */
-  fpEgyforma: fpEgyforma, fpPontos: fpPontos, fpJok: fpJok, fpLehet: fpLehet, fpOkIgaz: fpOkIgaz, fpEnnyi: fpEnnyi, fpBln: fpBln, fpAllitErt: fpAllitErt, FP_OKOK: FP_OKOK, pcValaszto: pcValaszto, PC_TARGY: PC_TARGY,   /* 💰 Fizess pontosan (fizess.js) + a stand közelképe, a tárgy a bejárat (piac.js) */
+  fpEgyforma: fpEgyforma, fpPontos: fpPontos, fpJok: fpJok, fpLehet: fpLehet, fpOkIgaz: fpOkIgaz, fpEnnyi: fpEnnyi, fpBln: fpBln, fpAllitErt: fpAllitErt, FP_OKOK: FP_OKOK, PC_TARGY: PC_TARGY,   /* 💰 Fizess pontosan (fizess.js) + a stand közelképe, a tárgy a bejárat (piac.js) */
   rokonLetraMenet: rokonLetraMenet, rokonSajatEll: rokonSajatEll, PIAC_HAZAK: PIAC_HAZAK,
   felulirBeallit: function (egyeni, csoportok, egyeniP, csoportP, egyeniOrak, csoportOrak) { FELULIR.egyeni = egyeni || {}; FELULIR.csoportok = csoportok || {}; FELULIR.egyeniP = egyeniP || {}; FELULIR.csoportP = csoportP || {}; FELULIR.egyeniOrak = egyeniOrak == null ? null : egyeniOrak; FELULIR.csoportOrak = csoportOrak || {}; felulirSzamol(); },
   egyeniPalyak: egyeniPalyak, palyaKeres: palyaKeres, palyaInditas: palyaInditas,

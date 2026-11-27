@@ -1,6 +1,6 @@
 /* ============ 6h7) 💰 FIZESS PONTOSAN — üres a kassza (3. receptes pálya a Piactéren, 1. kör, 2026-11-07) ============
    Recept-lap: terv/fizess-pontosan-recept-lap.html (✅ mind az 5 döntés A). A sora a receptek.js-ben, a kép a jelenet-motoron (jelenet.js),
-   Zsivány standján lakik (a stand közelképén a kassza a bejárata: piac.js pcValaszto). A Zsibvásár (zsib.js) rajzkészletét és Zsivány-rigjét használja.
+   Zsivány standján lakik (a stand tárgy-nézetén a kassza a bejárata: piac.js PC_TARGY). A Zsibvásár (zsib.js) rajzkészletét és Zsivány-rigjét használja.
    MIT CSINÁL A GYEREK A KÉPEN? Reggel még üres Zsivány kasszája, nem tud visszaadni. A gyerek a korlátos erszényéből a pultra rakja az
    érméket (felvesz–letesz), és „Fizetek”. Zsivány nagyobb érmével kezdve hangosan összeszámolja. Pont annyi → elteszi az árut. Sok → vállat von,
    a kassza üres rekeszei világítanak, az érmék visszalebegnek. Kevés → a szalagon üres hely marad a cédula előtt. Ha szerinte nem lehet, a

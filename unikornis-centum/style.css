@@ -77,8 +77,6 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
 }
 .palya-regio{ position:relative; flex:0 0 auto; border-radius:20px; overflow:hidden; padding:14px 16px 18px; box-shadow:0 4px 16px rgba(74,59,122,.12); }
 .palya-regio-hatter{ position:absolute; inset:0; z-index:0; pointer-events:none; }
-.palya-regio.r-egyeni{ background:linear-gradient(160deg,#fde6f0 0%,#f3e6fb 55%,#e8f0fd 100%); }   /* 💖 Neked készült (4b) */
-.palya-regio.r-egyeni .palya-kartya{ border-color:#f6c6da; }
 .palya-regio-hatter svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .palya-regio-grid{
   position:relative; z-index:1;
@@ -122,13 +120,7 @@ button{ font-family:inherit; cursor:pointer; border:none; color:var(--lila-sotet
   background:#9a6ad0; padding:2px 10px; border-radius:999px;
   box-shadow:0 2px 0 #7a4ab8; white-space:nowrap; z-index:2;
 }
-.ajanlott-badge{
-  position:absolute; top:6px; left:50%; transform:translateX(-50%); font-size:18px; line-height:1; z-index:2;
-  filter:drop-shadow(0 1px 0 #fff); animation:ajanlott-dobban 1.8s ease-in-out infinite;
-}
 @keyframes ajanlott-dobban{ 0%,70%,100%{ transform:translateX(-50%) scale(1); } 80%{ transform:translateX(-50%) scale(1.22); } 90%{ transform:translateX(-50%) scale(1.05); } }
-.bank-badge{ display:inline-block; align-self:center; margin:4px auto 0; background:#f3e4f7; color:#8e3a90; border:1.5px solid #c98fd0;
-  border-radius:999px; padding:1px 9px; font-size:12px; font-weight:800; white-space:nowrap; }
 .palya-kartya.ajanlott{ box-shadow:0 0 0 3px #f6a5c0, 0 4px 0 rgba(0,0,0,.08); }
 .napi-kiemelt-kesz .napi-badge{ background:#b8a8d0; box-shadow:0 2px 0 #9a8ab8; }
 .palya-szorzo{
@@ -1713,11 +1705,6 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 }
 
 /* ── MÉRÉS-LIGETEK (Szabóműhely · Bájitalkonyha · Mézes pékség), rajzterv 1–2. kör ── */
-.palya-regio.r-szabo,.palya-regio.r-bajital,.palya-regio.r-pekseg{ padding-top:66px; }
-.palya-regio.r-szabo .palya-kartya{ border-color:#f3cfe0; }
-.palya-regio.r-bajital .palya-kartya{ border-color:#d8cdf0; }
-.palya-regio.r-pekseg .palya-kartya{ border-color:#f3dcae; }
-.palya-regio.r-szabo .ikon,.palya-regio.r-bajital .ikon,.palya-regio.r-pekseg .ikon{ font-size:34px; line-height:46px; text-align:center; }
 /* a kép a kérdés fölött, a buborékban (360×158) */
 .meres-kep svg{ display:block; width:100%; height:auto; max-height:158px; margin:0 auto 4px; }
 .meres-kerdes{ font-size:clamp(20px,4.6vw,26px); font-weight:700; line-height:1.35; color:var(--lila-sotet); }
@@ -1993,10 +1980,6 @@ body.harmat-rejtett .csilla-szamlalo.harmat, body.harmat-rejtett .harmat-jel{ di
 @media (prefers-reduced-motion:reduce){ .ekf-sor.uj{ animation:none; } }
 
 /* ═══ 🧺 TÜNDÉRVÁSÁR (src/vasar.js) — rajzterv: Matekos/tunderevasar-rajzterv.html ═══ */
-.palya-regio.r-vasar{ padding-top:44px; background:linear-gradient(180deg,#f9dcc0 0%,#f3e3d3 60%,#ece6cf 100%); }   /* 🛖 a bódék képe alatt (a régi VASAR_HATTER helyett) */
-.palya-regio.r-vasar .palya-regio-cim{ position:relative; z-index:1; }
-.palya-regio.r-vasar .palya-kartya{ border-color:#f6c9a8; }
-.palya-regio.r-vasar .ikon{ font-size:34px; line-height:46px; text-align:center; }
 .vs-bub{ text-align:center; }
 .vs-kep{ display:flex; justify-content:center; align-items:center; gap:6px 8px; flex-wrap:wrap; margin-bottom:6px; }
 /* nagyobb kérdés-képek (producer, 2026-10-01: „nehezen láthatóak”): a darabok egy sorban,
@@ -3073,10 +3056,8 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
 .kuld-kesobb, .kuld-tabla-zar{ margin-top:12px; font-size:16px; font-weight:800; padding:9px 18px; border-radius:17px; background:#fdf0d0; border:2px solid #e3c27a; color:#8a5a10; cursor:pointer; }
 .kuld-tabla-lap svg{ width:min(460px,100%); height:auto; max-height:58vh; }
 .kuld-tabla-mondat{ margin:6px 0 0; font-size:clamp(16px,3.4vw,20px); font-weight:800; color:#6a2c4c; min-height:1.4em; }
-.kuld-pikkely{ position:absolute; left:24px; top:3px; width:24px; height:26px; z-index:2; animation:ajanlott-pikk 2.2s ease-in-out infinite; }
-.kuld-pikkely svg{ width:100%; height:100%; display:block; }
 @keyframes ajanlott-pikk{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
-@media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny,.kuld-pikkely{ animation:none!important; } }
+@media (prefers-reduced-motion:reduce){ .hr-lang,.hr-fust,.hr-zaszlo,.hr-leng,.hr-hinta,.hr-fugg,.hr-jel > *,.hr-kupac,.hr-zzz,.hr-kopeny{ animation:none!important; } }
 /* 👕 a ruha és a ruhaláda az odúban (sarkany-holmi.js, 3. kör): felvételkor megpördül; a láda fedele hátrabillen */
 /* a kölyök pörgése 4 nézettel: leny.js lenyPorog (a régi scaleX-es hr-porog megszűnt, 2026-10-24) */
 #sh-lada{ cursor:pointer; }
@@ -3217,23 +3198,7 @@ yomozotabla-egytabla-rajzterv.html, ✅ K1–K3): fent a nevek (fej + név), ala
   .lg-varad, .lg-paplan, .lg-hold, .lg-csf .cs > *, .lg-kislakat{ animation:none; }
 }
 
-/* ── 🏪 PIACTÉR + TÜSKE NÉNI BOLTJA (piac.js, bolt-kep.js, szarv-varazs.js — Piactér 3. kör, 2026-10-23) ── */
-.piac-ter{ width:min(100%,1100px); margin:0 auto; }
-.piac-ter svg{ width:100%; height:auto; max-height:calc(100vh - 262px); display:block; border-radius:18px; box-shadow:0 8px 22px rgba(74,59,122,.14); }
-.piac-ter .pc-hely{ cursor:pointer; }
-.piac-ter .pc-haz:hover .pc-rezeg{ filter:brightness(1.05); }
-.piac-ter .pc-ajto{ transform-box:fill-box; transform-origin:0 50%; }
-/* 📱 telefonon (álló) a falutérkép kétszer akkora, és oldalra húzható (Pálya-hely B kör): a cégérek olvashatók, a házak és a
-   csengők jól koppinthatók (méret-őr: hely ≥ 64 px, csengő ≥ 36 px) — a kép az unikornisnál nyílik (piac.js) */
-@media (max-width:600px){
-  .piac-ter{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:18px; }
-  .piac-ter svg{ width:680px; max-width:none; max-height:none; }
-}
-/* 🛖 pálya-hely (palyahely.js): a liget pályái helyek a képben (most: bódék a Tündérvásár sátrában) */
-.ph-ter{ position:relative; z-index:1; width:min(100%,760px); margin:0 auto; }
-.ph-ter svg{ width:100%; height:auto; max-height:calc(100vh - 262px); display:block; overflow:hidden; border-radius:18px; box-shadow:0 8px 22px rgba(74,59,122,.14); }
-.ph-ter .ph-hely, .ph-ter .ph-csengo{ cursor:pointer; }
-.ph-ter .ph-hely:hover .pc-rezeg{ filter:brightness(1.05); }
+/* ── 🏪 TÜSKE NÉNI BOLTJA (a régi Piactér stílusai a 8. hullámban kikerültek; bolt-kep.js, bolt-kep.js, szarv-varazs.js — Piactér 3. kör, 2026-10-23) ── */
 /* a bolt képe a buborékban: a buborék panellé nő, alatta a pöttyök és a visszajelzés; az állomások között az ösvény látszik */
 #kepernyo-jatek.bk-be .bagoly-buborek{ width:min(98vw,920px); max-height:none; top:4px; padding:6px 10px 6px; overflow:visible; }
 #kepernyo-jatek.bk-be .buborek-feladat{ font-size:clamp(16px,2.4vw,22px); margin-bottom:4px; }

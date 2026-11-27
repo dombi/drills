@@ -5,7 +5,7 @@
    Halványulás (3. döntés A): 1–2. asztal lépésenként + jelölés + tálca + mondóka minden lépésnél · 3. asztaltól a végén, oszloponként,
    mondóka csak a 2. hibától · Odú-küszöb: üres lap, a végén, + 1 munkafüzet-változat (6. döntés A: hiányos szorzás / hibakeresés).
    Rajt: Garas egyszer végigírja a 213 · 3-at (a „gép ír” mód); átugorható.
-   A pálya-kép: a torony belseje, csigalépcső asztalokkal (irLepcsoJelenetSVG, az ösvény-vázon) · a Piactéren: a torony (irTerkepTorony). */
+   A pálya-kép: a torony belseje, csigalépcső asztalokkal (irLepcsoJelenetSVG, az ösvény-vázon) · a régi Piactér tornya a 8. hullámban kikerült. */
 
 VS_SZIN.irszor1 = { teto: "#f6a5c0", csik: "#fffaf0", sotet: "#c0567f", cimer: "✖️" };
 VS_SZIN.irszor2 = { teto: "#9ec9f0", csik: "#fffaf0", sotet: "#5f84b0", cimer: "✖️" };
@@ -225,14 +225,6 @@ function irLepcsoJelenetSVG(palya, c) {
     odu: { felirat: { font: VS_F } },
     pipa: function (b, px, py) { return b > 0 && b < n - 1 ? [px[b] + 70, py[b] - 92] : [px[b], py[b]]; }
   });
-}
-
-/* ═════════════════ A PIACTÉREN: a torony (rajzterv 2.: zárva · hív · folyik · kész) ═════════════════ */
-var IR_TORONY_K = .42;
-function irTerkepTorony(lepes, J) {
-  var all = J.all === "alszik" || J.all === "zarva" ? "zart" : J.vil ? "uj" : J.all === "kesz" || lepes >= 6 ? "kesz" : "folyik";
-  var eg = all === "kesz" ? 8 : all === "folyik" ? Math.max(1, Math.min(7, Math.round((lepes - 1) * 8 / 6))) : 0;
-  return '<defs>' + GA_DEFS + '</defs><g transform="translate(' + (-100 * IR_TORONY_K) + ' ' + (-362 * IR_TORONY_K) + ') scale(' + IR_TORONY_K + ')"' + (all === "zart" ? ' style="filter:saturate(.55)"' : '') + '>' + gaTorony(all, eg) + '</g>';
 }
 
 /* ═════════════════ ➗ ÍRÁSBELI OSZTÁS (3. kör, 2026-11-10) — a számok a tankönyvi lépcsőn (04TB 100–104, 04TA, 04TC, 05TB 34–35) ═════════════════ */

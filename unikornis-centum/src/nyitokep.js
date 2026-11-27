@@ -279,7 +279,7 @@ function epOsztaly(host) {
     });
   });
 }
-/* a menet elindul, és a térképen az unikornis a világító helyhez sétál (renderLigetTerkep → nyitoSeta) */
+/* a menet elindul, és a világképen az unikornis a világító helyhez sétál (renderVilag → nyitoSeta) */
 function epVege(o) {
   EP.tok++;
   nyitasIndit(o);

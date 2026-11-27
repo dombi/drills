@@ -816,11 +816,6 @@ function kuldKiserDarab(el) {
   shReszKozepre(g);
   return true;
 }
-/* a liget-belső kártyáján: kis pikkely a kért pálya kapuján */
-function kuldKartyaJel(pa) {
-  if (pa.hamarosan || !kuldKertPalya(pa.id)) return "";
-  return '<div class="kuld-pikkely" title="Ezt kéri a kis sárkány"><svg viewBox="-14 -14 28 30" xmlns="http://www.w3.org/2000/svg">' + shPikkely(0, 0, 1, lenyPal()) + "</svg></div>";
-}
 
 /* ════════════ 🏡 A KERTBEN: a kisház a napozó szikla mellett (2. kód-kör) ════════════
    A kert-rétegen (#ln-kert-reteg, KERT_LAY-koordináta), a szikla (LENY_KERT) bal oldalán. haz = a ház talppontja és

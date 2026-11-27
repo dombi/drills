@@ -866,17 +866,6 @@ function vsLampion(x, y, k, i) {
   return '<line x1="' + x + '" y1="' + (y - 14 * k) + '" x2="' + x + '" y2="' + (y - 6 * k) + '" stroke="#a88a6a"/><ellipse cx="' + x + '" cy="' + (y + 6 * k) + '" rx="' + (10 * k) + '" ry="' + (13 * k) + '" fill="#ffcf6e"/><ellipse cx="' + x + '" cy="' + (y + 6 * k) + '" rx="' + (5 * k) + '" ry="' + (11 * k) + '" fill="#ffe6a8" opacity=".8"/>' +
     '<circle cx="' + x + '" cy="' + (y + 6 * k) + '" r="' + (22 * k) + '" fill="#ffdf9e" opacity=".22"><animate attributeName="opacity" values=".16;.3;.2;.28;.16" dur="' + (4 + (i || 0) % 3) + 's" repeatCount="indefinite"/></circle>';
 }
-/* a menü-liget háttere (rajzterv 1.): a Szorzós liget alkonyi palettája + zászlófüzér, lampionok, szélen csíkos sátrak */
-var VASAR_HATTER = '<svg class="hatter" viewBox="0 0 1120 420" preserveAspectRatio="none" aria-hidden="true">' +
-  '<defs><linearGradient id="vsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dcc0"/><stop offset=".5" stop-color="#f3e3d3"/><stop offset="1" stop-color="#ece6cf"/></linearGradient>' +
-  '<radialGradient id="vsn" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffdf9e" stop-opacity=".9"/><stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/></radialGradient></defs>' +
-  '<rect width="1120" height="420" fill="url(#vsg)"/><circle cx="880" cy="70" r="110" fill="url(#vsn)"/>' +
-  '<path d="M0 200 Q200 170 400 196 Q600 222 800 190 Q980 166 1120 196 L1120 420 L0 420 Z" fill="#dcc8e2" opacity=".6"/>' +
-  '<path d="M0 300 Q280 276 560 296 Q840 316 1120 292 L1120 420 L0 420 Z" fill="#e7d3b4" opacity=".7"/>' +
-  vsFuzer(18, 1120, 22) +
-  '<g opacity=".55">' + vsSator(70, 400, VS_SZIN.kosar, 1.05) + vsSator(1052, 400, VS_SZIN.arcedula, 1.05) + '</g>' +
-  '<g opacity=".35">' + vsSator(190, 410, VS_SZIN.doboz, .8) + vsSator(935, 410, VS_SZIN.hasonlito, .8) + '</g>' +
-  vsLampion(300, 70, .9, 0) + vsLampion(820, 64, .9, 1) + vsLampion(560, 84, .8, 2) + '</svg>';
 
 /* ═════════════════ A PÁLYA-JELENET: vásártér, macskaköves út, 5 csíkos sátor + Odú-küszöb (rajzterv 2.) ═════════════════ */
 function vasarJelenetSVG(palya, c) {   /* a közös ösvény-vázon (osveny.js): vásártér, macskakő-út, sátrak */

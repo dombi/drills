@@ -11,11 +11,13 @@ function mutat(id) {
   if (FELHO.offline && HATIZSAK_BIZTOS[id]) felhoCsendesBelep();   /* 📴 net nélkül belépve: a térképen / profilválasztón próbál visszalépni a felhőbe */
 }
 /* (a kártyás unikornis-választó — renderProfil — 2026-10-23-án megszűnt: a választó a Belépő legelő, legelo.js) */
-/* ── Ligetválasztó: a főképernyő két szintje ──
-   FOMENU_LIGET = null → a festett ligettérkép (src/terkep.js: renderLigetTerkep — az unikornis odasétál a ligethez);
-   különben annak a ligetnek a belseje, csak a saját kártyáival. Pálya / „← Liget” / Fejtörő után
-   ugyanide jön vissza (a palyaInditas / fejtoroInditas jegyzi fel); odúból, utcáról, profilváltás
-   után a választó jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
+/* ── A főképernyő két szintje ──
+   FOMENU_LIGET = null → a világkép és a közelképei (hely.js renderVilag); különben a RÉGI BELSŐ, ami még megmaradt:
+   📚 Bagolykönyvtár ("konyvtar") és 🏔️ Fejtörő-hegy ("fejtoro") — saját közelképet később kapnak (8. hullám, 1. döntés A).
+   A többi liget belseje (kártyák, bódé-sor, a régi Piactér) a 8. hullám 2. kódkörében kikerült: más érték itt → a világkép.
+   Pálya / Fejtörő után ugyanide jön vissza (a palyaInditas / fejtoroInditas jegyzi fel); odúból, utcáról, profilváltás
+   után a világkép jön (terkepNyit). A P().utolsoLiget gyerekenként mentve: ott áll az unikornis. */
+var FOMENU_BELSO = { konyvtar: true, fejtoro: true };
 var FOMENU_LIGET = null;
 var LIGET_NEV = { egyeni: ["💖", "Neked készült"], fejtoro: ["🏔️", "Fejtörő-hegy"], osszeado: ["🌳", "Összeadó liget"], szorzo: ["🌙", "Szorzós liget"],
                   szabo: ["🧵", "Szabóműhely"], bajital: ["🧪", "Bájitalkonyha"], pekseg: ["🧁", "Mézes pékség"], konyvtar: ["📚", "Bagolykönyvtár"], vasar: ["🧺", "Tündérvásár"],
@@ -29,7 +31,6 @@ function ligetJegyez(r) {
 function terkepNyit(hol) {
   if (hol) TERKEP_HOL = { leny: mentes.leny, id: hol };
   VILAG_KIZOOM = hol || null;   /* 🐴 a táj onnan nagyít ki (hely.js) */
-  PIAC_HONNAN = null;   /* 🏪 a térképről érkezve a Piactér közepén áll (piac.js) */
   FOMENU_LIGET = null; renderFomenu(); mutat("kepernyo-fomenu");
 }
 /* ── KÖZÖS „VISSZA” SZABÁLY (Térkép mint központ, 1. kör): minden helynek egy sor — ki a szülője, és mi a
@@ -193,86 +194,35 @@ function renderFomenu() {
   $("fomenu-csillampor").textContent = P().csillampor;
   var hb = $("fomenu-hatter"); if (hb && !hb.innerHTML) hb.innerHTML = FOMENU_HATTER;
   var racs = $("palya-racs"); racs.innerHTML = "";
-  var REGIO_HATTER = { osszeado: FOMENU_HATTER, szorzo: SZORZOS_HATTER, fejtoro: FEJTORO_HATTER,
-                      szabo: MERES_HATTER.szabo, bajital: MERES_HATTER.bajital, pekseg: MERES_HATTER.pekseg, vasar: VASAR_HATTER };   /* mérés-ligetek: réteges műhely-háttér (meres.js) */   /* mindkét liget saját jelenetet kap */
   var L = fomenuLigetek(), regiok = L.regiok;
-  if (FOMENU_LIGET && !terkepLakok(FOMENU_LIGET).some(function (r) { return regiok[r]; })) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a választóra (a Piactér a Vásárral együtt él) */
-  if (FOMENU_LIGET === "piac" || FOMENU_LIGET === "vasar") {   /* 🐴 3. kör: a régi Piactér / Vásár-belső helyett a Nagyfa tér / Domboldal közelképe (hely.js) */
+  if (FOMENU_LIGET && !regiok[FOMENU_LIGET]) FOMENU_LIGET = null;   /* közben elrejtették a pulton → vissza a világképre */
+  if (FOMENU_LIGET && !FOMENU_BELSO[FOMENU_LIGET]) {   /* 🐴 régi belső már csak a Bagolykönyvtárnak és a Fejtörő-hegynek van: a többi a világkép közelképe (hely.js) */
     VILAG_KIZOOM = (TERKEP_HOL && TERKEP_HOL.leny === mentes.leny && TERKEP_HOL.id) || FOMENU_LIGET; FOMENU_LIGET = null;
   }
-  var bent = FOMENU_LIGET, gazda = bent && TERKEP_GAZDA[bent];   /* 🧺 a beköltözött liget szülője a gazdája (a Vásáré a Piactér) */
+  var bent = FOMENU_LIGET;
   $("kepernyo-fomenu").classList.toggle("liget-bent", !!bent);
   $("kepernyo-fomenu").classList.toggle("terkep-mod", !bent);
   if (!bent) $("kepernyo-fomenu").classList.remove("bkt-mod");
-  $("fomenu-vissza").textContent = gazda ? "← " + LIGET_NEV[gazda][1] : bent ? VISSZA.liget.felirat : "🦄 Váltás";
+  $("fomenu-vissza").textContent = bent ? VISSZA.liget.felirat : "🦄 Váltás";
   $("fomenu-cim").textContent = bent ? (LIGET_NEV[bent] || ["", ""]).join(" ").trim() : "Hová menjünk ma?";
   var ossz = 0, jo = 0;
   (P().naplo || []).forEach(function (r) { ossz++; if (r.elsore) jo++; });
   $("ma-statisztika").textContent = ossz ? ("Eddig " + ossz + " feladatot próbáltál, " + jo + " sikerült elsőre.") : "";
-  ligetUniReteg();                               /* bent: az unikornis a kártyák alatt (terkep.js); a térképen nincs réteg */
-  if (!bent) { renderVilag(racs, L); return; }   /* 🐴 a világkép (hely.js; a régi renderLigetTerkep a 8. hullámban törlődik) */
-  function keszitKartya(pa, idx) {   /* a régi kártya (amelyik ligetnek még nincs pálya-helye: LIGET_HELY, palyahely.js) */
-    var J = palyaJelek(pa), zarva = J.zarva, alszikNy = J.alszik;   /* 🚪 újonc-menet: sorban ébrednek (nyitas.js) — 💤, nem lakat */
-    var mat = PALYA_MAT[pa.id] || pa.palcim;
-    var kart = el("div", "palya-kartya" + (pa.hamarosan ? " hamarosan" : "") + (zarva ? " zarva" : "") + (alszikNy ? " ny-alszik" : "") + (J.elfogyott ? " elfogyott" : "") + (J.arany ? " arany" : (J.kesz ? " kesz" : ""))
-      + (J.napi ? (J.napiKesz ? " napi-kiemelt-kesz" : " napi-kiemelt") : "") + (J.vil ? " ny-vilagit" : ""));
-    var napiBadge = J.napi
-      ? '<div class="napi-badge">' + (J.napiKesz ? "✓" : nyitasHarmatRejtett() ? "⭐" : "💧+" + NAPI_KIEMELT_HARMAT) + '</div>'
-      : "";
-    if (J.ajanlott) kart.classList.add("ajanlott");   /* producer ajánlása (4. fázis) — befejezéskor +AJANLOTT_HARMAT 💧 */
-    kart.innerHTML =
-      (idx == null ? '' : '<div class="sorszam">' + (idx + 1) + '</div>') +
-      '<div class="allapot">' + ({ alszik: "💤", zarva: "🔒", elfogyott: "🌙", arany: "🌟", kesz: "⭐", hamarosan: "🔜" }[J.all] || "") + '</div>' +
-      napiBadge +
-      (J.ajanlott ? '<div class="ajanlott-badge" title="Neked ajánlom">💖</div>' : '') +
-      kuldKartyaJel(pa) +   /* 🐉 pikkely: ezt kéri a kis sárkány (sarkany-holmi.js) */
-      '<div class="ikon">' + (PALYA_IKON[pa.id] ? '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">' + PALYA_IKON[pa.id] + '</svg>' : pa.ikon) + '</div>' +
-      '<div class="pnev">' + kiiras(pa.nev) + '</div>' +
-      '<div class="palcim">' + kiiras(mat) + '</div>' +
-      (J.bank ? '<div class="bank-badge" title="Ha végigviszed, válthatsz a Tündérbankban">🏦 bankot nyit</div>' : '') +   /* 🏦 Tündérbank: kijelölt pálya → végigvitele 1 váltást ér */
-      (pa.hamarosan ? "" :
-        '<div class="also"><span></span><button class="palya-felolvas" title="Olvasd fel">🔊</button></div>');
-    kart.addEventListener("click", function () {
-      hangGomb();
-      var nem = palyaNemIndulMondat(pa, J);
-      if (nem) { mondd(nem); return; }
-      ligetUget(kart, function () { palyaInditas(pa.id); });   /* odaüget a kártyához, aztán indul */
-    });
-    var fbtn = kart.querySelector(".palya-felolvas");
-    if (fbtn) fbtn.addEventListener("click", function (e) {
-      e.stopPropagation(); hangGomb();
-      mondd(palyaFelolvasMondat(pa, J));
-    });
-    if (pa.konyvtar) ekKartyaDisz(pa, kart, zarva);   /* kocka-napok ▢▢▢, 🏅, sorszám, lakat-felirat */
-    return kart;
-  }
-  (function (regio) {                            /* a liget belseje: a mai régió-panel, egyedül */
-    var szek = el("div", "palya-regio r-" + regio);
-    $("kepernyo-fomenu").classList.toggle("bkt-mod", regio === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
-    if (REGIO_HATTER[regio] && !LIGET_HELY[regio]) { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = REGIO_HATTER[regio]; szek.appendChild(bgEl); }
-    szek.appendChild(el("div", "palya-regio-cim", (LIGET_NEV[regio] || ["", ""]).join(" ").trim()));
-    if (regio === "konyvtar") {                    /* 📚 egy terem: olvasó-polc · ablak + Kockavár + olvasópult · szekrény + láda · Csillagtorony-ajtó (konyvtar-terem.js) */
-      szek.querySelector(".palya-regio-cim").textContent = "📚 Bagolykönyvtár · 🌙 Holdfény-terem";
-      szek.appendChild(bktTerem());
-      racs.appendChild(szek);
-      setTimeout(ligetUniAlap, 0);                   /* az unikornis az olvasópult mellé áll (terkep.js) */
-      return;
-    }
-    if (regio === "piac") {                        /* 🏪 a kis falutérkép: a bolt háza = a pálya, az unikornis odasétál (piac.js) */
-      szek.appendChild(piacTer(regiok.piac || [], regiok.vasar || null));
-      racs.appendChild(szek);
-      return;
-    }
-    if (LIGET_HELY[regio]) {                       /* 🛖 pálya-hely: a pályák helyek a liget képében, nem kártyák (palyahely.js) */
-      szek.appendChild(palyaHelySor(regio, regiok[regio].filter(function (rec) { return !rec.pa.piacHely; })));
-      racs.appendChild(szek);
-      return;
-    }
-    var grid = el("div", "palya-regio-grid");
-    regiok[regio].forEach(function (rec) {
-      if (rec.pa.piacHely) return;   /* 🏪 a Piactér falutérképén saját bejárata van (a Déli vásár a dombon — piac.js) */
-      grid.appendChild(regio === "fejtoro" ? fejtoroKartya(rec.pa) : keszitKartya(rec.pa, rec.idx)); });
-    szek.appendChild(grid);
+  ligetUniReteg();                               /* bent: az unikornis a belső alján (terkep.js); a világképen nincs réteg */
+  if (!bent) { renderVilag(racs, L); return; }   /* 🐴 a világkép (hely.js) */
+  var szek = el("div", "palya-regio r-" + bent);   /* a régi belső: 📚 a terem / 🏔️ a hegy kártyái */
+  $("kepernyo-fomenu").classList.toggle("bkt-mod", bent === "konyvtar");   /* 📚 a terem kitölti a képernyőt */
+  if (bent === "fejtoro") { var bgEl = el("div", "palya-regio-hatter"); bgEl.innerHTML = FEJTORO_HATTER; szek.appendChild(bgEl); }
+  szek.appendChild(el("div", "palya-regio-cim", (LIGET_NEV[bent] || ["", ""]).join(" ").trim()));
+  if (bent === "konyvtar") {                     /* 📚 egy terem: olvasó-polc · ablak + Kockavár + olvasópult · szekrény + láda · Csillagtorony-ajtó (konyvtar-terem.js) */
+    szek.querySelector(".palya-regio-cim").textContent = "📚 Bagolykönyvtár · 🌙 Holdfény-terem";
+    szek.appendChild(bktTerem());
     racs.appendChild(szek);
-  })(bent);
+    setTimeout(ligetUniAlap, 0);                 /* az unikornis az olvasópult mellé áll (terkep.js) */
+    return;
+  }
+  var grid = el("div", "palya-regio-grid");
+  regiok[bent].forEach(function (rec) { grid.appendChild(fejtoroKartya(rec.pa)); });
+  szek.appendChild(grid);
+  racs.appendChild(szek);
 }

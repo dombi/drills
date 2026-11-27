@@ -46,8 +46,20 @@ var EG_KEPEK = [
 ];
 /* fenntartva (még nincs egységük): Draco (a Sárkány) — kissárkány; Corona (a Korona) — Mesterpróba; Scala (a Létra) — 100-as kör */
 
-/* ── az ég két elrendezése: fekvő (laptop, tablet) és álló (telefon). A csillagkép helye a ligettérképből
-   (LIGET_TERKEP.helyek) számolódik, így ha a térkép változik, az ég követi. EG_IGAZIT: kézi eltolás (ég-egységben). ── */
+/* ── az ég két elrendezése: fekvő (laptop, tablet) és álló (telefon). A csillagkép helye az EG_HELY táblából számolódik
+   (a régi ligettérkép helyei, fekvő 800×460 / álló 400×760 képpontban — a térkép a 8. hullámban kikerült, az ég
+   PONTOSAN a régi maradt: tervlap 3. döntés A). Új egység = új sor az EG_HELY-ben. EG_IGAZIT: kézi eltolás (ég-egységben). ── */
+var EG_HELY = {
+  egyeni:   { szeles: [450, 425], allo: [295, 720] },
+  osszeado: { szeles: [300, 340], allo: [125, 592] },
+  szorzo:   { szeles: [175, 250], allo: [305, 585] },
+  szabo:    { szeles: [330, 212], allo: [ 75, 447] },
+  bajital:  { szeles: [452, 300], allo: [205, 425] },
+  pekseg:   { szeles: [582, 402], allo: [310, 447] },
+  vasar:    { szeles: [688, 334], allo: [300, 302] },   /* a Tündérvásár régi helye (a Mérleg is innen számol: hely "vasar") */
+  konyvtar: { szeles: [578, 218], allo: [105, 282] },
+  fejtoro:  { szeles: [690, 122], allo: [245, 142] }
+};
 var EG_MOD = {
   szeles: { W: 1000, H: 640, meret: 112, terkep: [800, 110, 440], x0: 80, xw: 840, y0: 70, yh: 400, keret: [500, -200, 780], tejut: [[30, 340], [210, 20]] },
   allo:   { W: 600, H: 1000, meret: 98, terkep: [400, 130, 740], x0: 40, xw: 520, y0: 70, yh: 780, keret: [300, -300, 1240], tejut: [[18, 610], [80, 330]] }
@@ -55,7 +67,7 @@ var EG_MOD = {
 var EG_IGAZIT = { libra: { szeles: [110, 12], allo: [100, -112] }, tabernaculum: { szeles: [-20, 0], allo: [0, 0] } };
 function egModValaszt() { return (window.innerWidth >= window.innerHeight * 0.95) ? "szeles" : "allo"; }
 function egKepHely(kep, mod) {
-  var M = EG_MOD[mod], helyek = (typeof LIGET_TERKEP !== "undefined") ? LIGET_TERKEP.helyek : {};
+  var M = EG_MOD[mod], helyek = EG_HELY;
   var kulcs = kep.hely || kep.egysegek[0], h = helyek[kulcs] || helyek[terkepGazda(kulcs)];
   var p = h ? h[mod] : [M.terkep[0] / 2, (M.terkep[1] + M.terkep[2]) / 2];
   var x = M.x0 + p[0] / M.terkep[0] * M.xw, y = M.y0 + (p[1] - M.terkep[1]) / (M.terkep[2] - M.terkep[1]) * M.yh;

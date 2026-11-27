@@ -184,7 +184,7 @@ def ellenoriz_reggel(l, J, nev, n, o, s):
         if alvo:
             l.katt('#kepernyo-fomenu .terkep-hely[data-id="%s"] .hb' % alvo[0]) or l.katt('#kepernyo-fomenu .terkep-hely[data-id="%s"]' % alvo[0])
             l.pihen(2.0)
-            if not l.js("!!document.querySelector('#kepernyo-fomenu.aktiv .terkep-hely')") or l.js("[].some.call(document.querySelectorAll('#palya-racs .palya-kartya'), function(e){ return e.getClientRects().length > 0; })"):
+            if not l.js("!!document.querySelector('#kepernyo-fomenu.aktiv .terkep-hely')") or l.js("(UC.vilagM() || {}).tabla !== 'vilag' || !!document.querySelector('#kepernyo-fomenu.liget-bent')"):   # 8. hullám: közelképbe / régi belsőbe lépett
                 J.hiba(OR, "piros", "ujonc:kodbelep", "ÚJONC KISKAPU: ködös (alvó) ligetbe be lehet lépni", "%s: %s" % (hol, alvo[0]))
                 terkepre(l)
             l.js("window.__mondatok.splice(0)")

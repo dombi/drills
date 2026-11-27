@@ -13,7 +13,7 @@
      a hely képe az állapota szerint <kep>-epul / -kesz / -viragos (/ -kod), a mozgó réteg (víz, felhők, malom, madarak, fű)
      beágyazva (helyMozgoBetolt), és a leszálló madár mindig a „következő” helyre száll (helyMadar). Tábla kep.mappa nélkül
      (ma csak az Összeadó utca ideiglenes közelképe): a régi rajz (helyKepRajz, helyHatter) — az 5. hullámban az is fájl lesz.
-     A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi térképen (terkep.js renderLigetTerkep — a 8. hullámban törlődik).
+     A jelek, az újonc-köd, az ébredés, a 🐉 ugyanaz, mint a régi ligettérképen volt (az a 8. hullám 2. kódkörében kikerült).
    • 3. kör (Nagyfa tér, Domboldal — rajz: kepek/ter/, kepek/domboldal/ —, ideiglenes Összeadó utca): a közelkép háza maga is pálya
      lehet (cel.palyak); a képe 5 lépésben épül (epul / teto / ajto / kesz / viragos: helyKepAllapot). Egy pálya:
      odasétál, ráközelít, indul. Több pálya: a ház TÁRGY-NÉZETE nyílik (helyTargyNezet; a rajz PC_TARGY, piac.js), a tárgy a
@@ -323,8 +323,7 @@ function helyHazDiszlet(M) {
 /* ── RAJZ ── */
 function helyKepRajz(kep, hh, j, all) {   /* a hely rajza (1. kör: a mai jelkép; talppont 0,0, felfelé) · all: a ház állapota (helyKepAllapot) */
   if (Array.isArray(kep)) return kep.map(function (k, i) { return '<g transform="translate(' + ((i - (kep.length - 1) / 2) * 52) + ' ' + (i === 1 ? -6 : 0) + ') scale(.66)">' + helyKepRajz(k) + '</g>'; }).join("");
-  if (HELY_KEP_IDEIGLENES[kep]) return HELY_KEP_IDEIGLENES[kep]();
-  return LT_JELKEP[kep] ? LT_JELKEP[kep]() : "";
+  return HELY_KEP_IDEIGLENES[kep] ? HELY_KEP_IDEIGLENES[kep]() : "";   /* a régi ligettérkép jelképei a 8. hullámban kikerültek (minden tábla fájlból rajzol) */
 }
 var HELY_KEP_IDEIGLENES = {   /* jelkép nélküli hely ideiglenes rajza (ma már egyik tábla sem használja; az Összeadó utcáé 2026-11-24 óta fájl) */
   csucs: function () {

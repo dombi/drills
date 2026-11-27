@@ -629,9 +629,6 @@ function zsStand(zsivany, kassza, reggel) {
   if (kassza) s += kfKassza(560, 300, .62, { 1: 4, 2: 3, 5: 3, 10: 4, 20: 3, 50: 2 });   /* a vevő felé fordítva (rajzterv 1. pont) */
   return s;
 }
-/* a stand a Piactér térképén (rajzterv 2. pont): kicsiben, Zsivány nélkül; (0, 0) a talppont */
-function zsTerkepStand() { return '<ellipse cx="0" cy="3" rx="66" ry="10" fill="#3c2a50" opacity=".14"/><g transform="scale(.3) translate(-555 -410)">' + zsStand(false) + '</g>'; }
-
 function zsSzoveg(x, y, t, m, szin, anchor) { return '<text x="' + x + '" y="' + y + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + ' font-size="' + (m || 18) + '" ' + KF_FR + ' fill="' + (szin || "#4a3b7a") + '">' + kiiras(t) + '</text>'; }
 function zsPapir(x, y, w, h) { return '<g filter="url(#lt-firka)"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="#fffdf3" stroke="#c9b48a" stroke-width="1.8"/></g>'; }
 function zsGomb(x, y, w, g, t, szin) {
