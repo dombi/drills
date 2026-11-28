@@ -5,7 +5,7 @@
    az unikornis lefekszik, a kissárkány mellé gömbölyödik.
    Kapcsoló: a pályán `belso: "kisgomba"` (constants.js). A pálya-motor (engine-logic.js) ágazik el ide:
      belsoSVG (renderer.js jelenetSVG) · belsoIndul · belsoAllomasra · belsoBogar (jó válasz) · belsoKesz (állomás vége →
-     „Tedd a helyére!”, egy koppintás → a helyére röppen) · belsoKerulo (hosszú út = EGY feladat: kimegy, lilás bogarat hoz) · belsoLefekves (pálya vége).
+     „Tedd a helyére!”, egy koppintás vagy Enter → a helyére röppen) · belsoKerulo (hosszú út = EGY feladat: kimegy, lilás bogarat hoz) · belsoLefekves (pálya vége).
    A séta a közös osvenyMegy (osveny.js) — ugyanaz a járás, ugyanaz az OSV hely, a kölyök is ugyanúgy követ (leny-kiser.js).
    Új ház belseje = egy új sor a BELSO táblában (hatter + ajtó + lámpa-pont + cel() saját cél-rajz + 5 tárgy; opcionális: feny, hideg, meleg). */
 var BL_K = "#3b2f4a";
@@ -322,7 +322,7 @@ function blKopp(e) {
   blEmlekIndit();
   if (!V.viszi) {
     if (e.target.closest && e.target.closest("[data-bl=targy],[data-bl=hely]")) {   /* EGY koppintás: a tárgy magától a helyére röppen (producer, 11-28) */
-      hangGomb(); var t1 = BL.haz.targyak[BL.t]; blLetesz(blEl("bl-targy"), [t1.x, t1.y - 34], [1, 1]); return;
+      blTeddHelyre(); return;
     }
     var tg = blEl("bl-targy"); if (tg) { var l = tg.firstChild; l.classList.remove("bl-ugrik"); void l.getBBox(); l.classList.add("bl-ugrik"); }   /* „engem vegyél fel” */
     return;
@@ -335,6 +335,14 @@ function blKopp(e) {
   }
   blLetesz(vitt);
 }
+/* EGY koppintás vagy Enter (producer, 11-28): a lebegő tárgy magától a helyére röppen */
+function blTeddHelyre() {
+  if (!BL || !BL.var || BL.var.viszi || !blEl("bl-targy")) return false;
+  hangGomb(); var t1 = BL.haz.targyak[BL.t]; blLetesz(blEl("bl-targy"), [t1.x, t1.y - 34], [1, 1]); return true;
+}
+document.addEventListener("keydown", function (e) {
+  if ((e.key === "Enter" || e.code === "NumpadEnter") && !e.repeat && blTeddHelyre()) e.preventDefault();
+});
 function blLetesz(vitt, honnan, sk) {   /* honnan/sk: egy koppintásnál a lebegő tárgy helyéről, teljes méretben */
   var t = BL.haz.targyak[BL.t], V = BL.var;
   BL.var = null; clearTimeout(BL.ido);
