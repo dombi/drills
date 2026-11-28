@@ -22681,7 +22681,7 @@ function lenyKiserOduba(x, y) {
    az unikornis lefekszik, a kissárkány mellé gömbölyödik.
    Kapcsoló: a pályán `belso: "kisgomba"` (constants.js). A pálya-motor (engine-logic.js) ágazik el ide:
      belsoSVG (renderer.js jelenetSVG) · belsoIndul · belsoAllomasra · belsoBogar (jó válasz) · belsoKesz (állomás vége →
-     „Tedd a helyére!”, felvesz – letesz, felvesz.js) · belsoKerulo (hosszú út = EGY feladat: kimegy, lilás bogarat hoz) · belsoLefekves (pálya vége).
+     „Tedd a helyére!”, egy koppintás → a helyére röppen) · belsoKerulo (hosszú út = EGY feladat: kimegy, lilás bogarat hoz) · belsoLefekves (pálya vége).
    A séta a közös osvenyMegy (osveny.js) — ugyanaz a járás, ugyanaz az OSV hely, a kölyök is ugyanúgy követ (leny-kiser.js).
    Új ház belseje = egy új sor a BELSO táblában (hatter + ajtó + lámpa-pont + cel() saját cél-rajz + 5 tárgy; opcionális: feny, hideg, meleg). */
 var BL_K = "#3b2f4a";
@@ -22944,7 +22944,8 @@ function belsoBogar(k, lila) {
   blRepit(g, hon, h, 750, function () { g.remove(); var hely = blEl("bl-bog-" + (k - 1)); if (hely) hely.innerHTML = blBogarSVG(h[0], h[1], v); });
 }
 /* ÁLLOMÁS VÉGE (allomasKesz): a bogarak a körvonalba gyűlnek, a tárgy elkészül és lüktetve lebeg a helye fölött;
-   „Tedd a helyére!” — a gyerek felveszi (koppint), majd leteszi (koppint a helyére). Nincs időkorlát (8A). */
+   „Tedd a helyére!” — EGY koppintás a tárgyra vagy a helyére, és a tárgy magától a helyére röppen (producer, 11-28;
+   előtte felvesz – letesz, két koppintás). Nincs időkorlát (8A). */
 function belsoKesz(kesz) {
   var t = BL.haz.targyak[BL.t], most = blEl("bl-most");
   [].forEach.call(most.querySelectorAll("[id^=bl-bog-] > g"), function (g) {   /* a bogarak a tárgyba szállnak */
@@ -22996,7 +22997,9 @@ function blKopp(e) {
   var svg = blSvg(), V = BL.var;
   blEmlekIndit();
   if (!V.viszi) {
-    if (e.target.closest && e.target.closest("[data-bl=targy]")) { hangGomb(); blFelvesz(V.m); return; }
+    if (e.target.closest && e.target.closest("[data-bl=targy],[data-bl=hely]")) {   /* EGY koppintás: a tárgy magától a helyére röppen (producer, 11-28) */
+      hangGomb(); var t1 = BL.haz.targyak[BL.t]; blLetesz(blEl("bl-targy"), [t1.x, t1.y - 34], [1, 1]); return;
+    }
     var tg = blEl("bl-targy"); if (tg) { var l = tg.firstChild; l.classList.remove("bl-ugrik"); void l.getBBox(); l.classList.add("bl-ugrik"); }   /* „engem vegyél fel” */
     return;
   }
@@ -23008,11 +23011,11 @@ function blKopp(e) {
   }
   blLetesz(vitt);
 }
-function blLetesz(vitt) {
+function blLetesz(vitt, honnan, sk) {   /* honnan/sk: egy koppintásnál a lebegő tárgy helyéről, teljes méretben */
   var t = BL.haz.targyak[BL.t], V = BL.var;
   BL.var = null; clearTimeout(BL.ido);
   blFelirat(false);
-  var hon = blViszPont();
+  var hon = honnan || blViszPont();
   if (vitt) vitt._repul = true;
   var vege = function () {
     if (vitt) vitt.remove();
@@ -23023,7 +23026,7 @@ function blLetesz(vitt) {
     hangCsilla();
     setTimeout(function () { if (V.kesz) V.kesz(); }, nyugiMod() ? 300 : 1100);
   };
-  if (vitt) blRepit(vitt, hon, [t.x, t.y], 520, vege, [0.38, 1]); else vege();
+  if (vitt) blRepit(vitt, hon, [t.x, t.y], 520, vege, sk || [0.38, 1]); else vege();
 }
 /* HOSSZÚ ÚT (engine-logic keruloUt): EGY feladatot vált ki (a producer, 11-27 — nem az egész tárgyat): kimegy a kis ajtón,
    rövid kör odakint, visszajön a tárgy mellé; utána a motor egy LILÁS bogarat tesz a következő helyre (belsoBogar(k, true)). */
@@ -23057,12 +23060,31 @@ function belsoLefekves(kesz) {
   var hely = [t.x + 10, t.y - 4];
   osvenyMegy([[OSV.x, OSV.y], hely], null, function () {
     if (!u.el || !u.el.isConnected) return;
-    if (typeof _ks !== "undefined" && _ks && _ks.el.isConnected) _ks.oduba = { x: hely[0] + 96, y: hely[1] - 30, t0: Infinity };   /* mellé száll, és ott marad */
+    var ks = (typeof _ks !== "undefined" && _ks && _ks.el.isConnected) ? _ks : null;
+    if (ks) ks.oduba = { x: hely[0] + 96, y: hely[1] - 6, t0: Infinity };   /* mellé száll a földre, és ott marad */
     uniFordul(u.el, -1);   /* fejjel a párna felé */
     setTimeout(function () { if (u.el.isConnected) u.el.classList.add("fekszik-all"); }, 350);
     setTimeout(function () { if (u.el.isConnected) u.el.classList.add("uni-alszik"); }, 1500);
-    setTimeout(function () { if (kesz) kesz(); }, (nyugiMod() || window.__UC_GYORS) ? 200 : 2600);
+    if (nyugiMod() || window.__UC_GYORS) { if (ks) blKolyokAlszik(ks); setTimeout(function () { if (kesz) kesz(); }, 200); return; }
+    /* a jutalomkép csak akkor jön, ha a kölyök is leszállt és összegömbölyödött (producer, 11-28: eddig közbevágott) */
+    var t0 = performance.now();
+    (function var1() {
+      if (!u.el.isConnected) return;
+      var ott = !ks || (Math.abs(ks.x - ks.oduba.x) < 5 && Math.abs(ks.y - ks.oduba.y) < 5);
+      if (ott || performance.now() - t0 > 4000) {
+        if (ks) blKolyokAlszik(ks);
+        setTimeout(function () { if (kesz) kesz(); }, ks ? 2200 : Math.max(0, 2600 - (performance.now() - t0)));
+        return;
+      }
+      setTimeout(var1, 100);
+    })();
   });
+}
+/* a kísérő kölyök összegömbölyödik és alszik (a fióka alvó pózával, LENY_RAJZ.fAlvo), nem lebeg tovább */
+function blKolyokAlszik(ks) {
+  var r = ks.el.querySelector("#kiser-rebben"), l = ks.el.querySelector(".kiser-lebeg");
+  if (l) l.classList.remove("kiser-lebeg");
+  if (r && typeof lenyRajz === "function" && LENY_RAJZ.fAlvo) r.innerHTML = '<g transform="scale(' + KISER.meret + ')">' + lenyRajz("fAlvo", lenyPal(), { cls: "kiser" }) + '</g>';
 }
 /* ============ 6k3) 🐉 SÁRKÁNY-HOLMI — a 12 holmi rajza, a kívánság-tábla, az odú-réteg, a kérés ============
    Terv: terv/sarkany-kuldetesek-rajzterv.html (✅ jóváhagyva 2026-10-17, a prototípus innen került át). Motor: kuldetes.js.
